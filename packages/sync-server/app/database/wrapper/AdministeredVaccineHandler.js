@@ -9,7 +9,7 @@ export class AdministeredVaccineHandler extends BasicHandler {
   }
 
   async insert(record, { patientId, ...params }) {
-    const encounterId = record.encounterId;
+    const { encounterId } = record;
     const encounter = await this.models.Encounter.findOne({
       where: { id: encounterId, patientId },
     });

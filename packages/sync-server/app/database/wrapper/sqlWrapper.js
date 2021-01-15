@@ -4,6 +4,7 @@ import { BasicHandler } from './BasicHandler';
 import { EncounterHandler } from './EncounterHandler';
 import { AdministeredVaccineHandler } from './AdministeredVaccineHandler';
 import { SurveyResponseHandler } from './SurveyResponseHandler';
+import { SurveyResponseAnswerHandler } from './SurveyResponseAnswerHandler';
 
 const convertToDbFromSyncRecord = syncRecord => {
   const { data, hashedPassword, lastSynced, ...metadata } = syncRecord;
@@ -59,7 +60,7 @@ export class SqlWrapper {
       ['patient/:patientId/administeredVaccine', new AdministeredVaccineHandler(this.models)],
       ['patient/:patientId/encounter', new EncounterHandler(this.models)],
       ['patient/:patientId/surveyResponse', new SurveyResponseHandler(this.models)],
-      // ['patient/:patientId/surveyResponseAnswer', this.models.SurveyResponseAnswer],
+      ['patient/:patientId/surveyResponseAnswer', new SurveyResponseAnswerHandler(this.models)],
       ['program', new BasicHandler(this.models.Program)],
       ['programDataElement', new BasicHandler(this.models.ProgramDataElement)],
       ['reference', new BasicHandler(this.models.ReferenceData)],
