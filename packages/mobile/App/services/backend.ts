@@ -6,7 +6,7 @@ import { readConfig, writeConfig } from '~/services/config';
 
 const SYNC_PERIOD_MINUTES = 5;
 const API_VERSION = 1;
-const DEFAULT_SYNC_LOCATION = 'https://sync-dev.tamanu.io';
+const DEFAULT_SYNC_LOCATION = 'http://sync-dev.tamanu.io';
 
 export class Backend {
   randomId: any;

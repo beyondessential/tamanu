@@ -29,7 +29,7 @@ export const AutocompleteModalField = ({
     if (!value) return;
     (async (): Promise<void> => {
       const data = await suggester.fetchCurrentOption(value);
-      setLabel(data.label);
+      if (data) setLabel(data.label);
     })();
   }, []);
 
