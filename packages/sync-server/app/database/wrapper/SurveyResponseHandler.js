@@ -1,4 +1,5 @@
 import { BasicHandler, findSinceQuery, countSinceQuery, insertQuery } from './BasicHandler';
+import { AssociatedObjectNotFoundError } from './errors';
 
 export class SurveyResponseHandler extends BasicHandler {
   models = null;
@@ -14,9 +15,8 @@ export class SurveyResponseHandler extends BasicHandler {
       where: { id: encounterId, patientId },
     });
 
-    // TODO: add test for this
     if (!encounter) {
-      throw new Error(
+      throw new AssociatedObjectNotFoundError(
         `Couldn't find an encounter with id "${encounterId}" for patient "${patientId}"`,
       );
     }

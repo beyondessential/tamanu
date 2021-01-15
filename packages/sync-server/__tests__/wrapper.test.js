@@ -117,63 +117,83 @@ describe('wrappers', () => {
       [`patient/${patientId}/surveyResponseAnswer`, buildSurveyResponseAnswer(ctx, patientId)],
     ];
 
-    [...rootTestCases, ...nestedPatientTestCases].forEach(([channel, fakeInstance]) => {
-      describe(channel, () => {
-        beforeAll(async () => {
-          await ctx.wrapper.unsafeRemoveAllOfChannel(channel);
-        });
-
-        it('finds no records when empty', async () => {
-          const records = await ctx.wrapper.findSince(channel, 0, { limit: 10, offset: 0 });
-          expect(records).toHaveLength(0);
-        });
-
-        it('finds and counts records after an insertion', async () => {
-          const instance1 = await fakeInstance();
-          await withDate(new Date(1980, 5, 1), async () => {
-            await ctx.wrapper.insert(channel, instance1);
+    const allTestCases = [...rootTestCases, ...nestedPatientTestCases];
+    describe('all channels', () => {
+      allTestCases.forEach(([channel, fakeInstance]) => {
+        describe(channel, () => {
+          beforeAll(async () => {
+            await ctx.wrapper.unsafeRemoveAllOfChannel(channel);
           });
 
-          const instance2 = await fakeInstance();
-          await withDate(new Date(1990, 5, 1), async () => {
-            await ctx.wrapper.insert(channel, instance2);
+          it('finds no records when empty', async () => {
+            const records = await ctx.wrapper.findSince(channel, 0, { limit: 10, offset: 0 });
+            expect(records).toHaveLength(0);
           });
 
-          const since = new Date(1985, 5, 1).valueOf();
-          expect(await ctx.wrapper.findSince(channel, since)).toEqual([
-            {
-              ...instance2,
-              createdAt: new Date(1990, 5, 1),
-              updatedAt: new Date(1990, 5, 1),
-              deletedAt: null,
-            },
-          ]);
-          expect(await ctx.wrapper.countSince(channel, since)).toEqual(1);
-        });
+          it('finds and counts records after an insertion', async () => {
+            const instance1 = await fakeInstance();
+            await withDate(new Date(1980, 5, 1), async () => {
+              await ctx.wrapper.insert(channel, instance1);
+            });
 
-        it('marks records as deleted', async () => {
-          const instance = await fakeInstance();
-          instance.id = uuidv4();
-          await ctx.wrapper.insert(channel, instance);
+            const instance2 = await fakeInstance();
+            await withDate(new Date(1990, 5, 1), async () => {
+              await ctx.wrapper.insert(channel, instance2);
+            });
 
-          await ctx.wrapper.markRecordDeleted(channel, instance.id);
+            const since = new Date(1985, 5, 1).valueOf();
+            expect(await ctx.wrapper.findSince(channel, since)).toEqual([
+              {
+                ...instance2,
+                createdAt: new Date(1990, 5, 1),
+                updatedAt: new Date(1990, 5, 1),
+                deletedAt: null,
+              },
+            ]);
+            expect(await ctx.wrapper.countSince(channel, since)).toEqual(1);
+          });
 
-          const instances = await ctx.wrapper.findSince(channel, 0);
-          expect(instances.find(r => r.id === instance.id)).toEqual({
-            ...instance,
-            createdAt: expect.any(Date),
-            updatedAt: expect.any(Date),
-            deletedAt: expect.any(Date),
+          it('marks records as deleted', async () => {
+            const instance = await fakeInstance();
+            instance.id = uuidv4();
+            await ctx.wrapper.insert(channel, instance);
+
+            await ctx.wrapper.markRecordDeleted(channel, instance.id);
+
+            const instances = await ctx.wrapper.findSince(channel, 0);
+            expect(instances.find(r => r.id === instance.id)).toEqual({
+              ...instance,
+              createdAt: expect.any(Date),
+              updatedAt: expect.any(Date),
+              deletedAt: expect.any(Date),
+            });
+          });
+
+          it('removes all records of a channel', async () => {
+            const record = await fakeInstance();
+            await ctx.wrapper.insert(channel, record);
+
+            await ctx.wrapper.unsafeRemoveAllOfChannel(channel);
+
+            expect(await ctx.wrapper.findSince(channel, 0)).toEqual([]);
           });
         });
+      });
+    });
 
-        it('removes all records of a channel', async () => {
-          const record = await fakeInstance();
-          await ctx.wrapper.insert(channel, record);
+    describe('nested patient channels', () => {
+      nestedPatientTestCases.forEach(([channel, fakeInstance]) => {
+        describe(channel, () => {
+          beforeAll(async () => {
+            await ctx.wrapper.unsafeRemoveAllOfChannel(channel);
+          });
 
-          await ctx.wrapper.unsafeRemoveAllOfChannel(channel);
-
-          expect(await ctx.wrapper.findSince(channel, 0)).toEqual([]);
+          it('throws an error when inserting valid records nested under the wrong patient', async () => {
+            const [prefix, , suffix] = channel.split('/');
+            const wrongId = uuidv4();
+            const wrongChannel = [prefix, wrongId, suffix].join('/');
+            await expect(ctx.wrapper.insert(wrongChannel, await fakeInstance())).rejects.toThrow();
+          });
         });
       });
     });
