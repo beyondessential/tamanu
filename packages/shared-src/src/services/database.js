@@ -54,6 +54,7 @@ export function initDatabase(dbOptions) {
   const primaryKey = {
     type: primaryKeyType,
     defaultValue: primaryKeyDefault,
+    allowNull: false,
     primaryKey: true,
   };
   log.info(`Registering ${modelClasses.length} models...`);

@@ -217,9 +217,10 @@ export async function importJson(models, sheetName, data) {
     const item = data[i];
     const index = parseInt(i, 10) + 1;
     try {
+      const imported = await importer(models, item);
       results.push({
         index,
-        ...(await importer(models, item)),
+        ...imported,
       });
     } catch (e) {
       results.push({
