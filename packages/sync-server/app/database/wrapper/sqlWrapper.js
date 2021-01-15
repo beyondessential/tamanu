@@ -1,10 +1,12 @@
 import wayfarer from 'wayfarer';
 import { initDatabase } from 'shared/services/database';
-import { BasicHandler } from './BasicHandler';
-import { EncounterHandler } from './EncounterHandler';
-import { AdministeredVaccineHandler } from './AdministeredVaccineHandler';
-import { SurveyResponseHandler } from './SurveyResponseHandler';
-import { SurveyResponseAnswerHandler } from './SurveyResponseAnswerHandler';
+import {
+  BasicHandler,
+  EncounterHandler,
+  AdministeredVaccineHandler,
+  SurveyResponseHandler,
+  SurveyResponseAnswerHandler,
+} from './handlers';
 
 const convertToDbFromSyncRecord = syncRecord => {
   const { data, hashedPassword, lastSynced, ...metadata } = syncRecord;
