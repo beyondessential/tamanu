@@ -72,6 +72,23 @@ const buildSurveyResponseAnswer = (ctx, patientId) => async () => {
   return surveyResponseAnswer;
 };
 
+const buildScheduledVaccine = ctx => async () => {
+  const scheduledVaccine = fakeScheduledVaccine();
+
+  const vaccineId = uuidv4();
+  const vaccine = {
+    data: {
+      id: vaccineId,
+      type: REFERENCE_TYPES.VACCINE,
+      ...fakeStringFields(`vaccine_${vaccineId}_`, ['code', 'name']),
+    },
+  };
+  await ctx.wrapper.insert('reference', vaccine);
+  scheduledVaccine.data.vaccineId = vaccineId;
+
+  return scheduledVaccine;
+};
+
 describe('wrappers', () => {
   describe('sqlWrapper', () => {
     const ctx = {};
@@ -81,41 +98,26 @@ describe('wrappers', () => {
 
     afterAll(closeDatabase);
 
-    const patientId = uuidv4();
-    const modelTests = [
-      [`patient/${patientId}/administeredVaccine`, buildAdministeredVaccine(ctx, patientId)],
-      [`patient/${patientId}/encounter`, buildEncounter(ctx, patientId)],
-      [`patient/${patientId}/surveyResponse`, buildSurveyResponse(ctx, patientId)],
-      [`patient/${patientId}/surveyResponseAnswer`, buildSurveyResponseAnswer(ctx, patientId)],
+    const rootTestCases = [
       ['patient', fakePatient],
       ['program', fakeProgram],
       ['programDataElement', fakeProgramDataElement],
       ['reference', fakeReferenceData],
-      [
-        'scheduledVaccine',
-        async () => {
-          const scheduledVaccine = fakeScheduledVaccine();
-
-          const vaccineId = uuidv4();
-          const vaccine = {
-            data: {
-              id: vaccineId,
-              type: REFERENCE_TYPES.VACCINE,
-              ...fakeStringFields(`vaccine_${vaccineId}_`, ['code', 'name']),
-            },
-          };
-          await ctx.wrapper.insert('reference', vaccine);
-          scheduledVaccine.data.vaccineId = vaccineId;
-
-          return scheduledVaccine;
-        },
-      ],
+      ['scheduledVaccine', buildScheduledVaccine(ctx)],
       ['survey', fakeSurvey],
       ['surveyScreenComponent', fakeSurveyScreenComponent],
       ['user', fakeUser],
     ];
 
-    modelTests.forEach(([channel, fakeInstance]) => {
+    const patientId = uuidv4();
+    const nestedPatientTestCases = [
+      [`patient/${patientId}/administeredVaccine`, buildAdministeredVaccine(ctx, patientId)],
+      [`patient/${patientId}/encounter`, buildEncounter(ctx, patientId)],
+      [`patient/${patientId}/surveyResponse`, buildSurveyResponse(ctx, patientId)],
+      [`patient/${patientId}/surveyResponseAnswer`, buildSurveyResponseAnswer(ctx, patientId)],
+    ];
+
+    [...rootTestCases, ...nestedPatientTestCases].forEach(([channel, fakeInstance]) => {
       describe(channel, () => {
         beforeAll(async () => {
           await ctx.wrapper.unsafeRemoveAllOfChannel(channel);
