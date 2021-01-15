@@ -52,6 +52,16 @@ const buildAdministeredVaccine = (ctx, patientId) => async () => {
   return administeredVaccine;
 };
 
+const buildSurveyResponse = (ctx, patientId) => async () => {
+  const encounter = await buildEncounter(ctx, patientId)();
+  await ctx.wrapper.insert(`patient/${patientId}/encounter`, encounter);
+
+  const surveyResponse = fakeSurveyResponse();
+  surveyResponse.data.encounterId = encounter.data.id;
+
+  return surveyResponse;
+};
+
 describe('wrappers', () => {
   describe('sqlWrapper', () => {
     const ctx = {};
@@ -65,7 +75,7 @@ describe('wrappers', () => {
     const modelTests = [
       [`patient/${patientId}/administeredVaccine`, buildAdministeredVaccine(ctx, patientId)],
       [`patient/${patientId}/encounter`, buildEncounter(ctx, patientId)],
-      // ['surveyResponse', fakeSurveyResponse],
+      [`patient/${patientId}/surveyResponse`, buildSurveyResponse(ctx, patientId)],
       // ['surveyResponseAnswer', fakeSurveyResponseAnswer],
       ['patient', fakePatient],
       ['program', fakeProgram],

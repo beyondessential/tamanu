@@ -3,6 +3,7 @@ import { initDatabase } from 'shared/services/database';
 import { BasicHandler } from './BasicHandler';
 import { EncounterHandler } from './EncounterHandler';
 import { AdministeredVaccineHandler } from './AdministeredVaccineHandler';
+import { SurveyResponseHandler } from './SurveyResponseHandler';
 
 const convertToDbFromSyncRecord = syncRecord => {
   const { data, hashedPassword, lastSynced, ...metadata } = syncRecord;
@@ -57,7 +58,7 @@ export class SqlWrapper {
       ['patient', new BasicHandler(this.models.Patient)],
       ['patient/:patientId/administeredVaccine', new AdministeredVaccineHandler(this.models)],
       ['patient/:patientId/encounter', new EncounterHandler(this.models)],
-      // ['patient/:patientId/surveyResponse', this.models.SurveyResponse],
+      ['patient/:patientId/surveyResponse', new SurveyResponseHandler(this.models)],
       // ['patient/:patientId/surveyResponseAnswer', this.models.SurveyResponseAnswer],
       ['program', new BasicHandler(this.models.Program)],
       ['programDataElement', new BasicHandler(this.models.ProgramDataElement)],
