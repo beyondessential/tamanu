@@ -7,7 +7,7 @@ import React from 'react';
 import PropTypes from 'prop-types';
 import styled from 'styled-components';
 import XLSX from 'xlsx';
-import { shell } from 'electron';
+import { remote, shell } from 'electron';
 import MaterialTable from '@material-ui/core/Table';
 import TableBody from '@material-ui/core/TableBody';
 import TableCell from '@material-ui/core/TableCell';
@@ -269,10 +269,11 @@ class TableComponent extends React.Component {
       });
       const wb = XLSX.utils.book_new();
       XLSX.utils.book_append_sheet(wb, ws, exportName);
-      const exportFileName = `${exportName}_${new Date().toString()}.xls`;
 
-      XLSX.writeFile(wb, exportFileName);
-      shell.openItem(exportFileName);
+      /* show a file-save dialog and write the workbook */
+      const path = remote.dialog.showSaveDialog();
+      XLSX.writeFile(wb, `${path}.xlsx`);
+      remote.shell.openItem(`${path}.xlsx`);
     };
 
     return (
