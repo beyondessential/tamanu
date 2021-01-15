@@ -19,7 +19,7 @@ import {
 
 import { withDate } from './utilities';
 
-const buildEncounterFaker = (ctx, patientId) => async () => {
+const buildEncounter = (ctx, patientId) => async () => {
   const patient = fakePatient();
   patient.data.id = patientId;
   await ctx.wrapper.insert('patient', patient);
@@ -42,6 +42,16 @@ const buildEncounterFaker = (ctx, patientId) => async () => {
   return encounter;
 };
 
+const buildAdministeredVaccine = (ctx, patientId) => async () => {
+  const encounter = await buildEncounter(ctx, patientId)();
+  await ctx.wrapper.insert(`patient/${patientId}/encounter`, encounter);
+
+  const administeredVaccine = fakeAdministeredVaccine();
+  administeredVaccine.data.encounterId = encounter.data.id;
+
+  return administeredVaccine;
+};
+
 describe('wrappers', () => {
   describe('sqlWrapper', () => {
     const ctx = {};
@@ -53,8 +63,8 @@ describe('wrappers', () => {
 
     const patientId = uuidv4();
     const modelTests = [
-      // ['administeredVaccine', fakeAdministeredVaccine],
-      [`patient/${patientId}/encounter`, buildEncounterFaker(ctx, patientId)],
+      [`patient/${patientId}/administeredVaccine`, buildAdministeredVaccine(ctx, patientId)],
+      [`patient/${patientId}/encounter`, buildEncounter(ctx, patientId)],
       // ['surveyResponse', fakeSurveyResponse],
       // ['surveyResponseAnswer', fakeSurveyResponseAnswer],
       ['patient', fakePatient],

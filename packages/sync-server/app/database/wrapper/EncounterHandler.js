@@ -14,39 +14,32 @@ export class EncounterHandler extends BasicHandler {
   }
 
   async countSince({ patientId, ...params }) {
-    const baseQuery = countSinceQuery(params);
-    return this.models.Encounter.count({
-      ...baseQuery,
-      include: [
-        ...(baseQuery.include || []),
-        {
-          model: this.models.Patient,
-          where: { id: patientId },
-          as: 'patient',
-          paranoid: false,
-        },
-      ],
-    });
+    const query = this.addIncludesToQuery(countSinceQuery(params), patientId);
+    return this.models.Encounter.count(query);
   }
 
   async findSince({ patientId, ...params }) {
-    const baseQuery = findSinceQuery(params);
-    const records = await this.models.Encounter.findAll({
-      ...baseQuery,
-      include: [
-        ...(baseQuery.include || []),
-        {
-          model: this.models.Patient,
-          where: { id: patientId },
-          as: 'patient',
-          paranoid: false,
-        },
-      ],
-    });
+    const query = this.addIncludesToQuery(findSinceQuery(params), patientId);
+    const records = await this.models.Encounter.findAll(query);
     return records.map(result => {
       const plain = result.get({ plain: true });
       delete plain.patient; // manually remove associated record
       return plain;
     });
+  }
+
+  addIncludesToQuery(baseQuery, patientId) {
+    return {
+      ...baseQuery,
+      include: [
+        ...(baseQuery.include || []),
+        {
+          model: this.models.Patient,
+          where: { id: patientId },
+          as: 'patient',
+          paranoid: false,
+        },
+      ],
+    };
   }
 }
