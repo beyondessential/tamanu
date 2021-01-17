@@ -1,7 +1,7 @@
 import React, { ReactElement, useCallback, useState } from 'react';
 import { ISurveyScreenComponent, DataElementType } from '~/types';
 import { theme } from '~/ui/styled/theme';
-import { isCalculated, checkVisibilityCriteria } from '/helpers/fields';
+import { checkVisibilityCriteria } from '/helpers/fields';
 import { ProgramQuestion } from './ProgramQuestion';
 import { SectionHeader } from '../../SectionHeader';
 import { Button } from '../../Button';

@@ -85,7 +85,7 @@ export function getResultValue(allComponents: ISurveyScreenComponent[], values: 
   }
 
   // string values just get passed on directly
-  if(typeof(rawValue) === "string") {
+  if(typeof rawValue === "string") {
     return { result: 0, resultText: rawValue };
   }
 
@@ -119,7 +119,7 @@ export function checkVisibilityCriteria(
   const dataType = dataElement.type;
 
   // never show calculated fields
-  if (dataType == DataElementType.Calculated) return false;
+  if (isCalculated(dataType)) return false;
 
   // nothing set - show by default
   if (!visibilityCriteria) return true;

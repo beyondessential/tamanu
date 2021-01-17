@@ -2,20 +2,17 @@ import { Entity, Column, ManyToOne } from 'typeorm/browser';
 
 import { BaseModel } from './BaseModel';
 import { Survey } from './Survey';
-import { ProgramDataElement } from './ProgramDataElement';
 import { Encounter } from './Encounter';
 import { SurveyResponseAnswer } from './SurveyResponseAnswer';
 
 import { 
-  FieldTypes, 
   getStringValue,
   getResultValue,
-  checkVisibilityCriteria
 } from '~/ui/helpers/fields';
 
 import { runCalculations } from '~/ui/helpers/calculations';
 
-import { DataElementType, ISurveyResponse } from '~/types';
+import { ISurveyResponse } from '~/types';
 
 @Entity('survey_response')
 export class SurveyResponse extends BaseModel implements ISurveyResponse {
@@ -88,6 +85,8 @@ export class SurveyResponse extends BaseModel implements ISurveyResponse {
         survey: surveyId,
         startTime: Date.now(),
         endTime: Date.now(),
+        result,
+        resultText,
         ...otherData,
       });
 

@@ -12,7 +12,7 @@ import { LoadingScreen } from '~/ui/components/LoadingScreen';
 import { ProgramAddDetailsScreenProps } from '/interfaces/screens/ProgramsStack/ProgramAddDetails/ProgramAddDetailsScreenProps';
 import { Routes } from '/helpers/routes';
 
-import { ISurveyScreenComponent, DataElementType } from '~/types/ISurvey';
+import { ISurveyScreenComponent } from '~/types/ISurvey';
 
 import { useBackend, useBackendEffect } from '~/ui/hooks';
 
