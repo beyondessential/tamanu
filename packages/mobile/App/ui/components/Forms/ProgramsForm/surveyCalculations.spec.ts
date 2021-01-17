@@ -3,7 +3,7 @@ import { ISurveyScreenComponent } from '~/types/ISurvey';
 import { getResultValue } from '~/ui/helpers/fields';
 import { runCalculations } from '~/ui/helpers/calculations';
 
-function makeDummyComponent(c: {}, index: number): ISurveyScreenComponent {
+function makeDummyComponent(c: any, index: number): ISurveyScreenComponent {
   return {
     id: `component-${c.code}`,
     required: false,
