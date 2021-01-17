@@ -271,7 +271,8 @@ class TableComponent extends React.Component {
       XLSX.utils.book_append_sheet(wb, ws, exportName);
 
       /* show a file-save dialog and write the workbook */
-      const path = remote.dialog.showSaveDialog();
+      const path = await remote.dialog.showSaveDialog();
+      if (path === undefined) return; // Dialog was cancelled - don't write file.
       XLSX.writeFile(wb, `${path}.xlsx`);
       remote.shell.openItem(`${path}.xlsx`);
     };
