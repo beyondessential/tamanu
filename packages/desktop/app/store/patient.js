@@ -9,14 +9,10 @@ const PATIENT_LOAD_ERROR = 'PATIENT_LOAD_ERROR';
 const PATIENT_LOAD_FINISH = 'PATIENT_LOAD_FINISH';
 const PATIENT_CLEAR = 'PATIENT_CLEAR';
 
-export const viewPatientEncounter = (
-  patientId,
-  encounterId,
-  modal = 'undefined',
-) => async dispatch => {
+export const viewPatientEncounter = (patientId, encounterId, modal = '') => async dispatch => {
   dispatch(reloadPatient(patientId));
   dispatch(reloadEncounter(encounterId));
-  if (modal) dispatch(push(`/patients/encounter/${modal}`));
+  dispatch(push(modal ? `/patients/encounter/${modal}` : '/patients/encounter'));
 };
 
 export const clearPatient = () => ({
