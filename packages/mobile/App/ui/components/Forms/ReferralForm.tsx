@@ -41,7 +41,7 @@ const ReferralForm = ({
     <Field
       component={TextField}
       name="referredDepartment"
-      label="Referred departmemnt"
+      label="Referred department"
       hints={false}
     />
     <Field
