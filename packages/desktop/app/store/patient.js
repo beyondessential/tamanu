@@ -12,7 +12,7 @@ const PATIENT_CLEAR = 'PATIENT_CLEAR';
 export const viewPatientEncounter = (patientId, encounterId, modal = '') => async dispatch => {
   dispatch(reloadPatient(patientId));
   dispatch(reloadEncounter(encounterId));
-  if (modal) dispatch(push(`/patients/encounter/${modal}`));
+  dispatch(push(modal ? `/patients/encounter/${modal}` : '/patients/encounter'));
 };
 
 export const clearPatient = () => ({
