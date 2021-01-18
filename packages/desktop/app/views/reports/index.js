@@ -11,6 +11,8 @@ import { Form, Field, TextField, DateField, SelectInput } from 'desktop/app/comp
 
 import { connectApi } from 'desktop/app/api';
 
+export { ReportGenerator } from './ReportGenerator';
+
 const tabulate = ({ headers, rowData }) => [
   headers,
   ...rowData.map(row => headers.map(h => row[h])),
