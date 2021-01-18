@@ -118,9 +118,6 @@ export function checkVisibilityCriteria(
   const { visibilityCriteria, dataElement } = component;
   const dataType = dataElement.type;
 
-  // never show calculated fields
-  if (isCalculated(dataType)) return false;
-
   // nothing set - show by default
   if (!visibilityCriteria) return true;
 

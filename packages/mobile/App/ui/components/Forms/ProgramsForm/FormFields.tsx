@@ -36,7 +36,10 @@ export const FormFields = ({
   }, [currentScreenIndex]);
 
   const shouldShow = useCallback(
-    (component: ISurveyScreenComponent) => checkVisibilityCriteria(component, components, values),
+    (component: ISurveyScreenComponent) => (
+      checkVisibilityCriteria(component, components, values) &&
+      !isCalculated(component.dataElement.type)
+    ),
     [values]
   );
 
