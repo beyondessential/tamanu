@@ -34,7 +34,7 @@ describe('Survey calculations', () => {
 
     it('should run a trivial calculation', () => { 
       const survey = makeDummySurvey([
-        { code: 'TEST', type: 'Calculated', calculation: '1' }
+        { code: 'TEST', type: 'Calculated', calculation: '1' },
       ]);
       const calculations = runCalculations(survey, {});
       expect(calculations.TEST).toEqual(1);
@@ -42,7 +42,7 @@ describe('Survey calculations', () => {
 
     it('should run a simple calculation', () => { 
       const survey = makeDummySurvey([
-        { code: 'TEST', type: 'Calculated', calculation: '1 + 1' }
+        { code: 'TEST', type: 'Calculated', calculation: '1 + 1' },
       ]);
       const calculations = runCalculations(survey, {});
       expect(calculations.TEST).toEqual(2);
@@ -50,8 +50,8 @@ describe('Survey calculations', () => {
 
     it('should run several calculations', () => { 
       const survey = makeDummySurvey([
-        { code: 'TEST', type: 'Calculated', calculation: '3 * 5' }
-        { code: 'TEST_2', type: 'Calculated', calculation: '100 - 1' }
+        { code: 'TEST', type: 'Calculated', calculation: '3 * 5' },
+        { code: 'TEST_2', type: 'Calculated', calculation: '100 - 1' },
       ]);
       const calculations = runCalculations(survey, {});
       expect(calculations.TEST).toEqual(15);
@@ -60,7 +60,7 @@ describe('Survey calculations', () => {
 
     it('should use substitutions', () => { 
       const survey = makeDummySurvey([
-        { code: 'TEST', type: 'Calculated', calculation: 'TEST_1 + TEST_2' }
+        { code: 'TEST', type: 'Calculated', calculation: 'TEST_1 + TEST_2' },
       ]);
       const calculations = runCalculations(survey, {
         TEST_1: 24,
@@ -71,8 +71,8 @@ describe('Survey calculations', () => {
 
     it('should use second-order substitutions', () => { 
       const survey = makeDummySurvey([
-        { code: 'TEST_BEFORE', type: 'Calculated', calculation: 'TEST_1 + TEST_2' }
-        { code: 'TEST_AFTER', type: 'Calculated', calculation: 'TEST_BEFORE + 2000' }
+        { code: 'TEST_BEFORE', type: 'Calculated', calculation: 'TEST_1 + TEST_2' },
+        { code: 'TEST_AFTER', type: 'Calculated', calculation: 'TEST_BEFORE + 2000' },
       ]);
       const calculations = runCalculations(survey, {
         TEST_1: 24,
@@ -83,9 +83,9 @@ describe('Survey calculations', () => {
 
     it('should register errored calculations as undefined', () => { 
       const survey = makeDummySurvey([
-        { code: 'TEST_WORKS', type: 'Calculated', calculation: 'TEST_1 * 3' }
-        { code: 'TEST_BROKEN', type: 'Calculated', calculation: 'TEST_NONEXISTENT' }
-        { code: 'TEST_BROKEN_2', type: 'Calculated', calculation: '1 + + / * 4' }
+        { code: 'TEST_WORKS', type: 'Calculated', calculation: 'TEST_1 * 3' },
+        { code: 'TEST_BROKEN', type: 'Calculated', calculation: 'TEST_NONEXISTENT' },
+        { code: 'TEST_BROKEN_2', type: 'Calculated', calculation: '1 + + / * 4' },
       ]);
       const calculations = runCalculations(survey, {
         TEST_1: 5,
@@ -101,7 +101,7 @@ describe('Survey calculations', () => {
 
     it('should return correct values for absent result field', () => { 
       const survey = makeDummySurvey([
-        { code: 'TEST', type: 'Number' }
+        { code: 'TEST', type: 'Number' },
       ]);
       const { result, resultText } = getResultValue(survey, { TEST: 123 });
       expect(result).toEqual(0);
@@ -110,7 +110,7 @@ describe('Survey calculations', () => {
 
     it('should use a result field', () => {
       const survey = makeDummySurvey([
-        { code: 'TEST', type: 'Result' }
+        { code: 'TEST', type: 'Result' },
       ]);
       const { result, resultText } = getResultValue(survey, { TEST: 123 });
       expect(result).toEqual(123);
@@ -119,7 +119,7 @@ describe('Survey calculations', () => {
 
     it('should be OK with a result field that has no value', () => {
       const survey = makeDummySurvey([
-        { code: 'TEST', type: 'Result' }
+        { code: 'TEST', type: 'Result' },
       ]);
       const { result, resultText } = getResultValue(survey, {});
       expect(result).toEqual(0);
@@ -128,8 +128,8 @@ describe('Survey calculations', () => {
 
     it('should use a calculated result field that has no value', () => {
       const survey = makeDummySurvey([
-        { code: 'TEST', type: 'Number' }
-        { code: 'RESULT', type: 'Result', calculation: 'TEST * 2' }
+        { code: 'TEST', type: 'Number' },
+        { code: 'RESULT', type: 'Result', calculation: 'TEST * 2' },
       ]);
       const values = runCalculations(survey, {
         TEST: 10,
@@ -141,9 +141,9 @@ describe('Survey calculations', () => {
 
     describe('Visibility', () => {
       const visibilitySurvey = makeDummySurvey([
-        { code: 'TEST_CHECK', type: 'Result', visibilityCriteria: 'REF: Yes' }
+        { code: 'TEST_CHECK', type: 'Result', visibilityCriteria: 'REF: Yes' },
         { code: 'REF', type: 'Binary' },
-        { code: 'TEST_ALWAYS', type: 'Result' }
+        { code: 'TEST_ALWAYS', type: 'Result' },
       ]);
 
       it('should use a visible result field', () => { 
@@ -167,10 +167,10 @@ describe('Survey calculations', () => {
       });
 
       const multiVisibilitySurvey = makeDummySurvey([
-        { code: 'TEST_A', type: 'Result', visibilityCriteria: 'REF: Yes' }
+        { code: 'TEST_A', type: 'Result', visibilityCriteria: 'REF: Yes' },
         { code: 'TEST_B', type: 'Result' },
         { code: 'REF', type: 'Binary' },
-        { code: 'TEST_C', type: 'Result' }
+        { code: 'TEST_C', type: 'Result' },
       ]);
 
       it('should use the first result field if multiple are visible', () => { 
