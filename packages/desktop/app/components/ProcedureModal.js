@@ -9,12 +9,24 @@ import { viewEncounter } from '../store/encounter';
 import { ProcedureForm } from '../forms/ProcedureForm';
 
 const DumbProcedureModal = React.memo(
-  ({ onClose, editedProcedure, onSaveProcedure }) => (
+  ({
+    onClose,
+    editedProcedure,
+    onSaveProcedure,
+    locationSuggester,
+    practitionerSuggester,
+    procedureSuggester,
+    anaestheticSuggester,
+  }) => (
     <Modal width="md" title="New procedure" open={!!editedProcedure} onClose={onClose}>
       <ProcedureForm
         onSubmit={onSaveProcedure}
         onCancel={onClose}
         editedObject={editedProcedure}
+        locationSuggester={locationSuggester}
+        practitionerSuggester={practitionerSuggester}
+        procedureSuggester={procedureSuggester}
+        anaestheticSuggester={anaestheticSuggester}
       />
     </Modal>
   ),
