@@ -18,12 +18,10 @@ import { registerYup } from './utils/errorMessages';
 
 import { authFailure } from './store/auth';
 
-const composeEnhancers = window.__REDUX_DEVTOOLS_EXTENSION_COMPOSE__ || compose; // eslint-disable-line no-underscore-dangle
-
 function initStore() {
   const history = createHashHistory();
   const router = routerMiddleware(history);
-  const enhancers = composeEnhancers(applyMiddleware(router, thunk.withExtraArgument({ api: API })));
+  const enhancers = compose(applyMiddleware(router, thunk.withExtraArgument({ api: API })));
   const persistConfig = { key: 'tamanu', storage };
   if (process.env.NODE_ENV !== 'development') {
     persistConfig.whitelist = []; // persist used for a dev experience, but not required in production

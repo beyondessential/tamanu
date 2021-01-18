@@ -8,6 +8,7 @@
  *
  */
 import { app, BrowserWindow } from 'electron';
+import installExtension, { REDUX_DEVTOOLS, REACT_DEVELOPER_TOOLS } from 'electron-devtools-installer';
 
 // production only
 import sourceMapSupport from 'source-map-support';
@@ -15,10 +16,6 @@ import sourceMapSupport from 'source-map-support';
 // debug only
 // TODO: exclude these from production builds entirely
 import electronDebug from 'electron-debug';
-import installExtension, {
-  REACT_DEVELOPER_TOOLS,
-  REDUX_DEVTOOLS,
-} from 'electron-devtools-installer';
 
 import MenuBuilder from './menu';
 import { registerPrintListener } from './print';
@@ -36,22 +33,6 @@ if (isProduction) {
 electronDebug({ isEnabled: true });
 // }
 
-const installExtensions = async () => {
-  const forceDownload = !!process.env.UPGRADE_EXTENSIONS;
-
-  const install = async extension => {
-    try {
-      const name = await installExtension(extension.id, forceDownload);
-      console.log('Installed extension:', name);
-    } catch (e) {
-      console.error(e);
-    }
-  };
-
-  await install(REACT_DEVELOPER_TOOLS);
-  await install(REDUX_DEVTOOLS);
-};
-
 /**
  * Add event listeners...
  */
@@ -65,10 +46,6 @@ app.on('window-all-closed', () => {
 });
 
 app.on('ready', async () => {
-  // if (isDebug) { temporarily allowing debug on prod
-  await installExtensions();
-  // }
-
   mainWindow = new BrowserWindow({
     show: false,
     // width: 1024,
@@ -77,6 +54,8 @@ app.on('ready', async () => {
     height: 900,
     webPreferences: {
       nodeIntegration: true,
+      contextIsolation: false,
+      enableRemoteModule: true
     },
   });
 
@@ -107,5 +86,13 @@ app.on('ready', async () => {
   const menuBuilder = new MenuBuilder(mainWindow);
   menuBuilder.buildMenu();
 });
+
+// if (isDebug) {
+app.whenReady().then(() => {
+  installExtension([REDUX_DEVTOOLS, REACT_DEVELOPER_TOOLS])
+      .then((name) => console.log(`Added Extension:  ${name}`))
+      .catch((err) => console.log('An error occurred: ', err));
+});
+// }
 
 registerPrintListener();
