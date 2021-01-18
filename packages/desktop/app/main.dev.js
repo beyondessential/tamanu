@@ -15,10 +15,6 @@ import sourceMapSupport from 'source-map-support';
 // debug only
 // TODO: exclude these from production builds entirely
 import electronDebug from 'electron-debug';
-import installExtension, {
-  REACT_DEVELOPER_TOOLS,
-  REDUX_DEVTOOLS,
-} from 'electron-devtools-installer';
 
 import MenuBuilder from './menu';
 import { registerPrintListener } from './print';
@@ -47,9 +43,6 @@ const installExtensions = async () => {
       console.error(e);
     }
   };
-
-  await install(REACT_DEVELOPER_TOOLS);
-  await install(REDUX_DEVTOOLS);
 };
 
 /**
@@ -77,6 +70,8 @@ app.on('ready', async () => {
     height: 900,
     webPreferences: {
       nodeIntegration: true,
+      contextIsolation: false,
+      enableRemoteModule: true
     },
   });
 
