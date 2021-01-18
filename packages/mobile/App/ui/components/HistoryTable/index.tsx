@@ -9,7 +9,9 @@ import { DataTable } from 'react-native-paper';
 export const HistoryTable = ({ data, rows }: { data: object; rows: object}): JSX.Element => (
   <DataTable style={{ paddingHorizontal: 10 }}>
     {Object.entries(rows).map(([key, row]): JSX.Element => {
-      const cellValue = row.accessor ? row.accessor(data[key]) : (data[key] || '');
+      const cellValue = row.accessor
+        ? row.accessor(data[key])
+        : ((data[key] === null || data[key] === undefined) || '');
       return (
         <DataTable.Row>
           <DataTable.Cell>{row.name}</DataTable.Cell>
