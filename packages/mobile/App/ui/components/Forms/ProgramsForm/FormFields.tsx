@@ -1,7 +1,7 @@
 import React, { ReactElement, useCallback, useState } from 'react';
 import { ISurveyScreenComponent, DataElementType } from '~/types';
 import { theme } from '~/ui/styled/theme';
-import { checkVisibilityCriteria } from '/helpers/fields';
+import { checkVisibilityCriteria, isCalculated } from '/helpers/fields';
 import { ProgramQuestion } from './ProgramQuestion';
 import { SectionHeader } from '../../SectionHeader';
 import { Button } from '../../Button';
@@ -37,8 +37,8 @@ export const FormFields = ({
 
   const shouldShow = useCallback(
     (component: ISurveyScreenComponent) => (
-      checkVisibilityCriteria(component, components, values) &&
-      !isCalculated(component.dataElement.type)
+      checkVisibilityCriteria(component, components, values)
+      && !isCalculated(component.dataElement.type)
     ),
     [values]
   );

@@ -116,7 +116,6 @@ export function checkVisibilityCriteria(
   values: any
 ): boolean {
   const { visibilityCriteria, dataElement } = component;
-  const dataType = dataElement.type;
 
   // nothing set - show by default
   if (!visibilityCriteria) return true;
