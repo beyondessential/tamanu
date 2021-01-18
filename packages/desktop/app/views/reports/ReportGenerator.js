@@ -5,6 +5,12 @@ import { AutocompleteField, Button, ButtonRow, Field, Form, PageContainer, TopBa
 import { FormGrid } from '../../components/FormGrid';
 import { Suggester } from '../../utils/suggester';
 
+const REPORT_TYPE_OPTIONS = [
+    { label: 'Incomplete referrals', value: 'incomplete-referrals' },
+    { label: 'Recent Diagnoses', value: 'recent-diagnoses' },
+    { label: 'Admissions Report', value: 'admissions-report' }
+];
+
 const DumbReportGenerator = ({ villageSuggester, practitionerSuggester }) => {
     return (
         <PageContainer >
@@ -26,10 +32,7 @@ const DumbReportGenerator = ({ villageSuggester, practitionerSuggester }) => {
                                     name="reportType"
                                     placeholder="Report type"
                                     component={AutocompleteField}
-                                    options={[
-                                        { label: 'Incomplete referrals', value: 'incomplete-referrals' },
-                                        { label: 'Recent Diagnoses', value: 'recent-diagnoses' },
-                                        { label: 'Admissions Report', value: 'admissions-report' }]}
+                                    options={REPORT_TYPE_OPTIONS}
                                     required
                                 />
                                 <Field
