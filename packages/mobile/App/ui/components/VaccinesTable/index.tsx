@@ -48,7 +48,7 @@ export const VaccinesTable = ({
       <VaccineRowHeader
         key={scheduledVaccine.id}
         title={scheduledVaccine.label}
-        subtitle={scheduledVaccine.vaccine.name}
+        subtitle={scheduledVaccine.vaccine && scheduledVaccine.vaccine.name}
       />
     ),
     cell: (cellData): ReactElement => (
