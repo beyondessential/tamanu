@@ -5,6 +5,7 @@ import { nonEmergencyDiagnosisCertaintyOptions } from '../constants';
 import { ConfirmCancelRow } from '../components/ButtonRow';
 import { FormGrid } from '../components/FormGrid';
 import { FormSeparatorLine } from '../components/FormSeparatorLine';
+import { FormSectionSeparator } from '../components/FormSectionSeparator';
 import {
   Form,
   Field,
@@ -49,8 +50,7 @@ export const ReferralForm = React.memo(
             required
           />
           <Field name="date" label="Date" component={DateField} required />
-          <FormSeparatorLine />
-          <div><span><b>Being referred to:</b></span></div>
+          <FormSectionSeparator heading={"Being referred to:"} />
           <Field name="urgent" label="Urgent priority" component={CheckField} required />
           <Field
             name="referredToDepartmentId"
