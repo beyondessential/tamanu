@@ -19,6 +19,23 @@ encounter.get('/:id', simpleGet('Encounter'));
 encounter.put('/:id', simplePut('Encounter'));
 encounter.post('/$', simplePost('Encounter'));
 
+encounter.put('/:id/encounterType', asyncHandler(async (req, res) => {
+  const { models, body, params } = req;
+  const { encounterType } = body;
+  const { id } = params;
+  req.checkPermission('write', 'Encounter');
+  const encounterToModify = await models.Encounter.findByPk(id);
+  if (!encounterToModify) {
+    throw new NotFoundError();
+  }
+  req.checkPermission('write', encounterToModify);
+  await encounterToModify.update({
+    ...encounterToModify.dataValues,
+    encounterType
+  });
+  res.send(encounterToModify);
+}));
+
 encounter.post(
   '/:id/notes',
   asyncHandler(async (req, res) => {
