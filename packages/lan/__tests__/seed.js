@@ -32,6 +32,15 @@ export const testDepartments = splitIds(`
   Radiology
 `).map(x => ({ ...x, type: 'department' }));
 
+export const testFacilities = splitIds(`
+  Balwyn
+  Hawthorn East
+  Kerang
+  Lake Charm
+  Marla
+  Mont Albert
+`).map(x => ({ ...x, type: 'facility' }));
+
 export const testVillages = splitIds(`
   Auki
   Buala
@@ -54,6 +63,7 @@ export const allSeeds = [
   ...testImagingTypes,
   ...testLocations,
   ...testDepartments,
+  ...testFacilities,
   ...testVillages,
   ...testAllergies,
 ];

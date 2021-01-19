@@ -13,13 +13,8 @@ describe('Referrals', () => {
   beforeAll(async () => {
     app = await baseApp.asRole('practitioner');
     patient = await models.Patient.create(await createDummyPatient(models));
-    encounter = await models.Encounter.create(await createDummyEncounter(models, { current: true, patientId: patient.id}));
-    facility = await models.ReferenceData.create(
-      { code: 'test_facility_code', type: 'facility', ...FACILITIES[0] }
-    );
-    department = await models.ReferenceData.create(
-      { code: 'test_department_code', type: 'department', ...DEPARTMENTS[0] }
-    );
+    facility = await models.ReferenceData.findOne({ where: { type: 'facility'}});
+    department = await models.ReferenceData.findOne({ where: { type: 'department'}});
   });
 
   it('should record a referral request', async () => {
@@ -88,8 +83,26 @@ describe('Referrals', () => {
     expect(body.count).toBeGreaterThan(0);
 
     const record = body.data[0];
-    expect(record).toHaveProperty('referredBy.displayName');
-    expect(record).toHaveProperty('referredToDepartment.code');
-    expect(record).toHaveProperty('referredToFacility.code');
+    expect(record).toHaveProperty('referredBy.displayName', app.user.displayName);
+    expect(record).toHaveProperty('referredToDepartment.code', department.code);
+    expect(record).toHaveProperty('referredToFacility.code', facility.code);
+  });
+
+  // TODO: Not currently implemented
+  it.skip('should reference any active encounter when the referral was created', async () => {
+    encounter = await models.Encounter.create(await createDummyEncounter(models, { current: true, patientId: patient.id}));
+    const createdReferral = await app.post('/v1/referral').send({
+      patientId: patient.id,
+      referredById: app.user.id,
+      referredToDepartmentId: department.id,
+      referredToFacilityId: facility.id,
+    });
+    const result = await app.get(`/v1/patient/${patient.id}/referrals`);
+    expect(result).toHaveSucceeded();
+    const { body } = result;
+    expect(body.count).toBeGreaterThan(0);
+
+    const record = body.data[0];
+    expect(record).toHaveProperty('encounterId', encounter.id);
   });
 });
