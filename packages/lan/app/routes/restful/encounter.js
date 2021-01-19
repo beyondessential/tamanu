@@ -48,7 +48,6 @@ function addSystemNote(encounter, content) {
   encounter.notes = [...encounter.notes, note];
 }
 
-// QUESTION: What is this, can it be deleted?
 encounterRoutes.put('/encounter/:id/encounterType', (req, res) => {
   const { db, params, body } = req;
   const { encounterType } = body;
