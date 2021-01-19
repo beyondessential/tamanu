@@ -54,6 +54,11 @@ async function validateCommaSeparatedEmails(emails) {
     return 'At least 1 email address is required';
   }
   const emailList = parseEmails(emails);
+
+  if (emailList.length == 0) {
+    return `${emails} is invalid.`;
+  }
+  
   for (var i = 0; i < emailList.length; i++) {
     const isEmailValid = await emailSchema.isValid(emailList[i]);
     if (!isEmailValid) {
