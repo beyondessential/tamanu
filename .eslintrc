@@ -16,7 +16,7 @@
   },
   "overrides": [
     {
-      "files": ["**/*.test.js"],
+      "files": ["**/*.test.js", "**/__tests__/**/*.js"],
       "env": {
         "jest": true // now **/*.test.js files' env has both es6 *and* jest
       },
