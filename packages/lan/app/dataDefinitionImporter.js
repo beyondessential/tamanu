@@ -212,7 +212,6 @@ export async function importJson(models, sheetName, data) {
       errors: [`No such importer: ${importerId}`],
     };
   }
-  console.log(data);
 
   const results = [];
   for (let i = 0; i < data.length; ++i) {

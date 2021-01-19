@@ -12,7 +12,6 @@ const postReferral = asyncHandler(async (req, res) => {
   const referral = {
     encounterId: mockEncounter.id, ...req.body
   }
-  console.log(referral);
   const object = await models.Referral.create(referral);
   res.send(object);
 });
