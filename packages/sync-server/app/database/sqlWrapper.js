@@ -125,10 +125,7 @@ export class SqlWrapper {
     if (!user) {
       return null;
     }
-    return {
-      ...convertToSyncRecordFromDb(user.get({ plain: true })),
-      hashedPassword: user.password,
-    };
+    return user.get({ plain: true });
   }
 
   async findUserById(id) {
@@ -136,9 +133,6 @@ export class SqlWrapper {
     if (!user) {
       return null;
     }
-    return {
-      ...convertToSyncRecordFromDb(user.get({ plain: true })),
-      hashedPassword: user.password,
-    };
+    return user.get({ plain: true });
   }
 }

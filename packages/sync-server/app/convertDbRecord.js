@@ -1,8 +1,7 @@
 export const convertToDbRecord = syncRecord => {
-  const { data, hashedPassword, lastSynced, ...metadata } = syncRecord;
+  const { data, lastSynced, ...metadata } = syncRecord;
 
   return {
-    password: hashedPassword,
     ...metadata,
     ...data,
   };

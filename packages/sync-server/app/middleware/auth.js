@@ -1,18 +1,20 @@
 import express from 'express';
 import asyncHandler from 'express-async-handler';
-import { ForbiddenError, BadAuthenticationError } from 'shared/errors';
 import bcrypt from 'bcrypt';
 import config from 'config';
 import { v4 as uuid } from 'uuid';
-
 import jwt from 'jsonwebtoken';
+
+import { ForbiddenError, BadAuthenticationError } from 'shared/errors';
+
+import { convertFromDbRecord } from '../convertDbRecord';
 
 export const authMiddleware = express.Router();
 
 const JWT_SECRET = config.auth.secret || uuid();
 
 const stripUser = user => {
-  const { hashedPassword, ...userData } = user.data;
+  const { password, ...userData } = user;
   return userData;
 };
 
@@ -35,15 +37,15 @@ authMiddleware.post(
       throw new BadAuthenticationError('No such user');
     }
 
-    const hashedPassword = user?.hashedPassword || '';
+    const hashedPassword = user?.password || '';
 
     if (!(await bcrypt.compare(password, hashedPassword))) {
       throw new BadAuthenticationError('Invalid credentials');
     }
 
-    const token = jwt.sign({ userId: user.data.id }, JWT_SECRET);
+    const token = jwt.sign({ userId: user.id }, JWT_SECRET);
 
-    res.send({ token, user: stripUser(user) });
+    res.send({ token, user: convertFromDbRecord(stripUser(user)).data });
   }),
 );
 
@@ -92,6 +94,6 @@ authMiddleware.use(
 authMiddleware.get(
   '/whoami',
   asyncHandler((req, res) => {
-    res.send(req.user);
+    res.send(convertFromDbRecord(req.user).data);
   }),
 );

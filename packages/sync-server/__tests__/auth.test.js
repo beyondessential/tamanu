@@ -88,16 +88,23 @@ describe('Auth', () => {
       expect(response).toHaveSucceeded();
 
       const savedUser = await store.findUser(USER_EMAIL);
-      expect(savedUser).not.toHaveProperty('password');
-      expect(savedUser).not.toHaveProperty('data.password');
-      expect(savedUser).toHaveProperty('hashedPassword');
+      expect(savedUser).toHaveProperty('password');
+      expect(savedUser.password.slice(0, 2)).toBe('$2'); // magic number for bcrypt hashes
 
       const loginResponse = await baseApp.post('/v1/login').send({
         email: USER_EMAIL,
         password: USER_PASSWORD,
       });
       expect(loginResponse).toHaveSucceeded();
-      expect(loginResponse.body).toHaveProperty('user.email', USER_EMAIL);
+      expect(loginResponse.body).toEqual({
+        token: expect.any(String),
+        user: {
+          id: expect.any(String),
+          email: USER_EMAIL,
+          displayName: DISPLAY_NAME,
+          role: 'practitioner',
+        },
+      });
     });
 
     it('Should hash an updated password for an existing user', async () => {
@@ -111,10 +118,9 @@ describe('Auth', () => {
       expect(response).toHaveSucceeded();
 
       const savedUser = await store.findUser(USER_EMAIL);
-      expect(savedUser).not.toHaveProperty('password');
-      expect(savedUser).not.toHaveProperty('data.password');
-      expect(savedUser).toHaveProperty('hashedPassword');
-      expect(savedUser).toHaveProperty('data.displayName', DISPLAY_NAME);
+      expect(savedUser).toHaveProperty('password');
+      expect(savedUser).toHaveProperty('displayName', DISPLAY_NAME);
+      expect(savedUser.password.slice(0, 2)).toBe('$2'); // magic number for bcrypt hashes
 
       // fail login with old password
       const loginResponse = await baseApp.post('/v1/login').send({
