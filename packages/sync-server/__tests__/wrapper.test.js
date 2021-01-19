@@ -9,13 +9,7 @@ import {
   fakeSurveyScreenComponent,
   fakeUser,
 } from './fake';
-import {
-  buildScheduledVaccine,
-  buildAdministeredVaccine,
-  buildEncounter,
-  buildSurveyResponse,
-  buildSurveyResponseAnswer,
-} from './factory';
+import { buildScheduledVaccine, buildEncounter } from './factory';
 
 import { withDate } from './utilities';
 
@@ -41,10 +35,7 @@ describe('wrappers', () => {
 
     const patientId = uuidv4();
     const nestedPatientTestCases = [
-      [`patient/${patientId}/administeredVaccine`, buildAdministeredVaccine(ctx, patientId)],
       [`patient/${patientId}/encounter`, buildEncounter(ctx, patientId)],
-      [`patient/${patientId}/surveyResponse`, buildSurveyResponse(ctx, patientId)],
-      [`patient/${patientId}/surveyResponseAnswer`, buildSurveyResponseAnswer(ctx, patientId)],
     ];
 
     const allTestCases = [...rootTestCases, ...nestedPatientTestCases];
@@ -126,6 +117,13 @@ describe('wrappers', () => {
           });
         });
       });
+    });
+
+    describe('encounters', () => {
+      it.todo('inserts nested records');
+      it.todo('finds nested records');
+      it.todo('marks related objects as deleted');
+      it.todo('deletes related objects');
     });
   });
 });

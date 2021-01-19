@@ -1,12 +1,6 @@
 import wayfarer from 'wayfarer';
 import { initDatabase } from 'shared/services/database';
-import {
-  BasicHandler,
-  EncounterHandler,
-  AdministeredVaccineHandler,
-  SurveyResponseHandler,
-  SurveyResponseAnswerHandler,
-} from './handlers';
+import { BasicHandler, EncounterHandler } from './handlers';
 
 const convertToDbFromSyncRecord = syncRecord => {
   const { data, hashedPassword, lastSynced, ...metadata } = syncRecord;
@@ -59,10 +53,7 @@ export class SqlWrapper {
     const channelRouter = wayfarer();
     [
       ['patient', new BasicHandler(this.models.Patient)],
-      ['patient/:patientId/administeredVaccine', new AdministeredVaccineHandler(this.models)],
       ['patient/:patientId/encounter', new EncounterHandler(this.models)],
-      ['patient/:patientId/surveyResponse', new SurveyResponseHandler(this.models)],
-      ['patient/:patientId/surveyResponseAnswer', new SurveyResponseAnswerHandler(this.models)],
       ['program', new BasicHandler(this.models.Program)],
       ['programDataElement', new BasicHandler(this.models.ProgramDataElement)],
       ['reference', new BasicHandler(this.models.ReferenceData)],
