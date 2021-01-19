@@ -90,6 +90,8 @@ target 'tamanuapp' do
 
   pod 'react-native-orientation', :path => '../node_modules/react-native-orientation'
 
+  pod 'RNVectorIcons', :path => '../node_modules/react-native-vector-icons'
+
   target 'tamanuappTests' do
     inherit! :complete
     # Pods for testing
