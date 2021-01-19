@@ -11,7 +11,7 @@ import { ContentPane } from '../../components/ContentPane';
 import { DiagnosisView } from '../../components/DiagnosisView';
 import { DischargeModal } from '../../components/DischargeModal';
 import { BeginMoveModal, FinaliseMoveModal, CancelMoveModal } from '../../components/MoveModal';
-import { ChangeTypeModal } from '../../components/ChangeTypeModal';
+import { ChangeEncounterTypeModal } from '../../components/ChangeEncounterTypeModal';
 import { ChangeDepartmentModal } from '../../components/ChangeDepartmentModal';
 import { LabRequestModal } from '../../components/LabRequestModal';
 import { LabRequestsTable } from '../../components/LabRequestsTable';
@@ -270,10 +270,10 @@ const EncounterInfoPane = React.memo(({ disabled, encounter }) => (
 ));
 
 const RoutedDischargeModal = connectRoutedModal('/patients/encounter', 'discharge')(DischargeModal);
-const RoutedChangeTypeModal = connectRoutedModal(
+const RoutedChangeEncounterTypeModal = connectRoutedModal(
   '/patients/encounter',
   'changeType',
-)(ChangeTypeModal);
+)(ChangeEncounterTypeModal);
 const RoutedChangeDepartmentModal = connectRoutedModal(
   '/patients/encounter',
   'changeDepartment',
@@ -378,7 +378,7 @@ const EncounterActions = ({ encounter }) => (
   <React.Fragment>
     <EncounterActionDropdown encounter={encounter} />
     <RoutedDischargeModal encounter={encounter} />
-    <RoutedChangeTypeModal encounter={encounter} />
+    <RoutedChangeEncounterTypeModal encounter={encounter} />
     <RoutedChangeDepartmentModal encounter={encounter} />
     <RoutedBeginMoveModal encounter={encounter} />
     <RoutedCancelMoveModal encounter={encounter} />
