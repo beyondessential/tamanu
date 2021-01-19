@@ -24,6 +24,19 @@ const RECORD_TYPE_TO_CHANNEL = {
   surveyScreenComponent: 'surveyScreenComponent',
 };
 
+const RECORD_TYPE_CONVERTERS = {
+  scheduledVaccine: record => {
+    const { vaccine, ...data } = record.data;
+    return {
+      ...record,
+      data: {
+        ...data,
+        vaccineId: vaccine,
+      },
+    };
+  },
+};
+
 const FROM_CHANNELS = ['patient', 'user', 'reference', 'vaccination', 'survey'];
 
 async function asyncSleep(ms) {
@@ -91,8 +104,11 @@ async function sendToChannel(channel, records) {
       if (!records) {
         continue;
       }
-      console.log(`uploading ${records.length} records (from ${fromChannel} to ${toChannel})`);
-      await sendToChannel(toChannel, records);
+      const convertedRecords = records.map(RECORD_TYPE_CONVERTERS[recordType] || (r => r));
+      console.log(
+        `uploading ${convertedRecords.length} records (from ${fromChannel} to ${toChannel})`,
+      );
+      await sendToChannel(toChannel, convertedRecords);
       await asyncSleep(SLEEP_TIME);
     }
   }
