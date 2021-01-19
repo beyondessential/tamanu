@@ -2,29 +2,6 @@ import wayfarer from 'wayfarer';
 import { initDatabase } from 'shared/services/database';
 import { BasicHandler, EncounterHandler } from './handlers';
 
-const convertToDbFromSyncRecord = syncRecord => {
-  const { data, hashedPassword, lastSynced, ...metadata } = syncRecord;
-
-  return {
-    password: hashedPassword,
-    ...metadata,
-    ...data,
-  };
-};
-
-const convertToSyncRecordFromDb = dbRecord => {
-  const { id, updatedAt, createdAt, deletedAt, password, ...data } = dbRecord;
-
-  return {
-    lastSynced: updatedAt?.valueOf(),
-    ...(deletedAt ? { isDeleted: true } : {}),
-    data: {
-      id,
-      ...(deletedAt ? {} : data),
-    },
-  };
-};
-
 export class SqlWrapper {
   models = null;
 
@@ -79,8 +56,7 @@ export class SqlWrapper {
     return this.channelRouter(channel, handler => handler.unsafeRemoveAll());
   }
 
-  async insert(channel, syncRecord) {
-    const record = convertToDbFromSyncRecord(syncRecord);
+  async insert(channel, record) {
     return this.channelRouter(channel, (handler, params) => handler.insert(record, params));
   }
 
@@ -91,10 +67,9 @@ export class SqlWrapper {
   }
 
   async findSince(channel, since, { limit, offset } = {}) {
-    return this.channelRouter(channel, async (handler, params) => {
-      const results = await handler.findSince({ ...params, since, limit, offset });
-      return results.map(result => convertToSyncRecordFromDb(result));
-    });
+    return this.channelRouter(channel, (handler, params) =>
+      handler.findSince({ ...params, since, limit, offset }),
+    );
   }
 
   async markRecordDeleted(channel, id) {
@@ -110,10 +85,7 @@ export class SqlWrapper {
     if (!user) {
       return null;
     }
-    return {
-      ...convertToSyncRecordFromDb(user.get({ plain: true })),
-      hashedPassword: user.password,
-    };
+    return user.get({ plain: true });
   }
 
   async findUserById(id) {
@@ -121,9 +93,6 @@ export class SqlWrapper {
     if (!user) {
       return null;
     }
-    return {
-      ...convertToSyncRecordFromDb(user.get({ plain: true })),
-      hashedPassword: user.password,
-    };
+    return user.get({ plain: true });
   }
 }

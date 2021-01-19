@@ -144,8 +144,8 @@ describe('sqlWrapper', () => {
       // assert
       expect(foundEncounters.length).toBe(1);
       const [foundEncounter] = foundEncounters;
-      expect(foundEncounter).toHaveProperty('data.surveyResponses', []);
-      expect(foundEncounter).toHaveProperty('data.administeredVaccines', []);
+      expect(foundEncounter).toHaveProperty('surveyResponses', []);
+      expect(foundEncounter).toHaveProperty('administeredVaccines', []);
     });
 
     it.skip('finds and counts nested records', async () => {

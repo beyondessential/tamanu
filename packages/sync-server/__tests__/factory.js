@@ -15,7 +15,7 @@ import {
 
 export const buildEncounter = (ctx, patientId) => async () => {
   const patient = fakePatient();
-  patient.data.id = patientId;
+  patient.id = patientId;
   await ctx.wrapper.insert('patient', patient);
 
   const examiner = fakeUser('examiner');
@@ -28,10 +28,10 @@ export const buildEncounter = (ctx, patientId) => async () => {
   await ctx.wrapper.insert('reference', department);
 
   const encounter = fakeEncounter();
-  encounter.data.patientId = patient.data.id;
-  encounter.data.examinerId = examiner.data.id;
-  encounter.data.locationId = location.data.id;
-  encounter.data.departmentId = department.data.id;
+  encounter.patientId = patient.id;
+  encounter.examinerId = examiner.id;
+  encounter.locationId = location.id;
+  encounter.departmentId = department.id;
 
   return encounter;
 };
@@ -41,7 +41,7 @@ export const buildAdministeredVaccine = (ctx, patientId) => async () => {
   await ctx.wrapper.insert(`patient/${patientId}/encounter`, encounter);
 
   const administeredVaccine = fakeAdministeredVaccine();
-  administeredVaccine.data.encounterId = encounter.data.id;
+  administeredVaccine.encounterId = encounter.id;
 
   return administeredVaccine;
 };
@@ -51,7 +51,7 @@ export const buildSurveyResponse = (ctx, patientId) => async () => {
   await ctx.wrapper.insert(`patient/${patientId}/encounter`, encounter);
 
   const surveyResponse = fakeSurveyResponse();
-  surveyResponse.data.encounterId = encounter.data.id;
+  surveyResponse.encounterId = encounter.id;
 
   return surveyResponse;
 };
@@ -61,7 +61,7 @@ export const buildSurveyResponseAnswer = (ctx, patientId) => async () => {
   await ctx.wrapper.insert(`patient/${patientId}/surveyResponse`, surveyResponse);
 
   const surveyResponseAnswer = fakeSurveyResponseAnswer();
-  surveyResponseAnswer.data.responseId = surveyResponse.data.id;
+  surveyResponseAnswer.responseId = surveyResponse.id;
 
   return surveyResponseAnswer;
 };
@@ -71,14 +71,12 @@ export const buildScheduledVaccine = ctx => async () => {
 
   const vaccineId = uuidv4();
   const vaccine = {
-    data: {
-      id: vaccineId,
-      type: REFERENCE_TYPES.VACCINE,
-      ...fakeStringFields(`vaccine_${vaccineId}_`, ['code', 'name']),
-    },
+    id: vaccineId,
+    type: REFERENCE_TYPES.VACCINE,
+    ...fakeStringFields(`vaccine_${vaccineId}_`, ['code', 'name']),
   };
   await ctx.wrapper.insert('reference', vaccine);
-  scheduledVaccine.data.vaccineId = vaccineId;
+  scheduledVaccine.vaccineId = vaccineId;
 
   return scheduledVaccine;
 };

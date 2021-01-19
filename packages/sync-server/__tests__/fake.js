@@ -39,6 +39,7 @@ export function fakeScheduledVaccine(prefix = '') {
   const id = uuidv4();
   return {
     id,
+    weeksFromBirthDue: random(0, 1000),
     vaccineId: null,
     ...fakeStringFields(`${prefix}scheduledVaccine_${id}_`, ['category', 'label', 'schedule']),
   };
@@ -110,59 +111,51 @@ export function fakeProgram(prefix = '') {
 export function fakeAdministeredVaccine(prefix = '') {
   const id = uuidv4();
   return {
-    data: {
-      id,
-      encounterId: null,
-      scheduledVaccineId: null,
-      date: new Date(random(0, Date.now())),
-      ...fakeStringFields(`${prefix}administeredVaccine_${id}_`, [
-        'batch',
-        'status',
-        'reason',
-        'location',
-      ]),
-    },
+    id,
+    encounterId: null,
+    scheduledVaccineId: null,
+    date: new Date(random(0, Date.now())),
+    ...fakeStringFields(`${prefix}administeredVaccine_${id}_`, [
+      'batch',
+      'status',
+      'reason',
+      'location',
+    ]),
   };
 }
 
 export function fakeEncounter(prefix = '') {
   const id = uuidv4();
   return {
-    data: {
-      id,
-      surveyResponses: [],
-      administeredVaccines: [],
-      encounterType: sample(ENCOUNTER_TYPE_VALUES),
-      startDate: new Date(random(0, Date.now())),
-      endDate: new Date(random(0, Date.now())),
-      ...fakeStringFields(`${prefix}encounter_${id}_`, ['reasonForEncounter']),
-    },
+    id,
+    surveyResponses: [],
+    administeredVaccines: [],
+    encounterType: sample(ENCOUNTER_TYPE_VALUES),
+    startDate: new Date(random(0, Date.now())),
+    endDate: new Date(random(0, Date.now())),
+    ...fakeStringFields(`${prefix}encounter_${id}_`, ['reasonForEncounter']),
   };
 }
 
 export function fakeSurveyResponse() {
   const id = uuidv4();
   return {
-    data: {
-      id,
-      answers: [],
-      encounterId: null,
-      surveyId: null,
-      startTime: new Date(random(0, Date.now())),
-      endTime: new Date(random(0, Date.now())),
-      result: Math.random() * 100,
-    },
+    id,
+    answers: [],
+    encounterId: null,
+    surveyId: null,
+    startTime: new Date(random(0, Date.now())),
+    endTime: new Date(random(0, Date.now())),
+    result: Math.random() * 100,
   };
 }
 
 export function fakeSurveyResponseAnswer(prefix = '') {
   const id = uuidv4();
   return {
-    data: {
-      id,
-      dataElementId: null,
-      responseId: null,
-      ...fakeStringFields(`${prefix}surveyResponseAnswer_${id}_`, ['name', 'body']),
-    },
+    id,
+    dataElementId: null,
+    responseId: null,
+    ...fakeStringFields(`${prefix}surveyResponseAnswer_${id}_`, ['name', 'body']),
   };
 }
