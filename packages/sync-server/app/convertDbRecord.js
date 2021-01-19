@@ -1,3 +1,5 @@
+// TODO: recursively run conversion for nested arrays and add tests
+
 export const convertToDbRecord = syncRecord => {
   const { data, lastSynced, ...metadata } = syncRecord;
 

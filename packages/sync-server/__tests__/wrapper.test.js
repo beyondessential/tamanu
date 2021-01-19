@@ -148,19 +148,19 @@ describe('sqlWrapper', () => {
       expect(foundEncounter).toHaveProperty('administeredVaccines', []);
     });
 
-    it.skip('finds and counts nested records', async () => {
+    it('finds and counts nested records', async () => {
       // arrange
       const encounter = await buildEncounter(ctx, patientId)();
 
-      const administeredVaccine = fakeAdministeredVaccine().data;
+      const administeredVaccine = fakeAdministeredVaccine();
       delete administeredVaccine.encounterId;
-      encounter.data.administeredVaccines = [administeredVaccine];
+      encounter.administeredVaccines = [administeredVaccine];
 
-      const surveyResponse = fakeSurveyResponse().data;
+      const surveyResponse = fakeSurveyResponse();
       delete surveyResponse.encounterId;
-      encounter.data.surveyResponses = [surveyResponse];
+      encounter.surveyResponses = [surveyResponse];
 
-      const surveyResponseAnswer = fakeSurveyResponseAnswer().data;
+      const surveyResponseAnswer = fakeSurveyResponseAnswer();
       delete surveyResponseAnswer.responseId;
       surveyResponse.answers = [surveyResponseAnswer];
 
@@ -170,8 +170,40 @@ describe('sqlWrapper', () => {
 
       // assert
       expect(foundEncounters.length).toBe(1);
+
       const [foundEncounter] = foundEncounters;
-      expect(foundEncounter).toBe(encounter);
+      const timestamps = {
+        createdAt: expect.any(Date),
+        updatedAt: expect.any(Date),
+        deletedAt: null,
+      };
+      expect(foundEncounter).toEqual({
+        ...encounter,
+        ...timestamps,
+        administeredVaccines: [
+          {
+            ...administeredVaccine,
+            ...timestamps,
+            encounterId: encounter.id,
+          },
+        ],
+        surveyResponses: [
+          {
+            ...surveyResponse,
+            ...timestamps,
+            encounterId: encounter.id,
+            answers: [
+              {
+                ...surveyResponseAnswer,
+                ...timestamps,
+                responseId: expect.anything(),
+              },
+            ],
+          },
+        ],
+      });
+      const [foundSurveyResponse] = foundEncounter.surveyResponses;
+      expect(foundSurveyResponse.answers[0].responseId).toEqual(foundSurveyResponse.id);
     });
 
     it.todo('marks related objects as deleted');
