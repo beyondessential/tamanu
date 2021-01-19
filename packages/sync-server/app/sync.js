@@ -3,6 +3,7 @@ import asyncHandler from 'express-async-handler';
 import { InvalidParameterError, NotFoundError } from 'shared/errors';
 
 import { log } from './logging';
+import { convertToDbRecord, convertFromDbRecord } from './convertDbRecord';
 
 export const syncRoutes = express.Router();
 
@@ -24,10 +25,11 @@ syncRoutes.get(
 
     const limitNum = parseInt(limit, 10) || undefined;
     const offsetNum = limitNum ? parseInt(page, 10) * limit : undefined;
-    const records = await store.findSince(channel, since, {
+    const dbRecords = await store.findSince(channel, since, {
       limit: limitNum,
       offset: offsetNum,
     });
+    const records = dbRecords.map(record => convertFromDbRecord(record));
 
     log.info(`GET from ${channel} : ${count} records`);
     res.send({
@@ -46,7 +48,8 @@ syncRoutes.post(
 
     const insert = record => {
       const lastSynced = new Date().valueOf();
-      return store.insert(channel, { lastSynced, ...record });
+      const dbRecord = convertToDbRecord(record);
+      return store.insert(channel, { lastSynced, ...dbRecord });
     };
 
     if (Array.isArray(body)) {

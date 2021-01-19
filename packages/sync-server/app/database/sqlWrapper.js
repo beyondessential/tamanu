@@ -10,29 +10,6 @@ const ensureNumber = input => {
   return input;
 };
 
-const convertToDbFromSyncRecord = syncRecord => {
-  const { data, hashedPassword, lastSynced, ...metadata } = syncRecord;
-
-  return {
-    password: hashedPassword,
-    ...metadata,
-    ...data,
-  };
-};
-
-const convertToSyncRecordFromDb = dbRecord => {
-  const { id, updatedAt, createdAt, deletedAt, password, ...data } = dbRecord;
-
-  return {
-    lastSynced: updatedAt?.valueOf(),
-    ...(deletedAt ? { isDeleted: true } : {}),
-    data: {
-      id,
-      ...(deletedAt ? {} : data),
-    },
-  };
-};
-
 export class SqlWrapper {
   models = null;
 
@@ -91,8 +68,7 @@ export class SqlWrapper {
     });
   }
 
-  async insert(channel, syncRecord) {
-    const record = convertToDbFromSyncRecord(syncRecord);
+  async insert(channel, record) {
     return this.channelRouter(channel, async Model => {
       return Model.upsert(record);
     });
@@ -120,10 +96,7 @@ export class SqlWrapper {
         order: ['updated_at', 'id'],
         paranoid: false,
       });
-      return records.map(result => {
-        const plainRecord = result.get({ plain: true });
-        return convertToSyncRecordFromDb(plainRecord);
-      });
+      return records.map(result => result.get({ plain: true }));
     });
   }
 
@@ -152,10 +125,7 @@ export class SqlWrapper {
     if (!user) {
       return null;
     }
-    return {
-      ...convertToSyncRecordFromDb(user.get({ plain: true })),
-      hashedPassword: user.password,
-    };
+    return user.get({ plain: true });
   }
 
   async findUserById(id) {
@@ -163,9 +133,6 @@ export class SqlWrapper {
     if (!user) {
       return null;
     }
-    return {
-      ...convertToSyncRecordFromDb(user.get({ plain: true })),
-      hashedPassword: user.password,
-    };
+    return user.get({ plain: true });
   }
 }

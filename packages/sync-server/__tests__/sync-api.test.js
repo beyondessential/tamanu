@@ -1,5 +1,8 @@
 import { subDays, subHours } from 'date-fns';
 import { v4 as uuidv4 } from 'uuid';
+
+import { convertFromDbRecord, convertToDbRecord } from 'sync-server/app/convertDbRecord';
+
 import { createTestContext, unsafeSetUpdatedAt } from './utilities';
 import { fakePatient } from './fake';
 
@@ -8,10 +11,11 @@ const makeDate = (daysAgo, hoursAgo = 0) => {
 };
 
 const compareRecordsById = (a, b) => a.data.id.localeCompare(b.data.id);
-const compareRecordsByLastSynced = (a, b) => b.lastSynced - a.lastSynced;
 
-const OLDEST = { lastSynced: makeDate(20), ...fakePatient('oldest_') };
-const SECOND_OLDEST = { lastSynced: makeDate(10), ...fakePatient('second-oldest_') };
+const fakeSyncRecordPatient = (...args) => convertFromDbRecord(fakePatient(...args));
+
+const OLDEST = { ...fakeSyncRecordPatient('oldest_'), lastSynced: makeDate(20) };
+const SECOND_OLDEST = { ...fakeSyncRecordPatient('second-oldest_'), lastSynced: makeDate(10) };
 
 describe('Sync API', () => {
   let app = null;
@@ -22,7 +26,7 @@ describe('Sync API', () => {
 
     await Promise.all(
       [OLDEST, SECOND_OLDEST].map(async r => {
-        await ctx.store.insert('patient', r);
+        await ctx.store.insert('patient', convertToDbRecord(r));
         await unsafeSetUpdatedAt(ctx.store, {
           table: 'patients',
           id: r.data.id,
@@ -79,10 +83,10 @@ describe('Sync API', () => {
         // instantiate 20 records
         records = new Array(TOTAL_RECORDS)
           .fill(0)
-          .map((zero, i) => fakePatient(`test-pagination-${i}_`));
+          .map((zero, i) => fakeSyncRecordPatient(`test-pagination-${i}_`));
 
         // import in series so there's a predictable order to test against
-        await Promise.all(records.map(r => ctx.store.insert('patient', r)));
+        await Promise.all(records.map(r => ctx.store.insert('patient', convertToDbRecord(r))));
       });
 
       it('should only return $limit records', async () => {
@@ -149,7 +153,7 @@ describe('Sync API', () => {
       const precheck = await ctx.store.findSince('patient', 0);
       expect(precheck).toHaveProperty('length', 0);
 
-      const result = await app.post('/v1/sync/patient').send(fakePatient());
+      const result = await app.post('/v1/sync/patient').send(fakeSyncRecordPatient());
       expect(result).toHaveSucceeded();
 
       const postcheck = await ctx.store.findSince('patient', 0);
@@ -160,32 +164,30 @@ describe('Sync API', () => {
       const precheck = await ctx.store.findSince('patient', 0);
       expect(precheck.length).toEqual(1);
 
-      const record1 = fakePatient();
-      const record2 = fakePatient();
+      const record1 = fakeSyncRecordPatient();
+      const record2 = fakeSyncRecordPatient();
       const result = await app.post('/v1/sync/patient').send([record1, record2]);
       expect(result).toHaveSucceeded();
 
       const postcheck = await ctx.store.findSince('patient', 0);
       expect(postcheck.length).toEqual(3);
-      expect(postcheck.slice(1)).toEqual(
-        [
-          { ...record1, lastSynced: expect.anything() },
-          { ...record2, lastSynced: expect.anything() },
-        ]
-          .sort(compareRecordsById)
-          .sort(compareRecordsByLastSynced),
-      );
+      const postcheckIds = postcheck
+        .slice(1)
+        .map(r => r.id)
+        .sort();
+      expect(postcheckIds).toEqual([record1.data.id, record2.data.id].sort());
     });
 
     it('should update an existing record in reference data', async () => {
-      const record = fakePatient();
+      const record = fakeSyncRecordPatient();
       const result = await app.post('/v1/sync/patient').send(record);
 
       expect(result).toHaveSucceeded();
 
       const foundRecords = await ctx.store.findSince('patient', 0);
-      const foundRecord = foundRecords.find(r => r.data.id === record.data.id);
-      expect(foundRecord).toEqual({ ...record, lastSynced: expect.anything() });
+      const foundRecord = foundRecords.find(r => r.id === record.data.id);
+      const { createdAt, updatedAt, deletedAt, ...data } = foundRecord;
+      expect(data).toEqual(record.data);
     });
   });
 
@@ -199,8 +201,8 @@ describe('Sync API', () => {
       let record;
 
       beforeEach(async () => {
-        patient = fakePatient();
-        await ctx.store.insert('patient', patient);
+        patient = fakeSyncRecordPatient();
+        await ctx.store.insert('patient', convertToDbRecord(patient));
         await unsafeSetUpdatedAt(ctx.store, {
           table: 'patients',
           id: patient.data.id,
@@ -211,7 +213,8 @@ describe('Sync API', () => {
         const result = await app.delete(`/v1/sync/patient/${patient.data.id}`);
         expect(result).toHaveSucceeded();
         expect(result.body).toHaveProperty('count', 1);
-        const records = await ctx.store.findSince('patient', 0);
+        const getResult = await app.get('/v1/sync/patient?since=0', 0);
+        const records = getResult.body.records;
         expect(records).toHaveProperty('length', 1);
         record = records[0];
       });
