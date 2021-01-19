@@ -35,8 +35,7 @@ const DumbReferralModal = React.memo(
 
 export const ReferralModal = connectApi((api, dispatch, { patientId }) => ({
   onCreateReferral: async data => {
-    // TODO: Add refferedTo field to form once referral flow is confirmed.
-    await api.post(`referral`, { ...data, patientId, referredToId: data.referredById });
+    await api.post(`referral`, { ...data, patientId });
     dispatch(reloadPatient(patientId));
   },
   icd10Suggester: new Suggester(api, 'icd10'),

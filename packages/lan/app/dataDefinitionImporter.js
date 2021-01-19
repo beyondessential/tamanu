@@ -189,6 +189,7 @@ const importers = {
   drugs: referenceDataImporter('drug'),
   allergies: referenceDataImporter('allergy'),
   departments: referenceDataImporter('department'),
+  facilities: referenceDataImporter('facility'),
   locations: referenceDataImporter('location'),
   diagnoses: referenceDataImporter('icd10'),
   triagereasons: referenceDataImporter('triageReason'),
