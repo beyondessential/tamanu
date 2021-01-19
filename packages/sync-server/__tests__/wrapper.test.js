@@ -148,7 +148,7 @@ describe('sqlWrapper', () => {
       expect(foundEncounter).toHaveProperty('data.administeredVaccines', []);
     });
 
-    it('finds and counts nested records', async () => {
+    it.skip('finds and counts nested records', async () => {
       // arrange
       const encounter = await buildEncounter(ctx, patientId)();
 
