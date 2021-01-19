@@ -11,6 +11,7 @@ export class ScheduledVaccine extends Model {
         category: Sequelize.STRING,
         label: Sequelize.STRING,
         schedule: Sequelize.STRING,
+        weeksFromBirthDue: Sequelize.INTEGER,
       },
       options,
     );
