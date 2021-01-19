@@ -1,45 +1,24 @@
-import Chance from 'chance';
-import { createDummyPatient, FACILITIES, DEPARTMENTS } from 'shared/demoData';
+import { createDummyPatient, createDummyEncounter, FACILITIES, DEPARTMENTS } from 'shared/demoData';
 import { createTestContext } from '../utilities';
 
 const { baseApp, models } = createTestContext();
-const chance = new Chance();
-const createUser = overrides => ({
-  email: chance.email(),
-  displayName: chance.name(),
-  password: chance.word(),
-  ...overrides,
-});
 
-const createFacility = overrides => ({
-  ...FACILITIES[0],
-  code: 'hi',
-  type: 'facility',
-  // ...overrides,
-});
-
-const createDepartment = overrides => ({
-  ...DEPARTMENTS[0],
-  code: 'hi',
-  type: 'department',
-  // ...overrides,
-});
-
-
-describe.only('Referrals', () => {
-  let patient = null;
+describe('Referrals', () => {
   let app = null;
+  let patient = null;
+  let encounter = null;
   let facility = null;
   let department = null;
 
   beforeAll(async () => {
     app = await baseApp.asRole('practitioner');
     patient = await models.Patient.create(await createDummyPatient(models));
+    encounter = await models.Encounter.create(await createDummyEncounter(models, { current: true, patientId: patient.id}));
     facility = await models.ReferenceData.create(
-      createFacility(),
+      { code: 'test_facility_code', type: 'facility', ...FACILITIES[0] }
     );
     department = await models.ReferenceData.create(
-      createDepartment(),
+      { code: 'test_department_code', type: 'department', ...DEPARTMENTS[0] }
     );
   });
 
