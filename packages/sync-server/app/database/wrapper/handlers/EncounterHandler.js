@@ -1,16 +1,52 @@
-import { BasicHandler, findSinceQuery, countSinceQuery, insertQuery } from './BasicHandler';
+import { BasicHandler, findSinceQuery, countSinceQuery, upsertQuery } from './BasicHandler';
+
+function extractRelated(record, relation, { fk = 'encounterId' } = {}) {
+  return record[relation].map(relatedRecord => ({
+    ...relatedRecord,
+    [fk]: record.id,
+  }));
+}
 
 export class EncounterHandler extends BasicHandler {
   models = null;
 
-  constructor(models) {
+  sequelize = null;
+
+  constructor(models, sequelize) {
     super(models.Encounter);
     this.models = models;
+    this.sequelize = sequelize;
   }
 
-  async insert(record, { patientId, ...params }) {
-    const [baseValues, baseOptions] = insertQuery({ ...record, patientId }, params);
-    return this.models.Encounter.upsert(baseValues, baseOptions);
+  async insert(rawEncounter, { patientId, ...params }) {
+    const encounter = { ...rawEncounter, patientId };
+
+    return this.sequelize.transaction(async transaction => {
+      const upsert = (model, records) =>
+        Promise.all(
+          records.map(record => {
+            const [baseRecord, baseOptions] = upsertQuery(record, params);
+            return model.upsert(baseRecord, { ...baseOptions, transaction });
+          }),
+        );
+
+      const count = await upsert(this.models.Encounter, [encounter]);
+
+      await upsert(
+        this.models.AdministeredVaccine,
+        extractRelated(encounter, 'administeredVaccines'),
+      );
+
+      const surveyResponses = extractRelated(encounter, 'surveyResponses');
+      await upsert(this.models.SurveyResponse, surveyResponses);
+
+      const surveyResponseAnswers = surveyResponses
+        .map(r => extractRelated(r, 'answers', { fk: 'responseId' }))
+        .flat();
+      await upsert(this.models.SurveyResponseAnswer, surveyResponseAnswers);
+
+      return count;
+    });
   }
 
   async countSince({ patientId, ...params }) {
@@ -45,7 +81,7 @@ export class EncounterHandler extends BasicHandler {
           include: [
             {
               model: this.models.SurveyResponseAnswer,
-              as: 'surveyResponseAnswers',
+              as: 'answers',
             },
           ],
         },

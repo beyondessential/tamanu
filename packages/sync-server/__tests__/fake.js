@@ -145,6 +145,7 @@ export function fakeSurveyResponse() {
   return {
     data: {
       id,
+      answers: [],
       encounterId: null,
       surveyId: null,
       startTime: new Date(random(0, Date.now())),

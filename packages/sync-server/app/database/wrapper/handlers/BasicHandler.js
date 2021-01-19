@@ -8,7 +8,7 @@ function ensureNumber(input) {
   return input;
 }
 
-export function insertQuery(values) {
+export function upsertQuery(values) {
   return [values, {}];
 }
 
@@ -63,7 +63,7 @@ export class BasicHandler {
   }
 
   async insert(record, params) {
-    return this.model.upsert(...insertQuery(record, params));
+    return this.model.upsert(...upsertQuery(record, params));
   }
 
   async countSince(params) {

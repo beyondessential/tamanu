@@ -80,7 +80,7 @@ export class SurveyResponse extends Model {
 
     this.hasMany(models.SurveyResponseAnswer, {
       foreignKey: 'responseId',
-      as: 'surveyResponseAnswers',
+      as: 'answers',
     });
   }
 

@@ -53,7 +53,7 @@ export class SqlWrapper {
     const channelRouter = wayfarer();
     [
       ['patient', new BasicHandler(this.models.Patient)],
-      ['patient/:patientId/encounter', new EncounterHandler(this.models)],
+      ['patient/:patientId/encounter', new EncounterHandler(this.models, this.sequelize)],
       ['program', new BasicHandler(this.models.Program)],
       ['programDataElement', new BasicHandler(this.models.ProgramDataElement)],
       ['reference', new BasicHandler(this.models.ReferenceData)],

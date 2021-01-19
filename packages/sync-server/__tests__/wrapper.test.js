@@ -1,11 +1,14 @@
 import { v4 as uuidv4 } from 'uuid';
 import { initDatabase, closeDatabase } from 'sync-server/app/database';
 import {
+  fakeAdministeredVaccine,
   fakePatient,
   fakeProgram,
   fakeProgramDataElement,
   fakeReferenceData,
   fakeSurvey,
+  fakeSurveyResponse,
+  fakeSurveyResponseAnswer,
   fakeSurveyScreenComponent,
   fakeUser,
 } from './fake';
@@ -114,16 +117,20 @@ describe('sqlWrapper', () => {
           const wrongChannel = [prefix, wrongId, suffix].join('/');
           await expect(ctx.wrapper.insert(wrongChannel, await fakeInstance())).rejects.toThrow();
         });
+
+        it.todo("doesn't find records for another patient");
       });
     });
   });
 
   describe('encounters', () => {
     const encounterChannel = `patient/${patientId}/encounter`;
-    beforeEach(async () => {
-      await ctx.wrapper.unsafeRemoveAllOfChannel('patient');
-      await ctx.wrapper.unsafeRemoveAllOfChannel(encounterChannel);
+    beforeAll(async () => {
       await ctx.wrapper.insert('patient', { ...fakePatient(), patientId });
+    });
+
+    beforeEach(async () => {
+      await ctx.wrapper.unsafeRemoveAllOfChannel(encounterChannel);
     });
 
     it('finds no nested records when there are none', async () => {
@@ -141,7 +148,32 @@ describe('sqlWrapper', () => {
       expect(foundEncounter).toHaveProperty('data.administeredVaccines', []);
     });
 
-    it.todo('finds and counts nested records');
+    it('finds and counts nested records', async () => {
+      // arrange
+      const encounter = await buildEncounter(ctx, patientId)();
+
+      const administeredVaccine = fakeAdministeredVaccine().data;
+      delete administeredVaccine.encounterId;
+      encounter.data.administeredVaccines = [administeredVaccine];
+
+      const surveyResponse = fakeSurveyResponse().data;
+      delete surveyResponse.encounterId;
+      encounter.data.surveyResponses = [surveyResponse];
+
+      const surveyResponseAnswer = fakeSurveyResponseAnswer().data;
+      delete surveyResponseAnswer.responseId;
+      surveyResponse.answers = [surveyResponseAnswer];
+
+      // act
+      await ctx.wrapper.insert(encounterChannel, encounter);
+      const foundEncounters = await ctx.wrapper.findSince(encounterChannel, 0);
+
+      // assert
+      expect(foundEncounters.length).toBe(1);
+      const [foundEncounter] = foundEncounters;
+      expect(foundEncounter).toBe(encounter);
+    });
+
     it.todo('marks related objects as deleted');
     it.todo('deletes related objects');
   });
