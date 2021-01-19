@@ -78,7 +78,6 @@ export const NewVaccineTabComponent = ({
       );
 
       const { reason, batch, status, date, scheduledVaccineId } = values;
-
       await models.AdministeredVaccine.create({
         reason,
         batch,
