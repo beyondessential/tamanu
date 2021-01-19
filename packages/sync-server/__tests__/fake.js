@@ -51,6 +51,7 @@ export async function fakeScheduledVaccine(wrapper) {
     return {
       data: {
         id: scheduledVaccineId,
+        weeksFromBirthDue: random(0, 1000),
         vaccineId,
         ...fakeStringFields(`${prefix}scheduledVaccine_${scheduledVaccineId}_`, [
           'category',
