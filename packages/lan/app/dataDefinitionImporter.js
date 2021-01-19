@@ -189,6 +189,7 @@ const importers = {
   drugs: referenceDataImporter('drug'),
   allergies: referenceDataImporter('allergy'),
   departments: referenceDataImporter('department'),
+  facilities: referenceDataImporter('facility'),
   locations: referenceDataImporter('location'),
   diagnoses: referenceDataImporter('icd10'),
   triagereasons: referenceDataImporter('triageReason'),
@@ -211,6 +212,7 @@ export async function importJson(models, sheetName, data) {
       errors: [`No such importer: ${importerId}`],
     };
   }
+  console.log(data);
 
   const results = [];
   for (let i = 0; i < data.length; ++i) {
