@@ -49,13 +49,21 @@ export const ReferralForm = React.memo(
             required
           />
           <Field name="date" label="Date" component={DateField} required />
+          <FormSeparatorLine />
+          <div><span><b>Being referred to:</b></span></div>
+          <Field name="urgent" label="Urgent priority" component={CheckField} required />
           <Field
-            name="departmentId"
+            name="referredToDepartmentId"
             label="Department"
             component={AutocompleteField}
             suggester={departmentSuggester}
           />
-          <Field name="urgent" label="Urgent priority" component={CheckField} required />
+          <Field
+            name="referredToFacilityId"
+            label="Facility"
+            component={AutocompleteField}
+            suggester={facilitySuggester}
+          />
           <FormSeparatorLine />
           <Field
             name="diagnosisId"
