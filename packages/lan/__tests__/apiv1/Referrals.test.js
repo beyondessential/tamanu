@@ -1,5 +1,5 @@
 import Chance from 'chance';
-import { createDummyPatient, createDummyEncounter } from 'shared/demoData/patients';
+import { createDummyPatient, FACILITIES, DEPARTMENTS } from 'shared/demoData';
 import { createTestContext } from '../utilities';
 
 const { baseApp, models } = createTestContext();
@@ -11,18 +11,35 @@ const createUser = overrides => ({
   ...overrides,
 });
 
-describe('Referrals', () => {
+const createFacility = overrides => ({
+  ...FACILITIES[0],
+  code: 'hi',
+  type: 'facility',
+  // ...overrides,
+});
+
+const createDepartment = overrides => ({
+  ...DEPARTMENTS[0],
+  code: 'hi',
+  type: 'department',
+  // ...overrides,
+});
+
+
+describe.only('Referrals', () => {
   let patient = null;
   let app = null;
-  let specialist = null;
+  let facility = null;
+  let department = null;
 
   beforeAll(async () => {
     app = await baseApp.asRole('practitioner');
     patient = await models.Patient.create(await createDummyPatient(models));
-    specialist = await models.User.create(
-      createUser({
-        role: 'practitioner',
-      }),
+    facility = await models.ReferenceData.create(
+      createFacility(),
+    );
+    department = await models.ReferenceData.create(
+      createDepartment(),
     );
   });
 
@@ -30,25 +47,27 @@ describe('Referrals', () => {
     const result = await app.post('/v1/referral').send({
       patientId: patient.id,
       referredById: app.user.id,
-      referredToId: specialist.id,
+      referredToDepartmentId: department.id,
+      referredToFacilityId: facility.id,
     });
     expect(result).toHaveSucceeded();
     expect(result.body.date).toBeTruthy();
   });
 
-  it('should require a valid referred practitioner', async () => {
-    const result = await app.post('/v1/referral').send({
-      patientId: patient.id,
-      referredById: app.user.id,
-    });
-    expect(result).toHaveRequestError();
-  });
+  // it('should require a valid referred practitioner', async () => {
+  //   const result = await app.post('/v1/referral').send({
+  //     patientId: patient.id,
+  //     referredById: app.user.id,
+  //   });
+  //   expect(result).toHaveRequestError();
+  // });
 
   it('should have a valid patient', async () => {
     const createdReferral = await models.Referral.create({
       patientId: patient.id,
       referredById: app.user.id,
-      referredToId: specialist.id,
+      referredToDepartmentId: department.id,
+      referredToFacilityId: facility.id,
     });
 
     const result = await app.get(`/v1/patient/${patient.id}/referrals`);
@@ -64,7 +83,8 @@ describe('Referrals', () => {
     const createdReferral = await models.Referral.create({
       patientId: patient.id,
       referredById: app.user.id,
-      referredToId: specialist.id,
+      referredToDepartmentId: department.id,
+      referredToFacilityId: facility.id,
     });
     const result = await app.get(`/v1/patient/${patient.id}/referrals`);
     expect(result).toHaveSucceeded();
@@ -72,14 +92,16 @@ describe('Referrals', () => {
     const { body } = result;
 
     expect(body.count).toBeGreaterThan(0);
-    expect(body.data[0]).toHaveProperty('referredToId', createdReferral.referredToId);
+    expect(body.data[0]).toHaveProperty('referredToDepartmentId', createdReferral.referredToDepartmentId);
+    expect(body.data[0]).toHaveProperty('referredToFacilityId', createdReferral.referredToFacilityId);
   });
 
   it('should get referral reference info when listing referrals', async () => {
     const createdReferral = await models.Referral.create({
       patientId: patient.id,
       referredById: app.user.id,
-      referredToId: specialist.id,
+      referredToDepartmentId: department.id,
+      referredToFacilityId: facility.id,
     });
     const result = await app.get(`/v1/patient/${patient.id}/referrals`);
     expect(result).toHaveSucceeded();
@@ -88,6 +110,7 @@ describe('Referrals', () => {
 
     const record = body.data[0];
     expect(record).toHaveProperty('referredBy.displayName');
-    expect(record).toHaveProperty('referredTo.displayName');
+    expect(record).toHaveProperty('referredToDepartment.code');
+    expect(record).toHaveProperty('referredToFacility.code');
   });
 });

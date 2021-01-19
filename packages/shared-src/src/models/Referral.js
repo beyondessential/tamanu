@@ -30,11 +30,11 @@ export class Referral extends Model {
               throw new InvalidOperationError('A referral must have a valid referrer');
             }
           },
-          mustHaveValidReferredToId() {
-            if (!this.referredToId) {
-              throw new InvalidOperationError('A referral must have a valid referree');
-            }
-          },
+          // mustHaveValidReferredToId() {
+          //   if (!this.referredToId) {
+          //     throw new InvalidOperationError('A referral must have a valid referree');
+          //   }
+          // },
         },
       },
     );
