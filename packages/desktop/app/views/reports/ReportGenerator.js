@@ -41,7 +41,10 @@ const ReportGenerateFormSchema = Yup.object().shape({
 });
 
 function parseEmails(commaSeparatedEmails) {
-  return commaSeparatedEmails.split(',').filter(email => email).map(address => address.trim());
+  return commaSeparatedEmails
+    .split(/[;,]/)
+    .map(address => address.trim())
+    .filter(email => email);
 }
 
 const emailSchema = Yup.string().email();
@@ -52,14 +55,9 @@ async function validateCommaSeparatedEmails(emails) {
   }
   const emailList = parseEmails(emails);
   for (var i = 0; i < emailList.length; i++) {
-    let error;
     const isEmailValid = await emailSchema.isValid(emailList[i]);
     if (!isEmailValid) {
-      error = `${emailList[i]} is invalid.`;
-      if (emailList[i].includes(';')) {
-        error += ' Please use comma (,) to separate multiple email addresses.';
-      }
-      return error;
+      return `${emailList[i]} is invalid.`;
     }
   }
 }
