@@ -54,13 +54,13 @@ describe.only('Referrals', () => {
     expect(result.body.date).toBeTruthy();
   });
 
-  // it('should require a valid referred practitioner', async () => {
-  //   const result = await app.post('/v1/referral').send({
-  //     patientId: patient.id,
-  //     referredById: app.user.id,
-  //   });
-  //   expect(result).toHaveRequestError();
-  // });
+  it('should require a valid referred department', async () => {
+    const result = await app.post('/v1/referral').send({
+      patientId: patient.id,
+      referredById: app.user.id,
+    });
+    expect(result).toHaveRequestError();
+  });
 
   it('should have a valid patient', async () => {
     const createdReferral = await models.Referral.create({

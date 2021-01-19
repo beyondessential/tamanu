@@ -30,27 +30,28 @@ export class Referral extends Model {
               throw new InvalidOperationError('A referral must have a valid referrer');
             }
           },
-          // mustHaveValidReferredToId() {
-          //   if (!this.referredToId) {
-          //     throw new InvalidOperationError('A referral must have a valid referree');
-          //   }
-          // },
+          mustHaveValidReferredToDepartmentId() {
+            if (!this.referredToDepartmentId) {
+              throw new InvalidOperationError('A referral must have a valid referree department');
+            }
+          },
+          mustHaveValidReferredToFacilityId() {
+            if (!this.referredToFacilityId) {
+              throw new InvalidOperationError('A referral must have a valid referree facility');
+            }
+          },
         },
       },
     );
   }
 
   static getListReferenceAssociations() {
-    return ['department', 'referredBy', 'referredTo', 'patient'];
+    return ['referredToFacility', 'referredBy', 'referredToDepartment', 'patient'];
   }
 
   static initRelations(models) {
     this.belongsTo(models.Encounter, {
       foreignKey: 'encounterId',
-    });
-    this.belongsTo(models.ReferenceData, {
-      foreignKey: 'departmentId',
-      as: 'department',
     });
     this.belongsTo(models.Patient, {
       foreignKey: 'patientId',
@@ -60,9 +61,13 @@ export class Referral extends Model {
       foreignKey: 'referredById',
       as: 'referredBy',
     });
-    this.belongsTo(models.User, {
-      foreignKey: 'referredToId',
-      as: 'referredTo',
+    this.belongsTo(models.ReferenceData, {
+      foreignKey: 'referredToDepartmentId',
+      as: 'referredToDepartment',
+    });
+    this.belongsTo(models.ReferenceData, {
+      foreignKey: 'referredToFacilityId',
+      as: 'referredToFacility',
     });
   }
 }
