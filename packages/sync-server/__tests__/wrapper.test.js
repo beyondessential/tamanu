@@ -67,8 +67,10 @@ describe('wrappers', () => {
           const since = new Date(1985, 5, 1).valueOf();
           expect(await wrapper.findSince(channel, since)).toEqual([
             {
-              lastSynced: new Date(1990, 5, 1).valueOf(),
               ...instance2,
+              createdAt: new Date(1990, 5, 1),
+              updatedAt: new Date(1990, 5, 1),
+              deletedAt: null,
             },
           ]);
           expect(await wrapper.countSince(channel, since)).toEqual(1);
@@ -76,16 +78,17 @@ describe('wrappers', () => {
 
         it('marks records as deleted', async () => {
           const instance = fakeInstance();
-          instance.data.id = uuidv4();
+          instance.id = uuidv4();
           await wrapper.insert(channel, instance);
 
-          await wrapper.markRecordDeleted(channel, instance.data.id);
+          await wrapper.markRecordDeleted(channel, instance.id);
 
           const instances = await wrapper.findSince(channel, 0);
-          expect(instances.find(r => r.data.id === instance.data.id)).toEqual({
-            data: { id: instance.data.id },
-            lastSynced: expect.anything(),
-            isDeleted: true,
+          expect(instances.find(r => r.id === instance.id)).toEqual({
+            ...instance,
+            createdAt: expect.any(Date),
+            updatedAt: expect.any(Date),
+            deletedAt: expect.any(Date),
           });
         });
 
