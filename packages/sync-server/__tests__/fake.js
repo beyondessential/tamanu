@@ -130,6 +130,8 @@ export function fakeEncounter(prefix = '') {
   return {
     data: {
       id,
+      surveyResponses: [],
+      administeredVaccines: [],
       encounterType: sample(ENCOUNTER_TYPE_VALUES),
       startDate: new Date(random(0, Date.now())),
       endDate: new Date(random(0, Date.now())),
