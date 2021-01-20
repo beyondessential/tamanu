@@ -104,7 +104,7 @@ yarn sync-start-dev
 
 #### WSL
 
-Install the [PostgreSQL server](https://www.postgresql.org/download/windows/). Open pgAdmin and add a new database `tamanu-sync`, then:
+Install the [PostgreSQL server](https://www.postgresql.org/download/windows/). Open pgAdmin and add a new database `tamanu-sync`, then run:
 
 ```bash
 yarn install
