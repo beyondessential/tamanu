@@ -43,6 +43,13 @@ const MoveForm = ({ onSubmit, onClose, encounter, locationSuggester }) => {
     />
   );
 };
+
+// -------------------------------------------------------------------------------
+// TODO: Reimplement "planned move" functionality on backend.
+// Keeping the display components for that here so that they can be used later. 
+// They should just need the endpoints updated to match the new API, and to
+// be re-added to EncounterView.js (PR 786)
+
 // const BeginMoveForm = ({ onSubmit, onClose, encounter, locationSuggester }) => {
 //   const renderForm = React.useCallback(({ submitForm }) => (
 //     <FormGrid columns={1}>
