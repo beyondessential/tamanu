@@ -1,5 +1,4 @@
 import jsonPrune from 'json-prune';
-import { schemas } from '../schemas';
 
 export * from './parse-object';
 export * from './valueIndex';
@@ -12,4 +11,3 @@ export const jsonParse = object => {
   }
 };
 
-export const findSchema = type => schemas.find(schema => schema.name === type);
