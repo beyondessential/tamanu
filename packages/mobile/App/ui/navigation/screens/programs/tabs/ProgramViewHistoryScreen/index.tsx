@@ -29,7 +29,7 @@ const SurveyResponseItem = ({
     [],
   );
 
-  const { encounter, survey, date = '', result } = surveyResponse;
+  const { encounter, survey, date = '', result, resultText } = surveyResponse;
   const { patient } = encounter;
 
   return (
@@ -53,11 +53,11 @@ const SurveyResponseItem = ({
           <StyledText fontWeight="bold" color={theme.colors.LIGHT_BLUE}>
             {survey.name}
           </StyledText>
-          {result !== undefined ? (
-            <SurveyResultBadge result={result} />
-          ) : (
-            <StyledText color="#ccc">N/A</StyledText>
-          )}
+          {
+            resultText 
+            ? <SurveyResultBadge result={result} resultText={resultText} />
+            : null
+          }
         </StyledView>
       </StyledView>
     </TouchableOpacity>

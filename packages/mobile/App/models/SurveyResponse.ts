@@ -2,11 +2,16 @@ import { Entity, Column, ManyToOne } from 'typeorm/browser';
 
 import { BaseModel } from './BaseModel';
 import { Survey } from './Survey';
-import { ProgramDataElement } from './ProgramDataElement';
 import { Encounter } from './Encounter';
 import { SurveyResponseAnswer } from './SurveyResponseAnswer';
 
-import { FieldTypes, getStringValue } from '~/ui/helpers/fields';
+import { 
+  getStringValue,
+  getResultValue,
+} from '~/ui/helpers/fields';
+
+import { runCalculations } from '~/ui/helpers/calculations';
+
 import { ISurveyResponse } from '~/types';
 
 @Entity('survey_response')
@@ -17,8 +22,11 @@ export class SurveyResponse extends BaseModel implements ISurveyResponse {
   @Column()
   endTime: Date;
 
-  @Column()
+  @Column({ default: 0 })
   result: number;
+
+  @Column({ default: '' })
+  resultText: string;
 
   @ManyToOne(type => Survey, survey => survey.responses)
   survey: Survey;
@@ -47,7 +55,12 @@ export class SurveyResponse extends BaseModel implements ISurveyResponse {
   }
 
   static async submit(patientId, surveyData, values, setNote = () => null): Promise<SurveyResponse> {
-    const { surveyId, encounterReason, components, ...otherData } = surveyData;
+    const { 
+      surveyId, 
+      encounterReason, 
+      components,
+      ...otherData
+    } = surveyData;
 
     try {
       setNote("Creating encounter...");
@@ -59,12 +72,21 @@ export class SurveyResponse extends BaseModel implements ISurveyResponse {
         reasonForEncounter: encounterReason,
       });
 
+      const calculatedValues = runCalculations(components, values);
+
+      const { 
+        result,
+        resultText,
+      } = getResultValue(components, calculatedValues);
+
       setNote("Creating response object...");
       const responseRecord = await SurveyResponse.create({
         encounter: encounter.id,
         survey: surveyId,
         startTime: Date.now(),
         endTime: Date.now(),
+        result,
+        resultText,
         ...otherData,
       });
 
@@ -75,7 +97,7 @@ export class SurveyResponse extends BaseModel implements ISurveyResponse {
         return component.dataElement;
       };
 
-      for(let a of Object.entries(values)) { 
+      for(let a of Object.entries(calculatedValues)) { 
         const [dataElementCode, value] = a;
         const dataElement = findDataElement(dataElementCode);
         const body = getStringValue(dataElement.type, value);
