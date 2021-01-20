@@ -68,7 +68,7 @@ const AddEditForm = connectApi(
   (api, dispatch, { patient, endpoint, onClose, suggesterEndpoints = [] }) => {
     const apiProps = {
       onSubmit: async data => {
-        await api.post(`patient/${patient.id}/${endpoint}`, data);
+        await api.post(endpoint, {...data, patientId: patient.id});
         dispatch(reloadPatient(patient.id));
         onClose();
       },
