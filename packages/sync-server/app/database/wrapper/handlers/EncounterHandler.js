@@ -30,9 +30,9 @@ export class EncounterHandler extends BasicHandler {
   }
 
   async insert(rawEncounter, { patientId, ...params }) {
+    // relationships which aren't present will NOT be deleted
     const encounter = { ...rawEncounter, patientId };
 
-    // TODO: remove already existing objects for relation and write tests
     return this.sequelize.transaction(async transaction => {
       const upsert = (model, records) =>
         Promise.all(
