@@ -109,23 +109,29 @@ export class EncounterHandler extends BasicHandler {
     const [baseValues, baseQuery] = markDeletedQuery({ id });
     let count;
     await this.sequelize.transaction(async transaction => {
-      [count] = await this.model.update(baseValues, {
+      const encounterPromise = this.model.update(baseValues, {
         ...baseQuery,
         transaction,
       });
-      await this.models.AdministeredVaccine.update(baseValues, {
-        ...baseQuery,
-        where: { encounterId: id },
-        transaction,
-      });
-      await this.models.SurveyResponse.update(baseValues, {
-        ...baseQuery,
-        where: { encounterId: id },
-        transaction,
-      });
-      await this.sequelize.query(MARK_ANSWERS_DELETED_SQL, {
-        replacements: { encounterId: id },
-      });
+
+      await Promise.all([
+        encounterPromise,
+        this.models.AdministeredVaccine.update(baseValues, {
+          ...baseQuery,
+          where: { encounterId: id },
+          transaction,
+        }),
+        this.models.SurveyResponse.update(baseValues, {
+          ...baseQuery,
+          where: { encounterId: id },
+          transaction,
+        }),
+        this.sequelize.query(MARK_ANSWERS_DELETED_SQL, {
+          replacements: { encounterId: id },
+        }),
+      ]);
+
+      [count] = await encounterPromise;
     });
     return count;
   }
