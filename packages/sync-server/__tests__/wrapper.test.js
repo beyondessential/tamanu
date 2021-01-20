@@ -1,18 +1,15 @@
 import { v4 as uuidv4 } from 'uuid';
 import { initDatabase, closeDatabase } from 'sync-server/app/database';
 import {
-  fakeAdministeredVaccine,
   fakePatient,
   fakeProgram,
   fakeProgramDataElement,
   fakeReferenceData,
   fakeSurvey,
-  fakeSurveyResponse,
-  fakeSurveyResponseAnswer,
   fakeSurveyScreenComponent,
   fakeUser,
 } from './fake';
-import { buildScheduledVaccine, buildEncounter } from './factory';
+import { buildScheduledVaccine, buildEncounter, buildNestedEncounter } from './factory';
 
 import { withDate } from './utilities';
 
@@ -133,24 +130,6 @@ describe('sqlWrapper', () => {
       await ctx.wrapper.unsafeRemoveAllOfChannel(encounterChannel);
     });
 
-    const buildNestedEncounter = async () => {
-      const encounter = await buildEncounter(ctx, patientId)();
-
-      const administeredVaccine = fakeAdministeredVaccine();
-      delete administeredVaccine.encounterId;
-      encounter.administeredVaccines = [administeredVaccine];
-
-      const surveyResponse = fakeSurveyResponse();
-      delete surveyResponse.encounterId;
-      encounter.surveyResponses = [surveyResponse];
-
-      const surveyResponseAnswer = fakeSurveyResponseAnswer();
-      delete surveyResponseAnswer.responseId;
-      surveyResponse.answers = [surveyResponseAnswer];
-
-      return { encounter, administeredVaccine, surveyResponse, surveyResponseAnswer };
-    };
-
     it('finds no nested records when there are none', async () => {
       // arrange
       const encounter = await buildEncounter(ctx, patientId)();
@@ -168,12 +147,7 @@ describe('sqlWrapper', () => {
 
     it('finds and counts nested records', async () => {
       // arrange
-      const {
-        encounter,
-        administeredVaccine,
-        surveyResponse,
-        surveyResponseAnswer,
-      } = await buildNestedEncounter();
+      const encounter = await buildNestedEncounter(ctx, patientId)();
 
       // act
       await ctx.wrapper.insert(encounterChannel, encounter);
@@ -193,19 +167,19 @@ describe('sqlWrapper', () => {
         ...timestamps,
         administeredVaccines: [
           {
-            ...administeredVaccine,
+            ...encounter.administeredVaccines[0],
             ...timestamps,
             encounterId: encounter.id,
           },
         ],
         surveyResponses: [
           {
-            ...surveyResponse,
+            ...encounter.surveyResponses[0],
             ...timestamps,
             encounterId: encounter.id,
             answers: [
               {
-                ...surveyResponseAnswer,
+                ...encounter.surveyResponses[0].answers[0],
                 ...timestamps,
                 responseId: expect.anything(),
               },
@@ -219,7 +193,7 @@ describe('sqlWrapper', () => {
 
     it('marks related objects as deleted', async () => {
       // arrange
-      const { encounter } = await buildNestedEncounter();
+      const encounter = await buildNestedEncounter(ctx, patientId)();
       await ctx.wrapper.insert(encounterChannel, encounter);
 
       // act

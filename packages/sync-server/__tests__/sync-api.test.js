@@ -5,6 +5,7 @@ import { convertFromDbRecord, convertToDbRecord } from 'sync-server/app/convertD
 
 import { createTestContext, unsafeSetUpdatedAt } from './utilities';
 import { fakePatient } from './fake';
+import { buildNestedEncounter } from './factory';
 
 const makeDate = (daysAgo, hoursAgo = 0) => {
   return subHours(subDays(new Date(), daysAgo), hoursAgo).valueOf();
@@ -142,6 +143,66 @@ describe('Sync API', () => {
         expect(thirdResult.body).toHaveProperty('count', TOTAL_RECORDS);
       });
     });
+
+    it('should return nested encounter relationships', async () => {
+      // arrange
+      const patientId = uuidv4();
+      const encounter = await buildNestedEncounter({ wrapper: ctx.store }, patientId)();
+      console.log(encounter);
+      await ctx.store.insert(`patient/${patientId}/encounter`, encounter);
+
+      // act
+      const result = await app.get(`/v1/sync/patient%2F${patientId}%2Fencounter?since=0`);
+
+      // assert
+      expect(result.body).toMatchObject({
+        records: {
+          lastSynced: expect.any(Date),
+          data: {
+            id: encounter.id,
+            administeredVaccines: [
+              {
+                lastSynced: expect.any(Date),
+                data: {
+                  id: encounter.administeredVaccines[0].id,
+                  encounterId: encounter.id,
+                },
+              },
+            ],
+            surveyResponses: [
+              {
+                lastSynced: expect.any(Date),
+                data: {
+                  id: encounter.surveyResponses[0].id,
+                  encounterId: encounter.id,
+                  answers: [
+                    {
+                      lastSynced: expect.any(Date),
+                      data: {
+                        id: encounter.surveyResponses[0].answers[0].id,
+                        resultId: encounter.surveyResponses[0].id,
+                      },
+                    },
+                  ],
+                },
+              },
+            ],
+          },
+        },
+      });
+      [
+        [],
+        ['data', 'administeredVaccines', 0],
+        ['data', 'surveyResults', 0],
+        ['data', 'surveyResults', 0, 'answers', 0],
+        ['data', 'surveyResults', 0, 'data', 'answers', 0],
+      ].forEach(path => {
+        ['updatedAt', 'createdAt', 'deletedAt'].forEach(key => {
+          expect(result).not.toHaveProperty([...path, key]);
+          expect(result).not.toHaveProperty([...path, 'data', key]);
+        });
+      });
+    });
   });
 
   describe('Writes', () => {
@@ -189,6 +250,8 @@ describe('Sync API', () => {
       const { createdAt, updatedAt, deletedAt, ...data } = foundRecord;
       expect(data).toEqual(record.data);
     });
+
+    it.todo('should insert configured nested relationships');
   });
 
   describe('Deletes', () => {

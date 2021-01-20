@@ -36,6 +36,24 @@ export const buildEncounter = (ctx, patientId) => async () => {
   return encounter;
 };
 
+export const buildNestedEncounter = (ctx, patientId) => async () => {
+  const encounter = await buildEncounter(ctx, patientId)();
+
+  const administeredVaccine = fakeAdministeredVaccine();
+  delete administeredVaccine.encounterId;
+  encounter.administeredVaccines = [administeredVaccine];
+
+  const surveyResponse = fakeSurveyResponse();
+  delete surveyResponse.encounterId;
+  encounter.surveyResponses = [surveyResponse];
+
+  const surveyResponseAnswer = fakeSurveyResponseAnswer();
+  delete surveyResponseAnswer.responseId;
+  surveyResponse.answers = [surveyResponseAnswer];
+
+  return encounter;
+};
+
 export const buildAdministeredVaccine = (ctx, patientId) => async () => {
   const encounter = await buildEncounter(ctx, patientId)();
   await ctx.wrapper.insert(`patient/${patientId}/encounter`, encounter);
