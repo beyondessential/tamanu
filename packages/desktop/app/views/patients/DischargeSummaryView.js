@@ -67,7 +67,7 @@ const Row = styled.div`
   }
 `;
 
-const DiagnosesList = ({ diagnoses }) => {
+const DiagnosesList = ({ diagnoses = [] }) => {
   if (diagnoses.length === 0) return <span>N/A</span>;
 
   return diagnoses.map(item => {
@@ -80,7 +80,7 @@ const DiagnosesList = ({ diagnoses }) => {
   });
 };
 
-const ProceduresList = ({ procedures }) => {
+const ProceduresList = ({ procedures = [] }) => {
   if (procedures.length === 0) return <span>N/A</span>;
 
   return procedures.map(procedure => {
@@ -93,7 +93,7 @@ const ProceduresList = ({ procedures }) => {
   });
 };
 
-const MedicationsList = ({ medications }) => {
+const MedicationsList = ({ medications = [] }) => {
   if (medications.length === 0) return <span>N/A</span>;
 
   return medications.map(({ drug, prescription }) => (
