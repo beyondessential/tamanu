@@ -21,6 +21,6 @@ export class PatientFamilyHistory extends Model {
   }
   
   static getListReferenceAssociations() {
-    return ['patient', 'practitioner', 'diagnosis']
+    return ['diagnosis']
   }
 }
