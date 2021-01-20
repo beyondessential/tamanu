@@ -114,8 +114,6 @@ describe('sqlWrapper', () => {
           const wrongChannel = [prefix, wrongId, suffix].join('/');
           await expect(ctx.wrapper.insert(wrongChannel, await fakeInstance())).rejects.toThrow();
         });
-
-        it.todo("doesn't find records for another patient");
       });
     });
   });
@@ -148,6 +146,10 @@ describe('sqlWrapper', () => {
     it('finds and counts nested records', async () => {
       // arrange
       const encounter = await buildNestedEncounter(ctx, patientId)();
+
+      const otherPatientId = uuidv4(); // add another encounter to test nested record isolation
+      const otherEncounter = await buildNestedEncounter(ctx, otherPatientId)();
+      await ctx.wrapper.insert(`patient/${otherPatientId}/encounter`, otherEncounter);
 
       // act
       await ctx.wrapper.insert(encounterChannel, encounter);
