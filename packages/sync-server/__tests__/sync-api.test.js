@@ -148,7 +148,6 @@ describe('Sync API', () => {
       // arrange
       const patientId = uuidv4();
       const encounter = await buildNestedEncounter({ wrapper: ctx.store }, patientId)();
-      console.log(encounter);
       await ctx.store.insert(`patient/${patientId}/encounter`, encounter);
 
       // act
@@ -156,39 +155,41 @@ describe('Sync API', () => {
 
       // assert
       expect(result.body).toMatchObject({
-        records: {
-          lastSynced: expect.any(Date),
-          data: {
-            id: encounter.id,
-            administeredVaccines: [
-              {
-                lastSynced: expect.any(Date),
-                data: {
-                  id: encounter.administeredVaccines[0].id,
-                  encounterId: encounter.id,
+        records: [
+          {
+            lastSynced: expect.any(Number),
+            data: {
+              id: encounter.id,
+              administeredVaccines: [
+                {
+                  lastSynced: expect.any(Number),
+                  data: {
+                    id: encounter.administeredVaccines[0].id,
+                    encounterId: encounter.id,
+                  },
                 },
-              },
-            ],
-            surveyResponses: [
-              {
-                lastSynced: expect.any(Date),
-                data: {
-                  id: encounter.surveyResponses[0].id,
-                  encounterId: encounter.id,
-                  answers: [
-                    {
-                      lastSynced: expect.any(Date),
-                      data: {
-                        id: encounter.surveyResponses[0].answers[0].id,
-                        resultId: encounter.surveyResponses[0].id,
+              ],
+              surveyResponses: [
+                {
+                  lastSynced: expect.any(Number),
+                  data: {
+                    id: encounter.surveyResponses[0].id,
+                    encounterId: encounter.id,
+                    answers: [
+                      {
+                        lastSynced: expect.any(Number),
+                        data: {
+                          id: encounter.surveyResponses[0].answers[0].id,
+                          responseId: encounter.surveyResponses[0].id,
+                        },
                       },
-                    },
-                  ],
+                    ],
+                  },
                 },
-              },
-            ],
+              ],
+            },
           },
-        },
+        ],
       });
       [
         [],
