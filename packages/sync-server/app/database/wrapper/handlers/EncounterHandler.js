@@ -1,4 +1,10 @@
-import { BasicHandler, findSinceQuery, countSinceQuery, upsertQuery } from './BasicHandler';
+import {
+  BasicHandler,
+  findSinceQuery,
+  countSinceQuery,
+  upsertQuery,
+  markDeletedQuery,
+} from './BasicHandler';
 
 function extractRelated(record, relation, { fk = 'encounterId' } = {}) {
   return record[relation].map(relatedRecord => ({
@@ -6,6 +12,11 @@ function extractRelated(record, relation, { fk = 'encounterId' } = {}) {
     [fk]: record.id,
   }));
 }
+
+const MARK_ANSWERS_DELETED_SQL = `UPDATE survey_response_answers AS sra
+SET updated_at = CURRENT_TIMESTAMP, deleted_at = CURRENT_TIMESTAMP
+FROM survey_responses AS sr
+WHERE sra.response_id = sr.id AND sr.encounter_id = :encounterId`;
 
 export class EncounterHandler extends BasicHandler {
   models = null;
@@ -66,7 +77,7 @@ export class EncounterHandler extends BasicHandler {
     const query = {
       ...baseQuery,
       where: {
-        ...baseQuery.where,
+        ...(baseQuery.where || {}),
         patientId,
       },
       include: [
@@ -74,14 +85,17 @@ export class EncounterHandler extends BasicHandler {
         {
           model: this.models.AdministeredVaccine,
           as: 'administeredVaccines',
+          paranoid: false,
         },
         {
           model: this.models.SurveyResponse,
           as: 'surveyResponses',
+          paranoid: false,
           include: [
             {
               model: this.models.SurveyResponseAnswer,
               as: 'answers',
+              paranoid: false,
             },
           ],
         },
@@ -89,5 +103,30 @@ export class EncounterHandler extends BasicHandler {
     };
     const records = await this.models.Encounter.findAll(query);
     return records.map(result => result.get({ plain: true }));
+  }
+
+  async markRecordDeleted(id) {
+    const [baseValues, baseQuery] = markDeletedQuery({ id });
+    let count;
+    await this.sequelize.transaction(async transaction => {
+      [count] = await this.model.update(baseValues, {
+        ...baseQuery,
+        transaction,
+      });
+      await this.models.AdministeredVaccine.update(baseValues, {
+        ...baseQuery,
+        where: { encounterId: id },
+        transaction,
+      });
+      await this.models.SurveyResponse.update(baseValues, {
+        ...baseQuery,
+        where: { encounterId: id },
+        transaction,
+      });
+      await this.sequelize.query(MARK_ANSWERS_DELETED_SQL, {
+        replacements: { encounterId: id },
+      });
+    });
+    return count;
   }
 }

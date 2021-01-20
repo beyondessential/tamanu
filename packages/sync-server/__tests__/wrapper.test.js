@@ -133,6 +133,24 @@ describe('sqlWrapper', () => {
       await ctx.wrapper.unsafeRemoveAllOfChannel(encounterChannel);
     });
 
+    const buildNestedEncounter = async () => {
+      const encounter = await buildEncounter(ctx, patientId)();
+
+      const administeredVaccine = fakeAdministeredVaccine();
+      delete administeredVaccine.encounterId;
+      encounter.administeredVaccines = [administeredVaccine];
+
+      const surveyResponse = fakeSurveyResponse();
+      delete surveyResponse.encounterId;
+      encounter.surveyResponses = [surveyResponse];
+
+      const surveyResponseAnswer = fakeSurveyResponseAnswer();
+      delete surveyResponseAnswer.responseId;
+      surveyResponse.answers = [surveyResponseAnswer];
+
+      return { encounter, administeredVaccine, surveyResponse, surveyResponseAnswer };
+    };
+
     it('finds no nested records when there are none', async () => {
       // arrange
       const encounter = await buildEncounter(ctx, patientId)();
@@ -150,19 +168,12 @@ describe('sqlWrapper', () => {
 
     it('finds and counts nested records', async () => {
       // arrange
-      const encounter = await buildEncounter(ctx, patientId)();
-
-      const administeredVaccine = fakeAdministeredVaccine();
-      delete administeredVaccine.encounterId;
-      encounter.administeredVaccines = [administeredVaccine];
-
-      const surveyResponse = fakeSurveyResponse();
-      delete surveyResponse.encounterId;
-      encounter.surveyResponses = [surveyResponse];
-
-      const surveyResponseAnswer = fakeSurveyResponseAnswer();
-      delete surveyResponseAnswer.responseId;
-      surveyResponse.answers = [surveyResponseAnswer];
+      const {
+        encounter,
+        administeredVaccine,
+        surveyResponse,
+        surveyResponseAnswer,
+      } = await buildNestedEncounter();
 
       // act
       await ctx.wrapper.insert(encounterChannel, encounter);
@@ -206,7 +217,26 @@ describe('sqlWrapper', () => {
       expect(foundSurveyResponse.answers[0].responseId).toEqual(foundSurveyResponse.id);
     });
 
-    it.todo('marks related objects as deleted');
-    it.todo('deletes related objects');
+    it('marks related objects as deleted', async () => {
+      // arrange
+      const { encounter } = await buildNestedEncounter();
+      await ctx.wrapper.insert(encounterChannel, encounter);
+
+      // act
+      await ctx.wrapper.markRecordDeleted(encounterChannel, encounter.id);
+
+      // assert
+      const [foundEncounter] = await ctx.wrapper.findSince(encounterChannel, 0);
+      expect(foundEncounter).toHaveProperty('deletedAt', expect.any(Date));
+      expect(foundEncounter).toHaveProperty(
+        ['administeredVaccines', 0, 'deletedAt'],
+        expect.any(Date),
+      );
+      expect(foundEncounter).toHaveProperty(['surveyResponses', 0, 'deletedAt'], expect.any(Date));
+      expect(foundEncounter).toHaveProperty(
+        ['surveyResponses', 0, 'answers', 0, 'deletedAt'],
+        expect.any(Date),
+      );
+    });
   });
 });
