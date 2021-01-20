@@ -32,6 +32,7 @@ export class EncounterHandler extends BasicHandler {
   async insert(rawEncounter, { patientId, ...params }) {
     const encounter = { ...rawEncounter, patientId };
 
+    // TODO: remove already existing objects for relation and write tests
     return this.sequelize.transaction(async transaction => {
       const upsert = (model, records) =>
         Promise.all(
@@ -41,7 +42,7 @@ export class EncounterHandler extends BasicHandler {
           }),
         );
 
-      const count = await upsert(this.models.Encounter, [encounter]);
+      await upsert(this.models.Encounter, [encounter]);
 
       await upsert(
         this.models.AdministeredVaccine,
@@ -56,7 +57,7 @@ export class EncounterHandler extends BasicHandler {
         .flat();
       await upsert(this.models.SurveyResponseAnswer, surveyResponseAnswers);
 
-      return count;
+      return 1;
     });
   }
 

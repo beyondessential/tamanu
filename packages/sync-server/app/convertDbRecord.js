@@ -1,14 +1,24 @@
+const convertRelationsToDb = data => {
+  const relations = {};
+  Object.entries(data).forEach(([key, value]) => {
+    if (Array.isArray(value)) {
+      relations[key] = value.map(convertToDbRecord);
+    }
+  });
+  return { ...data, ...relations };
+};
+
 export const convertToDbRecord = syncRecord => {
   // TODO: recursively run conversion for nested arrays and add tests
   const { data, lastSynced, ...metadata } = syncRecord;
 
   return {
     ...metadata,
-    ...data,
+    ...convertRelationsToDb(data),
   };
 };
 
-const convertDbRelations = data => {
+const convertRelationsFromDb = data => {
   const relations = {};
   Object.entries(data).forEach(([key, value]) => {
     if (Array.isArray(value)) {
@@ -26,7 +36,7 @@ export const convertFromDbRecord = dbRecord => {
     ...(deletedAt ? { isDeleted: true } : {}),
     data: {
       id,
-      ...(deletedAt ? {} : convertDbRelations(data)),
+      ...(deletedAt ? {} : convertRelationsFromDb(data)),
     },
   };
 };

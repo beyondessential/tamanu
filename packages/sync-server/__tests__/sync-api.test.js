@@ -252,7 +252,35 @@ describe('Sync API', () => {
       expect(data).toEqual(record.data);
     });
 
-    it.todo('should insert configured nested relationships');
+    it('should upsert nested encounter relationships', async () => {
+      // arrange
+      const patientId = uuidv4();
+      const encounterToInsert = await buildNestedEncounter({ wrapper: ctx.store }, patientId)();
+      await ctx.store.insert(`patient/${patientId}/encounter`, encounterToInsert);
+
+      // act
+      const getResult = await app.get(`/v1/sync/patient%2F${patientId}%2Fencounter?since=0`);
+      const syncEncounter = getResult.body.records.find(
+        ({ data }) => data.id === encounterToInsert.id,
+      );
+      syncEncounter.data.administeredVaccines[0].data.batch = 'test batch';
+      syncEncounter.data.surveyResponses[0].data.result = 3.141592;
+      syncEncounter.data.surveyResponses[0].data.answers[0].data.body = 'test body';
+
+      const result = await app
+        .post(`/v1/sync/patient%2F${patientId}%2Fencounter?since=0`)
+        .send(syncEncounter);
+
+      // assert
+      expect(result.body).toHaveProperty('count', 1);
+      const [encounterAfterPost] = await ctx.store.findSince(`patient/${patientId}/encounter`, 0);
+      expect(encounterAfterPost).toHaveProperty(['administeredVaccines', 0, 'batch'], 'test batch');
+      expect(encounterAfterPost).toHaveProperty(['surveyResponses', 0, 'result'], 3.141592);
+      expect(encounterAfterPost).toHaveProperty(
+        ['surveyResponses', 0, 'answers', 0, 'body'],
+        'test body',
+      );
+    });
   });
 
   describe('Deletes', () => {
