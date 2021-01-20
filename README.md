@@ -88,10 +88,27 @@ the desktop directory using `yarn storybook`.
 
 ### Sync server
 
-Start a mongod instance on your local machine. Once mongodb has started, run
+First open [packages/sync-server/config/defaults.json](packages/sync-server/config/defaults.json) and change `syncOnStartup` (within `db`) to `true`, then:
+
+#### OSX
+
+Run:
 
 ```bash
-$ yarn sync-start-dev
+brew install postgres
+brew services start postgres
+createdb tamanu-sync
+yarn install
+yarn sync-start-dev
+```
+
+#### WSL
+
+Install the [PostgreSQL server](https://www.postgresql.org/download/windows/). Open pgAdmin and add a new database `tamanu-sync`, then run:
+
+```bash
+yarn install
+yarn sync-start-dev
 ```
 
 ## Integrations
