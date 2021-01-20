@@ -11,10 +11,13 @@ import { foreignKey } from '../utils/validation';
 export class FamilyHistoryForm extends React.PureComponent {
   static propTypes = {
     onSubmit: PropTypes.func.isRequired,
+    onCancel: PropTypes.func.isRequired,
+    editedObject: PropTypes.shape({}),
   };
 
   renderForm = ({ submitForm }) => {
-    const { onClose, icd10Suggester, practitionerSuggester } = this.props;
+    const { onCancel, icd10Suggester, practitionerSuggester, editedObject } = this.props;
+    const buttonText = editedObject ? 'Save' : 'Add';
     return (
       <FormGrid columns={1}>
         <Field
@@ -34,7 +37,7 @@ export class FamilyHistoryForm extends React.PureComponent {
           suggester={practitionerSuggester}
         />
         <Field name="notes" label="Notes" component={TextField} multiline rows={2} />
-        <ConfirmCancelRow variant="contained" onClick={submitForm} onCancel={onClose} />
+        <ConfirmCancelRow onConfirm={submitForm} onCancel={onCancel} confirmText={buttonText} />
       </FormGrid>
     );
   };
