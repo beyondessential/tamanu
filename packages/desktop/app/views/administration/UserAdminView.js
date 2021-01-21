@@ -6,18 +6,18 @@ import { USER_SEARCH_ENDPOINT } from './constants';
 
 const COLUMNS = [
   {
-    key: 'name',
-    title: 'Name',
-    minWidth: 100,
-  },
-  {
     key: 'displayName',
-    title: 'Display name',
+    title: 'Name',
     minWidth: 100,
   },
   {
     key: 'email',
     title: 'Email address',
+    minWidth: 100,
+  },
+  {
+    key: 'role',
+    title: 'Role',
     minWidth: 100,
   },
 ];
@@ -50,7 +50,7 @@ export const UserAdminView = React.memo(() => {
           Add new user
         </Button>
       </TopBar>
-      <SearchBar onSearch={setSearchParameters} />
+      {/* <SearchBar onSearch={setSearchParameters} /> */}
       <UserTable fetchOptions={searchParameters} />
       <NewRecordModal
         title="Create new user"

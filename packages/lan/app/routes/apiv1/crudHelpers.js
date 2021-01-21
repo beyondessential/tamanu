@@ -64,10 +64,23 @@ export const simpleGetList = (modelName, foreignKey = '', options = {}) => {
 
   return asyncHandler(async (req, res) => {
     const { models, params, query } = req;
-    const { offset = 0, order = 'ASC', orderBy, rowsPerPage = 10 } = query;
+    const { page = 0, order = 'ASC', orderBy, rowsPerPage = 10 } = query;
+    const offset = query.offset || page * rowsPerPage;
 
     const model = models[modelName];
     const associations = model.getListReferenceAssociations(models) || [];
+
+    const resultsToCount = await models[modelName].findAll({
+      where: {
+        ...(foreignKey && { [foreignKey]: params.id }),
+        ...additionalFilters,
+      },
+      order: orderBy ? [[orderBy, order.toUpperCase()]] : undefined,
+      // limit: rowsPerPage,
+      // offset,
+      include: [...associations, ...include],
+    });
+
     const objects = await models[modelName].findAll({
       where: {
         ...(foreignKey && { [foreignKey]: params.id }),
@@ -82,7 +95,7 @@ export const simpleGetList = (modelName, foreignKey = '', options = {}) => {
     const data = objects.map(x => x.forResponse());
 
     res.send({
-      count: data.length,
+      count: resultsToCount.length,
       data: data,
     });
   });
