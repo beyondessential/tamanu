@@ -29,3 +29,4 @@ export * from './Referral';
 export * from './Immunisation';
 export * from './ScheduledVaccine';
 export * from './AdministeredVaccine';
+export * from './ReportRequest';
