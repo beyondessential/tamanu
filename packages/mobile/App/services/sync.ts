@@ -192,7 +192,6 @@ export class SyncManager {
         // and network IO are running in parallel rather than running in
         // alternating sequence.
         const downloadTask = downloadPage(page);
-        page += 1;
 
         // wait for import task to complete before progressing in loop
         await importTask;
@@ -222,6 +221,8 @@ export class SyncManager {
           await importTask;
           break;
         }
+
+        page += 1;
       }
     } catch (e) {
       console.warn(e);
