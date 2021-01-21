@@ -59,7 +59,7 @@ export class WebSyncSource implements SyncSource {
         method: 'GET',
         headers: {
           'Authorization': 'Bearer fake-token',
-          'Content-Type': 'application/json',
+          'Accept': 'application/json',
         },
       });
       return await response.json();
