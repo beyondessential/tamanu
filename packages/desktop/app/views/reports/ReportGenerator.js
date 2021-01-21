@@ -4,7 +4,16 @@ import { connect } from 'react-redux';
 import styled from 'styled-components';
 import * as Yup from 'yup';
 import { connectApi } from '../../api';
-import { AutocompleteField, Button, DateField, Field, Form, PageContainer, TextAreaField, TextField, TopBar } from '../../components';
+import {
+  AutocompleteField,
+  Button,
+  DateField,
+  Field,
+  Form,
+  PageContainer,
+  TextField,
+  TopBar,
+} from '../../components';
 import { FormGrid } from '../../components/FormGrid';
 import { Colors } from '../../constants';
 import { getCurrentUser } from '../../store/auth';
@@ -13,7 +22,7 @@ import { Suggester } from '../../utils/suggester';
 const REPORT_TYPE_OPTIONS = [
   { label: 'Incomplete referrals', value: 'incomplete-referrals' },
   { label: 'Recent Diagnoses', value: 'recent-diagnoses' },
-  { label: 'Admissions Report', value: 'admissions-report' }
+  { label: 'Admissions Report', value: 'admissions-report' },
 ];
 
 const PageContent = styled.div`
@@ -22,7 +31,7 @@ const PageContent = styled.div`
 
 const GenerateButton = styled(Button)`
   margin-top: 48px;
-`
+`;
 
 const DateRangeLabel = styled(Typography)`
   font-weight: 500;
@@ -58,7 +67,7 @@ async function validateCommaSeparatedEmails(emails) {
   if (emailList.length == 0) {
     return `${emails} is invalid.`;
   }
-  
+
   for (var i = 0; i < emailList.length; i++) {
     const isEmailValid = await emailSchema.isValid(emailList[i]);
     if (!isEmailValid) {
@@ -67,9 +76,14 @@ async function validateCommaSeparatedEmails(emails) {
   }
 }
 
-const DumbReportGenerator = ({ villageSuggester, practitionerSuggester, currentUser }) => {
+const DumbReportGenerator = ({
+  villageSuggester,
+  practitionerSuggester,
+  currentUser,
+  submitRequest,
+}) => {
   return (
-    <PageContainer >
+    <PageContainer>
       <TopBar title="Report Generator" />
       <PageContent>
         <Form
@@ -77,10 +91,21 @@ const DumbReportGenerator = ({ villageSuggester, practitionerSuggester, currentU
             reportType: '',
             village: '',
             practitioner: '',
-            emails: currentUser.email
+            emails: currentUser.email,
           }}
-          onSubmit={(values) => {
-            console.log('on submit', values, parseEmails(values.emails));
+          onSubmit={async (values, { resetForm }) => {
+            const { reportType, emails, ...restValues } = values;
+
+            try {
+              const submitted = await submitRequest({
+                reportType: reportType,
+                emailList: parseEmails(emails),
+                parameters: restValues,
+              });
+              resetForm();
+            } catch (e) {
+              console.error('Error submitting report request', e);
+            }
           }}
           validationSchema={ReportGenerateFormSchema}
           render={() => (
@@ -106,13 +131,16 @@ const DumbReportGenerator = ({ villageSuggester, practitionerSuggester, currentU
                   suggester={practitionerSuggester}
                 />
               </FormGrid>
-              <DateRangeLabel variant="body1">Date range (or leave blank for all data)</DateRangeLabel>
+              <DateRangeLabel variant="body1">
+                Date range (or leave blank for all data)
+              </DateRangeLabel>
               <FormGrid columns={2}>
                 <Field name="fromDate" label="From date" component={DateField} />
                 <Field name="toDate" label="To date" component={DateField} />
               </FormGrid>
               <EmailInputContainer>
-                <Field name="emails"
+                <Field
+                  name="emails"
                   label="Email to (separate emails with a comma)"
                   component={TextField}
                   placeholder="example@example.com"
@@ -125,19 +153,21 @@ const DumbReportGenerator = ({ villageSuggester, practitionerSuggester, currentU
                 Generate
               </GenerateButton>
             </>
-          )}>
-
-        </Form>
+          )}
+        ></Form>
       </PageContent>
     </PageContainer>
-  )
-}
+  );
+};
 
 const IntermediateReportGenerator = connectApi(api => ({
   villageSuggester: new Suggester(api, 'village'),
   practitionerSuggester: new Suggester(api, 'practitioner'),
+  submitRequest: async reportRequest => {
+    return await api.post('reportRequest', reportRequest);
+  },
 }))(DumbReportGenerator);
 
 export const ReportGenerator = connect(state => ({
-  currentUser: getCurrentUser(state)
+  currentUser: getCurrentUser(state),
 }))(IntermediateReportGenerator);
