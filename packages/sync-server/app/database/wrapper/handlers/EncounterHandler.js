@@ -30,7 +30,7 @@ export class EncounterHandler extends BasicHandler {
   }
 
   async upsert(rawEncounter, { patientId, ...params }) {
-    // relationships which aren't present will NOT be deleted
+    // related records which aren't present will NOT be deleted
     const encounter = { ...rawEncounter, patientId };
 
     return this.sequelize.transaction(async transaction => {
