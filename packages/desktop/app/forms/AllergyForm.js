@@ -25,7 +25,7 @@ export class AllergyForm extends React.PureComponent {
     return (
       <FormGrid columns={1}>
         <Field
-          name="allergy.id"
+          name="allergyId"
           label="Allergy name"
           component={AutocompleteField}
           suggester={allergySuggester}
@@ -33,11 +33,10 @@ export class AllergyForm extends React.PureComponent {
         />
         <Field name="date" label="Date recorded" component={DateField} required />
         <Field
-          name="practitioner.id"
+          name="practitionerId"
           label="Doctor/Nurse"
           component={AutocompleteField}
           suggester={practitionerSuggester}
-
         />
         <Field name="notes" label="Notes" component={TextField} />
         <ConfirmCancelRow onCancel={onCancel} onConfirm={submitForm} confirmText={buttonText} />
@@ -53,11 +52,10 @@ export class AllergyForm extends React.PureComponent {
         render={this.renderForm}
         initialValues={{
           date: new Date(),
-          allergy: {},
           ...editedObject,
         }}
         validationSchema={yup.object().shape({
-          allergy: foreignKey('An allergy must be selected'),
+          allergyId: foreignKey('An allergy must be selected'),
           date: yup.date().required(),
         })}
       />

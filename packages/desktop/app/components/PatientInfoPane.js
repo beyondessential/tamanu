@@ -31,7 +31,7 @@ const AllergyDisplay = memo(({ patient, readonly }) => (
     patient={patient}
     readonly={readonly}
     title="Allergies"
-    endpoint="allergies"
+    endpoint="allergy"
     suggesterEndpoints={['practitioner', 'allergy']}
     items={patient.allergies}
     Form={AllergyForm}
