@@ -7,7 +7,7 @@ import { createTestContext } from '../utilities';
 
 const { baseApp, models } = createTestContext();
 
-describe('Ongoing conditions', () => {
+describe('Allergy', () => {
   let patient = null;
   let app = null;
 
@@ -16,22 +16,22 @@ describe('Ongoing conditions', () => {
     patient = await models.Patient.create(await createDummyPatient(models));
   });
 
-  // it('should record an ongoing condition', async () => {
-  //   const result = await app.post('/v1/ongoingCondition').send({
-  //     conditionId: randomReferenceId(models, 'icd10'),
-  //     patientId: patient.id,
-  //     practitionerId: await randomUser(models),
-  //   });
-  //   expect(result).toHaveSucceeded();
-  //   expect(result.body.recordedDate).toBeTruthy();
-  // });
+  it('should record an allergy', async () => {
+    const result = await app.post('/v1/allergy').send({
+      allergyId: randomReferenceId(models, 'allergy'),
+      patientId: patient.id,
+      practitionerId: await randomUser(models),
+    });
+    expect(result).toHaveSucceeded();
+    expect(result.body.recordedDate).toBeTruthy();
+  });
 
-  // it('should require a valid diagnosis', async () => {
-  //   const result = await app.post('/v1/ongoingCondition').send({
-  //     conditionId: 'invalid id',
-  //     patientId: patient.id,
-  //     practitionerId: await randomUser(models),
-  //   });
-  //   expect(result).toHaveRequestError();
-  // });
+  it('should require a valid allergy', async () => {
+    const result = await app.post('/v1/allergy').send({
+      allergyId: 'invalid id',
+      patientId: patient.id,
+      practitionerId: await randomUser(models),
+    });
+    expect(result).toHaveRequestError();
+  });
 });
