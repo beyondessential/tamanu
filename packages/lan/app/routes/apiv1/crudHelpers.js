@@ -54,7 +54,6 @@ export const simplePut = modelName =>
 export const simplePost = modelName =>
   asyncHandler(async (req, res) => {
     const { models } = req;
-    console.log(modelName,req.body);
     req.checkPermission('create', modelName);
     const object = await models[modelName].create(req.body);
     res.send(object);
