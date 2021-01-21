@@ -107,6 +107,9 @@ export class EncounterHandler extends BasicHandler {
   }
 
   async markRecordDeleted(id) {
+    if (id === null || id === undefined) {
+      throw new Error('id must be set');
+    }
     const [baseValues, baseQuery] = markDeletedQuery({ id });
     let count;
     await this.sequelize.transaction(async transaction => {
