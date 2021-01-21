@@ -18,10 +18,9 @@ describe('Ongoing conditions', () => {
 
   it('should record an ongoing condition', async () => {
     const result = await app.post('/v1/ongoingCondition').send({
-      diagnosisId: randomReferenceId(models, 'icd10'),
+      conditionId: randomReferenceId(models, 'icd10'),
       patientId: patient.id,
       practitionerId: await randomUser(models),
-      relationship: "mother",
     });
     expect(result).toHaveSucceeded();
     expect(result.body.recordedDate).toBeTruthy();
@@ -29,10 +28,9 @@ describe('Ongoing conditions', () => {
 
   it('should require a valid diagnosis', async () => {
     const result = await app.post('/v1/ongoingCondition').send({
-      diagnosisId: 'invalid id',
+      conditionId: 'invalid id',
       patientId: patient.id,
       practitionerId: await randomUser(models),
-      relationship: "mother",
     });
     expect(result).toHaveRequestError();
   });
