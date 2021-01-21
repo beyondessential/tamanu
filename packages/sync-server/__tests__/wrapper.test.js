@@ -53,12 +53,12 @@ describe('sqlWrapper', () => {
         it('finds and counts records after an insertion', async () => {
           const instance1 = await fakeInstance();
           await withDate(new Date(1980, 5, 1), async () => {
-            await ctx.wrapper.insert(channel, instance1);
+            await ctx.wrapper.upsert(channel, instance1);
           });
 
           const instance2 = await fakeInstance();
           await withDate(new Date(1990, 5, 1), async () => {
-            await ctx.wrapper.insert(channel, instance2);
+            await ctx.wrapper.upsert(channel, instance2);
           });
 
           const since = new Date(1985, 5, 1).valueOf();
@@ -76,7 +76,7 @@ describe('sqlWrapper', () => {
         it('marks records as deleted', async () => {
           const instance = await fakeInstance();
           instance.id = uuidv4();
-          await ctx.wrapper.insert(channel, instance);
+          await ctx.wrapper.upsert(channel, instance);
 
           await ctx.wrapper.markRecordDeleted(channel, instance.id);
 
@@ -91,7 +91,7 @@ describe('sqlWrapper', () => {
 
         it('removes all records of a channel', async () => {
           const record = await fakeInstance();
-          await ctx.wrapper.insert(channel, record);
+          await ctx.wrapper.upsert(channel, record);
 
           await ctx.wrapper.unsafeRemoveAllOfChannel(channel);
 
@@ -112,7 +112,7 @@ describe('sqlWrapper', () => {
           const [prefix, , suffix] = channel.split('/');
           const wrongId = uuidv4();
           const wrongChannel = [prefix, wrongId, suffix].join('/');
-          await expect(ctx.wrapper.insert(wrongChannel, await fakeInstance())).rejects.toThrow();
+          await expect(ctx.wrapper.upsert(wrongChannel, await fakeInstance())).rejects.toThrow();
         });
       });
     });
@@ -121,7 +121,7 @@ describe('sqlWrapper', () => {
   describe('encounters', () => {
     const encounterChannel = `patient/${patientId}/encounter`;
     beforeAll(async () => {
-      await ctx.wrapper.insert('patient', { ...fakePatient(), patientId });
+      await ctx.wrapper.upsert('patient', { ...fakePatient(), patientId });
     });
 
     beforeEach(async () => {
@@ -133,7 +133,7 @@ describe('sqlWrapper', () => {
       const encounter = await buildEncounter(ctx, patientId)();
 
       // act
-      await ctx.wrapper.insert(encounterChannel, encounter);
+      await ctx.wrapper.upsert(encounterChannel, encounter);
       const foundEncounters = await ctx.wrapper.findSince(encounterChannel, 0);
 
       // assert
@@ -149,10 +149,10 @@ describe('sqlWrapper', () => {
 
       const otherPatientId = uuidv4(); // add another encounter to test nested record isolation
       const otherEncounter = await buildNestedEncounter(ctx, otherPatientId)();
-      await ctx.wrapper.insert(`patient/${otherPatientId}/encounter`, otherEncounter);
+      await ctx.wrapper.upsert(`patient/${otherPatientId}/encounter`, otherEncounter);
 
       // act
-      await ctx.wrapper.insert(encounterChannel, encounter);
+      await ctx.wrapper.upsert(encounterChannel, encounter);
       const foundEncounters = await ctx.wrapper.findSince(encounterChannel, 0);
 
       // assert
@@ -196,7 +196,7 @@ describe('sqlWrapper', () => {
     it('marks related objects as deleted', async () => {
       // arrange
       const encounter = await buildNestedEncounter(ctx, patientId)();
-      await ctx.wrapper.insert(encounterChannel, encounter);
+      await ctx.wrapper.upsert(encounterChannel, encounter);
 
       // act
       await ctx.wrapper.markRecordDeleted(encounterChannel, encounter.id);

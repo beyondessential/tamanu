@@ -56,8 +56,8 @@ export class SqlWrapper {
     return this.channelRouter(channel, handler => handler.unsafeRemoveAll());
   }
 
-  async insert(channel, record) {
-    return this.channelRouter(channel, (handler, params) => handler.insert(record, params));
+  async upsert(channel, record) {
+    return this.channelRouter(channel, (handler, params) => handler.upsert(record, params));
   }
 
   async countSince(channel, since) {

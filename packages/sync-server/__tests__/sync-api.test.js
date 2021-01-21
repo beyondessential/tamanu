@@ -27,7 +27,7 @@ describe('Sync API', () => {
 
     await Promise.all(
       [OLDEST, SECOND_OLDEST].map(async r => {
-        await ctx.store.insert('patient', convertToDbRecord(r));
+        await ctx.store.upsert('patient', convertToDbRecord(r));
         await unsafeSetUpdatedAt(ctx.store, {
           table: 'patients',
           id: r.data.id,
@@ -87,7 +87,7 @@ describe('Sync API', () => {
           .map((zero, i) => fakeSyncRecordPatient(`test-pagination-${i}_`));
 
         // import in series so there's a predictable order to test against
-        await Promise.all(records.map(r => ctx.store.insert('patient', convertToDbRecord(r))));
+        await Promise.all(records.map(r => ctx.store.upsert('patient', convertToDbRecord(r))));
       });
 
       it('should only return $limit records', async () => {
@@ -148,7 +148,7 @@ describe('Sync API', () => {
       // arrange
       const patientId = uuidv4();
       const encounter = await buildNestedEncounter({ wrapper: ctx.store }, patientId)();
-      await ctx.store.insert(`patient/${patientId}/encounter`, encounter);
+      await ctx.store.upsert(`patient/${patientId}/encounter`, encounter);
 
       // act
       const result = await app.get(`/v1/sync/patient%2F${patientId}%2Fencounter?since=0`);
@@ -256,7 +256,7 @@ describe('Sync API', () => {
       // arrange
       const patientId = uuidv4();
       const encounterToInsert = await buildNestedEncounter({ wrapper: ctx.store }, patientId)();
-      await ctx.store.insert(`patient/${patientId}/encounter`, encounterToInsert);
+      await ctx.store.upsert(`patient/${patientId}/encounter`, encounterToInsert);
 
       // act
       const getResult = await app.get(`/v1/sync/patient%2F${patientId}%2Fencounter?since=0`);
@@ -294,7 +294,7 @@ describe('Sync API', () => {
 
       beforeEach(async () => {
         patient = fakeSyncRecordPatient();
-        await ctx.store.insert('patient', convertToDbRecord(patient));
+        await ctx.store.upsert('patient', convertToDbRecord(patient));
         await unsafeSetUpdatedAt(ctx.store, {
           table: 'patients',
           id: patient.data.id,

@@ -29,7 +29,7 @@ export class EncounterHandler extends BasicHandler {
     this.sequelize = sequelize;
   }
 
-  async insert(rawEncounter, { patientId, ...params }) {
+  async upsert(rawEncounter, { patientId, ...params }) {
     // relationships which aren't present will NOT be deleted
     const encounter = { ...rawEncounter, patientId };
 

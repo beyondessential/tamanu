@@ -16,16 +16,16 @@ import {
 export const buildEncounter = (ctx, patientId) => async () => {
   const patient = fakePatient();
   patient.id = patientId;
-  await ctx.wrapper.insert('patient', patient);
+  await ctx.wrapper.upsert('patient', patient);
 
   const examiner = fakeUser('examiner');
-  await ctx.wrapper.insert('user', examiner);
+  await ctx.wrapper.upsert('user', examiner);
 
   const location = fakeReferenceData('location');
-  await ctx.wrapper.insert('reference', location);
+  await ctx.wrapper.upsert('reference', location);
 
   const department = fakeReferenceData('department');
-  await ctx.wrapper.insert('reference', department);
+  await ctx.wrapper.upsert('reference', department);
 
   const encounter = fakeEncounter();
   encounter.patientId = patient.id;
@@ -56,7 +56,7 @@ export const buildNestedEncounter = (ctx, patientId) => async () => {
 
 export const buildAdministeredVaccine = (ctx, patientId) => async () => {
   const encounter = await buildEncounter(ctx, patientId)();
-  await ctx.wrapper.insert(`patient/${patientId}/encounter`, encounter);
+  await ctx.wrapper.upsert(`patient/${patientId}/encounter`, encounter);
 
   const administeredVaccine = fakeAdministeredVaccine();
   administeredVaccine.encounterId = encounter.id;
@@ -66,7 +66,7 @@ export const buildAdministeredVaccine = (ctx, patientId) => async () => {
 
 export const buildSurveyResponse = (ctx, patientId) => async () => {
   const encounter = await buildEncounter(ctx, patientId)();
-  await ctx.wrapper.insert(`patient/${patientId}/encounter`, encounter);
+  await ctx.wrapper.upsert(`patient/${patientId}/encounter`, encounter);
 
   const surveyResponse = fakeSurveyResponse();
   surveyResponse.encounterId = encounter.id;
@@ -76,7 +76,7 @@ export const buildSurveyResponse = (ctx, patientId) => async () => {
 
 export const buildSurveyResponseAnswer = (ctx, patientId) => async () => {
   const surveyResponse = await buildSurveyResponse(ctx, patientId)();
-  await ctx.wrapper.insert(`patient/${patientId}/surveyResponse`, surveyResponse);
+  await ctx.wrapper.upsert(`patient/${patientId}/surveyResponse`, surveyResponse);
 
   const surveyResponseAnswer = fakeSurveyResponseAnswer();
   surveyResponseAnswer.responseId = surveyResponse.id;
@@ -93,7 +93,7 @@ export const buildScheduledVaccine = ctx => async () => {
     type: REFERENCE_TYPES.VACCINE,
     ...fakeStringFields(`vaccine_${vaccineId}_`, ['code', 'name']),
   };
-  await ctx.wrapper.insert('reference', vaccine);
+  await ctx.wrapper.upsert('reference', vaccine);
   scheduledVaccine.vaccineId = vaccineId;
 
   return scheduledVaccine;

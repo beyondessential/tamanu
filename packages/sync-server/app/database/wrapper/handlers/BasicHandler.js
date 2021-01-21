@@ -62,7 +62,7 @@ export class BasicHandler {
     return this.model.destroy({ truncate: true, cascade: true, force: true });
   }
 
-  async insert(record, params) {
+  async upsert(record, params) {
     return this.model.upsert(...upsertQuery(record, params));
   }
 
