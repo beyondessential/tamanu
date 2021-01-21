@@ -36,6 +36,11 @@ export interface SyncSource {
     page: number,
     limit: number,
   ): Promise<GetSyncDataResponse>;
+
+  uploadRecords(
+    channel: string,
+    records: object[],
+  ): Promise<number>;
 }
 
 export class WebSyncSource implements SyncSource {
@@ -67,6 +72,30 @@ export class WebSyncSource implements SyncSource {
     } catch (error) {
       console.error(error);
       return null;
+    }
+  }
+
+  async uploadRecords(channel: string, records: object[]): Promise<number> {
+    const url = `${this.host}/sync/${encodeURIComponent(channel)}`;
+    try {
+      const response = await fetch(url, {
+        method: 'POST',
+        headers: {
+          'Authorization': 'Bearer fake-token',
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify(records),
+      });
+      const { count } = await response.json();
+      if (count !== records.length) {
+        throw new Error(
+          `uploaded ${records.length} records but returned count was ${count}`,
+        );
+      }
+      return count;
+    } catch (error) {
+      console.error(error);
+      return 0; // TODO: rework to return failed records
     }
   }
 
