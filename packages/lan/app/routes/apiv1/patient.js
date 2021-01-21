@@ -10,9 +10,8 @@ import {
   simpleGetList,
   permissionCheckingRouter,
   runPaginatedQuery,
+  simpleList,
 } from './crudHelpers';
-
-import { renameObjectKeys } from '~/utils/renameObjectKeys';
 
 export const patient = express.Router();
 
@@ -105,165 +104,74 @@ patient.get(
   }),
 );
 
-const makeFilter = (check, sql, transform) => {
-  if (!check) return null;
-
-  return {
-    sql,
-    transform,
-  };
-};
-
-const sortKeys = {
-  displayId: 'patients.display_id',
-  lastName: 'UPPER(patients.last_name)',
-  culturalName: 'UPPER(patients.cultural_name)',
-  firstName: 'UPPER(patients.first_name)',
-  age: 'patients.date_of_birth',
-  dateOfBirth: 'patients.date_of_birth',
-  villageName: 'village_name',
-  locationName: 'location.name',
-  departmentName: 'department.name',
-  encounterType: 'encounters.encounter_type',
-  sex: 'patients.sex',
-};
-
 patient.get(
   '/$',
-  asyncHandler(async (req, res) => {
-    const {
-      models: { Patient },
-      query,
-    } = req;
+  simpleList('Patient', {
+    filters: {
+      displayId: `patients.display_id = :displayId`,
+      firstName: `UPPER(patients.first_name) LIKE UPPER(:firstName)%`,
+      lastName: `UPPER(patients.last_name) LIKE UPPER(:lastName)%`,
+      culturalName: `UPPER(patients.cultural_name) LIKE UPPER(:culturalName)%`,
+      villageId: `patients.village_id = :villageId`,
+      locationId: `location.id = :locationId`,
+      departmentId: `department.id = :departmentId`,
+      inpatient: `encounters.encounter_type = 'admission'`,
+      outpatient: `encounters.encounter_type = 'clinic'`,
 
-    req.checkPermission('list', 'Patient');
-
-    const {
-      orderBy = 'lastName',
-      order = 'asc',
-      rowsPerPage = 10,
-      page = 0,
-      ...filterParams
-    } = query;
-
-    const sortKey = sortKeys[orderBy] || sortKeys.displayId;
-    const sortDirection = order.toLowerCase() === 'asc' ? 'ASC' : 'DESC';
-
-    // query is always going to come in as strings, has to be set manually
-    ['ageMax', 'ageMin']
-      .filter(k => filterParams[k])
-      .map(k => (filterParams[k] = parseFloat(filterParams[k])));
-
-    const filters = [
-      makeFilter(filterParams.displayId, `patients.display_id = :displayId`),
-      makeFilter(
-        filterParams.firstName,
-        `UPPER(patients.first_name) LIKE UPPER(:firstName)`,
-        ({ firstName }) => ({ firstName: `${firstName}%` }),
-      ),
-      makeFilter(
-        filterParams.lastName,
-        `UPPER(patients.last_name) LIKE UPPER(:lastName)`,
-        ({ lastName }) => ({ lastName: `${lastName}%` }),
-      ),
-      makeFilter(
-        filterParams.culturalName,
-        `UPPER(patients.cultural_name) LIKE UPPER(:culturalName)`,
-        ({ culturalName }) => ({ culturalName: `${culturalName}%` }),
-      ),
-      makeFilter(filterParams.ageMax, `patients.date_of_birth >= :dobEarliest`, ({ ageMax }) => ({
+      // Filters using calculated values
+      ageMax: `patients.date_of_birth >= :dobEarliest`,
+      ageMin: `patients.date_of_birth <= :dobLatest`,
+    },
+    transforms: {
+      dobEarliest: ({ ageMax }) => ({
         dobEarliest: moment()
           .startOf('day')
-          .subtract(ageMax + 1, 'years')
+          .subtract(parseFloat(ageMax) + 1, 'years')
           .add(1, 'day')
           .toDate(),
-      })),
-      makeFilter(filterParams.ageMin, `patients.date_of_birth <= :dobLatest`, ({ ageMin }) => ({
+      }),
+      dobLatest: ({ ageMin }) => ({
         dobLatest: moment()
-          .subtract(ageMin, 'years')
+          .subtract(parseFloat(ageMin), 'years')
           .endOf('day')
           .toDate(),
-      })),
-      makeFilter(filterParams.villageId, `patients.village_id = :villageId`),
-      makeFilter(filterParams.locationId, `location.id = :locationId`),
-      makeFilter(filterParams.departmentId, `department.id = :departmentId`),
-      makeFilter(filterParams.inpatient, `encounters.encounter_type = 'admission'`),
-      makeFilter(filterParams.outpatient, `encounters.encounter_type = 'clinic'`),
-    ].filter(f => f);
-
-    const whereClauses = filters.map(f => f.sql).join(' AND ');
-
-    const from = `
-      FROM patients
-        LEFT JOIN encounters 
-          ON (encounters.patient_id = patients.id AND encounters.end_date IS NULL)
-        LEFT JOIN reference_data AS department
-          ON (department.type = 'department' AND department.id = encounters.department_id)
-        LEFT JOIN reference_data AS location
-          ON (location.type = 'location' AND location.id = encounters.location_id)
-        LEFT JOIN reference_data AS village
-          ON (village.type = 'village' AND village.id = patients.village_id)
-      ${whereClauses && `WHERE ${whereClauses}`}
-    `;
-
-    const filterReplacements = filters
-      .filter(f => f.transform)
-      .reduce(
-        (current, { transform }) => ({
-          ...current,
-          ...transform(current),
-        }),
-        filterParams,
-      );
-
-    const countResult = await req.db.query(`SELECT COUNT(1) AS count ${from}`, {
-      replacements: filterReplacements,
-      type: QueryTypes.SELECT,
-    });
-
-    const { count } = countResult[0];
-
-    if (count === 0) {
-      // save ourselves a query
-      res.send({ data: [], count });
-      return;
-    }
-
-    const result = await req.db.query(
-      `
-        SELECT 
-          patients.*, 
-          encounters.id AS encounter_id,
-          encounters.encounter_type,
-          department.id AS department_id,
-          department.name AS department_name,
-          location.id AS location_id,
-          location.name AS location_name,
-          village.id AS village_id,
-          village.name AS village_name
-        ${from}
-        
-        ORDER BY ${sortKey} ${sortDirection} NULLS LAST
-        LIMIT :limit
-        OFFSET :offset
+      })
+    },
+    sortKeys: {
+      displayId: 'patients.display_id',
+      lastName: 'UPPER(patients.last_name)',
+      culturalName: 'UPPER(patients.cultural_name)',
+      firstName: 'UPPER(patients.first_name)',
+      age: 'patients.date_of_birth',
+      dateOfBirth: 'patients.date_of_birth',
+      villageName: 'village_name',
+      locationName: 'location.name',
+      departmentName: 'department.name',
+      encounterType: 'encounters.encounter_type',
+      sex: 'patients.sex',
+    },
+    defaults: {
+      orderBy: 'lastName'
+    },
+    joinClause:
+      `LEFT JOIN encounters
+      ON(encounters.patient_id = patients.id AND encounters.end_date IS NULL)
+      LEFT JOIN reference_data AS department
+      ON(department.type = 'department' AND department.id = encounters.department_id)
+      LEFT JOIN reference_data AS location
+      ON(location.type = 'location' AND location.id = encounters.location_id)
+      LEFT JOIN reference_data AS village
+      ON(village.type = 'village' AND village.id = patients.village_id)
       `,
-      {
-        replacements: {
-          ...filterReplacements,
-          limit: rowsPerPage,
-          offset: page * rowsPerPage,
-        },
-        model: Patient,
-        type: QueryTypes.SELECT,
-        mapToModel: true,
-      },
-    );
-
-    const forResponse = result.map(x => renameObjectKeys(x.forResponse()));
-
-    res.send({
-      data: forResponse,
-      count,
-    });
-  }),
+    additionalSelectClause:
+      `encounters.id AS encounter_id,
+      encounters.encounter_type,
+      department.id AS department_id,
+      department.name AS department_name,
+      location.id AS location_id,
+      location.name AS location_name,
+      village.id AS village_id,
+      village.name AS village_name
+      `
+  })
 );

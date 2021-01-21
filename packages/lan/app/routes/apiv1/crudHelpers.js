@@ -1,3 +1,4 @@
+import { transform } from '@babel/core';
 import express from 'express';
 import asyncHandler from 'express-async-handler';
 
@@ -57,6 +58,89 @@ export const simplePost = modelName =>
     req.checkPermission('create', modelName);
     const object = await models[modelName].create(req.body);
     res.send(object);
+  });
+
+// transformer format:
+// filterParams => value
+// (a new filterParam will be created with value)
+// NOTE: query is always going to come in as strings, has to be parsed manually in each transformer function
+
+export const simpleList = (modelName, options) =>
+  asyncHandler(async (req, res) => {
+    const { models, query } = req;
+    const { defaults, filters, transforms, sortKeys, joinClause, additionalSelectClause } = options;
+
+    req.checkPermission('list', modelName);
+
+    const {
+      orderBy = defaults.orderBy,
+      order = 'asc',
+      rowsPerPage = 10,
+      page = 0,
+      ...filterParams
+    } = query;
+
+    const sortKey = sortKeys[orderBy];
+    const sortDirection = order.toUpperCase();
+
+    const whereClauses = Object.entries(filters).filter(([param, _]) => filterParams[param]).map(([_, filterSql]) => filterSql).join(' AND ');
+
+    const from = `
+      FROM ${modelName}
+      ${joinClause}
+      ${whereClauses && `WHERE ${whereClauses}`}
+    `;
+
+    const filterReplacements = Object.entries(transforms)
+      .reduce(
+        (current, [paramName, transform]) => ({
+          ...current,
+          [paramName]: transform(current),
+        }),
+        filterParams,
+      );
+
+    const countResult = await req.db.query(`SELECT COUNT(1) AS count ${from}`, {
+      replacements: filterReplacements,
+      type: QueryTypes.SELECT,
+    });
+
+    const { count } = countResult[0];
+
+    if (count === 0) {
+      // save ourselves a query
+      res.send({ data: [], count });
+      return;
+    }
+
+    const result = await req.db.query(
+      `
+        SELECT patients.* ${additionalSelectClause ? ',' : ''}
+        ${additionalSelectClause}
+        ${from}
+        
+        ORDER BY ${sortKey} ${sortDirection} NULLS LAST
+        LIMIT :limit
+        OFFSET :offset
+      `,
+      {
+        replacements: {
+          ...filterReplacements,
+          limit: rowsPerPage,
+          offset: page * rowsPerPage,
+        },
+        model: models[modelName],
+        type: QueryTypes.SELECT,
+        mapToModel: true,
+      },
+    );
+
+    const forResponse = result.map(x => renameObjectKeys(x.forResponse()));
+
+    res.send({
+      data: forResponse,
+      count,
+    });
   });
 
 export const simpleGetList = (modelName, foreignKey = '', options = {}) => {
