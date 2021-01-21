@@ -8,7 +8,6 @@ import { GetSyncDataResponse, SyncRecord, SyncSource } from './syncSource';
 
 type RunChannelSyncOptions = {
   overrideLastSynced?: Date,
-  singlePageMode?: boolean,
 }
 
 class NoSyncImporterError extends Error {
@@ -87,10 +86,10 @@ export class SyncManager {
     await this.runChannelSync(models.ReferenceData, 'reference');
     await this.runChannelSync(models.User, 'user');
     await this.runChannelSync(models.ScheduledVaccine, 'scheduledVaccine');
-    await this.runChannelSync(models.Program, 'program', { singlePageMode: true });
-    await this.runChannelSync(models.Survey, 'survey', { singlePageMode: true });
-    await this.runChannelSync(models.ProgramDataElement, 'programDataElement', { singlePageMode: true });
-    await this.runChannelSync(models.SurveyScreenComponent, 'surveyScreenComponent', { singlePageMode: true });
+    await this.runChannelSync(models.Program, 'program');
+    await this.runChannelSync(models.Survey, 'survey');
+    await this.runChannelSync(models.ProgramDataElement, 'programDataElement');
+    await this.runChannelSync(models.SurveyScreenComponent, 'surveyScreenComponent');
     await this.runChannelSync(models.Patient, 'patient');
 
     // sync all reference data including shallow patient list
@@ -129,14 +128,14 @@ export class SyncManager {
     await this.runScheduledSync();
   }
 
-  async downloadAndImport(model: typeof BaseModel, channel: string, since: Date, singlePageMode = false): Promise<Date> {
+  async downloadAndImport(model: typeof BaseModel, channel: string, since: Date): Promise<Date> {
     const downloadPage = (pageNumber: number): Promise<GetSyncDataResponse> => {
       this.emitter.emit('downloadingPage', `${channel}-${pageNumber}`);
       return this.syncSource.downloadRecords(
         channel,
         since,
         pageNumber,
-        singlePageMode ? 0 : DOWNLOAD_LIMIT,
+        DOWNLOAD_LIMIT,
       );
     };
 
@@ -217,11 +216,6 @@ export class SyncManager {
         this.emitter.emit('importingPage', `${channel}-${page}`);
         importTask = importRecords(response.records);
 
-        if (singlePageMode) {
-          await importTask;
-          break;
-        }
-
         page += 1;
       }
     } catch (e) {
@@ -264,7 +258,7 @@ export class SyncManager {
   async runChannelSync(
     model: typeof BaseModel,
     channel: string,
-    { overrideLastSynced = null, singlePageMode = false }: RunChannelSyncOptions = {},
+    { overrideLastSynced = null }: RunChannelSyncOptions = {},
   ): Promise<void> {
     const lastSynced = (overrideLastSynced === null)
       ? await this.getChannelSyncDate(channel)
@@ -272,7 +266,7 @@ export class SyncManager {
 
     this.emitter.emit('channelSyncStarted', channel);
     try {
-      const maxDate = await this.downloadAndImport(model, channel, lastSynced, singlePageMode);
+      const maxDate = await this.downloadAndImport(model, channel, lastSynced);
       await this.updateChannelSyncDate(channel, maxDate);
     } catch (e) {
       console.error(e);
