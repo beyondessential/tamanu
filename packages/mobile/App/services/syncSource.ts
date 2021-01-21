@@ -33,7 +33,7 @@ export interface SyncSource {
     channel: string,
     since: Date,
     page: number,
-    singlePageMode: boolean,
+    limit: number,
   ): Promise<GetSyncDataResponse>;
 }
 
@@ -48,12 +48,11 @@ export class WebSyncSource implements SyncSource {
     channel: string,
     since: Date,
     page: number,
-    singlePageMode = false,
+    limit: number,
   ): Promise<GetSyncDataResponse> {
     // TODO: error handling (incl timeout)
-    const pageLimit = singlePageMode ? 0 : 100;
     const sinceStamp = since.valueOf();
-    const url = `${this.host}/sync/${encodeURIComponent(channel)}?since=${sinceStamp}&page=${page}&limit=${pageLimit}`;
+    const url = `${this.host}/sync/${encodeURIComponent(channel)}?since=${sinceStamp}&page=${page}&limit=${limit}`;
 
     try {
       const response = await fetch(url, {

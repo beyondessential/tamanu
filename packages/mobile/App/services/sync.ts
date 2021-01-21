@@ -12,6 +12,8 @@ class NoSyncImporterError extends Error {
   }
 }
 
+const DOWNLOAD_LIMIT = 100;
+
 export class SyncManager {
   isSyncing = false;
 
@@ -129,7 +131,7 @@ export class SyncManager {
         channel,
         since,
         pageNumber,
-        singlePageMode,
+        singlePageMode ? 0 : DOWNLOAD_LIMIT,
       );
     };
 
