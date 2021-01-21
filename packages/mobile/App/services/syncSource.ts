@@ -58,7 +58,8 @@ export class WebSyncSource implements SyncSource {
       const response = await fetch(url, {
         method: 'GET',
         headers: {
-          authorization: 'Bearer fake-token',
+          'Authorization': 'Bearer fake-token',
+          'Content-Type': 'application/json',
         },
       });
       return await response.json();
