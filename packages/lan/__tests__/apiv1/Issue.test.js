@@ -1,7 +1,5 @@
 import {
   createDummyPatient,
-  randomReferenceId,
-  randomUser,
 } from 'shared/demoData/patients';
 import { createTestContext } from '../utilities';
 
@@ -16,22 +14,20 @@ describe('Issue', () => {
     patient = await models.Patient.create(await createDummyPatient(models));
   });
 
-  // it('should record an allergy', async () => {
-  //   const result = await app.post('/v1/allergy').send({
-  //     allergyId: randomReferenceId(models, 'allergy'),
-  //     patientId: patient.id,
-  //     practitionerId: await randomUser(models),
-  //   });
-  //   expect(result).toHaveSucceeded();
-  //   expect(result.body.recordedDate).toBeTruthy();
-  // });
+  it('should record an issue', async () => {
+    const result = await app.post('/v1/issue').send({
+      patientId: patient.id,
+      note: 'A patient issue',
+    });
+    expect(result).toHaveSucceeded();
+    expect(result.body.recordedDate).toBeTruthy();
+  });
 
-  // it('should require a valid allergy', async () => {
-  //   const result = await app.post('/v1/allergy').send({
-  //     allergyId: 'invalid id',
-  //     patientId: patient.id,
-  //     practitionerId: await randomUser(models),
-  //   });
-  //   expect(result).toHaveRequestError();
-  // });
+  it('should require a valid patient', async () => {
+    const result = await app.post('/v1/issue').send({
+      patientId: 'not a patient',
+      note: 'A patient issue',
+    });
+    expect(result).toHaveRequestError();
+  });
 });
