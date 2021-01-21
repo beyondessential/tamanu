@@ -77,7 +77,7 @@ const PatientIssuesDisplay = memo(({ patient, readonly }) => {
         endpoint="issue"
         items={sortedIssues}
         Form={PatientIssueForm}
-        getName={issue => issue.notes}
+        getName={issue => issue.note}
       />
     </React.Fragment>
   );

@@ -11,7 +11,7 @@ export const PatientIssueForm = ({ onSubmit, editedObject, onCancel }) => {
   const renderForm = React.useCallback(({ submitForm }) => (
     <FormGrid columns={1}>
       <Field name="type" label="Type" component={SelectField} options={ISSUE_TYPES} />
-      <Field name="notes" label="Notes" component={TextField} multiline rows={2} />
+      <Field name="note" label="Notes" component={TextField} multiline rows={2} />
       <Field name="date" label="Date recorded" component={DateField} required />
       <ConfirmCancelRow onCancel={onCancel} onConfirm={submitForm} />
     </FormGrid>
@@ -27,7 +27,7 @@ export const PatientIssueForm = ({ onSubmit, editedObject, onCancel }) => {
         ...editedObject,
       }}
       validationSchema={yup.object().shape({
-        notes: yup.string().required(),
+        note: yup.string().required(),
         date: yup.date().required(),
       })}
     />
