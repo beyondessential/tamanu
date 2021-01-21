@@ -8,7 +8,7 @@ import { GetSyncDataResponse, SyncRecord, SyncSource } from './syncSource';
 
 type RunChannelSyncOptions = {
   overrideLastSynced?: Date,
-  singlePageMode: boolean,
+  singlePageMode?: boolean,
 }
 
 class NoSyncImporterError extends Error {
@@ -263,9 +263,8 @@ export class SyncManager {
   async runChannelSync(
     model: typeof BaseModel,
     channel: string,
-    options?: RunChannelSyncOptions,
+    { overrideLastSynced = null, singlePageMode = false }: RunChannelSyncOptions = {},
   ): Promise<void> {
-    const { overrideLastSynced = null, singlePageMode = false } = options;
     const lastSynced = (overrideLastSynced === null)
       ? await this.getChannelSyncDate(channel)
       : overrideLastSynced;
