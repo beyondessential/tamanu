@@ -6,6 +6,11 @@ import { Patient } from '~/models/Patient';
 import { BaseModel } from '~/models/BaseModel';
 import { GetSyncDataResponse, SyncRecord, SyncSource } from './syncSource';
 
+type RunChannelSyncOptions = {
+  overrideLastSynced?: Date,
+  singlePageMode: boolean,
+}
+
 class NoSyncImporterError extends Error {
   constructor(modelName: string) {
     super(`No sync importer for model ${modelName}`);
@@ -82,10 +87,10 @@ export class SyncManager {
     await this.runChannelSync(models.ReferenceData, 'reference');
     await this.runChannelSync(models.User, 'user');
     await this.runChannelSync(models.ScheduledVaccine, 'scheduledVaccine');
-    await this.runChannelSync(models.Program, 'program', null, true);
-    await this.runChannelSync(models.Survey, 'survey', null, true);
-    await this.runChannelSync(models.ProgramDataElement, 'programDataElement', null, true);
-    await this.runChannelSync(models.SurveyScreenComponent, 'surveyScreenComponent', null, true);
+    await this.runChannelSync(models.Program, 'program', { singlePageMode: true });
+    await this.runChannelSync(models.Survey, 'survey', { singlePageMode: true });
+    await this.runChannelSync(models.ProgramDataElement, 'programDataElement', { singlePageMode: true });
+    await this.runChannelSync(models.SurveyScreenComponent, 'surveyScreenComponent', { singlePageMode: true });
     await this.runChannelSync(models.Patient, 'patient');
 
     // sync all reference data including shallow patient list
@@ -258,9 +263,9 @@ export class SyncManager {
   async runChannelSync(
     model: typeof BaseModel,
     channel: string,
-    overrideLastSynced = null,
-    singlePageMode = false,
+    options?: RunChannelSyncOptions,
   ): Promise<void> {
+    const { overrideLastSynced = null, singlePageMode = false } = options;
     const lastSynced = (overrideLastSynced === null)
       ? await this.getChannelSyncDate(channel)
       : overrideLastSynced;
