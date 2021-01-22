@@ -120,16 +120,13 @@ export class EncounterHandler extends BasicHandler {
 
       await Promise.all([
         encounterPromise,
-        this.models.AdministeredVaccine.update(baseValues, {
-          ...baseQuery,
-          where: { encounterId: id },
-          transaction,
-        }),
-        this.models.SurveyResponse.update(baseValues, {
-          ...baseQuery,
-          where: { encounterId: id },
-          transaction,
-        }),
+        ...[this.models.AdministeredVaccine, this.models.SurveyResponse].map(model =>
+          model.update(baseValues, {
+            ...baseQuery,
+            where: { encounterId: id },
+            transaction,
+          }),
+        ),
         this.sequelize.query(MARK_ANSWERS_DELETED_SQL, {
           replacements: { encounterId: id },
         }),
