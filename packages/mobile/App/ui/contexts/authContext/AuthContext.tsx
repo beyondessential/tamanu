@@ -102,9 +102,10 @@ const Provider = ({
   };
 
   const signIn = async (email: string, password: string): Promise<void> => {
-    // TODO: only allow in dev build
-    if(!email && !password) {
-      return dummySignIn();
+    if (__DEV__) {
+      if (!email && !password) {
+        return dummySignIn();
+      }
     }
 
     const network = await NetInfo.fetch();
