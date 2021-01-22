@@ -22,5 +22,5 @@ user.put('/:id', simplePut('User'));
 user.post('/$', simplePost('User'));
 
 const globalUserRequests = permissionCheckingRouter('list', 'User');
-globalUserRequests.get('/$', paginatedGetList('User', ''));
+globalUserRequests.get('/$', paginatedGetList('User'));
 user.use(globalUserRequests);
