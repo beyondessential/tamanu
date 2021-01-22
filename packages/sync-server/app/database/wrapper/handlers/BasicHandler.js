@@ -9,6 +9,8 @@ function ensureNumber(input) {
 }
 
 export function upsertQuery(values) {
+  // added for consistency with the other queries
+  // currently just passes values and an empty options object directly through to upsert
   return [values, {}];
 }
 
