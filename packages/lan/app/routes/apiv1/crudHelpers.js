@@ -98,24 +98,19 @@ export const paginatedGetList = (modelName, foreignKey = '', options = {}) => {
     const model = models[modelName];
     const associations = model.getListReferenceAssociations(models) || [];
 
-    const resultsToCount = await models[modelName].findAll({
+    const filters = {
       where: {
         ...(foreignKey && { [foreignKey]: params.id }),
         ...additionalFilters,
       },
-      order: orderBy ? [[orderBy, order.toUpperCase()]] : undefined,
-      // limit: rowsPerPage,
-      // offset,
-      include: [...associations, ...include],
-    });
+    };
+    
+    const resultsToCount = await models[modelName].findAll(filters);
 
     const objects = await models[modelName].findAll({
-      where: {
-        ...(foreignKey && { [foreignKey]: params.id }),
-        ...additionalFilters,
-      },
+      ...filters,
       order: orderBy ? [[orderBy, order.toUpperCase()]] : undefined,
-      ...(rowsPerPage && { limit: rowsPerPage }),
+      limit: rowsPerPage || undefined,
       offset,
       include: [...associations, ...include],
     });
