@@ -50,7 +50,7 @@ describe('SyncManager', () => {
       expect(oldRows).toEqual([]);
 
       // act
-      await syncManager.syncRecord(Database.models.ReferenceData, record);
+      await syncManager.importRecord(Database.models.ReferenceData, record);
 
       // assert
       expect(emittedEvents.map(({ action }) => action)).toContain('syncedRecord');
@@ -86,7 +86,7 @@ describe('SyncManager', () => {
       ]);
 
       // act
-      await syncManager.syncRecord(Database.models.ReferenceData, {
+      await syncManager.importRecord(Database.models.ReferenceData, {
         ...record,
         data: {
           ...record.data,
@@ -132,7 +132,7 @@ describe('SyncManager', () => {
 
       // act
       const { emittedEvents, syncManager } = createManager();
-      await syncManager.syncRecord(Database.models.ReferenceData, record);
+      await syncManager.importRecord(Database.models.ReferenceData, record);
 
       // assert
       expect(emittedEvents.map(({ action }) => action)).toContain('syncedRecord');

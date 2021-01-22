@@ -11,7 +11,6 @@ module.exports = {
   testPathIgnorePatterns: ['\\.snap$', '<rootDir>/node_modules/', 'e2e'],
   cacheDirectory: '.jest/cache',
   setupFiles: ['./jest.setup.ts'],
-  moduleDirectories: ['.', 'node_modules'],
   moduleNameMapper: {
     '^~(.*)$': '<rootDir>/App$1',
     '^/root(.*)$': '<rootDir>$1',

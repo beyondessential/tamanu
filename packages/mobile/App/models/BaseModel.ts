@@ -4,8 +4,9 @@ import {
   Generated,
   UpdateDateColumn,
   CreateDateColumn,
-  getRepository,
 } from 'typeorm/browser';
+
+import { DeepPartial } from 'typeorm/common/DeepPartial';
 
 const stripId = (key) => (key === 'displayId') ? key : key.replace(/Id$/, '');
 
@@ -52,7 +53,8 @@ export abstract class BaseModel extends BaseEntity {
   @UpdateDateColumn()
   updatedAt: Date;
 
-  static async create<T extends BaseModel>(data: any): Promise<T> {
+  // TODO: compatibility with BaseEntity.create, which doesn't return a promise
+  static async create<T extends BaseModel>(data?: any): Promise<T> {
     const repo = this.getRepository();
 
     const record = repo.create({
@@ -60,21 +62,22 @@ export abstract class BaseModel extends BaseEntity {
     });
 
     await record.save();
-    return record;
+    return <T>record;
   }
 
   static async update(data: any): Promise<void> {
     const repo = this.getRepository();
-    return repo.update(data.id, sanitiseForImport(repo, data));
+    await repo.update(data.id, sanitiseForImport(repo, data));
   }
 
   static async createOrUpdate(data: any): Promise<void> {
     const repo = this.getRepository();
     const existing = await repo.count({ id: data.id });
     if (existing > 0) {
-      return this.update(data);
+      await this.update(data);
+      return
     }
-    return this.create(data);
+    await this.create(data);
   }
 
 }

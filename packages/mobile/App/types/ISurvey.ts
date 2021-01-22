@@ -21,6 +21,7 @@ export interface ISurveyScreenComponent {
   text: string;
   visibilityCriteria: string;
   options: string;
+  calculation?: string;
 }
 
 export enum DataElementType {

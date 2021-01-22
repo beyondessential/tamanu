@@ -6,11 +6,17 @@ import { Patient } from '~/models/Patient';
 import { BaseModel } from '~/models/BaseModel';
 import { GetSyncDataResponse, SyncRecord, SyncSource } from './syncSource';
 
+type RunChannelSyncOptions = {
+  overrideLastSynced?: Date,
+}
+
 class NoSyncImporterError extends Error {
   constructor(modelName: string) {
     super(`No sync importer for model ${modelName}`);
   }
 }
+
+const DOWNLOAD_LIMIT = 100;
 
 export class SyncManager {
   isSyncing = false;
@@ -38,7 +44,7 @@ export class SyncManager {
     });
   }
 
-  async syncRecord(model: typeof BaseModel, syncRecord: SyncRecord): Promise<void> {
+  async importRecord(model: typeof BaseModel, syncRecord: SyncRecord): Promise<void> {
     // write one single downloaded record to the database
     const { isDeleted, data } = syncRecord;
 
@@ -80,10 +86,10 @@ export class SyncManager {
     await this.runChannelSync(models.ReferenceData, 'reference');
     await this.runChannelSync(models.User, 'user');
     await this.runChannelSync(models.ScheduledVaccine, 'scheduledVaccine');
-    await this.runChannelSync(models.Program, 'program', null, true);
-    await this.runChannelSync(models.Survey, 'survey', null, true);
-    await this.runChannelSync(models.ProgramDataElement, 'programDataElement', null, true);
-    await this.runChannelSync(models.SurveyScreenComponent, 'surveyScreenComponent', null, true);
+    await this.runChannelSync(models.Program, 'program');
+    await this.runChannelSync(models.Survey, 'survey');
+    await this.runChannelSync(models.ProgramDataElement, 'programDataElement');
+    await this.runChannelSync(models.SurveyScreenComponent, 'surveyScreenComponent');
     await this.runChannelSync(models.Patient, 'patient');
 
     // sync all reference data including shallow patient list
@@ -122,16 +128,14 @@ export class SyncManager {
     await this.runScheduledSync();
   }
 
-  async syncAllPages(model: typeof BaseModel, channel: string, since: Date, singlePageMode = false): Promise<Date> {
-    let page = 0;
-
+  async downloadAndImport(model: typeof BaseModel, channel: string, since: Date): Promise<Date> {
     const downloadPage = (pageNumber: number): Promise<GetSyncDataResponse> => {
       this.emitter.emit('downloadingPage', `${channel}-${pageNumber}`);
-      return this.syncSource.getSyncData(
+      return this.syncSource.downloadRecords(
         channel,
         since,
         pageNumber,
-        singlePageMode,
+        DOWNLOAD_LIMIT,
       );
     };
 
@@ -146,12 +150,6 @@ export class SyncManager {
     };
     setProgress(0);
 
-    // We want to download each page of records while the current page
-    // of records is being imported - this means that the database IO
-    // and network IO are running in parallel rather than running in
-    // alternating sequence.
-    let downloadTask: Promise<GetSyncDataResponse> = downloadPage(0);
-
     let maxDate = since;
 
     // Some records will fail on the first attempt due to foreign key constraints
@@ -160,10 +158,10 @@ export class SyncManager {
     // So we keep these records in a queue and retry them at the end of the download.
     let pendingRecords = [];
 
-    const syncRecords = async (records: SyncRecord[]): Promise<void> => {
+    const importRecords = async (records: SyncRecord[]): Promise<void> => {
       await Promise.all(records.map(async r => {
         try {
-          await this.syncRecord(model, r);
+          await this.importRecord(model, r);
 
           if (r.lastSynced > maxDate) {
             maxDate = r.lastSynced;
@@ -185,7 +183,18 @@ export class SyncManager {
     };
 
     try {
+      let importTask: Promise<void>;
+      let page = 0;
       while (true) {
+        // We want to download each page of records while the current page
+        // of records is being imported - this means that the database IO
+        // and network IO are running in parallel rather than running in
+        // alternating sequence.
+        const downloadTask = downloadPage(page);
+
+        // wait for import task to complete before progressing in loop
+        await importTask;
+
         // wait for the current page download to complete
         const response = await downloadTask;
 
@@ -205,19 +214,9 @@ export class SyncManager {
 
         // we have records to import - import them
         this.emitter.emit('importingPage', `${channel}-${page}`);
-        const importTask = syncRecords(response.records);
+        importTask = importRecords(response.records);
 
-        if (singlePageMode) {
-          await importTask;
-          break;
-        }
-
-        // start downloading the next page now
         page += 1;
-        downloadTask = downloadPage(page);
-
-        // wait for import task to complete before progressing in loop
-        await importTask;
       }
     } catch (e) {
       console.warn(e);
@@ -232,7 +231,7 @@ export class SyncManager {
       console.log(`Reattempting ${pendingRecords.length} failed records...`);
       const thisPass = pendingRecords;
       pendingRecords = [];
-      await syncRecords(thisPass);
+      await importRecords(thisPass);
       // syncRecords will re populate pendingRecords
       if (pendingRecords.length === thisPass.length) {
         console.warn('Could not import remaining queue members:');
@@ -259,8 +258,7 @@ export class SyncManager {
   async runChannelSync(
     model: typeof BaseModel,
     channel: string,
-    overrideLastSynced = null,
-    singlePageMode = false,
+    { overrideLastSynced = null }: RunChannelSyncOptions = {},
   ): Promise<void> {
     const lastSynced = (overrideLastSynced === null)
       ? await this.getChannelSyncDate(channel)
@@ -268,7 +266,7 @@ export class SyncManager {
 
     this.emitter.emit('channelSyncStarted', channel);
     try {
-      const maxDate = await this.syncAllPages(model, channel, lastSynced, singlePageMode);
+      const maxDate = await this.downloadAndImport(model, channel, lastSynced);
       await this.updateChannelSyncDate(channel, maxDate);
     } catch (e) {
       console.error(e);
@@ -277,7 +275,7 @@ export class SyncManager {
   }
 
   async runPatientSync(patient: Patient): Promise<void> {
-    await this.syncAllPages(Database.models.Patient, `patient/${patient.id}`, patient.lastSynced);
+    await this.downloadAndImport(Database.models.Patient, `patient/${patient.id}`, patient.lastSynced);
 
     // eslint-disable-next-line no-param-reassign
     patient.lastSynced = new Date();

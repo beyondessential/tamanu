@@ -12,6 +12,8 @@ import { LoadingScreen } from '~/ui/components/LoadingScreen';
 import { ProgramAddDetailsScreenProps } from '/interfaces/screens/ProgramsStack/ProgramAddDetails/ProgramAddDetailsScreenProps';
 import { Routes } from '/helpers/routes';
 
+import { ISurveyScreenComponent } from '~/types/ISurvey';
+
 import { useBackend, useBackendEffect } from '~/ui/hooks';
 
 export const ProgramAddDetailsScreen = ({
@@ -28,18 +30,13 @@ export const ProgramAddDetailsScreen = ({
 
   const { models } = useBackend();
   const onSubmitForm = useCallback(
-    async (values: any, components: any) => {
-      // TODO: determine results for all calculated answer types
-      // (here? or possibly dynamically inside form)
-      const result = Math.random() * 100.0;
-
+    async (values: any, components: ISurveyScreenComponent[]) => {
       const response = await models.SurveyResponse.submit(
         selectedPatientId,
         {
           surveyId,
           components,
           encounterReason: `Survey response for ${survey.name}`,
-          result,
         },
         values,
         setNote,
