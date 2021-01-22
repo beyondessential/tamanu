@@ -2,7 +2,7 @@ import express from 'express';
 import asyncHandler from 'express-async-handler';
 
 import { ForbiddenError } from 'shared/errors';
-import { simpleGet, simplePut, simplePost } from './crudHelpers';
+import { simpleGet, simplePut, paginatedGetList, simplePost, permissionCheckingRouter } from './crudHelpers';
 
 export const user = express.Router();
 
@@ -20,3 +20,7 @@ user.get(
 user.get('/:id', simpleGet('User'));
 user.put('/:id', simplePut('User'));
 user.post('/$', simplePost('User'));
+
+const globalUserRequests = permissionCheckingRouter('list', 'User');
+globalUserRequests.get('/$', paginatedGetList('User'));
+user.use(globalUserRequests);

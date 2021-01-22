@@ -64,17 +64,59 @@ export const simpleGetList = (modelName, foreignKey = '', options = {}) => {
 
   return asyncHandler(async (req, res) => {
     const { models, params, query } = req;
-    const { offset = 0, order = 'ASC', orderBy, rowsPerPage = 10 } = query;
+    const { order = 'ASC', orderBy } = query;
 
     const model = models[modelName];
     const associations = model.getListReferenceAssociations(models) || [];
+
     const objects = await models[modelName].findAll({
       where: {
         ...(foreignKey && { [foreignKey]: params.id }),
         ...additionalFilters,
       },
       order: orderBy ? [[orderBy, order.toUpperCase()]] : undefined,
-      limit: rowsPerPage,
+      include: [...associations, ...include],
+    });
+
+    const data = objects.map(x => x.forResponse());
+
+    res.send({
+      count: objects.length,
+      data: data,
+    });
+  });
+};
+
+export const paginatedGetList = (modelName, foreignKey = '', options = {}) => {
+  const { additionalFilters = {}, include = [] } = options;
+
+  return asyncHandler(async (req, res) => {
+    const { models, params, query } = req;
+    const { page = 0, order = 'ASC', orderBy, rowsPerPage } = query;
+    const offset = query.offset || page * rowsPerPage || 0;
+
+    const model = models[modelName];
+    const associations = model.getListReferenceAssociations(models) || [];
+
+    const filters = {
+      where: {
+        ...(foreignKey && { [foreignKey]: params.id }),
+        ...additionalFilters,
+      },
+    };
+
+    const resultsToCount = await models[modelName].findAll(filters);
+    const count = resultsToCount.length;
+    // Exit early if there are no results
+    if (count === 0) {
+      res.send({ count, data: [] });
+      return;
+    }
+
+    const objects = await models[modelName].findAll({
+      ...filters,
+      order: orderBy ? [[orderBy, order.toUpperCase()]] : undefined,
+      limit: rowsPerPage || undefined,
       offset,
       include: [...associations, ...include],
     });
@@ -82,12 +124,11 @@ export const simpleGetList = (modelName, foreignKey = '', options = {}) => {
     const data = objects.map(x => x.forResponse());
 
     res.send({
-      count: data.length,
+      count: resultsToCount.length,
       data: data,
     });
   });
 };
-
 export async function runPaginatedQuery(db, model, countQuery, selectQuery, params, pagination) {
   const countResult = await db.query(countQuery, {
     replacements: params,
