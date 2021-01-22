@@ -68,11 +68,11 @@ const AddEditForm = connectApi(
   (api, dispatch, { patient, endpoint, onClose, suggesterEndpoints = [] }) => {
     const apiProps = {
       onSubmit: async data => {
-        if(data.id) {
+        if (data.id) {
           // don't need to include patientId as the existing record will already have it
           await api.put(`${endpoint}/${data.id}`, data);
         } else {
-          await api.post(endpoint, {...data, patientId: patient.id});
+          await api.post(endpoint, { ...data, patientId: patient.id });
         }
         dispatch(reloadPatient(patient.id));
         onClose();
@@ -110,7 +110,7 @@ export const InfoPaneList = memo(
       [adding],
     );
     const handleRowClick = useCallback(
-      ({ id }) => setAddEditState({ adding: false, editKey: id }),
+      id => setAddEditState({ adding: false, editKey: id }),
       [],
     );
     const handleCloseForm = useCallback(
@@ -144,6 +144,7 @@ export const InfoPaneList = memo(
                 </Collapse>
                 <Collapse in={editKey === id}>
                   <AddEditForm
+                    patient={patient}
                     Form={Form}
                     endpoint={endpoint}
                     suggesterEndpoints={suggesterEndpoints}
