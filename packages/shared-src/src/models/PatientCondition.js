@@ -16,11 +16,11 @@ export class PatientCondition extends Model {
 
   static initRelations(models) {
     this.belongsTo(models.Patient, { foreignKey: 'patientId' });
-    this.belongsTo(models.ReferenceData, { foreignKey: 'conditionId', as: 'Condition' });
+    this.belongsTo(models.ReferenceData, { foreignKey: 'conditionId', as: 'condition' });
     this.belongsTo(models.User, { foreignKey: 'examinerId' });
   }
 
   static getListReferenceAssociations() {
-    return ['Condition'];
+    return ['condition'];
   }
 }
