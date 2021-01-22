@@ -112,3 +112,5 @@ export const REFERENCE_TYPES = {
 export const REFERENCE_TYPE_VALUES = Object.values(REFERENCE_TYPES);
 
 export const PROGRAM_DATA_ELEMENT_TYPE_VALUES = ['Binary', 'CalculatedQuestion', 'Checkbox', 'FreeText', 'Instruction', 'Number', 'Radio', 'SubmissionDate'];
+
+export const REPORT_REQUEST_STATUSES = ['Received', 'Processed'];

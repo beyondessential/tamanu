@@ -1,4 +1,5 @@
 import { Sequelize } from 'sequelize';
+import { REPORT_REQUEST_STATUSES } from '../constants';
 import { Model } from './Model';
 
 export class ReportRequest extends Model {
@@ -9,7 +10,7 @@ export class ReportRequest extends Model {
         reportType: { type: Sequelize.STRING, allowNull: false },
         recipients: { type: Sequelize.TEXT, allowNull: false },
         parameters: Sequelize.TEXT,
-        status: { type: Sequelize.ENUM('received', 'processed'), allowNull: false },
+        status: { type: Sequelize.ENUM(REPORT_REQUEST_STATUSES), allowNull: false },
       },
       {
         ...options,
