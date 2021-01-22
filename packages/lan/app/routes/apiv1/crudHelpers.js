@@ -104,8 +104,14 @@ export const paginatedGetList = (modelName, foreignKey = '', options = {}) => {
         ...additionalFilters,
       },
     };
-    
+
     const resultsToCount = await models[modelName].findAll(filters);
+    const count = resultsToCount.length;
+    // Exit early if there are no results
+    if (count === 0) {
+      res.send({ count, data: [] });
+      return;
+    }
 
     const objects = await models[modelName].findAll({
       ...filters,
