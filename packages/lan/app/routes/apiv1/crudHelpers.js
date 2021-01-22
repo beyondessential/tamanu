@@ -64,8 +64,36 @@ export const simpleGetList = (modelName, foreignKey = '', options = {}) => {
 
   return asyncHandler(async (req, res) => {
     const { models, params, query } = req;
-    const { page = 0, order = 'ASC', orderBy, rowsPerPage = 10 } = query;
-    const offset = query.offset || page * rowsPerPage;
+    const { order = 'ASC', orderBy } = query;
+
+    const model = models[modelName];
+    const associations = model.getListReferenceAssociations(models) || [];
+
+    const objects = await models[modelName].findAll({
+      where: {
+        ...(foreignKey && { [foreignKey]: params.id }),
+        ...additionalFilters,
+      },
+      order: orderBy ? [[orderBy, order.toUpperCase()]] : undefined,
+      include: [...associations, ...include],
+    });
+
+    const data = objects.map(x => x.forResponse());
+
+    res.send({
+      count: objects.length,
+      data: data,
+    });
+  });
+};
+
+export const paginatedGetList = (modelName, foreignKey = '', options = {}) => {
+  const { additionalFilters = {}, include = [] } = options;
+
+  return asyncHandler(async (req, res) => {
+    const { models, params, query } = req;
+    const { page = 0, order = 'ASC', orderBy, rowsPerPage } = query;
+    const offset = query.offset || page * rowsPerPage || 0;
 
     const model = models[modelName];
     const associations = model.getListReferenceAssociations(models) || [];
@@ -87,7 +115,7 @@ export const simpleGetList = (modelName, foreignKey = '', options = {}) => {
         ...additionalFilters,
       },
       order: orderBy ? [[orderBy, order.toUpperCase()]] : undefined,
-      limit: rowsPerPage,
+      ...(rowsPerPage && { limit: rowsPerPage }),
       offset,
       include: [...associations, ...include],
     });
@@ -100,7 +128,6 @@ export const simpleGetList = (modelName, foreignKey = '', options = {}) => {
     });
   });
 };
-
 export async function runPaginatedQuery(db, model, countQuery, selectQuery, params, pagination) {
   const countResult = await db.query(countQuery, {
     replacements: params,
