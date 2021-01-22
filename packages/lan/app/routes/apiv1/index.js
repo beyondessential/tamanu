@@ -17,7 +17,6 @@ import { allergy } from './allergy';
 import { ongoingCondition } from './ongoingCondition';
 import { note } from './note';
 import { familyHistory } from './familyHistory';
-import { ongoingCondition } from './ongoingCondition';
 import { labRequest, labTest } from './labs';
 import { program } from './program';
 import { survey } from './survey';
