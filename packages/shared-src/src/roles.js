@@ -1,4 +1,4 @@
-export const anonymous = () => {};
+export const anonymous = () => { };
 
 export const base = (user, allow, forbid) => {
   anonymous(user, allow, forbid);
@@ -96,6 +96,11 @@ export const practitioner = (user, allow, forbid) => {
   allow('read', 'PatientAllergy');
   allow('write', 'PatientAllergy');
   allow('create', 'PatientAllergy');
+
+  allow('list', 'PatientCondition');
+  allow('read', 'PatientCondition');
+  allow('write', 'PatientCondition');
+  allow('create', 'PatientCondition');
 };
 
 export const admin = (user, allow, forbid) => {
