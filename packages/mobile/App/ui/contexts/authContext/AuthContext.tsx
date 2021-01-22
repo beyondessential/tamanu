@@ -96,7 +96,7 @@ const Provider = ({
   };
 
   const dummySignIn = (): void => {
-    setUser(user);
+    setUser(dummyUser);
     setToken('fake-token');
     setSignedInStatus(true);
   };
