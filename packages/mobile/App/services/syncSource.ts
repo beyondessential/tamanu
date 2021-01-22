@@ -29,11 +29,11 @@ export interface LoginResponse {
 }
 
 export interface SyncSource {
-  getSyncData(
+  downloadRecords(
     channel: string,
     since: Date,
     page: number,
-    singlePageMode: boolean,
+    limit: number,
   ): Promise<GetSyncDataResponse>;
 }
 
@@ -44,22 +44,22 @@ export class WebSyncSource implements SyncSource {
     this.host = host;
   }
 
-  async getSyncData(
+  async downloadRecords(
     channel: string,
     since: Date,
     page: number,
-    singlePageMode = false,
+    limit: number,
   ): Promise<GetSyncDataResponse> {
     // TODO: error handling (incl timeout)
-    const pageLimit = singlePageMode ? 0 : 100;
     const sinceStamp = since.valueOf();
-    const url = `${this.host}/sync/${encodeURIComponent(channel)}?since=${sinceStamp}&page=${page}&limit=${pageLimit}`;
+    const url = `${this.host}/sync/${encodeURIComponent(channel)}?since=${sinceStamp}&page=${page}&limit=${limit}`;
 
     try {
       const response = await fetch(url, {
         method: 'GET',
         headers: {
-          authorization: 'Bearer fake-token',
+          'Authorization': 'Bearer fake-token',
+          'Accept': 'application/json',
         },
       });
       return await response.json();
