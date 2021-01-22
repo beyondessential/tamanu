@@ -15,11 +15,11 @@ export class PatientAllergy extends Model {
 
   static initRelations(models) {
     this.belongsTo(models.Patient, { foreignKey: 'patientId' });
-    this.belongsTo(models.User, { foreignKey: 'examinerId' });
-    this.belongsTo(models.ReferenceData, { foreignKey: 'allergyId', as: 'Allergy' });
+    this.belongsTo(models.User, { foreignKey: 'practitionerId' });
+    this.belongsTo(models.ReferenceData, { foreignKey: 'allergyId', as: 'allergy' });
   }
 
   static getListReferenceAssociations() {
-    return ['Allergy'];
+    return ['allergy'];
   }
 }
