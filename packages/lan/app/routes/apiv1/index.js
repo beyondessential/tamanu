@@ -13,12 +13,15 @@ import { triage } from './triage';
 import { referenceData } from './referenceData';
 import { diagnosis } from './diagnosis';
 import { medication } from './medication';
+import { note } from './note';
+import { familyHistory } from './familyHistory';
 import { ongoingCondition } from './ongoingCondition';
 import { labRequest, labTest } from './labs';
 import { program } from './program';
 import { survey } from './survey';
 import { surveyResponse } from './surveyResponse';
 import { referral } from './referral';
+import { imagingRequest } from './imaging';
 import { immunisation } from './immunisation';
 
 export const apiv1 = express.Router();
