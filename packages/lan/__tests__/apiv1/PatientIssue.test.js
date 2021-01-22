@@ -5,7 +5,7 @@ import { createTestContext } from '../utilities';
 
 const { baseApp, models } = createTestContext();
 
-describe('Issue', () => {
+describe('PatientIssue', () => {
   let patient = null;
   let app = null;
 
@@ -15,7 +15,7 @@ describe('Issue', () => {
   });
 
   it('should record an issue', async () => {
-    const result = await app.post('/v1/issue').send({
+    const result = await app.post('/v1/patientIssue').send({
       patientId: patient.id,
       note: 'A patient issue',
     });
@@ -24,7 +24,7 @@ describe('Issue', () => {
   });
 
   it('should require a valid patient', async () => {
-    const result = await app.post('/v1/issue').send({
+    const result = await app.post('/v1/patientIssue').send({
       patientId: 'not a patient',
       note: 'A patient issue',
     });

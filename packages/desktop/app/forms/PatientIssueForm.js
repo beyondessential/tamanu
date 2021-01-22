@@ -4,8 +4,9 @@ import * as yup from 'yup';
 import { Form, Field, DateField, SelectField, TextField } from '../components/Field';
 import { FormGrid } from '../components/FormGrid';
 import { ConfirmCancelRow } from '../components/ButtonRow';
+import { PATIENT_ISSUE_TYPES } from 'shared/constants';
 
-const ISSUE_TYPES = [{ value: 'issue', label: 'Issue' }, { value: 'warning', label: 'Warning' }];
+const ISSUE_TYPES = [{ value: PATIENT_ISSUE_TYPES.ISSUE, label: 'Issue' }, { value: PATIENT_ISSUE_TYPES.WARNING, label: 'Warning' }];
 
 export const PatientIssueForm = ({ onSubmit, editedObject, onCancel }) => {
   const renderForm = React.useCallback(({ submitForm }) => (

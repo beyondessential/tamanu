@@ -1,6 +1,6 @@
 import { Sequelize } from 'sequelize';
 import { Model } from './Model';
-
+import { PATIENT_ISSUE_TYPES } from '../constants';
 export class PatientIssue extends Model {
   static init({ primaryKey, ...options }) {
     super.init(
@@ -9,8 +9,8 @@ export class PatientIssue extends Model {
         note: Sequelize.STRING,
         recordedDate: { type: Sequelize.DATE, defaultValue: Sequelize.NOW, allowNull: false },
         type: {
-          type: Sequelize.ENUM('issue', 'warning'),
-          defaultValue: 'issue',
+          type: Sequelize.ENUM(Object.values(PATIENT_ISSUE_TYPES)),
+          defaultValue: PATIENT_ISSUE_TYPES.ISSUE,
           allowNull: false,
         },
       },

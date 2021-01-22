@@ -13,6 +13,8 @@ import { AllergyForm, OngoingConditionForm, FamilyHistoryForm, PatientIssueForm 
 import { DeathModal } from './DeathModal';
 import { Colors } from '../constants';
 
+import { PATIENT_ISSUE_TYPES } from 'shared/constants';
+
 const OngoingConditionDisplay = memo(({ patient, readonly }) => (
   <InfoPaneList
     patient={patient}
@@ -57,7 +59,7 @@ const FamilyHistoryDisplay = memo(({ patient, readonly }) => (
   />
 ));
 
-const shouldShowIssueInWarningModal = ({ type }) => type === 'warning';
+const shouldShowIssueInWarningModal = ({ type }) => type === PATIENT_ISSUE_TYPES.WARNING;
 
 const PatientIssuesDisplay = memo(({ patient, readonly }) => {
   const { issues } = patient;
@@ -74,7 +76,7 @@ const PatientIssuesDisplay = memo(({ patient, readonly }) => {
         patient={patient}
         readonly={readonly}
         title="Other patient issues"
-        endpoint="issue"
+        endpoint="patientIssue"
         items={sortedIssues}
         Form={PatientIssueForm}
         getName={issue => issue.note}

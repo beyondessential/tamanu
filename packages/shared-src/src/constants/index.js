@@ -42,6 +42,11 @@ export const NOTE_TYPES = {
   OTHER: 'other',
 };
 
+export const PATIENT_ISSUE_TYPES = {
+  ISSUE: 'issue',
+  WARNING: 'warning',
+};
+
 export const ENCOUNTER_TYPES = {
   ADMISSION: 'admission',
   CLINIC: 'clinic',
