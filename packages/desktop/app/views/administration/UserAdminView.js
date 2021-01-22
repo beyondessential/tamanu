@@ -50,7 +50,6 @@ export const UserAdminView = React.memo(() => {
           Add new user
         </Button>
       </TopBar>
-      {/* <SearchBar onSearch={setSearchParameters} /> */}
       <UserTable fetchOptions={searchParameters} />
       <NewRecordModal
         title="Create new user"
