@@ -10,7 +10,7 @@ import { Button, BackButton } from '../../components/Button';
 import { ContentPane } from '../../components/ContentPane';
 import { DiagnosisView } from '../../components/DiagnosisView';
 import { DischargeModal } from '../../components/DischargeModal';
-import { BeginMoveModal, FinaliseMoveModal, CancelMoveModal } from '../../components/MoveModal';
+import { MoveModal } from '../../components/MoveModal';
 import { ChangeEncounterTypeModal } from '../../components/ChangeEncounterTypeModal';
 import { ChangeDepartmentModal } from '../../components/ChangeDepartmentModal';
 import { LabRequestModal } from '../../components/LabRequestModal';
@@ -278,23 +278,13 @@ const RoutedChangeDepartmentModal = connectRoutedModal(
   '/patients/encounter',
   'changeDepartment',
 )(ChangeDepartmentModal);
-const RoutedBeginMoveModal = connectRoutedModal('/patients/encounter', 'beginMove')(BeginMoveModal);
-const RoutedCancelMoveModal = connectRoutedModal(
-  '/patients/encounter',
-  'cancelMove',
-)(CancelMoveModal);
-const RoutedFinaliseMoveModal = connectRoutedModal(
-  '/patients/encounter',
-  'finaliseMove',
-)(FinaliseMoveModal);
+const RoutedMoveModal = connectRoutedModal('/patients/encounter', 'move')(MoveModal);
 
 const EncounterActionDropdown = connect(null, dispatch => ({
   onDischargeOpen: () => dispatch(push('/patients/encounter/discharge')),
   onChangeEncounterType: newType => dispatch(push(`/patients/encounter/changeType/${newType}`)),
   onViewSummary: () => dispatch(push('/patients/encounter/summary')),
-  onChangeLocation: () => dispatch(push('/patients/encounter/beginMove')),
-  onCancelLocationChange: () => dispatch(push('/patients/encounter/cancelMove')),
-  onFinaliseLocationChange: () => dispatch(push('/patients/encounter/finaliseMove')),
+  onChangeLocation: () => dispatch(push('/patients/encounter/move')),
   onChangeDepartment: () => dispatch(push('/patients/encounter/changeDepartment')),
 }))(
   ({
@@ -380,9 +370,7 @@ const EncounterActions = ({ encounter }) => (
     <RoutedDischargeModal encounter={encounter} />
     <RoutedChangeEncounterTypeModal encounter={encounter} />
     <RoutedChangeDepartmentModal encounter={encounter} />
-    <RoutedBeginMoveModal encounter={encounter} />
-    <RoutedCancelMoveModal encounter={encounter} />
-    <RoutedFinaliseMoveModal encounter={encounter} />
+    <RoutedMoveModal encounter={encounter} />
   </React.Fragment>
 );
 

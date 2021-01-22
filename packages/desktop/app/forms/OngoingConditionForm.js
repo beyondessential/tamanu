@@ -34,7 +34,7 @@ export class OngoingConditionForm extends React.PureComponent {
     return (
       <FormGrid columns={1}>
         <Field
-          name="condition.id"
+          name="conditionId"
           label="Condition name"
           component={AutocompleteField}
           suggester={icd10Suggester}
@@ -93,7 +93,7 @@ export class OngoingConditionForm extends React.PureComponent {
           ...editedObject,
         }}
         validationSchema={yup.object().shape({
-          condition: foreignKey('Condition is a required field'),
+          conditionId: foreignKey('Condition is a required field'),
           date: yup.date(),
           practitioner: yup.string(),
           note: yup.string(),

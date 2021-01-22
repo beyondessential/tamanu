@@ -18,11 +18,11 @@ const OngoingConditionDisplay = memo(({ patient, readonly }) => (
     patient={patient}
     readonly={readonly}
     title="Ongoing conditions"
-    endpoint="conditions"
+    endpoint="ongoingCondition"
     suggesterEndpoints={['practitioner', 'icd10']}
     items={patient.conditions}
     Form={OngoingConditionForm}
-    getName={({ condition }) => condition.name}
+    getName={({ condition, resolved }) => resolved ? `${condition.name} (resolved)` : condition.name }
   />
 ));
 
