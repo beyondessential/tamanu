@@ -20,10 +20,13 @@ export async function sendSyncRequest(channel, records) {
       method: 'POST',
       headers: {
         'Content-Type': 'application/json',
-        'Authorization': '1213',
+        'Authorization': 'Bearer fake-token',
       },
       body: JSON.stringify(part),
     });
+    if(response.error) {
+      throw new Error(response.error);
+    }
     log.info(`Uploaded ${part.length} reference records. Response:`, await response.json());
   }
 }
