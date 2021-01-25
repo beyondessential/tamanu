@@ -63,7 +63,7 @@ const AnswerItem = ({ question, answer, index }): JSX.Element => (
   >
     <StyledView maxWidth={'80%'}>
       <StyledText fontWeight="bold" color={theme.colors.LIGHT_BLUE}>
-        {question.dataElement.indicator}
+        {question.dataElement.name}
       </StyledText>
     </StyledView>
     {question.dataElement.type === FieldTypes.RESULT ? (
@@ -117,14 +117,14 @@ export const SurveyResponseDetailsScreen = ({ route }): JSX.Element => {
   );
 
   const basicAnswerItems = questions
-    .filter(q => q.dataElement.indicator)
+    .filter(q => q.dataElement.name)
     .filter(q => !isCalculated(q))
     .map(attachAnswer)
     .filter(q => q.answer !== null && q.answer !== '')
     .map(questionToAnswerItem);
 
   const calculatedAnswerItems = questions
-    .filter(q => q.dataElement.indicator)
+    .filter(q => q.dataElement.name)
     .filter(q => isCalculated(q))
     .map(attachAnswer)
     .filter(q => q.answer !== null && q.answer !== '')

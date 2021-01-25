@@ -10,7 +10,7 @@ function makeDummyComponent(c: any, index: number): ISurveyScreenComponent {
     dataElement: { 
       id: c.code,
       code: c.code,
-      indicator: c.indicator,
+      name: c.name,
       type: c.type,
       defaultText: '',
       defaultOptions: '',
