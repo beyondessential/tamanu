@@ -19,7 +19,6 @@ export async function saveExcelFile(data, { promptForFilePath, filePath, default
   }
   const book = XLSX.utils.book_new();
   const sheet = XLSX.utils.aoa_to_sheet(data);
-  console.log({ sheet });
   XLSX.utils.book_append_sheet(book, sheet, 'values');
   return new Promise((resolve, reject) => {
     XLSX.writeFileAsync(path, book, null, err => {

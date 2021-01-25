@@ -10,7 +10,7 @@ const DumbPractitionerField = ({ practitionerSuggester, required }) => {
       label="Doctor/Nurse"
       component={AutocompleteField}
       suggester={practitionerSuggester}
-      require={required}
+      required={required}
     />
   );
 };
