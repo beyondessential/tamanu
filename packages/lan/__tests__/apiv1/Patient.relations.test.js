@@ -108,17 +108,17 @@ describe('Patient', () => {
       const otherPatient = await models.Patient.create(await createDummyPatient(models));
 
       await models.PatientFamilyHistory.create({
-        conditionId: await randomReferenceId(models, 'icd10'),
+        diagnosisId: await randomReferenceId(models, 'icd10'),
         patientId: patient.id,
         note: 'include',
       });
       await models.PatientFamilyHistory.create({
-        conditionId: await randomReferenceId(models, 'icd10'),
+        diagnosisId: await randomReferenceId(models, 'icd10'),
         patientId: patient.id,
         note: 'include 2',
       });
       await models.PatientFamilyHistory.create({
-        conditionId: await randomReferenceId(models, 'icd10'),
+        diagnosisId: await randomReferenceId(models, 'icd10'),
         patientId: otherPatient.id,
         note: 'fail',
       });
@@ -133,13 +133,13 @@ describe('Patient', () => {
       const patient = await models.Patient.create(await createDummyPatient(models));
 
       await models.PatientFamilyHistory.create({
-        conditionId: await randomReferenceId(models, 'icd10'),
+        diagnosisId: await randomReferenceId(models, 'icd10'),
         patientId: patient.id,
       });
 
       const result = await app.get(`/v1/patient/${patient.id}/familyHistory`);
       expect(result).toHaveSucceeded();
-      expect(result.body.data[0].condition).toHaveProperty('name');
+      expect(result.body.data[0].diagnosis).toHaveProperty('name');
     });
   });
 
