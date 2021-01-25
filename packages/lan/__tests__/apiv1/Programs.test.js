@@ -71,7 +71,7 @@ function createDummySurveyResponse(survey) {
   };
 }
 
-async function submitMultipleSurveyResponses(survey, overrides, amount = 10) {
+async function submitMultipleSurveyResponses(survey, overrides, amount = 7) {
   return Promise.all(
     new Array(amount).fill(0).map(() =>
       models.SurveyResponse.create({
@@ -91,6 +91,7 @@ describe('Programs', () => {
   let testProgram;
   let testSurvey;
   let testSurvey2;
+  let testSurvey3;
 
   beforeAll(async () => {
     app = await baseApp.asRole('admin');
@@ -104,6 +105,7 @@ describe('Programs', () => {
     testProgram = await createDummyProgram();
     testSurvey = await createDummySurvey(testProgram, 6);
     testSurvey2 = await createDummySurvey(testProgram, 10);
+    testSurvey3 = await createDummySurvey(testProgram, 10);
   });
 
   it('should list available programs', async () => {
@@ -120,9 +122,10 @@ describe('Programs', () => {
     const result = await app.get(`/v1/program/${testProgram.id}/surveys`);
     expect(result).toHaveSucceeded();
 
-    expect(result.body.count).toEqual(2);
+    expect(result.body.count).toEqual(3);
     expect(result.body.data[0]).toHaveProperty('name', testSurvey.name);
     expect(result.body.data[1]).toHaveProperty('name', testSurvey2.name);
+    expect(result.body.data[2]).toHaveProperty('name', testSurvey3.name);
   });
 
   it('should fetch a survey', async () => {
@@ -163,16 +166,16 @@ describe('Programs', () => {
     });
 
     it('should list all responses to a survey', async () => {
-      const responses = await submitMultipleSurveyResponses(testSurvey, {
+      const responses = await submitMultipleSurveyResponses(testSurvey3, {
         encounterId: testEncounter.id,
       });
-      const result = await app.get(`/v1/survey/${testSurvey.id}/surveyResponses`);
+      const result = await app.get(`/v1/survey/${testSurvey3.id}/surveyResponses`);
       expect(result).toHaveSucceeded();
 
       expect(result.body.count).toEqual(responses.length);
       result.body.data.map(response => {
         expect(response.encounterId).toEqual(testEncounter.id);
-        expect(response.surveyId).toEqual(testSurvey.id);
+        expect(response.surveyId).toEqual(testSurvey3.id);
       });
     });
 

@@ -17,13 +17,15 @@ import { patientIssue } from './patientIssue';
 import { allergy } from './allergy';
 import { ongoingCondition } from './ongoingCondition';
 import { note } from './note';
+import { familyHistory } from './familyHistory';
 import { labRequest, labTest } from './labs';
-import { imagingRequest } from './imaging';
 import { program } from './program';
 import { survey } from './survey';
 import { surveyResponse } from './surveyResponse';
 import { referral } from './referral';
+import { imagingRequest } from './imaging';
 import { immunisation } from './immunisation';
+import { reportRequest } from './reportRequest';
 
 export const apiv1 = express.Router();
 
@@ -42,6 +44,7 @@ apiv1.use('/triage', triage);
 apiv1.use('/referenceData', referenceData);
 apiv1.use('/diagnosis', diagnosis);
 apiv1.use('/patientIssue', patientIssue);
+apiv1.use('/familyHistory', familyHistory);
 apiv1.use('/allergy', allergy);
 apiv1.use('/ongoingCondition', ongoingCondition);
 apiv1.use('/medication', medication);
@@ -55,3 +58,5 @@ apiv1.use('/immunisation', immunisation);
 apiv1.use('/program', program);
 apiv1.use('/survey', survey);
 apiv1.use('/surveyResponse', surveyResponse);
+
+apiv1.use('/reportRequest', reportRequest);
