@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { useEffect, useState } from 'react';
 import { connect } from 'react-redux';
 import styled from 'styled-components';
 import { printPage, PrintPortal } from '../../print';
@@ -7,6 +7,7 @@ import { LoadingIndicator } from '../../components/LoadingIndicator';
 import { TextButton, BackButton } from '../../components/Button';
 import { DateDisplay } from '../../components/DateDisplay';
 import { TopBar } from '../../components';
+import { ApiContext } from '../../api';
 
 const SummaryPageContainer = styled.div`
   margin: 0 50px 50px 50px;
@@ -74,37 +75,44 @@ const DiagnosesList = ({ diagnoses = [] }) => {
     return (
       <li>
         {item.diagnosis.name} (<Label>ICD 10 Code: </Label>
-        {item.diagnosis.code})
+        {item.diagnosis.code}
+      )
       </li>
     );
   });
 };
 
-const ProceduresList = ({ procedures = [] }) => {
-  if (procedures.length === 0) return <span>N/A</span>;
+const ProceduresList = ({ procedures }) => {
+  if (!procedures || procedures.length === 0) return <span>N/A</span>;
 
   return procedures.map(procedure => {
     return (
-      <li>
-        {procedure.description} (<Label>CPT Code: </Label>
+      <li>  
+        {procedure.description} (
+<Label>CPT Code: </Label>
         {procedure.cptCode})
       </li>
     );
   });
 };
 
-const MedicationsList = ({ medications = [] }) => {
-  if (medications.length === 0) return <span>N/A</span>;
+const MedicationsList = ({ medications }) => {
+  if (!medications || medications.length === 0) return <span>N/A</span>;
 
   return medications.map(({ drug, prescription }) => (
     <li>
       <span>{drug.name}</span>
-      {prescription && <span><br />{prescription}</span>}
+      {prescription && (
+        <span>
+          <br />
+          {prescription}
+        </span>
+      )}
     </li>
   ));
 };
 
-const SummaryPage = React.memo(({ patient, encounter }) => {
+const SummaryPage = React.memo(({ patient, encounter, procedures, medications }) => {
   const primaryDiagnoses = encounter.diagnoses.filter(d => d.isPrimary);
   const secondaryDiagnoses = encounter.diagnoses.filter(d => !d.isPrimary);
 
@@ -113,7 +121,7 @@ const SummaryPage = React.memo(({ patient, encounter }) => {
       <Header>
         <h4>
           <Label>Patient name: </Label>
-          <span>{patient.firstName} {patient.lastName}</span>
+          <span>{`${patient.firstName} ${patient.lastName}`}</span>
         </h4>
         <h4>
           <Label>UID: </Label>
@@ -179,7 +187,7 @@ const SummaryPage = React.memo(({ patient, encounter }) => {
             <Label>Procedures: </Label>
             <ListColumn>
               <ul>
-                <ProceduresList procedures={encounter.procedures} />
+                <ProceduresList procedures={procedures} />
               </ul>
             </ListColumn>
           </TwoColumnSection>
@@ -188,7 +196,7 @@ const SummaryPage = React.memo(({ patient, encounter }) => {
             <Label>Medications: </Label>
             <ListColumn>
               <ul>
-                <MedicationsList medications={encounter.medications} />
+                <MedicationsList medications={medications} />
               </ul>
             </ListColumn>
           </TwoColumnSection>
@@ -203,15 +211,33 @@ const SummaryPage = React.memo(({ patient, encounter }) => {
   );
 });
 
-const DumbDischargeSummaryView = React.memo(({ encounter, patient, loading }) => {
+const DumbDischargeSummaryView = React.memo(({ encounter, patient, loading, api }) => {
   if (loading) return <LoadingIndicator />;
+  const [procedures, setProcedures] = useState([]);
+  const [medications, setMedication] = useState([]);
+  useEffect(async () => {
+    async function fetchProcedureData() {
+      const { procedure } = await api.get(`/${encounter.id}/procedures`);
+      setProcedures(procedure);
+
+      const { medication } = await api.get(`/${encounter.id}/medications`);
+      setMedication(medication);
+    }
+    fetchProcedureData();
+  }, [encounter]);
+
   return (
     <TopBar title="Patient Discharge Summary">
       <TextButton onClick={printPage}>Print Summary</TextButton>
       <StyledBackButton to="/patients/encounter" />
       <SummaryPage patient={patient} encounter={encounter} />
       <PrintPortal>
-        <SummaryPage patient={patient} encounter={encounter} />
+        <SummaryPage
+          patient={patient}
+          encounter={encounter}
+          procedures={procedures}
+          medications={medications}
+        />
       </PrintPortal>
     </TopBar>
   );
@@ -221,4 +247,19 @@ export const DischargeSummaryView = connect(state => ({
   loading: state.encounter.loading,
   encounter: state.encounter,
   patient: state.patient,
-}))(DumbDischargeSummaryView);
+}))(({ loading, encounter, patient }) => {
+  return (
+    <ApiContext.Consumer>
+      {api => {
+        return (
+          <DumbDischargeSummaryView
+            api={api}
+            loading={loading}
+            encounter={encounter}
+            patient={patient}
+          />
+        );
+      }}
+    </ApiContext.Consumer>
+  );
+});
