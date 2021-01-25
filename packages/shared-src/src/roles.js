@@ -92,6 +92,11 @@ export const practitioner = (user, allow, forbid) => {
   allow('write', 'Immunisation');
   allow('create', 'Immunisation');
 
+  allow('list', 'PatientIssue');
+  allow('read', 'PatientIssue');
+  allow('write', 'PatientIssue');
+  allow('create', 'PatientIssue');
+
   allow('list', 'PatientFamilyHistory');
   allow('read', 'PatientFamilyHistory');
   allow('write', 'PatientFamilyHistory');
