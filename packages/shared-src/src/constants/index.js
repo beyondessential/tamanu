@@ -57,8 +57,6 @@ export const ENCOUNTER_TYPES = {
   SURVEY_RESPONSE: 'surveyResponse',
 };
 
-export const ENCOUNTER_TYPE_VALUES = Object.values(ENCOUNTER_TYPES);
-
 export const ENCOUNTER_STATUSES = {
   ADMITTED: 'Admitted',
   DISCHARGED: 'Discharged',

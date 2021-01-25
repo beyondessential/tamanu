@@ -2,6 +2,7 @@ import { Sequelize } from 'sequelize';
 
 import { Model } from './Model';
 
+// TODO: work out how to merge this with the Immunisation model
 export class ScheduledVaccine extends Model {
   static init({ primaryKey, ...options }) {
     super.init(
