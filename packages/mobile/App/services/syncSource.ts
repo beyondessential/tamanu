@@ -88,11 +88,17 @@ export class WebSyncSource implements SyncSource {
       throw new AuthenticationError(generalErrorMessage);
     }
 
-    if(response.status >= 400) {
+    if(response.status == 401) {
       throw new AuthenticationError(invalidUserCredentialsMessage);
     }
 
     const data = response.json();
+
+    if(!data.token || !data.user) {
+      // auth failed in some other regard
+      console.warn("Auth failed with an inexplicable error", data);
+      throw new AuthenticationError(generalErrorMessage);
+    }
 
     return data;
   }
