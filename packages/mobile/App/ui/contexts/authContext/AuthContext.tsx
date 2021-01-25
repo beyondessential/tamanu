@@ -73,14 +73,14 @@ const Provider = ({
   };
 
   const dummyUser = {
-    id: 'dummy_user_id',
-    email: 'dummy_user_email@beyondessential.com.au',
+    id: 'dummy-user',
+    email: 'dummy.user@beyondessential.com.au',
     localPassword: 'dummy_user_password',
-    displayName: 'Dummy User',
-    role: 'dummy_role',
+    displayName: 'Peter Standard',
+    role: 'practitioner',
     facility: {
-      id: 'dummy_facility_id',
-      name: 'Dummy Facility',
+      id: 'dummy-facility',
+      name: 'BES General Hospital',
     },
   };
 
