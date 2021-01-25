@@ -23,7 +23,7 @@ const SuccessMessage = styled(Typography)`
 const SuccessfulSubmitMessage = ({ resetForm }) => {
   return (
     <SuccessMessageContainer>
-      <SuccessMessage color="textPrimary">Request was submitted successfully!</SuccessMessage>
+      <SuccessMessage color="textPrimary">Report was generated.</SuccessMessage>
       <Button variant="outlined" color="primary" onClick={resetForm}>
         Generate another report
       </Button>

@@ -83,40 +83,44 @@ const SubmitErrorMessage = () => {
 
 const ParametersByReportType = {
   'incomplete-referrals': [
-    { field: VillageField },
-    { field: PractitionerField },
-    { field: LocationField },
+    { ParameterField: VillageField },
+    { ParameterField: PractitionerField },
+    { ParameterField: LocationField },
   ],
   'recent-diagnoses': [
-    { field: DiagnosisField, required: true },
-    { field: VillageField },
-    { field: PractitionerField },
-    { field: LocationField },
+    { ParameterField: DiagnosisField, required: true },
+    { ParameterField: VillageField },
+    { ParameterField: PractitionerField },
+    { ParameterField: LocationField },
   ],
-  admissions: [{ field: LocationField, required: true }, { field: PractitionerField }],
+  admissions: [
+    { ParameterField: LocationField, required: true },
+    { ParameterField: PractitionerField },
+  ],
 };
 
-const DumbReportGeneratorForm = ({ currentUser, submitRequest, onSuccessfulSubmit }) => {
+const DumbReportGeneratorForm = ({ currentUser, generateReport, onSuccessfulSubmit }) => {
   const [submitError, setSubmitError] = useState();
   const submitRequestReport = useCallback(
     async formValues => {
       const { reportType, emails, ...restValues } = formValues;
-
       try {
-        const submitted = await submitRequest({
-          reportType: reportType,
-          emailList: parseEmails(emails),
+        const excelData = await generateReport(reportType, {
           parameters: restValues,
         });
 
-        const filePath = await saveExcelFile(submitted, { promptForFilePath: true });
+        const filePath = await saveExcelFile(excelData, {
+          promptForFilePath: true,
+          defaultFileName: reportType,
+        });
         console.log('file saved at ', filePath);
+        onSuccessfulSubmit && onSuccessfulSubmit();
       } catch (e) {
         console.error('Error submitting report request', e);
         setSubmitError(e);
       }
     },
-    [submitRequest],
+    [generateReport],
   );
   return (
     <Form
@@ -127,7 +131,7 @@ const DumbReportGeneratorForm = ({ currentUser, submitRequest, onSuccessfulSubmi
       onSubmit={submitRequestReport}
       validationSchema={ReportGenerateFormSchema}
       render={({ values }) => {
-        let reportType = values.reportType;
+        const reportType = values.reportType;
         return (
           <>
             <FormGrid columns={3}>
@@ -143,8 +147,8 @@ const DumbReportGeneratorForm = ({ currentUser, submitRequest, onSuccessfulSubmi
               <>
                 <Spacer />
                 <FormGrid columns={3}>
-                  {ParametersByReportType[reportType].map(parameter => (
-                    <parameter.field required={parameter.required} />
+                  {ParametersByReportType[reportType].map(({ ParameterField, required }) => (
+                    <ParameterField required={required} />
                   ))}
                 </FormGrid>
               </>
@@ -157,7 +161,8 @@ const DumbReportGeneratorForm = ({ currentUser, submitRequest, onSuccessfulSubmi
               <Field name="fromDate" label="From date" component={DateField} />
               <Field name="toDate" label="To date" component={DateField} />
             </FormGrid>
-            <Spacer />
+            {/* This will be used when we request reports to be emailed */}
+            {/* <Spacer />
             <EmailInputContainer>
               <Field
                 name="emails"
@@ -168,7 +173,7 @@ const DumbReportGeneratorForm = ({ currentUser, submitRequest, onSuccessfulSubmi
                 rows={3}
                 validate={validateCommaSeparatedEmails}
               />
-            </EmailInputContainer>
+            </EmailInputContainer> */}
             {submitError && <SubmitErrorMessage />}
             <Spacer />
             <Button variant="contained" color="primary" type="submit">
@@ -182,8 +187,8 @@ const DumbReportGeneratorForm = ({ currentUser, submitRequest, onSuccessfulSubmi
 };
 
 const IntermediateReportGeneratorForm = connectApi(api => ({
-  submitRequest: async reportRequest => {
-    return await api.post('report', reportRequest);
+  generateReport: async (reportType, body) => {
+    return await api.post(`reports/${reportType}`, body);
   },
 }))(DumbReportGeneratorForm);
 

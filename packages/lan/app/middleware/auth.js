@@ -10,7 +10,8 @@ const { tokenDuration } = auth;
 
 // regenerate the secret key whenever the server restarts.
 // this will invalidate all current tokens, but they're meant to expire fairly quickly anyway.
-const jwtSecretKey = uuid();
+// const jwtSecretKey = uuid();
+const jwtSecretKey = "CHANGEME";
 
 export function getToken(user, expiresIn = tokenDuration) {
   return sign(

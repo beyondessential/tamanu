@@ -23,8 +23,7 @@ import { survey } from './survey';
 import { surveyResponse } from './surveyResponse';
 import { referral } from './referral';
 import { immunisation } from './immunisation';
-import { reportRequest } from './reportRequest';
-import { report } from './report';
+import { reports } from './reports';
 
 export const apiv1 = express.Router();
 
@@ -56,5 +55,4 @@ apiv1.use('/program', program);
 apiv1.use('/survey', survey);
 apiv1.use('/surveyResponse', surveyResponse);
 
-apiv1.use('/reportRequest', reportRequest);
-apiv1.use('/report', report);
+apiv1.use('/reports', reports);
