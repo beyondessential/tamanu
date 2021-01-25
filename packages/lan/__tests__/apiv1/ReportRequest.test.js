@@ -15,7 +15,7 @@ describe('ReportRequest', () => {
   });
 
   describe('write', () => {
-    it('should create a new report request', async () => {
+    xit('should create a new report request', async () => {
       const result = await app.post('/v1/reportRequest').send({
         reportType: 'incomplete-referrals',
         emailList: ['example@gmail.com', 'other@gmail.com'],
