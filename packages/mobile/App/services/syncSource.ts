@@ -2,6 +2,7 @@ import { IUser } from '~/types';
 import {
   AuthenticationError,
   invalidUserCredentialsMessage,
+  generalErrorMessage,
 } from '../ui/contexts/authContext/auth-error';
 
 export interface SyncRecordData {
@@ -72,21 +73,33 @@ export class WebSyncSource implements SyncSource {
   async login(email: string, password: string): Promise<LoginResponse> {
     const url = `${this.host}/login`;
 
-    try {
-      const response = await fetch(url, {
-        method: 'POST',
-        headers: {
-          'content-type': 'application/JSON',
-        },
-        body: JSON.stringify({
-          email,
-          password,
-        }),
-      });
+    const response = await fetch(url, {
+      method: 'POST',
+      headers: {
+        'content-type': 'application/JSON',
+      },
+      body: JSON.stringify({
+        email,
+        password,
+      }),
+    });
 
-      return response.json();
-    } catch (error) {
+    if(response.status >= 500) {
+      throw new AuthenticationError(generalErrorMessage);
+    }
+
+    if(response.status == 401) {
       throw new AuthenticationError(invalidUserCredentialsMessage);
     }
+
+    const data = response.json();
+
+    if(!data.token || !data.user) {
+      // auth failed in some other regard
+      console.warn("Auth failed with an inexplicable error", data);
+      throw new AuthenticationError(generalErrorMessage);
+    }
+
+    return data;
   }
 }

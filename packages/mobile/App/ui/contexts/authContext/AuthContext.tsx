@@ -72,42 +72,49 @@ const Provider = ({
     setSignedInStatus(true);
   };
 
+  const dummyUser = {
+    id: 'dummy-user',
+    email: 'dummy.user@beyondessential.com.au',
+    localPassword: 'dummy_user_password',
+    displayName: 'Peter Standard',
+    role: 'practitioner',
+    facility: {
+      id: 'dummy-facility',
+      name: 'BES General Hospital',
+    },
+  };
+
   const remoteSignIn = async (email: string, password: string): Promise<void> => {
     const { user, token } = await backend.syncSource.login(email, password);
 
-    setUser(user);
+    // merge with dummy user to ensure that all fields are present
+    // safe to delete this when the server is responding with full info
+    // (specifically facility information)
+    setUser({ ...dummyUser, ...user });
     setToken(token);
     setSignedInStatus(true);
   };
 
   const dummySignIn = (): void => {
-    const user = {
-      id: '1SYEd1SeabMJ5ibw',
-      email: 'test@beyondessential.com.au',
-      localPassword: '123',
-      displayName: 'Chris Fletcher',
-      role: 'practitioner',
-      facility: {
-        id: '12312',
-        name: 'Victoria Hospital',
-      },
-    };
-
-    setUser(user);
+    setUser(dummyUser);
+    setToken('fake-token');
     setSignedInStatus(true);
   };
 
   const signIn = async (email: string, password: string): Promise<void> => {
-    // const network = await NetInfo.fetch();
+    if (__DEV__) {
+      if (!email && !password) {
+        return dummySignIn();
+      }
+    }
 
-    dummySignIn();
+    const network = await NetInfo.fetch();
 
-    // try {
-    //   localSignIn(email, password);
-    //   if (network.isConnected) remoteSignIn(email, password);
-    // } catch (error) {
-    //   return error;
-    // }
+    if(!network.isConnected) {
+      return localSignIn(email, password);
+    }
+
+    return remoteSignIn(email, password);
   };
 
   const signOut = (navigation: NavigationProp<any>): void => {
