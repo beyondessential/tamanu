@@ -9,28 +9,30 @@ import { AutocompleteField, Button, DateField, Field, Form, TextField } from '..
 import { FormGrid } from '../../components/FormGrid';
 import { Colors } from '../../constants';
 import { getCurrentUser } from '../../store/auth';
-import { Suggester } from '../../utils/suggester';
 import { MUI_SPACING_UNIT } from '../../constants';
+import { VillageField } from './VillageField';
+import { PractitionerField } from './PractitionerField';
+import { LocationField } from './LocationField';
+import { DiagnosisField } from './DiagnosisField';
+import { saveExcelFile } from '../../utils/saveExcelFile';
 
 const REPORT_TYPE_OPTIONS = [
   { label: 'Incomplete referrals', value: 'incomplete-referrals' },
   { label: 'Recent Diagnoses', value: 'recent-diagnoses' },
-  { label: 'Admissions Report', value: 'admissions-report' },
+  { label: 'Admissions Report', value: 'admissions' },
 ];
 
-const GenerateButton = styled(Button)`
-  margin-top: 20px;
+const Spacer = styled.div`
+  padding-top: 30px;
 `;
 
 const DateRangeLabel = styled(Typography)`
   font-weight: 500;
-  margin-top: 30px;
   margin-bottom: 5px;
   color: ${Colors.darkText};
 `;
 
 const EmailInputContainer = styled.div`
-  margin-top: 30px;
   width: 60%;
 `;
 
@@ -79,97 +81,114 @@ const SubmitErrorMessage = () => {
   );
 };
 
-const DumbReportGeneratorForm = ({
-  villageSuggester,
-  practitionerSuggester,
-  currentUser,
-  submitRequest,
-  onSuccessfulSubmit,
-}) => {
+const ParametersByReportType = {
+  'incomplete-referrals': [
+    { ParameterField: VillageField },
+    { ParameterField: PractitionerField },
+    { ParameterField: LocationField },
+  ],
+  'recent-diagnoses': [
+    { ParameterField: DiagnosisField, required: true },
+    { ParameterField: VillageField },
+    { ParameterField: PractitionerField },
+    { ParameterField: LocationField },
+  ],
+  admissions: [
+    { ParameterField: LocationField, required: true },
+    { ParameterField: PractitionerField },
+  ],
+};
+
+const DumbReportGeneratorForm = ({ currentUser, generateReport, onSuccessfulSubmit }) => {
   const [submitError, setSubmitError] = useState();
   const submitRequestReport = useCallback(
     async formValues => {
       const { reportType, emails, ...restValues } = formValues;
-
       try {
-        const submitted = await submitRequest({
-          reportType: reportType,
-          emailList: parseEmails(emails),
+        const excelData = await generateReport(reportType, {
           parameters: restValues,
         });
-        onSuccessfulSubmit();
-        setSubmitError(undefined);
+
+        const filePath = await saveExcelFile(excelData, {
+          promptForFilePath: true,
+          defaultFileName: reportType,
+        });
+        console.log('file saved at ', filePath);
+        onSuccessfulSubmit && onSuccessfulSubmit();
       } catch (e) {
         console.error('Error submitting report request', e);
         setSubmitError(e);
       }
     },
-    [submitRequest],
+    [generateReport],
   );
   return (
     <Form
       initialValues={{
         reportType: '',
-        village: '',
-        practitioner: '',
         emails: currentUser.email,
       }}
       onSubmit={submitRequestReport}
       validationSchema={ReportGenerateFormSchema}
-      render={() => (
-        <>
-          <FormGrid columns={3}>
-            <Field
-              name="reportType"
-              placeholder="Report type"
-              component={AutocompleteField}
-              options={REPORT_TYPE_OPTIONS}
-              required
-            />
-            <Field
-              name="village"
-              placeholder="Village"
-              component={AutocompleteField}
-              suggester={villageSuggester}
-            />
-            <Field
-              name="practitioner"
-              placeholder="Doctor/Nurse"
-              component={AutocompleteField}
-              suggester={practitionerSuggester}
-            />
-          </FormGrid>
-          <DateRangeLabel variant="body1">Date range (or leave blank for all data)</DateRangeLabel>
-          <FormGrid columns={2}>
-            <Field name="fromDate" label="From date" component={DateField} />
-            <Field name="toDate" label="To date" component={DateField} />
-          </FormGrid>
-          <EmailInputContainer>
-            <Field
-              name="emails"
-              label="Email to (separate emails with a comma)"
-              component={TextField}
-              placeholder="example@example.com"
-              multiline
-              rows={3}
-              validate={validateCommaSeparatedEmails}
-            />
-          </EmailInputContainer>
-          {submitError && <SubmitErrorMessage />}
-          <GenerateButton variant="contained" color="primary" type="submit">
-            Generate
-          </GenerateButton>
-        </>
-      )}
+      render={({ values }) => {
+        const reportType = values.reportType;
+        return (
+          <>
+            <FormGrid columns={3}>
+              <Field
+                name="reportType"
+                label="Report Type"
+                component={AutocompleteField}
+                options={REPORT_TYPE_OPTIONS}
+                required
+              />
+            </FormGrid>
+            {ParametersByReportType[reportType] && (
+              <>
+                <Spacer />
+                <FormGrid columns={3}>
+                  {ParametersByReportType[reportType].map(({ ParameterField, required }) => (
+                    <ParameterField required={required} />
+                  ))}
+                </FormGrid>
+              </>
+            )}
+            <Spacer />
+            <DateRangeLabel variant="body1">
+              Date range (or leave blank for all data)
+            </DateRangeLabel>
+            <FormGrid columns={2}>
+              <Field name="fromDate" label="From date" component={DateField} />
+              <Field name="toDate" label="To date" component={DateField} />
+            </FormGrid>
+            {/* This will be used when we request reports to be emailed */}
+            {/* <Spacer />
+            <EmailInputContainer>
+              <Field
+                name="emails"
+                label="Email to (separate emails with a comma)"
+                component={TextField}
+                placeholder="example@example.com"
+                multiline
+                rows={3}
+                validate={validateCommaSeparatedEmails}
+              />
+            </EmailInputContainer> */}
+            {submitError && <SubmitErrorMessage />}
+            <Spacer />
+            <Button variant="contained" color="primary" type="submit">
+              Generate
+            </Button>
+          </>
+        );
+      }}
     ></Form>
   );
 };
 
 const IntermediateReportGeneratorForm = connectApi(api => ({
-  villageSuggester: new Suggester(api, 'village'),
-  practitionerSuggester: new Suggester(api, 'practitioner'),
-  submitRequest: async reportRequest => {
-    return await api.post('reportRequest', reportRequest);
+  generateReport: async (reportType, body) => {
+    return await api.post(`reports/${reportType}`, body);
   },
 }))(DumbReportGeneratorForm);
 
