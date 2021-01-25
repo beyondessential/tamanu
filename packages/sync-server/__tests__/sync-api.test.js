@@ -74,6 +74,13 @@ describe('Sync API', () => {
       expect(firstRecord).toHaveProperty('lastSynced', SECOND_OLDEST.lastSynced);
     });
 
+    it('should have count and requestedAt fields', async () => {
+      const result = await app.get(`/v1/sync/patient?since=${OLDEST.lastSynced - 1}`);
+      expect(result).toHaveSucceeded();
+      expect(result.body).toHaveProperty('requestedAt', expect.any(String));
+      expect(result.body).toHaveProperty('count', expect.any(Number));
+    });
+
     describe('Pagination', () => {
       const TOTAL_RECORDS = 20;
       let records = null;
@@ -281,6 +288,13 @@ describe('Sync API', () => {
         'test body',
       );
     });
+
+    it('should have count and requestedAt fields', async () => {
+      const result = await app.post('/v1/sync/patient').send(fakeSyncRecordPatient());
+      expect(result).toHaveSucceeded();
+      expect(result.body).toHaveProperty('requestedAt', expect.any(String));
+      expect(result.body).toHaveProperty('count', expect.any(Number));
+    });
   });
 
   describe('Deletes', () => {
@@ -291,6 +305,7 @@ describe('Sync API', () => {
     describe('on success', () => {
       let patient;
       let record;
+      let result;
 
       beforeEach(async () => {
         patient = fakeSyncRecordPatient();
@@ -302,7 +317,7 @@ describe('Sync API', () => {
         });
 
         // find record
-        const result = await app.delete(`/v1/sync/patient/${patient.data.id}`);
+        result = await app.delete(`/v1/sync/patient/${patient.data.id}`);
         expect(result).toHaveSucceeded();
         expect(result.body).toHaveProperty('count', 1);
         const getResult = await app.get('/v1/sync/patient?since=0', 0);
@@ -322,14 +337,20 @@ describe('Sync API', () => {
       });
 
       it('should return tombstones for deleted records', async () => {
-        const result = await app.get('/v1/sync/patient?since=0');
-        expect(result).toHaveSucceeded();
-        expect(result.body).toHaveProperty('count', 1);
-        expect(result.body.records[0]).toHaveProperty('data.id', patient.data.id);
+        const getResult = await app.get('/v1/sync/patient?since=0');
+        expect(getResult).toHaveSucceeded();
+        expect(getResult.body).toHaveProperty('count', 1);
+        expect(getResult.body.records[0]).toHaveProperty('data.id', patient.data.id);
       });
 
       it('should update the lastSynced timestamp', async () => {
         expect(record.lastSynced.valueOf()).toBeGreaterThan(new Date(1971, 0, 1).valueOf());
+      });
+
+      it('should have count and requestedAt fields', async () => {
+        expect(result).toHaveSucceeded();
+        expect(result.body).toHaveProperty('requestedAt', expect.any(String));
+        expect(result.body).toHaveProperty('count', expect.any(Number));
       });
     });
 

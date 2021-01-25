@@ -10,6 +10,9 @@ export const syncRoutes = express.Router();
 syncRoutes.get(
   '/:channel',
   asyncHandler(async (req, res) => {
+    // grab the requested time before running any queries
+    const requestedAt = new Date();
+
     const { store, query, params } = req;
     const { channel } = params;
     const { since, limit = '100', page = '0' } = query;
@@ -17,9 +20,6 @@ syncRoutes.get(
     if (!since) {
       throw new InvalidParameterError('Sync GET request must include a "since" parameter');
     }
-
-    // grab the requested time before running any queries
-    const requestedAt = new Date();
 
     const count = await store.countSince(channel, since);
 
@@ -43,6 +43,9 @@ syncRoutes.get(
 syncRoutes.post(
   '/:channel',
   asyncHandler(async (req, res) => {
+    // grab the requested time before running any queries
+    const requestedAt = new Date();
+
     const { store, params, body } = req;
     const { channel } = params;
 
@@ -60,7 +63,7 @@ syncRoutes.post(
     } else {
       log.info(`POST to ${channel} : 1 record`);
       const count = await upsert(body);
-      res.send({ count });
+      res.send({ count, requestedAt });
     }
   }),
 );
@@ -68,6 +71,9 @@ syncRoutes.post(
 syncRoutes.delete(
   '/:channel/:recordId',
   asyncHandler(async (req, res) => {
+    // grab the requested time before running any queries
+    const requestedAt = new Date();
+
     const { store, params } = req;
     const { channel, recordId } = params;
 
@@ -81,6 +87,6 @@ syncRoutes.delete(
     }
 
     log.info(`DELETE from channel ${channel} record ${recordId}`);
-    res.send({ count });
+    res.send({ count, requestedAt });
   }),
 );
