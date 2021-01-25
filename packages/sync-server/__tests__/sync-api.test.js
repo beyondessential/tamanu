@@ -77,7 +77,7 @@ describe('Sync API', () => {
     it('should have count and requestedAt fields', async () => {
       const result = await app.get(`/v1/sync/patient?since=${OLDEST.lastSynced - 1}`);
       expect(result).toHaveSucceeded();
-      expect(result.body).toHaveProperty('requestedAt', expect.any(String));
+      expect(result.body).toHaveProperty('requestedAt', expect.any(Number));
       expect(result.body).toHaveProperty('count', expect.any(Number));
     });
 
@@ -292,7 +292,7 @@ describe('Sync API', () => {
     it('should have count and requestedAt fields', async () => {
       const result = await app.post('/v1/sync/patient').send(fakeSyncRecordPatient());
       expect(result).toHaveSucceeded();
-      expect(result.body).toHaveProperty('requestedAt', expect.any(String));
+      expect(result.body).toHaveProperty('requestedAt', expect.any(Number));
       expect(result.body).toHaveProperty('count', expect.any(Number));
     });
   });
@@ -349,7 +349,7 @@ describe('Sync API', () => {
 
       it('should have count and requestedAt fields', async () => {
         expect(result).toHaveSucceeded();
-        expect(result.body).toHaveProperty('requestedAt', expect.any(String));
+        expect(result.body).toHaveProperty('requestedAt', expect.any(Number));
         expect(result.body).toHaveProperty('count', expect.any(Number));
       });
     });

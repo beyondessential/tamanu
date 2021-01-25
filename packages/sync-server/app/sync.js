@@ -11,7 +11,7 @@ syncRoutes.get(
   '/:channel',
   asyncHandler(async (req, res) => {
     // grab the requested time before running any queries
-    const requestedAt = new Date();
+    const requestedAt = new Date().valueOf();
 
     const { store, query, params } = req;
     const { channel } = params;
@@ -44,7 +44,7 @@ syncRoutes.post(
   '/:channel',
   asyncHandler(async (req, res) => {
     // grab the requested time before running any queries
-    const requestedAt = new Date();
+    const requestedAt = new Date().valueOf();
 
     const { store, params, body } = req;
     const { channel } = params;
@@ -72,7 +72,7 @@ syncRoutes.delete(
   '/:channel/:recordId',
   asyncHandler(async (req, res) => {
     // grab the requested time before running any queries
-    const requestedAt = new Date();
+    const requestedAt = new Date().valueOf();
 
     const { store, params } = req;
     const { channel, recordId } = params;
