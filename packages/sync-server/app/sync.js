@@ -11,7 +11,7 @@ syncRoutes.get(
   '/:channel',
   asyncHandler(async (req, res) => {
     // grab the requested time before running any queries
-    const requestedAt = new Date().valueOf();
+    const requestedAt = Date.now();
 
     const { store, query, params } = req;
     const { channel } = params;
@@ -44,13 +44,13 @@ syncRoutes.post(
   '/:channel',
   asyncHandler(async (req, res) => {
     // grab the requested time before running any queries
-    const requestedAt = new Date().valueOf();
+    const requestedAt = Date.now();
 
     const { store, params, body } = req;
     const { channel } = params;
 
     const upsert = record => {
-      const lastSynced = new Date().valueOf();
+      const lastSynced = requestedAt;
       const dbRecord = convertToDbRecord(record);
       return store.upsert(channel, { lastSynced, ...dbRecord });
     };
@@ -72,7 +72,7 @@ syncRoutes.delete(
   '/:channel/:recordId',
   asyncHandler(async (req, res) => {
     // grab the requested time before running any queries
-    const requestedAt = new Date().valueOf();
+    const requestedAt = Date.now();
 
     const { store, params } = req;
     const { channel, recordId } = params;
