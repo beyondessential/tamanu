@@ -26,7 +26,7 @@ export const VaccinesTable = ({
 
   const [data, error] = useBackendEffect(
     ({ models }) => models.ScheduledVaccine.find({
-      order: { index: 'ASC' },
+      order: { weeksFromBirthDue: 'ASC' },
       where: { category: categoryName },
     }),
     [],

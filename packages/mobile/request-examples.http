@@ -1,79 +1,9 @@
-# create a user
-POST https://sync-dev.tamanu.io/v1/sync/reference HTTP/1.1
-Authorization: 123
+# Get all results since 1604451264306 for all ScheduledVaccines (see Model)
+GET https://sync-dev.tamanu.io/v1/sync/scheduledVaccine?since=1604451264306 HTTP/1.1
 Content-Type: application/json
+Authorization: Bearer fake-token
+X-REQUEST-TYPE: GraphQL
 
-[
-  { "recordType": "user", "data": {
-    "id": "jLlakDStecKGUZEy",
-    "email": "bastien@beyondessential.com.au",
-    "localPassword": "123",
-    "displayName": "bas go",
-    "role": "practitioner"
-    } }
-]
+[]
 
 ###
-
-# create referenceData
-POST https://sync-dev.tamanu.io/v1/sync/reference HTTP/1.1
-Authorization: 123
-Content-Type: application/json
-# update an existing row
-
-[
-  { "recordType": "referenceData", "data": {
-    "id": "724f38f3-8257-4003-958f-baa82eeb09f4",
-    "name": "BCG",
-    "code": "BCG",
-    "type": "vaccine"
-    } }
-]
-
-###
-
-# create a new row (no id field included)
-POST https://sync-dev.tamanu.io/v1/sync/reference HTTP/1.1
-Authorization: 123
-Content-Type: application/json
-
-[
-  { "recordType": "referenceData", "data": {
-    "name": "COVID-19 Vaccine",
-    "code": "COVAX",
-    "type": "vaccine"
-    } }
-]
-
-###
-
-# send ScheduledVaccine and AdministeredVaccine data
-POST https://sync-dev.tamanu.io/v1/sync/vaccination HTTP/1.1
-Authorization: 123
-Content-Type: application/json
-
-[
-  { "recordType": "scheduledVaccine", "data": {
-    "index": 1,
-    "label": "COVAX",
-    "schedule": "Dose 1",
-    "category": "Campaign",
-    "vaccine": "b33bb83a-f580-4833-ad18-551349c1c051"
-  } }
-]
-
-###
-
-# get some sync records
-https://sync-dev.tamanu.io/v1/sync/reference?since=0 HTTP/1.1
-Authorization: 123
-Content-Type: application/json
-
-[
-  { "recordType": "user", "data": {
-    "email": "bastien@beyondessential.com.au",
-    "localPassword": "123",
-    "displayName": "bas go",
-    "role": "practitioner"
-    } }
-]
