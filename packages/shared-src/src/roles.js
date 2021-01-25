@@ -106,6 +106,8 @@ export const practitioner = (user, allow, forbid) => {
   allow('read', 'ReportRequest');
   allow('write', 'ReportRequest');
   allow('create', 'ReportRequest');
+
+  allow('create', 'Report');
 };
 
 export const admin = (user, allow, forbid) => {
