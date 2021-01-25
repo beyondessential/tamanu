@@ -46,20 +46,20 @@ syncRoutes.post(
     const { store, params, body } = req;
     const { channel } = params;
 
-    const insert = record => {
+    const upsert = record => {
       const lastSynced = new Date().valueOf();
       const dbRecord = convertToDbRecord(record);
-      return store.insert(channel, { lastSynced, ...dbRecord });
+      return store.upsert(channel, { lastSynced, ...dbRecord });
     };
 
     if (Array.isArray(body)) {
-      const inserts = await Promise.all(body.map(insert));
-      const count = inserts.filter(x => x).length;
+      const upserts = await Promise.all(body.map(upsert));
+      const count = upserts.filter(x => x).length;
       log.info(`POST to ${channel} : ${count} records`);
       res.send({ count });
     } else {
       log.info(`POST to ${channel} : 1 record`);
-      const count = await insert(body);
+      const count = await upsert(body);
       res.send({ count });
     }
   }),

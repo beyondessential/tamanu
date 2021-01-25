@@ -28,3 +28,4 @@ export * from './SurveyResponse';
 export * from './Referral';
 export * from './Immunisation';
 export * from './ScheduledVaccine';
+export * from './AdministeredVaccine';
