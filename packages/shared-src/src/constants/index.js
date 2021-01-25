@@ -42,6 +42,11 @@ export const NOTE_TYPES = {
   OTHER: 'other',
 };
 
+export const PATIENT_ISSUE_TYPES = {
+  ISSUE: 'issue',
+  WARNING: 'warning',
+};
+
 export const ENCOUNTER_TYPES = {
   ADMISSION: 'admission',
   CLINIC: 'clinic',
@@ -51,6 +56,8 @@ export const ENCOUNTER_TYPES = {
   TRIAGE: 'triage',
   SURVEY_RESPONSE: 'surveyResponse',
 };
+
+export const ENCOUNTER_TYPE_VALUES = Object.values(ENCOUNTER_TYPES);
 
 export const ENCOUNTER_STATUSES = {
   ADMITTED: 'Admitted',
@@ -139,3 +146,5 @@ export const PROGRAM_DATA_ELEMENT_TYPE_VALUES = [
   'PrimaryEntity',
   'CodeGenerator',
 ];
+
+export const REPORT_REQUEST_STATUSES = ['Received', 'Processed'];

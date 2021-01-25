@@ -8,18 +8,19 @@ export class PatientFamilyHistory extends Model {
         id: primaryKey,
         note: Sequelize.STRING,
         recordedDate: { type: Sequelize.DATE, defaultValue: Sequelize.NOW, allowNull: false },
+        relationship: Sequelize.STRING,
       },
       options,
     );
   }
 
   static initRelations(models) {
-    this.belongsTo(models.Patient, { foreignKey: 'patientId' });
-    this.belongsTo(models.User, { foreignKey: 'examinerId' });
-    this.belongsTo(models.ReferenceData, { foreignKey: 'conditionId', as: 'Condition' });
+    this.belongsTo(models.Patient, { foreignKey: 'patientId', as: 'patient' });
+    this.belongsTo(models.User, { foreignKey: 'practitionerId', as: 'practitioner' });
+    this.belongsTo(models.ReferenceData, { foreignKey: 'diagnosisId', as: 'diagnosis' });
   }
-
+  
   static getListReferenceAssociations() {
-    return ['Condition'];
+    return ['diagnosis']
   }
 }

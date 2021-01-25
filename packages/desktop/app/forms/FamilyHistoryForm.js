@@ -21,7 +21,7 @@ export class FamilyHistoryForm extends React.PureComponent {
     return (
       <FormGrid columns={1}>
         <Field
-          name="diagnosis.id"
+          name="diagnosisId"
           label="Diagnosis"
           required
           component={AutocompleteField}
@@ -30,7 +30,7 @@ export class FamilyHistoryForm extends React.PureComponent {
         <Field name="date" label="Date recorded" required component={DateField} />
         <Field name="relationship" label="Relation to patient" component={TextField} />
         <Field
-          name="practitioner.id"
+          name="practitionerId"
           label="Doctor/nurse"
           required
           component={AutocompleteField}
@@ -53,8 +53,8 @@ export class FamilyHistoryForm extends React.PureComponent {
           ...editedObject,
         }}
         validationSchema={yup.object().shape({
-          diagnosis: foreignKey('Diagnosis is required'),
-          practitioner: foreignKey('Doctor/nurse is required'),
+          diagnosisId: foreignKey('Diagnosis is required'),
+          practitionerId: foreignKey('Doctor/nurse is required'),
           date: yup.date().required(),
         })}
       />

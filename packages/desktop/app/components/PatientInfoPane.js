@@ -13,16 +13,18 @@ import { AllergyForm, OngoingConditionForm, FamilyHistoryForm, PatientIssueForm 
 import { DeathModal } from './DeathModal';
 import { Colors } from '../constants';
 
+import { PATIENT_ISSUE_TYPES } from 'shared/constants';
+
 const OngoingConditionDisplay = memo(({ patient, readonly }) => (
   <InfoPaneList
     patient={patient}
     readonly={readonly}
     title="Ongoing conditions"
-    endpoint="conditions"
+    endpoint="ongoingCondition"
     suggesterEndpoints={['practitioner', 'icd10']}
     items={patient.conditions}
     Form={OngoingConditionForm}
-    getName={({ condition }) => condition.name}
+    getName={({ condition, resolved }) => resolved ? `${condition.name} (resolved)` : condition.name }
   />
 ));
 
@@ -31,7 +33,7 @@ const AllergyDisplay = memo(({ patient, readonly }) => (
     patient={patient}
     readonly={readonly}
     title="Allergies"
-    endpoint="allergies"
+    endpoint="allergy"
     suggesterEndpoints={['practitioner', 'allergy']}
     items={patient.allergies}
     Form={AllergyForm}
@@ -57,7 +59,7 @@ const FamilyHistoryDisplay = memo(({ patient, readonly }) => (
   />
 ));
 
-const shouldShowIssueInWarningModal = ({ type }) => type === 'warning';
+const shouldShowIssueInWarningModal = ({ type }) => type === PATIENT_ISSUE_TYPES.WARNING;
 
 const PatientIssuesDisplay = memo(({ patient, readonly }) => {
   const { issues } = patient;
@@ -74,10 +76,10 @@ const PatientIssuesDisplay = memo(({ patient, readonly }) => {
         patient={patient}
         readonly={readonly}
         title="Other patient issues"
-        endpoint="issue"
+        endpoint="patientIssue"
         items={sortedIssues}
         Form={PatientIssueForm}
-        getName={issue => issue.notes}
+        getName={issue => issue.note}
       />
     </React.Fragment>
   );
