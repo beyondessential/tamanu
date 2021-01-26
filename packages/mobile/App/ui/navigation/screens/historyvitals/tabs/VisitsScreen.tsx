@@ -11,6 +11,12 @@ import { LoadingScreen } from '~/ui/components/LoadingScreen';
 import { ErrorScreen } from '~/ui/components/ErrorScreen';
 import { withPatient } from '~/ui/containers/Patient';
 
+const visitsHistoryRows = {
+  reasonForEncounter: { name: 'Reason for encounter' },
+  medication: { name: 'Medication' },
+  examiner: { name: 'Examiner' },
+};
+
 export const DumbVisistsScreen = ({ selectedPatient }): ReactElement => {
   const activeFilters = {
     count: 0,
@@ -30,7 +36,7 @@ export const DumbVisistsScreen = ({ selectedPatient }): ReactElement => {
   return (
     <StyledSafeAreaView flex={1}>
       <FullView background={theme.colors.BACKGROUND_GREY}>
-        {data ? <PatientHistoryAccordion dataArray={data} /> : <LoadingScreen />}
+        {data ? <PatientHistoryAccordion dataArray={data} rows={visitsHistoryRows} /> : <LoadingScreen />}
         <StyledView
           position="absolute"
           zIndex={2}
