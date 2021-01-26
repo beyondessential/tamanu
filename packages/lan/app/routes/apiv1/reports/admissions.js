@@ -38,36 +38,38 @@ function parametersToSqlWhere(parameters) {
       .subtract(30, 'days')
       .toISOString();
   }
-  const whereClause = Object.entries(parameters).reduce(
-    (where, [key, value]) => {
-      if (key === 'location') {
-        where.locationId = value;
-      }
-      if (key === 'practitioner') {
-        where.examinerId = value;
-      }
-      if (key === 'fromDate') {
-        where.startDate[Op.gte] = value;
-      }
-      if (key === 'toDate') {
-        where.startDate[Op.lte] = value;
-      }
-      return where;
-    },
-    {
-      encounterType: ENCOUNTER_TYPES.ADMISSION,
-      startDate: {},
-    },
-  );
+  const whereClause = Object.entries(parameters)
+    .filter(([, val]) => val)
+    .reduce(
+      (where, [key, value]) => {
+        switch (key) {
+          case 'location':
+            where.locationId = value;
+            break;
+          case 'practitioner':
+            where.examinerId = value;
+            break;
+          case 'fromDate':
+            where.startDate[Op.gte] = value;
+            break;
+          case 'toDate':
+            where.startDate[Op.lte] = value;
+            break;
+          default:
+            break;
+        }
+        return where;
+      },
+      {
+        encounterType: ENCOUNTER_TYPES.ADMISSION,
+        startDate: {},
+      },
+    );
 
-  console.log('where', whereClause);
   return whereClause;
 }
 
 async function queryAdmissionsData(models, parameters) {
-  if (!parameters.location) {
-    return [];
-  }
   const result = await models.Encounter.findAll({
     include: [
       { model: models.Patient, as: 'patient', include: [{ model: models.ReferenceData }] },
@@ -86,7 +88,10 @@ export const createAdmissionsReport = asyncHandler(async (req, res) => {
     models,
     body: { parameters },
   } = req;
-
+  if (!parameters.location) {
+    res.status(400).send(`'location' parameter is required`);
+    return;
+  }
   const excelData = await generateAdmissionsReport(models, parameters);
   res.send(excelData);
 });
