@@ -27,7 +27,7 @@ export const Field = ({
       onChange={(newValue: any): any => field.onChange({ target: { name, value: newValue } })}
       value={field.value}
       label={label}
-      error={meta.touched && meta.error}
+      error={meta.error}
       type={type}
       disabled={disabled}
       options={options}

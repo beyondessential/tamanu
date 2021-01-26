@@ -2,8 +2,10 @@ import React, { useCallback, ReactElement, useContext, useEffect, useState } fro
 import { compose } from 'redux';
 import { useSelector } from 'react-redux';
 import { Formik } from 'formik';
+import * as Yup from 'yup';
+
 import { authUserSelector } from '/helpers/selectors';
-import { ReferenceDataType } from '~/types';
+import { ReferenceDataType, Certainty } from '~/types';
 import { useBackend } from '~/ui/hooks';
 import { FullView } from '/styled/common';
 import { theme } from '/styled/theme';
@@ -13,6 +15,14 @@ import { ReferenceData } from '~/models/ReferenceData';
 import { OptionType, Suggester } from '~/ui/helpers/suggester';
 import { withPatient } from '~/ui/containers/Patient';
 import { Routes } from '~/ui/helpers/routes';
+
+const ReferralFormSchema = Yup.object().shape({
+  referredFacility: Yup.string().required(),
+  referredDepartment: Yup.string().required(),
+  diagnosis: Yup.string().required(),
+  certainty: Yup.mixed().oneOf(Object.values(Certainty)).required(),
+  notes: Yup.string().required(),
+});
 
 const DumbAddRefferalDetailScreen = ({ navigation, selectedPatient }): ReactElement => {
   const { models } = useBackend();
@@ -61,6 +71,7 @@ const DumbAddRefferalDetailScreen = ({ navigation, selectedPatient }): ReactElem
           practitioner: user.id,
         }}
         onSubmit={onCreateReferral}
+        validationSchema={ReferralFormSchema}
       >
         {renderForm}
       </Formik>
