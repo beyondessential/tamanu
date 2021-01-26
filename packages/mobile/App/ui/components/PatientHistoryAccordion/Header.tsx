@@ -75,7 +75,6 @@ const HeaderDescription = ({
   location,
   referredDepartment,
   isActive,
-  ...props
 }: HeaderDescriptionProps): JSX.Element => (
   <ColumnView flex={1}>
     <StyledText
