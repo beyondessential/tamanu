@@ -82,21 +82,13 @@ const SubmitErrorMessage = () => {
 };
 
 const ParametersByReportType = {
-  'incomplete-referrals': [
-    { ParameterField: VillageField },
-    { ParameterField: PractitionerField },
-    { ParameterField: LocationField },
-  ],
+  'incomplete-referrals': [{ ParameterField: VillageField }, { ParameterField: PractitionerField }],
   'recent-diagnoses': [
     { ParameterField: DiagnosisField, required: true },
     { ParameterField: VillageField },
     { ParameterField: PractitionerField },
-    { ParameterField: LocationField },
   ],
-  admissions: [
-    { ParameterField: LocationField, required: true },
-    { ParameterField: PractitionerField },
-  ],
+  admissions: [{ ParameterField: PractitionerField }],
 };
 
 const DumbReportGeneratorForm = ({ currentUser, generateReport, onSuccessfulSubmit }) => {
