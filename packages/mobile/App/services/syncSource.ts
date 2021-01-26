@@ -73,15 +73,14 @@ export class WebSyncSource implements SyncSource {
   async login(email: string, password: string): Promise<LoginResponse> {
     const url = `${this.host}/login`;
 
+    const body = { email, password };
+
     const response = await fetch(url, {
       method: 'POST',
       headers: {
         'content-type': 'application/JSON',
       },
-      body: JSON.stringify({
-        email,
-        password,
-      }),
+      body,
     });
 
     if(response.status >= 500) {

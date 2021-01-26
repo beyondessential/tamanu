@@ -102,7 +102,7 @@ const Provider = ({
   };
 
   const signIn = async (email: string, password: string): Promise<void> => {
-    if (__DEV__) {
+    if (true || __DEV__) {
       if (!email && !password) {
         return dummySignIn();
       }
