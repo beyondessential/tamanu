@@ -97,3 +97,18 @@ export async function createDummyPatient(models, overrides = {}) {
     ...overrides,
   };
 }
+
+export async function createDummyEncounterDiagnosis(models, overrides = {}) {
+  const duration = chance.natural({
+    min: HOUR,
+    max: HOUR * 10,
+  });
+  const date = new Date(new Date().getTime() - duration);
+  return {
+    date,
+    certainty: chance.bool() ? 'suspected' : 'confirmed',
+    isPrimary: chance.bool(),
+    diagnosisId: await randomReferenceId(models, 'icd10'),
+    ...overrides,
+  };
+}
