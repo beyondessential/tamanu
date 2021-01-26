@@ -18,7 +18,7 @@ function mapAdmissionsDataRowToExcelRow(data) {
   return [
     data.patient.firstName,
     data.patient.lastName,
-    data.patientId,
+    data.patient.displayId,
     data.patient.sex,
     data.patient.ReferenceDatum.name,
     data.examiner.displayName,
@@ -43,9 +43,6 @@ function parametersToSqlWhere(parameters) {
     .reduce(
       (where, [key, value]) => {
         switch (key) {
-          case 'location':
-            where.locationId = value;
-            break;
           case 'practitioner':
             where.examinerId = value;
             break;
@@ -88,10 +85,6 @@ export const createAdmissionsReport = asyncHandler(async (req, res) => {
     models,
     body: { parameters },
   } = req;
-  if (!parameters.location) {
-    res.status(400).send(`'location' parameter is required`);
-    return;
-  }
   const excelData = await generateAdmissionsReport(models, parameters);
   res.send(excelData);
 });

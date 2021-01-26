@@ -22,7 +22,7 @@ function mapDiagnosisDataRowToExcelRow(data) {
     data.Diagnosis.name,
     data.Encounter.patient.firstName,
     data.Encounter.patient.lastName,
-    data.Encounter.patientId,
+    data.Encounter.patient.displayId,
     data.Encounter.patient.sex,
     data.Encounter.patient.ReferenceDatum.name,
     data.Encounter.examiner.displayName,
@@ -56,9 +56,6 @@ function parametersToSqlWhere(parameters) {
             break;
           case 'practitioner':
             where['$Encounter.examiner_id$'] = value;
-            break;
-          case 'location':
-            where ['$Encounter.location_id$'] = value;
             break;
           case 'fromDate':
             where.date[Op.gte] = value;
