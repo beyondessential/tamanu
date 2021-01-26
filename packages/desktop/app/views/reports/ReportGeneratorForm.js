@@ -12,7 +12,6 @@ import { getCurrentUser } from '../../store/auth';
 import { MUI_SPACING_UNIT } from '../../constants';
 import { VillageField } from './VillageField';
 import { PractitionerField } from './PractitionerField';
-import { LocationField } from './LocationField';
 import { DiagnosisField } from './DiagnosisField';
 import { saveExcelFile } from '../../utils/saveExcelFile';
 
