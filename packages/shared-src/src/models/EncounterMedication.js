@@ -53,6 +53,7 @@ export class EncounterMedication extends Model {
     });
     this.belongsTo(models.Encounter, {
       foreignKey: 'encounterId',
+      as: 'encounter'
     });
     this.belongsTo(models.ReferenceData, {
       foreignKey: 'medicationId',
@@ -61,6 +62,6 @@ export class EncounterMedication extends Model {
   }
 
   static getListReferenceAssociations() {
-    return ['Medication'];
+    return ['Medication', 'encounter'];
   }
 }

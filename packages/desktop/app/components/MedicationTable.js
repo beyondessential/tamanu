@@ -8,32 +8,44 @@ import { viewEncounter } from '../store/encounter';
 
 const getMedicationName = ({ medication }) => medication.name;
 
-const COLUMNS = [
+const MEDICATION_COLUMNS = [
   { key: 'date', title: 'Date', accessor: ({ date }) => <DateDisplay date={date} /> },
   { key: 'medication.name', title: 'Drug', accessor: getMedicationName },
   { key: 'prescription', title: 'Prescription' },
 ];
 
-const PATIENT_COLUMNS = [
+const FULL_LISTING_COLUMNS = [
   {
     key: 'name',
     title: 'Patient',
-    accessor: ({ encounters }) => `${encounters[0].patient[0].firstName} ${encounters[0].patient[0].lastName}`,
+    accessor: ({ encounter }) => `${encounter.patient.firstName} ${encounter.patient.lastName}`,
     sortable: false,
   },
-  ...COLUMNS,
+  {
+    key: 'department',
+    title: 'Department',
+    accessor: ({ encounter }) => encounter.department.name,
+    sortable: false,
+  },
+  {
+    key: 'location',
+    title: 'Location',
+    accessor: ({ encounter }) => encounter.location.name,
+    sortable: false,
+  },
+  ...MEDICATION_COLUMNS,
 ];
 
 export const EncounterMedicationTable = React.memo(({ encounterId }) => (
-  <DataFetchingTable columns={COLUMNS} endpoint={`encounter/${encounterId}/medications`} />
+  <DataFetchingTable columns={MEDICATION_COLUMNS} endpoint={`encounter/${encounterId}/medications`} />
 ));
 
 export const DataFetchingMedicationTable = connect(null, dispatch => ({
-  onMedicationSelect: medication => dispatch(viewEncounter(medication.encounters[0].id)),
+  onMedicationSelect: medication => dispatch(viewEncounter(medication.encounter.id)),
 }))(({ onMedicationSelect }) => (
   <DataFetchingTable
     endpoint="medication"
-    columns={PATIENT_COLUMNS}
+    columns={FULL_LISTING_COLUMNS}
     noDataMessage="No medication requests found"
     onRowClick={onMedicationSelect}
   />
