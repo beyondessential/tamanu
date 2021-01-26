@@ -210,3 +210,13 @@ export const MarriedStatus = {
 export const SingleStatus = { value: 'single', label: 'Single' };
 export const Other = { value: 'other', label: 'Other' };
 export const MaritalStatusOptions = [SingleStatus, MarriedStatus, Other];
+
+export const EncounterTypeNames = {
+  admission: 'Admission',
+  clinic: 'Clinic',
+  imaging: 'Imaging',
+  emergency: 'Emergency',
+  observation: 'Observation',
+  triage: 'Triage',
+  surveyResponse: 'Survey response',
+};
