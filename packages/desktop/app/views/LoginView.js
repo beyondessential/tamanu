@@ -59,7 +59,7 @@ export class LoginView extends Component {
         <Field name="email" type="email" label="Email" required component={TextField} />
         <Field name="password" label="Password" type="password" required component={TextField} />
         <Field name="rememberMe" label="Remember me" component={CheckField} />
-        <LoginButton fullWidth variant="contained" color="primary" onClick={submitForm}>
+        <LoginButton fullWidth variant="contained" color="primary" type="submit">
           Login to your account
         </LoginButton>
       </FormGrid>
