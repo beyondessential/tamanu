@@ -16,6 +16,14 @@ import { OptionType, Suggester } from '~/ui/helpers/suggester';
 import { withPatient } from '~/ui/containers/Patient';
 import { Routes } from '~/ui/helpers/routes';
 
+const ReferralFormSchema = Yup.object().shape({
+  referredFacility: Yup.string().required(),
+  referredDepartment: Yup.string().required(),
+  diagnosis: Yup.string().required(),
+  certainty: Yup.mixed().oneOf(Object.values(Certainty)).required(),
+  notes: Yup.string().required(),
+});
+
 const DumbAddRefferalDetailScreen = ({ navigation, selectedPatient }): ReactElement => {
   const { models } = useBackend();
   const user = useSelector(authUserSelector);
@@ -63,13 +71,7 @@ const DumbAddRefferalDetailScreen = ({ navigation, selectedPatient }): ReactElem
           practitioner: user.id,
         }}
         onSubmit={onCreateReferral}
-        validationSchema={Yup.object().shape({
-          referredFacility: Yup.string().required(),
-          referredDepartment: Yup.string().required(),
-          diagnosis: Yup.string().required(),
-          certainty: Yup.mixed().oneOf(Object.values(Certainty)).required(),
-          notes: Yup.string().required(),
-        })}
+        validationSchema={ReferralFormSchema}
       >
         {renderForm}
       </Formik>
