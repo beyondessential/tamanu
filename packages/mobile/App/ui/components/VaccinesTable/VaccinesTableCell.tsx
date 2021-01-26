@@ -57,7 +57,6 @@ export const VaccineTableCell = ({
   onPress,
 }: VaccineTableCellProps): JSX.Element => {
   if (!data) return <CellContent status={VaccineStatus.UNKNOWN} />;
-
   const { vaccine, vaccineStatus, weeksUntilDue, id } = data;
   const dueStatus = getVaccineStatus(weeksUntilDue);
   let cellStatus = vaccineStatus || dueStatus || VaccineStatus.UNKNOWN;
@@ -93,7 +92,7 @@ export const VaccineTableCell = ({
     if (vaccineStatus) {
       onPress({ ...vaccine, status: vaccineStatus, scheduledVaccineId: id });
     }
-  }, [vaccine]);
+  }, [data]);
 
   return (
     <StyledTouchableOpacity onPress={onPressItem}>
