@@ -74,9 +74,8 @@ const DiagnosesList = ({ diagnoses = [] }) => {
   return diagnoses.map(item => {
     return (
       <li>
-        {item.diagnosis.name} (<Label>ICD 10 Code: </Label>
-        {item.diagnosis.code}
-      )
+        {item.diagnosis.name}
+        (<Label>ICD 10 Code: </Label> {item.diagnosis.code})
       </li>
     );
   });
@@ -87,10 +86,8 @@ const ProceduresList = ({ procedures }) => {
 
   return procedures.map(procedure => {
     return (
-      <li>  
-        {procedure.description} (
-<Label>CPT Code: </Label>
-        {procedure.cptCode})
+      <li>
+        {procedure.description} (<Label>CPT Code: </Label>{procedure.cptCode})
       </li>
     );
   });
