@@ -12,7 +12,6 @@ import { getCurrentUser } from '../../store/auth';
 import { MUI_SPACING_UNIT } from '../../constants';
 import { VillageField } from './VillageField';
 import { PractitionerField } from './PractitionerField';
-import { LocationField } from './LocationField';
 import { DiagnosisField } from './DiagnosisField';
 import { saveExcelFile } from '../../utils/saveExcelFile';
 
@@ -82,21 +81,13 @@ const SubmitErrorMessage = () => {
 };
 
 const ParametersByReportType = {
-  'incomplete-referrals': [
-    { ParameterField: VillageField },
-    { ParameterField: PractitionerField },
-    { ParameterField: LocationField },
-  ],
+  'incomplete-referrals': [{ ParameterField: VillageField }, { ParameterField: PractitionerField }],
   'recent-diagnoses': [
     { ParameterField: DiagnosisField, required: true },
     { ParameterField: VillageField },
     { ParameterField: PractitionerField },
-    { ParameterField: LocationField },
   ],
-  admissions: [
-    { ParameterField: LocationField, required: true },
-    { ParameterField: PractitionerField },
-  ],
+  admissions: [{ ParameterField: PractitionerField }],
 };
 
 const DumbReportGeneratorForm = ({ currentUser, generateReport, onSuccessfulSubmit }) => {

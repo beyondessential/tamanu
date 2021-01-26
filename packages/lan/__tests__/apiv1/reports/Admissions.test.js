@@ -35,7 +35,7 @@ describe('Admissions report', () => {
     expect(result).toBeForbidden();
   });
 
-  describe('', () => {
+  describe('returns data based on supplied parameters', () => {
     beforeEach(async () => {
       models.Encounter.destroy({ where: {}, truncate: true });
     });
@@ -61,39 +61,6 @@ describe('Admissions report', () => {
             .toISOString(),
           patientId: wrongPatient.dataValues.id,
           locationId: expectedLocation,
-        }),
-      );
-      const result = await app.post('/v1/reports/admissions').send({
-        parameters: { location: expectedLocation },
-      });
-      expect(result).toHaveSucceeded();
-      expect(result.body.length).toEqual(2);
-      expect(result.body[1][0]).toEqual(expectedPatient.firstName);
-      expect(result.body[1][1]).toEqual(expectedPatient.lastName);
-    });
-
-    it('should return patient at requested location', async () => {
-      // expected result
-      await models.Encounter.create(
-        await createDummyEncounter(models, {
-          encounterType: ENCOUNTER_TYPES.ADMISSION,
-          startDate: moment()
-            .subtract(1, 'day')
-            .toISOString(),
-          patientId: expectedPatient.dataValues.id,
-          locationId: expectedLocation,
-        }),
-      );
-
-      // wrong location
-      await models.Encounter.create(
-        await createDummyEncounter(models, {
-          encounterType: ENCOUNTER_TYPES.ADMISSION,
-          startDate: moment()
-            .subtract(1, 'day')
-            .toISOString(),
-          patientId: wrongPatient.dataValues.id,
-          locationId: wrongLocation,
         }),
       );
       const result = await app.post('/v1/reports/admissions').send({
