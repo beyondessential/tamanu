@@ -6,7 +6,7 @@ import { formatDate } from '/helpers/date';
 import { DateFormats, HeaderIcons } from '/helpers/constants';
 import * as Icons from '../Icons';
 import { Separator } from '../Separator';
-import { EncounterType, IEncounter, IPractitioner } from '~/types';
+import { EncounterType, IEncounter } from '~/types';
 
 interface IconProps {
   IconComponent: FunctionComponent<SvgProps>;

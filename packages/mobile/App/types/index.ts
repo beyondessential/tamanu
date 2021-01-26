@@ -7,7 +7,6 @@ export * from './IProgram';
 export * from './ISurvey';
 export * from './ISurveyResponse';
 export * from './IReferenceData';
-export * from './IPractitioner';
 export * from './IVitals';
 export * from './IAdministeredVaccine';
 export * from './IDiagnosis';

@@ -3,10 +3,10 @@ import { SvgProps } from 'react-native-svg';
 import { StyledView, RowView, StyledText, ColumnView } from '/styled/common';
 import { theme } from '/styled/theme';
 import { formatDate } from '/helpers/date';
-import { DateFormats, HeaderIcons } from '/helpers/constants';
+import { DateFormats, HeaderIcons, EncounterTypeNames } from '/helpers/constants';
 import * as Icons from '../Icons';
 import { Separator } from '../Separator';
-import { EncounterType, IEncounter, IPractitioner } from '~/types';
+import { EncounterType, IEncounter, IUser } from '~/types';
 
 interface IconProps {
   IconComponent: FunctionComponent<SvgProps>;
@@ -64,7 +64,7 @@ const HeaderLeftIcon = ({ isActive, type }: HeaderIconProps): JSX.Element => {
   );
 };
 
-interface HeaderDescriptionProps extends IPractitioner {
+interface HeaderDescriptionProps {
   encounterType: string;
   referredDepartment: string;
   isActive: boolean;
@@ -72,9 +72,9 @@ interface HeaderDescriptionProps extends IPractitioner {
 
 const HeaderDescription = ({
   encounterType,
+  location,
   referredDepartment,
   isActive,
-  name = 'Unknown Practitioner',
 }: HeaderDescriptionProps): JSX.Element => (
   <ColumnView flex={1}>
     <StyledText
@@ -82,13 +82,13 @@ const HeaderDescription = ({
       fontWeight={700}
       fontSize={16}
     >
-      {encounterType || referredDepartment}
+      {EncounterTypeNames[encounterType] || ''}
     </StyledText>
     <StyledView marginTop={1}>
       <StyledText
         color={isActive ? theme.colors.SECONDARY_MAIN : theme.colors.TEXT_MID}
       >
-        {name}
+        {location ? location.name : ''}
       </StyledText>
     </StyledView>
   </ColumnView>
