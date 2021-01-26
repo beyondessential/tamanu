@@ -2,8 +2,20 @@
 GET https://sync-dev.tamanu.io/v1/sync/scheduledVaccine?since=1604451264306 HTTP/1.1
 Content-Type: application/json
 Authorization: Bearer fake-token
-X-REQUEST-TYPE: GraphQL
 
 []
+
+###
+
+# Update an existing ScheduledVaccine row
+POST https://sync-dev.tamanu.io/v1/sync/scheduledVaccine HTTP/1.1
+Content-Type: application/json
+Authorization: Bearer fake-token
+
+{
+  "id": "316ccf00-9afe-4479-9be0-0df952d1d0f3",
+  "index": 2
+
+}
 
 ###
