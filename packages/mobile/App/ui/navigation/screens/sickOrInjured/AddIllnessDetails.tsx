@@ -9,6 +9,8 @@ import { TextField } from '/components/TextField/TextField';
 import { Button } from '/components/Button';
 import { theme } from '/styled/theme';
 import { KeyboardAvoidingView, StyleSheet } from 'react-native';
+import * as Yup from 'yup';
+
 import {
   screenPercentageToDP,
   Orientation,
@@ -17,10 +19,15 @@ import { useBackend } from '~/ui/hooks';
 import { withPatient } from '~/ui/containers/Patient';
 import { Routes } from '~/ui/helpers/routes';
 import { AutocompleteModalField } from '~/ui/components/AutocompleteModal/AutocompleteModalField';
-import { CERTAINTY_OPTIONS, ReferenceDataType } from '~/types';
+import { CERTAINTY_OPTIONS, Certainty, ReferenceDataType } from '~/types';
 import { Suggester } from '~/ui/helpers/suggester';
 import { ReferenceData } from '~/models/ReferenceData';
 import { Dropdown } from '~/ui/components/Dropdown';
+
+const IllnessFormSchema = Yup.object().shape({
+  certainty: Yup.mixed().oneOf(Object.values(Certainty)).required(),
+  diagnosis: Yup.string(),
+});
 
 const styles = StyleSheet.create({
   KeyboardAvoidingViewStyles: { flex: 1 },
@@ -71,6 +78,7 @@ export const DumbAddIllnessScreen = ({ selectedPatient, navigation }): ReactElem
       <Formik
         onSubmit={onRecordIllness}
         initialValues={{}}
+        validationSchema={IllnessFormSchema}
       >
         {({ handleSubmit }): ReactElement => (
           <FullView
