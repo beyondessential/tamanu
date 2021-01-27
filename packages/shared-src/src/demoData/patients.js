@@ -35,6 +35,16 @@ export async function randomReferenceId(models, type) {
   return obj.id;
 }
 
+export async function randomReferenceData(models, type) {
+  const obj = await models.ReferenceData.findOne({
+    where: {
+      type,
+    },
+    order: models.ReferenceData.sequelize.random(),
+  });
+  return obj;
+}
+
 export function randomVitals(overrides) {
   return {
     dateRecorded: randomDate(),

@@ -3,11 +3,11 @@ import { connectApi } from '../../api';
 import { AutocompleteField, Field } from '../../components';
 import { Suggester } from '../../utils/suggester';
 
-const DumbDiagnosisField = ({ icd10Suggester, required }) => {
+const DumbDiagnosisField = ({ icd10Suggester, required, name, label }) => {
   return (
     <Field
-      name="diagnoses"
-      label="Diagnoses"
+      name={name}
+      label={label}
       component={AutocompleteField}
       suggester={icd10Suggester}
       required={required}
