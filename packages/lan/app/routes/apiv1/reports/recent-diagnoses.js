@@ -48,9 +48,6 @@ function parametersToSqlWhere(parameters) {
     .reduce(
       (where, [key, value]) => {
         switch (key) {
-          case 'diagnoses':
-            where.diagnosisId = value;
-            break;
           case 'village':
             where['$Encounter->patient.village_id$'] = value;
             break;
@@ -66,13 +63,19 @@ function parametersToSqlWhere(parameters) {
           default:
             break;
         }
+
+        // account for multiple diagnosis parameters, ie.
+        // diagnosis, diagnosis2, diagnosis3...
+        if (/diagnosis/.test(key)) {
+          where.diagnosisId.push(value);
+        }
         return where;
       },
       {
         date: {},
+        diagnosisId: [],
       },
     );
-
   return whereClause;
 }
 
@@ -101,8 +104,8 @@ export const createRecentDiagnosesReport = asyncHandler(async (req, res) => {
     body: { parameters },
   } = req;
 
-  if (!parameters.diagnoses) {
-    res.status(400).send(`'diagnoses' parameter is required`);
+  if (!parameters.diagnosis) {
+    res.status(400).send(`'diagnosis' parameter is required`);
     return;
   }
   const excelData = await generateRecentDiagnosesReport(models, parameters);

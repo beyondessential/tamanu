@@ -80,10 +80,17 @@ const SubmitErrorMessage = () => {
   );
 };
 
+const EmptyField = styled.div``;
+
 const ParametersByReportType = {
   'incomplete-referrals': [{ ParameterField: VillageField }, { ParameterField: PractitionerField }],
   'recent-diagnoses': [
-    { ParameterField: DiagnosisField, required: true },
+    { ParameterField: DiagnosisField, required: true, name: 'diagnosis', label: 'Diagnosis' },
+    { ParameterField: DiagnosisField, name: 'diagnosis2', label: 'Diagnosis 2' },
+    { ParameterField: DiagnosisField, name: 'diagnosis3', label: 'Diagnosis 3' },
+    { ParameterField: DiagnosisField, name: 'diagnosis4', label: 'Diagnosis 4' },
+    { ParameterField: DiagnosisField, name: 'diagnosis5', label: 'Diagnosis 5' },
+    { ParameterField: EmptyField },
     { ParameterField: VillageField },
     { ParameterField: PractitionerField },
   ],
@@ -138,9 +145,11 @@ const DumbReportGeneratorForm = ({ currentUser, generateReport, onSuccessfulSubm
               <>
                 <Spacer />
                 <FormGrid columns={3}>
-                  {ParametersByReportType[reportType].map(({ ParameterField, required }) => (
-                    <ParameterField required={required} />
-                  ))}
+                  {ParametersByReportType[reportType].map(
+                    ({ ParameterField, required, name, label }, index) => (
+                      <ParameterField key={index} required={required} name={name} label={label} />
+                    ),
+                  )}
                 </FormGrid>
               </>
             )}
