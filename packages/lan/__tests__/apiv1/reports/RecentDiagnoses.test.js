@@ -77,7 +77,7 @@ describe('Recent Diagnoses report', () => {
           encounterId: encounter.dataValues.id,
         }),
       );
-      // console.log('dianosis', diagnosis);
+
       const result = await app.post('/v1/reports/recent-diagnoses').send({
         parameters: { diagnosis: expectedDiagnosis },
       });
@@ -119,7 +119,7 @@ describe('Recent Diagnoses report', () => {
           encounterId: encounter.dataValues.id,
         }),
       );
-      // console.log('dianosis', diagnosis);
+      
       const result = await app.post('/v1/reports/recent-diagnoses').send({
         parameters: { diagnosis: firstDiagnosis.id, diagnosis2: secondDiagnosis.id },
       });
