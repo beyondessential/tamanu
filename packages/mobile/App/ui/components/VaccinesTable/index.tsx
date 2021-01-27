@@ -78,7 +78,7 @@ export const VaccinesTable = ({
 
     cells[scheduledVaccine.schedule] = [
       ...(cells[scheduledVaccine.schedule] || []),
-      { ...scheduledVaccine, vaccineStatus, weeksUntilDue },
+      { ...scheduledVaccine, vaccineStatus, weeksUntilDue, administeredVaccine },
     ];
   });
 

@@ -18,6 +18,7 @@ interface VaccineCellMetadata {
    vaccineStatus: VaccineStatus;
    schedule: ReactElement;
    vaccine: IScheduledVaccine;
+   administeredVaccine: IAdministeredVaccine;
 }
 
 interface VaccineTableCellProps {
@@ -57,7 +58,7 @@ export const VaccineTableCell = ({
   onPress,
 }: VaccineTableCellProps): JSX.Element => {
   if (!data) return <CellContent status={VaccineStatus.UNKNOWN} />;
-  const { vaccine, vaccineStatus, weeksUntilDue, id } = data;
+  const { vaccine, vaccineStatus, weeksUntilDue, id, administeredVaccine } = data;
   const dueStatus = getVaccineStatus(weeksUntilDue);
   let cellStatus = vaccineStatus || dueStatus || VaccineStatus.UNKNOWN;
   if (vaccineStatus === VaccineStatus.SCHEDULED) cellStatus = dueStatus;
@@ -90,7 +91,7 @@ export const VaccineTableCell = ({
     }
 
     if (vaccineStatus) {
-      onPress({ ...vaccine, status: vaccineStatus, scheduledVaccineId: id });
+      onPress({ ...vaccine, status: vaccineStatus, scheduledVaccineId: id, administeredVaccine });
     }
   }, [data]);
 

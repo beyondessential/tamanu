@@ -12,7 +12,12 @@ import GivenOnTimeFields from './GivenOnTimeFields';
 import { VaccineStatusHeader } from './VaccineStatusHeader';
 import { VaccineStatus } from '~/ui/helpers/patient';
 
-export type VaccineDataProps = IAdministeredVaccine;
+export type VaccineDataProps = {
+  administeredVaccine: IAdministeredVaccine;
+  status: string;
+  name: string;
+  code: string;
+};
 
 interface VaccineCardProps {
   vaccineData: VaccineDataProps;
@@ -23,6 +28,7 @@ interface VaccineCardProps {
 export const VaccineCard: FunctionComponent<PropsWithChildren<
   VaccineCardProps
 >> = ({ vaccineData, onCloseModal, onEditDetails }: VaccineCardProps) => {
+  console.log({ vaccineData });
   const Fields: FC<VaccineDataProps> = useMemo(() => {
     switch (vaccineData.status) {
       case VaccineStatus.NOT_GIVEN:
@@ -36,7 +42,9 @@ export const VaccineCard: FunctionComponent<PropsWithChildren<
   return (
     <StyledView width="80.29%">
       <VaccineCardHeader
-        vaccine={vaccineData}
+        name={vaccineData.name}
+        code={vaccineData.code}
+        schedule={vaccineData.administeredVaccine.scheduledVaccine.schedule}
         onCloseModal={onCloseModal}
         onEditDetails={onEditDetails}
       />
