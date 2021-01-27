@@ -1,4 +1,5 @@
 import React from 'react';
+import { object, string } from 'yup';
 
 import { nonEmergencyDiagnosisCertaintyOptions } from '../constants';
 
@@ -16,6 +17,13 @@ import {
   DateField,
 } from '../components/Field';
 
+const ReferralFormSchema = object().shape({
+  referralNumber: string().required('Referral number is required'),
+  referredById: string().required('Referring doctor is required'),
+  referredToDepartmentId: string().required('Department is required'),
+  referredToFacilityId: string().required('Facility is required'),
+});
+
 export const ReferralForm = React.memo(
   ({
     onCancel,
@@ -28,6 +36,7 @@ export const ReferralForm = React.memo(
   }) => (
     <Form
       onSubmit={onSubmit}
+      validationSchema={ReferralFormSchema}
       initialValues={{
         date: new Date(),
         certainty: 'confirmed',
@@ -50,19 +59,21 @@ export const ReferralForm = React.memo(
             required
           />
           <Field name="date" label="Date" component={DateField} required />
-          <FormSectionSeparator heading={"Being referred to:"} />
+          <FormSectionSeparator heading={'Being referred to:'} />
           <Field name="urgent" label="Urgent priority" component={CheckField} required />
           <Field
             name="referredToDepartmentId"
             label="Department"
             component={AutocompleteField}
             suggester={departmentSuggester}
+            required
           />
           <Field
             name="referredToFacilityId"
             label="Facility"
             component={AutocompleteField}
             suggester={facilitySuggester}
+            required
           />
           <FormSeparatorLine />
           <Field
