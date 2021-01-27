@@ -39,6 +39,7 @@ describe('Incomplete Referrals report', () => {
 
   describe('returns data based on supplied parameters', () => {
     beforeAll(async () => {
+      await models.Referral.destroy({ where: {}, truncate: true });
       await models.Referral.create({
         referralNumber: 'A',
         date: new Date(),
