@@ -1,5 +1,10 @@
 import { REFERENCE_TYPES } from 'shared/constants';
-import { createDummyPatient, randomReferenceId, randomUser } from 'shared/demoData/patients';
+import {
+  createDummyPatient,
+  randomReferenceId,
+  randomReferenceIds,
+  randomUser,
+} from 'shared/demoData/patients';
 import { createTestContext } from '../../utilities';
 
 const { baseApp, models } = createTestContext();
@@ -17,8 +22,10 @@ describe('Incomplete Referrals report', () => {
 
   beforeAll(async () => {
     app = await baseApp.asRole('practitioner');
-    village1 = await randomReferenceId(models, REFERENCE_TYPES.VILLAGE);
-    village2 = await randomReferenceId(models, REFERENCE_TYPES.VILLAGE);
+    const villages = await randomReferenceIds(models, 'village', 2);
+    console.log('villages', villages);
+    village1 = villages[0];
+    village2 = villages[1];
     patient1 = await models.Patient.create(
       await createDummyPatient(models, { villageId: village1 }),
     );
