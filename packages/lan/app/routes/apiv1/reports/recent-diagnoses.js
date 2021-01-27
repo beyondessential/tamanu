@@ -66,7 +66,7 @@ function parametersToSqlWhere(parameters) {
 
         // account for multiple diagnosis parameters, ie.
         // diagnosis, diagnosis2, diagnosis3...
-        if (/diagnosis/.test(key)) {
+        if (/^diagnosis[0-9]*$/.test(key)) {
           where.diagnosisId.push(value);
         }
         return where;
