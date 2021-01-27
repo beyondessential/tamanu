@@ -28,7 +28,6 @@ interface VaccineCardProps {
 export const VaccineCard: FunctionComponent<PropsWithChildren<
   VaccineCardProps
 >> = ({ vaccineData, onCloseModal, onEditDetails }: VaccineCardProps) => {
-  console.log({ vaccineData });
   const Fields: FC<VaccineDataProps> = useMemo(() => {
     switch (vaccineData.status) {
       case VaccineStatus.NOT_GIVEN:
