@@ -47,6 +47,7 @@ export const DumbAddIllnessScreen = ({ selectedPatient, navigation }): ReactElem
 
   const onRecordIllness = useCallback(
     async ({ diagnosis, certainty }: any): Promise<any> => {
+      // TODO: persist fields other than diagnosis and certainty
       const encounter = await models.Encounter.getOrCreateCurrentEncounter(
         selectedPatient.id,
       );
@@ -146,7 +147,7 @@ export const DumbAddIllnessScreen = ({ selectedPatient, navigation }): ReactElem
                 </StyledView>
                 <Field
                   component={TextField}
-                  name="resonForEncounter"
+                  name="reasonForEncounter"
                   multiline
                 />
                 <Button
