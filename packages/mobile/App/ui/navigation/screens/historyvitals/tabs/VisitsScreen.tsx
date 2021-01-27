@@ -10,11 +10,27 @@ import { useBackendEffect } from '~/ui/hooks';
 import { LoadingScreen } from '~/ui/components/LoadingScreen';
 import { ErrorScreen } from '~/ui/components/ErrorScreen';
 import { withPatient } from '~/ui/containers/Patient';
+import { IDiagnosis, Certainty, IEncounter } from '~/types';
+
+const DEFAULT_FIELD_VAL = 'N/A';
+
+const CERTAINTY_NAMES = Object.entries(Certainty).reduce((acc, [k, v]) => ({ ...acc, [v]: k }), {});
 
 const visitsHistoryRows = {
-  reasonForEncounter: { name: 'Reason for encounter' },
-  medication: { name: 'Medication' },
-  examiner: { name: 'Examiner' },
+  labRequest: {
+    name: 'Lab/Test results',
+    accessor: () => DEFAULT_FIELD_VAL,
+  },
+  diagnoses: {
+    name: 'Diagnosis',
+    accessor: (diagnoses: IDiagnosis[]) => diagnoses
+      .map(d => `${d.diagnosis?.name} (${d.certainty})`)
+      .join('\n\n') || DEFAULT_FIELD_VAL,
+  },
+  reasonForEncounter: {
+    name: 'Treatment notes',
+    accessor: () => DEFAULT_FIELD_VAL,
+  },
 };
 
 export const DumbVisistsScreen = ({ selectedPatient }): ReactElement => {
