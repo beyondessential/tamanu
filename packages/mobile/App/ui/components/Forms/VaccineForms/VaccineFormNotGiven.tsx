@@ -24,8 +24,8 @@ export const VaccineFormNotGiven = (): JSX.Element => (
       />
       <Field
         component={TextField}
-        name="administered"
-        label="Administered by"
+        name="examiner"
+        label="Examiner"
       />
     </StyledView>
   ) : (
@@ -44,8 +44,8 @@ export const VaccineFormNotGiven = (): JSX.Element => (
         <StyledView width="49%">
           <Field
             component={TextField}
-            name="administered"
-            label="Administered by"
+            name="examiner"
+            label="Examiner"
           />
         </StyledView>
       </RowView>

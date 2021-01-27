@@ -12,7 +12,12 @@ import GivenOnTimeFields from './GivenOnTimeFields';
 import { VaccineStatusHeader } from './VaccineStatusHeader';
 import { VaccineStatus } from '~/ui/helpers/patient';
 
-export type VaccineDataProps = IAdministeredVaccine;
+export type VaccineDataProps = {
+  administeredVaccine: IAdministeredVaccine;
+  status: string;
+  name: string;
+  code: string;
+};
 
 interface VaccineCardProps {
   vaccineData: VaccineDataProps;
@@ -36,7 +41,9 @@ export const VaccineCard: FunctionComponent<PropsWithChildren<
   return (
     <StyledView width="80.29%">
       <VaccineCardHeader
-        vaccine={vaccineData}
+        name={vaccineData.name}
+        code={vaccineData.code}
+        schedule={vaccineData.administeredVaccine.scheduledVaccine.schedule}
         onCloseModal={onCloseModal}
         onEditDetails={onEditDetails}
       />

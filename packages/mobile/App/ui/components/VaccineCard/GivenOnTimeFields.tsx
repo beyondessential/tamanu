@@ -3,13 +3,11 @@ import { ModalField } from './ModalField';
 import { StyledView } from '/styled/common';
 import { theme } from '/styled/theme';
 import { VaccineDataProps } from '.';
-import { formatDate } from '/helpers/date';
-import { DateFormats } from '/helpers/constants';
 import { Separator } from '../Separator';
 import { screenPercentageToDP, Orientation } from '/helpers/screen';
 import { CalendarIcon } from '../Icons';
 
-const GivenOnTimeFields: FC<VaccineDataProps> = (props: VaccineDataProps) => (
+const GivenOnTimeFields: FC<VaccineDataProps> = ({ administeredVaccine }) => (
   <StyledView
     height={screenPercentageToDP(34.41, Orientation.Height)}
     background={theme.colors.WHITE}
@@ -20,17 +18,15 @@ const GivenOnTimeFields: FC<VaccineDataProps> = (props: VaccineDataProps) => (
   >
     <ModalField
       label="Date"
-      value={props.date}
+      value={administeredVaccine.date.toDateString()}
       Icon={CalendarIcon}
     />
     <Separator />
-    <ModalField label="Type" value={props.type} />
+    <ModalField label="Batch No." value={administeredVaccine.batch} />
     <Separator />
-    <ModalField label="Batch No." value={props.type} />
+    <ModalField label="Administered By" value={administeredVaccine.encounter.examiner || 'Unknown'} />
     <Separator />
-    <ModalField label="Manufacture" value={props.manufacture} />
-    <Separator />
-    <ModalField label="Administered By" value={props.administered} />
+    <ModalField label="Location" value={administeredVaccine.encounter.location || 'Unknown'} />
   </StyledView>
 );
 

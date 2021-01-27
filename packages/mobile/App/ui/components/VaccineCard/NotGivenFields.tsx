@@ -1,17 +1,13 @@
 import React, { FC } from 'react';
 import { ModalField } from './ModalField';
 import { VaccineDataProps } from '.';
-import { formatDate } from '/helpers/date';
-import { DateFormats } from '/helpers/constants';
 import { CalendarIcon } from '../Icons';
 import { screenPercentageToDP, Orientation } from '/helpers/screen';
 import { theme } from '/styled/theme';
 import { StyledView } from '/styled/common';
 import { Separator } from '../Separator';
 
-export const NotGivenFields: FC<VaccineDataProps> = (
-  props: VaccineDataProps,
-) => (
+export const NotGivenFields: FC<VaccineDataProps> = ({ administeredVaccine }) => (
   <StyledView
     height={screenPercentageToDP(20.04, Orientation.Height)}
     background={theme.colors.WHITE}
@@ -22,12 +18,12 @@ export const NotGivenFields: FC<VaccineDataProps> = (
   >
     <ModalField
       label="Date"
-      value={props.date}
+      value={administeredVaccine.date.toDateString()}
       Icon={CalendarIcon}
     />
     <Separator />
-    <ModalField label="Type" value={props.type} />
+    <ModalField label="Reason" value={administeredVaccine.reason} />
     <Separator />
-    <ModalField label="Practitioner" value={props.administered} />
+    <ModalField label="Practitioner" value={administeredVaccine.encounter.examiner || 'Unknown'} />
   </StyledView>
 );

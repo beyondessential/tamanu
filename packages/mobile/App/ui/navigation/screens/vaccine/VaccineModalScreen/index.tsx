@@ -43,7 +43,7 @@ export const VaccineModalScreen = ({
           <VaccineCard
             onCloseModal={onNavigateBack}
             onEditDetails={onNavigateToEditDetails}
-            vaccineData={route.params.vaccine}
+            vaccineData={vaccine}
           />
         )}
       </CenterView>

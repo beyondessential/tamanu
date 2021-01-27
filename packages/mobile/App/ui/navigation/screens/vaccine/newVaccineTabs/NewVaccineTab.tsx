@@ -73,11 +73,12 @@ export const NewVaccineTabComponent = ({
   const { models } = useBackend();
   const recordVaccination = useCallback(
     async (values: any): Promise<any> => {
+      const { reason, batch, status, date, scheduledVaccineId, examiner } = values;
       const encounter = await models.Encounter.getOrCreateCurrentEncounter(
         selectedPatient.id,
+        { examiner },
       );
 
-      const { reason, batch, status, date, scheduledVaccineId } = values;
       await models.AdministeredVaccine.create({
         reason,
         batch,

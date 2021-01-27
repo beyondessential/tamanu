@@ -8,16 +8,19 @@ import {
   StyledText,
 } from '/styled/common';
 import { Orientation, screenPercentageToDP } from '/helpers/screen';
-import { IScheduledVaccine } from '~/types';
 
 export interface CardHeaderProps {
-  vaccine: IScheduledVaccine;
+  name: string;
+  code: string;
+  schedule: string;
   onCloseModal: () => void;
   onEditDetails: () => void;
 }
 
 export const VaccineCardHeader = ({
-  vaccine,
+  name,
+  code,
+  schedule,
   onCloseModal,
   onEditDetails,
 }: CardHeaderProps): JSX.Element => (
@@ -65,13 +68,13 @@ export const VaccineCardHeader = ({
           color={theme.colors.WHITE}
           fontSize={screenPercentageToDP(2.55, Orientation.Height)}
         >
-          {vaccine.name}
+          {name}
         </StyledText>
         <StyledText
           color={theme.colors.SECONDARY_MAIN}
           fontSize={screenPercentageToDP(1.944, Orientation.Height)}
         >
-          {vaccine.subtitle}
+          {code}
         </StyledText>
       </StyledView>
       <StyledText
@@ -79,7 +82,7 @@ export const VaccineCardHeader = ({
         color={theme.colors.WHITE}
         fontSize={screenPercentageToDP(1.822, Orientation.Height)}
       >
-        {vaccine.schedule}
+        {schedule}
       </StyledText>
     </RowView>
   </StyledView>
