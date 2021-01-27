@@ -8,6 +8,12 @@ const SYNC_PERIOD_MINUTES = 5;
 const API_VERSION = 1;
 const DEFAULT_SYNC_LOCATION = 'https://sync-dev.tamanu.io';
 
+interface SyncConnectionParams {
+  email: string;
+  password: string;
+  host: string;
+}
+
 export class Backend {
   randomId: any;
 
@@ -30,20 +36,25 @@ export class Backend {
 
   async initialise(): Promise<void> {
     await Database.connect();
+  }
 
-    const syncServerLocation = await readConfig('syncServerLocation', DEFAULT_SYNC_LOCATION);
-    if(syncServerLocation) {
-      this.startSyncService(syncServerLocation);
-    }
+  async connectToRemote(params: SyncConnectionParams): Promise<void> {
+    console.log(params);
+    const syncServerLocation = await readConfig('syncServerLocation');
+    this.syncSource = new WebSyncSource(`${syncServerLocation}/v${API_VERSION}`);
+
+    const { user, token } = await this.syncSource.login(params.email, params.password);
+    console.log(user, token);
+
+    this.startSyncService();
+
+    return { user, token };
   }
 
   startSyncService(syncServerLocation: string) {
-    writeConfig('syncServerLocation', syncServerLocation);
-
-    this.syncSource = new WebSyncSource(`${syncServerLocation}/v${API_VERSION}`);
-    this.syncManager = new SyncManager(this.syncSource);
-
     this.stopSyncService();
+
+    this.syncManager = new SyncManager(this.syncSource);
 
     // run once now, and then schedule for later
     this.syncManager.runScheduledSync();
@@ -59,5 +70,6 @@ export class Backend {
     }
     clearInterval(this.interval);
     this.interval = null;
+    this.syncManager = null;
   }
 }

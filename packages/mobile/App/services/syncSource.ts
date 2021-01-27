@@ -78,7 +78,7 @@ export class WebSyncSource implements SyncSource {
     const response = await fetch(url, {
       method: 'POST',
       headers: {
-        'content-type': 'application/JSON',
+        'Content-Type': 'application/json',
       },
       body,
     });

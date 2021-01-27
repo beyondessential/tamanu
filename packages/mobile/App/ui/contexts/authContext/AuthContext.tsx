@@ -85,7 +85,10 @@ const Provider = ({
   };
 
   const remoteSignIn = async (email: string, password: string): Promise<void> => {
-    const { user, token } = await backend.syncSource.login(email, password);
+    const { user, token } = await backend.connectToRemote({
+      email,
+      password,
+    });
 
     // merge with dummy user to ensure that all fields are present
     // safe to delete this when the server is responding with full info
@@ -95,7 +98,12 @@ const Provider = ({
     setSignedInStatus(true);
   };
 
-  const dummySignIn = (): void => {
+  const dummySignIn = async (): void => {
+    const { user, token } = await backend.connectToRemote({
+      email: '',
+      password: '',
+    });
+
     setUser(dummyUser);
     setToken('fake-token');
     setSignedInStatus(true);
@@ -118,6 +126,7 @@ const Provider = ({
   };
 
   const signOut = (navigation: NavigationProp<any>): void => {
+    backend.stopSyncService();
     signOutUser();
     navigation.reset({
       index: 0,
