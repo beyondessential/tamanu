@@ -19,7 +19,7 @@ export const clearPatient = () => ({
   type: PATIENT_CLEAR,
 });
 
-export const viewPatient = (id, modal) => async dispatch => {
+export const viewPatient = (id, modal = '') => async dispatch => {
   dispatch(reloadPatient(id));
   dispatch(push(`/patients/view/${modal}`));
 };
@@ -56,7 +56,7 @@ export const reloadPatient = id => async (dispatch, getState, { api }) => {
       },
     });
   } catch (e) {
-    dispatch({ type: PATIENT_LOAD_ERROR, error: e.message });
+    dispatch({ type: PATIENT_LOAD_ERROR, error: e });
   }
 };
 
@@ -65,13 +65,14 @@ export const reloadPatient = id => async (dispatch, getState, { api }) => {
 const defaultState = {
   loading: true,
   id: null,
-  error: '',
+  error: null,
 };
 
 const handlers = {
   [PATIENT_LOAD_START]: action => ({
     loading: true,
     id: action.id,
+    error: null,
   }),
   [PATIENT_LOAD_ERROR]: action => ({
     loading: false,
@@ -79,12 +80,13 @@ const handlers = {
   }),
   [PATIENT_LOAD_FINISH]: action => ({
     loading: false,
+    error: null,
     ...action.patient,
   }),
   [PATIENT_CLEAR]: () => ({
     loading: false,
     id: null,
-    error: '',
+    error: null,
   }),
 };
 
