@@ -1,8 +1,9 @@
-import { Entity, Column, ManyToOne } from 'typeorm/browser';
+import { Entity, Column, ManyToOne, OneToMany } from 'typeorm/browser';
 import { startOfDay, addHours } from 'date-fns';
 import { BaseModel } from './BaseModel';
 import { IEncounter, EncounterType, ReferenceDataType } from '~/types';
 import { Patient } from './Patient';
+import { Diagnosis } from './Diagnosis';
 import { ReferenceData, ReferenceDataRelation } from './ReferenceData';
 import { formatDateForQuery } from '~/infra/db/helpers';
 
@@ -40,6 +41,9 @@ export class Encounter extends BaseModel implements IEncounter {
 
   @ReferenceDataRelation()
   location: ReferenceData;
+
+  @OneToMany(() => Diagnosis, diagnosis => diagnosis.encounter, { eager: true })
+  diagnoses: Diagnosis[]
 
   static async getOrCreateCurrentEncounter(
     patientId: string, createdEncounterOptions: any,
