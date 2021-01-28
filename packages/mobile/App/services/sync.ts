@@ -5,7 +5,7 @@ import { Database } from '~/infra/db';
 import { readConfig, writeConfig } from '~/services/config';
 import { Patient } from '~/models/Patient';
 import { BaseModel } from '~/models/BaseModel';
-import { DownloadRecordsResponse, UploadRecordsResponse, SyncRecord, SyncRecordData, SyncSource } from './syncSource';
+import { DownloadRecordsResponse, UploadRecordsResponse, SyncRecord, SyncSource } from './syncSource';
 
 type RunChannelSyncOptions = {
   overrideLastSynced?: number,

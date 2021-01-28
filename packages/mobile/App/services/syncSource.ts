@@ -25,6 +25,7 @@ export interface SyncRecord {
 
 export interface SyncRecordData {
   id: string;
+  updatedAt: Date;
   [key: string]: any;
 }
 
