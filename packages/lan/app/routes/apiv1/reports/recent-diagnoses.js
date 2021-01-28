@@ -2,7 +2,7 @@ import asyncHandler from 'express-async-handler';
 import { Op } from 'sequelize';
 import moment from 'moment';
 
-const admissionsHeaderRow = [
+const diagnosesHeaderRow = [
   'Date',
   'Diagnosis',
   'Patient First Name',
@@ -34,7 +34,7 @@ function mapDiagnosisDataRowToExcelRow(data) {
 
 async function generateRecentDiagnosesReport(models, parameters) {
   const queryResults = await queryDiagnosesData(models, parameters);
-  return [admissionsHeaderRow, ...queryResults.map(mapDiagnosisDataRowToExcelRow)];
+  return [diagnosesHeaderRow, ...queryResults.map(mapDiagnosisDataRowToExcelRow)];
 }
 
 function parametersToSqlWhere(parameters) {

@@ -15,25 +15,17 @@ const { baseApp, models } = createTestContext();
 describe('Recent Diagnoses report', () => {
   let app = null;
   let patient1 = null;
-  let patient2 = null;
   let expectedDiagnosis = null;
   let wrongDiagnosis = null;
   let expectedLocation = null;
-  let wrongLocation = null;
-  let expectedPractitioner = null;
-  let wrongPractitioner = null;
 
   beforeAll(async () => {
     app = await baseApp.asRole('practitioner');
     const villageId = await randomReferenceId(models, 'village');
     patient1 = await models.Patient.create(await createDummyPatient(models, { villageId }));
-    patient2 = await models.Patient.create(await createDummyPatient(models, { villageId }));
     expectedDiagnosis = await randomReferenceId(models, 'icd10');
     wrongDiagnosis = await randomReferenceId(models, 'icd10');
     expectedLocation = await randomReferenceId(models, 'location');
-    wrongLocation = await randomReferenceId(models, 'location');
-    expectedPractitioner = await randomUser(models);
-    wrongPractitioner = await randomUser(models);
   });
 
   it('should reject creating a diagnoses report with insufficient permissions', async () => {
@@ -119,7 +111,7 @@ describe('Recent Diagnoses report', () => {
           encounterId: encounter.dataValues.id,
         }),
       );
-      
+
       const result = await app.post('/v1/reports/recent-diagnoses').send({
         parameters: { diagnosis: firstDiagnosis.id, diagnosis2: secondDiagnosis.id },
       });
