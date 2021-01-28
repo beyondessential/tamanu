@@ -10,7 +10,7 @@ import {
 
 import { MoreThan } from 'typeorm';
 
-type FindUnsyncedOptions<T> = {
+export type FindUnsyncedOptions<T> = {
   limit?: number,
   after?: T,
 };
