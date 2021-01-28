@@ -7,7 +7,7 @@ import { BaseModel } from '~/models/BaseModel';
 import { GetSyncDataResponse, SyncRecord, SyncSource } from './syncSource';
 
 type RunChannelSyncOptions = {
-  overrideLastSynced?: Date,
+  overrideLastSynced?: number,
 }
 
 class NoSyncImporterError extends Error {
@@ -128,7 +128,7 @@ export class SyncManager {
     await this.runScheduledSync();
   }
 
-  async downloadAndImport(model: typeof BaseModel, channel: string, since: Date): Promise<Date> {
+  async downloadAndImport(model: typeof BaseModel, channel: string, since: number): Promise<number> {
     const downloadPage = (pageNumber: number): Promise<GetSyncDataResponse> => {
       this.emitter.emit('downloadingPage', `${channel}-${pageNumber}`);
       return this.syncSource.downloadRecords(
@@ -241,15 +241,14 @@ export class SyncManager {
     return requestedAt;
   }
 
-  async getChannelSyncDate(channel: string): Promise<Date> {
+  async getChannelSyncTimestamp(channel: string): Promise<number> {
     const timestampString = await readConfig(`syncDate.${channel}`, '0');
     const timestamp = parseInt(timestampString, 10);
-    return new Date(timestamp);
+    return timestamp;
   }
 
-  async updateChannelSyncDate(channel: string, date: Date): Promise<void> {
-    const timestampString = `${date.valueOf()}`;
-    await writeConfig(`syncDate.${channel}`, timestampString);
+  async updateChannelSyncDate(channel: string, timestamp: number): Promise<void> {
+    await writeConfig(`syncDate.${channel}`, String(timestamp));
   }
 
   async runChannelSync(
@@ -258,13 +257,13 @@ export class SyncManager {
     { overrideLastSynced = null }: RunChannelSyncOptions = {},
   ): Promise<void> {
     const lastSynced = (overrideLastSynced === null)
-      ? await this.getChannelSyncDate(channel)
+      ? await this.getChannelSyncTimestamp(channel)
       : overrideLastSynced;
 
     this.emitter.emit('channelSyncStarted', channel);
     try {
-      const maxDate = await this.downloadAndImport(model, channel, lastSynced);
-      await this.updateChannelSyncDate(channel, maxDate);
+      const requestedAt = await this.downloadAndImport(model, channel, lastSynced);
+      await this.updateChannelSyncDate(channel, requestedAt);
     } catch (e) {
       console.error(e);
     }

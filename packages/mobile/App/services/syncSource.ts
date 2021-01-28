@@ -13,7 +13,7 @@ export interface SyncRecordData {
 
 export type GetSyncDataResponse = null | {
   count: number;
-  requestedAt: string;
+  requestedAt: number;
   records: SyncRecord[];
 }
 
@@ -32,7 +32,7 @@ export interface LoginResponse {
 export interface SyncSource {
   downloadRecords(
     channel: string,
-    since: Date,
+    since: number,
     page: number,
     limit: number,
   ): Promise<GetSyncDataResponse>;
@@ -52,13 +52,12 @@ export class WebSyncSource implements SyncSource {
 
   async downloadRecords(
     channel: string,
-    since: Date,
+    since: number,
     page: number,
     limit: number,
   ): Promise<GetSyncDataResponse> {
     // TODO: error handling (incl timeout)
-    const sinceStamp = since.valueOf();
-    const url = `${this.host}/sync/${encodeURIComponent(channel)}?since=${sinceStamp}&page=${page}&limit=${limit}`;
+    const url = `${this.host}/sync/${encodeURIComponent(channel)}?since=${since}&page=${page}&limit=${limit}`;
 
     try {
       const response = await fetch(url, {
