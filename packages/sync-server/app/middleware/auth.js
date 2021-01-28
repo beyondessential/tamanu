@@ -82,7 +82,7 @@ authMiddleware.use(
     }
 
     if (config.auth.dummyUserEmail && token === FAKE_TOKEN) {
-      req.user = await await store.findUser(config.auth.dummyUserEmail);
+      req.user = await store.findUser(config.auth.dummyUserEmail);
       next();
       return;
     }
