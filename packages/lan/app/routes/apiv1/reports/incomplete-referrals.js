@@ -1,33 +1,21 @@
 import asyncHandler from 'express-async-handler';
 import { Op } from 'sequelize';
+import { generateReportFromQueryData } from './utilities';
 
-const referralsHeaderRow = [
-  'Patient First Name',
-  'Patient Last Name',
-  'Patient ID',
-  'Diagnosis',
-  'Referring Doctor',
-  'Department',
-  'Facility',
-  'Date',
+const reportColumnTemplate = [
+  { title: 'Patient First Name', accessor: data => data.patient.firstName },
+  { title: 'Patient Last Name', accessor: data => data.patient.lastName },
+  { title: 'Patient ID', accessor: data => data.patient.displayId },
+  { title: 'Diagnosis', accessor: data => undefined },
+  { title: 'Referring Doctor', accessor: data => data.referredBy.displayName },
+  { title: 'Department', accessor: data => data.referredToDepartment.name },
+  { title: 'Facility', accessor: data => data.referredToFacility.name },
+  { title: 'Date', accessor: data => data.date },
 ];
-
-function mapDiagnosisDataRowToExcelRow(data) {
-  return [
-    data.patient.firstName,
-    data.patient.lastName,
-    data.patient.displayId,
-    undefined,
-    data.referredBy.displayName,
-    data.referredToDepartment.name,
-    data.referredToFacility.name,
-    data.date,
-  ];
-}
 
 async function generateIncompleteReferralsReport(models, parameters) {
   const queryResults = await queryReferralsData(models, parameters);
-  return [referralsHeaderRow, ...queryResults.map(mapDiagnosisDataRowToExcelRow)];
+  return generateReportFromQueryData(queryResults, reportColumnTemplate);
 }
 
 function parametersToSqlWhere(parameters) {
