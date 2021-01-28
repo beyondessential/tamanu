@@ -150,7 +150,7 @@ export class SyncManager {
     };
     setProgress(0);
 
-    let maxDate = since;
+    let requestedAt: number = null;
 
     // Some records will fail on the first attempt due to foreign key constraints
     // (most commonly, when a dependency record has been updated so it appears
@@ -162,10 +162,6 @@ export class SyncManager {
       await Promise.all(records.map(async r => {
         try {
           await this.importRecord(model, r);
-
-          if (r.lastSynced > maxDate) {
-            maxDate = r.lastSynced;
-          }
         } catch (e) {
           if (e.message.match(/FOREIGN KEY constraint failed/)) {
             // this error is to be expected! just push it
@@ -215,6 +211,7 @@ export class SyncManager {
         // we have records to import - import them
         this.emitter.emit('importingPage', `${channel}-${page}`);
         importTask = importRecords(response.records);
+        requestedAt = requestedAt || response.requestedAt;
 
         page += 1;
       }
@@ -241,7 +238,7 @@ export class SyncManager {
       }
     }
 
-    return maxDate;
+    return requestedAt;
   }
 
   async getChannelSyncDate(channel: string): Promise<Date> {
