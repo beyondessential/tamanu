@@ -22,10 +22,7 @@ describe('Incomplete Referrals report', () => {
 
   beforeAll(async () => {
     app = await baseApp.asRole('practitioner');
-    const villages = await randomReferenceIds(models, 'village', 2);
-    console.log('villages', villages);
-    village1 = villages[0];
-    village2 = villages[1];
+    [village1, village2] = await randomReferenceIds(models, 'village', 2);
     patient1 = await models.Patient.create(
       await createDummyPatient(models, { villageId: village1 }),
     );
