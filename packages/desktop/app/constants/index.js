@@ -241,6 +241,7 @@ export const encounterOptions = [
     image: patientIcon,
     triageFlowOnly: true,
   },
+  { value: ENCOUNTER_TYPES.CLINIC, label: 'Diabetes Hub', image: administrationIcon },
   {
     value: ENCOUNTER_TYPES.TRIAGE,
     label: 'Triaged patient',

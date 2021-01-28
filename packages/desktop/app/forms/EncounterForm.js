@@ -22,7 +22,7 @@ import { encounterOptions, Colors } from '../constants';
 
 const SelectorGrid = styled.div`
   display: grid;
-  grid-template-columns: auto auto auto;
+  grid-template-columns: 1fr 1fr 1fr;
   grid-gap: 0.7rem;
 `;
 
@@ -79,9 +79,9 @@ const ReferralField = ({ referrals = [] }) => {
 const StartPage = ({ setValue }) => {
   const items = encounterOptions
     .filter(option => !option.hideFromMenu)
-    .map(({ label, value, image }) => (
+    .map(({ label, value, image }, index) => (
       <EncounterOptionButton
-        key={value}
+        key={index}
         label={label}
         value={value}
         image={image}
