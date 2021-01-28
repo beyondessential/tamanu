@@ -63,8 +63,8 @@ export abstract class BaseModel extends BaseEntity {
   @Column({ default: true })
   markedForUpload: boolean;
 
-  @Column({ default: 0 })
-  lastUploaded: Date;
+  @Column({ nullable: true })
+  uploadedAt: Date;
 
   @BeforeUpdate()
   markForUpload() {
@@ -72,8 +72,8 @@ export abstract class BaseModel extends BaseEntity {
     this.markedForUpload = true;
   }
 
-  static async markUploaded(ids: string | string[], lastUploaded: Date): Promise<void> {
-    await this.getRepository().update(ids, { lastUploaded, markedForUpload: false });
+  static async markUploaded(ids: string | string[], uploadedAt: Date): Promise<void> {
+    await this.getRepository().update(ids, { uploadedAt, markedForUpload: false });
   }
 
   // TODO: compatibility with BaseEntity.create, which doesn't return a promise
