@@ -264,6 +264,7 @@ export class SyncManager {
     }
 
     const markRecordsUploaded = async (records: BaseModel[], requestedAt: number): Promise<void> => {
+      this.emitter.emit('markingPageUploaded', `${channel}-${page}`);
       return model.markUploaded(records.map(r => r.id), new Date(requestedAt));
     }
 
