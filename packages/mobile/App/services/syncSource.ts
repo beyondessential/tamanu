@@ -5,16 +5,15 @@ import {
   generalErrorMessage,
 } from '../ui/contexts/authContext/auth-error';
 
-export interface SyncRecordData {
-  id: string;
-  updatedAt: Date;
-  [key: string]: any;
-}
-
-export type GetSyncDataResponse = null | {
+export type DownloadRecordsResponse = null | {
   count: number;
   requestedAt: number;
   records: SyncRecord[];
+}
+
+export type UploadRecordsResponse = null | {
+  count: number;
+  requestedAt: number;
 }
 
 export interface SyncRecord {
@@ -22,6 +21,12 @@ export interface SyncRecord {
   ERROR_MESSAGE?: string;
   isDeleted?: boolean;
   data: SyncRecordData;
+}
+
+export interface SyncRecordData {
+  id: string;
+  updatedAt: Date;
+  [key: string]: any;
 }
 
 export interface LoginResponse {
@@ -35,12 +40,12 @@ export interface SyncSource {
     since: number,
     page: number,
     limit: number,
-  ): Promise<GetSyncDataResponse>;
+  ): Promise<DownloadRecordsResponse>;
 
   uploadRecords(
     channel: string,
     records: object[],
-  ): Promise<number>;
+  ): Promise<UploadRecordsResponse>;
 }
 
 export class WebSyncSource implements SyncSource {
@@ -55,7 +60,7 @@ export class WebSyncSource implements SyncSource {
     since: number,
     page: number,
     limit: number,
-  ): Promise<GetSyncDataResponse> {
+  ): Promise<DownloadRecordsResponse> {
     // TODO: error handling (incl timeout)
     const url = `${this.host}/sync/${encodeURIComponent(channel)}?since=${since}&page=${page}&limit=${limit}`;
 
@@ -74,27 +79,23 @@ export class WebSyncSource implements SyncSource {
     }
   }
 
-  async uploadRecords(channel: string, records: object[]): Promise<number> {
+  async uploadRecords(channel: string, records: object[]): Promise<UploadRecordsResponse> {
     const url = `${this.host}/sync/${encodeURIComponent(channel)}`;
     try {
-      const response = await fetch(url, {
+      const rawResponse = await fetch(url, {
         method: 'POST',
         headers: {
           'Authorization': 'Bearer fake-token',
           'Content-Type': 'application/json',
+          'Accept': 'application/json',
         },
         body: JSON.stringify(records),
       });
-      const { count } = await response.json();
-      if (count !== records.length) {
-        throw new Error(
-          `uploaded ${records.length} records but returned count was ${count}`,
-        );
-      }
-      return count;
+      const response = await rawResponse.json();
+      return response;
     } catch (error) {
       console.error(error);
-      return 0; // TODO: rework to return failed records
+      return null; // TODO: rework to return failed records
     }
   }
 
@@ -111,17 +112,17 @@ export class WebSyncSource implements SyncSource {
       body,
     });
 
-    if(response.status >= 500) {
+    if (response.status >= 500) {
       throw new AuthenticationError(generalErrorMessage);
     }
 
-    if(response.status == 401) {
+    if (response.status == 401) {
       throw new AuthenticationError(invalidUserCredentialsMessage);
     }
 
     const data = await response.json();
 
-    if(!data.token || !data.user) {
+    if (!data.token || !data.user) {
       // auth failed in some other regard
       console.warn("Auth failed with an inexplicable error", data);
       throw new AuthenticationError(generalErrorMessage);

@@ -4,7 +4,7 @@ import { Database } from '~/infra/db';
 import { readConfig, writeConfig } from '~/services/config';
 import { Patient } from '~/models/Patient';
 import { BaseModel } from '~/models/BaseModel';
-import { GetSyncDataResponse, SyncRecord, SyncSource } from './syncSource';
+import { DownloadRecordsResponse, UploadRecordsResponse, SyncRecord, SyncSource } from './syncSource';
 
 type RunChannelSyncOptions = {
   overrideLastSynced?: number,
@@ -129,7 +129,7 @@ export class SyncManager {
   }
 
   async downloadAndImport(model: typeof BaseModel, channel: string, since: number): Promise<number> {
-    const downloadPage = (pageNumber: number): Promise<GetSyncDataResponse> => {
+    const downloadPage = (pageNumber: number): Promise<DownloadRecordsResponse> => {
       this.emitter.emit('downloadingPage', `${channel}-${pageNumber}`);
       return this.syncSource.downloadRecords(
         channel,
