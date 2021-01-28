@@ -32,16 +32,11 @@ export class Patient extends BaseModel implements IPatient {
   //----------------------------------------------------------
   // sync info
 
-  @Column({ default: 0 })
-  lastSynced: Date;
-
-  @Column({ default: false })
-  markedForSync: boolean;
-
-  static async markForSync(patientId: string): Promise<Patient> {
+  // TODO: move to BaseModel
+  static async markForSync(patientId: string): Promise<void> {
     const repo = this.getRepository();
 
-    return repo.update(patientId, { markedForSync: true });
+    await repo.update(patientId, { markedForSync: true });
   }
 
   static async findRecentlyViewed(): Promise<Patient[]> {
