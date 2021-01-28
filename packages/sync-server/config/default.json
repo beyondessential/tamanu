@@ -10,7 +10,7 @@
   "auth": {
     "saltRounds": 12,
     "tokenDuration": "1h",
-    "allowFakeToken": false,
+    "dummyUserEmail": "",
     "reportNoUserError": false
   }
 }

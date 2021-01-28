@@ -12,6 +12,7 @@ import { convertFromDbRecord } from '../convertDbRecord';
 export const authMiddleware = express.Router();
 
 const JWT_SECRET = config.auth.secret || uuid();
+const FAKE_TOKEN = 'fake-token';
 
 const stripUser = user => {
   const { password, ...userData } = user;
@@ -23,6 +24,21 @@ authMiddleware.post(
   asyncHandler(async (req, res) => {
     const { store, body } = req;
     const { email, password } = body;
+
+    if(config.auth.dummyUserEmail) {
+      if(!email && !password) {
+        // send a token for the dummy user
+        const dummy = await store.findUser(config.auth.dummyUserEmail);
+        if(!dummy) {
+          throw new BadAuthenticationError('No such user');
+        }
+        res.send({
+          token: FAKE_TOKEN,
+          user: convertFromDbRecord(stripUser(dummy)).data,
+        });
+        return;
+      }
+    }
 
     if (!email || !password) {
       throw new BadAuthenticationError('Missing credentials');
@@ -65,7 +81,8 @@ authMiddleware.use(
       throw new BadAuthenticationError('Only Bearer token is supported');
     }
 
-    if (config.auth.allowFakeToken && token === 'fake-token') {
+    if (config.auth.dummyUserEmail && token === FAKE_TOKEN) {
+      req.user = await await store.findUser(config.auth.dummyUserEmail);
       next();
       return;
     }
