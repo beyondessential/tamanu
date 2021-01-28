@@ -60,20 +60,20 @@ export abstract class BaseModel extends BaseEntity {
   @UpdateDateColumn()
   updatedAt: Date;
 
-  @Column({ default: false })
-  markedForSync: boolean;
+  @Column({ default: true })
+  markedForUpload: boolean;
 
   @Column({ default: 0 })
-  lastSynced: Date;
+  lastUploaded: Date;
 
   @BeforeUpdate()
-  markForSync_REMOVE_THIS_ONCE_PATIENT_IS_FIXED() {
+  markForUpload() {
     // TODO: go through and make sure records always use save(), not update()
-    this.markedForSync = true;
+    this.markedForUpload = true;
   }
 
-  static async markSynced(ids: string | string[], lastSynced: Date): Promise<void> {
-    await this.getRepository().update(ids, { lastSynced, markedForSync: false });
+  static async markUploaded(ids: string | string[], lastUploaded: Date): Promise<void> {
+    await this.getRepository().update(ids, { lastUploaded, markedForUpload: false });
   }
 
   // TODO: compatibility with BaseEntity.create, which doesn't return a promise

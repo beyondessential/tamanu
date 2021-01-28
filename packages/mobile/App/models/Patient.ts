@@ -32,7 +32,13 @@ export class Patient extends BaseModel implements IPatient {
   //----------------------------------------------------------
   // sync info
 
-  // TODO: move to BaseModel
+  // TODO: can sync-related fields + functions be removed, moved into BaseModel, and/or unified?
+  @Column({ default: 0 })
+  lastSynced: Date;
+
+  @Column({ default: false })
+  markedForSync: boolean;
+
   static async markForSync(patientId: string): Promise<void> {
     const repo = this.getRepository();
 
