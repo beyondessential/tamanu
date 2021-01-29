@@ -1,40 +1,25 @@
 import asyncHandler from 'express-async-handler';
 import { Op } from 'sequelize';
 import moment from 'moment';
+import { generateReportFromQueryData } from './utilities';
 
-const diagnosesHeaderRow = [
-  'Date',
-  'Diagnosis',
-  'Patient First Name',
-  'Patient Last Name',
-  'Patient ID',
-  'Sex',
-  'Village',
-  'Doctor/Nurse',
-  'Department',
-  'Certainty',
-  'Is Primary',
+const reportColumnTemplate = [
+  { title: 'Date', accessor: data => data.date },
+  { title: 'Diagnosis', accessor: data => data.Diagnosis.name },
+  { title: 'Patient First Name', accessor: data => data.Encounter.patient.firstName },
+  { title: 'Patient Last Name', accessor: data => data.Encounter.patient.lastName },
+  { title: 'Patient ID', accessor: data => data.Encounter.patient.displayId },
+  { title: 'Sex', accessor: data => data.Encounter.patient.sex },
+  { title: 'Village', accessor: data => data.Encounter.patient.ReferenceDatum.name },
+  { title: 'Doctor/Nurse', accessor: data => data.Encounter.examiner.displayName },
+  { title: 'Department', accessor: data => data.Encounter.department.name },
+  { title: 'Certainty', accessor: data => data.certainty },
+  { title: 'Is Primary', accessor: data => (data.isPrimary ? 'yes' : 'no') },
 ];
-
-function mapDiagnosisDataRowToExcelRow(data) {
-  return [
-    data.date,
-    data.Diagnosis.name,
-    data.Encounter.patient.firstName,
-    data.Encounter.patient.lastName,
-    data.Encounter.patient.displayId,
-    data.Encounter.patient.sex,
-    data.Encounter.patient.ReferenceDatum.name,
-    data.Encounter.examiner.displayName,
-    data.Encounter.department.name,
-    data.certainty,
-    data.isPrimary ? 'yes' : 'no',
-  ];
-}
 
 async function generateRecentDiagnosesReport(models, parameters) {
   const queryResults = await queryDiagnosesData(models, parameters);
-  return [diagnosesHeaderRow, ...queryResults.map(mapDiagnosisDataRowToExcelRow)];
+  return generateReportFromQueryData(queryResults, reportColumnTemplate);
 }
 
 function parametersToSqlWhere(parameters) {

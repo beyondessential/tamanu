@@ -2,34 +2,22 @@ import asyncHandler from 'express-async-handler';
 import { Op } from 'sequelize';
 import moment from 'moment';
 import { ENCOUNTER_TYPES } from 'shared/constants';
+import { generateReportFromQueryData } from './utilities';
 
-const admissionsHeaderRow = [
-  'Patient First Name',
-  'Patient Last Name',
-  'Patient ID',
-  'Sex',
-  'Village',
-  'Doctor/Nurse',
-  'Admission Date',
-  'Discharge Date',
+const reportColumnTemplate = [
+  { title: 'Patient First Name', accessor: data => data.patient.firstName },
+  { title: 'Patient Last Name', accessor: data => data.patient.lastName },
+  { title: 'Patient ID', accessor: data => data.patient.displayId },
+  { title: 'Sex', accessor: data => data.patient.sex },
+  { title: 'Village', accessor: data => data.patient.ReferenceDatum.name },
+  { title: 'Doctor/Nurse', accessor: data => data.examiner.displayName },
+  { title: 'Admission Date', accessor: data => data.startDate },
+  { title: 'Discharge Date', accessor: data => data.endDate },
 ];
-
-function mapAdmissionsDataRowToExcelRow(data) {
-  return [
-    data.patient.firstName,
-    data.patient.lastName,
-    data.patient.displayId,
-    data.patient.sex,
-    data.patient.ReferenceDatum.name,
-    data.examiner.displayName,
-    data.startDate,
-    data.endDate,
-  ];
-}
 
 async function generateAdmissionsReport(models, parameters) {
   const queryResults = await queryAdmissionsData(models, parameters);
-  return [admissionsHeaderRow, ...queryResults.map(mapAdmissionsDataRowToExcelRow)];
+  return generateReportFromQueryData(queryResults, reportColumnTemplate);
 }
 
 function parametersToSqlWhere(parameters) {
