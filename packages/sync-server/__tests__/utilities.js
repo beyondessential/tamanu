@@ -83,7 +83,6 @@ export async function createTestContext() {
   const appServer = http.createServer(expressApp);
   const baseApp = supertest(appServer);
 
-  /*
   baseApp.asUser = async user => {
     const agent = supertest.agent(expressApp);
     const token = await getToken(user, '1d');
@@ -91,16 +90,9 @@ export async function createTestContext() {
     agent.user = user;
     return agent;
   };
-  */
 
   baseApp.asRole = async role => {
-    const agent = supertest.agent(expressApp);
-    const token = 'fake-token';
-    agent.set('authorization', `Bearer ${token}`);
-    return agent;
-
-    /*
-    const newUser = await models.User.create({
+    const newUser = await store.models.User.create({
       email: chance.email(),
       displayName: chance.name(),
       password: chance.string(),
@@ -108,7 +100,6 @@ export async function createTestContext() {
     });
 
     return baseApp.asUser(newUser);
-    */
   };
 
   const close = async () => {

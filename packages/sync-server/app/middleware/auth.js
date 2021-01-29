@@ -11,6 +11,10 @@ import { convertFromDbRecord } from '../convertDbRecord';
 
 export const authMiddleware = express.Router();
 
+export const getToken = async (user, expiry) => {
+  return jwt.sign({ userId: user.id }, JWT_SECRET);
+};
+
 const JWT_SECRET = config.auth.secret || uuid();
 const FAKE_TOKEN = 'fake-token';
 
@@ -59,7 +63,7 @@ authMiddleware.post(
       throw new BadAuthenticationError('Invalid credentials');
     }
 
-    const token = jwt.sign({ userId: user.id }, JWT_SECRET);
+    const token = await getToken(user);
 
     res.send({ token, user: convertFromDbRecord(stripUser(user)).data });
   }),
