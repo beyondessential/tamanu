@@ -29,23 +29,21 @@ authMiddleware.post(
     const { store, body } = req;
     const { email, password } = body;
 
-    if(config.auth.dummyUserEmail) {
-      if(!email && !password) {
-        // send a token for the dummy user
-        const dummy = await store.findUser(config.auth.dummyUserEmail);
-        if(!dummy) {
-          throw new BadAuthenticationError('No such user');
-        }
-        res.send({
-          token: FAKE_TOKEN,
-          user: convertFromDbRecord(stripUser(dummy)).data,
-        });
-        return;
+    if(!email && !password) {
+      if(!config.auth.dummyUserEmail) {
+        throw new BadAuthenticationError('Missing credentials');
       }
-    }
 
-    if (!email || !password) {
-      throw new BadAuthenticationError('Missing credentials');
+      // send a token for the dummy user
+      const dummy = await store.findUser(config.auth.dummyUserEmail);
+      if(!dummy) {
+        throw new BadAuthenticationError('No such user');
+      }
+      res.send({
+        token: FAKE_TOKEN,
+        user: convertFromDbRecord(stripUser(dummy)).data,
+      });
+      return;
     }
 
     const user = await store.findUser(email);
