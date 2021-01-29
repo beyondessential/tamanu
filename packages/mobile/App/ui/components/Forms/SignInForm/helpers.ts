@@ -5,8 +5,10 @@ export const signInValidationSchema = Yup.object().shape({
     .email(),
   // .required(),
   password: Yup.string(), //.required(),
+  server: Yup.string(),
 });
 export const signIninitialValues = {
   email: '',
   password: '',
+  server: '',
 };

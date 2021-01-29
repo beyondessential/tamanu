@@ -4,15 +4,11 @@ import { SyncManager } from '~/services/sync';
 import { WebSyncSource } from '~/services/syncSource';
 import { readConfig, writeConfig } from '~/services/config';
 
+import { SyncConnectionParameters } from '~/types/SyncConnectionParameters';
+
 const SYNC_PERIOD_MINUTES = 5;
 const API_VERSION = 1;
 const DEFAULT_SYNC_LOCATION = 'https://sync-dev.tamanu.io';
-
-interface SyncConnectionParams {
-  email: string;
-  password: string;
-  host: string;
-}
 
 export class Backend {
   randomId: any;
@@ -38,14 +34,24 @@ export class Backend {
     await Database.connect();
   }
 
-  async connectToRemote(params: SyncConnectionParams): Promise<void> {
-    console.log(params);
+  async connectToRemote(params: SyncConnectionParameters): Promise<void> {
+
+    // always use the server stored in config if there is one - last thing
+    // we want is a device syncing down data from one server and then up
+    // to another!
     const syncServerLocation = await readConfig('syncServerLocation');
-    this.syncSource = new WebSyncSource(`${syncServerLocation}/v${API_VERSION}`);
+    const server = syncServerLocation || params.server;
 
+    // create the sync source and log in to it
+    this.syncSource = new WebSyncSource(`${server}/v${API_VERSION}`);
     const { user, token } = await this.syncSource.login(params.email, params.password);
-    console.log(user, token);
 
+    if(!syncServerLocation) {
+      // after a successful login, if we didn't already read the server from
+      // stored config, write the one we did use to config
+      writeConfig('syncServerLocation', params.server);
+    }
+    
     this.startSyncService();
 
     return { user, token };
