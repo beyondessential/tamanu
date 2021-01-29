@@ -103,7 +103,7 @@ export abstract class BaseModel extends BaseEntity {
     await this.create(data);
   }
 
-  static async findUnsynced<T extends BaseModel>(
+  static async findMarkedForUpload<T extends BaseModel>(
     { limit, after }: FindUnsyncedOptions<T> = {},
   ): Promise<T[]> {
     const repo = this.getRepository();
@@ -113,7 +113,7 @@ export abstract class BaseModel extends BaseEntity {
 
     const record = await repo.find({
       where: {
-        markedForSync: true,
+        markedForUpload: true,
         ...whereAfter,
       },
       order: {

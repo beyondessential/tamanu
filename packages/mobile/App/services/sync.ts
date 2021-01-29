@@ -185,6 +185,7 @@ export class SyncManager {
     try {
       let importTask: Promise<void>;
       let page = 0;
+      this.emitter.emit('importStarted', channel);
       while (true) {
         // We want to download each page of records while the current page
         // of records is being imported - this means that the database IO
@@ -241,6 +242,7 @@ export class SyncManager {
         throw new Error(`Could not import any ${pendingRecords.length} remaining queue members`);
       }
     }
+    this.emitter.emit('importEnded', channel);
 
     return requestedAt;
   }
@@ -251,7 +253,7 @@ export class SyncManager {
 
     const exportRecords = async (afterRecord?: BaseModel): Promise<BaseModel[]> => {
       this.emitter.emit('exportingPage', `${channel}-${page}`);
-      return model.findUnsynced({
+      return model.findMarkedForUpload({
         after: afterRecord,
         limit: UPLOAD_LIMIT,
       });
@@ -273,21 +275,16 @@ export class SyncManager {
     // export and upload loop
     let lastSeenRecord: BaseModel;
     let uploadPromise: Promise<UploadRecordsResponse>;
-    let markRecordsUploadedPromise: Promise<void>;
-    let recordsChunk: BaseModel[];
+    this.emitter.emit('exportStarted', channel);
     while (true) {
       // begin exporting records
       const exportPromise = exportRecords(lastSeenRecord);
 
       // finish uploading previous batch
-      const { requestedAt } = await uploadPromise;
-
-      // start marking previous batch as synced
-      await markRecordsUploadedPromise;
-      markRecordsUploadedPromise = markRecordsUploaded(recordsChunk, requestedAt);
+      await uploadPromise;
 
       // finish exporting records
-      recordsChunk = await exportPromise;
+      const recordsChunk = await exportPromise;
       if (recordsChunk.length === 0) {
         break;
       }
@@ -295,13 +292,22 @@ export class SyncManager {
       lastSeenRecord = recordsChunk[recordsChunk.length - 1];
 
       // begin uploading current batch
-      uploadPromise = uploadRecords(recordsChunk);
+      uploadPromise = uploadRecords(recordsChunk).then(async (data) => {
+        // mark previous batch as synced after uploading
+        // done using promises so these two steps can be interleaved with exporting
+        await markRecordsUploaded(recordsChunk, data.requestedAt);
+        return data;
+      });
     }
+    this.emitter.emit('exportEnded', channel);
   }
 
   async getChannelSyncTimestamp(channel: string): Promise<number> {
     const timestampString = await readConfig(`syncDate.${channel}`, '0');
     const timestamp = parseInt(timestampString, 10);
+    if (Number.isNaN(timestamp)) {
+      return 0;
+    }
     return timestamp;
   }
 
@@ -330,7 +336,7 @@ export class SyncManager {
   }
 
   async runPatientSync(patient: Patient): Promise<void> {
-    await this.downloadAndImport(Database.models.Patient, `patient/${patient.id}`, patient.lastSynced);
+    await this.downloadAndImport(Database.models.Patient, `patient/${patient.id}`, patient.lastSynced?.valueOf());
 
     // eslint-disable-next-line no-param-reassign
     patient.lastSynced = new Date();

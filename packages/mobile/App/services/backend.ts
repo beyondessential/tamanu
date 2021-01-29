@@ -47,7 +47,7 @@ export class Backend {
     const { user, token } = await this.syncSource.login(params.email, params.password);
     console.log(`Signed in as ${user.displayName}`);
 
-    if(!syncServerLocation) {
+    if (!syncServerLocation) {
       // after a successful login, if we didn't already read the server from
       // stored config, write the one we did use to config
       writeConfig('syncServerLocation', params.server);
