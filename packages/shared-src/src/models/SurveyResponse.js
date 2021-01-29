@@ -70,9 +70,17 @@ export class SurveyResponse extends Model {
   static initRelations(models) {
     this.belongsTo(models.Survey, {
       foreignKey: 'surveyId',
+      as: 'survey',
     });
+
     this.belongsTo(models.Encounter, {
       foreignKey: 'encounterId',
+      as: 'encounter',
+    });
+
+    this.hasMany(models.SurveyResponseAnswer, {
+      foreignKey: 'responseId',
+      as: 'answers',
     });
   }
 
@@ -235,6 +243,7 @@ export class SurveyResponseAnswer extends Model {
 
     this.belongsTo(models.SurveyResponse, {
       foreignKey: 'responseId',
+      as: 'surveyResponse',
     });
   }
 }
