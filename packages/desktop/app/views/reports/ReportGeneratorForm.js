@@ -35,10 +35,6 @@ const EmailInputContainer = styled.div`
   width: 60%;
 `;
 
-const ReportGenerateFormSchema = Yup.object().shape({
-  reportType: Yup.string().required('Report type is required'),
-});
-
 function parseEmails(commaSeparatedEmails) {
   return commaSeparatedEmails
     .split(/[;,]/)
@@ -85,7 +81,13 @@ const EmptyField = styled.div``;
 const ParametersByReportType = {
   'incomplete-referrals': [{ ParameterField: VillageField }, { ParameterField: PractitionerField }],
   'recent-diagnoses': [
-    { ParameterField: DiagnosisField, required: true, name: 'diagnosis', label: 'Diagnosis' },
+    {
+      ParameterField: DiagnosisField,
+      required: true,
+      name: 'diagnosis',
+      label: 'Diagnosis',
+      validation: Yup.string().required('Diagnosis is required'),
+    },
     { ParameterField: DiagnosisField, name: 'diagnosis2', label: 'Diagnosis 2' },
     { ParameterField: DiagnosisField, name: 'diagnosis3', label: 'Diagnosis 3' },
     { ParameterField: DiagnosisField, name: 'diagnosis4', label: 'Diagnosis 4' },
@@ -97,8 +99,19 @@ const ParametersByReportType = {
   admissions: [{ ParameterField: PractitionerField }],
 };
 
+// adding an onValueChange hook to the report type field
+// so we can keep internal state of the report type
+const ReportTypeField = ({ onValueChange, ...props }) => {
+  const changeCallback = useCallback(event => {
+    onValueChange(event.target.value);
+    props.field.onChange(event);
+  }, []);
+  return <AutocompleteField {...props} onChange={changeCallback} />;
+};
+
 const DumbReportGeneratorForm = ({ currentUser, generateReport, onSuccessfulSubmit }) => {
   const [submitError, setSubmitError] = useState();
+  const [parameters, setParameters] = useState([]);
   const submitRequestReport = useCallback(
     async formValues => {
       const { reportType, emails, ...restValues } = formValues;
@@ -120,6 +133,7 @@ const DumbReportGeneratorForm = ({ currentUser, generateReport, onSuccessfulSubm
     },
     [generateReport],
   );
+
   return (
     <Form
       initialValues={{
@@ -127,32 +141,40 @@ const DumbReportGeneratorForm = ({ currentUser, generateReport, onSuccessfulSubm
         emails: currentUser.email,
       }}
       onSubmit={submitRequestReport}
-      validationSchema={ReportGenerateFormSchema}
-      render={({ values }) => {
-        const reportType = values.reportType;
+      validationSchema={Yup.object().shape({
+        reportType: Yup.string().required('Report type is required'),
+        ...parameters
+          .filter(field => field.validation)
+          .reduce((schema, field) => {
+            schema[field.label] = field.validation;
+            return schema;
+          }, {}),
+      })}
+      render={() => {
         return (
           <>
             <FormGrid columns={3}>
               <Field
                 name="reportType"
                 label="Report Type"
-                component={AutocompleteField}
+                component={ReportTypeField}
                 options={REPORT_TYPE_OPTIONS}
                 required
+                onValueChange={type => {
+                  setParameters(ParametersByReportType[type]);
+                }}
               />
             </FormGrid>
-            {ParametersByReportType[reportType] && (
+            {parameters.length > 0 ? (
               <>
                 <Spacer />
                 <FormGrid columns={3}>
-                  {ParametersByReportType[reportType].map(
-                    ({ ParameterField, required, name, label }, index) => (
-                      <ParameterField key={index} required={required} name={name} label={label} />
-                    ),
-                  )}
+                  {parameters.map(({ ParameterField, required, name, label }, index) => (
+                    <ParameterField key={index} required={required} name={name} label={label} />
+                  ))}
                 </FormGrid>
               </>
-            )}
+            ) : null}
             <Spacer />
             <DateRangeLabel variant="body1">
               Date range (or leave blank for all data)
