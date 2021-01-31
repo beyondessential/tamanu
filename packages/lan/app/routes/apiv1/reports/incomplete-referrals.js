@@ -8,8 +8,8 @@ const reportColumnTemplate = [
   { title: 'Patient ID', accessor: data => data.patient.displayId },
   { title: 'Diagnosis', accessor: data => undefined },
   { title: 'Referring Doctor', accessor: data => data.referredBy.displayName },
-  { title: 'Department', accessor: data => data.referredToDepartment.name },
-  { title: 'Facility', accessor: data => data.referredToFacility.name },
+  { title: 'Department', accessor: data => data.referredToDepartment?.name || '' },
+  { title: 'Facility', accessor: data => data.referredToFacility?.name || '' },
   { title: 'Date', accessor: data => data.date },
 ];
 

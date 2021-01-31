@@ -10,7 +10,7 @@ const reportColumnTemplate = [
   { title: 'Patient ID', accessor: data => data.patient.displayId },
   { title: 'Sex', accessor: data => data.patient.sex },
   { title: 'Village', accessor: data => data.patient.ReferenceDatum.name },
-  { title: 'Doctor/Nurse', accessor: data => data.examiner.displayName },
+  { title: 'Doctor/Nurse', accessor: data => data.examiner?.displayName },
   { title: 'Admission Date', accessor: data => data.startDate },
   { title: 'Discharge Date', accessor: data => data.endDate },
 ];
