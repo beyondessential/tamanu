@@ -303,7 +303,7 @@ export class SyncManager {
   }
 
   async getChannelSyncTimestamp(channel: string): Promise<number> {
-    const timestampString = await readConfig(`syncDate.${channel}`, '0');
+    const timestampString = await readConfig(`syncTimestamp.${channel}`, '0');
     const timestamp = parseInt(timestampString, 10);
     if (Number.isNaN(timestamp)) {
       return 0;
@@ -312,7 +312,7 @@ export class SyncManager {
   }
 
   async updateChannelSyncDate(channel: string, timestamp: number): Promise<void> {
-    await writeConfig(`syncDate.${channel}`, String(timestamp));
+    await writeConfig(`syncTimestamp.${channel}`, String(timestamp));
   }
 
   async runChannelSync(
