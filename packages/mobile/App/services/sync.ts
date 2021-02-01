@@ -1,5 +1,6 @@
 import mitt from 'mitt';
 
+import { without, pick } from 'lodash';
 import { Database } from '~/infra/db';
 import { readConfig, writeConfig } from '~/services/config';
 import { Patient } from '~/models/Patient';
@@ -15,6 +16,14 @@ class NoSyncImporterError extends Error {
     super(`No sync importer for model ${modelName}`);
   }
 }
+
+const buildToSyncRecordFunc = (model: typeof BaseModel) => {
+  const { connection } = model.getRepository().manager;
+  const allColumns = connection.getMetadata(model).ownColumns.map(c => c.propertyName);
+  const excludedColumns = model.excludedUploadColumns;
+  const includedProperties = without(allColumns, ...excludedColumns);
+  return (entity: object) => ({ data: pick(entity, includedProperties) });
+};
 
 const UPLOAD_LIMIT = 100;
 const DOWNLOAD_LIMIT = 100;
@@ -259,10 +268,12 @@ export class SyncManager {
       });
     }
 
-    const uploadRecords = async (records: object[]): Promise<UploadRecordsResponse> => {
+    const toSyncRecord = buildToSyncRecordFunc(model);
+    const uploadRecords = async (records: BaseModel[]): Promise<UploadRecordsResponse> => {
       // TODO: detect and retry failures (need to pass back from server)
       this.emitter.emit('uploadingPage', `${channel}-${page}`);
-      return this.syncSource.uploadRecords(channel, records);
+      const syncRecords = records.map(toSyncRecord);
+      return this.syncSource.uploadRecords(channel, syncRecords);
     }
 
     const markRecordsUploaded = async (records: BaseModel[], requestedAt: number): Promise<void> => {

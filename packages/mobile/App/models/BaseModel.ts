@@ -129,4 +129,11 @@ export abstract class BaseModel extends BaseEntity {
     // TODO: enable export for more models
     return false;
   }
+
+  static excludedUploadColumns: string[] = [
+    'createdAt',
+    'updatedAt',
+    'markedForUpload',
+    'uploadedAt',
+  ];
 }
