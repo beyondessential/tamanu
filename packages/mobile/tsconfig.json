@@ -34,7 +34,7 @@
     "skipLibCheck": true,
     "strict": false,
     "noImplicitThis": false,
-    "target": "esnext"
+    "target": "es2019"
   },
   "exclude": [
     "node_modules",
