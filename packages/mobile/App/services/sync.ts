@@ -327,7 +327,7 @@ export class SyncManager {
     this.emitter.emit('channelSyncStarted', channel);
     try {
       const requestedAt = await this.downloadAndImport(model, channel, lastSynced);
-      if (await model.shouldExport()) {
+      if (model.shouldExport()) {
         await this.exportAndUpload(model, channel);
       }
       if (requestedAt !== null) {

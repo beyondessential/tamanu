@@ -125,7 +125,7 @@ export abstract class BaseModel extends BaseEntity {
     return <T[]>record;
   }
 
-  static async shouldExport(): Promise<boolean> {
+  static shouldExport(): boolean {
     // TODO: enable export for more models
     return false;
   }
