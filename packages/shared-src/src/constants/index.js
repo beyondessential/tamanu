@@ -116,6 +116,35 @@ export const REFERENCE_TYPES = {
 
 export const REFERENCE_TYPE_VALUES = Object.values(REFERENCE_TYPES);
 
-export const PROGRAM_DATA_ELEMENT_TYPE_VALUES = ['Binary', 'CalculatedQuestion', 'Checkbox', 'FreeText', 'Instruction', 'Number', 'Radio', 'SubmissionDate'];
+// for explanation of types, see
+// https://docs.google.com/spreadsheets/d/1qwfw1AOED7WiElOCJwt_VHo_JaDhr6ZIiJMqjRCXajQ/edit#gid=1797422705
+export const PROGRAM_DATA_ELEMENT_TYPE_VALUES = [
+  'FreeText',
+  'Multiline',
+  'Radio',
+  'Select',
+  'Date',
+  'SubmissionDate',
+  'Instruction',
+  'Number',
+  'Binary',
+  'Checkbox',
+  'CalculatedQuestion',
+  'ConditionQuestion',
+  'Arithmetic',
+  'Condition',
+  'Result',
+  // For later versions
+  'Autocomplete',
+  'Photo',
+  // Meditrak-specific 
+  'Geolocate',
+  'DaysSince',
+  'MonthsSince',
+  'YearsSince',
+  'Entity',
+  'PrimaryEntity',
+  'CodeGenerator',
+];
 
 export const REPORT_REQUEST_STATUSES = ['Received', 'Processed'];
