@@ -5,7 +5,7 @@ import { Database } from '~/infra/db';
 import { readConfig, writeConfig } from '~/services/config';
 import { Patient } from '~/models/Patient';
 import { BaseModel } from '~/models/BaseModel';
-import { DownloadRecordsResponse, UploadRecordsResponse, SyncRecord, SyncSource } from './syncSource';
+import { DownloadRecordsResponse, UploadRecordsResponse, SyncRecord, SyncRecordData, SyncSource } from './syncSource';
 
 type RunChannelSyncOptions = {
   overrideLastSynced?: number,
@@ -22,7 +22,10 @@ const buildToSyncRecordFunc = (model: typeof BaseModel) => {
   const allColumns = connection.getMetadata(model).ownColumns.map(c => c.propertyName);
   const excludedColumns = model.excludedUploadColumns;
   const includedProperties = without(allColumns, ...excludedColumns);
-  return (entity: object) => ({ data: pick(entity, includedProperties) });
+  return (entity: object): SyncRecord => {
+    const data = pick(entity, includedProperties) as SyncRecordData;
+    return { data };
+  };
 };
 
 const UPLOAD_LIMIT = 100;

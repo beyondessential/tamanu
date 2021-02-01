@@ -25,7 +25,6 @@ export interface SyncRecord {
 
 export interface SyncRecordData {
   id: string;
-  updatedAt: Date;
   [key: string]: any;
 }
 
@@ -79,7 +78,7 @@ export class WebSyncSource implements SyncSource {
     }
   }
 
-  async uploadRecords(channel: string, records: object[]): Promise<UploadRecordsResponse> {
+  async uploadRecords(channel: string, records: SyncRecord[]): Promise<UploadRecordsResponse> {
     const url = `${this.host}/sync/${encodeURIComponent(channel)}`;
     try {
       const rawResponse = await fetch(url, {
