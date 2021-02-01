@@ -59,6 +59,8 @@ describe('SyncManager', () => {
         {
           ...record.data,
           createdAt: expect.anything(),
+          uploadedAt: null,
+          markedForUpload: false,
         }
       ]);
     });
@@ -82,6 +84,8 @@ describe('SyncManager', () => {
         {
           ...record.data,
           createdAt: expect.anything(),
+          uploadedAt: null,
+          markedForUpload: true,  // TODO: should we lock the table while syncing to prevent this from happening?
         },
       ]);
 
@@ -102,6 +106,8 @@ describe('SyncManager', () => {
         {
           ...record.data,
           createdAt: expect.anything(),
+          uploadedAt: null,
+          markedForUpload: false, // currently last-write-wins
           name: 'New name',
           code: 'new-code',
         }
@@ -127,6 +133,8 @@ describe('SyncManager', () => {
         {
           ...record.data,
           createdAt: expect.anything(),
+          uploadedAt: null,
+          markedForUpload: true,
         },
       ]);
 
