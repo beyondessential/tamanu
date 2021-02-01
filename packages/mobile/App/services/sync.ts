@@ -312,7 +312,7 @@ export class SyncManager {
   }
 
   async updateChannelSyncDate(channel: string, timestamp: number): Promise<void> {
-    await writeConfig(`syncTimestamp.${channel}`, String(timestamp));
+    await writeConfig(`syncTimestamp.${channel}`, timestamp.toString());
   }
 
   async runChannelSync(
@@ -330,7 +330,9 @@ export class SyncManager {
       if (await model.shouldExport()) {
         await this.exportAndUpload(model, channel);
       }
-      await this.updateChannelSyncDate(channel, requestedAt);
+      if (requestedAt !== null) {
+        await this.updateChannelSyncDate(channel, requestedAt);
+      }
     } catch (e) {
       console.error(e);
     }
