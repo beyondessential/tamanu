@@ -65,7 +65,8 @@ export class BasicHandler {
   }
 
   async upsert(record, params) {
-    return this.model.upsert(...upsertQuery(record, params));
+    await this.model.upsert(...upsertQuery(record, params));
+    return 1;
   }
 
   async countSince(params) {
