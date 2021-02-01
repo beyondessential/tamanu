@@ -17,7 +17,7 @@ export type UploadRecordsResponse = null | {
 }
 
 export interface SyncRecord {
-  lastSynced: Date;
+  lastSynced?: Date;
   ERROR_MESSAGE?: string;
   isDeleted?: boolean;
   data: SyncRecordData;
