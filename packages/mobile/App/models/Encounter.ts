@@ -79,5 +79,9 @@ export class Encounter extends BaseModel implements IEncounter {
     });
   }
 
+  static async shouldExport(): Promise<boolean> {
+    return true;
+  }
+
   // TODO: add examiner
 }
