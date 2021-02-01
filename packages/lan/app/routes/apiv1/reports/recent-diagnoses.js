@@ -11,8 +11,8 @@ const reportColumnTemplate = [
   { title: 'Patient ID', accessor: data => data.Encounter.patient.displayId },
   { title: 'Sex', accessor: data => data.Encounter.patient.sex },
   { title: 'Village', accessor: data => data.Encounter.patient.ReferenceDatum.name },
-  { title: 'Doctor/Nurse', accessor: data => data.Encounter.examiner.displayName },
-  { title: 'Department', accessor: data => data.Encounter.department.name },
+  { title: 'Doctor/Nurse', accessor: data => data.Encounter.examiner?.displayName || '' },
+  { title: 'Department', accessor: data => data.Encounter.department?.name || '' },
   { title: 'Certainty', accessor: data => data.certainty },
   { title: 'Is Primary', accessor: data => (data.isPrimary ? 'yes' : 'no') },
 ];
