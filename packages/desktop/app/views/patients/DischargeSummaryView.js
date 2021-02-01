@@ -1,5 +1,6 @@
 /* eslint-disable react/jsx-one-expression-per-line */
 import React, { useEffect, useState } from 'react';
+import { connect } from 'react-redux';
 import styled from 'styled-components';
 import { printPage, PrintPortal } from '../../print';
 
@@ -8,6 +9,7 @@ import { TextButton, BackButton } from '../../components/Button';
 import { DateDisplay } from '../../components/DateDisplay';
 import { TopBar } from '../../components';
 import { connectApi } from '../../api';
+import { useEncounter } from '../../contexts/Encounter';
 
 const SummaryPageContainer = styled.div`
   margin: 0 50px 50px 50px;
@@ -210,8 +212,10 @@ const SummaryPage = React.memo(
 );
 
 const DumbDischargeSummaryView = React.memo(
-  ({ encounter, patient, loading, onFetchDiagnoses, onFetchMedications, onFetchProcedures }) => {
-    if (loading) return <LoadingIndicator />;
+  ({ patient, onFetchDiagnoses, onFetchMedications, onFetchProcedures }) => {
+    const { isLoading, encounter } = useEncounter();
+    if (isLoading) return <LoadingIndicator />;
+
     const [procedures, setProcedures] = useState([]);
     const [medications, setMedications] = useState([]);
     const [diagnoses, setDiagnoses] = useState([]);
@@ -248,11 +252,9 @@ const DumbDischargeSummaryView = React.memo(
   },
 );
 
-export const DischargeSummaryView = connectApi((api, dispatch, { encounter, patient }) => ({
-  onFetchDiagnoses: async () => api.get(`encounter/${encounter.id}/diagnoses`),
-  onFetchProcedures: async () => api.get(`encounter/${encounter.id}/procedures`),
-  onFetchMedications: async () => api.get(`encounter/${encounter.id}/medications`),
-  loading: encounter.loading,
-  encounter,
-  patient,
+export const DischargeSummaryView = connect(state => ({
+  onFetchDiagnoses: () => [], // api.get(`encounter/${encounter.id}/diagnoses`),
+  onFetchProcedures: () => [], // api.get(`encounter/${encounter.id}/procedures`),
+  onFetchMedications: () => [], // api.get(`encounter/${encounter.id}/medications`),
+  patient: state.patient,
 }))(DumbDischargeSummaryView);

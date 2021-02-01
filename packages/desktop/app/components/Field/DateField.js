@@ -68,6 +68,7 @@ export const DateInput = ({
     if (value && formattedValue) {
       setCurrentText(formattedValue);
     }
+    return () => setCurrentText('');
   }, [value, format]);
 
   return (

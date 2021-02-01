@@ -7,26 +7,20 @@ const ENCOUNTER_LOAD_START = 'ENCOUNTER_LOAD_START';
 const ENCOUNTER_LOAD_FINISH = 'ENCOUNTER_LOAD_FINISH';
 
 export const viewEncounter = (id, modal) => async dispatch => {
-  dispatch(reloadEncounter(id));
+  await dispatch(reloadEncounter(id));
   dispatch(push(`/patients/encounter/${modal}`));
 };
 
 export const reloadEncounter = id => async (dispatch, getState, { api }) => {
   dispatch({ type: ENCOUNTER_LOAD_START, id });
 
-  const [encounter, diagnoses] = await Promise.all([
-    api.get(`encounter/${id}`),
-    api.get(`encounter/${id}/diagnoses`),
-  ]);
+  const encounter = await api.get(`encounter/${id}`);
 
   // TODO handle error state
 
   dispatch({
     type: ENCOUNTER_LOAD_FINISH,
-    encounter: {
-      diagnoses: diagnoses.data,
-      ...encounter,
-    },
+    encounter,
   });
 };
 
@@ -48,7 +42,7 @@ const handlers = {
   }),
   [ENCOUNTER_LOAD_FINISH]: action => ({
     loading: false,
-    ...action.encounter,
+    newEncounter: action.encounter,
   }),
 };
 

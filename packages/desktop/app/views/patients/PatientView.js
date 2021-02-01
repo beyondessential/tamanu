@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { useCallback } from 'react';
 import { connect } from 'react-redux';
 import { push } from 'connected-react-router';
 
@@ -27,8 +27,10 @@ import { DataFetchingSurveyResponsesTable } from '../../components/SurveyRespons
 import { PatientDetailsForm } from '../../forms/PatientDetailsForm';
 import { Suggester } from '../../utils/suggester';
 
-import { viewEncounter } from '../../store/encounter';
+// import { viewEncounter } from '../../store/encounter';
 import { reloadPatient } from '../../store/patient';
+
+import { useEncounter } from '../../contexts/Encounter';
 
 const AppointmentPane = React.memo(({ patient, readonly }) => {
   const [modalOpen, setModalOpen] = React.useState(false);
@@ -106,27 +108,39 @@ const RoutedTriageModal = connectRoutedModal('/patients/view', 'triage')(TriageM
 
 const HistoryPane = connect(
   state => ({
-    encounter: state.patient.currentEncounter,
+    currentEncounter: state.patient.currentEncounter,
     patientId: state.patient.id,
   }),
   dispatch => ({
-    onViewEncounter: id => dispatch(viewEncounter(id)),
+    onViewEncounter: () => dispatch(push(`/patients/encounter/`)),
     onOpenCheckin: () => dispatch(push('/patients/view/checkin')),
     onOpenTriage: () => dispatch(push('/patients/view/triage')),
   }),
 )(
-  React.memo(({ encounter, patientId, onViewEncounter, onOpenCheckin, onOpenTriage, disabled }) => (
-    <div>
-      <PatientEncounterSummary
-        encounter={encounter}
-        viewEncounter={onViewEncounter}
-        openCheckin={onOpenCheckin}
-        openTriage={onOpenTriage}
-        disabled={disabled}
-      />
-      <PatientHistory patientId={patientId} onItemClick={item => onViewEncounter(item.id)} />
-    </div>
-  )),
+  React.memo(
+    ({ patientId, currentEncounter, onViewEncounter, onOpenCheckin, onOpenTriage, disabled }) => {
+      const { encounter, setEncounterId } = useEncounter();
+      const viewEncounter = useCallback(
+        item => {
+          setEncounterId(item.id);
+          onViewEncounter();
+        },
+        [encounter],
+      );
+      return (
+        <div>
+          <PatientEncounterSummary
+            encounter={currentEncounter}
+            viewEncounter={onViewEncounter}
+            openCheckin={onOpenCheckin}
+            openTriage={onOpenTriage}
+            disabled={disabled}
+          />
+          <PatientHistory patientId={patientId} onItemClick={viewEncounter} />
+        </div>
+      );
+    },
+  ),
 );
 
 const ConnectedPatientDetailsForm = connectApi((api, dispatch, { patient }) => ({
@@ -235,4 +249,5 @@ export const DumbPatientView = React.memo(({ patient, loading }) => {
 export const PatientView = connect(state => ({
   loading: state.patient.loading,
   patient: state.patient,
+  encounter: state.encounter,
 }))(DumbPatientView);

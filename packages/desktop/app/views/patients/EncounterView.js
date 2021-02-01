@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { useReducer, useEffect } from 'react';
 import { connect } from 'react-redux';
 import { push } from 'connected-react-router';
 import styled from 'styled-components';
@@ -38,8 +38,9 @@ import { DropdownButton } from '../../components/DropdownButton';
 import { FormGrid } from '../../components/FormGrid';
 import { SelectInput, DateInput, TextInput } from '../../components/Field';
 import { encounterOptions, ENCOUNTER_OPTIONS_BY_VALUE, Colors } from '../../constants';
+import { useEncounter } from '../../contexts/Encounter';
 
-const getIsTriage = encounter => ENCOUNTER_OPTIONS_BY_VALUE[encounter.encounterType].triageFlowOnly;
+const getIsTriage = encounter => false;
 
 const VitalsPane = React.memo(({ encounter, readonly }) => {
   const [modalOpen, setModalOpen] = React.useState(false);
@@ -240,34 +241,37 @@ const getDepartmentName = ({ department }) => (department ? department.name : 'U
 const getLocationName = ({ location }) => (location ? location.name : 'Unknown');
 const getExaminerName = ({ examiner }) => (examiner ? examiner.displayName : 'Unknown');
 
-const EncounterInfoPane = React.memo(({ disabled, encounter }) => (
-  <FormGrid columns={3}>
-    <DateInput disabled={disabled} value={encounter.startDate} label="Arrival date" />
-    <DateInput disabled={disabled} value={encounter.endDate} label="Discharge date" />
-    <TextInput disabled={disabled} value={getDepartmentName(encounter)} label="Department" />
-    <TextInput disabled={disabled} value={getLocationName(encounter)} label="Location" />
-    <SelectInput
-      disabled={disabled}
-      value={encounter.encounterType}
-      label="Encounter type"
-      options={encounterOptions}
-    />
-    <TextInput disabled={disabled} value={getExaminerName(encounter)} label="Doctor/nurse" />
-    {encounter.plannedLocation && (
+const EncounterInfoPane = React.memo(({ disabled, encounter }) => {
+
+  return (
+    <FormGrid columns={3}>
+      <DateInput disabled={disabled} value={encounter.startDate} label="Arrival date" />
+      <DateInput disabled={disabled} value={encounter.endDate} label="Discharge date" />
+      <TextInput disabled={disabled} value={getDepartmentName(encounter)} label="Department" />
+      <TextInput disabled={disabled} value={getLocationName(encounter)} label="Location" />
+      <SelectInput
+        disabled={disabled}
+        value={encounter.encounterType}
+        label="Encounter type"
+        options={encounterOptions}
+      />
+      <TextInput disabled={disabled} value={getExaminerName(encounter)} label="Doctor/nurse" />
+      {encounter.plannedLocation && (
+        <TextInput
+          disabled={disabled}
+          value={encounter.plannedLocation.name}
+          label="Planned location"
+        />
+      )}
       <TextInput
         disabled={disabled}
-        value={encounter.plannedLocation.name}
-        label="Planned location"
+        value={encounter.reasonForEncounter}
+        label="Reason for encounter"
+        style={{ gridColumn: 'span 3' }}
       />
-    )}
-    <TextInput
-      disabled={disabled}
-      value={encounter.reasonForEncounter}
-      label="Reason for encounter"
-      style={{ gridColumn: 'span 3' }}
-    />
-  </FormGrid>
-));
+    </FormGrid>
+  );
+});
 
 const RoutedDischargeModal = connectRoutedModal('/patients/encounter', 'discharge')(DischargeModal);
 const RoutedChangeEncounterTypeModal = connectRoutedModal(
@@ -417,11 +421,9 @@ function getHeaderText({ encounterType }) {
   }
 }
 
-export const DumbEncounterView = React.memo(({ encounter, patient, loading }) => {
+export const DumbEncounterView = ({ patient, encounter }) => {
   const [currentTab, setCurrentTab] = React.useState('vitals');
   const disabled = encounter.endDate || patient.death;
-
-  if (loading) return <LoadingIndicator />;
 
   return (
     <TwoColumnDisplay>
@@ -433,7 +435,7 @@ export const DumbEncounterView = React.memo(({ encounter, patient, loading }) =>
             <AdmissionInfo>
               <SubjectIcon />
               <AdmissionInfoLabel>Type: </AdmissionInfoLabel>
-              <span>{` ${encounter.encounterType}`}</span>
+              <span>{`${encounter.encounterType}`}</span>
             </AdmissionInfo>
             <AdmissionInfo>
               <CalendarIcon />
@@ -463,10 +465,14 @@ export const DumbEncounterView = React.memo(({ encounter, patient, loading }) =>
       </div>
     </TwoColumnDisplay>
   );
-});
+};
 
 export const EncounterView = connect(state => ({
-  loading: state.encounter.loading,
-  encounter: state.encounter,
   patient: state.patient,
-}))(DumbEncounterView);
+}))(({ patient }) => {
+  const { isLoading, encounter } = useEncounter();
+
+  if (isLoading || !encounter) return <LoadingIndicator />;
+
+  return <DumbEncounterView encounter={encounter} patient={patient} />;
+});
