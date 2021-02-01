@@ -79,9 +79,5 @@ export class Encounter extends BaseModel implements IEncounter {
     });
   }
 
-  static shouldExport(): boolean {
-    return true;
-  }
-
   // TODO: add examiner
 }
