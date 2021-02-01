@@ -5,7 +5,7 @@ const [nodeName, scriptName, fromUrl, toUrl] = process.argv;
 
 if (!fromUrl || !toUrl) {
   throw new Error(
-    `Must provide from and to urls: ${nodeName} ${scriptName} https://example.com https://example.org`,
+    `Usage: ${nodeName} ${scriptName} https://example.com/from-this-server https://example.org/to-this-server`,
   );
 }
 
