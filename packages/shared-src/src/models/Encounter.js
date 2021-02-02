@@ -4,7 +4,37 @@ import { InvalidOperationError } from 'shared/errors';
 import { Model } from './Model';
 
 export class Encounter extends Model {
-  static init({ primaryKey, ...options }) {
+  static init({ primaryKey, hackToSkipEncounterValidation, ...options }) {
+    let validate = {};
+    if (!hackToSkipEncounterValidation) {
+      validate = {
+        mustHaveValidEncounterType() {
+          if (!this.deletedAt && !ENCOUNTER_TYPE_VALUES.includes(this.encounterType)) {
+            throw new InvalidOperationError('A encounter must have a valid encounter type.');
+          }
+        },
+        mustHavePatient() {
+          if (!this.deletedAt && !this.patientId) {
+            throw new InvalidOperationError('A encounter must have a patient.');
+          }
+        },
+        mustHaveDepartment() {
+          if (!this.deletedAt && !this.departmentId) {
+            throw new InvalidOperationError('A encounter must have a department.');
+          }
+        },
+        mustHaveLocation() {
+          if (!this.deletedAt && !this.locationId) {
+            throw new InvalidOperationError('A encounter must have a location.');
+          }
+        },
+        mustHaveExaminer() {
+          if (!this.deletedAt && !this.examinerId) {
+            throw new InvalidOperationError('A encounter must have an examiner.');
+          }
+        },
+      };
+    }
     super.init(
       {
         id: primaryKey,
@@ -20,33 +50,7 @@ export class Encounter extends Model {
       },
       {
         ...options,
-        validate: {
-          mustHaveValidEncounterType() {
-            if (!this.deletedAt && !ENCOUNTER_TYPE_VALUES.includes(this.encounterType)) {
-              throw new InvalidOperationError('A encounter must have a valid encounter type.');
-            }
-          },
-          mustHavePatient() {
-            if (!this.deletedAt && !this.patientId) {
-              throw new InvalidOperationError('A encounter must have a patient.');
-            }
-          },
-          mustHaveDepartment() {
-            if (!this.deletedAt && !this.departmentId) {
-              throw new InvalidOperationError('A encounter must have a department.');
-            }
-          },
-          mustHaveLocation() {
-            if (!this.deletedAt && !this.locationId) {
-              throw new InvalidOperationError('A encounter must have a location.');
-            }
-          },
-          mustHaveExaminer() {
-            if (!this.deletedAt && !this.examinerId) {
-              throw new InvalidOperationError('A encounter must have an examiner.');
-            }
-          },
-        },
+        validate,
       },
     );
   }
