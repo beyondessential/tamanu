@@ -64,8 +64,9 @@ export class Triage extends Model {
       .join(' and ');
     const reasonForEncounter = `Presented at emergency department with ${reasonsText}`;
 
-    // TODO: use emergency department by default
-    const department = await ReferenceData.findOne({ type: 'department' });
+    const department = await ReferenceData.findOne({
+      where: { code: 'EMERGENCY', type: 'department' },
+    });
 
     return this.sequelize.transaction(async () => {
       const encounter = await Encounter.create({
@@ -73,7 +74,7 @@ export class Triage extends Model {
         startDate: data.triageTime || new Date(),
         reasonForEncounter,
         patientId: data.patientId,
-        departmentId: department.id,
+        departmentId: department.dataValues.id,
         locationId: data.locationId,
         examinerId: data.practitionerId,
       });
