@@ -248,5 +248,4 @@ export const DumbPatientView = React.memo(({ patient, loading }) => {
 export const PatientView = connect(state => ({
   loading: state.patient.loading,
   patient: state.patient,
-  encounter: state.encounter,
 }))(DumbPatientView);

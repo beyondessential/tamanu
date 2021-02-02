@@ -1,8 +1,6 @@
 import { push } from 'connected-react-router';
 import { createReducer } from '../utils/createReducer';
 
-import { reloadEncounter } from './encounter';
-
 // actions
 const PATIENT_LOAD_START = 'PATIENT_LOAD_START';
 const PATIENT_LOAD_ERROR = 'PATIENT_LOAD_ERROR';
@@ -11,7 +9,6 @@ const PATIENT_CLEAR = 'PATIENT_CLEAR';
 
 export const viewPatientEncounter = (patientId, encounterId, modal = '') => async dispatch => {
   dispatch(reloadPatient(patientId));
-  dispatch(reloadEncounter(encounterId));
   dispatch(push(modal ? `/patients/encounter/${modal}` : '/patients/encounter'));
 };
 

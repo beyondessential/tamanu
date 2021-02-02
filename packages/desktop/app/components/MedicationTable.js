@@ -1,10 +1,10 @@
-import React from 'react';
+import React, { useCallback } from 'react';
+import { push } from 'connected-react-router';
 import { connect } from 'react-redux';
 
 import { DataFetchingTable } from './Table';
 import { DateDisplay } from './DateDisplay';
-
-import { viewEncounter } from '../store/encounter';
+import { useEncounter } from '../contexts/Encounter';
 
 const getMedicationName = ({ medication }) => medication.name;
 
@@ -44,12 +44,22 @@ export const EncounterMedicationTable = React.memo(({ encounterId }) => (
 ));
 
 export const DataFetchingMedicationTable = connect(null, dispatch => ({
-  onMedicationSelect: medication => dispatch(viewEncounter(medication.encounter.id)),
-}))(({ onMedicationSelect }) => (
-  <DataFetchingTable
-    endpoint="medication"
-    columns={FULL_LISTING_COLUMNS}
-    noDataMessage="No medication requests found"
-    onRowClick={onMedicationSelect}
-  />
-));
+  viewEncounter: () => {
+    dispatch(push(`/patients/encounter/`));
+  },
+}))(({ viewEncounter }) => {
+  const { setEncounterId } = useEncounter();
+  const onMedicationSelect = useCallback(medication => {
+    setEncounterId(medication.encounter.id);
+    viewEncounter();
+  }, []);
+
+  return (
+    <DataFetchingTable
+      endpoint="medication"
+      columns={FULL_LISTING_COLUMNS}
+      noDataMessage="No medication requests found"
+      onRowClick={onMedicationSelect}
+    />
+  );
+});

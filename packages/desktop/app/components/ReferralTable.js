@@ -7,9 +7,10 @@ import { DateDisplay } from './DateDisplay';
 import { DropdownButton } from './DropdownButton';
 
 import { viewReferral } from '../store/referral';
-import { viewEncounter } from '../store/encounter';
+import { useEncounter } from '../contexts/Encounter';
 
-const DumbActionDropdown = React.memo(({ onCheckin, onCancel, onView, encounter, closedDate }) => {
+const DumbActionDropdown = React.memo(({ onCheckin, onCancel, onView, closedDate }) => {
+  const { setEncounterId, encounter } = useEncounter();
   const actions = [
     {
       label: 'Admit',
@@ -24,17 +25,20 @@ const DumbActionDropdown = React.memo(({ onCheckin, onCancel, onView, encounter,
     {
       label: 'View encounter',
       condition: () => !!encounter,
-      onClick: onView,
+      onClick: () => {
+        setEncounterId();
+        onView();
+      },
     },
   ].filter(action => !action.condition || action.condition());
 
   return <DropdownButton color="primary" actions={actions} />;
 });
 
-const ActionDropdown = connect(null, (dispatch, { encounter, id }) => ({
+const ActionDropdown = connect(null, dispatch => ({
   onCheckin: () => dispatch(push('/patients/view/checkin')),
   onCancel: () => console.log('TODO'),
-  onView: () => dispatch(viewEncounter(encounter.id)),
+  onView: () => dispatch(push(`/patients/encounter/`)),
 }))(DumbActionDropdown);
 
 const StatusDisplay = React.memo(({ encounter, closedDate }) => {
