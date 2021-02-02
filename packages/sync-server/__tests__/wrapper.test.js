@@ -214,5 +214,32 @@ describe('sqlWrapper', () => {
         expect.any(Date),
       );
     });
+
+    it('inserts an encounter without nested relationships', async () => {
+      // arrange
+      const encounter = await buildEncounter(ctx, patientId)();
+      encounter.surveyResponses = null;
+      encounter.administeredVaccines = null;
+
+      // act
+      await ctx.wrapper.upsert(encounterChannel, encounter);
+      const foundEncounters = await ctx.wrapper.findSince(encounterChannel, 0);
+
+      // assert
+      expect(foundEncounters.length).toBe(1);
+
+      const [foundEncounter] = foundEncounters;
+      const timestamps = {
+        createdAt: expect.any(Date),
+        updatedAt: expect.any(Date),
+        deletedAt: null,
+      };
+      expect(foundEncounter).toEqual({
+        ...encounter,
+        ...timestamps,
+        administeredVaccines: [],
+        surveyResponses: [],
+      });
+    });
   });
 });
