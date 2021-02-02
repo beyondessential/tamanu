@@ -1,25 +1,35 @@
-import React from 'react';
+import React, { useCallback } from 'react';
+import { push } from 'connected-react-router';
 
 import { Modal } from './Modal';
 
 import { connectApi } from '../api/connectApi';
-import { viewEncounter } from '../store/encounter';
 
 import { VitalsForm } from '../forms/VitalsForm';
+import { useEncounter } from '../contexts/Encounter';
 
-const DumbVitalsModal = React.memo(({ onClose, onSubmit }) => (
-  <Modal title="Record vitals" open onClose={onClose}>
-    <VitalsForm form={VitalsForm} onSubmit={onSubmit} onCancel={onClose} />
-  </Modal>
-));
+const DumbVitalsModal = React.memo(({ onClose, onSubmit }) => {
+  const { fetchData, encounter } = useEncounter();
 
-export const VitalsModal = connectApi((api, dispatch, { encounterId, onClose }) => ({
-  onSubmit: async data => {
+  const recordVitals = useCallback(data => {
+    onSubmit(data, encounter.id);
+    fetchData();
+  }, []);
+
+  return (
+    <Modal title="Record vitals" open onClose={onClose}>
+      <VitalsForm form={VitalsForm} onSubmit={recordVitals} onCancel={onClose} />
+    </Modal>
+  );
+});
+
+export const VitalsModal = connectApi((api, dispatch, { onClose }) => ({
+  onSubmit: async (data, encounterId) => {
     await api.post(`vitals`, {
       ...data,
       encounterId,
     });
-    dispatch(viewEncounter(encounterId));
+    dispatch(push(`/patients/encounter/`));
     onClose();
   },
 }))(DumbVitalsModal);

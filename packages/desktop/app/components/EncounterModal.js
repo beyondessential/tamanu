@@ -4,7 +4,6 @@ import { Modal } from './Modal';
 import { Suggester } from '../utils/suggester';
 
 import { connectApi } from '../api/connectApi';
-import { viewEncounter } from '../store/encounter';
 
 import { EncounterForm } from '../forms/EncounterForm';
 import { useEncounter } from '../contexts/Encounter';
@@ -24,12 +23,13 @@ const DumbEncounterModal = React.memo(({ open, onClose, onCreateEncounter, ...re
   );
 });
 
-export const EncounterModal = connectApi((api, dispatch, { patientId }) => ({
+export const EncounterModal = connectApi((api, dispatch, { patientId, onClose }) => ({
   onCreateEncounter: async data => {
     const createdEncounter = await api.post(`encounter`, {
       patientId,
       ...data,
     });
+    onClose();
     return createdEncounter.id;
   },
   locationSuggester: new Suggester(api, 'location'),

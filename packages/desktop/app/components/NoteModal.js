@@ -1,21 +1,31 @@
-import React from 'react';
+import React, { useCallback } from 'react';
+import { push } from 'connected-react-router';
 
 import { connectApi } from '../api/connectApi';
 import { Suggester } from '../utils/suggester';
-import { viewEncounter } from '../store/encounter';
 
 import { Modal } from './Modal';
 import { NoteForm } from '../forms/NoteForm';
+import { useEncounter } from '../contexts/Encounter';
 
-const DumbNoteModal = React.memo(({ open, onClose, onSaveNote, practitionerSuggester }) => (
-  <Modal title="Note" open={open} onClose={onClose}>
-    <NoteForm
-      onSubmit={onSaveNote}
-      onCancel={onClose}
-      practitionerSuggester={practitionerSuggester}
-    />
-  </Modal>
-));
+const DumbNoteModal = React.memo(({ open, onClose, onSaveNote, practitionerSuggester }) => {
+  const { fetchData } = useEncounter();
+
+  const saveNote = useCallback(data => {
+    onSaveNote(data);
+    fetchData();
+  }, []);
+
+  return (
+    <Modal title="Note" open={open} onClose={onClose}>
+      <NoteForm
+        onSubmit={saveNote}
+        onCancel={onClose}
+        practitionerSuggester={practitionerSuggester}
+      />
+    </Modal>
+  );
+});
 
 export const NoteModal = connectApi((api, dispatch, { encounterId, onClose }) => ({
   onSaveNote: async data => {
@@ -26,7 +36,7 @@ export const NoteModal = connectApi((api, dispatch, { encounterId, onClose }) =>
     }
 
     onClose();
-    dispatch(viewEncounter(encounterId));
+    dispatch(push(`/patients/encounter/`));
   },
   practitionerSuggester: new Suggester(api, 'practitioner'),
 }))(DumbNoteModal);

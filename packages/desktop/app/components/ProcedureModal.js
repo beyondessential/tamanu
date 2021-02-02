@@ -1,12 +1,13 @@
-import React from 'react';
+import React, { useCallback } from 'react';
+import { push } from 'connected-react-router';
 
 import { Modal } from './Modal';
 import { Suggester } from '../utils/suggester';
 
 import { connectApi } from '../api/connectApi';
-import { viewEncounter } from '../store/encounter';
 
 import { ProcedureForm } from '../forms/ProcedureForm';
+import { useEncounter } from '../contexts/Encounter';
 
 const DumbProcedureModal = React.memo(
   ({
@@ -17,19 +18,27 @@ const DumbProcedureModal = React.memo(
     practitionerSuggester,
     procedureSuggester,
     anaestheticSuggester,
-  }) => (
-    <Modal width="md" title="New procedure" open={!!editedProcedure} onClose={onClose}>
-      <ProcedureForm
-        onSubmit={onSaveProcedure}
-        onCancel={onClose}
-        editedObject={editedProcedure}
-        locationSuggester={locationSuggester}
-        practitionerSuggester={practitionerSuggester}
-        procedureSuggester={procedureSuggester}
-        anaestheticSuggester={anaestheticSuggester}
-      />
-    </Modal>
-  ),
+  }) => {
+    const { fetchData } = useEncounter();
+    const saveProcedure = useCallback(data => {
+      onSaveProcedure(data);
+      fetchData();
+    }, []);
+
+    return (
+      <Modal width="md" title="New procedure" open={!!editedProcedure} onClose={onClose}>
+        <ProcedureForm
+          onSubmit={saveProcedure}
+          onCancel={onClose}
+          editedObject={editedProcedure}
+          locationSuggester={locationSuggester}
+          practitionerSuggester={practitionerSuggester}
+          procedureSuggester={procedureSuggester}
+          anaestheticSuggester={anaestheticSuggester}
+        />
+      </Modal>
+    );
+  },
 );
 
 export const ProcedureModal = connectApi((api, dispatch, { encounterId }) => ({
@@ -42,7 +51,7 @@ export const ProcedureModal = connectApi((api, dispatch, { encounterId }) => ({
         encounterId,
       });
     }
-    dispatch(viewEncounter(encounterId));
+    dispatch(push(`/patients/encounter/`));
   },
   locationSuggester: new Suggester(api, 'location'),
   practitionerSuggester: new Suggester(api, 'practitioner'),

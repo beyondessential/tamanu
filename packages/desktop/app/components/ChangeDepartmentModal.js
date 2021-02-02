@@ -13,9 +13,10 @@ const DumbChangeDepartmentModal = React.memo(({ open, onClose, handleSubmit, ...
   const encounterCtx = useEncounter();
   const onSubmit = useCallback(
     departmentId => {
-      const { encounter, setEncounterId } = encounterCtx;
-      setEncounterId(encounter.id);
+      const { encounter, fetchData } = encounterCtx;
       handleSubmit(departmentId, encounter.id);
+      onClose();
+      fetchData();
     },
     [encounterCtx.encounter],
   );

@@ -37,7 +37,10 @@ const FULL_LISTING_COLUMNS = [
 ];
 
 export const EncounterMedicationTable = React.memo(({ encounterId }) => (
-  <DataFetchingTable columns={MEDICATION_COLUMNS} endpoint={`encounter/${encounterId}/medications`} />
+  <DataFetchingTable
+    columns={MEDICATION_COLUMNS}
+    endpoint={`encounter/${encounterId}/medications`}
+  />
 ));
 
 export const DataFetchingMedicationTable = connect(null, dispatch => ({

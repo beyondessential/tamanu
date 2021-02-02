@@ -1,5 +1,4 @@
-import React, { useState, useEffect } from 'react';
-import PropTypes from 'prop-types';
+import React from 'react';
 import * as yup from 'yup';
 import styled from 'styled-components';
 
@@ -18,7 +17,7 @@ import { TextInput } from '../components/Field/TextField';
 
 import { ConfirmCancelRow } from '../components/ButtonRow';
 import { DiagnosisList } from '../components/DiagnosisList';
-import { connectApi } from '../api';
+import { useEncounter } from '../contexts/Encounter';
 
 const ReadonlyFields = styled.div`
   display: grid;
@@ -56,17 +55,19 @@ const ProcedureRow = ({ cpt }) => <li>{cpt}</li>;
 const MedicineRow = ({ medication }) => (
   <React.Fragment>
     <li>
-      {medication.drug.name} ({medication.prescription})
+      {medication.medication.name} ({medication.prescription})
     </li>
   </React.Fragment>
 );
 
-const EncounterOverview = ({ encounter, medications, procedures, diagnoses }) => (
+const EncounterOverview = ({
+  encounter: { medications, procedures, diagnoses, startDate, examiner, reasonForEncounter },
+}) => (
   <ReadonlyFields>
-    <DateInput label="Admission date" value={encounter.startDate} disabled />
+    <DateInput label="Admission date" value={startDate} disabled />
     <TextInput
       label="Supervising Physician"
-      value={encounter.examiner ? encounter.examiner.displayName : '-'}
+      value={examiner ? examiner.displayName : '-'}
       disabled
     />
     <div>
@@ -86,7 +87,7 @@ const EncounterOverview = ({ encounter, medications, procedures, diagnoses }) =>
       </ul>
     </div>
     <FullWidthFields>
-      <TextInput label="Reason for encounter" value={encounter.reasonForEncounter} disabled />
+      <TextInput label="Reason for encounter" value={reasonForEncounter} disabled />
       <div>
         <Label>Diagnoses</Label>
         <DiagnosisList diagnoses={diagnoses} />
@@ -95,41 +96,13 @@ const EncounterOverview = ({ encounter, medications, procedures, diagnoses }) =>
   </ReadonlyFields>
 );
 
-const DumbDischargeForm = ({
-  practitionerSuggester,
-  onCancel,
-  onSubmit,
-  encounter,
-  onFetchDiagnoses,
-  onFetchMedications,
-  onFetchProcedures,
-}) => {
-  const [procedures, setProcedures] = useState([]);
-  const [medications, setMedications] = useState([]);
-  const [diagnoses, setDiagnoses] = useState([]);
-  useEffect(() => {
-    async function fetchEncounterData() {
-      const procedure = await onFetchProcedures();
-      setProcedures(procedure.data);
-
-      const medication = await onFetchMedications();
-      setMedications(medication.data);
-
-      const diagnosis = await onFetchDiagnoses();
-      setDiagnoses(diagnosis.data);
-    }
-    fetchEncounterData();
-  }, [encounter]);
+export const DischargeForm = ({ practitionerSuggester, onCancel, onSubmit }) => {
+  const { encounter } = useEncounter();
 
   const renderForm = ({ submitForm }) => {
     return (
       <div>
-        <EncounterOverview
-          encounter={encounter}
-          medications={medications}
-          procedures={procedures}
-          diagnoses={diagnoses}
-        />
+        <EncounterOverview encounter={encounter} />
         <EditFields>
           <Field name="endDate" label="Discharge date" component={DateField} required />
           <Field
@@ -175,9 +148,3 @@ const DumbDischargeForm = ({
     </div>
   );
 };
-
-export const DischargeForm = connectApi((api, dispatch, { encounter }) => ({
-  onFetchDiagnoses: async () => api.get(`encounter/${encounter.id}/diagnoses`),
-  onFetchProcedures: async () => api.get(`encounter/${encounter.id}/procedures`),
-  onFetchMedications: async () => api.get(`encounter/${encounter.id}/medications`),
-}))(DumbDischargeForm);

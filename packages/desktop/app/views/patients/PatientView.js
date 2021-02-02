@@ -27,7 +27,6 @@ import { DataFetchingSurveyResponsesTable } from '../../components/SurveyRespons
 import { PatientDetailsForm } from '../../forms/PatientDetailsForm';
 import { Suggester } from '../../utils/suggester';
 
-// import { viewEncounter } from '../../store/encounter';
 import { reloadPatient } from '../../store/patient';
 
 import { useEncounter } from '../../contexts/Encounter';
@@ -131,7 +130,7 @@ const HistoryPane = connect(
         <div>
           <PatientEncounterSummary
             encounter={currentEncounter}
-            viewEncounter={onViewEncounter}
+            viewEncounter={viewEncounter}
             openCheckin={onOpenCheckin}
             openTriage={onOpenTriage}
             disabled={disabled}

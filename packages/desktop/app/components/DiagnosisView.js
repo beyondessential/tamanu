@@ -1,8 +1,5 @@
 import React from 'react';
-import { connect } from 'react-redux';
 import styled from 'styled-components';
-
-import { getDiagnoses } from '../store/encounter';
 
 import { Button } from './Button';
 import { DiagnosisModal } from './DiagnosisModal';
@@ -44,38 +41,35 @@ const AddDiagnosisButton = styled(Button)`
   height: fit-content;
 `;
 
-export const DiagnosisView = connect(state => ({
-  diagnoses: getDiagnoses(state).sort(compareDiagnosis),
-}))(
-  React.memo(({ encounterId, diagnoses, isTriage, readonly }) => {
-    const [diagnosis, editDiagnosis] = React.useState(null);
+export const DiagnosisView = React.memo(({ encounter, isTriage, readonly }) => {
+  const { diagnoses, id } = encounter;
+  const [diagnosis, editDiagnosis] = React.useState(null);
 
-    const displayedDiagnoses = diagnoses.filter(d => !['error', 'disproven'].includes(d.certainty));
+  const displayedDiagnoses = diagnoses.filter(d => !['error', 'disproven'].includes(d.certainty));
 
-    return (
-      <React.Fragment>
-        <DiagnosisModal
-          diagnosis={diagnosis}
-          isTriage={isTriage}
-          encounterId={encounterId}
-          onClose={() => editDiagnosis(null)}
+  return (
+    <React.Fragment>
+      <DiagnosisModal
+        diagnosis={diagnosis}
+        isTriage={isTriage}
+        encounterId={id}
+        onClose={() => editDiagnosis(null)}
+      />
+      <DiagnosisGrid>
+        <DiagnosisLabel numberOfDiagnoses={displayedDiagnoses.length} />
+        <DiagnosisList
+          diagnoses={displayedDiagnoses}
+          onEditDiagnosis={!readonly && editDiagnosis}
         />
-        <DiagnosisGrid>
-          <DiagnosisLabel numberOfDiagnoses={displayedDiagnoses.length} />
-          <DiagnosisList
-            diagnoses={displayedDiagnoses}
-            onEditDiagnosis={!readonly && editDiagnosis}
-          />
-          <AddDiagnosisButton
-            onClick={() => editDiagnosis({})}
-            variant="outlined"
-            color="primary"
-            disabled={readonly}
-          >
-            Add diagnosis
-          </AddDiagnosisButton>
-        </DiagnosisGrid>
-      </React.Fragment>
-    );
-  }),
-);
+        <AddDiagnosisButton
+          onClick={() => editDiagnosis({})}
+          variant="outlined"
+          color="primary"
+          disabled={readonly}
+        >
+          Add diagnosis
+        </AddDiagnosisButton>
+      </DiagnosisGrid>
+    </React.Fragment>
+  );
+});

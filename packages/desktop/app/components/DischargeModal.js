@@ -10,11 +10,12 @@ import { DischargeForm } from '../forms/DischargeForm';
 import { useEncounter } from '../contexts/Encounter';
 
 const DumbDischargeModal = React.memo(({ open, practitionerSuggester, onClose, onSubmit }) => {
-  const { setEncounterData, encounter } = useEncounter();
+  const { fetchData, encounter } = useEncounter();
   const handleDischarge = useCallback(
     data => {
-      setEncounterData({ ...encounter, endDate: new Date().toString() });
       onSubmit(data);
+      fetchData();
+      onClose();
     },
     [encounter],
   );

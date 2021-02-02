@@ -1,4 +1,6 @@
-import React from 'react';
+import React, { useCallback } from 'react';
+import { push } from 'connected-react-router';
+import { useEncounter } from '../contexts/Encounter';
 
 import { Form, Field, AutocompleteField } from './Field';
 import { ConfirmCancelRow } from './ButtonRow';
@@ -7,19 +9,27 @@ import { Modal } from './Modal';
 import { Suggester } from '../utils/suggester';
 
 import { connectApi } from '../api/connectApi';
-import { viewEncounter } from '../store/encounter';
 
 export const MoveModal = connectApi((api, dispatch, { encounter }) => ({
   locationSuggester: new Suggester(api, 'location'),
   onSubmit: async data => {
     await api.put(`encounter/${encounter.id}`, data);
-    dispatch(viewEncounter(encounter.id));
+    dispatch(push(`/patients/encounter/`));
   },
-}))(({ open, onClose, ...rest }) => (
-  <Modal title={"Move patient"} open={open} onClose={onClose}>
-    <MoveForm onClose={onClose} {...rest} />
-  </Modal>
-));
+}))(({ open, onClose, onSubmit, ...rest }) => {
+  const { fetchData } = useEncounter();
+  const movePatient = useCallback(data => {
+    onSubmit(data);
+    fetchData();
+    onClose();
+  }, []);
+
+  return (
+    <Modal title="Move patient" open={open} onClose={onClose}>
+      <MoveForm onClose={onClose} onSubmit={movePatient} {...rest} />
+    </Modal>
+  );
+});
 
 const MoveForm = ({ onSubmit, onClose, encounter, locationSuggester }) => {
   const renderForm = React.useCallback(({ submitForm }) => (
@@ -46,7 +56,7 @@ const MoveForm = ({ onSubmit, onClose, encounter, locationSuggester }) => {
 
 // -------------------------------------------------------------------------------
 // TODO: Reimplement "planned move" functionality on backend.
-// Keeping the display components for that here so that they can be used later. 
+// Keeping the display components for that here so that they can be used later.
 // They should just need the endpoints updated to match the new API, and to
 // be re-added to EncounterView.js (PR 786)
 

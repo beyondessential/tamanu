@@ -1,4 +1,4 @@
-import React, { useState, useEffect, useContext } from 'react';
+import React, { useState, useEffect, useContext, useCallback } from 'react';
 import { ApiContext } from '../api/singletons';
 
 const EncounterContext = React.createContext({
@@ -7,7 +7,6 @@ const EncounterContext = React.createContext({
   isLoading: false,
   setEncounter: () => {},
   setEncounterData: () => {},
-  
 });
 
 export const useEncounter = () => useContext(EncounterContext);
@@ -19,13 +18,26 @@ export const EncounterProvider = ({ children }) => {
 
   const api = useContext(ApiContext);
 
-  useEffect(() => {
+  const fetchData = useCallback(async () => {
     const fetchEncounterData = async () => {
       setIsLoading(true);
       const data = await api.get(`encounter/${id}`);
-      setEncounterData(data);
+      const diagnoses = await api.get(`encounter/${id}/diagnoses`);
+      const procedures = await api.get(`encounter/${id}/procedures`);
+      const medications = await api.get(`encounter/${id}/medications`);
+      setEncounterData({
+        ...data,
+        diagnoses: diagnoses.data,
+        procedures: procedures.data,
+        medications: medications.data,
+      });
     };
     fetchEncounterData();
+    setIsLoading(false);
+  }, id);
+
+  useEffect(() => {
+    fetchData();
     setIsLoading(false);
   }, [id]);
 
@@ -35,7 +47,7 @@ export const EncounterProvider = ({ children }) => {
         encounter,
         isLoading,
         setEncounterId,
-        setEncounterData,
+        fetchData,
       }}
     >
       {children}

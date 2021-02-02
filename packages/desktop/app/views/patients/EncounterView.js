@@ -1,4 +1,4 @@
-import React, { useReducer, useEffect } from 'react';
+import React from 'react';
 import { connect } from 'react-redux';
 import { push } from 'connected-react-router';
 import styled from 'styled-components';
@@ -40,7 +40,8 @@ import { SelectInput, DateInput, TextInput } from '../../components/Field';
 import { encounterOptions, ENCOUNTER_OPTIONS_BY_VALUE, Colors } from '../../constants';
 import { useEncounter } from '../../contexts/Encounter';
 
-const getIsTriage = encounter => false;
+const getIsTriage = encounter =>
+  encounter && encounter.type && ENCOUNTER_OPTIONS_BY_VALUE[encounter.encounterType].triageFlowOnly;
 
 const VitalsPane = React.memo(({ encounter, readonly }) => {
   const [modalOpen, setModalOpen] = React.useState(false);
@@ -242,7 +243,6 @@ const getLocationName = ({ location }) => (location ? location.name : 'Unknown')
 const getExaminerName = ({ examiner }) => (examiner ? examiner.displayName : 'Unknown');
 
 const EncounterInfoPane = React.memo(({ disabled, encounter }) => {
-
   return (
     <FormGrid columns={3}>
       <DateInput disabled={disabled} value={encounter.startDate} label="Arrival date" />
@@ -450,7 +450,7 @@ export const DumbEncounterView = ({ patient, encounter }) => {
         </ContentPane>
         <ContentPane>
           <DiagnosisView
-            encounterId={encounter.id}
+            encounter={encounter}
             isTriage={getIsTriage(encounter)}
             disabled={disabled}
           />
