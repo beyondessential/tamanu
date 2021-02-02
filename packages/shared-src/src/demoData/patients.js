@@ -35,6 +35,27 @@ export async function randomReferenceId(models, type) {
   return obj.id;
 }
 
+export async function randomReferenceIds(models, type, count) {
+  const items = await models.ReferenceData.findAll({
+    where: {
+      type,
+    },
+    order: models.ReferenceData.sequelize.random(),
+    limit: count,
+  });
+  return items.map(i => i.id);
+}
+
+export async function randomReferenceData(models, type) {
+  const obj = await models.ReferenceData.findOne({
+    where: {
+      type,
+    },
+    order: models.ReferenceData.sequelize.random(),
+  });
+  return obj;
+}
+
 export function randomVitals(overrides) {
   return {
     dateRecorded: randomDate(),

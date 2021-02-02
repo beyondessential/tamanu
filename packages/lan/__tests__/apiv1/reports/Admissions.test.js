@@ -15,18 +15,13 @@ describe('Admissions report', () => {
   let wrongPatient = null;
   let app = null;
   let expectedLocation = null;
-  let wrongLocation = null;
-  let expectedPractitioner = null;
-  let wrongPractitioner = null;
+
   beforeAll(async () => {
     const villageId = await randomReferenceId(models, 'village');
     expectedPatient = await models.Patient.create(await createDummyPatient(models, { villageId }));
     wrongPatient = await models.Patient.create(await createDummyPatient(models, { villageId }));
     app = await baseApp.asRole('practitioner');
     expectedLocation = await randomReferenceId(models, 'location');
-    wrongLocation = await randomReferenceId(models, 'location');
-    expectedPractitioner = await randomUser(models);
-    wrongPractitioner = await randomUser(models);
   });
 
   it('should reject creating an admissions report with insufficient permissions', async () => {
