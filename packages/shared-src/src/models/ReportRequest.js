@@ -21,6 +21,7 @@ export class ReportRequest extends Model {
   static initRelations(models) {
     this.belongsTo(models.User, {
       foreignKey: { name: 'requestedByUserId', allowNull: false },
+      onDelete: "CASCADE",
     });
   }
 }
