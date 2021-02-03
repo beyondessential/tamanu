@@ -11,7 +11,10 @@ export class SqlWrapper {
 
   constructor(dbOptions) {
     // init database
-    this._dbPromise = initDatabase(dbOptions);
+    this._dbPromise = initDatabase({
+      ...dbOptions,
+      hackToSkipEncounterValidation: true, // TODO: remove once mobile implements all relationships
+    });
   }
 
   async init() {
