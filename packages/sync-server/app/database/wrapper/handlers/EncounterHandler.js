@@ -7,6 +7,9 @@ import {
 } from './BasicHandler';
 
 function extractRelated(record, relation, { fk = 'encounterId' } = {}) {
+  if (!record[relation]) {
+    return [];
+  }
   return record[relation].map(relatedRecord => ({
     ...relatedRecord,
     [fk]: record.id,
