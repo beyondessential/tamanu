@@ -1,10 +1,12 @@
-import { Entity, Column, ManyToOne, OneToMany, Index } from 'typeorm/browser';
+import { Entity, Column, ManyToOne, OneToMany, Index, MoreThan, RelationId } from 'typeorm/browser';
 import { startOfDay, addHours } from 'date-fns';
-import { BaseModel } from './BaseModel';
+import { BaseModel, FindMarkedForUploadOptions } from './BaseModel';
 import { IEncounter, EncounterType, ReferenceDataType } from '~/types';
 import { Patient } from './Patient';
 import { Diagnosis } from './Diagnosis';
 import { ReferenceData, ReferenceDataRelation } from './ReferenceData';
+import { AdministeredVaccine } from './AdministeredVaccine';
+import { SurveyResponse } from './SurveyResponse';
 import { formatDateForQuery } from '~/infra/db/helpers';
 
 @Entity('encounter')
@@ -105,6 +107,33 @@ export class Encounter extends BaseModel implements IEncounter {
         await callback(patientId);
       }
     } while (!!lastSeenId);
+  }
+
+  static async findMarkedForUpload(
+    { limit, after, channel }: FindMarkedForUploadOptions,
+  ): Promise<Encounter[]> {
+    const repo = this.getRepository();
+
+    const patientId = channel.split('/')[1];
+    if (!patientId) {
+      throw new Error(`Could not extract patientId from ${channel}`);
+    }
+
+    // find any records that come after afterRecord
+    const whereAfter = (after instanceof Object) ? { id: MoreThan(after.id) } : {};
+
+    const records = await repo.find({
+      where: {
+        markedForUpload: true,
+        patient: patientId,
+        ...whereAfter,
+      },
+      order: {
+        id: 'ASC',
+      },
+      take: limit,
+    });
+    return records;
   }
 
   // TODO: add examiner

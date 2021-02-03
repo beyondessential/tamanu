@@ -271,6 +271,7 @@ export class SyncManager {
     const exportRecords = async (afterRecord?: BaseModel): Promise<BaseModel[]> => {
       this.emitter.emit('exportingPage', `${channel}-${page}`);
       return model.findMarkedForUpload({
+        channel,
         after: afterRecord,
         limit: UPLOAD_LIMIT,
       });

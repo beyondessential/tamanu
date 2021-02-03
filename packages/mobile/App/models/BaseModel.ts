@@ -10,9 +10,10 @@ import {
   MoreThan,
 } from 'typeorm/browser';
 
-export type FindUnsyncedOptions<T> = {
+export type FindMarkedForUploadOptions = {
+  channel: string,
   limit?: number,
-  after?: T,
+  after?: { id: string },
 };
 
 const stripId = (key) => (key === 'displayId') ? key : key.replace(/Id$/, '');
@@ -104,15 +105,15 @@ export abstract class BaseModel extends BaseEntity {
     await this.create(data);
   }
 
-  static async findMarkedForUpload<T extends BaseModel>(
-    { limit, after }: FindUnsyncedOptions<T> = {},
-  ): Promise<T[]> {
+  static async findMarkedForUpload(
+    { limit, after }: FindMarkedForUploadOptions,
+  ): Promise<BaseModel[]> {
     const repo = this.getRepository();
 
     // find any records that come after afterRecord
     const whereAfter = (after instanceof Object) ? { id: MoreThan(after.id) } : {};
 
-    const record = await repo.find({
+    const records = await repo.find({
       where: {
         markedForUpload: true,
         ...whereAfter,
@@ -121,9 +122,8 @@ export abstract class BaseModel extends BaseEntity {
         id: 'ASC',
       },
       take: limit,
-      // TODO: add relations for nested syncing
     });
-    return <T[]>record;
+    return records;
   }
 
   static shouldExport(): boolean {
