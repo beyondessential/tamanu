@@ -1,4 +1,4 @@
-import { Entity, Column, ManyToOne } from 'typeorm/browser';
+import { Entity, Column, ManyToOne, BeforeUpdate } from 'typeorm/browser';
 
 import { BaseModel } from './BaseModel';
 import { ProgramDataElement } from './ProgramDataElement';
@@ -17,4 +17,10 @@ export class SurveyResponseAnswer extends BaseModel
 
   @ManyToOne(type => ProgramDataElement, dataElement => dataElement.answers)
   dataElement: ProgramDataElement;
+
+  @BeforeUpdate()
+  markResponseForUpload() {
+    this.response.markedForUpload = true;
+    this.response.save();
+  }
 }

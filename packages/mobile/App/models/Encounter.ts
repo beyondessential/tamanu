@@ -48,6 +48,12 @@ export class Encounter extends BaseModel implements IEncounter {
   @OneToMany(() => Diagnosis, diagnosis => diagnosis.encounter, { eager: true })
   diagnoses: Diagnosis[]
 
+  @OneToMany(() => AdministeredVaccine, administeredVaccine => administeredVaccine.encounter, { eager: true, cascade: ['insert'] })
+  administeredVaccines: AdministeredVaccine[]
+
+  @OneToMany(() => SurveyResponse, surveyResponse => surveyResponse.encounter, { eager: true, cascade: ['insert'] })
+  surveyResponses: SurveyResponse[]
+
   static async getOrCreateCurrentEncounter(
     patientId: string, createdEncounterOptions: any,
   ): Promise<Encounter> {
