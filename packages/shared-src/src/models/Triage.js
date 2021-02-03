@@ -74,7 +74,7 @@ export class Triage extends Model {
         startDate: data.triageTime || new Date(),
         reasonForEncounter,
         patientId: data.patientId,
-        departmentId: department.dataValues.id,
+        departmentId: data.departmentId || department.dataValues.id,
         locationId: data.locationId,
         examinerId: data.practitionerId,
       });
