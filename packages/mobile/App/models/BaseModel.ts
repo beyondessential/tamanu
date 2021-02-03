@@ -6,9 +6,9 @@ import {
   CreateDateColumn,
   Column,
   BeforeUpdate,
+  Index,
+  MoreThan,
 } from 'typeorm/browser';
-
-import { MoreThan } from 'typeorm';
 
 export type FindUnsyncedOptions<T> = {
   limit?: number,
@@ -60,6 +60,7 @@ export abstract class BaseModel extends BaseEntity {
   @UpdateDateColumn()
   updatedAt: Date;
 
+  @Index()
   @Column({ default: true })
   markedForUpload: boolean;
 

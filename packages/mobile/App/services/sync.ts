@@ -108,6 +108,11 @@ export class SyncManager {
     await this.runChannelSync(models.SurveyScreenComponent, 'surveyScreenComponent');
     await this.runChannelSync(models.Patient, 'patient');
 
+    await models.Encounter.mapPatientIdsOfMarkedEncounters(async patientId => {
+      // TODO: runChannelSync is not actually using patientId at all
+      await this.runChannelSync(models.Encounter, `patient/${patientId}/encounter`);
+    });
+
     // sync all reference data including shallow patient list
     // full sync of patients that've been flagged (encounters, etc)
     /*

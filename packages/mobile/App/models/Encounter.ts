@@ -1,4 +1,4 @@
-import { Entity, Column, ManyToOne, OneToMany } from 'typeorm/browser';
+import { Entity, Column, ManyToOne, OneToMany, Index } from 'typeorm/browser';
 import { startOfDay, addHours } from 'date-fns';
 import { BaseModel } from './BaseModel';
 import { IEncounter, EncounterType, ReferenceDataType } from '~/types';
@@ -21,6 +21,7 @@ export class Encounter extends BaseModel implements IEncounter {
   @Column({ default: '' })
   reasonForEncounter: string;
 
+  @Index()
   @ManyToOne(type => Patient, patient => patient.encounters, { eager: true })
   patient: Patient;
 
@@ -83,5 +84,29 @@ export class Encounter extends BaseModel implements IEncounter {
     return true;
   }
 
+  static async mapPatientIdsOfMarkedEncounters(
+    callback: (patientId: string) => Promise<void> | void,
+    { batchSize = 100 }: { batchSize?: number } = {},
+  ): Promise<void> {
+    // hides the complexity of querying successive batches of ids
+    let baseQuery = this.getRepository().createQueryBuilder('encounter')
+      .select('encounter.patientId AS patientId')
+      .distinctOn(['patientId'])
+      .orderBy('patientId')
+      .where('encounter.markedForUpload = ?', [true])
+      .limit(batchSize);
+    let lastSeenId: string = null;
+    do {
+      const query = lastSeenId ? baseQuery.andWhere('patientId > ?', [lastSeenId]) : baseQuery;
+      const patients = await query.getRawMany();
+      const patientIds = patients.map(({ patientId }) => patientId);
+      lastSeenId = patientIds[patientIds.length - 1];
+      for (const patientId of patientIds) {
+        await callback(patientId);
+      }
+    } while (!!lastSeenId);
+  }
+
   // TODO: add examiner
+  // TODO: cascade diagnosis/administeredvaccine/surveyresponse/surveyresponseanswer changes
 }
