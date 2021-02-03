@@ -24,7 +24,7 @@ export class Encounter extends BaseModel implements IEncounter {
   reasonForEncounter: string;
 
   @Index()
-  @ManyToOne(type => Patient, patient => patient.encounters, { eager: true })
+  @ManyToOne(() => Patient, patient => patient.encounters, { eager: true })
   patient: Patient;
 
   // TODO: Add model and add examiner dropdown for this field

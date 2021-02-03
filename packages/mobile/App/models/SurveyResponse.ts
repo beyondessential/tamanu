@@ -5,7 +5,7 @@ import { Survey } from './Survey';
 import { Encounter } from './Encounter';
 import { SurveyResponseAnswer } from './SurveyResponseAnswer';
 
-import { 
+import {
   getStringValue,
   getResultValue,
 } from '~/ui/helpers/fields';
@@ -65,9 +65,9 @@ export class SurveyResponse extends BaseModel implements ISurveyResponse {
   }
 
   static async submit(patientId, surveyData, values, setNote = () => null): Promise<SurveyResponse> {
-    const { 
-      surveyId, 
-      encounterReason, 
+    const {
+      surveyId,
+      encounterReason,
       components,
       ...otherData
     } = surveyData;
@@ -84,7 +84,7 @@ export class SurveyResponse extends BaseModel implements ISurveyResponse {
 
       const calculatedValues = runCalculations(components, values);
 
-      const { 
+      const {
         result,
         resultText,
       } = getResultValue(components, calculatedValues);
@@ -103,11 +103,11 @@ export class SurveyResponse extends BaseModel implements ISurveyResponse {
       setNote("Attaching answers...");
       const findDataElement = (code: string): string => {
         const component = components.find(c => c.dataElement.code === code);
-        if(!component) return '';
+        if (!component) return '';
         return component.dataElement;
       };
 
-      for(let a of Object.entries(calculatedValues)) { 
+      for (let a of Object.entries(calculatedValues)) {
         const [dataElementCode, value] = a;
         const dataElement = findDataElement(dataElementCode);
         const body = getStringValue(dataElement.type, value);
@@ -122,8 +122,8 @@ export class SurveyResponse extends BaseModel implements ISurveyResponse {
       setNote(`Done`);
 
       return responseRecord;
-    } catch(e) {
-      setNote(`Error: ${e.message} (${JSON.stringify(e)})`);     
+    } catch (e) {
+      setNote(`Error: ${e.message} (${JSON.stringify(e)})`);
 
       return null;
     }
