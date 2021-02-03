@@ -133,6 +133,7 @@ const DumbReportGeneratorForm = ({ currentUser, generateReport, onSuccessfulSubm
     },
     [generateReport],
   );
+
   return (
     <Form
       initialValues={{
@@ -160,7 +161,7 @@ const DumbReportGeneratorForm = ({ currentUser, generateReport, onSuccessfulSubm
                 options={REPORT_TYPE_OPTIONS}
                 required
                 onValueChange={type => {
-                  setParameters(ParametersByReportType[type]);
+                  setParameters(ParametersByReportType[type] || []);
                 }}
               />
             </FormGrid>
