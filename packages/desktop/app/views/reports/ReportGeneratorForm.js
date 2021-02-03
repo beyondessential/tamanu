@@ -146,7 +146,7 @@ const DumbReportGeneratorForm = ({ currentUser, generateReport, onSuccessfulSubm
         ...parameters
           .filter(field => field.validation)
           .reduce((schema, field) => {
-            schema[field.label] = field.validation;
+            schema[field.name] = field.validation;
             return schema;
           }, {}),
       })}
@@ -161,7 +161,7 @@ const DumbReportGeneratorForm = ({ currentUser, generateReport, onSuccessfulSubm
                 options={REPORT_TYPE_OPTIONS}
                 required
                 onValueChange={type => {
-                  setParameters(ParametersByReportType[type]);
+                  setParameters(ParametersByReportType[type] || []);
                 }}
               />
             </FormGrid>
