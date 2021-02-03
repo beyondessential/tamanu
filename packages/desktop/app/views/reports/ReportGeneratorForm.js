@@ -133,7 +133,6 @@ const DumbReportGeneratorForm = ({ currentUser, generateReport, onSuccessfulSubm
     },
     [generateReport],
   );
-
   return (
     <Form
       initialValues={{
@@ -146,7 +145,7 @@ const DumbReportGeneratorForm = ({ currentUser, generateReport, onSuccessfulSubm
         ...parameters
           .filter(field => field.validation)
           .reduce((schema, field) => {
-            schema[field.label] = field.validation;
+            schema[field.name] = field.validation;
             return schema;
           }, {}),
       })}
