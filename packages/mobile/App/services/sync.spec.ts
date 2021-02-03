@@ -4,6 +4,8 @@ import { Database } from '~/infra/db';
 import { SyncManager } from './sync';
 import { WebSyncSource } from './syncSource';
 
+import { EncounterType } from '~/types';
+
 jest.mock('./syncSource');
 const MockedWebSyncSource = <jest.Mock<WebSyncSource>>WebSyncSource;
 
@@ -32,7 +34,7 @@ describe('SyncManager', () => {
     await Database.connect();
   });
 
-  describe('syncRecord', () => {
+  describe('importRecord', () => {
     it('creates a model with a new id', async () => {
       // arrange
       const record = {
@@ -146,6 +148,49 @@ describe('SyncManager', () => {
       expect(emittedEvents.map(({ action }) => action)).toContain('syncedRecord');
       const rows = await Database.models.ReferenceData.find({ id: record.data.id });
       expect(rows).toEqual([]);
+    });
+  });
+
+  describe('exportAndUpload', () => {
+    describe('encounters', () => {
+      it('exports and uploads an encounter', async () => {
+        // arrange
+        const { syncManager, mockedSource } = createManager();
+        const patient = {
+          id: 'patient_id',
+          displayId: 'patient_displayId',
+          firstName: 'patient_firstName',
+          middleName: 'patient_middleName',
+          lastName: 'patient_lastName',
+          culturalName: 'patient_culturalName',
+          dateOfBirth: new Date(),
+          bloodType: 'A+',
+          sex: 'female',
+        };
+        await Database.models.Patient.create(patient);
+        const encounter = {
+          id: 'encounter-id',
+          patient: patient.id, // typeorm has annoying tendencies
+          encounterType: EncounterType.Clinic,
+          startDate: new Date(),
+        };
+        const channel = `patient/${encounter.patient}/encounter`;
+        await Database.models.Encounter.create(encounter);
+        mockedSource.uploadRecords.mockReturnValueOnce({ count: 1, requestedAt: Date.now() });
+
+        // act
+        await syncManager.exportAndUpload(Database.models.Encounter, channel);
+
+        // assert
+        expect(mockedSource.uploadRecords.mock.calls.length).toBe(1);
+        const call = mockedSource.uploadRecords.mock.calls[0];
+        const data = {
+          ...encounter,
+          patientId: patient.id,
+        };
+        delete data.patient;
+        expect(call).toMatchObject([channel, [{ data }]]);
+      });
     });
   });
 });
