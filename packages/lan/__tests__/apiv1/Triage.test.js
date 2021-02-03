@@ -20,6 +20,7 @@ describe('Triage', () => {
     const response = await app.post('/v1/triage').send(
       await createDummyTriage(models, {
         patientId: encounterPatient.id,
+        departmentId: await randomReferenceId(models, 'department'),
       }),
     );
     expect(response).toHaveSucceeded();
@@ -44,6 +45,7 @@ describe('Triage', () => {
     const response = await app.post('/v1/triage').send(
       await createDummyTriage(models, {
         patientId: encounterPatient.id,
+        departmentId: await randomReferenceId(models, 'department'),
       }),
     );
     expect(response).toHaveRequestError();
@@ -63,6 +65,7 @@ describe('Triage', () => {
     const response = await app.post('/v1/triage').send(
       await createDummyTriage(models, {
         patientId: encounterPatient.id,
+        departmentId: await randomReferenceId(models, 'department'),
       }),
     );
     expect(response).toHaveSucceeded();
@@ -73,6 +76,7 @@ describe('Triage', () => {
     const createdTriage = await models.Triage.create(
       await createDummyTriage(models, {
         patientId: encounterPatient.id,
+        departmentId: await randomReferenceId(models, 'department'),
       }),
     );
     const createdEncounter = await models.Encounter.findByPk(createdTriage.encounterId);
@@ -91,6 +95,7 @@ describe('Triage', () => {
     const createdTriage = await models.Triage.create(
       await createDummyTriage(models, {
         patientId: encounterPatient.id,
+        departmentId: await randomReferenceId(models, 'department'),
       }),
     );
     const createdEncounter = await models.Encounter.findByPk(createdTriage.encounterId);
@@ -111,6 +116,7 @@ describe('Triage', () => {
         patientId: encounterPatient.id,
         chiefComplaintId: await randomReferenceId(models, 'triageReason'),
         secondaryComplaintId: null,
+        departmentId: await randomReferenceId(models, 'department'),
       }),
     );
     const reason = await models.ReferenceData.findByPk(createdTriage.chiefComplaintId);
@@ -126,6 +132,7 @@ describe('Triage', () => {
         patientId: encounterPatient.id,
         chiefComplaintId: await randomReferenceId(models, 'triageReason'),
         secondaryComplaintId: await randomReferenceId(models, 'triageReason'),
+        departmentId: await randomReferenceId(models, 'department'),
       }),
     );
     const chiefReason = await models.ReferenceData.findByPk(createdTriage.chiefComplaintId);
