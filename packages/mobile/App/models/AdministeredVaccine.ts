@@ -27,7 +27,7 @@ export class AdministeredVaccine extends BaseModel implements IAdministeredVacci
   @RelationId(({ encounter }: AdministeredVaccine) => encounter)
   encounterId: string;
 
-  @ManyToOne(() => ScheduledVaccine, scheduledVaccine => scheduledVaccine.administeredVaccine)
+  @ManyToOne(() => ScheduledVaccine, scheduledVaccine => scheduledVaccine.administeredVaccines)
   scheduledVaccine: ScheduledVaccine;
 
   @RelationId(({ scheduledVaccine }: AdministeredVaccine) => scheduledVaccine)
