@@ -1,4 +1,14 @@
-import { IPatient, IAdministeredVaccine, IProgramDataElement, ISurvey, ISurveyResponse, ISurveyResponseAnswer, DataElementType } from '~/types';
+import {
+  DataElementType,
+  EncounterType,
+  IAdministeredVaccine,
+  IEncounter,
+  IPatient,
+  IProgramDataElement,
+  ISurvey,
+  ISurveyResponse,
+  ISurveyResponseAnswer,
+} from '~/types';
 
 export const fakePatient = (): IPatient => {
   return {
@@ -11,6 +21,15 @@ export const fakePatient = (): IPatient => {
     dateOfBirth: new Date(),
     bloodType: 'A+',
     sex: 'female',
+  };
+};
+
+export const fakeEncounter = (): IEncounter => {
+  return {
+    id: 'encounter-id',
+    encounterType: EncounterType.Clinic,
+    startDate: new Date(),
+    reasonForEncounter: 'encounter-reason',
   };
 };
 
