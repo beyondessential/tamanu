@@ -1,8 +1,8 @@
 import { v4 as uuidv4 } from 'uuid';
 
 import { Database } from '~/infra/db';
-import { SyncManager } from './sync';
-import { WebSyncSource } from './syncSource';
+import { SyncManager } from '.';
+import { WebSyncSource } from './source';
 
 import { BaseModel } from '~/models/BaseModel';
 
@@ -16,7 +16,7 @@ import {
   fakeSurveyResponseAnswer,
 } from '/root/tests/helpers/fake';
 
-jest.mock('./syncSource');
+jest.mock('./source');
 const MockedWebSyncSource = <jest.Mock<WebSyncSource>>WebSyncSource;
 
 const createManager = (): ({

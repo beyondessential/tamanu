@@ -1,6 +1,6 @@
 import { without, pick, memoize } from 'lodash';
 
-import { SyncRecord, SyncRecordData } from './syncSource';
+import { SyncRecord, SyncRecordData } from './source';
 import { BaseModel } from '~/models/BaseModel';
 
 type RelationsTree = {
