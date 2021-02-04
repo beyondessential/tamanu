@@ -18,8 +18,8 @@ class NoSyncImporterError extends Error {
 }
 
 const buildToSyncRecordFunc = (model: typeof BaseModel) => {
-  const { connection } = model.getRepository().manager;
-  const allColumns = connection.getMetadata(model).ownColumns.map(c => c.propertyName);
+  const { metadata } = model.getRepository();
+  const allColumns = metadata.columns.map(c => c.propertyName);
   const excludedColumns = model.excludedUploadColumns;
   const includedProperties = without(allColumns, ...excludedColumns);
   return (entity: object): SyncRecord => {
