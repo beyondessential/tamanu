@@ -298,9 +298,7 @@ export class SyncManager {
 
   async exportAndUpload(model: typeof BaseModel, channel: string) {
     // function definitions
-    let page = 0;
-
-    const exportRecords = async (afterRecord?: BaseModel): Promise<BaseModel[]> => {
+    const exportRecords = async (page: number, afterRecord?: BaseModel): Promise<BaseModel[]> => {
       this.emitter.emit('exportingPage', `${channel}-${page}`);
       return model.findMarkedForUpload({
         channel,
@@ -310,46 +308,56 @@ export class SyncManager {
     }
 
     const toSyncRecord = buildToSyncRecordFunc(model);
-    const uploadRecords = async (records: BaseModel[]): Promise<UploadRecordsResponse> => {
+    const uploadRecords = async (page: number, records: BaseModel[]): Promise<UploadRecordsResponse> => {
       // TODO: detect and retry failures (need to pass back from server)
       this.emitter.emit('uploadingPage', `${channel}-${page}`);
       const syncRecords = records.map(toSyncRecord);
       return this.syncSource.uploadRecords(channel, syncRecords);
     }
 
-    const markRecordsUploaded = async (records: BaseModel[], requestedAt: number): Promise<void> => {
+    const markRecordsUploaded = async (page: number, records: BaseModel[], requestedAt: number): Promise<void> => {
       this.emitter.emit('markingPageUploaded', `${channel}-${page}`);
+      console.log(`MARK ${records.map(r => r.id)}`);
+      return null;
       return model.markUploaded(records.map(r => r.id), new Date(requestedAt));
     }
 
     // TODO: progress handling
 
     // export and upload loop
-    let lastSeenRecord: BaseModel;
-    let uploadPromise: Promise<UploadRecordsResponse>;
-    this.emitter.emit('exportStarted', channel);
-    while (true) {
-      // begin exporting records
-      const exportPromise = exportRecords(lastSeenRecord);
+    try {
+      let lastSeenRecord: BaseModel;
+      let uploadPromise: Promise<UploadRecordsResponse>;
+      this.emitter.emit('exportStarted', channel);
+      let page = 0;
+      while (true) {
+        const knownPage = page;
 
-      // finish uploading previous batch
-      await uploadPromise;
+        // begin exporting records
+        const exportPromise = exportRecords(knownPage, lastSeenRecord);
 
-      // finish exporting records
-      const recordsChunk = await exportPromise;
-      if (recordsChunk.length === 0) {
-        break;
+        // finish uploading previous batch
+        await uploadPromise;
+
+        // finish exporting records
+        const recordsChunk = await exportPromise;
+        if (recordsChunk.length === 0) {
+          break;
+        }
+        lastSeenRecord = recordsChunk[recordsChunk.length - 1];
+
+        // begin uploading current batch
+        uploadPromise = uploadRecords(knownPage, recordsChunk).then(async (data) => {
+          // mark previous batch as synced after uploading
+          // done using promises so these two steps can be interleaved with exporting
+          await markRecordsUploaded(knownPage, recordsChunk, data.requestedAt);
+          return data;
+        });
+
+        page++;
       }
-      page++;
-      lastSeenRecord = recordsChunk[recordsChunk.length - 1];
-
-      // begin uploading current batch
-      uploadPromise = uploadRecords(recordsChunk).then(async (data) => {
-        // mark previous batch as synced after uploading
-        // done using promises so these two steps can be interleaved with exporting
-        await markRecordsUploaded(recordsChunk, data.requestedAt);
-        return data;
-      });
+    } catch (e) {
+      console.warn(e);
     }
     this.emitter.emit('exportEnded', channel);
   }
