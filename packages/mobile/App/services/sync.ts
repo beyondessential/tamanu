@@ -1,6 +1,6 @@
 import mitt from 'mitt';
 
-import { without, pick } from 'lodash';
+import { without, pick, memoize } from 'lodash';
 import { Database } from '~/infra/db';
 import { readConfig, writeConfig } from '~/services/config';
 import { Patient } from '~/models/Patient';
@@ -17,16 +17,48 @@ class NoSyncImporterError extends Error {
   }
 }
 
-const buildToSyncRecordFunc = (model: typeof BaseModel) => {
+const buildToSyncRecordFunc = memoize((model: typeof BaseModel) => {
+  // TODO: handle lazy and/or embedded relations
+
   const { metadata } = model.getRepository();
-  const allColumns = metadata.columns.map(c => c.propertyName);
-  const excludedColumns = model.excludedUploadColumns;
-  const includedProperties = without(allColumns, ...excludedColumns);
+
+  // find columns to include
+  const allColumns = [
+    ...metadata.columns,
+    ...metadata.relationIds, // typeorm thinks these aren't columns
+  ].map(({ propertyName }) => propertyName);
+  const includedColumns = without(allColumns, ...model.excludedUploadColumns);
+
+  // build toSyncRecord functions for all included relations
+  const relationToSyncRecord = model.includedUploadRelations
+    .reduce((memo, relationName) => {
+      const relationModel = metadata.relations.find(r => r.propertyPath === relationName).inverseEntityMetadata.target;
+      if (typeof relationModel !== 'function') {
+        console.warn('sync: unable to generate converter for relation ${relationName}');
+        return memo;
+      }
+      return {
+        ...memo,
+        [relationName]: buildToSyncRecordFunc(relationModel as typeof BaseModel),
+      };
+    }, {});
+
+  // create toSyncRecord function
   return (entity: object): SyncRecord => {
-    const data = pick(entity, includedProperties) as SyncRecordData;
+    // pick included columns
+    const data = pick(entity, includedColumns) as SyncRecordData;
+
+    // recursively convert relations
+    for (const relationName of model.includedUploadRelations) {
+      const relation = entity[relationName];
+      if (!!relation) {
+        data[relationName] = relation.map(relationToSyncRecord[relationName]);
+      }
+    }
+
     return { data };
   };
-};
+});
 
 const UPLOAD_LIMIT = 100;
 const DOWNLOAD_LIMIT = 100;

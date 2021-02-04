@@ -8,6 +8,7 @@ import {
   BeforeUpdate,
   Index,
   MoreThan,
+  FindOptionsUtils,
 } from 'typeorm/browser';
 
 export type FindMarkedForUploadOptions = {
@@ -106,14 +107,20 @@ export abstract class BaseModel extends BaseEntity {
   }
 
   static async findMarkedForUpload(
-    { limit, after }: FindMarkedForUploadOptions,
+    opts: FindMarkedForUploadOptions,
   ): Promise<BaseModel[]> {
-    const repo = this.getRepository();
+    // query is built separately so it can be modified in child classes
+    return this.findMarkedForUploadQuery(opts).getMany();
+  }
 
-    // find any records that come after afterRecord
+
+  static findMarkedForUploadQuery(
+    { limit, after }: FindMarkedForUploadOptions,
+  ) {
     const whereAfter = (after instanceof Object) ? { id: MoreThan(after.id) } : {};
 
-    const records = await repo.find({
+    const qb = this.getRepository().createQueryBuilder();
+    return FindOptionsUtils.applyOptionsToQueryBuilder(qb, {
       where: {
         markedForUpload: true,
         ...whereAfter,
@@ -122,8 +129,8 @@ export abstract class BaseModel extends BaseEntity {
         id: 'ASC',
       },
       take: limit,
+      relations: this.includedUploadRelations,
     });
-    return records;
   }
 
   static shouldExport(): boolean {
@@ -131,10 +138,16 @@ export abstract class BaseModel extends BaseEntity {
     return false;
   }
 
+  // Exclude these properties from uploaded model
+  // May be columns or relationIds
   static excludedUploadColumns: string[] = [
     'createdAt',
     'updatedAt',
     'markedForUpload',
     'uploadedAt',
   ];
+
+  // Include these relations on uploaded model
+  // Does not currently handle lazy or embedded relations
+  static includedUploadRelations: string[] = [];
 }

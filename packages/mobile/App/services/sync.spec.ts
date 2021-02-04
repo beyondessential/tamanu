@@ -176,6 +176,13 @@ describe('SyncManager', () => {
         };
         const channel = `patient/${encounter.patient}/encounter`;
         await Database.models.Encounter.create(encounter);
+        const administeredVaccine = {
+          id: 'administered-vaccine-id',
+          encounter: encounter.id,
+          status: 'done',
+          date: new Date(),
+        };
+        await Database.models.AdministeredVaccine.create(administeredVaccine);
         mockedSource.uploadRecords.mockReturnValueOnce({ count: 1, requestedAt: Date.now() });
 
         // act
@@ -187,8 +194,17 @@ describe('SyncManager', () => {
         const data = {
           ...encounter,
           patientId: patient.id,
+          administeredVaccines: [
+            {
+              data: {
+                ...administeredVaccine,
+                encounterId: encounter.id,
+              },
+            },
+          ],
         };
         delete data.patient;
+        delete data.administeredVaccines[0].data.encounter;
         expect(call).toMatchObject([channel, [{ data }]]);
       });
     });

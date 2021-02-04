@@ -1,4 +1,4 @@
-import { Entity, Column, ManyToOne, BeforeUpdate } from 'typeorm/browser';
+import { Entity, Column, ManyToOne, BeforeUpdate, RelationId } from 'typeorm/browser';
 import { BaseModel } from './BaseModel';
 import { IAdministeredVaccine } from '~/types';
 import { Encounter } from './Encounter';
@@ -24,8 +24,14 @@ export class AdministeredVaccine extends BaseModel implements IAdministeredVacci
   @ManyToOne(() => Encounter, encounter => encounter.administeredVaccines)
   encounter: Encounter;
 
+  @RelationId(({ encounter }: AdministeredVaccine) => encounter)
+  encounterId: string;
+
   @ManyToOne(() => ScheduledVaccine, scheduledVaccine => scheduledVaccine.administeredVaccine)
   scheduledVaccine: ScheduledVaccine;
+
+  @RelationId(({ scheduledVaccine }: AdministeredVaccine) => scheduledVaccine)
+  scheduledVaccineId: string;
 
   @BeforeUpdate()
   markEncounterForUpload() {

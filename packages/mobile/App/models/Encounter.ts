@@ -27,6 +27,9 @@ export class Encounter extends BaseModel implements IEncounter {
   @ManyToOne(() => Patient, patient => patient.encounters, { eager: true })
   patient: Patient;
 
+  @RelationId((encounter: Encounter) => encounter.patient)
+  patientId: string;
+
   // TODO: Add model and add examiner dropdown for this field
   @Column({ nullable: true })
   examiner?: string;
@@ -116,31 +119,23 @@ export class Encounter extends BaseModel implements IEncounter {
   }
 
   static async findMarkedForUpload(
-    { limit, after, channel }: FindMarkedForUploadOptions,
+    opts: FindMarkedForUploadOptions,
   ): Promise<Encounter[]> {
-    const repo = this.getRepository();
-
-    const patientId = channel.split('/')[1];
+    const patientId = opts.channel.split('/')[1];
     if (!patientId) {
-      throw new Error(`Could not extract patientId from ${channel}`);
+      throw new Error(`Could not extract patientId from ${opts.channel}`);
     }
 
-    // find any records that come after afterRecord
-    const whereAfter = (after instanceof Object) ? { id: MoreThan(after.id) } : {};
+    const records = await this.findMarkedForUploadQuery(opts)
+      .andWhere('patientId = :patientId', { patientId })
+      .getMany();
 
-    const records = await repo.find({
-      where: {
-        markedForUpload: true,
-        patient: patientId,
-        ...whereAfter,
-      },
-      order: {
-        id: 'ASC',
-      },
-      take: limit,
-    });
-    return records;
+    return records as Encounter[];
   }
+
+  static includedUploadRelations = [
+    'administeredVaccines',
+  ];
 
   // TODO: add examiner
   // TODO: cascade diagnosis/administeredvaccine/surveyresponse/surveyresponseanswer changes
