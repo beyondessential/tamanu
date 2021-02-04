@@ -42,7 +42,7 @@ const propertyPathsToTree = (stringPaths: string[]): RelationsTree => {
 /*
  *   buildExportSyncRecord
  *
- *   Input: a model (and a tree of relations, to recursively export) 
+ *   Input: a model (and a tree of relations, mostly used internally to recursively export relations)
  *   Output: a function that will convert instances of that model into a SyncRecord
  */
 export const buildExportSyncRecord = memoize((model: typeof BaseModel, withRelationsTree?: RelationsTree) => {
