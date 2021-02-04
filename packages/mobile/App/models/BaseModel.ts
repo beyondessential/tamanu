@@ -84,7 +84,7 @@ export abstract class BaseModel extends BaseEntity {
     const repo = this.getRepository();
 
     const record = repo.create({
-      ...sanitiseForImport(repo, data),
+      ...sanitiseForImport(repo, data), // TODO: sanitise this elsewhere
     });
 
     await record.save();

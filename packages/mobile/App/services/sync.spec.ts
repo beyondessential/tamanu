@@ -163,6 +163,8 @@ describe('SyncManager', () => {
   describe('exportAndUpload', () => {
     describe('encounters', () => {
       it('exports and uploads an encounter', async () => {
+        // TODO: find a workaround for the typeorm Id stripping
+
         // arrange
         const { syncManager, mockedSource } = createManager();
         const patient = fakePatient();
