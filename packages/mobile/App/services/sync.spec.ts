@@ -6,6 +6,15 @@ import { WebSyncSource } from './syncSource';
 
 import { EncounterType } from '~/types';
 
+import {
+  fakePatient,
+  fakeAdministeredVaccine,
+  fakeProgramDataElement,
+  fakeSurvey,
+  fakeSurveyResponse,
+  fakeSurveyResponseAnswer,
+} from '/root/tests/helpers/fake';
+
 jest.mock('./syncSource');
 const MockedWebSyncSource = <jest.Mock<WebSyncSource>>WebSyncSource;
 
@@ -156,34 +165,39 @@ describe('SyncManager', () => {
       it('exports and uploads an encounter', async () => {
         // arrange
         const { syncManager, mockedSource } = createManager();
-        const patient = {
-          id: 'patient_id',
-          displayId: 'patient_displayId',
-          firstName: 'patient_firstName',
-          middleName: 'patient_middleName',
-          lastName: 'patient_lastName',
-          culturalName: 'patient_culturalName',
-          dateOfBirth: new Date(),
-          bloodType: 'A+',
-          sex: 'female',
-        };
+        const patient = fakePatient();
         await Database.models.Patient.create(patient);
+
         const encounter = {
           id: 'encounter-id',
           patient: patient.id, // typeorm has annoying tendencies
           encounterType: EncounterType.Clinic,
           startDate: new Date(),
         };
-        const channel = `patient/${encounter.patient}/encounter`;
         await Database.models.Encounter.create(encounter);
-        const administeredVaccine = {
-          id: 'administered-vaccine-id',
-          encounter: encounter.id,
-          status: 'done',
-          date: new Date(),
-        };
+
+        const administeredVaccine = fakeAdministeredVaccine();
+        administeredVaccine.encounter = encounter.id;
         await Database.models.AdministeredVaccine.create(administeredVaccine);
+
+        const programDataElement = fakeProgramDataElement();
+        await Database.models.ProgramDataElement.create(programDataElement);
+
+        const survey = fakeSurvey();
+        await Database.models.Survey.create(survey);
+
+        const surveyResponse = fakeSurveyResponse();
+        surveyResponse.encounter = encounter.id;
+        surveyResponse.survey = survey.id;
+        await Database.models.SurveyResponse.create(surveyResponse);
+
+        const answer = fakeSurveyResponseAnswer();
+        answer.response = surveyResponse.id;
+        answer.dataElement = programDataElement.id;
+        await Database.models.SurveyResponseAnswer.create(answer);
+
         mockedSource.uploadRecords.mockReturnValueOnce({ count: 1, requestedAt: Date.now() });
+        const channel = `patient/${encounter.patient}/encounter`;
 
         // act
         await syncManager.exportAndUpload(Database.models.Encounter, channel);
@@ -202,9 +216,31 @@ describe('SyncManager', () => {
               },
             },
           ],
+          surveyResponses: [
+            {
+              data: {
+                ...surveyResponse,
+                encounterId: encounter.id,
+                surveyId: survey.id,
+                answers: [
+                  {
+                    data: {
+                      ...answer,
+                      responseId: surveyResponse.id,
+                      dataElementId: programDataElement.id,
+                    },
+                  },
+                ],
+              },
+            },
+          ],
         };
         delete data.patient;
         delete data.administeredVaccines[0].data.encounter;
+        delete data.surveyResponses[0].data.encounter;
+        delete data.surveyResponses[0].data.survey;
+        delete data.surveyResponses[0].data.answers[0].data.dataElement;
+        delete data.surveyResponses[0].data.answers[0].data.response;
         expect(call).toMatchObject([channel, [{ data }]]);
       });
     });

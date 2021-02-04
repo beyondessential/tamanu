@@ -1,4 +1,4 @@
-import { Entity, Column, ManyToOne, OneToMany, BeforeUpdate } from 'typeorm/browser';
+import { Entity, Column, ManyToOne, OneToMany, BeforeUpdate, RelationId } from 'typeorm/browser';
 
 import { BaseModel } from './BaseModel';
 import { Survey } from './Survey';
@@ -31,11 +31,16 @@ export class SurveyResponse extends BaseModel implements ISurveyResponse {
   @ManyToOne(() => Survey, survey => survey.responses)
   survey: Survey;
 
+  @RelationId(({ survey }) => survey)
+  surveyId: string;
+
   @ManyToOne(() => Encounter, encounter => encounter.surveyResponses)
   encounter: Encounter;
 
-  // TODO: eager for convienience; should we use relations instead?
-  @OneToMany(() => SurveyResponseAnswer, answer => answer.response, { eager: true, cascade: ['insert'] })
+  @RelationId(({ encounter }) => encounter)
+  encounterId: string;
+
+  @OneToMany(() => SurveyResponseAnswer, answer => answer.response, { cascade: ['insert'] })
   answers: SurveyResponseAnswer[];
 
   @BeforeUpdate()

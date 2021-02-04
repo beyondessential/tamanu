@@ -1,5 +1,6 @@
-import { Entity, Column, ManyToOne } from 'typeorm/browser';
+import { Entity, Column, OneToMany } from 'typeorm/browser';
 import { BaseModel } from './BaseModel';
+import { SurveyResponseAnswer } from './SurveyResponseAnswer';
 import { Database } from '~/infra/db';
 import { IProgramDataElement } from '~/types';
 
@@ -20,5 +21,8 @@ export class ProgramDataElement extends BaseModel
 
   @Column()
   type: string;
+
+  @OneToMany(() => SurveyResponseAnswer, answer => answer.dataElement)
+  answers: SurveyResponseAnswer[];
 }
 

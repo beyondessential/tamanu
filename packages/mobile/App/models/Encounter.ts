@@ -135,6 +135,8 @@ export class Encounter extends BaseModel implements IEncounter {
 
   static includedUploadRelations = [
     'administeredVaccines',
+    'surveyResponses',
+    'surveyResponses.answers',
   ];
 
   // TODO: add examiner
