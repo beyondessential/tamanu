@@ -1,5 +1,4 @@
 import { scheduleJob } from 'node-schedule';
-import { log } from '~/logging';
 
 export class ScheduledTask {
   getName() {
@@ -7,9 +6,10 @@ export class ScheduledTask {
     return this.constructor.name;
   }
 
-  constructor(schedule) {
+  constructor(schedule, log) {
     this.schedule = schedule;
     this.job = null;
+    this.log = log;
   }
 
   // eslint-disable-next-line class-methods-use-this
@@ -20,9 +20,9 @@ export class ScheduledTask {
   beginPolling() {
     if (!this.job) {
       const name = this.getName();
-      log.info(`Scheduled ${name}`);
+      this.log.info(`Scheduled ${name}`);
       this.job = scheduleJob(this.schedule, () => {
-        log.info(`Running ${name}`);
+        this.log.info(`Running ${name}`);
         this.run();
       });
     }
@@ -32,7 +32,7 @@ export class ScheduledTask {
     if (this.job) {
       this.job.cancel();
       this.job = null;
-      log.info(`Cancelled ${this.getName}`);
+      this.log.info(`Cancelled ${this.getName}`);
     }
   }
 }

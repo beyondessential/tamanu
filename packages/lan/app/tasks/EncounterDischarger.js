@@ -5,11 +5,11 @@ import shortid from 'shortid';
 import { Op } from 'sequelize';
 
 import { log } from '~/logging';
-import { ScheduledTask } from './ScheduledTask';
+import { ScheduledTask } from 'shared/tasks';
 
 export class EncounterDischarger extends ScheduledTask {
   constructor(context) {
-    super(config.schedules.encounterDischarger);
+    super(config.schedules.encounterDischarger, log);
     this.context = context;
 
     // run once on startup (in case the server was down when it was scheduled)
@@ -24,9 +24,11 @@ export class EncounterDischarger extends ScheduledTask {
         encounterType: 'clinic',
         endDate: null,
         startDate: {
-          [Op.lt]: moment().startOf('day').toDate(),
-        }
-      }
+          [Op.lt]: moment()
+            .startOf('day')
+            .toDate(),
+        },
+      },
     });
 
     if (oldEncounters.length === 0) return;
@@ -38,9 +40,9 @@ export class EncounterDischarger extends ScheduledTask {
       .subtract(1, 'minute')
       .toDate();
 
-
+      
     const tasks = oldEncounters.map(async encounter => {
-      await encounter.update({ 
+      await encounter.update({
         endDate: closingDate,
         dischargeNote: 'Automatically discharged',
       });
