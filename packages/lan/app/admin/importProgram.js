@@ -71,11 +71,13 @@ export async function importSurvey(taskDefinition) {
     screenIndex: i,
   })).flat();
 
-  await sendSyncRequest('survey', [
-    programElement,
-    surveyElement,
-    ...screenElements,
-  ]);
+  const components = screenElements.filter(x => x.recordType === 'surveyScreenComponent');
+  const pdes = screenElements.filter(x => x.recordType === 'programDataElement');
+
+  await sendSyncRequest('program', [programElement]);
+  await sendSyncRequest('survey', [surveyElement]);
+  await sendSyncRequest('programDataElement', pdes);
+  await sendSyncRequest('surveyScreenComponent', components);
 
   log.info("Program records uploaded.");
 }

@@ -5,6 +5,7 @@ import { convertFromDbRecord, convertToDbRecord } from 'sync-server/app/convertD
 
 import { createTestContext, unsafeSetUpdatedAt } from './utilities';
 import { fakePatient } from './fake';
+import { buildNestedEncounter } from './factory';
 
 const makeDate = (daysAgo, hoursAgo = 0) => {
   return subHours(subDays(new Date(), daysAgo), hoursAgo).valueOf();
@@ -26,7 +27,7 @@ describe('Sync API', () => {
 
     await Promise.all(
       [OLDEST, SECOND_OLDEST].map(async r => {
-        await ctx.store.insert('patient', convertToDbRecord(r));
+        await ctx.store.upsert('patient', convertToDbRecord(r));
         await unsafeSetUpdatedAt(ctx.store, {
           table: 'patients',
           id: r.data.id,
@@ -73,6 +74,13 @@ describe('Sync API', () => {
       expect(firstRecord).toHaveProperty('lastSynced', SECOND_OLDEST.lastSynced);
     });
 
+    it('should have count and requestedAt fields', async () => {
+      const result = await app.get(`/v1/sync/patient?since=${OLDEST.lastSynced - 1}`);
+      expect(result).toHaveSucceeded();
+      expect(result.body).toHaveProperty('requestedAt', expect.any(Number));
+      expect(result.body).toHaveProperty('count', expect.any(Number));
+    });
+
     describe('Pagination', () => {
       const TOTAL_RECORDS = 20;
       let records = null;
@@ -86,7 +94,7 @@ describe('Sync API', () => {
           .map((zero, i) => fakeSyncRecordPatient(`test-pagination-${i}_`));
 
         // import in series so there's a predictable order to test against
-        await Promise.all(records.map(r => ctx.store.insert('patient', convertToDbRecord(r))));
+        await Promise.all(records.map(r => ctx.store.upsert('patient', convertToDbRecord(r))));
       });
 
       it('should only return $limit records', async () => {
@@ -142,6 +150,67 @@ describe('Sync API', () => {
         expect(thirdResult.body).toHaveProperty('count', TOTAL_RECORDS);
       });
     });
+
+    it('should return nested encounter relationships', async () => {
+      // arrange
+      const patientId = uuidv4();
+      const encounter = await buildNestedEncounter({ wrapper: ctx.store }, patientId)();
+      await ctx.store.upsert(`patient/${patientId}/encounter`, encounter);
+
+      // act
+      const result = await app.get(`/v1/sync/patient%2F${patientId}%2Fencounter?since=0`);
+
+      // assert
+      expect(result.body).toMatchObject({
+        records: [
+          {
+            lastSynced: expect.any(Number),
+            data: {
+              id: encounter.id,
+              administeredVaccines: [
+                {
+                  lastSynced: expect.any(Number),
+                  data: {
+                    id: encounter.administeredVaccines[0].id,
+                    encounterId: encounter.id,
+                  },
+                },
+              ],
+              surveyResponses: [
+                {
+                  lastSynced: expect.any(Number),
+                  data: {
+                    id: encounter.surveyResponses[0].id,
+                    encounterId: encounter.id,
+                    answers: [
+                      {
+                        lastSynced: expect.any(Number),
+                        data: {
+                          id: encounter.surveyResponses[0].answers[0].id,
+                          responseId: encounter.surveyResponses[0].id,
+                        },
+                      },
+                    ],
+                  },
+                },
+              ],
+            },
+          },
+        ],
+      });
+      [
+        [],
+        ['data', 'administeredVaccines', 0],
+        ['data', 'surveyResults', 0],
+        ['data', 'surveyResults', 0, 'answers', 0],
+        ['data', 'surveyResults', 0, 'data', 'answers', 0],
+      ].forEach(path => {
+        ['updatedAt', 'createdAt', 'deletedAt'].forEach(key => {
+          expect(result).not.toHaveProperty([...path, key]);
+          expect(result).not.toHaveProperty([...path, 'data', key]);
+        });
+      });
+    });
   });
 
   describe('Writes', () => {
@@ -189,6 +258,43 @@ describe('Sync API', () => {
       const { createdAt, updatedAt, deletedAt, ...data } = foundRecord;
       expect(data).toEqual(record.data);
     });
+
+    it('should upsert nested encounter relationships', async () => {
+      // arrange
+      const patientId = uuidv4();
+      const encounterToInsert = await buildNestedEncounter({ wrapper: ctx.store }, patientId)();
+      await ctx.store.upsert(`patient/${patientId}/encounter`, encounterToInsert);
+
+      // act
+      const getResult = await app.get(`/v1/sync/patient%2F${patientId}%2Fencounter?since=0`);
+      const syncEncounter = getResult.body.records.find(
+        ({ data }) => data.id === encounterToInsert.id,
+      );
+      syncEncounter.data.administeredVaccines[0].data.batch = 'test batch';
+      syncEncounter.data.surveyResponses[0].data.result = 3.141592;
+      syncEncounter.data.surveyResponses[0].data.answers[0].data.body = 'test body';
+
+      const result = await app
+        .post(`/v1/sync/patient%2F${patientId}%2Fencounter?since=0`)
+        .send(syncEncounter);
+
+      // assert
+      expect(result.body).toHaveProperty('count', 1);
+      const [encounterAfterPost] = await ctx.store.findSince(`patient/${patientId}/encounter`, 0);
+      expect(encounterAfterPost).toHaveProperty(['administeredVaccines', 0, 'batch'], 'test batch');
+      expect(encounterAfterPost).toHaveProperty(['surveyResponses', 0, 'result'], 3.141592);
+      expect(encounterAfterPost).toHaveProperty(
+        ['surveyResponses', 0, 'answers', 0, 'body'],
+        'test body',
+      );
+    });
+
+    it('should have count and requestedAt fields', async () => {
+      const result = await app.post('/v1/sync/patient').send(fakeSyncRecordPatient());
+      expect(result).toHaveSucceeded();
+      expect(result.body).toHaveProperty('requestedAt', expect.any(Number));
+      expect(result.body).toHaveProperty('count', expect.any(Number));
+    });
   });
 
   describe('Deletes', () => {
@@ -199,10 +305,11 @@ describe('Sync API', () => {
     describe('on success', () => {
       let patient;
       let record;
+      let result;
 
       beforeEach(async () => {
         patient = fakeSyncRecordPatient();
-        await ctx.store.insert('patient', convertToDbRecord(patient));
+        await ctx.store.upsert('patient', convertToDbRecord(patient));
         await unsafeSetUpdatedAt(ctx.store, {
           table: 'patients',
           id: patient.data.id,
@@ -210,7 +317,7 @@ describe('Sync API', () => {
         });
 
         // find record
-        const result = await app.delete(`/v1/sync/patient/${patient.data.id}`);
+        result = await app.delete(`/v1/sync/patient/${patient.data.id}`);
         expect(result).toHaveSucceeded();
         expect(result.body).toHaveProperty('count', 1);
         const getResult = await app.get('/v1/sync/patient?since=0', 0);
@@ -230,14 +337,20 @@ describe('Sync API', () => {
       });
 
       it('should return tombstones for deleted records', async () => {
-        const result = await app.get('/v1/sync/patient?since=0');
-        expect(result).toHaveSucceeded();
-        expect(result.body).toHaveProperty('count', 1);
-        expect(result.body.records[0]).toHaveProperty('data.id', patient.data.id);
+        const getResult = await app.get('/v1/sync/patient?since=0');
+        expect(getResult).toHaveSucceeded();
+        expect(getResult.body).toHaveProperty('count', 1);
+        expect(getResult.body.records[0]).toHaveProperty('data.id', patient.data.id);
       });
 
       it('should update the lastSynced timestamp', async () => {
         expect(record.lastSynced.valueOf()).toBeGreaterThan(new Date(1971, 0, 1).valueOf());
+      });
+
+      it('should have count and requestedAt fields', async () => {
+        expect(result).toHaveSucceeded();
+        expect(result.body).toHaveProperty('requestedAt', expect.any(Number));
+        expect(result.body).toHaveProperty('count', expect.any(Number));
       });
     });
 

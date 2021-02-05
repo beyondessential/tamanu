@@ -1,12 +1,40 @@
 import { Sequelize } from 'sequelize';
-import { ENCOUNTER_TYPES, NOTE_TYPES } from 'shared/constants';
+import { ENCOUNTER_TYPES, ENCOUNTER_TYPE_VALUES, NOTE_TYPES } from 'shared/constants';
 import { InvalidOperationError } from 'shared/errors';
 import { Model } from './Model';
 
-const ENCOUNTER_TYPE_VALUES = Object.values(ENCOUNTER_TYPES);
-
 export class Encounter extends Model {
-  static init({ primaryKey, ...options }) {
+  static init({ primaryKey, hackToSkipEncounterValidation, ...options }) {
+    let validate = {};
+    if (!hackToSkipEncounterValidation) {
+      validate = {
+        mustHaveValidEncounterType() {
+          if (!this.deletedAt && !ENCOUNTER_TYPE_VALUES.includes(this.encounterType)) {
+            throw new InvalidOperationError('A encounter must have a valid encounter type.');
+          }
+        },
+        mustHavePatient() {
+          if (!this.deletedAt && !this.patientId) {
+            throw new InvalidOperationError('A encounter must have a patient.');
+          }
+        },
+        mustHaveDepartment() {
+          if (!this.deletedAt && !this.departmentId) {
+            throw new InvalidOperationError('A encounter must have a department.');
+          }
+        },
+        mustHaveLocation() {
+          if (!this.deletedAt && !this.locationId) {
+            throw new InvalidOperationError('A encounter must have a location.');
+          }
+        },
+        mustHaveExaminer() {
+          if (!this.deletedAt && !this.examinerId) {
+            throw new InvalidOperationError('A encounter must have an examiner.');
+          }
+        },
+      };
+    }
     super.init(
       {
         id: primaryKey,
@@ -22,33 +50,7 @@ export class Encounter extends Model {
       },
       {
         ...options,
-        validate: {
-          mustHaveValidEncounterType() {
-            if (!ENCOUNTER_TYPE_VALUES.includes(this.encounterType)) {
-              throw new InvalidOperationError('A encounter must have a valid encounter type.');
-            }
-          },
-          mustHavePatient() {
-            if (!this.patientId) {
-              throw new InvalidOperationError('A encounter must have a patient.');
-            }
-          },
-          mustHaveDepartment() {
-            if (!this.departmentId) {
-              throw new InvalidOperationError('A encounter must have a department.');
-            }
-          },
-          mustHaveLocation() {
-            if (!this.locationId) {
-              throw new InvalidOperationError('A encounter must have a location.');
-            }
-          },
-          mustHaveExaminer() {
-            if (!this.examinerId) {
-              throw new InvalidOperationError('A encounter must have an examiner.');
-            }
-          },
-        },
+        validate,
       },
     );
   }
@@ -79,7 +81,18 @@ export class Encounter extends Model {
     });
 
     this.hasMany(models.Vitals, { as: 'vitals' });
+
     this.hasMany(models.Note, { as: 'notes', foreignKey: 'recordId' });
+
+    this.hasMany(models.SurveyResponse, {
+      foreignKey: 'encounterId',
+      as: 'surveyResponses',
+    });
+
+    this.hasMany(models.AdministeredVaccine, {
+      foreignKey: 'encounterId',
+      as: 'administeredVaccines',
+    });
 
     // this.hasMany(models.Medication);
     // this.hasMany(models.LabRequest);

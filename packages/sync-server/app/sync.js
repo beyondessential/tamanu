@@ -10,6 +10,9 @@ export const syncRoutes = express.Router();
 syncRoutes.get(
   '/:channel',
   asyncHandler(async (req, res) => {
+    // grab the requested time before running any queries
+    const requestedAt = Date.now();
+
     const { store, query, params } = req;
     const { channel } = params;
     const { since, limit = '100', page = '0' } = query;
@@ -17,9 +20,6 @@ syncRoutes.get(
     if (!since) {
       throw new InvalidParameterError('Sync GET request must include a "since" parameter');
     }
-
-    // grab the requested time before running any queries
-    const requestedAt = new Date();
 
     const count = await store.countSince(channel, since);
 
@@ -43,24 +43,27 @@ syncRoutes.get(
 syncRoutes.post(
   '/:channel',
   asyncHandler(async (req, res) => {
+    // grab the requested time before running any queries
+    const requestedAt = Date.now();
+
     const { store, params, body } = req;
     const { channel } = params;
 
-    const insert = record => {
-      const lastSynced = new Date().valueOf();
+    const upsert = record => {
+      const lastSynced = requestedAt;
       const dbRecord = convertToDbRecord(record);
-      return store.insert(channel, { lastSynced, ...dbRecord });
+      return store.upsert(channel, { lastSynced, ...dbRecord });
     };
 
     if (Array.isArray(body)) {
-      const inserts = await Promise.all(body.map(insert));
-      const count = inserts.filter(x => x).length;
+      const upserts = await Promise.all(body.map(upsert));
+      const count = upserts.filter(x => x).length;
       log.info(`POST to ${channel} : ${count} records`);
       res.send({ count });
     } else {
       log.info(`POST to ${channel} : 1 record`);
-      const count = await insert(body);
-      res.send({ count });
+      const count = await upsert(body);
+      res.send({ count, requestedAt });
     }
   }),
 );
@@ -68,6 +71,9 @@ syncRoutes.post(
 syncRoutes.delete(
   '/:channel/:recordId',
   asyncHandler(async (req, res) => {
+    // grab the requested time before running any queries
+    const requestedAt = Date.now();
+
     const { store, params } = req;
     const { channel, recordId } = params;
 
@@ -81,6 +87,6 @@ syncRoutes.delete(
     }
 
     log.info(`DELETE from channel ${channel} record ${recordId}`);
-    res.send({ count });
+    res.send({ count, requestedAt });
   }),
 );

@@ -26,7 +26,9 @@ const DumbErrorView = React.memo(({ error, state }) => {
     <ContentPane>
       <h2>Oops!</h2>
       <p>The application encountered an error when trying to display this information.</p>
-      <p>The details of the error are:</p>
+      <p>The message of the error is:</p>
+      <DebugInfo onClick={logError}>{error.message}</DebugInfo>
+      <p>The stack of the error are:</p>
       <DebugInfo onClick={logError}>{error.stack}</DebugInfo>
       <p>The contents of the application state are:</p>
       <DebugInfo onClick={logState}>{JSON.stringify(state, null, 2)}</DebugInfo>

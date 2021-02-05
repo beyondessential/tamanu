@@ -2,7 +2,7 @@ import config from 'config';
 import pg from 'pg';
 import { Sequelize } from 'sequelize';
 
-import { SqlWrapper } from './sqlWrapper';
+import { SqlWrapper } from './wrapper/sqlWrapper';
 import { log } from '../logging';
 
 let existingConnection = null;

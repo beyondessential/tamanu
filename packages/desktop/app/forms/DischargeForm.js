@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { useState, useEffect } from 'react';
 import PropTypes from 'prop-types';
 import * as yup from 'yup';
 import styled from 'styled-components';
@@ -18,6 +18,7 @@ import { TextInput } from '../components/Field/TextField';
 
 import { ConfirmCancelRow } from '../components/ButtonRow';
 import { DiagnosisList } from '../components/DiagnosisList';
+import { connectApi } from '../api';
 
 const ReadonlyFields = styled.div`
   display: grid;
@@ -60,7 +61,7 @@ const MedicineRow = ({ medication }) => (
   </React.Fragment>
 );
 
-const EncounterOverview = ({ encounter }) => (
+const EncounterOverview = ({ encounter, medications, procedures, diagnoses }) => (
   <ReadonlyFields>
     <DateInput label="Admission date" value={encounter.startDate} disabled />
     <TextInput
@@ -71,16 +72,16 @@ const EncounterOverview = ({ encounter }) => (
     <div>
       <Label>Discharge medicines</Label>
       <ul>
-        {encounter.medications.length > 0
-          ? encounter.medications.map(m => <MedicineRow key={m} medication={m} />)
+        {medications.length > 0
+          ? medications.map(m => <MedicineRow key={m} medication={m} />)
           : 'N/a'}
       </ul>
     </div>
     <div>
       <Label>Procedures</Label>
       <ul>
-        {encounter.procedures.length > 0
-          ? encounter.procedures.map(({ cptCode }) => <ProcedureRow key={cptCode} cpt={cptCode} />)
+        {procedures.length > 0
+          ? procedures.map(({ cptCode }) => <ProcedureRow key={cptCode} cpt={cptCode} />)
           : 'N/a'}
       </ul>
     </div>
@@ -88,25 +89,47 @@ const EncounterOverview = ({ encounter }) => (
       <TextInput label="Reason for encounter" value={encounter.reasonForEncounter} disabled />
       <div>
         <Label>Diagnoses</Label>
-        <DiagnosisList diagnoses={encounter.diagnoses} />
+        <DiagnosisList diagnoses={diagnoses} />
       </div>
     </FullWidthFields>
   </ReadonlyFields>
 );
 
-export class DischargeForm extends React.PureComponent {
-  static propTypes = {
-    onSubmit: PropTypes.func.isRequired,
-    onCancel: PropTypes.func.isRequired,
-    practitionerSuggester: PropTypes.shape({}).isRequired,
-    encounter: PropTypes.shape({}).isRequired,
-  };
+const DumbDischargeForm = ({
+  practitionerSuggester,
+  onCancel,
+  onSubmit,
+  encounter,
+  onFetchDiagnoses,
+  onFetchMedications,
+  onFetchProcedures,
+}) => {
+  const [procedures, setProcedures] = useState([]);
+  const [medications, setMedications] = useState([]);
+  const [diagnoses, setDiagnoses] = useState([]);
+  useEffect(() => {
+    async function fetchEncounterData() {
+      const procedure = await onFetchProcedures();
+      setProcedures(procedure.data);
 
-  renderForm = ({ submitForm }) => {
-    const { practitionerSuggester, onCancel, encounter } = this.props;
+      const medication = await onFetchMedications();
+      setMedications(medication.data);
+
+      const diagnosis = await onFetchDiagnoses();
+      setDiagnoses(diagnosis.data);
+    }
+    fetchEncounterData();
+  }, [encounter]);
+
+  const renderForm = ({ submitForm }) => {
     return (
       <div>
-        <EncounterOverview encounter={encounter} />
+        <EncounterOverview
+          encounter={encounter}
+          medications={medications}
+          procedures={procedures}
+          diagnoses={diagnoses}
+        />
         <EditFields>
           <Field name="endDate" label="Discharge date" component={DateField} required />
           <Field
@@ -135,23 +158,26 @@ export class DischargeForm extends React.PureComponent {
     );
   };
 
-  render() {
-    const { onSubmit } = this.props;
-    return (
-      <div>
-        <Form
-          onSubmit={onSubmit}
-          render={this.renderForm}
-          initialValues={{
-            endDate: new Date(),
-          }}
-          validationSchema={yup.object().shape({
-            endDate: yup.date().required(),
-            dischargePhysician: foreignKey('Discharging physician is a required field'),
-            dischargeNotes: yup.string(),
-          })}
-        />
-      </div>
-    );
-  }
-}
+  return (
+    <div>
+      <Form
+        onSubmit={onSubmit}
+        render={renderForm}
+        initialValues={{
+          endDate: new Date(),
+        }}
+        validationSchema={yup.object().shape({
+          endDate: yup.date().required(),
+          dischargePhysician: foreignKey('Discharging physician is a required field'),
+          dischargeNotes: yup.string(),
+        })}
+      />
+    </div>
+  );
+};
+
+export const DischargeForm = connectApi((api, dispatch, { encounter }) => ({
+  onFetchDiagnoses: async () => api.get(`encounter/${encounter.id}/diagnoses`),
+  onFetchProcedures: async () => api.get(`encounter/${encounter.id}/procedures`),
+  onFetchMedications: async () => api.get(`encounter/${encounter.id}/medications`),
+}))(DumbDischargeForm);
