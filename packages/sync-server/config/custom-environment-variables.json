@@ -7,5 +7,8 @@
     "port": "CONFIG_SYNC_DB_PORT",
     "verbose": "CONFIG_SYNC_DB_VERBOSE",
     "sqlitePath": "CONFIG_SYNC_DB_SQLITEPATH"
+  },
+  "auth": {
+    "dummyUserEmail": "CONFIG_DUMMY_USER_EMAIL"
   }
 }
