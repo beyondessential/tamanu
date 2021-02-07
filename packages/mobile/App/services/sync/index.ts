@@ -11,12 +11,6 @@ type RunChannelSyncOptions = {
   overrideLastSynced?: number,
 }
 
-class NoSyncImporterError extends Error {
-  constructor(modelName: string) {
-    super(`No sync importer for model ${modelName}`);
-  }
-}
-
 const UPLOAD_LIMIT = 100;
 const DOWNLOAD_LIMIT = 100;
 
