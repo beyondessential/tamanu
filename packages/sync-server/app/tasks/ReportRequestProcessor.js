@@ -9,7 +9,7 @@ export class ReportRequestProcessor extends ScheduledTask {
   }
 
   async run() {
-    console.log('Report Request Processor task');
+    log.info('Report Request Processor task');
     let requests = await this.context.store.models.ReportRequest.findAll({
       where: {
         status: REPORT_REQUEST_STATUSES.RECEIVED,
@@ -18,10 +18,10 @@ export class ReportRequestProcessor extends ScheduledTask {
       limit: 10,
     });
     const markRequestsAsProcessed = requests.map(request => {
-      console.log('\n');
-      console.log('Processing request :', request.get('id'));
-      console.log('Generated report   :', request.get('reportType'));
-      console.log('Sending report to  :', request.get('recipients'));
+      log.info('\n');
+      log.info(`Processing request : ${request.get('id')}`);
+      log.info(`Generated report   : ${request.get('reportType')}`);
+      log.info(`Sending report to  : ${request.get('recipients')}`);
 
       return request.update({
         status: REPORT_REQUEST_STATUSES.PROCESSED,
