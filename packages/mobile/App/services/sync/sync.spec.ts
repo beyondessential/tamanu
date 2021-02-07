@@ -4,8 +4,6 @@ import { Database } from '~/infra/db';
 import { SyncManager } from '.';
 import { WebSyncSource } from './source';
 
-import { BaseModel } from '~/models/BaseModel';
-
 import {
   fakeAdministeredVaccine,
   fakeEncounter,
