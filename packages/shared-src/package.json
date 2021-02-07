@@ -29,6 +29,7 @@
     "json-prune": "^1.1.0",
     "jsonwebtoken": "^8.4.0",
     "lodash": "^4.17.11",
+    "node-schedule": "^2.0.0",
     "shortid": "^2.2.14"
   }
 }
