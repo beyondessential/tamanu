@@ -17,6 +17,7 @@ export type FindMarkedForUploadOptions = {
   after?: { id: string },
 };
 
+// TODO: get rid of this once it's moved to convert.ts and I've made sure it's not used internally
 const stripId = (key) => (key === 'displayId') ? key : key.replace(/Id$/, '');
 
 function stripIdSuffixes(data) {
@@ -129,7 +130,7 @@ export abstract class BaseModel extends BaseEntity {
         id: 'ASC',
       },
       take: limit,
-      relations: this.includedUploadRelations,
+      relations: this.includedSyncRelations,
     });
   }
 
@@ -140,7 +141,7 @@ export abstract class BaseModel extends BaseEntity {
 
   // Exclude these properties from uploaded model
   // May be columns or relationIds
-  static excludedUploadColumns: string[] = [
+  static excludedSyncColumns: string[] = [
     'createdAt',
     'updatedAt',
     'markedForUpload',
@@ -149,5 +150,5 @@ export abstract class BaseModel extends BaseEntity {
 
   // Include these relations on uploaded model
   // Does not currently handle lazy or embedded relations
-  static includedUploadRelations: string[] = [];
+  static includedSyncRelations: string[] = [];
 }

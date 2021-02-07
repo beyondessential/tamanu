@@ -133,7 +133,7 @@ export class Encounter extends BaseModel implements IEncounter {
     return records as Encounter[];
   }
 
-  static includedUploadRelations = [
+  static includedSyncRelations = [
     'administeredVaccines',
     'surveyResponses',
     'surveyResponses.answers',

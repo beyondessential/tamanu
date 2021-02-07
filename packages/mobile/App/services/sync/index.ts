@@ -5,7 +5,7 @@ import { readConfig, writeConfig } from '~/services/config';
 import { Patient } from '~/models/Patient';
 import { BaseModel } from '~/models/BaseModel';
 import { DownloadRecordsResponse, UploadRecordsResponse, SyncRecord, SyncSource } from './source';
-import { buildExportSyncRecord } from './convert';
+import { buildToSyncRecord, createImportPlan, executeImportPlan } from './convert';
 
 type RunChannelSyncOptions = {
   overrideLastSynced?: number,
@@ -44,25 +44,6 @@ export class SyncManager {
 
       console.log(`[sync] ${String(action)} ${args[0] || ''}`);
     });
-  }
-
-  async importRecord(model: typeof BaseModel, syncRecord: SyncRecord): Promise<void> {
-    // write one single downloaded record to the database
-    const { isDeleted, data } = syncRecord;
-
-    if (!model) {
-      throw new NoSyncImporterError(model.name);
-    }
-    if (isDeleted) {
-      await model.remove(data);
-    } else {
-      await model.createOrUpdate({
-        ...data,
-        markedForUpload: false,
-      });
-    }
-
-    this.emitter.emit('syncedRecord', model.name);
   }
 
   async runScheduledSync(): Promise<void> {
@@ -168,10 +149,12 @@ export class SyncManager {
     // So we keep these records in a queue and retry them at the end of the download.
     let pendingRecords = [];
 
+    const importPlan = createImportPlan(model);
     const importRecords = async (records: SyncRecord[]): Promise<void> => {
       await Promise.all(records.map(async r => {
         try {
-          await this.importRecord(model, r);
+          await executeImportPlan(importPlan, r);
+          this.emitter.emit('syncedRecord', model.name);
         } catch (e) {
           if (e.message.match(/FOREIGN KEY constraint failed/)) {
             // this error is to be expected! just push it
@@ -264,11 +247,11 @@ export class SyncManager {
       });
     }
 
-    const exportSyncRecord = buildExportSyncRecord(model);
+    const toSyncRecord = buildToSyncRecord(model);
     const uploadRecords = async (page: number, records: BaseModel[]): Promise<UploadRecordsResponse> => {
       // TODO: detect and retry failures (need to pass back from server)
       this.emitter.emit('uploadingPage', `${channel}-${page}`);
-      const syncRecords = records.map(exportSyncRecord);
+      const syncRecords = records.map(r => toSyncRecord(r));
       return this.syncSource.uploadRecords(channel, syncRecords);
     }
 
