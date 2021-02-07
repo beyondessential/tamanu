@@ -214,7 +214,7 @@ const executeImportPlanInner = async (
   parentId?: string,
 ) => {
   if (syncRecord.isDeleted) {
-    await model.delete(syncRecord.data);
+    await model.delete({ id: syncRecord.data.id });
   } else {
     const fields = {
       ...fromSyncRecord(syncRecord),
