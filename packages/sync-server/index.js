@@ -5,8 +5,21 @@ import { initDatabase } from './app/database';
 
 const port = config.port;
 
-async function performInitialSetup({ db }) {
-  // TODO: initial population
+async function performInitialSetup({ store }) {
+  const userCount = await store.models.User.count();
+  if(userCount === 0) {
+    // create initial admin user
+    const { dummyUserEmail } = config.auth;
+    if(dummyUserEmail) {
+      log.info(`Creating initial user account for ${dummyUserEmail}...`);
+      await store.models.User.create({
+        email: dummyUserEmail,
+        displayName: 'Initial Admin',
+        role: 'administrator',
+        password: '',
+      });
+    }
+  }
 }
 
 export async function run() {
