@@ -7,19 +7,18 @@ const port = config.port;
 
 async function performInitialSetup({ store }) {
   const userCount = await store.models.User.count();
-  if(userCount === 0) {
-    // create initial admin user
-    const { dummyUserEmail } = config.auth;
-    if(dummyUserEmail) {
-      log.info(`Creating initial user account for ${dummyUserEmail}...`);
-      await store.models.User.create({
-        email: dummyUserEmail,
-        displayName: 'Initial Admin',
-        role: 'administrator',
-        password: '',
-      });
-    }
+  if (userCount > 0) {
+    return;
   }
+
+  // create initial admin user
+  const { initialUser } = config.auth;
+  if (!initialUser.email) {
+    return;
+  }
+
+  log.info(`Creating initial user account for ${initialUser.email}...`);
+  await store.models.User.create(initialUser);
 }
 
 export async function run() {

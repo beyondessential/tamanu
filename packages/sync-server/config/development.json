@@ -1,6 +1,6 @@
 {
   "auth": {
-    "dummyUserEmail": "dummy@beyondessential.com.au",
+    "allowDummyToken": true,
     "reportNoUserError": true
   }
 }

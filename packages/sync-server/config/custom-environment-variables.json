@@ -9,6 +9,8 @@
     "sqlitePath": "CONFIG_SYNC_DB_SQLITEPATH"
   },
   "auth": {
-    "dummyUserEmail": "CONFIG_DUMMY_USER_EMAIL"
+    "initialUser": {
+      "email": "CONFIG_DUMMY_USER_EMAIL"
+    }
   }
 }

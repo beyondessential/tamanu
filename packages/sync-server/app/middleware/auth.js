@@ -30,18 +30,18 @@ authMiddleware.post(
     const { email, password } = body;
 
     if(!email && !password) {
-      if(!config.auth.dummyUserEmail) {
+      if(!config.auth.allowDummyToken) {
         throw new BadAuthenticationError('Missing credentials');
       }
 
-      // send a token for the dummy user
-      const dummy = await store.findUser(config.auth.dummyUserEmail);
-      if(!dummy) {
+      // send a token for the initial user
+      const initialUser = await store.findUser(config.auth.initialUser.email);
+      if(!initialUser) {
         throw new BadAuthenticationError('No such user');
       }
       res.send({
         token: FAKE_TOKEN,
-        user: convertFromDbRecord(stripUser(dummy)).data,
+        user: convertFromDbRecord(stripUser(initialUser)).data,
       });
       return;
     }
@@ -83,8 +83,9 @@ authMiddleware.use(
       throw new BadAuthenticationError('Only Bearer token is supported');
     }
 
-    if (config.auth.dummyUserEmail && token === FAKE_TOKEN) {
-      req.user = await store.findUser(config.auth.dummyUserEmail);
+    if (config.auth.allowDummyToken && token === FAKE_TOKEN) {
+      req.user = await store.findUser(config.auth.initialUser.email);
+      console.log(req.user);
       next();
       return;
     }
