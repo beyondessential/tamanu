@@ -29,8 +29,7 @@ export class SurveyResponseAnswer extends BaseModel
   dataElementId: string;
 
   @BeforeUpdate()
-  markResponseForUpload() {
-    this.response.markedForUpload = true;
-    this.response.save();
+  async markResponseForUpload() {
+    await this.markParentForUpload(SurveyResponse, this.response);
   }
 }

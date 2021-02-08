@@ -76,6 +76,18 @@ export abstract class BaseModel extends BaseEntity {
     this.markedForUpload = true;
   }
 
+  async markParentForUpload(parentModel: typeof BaseModel, value: string | BaseModel) {
+    const fieldType = typeof value;
+    let entity: BaseModel;
+    if (fieldType === 'object') {
+      entity = value as BaseModel;
+    } else if (fieldType === 'string') {
+      entity = await parentModel.findOne({ where: { id: value } });
+    }
+    entity.markedForUpload = true;
+    entity.save();
+  }
+
   static async markUploaded(ids: string | string[], uploadedAt: Date): Promise<void> {
     await this.getRepository().update(ids, { uploadedAt, markedForUpload: false });
   }
