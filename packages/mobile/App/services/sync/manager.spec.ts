@@ -1,7 +1,7 @@
 import { v4 as uuidv4 } from 'uuid';
 
 import { Database } from '~/infra/db';
-import { SyncManager } from '.';
+import { SyncManager } from './manager';
 import { WebSyncSource } from './source';
 
 import {
