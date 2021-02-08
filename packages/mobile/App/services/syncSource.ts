@@ -5,13 +5,13 @@ import {
   generalErrorMessage,
 } from '../ui/contexts/authContext/auth-error';
 
-export type DownloadRecordsResponse = null | {
+export type DownloadRecordsResponse = {
   count: number;
   requestedAt: number;
   records: SyncRecord[];
 }
 
-export type UploadRecordsResponse = null | {
+export type UploadRecordsResponse = {
   count: number;
   requestedAt: number;
 }
@@ -39,12 +39,12 @@ export interface SyncSource {
     since: number,
     page: number,
     limit: number,
-  ): Promise<DownloadRecordsResponse>;
+  ): Promise<DownloadRecordsResponse | null>;
 
   uploadRecords(
     channel: string,
     records: object[],
-  ): Promise<UploadRecordsResponse>;
+  ): Promise<UploadRecordsResponse | null>;
 }
 
 export class WebSyncSource implements SyncSource {
@@ -59,7 +59,7 @@ export class WebSyncSource implements SyncSource {
     since: number,
     page: number,
     limit: number,
-  ): Promise<DownloadRecordsResponse> {
+  ): Promise<DownloadRecordsResponse | null> {
     // TODO: error handling (incl timeout)
     const url = `${this.host}/sync/${encodeURIComponent(channel)}?since=${since}&page=${page}&limit=${limit}`;
 
@@ -78,7 +78,7 @@ export class WebSyncSource implements SyncSource {
     }
   }
 
-  async uploadRecords(channel: string, records: SyncRecord[]): Promise<UploadRecordsResponse> {
+  async uploadRecords(channel: string, records: SyncRecord[]): Promise<UploadRecordsResponse | null> {
     const url = `${this.host}/sync/${encodeURIComponent(channel)}`;
     try {
       const rawResponse = await fetch(url, {

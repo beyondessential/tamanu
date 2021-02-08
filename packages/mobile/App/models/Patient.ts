@@ -32,7 +32,6 @@ export class Patient extends BaseModel implements IPatient {
   //----------------------------------------------------------
   // sync info
 
-  // TODO: can sync-related fields + functions be removed, moved into BaseModel, and/or unified?
   @Column({ default: 0 })
   lastSynced: Date;
 

@@ -85,7 +85,7 @@ describe('SyncManager', () => {
           ...record.data,
           createdAt: expect.anything(),
           uploadedAt: null,
-          markedForUpload: true,  // TODO: should we lock the table while syncing to prevent this from happening?
+          markedForUpload: true,
         },
       ]);
 
