@@ -1,4 +1,4 @@
-import { Entity, Column, ManyToOne, OneToMany, BeforeUpdate, RelationId } from 'typeorm/browser';
+import { Entity, Column, ManyToOne, OneToMany, BeforeUpdate, BeforeInsert, RelationId } from 'typeorm/browser';
 
 import { BaseModel } from './BaseModel';
 import { Survey } from './Survey';
@@ -43,9 +43,10 @@ export class SurveyResponse extends BaseModel implements ISurveyResponse {
   @OneToMany(() => SurveyResponseAnswer, answer => answer.response, { cascade: ['insert'] })
   answers: SurveyResponseAnswer[];
 
+  @BeforeInsert()
   @BeforeUpdate()
   async markEncounterForUpload() {
-    await this.markParentForUpload(Encounter, this.encounter);
+    await this.markParentForUpload(Encounter, 'encounter');
   }
 
   static async getFullResponse(surveyId: string) {
