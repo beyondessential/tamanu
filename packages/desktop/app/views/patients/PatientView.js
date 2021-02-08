@@ -111,35 +111,32 @@ const HistoryPane = connect(
     patientId: state.patient.id,
   }),
   dispatch => ({
-    onViewEncounter: () => dispatch(push(`/patients/encounter/`)),
     onOpenCheckin: () => dispatch(push('/patients/view/checkin')),
     onOpenTriage: () => dispatch(push('/patients/view/triage')),
   }),
 )(
-  React.memo(
-    ({ patientId, currentEncounter, onViewEncounter, onOpenCheckin, onOpenTriage, disabled }) => {
-      const { encounter, setEncounterId } = useEncounter();
-      const viewEncounter = useCallback(
-        item => {
-          setEncounterId(item.id);
-          onViewEncounter();
-        },
-        [encounter],
-      );
-      return (
-        <div>
-          <PatientEncounterSummary
-            encounter={currentEncounter}
-            viewEncounter={viewEncounter}
-            openCheckin={onOpenCheckin}
-            openTriage={onOpenTriage}
-            disabled={disabled}
-          />
-          <PatientHistory patientId={patientId} onItemClick={viewEncounter} />
-        </div>
-      );
-    },
-  ),
+  React.memo(({ patientId, currentEncounter, onOpenCheckin, onOpenTriage, disabled }) => {
+    const { encounter, setEncounterId, viewEncounter } = useEncounter();
+    const onViewEncounter = useCallback(
+      item => {
+        setEncounterId(item.id);
+        viewEncounter();
+      },
+      [encounter],
+    );
+    return (
+      <div>
+        <PatientEncounterSummary
+          encounter={currentEncounter}
+          viewEncounter={onViewEncounter}
+          openCheckin={onOpenCheckin}
+          openTriage={onOpenTriage}
+          disabled={disabled}
+        />
+        <PatientHistory patientId={patientId} onItemClick={onViewEncounter} />
+      </div>
+    );
+  }),
 );
 
 const ConnectedPatientDetailsForm = connectApi((api, dispatch, { patient }) => ({

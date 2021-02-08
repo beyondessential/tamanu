@@ -1,5 +1,4 @@
 import React, { useCallback } from 'react';
-import { push } from 'connected-react-router';
 import { useEncounter } from '../contexts/Encounter';
 
 import { Form, Field, AutocompleteField } from './Field';
@@ -10,23 +9,21 @@ import { Suggester } from '../utils/suggester';
 
 import { connectApi } from '../api/connectApi';
 
-export const MoveModal = connectApi((api, dispatch, { encounter }) => ({
+export const MoveModal = connectApi(api => ({
   locationSuggester: new Suggester(api, 'location'),
-  onSubmit: async data => {
-    await api.put(`encounter/${encounter.id}`, data);
-    dispatch(push(`/patients/encounter/`));
-  },
-}))(({ open, onClose, onSubmit, ...rest }) => {
-  const { fetchData } = useEncounter();
-  const movePatient = useCallback(data => {
-    onSubmit(data);
-    fetchData();
-    onClose();
-  }, []);
+}))(({ open, onClose, encounter, ...rest }) => {
+  const { writeAndViewEncounter } = useEncounter();
+  const movePatient = useCallback(
+    async data => {
+      await writeAndViewEncounter(encounter.id, data);
+      onClose();
+    },
+    [encounter],
+  );
 
   return (
     <Modal title="Move patient" open={open} onClose={onClose}>
-      <MoveForm onClose={onClose} onSubmit={movePatient} {...rest} />
+      <MoveForm onClose={onClose} onSubmit={movePatient} encounter={encounter} {...rest} />
     </Modal>
   );
 });

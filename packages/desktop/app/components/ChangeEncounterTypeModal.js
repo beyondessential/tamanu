@@ -4,18 +4,18 @@ import { useEncounter } from '../contexts/Encounter';
 
 import { Modal } from './Modal';
 
-import { connectApi } from '../api/connectApi';
-
 import { ChangeEncounterTypeForm } from '../forms/ChangeEncounterTypeForm';
 
-const DumbChangeEncounterTypeModal = React.memo(
+export const ChangeEncounterTypeModal = React.memo(
   ({ open, encounter, onClose, onSubmit, ...rest }) => {
-    const { fetchData } = useEncounter();
-    const changeEncounterType = useCallback(data => {
-      onSubmit(data);
-      fetchData();
-      onClose();
-    }, []);
+    const { writeAndViewEncounter } = useEncounter();
+    const changeEncounterType = useCallback(
+      async data => {
+        await writeAndViewEncounter(encounter.id, data);
+        onClose();
+      },
+      [encounter],
+    );
 
     return (
       <Modal title="Change encounter type" open={open} onClose={onClose}>
@@ -29,10 +29,3 @@ const DumbChangeEncounterTypeModal = React.memo(
     );
   },
 );
-
-export const ChangeEncounterTypeModal = connectApi((api, dispatch, { encounter }) => ({
-  onSubmit: async data => {
-    await api.put(`encounter/${encounter.id}`, data);
-    dispatch(push(`/patients/encounter/`));
-  },
-}))(DumbChangeEncounterTypeModal);

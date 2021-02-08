@@ -18,11 +18,13 @@ const DumbProcedureModal = React.memo(
     practitionerSuggester,
     procedureSuggester,
     anaestheticSuggester,
+    encounterId,
   }) => {
-    const { fetchData } = useEncounter();
-    const saveProcedure = useCallback(data => {
-      onSaveProcedure(data);
-      fetchData();
+    const { fetchAndSetEncounterData } = useEncounter();
+    const saveProcedure = useCallback(async data => {
+      await onSaveProcedure(data);
+      await fetchAndSetEncounterData(encounterId);
+      onClose();
     }, []);
 
     return (
@@ -51,7 +53,6 @@ export const ProcedureModal = connectApi((api, dispatch, { encounterId }) => ({
         encounterId,
       });
     }
-    dispatch(push(`/patients/encounter/`));
   },
   locationSuggester: new Suggester(api, 'location'),
   practitionerSuggester: new Suggester(api, 'practitioner'),

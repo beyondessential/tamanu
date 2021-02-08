@@ -10,11 +10,12 @@ import { Suggester } from '../utils/suggester';
 import { MedicationForm } from '../forms/MedicationForm';
 
 const DumbMedicationModal = React.memo(
-  ({ open, onClose, onSubmit, practitionerSuggester, drugSuggester }) => {
-    const { fetchData } = useEncounter();
-    const submitPrescription = useCallback(data => {
-      onSubmit(data);
-      fetchData();
+  ({ open, onClose, onSubmit, practitionerSuggester, drugSuggester, encounterId }) => {
+    const { fetchAndSetEncounterData } = useEncounter();
+    const submitPrescription = useCallback(async data => {
+      await onSubmit(data);
+      await fetchAndSetEncounterData(encounterId);
+      onClose();
     }, []);
 
     return (
@@ -31,14 +32,12 @@ const DumbMedicationModal = React.memo(
   },
 );
 
-export const MedicationModal = connectApi((api, dispatch, { encounterId, onClose }) => ({
+export const MedicationModal = connectApi((api, dispatch, { encounterId }) => ({
   onSubmit: async data => {
     await api.post('medication', {
       encounterId,
       ...data,
     });
-    dispatch(push(`/patients/encounter/`));
-    onClose();
   },
   practitionerSuggester: new Suggester(api, 'practitioner'),
   drugSuggester: new Suggester(api, 'drug'),

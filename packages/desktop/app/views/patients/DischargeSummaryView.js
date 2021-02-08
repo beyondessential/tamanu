@@ -222,8 +222,7 @@ const SummaryPage = React.memo(({ patient, encounter }) => {
 });
 
 const DumbDischargeSummaryView = React.memo(({ patient }) => {
-  const { isLoading, encounter } = useEncounter();
-  if (isLoading) return <LoadingIndicator />;
+  const { encounter } = useEncounter();
 
   return (
     <TopBar title="Patient Discharge Summary">

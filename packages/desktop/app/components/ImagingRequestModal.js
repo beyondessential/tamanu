@@ -12,10 +12,10 @@ import { ImagingRequestForm } from '../forms/ImagingRequestForm';
 
 const DumbImagingRequestModal = React.memo(
   ({ open, encounter, practitionerSuggester, imagingTypeSuggester, onClose, onSubmit }) => {
-    const { fetchData } = useEncounter();
-    const requestImaging = useCallback(data => {
-      onSubmit(data);
-      fetchData();
+    const { fetchAndSetEncounterData } = useEncounter();
+    const requestImaging = useCallback(async data => {
+      await onSubmit(data);
+      await fetchAndSetEncounterData(encounter.id);
       onClose();
     }, []);
 
@@ -35,11 +35,7 @@ const DumbImagingRequestModal = React.memo(
 );
 
 export const ImagingRequestModal = connectApi((api, dispatch, { encounter }) => ({
-  onSubmit: async data => {
-    const encounterId = encounter.id;
-    await api.post(`imagingRequest`, { ...data, encounterId });
-    dispatch(push(`/patients/encounter/`));
-  },
+  onSubmit: async data => api.post(`imagingRequest`, { ...data, encounterId: encounter.id }),
   practitionerSuggester: new Suggester(api, 'practitioner'),
   imagingTypeSuggester: new Suggester(api, 'imagingType'),
 }))(DumbImagingRequestModal);

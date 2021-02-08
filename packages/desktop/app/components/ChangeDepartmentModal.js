@@ -1,5 +1,4 @@
 import React, { useCallback } from 'react';
-import { push } from 'connected-react-router';
 
 import { Modal } from './Modal';
 
@@ -12,11 +11,9 @@ import { useEncounter } from '../contexts/Encounter';
 const DumbChangeDepartmentModal = React.memo(({ open, onClose, handleSubmit, ...rest }) => {
   const encounterCtx = useEncounter();
   const onSubmit = useCallback(
-    departmentId => {
-      const { encounter, fetchData } = encounterCtx;
-      handleSubmit(departmentId, encounter.id);
-      onClose();
-      fetchData();
+    data => {
+      const { encounter, writeAndViewEncounter } = encounterCtx;
+      writeAndViewEncounter(encounter.id, data);
     },
     [encounterCtx.encounter],
   );
@@ -28,10 +25,6 @@ const DumbChangeDepartmentModal = React.memo(({ open, onClose, handleSubmit, ...
   );
 });
 
-export const ChangeDepartmentModal = connectApi((api, dispatch) => ({
+export const ChangeDepartmentModal = connectApi(api => ({
   departmentSuggester: new Suggester(api, 'department'),
-  handleSubmit: async ({ departmentId }, encounterId) => {
-    await api.put(`encounter/${encounterId}`, { departmentId });
-    dispatch(push(`/patients/encounter/`));
-  },
 }))(DumbChangeDepartmentModal);

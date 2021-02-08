@@ -43,15 +43,10 @@ export const EncounterMedicationTable = React.memo(({ encounterId }) => (
   />
 ));
 
-export const DataFetchingMedicationTable = connect(null, dispatch => ({
-  viewEncounter: () => {
-    dispatch(push(`/patients/encounter/`));
-  },
-}))(({ viewEncounter }) => {
+export const DataFetchingMedicationTable = () => {
   const { setEncounterId } = useEncounter();
   const onMedicationSelect = useCallback(medication => {
     setEncounterId(medication.encounter.id);
-    viewEncounter();
   }, []);
 
   return (
@@ -62,4 +57,4 @@ export const DataFetchingMedicationTable = connect(null, dispatch => ({
       onRowClick={onMedicationSelect}
     />
   );
-});
+};

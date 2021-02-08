@@ -64,12 +64,19 @@ const VitalsPane = React.memo(({ encounter, readonly }) => {
   );
 });
 
-const NotesPane = React.memo(({ encounter, readonly }) => {
+const NotesPane = React.memo(({ encounter, readonly, onTabSelect }) => {
   const [modalOpen, setModalOpen] = React.useState(false);
 
   return (
     <div>
-      <NoteModal open={modalOpen} encounterId={encounter.id} onClose={() => setModalOpen(false)} />
+      <NoteModal
+        open={modalOpen}
+        encounterId={encounter.id}
+        onClose={() => {
+          setModalOpen(false);
+          onTabSelect('vitals');
+        }}
+      />
       <NoteTable encounterId={encounter.id} />
       <ContentPane>
         <Button
@@ -85,12 +92,19 @@ const NotesPane = React.memo(({ encounter, readonly }) => {
   );
 });
 
-const LabsPane = React.memo(({ encounter, readonly }) => {
+const LabsPane = React.memo(({ encounter, readonly, onTabSelect }) => {
   const [modalOpen, setModalOpen] = React.useState(false);
 
   return (
     <div>
-      <LabRequestModal open={modalOpen} encounter={encounter} onClose={() => setModalOpen(false)} />
+      <LabRequestModal
+        open={modalOpen}
+        encounter={encounter}
+        onClose={() => {
+          setModalOpen(false);
+          onTabSelect('vitals');
+        }}
+      />
       <LabRequestsTable encounterId={encounter.id} />
       <ContentPane>
         <Button
@@ -106,7 +120,7 @@ const LabsPane = React.memo(({ encounter, readonly }) => {
   );
 });
 
-const ImagingPane = React.memo(({ encounter, readonly }) => {
+const ImagingPane = React.memo(({ encounter, readonly, onTabSelect }) => {
   const [modalOpen, setModalOpen] = React.useState(false);
 
   return (
@@ -114,7 +128,10 @@ const ImagingPane = React.memo(({ encounter, readonly }) => {
       <ImagingRequestModal
         open={modalOpen}
         encounter={encounter}
-        onClose={() => setModalOpen(false)}
+        onClose={() => {
+          setModalOpen(false);
+          onTabSelect('vitals');
+        }}
       />
       <ImagingRequestsTable encounterId={encounter.id} />
       <ContentPane>
@@ -131,7 +148,7 @@ const ImagingPane = React.memo(({ encounter, readonly }) => {
   );
 });
 
-const MedicationPane = React.memo(({ encounter, readonly }) => {
+const MedicationPane = React.memo(({ encounter, readonly, onTabSelect }) => {
   const [modalOpen, setModalOpen] = React.useState(false);
 
   return (
@@ -139,7 +156,10 @@ const MedicationPane = React.memo(({ encounter, readonly }) => {
       <MedicationModal
         open={modalOpen}
         encounterId={encounter.id}
-        onClose={() => setModalOpen(false)}
+        onClose={() => {
+          setModalOpen(false);
+          onTabSelect('vitals');
+        }}
       />
       <EncounterMedicationTable encounterId={encounter.id} />
       <ContentPane>
@@ -156,7 +176,7 @@ const MedicationPane = React.memo(({ encounter, readonly }) => {
   );
 });
 
-const ProcedurePane = React.memo(({ encounter, readonly }) => {
+const ProcedurePane = React.memo(({ encounter, readonly, onTabSelect }) => {
   const [editedProcedure, setEditedProcedure] = React.useState(null);
 
   return (
@@ -164,7 +184,10 @@ const ProcedurePane = React.memo(({ encounter, readonly }) => {
       <ProcedureModal
         editedProcedure={editedProcedure}
         encounterId={encounter.id}
-        onClose={() => setEditedProcedure(null)}
+        onClose={() => {
+          setEditedProcedure(null);
+          onTabSelect('vitals');
+        }}
       />
       <ProcedureTable encounterId={encounter.id} onItemClick={item => setEditedProcedure(item)} />
       <ContentPane>
@@ -470,9 +493,9 @@ export const DumbEncounterView = ({ patient, encounter }) => {
 export const EncounterView = connect(state => ({
   patient: state.patient,
 }))(({ patient }) => {
-  const { isLoading, encounter } = useEncounter();
+  const { encounter, isLoading } = useEncounter();
 
-  if (isLoading || !encounter) return <LoadingIndicator />;
+  if (!encounter || isLoading) return <LoadingIndicator />;
 
   return <DumbEncounterView encounter={encounter} patient={patient} />;
 });

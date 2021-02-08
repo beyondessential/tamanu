@@ -5,6 +5,7 @@ import { Button } from './Button';
 import { DiagnosisModal } from './DiagnosisModal';
 import { DiagnosisList } from './DiagnosisList';
 import { Colors } from '../constants';
+import { LoadingIndicator } from './LoadingIndicator';
 
 const DiagnosisHeading = styled.div`
   margin-right: 1rem;

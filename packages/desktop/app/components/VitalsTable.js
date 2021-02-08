@@ -32,7 +32,9 @@ const UnitDisplay = React.memo(({ amount, unit, rounding }) => {
 });
 
 const DumbVitalsTable = React.memo(() => {
-  const { encounter: { vitals: readings } } = useEncounter();
+  const {
+    encounter: { vitals: readings },
+  } = useEncounter();
   // create a column for each reading
   const dataColumns = [
     { key: 'title', title: 'Measure' },
@@ -63,4 +65,6 @@ const DumbVitalsTable = React.memo(() => {
   return <Table columns={dataColumns} data={rows} />;
 });
 
-export const VitalsTable = connect(state => ({ readings: state.encounter.vitals }))(DumbVitalsTable);
+export const VitalsTable = connect(state => ({ readings: state.encounter.vitals }))(
+  DumbVitalsTable,
+);

@@ -13,16 +13,16 @@ export default function Root({ store, history }) {
   return (
     <Provider store={store}>
       <ConnectedRouter history={history}>
-        <StylesProvider injectFirst>
-          <MuiThemeProvider theme={theme}>
-            <ThemeProvider theme={theme}>
-              <EncounterProvider>
+        <EncounterProvider store={store}>
+          <StylesProvider injectFirst>
+            <MuiThemeProvider theme={theme}>
+              <ThemeProvider theme={theme}>
                 <CssBaseline />
                 <RoutingApp />
-              </EncounterProvider>
-            </ThemeProvider>
-          </MuiThemeProvider>
-        </StylesProvider>
+              </ThemeProvider>
+            </MuiThemeProvider>
+          </StylesProvider>
+        </EncounterProvider>
       </ConnectedRouter>
     </Provider>
   );
