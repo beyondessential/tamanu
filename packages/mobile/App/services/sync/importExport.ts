@@ -55,7 +55,7 @@ const propertyPathsToTree = (stringPaths: string[]): RelationsTree => {
 /*
  *   extractSyncMetadata
  *
- *    Input: a model, and an optional tree of relations to nest
+ *    Input: a model, and an optional tree of relations to nest, intended to be used recursively
  *    Output: columns to include, a tree of relations, and an object of converters for relations on the model itself
  */
 const extractSyncMetadata = (model: typeof BaseModel, buildConverter: BuildConverterFunc, withRelationsTree?: RelationsTree) => {

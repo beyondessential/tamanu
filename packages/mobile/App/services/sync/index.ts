@@ -5,7 +5,7 @@ import { readConfig, writeConfig } from '~/services/config';
 import { Patient } from '~/models/Patient';
 import { BaseModel } from '~/models/BaseModel';
 import { DownloadRecordsResponse, UploadRecordsResponse, SyncRecord, SyncSource } from './source';
-import { buildToSyncRecord, createImportPlan, executeImportPlan } from './convert';
+import { buildToSyncRecord, createImportPlan, executeImportPlan } from './importExport';
 
 type RunChannelSyncOptions = {
   overrideLastSynced?: number,

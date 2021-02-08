@@ -1,32 +1,8 @@
 import { v4 as uuidv4 } from 'uuid';
 
 import { Database } from '~/infra/db';
-import { SyncManager } from '.';
-import { WebSyncSource } from './source';
-import { createImportPlan, executeImportPlan, ImportPlan } from './convert';
+import { createImportPlan, executeImportPlan, ImportPlan } from './importExport';
 import { ReferenceData } from '~/models/ReferenceData';
-
-const MockedWebSyncSource = <jest.Mock<WebSyncSource>>WebSyncSource;
-
-const createManager = (): ({
-  emittedEvents: { action: string | Symbol, event: any }[],
-  syncManager: SyncManager,
-  mockedSource: any,
-}) => {
-  // mock WebSyncSource
-  MockedWebSyncSource.mockClear();
-  const syncManager = new SyncManager(new MockedWebSyncSource(""));
-  expect(MockedWebSyncSource).toHaveBeenCalledTimes(1);
-  const mockedSource = MockedWebSyncSource.mock.instances[0];
-
-  // detect emitted events
-  const emittedEvents = [];
-  syncManager.emitter.on('*', (action: string | Symbol, event: any) => {
-    emittedEvents.push({ action, event });
-  });
-
-  return { emittedEvents, syncManager, mockedSource };
-};
 
 beforeAll(async () => {
   await Database.connect();
@@ -44,7 +20,6 @@ describe('ImportPlan', () => {
       lastSynced: new Date(1972, 5, 1),
       data: {
         id: uuidv4(),
-        updatedAt: new Date(1971, 5, 1),
         name: 'Not a real ICD-10 code',
         code: 'not-a-real-icd-10-code',
         type: 'ICD10',
@@ -61,7 +36,8 @@ describe('ImportPlan', () => {
     expect(rows).toEqual([
       {
         ...record.data,
-        createdAt: expect.anything(),
+        createdAt: expect.any(Date),
+        updatedAt: expect.any(Date),
         uploadedAt: null,
         markedForUpload: false,
       }
@@ -74,7 +50,6 @@ describe('ImportPlan', () => {
       lastSynced: new Date(1972, 5, 1),
       data: {
         id: uuidv4(),
-        updatedAt: new Date(1971, 5, 1),
         name: 'Old name',
         code: 'old-code',
         type: 'ICD10',
@@ -85,9 +60,10 @@ describe('ImportPlan', () => {
     expect(oldRows).toEqual([
       {
         ...record.data,
-        createdAt: expect.anything(),
+        createdAt: expect.any(Date),
+        updatedAt: expect.any(Date),
         uploadedAt: null,
-        markedForUpload: true,  // TODO: should we lock the table while syncing to prevent this from happening?
+        markedForUpload: true,
       },
     ]);
 
@@ -106,7 +82,8 @@ describe('ImportPlan', () => {
     expect(rows).toEqual([
       {
         ...record.data,
-        createdAt: expect.anything(),
+        createdAt: expect.any(Date),
+        updatedAt: expect.any(Date),
         uploadedAt: null,
         markedForUpload: false, // currently last-write-wins
         name: 'New name',
@@ -122,7 +99,6 @@ describe('ImportPlan', () => {
       isDeleted: true,
       data: {
         id: uuidv4(),
-        updatedAt: new Date(1971, 5, 1),
         name: 'Old name',
         code: 'old-code',
         type: 'ICD10',
@@ -133,7 +109,8 @@ describe('ImportPlan', () => {
     expect(oldRows).toEqual([
       {
         ...record.data,
-        createdAt: expect.anything(),
+        createdAt: expect.any(Date),
+        updatedAt: expect.any(Date),
         uploadedAt: null,
         markedForUpload: true,
       },
