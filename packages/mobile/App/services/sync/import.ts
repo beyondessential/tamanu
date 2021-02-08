@@ -1,8 +1,8 @@
 import { pick, memoize } from 'lodash';
 
-import { SyncRecord, SyncRecordData } from './source';
+import { SyncRecord } from './source';
 import { BaseModel } from '~/models/BaseModel';
-import { RelationsTree, extractSyncMetadata, propertyPathsToTree } from './metadata';
+import { RelationsTree, extractRelationsTree, extractIncludedColumns } from './metadata';
 
 export type ImportPlan = {
   model: typeof BaseModel,
@@ -41,18 +41,15 @@ const stripIdSuffixes = (data: object): object => {
  *
  *    Input: a model
  *    Output: a function that will convert a SyncRecord into an object matching that model
- *
- *    Note that unlike buildToSyncRecord, this is not recursive!
  */
-const buildFromSyncRecord = memoize((model: typeof BaseModel) => {
-  const { includedColumns } =
-    extractSyncMetadata(model, buildFromSyncRecord);
+const buildFromSyncRecord = (model: typeof BaseModel) => {
+  const includedColumns = extractIncludedColumns(model);
 
   return ({ data }: SyncRecord): object => {
     const dbRecord = stripIdSuffixes(pick(data, includedColumns));
     return dbRecord;
   };
-});
+};
 
 const createImportPlanInner = (model: typeof BaseModel, relationsTree: RelationsTree, parentField: string | null) => {
   const children = {};
@@ -82,10 +79,10 @@ const createImportPlanInner = (model: typeof BaseModel, relationsTree: Relations
  *    Input: a model
  *    Output: a plan to import that model
  */
-export const createImportPlan = (model: typeof BaseModel) => {
-  const relationTree = propertyPathsToTree(model.includedSyncRelations);
-  return createImportPlanInner(model, relationTree, null);
-};
+export const createImportPlan = memoize((model: typeof BaseModel) => {
+  const relationsTree = extractRelationsTree(model);
+  return createImportPlanInner(model, relationsTree, null);
+});
 
 const executeImportPlanInner = async (
   { model, parentField, fromSyncRecord, children }: ImportPlan,

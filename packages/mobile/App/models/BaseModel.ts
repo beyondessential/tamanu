@@ -14,7 +14,7 @@ import {
 export type FindMarkedForUploadOptions = {
   channel: string,
   limit?: number,
-  after?: { id: string },
+  after?: string,
 };
 
 // TODO: get rid of this once it's moved to convert.ts and I've made sure it's not used internally
@@ -130,7 +130,7 @@ export abstract class BaseModel extends BaseEntity {
   static findMarkedForUploadQuery(
     { limit, after }: FindMarkedForUploadOptions,
   ) {
-    const whereAfter = (after instanceof Object) ? { id: MoreThan(after.id) } : {};
+    const whereAfter = (typeof after === 'string') ? { id: MoreThan(after) } : {};
 
     const qb = this.getRepository().createQueryBuilder();
     return FindOptionsUtils.applyOptionsToQueryBuilder(qb, {

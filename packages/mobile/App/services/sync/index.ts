@@ -6,7 +6,7 @@ import { Patient } from '~/models/Patient';
 import { BaseModel } from '~/models/BaseModel';
 import { DownloadRecordsResponse, UploadRecordsResponse, SyncRecord, SyncSource } from './source';
 import { createImportPlan, executeImportPlan } from './import';
-import { buildToSyncRecord } from './export';
+import { createExportPlan, executeExportPlan } from './export';
 
 type RunChannelSyncOptions = {
   overrideLastSynced?: number,
@@ -208,33 +208,33 @@ export class SyncManager {
 
   async exportAndUpload(model: typeof BaseModel, channel: string) {
     // function definitions
-    const exportRecords = async (page: number, afterRecord?: BaseModel): Promise<BaseModel[]> => {
+    const exportPlan = createExportPlan(model);
+    const exportRecords = async (page: number, afterId?: string): Promise<SyncRecord[]> => {
       this.emitter.emit('exportingPage', `${channel}-${page}`);
-      return model.findMarkedForUpload({
+      return (await model.findMarkedForUpload({
         channel,
-        after: afterRecord,
+        after: afterId,
         limit: UPLOAD_LIMIT,
-      });
+      })).map(r => executeExportPlan(exportPlan, r));
     }
 
-    const toSyncRecord = buildToSyncRecord(model);
-    const uploadRecords = async (page: number, records: BaseModel[]): Promise<UploadRecordsResponse> => {
+    // const toSyncRecord = buildToSyncRecord(model);
+    const uploadRecords = async (page: number, syncRecords: SyncRecord[]): Promise<UploadRecordsResponse> => {
       // TODO: detect and retry failures (need to pass back from server)
       this.emitter.emit('uploadingPage', `${channel}-${page}`);
-      const syncRecords = records.map(r => toSyncRecord(r));
       return this.syncSource.uploadRecords(channel, syncRecords);
     }
 
-    const markRecordsUploaded = async (page: number, records: BaseModel[], requestedAt: number): Promise<void> => {
+    const markRecordsUploaded = async (page: number, records: SyncRecord[], requestedAt: number): Promise<void> => {
       this.emitter.emit('markingPageUploaded', `${channel}-${page}`);
-      return model.markUploaded(records.map(r => r.id), new Date(requestedAt));
+      return model.markUploaded(records.map(r => r.data.id), new Date(requestedAt));
     }
 
     // TODO: progress handling
 
     // export and upload loop
     try {
-      let lastSeenRecord: BaseModel;
+      let lastSeenId: string;
       let uploadPromise: Promise<UploadRecordsResponse>;
       this.emitter.emit('exportStarted', channel);
       let page = 0;
@@ -242,7 +242,7 @@ export class SyncManager {
         const knownPage = page;
 
         // begin exporting records
-        const exportPromise = exportRecords(knownPage, lastSeenRecord);
+        const exportPromise = exportRecords(knownPage, lastSeenId);
 
         // finish uploading previous batch
         await uploadPromise;
@@ -252,7 +252,7 @@ export class SyncManager {
         if (recordsChunk.length === 0) {
           break;
         }
-        lastSeenRecord = recordsChunk[recordsChunk.length - 1];
+        lastSeenId = recordsChunk[recordsChunk.length - 1].data.id;
 
         // begin uploading current batch
         uploadPromise = uploadRecords(knownPage, recordsChunk).then(async (data) => {
