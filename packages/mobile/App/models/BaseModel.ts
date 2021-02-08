@@ -77,22 +77,20 @@ export abstract class BaseModel extends BaseEntity {
   }
 
   async markParentForUpload(parentModel: typeof BaseModel, property: string) {
-    const value = this[property];
-    const idValue = this[`${property}Id`];
     let entity: BaseModel;
-    if (typeof value === 'object') {
-      entity = value as BaseModel;
-    } else if (typeof value === 'string') {
-      entity = await parentModel.findOne({ where: { id: value } });
-    } else if (typeof idValue === 'string') {
-      entity = await parentModel.findOne({ where: { id: idValue } });
-    }
-    if (entity) {
-      entity.markedForUpload = true;
-      entity.save();
+    if (typeof this[property] === 'string') {
+      entity = await parentModel.findOne({ where: { id: this[property] } })
     } else {
-      console.warn(`Failed to cascade markedForUpload from ${this.constructor.name} to ${parentModel.name} (this warning probably means some data is not uploaded to the sync server!)`);
+      const thisModel = this.constructor as typeof BaseModel;
+      entity = await thisModel
+        .getRepository()
+        .createQueryBuilder()
+        .relation(thisModel, property)
+        .of(this)
+        .loadOne();
     }
+    entity.markedForUpload = true;
+    await entity.save();
   }
 
   static async markUploaded(ids: string | string[], uploadedAt: Date): Promise<void> {
