@@ -51,10 +51,10 @@ export class Encounter extends BaseModel implements IEncounter {
   @OneToMany(() => Diagnosis, diagnosis => diagnosis.encounter, { eager: true })
   diagnoses: Diagnosis[]
 
-  @OneToMany(() => AdministeredVaccine, administeredVaccine => administeredVaccine.encounter, { eager: true, cascade: ['insert'] })
+  @OneToMany(() => AdministeredVaccine, administeredVaccine => administeredVaccine.encounter, { cascade: ['insert'] })
   administeredVaccines: AdministeredVaccine[]
 
-  @OneToMany(() => SurveyResponse, surveyResponse => surveyResponse.encounter, { eager: true, cascade: ['insert'] })
+  @OneToMany(() => SurveyResponse, surveyResponse => surveyResponse.encounter, { cascade: ['insert'] })
   surveyResponses: SurveyResponse[]
 
   static async getOrCreateCurrentEncounter(
