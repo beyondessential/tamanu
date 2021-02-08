@@ -146,10 +146,7 @@ export abstract class BaseModel extends BaseEntity {
     });
   }
 
-  static shouldExport(): boolean {
-    // TODO: enable export for more models
-    return false;
-  }
+  static shouldExport = false;
 
   // Exclude these properties from uploaded model
   // May be columns or relationIds

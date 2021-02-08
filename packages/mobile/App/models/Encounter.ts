@@ -91,9 +91,7 @@ export class Encounter extends BaseModel implements IEncounter {
     });
   }
 
-  static shouldExport(): boolean {
-    return true;
-  }
+  static shouldExport = true;
 
   static async mapSyncablePatientIds(
     callback: (patientId: string) => Promise<void> | void,
