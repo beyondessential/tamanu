@@ -9,6 +9,8 @@ import errorHandler from './middleware/errorHandler';
 
 import { log } from './logging';
 
+import { version } from '../package.json';
+
 const isDevelopment = process.env.NODE_ENV === 'development';
 
 export function createApp({ store }) {
@@ -17,6 +19,12 @@ export function createApp({ store }) {
   app.use(compression());
   app.use(bodyParser.json());
   app.use(bodyParser.urlencoded({ extended: true }));
+
+  app.use((req, res, next) => {
+    res.setHeader('X-Runtime', 'Tamanu Sync Server');
+    res.setHeader('X-Version', version);
+    next();
+  });
 
   app.use(
     morgan(isDevelopment ? 'dev' : 'tiny', {
