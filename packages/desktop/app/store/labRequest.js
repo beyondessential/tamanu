@@ -1,8 +1,5 @@
 import { push } from 'connected-react-router';
 
-import { reloadEncounter } from './encounter';
-import { reloadPatient } from './patient';
-
 import { createReducer } from '../utils/createReducer';
 
 // actions

@@ -122,7 +122,7 @@ export const PatientEncounterSummary = ({ viewEncounter, openCheckin, openTriage
 
   const { startDate, location, encounterType, reasonForEncounter, id, examiner } = encounter;
   return (
-    <Grid encounterType={encounterType} onClick={() => viewEncounter({ id })}>
+    <Grid encounterType={encounterType} onClick={() => viewEncounter(id)}>
       <Header>
         <HeaderInfo>
           <SubTitle>Current Admission</SubTitle>

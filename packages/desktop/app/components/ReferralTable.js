@@ -10,7 +10,7 @@ import { viewReferral } from '../store/referral';
 import { useEncounter } from '../contexts/Encounter';
 
 const DumbActionDropdown = React.memo(({ onCheckin, onCancel, closedDate }) => {
-  const { setEncounterId, encounter } = useEncounter();
+  const { loadEncounter, encounter } = useEncounter();
   const actions = [
     {
       label: 'Admit',
@@ -26,7 +26,7 @@ const DumbActionDropdown = React.memo(({ onCheckin, onCancel, closedDate }) => {
       label: 'View encounter',
       condition: () => !!encounter,
       onClick: async () => {
-        await setEncounterId(encounter.id);
+        await loadEncounter(encounter.id);
       },
     },
   ].filter(action => !action.condition || action.condition());

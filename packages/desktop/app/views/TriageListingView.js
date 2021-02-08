@@ -141,9 +141,9 @@ const TriageTable = connect(null, dispatch => ({
   onViewEncounter: triage => dispatch(viewPatientEncounter(triage.patientId, triage.encounterId)),
 }))(
   React.memo(({ onViewEncounter, ...props }) => {
-    const { setEncounterId } = useEncounter();
-    const viewEncounter = useCallback(triage => {
-      setEncounterId(triage.encounterId);
+    const { loadEncounter } = useEncounter();
+    const viewEncounter = useCallback(async triage => {
+      await loadEncounter(triage.encounter.id);
       onViewEncounter(triage);
     }, []);
 

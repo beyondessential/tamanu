@@ -43,9 +43,9 @@ const globalColumns = [
 ];
 
 const DumbLabRequestsTable = React.memo(({ encounterId, onLabSelect }) => {
-  const { setEncounterId } = useEncounter();
-  const selectLab = useCallback(lab => {
-    setEncounterId(lab.encounter.id);
+  const { loadEncounter } = useEncounter();
+  const selectLab = useCallback(async lab => {
+    await loadEncounter(lab.encounter.id);
     onLabSelect(lab);
   }, []);
 

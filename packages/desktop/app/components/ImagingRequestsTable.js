@@ -43,10 +43,10 @@ const globalColumns = [
 ];
 
 const DumbImagingRequestsTable = React.memo(({ encounterId, onImagingRequestSelect }) => {
-  const { setEncounterId } = useEncounter();
+  const { loadEncounter } = useEncounter();
 
-  const selectImagingRequest = useCallback(imagingRequest => {
-    setEncounterId(imagingRequest.encounter.id);
+  const selectImagingRequest = useCallback(async imagingRequest => {
+    await loadEncounter(imagingRequest.encounter.id);
     onImagingRequestSelect(imagingRequest);
   }, []);
 
