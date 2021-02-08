@@ -1,8 +1,6 @@
 {
-  "db": {
-    "name": "tamanu-sync-test"
-  },
   "auth": {
+    "allowDummyToken": true,
     "reportNoUserError": true
   }
 }

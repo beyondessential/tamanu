@@ -26,6 +26,7 @@ import { referral } from './referral';
 import { imagingRequest } from './imaging';
 import { immunisation } from './immunisation';
 import { reports } from './reports';
+import { reportRequest } from './reportRequest';
 
 export const apiv1 = express.Router();
 
@@ -60,3 +61,4 @@ apiv1.use('/survey', survey);
 apiv1.use('/surveyResponse', surveyResponse);
 
 apiv1.use('/reports', reports);
+apiv1.use('/reportRequest', reportRequest);

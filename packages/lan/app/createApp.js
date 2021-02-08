@@ -8,6 +8,8 @@ import errorHandler from './middleware/errorHandler';
 
 import { log } from './logging';
 
+import { version } from '../package.json';
+
 const isDevelopment = process.env.NODE_ENV === 'development';
 
 export function createApp({ sequelize, models }) {
@@ -16,6 +18,12 @@ export function createApp({ sequelize, models }) {
   app.use(compression());
   app.use(bodyParser.json());
   app.use(bodyParser.urlencoded({ extended: true }));
+
+  app.use((req, res, next) => {
+    res.setHeader('X-Runtime', 'Tamanu LAN Server');
+    res.setHeader('X-Version', version);
+    next();
+  });
 
   app.use(
     morgan(isDevelopment ? 'dev' : 'tiny', {
