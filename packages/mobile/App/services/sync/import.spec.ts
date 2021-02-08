@@ -1,7 +1,7 @@
 import { v4 as uuidv4 } from 'uuid';
 
 import { Database } from '~/infra/db';
-import { createImportPlan, executeImportPlan, ImportPlan } from './importExport';
+import { createImportPlan, executeImportPlan, ImportPlan } from './import';
 import { ReferenceData } from '~/models/ReferenceData';
 
 beforeAll(async () => {
