@@ -95,17 +95,22 @@ export class Encounter extends BaseModel implements IEncounter {
     return true;
   }
 
-  static async mapPatientIdsOfMarkedEncounters(
+  static async mapSyncablePatientIds(
     callback: (patientId: string) => Promise<void> | void,
-    { batchSize = 100 }: { batchSize?: number } = {},
+    limit: number = 100,
   ): Promise<void> {
     // hides the complexity of querying successive batches of ids
+
+    // sync any patient that's marked for sync
+    await Patient.mapMarkedForSyncIds(patientId => callback(patientId), limit);
+
+    // sync any patient for which encounters have been created
     let baseQuery = this.getRepository().createQueryBuilder('encounter')
       .select('encounter.patientId AS patientId')
       .distinctOn(['patientId'])
       .orderBy('patientId')
       .where('encounter.markedForUpload = ?', [true])
-      .limit(batchSize);
+      .limit(limit);
     let lastSeenId: string = null;
     do {
       const query = lastSeenId ? baseQuery.andWhere('patientId > ?', [lastSeenId]) : baseQuery;
@@ -120,7 +125,7 @@ export class Encounter extends BaseModel implements IEncounter {
 
   static async findMarkedForUpload(
     opts: FindMarkedForUploadOptions,
-  ): Promise<Encounter[]> {
+  ): Promise<BaseModel[]> {
     const patientId = opts.channel.split('/')[1];
     if (!patientId) {
       throw new Error(`Could not extract patientId from ${opts.channel}`);
@@ -130,7 +135,7 @@ export class Encounter extends BaseModel implements IEncounter {
       .andWhere('patientId = :patientId', { patientId })
       .getMany();
 
-    return records as Encounter[];
+    return records as BaseModel[];
   }
 
   static includedSyncRelations = [

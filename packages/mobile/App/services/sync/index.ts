@@ -72,37 +72,12 @@ export class SyncManager {
     await this.runChannelSync(models.SurveyScreenComponent, 'surveyScreenComponent');
     await this.runChannelSync(models.Patient, 'patient');
 
-    await models.Encounter.mapPatientIdsOfMarkedEncounters(async patientId => {
-      // TODO: runChannelSync is not actually using patientId at all
-      await this.runChannelSync(models.Encounter, `patient/${patientId}/encounter`);
+    await models.Encounter.mapSyncablePatientIds(async patientId => {
+      await this.runPatientSync(patientId);
     });
-
-    // sync all reference data including shallow patient list
-    // full sync of patients that've been flagged (encounters, etc)
-    /*
-    const patientsToSync = await this.getPatientsToSync();
-    this.emitter.emit("patientSyncStarted", patientsToSync.length);
-    for(let i = 0; i < patientsToSync.length; i++) {
-      try {
-        const patient = patientsToSync[i];
-        await this.runPatientSync(patient);
-        this.emitter("patientRecordSynced", patient, i, patientsToSync.length);
-      } catch(e) {
-        console.warn(e.message);
-      }
-    }
-    this.emitter.emit("patientSyncEnded");
-    */
 
     this.emitter.emit('syncEnded');
     this.isSyncing = false;
-  }
-
-  getPatientsToSync(): Promise<Patient[]> {
-    const { models } = Database;
-    return models.Patient.find({
-      markedForSync: true,
-    });
   }
 
   async markPatientForSync(patient: Patient): Promise<void> {
@@ -331,11 +306,7 @@ export class SyncManager {
     this.emitter.emit('channelSyncEnded', channel);
   }
 
-  async runPatientSync(patient: Patient): Promise<void> {
-    await this.downloadAndImport(Database.models.Patient, `patient/${patient.id}`, patient.lastSynced?.valueOf());
-
-    // eslint-disable-next-line no-param-reassign
-    patient.lastSynced = new Date();
-    await patient.save();
+  async runPatientSync(patientId: string): Promise<void> {
+    await this.runChannelSync(Database.models.Encounter, `patient/${patientId}/encounter`);
   }
 }
