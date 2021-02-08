@@ -7,12 +7,20 @@ import { versionRouter } from './versions';
 import { serversRouter } from './servers';
 import { log } from './logging';
 
+import { version } from '../package.json';
+
 export function createApp() {
   // Init our app
   const app = express();
   app.use(compression());
   app.use(bodyParser.json());
   app.use(bodyParser.urlencoded({ extended: true }));
+
+  app.use((req, res, next) => {
+    res.setHeader('X-Runtime', 'Tamanu Metadata Server');
+    res.setHeader('X-Version', version);
+    next();
+  });
 
   app.use('/version', versionRouter);
   app.use('/servers', serversRouter);
