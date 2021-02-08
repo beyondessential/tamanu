@@ -1,10 +1,11 @@
-import React, { ReactElement } from 'react';
+import React, { ReactElement, useState, useEffect } from 'react';
 import { StyledView, StyledText } from '/styled/common';
 import { theme } from '/styled/theme';
 import { Field } from '../FormField';
 import { Button } from '../../Button';
 import { screenPercentageToDP, Orientation } from '/helpers/screen';
 import { TextField } from '../../TextField/TextField';
+import { ServerSelector } from './ServerSelector';
 
 type SignInFieldsProps = {
   handleSubmit: (value: any) => void;
@@ -28,16 +29,21 @@ export const SignInFields = ({
       ACCOUNT DETAILS
     </StyledText>
     <StyledView
-      height={screenPercentageToDP(14.58, Orientation.Height)}
       justifyContent="space-around"
     >
+      <ServerSelector />
       <Field
         name="email"
         keyboardType="email-address"
         component={TextField}
         label="Email"
       />
-      <Field name="password" component={TextField} label="Password" secure />
+      <Field
+        name="password"
+        component={TextField} 
+        label="Password" 
+        secure 
+      />
     </StyledView>
     <Button
       marginTop={20}

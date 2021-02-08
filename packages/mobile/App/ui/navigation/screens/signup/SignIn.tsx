@@ -45,9 +45,9 @@ export const SignIn: FunctionComponent<any> = ({ navigation }: SignInProps) => {
     onChangeModalVisibility(true);
   }, []);
 
-  const onSubmitForm = useCallback(async (form: SignInFormModel) => {
+  const onSubmitForm = useCallback(async (values: SignInFormModel) => {
     try {
-      await authCtx.signIn(form.email, form.password);
+      await authCtx.signIn(values);
 
       if (authState.isFirstTime) {
         navigation.navigate(Routes.HomeStack.Index);

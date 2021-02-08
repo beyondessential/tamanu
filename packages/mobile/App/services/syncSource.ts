@@ -73,12 +73,12 @@ export class WebSyncSource implements SyncSource {
   async login(email: string, password: string): Promise<LoginResponse> {
     const url = `${this.host}/login`;
 
-    const body = { email, password };
+    const body = JSON.stringify({ email, password });
 
     const response = await fetch(url, {
       method: 'POST',
       headers: {
-        'content-type': 'application/JSON',
+        'Content-Type': 'application/json',
       },
       body,
     });
@@ -91,7 +91,7 @@ export class WebSyncSource implements SyncSource {
       throw new AuthenticationError(invalidUserCredentialsMessage);
     }
 
-    const data = response.json();
+    const data = await response.json();
 
     if(!data.token || !data.user) {
       // auth failed in some other regard

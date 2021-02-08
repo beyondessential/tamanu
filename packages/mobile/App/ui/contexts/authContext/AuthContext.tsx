@@ -15,9 +15,10 @@ import {
 } from './auth-error';
 import { Routes } from '/helpers/routes';
 import { BackendContext } from '~/services/backendProvider';
+import { SyncConnectionParameters } from '~/types/SyncConnectionParameters';
 
 interface AuthContextData {
-  signIn: (email: string, password: string) => Promise<void>;
+  signIn: (params: SyncConnectionParameters) => Promise<void>;
   signOut: (navigation: NavigationProp<any>) => void;
   checkPreviousUserAuthentication: (navigation: NavigationProp<any>) => void;
   isUserAuthenticated: () => boolean;
@@ -58,66 +59,47 @@ const Provider = ({
     }
   };
 
+  // TODO: use server-provided facility
+  const dummyFacility = { name: 'BES Clinic', id: '123' };
+
   const backend = useContext(BackendContext);
-  const localSignIn = async (email: string, password: string): Promise<void> => {
-    const result = await backend.models.User.getRepository().findOne({
+  const localSignIn = async ({ email, password }: SyncConnectionParameters): Promise<void> => {
+    const user = await backend.models.User.getRepository().findOne({
       email,
     });
 
-    if (!result || !bcrypt.compare(password, result.password)) {
+    if (!user || !bcrypt.compare(password, user.localPassword)) {
       throw new AuthenticationError(invalidUserCredentialsMessage);
     }
 
-    setUser(result);
+    setUser({ facility: dummyFacility, ...user });
     setSignedInStatus(true);
   };
 
-  const dummyUser = {
-    id: 'dummy-user',
-    email: 'dummy.user@beyondessential.com.au',
-    localPassword: 'dummy_user_password',
-    displayName: 'Peter Standard',
-    role: 'practitioner',
-    facility: {
-      id: 'dummy-facility',
-      name: 'BES General Hospital',
-    },
-  };
+  const remoteSignIn = async (params: SyncConnectionParameters): Promise<void> => {
+    const { user, token } = await backend.connectToRemote(params);
 
-  const remoteSignIn = async (email: string, password: string): Promise<void> => {
-    const { user, token } = await backend.syncSource.login(email, password);
+    // TODO: set local password for user
+    // const localPassword = await bcrypt.hash(params.password, SALT_ROUNDS);
+    // then create or update user in local db with these details
 
-    // merge with dummy user to ensure that all fields are present
-    // safe to delete this when the server is responding with full info
-    // (specifically facility information)
-    setUser({ ...dummyUser, ...user });
+    setUser({ facility: dummyFacility, ...user });
     setToken(token);
     setSignedInStatus(true);
   };
 
-  const dummySignIn = (): void => {
-    setUser(dummyUser);
-    setToken('fake-token');
-    setSignedInStatus(true);
-  };
-
-  const signIn = async (email: string, password: string): Promise<void> => {
-    if (true || __DEV__) {
-      if (!email && !password) {
-        return dummySignIn();
-      }
-    }
-
+  const signIn = async (params: SyncConnectionParameters): Promise<void> => {
     const network = await NetInfo.fetch();
 
     if(!network.isConnected) {
-      return localSignIn(email, password);
+      return localSignIn(params);
     }
 
-    return remoteSignIn(email, password);
+    return remoteSignIn(params);
   };
 
   const signOut = (navigation: NavigationProp<any>): void => {
+    backend.stopSyncService();
     signOutUser();
     navigation.reset({
       index: 0,
