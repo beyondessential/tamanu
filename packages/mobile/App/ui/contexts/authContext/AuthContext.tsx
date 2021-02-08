@@ -59,24 +59,31 @@ const Provider = ({
     }
   };
 
+  // TODO: use server-provided facility
+  const dummyFacility = { name: 'BES Clinic', id: '123' };
+
   const backend = useContext(BackendContext);
   const localSignIn = async ({ email, password }: SyncConnectionParameters): Promise<void> => {
-    const result = await backend.models.User.getRepository().findOne({
+    const user = await backend.models.User.getRepository().findOne({
       email,
     });
 
-    if (!result || !bcrypt.compare(password, result.password)) {
+    if (!user || !bcrypt.compare(password, user.localPassword)) {
       throw new AuthenticationError(invalidUserCredentialsMessage);
     }
 
-    setUser(result);
+    setUser({ facility: dummyFacility, ...user });
     setSignedInStatus(true);
   };
 
   const remoteSignIn = async (params: SyncConnectionParameters): Promise<void> => {
     const { user, token } = await backend.connectToRemote(params);
 
-    setUser(user);
+    // TODO: set local password for user
+    // const localPassword = await bcrypt.hash(params.password, SALT_ROUNDS);
+    // then create or update user in local db with these details
+
+    setUser({ facility: dummyFacility, ...user });
     setToken(token);
     setSignedInStatus(true);
   };

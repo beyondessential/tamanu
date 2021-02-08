@@ -35,7 +35,6 @@ export class Backend {
   }
 
   async connectToRemote(params: SyncConnectionParameters): Promise<void> {
-
     // always use the server stored in config if there is one - last thing
     // we want is a device syncing down data from one server and then up
     // to another!
@@ -44,14 +43,16 @@ export class Backend {
 
     // create the sync source and log in to it
     this.syncSource = new WebSyncSource(`${server}/v${API_VERSION}`);
+    console.log(`Getting token from ${server}`);
     const { user, token } = await this.syncSource.login(params.email, params.password);
+    console.log(`Signed in as ${user.displayName}`);
 
     if(!syncServerLocation) {
       // after a successful login, if we didn't already read the server from
       // stored config, write the one we did use to config
       writeConfig('syncServerLocation', params.server);
     }
-    
+
     this.startSyncService();
 
     return { user, token };
