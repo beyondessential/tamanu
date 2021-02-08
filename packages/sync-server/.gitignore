@@ -1,6 +1,4 @@
-/data/*.realm*
-/data/*.db
-/data/.*
+/data/*
 !/data/.keep
 /realm-object-server
 dist
