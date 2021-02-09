@@ -40,7 +40,7 @@ import { SelectInput, DateInput, TextInput } from '../../components/Field';
 import { encounterOptions, ENCOUNTER_OPTIONS_BY_VALUE, Colors } from '../../constants';
 import { useEncounter } from '../../contexts/Encounter';
 
-const getIsTriage = encounter => encounter.type && ENCOUNTER_OPTIONS_BY_VALUE[encounter.encounterType].triageFlowOnly;
+const getIsTriage = encounter => ENCOUNTER_OPTIONS_BY_VALUE[encounter.encounterType].triageFlowOnly;
 
 const VitalsPane = React.memo(({ encounter, readonly }) => {
   const [modalOpen, setModalOpen] = React.useState(false);
