@@ -43,10 +43,10 @@ export const extractRelationsTree = (model: typeof BaseModel) => {
 };
 
 /*
- *   extractSyncMetadata
+ *   extractIncludedColumns
  *
- *    Input: a model, and an optional tree of relations to nest, intended to be used recursively
- *    Output: columns to include, a tree of relations, and an object of converters for relations on the model itself
+ *    Input: a model
+ *    Output: columns to include when exporting/importing that model
  */
 export const extractIncludedColumns = (model: typeof BaseModel) => {
   const { metadata } = model.getRepository();
