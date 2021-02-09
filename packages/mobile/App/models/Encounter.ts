@@ -143,5 +143,4 @@ export class Encounter extends BaseModel implements IEncounter {
   ];
 
   // TODO: add examiner
-  // TODO: cascade diagnosis/administeredvaccine/surveyresponse/surveyresponseanswer changes
 }
