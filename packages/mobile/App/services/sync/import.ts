@@ -13,43 +13,26 @@ export type ImportPlan = {
   },
 }
 
-const stripId = (key: string | any) => {
-  if (typeof key !== 'string' || key === 'displayId') {
-    return key;
-  }
-  return key.replace(/Id$/, '');
-}
-
 /*
- *   stripIdSuffixes
- *
- *    TypeORM expects foreign key writes to be done against just the bare name
- *    of the relation, rather than "relationId", but the data is all serialised
- *    as "relationId" - this just strips the "Id" suffix from any fields that
- *    have them. It's a bit of a blunt instrument, but, there you go.
- */
-const stripIdSuffixes = (data: object): object => {
-  return Object.entries(data)
-    .reduce((state, [key, value]) => ({
-      ...state,
-      [stripId(key)]: value,
-    }), {});
-}
-
-/*
- *   buildFromSyncRecord
+ *   createImportPlan
  *
  *    Input: a model
- *    Output: a function that will convert a SyncRecord into an object matching that model
+ *    Output: a plan to import that model
  */
-const buildFromSyncRecord = (model: typeof BaseModel) => {
-  const includedColumns = extractIncludedColumns(model);
+export const createImportPlan = memoize((model: typeof BaseModel) => {
+  const relationsTree = extractRelationsTree(model);
+  return createImportPlanInner(model, relationsTree, null);
+});
 
-  return ({ data }: SyncRecord): object => {
-    const dbRecord = stripIdSuffixes(pick(data, includedColumns));
-    return dbRecord;
-  };
-};
+/*
+ *   executeImportPlan
+ *
+ *    Input: a plan created using createImportPlan and a record to import, including nested relations
+ *    Output: imports the record into the db
+ */
+export const executeImportPlan = async (importPlan: ImportPlan, syncRecord: SyncRecord) => {
+  return executeImportPlanInner(importPlan, syncRecord);
+}
 
 const createImportPlanInner = (model: typeof BaseModel, relationsTree: RelationsTree, parentField: string | null) => {
   const children = {};
@@ -72,17 +55,6 @@ const createImportPlanInner = (model: typeof BaseModel, relationsTree: Relations
     children,
   };
 };
-
-/*
- *   createImportPlan
- *
- *    Input: a model
- *    Output: a plan to import that model
- */
-export const createImportPlan = memoize((model: typeof BaseModel) => {
-  const relationsTree = extractRelationsTree(model);
-  return createImportPlanInner(model, relationsTree, null);
-});
 
 const executeImportPlanInner = async (
   { model, parentField, fromSyncRecord, children }: ImportPlan,
@@ -116,11 +88,39 @@ const executeImportPlanInner = async (
 };
 
 /*
- *   executeImportPlan
+ *   buildFromSyncRecord
  *
- *    Input: a plan created using createImportPlan and a record to import, including nested relations
- *    Output: imports the record into the db
+ *    Input: a model
+ *    Output: a function that will convert a SyncRecord into an object matching that model
  */
-export const executeImportPlan = async (importPlan: ImportPlan, syncRecord: SyncRecord) => {
-  return executeImportPlanInner(importPlan, syncRecord);
+const buildFromSyncRecord = (model: typeof BaseModel) => {
+  const includedColumns = extractIncludedColumns(model);
+
+  return ({ data }: SyncRecord): object => {
+    const dbRecord = stripIdSuffixes(pick(data, includedColumns));
+    return dbRecord;
+  };
+};
+
+const stripId = (key: string | any) => {
+  if (typeof key !== 'string' || key === 'displayId') {
+    return key;
+  }
+  return key.replace(/Id$/, '');
+}
+
+/*
+ *   stripIdSuffixes
+ *
+ *    TypeORM expects foreign key writes to be done against just the bare name
+ *    of the relation, rather than "relationId", but the data is all serialised
+ *    as "relationId" - this just strips the "Id" suffix from any fields that
+ *    have them. It's a bit of a blunt instrument, but, there you go.
+ */
+const stripIdSuffixes = (data: object): object => {
+  return Object.entries(data)
+    .reduce((state, [key, value]) => ({
+      ...state,
+      [stripId(key)]: value,
+    }), {});
 }
