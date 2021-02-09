@@ -40,8 +40,7 @@ import { SelectInput, DateInput, TextInput } from '../../components/Field';
 import { encounterOptions, ENCOUNTER_OPTIONS_BY_VALUE, Colors } from '../../constants';
 import { useEncounter } from '../../contexts/Encounter';
 
-const getIsTriage = encounter =>
-  encounter && encounter.type && ENCOUNTER_OPTIONS_BY_VALUE[encounter.encounterType].triageFlowOnly;
+const getIsTriage = encounter => encounter.type && ENCOUNTER_OPTIONS_BY_VALUE[encounter.encounterType].triageFlowOnly;
 
 const VitalsPane = React.memo(({ encounter, readonly }) => {
   const [modalOpen, setModalOpen] = React.useState(false);
@@ -64,19 +63,12 @@ const VitalsPane = React.memo(({ encounter, readonly }) => {
   );
 });
 
-const NotesPane = React.memo(({ encounter, readonly, onTabSelect }) => {
+const NotesPane = React.memo(({ encounter, readonly }) => {
   const [modalOpen, setModalOpen] = React.useState(false);
 
   return (
     <div>
-      <NoteModal
-        open={modalOpen}
-        encounterId={encounter.id}
-        onClose={() => {
-          setModalOpen(false);
-          onTabSelect('vitals');
-        }}
-      />
+      <NoteModal open={modalOpen} encounterId={encounter.id} onClose={() => setModalOpen(false)} />
       <NoteTable encounterId={encounter.id} />
       <ContentPane>
         <Button
@@ -92,19 +84,12 @@ const NotesPane = React.memo(({ encounter, readonly, onTabSelect }) => {
   );
 });
 
-const LabsPane = React.memo(({ encounter, readonly, onTabSelect }) => {
+const LabsPane = React.memo(({ encounter, readonly }) => {
   const [modalOpen, setModalOpen] = React.useState(false);
 
   return (
     <div>
-      <LabRequestModal
-        open={modalOpen}
-        encounter={encounter}
-        onClose={() => {
-          setModalOpen(false);
-          onTabSelect('vitals');
-        }}
-      />
+      <LabRequestModal open={modalOpen} encounter={encounter} onClose={() => setModalOpen(false)} />
       <LabRequestsTable encounterId={encounter.id} />
       <ContentPane>
         <Button
@@ -120,7 +105,7 @@ const LabsPane = React.memo(({ encounter, readonly, onTabSelect }) => {
   );
 });
 
-const ImagingPane = React.memo(({ encounter, readonly, onTabSelect }) => {
+const ImagingPane = React.memo(({ encounter, readonly }) => {
   const [modalOpen, setModalOpen] = React.useState(false);
 
   return (
@@ -128,10 +113,7 @@ const ImagingPane = React.memo(({ encounter, readonly, onTabSelect }) => {
       <ImagingRequestModal
         open={modalOpen}
         encounter={encounter}
-        onClose={() => {
-          setModalOpen(false);
-          onTabSelect('vitals');
-        }}
+        onClose={() => setModalOpen(false)}
       />
       <ImagingRequestsTable encounterId={encounter.id} />
       <ContentPane>
@@ -148,7 +130,7 @@ const ImagingPane = React.memo(({ encounter, readonly, onTabSelect }) => {
   );
 });
 
-const MedicationPane = React.memo(({ encounter, readonly, onTabSelect }) => {
+const MedicationPane = React.memo(({ encounter, readonly }) => {
   const [modalOpen, setModalOpen] = React.useState(false);
 
   return (
@@ -156,10 +138,7 @@ const MedicationPane = React.memo(({ encounter, readonly, onTabSelect }) => {
       <MedicationModal
         open={modalOpen}
         encounterId={encounter.id}
-        onClose={() => {
-          setModalOpen(false);
-          onTabSelect('vitals');
-        }}
+        onClose={() => setModalOpen(false)}
       />
       <EncounterMedicationTable encounterId={encounter.id} />
       <ContentPane>
@@ -176,7 +155,7 @@ const MedicationPane = React.memo(({ encounter, readonly, onTabSelect }) => {
   );
 });
 
-const ProcedurePane = React.memo(({ encounter, readonly, onTabSelect }) => {
+const ProcedurePane = React.memo(({ encounter, readonly }) => {
   const [editedProcedure, setEditedProcedure] = React.useState(null);
 
   return (
@@ -184,10 +163,7 @@ const ProcedurePane = React.memo(({ encounter, readonly, onTabSelect }) => {
       <ProcedureModal
         editedProcedure={editedProcedure}
         encounterId={encounter.id}
-        onClose={() => {
-          setEditedProcedure(null);
-          onTabSelect('vitals');
-        }}
+        onClose={() => setEditedProcedure(null)}
       />
       <ProcedureTable encounterId={encounter.id} onItemClick={item => setEditedProcedure(item)} />
       <ContentPane>

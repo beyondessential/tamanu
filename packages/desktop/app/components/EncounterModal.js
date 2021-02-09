@@ -4,17 +4,19 @@ import { Modal } from './Modal';
 import { Suggester } from '../utils/suggester';
 
 import { connectApi } from '../api/connectApi';
+import { viewPatientEncounter } from '../store/patient';
 
 import { EncounterForm } from '../forms/EncounterForm';
 import { useEncounter } from '../contexts/Encounter';
 
 const DumbEncounterModal = React.memo(
-  ({ open, onClose, onCreateEncounter, patientId, ...rest }) => {
-    const { createAndViewEncounter } = useEncounter();
+  ({ open, onClose, patientId, loadAndViewPatientEncounter, ...rest }) => {
+    const { createEncounter } = useEncounter();
 
-    const createEncounter = useCallback(
+    const onCreateEncounter = useCallback(
       async data => {
-        await createAndViewEncounter({ patientId, ...data });
+        await createEncounter({ patientId, ...data });
+        loadAndViewPatientEncounter();
         onClose();
       },
       [patientId],
@@ -22,14 +24,15 @@ const DumbEncounterModal = React.memo(
 
     return (
       <Modal title="Check in" open={open} onClose={onClose}>
-        <EncounterForm onSubmit={createEncounter} onCancel={onClose} {...rest} />
+        <EncounterForm onSubmit={onCreateEncounter} onCancel={onClose} {...rest} />
       </Modal>
     );
   },
 );
 
-export const EncounterModal = connectApi(api => ({
+export const EncounterModal = connectApi((api, dispatch, { patientId }) => ({
   locationSuggester: new Suggester(api, 'location'),
   practitionerSuggester: new Suggester(api, 'practitioner'),
   departmentSuggester: new Suggester(api, 'department'),
+  loadAndViewPatientEncounter: () => dispatch(viewPatientEncounter(patientId)),
 }))(DumbEncounterModal);

@@ -9,7 +9,7 @@ const EncounterContext = React.createContext({
   setIsLoading: () => {},
   writeAndViewEncounter: () => {},
   loadEncounter: () => {},
-  createAndViewEncounter: () => {},
+  createEncounter: () => {},
   viewEncounter: () => {},
 });
 
@@ -35,7 +35,7 @@ export const EncounterProvider = ({ store, children }) => {
     const { data: medications } = await api.get(`encounter/${encounterId}/medications`);
     setEncounterData({ ...data, diagnoses, procedures, medications });
     setIsLoading(false);
-    window.store = { ...window.store, encounter };
+    window.encounter = encounter;
   };
 
   // navigate to the root encounter view which reads from encounter state.
@@ -51,12 +51,12 @@ export const EncounterProvider = ({ store, children }) => {
   };
 
   // create, fetch and set encounter then navigate to encounter view.
-  const createAndViewEncounter = async data => {
+  const createEncounter = async data => {
     setIsLoading(true);
     const createdEncounter = await api.post(`encounter`, data);
-    loadEncounter(createdEncounter.id);
-    setIsLoading(false);
+    await loadEncounter(createdEncounter.id);
     viewEncounter();
+    setIsLoading(false);
   };
 
   return (
@@ -66,7 +66,7 @@ export const EncounterProvider = ({ store, children }) => {
         isLoading,
         writeAndViewEncounter,
         loadEncounter,
-        createAndViewEncounter,
+        createEncounter,
         viewEncounter,
       }}
     >

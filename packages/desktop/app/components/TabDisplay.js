@@ -58,7 +58,7 @@ export const TabDisplay = React.memo(({ tabs, currentTab, onTabSelect, ...tabPro
       <TabContainer variant="scrollable" scrollButtons="on" value={currentTab}>
         {buttons}
       </TabContainer>
-      <div>{currentTabData.render({ ...tabProps, onTabSelect })}</div>
+      <div>{currentTabData.render({ ...tabProps })}</div>
     </TabBar>
   );
 });
