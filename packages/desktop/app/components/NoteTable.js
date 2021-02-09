@@ -12,4 +12,6 @@ const COLUMNS = [
   { key: 'content', title: 'Content' },
 ];
 
-export const NoteTable = React.memo(({ encounterId }) => <DataFetchingTable columns={COLUMNS} endpoint={`encounter/${encounterId}/notes`} />);
+export const NoteTable = React.memo(({ encounterId }) => (
+  <DataFetchingTable columns={COLUMNS} endpoint={`encounter/${encounterId}/notes`} />
+));

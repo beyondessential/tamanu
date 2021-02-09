@@ -1,5 +1,6 @@
 /* eslint-disable react/jsx-one-expression-per-line */
 import React, { useEffect, useState } from 'react';
+import { connect } from 'react-redux';
 import styled from 'styled-components';
 import { printPage, PrintPortal } from '../../print';
 
@@ -8,6 +9,7 @@ import { TextButton, BackButton } from '../../components/Button';
 import { DateDisplay } from '../../components/DateDisplay';
 import { TopBar } from '../../components';
 import { connectApi } from '../../api';
+import { useEncounter } from '../../contexts/Encounter';
 
 const SummaryPageContainer = styled.div`
   margin: 0 50px 50px 50px;
@@ -95,9 +97,9 @@ const ProceduresList = ({ procedures }) => {
 const MedicationsList = ({ medications }) => {
   if (!medications || medications.length === 0) return <span>N/A</span>;
 
-  return medications.map(({ drug, prescription }) => (
+  return medications.map(({ medication, prescription }) => (
     <li>
-      <span>{drug.name}</span>
+      <span>{medication.name}</span>
       {prescription && (
         <span>
           <br />
@@ -108,151 +110,132 @@ const MedicationsList = ({ medications }) => {
   ));
 };
 
-const SummaryPage = React.memo(
-  ({ patient, encounter, procedures, medications, diagnoses = [] }) => {
-    const primaryDiagnoses = diagnoses.filter(d => d.isPrimary);
-    const secondaryDiagnoses = diagnoses.filter(d => !d.isPrimary);
+const SummaryPage = React.memo(({ patient, encounter }) => {
+  const {
+    diagnoses,
+    procedures,
+    medications,
+    startDate,
+    endDate,
+    location,
+    examiner,
+    dischargePhysician,
+    reasonForEncounter,
+    dischargeNotes,
+  } = encounter;
+  const primaryDiagnoses = diagnoses.filter(d => d.isPrimary);
+  const secondaryDiagnoses = diagnoses.filter(d => !d.isPrimary);
 
-    return (
-      <SummaryPageContainer>
-        <Header>
-          <h4>
-            <Label>Patient name: </Label>
-            <span>{`${patient.firstName} ${patient.lastName}`}</span>
-          </h4>
-          <h4>
-            <Label>UID: </Label>
-            <span>{patient.displayId}</span>
-          </h4>
-        </Header>
+  return (
+    <SummaryPageContainer>
+      <Header>
+        <h4>
+          <Label>Patient name: </Label>
+          <span>{`${patient.firstName} ${patient.lastName}`}</span>
+        </h4>
+        <h4>
+          <Label>UID: </Label>
+          <span>{patient.displayId}</span>
+        </h4>
+      </Header>
 
-        <Centered>
-          <Content>
-            <Row>
-              <div>
-                <Label>Admission date: </Label>
-                <DateDisplay date={encounter.startDate} />
-              </div>
-              <div>
-                <Label>Discharge date: </Label>
-                <DateDisplay date={encounter.endDate} />
-              </div>
-            </Row>
-
+      <Centered>
+        <Content>
+          <Row>
             <div>
-              <Label>Department: </Label>
-              {encounter.location && encounter.location.name}
+              <Label>Admission date: </Label>
+              <DateDisplay date={startDate} />
             </div>
-
-            <hr />
-
-            <TwoColumnSection>
-              <Label>Supervising physician: </Label>
-              <div>{encounter.examiner && encounter.examiner.displayName}</div>
-            </TwoColumnSection>
-            <TwoColumnSection>
-              <Label>Discharge physician: </Label>
-              <div>{encounter.dischargePhysician && encounter.dischargePhysician.displayName}</div>
-            </TwoColumnSection>
-
-            <hr />
-
-            <TwoColumnSection>
-              <Label>Reason for encounter: </Label>
-              <div>{encounter.reasonForEncounter}</div>
-            </TwoColumnSection>
-
-            <TwoColumnSection>
-              <Label>Primary diagnoses: </Label>
-              <ListColumn>
-                <ul>
-                  <DiagnosesList diagnoses={primaryDiagnoses} />
-                </ul>
-              </ListColumn>
-            </TwoColumnSection>
-
-            <TwoColumnSection>
-              <Label>Secondary diagnoses: </Label>
-              <ListColumn>
-                <ul>
-                  <DiagnosesList diagnoses={secondaryDiagnoses} />
-                </ul>
-              </ListColumn>
-            </TwoColumnSection>
-
-            <TwoColumnSection>
-              <Label>Procedures: </Label>
-              <ListColumn>
-                <ul>
-                  <ProceduresList procedures={procedures} />
-                </ul>
-              </ListColumn>
-            </TwoColumnSection>
-
-            <TwoColumnSection>
-              <Label>Medications: </Label>
-              <ListColumn>
-                <ul>
-                  <MedicationsList medications={medications} />
-                </ul>
-              </ListColumn>
-            </TwoColumnSection>
-
             <div>
-              <Label>Discharge planning notes:</Label>
-              <div>{encounter.dischargeNotes}</div>
+              <Label>Discharge date: </Label>
+              <DateDisplay date={endDate} />
             </div>
-          </Content>
-        </Centered>
-      </SummaryPageContainer>
-    );
-  },
-);
+          </Row>
 
-const DumbDischargeSummaryView = React.memo(
-  ({ encounter, patient, loading, onFetchDiagnoses, onFetchMedications, onFetchProcedures }) => {
-    if (loading) return <LoadingIndicator />;
-    const [procedures, setProcedures] = useState([]);
-    const [medications, setMedications] = useState([]);
-    const [diagnoses, setDiagnoses] = useState([]);
-    useEffect(() => {
-      async function fetchEncounterData() {
-        const procedure = await onFetchProcedures();
-        setProcedures(procedure.data);
+          <div>
+            <Label>Department: </Label>
+            {location && location.name}
+          </div>
 
-        const medication = await onFetchMedications();
-        setMedications(medication.data);
+          <hr />
 
-        const diagnosis = await onFetchDiagnoses();
-        setDiagnoses(diagnosis.data);
-      }
-      fetchEncounterData();
-    }, [encounter]);
+          <TwoColumnSection>
+            <Label>Supervising physician: </Label>
+            <div>{examiner && examiner.displayName}</div>
+          </TwoColumnSection>
+          <TwoColumnSection>
+            <Label>Discharge physician: </Label>
+            <div>{dischargePhysician && dischargePhysician.displayName}</div>
+          </TwoColumnSection>
 
-    return (
-      <TopBar title="Patient Discharge Summary">
-        <TextButton onClick={printPage}>Print Summary</TextButton>
-        <StyledBackButton to="/patients/encounter" />
+          <hr />
+
+          <TwoColumnSection>
+            <Label>Reason for encounter: </Label>
+            <div>{reasonForEncounter}</div>
+          </TwoColumnSection>
+
+          <TwoColumnSection>
+            <Label>Primary diagnoses: </Label>
+            <ListColumn>
+              <ul>
+                <DiagnosesList diagnoses={primaryDiagnoses} />
+              </ul>
+            </ListColumn>
+          </TwoColumnSection>
+
+          <TwoColumnSection>
+            <Label>Secondary diagnoses: </Label>
+            <ListColumn>
+              <ul>
+                <DiagnosesList diagnoses={secondaryDiagnoses} />
+              </ul>
+            </ListColumn>
+          </TwoColumnSection>
+
+          <TwoColumnSection>
+            <Label>Procedures: </Label>
+            <ListColumn>
+              <ul>
+                <ProceduresList procedures={procedures} />
+              </ul>
+            </ListColumn>
+          </TwoColumnSection>
+
+          <TwoColumnSection>
+            <Label>Medications: </Label>
+            <ListColumn>
+              <ul>
+                <MedicationsList medications={medications} />
+              </ul>
+            </ListColumn>
+          </TwoColumnSection>
+
+          <div>
+            <Label>Discharge planning notes:</Label>
+            <div>{dischargeNotes}</div>
+          </div>
+        </Content>
+      </Centered>
+    </SummaryPageContainer>
+  );
+});
+
+const DumbDischargeSummaryView = React.memo(({ patient }) => {
+  const { encounter } = useEncounter();
+
+  return (
+    <TopBar title="Patient Discharge Summary">
+      <TextButton onClick={printPage}>Print Summary</TextButton>
+      <StyledBackButton to="/patients/encounter" />
+      <SummaryPage patient={patient} encounter={encounter} />
+      <PrintPortal>
         <SummaryPage patient={patient} encounter={encounter} />
-        <PrintPortal>
-          <SummaryPage
-            patient={patient}
-            encounter={encounter}
-            procedures={procedures}
-            medications={medications}
-            diagnoses={diagnoses}
-          />
-        </PrintPortal>
-      </TopBar>
-    );
-  },
-);
+      </PrintPortal>
+    </TopBar>
+  );
+});
 
-export const DischargeSummaryView = connectApi((api, dispatch, { encounter, patient }) => ({
-  onFetchDiagnoses: async () => api.get(`encounter/${encounter.id}/diagnoses`),
-  onFetchProcedures: async () => api.get(`encounter/${encounter.id}/procedures`),
-  onFetchMedications: async () => api.get(`encounter/${encounter.id}/medications`),
-  loading: encounter.loading,
-  encounter,
-  patient,
+export const DischargeSummaryView = connect(state => ({
+  patient: state.patient,
 }))(DumbDischargeSummaryView);

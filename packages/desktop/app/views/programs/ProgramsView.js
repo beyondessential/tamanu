@@ -47,7 +47,7 @@ const DumbSurveyFlow = React.memo(
     );
 
     if (!programsList) {
-      return <LoadingIndicator loadingText="Loading survey list..." />;
+      return <LoadingIndicator />;
     }
 
     if (!survey) {

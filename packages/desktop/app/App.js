@@ -76,7 +76,4 @@ const mapDispatchToProps = dispatch => ({
   onLogin: ({ email, password }) => dispatch(login(email, password)),
 });
 
-export const App = connect(
-  mapStateToProps,
-  mapDispatchToProps,
-)(DumbApp);
+export const App = connect(mapStateToProps, mapDispatchToProps)(DumbApp);

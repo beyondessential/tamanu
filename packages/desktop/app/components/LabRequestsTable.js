@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { useCallback } from 'react';
 import styled from 'styled-components';
 import { connect } from 'react-redux';
 
@@ -8,7 +8,8 @@ import { DateDisplay } from './DateDisplay';
 import { LAB_REQUEST_STATUS_LABELS, LAB_REQUEST_COLORS } from '../constants';
 import { viewLab } from '../store/labRequest';
 import { PatientNameDisplay } from './PatientNameDisplay';
-import { viewPatient, viewPatientEncounter } from '../store/patient';
+import { viewPatientEncounter } from '../store/patient';
+import { useEncounter } from '../contexts/Encounter';
 
 const StatusLabel = styled.div`
   background: ${p => p.color};
@@ -41,14 +42,22 @@ const globalColumns = [
   ...encounterColumns,
 ];
 
-const DumbLabRequestsTable = React.memo(({ encounterId, onLabSelect }) => (
-  <DataFetchingTable
-    endpoint={encounterId ? `encounter/${encounterId}/labRequests` : 'labRequest'}
-    columns={encounterId ? encounterColumns : globalColumns}
-    noDataMessage="No lab requests found"
-    onRowClick={row => onLabSelect(row)}
-  />
-));
+const DumbLabRequestsTable = React.memo(({ encounterId, onLabSelect }) => {
+  const { loadEncounter } = useEncounter();
+  const selectLab = useCallback(async lab => {
+    await loadEncounter(lab.encounter.id);
+    onLabSelect(lab);
+  }, []);
+
+  return (
+    <DataFetchingTable
+      endpoint={encounterId ? `encounter/${encounterId}/labRequests` : 'labRequest'}
+      columns={encounterId ? encounterColumns : globalColumns}
+      noDataMessage="No lab requests found"
+      onRowClick={selectLab}
+    />
+  );
+});
 
 export const LabRequestsTable = connect(null, dispatch => ({
   onLabSelect: lab => {

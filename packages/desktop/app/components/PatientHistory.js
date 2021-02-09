@@ -19,7 +19,7 @@ const columns = [
 export const PatientHistory = ({ patientId, onItemClick }) => (
   <DataFetchingTable
     columns={columns}
-    onRowClick={row => onItemClick(row)}
+    onRowClick={row => onItemClick(row.id)}
     noDataMessage="No historical records for this patient."
     endpoint={`patient/${patientId}/encounters`}
   />

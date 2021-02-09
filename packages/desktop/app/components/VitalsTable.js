@@ -5,6 +5,7 @@ import { Table } from './Table';
 import { DateDisplay } from './DateDisplay';
 
 import { capitaliseFirstLetter } from '../utils/capitalise';
+import { useEncounter } from '../contexts/Encounter';
 
 const vitalsRows = [
   { key: 'height', title: 'Height', rounding: 0, unit: 'cm' },
@@ -30,7 +31,10 @@ const UnitDisplay = React.memo(({ amount, unit, rounding }) => {
   );
 });
 
-const DumbVitalsTable = React.memo(({ readings }) => {
+export const VitalsTable = React.memo(() => {
+  const {
+    encounter: { vitals: readings },
+  } = useEncounter();
   // create a column for each reading
   const dataColumns = [
     { key: 'title', title: 'Measure' },
@@ -60,5 +64,3 @@ const DumbVitalsTable = React.memo(({ readings }) => {
   // and return the table
   return <Table columns={dataColumns} data={rows} />;
 });
-
-export const VitalsTable = connect(state => ({ readings: state.encounter.vitals }))(DumbVitalsTable);

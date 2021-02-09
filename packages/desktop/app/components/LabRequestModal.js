@@ -1,36 +1,44 @@
-import React from 'react';
+import React, { useCallback } from 'react';
+import { push } from 'connected-react-router';
 import shortid from 'shortid';
 
 import { Modal } from './Modal';
 import { Suggester } from '../utils/suggester';
+import { useEncounter } from '../contexts/Encounter';
 
 import { connectApi } from '../api/connectApi';
-import { viewEncounter } from '../store/encounter';
 
 import { ConnectedLabRequestForm } from '../forms/LabRequestForm';
 
 const DumbLabRequestModal = React.memo(
-  ({ open, encounter, practitionerSuggester, onClose, onSubmit }) => (
-    <Modal width="md" title="New lab request" open={open} onClose={onClose}>
-      <ConnectedLabRequestForm
-        onSubmit={onSubmit}
-        onCancel={onClose}
-        encounter={encounter}
-        practitionerSuggester={practitionerSuggester}
-        generateId={shortid.generate}
-      />
-    </Modal>
-  ),
+  ({ open, encounter, practitionerSuggester, onClose, onSubmit }) => {
+    const { loadEncounter } = useEncounter();
+    const submitLabRequest = useCallback(async data => {
+      await onSubmit(data);
+      await loadEncounter(encounter.id);
+      onClose();
+    }, []);
+
+    return (
+      <Modal width="md" title="New lab request" open={open} onClose={onClose}>
+        <ConnectedLabRequestForm
+          onSubmit={submitLabRequest}
+          onCancel={onClose}
+          encounter={encounter}
+          practitionerSuggester={practitionerSuggester}
+          generateId={shortid.generate}
+        />
+      </Modal>
+    );
+  },
 );
 
 export const LabRequestModal = connectApi((api, dispatch, { encounter }) => ({
   onSubmit: async data => {
-    const encounterId = encounter.id;
     await api.post(`labRequest`, {
       ...data,
-      encounterId,
+      encounterId: encounter.id,
     });
-    dispatch(viewEncounter(encounterId));
   },
   practitionerSuggester: new Suggester(api, 'practitioner'),
 }))(DumbLabRequestModal);

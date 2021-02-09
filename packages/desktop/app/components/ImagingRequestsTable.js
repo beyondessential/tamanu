@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { useCallback } from 'react';
 import styled from 'styled-components';
 import { connect } from 'react-redux';
 
@@ -9,6 +9,7 @@ import { IMAGING_REQUEST_STATUS_LABELS, IMAGING_REQUEST_COLORS } from '../consta
 import { viewImagingRequest } from '../store/imagingRequest';
 import { PatientNameDisplay } from './PatientNameDisplay';
 import { viewPatientEncounter } from '../store/patient';
+import { useEncounter } from '../contexts/Encounter';
 
 const StatusLabel = styled.div`
   background: ${p => p.color};
@@ -41,14 +42,23 @@ const globalColumns = [
   ...encounterColumns,
 ];
 
-const DumbImagingRequestsTable = React.memo(({ encounterId, onImagingRequestSelect }) => (
-  <DataFetchingTable
-    endpoint={encounterId ? `encounter/${encounterId}/imagingRequests` : 'imagingRequest'}
-    columns={encounterId ? encounterColumns : globalColumns}
-    noDataMessage="No imaging requests found"
-    onRowClick={onImagingRequestSelect}
-  />
-));
+const DumbImagingRequestsTable = React.memo(({ encounterId, onImagingRequestSelect }) => {
+  const { loadEncounter } = useEncounter();
+
+  const selectImagingRequest = useCallback(async imagingRequest => {
+    await loadEncounter(imagingRequest.encounter.id);
+    onImagingRequestSelect(imagingRequest);
+  }, []);
+
+  return (
+    <DataFetchingTable
+      endpoint={encounterId ? `encounter/${encounterId}/imagingRequests` : 'imagingRequest'}
+      columns={encounterId ? encounterColumns : globalColumns}
+      noDataMessage="No imaging requests found"
+      onRowClick={selectImagingRequest}
+    />
+  );
+});
 
 export const ImagingRequestsTable = connect(null, dispatch => ({
   onImagingRequestSelect: imagingRequest => {

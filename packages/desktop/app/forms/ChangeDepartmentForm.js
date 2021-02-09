@@ -3,10 +3,11 @@ import React from 'react';
 import { Form, Field, AutocompleteField } from '../components/Field';
 import { FormGrid } from '../components/FormGrid';
 import { ConfirmCancelRow } from '../components/ButtonRow';
+import { useEncounter } from '../contexts/Encounter';
 
-export class ChangeDepartmentForm extends React.PureComponent {
-  renderForm = ({ submitForm }) => {
-    const { onCancel, departmentSuggester } = this.props;
+export const ChangeDepartmentForm = ({ onCancel, departmentSuggester, onSubmit }) => {
+  const { encounter } = useEncounter();
+  const renderForm = ({ submitForm }) => {
     return (
       <FormGrid columns={1}>
         <Field name="departmentId" component={AutocompleteField} suggester={departmentSuggester} />
@@ -15,16 +16,13 @@ export class ChangeDepartmentForm extends React.PureComponent {
     );
   };
 
-  render() {
-    const { onSubmit, encounter } = this.props;
-    return (
-      <Form
-        initialValues={{
-          departmentId: encounter.departmentId,
-        }}
-        render={this.renderForm}
-        onSubmit={onSubmit}
-      />
-    );
-  }
-}
+  return (
+    <Form
+      initialValues={{
+        departmentId: encounter.departmentId,
+      }}
+      render={renderForm}
+      onSubmit={onSubmit}
+    />
+  );
+};
