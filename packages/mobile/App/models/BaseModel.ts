@@ -4,9 +4,16 @@ import {
   Generated,
   UpdateDateColumn,
   CreateDateColumn,
+  Column,
+  BeforeUpdate,
 } from 'typeorm/browser';
 
-import { DeepPartial } from 'typeorm/common/DeepPartial';
+import { MoreThan } from 'typeorm';
+
+export type FindUnsyncedOptions<T> = {
+  limit?: number,
+  after?: T,
+};
 
 const stripId = (key) => (key === 'displayId') ? key : key.replace(/Id$/, '');
 
@@ -53,6 +60,22 @@ export abstract class BaseModel extends BaseEntity {
   @UpdateDateColumn()
   updatedAt: Date;
 
+  @Column({ default: true })
+  markedForUpload: boolean;
+
+  @Column({ nullable: true })
+  uploadedAt: Date;
+
+  @BeforeUpdate()
+  markForUpload() {
+    // TODO: go through and make sure records always use save(), not update()
+    this.markedForUpload = true;
+  }
+
+  static async markUploaded(ids: string | string[], uploadedAt: Date): Promise<void> {
+    await this.getRepository().update(ids, { uploadedAt, markedForUpload: false });
+  }
+
   // TODO: compatibility with BaseEntity.create, which doesn't return a promise
   static async create<T extends BaseModel>(data?: any): Promise<T> {
     const repo = this.getRepository();
@@ -80,4 +103,37 @@ export abstract class BaseModel extends BaseEntity {
     await this.create(data);
   }
 
+  static async findMarkedForUpload<T extends BaseModel>(
+    { limit, after }: FindUnsyncedOptions<T> = {},
+  ): Promise<T[]> {
+    const repo = this.getRepository();
+
+    // find any records that come after afterRecord
+    const whereAfter = (after instanceof Object) ? { id: MoreThan(after.id) } : {};
+
+    const record = await repo.find({
+      where: {
+        markedForUpload: true,
+        ...whereAfter,
+      },
+      order: {
+        id: 'ASC',
+      },
+      take: limit,
+      // TODO: add relations for nested syncing
+    });
+    return <T[]>record;
+  }
+
+  static shouldExport(): boolean {
+    // TODO: enable export for more models
+    return false;
+  }
+
+  static excludedUploadColumns: string[] = [
+    'createdAt',
+    'updatedAt',
+    'markedForUpload',
+    'uploadedAt',
+  ];
 }
