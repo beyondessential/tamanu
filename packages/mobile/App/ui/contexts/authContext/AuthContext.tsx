@@ -1,6 +1,5 @@
 import React, { createContext, PropsWithChildren, ReactElement, useContext, useState } from 'react';
 import { NavigationProp } from '@react-navigation/native';
-import bcrypt from 'react-native-bcrypt';
 import NetInfo from '@react-native-community/netinfo';
 import { compose } from 'redux';
 import { withAuth } from '../../containers/Auth';
@@ -18,27 +17,7 @@ import { Routes } from '/helpers/routes';
 import { BackendContext } from '~/services/backendProvider';
 import { SyncConnectionParameters } from '~/types/SyncConnectionParameters';
 
-const SALT_ROUNDS = 10;
-
-const hash = (content) => new Promise((resolve, reject) => {
-  bcrypt.hash(content, SALT_ROUNDS, (err, result) => {
-    if(err) {
-      reject(err);
-    } else {
-      resolve(result);
-    }
-  });
-});
-
-const compare = (content, hash) => new Promise((resolve, reject) => {
-  bcrypt.compare(content, hash, (err, result) => {
-    if(err) {
-      reject(err);
-    } else {
-      resolve(result);
-    }
-  });
-});
+import { compare, hash } from './bcrypt';
 
 interface AuthContextData {
   signIn: (params: SyncConnectionParameters) => Promise<void>;
@@ -133,7 +112,7 @@ const Provider = ({
   const signIn = async (params: SyncConnectionParameters): Promise<void> => {
     const network = await NetInfo.fetch();
 
-    if(true || !network.isConnected) {
+    if(!network.isConnected) {
       return localSignIn(params);
     }
 
