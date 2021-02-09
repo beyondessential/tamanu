@@ -6,6 +6,7 @@ import { compose } from 'redux';
 import { withAuth } from '../../containers/Auth';
 import { WithAuthStoreProps } from '/store/ducks/auth';
 import { RequestFailedError } from '/infra/httpClient/axios/errors/request-failed-error';
+import { IUser } from '~/types/IUser';
 import {
   InvalidCredentialsError,
   AuthenticationError,
@@ -16,6 +17,28 @@ import {
 import { Routes } from '/helpers/routes';
 import { BackendContext } from '~/services/backendProvider';
 import { SyncConnectionParameters } from '~/types/SyncConnectionParameters';
+
+const SALT_ROUNDS = 10;
+
+const hash = (content) => new Promise((resolve, reject) => {
+  bcrypt.hash(content, SALT_ROUNDS, (err, result) => {
+    if(err) {
+      reject(err);
+    } else {
+      resolve(result);
+    }
+  });
+});
+
+const compare = (content, hash) => new Promise((resolve, reject) => {
+  bcrypt.compare(content, hash, (err, result) => {
+    if(err) {
+      reject(err);
+    } else {
+      resolve(result);
+    }
+  });
+});
 
 interface AuthContextData {
   signIn: (params: SyncConnectionParameters) => Promise<void>;
@@ -64,11 +87,12 @@ const Provider = ({
 
   const backend = useContext(BackendContext);
   const localSignIn = async ({ email, password }: SyncConnectionParameters): Promise<void> => {
+    console.log("Signing in locally as", email);
     const user = await backend.models.User.getRepository().findOne({
       email,
     });
 
-    if (!user || !bcrypt.compare(password, user.localPassword)) {
+    if (!user || !await compare(password, user.localPassword)) {
       throw new AuthenticationError(invalidUserCredentialsMessage);
     }
 
@@ -76,14 +100,32 @@ const Provider = ({
     setSignedInStatus(true);
   };
 
+  const saveLocalUser = async (userData: Partial<IUser>, password: string): Promise<void> => {
+    // save local password to repo for later use
+    const userRepo = await backend.models.User.getRepository();
+    const dbUser = userRepo.create(userData);
+    const savedUser = await userRepo.save(dbUser);
+
+    // kick off a local password hash & save
+    // the hash takes a while on mobile, but we don't need to do anything with the result
+    // of this until next login, so just start the process without awaiting it
+    (async () => {
+      savedUser.localPassword = await hash(password);
+      await userRepo.save(savedUser);
+      console.log(`Set local password for ${savedUser.email}`);
+    })();
+
+    // return the user that was saved to the database
+    return savedUser;
+  };
+
   const remoteSignIn = async (params: SyncConnectionParameters): Promise<void> => {
     const { user, token } = await backend.connectToRemote(params);
 
-    // TODO: set local password for user
-    // const localPassword = await bcrypt.hash(params.password, SALT_ROUNDS);
-    // then create or update user in local db with these details
+    // kick off a local save
+    const userData = await saveLocalUser(user, params.password);
 
-    setUser({ facility: dummyFacility, ...user });
+    setUser({ facility: dummyFacility, ...userData });
     setToken(token);
     setSignedInStatus(true);
   };
@@ -91,7 +133,7 @@ const Provider = ({
   const signIn = async (params: SyncConnectionParameters): Promise<void> => {
     const network = await NetInfo.fetch();
 
-    if(!network.isConnected) {
+    if(true || !network.isConnected) {
       return localSignIn(params);
     }
 
