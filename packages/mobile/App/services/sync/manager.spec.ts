@@ -24,7 +24,7 @@ const createManager = (): ({
 }) => {
   // mock WebSyncSource
   MockedWebSyncSource.mockClear();
-  const syncManager = new SyncManager(new MockedWebSyncSource(""));
+  const syncManager = new SyncManager(new MockedWebSyncSource(""), { verbose: false });
   expect(MockedWebSyncSource).toHaveBeenCalledTimes(1);
   const mockedSource = MockedWebSyncSource.mock.instances[0];
 
