@@ -4,6 +4,8 @@ import { SyncRecord, SyncRecordData } from './source';
 import { BaseModel } from '~/models/BaseModel';
 import { RelationsTree, extractRelationsTree, extractIncludedColumns } from './metadata';
 
+// TODO: handle lazy and/or embedded relations
+
 type ExportPlan = {
   toSyncRecord: (record: BaseModel) => SyncRecord
   children: {
