@@ -1,9 +1,29 @@
 import React from 'react';
+import styled from 'styled-components';
+import CircularProgress from '@material-ui/core/CircularProgress';
 
-import { ContentPane } from './ContentPane';
+const LoadingIconContainer = styled.div`
+  display: grid;
+  position: absolute;
+  width: 100vw;
+  height: 100vh;
+  background: #cecece;
+  opacity: 0.5;
+  overflow: hidden;
+  z-index: 9999;
+  grid-template-columns: repeat(3, 1fr);
+  grid-template-rows: repeat(3, 1fr);
 
-export const LoadingIndicator = React.memo(({ loadingText = 'Loading...' }) => (
-  <ContentPane>
-    <div>{loadingText}</div>
-  </ContentPane>
+  div {
+    grid-column: 2;
+    grid-row: 2;
+    justify-self: center;
+    align-self: center;
+  }
+`;
+
+export const LoadingIndicator = React.memo(() => (
+  <LoadingIconContainer>
+    <CircularProgress size="5rem" />
+  </LoadingIconContainer>
 ));

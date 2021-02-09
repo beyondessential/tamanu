@@ -10,7 +10,13 @@
   "auth": {
     "saltRounds": 12,
     "tokenDuration": "1h",
-    "allowFakeToken": false,
-    "reportNoUserError": false
+    "reportNoUserError": false,
+    "allowDummyToken": false,
+    "initialUser": {
+      "email": "admin@tamanu.io",
+      "displayName": "Initial Admin",
+      "role": "administrator",
+      "password": "admin"
+    }
   }
 }

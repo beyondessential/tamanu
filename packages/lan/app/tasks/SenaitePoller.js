@@ -1,8 +1,9 @@
 import { get, post, jar } from 'request';
 import config from 'config';
 import moment from 'moment';
+import { log } from '~/logging';
 
-import { ScheduledTask } from './ScheduledTask';
+import { ScheduledTask } from 'shared/tasks';
 
 // if there's an error creating a lab request in senaite
 // set it to "manual" status (indicating 'you'll need to do this manually')
@@ -19,7 +20,7 @@ function formatForSenaite(datetime) {
 
 export class SenaitePoller extends ScheduledTask {
   constructor(database) {
-    super('*/1 * * * *'); // run every 1 minute
+    super('*/1 * * * *', log); // run every 1 minute
     this.jar = jar(); // separate cookie store
     this.loginTask = null;
     this.database = database;

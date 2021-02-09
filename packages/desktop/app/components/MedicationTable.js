@@ -1,10 +1,10 @@
-import React from 'react';
+import React, { useCallback } from 'react';
+import { push } from 'connected-react-router';
 import { connect } from 'react-redux';
 
 import { DataFetchingTable } from './Table';
 import { DateDisplay } from './DateDisplay';
-
-import { viewEncounter } from '../store/encounter';
+import { useEncounter } from '../contexts/Encounter';
 
 const getMedicationName = ({ medication }) => medication.name;
 
@@ -37,16 +37,24 @@ const FULL_LISTING_COLUMNS = [
 ];
 
 export const EncounterMedicationTable = React.memo(({ encounterId }) => (
-  <DataFetchingTable columns={MEDICATION_COLUMNS} endpoint={`encounter/${encounterId}/medications`} />
-));
-
-export const DataFetchingMedicationTable = connect(null, dispatch => ({
-  onMedicationSelect: medication => dispatch(viewEncounter(medication.encounter.id)),
-}))(({ onMedicationSelect }) => (
   <DataFetchingTable
-    endpoint="medication"
-    columns={FULL_LISTING_COLUMNS}
-    noDataMessage="No medication requests found"
-    onRowClick={onMedicationSelect}
+    columns={MEDICATION_COLUMNS}
+    endpoint={`encounter/${encounterId}/medications`}
   />
 ));
+
+export const DataFetchingMedicationTable = () => {
+  const { loadEncounter } = useEncounter();
+  const onMedicationSelect = useCallback(async medication => {
+    await loadEncounter(medication.encounter.id);
+  }, []);
+
+  return (
+    <DataFetchingTable
+      endpoint="medication"
+      columns={FULL_LISTING_COLUMNS}
+      noDataMessage="No medication requests found"
+      onRowClick={onMedicationSelect}
+    />
+  );
+};

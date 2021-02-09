@@ -22,6 +22,7 @@ export function initDatabase(dbOptions) {
     saltRounds=null,
     primaryKeyDefault=Sequelize.UUIDV4,
     primaryKeyType=Sequelize.UUID,
+    hackToSkipEncounterValidation=false, // TODO: remove once mobile implements all relationships
   } = dbOptions;
 
   if (sqlitePath) {
@@ -65,6 +66,7 @@ export function initDatabase(dbOptions) {
         primaryKey,
         sequelize,
         paranoid: makeEveryModelParanoid,
+        hackToSkipEncounterValidation,
       },
       models,
     );

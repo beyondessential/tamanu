@@ -1,6 +1,5 @@
 import { push } from 'connected-react-router';
 
-import { reloadEncounter } from './encounter';
 import { reloadPatient } from './patient';
 
 import { createReducer } from '../utils/createReducer';
@@ -22,8 +21,6 @@ export const reloadImagingRequest = id => async (dispatch, getState, { api }) =>
 
   const encounter = imagingRequest.encounters[0];
   if (encounter) {
-    dispatch(reloadEncounter(encounter.id));
-
     const patient = encounter.patient[0];
     if (patient) {
       dispatch(reloadPatient(patient.id));

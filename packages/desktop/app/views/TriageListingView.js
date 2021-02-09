@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { useCallback } from 'react';
 import styled from 'styled-components';
 import moment from 'moment';
 import Paper from '@material-ui/core/Paper';
@@ -14,6 +14,7 @@ import { DateDisplay } from '../components/DateDisplay';
 import { LiveDurationDisplay } from '../components/LiveDurationDisplay';
 import { TRIAGE_COLORS_BY_LEVEL } from '../constants';
 import { capitaliseFirstLetter } from '../utils/capitalise';
+import { useEncounter } from '../contexts/Encounter';
 
 const PriorityText = styled.span`
   color: white;
@@ -139,15 +140,23 @@ const COLUMNS = [
 const TriageTable = connect(null, dispatch => ({
   onViewEncounter: triage => dispatch(viewPatientEncounter(triage.patientId, triage.encounterId)),
 }))(
-  React.memo(({ onViewEncounter, ...props }) => (
-    <DataFetchingTable
-      endpoint="triage"
-      columns={COLUMNS}
-      noDataMessage="No patients found"
-      onRowClick={onViewEncounter}
-      {...props}
-    />
-  )),
+  React.memo(({ onViewEncounter, ...props }) => {
+    const { loadEncounter } = useEncounter();
+    const viewEncounter = useCallback(async triage => {
+      await loadEncounter(triage.encounter.id);
+      onViewEncounter(triage);
+    }, []);
+
+    return (
+      <DataFetchingTable
+        endpoint="triage"
+        columns={COLUMNS}
+        noDataMessage="No patients found"
+        onRowClick={viewEncounter}
+        {...props}
+      />
+    );
+  }),
 );
 
 export const TriageListingView = React.memo(() => (

@@ -1,20 +1,32 @@
-import React from 'react';
+import React, { useCallback } from 'react';
+import { push } from 'connected-react-router';
 
 import { connectApi } from '../api/connectApi';
 import { Suggester } from '../utils/suggester';
-import { viewEncounter } from '../store/encounter';
+import { useEncounter } from '../contexts/Encounter';
 import { showDecisionSupport } from '../store/decisionSupport';
 
 import { Modal } from './Modal';
 import { DiagnosisForm } from '../forms/DiagnosisForm';
 
-const DumbDiagnosisModal = React.memo(({ diagnosis, onClose, onSaveDiagnosis, ...rest }) => (
-  <Modal title="Diagnosis" open={!!diagnosis} onClose={onClose}>
-    <DiagnosisForm onCancel={onClose} diagnosis={diagnosis} onSave={onSaveDiagnosis} {...rest} />
-  </Modal>
-));
+const DumbDiagnosisModal = React.memo(
+  ({ diagnosis, onClose, onSaveDiagnosis, encounterId, ...rest }) => {
+    const { loadEncounter } = useEncounter();
+    const saveDiagnosis = useCallback(async data => {
+      await onSaveDiagnosis(data);
+      await loadEncounter(encounterId);
+      onClose();
+    }, []);
 
-export const DiagnosisModal = connectApi((api, dispatch, { encounterId, onClose }) => ({
+    return (
+      <Modal title="Diagnosis" open={!!diagnosis} onClose={onClose}>
+        <DiagnosisForm onCancel={onClose} diagnosis={diagnosis} onSave={saveDiagnosis} {...rest} />
+      </Modal>
+    );
+  },
+);
+
+export const DiagnosisModal = connectApi((api, dispatch, { encounterId }) => ({
   onSaveDiagnosis: async data => {
     if (data.id) {
       await api.put(`diagnosis/${data.id}`, data);
@@ -32,9 +44,6 @@ export const DiagnosisModal = connectApi((api, dispatch, { encounterId, onClose 
         );
       }
     }
-
-    onClose();
-    dispatch(viewEncounter(encounterId));
   },
   icd10Suggester: new Suggester(api, 'icd10'),
 }))(DumbDiagnosisModal);
