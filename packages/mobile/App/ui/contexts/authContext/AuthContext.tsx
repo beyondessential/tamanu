@@ -22,7 +22,6 @@ import { compare, hash } from './bcrypt';
 interface AuthContextData {
   signIn: (params: SyncConnectionParameters) => Promise<void>;
   signOut: (navigation: NavigationProp<any>) => void;
-  checkPreviousUserAuthentication: (navigation: NavigationProp<any>) => void;
   isUserAuthenticated: () => boolean;
   setUserFirstSignIn: () => void;
   checkFirstSession: () => boolean;
@@ -45,21 +44,6 @@ const Provider = ({
   };
 
   const isUserAuthenticated = (): boolean => props.token !== null && props.user !== null;
-
-  const checkPreviousUserAuthentication = (
-    navigation: NavigationProp<any>,
-  ): void => {
-    if (isUserAuthenticated()) {
-      navigation.navigate(Routes.HomeStack.Index, {
-        screen: Routes.HomeStack.HomeTabs.Index,
-        params: {
-          screen: Routes.HomeStack.HomeTabs.Home,
-        },
-      });
-    } else {
-      navigation.navigate(Routes.SignUpStack.Index);
-    }
-  };
 
   // TODO: use server-provided facility
   const dummyFacility = { name: 'BES Clinic', id: '123' };
@@ -133,7 +117,6 @@ const Provider = ({
       value={{
         setUserFirstSignIn,
         signIn,
-        checkPreviousUserAuthentication,
         signOut,
         isUserAuthenticated,
         checkFirstSession,
