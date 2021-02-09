@@ -218,7 +218,6 @@ export class SyncManager {
       })).map(r => executeExportPlan(exportPlan, r));
     }
 
-    // const toSyncRecord = buildToSyncRecord(model);
     const uploadRecords = async (page: number, syncRecords: SyncRecord[]): Promise<UploadRecordsResponse> => {
       // TODO: detect and retry failures (need to pass back from server)
       this.emitter.emit('uploadingPage', `${channel}-${page}`);
