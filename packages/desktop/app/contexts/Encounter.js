@@ -5,7 +5,7 @@ import { ApiContext } from '../api/singletons';
 const EncounterContext = React.createContext({
   encounter: null,
   setEncounterData: () => {},
-  isLoading: false,
+  loadingEncounter: false,
   setIsLoading: () => {},
   writeAndViewEncounter: () => {},
   loadEncounter: () => {},
@@ -16,7 +16,7 @@ const EncounterContext = React.createContext({
 export const useEncounter = () => useContext(EncounterContext);
 
 export const EncounterProvider = ({ store, children }) => {
-  const [isLoading, setIsLoading] = useState(false);
+  const [loadingEncounter, setLoadingEncounter] = useState(false);
   const [encounter, setEncounterData] = useState(null);
 
   const api = useContext(ApiContext);
@@ -28,13 +28,13 @@ export const EncounterProvider = ({ store, children }) => {
 
   // get encounter data from the sync server and save it to state.
   const loadEncounter = async encounterId => {
-    setIsLoading(true);
+    setLoadingEncounter(true);
     const data = await api.get(`encounter/${encounterId}`);
     const { data: diagnoses } = await api.get(`encounter/${encounterId}/diagnoses`);
     const { data: procedures } = await api.get(`encounter/${encounterId}/procedures`);
     const { data: medications } = await api.get(`encounter/${encounterId}/medications`);
     setEncounterData({ ...data, diagnoses, procedures, medications });
-    setIsLoading(false);
+    setLoadingEncounter(false);
     window.encounter = encounter;
   };
 
@@ -52,18 +52,18 @@ export const EncounterProvider = ({ store, children }) => {
 
   // create, fetch and set encounter then navigate to encounter view.
   const createEncounter = async data => {
-    setIsLoading(true);
+    setLoadingEncounter(true);
     const createdEncounter = await api.post(`encounter`, data);
     await loadEncounter(createdEncounter.id);
     viewEncounter();
-    setIsLoading(false);
+    setLoadingEncounter(false);
   };
 
   return (
     <EncounterContext.Provider
       value={{
         encounter,
-        isLoading,
+        loadingEncounter,
         writeAndViewEncounter,
         loadEncounter,
         createEncounter,

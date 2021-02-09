@@ -8,20 +8,23 @@ import { MuiThemeProvider, StylesProvider } from '@material-ui/core/styles';
 import { RoutingApp } from './RoutingApp';
 import { theme } from './theme';
 import { EncounterProvider } from './contexts/Encounter';
+import { ReferralProvider } from './contexts/Referral';
 
 export default function Root({ store, history }) {
   return (
     <Provider store={store}>
       <ConnectedRouter history={history}>
         <EncounterProvider store={store}>
-          <StylesProvider injectFirst>
-            <MuiThemeProvider theme={theme}>
-              <ThemeProvider theme={theme}>
-                <CssBaseline />
-                <RoutingApp />
-              </ThemeProvider>
-            </MuiThemeProvider>
-          </StylesProvider>
+          <ReferralProvider store={store}>
+            <StylesProvider injectFirst>
+              <MuiThemeProvider theme={theme}>
+                <ThemeProvider theme={theme}>
+                  <CssBaseline />
+                  <RoutingApp />
+                </ThemeProvider>
+              </MuiThemeProvider>
+            </StylesProvider>
+          </ReferralProvider>
         </EncounterProvider>
       </ConnectedRouter>
     </Provider>

@@ -469,9 +469,9 @@ export const DumbEncounterView = ({ patient, encounter }) => {
 export const EncounterView = connect(state => ({
   patient: state.patient,
 }))(({ patient }) => {
-  const { encounter, isLoading } = useEncounter();
+  const { encounter, loadingEncounter } = useEncounter();
 
-  if (!encounter || isLoading) return <LoadingIndicator />;
+  if (!encounter || loadingEncounter) return <LoadingIndicator />;
 
   return <DumbEncounterView encounter={encounter} patient={patient} />;
 });

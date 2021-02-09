@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { useState } from 'react';
 import { connect } from 'react-redux';
 
 import { push } from 'connected-react-router';
@@ -8,35 +8,45 @@ import { DropdownButton } from './DropdownButton';
 
 import { viewReferral } from '../store/referral';
 import { useEncounter } from '../contexts/Encounter';
+import { useReferral } from '../contexts/Referral';
+import { EncounterModal } from './EncounterModal';
 
-const DumbActionDropdown = React.memo(({ onCheckin, onCancel, closedDate }) => {
-  const { loadEncounter, encounter } = useEncounter();
+const DumbActionDropdown = React.memo(({ onCheckin, onCancel, closedDate, row }) => {
+  const { loadReferral, referral } = useReferral();
+  const [open, setOpen] = useState(false);
   const actions = [
     {
       label: 'Admit',
       condition: () => !closedDate,
-      onClick: onCheckin,
+      onClick: () => {
+        setOpen(true);
+      },
     },
     {
       label: 'Cancel',
       condition: () => !closedDate,
       onClick: onCancel,
     },
-    {
-      label: 'View encounter',
-      condition: () => !!encounter,
-      onClick: async () => {
-        await loadEncounter(encounter.id);
-      },
-    },
+    // {
+    //   label: 'View encounter',
+    //   condition: () => !!encounter,
+    //   onClick: async () => {
+    //     await loadEncounter(encounter.id);
+    //   },
+    // },
   ].filter(action => !action.condition || action.condition());
 
-  return <DropdownButton color="primary" actions={actions} />;
+  return (
+    <>
+      <DropdownButton color="primary" actions={actions} />
+      <EncounterModal open={open} onClose={() => setOpen(false)} patientId={row.patientId} />
+    </>
+  );
 });
 
 const ActionDropdown = connect(null, dispatch => ({
   onCheckin: () => dispatch(push('/patients/view/checkin')),
-  onCancel: () => console.log('TODO'),
+  onCancel: () => console.log('TODO: cancel referral'),
 }))(DumbActionDropdown);
 
 const StatusDisplay = React.memo(({ encounter, closedDate }) => {
@@ -67,8 +77,8 @@ const getStatus = ({ encounter, closedDate }) => (
   <StatusDisplay encounter={encounter} closedDate={closedDate} />
 );
 
-const getActions = ({ encounter, closedDate }) => (
-  <ActionDropdown encounter={encounter} closedDate={closedDate} />
+const getActions = row => (
+  <ActionDropdown encounter={row.encounter} closedDate={row.closedDate} row={row} />
 );
 
 const columns = [

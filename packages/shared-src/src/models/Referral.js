@@ -16,11 +16,6 @@ export class Referral extends Model {
           allowNull: false,
           defaultValue: Sequelize.NOW,
         },
-        complete: {
-          type: Sequelize.STRING,
-          defaultValue: false,
-          allowNull: false,
-        },
       },
       {
         ...options,

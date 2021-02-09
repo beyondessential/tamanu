@@ -8,19 +8,28 @@ import { viewPatientEncounter } from '../store/patient';
 
 import { EncounterForm } from '../forms/EncounterForm';
 import { useEncounter } from '../contexts/Encounter';
+import { useReferral } from '../contexts/Referral';
+import { LoadingIndicator } from './LoadingIndicator';
 
 const DumbEncounterModal = React.memo(
   ({ open, onClose, patientId, loadAndViewPatientEncounter, ...rest }) => {
     const { createEncounter } = useEncounter();
+    const { referral, writeReferral, loadingReferral } = useReferral();
 
     const onCreateEncounter = useCallback(
       async data => {
-        await createEncounter({ patientId, ...data });
+        const createdEncounter = await createEncounter({ patientId, ...data });
+        if (referral) {
+          console.log('attaching referral')
+          await writeReferral(referral.id, { encounterId: createdEncounter.id });
+        }
         loadAndViewPatientEncounter();
         onClose();
       },
       [patientId],
     );
+
+    if (loadingReferral) return <LoadingIndicator />;
 
     return (
       <Modal title="Check in" open={open} onClose={onClose}>
