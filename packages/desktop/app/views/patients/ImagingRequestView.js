@@ -54,7 +54,6 @@ export const DumbImagingRequestView = React.memo(({ imagingRequest, patient, loa
 });
 
 export const ImagingRequestView = connect(state => ({
-  loading: state.encounter.loading,
   imagingRequest: state.imagingRequest,
   patient: state.patient,
 }))(DumbImagingRequestView);

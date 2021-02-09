@@ -35,7 +35,7 @@ export const EncounterProvider = ({ store, children }) => {
     const { data: medications } = await api.get(`encounter/${encounterId}/medications`);
     setEncounterData({ ...data, diagnoses, procedures, medications });
     setIsLoading(false);
-    window.store.encounter = encounter;
+    window.store = { ...window.store, encounter };
   };
 
   // navigate to the root encounter view which reads from encounter state.
