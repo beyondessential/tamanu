@@ -11,10 +11,10 @@ import { MedicationForm } from '../forms/MedicationForm';
 
 const DumbMedicationModal = React.memo(
   ({ open, onClose, onSubmit, practitionerSuggester, drugSuggester, encounterId }) => {
-    const { fetchAndSetEncounterData } = useEncounter();
+    const { loadEncounter } = useEncounter();
     const submitPrescription = useCallback(async data => {
       await onSubmit(data);
-      await fetchAndSetEncounterData(encounterId);
+      await loadEncounter(encounterId);
       onClose();
     }, []);
 

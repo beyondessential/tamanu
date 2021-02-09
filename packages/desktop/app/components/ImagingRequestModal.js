@@ -12,10 +12,10 @@ import { ImagingRequestForm } from '../forms/ImagingRequestForm';
 
 const DumbImagingRequestModal = React.memo(
   ({ open, encounter, practitionerSuggester, imagingTypeSuggester, onClose, onSubmit }) => {
-    const { fetchAndSetEncounterData } = useEncounter();
+    const { loadEncounter } = useEncounter();
     const requestImaging = useCallback(async data => {
       await onSubmit(data);
-      await fetchAndSetEncounterData(encounter.id);
+      await loadEncounter(encounter.id);
       onClose();
     }, []);
 

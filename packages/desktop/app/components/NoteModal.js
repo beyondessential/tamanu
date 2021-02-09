@@ -9,11 +9,11 @@ import { useEncounter } from '../contexts/Encounter';
 
 const DumbNoteModal = React.memo(
   ({ open, onClose, onSaveNote, practitionerSuggester, encounterId }) => {
-    const { fetchAndSetEncounterData } = useEncounter();
+    const { loadEncounter } = useEncounter();
 
     const saveNote = useCallback(async data => {
       await onSaveNote(data);
-      await fetchAndSetEncounterData(encounterId);
+      await loadEncounter(encounterId);
       onClose();
     }, []);
 

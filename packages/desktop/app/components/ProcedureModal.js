@@ -20,10 +20,10 @@ const DumbProcedureModal = React.memo(
     anaestheticSuggester,
     encounterId,
   }) => {
-    const { fetchAndSetEncounterData } = useEncounter();
+    const { loadEncounter } = useEncounter();
     const saveProcedure = useCallback(async data => {
       await onSaveProcedure(data);
-      await fetchAndSetEncounterData(encounterId);
+      await loadEncounter(encounterId);
       onClose();
     }, []);
 

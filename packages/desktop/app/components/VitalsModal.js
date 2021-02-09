@@ -8,12 +8,12 @@ import { useEncounter } from '../contexts/Encounter';
 import { Modal } from './Modal';
 
 const DumbVitalsModal = React.memo(({ onClose, onSubmit }) => {
-  const { fetchAndSetEncounterData, encounter } = useEncounter();
+  const { loadEncounter, encounter } = useEncounter();
 
   const recordVitals = useCallback(
     async data => {
       await onSubmit(data, encounter.id);
-      await fetchAndSetEncounterData(encounter.id);
+      await loadEncounter(encounter.id);
       onClose();
     },
     [encounter],

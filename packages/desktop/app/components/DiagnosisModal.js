@@ -11,10 +11,10 @@ import { DiagnosisForm } from '../forms/DiagnosisForm';
 
 const DumbDiagnosisModal = React.memo(
   ({ diagnosis, onClose, onSaveDiagnosis, encounterId, ...rest }) => {
-    const { fetchAndSetEncounterData } = useEncounter();
+    const { loadEncounter } = useEncounter();
     const saveDiagnosis = useCallback(async data => {
       await onSaveDiagnosis(data);
-      await fetchAndSetEncounterData(encounterId);
+      await loadEncounter(encounterId);
       onClose();
     }, []);
 

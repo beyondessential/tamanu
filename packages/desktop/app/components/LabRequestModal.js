@@ -12,10 +12,10 @@ import { ConnectedLabRequestForm } from '../forms/LabRequestForm';
 
 const DumbLabRequestModal = React.memo(
   ({ open, encounter, practitionerSuggester, onClose, onSubmit }) => {
-    const { fetchAndSetEncounterData } = useEncounter();
+    const { loadEncounter } = useEncounter();
     const submitLabRequest = useCallback(async data => {
       await onSubmit(data);
-      await fetchAndSetEncounterData(encounter.id);
+      await loadEncounter(encounter.id);
       onClose();
     }, []);
 
