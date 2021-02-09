@@ -40,7 +40,7 @@ export class SurveyResponse extends BaseModel implements ISurveyResponse {
   @RelationId(({ encounter }) => encounter)
   encounterId: string;
 
-  @OneToMany(() => SurveyResponseAnswer, answer => answer.response, { cascade: ['insert'] })
+  @OneToMany(() => SurveyResponseAnswer, answer => answer.response)
   answers: SurveyResponseAnswer[];
 
   @BeforeInsert()
