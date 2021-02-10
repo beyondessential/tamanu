@@ -1,3 +1,3 @@
 - name: test
   service: tamanu-mobile
-  command: yarn test
+  command: "yarn test:coverage"

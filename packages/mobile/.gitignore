@@ -73,3 +73,4 @@ mockserver/functions/node_modules
 
 # storybook
 storybook/storyLoader.js
+coverage/
