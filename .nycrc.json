@@ -1,0 +1,7 @@
+{
+  "all": true,
+  "include": [
+    "packages/*/app/**/*.{js,ts,jsx,tsx}",
+    "packages/shared/**/*.{js,ts,jsx,tsx}"
+  ]
+}
