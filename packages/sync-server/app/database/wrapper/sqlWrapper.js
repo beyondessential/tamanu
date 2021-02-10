@@ -82,7 +82,7 @@ export class SqlWrapper {
   // required for auth middleware
 
   async findUser(email) {
-    const user = await this.models.User.findOne({
+    const user = await this.models.User.scope('withPassword').findOne({
       where: { email },
     });
     if (!user) {

@@ -61,6 +61,14 @@ export class User extends Model {
       },
       {
         ...options,
+        defaultScope: {
+          attributes: { exclude: ['password'] },
+        },
+        scopes: {
+          withPassword: {
+            attributes: { include: ['password'] },
+          },
+        },
         indexes: [{ fields: ['email'] }],
       },
     );

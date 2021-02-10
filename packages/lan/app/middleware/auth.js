@@ -44,7 +44,7 @@ export async function loginHandler(req, res, next) {
   // no permission needed for login
   req.flagPermissionChecked();
 
-  const user = await models.User.findOne({ where: { email } });
+  const user = await models.User.scope('withPassword').findOne({ where: { email } });
   const passwordMatch = await comparePassword(user, password);
 
   if (!passwordMatch) {

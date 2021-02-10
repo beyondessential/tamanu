@@ -133,7 +133,7 @@ describe('User', () => {
     const newUser = await models.User.create(details);
     const id = newUser.id;
 
-    const user = await models.User.findByPk(id);
+    const user = await models.User.scope('withPassword').findByPk(id);
     const oldHashedPW = user.password;
     expect(oldHashedPW).toBeTruthy();
     expect(oldHashedPW).not.toEqual(details.password);
@@ -142,7 +142,7 @@ describe('User', () => {
     const result = await adminApp.put(`/v1/user/${id}`).send({ password: newPassword });
     expect(result).toHaveSucceeded();
     expect(result.body).not.toHaveProperty('password');
-    const updatedUser = await models.User.findByPk(id);
+    const updatedUser = await models.User.scope('withPassword').findByPk(id);
     expect(updatedUser).toHaveProperty('displayName', details.displayName);
     expect(updatedUser.password).toBeTruthy();
     expect(updatedUser.password).not.toEqual(details.newPassword);
@@ -154,7 +154,7 @@ describe('User', () => {
     const newUser = await models.User.create(details);
     const id = newUser.id;
 
-    const user = await models.User.findByPk(id);
+    const user = await models.User.scope('withPassword').findByPk(id);
     const oldHashedPW = user.password;
     expect(oldHashedPW).toBeTruthy();
     expect(oldHashedPW).not.toEqual(details.password);
@@ -165,7 +165,7 @@ describe('User', () => {
     expect(result).toHaveSucceeded();
     expect(result.body).not.toHaveProperty('password');
 
-    const updatedUser = await models.User.findByPk(id);
+    const updatedUser = await models.User.scope('withPassword').findByPk(id);
     expect(updatedUser).toHaveProperty('displayName', details.displayName);
     expect(updatedUser.password).toBeTruthy();
     expect(updatedUser.password).not.toEqual(details.newPassword);
