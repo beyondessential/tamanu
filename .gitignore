@@ -41,3 +41,4 @@ build
 .keys
 .tmp
 
+.nyc_output/
