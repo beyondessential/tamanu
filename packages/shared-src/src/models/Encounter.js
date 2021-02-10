@@ -56,7 +56,7 @@ export class Encounter extends Model {
   }
 
   static getFullReferenceAssociations() {
-    return ['vitals', 'notes', 'department', 'location', 'examiner'];
+    return ['vitals', 'department', 'location', 'examiner'];
   }
 
   static initRelations(models) {
@@ -81,8 +81,6 @@ export class Encounter extends Model {
     });
 
     this.hasMany(models.Vitals, { as: 'vitals' });
-
-    this.hasMany(models.Note, { as: 'notes', foreignKey: 'recordId' });
 
     this.hasMany(models.SurveyResponse, {
       foreignKey: 'encounterId',
