@@ -2,7 +2,7 @@ import moment from 'moment';
 import { padStart, capitalize } from 'lodash';
 
 import { createValueIndex } from 'shared/utils/valueIndex';
-import { ENCOUNTER_TYPES, IMAGING_REQUEST_STATUS_TYPES } from 'shared/constants';
+import { ENCOUNTER_TYPES, IMAGING_REQUEST_STATUS_TYPES, NOTE_TYPES } from 'shared/constants';
 import {
   medicationIcon,
   administrationIcon,
@@ -217,7 +217,7 @@ export const nonEmergencyDiagnosisCertaintyOptions = diagnosisCertaintyOptions.f
 );
 
 export const noteTypes = [
-  { value: 'treatmentPlan', label: 'Treatment plan' },
+  { value: NOTE_TYPES.TREATMENT_PLAN, label: 'Treatment plan' },
   { value: 'medical', label: 'Medical' },
   { value: 'surgical', label: 'Surgical' },
   { value: 'nursing', label: 'Nursing' },
@@ -226,8 +226,8 @@ export const noteTypes = [
   { value: 'physiotherapy', label: 'Physiotherapy' },
   { value: 'social', label: 'Social welfare' },
   { value: 'discharge', label: 'Discharge planning' },
-  { value: 'other', label: 'Other' },
-  { value: 'system', label: 'System', hideFromDropdown: true },
+  { value: NOTE_TYPES.OTHER, label: 'Other' },
+  { value: NOTE_TYPES.SYSTEM, label: 'System', hideFromDropdown: true },
 ];
 
 export const encounterOptions = [

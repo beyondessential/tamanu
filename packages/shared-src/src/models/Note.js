@@ -6,6 +6,7 @@ export const NOTE_RECORD_TYPES = {
   ENCOUNTER: 'Encounter',
   PATIENT: 'Patient',
   TRIAGE: 'Triage',
+  PATIENT_CARE_PLAN: 'PatientCarePlan',
 };
 
 const NOTE_RECORD_TYPE_VALUES = Object.values(NOTE_RECORD_TYPES);
@@ -73,6 +74,12 @@ export class Note extends Model {
   static initRelations(models) {
     this.belongsTo(models.User, {
       foreignKey: 'authorId',
+      as: 'author',
+    });
+
+    this.belongsTo(models.User, {
+      foreignKey: 'onBehalfOfId',
+      as: 'onBehalfOf',
     });
   }
 }

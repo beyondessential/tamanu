@@ -82,8 +82,6 @@ export class Encounter extends Model {
 
     this.hasMany(models.Vitals, { as: 'vitals' });
 
-    this.hasMany(models.Note, { as: 'notes', foreignKey: 'recordId' });
-
     this.hasMany(models.SurveyResponse, {
       foreignKey: 'encounterId',
       as: 'surveyResponses',
