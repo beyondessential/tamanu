@@ -56,7 +56,7 @@ export class Encounter extends Model {
   }
 
   static getFullReferenceAssociations() {
-    return ['vitals', 'notes', 'department', 'location', 'examiner'];
+    return ['vitals', 'department', 'location', 'examiner'];
   }
 
   static initRelations(models) {
