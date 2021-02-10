@@ -1,3 +1,3 @@
 #!/bin/bash
 echo "Running tests"
-yarn test
+yarn test-coverage

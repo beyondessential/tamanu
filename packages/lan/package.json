@@ -18,8 +18,8 @@
   "scripts": {
     "start-dev": "rm -rf ./dist/ && webpack --config webpack.config.dev.js",
     "test": "NODE_ENV=test jest --runInBand",
-    "test-coverage": "npm test -- --coverage",
-    "test-watch": "npm test -- --watch",
+    "test-coverage": "yarn test --coverage",
+    "test-watch": "yarn test --watch",
     "build": "rm -rf ./dist/ && webpack --config webpack.config.prod.js && yarn run run-pkg",
     "run-pkg": "pkg . --targets node12-win-x64 --output ./release/server.exe",
     "package": "./scripts/package.sh",
