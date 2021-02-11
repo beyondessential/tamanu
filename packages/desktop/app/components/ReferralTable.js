@@ -82,7 +82,6 @@ export const ReferralTable = React.memo(({ patientId }) => {
   const [open, setOpen] = useState(false);
   const [referral, setReferral] = useState({});
   const handleRowClick = useCallback(row => {
-  console.log("🚀 ~ file: ReferralTable.js ~ line 85 ~ ReferralTable ~ row", row)
     setReferral(row);
     setOpen(true);
   }, []);
