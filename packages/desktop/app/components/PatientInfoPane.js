@@ -9,11 +9,18 @@ import { CoreInfoDisplay } from './PatientCoreInfo';
 import { PatientAlert } from './PatientAlert';
 import { PatientStickerLabelPage } from './PatientStickerLabel';
 
-import { AllergyForm, OngoingConditionForm, FamilyHistoryForm, PatientIssueForm } from '../forms';
+import {
+  AllergyForm,
+  OngoingConditionForm,
+  FamilyHistoryForm,
+  PatientCarePlanForm,
+  PatientIssueForm,
+} from '../forms';
 import { DeathModal } from './DeathModal';
 import { Colors } from '../constants';
 
 import { PATIENT_ISSUE_TYPES } from 'shared/constants';
+import { PatientCarePlanDetails } from './PatientCarePlanNotes';
 
 const OngoingConditionDisplay = memo(({ patient, readonly }) => (
   <InfoPaneList
@@ -24,7 +31,9 @@ const OngoingConditionDisplay = memo(({ patient, readonly }) => (
     suggesterEndpoints={['practitioner', 'icd10']}
     items={patient.conditions}
     Form={OngoingConditionForm}
-    getName={({ condition, resolved }) => resolved ? `${condition.name} (resolved)` : condition.name }
+    getName={({ condition, resolved }) =>
+      resolved ? `${condition.name} (resolved)` : condition.name
+    }
   />
 ));
 
@@ -85,6 +94,23 @@ const PatientIssuesDisplay = memo(({ patient, readonly }) => {
   );
 });
 
+const CarePlanDisplay = memo(({ patient, readonly }) => (
+  <InfoPaneList
+    patient={patient}
+    readonly={readonly}
+    title="Care plans"
+    endpoint="patientCarePlan"
+    suggesterEndpoints={['practitioner', 'icd10']}
+    items={patient.carePlans}
+    Form={PatientCarePlanForm}
+    getName={({ disease }) => disease.name}
+    behavior="modal"
+    itemTitle="Care Plan"
+    CustomEditForm={PatientCarePlanDetails}
+    getEditFormName={({ disease }) => `Care Plan: ${disease.name}`}
+  />
+));
+
 const Container = styled.div`
   background: ${Colors.white};
   min-height: 100vh;
@@ -117,6 +143,7 @@ const InfoPaneLists = memo(props => (
     <AllergyDisplay {...props} />
     <FamilyHistoryDisplay {...props} />
     <PatientIssuesDisplay {...props} />
+    <CarePlanDisplay {...props} />
     <ButtonRow>
       <PatientStickerLabelPage {...props} />
       <RecordDeathSection {...props} />
