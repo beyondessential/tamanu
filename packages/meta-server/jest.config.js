@@ -7,4 +7,5 @@ module.exports = {
     '^~/(.*)$': '<rootDir>/app/$1',
   },
   testEnvironment: 'node',
+  collectCoverageFrom: ['app/**/*.js'],
 };
