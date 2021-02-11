@@ -18,4 +18,9 @@ export class User extends BaseModel implements IUser {
 
   @Column()
   role: string;
+
+  static excludedSyncColumns: string[] = [
+    ...BaseModel.excludedSyncColumns,
+    'localPassword',
+  ];
 }
