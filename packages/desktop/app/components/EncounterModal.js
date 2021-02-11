@@ -12,15 +12,14 @@ import { useReferral } from '../contexts/Referral';
 import { LoadingIndicator } from './LoadingIndicator';
 
 const DumbEncounterModal = React.memo(
-  ({ open, onClose, patientId, loadAndViewPatientEncounter, ...rest }) => {
+  ({ open, onClose, patientId, loadAndViewPatientEncounter, referral, ...rest }) => {
     const { createEncounter } = useEncounter();
-    const { referral, writeReferral, loadingReferral } = useReferral();
+    const { writeReferral, loadingReferral } = useReferral();
 
     const onCreateEncounter = useCallback(
       async data => {
         const createdEncounter = await createEncounter({ patientId, ...data });
         if (referral) {
-          console.log('attaching referral')
           await writeReferral(referral.id, { encounterId: createdEncounter.id });
         }
         loadAndViewPatientEncounter();

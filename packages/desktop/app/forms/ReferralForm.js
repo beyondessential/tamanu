@@ -59,7 +59,7 @@ export const ReferralForm = React.memo(
             required
           />
           <Field name="date" label="Date" component={DateField} required />
-          <FormSectionSeparator heading={'Being referred to:'} />
+          <FormSectionSeparator heading="Being referred to:" />
           <Field name="urgent" label="Urgent priority" component={CheckField} required />
           <Field
             name="referredToDepartmentId"
@@ -77,21 +77,8 @@ export const ReferralForm = React.memo(
           />
           <FormSeparatorLine />
           <Field
-            name="diagnosisId"
-            label="Diagnosis"
-            component={AutocompleteField}
-            suggester={icd10Suggester}
-          />
-          <Field
-            name="certainty"
-            label="Certainty"
-            component={SelectField}
-            options={nonEmergencyDiagnosisCertaintyOptions}
-            required
-          />
-          <Field
-            name="notes"
-            label="Notes"
+            name="reasonForReferral"
+            label="Reason for referral"
             component={TextField}
             multiline
             style={{ gridColumn: '1 / -1' }}

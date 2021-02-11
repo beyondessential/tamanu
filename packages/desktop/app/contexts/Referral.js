@@ -32,7 +32,6 @@ export const ReferralProvider = ({ store, children }) => {
   };
 
   const writeReferral = async (referralId, data) => {
-    console.log("🚀 ~ file: Referral.js ~ line 35 ~ writeReferral ~ data", data)
     await saveReferral(referralId, data);
     await loadReferral(referralId);
   };

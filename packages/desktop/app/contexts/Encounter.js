@@ -57,6 +57,7 @@ export const EncounterProvider = ({ store, children }) => {
     await loadEncounter(createdEncounter.id);
     viewEncounter();
     setLoadingEncounter(false);
+    return createdEncounter;
   };
 
   return (

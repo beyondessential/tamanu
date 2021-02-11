@@ -52,7 +52,7 @@ export const DropdownButton = React.memo(({ actions, color, dropdownColor, ...pr
   }
 
   return (
-    <span {...props}>
+    <div>
       <ButtonGroup variant="outlined" color={color} ref={anchorRef} aria-label="split button">
         <Button onClick={event => handleClick(event, 0)}>{mainAction.label}</Button>
         <Button
@@ -97,7 +97,7 @@ export const DropdownButton = React.memo(({ actions, color, dropdownColor, ...pr
           </Grow>
         )}
       </Popper>
-    </span>
+    </div>
   );
 });
 
