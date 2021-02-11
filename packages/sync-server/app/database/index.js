@@ -15,6 +15,10 @@ const unsafeRecreateDb = async name => {
     password,
     host,
     port,
+    // 'postgres' is the default database that's automatically
+    // created on new installs - we just need something to connect
+    // to, and it doesn't matter what the schema is!
+    database: 'postgres',
   });
   try {
     await client.connect();
