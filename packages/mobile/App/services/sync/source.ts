@@ -67,7 +67,7 @@ export class WebSyncSource implements SyncSource {
       const response = await fetch(url, {
         method: 'GET',
         headers: {
-          'Authorization': 'Bearer fake-token',
+          'Authorization': `Bearer ${this.token}`,
           'Accept': 'application/json',
         },
       });
@@ -84,7 +84,7 @@ export class WebSyncSource implements SyncSource {
       const rawResponse = await fetch(url, {
         method: 'POST',
         headers: {
-          'Authorization': 'Bearer fake-token',
+          'Authorization': `Bearer ${this.token}`,
           'Content-Type': 'application/json',
           'Accept': 'application/json',
         },
@@ -126,6 +126,8 @@ export class WebSyncSource implements SyncSource {
       console.warn("Auth failed with an inexplicable error", data);
       throw new AuthenticationError(generalErrorMessage);
     }
+
+    this.token = data.token;
 
     return data;
   }
