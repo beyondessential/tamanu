@@ -1,7 +1,6 @@
 import { Database, ModelMap } from '~/infra/db';
 
-import { SyncManager } from '~/services/sync';
-import { WebSyncSource } from '~/services/syncSource';
+import { SyncManager, WebSyncSource } from '~/services/sync';
 import { readConfig, writeConfig } from '~/services/config';
 
 import { SyncConnectionParameters } from '~/types/SyncConnectionParameters';

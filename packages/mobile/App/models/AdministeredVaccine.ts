@@ -1,4 +1,4 @@
-import { Entity, Column, ManyToOne } from 'typeorm/browser';
+import { Entity, Column, ManyToOne, BeforeUpdate, BeforeInsert, RelationId } from 'typeorm/browser';
 import { BaseModel } from './BaseModel';
 import { IAdministeredVaccine } from '~/types';
 import { Encounter } from './Encounter';
@@ -21,11 +21,23 @@ export class AdministeredVaccine extends BaseModel implements IAdministeredVacci
   @Column()
   date: Date;
 
-  @ManyToOne(type => Encounter, encounter => encounter.administeredVaccine)
+  @ManyToOne(() => Encounter, encounter => encounter.administeredVaccines)
   encounter: Encounter;
 
-  @ManyToOne(type => ScheduledVaccine, scheduledVaccine => scheduledVaccine.administeredVaccine)
+  @RelationId(({ encounter }: AdministeredVaccine) => encounter)
+  encounterId: string;
+
+  @ManyToOne(() => ScheduledVaccine, scheduledVaccine => scheduledVaccine.administeredVaccines)
   scheduledVaccine: ScheduledVaccine;
+
+  @RelationId(({ scheduledVaccine }: AdministeredVaccine) => scheduledVaccine)
+  scheduledVaccineId: string;
+
+  @BeforeInsert()
+  @BeforeUpdate()
+  async markEncounterForUpload() {
+    await this.markParentForUpload(Encounter, 'encounter');
+  }
 
   static async getForPatient(patientId: string): Promise<IAdministeredVaccine[]> {
     return this.getRepository()

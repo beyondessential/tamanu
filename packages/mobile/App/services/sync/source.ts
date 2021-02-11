@@ -3,7 +3,7 @@ import {
   AuthenticationError,
   invalidUserCredentialsMessage,
   generalErrorMessage,
-} from '../ui/contexts/authContext/auth-error';
+} from '~/ui/contexts/authContext/auth-error';
 
 export type DownloadRecordsResponse = {
   count: number;

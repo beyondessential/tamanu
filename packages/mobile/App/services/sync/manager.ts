@@ -1,32 +1,16 @@
 import mitt from 'mitt';
 
-import { without, pick } from 'lodash';
 import { Database } from '~/infra/db';
 import { readConfig, writeConfig } from '~/services/config';
 import { Patient } from '~/models/Patient';
 import { BaseModel } from '~/models/BaseModel';
-import { DownloadRecordsResponse, UploadRecordsResponse, SyncRecord, SyncRecordData, SyncSource } from './syncSource';
+import { DownloadRecordsResponse, UploadRecordsResponse, SyncRecord, SyncSource } from './source';
+import { createImportPlan, executeImportPlan } from './import';
+import { createExportPlan, executeExportPlan } from './export';
 
 type RunChannelSyncOptions = {
   overrideLastSynced?: number,
 }
-
-class NoSyncImporterError extends Error {
-  constructor(modelName: string) {
-    super(`No sync importer for model ${modelName}`);
-  }
-}
-
-const buildToSyncRecordFunc = (model: typeof BaseModel) => {
-  const { connection } = model.getRepository().manager;
-  const allColumns = connection.getMetadata(model).ownColumns.map(c => c.propertyName);
-  const excludedColumns = model.excludedUploadColumns;
-  const includedProperties = without(allColumns, ...excludedColumns);
-  return (entity: object): SyncRecord => {
-    const data = pick(entity, includedProperties) as SyncRecordData;
-    return { data };
-  };
-};
 
 const UPLOAD_LIMIT = 100;
 const DOWNLOAD_LIMIT = 100;
@@ -55,25 +39,6 @@ export class SyncManager {
 
       console.log(`[sync] ${String(action)} ${args[0] || ''}`);
     });
-  }
-
-  async importRecord(model: typeof BaseModel, syncRecord: SyncRecord): Promise<void> {
-    // write one single downloaded record to the database
-    const { isDeleted, data } = syncRecord;
-
-    if (!model) {
-      throw new NoSyncImporterError(model.name);
-    }
-    if (isDeleted) {
-      await model.remove(data);
-    } else {
-      await model.createOrUpdate({
-        ...data,
-        markedForUpload: false,
-      });
-    }
-
-    this.emitter.emit('syncedRecord', model.name);
   }
 
   async runScheduledSync(): Promise<void> {
@@ -108,32 +73,12 @@ export class SyncManager {
     await this.runChannelSync(models.SurveyScreenComponent, 'surveyScreenComponent');
     await this.runChannelSync(models.Patient, 'patient');
 
-    // sync all reference data including shallow patient list
-    // full sync of patients that've been flagged (encounters, etc)
-    /*
-    const patientsToSync = await this.getPatientsToSync();
-    this.emitter.emit("patientSyncStarted", patientsToSync.length);
-    for(let i = 0; i < patientsToSync.length; i++) {
-      try {
-        const patient = patientsToSync[i];
-        await this.runPatientSync(patient);
-        this.emitter("patientRecordSynced", patient, i, patientsToSync.length);
-      } catch(e) {
-        console.warn(e.message);
-      }
-    }
-    this.emitter.emit("patientSyncEnded");
-    */
+    await models.Encounter.mapSyncablePatientIds(async patientId => {
+      await this.runPatientSync(patientId);
+    });
 
     this.emitter.emit('syncEnded');
     this.isSyncing = false;
-  }
-
-  getPatientsToSync(): Promise<Patient[]> {
-    const { models } = Database;
-    return models.Patient.find({
-      markedForSync: true,
-    });
   }
 
   async markPatientForSync(patient: Patient): Promise<void> {
@@ -174,10 +119,12 @@ export class SyncManager {
     // So we keep these records in a queue and retry them at the end of the download.
     let pendingRecords = [];
 
+    const importPlan = createImportPlan(model);
     const importRecords = async (records: SyncRecord[]): Promise<void> => {
       await Promise.all(records.map(async r => {
         try {
-          await this.importRecord(model, r);
+          await executeImportPlan(importPlan, r);
+          this.emitter.emit('syncedRecord', model.name);
         } catch (e) {
           if (e.message.match(/FOREIGN KEY constraint failed/)) {
             // this error is to be expected! just push it
@@ -261,57 +208,63 @@ export class SyncManager {
 
   async exportAndUpload(model: typeof BaseModel, channel: string) {
     // function definitions
-    let page = 0;
-
-    const exportRecords = async (afterRecord?: BaseModel): Promise<BaseModel[]> => {
+    const exportPlan = createExportPlan(model);
+    const exportRecords = async (page: number, afterId?: string): Promise<SyncRecord[]> => {
       this.emitter.emit('exportingPage', `${channel}-${page}`);
-      return model.findMarkedForUpload({
-        after: afterRecord,
+      return (await model.findMarkedForUpload({
+        channel,
+        after: afterId,
         limit: UPLOAD_LIMIT,
-      });
+      })).map(r => executeExportPlan(exportPlan, r));
     }
 
-    const toSyncRecord = buildToSyncRecordFunc(model);
-    const uploadRecords = async (records: BaseModel[]): Promise<UploadRecordsResponse> => {
+    const uploadRecords = async (page: number, syncRecords: SyncRecord[]): Promise<UploadRecordsResponse> => {
       // TODO: detect and retry failures (need to pass back from server)
       this.emitter.emit('uploadingPage', `${channel}-${page}`);
-      const syncRecords = records.map(toSyncRecord);
       return this.syncSource.uploadRecords(channel, syncRecords);
     }
 
-    const markRecordsUploaded = async (records: BaseModel[], requestedAt: number): Promise<void> => {
+    const markRecordsUploaded = async (page: number, records: SyncRecord[], requestedAt: number): Promise<void> => {
       this.emitter.emit('markingPageUploaded', `${channel}-${page}`);
-      return model.markUploaded(records.map(r => r.id), new Date(requestedAt));
+      return model.markUploaded(records.map(r => r.data.id), new Date(requestedAt));
     }
 
     // TODO: progress handling
 
     // export and upload loop
-    let lastSeenRecord: BaseModel;
-    let uploadPromise: Promise<UploadRecordsResponse>;
-    this.emitter.emit('exportStarted', channel);
-    while (true) {
-      // begin exporting records
-      const exportPromise = exportRecords(lastSeenRecord);
+    try {
+      let lastSeenId: string;
+      let uploadPromise: Promise<UploadRecordsResponse>;
+      this.emitter.emit('exportStarted', channel);
+      let page = 0;
+      while (true) {
+        const knownPage = page;
 
-      // finish uploading previous batch
-      await uploadPromise;
+        // begin exporting records
+        const exportPromise = exportRecords(knownPage, lastSeenId);
 
-      // finish exporting records
-      const recordsChunk = await exportPromise;
-      if (recordsChunk.length === 0) {
-        break;
+        // finish uploading previous batch
+        await uploadPromise;
+
+        // finish exporting records
+        const recordsChunk = await exportPromise;
+        if (recordsChunk.length === 0) {
+          break;
+        }
+        lastSeenId = recordsChunk[recordsChunk.length - 1].data.id;
+
+        // begin uploading current batch
+        uploadPromise = uploadRecords(knownPage, recordsChunk).then(async (data) => {
+          // mark previous batch as synced after uploading
+          // done using promises so these two steps can be interleaved with exporting
+          await markRecordsUploaded(knownPage, recordsChunk, data.requestedAt);
+          return data;
+        });
+
+        page++;
       }
-      page++;
-      lastSeenRecord = recordsChunk[recordsChunk.length - 1];
-
-      // begin uploading current batch
-      uploadPromise = uploadRecords(recordsChunk).then(async (data) => {
-        // mark previous batch as synced after uploading
-        // done using promises so these two steps can be interleaved with exporting
-        await markRecordsUploaded(recordsChunk, data.requestedAt);
-        return data;
-      });
+    } catch (e) {
+      console.warn(e);
     }
     this.emitter.emit('exportEnded', channel);
   }
@@ -341,7 +294,7 @@ export class SyncManager {
     this.emitter.emit('channelSyncStarted', channel);
     try {
       const requestedAt = await this.downloadAndImport(model, channel, lastSynced);
-      if (model.shouldExport()) {
+      if (model.shouldExport) {
         await this.exportAndUpload(model, channel);
       }
       if (requestedAt !== null) {
@@ -353,11 +306,7 @@ export class SyncManager {
     this.emitter.emit('channelSyncEnded', channel);
   }
 
-  async runPatientSync(patient: Patient): Promise<void> {
-    await this.downloadAndImport(Database.models.Patient, `patient/${patient.id}`, patient.lastSynced?.valueOf());
-
-    // eslint-disable-next-line no-param-reassign
-    patient.lastSynced = new Date();
-    await patient.save();
+  async runPatientSync(patientId: string): Promise<void> {
+    await this.runChannelSync(Database.models.Encounter, `patient/${patientId}/encounter`);
   }
 }

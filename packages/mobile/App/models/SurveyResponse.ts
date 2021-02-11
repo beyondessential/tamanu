@@ -1,11 +1,11 @@
-import { Entity, Column, ManyToOne } from 'typeorm/browser';
+import { Entity, Column, ManyToOne, OneToMany, BeforeUpdate, BeforeInsert, RelationId } from 'typeorm/browser';
 
 import { BaseModel } from './BaseModel';
 import { Survey } from './Survey';
 import { Encounter } from './Encounter';
 import { SurveyResponseAnswer } from './SurveyResponseAnswer';
 
-import { 
+import {
   getStringValue,
   getResultValue,
 } from '~/ui/helpers/fields';
@@ -28,11 +28,26 @@ export class SurveyResponse extends BaseModel implements ISurveyResponse {
   @Column({ default: '' })
   resultText: string;
 
-  @ManyToOne(type => Survey, survey => survey.responses)
+  @ManyToOne(() => Survey, survey => survey.responses)
   survey: Survey;
 
-  @ManyToOne(type => Encounter, encounter => encounter.surveyResponses)
+  @RelationId(({ survey }) => survey)
+  surveyId: string;
+
+  @ManyToOne(() => Encounter, encounter => encounter.surveyResponses)
   encounter: Encounter;
+
+  @RelationId(({ encounter }) => encounter)
+  encounterId: string;
+
+  @OneToMany(() => SurveyResponseAnswer, answer => answer.response)
+  answers: SurveyResponseAnswer[];
+
+  @BeforeInsert()
+  @BeforeUpdate()
+  async markEncounterForUpload() {
+    await this.markParentForUpload(Encounter, 'encounter');
+  }
 
   static async getFullResponse(surveyId: string) {
     const repo = this.getRepository();
@@ -55,9 +70,9 @@ export class SurveyResponse extends BaseModel implements ISurveyResponse {
   }
 
   static async submit(patientId, surveyData, values, setNote = () => null): Promise<SurveyResponse> {
-    const { 
-      surveyId, 
-      encounterReason, 
+    const {
+      surveyId,
+      encounterReason,
       components,
       ...otherData
     } = surveyData;
@@ -74,7 +89,7 @@ export class SurveyResponse extends BaseModel implements ISurveyResponse {
 
       const calculatedValues = runCalculations(components, values);
 
-      const { 
+      const {
         result,
         resultText,
       } = getResultValue(components, calculatedValues);
@@ -93,11 +108,11 @@ export class SurveyResponse extends BaseModel implements ISurveyResponse {
       setNote("Attaching answers...");
       const findDataElement = (code: string): string => {
         const component = components.find(c => c.dataElement.code === code);
-        if(!component) return '';
+        if (!component) return '';
         return component.dataElement;
       };
 
-      for(let a of Object.entries(calculatedValues)) { 
+      for (let a of Object.entries(calculatedValues)) {
         const [dataElementCode, value] = a;
         const dataElement = findDataElement(dataElementCode);
         const body = getStringValue(dataElement.type, value);
@@ -112,8 +127,8 @@ export class SurveyResponse extends BaseModel implements ISurveyResponse {
       setNote(`Done`);
 
       return responseRecord;
-    } catch(e) {
-      setNote(`Error: ${e.message} (${JSON.stringify(e)})`);     
+    } catch (e) {
+      setNote(`Error: ${e.message} (${JSON.stringify(e)})`);
 
       return null;
     }

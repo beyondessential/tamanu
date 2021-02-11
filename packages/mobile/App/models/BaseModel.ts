@@ -6,15 +6,18 @@ import {
   CreateDateColumn,
   Column,
   BeforeUpdate,
+  Index,
+  MoreThan,
+  FindOptionsUtils,
 } from 'typeorm/browser';
 
-import { MoreThan } from 'typeorm';
-
-export type FindUnsyncedOptions<T> = {
+export type FindMarkedForUploadOptions = {
+  channel: string,
   limit?: number,
-  after?: T,
+  after?: string,
 };
 
+// TODO: get rid of this once it's moved to convert.ts and I've made sure it's not used internally
 const stripId = (key) => (key === 'displayId') ? key : key.replace(/Id$/, '');
 
 function stripIdSuffixes(data) {
@@ -60,6 +63,7 @@ export abstract class BaseModel extends BaseEntity {
   @UpdateDateColumn()
   updatedAt: Date;
 
+  @Index()
   @Column({ default: true })
   markedForUpload: boolean;
 
@@ -72,6 +76,23 @@ export abstract class BaseModel extends BaseEntity {
     this.markedForUpload = true;
   }
 
+  async markParentForUpload(parentModel: typeof BaseModel, property: string) {
+    let entity: BaseModel;
+    if (typeof this[property] === 'string') {
+      entity = await parentModel.findOne({ where: { id: this[property] } })
+    } else {
+      const thisModel = this.constructor as typeof BaseModel;
+      entity = await thisModel
+        .getRepository()
+        .createQueryBuilder()
+        .relation(thisModel, property)
+        .of(this)
+        .loadOne();
+    }
+    entity.markedForUpload = true;
+    await entity.save();
+  }
+
   static async markUploaded(ids: string | string[], uploadedAt: Date): Promise<void> {
     await this.getRepository().update(ids, { uploadedAt, markedForUpload: false });
   }
@@ -81,7 +102,7 @@ export abstract class BaseModel extends BaseEntity {
     const repo = this.getRepository();
 
     const record = repo.create({
-      ...sanitiseForImport(repo, data),
+      ...sanitiseForImport(repo, data), // TODO: sanitise this elsewhere
     });
 
     await record.save();
@@ -103,15 +124,21 @@ export abstract class BaseModel extends BaseEntity {
     await this.create(data);
   }
 
-  static async findMarkedForUpload<T extends BaseModel>(
-    { limit, after }: FindUnsyncedOptions<T> = {},
-  ): Promise<T[]> {
-    const repo = this.getRepository();
+  static async findMarkedForUpload(
+    opts: FindMarkedForUploadOptions,
+  ): Promise<BaseModel[]> {
+    // query is built separately so it can be modified in child classes
+    return this.findMarkedForUploadQuery(opts).getMany();
+  }
 
-    // find any records that come after afterRecord
-    const whereAfter = (after instanceof Object) ? { id: MoreThan(after.id) } : {};
 
-    const record = await repo.find({
+  static findMarkedForUploadQuery(
+    { limit, after }: FindMarkedForUploadOptions,
+  ) {
+    const whereAfter = (typeof after === 'string') ? { id: MoreThan(after) } : {};
+
+    const qb = this.getRepository().createQueryBuilder();
+    return FindOptionsUtils.applyOptionsToQueryBuilder(qb, {
       where: {
         markedForUpload: true,
         ...whereAfter,
@@ -120,20 +147,22 @@ export abstract class BaseModel extends BaseEntity {
         id: 'ASC',
       },
       take: limit,
-      // TODO: add relations for nested syncing
+      relations: this.includedSyncRelations,
     });
-    return <T[]>record;
   }
 
-  static shouldExport(): boolean {
-    // TODO: enable export for more models
-    return false;
-  }
+  static shouldExport = false;
 
-  static excludedUploadColumns: string[] = [
+  // Exclude these properties from uploaded model
+  // May be columns or relationIds
+  static excludedSyncColumns: string[] = [
     'createdAt',
     'updatedAt',
     'markedForUpload',
     'uploadedAt',
   ];
+
+  // Include these relations on uploaded model
+  // Does not currently handle lazy or embedded relations
+  static includedSyncRelations: string[] = [];
 }
