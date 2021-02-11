@@ -6,6 +6,7 @@ import { connectApi } from '../api';
 import { Suggester } from '../utils/suggester';
 import { reloadPatient } from '../store/patient';
 import { Colors } from '../constants';
+import { Modal } from './Modal';
 
 const TitleContainer = styled.div`
   color: ${Colors.primary};
@@ -101,6 +102,10 @@ export const InfoPaneList = memo(
     endpoint,
     suggesterEndpoints,
     getName = () => '???',
+    behavior = 'collapse',
+    itemTitle = '',
+    CustomEditForm,
+    getEditFormName = () => '???',
   }) => {
     const [addEditState, setAddEditState] = useState({ adding: false, editKey: null });
     const { adding, editKey } = addEditState;
@@ -109,15 +114,42 @@ export const InfoPaneList = memo(
       () => setAddEditState({ adding: !adding, editKey: null }),
       [adding],
     );
-    const handleRowClick = useCallback(
-      id => setAddEditState({ adding: false, editKey: id }),
-      [],
-    );
+    const handleRowClick = useCallback(id => setAddEditState({ adding: false, editKey: id }), []);
     const handleCloseForm = useCallback(
       () => setAddEditState({ adding: false, editKey: null }),
       [],
     );
 
+    let addForm;
+    if (behavior === 'collapse') {
+      addForm = (
+        <Collapse in={adding}>
+          <AddEditForm
+            patient={patient}
+            Form={Form}
+            endpoint={endpoint}
+            suggesterEndpoints={suggesterEndpoints}
+            onClose={handleCloseForm}
+          />
+        </Collapse>
+      );
+    }
+
+    if (behavior === 'modal') {
+      addForm = (
+        <Modal width="md" title={`Add ${itemTitle}`} open={adding} onClose={handleCloseForm}>
+          <AddEditForm
+            patient={patient}
+            Form={Form}
+            endpoint={endpoint}
+            suggesterEndpoints={suggesterEndpoints}
+            onClose={handleCloseForm}
+          />
+        </Modal>
+      );
+    }
+
+    const EditForm = CustomEditForm || AddEditForm;
     return (
       <React.Fragment>
         <TitleContainer>
@@ -125,25 +157,20 @@ export const InfoPaneList = memo(
           {readonly ? null : <AddButton onClick={handleAddButtonClick} />}
         </TitleContainer>
         <DataList>
-          <Collapse in={adding}>
-            <AddEditForm
-              patient={patient}
-              Form={Form}
-              endpoint={endpoint}
-              suggesterEndpoints={suggesterEndpoints}
-              onClose={handleCloseForm}
-            />
-          </Collapse>
+          {addForm}
           {items.map(item => {
             const id = item.id;
             const name = getName(item);
-            return (
-              <React.Fragment key={id}>
+            let listItem, editForm;
+            if (behavior === 'collapse') {
+              listItem = (
                 <Collapse in={editKey !== id}>
                   <ListItem onClick={() => handleRowClick(id)}>{name}</ListItem>
                 </Collapse>
+              );
+              editForm = (
                 <Collapse in={editKey === id}>
-                  <AddEditForm
+                  <EditForm
                     patient={patient}
                     Form={Form}
                     endpoint={endpoint}
@@ -152,6 +179,33 @@ export const InfoPaneList = memo(
                     onClose={handleCloseForm}
                   />
                 </Collapse>
+              );
+            }
+
+            if (behavior === 'modal') {
+              listItem = <ListItem onClick={() => handleRowClick(id)}>{name}</ListItem>;
+              editForm = (
+                <Modal
+                  width="md"
+                  title={getEditFormName(item)}
+                  open={editKey === id}
+                  onClose={handleCloseForm}
+                >
+                  <EditForm
+                    patient={patient}
+                    Form={Form}
+                    endpoint={endpoint}
+                    suggesterEndpoints={suggesterEndpoints}
+                    item={item}
+                    onClose={handleCloseForm}
+                  />
+                </Modal>
+              );
+            }
+            return (
+              <React.Fragment key={id}>
+                {listItem}
+                {editForm}
               </React.Fragment>
             );
           })}
