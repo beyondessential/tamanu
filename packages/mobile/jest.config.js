@@ -34,4 +34,5 @@ module.exports = {
       },
     },
   },
+  collectCoverageFrom: ['App/**/*.{js,ts,jsx,tsx}', '!**/*.spec.{js,ts,jsx,tsx}'],
 };

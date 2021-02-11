@@ -9,6 +9,7 @@
     "ios": "npx react-native run-ios",
     "start": "rnstl --silent && react-native start",
     "test": "jest --runInBand",
+    "test:coverage": "yarn test --coverage",
     "test:unit": "yarn test --watch -c jest-unit-config.js",
     "test:integration": "yarn test --watch -c jest-integration-config.js",
     "test:commit": "yarn test --findRelatedTests",
