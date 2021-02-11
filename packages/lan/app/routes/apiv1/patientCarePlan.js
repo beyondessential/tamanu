@@ -47,7 +47,26 @@ patientCarePlan.get(
         { model: models.User, as: 'author' },
         { model: models.User, as: 'onBehalfOf' },
       ],
+      // TODO add test to verify this order
+      order: [['createdAt', 'ASC']],
     });
     res.send(notes);
+  }),
+);
+
+// TODO: onBehalfOf
+patientCarePlan.post(
+  '/:id/notes',
+  asyncHandler(async (req, res) => {
+    req.checkPermission('create', 'PatientCarePlan');
+    const newNote = await req.models.Note.create({
+      recordId: req.params.id,
+      recordType: NOTE_RECORD_TYPES.PATIENT_CARE_PLAN,
+      date: req.body.recordedDate,
+      content: req.body.note,
+      noteType: NOTE_TYPES.TREATMENT_PLAN,
+      authorId: req.user.id,
+    });
+    res.send(newNote);
   }),
 );
