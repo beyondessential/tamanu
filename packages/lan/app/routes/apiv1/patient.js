@@ -33,6 +33,7 @@ patientRelations.get('/:id/allergies', simpleGetList('PatientAllergy', 'patientI
 patientRelations.get('/:id/familyHistory', simpleGetList('PatientFamilyHistory', 'patientId'));
 patientRelations.get('/:id/referrals', simpleGetList('Referral', 'patientId'));
 patientRelations.get('/:id/immunisations', simpleGetList('Immunisation', 'patientId'));
+patientRelations.get('/:id/carePlans', simpleGetList('PatientCarePlan', 'patientId'));
 
 patientRelations.get(
   '/:id/surveyResponses',
