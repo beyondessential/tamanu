@@ -10,7 +10,11 @@ import { createExportPlan, executeExportPlan } from './export';
 
 type RunChannelSyncOptions = {
   overrideLastSynced?: number,
-}
+};
+
+export type SyncManagerOptions = {
+  verbose?: boolean,
+};
 
 const UPLOAD_LIMIT = 100;
 const DOWNLOAD_LIMIT = 100;
@@ -26,8 +30,17 @@ export class SyncManager {
 
   syncSource: SyncSource = null;
 
-  constructor(syncSource: SyncSource) {
+  verbose = true;
+
+  constructor(
+    syncSource: SyncSource,
+    { verbose }: SyncManagerOptions = {},
+  ) {
     this.syncSource = syncSource;
+
+    if (verbose !== undefined) {
+      this.verbose = verbose;
+    }
 
     this.emitter.on('*', (action, ...args) => {
       if (action === 'syncedRecord') return;
@@ -37,7 +50,9 @@ export class SyncManager {
         return;
       }
 
-      console.log(`[sync] ${String(action)} ${args[0] || ''}`);
+      if (this.verbose) {
+        console.log(`[sync] ${String(action)} ${args[0] || ''}`);
+      }
     });
   }
 
@@ -189,7 +204,9 @@ export class SyncManager {
     // decrease in size at all, we know there's a for-real error and we should
     // terminate the process.
     while (pendingRecords.length > 0) {
-      console.log(`Reattempting ${pendingRecords.length} failed records...`);
+      if (this.verbose) {
+        console.log(`Reattempting ${pendingRecords.length} failed records...`);
+      }
       const thisPass = pendingRecords;
       pendingRecords = [];
       await importRecords(thisPass);
