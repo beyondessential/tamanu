@@ -1,6 +1,11 @@
 {
   "initialDataPath": "data/demo_definitions.xlsx",
-  "syncHost": "https://sync-dev.tamanu.io",
+  "sync": {
+    "schedule": "*/10 * * * *",
+    "host": "https://sync-dev.tamanu.io",
+    "email": "",
+    "password": ""
+  },
   "port": 4000,
   "db": {
     "name": "main",
@@ -26,6 +31,6 @@
     }
   },
   "schedules": {
-    "encounterDischarger": "0 0 2 ? * * *"
+    "encounterDischarger": "0 2 * * *"
   }
 }

@@ -15,6 +15,7 @@ import {
 } from './app/surveyImporter';
 
 import { runAdminTasks } from './app/admin';
+import { SyncManager } from './app/sync';
 
 const port = config.port;
 
