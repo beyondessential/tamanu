@@ -61,20 +61,16 @@ function NoteForm(props) {
   const [submitError, setSubmitError] = useState('');
   return (
     <Form
-      onSubmit={values => {
-        props
-          .submitNote(props.carePlanId, values)
-          .then(() => {
-            setSubmitError('');
-            props.onSuccessfulSubmit();
-          })
-          .catch(() => {
-            setSubmitError('An error occurred. Please try again.');
-          })
-          .finally(() => {
-            // reload notes on failure just in case it was recorded 
-            props.reloadNotes();
-          });
+      onSubmit={async values => {
+        try {
+          await props.submitNote(props.carePlanId, values);
+          setSubmitError('');
+          props.onSuccessfulSubmit();
+        } catch (e) {
+          setSubmitError('An error occurred. Please try again.');
+        }
+        // reload notes on failure just in case it was recorded
+        props.reloadNotes();
       }}
       render={() => {
         return (
