@@ -1,19 +1,18 @@
-import React, { useState, useContext, useEffect } from 'react';
-import { push } from 'connected-react-router';
+import React, { useState, useContext } from 'react';
 import { ApiContext } from '../api/singletons';
 
 const ReferralContext = React.createContext({
   referral: null,
-  loadingReferral: false,
+  isLoadingReferral: false,
   loadReferral: () => {},
   writeReferral: () => {},
 });
 
 export const useReferral = () => useContext(ReferralContext);
 
-export const ReferralProvider = ({ store, children }) => {
+export const ReferralProvider = ({ children }) => {
   const [referral, setReferral] = useState(null);
-  const [loadingReferral, setLoadingReferral] = useState(false);
+  const [isLoadingReferral, setIsLoadingReferral] = useState(false);
 
   const api = useContext(ApiContext);
 
@@ -24,23 +23,23 @@ export const ReferralProvider = ({ store, children }) => {
 
   // get Referral data from the sync server and save it to state.
   const loadReferral = async referralId => {
-    setLoadingReferral(true);
+    setIsLoadingReferral(true);
     const data = await api.get(`referral/${referralId}`);
     setReferral({ ...data });
-    setLoadingReferral(false);
+    setIsLoadingReferral(false);
     window.referral = referral;
   };
 
   const writeReferral = async (referralId, data) => {
-    await saveReferral(referralId, data);
-    await loadReferral(referralId);
+    const response = await saveReferral(referralId, data);
+    setReferral(response);
   };
 
   return (
     <ReferralContext.Provider
       value={{
         referral,
-        loadingReferral,
+        isLoadingReferral,
         loadReferral,
         writeReferral,
       }}

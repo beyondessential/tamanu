@@ -11,13 +11,12 @@ import { ReferralDetailsModal } from './ReferralDetailsModal';
 
 const ActionDropdown = React.memo(({ row }) => {
   const [open, setOpen] = useState(false);
-  const { loadEncounter, viewEncounter } = useEncounter();
+  const { loadEncounter } = useEncounter();
   const { writeReferral } = useReferral();
   const onViewEncounter = useCallback(async () => {
-    loadEncounter(row.encounterId);
-    viewEncounter();
+    loadEncounter(row.encounterId, true);
   }, [row]);
-  const onCancel = useCallback(async () => {
+  const onCancelReferral = useCallback(async () => {
     await writeReferral(row.id, { cancelled: true });
   }, [row]);
 
@@ -33,9 +32,9 @@ const ActionDropdown = React.memo(({ row }) => {
       onClick: onViewEncounter,
     },
     {
-      label: 'Cancel',
+      label: 'Cancel referral',
       condition: () => !row.encounterId && !row.cancelled,
-      onClick: onCancel,
+      onClick: onCancelReferral,
     },
   ].filter(action => !action.condition || action.condition());
 

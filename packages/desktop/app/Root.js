@@ -10,22 +10,26 @@ import { theme } from './theme';
 import { EncounterProvider } from './contexts/Encounter';
 import { ReferralProvider } from './contexts/Referral';
 
+const StateContextProviders = ({ children, store }) => (
+  <EncounterProvider store={store}>
+    <ReferralProvider>{children}</ReferralProvider>
+  </EncounterProvider>
+);
+
 export default function Root({ store, history }) {
   return (
     <Provider store={store}>
       <ConnectedRouter history={history}>
-        <EncounterProvider store={store}>
-          <ReferralProvider store={store}>
-            <StylesProvider injectFirst>
-              <MuiThemeProvider theme={theme}>
-                <ThemeProvider theme={theme}>
-                  <CssBaseline />
-                  <RoutingApp />
-                </ThemeProvider>
-              </MuiThemeProvider>
-            </StylesProvider>
-          </ReferralProvider>
-        </EncounterProvider>
+        <StateContextProviders store={store}>
+          <StylesProvider injectFirst>
+            <MuiThemeProvider theme={theme}>
+              <ThemeProvider theme={theme}>
+                <CssBaseline />
+                <RoutingApp />
+              </ThemeProvider>
+            </MuiThemeProvider>
+          </StylesProvider>
+        </StateContextProviders>
       </ConnectedRouter>
     </Provider>
   );

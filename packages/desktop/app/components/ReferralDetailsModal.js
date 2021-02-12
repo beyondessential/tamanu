@@ -10,7 +10,7 @@ import { Button } from './Button';
 import { useEncounter } from '../contexts/Encounter';
 
 export const ReferralDetailsModal = React.memo(({ open, onClose, referral }) => {
-  const { loadEncounter, viewEncounter } = useEncounter();
+  const { loadEncounter } = useEncounter();
   const {
     referralNumber,
     referredBy = { displayName: 'Unknown' },
@@ -23,9 +23,8 @@ export const ReferralDetailsModal = React.memo(({ open, onClose, referral }) => 
   } = referral;
 
   const onViewEncounter = useCallback(() => {
-    loadEncounter(encounterId);
-    viewEncounter();
-  }, [referral]);
+    loadEncounter(encounterId, true);
+  }, [encounterId]);
 
   return (
     <Modal title="Referral Details" open={open} onClose={onClose}>
@@ -76,17 +75,15 @@ export const ReferralDetailsModal = React.memo(({ open, onClose, referral }) => 
           style={{ gridColumn: '1/-1' }}
         />
         {encounterId && (
-          <>
-            <Button
-              style={{ gridColumn: '2/-1' }}
-              color="primary"
-              variant="contained"
-              onClick={onViewEncounter}
-            >
-              View encounter
-            </Button>
-          </>
-        )}
+          <Button
+            style={{ gridColumn: '2/-1' }}
+            color="primary"
+            variant="contained"
+            onClick={onViewEncounter}
+          >
+            View encounter
+          </Button>
+        )}  
       </FormGrid>
     </Modal>
   );
