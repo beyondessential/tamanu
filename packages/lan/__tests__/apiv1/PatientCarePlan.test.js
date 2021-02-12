@@ -36,10 +36,10 @@ describe('PatientCarePlan', () => {
 
     it('should create a care plan with note', async () => {
       const result = await app.post('/v1/patientCarePlan').send({
-        recordedDate: new Date().toISOString(),
+        date: new Date().toISOString(),
         diseaseId,
         patientId: patient.get('id'),
-        note: 'Main care plan',
+        content: 'Main care plan',
       });
       expect(result).toHaveSucceeded();
       expect(result.body).toHaveProperty('id');
@@ -53,17 +53,17 @@ describe('PatientCarePlan', () => {
 
     it('should return', async () => {
       const createCarePlanRequest = await app.post('/v1/patientCarePlan').send({
-        recordedDate: new Date().toISOString(),
+        date: new Date().toISOString(),
         diseaseId,
         patientId: patient.get('id'),
-        note: 'Main care plan',
+        content: 'Main care plan',
       });
       expect(createCarePlanRequest).toHaveSucceeded();
       const additionalNoteRequest = await app
         .post(`/v1/patientCarePlan/${createCarePlanRequest.body.id}/notes`)
         .send({
-          recordedDate: new Date().toISOString(),
-          note: 'Second note',
+          date: new Date().toISOString(),
+          content: 'Second note',
         });
       expect(additionalNoteRequest).toHaveSucceeded();
       const noteResult = await app.get(

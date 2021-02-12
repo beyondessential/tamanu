@@ -28,7 +28,7 @@ export class PatientCarePlanForm extends React.PureComponent {
           required
         />
         <FormGrid columns={2}>
-          <Field name="recordedDate" label="Date recorded" component={DateTimeField} />
+          <Field name="date" label="Date recorded" component={DateTimeField} />
           <Field
             name="examinerId"
             label="Doctor/Nurse"
@@ -37,7 +37,7 @@ export class PatientCarePlanForm extends React.PureComponent {
           />
         </FormGrid>
         <Field
-          name="note"
+          name="content"
           label="Main Care Plan"
           required
           component={TextField}
@@ -63,8 +63,8 @@ export class PatientCarePlanForm extends React.PureComponent {
         validationSchema={yup.object().shape({
           diseaseId: foreignKey('Care Plan is a required field'),
           date: yup.date(),
-          authorId: yup.string(),
-          note: yup.string(),
+          examinerId: yup.string(),
+          content: yup.string(),
         })}
       />
     );

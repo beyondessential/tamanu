@@ -42,7 +42,7 @@ function NoteForm(props) {
         return (
           <>
             <Field
-              name="note"
+              name="content"
               placeholder="Write a note..."
               component={TextField}
               multiline

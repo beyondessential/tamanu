@@ -17,12 +17,12 @@ patientCarePlan.post(
     } = req;
     req.checkPermission('create', 'PatientCarePlan');
     const newCarePlan = await PatientCarePlan.create(req.body);
-    if (req.body.note) {
+    if (req.body.content) {
       await Note.create({
         recordId: newCarePlan.get('id'),
         recordType: NOTE_RECORD_TYPES.PATIENT_CARE_PLAN,
-        date: req.body.recordedDate,
-        content: req.body.note,
+        date: req.body.date,
+        content: req.body.content,
         noteType: NOTE_TYPES.TREATMENT_PLAN,
         authorId: req.user.id,
       });
@@ -62,8 +62,8 @@ patientCarePlan.post(
     const newNote = await req.models.Note.create({
       recordId: req.params.id,
       recordType: NOTE_RECORD_TYPES.PATIENT_CARE_PLAN,
-      date: req.body.recordedDate,
-      content: req.body.note,
+      date: req.body.date,
+      content: req.body.content,
       noteType: NOTE_TYPES.TREATMENT_PLAN,
       authorId: req.user.id,
     });
