@@ -120,7 +120,7 @@ export const InfoPaneList = memo(
       [],
     );
 
-    const Wrapper = (props) => behaviour === 'collapse'
+    const Wrapper = (props) => behavior === 'collapse'
       ? <Collapse in={adding} {...props} />
       : <Modal width="md" title={`Add ${itemTitle}`} open={adding} onClose={handleCloseForm} {...props} />;
     
