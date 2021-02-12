@@ -66,7 +66,7 @@ const Provider = ({
   const saveLocalUser = async (userData: Partial<IUser>, password: string): Promise<void> => {
     // save local password to repo for later use
     const userRepo = await backend.models.User.getRepository();
-    const dbUser = userRepo.createAndSaveOne(userData);
+    const dbUser = userRepo.create(userData);
     const savedUser = await userRepo.save(dbUser);
 
     // kick off a local password hash & save
