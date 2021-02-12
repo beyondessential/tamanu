@@ -87,7 +87,7 @@ export class Encounter extends BaseModel implements IEncounter {
     const repo = this.getRepository();
 
     return repo.find({
-      patient: patientId,
+      patientId,
     });
   }
 

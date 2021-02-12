@@ -1,4 +1,4 @@
-import { Entity, Column, ManyToOne, PrimaryGeneratedColumn, OneToOne } from 'typeorm/browser';
+import { Entity, Column, ManyToOne, PrimaryGeneratedColumn, RelationId } from 'typeorm/browser';
 import { BaseModel } from './BaseModel';
 import { Certainty, IReferral } from '~/types';
 import { Patient } from './Patient';
@@ -28,17 +28,21 @@ export class Referral extends BaseModel implements IReferral {
   @ReferenceDataRelation()
   diagnosis: ReferenceData;
 
-  @OneToOne(type => User, user => user.referral)
+  @ManyToOne(() => User, user => user.referrals)
   practitioner: User;
 
-  @ManyToOne(type => Patient, patient => patient.referral)
+
+  @ManyToOne(() => Patient, patient => patient.referrals)
   patient: Patient;
+
+  @RelationId((referral: Referral) => referral.patient)
+  patientId: string;
 
   static async getForPatient(patientId: string): Promise<Referral[]> {
     const repo = this.getRepository();
 
     return repo.find({
-      patient: patientId,
+      patientId,
     });
   }
 }
