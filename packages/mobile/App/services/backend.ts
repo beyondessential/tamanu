@@ -1,13 +1,13 @@
-import { Database, ModelMap } from '~/infra/db';
+import { Database } from '~/infra/db';
 
 import { SyncManager, WebSyncSource } from '~/services/sync';
 import { readConfig, writeConfig } from '~/services/config';
 
-import { SyncConnectionParameters } from '~/types/SyncConnectionParameters';
+import { IUser, SyncConnectionParameters } from '~/types';
+import { MODELS_MAP } from '~/models/modelsMap';
 
 const SYNC_PERIOD_MINUTES = 5;
 const API_VERSION = 1;
-const DEFAULT_SYNC_LOCATION = 'https://sync-dev.tamanu.io';
 
 export class Backend {
   randomId: any;
@@ -16,7 +16,7 @@ export class Backend {
 
   initialised: boolean;
 
-  models: ModelMap;
+  models: typeof MODELS_MAP;
 
   syncManager: SyncManager;
 
@@ -33,7 +33,7 @@ export class Backend {
     await Database.connect();
   }
 
-  async connectToRemote(params: SyncConnectionParameters): Promise<void> {
+  async connectToRemote(params: SyncConnectionParameters): Promise<{ user: IUser, token: string }> {
     // always use the server stored in config if there is one - last thing
     // we want is a device syncing down data from one server and then up
     // to another!
@@ -57,7 +57,7 @@ export class Backend {
     return { user, token };
   }
 
-  startSyncService(syncServerLocation: string) {
+  startSyncService() {
     this.stopSyncService();
 
     this.syncManager = new SyncManager(this.syncSource);
