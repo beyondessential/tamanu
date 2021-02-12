@@ -20,7 +20,7 @@ export class ProgramDataElement extends BaseModel
   defaultOptions?: string;
 
   @Column()
-  type: DataElementType;
+  type?: string;
 
   @OneToMany(() => SurveyResponseAnswer, answer => answer.dataElement)
   answers: SurveyResponseAnswer[];
