@@ -3,7 +3,7 @@ import {
   createConnection,
   getConnectionManager,
   ConnectionOptions,
-} from 'typeorm';
+} from 'typeorm/browser';
 import { DevSettings } from 'react-native';
 import { MODELS_ARRAY, MODELS_MAP } from '~/models/modelsMap';
 import { clear } from '~/services/config';

@@ -1,5 +1,6 @@
 import { Chance } from 'chance';
 import { ReferenceDataType } from '~/types';
+import { SyncRecord } from '~/services/sync/source';
 
 // for dummy data generation
 import { generatePatient } from '~/dummyData/patients';
@@ -10,9 +11,9 @@ const DUMMY_PATIENT_COUNT = 44;
 const dummyPatients = (new Array(DUMMY_PATIENT_COUNT))
   .fill(0)
   .map(() => generatePatient(generator))
-  .map((p, i) => ({
+  .map(p => ({
     ...p,
-    lastModified: generator.date({ year: 1971, month: 0, day: 0, second: i }),
+    lastModified: generator.date({ year: 1971, month: 0, day: 0 }),
   }));
 
 const sortByModified = (
@@ -32,12 +33,12 @@ const makeRefRecords = (referenceDataType: ReferenceDataType, values: string) =>
     .split(/\n/)
     .map(x => x.trim())
     .filter(x => x)
-    .map((x, i) => ({
+    .map(x => ({
       name: x,
       code: makeCode(x),
       id: makeCode(x),
       type: referenceDataType,
-      lastModified: generator.date({ year: 1971, month: 1, day: 0, second: i }),
+      lastModified: generator.date({ year: 1971, month: 1, day: 0 }),
     }));
 };
 

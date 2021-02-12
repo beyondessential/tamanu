@@ -26,7 +26,7 @@ export class ReferenceData extends BaseModel implements IReferenceData {
     referenceDataType: ReferenceDataType,
     searchTerm: string,
     limit = 10,
-  ): Promise<ReferenceData> {
+  ): Promise<ReferenceData[]> {
     const repo = this.getRepository();
 
     return repo.find({
@@ -41,7 +41,7 @@ export class ReferenceData extends BaseModel implements IReferenceData {
 }
 
 export const ReferenceDataRelation = (): any => ManyToOne(
-  type => ReferenceData,
+  () => ReferenceData,
   undefined,
   { eager: true },
 );
