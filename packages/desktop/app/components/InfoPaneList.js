@@ -120,34 +120,21 @@ export const InfoPaneList = memo(
       [],
     );
 
-    let addForm;
-    if (behavior === 'collapse') {
-      addForm = (
-        <Collapse in={adding}>
-          <AddEditForm
-            patient={patient}
-            Form={Form}
-            endpoint={endpoint}
-            suggesterEndpoints={suggesterEndpoints}
-            onClose={handleCloseForm}
-          />
-        </Collapse>
-      );
-    }
-
-    if (behavior === 'modal') {
-      addForm = (
-        <Modal width="md" title={`Add ${itemTitle}`} open={adding} onClose={handleCloseForm}>
-          <AddEditForm
-            patient={patient}
-            Form={Form}
-            endpoint={endpoint}
-            suggesterEndpoints={suggesterEndpoints}
-            onClose={handleCloseForm}
-          />
-        </Modal>
-      );
-    }
+    const Wrapper = (props) => behaviour === 'collapse'
+      ? <Collapse in={adding} {...props} />
+      : <Modal width="md" title={`Add ${itemTitle}`} open={adding} onClose={handleCloseForm} {...props} />;
+    
+    const addForm = (
+      <Wrapper>
+        <AddEditForm
+          patient={patient}
+          Form={Form}
+          endpoint={endpoint}
+          suggesterEndpoints={suggesterEndpoints}
+          onClose={handleCloseForm}
+        />
+      </Wrapper>
+    );
 
     const EditForm = CustomEditForm || AddEditForm;
     return (
