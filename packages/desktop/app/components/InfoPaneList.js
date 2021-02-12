@@ -148,53 +148,48 @@ export const InfoPaneList = memo(
           {items.map(item => {
             const id = item.id;
             const name = getName(item);
-            let listItem, editForm;
             if (behavior === 'collapse') {
-              listItem = (
-                <Collapse in={editKey !== id}>
-                  <ListItem onClick={() => handleRowClick(id)}>{name}</ListItem>
-                </Collapse>
-              );
-              editForm = (
-                <Collapse in={editKey === id}>
-                  <EditForm
-                    patient={patient}
-                    Form={Form}
-                    endpoint={endpoint}
-                    suggesterEndpoints={suggesterEndpoints}
-                    item={item}
-                    onClose={handleCloseForm}
-                  />
-                </Collapse>
+              return (
+                <React.Fragment key={id}>
+                  <Collapse in={editKey !== id}>
+                    <ListItem onClick={() => handleRowClick(id)}>{name}</ListItem>
+                  </Collapse>
+                  <Collapse in={editKey === id}>
+                    <EditForm
+                      patient={patient}
+                      Form={Form}
+                      endpoint={endpoint}
+                      suggesterEndpoints={suggesterEndpoints}
+                      item={item}
+                      onClose={handleCloseForm}
+                    />
+                  </Collapse>
+                </React.Fragment>
               );
             }
 
             if (behavior === 'modal') {
-              listItem = <ListItem onClick={() => handleRowClick(id)}>{name}</ListItem>;
-              editForm = (
-                <Modal
-                  width="md"
-                  title={getEditFormName(item)}
-                  open={editKey === id}
-                  onClose={handleCloseForm}
-                >
-                  <EditForm
-                    patient={patient}
-                    Form={Form}
-                    endpoint={endpoint}
-                    suggesterEndpoints={suggesterEndpoints}
-                    item={item}
+              return (
+                <React.Fragment key={id}>
+                  <ListItem onClick={() => handleRowClick(id)}>{name}</ListItem>
+                  <Modal
+                    width="md"
+                    title={getEditFormName(item)}
+                    open={editKey === id}
                     onClose={handleCloseForm}
-                  />
-                </Modal>
+                  >
+                    <EditForm
+                      patient={patient}
+                      Form={Form}
+                      endpoint={endpoint}
+                      suggesterEndpoints={suggesterEndpoints}
+                      item={item}
+                      onClose={handleCloseForm}
+                    />
+                  </Modal>
+                </React.Fragment>
               );
             }
-            return (
-              <React.Fragment key={id}>
-                {listItem}
-                {editForm}
-              </React.Fragment>
-            );
           })}
         </DataList>
       </React.Fragment>
