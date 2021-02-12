@@ -114,23 +114,12 @@ export abstract class BaseModel extends BaseEntity {
     await repo.update(data.id, sanitiseForImport(repo, data));
   }
 
-  static async createOrUpdate(data: any): Promise<void> {
-    const repo = this.getRepository();
-    const existing = await repo.count({ id: data.id });
-    if (existing > 0) {
-      await this.update(data);
-      return
-    }
-    await this.create(data);
-  }
-
   static async findMarkedForUpload(
     opts: FindMarkedForUploadOptions,
   ): Promise<BaseModel[]> {
     // query is built separately so it can be modified in child classes
     return this.findMarkedForUploadQuery(opts).getMany();
   }
-
 
   static findMarkedForUploadQuery(
     { limit, after }: FindMarkedForUploadOptions,
