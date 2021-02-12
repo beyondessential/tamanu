@@ -109,11 +109,6 @@ export abstract class BaseModel extends BaseEntity {
     return <T>record;
   }
 
-  static async update(data: any): Promise<void> {
-    const repo = this.getRepository();
-    await repo.update(data.id, sanitiseForImport(repo, data));
-  }
-
   static async findMarkedForUpload(
     opts: FindMarkedForUploadOptions,
   ): Promise<BaseModel[]> {

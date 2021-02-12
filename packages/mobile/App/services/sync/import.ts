@@ -75,7 +75,7 @@ const executeImportPlanInner = async (
     }
     const existing = await model.count({ id: fields.id });
     if (existing > 0) {
-      await model.update(fields);
+      await model.update(fields.id, fields);
     } else {
       await model.create(fields);
     }
