@@ -3,7 +3,7 @@ import {
   createConnection,
   getConnectionManager,
   ConnectionOptions,
-} from 'typeorm/browser';
+} from 'typeorm';
 import { DevSettings } from 'react-native';
 import { MODELS_ARRAY, MODELS_MAP } from '~/models/modelsMap';
 import { clear } from '~/services/config';
@@ -60,8 +60,8 @@ class DatabaseHelper {
       this.client = await createConnection(getConnectionConfig());
       await this.forceSync();
       // TODO: this is a hack to fix an issue where models can't retrieve the correct connection in
-      // our tests
-      MODELS_ARRAY.forEach(m => m.useConnection(this.client));
+      // our tests because we're using a mix of typeorm and typeorm/browser
+      MODELS_ARRAY.forEach(m => m.useConnection(<any>this.client));
     } catch (error) {
       if (error.name === 'AlreadyHasActiveConnectionError') {
         const existentConn = getConnectionManager().get('default');
