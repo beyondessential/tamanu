@@ -102,7 +102,7 @@ const DumbCreateEncounterForm = ({ selectedPatient }): ReactElement => {
 
   const { models } = useBackend();
   const createEncounter = useCallback(
-    (values: any): void => models.Encounter.create({ ...values, patient: selectedPatient.id }), [],
+    (values: any): void => models.Encounter.createAndSaveOne({ ...values, patient: selectedPatient.id }), [],
   );
 
   return (

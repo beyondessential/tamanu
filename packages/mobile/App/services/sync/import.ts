@@ -77,7 +77,7 @@ const executeImportPlanInner = async (
     if (existing > 0) {
       await model.update(fields.id, fields);
     } else {
-      await model.create(fields);
+      await model.createAndSaveOne(fields);
     }
   }
   for (const [relationName, relationPlan] of Object.entries(children)) {

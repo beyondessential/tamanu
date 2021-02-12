@@ -17,41 +17,6 @@ export type FindMarkedForUploadOptions = {
   after?: string,
 };
 
-// TODO: get rid of this once it's moved to convert.ts and I've made sure it's not used internally
-const stripId = (key) => (key === 'displayId') ? key : key.replace(/Id$/, '');
-
-function stripIdSuffixes(data) {
-  // TypeORM expects foreign key writes to be done against just the bare name
-  // of the relation, rather than "relationId", but the data is all serialised
-  // as "relationId" - this just strips the "Id" suffix from any fields that
-  // have them. It's a bit of a blunt instrument, but, there you go.
-  return Object.entries(data)
-    .reduce((state, [key, value]) => ({
-      ...state,
-      [stripId(key)]: value,
-    }), {});
-}
-
-function sanitiseForImport(repo, data) {
-  // TypeORM will complain when importing an object that has fields that don't
-  // exist on the table in the database. We need to accommodate receiving records
-  // from the sync server that don't match up 100% (to allow for changes over time)
-  // so we just strip those extraneous fields out here.
-  // 
-  // Note that fields that are necessary-but-not-in-the-sync-record need to be
-  // accommodated too, but that's done by making those fields nullable or 
-  // giving them sane defaults)
-
-  const strippedIdsData = stripIdSuffixes(data);
-  const columns = repo.metadata.columns.map(x => x.propertyName);
-  return Object.entries(strippedIdsData)
-    .filter(([key, value]) => columns.includes(key))
-    .reduce((state, [key, value]) => ({
-      ...state,
-      [key]: value,
-    }), {});
-}
-
 export abstract class BaseModel extends BaseEntity {
   @PrimaryColumn()
   @Generated('uuid')
@@ -97,16 +62,8 @@ export abstract class BaseModel extends BaseEntity {
     await this.getRepository().update(ids, { uploadedAt, markedForUpload: false });
   }
 
-  // TODO: compatibility with BaseEntity.create, which doesn't return a promise
-  static async create<T extends BaseModel>(data?: any): Promise<T> {
-    const repo = this.getRepository();
-
-    const record = repo.create({
-      ...sanitiseForImport(repo, data), // TODO: sanitise this elsewhere
-    });
-
-    await record.save();
-    return <T>record;
+  static createAndSaveOne<T extends BaseModel>(data?: object): Promise<T> {
+    return this.getRepository<T>().create(data).save();
   }
 
   static async findMarkedForUpload(
