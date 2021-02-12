@@ -1,8 +1,4 @@
 import config from 'config';
-import moment from 'moment';
-import shortid from 'shortid';
-
-import { Op } from 'sequelize';
 
 import { log } from '~/logging';
 import { ScheduledTask } from 'shared/tasks';
@@ -15,7 +11,6 @@ export class SyncTask extends ScheduledTask {
 
     this.manager = new SyncManager(context);
 
-    // run once on startup (in case the server was down when it was scheduled)
     this.run();
   }
 
