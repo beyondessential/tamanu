@@ -7,7 +7,6 @@ import { version } from '~/../package.json';
 class AuthenticationError extends Error {}
 class InvalidCredentialsError extends Error {}
 
-const checkForInvalidToken = (response) => false;
 
 export class SyncManager {
 
@@ -46,7 +45,10 @@ export class SyncManager {
       ...otherParams,
     });
 
+    // TODO: clear token if response indicates a bad auth state
+    const checkForInvalidToken = (response) => false;
     if (checkForInvalidToken(response)) {
+      log.warning("Token was invalid - disconnecting from sync server");
       this.token = '';
     }
 

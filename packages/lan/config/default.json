@@ -31,6 +31,6 @@
     }
   },
   "schedules": {
-    "encounterDischarger": "0 2 * * *"
+    "encounterDischarger": "0 0 2 ? * * *"
   }
 }
