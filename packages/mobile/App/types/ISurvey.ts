@@ -18,9 +18,9 @@ export interface ISurveyScreenComponent {
 
   screenIndex: number;
   componentIndex: number;
-  text: string;
-  visibilityCriteria: string;
-  options: string;
+  text?: string;
+  visibilityCriteria?: string;
+  options?: string;
   calculation?: string;
 }
 

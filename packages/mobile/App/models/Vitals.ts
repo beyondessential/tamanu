@@ -35,7 +35,7 @@ export class Vitals extends BaseModel implements IVitals {
   @Column({ type: 'varchar', nullable: true })
   avpu?: AVPUType;
 
-  @ManyToOne(type => Encounter, encounter => encounter.vitals)
+  @ManyToOne(() => Encounter)
   encounter: Encounter;
 
   static async getForPatient(patientId: string): Promise<Vitals[]> {
