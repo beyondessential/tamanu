@@ -36,7 +36,7 @@ function NoteForm(props) {
           setSubmitError('An error occurred. Please try again.');
         }
         // reload notes on failure just in case it was recorded
-        props.reloadNotes();
+        props.onReloadNotes();
       }}
       render={() => {
         return (
@@ -92,7 +92,7 @@ function DumbPatientCarePlanDetails(props) {
         key={resetForm}
         submitNote={props.submitNote}
         carePlanId={props.item.id}
-        reloadNotes={() => {
+        onReloadNotes={() => {
           setReloadNotes(reloadNotes + 1);
         }}
         onSuccessfulSubmit={() => {
