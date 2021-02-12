@@ -8,6 +8,7 @@ import { Colors } from '../constants';
 import { Button } from './Button';
 import { ButtonRow } from './ButtonRow';
 import { Form, Field, TextField } from './Field';
+import { CarePlanNoteDisplay } from './CarePlanNoteDisplay';
 
 const Container = styled.div`
   min-height: 50vh;
@@ -15,41 +16,6 @@ const Container = styled.div`
 
 const NotesSection = styled.section`
   margin-top: 2rem;
-`;
-
-const NoteContainer = styled.div`
-  border: 1px solid ${Colors.outline};
-  background-color: ${Colors.white};
-  margin-bottom: 0.75rem;
-`;
-
-const NoteHeaderContainer = styled.div`
-  padding: 0.75rem 1rem;
-  border-bottom: 1px solid ${Colors.outline};
-  display: flex;
-  justify-content: space-between;
-`;
-
-const NoteAuthorName = styled.strong`
-  color: ${Colors.darkText};
-`;
-
-const MainCarePlanIndicator = styled.strong`
-  color: ${Colors.alert};
-  padding-left: 1rem;
-`;
-
-const Timestamp = styled.span`
-  color: ${Colors.midText};
-`;
-
-const NoteContentContainer = styled.div`
-  padding-left: 1rem;
-  padding-right: 1rem;
-`;
-
-const NoteContent = styled.p`
-  color: ${Colors.midText};
 `;
 
 const SubmitError = styled.div`
@@ -95,26 +61,6 @@ function NoteForm(props) {
   );
 }
 
-function Note(props) {
-  return (
-    <NoteContainer>
-      <NoteHeaderContainer>
-        <div>
-          <NoteAuthorName>{props.note.author.displayName}</NoteAuthorName>
-          {props.isMainCarePlan ? (
-            <MainCarePlanIndicator>Main Care Plan</MainCarePlanIndicator>
-          ) : null}
-        </div>
-        <div>
-          <Timestamp>{moment(props.note.updatedAt).format('LLLL')}</Timestamp>
-        </div>
-      </NoteHeaderContainer>
-      <NoteContentContainer>
-        <NoteContent>{props.note.content}</NoteContent>
-      </NoteContentContainer>
-    </NoteContainer>
-  );
-}
 
 function DumbPatientCarePlanDetails(props) {
   const [firstNote, setFirstNote] = useState();
@@ -155,9 +101,9 @@ function DumbPatientCarePlanDetails(props) {
       />
       {firstNote ? (
         <NotesSection>
-          <Note note={firstNote} isMainCarePlan />
+          <CarePlanNoteDisplay note={firstNote} isMainCarePlan />
           {subsequentNotes.length
-            ? subsequentNotes.map((note, index) => <Note key={index} note={note} />)
+            ? subsequentNotes.map((note, index) => <CarePlanNoteDisplay key={index} note={note} />)
             : null}
         </NotesSection>
       ) : null}
