@@ -9,6 +9,7 @@ import {
   Index,
   MoreThan,
   FindOptionsUtils,
+  Repository,
 } from 'typeorm/browser';
 
 export type FindMarkedForUploadOptions = {
@@ -16,6 +17,25 @@ export type FindMarkedForUploadOptions = {
   limit?: number,
   after?: string,
 };
+
+function sanitiseForImport<T>(repo: Repository<T>, data: { [key: string]: any }) {
+  // TypeORM will complain when importing an object that has fields that don't
+  // exist on the table in the database. We need to accommodate receiving records
+  // from the sync server that don't match up 100% (to allow for changes over time)
+  // so we just strip those extraneous fields out here.
+  // 
+  // Note that fields that are necessary-but-not-in-the-sync-record need to be
+  // accommodated too, but that's done by making those fields nullable or 
+  // giving them sane defaults)
+
+  const columns = repo.metadata.columns.map(({ propertyName }) => propertyName);
+  return Object.entries(data)
+    .filter(([key]) => columns.includes(key))
+    .reduce((state, [key, value]) => ({
+      ...state,
+      [key]: value,
+    }), {});
+}
 
 export abstract class BaseModel extends BaseEntity {
   @PrimaryColumn()
@@ -63,7 +83,8 @@ export abstract class BaseModel extends BaseEntity {
   }
 
   static createAndSaveOne<T extends BaseModel>(data?: object): Promise<T> {
-    return this.getRepository<T>().create(data).save();
+    const repo = this.getRepository<T>();
+    return repo.create(sanitiseForImport<T>(repo, data)).save();
   }
 
   static async findMarkedForUpload(
