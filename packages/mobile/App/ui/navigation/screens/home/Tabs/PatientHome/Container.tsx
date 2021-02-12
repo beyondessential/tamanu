@@ -48,7 +48,7 @@ const PatientHomeContainer = ({
       {
         title: 'Deceased',
         Icon: Icons.DeceasedIcon,
-        onPress: (): void => navigation.navigate(Routes.HomeStack.DeceasedStack.Index),
+        onPress: (): void => {throw new Error('Error NOT on mount')},
       },
     ],
     [],
