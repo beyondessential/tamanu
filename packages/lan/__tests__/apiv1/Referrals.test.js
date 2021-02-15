@@ -1,4 +1,4 @@
-import { createDummyPatient, createDummyEncounter, FACILITIES, DEPARTMENTS } from 'shared/demoData';
+import { createDummyPatient, createDummyEncounter } from 'shared/demoData';
 import { createTestContext } from '../utilities';
 
 const { baseApp, models } = createTestContext();
@@ -13,8 +13,8 @@ describe('Referrals', () => {
   beforeAll(async () => {
     app = await baseApp.asRole('practitioner');
     patient = await models.Patient.create(await createDummyPatient(models));
-    facility = await models.ReferenceData.findOne({ where: { type: 'facility'}});
-    department = await models.ReferenceData.findOne({ where: { type: 'department'}});
+    facility = await models.ReferenceData.findOne({ where: { type: 'facility' } });
+    department = await models.ReferenceData.findOne({ where: { type: 'department' } });
   });
 
   it('should record a referral request', async () => {
@@ -66,8 +66,14 @@ describe('Referrals', () => {
     const { body } = result;
 
     expect(body.count).toBeGreaterThan(0);
-    expect(body.data[0]).toHaveProperty('referredToDepartmentId', createdReferral.referredToDepartmentId);
-    expect(body.data[0]).toHaveProperty('referredToFacilityId', createdReferral.referredToFacilityId);
+    expect(body.data[0]).toHaveProperty(
+      'referredToDepartmentId',
+      createdReferral.referredToDepartmentId,
+    );
+    expect(body.data[0]).toHaveProperty(
+      'referredToFacilityId',
+      createdReferral.referredToFacilityId,
+    );
   });
 
   it('should get referral reference info when listing referrals', async () => {
@@ -88,9 +94,44 @@ describe('Referrals', () => {
     expect(record).toHaveProperty('referredToFacility.code', facility.code);
   });
 
+  describe('diagnoses', () => {
+    let expectDiagnosis = null;
+
+    beforeAll(async () => {
+      expectDiagnosis = await models.ReferenceData.create({
+        type: 'icd10',
+        name: 'Malady',
+        code: 'malady',
+      });
+    });
+
+    it('should record a diagnosis', async () => {
+      const createReferralResult = await app.post('/v1/referral').send({
+        patientId: patient.id,
+        referredById: app.user.id,
+        referredToDepartmentId: department.id,
+        referredToFacilityId: facility.id,
+        diagnoses: [expectDiagnosis.id],
+      });
+      expect(createReferralResult).toHaveSucceeded();
+
+      const referralDiagnosesResult = await app.get(
+        `/v1/referral/${createReferralResult.body.id}/diagnoses`,
+      );
+      expect(referralDiagnosesResult).toHaveSucceeded();
+      expect(referralDiagnosesResult.body.count).toBeGreaterThan(0);
+      expect(referralDiagnosesResult.body.data[0]).toHaveProperty(
+        'diagnosisId',
+        expectDiagnosis.id,
+      );
+    });
+  });
+
   // TODO: Not currently implemented
   it.skip('should reference any active encounter when the referral was created', async () => {
-    encounter = await models.Encounter.create(await createDummyEncounter(models, { current: true, patientId: patient.id}));
+    encounter = await models.Encounter.create(
+      await createDummyEncounter(models, { current: true, patientId: patient.id }),
+    );
     const createdReferral = await app.post('/v1/referral').send({
       patientId: patient.id,
       referredById: app.user.id,
