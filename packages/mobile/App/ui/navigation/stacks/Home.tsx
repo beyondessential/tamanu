@@ -1,4 +1,4 @@
-import React, { ReactElement, useContext } from 'react';
+import React, { ReactElement, useContext, useEffect } from 'react';
 // Navigators
 import {
   createStackNavigator,
@@ -29,6 +29,10 @@ const Stack = createStackNavigator();
 
 export const HomeStack = (): ReactElement => {
   const authCtx = useContext(AuthContext);
+  useEffect(() => {
+    // start SyncManager when displaying the HomeStack
+    authCtx.resumeSession();
+  }, []);
 
   return (
     <Stack.Navigator
