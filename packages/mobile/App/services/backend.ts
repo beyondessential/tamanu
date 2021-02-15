@@ -9,6 +9,10 @@ import { MODELS_MAP } from '~/models/modelsMap';
 const SYNC_PERIOD_MINUTES = 5;
 const API_VERSION = 1;
 
+function initSyncSource(server: string) {
+  return new WebSyncSource(`${server}/v${API_VERSION}`)
+}
+
 export class Backend {
   randomId: any;
 
@@ -31,6 +35,10 @@ export class Backend {
 
   async initialise(): Promise<void> {
     await Database.connect();
+    const server = await readConfig('syncServerLocation');
+    if (server) {
+      this.syncSource = initSyncSource(server);
+    }
   }
 
   async connectToRemote(params: SyncConnectionParameters): Promise<{ user: IUser, token: string }> {
@@ -41,7 +49,7 @@ export class Backend {
     const server = syncServerLocation || params.server;
 
     // create the sync source and log in to it
-    this.syncSource = new WebSyncSource(`${server}/v${API_VERSION}`);
+    this.syncSource = initSyncSource(server);
     console.log(`Getting token from ${server}`);
     const { user, token } = await this.syncSource.login(params.email, params.password);
     console.log(`Signed in as ${user.displayName}`);
@@ -52,12 +60,11 @@ export class Backend {
       writeConfig('syncServerLocation', params.server);
     }
 
-    this.startSyncService();
-
     return { user, token };
   }
 
   startSyncService() {
+    // TODO: this has a race condition and should await any ongoing sync
     this.stopSyncService();
 
     this.syncManager = new SyncManager(this.syncSource);

@@ -25,6 +25,7 @@ interface AuthContextData {
   isUserAuthenticated: () => boolean;
   setUserFirstSignIn: () => void;
   checkFirstSession: () => boolean;
+  resumeSession: () => void;
 }
 
 const AuthContext = createContext<AuthContextData>({} as AuthContextData);
@@ -112,6 +113,10 @@ const Provider = ({
     });
   };
 
+  const resumeSession = (): void => {
+    backend.startSyncService();
+  };
+
   return (
     <AuthContext.Provider
       value={{
@@ -120,6 +125,7 @@ const Provider = ({
         signOut,
         isUserAuthenticated,
         checkFirstSession,
+        resumeSession,
       }}
     >
       {children}
