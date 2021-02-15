@@ -1,6 +1,6 @@
 import React, { useCallback, ReactElement } from 'react';
 import { theme } from '/styled/theme';
-import { ProgramAddDetailsScreenProps } from '/interfaces/screens/ProgramsStack/ProgramAddDetails/ProgramAddDetailsScreenProps';
+import { SurveyResponseScreenProps } from '/interfaces/screens/ProgramsStack/SurveyResponseScreen';
 import { useNavigation } from '@react-navigation/native';
 import { FlatList } from 'react-native';
 import { Routes } from '/helpers/routes';
@@ -66,7 +66,7 @@ const SurveyResponseItem = ({
 
 export const ProgramViewHistoryScreen = ({
   route,
-}: ProgramAddDetailsScreenProps): ReactElement => {
+}: SurveyResponseScreenProps): ReactElement => {
   const { surveyId, latestResponseId } = route.params;
   const navigation = useNavigation();
 

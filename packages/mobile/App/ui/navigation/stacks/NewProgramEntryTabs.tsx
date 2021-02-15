@@ -2,7 +2,7 @@ import React, { ReactElement, useCallback } from 'react';
 import { RouteProp, NavigationProp } from '@react-navigation/native';
 import { Routes } from '/helpers/routes';
 import { compose } from 'redux';
-import { ProgramAddDetailsScreen } from '../screens/programs/tabs/ProgramAddDetailsScreen';
+import { SurveyResponseScreen } from '../screens/programs/tabs/SurveyResponseScreen';
 import { ProgramViewHistoryScreen } from '../screens/programs/tabs/ProgramViewHistoryScreen';
 import { StackHeader } from '/components/StackHeader';
 import { createTopTabNavigator } from '/components/TopTabNavigator';
@@ -56,7 +56,7 @@ const TabNavigator = ({
             title: 'Add Details',
           }}
           name={Routes.HomeStack.ProgramStack.ProgramTabs.AddDetails}
-          component={ProgramAddDetailsScreen}
+          component={SurveyResponseScreen}
         />
         <Tabs.Screen
           initialParams={{

@@ -6,7 +6,7 @@ import { Field } from '../FormField';
 import { FieldTypes } from '~/ui/helpers/fields';
 import { FieldByType } from '~/ui/helpers/fieldComponents';
 
-interface ProgramQuestion {
+interface SurveyQuestionProps {
   component: ISurveyScreenComponent;
 }
 
@@ -17,9 +17,9 @@ function getField(type: string): FC<any> {
   return () => <StyledText>{`No field type ${type}`}</StyledText>;
 }
 
-export const ProgramQuestion = ({
+export const SurveyQuestion = ({
   component,
-}: ProgramQuestion): ReactElement => {
+}: SurveyQuestionProps): ReactElement => {
   const { dataElement } = component;
   const fieldInput: FC<any> = getField(dataElement.type);
   if(!fieldInput) return null;

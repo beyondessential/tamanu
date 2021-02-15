@@ -1,12 +1,27 @@
 import React, { ReactElement, useCallback } from 'react';
+import * as Yup from 'yup';
+
 import { FullView, StyledText } from '~/ui/styled/common';
-import { ProgramsForm } from '~/ui/components/Forms/ProgramsForm';
 import { LoadingScreen } from '~/ui/components/LoadingScreen';
 import { ErrorScreen } from '~/ui/components/ErrorScreen';
-import { ScreenProps } from '~/ui/interfaces/screens/ProgramsStack/ProgramAddDetails/ScreenProps';
-import { useCancelableEffect } from '~/ui/hooks';
+import { useCancelableEffect, useBackend } from '~/ui/hooks';
+import { VerticalPosition } from '~/ui/interfaces/VerticalPosition';
+import { IProgram } from '~/types';
+import { SurveyForm } from '~/ui/components/Forms/SurveyForm';
 
-export const Screen = ({
+export interface SurveyScreenProps {
+  onSubmitForm: (values: any) => void;
+  containerScrollView: any;
+  scrollTo: (position: { x: number; y: number }) => void;
+  verticalPositions?: VerticalPosition;
+  formValidationSchema?: Yup.ObjectSchema;
+  program?: IProgram;
+  initialValues?: { [key: string]: any };
+  survey?: any;
+  patient?: any;
+}
+
+export const SurveyScreen = ({
   survey,
   onSubmitForm,
   ...props
@@ -28,7 +43,7 @@ export const Screen = ({
 
   return (
     <FullView>
-      <ProgramsForm
+      <SurveyForm
         {...props}
         components={components}
         onSubmit={onSubmit}
