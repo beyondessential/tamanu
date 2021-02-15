@@ -16,17 +16,19 @@ patientCarePlan.post(
       models: { PatientCarePlan, Note },
     } = req;
     req.checkPermission('create', 'PatientCarePlan');
-    const newCarePlan = await PatientCarePlan.create(req.body);
-    if (req.body.content) {
-      await Note.create({
-        recordId: newCarePlan.get('id'),
-        recordType: NOTE_RECORD_TYPES.PATIENT_CARE_PLAN,
-        date: req.body.date,
-        content: req.body.content,
-        noteType: NOTE_TYPES.TREATMENT_PLAN,
-        authorId: req.user.id,
-      });
+    if (!req.body.content) {
+      res.status(400).send('Note is required for care plan');
+      return;
     }
+    const newCarePlan = await PatientCarePlan.create(req.body);
+    await Note.create({
+      recordId: newCarePlan.get('id'),
+      recordType: NOTE_RECORD_TYPES.PATIENT_CARE_PLAN,
+      date: req.body.date,
+      content: req.body.content,
+      noteType: NOTE_TYPES.TREATMENT_PLAN,
+      authorId: req.user.id,
+    });
     res.send(newCarePlan);
   }),
 );
