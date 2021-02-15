@@ -64,7 +64,6 @@ export class Backend {
   }
 
   startSyncService() {
-    // TODO: this has a race condition and should await any ongoing sync
     this.stopSyncService();
 
     this.syncManager = new SyncManager(this.syncSource);
@@ -78,6 +77,7 @@ export class Backend {
   }
 
   stopSyncService(): void {
+    // TODO: this has a race condition and should await any ongoing sync
     if (!this.interval) {
       return;
     }
