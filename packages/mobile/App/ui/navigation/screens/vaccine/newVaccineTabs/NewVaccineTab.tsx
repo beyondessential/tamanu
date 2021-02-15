@@ -79,7 +79,7 @@ export const NewVaccineTabComponent = ({
         { examiner },
       );
 
-      await models.AdministeredVaccine.create({
+      await models.AdministeredVaccine.createAndSaveOne({
         reason,
         batch,
         status,

@@ -1,6 +1,5 @@
 import { Entity, Column, ManyToOne } from 'typeorm/browser';
 import { BaseModel } from './BaseModel';
-import { Database } from '~/infra/db';
 
 import { Survey } from './Survey';
 import { ProgramDataElement } from './ProgramDataElement';
@@ -26,24 +25,24 @@ export class SurveyScreenComponent extends BaseModel
   @Column({ nullable: true })
   options?: string;
 
-  @ManyToOne(type => Survey, survey => survey.components)
+  @ManyToOne(() => Survey, survey => survey.components)
   survey: Survey;
 
-  @ManyToOne(type => ProgramDataElement, element => element.components)
+  @ManyToOne(() => ProgramDataElement)
   dataElement: ProgramDataElement;
 
   getOptions(): any {
     try {
       const optionString = (this.options || this.dataElement.defaultOptions || '');
-      if(!optionString) {
+      if (!optionString) {
         return [];
       }
-      const optionArray = JSON.parse(optionString);
+      const optionArray: string[] = JSON.parse(optionString);
       return optionArray
         .map(x => x.trim())
         .filter(x => x)
         .map(x => ({ label: x, value: x }));
-    } catch(e) {
+    } catch (e) {
       console.error(e);
       return [];
     }

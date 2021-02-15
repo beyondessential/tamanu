@@ -96,7 +96,7 @@ const Provider = ({
   const signIn = async (params: SyncConnectionParameters): Promise<void> => {
     const network = await NetInfo.fetch();
 
-    if(!network.isConnected) {
+    if (!network.isConnected) {
       return localSignIn(params);
     }
 

@@ -1,6 +1,7 @@
 import { ID } from './ID';
 import { IReferenceData } from './IReferenceData';
 import { IDiagnosis } from './IDiagnosis';
+import { IPatient } from './IPatient';
 
 export enum EncounterType {
   Admission = 'admission',
@@ -26,4 +27,6 @@ export interface IEncounter {
   department?: IReferenceData;
 
   diagnoses?: IDiagnosis[];
+
+  patient?: IPatient;
 }

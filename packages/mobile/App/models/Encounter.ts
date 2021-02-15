@@ -71,7 +71,7 @@ export class Encounter extends BaseModel implements IEncounter {
 
     if (found) return found;
 
-    return Encounter.create({
+    return Encounter.createAndSaveOne({
       patient: patientId,
       startDate: new Date(),
       endDate: null,
@@ -87,7 +87,7 @@ export class Encounter extends BaseModel implements IEncounter {
     const repo = this.getRepository();
 
     return repo.find({
-      patient: patientId,
+      patient: { id: patientId },
     });
   }
 

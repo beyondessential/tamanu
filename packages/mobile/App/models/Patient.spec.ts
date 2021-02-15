@@ -26,7 +26,7 @@ describe('localConfig', () => {
     mockedReadConfig.mockReturnValue(Promise.resolve('["id-1","id-3","id-2"]'));
     await Database.connect();
     await Promise.all(patients.map(async p => {
-      await Database.models.Patient.create(p);
+      await Database.models.Patient.createAndSaveOne(p);
     }));
   });
 

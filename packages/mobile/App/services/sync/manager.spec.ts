@@ -49,13 +49,13 @@ describe('SyncManager', () => {
         const { models } = Database;
 
         const patient = fakePatient();
-        await models.Patient.create(patient);
+        await models.Patient.createAndSaveOne(patient);
 
         const programDataElement = fakeProgramDataElement();
-        await models.ProgramDataElement.create(programDataElement);
+        await models.ProgramDataElement.createAndSaveOne(programDataElement);
 
         const survey = fakeSurvey();
-        await models.Survey.create(survey);
+        await models.Survey.createAndSaveOne(survey);
 
         const channel = `patient/${patient.id}/encounter`;
 
@@ -152,31 +152,31 @@ describe('SyncManager', () => {
         const { syncManager, mockedSource } = createManager();
 
         const patient = fakePatient();
-        await Database.models.Patient.create(patient);
+        await Database.models.Patient.createAndSaveOne(patient);
 
         const encounter = fakeEncounter();
         encounter.patient = patient.id;
-        await Database.models.Encounter.create(encounter);
+        await Database.models.Encounter.createAndSaveOne(encounter);
 
         const administeredVaccine = fakeAdministeredVaccine();
         administeredVaccine.encounter = encounter.id;
-        await Database.models.AdministeredVaccine.create(administeredVaccine);
+        await Database.models.AdministeredVaccine.createAndSaveOne(administeredVaccine);
 
         const programDataElement = fakeProgramDataElement();
-        await Database.models.ProgramDataElement.create(programDataElement);
+        await Database.models.ProgramDataElement.createAndSaveOne(programDataElement);
 
         const survey = fakeSurvey();
-        await Database.models.Survey.create(survey);
+        await Database.models.Survey.createAndSaveOne(survey);
 
         const surveyResponse = fakeSurveyResponse();
         surveyResponse.encounter = encounter.id;
         surveyResponse.survey = survey.id;
-        await Database.models.SurveyResponse.create(surveyResponse);
+        await Database.models.SurveyResponse.createAndSaveOne(surveyResponse);
 
         const answer = fakeSurveyResponseAnswer();
         answer.response = surveyResponse.id;
         answer.dataElement = programDataElement.id;
-        await Database.models.SurveyResponseAnswer.create(answer);
+        await Database.models.SurveyResponseAnswer.createAndSaveOne(answer);
 
         mockedSource.uploadRecords.mockReturnValueOnce({ count: 1, requestedAt: Date.now() });
         const channel = `patient/${encounter.patient}/encounter`;

@@ -1,6 +1,8 @@
 import { readConfig } from '~/services/config';
-import { Entity, Column } from 'typeorm/browser';
+import { Entity, Column, OneToMany } from 'typeorm/browser';
 import { BaseModel } from './BaseModel';
+import { Encounter } from './Encounter';
+import { Referral } from './Referral';
 import { IPatient } from '~/types';
 
 @Entity('patient')
@@ -34,6 +36,12 @@ export class Patient extends BaseModel implements IPatient {
 
   @Column({ default: false })
   markedForSync: boolean;
+
+  @OneToMany(() => Encounter, encounter => encounter.patient)
+  encounters: Encounter[]
+
+  @OneToMany(() => Referral, referral => referral.patient)
+  referrals: Referral[]
 
   static async markForSync(patientId: string): Promise<void> {
     const repo = this.getRepository();

@@ -17,7 +17,7 @@ export const BackendProvider = ({ Component }): JSX.Element => {
       setInitialised(false);
 
       RnBgTask.runInBackground(async () => {
-        await backend.initialise(Date.now());
+        await backend.initialise();
         setInitialised(true);
       });
     })();

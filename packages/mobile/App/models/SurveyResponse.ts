@@ -12,7 +12,7 @@ import {
 
 import { runCalculations } from '~/ui/helpers/calculations';
 
-import { ISurveyResponse } from '~/types';
+import { ISurveyResponse, IProgramDataElement, ISurveyScreenComponent } from '~/types';
 
 @Entity('survey_response')
 export class SurveyResponse extends BaseModel implements ISurveyResponse {
@@ -69,7 +69,15 @@ export class SurveyResponse extends BaseModel implements ISurveyResponse {
     };
   }
 
-  static async submit(patientId, surveyData, values, setNote = () => null): Promise<SurveyResponse> {
+  static async submit(
+    patientId: string,
+    surveyData: ISurveyResponse & {
+      encounterReason: string,
+      components: ISurveyScreenComponent[],
+    },
+    values: object,
+    setNote: (note: string) => void = () => null,
+  ): Promise<SurveyResponse> {
     const {
       surveyId,
       encounterReason,
@@ -78,8 +86,8 @@ export class SurveyResponse extends BaseModel implements ISurveyResponse {
     } = surveyData;
 
     try {
-      setNote('Creating encounter...');
-      const encounter = await Encounter.create({
+      setNote("Creating encounter...");
+      const encounter = await Encounter.createAndSaveOne({
         patient: patientId,
         startDate: new Date(),
         endDate: new Date(),
@@ -94,8 +102,8 @@ export class SurveyResponse extends BaseModel implements ISurveyResponse {
         resultText,
       } = getResultValue(components, calculatedValues);
 
-      setNote('Creating response object...');
-      const responseRecord = await SurveyResponse.create({
+      setNote("Creating response object...");
+      const responseRecord: SurveyResponse = await SurveyResponse.createAndSaveOne({
         encounter: encounter.id,
         survey: surveyId,
         startTime: Date.now(),
@@ -105,20 +113,25 @@ export class SurveyResponse extends BaseModel implements ISurveyResponse {
         ...otherData,
       });
 
-      setNote('Attaching answers...');
-      const findDataElement = (code: string): string => {
+      setNote("Attaching answers...");
+      const findDataElement = (code: string): IProgramDataElement => {
         const component = components.find(c => c.dataElement.code === code);
-        if (!component) return '';
+        if (!component) return null;
         return component.dataElement;
       };
 
       for (const a of Object.entries(calculatedValues)) {
         const [dataElementCode, value] = a;
         const dataElement = findDataElement(dataElementCode);
+        if (dataElement === null) {
+          // better to fail entirely than save partial data
+          throw new Error(`no data element for code: ${dataElementCode}`);
+        }
+
         const body = getStringValue(dataElement.type, value);
 
         setNote(`Attaching answer for ${dataElement.id}...`);
-        await SurveyResponseAnswer.create({
+        await SurveyResponseAnswer.createAndSaveOne({
           dataElement: dataElement.id,
           body,
           response: responseRecord.id,

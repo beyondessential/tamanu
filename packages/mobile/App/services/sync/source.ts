@@ -50,6 +50,8 @@ export interface SyncSource {
 export class WebSyncSource implements SyncSource {
   host: string;
 
+  token: string;
+
   constructor(host: string) {
     this.host = host;
   }

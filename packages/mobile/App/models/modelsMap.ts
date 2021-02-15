@@ -14,8 +14,9 @@ import { ScheduledVaccine } from './ScheduledVaccine';
 import { AdministeredVaccine } from './AdministeredVaccine';
 import { Referral } from './Referral';
 import { Medication } from './Medication';
+import { BaseModel } from './BaseModel';
 
-export const MODELS_ARRAY: BaseModel[] = [
+export const MODELS_ARRAY: typeof BaseModel[] = [
   ReferenceData,
   Patient,
   User,

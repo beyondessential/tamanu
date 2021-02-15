@@ -18,7 +18,7 @@ export class Diagnosis extends BaseModel implements IDiagnosis {
   @ReferenceDataRelation()
   diagnosis: ReferenceData;
 
-  @ManyToOne(type => Encounter, encounter => encounter.diagnosis)
+  @ManyToOne(() => Encounter, encounter => encounter.diagnoses)
   encounter: Encounter;
 
   static async getForPatient(patientId: string): Promise<Diagnosis[]> {

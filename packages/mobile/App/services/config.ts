@@ -5,7 +5,7 @@ export function clear() {
   return AsyncStorage.clear();
 }
 
-export async function readConfig(key: string, defaultValue: string): Promise<string> {
+export async function readConfig(key: string, defaultValue: string = null): Promise<string> {
   try {
     const value = await AsyncStorage.getItem(key);
     return (value !== null) ? value : defaultValue;

@@ -79,7 +79,7 @@ describe('ImportPlan', () => {
           isDeleted: true,
           data: fake(),
         };
-        await model.create(record.data);
+        await model.createAndSaveOne(record.data);
         const oldRows = await model.find({ id: record.data.id });
         expect(oldRows).toEqual([
           {
@@ -112,7 +112,7 @@ describe('ImportPlan', () => {
             id: record.data.id,
           },
         };
-        await model.create(record.data);
+        await model.createAndSaveOne(record.data);
         const oldRows = await model.find({ id: record.data.id });
         expect(oldRows).toEqual([
           {
