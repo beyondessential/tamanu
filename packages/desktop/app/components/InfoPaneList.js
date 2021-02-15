@@ -120,10 +120,19 @@ export const InfoPaneList = memo(
       [],
     );
 
-    const Wrapper = (props) => behavior === 'collapse'
-      ? <Collapse in={adding} {...props} />
-      : <Modal width="md" title={`Add ${itemTitle}`} open={adding} onClose={handleCloseForm} {...props} />;
-    
+    const Wrapper = props =>
+      behavior === 'collapse' ? (
+        <Collapse in={adding} {...props} />
+      ) : (
+        <Modal
+          width="md"
+          title={`Add ${itemTitle}`}
+          open={adding}
+          onClose={handleCloseForm}
+          {...props}
+        />
+      );
+
     const addForm = (
       <Wrapper>
         <AddEditForm
@@ -168,28 +177,26 @@ export const InfoPaneList = memo(
               );
             }
 
-            if (behavior === 'modal') {
-              return (
-                <React.Fragment key={id}>
-                  <ListItem onClick={() => handleRowClick(id)}>{name}</ListItem>
-                  <Modal
-                    width="md"
-                    title={getEditFormName(item)}
-                    open={editKey === id}
+            return (
+              <React.Fragment key={id}>
+                <ListItem onClick={() => handleRowClick(id)}>{name}</ListItem>
+                <Modal
+                  width="md"
+                  title={getEditFormName(item)}
+                  open={editKey === id}
+                  onClose={handleCloseForm}
+                >
+                  <EditForm
+                    patient={patient}
+                    Form={Form}
+                    endpoint={endpoint}
+                    suggesterEndpoints={suggesterEndpoints}
+                    item={item}
                     onClose={handleCloseForm}
-                  >
-                    <EditForm
-                      patient={patient}
-                      Form={Form}
-                      endpoint={endpoint}
-                      suggesterEndpoints={suggesterEndpoints}
-                      item={item}
-                      onClose={handleCloseForm}
-                    />
-                  </Modal>
-                </React.Fragment>
-              );
-            }
+                  />
+                </Modal>
+              </React.Fragment>
+            );
           })}
         </DataList>
       </React.Fragment>
