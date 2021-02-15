@@ -66,14 +66,19 @@ const executeImportPlanInner = async (
   if (syncRecord.isDeleted) {
     await model.delete({ id: syncRecord.data.id });
   } else {
-    const fields = {
+    const fields: { [key: string]: any } = {
       ...fromSyncRecord(syncRecord),
       markedForUpload: false,
     };
     if (!!parentId) {
       fields[parentField] = parentId;
     }
-    await model.createOrUpdate(fields);
+    const existing = await model.count({ id: fields.id });
+    if (existing > 0) {
+      await model.update(fields.id, fields);
+    } else {
+      await model.insert(fields);
+    }
   }
   for (const [relationName, relationPlan] of Object.entries(children)) {
     const childRecords = syncRecord.data[relationName];

@@ -52,7 +52,7 @@ export const DumbAddIllnessScreen = ({ selectedPatient, navigation }): ReactElem
         selectedPatient.id,
       );
 
-      await models.Diagnosis.create({
+      await models.Diagnosis.createAndSaveOne({
         // TODO: support selecting multiple diagnoses and flagging as primary/non primary
         isPrimary: true,
         encounter: encounter.id,

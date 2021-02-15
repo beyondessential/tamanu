@@ -87,7 +87,7 @@ export class SurveyResponse extends BaseModel implements ISurveyResponse {
 
     try {
       setNote("Creating encounter...");
-      const encounter = await Encounter.create({
+      const encounter = await Encounter.createAndSaveOne({
         patient: patientId,
         startDate: new Date(),
         endDate: new Date(),
@@ -103,7 +103,7 @@ export class SurveyResponse extends BaseModel implements ISurveyResponse {
       } = getResultValue(components, calculatedValues);
 
       setNote("Creating response object...");
-      const responseRecord: SurveyResponse = await SurveyResponse.create({
+      const responseRecord: SurveyResponse = await SurveyResponse.createAndSaveOne({
         encounter: encounter.id,
         survey: surveyId,
         startTime: Date.now(),
@@ -131,7 +131,7 @@ export class SurveyResponse extends BaseModel implements ISurveyResponse {
         const body = getStringValue(dataElement.type, value);
 
         setNote(`Attaching answer for ${dataElement.id}...`);
-        await SurveyResponseAnswer.create({
+        await SurveyResponseAnswer.createAndSaveOne({
           dataElement: dataElement.id,
           body,
           response: responseRecord.id,

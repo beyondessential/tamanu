@@ -30,7 +30,7 @@ const DumbAddRefferalDetailScreen = ({ navigation, selectedPatient }): ReactElem
 
   const onCreateReferral = useCallback(
     async (values): Promise<any> => {
-      await models.Referral.create({
+      await models.Referral.createAndSaveOne({
         patient: selectedPatient.id,
         date: new Date(),
         ...values,

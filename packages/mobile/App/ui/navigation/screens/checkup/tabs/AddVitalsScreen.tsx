@@ -96,7 +96,7 @@ export const DumbAddVitalsScreen = ({ selectedPatient, navigation }): ReactEleme
     [],
   );
 
-  const validationSchema 
+  const validationSchema
     = Yup.object().shape({
       weight: Yup.number(),
       height: Yup.number(),
@@ -122,16 +122,16 @@ export const DumbAddVitalsScreen = ({ selectedPatient, navigation }): ReactEleme
     'avpu',
   ];
 
-   const validate = (values :object):object => {
+  const validate = (values: object): object => {
     const errors = {};
-    
-    const requiredFieldFilter = (val :string) => requiresOneOfFields.includes(val);
+
+    const requiredFieldFilter = (val: string) => requiresOneOfFields.includes(val);
     const valueFields = Object.keys(values).filter(requiredFieldFilter);
 
-    if(valueFields.length === 0 ){ 
+    if (valueFields.length === 0) {
       errors['form'] = 'At least one vital must be recorded.';
     }
-    
+
     return errors;
   };
 
@@ -150,7 +150,7 @@ export const DumbAddVitalsScreen = ({ selectedPatient, navigation }): ReactEleme
         { reasonForEncounter: values.comments },
       );
 
-      await models.Vitals.create({
+      await models.Vitals.createAndSaveOne({
         ...values,
         encounter: encounter.id,
         date: new Date(),
