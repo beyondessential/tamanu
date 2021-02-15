@@ -19,10 +19,9 @@ export class ProgramDataElement extends BaseModel
   @Column({ nullable: true })
   defaultOptions?: string;
 
-  @Column()
-  type?: string;
+  @Column('text')
+  type: DataElementType;
 
   @OneToMany(() => SurveyResponseAnswer, answer => answer.dataElement)
   answers: SurveyResponseAnswer[];
 }
-
