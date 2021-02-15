@@ -6,6 +6,7 @@ import {
   IAdministeredVaccine,
   IEncounter,
   IPatient,
+  IProgram,
   IProgramDataElement,
   IReferenceData,
   IScheduledVaccine,
@@ -125,5 +126,13 @@ export const fakeScheduledVaccine = (): IScheduledVaccine => {
     weeksFromBirthDue: 5,
     category: `scheduled-vaccine-category-${uuid}`,
     vaccine: null,
+  };
+};
+
+export const fakeProgram = (): IProgram => {
+  const uuid = uuidv4();
+  return {
+    id: `program-id-${uuid}`,
+    name: `program-name-${uuid}`,
   };
 };
