@@ -120,7 +120,7 @@ export class SurveyResponse extends BaseModel implements ISurveyResponse {
         return component.dataElement;
       };
 
-      for (let a of Object.entries(calculatedValues)) {
+      for (const a of Object.entries(calculatedValues)) {
         const [dataElementCode, value] = a;
         const dataElement = findDataElement(dataElementCode);
         if (dataElement === null) {
@@ -137,7 +137,7 @@ export class SurveyResponse extends BaseModel implements ISurveyResponse {
           response: responseRecord.id,
         });
       }
-      setNote(`Done`);
+      setNote('Done');
 
       return responseRecord;
     } catch (e) {
@@ -146,5 +146,13 @@ export class SurveyResponse extends BaseModel implements ISurveyResponse {
       return null;
     }
   }
-}
 
+  static async getForPatient(patientId: string): Promise<SurveyResponse[]> {
+    return this.getRepository()
+      .createQueryBuilder('survey_response')
+      .leftJoinAndSelect('survey_response.encounter', 'encounter')
+      .leftJoinAndSelect('survey_response.survey', 'survey')
+      .where('encounter.patientId = :patient', { patient: patientId })
+      .getMany();
+  }
+}
