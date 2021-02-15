@@ -1,9 +1,10 @@
-import { Entity, Column, ManyToOne, PrimaryGeneratedColumn, OneToOne } from 'typeorm/browser';
+import { Entity, Column, ManyToOne, PrimaryGeneratedColumn, OneToOne, OneToMany } from 'typeorm/browser';
 import { BaseModel } from './BaseModel';
 import { Certainty, IReferral } from '~/types';
 import { Patient } from './Patient';
 import { ReferenceData, ReferenceDataRelation } from './ReferenceData';
 import { User } from './User';
+import { SurveyResponse } from './SurveyResponse';
 
 @Entity('referral')
 export class Referral extends BaseModel implements IReferral {
@@ -30,6 +31,9 @@ export class Referral extends BaseModel implements IReferral {
 
   @OneToOne(type => User, user => user.referral)
   practitioner: User;
+
+  @OneToMany(type => SurveyResponse, surveyResponse => surveyResponse.referral, { nullable: true })
+  surveyResponse: SurveyResponse;
 
   @ManyToOne(type => Patient, patient => patient.referral)
   patient: Patient;

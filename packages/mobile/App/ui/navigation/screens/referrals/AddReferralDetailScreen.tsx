@@ -25,8 +25,16 @@ const ReferralFormSchema = Yup.object().shape({
 });
 
 const DumbAddRefferalDetailScreen = ({ navigation, selectedPatient }): ReactElement => {
+  const [surveyResponses, setSurveyResponses] = useState([]);
   const { models } = useBackend();
   const user = useSelector(authUserSelector);
+
+  useEffect(() => {
+    (async (): Promise<any> => {
+      const responses = await models.SurveyResponse.getForPatient(selectedPatient.id);
+      setSurveyResponses(responses);
+    })();
+  }, [selectedPatient]);
 
   const onCreateReferral = useCallback(
     async (values): Promise<any> => {
@@ -54,7 +62,6 @@ const DumbAddRefferalDetailScreen = ({ navigation, selectedPatient }): ReactElem
     { column: 'displayName' },
     ({ displayName, id }): OptionType => ({ label: displayName, value: id }),
   );
-
   const renderForm = useCallback(({ handleSubmit }) => (
     <ReferralForm
       handleSubmit={handleSubmit}
@@ -62,8 +69,9 @@ const DumbAddRefferalDetailScreen = ({ navigation, selectedPatient }): ReactElem
       practitionerSuggester={practitionerSuggester}
       navigation={navigation}
       loggedInUser={user}
+      surveyResponses={surveyResponses}
     />
-  ), []);
+  ), [surveyResponses, user]);
   return (
     <FullView background={theme.colors.BACKGROUND_GREY}>
       <Formik

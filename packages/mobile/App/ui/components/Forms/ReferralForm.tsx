@@ -1,4 +1,5 @@
 import React, { ReactElement } from 'react';
+import { format } from 'date-fns';
 import { StyledView } from '../../styled/common';
 import { theme } from '../../styled/theme';
 import { screenPercentageToDP, Orientation } from '../../helpers/screen';
@@ -18,6 +19,7 @@ const ReferralForm = ({
   practitionerSuggester,
   loggedInUser,
   navigation,
+  surveyResponses,
 }: ReferralFormProps): ReactElement => (
   <StyledView
     justifyContent="space-between"
@@ -61,9 +63,15 @@ const ReferralForm = ({
     <SectionHeader h3>NOTES</SectionHeader>
     <Field
       component={TextField}
-      multilinexz
+      multiline
       label="Notes"
       name="notes"
+    />
+    <Field
+      component={Dropdown}
+      options={surveyResponses.map(r => ({ label: `${r.survey.name} (${format(r.endTime, 'dd-MM-yyyy')})`, value: r.id }))}
+      label="Attach Survey"
+      name="surveyResponse"
     />
     <Button
       marginTop={screenPercentageToDP(1.22, Orientation.Height)}

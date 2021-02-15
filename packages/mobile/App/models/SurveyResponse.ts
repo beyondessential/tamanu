@@ -78,7 +78,7 @@ export class SurveyResponse extends BaseModel implements ISurveyResponse {
     } = surveyData;
 
     try {
-      setNote("Creating encounter...");
+      setNote('Creating encounter...');
       const encounter = await Encounter.create({
         patient: patientId,
         startDate: new Date(),
@@ -94,7 +94,7 @@ export class SurveyResponse extends BaseModel implements ISurveyResponse {
         resultText,
       } = getResultValue(components, calculatedValues);
 
-      setNote("Creating response object...");
+      setNote('Creating response object...');
       const responseRecord = await SurveyResponse.create({
         encounter: encounter.id,
         survey: surveyId,
@@ -105,14 +105,14 @@ export class SurveyResponse extends BaseModel implements ISurveyResponse {
         ...otherData,
       });
 
-      setNote("Attaching answers...");
+      setNote('Attaching answers...');
       const findDataElement = (code: string): string => {
         const component = components.find(c => c.dataElement.code === code);
         if (!component) return '';
         return component.dataElement;
       };
 
-      for (let a of Object.entries(calculatedValues)) {
+      for (const a of Object.entries(calculatedValues)) {
         const [dataElementCode, value] = a;
         const dataElement = findDataElement(dataElementCode);
         const body = getStringValue(dataElement.type, value);
@@ -124,7 +124,7 @@ export class SurveyResponse extends BaseModel implements ISurveyResponse {
           response: responseRecord.id,
         });
       }
-      setNote(`Done`);
+      setNote('Done');
 
       return responseRecord;
     } catch (e) {
@@ -133,5 +133,13 @@ export class SurveyResponse extends BaseModel implements ISurveyResponse {
       return null;
     }
   }
-}
 
+  static async getForPatient(patientId: string): Promise<SurveyResponse[]> {
+    return this.getRepository()
+      .createQueryBuilder('survey_response')
+      .leftJoinAndSelect('survey_response.encounter', 'encounter')
+      .leftJoinAndSelect('survey_response.survey', 'survey')
+      .where('encounter.patient.id = :patient', { patient: patientId })
+      .getMany();
+  }
+}
