@@ -79,13 +79,17 @@ export class SyncManager {
     this.emitter.emit('syncStarted');
 
     const { models } = Database;
+
     await this.runChannelSync(models.ReferenceData, 'reference');
     await this.runChannelSync(models.User, 'user');
+
     await this.runChannelSync(models.ScheduledVaccine, 'scheduledVaccine');
+
     await this.runChannelSync(models.Program, 'program');
     await this.runChannelSync(models.Survey, 'survey');
     await this.runChannelSync(models.ProgramDataElement, 'programDataElement');
     await this.runChannelSync(models.SurveyScreenComponent, 'surveyScreenComponent');
+
     await this.runChannelSync(models.Patient, 'patient');
 
     await models.Encounter.mapSyncablePatientIds(async patientId => {

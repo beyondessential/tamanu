@@ -1,4 +1,4 @@
-import { Entity, Column, ManyToOne } from 'typeorm/browser';
+import { Entity, Column, ManyToOne, RelationId } from 'typeorm/browser';
 import { BaseModel } from './BaseModel';
 
 import { Survey } from './Survey';
@@ -28,8 +28,14 @@ export class SurveyScreenComponent extends BaseModel
   @ManyToOne(() => Survey, survey => survey.components)
   survey: Survey;
 
+  @RelationId(({ survey }) => survey)
+  surveyId: string;
+
   @ManyToOne(() => ProgramDataElement)
   dataElement: ProgramDataElement;
+
+  @RelationId(({ dataElement }) => dataElement)
+  dataElementId: string;
 
   getOptions(): any {
     try {

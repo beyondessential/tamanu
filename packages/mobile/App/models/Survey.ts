@@ -1,4 +1,4 @@
-import { Entity, Column, ManyToOne } from 'typeorm/browser';
+import { Entity, Column, ManyToOne, RelationId } from 'typeorm/browser';
 import { BaseModel } from './BaseModel';
 import { Program } from './Program';
 import { Database } from '~/infra/db';
@@ -7,6 +7,7 @@ import { ISurvey, ISurveyResponse } from '~/types';
 
 @Entity('survey')
 export class Survey extends BaseModel implements ISurvey {
+  @RelationId(({ program }) => program)
   programId: string;
 
   responses: any[];
