@@ -152,7 +152,7 @@ export class SurveyResponse extends BaseModel implements ISurveyResponse {
       .createQueryBuilder('survey_response')
       .leftJoinAndSelect('survey_response.encounter', 'encounter')
       .leftJoinAndSelect('survey_response.survey', 'survey')
-      .where('encounter.patient.id = :patient', { patient: patientId })
+      .where('encounter.patientId = :patient', { patient: patientId })
       .getMany();
   }
 }

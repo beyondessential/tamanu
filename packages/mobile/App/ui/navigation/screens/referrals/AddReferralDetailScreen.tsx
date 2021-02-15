@@ -30,7 +30,7 @@ const DumbAddRefferalDetailScreen = ({ navigation, selectedPatient }): ReactElem
   const user = useSelector(authUserSelector);
 
   useEffect(() => {
-    (async (): Promise<any> => {
+    (async (): Promise<void> => {
       const responses = await models.SurveyResponse.getForPatient(selectedPatient.id);
       setSurveyResponses(responses);
     })();
