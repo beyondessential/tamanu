@@ -18,23 +18,39 @@ export interface ISurveyScreenComponent {
 
   screenIndex: number;
   componentIndex: number;
-  text: string;
-  visibilityCriteria: string;
-  options: string;
+  text?: string;
+  visibilityCriteria?: string;
+  options?: string;
   calculation?: string;
 }
 
 export enum DataElementType {
+  // For later versions
+  // Meditrak-specific
+  Arithmetic = 'Arithmetic',
   Autocomplete = 'Autocomplete',
   Binary = 'Binary',
-  Calculated = 'Calculated',
+  Calculated = 'CalculatedQuestion',
   Checkbox = 'Checkbox',
+  CodeGenerator = 'CodeGenerator',
+  Condition = 'Condition',
+  ConditionQuestion = 'ConditionQuestion',
   Date = 'Date',
+  DaysSince = 'DaysSince',
+  Entity = 'Entity',
   FreeText = 'FreeText',
+  Geolocate = 'Geolocate',
   Instruction = 'Instruction',
+  MonthsSince = 'MonthsSince',
+  Multiline = 'Multiline',
   Number = 'Number',
+  Photo = 'Photo',
+  PrimaryEntity = 'PrimaryEntity',
   Radio = 'Radio',
   Result = 'Result',
+  Select = 'Select',
+  SubmissionDate = 'SubmissionDate',
+  YearsSince = 'YearsSince',
 }
 
 export interface IProgramDataElement {

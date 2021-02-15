@@ -3,7 +3,7 @@ import { BaseModel } from './BaseModel';
 import { Program } from './Program';
 import { Database } from '~/infra/db';
 
-import { ISurveyScreenComponent, ISurveyResponse } from '~/types';
+import { ISurvey, ISurveyResponse } from '~/types';
 
 @Entity('survey')
 export class Survey extends BaseModel implements ISurvey {
@@ -14,7 +14,7 @@ export class Survey extends BaseModel implements ISurvey {
   @Column()
   name: string;
 
-  @ManyToOne(type => Program, program => program.surveys)
+  @ManyToOne(() => Program, program => program.surveys)
   program: Program;
 
   components: any;
@@ -28,7 +28,7 @@ export class Survey extends BaseModel implements ISurvey {
     });
   }
 
-  static async getResponses(surveyId): Promise<ISurveyResponse[]> {
+  static async getResponses(surveyId: string): Promise<ISurveyResponse[]> {
     const responses = await Database.models.SurveyResponse.find({
       where: {
         survey: surveyId,

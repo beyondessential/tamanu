@@ -1,27 +1,25 @@
 import { Chance } from 'chance';
+import { sample } from 'lodash';
 import { GenderOptions, BloodTypes } from '/helpers/constants';
 import { IPatient } from '~/types';
 
 const defaultGenerator = new Chance();
 
-const CITIES = [
-  'Melbourne',
-  'Adelaide',
-  'Hobart',
-  'Sydney',
-  'Brisbane',
-  'Darwin',
-  'Perth',
-  'Canberra',
-];
+const nameOptionsForGender = (gender: string): {} | { gender: 'male' | 'female' } => {
+  // the library we're using doesn't have a list of names for other genders
+  if (gender === 'male' || gender === 'female') {
+    return { gender };
+  };
+  return {};
+};
 
 export const generatePatient = (generator = defaultGenerator): IPatient => {
-  const sex = (generator.bool() ? GenderOptions[0] : GenderOptions[1]).value;
+  const gender = sample(Object.values(GenderOptions)).value;
   const [firstName, middleName, lastName] = generator
-    .name({middle: true, gender: sex })
+    .name({ middle: true, ...nameOptionsForGender(gender) })
     .split(' ');
   return {
-    id: generator.guid({version: 4}),
+    id: generator.guid({ version: 4 }),
     displayId: generator.string({
       symbols: false,
       length: 6,
@@ -34,7 +32,7 @@ export const generatePatient = (generator = defaultGenerator): IPatient => {
     lastName,
     culturalName: generator.bool() ? '' : generator.name(),
     bloodType: generator.pickone(BloodTypes).value,
-    sex,
+    sex: gender,
     dateOfBirth: generator.birthday(),
   };
 };
