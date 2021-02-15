@@ -29,11 +29,6 @@ describe('PatientCarePlan', () => {
       diseaseId = await randomReferenceId(models, 'icd10');
     });
 
-    beforeEach(async () => {
-      await models.Note.destroy({ where: {}, truncate: true });
-      await models.PatientCarePlan.destroy({ where: {}, truncate: true });
-    });
-
     it('should create a care plan with note', async () => {
       const result = await app.post('/v1/patientCarePlan').send({
         date: new Date().toISOString(),
@@ -51,7 +46,16 @@ describe('PatientCarePlan', () => {
       expect(noteResult.body[0].content).toBe('Main care plan');
     });
 
-    it('should return', async () => {
+    it('should reject care plan without notes', async () => {
+      const result = await app.post('/v1/patientCarePlan').send({
+        date: new Date().toISOString(),
+        diseaseId,
+        patientId: patient.get('id'),
+      });
+      expect(result).toHaveRequestError();
+    });
+
+    it('should return return notes in order of creation', async () => {
       const createCarePlanRequest = await app.post('/v1/patientCarePlan').send({
         date: new Date().toISOString(),
         diseaseId,
