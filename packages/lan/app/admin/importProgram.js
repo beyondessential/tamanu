@@ -48,6 +48,7 @@ export async function importSurvey(taskDefinition) {
     programName,
     surveyCode,
     surveyName,
+    dryRun,
   } = taskDefinition;
   log.info(`Reading surveys from ${file}...`);
 
@@ -73,6 +74,16 @@ export async function importSurvey(taskDefinition) {
 
   const components = screenElements.filter(x => x.recordType === 'surveyScreenComponent');
   const pdes = screenElements.filter(x => x.recordType === 'programDataElement');
+
+  if (dryRun) {
+    console.log([
+      programElement,
+      surveyElement,
+      pdes,
+      components,
+    ]);
+    return;
+  }
 
   await sendSyncRequest('program', [programElement]);
   await sendSyncRequest('survey', [surveyElement]);
