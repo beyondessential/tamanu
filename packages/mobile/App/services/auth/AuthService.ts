@@ -34,7 +34,10 @@ export class AuthService {
 
   async saveLocalUser(userData: Partial<IUser>, password: string): Promise<IUser> {
     // save local password to repo for later use
-    const user = await this.models.User.create(userData).save();
+    let user = await this.models.User.findOne({ email: userData.email });
+    if (!user) {
+      user = await this.models.User.create(userData).save();
+    }
 
     // kick off a local password hash & save
     // the hash takes a while on mobile, but we don't need to do anything with the result
