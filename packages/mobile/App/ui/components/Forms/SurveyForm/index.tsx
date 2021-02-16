@@ -39,7 +39,7 @@ export const SurveyForm = ({
       {({ handleSubmit, values, setFieldValue }): ReactElement => {
         useEffect(() => {
           // recalculate dynamic fields
-          const calculatedValues = runCalculations(components, calculatedValues);
+          const calculatedValues = runCalculations(components, values);
 
           // write values that have changed back into answers
           Object.entries(calculatedValues)
