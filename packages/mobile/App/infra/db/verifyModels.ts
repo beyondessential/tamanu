@@ -1,16 +1,25 @@
 import { BaseModel } from '~/models/BaseModel';
 
 const verifyModelHasRelationIdPerManyToOneRelation = (model: typeof BaseModel): string[] => {
-  const { relationIds, manyToOneRelations } = model.getRepository().metadata;
+  const { relationIds, manyToOneRelations, oneToOneRelations } = model.getRepository().metadata;
+
   const relationIdsIndex = relationIds.reduce((memo, relationId) => ({
     ...memo,
     [relationId.propertyName]: relationId,
   }), {});
-  return manyToOneRelations.map(relation => {
-    if (!relationIdsIndex[relation.propertyPath]) {
-      return `many-to-one relation "${relation.propertyPath}" needs a corresponding @RelationId property`;
-    }
-  });
+
+  return [
+    ...manyToOneRelations.map(relation => {
+      if (!relationIdsIndex[relation.propertyPath]) {
+        return `many-to-one relation "${relation.propertyPath}" needs a corresponding @RelationId property`;
+      }
+    }),
+    ...oneToOneRelations.map(relation => {
+      if (relation.isOneToOneOwner && !relationIdsIndex[relation.propertyPath]) {
+        return `one-to-one relation "${relation.propertyPath}" needs a corresponding @RelationId property`;
+      }
+    }),
+  ];
 }
 
 const verifyModel = (model: typeof BaseModel): string[] | null => {
