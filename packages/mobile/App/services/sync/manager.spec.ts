@@ -53,7 +53,7 @@ describe('SyncManager', () => {
         await Program.createAndSaveOne(program);
 
         const survey: any = fakeSurvey();
-        survey.program = program.id;
+        survey.programId = program.id;
 
         const { syncManager, mockedSource } = createManager();
         mockedSource.downloadRecords.mockReturnValueOnce(Promise.resolve({
