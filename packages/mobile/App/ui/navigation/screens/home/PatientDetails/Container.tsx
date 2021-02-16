@@ -1,15 +1,26 @@
 import React, { useCallback, useState, ReactElement } from 'react';
+import { useBackendEffect } from '~/ui/hooks';
 import { Screen } from './Screen';
 import { PatientDetails } from '~/ui/interfaces/PatientDetails';
 import { PatientDetailsScreenProps } from '~/ui/interfaces/screens/PatientDetailsScreenProps';
 import { Routes } from '~/ui/helpers/routes';
 import { compose } from 'redux';
 import { withPatient } from '~/ui/containers/Patient';
+import { ErrorScreen } from '~/ui/components/ErrorScreen';
+import { LoadingScreen } from '~/ui/components/LoadingScreen';
 
 const Container = ({
   navigation,
   selectedPatient,
 }: PatientDetailsScreenProps): ReactElement => {
+  const [patientIssues, error] = useBackendEffect(
+    ({ models }) => models.PatientIssue.find({
+      order: { recordedDate: 'ASC' },
+      where: { patient: { id: selectedPatient.id } },
+    }),
+    [],
+  );
+
   /**
    * Implement fetch patientDetails data
    * from a mock server (or real)
@@ -31,9 +42,7 @@ const Container = ({
     familyHistory: {
       data: ['Haemochromatosis'],
     },
-    patientIssues: {
-      data: [],
-    },
+    patientIssues,
     allergies: {
       data: ['rhinitis'],
     },
@@ -57,6 +66,9 @@ const Container = ({
   const onEditField = useCallback(() => {
     setEditField(!editField);
   }, [editField]);
+
+  if (error) return <ErrorScreen error={error} />;
+  if (!patientIssues) return <LoadingScreen />;
 
   return (
     <Screen

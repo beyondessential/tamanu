@@ -1,4 +1,5 @@
 import { IPatient } from '~/types';
+import { IPatientIssue } from '~/types';
 
 export interface AllergiesProps {
   allergies: {
@@ -7,9 +8,7 @@ export interface AllergiesProps {
 }
 
 export interface PatientIssuesDataProps {
-  patientIssues: {
-    data: string[];
-  };
+  patientIssues: IPatientIssue[];
 }
 
 export interface FamilyHistoryDataProps {
