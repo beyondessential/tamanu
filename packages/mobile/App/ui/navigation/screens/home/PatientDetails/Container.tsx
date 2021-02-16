@@ -31,7 +31,7 @@ const Container = ({
     familyHistory: {
       data: ['Haemochromatosis'],
     },
-    procedurePlan: {
+    patientIssues: {
       data: [],
     },
     allergies: {

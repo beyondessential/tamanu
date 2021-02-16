@@ -21,7 +21,7 @@ import {
   FamilyInformation,
   OnGoingConditions,
   FamilyHistory,
-  ProcedurePlan,
+  PatientIssues,
 } from './CustomComponents';
 import { getAgeFromDate } from '/helpers/date';
 import { AllergiesList } from './CustomComponents/AllergiesList';
@@ -117,9 +117,9 @@ export const Screen = ({
           familyHistory={patientData.familyHistory}
         />
         <AllergiesList onEdit={onEditField} allergies={patientData.allergies} />
-        <ProcedurePlan
+        <PatientIssues
           onEdit={onEditField}
-          procedurePlan={patientData.procedurePlan}
+          patientIssues={patientData.patientIssues}
         />
       </StyledScrollView>
     </FullView>

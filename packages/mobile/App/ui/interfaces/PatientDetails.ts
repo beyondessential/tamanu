@@ -6,8 +6,8 @@ export interface AllergiesProps {
   };
 }
 
-export interface ProcedurePlanDataProps {
-  procedurePlan: {
+export interface PatientIssuesDataProps {
+  patientIssues: {
     data: string[];
   };
 }
@@ -46,4 +46,4 @@ export type PatientDetails = PatientGeneralInformationDataProps &
   OnGoingConditionsDataProps &
   FamilyHistoryDataProps &
   AllergiesProps &
-  ProcedurePlanDataProps;
+  PatientIssuesDataProps;
