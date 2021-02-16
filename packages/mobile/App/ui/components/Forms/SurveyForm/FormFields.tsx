@@ -50,15 +50,15 @@ export const FormFields = ({
     .filter(shouldShow)
     .map((component, index) => (
       <React.Fragment key={component.id}>
-        <ErrorBoundary>
           <SectionHeader marginTop={index === 0 ? 0 : 20} h3>
             {component.text || component.dataElement.defaultText}
           </SectionHeader>
-          <SurveyQuestion
-            key={component.id}
-            component={component}
-          />
-        </ErrorBoundary>
+          <ErrorBoundary>
+            <SurveyQuestion
+              key={component.id}
+              component={component}
+            />
+          </ErrorBoundary>
       </React.Fragment>
     ));
   

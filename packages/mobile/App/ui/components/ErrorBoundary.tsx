@@ -1,8 +1,16 @@
 import React from 'react';
 
+import { TouchableWithoutFeedback } from 'react-native';
+
 import { StyledText } from '~/ui/styled/common';
 
-const ErrorView = ({ error }) => <StyledText>Error</StyledText>;
+const ErrorView = ({ error }) => (
+  <TouchableWithoutFeedback onPress={() => console.warn(error)}>
+    <StyledText color="red">
+      Error displaying component
+    </StyledText>
+  </TouchableWithoutFeedback>
+);
 
 export class ErrorBoundary extends React.PureComponent {
   state = { error: null };
