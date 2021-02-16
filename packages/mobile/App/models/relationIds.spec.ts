@@ -1,4 +1,6 @@
+import { Database } from '~/infra/db';
 import { BaseModel } from '~/models/BaseModel';
+import { MODELS_ARRAY, MODELS_MAP } from '~/models/modelsMap';
 
 const verifyModelHasRelationIdPerManyToOneRelation = (model: typeof BaseModel): string[] => {
   const { relationIds, manyToOneRelations, oneToOneRelations } = model.getRepository().metadata;
@@ -30,15 +32,39 @@ const verifyModel = (model: typeof BaseModel): string[] | null => {
   ];
 }
 
-export const verifyModels = (models: typeof BaseModel[]) => {
-  const messages = models.map(model => {
+declare global {
+  namespace jest {
+    interface Matchers<R> {
+      toHaveRelationIdsForApplicableRelations(): R,
+    }
+  }
+}
+
+expect.extend({
+  toHaveRelationIdsForApplicableRelations(model: typeof BaseModel) {
     const modelMessages = verifyModel(model).filter(m => m);
     if (modelMessages.length > 0) {
-      return [`  ${model.name}:`, ...modelMessages].join('\n    ');
+      return {
+        message: () => modelMessages.join('\n'),
+        pass: false,
+      };
+    } else {
+      return {
+        message: () => `${model.name}: <all fields passed>`,
+        pass: true,
+      };
     }
-    return null;
-  }).filter(m => m);
-  if (messages.length > 0) {
-    throw new Error(`Model verification failed:\n${messages.join('\n')}`);
   }
-};
+});
+
+beforeAll(async () => {
+  await Database.connect();
+});
+
+MODELS_ARRAY.forEach(model => {
+  describe(model.name, () => {
+    it('has relationIds for all OneToOne and ManyToOne relations', () => {
+      expect(model).toHaveRelationIdsForApplicableRelations();
+    });
+  });
+});

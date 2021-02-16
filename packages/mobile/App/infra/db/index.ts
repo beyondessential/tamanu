@@ -7,7 +7,6 @@ import {
 import { DevSettings } from 'react-native';
 import { MODELS_ARRAY, MODELS_MAP } from '~/models/modelsMap';
 import { clear } from '~/services/config';
-import { verifyModels } from './verifyModels';
 
 const LOG_LEVELS = __DEV__ ? [
   // 'error',
@@ -72,11 +71,6 @@ class DatabaseHelper {
       } else {
         console.error(error);
       }
-    }
-
-    // verify all model definitions if we're in dev mode
-    if (__DEV__) {
-      verifyModels(MODELS_ARRAY);
     }
   }
 }
