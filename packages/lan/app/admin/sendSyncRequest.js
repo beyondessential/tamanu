@@ -12,9 +12,9 @@ export async function sendSyncRequest(channel, records) {
   const maxRecordsPerRequest = 250;
 
   const parts = splitIntoChunks(records, maxRecordsPerRequest);
-  log.info(`Syncing ${records.length} records (across ${parts.length} chunks) on ${channel} to ${config.syncHost}...`);
+  log.info(`Syncing ${records.length} records (across ${parts.length} chunks) on ${channel} to ${config.sync.host}...`);
 
-  const url = `${config.syncHost}/v1/sync/${encodeURIComponent(channel)}`;
+  const url = `${config.sync.host}/v1/sync/${encodeURIComponent(channel)}`;
   for(const part of parts) {
     const response = await fetch(url, {
       method: 'POST',
@@ -24,9 +24,17 @@ export async function sendSyncRequest(channel, records) {
       },
       body: JSON.stringify(part),
     });
+
     if(response.error) {
       throw new Error(response.error);
     }
+
+    if(!response.ok) {
+      const body = await response.json();
+      console.warn(body);
+      throw new Error(body);
+    }
+
     log.info(`Uploaded ${part.length} reference records. Response:`, await response.json());
   }
 }
