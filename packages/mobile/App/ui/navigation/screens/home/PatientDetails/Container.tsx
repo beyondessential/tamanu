@@ -1,10 +1,10 @@
 import React, { useCallback, useState, ReactElement } from 'react';
 import { Screen } from './Screen';
-import { PatientDetails } from '/interfaces/PatientDetails';
-import { PatientDetailsScreenProps } from '/interfaces/screens/PatientDetailsScreenProps';
-import { Routes } from '/helpers/routes';
+import { PatientDetails } from '~/ui/interfaces/PatientDetails';
+import { PatientDetailsScreenProps } from '~/ui/interfaces/screens/PatientDetailsScreenProps';
+import { Routes } from '~/ui/helpers/routes';
 import { compose } from 'redux';
-import { withPatient } from '/containers/Patient';
+import { withPatient } from '~/ui/containers/Patient';
 
 const Container = ({
   navigation,

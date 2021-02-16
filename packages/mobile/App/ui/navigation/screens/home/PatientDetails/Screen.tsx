@@ -1,5 +1,5 @@
 import React, { ReactElement } from 'react';
-import { theme } from '/styled/theme';
+import { theme } from '~/ui/styled/theme';
 import {
   StyledView,
   StyledSafeAreaView,
@@ -8,12 +8,13 @@ import {
   StyledTouchableOpacity,
   StyledText,
   StyledScrollView,
-} from '/styled/common';
-import { ArrowLeftIcon, KebabIcon } from '/components/Icons';
-import { screenPercentageToDP, Orientation } from '/helpers/screen';
-import { joinNames, getGender } from '/helpers/user';
-import { UserAvatar } from '/components/UserAvatar';
-import { PatientDetails } from '/interfaces/PatientDetails';
+} from '~/ui/styled/common';
+import { ArrowLeftIcon, KebabIcon } from '~/ui/components/Icons';
+import { screenPercentageToDP, Orientation } from '~/ui/helpers/screen';
+import { joinNames, getGender } from '~/ui/helpers/user';
+import { UserAvatar } from '~/ui/components/UserAvatar';
+import { PatientDetails } from '~/ui/interfaces/PatientDetails';
+import { getAgeFromDate } from '~/ui/helpers/date';
 import {
   GeneralInfo,
   NotificationCheckbox,
@@ -23,7 +24,6 @@ import {
   FamilyHistory,
   PatientIssues,
 } from './CustomComponents';
-import { getAgeFromDate } from '/helpers/date';
 import { AllergiesList } from './CustomComponents/AllergiesList';
 
 const avatarMock = {
