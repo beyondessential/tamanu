@@ -36,7 +36,6 @@ export const AndroidPicker = React.memo(
       <Modal transparent visible={open} animationType="fade">
         <FullView justifyContent="center" alignItems="center">
           <TouchableWithoutFeedback
-            style={{ height: '100%' }}
             onPress={closeModal}
           >
             <StyledView
@@ -48,8 +47,7 @@ export const AndroidPicker = React.memo(
           <StyledScrollView
             position="absolute"
             borderRadius={5}
-            height={screenPercentageToDP('24%', Orientation.Height)}
-            width="50%"
+            width="90%"
             zIndex={5}
             background={theme.colors.WHITE}
           >
@@ -61,16 +59,16 @@ export const AndroidPicker = React.memo(
             >
               Pick a Value
             </StyledText>
-            {items.map(item => (
+            {items.map((item, i) => (
               <React.Fragment key={item.label}>
-                <TouchableOpacity onPress={(): void => onChangeItem(item)}>
+                <TouchableOpacity
+                  onPress={(): void => onChangeItem(item)}
+                  style={{ backgroundColor: i % 2 === 0 ? 'white' : '#fafafa' }}
+                >
                   <StyledView
                     accessibilityLabel={item.label}
                     justifyContent="center"
-                    paddingLeft={screenPercentageToDP(
-                      '3.64%',
-                      Orientation.Width,
-                    )}
+                    padding={25}
                     height={screenPercentageToDP('4.86%', Orientation.Height)}
                     width="100%"
                   >
