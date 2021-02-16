@@ -1,5 +1,5 @@
 import { useContext, useEffect, useState } from 'react';
-import { BackendContext } from '~/services/backendProvider';
+import { BackendContext } from '/contexts/BackendContext';
 
 export type ResultArray<T> = [T | null, Error | null];
 

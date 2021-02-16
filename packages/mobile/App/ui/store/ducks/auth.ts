@@ -65,6 +65,7 @@ export const PatientSlice = createSlice({
       return {
         ...state,
         token: null,
+        user: null,
       };
     },
   },

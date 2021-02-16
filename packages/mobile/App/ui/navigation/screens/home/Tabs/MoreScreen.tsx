@@ -34,7 +34,7 @@ import {
 import { version as AppVersion } from '/root/package.json';
 import { StatusBar, StatusBarStyle } from 'react-native';
 import { useFocusEffect } from '@react-navigation/native';
-import AuthContext from '~/ui/contexts/authContext/AuthContext';
+import AuthContext from '/contexts/AuthContext';
 import { BaseAppProps } from '~/ui/interfaces/BaseAppProps';
 import { authUserSelector } from '/helpers/selectors';
 
@@ -102,7 +102,7 @@ export const MoreScreen = ({ navigation }: BaseAppProps): ReactElement => {
   );
 
   const signOut = useCallback(() => {
-    authCtx.signOut(navigation);
+    authCtx.signOut();
   }, []);
 
   setStatusBar('dark-content', theme.colors.BACKGROUND_GREY);

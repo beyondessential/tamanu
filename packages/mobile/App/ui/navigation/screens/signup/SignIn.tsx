@@ -23,7 +23,7 @@ import { Routes } from '/helpers/routes';
 import { ModalInfo } from '/components/ModalInfo';
 import { authSelector } from '/helpers/selectors';
 import { SignInFormModel } from '~/ui/interfaces/forms/SignInFormProps';
-import AuthContext from '~/ui/contexts/authContext/AuthContext';
+import AuthContext from '/contexts/AuthContext';
 
 export const SignIn: FunctionComponent<any> = ({ navigation }: SignInProps) => {
   const authCtx = useContext(AuthContext);

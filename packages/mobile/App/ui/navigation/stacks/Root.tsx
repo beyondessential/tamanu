@@ -1,6 +1,6 @@
 import React, { ReactElement } from 'react';
 import { Root } from 'popup-ui';
-import { NavigationContainer } from '@react-navigation/native';
+import { NavigationContainer, NavigationContainerRef } from '@react-navigation/native';
 import { DefaultTheme, Provider as PaperProvider } from 'react-native-paper';
 import { ThemeProvider } from 'styled-components/native';
 import { PersistGate } from 'redux-persist/integration/react';
@@ -8,7 +8,7 @@ import { SafeAreaProvider } from 'react-native-safe-area-context';
 import { Provider } from 'react-redux';
 import { themeSystem } from '/styled/common';
 import { store, persistor } from '/store/index';
-import { AuthProvider } from '/contexts/authContext/AuthContext';
+import { AuthProvider } from '/contexts/AuthContext';
 import { Core } from './Core';
 import { theme } from '../../styled/theme';
 
@@ -21,22 +21,25 @@ const paperTheme = {
   },
 };
 
-export const RootStack = (): ReactElement => (
-  <SafeAreaProvider>
-    <Root>
-      <Provider store={store}>
-        <PersistGate loading={null} persistor={persistor}>
-          <ThemeProvider theme={themeSystem}>
-            <PaperProvider theme={paperTheme}>
-              <NavigationContainer>
-                <AuthProvider>
-                  <Core />
-                </AuthProvider>
-              </NavigationContainer>
-            </PaperProvider>
-          </ThemeProvider>
-        </PersistGate>
-      </Provider>
-    </Root>
-  </SafeAreaProvider>
-);
+export const RootStack = (): ReactElement => {
+  const navigationRef = React.useRef<NavigationContainerRef>(null);
+  return (
+    <SafeAreaProvider>
+      <Root>
+        <Provider store={store}>
+          <PersistGate loading={null} persistor={persistor}>
+            <ThemeProvider theme={themeSystem}>
+              <PaperProvider theme={paperTheme}>
+                <NavigationContainer ref={navigationRef}>
+                  <AuthProvider navRef={navigationRef.current}>
+                    <Core />
+                  </AuthProvider>
+                </NavigationContainer>
+              </PaperProvider>
+            </ThemeProvider>
+          </PersistGate>
+        </Provider>
+      </Root>
+    </SafeAreaProvider>
+  )
+};
