@@ -8,6 +8,7 @@ import { SurveyResponseAnswer } from './SurveyResponseAnswer';
 import {
   getStringValue,
   getResultValue,
+  isCalculated,
 } from '~/ui/helpers/fields';
 
 import { runCalculations } from '~/ui/helpers/calculations';
@@ -96,11 +97,12 @@ export class SurveyResponse extends BaseModel implements ISurveyResponse {
       });
 
       const calculatedValues = runCalculations(components, values);
+      const finalValues = { ...values, ...calculatedValues };
 
       const {
         result,
         resultText,
-      } = getResultValue(components, calculatedValues);
+      } = getResultValue(components, finalValues);
 
       setNote("Creating response object...");
       const responseRecord: SurveyResponse = await SurveyResponse.createAndSaveOne({
@@ -120,12 +122,18 @@ export class SurveyResponse extends BaseModel implements ISurveyResponse {
         return component.dataElement;
       };
 
-      for (const a of Object.entries(calculatedValues)) {
+      for (const a of Object.entries(finalValues)) {
         const [dataElementCode, value] = a;
         const dataElement = findDataElement(dataElementCode);
         if (dataElement === null) {
           // better to fail entirely than save partial data
           throw new Error(`no data element for code: ${dataElementCode}`);
+        }
+
+        if(isCalculated(dataElement.type) && value !== 0 && !value) {
+          // calculated values will always be in the answer object - but we
+          // shouldn't save null answers
+          continue;
         }
 
         const body = getStringValue(dataElement.type, value);

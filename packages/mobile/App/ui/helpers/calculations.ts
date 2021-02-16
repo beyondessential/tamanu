@@ -8,14 +8,21 @@ export function runCalculations(
   components: ISurveyScreenComponent[], 
   values: any
 ): any {
-  const calculatedValues = { ...values };
+  const inputValues = { ...values };
+  const calculatedValues = {};
 
   for(const c of components) {
     if(!c.calculation) continue;
+
     try {
-      calculatedValues[c.dataElement.code] = math.evaluate(c.calculation, calculatedValues);
+      const value = math.evaluate(c.calculation, inputValues);
+      if(Number.isNaN(value)) {
+        throw new Error('Value is NaN');
+      }
+      inputValues[c.dataElement.code] = value;
+      calculatedValues[c.dataElement.code] = value;
     } catch(e) {
-      console.warn(e);
+      calculatedValues[c.dataElement.code] = null;
     }
   }
 

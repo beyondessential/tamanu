@@ -6,6 +6,7 @@ import { DateField } from '~/ui/components/DateField/DateField';
 import { Dropdown } from '~/ui/components/Dropdown';
 import { Checkbox } from '~/ui/components/Checkbox';
 import { NumberField } from '~/ui/components/NumberField';
+import { ReadOnlyField } from '~/ui/components/ReadOnlyField';
 
 export const FieldByType = {
   [FieldTypes.TEXT]: TextField,
@@ -18,6 +19,6 @@ export const FieldByType = {
   [FieldTypes.NUMBER]: NumberField,
   [FieldTypes.BINARY]: Checkbox,
   [FieldTypes.CHECKBOX]: Checkbox,
-  [FieldTypes.CALCULATED]: null,
+  [FieldTypes.CALCULATED]: ReadOnlyField,
   [FieldTypes.RESULT]: null,
 };
