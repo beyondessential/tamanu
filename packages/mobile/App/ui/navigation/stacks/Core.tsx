@@ -6,7 +6,7 @@ import { noSwipeGestureOnNavigator } from '/helpers/navigators';
 import { createStackNavigator } from '@react-navigation/stack';
 import { SignUpStack } from './SignUp';
 import { HomeStack } from './Home';
-import AuthContext from '../../contexts/authContext/AuthContext';
+import AuthContext from '~/ui/contexts/AuthContext';
 import { AutocompleteModalScreen } from '~/ui/components/AutocompleteModal';
 
 const Stack = createStackNavigator();

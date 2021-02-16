@@ -4,7 +4,7 @@ import { theme } from '/styled/theme';
 import { Button } from '/components/Button';
 import moment from 'moment/src/moment';
 import { Orientation, screenPercentageToDP, setStatusBar } from '~/ui/helpers/screen';
-import { BackendContext } from '~/services/backendProvider';
+import { BackendContext } from '~/ui/contexts/BackendContext';
 import { SyncManager } from '~/services/sync';
 import { CircularProgress } from '/components/CircularProgress';
 

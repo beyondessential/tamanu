@@ -1,9 +1,12 @@
+import mitt from 'mitt';
+
 import { IUser } from '~/types';
 import {
   AuthenticationError,
   invalidUserCredentialsMessage,
+  invalidTokenMessage,
   generalErrorMessage,
-} from '~/ui/contexts/authContext/auth-error';
+} from '~/services/auth/error';
 
 export type DownloadRecordsResponse = {
   count: number;
@@ -47,13 +50,33 @@ export interface SyncSource {
   ): Promise<UploadRecordsResponse | null>;
 }
 
+const API_VERSION = 1;
+
 export class WebSyncSource implements SyncSource {
-  host: string;
+  path: string;
 
-  token: string;
+  token: string | null;
 
-  constructor(host: string) {
-    this.host = host;
+  emitter = mitt();
+
+  connect(host: string) {
+    this.path = `${host}/v${API_VERSION}`;
+  }
+
+  setToken(token: string) {
+    this.token = token;
+  }
+
+  clearToken() {
+    this.token = null;
+  }
+
+  throwError(err: Error) {
+    // emit error after throwing
+    setTimeout(() => {
+      this.emitter.emit('error', err);
+    }, 1);
+    throw err;
   }
 
   async downloadRecords(
@@ -62,10 +85,10 @@ export class WebSyncSource implements SyncSource {
     page: number,
     limit: number,
   ): Promise<DownloadRecordsResponse | null> {
-    // TODO: error handling (incl timeout)
-    const url = `${this.host}/sync/${encodeURIComponent(channel)}?since=${since}&page=${page}&limit=${limit}`;
-
     try {
+      // TODO: error handling (incl timeout & token revokation)
+      const url = `${this.path}/sync/${encodeURIComponent(channel)}?since=${since}&page=${page}&limit=${limit}`;
+
       const response = await fetch(url, {
         method: 'GET',
         headers: {
@@ -73,16 +96,18 @@ export class WebSyncSource implements SyncSource {
           'Accept': 'application/json',
         },
       });
+      if (response.status === 401) {
+        throw new AuthenticationError(invalidTokenMessage);
+      }
       return await response.json();
-    } catch (error) {
-      console.error(error);
-      return null;
+    } catch (err) {
+      this.throwError(err);
     }
   }
 
   async uploadRecords(channel: string, records: SyncRecord[]): Promise<UploadRecordsResponse | null> {
-    const url = `${this.host}/sync/${encodeURIComponent(channel)}`;
     try {
+      const url = `${this.path}/sync/${encodeURIComponent(channel)}`;
       const rawResponse = await fetch(url, {
         method: 'POST',
         headers: {
@@ -92,45 +117,49 @@ export class WebSyncSource implements SyncSource {
         },
         body: JSON.stringify(records),
       });
+      if (rawResponse.status === 401) {
+        throw new AuthenticationError(invalidTokenMessage);
+      }
       const response = await rawResponse.json();
       return response;
-    } catch (error) {
-      console.error(error);
-      return null; // TODO: rework to return failed records
+    } catch (err) {
+      this.throwError(err);
     }
   }
 
   async login(email: string, password: string): Promise<LoginResponse> {
-    const url = `${this.host}/login`;
+    try {
+      const url = `${this.path}/login`;
 
-    const body = JSON.stringify({ email, password });
+      const body = JSON.stringify({ email, password });
 
-    const response = await fetch(url, {
-      method: 'POST',
-      headers: {
-        'Content-Type': 'application/json',
-      },
-      body,
-    });
+      const response = await fetch(url, {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body,
+      });
 
-    if (response.status >= 500) {
-      throw new AuthenticationError(generalErrorMessage);
+      if (response.status >= 500) {
+        throw new AuthenticationError(generalErrorMessage);
+      }
+
+      if (response.status == 401) {
+        throw new AuthenticationError(invalidUserCredentialsMessage);
+      }
+
+      const data = await response.json();
+
+      if (!data.token || !data.user) {
+        // auth failed in some other regard
+        console.warn("Auth failed with an inexplicable error", data);
+        throw new AuthenticationError(generalErrorMessage);
+      }
+
+      return data;
+    } catch (err) {
+      this.throwError(err);
     }
-
-    if (response.status == 401) {
-      throw new AuthenticationError(invalidUserCredentialsMessage);
-    }
-
-    const data = await response.json();
-
-    if (!data.token || !data.user) {
-      // auth failed in some other regard
-      console.warn("Auth failed with an inexplicable error", data);
-      throw new AuthenticationError(generalErrorMessage);
-    }
-
-    this.token = data.token;
-
-    return data;
   }
 }

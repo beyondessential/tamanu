@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import RnBgTask from 'react-native-bg-thread';
-import { Backend } from './backend';
+import { Backend } from '~/services/backend';
 
 import { LoadingScreen } from '~/ui/components/LoadingScreen';
 

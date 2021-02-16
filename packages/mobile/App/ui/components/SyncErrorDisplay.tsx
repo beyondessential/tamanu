@@ -1,7 +1,7 @@
 import React, { ReactElement, useCallback, useContext, useEffect, useState } from 'react';
 import { TouchableWithoutFeedback } from 'react-native';
 import { StyledText, StyledView } from '/styled/common';
-import { BackendContext } from '~/services/backendProvider';
+import { BackendContext } from '~/ui/contexts/BackendContext';
 import { SyncManager } from '~/services/sync';
 
 export const SyncErrorDisplay = (): ReactElement => {
@@ -24,19 +24,19 @@ export const SyncErrorDisplay = (): ReactElement => {
   const onPress = (p) => {
     const assumedWidth = 350; // TODO get real element width
     const margin = assumedWidth * 0.25;
-    if(p.nativeEvent.locationX < margin) {
+    if (p.nativeEvent.locationX < margin) {
       setIndex(Math.max(0, index - 1));
-    } else if(p.nativeEvent.locationX > (assumedWidth - margin)) {
+    } else if (p.nativeEvent.locationX > (assumedWidth - margin)) {
       setIndex(Math.min(errorCount - 1, index + 1));
     }
   }
 
-  if(errorCount === 0) {
+  if (errorCount === 0) {
     return null;
   }
 
   let error = null;
-  if(index < errorCount) {
+  if (index < errorCount) {
     error = syncManager.errors[index];
   }
 
@@ -44,15 +44,15 @@ export const SyncErrorDisplay = (): ReactElement => {
     <TouchableWithoutFeedback onPress={onPress}>
       <StyledView marginTop={10} backgroundColor="#441111">
         <StyledView margin={8}>
-          <StyledText color="white">{`Error ${index+1}/${errorCount}`}</StyledText>
-          { error 
+          <StyledText color="white">{`Error ${index + 1}/${errorCount}`}</StyledText>
+          {error
             ? (
               <StyledView>
                 <StyledText color="red">{error.error.message}</StyledText>
                 <StyledText color="white">{JSON.stringify(error.record)}</StyledText>
               </StyledView>
-            ) 
-            : <StyledText>No error</StyledText> 
+            )
+            : <StyledText>No error</StyledText>
           }
         </StyledView>
       </StyledView>

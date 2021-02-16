@@ -5,7 +5,7 @@ import { RecentlyViewedPatientTiles } from './RecentlyViewedPatientTiles';
 import { LogoV2Icon, ProfileIcon, SearchIcon } from '/components/Icons';
 import { UserAvatar } from '/components/UserAvatar';
 import { withAuth } from '/containers/Auth';
-import AuthContext from '/contexts/authContext/AuthContext';
+import AuthContext from '~/ui/contexts/AuthContext';
 import { disableAndroidBackButton } from '/helpers/android';
 import { Routes } from '/helpers/routes';
 import {
