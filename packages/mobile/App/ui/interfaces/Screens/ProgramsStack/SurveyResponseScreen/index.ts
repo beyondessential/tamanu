@@ -1,8 +1,8 @@
 import { RouteProp, NavigationProp } from '@react-navigation/native';
 import { IProgram } from '~/types';
 
-type ProgramAddDetailsScreenParams = {
-  ProgramAddDetailsScreen: {
+type SurveyResponseScreenParams = {
+  SurveyResponseScreen: {
     program: IProgram;
     surveyId: string;
     latestResponseId: string;
@@ -10,12 +10,12 @@ type ProgramAddDetailsScreenParams = {
   };
 };
 
-type ProgramAddDetailsScreenRouteProps = RouteProp<
-  ProgramAddDetailsScreenParams,
-  'ProgramAddDetailsScreen'
+type SurveyResponseScreenRouteProps = RouteProp<
+  SurveyResponseScreenParams,
+  'SurveyResponseScreen'
 >;
 
-export type ProgramAddDetailsScreenProps = {
+export type SurveyResponseScreenProps = {
   navigation: NavigationProp<any>;
-  route: ProgramAddDetailsScreenRouteProps;
+  route: SurveyResponseScreenRouteProps;
 };

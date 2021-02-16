@@ -6,31 +6,39 @@ import React, {
   useState,
 } from 'react';
 import { useNavigation } from '@react-navigation/native';
-import { Screen } from './Screen';
-import { StyledText, StyledView } from '~/ui/styled/common';
+import { SurveyScreen } from '../SurveyScreen';
+import { StyledText, StyledView, FullView } from '~/ui/styled/common';
 import { LoadingScreen } from '~/ui/components/LoadingScreen';
-import { ProgramAddDetailsScreenProps } from '/interfaces/screens/ProgramsStack/ProgramAddDetails/ProgramAddDetailsScreenProps';
+import { ErrorScreen } from '~/ui/components/ErrorScreen';
+import { SurveyResponseScreenProps } from '/interfaces/screens/ProgramsStack/SurveyResponseScreen';
 import { Routes } from '/helpers/routes';
+import { SurveyForm } from '~/ui/components/Forms/SurveyForm';
 
 import { ISurveyScreenComponent } from '~/types/ISurvey';
 
 import { useBackend, useBackendEffect } from '~/ui/hooks';
 
-export const ProgramAddDetailsScreen = ({
+export const SurveyResponseScreen = ({
   route,
-}: ProgramAddDetailsScreenProps): ReactElement => {
+}: SurveyResponseScreenProps): ReactElement => {
   const { surveyId, selectedPatient } = route.params;
   const selectedPatientId = selectedPatient.id;
   const navigation = useNavigation();
 
   const [note, setNote] = useState("Waiting for submission attempt.");
-  const [survey, error] = useBackendEffect(
+
+  const [survey, surveyError] = useBackendEffect(
     ({ models }) => models.Survey.getRepository().findOne(surveyId),
   );
 
+  const [components, componentsError] = useBackendEffect(
+    () => survey && survey.getComponents(),
+    [survey]
+  );
+
   const { models } = useBackend();
-  const onSubmitForm = useCallback(
-    async (values: any, components: ISurveyScreenComponent[]) => {
+  const onSubmit = useCallback(
+    async (values: any) => {
       const response = await models.SurveyResponse.submit(
         selectedPatientId,
         {
@@ -52,19 +60,31 @@ export const ProgramAddDetailsScreen = ({
         },
       );
     },
-    [survey],
+    [survey, components],
   );
 
-  if (!survey) {
+  if (surveyError) {
+    return <ErrorScreen error={surveyError} />;
+  }
+
+  if (componentsError) {
+    return <ErrorScreen error={componentsError} />;
+  }
+
+  if (!survey || !components) {
     return <LoadingScreen />;
   }
 
   return (
-    <Screen
-      onSubmitForm={onSubmitForm}
-      survey={survey}
-      patient={selectedPatient}
-      note={note}
-    />
+    <FullView>
+      <SurveyForm
+        survey={survey}
+        patient={selectedPatient}
+        note={note}
+        components={components}
+        onSubmit={onSubmit}
+      />
+    </FullView>
   );
+
 };

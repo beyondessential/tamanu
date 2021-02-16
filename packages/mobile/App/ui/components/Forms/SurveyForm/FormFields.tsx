@@ -2,7 +2,7 @@ import React, { ReactElement, useCallback, useState } from 'react';
 import { ISurveyScreenComponent, DataElementType } from '~/types';
 import { theme } from '~/ui/styled/theme';
 import { checkVisibilityCriteria, isCalculated } from '/helpers/fields';
-import { ProgramQuestion } from './ProgramQuestion';
+import { SurveyQuestion } from './SurveyQuestion';
 import { SectionHeader } from '../../SectionHeader';
 import { Button } from '../../Button';
 import { FullView, RowView, StyledText, StyledView } from '~/ui/styled/common';
@@ -52,7 +52,7 @@ export const FormFields = ({
         <SectionHeader marginTop={index === 0 ? 0 : 20} h3>
           {component.text || component.dataElement.defaultText}
         </SectionHeader>
-        <ProgramQuestion
+        <SurveyQuestion
           key={component.id}
           component={component}
         />
