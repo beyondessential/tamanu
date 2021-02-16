@@ -16,10 +16,13 @@ export function runCalculations(
 
     try {
       const value = math.evaluate(c.calculation, inputValues);
+      if(Number.isNaN(value)) {
+        throw new Error('Value is NaN');
+      }
       inputValues[c.dataElement.code] = value;
       calculatedValues[c.dataElement.code] = value;
     } catch(e) {
-      console.warn(e);
+      calculatedValues[c.dataElement.code] = null;
     }
   }
 
