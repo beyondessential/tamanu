@@ -8,6 +8,7 @@ import {
   fakeAdministeredVaccine,
   fakeEncounter,
   fakePatient,
+  fakeProgram,
   fakeProgramDataElement,
   fakeSurvey,
   fakeSurveyResponse,
@@ -43,6 +44,39 @@ describe('SyncManager', () => {
   });
 
   describe('downloadAndImport', () => {
+    describe('surveys', () => {
+      it("doesn't lose its associated program while being imported", async () => {
+        // arrange
+        const { Program, Survey } = Database.models;
+
+        const program = fakeProgram();
+        await Program.createAndSaveOne(program);
+
+        const survey: any = fakeSurvey();
+        survey.programId = program.id;
+
+        const { syncManager, mockedSource } = createManager();
+        mockedSource.downloadRecords.mockReturnValueOnce(Promise.resolve({
+          count: 1,
+          requestedAt: Date.now(),
+          records: [{ data: survey }],
+        }));
+        mockedSource.downloadRecords.mockReturnValueOnce(Promise.resolve({
+          count: 0,
+          requestedAt: Date.now(),
+          records: [],
+        }));
+        // act
+        await syncManager.downloadAndImport(Survey, 'survey', 0);
+
+        // assert
+        const storedSurvey = await Survey.findOne(survey.id, { relations: ['program'] });
+        expect(storedSurvey).toMatchObject({ ...survey, program: expect.anything() });
+        expect(storedSurvey.program).toMatchObject(program);
+      });
+    });
+
+
     describe('encounters', () => {
       it('downloads and imports an encounter', async () => {
         // arrange
