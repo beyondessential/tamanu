@@ -10,13 +10,15 @@ const verifyModelHasRelationIdPerManyToOneRelation = (model: typeof BaseModel): 
 
   return [
     ...manyToOneRelations.map(relation => {
-      if (!relationIdsIndex[relation.propertyPath]) {
-        return `many-to-one relation "${relation.propertyPath}" needs a corresponding @RelationId property`;
+      const idPath = `${relation.propertyPath}Id`;
+      if (!relationIdsIndex[idPath]) {
+        return `many-to-one relation "${relation.propertyPath}" needs a corresponding "@RelationId() ${idPath}: string;" property`;
       }
     }),
     ...oneToOneRelations.map(relation => {
-      if (relation.isOneToOneOwner && !relationIdsIndex[relation.propertyPath]) {
-        return `one-to-one relation "${relation.propertyPath}" needs a corresponding @RelationId property`;
+      const idPath = `${relation.propertyPath}Id`;
+      if (relation.isOneToOneOwner && !relationIdsIndex[idPath]) {
+        return `one-to-one relation "${relation.propertyPath}" needs a corresponding "@RelationId() ${idPath}: string;" property`;
       }
     }),
   ];
@@ -30,12 +32,12 @@ const verifyModel = (model: typeof BaseModel): string[] | null => {
 
 export const verifyModels = (models: typeof BaseModel[]) => {
   const messages = models.map(model => {
-    const modelMessages = verifyModel(model).filter(m => m !== null);
+    const modelMessages = verifyModel(model).filter(m => m);
     if (modelMessages.length > 0) {
       return [`  ${model.name}:`, ...modelMessages].join('\n    ');
     }
     return null;
-  }).filter(m => m !== null);
+  }).filter(m => m);
   if (messages.length > 0) {
     throw new Error(`Model verification failed:\n${messages.join('\n')}`);
   }
