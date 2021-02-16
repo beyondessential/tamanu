@@ -1,4 +1,4 @@
-import React, { ReactElement, useMemo } from 'react';
+import React, { ReactElement, useMemo, useEffect } from 'react';
 import * as Yup from 'yup';
 import { Formik } from 'formik';
 
@@ -13,6 +13,8 @@ import {
   getFormSchema,
 } from './helpers';
 import { FormFields } from './FormFields';
+
+import { runCalculations } from '~/ui/helpers/calculations';
 
 export type SurveyFormProps = {
   onSubmit: (values: any) => void;
@@ -34,14 +36,25 @@ export const SurveyForm = ({
       initialValues={{}}
       onSubmit={onSubmit}
     >
-      {({ handleSubmit, values }): ReactElement => (
-        <FormFields
-          components={components}
-          values={values}
-          note={note}
-          onSubmit={handleSubmit}
-        />
-      )}
+      {({ handleSubmit, values, setFieldValue }): ReactElement => {
+        useEffect(() => {
+          // recalculate dynamic fields
+          const calculatedValues = runCalculations(components, calculatedValues);
+
+          // write values that have changed back into answers
+          Object.entries(calculatedValues)
+            .filter(([k, v]) => values[k] !== v)
+            .map(([k, v]) => setFieldValue(k, v));
+        }, [values]);
+        return (
+          <FormFields
+            components={components}
+            values={values}
+            note={note}
+            onSubmit={handleSubmit}
+          />
+        );
+      }}
     </Formik>
   );
 };

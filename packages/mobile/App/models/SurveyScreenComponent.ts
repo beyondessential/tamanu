@@ -34,6 +34,9 @@ export class SurveyScreenComponent extends BaseModel
   @ManyToOne(() => ProgramDataElement)
   dataElement: ProgramDataElement;
 
+  @Column({ nullable: true })
+  calculation?: string;
+
   @RelationId(({ dataElement }) => dataElement)
   dataElementId: string;
 

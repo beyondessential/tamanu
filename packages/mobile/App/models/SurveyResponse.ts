@@ -96,11 +96,12 @@ export class SurveyResponse extends BaseModel implements ISurveyResponse {
       });
 
       const calculatedValues = runCalculations(components, values);
+      const finalValues = { ...values, ...calculatedValues };
 
       const {
         result,
         resultText,
-      } = getResultValue(components, calculatedValues);
+      } = getResultValue(components, finalValues);
 
       setNote("Creating response object...");
       const responseRecord: SurveyResponse = await SurveyResponse.createAndSaveOne({
@@ -120,7 +121,7 @@ export class SurveyResponse extends BaseModel implements ISurveyResponse {
         return component.dataElement;
       };
 
-      for (const a of Object.entries(calculatedValues)) {
+      for (const a of Object.entries(finalValues)) {
         const [dataElementCode, value] = a;
         const dataElement = findDataElement(dataElementCode);
         if (dataElement === null) {
