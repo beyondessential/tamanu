@@ -66,7 +66,7 @@ const getStatus = ({ encounterId, cancelled }) => (
 );
 
 const getActions = row => (
-  <ActionDropdown encounter={row.encounter} closedDate={row.closedDate} row={row} />
+  <ActionDropdown row={row} />
 );
 
 const columns = [
@@ -74,7 +74,7 @@ const columns = [
   { key: 'department', title: 'Department', accessor: getDepartment },
   { key: 'referredBy', title: 'Referring doctor', accessor: getDisplayName },
   { key: 'status', title: 'Status', accessor: getStatus },
-  { key: 'actions', title: 'Actions', accessor: getActions, stopPropagation: true },
+  { key: 'actions', title: 'Actions', accessor: getActions, dontCallRowInput: true },
 ];
 
 export const ReferralTable = React.memo(({ patientId }) => {

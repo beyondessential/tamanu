@@ -12,7 +12,9 @@ import { ReferralProvider } from './contexts/Referral';
 
 const StateContextProviders = ({ children, store }) => (
   <EncounterProvider store={store}>
-    <ReferralProvider>{children}</ReferralProvider>
+    <ReferralProvider>
+      {children}
+    </ReferralProvider>
   </EncounterProvider>
 );
 

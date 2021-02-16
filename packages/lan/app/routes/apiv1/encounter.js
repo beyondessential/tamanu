@@ -26,11 +26,11 @@ encounter.put(
     req.checkPermission('read', 'Encounter');
     const object = await models.Encounter.findByPk(id);
     if (!object) throw new NotFoundError();
+    req.checkPermission('write', object);
     if (referralId) {
       const referral = await models.Referral.findByPk(referralId);
       referral.update({ encounterId: id });
     }
-    req.checkPermission('write', object);
     await object.update(req.body);
 
     res.send(object);
