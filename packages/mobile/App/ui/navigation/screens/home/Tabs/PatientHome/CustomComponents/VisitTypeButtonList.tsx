@@ -1,10 +1,10 @@
 import React, { ReactElement } from 'react';
 import { StyledView, RowView } from '/styled/common';
 import { screenPercentageToDP, Orientation } from '/helpers/screen';
-import { PatientMenuButton } from '/components/PatientMenuButton';
+import { PatientMenuButton, PatientMenuButtonProps } from '/components/PatientMenuButton';
 
 interface VisitTypeButtonsProps {
-  list: any[];
+  list: PatientMenuButtonProps[];
 }
 
 export const VisitTypeButtonList = ({
@@ -18,7 +18,7 @@ export const VisitTypeButtonList = ({
       justifyContent="space-between"
     >
       {list.slice(0, list.length / 2).map(buttonProps => (
-        <PatientMenuButton {...buttonProps} />
+        <PatientMenuButton key={buttonProps.title} {...buttonProps} />
       ))}
     </RowView>
     <RowView
@@ -29,7 +29,7 @@ export const VisitTypeButtonList = ({
       justifyContent="space-between"
     >
       {list.slice(list.length / 2, list.length).map(buttonProps => (
-        <PatientMenuButton {...buttonProps} />
+        <PatientMenuButton key={buttonProps.title} {...buttonProps} />
       ))}
     </RowView>
   </StyledView>
