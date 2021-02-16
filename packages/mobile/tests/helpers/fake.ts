@@ -64,6 +64,7 @@ export const fakeProgramDataElement = (): IProgramDataElement => {
 export const fakeSurvey = (): ISurvey => {
   return {
     id: `survey-id-${uuidv4()}`,
+    programId: null,
     name: 'survey-name',
   };
 };
@@ -71,6 +72,8 @@ export const fakeSurvey = (): ISurvey => {
 export const fakeSurveyScreenComponent = (): ISurveyScreenComponent => {
   return {
     id: `survey-screen-component-${uuidv4()}`,
+    dataElementId: null,
+    surveyId: null,
     screenIndex: 1,
     componentIndex: 2,
     text: 'survey-screen-component-text',
@@ -121,12 +124,13 @@ export const fakeScheduledVaccine = (): IScheduledVaccine => {
   const uuid = uuidv4();
   return {
     id: `scheduled-vaccine-id-${uuid}`,
+    vaccine: null,
+    vaccineId: null,
     index: 10,
     label: `scheduled-vaccine-label-${uuid}`,
     schedule: `scheduled-vaccine-schedule-${uuid}`,
     weeksFromBirthDue: 5,
     category: `scheduled-vaccine-category-${uuid}`,
-    vaccine: null,
   };
 };
 
