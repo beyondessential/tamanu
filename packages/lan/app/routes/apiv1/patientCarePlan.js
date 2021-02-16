@@ -1,6 +1,7 @@
 import express from 'express';
 import asyncHandler from 'express-async-handler';
 import { NOTE_TYPES } from 'shared/constants';
+import { InvalidParameterError } from 'shared/errors';
 import { NOTE_RECORD_TYPES } from 'shared/models/Note';
 
 import { simpleGet, simplePut } from './crudHelpers';
@@ -16,17 +17,18 @@ patientCarePlan.post(
       models: { PatientCarePlan, Note },
     } = req;
     req.checkPermission('create', 'PatientCarePlan');
-    const newCarePlan = await PatientCarePlan.create(req.body);
-    if (req.body.note) {
-      await Note.create({
-        recordId: newCarePlan.get('id'),
-        recordType: NOTE_RECORD_TYPES.PATIENT_CARE_PLAN,
-        date: req.body.recordedDate,
-        content: req.body.note,
-        noteType: NOTE_TYPES.TREATMENT_PLAN,
-        authorId: req.user.id,
-      });
+    if (!req.body.content) {
+      throw new InvalidParameterError("Content is a required field");
     }
+    const newCarePlan = await PatientCarePlan.create(req.body);
+    await Note.create({
+      recordId: newCarePlan.get('id'),
+      recordType: NOTE_RECORD_TYPES.PATIENT_CARE_PLAN,
+      date: req.body.date,
+      content: req.body.content,
+      noteType: NOTE_TYPES.TREATMENT_PLAN,
+      authorId: req.user.id,
+    });
     res.send(newCarePlan);
   }),
 );
@@ -47,7 +49,26 @@ patientCarePlan.get(
         { model: models.User, as: 'author' },
         { model: models.User, as: 'onBehalfOf' },
       ],
+      // TODO add test to verify this order
+      order: [['createdAt', 'ASC']],
     });
     res.send(notes);
+  }),
+);
+
+// TODO: onBehalfOf
+patientCarePlan.post(
+  '/:id/notes',
+  asyncHandler(async (req, res) => {
+    req.checkPermission('create', 'PatientCarePlan');
+    const newNote = await req.models.Note.create({
+      recordId: req.params.id,
+      recordType: NOTE_RECORD_TYPES.PATIENT_CARE_PLAN,
+      date: req.body.date,
+      content: req.body.content,
+      noteType: NOTE_TYPES.TREATMENT_PLAN,
+      authorId: req.user.id,
+    });
+    res.send(newNote);
   }),
 );

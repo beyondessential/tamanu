@@ -6,7 +6,7 @@ export class PatientCarePlan extends Model {
     super.init(
       {
         id: primaryKey,
-        recordedDate: { type: Sequelize.DATE, defaultValue: Sequelize.NOW, allowNull: false },
+        date: { type: Sequelize.DATE, defaultValue: Sequelize.NOW, allowNull: false },
       },
       options,
     );
