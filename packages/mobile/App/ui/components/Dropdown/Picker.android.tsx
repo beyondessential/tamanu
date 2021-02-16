@@ -61,7 +61,10 @@ export const AndroidPicker = React.memo(
             </StyledText>
             {items.map((item, i) => (
               <React.Fragment key={item.label}>
-                <TouchableOpacity onPress={(): void => onChangeItem(item)} style={{ backgroundColor: i % 2 === 0 ? 'white' : '#fafafa' }}>
+                <TouchableOpacity
+                  onPress={(): void => onChangeItem(item)}
+                  style={{ backgroundColor: i % 2 === 0 ? 'white' : '#fafafa' }}
+                >
                   <StyledView
                     accessibilityLabel={item.label}
                     justifyContent="center"
