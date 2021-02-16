@@ -1,4 +1,4 @@
-import { Entity, Column, ManyToOne } from 'typeorm/browser';
+import { Entity, Column, ManyToOne, RelationId } from 'typeorm/browser';
 import { BaseModel } from './BaseModel';
 import { AVPUType, IVitals } from '~/types';
 import { Encounter } from './Encounter';
@@ -37,6 +37,8 @@ export class Vitals extends BaseModel implements IVitals {
 
   @ManyToOne(() => Encounter)
   encounter: Encounter;
+  @RelationId(({ encounter }) => encounter)
+  encounterId?: string;
 
   static async getForPatient(patientId: string): Promise<Vitals[]> {
     return this.getRepository()

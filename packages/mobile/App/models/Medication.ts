@@ -1,4 +1,4 @@
-import { Entity, Column, ManyToOne } from 'typeorm/browser';
+import { Entity, Column, ManyToOne, RelationId } from 'typeorm/browser';
 import { BaseModel } from './BaseModel';
 import { IMedication } from '~/types';
 import { ReferenceData, ReferenceDataRelation } from './ReferenceData';
@@ -29,9 +29,13 @@ export class Medication extends BaseModel implements IMedication {
 
   @ReferenceDataRelation()
   medication: ReferenceData;
+  @RelationId(({ medication }) => medication)
+  medicationId?: string;
 
-  @ManyToOne(type => Encounter, encounter => encounter.medication)
+  @ManyToOne(() => Encounter, encounter => encounter.medication)
   encounter: Encounter;
+  @RelationId(({ encounter }) => encounter)
+  encounterId?: string;
 
   // These qty fields are not required on desktop but not on mobile,
   // leaving them in for parity with desktop for now.

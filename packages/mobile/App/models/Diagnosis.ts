@@ -1,4 +1,4 @@
-import { Entity, Column, ManyToOne } from 'typeorm/browser';
+import { Entity, Column, ManyToOne, RelationId } from 'typeorm/browser';
 import { BaseModel } from './BaseModel';
 import { IDiagnosis, Certainty } from '~/types';
 import { Encounter } from './Encounter';
@@ -17,9 +17,13 @@ export class Diagnosis extends BaseModel implements IDiagnosis {
 
   @ReferenceDataRelation()
   diagnosis: ReferenceData;
+  @RelationId(({ diagnosis }) => diagnosis)
+  diagnosisId?: string;
 
   @ManyToOne(() => Encounter, encounter => encounter.diagnoses)
   encounter: Encounter;
+  @RelationId(({ encounter }) => encounter)
+  encounterId?: string;
 
   static async getForPatient(patientId: string): Promise<Diagnosis[]> {
     return this.getRepository()

@@ -1,4 +1,4 @@
-import { Entity, Column, OneToMany } from 'typeorm/browser';
+import { Entity, Column, OneToMany, RelationId } from 'typeorm/browser';
 import { BaseModel } from './BaseModel';
 import { AdministeredVaccine } from './AdministeredVaccine';
 import { IScheduledVaccine } from '~/types';
@@ -22,7 +22,9 @@ export class ScheduledVaccine extends BaseModel implements IScheduledVaccine {
   category: string;
 
   @ReferenceDataRelation()
-  vaccine: ReferenceData;
+  vaccine: ReferenceData
+  @RelationId(({ vaccine }) => vaccine)
+  vaccineId?: string;
 
   @OneToMany(() => AdministeredVaccine, administeredVaccine => administeredVaccine.scheduledVaccine)
   administeredVaccines: AdministeredVaccine[];
