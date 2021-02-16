@@ -18,6 +18,7 @@ function makeScreen(screen, componentData) {
   return screen.dataElements.map(((component, i) => {
     const {
       visibilityCriteria = '',
+      calculation = '',
       ...elementData
     } = component;
 
@@ -34,6 +35,7 @@ function makeScreen(screen, componentData) {
       options: '',
       componentIndex: i,
       visibilityCriteria,
+      calculation,
       ...componentData,
     });
 
@@ -76,12 +78,12 @@ export async function importSurvey(taskDefinition) {
   const pdes = screenElements.filter(x => x.recordType === 'programDataElement');
 
   if (dryRun) {
-    console.log([
+    [
       programElement,
       surveyElement,
       pdes,
       components,
-    ]);
+    ].map(x => console.log(x));
     return;
   }
 
