@@ -1,5 +1,5 @@
 export * from './AuthToken';
-export * from './SyncConnectionParams';
+export * from './SyncConnectionParameters';
 
 export * from './IPatient';
 export * from './IEncounter';
