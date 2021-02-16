@@ -4,9 +4,7 @@ import fetch from 'node-fetch';
 import { log } from '~/logging';
 import { version } from '~/../package.json';
 
-class AuthenticationError extends Error {}
-class InvalidCredentialsError extends Error {}
-
+import { BadAuthenticationError, InvalidOperationError } from 'shared/errors';
 
 export class SyncManager {
 
@@ -45,11 +43,12 @@ export class SyncManager {
       ...otherParams,
     });
 
-    // TODO: clear token if response indicates a bad auth state
-    const checkForInvalidToken = (response) => false;
-    if (checkForInvalidToken(response)) {
-      log.warning("Token was invalid - disconnecting from sync server");
-      this.token = '';
+    if(this.token) {
+      const checkForInvalidToken = (response) => response.status === 401;
+      if (checkForInvalidToken(response)) {
+        log.warning("Token was invalid - disconnecting from sync server");
+        this.token = '';
+      }
     }
 
     return response;
@@ -70,16 +69,16 @@ export class SyncManager {
       },
     });
 
-    if (response.status >= 500) {
-      throw new AuthenticationError(`Server responded with status code ${response.statusCode}`);
-    } else if (response.status == 401) {
-      throw new InvalidCredentialsError(`Invalid credentials`);
+    if (response.status == 401) {
+      throw new BadAuthenticationError(`Invalid credentials`);
+    } else if(!response.ok) {
+      throw new InvalidOperationError(`Server responded with status code ${response.statusCode}`);
     }
 
     const data = await response.json();
 
     if(!data.token || !data.user) {
-      throw new AuthenticationError(`Encountered an unknown error while authenticating`); 
+      throw new BadAuthenticationError(`Encountered an unknown error while authenticating`); 
     }
 
     log.info(`Received token for user ${data.user.displayName} (${data.user.email})`);
