@@ -1,6 +1,7 @@
 {
   "initialDataPath": "data/demo_definitions.xlsx",
   "sync": {
+    "schedule": "*/10 * * * *",
     "host": "https://sync-dev.tamanu.io",
     "email": "",
     "password": ""
