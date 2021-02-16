@@ -29,7 +29,7 @@ export const SurveyQuestion = ({
       <Field
         component={fieldInput}
         name={dataElement.code}
-        options={component.getOptions()}
+        options={component.getOptions && component.getOptions()}
         multiline={isMultiline}
       />
     </StyledView>

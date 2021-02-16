@@ -8,6 +8,8 @@ import { Button } from '../../Button';
 import { FullView, RowView, StyledText, StyledView } from '~/ui/styled/common';
 import { FormScreenView } from '../FormScreenView';
 
+import { ErrorBoundary } from '~/ui/components/ErrorBoundary';
+
 interface AddDetailsFormFieldsProps {
   components: ISurveyScreenComponent[];
   values: any;
@@ -38,7 +40,6 @@ export const FormFields = ({
   const shouldShow = useCallback(
     (component: ISurveyScreenComponent) => (
       checkVisibilityCriteria(component, components, values)
-      && !isCalculated(component.dataElement.type)
     ),
     [values]
   );
@@ -49,13 +50,15 @@ export const FormFields = ({
     .filter(shouldShow)
     .map((component, index) => (
       <React.Fragment key={component.id}>
-        <SectionHeader marginTop={index === 0 ? 0 : 20} h3>
-          {component.text || component.dataElement.defaultText}
-        </SectionHeader>
-        <SurveyQuestion
-          key={component.id}
-          component={component}
-        />
+          <SectionHeader marginTop={index === 0 ? 0 : 20} h3>
+            {component.text || component.dataElement.defaultText}
+          </SectionHeader>
+          <ErrorBoundary>
+            <SurveyQuestion
+              key={component.id}
+              component={component}
+            />
+          </ErrorBoundary>
       </React.Fragment>
     ));
   

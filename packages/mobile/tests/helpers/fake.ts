@@ -76,6 +76,7 @@ export const fakeSurveyScreenComponent = (): ISurveyScreenComponent => {
     text: 'survey-screen-component-text',
     visibilityCriteria: 'survey-screen-component-visibilityCriteria',
     options: 'survey-screen-component-options',
+    calculation: '',
   };
 };
 
