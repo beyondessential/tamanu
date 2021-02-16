@@ -23,7 +23,7 @@ import { ExportDataScreen } from '../screens/home/ExportDataScreen';
 import { noSwipeGestureOnNavigator } from '/helpers/navigators';
 import { Routes } from '/helpers/routes';
 import { RegisterPatientStack } from './RegisterPatientStack';
-import AuthContext from '/contexts/AuthContext';
+import AuthContext from '~/ui/contexts/AuthContext';
 
 const Stack = createStackNavigator();
 

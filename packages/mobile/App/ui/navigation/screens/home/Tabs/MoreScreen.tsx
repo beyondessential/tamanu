@@ -34,7 +34,7 @@ import {
 import { version as AppVersion } from '/root/package.json';
 import { StatusBar, StatusBarStyle } from 'react-native';
 import { useFocusEffect } from '@react-navigation/native';
-import AuthContext from '/contexts/AuthContext';
+import AuthContext from '~/ui/contexts/AuthContext';
 import { BaseAppProps } from '~/ui/interfaces/BaseAppProps';
 import { authUserSelector } from '/helpers/selectors';
 

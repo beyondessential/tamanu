@@ -2,10 +2,10 @@ import React, { createContext, PropsWithChildren, ReactElement, useContext, useE
 import { NavigationContainerRef } from '@react-navigation/native';
 import NetInfo from '@react-native-community/netinfo';
 import { compose } from 'redux';
-import { withAuth } from '/containers/Auth';
-import { WithAuthStoreProps } from '/store/ducks/auth';
-import { Routes } from '/helpers/routes';
-import { BackendContext } from '/contexts/BackendContext';
+import { withAuth } from '~/ui/containers/Auth';
+import { WithAuthStoreProps } from '~/ui/store/ducks/auth';
+import { Routes } from '~/ui/helpers/routes';
+import { BackendContext } from '~/ui/contexts/BackendContext';
 import { SyncConnectionParameters } from '~/types';
 
 type AuthProviderProps = WithAuthStoreProps & {

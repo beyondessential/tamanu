@@ -8,7 +8,7 @@ import { SafeAreaProvider } from 'react-native-safe-area-context';
 import { Provider } from 'react-redux';
 import { themeSystem } from '/styled/common';
 import { store, persistor } from '/store/index';
-import { AuthProvider } from '/contexts/AuthContext';
+import { AuthProvider } from '~/ui/contexts/AuthContext';
 import { Core } from './Core';
 import { theme } from '../../styled/theme';
 

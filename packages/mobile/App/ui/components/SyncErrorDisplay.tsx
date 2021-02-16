@@ -1,7 +1,7 @@
 import React, { ReactElement, useCallback, useContext, useEffect, useState } from 'react';
 import { TouchableWithoutFeedback } from 'react-native';
 import { StyledText, StyledView } from '/styled/common';
-import { BackendContext } from '/contexts/BackendContext';
+import { BackendContext } from '~/ui/contexts/BackendContext';
 import { SyncManager } from '~/services/sync';
 
 export const SyncErrorDisplay = (): ReactElement => {
