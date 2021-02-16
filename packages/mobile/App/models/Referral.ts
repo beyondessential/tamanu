@@ -28,17 +28,20 @@ export class Referral extends BaseModel implements IReferral {
 
   @ReferenceDataRelation()
   diagnosis: ReferenceData;
+  @RelationId(({ diagnosis }) => diagnosis)
+  diagnosisId?: string;
 
   @ManyToOne(() => User, user => user.referrals)
   practitioner: User;
+  @RelationId(({ practitioner }) => practitioner)
+  practitionerId?: string;
 
   @OneToMany(type => SurveyResponse, surveyResponse => surveyResponse.referral, { nullable: true })
   surveyResponse: SurveyResponse;
 
   @ManyToOne(() => Patient, patient => patient.referrals)
   patient: Patient;
-
-  @RelationId((referral: Referral) => referral.patient)
+  @RelationId(({ patient }) => patient)
   patientId: string;
 
   static async getForPatient(patientId: string): Promise<Referral[]> {

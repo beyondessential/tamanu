@@ -26,8 +26,7 @@ export class Encounter extends BaseModel implements IEncounter {
   @Index()
   @ManyToOne(() => Patient, patient => patient.encounters, { eager: true })
   patient: Patient;
-
-  @RelationId((encounter: Encounter) => encounter.patient)
+  @RelationId(({ patient }) => patient)
   patientId: string;
 
   // TODO: Add model and add examiner dropdown for this field
@@ -44,9 +43,13 @@ export class Encounter extends BaseModel implements IEncounter {
 
   @ReferenceDataRelation()
   department: ReferenceData;
+  @RelationId(({ department }) => department)
+  departmentId?: string;
 
   @ReferenceDataRelation()
   location: ReferenceData;
+  @RelationId(({ location }) => location)
+  locationId?: string;
 
   @OneToMany(() => Diagnosis, diagnosis => diagnosis.encounter, { eager: true })
   diagnoses: Diagnosis[]

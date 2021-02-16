@@ -7,6 +7,7 @@ import {
 import { DevSettings } from 'react-native';
 import { MODELS_ARRAY, MODELS_MAP } from '~/models/modelsMap';
 import { clear } from '~/services/config';
+
 const LOG_LEVELS = __DEV__ ? [
   // 'error',
   // 'query', 
@@ -59,6 +60,7 @@ class DatabaseHelper {
     try {
       this.client = await createConnection(getConnectionConfig());
       await this.forceSync();
+
       // TODO: this is a hack to fix an issue where models can't retrieve the correct connection in
       // our tests because we're using a mix of typeorm and typeorm/browser
       MODELS_ARRAY.forEach(m => m.useConnection(<any>this.client));
