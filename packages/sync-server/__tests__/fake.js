@@ -64,6 +64,7 @@ export function fakeSurveyScreenComponent(prefix = '') {
     screenIndex: random(0, 100),
     componentIndex: random(0, 100),
     options: '{"foo":"bar"}',
+    calculation: '',
     ...fakeStringFields(`${prefix}surveyScreenComponent_${id}_`, ['text', 'visibilityCriteria']),
   };
 }
