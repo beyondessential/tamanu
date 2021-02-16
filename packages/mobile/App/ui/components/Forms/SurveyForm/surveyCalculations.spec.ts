@@ -1,6 +1,6 @@
 import { ISurveyScreenComponent } from '~/types/ISurvey';
 
-import { getResultValue } from '~/ui/helpers/fields';
+import { getResultValue, FieldTypes } from '~/ui/helpers/fields';
 import { runCalculations } from '~/ui/helpers/calculations';
 
 function makeDummyComponent(c: any, index: number): ISurveyScreenComponent {
@@ -34,7 +34,7 @@ describe('Survey calculations', () => {
 
     it('should run a trivial calculation', () => { 
       const survey = makeDummySurvey([
-        { code: 'TEST', type: 'Calculated', calculation: '1' },
+        { code: 'TEST', type: FieldTypes.CALCULATED, calculation: '1' },
       ]);
       const calculations = runCalculations(survey, {});
       expect(calculations.TEST).toEqual(1);
@@ -42,7 +42,7 @@ describe('Survey calculations', () => {
 
     it('should run a simple calculation', () => { 
       const survey = makeDummySurvey([
-        { code: 'TEST', type: 'Calculated', calculation: '1 + 1' },
+        { code: 'TEST', type: FieldTypes.CALCULATED, calculation: '1 + 1' },
       ]);
       const calculations = runCalculations(survey, {});
       expect(calculations.TEST).toEqual(2);
@@ -50,8 +50,8 @@ describe('Survey calculations', () => {
 
     it('should run several calculations', () => { 
       const survey = makeDummySurvey([
-        { code: 'TEST', type: 'Calculated', calculation: '3 * 5' },
-        { code: 'TEST_2', type: 'Calculated', calculation: '100 - 1' },
+        { code: 'TEST', type: FieldTypes.CALCULATED, calculation: '3 * 5' },
+        { code: 'TEST_2', type: FieldTypes.CALCULATED, calculation: '100 - 1' },
       ]);
       const calculations = runCalculations(survey, {});
       expect(calculations.TEST).toEqual(15);
@@ -60,7 +60,7 @@ describe('Survey calculations', () => {
 
     it('should use substitutions', () => { 
       const survey = makeDummySurvey([
-        { code: 'TEST', type: 'Calculated', calculation: 'TEST_1 + TEST_2' },
+        { code: 'TEST', type: FieldTypes.CALCULATED, calculation: 'TEST_1 + TEST_2' },
       ]);
       const calculations = runCalculations(survey, {
         TEST_1: 24,
@@ -71,8 +71,8 @@ describe('Survey calculations', () => {
 
     it('should use second-order substitutions', () => { 
       const survey = makeDummySurvey([
-        { code: 'TEST_BEFORE', type: 'Calculated', calculation: 'TEST_1 + TEST_2' },
-        { code: 'TEST_AFTER', type: 'Calculated', calculation: 'TEST_BEFORE + 2000' },
+        { code: 'TEST_BEFORE', type: FieldTypes.CALCULATED, calculation: 'TEST_1 + TEST_2' },
+        { code: 'TEST_AFTER', type: FieldTypes.CALCULATED, calculation: 'TEST_BEFORE + 2000' },
       ]);
       const calculations = runCalculations(survey, {
         TEST_1: 24,
@@ -83,16 +83,16 @@ describe('Survey calculations', () => {
 
     it('should register errored calculations as undefined', () => { 
       const survey = makeDummySurvey([
-        { code: 'TEST_WORKS', type: 'Calculated', calculation: 'TEST_1 * 3' },
-        { code: 'TEST_BROKEN', type: 'Calculated', calculation: 'TEST_NONEXISTENT' },
-        { code: 'TEST_BROKEN_2', type: 'Calculated', calculation: '1 + + / * 4' },
+        { code: 'TEST_WORKS', type: FieldTypes.CALCULATED, calculation: 'TEST_1 * 3' },
+        { code: 'TEST_BROKEN', type: FieldTypes.CALCULATED, calculation: 'TEST_NONEXISTENT' },
+        { code: 'TEST_BROKEN_2', type: FieldTypes.CALCULATED, calculation: '1 + + / * 4' },
       ]);
       const calculations = runCalculations(survey, {
         TEST_1: 5,
       });
       expect(calculations.TEST_WORKS).toEqual(15);
-      expect(calculations).not.toHaveProperty('TEST_BROKEN');
-      expect(calculations).not.toHaveProperty('TEST_BROKEN_2');
+      expect(calculations).toHaveProperty('TEST_BROKEN', null);
+      expect(calculations).toHaveProperty('TEST_BROKEN_2', null);
     });
 
   });
