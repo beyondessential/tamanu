@@ -1,6 +1,7 @@
 import express from 'express';
 import asyncHandler from 'express-async-handler';
 import { NOTE_TYPES } from 'shared/constants';
+import { InvalidParameterError } from 'shared/errors';
 import { NOTE_RECORD_TYPES } from 'shared/models/Note';
 
 import { simpleGet, simplePut } from './crudHelpers';
@@ -17,8 +18,7 @@ patientCarePlan.post(
     } = req;
     req.checkPermission('create', 'PatientCarePlan');
     if (!req.body.content) {
-      res.status(400).send('Note is required for care plan');
-      return;
+      throw new InvalidParameterError("Content is a required field");
     }
     const newCarePlan = await PatientCarePlan.create(req.body);
     await Note.create({
