@@ -43,34 +43,34 @@ export const HomeStack = ({ navigator: Navi }): ReactElement => {
     >
       <Stack.Screen
         name={Routes.HomeStack.WelcomeIntroStack}
-        component={wrapComponentInErrorBoundary(WelcomeIntroTabs)}
+        component={WelcomeIntroTabs}
         options={{
           ...TransitionPresets.SlideFromRightIOS,
         }}
       />
       <Stack.Screen
         name={Routes.HomeStack.CheckUpStack.Index}
-        component={wrapComponentInErrorBoundary(CheckUpStack)}
+        component={CheckUpStack}
       />
       <Stack.Screen
         name={Routes.HomeStack.ProgramStack.Index}
-        component={wrapComponentInErrorBoundary(ProgramStack)}
+        component={ProgramStack}
       />
       <Stack.Screen
         name={Routes.HomeStack.VaccineStack.Index}
-        component={wrapComponentInErrorBoundary(VaccineStack)}
+        component={VaccineStack}
       />
       <Stack.Screen
         name={Routes.HomeStack.HomeTabs.Index}
-        component={wrapComponentInErrorBoundary(HomeTabsStack)}
+        component={HomeTabsStack}
       />
       <Stack.Screen
         name={Routes.HomeStack.ExportDataScreen}
-        component={wrapComponentInErrorBoundary(ExportDataScreen)}
+        component={ExportDataScreen}
       />
       <Stack.Screen
         name={Routes.HomeStack.RegisterPatientStack.Index}
-        component={wrapComponentInErrorBoundary(RegisterPatientStack)}
+        component={RegisterPatientStack}
       />
       <Stack.Screen
         name={Routes.HomeStack.PatientDetails}
@@ -78,27 +78,27 @@ export const HomeStack = ({ navigator: Navi }): ReactElement => {
       />
       <Stack.Screen
         name={Routes.HomeStack.HistoryVitalsStack.Index}
-        component={wrapComponentInErrorBoundary(HistoryVitalsStack)}
+        component={HistoryVitalsStack}
       />
       <Stack.Screen
         name={Routes.HomeStack.PatientActions}
-        component={wrapComponentInErrorBoundary(PatientActionsScreen)}
+        component={PatientActionsScreen}
       />
       <Stack.Screen
         name={Routes.HomeStack.SearchPatientStack.Index}
-        component={wrapComponentInErrorBoundary(SearchPatientStack)}
+        component={SearchPatientStack}
       />
       <Stack.Screen
         name={Routes.HomeStack.SickOrInjuredTabs.Index}
-        component={wrapComponentInErrorBoundary(SickOrInjuredTabs)}
+        component={SickOrInjuredTabs}
       />
       <Stack.Screen
         name={Routes.HomeStack.ReferralTabs.Index}
-        component={wrapComponentInErrorBoundary(ReferralTabs)}
+        component={ReferralTabs}
       />
       <Stack.Screen
         name={Routes.HomeStack.DeceasedStack.Index}
-        component={wrapComponentInErrorBoundary(DeceasedStack)}
+        component={DeceasedStack}
       />
     </Stack.Navigator>
   );

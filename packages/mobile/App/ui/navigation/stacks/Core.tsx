@@ -8,7 +8,6 @@ import { SignUpStack } from './SignUp';
 import { HomeStack } from './Home';
 import AuthContext from '~/ui/contexts/AuthContext';
 import { AutocompleteModalScreen } from '~/ui/components/AutocompleteModal';
-import { wrapComponentInErrorBoundary } from '~/ui/components/ErrorBoundary';
 
 const Stack = createStackNavigator();
 
@@ -24,13 +23,13 @@ export const Core: FunctionComponent<any> = () => {
           : Routes.SignUpStack.Index
       }
     >
-        <Stack.Screen name={Routes.Autocomplete.Modal} component={wrapComponentInErrorBoundary(AutocompleteModalScreen)} />
-        <Stack.Screen name={Routes.SignUpStack.Index} component={SignUpStack} />
-        <Stack.Screen
-          options={noSwipeGestureOnNavigator}
-          name={Routes.HomeStack.Index}
-          component={HomeStack}
-        />
+      <Stack.Screen name={Routes.Autocomplete.Modal} component={AutocompleteModalScreen} />
+      <Stack.Screen name={Routes.SignUpStack.Index} component={SignUpStack} />
+      <Stack.Screen
+        options={noSwipeGestureOnNavigator}
+        name={Routes.HomeStack.Index}
+        component={HomeStack}
+      />
     </Stack.Navigator>
   );
 };

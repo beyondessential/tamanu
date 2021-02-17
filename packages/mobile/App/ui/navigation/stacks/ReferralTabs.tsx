@@ -65,7 +65,6 @@ const TabNavigator = ({
   const goBack = useCallback(() => {
     navigation.goBack();
   }, []);
-  throw new Error('Error on mount');
 
   return (
     <>

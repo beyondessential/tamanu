@@ -9,15 +9,33 @@ import { useNavigation } from '@react-navigation/native';
 import { Routes } from '/helpers/routes';
 import { Button } from './Button';
 
+
+interface ErrorComponentProps {
+  error: string,
+  resetRoute?: string,
+}
+
+type ErrorComponentType = React.FC<ErrorComponentProps>; 
+
+interface ErrorBoundaryProps {
+  errorKey?: string,
+  resetRoute?: string,
+  ErrorComponent?: ErrorComponentType,
+}
+
+interface ErrorBoundaryState {
+  error?: string,
+}
+
 const styles = StyleSheet.create({
   container: {
     backgroundColor: theme.colors.BACKGROUND_GREY,
   },
 });
 
-const ErrorModal = ({ error, resetRoute }) => {
+const FullScreenErrorModal = ({ error, resetRoute=Routes.HomeStack.PatientDetails }) => {
   const navigation = useNavigation();
-  console.log('Error! Oh no!');
+  console.log('Error! Oh no!', resetRoute);
 
   Popup.show({
     type: 'Danger',
@@ -26,31 +44,20 @@ const ErrorModal = ({ error, resetRoute }) => {
     textBody: `Sorry, it looks like an error has occurred. If this continues to happen, please let your IT admin know.`,
     buttonText: 'Ok',
     callback: () => {
+      console.log('Navigating: ', resetRoute);
+      // navigation.navigate(resetRoute); // This does not appear to navigate anywhere (disp)
+      navigation.goBack(); // This works as I expect it to
       Popup.hide();
-      console.error(error);
-      navigation.navigate(resetRoute);
     },
   });
 
   return (
-    <View style={styles.container} />
+    <View style={styles.container}>
+      <Text>
+        This text should disappear after the user clicks "ok" on the popup
+      </Text>
+    </View>
   );
-}
-interface ErrorComponentProps {
-  error: String,
-  resetRoute?: String,
-}
-
-type ErrorComponentType = React.FC<ErrorComponentProps>; 
-
-interface ErrorBoundaryProps {
-  errorKey?: String,
-  resetRoute?: String,
-  ErrorComponent?: ErrorComponentType,
-}
-
-interface ErrorBoundaryState {
-  error?: String,
 }
 
 export class ErrorBoundary extends React.PureComponent<ErrorBoundaryProps, ErrorBoundaryState> {
@@ -61,17 +68,17 @@ export class ErrorBoundary extends React.PureComponent<ErrorBoundaryProps, Error
   }
 
   componentDidUpdate(prevProps) {
+    console.log("ErrorBoundary rerendered with: ", this.props);
     if (prevProps.errorKey !== this.props.errorKey) {
       this.setState({ error: null });
     }
   }
 
   render() {
-    const { ErrorComponent = ErrorModal } = this.props;
+    const { ErrorComponent = FullScreenErrorModal } = this.props;
     const { error } = this.state;
     const { resetRoute } = this.props;
 
-    // console.log(this.props, this.state);
     if (error) {
       console.error(error);
       return <ErrorComponent error={error} resetRoute={resetRoute} />;
@@ -83,44 +90,13 @@ export class ErrorBoundary extends React.PureComponent<ErrorBoundaryProps, Error
 
 export const wrapComponentInErrorBoundary = (Component, resetRoute = Routes.HomeStack.Index) => {
   const WrappedComponent = props => {
-    // const navigation = useNavigation();
-    // const { dangerouslyGetState } = useNavigation();
-    // const { index, routes } = dangerouslyGetState()
-    // const errorKey = routes[index].name;
+    console.log("Rendering wrapped component: ", props.route.key);
 
     return (
-      <ErrorBoundary resetRoute={resetRoute} errorKey={'1'} >
+      <ErrorBoundary resetRoute={resetRoute} errorKey={props.route.key} >
         <Component {...props} />
       </ErrorBoundary>
     )
   };
   return WrappedComponent;
 }
-
-// const hi = ["navigation", 
-// {"addListener": [Function addListener],
-//  "canGoBack": [Function canGoBack],
-//   "dangerouslyGetParent": [Function dangerouslyGetParent],
-//    "dangerouslyGetState": [Function anonymous],
-//     "dispatch": [Function dispatch],
-//      "goBack": [Function anonymous],
-//       "isFocused": [Function isFocused],
-//        "navigate": [Function anonymous],
-//        "pop": [Function anonymous], 
-//        "popToTop": [Function anonymous], 
-//        "push": [Function anonymous], 
-//        "removeListener": [Function removeListener],
-//        "replace": [Function anonymous],
-//        "reset": [Function anonymous],
-//        "setOptions": [Function setOptions],
-//        "setParams": [Function anonymous]}]
-// const hi1_1 [["navigation", 
-// {"addListener": [Function addListener], 
-// "canGoBack": [Function canGoBack], 
-// "dangerouslyGetParent": [Function dangerouslyGetParent], "dangerouslyGetState": [Function anonymous], "dispatch": [Function dispatch], "goBack": [Function anonymous], 
-// "isFocused": [Function isFocused], "navigate": [Function anonymous], "pop": [Function anonymous], "popToTop": [Function anonymous], "push": [Function anonymous], 
-// "removeListener": [Function removeListener], "replace": [Function anonymous], "reset": [Function anonymous], "setOptions": [Function setOptions], 
-// "setParams": [Function anonymous]}], 
-// ["route", {"key": "/HomeStack/HomeTabs/Index-5sDmKG3yDKHm-TnlPz0Q2", "name": "/HomeStack/HomeTabs/Index", "params": undefined}]]
-// ["route", {"key": "/HomeStack/HomeTabs/Index-5sDmKG3yDKHm-TnlPz0Q2", "name": "/HomeStack/HomeTabs/Index", "params": undefined}]
-// const hi3 =  [["navigation", {"addListener": [Function addListener], "canGoBack": [Function canGoBack], "dangerouslyGetParent": [Function dangerouslyGetParent], "dangerouslyGetState": [Function anonymous], "dispatch": [Function dispatch], "goBack": [Function anonymous], "isFocused": [Function isFocused], "navigate": [Function anonymous], "pop": [Function anonymous], "popToTop": [Function anonymous], "push": [Function anonymous], "removeListener": [Function removeListener], "replace": [Function anonymous], "reset": [Function anonymous], "setOptions": [Function setOptions], "setParams": [Function anonymous]}], ["route", {"key": "/HomeStack/HomeTabs/Index-5sDmKG3yDKHm-TnlPz0Q2", "name": "/HomeStack/HomeTabs/Index", "params": undefined}]]
