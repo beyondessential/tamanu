@@ -1,5 +1,5 @@
 import React, { ReactElement } from 'react';
-import { KeyboardAvoidingView } from 'react-native';
+import { KeyboardAvoidingView, StyleSheet } from 'react-native';
 import * as Yup from 'yup';
 import { Formik } from 'formik';
 import { ScrollView } from 'react-native-gesture-handler';
@@ -9,7 +9,7 @@ import { TextField } from '~/ui/components/TextField/TextField';
 import { Button } from '~/ui/components/Button';
 import { IPatient } from '~/types';
 import { StackHeader } from '~/ui/components/StackHeader'
-import { FullView, StyledView } from '~/ui/styled/common';
+import { FullView } from '~/ui/styled/common';
 import { joinNames } from '~/ui/helpers/user';
 
 export type AddPatientIssueScreenProps = {
@@ -20,6 +20,17 @@ export type AddPatientIssueScreenProps = {
 
 const PatientIssueFormSchema = Yup.object().shape({
   note: Yup.string().required(),
+});
+
+const styles = StyleSheet.create({
+  KeyboardAvoidingView: { display: 'flex', flex: 1 },
+  ScrollView: { display: 'flex', flex: 1 },
+  ScrollViewContentContainer: {
+    display: 'flex',
+    flex: 1,
+    justifyContent: 'space-between',
+    padding: 20,
+  },
 });
 
 export const Screen = ({
@@ -40,23 +51,26 @@ export const Screen = ({
         validationSchema={PatientIssueFormSchema}
       >
         {({ handleSubmit }): ReactElement => (
-          <KeyboardAvoidingView behavior="padding">
-            <ScrollView>
-              <StyledView
-                justifyContent="space-between"
-                padding={20}
-              >
-                <Field
-                  component={TextField}
-                  multiline
-                  label="Note"
-                  name="note"
-                />
-                <Button
-                  onPress={handleSubmit}
-                  buttonText="Submit"
-                />
-              </StyledView>
+          <KeyboardAvoidingView
+            style={styles.KeyboardAvoidingView}
+            behavior="padding"
+          >
+            <ScrollView
+              style={styles.ScrollView}
+              contentContainerStyle={styles.ScrollViewContentContainer}
+            >
+              <Field
+                component={TextField}
+                multiline
+                autoCapitalize="sentences"
+                autoFocus={true}
+                label="Note"
+                name="note"
+              />
+              <Button
+                onPress={handleSubmit}
+                buttonText="Submit"
+              />
             </ScrollView>
           </KeyboardAvoidingView>
         )}
