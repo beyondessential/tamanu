@@ -82,7 +82,7 @@ export function getResultValue(allComponents: ISurveyScreenComponent[], values: 
 
   // invalid values just get empty results
   if(rawValue === undefined || rawValue === null || Number.isNaN(rawValue)) {
-    return { result: 0, resultText: '' };
+    return { result: 0, resultText: component.detail || '' };
   }
 
   // string values just get passed on directly

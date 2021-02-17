@@ -23,6 +23,15 @@ export class SurveyScreenComponent extends BaseModel
   visibilityCriteria?: string;
 
   @Column({ nullable: true })
+  validationCriteria?: string;
+
+  @Column({ nullable: true })
+  detail?: string;
+
+  @Column({ nullable: true })
+  config?: string;
+
+  @Column({ nullable: true })
   options?: string;
 
   @ManyToOne(() => Survey, survey => survey.components)
