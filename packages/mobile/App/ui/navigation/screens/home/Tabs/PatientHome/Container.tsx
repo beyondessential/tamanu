@@ -57,7 +57,7 @@ const PatientHomeContainer = ({
   const patientMenuButtons = useMemo(
     () => [
       {
-        title: 'View patients details',
+        title: 'View patient details',
         Icon: Icons.PatientDetailsIcon,
         onPress: (): void => navigation.navigate(Routes.HomeStack.PatientDetailsStack.Index),
       },
