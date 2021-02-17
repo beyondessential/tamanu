@@ -57,15 +57,19 @@ const Container = ({
 
   const onNavigateToFilters = useCallback(() => {
     navigation.navigate(Routes.HomeStack.PatientActions);
-  }, []);
+  }, [navigation]);
 
   const onNavigateBack = useCallback(() => {
     navigation.goBack();
-  }, []);
+  }, [navigation]);
 
   const onEditField = useCallback(() => {
     setEditField(!editField);
   }, [editField]);
+
+  const onEditPatientIssues = useCallback(() => {
+    navigation.navigate(Routes.HomeStack.PatientDetailsStack.AddPatientIssue);
+  }, [navigation]);
 
   if (error) return <ErrorScreen error={error} />;
   if (!patientIssues) return <LoadingScreen />;
@@ -76,6 +80,7 @@ const Container = ({
       onNavigateBack={onNavigateBack}
       onNavigateToFilters={onNavigateToFilters}
       onEditField={onEditField}
+      onEditPatientIssues={onEditPatientIssues}
       reminders={reminders}
       changeReminder={changeReminder}
     />

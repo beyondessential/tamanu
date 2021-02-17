@@ -105,6 +105,7 @@ export const Routes = {
     },
     PatientDetailsStack: {
       Index: '',
+      AddPatientIssue: '',
     },
     PatientActions: '',
     ExportDataScreen: '',

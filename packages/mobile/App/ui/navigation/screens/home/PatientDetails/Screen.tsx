@@ -41,13 +41,16 @@ interface PatientDetailScreenProps {
   onNavigateToFilters: () => void;
   patientData: PatientDetails;
   onEditField: () => void;
+  onEditPatientIssues: () => void;
   changeReminder: (value: boolean) => void;
   reminders: boolean;
 }
+
 export const Screen = ({
   onNavigateBack,
   onNavigateToFilters,
   patientData,
+  onEditPatientIssues,
   onEditField,
   changeReminder,
   reminders,
@@ -119,7 +122,7 @@ export const Screen = ({
           />
           <AllergiesList onEdit={onEditField} allergies={patientData.allergies} />
           <PatientIssues
-            onEdit={onEditField}
+            onEdit={onEditPatientIssues}
             patientIssues={patientData.patientIssues}
           />
         </StyledScrollView>
