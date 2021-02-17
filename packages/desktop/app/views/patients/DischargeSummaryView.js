@@ -134,7 +134,7 @@ const SummaryPage = React.memo(({ patient, encounter }) => {
           <span>{`${patient.firstName} ${patient.lastName}`}</span>
         </h4>
         <h4>
-          <Label>UID: </Label>
+          <Label>NHN: </Label>
           <span>{patient.displayId}</span>
         </h4>
       </Header>

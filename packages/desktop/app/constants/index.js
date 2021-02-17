@@ -339,7 +339,7 @@ export const pregnancyOutcomes = [
 export const outPatientColumns = [
   {
     key: 'displayId',
-    title: 'Id',
+    title: 'NHN',
     headerStyle,
     style: columnStyle,
     minWidth: 80,
