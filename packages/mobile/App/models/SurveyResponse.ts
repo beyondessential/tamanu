@@ -88,8 +88,7 @@ export class SurveyResponse extends BaseModel implements ISurveyResponse {
 
     try {
       setNote("Creating encounter...");
-      const encounter = await Encounter.createAndSaveOne({
-        patient: patientId,
+      const encounter = await Encounter.getOrCreateCurrentEncounter(patientId, {
         startDate: new Date(),
         endDate: new Date(),
         encounterType: 'surveyResponse',

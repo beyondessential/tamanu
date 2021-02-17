@@ -92,7 +92,7 @@
     "reselect": "^4.0.0",
     "styled-components": "^5.1.0",
     "styled-system": "^5.1.2",
-    "typeorm": "^0.2.25",
+    "typeorm": "^0.2.31",
     "yup": "^0.28.0"
   },
   "devDependencies": {
