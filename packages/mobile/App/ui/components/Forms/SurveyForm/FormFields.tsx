@@ -11,7 +11,7 @@ import { FormScreenView } from '../FormScreenView';
 import { ErrorBoundary } from '~/ui/components/ErrorBoundary';
 import { TouchableWithoutFeedback } from 'react-native-gesture-handler';
 
-const ErrorView = ({ error }) => (
+const SurveyQuestionErrorView = ({ error }) => (
   <TouchableWithoutFeedback onPress={() => console.warn(error)}>
     <StyledText color="red">
       Error displaying component
@@ -62,7 +62,7 @@ export const FormFields = ({
           <SectionHeader marginTop={index === 0 ? 0 : 20} h3>
             {component.text || component.dataElement.defaultText}
           </SectionHeader>
-          <ErrorBoundary errorComponent={ErrorView}>
+          <ErrorBoundary errorComponent={SurveyQuestionErrorView} errorKey={null}>
             <SurveyQuestion
               key={component.id}
               component={component}

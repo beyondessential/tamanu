@@ -1,15 +1,9 @@
-import React, { ReactElement, useCallback, useState, useEffect } from 'react';
+import React from 'react';
 import { StyleSheet, View, Text } from 'react-native';
-import { NavigationProp } from '@react-navigation/native';
-import Autocomplete from 'react-native-autocomplete-input';
-import { TouchableOpacity } from 'react-native-gesture-handler';
 import { theme } from '~/ui/styled/theme';
 import { Popup } from 'popup-ui';
 import { useNavigation } from '@react-navigation/native';
 import { Routes } from '/helpers/routes';
-import { Button } from './Button';
-
-
 interface ErrorComponentProps {
   error: string,
   resetRoute?: string,
@@ -18,24 +12,17 @@ interface ErrorComponentProps {
 type ErrorComponentType = React.FC<ErrorComponentProps>; 
 
 interface ErrorBoundaryProps {
-  errorKey?: string,
+  errorKey: string,
   resetRoute?: string,
-  ErrorComponent?: ErrorComponentType,
+  errorComponent?: ErrorComponentType,
 }
 
 interface ErrorBoundaryState {
-  error?: string,
+  error: Error | null,
 }
 
-const styles = StyleSheet.create({
-  container: {
-    backgroundColor: theme.colors.BACKGROUND_GREY,
-  },
-});
-
-const FullScreenErrorModal = ({ error, resetRoute }) => {
+const FullScreenErrorModal = ({ resetRoute }) => {
   const navigation = useNavigation();
-  console.log('Error! Oh no!', resetRoute);
 
   Popup.show({
     type: 'Danger',
@@ -44,19 +31,12 @@ const FullScreenErrorModal = ({ error, resetRoute }) => {
     textBody: `Sorry, it looks like an error has occurred. If this continues to happen, please let your IT admin know.`,
     buttonText: 'Ok',
     callback: () => {
-      console.log('Navigating: ', resetRoute);
       navigation.replace(resetRoute);
       Popup.hide();
     },
   });
 
-  return (
-    <View style={styles.container}>
-      <Text>
-        This text should disappear after the user clicks "ok" on the popup
-      </Text>
-    </View>
-  );
+  return <View style={{backgroundColor: theme.colors.BACKGROUND_GREY}} />;
 }
 
 export class ErrorBoundary extends React.PureComponent<ErrorBoundaryProps, ErrorBoundaryState> {
@@ -67,20 +47,19 @@ export class ErrorBoundary extends React.PureComponent<ErrorBoundaryProps, Error
   }
 
   componentDidUpdate(prevProps) {
-    console.log("ErrorBoundary rerendered with: ", this.props.errorKey, prevProps.errorKey);
     if (prevProps.errorKey !== this.props.errorKey) {
       this.setState({ error: null });
     }
   }
 
   render() {
-    const { ErrorComponent = FullScreenErrorModal } = this.props;
+    const { errorComponent = FullScreenErrorModal } = this.props;
     const { error } = this.state;
     const { resetRoute } = this.props;
 
-    console.log("Rendering errorBoundary with error: ", error);
     if (error) {
-      console.error(error);
+      console.warn(error);
+      const ErrorComponent = errorComponent;
       return <ErrorComponent error={error} resetRoute={resetRoute} />;
     }
 
@@ -88,15 +67,8 @@ export class ErrorBoundary extends React.PureComponent<ErrorBoundaryProps, Error
   }
 }
 
-export const wrapComponentInErrorBoundary = (Component, resetRoute = Routes.HomeStack.Index) => {
-  const WrappedComponent = props => {
-    console.log("Rendering wrapped component: ", Component, props.route.key);
-
-    return (
-      <ErrorBoundary resetRoute={resetRoute} errorKey={props.route.key} >
-        <Component {...props} />
-      </ErrorBoundary>
-    )
-  };
-  return WrappedComponent;
-}
+export const wrapComponentInErrorBoundary = (Component, resetRoute = Routes.HomeStack.Index) => props => (
+  <ErrorBoundary resetRoute={resetRoute} errorKey={props.route.key} >
+    <Component {...props} />
+  </ErrorBoundary>
+);

@@ -45,12 +45,6 @@ interface PatientDetailScreenProps {
   reminders: boolean;
 }
 
-const BadComponent = () => {
-  throw new Error('Bad component');
-  return null;
-}
-
-
 export const Screen = ({
   onNavigateBack,
   onNavigateToFilters,
@@ -91,7 +85,7 @@ export const Screen = ({
               color={theme.colors.WHITE}
               fontSize={screenPercentageToDP(1.94, Orientation.Height)}
             >
-              {getGender(patientData.generalInfo.sex) === 'Male' ? 'hi' : <BadComponent />},{' '}
+              {getGender(patientData.generalInfo.sex)},{' '}
               {getAgeFromDate(new Date(patientData.generalInfo.dateOfBirth))} years old,{' '}
             </StyledText>
           </StyledView>

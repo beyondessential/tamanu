@@ -11,7 +11,6 @@ import { AutocompleteModalScreen } from '~/ui/components/AutocompleteModal';
 
 const Stack = createStackNavigator();
 
-
 export const Core: FunctionComponent<any> = () => {
   const authCtx = useContext(AuthContext);
   return (
