@@ -20,6 +20,7 @@ import { Routes } from '/helpers/routes';
 import { VaccineModalScreen } from '../screens/vaccine/VaccineModalScreen';
 import { screenPercentageToDP, Orientation } from '/helpers/screen';
 import { withPatient } from '~/ui/containers/Patient';
+import { wrapComponentInErrorBoundary } from '~/ui/components/ErrorBoundary';
 
 const Stack = createStackNavigator();
 
@@ -67,7 +68,7 @@ const Header = ({ navigation }: StackHeaderProps): ReactElement => {
   );
 };
 
-export const VaccineStack = (): ReactElement => (
+export const VaccineStack = wrapComponentInErrorBoundary((): ReactElement => (
   <Stack.Navigator headerMode="screen">
     <Stack.Screen
       options={{
@@ -93,4 +94,4 @@ export const VaccineStack = (): ReactElement => (
       component={VaccineModalScreen}
     />
   </Stack.Navigator>
-);
+));

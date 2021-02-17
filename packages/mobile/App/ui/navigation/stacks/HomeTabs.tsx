@@ -32,6 +32,7 @@ import {
 } from '/navigation/screens/home/Tabs';
 import { screenPercentageToDP, Orientation } from '/helpers/screen';
 import { IconWithSizeProps } from '../../interfaces/WithSizeProps';
+import { wrapComponentInErrorBoundary } from '~/ui/components/ErrorBoundary';
 
 const Tabs = createBottomTabNavigator();
 
@@ -186,4 +187,4 @@ const TabNavigator = ({ selectedPatient }: BaseAppProps): ReactElement => (
   </Tabs.Navigator>
 );
 
-export const HomeTabsStack = compose(withPatient)(TabNavigator);
+export const HomeTabsStack = compose(withPatient)(wrapComponentInErrorBoundary(TabNavigator));

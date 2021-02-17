@@ -12,6 +12,7 @@ import { PatientHistoryAccordion } from '~/ui/components/PatientHistoryAccordion
 import { LoadingScreen } from '~/ui/components/LoadingScreen';
 import { useBackendEffect } from '~/ui/hooks';
 import { ErrorScreen } from '~/ui/components/ErrorScreen';
+import { wrapComponentInErrorBoundary } from '~/ui/components/ErrorBoundary';
 
 const Tabs = createTopTabNavigator();
 
@@ -93,4 +94,4 @@ const TabNavigator = ({
   );
 };
 
-export const ReferralTabs = compose(withPatient)(TabNavigator);
+export const ReferralTabs = compose(withPatient)(wrapComponentInErrorBoundary(TabNavigator));

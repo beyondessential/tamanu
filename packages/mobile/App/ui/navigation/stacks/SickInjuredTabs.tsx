@@ -10,6 +10,7 @@ import { joinNames } from '/helpers/user';
 import { FullView } from '/styled/common';
 import { AddIllnessScreen } from '../screens/sickOrInjured/AddIllnessDetails';
 import { PrescribeMedicationScreen } from '../screens/sickOrInjured/PrescribeMedication';
+import { wrapComponentInErrorBoundary } from '~/ui/components/ErrorBoundary';
 
 const Tabs = createTopTabNavigator();
 
@@ -52,4 +53,4 @@ const TabNavigator = ({
   );
 };
 
-export const SickOrInjuredTabs = compose(withPatient)(TabNavigator);
+export const SickOrInjuredTabs = compose(withPatient)(wrapComponentInErrorBoundary(TabNavigator));

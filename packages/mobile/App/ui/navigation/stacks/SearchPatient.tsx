@@ -8,6 +8,7 @@ import { noSwipeGestureOnNavigator } from '/helpers/navigators';
 import { SearchPatientTabs } from './SearchPatientTabs';
 // Screens
 import { PatientFilterScreen } from '../screens/PatientSearch';
+import { wrapComponentInErrorBoundary } from '~/ui/components/ErrorBoundary';
 
 const Stack = createStackNavigator();
 
@@ -23,7 +24,7 @@ const DEFAULT_FILTERS = {
   onlyShowText: false,
 };
 
-export const SearchPatientStack = ({ navigation }): ReactElement => {
+export const SearchPatientStack = wrapComponentInErrorBoundary(({ navigation }): ReactElement => {
   const [filters, setFilters] = useState(DEFAULT_FILTERS);
 
   const submitPatientFilters = (values): void => {
@@ -59,4 +60,4 @@ export const SearchPatientStack = ({ navigation }): ReactElement => {
       )}
     </Formik>
   );
-};
+});

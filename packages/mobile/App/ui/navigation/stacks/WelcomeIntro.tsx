@@ -6,10 +6,11 @@ import {
 // Screens
 import { Intro } from '../screens/home/Intro';
 import { Routes } from '/helpers/routes';
+import { wrapComponentInErrorBoundary } from '~/ui/components/ErrorBoundary';
 
 const Stack = createStackNavigator();
 
-export const WelcomeIntroTabs = (): ReactElement => (
+export const WelcomeIntroTabs = wrapComponentInErrorBoundary((): ReactElement => (
   <Stack.Navigator
     headerMode="none"
     screenOptions={{
@@ -50,4 +51,4 @@ export const WelcomeIntroTabs = (): ReactElement => (
       }}
     />
   </Stack.Navigator>
-);
+));

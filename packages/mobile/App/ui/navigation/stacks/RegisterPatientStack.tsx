@@ -8,10 +8,11 @@ import PatientSpecificInfoScreen from '../screens/registerPatient/PatientSpecifi
 import { NewPatientScreen } from '../screens/registerPatient/NewPatientScreen';
 import { newPatientFormValues } from '/helpers/form';
 import { RegisterPatientStackProps } from '/interfaces/screens/RegisterPatientStack/RegisterPatientStackProps';
+import { wrapComponentInErrorBoundary } from '~/ui/components/ErrorBoundary';
 
 const Stack = createStackNavigator();
 
-export const RegisterPatientStack = ({
+export const RegisterPatientStack = wrapComponentInErrorBoundary(({
   navigation,
 }: RegisterPatientStackProps): ReactElement => {
   const onSubmitForm = useCallback(() => {
@@ -53,4 +54,4 @@ export const RegisterPatientStack = ({
       </Stack.Navigator>
     </Formik>
   );
-};
+});

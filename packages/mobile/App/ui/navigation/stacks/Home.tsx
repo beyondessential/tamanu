@@ -66,7 +66,7 @@ export const HomeStack = ({ navigator: Navi }): ReactElement => {
       />
       <Stack.Screen
         name={Routes.HomeStack.ExportDataScreen}
-        component={ExportDataScreen}
+        component={wrapComponentInErrorBoundary(ExportDataScreen)}
       />
       <Stack.Screen
         name={Routes.HomeStack.RegisterPatientStack.Index}
@@ -82,7 +82,7 @@ export const HomeStack = ({ navigator: Navi }): ReactElement => {
       />
       <Stack.Screen
         name={Routes.HomeStack.PatientActions}
-        component={PatientActionsScreen}
+        component={wrapComponentInErrorBoundary(PatientActionsScreen)}
       />
       <Stack.Screen
         name={Routes.HomeStack.SearchPatientStack.Index}

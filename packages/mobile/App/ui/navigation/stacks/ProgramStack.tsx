@@ -4,10 +4,11 @@ import { ProgramListScreen } from '../screens/programs/ProgramListScreen';
 import { SurveyResponseDetailsScreen } from '../screens/programs/SurveyResponseDetailsScreen';
 import { Routes } from '/helpers/routes';
 import { NewProgramEntryTabs } from './NewProgramEntryTabs';
+import { wrapComponentInErrorBoundary } from '~/ui/components/ErrorBoundary';
 
 const Stack = createStackNavigator();
 
-export const ProgramStack = (): ReactElement => (
+export const ProgramStack = wrapComponentInErrorBoundary((): ReactElement => (
   <Stack.Navigator headerMode="none">
     <Stack.Screen
       name={Routes.HomeStack.ProgramStack.ProgramListScreen}
@@ -22,4 +23,4 @@ export const ProgramStack = (): ReactElement => (
       component={SurveyResponseDetailsScreen}
     />
   </Stack.Navigator>
-);
+));

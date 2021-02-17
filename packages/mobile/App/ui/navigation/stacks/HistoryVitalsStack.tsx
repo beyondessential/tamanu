@@ -13,6 +13,7 @@ import { ArrowLeftIcon, KebabIcon } from '/components/Icons';
 import { HistoryVitalsTabs } from './HistoryVitalsTabs';
 import { theme } from '/styled/theme';
 import { screenPercentageToDP, Orientation } from '/helpers/screen';
+import { wrapComponentInErrorBoundary } from '~/ui/components/ErrorBoundary';
 
 const Stack = createStackNavigator();
 
@@ -20,7 +21,7 @@ interface HistoryVitalsStackProps {
   navigation: NavigationProp<any>;
 }
 
-export const HistoryVitalsStack = ({
+export const HistoryVitalsStack = wrapComponentInErrorBoundary(({
   navigation,
 }: HistoryVitalsStackProps): ReactElement => {
   const goBack = useCallback(() => {
@@ -71,4 +72,4 @@ export const HistoryVitalsStack = ({
       </Stack.Navigator>
     </FullView>
   );
-};
+});
