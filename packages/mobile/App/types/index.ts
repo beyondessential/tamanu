@@ -2,6 +2,7 @@ export * from './AuthToken';
 export * from './SyncConnectionParameters';
 
 export * from './IPatient';
+export * from './IPatientIssue';
 export * from './IEncounter';
 export * from './IUser';
 export * from './IProgram';

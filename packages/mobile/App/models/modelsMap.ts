@@ -1,5 +1,6 @@
 import { ReferenceData } from './ReferenceData';
 import { Patient } from './Patient';
+import { PatientIssue } from './PatientIssue';
 import { User } from './User';
 import { Encounter } from './Encounter';
 import { Program } from './Program';
@@ -22,6 +23,7 @@ import { ReferralQuestion } from './ReferralQuestion';
 export const MODELS_ARRAY: typeof BaseModel[] = [
   ReferenceData,
   Patient,
+  PatientIssue,
   User,
   Encounter,
   Program,
@@ -44,6 +46,7 @@ export const MODELS_ARRAY: typeof BaseModel[] = [
 export const MODELS_MAP = {
   ReferenceData,
   Patient,
+  PatientIssue,
   User,
   Encounter,
   Program,
