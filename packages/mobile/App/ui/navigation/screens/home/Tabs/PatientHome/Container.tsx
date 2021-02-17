@@ -59,7 +59,7 @@ const PatientHomeContainer = ({
       {
         title: 'View patients details',
         Icon: Icons.PatientDetailsIcon,
-        onPress: (): void => navigation.navigate(Routes.HomeStack.PatientDetails.Index),
+        onPress: (): void => navigation.navigate(Routes.HomeStack.PatientDetailsStack.Index),
       },
       {
         title: 'View History',
