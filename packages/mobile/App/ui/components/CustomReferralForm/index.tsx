@@ -23,17 +23,33 @@ const ReferralQuestion = ({ data }) => {
   const fieldInput: React.FC<any> = getField(field);
   if(!fieldInput) return null;
   const isMultiline = field === FieldTypes.MULTILINE;
-  return (
-    <StyledView marginTop={10}>
-      <Field
-        component={fieldInput}
-        name={id}
-        label={question}
-        // options={options && && component.getOptions()}
-        multiline={isMultiline}
-      />
-    </StyledView>
-  );
+
+  switch (type) {
+    case 'input':
+      return (
+        <StyledView marginTop={10}>
+          <Field
+            component={fieldInput}
+            name={id}
+            label={question}
+            // options={options && && component.getOptions()} // TODO: transform from CSV string to list of options
+            multiline={isMultiline}
+          />
+        </StyledView>
+      );
+      break;
+    case 'survey':
+      // return (
+      //   <StyledView marginTop={10}>
+      //     <Field
+
+      //     />
+      //   </StyledView>
+      // );
+    default:
+      <Text>{`Could not create question of type: ${type}`}</Text>
+      break;
+  }
 }
 
 const CustomReferralFormComponent = ({ selectedForm, selectedPatient }) => {
