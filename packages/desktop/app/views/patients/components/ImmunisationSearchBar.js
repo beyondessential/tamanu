@@ -106,7 +106,7 @@ const DumbPatientSearchBar = memo(({ onSearch, villageSuggester }) => {
   const renderSearchBar = React.useCallback(
     ({ submitForm }) => (
       <SearchInputContainer>
-        <Field component={TextField} placeholder="Health ID" name="displayId" />
+        <Field component={TextField} placeholder="NHN" name="displayId" />
         <Field component={TextField} placeholder="First name" name="firstName" />
         <Field component={TextField} placeholder="Last name" name="lastName" />
         <Field

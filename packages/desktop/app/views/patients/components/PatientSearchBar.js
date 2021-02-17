@@ -115,7 +115,7 @@ const DumbPatientSearchBar = memo(({ onSearch, villageSuggester }) => {
           placeholder="Village"
           name="villageId"
         />
-        <Field component={TextField} placeholder="Health ID" name="displayId" />
+        <Field component={TextField} placeholder="NHN" name="displayId" />
         <Button color="primary" variant="contained" onClick={submitForm}>
           <PaddedSearchIcon />
           Search

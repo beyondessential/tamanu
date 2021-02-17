@@ -743,7 +743,7 @@ export const proceduresMedicationColumns = [
 export const programsPatientsColumns = [
   {
     key: 'displayId',
-    title: 'Patient ID',
+    title: 'NHN',
     headerStyle,
     style: columnStyle,
     minWidth: 80,

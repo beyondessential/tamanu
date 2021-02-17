@@ -37,7 +37,7 @@ const AddUserIcon = styled.div`
 export const IdBanner = props => {
   return (
     <IdFieldContainer>
-      <IdFieldTitle>Health Identification Number</IdFieldTitle>
+      <IdFieldTitle>National Health Number</IdFieldTitle>
 
       {props.children}
 
