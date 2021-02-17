@@ -15,6 +15,9 @@ import { AdministeredVaccine } from './AdministeredVaccine';
 import { Referral } from './Referral';
 import { Medication } from './Medication';
 import { BaseModel } from './BaseModel';
+import { ReferralForm } from './ReferralForm';
+import { ReferralAnswer } from './ReferralAnswer';
+import { ReferralQuestion } from './ReferralQuestion';
 
 export const MODELS_ARRAY: typeof BaseModel[] = [
   ReferenceData,
@@ -31,8 +34,11 @@ export const MODELS_ARRAY: typeof BaseModel[] = [
   Diagnosis,
   ScheduledVaccine,
   AdministeredVaccine,
-  Referral,
   Medication,
+  Referral,
+  ReferralAnswer,
+  ReferralForm,
+  ReferralQuestion,
 ];
 
 export const MODELS_MAP = {
@@ -50,6 +56,9 @@ export const MODELS_MAP = {
   Diagnosis,
   ScheduledVaccine,
   AdministeredVaccine,
-  Referral,
   Medication,
+  Referral,
+  ReferralAnswer,
+  ReferralForm,
+  ReferralQuestion,
 };

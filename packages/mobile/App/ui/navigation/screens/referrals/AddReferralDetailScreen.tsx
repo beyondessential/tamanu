@@ -26,6 +26,7 @@ const ReferralFormSchema = Yup.object().shape({
 
 const DumbAddRefferalDetailScreen = ({ navigation, selectedPatient }): ReactElement => {
   const [surveyResponses, setSurveyResponses] = useState([]);
+  const [referralForm, setReferralForm] = useState(null);
   const { models } = useBackend();
   const user = useSelector(authUserSelector);
 

@@ -1,18 +1,18 @@
 import { ID } from './ID';
-import { Certainty } from './IDiagnosis';
+import { IReferralQuestion } from './IReferralForm';
 import { IPatient } from './IPatient';
-import { IReferenceData } from './IReferenceData';
-import { IUser } from './IUser';
+
+export interface IReferralAnswer {
+  id: ID;
+  referralId: ID;
+  questionId: ID;
+  referral: IReferral;
+  answer?: string | number;
+}
 
 export interface IReferral {
   id: ID;
-  referralNumber: string;
-  referredFacility: string;
-  referredDepartment: string;
-  notes: string;
-  date: Date;
-  practitioner: IUser;
+  patientId: ID;
   patient: IPatient;
-  certainty: Certainty;
-  diagnosis: IReferenceData;
+  answers: IReferralAnswer[];
 }
