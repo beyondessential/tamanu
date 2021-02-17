@@ -70,7 +70,8 @@ export function getResultValue(allComponents: ISurveyScreenComponent[], values: 
     .filter(c => c.dataElement.type === DataElementType.Result)
     .filter(c => checkVisibilityCriteria(c, allComponents, values));
 
-  const component = resultComponents[0];
+  // use the last visible component in the array
+  const component = resultComponents[resultComponents.length - 1];
 
   if(!component) {
     // this survey does not have a result field
