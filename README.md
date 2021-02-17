@@ -14,6 +14,11 @@ Additionally:
 
 * [shared](packages/shared): the build output of the `shared-src` module (ignored by version control)
 
+The latest version for each Tamanu service (Local Area Network Server, Desktop Client & Mobile Client) can be retrieved with a HTTP GET request via their respective public API routes:
+* LAN server: https://meta.tamanu.io/version/lan
+* Desktop client: https://meta.tamanu.io/version/desktop
+* Mobile client: https://meta.tamanu.io/version/mobile
+
 ## Install
 
 First, clone the repo via git:
