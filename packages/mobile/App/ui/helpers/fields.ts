@@ -70,7 +70,8 @@ export function getResultValue(allComponents: ISurveyScreenComponent[], values: 
     .filter(c => c.dataElement.type === DataElementType.Result)
     .filter(c => checkVisibilityCriteria(c, allComponents, values));
 
-  const component = resultComponents[0];
+  // use the last visible component in the array
+  const component = resultComponents[resultComponents.length - 1];
 
   if(!component) {
     // this survey does not have a result field
@@ -81,7 +82,7 @@ export function getResultValue(allComponents: ISurveyScreenComponent[], values: 
 
   // invalid values just get empty results
   if(rawValue === undefined || rawValue === null || Number.isNaN(rawValue)) {
-    return { result: 0, resultText: '' };
+    return { result: 0, resultText: component.detail || '' };
   }
 
   // string values just get passed on directly

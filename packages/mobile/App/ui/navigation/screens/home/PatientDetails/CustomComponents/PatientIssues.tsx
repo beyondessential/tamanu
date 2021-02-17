@@ -11,19 +11,20 @@ interface PatientIssuesProps extends PatientIssuesDataProps {
 
 export const PatientIssues = ({
   onEdit,
-  patientIssues: { data },
-}: PatientIssuesProps): ReactElement => (
-  <StyledView marginBottom={40 + data.length * 40}>
-    <PatientSection hasSeparator title="Other patient issues" onEdit={onEdit}>
-      {data.length > 0
-        && data.map((condition: string) => (
-          <RowView key={condition} alignItems="center" marginTop={10}>
+  patientIssues,
+}: PatientIssuesProps): ReactElement => {
+  return (
+    <StyledView marginBottom={40 + patientIssues.length * 40}>
+      <PatientSection hasSeparator title="Other patient issues" onEdit={onEdit}>
+        {patientIssues.map(({ id, note }) => (
+          <RowView key={id} alignItems="center" marginTop={10}>
             <Dot />
             <StyledText marginLeft={10} color={theme.colors.TEXT_MID}>
-              {condition}
+              {note}
             </StyledText>
           </RowView>
         ))}
-    </PatientSection>
-  </StyledView>
-);
+      </PatientSection>
+    </StyledView>
+  );
+};

@@ -17,6 +17,7 @@ import { useBackendEffect } from '~/ui/hooks';
 const SurveyResponseItem = ({
   surveyResponse,
   responseIndex,
+  highlightPatientId,
 }): ReactElement => {
   const navigation = useNavigation();
   const onPress = useCallback(
@@ -40,11 +41,18 @@ const SurveyResponseItem = ({
         flexDirection="column"
         padding={8}
         background={
-          responseIndex % 2 ? theme.colors.BACKGROUND_GREY : theme.colors.WHITE
+          patient.id === highlightPatientId 
+            ? theme.colors.PRIMARY_MAIN
+            : (responseIndex % 2 ? theme.colors.BACKGROUND_GREY : theme.colors.WHITE)
         }
       >
         <StyledView justifyContent="space-between" flexDirection="row">
-          <StyledText fontWeight="bold">{`${patient.firstName} ${patient.lastName}`}</StyledText>
+          <StyledText 
+            fontWeight="bold"
+            color={ patient.id === highlightPatientId ? theme.colors.WHITE : theme.colors.BLACK }
+          >
+            {`${patient.firstName} ${patient.lastName}`}
+          </StyledText>
           <StyledText fontSize={10}>
             {`${date.toString().slice(0, 24)}`}
           </StyledText>
@@ -67,7 +75,7 @@ const SurveyResponseItem = ({
 export const ProgramViewHistoryScreen = ({
   route,
 }: SurveyResponseScreenProps): ReactElement => {
-  const { surveyId, latestResponseId } = route.params;
+  const { surveyId, selectedPatient, latestResponseId } = route.params;
   const navigation = useNavigation();
 
   // use latestResponseId to ensure that we refresh when
@@ -98,7 +106,11 @@ export const ProgramViewHistoryScreen = ({
       data={responses}
       keyExtractor={(item): string => item.name}
       renderItem={({ item, index }): ReactElement => (
-        <SurveyResponseItem responseIndex={index} surveyResponse={item} />
+        <SurveyResponseItem 
+          highlightPatientId={selectedPatient && selectedPatient.id}
+          responseIndex={index}  
+          surveyResponse={item} 
+        />
       )}
       ItemSeparatorComponent={Separator}
     />

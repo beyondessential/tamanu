@@ -26,5 +26,6 @@ export const theme = {
     PROGRESS_BACKGROUND: '#526980',
     LIGHT_GREY: '#F6F8FA',
     DISABLED_GREY: '#D3D3D3',
+    BLACK: '#000',
   },
 };

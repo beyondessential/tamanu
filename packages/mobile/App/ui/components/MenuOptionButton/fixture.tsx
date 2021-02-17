@@ -65,7 +65,7 @@ export const ProgramOptions = [
 
 export const PatientDetails = [
   {
-    title: 'View patients details',
+    title: 'View patient details',
     Icon: HistoryIcon,
     onPress: (): void => console.log('Patient details'),
   },

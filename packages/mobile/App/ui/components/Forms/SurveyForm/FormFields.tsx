@@ -62,6 +62,11 @@ export const FormFields = ({
           <SectionHeader marginTop={index === 0 ? 0 : 20} h3>
             {component.text || component.dataElement.defaultText}
           </SectionHeader>
+          { 
+            component.detail
+              ? <StyledText marginTop={4} fontSize={12}>{component.detail}</StyledText>
+              : null
+          }
           <ErrorBoundary errorComponent={SurveyQuestionErrorView} errorKey={null}>
             <SurveyQuestion
               key={component.id}
