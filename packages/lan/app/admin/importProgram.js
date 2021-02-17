@@ -18,6 +18,9 @@ function makeScreen(screen, componentData) {
   return screen.dataElements.map(((component, i) => {
     const {
       visibilityCriteria = '',
+      validationCriteria = '',
+      detail = '',
+      config = '',
       calculation = '',
       ...elementData
     } = component;
@@ -35,6 +38,9 @@ function makeScreen(screen, componentData) {
       options: '',
       componentIndex: i,
       visibilityCriteria,
+      validationCriteria,
+      detail,
+      config,
       calculation,
       ...componentData,
     });
