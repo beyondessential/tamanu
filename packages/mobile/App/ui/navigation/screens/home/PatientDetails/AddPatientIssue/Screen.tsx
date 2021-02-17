@@ -23,14 +23,9 @@ const PatientIssueFormSchema = Yup.object().shape({
 });
 
 const styles = StyleSheet.create({
-  KeyboardAvoidingView: { display: 'flex', flex: 1 },
-  ScrollView: { display: 'flex', flex: 1 },
-  ScrollViewContentContainer: {
-    display: 'flex',
-    flex: 1,
-    justifyContent: 'space-between',
-    padding: 20,
-  },
+  KeyboardAvoidingView: { flex: 1 },
+  ScrollView: { flex: 1 },
+  ScrollViewContentContainer: { padding: 20 },
 });
 
 export const Screen = ({
@@ -68,6 +63,7 @@ export const Screen = ({
                 name="note"
               />
               <Button
+                marginTop={10}
                 onPress={handleSubmit}
                 buttonText="Submit"
               />
