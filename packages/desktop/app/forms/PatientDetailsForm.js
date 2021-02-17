@@ -1,4 +1,5 @@
 import React from 'react';
+import { Chance } from 'chance';
 
 import { FormGrid } from '../components/FormGrid';
 import { ButtonRow } from '../components/ButtonRow';
@@ -67,6 +68,11 @@ export const SecondaryDetailsGroup = ({ isBirth, patientSuggester, facilitySugge
       suggester={facilitySuggester}
       required={isBirth}
     />
+    <Field name="residentialAddress" label="Residential address" component={TextField} />
+    <Field name="contactNumber" label="Contact number" component={TextField} />
+    <Field name="socialMediaPlatform" label="Social media platform" component={TextField} />
+    <Field name="socialMediaName" label="Social media name" component={TextField} />
+    <Field name="email" label="Email" component={TextField} />
   </React.Fragment>
 );
 
@@ -77,6 +83,15 @@ export const PatientDetailsForm = ({
   patient,
   onSubmit,
 }) => {
+  const chance = new Chance(patient.id); // seed random with user id for reproducible values
+  const dummyData = {
+    residentialAddress: `${chance.address()}, ${chance.city()}, Fiji`,
+    contactNumber: `${chance.phone({ formatted: false }).slice(0, 3)} ${chance.phone({ formatted: false }).slice(0, 4)}`,
+    socialMediaPlatform: chance.pickone(['Facebook', 'Instagram', 'LinkedIn', 'Twitter', 'Viber', 'Whatsapp']),
+    socialMediaName: `@${chance.animal().replace(/[^a-zA-Z]/g, '')}${chance.natural({ min: 0, max: 99, exclude: [69] })}`,
+    email: chance.email(),
+  };
+
   const render = React.useCallback(
     ({ submitForm }) => (
       <FormGrid>
@@ -95,5 +110,5 @@ export const PatientDetailsForm = ({
     [patientSuggester, facilitySuggester],
   );
 
-  return <Form render={render} initialValues={patient} onSubmit={onSubmit} />;
+  return <Form render={render} initialValues={{ ...patient, ...dummyData }} onSubmit={onSubmit} />;
 };
