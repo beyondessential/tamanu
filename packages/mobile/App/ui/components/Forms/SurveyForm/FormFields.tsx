@@ -9,6 +9,15 @@ import { FullView, RowView, StyledText, StyledView } from '~/ui/styled/common';
 import { FormScreenView } from '../FormScreenView';
 
 import { ErrorBoundary } from '~/ui/components/ErrorBoundary';
+import { TouchableWithoutFeedback } from 'react-native-gesture-handler';
+
+const ErrorView = ({ error }) => (
+  <TouchableWithoutFeedback onPress={() => console.warn(error)}>
+    <StyledText color="red">
+      Error displaying component
+    </StyledText>
+  </TouchableWithoutFeedback>
+);
 
 interface AddDetailsFormFieldsProps {
   components: ISurveyScreenComponent[];
@@ -53,7 +62,7 @@ export const FormFields = ({
           <SectionHeader marginTop={index === 0 ? 0 : 20} h3>
             {component.text || component.dataElement.defaultText}
           </SectionHeader>
-          <ErrorBoundary>
+          <ErrorBoundary errorComponent={ErrorView}>
             <SurveyQuestion
               key={component.id}
               component={component}
