@@ -4,7 +4,7 @@ import { generateReportFromQueryData } from './utilities';
 const reportColumnTemplate = [
   { title: 'Patient First Name', accessor: data => data.patient.firstName },
   { title: 'Patient Last Name', accessor: data => data.patient.lastName },
-  { title: 'Patient ID', accessor: data => data.patient.displayId },
+  { title: 'National Health Number', accessor: data => data.patient.displayId },
   { title: 'Diagnosis', accessor: data => undefined },
   { title: 'Referring Doctor', accessor: data => data.referredBy.displayName },
   { title: 'Department', accessor: data => data.referredToDepartment?.name || '' },
