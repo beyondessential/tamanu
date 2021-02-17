@@ -103,7 +103,7 @@ export const Routes = {
       PatientSpecificInfo: '',
       NewPatient: '',
     },
-    PatientDetailsStack: {
+    PatientDetails: {
       Index: '',
     },
     PatientActions: '',
