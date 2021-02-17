@@ -10,14 +10,14 @@ export class ReferralQuestion extends BaseModel implements IReferralQuestion {
   @RelationId(({ referralForm }) => referralForm)
   referralFormId: string;
 
-  @Column()
+  @Column('text')
   field: FieldType;
   
-  @Column()
+  @Column('text')
   type: QuestionType;
   
-  @Column()
-  index: number;
+  @Column({ default: 1 })
+  sort: number;
   
   @Column()
   question: string;

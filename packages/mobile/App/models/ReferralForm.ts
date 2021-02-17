@@ -13,13 +13,12 @@ export class ReferralForm extends BaseModel implements IReferralForm {
   questions: ReferralQuestion[];
 
   static async getQuestions(referralFormId: string): Promise<IReferralQuestion[]> {
-    const questions = await ReferralQuestion.find({
+    const questions = await ReferralQuestion.getRepository().find({
       where: {
-        referralForm: referralFormId,
+        referralForm: { id: referralFormId },
       },
-      relations: ['field', 'type', 'index', 'question', 'options', 'source'],
     });
+    console.log(questions)
     return questions;
   }
 }
-

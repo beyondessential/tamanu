@@ -1,18 +1,26 @@
 import { ID } from './ID';
 
 export enum FieldType {
-  TextField = 'TextField',
-  LinkField = 'LinkField',
-  Radio = 'Radio',
-  Select = 'Select',
-  FreeText = 'FreeText',
+  TEXT = 'FreeText',
+  MULTILINE = 'Multiline',
+  RADIO = 'Radio',
+  SELECT = 'Select',
+  DATE = 'Date',
+  SUBMISSION_DATE = 'SubmissionDate',
+  INSTRUCTION = 'Instruction',
+  NUMBER = 'Number',
+  BINARY = 'Binary',
+  CHECKBOX = 'Checkbox',
+  CALCULATED = 'CalculatedQuestion',
+  CONDITION = 'ConditionQuestion',
+  RESULT = 'Result',
 }
 
 export enum QuestionType {
-  Survey = 'Survey',
-  Field = 'Field',
-  Patient = 'Patient',
-  Link = 'Link',
+  Input = 'input',
+  Survey = 'survey',
+  Patient = 'patient',
+  Link = 'link',
 }
 
 export interface IReferralQuestion {
@@ -21,7 +29,7 @@ export interface IReferralQuestion {
   referralFormId: ID;
   field: FieldType;
   type: QuestionType;
-  index: number;
+  index?: number;
   question: string;
   options?: string;
   source?: string;

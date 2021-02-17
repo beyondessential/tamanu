@@ -17,5 +17,5 @@ export class ReferralAnswer extends BaseModel implements IReferralAnswer {
   questionId: string;
   
   @Column()
-  answer?: string | number;
+  answer?: string;
 }

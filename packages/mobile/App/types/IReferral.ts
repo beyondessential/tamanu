@@ -1,5 +1,4 @@
 import { ID } from './ID';
-import { IReferralQuestion } from './IReferralForm';
 import { IPatient } from './IPatient';
 
 export interface IReferralAnswer {
@@ -7,7 +6,7 @@ export interface IReferralAnswer {
   referralId: ID;
   questionId: ID;
   referral: IReferral;
-  answer?: string | number;
+  answer?: string;
 }
 
 export interface IReferral {

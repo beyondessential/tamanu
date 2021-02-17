@@ -19,9 +19,9 @@ export class Referral extends BaseModel implements IReferral {
   static async getAnswers(referralId: string): Promise<IReferralAnswer[]> {
     const answers = await ReferralAnswer.find({
       where: {
-        referral: referralId,
+        referral: { id: referralId },
       },
-      relations: ['question', 'answer'],
+      relations: ['question'],
     });
     return answers;
   }

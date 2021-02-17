@@ -20,7 +20,8 @@ const ReferralForm = ({
   loggedInUser,
   navigation,
   surveyResponses,
-}: ReferralFormProps): ReactElement => (
+}: ReferralFormProps): ReactElement => {
+  return (
   <StyledView
     justifyContent="space-between"
     padding={20}
@@ -80,6 +81,6 @@ const ReferralForm = ({
       buttonText="Submit"
     />
   </StyledView>
-);
+);}
 
 export default ReferralForm;
