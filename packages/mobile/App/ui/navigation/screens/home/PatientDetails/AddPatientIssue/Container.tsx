@@ -36,7 +36,6 @@ const Container = ({
         type: PatientIssueType.Issue,
         patient: { id: selectedPatient.id },
       });
-      console.log('onRecordPatientIssue', selectedPatient.id, note);
       navigateToDetails();
     },
     [selectedPatient.id, navigation],

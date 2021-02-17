@@ -19,7 +19,6 @@ const Container = ({
   const [patientIssues, error] = useBackendEffect(
     ({ models }) => {
       if (isFocused) {
-        console.log('models.PatientIssue.find');
         return models.PatientIssue.find({
           order: { recordedDate: 'ASC' },
           where: { patient: { id: selectedPatient.id } },
