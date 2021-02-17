@@ -2,8 +2,10 @@ import React, { ReactElement, useCallback } from 'react';
 import { compose } from 'redux';
 import { NavigationProp } from '@react-navigation/native';
 
-import { IPatient } from '~/types';
+import { useBackend } from '~/ui/hooks';
+import { IPatient, IPatientIssue, PatientIssueType } from '~/types';
 import { withPatient } from '~/ui/containers/Patient';
+import { Routes } from '~/ui/helpers/routes';
 
 import { Screen, } from './Screen';
 
@@ -16,13 +18,29 @@ const Container = ({
   navigation,
   selectedPatient,
 }: AddPatientIssueProps): ReactElement<AddPatientIssueProps> => {
+  const { models } = useBackend();
+
   const onNavigateBack = useCallback(() => {
     navigation.goBack();
   }, [navigation]);
 
-  const onRecordPatientIssue = useCallback(async (fields: any) => {
-    console.log('onRecordPatientIssue', selectedPatient.id, fields);
-  }, [selectedPatient.id]);
+  const navigateToDetails = useCallback(() => {
+    navigation.navigate(Routes.HomeStack.PatientDetailsStack.Index);
+  }, [navigation]);
+
+  const onRecordPatientIssue = useCallback(
+    async ({ note }: Partial<IPatientIssue>) => {
+      await models.PatientIssue.createAndSaveOne({
+        note,
+        recordedDate: new Date(),
+        type: PatientIssueType.Issue,
+        patient: { id: selectedPatient.id },
+      });
+      console.log('onRecordPatientIssue', selectedPatient.id, note);
+      navigateToDetails();
+    },
+    [selectedPatient.id, navigation],
+  );
 
   return (
     <Screen
