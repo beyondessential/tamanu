@@ -110,7 +110,7 @@ export class Encounter extends BaseModel implements IEncounter {
       .select('encounter.patientId AS patientId')
       .distinctOn(['patientId'])
       .orderBy('patientId')
-      .where('encounter.markedForUpload = ?', [true])
+      .where({ markedForUpload: true })
       .limit(limit);
     let lastSeenId: string = null;
     do {
