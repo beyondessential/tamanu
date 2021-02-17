@@ -70,7 +70,7 @@ const Screen = ({
     };
     setSelectedPatient(newPatient);
     navigation.navigate(Routes.HomeStack.HomeTabs.Index, {
-      screen: Routes.HomeStack.PatientDetails,
+      screen: Routes.HomeStack.PatientDetailsStack.Index,
     });
   }, []);
 

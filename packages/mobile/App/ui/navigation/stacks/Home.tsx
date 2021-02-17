@@ -23,6 +23,7 @@ import { ExportDataScreen } from '../screens/home/ExportDataScreen';
 import { noSwipeGestureOnNavigator } from '/helpers/navigators';
 import { Routes } from '/helpers/routes';
 import { RegisterPatientStack } from './RegisterPatientStack';
+import { PatientDetailsStack } from './PatientDetailsStack';
 import AuthContext from '~/ui/contexts/AuthContext';
 
 const Stack = createStackNavigator();
@@ -72,8 +73,8 @@ export const HomeStack = ({ navigator: Navi }): ReactElement => {
         component={RegisterPatientStack}
       />
       <Stack.Screen
-        name={Routes.HomeStack.PatientDetails}
-        component={PatientDetailsScreen}
+        name={Routes.HomeStack.PatientDetailsStack.Index}
+        component={PatientDetailsStack}
       />
       <Stack.Screen
         name={Routes.HomeStack.HistoryVitalsStack.Index}
