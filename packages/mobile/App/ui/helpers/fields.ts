@@ -113,7 +113,9 @@ function compareData(dataType: string, expected: string, given: any): boolean {
       // we check for +-0.1 because strict equality is actually pretty rare
       const parsed = parseFloat(expected);
       const diff = Math.abs(parsed - given);
-      if (diff < 0.1) return true;
+
+      const threshold = 0.05;  // TODO: configurable
+      if (diff < threshold) return true;
       break;  
     default:
       if (expected === given) return true;
