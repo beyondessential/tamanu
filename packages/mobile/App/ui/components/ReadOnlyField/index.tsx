@@ -3,7 +3,7 @@ import { StyledText } from '~/ui/styled/common';
 
 export const ReadOnlyField = ({ name, value }: { name: string, value: any }) => {
   if(typeof value === "number") {
-    return <StyledText>{value.toFixed(2)}</StyledText>;
+    return <StyledText>{value.toFixed(1)}</StyledText>;
   }
   
   if(!value) {
