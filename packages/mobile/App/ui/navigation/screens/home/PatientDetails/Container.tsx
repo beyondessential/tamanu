@@ -1,4 +1,6 @@
 import React, { useCallback, useState, ReactElement } from 'react';
+import { useIsFocused } from '@react-navigation/native';
+
 import { useBackendEffect } from '~/ui/hooks';
 import { Screen } from './Screen';
 import { PatientDetails } from '~/ui/interfaces/PatientDetails';
@@ -13,12 +15,18 @@ const Container = ({
   navigation,
   selectedPatient,
 }: PatientDetailsScreenProps): ReactElement => {
+  const isFocused = useIsFocused(); // reload issues whenever the page is focused
   const [patientIssues, error] = useBackendEffect(
-    ({ models }) => models.PatientIssue.find({
-      order: { recordedDate: 'ASC' },
-      where: { patient: { id: selectedPatient.id } },
-    }),
-    [],
+    ({ models }) => {
+      if (isFocused) {
+        console.log('models.PatientIssue.find');
+        return models.PatientIssue.find({
+          order: { recordedDate: 'ASC' },
+          where: { patient: { id: selectedPatient.id } },
+        })
+      }
+    },
+    [isFocused, selectedPatient.id],
   );
 
   /**
