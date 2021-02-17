@@ -7,7 +7,7 @@ const SexCell = React.memo(({ value = '' }) => <span>{capitaliseFirstLetter(valu
 
 export const displayId = {
   key: 'displayId',
-  title: 'ID',
+  title: 'NHN',
   minWidth: 80,
   accessor: row => row.displayId || `(${row.id})`,
 };

@@ -115,7 +115,7 @@ const COLUMNS = [
     title: 'Chief complaint',
     accessor: row => row.chiefComplaint,
   },
-  { key: 'id', title: 'ID', accessor: row => row.displayId },
+  { key: 'displayId', title: 'NHN', accessor: row => row.displayId },
   {
     key: 'patientName',
     title: 'Patient',

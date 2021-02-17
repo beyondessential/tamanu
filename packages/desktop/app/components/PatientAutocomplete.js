@@ -12,7 +12,7 @@ const COLUMNS = [
   { key: 'lastName', title: 'Last Name' },
   { key: 'sex', title: 'Sex' },
   { key: 'dateOfBirth', title: 'Date of Birth', CellComponent: DateOfBirthCell },
-  { key: 'id', title: 'ID' },
+  { key: 'displayId', title: 'NHN' },
 ];
 
 export class PatientAutocomplete extends React.PureComponent {

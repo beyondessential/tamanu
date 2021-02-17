@@ -49,7 +49,6 @@ export const SecondaryDetailsGroup = ({ isBirth, patientSuggester, facilitySugge
       component={AutocompleteField}
       suggester={patientSuggester}
     />
-    <Field name="externalId" label="External patient ID" component={TextField} />
     <Field
       component={RadioField}
       name="patientType"
