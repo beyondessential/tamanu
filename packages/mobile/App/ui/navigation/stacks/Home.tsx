@@ -72,7 +72,7 @@ export const HomeStack = ({ navigator: Navi }): ReactElement => {
         component={RegisterPatientStack}
       />
       <Stack.Screen
-        name={Routes.HomeStack.PatientDetails}
+        name={Routes.HomeStack.PatientDetails.Index}
         component={PatientDetailsScreen}
       />
       <Stack.Screen
