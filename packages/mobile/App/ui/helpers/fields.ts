@@ -21,6 +21,7 @@ export const getStringValue = (type: string, value: any): string  => {
     case FieldTypes.TEXT:
     case FieldTypes.MULTILINE:
       return value;
+
     case FieldTypes.DATE:
     case FieldTypes.SUBMISSION_DATE:
       return value && value.toISOString();
@@ -29,6 +30,9 @@ export const getStringValue = (type: string, value: any): string  => {
       if(typeof value === 'string') return value;
       // booleans should all be stored as Yes/No to match meditrak
       return value ? "Yes" : "No";
+    case FieldTypes.CALCULATED:
+      // TODO: configurable precision on calculated fields
+      return value.toFixed(1);
     default:
       return `${value}`;
   }
@@ -103,6 +107,13 @@ function compareData(dataType: string, expected: string, given: any): boolean {
       if (expected === 'yes' && given === true) return true;
       if (expected === 'no' && given === false) return true;
       break;
+    case DataElementType.Number:
+      // TODO: we'll need to be able to compare against numeric ranges in future
+      // we check for +-0.1 because strict equality is actually pretty rare
+      const parsed = parseFloat(expected);
+      const diff = Math.abs(parsed - given);
+      if (diff <= 0.1) return true;
+      break;  
     default:
       if (expected === given) return true;
       break;
