@@ -33,7 +33,7 @@ const styles = StyleSheet.create({
   },
 });
 
-const FullScreenErrorModal = ({ error, resetRoute=Routes.HomeStack.PatientDetails }) => {
+const FullScreenErrorModal = ({ error, resetRoute }) => {
   const navigation = useNavigation();
   console.log('Error! Oh no!', resetRoute);
 
@@ -45,8 +45,7 @@ const FullScreenErrorModal = ({ error, resetRoute=Routes.HomeStack.PatientDetail
     buttonText: 'Ok',
     callback: () => {
       console.log('Navigating: ', resetRoute);
-      // navigation.navigate(resetRoute); // This does not appear to navigate anywhere (disp)
-      navigation.goBack(); // This works as I expect it to
+      navigation.replace(resetRoute);
       Popup.hide();
     },
   });
@@ -68,7 +67,7 @@ export class ErrorBoundary extends React.PureComponent<ErrorBoundaryProps, Error
   }
 
   componentDidUpdate(prevProps) {
-    console.log("ErrorBoundary rerendered with: ", this.props);
+    console.log("ErrorBoundary rerendered with: ", this.props.errorKey, prevProps.errorKey);
     if (prevProps.errorKey !== this.props.errorKey) {
       this.setState({ error: null });
     }
@@ -79,6 +78,7 @@ export class ErrorBoundary extends React.PureComponent<ErrorBoundaryProps, Error
     const { error } = this.state;
     const { resetRoute } = this.props;
 
+    console.log("Rendering errorBoundary with error: ", error);
     if (error) {
       console.error(error);
       return <ErrorComponent error={error} resetRoute={resetRoute} />;
@@ -90,7 +90,7 @@ export class ErrorBoundary extends React.PureComponent<ErrorBoundaryProps, Error
 
 export const wrapComponentInErrorBoundary = (Component, resetRoute = Routes.HomeStack.Index) => {
   const WrappedComponent = props => {
-    console.log("Rendering wrapped component: ", props.route.key);
+    console.log("Rendering wrapped component: ", Component, props.route.key);
 
     return (
       <ErrorBoundary resetRoute={resetRoute} errorKey={props.route.key} >
