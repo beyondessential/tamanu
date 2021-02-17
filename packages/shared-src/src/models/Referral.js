@@ -10,6 +10,9 @@ export class Referral extends Model {
       {
         id: primaryKey,
         referralNumber: Sequelize.STRING,
+        reasonForReferral: Sequelize.STRING,
+        cancelled: Sequelize.BOOLEAN,
+        urgent: Sequelize.BOOLEAN,
 
         date: {
           type: Sequelize.DATE,

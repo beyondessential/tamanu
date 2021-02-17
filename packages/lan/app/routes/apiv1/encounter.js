@@ -16,8 +16,26 @@ import {
 export const encounter = express.Router();
 
 encounter.get('/:id', simpleGet('Encounter'));
-encounter.put('/:id', simplePut('Encounter'));
 encounter.post('/$', simplePost('Encounter'));
+
+encounter.put(
+  '/:id',
+  asyncHandler(async (req, res) => {
+    const { models, params } = req;
+    const { referralId, id } = params;
+    req.checkPermission('read', 'Encounter');
+    const object = await models.Encounter.findByPk(id);
+    if (!object) throw new NotFoundError();
+    req.checkPermission('write', object);
+    if (referralId) {
+      const referral = await models.Referral.findByPk(referralId);
+      referral.update({ encounterId: id });
+    }
+    await object.update(req.body);
+
+    res.send(object);
+  }),
+);
 
 encounter.post(
   '/:id/notes',

@@ -10,12 +10,16 @@ import { EncounterForm } from '../forms/EncounterForm';
 import { useEncounter } from '../contexts/Encounter';
 
 const DumbEncounterModal = React.memo(
-  ({ open, onClose, patientId, loadAndViewPatientEncounter, ...rest }) => {
+  ({ open, onClose, patientId, loadAndViewPatientEncounter, referral, ...rest }) => {
     const { createEncounter } = useEncounter();
 
     const onCreateEncounter = useCallback(
       async data => {
-        await createEncounter({ patientId, ...data });
+        await createEncounter({
+          patientId,
+          referralId: referral.id,
+          ...data,
+        });
         loadAndViewPatientEncounter();
         onClose();
       },

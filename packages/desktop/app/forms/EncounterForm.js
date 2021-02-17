@@ -36,6 +36,10 @@ const EncounterOptionTypeButton = styled(Button)`
   justify-content: center;
   text-align: -webkit-center;
   height: 9rem;
+
+  span {
+    justify-items: center;
+  }
 `;
 
 const EncounterOptionButton = ({ label, image, onClick }) => (

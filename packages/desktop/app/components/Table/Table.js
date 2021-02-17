@@ -22,6 +22,11 @@ import SaveAltIcon from '@material-ui/icons/SaveAlt';
 import { ErrorBoundary } from '../ErrorBoundary';
 import { Colors } from '../../constants';
 
+const preventInputCallback = e => {
+  e.stopPropagation();
+  e.preventDefault();
+};
+
 const CellErrorMessage = styled.div`
   display: block;
   background: red;
@@ -96,19 +101,26 @@ const RowContainer = React.memo(({ children, onClick }) => (
 ));
 
 const Row = React.memo(({ columns, data, onClick }) => {
-  const cells = columns.map(({ key, accessor, CellComponent, numeric, cellColor }) => {
-    const value = accessor ? React.createElement(accessor, data) : data[key];
-    const displayValue = value === 0 ? '0' : value;
-    const backgroundColor = typeof cellColor === 'function' ? cellColor(data) : cellColor;
+  const cells = columns.map(
+    ({ key, accessor, CellComponent, numeric, cellColor, dontCallRowInput }) => {
+      const value = accessor ? React.createElement(accessor, data) : data[key];
+      const displayValue = value === 0 ? '0' : value;
+      const backgroundColor = typeof cellColor === 'function' ? cellColor(data) : cellColor;
 
-    return (
-      <StyledTableCell background={backgroundColor} key={key} align={numeric ? 'right' : 'left'}>
-        <ErrorBoundary ErrorComponent={CellError}>
-          {CellComponent ? <CellComponent value={displayValue} /> : displayValue}
-        </ErrorBoundary>
-      </StyledTableCell>
-    );
-  });
+      return (
+        <StyledTableCell
+          onClick={dontCallRowInput ? preventInputCallback : undefined}
+          background={backgroundColor}
+          key={key}
+          align={numeric ? 'right' : 'left'}
+        >
+          <ErrorBoundary ErrorComponent={CellError}>
+            {CellComponent ? <CellComponent value={displayValue} /> : displayValue}
+          </ErrorBoundary>
+        </StyledTableCell>
+      );
+    },
+  );
   return <RowContainer onClick={onClick && (() => onClick(data))}>{cells}</RowContainer>;
 });
 

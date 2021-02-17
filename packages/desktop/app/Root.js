@@ -8,12 +8,21 @@ import { MuiThemeProvider, StylesProvider } from '@material-ui/core/styles';
 import { RoutingApp } from './RoutingApp';
 import { theme } from './theme';
 import { EncounterProvider } from './contexts/Encounter';
+import { ReferralProvider } from './contexts/Referral';
+
+const StateContextProviders = ({ children, store }) => (
+  <EncounterProvider store={store}>
+    <ReferralProvider>
+      {children}
+    </ReferralProvider>
+  </EncounterProvider>
+);
 
 export default function Root({ store, history }) {
   return (
     <Provider store={store}>
       <ConnectedRouter history={history}>
-        <EncounterProvider store={store}>
+        <StateContextProviders store={store}>
           <StylesProvider injectFirst>
             <MuiThemeProvider theme={theme}>
               <ThemeProvider theme={theme}>
@@ -22,7 +31,7 @@ export default function Root({ store, history }) {
               </ThemeProvider>
             </MuiThemeProvider>
           </StylesProvider>
-        </EncounterProvider>
+        </StateContextProviders>
       </ConnectedRouter>
     </Provider>
   );
