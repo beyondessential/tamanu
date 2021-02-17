@@ -103,16 +103,19 @@ export function getResultValue(allComponents: ISurveyScreenComponent[], values: 
 
 function compareData(dataType: string, expected: string, given: any): boolean {
   switch(dataType) {
-    case DataElementType.Binary:
+    case FieldTypes.BINARY:
       if (expected === 'yes' && given === true) return true;
       if (expected === 'no' && given === false) return true;
       break;
-    case DataElementType.Number:
+    case FieldTypes.NUMBER:
+    case FieldTypes.CALCULATED:
       // TODO: we'll need to be able to compare against numeric ranges in future
-      // we check for +-0.1 because strict equality is actually pretty rare
+      // we check within a threshold because strict equality is actually pretty rare
       const parsed = parseFloat(expected);
       const diff = Math.abs(parsed - given);
-      if (diff <= 0.1) return true;
+
+      const threshold = 0.05;  // TODO: configurable
+      if (diff < threshold) return true;
       break;  
     default:
       if (expected === given) return true;
