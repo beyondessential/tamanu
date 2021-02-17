@@ -110,7 +110,7 @@ function compareData(dataType: string, expected: string, given: any): boolean {
     case FieldTypes.NUMBER:
     case FieldTypes.CALCULATED:
       // TODO: we'll need to be able to compare against numeric ranges in future
-      // we check for +-0.1 because strict equality is actually pretty rare
+      // we check within a threshold because strict equality is actually pretty rare
       const parsed = parseFloat(expected);
       const diff = Math.abs(parsed - given);
 
