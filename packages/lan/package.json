@@ -5,7 +5,7 @@
   "homepage": "https://github.com/beyondessential/tamanu.git#readme",
   "repository": "git@github.com:beyondessential/tamanu.git",
   "author": "Beyond Essential Systems Pty. Ltd.",
-  "license": "AGPL-3.0-only",
+  "license": "SEE LICENSE IN license",
   "main": "NODE_ENV='development' index.js",
   "bin": "dist/app.bundle.js",
   "pkg": {

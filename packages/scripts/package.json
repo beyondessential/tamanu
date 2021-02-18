@@ -2,7 +2,7 @@
   "name": "scripts",
   "version": "1.0.0",
   "main": "index.js",
-  "license": "MIT",
+  "license": "SEE LICENSE IN license",
   "scripts": {
     "test": "echo 'No tests on scripts'",
     "download-translations": "node src/downloadTranslations.js ../desktop/resources/strings"

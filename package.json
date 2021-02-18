@@ -6,7 +6,7 @@
   "homepage": "https://github.com/beyondessential/tamanu.git#readme",
   "repository": "git@github.com:beyondessential/tamanu.git",
   "author": "Beyond Essential Systems Pty. Ltd.",
-  "license": "AGPL-3.0-only",
+  "license": "SEE LICENSE IN license",
   "scripts": {
     "build-shared": "yarn workspace shared-src run build",
     "test": "yarn run build-shared && yarn workspace lan run test && yarn workspace sync-server run test && yarn workspace meta-server run test",
