@@ -37,6 +37,7 @@ const NoteContentContainer = styled.div`
 
 const NoteContent = styled.p`
   color: ${Colors.midText};
+  white-space: pre-line;
 `;
 
 export const CarePlanNoteDisplay = props => {
