@@ -137,6 +137,10 @@ const RecordDeathSection = memo(({ patient, readonly }) => {
   );
 });
 
+const Buttons = styled(ButtonRow)`
+  margin-top: 30px;
+`;
+
 const InfoPaneLists = memo(props => (
   <ListsSection>
     <OngoingConditionDisplay {...props} />
@@ -144,10 +148,10 @@ const InfoPaneLists = memo(props => (
     <FamilyHistoryDisplay {...props} />
     <PatientIssuesDisplay {...props} />
     <CarePlanDisplay {...props} />
-    <ButtonRow>
+    <Buttons>
       <PatientStickerLabelPage {...props} />
       <RecordDeathSection {...props} />
-    </ButtonRow>
+    </Buttons>
   </ListsSection>
 ));
 
