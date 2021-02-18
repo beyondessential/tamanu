@@ -18,7 +18,7 @@ export class ReferralForm extends BaseModel implements IReferralForm {
         referralForm: { id: referralFormId },
       },
     });
-    console.log(questions)
+
     return questions;
   }
 }

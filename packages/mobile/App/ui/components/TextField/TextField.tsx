@@ -76,7 +76,7 @@ export const TextField = React.memo(
       if (multiline) return 0;
       if (placeholder) return 0;
       if (Platform.OS === 'ios') return screenPercentageToDP(1, Orientation.Height);
-      return screenPercentageToDP(0.5, Orientation.Height);
+      return screenPercentageToDP(1.5, Orientation.Height);
     }, []);
 
     return (

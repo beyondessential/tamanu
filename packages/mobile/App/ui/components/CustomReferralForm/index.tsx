@@ -9,7 +9,9 @@ import { useBackend } from '~/ui/hooks';
 import { Field } from '../Forms/FormField';
 import { FieldByType } from '~/ui/helpers/fieldComponents';
 import { FieldTypes } from '~/ui/helpers/fields';
+import { Title } from 'react-native-paper';
 import { Button } from '../Button';
+import { SurveyAnswerField } from './SurveyAnswerField';
 
 function getField(type: string): FC<any> {
   const field = FieldByType[type];
@@ -18,7 +20,7 @@ function getField(type: string): FC<any> {
   return () => <Text>{`No field type ${type}`}</Text>;
 }
 
-const ReferralQuestion = ({ data }) => {
+const ReferralQuestion = ({ data, patientData }) => {
   const {question, field, options, type, source, id} = data;
   const fieldInput: React.FC<any> = getField(field);
   if(!fieldInput) return null;
@@ -37,15 +39,26 @@ const ReferralQuestion = ({ data }) => {
           />
         </StyledView>
       );
-      break;
     case 'survey':
-      // return (
-      //   <StyledView marginTop={10}>
-      //     <Field
-
-      //     />
-      //   </StyledView>
-      // );
+      return (
+        <StyledView marginTop={10}>
+          <SurveyAnswerField
+            data={data}
+          />
+        </StyledView>
+      );
+    case 'patient':
+      return (
+        <StyledView marginTop={10}>
+          <Field
+            component={fieldInput}
+            name={id}
+            label={question}
+            value={patientData[source] || ''}
+            disabled
+          />
+        </StyledView>
+      );
     default:
       <Text>{`Could not create question of type: ${type}`}</Text>
       break;
@@ -83,7 +96,8 @@ const CustomReferralFormComponent = ({ selectedForm, selectedPatient }) => {
         >
           {({ handleSubmit }): JSX.Element => (
             <FullView padding={12}>
-              {questions.map(q => <ReferralQuestion data={q} />)}
+              <Title>{title}</Title>
+              {questions.map(q => <ReferralQuestion patientData={selectedPatient} data={q} />)}
               <Button marginTop={12} onPress={handleSubmit} buttonText="Submit" />
             </FullView>
           )}
