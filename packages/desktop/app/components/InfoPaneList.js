@@ -59,6 +59,7 @@ const DataList = styled.ul`
 const ListItem = styled.li`
   display: block;
   margin: 0.5rem 0rem;
+  cursor: pointer;
 `;
 
 const FormContainer = styled.div`
