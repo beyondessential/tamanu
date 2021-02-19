@@ -59,9 +59,3 @@ export class ErrorBoundary extends React.PureComponent<ErrorBoundaryProps, Error
     return this.props.children || null;
   }
 }
-
-export const wrapComponentInErrorBoundary = (Component, resetRoute = Routes.HomeStack.Index) => props => (
-  <ErrorBoundary resetRoute={resetRoute} errorKey={props.route.key} >
-    <Component {...props} />
-  </ErrorBoundary>
-);

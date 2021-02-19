@@ -8,7 +8,7 @@ import { noSwipeGestureOnNavigator } from '/helpers/navigators';
 import { SearchPatientTabs } from './SearchPatientTabs';
 // Screens
 import { PatientFilterScreen } from '../screens/PatientSearch';
-import { wrapComponentInErrorBoundary } from '~/ui/components/ErrorBoundary';
+import { ErrorBoundary } from '~/ui/components/ErrorBoundary';
 
 const Stack = createStackNavigator();
 
@@ -24,7 +24,7 @@ const DEFAULT_FILTERS = {
   onlyShowText: false,
 };
 
-export const SearchPatientStack = wrapComponentInErrorBoundary(({ navigation }): ReactElement => {
+export const SearchPatientStack = ({ navigation }): ReactElement => {
   const [filters, setFilters] = useState(DEFAULT_FILTERS);
 
   const submitPatientFilters = (values): void => {
@@ -35,29 +35,31 @@ export const SearchPatientStack = wrapComponentInErrorBoundary(({ navigation }):
   };
 
   return (
-    <Formik
-      initialValues={filters}
-      onSubmit={submitPatientFilters}
-    >
-      {({ handleSubmit }): ReactElement => (
-        <Stack.Navigator
-          headerMode="none"
-          screenOptions={noSwipeGestureOnNavigator}
-        >
-          <Stack.Screen
-            name={Routes.HomeStack.SearchPatientStack.SearchPatientTabs.Index}
-            component={SearchPatientTabs}
-            initialParams={filters}
-          />
-          <Stack.Screen
-            name={Routes.HomeStack.SearchPatientStack.FilterSearch}
-            component={PatientFilterScreen}
-            initialParams={{
-              onChangeFilters: handleSubmit,
-            }}
-          />
-        </Stack.Navigator>
-      )}
-    </Formik>
+    <ErrorBoundary>
+      <Formik
+        initialValues={filters}
+        onSubmit={submitPatientFilters}
+      >
+        {({ handleSubmit }): ReactElement => (
+          <Stack.Navigator
+            headerMode="none"
+            screenOptions={noSwipeGestureOnNavigator}
+          >
+            <Stack.Screen
+              name={Routes.HomeStack.SearchPatientStack.SearchPatientTabs.Index}
+              component={SearchPatientTabs}
+              initialParams={filters}
+            />
+            <Stack.Screen
+              name={Routes.HomeStack.SearchPatientStack.FilterSearch}
+              component={PatientFilterScreen}
+              initialParams={{
+                onChangeFilters: handleSubmit,
+              }}
+            />
+          </Stack.Navigator>
+        )}
+      </Formik>
+    </ErrorBoundary>
   );
-});
+};

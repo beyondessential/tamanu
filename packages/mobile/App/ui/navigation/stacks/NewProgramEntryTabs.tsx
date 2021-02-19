@@ -10,7 +10,7 @@ import { withPatient } from '/containers/Patient';
 import { IPatient, IProgram } from '~/types';
 import { joinNames } from '/helpers/user';
 import { FullView } from '/styled/common';
-import { ErrorBoundary, wrapComponentInErrorBoundary } from '~/ui/components/ErrorBoundary';
+import { ErrorBoundary } from '~/ui/components/ErrorBoundary';
 
 const Tabs = createTopTabNavigator();
 
@@ -57,7 +57,7 @@ const TabNavigator = ({
             title: 'Add Details',
           }}
           name={Routes.HomeStack.ProgramStack.ProgramTabs.AddDetails}
-          component={wrapComponentInErrorBoundary(SurveyResponseScreen, Routes.HomeStack.ProgramStack.ProgramListScreen)}
+          component={SurveyResponseScreen}
         />
         <Tabs.Screen
           initialParams={{

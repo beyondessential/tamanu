@@ -3,21 +3,23 @@ import { createStackNavigator } from '@react-navigation/stack';
 import { Routes } from '~/ui/helpers/routes';
 import { PatientDetailsScreen } from '~/ui/navigation/screens/home/PatientDetails';
 import { AddPatientIssueScreen } from '~/ui/navigation/screens/home/PatientDetails/AddPatientIssue';
-import { wrapComponentInErrorBoundary } from '~/ui/components/ErrorBoundary';
+import { ErrorBoundary } from '~/ui/components/ErrorBoundary';
 
 const Stack = createStackNavigator();
 
-export const PatientDetailsStack = wrapComponentInErrorBoundary(() => {
+export const PatientDetailsStack = () => {
   return (
-    <Stack.Navigator headerMode="none">
-      <Stack.Screen
-        name={Routes.HomeStack.PatientDetailsStack.Index}
-        component={PatientDetailsScreen}
-      />
-      <Stack.Screen
-        name={Routes.HomeStack.PatientDetailsStack.AddPatientIssue}
-        component={AddPatientIssueScreen}
-      />
-    </Stack.Navigator>
+    <ErrorBoundary>
+      <Stack.Navigator headerMode="none">
+        <Stack.Screen
+          name={Routes.HomeStack.PatientDetailsStack.Index}
+          component={PatientDetailsScreen}
+        />
+        <Stack.Screen
+          name={Routes.HomeStack.PatientDetailsStack.AddPatientIssue}
+          component={AddPatientIssueScreen}
+        />
+      </Stack.Navigator>
+    </ErrorBoundary>
   );
 });

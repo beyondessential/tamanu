@@ -20,7 +20,7 @@ import { Routes } from '/helpers/routes';
 import { VaccineModalScreen } from '../screens/vaccine/VaccineModalScreen';
 import { screenPercentageToDP, Orientation } from '/helpers/screen';
 import { withPatient } from '~/ui/containers/Patient';
-import { wrapComponentInErrorBoundary } from '~/ui/components/ErrorBoundary';
+import { ErrorBoundary } from '~/ui/components/ErrorBoundary';
 
 const Stack = createStackNavigator();
 
@@ -68,30 +68,32 @@ const Header = ({ navigation }: StackHeaderProps): ReactElement => {
   );
 };
 
-export const VaccineStack = wrapComponentInErrorBoundary((): ReactElement => (
-  <Stack.Navigator headerMode="screen">
-    <Stack.Screen
-      options={{
-        header: Header,
-      }}
-      name={Routes.HomeStack.VaccineStack.VaccineTabs.Index}
-      component={VaccineTableTabs}
-    />
-    <Stack.Screen
-      options={{
-        header: (): null => null,
-        ...TransitionPresets.ModalSlideFromBottomIOS,
-      }}
-      name={Routes.HomeStack.VaccineStack.NewVaccineTabs.Index}
-      component={NewVaccineTabs}
-    />
-    <Stack.Screen
-      options={{
-        header: (): null => null,
-        ...TransitionPresets.ModalSlideFromBottomIOS,
-      }}
-      name={Routes.HomeStack.VaccineStack.VaccineModalScreen}
-      component={VaccineModalScreen}
-    />
-  </Stack.Navigator>
-));
+export const VaccineStack = (): ReactElement => (
+  <ErrorBoundary>
+    <Stack.Navigator headerMode="screen">
+      <Stack.Screen
+        options={{
+          header: Header,
+        }}
+        name={Routes.HomeStack.VaccineStack.VaccineTabs.Index}
+        component={VaccineTableTabs}
+      />
+      <Stack.Screen
+        options={{
+          header: (): null => null,
+          ...TransitionPresets.ModalSlideFromBottomIOS,
+        }}
+        name={Routes.HomeStack.VaccineStack.NewVaccineTabs.Index}
+        component={NewVaccineTabs}
+      />
+      <Stack.Screen
+        options={{
+          header: (): null => null,
+          ...TransitionPresets.ModalSlideFromBottomIOS,
+        }}
+        name={Routes.HomeStack.VaccineStack.VaccineModalScreen}
+        component={VaccineModalScreen}
+      />
+    </Stack.Navigator>
+  </ErrorBoundary>
+);

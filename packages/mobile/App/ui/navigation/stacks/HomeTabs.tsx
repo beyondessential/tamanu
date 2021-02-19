@@ -32,7 +32,7 @@ import {
 } from '/navigation/screens/home/Tabs';
 import { screenPercentageToDP, Orientation } from '/helpers/screen';
 import { IconWithSizeProps } from '../../interfaces/WithSizeProps';
-import { wrapComponentInErrorBoundary } from '~/ui/components/ErrorBoundary';
+import { ErrorBoundary } from '~/ui/components/ErrorBoundary';
 
 const Tabs = createBottomTabNavigator();
 
@@ -163,28 +163,30 @@ function MyTabBar({
 }
 
 const TabNavigator = ({ selectedPatient }: BaseAppProps): ReactElement => (
-  <Tabs.Navigator tabBar={MyTabBar}>
-    <Tabs.Screen
-      options={HomeScreenOptions}
-      name={Routes.HomeStack.HomeTabs.Home}
-      component={selectedPatient ? PatientHome : HomeScreen}
-    />
-    <Tabs.Screen
-      options={ReportScreenOptions}
-      name={Routes.HomeStack.HomeTabs.Reports}
-      component={ReportScreen}
-    />
-    <Tabs.Screen
-      options={SyncDataScreenOptions}
-      name={Routes.HomeStack.HomeTabs.SyncData}
-      component={SyncDataScreen}
-    />
-    <Tabs.Screen
-      options={MoreScreenOptions}
-      name={Routes.HomeStack.HomeTabs.More}
-      component={MoreScreen}
-    />
-  </Tabs.Navigator>
+  <ErrorBoundary>
+    <Tabs.Navigator tabBar={MyTabBar}>
+      <Tabs.Screen
+        options={HomeScreenOptions}
+        name={Routes.HomeStack.HomeTabs.Home}
+        component={selectedPatient ? PatientHome : HomeScreen}
+      />
+      <Tabs.Screen
+        options={ReportScreenOptions}
+        name={Routes.HomeStack.HomeTabs.Reports}
+        component={ReportScreen}
+      />
+      <Tabs.Screen
+        options={SyncDataScreenOptions}
+        name={Routes.HomeStack.HomeTabs.SyncData}
+        component={SyncDataScreen}
+      />
+      <Tabs.Screen
+        options={MoreScreenOptions}
+        name={Routes.HomeStack.HomeTabs.More}
+        component={MoreScreen}
+      />
+    </Tabs.Navigator>
+  </ErrorBoundary>
 );
 
-export const HomeTabsStack = compose(withPatient)(wrapComponentInErrorBoundary(TabNavigator));
+export const HomeTabsStack = compose(withPatient)(TabNavigator);

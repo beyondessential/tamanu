@@ -25,7 +25,6 @@ import { Routes } from '/helpers/routes';
 import { RegisterPatientStack } from './RegisterPatientStack';
 import { PatientDetailsStack } from './PatientDetailsStack';
 import AuthContext from '~/ui/contexts/AuthContext';
-import { wrapComponentInErrorBoundary } from '~/ui/components/ErrorBoundary';
 
 const Stack = createStackNavigator();
 
@@ -67,7 +66,7 @@ export const HomeStack = ({ navigator: Navi }): ReactElement => {
       />
       <Stack.Screen
         name={Routes.HomeStack.ExportDataScreen}
-        component={wrapComponentInErrorBoundary(ExportDataScreen)}
+        component={ExportDataScreen}
       />
       <Stack.Screen
         name={Routes.HomeStack.RegisterPatientStack.Index}
@@ -83,7 +82,7 @@ export const HomeStack = ({ navigator: Navi }): ReactElement => {
       />
       <Stack.Screen
         name={Routes.HomeStack.PatientActions}
-        component={wrapComponentInErrorBoundary(PatientActionsScreen)}
+        component={PatientActionsScreen}
       />
       <Stack.Screen
         name={Routes.HomeStack.SearchPatientStack.Index}

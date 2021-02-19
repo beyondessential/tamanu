@@ -8,11 +8,11 @@ import PatientSpecificInfoScreen from '../screens/registerPatient/PatientSpecifi
 import { NewPatientScreen } from '../screens/registerPatient/NewPatientScreen';
 import { newPatientFormValues } from '/helpers/form';
 import { RegisterPatientStackProps } from '/interfaces/screens/RegisterPatientStack/RegisterPatientStackProps';
-import { wrapComponentInErrorBoundary } from '~/ui/components/ErrorBoundary';
+import { ErrorBoundary } from '~/ui/components/ErrorBoundary';
 
 const Stack = createStackNavigator();
 
-export const RegisterPatientStack = wrapComponentInErrorBoundary(({
+export const RegisterPatientStack = ({
   navigation,
 }: RegisterPatientStackProps): ReactElement => {
   const onSubmitForm = useCallback(() => {
@@ -20,38 +20,40 @@ export const RegisterPatientStack = wrapComponentInErrorBoundary(({
   }, []);
 
   return (
-    <Formik
-      initialValues={newPatientFormValues}
-      validationSchema={Yup.object().shape({
-        firstName: Yup.string().required(),
-        middleName: Yup.string().required(),
-        lastName: Yup.string().required(),
-        email: Yup.string().required(),
-        phone: Yup.string().required(),
-        province: Yup.string().required(),
-        city: Yup.string().required(),
-        address: Yup.string().required(),
-        bloodType: Yup.string().required(),
-        gender: Yup.string().required(),
-        maritalStatus: Yup.string().required(),
-        licenseNumber: Yup.string().required(),
-      })}
-      onSubmit={onSubmitForm}
-    >
-      <Stack.Navigator headerMode="none">
-        <Stack.Screen
-          name={Routes.HomeStack.RegisterPatientStack.PatientPersonalInfo}
-          component={PatientPersonalInfoScreen}
-        />
-        <Stack.Screen
-          name={Routes.HomeStack.RegisterPatientStack.PatientSpecificInfo}
-          component={PatientSpecificInfoScreen}
-        />
-        <Stack.Screen
-          name={Routes.HomeStack.RegisterPatientStack.NewPatient}
-          component={NewPatientScreen}
-        />
-      </Stack.Navigator>
-    </Formik>
+    <ErrorBoundary>
+      <Formik
+        initialValues={newPatientFormValues}
+        validationSchema={Yup.object().shape({
+          firstName: Yup.string().required(),
+          middleName: Yup.string().required(),
+          lastName: Yup.string().required(),
+          email: Yup.string().required(),
+          phone: Yup.string().required(),
+          province: Yup.string().required(),
+          city: Yup.string().required(),
+          address: Yup.string().required(),
+          bloodType: Yup.string().required(),
+          gender: Yup.string().required(),
+          maritalStatus: Yup.string().required(),
+          licenseNumber: Yup.string().required(),
+        })}
+        onSubmit={onSubmitForm}
+      >
+        <Stack.Navigator headerMode="none">
+          <Stack.Screen
+            name={Routes.HomeStack.RegisterPatientStack.PatientPersonalInfo}
+            component={PatientPersonalInfoScreen}
+          />
+          <Stack.Screen
+            name={Routes.HomeStack.RegisterPatientStack.PatientSpecificInfo}
+            component={PatientSpecificInfoScreen}
+          />
+          <Stack.Screen
+            name={Routes.HomeStack.RegisterPatientStack.NewPatient}
+            component={NewPatientScreen}
+          />
+        </Stack.Navigator>
+      </Formik>
+    </ErrorBoundary>
   );
-});
+};
