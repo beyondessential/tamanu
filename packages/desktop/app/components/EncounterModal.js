@@ -17,7 +17,7 @@ const DumbEncounterModal = React.memo(
       async data => {
         await createEncounter({
           patientId,
-          referralId: referral.id,
+          referralId: referral?.id,
           ...data,
         });
         loadAndViewPatientEncounter();
