@@ -18,7 +18,7 @@ patientCarePlan.post(
     } = req;
     req.checkPermission('create', 'PatientCarePlan');
     if (!req.body.content) {
-      throw new InvalidParameterError("Content is a required field");
+      throw new InvalidParameterError('Content is a required field');
     }
     const newCarePlan = await PatientCarePlan.create(req.body);
     await Note.create({
@@ -28,6 +28,7 @@ patientCarePlan.post(
       content: req.body.content,
       noteType: NOTE_TYPES.TREATMENT_PLAN,
       authorId: req.user.id,
+      onBehalfOfId: req.body.examinerId,
     });
     res.send(newCarePlan);
   }),
@@ -56,7 +57,6 @@ patientCarePlan.get(
   }),
 );
 
-// TODO: onBehalfOf
 patientCarePlan.post(
   '/:id/notes',
   asyncHandler(async (req, res) => {
@@ -68,6 +68,7 @@ patientCarePlan.post(
       content: req.body.content,
       noteType: NOTE_TYPES.TREATMENT_PLAN,
       authorId: req.user.id,
+      onBehalfOfId: req.body.onBehalfOfId,
     });
     res.send(newNote);
   }),
