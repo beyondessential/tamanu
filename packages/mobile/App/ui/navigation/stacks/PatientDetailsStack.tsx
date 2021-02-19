@@ -7,19 +7,17 @@ import { ErrorBoundary } from '~/ui/components/ErrorBoundary';
 
 const Stack = createStackNavigator();
 
-export const PatientDetailsStack = () => {
-  return (
-    <ErrorBoundary>
-      <Stack.Navigator headerMode="none">
-        <Stack.Screen
-          name={Routes.HomeStack.PatientDetailsStack.Index}
-          component={PatientDetailsScreen}
-        />
-        <Stack.Screen
-          name={Routes.HomeStack.PatientDetailsStack.AddPatientIssue}
-          component={AddPatientIssueScreen}
-        />
-      </Stack.Navigator>
-    </ErrorBoundary>
-  );
-});
+export const PatientDetailsStack = () => (
+  <ErrorBoundary>
+    <Stack.Navigator headerMode="none">
+      <Stack.Screen
+        name={Routes.HomeStack.PatientDetailsStack.Index}
+        component={PatientDetailsScreen}
+      />
+      <Stack.Screen
+        name={Routes.HomeStack.PatientDetailsStack.AddPatientIssue}
+        component={AddPatientIssueScreen}
+      />
+    </Stack.Navigator>
+  </ErrorBoundary>
+);
