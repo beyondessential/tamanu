@@ -1,6 +1,8 @@
 import React, { useState } from 'react';
 import styled from 'styled-components';
+import { connectApi } from '../api';
 import { Colors } from '../constants';
+import { Suggester } from '../utils/suggester';
 import { Button } from './Button';
 import { ButtonRow } from './ButtonRow';
 
@@ -12,13 +14,17 @@ const SubmitError = styled.div`
   padding: 0.25rem;
 `;
 
-export function CarePlanNoteForm(props) {
+export function DumbCarePlanNoteForm(props) {
   const [submitError, setSubmitError] = useState('');
   return (
     <Form
       onSubmit={async values => {
         try {
-          await props.onSubmit(values);
+          if (props.note) {
+            await props.updateNote({ ...props.note, ...values });
+          } else {
+            await props.submitNote(props.carePlanId, values);
+          }
           setSubmitError('');
           props.onSuccessfulSubmit();
         } catch (e) {
@@ -68,3 +74,13 @@ export function CarePlanNoteForm(props) {
     />
   );
 }
+
+export const CarePlanNoteForm = connectApi(api => ({
+  submitNote: async (patientCarePlanId, body) => {
+    return await api.post(`patientCarePlan/${patientCarePlanId}/notes`, body);
+  },
+  updateNote: async note => {
+    return await api.put(`note/${note.id}`, note);
+  },
+  practitionerSuggester: new Suggester(api, 'practitioner'),
+}))(DumbCarePlanNoteForm);

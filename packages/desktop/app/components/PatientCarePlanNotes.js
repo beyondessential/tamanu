@@ -2,7 +2,6 @@ import moment from 'moment';
 import React, { useEffect, useState } from 'react';
 import styled from 'styled-components';
 import { connectApi } from '../api';
-import { Suggester } from '../utils/suggester';
 import { CarePlanNoteDisplay } from './CarePlanNoteDisplay';
 import { CarePlanNoteForm } from './CarePlanNoteForm';
 
@@ -18,14 +17,11 @@ const EditableNoteFormContainer = styled.div`
   margin: 2rem 0;
 `;
 
-function EditableNoteDisplay({ onSuccessfulSubmit, updateNote, onNoteDeleted, ...rest }) {
+function EditableNoteDisplay({ onSuccessfulSubmit, onNoteDeleted, ...rest }) {
   const [isEditing, setIsEditing] = useState(false);
   return isEditing ? (
     <EditableNoteFormContainer>
       <CarePlanNoteForm
-        onSubmit={values => {
-          updateNote({ ...rest.note, ...values });
-        }}
         onSuccessfulSubmit={() => {
           setIsEditing(false);
           onSuccessfulSubmit();
@@ -37,7 +33,11 @@ function EditableNoteDisplay({ onSuccessfulSubmit, updateNote, onNoteDeleted, ..
       />
     </EditableNoteFormContainer>
   ) : (
-    <CarePlanNoteDisplay onEditClicked={() => setIsEditing(true)} onNoteDeleted {...rest} />
+    <CarePlanNoteDisplay
+      onEditClicked={() => setIsEditing(true)}
+      onNoteDeleted={onNoteDeleted}
+      {...rest}
+    />
   );
 }
 
@@ -69,14 +69,13 @@ function DumbPatientCarePlanDetails(props) {
     <Container>
       <CarePlanNoteForm
         key={resetForm}
-        onSubmit={values => props.submitNote(props.item.id, values)}
+        carePlanId={props.item.id}
         onReloadNotes={() => {
           setReloadNotes(reloadNotes + 1);
         }}
         onSuccessfulSubmit={() => {
           setResetForm(resetForm + 1);
         }}
-        practitionerSuggester={props.practitionerSuggester}
       />
       {firstNote ? (
         <NotesSection>
@@ -89,8 +88,6 @@ function DumbPatientCarePlanDetails(props) {
             onSuccessfulSubmit={() => {
               setResetForm(resetForm + 1);
             }}
-            practitionerSuggester={props.practitionerSuggester}
-            updateNote={props.updateNote}
           />
           {subsequentNotes.length
             ? subsequentNotes.map((note, index) => (
@@ -106,8 +103,6 @@ function DumbPatientCarePlanDetails(props) {
                   onSuccessfulSubmit={() => {
                     setResetForm(resetForm + 1);
                   }}
-                  practitionerSuggester={props.practitionerSuggester}
-                  updateNote={props.updateNote}
                 />
               ))
             : null}
@@ -118,17 +113,7 @@ function DumbPatientCarePlanDetails(props) {
 }
 
 export const PatientCarePlanDetails = connectApi(api => ({
-  submitNote: async (patientCarePlanId, body) => {
-    return await api.post(`patientCarePlan/${patientCarePlanId}/notes`, body);
-  },
   getNotes: async patientCarePlanId => {
     return await api.get(`patientCarePlan/${patientCarePlanId}/notes`);
   },
-  deleteNote: async noteId => {
-    return await api.delete(`note/${noteId}`);
-  },
-  updateNote: async note => {
-    return await api.put(`note/${note.id}`, note);
-  },
-  practitionerSuggester: new Suggester(api, 'practitioner'),
 }))(DumbPatientCarePlanDetails);
