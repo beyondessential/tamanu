@@ -143,7 +143,7 @@ const TriageTable = connect(null, dispatch => ({
   React.memo(({ onViewEncounter, ...props }) => {
     const { loadEncounter } = useEncounter();
     const viewEncounter = useCallback(async triage => {
-      await loadEncounter(triage.encounter.id);
+      await loadEncounter(triage.encounterId);
       onViewEncounter(triage);
     }, []);
 
