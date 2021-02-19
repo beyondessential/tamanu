@@ -1,4 +1,4 @@
-import { Entity, ManyToOne, OneToMany, RelationId } from 'typeorm/browser';
+import { Entity, ManyToOne, OneToMany, RelationId, Column } from 'typeorm/browser';
 
 import { IReferral, IReferralAnswer } from '~/types';
 
@@ -12,25 +12,34 @@ export class Referral extends BaseModel implements IReferral {
   patient: Patient;
   @RelationId(({ patient }) => patient)
   patientId: string;
-
+  
   @OneToMany(() => ReferralAnswer, referralAnswer => referralAnswer.referral)
   answers: ReferralAnswer[];
 
+  @Column()
+  date: Date;
+  
+  @Column()
+  formTitle: string;
+
   static async getAnswers(referralId: string): Promise<IReferralAnswer[]> {
-    const answers = await ReferralAnswer.find({
+    const answers = await ReferralAnswer.getRepository().find({
       where: {
         referral: { id: referralId },
       },
-      relations: ['question'],
+      relations: ['question']
     });
     return answers;
   }
 
   static async getForPatient(patientId: string): Promise<Referral[]> {
     const repo = this.getRepository();
-
-    return repo.find({
-      patientId,
-    });
+    
+    return repo
+      .createQueryBuilder("referral")
+      .leftJoinAndSelect("referral.answers", "answer")
+      .leftJoinAndSelect("answer.question", "question")
+      .where('referral.patientId = :patientId', { patientId })
+      .getMany();
   }
 }

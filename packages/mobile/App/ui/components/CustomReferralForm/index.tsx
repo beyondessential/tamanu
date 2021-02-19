@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from 'react';
+import React, { useEffect, useState, useCallback, FC } from 'react';
 import { Formik } from 'formik';
 import { compose } from 'redux';
 import { withPatient } from '~/ui/containers/Patient';
@@ -20,6 +20,13 @@ function getField(type: string): FC<any> {
   return () => <Text>{`No field type ${type}`}</Text>;
 }
 
+function csvToOptions(csv: string): { label: string, value: string}[] {
+  return csv.split(',').map(value => {
+    const trimmed = value.trim();
+    return { label: trimmed, value: trimmed };
+  });
+}
+
 const ReferralQuestion = ({ data, patientData }) => {
   const {question, field, options, type, source, id} = data;
   const fieldInput: React.FC<any> = getField(field);
@@ -34,7 +41,7 @@ const ReferralQuestion = ({ data, patientData }) => {
             component={fieldInput}
             name={id}
             label={question}
-            // options={options && && component.getOptions()} // TODO: transform from CSV string to list of options
+            options={options && csvToOptions(options)}
             multiline={isMultiline}
           />
         </StyledView>
@@ -66,12 +73,32 @@ const ReferralQuestion = ({ data, patientData }) => {
 }
 
 const CustomReferralFormComponent = ({ selectedForm, selectedPatient }) => {
- const [questions, setQuestions] = useState([]);
- const [title, setTitle] = useState();
- const [isLoading, setIsLoading] = useState(true);
- const { models } = useBackend();
+  const [questions, setQuestions] = useState([]);
+  const [title, setTitle] = useState('');
+  const [isLoading, setIsLoading] = useState(true);
+  const { models } = useBackend();
 
-   useEffect(() => {
+  const onCreateReferral = useCallback(
+    async (values): Promise<any> => {
+      const referral = await models.Referral.createAndSaveOne({
+        patient: selectedPatient.id,
+        formTitle: title, 
+        date: new Date(),
+      });
+
+      const createAnswerJobs = Object.entries(values).map(([questionId, answer]) => {
+        return models.ReferralAnswer.createAndSaveOne({
+          referral: referral.id,
+          question: questionId,
+          answer,
+        });
+      });
+
+      await Promise.all(createAnswerJobs);
+    }, [title, selectedPatient],
+  );
+
+  useEffect(() => {
     (async (): Promise<void> => {
       setIsLoading(true);
       const form = await models.ReferralForm.getRepository().findOne(selectedForm);
@@ -92,7 +119,7 @@ const CustomReferralFormComponent = ({ selectedForm, selectedPatient }) => {
     <FullView>
         <Formik
           initialValues={{}}
-          onSubmit={val => console.log('submitting form with: ', val)}
+          onSubmit={onCreateReferral}
         >
           {({ handleSubmit }): JSX.Element => (
             <FullView padding={12}>

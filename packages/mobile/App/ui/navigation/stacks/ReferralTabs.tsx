@@ -8,39 +8,16 @@ import { withPatient } from '/containers/Patient';
 import { BaseAppProps } from '/interfaces/BaseAppProps';
 import { joinNames } from '/helpers/user';
 import { AddRefferalDetailScreen } from '../screens/referrals/AddReferralDetailScreen';
-import { PatientHistoryAccordion } from '~/ui/components/PatientHistoryAccordion';
-import { LoadingScreen } from '~/ui/components/LoadingScreen';
 import { useBackendEffect } from '~/ui/hooks';
 import { ErrorScreen } from '~/ui/components/ErrorScreen';
+import { List } from 'react-native-paper';
+import { format } from 'date-fns';
 
 const Tabs = createTopTabNavigator();
 
 type ReferralTabsProps = {
   navigation: NavigationProp<any>;
 } & BaseAppProps;
-
-const refferalHistoryRows = {
-  date: {
-    name: 'Date',
-    accessor: (date): string => date.toDateString(),
-  },
-  diagnosis: {
-    name: 'Diagnosis',
-    accessor: (diagnosis): string => diagnosis.name,
-  },
-  certainty: {
-    name: 'Certainty',
-  },
-  department: {
-    name: 'Department',
-  },
-  facility: {
-    name: 'Facility',
-  },
-  notes: {
-    name: 'Notes',
-  },
-};
 
 const DumbReferralHistoryScreen = ({ selectedPatient }): JSX.Element => {
   const isFocused = useIsFocused();
@@ -50,10 +27,21 @@ const DumbReferralHistoryScreen = ({ selectedPatient }): JSX.Element => {
   );
 
   if (error) return <ErrorScreen error={error} />;
-
-  return (data
-    ? <PatientHistoryAccordion rows={refferalHistoryRows} dataArray={data} />
-    : <LoadingScreen />);
+  return (
+    <List.Section>
+      {data && data.map(({ formTitle , date, answers }) => {
+        return (
+          <List.Accordion
+            title={`${formTitle} (${format(date, 'dd-MM-yyy')})`}
+            left={props => <List.Icon {...props} icon="clipboard-plus-outline" />}>
+            {answers.map(answer =>
+              <List.Item title={answer.question.question} description={answer.answer} />
+            )}
+          </List.Accordion>
+        )
+      })}
+    </List.Section>
+  );
 };
 
 const ReferralHistoryScreen = compose(withPatient)(DumbReferralHistoryScreen);
