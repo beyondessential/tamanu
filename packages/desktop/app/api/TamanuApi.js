@@ -108,6 +108,10 @@ export class TamanuApi {
     });
   }
 
+  async delete(endpoint, query) {
+    return this.fetch(endpoint, query, { method: 'DELETE' });
+  }
+
   /**
    * @param {*} changeType  Current one of save, remove, wipe, or * for all
    */

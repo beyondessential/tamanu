@@ -1,14 +1,9 @@
+import moment from 'moment';
 import React, { useEffect, useState } from 'react';
 import styled from 'styled-components';
-import moment from 'moment';
-
 import { connectApi } from '../api';
-
-import { Colors } from '../constants';
-import { Button } from './Button';
-import { ButtonRow } from './ButtonRow';
-import { Form, Field, TextField } from './Field';
 import { CarePlanNoteDisplay } from './CarePlanNoteDisplay';
+import { CarePlanNoteForm } from './CarePlanNoteForm';
 
 const Container = styled.div`
   min-height: 50vh;
@@ -18,49 +13,33 @@ const NotesSection = styled.section`
   margin-top: 2rem;
 `;
 
-const SubmitError = styled.div`
-  color: ${Colors.alert};
-  padding: 0.25rem;
+const EditableNoteFormContainer = styled.div`
+  margin: 2rem 0;
 `;
 
-function NoteForm(props) {
-  const [submitError, setSubmitError] = useState('');
-  return (
-    <Form
-      onSubmit={async values => {
-        try {
-          await props.submitNote(props.carePlanId, values);
-          setSubmitError('');
-          props.onSuccessfulSubmit();
-        } catch (e) {
-          setSubmitError('An error occurred. Please try again.');
-        }
-        // reload notes on failure just in case it was recorded
-        props.onReloadNotes();
-      }}
-      render={() => {
-        return (
-          <>
-            <Field
-              name="content"
-              placeholder="Write a note..."
-              component={TextField}
-              multiline
-              rows={4}
-            />
-            <SubmitError>{submitError}</SubmitError>
-            <ButtonRow>
-              <Button variant="outlined" color="primary" type="submit">
-                Add Note
-              </Button>
-            </ButtonRow>
-          </>
-        );
-      }}
+function EditableNoteDisplay({ onSuccessfulSubmit, onNoteDeleted, ...rest }) {
+  const [isEditing, setIsEditing] = useState(false);
+  return isEditing ? (
+    <EditableNoteFormContainer>
+      <CarePlanNoteForm
+        onSuccessfulSubmit={() => {
+          setIsEditing(false);
+          onSuccessfulSubmit();
+        }}
+        onCancel={() => {
+          setIsEditing(false);
+        }}
+        {...rest}
+      />
+    </EditableNoteFormContainer>
+  ) : (
+    <CarePlanNoteDisplay
+      onEditClicked={() => setIsEditing(true)}
+      onNoteDeleted={onNoteDeleted}
+      {...rest}
     />
   );
 }
-
 
 function DumbPatientCarePlanDetails(props) {
   const [firstNote, setFirstNote] = useState();
@@ -78,7 +57,7 @@ function DumbPatientCarePlanDetails(props) {
           // display the latest note first
           setSubsequentNotes(
             notes.slice(1).sort((a, b) => {
-              return moment(a.updatedAt).isBefore(b.updatedAt) ? 1 : -1;
+              return moment(a.date).isBefore(b.date) ? 1 : -1;
             }),
           );
         }
@@ -88,9 +67,8 @@ function DumbPatientCarePlanDetails(props) {
 
   return (
     <Container>
-      <NoteForm
+      <CarePlanNoteForm
         key={resetForm}
-        submitNote={props.submitNote}
         carePlanId={props.item.id}
         onReloadNotes={() => {
           setReloadNotes(reloadNotes + 1);
@@ -101,9 +79,32 @@ function DumbPatientCarePlanDetails(props) {
       />
       {firstNote ? (
         <NotesSection>
-          <CarePlanNoteDisplay note={firstNote} isMainCarePlan />
+          <EditableNoteDisplay
+            note={firstNote}
+            isMainCarePlan
+            onReloadNotes={() => {
+              setReloadNotes(reloadNotes + 1);
+            }}
+            onSuccessfulSubmit={() => {
+              setResetForm(resetForm + 1);
+            }}
+          />
           {subsequentNotes.length
-            ? subsequentNotes.map((note, index) => <CarePlanNoteDisplay key={index} note={note} />)
+            ? subsequentNotes.map((note, index) => (
+                <EditableNoteDisplay
+                  key={index}
+                  note={note}
+                  onNoteDeleted={() => {
+                    setReloadNotes(reloadNotes + 1);
+                  }}
+                  onReloadNotes={() => {
+                    setReloadNotes(reloadNotes + 1);
+                  }}
+                  onSuccessfulSubmit={() => {
+                    setResetForm(resetForm + 1);
+                  }}
+                />
+              ))
             : null}
         </NotesSection>
       ) : null}
@@ -112,9 +113,6 @@ function DumbPatientCarePlanDetails(props) {
 }
 
 export const PatientCarePlanDetails = connectApi(api => ({
-  submitNote: async (patientCarePlanId, body) => {
-    return await api.post(`patientCarePlan/${patientCarePlanId}/notes`, body);
-  },
   getNotes: async patientCarePlanId => {
     return await api.get(`patientCarePlan/${patientCarePlanId}/notes`);
   },

@@ -34,3 +34,21 @@ note.post(
     );
   }),
 );
+
+note.delete(
+  '/:id',
+  asyncHandler(async (req, res) => {
+    const noteToBeDeleted = await req.models.Note.findByPk(req.params.id);
+    if (!noteToBeDeleted) {
+      throw new NotFoundError();
+    }
+
+    req.checkPermission('write', noteToBeDeleted.recordType);
+    await req.models.Note.destroy({
+      where: {
+        id: req.params.id,
+      },
+    });
+    res.send({});
+  }),
+);
