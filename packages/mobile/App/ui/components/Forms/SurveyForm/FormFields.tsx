@@ -67,7 +67,7 @@ export const FormFields = ({
               ? <StyledText marginTop={4} fontSize={12}>{component.detail}</StyledText>
               : null
           }
-          <ErrorBoundary errorComponent={SurveyQuestionErrorView} errorKey={null}>
+          <ErrorBoundary errorComponent={SurveyQuestionErrorView}>
             <SurveyQuestion
               key={component.id}
               component={component}

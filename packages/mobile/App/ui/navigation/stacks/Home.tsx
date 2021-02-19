@@ -74,7 +74,7 @@ export const HomeStack = ({ navigator: Navi }): ReactElement => {
         component={RegisterPatientStack}
       />
       <Stack.Screen
-        name={Routes.HomeStack.PatientDetails}
+        name={Routes.HomeStack.PatientDetailsStack.Index}
         component={PatientDetailsStack}
       />
       <Stack.Screen

@@ -4,15 +4,15 @@ import { theme } from '~/ui/styled/theme';
 import { Popup } from 'popup-ui';
 import { useNavigation } from '@react-navigation/native';
 import { Routes } from '/helpers/routes';
+
 interface ErrorComponentProps {
   error: string,
   resetRoute?: string,
 }
 
-type ErrorComponentType = React.FC<ErrorComponentProps>; 
+type ErrorComponentType = React.FC<ErrorComponentProps> | React.ComponentType<ErrorComponentProps>; 
 
 interface ErrorBoundaryProps {
-  errorKey: string,
   resetRoute?: string,
   errorComponent?: ErrorComponentType,
 }
@@ -21,7 +21,7 @@ interface ErrorBoundaryState {
   error: Error | null,
 }
 
-const FullScreenErrorModal = ({ resetRoute }) => {
+const FullScreenErrorModal = ({ resetRoute = Routes.HomeStack.Index }) => {
   const navigation = useNavigation();
 
   Popup.show({
@@ -46,21 +46,14 @@ export class ErrorBoundary extends React.PureComponent<ErrorBoundaryProps, Error
     this.setState({ error });
   }
 
-  componentDidUpdate(prevProps) {
-    if (prevProps.errorKey !== this.props.errorKey) {
-      this.setState({ error: null });
-    }
-  }
-
   render() {
     const { errorComponent = FullScreenErrorModal } = this.props;
     const { error } = this.state;
-    const { resetRoute } = this.props;
 
     if (error) {
       console.warn(error);
       const ErrorComponent = errorComponent;
-      return <ErrorComponent error={error} resetRoute={resetRoute} />;
+      return <ErrorComponent error={error} resetRoute={this.props.resetRoute} />;
     }
 
     return this.props.children || null;
