@@ -54,8 +54,6 @@ const DumbAddRefferalDetailScreen = ({ navigation, selectedPatient }): ReactElem
         const cvdForm = await models.ReferralForm.createAndSaveOne({ title: 'CVD Referral' });
         const basicQuestions = BASIC_FORM_QUESTIONS(basicForm.id).map(async data => models.ReferralQuestion.createAndSaveOne(data));
         const cvdQuestions = CVD_FORM_QUESTIONS(cvdForm.id).map(async data => models.ReferralQuestion.createAndSaveOne(data));
-        console.log("🚀 ~ file: AddReferralDetailScreen.tsx ~ line 56 ~ cvdForm", cvdForm)
-        console.log("🚀 ~ file: AddReferralDetailScreen.tsx ~ line 59 ~ cvdQuestions", cvdQuestions)
         await Promise.all(basicQuestions);
         await Promise.all(cvdQuestions);
         setReferralForms([basicForm, cvdForm]);
