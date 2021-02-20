@@ -3,7 +3,7 @@ import { Formik } from 'formik';
 import { compose } from 'redux';
 import { withPatient } from '~/ui/containers/Patient';
 
-import { FullView, StyledView } from '/styled/common';
+import { FullView, StyledScrollView, StyledView } from '/styled/common';
 import { Text } from 'react-native-paper';
 import { useBackend } from '~/ui/hooks';
 import { Field } from '../Forms/FormField';
@@ -116,7 +116,7 @@ const CustomReferralFormComponent = ({ selectedForm, selectedPatient }) => {
   }
 
   return (
-    <FullView>
+    <StyledScrollView>
         <Formik
           initialValues={{}}
           onSubmit={onCreateReferral}
@@ -129,7 +129,7 @@ const CustomReferralFormComponent = ({ selectedForm, selectedPatient }) => {
             </FullView>
           )}
         </Formik>
-    </FullView>
+    </StyledScrollView>
   );
 }
 

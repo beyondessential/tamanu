@@ -23,10 +23,10 @@ export class ReferralQuestion extends BaseModel implements IReferralQuestion {
   @Column()
   question: string;
   
-  @Column()
+  @Column({ nullable: true })
   options?: string;
   
-  @Column()
+  @Column({ nullable: true })
   source?: string;
 
   static async getLatetSurveyAnswerForQuestion(patientId: string, dataElementId: string): Promise<SurveyResponseAnswer> {

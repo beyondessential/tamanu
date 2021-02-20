@@ -1,108 +1,73 @@
 import React, { useCallback, ReactElement, useEffect, useState } from 'react';
 import { compose } from 'redux';
-import { useSelector } from 'react-redux';
-import { Formik } from 'formik';
-import * as Yup from 'yup';
 
-import { authUserSelector } from '/helpers/selectors';
-import { ReferenceDataType, Certainty } from '~/types';
 import { useBackend } from '~/ui/hooks';
 import { FullView } from '/styled/common';
 import { theme } from '/styled/theme';
-import ReferralForm from '../../../components/Forms/ReferralForm';
-import { User } from '~/models/User';
-import { ReferenceData } from '~/models/ReferenceData';
-import { OptionType, Suggester } from '~/ui/helpers/suggester';
 import { withPatient } from '~/ui/containers/Patient';
-import { Routes } from '~/ui/helpers/routes';
 import { Dropdown } from '~/ui/components/Dropdown';
 import { CustomReferralForm } from '~/ui/components/CustomReferralForm';
 
-const ReferralFormSchema = Yup.object().shape({
-  referredFacility: Yup.string().required(),
-  referredDepartment: Yup.string().required(),
-  diagnosis: Yup.string().required(),
-  certainty: Yup.mixed().oneOf(Object.values(Certainty)).required(),
-  notes: Yup.string().required(),
-});
+const BASIC_FORM_QUESTIONS = (id) => [
+  { referralForm: id, field: 'FreeText', type: 'input', question: 'Name of personnel' },
+  { referralForm: id, field: 'FreeText', type: 'input', question: 'Referred facility' },
+  { referralForm: id, field: 'FreeText', type: 'input', question: 'Referred department' },
+  { referralForm: id, field: 'FreeText', type: 'input', question: 'Notes' },
+];
+
+const CVD_FORM_QUESTIONS = (id) => [
+  { referralForm: id, field: 'FreeText', type: 'survey', question: 'Screening location', source: 'dataElement/FijCVD_4' },
+  { referralForm: id, field: 'FreeText', type: 'survey', question: 'Name of personnel', source: 'dataElement/FijCVD_6' },
+  { referralForm: id, field: 'FreeText', type: 'survey', question: 'Contact number', source: 'dataElement/FijCVD_8' },
+  { referralForm: id, field: 'FreeText', type: 'survey', question: 'Email', source: 'dataElement/FijCVD_488' },
+  { referralForm: id, field: 'Select', type: 'input', question: 'Referred by health facility or CSO', options: 'Health facility, CSO' },
+  { referralForm: id, field: 'FreeText', type: 'survey', question: 'Health facility name', source: 'dataElement/FijCVD_7' },
+  { referralForm: id, field: 'FreeText', type: 'survey', question: 'CSO Name', source: 'dataElement/FijCVD_9' },
+  { referralForm: id, field: 'Select', type: 'input', question: 'Referred to health facility', options: 'Ba Health Centre,Ba Sub Divisional Hospital,Baulevu Nursing Station,Bhanabhai Makoi Health Centre,Bukuya Health Centre,Cicia Health Centre,Civil Servant GOPD,Community Health Facility,Cuvu Nursing Station,CWM Hospital,Daviqele Health Centre,Deqa Health Centre,Diabetic Centre,Dormicillary (St Giles),Dreketi Health Centre,Employer (St Giles),Fiji Military Hospital,GP / Specialist,High Risk Clinic,IMCI,Keyasi Health Centre,Koro Health Centre,Korolevu Health Centre,Korotasere Health Centre,Korovou Sub Divisional Hospital,Labasa Health Centre,Labasa Hospital,Lagi Health Centre,Lakeba Sub Divisional Hospital,Lami Health Centre,Lautoka Health Centre,Lautoka Hospital,Lekutu Health Centre,Levuka Sub Divisional Hospital,Lodoni Health Centre,Lomaloma Sub Divisional Hospital,Lomawai Health Centre,Makoi Health Centre,Marie Stopes,Mercy Clinic,Midtown Medical Centre,Moala Health Centre,Mokani Health Centre,Mudliar Clinic,Nabouwalu Health Centre,Nabouwalu Sub Divisional Hospital,Nabua Nursing,Nadarivatu Health Centre,Nadi Health Centre,Nadi Hospital,Nadi Sub Divisional Hospital,Nadovi Clinic,Naduri Health Centre,Nailaga Health Centre,Namaka Health Centre,Namara Nursing Station,Namarai Health Centre,Namuamua Nursing Station,Nanukuloa Nursing Station,Naqali Health Centre,Naracake Nursing Station,Nasau Health Centre,Nasea Health Centre,Nasese Clinic,Natabua Health Centre,Naulu Nursing Station,Nausori Health Centre/Maternity,Navua Health Centre/Maternity,Nayavu Health Centre,Nuffield Clinic,Ono-i-lau Health Centre,Oxfam Clinic,PARU (OT),PJ Twomey Hospital,Private Clinician,Qamea Health Centre,Qarani Health Centre,Radiology-Outpatients,Raiwaqa Health Centre,Rakiraki Divisional Hospital,Rakiraki Sub Divisional Hospital,Referral Ward/External,Rotuma Sub Divisional Hospital,Samabula Health Centre,Saqani Health Centre,Savusavu Sub Divisional Hospital,Seaqaqa Health Centre,Sigatoka Health Centre,Sigatoka Sub Divisional Hospital,St Giles Hospital,STI Clinic,Suva Health Office,Suva Private Hospital,Tamavua Rehabilitation Hospital,Tau Health Centre,Taveuni Sub Divisional Hospital,Tavua Sub Divisional Hospital,Valelevu Health Centre,Vatukoula Health Centre,Vatulele Health Centre,Vunidawa Sub Divisional Hospital,Vunisea Sub Divisional Hospital,Vunitogoloa Nursing Station,Waimanu Medical Centre,Wainibokasi Sub Divisional Hospital,Wainikoro Health Centre,Wainunu Health Centre,Waiyevo Sub - Divisional Hospital' },
+  { referralForm: id, field: 'FreeText', type: 'input', question: 'Referred to health facility address' },
+  { referralForm: id, field: 'FreeText', type: 'patient', question: 'Client first name', source: 'firstName' },
+  { referralForm: id, field: 'FreeText', type: 'patient', question: 'Client last name', source: 'lastName' },
+  { referralForm: id, field: 'FreeText', type: 'patient', question: 'NHN', source: 'displayId' },
+  { referralForm: id, field: 'FreeText', type: 'patient', question: 'Date of birth', source: 'dateOfBirth' },
+  { referralForm: id, field: 'FreeText', type: 'patient', question: 'Usual residential address', source: 'residentialAddress' },
+  { referralForm: id, field: 'FreeText', type: 'patient', question: 'Contact number', source: 'contactNumber' },
+  { referralForm: id, field: 'FreeText', type: 'patient', question: 'Email', source: 'email' },
+  { referralForm: id, field: 'FreeText', type: 'patient', question: 'Social media', source: 'socialMediaPlatform' },
+  { referralForm: id, field: 'FreeText', type: 'patient', question: 'Social media name', source: 'socialMediaName' },
+  { referralForm: id, field: 'Select', type: 'input', question: 'Reason for referral', options: 'BP ≥ 180/110mm HG,BP ≥ 140/90mmHg in someone < 40years of age,Known heart disease, stroke, transient ischemic attack, DM, kidney disease,New chest pain or change in frequency or severity of angina,Symptoms of transient ischemic attack or strok,Target organ damage (e.g. angina, claudication, heaving apex, cardiac failure),Cardiac murmurs or arrhythmias,Total cholesterol >7.5mmol/l,Raised capillary blood glucose (using Braun Omnitest 3) with and without symptoms on screening (fasting more than 6.0 mmol/l or random more than 7.8 mmol/l),History of pregnancy induced hypertension,History of gestation diabetes,History of pre-diabetes,High CVD risk ≥ 30%' },
+  { referralForm: id, field: 'FreeText', type: 'input', question: 'Any other relevant information' },
+  { referralForm: id, field: 'FreeText', type: 'input', question: 'CVD risk assessment' },
+];
 
 const DumbAddRefferalDetailScreen = ({ navigation, selectedPatient }): ReactElement => {
-  const [surveyResponses, setSurveyResponses] = useState([]);
   const [referralForms, setReferralForms] = useState([]);
   const [selectedForm, setSelectedForm] = useState(null);
   const { models } = useBackend();
-  const user = useSelector(authUserSelector);
 
   useEffect(() => {
     (async (): Promise<void> => {
-      const responses = await models.SurveyResponse.getForPatient(selectedPatient.id);
       const forms = await models.ReferralForm.find({});
-      setReferralForms([{ label: 'Basic referral', value: 'default' }, ...forms.map(f => ({ label: f.title, value: f.id }))]);
-      setSurveyResponses(responses);
+
+      /** --- HARDCODING FORMS FOR DEMO/TESTING FRONT-END & SUBMIT FUNCTIONALITY */
+      if (forms.length === 0) {
+        const basicForm = await models.ReferralForm.createAndSaveOne({ title: 'Generic Referral' });
+        const cvdForm = await models.ReferralForm.createAndSaveOne({ title: 'CVD Referral' });
+        const basicQuestions = BASIC_FORM_QUESTIONS(basicForm.id).map(async data => models.ReferralQuestion.createAndSaveOne(data));
+        const cvdQuestions = CVD_FORM_QUESTIONS(cvdForm.id).map(async data => models.ReferralQuestion.createAndSaveOne(data));
+        console.log("🚀 ~ file: AddReferralDetailScreen.tsx ~ line 56 ~ cvdForm", cvdForm)
+        console.log("🚀 ~ file: AddReferralDetailScreen.tsx ~ line 59 ~ cvdQuestions", cvdQuestions)
+        await Promise.all(basicQuestions);
+        await Promise.all(cvdQuestions);
+        setReferralForms([basicForm, cvdForm]);
+      }
+      /** --- HARDCODING FORMS FOR DEMO/TESTING FRONT-END & SUBMIT FUNCTIONALITY */
+
+      setReferralForms(forms.map(f => ({ label: f.title, value: f.id })));
     })();
   }, [selectedPatient]);
-
   
-
-  const onCreateReferral = useCallback(
-    async (values): Promise<any> => {
-      await models.Referral.createAndSaveOne({
-        patient: selectedPatient.id,
-        date: new Date(),
-        ...values,
-      });
-
-      navigation.navigate(Routes.HomeStack.ReferralTabs.ViewHistory);
-    }, [],
-  );
-
   const onSelectForm = useCallback(formId => setSelectedForm(formId), []);
-
-  const icd10Suggester = new Suggester(
-    ReferenceData,
-    {
-      where: {
-        type: ReferenceDataType.ICD10,
-      },
-    },
-  );
-
-  const practitionerSuggester = new Suggester(
-    User,
-    { column: 'displayName' },
-    ({ displayName, id }): OptionType => ({ label: displayName, value: id }),
-  );
-
-  const renderForm = useCallback(() => {
-    if (selectedForm === 'default') {
-      return (
-        <Formik
-          initialValues={{
-            practitioner: user.id,
-          }}
-          onSubmit={onCreateReferral}
-          validationSchema={ReferralFormSchema}
-        >
-          {({ handleSubmit }): JSX.Element => (
-            <FullView>
-              <ReferralForm
-                handleSubmit={handleSubmit}
-                icd10Suggester={icd10Suggester}
-                practitionerSuggester={practitionerSuggester}
-                navigation={navigation}
-                loggedInUser={user}
-                surveyResponses={surveyResponses}
-              />
-            </FullView>
-          )}
-        </Formik>
-      );
-    }
-    
-    return (
-      <CustomReferralForm selectedForm={selectedForm} />
-    );
-  }, [surveyResponses, user, selectedForm]);
+  const renderForm = useCallback(() => <CustomReferralForm selectedForm={selectedForm} />, [ selectedForm]);
   
   if (!selectedForm) return (
     <FullView padding={20} background={theme.colors.BACKGROUND_GREY}>

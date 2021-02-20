@@ -14,7 +14,7 @@ const SurveyAnswerFieldComponent = ({ data: { question, field, options, type, so
   useEffect(() => {
     (async () => {
       const answer = await models.ReferralQuestion.getLatetSurveyAnswerForQuestion(selectedPatient.id, 'dataElement/FijCVD_3');
-      setSurveyResponseAnswer(answer.body);
+      setSurveyResponseAnswer(answer ? answer.body : '');
     })();
   }, [selectedPatient.id, surveyResponseAnswer])
 
@@ -24,7 +24,7 @@ const SurveyAnswerFieldComponent = ({ data: { question, field, options, type, so
         component={TextField}
         name={id}
         label={question}
-        value={surveyResponseAnswer || 'Loading survey response...'}
+        value={surveyResponseAnswer || 'Answer not submitted'}
         disabled
       />
     </StyledView>
