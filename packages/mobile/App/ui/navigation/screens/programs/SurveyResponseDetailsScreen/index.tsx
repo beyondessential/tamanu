@@ -116,16 +116,8 @@ export const SurveyResponseDetailsScreen = ({ route }): JSX.Element => {
     />
   );
 
-  const basicAnswerItems = questions
+  const answerItems = questions
     .filter(q => q.dataElement.name)
-    .filter(q => !isCalculated(q))
-    .map(attachAnswer)
-    .filter(q => q.answer !== null && q.answer !== '')
-    .map(questionToAnswerItem);
-
-  const calculatedAnswerItems = questions
-    .filter(q => q.dataElement.name)
-    .filter(q => isCalculated(q))
     .map(attachAnswer)
     .filter(q => q.answer !== null && q.answer !== '')
     .map(questionToAnswerItem);
@@ -138,9 +130,7 @@ export const SurveyResponseDetailsScreen = ({ route }): JSX.Element => {
         onGoBack={goBack}
       />
       <ScrollView>
-        {calculatedAnswerItems}
-        <StyledView borderTopWidth={1} height={1} />
-        {basicAnswerItems}
+        {answerItems}
       </ScrollView>
     </FullView>
   );

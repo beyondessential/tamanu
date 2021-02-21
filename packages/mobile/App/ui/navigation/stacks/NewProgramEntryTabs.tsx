@@ -61,6 +61,7 @@ const TabNavigator = ({
         <Tabs.Screen
           initialParams={{
             surveyId,
+            selectedPatient,
           }}
           options={{
             title: 'VIEW HISTORY',

@@ -141,9 +141,9 @@ describe('Survey calculations', () => {
 
     describe('Visibility', () => {
       const visibilitySurvey = makeDummySurvey([
-        { code: 'TEST_CHECK', type: 'Result', visibilityCriteria: 'REF: Yes' },
-        { code: 'REF', type: 'Binary' },
         { code: 'TEST_ALWAYS', type: 'Result' },
+        { code: 'REF', type: 'Binary' },
+        { code: 'TEST_CHECK', type: 'Result', visibilityCriteria: 'REF: Yes' },
       ]);
 
       it('should use a visible result field', () => { 
@@ -173,15 +173,15 @@ describe('Survey calculations', () => {
         { code: 'TEST_C', type: 'Result' },
       ]);
 
-      it('should use the first result field if multiple are visible', () => { 
+      it('should use the last result field if multiple are visible', () => { 
         const { result, resultText } = getResultValue(multiVisibilitySurvey, {
           TEST_A: 0,
           TEST_B: 50,
           TEST_C: 100,
           REF: false,
         });
-        expect(result).toEqual(50);
-        expect(resultText).toEqual('50%');
+        expect(result).toEqual(100);
+        expect(resultText).toEqual('100%');
       });
 
     });

@@ -78,7 +78,10 @@ export const fakeSurveyScreenComponent = (): ISurveyScreenComponent => {
     componentIndex: 2,
     text: 'survey-screen-component-text',
     visibilityCriteria: 'survey-screen-component-visibilityCriteria',
+    validationCriteria: 'survey-screen-component-validationCriteria',
     options: 'survey-screen-component-options',
+    detail: 'survey-screen-component-detail',
+    config: 'survey-screen-component-config',
     calculation: '',
   };
 };
