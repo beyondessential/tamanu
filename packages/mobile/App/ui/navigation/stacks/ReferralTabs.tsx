@@ -24,8 +24,9 @@ const DumbReferralHistoryScreen = ({ selectedPatient }): JSX.Element => {
   const [data, error] = useBackendEffect(
     ({ models }) => models.Referral.getForPatient(selectedPatient.id),
     [isFocused],
-  );
-
+    );
+    
+  console.log("🚀 ~ file: ReferralTabs.tsx ~ line 25 ~ data", data)
   if (error) return <ErrorScreen error={error} />;
   return (
     <List.Section>
