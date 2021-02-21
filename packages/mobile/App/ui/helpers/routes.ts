@@ -67,7 +67,6 @@ export const Routes = {
     ReferralTabs: {
       Index: '',
       AddReferralDetails: '',
-      ChooseReferralForm: '',
       ViewHistory: '',
     },
     SearchPatientStack: {

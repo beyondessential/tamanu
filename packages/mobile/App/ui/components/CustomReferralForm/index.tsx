@@ -20,8 +20,9 @@ function getField(type: string): FC<any> {
   return () => <Text>{`No field type ${type}`}</Text>;
 }
 
-function csvToOptions(csv: string): { label: string, value: string}[] {
-  return csv.split(',').map(value => {
+// Semi colon separated list because options will have commas in the text
+function scsvToOptions(csv: string): { label: string, value: string}[] {
+  return csv.split(';').map(value => {
     const trimmed = value.trim();
     return { label: trimmed, value: trimmed };
   });
@@ -41,7 +42,7 @@ const ReferralQuestion = ({ data, patientData }) => {
             component={fieldInput}
             name={id}
             label={question}
-            options={options && csvToOptions(options)}
+            options={options && scsvToOptions(options)}
             multiline={isMultiline}
           />
         </StyledView>
