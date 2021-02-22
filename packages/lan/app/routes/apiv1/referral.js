@@ -21,6 +21,10 @@ referral.post(
 
     // group diagnoses and their corresponding certainty together
     const diagnosesMap = Object.entries(req.body).reduce((acc, field) => {
+      if (!field[1]) {
+        // if field value is empty, we can skip
+        return acc;
+      }
       const idResult = diagnosisIdRegex.exec(field[0]);
       if (idResult) {
         if (!acc[idResult.groups.diagnosisIndex]) {
