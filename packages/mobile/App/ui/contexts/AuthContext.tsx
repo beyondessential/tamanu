@@ -68,7 +68,11 @@ const Provider = ({
     backend.stopSyncService();
     signOutUser();
     const currentRoute = navRef.current?.getCurrentRoute().name;
-    const signUpRoutes = [Routes.SignUpStack.Index, Routes.SignUpStack.Intro];
+    const signUpRoutes = [
+      Routes.SignUpStack.Index,
+      Routes.SignUpStack.Intro,
+      Routes.SignUpStack.SignIn,
+    ];
     if (!signUpRoutes.includes(currentRoute)) {
       navRef.current?.reset({
         index: 0,
