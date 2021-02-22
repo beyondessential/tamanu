@@ -24,9 +24,6 @@ import electronDebug from 'electron-debug';
 import MenuBuilder from './menu';
 import { registerPrintListener } from './print';
 
-autoUpdater.channel = 'edwin';
-autoUpdater.checkForUpdatesAndNotify();
-
 let mainWindow = null;
 
 const isProduction = process.env.NODE_ENV === 'production';
@@ -71,6 +68,11 @@ app.on('ready', async () => {
       ? `file://${__dirname}/../app.html`
       : `file://${__dirname}/app.html`;
   mainWindow.loadURL(htmlLocation);
+
+  mainWindow.on('ready-to-show', () => {
+    autoUpdater.channel = 'edwin';
+    autoUpdater.checkForUpdatesAndNotify();
+  });
 
   // @TODO: Use 'ready-to-show' event
   //        https://github.com/electron/electron/blob/master/docs/api/browser-window.md#using-ready-to-show-event
