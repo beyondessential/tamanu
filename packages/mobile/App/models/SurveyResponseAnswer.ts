@@ -31,6 +31,6 @@ export class SurveyResponseAnswer extends BaseModel
   @BeforeInsert()
   @BeforeUpdate()
   async markResponseForUpload() {
-    await this.markParentForUpload(SurveyResponse, 'response');
+    await this.markParent(SurveyResponse, 'response', 'markedForUpload');
   }
 }

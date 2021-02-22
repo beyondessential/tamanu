@@ -1,6 +1,15 @@
-import { Entity, Column, ManyToOne, OneToMany, Index, MoreThan, RelationId } from 'typeorm/browser';
+import {
+  Entity,
+  Column,
+  ManyToOne,
+  OneToMany,
+  Index,
+  BeforeUpdate,
+  BeforeInsert,
+  RelationId,
+} from 'typeorm/browser';
 import { startOfDay, addHours } from 'date-fns';
-import { BaseModel, FindMarkedForUploadOptions } from './BaseModel';
+import { BaseModel } from './BaseModel';
 import { IEncounter, EncounterType, ReferenceDataType } from '~/types';
 import { Patient } from './Patient';
 import { Diagnosis } from './Diagnosis';
@@ -59,6 +68,14 @@ export class Encounter extends BaseModel implements IEncounter {
 
   @OneToMany(() => SurveyResponse, surveyResponse => surveyResponse.encounter)
   surveyResponses: SurveyResponse[]
+
+  @BeforeInsert()
+  @BeforeUpdate()
+  async markPatient() {
+    // adding an encounter to a patient should mark them for syncing in future
+    // we don't need to upload the patient, so we only set markedForSync
+    await this.markParent(Patient, 'patient', 'markedForSync');
+  }
 
   static async getOrCreateCurrentEncounter(
     patientId: string, createdEncounterOptions: any,

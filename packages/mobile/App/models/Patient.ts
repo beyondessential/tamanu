@@ -71,10 +71,8 @@ export class Patient extends BaseModel implements IPatient {
   }
 
   static async getSyncable(): Promise<Patient[]> {
-    return this.getRepository().createQueryBuilder('patient')
-      .leftJoin('patient.encounters', 'encounter')
-      .where('patient.markedForSync = :marked', { marked: true })
-      .orWhere('encounter.markedForUpload = :marked', { marked: true })
-      .getMany();
+    return this.find({
+      where: { markedForSync: true },
+    });
   }
 }

@@ -36,7 +36,7 @@ export class AdministeredVaccine extends BaseModel implements IAdministeredVacci
   @BeforeInsert()
   @BeforeUpdate()
   async markEncounterForUpload() {
-    await this.markParentForUpload(Encounter, 'encounter');
+    await this.markParent(Encounter, 'encounter', 'markedForUpload');
   }
 
   static async getForPatient(patientId: string): Promise<IAdministeredVaccine[]> {
