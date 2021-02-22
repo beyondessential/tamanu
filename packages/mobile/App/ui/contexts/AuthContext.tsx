@@ -1,4 +1,4 @@
-import React, { createContext, PropsWithChildren, ReactElement, useContext, useEffect } from 'react';
+import React, { createContext, PropsWithChildren, ReactElement, useContext, useEffect, RefObject } from 'react';
 import { NavigationContainerRef } from '@react-navigation/native';
 import NetInfo from '@react-native-community/netinfo';
 import { compose } from 'redux';
@@ -9,7 +9,7 @@ import { BackendContext } from '~/ui/contexts/BackendContext';
 import { SyncConnectionParameters } from '~/types';
 
 type AuthProviderProps = WithAuthStoreProps & {
-  navRef: NavigationContainerRef;
+  navRef: RefObject<NavigationContainerRef>;
 }
 
 interface AuthContextData {
@@ -67,10 +67,14 @@ const Provider = ({
   const signOut = (): void => {
     backend.stopSyncService();
     signOutUser();
-    navRef?.reset({
-      index: 0,
-      routes: [{ name: Routes.SignUpStack.Index }],
-    });
+    const currentRoute = navRef.current?.getCurrentRoute().name;
+    const signUpRoutes = [Routes.SignUpStack.Index, Routes.SignUpStack.Intro];
+    if (!signUpRoutes.includes(currentRoute)) {
+      navRef.current?.reset({
+        index: 0,
+        routes: [{ name: Routes.SignUpStack.Index }],
+      });
+    }
   };
 
   // start a session if there's a stored token
@@ -82,13 +86,11 @@ const Provider = ({
     }
   }, [backend, props.token, props.user]);
 
-  // sign user out if there was a token but an auth error was thrown
+  // sign user out if an auth error was thrown
   useEffect(() => {
     const handler = (err: Error) => {
-      if (props.token) {
-        console.log(`signing out user with token ${props.token}: recieved auth error:`, err);
-        signOut();
-      }
+      console.log(`signing out user with token ${props.token}: recieved auth error:`, err);
+      signOut();
     };
     backend.auth.emitter.on('authError', handler);
     return () => {

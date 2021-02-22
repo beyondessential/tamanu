@@ -31,7 +31,7 @@ export const RootStack = (): ReactElement => {
             <ThemeProvider theme={themeSystem}>
               <PaperProvider theme={paperTheme}>
                 <NavigationContainer ref={navigationRef}>
-                  <AuthProvider navRef={navigationRef.current}>
+                  <AuthProvider navRef={navigationRef}>
                     <Core />
                   </AuthProvider>
                 </NavigationContainer>
