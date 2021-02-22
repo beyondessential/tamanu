@@ -8,13 +8,15 @@ import { DownloadRecordsResponse, UploadRecordsResponse, SyncRecord, SyncSource 
 import { createImportPlan, executeImportPlan } from './import';
 import { createExportPlan, executeExportPlan } from './export';
 
-type RunChannelSyncOptions = {
-  overrideLastSynced?: number,
+type SyncOptions = {
+  overrideLastSynced?: Timestamp,
 };
 
 export type SyncManagerOptions = {
   verbose?: boolean,
 };
+
+type Timestamp = number;
 
 const UPLOAD_LIMIT = 100;
 const DOWNLOAD_LIMIT = 100;
@@ -92,10 +94,9 @@ export class SyncManager {
 
     await this.runChannelSync(models.Patient, 'patient');
 
-    await models.Encounter.mapSyncablePatientIds(async patientId => {
-      await this.runPatientSync(patientId);
-    });
-
+    for (const patient of await models.Patient.getSyncable()) {
+      await this.runPatientSync(patient);
+    }
     this.emitter.emit('syncEnded');
     this.isSyncing = false;
   }
@@ -108,7 +109,7 @@ export class SyncManager {
     await this.runScheduledSync();
   }
 
-  async downloadAndImport(model: typeof BaseModel, channel: string, since: number): Promise<number> {
+  async downloadAndImport(model: typeof BaseModel, channel: string, since: Timestamp): Promise<Timestamp> {
     const downloadPage = (pageNumber: number): Promise<DownloadRecordsResponse> => {
       this.emitter.emit('downloadingPage', `${channel}-${pageNumber}`);
       return this.syncSource.downloadRecords(
@@ -130,7 +131,7 @@ export class SyncManager {
     };
     setProgress(0);
 
-    let requestedAt: number = null;
+    let requestedAt: Timestamp = 0;
 
     // Some records will fail on the first attempt due to foreign key constraints
     // (most commonly, when a dependency record has been updated so it appears
@@ -245,7 +246,7 @@ export class SyncManager {
       return this.syncSource.uploadRecords(channel, syncRecords);
     }
 
-    const markRecordsUploaded = async (page: number, records: SyncRecord[], requestedAt: number): Promise<void> => {
+    const markRecordsUploaded = async (page: number, records: SyncRecord[], requestedAt: Timestamp): Promise<void> => {
       this.emitter.emit('markingPageUploaded', `${channel}-${page}`);
       return model.markUploaded(records.map(r => r.data.id), new Date(requestedAt));
     }
@@ -290,7 +291,7 @@ export class SyncManager {
     this.emitter.emit('exportEnded', channel);
   }
 
-  async getChannelSyncTimestamp(channel: string): Promise<number> {
+  async getChannelSyncTimestamp(channel: string): Promise<Timestamp> {
     const timestampString = await readConfig(`syncTimestamp.${channel}`, '0');
     const timestamp = parseInt(timestampString, 10);
     if (Number.isNaN(timestamp)) {
@@ -299,22 +300,23 @@ export class SyncManager {
     return timestamp;
   }
 
-  async updateChannelSyncDate(channel: string, timestamp: number): Promise<void> {
+  async updateChannelSyncDate(channel: string, timestamp: Timestamp): Promise<void> {
     await writeConfig(`syncTimestamp.${channel}`, timestamp.toString());
   }
 
   async runChannelSync(
     model: typeof BaseModel,
     channel: string,
-    { overrideLastSynced = null }: RunChannelSyncOptions = {},
-  ): Promise<void> {
+    { overrideLastSynced = null }: SyncOptions = {},
+  ): Promise<Timestamp> {
     const lastSynced = (overrideLastSynced === null)
       ? await this.getChannelSyncTimestamp(channel)
       : overrideLastSynced;
 
     this.emitter.emit('channelSyncStarted', channel);
+    let requestedAt: Timestamp = null;
     try {
-      const requestedAt = await this.downloadAndImport(model, channel, lastSynced);
+      requestedAt = await this.downloadAndImport(model, channel, lastSynced);
       if (model.shouldExport) {
         await this.exportAndUpload(model, channel);
       }
@@ -325,9 +327,15 @@ export class SyncManager {
       console.error(e);
     }
     this.emitter.emit('channelSyncEnded', channel);
+    return lastSynced;
   }
 
-  async runPatientSync(patientId: string): Promise<void> {
-    await this.runChannelSync(Database.models.Encounter, `patient/${patientId}/encounter`);
+  async runPatientSync(patient: Patient): Promise<Timestamp> {
+    const lastSynced = await this.runChannelSync(Database.models.Encounter, `patient/${patient.id}/encounter`, { overrideLastSynced: patient.lastSynced });
+    if (lastSynced) {
+      patient.lastSynced = lastSynced;
+      await patient.save();
+    }
+    return lastSynced;
   }
 }

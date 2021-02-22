@@ -47,7 +47,7 @@ export class SurveyResponse extends BaseModel implements ISurveyResponse {
   @BeforeInsert()
   @BeforeUpdate()
   async markEncounterForUpload() {
-    await this.markParentForUpload(Encounter, 'encounter');
+    await this.markParent(Encounter, 'encounter', 'markedForUpload');
   }
 
   static async getFullResponse(surveyId: string) {
@@ -129,7 +129,7 @@ export class SurveyResponse extends BaseModel implements ISurveyResponse {
           throw new Error(`no data element for code: ${dataElementCode}`);
         }
 
-        if(isCalculated(dataElement.type) && value !== 0 && !value) {
+        if (isCalculated(dataElement.type) && value !== 0 && !value) {
           // calculated values will always be in the answer object - but we
           // shouldn't save null answers
           continue;

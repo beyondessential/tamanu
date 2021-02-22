@@ -57,24 +57,27 @@ export abstract class BaseModel extends BaseEntity {
 
   @BeforeUpdate()
   markForUpload() {
-    // TODO: go through and make sure records always use save(), not update()
     this.markedForUpload = true;
   }
 
-  async markParentForUpload(parentModel: typeof BaseModel, property: string) {
+  async markParent(
+    parentModel: typeof BaseModel,
+    parentProperty: string,
+    flag: 'markedForUpload' | 'markedForSync',
+  ) {
     let entity: BaseModel;
-    if (typeof this[property] === 'string') {
-      entity = await parentModel.findOne({ where: { id: this[property] } })
+    if (typeof this[parentProperty] === 'string') {
+      entity = await parentModel.findOne({ where: { id: this[parentProperty] } })
     } else {
       const thisModel = this.constructor as typeof BaseModel;
       entity = await thisModel
         .getRepository()
         .createQueryBuilder()
-        .relation(thisModel, property)
+        .relation(thisModel, parentProperty)
         .of(this)
         .loadOne();
     }
-    entity.markedForUpload = true;
+    entity[flag] = true;
     await entity.save();
   }
 
