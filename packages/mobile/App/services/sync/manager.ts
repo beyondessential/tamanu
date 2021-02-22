@@ -1,5 +1,4 @@
 import mitt from 'mitt';
-import { uniqBy } from 'lodash';
 
 import { Database } from '~/infra/db';
 import { readConfig, writeConfig } from '~/services/config';
@@ -10,12 +9,14 @@ import { createImportPlan, executeImportPlan } from './import';
 import { createExportPlan, executeExportPlan } from './export';
 
 type SyncOptions = {
-  overrideLastSynced?: number,
+  overrideLastSynced?: Timestamp,
 };
 
 export type SyncManagerOptions = {
   verbose?: boolean,
 };
+
+type Timestamp = number;
 
 const UPLOAD_LIMIT = 100;
 const DOWNLOAD_LIMIT = 100;
@@ -108,7 +109,7 @@ export class SyncManager {
     await this.runScheduledSync();
   }
 
-  async downloadAndImport(model: typeof BaseModel, channel: string, since: number): Promise<number> {
+  async downloadAndImport(model: typeof BaseModel, channel: string, since: Timestamp): Promise<Timestamp> {
     const downloadPage = (pageNumber: number): Promise<DownloadRecordsResponse> => {
       this.emitter.emit('downloadingPage', `${channel}-${pageNumber}`);
       return this.syncSource.downloadRecords(
@@ -130,7 +131,7 @@ export class SyncManager {
     };
     setProgress(0);
 
-    let requestedAt: number = null;
+    let requestedAt: Timestamp = null;
 
     // Some records will fail on the first attempt due to foreign key constraints
     // (most commonly, when a dependency record has been updated so it appears
@@ -245,7 +246,7 @@ export class SyncManager {
       return this.syncSource.uploadRecords(channel, syncRecords);
     }
 
-    const markRecordsUploaded = async (page: number, records: SyncRecord[], requestedAt: number): Promise<void> => {
+    const markRecordsUploaded = async (page: number, records: SyncRecord[], requestedAt: Timestamp): Promise<void> => {
       this.emitter.emit('markingPageUploaded', `${channel}-${page}`);
       return model.markUploaded(records.map(r => r.data.id), new Date(requestedAt));
     }
@@ -290,7 +291,7 @@ export class SyncManager {
     this.emitter.emit('exportEnded', channel);
   }
 
-  async getChannelSyncTimestamp(channel: string): Promise<number> {
+  async getChannelSyncTimestamp(channel: string): Promise<Timestamp> {
     const timestampString = await readConfig(`syncTimestamp.${channel}`, '0');
     const timestamp = parseInt(timestampString, 10);
     if (Number.isNaN(timestamp)) {
@@ -299,7 +300,7 @@ export class SyncManager {
     return timestamp;
   }
 
-  async updateChannelSyncDate(channel: string, timestamp: number): Promise<void> {
+  async updateChannelSyncDate(channel: string, timestamp: Timestamp): Promise<void> {
     await writeConfig(`syncTimestamp.${channel}`, timestamp.toString());
   }
 
@@ -307,13 +308,13 @@ export class SyncManager {
     model: typeof BaseModel,
     channel: string,
     { overrideLastSynced = null }: SyncOptions = {},
-  ): Promise<number> {
+  ): Promise<Timestamp> {
     const lastSynced = (overrideLastSynced === null)
       ? await this.getChannelSyncTimestamp(channel)
       : overrideLastSynced;
 
     this.emitter.emit('channelSyncStarted', channel);
-    let requestedAt: number = null;
+    let requestedAt: Timestamp = null;
     try {
       requestedAt = await this.downloadAndImport(model, channel, lastSynced);
       if (model.shouldExport) {
@@ -329,7 +330,7 @@ export class SyncManager {
     return lastSynced;
   }
 
-  async runPatientSync(patient: Patient): Promise<number> {
+  async runPatientSync(patient: Patient): Promise<Timestamp> {
     const lastSynced = await this.runChannelSync(Database.models.Encounter, `patient/${patient.id}/encounter`, { overrideLastSynced: patient.lastSynced });
     if (lastSynced) {
       patient.lastSynced = lastSynced;
