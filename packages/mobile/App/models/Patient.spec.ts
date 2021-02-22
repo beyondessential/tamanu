@@ -70,15 +70,19 @@ describe('getSyncable', () => {
     for (let i = 0; i < (30 * 1000); i++) {
       // create patient
       const patient = fakePatient();
-      patient.markedForSync = true;
-      patients.push(patient);
 
       // create encounter for 1 in 10 patients
       if (i % 10 === 0) {
         const encounter = fakeEncounter();
         encounter.patient = patient;
+        encounter.markedForUpload = true;
         encounters.push(encounter);
+        patient.markedForSync = false;
+      } else {
+        patient.markedForSync = true;
       }
+
+      patients.push(patient);
     }
     for (const patientChunk of chunk(patients, CHUNK_SIZE)) {
       await Database.models.Patient.insert(patientChunk);

@@ -29,4 +29,6 @@ export interface IEncounter {
   diagnoses?: IDiagnosis[];
 
   patient?: IPatient;
+
+  markedForUpload?: boolean;
 }
