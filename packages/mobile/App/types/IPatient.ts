@@ -8,4 +8,7 @@ export interface IPatient {
   dateOfBirth: Date;
   culturalName: string;
   bloodType: string;
+
+  markedForSync?: boolean;
+  lastSynced?: number;
 }

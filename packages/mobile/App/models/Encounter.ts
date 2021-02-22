@@ -96,49 +96,6 @@ export class Encounter extends BaseModel implements IEncounter {
 
   static shouldExport = true;
 
-  static async mapSyncablePatientIds(
-    callback: (patientId: string) => Promise<void> | void,
-    limit: number = 100,
-  ): Promise<void> {
-    // hides the complexity of querying successive batches of ids
-
-    // sync any patient that's marked for sync
-    await Patient.mapMarkedForSyncIds(patientId => callback(patientId), limit);
-
-    // sync any patient for which encounters have been created
-    let baseQuery = this.getRepository().createQueryBuilder('encounter')
-      .select('encounter.patientId AS patientId')
-      .distinctOn(['patientId'])
-      .orderBy('patientId')
-      .where({ markedForUpload: true })
-      .limit(limit);
-    let lastSeenId: string = null;
-    do {
-      const query = lastSeenId ? baseQuery.andWhere('patientId > ?', [lastSeenId]) : baseQuery;
-      const patients = await query.getRawMany();
-      const patientIds = patients.map(({ patientId }) => patientId);
-      lastSeenId = patientIds[patientIds.length - 1];
-      for (const patientId of patientIds) {
-        await callback(patientId);
-      }
-    } while (!!lastSeenId);
-  }
-
-  static async findMarkedForUpload(
-    opts: FindMarkedForUploadOptions,
-  ): Promise<BaseModel[]> {
-    const patientId = opts.channel.split('/')[1];
-    if (!patientId) {
-      throw new Error(`Could not extract patientId from ${opts.channel}`);
-    }
-
-    const records = await this.findMarkedForUploadQuery(opts)
-      .andWhere('patientId = :patientId', { patientId })
-      .getMany();
-
-    return records as BaseModel[];
-  }
-
   static includedSyncRelations = [
     'administeredVaccines',
     'surveyResponses',
