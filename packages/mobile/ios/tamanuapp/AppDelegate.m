@@ -49,6 +49,7 @@ static void InitializeFlipper(UIApplication *application) {
 
 - (UIInterfaceOrientationMask)application:(UIApplication *)application supportedInterfaceOrientationsForWindow:(UIWindow *)window {
   return [Orientation getOrientation];
+}
 
 - (NSURL *)sourceURLForBridge:(RCTBridge *)bridge
 {
