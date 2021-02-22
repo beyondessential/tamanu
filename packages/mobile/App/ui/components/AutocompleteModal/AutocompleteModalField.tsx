@@ -11,6 +11,7 @@ export const AutocompleteModalField = ({
   placeholder,
   onChange,
   suggester,
+  options,
   modalRoute,
   navigation,
 }): JSX.Element => {
@@ -23,15 +24,16 @@ export const AutocompleteModalField = ({
   const openModal = (): void => navigation.navigate(modalRoute, {
     callback: onPress,
     suggester,
+    options,
   });
 
   useEffect(() => {
-    if (!value) return;
+    if (!value || !suggester) return;
     (async (): Promise<void> => {
       const data = await suggester.fetchCurrentOption(value);
       if (data) setLabel(data.label);
     })();
-  }, []);
+  }, [value]);
 
   return (
     <Button

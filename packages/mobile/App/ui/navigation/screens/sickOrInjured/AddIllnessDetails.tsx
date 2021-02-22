@@ -66,7 +66,7 @@ export const DumbAddIllnessScreen = ({ selectedPatient, navigation }): ReactElem
   );
 
   const icd10Suggester = new Suggester(
-    ReferenceData,
+    models.ReferenceData,
     {
       where: {
         type: ReferenceDataType.ICD10,

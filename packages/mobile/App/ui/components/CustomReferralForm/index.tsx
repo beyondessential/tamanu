@@ -3,14 +3,14 @@ import { Formik } from 'formik';
 import { compose } from 'redux';
 import { withPatient } from '~/ui/containers/Patient';
 
-import { FullView, StyledScrollView } from '/styled/common';
+import { FullView, StyledScrollView, StyledView } from '/styled/common';
 import { Text } from 'react-native-paper';
 import { useBackend } from '~/ui/hooks';
 import { Title } from 'react-native-paper';
 import { Button } from '../Button';
 import { ReferralQuestion } from "./ReferralQuestion";
 
-const CustomReferralFormComponent = ({ selectedForm, selectedPatient }) => {
+const CustomReferralFormComponent = ({ selectedForm, selectedPatient, navigation }) => {
   const [questions, setQuestions] = useState([]);
   const [title, setTitle] = useState('');
   const [isLoading, setIsLoading] = useState(true);
@@ -62,7 +62,11 @@ const CustomReferralFormComponent = ({ selectedForm, selectedPatient }) => {
           {({ handleSubmit }): JSX.Element => (
             <FullView padding={12}>
               <Title>{title}</Title>
-              {questions.map(q => <ReferralQuestion patientData={selectedPatient} data={q} />)}
+              {questions.map(q => (
+                <StyledView marginTop={10}>
+                  <ReferralQuestion patientData={selectedPatient} data={q} navigation={navigation} />
+                </StyledView>
+              ))}
               <Button marginTop={12} onPress={handleSubmit} buttonText="Submit" />
             </FullView>
           )}

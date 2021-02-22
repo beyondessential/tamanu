@@ -10,10 +10,11 @@ import { CustomReferralForm } from '~/ui/components/CustomReferralForm';
 
 const BASIC_FORM_QUESTIONS = (id) => [
   { referralForm: id, field: 'FreeText', type: 'input', question: 'Name of personnel' },
+  { referralForm: id, field: 'Date', type: 'input', question: 'Date of referral' },
   { referralForm: id, field: 'FreeText', type: 'input', question: 'Referred facility' },
   { referralForm: id, field: 'FreeText', type: 'input', question: 'Referred department' },
   { referralForm: id, field: 'FreeText', type: 'input', question: 'Notes' },
-];
+]; 
 
 const CVD_FORM_QUESTIONS = (id) => [
   { referralForm: id, field: 'FreeText', type: 'survey', question: 'Screening location', source: 'dataElement/FijCVD_4' },
@@ -28,7 +29,8 @@ const CVD_FORM_QUESTIONS = (id) => [
   { referralForm: id, field: 'FreeText', type: 'input', question: 'Referred to health facility address' },
   { referralForm: id, field: 'Select', type: 'input', question: 'Reason for referral', options: 'BP ≥ 180/110mm HG;BP ≥ 140/90mmHg in someone < 40years of age;Known heart disease, stroke, transient ischemic attack, DM, kidney disease;New chest pain or change in frequency or severity of angina;Symptoms of transient ischemic attack or stroke;Target organ damage (e.g. angina, claudication, heaving apex, cardiac failure);Cardiac murmurs or arrhythmias;Total cholesterol >7.5mmol/l;Raised capillary blood glucose (using Braun Omnitest 3) with and without symptoms on screening (fasting more than 6.0 mmol/l or random more than 7.8 mmol/l);History of pregnancy induced hypertension;History of gestation diabetes;History of pre-diabetes;High CVD risk ≥ 30%' },
   { referralForm: id, field: 'FreeText', type: 'input', question: 'Any other relevant information' },
-  { referralForm: id, field: 'FreeText', type: 'input', question: 'CVD risk assessment' },
+  { referralForm: id, field: 'SurveyResponse', type: 'survey', question: 'Relevant history', source: 'program-cvd-fiji/survey-cvd-risk-fiji' },
+  { referralForm: id, field: 'SurveyResponse', type: 'survey', question: 'CVD risk assessment', source: 'program-cvd-fiji/survey-cvd-risk-fiji', options: '{ "survey_result": true }' },
 ];
 
 const DumbAddRefferalDetailScreen = ({ navigation, selectedPatient }): ReactElement => {

@@ -26,7 +26,6 @@ const DumbReferralHistoryScreen = ({ selectedPatient }): JSX.Element => {
     [isFocused],
     );
     
-  console.log("🚀 ~ file: ReferralTabs.tsx ~ line 25 ~ data", data)
   if (error) return <ErrorScreen error={error} />;
   return (
     <List.Section>
