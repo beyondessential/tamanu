@@ -16,7 +16,7 @@ export class PatientCarePlanForm extends React.PureComponent {
   };
 
   renderForm = ({ submitForm }) => {
-    const { editedObject, onCancel, practitionerSuggester, icd10Suggester } = this.props;
+    const { editedObject, onCancel, practitionerSuggester, carePlanSuggester } = this.props;
     const buttonText = editedObject ? 'Save' : 'Add';
     return (
       <FormGrid columns={1}>
@@ -24,7 +24,7 @@ export class PatientCarePlanForm extends React.PureComponent {
           name="diseaseId"
           label="Care Plan"
           component={AutocompleteField}
-          suggester={icd10Suggester}
+          suggester={carePlanSuggester}
           required
         />
         <FormGrid columns={2}>
