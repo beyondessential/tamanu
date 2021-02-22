@@ -9,10 +9,7 @@
  */
 import { autoUpdater } from 'electron-updater';
 import { app, BrowserWindow } from 'electron';
-import installExtension, {
-  REDUX_DEVTOOLS,
-  REACT_DEVELOPER_TOOLS,
-} from 'electron-devtools-installer';
+import installExtension, { REDUX_DEVTOOLS, REACT_DEVELOPER_TOOLS } from 'electron-devtools-installer';
 
 // production only
 import sourceMapSupport from 'source-map-support';
@@ -59,7 +56,7 @@ app.on('ready', async () => {
     webPreferences: {
       nodeIntegration: true,
       contextIsolation: false,
-      enableRemoteModule: true,
+      enableRemoteModule: true
     },
   });
 
