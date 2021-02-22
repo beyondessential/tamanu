@@ -1,4 +1,5 @@
 import { createDummyPatient, createDummyEncounter } from 'shared/demoData';
+import { DIAGNOSIS_CERTAINTY } from '../../../shared-src/src/constants';
 import { createTestContext } from '../utilities';
 
 const { baseApp, models } = createTestContext();
@@ -111,7 +112,8 @@ describe('Referrals', () => {
         referredById: app.user.id,
         referredToDepartmentId: department.id,
         referredToFacilityId: facility.id,
-        diagnoses: [expectDiagnosis.id],
+        diagnosisId0: expectDiagnosis.id,
+        diagnosisCertainty0: DIAGNOSIS_CERTAINTY.SUSPECTED,
       });
       expect(createReferralResult).toHaveSucceeded();
 
@@ -123,6 +125,51 @@ describe('Referrals', () => {
       expect(referralDiagnosesResult.body.data[0]).toHaveProperty(
         'diagnosisId',
         expectDiagnosis.id,
+      );
+      expect(referralDiagnosesResult.body.data[0]).toHaveProperty(
+        'certainty',
+        DIAGNOSIS_CERTAINTY.SUSPECTED,
+      );
+    });
+    
+    it('should record multiple diagnoses correctly', async () => {
+      const secondDiagnosis = await models.ReferenceData.create({
+        type: 'icd10',
+        name: 'Diabetes',
+        code: 'diabetes',
+      });
+      const createReferralResult = await app.post('/v1/referral').send({
+        patientId: patient.id,
+        referredById: app.user.id,
+        referredToDepartmentId: department.id,
+        referredToFacilityId: facility.id,
+        diagnosisId0: expectDiagnosis.id,
+        diagnosisCertainty0: DIAGNOSIS_CERTAINTY.SUSPECTED,
+        diagnosisId1: secondDiagnosis.id,
+        diagnosisCertainty1: DIAGNOSIS_CERTAINTY.CONFIRMED,
+      });
+      expect(createReferralResult).toHaveSucceeded();
+
+      const referralDiagnosesResult = await app.get(
+        `/v1/referral/${createReferralResult.body.id}/diagnoses`,
+      );
+      expect(referralDiagnosesResult).toHaveSucceeded();
+      expect(referralDiagnosesResult.body.count).toBeGreaterThan(0);
+      expect(referralDiagnosesResult.body.data[0]).toHaveProperty(
+        'diagnosisId',
+        expectDiagnosis.id,
+      );
+      expect(referralDiagnosesResult.body.data[0]).toHaveProperty(
+        'certainty',
+        DIAGNOSIS_CERTAINTY.SUSPECTED,
+      );
+      expect(referralDiagnosesResult.body.data[1]).toHaveProperty(
+        'diagnosisId',
+        secondDiagnosis.id,
+      );
+      expect(referralDiagnosesResult.body.data[1]).toHaveProperty(
+        'certainty',
+        DIAGNOSIS_CERTAINTY.CONFIRMED,
       );
     });
   });
