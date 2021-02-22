@@ -1,5 +1,5 @@
 import { createDummyPatient, createDummyEncounter } from 'shared/demoData';
-import { DIAGNOSIS_CERTAINTY } from '../../../shared-src/src/constants';
+import { DIAGNOSIS_CERTAINTY } from 'shared/constants';
 import { createTestContext } from '../utilities';
 
 const { baseApp, models } = createTestContext();

@@ -4,6 +4,7 @@ import { object, string } from 'yup';
 
 import { nonEmergencyDiagnosisCertaintyOptions } from '../constants';
 
+
 import { ConfirmCancelRow } from '../components/ButtonRow';
 import { FormGrid } from '../components/FormGrid';
 import { FormSeparatorLine } from '../components/FormSeparatorLine';
@@ -19,7 +20,7 @@ import {
   RadioField,
 } from '../components/Field';
 import { Button } from '../components';
-import { DIAGNOSIS_CERTAINTY } from '../../../shared-src/src/constants';
+import { DIAGNOSIS_CERTAINTY } from '/shared/constants';
 
 const DiagnosisFields = props => {
   return (
