@@ -131,7 +131,7 @@ export class SyncManager {
     };
     setProgress(0);
 
-    let requestedAt: Timestamp = null;
+    let requestedAt: Timestamp = 0;
 
     // Some records will fail on the first attempt due to foreign key constraints
     // (most commonly, when a dependency record has been updated so it appears
