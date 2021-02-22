@@ -14,7 +14,3 @@ SUFFIX=-$type-$CI_BRANCH-${CI_COMMIT_ID: -8}
 (cd ${LAN_RELEASE_DIR} \
   && zip -q -r ${DEPLOY_DIR}/${PREFIX}lan${SUFFIX}.zip . \
   && echo "${DEPLOY_DIR}/${PREFIX}lan${SUFFIX}.zip generated")
-
-# zip -q -x packages/server/node_modules/**\* data/**\* \
-  # -r ${DEPLOY_DIR}/${PREFIX}server${SUFFIX}.zip packages/server packages/shared packages/scripts package.json yarn.lock babel.config.js\
-  # && echo "${DEPLOY_DIR}/${PREFIX}server${SUFFIX}.zip generated"

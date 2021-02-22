@@ -21,7 +21,7 @@
     "package": "npm run build && build --publish never",
     "package-all": "npm run build && build -mwl --publish never",
     "package-linux": "npm run build && build --linux --publish never",
-    "package-win": "npm run build && build --win --x64 --publish never",
+    "package-win": "npm run build && build --win --x64 --publish always",
     "postinstall": "./scripts/fix-npm-module.sh",
     "prestart": "npm run build",
     "start": "cross-env NODE_ENV=production electron ./app/",
@@ -56,6 +56,9 @@
       "dist/main.prod.js.map",
       "package.json"
     ],
+    "publish": {
+      "channel": "edwin"
+    },
     "dmg": {
       "contents": [
         {
