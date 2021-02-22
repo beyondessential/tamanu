@@ -2,7 +2,7 @@ import { mocked } from 'ts-jest/utils';
 import { chunk, sortedIndexOf } from 'lodash';
 
 import { fakePatient, fakeEncounter } from '/root/tests/helpers/fake';
-import { benchmark } from '/root/tests/helpers/benchmark';
+import { time } from '/root/tests/helpers/benchmark';
 import { IPatient } from '~/types';
 import { Patient } from '~/models/Patient';
 import { Database } from '~/infra/db';
@@ -93,7 +93,7 @@ describe('getSyncable', () => {
 
     // act
     let syncablePatients: Patient[];
-    const nanoseconds = await benchmark(async () => {
+    const nanoseconds = await time(async () => {
       syncablePatients = await Database.models.Patient.getSyncable();
     })
 
