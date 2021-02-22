@@ -19,6 +19,7 @@ import {
   RadioField,
 } from '../components/Field';
 import { Button } from '../components';
+import { DIAGNOSIS_CERTAINTY } from '../../../shared-src/src/constants';
 
 const DiagnosisFields = props => {
   return (
@@ -35,8 +36,8 @@ const DiagnosisFields = props => {
         inline
         component={RadioField}
         options={[
-          { value: 'suspected', label: 'Suspected' },
-          { value: 'confirmed', label: 'Confirmed' },
+          { value: DIAGNOSIS_CERTAINTY.SUSPECTED, label: 'Suspected' },
+          { value: DIAGNOSIS_CERTAINTY.CONFIRMED, label: 'Confirmed' },
         ]}
       />
     </FormGrid>
