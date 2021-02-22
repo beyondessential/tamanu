@@ -57,6 +57,9 @@
       "package.json"
     ],
     "publish": {
+      "provider": "s3",
+      "bucket": "tamanu-builds",
+      "region": "ap-southeast-2",
       "channel": "edwin"
     },
     "dmg": {
@@ -124,7 +127,7 @@
     "css-loader": "^1.0.0",
     "detect-port": "^1.2.3",
     "electron": "^11.2.0",
-    "electron-builder": "^20.36.2",
+    "electron-builder": "^22.10.5",
     "electron-devtools-installer": "^3.1.1",
     "electron-rebuild": "^1.8.2",
     "enzyme": "^3.3.0",

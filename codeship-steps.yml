@@ -10,43 +10,7 @@
 - name: build_and_test
   type: parallel
   steps:
-    - name: test
-      service: app
-      command: ./scripts/test.sh
-    - name: build_lan_and_desktop_installers
+    - name: build_and_publish_desktop_installer
       service: app
       tag: ^(master|dev|ci-)
-      command: ./scripts/build.sh demo
-    - name: build_sync_release
-      tag: ^(master|dev|ci-)
-      service: app
-      command: ./scripts/build_package_release.sh sync-server
-    - name: build_meta_release
-      tag: ^(master|dev|ci-)
-      service: app
-      command: ./scripts/build_package_release.sh meta-server
-- name: push_and_deploy
-  type: parallel
-  steps:
-    - name: push_artefacts_to_s3
-      service: awsdeployment
-      tag: ^(dev|ci-)
-      command: ./scripts/push.sh
-    - name: deploy_sync_dev_environment
-      tag: ^(dev|ci-)
-      service: awsdeployment
-      command: ./scripts/deploy_sync_dev.sh
-    - name: deploy_meta_dev_environment
-      tag: ^(dev|ci-)
-      service: awsdeployment
-      command: ./scripts/deploy_meta_dev.sh
-
-- type: manual
-  tag: master
-  steps:
-    - name: push-master
-      service: awsdeployment
-      command: ./scripts/push.sh
-    - name: deploy-master
-      service: awsdeployment
-      command: ./scripts/deploy.sh demo
+      command: ./scripts/build.sh

@@ -7,8 +7,12 @@
  * `./app/dist/main.prod.js` using webpack. This gives us some performance wins.
  *
  */
+import { autoUpdater } from 'electron-updater';
 import { app, BrowserWindow } from 'electron';
-import installExtension, { REDUX_DEVTOOLS, REACT_DEVELOPER_TOOLS } from 'electron-devtools-installer';
+import installExtension, {
+  REDUX_DEVTOOLS,
+  REACT_DEVELOPER_TOOLS,
+} from 'electron-devtools-installer';
 
 // production only
 import sourceMapSupport from 'source-map-support';
@@ -19,6 +23,9 @@ import electronDebug from 'electron-debug';
 
 import MenuBuilder from './menu';
 import { registerPrintListener } from './print';
+
+autoUpdater.channel = 'edwin';
+autoUpdater.checkForUpdatesAndNotify();
 
 let mainWindow = null;
 
@@ -55,7 +62,7 @@ app.on('ready', async () => {
     webPreferences: {
       nodeIntegration: true,
       contextIsolation: false,
-      enableRemoteModule: true
+      enableRemoteModule: true,
     },
   });
 
@@ -90,8 +97,8 @@ app.on('ready', async () => {
 // if (isDebug) {
 app.whenReady().then(() => {
   installExtension([REDUX_DEVTOOLS, REACT_DEVELOPER_TOOLS])
-      .then((name) => console.log(`Added Extension:  ${name}`))
-      .catch((err) => console.log('An error occurred: ', err));
+    .then(name => console.log(`Added Extension:  ${name}`))
+    .catch(err => console.log('An error occurred: ', err));
 });
 // }
 
