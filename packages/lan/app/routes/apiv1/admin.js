@@ -19,6 +19,7 @@ export const admin = allowAdminRoutes
   : (req, res, next) => next();
 
 adminRoutes.use((req, res, next) => {
+  // let everything through
   req.flagPermissionChecked();
   next();
 });
@@ -33,8 +34,6 @@ adminRoutes.post('/importSurvey', asyncHandler(async (req, res) => {
     surveyCode,
     dryRun,
   } = req.body;
-
-  console.log(programName, req.body);
 
   await importSurvey({
     file,
