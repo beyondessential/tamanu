@@ -17,6 +17,7 @@ const BASIC_FORM_QUESTIONS = (id) => [
 
 const CVD_FORM_QUESTIONS = (id) => [
   { referralForm: id, field: 'FreeText', type: 'survey', question: 'Screening location', source: 'dataElement/FijCVD_4' },
+  { referralForm: id, field: 'Date', type: 'input', question: 'Date of referral' },
   { referralForm: id, field: 'FreeText', type: 'survey', question: 'Name of personnel', source: 'dataElement/FijCVD_6' },
   { referralForm: id, field: 'FreeText', type: 'survey', question: 'Contact number of personnel', source: 'dataElement/FijCVD_8' },
   { referralForm: id, field: 'FreeText', type: 'survey', question: 'Email of personnel', source: 'dataElement/FijCVD_488' },
