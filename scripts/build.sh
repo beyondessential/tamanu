@@ -1,7 +1,6 @@
 #!/bin/bash
 set -euxo pipefail
 node --version
-type=$1
 echo "Building"
 
 IFS='|' read -a desktop_config <<< "${CONFIG_DESKTOP}"
