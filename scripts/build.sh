@@ -3,6 +3,8 @@ set -euxo pipefail
 node --version
 echo "Building"
 
+yarn run build-shared
+
 IFS='|' read -a desktop_config <<< "${CONFIG_DESKTOP}"
 touch ${DESKTOP_ROOT}/.env &&
   printf '%s\n' "${desktop_config[@]}" > ${DESKTOP_ROOT}/.env &&
