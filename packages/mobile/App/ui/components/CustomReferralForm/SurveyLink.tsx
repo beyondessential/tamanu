@@ -25,7 +25,7 @@ export const SurveyLink = ({ selectedPatient, surveyId, questionId }) => {
   return (
     <Field
       component={TextField}
-      label={`Attached survey`}
+      label={`Attached screening form`}
       placeholder={`${surveyResponse.survey.name} (${format(surveyResponse.endTime, 'dd-MM-yyyy')})`}
       disabled
     />
