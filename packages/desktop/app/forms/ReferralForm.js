@@ -20,7 +20,7 @@ import {
   RadioField,
 } from '../components/Field';
 import { Button } from '../components';
-import { DIAGNOSIS_CERTAINTY } from '/shared/constants';
+import { DIAGNOSIS_CERTAINTY } from 'shared/constants';
 
 const DiagnosisFields = props => {
   return (
