@@ -25,7 +25,7 @@ const CONNECTION_CONFIG = {
 
 const TEST_CONNECTION_CONFIG = {
   type: 'sqlite',
-  database: `/tmp/tamanu-mobile-test-${Math.random()}.db`,
+  database: `/tmp/tamanu-mobile-test-${Date.now()}-${process.env.JEST_WORKER_ID}.db`,
   logging: false,
   // logging: LOG_LEVELS,
   synchronize: true,

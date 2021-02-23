@@ -30,6 +30,7 @@ export const fakePatient = (): IPatient => {
     bloodType: 'A+',
     sex: `female-${uuid}`,
     markedForSync: false,
+    lastSynced: 0,
   };
 };
 
