@@ -18,10 +18,10 @@
     "flow-typed": "rimraf flow-typed/npm && flow-typed install --overwrite || true",
     "lint": "eslint app",
     "lint-stats": "eslint app --format ../scripts/eslint-stats.js",
-    "package": "npm run build && build --publish never",
-    "package-all": "npm run build && build -mwl --publish never",
-    "package-linux": "npm run build && build --linux --publish never",
-    "package-win": "npm run build && build --win --x64 --publish always",
+    "package": "npm run build && electron-builder --publish never",
+    "package-all": "npm run build && electron-builder -mwl --publish never",
+    "package-linux": "npm run build && electron-builder --linux --publish never",
+    "package-win": "npm run build && electron-builder --win --x64 --publish always",
     "postinstall": "./scripts/fix-npm-module.sh",
     "prestart": "npm run build",
     "start": "cross-env NODE_ENV=production electron ./app/",
@@ -126,7 +126,7 @@
     "cross-spawn": "^6.0.5",
     "css-loader": "^1.0.0",
     "detect-port": "^1.2.3",
-    "electron": "^11.2.0",
+    "electron": "^11.3.0",
     "electron-builder": "^22.10.5",
     "electron-devtools-installer": "^3.1.1",
     "electron-rebuild": "^1.8.2",
@@ -253,5 +253,10 @@
     "node": ">=7.x <11.0",
     "npm": ">=4.x",
     "yarn": ">=0.21.3"
+  },
+  "workspaces": {
+    "nohoist": [
+      "electron"
+    ]
   }
 }
