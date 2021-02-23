@@ -103,11 +103,11 @@ const CarePlanDisplay = memo(({ patient, readonly }) => (
     suggesterEndpoints={['practitioner', 'carePlan']}
     items={patient.carePlans}
     Form={PatientCarePlanForm}
-    getName={({ disease }) => disease.name}
+    getName={({ carePlan }) => carePlan.name}
     behavior="modal"
     itemTitle="Care Plan"
     CustomEditForm={PatientCarePlanDetails}
-    getEditFormName={({ disease }) => `Care Plan: ${disease.name}`}
+    getEditFormName={({ carePlan }) => `Care Plan: ${carePlan.name}`}
   />
 ));
 

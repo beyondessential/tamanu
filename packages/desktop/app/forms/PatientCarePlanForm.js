@@ -21,7 +21,7 @@ export class PatientCarePlanForm extends React.PureComponent {
     return (
       <FormGrid columns={1}>
         <Field
-          name="diseaseId"
+          name="carePlanId"
           label="Care Plan"
           component={AutocompleteField}
           suggester={carePlanSuggester}
@@ -61,7 +61,7 @@ export class PatientCarePlanForm extends React.PureComponent {
           ...editedObject,
         }}
         validationSchema={yup.object().shape({
-          diseaseId: foreignKey('Care Plan is a required field'),
+          carePlanId: foreignKey('Care Plan is a required field'),
           date: yup.date(),
           examinerId: yup.string(),
           content: yup.string(),
