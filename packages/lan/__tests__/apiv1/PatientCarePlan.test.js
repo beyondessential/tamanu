@@ -23,17 +23,17 @@ describe('PatientCarePlan', () => {
 
   describe('create a care plan for a patient', () => {
     let patient = null;
-    let diseaseId = null;
+    let carePlanId = null;
     beforeAll(async () => {
       patient = await models.Patient.create(await createDummyPatient(models));
-      diseaseId = await randomReferenceId(models, 'icd10');
+      carePlanId = await randomReferenceId(models, 'carePlan');
     });
 
     it('should create a care plan with note', async () => {
       const noteDate = new Date().toISOString();
       const result = await app.post('/v1/patientCarePlan').send({
         date: noteDate,
-        diseaseId,
+        carePlanId,
         patientId: patient.get('id'),
         content: 'Main care plan',
       });
@@ -41,7 +41,7 @@ describe('PatientCarePlan', () => {
       expect(result.body).toHaveProperty('id');
       expect(result.body).toHaveProperty('date', noteDate);
       expect(result.body.patientId).toBe(patient.get('id'));
-      expect(result.body.diseaseId).toBe(diseaseId);
+      expect(result.body.carePlanId).toBe(carePlanId);
       const noteResult = await app.get(`/v1/patientCarePlan/${result.body.id}/notes`);
       expect(noteResult).toHaveSucceeded();
       expect(noteResult.body.length).toBeGreaterThan(0);
@@ -52,7 +52,7 @@ describe('PatientCarePlan', () => {
     it('should reject care plan without notes', async () => {
       const result = await app.post('/v1/patientCarePlan').send({
         date: new Date().toISOString(),
-        diseaseId,
+        carePlanId,
         patientId: patient.get('id'),
       });
       expect(result).toHaveRequestError();
@@ -61,7 +61,7 @@ describe('PatientCarePlan', () => {
     it('should return return notes in order of creation', async () => {
       const createCarePlanRequest = await app.post('/v1/patientCarePlan').send({
         date: new Date().toISOString(),
-        diseaseId,
+        carePlanId,
         patientId: patient.get('id'),
         content: 'Main care plan',
       });
@@ -89,7 +89,7 @@ describe('PatientCarePlan', () => {
       const noteDate = new Date().toISOString();
       const result = await app.post('/v1/patientCarePlan').send({
         date: noteDate,
-        diseaseId,
+        carePlanId,
         patientId: patient.get('id'),
         content: 'Main care plan',
       });

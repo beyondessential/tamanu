@@ -1,4 +1,4 @@
-import { ICD10_DIAGNOSES, TRIAGE_DIAGNOSES, DRUGS } from 'shared/demoData';
+import { ICD10_DIAGNOSES, TRIAGE_DIAGNOSES, DRUGS, CARE_PLANS } from 'shared/demoData';
 import { splitIds } from 'shared/demoData/splitIds';
 
 export const testDiagnoses = ICD10_DIAGNOSES.slice(0, 50);
@@ -66,4 +66,5 @@ export const allSeeds = [
   ...testFacilities,
   ...testVillages,
   ...testAllergies,
+  ...CARE_PLANS
 ];
