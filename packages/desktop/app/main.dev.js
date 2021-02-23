@@ -7,7 +7,7 @@
  * `./app/dist/main.prod.js` using webpack. This gives us some performance wins.
  *
  */
-// import { autoUpdater } from 'electron-updater';
+import { autoUpdater } from 'electron-updater';
 import { app, BrowserWindow } from 'electron';
 import installExtension, {
   REDUX_DEVTOOLS,
@@ -69,10 +69,10 @@ app.on('ready', async () => {
       : `file://${__dirname}/app.html`;
   mainWindow.loadURL(htmlLocation);
 
-  // mainWindow.on('ready-to-show', () => {
-  //   autoUpdater.channel = 'edwin';
-  //   autoUpdater.checkForUpdatesAndNotify();
-  // });
+  mainWindow.on('ready-to-show', () => {
+    autoUpdater.channel = 'edwin';
+    autoUpdater.checkForUpdatesAndNotify();
+  });
 
   // @TODO: Use 'ready-to-show' event
   //        https://github.com/electron/electron/blob/master/docs/api/browser-window.md#using-ready-to-show-event
