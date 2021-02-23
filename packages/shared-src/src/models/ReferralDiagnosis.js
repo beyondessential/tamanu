@@ -1,3 +1,5 @@
+import { Sequelize } from 'sequelize';
+import { DIAGNOSIS_CERTAINTY, DIAGNOSIS_CERTAINTY_VALUES } from '../constants';
 import { Model } from './Model';
 
 export class ReferralDiagnosis extends Model {
@@ -5,6 +7,10 @@ export class ReferralDiagnosis extends Model {
     super.init(
       {
         id: primaryKey,
+        certainty: {
+          type: Sequelize.ENUM(DIAGNOSIS_CERTAINTY_VALUES),
+          defaultValue: DIAGNOSIS_CERTAINTY.SUSPECTED,
+        },
       },
       {
         ...options,

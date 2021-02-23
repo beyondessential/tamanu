@@ -1,4 +1,5 @@
 import { Sequelize } from 'sequelize';
+import { DIAGNOSIS_CERTAINTY, DIAGNOSIS_CERTAINTY_VALUES } from '../constants';
 import { Model } from './Model';
 
 export class EncounterDiagnosis extends Model {
@@ -8,8 +9,8 @@ export class EncounterDiagnosis extends Model {
         id: primaryKey,
 
         certainty: {
-          type: Sequelize.ENUM('suspected', 'confirmed'),
-          defaultValue: 'suspected',
+          type: Sequelize.ENUM(DIAGNOSIS_CERTAINTY_VALUES),
+          defaultValue: DIAGNOSIS_CERTAINTY.SUSPECTED,
         },
         isPrimary: Sequelize.BOOLEAN,
         date: {

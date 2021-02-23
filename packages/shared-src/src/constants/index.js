@@ -40,7 +40,7 @@ export const LAB_TEST_STATUSES = LAB_REQUEST_STATUSES;
 export const NOTE_TYPES = {
   SYSTEM: 'system',
   OTHER: 'other',
-  TREATMENT_PLAN: 'treatmentPlan'
+  TREATMENT_PLAN: 'treatmentPlan',
 };
 
 export const PATIENT_ISSUE_TYPES = {
@@ -138,7 +138,7 @@ export const PROGRAM_DATA_ELEMENT_TYPE_VALUES = [
   // For later versions
   'Autocomplete',
   'Photo',
-  // Meditrak-specific 
+  // Meditrak-specific
   'Geolocate',
   'DaysSince',
   'MonthsSince',
@@ -150,4 +150,11 @@ export const PROGRAM_DATA_ELEMENT_TYPE_VALUES = [
 
 export const REPORT_REQUEST_STATUSES = { RECEIVED: 'Received', PROCESSED: 'Processed' };
 
-export const REPORT_REQUEST_STATUS_VALUES = Object.values(REPORT_REQUEST_STATUSES)
+export const REPORT_REQUEST_STATUS_VALUES = Object.values(REPORT_REQUEST_STATUSES);
+
+export const DIAGNOSIS_CERTAINTY = {
+  SUSPECTED: 'suspected',
+  CONFIRMED: 'confirmed',
+};
+
+export const DIAGNOSIS_CERTAINTY_VALUES = Object.values(DIAGNOSIS_CERTAINTY);
