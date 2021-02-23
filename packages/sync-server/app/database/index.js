@@ -8,8 +8,7 @@ import { log } from '../logging';
 let existingConnection = null;
 
 // this is dangerous and should only be used in test mode
-const unsafeRecreateDb = async name => {
-  const { username, password, host, port } = config.db;
+const unsafeRecreateDb = async ({ name, username, password, host, port }) => {
   const client = new pg.Client({
     user: username,
     password,
@@ -42,7 +41,7 @@ export async function initDatabase({ testMode = false }) {
   const { sqlitePath } = config.db;
   if (testMode && !sqlitePath && process.env.JEST_WORKER_ID) {
     name = `${name}-${process.env.JEST_WORKER_ID}`;
-    await unsafeRecreateDb(name);
+    await unsafeRecreateDb({ ...config.db, name });
   }
 
   const store = await new SqlWrapper({
