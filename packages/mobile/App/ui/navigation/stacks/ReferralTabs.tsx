@@ -26,16 +26,8 @@ const DumbReferralHistoryScreen = ({ selectedPatient }): JSX.Element => {
     ({ models }) => models.Referral.getForPatient(selectedPatient.id),
     [isFocused],
   );
-  useEffect(() => {
-    (async () => {
-      if (!data || !data[0]) return;
-      const answers = await models.Referral.getAnswers(data[0].id);
-      console.log('ZUG', answers);
-    })()
-  }, [ selectedPatient, isFocused ]);
     
   if (error) return <ErrorScreen error={error} />;
-  console.log(data);
   return (
     <List.Section>
       {data && data.map(({ formTitle , date, answers }) => {

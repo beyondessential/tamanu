@@ -1,18 +1,22 @@
 import React, { useEffect, useState, useCallback, FC } from 'react';
+import { useFormikContext } from 'formik';
 import { View } from 'react-native';
 import { Subheading, Text } from "react-native-paper";
 import { useBackend } from '~/ui/hooks';
 import { Field } from '../Forms/FormField';
 import { SurveyResultBadge } from '../SurveyResultBadge';
 
-export const SurveyResult = ({ selectedPatient, surveyId }) => {
+export const SurveyResult = ({ selectedPatient, surveyId, questionId }) => {
   const [surveyResponse, setSurveyResponse] = useState();
+  const { setFieldValue } = useFormikContext();
   const { models } = useBackend();
 
   useEffect(() => {
     (async (): Promise<void> => {
       const responses = await models.SurveyResponse.getForPatient(selectedPatient.id, surveyId);
+      if (responses.length === 0) return;
       setSurveyResponse(responses[0]); // getForPatient returns responses sorted by most recent, we want the most recent.
+      setFieldValue(questionId, responses[0].resultText || responses[0].resultText)
     })();
   }, [selectedPatient, surveyId]);
 

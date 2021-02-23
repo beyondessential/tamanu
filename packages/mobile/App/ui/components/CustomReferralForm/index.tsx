@@ -23,7 +23,6 @@ const CustomReferralFormComponent = ({ selectedForm, selectedPatient, navigation
         formTitle: title, 
         date: new Date(),
       });
-      console.log("form values", values)
       const createAnswerJobs = await Object.entries(values).map(async ([questionId, answer]) => {
         return models.ReferralAnswer.createAndSaveOne({
           referral: referral.id,

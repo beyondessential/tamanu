@@ -80,6 +80,7 @@ export const ReferralQuestion = ({ data, patientData, navigation }) => {
           <SurveyLink
             selectedPatient={patientData}
             surveyId={source}
+            questionId={id}
           />
         );
       }
@@ -88,22 +89,13 @@ export const ReferralQuestion = ({ data, patientData, navigation }) => {
           <SurveyResult
             selectedPatient={patientData}
             surveyId={source}
+            questionId={id}
           />
         );
       }
       return (
         <SurveyAnswerField
           data={data}
-        />
-      );
-    case 'patient':
-      return (
-        <Field
-          component={fieldInput}
-          name={id}
-          label={question}
-          value={patientData[source] || ''}
-          disabled
         />
       );
     default:
