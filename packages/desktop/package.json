@@ -60,7 +60,8 @@
       "provider": "s3",
       "bucket": "tamanu-builds",
       "region": "ap-southeast-2",
-      "channel": "edwin"
+      "channel": "edwin",
+      "path": "fiji"
     },
     "dmg": {
       "contents": [
