@@ -1,10 +1,11 @@
 import React, { useEffect, useState, useCallback } from 'react';
+import { Text } from 'react-native-paper';
 import { Formik } from 'formik';
 import { compose } from 'redux';
-import { withPatient } from '~/ui/containers/Patient';
 
 import { FullView, StyledScrollView, StyledView } from '/styled/common';
-import { Text } from 'react-native-paper';
+import { Routes } from '/helpers/routes';
+import { withPatient } from '~/ui/containers/Patient';
 import { useBackend } from '~/ui/hooks';
 import { Title } from 'react-native-paper';
 import { Button } from '../Button';
@@ -32,6 +33,7 @@ const CustomReferralFormComponent = ({ selectedForm, selectedPatient, navigation
       });
 
       await Promise.all(createAnswerJobs);
+      navigation.navigate(Routes.HomeStack.ReferralTabs.ViewHistory);
     }, [title, selectedPatient],
   );
 

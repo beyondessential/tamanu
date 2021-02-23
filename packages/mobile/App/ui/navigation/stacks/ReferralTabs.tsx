@@ -8,7 +8,7 @@ import { withPatient } from '/containers/Patient';
 import { BaseAppProps } from '/interfaces/BaseAppProps';
 import { joinNames } from '/helpers/user';
 import { AddRefferalDetailScreen } from '../screens/referrals/AddReferralDetailScreen';
-import { useBackend, useBackendEffect } from '~/ui/hooks';
+import { useBackendEffect } from '~/ui/hooks';
 import { ErrorScreen } from '~/ui/components/ErrorScreen';
 import { List } from 'react-native-paper';
 import { format } from 'date-fns';
@@ -21,7 +21,6 @@ type ReferralTabsProps = {
 
 const DumbReferralHistoryScreen = ({ selectedPatient }): JSX.Element => {
   const isFocused = useIsFocused();
-  const { models } = useBackend();
   const [data, error] = useBackendEffect(
     ({ models }) => models.Referral.getForPatient(selectedPatient.id),
     [isFocused],
