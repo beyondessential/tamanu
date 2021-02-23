@@ -55,7 +55,7 @@ export const ReferralQuestion = ({ data, patientData, navigation }) => {
         return (
           <Field
             component={fieldInput}
-            placeholder="Search..."
+            placeholder={question}
             navigation={navigation}
             suggester={source && createSuggester(models, source, options)}
             options={!source && scsvToOptions(options)}
