@@ -1,4 +1,4 @@
-import React, { ReactElement, useCallback } from 'react';
+import React, { ReactElement, useCallback, useEffect, useState } from 'react';
 import { NavigationProp, useIsFocused } from '@react-navigation/native';
 import { Routes } from '/helpers/routes';
 import { StackHeader } from '/components/StackHeader';
@@ -8,7 +8,7 @@ import { withPatient } from '/containers/Patient';
 import { BaseAppProps } from '/interfaces/BaseAppProps';
 import { joinNames } from '/helpers/user';
 import { AddRefferalDetailScreen } from '../screens/referrals/AddReferralDetailScreen';
-import { useBackendEffect } from '~/ui/hooks';
+import { useBackend, useBackendEffect } from '~/ui/hooks';
 import { ErrorScreen } from '~/ui/components/ErrorScreen';
 import { List } from 'react-native-paper';
 import { format } from 'date-fns';
@@ -21,12 +21,21 @@ type ReferralTabsProps = {
 
 const DumbReferralHistoryScreen = ({ selectedPatient }): JSX.Element => {
   const isFocused = useIsFocused();
+  const { models } = useBackend();
   const [data, error] = useBackendEffect(
     ({ models }) => models.Referral.getForPatient(selectedPatient.id),
     [isFocused],
-    );
+  );
+  useEffect(() => {
+    (async () => {
+      if (!data || !data[0]) return;
+      const answers = await models.Referral.getAnswers(data[0].id);
+      console.log('ZUG', answers);
+    })()
+  }, [ selectedPatient, isFocused ]);
     
   if (error) return <ErrorScreen error={error} />;
+  console.log(data);
   return (
     <List.Section>
       {data && data.map(({ formTitle , date, answers }) => {

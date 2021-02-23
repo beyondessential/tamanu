@@ -76,6 +76,7 @@ export const TextField = React.memo(
 
     const inputMarginTop = useMemo(() => {
       if (multiline) return 0;
+      if (!label) return screenPercentageToDP(0.8, Orientation.Height);;
       if (Platform.OS === 'ios') return screenPercentageToDP(1, Orientation.Height);
       return screenPercentageToDP(1.5, Orientation.Height);
     }, []);

@@ -2,6 +2,7 @@ import React, { useEffect, useState, useCallback, FC } from 'react';
 import { View } from 'react-native';
 import { Subheading, Text } from "react-native-paper";
 import { useBackend } from '~/ui/hooks';
+import { Field } from '../Forms/FormField';
 import { SurveyResultBadge } from '../SurveyResultBadge';
 
 export const SurveyResult = ({ selectedPatient, surveyId }) => {
@@ -16,10 +17,19 @@ export const SurveyResult = ({ selectedPatient, surveyId }) => {
   }, [selectedPatient, surveyId]);
 
   if (!surveyResponse) return <Text>Survey (id: {surveyId}) not submitted for patient.</Text>;
-  return (
+  const SurveyBadgeField = () => (
     <View>
       <Subheading>CVD Risk</Subheading>
       <SurveyResultBadge result={surveyResponse.result} resultText={surveyResponse.resultText} />
     </View>
-  )
+  );
+  return (
+    <Field
+      component={SurveyBadgeField}
+      label={`CVD Risk`}
+      name="surveyResult"
+      value={surveyResponse.resultText || surveyResponse.result}
+      disabled
+    />
+  );
 }
