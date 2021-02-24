@@ -1,7 +1,7 @@
 {
   "name": "desktop",
   "productName": "Tamanu",
-  "version": "1.0.3",
+  "version": "1.0.0",
   "description": "Tamanu Desktop application",
   "private": true,
   "homepage": "https://github.com/beyondessential/tamanu.git#readme",
@@ -60,8 +60,7 @@
       "provider": "s3",
       "bucket": "tamanu-builds",
       "region": "ap-southeast-2",
-      "channel": "fiji",
-      "path": "desktop-app"
+      "path": "desktop-app/base"
     },
     "dmg": {
       "contents": [
