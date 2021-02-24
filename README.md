@@ -65,7 +65,7 @@ $ yarn lan-start-dev
 
 This will start a build & watch process on the lan server and the shared directory.
 
-If you're working on backend functionality, it's much, _much_ quicker easier to drive development
+If you're working on backend functionality, it's much, _much_ quicker and easier to drive development
 with testing. You can set up predictable test data rather than having to click through a bunch of
 UI screens every time, and the live-reload turnaround is way faster than the desktop version. (this
 is in addition to the fact that any backend functionality should have tests against it anyway)
