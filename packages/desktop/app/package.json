@@ -1,7 +1,7 @@
 {
   "//": "this package.json is used by electron-builder during ci/cd",
   "main": "./dist/main.prod.js",
-  "name": "Tamanu Desktop",
+  "name": "Tamanu",
   "productName": "Tamanu",
   "version": "1.0.0",
   "description": "Tamanu Desktop application",
