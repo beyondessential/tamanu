@@ -61,7 +61,7 @@
       "bucket": "tamanu-builds",
       "region": "ap-southeast-2",
       "channel": "base",
-      "path": "dekstop-app"
+      "path": "desktop-app"
     },
     "dmg": {
       "contents": [
