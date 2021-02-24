@@ -8,6 +8,7 @@ import { noSwipeGestureOnNavigator } from '/helpers/navigators';
 import { SearchPatientTabs } from './SearchPatientTabs';
 // Screens
 import { PatientFilterScreen } from '../screens/PatientSearch';
+import { ErrorBoundary } from '~/ui/components/ErrorBoundary';
 
 const Stack = createStackNavigator();
 
@@ -34,29 +35,31 @@ export const SearchPatientStack = ({ navigation }): ReactElement => {
   };
 
   return (
-    <Formik
-      initialValues={filters}
-      onSubmit={submitPatientFilters}
-    >
-      {({ handleSubmit }): ReactElement => (
-        <Stack.Navigator
-          headerMode="none"
-          screenOptions={noSwipeGestureOnNavigator}
-        >
-          <Stack.Screen
-            name={Routes.HomeStack.SearchPatientStack.SearchPatientTabs.Index}
-            component={SearchPatientTabs}
-            initialParams={filters}
-          />
-          <Stack.Screen
-            name={Routes.HomeStack.SearchPatientStack.FilterSearch}
-            component={PatientFilterScreen}
-            initialParams={{
-              onChangeFilters: handleSubmit,
-            }}
-          />
-        </Stack.Navigator>
-      )}
-    </Formik>
+    <ErrorBoundary>
+      <Formik
+        initialValues={filters}
+        onSubmit={submitPatientFilters}
+      >
+        {({ handleSubmit }): ReactElement => (
+          <Stack.Navigator
+            headerMode="none"
+            screenOptions={noSwipeGestureOnNavigator}
+          >
+            <Stack.Screen
+              name={Routes.HomeStack.SearchPatientStack.SearchPatientTabs.Index}
+              component={SearchPatientTabs}
+              initialParams={filters}
+            />
+            <Stack.Screen
+              name={Routes.HomeStack.SearchPatientStack.FilterSearch}
+              component={PatientFilterScreen}
+              initialParams={{
+                onChangeFilters: handleSubmit,
+              }}
+            />
+          </Stack.Navigator>
+        )}
+      </Formik>
+    </ErrorBoundary>
   );
 };

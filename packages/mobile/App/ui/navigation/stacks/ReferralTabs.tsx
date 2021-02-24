@@ -12,6 +12,7 @@ import { PatientHistoryAccordion } from '~/ui/components/PatientHistoryAccordion
 import { LoadingScreen } from '~/ui/components/LoadingScreen';
 import { useBackendEffect } from '~/ui/hooks';
 import { ErrorScreen } from '~/ui/components/ErrorScreen';
+import { ErrorBoundary } from '~/ui/components/ErrorBoundary';
 
 const Tabs = createTopTabNavigator();
 
@@ -67,7 +68,7 @@ const TabNavigator = ({
   }, []);
 
   return (
-    <>
+    <ErrorBoundary>
       <StackHeader
         title="Referrals"
         subtitle={joinNames(selectedPatient)}
@@ -89,7 +90,7 @@ const TabNavigator = ({
           component={ReferralHistoryScreen}
         />
       </Tabs.Navigator>
-    </>
+    </ErrorBoundary>
   );
 };
 

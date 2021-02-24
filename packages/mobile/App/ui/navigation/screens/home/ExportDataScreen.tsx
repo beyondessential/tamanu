@@ -18,6 +18,7 @@ import { Field } from '/components/Forms/FormField';
 import { Button } from '/components/Button';
 import { screenPercentageToDP, Orientation } from '/helpers/screen';
 import { ExportDataScreenProps } from '/interfaces/Screens/HomeStack/ExportDataScreenProps';
+import { ErrorBoundary } from '~/ui/components/ErrorBoundary';
 
 const formInitialValues = {
   email: '',
@@ -97,35 +98,37 @@ export const ExportDataScreen = ({
   }, []);
 
   return (
-    <FullView>
-      <StyledSafeAreaView background={theme.colors.PRIMARY_MAIN}>
-        <RowView>
-          <StyledTouchableOpacity onPress={navigationBack} padding={20}>
-            <ArrowLeftIcon />
-          </StyledTouchableOpacity>
-          <StyledView
-            position="absolute"
-            width="100%"
-            height="100%"
-            alignItems="center"
-            justifyContent="center"
-            zIndex={-1}
-          >
-            <StyledText
-              fontSize={screenPercentageToDP(1.94, Orientation.Height)}
-              color={theme.colors.WHITE}
+    <ErrorBoundary>
+      <FullView>
+        <StyledSafeAreaView background={theme.colors.PRIMARY_MAIN}>
+          <RowView>
+            <StyledTouchableOpacity onPress={navigationBack} padding={20}>
+              <ArrowLeftIcon />
+            </StyledTouchableOpacity>
+            <StyledView
+              position="absolute"
+              width="100%"
+              height="100%"
+              alignItems="center"
+              justifyContent="center"
+              zIndex={-1}
             >
-              Export Data
-            </StyledText>
-          </StyledView>
-        </RowView>
-      </StyledSafeAreaView>
-      <FullView flex={1} background={theme.colors.BACKGROUND_GREY}>
-        <Formik initialValues={formInitialValues} onSubmit={onSubmitForm}>
-          {renderForm}
-        </Formik>
+              <StyledText
+                fontSize={screenPercentageToDP(1.94, Orientation.Height)}
+                color={theme.colors.WHITE}
+              >
+                Export Data
+              </StyledText>
+            </StyledView>
+          </RowView>
+        </StyledSafeAreaView>
+        <FullView flex={1} background={theme.colors.BACKGROUND_GREY}>
+          <Formik initialValues={formInitialValues} onSubmit={onSubmitForm}>
+            {renderForm}
+          </Formik>
+        </FullView>
+        <StyledSafeAreaView background="white" />
       </FullView>
-      <StyledSafeAreaView background="white" />
-    </FullView>
+    </ErrorBoundary>
   );
 };
