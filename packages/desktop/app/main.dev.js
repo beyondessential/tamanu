@@ -70,7 +70,6 @@ app.on('ready', async () => {
   mainWindow.loadURL(htmlLocation);
 
   mainWindow.on('ready-to-show', () => {
-    autoUpdater.channel = 'edwin';
     autoUpdater.checkForUpdatesAndNotify();
   });
 
