@@ -21,7 +21,7 @@ describe('Ongoing conditions', () => {
 
   it('should record an ongoing condition', async () => {
     const result = await app.post('/v1/ongoingCondition').send({
-      conditionId: randomReferenceId(models, 'icd10'),
+      conditionId: await randomReferenceId(models, 'icd10'),
       patientId: patient.id,
       practitionerId: await randomUser(models),
     });

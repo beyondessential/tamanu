@@ -12,7 +12,7 @@ const randomLabTests = (models, labTestCategoryId, amount) =>
 
 const randomLabRequest = async (models, overrides) => {
   const categoryId = await randomReferenceId(models, 'labTestCategory');
-  const labTestTypeIds = await randomLabTests(models, categoryId, 2);
+  const labTestTypeIds = (await randomLabTests(models, categoryId, 2)).map(({ id }) => id);
   return {
     categoryId,
     labTestTypeIds,

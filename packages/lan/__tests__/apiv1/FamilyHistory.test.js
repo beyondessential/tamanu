@@ -22,10 +22,10 @@ describe('Family history', () => {
 
   it('should record family history', async () => {
     const result = await app.post('/v1/familyHistory').send({
-      diagnosisId: randomReferenceId(models, 'icd10'),
+      diagnosisId: await randomReferenceId(models, 'icd10'),
       patientId: patient.id,
       practitionerId: await randomUser(models),
-      relationship: "mother",
+      relationship: 'mother',
     });
     expect(result).toHaveSucceeded();
     expect(result.body.recordedDate).toBeTruthy();
@@ -36,7 +36,7 @@ describe('Family history', () => {
       diagnosisId: 'invalid id',
       patientId: patient.id,
       practitionerId: await randomUser(models),
-      relationship: "mother",
+      relationship: 'mother',
     });
     expect(result).toHaveRequestError();
   });

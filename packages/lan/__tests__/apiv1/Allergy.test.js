@@ -21,7 +21,7 @@ describe('Allergy', () => {
 
   it('should record an allergy', async () => {
     const result = await app.post('/v1/allergy').send({
-      allergyId: randomReferenceId(models, 'allergy'),
+      allergyId: await randomReferenceId(models, 'allergy'),
       patientId: patient.id,
       practitionerId: await randomUser(models),
     });
