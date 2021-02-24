@@ -1,4 +1,3 @@
-import { autoUpdater } from 'electron-updater';
 import { createReducer } from '../utils/createReducer';
 
 // actions
@@ -13,7 +12,6 @@ export const login = (email, password) => async (dispatch, getState, { api }) =>
 
   try {
     const { user, token } = await api.login(email, password);
-    autoUpdater.checkForUpdatesAndNotify(); // check for app updates on each successful login
     dispatch({ type: LOGIN_SUCCESS, user, token });
   } catch (error) {
     dispatch({ type: LOGIN_FAILURE, error: error.message });
