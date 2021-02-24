@@ -72,8 +72,15 @@ app.on('ready', async () => {
   mainWindow.loadURL(htmlLocation);
 
   mainWindow.on('ready-to-show', () => {
-    autoUpdater.checkForUpdatesAndNotify();
-    setInterval(() => autoUpdater.checkForUpdatesAndNotify(), UPDATE_CHECK_INTERVAL);
+    const notificationDetails = {
+      title: 'A new update is ready to install',
+      body: `To update to {version}, please close {appName} and wait for 30 seconds before re-opening.`,
+    };
+    autoUpdater.checkForUpdatesAndNotify(notificationDetails);
+    setInterval(
+      () => autoUpdater.checkForUpdatesAndNotify(notificationDetails),
+      UPDATE_CHECK_INTERVAL,
+    );
   });
 
   // @TODO: Use 'ready-to-show' event
