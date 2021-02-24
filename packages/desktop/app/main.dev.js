@@ -24,7 +24,7 @@ import electronDebug from 'electron-debug';
 import MenuBuilder from './menu';
 import { registerPrintListener } from './print';
 
-const UPDATE_CHECK_INTERVAL = 20 * 1000; // 60 * 60 * 1000; // check for updates every hour
+const UPDATE_CHECK_INTERVAL = 60 * 60 * 1000; // check for updates every hour
 
 let mainWindow = null;
 
