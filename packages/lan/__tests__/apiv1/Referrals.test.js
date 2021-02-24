@@ -2,9 +2,9 @@ import { createDummyPatient, createDummyEncounter } from 'shared/demoData';
 import { DIAGNOSIS_CERTAINTY } from 'shared/constants';
 import { createTestContext } from '../utilities';
 
-const { baseApp, models } = createTestContext();
-
 describe('Referrals', () => {
+  let baseApp = null;
+  let models = null;
   let app = null;
   let patient = null;
   let encounter = null;
@@ -12,6 +12,9 @@ describe('Referrals', () => {
   let department = null;
 
   beforeAll(async () => {
+    const ctx = await createTestContext();
+    baseApp = ctx.baseApp;
+    models = ctx.models;
     app = await baseApp.asRole('practitioner');
     patient = await models.Patient.create(await createDummyPatient(models));
     facility = await models.ReferenceData.findOne({ where: { type: 'facility' } });

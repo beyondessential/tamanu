@@ -1,11 +1,15 @@
 import { createDummyPatient } from 'shared/demoData/patients';
 import { createTestContext } from '../utilities';
 
-const { baseApp, models } = createTestContext();
-
 describe('Patient', () => {
   let app = null;
+  let baseApp = null;
+  let models = null;
+
   beforeAll(async () => {
+    const ctx = await createTestContext();
+    baseApp = ctx.baseApp;
+    models = ctx.models;
     app = await baseApp.asRole('practitioner');
   });
 

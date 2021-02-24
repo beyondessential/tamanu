@@ -6,12 +6,16 @@ import { createTestContext } from '../utilities';
 
 const chance = new Chance();
 
-const { baseApp, models } = createTestContext();
-
 describe('Note', () => {
   let patient = null;
   let app = null;
+  let baseApp = null;
+  let models = null;
+
   beforeAll(async () => {
+    const ctx = await createTestContext();
+    baseApp = ctx.baseApp;
+    models = ctx.models;
     patient = await models.Patient.create(await createDummyPatient(models));
     app = await baseApp.asRole('practitioner');
   });

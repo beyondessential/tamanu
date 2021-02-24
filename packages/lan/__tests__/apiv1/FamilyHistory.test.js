@@ -5,13 +5,17 @@ import {
 } from 'shared/demoData/patients';
 import { createTestContext } from '../utilities';
 
-const { baseApp, models } = createTestContext();
 
 describe('Family history', () => {
   let patient = null;
   let app = null;
+  let baseApp = null;
+  let models = null;
 
   beforeAll(async () => {
+    const ctx = await createTestContext();
+    baseApp = ctx.baseApp;
+    models = ctx.models;
     app = await baseApp.asRole('practitioner');
     patient = await models.Patient.create(await createDummyPatient(models));
   });

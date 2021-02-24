@@ -5,14 +5,17 @@ import {
 } from 'shared/demoData/patients';
 import { createTestContext } from '../utilities';
 
-const { baseApp, models } = createTestContext();
-
 describe('Imaging requests', () => {
   let patient = null;
   let encounter = null;
   let app = null;
+  let baseApp = null;
+  let models = null;
 
   beforeAll(async () => {
+    const ctx = await createTestContext();
+    baseApp = ctx.baseApp;
+    models = ctx.models;
     app = await baseApp.asRole('practitioner');
     patient = await models.Patient.create(await createDummyPatient(models));
     encounter = await models.Encounter.create({

@@ -5,8 +5,6 @@ import { createTestContext } from '../utilities';
 
 const chance = new Chance();
 
-const { baseApp, models } = createTestContext();
-
 // helper function to check we've found the intended samples
 // (we're using first name as the field that indicates which
 // test it should/shouldn't be found in)
@@ -74,7 +72,14 @@ describe('Patient search', () => {
   let villages = null;
   let locations = null;
   let departments = null;
+  let baseApp = null;
+  let models = null;
+
   beforeAll(async () => {
+    const ctx = await createTestContext();
+    baseApp = ctx.baseApp;
+    models = ctx.models;
+
     app = await baseApp.asRole('practitioner');
 
     villages = await models.ReferenceData.findAll({ where: { type: 'village' } });
