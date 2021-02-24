@@ -13,16 +13,16 @@ surveyResponse.get(
     const { models, params } = req;
     req.checkPermission('read', 'SurveyResponse');
 
-    const surveyResponse = await models.SurveyResponse.findByPk(params.id);
+    const surveyResponseRecord = await models.SurveyResponse.findByPk(params.id);
     const components = await models.SurveyScreenComponent.getComponentsForSurvey(
-      surveyResponse.surveyId,
+      surveyResponseRecord.surveyId,
     );
     const answers = await models.SurveyResponseAnswer.findAll({
       where: { responseId: params.id },
     });
 
     res.send({
-      ...surveyResponse.forResponse(),
+      ...surveyResponseRecord.forResponse(),
       components,
       answers,
     });

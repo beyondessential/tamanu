@@ -47,13 +47,12 @@ referral.post(
     const diagnoses = Object.values(diagnosesMap);
     if (diagnoses.length) {
       await Promise.all(
-        diagnoses.map(
-          async diagnosis =>
-            await models.ReferralDiagnosis.create({
-              diagnosisId: diagnosis.diagnosisId,
-              certainty: diagnosis.certainty,
-              referralId: newReferral.get('id'),
-            }),
+        diagnoses.map(async diagnosis =>
+          models.ReferralDiagnosis.create({
+            diagnosisId: diagnosis.diagnosisId,
+            certainty: diagnosis.certainty,
+            referralId: newReferral.get('id'),
+          }),
         ),
       );
     }
