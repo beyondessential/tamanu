@@ -106,6 +106,12 @@ Any time a codeship build runs, the build artifacts will be pushed to S3, using 
 
 When setting up a new country, just follow the same process as for releasing a build to the country, and make sure all desktop app installs use the `.exe` from the new folder in S3 that is created by CI/CD.
 
+## Versioning
+
+Tamanu Desktop follows semver. When updating the version, please update both `desktop/package.json` and `desktop/app/package.json` (the latter is used by `electron-builder`).
+
+Note that new commits to the `master`, `dev`, or `ci-` branches will overwrite the build artifacts on S3, based on the version set in `dekstop/app/package.json`. To avoid this, bump the patch version _immediately after_ releasing the previous version and add a channel suffix, so that the released build is preserved even in the `draft` folder. For example, after releasing `v1.6.3`, you would then update the version to `v1.6.4-alpha` (our automatic update process can handle `alpha` and `beta` as channels). When that was ready for release, you would remove the `-alpha` or `-beta` suffix, bump the minor or major version if required, release (see above), and then increment the version again for further development.
+
 ## References
 
 - [electron-react-boilerplate](https://github.com/chentsulin/electron-react-boilerplate)
