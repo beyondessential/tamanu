@@ -3,7 +3,7 @@
   "main": "./dist/main.prod.js",
   "name": "desktop",
   "productName": "Tamanu",
-  "version": "1.0.1",
+  "version": "1.0.2",
   "description": "Tamanu Desktop application",
   "private": true,
   "homepage": "https://github.com/beyondessential/tamanu.git#readme",
