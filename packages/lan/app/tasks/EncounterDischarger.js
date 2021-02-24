@@ -4,8 +4,8 @@ import shortid from 'shortid';
 
 import { Op } from 'sequelize';
 
-import { log } from '~/logging';
 import { ScheduledTask } from 'shared/tasks';
+import { log } from '~/logging';
 
 export class EncounterDischarger extends ScheduledTask {
   constructor(context) {
@@ -40,7 +40,6 @@ export class EncounterDischarger extends ScheduledTask {
       .subtract(1, 'minute')
       .toDate();
 
-      
     const tasks = oldEncounters.map(async encounter => {
       await encounter.update({
         endDate: closingDate,

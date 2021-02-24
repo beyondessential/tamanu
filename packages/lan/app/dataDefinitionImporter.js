@@ -265,13 +265,11 @@ export async function readDataDefinition(path) {
     importerId: convertSheetNameToImporterId(sheetName),
   }));
 
-  return sheets
-    .sort(compareImporterPriority)
-    .map(({ sheetName, sheet, ...rest }) => ({
-      sheetName,
-      data: utils.sheet_to_json(sheet),
-      ...rest,
-    }));
+  return sheets.sort(compareImporterPriority).map(({ sheetName, sheet, ...rest }) => ({
+    sheetName,
+    data: utils.sheet_to_json(sheet),
+    ...rest,
+  }));
 }
 
 export async function importDataDefinition(models, path, onSheetImported) {

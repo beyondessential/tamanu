@@ -3,7 +3,6 @@ import { SenaitePoller } from './SenaitePoller';
 import { EncounterDischarger } from './EncounterDischarger';
 import { SyncTask } from './SyncTask';
 
-
 const TASKS = [EncounterDischarger, SyncTask];
 
 export function startScheduledTasks(context) {

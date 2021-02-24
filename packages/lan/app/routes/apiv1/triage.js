@@ -29,13 +29,10 @@ triage.get(
 
     req.checkPermission('list', 'Triage');
 
-    const {
-      orderBy = 'score',
-      order = 'asc',
-    } = query;
+    const { orderBy = 'score', order = 'asc' } = query;
     const sortKey = sortKeys[orderBy];
 
-    if(!sortKey) {
+    if (!sortKey) {
       throw new InvalidParameterError(`Cannot order by ${orderBy}.`);
     }
 
