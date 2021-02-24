@@ -63,8 +63,8 @@ const CustomReferralFormComponent = ({ selectedForm, selectedPatient, navigation
           {({ handleSubmit }): JSX.Element => (
             <FullView padding={12}>
               <Title>{title}</Title>
-              {questions.map(q => (
-                <StyledView marginTop={10}>
+              {questions.sort((a,b) => b.order - a.order).map(q => (
+                <StyledView key={q.id} marginTop={10}>
                   <ReferralQuestion patientData={selectedPatient} data={q} navigation={navigation} />
                 </StyledView>
               ))}

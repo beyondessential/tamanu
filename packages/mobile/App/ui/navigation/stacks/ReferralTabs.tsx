@@ -1,4 +1,4 @@
-import React, { ReactElement, useCallback, useEffect, useState } from 'react';
+import React, { ReactElement, useCallback } from 'react';
 import { NavigationProp, useIsFocused } from '@react-navigation/native';
 import { Routes } from '/helpers/routes';
 import { StackHeader } from '/components/StackHeader';
@@ -30,12 +30,13 @@ const DumbReferralHistoryScreen = ({ selectedPatient }): JSX.Element => {
   return (
     <List.Section>
       {data && data.map(({ formTitle , date, answers }) => {
+        const orderedAnswers = answers.sort((a, b) => b.question.order - a.question.order);
         return (
           <List.Accordion
             title={`${formTitle} (${format(date, 'dd-MM-yyy')})`}
             left={props => <List.Icon {...props} icon="clipboard-plus-outline" />}>
-            {answers.map(answer =>
-              <List.Item title={answer.question.question} description={answer.answer} />
+            {orderedAnswers.map(answer =>
+              <List.Item key={answer.id} title={answer.question.question} description={answer.answer} />
             )}
           </List.Accordion>
         )

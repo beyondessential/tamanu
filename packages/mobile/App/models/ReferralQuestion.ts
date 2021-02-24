@@ -18,7 +18,7 @@ export class ReferralQuestion extends BaseModel implements IReferralQuestion {
   type: QuestionType;
   
   @Column({ default: 1 })
-  sort: number;
+  order: number;
   
   @Column()
   question: string;
