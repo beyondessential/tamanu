@@ -73,7 +73,7 @@ app.on('ready', async () => {
 
   mainWindow.on('ready-to-show', () => {
     autoUpdater.checkForUpdatesAndNotify();
-    setInterval(autoUpdater.checkForUpdatesAndNotify, UPDATE_CHECK_INTERVAL);
+    setInterval(() => autoUpdater.checkForUpdatesAndNotify(), UPDATE_CHECK_INTERVAL);
   });
 
   // @TODO: Use 'ready-to-show' event
