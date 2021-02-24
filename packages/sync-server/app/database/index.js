@@ -1,5 +1,4 @@
 import config from 'config';
-import { Sequelize } from 'sequelize';
 
 import { SqlWrapper } from './wrapper/sqlWrapper';
 import { log } from '../logging';
@@ -18,7 +17,6 @@ export async function initDatabase({ testMode = false }) {
     log,
     makeEveryModelParanoid: true,
     saltRounds: config.auth.saltRounds,
-    primaryKeyType: Sequelize.STRING,
   }).init();
 
   // drop and recreate db

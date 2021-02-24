@@ -45,7 +45,6 @@ export async function initDatabase(dbOptions) {
     makeEveryModelParanoid=false,
     saltRounds=null,
     primaryKeyDefault=Sequelize.UUIDV4,
-    primaryKeyType=Sequelize.UUID,
     hackToSkipEncounterValidation=false, // TODO: remove once mobile implements all relationships
   } = dbOptions;
   let {
@@ -95,7 +94,7 @@ export async function initDatabase(dbOptions) {
   // init all models
   const modelClasses = Object.values(models);
   const primaryKey = {
-    type: primaryKeyType,
+    type: Sequelize.STRING,
     defaultValue: primaryKeyDefault,
     allowNull: false,
     primaryKey: true,
