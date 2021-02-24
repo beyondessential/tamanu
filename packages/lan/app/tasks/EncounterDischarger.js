@@ -1,6 +1,5 @@
 import config from 'config';
 import moment from 'moment';
-import shortid from 'shortid';
 
 import { Op } from 'sequelize';
 
@@ -48,6 +47,6 @@ export class EncounterDischarger extends ScheduledTask {
       log.info(`Auto-closed encounter with id ${encounter.id}`);
     });
 
-    return Promise.all(tasks);
+    await Promise.all(tasks);
   }
 }

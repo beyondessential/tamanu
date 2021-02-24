@@ -1,5 +1,5 @@
 import config from 'config';
-import { SenaitePoller } from './SenaitePoller';
+// import { SenaitePoller } from './SenaitePoller';
 import { EncounterDischarger } from './EncounterDischarger';
 import { SyncTask } from './SyncTask';
 

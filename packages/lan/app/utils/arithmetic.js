@@ -156,7 +156,7 @@ export function runArithmetic(formulaText, values = {}) {
   // so that the tokeniser doesn't get confused by variable names with
   // u and x in them)
   let valuedText = formulaText;
-  Object.entries(values).map(([key, value]) => {
+  Object.entries(values).forEach(([key, value]) => {
     if (Number.isNaN(parseFloat(value))) {
       throw new Error('Invalid value substitution');
     }
