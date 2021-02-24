@@ -35,7 +35,7 @@ const transformers = {
   labtesttypes: null,
 };
   
-export async function importData({ file }) {
+export async function importData({ file, dryRun }) {
   log.info(`Importing data definitions from ${file}...`);
 
   // parse xlsx
@@ -48,5 +48,10 @@ export async function importData({ file }) {
     return sheet.data.map(transformer);
   }).filter(x => x).flat();
 
-  await sendSyncRequest('reference', records);
+  if(dryRun) {
+    console.log(records);
+  } else {
+    await sendSyncRequest('reference', records);
+  }
 }
+

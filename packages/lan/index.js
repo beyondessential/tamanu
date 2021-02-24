@@ -14,8 +14,6 @@ import {
   writeSurveyToDatabase,
 } from './app/surveyImporter';
 
-import { runAdminTasks } from './app/admin';
-
 const port = config.port;
 
 async function importDemoPrograms(models) {
@@ -91,9 +89,4 @@ export async function run() {
   // TODO: sync with remote server
 }
 
-const { adminTasks } = config;
-if(adminTasks && adminTasks.length > 0) {
-  runAdminTasks(adminTasks);
-} else {
-  run();
-}
+run();
