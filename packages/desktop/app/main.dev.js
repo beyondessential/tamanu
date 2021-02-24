@@ -24,6 +24,8 @@ import electronDebug from 'electron-debug';
 import MenuBuilder from './menu';
 import { registerPrintListener } from './print';
 
+const UPDATE_CHECK_INTERVAL = 20 * 1000; // 60 * 60 * 1000; // check for updates every hour
+
 let mainWindow = null;
 
 const isProduction = process.env.NODE_ENV === 'production';
@@ -71,6 +73,7 @@ app.on('ready', async () => {
 
   mainWindow.on('ready-to-show', () => {
     autoUpdater.checkForUpdatesAndNotify();
+    setInterval(autoUpdater.checkForUpdatesAndNotify, UPDATE_CHECK_INTERVAL);
   });
 
   // @TODO: Use 'ready-to-show' event
