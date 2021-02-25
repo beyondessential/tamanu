@@ -16,6 +16,7 @@ export class Source {
   constructor(context) {
     this.context = context;
     this.host = config.sync.host;
+    this.connectToRemote(); // begin initialising connection
   }
 
   async fetch(endpoint, params = {}) {
