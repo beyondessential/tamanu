@@ -20,7 +20,7 @@ export class Source {
     const url = `${this.host}/${API_VERSION}/${endpoint}`;
     log.info(`[sync] ${method} ${url}`);
 
-    const response = fetch(url, {
+    const response = await fetch(url, {
       method,
       headers: {
         Accept: 'application/json',
