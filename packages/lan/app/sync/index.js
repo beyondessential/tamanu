@@ -1,5 +1,5 @@
 import { log } from '~/logging';
-import { Source } from './Source';
+import { WebRemote } from './WebRemote';
 
 export class SyncManager {
   host = '';
@@ -10,13 +10,15 @@ export class SyncManager {
 
   constructor(context) {
     this.context = context;
-    this.source = new Source(context);
+    this.remote = new WebRemote(context);
   }
 
   async runSync() {
     // TODO: sync functionality
-    const response = await this.source.fetch('whoami');
-    const data = await response.json();
+    const data = await this.remote.whoami();
     log.info(`Sync test - logged in as ${data.displayName}`);
+
+    const referenceData = await this.remote.recieve('reference');
+    log.info(`Sync test - retrieved ${referenceData.length} ReferenceData records`);
   }
 }

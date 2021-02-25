@@ -8,7 +8,7 @@ import { log } from '~/logging';
 
 const API_VERSION = 'v1';
 
-export class Source {
+export class WebRemote {
   context = null;
 
   connectionPromise = null;
@@ -16,7 +16,7 @@ export class Source {
   constructor(context) {
     this.context = context;
     this.host = config.sync.host;
-    this.connectToRemote(); // begin initialising connection
+    this.connect(); // begin initialising connection
   }
 
   async fetch(endpoint, params = {}) {
@@ -56,7 +56,7 @@ export class Source {
     if (checkForInvalidToken(response)) {
       if (retryAuth) {
         log.warn('Token was invalid - reconnecting to sync server');
-        await this.connectToRemote();
+        await this.connect();
         return this.fetch(endpoint, { ...params, retryAuth: false });
       }
       log.warn('Token was invalid - disconnecting from sync server');
@@ -66,7 +66,7 @@ export class Source {
     return response;
   }
 
-  async connectToRemote() {
+  async connect() {
     // wrap connection attempt in a promise
     const promise = (async () => {
       const { email, password } = config.sync;
@@ -110,11 +110,22 @@ export class Source {
     }
   }
 
-  async downloadRecords() {
-    throw new Error('Source: downloadRecords is not implemented yet');
+  async recieve(channel, { since = 0, limit = 100 } = {}) {
+    const path = `sync/${encodeURIComponent(channel)}?since=${since}&limit=${limit}`;
+    const response = await this.fetch(path);
+    if (!response.ok) {
+      throw new InvalidOperationError(`Server responded with status code ${response.status}`);
+    }
+    const body = await response.json();
+    return body.records;
   }
 
-  async uploadRecords() {
-    throw new Error('Source: uploadRecords is not implemented yet');
+  async send() {
+    throw new Error('WebRemote: send is not implemented yet');
+  }
+
+  async whoami() {
+    const response = await this.fetch('whoami');
+    return response.json();
   }
 }
