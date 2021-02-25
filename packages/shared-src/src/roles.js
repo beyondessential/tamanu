@@ -120,7 +120,10 @@ export const practitioner = (user, allow, forbid) => {
   allow('list', 'PatientCarePlan');
   allow('read', 'PatientCarePlan');
   allow('write', 'PatientCarePlan');
-  allow('create', 'PatientCarePlan')
+  allow('create', 'PatientCarePlan');
+
+  allow('read', 'Setting');
+  allow('list', 'Setting');
 };
 
 export const admin = (user, allow, forbid) => {
@@ -131,4 +134,7 @@ export const admin = (user, allow, forbid) => {
 
   allow('write', 'ReferenceData');
   allow('create', 'ReferenceData');
+
+  allow('write', 'Setting');
+  allow('create', 'Setting');
 };
