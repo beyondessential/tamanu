@@ -74,10 +74,6 @@ const PatientHomeContainer = ({
     navigation.navigate(Routes.HomeStack.SearchPatientStack.Index);
   }, []);
 
-  const onNavigateToPatientActions = useCallback(() => {
-    navigation.navigate(Routes.HomeStack.PatientActions);
-  }, []);
-
   const { models, syncManager } = useBackend();
   const onSyncPatient = useCallback(
     async (): Promise<void> => {
@@ -101,7 +97,6 @@ const PatientHomeContainer = ({
       navigateToSearchPatients={onNavigateToSearchPatients}
       visitTypeButtons={visitTypeButtons}
       patientMenuButtons={patientMenuButtons}
-      navigateToPatientActions={onNavigateToPatientActions}
       markPatientForSync={onSyncPatient}
     />
   );
