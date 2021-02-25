@@ -63,7 +63,7 @@ export class Source {
     if (response.status === 401) {
       throw new BadAuthenticationError(`Invalid credentials`);
     } else if (!response.ok) {
-      throw new InvalidOperationError(`Server responded with status code ${response.statusCode}`);
+      throw new InvalidOperationError(`Server responded with status code ${response.status}`);
     }
 
     const data = await response.json();
