@@ -84,7 +84,7 @@ const DumbImmunisationCertificate = ({
         </HeaderText>
       </Header>
       <Spacer />
-      <PatientDetailsHeader>Personal immunisation certificate</PatientDetailsHeader>
+      <PatientDetailsHeader>Personal vaccination certificate</PatientDetailsHeader>
       <TwoColumnContainer>
         <p>First name: {patient.firstName}</p>
         <p>Last name: {patient.lastName}</p>
