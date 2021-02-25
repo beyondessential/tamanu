@@ -1,5 +1,5 @@
 import { push } from 'connected-react-router';
-import { createReducer } from '../utils/createReducer';
+import { createReducerAllowClearingState } from '../utils/createReducer';
 
 // actions
 const PATIENT_LOAD_START = 'PATIENT_LOAD_START';
@@ -74,9 +74,10 @@ const handlers = {
     id: action.id,
     error: null,
   }),
-  [PATIENT_LOAD_ERROR]: action => ({
+  [PATIENT_LOAD_ERROR]: (action, state) => ({
     loading: false,
     error: action.error,
+    id: state.id, // preserve which patient has just errored 
   }),
   [PATIENT_LOAD_FINISH]: action => ({
     loading: false,
@@ -90,4 +91,4 @@ const handlers = {
   }),
 };
 
-export const patientReducer = createReducer(defaultState, handlers);
+export const patientReducer = createReducerAllowClearingState(defaultState, handlers);
