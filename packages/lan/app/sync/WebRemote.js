@@ -11,8 +11,6 @@ const API_VERSION = 'v1';
 export class WebRemote {
   connectionPromise = null;
 
-  fetchImplementation = fetch;
-
   constructor() {
     this.host = config.sync.host;
   }
@@ -40,7 +38,7 @@ export class WebRemote {
     const url = `${this.host}/${API_VERSION}/${endpoint}`;
     log.info(`[sync] ${method} ${url}`);
 
-    const response = await this.fetchImplementation(url, {
+    const response = await fetch(url, {
       method,
       headers: {
         Accept: 'application/json',

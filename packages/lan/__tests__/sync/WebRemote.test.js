@@ -1,6 +1,8 @@
 import { BadAuthenticationError, InvalidOperationError } from 'shared/errors';
+import fetch from 'node-fetch';
 
 import { WebRemote } from '~/sync/WebRemote';
+jest.mock('node-fetch');
 
 const fakeResponse = (response, body) => {
   const validBody = JSON.parse(JSON.stringify(body));
@@ -24,45 +26,39 @@ describe('WebRemote', () => {
   const authInvalid = fakeFailure(401);
   const authFailure = fakeFailure(503);
 
-  const createWebRemote = () => {
-    const remote = new WebRemote();
-    remote.fetchImplementation = jest.fn();
-    return remote;
-  };
-
   describe('authentication', () => {
     it('authenticates against a remote sync-server', async () => {
-      const remote = createWebRemote();
-      remote.fetchImplementation.mockReturnValueOnce(authSuccess);
+      const remote = new WebRemote();
+      fetch.mockReturnValueOnce(authSuccess);
       await remote.connect();
       expect(remote.token).toEqual('this-is-not-real');
     });
 
     it('throws a BadAuthenticationError if the credentials are invalid', async () => {
-      const remote = createWebRemote();
-      remote.fetchImplementation.mockReturnValueOnce(authInvalid);
+      const remote = new WebRemote();
+      fetch.mockReturnValueOnce(authInvalid);
       expect(remote.connect()).rejects.toThrow(BadAuthenticationError);
     });
 
     it('throws an InvalidOperationError if any other server error is returned', async () => {
-      const remote = createWebRemote();
-      remote.fetchImplementation.mockReturnValueOnce(authFailure);
+      const remote = new WebRemote();
+      fetch.mockReturnValueOnce(authFailure);
       expect(remote.connect()).rejects.toThrow(InvalidOperationError);
     });
 
     it('retrieves user data', async () => {
-      const remote = createWebRemote();
-      remote.fetchImplementation.mockReturnValueOnce(authSuccess);
+      const remote = new WebRemote();
+      fetch.mockReturnValueOnce(authSuccess);
       await remote.connect();
-      remote.fetchImplementation.mockReturnValueOnce(fakeSuccess({ displayName: 'Fake User' }));
+      fetch.mockReturnValueOnce(fakeSuccess({ displayName: 'Fake User' }));
       expect(await remote.whoami()).toMatchObject({ displayName: 'Fake User' });
     });
 
     it('retries if a token is invalid', async () => {
-      const remote = createWebRemote();
-      remote.fetchImplementation.mockReturnValueOnce(authSuccess);
+      const remote = new WebRemote();
+      fetch.mockReturnValueOnce(authSuccess);
       await remote.connect();
-      remote.fetchImplementation
+      fetch
         .mockReturnValueOnce(authInvalid)
         .mockReturnValueOnce(authSuccess)
         .mockReturnValueOnce(fakeSuccess({ displayName: 'Fake User' }));
@@ -72,10 +68,10 @@ describe('WebRemote', () => {
 
   describe('receive', () => {
     it('receives records', async () => {
-      const remote = createWebRemote();
-      remote.fetchImplementation.mockReturnValueOnce(authSuccess);
+      const remote = new WebRemote();
+      fetch.mockReturnValueOnce(authSuccess);
       await remote.connect();
-      remote.fetchImplementation.mockReturnValueOnce(
+      fetch.mockReturnValueOnce(
         fakeSuccess({
           records: [{ id: 'abc' }],
         }),
@@ -84,10 +80,10 @@ describe('WebRemote', () => {
     });
 
     it('throws an error on an invalid response', async () => {
-      const remote = createWebRemote();
-      remote.fetchImplementation.mockReturnValueOnce(authSuccess);
+      const remote = new WebRemote();
+      fetch.mockReturnValueOnce(authSuccess);
       await remote.connect();
-      remote.fetchImplementation.mockReturnValueOnce(fakeFailure(403));
+      fetch.mockReturnValueOnce(fakeFailure(403));
       expect(remote.receive('reference')).rejects.toThrow(InvalidOperationError);
     });
   });
