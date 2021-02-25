@@ -1,5 +1,6 @@
 import { log } from '~/logging';
-import { WebRemote } from './WebRemote';
+
+import { createImportPlan, executeImportPlan } from './import';
 
 export class SyncManager {
   host = '';
@@ -8,18 +9,51 @@ export class SyncManager {
 
   context = null;
 
-  constructor(context) {
+  constructor(context, remote) {
     this.context = context;
-    this.remote = new WebRemote(context);
-    this.remote.connect();
+    this.remote = remote;
+  }
+
+  async receiveAndImport(model, channel, since) {
+    const plan = createImportPlan(model);
+    const importRecords = async syncRecords => {
+      for (const syncRecord of syncRecords) {
+        await executeImportPlan(plan, syncRecord);
+      }
+    };
+
+    let lastCount = 0;
+    let page = 0;
+    let requestedAt = null;
+    do {
+      // receive
+      log.debug(`SyncManager: receiving page ${page} of ${channel}`);
+      const result = await this.remote.receive(channel, { page, since });
+      const syncRecords = result.records;
+      requestedAt = requestedAt === null ? requestedAt : Math.min(requestedAt, result.requestedAt);
+      lastCount = syncRecords.length;
+      if (lastCount === 0) {
+        log.debug(`SyncManager: reached end of ${channel}`);
+        break;
+      }
+
+      // import
+      log.debug(`SyncManager: importing ${syncRecords.length} ${model.name} records`);
+      await importRecords(syncRecords);
+
+      page++;
+    } while (lastCount);
+
+    // TODO: retry foreign key failures?
+
+    return requestedAt;
   }
 
   async runSync() {
-    // TODO: sync functionality
-    const data = await this.remote.whoami();
-    log.info(`Sync test - logged in as ${data.displayName}`);
-
-    const referenceData = await this.remote.receive('reference');
-    log.info(`Sync test - retrieved ${referenceData.length} ReferenceData records`);
+    const { models } = this.context;
+    for (const [model, channel] of [[models.ReferenceData, 'reference']]) {
+      const since = 0; // TODO: store this somewhere as lastSynced and retrieve it
+      await this.receiveAndImport(model, channel, since);
+    }
   }
 }

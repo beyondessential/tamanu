@@ -1,1 +1,2 @@
-export { SyncManager } from './SyncManager';
+export * from './SyncManager';
+export * from './WebRemote';
