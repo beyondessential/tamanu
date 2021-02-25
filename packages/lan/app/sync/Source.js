@@ -1,4 +1,5 @@
 import fetch from 'node-fetch';
+import config from 'config';
 
 import { BadAuthenticationError, InvalidOperationError } from 'shared/errors';
 
@@ -10,12 +11,28 @@ const API_VERSION = 'v1';
 export class Source {
   context = null;
 
+  connectionPromise = null;
+
   constructor(context) {
     this.context = context;
+    this.host = config.sync.host;
   }
 
   async fetch(endpoint, params = {}) {
-    const { headers = {}, body, method = 'GET', ...otherParams } = params;
+    const {
+      headers = {},
+      body,
+      method = 'GET',
+      retryAuth = true,
+      awaitConnection = true,
+      ...otherParams
+    } = params;
+
+    // if there's an ongoing connection attempt, wait until it's finished,
+    // unless we're deliberately progressing without it
+    if (awaitConnection) {
+      await this.connectionPromise;
+    }
 
     const url = `${this.host}/${API_VERSION}/${endpoint}`;
     log.info(`[sync] ${method} ${url}`);
@@ -34,50 +51,66 @@ export class Source {
       ...otherParams,
     });
 
-    if (this.token) {
-      const checkForInvalidToken = ({ status }) => status === 401;
-      if (checkForInvalidToken(response)) {
-        log.warning('Token was invalid - disconnecting from sync server');
-        this.token = '';
+    const checkForInvalidToken = ({ status }) => status === 401;
+    if (checkForInvalidToken(response)) {
+      if (retryAuth) {
+        log.warn('Token was invalid - reconnecting to sync server');
+        await this.connectToRemote();
+        return this.fetch(endpoint, { ...params, retryAuth: false });
       }
+      log.warn('Token was invalid - disconnecting from sync server');
+      this.token = '';
     }
 
     return response;
   }
 
-  async connectToRemote(params) {
-    const { email, password, host } = params;
+  async connectToRemote() {
+    // wrap connection attempt in a promise
+    const promise = (async () => {
+      const { email, password } = config.sync;
 
-    log.info(`Logging in to ${host} as ${email}...`);
+      log.info(`Logging in to ${this.host} as ${email}...`);
 
-    this.host = host;
+      const response = await this.fetch('login', {
+        method: 'POST',
+        body: {
+          email,
+          password,
+        },
+        awaitConnection: false,
+        retryAuth: false,
+      });
 
-    const response = await this.fetch('login', {
-      method: 'POST',
-      body: {
-        email,
-        password,
-      },
-    });
+      if (response.status === 401) {
+        throw new BadAuthenticationError(`Invalid credentials`);
+      } else if (!response.ok) {
+        throw new InvalidOperationError(`Server responded with status code ${response.status}`);
+      }
 
-    if (response.status === 401) {
-      throw new BadAuthenticationError(`Invalid credentials`);
-    } else if (!response.ok) {
-      throw new InvalidOperationError(`Server responded with status code ${response.status}`);
+      const data = await response.json();
+
+      if (!data.token || !data.user) {
+        throw new BadAuthenticationError(`Encountered an unknown error while authenticating`);
+      }
+
+      log.info(`Received token for user ${data.user.displayName} (${data.user.email})`);
+      this.token = data.token;
+    })();
+
+    // store a promise which will always resolve for other functions to await
+    this.connectionPromise = promise.catch();
+
+    // await connection attempt, throwing an error if applicable, but always removing connectionPromise
+    try {
+      await promise;
+    } finally {
+      this.connectionPromise = null;
     }
-
-    const data = await response.json();
-
-    if (!data.token || !data.user) {
-      throw new BadAuthenticationError(`Encountered an unknown error while authenticating`);
-    }
-
-    log.info(`Received token for user ${data.user.displayName} (${data.user.email})`);
-    this.token = data.token;
   }
 
   async downloadRecords() {
-    throw new Error('Source: downloadRecords is not implemented yet');    
+    throw new Error('Source: downloadRecords is not implemented yet');
   }
 
   async uploadRecords() {
