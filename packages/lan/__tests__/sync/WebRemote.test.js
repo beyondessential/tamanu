@@ -70,6 +70,27 @@ describe('WebRemote', () => {
     });
   });
 
-  it.todo('recieves records');
+  describe('recieve', () => {
+    it('receives records', async () => {
+      const remote = createWebRemote();
+      remote.fetchImplementation.mockReturnValueOnce(authSuccess);
+      await remote.connect();
+      remote.fetchImplementation.mockReturnValueOnce(
+        fakeSuccess({
+          records: [{ id: 'abc' }],
+        }),
+      );
+      expect(remote.recieve('reference')).resolves.toContain({ id: 'abc' });
+    });
+
+    it('throws an error on an invalid response', async () => {
+      const remote = createWebRemote();
+      remote.fetchImplementation.mockReturnValueOnce(authSuccess);
+      await remote.connect();
+      remote.fetchImplementation.mockReturnValueOnce(fakeFailure(403));
+      expect(remote.recieve('reference')).rejects.toThrow(InvalidOperationError);
+    });
+  });
+
   it.todo('sends records');
 });

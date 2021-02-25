@@ -115,9 +115,6 @@ export class WebRemote {
   async recieve(channel, { since = 0, limit = 100 } = {}) {
     const path = `sync/${encodeURIComponent(channel)}?since=${since}&limit=${limit}`;
     const response = await this.fetch(path);
-    if (!response.ok) {
-      throw new InvalidOperationError(`Server responded with status code ${response.status}`);
-    }
     const body = await response.json();
     return body.records;
   }
