@@ -112,7 +112,7 @@ export class WebRemote {
     }
   }
 
-  async recieve(channel, { since = 0, limit = 100 } = {}) {
+  async receive(channel, { since = 0, limit = 100 } = {}) {
     const path = `sync/${encodeURIComponent(channel)}?since=${since}&limit=${limit}`;
     const response = await this.fetch(path);
     const body = await response.json();

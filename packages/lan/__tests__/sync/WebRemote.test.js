@@ -70,7 +70,7 @@ describe('WebRemote', () => {
     });
   });
 
-  describe('recieve', () => {
+  describe('receive', () => {
     it('receives records', async () => {
       const remote = createWebRemote();
       remote.fetchImplementation.mockReturnValueOnce(authSuccess);
@@ -80,7 +80,7 @@ describe('WebRemote', () => {
           records: [{ id: 'abc' }],
         }),
       );
-      expect(remote.recieve('reference')).resolves.toContain({ id: 'abc' });
+      expect(remote.receive('reference')).resolves.toEqual([{ id: 'abc' }]);
     });
 
     it('throws an error on an invalid response', async () => {
@@ -88,7 +88,7 @@ describe('WebRemote', () => {
       remote.fetchImplementation.mockReturnValueOnce(authSuccess);
       await remote.connect();
       remote.fetchImplementation.mockReturnValueOnce(fakeFailure(403));
-      expect(remote.recieve('reference')).rejects.toThrow(InvalidOperationError);
+      expect(remote.receive('reference')).rejects.toThrow(InvalidOperationError);
     });
   });
 
