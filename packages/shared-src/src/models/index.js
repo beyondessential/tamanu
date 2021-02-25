@@ -33,3 +33,5 @@ export * from './AdministeredVaccine';
 export * from './ReportRequest';
 export * from './PatientCarePlan';
 export * from './ReferralDiagnosis';
+
+export * from './Setting';
