@@ -13,7 +13,7 @@ export class SyncTask extends ScheduledTask {
     remote.connect();
     this.manager = new SyncManager(context, remote);
 
-    this.run();
+    this.runImmediately();
   }
 
   async run() {
