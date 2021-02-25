@@ -9,14 +9,12 @@ import { log } from '~/logging';
 const API_VERSION = 'v1';
 
 export class WebRemote {
-  context = null;
-
   connectionPromise = null;
 
-  constructor(context) {
-    this.context = context;
+  fetchImplementation = fetch;
+
+  constructor() {
     this.host = config.sync.host;
-    this.connect(); // begin initialising connection
   }
 
   async fetch(endpoint, params = {}) {
@@ -32,13 +30,17 @@ export class WebRemote {
     // if there's an ongoing connection attempt, wait until it's finished,
     // unless we're deliberately progressing without it
     if (awaitConnection) {
-      await this.connectionPromise;
+      try {
+        await this.connectionPromise;
+      } catch (e) {
+        // ignore
+      }
     }
 
     const url = `${this.host}/${API_VERSION}/${endpoint}`;
     log.info(`[sync] ${method} ${url}`);
 
-    const response = await fetch(url, {
+    const response = await this.fetchImplementation(url, {
       method,
       headers: {
         Accept: 'application/json',
@@ -59,16 +61,24 @@ export class WebRemote {
         await this.connect();
         return this.fetch(endpoint, { ...params, retryAuth: false });
       }
-      log.warn('Token was invalid - disconnecting from sync server');
-      this.token = '';
+      throw new BadAuthenticationError(`Invalid credentials`);
+    }
+
+    if (!response.ok) {
+      throw new InvalidOperationError(`Server responded with status code ${response.status}`);
     }
 
     return response;
   }
 
   async connect() {
-    // wrap connection attempt in a promise
-    const promise = (async () => {
+    // if there's an ongoing connect attempt, reuse it
+    if (this.connectionPromise) {
+      return this.connectionPromise;
+    }
+
+    // store a promise for other functions to await
+    this.connectionPromise = (async () => {
       const { email, password } = config.sync;
 
       log.info(`Logging in to ${this.host} as ${email}...`);
@@ -83,12 +93,6 @@ export class WebRemote {
         retryAuth: false,
       });
 
-      if (response.status === 401) {
-        throw new BadAuthenticationError(`Invalid credentials`);
-      } else if (!response.ok) {
-        throw new InvalidOperationError(`Server responded with status code ${response.status}`);
-      }
-
       const data = await response.json();
 
       if (!data.token || !data.user) {
@@ -99,12 +103,10 @@ export class WebRemote {
       this.token = data.token;
     })();
 
-    // store a promise which will always resolve for other functions to await
-    this.connectionPromise = promise.catch();
-
     // await connection attempt, throwing an error if applicable, but always removing connectionPromise
     try {
-      await promise;
+      await this.connectionPromise;
+      return this.connectionPromise;
     } finally {
       this.connectionPromise = null;
     }

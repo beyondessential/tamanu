@@ -11,6 +11,7 @@ export class SyncManager {
   constructor(context) {
     this.context = context;
     this.remote = new WebRemote(context);
+    this.remote.connect();
   }
 
   async runSync() {
