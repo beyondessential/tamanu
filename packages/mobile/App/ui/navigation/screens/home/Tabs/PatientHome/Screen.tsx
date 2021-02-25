@@ -29,7 +29,6 @@ interface ScreenProps {
   navigateToSearchPatients: () => void;
   visitTypeButtons: any[];
   patientMenuButtons: any[];
-  navigateToPatientActions: () => void;
   markPatientForSync: () => void;
   selectedPatient: IPatient;
 }
@@ -38,7 +37,6 @@ export const Screen = ({
   visitTypeButtons,
   patientMenuButtons,
   navigateToSearchPatients,
-  navigateToPatientActions,
   selectedPatient,
   markPatientForSync,
 }: ScreenProps): ReactElement => (
@@ -53,7 +51,6 @@ export const Screen = ({
         <RowView alignItems="center">
           <BackButton onPress={navigateToSearchPatients} />
           <SearchButton onPress={navigateToSearchPatients} />
-          <DotsMenuButton onPress={navigateToPatientActions} />
         </RowView>
         <RowView
           marginTop={screenPercentageToDP(1.5, Orientation.Height)}
