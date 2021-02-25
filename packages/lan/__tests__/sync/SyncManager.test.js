@@ -3,7 +3,7 @@ import { v4 as uuidv4 } from 'uuid';
 
 import { REFERENCE_TYPES } from 'shared/constants';
 
-import { initDatabase } from '~/database';
+import { createTestContext } from '../utilities';
 import { SyncManager } from '~/sync';
 import { WebRemote } from '~/sync/WebRemote';
 jest.mock('~/sync/WebRemote');
@@ -13,9 +13,11 @@ describe('SyncManager', () => {
   let context;
   const remote = new WebRemote();
   beforeAll(async () => {
-    context = await initDatabase();
+    context = await createTestContext();
     manager = new SyncManager(context, remote);
   });
+
+  beforeEach(() => remote.receive.mockReset());
 
   describe('receiveAndImport', () => {
     it('receives pages of records and imports them', async () => {
@@ -29,27 +31,21 @@ describe('SyncManager', () => {
         code: 'old',
       });
       remote.receive
-        .mockReturnValueOnce(
-          Promise.resolve({
-            records: [{ data: records[0] }],
-            count: 1,
-            requestedAt: 1234,
-          }),
-        )
-        .mockReturnValueOnce(
-          Promise.resolve({
-            records: [{ data: records[1] }],
-            count: 1,
-            requestedAt: 2345,
-          }),
-        )
-        .mockReturnValueOnce(
-          Promise.resolve({
-            records: [],
-            count: 0,
-            requestedAt: 3456,
-          }),
-        );
+        .mockResolvedValueOnce({
+          records: [{ data: records[0] }],
+          count: 1,
+          requestedAt: 1234,
+        })
+        .mockResolvedValueOnce({
+          records: [{ data: records[1] }],
+          count: 1,
+          requestedAt: 2345,
+        })
+        .mockResolvedValueOnce({
+          records: [],
+          count: 0,
+          requestedAt: 3456,
+        });
 
       // act
       await manager.receiveAndImport(context.models.ReferenceData, 'reference');
@@ -64,6 +60,28 @@ describe('SyncManager', () => {
       expect(createdRecords.length).toEqual(records.length);
     });
 
-    it.todo('stores and retrieves the last sync timestamp');
+    it('stores and retrieves the last sync timestamp', async () => {
+      // arrange
+      const data = { id: `test-${uuidv4()}`, code: 'r1', name: 'r1', type: REFERENCE_TYPES.DRUG };
+      const channel = 'reference';
+      remote.receive
+        .mockResolvedValueOnce({
+          records: [{ data }],
+          count: 1,
+          requestedAt: 1234,
+        })
+        .mockResolvedValueOnce({
+          records: [],
+          count: 0,
+          requestedAt: 2345,
+        });
+
+      // act
+      await manager.receiveAndImport(context.models.ReferenceData, channel);
+
+      // assert
+      const metadata = await context.models.SyncMetadata.findOne({ where: { channel } });
+      expect(metadata).toMatchObject({ channel, lastSynced: 1234 });
+    });
   });
 });

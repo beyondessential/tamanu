@@ -14,8 +14,10 @@ export class SyncManager {
     this.remote = remote;
   }
 
-  async receiveAndImport(model, channel, since) {
+  async receiveAndImport(model, channel) {
+    const since = await this.getLastSynced(channel);
     log.info(`SyncManager.receiveAndImport: syncing ${channel} (last: ${since})`);
+
     const plan = createImportPlan(model);
     const importRecords = async syncRecords => {
       for (const syncRecord of syncRecords) {
@@ -31,7 +33,8 @@ export class SyncManager {
       log.debug(`SyncManager.receiveAndImport: receiving page ${page} of ${channel}`);
       const result = await this.remote.receive(channel, { page, since });
       const syncRecords = result.records;
-      requestedAt = requestedAt === null ? requestedAt : Math.min(requestedAt, result.requestedAt);
+      requestedAt =
+        requestedAt === null ? result.requestedAt : Math.min(requestedAt, result.requestedAt);
       lastCount = syncRecords.length;
       if (lastCount === 0) {
         log.debug(`SyncManager.receiveAndImport: reached end of ${channel}`);
@@ -49,14 +52,24 @@ export class SyncManager {
 
     // TODO: retry foreign key failures?
 
+    await this.setLastSynced(channel, requestedAt);
     return requestedAt;
+  }
+
+  async getLastSynced(channel) {
+    const metadata = await this.context.models.SyncMetadata.findOne({ where: { channel } });
+    return metadata?.lastSynced || 0;
+  }
+
+  async setLastSynced(channel, lastSynced) {
+    await this.context.models.SyncMetadata.upsert({ channel, lastSynced });
   }
 
   async runSync() {
     const { models } = this.context;
     for (const [model, channel] of [[models.ReferenceData, 'reference']]) {
-      const since = 0; // TODO: store this somewhere as lastSynced and retrieve it
-      await this.receiveAndImport(model, channel, since);
+      // import
+      await this.receiveAndImport(model, channel);
     }
   }
 }
