@@ -13,6 +13,7 @@ import { ArrowLeftIcon, KebabIcon } from '/components/Icons';
 import { HistoryVitalsTabs } from './HistoryVitalsTabs';
 import { theme } from '/styled/theme';
 import { screenPercentageToDP, Orientation } from '/helpers/screen';
+import { ErrorBoundary } from '~/ui/components/ErrorBoundary';
 
 const Stack = createStackNavigator();
 
