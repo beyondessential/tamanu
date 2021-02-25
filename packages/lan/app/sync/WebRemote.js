@@ -44,7 +44,7 @@ export class WebRemote {
     }
 
     const url = `${this.host}/${API_VERSION}/${endpoint}`;
-    log.info(`[sync] ${method} ${url}`);
+    log.debug(`[sync] ${method} ${url}`);
 
     const controller = new AbortController();
     const timeoutHandle = setTimeout(() => {

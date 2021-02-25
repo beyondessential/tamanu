@@ -15,6 +15,7 @@ export class SyncManager {
   }
 
   async receiveAndImport(model, channel, since) {
+    log.info(`SyncManager.receiveAndImport: syncing ${channel} (last: ${since})`);
     const plan = createImportPlan(model);
     const importRecords = async syncRecords => {
       for (const syncRecord of syncRecords) {
@@ -27,18 +28,20 @@ export class SyncManager {
     let requestedAt = null;
     do {
       // receive
-      log.debug(`SyncManager: receiving page ${page} of ${channel}`);
+      log.debug(`SyncManager.receiveAndImport: receiving page ${page} of ${channel}`);
       const result = await this.remote.receive(channel, { page, since });
       const syncRecords = result.records;
       requestedAt = requestedAt === null ? requestedAt : Math.min(requestedAt, result.requestedAt);
       lastCount = syncRecords.length;
       if (lastCount === 0) {
-        log.debug(`SyncManager: reached end of ${channel}`);
+        log.debug(`SyncManager.receiveAndImport: reached end of ${channel}`);
         break;
       }
 
       // import
-      log.debug(`SyncManager: importing ${syncRecords.length} ${model.name} records`);
+      log.debug(
+        `SyncManager.receiveAndImport: importing ${syncRecords.length} ${model.name} records`,
+      );
       await importRecords(syncRecords);
 
       page++;
