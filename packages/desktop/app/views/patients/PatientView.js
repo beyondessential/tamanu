@@ -1,6 +1,7 @@
 import React, { useCallback } from 'react';
 import { connect } from 'react-redux';
 import { push } from 'connected-react-router';
+import styled from 'styled-components';
 
 import { connectApi } from '../../api';
 
@@ -19,6 +20,7 @@ import { AppointmentModal } from '../../components/AppointmentModal';
 import { AppointmentTable } from '../../components/AppointmentTable';
 import { ImmunisationsTable } from '../../components/ImmunisationsTable';
 import { ImmunisationModal } from '../../components/ImmunisationModal';
+import { ImmunisationCertificateModal } from '../../components/ImmunisationCertificateModal';
 import { Button } from '../../components/Button';
 import { connectRoutedModal } from '../../components/Modal';
 import { PatientEncounterSummary } from './components/PatientEncounterSummary';
@@ -77,8 +79,14 @@ const ReferralPane = React.memo(({ patient, readonly }) => {
   );
 });
 
+const ButtonSpacer = styled.div`
+  display: inline;
+  margin-right: 10px;
+`;
+
 const ImmunisationsPane = React.memo(({ patient, readonly }) => {
   const [modalOpen, setModalOpen] = React.useState(false);
+  const [isCertificateModalOpen, setIsCertificateModalOpen] = React.useState(false);
 
   return (
     <div>
@@ -88,6 +96,11 @@ const ImmunisationsPane = React.memo(({ patient, readonly }) => {
         onClose={() => setModalOpen(false)}
       />
       <ImmunisationsTable patient={patient} />
+      <ImmunisationCertificateModal
+        open={isCertificateModalOpen}
+        patient={patient}
+        onClose={() => setIsCertificateModalOpen(false)}
+      />
       <ContentPane>
         <Button
           onClick={() => setModalOpen(true)}
@@ -96,6 +109,10 @@ const ImmunisationsPane = React.memo(({ patient, readonly }) => {
           disabled={readonly}
         >
           New immunisation
+        </Button>
+        <ButtonSpacer />
+        <Button onClick={() => setIsCertificateModalOpen(true)} variant="outlined" color="primary">
+          View Certificate
         </Button>
       </ContentPane>
     </div>
