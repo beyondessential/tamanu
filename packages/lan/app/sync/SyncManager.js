@@ -51,6 +51,8 @@ export class SyncManager {
     } while (lastCount);
 
     // TODO: retry foreign key failures?
+    // Right now, our schema doesn't have any cycles in it, so neither retries nor stubs are strictly necessary.
+    // However, they're implemented on mobile, so perhaps we should either remove them there or add them here.
 
     await this.setLastSynced(channel, requestedAt);
     return requestedAt;
