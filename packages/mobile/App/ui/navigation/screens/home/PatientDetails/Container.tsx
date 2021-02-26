@@ -85,7 +85,6 @@ const Container = ({
     <Screen
       patientData={patientData}
       onNavigateBack={onNavigateBack}
-      onNavigateToFilters={onNavigateToFilters}
       onEditField={onEditField}
       onEditPatientIssues={onEditPatientIssues}
       reminders={reminders}
