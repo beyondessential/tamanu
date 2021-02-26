@@ -9,7 +9,7 @@ import {
   StyledText,
   StyledScrollView,
 } from '~/ui/styled/common';
-import { ArrowLeftIcon, KebabIcon } from '~/ui/components/Icons';
+import { ArrowLeftIcon } from '~/ui/components/Icons';
 import { screenPercentageToDP, Orientation } from '~/ui/helpers/screen';
 import { joinNames, getGender } from '~/ui/helpers/user';
 import { UserAvatar } from '~/ui/components/UserAvatar';
@@ -38,7 +38,6 @@ const avatarMock = {
 
 interface PatientDetailScreenProps {
   onNavigateBack: () => void;
-  onNavigateToFilters: () => void;
   patientData: PatientDetails;
   onEditField: () => void;
   onEditPatientIssues: () => void;
@@ -48,7 +47,6 @@ interface PatientDetailScreenProps {
 
 export const Screen = ({
   onNavigateBack,
-  onNavigateToFilters,
   patientData,
   onEditPatientIssues,
   onEditField,
@@ -65,9 +63,6 @@ export const Screen = ({
                 height={screenPercentageToDP(2.43, Orientation.Height)}
                 width={screenPercentageToDP(2.43, Orientation.Height)}
               />
-            </StyledTouchableOpacity>
-            <StyledTouchableOpacity padding={20} onPress={onNavigateToFilters}>
-              <KebabIcon />
             </StyledTouchableOpacity>
           </RowView>
           <RowView paddingLeft={screenPercentageToDP(4.86, Orientation.Width)}>
