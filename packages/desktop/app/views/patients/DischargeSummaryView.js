@@ -1,18 +1,19 @@
 /* eslint-disable react/jsx-one-expression-per-line */
-import React, { useEffect, useState } from 'react';
+import React from 'react';
 import { connect } from 'react-redux';
 import styled from 'styled-components';
+import PrintIcon from '@material-ui/icons/Print';
+
 import { printPage, PrintPortal } from '../../print';
 
-import { LoadingIndicator } from '../../components/LoadingIndicator';
-import { TextButton, BackButton } from '../../components/Button';
+import { BackButton, Button } from '../../components/Button';
 import { DateDisplay } from '../../components/DateDisplay';
 import { TopBar } from '../../components';
-import { connectApi } from '../../api';
 import { useEncounter } from '../../contexts/Encounter';
+import { PrintLetterhead } from '../../components/PrintLetterhead';
 
 const SummaryPageContainer = styled.div`
-  margin: 0 50px 50px 50px;
+  margin: 50px;
 `;
 
 const Label = styled.span`
@@ -22,6 +23,7 @@ const Label = styled.span`
 
 const StyledBackButton = styled(BackButton)`
   width: fit-content;
+  margin: 24px 0;
 `;
 
 const Centered = styled.div`
@@ -36,6 +38,7 @@ const Content = styled.div`
 const Header = styled.section`
   display: flex;
   justify-content: center;
+  margin
   margin-bottom: 30px;
 
   p,
@@ -128,6 +131,7 @@ const SummaryPage = React.memo(({ patient, encounter }) => {
 
   return (
     <SummaryPageContainer>
+      <PrintLetterhead />
       <Header>
         <h4>
           <Label>Patient name: </Label>
@@ -221,18 +225,37 @@ const SummaryPage = React.memo(({ patient, encounter }) => {
   );
 });
 
+const NavContainer = styled.div`
+  display: flex;
+  flex-direction: row;
+  justify-content: space-between;
+  align-items: center;
+  margin: 20px;
+`;
+
 const DumbDischargeSummaryView = React.memo(({ patient }) => {
   const { encounter } = useEncounter();
 
   return (
-    <TopBar title="Patient Discharge Summary">
-      <TextButton onClick={printPage}>Print Summary</TextButton>
-      <StyledBackButton to="/patients/encounter" />
+    <>
+      <TopBar title="Patient Discharge Summary"></TopBar>
+      <NavContainer>
+        <StyledBackButton to="/patients/encounter" />
+        <Button
+          variant="outlined"
+          color="primary"
+          size="small"
+          onClick={printPage}
+          startIcon={<PrintIcon />}
+        >
+          Print Summary
+        </Button>
+      </NavContainer>
       <SummaryPage patient={patient} encounter={encounter} />
       <PrintPortal>
         <SummaryPage patient={patient} encounter={encounter} />
       </PrintPortal>
-    </TopBar>
+    </>
   );
 });
 
