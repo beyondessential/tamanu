@@ -44,7 +44,7 @@ export class WebRemote {
     }
 
     const url = `${this.host}/${API_VERSION}/${endpoint}`;
-    log.info(`[sync] ${method} ${url}`);
+    log.debug(`[sync] ${method} ${url}`);
 
     const controller = new AbortController();
     const timeoutHandle = setTimeout(() => {
@@ -132,9 +132,9 @@ export class WebRemote {
     }
   }
 
-  async receive(channel, { since = 0, limit = 100 } = {}) {
-    const path = `sync/${encodeURIComponent(channel)}?since=${since}&limit=${limit}`;
-    return (await this.fetch(path)).records;
+  async receive(channel, { since = 0, limit = 100, page = 0 } = {}) {
+    const path = `sync/${encodeURIComponent(channel)}?since=${since}&limit=${limit}&page=${page}`;
+    return this.fetch(path);
   }
 
   async send() {

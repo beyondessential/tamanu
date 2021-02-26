@@ -84,12 +84,13 @@ describe('WebRemote', () => {
   describe('receive', () => {
     it('receives records', async () => {
       const remote = new WebRemote();
-      fetch.mockReturnValueOnce(authSuccess).mockReturnValueOnce(
-        fakeSuccess({
-          records: [{ id: 'abc' }],
-        }),
-      );
-      expect(remote.receive('reference')).resolves.toEqual([{ id: 'abc' }]);
+      const body = {
+        records: [{ id: 'abc' }],
+        count: 1,
+        requestedAt: 123456,
+      };
+      fetch.mockReturnValueOnce(authSuccess).mockReturnValueOnce(fakeSuccess(body));
+      expect(remote.receive('reference')).resolves.toEqual(body);
     });
 
     it('throws an error on an invalid response', async () => {
