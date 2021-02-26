@@ -11,6 +11,7 @@ export class ForbiddenError extends BaseError {}
 export class InvalidOperationError extends BaseError {}
 export class InvalidParameterError extends BaseError {}
 export class InappropriateEndpointError extends BaseError {}
+export class RemoteTimeoutError extends BaseError {};
 
 export function getCodeForErrorName(name) {
   switch (name) {
@@ -31,6 +32,9 @@ export function getCodeForErrorName(name) {
     case 'InvalidParameterError':
       // unprocessable entity - syntax is correct but data is bad
       return 422;
+    case 'RemoteTimeoutError':
+      // remote server timed out
+      return 504;
     default:
       // error isn't otherwise caught - this is a problem with the server
       return 500;
