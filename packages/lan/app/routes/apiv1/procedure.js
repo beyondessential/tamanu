@@ -1,12 +1,6 @@
 import express from 'express';
 
-import {
-  simpleGet,
-  simplePut,
-  simplePost,
-  simpleGetList,
-  permissionCheckingRouter,
-} from './crudHelpers';
+import { simpleGet, simplePut, simplePost } from './crudHelpers';
 
 export const procedure = express.Router();
 

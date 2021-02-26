@@ -28,7 +28,7 @@ note.put(
 
 note.post(
   '/$',
-  asyncHandler(async (req, res) => {
+  asyncHandler(async () => {
     throw new InappropriateEndpointError(
       'Note should be created using a nested endpoint (eg encounter/12345/notes)',
     );

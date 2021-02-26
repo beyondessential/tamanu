@@ -1,7 +1,7 @@
 import config from 'config';
 
-import { log } from '~/logging';
 import { ScheduledTask } from 'shared/tasks';
+import { log } from '~/logging';
 
 import { SyncManager } from '~/sync';
 

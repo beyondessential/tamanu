@@ -3,7 +3,7 @@ import { readDataDefinition, convertNameToCode } from '~/dataDefinitionImporter'
 
 import { sendSyncRequest } from './sendSyncRequest';
 
-const referenceDataTransformer = type => (item) => {
+const referenceDataTransformer = type => item => {
   const { name } = item;
   const code = (item.code && `${item.code}`) || convertNameToCode(name);
 
@@ -14,7 +14,7 @@ const referenceDataTransformer = type => (item) => {
       ...item,
       code,
       type,
-    }
+    },
   };
 };
 
@@ -34,24 +34,26 @@ const transformers = {
   patients: null,
   labtesttypes: null,
 };
-  
+
 export async function importData({ file, dryRun }) {
   log.info(`Importing data definitions from ${file}...`);
 
   // parse xlsx
   const sheetData = await readDataDefinition(file);
 
-  // then restructure the parsed data to sync record format 
-  const records = sheetData.map(sheet => {
-    const transformer = transformers[sheet.importerId];
-    if (!transformer) return null;
-    return sheet.data.map(transformer);
-  }).filter(x => x).flat();
+  // then restructure the parsed data to sync record format
+  const records = sheetData
+    .map(sheet => {
+      const transformer = transformers[sheet.importerId];
+      if (!transformer) return null;
+      return sheet.data.map(transformer);
+    })
+    .filter(x => x)
+    .flat();
 
-  if(dryRun) {
+  if (dryRun) {
     console.log(records);
   } else {
     await sendSyncRequest('reference', records);
   }
 }
-
