@@ -1,11 +1,10 @@
 import { subDays, subHours } from 'date-fns';
 import { v4 as uuidv4 } from 'uuid';
 
-import { convertFromDbRecord, convertToDbRecord } from 'sync-server/app/convertDbRecord';
+import { fakePatient, buildNestedEncounter } from 'shared/test-helpers';
 
+import { convertFromDbRecord, convertToDbRecord } from 'sync-server/app/convertDbRecord';
 import { createTestContext, unsafeSetUpdatedAt } from './utilities';
-import { fakePatient } from './fake';
-import { buildNestedEncounter } from './factory';
 
 const makeDate = (daysAgo, hoursAgo = 0) => {
   return subHours(subDays(new Date(), daysAgo), hoursAgo).valueOf();

@@ -8,8 +8,10 @@ import {
   fakeSurvey,
   fakeSurveyScreenComponent,
   fakeUser,
-} from './fake';
-import { buildScheduledVaccine, buildEncounter, buildNestedEncounter } from './factory';
+  buildScheduledVaccine,
+  buildEncounter,
+  buildNestedEncounter,
+} from 'shared/test-helpers';
 
 import { withDate } from './utilities';
 
