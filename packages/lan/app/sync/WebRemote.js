@@ -1,18 +1,21 @@
-import fetch from 'node-fetch';
+import fetch, { AbortError } from 'node-fetch';
+import AbortController from 'abort-controller';
 import config from 'config';
 
-import { BadAuthenticationError, InvalidOperationError } from 'shared/errors';
+import { BadAuthenticationError, InvalidOperationError, RemoteTimeoutError } from 'shared/errors';
 
 import { version } from '~/../package.json';
 import { log } from '~/logging';
 
 const API_VERSION = 'v1';
+const DEFAULT_TIMEOUT = 10000;
 
 export class WebRemote {
   connectionPromise = null;
 
   constructor() {
     this.host = config.sync.host;
+    this.timeout = config.sync.timeout || DEFAULT_TIMEOUT;
   }
 
   async fetch(endpoint, params = {}) {
@@ -43,19 +46,35 @@ export class WebRemote {
     const url = `${this.host}/${API_VERSION}/${endpoint}`;
     log.info(`[sync] ${method} ${url}`);
 
-    const response = await fetch(url, {
-      method,
-      headers: {
-        Accept: 'application/json',
-        'X-Runtime': 'Tamanu LAN Server',
-        'X-Version': version,
-        Authorization: this.token ? `Bearer ${this.token}` : undefined,
-        'Content-Type': body ? 'application/json' : undefined,
-        ...headers,
-      },
-      body: body && JSON.stringify(body),
-      ...otherParams,
-    });
+    const controller = new AbortController();
+    const timeoutHandle = setTimeout(() => {
+      controller.abort();
+    }, 100 || this.timeout);
+    let response;
+    try {
+      response = await fetch(url, {
+        method,
+        headers: {
+          Accept: 'application/json',
+          'X-Runtime': 'Tamanu LAN Server',
+          'X-Version': version,
+          Authorization: this.token ? `Bearer ${this.token}` : undefined,
+          'Content-Type': body ? 'application/json' : undefined,
+          ...headers,
+        },
+        body: body && JSON.stringify(body),
+        ...otherParams,
+        signal: controller.signal,
+      });
+    } catch (e) {
+      // TODO: import AbortError from node-fetch once we're on v3.0
+      if (e.name === 'AbortError') {
+        throw new RemoteTimeoutError(`Server failed to respond within ${this.timeout}ms`);
+      }
+      throw e;
+    } finally {
+      clearTimeout(timeoutHandle);
+    }
 
     const checkForInvalidToken = ({ status }) => status === 401;
     if (checkForInvalidToken(response)) {

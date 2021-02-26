@@ -14,6 +14,13 @@ const fakeResponse = (response, body) => {
 const fakeSuccess = body => fakeResponse({ status: 200, ok: true }, body);
 const fakeFailure = (status, body = {}) => fakeResponse({ status, ok: false }, body);
 
+const fakeTimeout = message => (url, opts) =>
+  new Promise((resolve, reject) => {
+    // TODO: import AbortError from node-fetch once we're on v3.0
+    class AbortError extends Error {}
+    opts.signal.addEventListener('abort', () => reject(new AbortError(message)));
+  });
+
 describe('WebRemote', () => {
   const authSuccess = fakeSuccess({
     token: 'this-is-not-real',
@@ -62,6 +69,15 @@ describe('WebRemote', () => {
         .mockReturnValueOnce(authSuccess)
         .mockReturnValueOnce(fakeSuccess({ displayName: 'Fake User' }));
       expect(await remote.whoami()).toMatchObject({ displayName: 'Fake User' });
+    });
+
+    it('times out requests', async () => {
+      jest.useFakeTimers();
+      const remote = new WebRemote();
+      fetch.mockImplementationOnce(fakeTimeout('fake timeout'));
+      const connectPromise = remote.connect();
+      jest.runAllTimers();
+      await expect(connectPromise).rejects.toThrow('fake timeout');
     });
   });
 
