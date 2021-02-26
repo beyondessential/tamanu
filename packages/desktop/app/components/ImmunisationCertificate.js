@@ -1,18 +1,9 @@
 import React from 'react';
 import { connect } from 'react-redux';
 import styled from 'styled-components';
-import { TamanuLogo } from './TamanuLogo';
 import { Colors } from '../constants';
 import { getCurrentUser } from '../store/auth';
-
-const Header = styled.div`
-  display: grid;
-  grid-template-columns: 1fr 5fr;
-`;
-
-const HeaderText = styled.div`
-  text-align: center;
-`;
+import { PrintLetterhead } from './PrintLetterhead';
 
 const Spacer = styled.div`
   margin-top: 3rem;
@@ -50,8 +41,6 @@ const UnderlineP = styled.p`
 const UnderlineEmptySpace = () => <UnderlineP>{new Array(100).fill('\u00A0')}</UnderlineP>;
 
 const DumbImmunisationCertificate = ({
-  certificateTitle,
-  certificateSubtitle,
   currentUser,
   patient,
   immunisations,
@@ -74,15 +63,7 @@ const DumbImmunisationCertificate = ({
 
   return (
     <div>
-      <Header>
-        <TamanuLogo size={100} />
-        <HeaderText>
-          <h3>{certificateTitle}</h3>
-          <p>
-            <strong>{certificateSubtitle}</strong>
-          </p>
-        </HeaderText>
-      </Header>
+      <PrintLetterhead />
       <Spacer />
       <PatientDetailsHeader>Personal vaccination certificate</PatientDetailsHeader>
       <TwoColumnContainer>

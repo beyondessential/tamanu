@@ -9,14 +9,7 @@ const DumbImmunisationCertificateModal = ({ getImmunisations, open, onClose, pat
     getImmunisations().then(setImmunisations);
   }, []);
 
-  const certificate = (
-    <ImmunisationCertificate
-      certificateTitle="TAMANU MINISTRY OF HEALTH & MEDICAL SERVICES"
-      certificateSubtitle="PO Box 12345, Melbourne, Australia"
-      patient={patient}
-      immunisations={immunisations}
-    />
-  );
+  const certificate = <ImmunisationCertificate patient={patient} immunisations={immunisations} />;
   return (
     <Modal title="Immunisation Certificate" open={open} onClose={onClose} width="md" printable>
       {certificate}
