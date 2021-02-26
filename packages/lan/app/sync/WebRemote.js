@@ -71,7 +71,7 @@ export class WebRemote {
       throw new InvalidOperationError(`Server responded with status code ${response.status}`);
     }
 
-    return response;
+    return response.json();
   }
 
   async connect() {
@@ -86,7 +86,7 @@ export class WebRemote {
 
       log.info(`Logging in to ${this.host} as ${email}...`);
 
-      const response = await this.fetch('login', {
+      const body = await this.fetch('login', {
         method: 'POST',
         body: {
           email,
@@ -96,14 +96,12 @@ export class WebRemote {
         retryAuth: false,
       });
 
-      const data = await response.json();
-
-      if (!data.token || !data.user) {
+      if (!body.token || !body.user) {
         throw new BadAuthenticationError(`Encountered an unknown error while authenticating`);
       }
 
-      log.info(`Received token for user ${data.user.displayName} (${data.user.email})`);
-      this.token = data.token;
+      log.info(`Received token for user ${body.user.displayName} (${body.user.email})`);
+      this.token = body.token;
     })();
 
     // await connection attempt, throwing an error if applicable, but always removing connectionPromise
@@ -117,9 +115,7 @@ export class WebRemote {
 
   async receive(channel, { since = 0, limit = 100 } = {}) {
     const path = `sync/${encodeURIComponent(channel)}?since=${since}&limit=${limit}`;
-    const response = await this.fetch(path);
-    const body = await response.json();
-    return body.records;
+    return (await this.fetch(path)).records;
   }
 
   async send() {
@@ -127,7 +123,6 @@ export class WebRemote {
   }
 
   async whoami() {
-    const response = await this.fetch('whoami');
-    return response.json();
+    return this.fetch('whoami');
   }
 }
