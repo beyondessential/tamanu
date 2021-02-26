@@ -13,6 +13,7 @@ export const executeImportPlan = async ({ model }, { data }) => {
 
   // sequelize upserts don't work because they insert before update - hack to work around this
   // this could cause a race condition if anything but SyncManager does it, or if two syncs run at once!
+  // see also: https://github.com/sequelize/sequelize/issues/5711
   const [numUpdated] = await model.update(data, { where: { id } });
   if (numUpdated === 0) {
     await model.create(data);
