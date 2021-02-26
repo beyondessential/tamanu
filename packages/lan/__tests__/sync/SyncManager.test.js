@@ -70,7 +70,7 @@ describe('SyncManager', () => {
           count: 1,
           requestedAt: 1234,
         })
-        .mockResolvedValueOnce({
+        .mockResolvedValue({
           records: [],
           count: 0,
           requestedAt: 2345,
@@ -82,6 +82,10 @@ describe('SyncManager', () => {
       // assert
       const metadata = await context.models.SyncMetadata.findOne({ where: { channel } });
       expect(metadata.lastSynced).toEqual(1234);
+
+      await manager.receiveAndImport(context.models.ReferenceData, channel);
+      const calls = remote.receive.mock.calls;
+      expect(calls[calls.length - 1][1]).toHaveProperty('since', 1234);
     });
   });
 });
