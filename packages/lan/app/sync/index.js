@@ -19,7 +19,7 @@ export class SyncManager {
     const data = await this.remote.whoami();
     log.info(`Sync test - logged in as ${data.displayName}`);
 
-    const referenceData = await this.remote.recieve('reference');
+    const referenceData = await this.remote.receive('reference');
     log.info(`Sync test - retrieved ${referenceData.length} ReferenceData records`);
   }
 }
