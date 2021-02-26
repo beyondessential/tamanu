@@ -10,7 +10,6 @@ import { withPatient } from '/containers/Patient';
 import { IPatient, IProgram } from '~/types';
 import { joinNames } from '/helpers/user';
 import { FullView } from '/styled/common';
-import { ErrorBoundary } from '~/ui/components/ErrorBoundary';
 
 const Tabs = createTopTabNavigator();
 
