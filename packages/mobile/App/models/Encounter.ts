@@ -9,6 +9,7 @@ import {
   RelationId,
 } from 'typeorm/browser';
 import { startOfDay, addHours } from 'date-fns';
+import { getUniqueId } from 'react-native-device-info';
 import { BaseModel } from './BaseModel';
 import { IEncounter, EncounterType, ReferenceDataType } from '~/types';
 import { Patient } from './Patient';
@@ -32,9 +33,10 @@ export class Encounter extends BaseModel implements IEncounter {
   @Column({ default: '' })
   reasonForEncounter: string;
 
+
   @Index()
   @ManyToOne(() => Patient, patient => patient.encounters, { eager: true })
-  patient: Patient;
+  patient: Patient;å
   @RelationId(({ patient }) => patient)
   patientId: string;
 
@@ -49,6 +51,10 @@ export class Encounter extends BaseModel implements IEncounter {
   // TODO: Is this a model, referenceData or just string?
   @Column({ nullable: true })
   medication?: string;
+
+
+  @Column({nullable: true})
+  deviceId?: string;
 
   @ReferenceDataRelation()
   department: ReferenceData;
@@ -99,6 +105,7 @@ export class Encounter extends BaseModel implements IEncounter {
       reasonForEncounter: '',
       department: (await ReferenceData.getAnyOfType(ReferenceDataType.Department)).id,
       location: (await ReferenceData.getAnyOfType(ReferenceDataType.Location)).id,
+      deviceId: getUniqueId(),
       ...createdEncounterOptions,
     });
   }

@@ -1,5 +1,6 @@
 import React, { useMemo, useCallback, useRef, ReactElement } from 'react';
 import { compose } from 'redux';
+import { getUniqueId } from 'react-native-device-info';
 import { FullView, StyledView, StyledSafeAreaView } from '/styled/common';
 import { theme } from '/styled/theme';
 import { TextField } from '/components/TextField/TextField';
@@ -100,6 +101,7 @@ const DumbCreateEncounterForm = ({ selectedPatient }): ReactElement => {
     [],
   );
 
+  console.log(getUniqueId());
   const { models } = useBackend();
   const createEncounter = useCallback(
     (values: any): void => models.Encounter.createAndSaveOne({ ...values, patient: selectedPatient.id }), [],
