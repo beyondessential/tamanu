@@ -25,11 +25,16 @@ export class WebRemote {
       ...otherParams
     } = params;
 
-    // if there's an ongoing connection attempt, wait until it's finished,
-    // unless we're deliberately progressing without it
+    // if there's an ongoing connection attempt, wait until it's finished
+    // if we don't have a token, connect
+    // allows deliberately skipping connect (so connect doesn't call itself)
     if (awaitConnection) {
       try {
-        await this.connectionPromise;
+        if (!this.token) {
+          await this.connect();
+        } else {
+          await this.connectionPromise;
+        }
       } catch (e) {
         // ignore
       }

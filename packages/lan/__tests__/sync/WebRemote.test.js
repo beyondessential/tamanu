@@ -48,17 +48,16 @@ describe('WebRemote', () => {
 
     it('retrieves user data', async () => {
       const remote = new WebRemote();
-      fetch.mockReturnValueOnce(authSuccess);
-      await remote.connect();
-      fetch.mockReturnValueOnce(fakeSuccess({ displayName: 'Fake User' }));
+      fetch
+        .mockReturnValueOnce(authSuccess)
+        .mockReturnValueOnce(fakeSuccess({ displayName: 'Fake User' }));
       expect(await remote.whoami()).toMatchObject({ displayName: 'Fake User' });
     });
 
     it('retries if a token is invalid', async () => {
       const remote = new WebRemote();
-      fetch.mockReturnValueOnce(authSuccess);
-      await remote.connect();
       fetch
+        .mockReturnValueOnce(authSuccess)
         .mockReturnValueOnce(authInvalid)
         .mockReturnValueOnce(authSuccess)
         .mockReturnValueOnce(fakeSuccess({ displayName: 'Fake User' }));
@@ -69,9 +68,7 @@ describe('WebRemote', () => {
   describe('receive', () => {
     it('receives records', async () => {
       const remote = new WebRemote();
-      fetch.mockReturnValueOnce(authSuccess);
-      await remote.connect();
-      fetch.mockReturnValueOnce(
+      fetch.mockReturnValueOnce(authSuccess).mockReturnValueOnce(
         fakeSuccess({
           records: [{ id: 'abc' }],
         }),
@@ -81,9 +78,7 @@ describe('WebRemote', () => {
 
     it('throws an error on an invalid response', async () => {
       const remote = new WebRemote();
-      fetch.mockReturnValueOnce(authSuccess);
-      await remote.connect();
-      fetch.mockReturnValueOnce(fakeFailure(403));
+      fetch.mockReturnValueOnce(authSuccess).mockReturnValueOnce(fakeFailure(403));
       expect(remote.receive('reference')).rejects.toThrow(InvalidOperationError);
     });
   });
