@@ -81,7 +81,7 @@ describe('SyncManager', () => {
 
       // assert
       const metadata = await context.models.SyncMetadata.findOne({ where: { channel } });
-      expect(metadata).toMatchObject({ channel, lastSynced: 1234 });
+      expect(metadata.lastSynced).toEqual(1234);
     });
   });
 });
