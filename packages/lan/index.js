@@ -71,9 +71,7 @@ async function performInitialSetup({ sequelize, models }) {
 }
 
 export async function run() {
-  const context = initDatabase({
-    testMode: false,
-  });
+  const context = await initDatabase();
 
   await performInitialSetup(context);
 

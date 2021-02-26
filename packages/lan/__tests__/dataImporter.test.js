@@ -2,13 +2,18 @@ import { importDataDefinition } from '~/dataDefinitionImporter';
 import { createTestContext } from './utilities';
 
 const TEST_DATA_PATH = './data/test_definitions.xlsx';
-const { models } = createTestContext();
-
 // Disabled these tests as functionality has moved to the admin importer tool,
 // sending records to sync server instead of importing directly to DB.
 // This test should be updated to reflect that.
 //
 xdescribe('Data definition import', () => {
+  let models = null;
+
+  beforeAll(async () => {
+    const ctx = await createTestContext();
+    models = ctx.models;
+  });
+
   it('should read a file successfully', async () => {
     const results = {};
     await importDataDefinition(models, TEST_DATA_PATH, sheetResult => {

@@ -8,15 +8,18 @@ import moment from 'moment';
 import { createTestContext } from '../../utilities';
 import { ENCOUNTER_TYPES } from 'shared/constants';
 
-const { baseApp, models } = createTestContext();
-
 describe('Admissions report', () => {
   let expectedPatient = null;
   let wrongPatient = null;
   let app = null;
   let expectedLocation = null;
+  let baseApp = null;
+  let models = null;
 
   beforeAll(async () => {
+    const ctx = await createTestContext();
+    baseApp = ctx.baseApp;
+    models = ctx.models;
     const villageId = await randomReferenceId(models, 'village');
     expectedPatient = await models.Patient.create(await createDummyPatient(models, { villageId }));
     wrongPatient = await models.Patient.create(await createDummyPatient(models, { villageId }));

@@ -10,9 +10,9 @@ import moment from 'moment';
 import { createTestContext } from '../../utilities';
 import { ENCOUNTER_TYPES } from 'shared/constants';
 
-const { baseApp, models } = createTestContext();
-
 describe('Recent Diagnoses report', () => {
+  let baseApp = null;
+  let models = null;
   let app = null;
   let patient1 = null;
   let expectedDiagnosis = null;
@@ -20,6 +20,9 @@ describe('Recent Diagnoses report', () => {
   let expectedLocation = null;
 
   beforeAll(async () => {
+    const ctx = await createTestContext();
+    baseApp = ctx.baseApp;
+    models = ctx.models;
     app = await baseApp.asRole('practitioner');
     const villageId = await randomReferenceId(models, 'village');
     patient1 = await models.Patient.create(await createDummyPatient(models, { villageId }));

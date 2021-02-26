@@ -1,7 +1,8 @@
 import config from 'config';
+import { v4 as uuid } from 'uuid';
+
 import { initDatabase as sharedInitDatabase } from 'shared/services/database';
 
-import { v4 as uuid } from 'uuid';
 import { log } from '../logging';
 
 // make a 'fake' uuid that looks like 'test-766-9794-4491-8612-eb19fd959bf2'
@@ -9,10 +10,12 @@ import { log } from '../logging';
 // created by the tests with just "DELETE FROM table WHERE id LIKE 'test-%'"
 const createTestUUID = () => `test-${uuid().slice(5)}`;
 
-export function initDatabase({ testMode = false }) {
+export async function initDatabase() {
+  const testMode = process.env.NODE_ENV === 'test';
   // connect to database
   return sharedInitDatabase({
     ...config.db,
+    testMode,
     log,
     primaryKeyDefault: testMode ? createTestUUID : undefined,
   });

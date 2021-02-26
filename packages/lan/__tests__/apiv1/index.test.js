@@ -1,8 +1,13 @@
 import { createTestContext } from '../utilities';
 
-const { baseApp } = createTestContext();
-
 describe('fundamentals', () => {
+  let baseApp = null;
+
+  beforeAll(async () => {
+    const ctx = await createTestContext();
+    baseApp = ctx.baseApp;
+  });
+
   test.todo('should respond to a GET request');
   test.todo('should respond to a POST request');
 

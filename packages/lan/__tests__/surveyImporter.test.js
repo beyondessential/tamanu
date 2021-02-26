@@ -5,8 +5,6 @@ import {
 } from 'lan/app/surveyImporter';
 import { createTestContext } from './utilities';
 
-const { models } = createTestContext();
-
 const TEST_SURVEY_PATH = './data/test_programs.xlsx';
 
 // Disabled these tests as functionality has moved to the admin importer tool,
@@ -14,6 +12,13 @@ const TEST_SURVEY_PATH = './data/test_programs.xlsx';
 // This test should be updated to reflect that.
 //
 xdescribe('Importing surveys', () => {
+  let models = null;
+
+  beforeAll(async () => {
+    const ctx = await createTestContext();
+    models = ctx.models;
+  });
+
   it('Should import a survey', () => {
     const surveyData = readSurveyXSLX('Test Survey', TEST_SURVEY_PATH);
 

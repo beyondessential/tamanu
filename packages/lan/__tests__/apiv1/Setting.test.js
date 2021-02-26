@@ -1,10 +1,14 @@
 import { createTestContext } from '../utilities';
 
-const { baseApp } = createTestContext();
-
 const baseUri = '/v1/setting';
 
 describe('Setting', () => {
+  let baseApp = null;
+  beforeAll(async () => {
+    const ctx = await createTestContext();
+    baseApp = ctx.baseApp;
+  });
+
   describe('permissions', () => {
     it('should prevent users without sufficient permissions from creating setting', async () => {
       const practitioner = await baseApp.asRole('practitioner');
