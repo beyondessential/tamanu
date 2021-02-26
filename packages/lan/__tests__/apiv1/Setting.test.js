@@ -47,9 +47,12 @@ describe('Setting', () => {
         settingName: 'test-setting-2',
         settingContent: 'test value 2',
       });
-      const readMultiple = await practitioner.get(`${baseUri}?names=test-setting,test-setting2`);
+      const readMultiple = await practitioner.get(`${baseUri}?names=test-setting,test-setting-2`);
       expect(readMultiple).toHaveSucceeded();
-      expect(readMultiple.body.length).toBeGreaterThan(0);
+      expect(readMultiple.body).toEqual({
+        'test-setting': 'new content',
+        'test-setting-2': 'test value 2',
+      });
     });
   });
 

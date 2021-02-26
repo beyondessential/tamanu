@@ -28,7 +28,11 @@ setting.get(
         },
       },
     });
-    res.send(settings);
+    const settingMap = settings.reduce((map, setting) => {
+      map[setting.get('settingName')] = setting.get('settingContent');
+      return map;
+    }, {});
+    res.send(settingMap);
   }),
 );
 
