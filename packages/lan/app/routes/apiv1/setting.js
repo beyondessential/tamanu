@@ -1,7 +1,39 @@
 import express from 'express';
 import asyncHandler from 'express-async-handler';
+import { Op } from 'sequelize';
 
 export const setting = express.Router();
+
+setting.get(
+  '/$',
+  asyncHandler(async (req, res) => {
+    req.checkPermission('read', 'Setting');
+
+    const {
+      models: { Setting },
+      query: { names },
+    } = req;
+    if (!names) {
+      res.send([]);
+      return;
+    }
+    const nameArray = names
+      .split(/[;,]/)
+      .map(n => n.trim())
+      .filter(n => n);
+    const settings = await Setting.findAll({
+      where: {
+        settingName: {
+          [Op.in]: nameArray,
+        },
+      },
+    });
+    const settingMap = settings.reduce((map, setting) => {
+      return { ...map, [setting.get('settingName')]: setting.get('settingContent') };
+    }, {});
+    res.send(settingMap);
+  }),
+);
 
 setting.get(
   '/:name',

@@ -1,18 +1,25 @@
 /* eslint-disable react/jsx-one-expression-per-line */
-import React, { useEffect, useState } from 'react';
+import React from 'react';
 import { connect } from 'react-redux';
 import styled from 'styled-components';
+import PrintIcon from '@material-ui/icons/Print';
+
 import { printPage, PrintPortal } from '../../print';
 
-import { LoadingIndicator } from '../../components/LoadingIndicator';
-import { TextButton, BackButton } from '../../components/Button';
+import { BackButton, Button } from '../../components/Button';
 import { DateDisplay } from '../../components/DateDisplay';
 import { TopBar } from '../../components';
-import { connectApi } from '../../api';
 import { useEncounter } from '../../contexts/Encounter';
+import { PrintLetterhead } from '../../components/PrintLetterhead';
+import { Colors } from '../../constants';
 
 const SummaryPageContainer = styled.div`
-  margin: 0 50px 50px 50px;
+  position: relative;
+  margin: 0 auto;
+  max-width: 830px;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
 `;
 
 const Label = styled.span`
@@ -22,33 +29,29 @@ const Label = styled.span`
 
 const StyledBackButton = styled(BackButton)`
   width: fit-content;
-`;
-
-const Centered = styled.div`
-  text-align: center;
+  margin: 24px 0;
 `;
 
 const Content = styled.div`
-  text-align: left;
-  display: inline-block;
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  margin: 0 50px;
+  grid-column-gap: 100px;
+  width: 100%;
 `;
 
 const Header = styled.section`
-  display: flex;
-  justify-content: center;
-  margin-bottom: 30px;
-
-  p,
-  h4:first-child {
-    margin-right: 30px;
-  }
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  margin: 50px 50px 20px 50px;
+  grid-column-gap: 100px;
+  width: 100%;
 `;
 
-const TwoColumnSection = styled.div`
-  display: grid;
-  grid-template-columns: auto 1fr;
-  grid-column-gap: 10px;
-  margin: 20px 0;
+const HorizontalLine = styled.div`
+  margin: 20px 50px;
+  border-top: 1px solid ${Colors.primaryDark};
+  width: 100%;
 `;
 
 const ListColumn = styled.div`
@@ -58,15 +61,6 @@ const ListColumn = styled.div`
   ul {
     margin: 0;
     padding-left: 20px;
-  }
-`;
-
-const Row = styled.div`
-  display: flex;
-  justify-content: space-between;
-
-  div:first-of-type {
-    margin-right: 10px;
   }
 `;
 
@@ -128,6 +122,7 @@ const SummaryPage = React.memo(({ patient, encounter }) => {
 
   return (
     <SummaryPageContainer>
+      <PrintLetterhead />
       <Header>
         <h4>
           <Label>Patient name: </Label>
@@ -139,100 +134,113 @@ const SummaryPage = React.memo(({ patient, encounter }) => {
         </h4>
       </Header>
 
-      <Centered>
-        <Content>
-          <Row>
-            <div>
-              <Label>Admission date: </Label>
-              <DateDisplay date={startDate} />
-            </div>
-            <div>
-              <Label>Discharge date: </Label>
-              <DateDisplay date={endDate} />
-            </div>
-          </Row>
+      <Content>
+        <div>
+          <Label>Admission date: </Label>
+          <DateDisplay date={startDate} />
+        </div>
+        <div>
+          <Label>Discharge date: </Label>
+          <DateDisplay date={endDate} />
+        </div>
 
-          <div>
-            <Label>Department: </Label>
-            {location && location.name}
-          </div>
+        <div>
+          <Label>Department: </Label>
+          {location && location.name}
+        </div>
+        <div />
+      </Content>
 
-          <hr />
+      <HorizontalLine />
 
-          <TwoColumnSection>
-            <Label>Supervising physician: </Label>
-            <div>{examiner && examiner.displayName}</div>
-          </TwoColumnSection>
-          <TwoColumnSection>
-            <Label>Discharge physician: </Label>
-            <div>{dischargePhysician && dischargePhysician.displayName}</div>
-          </TwoColumnSection>
+      <Content>
+        <div>
+          <Label>Supervising physician: </Label>
+          <span>{examiner && examiner.displayName}</span>
+        </div>
+        <div />
+        <div>
+          <Label>Discharge physician: </Label>
+          <span>{dischargePhysician && dischargePhysician.displayName}</span>
+        </div>
+        <div />
+      </Content>
 
-          <hr />
+      <HorizontalLine />
 
-          <TwoColumnSection>
-            <Label>Reason for encounter: </Label>
-            <div>{reasonForEncounter}</div>
-          </TwoColumnSection>
+      <Content>
+        <Label>Reason for encounter: </Label>
+        <div>{reasonForEncounter}</div>
 
-          <TwoColumnSection>
-            <Label>Primary diagnoses: </Label>
-            <ListColumn>
-              <ul>
-                <DiagnosesList diagnoses={primaryDiagnoses} />
-              </ul>
-            </ListColumn>
-          </TwoColumnSection>
+        <Label>Primary diagnoses: </Label>
+        <ListColumn>
+          <ul>
+            <DiagnosesList diagnoses={primaryDiagnoses} />
+          </ul>
+        </ListColumn>
 
-          <TwoColumnSection>
-            <Label>Secondary diagnoses: </Label>
-            <ListColumn>
-              <ul>
-                <DiagnosesList diagnoses={secondaryDiagnoses} />
-              </ul>
-            </ListColumn>
-          </TwoColumnSection>
+        <Label>Secondary diagnoses: </Label>
+        <ListColumn>
+          <ul>
+            <DiagnosesList diagnoses={secondaryDiagnoses} />
+          </ul>
+        </ListColumn>
 
-          <TwoColumnSection>
-            <Label>Procedures: </Label>
-            <ListColumn>
-              <ul>
-                <ProceduresList procedures={procedures} />
-              </ul>
-            </ListColumn>
-          </TwoColumnSection>
+        <Label>Procedures: </Label>
+        <ListColumn>
+          <ul>
+            <ProceduresList procedures={procedures} />
+          </ul>
+        </ListColumn>
 
-          <TwoColumnSection>
-            <Label>Medications: </Label>
-            <ListColumn>
-              <ul>
-                <MedicationsList medications={medications} />
-              </ul>
-            </ListColumn>
-          </TwoColumnSection>
+        <Label>Medications: </Label>
+        <ListColumn>
+          <ul>
+            <MedicationsList medications={medications} />
+          </ul>
+        </ListColumn>
 
-          <div>
-            <Label>Discharge planning notes:</Label>
-            <div>{dischargeNotes}</div>
-          </div>
-        </Content>
-      </Centered>
+        <div>
+          <Label>Discharge planning notes:</Label>
+          <div>{dischargeNotes}</div>
+        </div>
+        <div />
+      </Content>
     </SummaryPageContainer>
   );
 });
+
+const NavContainer = styled.div`
+  display: flex;
+  flex-direction: row;
+  justify-content: space-between;
+  align-items: center;
+  margin: 20px;
+`;
 
 const DumbDischargeSummaryView = React.memo(({ patient }) => {
   const { encounter } = useEncounter();
 
   return (
-    <TopBar title="Patient Discharge Summary">
-      <TextButton onClick={printPage}>Print Summary</TextButton>
-      <StyledBackButton to="/patients/encounter" />
+    <>
+      <TopBar title="Patient Discharge Summary"></TopBar>
+      <NavContainer>
+        <StyledBackButton to="/patients/encounter" />
+        <Button
+          variant="outlined"
+          color="primary"
+          size="small"
+          onClick={printPage}
+          startIcon={<PrintIcon />}
+        >
+          Print Summary
+        </Button>
+      </NavContainer>
       <SummaryPage patient={patient} encounter={encounter} />
       <PrintPortal>
         <SummaryPage patient={patient} encounter={encounter} />
       </PrintPortal>
-    </TopBar>
+    </>
   );
 });
 
