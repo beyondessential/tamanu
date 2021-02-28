@@ -4,15 +4,15 @@ import styled from 'styled-components';
 import { connectApi } from '../api/connectApi';
 
 const Header = styled.div`
-  display: grid;
-  grid-template-columns: 2fr 5fr;
+  display: flex;
+  justify-content: center;
   align-items: center;
 `;
 
 const LogoImage = styled.img`
-  display: inline-block;
+  position: absolute;
+  left: 40px;
   width: 100px;
-  margin: 0 auto;
 `;
 
 const HeaderText = styled.div`
