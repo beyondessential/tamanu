@@ -1,12 +1,15 @@
 import { createTestContext } from '../utilities';
 import { testDiagnoses } from '../seed';
 
-const { baseApp, models } = createTestContext();
-
 describe('Suggestions', () => {
   let userApp = null;
+  let baseApp = null;
+  let models = null;
 
   beforeAll(async () => {
+    const ctx = await createTestContext();
+    baseApp = ctx.baseApp;
+    models = ctx.models;
     userApp = await baseApp.asRole('practitioner');
   });
 

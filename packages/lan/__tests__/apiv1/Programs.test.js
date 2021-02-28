@@ -4,7 +4,8 @@ import { createTestContext } from '../utilities';
 
 const chance = new Chance();
 
-const { baseApp, models } = createTestContext();
+let baseApp = null;
+let models = null;
 
 async function createDummyProgram() {
   return models.Program.create({
@@ -94,6 +95,9 @@ describe('Programs', () => {
   let testSurvey3;
 
   beforeAll(async () => {
+    const ctx = await createTestContext();
+    baseApp = ctx.baseApp;
+    models = ctx.models;
     app = await baseApp.asRole('admin');
 
     testPatient = await models.Patient.create(await createDummyPatient(models));

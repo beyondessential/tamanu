@@ -14,7 +14,7 @@ reportRequest.post(
     } = req;
 
     req.checkPermission('create', 'ReportRequest');
-   
+
     const newReportRequest = {
       reportType: body.reportType,
       recipients: body.emailList.join(','),

@@ -1,16 +1,18 @@
 import { createTestContext } from '../utilities';
 
-const { baseApp } = createTestContext();
-
 const baseUri = '/v1/setting';
 
 describe('Setting', () => {
+  let baseApp = null;
   let admin = null;
   let practitioner = null;
   beforeAll(async () => {
+    const ctx = await createTestContext();
+    baseApp = ctx.baseApp;
     admin = await baseApp.asRole('admin');
     practitioner = await baseApp.asRole('practitioner');
   });
+
   describe('permissions', () => {
     it('should prevent users without sufficient permissions from creating setting', async () => {
       const result = await practitioner.post(baseUri).send({});

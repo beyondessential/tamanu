@@ -18,20 +18,31 @@ export class ScheduledTask {
     throw new Error('Not implemented');
   }
 
+  async runImmediately() {
+    const name = this.getName();
+
+    if(this.currentlyRunningTask) {
+      this.log.info(`Not running ${name} (previous task still running)`);
+      return;
+    }
+
+    this.log.info(`Running ${name}`);
+    try {
+      this.currentlyRunningTask = this.run();
+      await this.currentlyRunningTask;
+    } catch (e) {
+      this.log.error(e.stack);
+    } finally {
+      this.currentlyRunningTask = null;
+    }
+  }
+
   beginPolling() {
     if (!this.job) {
       const name = this.getName();
       this.log.info(`Scheduled ${name} for ${this.schedule}`);
       this.job = scheduleJob(this.schedule, async () => {
-        if(this.currentlyRunningTask) {
-          this.log.info(`Not running ${name} (previous task still running)`);
-          return;
-        }
-
-        this.log.info(`Running ${name}`);
-        this.currentlyRunningTask = this.run();
-        await this.currentlyRunningTask;
-        this.currentlyRunningTask = null;
+        await this.runImmediately();
       });
     }
   }

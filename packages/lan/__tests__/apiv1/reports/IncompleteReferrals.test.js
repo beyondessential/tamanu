@@ -7,8 +7,6 @@ import {
 } from 'shared/demoData/patients';
 import { createTestContext } from '../../utilities';
 
-const { baseApp, models } = createTestContext();
-
 describe('Incomplete Referrals report', () => {
   let app = null;
   let village1 = null;
@@ -19,8 +17,13 @@ describe('Incomplete Referrals report', () => {
   let practitioner2 = null;
   let department = null;
   let facility = null;
+  let baseApp = null;
+  let models = null;
 
   beforeAll(async () => {
+    const ctx = await createTestContext();
+    baseApp = ctx.baseApp;
+    models = ctx.models;
     app = await baseApp.asRole('practitioner');
     [village1, village2] = await randomReferenceIds(models, 'village', 2);
     patient1 = await models.Patient.create(

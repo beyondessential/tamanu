@@ -66,7 +66,7 @@ apiv1.use('/surveyResponse', surveyResponse);
 
 apiv1.use('/reports', reports);
 apiv1.use('/reportRequest', reportRequest);
-apiv1.use('/patientCarePlan', patientCarePlan)
+apiv1.use('/patientCarePlan', patientCarePlan);
 
 apiv1.use('/admin', admin);
 

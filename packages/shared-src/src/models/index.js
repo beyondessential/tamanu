@@ -1,4 +1,5 @@
 export * from './User';
+export * from './SyncMetadata';
 
 export * from './Patient';
 export * from './PatientFamilyHistory';

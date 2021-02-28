@@ -10,12 +10,15 @@ const createUser = overrides => ({
   ...overrides,
 });
 
-const { baseApp, models } = createTestContext();
-
 describe('User', () => {
   let adminApp = null;
+  let baseApp = null;
+  let models = null;
 
   beforeAll(async () => {
+    const ctx = await createTestContext();
+    baseApp = ctx.baseApp;
+    models = ctx.models;
     adminApp = await baseApp.asRole('admin');
   });
 

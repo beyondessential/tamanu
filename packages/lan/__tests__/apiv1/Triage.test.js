@@ -7,11 +7,15 @@ import {
 import { ENCOUNTER_TYPES } from 'shared/constants';
 import { createTestContext } from '../utilities';
 
-const { baseApp, models } = createTestContext();
-
 describe('Triage', () => {
   let app = null;
+  let baseApp = null;
+  let models = null;
+
   beforeAll(async () => {
+    const ctx = await createTestContext();
+    baseApp = ctx.baseApp;
+    models = ctx.models;
     app = await baseApp.asRole('practitioner');
   });
 

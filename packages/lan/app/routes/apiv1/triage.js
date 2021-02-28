@@ -2,6 +2,8 @@ import express from 'express';
 import asyncHandler from 'express-async-handler';
 import { QueryTypes } from 'sequelize';
 
+import { InvalidParameterError } from 'shared/errors';
+
 import { renameObjectKeys } from '~/utils/renameObjectKeys';
 
 import { simpleGet, simplePut, simplePost } from './crudHelpers';
@@ -29,13 +31,10 @@ triage.get(
 
     req.checkPermission('list', 'Triage');
 
-    const {
-      orderBy = 'score',
-      order = 'asc',
-    } = query;
+    const { orderBy = 'score', order = 'asc' } = query;
     const sortKey = sortKeys[orderBy];
 
-    if(!sortKey) {
+    if (!sortKey) {
       throw new InvalidParameterError(`Cannot order by ${orderBy}.`);
     }
 

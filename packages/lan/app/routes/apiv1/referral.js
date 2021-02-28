@@ -13,7 +13,7 @@ referral.post(
     const { models } = req;
     req.checkPermission('create', 'Referral');
     const newReferral = await models.Referral.create(req.body);
-    
+
     // multiple diagnoses can be set as diagnosisId0, diagnosisCertainty0,
     // diagnosisId1, diagnosisCertainty1
     const diagnosisIdRegex = /^diagnosisId(?<diagnosisIndex>[\d]*)$/;
@@ -47,13 +47,13 @@ referral.post(
     const diagnoses = Object.values(diagnosesMap);
     if (diagnoses.length) {
       await Promise.all(
-        diagnoses.map(async diagnosis => {
-          return await models.ReferralDiagnosis.create({
+        diagnoses.map(async diagnosis =>
+          models.ReferralDiagnosis.create({
             diagnosisId: diagnosis.diagnosisId,
             certainty: diagnosis.certainty,
             referralId: newReferral.get('id'),
-          });
-        }),
+          }),
+        ),
       );
     }
     res.send(newReferral);

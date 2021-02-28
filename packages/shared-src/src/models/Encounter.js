@@ -47,6 +47,8 @@ export class Encounter extends Model {
         endDate: Sequelize.DATE,
 
         reasonForEncounter: Sequelize.TEXT,
+
+        deviceId: Sequelize.TEXT,
       },
       {
         ...options,

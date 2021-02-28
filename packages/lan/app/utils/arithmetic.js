@@ -48,9 +48,9 @@ function getPrecedence(operator) {
 const unaryRegex = /(^|[*x/+\-u])-/g;
 function replaceUnaryMinus(text) {
   const replaced = text.replace(unaryRegex, (match, p1) => `${p1}u`);
-  if(replaced !== text) {
+  if (replaced !== text) {
     // if we made a changed, do another pass - this is because the regex
-    // won't catch consecutive unaries (it detects them correctly but the 
+    // won't catch consecutive unaries (it detects them correctly but the
     // restrictions on replacing partial matches means it's difficult to
     // actually sub them all out in one pass - this is the least complicated
     // way to achieve it)
@@ -156,9 +156,9 @@ export function runArithmetic(formulaText, values = {}) {
   // so that the tokeniser doesn't get confused by variable names with
   // u and x in them)
   let valuedText = formulaText;
-  Object.entries(values).map(([key, value]) => {
-    if(Number.isNaN(parseFloat(value))) {
-      throw new Error("Invalid value substitution");
+  Object.entries(values).forEach(([key, value]) => {
+    if (Number.isNaN(parseFloat(value))) {
+      throw new Error('Invalid value substitution');
     }
 
     valuedText = valuedText.replace(new RegExp(key, 'g'), value);
