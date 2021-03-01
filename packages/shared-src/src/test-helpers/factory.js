@@ -13,6 +13,8 @@ import {
   fakeUser,
 } from './fake';
 
+// TODO: generic
+
 export const buildEncounter = (ctx, patientId) => async () => {
   const patient = fakePatient();
   patient.id = patientId;
