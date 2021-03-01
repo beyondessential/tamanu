@@ -5,7 +5,24 @@ const reportColumnTemplate = [
   { title: 'Patient First Name', accessor: data => data.patient.firstName },
   { title: 'Patient Last Name', accessor: data => data.patient.lastName },
   { title: 'National Health Number', accessor: data => data.patient.displayId },
-  { title: 'Diagnosis', accessor: data => undefined },
+  {
+    title: 'Diagnoses',
+    accessor: data => {
+      if (data.diagnoses && data.diagnoses.length) {
+        return data.diagnoses
+          .map(d => {
+            if (d.Diagnosis && d.Diagnosis.name) {
+              return d.Diagnosis.name;
+            } else {
+              return '';
+            }
+          })
+          .join(', ');
+      }
+
+      return undefined;
+    },
+  },
   { title: 'Referring Doctor', accessor: data => data.referredBy.displayName },
   { title: 'Department', accessor: data => data.referredToDepartment?.name || '' },
   { title: 'Facility', accessor: data => data.referredToFacility?.name || '' },
@@ -59,6 +76,11 @@ async function queryReferralsData(models, parameters) {
       { model: models.User, as: 'referredBy' },
       { model: models.ReferenceData, as: 'referredToDepartment' },
       { model: models.ReferenceData, as: 'referredToFacility' },
+      {
+        model: models.ReferralDiagnosis,
+        as: 'diagnoses',
+        include: [{ model: models.ReferenceData, as: 'Diagnosis' }],
+      },
     ],
     where: parametersToSqlWhere(parameters),
   });
