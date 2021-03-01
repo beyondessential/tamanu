@@ -298,9 +298,11 @@ class TableComponent extends React.Component {
           <TableBody>{this.renderBodyContent()}</TableBody>
           <StyledTableFooter>
             <TableRow>
-              <Button onClick={onDownloadData}>
-                <PaddedDownloadIcon />
-              </Button>
+              <TableCell>
+                <Button onClick={onDownloadData}>
+                  <PaddedDownloadIcon />
+                </Button>
+              </TableCell>
               {page !== null && this.renderPaginator()}
             </TableRow>
           </StyledTableFooter>
