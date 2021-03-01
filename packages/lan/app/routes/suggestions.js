@@ -110,3 +110,10 @@ createSuggestionRoute('location', 'location', 'name CONTAINS[c] $0');
 createSuggestionRoute('drug', 'drug', 'name BEGINSWITH[c] $0');
 createSuggestionRoute('department', 'department', 'name CONTAINS[c] $0');
 createSuggestionRoute('village', 'village', 'name CONTAINS[c] $0');
+
+createSuggestionRoute(
+  'carePlan',
+  'carePlan',
+  '(name CONTAINS[c] $0 OR code BEGINSWITH[c] $0) AND type = "carePlan"',
+  ({ name, code, _id }) => ({ name, code, _id }),
+);

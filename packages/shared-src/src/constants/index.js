@@ -113,6 +113,7 @@ export const REFERENCE_TYPES = {
   DEPARTMENT: 'department',
   VACCINE: 'vaccine',
   VILLAGE: 'village',
+  CARE_PLAN: 'carePlan'
 };
 
 export const REFERENCE_TYPE_VALUES = Object.values(REFERENCE_TYPES);
