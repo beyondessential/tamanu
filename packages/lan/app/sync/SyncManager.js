@@ -69,7 +69,21 @@ export class SyncManager {
 
   async runSync() {
     const { models } = this.context;
-    for (const [model, channel] of [[models.ReferenceData, 'reference']]) {
+    const syncJobs = [
+      [models.ReferenceData, 'reference'],
+      [models.User, 'user'],
+
+      // TODO: fix tests and implement
+      // [models.ScheduledVaccine, 'scheduledVaccine'],
+
+      [models.Program, 'program'],
+      [models.Survey, 'survey'],
+      [models.ProgramDataElement, 'programDataElement'],
+      [models.SurveyScreenComponent, 'surveyScreenComponent'],
+
+      [models.Patient, 'patient'],
+    ];
+    for (const [model, channel] of syncJobs) {
       // import
       await this.receiveAndImport(model, channel);
     }
