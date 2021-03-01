@@ -284,7 +284,7 @@ class TableComponent extends React.Component {
 
       /* show a file-save dialog and write the workbook */
       const path = await remote.dialog.showSaveDialog();
-      if (path.canceled === undefined) return; // Dialog was cancelled - don't write file.
+      if (path.canceled) return; // Dialog was cancelled - don't write file.
       XLSX.writeFile(wb, `${path.filePath}.xlsx`);
       shell.openPath(`${path.filePath}.xlsx`);
     };
