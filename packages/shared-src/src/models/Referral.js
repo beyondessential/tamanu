@@ -72,5 +72,9 @@ export class Referral extends Model {
       foreignKey: 'referredToFacilityId',
       as: 'referredToFacility',
     });
+    this.hasMany(models.ReferralDiagnosis, {
+      foreignKey: 'referralId',
+      as: 'diagnoses',
+    });
   }
 }
