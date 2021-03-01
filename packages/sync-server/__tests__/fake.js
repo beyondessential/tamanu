@@ -135,6 +135,7 @@ export function fakeEncounter(prefix = '') {
   const id = uuidv4();
   return {
     id,
+    deviceId: null,
     surveyResponses: [],
     administeredVaccines: [],
     encounterType: sample(ENCOUNTER_TYPE_VALUES),
