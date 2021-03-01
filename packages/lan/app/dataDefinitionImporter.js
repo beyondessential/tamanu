@@ -189,7 +189,7 @@ const settingImporter = async ({ Setting }, item) => {
   const existing = await Setting.findOne({ where: { settingName: name } });
   if (existing) {
     return {
-      emanameil,
+      name,
       success: false,
       error: `Setting (${name}) cannot be updated via bulk import`,
     };
