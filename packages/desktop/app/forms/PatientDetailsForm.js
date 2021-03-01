@@ -23,7 +23,7 @@ export const PrimaryDetailsGroup = ({ villageSuggester }) => (
     <Field name="lastName" label="Last name" component={TextField} required />
     <Field name="culturalName" label="Cultural/Traditional name" component={TextField} />
     <Field
-      name="village.id"
+      name="villageId"
       label="Village"
       component={AutocompleteField}
       suggester={villageSuggester}
