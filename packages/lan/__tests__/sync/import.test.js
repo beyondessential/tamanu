@@ -6,15 +6,16 @@ import {
   fakeSurvey,
   fakeSurveyScreenComponent,
   fakeUser,
-  // buildScheduledVaccine,
+  buildScheduledVaccine,
 } from 'shared/test-helpers';
 import { createTestContext } from '../utilities';
 import { createImportPlan, executeImportPlan } from '~/sync/import';
 
 describe('import', () => {
   let models;
+  let context;
   beforeAll(async () => {
-    const context = await createTestContext();
+    context = await createTestContext();
     models = context.models;
   });
 
@@ -23,8 +24,7 @@ describe('import', () => {
     ['Program', fakeProgram],
     ['ProgramDataElement', fakeProgramDataElement],
     ['ReferenceData', fakeReferenceData],
-    // TODO: fix factory.js and implement
-    // ['scheduledVaccine', buildScheduledVaccine(ctx), models.ScheduledVaccine],
+    ['ScheduledVaccine', () => buildScheduledVaccine(context)],
     ['Survey', fakeSurvey],
     ['SurveyScreenComponent', fakeSurveyScreenComponent],
     ['User', fakeUser],
@@ -34,7 +34,7 @@ describe('import', () => {
       it('creates the record', async () => {
         // arrange
         const model = models[modelName];
-        const record = fakeRecord();
+        const record = await fakeRecord();
 
         // act
         const plan = createImportPlan(model);
@@ -47,9 +47,9 @@ describe('import', () => {
       it('updates the record', async () => {
         // arrange
         const model = models[modelName];
-        const oldRecord = fakeRecord();
+        const oldRecord = await fakeRecord();
         const newRecord = {
-          ...fakeRecord(),
+          ...(await fakeRecord()),
           id: oldRecord.id,
         };
         await model.create(oldRecord);
