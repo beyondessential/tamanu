@@ -15,19 +15,19 @@ import {
 
 // TODO: generic
 
-export const buildEncounter = (ctx, patientId) => async () => {
+export const buildEncounter = async (ctx, patientId) => {
   const patient = fakePatient();
   patient.id = patientId;
-  await ctx.wrapper.upsert('patient', patient);
+  await ctx.models.Patient.upsert(patient);
 
   const examiner = fakeUser('examiner');
-  await ctx.wrapper.upsert('user', examiner);
+  await ctx.models.User.upsert(examiner);
 
   const location = fakeReferenceData('location');
-  await ctx.wrapper.upsert('reference', location);
+  await ctx.models.ReferenceData.upsert(location);
 
   const department = fakeReferenceData('department');
-  await ctx.wrapper.upsert('reference', department);
+  await ctx.models.ReferenceData.upsert(department);
 
   const encounter = fakeEncounter();
   encounter.patientId = patient.id;
@@ -38,8 +38,8 @@ export const buildEncounter = (ctx, patientId) => async () => {
   return encounter;
 };
 
-export const buildNestedEncounter = (ctx, patientId) => async () => {
-  const encounter = await buildEncounter(ctx, patientId)();
+export const buildNestedEncounter = async (ctx, patientId) => {
+  const encounter = await buildEncounter(ctx, patientId);
 
   const administeredVaccine = fakeAdministeredVaccine();
   delete administeredVaccine.encounterId;
@@ -56,9 +56,9 @@ export const buildNestedEncounter = (ctx, patientId) => async () => {
   return encounter;
 };
 
-export const buildAdministeredVaccine = (ctx, patientId) => async () => {
-  const encounter = await buildEncounter(ctx, patientId)();
-  await ctx.wrapper.upsert(`patient/${patientId}/encounter`, encounter);
+export const buildAdministeredVaccine = async (ctx, patientId) => {
+  const encounter = await buildEncounter(ctx, patientId);
+  await ctx.models.Encounter.upsert(encounter);
 
   const administeredVaccine = fakeAdministeredVaccine();
   administeredVaccine.encounterId = encounter.id;
@@ -66,9 +66,9 @@ export const buildAdministeredVaccine = (ctx, patientId) => async () => {
   return administeredVaccine;
 };
 
-export const buildSurveyResponse = (ctx, patientId) => async () => {
-  const encounter = await buildEncounter(ctx, patientId)();
-  await ctx.wrapper.upsert(`patient/${patientId}/encounter`, encounter);
+export const buildSurveyResponse = async (ctx, patientId) => {
+  const encounter = await buildEncounter(ctx, patientId);
+  await ctx.models.Encounter.upsert(encounter);
 
   const surveyResponse = fakeSurveyResponse();
   surveyResponse.encounterId = encounter.id;
@@ -76,9 +76,9 @@ export const buildSurveyResponse = (ctx, patientId) => async () => {
   return surveyResponse;
 };
 
-export const buildSurveyResponseAnswer = (ctx, patientId) => async () => {
-  const surveyResponse = await buildSurveyResponse(ctx, patientId)();
-  await ctx.wrapper.upsert(`patient/${patientId}/surveyResponse`, surveyResponse);
+export const buildSurveyResponseAnswer = async (ctx, patientId) => {
+  const surveyResponse = await buildSurveyResponse(ctx, patientId);
+  await ctx.models.SurveyResponse.upsert(surveyResponse);
 
   const surveyResponseAnswer = fakeSurveyResponseAnswer();
   surveyResponseAnswer.responseId = surveyResponse.id;
@@ -86,7 +86,7 @@ export const buildSurveyResponseAnswer = (ctx, patientId) => async () => {
   return surveyResponseAnswer;
 };
 
-export const buildScheduledVaccine = ctx => async () => {
+export const buildScheduledVaccine = async ctx => {
   const scheduledVaccine = fakeScheduledVaccine();
 
   const vaccineId = uuidv4();
@@ -95,7 +95,7 @@ export const buildScheduledVaccine = ctx => async () => {
     type: REFERENCE_TYPES.VACCINE,
     ...fakeStringFields(`vaccine_${vaccineId}_`, ['code', 'name']),
   };
-  await ctx.wrapper.upsert('reference', vaccine);
+  await ctx.models.ReferenceData.upsert(vaccine);
   scheduledVaccine.vaccineId = vaccineId;
 
   return scheduledVaccine;
