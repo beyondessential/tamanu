@@ -153,7 +153,7 @@ describe('Sync API', () => {
     it('should return nested encounter relationships', async () => {
       // arrange
       const patientId = uuidv4();
-      const encounter = await buildNestedEncounter({ wrapper: ctx.store }, patientId)();
+      const encounter = await buildNestedEncounter(ctx.store, patientId);
       await ctx.store.upsert(`patient/${patientId}/encounter`, encounter);
 
       // act
@@ -261,7 +261,7 @@ describe('Sync API', () => {
     it('should upsert nested encounter relationships', async () => {
       // arrange
       const patientId = uuidv4();
-      const encounterToInsert = await buildNestedEncounter({ wrapper: ctx.store }, patientId)();
+      const encounterToInsert = await buildNestedEncounter(ctx.store, patientId);
       await ctx.store.upsert(`patient/${patientId}/encounter`, encounterToInsert);
 
       // act
