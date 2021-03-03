@@ -7,9 +7,21 @@ import {
   fakeSurveyScreenComponent,
   fakeUser,
   buildScheduledVaccine,
+  buildNestedEncounter,
 } from 'shared/test-helpers';
 import { createTestContext } from '../utilities';
 import { createImportPlan, executeImportPlan } from '~/sync/import';
+
+// converts a db record and all its relations to a sync record
+const toSyncRecord = record => ({
+  data: Object.entries(record).reduce((data, [k, oldVal]) => {
+    let val = oldVal;
+    if (Array.isArray(val)) {
+      val = toSyncRecord(val);
+    }
+    return { ...data, [k]: val };
+  }, {}),
+});
 
 describe('import', () => {
   let models;
@@ -28,6 +40,7 @@ describe('import', () => {
     ['Survey', fakeSurvey],
     ['SurveyScreenComponent', fakeSurveyScreenComponent],
     ['User', fakeUser],
+    ['Encounter', () => buildNestedEncounter(context)],
   ];
   rootTestCases.forEach(([modelName, fakeRecord]) => {
     describe(modelName, () => {
@@ -38,7 +51,7 @@ describe('import', () => {
 
         // act
         const plan = createImportPlan(model);
-        await executeImportPlan(plan, { data: record });
+        await executeImportPlan(plan, toSyncRecord(record));
 
         // assert
         expect(await model.findByPk(record.id)).toMatchObject(record);
@@ -56,7 +69,7 @@ describe('import', () => {
 
         // act
         const plan = createImportPlan(model);
-        await executeImportPlan(plan, { data: newRecord });
+        await executeImportPlan(plan, toSyncRecord(newRecord));
 
         // assert
         const dbRecord = await model.findByPk(oldRecord.id);
@@ -71,7 +84,7 @@ describe('import', () => {
 
         // act
         const plan = createImportPlan(model);
-        await executeImportPlan(plan, { isDeleted: true, data: record });
+        await executeImportPlan(plan, { ...toSyncRecord(record), isDeleted: true });
 
         // assert
         expect(await model.findByPk(record.id)).toEqual(null);

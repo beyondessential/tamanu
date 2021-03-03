@@ -17,7 +17,9 @@ import {
 
 export const buildEncounter = async (ctx, patientId) => {
   const patient = fakePatient();
-  patient.id = patientId;
+  if (patientId) {
+    patient.id = patientId;
+  }
   await ctx.models.Patient.upsert(patient);
 
   const examiner = fakeUser('examiner');
