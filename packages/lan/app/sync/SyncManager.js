@@ -73,8 +73,7 @@ export class SyncManager {
       [models.ReferenceData, 'reference'],
       [models.User, 'user'],
 
-      // TODO: fix tests and implement
-      // [models.ScheduledVaccine, 'scheduledVaccine'],
+      [models.ScheduledVaccine, 'scheduledVaccine'],
 
       [models.Program, 'program'],
       [models.Survey, 'survey'],
