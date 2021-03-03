@@ -132,7 +132,9 @@ export async function initDatabase(dbOptions) {
   // attach migration function to the sequelize object - leaving the responsibility
   // of calling it to the implementing server (this allows for skipping migrations
   // in favour of calling sequelize.sync() during test mode)
-  sequelize.migrate = () => performMigrations(log, sequelize);
+  sequelize.migrate = sqlitePath
+    ? sequelize.sync  // just sync in sqlite mode, migrations may contain pg-specific sql
+    : () => performMigrations(log, sequelize);
 
   // init all models
   const modelClasses = Object.values(models);
