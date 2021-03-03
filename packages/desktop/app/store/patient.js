@@ -1,5 +1,4 @@
 import { push } from 'connected-react-router';
-import { createReducerAllowClearingState } from '../utils/createReducer';
 
 // actions
 const PATIENT_LOAD_START = 'PATIENT_LOAD_START';
@@ -68,27 +67,32 @@ const defaultState = {
   error: null,
 };
 
-const handlers = {
-  [PATIENT_LOAD_START]: action => ({
-    loading: true,
-    id: action.id,
-    error: null,
-  }),
-  [PATIENT_LOAD_ERROR]: (action, state) => ({
-    loading: false,
-    error: action.error,
-    id: state.id, // preserve which patient has just errored 
-  }),
-  [PATIENT_LOAD_FINISH]: action => ({
-    loading: false,
-    error: null,
-    ...action.patient,
-  }),
-  [PATIENT_CLEAR]: () => ({
-    loading: false,
-    id: null,
-    error: null,
-  }),
+export const patientReducer = (state = defaultState, action) => {
+  switch (action.type) {
+    case PATIENT_LOAD_START:
+      return {
+        loading: true,
+        id: action.id,
+        error: null,
+      };
+    case PATIENT_LOAD_ERROR:
+      return {
+        loading: false,
+        error: action.error,
+      };
+    case PATIENT_LOAD_FINISH:
+      return {
+        loading: false,
+        error: null,
+        ...action.patient,
+      };
+    case PATIENT_CLEAR:
+      return {
+        loading: false,
+        id: null,
+        error: null,
+      };
+    default:
+      return state;
+  }
 };
-
-export const patientReducer = createReducerAllowClearingState(defaultState, handlers);
