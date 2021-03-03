@@ -1,4 +1,4 @@
-import { createReducer } from '../utils/createReducer';
+import { createStatePreservingReducer } from '../utils/createStatePreservingReducer';
 
 // actions
 export const PUSH_DECISION_SUPPORT = 'PUSH_DECISION_SUPPORT';
@@ -33,4 +33,4 @@ const handlers = {
   }),
 };
 
-export const decisionSupportReducer = createReducer(defaultState, handlers);
+export const decisionSupportReducer = createStatePreservingReducer(defaultState, handlers);

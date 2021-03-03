@@ -1,4 +1,4 @@
-import { createReducer } from '../utils/createReducer';
+import { createStatePreservingReducer } from '../utils/createStatePreservingReducer';
 
 // actions
 const LOGIN_START = 'LOGIN_START';
@@ -65,4 +65,4 @@ const actionHandlers = {
   }),
 };
 
-export const authReducer = createReducer(defaultState, actionHandlers);
+export const authReducer = createStatePreservingReducer(defaultState, actionHandlers);
