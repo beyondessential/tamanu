@@ -17,7 +17,6 @@ import { useBackendEffect } from '~/ui/hooks';
 const SurveyResponseItem = ({
   surveyResponse,
   responseIndex,
-  highlightPatientId,
 }): ReactElement => {
   const navigation = useNavigation();
   const onPress = useCallback(
@@ -40,16 +39,12 @@ const SurveyResponseItem = ({
         justifyContent="space-between"
         flexDirection="column"
         padding={8}
-        background={
-          patient.id === highlightPatientId 
-            ? theme.colors.PRIMARY_MAIN
-            : (responseIndex % 2 ? theme.colors.BACKGROUND_GREY : theme.colors.WHITE)
-        }
+        background={responseIndex % 2 ? theme.colors.BACKGROUND_GREY : theme.colors.WHITE}
       >
         <StyledView justifyContent="space-between" flexDirection="row">
           <StyledText 
             fontWeight="bold"
-            color={ patient.id === highlightPatientId ? theme.colors.WHITE : theme.colors.BLACK }
+            color={theme.colors.BLACK}
           >
             {`${patient.firstName} ${patient.lastName}`}
           </StyledText>
@@ -76,7 +71,6 @@ export const ProgramViewHistoryScreen = ({
   route,
 }: SurveyResponseScreenProps): ReactElement => {
   const { surveyId, selectedPatient, latestResponseId } = route.params;
-  const navigation = useNavigation();
 
   // use latestResponseId to ensure that we refresh when
   // a new survey is submitted (as this tab can be mounted while
@@ -94,6 +88,8 @@ export const ProgramViewHistoryScreen = ({
     return <LoadingScreen />;
   }
 
+  const responsesToShow = selectedPatient ? responses.filter(({ encounter }) => encounter.patient.id === selectedPatient.id) : responses;
+
   return (
     <FlatList
       style={{
@@ -103,11 +99,10 @@ export const ProgramViewHistoryScreen = ({
         backgroundColor: theme.colors.BACKGROUND_GREY,
       }}
       showsVerticalScrollIndicator={false}
-      data={responses}
+      data={responsesToShow}
       keyExtractor={(item): string => item.name}
       renderItem={({ item, index }): ReactElement => (
         <SurveyResponseItem 
-          highlightPatientId={selectedPatient && selectedPatient.id}
           responseIndex={index}  
           surveyResponse={item} 
         />
