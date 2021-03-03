@@ -27,7 +27,6 @@ describe('Patient', () => {
   test.todo('should reject listing of patients with insufficient permissions');
 
   it('should get the details of a patient', async () => {
-    // const patient = await models.Patient.create(await createDummyPatient(models));
     const result = await app.get(`/v1/patient/${patient.id}`);
     expect(result).toHaveSucceeded();
     expect(result.body).toHaveProperty('displayId', patient.displayId);
@@ -43,7 +42,6 @@ describe('Patient', () => {
   describe('write', () => {
     it('should reject users with insufficient permissions', async () => {
       const noPermsApp = await baseApp.asRole('base');
-      // const patient = await models.Patient.create(await createDummyPatient(models));
 
       const result = await noPermsApp.put(`/v1/patient/${patient.id}`).send({
         firstName: 'New',
