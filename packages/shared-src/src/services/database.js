@@ -129,6 +129,9 @@ export async function initDatabase(dbOptions) {
   // set configuration variables for individual models
   models.User.SALT_ROUNDS = saltRounds;
 
+  // attach migration function to the sequelize object - leaving the responsibility
+  // of calling it to the implementing server (this allows for skipping migrations
+  // in favour of calling sequelize.sync() during test mode)
   sequelize.migrate = () => performMigrations(log, sequelize);
 
   // init all models
