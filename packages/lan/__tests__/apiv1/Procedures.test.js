@@ -11,12 +11,16 @@ async function createDummyProcedure(models) {
 }
 
 describe('Procedures', () => {
-  const { baseApp, models } = createTestContext();
-
   let patient = null;
   let app = null;
   let encounter = null;
+  let baseApp = null;
+  let models = null;
+
   beforeAll(async () => {
+    const ctx = await createTestContext();
+    baseApp = ctx.baseApp;
+    models = ctx.models;
     patient = await models.Patient.create(await createDummyPatient(models));
     app = await baseApp.asRole('practitioner');
     encounter = await models.Encounter.create({

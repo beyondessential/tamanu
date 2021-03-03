@@ -30,6 +30,7 @@ import { reportRequest } from './reportRequest';
 import { patientCarePlan } from './patientCarePlan';
 
 import { admin } from './admin';
+import { setting } from './setting';
 
 export const apiv1 = express.Router();
 
@@ -65,6 +66,8 @@ apiv1.use('/surveyResponse', surveyResponse);
 
 apiv1.use('/reports', reports);
 apiv1.use('/reportRequest', reportRequest);
-apiv1.use('/patientCarePlan', patientCarePlan)
+apiv1.use('/patientCarePlan', patientCarePlan);
 
 apiv1.use('/admin', admin);
+
+apiv1.use('/setting', setting);

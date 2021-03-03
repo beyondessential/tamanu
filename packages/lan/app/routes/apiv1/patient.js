@@ -153,7 +153,9 @@ patient.get(
     // query is always going to come in as strings, has to be set manually
     ['ageMax', 'ageMin']
       .filter(k => filterParams[k])
-      .map(k => (filterParams[k] = parseFloat(filterParams[k])));
+      .forEach(k => {
+        filterParams[k] = parseFloat(filterParams[k]);
+      });
 
     const filters = [
       makeFilter(filterParams.displayId, `patients.display_id = :displayId`),

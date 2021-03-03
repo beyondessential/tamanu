@@ -7,9 +7,13 @@ import styled from 'styled-components';
 import MuiDialog from '@material-ui/core/Dialog';
 import DialogTitle from '@material-ui/core/DialogTitle';
 import DialogActions from '@material-ui/core/DialogActions';
+import PrintIcon from '@material-ui/icons/Print';
 import CloseIcon from '@material-ui/icons/Close';
 import { getCurrentRoute } from '../store/router';
 import { Colors } from '../constants';
+import { Button } from './Button';
+import { printPage } from '../print';
+import { IconButton } from '@material-ui/core';
 
 const MODAL_PADDING = 32;
 
@@ -21,6 +25,13 @@ const MODAL_PADDING = 32;
 const Dialog = styled(MuiDialog)`
   .MuiDialog-paperWidthMd {
     max-width: 830px;
+  }
+
+  @media print {
+    .MuiDialogTitle-root,
+    .MuiDialogActions-root {
+      display: none;
+    }
   }
 `;
 
@@ -48,17 +59,46 @@ const ModalTitle = styled(DialogTitle)`
     svg {
       font-size: 2rem;
       cursor: pointer;
-      margin-top: -10px;
-      margin-right: -10px;
     }
   }
 `;
 
+const VerticalCenteredText = styled.span`
+  display: flex;
+  align-items: center;
+`;
+
 export const Modal = memo(
-  ({ title, children, actions, width = 'sm', classes, open = false, onClose, ...props }) => (
+  ({
+    title,
+    children,
+    actions,
+    width = 'sm',
+    classes,
+    open = false,
+    onClose,
+    printable = false,
+    ...props
+  }) => (
     <Dialog fullWidth maxWidth={width} classes={classes} open={open} onClose={onClose} {...props}>
       <ModalTitle>
-        <span>{title}</span> <CloseIcon onClick={onClose} />
+        <VerticalCenteredText>{title}</VerticalCenteredText>
+        <div>
+          {printable ? (
+            <Button
+              color="primary"
+              variant="outlined"
+              onClick={printPage}
+              startIcon={<PrintIcon />}
+              size="small"
+            >
+              Print
+            </Button>
+          ) : null}
+          <IconButton onClick={onClose}>
+            <CloseIcon />
+          </IconButton>
+        </div>
       </ModalTitle>
       <ModalContainer>
         <ModalContent>{children}</ModalContent>

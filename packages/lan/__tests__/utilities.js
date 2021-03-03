@@ -1,9 +1,14 @@
 import supertest from 'supertest';
 import Chance from 'chance';
 
+import { seedLabTests } from 'shared/demoData/labTestTypes';
+
 import { createApp } from 'lan/app/createApp';
 import { initDatabase } from 'lan/app/database';
 import { getToken } from 'lan/app/middleware/auth';
+
+import { allSeeds } from './seed';
+import { deleteAllTestIds } from './setupUtilities';
 
 const chance = new Chance();
 
@@ -62,11 +67,20 @@ export function extendExpect(expect) {
   });
 }
 
-export function createTestContext() {
-  const dbResult = initDatabase({
-    testMode: true,
-  });
+export async function createTestContext() {
+  const dbResult = await initDatabase();
   const { models, sequelize } = dbResult;
+
+  // sync db and remove old test data
+  await sequelize.sync();
+  await deleteAllTestIds(dbResult);
+
+  // populate with reference data
+  const tasks = allSeeds
+    .map(d => ({ code: d.name, ...d }))
+    .map(d => models.ReferenceData.create(d));
+  await seedLabTests(models);
+  await Promise.all(tasks);
 
   const expressApp = createApp(dbResult);
 

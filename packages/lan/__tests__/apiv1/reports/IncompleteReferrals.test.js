@@ -3,11 +3,10 @@ import {
   createDummyPatient,
   randomReferenceId,
   randomReferenceIds,
+  randomReferenceDataObjects,
   randomUser,
 } from 'shared/demoData/patients';
 import { createTestContext } from '../../utilities';
-
-const { baseApp, models } = createTestContext();
 
 describe('Incomplete Referrals report', () => {
   let app = null;
@@ -19,8 +18,15 @@ describe('Incomplete Referrals report', () => {
   let practitioner2 = null;
   let department = null;
   let facility = null;
+  let baseApp = null;
+  let models = null;
+  let diagnosis1 = null;
+  let diagnosis2 = null;
 
   beforeAll(async () => {
+    const ctx = await createTestContext();
+    baseApp = ctx.baseApp;
+    models = ctx.models;
     app = await baseApp.asRole('practitioner');
     [village1, village2] = await randomReferenceIds(models, 'village', 2);
     patient1 = await models.Patient.create(
@@ -44,13 +50,24 @@ describe('Incomplete Referrals report', () => {
   describe('returns data based on supplied parameters', () => {
     beforeAll(async () => {
       await models.Referral.destroy({ where: {}, truncate: true });
-      await models.Referral.create({
+      const referral = await models.Referral.create({
         referralNumber: 'A',
         date: new Date(),
         patientId: patient1.dataValues.id,
         referredById: practitioner1,
         referredToDepartmentId: department,
         referredToFacilityId: facility,
+      });
+      [diagnosis1, diagnosis2] = await randomReferenceDataObjects(models, 'icd10', 2);
+      await models.ReferralDiagnosis.create({
+        certainty: 'confirmed',
+        referralId: referral.dataValues.id,
+        diagnosisId: diagnosis1.dataValues.id,
+      });
+      await models.ReferralDiagnosis.create({
+        certainty: 'confirmed',
+        referralId: referral.dataValues.id,
+        diagnosisId: diagnosis2.dataValues.id,
       });
       await models.Referral.create({
         referralNumber: 'B',
@@ -69,6 +86,16 @@ describe('Incomplete Referrals report', () => {
       expect(result.body.length).toEqual(2);
       expect(result.body[1][0]).toEqual(patient1.firstName);
       expect(result.body[1][1]).toEqual(patient1.lastName);
+    });
+
+    it('should return multiple diagnoses', async () => {
+      const result = await app.post('/v1/reports/incomplete-referrals').send({
+        parameters: { village: village1 },
+      });
+      expect(result).toHaveSucceeded();
+      expect(result.body.length).toEqual(2);
+      // the order of diagnoses is not guaranteed, so we just check for count
+      expect(result.body[1][3].split(',').length).toEqual(2);
     });
   });
 });

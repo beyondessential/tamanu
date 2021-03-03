@@ -6,12 +6,15 @@ function newlinesToArray(data) {
   if (!data) return null;
 
   let split = ',';
-  if(data.trim().match(/[\r\n]/)) {
+  if (data.trim().match(/[\r\n]/)) {
     // multiline record - split on newlines instead
     split = /[\r\n]+/g;
   }
 
-  const array = data.split(split).map(x => x.trim()).filter(x => x);
+  const array = data
+    .split(split)
+    .map(x => x.trim())
+    .filter(x => x);
   return JSON.stringify(array);
 }
 
@@ -42,13 +45,7 @@ function importDataElement(row) {
   // questionLabel
   // detailLabel
 
-  const { 
-    newScreen,
-    options,
-    optionLabels,
-    text,
-    ...rest 
-  } = row;
+  const { newScreen, options, optionLabels, text, ...rest } = row;
 
   return {
     newScreen: yesOrNo(newScreen),

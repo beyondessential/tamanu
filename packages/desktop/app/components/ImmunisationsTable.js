@@ -7,7 +7,7 @@ const getSchedule = ({ schedule }) => schedule || 'Unknown';
 const getVaccineName = ({ vaccine }) => vaccine || 'Unknown';
 const getDate = ({ date }) => <DateDisplay date={date} />;
 const getAdministerer = ({ givenBy }) => (givenBy || {}).displayName || 'Unknown';
-const getFacility = ({ facility }) => facility || 'Unknown';
+const getFacility = ({ facility }) => (facility || {}).name || '';
 const getBatch = ({ batch }) => batch || 'Unknown';
 const getTimeliness = ({ timeliness }) => timeliness || 'Unknown';
 

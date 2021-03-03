@@ -184,6 +184,28 @@ const patientImporter = async ({ Patient, ReferenceData }, item) => {
   };
 };
 
+const settingImporter = async ({ Setting }, item) => {
+  const { name, content } = item;
+  const existing = await Setting.findOne({ where: { settingName: name } });
+  if (existing) {
+    return {
+      name,
+      success: false,
+      error: `Setting (${name}) cannot be updated via bulk import`,
+    };
+  }
+  const obj = await Setting.create({
+    settingName: name,
+    settingContent: content,
+  });
+
+  return {
+    success: true,
+    created: true,
+    object: obj,
+  };
+};
+
 const importers = {
   villages: referenceDataImporter('village'),
   drugs: referenceDataImporter('drug'),
@@ -195,9 +217,11 @@ const importers = {
   triagereasons: referenceDataImporter('triageReason'),
   imagingtypes: referenceDataImporter('imagingType'),
   procedures: referenceDataImporter('procedureType'),
+  careplans: referenceDataImporter('carePlan'),
   users: userImporter,
   patients: patientImporter,
   labtesttypes: labTestTypesImporter,
+  settings: settingImporter,
 };
 
 export async function importJson(models, sheetName, data) {
@@ -265,13 +289,11 @@ export async function readDataDefinition(path) {
     importerId: convertSheetNameToImporterId(sheetName),
   }));
 
-  return sheets
-    .sort(compareImporterPriority)
-    .map(({ sheetName, sheet, ...rest }) => ({
-      sheetName,
-      data: utils.sheet_to_json(sheet),
-      ...rest,
-    }));
+  return sheets.sort(compareImporterPriority).map(({ sheetName, sheet, ...rest }) => ({
+    sheetName,
+    data: utils.sheet_to_json(sheet),
+    ...rest,
+  }));
 }
 
 export async function importDataDefinition(models, path, onSheetImported) {

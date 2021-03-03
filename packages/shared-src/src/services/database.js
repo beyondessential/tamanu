@@ -1,5 +1,6 @@
 import { Sequelize } from 'sequelize';
 import { createNamespace } from 'cls-hooked';
+import pg from 'pg';
 import * as models from '../models';
 
 // an issue in how webpack's require handling interacts with sequelize means we need
@@ -7,23 +8,63 @@ import * as models from '../models';
 // issue & resolution here: https://github.com/sequelize/sequelize/issues/9489#issuecomment-486047783
 import sqlite3 from 'sqlite3';
 
-export function initDatabase(dbOptions) {
+// this is dangerous and should only be used in test mode
+const unsafeRecreatePgDb = async ({ name, username, password, host, port }) => {
+  const client = new pg.Client({
+    user: username,
+    password,
+    host,
+    port,
+    // 'postgres' is the default database that's automatically
+    // created on new installs - we just need something to connect
+    // to, and it doesn't matter what the schema is!
+    database: 'postgres',
+  });
+  try {
+    await client.connect();
+    await client.query(`DROP DATABASE IF EXISTS "${name}"`);
+    await client.query(`CREATE DATABASE "${name}"`);
+  } catch (e) {
+    log.error(`unsafeRecreateDb: ${e.stack}`);
+    throw e;
+  } finally {
+    await client.end();
+  }
+};
+
+export async function initDatabase(dbOptions) {
   // connect to database
   const {
     username,
     password,
-    name,
     log,
+    testMode=false,
     host=null,
     port=null,
     verbose=false,
-    sqlitePath=null,
     makeEveryModelParanoid=false,
     saltRounds=null,
     primaryKeyDefault=Sequelize.UUIDV4,
-    primaryKeyType=Sequelize.UUID,
     hackToSkipEncounterValidation=false, // TODO: remove once mobile implements all relationships
   } = dbOptions;
+  let {
+    name,
+    sqlitePath=null,
+  } = dbOptions;
+
+  // configure one test db per jest worker
+  const workerId = process.env.JEST_WORKER_ID
+  if (testMode && workerId) {
+    if (sqlitePath) {
+      const sections = sqlitePath.split('.');
+      const extension = sections[sections.length - 1];
+      const rest = sections.slice(0, -1).join('.');
+      sqlitePath = `${rest}-${workerId}.${extension}`;
+    } else {
+      name = `${name}-${workerId}`;
+      await unsafeRecreatePgDb({ ...dbOptions, name });
+    }
+  }
 
   if (sqlitePath) {
     log.info(`Connecting to sqlite database at ${sqlitePath}...`);
@@ -53,7 +94,7 @@ export function initDatabase(dbOptions) {
   // init all models
   const modelClasses = Object.values(models);
   const primaryKey = {
-    type: primaryKeyType,
+    type: Sequelize.STRING,
     defaultValue: primaryKeyDefault,
     allowNull: false,
     primaryKey: true,

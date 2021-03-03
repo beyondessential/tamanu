@@ -1,7 +1,5 @@
 import { createTestContext } from '../utilities';
 
-const app = createTestContext();
-
 describe('Scheduling', () => {
   test.todo('should schedule a new appointment');
   test.todo('should cancel an appointment');

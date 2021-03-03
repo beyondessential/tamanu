@@ -2,7 +2,13 @@ import express from 'express';
 import asyncHandler from 'express-async-handler';
 
 import { ForbiddenError } from 'shared/errors';
-import { simpleGet, simplePut, paginatedGetList, simplePost, permissionCheckingRouter } from './crudHelpers';
+import {
+  simpleGet,
+  simplePut,
+  paginatedGetList,
+  simplePost,
+  permissionCheckingRouter,
+} from './crudHelpers';
 
 export const user = express.Router();
 

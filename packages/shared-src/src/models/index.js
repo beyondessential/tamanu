@@ -1,4 +1,5 @@
 export * from './User';
+export * from './SyncMetadata';
 
 export * from './Patient';
 export * from './PatientFamilyHistory';
@@ -33,3 +34,5 @@ export * from './AdministeredVaccine';
 export * from './ReportRequest';
 export * from './PatientCarePlan';
 export * from './ReferralDiagnosis';
+
+export * from './Setting';

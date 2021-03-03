@@ -1,11 +1,10 @@
 import config from 'config';
 import moment from 'moment';
-import shortid from 'shortid';
 
 import { Op } from 'sequelize';
 
-import { log } from '~/logging';
 import { ScheduledTask } from 'shared/tasks';
+import { log } from '~/logging';
 
 export class EncounterDischarger extends ScheduledTask {
   constructor(context) {
@@ -40,7 +39,6 @@ export class EncounterDischarger extends ScheduledTask {
       .subtract(1, 'minute')
       .toDate();
 
-      
     const tasks = oldEncounters.map(async encounter => {
       await encounter.update({
         endDate: closingDate,
@@ -49,6 +47,6 @@ export class EncounterDischarger extends ScheduledTask {
       log.info(`Auto-closed encounter with id ${encounter.id}`);
     });
 
-    return Promise.all(tasks);
+    await Promise.all(tasks);
   }
 }

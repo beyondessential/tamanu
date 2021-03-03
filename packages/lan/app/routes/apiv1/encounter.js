@@ -6,7 +6,6 @@ import { NOTE_RECORD_TYPES } from 'shared/models/Note';
 
 import {
   simpleGet,
-  simplePut,
   simplePost,
   simpleGetList,
   permissionCheckingRouter,
