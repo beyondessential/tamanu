@@ -88,7 +88,9 @@ export const ProgramViewHistoryScreen = ({
     return <LoadingScreen />;
   }
 
-  const responsesToShow = selectedPatient ? responses.filter(({ encounter }) => encounter.patient.id === selectedPatient.id) : responses;
+  const responsesToShow = selectedPatient 
+    ? responses.filter(({ encounter }) => encounter.patient.id === selectedPatient.id)
+    : responses;
 
   return (
     <FlatList
