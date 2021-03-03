@@ -46,8 +46,7 @@ async function importDemoPrograms(models) {
 
 async function performInitialSetup({ sequelize, models }) {
   // sync models with database
-  // (TODO: proper migrations)
-  await sequelize.sync();
+  await sequelize.migrate();
 
   const existingUser = await models.User.findOne();
   if (existingUser) {

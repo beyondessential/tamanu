@@ -24,7 +24,9 @@ export async function initDatabase({ testMode = false }) {
     await store.sequelize.drop();
     await store.sequelize.sync({ force: true });
   } else if (config.db.syncOnStartup) {
-    await store.sequelize.sync();
+    await store.sequelize.migrate();
+  } else {
+    log.warn("Not doing any migrations");
   }
 
   existingConnection = { store };

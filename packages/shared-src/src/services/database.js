@@ -2,6 +2,7 @@ import { Sequelize } from 'sequelize';
 import { createNamespace } from 'cls-hooked';
 import pg from 'pg';
 import * as models from '../models';
+import Umzug from 'umzug';
 
 // an issue in how webpack's require handling interacts with sequelize means we need
 // to provide the module to sequelize manually
@@ -31,6 +32,30 @@ const unsafeRecreatePgDb = async ({ name, username, password, host, port }) => {
     await client.end();
   }
 };
+
+async function performMigrations(log, sequelize) {
+  const migrationsDir = __dirname + '/../migrations';
+  const umzug = new Umzug({
+    migrations: {
+      path: migrationsDir,
+      params: [
+        sequelize.getQueryInterface(),
+      ]
+    },
+    storage: 'sequelize',
+    storageOptions: {
+      sequelize,
+    }
+  });
+
+  const pending = await umzug.pending();
+  if(pending.length > 0) {
+    log.info(`Performing ${pending.length} migrations...`);
+    await umzug.up();
+  } else {
+    log.info('Migrations already up-to-date.');
+  }
+}
 
 export async function initDatabase(dbOptions) {
   // connect to database
@@ -90,6 +115,8 @@ export async function initDatabase(dbOptions) {
 
   // set configuration variables for individual models
   models.User.SALT_ROUNDS = saltRounds;
+
+  sequelize.migrate = () => performMigrations(log, sequelize);
 
   // init all models
   const modelClasses = Object.values(models);
