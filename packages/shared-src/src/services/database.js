@@ -3,6 +3,7 @@ import { createNamespace } from 'cls-hooked';
 import pg from 'pg';
 import * as models from '../models';
 import Umzug from 'umzug';
+import { readdirSync } from 'fs';
 
 // an issue in how webpack's require handling interacts with sequelize means we need
 // to provide the module to sequelize manually
@@ -34,7 +35,19 @@ const unsafeRecreatePgDb = async ({ name, username, password, host, port }) => {
 };
 
 async function performMigrations(log, sequelize) {
+  // ie, shared/src/migrations
   const migrationsDir = __dirname + '/../migrations';
+
+  // Double check the migrations directory exists (should catch any issues 
+  // arising out of build systems omitting the migrations dir, for eg)
+  // Note that Umzug will throw if the directory is missing, but won't report
+  // errors if the directory is empty - so this is maybe overcautious, but, it's
+  // just a few ms on startup, we'll be ok.
+  const migrationFiles = readdirSync(migrationsDir);
+  if(migrationFiles.length === 0) {
+    throw new Error("Could not find migrations");
+  }
+
   const umzug = new Umzug({
     migrations: {
       path: migrationsDir,
