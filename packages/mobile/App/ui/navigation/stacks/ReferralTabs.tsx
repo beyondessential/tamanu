@@ -8,10 +8,14 @@ import { withPatient } from '/containers/Patient';
 import { BaseAppProps } from '/interfaces/BaseAppProps';
 import { joinNames } from '/helpers/user';
 import { AddRefferalDetailScreen } from '../screens/referrals/AddReferralDetailScreen';
+import { ReferralFormListScreen } from '../screens/referrals/ReferralFormListScreen';
 import { useBackendEffect } from '~/ui/hooks';
 import { ErrorScreen } from '~/ui/components/ErrorScreen';
 import { List } from 'react-native-paper';
 import { format } from 'date-fns';
+import { ProgramListScreen } from '../screens/programs/ProgramListScreen';
+import { ReferralFormStack } from './ReferralFormStack';
+import { StyledScrollView } from '~/ui/styled/common';
 
 const Tabs = createTopTabNavigator();
 
@@ -24,24 +28,27 @@ const DumbReferralHistoryScreen = ({ selectedPatient }): JSX.Element => {
   const [data, error] = useBackendEffect(
     ({ models }) => models.Referral.getForPatient(selectedPatient.id),
     [isFocused],
-  );
-    
+    );
+
   if (error) return <ErrorScreen error={error} />;
   return (
-    <List.Section>
-      {data && data.map(({ formTitle , date, answers }) => {
-        const orderedAnswers = answers.sort((a, b) => b.question.order - a.question.order);
-        return (
-          <List.Accordion
-            title={`${formTitle} (${format(date, 'dd-MM-yyy')})`}
-            left={props => <List.Icon {...props} icon="clipboard-plus-outline" />}>
-            {orderedAnswers.map(answer =>
-              <List.Item key={answer.id} title={answer.question.question} description={answer.answer} />
-            )}
-          </List.Accordion>
-        )
-      })}
-    </List.Section>
+    <StyledScrollView>
+      <List.Section>
+        {data && data.map(({ surveyResponse }) => {
+          const { survey, answers, startTime } = surveyResponse;
+
+          return (
+            <List.Accordion
+              title={`${survey.name} (${format(startTime, 'dd-MM-yyy')})`}
+              left={props => <List.Icon {...props} icon="clipboard-plus-outline" />}>
+              {answers.map(answer =>
+                <List.Item key={answer.id} title={answer.dataElement.defaultText} description={answer.body} />
+              )}
+            </List.Accordion>
+          )
+        })}
+      </List.Section>
+    </StyledScrollView>
   );
 };
 
@@ -64,17 +71,20 @@ const TabNavigator = ({
       />
       <Tabs.Navigator swipeEnabled={false}>
         <Tabs.Screen
+          initialParams={{
+            selectedPatient
+          }}
           options={{
             title: 'REFER PATIENT',
           }}
-          name={Routes.HomeStack.ReferralTabs.AddReferralDetails}
-          component={AddRefferalDetailScreen}
+          name={Routes.HomeStack.ProgramStack.ReferralTabs.AddReferralDetails}
+          component={ReferralFormStack}
         />
         <Tabs.Screen
           options={{
             title: 'VIEW REFERRALS',
           }}
-          name={Routes.HomeStack.ReferralTabs.ViewHistory}
+          name={Routes.HomeStack.ProgramStack.ReferralTabs.ViewHistory}
           component={ReferralHistoryScreen}
         />
       </Tabs.Navigator>

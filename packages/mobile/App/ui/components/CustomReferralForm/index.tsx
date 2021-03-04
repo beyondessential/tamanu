@@ -33,7 +33,7 @@ const CustomReferralFormComponent = ({ selectedForm, selectedPatient, navigation
       });
 
       await Promise.all(createAnswerJobs);
-      navigation.navigate(Routes.HomeStack.ReferralTabs.ViewHistory);
+      // navigation.navigate(Routes.HomeStack.ReferralTabs.ViewHistory);
     }, [title, selectedPatient],
   );
 

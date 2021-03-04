@@ -13,10 +13,14 @@ import {
 
 import { runCalculations } from '~/ui/helpers/calculations';
 
-import { ISurveyResponse, IProgramDataElement, ISurveyScreenComponent } from '~/types';
+import { ISurveyResponse, IProgramDataElement, ISurveyScreenComponent, SurveyTypes } from '~/types';
+import { Referral } from './Referral';
 
 @Entity('survey_response')
 export class SurveyResponse extends BaseModel implements ISurveyResponse {
+  @Column({ type: 'varchar' })
+  surveyType: SurveyTypes;
+
   @Column()
   startTime: Date;
 
@@ -37,9 +41,12 @@ export class SurveyResponse extends BaseModel implements ISurveyResponse {
 
   @ManyToOne(() => Encounter, encounter => encounter.surveyResponses)
   encounter: Encounter;
-
+  
   @RelationId(({ encounter }) => encounter)
   encounterId: string;
+
+  @OneToMany(() => Referral, referral => referral.surveyResponse, { eager: true })
+  referral: Referral
 
   @OneToMany(() => SurveyResponseAnswer, answer => answer.response)
   answers: SurveyResponseAnswer[];
@@ -74,14 +81,16 @@ export class SurveyResponse extends BaseModel implements ISurveyResponse {
     patientId: string,
     surveyData: ISurveyResponse & {
       encounterReason: string,
+      surveyType: SurveyTypes,
       components: ISurveyScreenComponent[],
     },
     values: object,
     setNote: (note: string) => void = () => null,
-  ): Promise<SurveyResponse> {
+  ): Promise<SurveyResponse | Referral> {
     const {
       surveyId,
       encounterReason,
+      surveyType,
       components,
       ...otherData
     } = surveyData;
@@ -91,7 +100,6 @@ export class SurveyResponse extends BaseModel implements ISurveyResponse {
       const encounter = await Encounter.getOrCreateCurrentEncounter(patientId, {
         startDate: new Date(),
         endDate: new Date(),
-        encounterType: 'surveyResponse',
         reasonForEncounter: encounterReason,
       });
 
@@ -107,6 +115,7 @@ export class SurveyResponse extends BaseModel implements ISurveyResponse {
       const responseRecord: SurveyResponse = await SurveyResponse.createAndSaveOne({
         encounter: encounter.id,
         survey: surveyId,
+        surveyType,
         startTime: Date.now(),
         endTime: Date.now(),
         result,
@@ -143,6 +152,18 @@ export class SurveyResponse extends BaseModel implements ISurveyResponse {
           body,
           response: responseRecord.id,
         });
+      }
+      
+      // Create referral
+      if (surveyType === SurveyTypes.Referral) {
+        setNote("Creating referral object...");
+        const referralRecord: Referral = await Referral.createAndSaveOne({
+          initiatingEncounter: encounter.id,
+          surveyResponse: responseRecord.id,
+        });
+        setNote('Done');
+
+        return referralRecord;
       }
       setNote('Done');
 

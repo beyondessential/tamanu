@@ -17,11 +17,12 @@ import { SurveyForm } from '~/ui/components/Forms/SurveyForm';
 import { ISurveyScreenComponent } from '~/types/ISurvey';
 
 import { useBackend, useBackendEffect } from '~/ui/hooks';
+import { SurveyTypes } from '~/types';
 
 export const SurveyResponseScreen = ({
   route,
 }: SurveyResponseScreenProps): ReactElement => {
-  const { surveyId, selectedPatient } = route.params;
+  const { surveyId, selectedPatient, surveyType } = route.params;
   const selectedPatientId = selectedPatient.id;
   const navigation = useNavigation();
 
@@ -44,6 +45,7 @@ export const SurveyResponseScreen = ({
         {
           surveyId,
           components,
+          surveyType,
           encounterReason: `Survey response for ${survey.name}`,
         },
         values,
@@ -51,6 +53,16 @@ export const SurveyResponseScreen = ({
       );
 
       if(!response) return;
+
+      if(surveyType === SurveyTypes.Referral) {
+        navigation.navigate(
+          Routes.HomeStack.ProgramStack.ReferralTabs.ViewHistory,
+          {
+            surveyId: surveyId,
+            latestResponseId: response.id,
+          },
+        );
+      };
 
       navigation.navigate(
         Routes.HomeStack.ProgramStack.ProgramTabs.ViewHistory,

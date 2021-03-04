@@ -1,45 +1,35 @@
-import { Entity, ManyToOne, OneToMany, RelationId, Column } from 'typeorm/browser';
-
-import { IReferral, IReferralAnswer } from '~/types';
-
+import { Entity, ManyToOne, RelationId } from 'typeorm/browser';
 import { BaseModel } from './BaseModel';
-import { Patient } from './Patient';
-import { ReferralAnswer } from './ReferralAnswer';
+import { IReferral } from '~/types';
+import { Encounter } from './Encounter';
+import { SurveyResponse } from './SurveyResponse';
 
 @Entity('referral')
 export class Referral extends BaseModel implements IReferral {
-  @ManyToOne(() => Patient, patient => patient.referrals)
-  patient: Patient;
-  @RelationId(({ patient }) => patient)
-  patientId: string;
-  
-  @OneToMany(() => ReferralAnswer, referralAnswer => referralAnswer.referral)
-  answers: ReferralAnswer[];
+  @ManyToOne(() => Encounter, encounter => encounter.initiatedReferrals)
+  initiatingEncounter: Encounter;
+  @RelationId(({ initiatingEncounter }) => initiatingEncounter)
+  initiatingEncounterId: string;
 
-  @Column()
-  date: Date;
-  
-  @Column()
-  formTitle: string;
+  @ManyToOne(() => Encounter, encounter => encounter.completedReferrals)
+  completingEncounter: Encounter;
+  @RelationId(({ completingEncounter }) => completingEncounter)
+  completingEncounterId: string;
 
-  static async getAnswers(referralId: string): Promise<IReferralAnswer[]> {
-    const answers = await ReferralAnswer.getRepository().find({
-      where: {
-        referral: { id: referralId },
-      },
-      relations: ['question']
-    });
-    return answers;
-  }
+  @ManyToOne(() => SurveyResponse, surveyResponse => surveyResponse.referral)
+  surveyResponse: SurveyResponse;
+  @RelationId(({ surveyResponse }) => surveyResponse)
+  surveyResponseId: string;
 
   static async getForPatient(patientId: string): Promise<Referral[]> {
-    const repo = this.getRepository();
-    
-    return repo
-      .createQueryBuilder("referral")
-      .leftJoinAndSelect("referral.answers", "answer")
-      .leftJoinAndSelect("answer.question", "question")
-      .where('referral.patientId = :patientId', { patientId })
+    return this.getRepository()
+      .createQueryBuilder('referral')
+      .leftJoin('referral.initiatingEncounter', 'initiatingEncounter')
+      .leftJoinAndSelect('referral.surveyResponse', 'surveyResponse')
+      .leftJoinAndSelect('surveyResponse.survey', 'survey')
+      .leftJoinAndSelect('surveyResponse.answers', 'answers')
+      .leftJoinAndSelect('answers.dataElement', 'dataElement')
+      .where('initiatingEncounter.patientId = :patientId', { patientId })
       .getMany();
   }
 }

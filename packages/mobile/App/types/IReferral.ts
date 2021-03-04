@@ -1,17 +1,13 @@
 import { ID } from './ID';
-import { IPatient } from './IPatient';
-
-export interface IReferralAnswer {
-  id: ID;
-  referralId: ID;
-  questionId: ID;
-  referral: IReferral;
-  answer?: string;
-}
+import { IEncounter } from './IEncounter';
+import { ISurveyResponse } from './ISurveyResponse';
 
 export interface IReferral {
   id: ID;
-  patientId: ID;
-  patient: IPatient;
-  answers: IReferralAnswer[];
+  initiatingEncounter: IEncounter;
+  initiatingEncounterId: ID;
+  completingEncounter?: IEncounter;
+  completingEncounterId?: ID;
+  surveyResponse: ISurveyResponse;
+  surveyResponseId: ID;
 }

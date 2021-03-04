@@ -11,6 +11,7 @@ export interface MenuOptionButtonProps {
   title: string;
   onPress: () => void;
   fontWeight?: number;
+  textColor: string;
 }
 
 export const MenuOptionButton: FC<MenuOptionButtonProps> = ({

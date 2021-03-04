@@ -5,7 +5,7 @@ import { Formik } from 'formik';
 import { Button } from '~/ui/components/Button';
 import { theme } from '~/ui/styled/theme';
 import { StyledText, StyledView } from '~/ui/styled/common';
-import { VerticalPosition } from '~/interfaces/VerticalPosition';
+// import { VerticalPosition } from '~/interfaces/VerticalPosition';
 import { IProgram } from '~/types';
 
 import {
