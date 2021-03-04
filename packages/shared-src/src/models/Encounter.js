@@ -178,4 +178,10 @@ export class Encounter extends Model {
       return super.update(data);
     });
   }
+
+  static includedSyncRelations = [
+    'administeredVaccines',
+    'surveyResponses',
+    'surveyResponses.answers',
+  ];
 }

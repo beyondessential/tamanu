@@ -1,4 +1,5 @@
 import * as sequelize from 'sequelize';
+import { pick } from 'lodash';
 
 export const Sequelize = sequelize.Sequelize;
 
@@ -70,5 +71,13 @@ export class Model extends sequelize.Model {
     // List of relations when fetching just this model
     // (eg to display in a detailed view)
     return this.getListReferenceAssociations();
+  }
+
+  static includedSyncRelations = [];
+
+  static actuallyCreate(values, options) {
+    // TODO: remove this and use the actual create method
+    // lets us create instances of children with overriden create methods that change the API
+    return super.create(values, options);
   }
 }

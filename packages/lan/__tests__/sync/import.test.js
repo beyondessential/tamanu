@@ -17,7 +17,7 @@ const toSyncRecord = record => ({
   data: Object.entries(record).reduce((data, [k, oldVal]) => {
     let val = oldVal;
     if (Array.isArray(val)) {
-      val = toSyncRecord(val);
+      val = val.map(r => toSyncRecord(r));
     }
     return { ...data, [k]: val };
   }, {}),
