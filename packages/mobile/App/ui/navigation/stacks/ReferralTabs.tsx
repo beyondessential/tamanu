@@ -7,13 +7,10 @@ import { createTopTabNavigator } from '/components/TopTabNavigator';
 import { withPatient } from '/containers/Patient';
 import { BaseAppProps } from '/interfaces/BaseAppProps';
 import { joinNames } from '/helpers/user';
-import { AddRefferalDetailScreen } from '../screens/referrals/AddReferralDetailScreen';
-import { ReferralFormListScreen } from '../screens/referrals/ReferralFormListScreen';
 import { useBackendEffect } from '~/ui/hooks';
 import { ErrorScreen } from '~/ui/components/ErrorScreen';
 import { List } from 'react-native-paper';
 import { format } from 'date-fns';
-import { ProgramListScreen } from '../screens/programs/ProgramListScreen';
 import { ReferralFormStack } from './ReferralFormStack';
 import { StyledScrollView } from '~/ui/styled/common';
 

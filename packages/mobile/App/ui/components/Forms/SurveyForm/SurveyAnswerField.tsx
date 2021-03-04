@@ -4,20 +4,20 @@ import { withPatient } from '~/ui/containers/Patient';
 
 import { StyledView } from '/styled/common';
 import { useBackend } from '~/ui/hooks';
-import { Field } from '../Forms/FormField';
-import { TextField } from '../TextField/TextField';
+import { Field } from '../FormField';
+import { TextField } from '../../TextField/TextField';
 import { useFormikContext } from 'formik';
 
-const SurveyAnswerFieldComponent = ({ data: { question, source, id }, selectedPatient }) => {
+const SurveyAnswerFieldComponent = ({ selectedPatient, questionId, source, question }) => {
   const [surveyResponseAnswer, setSurveyResponseAnswer] = useState();
   const { setFieldValue } = useFormikContext();
   const { models } = useBackend();
 
   useEffect(() => {
     (async () => {
-      const answer = await models.ReferralQuestion.getLatetSurveyAnswerForQuestion(selectedPatient.id, source);
+      const answer = await models.ReferralQuestion.getLatestAnswerForPatient(selectedPatient.id, source);
       setSurveyResponseAnswer(answer ? answer.body : '');
-      setFieldValue(id, (answer && answer.body))
+      setFieldValue(questionId, (answer && answer.body))
     })();
   }, [selectedPatient.id, surveyResponseAnswer])
 
@@ -25,7 +25,7 @@ const SurveyAnswerFieldComponent = ({ data: { question, source, id }, selectedPa
     <StyledView marginTop={10}>
       <Field
         component={TextField}
-        name={id}
+        name={questionId}
         label={question}
         value={surveyResponseAnswer || 'Answer not submitted'}
         disabled

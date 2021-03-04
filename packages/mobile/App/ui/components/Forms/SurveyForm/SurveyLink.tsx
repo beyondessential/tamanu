@@ -2,8 +2,8 @@ import React, { useEffect, useState } from 'react';
 import { Text } from "react-native-paper";
 import { format } from "date-fns";
 import { useBackend } from '~/ui/hooks';
-import { Field } from '../Forms/FormField';
-import { TextField } from '../TextField/TextField';
+import { Field } from '../FormField';
+import { TextField } from '../../TextField/TextField';
 import { useFormikContext } from 'formik';
 
 export const SurveyLink = ({ selectedPatient, surveyId, questionId }) => {
@@ -28,6 +28,7 @@ export const SurveyLink = ({ selectedPatient, surveyId, questionId }) => {
       label={`Attached screening form`}
       placeholder={`${surveyResponse.survey.name} (${format(surveyResponse.endTime, 'dd-MM-yyyy')})`}
       disabled
+      name={questionId}
     />
   );
 }

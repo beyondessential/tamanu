@@ -1,4 +1,4 @@
-import React, { useCallback, ReactElement } from 'react';
+import React, { ReactElement } from 'react';
 import { FlatList } from 'react-native';
 import { useNavigation } from '@react-navigation/native';
 import { FullView } from '/styled/common';
@@ -7,10 +7,8 @@ import { theme } from '/styled/theme';
 import { MenuOptionButton } from '/components/MenuOptionButton';
 import { Separator } from '/components/Separator';
 import { Routes } from '/helpers/routes';
-import { StackHeader } from '/components/StackHeader';
 import { withPatient } from '/containers/Patient';
-import { EncounterType, IPatient, SurveyTypes } from '~/types';
-import { joinNames } from '/helpers/user';
+import { IPatient, SurveyTypes } from '~/types';
 import { useBackendEffect } from '~/ui/hooks';
 import { ErrorScreen } from '~/ui/components/ErrorScreen';
 

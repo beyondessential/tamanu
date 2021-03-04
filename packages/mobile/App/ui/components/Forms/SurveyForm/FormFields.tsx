@@ -14,6 +14,7 @@ interface AddDetailsFormFieldsProps {
   components: ISurveyScreenComponent[];
   values: any;
   onSubmit: any;
+  patient: any;
   note: string;
 }
 
@@ -22,6 +23,7 @@ export const FormFields = ({
   values,
   onSubmit,
   note,
+  patient
 }: AddDetailsFormFieldsProps): ReactElement => {
   const [currentScreenIndex, setCurrentScreenIndex] = useState(0);
 
@@ -62,6 +64,7 @@ export const FormFields = ({
             <SurveyQuestion
               key={component.id}
               component={component}
+              patient={patient}
             />
           </ErrorBoundary>
       </React.Fragment>

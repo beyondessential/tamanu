@@ -45,6 +45,9 @@ export class SurveyScreenComponent extends BaseModel
 
   @Column({ nullable: true })
   calculation?: string;
+  
+  @Column({ nullable: true })
+  source?: string;
 
   @RelationId(({ dataElement }) => dataElement)
   dataElementId: string;

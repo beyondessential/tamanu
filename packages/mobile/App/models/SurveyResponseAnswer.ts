@@ -33,4 +33,15 @@ export class SurveyResponseAnswer extends BaseModel
   async markResponseForUpload() {
     await this.markParent(SurveyResponse, 'response', 'markedForUpload');
   }
+
+  static async getLatestAnswerForPatient(patientId: string, dataElementId: string): Promise<ISurveyResponseAnswer> {
+    return this.getRepository()
+      .createQueryBuilder('survey_response_answer')
+      .leftJoin('survey_response_answer.response', 'response')
+      .leftJoin('response.encounter', 'encounter')
+      .where('encounter.patientId = :patientId', { patientId })
+      .andWhere('survey_response_answer.dataElementId = :dataElementId', { dataElementId })
+      .orderBy('survey_response.startTime', 'DESC')
+      .getOne();
+  }
 }

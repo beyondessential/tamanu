@@ -22,6 +22,7 @@ export interface ISurveyScreenComponent {
   visibilityCriteria?: string;
   options?: string;
   calculation?: string;
+  source?: string;
 }
 
 export enum DataElementType {
@@ -51,6 +52,9 @@ export enum DataElementType {
   Select = 'Select',
   SubmissionDate = 'SubmissionDate',
   YearsSince = 'YearsSince',
+  SurveyAnswer = 'SurveyAnswer',
+  SurveyResult = 'SurveyResult',
+  SurveyLink = 'SurveyLink',
 }
 
 export interface IProgramDataElement {

@@ -3,8 +3,8 @@ import { useFormikContext } from 'formik';
 import { View } from 'react-native';
 import { Subheading, Text } from "react-native-paper";
 import { useBackend } from '~/ui/hooks';
-import { Field } from '../Forms/FormField';
-import { SurveyResultBadge } from '../SurveyResultBadge';
+import { Field } from '../FormField';
+import { SurveyResultBadge } from '../../SurveyResultBadge';
 
 export const SurveyResult = ({ selectedPatient, surveyId, questionId }) => {
   const [surveyResponse, setSurveyResponse] = useState();

@@ -5,6 +5,7 @@ import {
 } from '/helpers/screen';
 import { theme } from '/styled/theme';
 import { Button } from '../Button';
+import { useNavigation } from '@react-navigation/native';
 
 export const AutocompleteModalField = ({
   value,
@@ -13,8 +14,8 @@ export const AutocompleteModalField = ({
   suggester,
   options,
   modalRoute,
-  navigation,
 }): JSX.Element => {
+  const navigation = useNavigation();
   const [label, setLabel] = useState(placeholder);
   const onPress = (selectedItem): void => {
     onChange(selectedItem.value);
