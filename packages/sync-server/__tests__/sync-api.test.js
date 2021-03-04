@@ -1,11 +1,10 @@
 import { subDays, subHours } from 'date-fns';
 import { v4 as uuidv4 } from 'uuid';
 
-import { convertFromDbRecord, convertToDbRecord } from 'sync-server/app/convertDbRecord';
+import { fakePatient, buildNestedEncounter } from 'shared/test-helpers';
 
+import { convertFromDbRecord, convertToDbRecord } from 'sync-server/app/convertDbRecord';
 import { createTestContext, unsafeSetUpdatedAt } from './utilities';
-import { fakePatient } from './fake';
-import { buildNestedEncounter } from './factory';
 
 const makeDate = (daysAgo, hoursAgo = 0) => {
   return subHours(subDays(new Date(), daysAgo), hoursAgo).valueOf();
@@ -154,7 +153,7 @@ describe('Sync API', () => {
     it('should return nested encounter relationships', async () => {
       // arrange
       const patientId = uuidv4();
-      const encounter = await buildNestedEncounter({ wrapper: ctx.store }, patientId)();
+      const encounter = await buildNestedEncounter(ctx.store, patientId);
       await ctx.store.upsert(`patient/${patientId}/encounter`, encounter);
 
       // act
@@ -262,7 +261,7 @@ describe('Sync API', () => {
     it('should upsert nested encounter relationships', async () => {
       // arrange
       const patientId = uuidv4();
-      const encounterToInsert = await buildNestedEncounter({ wrapper: ctx.store }, patientId)();
+      const encounterToInsert = await buildNestedEncounter(ctx.store, patientId);
       await ctx.store.upsert(`patient/${patientId}/encounter`, encounterToInsert);
 
       // act
