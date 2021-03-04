@@ -40,9 +40,21 @@ describe('import', () => {
     ['Survey', fakeSurvey],
     ['SurveyScreenComponent', fakeSurveyScreenComponent],
     ['User', fakeUser],
-    ['Encounter', () => buildNestedEncounter(context)],
+    [
+      'Encounter',
+      () => buildNestedEncounter(context),
+      {
+        include: [
+          { association: 'administeredVaccines' },
+          {
+            association: 'surveyResponses',
+            include: [{ association: 'answers' }],
+          },
+        ],
+      },
+    ],
   ];
-  rootTestCases.forEach(([modelName, fakeRecord]) => {
+  rootTestCases.forEach(([modelName, fakeRecord, options = {}]) => {
     describe(modelName, () => {
       it('creates the record', async () => {
         // arrange
@@ -54,7 +66,8 @@ describe('import', () => {
         await executeImportPlan(plan, toSyncRecord(record));
 
         // assert
-        expect(await model.findByPk(record.id)).toMatchObject(record);
+        const dbRecord = await model.findByPk(record.id, options);
+        expect(dbRecord.dataValues).toMatchObject(record);
       });
 
       it('updates the record', async () => {
@@ -72,8 +85,8 @@ describe('import', () => {
         await executeImportPlan(plan, toSyncRecord(newRecord));
 
         // assert
-        const dbRecord = await model.findByPk(oldRecord.id);
-        expect(dbRecord).toMatchObject(newRecord);
+        const dbRecord = await model.findByPk(oldRecord.id, options);
+        expect(dbRecord.dataValues).toMatchObject(newRecord);
       });
 
       it('deletes tombstones', async () => {
@@ -87,7 +100,8 @@ describe('import', () => {
         await executeImportPlan(plan, { ...toSyncRecord(record), isDeleted: true });
 
         // assert
-        expect(await model.findByPk(record.id)).toEqual(null);
+        const dbRecord = await model.findByPk(record.id, options);
+        expect(dbRecord).toEqual(null);
       });
     });
   });
