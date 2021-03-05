@@ -75,9 +75,4 @@ export class Model extends sequelize.Model {
 
   static includedSyncRelations = [];
 
-  static actuallyCreate(values, options) {
-    // TODO: remove this and use the actual create method
-    // lets us create instances of children with overriden create methods that change the API
-    return super.create(values, options);
-  }
 }

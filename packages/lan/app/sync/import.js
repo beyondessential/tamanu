@@ -61,7 +61,7 @@ const executeImportPlanInner = async (
   // see also: https://github.com/sequelize/sequelize/issues/5711
   const [numUpdated] = await model.update(values, { where: { id } });
   if (numUpdated === 0) {
-    await model.actuallyCreate(values);
+    await model.create(values);
   }
 
   for (const [relationName, plan] of Object.entries(children)) {
