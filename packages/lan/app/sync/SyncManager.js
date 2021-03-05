@@ -3,11 +3,11 @@ import { log } from '~/logging';
 import { createImportPlan, executeImportPlan } from './import';
 
 const shouldPull = model =>
-  model.syncDirection === SYNC_DIRECTIONS.READ_ONLY ||
+  model.syncDirection === SYNC_DIRECTIONS.PULL_ONLY ||
   model.syncDirection === SYNC_DIRECTIONS.BIDIRECTIONAL;
 
 const shouldPush = model =>
-  model.syncDirection === SYNC_DIRECTIONS.WRITE_ONLY ||
+  model.syncDirection === SYNC_DIRECTIONS.PUSH_ONLY ||
   model.syncDirection === SYNC_DIRECTIONS.BIDIRECTIONAL;
 
 export class SyncManager {

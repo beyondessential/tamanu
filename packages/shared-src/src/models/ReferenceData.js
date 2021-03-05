@@ -54,7 +54,7 @@ export class ReferenceData extends Model {
     return super.update(values);
   }
 
-  static syncDirection = SYNC_DIRECTIONS.READ_ONLY;
+  static syncDirection = SYNC_DIRECTIONS.PULL_ONLY;
 
   static channel() {
     return 'reference';

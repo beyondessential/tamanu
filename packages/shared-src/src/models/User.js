@@ -77,5 +77,5 @@ export class User extends Model {
     this.SALT_ROUNDS = this.SALT_ROUNDS || DEFAULT_SALT_ROUNDS;
   }
 
-  static syncDirection = SYNC_DIRECTIONS.READ_ONLY;
+  static syncDirection = SYNC_DIRECTIONS.PULL_ONLY;
 }

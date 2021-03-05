@@ -29,5 +29,5 @@ export class ScheduledVaccine extends Model {
     });
   }
 
-  static syncDirection = SYNC_DIRECTIONS.READ_ONLY;
+  static syncDirection = SYNC_DIRECTIONS.PULL_ONLY;
 }

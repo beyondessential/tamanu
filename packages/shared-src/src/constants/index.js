@@ -162,7 +162,7 @@ export const DIAGNOSIS_CERTAINTY_VALUES = Object.values(DIAGNOSIS_CERTAINTY);
 
 export const SYNC_DIRECTIONS = {
   DO_NOT_SYNC: 'do_not_sync',
-  WRITE_ONLY: 'write_only',
-  READ_ONLY: 'read_only',
+  PUSH_ONLY: 'push_only',
+  PULL_ONLY: 'pull_only',
   BIDIRECTIONAL: 'bidirectional',
 };
