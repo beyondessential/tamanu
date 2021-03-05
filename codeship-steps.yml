@@ -7,16 +7,27 @@
 - name: install_dependencies
   service: app
   command: ./scripts/install.sh
+- name: build_shared
+  service: app
+  command: ./scripts/build_shared.sh
 - name: build_and_test
   type: parallel
   steps:
     - name: test
       service: app
       command: ./scripts/test.sh
-    - name: build_lan_and_desktop_installers
+    - name: build_and_pack_lan_installer
       service: app
       tag: ^(master|dev|ci-)
-      command: ./scripts/build.sh demo
+      command: ./scripts/build_lan.sh
+    - name: build_and_pack_desktop_installer
+      service: app
+      tag: ^(master|dev|ci-)
+      command: ./scripts/build_desktop.sh build-only
+    - name: build_and_release_desktop_installer
+      service: app
+      tag: ^(release-)
+      command: ./scripts/build_desktop.sh build-and-release
     - name: build_sync_release
       tag: ^(master|dev|ci-)
       service: app
@@ -40,13 +51,3 @@
       tag: ^(dev|ci-)
       service: awsdeployment
       command: ./scripts/deploy_meta_dev.sh
-
-- type: manual
-  tag: master
-  steps:
-    - name: push-master
-      service: awsdeployment
-      command: ./scripts/push.sh
-    - name: deploy-master
-      service: awsdeployment
-      command: ./scripts/deploy.sh demo

@@ -61,7 +61,7 @@
       "provider": "s3",
       "bucket": "tamanu-builds",
       "region": "ap-southeast-2",
-      "path": "desktop-app/draft"
+      "path": "${env.S3_BUILD_PATH"
     },
     "dmg": {
       "contents": [
