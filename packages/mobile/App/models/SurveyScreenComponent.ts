@@ -45,9 +45,6 @@ export class SurveyScreenComponent extends BaseModel
 
   @Column({ nullable: true })
   calculation?: string;
-  
-  @Column({ nullable: true })
-  source?: string;
 
   @RelationId(({ dataElement }) => dataElement)
   dataElementId: string;
@@ -67,6 +64,21 @@ export class SurveyScreenComponent extends BaseModel
       console.error(e);
       return [];
     }
+  }
+  
+  getConfigObject(): any {
+    if (!this.config) return {};
+    const configObject = {};
+
+    this.config
+      .split("\n")
+      .map(x => x.trim())
+      .map(x => x.split(':'))
+      .forEach(x => {
+        configObject[x[0]] = x[1]
+      });
+
+    return configObject;
   }
 }
 

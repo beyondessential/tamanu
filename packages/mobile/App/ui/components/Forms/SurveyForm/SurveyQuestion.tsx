@@ -21,18 +21,17 @@ interface SurveyQuestionProps {
  * 
  * @param {Object} models Contains backend models.
  * @param {string} source Target model name.
- * @param {string} options Semicolon separated values, or JSON string to parse params for find(). (e.g. '{"where": {"type": "icd10"}}')
  */
-function createSuggester(models, source, options) {
+function createSuggester(models, config) {
   return new Suggester(
-    models[source],
-    JSON.parse(options),
+    models[config.source],
+    {},
   );
-}
+} 
 
 function getField(type: string, component: ISurveyScreenComponent, models, patient: IPatient): Element {
   const field = FieldByType[type];
-  const { dataElement, source, options } = component;
+  const { dataElement } = component;
 
   switch (type) {
     case DataElementType.Autocomplete:
@@ -40,8 +39,7 @@ function getField(type: string, component: ISurveyScreenComponent, models, patie
         <Field
           component={field}
           placeholder={dataElement.defaultText}
-          suggester={source && createSuggester(models, source, options)}
-          options={!source && component.getOptions(options)}
+          suggester={createSuggester(models, component.getConfigObject())}
           modalRoute={Routes.Autocomplete.Modal}
           name={dataElement.id}
           label={dataElement.defaultText}

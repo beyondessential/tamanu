@@ -15,11 +15,12 @@ export interface ISurveyScreenComponent {
 
   survey?: ISurvey;
   dataElement?: IProgramDataElement;
-
+  
   screenIndex: number;
   componentIndex: number;
   text?: string;
   visibilityCriteria?: string;
+  config?: string;
   options?: string;
   calculation?: string;
   source?: string;
