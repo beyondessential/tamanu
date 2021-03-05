@@ -9,16 +9,22 @@ const encodeQueryString = query =>
 const REFRESH_DURATION = 2.5 * 60 * 1000; // refresh if token is more than 2.5 minutes old
 
 export class TamanuApi {
-  constructor(host) {
+  constructor(host, appVersion) {
     this.host = host;
     this.prefix = `${host}/v1`;
+    this.appVersion = appVersion;
     this.onAuthFailure = null;
     this.authHeader = null;
+    this.onVersionIncompatible = null;
     this.fayeClient = new faye.Client(`${host}/faye`);
   }
 
   setAuthFailureHandler(handler) {
     this.onAuthFailure = handler;
+  }
+
+  setVersionIncompatibleHandler(handler) {
+    this.onVersionIncompatible = handler;
   }
 
   async login(email, password) {
@@ -49,6 +55,7 @@ export class TamanuApi {
       headers: {
         ...this.authHeader,
         ...headers,
+        'X-Client-Version': this.appVersion,
       },
       ...otherConfig,
     });
@@ -63,11 +70,20 @@ export class TamanuApi {
     }
     console.error(response);
 
-    if (response.status === 403 || response.status === 401) {
-      if (this.onAuthFailure) {
-        this.onAuthFailure(response);
+    if (this.onAuthFailure) {
+      switch (response.status) {
+        case 403:
+        case 401:
+          this.onAuthFailure('Your session has expired. Please log in again.');
+          break;
+        case 400:{
+          const minAppVersion = this.response.headers.get('X-Min-Client-Version');
+          if (minAppVersion < this.appVersion) {
+            this.onVersionIncompatible(minAppVersion);
+          }
+          break;
+        }
       }
-    }
 
     throw new Error(response.status);
   }
