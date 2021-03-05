@@ -47,7 +47,6 @@ export const AutocompleteModalScreen = ({
       let data = [];
       if (suggester) data = await suggester.fetchSuggestions(searchTerm);
       if (options) data = options;
-      console.log(suggester, options)
       filterOptions(data);
     })();
   }, [searchTerm]);

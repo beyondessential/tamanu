@@ -87,9 +87,6 @@ export class SyncManager {
 
     await this.runChannelSync(models.ScheduledVaccine, 'scheduledVaccine');
 
-    await this.runChannelSync(models.ReferralForm, 'referralForm');
-    await this.runChannelSync(models.ReferralForm, 'referralQuestion');
-
     await this.runChannelSync(models.Program, 'program');
     await this.runChannelSync(models.Survey, 'survey');
     await this.runChannelSync(models.ProgramDataElement, 'programDataElement');
