@@ -12,6 +12,8 @@ import { version } from '../package.json';
 
 const isDevelopment = process.env.NODE_ENV === 'development';
 
+const SUPPORTED_CLIENT_VERSIONS = ['1.0.0'];
+
 export function createApp({ sequelize, models }) {
   // Init our app
   const app = express();
@@ -37,6 +39,17 @@ export function createApp({ sequelize, models }) {
     req.models = models;
     req.db = sequelize;
 
+    next();
+  });
+
+  app.use((req, res, next) => {
+    const clientVersion = req.header('X-Client-Version');
+    if (!SUPPORTED_CLIENT_VERSIONS.includes(clientVersion)) {
+      res
+        .setHeader('X-Min-Client-Version', SUPPORTED_CLIENT_VERSIONS.sort()[0])
+        .status(400)
+        .end();
+    }
     next();
   });
 
