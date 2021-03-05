@@ -76,9 +76,22 @@ export class SyncManager {
 
   async runSync() {
     const { models } = this.context;
-    const modelsToSync = Object.values(models).filter(
-      m => m.syncDirection !== SYNC_DIRECTIONS.DO_NOT_SYNC,
-    );
+
+    // ordered array because some models depend on others
+    const modelsToSync = [
+      models.ReferenceData,
+      models.User,
+
+      models.ScheduledVaccine,
+
+      models.Program,
+      models.Survey,
+      models.ProgramDataElement,
+      models.SurveyScreenComponent,
+
+      models.Patient,
+    ];
+
     for (const model of modelsToSync) {
       if (shouldPull(model)) {
         await this.pullAndImport(model);
