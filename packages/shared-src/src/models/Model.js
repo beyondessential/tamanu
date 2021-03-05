@@ -1,5 +1,6 @@
 import * as sequelize from 'sequelize';
-import { pick } from 'lodash';
+import { pick, lowerFirst } from 'lodash';
+import { SYNC_DIRECTIONS } from 'shared/constants';
 
 export const Sequelize = sequelize.Sequelize;
 
@@ -79,4 +80,10 @@ export class Model extends sequelize.Model {
     'createdAt',
     'updatedAt',
   ];
+
+  static syncDirection = SYNC_DIRECTIONS.DO_NOT_SYNC;
+
+  static channel() {
+    return lowerFirst(this.name);
+  }
 }
