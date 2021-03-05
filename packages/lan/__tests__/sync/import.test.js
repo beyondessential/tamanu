@@ -7,9 +7,21 @@ import {
   fakeSurveyScreenComponent,
   fakeUser,
   buildScheduledVaccine,
+  buildNestedEncounter,
 } from 'shared/test-helpers';
 import { createTestContext } from '../utilities';
 import { createImportPlan, executeImportPlan } from '~/sync/import';
+
+// converts a db record and all its relations to a sync record
+const toSyncRecord = record => ({
+  data: Object.entries(record).reduce((data, [k, oldVal]) => {
+    let val = oldVal;
+    if (Array.isArray(val)) {
+      val = val.map(r => toSyncRecord(r));
+    }
+    return { ...data, [k]: val };
+  }, {}),
+});
 
 describe('import', () => {
   let models;
@@ -28,8 +40,21 @@ describe('import', () => {
     ['Survey', fakeSurvey],
     ['SurveyScreenComponent', fakeSurveyScreenComponent],
     ['User', fakeUser],
+    [
+      'Encounter',
+      () => buildNestedEncounter(context),
+      {
+        include: [
+          { association: 'administeredVaccines' },
+          {
+            association: 'surveyResponses',
+            include: [{ association: 'answers' }],
+          },
+        ],
+      },
+    ],
   ];
-  rootTestCases.forEach(([modelName, fakeRecord]) => {
+  rootTestCases.forEach(([modelName, fakeRecord, options = {}]) => {
     describe(modelName, () => {
       it('creates the record', async () => {
         // arrange
@@ -38,10 +63,11 @@ describe('import', () => {
 
         // act
         const plan = createImportPlan(model);
-        await executeImportPlan(plan, { data: record });
+        await executeImportPlan(plan, toSyncRecord(record));
 
         // assert
-        expect(await model.findByPk(record.id)).toMatchObject(record);
+        const dbRecord = await model.findByPk(record.id, options);
+        expect(dbRecord.dataValues).toMatchObject(record);
       });
 
       it('updates the record', async () => {
@@ -56,11 +82,11 @@ describe('import', () => {
 
         // act
         const plan = createImportPlan(model);
-        await executeImportPlan(plan, { data: newRecord });
+        await executeImportPlan(plan, toSyncRecord(newRecord));
 
         // assert
-        const dbRecord = await model.findByPk(oldRecord.id);
-        expect(dbRecord).toMatchObject(newRecord);
+        const dbRecord = await model.findByPk(oldRecord.id, options);
+        expect(dbRecord.dataValues).toMatchObject(newRecord);
       });
 
       it('deletes tombstones', async () => {
@@ -71,10 +97,11 @@ describe('import', () => {
 
         // act
         const plan = createImportPlan(model);
-        await executeImportPlan(plan, { isDeleted: true, data: record });
+        await executeImportPlan(plan, { ...toSyncRecord(record), isDeleted: true });
 
         // assert
-        expect(await model.findByPk(record.id)).toEqual(null);
+        const dbRecord = await model.findByPk(record.id, options);
+        expect(dbRecord).toEqual(null);
       });
     });
   });

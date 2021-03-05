@@ -5,9 +5,11 @@ import {
   fakeAdministeredVaccine,
   fakeEncounter,
   fakePatient,
+  fakeProgramDataElement,
   fakeReferenceData,
   fakeScheduledVaccine,
   fakeStringFields,
+  fakeSurvey,
   fakeSurveyResponse,
   fakeSurveyResponseAnswer,
   fakeUser,
@@ -17,7 +19,9 @@ import {
 
 export const buildEncounter = async (ctx, patientId) => {
   const patient = fakePatient();
-  patient.id = patientId;
+  if (patientId) {
+    patient.id = patientId;
+  }
   await ctx.models.Patient.upsert(patient);
 
   const examiner = fakeUser('examiner');
@@ -45,12 +49,20 @@ export const buildNestedEncounter = async (ctx, patientId) => {
   delete administeredVaccine.encounterId;
   encounter.administeredVaccines = [administeredVaccine];
 
+  const survey = fakeSurvey();
+  await ctx.models.Survey.upsert(survey);
+
   const surveyResponse = fakeSurveyResponse();
   delete surveyResponse.encounterId;
+  surveyResponse.surveyId = survey.id;
   encounter.surveyResponses = [surveyResponse];
+
+  const programDataElement = fakeProgramDataElement();
+  await ctx.models.ProgramDataElement.upsert(programDataElement);
 
   const surveyResponseAnswer = fakeSurveyResponseAnswer();
   delete surveyResponseAnswer.responseId;
+  surveyResponseAnswer.dataElementId = programDataElement.id;
   surveyResponse.answers = [surveyResponseAnswer];
 
   return encounter;

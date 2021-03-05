@@ -1,4 +1,5 @@
 import * as sequelize from 'sequelize';
+import { pick } from 'lodash';
 
 export const Sequelize = sequelize.Sequelize;
 
@@ -71,4 +72,11 @@ export class Model extends sequelize.Model {
     // (eg to display in a detailed view)
     return this.getListReferenceAssociations();
   }
+
+  static includedSyncRelations = [];
+
+  static excludedSyncColumns = [
+    'createdAt',
+    'updatedAt',
+  ];
 }
