@@ -49,7 +49,7 @@ export class WebRemote {
     const controller = new AbortController();
     const timeoutHandle = setTimeout(() => {
       controller.abort();
-    }, 100 || this.timeout);
+    }, this.timeout);
     let response;
     try {
       response = await fetch(url, {
