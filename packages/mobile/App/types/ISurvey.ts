@@ -44,6 +44,7 @@ export enum DataElementType {
   Instruction = 'Instruction',
   MonthsSince = 'MonthsSince',
   Multiline = 'Multiline',
+  MultiSelect = 'MultiSelect',
   Number = 'Number',
   Photo = 'Photo',
   PrimaryEntity = 'PrimaryEntity',

@@ -5,6 +5,7 @@ export const FieldTypes = {
   MULTILINE: 'Multiline',
   RADIO: 'Radio',
   SELECT: 'Select',
+  MULTI_SELECT: 'MultiSelect',
   AUTOCOMPLETE: 'Autocomplete',
   DATE: 'Date',
   SUBMISSION_DATE: 'SubmissionDate',

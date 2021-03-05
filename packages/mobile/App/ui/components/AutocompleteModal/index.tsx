@@ -32,13 +32,11 @@ const styles = StyleSheet.create({
 type AutocompleteModalScreenProps = {
   navigation: NavigationProp<any>;
   route: any;
-  // options: Array<{ label: string, value: string | number }>;
 };
 
 export const AutocompleteModalScreen = ({
   route,
   navigation,
-  // options,
 }: AutocompleteModalScreenProps): ReactElement => {
   const { callback, suggester, options } = route.params;
   const [searchTerm, setSearchTerm] = useState(null);

@@ -1,6 +1,6 @@
 import React, { ReactElement, FC } from 'react';
 import { StyledView, StyledText } from '/styled/common';
-import { DataElementType, ISurveyScreenComponent } from '~/types';
+import { DataElementType, IPatient, ISurveyScreenComponent } from '~/types';
 import { Field } from '../FormField';
 import { FieldTypes } from '~/ui/helpers/fields';
 import { FieldByType } from '~/ui/helpers/fieldComponents';
@@ -10,18 +10,11 @@ import { useBackend } from '~/ui/hooks';
 import { SurveyLink } from './SurveyLink';
 import { SurveyResult } from './SurveyResult';
 import { SurveyAnswerField } from './SurveyAnswerField';
+import { Dropdown } from '../../Dropdown';
 
 interface SurveyQuestionProps {
   component: ISurveyScreenComponent;
   patient: any;
-}
-
-// Semicolon separated list because options will have commas in the text
-function scsvToOptions(csv: string): { label: string, value: string}[] {
-  return csv.split(';').map(value => {
-    const trimmed = value.trim();
-    return { label: trimmed, value: trimmed };
-  });
 }
 
 /**
@@ -37,7 +30,7 @@ function createSuggester(models, source, options) {
   );
 }
 
-function getField(type: string, component: ISurveyScreenComponent, models, patient): Element {
+function getField(type: string, component: ISurveyScreenComponent, models, patient: IPatient): Element {
   const field = FieldByType[type];
   const { dataElement, source, options } = component;
 
@@ -48,11 +41,15 @@ function getField(type: string, component: ISurveyScreenComponent, models, patie
           component={field}
           placeholder={dataElement.defaultText}
           suggester={source && createSuggester(models, source, options)}
-          options={!source && scsvToOptions(options)}
+          options={!source && component.getOptions(options)}
           modalRoute={Routes.Autocomplete.Modal}
           name={dataElement.id}
           label={dataElement.defaultText}
         />
+        );
+      case DataElementType.MultiSelect:
+        return (
+          <Dropdown isSingleSelect={false} />
         );
       case DataElementType.SurveyLink:
         return (

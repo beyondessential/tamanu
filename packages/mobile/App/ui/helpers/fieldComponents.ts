@@ -14,6 +14,7 @@ export const FieldByType = {
   [FieldTypes.MULTILINE]: TextField,
   [FieldTypes.RADIO]: RadioButtonGroup,
   [FieldTypes.SELECT]: Dropdown,
+  [FieldTypes.MULTI_SELECT]: Dropdown,
   [FieldTypes.AUTOCOMPLETE]: AutocompleteModalField,
   [FieldTypes.DATE]: DateField,
   [FieldTypes.SUBMISSION_DATE]: DateField,
