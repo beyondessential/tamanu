@@ -31,12 +31,11 @@ const createImportPlanInner = (model, relationTree, parentIdKey = null) => {
 };
 
 export const executeImportPlan = async (plan, syncRecord) =>
-  plan.model.sequelize.transaction(async t => executeImportPlanInner(plan, syncRecord, t));
+  plan.model.sequelize.transaction(async () => executeImportPlanInner(plan, syncRecord));
 
 const executeImportPlanInner = async (
   { model, columns, children, parentIdKey },
   syncRecord,
-  transaction,
   parentId = null,
 ) => {
   const { data, isDeleted } = syncRecord;
@@ -46,8 +45,8 @@ const executeImportPlanInner = async (
   }
 
   if (isDeleted) {
-    const record = await model.findByPk(id, { transaction });
-    await record?.destroy({ transaction });
+    const record = await model.findByPk(id);
+    await record?.destroy();
     return;
   }
 
@@ -60,14 +59,14 @@ const executeImportPlanInner = async (
   // sequelize upserts don't work because they insert before update - hack to work around this
   // this could cause a race condition if anything but SyncManager does it, or if two syncs run at once!
   // see also: https://github.com/sequelize/sequelize/issues/5711
-  const [numUpdated] = await model.update(values, { where: { id }, transaction });
+  const [numUpdated] = await model.update(values, { where: { id } });
   if (numUpdated === 0) {
-    await model.actuallyCreate(values, { transaction });
+    await model.actuallyCreate(values);
   }
 
   for (const [relationName, plan] of Object.entries(children)) {
     for (const childRecord of data[relationName]) {
-      await executeImportPlanInner(plan, childRecord, transaction, id);
+      await executeImportPlanInner(plan, childRecord, id);
     }
   }
 };
