@@ -1,6 +1,14 @@
+import { SYNC_DIRECTIONS } from 'shared/constants';
 import { log } from '~/logging';
-
 import { createImportPlan, executeImportPlan } from './import';
+
+const shouldPull = model =>
+  model.syncDirection === SYNC_DIRECTIONS.READ_ONLY ||
+  model.syncDirection === SYNC_DIRECTIONS.BIDIRECTIONAL;
+
+const shouldPush = model =>
+  model.syncDirection === SYNC_DIRECTIONS.WRITE_ONLY ||
+  model.syncDirection === SYNC_DIRECTIONS.BIDIRECTIONAL;
 
 export class SyncManager {
   host = '';
@@ -14,7 +22,8 @@ export class SyncManager {
     this.remote = remote;
   }
 
-  async pullAndImport(model, channel) {
+  async pullAndImport(model) {
+    const channel = model.channel();
     const since = await this.getLastSynced(channel);
     log.info(`SyncManager.pullAndImport: syncing ${channel} (last: ${since})`);
 
@@ -67,22 +76,17 @@ export class SyncManager {
 
   async runSync() {
     const { models } = this.context;
-    const syncJobs = [
-      [models.ReferenceData, 'reference'],
-      [models.User, 'user'],
-
-      [models.ScheduledVaccine, 'scheduledVaccine'],
-
-      [models.Program, 'program'],
-      [models.Survey, 'survey'],
-      [models.ProgramDataElement, 'programDataElement'],
-      [models.SurveyScreenComponent, 'surveyScreenComponent'],
-
-      [models.Patient, 'patient'],
-    ];
-    for (const [model, channel] of syncJobs) {
-      // import
-      await this.receiveAndImport(model, channel);
+    const modelsToSync = Object.values(models).filter(
+      m => m.syncDirection !== SYNC_DIRECTIONS.DO_NOT_SYNC,
+    );
+    for (const model of modelsToSync) {
+      if (shouldPull(model)) {
+        await this.pullAndImport(model);
+      }
+      if (shouldPush(model)) {
+        // TODO: implement exportAndPush
+        log.warn('exportAndPush not implement yet');
+      }
     }
   }
 }

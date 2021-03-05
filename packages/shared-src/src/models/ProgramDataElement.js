@@ -1,5 +1,5 @@
 import { Sequelize } from 'sequelize';
-import { PROGRAM_DATA_ELEMENT_TYPE_VALUES } from 'shared/constants';
+import { PROGRAM_DATA_ELEMENT_TYPE_VALUES, SYNC_DIRECTIONS } from 'shared/constants';
 import { parseOrNull } from 'shared/utils/parse-or-null';
 import { Model } from './Model';
 
@@ -29,4 +29,6 @@ export class ProgramDataElement extends Model {
       defaultOptions: parseOrNull(defaultOptions),
     };
   }
+
+  static syncDirection = SYNC_DIRECTIONS.READ_ONLY;
 }

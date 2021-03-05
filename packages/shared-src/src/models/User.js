@@ -1,5 +1,6 @@
 import { hash } from 'bcrypt';
 import { Sequelize } from 'sequelize';
+import { SYNC_DIRECTIONS } from 'shared/constants';
 import { Model } from './Model';
 
 const DEFAULT_SALT_ROUNDS = 10;
@@ -75,4 +76,6 @@ export class User extends Model {
 
     this.SALT_ROUNDS = this.SALT_ROUNDS || DEFAULT_SALT_ROUNDS;
   }
+
+  static syncDirection = SYNC_DIRECTIONS.READ_ONLY;
 }

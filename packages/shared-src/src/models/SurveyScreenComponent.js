@@ -1,4 +1,5 @@
 import { Sequelize } from 'sequelize';
+import { SYNC_DIRECTIONS } from 'shared/constants';
 import { parseOrNull } from 'shared/utils/parse-or-null';
 import { Model } from './Model';
 
@@ -49,4 +50,6 @@ export class SurveyScreenComponent extends Model {
       options: parseOrNull(options),
     };
   }
+
+  static syncDirection = SYNC_DIRECTIONS.READ_ONLY;
 }

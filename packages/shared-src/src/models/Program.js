@@ -1,5 +1,6 @@
 import { Sequelize } from 'sequelize';
 import { Model } from './Model';
+import { SYNC_DIRECTIONS } from 'shared/constants';
 
 export class Program extends Model {
   static init({ primaryKey, ...options }) {
@@ -22,4 +23,6 @@ export class Program extends Model {
       foreignKey: 'programId',
     });
   }
+
+  static syncDirection = SYNC_DIRECTIONS.READ_ONLY;
 }

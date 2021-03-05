@@ -1,4 +1,5 @@
 import { Sequelize } from 'sequelize';
+import { SYNC_DIRECTIONS } from 'shared/constants';
 import { Model } from './Model';
 
 export class Survey extends Model {
@@ -25,4 +26,6 @@ export class Survey extends Model {
       foreignKey: 'surveyId',
     });
   }
+
+  static syncDirection = SYNC_DIRECTIONS.READ_ONLY;
 }
