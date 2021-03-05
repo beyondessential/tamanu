@@ -69,7 +69,9 @@ export class WebRemote {
     } catch (e) {
       // TODO: import AbortError from node-fetch once we're on v3.0
       if (e.name === 'AbortError') {
-        throw new RemoteTimeoutError(`Server failed to respond within ${this.timeout}ms`);
+        throw new RemoteTimeoutError(
+          `Server failed to respond within ${this.timeout}ms - ${url}`,
+        );
       }
       throw e;
     } finally {
