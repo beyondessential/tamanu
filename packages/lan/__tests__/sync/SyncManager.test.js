@@ -2,6 +2,7 @@ import { Op } from 'sequelize';
 import { v4 as uuidv4 } from 'uuid';
 
 import { REFERENCE_TYPES } from 'shared/constants';
+import { fakeProgram, fakeSurvey } from 'shared/test-helpers';
 
 import { createTestContext } from '../utilities';
 import { SyncManager } from '~/sync';
@@ -86,6 +87,42 @@ describe('SyncManager', () => {
       await manager.receiveAndImport(context.models.ReferenceData, channel);
       const calls = remote.receive.mock.calls;
       expect(calls[calls.length - 1][1]).toHaveProperty('since', 1234);
+    });
+
+    it('handles foreign key constraints in deleted models', async () => {
+      // arrange
+      const program = fakeProgram();
+      await context.models.Program.create(program);
+
+      const survey = fakeSurvey();
+      survey.programId = program.id;
+      await context.models.Survey.create(survey);
+
+      remote.receive.mockImplementation(channel => {
+        const channelCalls = remote.receive.mock.calls.filter(([c]) => c === channel).length;
+        if (channelCalls === 1 && channel === 'program') {
+          return Promise.resolve({
+            records: [{ data: program, isDeleted: true }],
+            count: 1,
+            requestedAt: 1234,
+          });
+        }
+        if (channelCalls === 1 && channel === 'survey') {
+          return Promise.resolve({
+            records: [{ data: survey, isDeleted: true }],
+            count: 1,
+            requestedAt: 1234,
+          });
+        }
+        return Promise.resolve({ records: [], count: 0, requestedAt: 1234 });
+      });
+
+      // act
+      await manager.runSync();
+
+      // assert
+      expect(await context.models.Program.findByPk(program.id)).toEqual(null);
+      expect(await context.models.Survey.findByPk(survey.id)).toEqual(null);
     });
   });
 });

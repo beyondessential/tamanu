@@ -63,7 +63,19 @@ describe('import', () => {
         expect(dbRecord).toMatchObject(newRecord);
       });
 
-      it.todo('deletes tombstones');
+      it('deletes tombstones', async () => {
+        // arrange
+        const model = models[modelName];
+        const record = await fakeRecord();
+        await model.create(record);
+
+        // act
+        const plan = createImportPlan(model);
+        await executeImportPlan(plan, { isDeleted: true, data: record });
+
+        // assert
+        expect(await model.findByPk(record.id)).toEqual(null);
+      });
     });
   });
 });
