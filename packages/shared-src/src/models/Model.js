@@ -75,4 +75,8 @@ export class Model extends sequelize.Model {
 
   static includedSyncRelations = [];
 
+  static excludedSyncColumns = [
+    'createdAt',
+    'updatedAt',
+  ];
 }

@@ -10,7 +10,7 @@ export const createImportPlan = memoize(model => {
 const createImportPlanInner = (model, relationTree, parentIdKey = null) => {
   // columns
   const allColumns = Object.keys(model.tableAttributes);
-  const columns = without(allColumns, model.excludedSyncColumns);
+  const columns = without(allColumns, ...model.excludedSyncColumns);
 
   //relations
   const children = Object.entries(relationTree).reduce((memo, [relationName, childTree]) => {
