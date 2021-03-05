@@ -132,7 +132,7 @@ export class WebRemote {
     }
   }
 
-  async receive(channel, { since = 0, limit = 100, page = 0 } = {}) {
+  async pull(channel, { since = 0, limit = 100, page = 0 } = {}) {
     const path = `sync/${encodeURIComponent(channel)}?since=${since}&limit=${limit}&page=${page}`;
     return this.fetch(path);
   }

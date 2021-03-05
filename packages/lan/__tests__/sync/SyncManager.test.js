@@ -18,10 +18,10 @@ describe('SyncManager', () => {
     manager = new SyncManager(context, remote);
   });
 
-  beforeEach(() => remote.receive.mockReset());
+  beforeEach(() => remote.pull.mockReset());
 
-  describe('receiveAndImport', () => {
-    it('receives pages of records and imports them', async () => {
+  describe('pullAndImport', () => {
+    it('pulls pages of records and imports them', async () => {
       // arrange
       const records = [
         { id: `test-${uuidv4()}`, code: 'r1', name: 'r1', type: REFERENCE_TYPES.DRUG },
@@ -31,7 +31,7 @@ describe('SyncManager', () => {
         ...records[1],
         code: 'old',
       });
-      remote.receive
+      remote.pull
         .mockResolvedValueOnce({
           records: [{ data: records[0] }],
           count: 1,
@@ -49,7 +49,7 @@ describe('SyncManager', () => {
         });
 
       // act
-      await manager.receiveAndImport(context.models.ReferenceData, 'reference');
+      await manager.pullAndImport(context.models.ReferenceData, 'reference');
 
       // assert
       const createdRecords = await context.models.ReferenceData.findAll({
@@ -65,7 +65,7 @@ describe('SyncManager', () => {
       // arrange
       const data = { id: `test-${uuidv4()}`, code: 'r1', name: 'r1', type: REFERENCE_TYPES.DRUG };
       const channel = 'reference';
-      remote.receive
+      remote.pull
         .mockResolvedValueOnce({
           records: [{ data }],
           count: 1,
@@ -78,14 +78,14 @@ describe('SyncManager', () => {
         });
 
       // act
-      await manager.receiveAndImport(context.models.ReferenceData, channel);
+      await manager.pullAndImport(context.models.ReferenceData, channel);
 
       // assert
       const metadata = await context.models.SyncMetadata.findOne({ where: { channel } });
       expect(metadata.lastSynced).toEqual(1234);
 
-      await manager.receiveAndImport(context.models.ReferenceData, channel);
-      const calls = remote.receive.mock.calls;
+      await manager.pullAndImport(context.models.ReferenceData, channel);
+      const calls = remote.pull.mock.calls;
       expect(calls[calls.length - 1][1]).toHaveProperty('since', 1234);
     });
 
@@ -98,8 +98,8 @@ describe('SyncManager', () => {
       survey.programId = program.id;
       await context.models.Survey.create(survey);
 
-      remote.receive.mockImplementation(channel => {
-        const channelCalls = remote.receive.mock.calls.filter(([c]) => c === channel).length;
+      remote.pull.mockImplementation(channel => {
+        const channelCalls = remote.pull.mock.calls.filter(([c]) => c === channel).length;
         if (channelCalls === 1 && channel === 'program') {
           return Promise.resolve({
             records: [{ data: program, isDeleted: true }],
