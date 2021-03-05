@@ -26,7 +26,7 @@
       command: ./scripts/build_desktop.sh build-only
     - name: build_and_release_desktop_installer
       service: app
-      tag: ^(release-)
+      tag: ^(release-desktop-)
       command: ./scripts/build_desktop.sh build-and-release
     - name: build_sync_release
       tag: ^(master|dev|ci-)
