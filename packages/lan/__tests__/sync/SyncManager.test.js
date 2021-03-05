@@ -49,7 +49,7 @@ describe('SyncManager', () => {
         });
 
       // act
-      await manager.pullAndImport(context.models.ReferenceData, 'reference');
+      await manager.pullAndImport(context.models.ReferenceData);
 
       // assert
       const createdRecords = await context.models.ReferenceData.findAll({
@@ -78,13 +78,13 @@ describe('SyncManager', () => {
         });
 
       // act
-      await manager.pullAndImport(context.models.ReferenceData, channel);
+      await manager.pullAndImport(context.models.ReferenceData);
 
       // assert
       const metadata = await context.models.SyncMetadata.findOne({ where: { channel } });
       expect(metadata.lastSynced).toEqual(1234);
 
-      await manager.pullAndImport(context.models.ReferenceData, channel);
+      await manager.pullAndImport(context.models.ReferenceData);
       const calls = remote.pull.mock.calls;
       expect(calls[calls.length - 1][1]).toHaveProperty('since', 1234);
     });
