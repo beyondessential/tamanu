@@ -1,9 +1,9 @@
 {
   "//": "this package.json is used by electron-builder during ci/cd",
   "main": "./dist/main.prod.js",
-  "name": "desktop",
+  "name": "Tamanu",
   "productName": "Tamanu",
-  "version": "0.0.1",
+  "version": "1.0.0",
   "description": "Tamanu Desktop application",
   "private": true,
   "homepage": "https://github.com/beyondessential/tamanu.git#readme",
