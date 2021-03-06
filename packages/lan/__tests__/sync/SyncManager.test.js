@@ -2,7 +2,7 @@ import { Op } from 'sequelize';
 import { v4 as uuidv4 } from 'uuid';
 
 import { REFERENCE_TYPES } from 'shared/constants';
-import { fakeProgram, fakeSurvey } from 'shared/test-helpers';
+import { fakeProgram, fakeSurvey, fakePatient } from 'shared/test-helpers';
 
 import { createTestContext } from '../utilities';
 import { SyncManager } from '~/sync';
@@ -124,5 +124,31 @@ describe('SyncManager', () => {
       expect(await context.models.Program.findByPk(program.id)).toEqual(null);
       expect(await context.models.Survey.findByPk(survey.id)).toEqual(null);
     });
+  });
+
+  describe('exportAndPush', () => {
+    it('exports pages of records and pushes them', async () => {
+      // arrange
+      const record = fakePatient();
+      await context.models.Patient.create(record);
+      remote.push.mockResolvedValueOnce({
+        count: 1,
+        requestedAt: 1234,
+      });
+      const getRecord = () => context.models.Patient.findByPk(record.id);
+      expect(await getRecord()).toHaveProperty('markedForPush', true);
+
+      // act
+      await manager.exportAndPush(context.models.Patient);
+
+      // assert
+      expect(await getRecord()).toHaveProperty('markedForPush', false);
+      expect(remote.pushAndExport.calls.length).toEqual(1);
+      expect(remote.pushAndExport.calls[0][0]).toEqual('patient');
+      expect(remote.pushAndExport.calls[0][1].length).toEqual(1);
+      expect(remote.pushAndExport.calls[0][1][0]).toMatchObject(record);
+    });
+
+    it.todo('marks created or updated records for push');
   });
 });

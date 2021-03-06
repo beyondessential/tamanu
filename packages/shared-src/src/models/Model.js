@@ -7,6 +7,20 @@ export const Sequelize = sequelize.Sequelize;
 const firstLetterLowercase = s => (s[0] || '').toLowerCase() + s.slice(1);
 
 export class Model extends sequelize.Model {
+  static init(originalAttributes, options) {
+    const attributes = { ...originalAttributes };
+    if (this.syncDirection === SYNC_DIRECTIONS.PUSH_ONLY ||
+        this.syncDirection === SYNC_DIRECTIONS.BIDIRECTIONAL) {
+      // TODO: exclude this field on the sync-server
+      attributes.markedForPush = {
+        type: Sequelize.BOOLEAN,
+        allowNull: false,
+        defaultValue: true,
+      };
+    }
+    super.init(attributes, options);
+  }
+
   forResponse() {
     // Reassign reference associations to use camelCase & dataValues.
     // That is, it turns
