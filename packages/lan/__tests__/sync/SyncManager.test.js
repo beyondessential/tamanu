@@ -127,6 +127,8 @@ describe('SyncManager', () => {
   });
 
   describe('exportAndPush', () => {
+    const getRecord = ({ id }) => context.models.Patient.findByPk(id);
+
     it('exports pages of records and pushes them', async () => {
       // arrange
       const record = fakePatient();
@@ -135,14 +137,13 @@ describe('SyncManager', () => {
         count: 1,
         requestedAt: 1234,
       });
-      const getRecord = () => context.models.Patient.findByPk(record.id);
-      expect(await getRecord()).toHaveProperty('markedForPush', true);
+      expect(await getRecord(record)).toHaveProperty('markedForPush', true);
 
       // act
       await manager.exportAndPush(context.models.Patient);
 
       // assert
-      expect(await getRecord()).toHaveProperty('markedForPush', false);
+      expect(await getRecord(record)).toHaveProperty('markedForPush', false);
       const { calls } = remote.push.mock;
       expect(calls.length).toEqual(1);
       expect(calls[0][0]).toEqual('patient');
@@ -150,6 +151,20 @@ describe('SyncManager', () => {
       expect(calls[0][1][0].data).toMatchObject(record);
     });
 
-    it.todo('marks created or updated records for push');
+    it('marks updated records for push', async () => {
+      const record = fakePatient();
+
+      await context.models.Patient.create(record);
+      expect(await getRecord(record)).toHaveProperty('markedForPush', true);
+
+      await context.models.Patient.update({ markedForPush: false }, { where: { id: record.id } });
+      expect(await getRecord(record)).toHaveProperty('markedForPush', false);
+
+      await context.models.Patient.update(
+        { displayId: 'Fred Smith' },
+        { where: { id: record.id } },
+      );
+      expect(await getRecord(record)).toHaveProperty('markedForPush', true);
+    });
   });
 });
