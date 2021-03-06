@@ -137,8 +137,9 @@ export class WebRemote {
     return this.fetch(path);
   }
 
-  async send() {
-    throw new Error('WebRemote: send is not implemented yet');
+  async push(channel, body) {
+    const path = `sync/${encodeURIComponent(channel)}`;
+    return this.fetch(path, { method: 'POST', body });
   }
 
   async whoami() {
