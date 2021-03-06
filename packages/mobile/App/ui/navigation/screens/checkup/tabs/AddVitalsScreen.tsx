@@ -20,7 +20,6 @@ import { FormScreenView } from '/components/Forms/FormScreenView';
 import { NumberField } from '~/ui/components/NumberField';
 import { Dropdown } from '~/ui/components/Dropdown';
 import { AVPUType } from '~/types';
-import { getUniqueId } from 'react-native-device-info';
 
 export const DumbAddVitalsScreen = ({ selectedPatient, navigation }): ReactElement => {
   const renderFormFields = useCallback(
@@ -160,7 +159,6 @@ export const DumbAddVitalsScreen = ({ selectedPatient, navigation }): ReactEleme
       navigateToHistory();
     }, [],
   );
-  console.log({ uniqueId: getUniqueId() });
   return (
     <StyledSafeAreaView flex={1}>
       <FullView

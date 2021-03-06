@@ -18,6 +18,9 @@ import { ReferenceData, ReferenceDataRelation } from './ReferenceData';
 import { AdministeredVaccine } from './AdministeredVaccine';
 import { SurveyResponse } from './SurveyResponse';
 import { formatDateForQuery } from '~/infra/db/helpers';
+import { SummaryInfo } from '~/ui/navigation/screens/home/Tabs/PatientHome/ReportScreen/SummaryBoard';
+
+const TIME_OFFSET = 3;
 
 @Entity('encounter')
 export class Encounter extends BaseModel implements IEncounter {
@@ -33,10 +36,9 @@ export class Encounter extends BaseModel implements IEncounter {
   @Column({ default: '' })
   reasonForEncounter: string;
 
-
   @Index()
-  @ManyToOne(() => Patient, patient => patient.encounters, { eager: true })
-  patient: Patient;å
+  @ManyToOne(() => Patient, (patient) => patient.encounters, { eager: true })
+  patient: Patient;
   @RelationId(({ patient }) => patient)
   patientId: string;
 
@@ -52,8 +54,7 @@ export class Encounter extends BaseModel implements IEncounter {
   @Column({ nullable: true })
   medication?: string;
 
-
-  @Column({nullable: true})
+  @Column({ nullable: true })
   deviceId?: string;
 
   @ReferenceDataRelation()
@@ -66,14 +67,19 @@ export class Encounter extends BaseModel implements IEncounter {
   @RelationId(({ location }) => location)
   locationId?: string;
 
-  @OneToMany(() => Diagnosis, diagnosis => diagnosis.encounter, { eager: true })
-  diagnoses: Diagnosis[]
+  @OneToMany(() => Diagnosis, (diagnosis) => diagnosis.encounter, {
+    eager: true,
+  })
+  diagnoses: Diagnosis[];
 
-  @OneToMany(() => AdministeredVaccine, administeredVaccine => administeredVaccine.encounter)
-  administeredVaccines: AdministeredVaccine[]
+  @OneToMany(
+    () => AdministeredVaccine,
+    (administeredVaccine) => administeredVaccine.encounter
+  )
+  administeredVaccines: AdministeredVaccine[];
 
-  @OneToMany(() => SurveyResponse, surveyResponse => surveyResponse.encounter)
-  surveyResponses: SurveyResponse[]
+  @OneToMany(() => SurveyResponse, (surveyResponse) => surveyResponse.encounter)
+  surveyResponses: SurveyResponse[];
 
   @BeforeInsert()
   @BeforeUpdate()
@@ -84,15 +90,18 @@ export class Encounter extends BaseModel implements IEncounter {
   }
 
   static async getOrCreateCurrentEncounter(
-    patientId: string, createdEncounterOptions: any,
+    patientId: string,
+    createdEncounterOptions: any
   ): Promise<Encounter> {
     const repo = this.getRepository();
-    const timeOffset = 3;
-    const date = addHours(startOfDay(new Date()), timeOffset);
+    const date = addHours(startOfDay(new Date()), TIME_OFFSET);
 
-    const found = await repo.createQueryBuilder('encounter')
+    const found = await repo
+      .createQueryBuilder('encounter')
       .where('patientId = :patientId', { patientId })
-      .andWhere('startDate >= :date', { date: formatDateForQuery(date) })
+      .andWhere("startDate >= datetime(:date, 'unixepoch')", {
+        date: formatDateForQuery(date),
+      })
       .getOne();
 
     if (found) return found;
@@ -103,8 +112,11 @@ export class Encounter extends BaseModel implements IEncounter {
       endDate: null,
       encounterType: EncounterType.Clinic,
       reasonForEncounter: '',
-      department: (await ReferenceData.getAnyOfType(ReferenceDataType.Department)).id,
-      location: (await ReferenceData.getAnyOfType(ReferenceDataType.Location)).id,
+      department: (
+        await ReferenceData.getAnyOfType(ReferenceDataType.Department)
+      ).id,
+      location: (await ReferenceData.getAnyOfType(ReferenceDataType.Location))
+        .id,
       deviceId: getUniqueId(),
       ...createdEncounterOptions,
     });
@@ -116,6 +128,32 @@ export class Encounter extends BaseModel implements IEncounter {
     return repo.find({
       patient: { id: patientId },
     });
+  }
+
+  static async getTotalEncountersAndResponses(surveyId: string): Promise<SummaryInfo[]> {
+    // const date = addHours(startOfDay(new Date()), TIME_OFFSET);
+    const repo = this.getRepository();
+
+    return repo
+      .createQueryBuilder('encounter')
+      .select('date(encounter.startDate)', 'encounterDate')
+      .addSelect('count(distinct encounter.patientId)', 'totalEncounters')
+      .addSelect('count(sr.id)', 'totalSurveys')
+      .leftJoin(
+        (subQuery) => subQuery
+          .select('surveyResponse.id', 'id')
+          .addSelect('surveyResponse.encounterId', 'encounterId')
+          .from('survey_response', 'surveyResponse')
+          .where(
+            'surveyResponse.surveyId = :surveyId',
+            { surveyId }),
+        'sr',
+        '"sr"."encounterId" = encounter.id',
+      )
+      .groupBy('date(encounter.startDate)')
+      .having('encounter.deviceId = :deviceId', { deviceId: getUniqueId() })
+      .orderBy('encounterDate', 'ASC')
+      .getRawMany();
   }
 
   static shouldExport = true;

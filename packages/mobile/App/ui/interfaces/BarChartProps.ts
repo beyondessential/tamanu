@@ -1,4 +1,4 @@
 export interface BarChartData {
-  date: Date;
+  date: string;
   value: number;
 }

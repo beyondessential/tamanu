@@ -4,22 +4,22 @@ import { BarChart, YAxis } from 'react-native-svg-charts';
 import { G, Line } from 'react-native-svg';
 import { DateFormats } from '/helpers/constants';
 import { StyledView, StyledText, RowView } from '/styled/common';
-import { formatDate } from '/helpers/date';
 import { theme } from '/styled/theme';
-import { BarChartData } from '../../interfaces/BarChartProps';
 import { Orientation, screenPercentageToDP } from '/helpers/screen';
+import { format, parseISO } from 'date-fns';
+import { BarChartData } from '../../interfaces/BarChartProps';
 
 interface CustomGridProps {
   x: (value: number) => number;
   data: any[];
 }
 
-const CustomGrid = memo(
-  ({ x, data }: CustomGridProps): JSX.Element => (
-    <G>
-      {data
-        && data.map(
-          (_, index: number) => index % 7 === 0 && (
+const CustomGrid = ({ x, data }: CustomGridProps): JSX.Element => (
+  <G>
+    {data &&
+      data.map(
+        (_, index: number) =>
+          index % 7 === 0 && (
             <Line
               strokeDasharray="4, 4"
               key={data[index].date.toString()}
@@ -29,10 +29,9 @@ const CustomGrid = memo(
               x2={x && x(index) - 2}
               stroke={theme.colors.TEXT_DARK}
             />
-          ),
-        )}
-    </G>
-  ),
+          )
+      )}
+  </G>
 );
 
 const DateRangeIndexes = [
@@ -60,12 +59,13 @@ interface DateRangeLabelsProps {
 
 const DateRangeLabels = memo(({ data }: DateRangeLabelsProps) => {
   const dateIntervalArray = useMemo(
-    () => DateRangeIndexes.map((dateRange, index) => ({
-      start: data[dateRange.startDate].date,
-      end: data[dateRange.endDate].date,
-      key: index,
-    })),
-    [data],
+    () =>
+      DateRangeIndexes.map((dateRange, index) => ({
+        start: data[dateRange.startDate].date,
+        end: data[dateRange.endDate].date,
+        key: index,
+      })),
+    [data]
   );
 
   return (
@@ -78,7 +78,7 @@ const DateRangeLabels = memo(({ data }: DateRangeLabelsProps) => {
       justifyContent="space-around"
       bottom="-15%"
     >
-      {dateIntervalArray.map(dateInterval => (
+      {dateIntervalArray.map((dateInterval) => (
         <StyledText
           key={dateInterval.key}
           width="100%"
@@ -86,11 +86,8 @@ const DateRangeLabels = memo(({ data }: DateRangeLabelsProps) => {
           textAlign="center"
           fontSize={screenPercentageToDP('2.5', Orientation.Width)}
         >
-          {`${formatDate(
-            dateInterval.start,
-            DateFormats.DAY_MONTH,
-          )} - \n ${formatDate(
-            dateInterval.end,
+          {`${format(parseISO(dateInterval.start), DateFormats.DAY_MONTH)} - \n ${format(
+            parseISO(dateInterval.end),
             DateFormats.DAY_MONTH_YEAR_SHORT,
           )}`}
         </StyledText>
@@ -114,14 +111,26 @@ const barStyle = {
 };
 
 interface BarChartProps {
-  data: BarChartData[];
+  visitData: {
+    totalVisits: number;
+    data: BarChartData[];
+  };
 }
 
 const verticalContentInset = { top: 10, right: 0, bottom: 0 };
 const axesSvg = { fontSize: 12, fill: theme.colors.TEXT_DARK };
 
-export const VisitChart = memo(
-  ({ data }: BarChartProps): JSX.Element => (
+export const VisitChart = ({ visitData }: BarChartProps): JSX.Element => {
+  const lastData = visitData.data[visitData.data.length - 1];
+  const firstData = visitData.data[0];
+
+  const oneMonthAgoFormatted = parseISO(lastData.date).getFullYear()
+    === parseISO(firstData.date).getFullYear()
+    ? format(parseISO(firstData.date), DateFormats.DAY_MONTH)
+    : format(parseISO(firstData.date), DateFormats.DAY_MONTH_YEAR_SHORT);
+  const todayFormatted = format(parseISO(lastData.date), DateFormats.DAY_MONTH_YEAR_SHORT);
+
+  return (
     <StyledView>
       <RowView
         marginTop={screenPercentageToDP(4.25, Orientation.Height)}
@@ -144,7 +153,7 @@ export const VisitChart = memo(
             color={theme.colors.TEXT_DARK}
             fontSize={screenPercentageToDP(3.4, Orientation.Height)}
           >
-            {data.length}
+            {visitData.totalVisits}
             <StyledText
               fontSize={screenPercentageToDP(1.94, Orientation.Height)}
               color={theme.colors.TEXT_MID}
@@ -159,7 +168,7 @@ export const VisitChart = memo(
           color={theme.colors.PRIMARY_MAIN}
           fontWeight={500}
         >
-          18 Aug - 16 Sep 2020
+          {oneMonthAgoFormatted} - {todayFormatted}
         </StyledText>
       </RowView>
       <StyledView
@@ -171,26 +180,27 @@ export const VisitChart = memo(
           <StyledView flex={1}>
             <BarChart
               style={styles.barChartStyles}
-              yAccessor={({ item }: { item: BarChartData }): number => item.value
+              yAccessor={({ item }: { item: BarChartData }): number =>
+                item.value
               }
               animate
-              data={data}
+              data={visitData.data}
               svg={barStyle}
               spacingInner={0.2}
             >
               <CustomGrid x={(): number => 0} data={[]} />
             </BarChart>
-            <DateRangeLabels data={data} />
+            <DateRangeLabels data={visitData.data} />
           </StyledView>
           <YAxis
             style={styles.yAxis}
             yAccessor={({ item }: { item: BarChartData }): number => item.value}
-            data={data}
+            data={visitData.data}
             contentInset={verticalContentInset}
             svg={axesSvg}
           />
         </RowView>
       </StyledView>
     </StyledView>
-  ),
-);
+  );
+};
