@@ -18,6 +18,7 @@ export class Model extends sequelize.Model {
       };
     }
     super.init(attributes, options);
+    this.syncClientMode = syncClientMode;
   }
 
   forResponse() {
@@ -92,6 +93,7 @@ export class Model extends sequelize.Model {
   static excludedSyncColumns = [
     'createdAt',
     'updatedAt',
+    'markedForPush',
   ];
 
   static syncDirection = SYNC_DIRECTIONS.DO_NOT_SYNC;

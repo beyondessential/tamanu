@@ -151,19 +151,23 @@ describe('SyncManager', () => {
       expect(calls[0][1][0].data).toMatchObject(record);
     });
 
-    it('marks updated records for push', async () => {
+    it('marks created records for push', async () => {
       const record = fakePatient();
-
       await context.models.Patient.create(record);
       expect(await getRecord(record)).toHaveProperty('markedForPush', true);
+    });
 
+    it('marks updated records for push', async () => {
+      // arrange
+      const record = fakePatient();
+      await context.models.Patient.create(record);
       await context.models.Patient.update({ markedForPush: false }, { where: { id: record.id } });
       expect(await getRecord(record)).toHaveProperty('markedForPush', false);
 
-      await context.models.Patient.update(
-        { displayId: 'Fred Smith' },
-        { where: { id: record.id } },
-      );
+      // act
+      await (await context.models.Patient.findByPk(record.id)).update({ displayId: 'Fred Smith' });
+
+      // assert
       expect(await getRecord(record)).toHaveProperty('markedForPush', true);
     });
   });
