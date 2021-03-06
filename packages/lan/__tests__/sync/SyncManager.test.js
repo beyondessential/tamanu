@@ -143,10 +143,11 @@ describe('SyncManager', () => {
 
       // assert
       expect(await getRecord()).toHaveProperty('markedForPush', false);
-      expect(remote.pushAndExport.calls.length).toEqual(1);
-      expect(remote.pushAndExport.calls[0][0]).toEqual('patient');
-      expect(remote.pushAndExport.calls[0][1].length).toEqual(1);
-      expect(remote.pushAndExport.calls[0][1][0]).toMatchObject(record);
+      const { calls } = remote.push.mock;
+      expect(calls.length).toEqual(1);
+      expect(calls[0][0]).toEqual('patient');
+      expect(calls[0][1].length).toEqual(1);
+      expect(calls[0][1][0].data).toMatchObject(record);
     });
 
     it.todo('marks created or updated records for push');

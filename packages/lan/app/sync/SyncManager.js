@@ -81,6 +81,18 @@ export class SyncManager {
       return executeExportPlan(plan, { after, limit });
     };
 
+    // unmark
+    const unmarkRecords = async records => {
+      await model.update(
+        { markedForPush: false },
+        {
+          where: {
+            id: records.map(r => r.data.id),
+          },
+        },
+      );
+    };
+
     let after = null;
     do {
       const records = await exportRecords(after);
@@ -88,6 +100,7 @@ export class SyncManager {
       if (records.length > 0) {
         log.debug(`SyncManager.exportAndPush: pushing ${records.length} to sync server`);
         await this.remote.push(channel, records);
+        await unmarkRecords(records);
       }
     } while (after !== null);
 
