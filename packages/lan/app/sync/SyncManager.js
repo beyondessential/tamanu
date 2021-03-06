@@ -1,15 +1,7 @@
-import { SYNC_DIRECTIONS } from 'shared/constants';
+import { shouldPush, shouldPull } from 'shared/models/sync';
 import { log } from '~/logging';
 import { createImportPlan, executeImportPlan } from './import';
 import { createExportPlan, executeExportPlan } from './export';
-
-const shouldPull = model =>
-  model.syncDirection === SYNC_DIRECTIONS.PULL_ONLY ||
-  model.syncDirection === SYNC_DIRECTIONS.BIDIRECTIONAL;
-
-const shouldPush = model =>
-  model.syncDirection === SYNC_DIRECTIONS.PUSH_ONLY ||
-  model.syncDirection === SYNC_DIRECTIONS.BIDIRECTIONAL;
 
 const EXPORT_LIMIT = 100;
 

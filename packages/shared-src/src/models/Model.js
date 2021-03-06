@@ -1,5 +1,6 @@
 import * as sequelize from 'sequelize';
 import { pick, lowerFirst } from 'lodash';
+import { shouldPush } from './sync';
 import { SYNC_DIRECTIONS } from 'shared/constants';
 
 export const Sequelize = sequelize.Sequelize;
@@ -7,11 +8,9 @@ export const Sequelize = sequelize.Sequelize;
 const firstLetterLowercase = s => (s[0] || '').toLowerCase() + s.slice(1);
 
 export class Model extends sequelize.Model {
-  static init(originalAttributes, options) {
+  static init(originalAttributes, { syncClientMode, ...options }) {
     const attributes = { ...originalAttributes };
-    if (this.syncDirection === SYNC_DIRECTIONS.PUSH_ONLY ||
-        this.syncDirection === SYNC_DIRECTIONS.BIDIRECTIONAL) {
-      // TODO: exclude this field on the sync-server
+    if (syncClientMode && shouldPush(this)) {
       attributes.markedForPush = {
         type: Sequelize.BOOLEAN,
         allowNull: false,

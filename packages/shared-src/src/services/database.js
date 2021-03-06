@@ -43,6 +43,7 @@ export async function initDatabase(dbOptions) {
     saltRounds=null,
     primaryKeyDefault=Sequelize.UUIDV4,
     hackToSkipEncounterValidation=false, // TODO: remove once mobile implements all relationships
+    syncClientMode=false,
   } = dbOptions;
   let {
     name,
@@ -105,6 +106,7 @@ export async function initDatabase(dbOptions) {
         sequelize,
         paranoid: makeEveryModelParanoid,
         hackToSkipEncounterValidation,
+        syncClientMode,
       },
       models,
     );
