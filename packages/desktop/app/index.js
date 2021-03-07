@@ -63,8 +63,8 @@ function start() {
     store.dispatch(authFailure());
   });
 
-  API.setVersionIncompatibleHandler(minVersion => {
-    store.dispatch(versionIncompatible(minVersion));
+  API.setVersionIncompatibleHandler((isTooLow, minVersion, maxVersion) => {
+    store.dispatch(versionIncompatible(isTooLow, minVersion, maxVersion));
   });
 
   const persistor = initPersistor(store);

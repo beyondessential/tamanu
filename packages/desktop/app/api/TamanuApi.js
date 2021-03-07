@@ -1,4 +1,5 @@
 import faye from 'faye';
+import { VERSION_COMPATIBILITY_ERRORS } from 'shared/constants';
 
 const encodeQueryString = query =>
   Object.entries(query)
@@ -7,6 +8,32 @@ const encodeQueryString = query =>
     .join('&');
 
 const REFRESH_DURATION = 2.5 * 60 * 1000; // refresh if token is more than 2.5 minutes old
+
+const getResponseJsonSafely = async response => {
+  try {
+    return response.json();
+  } catch (e) {
+    // log json parsing errors, but still return a valid object
+    console.error(e);
+    return {};
+  }
+};
+
+const getVersionIncompatibleMessage = async response => {
+  const { error } = await getResponseJsonSafely(response); // ignore json parsing errors
+
+  if (error === VERSION_COMPATIBILITY_ERRORS.LOW) {
+    const minAppVersion = response.headers.get('X-Min-Client-Version');
+    return `Please upgrade to Tamanu Desktop v${minAppVersion} or higher. Try closing and reopening, or contact your system administrator.`;
+  }
+
+  if (error === VERSION_COMPATIBILITY_ERRORS.HIGH) {
+    const maxAppVersion = response.headers.get('X-Max-Client-Version');
+    return `The Tamanu LAN Server only supports up to v${maxAppVersion}, and needs to be upgraded. Please contact your system administrator.`;
+  }
+
+  return null;
+};
 
 export class TamanuApi {
   constructor(host, appVersion) {
@@ -70,20 +97,21 @@ export class TamanuApi {
     }
     console.error(response);
 
-    if (this.onAuthFailure) {
-      switch (response.status) {
-        case 403:
-        case 401:
-          this.onAuthFailure('Your session has expired. Please log in again.');
-          break;
-        case 400:{
-          const minAppVersion = this.response.headers.get('X-Min-Client-Version');
-          if (minAppVersion < this.appVersion) {
-            this.onVersionIncompatible(minAppVersion);
-          }
-          break;
+    // handle auth expiring
+    if ([401, 403].includes(response.status) && this.onAuthFailure) {
+      this.onAuthFailure('Your session has expired. Please log in again.');
+    }
+
+    // handle version incompatibility
+    if (response.status === 400) {
+      const versionIncompatibleMessage = await getVersionIncompatibleMessage(response);
+      if (versionIncompatibleMessage) {
+        if (this.onVersionIncompatible) {
+          this.onVersionIncompatible(versionIncompatibleMessage);
         }
+        throw new Error(versionIncompatibleMessage);
       }
+    }
 
     throw new Error(response.status);
   }

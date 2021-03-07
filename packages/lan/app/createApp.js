@@ -5,14 +5,13 @@ import compression from 'compression';
 
 import routes from './routes';
 import errorHandler from './middleware/errorHandler';
+import { versionCompatibility } from './middleware/versionCompatibility';
 
 import { log } from './logging';
 
 import { version } from '../package.json';
 
 const isDevelopment = process.env.NODE_ENV === 'development';
-
-const SUPPORTED_CLIENT_VERSIONS = ['1.0.0'];
 
 export function createApp({ sequelize, models }) {
   // Init our app
@@ -42,16 +41,7 @@ export function createApp({ sequelize, models }) {
     next();
   });
 
-  app.use((req, res, next) => {
-    const clientVersion = req.header('X-Client-Version');
-    if (!SUPPORTED_CLIENT_VERSIONS.includes(clientVersion)) {
-      res
-        .setHeader('X-Min-Client-Version', SUPPORTED_CLIENT_VERSIONS.sort()[0])
-        .status(400)
-        .end();
-    }
-    next();
-  });
+  app.use(versionCompatibility);
 
   app.use('/', routes);
 
