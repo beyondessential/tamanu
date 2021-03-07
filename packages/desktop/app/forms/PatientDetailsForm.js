@@ -43,18 +43,6 @@ export const PrimaryDetailsGroup = ({ villageSuggester, ethnicitySuggester }) =>
     <Field name="cityTown" label="City/Town" component={TextField} />
     <Field name="streetVillage" label="Street/Village" component={TextField} />
     <Field
-      name="division"
-      label="Division"
-      component={SelectField}
-      options={[
-        { value: 'Central/Eastern', label: 'Central/Eastern' },
-        { value: 'Western', label: 'Western' },
-        { value: 'Northern', label: 'Northern' },
-        { value: 'Overseas', label: 'Overseas' },
-      ]}
-    />
-    <Field name="subDivision" label="Sub Division" component={TextField} />
-    <Field
       name="maritalStatus"
       label="MaritalStatus"
       component={SelectField}

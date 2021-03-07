@@ -10,7 +10,7 @@ import { NotFoundError } from 'shared/errors';
 
 export const patient = express.Router();
 
-const AdditionalDetailsProperties = ['placeOfBirth'];
+const AdditionalDetailsProperties = ['placeOfBirth', 'maritalStatus'];
 
 function stringifyAdditionalDetails(reqBody) {
   return JSON.stringify(
@@ -28,7 +28,7 @@ function parseAdditionalDetails(patient) {
     ? JSON.parse(patient.get('additionalDetails'))
     : {};
 
-  // NOTE: if there's no values for additional details, we need to 
+  // NOTE: if there's no values for additional details, we need to
   // set the property to null, so it will override desktop app
   // state reducer spread
   return AdditionalDetailsProperties.reduce((acc, property) => {
