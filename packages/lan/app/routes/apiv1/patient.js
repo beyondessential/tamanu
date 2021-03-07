@@ -10,7 +10,18 @@ import { NotFoundError } from 'shared/errors';
 
 export const patient = express.Router();
 
-const AdditionalDetailsProperties = ['placeOfBirth', 'maritalStatus'];
+const AdditionalDetailsProperties = [
+  'placeOfBirth',
+  'country',
+  'cityTown',
+  'streetVillage',
+  'maritalStatus',
+  'bloodType',
+  'primaryContactNumber',
+  'secondaryContactNumber',
+  'socialMediaPlatform',
+  'socialMediaName',
+];
 
 function stringifyAdditionalDetails(reqBody) {
   return JSON.stringify(
