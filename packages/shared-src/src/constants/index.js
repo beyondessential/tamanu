@@ -190,3 +190,8 @@ export const SYNC_DIRECTIONS = {
   PULL_ONLY: 'pull_only',
   BIDIRECTIONAL: 'bidirectional',
 };
+
+export const VERSION_COMPATIBILITY_ERRORS = {
+  LOW: 'Client version too low',
+  HIGH: 'Client version too high',
+};

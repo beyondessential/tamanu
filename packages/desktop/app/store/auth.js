@@ -25,10 +25,10 @@ export const authFailure = () => async dispatch => {
   });
 };
 
-export const versionIncompatible = minVersion => async dispatch => {
+export const versionIncompatible = message => async dispatch => {
   dispatch({
     type: LOGOUT_WITH_ERROR,
-    error: `Please upgrade to Tamanu Desktop v${minVersion} or higher. Try closing and reopening, or contact your system admin.`,
+    error: message,
   });
 };
 
