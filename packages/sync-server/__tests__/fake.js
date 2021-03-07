@@ -32,6 +32,9 @@ export function fakePatient(prefix = '') {
     bloodType: sample(['A', 'B', 'AB', 'O']) + sample(['+', '-']),
     dateOfBirth: new Date(random(0, Date.now())),
     villageId: null,
+    additionalDetails: null,
+    ethnicityId: null,
+    title: null,
   };
 }
 
