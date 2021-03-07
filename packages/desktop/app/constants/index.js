@@ -311,6 +311,35 @@ export const sexOptions = [
   { value: 'other', label: 'Other' },
 ];
 
+export const titleOptions = [
+  { value: 'Mr', label: 'Mr' },
+  { value: 'Mrs', label: 'Mrs' },
+  { value: 'Ms', label: 'Ms' },
+  { value: 'Miss', label: 'Miss' },
+  { value: 'Dr', label: 'Dr' },
+  { value: 'Sr', label: 'Sr' },
+  { value: 'Sn', label: 'Sn' },
+];
+
+export const socialMediaOptions = [
+  { value: 'Facebook', label: 'Facebook' },
+  { value: 'Instagram', label: 'Instagram' },
+  { value: 'LinkedIn', label: 'LinkedIn' },
+  { value: 'Twitter', label: 'Twitter' },
+  { value: 'Viber', label: 'Viber' },
+  { value: 'Whatsapp', label: 'Whatsapp' },
+];
+
+export const maritalStatusOptions = [
+  { value: 'Defacto', label: 'Defacto' },
+  { value: 'Married', label: 'Married' },
+  { value: 'Single', label: 'Single' },
+  { value: 'Widow', label: 'Widow' },
+  { value: 'Divorced', label: 'Divorced' },
+  { value: 'Separated', label: 'Separated' },
+  { value: 'Unknown', label: 'Unknown' },
+];
+
 export const SEX_VALUE_INDEX = createValueIndex(sexOptions);
 
 export const lookupOptions = [
