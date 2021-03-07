@@ -39,6 +39,12 @@ export class Patient extends Model {
 
     this.belongsTo(models.ReferenceData, {
       foreignKey: 'villageId',
+      as: 'village',
+    });
+
+    this.belongsTo(models.ReferenceData, {
+      foreignKey: 'ethnicityId',
+      as: 'ethnicity',
     });
   }
 }
