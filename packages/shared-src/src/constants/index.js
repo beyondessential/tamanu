@@ -160,3 +160,10 @@ export const DIAGNOSIS_CERTAINTY = {
 };
 
 export const DIAGNOSIS_CERTAINTY_VALUES = Object.values(DIAGNOSIS_CERTAINTY);
+
+export const SYNC_DIRECTIONS = {
+  DO_NOT_SYNC: 'do_not_sync',
+  PUSH_ONLY: 'push_only',
+  PULL_ONLY: 'pull_only',
+  BIDIRECTIONAL: 'bidirectional',
+};

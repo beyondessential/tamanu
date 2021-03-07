@@ -2,6 +2,7 @@ import { Op } from 'sequelize';
 import { v4 as uuidv4 } from 'uuid';
 
 import { REFERENCE_TYPES } from 'shared/constants';
+import { fakeProgram, fakeSurvey } from 'shared/test-helpers';
 
 import { createTestContext } from '../utilities';
 import { SyncManager } from '~/sync';
@@ -17,10 +18,10 @@ describe('SyncManager', () => {
     manager = new SyncManager(context, remote);
   });
 
-  beforeEach(() => remote.receive.mockReset());
+  beforeEach(() => remote.pull.mockReset());
 
-  describe('receiveAndImport', () => {
-    it('receives pages of records and imports them', async () => {
+  describe('pullAndImport', () => {
+    it('pulls pages of records and imports them', async () => {
       // arrange
       const records = [
         { id: `test-${uuidv4()}`, code: 'r1', name: 'r1', type: REFERENCE_TYPES.DRUG },
@@ -30,7 +31,7 @@ describe('SyncManager', () => {
         ...records[1],
         code: 'old',
       });
-      remote.receive
+      remote.pull
         .mockResolvedValueOnce({
           records: [{ data: records[0] }],
           count: 1,
@@ -48,7 +49,7 @@ describe('SyncManager', () => {
         });
 
       // act
-      await manager.receiveAndImport(context.models.ReferenceData, 'reference');
+      await manager.pullAndImport(context.models.ReferenceData, 'reference');
 
       // assert
       const createdRecords = await context.models.ReferenceData.findAll({
@@ -64,7 +65,7 @@ describe('SyncManager', () => {
       // arrange
       const data = { id: `test-${uuidv4()}`, code: 'r1', name: 'r1', type: REFERENCE_TYPES.DRUG };
       const channel = 'reference';
-      remote.receive
+      remote.pull
         .mockResolvedValueOnce({
           records: [{ data }],
           count: 1,
@@ -77,15 +78,51 @@ describe('SyncManager', () => {
         });
 
       // act
-      await manager.receiveAndImport(context.models.ReferenceData, channel);
+      await manager.pullAndImport(context.models.ReferenceData, channel);
 
       // assert
       const metadata = await context.models.SyncMetadata.findOne({ where: { channel } });
       expect(metadata.lastSynced).toEqual(1234);
 
-      await manager.receiveAndImport(context.models.ReferenceData, channel);
-      const calls = remote.receive.mock.calls;
+      await manager.pullAndImport(context.models.ReferenceData, channel);
+      const calls = remote.pull.mock.calls;
       expect(calls[calls.length - 1][1]).toHaveProperty('since', 1234);
+    });
+
+    it('handles foreign key constraints in deleted models', async () => {
+      // arrange
+      const program = fakeProgram();
+      await context.models.Program.create(program);
+
+      const survey = fakeSurvey();
+      survey.programId = program.id;
+      await context.models.Survey.create(survey);
+
+      remote.pull.mockImplementation(channel => {
+        const channelCalls = remote.pull.mock.calls.filter(([c]) => c === channel).length;
+        if (channelCalls === 1 && channel === 'program') {
+          return Promise.resolve({
+            records: [{ data: program, isDeleted: true }],
+            count: 1,
+            requestedAt: 1234,
+          });
+        }
+        if (channelCalls === 1 && channel === 'survey') {
+          return Promise.resolve({
+            records: [{ data: survey, isDeleted: true }],
+            count: 1,
+            requestedAt: 1234,
+          });
+        }
+        return Promise.resolve({ records: [], count: 0, requestedAt: 1234 });
+      });
+
+      // act
+      await manager.runSync();
+
+      // assert
+      expect(await context.models.Program.findByPk(program.id)).toEqual(null);
+      expect(await context.models.Survey.findByPk(survey.id)).toEqual(null);
     });
   });
 });
