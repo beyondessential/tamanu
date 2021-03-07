@@ -1,4 +1,6 @@
 import * as sequelize from 'sequelize';
+import { pick, lowerFirst } from 'lodash';
+import { SYNC_DIRECTIONS } from 'shared/constants';
 
 export const Sequelize = sequelize.Sequelize;
 
@@ -70,5 +72,18 @@ export class Model extends sequelize.Model {
     // List of relations when fetching just this model
     // (eg to display in a detailed view)
     return this.getListReferenceAssociations();
+  }
+
+  static includedSyncRelations = [];
+
+  static excludedSyncColumns = [
+    'createdAt',
+    'updatedAt',
+  ];
+
+  static syncDirection = SYNC_DIRECTIONS.DO_NOT_SYNC;
+
+  static channel() {
+    return lowerFirst(this.name);
   }
 }

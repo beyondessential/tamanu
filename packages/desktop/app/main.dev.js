@@ -7,8 +7,12 @@
  * `./app/dist/main.prod.js` using webpack. This gives us some performance wins.
  *
  */
+import { autoUpdater } from 'electron-updater';
 import { app, BrowserWindow } from 'electron';
-import installExtension, { REDUX_DEVTOOLS, REACT_DEVELOPER_TOOLS } from 'electron-devtools-installer';
+import installExtension, {
+  REDUX_DEVTOOLS,
+  REACT_DEVELOPER_TOOLS,
+} from 'electron-devtools-installer';
 
 // production only
 import sourceMapSupport from 'source-map-support';
@@ -19,6 +23,8 @@ import electronDebug from 'electron-debug';
 
 import MenuBuilder from './menu';
 import { registerPrintListener } from './print';
+
+const UPDATE_CHECK_INTERVAL = 60 * 60 * 1000; // check for updates every hour
 
 let mainWindow = null;
 
@@ -55,7 +61,7 @@ app.on('ready', async () => {
     webPreferences: {
       nodeIntegration: true,
       contextIsolation: false,
-      enableRemoteModule: true
+      enableRemoteModule: true,
     },
   });
 
@@ -64,6 +70,18 @@ app.on('ready', async () => {
       ? `file://${__dirname}/../app.html`
       : `file://${__dirname}/app.html`;
   mainWindow.loadURL(htmlLocation);
+
+  mainWindow.on('ready-to-show', () => {
+    const notificationDetails = {
+      title: 'A new update is ready to install',
+      body: `To update to {version}, please close {appName} and wait for 30 seconds before re-opening.`,
+    };
+    autoUpdater.checkForUpdatesAndNotify(notificationDetails);
+    setInterval(
+      () => autoUpdater.checkForUpdatesAndNotify(notificationDetails),
+      UPDATE_CHECK_INTERVAL,
+    );
+  });
 
   // @TODO: Use 'ready-to-show' event
   //        https://github.com/electron/electron/blob/master/docs/api/browser-window.md#using-ready-to-show-event
@@ -90,8 +108,8 @@ app.on('ready', async () => {
 // if (isDebug) {
 app.whenReady().then(() => {
   installExtension([REDUX_DEVTOOLS, REACT_DEVELOPER_TOOLS])
-      .then((name) => console.log(`Added Extension:  ${name}`))
-      .catch((err) => console.log('An error occurred: ', err));
+    .then(name => console.log(`Added Extension:  ${name}`))
+    .catch(err => console.log('An error occurred: ', err));
 });
 // }
 

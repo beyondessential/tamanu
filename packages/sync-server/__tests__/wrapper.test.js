@@ -8,15 +8,17 @@ import {
   fakeSurvey,
   fakeSurveyScreenComponent,
   fakeUser,
-} from './fake';
-import { buildScheduledVaccine, buildEncounter, buildNestedEncounter } from './factory';
+  buildScheduledVaccine,
+  buildEncounter,
+  buildNestedEncounter,
+} from 'shared/test-helpers';
 
 import { withDate } from './utilities';
 
 describe('sqlWrapper', () => {
-  const ctx = {};
+  let ctx = null;
   beforeAll(async () => {
-    ctx.wrapper = (await initDatabase({ testMode: true })).store;
+    ctx = (await initDatabase({ testMode: true })).store;
   });
 
   afterAll(closeDatabase);
@@ -26,7 +28,7 @@ describe('sqlWrapper', () => {
     ['program', fakeProgram],
     ['programDataElement', fakeProgramDataElement],
     ['reference', fakeReferenceData],
-    ['scheduledVaccine', buildScheduledVaccine(ctx)],
+    ['scheduledVaccine', () => buildScheduledVaccine(ctx)],
     ['survey', fakeSurvey],
     ['surveyScreenComponent', fakeSurveyScreenComponent],
     ['user', fakeUser],
@@ -34,7 +36,7 @@ describe('sqlWrapper', () => {
 
   const patientId = uuidv4();
   const nestedPatientTestCases = [
-    [`patient/${patientId}/encounter`, buildEncounter(ctx, patientId)],
+    [`patient/${patientId}/encounter`, () => buildEncounter(ctx, patientId)],
   ];
 
   const allTestCases = [...rootTestCases, ...nestedPatientTestCases];
@@ -42,27 +44,27 @@ describe('sqlWrapper', () => {
     allTestCases.forEach(([channel, fakeInstance]) => {
       describe(channel, () => {
         beforeAll(async () => {
-          await ctx.wrapper.unsafeRemoveAllOfChannel(channel);
+          await ctx.unsafeRemoveAllOfChannel(channel);
         });
 
         it('finds no records when empty', async () => {
-          const records = await ctx.wrapper.findSince(channel, 0, { limit: 10, offset: 0 });
+          const records = await ctx.findSince(channel, 0, { limit: 10, offset: 0 });
           expect(records).toHaveLength(0);
         });
 
         it('finds and counts records after an insertion', async () => {
           const instance1 = await fakeInstance();
           await withDate(new Date(1980, 5, 1), async () => {
-            await ctx.wrapper.upsert(channel, instance1);
+            await ctx.upsert(channel, instance1);
           });
 
           const instance2 = await fakeInstance();
           await withDate(new Date(1990, 5, 1), async () => {
-            await ctx.wrapper.upsert(channel, instance2);
+            await ctx.upsert(channel, instance2);
           });
 
           const since = new Date(1985, 5, 1).valueOf();
-          expect(await ctx.wrapper.findSince(channel, since)).toEqual([
+          expect(await ctx.findSince(channel, since)).toEqual([
             {
               ...instance2,
               createdAt: new Date(1990, 5, 1),
@@ -70,17 +72,17 @@ describe('sqlWrapper', () => {
               deletedAt: null,
             },
           ]);
-          expect(await ctx.wrapper.countSince(channel, since)).toEqual(1);
+          expect(await ctx.countSince(channel, since)).toEqual(1);
         });
 
         it('marks records as deleted', async () => {
           const instance = await fakeInstance();
           instance.id = uuidv4();
-          await ctx.wrapper.upsert(channel, instance);
+          await ctx.upsert(channel, instance);
 
-          await ctx.wrapper.markRecordDeleted(channel, instance.id);
+          await ctx.markRecordDeleted(channel, instance.id);
 
-          const instances = await ctx.wrapper.findSince(channel, 0);
+          const instances = await ctx.findSince(channel, 0);
           expect(instances.find(r => r.id === instance.id)).toEqual({
             ...instance,
             createdAt: expect.any(Date),
@@ -91,11 +93,11 @@ describe('sqlWrapper', () => {
 
         it('removes all records of a channel', async () => {
           const record = await fakeInstance();
-          await ctx.wrapper.upsert(channel, record);
+          await ctx.upsert(channel, record);
 
-          await ctx.wrapper.unsafeRemoveAllOfChannel(channel);
+          await ctx.unsafeRemoveAllOfChannel(channel);
 
-          expect(await ctx.wrapper.findSince(channel, 0)).toEqual([]);
+          expect(await ctx.findSince(channel, 0)).toEqual([]);
         });
       });
     });
@@ -105,14 +107,14 @@ describe('sqlWrapper', () => {
     nestedPatientTestCases.forEach(([channel, fakeInstance]) => {
       describe(channel, () => {
         beforeAll(async () => {
-          await ctx.wrapper.unsafeRemoveAllOfChannel(channel);
+          await ctx.unsafeRemoveAllOfChannel(channel);
         });
 
         it('throws an error when inserting valid records nested under the wrong patient', async () => {
           const [prefix, , suffix] = channel.split('/');
           const wrongId = uuidv4();
           const wrongChannel = [prefix, wrongId, suffix].join('/');
-          await expect(ctx.wrapper.upsert(wrongChannel, await fakeInstance())).rejects.toThrow();
+          await expect(ctx.upsert(wrongChannel, await fakeInstance())).rejects.toThrow();
         });
       });
     });
@@ -121,20 +123,20 @@ describe('sqlWrapper', () => {
   describe('encounters', () => {
     const encounterChannel = `patient/${patientId}/encounter`;
     beforeAll(async () => {
-      await ctx.wrapper.upsert('patient', { ...fakePatient(), patientId });
+      await ctx.upsert('patient', { ...fakePatient(), patientId });
     });
 
     beforeEach(async () => {
-      await ctx.wrapper.unsafeRemoveAllOfChannel(encounterChannel);
+      await ctx.unsafeRemoveAllOfChannel(encounterChannel);
     });
 
     it('finds no nested records when there are none', async () => {
       // arrange
-      const encounter = await buildEncounter(ctx, patientId)();
+      const encounter = await buildEncounter(ctx, patientId);
 
       // act
-      await ctx.wrapper.upsert(encounterChannel, encounter);
-      const foundEncounters = await ctx.wrapper.findSince(encounterChannel, 0);
+      await ctx.upsert(encounterChannel, encounter);
+      const foundEncounters = await ctx.findSince(encounterChannel, 0);
 
       // assert
       expect(foundEncounters.length).toBe(1);
@@ -145,15 +147,15 @@ describe('sqlWrapper', () => {
 
     it('finds and counts nested records', async () => {
       // arrange
-      const encounter = await buildNestedEncounter(ctx, patientId)();
+      const encounter = await buildNestedEncounter(ctx, patientId);
 
       const otherPatientId = uuidv4(); // add another encounter to test nested record isolation
-      const otherEncounter = await buildNestedEncounter(ctx, otherPatientId)();
-      await ctx.wrapper.upsert(`patient/${otherPatientId}/encounter`, otherEncounter);
+      const otherEncounter = await buildNestedEncounter(ctx, otherPatientId);
+      await ctx.upsert(`patient/${otherPatientId}/encounter`, otherEncounter);
 
       // act
-      await ctx.wrapper.upsert(encounterChannel, encounter);
-      const foundEncounters = await ctx.wrapper.findSince(encounterChannel, 0);
+      await ctx.upsert(encounterChannel, encounter);
+      const foundEncounters = await ctx.findSince(encounterChannel, 0);
 
       // assert
       expect(foundEncounters.length).toBe(1);
@@ -195,14 +197,14 @@ describe('sqlWrapper', () => {
 
     it('marks related objects as deleted', async () => {
       // arrange
-      const encounter = await buildNestedEncounter(ctx, patientId)();
-      await ctx.wrapper.upsert(encounterChannel, encounter);
+      const encounter = await buildNestedEncounter(ctx, patientId);
+      await ctx.upsert(encounterChannel, encounter);
 
       // act
-      await ctx.wrapper.markRecordDeleted(encounterChannel, encounter.id);
+      await ctx.markRecordDeleted(encounterChannel, encounter.id);
 
       // assert
-      const [foundEncounter] = await ctx.wrapper.findSince(encounterChannel, 0);
+      const [foundEncounter] = await ctx.findSince(encounterChannel, 0);
       expect(foundEncounter).toHaveProperty('deletedAt', expect.any(Date));
       expect(foundEncounter).toHaveProperty(
         ['administeredVaccines', 0, 'deletedAt'],
@@ -217,13 +219,13 @@ describe('sqlWrapper', () => {
 
     it('inserts an encounter without nested relationships', async () => {
       // arrange
-      const encounter = await buildEncounter(ctx, patientId)();
+      const encounter = await buildEncounter(ctx, patientId);
       encounter.surveyResponses = null;
       encounter.administeredVaccines = null;
 
       // act
-      await ctx.wrapper.upsert(encounterChannel, encounter);
-      const foundEncounters = await ctx.wrapper.findSince(encounterChannel, 0);
+      await ctx.upsert(encounterChannel, encounter);
+      const foundEncounters = await ctx.findSince(encounterChannel, 0);
 
       // assert
       expect(foundEncounters.length).toBe(1);

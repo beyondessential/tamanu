@@ -24,6 +24,8 @@ export * from './ImagingRequest';
 
 export * from './Program';
 export * from './Survey';
+export * from './SurveyScreenComponent';
+export * from './ProgramDataElement';
 export * from './SurveyResponse';
 
 export * from './Referral';

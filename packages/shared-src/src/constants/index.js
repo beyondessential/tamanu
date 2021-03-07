@@ -183,3 +183,10 @@ export const COMMUNICATION_STATUSES = {
 };
 
 export const COMMUNICATION_STATUSES_VALUES = Object.values(COMMUNICATION_STATUSES);
+
+export const SYNC_DIRECTIONS = {
+  DO_NOT_SYNC: 'do_not_sync',
+  PUSH_ONLY: 'push_only',
+  PULL_ONLY: 'pull_only',
+  BIDIRECTIONAL: 'bidirectional',
+};
