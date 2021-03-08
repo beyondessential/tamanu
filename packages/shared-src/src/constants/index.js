@@ -1,3 +1,5 @@
+
+
 export const HTTP_METHOD_TO_ACTION = {
   GET: 'read',
   POST: 'create',
@@ -190,3 +192,8 @@ export const SYNC_DIRECTIONS = {
   PULL_ONLY: 'pull_only',
   BIDIRECTIONAL: 'bidirectional',
 };
+
+// these are arbitrary, the only thing that matters is they are shared between desktop and lan
+export const DISCOVERY_PORT = 53391;
+export const DISCOVERY_MAGIC_STRING = 'ee671721-9d4d-4e0e-b231-81872206a735';
+
