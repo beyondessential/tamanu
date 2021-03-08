@@ -1,22 +1,38 @@
 import { fakePatient, buildNestedEncounter } from 'shared/test-helpers';
-import { createExportPlan, executeExportPlan, includeFromTree } from '~/sync/export';
+import { createExportPlan, executeExportPlan } from '~/sync/export';
 import { createTestContext } from '../utilities';
 
 const expectDeepMatch = (dbRecord, syncRecord) => {
   Object.keys(dbRecord).forEach(field => {
     if (Array.isArray(dbRecord[field])) {
       // iterate over relation fields
-      expect(syncRecord.data).toHaveProperty(field, expect.any(Array));
+      expect(syncRecord.data).toHaveProperty(`${field}.length`);
       dbRecord[field].forEach(childDbRecord => {
         const childSyncRecord = syncRecord.data[field].find(r => r.data.id === childDbRecord.id);
         expect(childSyncRecord).toBeDefined();
         expectDeepMatch(childDbRecord, childSyncRecord);
       });
+    } else if (dbRecord[field] instanceof Date) {
+      expect(syncRecord.data).toHaveProperty(field, dbRecord[field].toISOString());
     } else {
-      // perform normal equality check on non-relation fields
       expect(syncRecord.data).toHaveProperty(field, dbRecord[field]);
     }
   });
+};
+
+const upsertAssociations = async (model, record) => {
+  for (const [name, association] of Object.entries(model.associations)) {
+    const associatedRecords = record[name];
+    if (associatedRecords) {
+      for (const associatedRecord of associatedRecords) {
+        await association.target.upsert({
+          ...associatedRecord,
+          [association.foreignKey]: record.id,
+        });
+        await upsertAssociations(association.target, associatedRecord);
+      }
+    }
+  }
 };
 
 describe('export', () => {
@@ -29,7 +45,7 @@ describe('export', () => {
 
   const testCases = [
     ['Patient', fakePatient],
-    ['Encounter', () => buildNestedEncounter(context)],
+    ['Encounter', async () => buildNestedEncounter(context)],
   ];
   testCases.forEach(([modelName, fakeRecord]) => {
     describe(modelName, () => {
@@ -37,11 +53,16 @@ describe('export', () => {
         // arrange
         const model = models[modelName];
         const plan = createExportPlan(model);
+        await model.truncate();
         const records = [await fakeRecord(), await fakeRecord()].sort((r1, r2) =>
           r1.id.localeCompare(r2.id),
         );
-        await model.truncate();
-        await Promise.all(records.map(record => model.create(record)));
+        await Promise.all(
+          records.map(async record => {
+            await model.create(record);
+            await upsertAssociations(model, record);
+          }),
+        );
 
         // act
         const firstRecords = await executeExportPlan(plan, { limit: 1 });
