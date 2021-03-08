@@ -59,7 +59,6 @@ export class TamanuApi {
   }
 
   setHost(host) {
-    console.log('set host', host);
     this.host = host;
     this.prefix = `${host}/v1`;
     this.fayeClient = new faye.Client(`${host}/faye`);
