@@ -18,6 +18,8 @@ const toSyncRecord = record => ({
     let val = oldVal;
     if (Array.isArray(val)) {
       val = val.map(r => toSyncRecord(r));
+    } else if (val instanceof Date) {
+      val = val.toISOString();
     }
     return { ...data, [k]: val };
   }, {}),

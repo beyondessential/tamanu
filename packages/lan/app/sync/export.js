@@ -1,5 +1,5 @@
-import { Op } from 'sequelize';
-import { memoize, without, pick } from 'lodash';
+import { Op, Sequelize } from 'sequelize';
+import { memoize, without } from 'lodash';
 import { propertyPathsToTree } from './metadata';
 
 export const createExportPlan = memoize(model => {
@@ -8,6 +8,7 @@ export const createExportPlan = memoize(model => {
 });
 
 const createExportPlanInner = (model, relationTree, foreignKey = null) => {
+  // generate nested association exporters
   const associations = Object.entries(relationTree).reduce((memo, [associationName, subTree]) => {
     const association = model.associations[associationName];
     return {
@@ -16,8 +17,19 @@ const createExportPlanInner = (model, relationTree, foreignKey = null) => {
     };
   }, {});
 
-  const allColumns = Object.keys(model.tableAttributes);
-  const columns = without(allColumns, ...model.excludedSyncColumns);
+  // generate formatters for columns
+  const allColumnNames = Object.keys(model.tableAttributes);
+  const columns = without(allColumnNames, ...model.excludedSyncColumns).reduce(
+    (memo, columnName) => {
+      const columnType = model.tableAttributes[columnName].type;
+      let formatter = null; // default to passing the value straight through
+      if (columnType instanceof Sequelize.DATE) {
+        formatter = date => date?.toISOString();
+      }
+      return { ...memo, [columnName]: formatter };
+    },
+    {},
+  );
 
   return { model, associations, foreignKey, columns };
 };
@@ -45,8 +57,12 @@ export const executeExportPlanInner = async ({ model, associations, columns }, o
 
   const syncRecords = [];
   for (const dbRecord of dbRecords) {
-    // format as a syncRecord
-    const syncRecord = { data: sanitiseRecord(pick(dbRecord.dataValues, columns)) };
+    // format columns
+    const syncRecord = { data: {} };
+    for (const [columnName, columnFormatter] of Object.entries(columns)) {
+      const value = dbRecord[columnName];
+      syncRecord.data[columnName] = columnFormatter ? columnFormatter(value) : value;
+    }
 
     // query associations
     for (const [associationName, associationPlan] of Object.entries(associations)) {
@@ -62,19 +78,4 @@ export const executeExportPlanInner = async ({ model, associations, columns }, o
   }
 
   return syncRecords;
-};
-
-const sanitiseRecord = record =>
-  Object.entries(record).reduce((memo, [k, v]) => ({ ...memo, [k]: sanitiseField(v) }), {});
-
-const sanitiseField = value => {
-  // TODO: generate functions to do this per-field in createExportPlan
-  // TODO: implement equivalent in createImportPlan
-  if (typeof value === 'string' || typeof value === 'number' || typeof value === 'boolean') {
-    return value;
-  }
-  if (value instanceof Date) {
-    return value.toISOString();
-  }
-  return null;
 };
