@@ -327,7 +327,7 @@ export const socialMediaOptions = [
   { value: 'LinkedIn', label: 'LinkedIn' },
   { value: 'Twitter', label: 'Twitter' },
   { value: 'Viber', label: 'Viber' },
-  { value: 'Whatsapp', label: 'Whatsapp' },
+  { value: 'WhatsApp', label: 'WhatsApp' },
 ];
 
 export const maritalStatusOptions = [
