@@ -4,7 +4,7 @@ import { VERSION_COMPATIBILITY_ERRORS } from 'shared/constants';
 // If a new version of the desktop app is being released in conjunction with an update to the LAN
 // server, set MIN_CLIENT_VERSION to reflect that, and desktop users will be logged out until they
 // have updated.
-const MIN_CLIENT_VERSION = '1.0.0';
+export const MIN_CLIENT_VERSION = '1.0.0';
 const MAX_CLIENT_VERSION = '1.0.0';
 
 export const versionCompatibility = (req, res, next) => {
