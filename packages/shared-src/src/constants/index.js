@@ -180,6 +180,7 @@ export const COMMUNICATION_STATUSES = {
   SENT: 'Sent',
   ERROR: 'Error',
   DELIVERED: 'Delivered',
+  BAD_FORMAT: 'Bad Format',
 };
 
 export const COMMUNICATION_STATUSES_VALUES = Object.values(COMMUNICATION_STATUSES);
