@@ -40,7 +40,7 @@ export const fakeEncounter = (): IEncounter => {
     encounterType: EncounterType.Clinic,
     startDate: new Date(),
     reasonForEncounter: 'encounter-reason',
-    deviceId: 'dummyDevice'
+    deviceId: null
   };
 };
 
