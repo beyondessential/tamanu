@@ -2,7 +2,6 @@ import { Op } from 'sequelize';
 import { memoize, without, pick } from 'lodash';
 import { propertyPathsToTree } from './metadata';
 
-// TODO: nested model support
 export const createExportPlan = memoize(model => {
   const relationTree = propertyPathsToTree(model.includedSyncRelations);
   return createExportPlanInner(model, relationTree);
@@ -69,6 +68,8 @@ const sanitiseRecord = record =>
   Object.entries(record).reduce((memo, [k, v]) => ({ ...memo, [k]: sanitiseField(v) }), {});
 
 const sanitiseField = value => {
+  // TODO: generate functions to do this per-field in createExportPlan
+  // TODO: implement equivalent in createImportPlan
   if (typeof value === 'string' || typeof value === 'number' || typeof value === 'boolean') {
     return value;
   }
