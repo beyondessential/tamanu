@@ -19,20 +19,34 @@ const getResponseJsonSafely = async response => {
   }
 };
 
-const getVersionIncompatibleMessage = async response => {
-  const { error } = await getResponseJsonSafely(response); // ignore json parsing errors
-
-  if (error === VERSION_COMPATIBILITY_ERRORS.LOW) {
+const getVersionIncompatibleMessage = async (error, response) => {
+  if (error.message === VERSION_COMPATIBILITY_ERRORS.LOW) {
     const minAppVersion = response.headers.get('X-Min-Client-Version');
     return `Please upgrade to Tamanu Desktop v${minAppVersion} or higher. Try closing and reopening, or contact your system administrator.`;
   }
 
-  if (error === VERSION_COMPATIBILITY_ERRORS.HIGH) {
+  if (error.message === VERSION_COMPATIBILITY_ERRORS.HIGH) {
     const maxAppVersion = response.headers.get('X-Max-Client-Version');
     return `The Tamanu LAN Server only supports up to v${maxAppVersion}, and needs to be upgraded. Please contact your system administrator.`;
   }
 
   return null;
+};
+
+const fetchOrThrowIfUnavailable = async (host, url, config) => {
+  try {
+    const response = await fetch(url, config);
+    return response;
+  } catch (e) {
+    console.log(e.message);
+    // apply more helpful message if the server is not available
+    if (e.message === 'Failed to fetch') {
+      throw new Error(
+        `The LAN Server is unavailable. Please check with your system administrator that it is running at ${host}`,
+      );
+    }
+    throw e; // some other unhandled error
+  }
 };
 
 export class TamanuApi {
@@ -78,7 +92,7 @@ export class TamanuApi {
     const { headers, ...otherConfig } = config;
     const queryString = encodeQueryString(query || {});
     const url = `${this.prefix}/${endpoint}${query ? `?${queryString}` : ''}`;
-    const response = await fetch(url, {
+    const response = await fetchOrThrowIfUnavailable(this.host, url, {
       headers: {
         ...this.authHeader,
         ...headers,
@@ -95,7 +109,10 @@ export class TamanuApi {
 
       return response.json();
     }
+
     console.error(response);
+
+    const { error } = await getResponseJsonSafely(response);
 
     // handle auth expiring
     if ([401, 403].includes(response.status) && this.onAuthFailure) {
@@ -103,8 +120,8 @@ export class TamanuApi {
     }
 
     // handle version incompatibility
-    if (response.status === 400) {
-      const versionIncompatibleMessage = await getVersionIncompatibleMessage(response);
+    if (response.status === 400 && error) {
+      const versionIncompatibleMessage = await getVersionIncompatibleMessage(error, response);
       if (versionIncompatibleMessage) {
         if (this.onVersionIncompatible) {
           this.onVersionIncompatible(versionIncompatibleMessage);
@@ -112,8 +129,7 @@ export class TamanuApi {
         throw new Error(versionIncompatibleMessage);
       }
     }
-
-    throw new Error(response.status);
+    throw new Error(error?.message || response.status);
   }
 
   async get(endpoint, query) {

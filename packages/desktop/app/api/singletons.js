@@ -1,17 +1,16 @@
 import React from 'react';
 import { TamanuApi } from './TamanuApi';
-import { version } from '../package.json';
-
 import { discoverServer } from './discovery';
+import { version } from '../package.json';
 
 (async () => {
   // TODO: incorporate discovered server into TamanuApi object
   const serverDetails = await discoverServer();
-  if(!serverDetails) return;
+  if (!serverDetails) return;
 
   const { protocol, address, port } = serverDetails;
   const host = `${protocol}://${address}:${port}`;
-  console.log("Discovered server", host);
+  console.log('Discovered server', host);
 })();
 
 const host = process.env.HOST;
