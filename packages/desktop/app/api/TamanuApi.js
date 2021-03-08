@@ -33,6 +33,22 @@ const getVersionIncompatibleMessage = async (error, response) => {
   return null;
 };
 
+const fetchOrThrowIfUnavailable = async (host, url, config) => {
+  try {
+    const response = await fetch(url, config);
+    return response;
+  } catch (e) {
+    console.log(e.message);
+    // apply more helpful message if the server is not available
+    if (e.message === 'Failed to fetch') {
+      throw new Error(
+        `The LAN Server is unavailable. Please check with your system administrator that it is running at ${host}`,
+      );
+    }
+    throw e; // some other unhandled error
+  }
+};
+
 export class TamanuApi {
   constructor(host, appVersion) {
     this.host = host;
@@ -76,7 +92,7 @@ export class TamanuApi {
     const { headers, ...otherConfig } = config;
     const queryString = encodeQueryString(query || {});
     const url = `${this.prefix}/${endpoint}${query ? `?${queryString}` : ''}`;
-    const response = await fetch(url, {
+    const response = await fetchOrThrowIfUnavailable(this.host, url, {
       headers: {
         ...this.authHeader,
         ...headers,
@@ -93,6 +109,7 @@ export class TamanuApi {
 
       return response.json();
     }
+
     console.error(response);
 
     const { error } = await getResponseJsonSafely(response);
