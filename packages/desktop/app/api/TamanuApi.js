@@ -19,9 +19,7 @@ const getResponseJsonSafely = async response => {
   }
 };
 
-const getVersionIncompatibleMessage = async response => {
-  const { error } = await getResponseJsonSafely(response); // ignore json parsing errors
-
+const getVersionIncompatibleMessage = async (error, response) => {
   if (error.message === VERSION_COMPATIBILITY_ERRORS.LOW) {
     const minAppVersion = response.headers.get('X-Min-Client-Version');
     return `Please upgrade to Tamanu Desktop v${minAppVersion} or higher. Try closing and reopening, or contact your system administrator.`;
@@ -97,14 +95,16 @@ export class TamanuApi {
     }
     console.error(response);
 
+    const { error } = await getResponseJsonSafely(response);
+
     // handle auth expiring
     if ([401, 403].includes(response.status) && this.onAuthFailure) {
       this.onAuthFailure('Your session has expired. Please log in again.');
     }
 
     // handle version incompatibility
-    if (response.status === 400) {
-      const versionIncompatibleMessage = await getVersionIncompatibleMessage(response);
+    if (response.status === 400 && error) {
+      const versionIncompatibleMessage = await getVersionIncompatibleMessage(error, response);
       if (versionIncompatibleMessage) {
         if (this.onVersionIncompatible) {
           this.onVersionIncompatible(versionIncompatibleMessage);
@@ -112,8 +112,7 @@ export class TamanuApi {
         throw new Error(versionIncompatibleMessage);
       }
     }
-
-    throw new Error(response.status);
+    throw new Error(error?.message || response.status);
   }
 
   async get(endpoint, query) {

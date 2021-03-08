@@ -48,7 +48,7 @@ export async function loginHandler(req, res, next) {
   const passwordMatch = await comparePassword(user, password);
 
   if (!passwordMatch) {
-    next(new BadAuthenticationError());
+    next(new BadAuthenticationError('Incorrect username or password, please try again'));
     return;
   }
 
@@ -74,7 +74,7 @@ async function getUserFromToken(request) {
 
   const bearer = authHeader.match(/Bearer (\S*)/);
   if (!bearer) {
-    throw new BadAuthenticationError();
+    throw new BadAuthenticationError('Missing auth token header');
   }
 
   const token = bearer[1];
@@ -82,7 +82,9 @@ async function getUserFromToken(request) {
     const { userId } = decodeToken(token);
     return models.User.findByPk(userId);
   } catch (e) {
-    throw new BadAuthenticationError();
+    throw new BadAuthenticationError(
+      'Your session has expired or is invalid. Please log in again.',
+    );
   }
 }
 
