@@ -331,7 +331,7 @@ export const socialMediaOptions = [
 ];
 
 export const maritalStatusOptions = [
-  { value: 'Defacto', label: 'Defacto' },
+  { value: 'Defacto', label: 'De facto' },
   { value: 'Married', label: 'Married' },
   { value: 'Single', label: 'Single' },
   { value: 'Widow', label: 'Widow' },
