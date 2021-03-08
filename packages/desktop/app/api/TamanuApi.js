@@ -33,7 +33,7 @@ const getVersionIncompatibleMessage = async (error, response) => {
   return null;
 };
 
-const fetchOrThrowIfUnavailable = async (host, url, config) => {
+const fetchOrThrowIfUnavailable = async (url, config) => {
   try {
     const response = await fetch(url, config);
     return response;
@@ -42,7 +42,7 @@ const fetchOrThrowIfUnavailable = async (host, url, config) => {
     // apply more helpful message if the server is not available
     if (e.message === 'Failed to fetch') {
       throw new Error(
-        `The LAN Server is unavailable. Please check with your system administrator that it is running at ${host}`,
+        'The LAN Server is unavailable. Please check with your system administrator that the address is set correctly, and that it is running',
       );
     }
     throw e; // some other unhandled error
@@ -50,14 +50,22 @@ const fetchOrThrowIfUnavailable = async (host, url, config) => {
 };
 
 export class TamanuApi {
-  constructor(host, appVersion) {
-    this.host = host;
-    this.prefix = `${host}/v1`;
+  constructor(appVersion) {
     this.appVersion = appVersion;
     this.onAuthFailure = null;
     this.authHeader = null;
     this.onVersionIncompatible = null;
+    this.pendingSubscriptions = [];
+  }
+
+  setHost(host) {
+    this.host = host;
+    this.prefix = `${host}/v1`;
     this.fayeClient = new faye.Client(`${host}/faye`);
+    this.pendingSubscriptions.forEach(({ recordType, changeType, callback }) =>
+      this.subscribeToChanges(recordType, changeType, callback),
+    );
+    this.pendingSubscriptions = [];
   }
 
   setAuthFailureHandler(handler) {
@@ -89,10 +97,13 @@ export class TamanuApi {
   }
 
   async fetch(endpoint, query, config) {
+    if (!this.host) {
+      throw new Error("TamanuApi can't be used until the host is set");
+    }
     const { headers, ...otherConfig } = config;
     const queryString = encodeQueryString(query || {});
     const url = `${this.prefix}/${endpoint}${query ? `?${queryString}` : ''}`;
-    const response = await fetchOrThrowIfUnavailable(this.host, url, {
+    const response = await fetchOrThrowIfUnavailable(url, {
       headers: {
         ...this.authHeader,
         ...headers,
@@ -173,10 +184,16 @@ export class TamanuApi {
   }
 
   /**
-   * @param {*} changeType  Current one of save, remove, wipe, or * for all
+   * @param {*} changeType  Currently one of save, remove, wipe, or * for all
    */
-  async subscribeToChanges(recordType, changeType, callback) {
-    const channel = `/${recordType}${changeType ? `/${changeType}` : '/*'}`;
-    return this.fayeClient.subscribe(channel, callback);
+  subscribeToChanges(recordType, changeType, callback) {
+    console.log('subbing', recordType, changeType);
+    // until the faye client has been set up, push any subscriptions into an array
+    if (!this.fayeClient) {
+      this.pendingSubscriptions.push({ recordType, changeType, callback });
+    } else {
+      const channel = `/${recordType}${changeType ? `/${changeType}` : '/*'}`;
+      this.fayeClient.subscribe(channel, callback);
+    }
   }
 }
