@@ -189,7 +189,7 @@ export class SurveyResponse extends Model {
     );
   }
 
-  static async create(data) {
+  static async createWithAnswers(data) {
     const models = this.sequelize.models;
     const { answers, surveyId, patientId, ...responseData } = data;
 
@@ -207,7 +207,7 @@ export class SurveyResponse extends Model {
     );
 
     const encounter = await this.getSurveyEncounter(models, survey, data);
-    const record = await super.create({
+    const record = await SurveyResponse.create({
       ...responseData,
       patientId,
       surveyId,

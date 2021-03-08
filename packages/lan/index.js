@@ -14,6 +14,8 @@ import {
   writeSurveyToDatabase,
 } from './app/surveyImporter';
 
+import { listenForServerQueries } from './app/discovery';
+
 const port = config.port;
 
 async function importDemoPrograms(models) {
@@ -78,6 +80,8 @@ export async function run() {
   const server = app.listen(port, () => {
     log.info(`Server is running on port ${port}!`);
   });
+
+  listenForServerQueries();
 
   startScheduledTasks(context);
 

@@ -1,4 +1,5 @@
 import faye from 'faye';
+import { VERSION_COMPATIBILITY_ERRORS } from 'shared/constants';
 
 const encodeQueryString = query =>
   Object.entries(query)
@@ -8,17 +9,63 @@ const encodeQueryString = query =>
 
 const REFRESH_DURATION = 2.5 * 60 * 1000; // refresh if token is more than 2.5 minutes old
 
+const getResponseJsonSafely = async response => {
+  try {
+    return response.json();
+  } catch (e) {
+    // log json parsing errors, but still return a valid object
+    console.error(e);
+    return {};
+  }
+};
+
+const getVersionIncompatibleMessage = async (error, response) => {
+  if (error.message === VERSION_COMPATIBILITY_ERRORS.LOW) {
+    const minAppVersion = response.headers.get('X-Min-Client-Version');
+    return `Please upgrade to Tamanu Desktop v${minAppVersion} or higher. Try closing and reopening, or contact your system administrator.`;
+  }
+
+  if (error.message === VERSION_COMPATIBILITY_ERRORS.HIGH) {
+    const maxAppVersion = response.headers.get('X-Max-Client-Version');
+    return `The Tamanu LAN Server only supports up to v${maxAppVersion}, and needs to be upgraded. Please contact your system administrator.`;
+  }
+
+  return null;
+};
+
+const fetchOrThrowIfUnavailable = async (host, url, config) => {
+  try {
+    const response = await fetch(url, config);
+    return response;
+  } catch (e) {
+    console.log(e.message);
+    // apply more helpful message if the server is not available
+    if (e.message === 'Failed to fetch') {
+      throw new Error(
+        `The LAN Server is unavailable. Please check with your system administrator that it is running at ${host}`,
+      );
+    }
+    throw e; // some other unhandled error
+  }
+};
+
 export class TamanuApi {
-  constructor(host) {
+  constructor(host, appVersion) {
     this.host = host;
     this.prefix = `${host}/v1`;
+    this.appVersion = appVersion;
     this.onAuthFailure = null;
     this.authHeader = null;
+    this.onVersionIncompatible = null;
     this.fayeClient = new faye.Client(`${host}/faye`);
   }
 
   setAuthFailureHandler(handler) {
     this.onAuthFailure = handler;
+  }
+
+  setVersionIncompatibleHandler(handler) {
+    this.onVersionIncompatible = handler;
   }
 
   async login(email, password) {
@@ -45,10 +92,11 @@ export class TamanuApi {
     const { headers, ...otherConfig } = config;
     const queryString = encodeQueryString(query || {});
     const url = `${this.prefix}/${endpoint}${query ? `?${queryString}` : ''}`;
-    const response = await fetch(url, {
+    const response = await fetchOrThrowIfUnavailable(this.host, url, {
       headers: {
         ...this.authHeader,
         ...headers,
+        'X-Client-Version': this.appVersion,
       },
       ...otherConfig,
     });
@@ -61,15 +109,27 @@ export class TamanuApi {
 
       return response.json();
     }
+
     console.error(response);
 
-    if (response.status === 403 || response.status === 401) {
-      if (this.onAuthFailure) {
-        this.onAuthFailure(response);
-      }
+    const { error } = await getResponseJsonSafely(response);
+
+    // handle auth expiring
+    if ([401, 403].includes(response.status) && this.onAuthFailure) {
+      this.onAuthFailure('Your session has expired. Please log in again.');
     }
 
-    throw new Error(response.status);
+    // handle version incompatibility
+    if (response.status === 400 && error) {
+      const versionIncompatibleMessage = await getVersionIncompatibleMessage(error, response);
+      if (versionIncompatibleMessage) {
+        if (this.onVersionIncompatible) {
+          this.onVersionIncompatible(versionIncompatibleMessage);
+        }
+        throw new Error(versionIncompatibleMessage);
+      }
+    }
+    throw new Error(error?.message || response.status);
   }
 
   async get(endpoint, query) {

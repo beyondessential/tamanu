@@ -8,7 +8,6 @@ import MiniCssExtractPlugin from 'mini-css-extract-plugin';
 import OptimizeCSSAssetsPlugin from 'optimize-css-assets-webpack-plugin';
 import { BundleAnalyzerPlugin } from 'webpack-bundle-analyzer';
 import merge from 'webpack-merge';
-import UglifyJSPlugin from 'uglifyjs-webpack-plugin';
 import baseConfig from './webpack.config.base';
 import CheckNodeEnv from './internals/scripts/CheckNodeEnv';
 
@@ -146,11 +145,6 @@ export default merge.smart(baseConfig, {
 
   optimization: {
     minimizer: [
-      new UglifyJSPlugin({
-        parallel: true,
-        sourceMap: true,
-        cache: true,
-      }),
       new OptimizeCSSAssetsPlugin({
         cssProcessorOptions: {
           map: {
@@ -159,6 +153,7 @@ export default merge.smart(baseConfig, {
           },
         },
       }),
+      '...',
     ],
   },
 

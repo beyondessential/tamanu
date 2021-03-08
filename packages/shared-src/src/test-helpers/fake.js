@@ -3,7 +3,6 @@ import { v4 as uuidv4 } from 'uuid';
 import {
   ENCOUNTER_TYPE_VALUES,
   PROGRAM_DATA_ELEMENT_TYPE_VALUES,
-  REFERENCE_TYPES,
   REFERENCE_TYPE_VALUES,
 } from 'shared/constants';
 
@@ -17,11 +16,11 @@ export function fakeStringFields(prefix, fields) {
   );
 }
 
-export function fakePatient(prefix = '') {
+export function fakePatient(prefix = 'test-') {
   const id = uuidv4();
   return {
-    id,
     ...fakeStringFields(`${prefix}patient_${id}_`, [
+      'id',
       'firstName',
       'middleName',
       'lastName',
@@ -35,30 +34,32 @@ export function fakePatient(prefix = '') {
   };
 }
 
-export function fakeScheduledVaccine(prefix = '') {
+export function fakeScheduledVaccine(prefix = 'test-') {
   const id = uuidv4();
   return {
-    id,
     weeksFromBirthDue: random(0, 1000),
     index: random(0, 50),
     vaccineId: null,
-    ...fakeStringFields(`${prefix}scheduledVaccine_${id}_`, ['category', 'label', 'schedule']),
+    ...fakeStringFields(`${prefix}scheduledVaccine_${id}_`, [
+      'id',
+      'category',
+      'label',
+      'schedule',
+    ]),
   };
 }
 
-export function fakeSurvey(prefix = '') {
+export function fakeSurvey(prefix = 'test-') {
   const id = uuidv4();
   return {
-    id,
     programId: null,
-    ...fakeStringFields(`${prefix}survey_${id}_`, ['code', 'name']),
+    ...fakeStringFields(`${prefix}survey_${id}_`, ['id', 'code', 'name']),
   };
 }
 
-export function fakeSurveyScreenComponent(prefix = '') {
+export function fakeSurveyScreenComponent(prefix = 'test-') {
   const id = uuidv4();
   return {
-    id,
     surveyId: null,
     dataElementId: null,
     screenIndex: random(0, 100),
@@ -66,6 +67,7 @@ export function fakeSurveyScreenComponent(prefix = '') {
     options: '{"foo":"bar"}',
     calculation: '',
     ...fakeStringFields(`${prefix}surveyScreenComponent_${id}_`, [
+      'id',
       'text',
       'visibilityCriteria',
       'validationCriteria',
@@ -75,12 +77,12 @@ export function fakeSurveyScreenComponent(prefix = '') {
   };
 }
 
-export function fakeProgramDataElement(prefix = '') {
+export function fakeProgramDataElement(prefix = 'test-') {
   const id = uuidv4();
   return {
-    id,
     type: sample(PROGRAM_DATA_ELEMENT_TYPE_VALUES),
     ...fakeStringFields(`${prefix}programDataElement_${id}_`, [
+      'id',
       'code',
       'name',
       'indicator',
@@ -90,39 +92,32 @@ export function fakeProgramDataElement(prefix = '') {
   };
 }
 
-export function fakeReferenceData(prefix = '') {
+export function fakeReferenceData(prefix = 'test-') {
   const id = uuidv4();
   return {
-    id,
     type: sample(REFERENCE_TYPE_VALUES),
-    ...fakeStringFields(`${prefix}referenceData_${id}_`, ['name', 'code']),
+    ...fakeStringFields(`${prefix}referenceData_${id}_`, ['id', 'name', 'code']),
   };
 }
 
-export function fakeUser(prefix = '') {
+export function fakeUser(prefix = 'test-') {
   const id = uuidv4();
-  return {
-    id,
-    ...fakeStringFields(`${prefix}user_${id}_`, ['email', 'displayName', 'role']),
-  };
+  return fakeStringFields(`${prefix}user_${id}_`, ['id', 'email', 'displayName', 'role']);
 }
 
-export function fakeProgram(prefix = '') {
+export function fakeProgram(prefix = 'test-') {
   const id = uuidv4();
-  return {
-    id,
-    ...fakeStringFields(`${prefix}program_${id})_`, ['name', 'code']),
-  };
+  return fakeStringFields(`${prefix}program_${id})_`, ['id', 'name', 'code']);
 }
 
-export function fakeAdministeredVaccine(prefix = '') {
+export function fakeAdministeredVaccine(prefix = 'test-') {
   const id = uuidv4();
   return {
-    id,
     encounterId: null,
     scheduledVaccineId: null,
     date: new Date(random(0, Date.now())),
     ...fakeStringFields(`${prefix}administeredVaccine_${id}_`, [
+      'id',
       'batch',
       'status',
       'reason',
@@ -131,39 +126,37 @@ export function fakeAdministeredVaccine(prefix = '') {
   };
 }
 
-export function fakeEncounter(prefix = '') {
+export function fakeEncounter(prefix = 'test-') {
   const id = uuidv4();
   return {
-    id,
     deviceId: null,
     surveyResponses: [],
     administeredVaccines: [],
     encounterType: sample(ENCOUNTER_TYPE_VALUES),
     startDate: new Date(random(0, Date.now())),
     endDate: new Date(random(0, Date.now())),
-    ...fakeStringFields(`${prefix}encounter_${id}_`, ['reasonForEncounter']),
+    ...fakeStringFields(`${prefix}encounter_${id}_`, ['id', 'reasonForEncounter']),
   };
 }
 
-export function fakeSurveyResponse() {
+export function fakeSurveyResponse(prefix = 'test-') {
   const id = uuidv4();
   return {
-    id,
     answers: [],
     encounterId: null,
     surveyId: null,
     startTime: new Date(random(0, Date.now())),
     endTime: new Date(random(0, Date.now())),
     result: Math.random() * 100,
+    ...fakeStringFields(`${prefix}surveyResponse_${id}_`, ['id']),
   };
 }
 
-export function fakeSurveyResponseAnswer(prefix = '') {
+export function fakeSurveyResponseAnswer(prefix = 'test-') {
   const id = uuidv4();
   return {
-    id,
     dataElementId: null,
     responseId: null,
-    ...fakeStringFields(`${prefix}surveyResponseAnswer_${id}_`, ['name', 'body']),
+    ...fakeStringFields(`${prefix}surveyResponseAnswer_${id}_`, ['id', 'name', 'body']),
   };
 }

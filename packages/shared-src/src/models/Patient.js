@@ -1,4 +1,5 @@
 import { Sequelize } from 'sequelize';
+import { SYNC_DIRECTIONS } from 'shared/constants';
 import { Model } from './Model';
 
 export class Patient extends Model {
@@ -40,4 +41,6 @@ export class Patient extends Model {
       foreignKey: 'villageId',
     });
   }
+
+  static syncDirection = SYNC_DIRECTIONS.BIDIRECTIONAL;
 }

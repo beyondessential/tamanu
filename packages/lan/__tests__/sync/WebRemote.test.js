@@ -81,8 +81,8 @@ describe('WebRemote', () => {
     });
   });
 
-  describe('receive', () => {
-    it('receives records', async () => {
+  describe('pull', () => {
+    it('pulls records', async () => {
       const remote = new WebRemote();
       const body = {
         records: [{ id: 'abc' }],
@@ -90,15 +90,31 @@ describe('WebRemote', () => {
         requestedAt: 123456,
       };
       fetch.mockReturnValueOnce(authSuccess).mockReturnValueOnce(fakeSuccess(body));
-      expect(remote.receive('reference')).resolves.toEqual(body);
+      expect(remote.pull('reference')).resolves.toEqual(body);
     });
 
     it('throws an error on an invalid response', async () => {
       const remote = new WebRemote();
       fetch.mockReturnValueOnce(authSuccess).mockReturnValueOnce(fakeFailure(403));
-      expect(remote.receive('reference')).rejects.toThrow(InvalidOperationError);
+      expect(remote.pull('reference')).rejects.toThrow(InvalidOperationError);
     });
   });
 
-  it.todo('sends records');
+  describe('push', () => {
+    it('pushes records', async () => {
+      const remote = new WebRemote();
+      const body = {
+        count: 1,
+        requestedAt: 123456,
+      };
+      fetch.mockReturnValueOnce(authSuccess).mockReturnValueOnce(fakeSuccess(body));
+      expect(remote.push('reference', [{ id: 'abc' }])).resolves.toEqual(body);
+    });
+
+    it('throws an error on an invalid response', async () => {
+      const remote = new WebRemote();
+      fetch.mockReturnValueOnce(authSuccess).mockReturnValueOnce(fakeFailure(403));
+      expect(remote.push('reference')).rejects.toThrow(InvalidOperationError);
+    });
+  });
 });

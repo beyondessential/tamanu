@@ -1,7 +1,6 @@
 import { Sequelize } from 'sequelize';
 import { createNamespace } from 'cls-hooked';
 import pg from 'pg';
-import * as models from '../models';
 import Umzug from 'umzug';
 import { readdirSync } from 'fs';
 
@@ -9,6 +8,9 @@ import { readdirSync } from 'fs';
 // to provide the module to sequelize manually
 // issue & resolution here: https://github.com/sequelize/sequelize/issues/9489#issuecomment-486047783
 import sqlite3 from 'sqlite3';
+
+import * as models from '../models';
+import { initSyncClientModeHooks } from '../models/sync';
 
 // this is dangerous and should only be used in test mode
 const unsafeRecreatePgDb = async ({ name, username, password, host, port }) => {
@@ -26,9 +28,6 @@ const unsafeRecreatePgDb = async ({ name, username, password, host, port }) => {
     await client.connect();
     await client.query(`DROP DATABASE IF EXISTS "${name}"`);
     await client.query(`CREATE DATABASE "${name}"`);
-  } catch (e) {
-    log.error(`unsafeRecreateDb: ${e.stack}`);
-    throw e;
   } finally {
     await client.end();
   }
@@ -84,6 +83,7 @@ export async function initDatabase(dbOptions) {
     saltRounds=null,
     primaryKeyDefault=Sequelize.UUIDV4,
     hackToSkipEncounterValidation=false, // TODO: remove once mobile implements all relationships
+    syncClientMode=false,
   } = dbOptions;
   let {
     name,
@@ -145,7 +145,7 @@ export async function initDatabase(dbOptions) {
     primaryKey: true,
   };
   log.info(`Registering ${modelClasses.length} models...`);
-  modelClasses.map(modelClass => {
+  modelClasses.forEach(modelClass => {
     modelClass.init(
       {
         underscored: true,
@@ -153,16 +153,22 @@ export async function initDatabase(dbOptions) {
         sequelize,
         paranoid: makeEveryModelParanoid,
         hackToSkipEncounterValidation,
+        syncClientMode,
       },
       models,
     );
   });
 
-  modelClasses.map(modelClass => {
+  modelClasses.forEach(modelClass => {
     if (modelClass.initRelations) {
       modelClass.initRelations(models);
     }
   });
+
+  // init global hooks that live in shared-src
+  if (syncClientMode) {
+    initSyncClientModeHooks(models);
+  }
 
   return { sequelize, models };
 }

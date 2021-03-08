@@ -1,6 +1,9 @@
+import { shouldPush, shouldPull } from 'shared/models/sync';
 import { log } from '~/logging';
-
 import { createImportPlan, executeImportPlan } from './import';
+import { createExportPlan, executeExportPlan } from './export';
+
+const EXPORT_LIMIT = 100;
 
 export class SyncManager {
   host = '';
@@ -14,9 +17,10 @@ export class SyncManager {
     this.remote = remote;
   }
 
-  async receiveAndImport(model, channel) {
+  async pullAndImport(model) {
+    const channel = model.channel();
     const since = await this.getLastSynced(channel);
-    log.info(`SyncManager.receiveAndImport: syncing ${channel} (last: ${since})`);
+    log.info(`SyncManager.pullAndImport: syncing ${channel} (last: ${since})`);
 
     const plan = createImportPlan(model);
     const importRecords = async syncRecords => {
@@ -29,22 +33,20 @@ export class SyncManager {
     let page = 0;
     let requestedAt = null;
     do {
-      // receive
-      log.debug(`SyncManager.receiveAndImport: receiving page ${page} of ${channel}`);
-      const result = await this.remote.receive(channel, { page, since });
+      // pull
+      log.debug(`SyncManager.pullAndImport: pulling page ${page} of ${channel}`);
+      const result = await this.remote.pull(channel, { page, since });
       const syncRecords = result.records;
       requestedAt =
         requestedAt === null ? result.requestedAt : Math.min(requestedAt, result.requestedAt);
       lastCount = syncRecords.length;
       if (lastCount === 0) {
-        log.debug(`SyncManager.receiveAndImport: reached end of ${channel}`);
+        log.debug(`SyncManager.pullAndImport: reached end of ${channel}`);
         break;
       }
 
       // import
-      log.debug(
-        `SyncManager.receiveAndImport: importing ${syncRecords.length} ${model.name} records`,
-      );
+      log.debug(`SyncManager.pullAndImport: importing ${syncRecords.length} ${model.name} records`);
       await importRecords(syncRecords);
 
       page++;
@@ -58,6 +60,45 @@ export class SyncManager {
     return requestedAt;
   }
 
+  async exportAndPush(model) {
+    const channel = model.channel();
+    log.debug(`SyncManager.exportAndPush: syncing ${channel}`);
+
+    // export
+    const plan = createExportPlan(model);
+    const exportRecords = (after = null, limit = EXPORT_LIMIT) => {
+      log.debug(
+        `SyncManager.exportAndPush: exporting up to ${limit} records after ${after?.data?.id}`,
+      );
+      return executeExportPlan(plan, { after, limit });
+    };
+
+    // unmark
+    const unmarkRecords = async records => {
+      await model.update(
+        { markedForPush: false },
+        {
+          where: {
+            id: records.map(r => r.data.id),
+          },
+        },
+      );
+    };
+
+    let after = null;
+    do {
+      const records = await exportRecords(after);
+      after = records[records.length - 1] || null;
+      if (records.length > 0) {
+        log.debug(`SyncManager.exportAndPush: pushing ${records.length} to sync server`);
+        await this.remote.push(channel, records);
+        await unmarkRecords(records);
+      }
+    } while (after !== null);
+
+    log.debug(`SyncManager.exportAndPush: reached end of ${channel}`);
+  }
+
   async getLastSynced(channel) {
     const metadata = await this.context.models.SyncMetadata.findOne({ where: { channel } });
     return metadata?.lastSynced || 0;
@@ -69,9 +110,31 @@ export class SyncManager {
 
   async runSync() {
     const { models } = this.context;
-    for (const [model, channel] of [[models.ReferenceData, 'reference']]) {
-      // import
-      await this.receiveAndImport(model, channel);
+
+    // ordered array because some models depend on others
+    const modelsToSync = [
+      models.ReferenceData,
+      models.User,
+
+      models.ScheduledVaccine,
+
+      models.Program,
+      models.Survey,
+      models.ProgramDataElement,
+      models.SurveyScreenComponent,
+
+      models.Patient,
+
+      models.Encounter,
+    ];
+
+    for (const model of modelsToSync) {
+      if (shouldPull(model)) {
+        await this.pullAndImport(model);
+      }
+      if (shouldPush(model)) {
+        await this.exportAndPush(model);
+      }
     }
   }
 }

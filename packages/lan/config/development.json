@@ -2,6 +2,9 @@
   "admin": {
     "allowAdminRoutes": true
   },
+  "discovery": {
+    "protocol": "http"
+  },
   "db": {
     "name": "develop",
     "sqlitePath": "data/tamanu-dev.db"
