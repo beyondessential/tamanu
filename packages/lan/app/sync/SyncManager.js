@@ -124,6 +124,8 @@ export class SyncManager {
       models.SurveyScreenComponent,
 
       models.Patient,
+
+      models.Encounter,
     ];
 
     for (const model of modelsToSync) {

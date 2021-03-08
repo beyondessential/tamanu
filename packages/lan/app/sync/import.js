@@ -3,7 +3,7 @@ import { log } from '~/logging';
 import { propertyPathsToTree } from './metadata';
 
 export const createImportPlan = memoize(model => {
-  const relationTree = propertyPathsToTree(model.includedSyncRelations || []);
+  const relationTree = propertyPathsToTree(model.includedSyncRelations);
   return createImportPlanInner(model, relationTree);
 });
 

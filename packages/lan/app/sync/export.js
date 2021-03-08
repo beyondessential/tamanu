@@ -1,22 +1,80 @@
 import { Op } from 'sequelize';
-import { memoize } from 'lodash';
+import { memoize, without, pick } from 'lodash';
+import { propertyPathsToTree } from './metadata';
 
-// TODO: nested model support
-export const createExportPlan = memoize(model => ({ model }));
+export const createExportPlan = memoize(model => {
+  const relationTree = propertyPathsToTree(model.includedSyncRelations);
+  return createExportPlanInner(model, relationTree);
+});
 
-export const executeExportPlan = async ({ model }, { after, limit = 100 }) => {
-  const where = {
-    markedForPush: true,
+const createExportPlanInner = (model, relationTree, foreignKey = null) => {
+  const associations = Object.entries(relationTree).reduce((memo, [associationName, subTree]) => {
+    const association = model.associations[associationName];
+    return {
+      ...memo,
+      [associationName]: createExportPlanInner(association.target, subTree, association.foreignKey),
+    };
+  }, {});
+
+  const allColumns = Object.keys(model.tableAttributes);
+  const columns = without(allColumns, ...model.excludedSyncColumns);
+
+  return { model, associations, foreignKey, columns };
+};
+
+export const executeExportPlan = async (plan, { after, limit = 100 }) => {
+  const options = {
+    where: {
+      markedForPush: true,
+    },
+    order: [['id', 'ASC']],
   };
+  if (limit) {
+    options.limit = limit;
+  }
   if (after) {
-    where.id = { [Op.gt]: after.data.id };
+    options.where.id = { [Op.gt]: after.data.id };
   }
 
-  const dbRecords = await model.findAll({
-    where,
-    limit,
-    order: [['id', 'ASC']],
-  });
+  return executeExportPlanInner(plan, options);
+};
 
-  return dbRecords.map(record => ({ data: record.dataValues }));
+export const executeExportPlanInner = async ({ model, associations, columns }, options) => {
+  // query records
+  const dbRecords = await model.findAll(options);
+
+  const syncRecords = [];
+  for (const dbRecord of dbRecords) {
+    // format as a syncRecord
+    const syncRecord = { data: sanitiseRecord(pick(dbRecord.dataValues, columns)) };
+
+    // query associations
+    for (const [associationName, associationPlan] of Object.entries(associations)) {
+      const associationOptions = {
+        where: { [associationPlan.foreignKey]: dbRecord.id },
+      };
+      syncRecord.data[associationName] = await executeExportPlanInner(
+        associationPlan,
+        associationOptions,
+      );
+    }
+    syncRecords.push(syncRecord);
+  }
+
+  return syncRecords;
+};
+
+const sanitiseRecord = record =>
+  Object.entries(record).reduce((memo, [k, v]) => ({ ...memo, [k]: sanitiseField(v) }), {});
+
+const sanitiseField = value => {
+  // TODO: generate functions to do this per-field in createExportPlan
+  // TODO: implement equivalent in createImportPlan
+  if (typeof value === 'string' || typeof value === 'number' || typeof value === 'boolean') {
+    return value;
+  }
+  if (value instanceof Date) {
+    return value.toISOString();
+  }
+  return null;
 };
