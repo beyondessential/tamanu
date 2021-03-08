@@ -25,7 +25,7 @@ export class PatientEmailCommunicationProcessor extends ScheduledTask {
       order: [['createdAt', 'ASC']], // process in order received
       limit: 10,
     });
-    const sendEmails = emailsToBeSent.map(email => {
+    const sendEmails = emailsToBeSent.map(async email => {
       const emailPlain = email.get({
         plain: true,
       });
@@ -33,24 +33,23 @@ export class PatientEmailCommunicationProcessor extends ScheduledTask {
       log.info(`Processing email : ${emailPlain.id}`);
       log.info(`Email type       : ${emailPlain.type}`);
       log.info(`Email to         : ${emailPlain.patient?.email}`);
-      return sendEmail({
-        to: emailPlain.patient?.email,
-        from: 'no-reply@tamanu.com',
-        subject: emailPlain.subject,
-        content: emailPlain.content,
-      })
-        .then(result => {
-          return email.update({
+      try {
+        const result = await sendEmail({
+          to: emailPlain.patient?.email,
+          from: 'no-reply@tamanu.com',
+          subject: emailPlain.subject,
+          content: emailPlain.content,
+        });
+        return email.update({
             status: result.status,
             error: result.error,
-          });
-        })
-        .catch(e => {
-          return email.update({
-            status: COMMUNICATION_STATUSES.ERROR,
-            error: e.message,
-          });
         });
+      } catch(e) {
+        return email.update({
+          status: COMMUNICATION_STATUSES.ERROR,
+          error: e.message,
+        });
+      }
     });
     return Promise.all(sendEmails);
   }
