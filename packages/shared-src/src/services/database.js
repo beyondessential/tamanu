@@ -1,14 +1,13 @@
 import { Sequelize } from 'sequelize';
 import { createNamespace } from 'cls-hooked';
 import pg from 'pg';
-import Umzug from 'umzug';
-import { readdirSync } from 'fs';
 
 // an issue in how webpack's require handling interacts with sequelize means we need
 // to provide the module to sequelize manually
 // issue & resolution here: https://github.com/sequelize/sequelize/issues/9489#issuecomment-486047783
 import sqlite3 from 'sqlite3';
 
+import { migrateUp, migrateDown } from './migrations';
 import * as models from '../models';
 import { initSyncClientModeHooks } from '../models/sync';
 
@@ -32,42 +31,6 @@ const unsafeRecreatePgDb = async ({ name, username, password, host, port }) => {
     await client.end();
   }
 };
-
-async function performMigrations(log, sequelize) {
-  // ie, shared/src/migrations
-  const migrationsDir = __dirname + '/../migrations';
-
-  // Double check the migrations directory exists (should catch any issues 
-  // arising out of build systems omitting the migrations dir, for eg)
-  // Note that Umzug will throw if the directory is missing, but won't report
-  // errors if the directory is empty - so this is maybe overcautious, but, it's
-  // just a few ms on startup, we'll be ok.
-  const migrationFiles = readdirSync(migrationsDir);
-  if(migrationFiles.length === 0) {
-    throw new Error("Could not find migrations");
-  }
-
-  const umzug = new Umzug({
-    migrations: {
-      path: migrationsDir,
-      params: [
-        sequelize.getQueryInterface(),
-      ]
-    },
-    storage: 'sequelize',
-    storageOptions: {
-      sequelize,
-    }
-  });
-
-  const pending = await umzug.pending();
-  if(pending.length > 0) {
-    log.info(`Performing ${pending.length} migrations...`);
-    await umzug.up();
-  } else {
-    log.info('Migrations already up-to-date.');
-  }
-}
 
 export async function initDatabase(dbOptions) {
   // connect to database
@@ -129,12 +92,23 @@ export async function initDatabase(dbOptions) {
   // set configuration variables for individual models
   models.User.SALT_ROUNDS = saltRounds;
 
+  // Ideally we could trigger a down-migration via something like
+  // $ yarn run lan-start-dev --migrate-down
+  // But the usual interface is going through package.json and webpack
+  // so it's a bit of a pain. This approach lets us do:
+  // $ MIGRATE_DOWN=1 yarn run lan-start-dev
+  // which is pretty close.
+  if(process.env.MIGRATE_DOWN) {
+    await migrateDown(log, sequelize);
+    process.exit(0);
+  }
+
   // attach migration function to the sequelize object - leaving the responsibility
   // of calling it to the implementing server (this allows for skipping migrations
   // in favour of calling sequelize.sync() during test mode)
   sequelize.migrate = sqlitePath
     ? sequelize.sync  // just sync in sqlite mode, migrations may contain pg-specific sql
-    : () => performMigrations(log, sequelize);
+    : () => migrateUp(log, sequelize);
 
   // init all models
   const modelClasses = Object.values(models);
