@@ -5,6 +5,7 @@ import compression from 'compression';
 
 import routes from './routes';
 import errorHandler from './middleware/errorHandler';
+import { versionCompatibility } from './middleware/versionCompatibility';
 
 import { log } from './logging';
 
@@ -39,6 +40,8 @@ export function createApp({ sequelize, models }) {
 
     next();
   });
+
+  app.use(versionCompatibility);
 
   app.use('/', routes);
 
