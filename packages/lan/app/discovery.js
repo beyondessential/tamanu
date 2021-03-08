@@ -23,7 +23,7 @@ export function listenForServerQueries() {
     socket.send(JSON.stringify({
       magicString: DISCOVERY_MAGIC_STRING,
       port: serverPort,
-      address: overrideAddress,
+      overrideAddress,
       protocol,
       version,
     }), rinfo.port, rinfo.address);

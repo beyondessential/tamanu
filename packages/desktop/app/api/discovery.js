@@ -7,17 +7,17 @@ const BROADCAST_IP = '255.255.255.255';
 
 export async function discoverServer() {
   const socket = dgram.createSocket('udp4');
-  let timeout = 0;
+  let timeout;
 
   const promise = new Promise((resolve, reject) => {
     socket.on('message', (msg, rinfo) => {
       if(`${msg}`.includes(DISCOVERY_MAGIC_STRING)) {
         try {
           const data = JSON.parse(msg);
-          const { port, version, address, protocol  } = data;
+          const { port, version, overrideAddress, protocol  } = data;
           clearTimeout(timeout);
           resolve({
-            address: address || rinfo.address,
+            address: overrideAddress || rinfo.address,
             protocol,
             port,
             version,
