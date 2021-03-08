@@ -13,9 +13,5 @@ import { version } from '../package.json';
   console.log('Discovered server', host);
 })();
 
-const host = process.env.HOST;
-if (!host) {
-  console.error('Warning: environmental variable HOST must be set');
-}
-export const API = new TamanuApi(host, version);
+export const API = new TamanuApi(version);
 export const ApiContext = React.createContext(API);
