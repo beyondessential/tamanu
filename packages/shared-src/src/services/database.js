@@ -96,7 +96,7 @@ export async function initDatabase(dbOptions) {
   // $ yarn run lan-start-dev --migrate-down
   // But the usual interface is going through package.json and webpack
   // so it's a bit of a pain. This approach lets us do:
-  // $ MIGRATE_DOWN=1 yarn run lan-start-dev
+  // $ MIGRATE_DOWN=true yarn run lan-start-dev
   // which is pretty close.
   if(process.env.MIGRATE_DOWN) {
     await migrateDown(log, sequelize);
