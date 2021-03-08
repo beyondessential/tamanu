@@ -9,9 +9,7 @@ import {
 import { Button } from '/components/Button';
 import { LogoV2Icon } from '/components/Icons';
 import { VisitChart } from '/components/Chart/VisitChart';
-import { yearlyData } from '/components/Chart/fixture';
 import { theme } from '/styled/theme';
-import { YearlyChart } from '/components/Chart/YearlyChart';
 import {
   screenPercentageToDP,
   Orientation,
@@ -23,6 +21,7 @@ import { format, startOfToday, subDays } from 'date-fns';
 import { useBackendEffect } from '~/ui/hooks';
 import { SummaryBoard } from './SummaryBoard';
 import { BarChartData } from '~/ui/interfaces/BarChartProps';
+import { DetailedReport } from './DetailedReport';
 
 interface ReportTypeButtons {
   isReportWeekly: boolean;
@@ -85,16 +84,26 @@ interface ReportChartProps {
     totalVisits: number;
     data: BarChartData[];
   };
+  todayData: {
+    totalEncounters: number;
+    totalSurveys: number;
+    encounterDate: string;
+  };
 }
 
-const ReportChart: FC<ReportChartProps> = ({ isReportWeekly, visitData }) =>
+const ReportChart: FC<ReportChartProps> = ({ isReportWeekly, visitData, todayData }) =>
   (isReportWeekly ? (
-    <StyledView marginBottom={screenPercentageToDP(7.53, Orientation.Height)}>
-      <VisitChart visitData={visitData} />
-    </StyledView>
+    <>
+      <StyledView marginBottom={screenPercentageToDP(7.53, Orientation.Height)}>
+        <VisitChart visitData={visitData} />
+      </StyledView>
+      <StyledView flex={1}>
+        <SummaryBoard todayData={todayData} />
+      </StyledView>
+    </>
   ) : (
     <StyledView marginBottom={screenPercentageToDP(2.43, Orientation.Height)}>
-      <YearlyChart data={yearlyData} />
+      <DetailedReport />
     </StyledView>
   ));
 
@@ -104,7 +113,7 @@ export const ReportScreen = ({
   const [isReportWeekly, setReportType] = useState<boolean>(true);
   const [data] = useBackendEffect(
     ({ models }) => models.Encounter.getTotalEncountersAndResponses('program-cvd-fiji/survey-cvd-risk-fiji'),
-    []
+    [],
   );
 
   const today = startOfToday();
@@ -132,7 +141,7 @@ export const ReportScreen = ({
     {
       totalVisits: 0,
       data: [],
-    }
+    },
   );
 
   const onChangeReportType = useCallback(() => {
@@ -190,10 +199,7 @@ export const ReportScreen = ({
         onPress={onChangeReportType}
         isReportWeekly={isReportWeekly}
       />
-      <ReportChart isReportWeekly={isReportWeekly} visitData={visitData} />
-      <StyledView flex={1}>
-        <SummaryBoard todayData={todayData} />
-      </StyledView>
+      <ReportChart isReportWeekly={isReportWeekly} visitData={visitData} todayData={todayData} />
     </FullView>
   );
 };

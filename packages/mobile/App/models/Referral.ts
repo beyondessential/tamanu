@@ -48,7 +48,7 @@ export class Referral extends BaseModel implements IReferral {
     const repo = this.getRepository();
 
     return repo.find({
-      patientId,
+      where: { patient: patientId },
     });
   }
 }

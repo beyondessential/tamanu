@@ -8,7 +8,7 @@ import {
   BeforeInsert,
   RelationId,
 } from 'typeorm/browser';
-import { startOfDay, addHours } from 'date-fns';
+import { startOfDay, addHours, subDays } from 'date-fns';
 import { getUniqueId } from 'react-native-device-info';
 import { BaseModel } from './BaseModel';
 import { IEncounter, EncounterType, ReferenceDataType } from '~/types';
@@ -131,10 +131,10 @@ export class Encounter extends BaseModel implements IEncounter {
   }
 
   static async getTotalEncountersAndResponses(surveyId: string): Promise<SummaryInfo[]> {
-    // const date = addHours(startOfDay(new Date()), TIME_OFFSET);
     const repo = this.getRepository();
-
-    return repo
+    // 28 days ago for report
+    const date = subDays(addHours(startOfDay(new Date()), TIME_OFFSET), 28); 
+    const query = repo
       .createQueryBuilder('encounter')
       .select('date(encounter.startDate)', 'encounterDate')
       .addSelect('count(distinct encounter.patientId)', 'totalEncounters')
@@ -150,10 +150,14 @@ export class Encounter extends BaseModel implements IEncounter {
         'sr',
         '"sr"."encounterId" = encounter.id',
       )
+      .where("encounter.startDate >= datetime(:date, 'unixepoch')", {
+        date: formatDateForQuery(date),
+      })
       .groupBy('date(encounter.startDate)')
       .having('encounter.deviceId = :deviceId', { deviceId: getUniqueId() })
-      .orderBy('encounterDate', 'ASC')
-      .getRawMany();
+      .orderBy('encounterDate', 'ASC');
+
+    return query.getRawMany();
   }
 
   static shouldExport = true;
