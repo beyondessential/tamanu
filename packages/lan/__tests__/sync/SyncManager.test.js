@@ -2,7 +2,7 @@ import { Op } from 'sequelize';
 import { v4 as uuidv4 } from 'uuid';
 
 import { REFERENCE_TYPES } from 'shared/constants';
-import { fakeProgram, fakeSurvey } from 'shared/test-helpers';
+import { fakeProgram, fakeSurvey, fakePatient } from 'shared/test-helpers';
 
 import { createTestContext } from '../utilities';
 import { SyncManager } from '~/sync';
@@ -49,7 +49,7 @@ describe('SyncManager', () => {
         });
 
       // act
-      await manager.pullAndImport(context.models.ReferenceData, 'reference');
+      await manager.pullAndImport(context.models.ReferenceData);
 
       // assert
       const createdRecords = await context.models.ReferenceData.findAll({
@@ -78,13 +78,13 @@ describe('SyncManager', () => {
         });
 
       // act
-      await manager.pullAndImport(context.models.ReferenceData, channel);
+      await manager.pullAndImport(context.models.ReferenceData);
 
       // assert
       const metadata = await context.models.SyncMetadata.findOne({ where: { channel } });
       expect(metadata.lastSynced).toEqual(1234);
 
-      await manager.pullAndImport(context.models.ReferenceData, channel);
+      await manager.pullAndImport(context.models.ReferenceData);
       const calls = remote.pull.mock.calls;
       expect(calls[calls.length - 1][1]).toHaveProperty('since', 1234);
     });
@@ -123,6 +123,55 @@ describe('SyncManager', () => {
       // assert
       expect(await context.models.Program.findByPk(program.id)).toEqual(null);
       expect(await context.models.Survey.findByPk(survey.id)).toEqual(null);
+    });
+  });
+
+  describe('exportAndPush', () => {
+    const getRecord = ({ id }) => context.models.Patient.findByPk(id);
+
+    it('exports pages of records and pushes them', async () => {
+      // arrange
+      const record = fakePatient();
+      await context.models.Patient.create(record);
+      remote.push.mockResolvedValueOnce({
+        count: 1,
+        requestedAt: 1234,
+      });
+      expect(await getRecord(record)).toHaveProperty('markedForPush', true);
+
+      // act
+      await manager.exportAndPush(context.models.Patient);
+
+      // assert
+      expect(await getRecord(record)).toHaveProperty('markedForPush', false);
+      const { calls } = remote.push.mock;
+      expect(calls.length).toEqual(1);
+      expect(calls[0][0]).toEqual('patient');
+      expect(calls[0][1].length).toEqual(1);
+      expect(calls[0][1][0].data).toMatchObject({
+        ...record,
+        dateOfBirth: record?.dateOfBirth?.toISOString(),
+      });
+    });
+
+    it('marks created records for push', async () => {
+      const record = fakePatient();
+      await context.models.Patient.create(record);
+      expect(await getRecord(record)).toHaveProperty('markedForPush', true);
+    });
+
+    it('marks updated records for push', async () => {
+      // arrange
+      const record = fakePatient();
+      await context.models.Patient.create(record);
+      await context.models.Patient.update({ markedForPush: false }, { where: { id: record.id } });
+      expect(await getRecord(record)).toHaveProperty('markedForPush', false);
+
+      // act
+      await (await context.models.Patient.findByPk(record.id)).update({ displayId: 'Fred Smith' });
+
+      // assert
+      expect(await getRecord(record)).toHaveProperty('markedForPush', true);
     });
   });
 });

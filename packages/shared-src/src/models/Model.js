@@ -1,5 +1,6 @@
 import * as sequelize from 'sequelize';
 import { pick, lowerFirst } from 'lodash';
+import { shouldPush } from './sync';
 import { SYNC_DIRECTIONS } from 'shared/constants';
 
 export const Sequelize = sequelize.Sequelize;
@@ -7,6 +8,19 @@ export const Sequelize = sequelize.Sequelize;
 const firstLetterLowercase = s => (s[0] || '').toLowerCase() + s.slice(1);
 
 export class Model extends sequelize.Model {
+  static init(originalAttributes, { syncClientMode, ...options }) {
+    const attributes = { ...originalAttributes };
+    if (syncClientMode && shouldPush(this)) {
+      attributes.markedForPush = {
+        type: Sequelize.BOOLEAN,
+        allowNull: false,
+        defaultValue: true,
+      };
+    }
+    super.init(attributes, options);
+    this.syncClientMode = syncClientMode;
+  }
+
   forResponse() {
     // Reassign reference associations to use camelCase & dataValues.
     // That is, it turns
@@ -79,6 +93,7 @@ export class Model extends sequelize.Model {
   static excludedSyncColumns = [
     'createdAt',
     'updatedAt',
+    'markedForPush',
   ];
 
   static syncDirection = SYNC_DIRECTIONS.DO_NOT_SYNC;

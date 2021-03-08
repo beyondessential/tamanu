@@ -100,5 +100,21 @@ describe('WebRemote', () => {
     });
   });
 
-  it.todo('sends records');
+  describe('push', () => {
+    it('pushes records', async () => {
+      const remote = new WebRemote();
+      const body = {
+        count: 1,
+        requestedAt: 123456,
+      };
+      fetch.mockReturnValueOnce(authSuccess).mockReturnValueOnce(fakeSuccess(body));
+      expect(remote.push('reference', [{ id: 'abc' }])).resolves.toEqual(body);
+    });
+
+    it('throws an error on an invalid response', async () => {
+      const remote = new WebRemote();
+      fetch.mockReturnValueOnce(authSuccess).mockReturnValueOnce(fakeFailure(403));
+      expect(remote.push('reference')).rejects.toThrow(InvalidOperationError);
+    });
+  });
 });
