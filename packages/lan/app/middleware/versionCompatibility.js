@@ -15,11 +15,15 @@ export const versionCompatibility = (req, res, next) => {
   // check the connecting client is supported, and respond with an error if not
   const clientVersion = req.header('X-Client-Version');
   if (compareVersions(clientVersion, MIN_CLIENT_VERSION) < 0) {
-    res.status(400).json({ error: VERSION_COMPATIBILITY_ERRORS.LOW });
+    res
+      .status(400)
+      .json({ error: { message: VERSION_COMPATIBILITY_ERRORS.LOW, name: 'InvalidClientVersion' } });
     return;
   }
   if (compareVersions(clientVersion, MAX_CLIENT_VERSION) > 0) {
-    res.status(400).json({ error: VERSION_COMPATIBILITY_ERRORS.HIGH });
+    res.status(400).json({
+      error: { message: VERSION_COMPATIBILITY_ERRORS.HIGH, name: 'InvalidClientVersion' },
+    });
     return;
   }
   next();
