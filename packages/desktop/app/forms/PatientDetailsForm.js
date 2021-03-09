@@ -22,7 +22,11 @@ import {
   maritalStatusOptions,
 } from '../constants';
 
-export const PrimaryDetailsGroup = ({ villageSuggester, ethnicitySuggester }) => (
+export const PrimaryDetailsGroup = ({
+  villageSuggester,
+  ethnicitySuggester,
+  nationalitySuggester,
+}) => (
   <React.Fragment>
     <Field name="firstName" label="First name" component={TextField} required />
     <Field name="middleName" label="Middle name" component={TextField} />
@@ -38,7 +42,12 @@ export const PrimaryDetailsGroup = ({ villageSuggester, ethnicitySuggester }) =>
     <Field name="dateOfBirth" label="Date of birth" component={DateField} required />
     <Field name="placeOfBirth" label="Plate of birth" component={TextField} />
     <Field name="sex" label="Sex" component={RadioField} options={sexOptions} inline required />
-    <Field name="nationality" label="Nationality" component={TextField} />
+    <Field
+      name="nationalityId"
+      label="Nationality"
+      component={AutocompleteField}
+      suggester={nationalitySuggester}
+    />
     <Field name="country" label="Country" component={TextField} />
     <Field name="cityTown" label="City/Town" component={TextField} />
     <Field name="streetVillage" label="Street/Village" component={TextField} />
@@ -123,13 +132,18 @@ export const PatientDetailsForm = ({
   facilitySuggester,
   villageSuggester,
   ethnicitySuggester,
+  nationalitySuggester,
   patient,
   onSubmit,
 }) => {
   const render = React.useCallback(
     ({ submitForm }) => (
       <FormGrid>
-        <PrimaryDetailsGroup villageSuggester={villageSuggester} ethnicitySuggester={ethnicitySuggester} />
+        <PrimaryDetailsGroup
+          villageSuggester={villageSuggester}
+          ethnicitySuggester={ethnicitySuggester}
+          nationalitySuggester={nationalitySuggester}
+        />
         <SecondaryDetailsGroup
           patientSuggester={patientSuggester}
           facilitySuggester={facilitySuggester}
@@ -141,7 +155,13 @@ export const PatientDetailsForm = ({
         </ButtonRow>
       </FormGrid>
     ),
-    [patientSuggester, facilitySuggester],
+    [
+      villageSuggester,
+      ethnicitySuggester,
+      nationalitySuggester,
+      patientSuggester,
+      facilitySuggester,
+    ],
   );
 
   return <Form render={render} initialValues={patient} onSubmit={onSubmit} />;

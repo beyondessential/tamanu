@@ -21,6 +21,7 @@ export const NewPatientModal = connectApi((api, dispatch, { onCreateNewPatient }
   facilitySuggester: new Suggester(api, 'facility'),
   villageSuggester: new Suggester(api, 'village'),
   ethnicitySuggester: new Suggester(api, 'ethnicity'),
+  nationalitySuggester: new Suggester(api, 'nationality'),
   onSubmit: async data => {
     const newPatient = await api.post('patient', data);
     onCreateNewPatient(newPatient);

@@ -167,6 +167,7 @@ const ConnectedPatientDetailsForm = connectApi((api, dispatch, { patient }) => (
   facilitySuggester: new Suggester(api, 'facility'),
   villageSuggester: new Suggester(api, 'village'),
   ethnicitySuggester: new Suggester(api, 'ethnicity'),
+  nationalitySuggester: new Suggester(api, 'nationality'),
 }))(
   React.memo(props => (
     <ContentPane>
