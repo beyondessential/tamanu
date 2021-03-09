@@ -113,7 +113,7 @@ describe('import', () => {
 
         // assert
         const dbRecord = await model.findByPk(record.id, options);
-        expect(dbRecord.get({ plain: true })).toEqual(null);
+        expect(dbRecord).toEqual(null);
       });
     });
   });
