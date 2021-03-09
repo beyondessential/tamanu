@@ -17,6 +17,7 @@ import { ReferenceData, ReferenceDataRelation } from './ReferenceData';
 import { AdministeredVaccine } from './AdministeredVaccine';
 import { SurveyResponse } from './SurveyResponse';
 import { formatDateForQuery } from '~/infra/db/helpers';
+import { Referral } from './Referral';
 
 @Entity('encounter')
 export class Encounter extends BaseModel implements IEncounter {
@@ -62,6 +63,12 @@ export class Encounter extends BaseModel implements IEncounter {
 
   @OneToMany(() => Diagnosis, diagnosis => diagnosis.encounter, { eager: true })
   diagnoses: Diagnosis[]
+
+  @OneToMany(() => Referral, referral => referral.initiatingEncounter)
+  initiatedReferrals: Referral[]
+
+  @OneToMany(() => Referral, referral => referral.completingEncounter)
+  completedReferrals: Referral[]
 
   @OneToMany(() => AdministeredVaccine, administeredVaccine => administeredVaccine.encounter)
   administeredVaccines: AdministeredVaccine[]

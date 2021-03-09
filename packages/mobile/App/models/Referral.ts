@@ -1,54 +1,54 @@
-import { Entity, Column, ManyToOne, PrimaryGeneratedColumn, OneToMany, RelationId } from 'typeorm/browser';
+import { Entity, ManyToOne, RelationId } from 'typeorm/browser';
 import { BaseModel } from './BaseModel';
-import { Certainty, IReferral } from '~/types';
-import { Patient } from './Patient';
-import { ReferenceData, ReferenceDataRelation } from './ReferenceData';
-import { User } from './User';
+import { IReferral, ISurveyResponse, ISurveyScreenComponent } from '~/types';
+import { Encounter } from './Encounter';
 import { SurveyResponse } from './SurveyResponse';
 
 @Entity('referral')
 export class Referral extends BaseModel implements IReferral {
-  @PrimaryGeneratedColumn('uuid')
-  referralNumber: string;
+  @ManyToOne(() => Encounter, encounter => encounter.initiatedReferrals)
+  initiatingEncounter: Encounter;
+  @RelationId(({ initiatingEncounter }) => initiatingEncounter)
+  initiatingEncounterId: string;
 
-  @Column()
-  referredFacility: string;
+  @ManyToOne(() => Encounter, encounter => encounter.completedReferrals)
+  completingEncounter: Encounter;
+  @RelationId(({ completingEncounter }) => completingEncounter)
+  completingEncounterId: string;
 
-  @Column()
-  referredDepartment: string;
-
-  @Column()
-  date: Date;
-
-  @Column()
-  notes: string;
-
-  @Column({ type: 'varchar' })
-  certainty: Certainty;
-
-  @ReferenceDataRelation()
-  diagnosis: ReferenceData;
-  @RelationId(({ diagnosis }) => diagnosis)
-  diagnosisId?: string;
-
-  @ManyToOne(() => User, user => user.referrals)
-  practitioner: User;
-  @RelationId(({ practitioner }) => practitioner)
-  practitionerId?: string;
-
-  @OneToMany(type => SurveyResponse, surveyResponse => surveyResponse.referral, { nullable: true })
+  @ManyToOne(() => SurveyResponse, surveyResponse => surveyResponse.referral)
   surveyResponse: SurveyResponse;
+  @RelationId(({ surveyResponse }) => surveyResponse)
+  surveyResponseId: string;
 
-  @ManyToOne(() => Patient, patient => patient.referrals)
-  patient: Patient;
-  @RelationId(({ patient }) => patient)
-  patientId: string;
+
+  static async submit(
+    patientId: string,
+    surveyData: ISurveyResponse & {
+      encounterReason: string,
+      components: ISurveyScreenComponent[],
+    },
+    values: object,
+    setNote: (note: string) => void = () => null,
+  ) {
+    const response = await SurveyResponse.submit(patientId, surveyData, values, setNote);
+    const referralRecord: Referral = await Referral.createAndSaveOne({
+      initiatingEncounter: response.encounterId,
+      surveyResponse: response.id,
+    });
+
+    return referralRecord;
+  }
 
   static async getForPatient(patientId: string): Promise<Referral[]> {
-    const repo = this.getRepository();
-
-    return repo.find({
-      patientId,
-    });
+    return this.getRepository()
+      .createQueryBuilder('referral')
+      .leftJoin('referral.initiatingEncounter', 'initiatingEncounter')
+      .leftJoinAndSelect('referral.surveyResponse', 'surveyResponse')
+      .leftJoinAndSelect('surveyResponse.survey', 'survey')
+      .leftJoinAndSelect('surveyResponse.answers', 'answers')
+      .leftJoinAndSelect('answers.dataElement', 'dataElement')
+      .where('initiatingEncounter.patientId = :patientId', { patientId })
+      .getMany();
   }
 }

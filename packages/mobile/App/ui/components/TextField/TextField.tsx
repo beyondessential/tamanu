@@ -24,6 +24,7 @@ export interface TextFieldProps extends BaseInputProps {
   disabled?: boolean;
   secure?: boolean;
   hints?: boolean;
+  hideValue?: boolean;
   returnKeyType?: ReturnKeyTypeOptions;
   autoFocus?: boolean;
   autoCapitalize?: 'none' | 'words' | 'sentences' | 'characters' | undefined;
@@ -54,6 +55,7 @@ export const TextField = React.memo(
     autoCapitalize = 'words',
     onFocus,
     onBlur,
+    hideValue = false,
   }: TextFieldProps): JSX.Element => {
     const [focused, setFocus] = useState(false);
     const inputRef: Ref<any> = useRef(null);
@@ -74,9 +76,9 @@ export const TextField = React.memo(
 
     const inputMarginTop = useMemo(() => {
       if (multiline) return 0;
-      if (placeholder) return 0;
+      if (!label) return screenPercentageToDP(0.8, Orientation.Height);;
       if (Platform.OS === 'ios') return screenPercentageToDP(1, Orientation.Height);
-      return screenPercentageToDP(0.5, Orientation.Height);
+      return screenPercentageToDP(1.5, Orientation.Height);
     }, []);
 
     return (
@@ -110,7 +112,7 @@ export const TextField = React.memo(
           )}
           <StyledTextInput
             testID={label}
-            value={value}
+            value={!hideValue && value}
             marginTop={inputMarginTop}
             ref={inputRef}
             autoCapitalize={

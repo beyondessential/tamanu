@@ -38,7 +38,7 @@ const PatientHomeContainer = ({
       {
         title: 'Referral',
         Icon: Icons.FamilyPlanningIcon,
-        onPress: (): void => navigation.navigate(Routes.HomeStack.ReferralTabs.Index),
+        onPress: (): void => navigation.navigate(Routes.HomeStack.ProgramStack.ReferralTabs.Index),
       },
       {
         title: 'Vaccine',

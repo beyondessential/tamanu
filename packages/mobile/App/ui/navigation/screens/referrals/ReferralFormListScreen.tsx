@@ -1,5 +1,4 @@
-import React, { useCallback, ReactElement } from 'react';
-import { Not } from "typeorm";
+import React, { ReactElement } from 'react';
 import { FlatList } from 'react-native';
 import { useNavigation } from '@react-navigation/native';
 import { FullView } from '/styled/common';
@@ -8,10 +7,8 @@ import { theme } from '/styled/theme';
 import { MenuOptionButton } from '/components/MenuOptionButton';
 import { Separator } from '/components/Separator';
 import { Routes } from '/helpers/routes';
-import { StackHeader } from '/components/StackHeader';
 import { withPatient } from '/containers/Patient';
-import { EncounterType, IPatient, SurveyTypes } from '~/types';
-import { joinNames } from '/helpers/user';
+import { IPatient, SurveyTypes } from '~/types';
 import { useBackendEffect } from '~/ui/hooks';
 import { ErrorScreen } from '~/ui/components/ErrorScreen';
 
@@ -23,28 +20,20 @@ const Screen = ({ selectedPatient }: ProgramListScreenProps): ReactElement => {
   const navigation = useNavigation();
 
   const [surveys, error] = useBackendEffect(({ models }) => models.Survey.find({
-    program: Not("program-referral_forms")
+    program: 'program-referral_forms',
   }));
 
-  const goBack = useCallback(() => {
-    navigation.goBack();
-  }, []);
-
   const onNavigateToSurvey = (survey): any => {
-    navigation.navigate(Routes.HomeStack.ProgramStack.ProgramTabs.Index, {
+    navigation.navigate(Routes.HomeStack.ProgramStack.ReferralTabs.AddReferralDetails, {
       surveyId: survey.id,
       surveyName: survey.name,
-      surveyType: SurveyTypes.Programs,
-    });
+      surveyType: SurveyTypes.Referral,
+    })
   };
+  
 
   return (
     <FullView>
-      <StackHeader
-        title="Programs"
-        subtitle={joinNames(selectedPatient)}
-        onGoBack={goBack}
-      />
       {error ? (
         <ErrorScreen error={error} />
       ) : (
@@ -73,4 +62,4 @@ const Screen = ({ selectedPatient }: ProgramListScreenProps): ReactElement => {
   );
 };
 
-export const ProgramListScreen = compose(withPatient)(Screen);
+export const ReferralFormListScreen = compose(withPatient)(Screen);

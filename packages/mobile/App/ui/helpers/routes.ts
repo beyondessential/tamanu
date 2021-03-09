@@ -63,11 +63,11 @@ export const Routes = {
         AddDetails: '',
         ViewHistory: '',
       },
-    },
-    ReferralTabs: {
-      Index: '',
-      AddReferralDetails: '',
-      ViewHistory: '',
+      ReferralTabs: {
+        Index: '',
+        AddReferralDetails: '',
+        ViewHistory: '',
+      },
     },
     SearchPatientStack: {
       Index: '',

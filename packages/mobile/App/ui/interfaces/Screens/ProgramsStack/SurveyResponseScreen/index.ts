@@ -7,6 +7,8 @@ type SurveyResponseScreenParams = {
     surveyId: string;
     latestResponseId: string;
     selectedPatient: { id: string };
+    encounterType: string,
+    surveyType: string,
   };
 };
 

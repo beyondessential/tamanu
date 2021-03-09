@@ -66,7 +66,7 @@ export const DumbAddIllnessScreen = ({ selectedPatient, navigation }): ReactElem
   );
 
   const icd10Suggester = new Suggester(
-    ReferenceData,
+    models.ReferenceData,
     {
       where: {
         type: ReferenceDataType.ICD10,
@@ -100,15 +100,10 @@ export const DumbAddIllnessScreen = ({ selectedPatient, navigation }): ReactElem
                 overScrollMode="always"
               >
                 <StyledView
-                  marginBottom={screenPercentageToDP(
-                    0.605,
-                    Orientation.Height,
-                  )}
                 >
                   <SectionHeader h3>INFORMATION</SectionHeader>
                 </StyledView>
                 <StyledView
-                  height={screenPercentageToDP(21.87, Orientation.Height)}
                   justifyContent="space-between"
                 >
                   <Field
@@ -129,22 +124,13 @@ export const DumbAddIllnessScreen = ({ selectedPatient, navigation }): ReactElem
                     modalRoute={Routes.Autocomplete.Modal}
                     name="diagnosis"
                   />
-                  <Field
-                    component={Dropdown}
-                    options={CERTAINTY_OPTIONS}
-                    name="certainty"
-                    label="Certainty"
-                  />
-                </StyledView>
-                <StyledView
-                  marginTop={screenPercentageToDP(16.42, Orientation.Height)}
-                  marginBottom={screenPercentageToDP(
-                    0.605,
-                    Orientation.Height,
-                  )}
-                >
-                  <SectionHeader h3>Treatment notes</SectionHeader>
-                </StyledView>
+                <Field
+                  component={Dropdown}
+                  options={CERTAINTY_OPTIONS}
+                  name="certainty"
+                  label="Certainty"
+                />
+                <SectionHeader h3>Treatment notes</SectionHeader>
                 <Field
                   component={TextField}
                   name="reasonForEncounter"
@@ -156,6 +142,7 @@ export const DumbAddIllnessScreen = ({ selectedPatient, navigation }): ReactElem
                   onPress={handleSubmit}
                   buttonText="Submit"
                 />
+                </StyledView>
               </ScrollView>
             </KeyboardAvoidingView>
           </FullView>

@@ -6,6 +6,13 @@ export interface ISurvey {
   programId: ID;
 
   name: string;
+
+  surveyType: SurveyTypes;
+}
+
+export enum SurveyTypes {
+  Programs = 'programs',
+  Referral = 'referral',
 }
 
 export interface ISurveyScreenComponent {
@@ -15,13 +22,15 @@ export interface ISurveyScreenComponent {
 
   survey?: ISurvey;
   dataElement?: IProgramDataElement;
-
+  
   screenIndex: number;
   componentIndex: number;
   text?: string;
   visibilityCriteria?: string;
+  config?: string;
   options?: string;
   calculation?: string;
+  source?: string;
 }
 
 export enum DataElementType {
@@ -43,6 +52,7 @@ export enum DataElementType {
   Instruction = 'Instruction',
   MonthsSince = 'MonthsSince',
   Multiline = 'Multiline',
+  MultiSelect = 'MultiSelect',
   Number = 'Number',
   Photo = 'Photo',
   PrimaryEntity = 'PrimaryEntity',
@@ -51,6 +61,9 @@ export enum DataElementType {
   Select = 'Select',
   SubmissionDate = 'SubmissionDate',
   YearsSince = 'YearsSince',
+  SurveyAnswer = 'SurveyAnswer',
+  SurveyResult = 'SurveyResult',
+  SurveyLink = 'SurveyLink',
 }
 
 export interface IProgramDataElement {

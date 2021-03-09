@@ -33,8 +33,8 @@ export const MODELS_ARRAY: typeof BaseModel[] = [
   Diagnosis,
   ScheduledVaccine,
   AdministeredVaccine,
-  Referral,
   Medication,
+  Referral,
 ];
 
 export const MODELS_MAP = {
@@ -53,6 +53,6 @@ export const MODELS_MAP = {
   Diagnosis,
   ScheduledVaccine,
   AdministeredVaccine,
-  Referral,
   Medication,
+  Referral,
 };

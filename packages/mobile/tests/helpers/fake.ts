@@ -67,6 +67,7 @@ export const fakeSurvey = (): ISurvey => {
     id: `survey-id-${uuidv4()}`,
     programId: null,
     name: 'survey-name',
+    surveyType: 'programs'
   };
 };
 
