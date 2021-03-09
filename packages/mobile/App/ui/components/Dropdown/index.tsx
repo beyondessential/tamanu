@@ -63,3 +63,5 @@ export const Dropdown = React.memo(
     )
   }
 );
+
+export const MultiSelectDropdown = ({ ...props }): Element => <Dropdown multiselect={true} {...props} />;

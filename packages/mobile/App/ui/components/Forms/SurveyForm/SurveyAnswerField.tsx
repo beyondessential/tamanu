@@ -33,5 +33,3 @@ export const SurveyAnswerField = ({ patient, name, config, defaultText }) => {
     </StyledView>
   )
 }
-
-// export const SurveyAnswerField = compose(withPatient)(SurveyAnswerFieldComponent);
