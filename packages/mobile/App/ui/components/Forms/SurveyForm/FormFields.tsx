@@ -62,7 +62,7 @@ export const FormFields = ({
     .map((component, index) => (
       <React.Fragment key={component.id}>
           <SectionHeader marginTop={index === 0 ? 0 : 20} h3>
-            {component.text || component.dataElement.defaultText}
+            {component.text || component.dataElement.defaultText || ''}
           </SectionHeader>
           { 
             component.detail
