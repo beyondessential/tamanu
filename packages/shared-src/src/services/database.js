@@ -2,6 +2,7 @@ import { Sequelize } from 'sequelize';
 import { createNamespace } from 'cls-hooked';
 import pg from 'pg';
 import * as models from '../models';
+import { initSyncClientModeHooks } from '../models/sync';
 
 // an issue in how webpack's require handling interacts with sequelize means we need
 // to provide the module to sequelize manually
@@ -43,6 +44,7 @@ export async function initDatabase(dbOptions) {
     saltRounds=null,
     primaryKeyDefault=Sequelize.UUIDV4,
     hackToSkipEncounterValidation=false, // TODO: remove once mobile implements all relationships
+    syncClientMode=false,
   } = dbOptions;
   let {
     name,
@@ -97,7 +99,7 @@ export async function initDatabase(dbOptions) {
     primaryKey: true,
   };
   log.info(`Registering ${modelClasses.length} models...`);
-  modelClasses.map(modelClass => {
+  modelClasses.forEach(modelClass => {
     modelClass.init(
       {
         underscored: true,
@@ -105,16 +107,22 @@ export async function initDatabase(dbOptions) {
         sequelize,
         paranoid: makeEveryModelParanoid,
         hackToSkipEncounterValidation,
+        syncClientMode,
       },
       models,
     );
   });
 
-  modelClasses.map(modelClass => {
+  modelClasses.forEach(modelClass => {
     if (modelClass.initRelations) {
       modelClass.initRelations(models);
     }
   });
+
+  // init global hooks that live in shared-src
+  if (syncClientMode) {
+    initSyncClientModeHooks(models);
+  }
 
   return { sequelize, models };
 }

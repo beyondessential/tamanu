@@ -1,5 +1,5 @@
 import { Sequelize } from 'sequelize';
-import { ENCOUNTER_TYPES, ENCOUNTER_TYPE_VALUES, NOTE_TYPES } from 'shared/constants';
+import { ENCOUNTER_TYPES, ENCOUNTER_TYPE_VALUES, NOTE_TYPES, SYNC_DIRECTIONS } from 'shared/constants';
 import { InvalidOperationError } from 'shared/errors';
 import { Model } from './Model';
 
@@ -184,4 +184,6 @@ export class Encounter extends Model {
     'surveyResponses',
     'surveyResponses.answers',
   ];
+
+  static syncDirection = SYNC_DIRECTIONS.BIDIRECTIONAL;
 }

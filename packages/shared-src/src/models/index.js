@@ -38,3 +38,4 @@ export * from './PatientCarePlan';
 export * from './ReferralDiagnosis';
 
 export * from './Setting';
+export * from './PatientCommunication';

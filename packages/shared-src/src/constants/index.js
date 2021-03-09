@@ -161,9 +161,42 @@ export const DIAGNOSIS_CERTAINTY = {
 
 export const DIAGNOSIS_CERTAINTY_VALUES = Object.values(DIAGNOSIS_CERTAINTY);
 
+export const PATIENT_COMMUNICATION_CHANNELS = {
+  EMAIL: 'Email',
+  SMS: 'Sms',
+  WHATSAPP: 'WhatsApp',
+};
+
+export const PATIENT_COMMUNICATION_CHANNELS_VALUES = Object.values(PATIENT_COMMUNICATION_CHANNELS);
+
+export const PATIENT_COMMUNICATION_TYPES = {
+  REFERRAL_CREATED: 'Referral created',
+};
+
+export const PATIENT_COMMUNICATION_TYPES_VALUES = Object.values(PATIENT_COMMUNICATION_TYPES);
+
+export const COMMUNICATION_STATUSES = {
+  QUEUED: 'Queued',
+  PROCESSED: 'Processed',
+  SENT: 'Sent',
+  ERROR: 'Error',
+  DELIVERED: 'Delivered',
+};
+
+export const COMMUNICATION_STATUSES_VALUES = Object.values(COMMUNICATION_STATUSES);
+
 export const SYNC_DIRECTIONS = {
   DO_NOT_SYNC: 'do_not_sync',
   PUSH_ONLY: 'push_only',
   PULL_ONLY: 'pull_only',
   BIDIRECTIONAL: 'bidirectional',
+};
+
+// these are arbitrary, the only thing that matters is they are shared between desktop and lan
+export const DISCOVERY_PORT = 53391;
+export const DISCOVERY_MAGIC_STRING = 'ee671721-9d4d-4e0e-b231-81872206a735';
+
+export const VERSION_COMPATIBILITY_ERRORS = {
+  LOW: 'Client version too low',
+  HIGH: 'Client version too high',
 };

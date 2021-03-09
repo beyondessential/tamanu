@@ -1,14 +1,9 @@
-import { SYNC_DIRECTIONS } from 'shared/constants';
+import { shouldPush, shouldPull } from 'shared/models/sync';
 import { log } from '~/logging';
 import { createImportPlan, executeImportPlan } from './import';
+import { createExportPlan, executeExportPlan } from './export';
 
-const shouldPull = model =>
-  model.syncDirection === SYNC_DIRECTIONS.PULL_ONLY ||
-  model.syncDirection === SYNC_DIRECTIONS.BIDIRECTIONAL;
-
-const shouldPush = model =>
-  model.syncDirection === SYNC_DIRECTIONS.PUSH_ONLY ||
-  model.syncDirection === SYNC_DIRECTIONS.BIDIRECTIONAL;
+const EXPORT_LIMIT = 100;
 
 export class SyncManager {
   host = '';
@@ -65,6 +60,45 @@ export class SyncManager {
     return requestedAt;
   }
 
+  async exportAndPush(model) {
+    const channel = model.channel();
+    log.debug(`SyncManager.exportAndPush: syncing ${channel}`);
+
+    // export
+    const plan = createExportPlan(model);
+    const exportRecords = (after = null, limit = EXPORT_LIMIT) => {
+      log.debug(
+        `SyncManager.exportAndPush: exporting up to ${limit} records after ${after?.data?.id}`,
+      );
+      return executeExportPlan(plan, { after, limit });
+    };
+
+    // unmark
+    const unmarkRecords = async records => {
+      await model.update(
+        { markedForPush: false },
+        {
+          where: {
+            id: records.map(r => r.data.id),
+          },
+        },
+      );
+    };
+
+    let after = null;
+    do {
+      const records = await exportRecords(after);
+      after = records[records.length - 1] || null;
+      if (records.length > 0) {
+        log.debug(`SyncManager.exportAndPush: pushing ${records.length} to sync server`);
+        await this.remote.push(channel, records);
+        await unmarkRecords(records);
+      }
+    } while (after !== null);
+
+    log.debug(`SyncManager.exportAndPush: reached end of ${channel}`);
+  }
+
   async getLastSynced(channel) {
     const metadata = await this.context.models.SyncMetadata.findOne({ where: { channel } });
     return metadata?.lastSynced || 0;
@@ -90,6 +124,8 @@ export class SyncManager {
       models.SurveyScreenComponent,
 
       models.Patient,
+
+      models.Encounter,
     ];
 
     for (const model of modelsToSync) {
@@ -97,8 +133,7 @@ export class SyncManager {
         await this.pullAndImport(model);
       }
       if (shouldPush(model)) {
-        // TODO: implement exportAndPush
-        log.warn('exportAndPush not implement yet');
+        await this.exportAndPush(model);
       }
     }
   }

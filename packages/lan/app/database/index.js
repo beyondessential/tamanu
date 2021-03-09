@@ -18,5 +18,6 @@ export async function initDatabase() {
     testMode,
     log,
     primaryKeyDefault: testMode ? createTestUUID : undefined,
+    syncClientMode: true,
   });
 }
