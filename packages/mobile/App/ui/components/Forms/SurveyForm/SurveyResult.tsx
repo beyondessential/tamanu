@@ -6,21 +6,21 @@ import { useBackend } from '~/ui/hooks';
 import { Field } from '../FormField';
 import { SurveyResultBadge } from '../../SurveyResultBadge';
 
-export const SurveyResult = ({ selectedPatient, surveyId, questionId }) => {
+export const SurveyResult = ({ patient, config, name }) => {
   const [surveyResponse, setSurveyResponse] = useState();
   const { setFieldValue } = useFormikContext();
   const { models } = useBackend();
 
   useEffect(() => {
     (async (): Promise<void> => {
-      const responses = await models.SurveyResponse.getForPatient(selectedPatient.id, surveyId);
+      const responses = await models.SurveyResponse.getForPatient(patient.id, config.source);
       if (responses.length === 0) return;
       setSurveyResponse(responses[0]); // getForPatient returns responses sorted by most recent, we want the most recent.
-      setFieldValue(questionId, responses[0].resultText || responses[0].resultText)
+      setFieldValue(name, responses[0].resultText || responses[0].resultText)
     })();
-  }, [selectedPatient, surveyId]);
+  }, [patient, config.source]);
 
-  if (!surveyResponse) return <Text>Survey (id: {surveyId}) not submitted for patient.</Text>;
+  if (!surveyResponse) return <Text>Survey (id: {config.source}) not submitted for patient.</Text>;
   const SurveyBadgeField = () => (
     <View>
       <Subheading>CVD Risk</Subheading>

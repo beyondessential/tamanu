@@ -16,6 +16,9 @@ export const FieldTypes = {
   CALCULATED: 'CalculatedQuestion',
   CONDITION: 'ConditionQuestion',
   RESULT: 'Result',
+  SURVEY_ANSWER: 'SurveyAnswer',
+  SURVEY_RESULT: 'SurveyResult',
+  SURVEY_LINK: 'SurveyLink',
 };
 
 export const getStringValue = (type: string, value: any): string  => {

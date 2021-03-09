@@ -23,6 +23,7 @@ export const SurveyResponseScreen = ({
   route,
 }: SurveyResponseScreenProps): ReactElement => {
   const { surveyId, selectedPatient, surveyType } = route.params;
+  const isReferral = surveyType === SurveyTypes.Referral;
   const selectedPatientId = selectedPatient.id;
   const navigation = useNavigation();
 
@@ -40,7 +41,8 @@ export const SurveyResponseScreen = ({
   const { models } = useBackend();
   const onSubmit = useCallback(
     async (values: any) => {
-      const response = await models.SurveyResponse.submit(
+      const model = isReferral ? models.Referral : models.SurveyResponse;
+      const response = await model.submit(
         selectedPatientId,
         {
           surveyId,
@@ -54,7 +56,7 @@ export const SurveyResponseScreen = ({
 
       if(!response) return;
 
-      if(surveyType === SurveyTypes.Referral) {
+      if(isReferral) {
         navigation.navigate(
           Routes.HomeStack.ProgramStack.ReferralTabs.ViewHistory,
           {

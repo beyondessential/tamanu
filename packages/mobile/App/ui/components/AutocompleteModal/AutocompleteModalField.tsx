@@ -12,7 +12,6 @@ export const AutocompleteModalField = ({
   placeholder,
   onChange,
   suggester,
-  options,
   modalRoute,
 }): JSX.Element => {
   const navigation = useNavigation();
@@ -25,7 +24,6 @@ export const AutocompleteModalField = ({
   const openModal = (): void => navigation.navigate(modalRoute, {
     callback: onPress,
     suggester,
-    options,
   });
 
   useEffect(() => {

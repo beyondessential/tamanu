@@ -34,7 +34,7 @@ const Screen = ({ selectedPatient }: ProgramListScreenProps): ReactElement => {
     navigation.navigate(Routes.HomeStack.ProgramStack.ProgramTabs.Index, {
       surveyId: survey.id,
       surveyName: survey.name,
-      surveyType: SurveyTypes.Screening,
+      surveyType: SurveyTypes.Programs,
     });
   };
 

@@ -1,6 +1,6 @@
 import { Entity, ManyToOne, RelationId } from 'typeorm/browser';
 import { BaseModel } from './BaseModel';
-import { IReferral } from '~/types';
+import { IReferral, ISurveyResponse, ISurveyScreenComponent } from '~/types';
 import { Encounter } from './Encounter';
 import { SurveyResponse } from './SurveyResponse';
 
@@ -20,6 +20,25 @@ export class Referral extends BaseModel implements IReferral {
   surveyResponse: SurveyResponse;
   @RelationId(({ surveyResponse }) => surveyResponse)
   surveyResponseId: string;
+
+
+  static async submit(
+    patientId: string,
+    surveyData: ISurveyResponse & {
+      encounterReason: string,
+      components: ISurveyScreenComponent[],
+    },
+    values: object,
+    setNote: (note: string) => void = () => null,
+  ) {
+    const response = await SurveyResponse.submit(patientId, surveyData, values, setNote);
+    const referralRecord: Referral = await Referral.createAndSaveOne({
+      initiatingEncounter: response.encounterId,
+      surveyResponse: response.id,
+    });
+
+    return referralRecord;
+  }
 
   static async getForPatient(patientId: string): Promise<Referral[]> {
     return this.getRepository()

@@ -2,7 +2,6 @@ import {
   Entity,
   Column,
   ManyToOne,
-  ManyToMany,
   OneToMany,
   Index,
   BeforeUpdate,

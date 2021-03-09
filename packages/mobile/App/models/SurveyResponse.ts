@@ -18,9 +18,6 @@ import { Referral } from './Referral';
 
 @Entity('survey_response')
 export class SurveyResponse extends BaseModel implements ISurveyResponse {
-  @Column({ type: 'varchar' })
-  surveyType: SurveyTypes;
-
   @Column()
   startTime: Date;
 
@@ -45,7 +42,7 @@ export class SurveyResponse extends BaseModel implements ISurveyResponse {
   @RelationId(({ encounter }) => encounter)
   encounterId: string;
 
-  @OneToMany(() => Referral, referral => referral.surveyResponse, { eager: true })
+  @OneToMany(() => Referral, referral => referral.surveyResponse)
   referral: Referral
 
   @OneToMany(() => SurveyResponseAnswer, answer => answer.response)
@@ -81,16 +78,14 @@ export class SurveyResponse extends BaseModel implements ISurveyResponse {
     patientId: string,
     surveyData: ISurveyResponse & {
       encounterReason: string,
-      surveyType: SurveyTypes,
       components: ISurveyScreenComponent[],
     },
     values: object,
     setNote: (note: string) => void = () => null,
-  ): Promise<SurveyResponse | Referral> {
+  ): Promise<SurveyResponse> {
     const {
       surveyId,
       encounterReason,
-      surveyType,
       components,
       ...otherData
     } = surveyData;
@@ -115,7 +110,6 @@ export class SurveyResponse extends BaseModel implements ISurveyResponse {
       const responseRecord: SurveyResponse = await SurveyResponse.createAndSaveOne({
         encounter: encounter.id,
         survey: surveyId,
-        surveyType,
         startTime: Date.now(),
         endTime: Date.now(),
         result,
@@ -152,18 +146,6 @@ export class SurveyResponse extends BaseModel implements ISurveyResponse {
           body,
           response: responseRecord.id,
         });
-      }
-      
-      // Create referral
-      if (surveyType === SurveyTypes.Referral) {
-        setNote("Creating referral object...");
-        const referralRecord: Referral = await Referral.createAndSaveOne({
-          initiatingEncounter: encounter.id,
-          surveyResponse: responseRecord.id,
-        });
-        setNote('Done');
-
-        return referralRecord;
       }
       setNote('Done');
 

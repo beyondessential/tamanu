@@ -6,6 +6,13 @@ export interface ISurvey {
   programId: ID;
 
   name: string;
+
+  surveyType: SurveyTypes;
+}
+
+export enum SurveyTypes {
+  Programs = 'programs',
+  Referral = 'referral',
 }
 
 export interface ISurveyScreenComponent {

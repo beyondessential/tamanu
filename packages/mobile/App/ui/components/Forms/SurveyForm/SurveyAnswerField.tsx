@@ -8,25 +8,25 @@ import { Field } from '../FormField';
 import { TextField } from '../../TextField/TextField';
 import { useFormikContext } from 'formik';
 
-const SurveyAnswerFieldComponent = ({ selectedPatient, questionId, source, question }) => {
+export const SurveyAnswerField = ({ patient, name, config, defaultText }) => {
   const [surveyResponseAnswer, setSurveyResponseAnswer] = useState();
   const { setFieldValue } = useFormikContext();
   const { models } = useBackend();
 
   useEffect(() => {
     (async () => {
-      const answer = await models.ReferralQuestion.getLatestAnswerForPatient(selectedPatient.id, source);
+      const answer = await models.ReferralQuestion.getLatestAnswerForPatient(patient.id, config.source);
       setSurveyResponseAnswer(answer ? answer.body : '');
-      setFieldValue(questionId, (answer && answer.body))
+      setFieldValue(name, (answer && answer.body))
     })();
-  }, [selectedPatient.id, surveyResponseAnswer])
+  }, [patient.id, surveyResponseAnswer])
 
   return (
     <StyledView marginTop={10}>
       <Field
         component={TextField}
-        name={questionId}
-        label={question}
+        name={name}
+        label={defaultText}
         value={surveyResponseAnswer || 'Answer not submitted'}
         disabled
       />
@@ -34,4 +34,4 @@ const SurveyAnswerFieldComponent = ({ selectedPatient, questionId, source, quest
   )
 }
 
-export const SurveyAnswerField = compose(withPatient)(SurveyAnswerFieldComponent);
+// export const SurveyAnswerField = compose(withPatient)(SurveyAnswerFieldComponent);

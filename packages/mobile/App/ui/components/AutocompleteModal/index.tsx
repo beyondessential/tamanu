@@ -5,6 +5,7 @@ import { NavigationProp } from '@react-navigation/native';
 import Autocomplete from 'react-native-autocomplete-input';
 import { TouchableOpacity } from 'react-native-gesture-handler';
 import { theme } from '~/ui/styled/theme';
+import { Suggester } from '~/ui/helpers/suggester';
 
 const styles = StyleSheet.create({
   container: {
@@ -31,23 +32,25 @@ const styles = StyleSheet.create({
 
 type AutocompleteModalScreenProps = {
   navigation: NavigationProp<any>;
-  route: any;
+  route: {
+    params: {
+      suggester: Suggester,
+      callback: (item: any) => any,
+  }};
 };
 
 export const AutocompleteModalScreen = ({
   route,
   navigation,
 }: AutocompleteModalScreenProps): ReactElement => {
-  const { callback, suggester, options } = route.params;
+  const { callback, suggester } = route.params;
   const [searchTerm, setSearchTerm] = useState(null);
-  const [filteredOptions, filterOptions] = useState([]);
+  const [displayedOptions, setDisplayedOptions] = useState([]);
 
   useEffect(() => {
     (async (): Promise<void> => {
-      let data = [];
-      if (suggester) data = await suggester.fetchSuggestions(searchTerm);
-      if (options) data = options;
-      filterOptions(data);
+      const data = await suggester.fetchSuggestions(searchTerm);
+      setDisplayedOptions(data);
     })();
   }, [searchTerm]);
 
@@ -65,7 +68,7 @@ export const AutocompleteModalScreen = ({
     <View style={styles.container}>
       <Autocomplete
         placeholder="Search..."
-        data={filteredOptions}
+        data={displayedOptions}
         onChangeText={setSearchTerm}
         autoFocus={true}
         renderItem={({ item }): JSX.Element => {

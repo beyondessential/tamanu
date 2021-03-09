@@ -12,17 +12,17 @@ export interface SelectOption {
 export interface DropdownProps extends BaseInputProps {
   options?: SelectOption[];
   onChange?: Function;
-  isSingleSelect?: boolean;
+  multiselect?: boolean;
 }
 
 export const Dropdown = React.memo(
   ({
     options,
     onChange,
-    isSingleSelect = true,
+    multiselect = false,
   }: DropdownProps) => {
     const [selectedItems, setSelectedItems] = useState([]);
-    const componentEl = useRef(null);
+    const componentRef = useRef(null);
     const onSelectedItemsChange = useCallback(
       (items) => {
         setSelectedItems(items);
@@ -37,11 +37,11 @@ export const Dropdown = React.memo(
         marginTop={10}
       >
         <MultiSelect
-          single={isSingleSelect}
+          single={!multiselect}
           items={options}
           displayKey="label"
           uniqueKey="value"
-          ref={componentEl}
+          ref={componentRef}
           onSelectedItemsChange={onSelectedItemsChange}
           selectedItems={selectedItems}
           selectText="Select Items"
