@@ -13,6 +13,7 @@ import { NumberField } from '~/ui/components/NumberField';
 import { ReadOnlyField } from '~/ui/components/ReadOnlyField';
 
 import { AutocompleteModalField } from '../components/AutocompleteModal/AutocompleteModalField';
+import { SurveyQuestionAutocomplete } from '../components/AutocompleteModal/SurveyQuestionAutocomplete';
 import { useBackend } from '../hooks';
 import { SurveyLink } from '../components/Forms/SurveyForm/SurveyLink';
 import { SurveyResult } from '../components/Forms/SurveyForm/SurveyResult';
@@ -27,7 +28,6 @@ export const FieldByType = {
   [FieldTypes.AUTOCOMPLETE]: SurveyQuestionAutocomplete,
   [FieldTypes.DATE]: DateField,
   [FieldTypes.SUBMISSION_DATE]: DateField,
-  [FieldTypes.INSTRUCTION]: null,
   [FieldTypes.NUMBER]: NumberField,
   [FieldTypes.BINARY]: Checkbox,
   [FieldTypes.CHECKBOX]: Checkbox,
@@ -35,5 +35,6 @@ export const FieldByType = {
   [FieldTypes.SURVEY_LINK]: SurveyLink,
   [FieldTypes.SURVEY_RESULT]: SurveyResult,
   [FieldTypes.SURVEY_ANSWER]: SurveyAnswerField,
+  [FieldTypes.INSTRUCTION]: null,
   [FieldTypes.RESULT]: null,
 };
