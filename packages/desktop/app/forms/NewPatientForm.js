@@ -59,6 +59,8 @@ export const NewPatientForm = memo(
     villageSuggester,
     ethnicitySuggester,
     nationalitySuggester,
+    divisionSuggester,
+    subdivisionSuggester,
     isBirth,
   }) => {
     const [isExpanded, setExpanded] = useState(false);
@@ -73,6 +75,8 @@ export const NewPatientForm = memo(
           villageSuggester={villageSuggester}
           ethnicitySuggester={ethnicitySuggester}
           nationalitySuggester={nationalitySuggester}
+          divisionSuggester={divisionSuggester}
+          subdivisionSuggester={subdivisionSuggester}
         />
         <AdditionalInformationRow>
           <div>

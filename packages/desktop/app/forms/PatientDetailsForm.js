@@ -26,6 +26,8 @@ export const PrimaryDetailsGroup = ({
   villageSuggester,
   ethnicitySuggester,
   nationalitySuggester,
+  divisionSuggester,
+  subdivisionSuggester,
 }) => (
   <React.Fragment>
     <Field name="firstName" label="First name" component={TextField} required />
@@ -56,6 +58,18 @@ export const PrimaryDetailsGroup = ({
     />
     <Field name="cityTown" label="City/Town" component={TextField} />
     <Field name="streetVillage" label="Street/Village" component={TextField} />
+    <Field
+      name="divisionId"
+      label="Division"
+      component={AutocompleteField}
+      suggester={divisionSuggester}
+    />
+    <Field
+      name="subdivisionId"
+      label="Sub Division"
+      component={AutocompleteField}
+      suggester={subdivisionSuggester}
+    />
     <Field
       name="maritalStatus"
       label="MaritalStatus"
@@ -138,6 +152,8 @@ export const PatientDetailsForm = ({
   villageSuggester,
   ethnicitySuggester,
   nationalitySuggester,
+  divisionSuggester,
+  subdivisionSuggester,
   patient,
   onSubmit,
 }) => {
@@ -148,6 +164,8 @@ export const PatientDetailsForm = ({
           villageSuggester={villageSuggester}
           ethnicitySuggester={ethnicitySuggester}
           nationalitySuggester={nationalitySuggester}
+          divisionSuggester={divisionSuggester}
+          subdivisionSuggester={subdivisionSuggester}
         />
         <SecondaryDetailsGroup
           patientSuggester={patientSuggester}
@@ -166,6 +184,8 @@ export const PatientDetailsForm = ({
       nationalitySuggester,
       patientSuggester,
       facilitySuggester,
+      divisionSuggester,
+      subdivisionSuggester,
     ],
   );
 

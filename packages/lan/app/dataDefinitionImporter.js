@@ -220,6 +220,8 @@ const importers = {
   careplans: referenceDataImporter('carePlan'),
   ethnicities: referenceDataImporter('ethnicity'),
   nationalities: referenceDataImporter('nationality'),
+  divisions: referenceDataImporter('division'),
+  subdivisions: referenceDataImporter('subdivision'),
   users: userImporter,
   patients: patientImporter,
   labtesttypes: labTestTypesImporter,

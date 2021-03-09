@@ -115,7 +115,9 @@ export const REFERENCE_TYPES = {
   VILLAGE: 'village',
   CARE_PLAN: 'carePlan',
   ETHNICITY: 'ethnicity',
-  NATIONALITY: 'nationality'
+  NATIONALITY: 'nationality',
+  DIVISION: 'division',
+  SUBDIVISION: 'subdivision',
 };
 
 export const REFERENCE_TYPE_VALUES = Object.values(REFERENCE_TYPES);
