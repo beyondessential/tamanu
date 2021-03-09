@@ -52,6 +52,8 @@ describe('import', () => {
       {
         include: [
           { association: 'administeredVaccines' },
+          { association: 'diagnoses' },
+          { association: 'medications' },
           {
             association: 'surveyResponses',
             include: [{ association: 'answers' }],
@@ -75,7 +77,7 @@ describe('import', () => {
 
         // assert
         const dbRecord = await model.findByPk(record.id, options);
-        expect(dbRecord.dataValues).toMatchObject(record);
+        expect(dbRecord.get({ plain: true })).toMatchObject(record);
       });
 
       it('updates the record', async () => {
@@ -95,7 +97,7 @@ describe('import', () => {
 
         // assert
         const dbRecord = await model.findByPk(oldRecord.id, options);
-        expect(dbRecord.dataValues).toMatchObject(newRecord);
+        expect(dbRecord.get({ plain: true })).toMatchObject(newRecord);
       });
 
       it('deletes tombstones', async () => {
@@ -111,7 +113,7 @@ describe('import', () => {
 
         // assert
         const dbRecord = await model.findByPk(record.id, options);
-        expect(dbRecord).toEqual(null);
+        expect(dbRecord.get({ plain: true })).toEqual(null);
       });
     });
   });

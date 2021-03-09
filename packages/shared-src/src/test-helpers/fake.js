@@ -1,6 +1,7 @@
 import { random, sample } from 'lodash';
 import { v4 as uuidv4 } from 'uuid';
 import {
+  DIAGNOSIS_CERTAINTY_VALUES,
   ENCOUNTER_TYPE_VALUES,
   PROGRAM_DATA_ELEMENT_TYPE_VALUES,
   REFERENCE_TYPE_VALUES,
@@ -162,5 +163,36 @@ export function fakeSurveyResponseAnswer(prefix = 'test-') {
     dataElementId: null,
     responseId: null,
     ...fakeStringFields(`${prefix}surveyResponseAnswer_${id}_`, ['id', 'name', 'body']),
+  };
+}
+
+export function fakeEncounterDiagnosis(prefix = 'test-') {
+  const id = uuidv4();
+  return {
+    certainty: sample(DIAGNOSIS_CERTAINTY_VALUES),
+    date: new Date(random(0, Date.now())),
+    isPrimary: sample([true, false]),
+    encounterId: null,
+    diagnosisId: null,
+    ...fakeStringFields(`${prefix}encounterDiagnosis_${id}_`, ['id']),
+  };
+}
+
+export function fakeEncounterMedication(prefix = 'test-') {
+  const id = uuidv4();
+  return {
+    date: new Date(random(0, Date.now())),
+    endDate: new Date(random(0, Date.now())),
+    qtyMorning: random(0, 10),
+    qtyLunch: random(0, 10),
+    qtyEvening: random(0, 10),
+    qtyNight: random(0, 10),
+    ...fakeStringFields(`${prefix}encounterMedication_${id}_`, [
+      'id',
+      'prescription',
+      'note',
+      'indication',
+      'route',
+    ]),
   };
 }

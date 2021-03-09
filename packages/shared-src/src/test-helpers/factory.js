@@ -4,6 +4,8 @@ import { REFERENCE_TYPES } from 'shared/constants';
 import {
   fakeAdministeredVaccine,
   fakeEncounter,
+  fakeEncounterDiagnosis,
+  fakeEncounterMedication,
   fakePatient,
   fakeProgramDataElement,
   fakeReferenceData,
@@ -64,6 +66,23 @@ export const buildNestedEncounter = async (ctx, patientId) => {
   delete surveyResponseAnswer.responseId;
   surveyResponseAnswer.dataElementId = programDataElement.id;
   surveyResponse.answers = [surveyResponseAnswer];
+
+  const diagnosis = fakeReferenceData();
+  await ctx.models.ReferenceData.create(diagnosis);
+
+  const encounterDiagnosis = fakeEncounterDiagnosis();
+  delete encounterDiagnosis.encounterId;
+  encounterDiagnosis.diagnosisId = diagnosis.id;
+  encounter.diagnoses = [encounterDiagnosis];
+
+  const medication = fakeReferenceData();
+  await ctx.models.ReferenceData.create(medication);
+
+  const encounterMedication = fakeEncounterMedication();
+  delete encounterMedication.encounterId;
+  encounterMedication.medicationId = medication.id;
+  encounterMedication.prescriberId = encounter.examinerId;
+  encounter.medications = [encounterMedication];
 
   return encounter;
 };
