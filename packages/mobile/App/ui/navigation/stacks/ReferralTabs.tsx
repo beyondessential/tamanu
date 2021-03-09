@@ -13,6 +13,7 @@ import { List } from 'react-native-paper';
 import { format } from 'date-fns';
 import { ReferralFormStack } from './ReferralFormStack';
 import { StyledScrollView } from '~/ui/styled/common';
+import { ErrorBoundary } from '~/ui/components/ErrorBoundary';
 
 const Tabs = createTopTabNavigator();
 
@@ -60,7 +61,7 @@ const TabNavigator = ({
   }, []);
 
   return (
-    <>
+    <ErrorBoundary>
       <StackHeader
         title="Referrals"
         subtitle={joinNames(selectedPatient)}
@@ -85,7 +86,7 @@ const TabNavigator = ({
           component={ReferralHistoryScreen}
         />
       </Tabs.Navigator>
-    </>
+    </ErrorBoundary>
   );
 };
 

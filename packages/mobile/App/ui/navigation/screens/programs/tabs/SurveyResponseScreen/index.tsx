@@ -18,6 +18,7 @@ import { ISurveyScreenComponent } from '~/types/ISurvey';
 
 import { useBackend, useBackendEffect } from '~/ui/hooks';
 import { SurveyTypes } from '~/types';
+import { ErrorBoundary } from '~/ui/components/ErrorBoundary';
 
 export const SurveyResponseScreen = ({
   route,
@@ -90,15 +91,17 @@ export const SurveyResponseScreen = ({
   }
 
   return (
-    <FullView>
-      <SurveyForm
-        survey={survey}
-        patient={selectedPatient}
-        note={note}
-        components={components}
-        onSubmit={onSubmit}
-      />
-    </FullView>
+    <ErrorBoundary resetRoute={Routes.HomeStack.ProgramStack.ProgramListScreen}>
+      <FullView>
+        <SurveyForm
+          survey={survey}
+          patient={selectedPatient}
+          note={note}
+          components={components}
+          onSubmit={onSubmit}
+        />
+      </FullView>
+    </ErrorBoundary>
   );
 
 };

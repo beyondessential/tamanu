@@ -14,9 +14,9 @@ export const VitalsTable = memo(
     const columns = useCallback(() => vitalsColumns(patientData), [patientData])();
     const cells = {};
     patientData.forEach(vitals => {
-      cells[vitals.date.toDateString()] = [];
+      cells[vitals.date.toString()] = [];
       Object.entries(vitals).forEach(([key, value]) => {
-        cells[vitals.date.toDateString()].push({
+        cells[vitals.date.toString()].push({
           label: key,
           value,
         });

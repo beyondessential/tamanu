@@ -8,6 +8,7 @@ apply from: project(':react-native-config').projectDir.getPath() + "/dotenv.grad
 apply from: "../../node_modules/react-native-vector-icons/fonts.gradle"
 
 import com.android.build.OutputFile
+import groovy.json.JsonSlurper
 
 /**
  * The react.gradle file registers a task for each build variant (e.g. bundleDebugJsAndAssets
@@ -127,6 +128,14 @@ def jscFlavor = 'org.webkit:android-jsc:+'
  */
 def enableHermes = project.ext.react.get("enableHermes", false);
 
+def getAppVersion() {
+    File inputFile = file("${rootDir}/../package.json")
+    def packageJson = new JsonSlurper().parseText(inputFile.text)
+    return packageJson["version"]
+}
+
+def (major, minor, patch) = getAppVersion().tokenize('.')
+
 android {
     compileSdkVersion rootProject.ext.compileSdkVersion
 
@@ -139,8 +148,8 @@ android {
         applicationId "com.tamanuapp"
         minSdkVersion rootProject.ext.minSdkVersion
         targetSdkVersion rootProject.ext.targetSdkVersion
-        versionCode 1
-        versionName "1.0"
+        versionCode patch.toInteger()
+        versionName getAppVersion()
         multiDexEnabled true
     }
     splits {
@@ -163,7 +172,7 @@ android {
         debug {
             signingConfig signingConfigs.debug
         }
-        release {                        
+        release {
             // release signing done as a separate step in AppCenter
             minifyEnabled enableProguardInReleaseBuilds
             proguardFiles getDefaultProguardFile("proguard-android.txt"), "proguard-rules.pro"
