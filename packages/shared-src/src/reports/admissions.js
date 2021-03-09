@@ -52,7 +52,11 @@ function parametersToSqlWhere(parameters) {
 async function queryAdmissionsData(models, parameters) {
   const result = await models.Encounter.findAll({
     include: [
-      { model: models.Patient, as: 'patient', include: [{ model: models.ReferenceData }] },
+      {
+        model: models.Patient,
+        as: 'patient',
+        include: [{ model: models.ReferenceData, as: 'village' }],
+      },
       { model: models.User, as: 'examiner' },
       { model: models.ReferenceData, as: 'location' },
       { model: models.ReferenceData, as: 'department' },

@@ -1,5 +1,4 @@
 import React from 'react';
-import { Chance } from 'chance';
 
 import { FormGrid } from '../components/FormGrid';
 import { ButtonRow } from '../components/ButtonRow';
@@ -12,14 +11,22 @@ import {
   AutocompleteField,
   TextField,
   RadioField,
+  SelectField,
 } from '../components/Field';
 
-import { sexOptions } from '../constants';
+import {
+  sexOptions,
+  bloodOptions,
+  titleOptions,
+  socialMediaOptions,
+  maritalStatusOptions,
+} from '../constants';
 
-export const PrimaryDetailsGroup = ({ villageSuggester }) => (
+export const PrimaryDetailsGroup = ({ villageSuggester, ethnicitySuggester }) => (
   <React.Fragment>
     <Field name="firstName" label="First name" component={TextField} required />
     <Field name="middleName" label="Middle name" component={TextField} />
+    <Field name="title" label="Title" component={SelectField} options={titleOptions} />
     <Field name="lastName" label="Last name" component={TextField} required />
     <Field name="culturalName" label="Cultural/Traditional name" component={TextField} />
     <Field
@@ -29,7 +36,24 @@ export const PrimaryDetailsGroup = ({ villageSuggester }) => (
       suggester={villageSuggester}
     />
     <Field name="dateOfBirth" label="Date of birth" component={DateField} required />
+    <Field name="placeOfBirth" label="Plate of birth" component={TextField} />
     <Field name="sex" label="Sex" component={RadioField} options={sexOptions} inline required />
+    <Field name="nationality" label="Nationality" component={TextField} />
+    <Field name="country" label="Country" component={TextField} />
+    <Field name="cityTown" label="City/Town" component={TextField} />
+    <Field name="streetVillage" label="Street/Village" component={TextField} />
+    <Field
+      name="maritalStatus"
+      label="MaritalStatus"
+      component={SelectField}
+      options={maritalStatusOptions}
+    />
+    <Field
+      name="ethnicityId"
+      label="Ethnicity"
+      component={AutocompleteField}
+      suggester={ethnicitySuggester}
+    />
   </React.Fragment>
 );
 
@@ -54,11 +78,13 @@ export const SecondaryDetailsGroup = ({ isBirth, patientSuggester, facilitySugge
       component={RadioField}
       name="patientType"
       label="Patient Type"
-      options={[{ value: 'charity', label: 'Charity' }, { value: 'private', label: 'Private' }]}
+      options={[
+        { value: 'charity', label: 'Charity' },
+        { value: 'private', label: 'Private' },
+      ]}
       inline
     />
-    <Field name="bloodType" label="Blood type" component={TextField} />
-    <Field name="placeOfBirth" label="Place of birth" component={TextField} />
+    <Field name="bloodType" label="Blood type" component={SelectField} options={bloodOptions} />
     <Field name="referredBy" label="Referred by" component={TextField} />
     <Field name="referredDate" label="Referred date" component={DateField} />
     <Field
@@ -69,8 +95,24 @@ export const SecondaryDetailsGroup = ({ isBirth, patientSuggester, facilitySugge
       required={isBirth}
     />
     <Field name="residentialAddress" label="Residential address" component={TextField} />
-    <Field name="contactNumber" label="Contact number" component={TextField} />
-    <Field name="socialMediaPlatform" label="Social media platform" component={TextField} />
+    <Field
+      name="primaryContactNumber"
+      label="Primary Contact Number"
+      component={TextField}
+      type="tel"
+    />
+    <Field
+      name="secondaryContactNumber"
+      label="Secondary Contact Number"
+      component={TextField}
+      type="tel"
+    />
+    <Field
+      name="socialMediaPlatform"
+      label="Social media platform"
+      component={SelectField}
+      options={socialMediaOptions}
+    />
     <Field name="socialMediaName" label="Social media name" component={TextField} />
     <Field name="email" label="Email" component={TextField} />
   </React.Fragment>
@@ -80,22 +122,14 @@ export const PatientDetailsForm = ({
   patientSuggester,
   facilitySuggester,
   villageSuggester,
+  ethnicitySuggester,
   patient,
   onSubmit,
 }) => {
-  const chance = new Chance(patient.id); // seed random with user id for reproducible values
-  const dummyData = {
-    residentialAddress: `${chance.address()}, ${chance.city()}, Fiji`,
-    contactNumber: `${chance.phone({ formatted: false }).slice(0, 3)} ${chance.phone({ formatted: false }).slice(0, 4)}`,
-    socialMediaPlatform: chance.pickone(['Facebook', 'Instagram', 'LinkedIn', 'Twitter', 'Viber', 'Whatsapp']),
-    socialMediaName: `@${chance.animal().replace(/[^a-zA-Z]/g, '')}${chance.natural({ min: 0, max: 99, exclude: [69] })}`,
-    email: chance.email(),
-  };
-
   const render = React.useCallback(
     ({ submitForm }) => (
       <FormGrid>
-        <PrimaryDetailsGroup villageSuggester={villageSuggester} />
+        <PrimaryDetailsGroup villageSuggester={villageSuggester} ethnicitySuggester={ethnicitySuggester} />
         <SecondaryDetailsGroup
           patientSuggester={patientSuggester}
           facilitySuggester={facilitySuggester}
@@ -110,5 +144,5 @@ export const PatientDetailsForm = ({
     [patientSuggester, facilitySuggester],
   );
 
-  return <Form render={render} initialValues={{ ...patient, ...dummyData }} onSubmit={onSubmit} />;
+  return <Form render={render} initialValues={patient} onSubmit={onSubmit} />;
 };

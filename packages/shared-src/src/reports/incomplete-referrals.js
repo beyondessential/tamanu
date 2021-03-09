@@ -72,7 +72,11 @@ function parametersToSqlWhere(parameters) {
 async function queryReferralsData(models, parameters) {
   const result = await models.Referral.findAll({
     include: [
-      { model: models.Patient, as: 'patient', include: [{ model: models.ReferenceData }] },
+      {
+        model: models.Patient,
+        as: 'patient',
+        include: [{ model: models.ReferenceData, as: 'village' }],
+      },
       { model: models.User, as: 'referredBy' },
       { model: models.ReferenceData, as: 'referredToDepartment' },
       { model: models.ReferenceData, as: 'referredToFacility' },

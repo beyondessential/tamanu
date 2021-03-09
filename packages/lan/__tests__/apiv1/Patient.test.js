@@ -32,6 +32,7 @@ describe('Patient', () => {
     expect(result.body).toHaveProperty('displayId', patient.displayId);
     expect(result.body).toHaveProperty('firstName', patient.firstName);
     expect(result.body).toHaveProperty('lastName', patient.lastName);
+    expect(result.body).toHaveProperty('title', patient.title);
   });
 
   test.todo('should get a list of patient conditions');
@@ -51,20 +52,31 @@ describe('Patient', () => {
     });
 
     it('should create a new patient', async () => {
-      const patient = await createDummyPatient(models);
-      const result = await app.post('/v1/patient').send(patient);
+      const newPatient = await createDummyPatient(models);
+      const result = await app.post('/v1/patient').send(newPatient);
       expect(result).toHaveSucceeded();
-      expect(result.body).toHaveProperty('displayId', patient.displayId);
-      expect(result.body).toHaveProperty('firstName', patient.firstName);
-      expect(result.body).toHaveProperty('lastName', patient.lastName);
+      expect(result.body).toHaveProperty('displayId', newPatient.displayId);
+      expect(result.body).toHaveProperty('firstName', newPatient.firstName);
+      expect(result.body).toHaveProperty('lastName', newPatient.lastName);
+      expect(result.body).toHaveProperty('title', newPatient.title);
+      expect(result.body).toHaveProperty('placeOfBirth', newPatient.placeOfBirth);
     });
 
     it('should update patient details', async () => {
+      // skip placeOfBirth, to be added in PUT request
+      const newPatient = await createDummyPatient(models, { placeOfBirth: '' });
+      const result = await app.post('/v1/patient').send(newPatient);
+      expect(result.body.placeOfBirth).toBeNull();
+
       const newVillage = await randomReferenceId(models, 'village');
-      const updateResult = await app.put(`/v1/patient/${patient.id}`).send({
+      const updateResult = await app.put(`/v1/patient/${result.body.id}`).send({
         villageId: newVillage,
+        placeOfBirth: 'Birthplace',
       });
+
       expect(updateResult).toHaveSucceeded();
+      expect(updateResult.body).toHaveProperty('villageId', newVillage);
+      expect(updateResult.body).toHaveProperty('placeOfBirth', 'Birthplace');
     });
 
     test.todo('should create a new patient as a new birth');

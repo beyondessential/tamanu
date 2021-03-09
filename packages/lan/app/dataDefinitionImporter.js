@@ -218,6 +218,7 @@ const importers = {
   imagingtypes: referenceDataImporter('imagingType'),
   procedures: referenceDataImporter('procedureType'),
   careplans: referenceDataImporter('carePlan'),
+  ethnicities: referenceDataImporter('ethnicity'),
   users: userImporter,
   patients: patientImporter,
   labtesttypes: labTestTypesImporter,
