@@ -15,6 +15,7 @@ import {
   IndeterminateCheckBox,
   ChevronLeft,
   ChevronRight,
+  Refresh,
 } from '@material-ui/icons';
 
 import { checkAbility } from '../utils/ability';
@@ -196,6 +197,12 @@ export const PlusIconButton = ({ ...props }) => (
 export const MinusIconButton = ({ ...props }) => (
   <IconButton color="primary" {...props}>
     <IndeterminateCheckBox fontSize="inherit" />
+  </IconButton>
+);
+
+export const RefreshIconButton = ({ ...props }) => (
+  <IconButton color="primary" {...props}>
+    <Refresh fontSize="inherit" />
   </IconButton>
 );
 

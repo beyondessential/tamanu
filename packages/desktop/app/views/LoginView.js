@@ -8,7 +8,7 @@ import { Button, MinusIconButton, PlusIconButton, TamanuLogo } from '../componen
 import { REMEMBER_EMAIL_KEY } from '../constants';
 import { splashImages } from '../constants/images';
 
-import { Form, Field, TextField, CheckField } from '../components/Field';
+import { Form, Field, TextField, CheckField, ServerDetectingField } from '../components/Field';
 import { FormGrid } from '../components/FormGrid';
 
 const Grid = styled.div`
@@ -66,7 +66,13 @@ export const LoginView = memo(({ errorMessage, onLogin }) => {
     onLogin({ host, email, password });
   };
 
-  const renderForm = () => {
+  const onError = errors => {
+    if (errors.host) {
+      setAdvancedExpanded(true);
+    }
+  };
+
+  const renderForm = ({ setFieldValue }) => {
     return (
       <FormGrid columns={1}>
         <div>{errorMessage}</div>
@@ -87,7 +93,13 @@ export const LoginView = memo(({ errorMessage, onLogin }) => {
           </AdvancedButtonSpan>
         </RememberMeAdvancedRow>
         <Collapse in={isAdvancedExpanded}>
-          <Field name="host" label="LAN Server Address" required component={TextField} />
+          <Field
+            name="host"
+            label="LAN Server Address"
+            required
+            component={ServerDetectingField}
+            setFieldValue={setFieldValue}
+          />
         </Collapse>
         <LoginButton fullWidth variant="contained" color="primary" type="submit">
           Login to your account
@@ -106,9 +118,9 @@ export const LoginView = memo(({ errorMessage, onLogin }) => {
         </LogoContainer>
         <Form
           onSubmit={onSubmit}
+          onError={onError}
           render={renderForm}
           initialValues={{
-            host: process.env.HOST,
             email: rememberEmail,
             rememberMe: !!rememberEmail,
           }}
