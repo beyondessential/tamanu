@@ -12,7 +12,6 @@ export const patient = express.Router();
 
 const AdditionalDetailsProperties = [
   'placeOfBirth',
-  'country',
   'cityTown',
   'streetVillage',
   'maritalStatus',

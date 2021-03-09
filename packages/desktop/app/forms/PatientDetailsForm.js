@@ -48,7 +48,12 @@ export const PrimaryDetailsGroup = ({
       component={AutocompleteField}
       suggester={nationalitySuggester}
     />
-    <Field name="country" label="Country" component={TextField} />
+    <Field
+      name="countryId"
+      label="Country"
+      component={AutocompleteField}
+      suggester={nationalitySuggester}
+    />
     <Field name="cityTown" label="City/Town" component={TextField} />
     <Field name="streetVillage" label="Street/Village" component={TextField} />
     <Field
