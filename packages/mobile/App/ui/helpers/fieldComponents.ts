@@ -12,9 +12,7 @@ import { Checkbox } from '~/ui/components/Checkbox';
 import { NumberField } from '~/ui/components/NumberField';
 import { ReadOnlyField } from '~/ui/components/ReadOnlyField';
 
-import { AutocompleteModalField } from '../components/AutocompleteModal/AutocompleteModalField';
 import { SurveyQuestionAutocomplete } from '../components/AutocompleteModal/SurveyQuestionAutocomplete';
-import { useBackend } from '../hooks';
 import { SurveyLink } from '../components/Forms/SurveyForm/SurveyLink';
 import { SurveyResult } from '../components/Forms/SurveyForm/SurveyResult';
 import { SurveyAnswerField } from '../components/Forms/SurveyForm/SurveyAnswerField';
