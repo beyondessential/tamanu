@@ -1,17 +1,9 @@
 import React, { useEffect, useState, memo } from 'react';
-import styled from 'styled-components';
 import InputAdornment from '@material-ui/core/InputAdornment';
 
 import { discoverServer } from '../../api/discovery';
 import { TextField } from './TextField';
 import { RefreshIconButton } from '../Button';
-
-const Row = styled.div`
-  display: flex;
-  align-items: flex-end;
-`;
-
-const StatusMessage = styled.p``;
 
 export const ServerDetectingField = memo(({ setFieldValue, ...props }) => {
   const [statusMessage, setStatusMessage] = useState('');
@@ -21,7 +13,7 @@ export const ServerDetectingField = memo(({ setFieldValue, ...props }) => {
     try {
       const serverDetails = await discoverServer();
       if (!serverDetails) {
-        setStatusMessage('Could not detect a server, retry or enter manually');
+        setStatusMessage('Could not detect a server. Click retry or enter manually');
         return;
       }
 
@@ -51,7 +43,7 @@ export const ServerDetectingField = memo(({ setFieldValue, ...props }) => {
           ),
         }}
       />
-      <StatusMessage>{statusMessage}</StatusMessage>
+      <p>{statusMessage}</p>
     </div>
   );
 });
