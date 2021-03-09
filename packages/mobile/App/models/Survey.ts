@@ -7,7 +7,7 @@ import { ISurvey, ISurveyResponse, SurveyTypes } from '~/types';
 
 @Entity('survey')
 export class Survey extends BaseModel implements ISurvey {
-  @Column({ type: 'varchar' })
+  @Column({ type: 'varchar', default: SurveyTypes.Programs })
   surveyType: SurveyTypes;
 
   @RelationId(({ program }) => program)
