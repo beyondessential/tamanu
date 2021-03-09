@@ -5,7 +5,7 @@ import { screenPercentageToDP, Orientation } from '~/ui/helpers/screen';
 import { useBackendEffect } from '~/ui/hooks';
 import { StyledView, RowView, StyledText } from '~/ui/styled/common';
 import { theme } from '~/ui/styled/theme';
-import { Table, Row, ColumnCategory, Cell } from './DetailedReportStyledComponents';
+import { Table, Row, ColumnCategory, Cell, BorderRow, HeaderRow } from './DetailedReportStyledComponents';
 import { DateFormats } from '/helpers/constants';
 
 export const DetailedReport: FC = () => {
@@ -16,7 +16,6 @@ export const DetailedReport: FC = () => {
   const [genderData, ageData, visitorsData] = recentVisitorsData || [null, null, null];
 
   const todayFormatted = format(new Date(), DateFormats.DAY_MONTH_YEAR_SHORT);
-
 
   const [referralsData] = useBackendEffect(
     ({ models }) => models.Patient.getReferralList(),
@@ -75,58 +74,164 @@ export const DetailedReport: FC = () => {
         alignItems="center"
       >
         <Table>
-          <Row>
+          <BorderRow>
             <Cell />
             <Cell />
             <Cell>
-              <Text>Number attended</Text>
+              <StyledText
+                fontSize={screenPercentageToDP(1.8, Orientation.Height)}
+                color={theme.colors.TEXT_SUPER_DARK}
+                fontWeight={700}
+                textAlign="center"
+              >Number attended
+              </StyledText>
             </Cell>
             <Cell>
-              <Text>Number screened</Text>
+              <StyledText
+                fontSize={screenPercentageToDP(1.8, Orientation.Height)}
+                color={theme.colors.TEXT_SUPER_DARK}
+                fontWeight={700}
+                textAlign="center"
+              >Number screened
+              </StyledText>
             </Cell>
-          </Row>
+          </BorderRow>
           {
             genderData
             && (
-              <Row>
+              <BorderRow>
                 <ColumnCategory>
-                  <Text>Gender</Text>
+                  <StyledText
+                    fontSize={screenPercentageToDP(1.7, Orientation.Height)}
+                    color={theme.colors.TEXT_DARK}
+                    fontWeight={700}
+                  >Gender
+                  </StyledText>
                 </ColumnCategory>
                 <Cell>
+                  <BorderRow>
+                    <Cell>
+                      <StyledText
+                        fontSize={screenPercentageToDP(1.7, Orientation.Height)}
+                        color={theme.colors.TEXT_DARK}
+                        fontWeight={500}
+                      >Male
+                      </StyledText>
+                    </Cell>
+                    <Cell>
+                      <StyledText
+                        fontSize={screenPercentageToDP(1.7, Orientation.Height)}
+                        color={theme.colors.TEXT_DARK}
+                        fontWeight={500}
+                      >{maleData?.totalVisitors || '0'}
+                      </StyledText>
+                    </Cell>
+                    <Cell>
+                      <StyledText
+                        fontSize={screenPercentageToDP(1.7, Orientation.Height)}
+                        color={theme.colors.TEXT_DARK}
+                        fontWeight={500}
+                      >{maleData?.totalSurveys || '0'}
+                      </StyledText>
+                    </Cell>
+                  </BorderRow>
                   <Row>
-                    <Cell><Text>Male</Text></Cell>
-                    <Cell><Text>{maleData?.totalVisitors || '0'}</Text></Cell>
-                    <Cell><Text>{maleData?.totalSurveys || '0'}</Text></Cell>
-                  </Row>
-                  <Row>
-                    <Cell><Text>Female</Text></Cell>
-                    <Cell><Text>{femaleData?.totalVisitors || '0'}</Text></Cell>
-                    <Cell><Text>{femaleData?.totalSurveys || '0'}</Text></Cell>
+                    <Cell>
+                      <StyledText
+                        fontSize={screenPercentageToDP(1.7, Orientation.Height)}
+                        color={theme.colors.TEXT_DARK}
+                        fontWeight={500}
+                      >Female
+                      </StyledText>
+                    </Cell>
+                    <Cell>
+                      <StyledText
+                        fontSize={screenPercentageToDP(1.7, Orientation.Height)}
+                        color={theme.colors.TEXT_DARK}
+                        fontWeight={500}
+                      >{femaleData?.totalVisitors || '0'}
+                      </StyledText>
+                    </Cell>
+                    <Cell>
+                      <StyledText
+                        fontSize={screenPercentageToDP(1.7, Orientation.Height)}
+                        color={theme.colors.TEXT_DARK}
+                        fontWeight={500}
+                      >{femaleData?.totalSurveys || '0'}
+                      </StyledText>
+                    </Cell>
                   </Row>
                 </Cell>
-              </Row>
+              </BorderRow>
             )
           }
           {
             ageData
             && (
-              <Row>
+              <BorderRow>
                 <ColumnCategory>
-                  <Text>Age</Text>
+                  <StyledText
+                    fontSize={screenPercentageToDP(1.7, Orientation.Height)}
+                    color={theme.colors.TEXT_DARK}
+                    fontWeight={700}
+                  >Age
+                  </StyledText>
                 </ColumnCategory>
                 <Cell>
+                  <BorderRow>
+                    <Cell>
+                      <StyledText
+                        fontSize={screenPercentageToDP(1.7, Orientation.Height)}
+                        color={theme.colors.TEXT_DARK}
+                        fontWeight={500}
+                      >&lt;30
+                      </StyledText>
+                    </Cell>
+                    <Cell>
+                      <StyledText
+                        fontSize={screenPercentageToDP(1.7, Orientation.Height)}
+                        color={theme.colors.TEXT_DARK}
+                        fontWeight={500}
+                      >{youngData?.totalVisitors || '0'}
+                      </StyledText>
+                    </Cell>
+                    <Cell>
+                      <StyledText
+                        fontSize={screenPercentageToDP(1.7, Orientation.Height)}
+                        color={theme.colors.TEXT_DARK}
+                        fontWeight={500}
+                      >{youngData?.totalSurveys || '0'}
+                      </StyledText>
+                    </Cell>
+                  </BorderRow>
                   <Row>
-                    <Cell><Text>&lt;30</Text></Cell>
-                    <Cell><Text>{youngData?.totalVisitors || '0'}</Text></Cell>
-                    <Cell><Text>{youngData?.totalSurveys || '0'}</Text></Cell>
-                  </Row>
-                  <Row>
-                    <Cell><Text>30+</Text></Cell>
-                    <Cell><Text>{oldData?.totalVisitors || '0'}</Text></Cell>
-                    <Cell><Text>{oldData?.totalSurveys || '0'}</Text></Cell>
+                    <Cell>
+                      <StyledText
+                        fontSize={screenPercentageToDP(1.7, Orientation.Height)}
+                        color={theme.colors.TEXT_DARK}
+                        fontWeight={500}
+                      >30+
+                      </StyledText>
+                    </Cell>
+                    <Cell>
+                      <StyledText
+                        fontSize={screenPercentageToDP(1.7, Orientation.Height)}
+                        color={theme.colors.TEXT_DARK}
+                        fontWeight={500}
+                      >{oldData?.totalVisitors || '0'}
+                      </StyledText>
+                    </Cell>
+                    <Cell>
+                      <StyledText
+                        fontSize={screenPercentageToDP(1.7, Orientation.Height)}
+                        color={theme.colors.TEXT_DARK}
+                        fontWeight={500}
+                      >{oldData?.totalSurveys || '0'}
+                      </StyledText>
+                    </Cell>
                   </Row>
                 </Cell>
-              </Row>
+              </BorderRow>
             )
           }
           {
@@ -134,13 +239,32 @@ export const DetailedReport: FC = () => {
             && (
               <Row>
                 <ColumnCategory>
-                  <Text>Total</Text>
+                  <StyledText
+                    fontSize={screenPercentageToDP(1.7, Orientation.Height)}
+                    color={theme.colors.TEXT_SUPER_DARK}
+                    fontWeight={700}
+                  >Total
+                  </StyledText>
                 </ColumnCategory>
                 <Cell>
                   <Row>
                     <Cell />
-                    <Cell><Text>{visitorsData.totalVisitors ?? '0'}</Text></Cell>
-                    <Cell><Text>{visitorsData.totalSurveys ?? '0'}</Text></Cell>
+                    <Cell>
+                      <StyledText
+                        fontSize={screenPercentageToDP(1.7, Orientation.Height)}
+                        color={theme.colors.TEXT_SUPER_DARK}
+                        fontWeight={700}
+                      >{visitorsData.totalVisitors ?? '0'}
+                      </StyledText>
+                    </Cell>
+                    <Cell>
+                      <StyledText
+                        fontSize={screenPercentageToDP(1.7, Orientation.Height)}
+                        color={theme.colors.TEXT_SUPER_DARK}
+                        fontWeight={700}
+                      >{visitorsData.totalSurveys ?? '0'}
+                      </StyledText>
+                    </Cell>
                   </Row>
                 </Cell>
               </Row>
@@ -148,37 +272,89 @@ export const DetailedReport: FC = () => {
           }
         </Table>
       </StyledView>
-      <StyledView>
-        <Text>Patient List</Text>
+      <StyledView
+        width="100%"
+        padding={20}
+        overflow="visible"
+        alignItems="center"
+      >
+        <StyledText
+          fontSize={screenPercentageToDP(1.9, Orientation.Height)}
+          color={theme.colors.TEXT_SUPER_DARK}
+          fontWeight={700}
+          textAlign="center"
+          paddingBottom={20}
+        >Patient List
+        </StyledText>
         <Table>
-          <Row>
+          <HeaderRow>
             <Cell>
-              <Text>Name</Text>
+              <StyledText
+                fontSize={screenPercentageToDP(1.7, Orientation.Height)}
+                color={theme.colors.TEXT_DARK}
+                fontWeight={700}
+              >Name
+              </StyledText>
             </Cell>
             <Cell>
-              <Text>Gender</Text>
+              <StyledText
+                fontSize={screenPercentageToDP(1.7, Orientation.Height)}
+                color={theme.colors.TEXT_DARK}
+                fontWeight={700}
+              >Gender
+              </StyledText>
             </Cell>
             <Cell>
-              <Text>Age</Text>
+              <StyledText
+                fontSize={screenPercentageToDP(1.7, Orientation.Height)}
+                color={theme.colors.TEXT_DARK}
+                fontWeight={700}
+              >Age
+              </StyledText>
             </Cell>
             <Cell>
-              <Text>Referred to</Text>
+              <StyledText
+                fontSize={screenPercentageToDP(1.7, Orientation.Height)}
+                color={theme.colors.TEXT_DARK}
+                fontWeight={700}
+              >Referred to
+              </StyledText>
             </Cell>
-          </Row>
+          </HeaderRow>
           { referralsData &&
           referralsData.map(patient => (
             <Row key={patient.id}>
               <Cell>
-                <Text>{`${patient.firstName} ${patient.lastName}`}</Text>
+                <StyledText
+                  fontSize={screenPercentageToDP(1.7, Orientation.Height)}
+                  color={theme.colors.TEXT_DARK}
+                  fontWeight={700}
+                >{`${patient.firstName} ${patient.lastName}`}
+                </StyledText>
               </Cell>
               <Cell>
-                <Text>{patient.sex}</Text>
+                <StyledText
+                  fontSize={screenPercentageToDP(1.7, Orientation.Height)}
+                  color={theme.colors.TEXT_DARK}
+                  fontWeight={700}
+                >{patient.sex}
+                </StyledText>
               </Cell>
               <Cell>
-                <Text>{differenceInYears(new Date(), parseISO(patient.dateOfBirth))}</Text>
+                <StyledText
+                  fontSize={screenPercentageToDP(1.7, Orientation.Height)}
+                  color={theme.colors.TEXT_DARK}
+                  fontWeight={700}
+                >{differenceInYears(new Date(), parseISO(patient.dateOfBirth))}
+                </StyledText>
               </Cell>
               <Cell>
-                <Text>{patient.referredTo}</Text>
+                <StyledText
+                  fontSize={screenPercentageToDP(1.7, Orientation.Height)}
+                  color={theme.colors.TEXT_DARK}
+                  fontWeight={700}
+                >{patient.referredTo}
+                </StyledText>
               </Cell>
             </Row>
           ))}
