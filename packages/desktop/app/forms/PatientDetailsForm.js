@@ -43,7 +43,7 @@ export const PrimaryDetailsGroup = ({
       suggester={villageSuggester}
     />
     <Field name="dateOfBirth" label="Date of birth" component={DateField} required />
-    <Field name="placeOfBirth" label="Plate of birth" component={TextField} />
+    <Field name="placeOfBirth" label="Place of birth" component={TextField} />
     <Field name="sex" label="Sex" component={RadioField} options={sexOptions} inline required />
     <Field
       name="nationalityId"
