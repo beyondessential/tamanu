@@ -63,6 +63,22 @@ export class Patient extends Model {
       foreignKey: 'subdivisionId',
       as: 'subdivision',
     });
+    this.belongsTo(models.ReferenceData, {
+      foreignKey: 'medicalAreaId',
+      as: 'medicalArea',
+    });
+    this.belongsTo(models.ReferenceData, {
+      foreignKey: 'nursingZoneId',
+      as: 'nursingZone',
+    });
+    this.belongsTo(models.ReferenceData, {
+      foreignKey: 'settlementId',
+      as: 'settlement',
+    });
+    this.belongsTo(models.ReferenceData, {
+      foreignKey: 'occupationId',
+      as: 'occupation',
+    });
   }
 
   static syncDirection = SYNC_DIRECTIONS.BIDIRECTIONAL;

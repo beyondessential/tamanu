@@ -61,6 +61,10 @@ export const NewPatientForm = memo(
     nationalitySuggester,
     divisionSuggester,
     subdivisionSuggester,
+    medicalAreaSuggester,
+    nursingZoneSuggester,
+    settlementSuggester,
+    occupationSuggester,
     isBirth,
   }) => {
     const [isExpanded, setExpanded] = useState(false);
@@ -94,6 +98,10 @@ export const NewPatientForm = memo(
               isBirth={isBirth}
               patientSuggester={patientSuggester}
               facilitySuggester={facilitySuggester}
+              medicalAreaSuggester={medicalAreaSuggester}
+              nursingZoneSuggester={nursingZoneSuggester}
+              settlementSuggester={settlementSuggester}
+              occupationSuggester={occupationSuggester}
             />
           </FormGrid>
         </Collapse>

@@ -85,10 +85,23 @@ export const PrimaryDetailsGroup = ({
   </React.Fragment>
 );
 
-export const SecondaryDetailsGroup = ({ isBirth, patientSuggester, facilitySuggester }) => (
+export const SecondaryDetailsGroup = ({
+  isBirth,
+  patientSuggester,
+  facilitySuggester,
+  medicalAreaSuggester,
+  nursingZoneSuggester,
+  settlementSuggester,
+  occupationSuggester,
+}) => (
   <React.Fragment>
     <Field name="religion" label="Religion" component={TextField} />
-    <Field name="occupation" label="Occupation" component={TextField} />
+    <Field
+      name="occupationId"
+      label="Occupation"
+      component={AutocompleteField}
+      suggester={occupationSuggester}
+    />
     <Field
       name="mother.id"
       label="Mother"
@@ -122,6 +135,25 @@ export const SecondaryDetailsGroup = ({ isBirth, patientSuggester, facilitySugge
       suggester={facilitySuggester}
       required={isBirth}
     />
+    <Field
+      name="medicalAreaId"
+      label="Medical Area"
+      component={AutocompleteField}
+      suggester={medicalAreaSuggester}
+    />
+    <Field
+      name="nursingZoneId"
+      label="Nursing Zone"
+      component={AutocompleteField}
+      suggester={nursingZoneSuggester}
+    />
+    <Field
+      name="settlementId"
+      label="Settlement"
+      component={AutocompleteField}
+      suggester={settlementSuggester}
+    />
+
     <Field name="residentialAddress" label="Residential address" component={TextField} />
     <Field
       name="primaryContactNumber"
@@ -154,6 +186,10 @@ export const PatientDetailsForm = ({
   nationalitySuggester,
   divisionSuggester,
   subdivisionSuggester,
+  medicalAreaSuggester,
+  nursingZoneSuggester,
+  settlementSuggester,
+  occupationSuggester,
   patient,
   onSubmit,
 }) => {
@@ -170,6 +206,10 @@ export const PatientDetailsForm = ({
         <SecondaryDetailsGroup
           patientSuggester={patientSuggester}
           facilitySuggester={facilitySuggester}
+          medicalAreaSuggester={medicalAreaSuggester}
+          nursingZoneSuggester={nursingZoneSuggester}
+          settlementSuggester={settlementSuggester}
+          occupationSuggester={occupationSuggester}
         />
         <ButtonRow>
           <Button variant="contained" color="primary" onClick={submitForm}>
@@ -186,6 +226,10 @@ export const PatientDetailsForm = ({
       facilitySuggester,
       divisionSuggester,
       subdivisionSuggester,
+      medicalAreaSuggester,
+      nursingZoneSuggester,
+      settlementSuggester,
+      occupationSuggester,
     ],
   );
 
