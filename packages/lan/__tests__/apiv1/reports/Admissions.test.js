@@ -34,9 +34,7 @@ describe('Admissions report', () => {
   });
 
   describe('returns data based on supplied parameters', () => {
-    beforeEach(async () => {
-      models.Encounter.destroy({ where: {}, truncate: true });
-    });
+
     it('should return only admitted patient', async () => {
       // expected result
       await models.Encounter.create(

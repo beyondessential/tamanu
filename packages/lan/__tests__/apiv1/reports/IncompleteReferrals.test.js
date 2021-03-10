@@ -48,8 +48,8 @@ describe('Incomplete Referrals report', () => {
   });
 
   describe('returns data based on supplied parameters', () => {
+
     beforeAll(async () => {
-      await models.Referral.destroy({ where: {}, truncate: true });
       const referral = await models.Referral.create({
         referralNumber: 'A',
         date: new Date(),
@@ -78,6 +78,7 @@ describe('Incomplete Referrals report', () => {
         referredToFacilityId: facility,
       });
     });
+
     it('should return only requested village', async () => {
       const result = await app.post('/v1/reports/incomplete-referrals').send({
         parameters: { village: village1 },

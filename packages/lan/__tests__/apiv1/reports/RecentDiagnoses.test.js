@@ -38,10 +38,6 @@ describe('Recent Diagnoses report', () => {
   });
 
   describe('returns data based on supplied parameters', () => {
-    beforeEach(async () => {
-      await models.EncounterDiagnosis.destroy({ where: {}, truncate: true });
-      await models.Encounter.destroy({ where: {}, truncate: true });
-    });
 
     it('should return only requested diagnoses', async () => {
       const encounter = await models.Encounter.create(
