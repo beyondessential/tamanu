@@ -158,7 +158,7 @@ describe('Patient search', () => {
     });
   });
 
-  describe('Age filtering', () => {
+  xdescribe('Age filtering', () => {
     it('should get a list of patients by maximum age', async () => {
       const response = await app.get('/v1/patient').query({
         ageMax: 30,
