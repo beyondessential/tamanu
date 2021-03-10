@@ -6,7 +6,6 @@ import { seedLabTests } from 'shared/demoData/labTestTypes';
 import { createApp } from 'lan/app/createApp';
 import { initDatabase } from 'lan/app/database';
 import { getToken } from 'lan/app/middleware/auth';
-import { MIN_CLIENT_VERSION } from 'lan/app/middleware/versionCompatibility';
 
 import { allSeeds } from './seed';
 import { deleteAllTestIds } from './setupUtilities';
@@ -91,8 +90,6 @@ export async function createTestContext() {
     const agent = supertest.agent(expressApp);
     const token = await getToken(user, '1d');
     agent.set('authorization', `Bearer ${token}`);
-    agent.set('X-Client-Version', MIN_CLIENT_VERSION);
-    setClientVersion(agent);
     agent.user = user;
     return agent;
   };
@@ -107,15 +104,6 @@ export async function createTestContext() {
 
     return baseApp.asUser(newUser);
   };
-
-  // attach X-Client-Version header to every request
-  const { get: baseGet, post: basePost, put: basePut, delete: baseDelete } = baseApp;
-  const setClientVersion = httpVerb => (...args) =>
-    httpVerb(...args).set('X-Client-Version', MIN_CLIENT_VERSION);
-  baseApp.get = setClientVersion(baseGet);
-  baseApp.post = setClientVersion(basePost);
-  baseApp.put = setClientVersion(basePut);
-  baseApp.delete = setClientVersion(baseDelete);
 
   return { baseApp, sequelize, models };
 }
