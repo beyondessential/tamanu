@@ -1,5 +1,6 @@
 // TODO: add tests to shared-src and move this file there
 
+import { v4 as uuidv4 } from 'uuid';
 import { fakePatient, buildNestedEncounter } from 'shared/test-helpers';
 import { createExportPlan, executeExportPlan } from 'shared/models/sync';
 import { createTestContext } from '../utilities';
@@ -45,15 +46,21 @@ describe('export', () => {
     models = context.models;
   });
 
+  const encounterPatientId = uuidv4();
   const testCases = [
     ['Patient', fakePatient],
-    ['Encounter', async () => buildNestedEncounter(context)],
+    [
+      'Encounter',
+      async () => buildNestedEncounter(context, encounterPatientId),
+      `patient/${encounterPatientId}/encounter`,
+    ],
   ];
-  testCases.forEach(([modelName, fakeRecord]) => {
+  testCases.forEach(([modelName, fakeRecord, overrideChannel]) => {
     describe(modelName, () => {
       it('exports pages of records', async () => {
         // arrange
         const model = models[modelName];
+        const channel = overrideChannel || (await model.channels())[0];
         const plan = createExportPlan(model);
         await model.truncate();
         const records = [await fakeRecord(), await fakeRecord()].sort((r1, r2) =>
@@ -67,9 +74,15 @@ describe('export', () => {
         );
 
         // act
-        const firstRecords = await executeExportPlan(plan, { limit: 1 });
-        const secondRecords = await executeExportPlan(plan, { limit: 1, after: firstRecords[0] });
-        const thirdRecords = await executeExportPlan(plan, { limit: 1, after: secondRecords[0] });
+        const firstRecords = await executeExportPlan(plan, channel, { limit: 1 });
+        const secondRecords = await executeExportPlan(plan, channel, {
+          limit: 1,
+          after: firstRecords[0],
+        });
+        const thirdRecords = await executeExportPlan(plan, channel, {
+          limit: 1,
+          after: secondRecords[0],
+        });
 
         // assert
         expect(firstRecords.length).toEqual(1);

@@ -1,14 +1,12 @@
 import { memoize, without, pick } from 'lodash';
 import { propertyPathsToTree } from './metadata';
 
-export const createImportPlan = memoize((model, channel) => {
+export const createImportPlan = memoize(model => {
   const relationTree = propertyPathsToTree(model.includedSyncRelations);
-  const parentIdConf =
-    model.getParentIdConfigFromChannel && model.getParentIdConfigFromChannel(channel);
-  return createImportPlanInner(model, relationTree, parentIdConf);
+  return createImportPlanInner(model, relationTree, model.syncParentIdKey);
 });
 
-const createImportPlanInner = (model, relationTree, parentIdConf = {}) => {
+const createImportPlanInner = (model, relationTree, foreignKey) => {
   // columns
   const allColumns = Object.keys(model.tableAttributes);
   const columns = without(allColumns, ...model.excludedSyncColumns);
@@ -23,18 +21,26 @@ const createImportPlanInner = (model, relationTree, parentIdConf = {}) => {
         `createImportPlan: no such relation ${relationName} (defined in includedSyncRelations on ${model.name})`,
       );
     }
-    const childPlan = createImportPlanInner(childModel, childTree, { key: childParentIdKey });
+    const childPlan = createImportPlanInner(childModel, childTree, childParentIdKey);
     return { ...memo, [relationName]: childPlan };
   }, {});
 
-  return { model, columns, children, parentIdConf };
+  return { model, columns, children, foreignKey };
 };
 
-export const executeImportPlan = async (plan, syncRecord) =>
-  plan.model.sequelize.transaction(async () => executeImportPlanInner(plan, syncRecord));
+export const executeImportPlan = async (plan, channel, syncRecord) => {
+  let parentId = null;
+  if (plan.foreignKey) {
+    parentId = plan.model.syncParentIdFromChannel(channel);
+    if (!parentId) {
+      throw new Error('Must provide parentId for models like ${plan.model.name} with syncParentIdKey set');
+    }
+  }
+  return plan.model.sequelize.transaction(async () => executeImportPlanInner(plan, syncRecord, parentId))
+};
 
 const executeImportPlanInner = async (
-  { model, columns, children, parentIdConf },
+  { model, columns, children, foreignKey },
   syncRecord,
   parentId = null,
 ) => {
@@ -52,8 +58,8 @@ const executeImportPlanInner = async (
 
   // use only allowed columns
   const values = pick(data, ...columns);
-  if (parentIdConf.key) {
-    values[parentIdConf.key] = parentIdConf.overrideId || parentId || null;
+  if (foreignKey) {
+    values[foreignKey] = parentId || null;
   }
 
   // sequelize upserts don't work because they insert before update - hack to work around this

@@ -27,10 +27,10 @@ export class SyncManager {
       const since = await this.getLastSynced(channel);
       log.info(`SyncManager.pullAndImport: syncing ${channel} (last: ${since})`);
 
-      const plan = createImportPlan(model, channel);
+      const plan = createImportPlan(model);
       const importRecords = async syncRecords => {
         for (const syncRecord of syncRecords) {
-          await executeImportPlan(plan, syncRecord);
+          await executeImportPlan(plan, channel, syncRecord);
         }
       };
 
@@ -72,12 +72,12 @@ export class SyncManager {
       log.debug(`SyncManager.exportAndPush: syncing ${channel}`);
 
       // export
-      const plan = createExportPlan(model, channel);
+      const plan = createExportPlan(model);
       const exportRecords = (after = null, limit = EXPORT_LIMIT) => {
         log.debug(
           `SyncManager.exportAndPush: exporting up to ${limit} records after ${after?.data?.id}`,
         );
-        return executeExportPlan(plan, { after, limit });
+        return executeExportPlan(plan, channel, { after, limit });
       };
 
       // unmark

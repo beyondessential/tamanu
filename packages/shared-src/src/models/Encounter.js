@@ -197,11 +197,9 @@ export class Encounter extends Model {
     return patients.map(p => `patient/${p.id}/encounter`);
   }
 
-  static getParentIdConfigFromChannel(channel) {
-    const patientId = channel.split('/')[1];
-    if (!patientId) {
-      throw new Error('Unable to extract encounter patientId from channel ${channel}');
-    }
-    return { key: 'patientId', overrideId: patientId };
+  static syncParentIdFromChannel(channel) {
+    return channel.match(/patient\/([^\/]+)\/encounter/)[1];
   }
+
+  static syncParentIdKey = 'patientId';
 }

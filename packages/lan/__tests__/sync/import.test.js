@@ -1,5 +1,6 @@
 // TODO: add tests to shared-src and move this file there
 
+import { v4 as uuidv4 } from 'uuid';
 import {
   fakePatient,
   fakeProgram,
@@ -30,12 +31,12 @@ const toSyncRecord = record => ({
 describe('import', () => {
   let models;
   let context;
-  let sharedPatient = null;
   beforeAll(async () => {
     context = await createTestContext();
     models = context.models;
   });
 
+  const encounterPatientId = uuidv4();
   const rootTestCases = [
     ['Patient', fakePatient],
     ['Program', fakeProgram],
@@ -47,10 +48,7 @@ describe('import', () => {
     ['User', fakeUser],
     [
       'Encounter',
-      async () => {
-        sharedPatient = sharedPatient || (await context.models.Patient.create(fakePatient()));
-        return buildNestedEncounter(context, sharedPatient.id);
-      },
+      async () => buildNestedEncounter(context, encounterPatientId),
       {
         include: [
           { association: 'administeredVaccines' },
@@ -60,7 +58,7 @@ describe('import', () => {
           },
         ],
       },
-      ({ patientId }) => `patient/${patientId}/encounter`,
+      `patient/${encounterPatientId}/encounter`,
     ],
   ];
   rootTestCases.forEach(([modelName, fakeRecord, options = {}, overrideChannel = null]) => {
@@ -69,13 +67,11 @@ describe('import', () => {
         // arrange
         const model = models[modelName];
         const record = await fakeRecord();
-        const channel = overrideChannel
-          ? await overrideChannel(record)
-          : (await model.channels())[0];
+        const channel = overrideChannel || (await model.channels())[0];
 
         // act
-        const plan = createImportPlan(model, channel);
-        await executeImportPlan(plan, toSyncRecord(record));
+        const plan = createImportPlan(model);
+        await executeImportPlan(plan, channel, toSyncRecord(record));
 
         // assert
         const dbRecord = await model.findByPk(record.id, options);
@@ -91,13 +87,11 @@ describe('import', () => {
           id: oldRecord.id,
         };
         await model.create(oldRecord);
-        const channel = overrideChannel
-          ? await overrideChannel(oldRecord)
-          : (await model.channels())[0];
+        const channel = overrideChannel || (await model.channels())[0];
 
         // act
-        const plan = createImportPlan(model, channel);
-        await executeImportPlan(plan, toSyncRecord(newRecord));
+        const plan = createImportPlan(model);
+        await executeImportPlan(plan, channel, toSyncRecord(newRecord));
 
         // assert
         const dbRecord = await model.findByPk(oldRecord.id, options);
@@ -109,13 +103,11 @@ describe('import', () => {
         const model = models[modelName];
         const record = await fakeRecord();
         await model.create(record);
-        const channel = overrideChannel
-          ? await overrideChannel(record)
-          : (await model.channels())[0];
+        const channel = overrideChannel || (await model.channels())[0];
 
         // act
-        const plan = createImportPlan(model, channel);
-        await executeImportPlan(plan, { ...toSyncRecord(record), isDeleted: true });
+        const plan = createImportPlan(model);
+        await executeImportPlan(plan, channel, { ...toSyncRecord(record), isDeleted: true });
 
         // assert
         const dbRecord = await model.findByPk(record.id, options);
