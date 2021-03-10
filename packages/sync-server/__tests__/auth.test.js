@@ -108,7 +108,7 @@ describe('Auth', () => {
     });
 
     it('Should hash an updated password for an existing user', async () => {
-      const response = await app.post('/v1/sync/user').send({
+      const response = await app.post('/v1/upsertUser').send({
         data: {
           email: USER_EMAIL,
           password: USER_PASSWORD_2,
@@ -142,7 +142,7 @@ describe('Auth', () => {
       const newEmail = 'new-user-get@test.tamanu.io';
       const displayName = 'test-new';
 
-      const response = await app.post('/v1/sync/user').send({
+      const response = await app.post('/v1/upsertUser').send({
         data: {
           email: newEmail,
           displayName,
@@ -162,7 +162,7 @@ describe('Auth', () => {
       const now = new Date().valueOf();
       const displayNameUpdated = 'updated display name';
 
-      const response = await app.post('/v1/sync/user').send({
+      const response = await app.post('/v1/upsertUser').send({
         recordType: 'user',
         data: {
           email: USER_EMAIL,
