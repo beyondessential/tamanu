@@ -51,9 +51,23 @@ const executeImportPlanInner = async (
   }
 
   if (isDeleted) {
-    const record = await model.findByPk(id);
-    await record?.destroy();
-    return;
+    if (model.syncClientMode) {
+      // delete tombstones if we're in client mode
+      const record = await model.findByPk(id);
+      await record?.destroy();
+      return;
+    } else {
+      // mark them deleted if we're in server mode
+      await model.update(
+        {
+          deletedAt: Sequelize.literal('CURRENT_TIMESTAMP'),
+          updatedAt: Sequelize.literal('CURRENT_TIMESTAMP'),
+        },
+        {
+          where: { id },
+        },
+      );
+    }
   }
 
   // use only allowed columns
@@ -71,8 +85,10 @@ const executeImportPlanInner = async (
   }
 
   for (const [relationName, plan] of Object.entries(children)) {
-    for (const childRecord of data[relationName]) {
-      await executeImportPlanInner(plan, childRecord, id);
+    if (data[relationName]) {
+      for (const childRecord of data[relationName]) {
+        await executeImportPlanInner(plan, childRecord, id);
+      }
     }
   }
 };

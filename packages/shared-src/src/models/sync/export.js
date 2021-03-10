@@ -2,6 +2,14 @@ import { Op, Sequelize } from 'sequelize';
 import { memoize, without } from 'lodash';
 import { propertyPathsToTree } from './metadata';
 
+const ensureNumber = (input) => {
+  if (typeof input === 'string') {
+    const parsed = parseInt(input, 10);
+    return parsed; // might be NaN
+  }
+  return input;
+};
+
 export const createExportPlan = memoize(model => {
   const relationTree = propertyPathsToTree(model.includedSyncRelations);
   return createExportPlanInner(model, relationTree, model.syncParentIdKey);
@@ -34,31 +42,41 @@ const createExportPlanInner = (model, relationTree, foreignKey) => {
   return { model, associations, foreignKey, columns };
 };
 
-export const executeExportPlan = async (plan, channel, { after, limit = 100 }) => {
+export const executeExportPlan = async (plan, channel, { after, offset, since, limit = 100 }) => {
+  const { model, foreignKey } = plan;
+  const { syncClientMode } = model;
   const options = {
-    where: {
-      markedForPush: true,
-    },
+    where: {},
     order: [['id', 'ASC']],
+    paranoid: !syncClientMode,
   };
-  if (plan.foreignKey) {
-    const parentId = plan.model.syncParentIdFromChannel(channel);
+  if (syncClientMode) {
+    options.where.markedForPush = true;
+  }
+  if (foreignKey) {
+    const parentId = model.syncParentIdFromChannel(channel);
     if (!parentId) {
       throw new Error('Must provide parentId for models like ${plan.model.name} with syncParentIdKey set');
     }
-    options.where[plan.foreignKey] = parentId;
+    options.where[foreignKey] = parentId;
   }
   if (limit) {
     options.limit = limit;
   }
   if (after) {
     options.where.id = { [Op.gt]: after.data.id };
+  } else if (offset) {
+    // TODO: remove once sync-server uses after instead of offset
+    options.offset = offset;
+  }
+  if (since) {
+    options.where.updatedAt = { [Op.gte]: ensureNumber(since) };
   }
 
-  return executeExportPlanInner(plan, options);
+  return executeExportPlanInner(plan, options, since);
 };
 
-export const executeExportPlanInner = async ({ model, associations, columns }, options) => {
+export const executeExportPlanInner = async ({ model, associations, columns }, options, since) => {
   // query records
   const dbRecords = await model.findAll(options);
 
@@ -71,6 +89,11 @@ export const executeExportPlanInner = async ({ model, associations, columns }, o
       syncRecord.data[columnName] = columnFormatter ? columnFormatter(value) : value;
     }
 
+    // add lastSynced (if we're not in client mode)
+    if (!model.syncClientMode) {
+      syncRecord.lastSynced = dbRecord.updatedAt.valueOf();
+    }
+
     // query associations
     for (const [associationName, associationPlan] of Object.entries(associations)) {
       const associationOptions = {
@@ -79,6 +102,7 @@ export const executeExportPlanInner = async ({ model, associations, columns }, o
       syncRecord.data[associationName] = await executeExportPlanInner(
         associationPlan,
         associationOptions,
+        since,
       );
     }
     syncRecords.push(syncRecord);
