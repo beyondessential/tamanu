@@ -41,7 +41,7 @@ export class SurveyResponseAnswer extends BaseModel
       .leftJoin('response.encounter', 'encounter')
       .where('encounter.patientId = :patientId', { patientId })
       .andWhere('survey_response_answer.dataElementId = :dataElementId', { dataElementId })
-      .orderBy('survey_response.startTime', 'DESC')
+      .orderBy('response.startTime', 'DESC')
       .getOne();
   }
 }

@@ -13,7 +13,7 @@ import {
 
 import { runCalculations } from '~/ui/helpers/calculations';
 
-import { ISurveyResponse, IProgramDataElement, ISurveyScreenComponent, SurveyTypes } from '~/types';
+import { ISurveyResponse, IProgramDataElement, ISurveyScreenComponent } from '~/types';
 import { Referral } from './Referral';
 
 @Entity('survey_response')

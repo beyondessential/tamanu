@@ -1,9 +1,11 @@
-import React, { ReactElement, useState, useEffect } from 'react';
+import React, { useState, useEffect } from 'react';
+import { useNetInfo } from "@react-native-community/netinfo";
 
 import { Field } from '../FormField';
 import { Dropdown, SelectOption } from '../../Dropdown';
 import { readConfig } from '~/services/config';
 import { StyledText } from '/styled/common';
+import { theme } from '~/ui/styled/theme';
 
 const META_SERVER = 'https://meta-dev.tamanu.io';
 // TODO: change once prod meta server is deployed
@@ -24,17 +26,22 @@ const fetchServers = async (): Promise<SelectOption[]> => {
 export const ServerSelector = () => {
   const [existingHost, setExistingHost] = useState("");
   const [options, setOptions] = useState([]);
+  const netInfo = useNetInfo();
 
   useEffect(() => {
     (async () => {
       const existing = await readConfig('syncServerLocation');
       setExistingHost(existing);
-      if(!existing) {
+      if(!existing && netInfo.isInternetReachable) {
         const servers = await fetchServers();
         setOptions(servers);
       }
     })();
-  }, []);
+  }, [netInfo.isInternetReachable]);
+
+  if (!netInfo.isInternetReachable) {
+    return <StyledText color={theme.colors.ALERT}>No internet connection available.</StyledText>;
+  }
 
   if(existingHost) {
     if (__DEV__) {

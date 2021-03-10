@@ -33,7 +33,7 @@ export class Referral extends BaseModel implements IReferral {
   ) {
     const response = await SurveyResponse.submit(patientId, surveyData, values, setNote);
     const referralRecord: Referral = await Referral.createAndSaveOne({
-      initiatingEncounter: response.encounterId,
+      initiatingEncounter: response.encounter,
       surveyResponse: response.id,
     });
 

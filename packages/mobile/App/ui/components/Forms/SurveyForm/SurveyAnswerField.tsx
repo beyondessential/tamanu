@@ -15,7 +15,7 @@ export const SurveyAnswerField = ({ patient, name, config, defaultText }) => {
 
   useEffect(() => {
     (async () => {
-      const answer = await models.ReferralQuestion.getLatestAnswerForPatient(patient.id, config.source);
+      const answer = await models.SurveyResponseAnswer.getLatestAnswerForPatient(patient.id, config.source);
       setSurveyResponseAnswer(answer ? answer.body : '');
       setFieldValue(name, (answer && answer.body))
     })();

@@ -5,27 +5,23 @@ import { useBackend } from '~/ui/hooks';
 
 import { AutocompleteModalField } from './AutocompleteModalField';
 
-/**
- * 
- * @param {Object} models Contains backend models.
- * @param {string} source Target model name.
- */
-function createSuggester(models, config) {
-  return new Suggester(
-    models[config.source],
-    {},
-  );
-}
-
-export const SurveyQuestionAutocomplete = ({ component, ...props }) => {
+export const SurveyQuestionAutocomplete = ({ ...props }) => {
   const { models } = useBackend();
-  const { dataElement } = component;
-  const config = component.getConfigObject();
+  const { config } = props;
+
+  const suggester = new Suggester(
+    models[config.source],
+    {
+      column: config.column,
+    },
+    (val) => ({ label: val[config.column], value: val.id })
+  );
 
   return (
     <AutocompleteModalField
-      placeholder={dataElement.defaultText}
-      suggester={createSuggester(models, config)}
+      placeholder="Search..."
+      suggester={suggester}
+      onChange={props.onChange}
       modalRoute={Routes.Autocomplete.Modal}
       {...props}
     />
