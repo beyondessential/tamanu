@@ -96,7 +96,7 @@ the desktop directory using `yarn storybook`.
 
 ### Sync server
 
-First open [packages/sync-server/config/defaults.json](packages/sync-server/config/defaults.json) and change `syncOnStartup` (within `db`) to `true`, then:
+First open [packages/sync-server/config/default.json](packages/sync-server/config/default.json) and change `syncOnStartup` (within `db`) to `true`, then:
 
 #### OSX
 
