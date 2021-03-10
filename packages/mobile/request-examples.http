@@ -16,10 +16,76 @@ Content-Type: application/json
   { 
     "recordType": "survey",
     "data": {
-      "id": "program-referral_forms/survey-cvd_referral_new",
+      "id": "program-referral_forms/survey-cvd_referral",
+      "programId": "program-hidden_forms"
+    }
+  },
+  { 
+    "recordType": "survey",
+    "data": {
+      "id": "program-referral_forms/survey-bcp_referral",
+      "programId": "program-hidden_forms"
+    }
+  },
+  { 
+    "recordType": "survey",
+    "data": {
+      "id": "program-referral_forms/survey-ccp_referral",
       "programId": "program-hidden_forms"
     }
   }
 ]
 
 ###
+
+# See: https://github.com/beyondessential/tamanu/blob/dev/docs/Surveys.md for more info.
+# requires tamanu lan server to be running locally.
+POST http://localhost:4000/v1/admin/importSurvey
+X-Client-Version: 1.0.0
+Content-Type: application/json
+
+{
+  "file": "/Users/basgo/Downloads/Breast.Cancer.Referral.xlsx",
+  "programName": "Referrals",
+  "programCode": "referral_forms",
+  "surveyName": "Breast Cancer Screening Referral",
+  "surveyCode": "bcpr_referral",
+  "surveyType": "referral",
+  "dryRun": false
+}
+
+###
+
+# See: https://github.com/beyondessential/tamanu/blob/dev/docs/Surveys.md for more info.
+# requires tamanu lan server to be running locally.
+POST http://localhost:4000/v1/admin/importSurvey
+X-Client-Version: 1.0.0
+Content-Type: application/json
+
+{
+  "file": "/Users/basgo/Downloads/Cervical.Cancer.Referral.xlsx",
+  "programName": "Referrals",
+  "programCode": "referral_forms",
+  "surveyName": "Cervical Cancer Primary Referral",
+  "surveyCode": "ccpr_referral",
+  "surveyType": "referral",
+  "dryRun": false
+}
+
+###
+
+# See: https://github.com/beyondessential/tamanu/blob/dev/docs/Surveys.md for more info.
+# requires tamanu lan server to be running locally.
+POST http://localhost:4000/v1/admin/importSurvey
+X-Client-Version: 1.0.0
+Content-Type: application/json
+
+{
+  "file": "/Users/basgo/Downloads/CVD.Referral.xlsx",
+  "programName": "Referrals",
+  "programCode": "referral_forms",
+  "surveyName": "CVD Primary Referral",
+  "surveyCode": "cvdpr_referral",
+  "surveyType": "referral",
+  "dryRun": false
+}

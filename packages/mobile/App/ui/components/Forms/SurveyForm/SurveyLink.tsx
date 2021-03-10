@@ -10,18 +10,18 @@ export const SurveyLink = ({ patient, config, name }) => {
   const [surveyResponse, setSurveyResponse] = useState();
   const { setFieldValue } = useFormikContext();
   const { models } = useBackend();
-  const { surveyId } = config;
+  const { source } = config;
 
   useEffect(() => {
     (async (): Promise<void> => {
-      const responses = await models.SurveyResponse.getForPatient(patient.id, surveyId);
+      const responses = await models.SurveyResponse.getForPatient(patient.id, source);
       if (responses.length === 0) return;
       setSurveyResponse(responses[0]); // getForPatient returns responses sorted by most recent, we want the most recent.
-      setFieldValue(name, responses[0].id)
+      setFieldValue(name, responses[0].name)
     })();
-  }, [patient, surveyId]);
+  }, [patient, source]);
   
-  if (!surveyResponse) return <Text>Survey (id: {surveyId}) not submitted for patient.</Text>;
+  if (!surveyResponse) return <Text>Survey (id: {source}) not submitted for patient.</Text>;
 
   return (
     <Field

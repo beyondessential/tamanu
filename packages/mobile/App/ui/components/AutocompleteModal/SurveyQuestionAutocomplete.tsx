@@ -2,37 +2,26 @@ import React from 'react';
 import { Routes } from '~/ui/helpers/routes';
 import { Suggester } from '~/ui/helpers/suggester';
 import { useBackend } from '~/ui/hooks';
-import { StyledText } from '~/ui/styled/common';
 
 import { AutocompleteModalField } from './AutocompleteModalField';
 
-/**
- * 
- * @param {Object} models Contains backend models.
- * @param {string} source Target model name.
- */
-function createSuggester(models, config) {
-  return new Suggester(
-    models[config.source],
-    {},
-  );
-}
-
-export const SurveyQuestionAutocomplete = ({ component, ...props }) => {
+export const SurveyQuestionAutocomplete = ({ ...props }) => {
   const { models } = useBackend();
-  const config = component && component.getConfigObject();
-  if (!config) {
-    return (
-      <StyledText color="red">
-        Error displaying component
-      </StyledText>
-    )
-  }
+  const { config } = props;
+
+  const suggester = new Suggester(
+    models[config.source],
+    {
+      column: config.column,
+    },
+    (val) => ({ label: val[config.column], value: val.id })
+  );
 
   return (
     <AutocompleteModalField
       placeholder="Search..."
-      suggester={createSuggester(models, config)}
+      suggester={suggester}
+      onChange={props.onChange}
       modalRoute={Routes.Autocomplete.Modal}
       {...props}
     />
