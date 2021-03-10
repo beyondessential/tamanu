@@ -2,18 +2,22 @@ import { Op, Sequelize } from 'sequelize';
 import { memoize, without } from 'lodash';
 import { propertyPathsToTree } from './metadata';
 
-export const createExportPlan = memoize(model => {
+export const createExportPlan = memoize((model, channel) => {
   const relationTree = propertyPathsToTree(model.includedSyncRelations);
-  return createExportPlanInner(model, relationTree);
+  const parentIdConf =
+    model.getParentConfigFromChannel && model.getParentIdConfigFromChannel(channel);
+  return createExportPlanInner(model, relationTree, parentIdConf);
 });
 
-const createExportPlanInner = (model, relationTree, foreignKey = null) => {
+const createExportPlanInner = (model, relationTree, parentIdConf) => {
   // generate nested association exporters
   const associations = Object.entries(relationTree).reduce((memo, [associationName, subTree]) => {
     const association = model.associations[associationName];
     return {
       ...memo,
-      [associationName]: createExportPlanInner(association.target, subTree, association.foreignKey),
+      [associationName]: createExportPlanInner(association.target, subTree, {
+        key: association.foreignKey,
+      }),
     };
   }, {});
 
@@ -31,7 +35,7 @@ const createExportPlanInner = (model, relationTree, foreignKey = null) => {
     {},
   );
 
-  return { model, associations, foreignKey, columns };
+  return { model, associations, parentIdConf, columns };
 };
 
 export const executeExportPlan = async (plan, { after, limit = 100 }) => {
@@ -41,6 +45,9 @@ export const executeExportPlan = async (plan, { after, limit = 100 }) => {
     },
     order: [['id', 'ASC']],
   };
+  if (plan.parentIdConf) {
+    options.where[plan.parentIdConf.key] = plan.parentIdConf.overrideId;
+  }
   if (limit) {
     options.limit = limit;
   }
@@ -67,7 +74,7 @@ export const executeExportPlanInner = async ({ model, associations, columns }, o
     // query associations
     for (const [associationName, associationPlan] of Object.entries(associations)) {
       const associationOptions = {
-        where: { [associationPlan.foreignKey]: dbRecord.id },
+        where: { [associationPlan.parentIdConf.key]: dbRecord.id },
       };
       syncRecord.data[associationName] = await executeExportPlanInner(
         associationPlan,

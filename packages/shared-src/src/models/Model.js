@@ -98,7 +98,7 @@ export class Model extends sequelize.Model {
 
   static syncDirection = SYNC_DIRECTIONS.DO_NOT_SYNC;
 
-  static channel() {
-    return lowerFirst(this.name);
+  static channels() {
+    return [lowerFirst(this.name)];
   }
 }

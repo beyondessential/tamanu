@@ -1,12 +1,14 @@
 import { memoize, without, pick } from 'lodash';
 import { propertyPathsToTree } from './metadata';
 
-export const createImportPlan = memoize(model => {
+export const createImportPlan = memoize((model, channel) => {
   const relationTree = propertyPathsToTree(model.includedSyncRelations);
-  return createImportPlanInner(model, relationTree);
+  const parentIdConf =
+    model.getParentIdConfigFromChannel && model.getParentIdConfigFromChannel(channel);
+  return createImportPlanInner(model, relationTree, parentIdConf);
 });
 
-const createImportPlanInner = (model, relationTree, parentIdKey = null) => {
+const createImportPlanInner = (model, relationTree, parentIdConf = {}) => {
   // columns
   const allColumns = Object.keys(model.tableAttributes);
   const columns = without(allColumns, ...model.excludedSyncColumns);
@@ -21,18 +23,18 @@ const createImportPlanInner = (model, relationTree, parentIdKey = null) => {
         `createImportPlan: no such relation ${relationName} (defined in includedSyncRelations on ${model.name})`,
       );
     }
-    const childPlan = createImportPlanInner(childModel, childTree, childParentIdKey);
+    const childPlan = createImportPlanInner(childModel, childTree, { key: childParentIdKey });
     return { ...memo, [relationName]: childPlan };
   }, {});
 
-  return { model, columns, children, parentIdKey };
+  return { model, columns, children, parentIdConf };
 };
 
 export const executeImportPlan = async (plan, syncRecord) =>
   plan.model.sequelize.transaction(async () => executeImportPlanInner(plan, syncRecord));
 
 const executeImportPlanInner = async (
-  { model, columns, children, parentIdKey },
+  { model, columns, children, parentIdConf },
   syncRecord,
   parentId = null,
 ) => {
@@ -50,8 +52,8 @@ const executeImportPlanInner = async (
 
   // use only allowed columns
   const values = pick(data, ...columns);
-  if (parentIdKey) {
-    values[parentIdKey] = parentId;
+  if (parentIdConf.key) {
+    values[parentIdConf.key] = parentIdConf.overrideId || parentId || null;
   }
 
   // sequelize upserts don't work because they insert before update - hack to work around this

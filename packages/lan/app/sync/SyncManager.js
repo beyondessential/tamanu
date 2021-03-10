@@ -23,85 +23,88 @@ export class SyncManager {
   }
 
   async pullAndImport(model) {
-    const channel = model.channel();
-    const since = await this.getLastSynced(channel);
-    log.info(`SyncManager.pullAndImport: syncing ${channel} (last: ${since})`);
+    for (const channel of await model.channels()) {
+      const since = await this.getLastSynced(channel);
+      log.info(`SyncManager.pullAndImport: syncing ${channel} (last: ${since})`);
 
-    const plan = createImportPlan(model);
-    const importRecords = async syncRecords => {
-      for (const syncRecord of syncRecords) {
-        await executeImportPlan(plan, syncRecord);
-      }
-    };
+      const plan = createImportPlan(model, channel);
+      const importRecords = async syncRecords => {
+        for (const syncRecord of syncRecords) {
+          await executeImportPlan(plan, syncRecord);
+        }
+      };
 
-    let lastCount = 0;
-    let page = 0;
-    let requestedAt = null;
-    do {
-      // pull
-      log.debug(`SyncManager.pullAndImport: pulling page ${page} of ${channel}`);
-      const result = await this.remote.pull(channel, { page, since });
-      const syncRecords = result.records;
-      requestedAt =
-        requestedAt === null ? result.requestedAt : Math.min(requestedAt, result.requestedAt);
-      lastCount = syncRecords.length;
-      if (lastCount === 0) {
-        log.debug(`SyncManager.pullAndImport: reached end of ${channel}`);
-        break;
-      }
+      let lastCount = 0;
+      let page = 0;
+      let requestedAt = null;
+      do {
+        // pull
+        log.debug(`SyncManager.pullAndImport: pulling page ${page} of ${channel}`);
+        const result = await this.remote.pull(channel, { page, since });
+        const syncRecords = result.records;
+        requestedAt =
+          requestedAt === null ? result.requestedAt : Math.min(requestedAt, result.requestedAt);
+        lastCount = syncRecords.length;
+        if (lastCount === 0) {
+          log.debug(`SyncManager.pullAndImport: reached end of ${channel}`);
+          break;
+        }
 
-      // import
-      log.debug(`SyncManager.pullAndImport: importing ${syncRecords.length} ${model.name} records`);
-      await importRecords(syncRecords);
+        // import
+        log.debug(
+          `SyncManager.pullAndImport: importing ${syncRecords.length} ${model.name} records`,
+        );
+        await importRecords(syncRecords);
 
-      page++;
-    } while (lastCount);
+        page++;
+      } while (lastCount);
 
-    // TODO: retry foreign key failures?
-    // Right now, our schema doesn't have any cycles in it, so neither retries nor stubs are strictly necessary.
-    // However, they're implemented on mobile, so perhaps we should either remove them there or add them here.
+      // TODO: retry foreign key failures?
+      // Right now, our schema doesn't have any cycles in it, so neither retries nor stubs are strictly necessary.
+      // However, they're implemented on mobile, so perhaps we should either remove them there or add them here.
 
-    await this.setLastSynced(channel, requestedAt);
-    return requestedAt;
+      await this.setLastSynced(channel, requestedAt);
+    }
   }
 
   async exportAndPush(model) {
-    const channel = model.channel();
-    log.debug(`SyncManager.exportAndPush: syncing ${channel}`);
+    for (const channel of await model.channels()) {
+      log.debug(`SyncManager.exportAndPush: syncing ${channel}`);
 
-    // export
-    const plan = createExportPlan(model);
-    const exportRecords = (after = null, limit = EXPORT_LIMIT) => {
-      log.debug(
-        `SyncManager.exportAndPush: exporting up to ${limit} records after ${after?.data?.id}`,
-      );
-      return executeExportPlan(plan, { after, limit });
-    };
+      // export
+      const plan = createExportPlan(model, channel);
+      const exportRecords = (after = null, limit = EXPORT_LIMIT) => {
+        log.debug(
+          `SyncManager.exportAndPush: exporting up to ${limit} records after ${after?.data?.id}`,
+        );
+        return executeExportPlan(plan, { after, limit });
+      };
 
-    // unmark
-    const unmarkRecords = async records => {
-      await model.update(
-        { markedForPush: false },
-        {
-          where: {
-            id: records.map(r => r.data.id),
+      // unmark
+      const unmarkRecords = async records => {
+        await model.update(
+          { markedForPush: false },
+          {
+            where: {
+              id: records.map(r => r.data.id),
+            },
           },
-        },
-      );
-    };
+        );
+      };
 
-    let after = null;
-    do {
-      const records = await exportRecords(after);
-      after = records[records.length - 1] || null;
-      if (records.length > 0) {
-        log.debug(`SyncManager.exportAndPush: pushing ${records.length} to sync server`);
-        await this.remote.push(channel, records);
-        await unmarkRecords(records);
-      }
-    } while (after !== null);
+      let after = null;
+      do {
+        const records = await exportRecords(after);
+        after = records[records.length - 1] || null;
+        if (records.length > 0) {
+          log.debug(`SyncManager.exportAndPush: pushing ${records.length} to sync server`);
+          await this.remote.push(channel, records);
+          await unmarkRecords(records);
+        }
+      } while (after !== null);
 
-    log.debug(`SyncManager.exportAndPush: reached end of ${channel}`);
+      log.debug(`SyncManager.exportAndPush: reached end of ${channel}`);
+    }
   }
 
   async getLastSynced(channel) {

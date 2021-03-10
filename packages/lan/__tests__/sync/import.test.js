@@ -30,6 +30,7 @@ const toSyncRecord = record => ({
 describe('import', () => {
   let models;
   let context;
+  let sharedPatient = null;
   beforeAll(async () => {
     context = await createTestContext();
     models = context.models;
@@ -46,7 +47,10 @@ describe('import', () => {
     ['User', fakeUser],
     [
       'Encounter',
-      () => buildNestedEncounter(context),
+      async () => {
+        sharedPatient = sharedPatient || (await context.models.Patient.create(fakePatient()));
+        return buildNestedEncounter(context, sharedPatient.id);
+      },
       {
         include: [
           { association: 'administeredVaccines' },
@@ -56,17 +60,21 @@ describe('import', () => {
           },
         ],
       },
+      ({ patientId }) => `patient/${patientId}/encounter`,
     ],
   ];
-  rootTestCases.forEach(([modelName, fakeRecord, options = {}]) => {
+  rootTestCases.forEach(([modelName, fakeRecord, options = {}, overrideChannel = null]) => {
     describe(modelName, () => {
       it('creates the record', async () => {
         // arrange
         const model = models[modelName];
         const record = await fakeRecord();
+        const channel = overrideChannel
+          ? await overrideChannel(record)
+          : (await model.channels())[0];
 
         // act
-        const plan = createImportPlan(model);
+        const plan = createImportPlan(model, channel);
         await executeImportPlan(plan, toSyncRecord(record));
 
         // assert
@@ -83,9 +91,12 @@ describe('import', () => {
           id: oldRecord.id,
         };
         await model.create(oldRecord);
+        const channel = overrideChannel
+          ? await overrideChannel(oldRecord)
+          : (await model.channels())[0];
 
         // act
-        const plan = createImportPlan(model);
+        const plan = createImportPlan(model, channel);
         await executeImportPlan(plan, toSyncRecord(newRecord));
 
         // assert
@@ -98,9 +109,12 @@ describe('import', () => {
         const model = models[modelName];
         const record = await fakeRecord();
         await model.create(record);
+        const channel = overrideChannel
+          ? await overrideChannel(record)
+          : (await model.channels())[0];
 
         // act
-        const plan = createImportPlan(model);
+        const plan = createImportPlan(model, channel);
         await executeImportPlan(plan, { ...toSyncRecord(record), isDeleted: true });
 
         // assert

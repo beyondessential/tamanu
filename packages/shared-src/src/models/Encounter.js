@@ -186,4 +186,22 @@ export class Encounter extends Model {
   ];
 
   static syncDirection = SYNC_DIRECTIONS.BIDIRECTIONAL;
+
+  static async channels() {
+    const patients = await this.sequelize.models.Patient.findAll({
+      // TODO: implement patient marking
+      // where: { markedForSync: true },
+      // raw: true,
+      // attributes: ['id'],
+    });
+    return patients.map(p => `patient/p.id/encounter`);
+  }
+
+  static getParentIdConfigFromChannel(channel) {
+    const patientId = channel.split('/')[1];
+    if (!patientId) {
+      throw new Error('Unable to extract encounter patientId from channel ${channel}');
+    }
+    return { key: 'patientId', overrideId: patientId };
+  }
 }
