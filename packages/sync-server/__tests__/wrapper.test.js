@@ -145,7 +145,8 @@ describe('sqlWrapper', () => {
       expect(foundEncounter).toHaveProperty('administeredVaccines', []);
     });
 
-    it('finds and counts nested records', async () => {
+    // TODO: reuse the import/export from lan server and uncomment this when we do
+    it.skip('finds and counts nested records', async () => {
       // arrange
       const encounter = await buildNestedEncounter(ctx, patientId);
 
