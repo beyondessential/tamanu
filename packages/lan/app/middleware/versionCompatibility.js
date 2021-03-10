@@ -13,8 +13,8 @@ export const versionCompatibility = (req, res, next) => {
   res.setHeader('X-Max-Client-Version', MAX_CLIENT_VERSION);
 
   // check the connecting client is supported, and respond with an error if not
-  const clientVersion = req.header('X-Client-Version');
-  if(!clientVersion) {
+  const clientVersion = req.header('X-Version');
+  if (!clientVersion) {
     // a thirdparty tool (or internal test suite) is using the API; ignore version checking
     next();
     return;

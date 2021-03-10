@@ -2,15 +2,15 @@ import compareVersions from 'semver-compare';
 import { VERSION_COMPATIBILITY_ERRORS } from 'shared/constants';
 
 // If a new version of the mobile app is being released in conjunction with an update to the sync
-// server, set `mobile.min` to reflect that, and mobile users will be logged out until
+// server, set `min` for `Tamanu Mobile` to reflect that, and mobile users will be logged out until
 // they have updated. Similarly with the LAN server, it won't be able to sync if its version is
 // not supported
 const SUPPORTED_CLIENT_VERSIONS = {
-  lan: {
+  'Tamanu LAN Server': {
     min: '1.0.0',
     max: '1.0.0',
   },
-  mobile: {
+  'Tamanu Mobile': {
     min: '1.0.3',
     max: '1.0.3',
   },
@@ -21,15 +21,12 @@ const respondWithError = (res, error) => {
 };
 
 export const versionCompatibility = (req, res, next) => {
-  const clientVersion = req.header('X-Client-Version');
-  const clientType = req.header('X-Client-Type');
-  console.log(clientVersion, clientType);
+  const clientVersion = req.header('X-Version');
+  const clientType = req.header('X-Runtime');
 
   if (!clientVersion || !clientType) {
-    respondWithError(res, {
-      message: 'Must supply client version and type headers',
-      name: 'MissingClientHeaders',
-    });
+    // a thirdparty tool (or internal test suite) is using the API; ignore version checking
+    next();
     return;
   }
 
