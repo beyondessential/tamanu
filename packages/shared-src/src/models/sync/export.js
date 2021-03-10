@@ -48,10 +48,14 @@ export const executeExportPlan = async (plan, channel, { after, offset, since, l
   const options = {
     where: {},
     order: [['id', 'ASC']],
-    paranoid: !syncClientMode,
   };
   if (syncClientMode) {
+    // only push marked records in server mode
     options.where.markedForPush = true;
+  }
+  if (!syncClientMode) {
+    // load deleted records in server mode
+    options.paranoid = false; 
   }
   if (foreignKey) {
     const parentId = model.syncParentIdFromChannel(channel);
@@ -82,29 +86,37 @@ export const executeExportPlanInner = async ({ model, associations, columns }, o
 
   const syncRecords = [];
   for (const dbRecord of dbRecords) {
-    // format columns
     const syncRecord = { data: {} };
-    for (const [columnName, columnFormatter] of Object.entries(columns)) {
-      const value = dbRecord[columnName];
-      syncRecord.data[columnName] = columnFormatter ? columnFormatter(value) : value;
-    }
 
     // add lastSynced (if we're not in client mode)
     if (!model.syncClientMode) {
       syncRecord.lastSynced = dbRecord.updatedAt.valueOf();
     }
 
-    // query associations
-    for (const [associationName, associationPlan] of Object.entries(associations)) {
-      const associationOptions = {
-        where: { [associationPlan.foreignKey]: dbRecord.id },
-      };
-      syncRecord.data[associationName] = await executeExportPlanInner(
-        associationPlan,
-        associationOptions,
-        since,
-      );
+    if (!model.syncClientMode && dbRecord.deletedAt) {
+      // don't return any data for tombstones
+      syncRecord.data.id = dbRecord.id;
+      syncRecord.isDeleted = true;
+    } else {
+      // pick and format columns
+      for (const [columnName, columnFormatter] of Object.entries(columns)) {
+        const value = dbRecord[columnName];
+        syncRecord.data[columnName] = columnFormatter ? columnFormatter(value) : value;
+      }
+
+      // query associations
+      for (const [associationName, associationPlan] of Object.entries(associations)) {
+        const associationOptions = {
+          where: { [associationPlan.foreignKey]: dbRecord.id },
+        };
+        syncRecord.data[associationName] = await executeExportPlanInner(
+          associationPlan,
+          associationOptions,
+          since,
+        );
+      }
     }
+
     syncRecords.push(syncRecord);
   }
 

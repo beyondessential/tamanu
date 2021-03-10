@@ -55,9 +55,9 @@ const executeImportPlanInner = async (
       // delete tombstones if we're in client mode
       const record = await model.findByPk(id);
       await record?.destroy();
-      return;
     } else {
       // mark them deleted if we're in server mode
+      // this case shouldn't be hit under normal use
       await model.update(
         {
           deletedAt: Sequelize.literal('CURRENT_TIMESTAMP'),
@@ -65,9 +65,11 @@ const executeImportPlanInner = async (
         },
         {
           where: { id },
+          paranoid: false,
         },
       );
     }
+    return;
   }
 
   // use only allowed columns
