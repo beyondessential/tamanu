@@ -1,4 +1,5 @@
 import { createReducer } from '../utils/createReducer';
+import { settings, SETTINGS_KEYS } from '../settings';
 
 // actions
 const LOGIN_START = 'LOGIN_START';
@@ -7,11 +8,13 @@ const LOGIN_FAILURE = 'LOGIN_FAILURE';
 const LOGOUT = 'LOGOUT';
 const LOGOUT_WITH_ERROR = 'LOGOUT_WITH_ERROR';
 
-export const login = (email, password) => async (dispatch, getState, { api }) => {
+export const login = (host, email, password) => async (dispatch, getState, { api }) => {
   dispatch({ type: LOGIN_START });
 
   try {
-    const { user, token } = await api.login(email, password);
+    const { user, token } = await api.login(host, email, password);
+    // login was successful, save the host in settings
+    settings.set(SETTINGS_KEYS.HOST, host);
     dispatch({ type: LOGIN_SUCCESS, user, token });
   } catch (error) {
     dispatch({ type: LOGIN_FAILURE, error: error.message });

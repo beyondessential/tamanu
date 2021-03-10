@@ -2,6 +2,7 @@ import React, { useEffect, useState, memo } from 'react';
 import InputAdornment from '@material-ui/core/InputAdornment';
 
 import { discoverServer } from '../../api/discovery';
+import { settings, SETTINGS_KEYS } from '../../settings';
 import { TextField } from './TextField';
 import { RefreshIconButton } from '../Button';
 
@@ -28,7 +29,12 @@ export const ServerDetectingField = memo(({ setFieldValue, ...props }) => {
 
   // attempt to detect on first mount
   useEffect(() => {
-    attemptServerDetection();
+    const savedHost = settings.get(SETTINGS_KEYS.HOST);
+    if (savedHost) {
+      setFieldValue(savedHost);
+    } else {
+      attemptServerDetection();
+    }
   }, []);
 
   return (

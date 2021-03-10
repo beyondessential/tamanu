@@ -3,7 +3,6 @@ import { connect } from 'react-redux';
 import styled from 'styled-components';
 import 'typeface-roboto';
 
-import { API } from './api';
 import { TamanuLogoWhite } from './components/TamanuLogo';
 import { ConnectedSidebar } from './components/Sidebar';
 import { Appbar } from './components/Appbar';
@@ -75,8 +74,7 @@ const mapStateToProps = state => ({
 
 const mapDispatchToProps = dispatch => ({
   onLogin: ({ host, email, password }) => {
-    API.setHost(host);
-    dispatch(login(email, password));
+    dispatch(login(host, email, password));
   },
 });
 

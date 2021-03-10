@@ -76,7 +76,8 @@ export class TamanuApi {
     this.onVersionIncompatible = handler;
   }
 
-  async login(email, password) {
+  async login(host, email, password) {
+    this.setHost(host);
     const response = await this.post('login', { email, password });
     const { token } = response;
     this.setToken(token);

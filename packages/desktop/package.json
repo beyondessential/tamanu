@@ -206,6 +206,7 @@
     "deep-equal": "^1.0.1",
     "devtron": "^1.4.0",
     "electron-debug": "^2.0.0",
+    "electron-store": "^7.0.2",
     "faye": "^1.2.4",
     "formik": "^1.5.2",
     "fs-jetpack": "^2.2.2",
