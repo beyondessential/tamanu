@@ -56,6 +56,7 @@ export function fakeSurvey(prefix = 'test-') {
   const id = uuidv4();
   return {
     programId: null,
+    surveyType: 'programs',
     ...fakeStringFields(`${prefix}survey_${id}_`, ['id', 'code', 'name']),
   };
 }
