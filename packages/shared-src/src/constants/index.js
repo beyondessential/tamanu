@@ -175,6 +175,11 @@ export const PATIENT_COMMUNICATION_TYPES = {
 
 export const PATIENT_COMMUNICATION_TYPES_VALUES = Object.values(PATIENT_COMMUNICATION_TYPES);
 
+export const SURVEY_TYPES = {
+  PROGRAMS: 'programs',
+  REFERRAL: 'referral',
+};
+
 export const COMMUNICATION_STATUSES = {
   QUEUED: 'Queued',
   PROCESSED: 'Processed',

@@ -1,5 +1,5 @@
 import { Sequelize } from 'sequelize';
-import { SYNC_DIRECTIONS } from 'shared/constants';
+import { SYNC_DIRECTIONS, SURVEY_TYPES } from 'shared/constants';
 import { Model } from './Model';
 
 export class Survey extends Model {
@@ -9,6 +9,10 @@ export class Survey extends Model {
         id: primaryKey,
         code: Sequelize.STRING,
         name: Sequelize.STRING,
+        surveyType: {
+          type: Sequelize.STRING,
+          defaultValue: SURVEY_TYPES.PROGRAMS,
+        },
       },
       {
         ...options,
