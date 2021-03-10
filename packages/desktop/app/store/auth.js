@@ -1,5 +1,5 @@
 import { createReducer } from '../utils/createReducer';
-import { settings, SETTINGS_KEYS } from '../settings';
+import { LOCAL_STORAGE_KEYS } from '../constants';
 
 // actions
 const LOGIN_START = 'LOGIN_START';
@@ -14,7 +14,7 @@ export const login = (host, email, password) => async (dispatch, getState, { api
   try {
     const { user, token } = await api.login(host, email, password);
     // login was successful, save the host in settings
-    settings.set(SETTINGS_KEYS.HOST, host);
+    window.localStorage.setItem(LOCAL_STORAGE_KEYS.HOST, host);
     dispatch({ type: LOGIN_SUCCESS, user, token });
   } catch (error) {
     dispatch({ type: LOGIN_FAILURE, error: error.message });

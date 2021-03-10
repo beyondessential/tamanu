@@ -1445,3 +1445,7 @@ export const REPORT_TYPES = {
   RAW: 'raw',
   TABLE: 'table',
 };
+
+export const LOCAL_STORAGE_KEYS = {
+  HOST: 'host',
+};
