@@ -34,13 +34,6 @@ export const SummaryBoard: FC<Props> = ({ todayData }) => (
           >
             People attended today
           </StyledText>
-          {/* <StyledText
-            marginTop={screenPercentageToDP(0.6, Orientation.Height)}
-            fontSize={screenPercentageToDP(1.33, Orientation.Height)}
-            color={theme.colors.SAFE}
-          >
-            +10% on last 4 weeks
-          </StyledText> */}
         </FullView>
         <FullView justifyContent="center" alignItems="center">
           <StyledText
@@ -54,13 +47,6 @@ export const SummaryBoard: FC<Props> = ({ todayData }) => (
           >
             Screenings completed today
           </StyledText>
-          {/* <StyledText
-            marginTop={screenPercentageToDP(0.6, Orientation.Height)}
-            fontSize={screenPercentageToDP(1.33, Orientation.Height)}
-            color={theme.colors.ALERT}
-          >
-            +5% on last 4 weeks
-          </StyledText> */}
         </FullView>
       </>
     )}

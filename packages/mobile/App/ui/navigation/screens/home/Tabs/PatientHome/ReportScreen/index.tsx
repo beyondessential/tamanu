@@ -21,7 +21,7 @@ import { format, startOfToday, subDays } from 'date-fns';
 import { useBackendEffect } from '~/ui/hooks';
 import { SummaryBoard } from './SummaryBoard';
 import { BarChartData } from '~/ui/interfaces/BarChartProps';
-import { DetailedReport } from './DetailedReport';
+import { RecentPatientSurveyReport } from './RecentPatientSurveyReport';
 
 interface ReportTypeButtons {
   isReportWeekly: boolean;
@@ -103,9 +103,11 @@ const ReportChart: FC<ReportChartProps> = ({ isReportWeekly, visitData, todayDat
     </>
   ) : (
     <StyledView marginBottom={screenPercentageToDP(2.43, Orientation.Height)}>
-      <DetailedReport />
+      <RecentPatientSurveyReport />
     </StyledView>
   ));
+
+// TODO: implement selector for survey type.
 
 export const ReportScreen = ({
   navigation,

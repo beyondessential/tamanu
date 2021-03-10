@@ -1,14 +1,13 @@
 import { differenceInYears, format, parseISO } from 'date-fns';
 import React, { FC } from 'react';
-import { Text } from 'react-native';
 import { screenPercentageToDP, Orientation } from '~/ui/helpers/screen';
 import { useBackendEffect } from '~/ui/hooks';
 import { StyledView, RowView, StyledText } from '~/ui/styled/common';
 import { theme } from '~/ui/styled/theme';
-import { Table, Row, ColumnCategory, Cell, BorderRow, HeaderRow } from './DetailedReportStyledComponents';
+import { Table, Row, ColumnCategory, Cell, BorderRow, HeaderRow } from './RecentPatientSurveyReportStyled';
 import { DateFormats } from '/helpers/constants';
 
-export const DetailedReport: FC = () => {
+export const RecentPatientSurveyReport: FC = () => {
   const [recentVisitorsData] = useBackendEffect(
     ({ models }) => models.Patient.getRecentVisitors('program-cvd-fiji/survey-cvd-risk-fiji'),
     [],
