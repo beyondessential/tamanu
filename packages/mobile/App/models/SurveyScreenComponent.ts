@@ -74,7 +74,7 @@ export class SurveyScreenComponent extends BaseModel
       .split("\n")
       .map(x => x.split(':'))
       .forEach(x => {
-        configObject[x[0] && x[0].trim()] = x[1] && x[1].trim()
+        if (x[0]) configObject[x[0].trim()] = x[1]?.trim();
       });
 
     return configObject;
