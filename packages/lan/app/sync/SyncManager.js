@@ -1,7 +1,12 @@
-import { shouldPush, shouldPull } from 'shared/models/sync';
+import {
+  shouldPush,
+  shouldPull,
+  createImportPlan,
+  executeImportPlan,
+  createExportPlan,
+  executeExportPlan,
+} from 'shared/models/sync';
 import { log } from '~/logging';
-import { createImportPlan, executeImportPlan } from './import';
-import { createExportPlan, executeExportPlan } from './export';
 
 const EXPORT_LIMIT = 100;
 
