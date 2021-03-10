@@ -2,6 +2,7 @@ import React from 'react';
 import { Routes } from '~/ui/helpers/routes';
 import { Suggester } from '~/ui/helpers/suggester';
 import { useBackend } from '~/ui/hooks';
+import { StyledText } from '~/ui/styled/common';
 
 import { AutocompleteModalField } from './AutocompleteModalField';
 
@@ -19,7 +20,14 @@ function createSuggester(models, config) {
 
 export const SurveyQuestionAutocomplete = ({ component, ...props }) => {
   const { models } = useBackend();
-  const config = component.getConfigObject();
+  const config = component && component.getConfigObject();
+  if (!config) {
+    return (
+      <StyledText color="red">
+        Error displaying component
+      </StyledText>
+    )
+  }
 
   return (
     <AutocompleteModalField

@@ -1,5 +1,5 @@
 # Get all surveys
-GET https://sync-dev.tamanu.io/v1/sync/survey?since=1615322341003   HTTP/1.1
+GET https://sync-dev.tamanu.io/v1/sync/survey?since=1614690000000   HTTP/1.1
 Content-Type: application/json
 Authorization: Bearer fake-token
 
@@ -8,26 +8,16 @@ Authorization: Bearer fake-token
 ###
 
 # update an existing survey screen component
-POST https://sync-dev.tamanu.io/v1/sync/surveyScreenComponent HTTP/1.1
+POST https://sync-dev.tamanu.io/v1/sync/survey HTTP/1.1
 Authorization: Bearer fake-token
 Content-Type: application/json
 
 [
   { 
-    "recordType": "surveyScreenComponent",
+    "recordType": "survey",
     "data": {
-      "id": "program-referral_forms/survey-bcp_referral",
-        "screenIndex": 0,
-        "componentIndex": 8,
-        "text": "",
-        "visibilityCriteria": "",
-        "validationCriteria": "",
-        "detail": "",
-        "config": "source: FijCVD_6",
-        "options": "",
-        "calculation": "",
-        "surveyId": "program-referral_forms/survey-cvd_referral_new",
-        "dataElementId": "dataElement/FijCVDRef_10"
+      "id": "program-referral_forms/survey-cvd_referral_new",
+      "programId": "program-hidden_forms"
     }
   }
 ]

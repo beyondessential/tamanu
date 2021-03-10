@@ -56,7 +56,7 @@ const Screen = ({ selectedPatient }: ProgramListScreenProps): ReactElement => {
             backgroundColor: theme.colors.BACKGROUND_GREY,
           }}
           showsVerticalScrollIndicator={false}
-          data={surveys}
+          data={surveys && surveys.filter(x => x.programId !== 'program-hidden_forms')} // hack until we can delete surveys from server
           keyExtractor={(item): string => item.title}
           renderItem={({ item }): ReactElement => (
             <MenuOptionButton
