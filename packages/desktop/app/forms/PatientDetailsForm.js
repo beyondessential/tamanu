@@ -20,6 +20,7 @@ import {
   titleOptions,
   socialMediaOptions,
   maritalStatusOptions,
+  educationalAttainmentOptions,
 } from '../constants';
 
 export const PrimaryDetailsGroup = ({
@@ -175,6 +176,12 @@ export const SecondaryDetailsGroup = ({
     />
     <Field name="socialMediaName" label="Social media name" component={TextField} />
     <Field name="email" label="Email" component={TextField} />
+    <Field
+      name="educationalAttainment"
+      label="Educational Attainment"
+      component={SelectField}
+      options={educationalAttainmentOptions}
+    />
   </React.Fragment>
 );
 

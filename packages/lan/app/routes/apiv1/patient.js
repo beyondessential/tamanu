@@ -20,6 +20,8 @@ const AdditionalDetailsProperties = [
   'secondaryContactNumber',
   'socialMediaPlatform',
   'socialMediaName',
+  'educationalAttainment',
+  'patientType',
 ];
 
 function stringifyAdditionalDetails(reqBody) {

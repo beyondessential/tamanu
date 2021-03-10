@@ -24,6 +24,7 @@ export class Patient extends Model {
           allowNull: false,
         },
         bloodType: Sequelize.STRING,
+        email: Sequelize.STRING,
         additionalDetails: Sequelize.TEXT,
       },
       {
