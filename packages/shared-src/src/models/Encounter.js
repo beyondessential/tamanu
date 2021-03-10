@@ -194,7 +194,7 @@ export class Encounter extends Model {
       // raw: true,
       // attributes: ['id'],
     });
-    return patients.map(p => `patient/p.id/encounter`);
+    return patients.map(p => `patient/${p.id}/encounter`);
   }
 
   static getParentIdConfigFromChannel(channel) {
