@@ -5,7 +5,6 @@ export const initSyncClientModeHooks = models => {
     .filter(model => model.syncClientMode && shouldPush(model))
     .forEach(model => {
       model.addHook('beforeSave', 'markForPush', record => {
-        console.log('markForPush fired for', model.name);
         if (!record.changed || !record.changed('markedForPush') ) {
           record.markedForPush = true;
         }
