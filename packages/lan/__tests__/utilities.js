@@ -108,7 +108,7 @@ export async function createTestContext() {
     return baseApp.asUser(newUser);
   };
 
-  jest.setTimeout(5000); // back to default for actual tests
+  jest.setTimeout(30 * 1000); // more generous than the default 5s but not crazy
 
   return { baseApp, sequelize, models };
 }
