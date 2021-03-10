@@ -25,7 +25,7 @@ export const SurveyQuestion = ({
   const fieldInput: any = getField(dataElement.type, component);
   if(!fieldInput) return null;
   const isMultiline = dataElement.type === FieldTypes.MULTILINE;
-  const config = component.getConfigObject();
+  const config = component && component.getConfigObject();
 
   return (
     <StyledView marginTop={10}>

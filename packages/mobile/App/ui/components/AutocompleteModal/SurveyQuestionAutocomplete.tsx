@@ -19,12 +19,11 @@ function createSuggester(models, config) {
 
 export const SurveyQuestionAutocomplete = ({ component, ...props }) => {
   const { models } = useBackend();
-  const { dataElement } = component;
   const config = component.getConfigObject();
 
   return (
     <AutocompleteModalField
-      placeholder={dataElement.defaultText}
+      placeholder="Search..."
       suggester={createSuggester(models, config)}
       modalRoute={Routes.Autocomplete.Modal}
       {...props}
