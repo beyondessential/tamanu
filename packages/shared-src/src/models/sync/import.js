@@ -45,8 +45,10 @@ const executeImportPlanInner = async (
   parentId = null,
 ) => {
   const { data, isDeleted } = syncRecord;
-  const { id } = data;
-  if (!id) {
+  let { id } = data;
+  // if we're on the client, a missing ID is an error
+  // on the server, we just generate one - continue on
+  if (model.syncClientMode && !id) {
     throw new Error('executeImportPlan: record id was missing');
   }
 
@@ -81,9 +83,14 @@ const executeImportPlanInner = async (
   // sequelize upserts don't work because they insert before update - hack to work around this
   // this could cause a race condition if anything but SyncManager does it, or if two syncs run at once!
   // see also: https://github.com/sequelize/sequelize/issues/5711
-  const [numUpdated] = await model.update(values, { where: { id } });
+  let numUpdated = 0;
+  if (id) {
+    // only try updating a model we have an id for - otherwise, it's definitely an insert
+    numUpdated = (await model.update(values, { where: { id } }))[0];
+  }
   if (numUpdated === 0) {
-    await model.create(values);
+    const createdRecord = await model.create(values);
+    id = createdRecord.id;
   }
 
   for (const [relationName, plan] of Object.entries(children)) {
