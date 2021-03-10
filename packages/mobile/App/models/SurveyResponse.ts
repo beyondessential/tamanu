@@ -13,7 +13,8 @@ import {
 
 import { runCalculations } from '~/ui/helpers/calculations';
 
-import { ISurveyResponse, IProgramDataElement, ISurveyScreenComponent } from '~/types';
+import { ISurveyResponse, IProgramDataElement, ISurveyScreenComponent, SurveyTypes } from '~/types';
+import { Referral } from './Referral';
 
 @Entity('survey_response')
 export class SurveyResponse extends BaseModel implements ISurveyResponse {
@@ -37,9 +38,12 @@ export class SurveyResponse extends BaseModel implements ISurveyResponse {
 
   @ManyToOne(() => Encounter, encounter => encounter.surveyResponses)
   encounter: Encounter;
-
+  
   @RelationId(({ encounter }) => encounter)
   encounterId: string;
+
+  @OneToMany(() => Referral, referral => referral.surveyResponse)
+  referral: Referral
 
   @OneToMany(() => SurveyResponseAnswer, answer => answer.response)
   answers: SurveyResponseAnswer[];
@@ -91,7 +95,6 @@ export class SurveyResponse extends BaseModel implements ISurveyResponse {
       const encounter = await Encounter.getOrCreateCurrentEncounter(patientId, {
         startDate: new Date(),
         endDate: new Date(),
-        encounterType: 'surveyResponse',
         reasonForEncounter: encounterReason,
       });
 
@@ -154,12 +157,14 @@ export class SurveyResponse extends BaseModel implements ISurveyResponse {
     }
   }
 
-  static async getForPatient(patientId: string): Promise<SurveyResponse[]> {
+  static async getForPatient(patientId: string, surveyId: string): Promise<SurveyResponse[]> {
     return this.getRepository()
       .createQueryBuilder('survey_response')
       .leftJoinAndSelect('survey_response.encounter', 'encounter')
       .leftJoinAndSelect('survey_response.survey', 'survey')
-      .where('encounter.patientId = :patient', { patient: patientId })
+      .where('encounter.patientId = :patientId', { patientId })
+      .andWhere('survey.id = :surveyId', { surveyId })
+      .orderBy('survey_response.endTime', 'DESC')
       .getMany();
   }
 }

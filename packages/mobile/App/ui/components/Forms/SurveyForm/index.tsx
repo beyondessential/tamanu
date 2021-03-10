@@ -1,12 +1,5 @@
 import React, { ReactElement, useMemo, useEffect } from 'react';
-import * as Yup from 'yup';
 import { Formik } from 'formik';
-
-import { Button } from '~/ui/components/Button';
-import { theme } from '~/ui/styled/theme';
-import { StyledText, StyledView } from '~/ui/styled/common';
-import { VerticalPosition } from '~/interfaces/VerticalPosition';
-import { IProgram } from '~/types';
 
 import {
   getFormInitialValues,
@@ -19,6 +12,7 @@ import { runCalculations } from '~/ui/helpers/calculations';
 export type SurveyFormProps = {
   onSubmit: (values: any) => void;
   components: any;
+  patient: any;
   note: string;
 };
 
@@ -26,6 +20,7 @@ export const SurveyForm = ({
   onSubmit,
   components,
   note,
+  patient,
 }: SurveyFormProps): ReactElement => {
   const initialValues = useMemo(() => getFormInitialValues(components), [components]);
   const formValidationSchema = useMemo(() => getFormSchema(components), [components]);
@@ -51,6 +46,7 @@ export const SurveyForm = ({
             components={components}
             values={values}
             note={note}
+            patient={patient}
             onSubmit={handleSubmit}
           />
         );

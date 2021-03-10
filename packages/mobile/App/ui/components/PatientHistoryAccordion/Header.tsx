@@ -68,12 +68,14 @@ interface HeaderDescriptionProps {
   encounterType: string;
   referredDepartment: string;
   isActive: boolean;
+  formTitle: string;
+  location: { name: string };
 }
 
 const HeaderDescription = ({
   encounterType,
   location,
-  referredDepartment,
+  formTitle,
   isActive,
 }: HeaderDescriptionProps): JSX.Element => (
   <ColumnView flex={1}>
@@ -82,7 +84,7 @@ const HeaderDescription = ({
       fontWeight={700}
       fontSize={16}
     >
-      {EncounterTypeNames[encounterType] || ''}
+      {EncounterTypeNames[encounterType] || formTitle || ''}
     </StyledText>
     <StyledView marginTop={1}>
       <StyledText
@@ -98,7 +100,7 @@ const Header = (
   section: IEncounter,
   index: number,
   isActive: boolean,
-): JSX.Element => (
+  ): JSX.Element => (
   <StyledView>
     <RowView
       width="100%"

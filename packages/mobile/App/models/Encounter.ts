@@ -19,6 +19,7 @@ import { AdministeredVaccine } from './AdministeredVaccine';
 import { SurveyResponse } from './SurveyResponse';
 import { formatDateForQuery } from '~/infra/db/helpers';
 import { SummaryInfo } from '~/ui/navigation/screens/home/Tabs/PatientHome/ReportScreen/SummaryBoard';
+import { Referral } from './Referral';
 
 const TIME_OFFSET = 3;
 
@@ -72,11 +73,14 @@ export class Encounter extends BaseModel implements IEncounter {
   })
   diagnoses: Diagnosis[];
 
-  @OneToMany(
-    () => AdministeredVaccine,
-    (administeredVaccine) => administeredVaccine.encounter
-  )
-  administeredVaccines: AdministeredVaccine[];
+  @OneToMany(() => Referral, referral => referral.initiatingEncounter)
+  initiatedReferrals: Referral[]
+
+  @OneToMany(() => Referral, referral => referral.completingEncounter)
+  completedReferrals: Referral[]
+
+  @OneToMany(() => AdministeredVaccine, administeredVaccine => administeredVaccine.encounter)
+  administeredVaccines: AdministeredVaccine[]
 
   @OneToMany(() => SurveyResponse, (surveyResponse) => surveyResponse.encounter)
   surveyResponses: SurveyResponse[];

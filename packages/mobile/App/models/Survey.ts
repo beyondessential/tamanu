@@ -3,10 +3,13 @@ import { BaseModel } from './BaseModel';
 import { Program } from './Program';
 import { Database } from '~/infra/db';
 
-import { ISurvey, ISurveyResponse } from '~/types';
+import { ISurvey, ISurveyResponse, SurveyTypes } from '~/types';
 
 @Entity('survey')
 export class Survey extends BaseModel implements ISurvey {
+  @Column({ type: 'varchar', default: SurveyTypes.Programs })
+  surveyType: SurveyTypes;
+
   @RelationId(({ program }) => program)
   programId: string;
 

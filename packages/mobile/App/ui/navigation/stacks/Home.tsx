@@ -93,7 +93,7 @@ export const HomeStack = ({ navigator: Navi }): ReactElement => {
         component={SickOrInjuredTabs}
       />
       <Stack.Screen
-        name={Routes.HomeStack.ReferralTabs.Index}
+        name={Routes.HomeStack.ProgramStack.ReferralTabs.Index}
         component={ReferralTabs}
       />
       <Stack.Screen

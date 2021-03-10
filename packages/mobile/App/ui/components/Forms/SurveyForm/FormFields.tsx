@@ -23,6 +23,7 @@ interface AddDetailsFormFieldsProps {
   components: ISurveyScreenComponent[];
   values: any;
   onSubmit: any;
+  patient: any;
   note: string;
 }
 
@@ -31,6 +32,7 @@ export const FormFields = ({
   values,
   onSubmit,
   note,
+  patient
 }: AddDetailsFormFieldsProps): ReactElement => {
   const [currentScreenIndex, setCurrentScreenIndex] = useState(0);
 
@@ -60,7 +62,7 @@ export const FormFields = ({
     .map((component, index) => (
       <React.Fragment key={component.id}>
           <SectionHeader marginTop={index === 0 ? 0 : 20} h3>
-            {component.text || component.dataElement.defaultText}
+            {component.text || component.dataElement.defaultText || ''}
           </SectionHeader>
           { 
             component.detail
@@ -71,6 +73,7 @@ export const FormFields = ({
             <SurveyQuestion
               key={component.id}
               component={component}
+              patient={patient}
             />
           </ErrorBoundary>
       </React.Fragment>

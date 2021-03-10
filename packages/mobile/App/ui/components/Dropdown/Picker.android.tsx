@@ -57,7 +57,7 @@ export const AndroidPicker = React.memo(
               marginBottom={screenPercentageToDP('1.21%', Orientation.Height)}
               color={theme.colors.TEXT_SOFT}
             >
-              Pick a Value
+              {items.length > 0 ? 'Pick a value' : 'No options available'}
             </StyledText>
             {items.map((item, i) => (
               <React.Fragment key={item.label}>
