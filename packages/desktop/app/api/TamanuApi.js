@@ -188,7 +188,6 @@ export class TamanuApi {
    * @param {*} changeType  Currently one of save, remove, wipe, or * for all
    */
   subscribeToChanges(recordType, changeType, callback) {
-    console.log('subbing', recordType, changeType);
     // until the faye client has been set up, push any subscriptions into an array
     if (!this.fayeClient) {
       this.pendingSubscriptions.push({ recordType, changeType, callback });
