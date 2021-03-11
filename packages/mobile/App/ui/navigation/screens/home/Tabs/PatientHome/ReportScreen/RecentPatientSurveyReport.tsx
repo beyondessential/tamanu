@@ -4,7 +4,7 @@ import { screenPercentageToDP, Orientation } from '~/ui/helpers/screen';
 import { useBackendEffect } from '~/ui/hooks';
 import { StyledView, RowView, StyledText } from '~/ui/styled/common';
 import { theme } from '~/ui/styled/theme';
-import { Table, Row, ColumnCategory, Cell, BorderRow, HeaderRow } from './RecentPatientSurveyReportStyled';
+import { Table, Row, ColumnCategory, Cell, BorderRow, HeaderRow, DataCell, DataText } from './RecentPatientSurveyReportStyled';
 import { DateFormats } from '/helpers/constants';
 
 export const RecentPatientSurveyReport: FC = () => {
@@ -58,13 +58,9 @@ export const RecentPatientSurveyReport: FC = () => {
             </StyledText>
           </StyledText>
         </StyledView>
-        <StyledText
-          fontSize={screenPercentageToDP(1.7, Orientation.Height)}
-          color={theme.colors.PRIMARY_MAIN}
-          fontWeight={500}
-        >
+        <DataText>
           {todayFormatted}
-        </StyledText>
+        </DataText>
       </RowView>
       <StyledView
         width="100%"
@@ -76,24 +72,8 @@ export const RecentPatientSurveyReport: FC = () => {
           <BorderRow>
             <Cell />
             <Cell />
-            <Cell>
-              <StyledText
-                fontSize={screenPercentageToDP(1.8, Orientation.Height)}
-                color={theme.colors.TEXT_SUPER_DARK}
-                fontWeight={700}
-                textAlign="center"
-              >Number attended
-              </StyledText>
-            </Cell>
-            <Cell>
-              <StyledText
-                fontSize={screenPercentageToDP(1.8, Orientation.Height)}
-                color={theme.colors.TEXT_SUPER_DARK}
-                fontWeight={700}
-                textAlign="center"
-              >Number screened
-              </StyledText>
-            </Cell>
+            <DataCell type="strong">Number attended</DataCell>
+            <DataCell type="strong">Number screened</DataCell>
           </BorderRow>
           {
             genderData
@@ -109,56 +89,14 @@ export const RecentPatientSurveyReport: FC = () => {
                 </ColumnCategory>
                 <Cell>
                   <BorderRow>
-                    <Cell>
-                      <StyledText
-                        fontSize={screenPercentageToDP(1.7, Orientation.Height)}
-                        color={theme.colors.TEXT_DARK}
-                        fontWeight={500}
-                      >Male
-                      </StyledText>
-                    </Cell>
-                    <Cell>
-                      <StyledText
-                        fontSize={screenPercentageToDP(1.7, Orientation.Height)}
-                        color={theme.colors.TEXT_DARK}
-                        fontWeight={500}
-                      >{maleData?.totalVisitors || '0'}
-                      </StyledText>
-                    </Cell>
-                    <Cell>
-                      <StyledText
-                        fontSize={screenPercentageToDP(1.7, Orientation.Height)}
-                        color={theme.colors.TEXT_DARK}
-                        fontWeight={500}
-                      >{maleData?.totalSurveys || '0'}
-                      </StyledText>
-                    </Cell>
+                    <DataCell>Male</DataCell>
+                    <DataCell>{maleData?.totalVisitors || '0'}</DataCell>
+                    <DataCell>{maleData?.totalSurveys || '0'}</DataCell>
                   </BorderRow>
                   <Row>
-                    <Cell>
-                      <StyledText
-                        fontSize={screenPercentageToDP(1.7, Orientation.Height)}
-                        color={theme.colors.TEXT_DARK}
-                        fontWeight={500}
-                      >Female
-                      </StyledText>
-                    </Cell>
-                    <Cell>
-                      <StyledText
-                        fontSize={screenPercentageToDP(1.7, Orientation.Height)}
-                        color={theme.colors.TEXT_DARK}
-                        fontWeight={500}
-                      >{femaleData?.totalVisitors || '0'}
-                      </StyledText>
-                    </Cell>
-                    <Cell>
-                      <StyledText
-                        fontSize={screenPercentageToDP(1.7, Orientation.Height)}
-                        color={theme.colors.TEXT_DARK}
-                        fontWeight={500}
-                      >{femaleData?.totalSurveys || '0'}
-                      </StyledText>
-                    </Cell>
+                    <DataCell>Female</DataCell>
+                    <DataCell>{femaleData?.totalVisitors || '0'}</DataCell>
+                    <DataCell>{femaleData?.totalSurveys || '0'}</DataCell>
                   </Row>
                 </Cell>
               </BorderRow>
@@ -169,65 +107,18 @@ export const RecentPatientSurveyReport: FC = () => {
             && (
               <BorderRow>
                 <ColumnCategory>
-                  <StyledText
-                    fontSize={screenPercentageToDP(1.7, Orientation.Height)}
-                    color={theme.colors.TEXT_DARK}
-                    fontWeight={700}
-                  >Age
-                  </StyledText>
+                  <DataText>Age</DataText>
                 </ColumnCategory>
                 <Cell>
                   <BorderRow>
-                    <Cell>
-                      <StyledText
-                        fontSize={screenPercentageToDP(1.7, Orientation.Height)}
-                        color={theme.colors.TEXT_DARK}
-                        fontWeight={500}
-                      >&lt;30
-                      </StyledText>
-                    </Cell>
-                    <Cell>
-                      <StyledText
-                        fontSize={screenPercentageToDP(1.7, Orientation.Height)}
-                        color={theme.colors.TEXT_DARK}
-                        fontWeight={500}
-                      >{youngData?.totalVisitors || '0'}
-                      </StyledText>
-                    </Cell>
-                    <Cell>
-                      <StyledText
-                        fontSize={screenPercentageToDP(1.7, Orientation.Height)}
-                        color={theme.colors.TEXT_DARK}
-                        fontWeight={500}
-                      >{youngData?.totalSurveys || '0'}
-                      </StyledText>
-                    </Cell>
+                    <DataCell>&lt;30</DataCell>
+                    <DataCell>{youngData?.totalVisitors || '0'}</DataCell>
+                    <DataCell>{youngData?.totalSurveys || '0'}</DataCell>
                   </BorderRow>
                   <Row>
-                    <Cell>
-                      <StyledText
-                        fontSize={screenPercentageToDP(1.7, Orientation.Height)}
-                        color={theme.colors.TEXT_DARK}
-                        fontWeight={500}
-                      >30+
-                      </StyledText>
-                    </Cell>
-                    <Cell>
-                      <StyledText
-                        fontSize={screenPercentageToDP(1.7, Orientation.Height)}
-                        color={theme.colors.TEXT_DARK}
-                        fontWeight={500}
-                      >{oldData?.totalVisitors || '0'}
-                      </StyledText>
-                    </Cell>
-                    <Cell>
-                      <StyledText
-                        fontSize={screenPercentageToDP(1.7, Orientation.Height)}
-                        color={theme.colors.TEXT_DARK}
-                        fontWeight={500}
-                      >{oldData?.totalSurveys || '0'}
-                      </StyledText>
-                    </Cell>
+                    <DataCell>30+</DataCell>
+                    <DataCell>{oldData?.totalVisitors || '0'}</DataCell>
+                    <DataCell>{oldData?.totalSurveys || '0'}</DataCell>
                   </Row>
                 </Cell>
               </BorderRow>
@@ -238,32 +129,13 @@ export const RecentPatientSurveyReport: FC = () => {
             && (
               <Row>
                 <ColumnCategory>
-                  <StyledText
-                    fontSize={screenPercentageToDP(1.7, Orientation.Height)}
-                    color={theme.colors.TEXT_SUPER_DARK}
-                    fontWeight={700}
-                  >Total
-                  </StyledText>
+                  <DataText type="strong">Total</DataText>
                 </ColumnCategory>
                 <Cell>
                   <Row>
                     <Cell />
-                    <Cell>
-                      <StyledText
-                        fontSize={screenPercentageToDP(1.7, Orientation.Height)}
-                        color={theme.colors.TEXT_SUPER_DARK}
-                        fontWeight={700}
-                      >{visitorsData.totalVisitors ?? '0'}
-                      </StyledText>
-                    </Cell>
-                    <Cell>
-                      <StyledText
-                        fontSize={screenPercentageToDP(1.7, Orientation.Height)}
-                        color={theme.colors.TEXT_SUPER_DARK}
-                        fontWeight={700}
-                      >{visitorsData.totalSurveys ?? '0'}
-                      </StyledText>
-                    </Cell>
+                    <DataCell type="strong">{visitorsData.totalVisitors ?? '0'}</DataCell>
+                    <DataCell type="strong">{visitorsData.totalSurveys ?? '0'}</DataCell>
                   </Row>
                 </Cell>
               </Row>
@@ -277,86 +149,30 @@ export const RecentPatientSurveyReport: FC = () => {
         overflow="visible"
         alignItems="center"
       >
-        <StyledText
-          fontSize={screenPercentageToDP(1.9, Orientation.Height)}
-          color={theme.colors.TEXT_SUPER_DARK}
-          fontWeight={700}
+        <DataText
+          type="strong"
           textAlign="center"
           paddingBottom={20}
         >Patient List
-        </StyledText>
+        </DataText>
         <Table>
           <HeaderRow>
-            <Cell>
-              <StyledText
-                fontSize={screenPercentageToDP(1.7, Orientation.Height)}
-                color={theme.colors.TEXT_DARK}
-                fontWeight={700}
-              >Name
-              </StyledText>
-            </Cell>
-            <Cell>
-              <StyledText
-                fontSize={screenPercentageToDP(1.7, Orientation.Height)}
-                color={theme.colors.TEXT_DARK}
-                fontWeight={700}
-              >Gender
-              </StyledText>
-            </Cell>
-            <Cell>
-              <StyledText
-                fontSize={screenPercentageToDP(1.7, Orientation.Height)}
-                color={theme.colors.TEXT_DARK}
-                fontWeight={700}
-              >Age
-              </StyledText>
-            </Cell>
-            <Cell>
-              <StyledText
-                fontSize={screenPercentageToDP(1.7, Orientation.Height)}
-                color={theme.colors.TEXT_DARK}
-                fontWeight={700}
-              >Referred to
-              </StyledText>
-            </Cell>
+            <DataCell type="strong">Name</DataCell>
+            <DataCell type="strong">Gender</DataCell>
+            <DataCell type="strong">Age</DataCell>
+            <DataCell type="strong">Referred to</DataCell>
           </HeaderRow>
-          { referralsData &&
-          referralsData.map(patient => (
-            <Row key={patient.id}>
-              <Cell>
-                <StyledText
-                  fontSize={screenPercentageToDP(1.7, Orientation.Height)}
-                  color={theme.colors.TEXT_DARK}
-                  fontWeight={700}
-                >{`${patient.firstName} ${patient.lastName}`}
-                </StyledText>
-              </Cell>
-              <Cell>
-                <StyledText
-                  fontSize={screenPercentageToDP(1.7, Orientation.Height)}
-                  color={theme.colors.TEXT_DARK}
-                  fontWeight={700}
-                >{patient.sex}
-                </StyledText>
-              </Cell>
-              <Cell>
-                <StyledText
-                  fontSize={screenPercentageToDP(1.7, Orientation.Height)}
-                  color={theme.colors.TEXT_DARK}
-                  fontWeight={700}
-                >{differenceInYears(new Date(), parseISO(patient.dateOfBirth))}
-                </StyledText>
-              </Cell>
-              <Cell>
-                <StyledText
-                  fontSize={screenPercentageToDP(1.7, Orientation.Height)}
-                  color={theme.colors.TEXT_DARK}
-                  fontWeight={700}
-                >{patient.referredTo}
-                </StyledText>
-              </Cell>
-            </Row>
-          ))}
+          { referralsData
+              && referralsData.map(patient => (
+                <Row key={patient.id}>
+                  <DataCell>{`${patient.firstName} ${patient.lastName}`}</DataCell>
+                  <DataCell>{patient.sex}</DataCell>
+                  <DataCell>
+                    {differenceInYears(new Date(), parseISO(patient.dateOfBirth))}
+                  </DataCell>
+                  <DataCell>{patient.referredTo}</DataCell>
+                </Row>
+              ))}
         </Table>
       </StyledView>
     </StyledView>
