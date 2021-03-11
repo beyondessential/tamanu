@@ -1,6 +1,6 @@
 import wayfarer from 'wayfarer';
 import { initDatabase } from 'shared/services/database';
-import { BasicHandler, EncounterHandler } from './handlers';
+import { BasicHandler } from './handlers';
 
 export class SqlWrapper {
   models = null;
@@ -31,35 +31,20 @@ export class SqlWrapper {
 
   buildChannelRouter() {
     const channelRouter = wayfarer();
-    // TODO: deprecate handlers
     [
-      ['patient', new BasicHandler(this.models.Patient), this.models.Patient],
-      [
-        'patient/:patientId/encounter',
-        new EncounterHandler(this.models, this.sequelize),
-        this.models.Encounter,
-      ],
-      ['program', new BasicHandler(this.models.Program)],
-      [
-        'programDataElement',
-        new BasicHandler(this.models.ProgramDataElement),
-        this.models.ProgramDataElement,
-      ],
-      ['reference', new BasicHandler(this.models.ReferenceData), this.models.ReferenceData],
-      [
-        'scheduledVaccine',
-        new BasicHandler(this.models.ScheduledVaccine),
-        this.models.ScheduledVaccine,
-      ],
-      ['survey', new BasicHandler(this.models.Survey), this.models.Survey],
-      [
-        'surveyScreenComponent',
-        new BasicHandler(this.models.SurveyScreenComponent),
-        this.models.SurveyScreenComponent,
-      ],
-      ['user', new BasicHandler(this.models.User), this.models.User],
-    ].forEach(([route, handler, model]) => {
+      ['patient', this.models.Patient],
+      ['patient/:patientId/encounter', this.models.Encounter],
+      ['program', this.models.Program],
+      ['programDataElement', this.models.ProgramDataElement],
+      ['reference', this.models.ReferenceData],
+      ['scheduledVaccine', this.models.ScheduledVaccine],
+      ['survey', this.models.Survey],
+      ['surveyScreenComponent', this.models.SurveyScreenComponent],
+      ['user', this.models.User],
+    ].forEach(([route, model]) => {
       this.builtRoutes.push(route);
+      // TODO: deprecate handlers
+      const handler = new BasicHandler(model);
       channelRouter.on(route, async (urlParams, f) => {
         const params = { ...urlParams, route };
         return f(handler, params, model);
@@ -77,7 +62,9 @@ export class SqlWrapper {
   }
 
   async upsert(channel, record) {
-    return this.channelRouter(channel, (handler, params) => handler.upsert(record, params));
+    return this.channelRouter(channel, (handler, params) =>
+      handler.upsert(record, params, channel),
+    );
   }
 
   // TODO: this is a hack to enable sharing import/export across sync and lan
@@ -87,13 +74,13 @@ export class SqlWrapper {
 
   async countSince(channel, since) {
     return this.channelRouter(channel, (handler, params) =>
-      handler.countSince({ ...params, since }),
+      handler.countSince({ ...params, since }, channel),
     );
   }
 
   async findSince(channel, since, { limit, offset } = {}) {
     return this.channelRouter(channel, (handler, params) =>
-      handler.findSince({ ...params, since, limit, offset }),
+      handler.findSince({ ...params, since, limit, offset }, channel),
     );
   }
 

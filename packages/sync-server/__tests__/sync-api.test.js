@@ -1,7 +1,7 @@
 import { subDays, subHours } from 'date-fns';
 import { v4 as uuidv4 } from 'uuid';
 
-import { fakePatient, buildNestedEncounter } from 'shared/test-helpers';
+import { fakePatient, buildNestedEncounter, upsertAssociations } from 'shared/test-helpers';
 
 import { convertFromDbRecord, convertToDbRecord } from 'sync-server/app/convertDbRecord';
 import { createTestContext, unsafeSetUpdatedAt } from './utilities';
@@ -9,8 +9,6 @@ import { createTestContext, unsafeSetUpdatedAt } from './utilities';
 const makeDate = (daysAgo, hoursAgo = 0) => {
   return subHours(subDays(new Date(), daysAgo), hoursAgo).valueOf();
 };
-
-const compareRecordsById = (a, b) => a.data.id.localeCompare(b.data.id);
 
 const fakeSyncRecordPatient = (...args) => convertFromDbRecord(fakePatient(...args));
 
@@ -154,7 +152,8 @@ describe('Sync API', () => {
       // arrange
       const patientId = uuidv4();
       const encounter = await buildNestedEncounter(ctx.store, patientId);
-      await ctx.store.upsert(`patient/${patientId}/encounter`, encounter);
+      await ctx.store.models.Encounter.create(encounter);
+      await upsertAssociations(ctx.store.models.Encounter, encounter);
 
       // act
       const result = await app.get(`/v1/sync/patient%2F${patientId}%2Fencounter?since=0`);
@@ -262,7 +261,8 @@ describe('Sync API', () => {
       // arrange
       const patientId = uuidv4();
       const encounterToInsert = await buildNestedEncounter(ctx.store, patientId);
-      await ctx.store.upsert(`patient/${patientId}/encounter`, encounterToInsert);
+      await ctx.store.models.Encounter.create(encounterToInsert);
+      await upsertAssociations(ctx.store.models.Encounter, encounterToInsert);
 
       // act
       const getResult = await app.get(`/v1/sync/patient%2F${patientId}%2Fencounter?since=0`);
@@ -279,7 +279,18 @@ describe('Sync API', () => {
 
       // assert
       expect(result.body).toHaveProperty('count', 1);
-      const [encounterAfterPost] = await ctx.store.findSince(`patient/${patientId}/encounter`, 0);
+      const encounterAfterPost = await ctx.store.models.Encounter.findOne({
+        where: { patientId },
+        include: [
+          { association: 'administeredVaccines' },
+          { association: 'diagnoses' },
+          { association: 'medications' },
+          {
+            association: 'surveyResponses',
+            include: [{ association: 'answers' }],
+          },
+        ],
+      });
       expect(encounterAfterPost).toHaveProperty(['administeredVaccines', 0, 'batch'], 'test batch');
       expect(encounterAfterPost).toHaveProperty(['surveyResponses', 0, 'result'], 3.141592);
       expect(encounterAfterPost).toHaveProperty(
