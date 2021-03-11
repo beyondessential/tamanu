@@ -10,7 +10,7 @@ import {
 } from 'typeorm/browser';
 import { startOfDay, addHours, subDays } from 'date-fns';
 import { getUniqueId } from 'react-native-device-info';
-import { BaseModel } from './BaseModel';
+import { BaseModel, FindMarkedForUploadOptions } from './BaseModel';
 import { IEncounter, EncounterType, ReferenceDataType } from '~/types';
 import { Patient } from './Patient';
 import { Diagnosis } from './Diagnosis';
@@ -137,7 +137,7 @@ export class Encounter extends BaseModel implements IEncounter {
   static async getTotalEncountersAndResponses(surveyId: string): Promise<SummaryInfo[]> {
     const repo = this.getRepository();
     // 28 days ago for report
-    const date = subDays(addHours(startOfDay(new Date()), TIME_OFFSET), 28); 
+    const date = subDays(addHours(startOfDay(new Date()), TIME_OFFSET), 28);
     const query = repo
       .createQueryBuilder('encounter')
       .select('date(encounter.startDate)', 'encounterDate')
@@ -165,6 +165,21 @@ export class Encounter extends BaseModel implements IEncounter {
   }
 
   static shouldExport = true;
+
+  static async findMarkedForUpload(
+    opts: FindMarkedForUploadOptions,
+  ): Promise<BaseModel[]> {
+    const patientId = opts.channel.match(/^patient\/(.*)\/encounter$/)[1];
+    if (!patientId) {
+      throw new Error(`Could not extract patientId from ${opts.channel}`);
+    }
+
+    const records = await this.findMarkedForUploadQuery(opts)
+      .andWhere('patientId = :patientId', { patientId })
+      .getMany();
+
+    return records as BaseModel[];
+  }
 
   static includedSyncRelations = [
     'administeredVaccines',
