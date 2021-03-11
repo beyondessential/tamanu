@@ -116,12 +116,6 @@ function compareData(dataType: string, expected: string, given: any): boolean {
       break;
     case FieldTypes.NUMBER:
     case FieldTypes.CALCULATED:
-      // TODO: we'll need to be able to compare against numeric ranges in future
-      if (expected.match(/RANGE\(\d+,\d+\)/gmi)) {
-        const [start, end] = expected.slice(6, -1).split(",");
-        if (inRange(given, parseFloat(start), parseFloat(end)+1)) return true;
-        return false;
-      }
       // we check within a threshold because strict equality is actually pretty rare
       const parsed = parseFloat(expected);
       const diff = Math.abs(parsed - given);
@@ -144,12 +138,6 @@ export function checkVisibilityCriteria(
 ): boolean {
   const { visibilityCriteria, dataElement } = component;
 
-  /**
-   * Meditrak uses JSON for these fields now, whereas we have been using colon separated values.
-   * Our goal is to have the same syntax as Meditrak for surveys, but since we already have some
-   * test surveys out there using our old system, we fall back to it if we can't parse the JSON.
-   * TODO: Remove the fallback once we can guarantee that there's no surveys using it.
-   */
   try {
     const criteriaObject = JSON.parse(visibilityCriteria);
 
@@ -182,31 +170,42 @@ export function checkVisibilityCriteria(
       : Object.entries(restOfCriteria).some(checkIfQuestionMeetsCriteria);
   } catch(error) {
     console.warn(`Error parsing JSON visilbity criteria, using fallback.
-                  \nError message: ${error}`)
-    // nothing set - show by default
-    if (!visibilityCriteria) return true;
-  
-    const [
-      elementCode = '',
-      expectedAnswer = '',
-    ] = visibilityCriteria.split(/\s*:\s*/);
-  
-    let givenAnswer = values[elementCode] || '';
-    if(givenAnswer.toLowerCase) {
-      givenAnswer = givenAnswer.toLowerCase().trim();
-    }
-    const expectedTrimmed = expectedAnswer.toLowerCase().trim();
-  
-    const comparisonComponent = allComponents.find(x => x.dataElement.code === elementCode);
-  
-    if(!comparisonComponent) {
-      console.warn(`Comparison component ${elementCode} not found!`);
-      return false;
-    }
-  
-    const comparisonDataType = comparisonComponent.dataElement.type;
-  
-    return compareData(comparisonDataType, expectedTrimmed, givenAnswer);
+                  \nError message: ${error}`);
+
+    fallbackParseVisibilityCriteria(visibilityCriteria, values, allComponents);
   }
 
+}
+
+/**
+ * Meditrak uses JSON for these fields now, whereas we have been using colon separated values.
+ * Our goal is to have the same syntax as Meditrak for surveys, but since we already have some
+ * test surveys out there using our old system, we fall back to it if we can't parse the JSON.
+ * TODO: Remove the fallback once we can guarantee that there's no surveys using it.
+ */
+const fallbackParseVisibilityCriteria = (visibilityCriteria, values, allComponents) => {
+  // nothing set - show by default
+  if (!visibilityCriteria) return true;
+
+  const [
+    elementCode = '',
+    expectedAnswer = '',
+  ] = visibilityCriteria.split(/\s*:\s*/);
+
+  let givenAnswer = values[elementCode] || '';
+  if(givenAnswer.toLowerCase) {
+    givenAnswer = givenAnswer.toLowerCase().trim();
+  }
+  const expectedTrimmed = expectedAnswer.toLowerCase().trim();
+
+  const comparisonComponent = allComponents.find(x => x.dataElement.code === elementCode);
+
+  if(!comparisonComponent) {
+    console.warn(`Comparison component ${elementCode} not found!`);
+    return false;
+  }
+
+  const comparisonDataType = comparisonComponent.dataElement.type;
+
+  return compareData(comparisonDataType, expectedTrimmed, givenAnswer);
 }
