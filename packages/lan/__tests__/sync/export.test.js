@@ -60,7 +60,7 @@ describe('export', () => {
       it('exports pages of records', async () => {
         // arrange
         const model = models[modelName];
-        const channel = overrideChannel || (await model.channels())[0];
+        const channel = overrideChannel || (await model.getChannels())[0];
         const plan = createExportPlan(model);
         await model.truncate();
         const records = [await fakeRecord(), await fakeRecord()].sort((r1, r2) =>

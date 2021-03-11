@@ -100,7 +100,7 @@ export class Model extends sequelize.Model {
   static syncDirection = SYNC_DIRECTIONS.DO_NOT_SYNC;
 
   // returns one or more channels to push to
-  static channels() {
+  static getChannels() {
     return [lowerFirst(this.name)];
   }
 

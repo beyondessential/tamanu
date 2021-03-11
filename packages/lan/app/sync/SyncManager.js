@@ -23,7 +23,7 @@ export class SyncManager {
   }
 
   async pullAndImport(model) {
-    for (const channel of await model.channels()) {
+    for (const channel of await model.getChannels()) {
       const since = await this.getLastSynced(channel);
       log.info(`SyncManager.pullAndImport: syncing ${channel} (last: ${since})`);
 
@@ -68,7 +68,7 @@ export class SyncManager {
   }
 
   async exportAndPush(model) {
-    for (const channel of await model.channels()) {
+    for (const channel of await model.getChannels()) {
       log.debug(`SyncManager.exportAndPush: syncing ${channel}`);
 
       // export

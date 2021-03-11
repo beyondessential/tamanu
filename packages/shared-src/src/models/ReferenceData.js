@@ -56,7 +56,7 @@ export class ReferenceData extends Model {
 
   static syncDirection = SYNC_DIRECTIONS.PULL_ONLY;
 
-  static channels() {
+  static getChannels() {
     return ['reference'];
   }
 }

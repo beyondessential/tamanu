@@ -187,7 +187,7 @@ export class Encounter extends Model {
 
   static syncDirection = SYNC_DIRECTIONS.BIDIRECTIONAL;
 
-  static async channels() {
+  static async getChannels() {
     const patients = await this.sequelize.models.Patient.findAll({
       // TODO: implement patient marking
       // where: { markedForSync: true },

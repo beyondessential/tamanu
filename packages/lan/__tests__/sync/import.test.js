@@ -67,7 +67,7 @@ describe('import', () => {
         // arrange
         const model = models[modelName];
         const record = await fakeRecord();
-        const channel = overrideChannel || (await model.channels())[0];
+        const channel = overrideChannel || (await model.getChannels())[0];
 
         // act
         const plan = createImportPlan(model);
@@ -87,7 +87,7 @@ describe('import', () => {
           id: oldRecord.id,
         };
         await model.create(oldRecord);
-        const channel = overrideChannel || (await model.channels())[0];
+        const channel = overrideChannel || (await model.getChannels())[0];
 
         // act
         const plan = createImportPlan(model);
@@ -103,7 +103,7 @@ describe('import', () => {
         const model = models[modelName];
         const record = await fakeRecord();
         await model.create(record);
-        const channel = overrideChannel || (await model.channels())[0];
+        const channel = overrideChannel || (await model.getChannels())[0];
 
         // act
         const plan = createImportPlan(model);
