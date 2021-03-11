@@ -174,7 +174,7 @@ export function checkVisibilityCriteria(
     console.warn(`Error parsing JSON visilbity criteria, using fallback.
                   \nError message: ${error}`);
 
-    fallbackParseVisibilityCriteria(visibilityCriteria, values, allComponents);
+    return fallbackParseVisibilityCriteria(visibilityCriteria, values, allComponents);
   }
 
 }
