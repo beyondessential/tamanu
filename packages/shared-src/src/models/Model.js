@@ -96,9 +96,20 @@ export class Model extends sequelize.Model {
     'markedForPush',
   ];
 
+  // determines whether a mdoel will be pushed, pulled, both, or neither
   static syncDirection = SYNC_DIRECTIONS.DO_NOT_SYNC;
 
-  static channel() {
-    return lowerFirst(this.name);
+  // returns one or more channels to push to
+  static getChannels() {
+    return [lowerFirst(this.name)];
   }
+
+  // extracts and returns a parentId from a channel, if applicable
+  // only called if syncParentIdKey is set
+  static syncParentIdFromChannel() {
+    throw new Error('Models with syncParentIdKey must implement syncParentIdFromChannel');
+  }
+
+  // if set to a string representing a field, extracts an id from the channel and sets it on the model
+  static syncParentIdKey = null;
 }

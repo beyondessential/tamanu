@@ -4,10 +4,10 @@ import { propertyPathsToTree } from './metadata';
 
 export const createExportPlan = memoize(model => {
   const relationTree = propertyPathsToTree(model.includedSyncRelations);
-  return createExportPlanInner(model, relationTree);
+  return createExportPlanInner(model, relationTree, model.syncParentIdKey);
 });
 
-const createExportPlanInner = (model, relationTree, foreignKey = null) => {
+const createExportPlanInner = (model, relationTree, foreignKey) => {
   // generate nested association exporters
   const associations = Object.entries(relationTree).reduce((memo, [associationName, subTree]) => {
     const association = model.associations[associationName];
@@ -34,13 +34,20 @@ const createExportPlanInner = (model, relationTree, foreignKey = null) => {
   return { model, associations, foreignKey, columns };
 };
 
-export const executeExportPlan = async (plan, { after, limit = 100 }) => {
+export const executeExportPlan = async (plan, channel, { after, limit = 100 }) => {
   const options = {
     where: {
       markedForPush: true,
     },
     order: [['id', 'ASC']],
   };
+  if (plan.foreignKey) {
+    const parentId = plan.model.syncParentIdFromChannel(channel);
+    if (!parentId) {
+      throw new Error('Must provide parentId for models like ${plan.model.name} with syncParentIdKey set');
+    }
+    options.where[plan.foreignKey] = parentId;
+  }
   if (limit) {
     options.limit = limit;
   }

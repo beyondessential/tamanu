@@ -18,7 +18,10 @@ describe('SyncManager', () => {
     manager = new SyncManager(context, remote);
   });
 
-  beforeEach(() => remote.pull.mockReset());
+  beforeEach(() => {
+    remote.pull.mockReset();
+    remote.push.mockReset();
+  });
 
   describe('pullAndImport', () => {
     it('pulls pages of records and imports them', async () => {

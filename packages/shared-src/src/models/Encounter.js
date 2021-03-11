@@ -186,4 +186,20 @@ export class Encounter extends Model {
   ];
 
   static syncDirection = SYNC_DIRECTIONS.BIDIRECTIONAL;
+
+  static async getChannels() {
+    const patients = await this.sequelize.models.Patient.findAll({
+      // TODO: implement patient marking
+      // where: { markedForSync: true },
+      // raw: true,
+      // attributes: ['id'],
+    });
+    return patients.map(p => `patient/${p.id}/encounter`);
+  }
+
+  static syncParentIdFromChannel(channel) {
+    return channel.match(/patient\/([^\/]+)\/encounter/)[1];
+  }
+
+  static syncParentIdKey = 'patientId';
 }
