@@ -1,5 +1,4 @@
 import { memoize, without, pick } from 'lodash';
-import { log } from '~/logging';
 import { propertyPathsToTree } from './metadata';
 
 export const createImportPlan = memoize(model => {
@@ -18,10 +17,9 @@ const createImportPlanInner = (model, relationTree, parentIdKey = null) => {
     const childParentIdKey = association.foreignKey;
     const childModel = association.target;
     if (!childModel) {
-      log.warn(
+      throw new Error(
         `createImportPlan: no such relation ${relationName} (defined in includedSyncRelations on ${model.name})`,
       );
-      return memo;
     }
     const childPlan = createImportPlanInner(childModel, childTree, childParentIdKey);
     return { ...memo, [relationName]: childPlan };

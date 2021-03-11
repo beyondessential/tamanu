@@ -1,3 +1,5 @@
+// TODO: add tests to shared-src and move this file there
+
 import {
   fakePatient,
   fakeProgram,
@@ -9,8 +11,8 @@ import {
   buildScheduledVaccine,
   buildNestedEncounter,
 } from 'shared/test-helpers';
+import { createImportPlan, executeImportPlan } from 'shared/models/sync';
 import { createTestContext } from '../utilities';
-import { createImportPlan, executeImportPlan } from '~/sync/import';
 
 // converts a db record and all its relations to a sync record
 const toSyncRecord = record => ({

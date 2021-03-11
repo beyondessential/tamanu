@@ -1,5 +1,7 @@
+// TODO: add tests to shared-src and move this file there
+
 import { fakePatient, buildNestedEncounter } from 'shared/test-helpers';
-import { createExportPlan, executeExportPlan } from '~/sync/export';
+import { createExportPlan, executeExportPlan } from 'shared/models/sync';
 import { createTestContext } from '../utilities';
 
 const expectDeepMatch = (dbRecord, syncRecord) => {
