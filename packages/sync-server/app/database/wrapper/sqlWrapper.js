@@ -31,21 +31,38 @@ export class SqlWrapper {
 
   buildChannelRouter() {
     const channelRouter = wayfarer();
+    // TODO: deprecate handlers
     [
-      ['patient', new BasicHandler(this.models.Patient)],
-      ['patient/:patientId/encounter', new EncounterHandler(this.models, this.sequelize)],
+      ['patient', new BasicHandler(this.models.Patient), this.models.Patient],
+      [
+        'patient/:patientId/encounter',
+        new EncounterHandler(this.models, this.sequelize),
+        this.models.Encounter,
+      ],
       ['program', new BasicHandler(this.models.Program)],
-      ['programDataElement', new BasicHandler(this.models.ProgramDataElement)],
-      ['reference', new BasicHandler(this.models.ReferenceData)],
-      ['scheduledVaccine', new BasicHandler(this.models.ScheduledVaccine)],
-      ['survey', new BasicHandler(this.models.Survey)],
-      ['surveyScreenComponent', new BasicHandler(this.models.SurveyScreenComponent)],
-      ['user', new BasicHandler(this.models.User)],
-    ].forEach(([route, handler]) => {
+      [
+        'programDataElement',
+        new BasicHandler(this.models.ProgramDataElement),
+        this.models.ProgramDataElement,
+      ],
+      ['reference', new BasicHandler(this.models.ReferenceData), this.models.ReferenceData],
+      [
+        'scheduledVaccine',
+        new BasicHandler(this.models.ScheduledVaccine),
+        this.models.ScheduledVaccine,
+      ],
+      ['survey', new BasicHandler(this.models.Survey), this.models.Survey],
+      [
+        'surveyScreenComponent',
+        new BasicHandler(this.models.SurveyScreenComponent),
+        this.models.SurveyScreenComponent,
+      ],
+      ['user', new BasicHandler(this.models.User), this.models.User],
+    ].forEach(([route, handler, model]) => {
       this.builtRoutes.push(route);
       channelRouter.on(route, async (urlParams, f) => {
         const params = { ...urlParams, route };
-        return f(handler, params);
+        return f(handler, params, model);
       });
     });
     return channelRouter;
@@ -61,6 +78,11 @@ export class SqlWrapper {
 
   async upsert(channel, record) {
     return this.channelRouter(channel, (handler, params) => handler.upsert(record, params));
+  }
+
+  // TODO: this is a hack to enable sharing import/export across sync and lan
+  async withModel(channel, f) {
+    return this.channelRouter(channel, (handler, params, model) => f(model));
   }
 
   async countSince(channel, since) {

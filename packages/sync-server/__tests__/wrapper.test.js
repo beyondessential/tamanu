@@ -146,6 +146,7 @@ describe('sqlWrapper', () => {
     });
 
     // TODO: reuse the import/export from lan server and uncomment this when we do
+    // TODO: this will have to be adapted to the new system
     it.skip('finds and counts nested records', async () => {
       // arrange
       const encounter = await buildNestedEncounter(ctx, patientId);

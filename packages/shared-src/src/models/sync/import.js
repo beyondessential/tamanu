@@ -45,14 +45,32 @@ const executeImportPlanInner = async (
   parentId = null,
 ) => {
   const { data, isDeleted } = syncRecord;
-  const { id } = data;
-  if (!id) {
+  let { id } = data;
+  // if we're on the client, a missing ID is an error
+  // on the server, we just generate one - continue on
+  if (model.syncClientMode && !id) {
     throw new Error('executeImportPlan: record id was missing');
   }
 
   if (isDeleted) {
-    const record = await model.findByPk(id);
-    await record?.destroy();
+    if (model.syncClientMode) {
+      // delete tombstones if we're in client mode
+      const record = await model.findByPk(id);
+      await record?.destroy();
+    } else {
+      // mark them deleted if we're in server mode
+      // this case shouldn't be hit under normal use
+      await model.update(
+        {
+          deletedAt: Sequelize.literal('CURRENT_TIMESTAMP'),
+          updatedAt: Sequelize.literal('CURRENT_TIMESTAMP'),
+        },
+        {
+          where: { id },
+          paranoid: false,
+        },
+      );
+    }
     return;
   }
 
@@ -65,14 +83,21 @@ const executeImportPlanInner = async (
   // sequelize upserts don't work because they insert before update - hack to work around this
   // this could cause a race condition if anything but SyncManager does it, or if two syncs run at once!
   // see also: https://github.com/sequelize/sequelize/issues/5711
-  const [numUpdated] = await model.update(values, { where: { id } });
+  let numUpdated = 0;
+  if (id) {
+    // only try updating a model we have an id for - otherwise, it's definitely an insert
+    numUpdated = (await model.update(values, { where: { id } }))[0];
+  }
   if (numUpdated === 0) {
-    await model.create(values);
+    const createdRecord = await model.create(values);
+    id = createdRecord.id;
   }
 
   for (const [relationName, plan] of Object.entries(children)) {
-    for (const childRecord of data[relationName]) {
-      await executeImportPlanInner(plan, childRecord, id);
+    if (data[relationName]) {
+      for (const childRecord of data[relationName]) {
+        await executeImportPlanInner(plan, childRecord, id);
+      }
     }
   }
 };

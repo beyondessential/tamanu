@@ -7,7 +7,7 @@ import jwt from 'jsonwebtoken';
 
 import { ForbiddenError, BadAuthenticationError } from 'shared/errors';
 
-import { convertFromDbRecord } from '../convertDbRecord';
+import { convertFromDbRecord, convertToDbRecord } from '../convertDbRecord';
 
 export const authMiddleware = express.Router();
 
@@ -115,5 +115,16 @@ authMiddleware.get(
   '/whoami',
   asyncHandler((req, res) => {
     res.send(convertFromDbRecord(req.user).data);
+  }),
+);
+
+// TODO: remove this hack once we've verified nothing needs to upsert new or existing users
+authMiddleware.post(
+  '/upsertUser',
+  asyncHandler(async (req, res) => {
+    const requestedAt = Date.now();
+    const { store, body } = req;
+    await store.upsert('user', convertToDbRecord(body));
+    res.send({ count: 1, requestedAt });
   }),
 );
