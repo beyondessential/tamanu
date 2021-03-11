@@ -34,6 +34,15 @@ export function fakePatient(prefix = 'test-') {
     additionalDetails: null,
     ethnicityId: null,
     title: null,
+    countryId: null,
+    divisionId: null,
+    subdivisionId: null,
+    email: null,
+    medicalAreaId: null,
+    nationalityId: null,
+    nursingZoneId: null,
+    occupationId: null,
+    settlementId: null,
   };
 }
 
