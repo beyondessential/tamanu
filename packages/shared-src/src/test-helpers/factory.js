@@ -131,3 +131,18 @@ export const buildScheduledVaccine = async ctx => {
 
   return scheduledVaccine;
 };
+
+export const upsertAssociations = async (model, record) => {
+  for (const [name, association] of Object.entries(model.associations)) {
+    const associatedRecords = record[name];
+    if (associatedRecords) {
+      for (const associatedRecord of associatedRecords) {
+        await association.target.upsert({
+          ...associatedRecord,
+          [association.foreignKey]: record.id,
+        });
+        await upsertAssociations(association.target, associatedRecord);
+      }
+    }
+  }
+};

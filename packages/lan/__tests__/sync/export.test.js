@@ -1,7 +1,7 @@
 // TODO: add tests to shared-src and move this file there
 
 import { v4 as uuidv4 } from 'uuid';
-import { fakePatient, buildNestedEncounter } from 'shared/test-helpers';
+import { fakePatient, buildNestedEncounter, upsertAssociations } from 'shared/test-helpers';
 import { createExportPlan, executeExportPlan } from 'shared/models/sync';
 import { createTestContext } from '../utilities';
 
@@ -21,21 +21,6 @@ const expectDeepMatch = (dbRecord, syncRecord) => {
       expect(syncRecord.data).toHaveProperty(field, dbRecord[field]);
     }
   });
-};
-
-const upsertAssociations = async (model, record) => {
-  for (const [name, association] of Object.entries(model.associations)) {
-    const associatedRecords = record[name];
-    if (associatedRecords) {
-      for (const associatedRecord of associatedRecords) {
-        await association.target.upsert({
-          ...associatedRecord,
-          [association.foreignKey]: record.id,
-        });
-        await upsertAssociations(association.target, associatedRecord);
-      }
-    }
-  }
 };
 
 describe('export', () => {
