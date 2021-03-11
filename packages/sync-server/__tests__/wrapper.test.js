@@ -15,6 +15,14 @@ import {
 
 import { withDate } from './utilities';
 
+const withoutArrays = record =>
+  Object.entries(record).reduce((memo, [k, v]) => {
+    if (Array.isArray(v)) {
+      return memo;
+    }
+    return { ...memo, [k]: v };
+  }, {});
+
 describe('sqlWrapper', () => {
   let ctx = null;
   beforeAll(async () => {
@@ -36,7 +44,10 @@ describe('sqlWrapper', () => {
 
   const patientId = uuidv4();
   const nestedPatientTestCases = [
-    [`patient/${patientId}/encounter`, () => buildEncounter(ctx, patientId)],
+    [
+      `patient/${patientId}/encounter`,
+      async () => withoutArrays(await buildEncounter(ctx, patientId)),
+    ],
   ];
 
   const allTestCases = [...rootTestCases, ...nestedPatientTestCases];
@@ -116,133 +127,6 @@ describe('sqlWrapper', () => {
           const wrongChannel = [prefix, wrongId, suffix].join('/');
           await expect(ctx.upsert(wrongChannel, await fakeInstance())).rejects.toThrow();
         });
-      });
-    });
-  });
-
-  describe('encounters', () => {
-    const encounterChannel = `patient/${patientId}/encounter`;
-    beforeAll(async () => {
-      await ctx.upsert('patient', { ...fakePatient(), patientId });
-    });
-
-    beforeEach(async () => {
-      await ctx.unsafeRemoveAllOfChannel(encounterChannel);
-    });
-
-    it('finds no nested records when there are none', async () => {
-      // arrange
-      const encounter = await buildEncounter(ctx, patientId);
-
-      // act
-      await ctx.upsert(encounterChannel, encounter);
-      const foundEncounters = await ctx.findSince(encounterChannel, 0);
-
-      // assert
-      expect(foundEncounters.length).toBe(1);
-      const [foundEncounter] = foundEncounters;
-      expect(foundEncounter).toHaveProperty('surveyResponses', []);
-      expect(foundEncounter).toHaveProperty('administeredVaccines', []);
-    });
-
-    // TODO: reuse the import/export from lan server and uncomment this when we do
-    // TODO: this will have to be adapted to the new system
-    it.skip('finds and counts nested records', async () => {
-      // arrange
-      const encounter = await buildNestedEncounter(ctx, patientId);
-
-      const otherPatientId = uuidv4(); // add another encounter to test nested record isolation
-      const otherEncounter = await buildNestedEncounter(ctx, otherPatientId);
-      await ctx.upsert(`patient/${otherPatientId}/encounter`, otherEncounter);
-
-      // act
-      await ctx.upsert(encounterChannel, encounter);
-      const foundEncounters = await ctx.findSince(encounterChannel, 0);
-
-      // assert
-      expect(foundEncounters.length).toBe(1);
-
-      const [foundEncounter] = foundEncounters;
-      const timestamps = {
-        createdAt: expect.any(Date),
-        updatedAt: expect.any(Date),
-        deletedAt: null,
-      };
-      expect(foundEncounter).toEqual({
-        ...encounter,
-        ...timestamps,
-        administeredVaccines: [
-          {
-            ...encounter.administeredVaccines[0],
-            ...timestamps,
-            encounterId: encounter.id,
-          },
-        ],
-        surveyResponses: [
-          {
-            ...encounter.surveyResponses[0],
-            ...timestamps,
-            encounterId: encounter.id,
-            answers: [
-              {
-                ...encounter.surveyResponses[0].answers[0],
-                ...timestamps,
-                responseId: expect.anything(),
-              },
-            ],
-          },
-        ],
-      });
-      const [foundSurveyResponse] = foundEncounter.surveyResponses;
-      expect(foundSurveyResponse.answers[0].responseId).toEqual(foundSurveyResponse.id);
-    });
-
-    it('marks related objects as deleted', async () => {
-      // arrange
-      const encounter = await buildNestedEncounter(ctx, patientId);
-      await ctx.upsert(encounterChannel, encounter);
-
-      // act
-      await ctx.markRecordDeleted(encounterChannel, encounter.id);
-
-      // assert
-      const [foundEncounter] = await ctx.findSince(encounterChannel, 0);
-      expect(foundEncounter).toHaveProperty('deletedAt', expect.any(Date));
-      expect(foundEncounter).toHaveProperty(
-        ['administeredVaccines', 0, 'deletedAt'],
-        expect.any(Date),
-      );
-      expect(foundEncounter).toHaveProperty(['surveyResponses', 0, 'deletedAt'], expect.any(Date));
-      expect(foundEncounter).toHaveProperty(
-        ['surveyResponses', 0, 'answers', 0, 'deletedAt'],
-        expect.any(Date),
-      );
-    });
-
-    it('inserts an encounter without nested relationships', async () => {
-      // arrange
-      const encounter = await buildEncounter(ctx, patientId);
-      encounter.surveyResponses = null;
-      encounter.administeredVaccines = null;
-
-      // act
-      await ctx.upsert(encounterChannel, encounter);
-      const foundEncounters = await ctx.findSince(encounterChannel, 0);
-
-      // assert
-      expect(foundEncounters.length).toBe(1);
-
-      const [foundEncounter] = foundEncounters;
-      const timestamps = {
-        createdAt: expect.any(Date),
-        updatedAt: expect.any(Date),
-        deletedAt: null,
-      };
-      expect(foundEncounter).toEqual({
-        ...encounter,
-        ...timestamps,
-        administeredVaccines: [],
-        surveyResponses: [],
       });
     });
   });

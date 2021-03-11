@@ -60,7 +60,7 @@ export const executeExportPlan = async (plan, channel, { after, offset, since, l
   if (foreignKey) {
     const parentId = model.syncParentIdFromChannel(channel);
     if (!parentId) {
-      throw new Error('Must provide parentId for models like ${plan.model.name} with syncParentIdKey set');
+      throw new Error(`Must provide parentId for models like ${plan.model.name} with syncParentIdKey set`);
     }
     options.where[foreignKey] = parentId;
   }
