@@ -137,7 +137,9 @@ export function checkVisibilityCriteria(
   values: any
 ): boolean {
   const { visibilityCriteria, dataElement } = component;
-
+  // nothing set - show by default
+  if (!visibilityCriteria) return true;
+  
   try {
     const criteriaObject = JSON.parse(visibilityCriteria);
 
@@ -184,9 +186,6 @@ export function checkVisibilityCriteria(
  * TODO: Remove the fallback once we can guarantee that there's no surveys using it.
  */
 const fallbackParseVisibilityCriteria = (visibilityCriteria, values, allComponents) => {
-  // nothing set - show by default
-  if (!visibilityCriteria) return true;
-
   const [
     elementCode = '',
     expectedAnswer = '',
