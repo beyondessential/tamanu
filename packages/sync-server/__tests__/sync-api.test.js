@@ -15,6 +15,8 @@ const fakeSyncRecordPatient = (...args) => convertFromDbRecord(fakePatient(...ar
 const OLDEST = { ...fakeSyncRecordPatient('oldest_'), lastSynced: makeDate(20) };
 const SECOND_OLDEST = { ...fakeSyncRecordPatient('second-oldest_'), lastSynced: makeDate(10) };
 
+// TODO: add exhaustive tests for sync API for each channel
+
 describe('Sync API', () => {
   let app = null;
   let ctx = null;

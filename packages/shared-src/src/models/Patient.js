@@ -83,4 +83,14 @@ export class Patient extends Model {
   }
 
   static syncDirection = SYNC_DIRECTIONS.BIDIRECTIONAL;
+
+  static async getSyncIds() {
+    const patients = await this.sequelize.models.Patient.findAll({
+      // TODO: implement patient marking
+      // where: { markedForSync: true },
+      // raw: true,
+      // attributes: ['id'],
+    });
+    return patients.map(({ id }) => id);
+  }
 }

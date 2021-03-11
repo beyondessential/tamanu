@@ -1,3 +1,4 @@
+import { Sequelize } from 'sequelize';
 import { random, sample } from 'lodash';
 import { v4 as uuidv4 } from 'uuid';
 import {
@@ -205,3 +206,32 @@ export function fakeEncounterMedication(prefix = 'test-') {
     ]),
   };
 }
+
+const FIELD_HANDLERS = {
+  'TIMESTAMP WITH TIME ZONE': () => new Date(random(0, Date.now())),
+  'VARCHAR(255)': ({ Model, fieldName }, id) => `${Model.name}.${fieldName}.${id}`,
+  INTEGER: () => random(0, 10),
+  BOOLEAN: () => sample([true, false]),
+  ENUM: ({ type }) => sample(type.values),
+};
+
+const IGNORED_FIELDS = ['createdAt', 'updatedAt', 'deletedAt', 'markedForPush'];
+
+export const fake = model => {
+  const id = uuidv4();
+  const record = {};
+  for (const [name, attribute] of Object.entries(model.tableAttributes)) {
+    const type = attribute.type;
+    if (attribute.references) {
+      // null out id fields
+      record[name] = null;
+    } else if (IGNORED_FIELDS.includes(attribute.fieldName)) {
+      // ignore metadata fields
+    } else if (FIELD_HANDLERS[type]) {
+      record[name] = FIELD_HANDLERS[type](attribute, id);
+    } else {
+      throw new Error(`Could not fake field ${model.name}.${name} of type ${type}`);
+    }
+  }
+  return record;
+};

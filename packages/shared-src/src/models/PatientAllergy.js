@@ -1,4 +1,6 @@
 import { Sequelize } from 'sequelize';
+import { SYNC_DIRECTIONS } from 'shared/constants';
+import { patientChannelMixin } from './sync';
 import { Model } from './Model';
 
 export class PatientAllergy extends Model {
@@ -22,4 +24,8 @@ export class PatientAllergy extends Model {
   static getListReferenceAssociations() {
     return ['allergy'];
   }
+
+  static syncDirection = SYNC_DIRECTIONS.BIDIRECTIONAL;
 }
+
+Object.assign(PatientAllergy, patientChannelMixin('allergy'));

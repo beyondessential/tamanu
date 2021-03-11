@@ -8,9 +8,9 @@ import {
   fakeSurvey,
   fakeSurveyScreenComponent,
   fakeUser,
+  fake,
   buildScheduledVaccine,
   buildEncounter,
-  buildNestedEncounter,
 } from 'shared/test-helpers';
 
 import { withDate } from './utilities';
@@ -43,11 +43,23 @@ describe('sqlWrapper', () => {
   ];
 
   const patientId = uuidv4();
+  beforeAll(async () => {
+    await ctx.models.Patient.create({ ...fakePatient(), id: patientId });
+  });
+
   const nestedPatientTestCases = [
     [
       `patient/${patientId}/encounter`,
       async () => withoutArrays(await buildEncounter(ctx, patientId)),
     ],
+    [`patient/${patientId}/allergy`, () => ({ ...fake(ctx.models.PatientAllergy), patientId })],
+    [`patient/${patientId}/carePlan`, () => ({ ...fake(ctx.models.PatientCarePlan), patientId })],
+    [`patient/${patientId}/condition`, () => ({ ...fake(ctx.models.PatientCondition), patientId })],
+    [
+      `patient/${patientId}/familyHistory`,
+      () => ({ ...fake(ctx.models.PatientFamilyHistory), patientId }),
+    ],
+    [`patient/${patientId}/issue`, () => ({ ...fake(ctx.models.PatientIssue), patientId })],
   ];
 
   const allTestCases = [...rootTestCases, ...nestedPatientTestCases];

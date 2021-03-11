@@ -75,6 +75,12 @@ export class BasicHandler {
           `Must provide parentId for models like ${this.model.name} with syncParentIdKey set`,
         );
       }
+      const existing = values[this.model.syncParentIdKey];
+      if (existing && existing !== parentId) {
+        throw new Error(
+          `Tried to insert record with ${this.model.syncParentIdKey} ${existing} to channel with ${this.model.syncParentIdKey} ${parentId}`,
+        );
+      }
       values[this.model.syncParentIdKey] = parentId;
     }
 
