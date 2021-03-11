@@ -1,6 +1,4 @@
-const Sequelize = require('sequelize');
-
-module.exports = {
+module.exports = ({ Sequelize }) => ({
 
   name: 'User',
 
@@ -29,4 +27,4 @@ module.exports = {
       },
     ],
   },
-}
+});

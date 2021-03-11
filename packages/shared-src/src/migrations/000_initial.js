@@ -1,42 +1,30 @@
 const Sequelize = require('sequelize');
+const Utils = require('sequelize/lib/utils');
 
-const models = [
-  require('./000_initial/referenceData'),
-  require('./000_initial/user'),
-  /*
-  Note
-  Patient
-  PatientAllergy
-  PatientCarePlan
-  PatientCondition
-  PatientFamilyHistory
-  PatientIssue
-  Encounter
-  EncounterDiagnosis
-  EncounterMedication
-  Procedure
-  Referral
-  ReferralDiagnosis
-  Vitals
-  Triage
-  ScheduledVaccine
-  AdministeredVaccine
-  Program
-  ProgramDataElement
-  Survey
-  SurveyScreenComponent
-  SurveyResponse
-  SurveyResponseAnswer
-  LabRequest
-  LabTest
-  LabTestType
-  ImagingRequest
-  ReportRequest
-  PatientCommunication
-  Setting
-  SyncMetadata
-  */
-];
+// some utility functions that mean I can just copypaste model
+// definitions over rather than changing table and field names by hand
+//
+const underscoreObject = obj => {
+  const translated = {};
+  Object.keys(obj).map(k => {
+    translated[Utils.underscore(k)] = obj[k];
+  });
+  return translated;
+}
+
+const makeTableName = name => {
+  if(name.toLowerCase() === 'referencedata') return 'reference_data';
+  const underscored = Utils.pluralize(Utils.underscore(name));
+  return underscored.replace(/^_/, '');
+};
+
+const foreignKey = table => ({
+  type: Sequelize.STRING,
+  references: {
+    model: makeTableName(table), 
+    key: 'id',
+  }
+});
 
 const BASE_FIELDS = {
   id: {
@@ -46,27 +34,81 @@ const BASE_FIELDS = {
     primaryKey: true,
   }
 };
+////
 
-const BASE_OPTIONS = {
-  underscored: true,
-};
-  
+const models = [
+  'referenceData',
+  'user',
+  'patient',
+  'patientAllergy',
+  'patientCarePlan',
+  'patientCondition',
+  'patientFamilyHistory',
+  'patientIssue',
+  'encounter',
+  'encounterDiagnosis',
+  'encounterMedication',
+  'procedure',
+  'vitals',
+  'triage',
+  /*
+  'referral',
+  'referralDiagnosis',
+  'scheduledVaccine
+  'administeredVaccine',
+  */
+  'program',
+  'programDataElement',
+  'survey',
+  'surveyScreenComponent',
+  'surveyResponse',
+  'surveyResponseAnswer',
+  'labRequest',
+  'labTestType',
+  'labTest',
+  /*
+  'imagingRequest',
+  'reportRequest',
+  'patientCommunication',
+  'setting',
+  'syncMetadata',
+  'note',
+  */
+].map(k => {
+  const module = require(`./000_initial/${k}`)
+  const { fields, options } = module({ Sequelize, foreignKey });
+  return {
+    name: makeTableName(k),
+    fields: {
+      ...BASE_FIELDS,
+      ...underscoreObject(fields),
+    },
+    options,
+  };
+});
+
 module.exports = {
   up: async (query) => {
-    for (const t of models) {
-      await query.createTable(t.name, {
-        ...BASE_FIELDS,
-        ...t.fields,
-        // }, {
-        // ...BASE_OPTIONS,
-        // ...(t.options || {}),
-      });
-    }
+    await query.sequelize.transaction(async transaction => {
+      for (const t of models) {
+        await query.createTable(
+          t.name,
+          t.fields,
+          t.options,
+          { transaction },
+        );
+      };
+    });
   },
   down: async (query) => {
-    const reversed = [...models].reverse();
-    for (const t of reversed) {
-      await query.dropTable(t.name);
-    }
+    await query.sequelize.transaction(async transaction => {
+      const reversed = [...models].reverse();
+      for (const t of reversed) {
+        await query.dropTable(
+          t.name, 
+          { transaction },
+        );
+      }
+    });
   },
 };

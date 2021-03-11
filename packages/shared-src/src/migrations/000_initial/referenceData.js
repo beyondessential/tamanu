@@ -1,9 +1,4 @@
-const Sequelize = require('sequelize');
-
-module.exports = {
-
-  name: 'ReferenceData',
-
+module.exports = ({ Sequelize }) => ({
   fields: {
     code: {
       type: Sequelize.STRING,
@@ -32,4 +27,4 @@ module.exports = {
       },
     ],
   },
-}
+});
