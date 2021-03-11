@@ -207,11 +207,18 @@ export function fakeEncounterMedication(prefix = 'test-') {
   };
 }
 
+const fakeDate = () => new Date(random(0, Date.now()));
+const fakeString = ({ Model, fieldName }, id) => `${Model.name}.${fieldName}.${id}`;
+const fakeInt = () => random(0, 10);
+const fakeBool = () => sample([true, false]);
 const FIELD_HANDLERS = {
-  'TIMESTAMP WITH TIME ZONE': () => new Date(random(0, Date.now())),
-  'VARCHAR(255)': ({ Model, fieldName }, id) => `${Model.name}.${fieldName}.${id}`,
-  INTEGER: () => random(0, 10),
-  BOOLEAN: () => sample([true, false]),
+  'TIMESTAMP WITH TIME ZONE': fakeDate,
+  DATETIME: fakeDate,
+  'VARCHAR(255)': fakeString,
+  TEXT: fakeString,
+  INTEGER: fakeInt,
+  'TINYINT(1)': fakeBool,
+  BOOLEAN: fakeBool,
   ENUM: ({ type }) => sample(type.values),
 };
 
@@ -230,6 +237,7 @@ export const fake = model => {
     } else if (FIELD_HANDLERS[type]) {
       record[name] = FIELD_HANDLERS[type](attribute, id);
     } else {
+      // if you hit this error, you probably need to add a new field handler
       throw new Error(`Could not fake field ${model.name}.${name} of type ${type}`);
     }
   }

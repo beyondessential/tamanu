@@ -1,8 +1,9 @@
 export const patientChannelMixin = name => {
   const channelRegex = new RegExp(`patient\/([^\/]+)\/${name}`);
   return {
-    getChannels() {
-      return this.sequelize.models.Patient.getSyncIds.map(id => `patient/${id}/${name}`);
+    async getChannels() {
+      const ids = await this.sequelize.models.Patient.getSyncIds();
+      return ids.map(id => `patient/${id}/${name}`);
     },
     syncParentIdFromChannel(channel) {
       return channel.match(channelRegex)[1];
