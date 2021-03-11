@@ -20,9 +20,16 @@ import {
   titleOptions,
   socialMediaOptions,
   maritalStatusOptions,
+  educationalAttainmentOptions,
 } from '../constants';
 
-export const PrimaryDetailsGroup = ({ villageSuggester, ethnicitySuggester }) => (
+export const PrimaryDetailsGroup = ({
+  villageSuggester,
+  ethnicitySuggester,
+  nationalitySuggester,
+  divisionSuggester,
+  subdivisionSuggester,
+}) => (
   <React.Fragment>
     <Field name="firstName" label="First name" component={TextField} required />
     <Field name="middleName" label="Middle name" component={TextField} />
@@ -36,12 +43,34 @@ export const PrimaryDetailsGroup = ({ villageSuggester, ethnicitySuggester }) =>
       suggester={villageSuggester}
     />
     <Field name="dateOfBirth" label="Date of birth" component={DateField} required />
-    <Field name="placeOfBirth" label="Plate of birth" component={TextField} />
+    <Field name="placeOfBirth" label="Place of birth" component={TextField} />
     <Field name="sex" label="Sex" component={RadioField} options={sexOptions} inline required />
-    <Field name="nationality" label="Nationality" component={TextField} />
-    <Field name="country" label="Country" component={TextField} />
+    <Field
+      name="nationalityId"
+      label="Nationality"
+      component={AutocompleteField}
+      suggester={nationalitySuggester}
+    />
+    <Field
+      name="countryId"
+      label="Country"
+      component={AutocompleteField}
+      suggester={nationalitySuggester}
+    />
     <Field name="cityTown" label="City/Town" component={TextField} />
     <Field name="streetVillage" label="Street/Village" component={TextField} />
+    <Field
+      name="divisionId"
+      label="Division"
+      component={AutocompleteField}
+      suggester={divisionSuggester}
+    />
+    <Field
+      name="subdivisionId"
+      label="Sub Division"
+      component={AutocompleteField}
+      suggester={subdivisionSuggester}
+    />
     <Field
       name="maritalStatus"
       label="MaritalStatus"
@@ -57,10 +86,23 @@ export const PrimaryDetailsGroup = ({ villageSuggester, ethnicitySuggester }) =>
   </React.Fragment>
 );
 
-export const SecondaryDetailsGroup = ({ isBirth, patientSuggester, facilitySuggester }) => (
+export const SecondaryDetailsGroup = ({
+  isBirth,
+  patientSuggester,
+  facilitySuggester,
+  medicalAreaSuggester,
+  nursingZoneSuggester,
+  settlementSuggester,
+  occupationSuggester,
+}) => (
   <React.Fragment>
     <Field name="religion" label="Religion" component={TextField} />
-    <Field name="occupation" label="Occupation" component={TextField} />
+    <Field
+      name="occupationId"
+      label="Occupation"
+      component={AutocompleteField}
+      suggester={occupationSuggester}
+    />
     <Field
       name="mother.id"
       label="Mother"
@@ -94,6 +136,25 @@ export const SecondaryDetailsGroup = ({ isBirth, patientSuggester, facilitySugge
       suggester={facilitySuggester}
       required={isBirth}
     />
+    <Field
+      name="medicalAreaId"
+      label="Medical Area"
+      component={AutocompleteField}
+      suggester={medicalAreaSuggester}
+    />
+    <Field
+      name="nursingZoneId"
+      label="Nursing Zone"
+      component={AutocompleteField}
+      suggester={nursingZoneSuggester}
+    />
+    <Field
+      name="settlementId"
+      label="Settlement"
+      component={AutocompleteField}
+      suggester={settlementSuggester}
+    />
+
     <Field name="residentialAddress" label="Residential address" component={TextField} />
     <Field
       name="primaryContactNumber"
@@ -115,6 +176,12 @@ export const SecondaryDetailsGroup = ({ isBirth, patientSuggester, facilitySugge
     />
     <Field name="socialMediaName" label="Social media name" component={TextField} />
     <Field name="email" label="Email" component={TextField} />
+    <Field
+      name="educationalAttainment"
+      label="Educational Attainment"
+      component={SelectField}
+      options={educationalAttainmentOptions}
+    />
   </React.Fragment>
 );
 
@@ -123,16 +190,33 @@ export const PatientDetailsForm = ({
   facilitySuggester,
   villageSuggester,
   ethnicitySuggester,
+  nationalitySuggester,
+  divisionSuggester,
+  subdivisionSuggester,
+  medicalAreaSuggester,
+  nursingZoneSuggester,
+  settlementSuggester,
+  occupationSuggester,
   patient,
   onSubmit,
 }) => {
   const render = React.useCallback(
     ({ submitForm }) => (
       <FormGrid>
-        <PrimaryDetailsGroup villageSuggester={villageSuggester} ethnicitySuggester={ethnicitySuggester} />
+        <PrimaryDetailsGroup
+          villageSuggester={villageSuggester}
+          ethnicitySuggester={ethnicitySuggester}
+          nationalitySuggester={nationalitySuggester}
+          divisionSuggester={divisionSuggester}
+          subdivisionSuggester={subdivisionSuggester}
+        />
         <SecondaryDetailsGroup
           patientSuggester={patientSuggester}
           facilitySuggester={facilitySuggester}
+          medicalAreaSuggester={medicalAreaSuggester}
+          nursingZoneSuggester={nursingZoneSuggester}
+          settlementSuggester={settlementSuggester}
+          occupationSuggester={occupationSuggester}
         />
         <ButtonRow>
           <Button variant="contained" color="primary" onClick={submitForm}>
@@ -141,7 +225,19 @@ export const PatientDetailsForm = ({
         </ButtonRow>
       </FormGrid>
     ),
-    [patientSuggester, facilitySuggester],
+    [
+      villageSuggester,
+      ethnicitySuggester,
+      nationalitySuggester,
+      patientSuggester,
+      facilitySuggester,
+      divisionSuggester,
+      subdivisionSuggester,
+      medicalAreaSuggester,
+      nursingZoneSuggester,
+      settlementSuggester,
+      occupationSuggester,
+    ],
   );
 
   return <Form render={render} initialValues={patient} onSubmit={onSubmit} />;

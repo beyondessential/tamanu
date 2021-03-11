@@ -12,7 +12,6 @@ export const patient = express.Router();
 
 const AdditionalDetailsProperties = [
   'placeOfBirth',
-  'country',
   'cityTown',
   'streetVillage',
   'maritalStatus',
@@ -21,6 +20,8 @@ const AdditionalDetailsProperties = [
   'secondaryContactNumber',
   'socialMediaPlatform',
   'socialMediaName',
+  'educationalAttainment',
+  'patientType',
 ];
 
 function stringifyAdditionalDetails(reqBody) {

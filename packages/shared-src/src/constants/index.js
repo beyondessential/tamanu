@@ -114,7 +114,14 @@ export const REFERENCE_TYPES = {
   VACCINE: 'vaccine',
   VILLAGE: 'village',
   CARE_PLAN: 'carePlan',
-  ETHNICITY: 'ethnicity'
+  ETHNICITY: 'ethnicity',
+  NATIONALITY: 'nationality',
+  DIVISION: 'division',
+  SUBDIVISION: 'subdivision',
+  MEDICAL_AREA: 'medicalArea',
+  NURSING_ZONE: 'nursingZone',
+  SETTLEMENT: 'settlement',
+  OCCUPATION: 'occupation',
 };
 
 export const REFERENCE_TYPE_VALUES = Object.values(REFERENCE_TYPES);
