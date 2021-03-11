@@ -163,8 +163,13 @@ export function checkVisibilityCriteria(
     }
 
     const checkIfQuestionMeetsCriteria = ([questionId, answersEnablingFollowUp]) => {
+      const value = values[questionId];
       if (answersEnablingFollowUp.type === 'range') {
-        if (inRange(values[questionId], answersEnablingFollowUp.start, answersEnablingFollowUp.end)) {
+        const { start, end } = answersEnablingFollowUp;
+        
+        if (!start) return value < end;
+        if (!end) return value >= start;
+        if (inRange(value, parseFloat(start), parseFloat(end))) {
           return true;
         }
       }
