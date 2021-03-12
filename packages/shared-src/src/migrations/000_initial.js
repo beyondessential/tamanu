@@ -88,7 +88,7 @@ const models = [
   return {
     name: makeTableName(k),
     fields: {
-      ...BASE_FIELDS,
+      ...underscoreObject(BASE_FIELDS),
       ...underscoreObject(fields),
     },
     options,
