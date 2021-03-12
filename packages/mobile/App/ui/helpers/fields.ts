@@ -1,3 +1,5 @@
+import { inRange } from 'lodash';
+
 import { ISurveyScreenComponent, DataElementType } from '~/types/ISurvey';
 
 export const FieldTypes = {
@@ -114,7 +116,6 @@ function compareData(dataType: string, expected: string, given: any): boolean {
       break;
     case FieldTypes.NUMBER:
     case FieldTypes.CALCULATED:
-      // TODO: we'll need to be able to compare against numeric ranges in future
       // we check within a threshold because strict equality is actually pretty rare
       const parsed = parseFloat(expected);
       const diff = Math.abs(parsed - given);
@@ -136,10 +137,55 @@ export function checkVisibilityCriteria(
   values: any
 ): boolean {
   const { visibilityCriteria, dataElement } = component;
-
   // nothing set - show by default
   if (!visibilityCriteria) return true;
+  
+  try {
+    const criteriaObject = JSON.parse(visibilityCriteria);
 
+    if (!criteriaObject) {
+      return true;
+    }
+
+    const { _conjunction: conjunction, hidden, ...restOfCriteria } = criteriaObject;
+    if (Object.keys(restOfCriteria).length === 0) {
+      return true;
+    }
+
+    const checkIfQuestionMeetsCriteria = ([questionId, answersEnablingFollowUp]) => {
+      const value = values[questionId];
+      if (answersEnablingFollowUp.type === 'range') {
+        const { start, end } = answersEnablingFollowUp;
+        
+        if (!start) return value < end;
+        if (!end) return value >= start;
+        if (inRange(value, parseFloat(start), parseFloat(end))) {
+          return true;
+        }
+      }
+
+      return answersEnablingFollowUp.includes(values[questionId]);
+    }
+
+    return conjunction === 'and'
+      ? Object.entries(restOfCriteria).every(checkIfQuestionMeetsCriteria)
+      : Object.entries(restOfCriteria).some(checkIfQuestionMeetsCriteria);
+  } catch(error) {
+    console.warn(`Error parsing JSON visilbity criteria, using fallback.
+                  \nError message: ${error}`);
+
+    return fallbackParseVisibilityCriteria(visibilityCriteria, values, allComponents);
+  }
+
+}
+
+/**
+ * Meditrak uses JSON for these fields now, whereas we have been using colon separated values.
+ * Our goal is to have the same syntax as Meditrak for surveys, but since we already have some
+ * test surveys out there using our old system, we fall back to it if we can't parse the JSON.
+ * TODO: Remove the fallback once we can guarantee that there's no surveys using it.
+ */
+const fallbackParseVisibilityCriteria = (visibilityCriteria, values, allComponents) => {
   const [
     elementCode = '',
     expectedAnswer = '',
