@@ -73,7 +73,7 @@ export async function createTestContext() {
   const { models, sequelize } = dbResult;
 
   // sync db and remove old test data
-  await sequelize.sync();
+  await sequelize.migrate();
   await deleteAllTestIds(dbResult);
 
   // populate with reference data
