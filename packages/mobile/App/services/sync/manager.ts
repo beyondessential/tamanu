@@ -327,11 +327,15 @@ export class SyncManager {
       console.error(e);
     }
     this.emitter.emit('channelSyncEnded', channel);
-    return lastSynced;
+    return requestedAt;
   }
 
   async runPatientSync(patient: Patient): Promise<Timestamp> {
-    const lastSynced = await this.runChannelSync(Database.models.Encounter, `patient/${patient.id}/encounter`, { overrideLastSynced: patient.lastSynced });
+    const overrideLastSynced = patient.lastSynced;
+    const lastSynced = Math.min(
+      await this.runChannelSync(Database.models.Encounter, `patient/${patient.id}/encounter`, { overrideLastSynced }),
+      await this.runChannelSync(Database.models.PatientIssue, `patient/${patient.id}/issue`, { overrideLastSynced }),
+    );
     if (lastSynced) {
       patient.lastSynced = lastSynced;
       await patient.save();
