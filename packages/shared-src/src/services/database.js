@@ -108,7 +108,10 @@ export async function initDatabase(dbOptions) {
   // in favour of calling sequelize.sync() during test mode)
   sequelize.migrate = sqlitePath
     ? sequelize.sync  // just sync in sqlite mode, migrations may contain pg-specific sql
-    : () => migrateUp(log, sequelize);
+    : async () => {
+      await migrateDown(log, sequelize)
+      await migrateUp(log, sequelize)
+    };
 
   // init all models
   const modelClasses = Object.values(models);
