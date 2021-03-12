@@ -51,12 +51,10 @@ const models = [
   'procedure',
   'vitals',
   'triage',
-  /*
   'referral',
   'referralDiagnosis',
-  'scheduledVaccine
+  'scheduledVaccine',
   'administeredVaccine',
-  */
   'program',
   'programDataElement',
   'survey',
@@ -66,14 +64,12 @@ const models = [
   'labRequest',
   'labTestType',
   'labTest',
-  /*
   'imagingRequest',
   'reportRequest',
   'patientCommunication',
   'setting',
   'syncMetadata',
   'note',
-  */
 ].map(k => {
   const module = require(`./000_initial/${k}`)
   const { fields, options } = module({ Sequelize, foreignKey });

@@ -14,6 +14,8 @@ module.exports = ({ Sequelize, foreignKey }) => ({
     lastName: Sequelize.STRING,
     culturalName: Sequelize.STRING,
 
+    email: Sequelize.STRING,
+
     dateOfBirth: Sequelize.DATE,
     sex: {
       type: Sequelize.ENUM('male', 'female', 'other'),
@@ -21,6 +23,14 @@ module.exports = ({ Sequelize, foreignKey }) => ({
     },
     bloodType: Sequelize.STRING,
     villageId: foreignKey('ReferenceData'),
+    nationalityId: foreignKey('ReferenceData'),
+    countryId: foreignKey('ReferenceData'),
+    divisionId: foreignKey('ReferenceData'),
+    subdivisionId: foreignKey('ReferenceData'),
+    medicalAreaId: foreignKey('ReferenceData'),
+    nursingZoneId: foreignKey('ReferenceData'),
+    settlementId: foreignKey('ReferenceData'),
+    occupationId: foreignKey('ReferenceData'),
   },
 
   options: {
