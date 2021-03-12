@@ -155,6 +155,7 @@ export function checkVisibilityCriteria(
     const checkIfQuestionMeetsCriteria = ([questionId, answersEnablingFollowUp]) => {
       const value = values[questionId];
       if (answersEnablingFollowUp.type === 'range') {
+        if (!value) return false;
         const { start, end } = answersEnablingFollowUp;
         
         if (!start) return value < end;
