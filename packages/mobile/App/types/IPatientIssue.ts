@@ -5,7 +5,7 @@ export interface IPatientIssue {
   note?: string;
   recordedDate: Date;
   type: PatientIssueType;
-  patient?: IPatient;
+  patient?: Partial<IPatient>;
   patientId: string;
 }
 
