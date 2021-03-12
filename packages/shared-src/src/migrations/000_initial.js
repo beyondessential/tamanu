@@ -32,6 +32,18 @@ const BASE_FIELDS = {
     defaultValue: Sequelize.UUIDV4,
     allowNull: false,
     primaryKey: true,
+  },
+  createdAt: {
+    type: Sequelize.DATE,
+    defaultValue: Sequelize.NOW,
+  },
+  updatedAt: {
+    type: Sequelize.DATE,
+    defaultValue: Sequelize.NOW,
+  }, 
+  deletedAt: {
+    type: Sequelize.DATE,
+    defaultValue: Sequelize.NOW,
   }
 };
 ////
