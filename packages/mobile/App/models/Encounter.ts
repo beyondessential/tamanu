@@ -85,14 +85,6 @@ export class Encounter extends BaseModel implements IEncounter {
   @OneToMany(() => SurveyResponse, (surveyResponse) => surveyResponse.encounter)
   surveyResponses: SurveyResponse[];
 
-  @BeforeInsert()
-  @BeforeUpdate()
-  async markPatient() {
-    // adding an encounter to a patient should mark them for syncing in future
-    // we don't need to upload the patient, so we only set markedForSync
-    await this.markParent(Patient, 'patient', 'markedForSync');
-  }
-
   static async getOrCreateCurrentEncounter(
     patientId: string,
     createdEncounterOptions: any
@@ -165,6 +157,14 @@ export class Encounter extends BaseModel implements IEncounter {
   }
 
   static shouldExport = true;
+
+  @BeforeInsert()
+  @BeforeUpdate()
+  async markPatient() {
+    // adding an encounter to a patient should mark them for syncing in future
+    // we don't need to upload the patient, so we only set markedForSync
+    await this.markParent(Patient, 'patient', 'markedForSync');
+  }
 
   static async findMarkedForUpload(
     opts: FindMarkedForUploadOptions,
