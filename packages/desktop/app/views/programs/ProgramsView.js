@@ -24,7 +24,7 @@ const DumbSurveyFlow = React.memo(
     }, []);
 
     const onSelectSurvey = useCallback(async id => {
-      const response = await onFetchSurvey(id);
+      const response = await onFetchSurvey(encodeURIComponent(id));
       setSurvey(response);
       setStartTime(new Date());
     });
