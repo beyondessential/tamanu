@@ -159,7 +159,6 @@ export const DumbAddVitalsScreen = ({ selectedPatient, navigation }): ReactEleme
       navigateToHistory();
     }, [],
   );
-
   return (
     <StyledSafeAreaView flex={1}>
       <FullView

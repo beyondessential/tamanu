@@ -8,7 +8,8 @@ import {
   BeforeInsert,
   RelationId,
 } from 'typeorm/browser';
-import { startOfDay, addHours } from 'date-fns';
+import { startOfDay, addHours, subDays } from 'date-fns';
+import { getUniqueId } from 'react-native-device-info';
 import { BaseModel } from './BaseModel';
 import { IEncounter, EncounterType, ReferenceDataType } from '~/types';
 import { Patient } from './Patient';
@@ -17,7 +18,10 @@ import { ReferenceData, ReferenceDataRelation } from './ReferenceData';
 import { AdministeredVaccine } from './AdministeredVaccine';
 import { SurveyResponse } from './SurveyResponse';
 import { formatDateForQuery } from '~/infra/db/helpers';
+import { SummaryInfo } from '~/ui/navigation/screens/home/Tabs/PatientHome/ReportScreen/SummaryBoard';
 import { Referral } from './Referral';
+
+const TIME_OFFSET = 3;
 
 @Entity('encounter')
 export class Encounter extends BaseModel implements IEncounter {
@@ -34,7 +38,7 @@ export class Encounter extends BaseModel implements IEncounter {
   reasonForEncounter: string;
 
   @Index()
-  @ManyToOne(() => Patient, patient => patient.encounters, { eager: true })
+  @ManyToOne(() => Patient, (patient) => patient.encounters, { eager: true })
   patient: Patient;
   @RelationId(({ patient }) => patient)
   patientId: string;
@@ -51,6 +55,9 @@ export class Encounter extends BaseModel implements IEncounter {
   @Column({ nullable: true })
   medication?: string;
 
+  @Column({ nullable: true })
+  deviceId?: string;
+
   @ReferenceDataRelation()
   department: ReferenceData;
   @RelationId(({ department }) => department)
@@ -61,8 +68,10 @@ export class Encounter extends BaseModel implements IEncounter {
   @RelationId(({ location }) => location)
   locationId?: string;
 
-  @OneToMany(() => Diagnosis, diagnosis => diagnosis.encounter, { eager: true })
-  diagnoses: Diagnosis[]
+  @OneToMany(() => Diagnosis, (diagnosis) => diagnosis.encounter, {
+    eager: true,
+  })
+  diagnoses: Diagnosis[];
 
   @OneToMany(() => Referral, referral => referral.initiatingEncounter)
   initiatedReferrals: Referral[]
@@ -73,8 +82,8 @@ export class Encounter extends BaseModel implements IEncounter {
   @OneToMany(() => AdministeredVaccine, administeredVaccine => administeredVaccine.encounter)
   administeredVaccines: AdministeredVaccine[]
 
-  @OneToMany(() => SurveyResponse, surveyResponse => surveyResponse.encounter)
-  surveyResponses: SurveyResponse[]
+  @OneToMany(() => SurveyResponse, (surveyResponse) => surveyResponse.encounter)
+  surveyResponses: SurveyResponse[];
 
   @BeforeInsert()
   @BeforeUpdate()
@@ -85,15 +94,18 @@ export class Encounter extends BaseModel implements IEncounter {
   }
 
   static async getOrCreateCurrentEncounter(
-    patientId: string, createdEncounterOptions: any,
+    patientId: string,
+    createdEncounterOptions: any
   ): Promise<Encounter> {
     const repo = this.getRepository();
-    const timeOffset = 3;
-    const date = addHours(startOfDay(new Date()), timeOffset);
+    const date = addHours(startOfDay(new Date()), TIME_OFFSET);
 
-    const found = await repo.createQueryBuilder('encounter')
+    const found = await repo
+      .createQueryBuilder('encounter')
       .where('patientId = :patientId', { patientId })
-      .andWhere('startDate >= :date', { date: formatDateForQuery(date) })
+      .andWhere("startDate >= datetime(:date, 'unixepoch')", {
+        date: formatDateForQuery(date),
+      })
       .getOne();
 
     if (found) return found;
@@ -104,8 +116,12 @@ export class Encounter extends BaseModel implements IEncounter {
       endDate: null,
       encounterType: EncounterType.Clinic,
       reasonForEncounter: '',
-      department: (await ReferenceData.getAnyOfType(ReferenceDataType.Department)).id,
-      location: (await ReferenceData.getAnyOfType(ReferenceDataType.Location)).id,
+      department: (
+        await ReferenceData.getAnyOfType(ReferenceDataType.Department)
+      ).id,
+      location: (await ReferenceData.getAnyOfType(ReferenceDataType.Location))
+        .id,
+      deviceId: getUniqueId(),
       ...createdEncounterOptions,
     });
   }
@@ -116,6 +132,36 @@ export class Encounter extends BaseModel implements IEncounter {
     return repo.find({
       patient: { id: patientId },
     });
+  }
+
+  static async getTotalEncountersAndResponses(surveyId: string): Promise<SummaryInfo[]> {
+    const repo = this.getRepository();
+    // 28 days ago for report
+    const date = subDays(addHours(startOfDay(new Date()), TIME_OFFSET), 28); 
+    const query = repo
+      .createQueryBuilder('encounter')
+      .select('date(encounter.startDate)', 'encounterDate')
+      .addSelect('count(distinct encounter.patientId)', 'totalEncounters')
+      .addSelect('count(sr.id)', 'totalSurveys')
+      .leftJoin(
+        (subQuery) => subQuery
+          .select('surveyResponse.id', 'id')
+          .addSelect('surveyResponse.encounterId', 'encounterId')
+          .from('survey_response', 'surveyResponse')
+          .where(
+            'surveyResponse.surveyId = :surveyId',
+            { surveyId }),
+        'sr',
+        '"sr"."encounterId" = encounter.id',
+      )
+      .where("encounter.startDate >= datetime(:date, 'unixepoch')", {
+        date: formatDateForQuery(date),
+      })
+      .groupBy('date(encounter.startDate)')
+      .having('encounter.deviceId = :deviceId', { deviceId: getUniqueId() })
+      .orderBy('encounterDate', 'ASC');
+
+    return query.getRawMany();
   }
 
   static shouldExport = true;

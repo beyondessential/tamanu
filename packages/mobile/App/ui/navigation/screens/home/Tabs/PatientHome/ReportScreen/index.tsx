@@ -1,4 +1,4 @@
-import React, { ReactElement, useState, useCallback } from 'react';
+import React, { ReactElement, useState, useCallback, FC } from 'react';
 import {
   StyledText,
   FullView,
@@ -9,9 +9,7 @@ import {
 import { Button } from '/components/Button';
 import { LogoV2Icon } from '/components/Icons';
 import { VisitChart } from '/components/Chart/VisitChart';
-import { visitData, yearlyData } from '/components/Chart/fixture';
 import { theme } from '/styled/theme';
-import { YearlyChart } from '/components/Chart/YearlyChart';
 import {
   screenPercentageToDP,
   Orientation,
@@ -19,55 +17,11 @@ import {
 } from '/helpers/screen';
 import { Routes } from '/helpers/routes';
 import { ReportScreenProps } from '/interfaces/screens/HomeStack/ReportScreenProps';
-
-const BirthDeathBoard = (): ReactElement => (
-  <RowView
-    width={screenPercentageToDP(90.02, Orientation.Width)}
-    background={theme.colors.WHITE}
-    height={screenPercentageToDP(13.36, Orientation.Height)}
-    alignSelf="center"
-  >
-    <FullView justifyContent="center" alignItems="center">
-      <StyledText
-        fontSize={screenPercentageToDP(3.4, Orientation.Height)}
-        fontWeight="bold"
-      >
-        15
-      </StyledText>
-      <StyledText
-        color={theme.colors.TEXT_MID}
-        fontSize={screenPercentageToDP(1.7, Orientation.Height)}
-      >
-        Total Births
-      </StyledText>
-      <StyledText
-        marginTop={screenPercentageToDP(0.6, Orientation.Height)}
-        fontSize={screenPercentageToDP(1.33, Orientation.Height)}
-        color={theme.colors.SAFE}
-      >
-        +10% on last 4 weeks
-      </StyledText>
-    </FullView>
-    <FullView justifyContent="center" alignItems="center">
-      <StyledText
-        fontSize={screenPercentageToDP(3.4, Orientation.Height)}
-        fontWeight="bold"
-      >
-        3
-      </StyledText>
-      <StyledText fontSize={screenPercentageToDP(1.7, Orientation.Height)}>
-        Total Births
-      </StyledText>
-      <StyledText
-        marginTop={screenPercentageToDP(0.6, Orientation.Height)}
-        fontSize={screenPercentageToDP(1.33, Orientation.Height)}
-        color={theme.colors.ALERT}
-      >
-        +5% on last 4 weeks
-      </StyledText>
-    </FullView>
-  </RowView>
-);
+import { format, startOfToday, subDays } from 'date-fns';
+import { useBackendEffect } from '~/ui/hooks';
+import { SummaryBoard } from './SummaryBoard';
+import { BarChartData } from '~/ui/interfaces/BarChartProps';
+import { RecentPatientSurveyReport } from './RecentPatientSurveyReport';
 
 interface ReportTypeButtons {
   isReportWeekly: boolean;
@@ -98,12 +52,12 @@ const ReportTypeButtons = ({
         height={screenPercentageToDP(3.76, Orientation.Height)}
         width={screenPercentageToDP(44.52, Orientation.Width)}
         backgroundColor={
-            isReportWeekly ? theme.colors.WHITE : theme.colors.BOX_OUTLINE
-          }
+          isReportWeekly ? theme.colors.WHITE : theme.colors.BOX_OUTLINE
+        }
         textColor={
-            isReportWeekly ? theme.colors.PRIMARY_MAIN : theme.colors.TEXT_MID
-          }
-        buttonText="LAST 4 WEEKS"
+          isReportWeekly ? theme.colors.PRIMARY_MAIN : theme.colors.TEXT_MID
+        }
+        buttonText="Summary"
         bordered={false}
         onPress={onPress}
       />
@@ -111,13 +65,13 @@ const ReportTypeButtons = ({
         fontSize={screenPercentageToDP(1.57, Orientation.Height)}
         height={screenPercentageToDP(3.76, Orientation.Height)}
         width={screenPercentageToDP(44.52, Orientation.Width)}
-        buttonText="LAST 12 MONTHS"
+        buttonText="Data Table"
         backgroundColor={
-            !isReportWeekly ? theme.colors.WHITE : theme.colors.BOX_OUTLINE
-          }
+          !isReportWeekly ? theme.colors.WHITE : theme.colors.BOX_OUTLINE
+        }
         textColor={
-            !isReportWeekly ? theme.colors.PRIMARY_MAIN : theme.colors.TEXT_MID
-          }
+          !isReportWeekly ? theme.colors.PRIMARY_MAIN : theme.colors.TEXT_MID
+        }
         onPress={onPress}
       />
     </RowView>
@@ -126,22 +80,71 @@ const ReportTypeButtons = ({
 
 interface ReportChartProps {
   isReportWeekly: boolean;
+  visitData?: {
+    totalVisits: number;
+    data: BarChartData[];
+  };
+  todayData: {
+    totalEncounters: number;
+    totalSurveys: number;
+    encounterDate: string;
+  };
 }
 
-const ReportChart = ({ isReportWeekly }: ReportChartProps): ReactElement => (isReportWeekly ? (
-  <StyledView marginBottom={screenPercentageToDP(7.53, Orientation.Height)}>
-    <VisitChart data={visitData} />
-  </StyledView>
-) : (
-  <StyledView marginBottom={screenPercentageToDP(2.43, Orientation.Height)}>
-    <YearlyChart data={yearlyData} />
-  </StyledView>
-));
+const ReportChart: FC<ReportChartProps> = ({ isReportWeekly, visitData, todayData }) =>
+  (isReportWeekly ? (
+    <>
+      <StyledView marginBottom={screenPercentageToDP(7.53, Orientation.Height)}>
+        <VisitChart visitData={visitData} />
+      </StyledView>
+      <StyledView flex={1}>
+        <SummaryBoard todayData={todayData} />
+      </StyledView>
+    </>
+  ) : (
+    <StyledView marginBottom={screenPercentageToDP(2.43, Orientation.Height)}>
+      <RecentPatientSurveyReport />
+    </StyledView>
+  ));
+
+// TODO: implement selector for survey type.
 
 export const ReportScreen = ({
   navigation,
 }: ReportScreenProps): ReactElement => {
   const [isReportWeekly, setReportType] = useState<boolean>(true);
+  const [data] = useBackendEffect(
+    ({ models }) => models.Encounter.getTotalEncountersAndResponses('program-cvd-fiji/survey-cvd-risk-fiji'),
+    [],
+  );
+
+  const today = startOfToday();
+  const todayString = format(today, 'yyyy-MM-dd');
+  const todayData = data?.find((item) => item.encounterDate === todayString);
+
+  const visitData = new Array(28).fill('').reduce(
+    (accum, _, index) => {
+      const currentDate = format(subDays(today, 28 - index - 1), 'yyyy-MM-dd');
+      const receivedValueForDay =
+        data?.find((item) => item.encounterDate === currentDate)
+          ?.totalEncounters || 0;
+
+      return {
+        totalVisits: accum.totalVisits + receivedValueForDay,
+        data: [
+          ...accum.data,
+          {
+            date: currentDate,
+            value: receivedValueForDay,
+          },
+        ],
+      };
+    },
+    {
+      totalVisits: 0,
+      data: [],
+    },
+  );
 
   const onChangeReportType = useCallback(() => {
     if (isReportWeekly) {
@@ -198,10 +201,7 @@ export const ReportScreen = ({
         onPress={onChangeReportType}
         isReportWeekly={isReportWeekly}
       />
-      <ReportChart isReportWeekly={isReportWeekly} />
-      <StyledView flex={1}>
-        <BirthDeathBoard />
-      </StyledView>
+      <ReportChart isReportWeekly={isReportWeekly} visitData={visitData} todayData={todayData} />
     </FullView>
   );
 };

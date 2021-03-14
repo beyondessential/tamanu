@@ -1,4 +1,4 @@
 export * from './HomeScreen';
-export * from './ReportScreen';
+export * from './PatientHome/ReportScreen';
 export * from './SyncDatascreen';
 export * from './MoreScreen';

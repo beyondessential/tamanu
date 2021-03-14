@@ -32,26 +32,27 @@ const DumbCreateEncounterForm = ({ selectedPatient }): ReactElement => {
   const scrollViewRef = useRef<any>(null);
   const verticalPositions = useMemo(
     () => calculateVerticalPositions(Object.keys(initialValues)),
-    [],
+    []
   );
 
   const scrollToComponent = useCallback(
     (fieldName: string) => (): void => {
       scrollTo(scrollViewRef, verticalPositions[fieldName]);
     },
-    [scrollViewRef],
+    [scrollViewRef]
   );
 
   const renderFormFields = useCallback(
     ({ handleSubmit }): ReactElement => (
       <FormScreenView scrollViewRef={scrollViewRef}>
-        <StyledView
-          height={screenPercentageToDP(89.64, Orientation.Height)}
-        >
+        <StyledView height={screenPercentageToDP(89.64, Orientation.Height)}>
           <SectionHeader h3>CREATE ENCOUNTER</SectionHeader>
           <Field
             component={Dropdown}
-            options={Object.values(EncounterType).map((t) => ({ value: t, label: t }))}
+            options={Object.values(EncounterType).map((t) => ({
+              value: t,
+              label: t,
+            }))}
             onFocus={scrollToComponent('encounterType')}
             label="Encounter Type"
             name="encounterType"
@@ -97,12 +98,17 @@ const DumbCreateEncounterForm = ({ selectedPatient }): ReactElement => {
         </StyledView>
       </FormScreenView>
     ),
-    [],
+    []
   );
 
   const { models } = useBackend();
   const createEncounter = useCallback(
-    (values: any): void => models.Encounter.createAndSaveOne({ ...values, patient: selectedPatient.id }), [],
+    (values: any): void =>
+      models.Encounter.createAndSaveOne({
+        ...values,
+        patient: selectedPatient.id,
+      }),
+    []
   );
 
   return (
@@ -111,10 +117,7 @@ const DumbCreateEncounterForm = ({ selectedPatient }): ReactElement => {
         background={theme.colors.BACKGROUND_GREY}
         paddingBottom={screenPercentageToDP(4.86, Orientation.Height)}
       >
-        <Formik
-          initialValues={initialValues}
-          onSubmit={createEncounter}
-        >
+        <Formik initialValues={initialValues} onSubmit={createEncounter}>
           {renderFormFields}
         </Formik>
       </FullView>
@@ -122,4 +125,6 @@ const DumbCreateEncounterForm = ({ selectedPatient }): ReactElement => {
   );
 };
 
-export const CreateEncounterForm = compose(withPatient)(DumbCreateEncounterForm);
+export const CreateEncounterForm = compose(withPatient)(
+  DumbCreateEncounterForm
+);

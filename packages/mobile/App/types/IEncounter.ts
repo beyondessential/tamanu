@@ -31,4 +31,6 @@ export interface IEncounter {
   patient?: IPatient;
 
   markedForUpload?: boolean;
+
+  deviceId?: string;
 }
