@@ -194,12 +194,19 @@ export const fake = (model: typeof BaseModel, { relations = [] }: FakeOptions = 
   }
 
   // assign chosen relations
-  const rootRelationNames = relations.filter(rn => !rn.includes('.'));
-  const multiLevelRelationNames = relations.filter(rn => rn.includes('.'));
-  for (const relationName of rootRelationNames) {
+  const rootRelationNames = relations.filter(rn => !rn.includes('.')); // e.g. ['surveyResponse', 'administeredVaccines']
+  const multiLevelRelationNames = relations.filter(rn => rn.includes('.')); // e.g. ['surveyResponse.answers']
+
+  for (const relationName of rootRelationNames) { // traverse relations specific to the model itself
+    // find metadata for the relation
     const relation = metadata.relations.find(r => r.propertyPath === relationName);
-    const childRelationNames = multiLevelRelationNames.filter(rn => rn.startsWith(relationName)).map(rn => rn.slice(relationName.length + 1));
+
+    const childRelationNames = multiLevelRelationNames
+      .filter(rn => rn.startsWith(relationName)) // e.g. if relationName is 'surveyResponse', find ['surveyResponse.answers']
+      .map(rn => rn.slice(relationName.length + 1)); // cut off the relationName and full stop, e.g. ['answers']
+
     if (relation.relationType = 'one-to-many') {
+      // at the moment, we only handle one-to-many relations - if you need something different, implement it!
       const childRecord = fake(relation.type as typeof BaseModel, { relations: childRelationNames });
       record[relationName] = [{
         ...childRecord,
