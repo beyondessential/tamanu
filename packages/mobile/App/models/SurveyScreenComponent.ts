@@ -31,7 +31,7 @@ export class SurveyScreenComponent extends BaseModel
   @Column({ nullable: true })
   config?: string;
 
-  @Column({ nullable: true })
+  @Column({ nullable: true, type: "text" })
   options?: string;
 
   @ManyToOne(() => Survey, survey => survey.components)

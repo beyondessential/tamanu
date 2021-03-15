@@ -110,7 +110,7 @@ const buildFromSyncRecord = (model: typeof BaseModel) => {
 };
 
 const stripId = (key: string | any) => {
-  if (typeof key !== 'string' || key === 'displayId') {
+  if (typeof key !== 'string' || key === 'displayId' || key === 'deviceId') {
     return key;
   }
   return key.replace(/Id$/, '');

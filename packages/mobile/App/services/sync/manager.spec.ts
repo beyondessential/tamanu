@@ -1,10 +1,18 @@
 import { v4 as uuidv4 } from 'uuid';
 
 import { Database } from '~/infra/db';
+import { Patient } from '~/models/Patient';
+import { PatientIssue } from '~/models/PatientIssue';
+import { Encounter } from '~/models/Encounter';
+import { BaseModel } from '~/models/BaseModel';
+
 import { SyncManager } from './manager';
 import { WebSyncSource } from './source';
 
 import {
+  fake,
+  createRelations,
+  toSyncRecord,
   fakeAdministeredVaccine,
   fakeEncounter,
   fakePatient,
@@ -75,7 +83,6 @@ describe('SyncManager', () => {
         expect(storedSurvey.program).toMatchObject(program);
       });
     });
-
 
     describe('encounters', () => {
       it('downloads and imports an encounter', async () => {
@@ -259,6 +266,98 @@ describe('SyncManager', () => {
         delete data.surveyResponses[0].data.answers[0].data.response;
         expect(call).toMatchObject([channel, [{ data }]]);
       });
+    });
+  });
+
+  describe('runPatientSync', () => {
+    const models = [Encounter, PatientIssue];
+
+    it('downloads subchannels of a patient', async () => {
+      // arrange
+      const { syncManager, mockedSource } = createManager();
+
+      const patient = await Patient.createAndSaveOne<Patient>(await fake(Patient));
+      const now = Date.now();
+
+      const records = await Promise.all(models.map(model => fake(model, { relations: model.includedSyncRelations })));
+
+      records.forEach(record => {
+        mockedSource.downloadRecords.mockResolvedValueOnce({
+          count: 1,
+          requestedAt: now,
+          records: [toSyncRecord({ ...record, patientId: patient.id })],
+        });
+        mockedSource.downloadRecords.mockResolvedValueOnce({
+          count: 0,
+          requestedAt: now,
+          records: [],
+        });
+      });
+
+      // act
+      await syncManager.runPatientSync(patient);
+
+      // assert
+      await Promise.all(records.map(async (record, i) => {
+        const model = models[i];
+        const dbRecords = await model.find({
+          where: { patient: { id: patient.id } },
+          relations: model.includedSyncRelations,
+        });
+        expect(dbRecords).toMatchObject([record]);
+      }));
+
+      expect(await Patient.findOne({ id: patient.id })).toHaveProperty('lastSynced', now);
+      expect(mockedSource.downloadRecords.mock.calls.length).toEqual(records.length * 2);
+      expect(mockedSource.uploadRecords.mock.calls.length).toEqual(0);
+    });
+
+    it('uploads subchannels of a patient', async () => {
+      // arrange
+      const { syncManager, mockedSource } = createManager();
+
+      const patient = await Patient.createAndSaveOne<Patient>(await fake(Patient));
+      const otherPatient = await Patient.createAndSaveOne<Patient>(await fake(Patient));
+      const now = Date.now();
+
+      const records = await Promise.all(models.map(async model => {
+        // make the record itself
+        const record = await fake(model, { relations: model.includedSyncRelations });
+        await model.createAndSaveOne({ ...record, patient: { id: patient.id } });
+        await createRelations(model, record);
+
+        // make another record for a different patient to test isolation
+        const otherRecord = await fake(model, { relations: model.includedSyncRelations });
+        await model.createAndSaveOne({ ...otherRecord, patient: { id: otherPatient.id } });
+        await createRelations(model, otherRecord);
+
+        return record;
+      }));
+
+      records.forEach(() => {
+        mockedSource.downloadRecords.mockResolvedValueOnce({
+          count: 0,
+          requestedAt: now,
+          records: [],
+        });
+        mockedSource.uploadRecords.mockResolvedValueOnce({
+          count: 1,
+          requestedAt: now,
+        });
+      });
+
+      // act
+      await syncManager.runPatientSync(patient);
+
+      // assert
+      await Promise.all(records.map(async (record, i) => {
+        const syncRecords = mockedSource.uploadRecords.mock.calls[i][1];
+        expect(syncRecords).toMatchObject([toSyncRecord(record)]);
+      }));
+
+      expect(await Patient.findOne({ id: patient.id })).toHaveProperty('lastSynced', patient.lastSynced); // shouldn't change unless records are downloaded
+      expect(mockedSource.downloadRecords.mock.calls.length).toEqual(records.length);
+      expect(mockedSource.uploadRecords.mock.calls.length).toEqual(records.length);
     });
   });
 });
