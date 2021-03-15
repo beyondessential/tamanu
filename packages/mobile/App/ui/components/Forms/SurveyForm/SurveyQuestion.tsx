@@ -10,7 +10,7 @@ interface SurveyQuestionProps {
   patient: any;
 }
 
-function getField(type: string, component: ISurveyScreenComponent): Element {
+function getField(type: string): Element {
   const field = FieldByType[type];
   
   if(field || field === null) return field;
@@ -22,10 +22,10 @@ export const SurveyQuestion = ({
   patient,
 }: SurveyQuestionProps): ReactElement => {
   const { dataElement } = component;
-  const fieldInput: any = getField(dataElement.type, component);
+  const fieldInput: any = getField(dataElement.type);
   if(!fieldInput) return null;
   const isMultiline = dataElement.type === FieldTypes.MULTILINE;
-  const config = component.getConfigObject();
+  const config = component && component.getConfigObject();
 
   return (
     <StyledView marginTop={10}>

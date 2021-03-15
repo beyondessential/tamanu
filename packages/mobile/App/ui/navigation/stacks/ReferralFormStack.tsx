@@ -23,6 +23,7 @@ export const ReferralFormStack = ({ route }): ReactElement => {
       initialParams={{
         surveyId,
         selectedPatient,
+        surveyType: 'referral',
       }}
       options={{
         title: 'Add Details',
