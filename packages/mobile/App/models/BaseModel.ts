@@ -66,8 +66,11 @@ export abstract class BaseModel extends BaseEntity {
     flag: 'markedForUpload' | 'markedForSync',
   ) {
     let entity: BaseModel;
-    if (typeof this[parentProperty] === 'string') {
-      entity = await parentModel.findOne({ where: { id: this[parentProperty] } })
+    const parentValue = this[parentProperty];
+    if (typeof parentValue === 'string') {
+      entity = await parentModel.findOne({ where: { id: parentValue } })
+    } else if (typeof parentValue === 'object') {
+      entity = await parentModel.findOne({ where: { id: parentValue.id } })
     } else {
       const thisModel = this.constructor as typeof BaseModel;
       entity = await thisModel
