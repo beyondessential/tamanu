@@ -7,7 +7,9 @@ import {
   Form,
   Field,
   TextField,
+  MultilineTextField,
   SelectField,
+  MultiselectField,
   DateField,
   NullableBooleanField,
   AutocompleteField,
@@ -21,30 +23,44 @@ import { ProgramsPane, ProgramsPaneHeader, ProgramsPaneHeading } from './Program
 import { PatientDisplay } from './PatientDisplay';
 
 const SURVEY_FIELD_TYPES = {
-  INSTRUCTION: 'Instruction',
-  AUTOCOMPLETE: 'Autocomplete',
-  DATE: 'Date',
-  FREETEXT: 'FreeText',
+  TEXT: 'FreeText',
+  MULTILINE: 'Multiline',
   RADIO: 'Radio',
   SELECT: 'Select',
+  MULTI_SELECT: 'MultiSelect',
+  AUTOCOMPLETE: 'Autocomplete',
+  DATE: 'Date',
+  SUBMISSION_DATE: 'SubmissionDate',
+  INSTRUCTION: 'Instruction',
+  NUMBER: 'Number',
   BINARY: 'Binary',
   CHECKBOX: 'Checkbox',
-  NUMBER: 'Number',
+  CALCULATED: 'CalculatedQuestion',
+  CONDITION: 'ConditionQuestion',
   RESULT: 'Result',
-  CALCULATED: 'Calculated',
+  SURVEY_ANSWER: 'SurveyAnswer',
+  SURVEY_RESULT: 'SurveyResult',
+  SURVEY_LINK: 'SurveyLink',
 };
 
 const QUESTION_COMPONENTS = {
-  Instruction: null,
-  Autocomplete: AutocompleteField,
-  Date: DateField,
-  FreeText: TextField,
-  Radio: SelectField,
-  Select: SelectField,
-  Binary: NullableBooleanField,
-  Checkbox: NullableBooleanField,
-  Number: NumberField,
-  default: TextField,
+  [SURVEY_FIELD_TYPES.TEXT]: TextField,
+  [SURVEY_FIELD_TYPES.MULTILINE]: MultilineTextField,
+  [SURVEY_FIELD_TYPES.RADIO]: SelectField, // TODO: Implement proper radio field.
+  [SURVEY_FIELD_TYPES.SELECT]: SelectField,
+  [SURVEY_FIELD_TYPES.MULTI_SELECT]: MultiselectField,
+  [SURVEY_FIELD_TYPES.AUTOCOMPLETE]: AutocompleteField,
+  [SURVEY_FIELD_TYPES.DATE]: DateField,
+  [SURVEY_FIELD_TYPES.SUBMISSION_DATE]: DateField,
+  [SURVEY_FIELD_TYPES.NUMBER]: NumberField,
+  [SURVEY_FIELD_TYPES.BINARY]: NullableBooleanField,
+  [SURVEY_FIELD_TYPES.CHECKBOX]: NullableBooleanField,
+  // [SURVEY_FIELD_TYPES.CALCULATED]: ReadOnlyField,
+  // [SURVEY_FIELD_TYPES.SURVEY_LINK]: SurveyLink,
+  // [SURVEY_FIELD_TYPES.SURVEY_RESULT]: SurveyResult,
+  // [SURVEY_FIELD_TYPES.SURVEY_ANSWER]: SurveyAnswerField,
+  [SURVEY_FIELD_TYPES.INSTRUCTION]: null,
+  // [SURVEY_FIELD_TYPES.RESULT]: null,
 };
 
 function mapOptionsToValues(options) {
@@ -61,11 +77,11 @@ const SurveyQuestion = ({ component }) => {
   const text = component.text || defaultText;
   const options = mapOptionsToValues(component.options || defaultOptions);
 
-  if (type === 'Instruction') {
+  if (type === SURVEY_FIELD_TYPES.INSTRUCTION) {
     return <Text>{text}</Text>;
   }
 
-  const FieldComponent = QUESTION_COMPONENTS[type] || QUESTION_COMPONENTS.default;
+  const FieldComponent = QUESTION_COMPONENTS[type] || QUESTION_COMPONENTS[SURVEY_FIELD_TYPES.TEXT];
 
   return (
     <Field
@@ -110,7 +126,7 @@ const SurveyScreen = ({ components, values, onStepForward, onStepBack }) => {
   const questionElements = components
     .filter(c => checkVisibility(c, values, components))
     .map(c => <SurveyQuestion component={c} key={c.id} />);
-
+  console.log('values', values)
   return (
     <FormGrid columns={1}>
       {questionElements}
