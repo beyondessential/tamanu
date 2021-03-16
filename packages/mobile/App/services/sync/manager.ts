@@ -21,14 +21,14 @@ type Timestamp = number;
 const UPLOAD_LIMIT = 100;
 const INITIAL_DOWNLOAD_LIMIT = 100;
 const MIN_DOWNLOAD_LIMIT = 1;
-const MAX_DOWNLOAD_LIMIT = 10000;
+const MAX_DOWNLOAD_LIMIT = 500;
 const OPTIMAL_DOWNLOAD_TIME_PER_PAGE = 2000; // aim for 2 seconds per page
 
-// Set the current batch size based on how long the previous batch took to complete.
+// Set the current page size based on how long the previous page took to complete.
 const calculateDynamicLimit = (currentLimit, downloadTime) => {
     const durationPerRecord = downloadTime / currentLimit;
-    const optimalBatchSize = OPTIMAL_DOWNLOAD_TIME_PER_PAGE / durationPerRecord;
-    let newLimit = optimalBatchSize;
+    const optimalPageSize = OPTIMAL_DOWNLOAD_TIME_PER_PAGE / durationPerRecord;
+    let newLimit = optimalPageSize;
 
     newLimit = Math.floor(newLimit);
     newLimit = Math.max(
@@ -200,7 +200,6 @@ export class SyncManager {
         // wait for the current page download to complete
         const response = await downloadTask;
         const downloadTime = Date.now() - startTime;
-        limit = calculateDynamicLimit(limit, downloadTime);
 
         if (response === null) {
           // ran into an error
@@ -221,7 +220,8 @@ export class SyncManager {
         importTask = importRecords(response.records);
         requestedAt = requestedAt || response.requestedAt;
 
-        offset += limit;
+        offset += response.records.length;
+        limit = calculateDynamicLimit(limit, downloadTime);
       }
       await importTask; // wait for any final import task to finish
     } catch (e) {

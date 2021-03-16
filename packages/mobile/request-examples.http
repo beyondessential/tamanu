@@ -1,3 +1,17 @@
+### Login
+POST https://sync-dev.tamanu.io/v1/login
+Content-Type: application/json
+
+{
+  "email": "",
+  "password": ""
+}
+
+### Retrieve first 100 patient records for sync
+GET https://sync-dev.tamanu.io/v1/sync/patient?since=0&offset=0&limit=100
+Authorization: Bearer fake-token
+Accept: application/json
+
 # Get all surveys
 GET https://sync-dev.tamanu.io/v1/sync/survey?since=1614690000000   HTTP/1.1
 Content-Type: application/json
@@ -13,21 +27,21 @@ Authorization: Bearer fake-token
 Content-Type: application/json
 
 [
-  { 
+  {
     "recordType": "survey",
     "data": {
       "id": "program-referral_forms/survey-cvd_referral",
       "programId": "program-hidden_forms"
     }
   },
-  { 
+  {
     "recordType": "survey",
     "data": {
       "id": "program-referral_forms/survey-bcp_referral",
       "programId": "program-hidden_forms"
     }
   },
-  { 
+  {
     "recordType": "survey",
     "data": {
       "id": "program-referral_forms/survey-ccp_referral",
