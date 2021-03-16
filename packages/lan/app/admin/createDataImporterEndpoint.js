@@ -42,7 +42,11 @@ export function createDataImporterEndpoint(importer) {
     // sync to server
     if(!dryRun) {
       for(const [k, v] of Object.entries(recordsByType)) {
-        await sendSyncRequest(k, v);
+        if(k === 'referenceData') {
+          await sendSyncRequest('reference', v);
+        } else {
+          await sendSyncRequest(k, v);
+        }
       }
     }
 
