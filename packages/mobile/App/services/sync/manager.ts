@@ -19,8 +19,28 @@ export type SyncManagerOptions = {
 type Timestamp = number;
 
 const UPLOAD_LIMIT = 100;
-const DOWNLOAD_LIMIT = 100;
+const INITIAL_DOWNLOAD_LIMIT = 100;
+const MIN_DOWNLOAD_LIMIT = 1;
+const MAX_DOWNLOAD_LIMIT = 10000;
+const OPTIMAL_DOWNLOAD_TIME_PER_PAGE = 2000; // aim for 2 seconds per page
 
+// Set the current batch size based on how long the previous batch took to complete.
+const calculateDynamicLimit = (currentLimit, downloadTime) => {
+    const durationPerRecord = downloadTime / currentLimit;
+    const optimalBatchSize = OPTIMAL_DOWNLOAD_TIME_PER_PAGE / durationPerRecord;
+    let newLimit = optimalBatchSize;
+
+    newLimit = Math.floor(newLimit);
+    newLimit = Math.max(
+      newLimit,
+      MIN_DOWNLOAD_LIMIT,
+    );
+    newLimit = Math.min(
+      newLimit,
+      MAX_DOWNLOAD_LIMIT,
+    );
+    return newLimit;
+}
 export class SyncManager {
   isSyncing = false;
 
@@ -110,13 +130,13 @@ export class SyncManager {
   }
 
   async downloadAndImport(model: typeof BaseModel, channel: string, since: Timestamp): Promise<Timestamp> {
-    const downloadPage = (pageNumber: number): Promise<DownloadRecordsResponse> => {
-      this.emitter.emit('downloadingPage', `${channel}-${pageNumber}`);
+    const downloadPage = (offset: number, limit: number): Promise<DownloadRecordsResponse> => {
+      this.emitter.emit('downloadingPage', `${channel}-offset-${offset}-limit-${limit}`);
       return this.syncSource.downloadRecords(
         channel,
         since,
-        pageNumber,
-        DOWNLOAD_LIMIT,
+        offset,
+        limit,
       );
     };
 
@@ -163,20 +183,24 @@ export class SyncManager {
 
     try {
       let importTask: Promise<void>;
-      let page = 0;
+      let offset = 0;
+      let limit = INITIAL_DOWNLOAD_LIMIT;
       this.emitter.emit('importStarted', channel);
       while (true) {
         // We want to download each page of records while the current page
         // of records is being imported - this means that the database IO
         // and network IO are running in parallel rather than running in
         // alternating sequence.
-        const downloadTask = downloadPage(page);
+        const startTime = Date.now();
+        const downloadTask = downloadPage(offset, limit);
 
         // wait for import task to complete before progressing in loop
         await importTask;
 
         // wait for the current page download to complete
         const response = await downloadTask;
+        const downloadTime = Date.now() - startTime;
+        limit = calculateDynamicLimit(limit, downloadTime);
 
         if (response === null) {
           // ran into an error
@@ -193,11 +217,11 @@ export class SyncManager {
         updateProgress(response.records.length, response.count);
 
         // we have records to import - import them
-        this.emitter.emit('importingPage', `${channel}-${page}`);
+        this.emitter.emit('importingPage', `${channel}-offset-${offset}-limit-${limit}`);
         importTask = importRecords(response.records);
         requestedAt = requestedAt || response.requestedAt;
 
-        page += 1;
+        offset += limit;
       }
     } catch (e) {
       console.warn(e);

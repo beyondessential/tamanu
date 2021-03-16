@@ -152,8 +152,8 @@ describe('SyncManager', () => {
         // assert
         expect(mockedSource.downloadRecords).toHaveBeenCalledTimes(2);
 
-        [0, 1].forEach(page => {
-          expect(mockedSource.downloadRecords).toHaveBeenCalledWith(channel, before, page, expect.any(Number));
+        [0, 1].forEach(() => {
+          expect(mockedSource.downloadRecords).toHaveBeenCalledWith(channel, before, expect.any(Number), expect.any(Number));
         });
 
         expect(
