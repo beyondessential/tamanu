@@ -33,6 +33,7 @@
     "@react-navigation/native": "^5.2.4",
     "@react-navigation/stack": "^5.2.6",
     "@reduxjs/toolkit": "^1.2.5",
+    "@sayem314/react-native-keep-awake": "^1.0.4",
     "@storybook/addon-actions": "^5.2.8",
     "@storybook/react-native": "^5.2.8",
     "@testing-library/react-native": "^5.0.3",

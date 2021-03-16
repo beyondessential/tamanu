@@ -1,4 +1,5 @@
 import React, { ReactElement, useCallback, useContext, useEffect, useState } from 'react';
+import { activateKeepAwake, deactivateKeepAwake} from '@sayem314/react-native-keep-awake';
 import { CenterView, StyledText, StyledView } from '/styled/common';
 import { theme } from '/styled/theme';
 import { Button } from '/components/Button';
@@ -34,10 +35,12 @@ export const SyncDataScreen = (props): ReactElement => {
       switch (action) {
         case 'syncStarted':
           setIsSyncing(true);
+          activateKeepAwake(); // don't let the device sleep while syncing
           break;
         case 'syncEnded':
           setIsSyncing(false);
           setFormattedLastSyncTime(formatLastSyncTime(syncManager.lastSyncTime));
+          deactivateKeepAwake();
           break;
         case 'progress':
           setProgress(syncManager.progress);
