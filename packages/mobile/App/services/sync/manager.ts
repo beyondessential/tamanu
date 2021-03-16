@@ -344,7 +344,7 @@ export class SyncManager {
       if (model.shouldExport) {
         await this.exportAndUpload(model, channel);
       }
-      if (requestedAt !== null) {
+      if (requestedAt) {
         await this.updateChannelSyncDate(channel, requestedAt);
       }
     } catch (e) {
