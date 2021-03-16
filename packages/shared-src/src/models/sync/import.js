@@ -1,3 +1,4 @@
+import { Sequelize } from 'sequelize';
 import { memoize, without, pick } from 'lodash';
 import { propertyPathsToTree } from './metadata';
 
