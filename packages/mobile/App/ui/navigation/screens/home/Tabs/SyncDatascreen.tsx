@@ -18,6 +18,7 @@ export const SyncDataScreen = (props): ReactElement => {
 
   const [isSyncing, setIsSyncing] = useState(syncManager.isSyncing);
   const [progress, setProgress] = useState(syncManager.progress);
+  const [channelName, setChannelName] = useState();
   const [formattedLastSyncTime, setFormattedLastSyncTime] = useState(formatLastSyncTime(syncManager.lastSyncTime));
 
   setStatusBar('light-content', theme.colors.MAIN_SUPER_DARK);
@@ -29,7 +30,7 @@ export const SyncDataScreen = (props): ReactElement => {
   const errorDisplayAvailable = true;
 
   useEffect(() => {
-    const handler = (action, ...args) => {
+    const handler = (action, event) => {
       switch (action) {
         case 'syncStarted':
           setIsSyncing(true);
@@ -41,6 +42,12 @@ export const SyncDataScreen = (props): ReactElement => {
         case 'progress':
           setProgress(syncManager.progress);
           break;
+        case 'channelSyncStarted': {
+          const channel = event;
+          const prettyChannel = channel.split(/(?=[A-Z])/).join(' ').toLowerCase(); // e.g. scheduledVaccine -> scheduled vaccine
+          setChannelName(prettyChannel);
+          break;
+        }
         default:
           break;
       }
@@ -71,7 +78,7 @@ export const SyncDataScreen = (props): ReactElement => {
           fontSize={screenPercentageToDP(2.55, Orientation.Height)}
           textAlign="center"
         >
-          {isSyncing ? ('Data Syncing Now') : 'Up to date'}
+          {isSyncing ? (`Syncing ${channelName} data`) : 'Up to date'}
         </StyledText>
         {!isSyncing && formattedLastSyncTime ? (
           <>

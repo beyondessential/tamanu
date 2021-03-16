@@ -40,7 +40,7 @@ export interface SyncSource {
   downloadRecords(
     channel: string,
     since: number,
-    page: number,
+    offset: number,
     limit: number,
   ): Promise<DownloadRecordsResponse | null>;
 
@@ -82,12 +82,12 @@ export class WebSyncSource implements SyncSource {
   async downloadRecords(
     channel: string,
     since: number,
-    page: number,
+    offset: number,
     limit: number,
   ): Promise<DownloadRecordsResponse | null> {
     try {
       // TODO: error handling (incl timeout & token revokation)
-      const url = `${this.path}/sync/${encodeURIComponent(channel)}?since=${since}&page=${page}&limit=${limit}`;
+      const url = `${this.path}/sync/${encodeURIComponent(channel)}?since=${since}&offset=${offset}&limit=${limit}`;
 
       const response = await fetch(url, {
         method: 'GET',
