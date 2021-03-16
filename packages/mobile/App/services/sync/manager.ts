@@ -223,6 +223,7 @@ export class SyncManager {
 
         offset += limit;
       }
+      await importTask; // wait for any final import task to finish
     } catch (e) {
       console.warn(e);
     }
