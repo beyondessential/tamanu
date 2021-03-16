@@ -1,8 +1,6 @@
 import { log } from '../logging';
 import { readDataDefinition, convertNameToCode } from '~/dataDefinitionImporter';
 
-import { sendSyncRequest } from './sendSyncRequest';
-
 const referenceDataTransformer = type => item => {
   const { name } = item;
   const code = (item.code && `${item.code}`) || convertNameToCode(name);
@@ -51,9 +49,5 @@ export async function importData({ file, dryRun }) {
     .filter(x => x)
     .flat();
 
-  if (dryRun) {
-    console.log(records);
-  } else {
-    await sendSyncRequest('reference', records);
-  }
+  return records;
 }
