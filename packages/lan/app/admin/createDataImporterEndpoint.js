@@ -1,5 +1,5 @@
 import asyncHandler from 'express-async-handler';
-import { unlinkSync } from 'fs';
+import { unlink } from 'fs';
 
 import { getUploadedData } from './getUploadedData';
 import { sendSyncRequest } from './sendSyncRequest';
@@ -22,13 +22,19 @@ export function createDataImporterEndpoint(importer) {
       metadata,
     });
 
+    // we don't need the file any more
+    if(deleteFileAfterImport) {
+      unlink(file);
+    }
+
+    // split up records according to record type
     const recordsByType = records
       .reduce((state, record) => ({
         ...state,
         [record.recordType]: (state[record.recordType] || []).concat([record]),
       }), {});
 
-    // get analytics
+    // get some analytics
     const recordCounts = {};
     Object.entries(recordsByType).map(([k, v]) => {
       recordCounts[k] = v.length;
@@ -39,8 +45,35 @@ export function createDataImporterEndpoint(importer) {
     });
     recordCounts.total = records.length;
 
+    // check for duplicate IDs
+    const erroredRecords = [];
+    Object.keys(recordsByType).map(k => {
+      const ids = new Set();
+      const records = recordsByType[k];
+      records.map(r => {
+        if(ids.has(r.data.id)) {
+          erroredRecords.push({
+            error: 'Duplicate ID',
+            ...r,
+          });
+        } else {
+          ids.add(r.data.id);
+        }
+      });
+    });
+
+    // bail out now if things are broken
+    if(erroredRecords) {
+      res.send({
+        success: false,
+        erroredRecords,
+      });
+      return;
+    }
+
     // sync to server
     if(!dryRun) {
+      // TODO: arrange records in safe import order
       for(const [k, v] of Object.entries(recordsByType)) {
         if(k === 'referenceData') {
           await sendSyncRequest('reference', v);
@@ -50,20 +83,12 @@ export function createDataImporterEndpoint(importer) {
       }
     }
 
-    const results = {
-      recordCounts,
-      duration: (Date.now() - start) / 1000.0,
-    };
-    
     // send outcome
     res.send({ 
       success: true,
-      results,
+      duration: (Date.now() - start) / 1000.0,
+      recordCounts,
     });
 
-    // clean up
-    if(deleteFileAfterImport) {
-      unlinkSync(file);
-    }
   });
 }
