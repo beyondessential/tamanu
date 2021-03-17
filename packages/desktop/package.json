@@ -207,7 +207,7 @@
     "devtron": "^1.4.0",
     "electron-debug": "^2.0.0",
     "faye": "^1.2.4",
-    "formik": "^2.1.2",
+    "formik": "^1.5.2",
     "fs-jetpack": "^2.2.2",
     "history": "^4.7.2",
     "jquery": "^3.3.1",
