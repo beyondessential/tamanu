@@ -88,8 +88,6 @@ export class Encounter extends Model {
       as: 'department',
     });
 
-    this.hasMany(models.Vitals, { as: 'vitals' });
-
     this.hasMany(models.SurveyResponse, {
       foreignKey: 'encounterId',
       as: 'surveyResponses',
