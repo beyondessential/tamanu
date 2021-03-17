@@ -49,7 +49,7 @@ const getActiveFilters = (
   const field = filter[0];
   const activeFilters = { ...filters };
 
-  if (field.name === 'gender' && field.value === 'all') {
+  if (field.name === 'sex' && field.value === 'all') {
     activeFilters.count += 1;
     return activeFilters;
   }
