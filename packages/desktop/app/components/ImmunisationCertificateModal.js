@@ -11,7 +11,7 @@ const DumbImmunisationCertificateModal = ({ getImmunisations, open, onClose, pat
 
   const certificate = <ImmunisationCertificate patient={patient} immunisations={immunisations} />;
   return (
-    <Modal title="Immunisation Certificate" open={open} onClose={onClose} width="md" printable>
+    <Modal title="Vaccination Certificate" open={open} onClose={onClose} width="md" printable>
       {certificate}
     </Modal>
   );
@@ -19,7 +19,7 @@ const DumbImmunisationCertificateModal = ({ getImmunisations, open, onClose, pat
 
 export const ImmunisationCertificateModal = connectApi((api, dispatch, { patient }) => ({
   async getImmunisations() {
-    const response = await api.get(`patient/${patient.id}/immunisations`);
+    const response = await api.get(`patient/${patient.id}/administeredVaccine`);
     return response.data;
   },
 }))(DumbImmunisationCertificateModal);
