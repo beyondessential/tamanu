@@ -80,6 +80,11 @@ async function localLogin(models, email, password) {
 }
 
 async function remoteLoginWithLocalFallback(models, email, password) {
+  // always log in locally when testing
+  if(process.env.NODE_ENV === 'test') {
+    return await localLogin(models, email, password);
+  }
+
   try {
     return await remoteLogin(models, email, password);
   } catch(e) {
