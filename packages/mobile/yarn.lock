@@ -1753,6 +1753,11 @@
   dependencies:
     any-observable "^0.3.0"
 
+"@sayem314/react-native-keep-awake@^1.0.4":
+  version "1.0.4"
+  resolved "https://registry.yarnpkg.com/@sayem314/react-native-keep-awake/-/react-native-keep-awake-1.0.4.tgz#b50479e01aa33519797e1fb36717f504a7829135"
+  integrity sha512-P88tiTDzVyT/323Ipx8j+q5Ua3U2X+EX+6YK3ibp2FLtvDlj8TZ/kmlCQTPOCzJyNQSA4+y6EXy0zJSgLZtuLQ==
+
 "@sinonjs/commons@^1.7.0":
   version "1.8.1"
   resolved "https://registry.yarnpkg.com/@sinonjs/commons/-/commons-1.8.1.tgz#e7df00f98a203324f6dc7cc606cad9d4a8ab2217"

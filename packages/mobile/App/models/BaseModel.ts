@@ -127,6 +127,7 @@ export abstract class BaseModel extends BaseEntity {
     'createdAt',
     'updatedAt',
     'markedForUpload',
+    'markedForSync',
     'uploadedAt',
   ];
 

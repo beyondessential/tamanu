@@ -10,6 +10,7 @@ import { FormScreenView } from '../FormScreenView';
 
 import { ErrorBoundary } from '~/ui/components/ErrorBoundary';
 import { TouchableWithoutFeedback } from 'react-native-gesture-handler';
+import { Orientation, screenPercentageToDP } from '~/ui/helpers/screen';
 
 const SurveyQuestionErrorView = ({ error }) => (
   <TouchableWithoutFeedback onPress={() => console.warn(error)}>
@@ -66,7 +67,7 @@ export const FormFields = ({
           </SectionHeader>
           { 
             component.detail
-              ? <StyledText marginTop={4} fontSize={12}>{component.detail}</StyledText>
+              ? <StyledText marginTop={4} fontSize={screenPercentageToDP('2.2', Orientation.Height)}>{component.detail}</StyledText>
               : null
           }
           <ErrorBoundary errorComponent={SurveyQuestionErrorView}>

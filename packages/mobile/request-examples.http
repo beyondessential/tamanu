@@ -1,5 +1,9 @@
+@server = https://sync-dev.tamanu.io
+@token = {{login.response.body.token}}
+
 ### Login
-POST https://sync-dev.tamanu.io/v1/login
+# @name login
+POST {{server}}/v1/login
 Content-Type: application/json
 
 {
@@ -8,22 +12,22 @@ Content-Type: application/json
 }
 
 ### Retrieve first 100 patient records for sync
-GET https://sync-dev.tamanu.io/v1/sync/patient?since=0&offset=0&limit=100
-Authorization: Bearer fake-token
+GET {{server}}/v1/sync/patient?since=0&offset=0&limit=100
+Authorization: Bearer {{token}}
 Accept: application/json
 
-# Get all surveys
-GET https://sync-dev.tamanu.io/v1/sync/survey?since=1614690000000   HTTP/1.1
+### Get all surveys
+GET {{server}}/v1/sync/survey?since=1614690000000   HTTP/1.1
 Content-Type: application/json
-Authorization: Bearer fake-token
+Authorization: Bearer {{token}}
 
 []
 
 ###
 
 # update an existing survey screen component
-POST https://sync-dev.tamanu.io/v1/sync/survey HTTP/1.1
-Authorization: Bearer fake-token
+POST {{server}}/v1/sync/survey HTTP/1.1
+Authorization: Bearer {{token}}
 Content-Type: application/json
 
 [
