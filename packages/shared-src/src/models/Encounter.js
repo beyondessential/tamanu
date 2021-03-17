@@ -1,7 +1,7 @@
 import { Sequelize } from 'sequelize';
 import { ENCOUNTER_TYPES, ENCOUNTER_TYPE_VALUES, NOTE_TYPES, SYNC_DIRECTIONS } from 'shared/constants';
 import { InvalidOperationError } from 'shared/errors';
-import { patientChannelMixin } from './sync';
+import { extendClassWithPatientChannel } from './sync';
 import { Model } from './Model';
 
 export class Encounter extends Model {
@@ -201,4 +201,4 @@ export class Encounter extends Model {
   static syncDirection = SYNC_DIRECTIONS.BIDIRECTIONAL;
 }
 
-Object.assign(Encounter, patientChannelMixin('encounter'));
+Object.assign(Encounter, extendClassWithPatientChannel('encounter'));

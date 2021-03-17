@@ -1,6 +1,6 @@
 import { Sequelize } from 'sequelize';
 import { SYNC_DIRECTIONS } from 'shared/constants';
-import { patientChannelMixin } from './sync';
+import { extendClassWithPatientChannel } from './sync';
 import { Model } from './Model';
 
 export class PatientAllergy extends Model {
@@ -28,4 +28,4 @@ export class PatientAllergy extends Model {
   static syncDirection = SYNC_DIRECTIONS.BIDIRECTIONAL;
 }
 
-Object.assign(PatientAllergy, patientChannelMixin('allergy'));
+Object.assign(PatientAllergy, extendClassWithPatientChannel('allergy'));

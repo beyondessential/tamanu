@@ -1,4 +1,4 @@
-export const patientChannelMixin = name => {
+export const extendClassWithPatientChannel = name => {
   const channelRegex = new RegExp(`patient\/([^\/]+)\/${name}`);
   return {
     async getChannels() {
