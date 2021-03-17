@@ -66,7 +66,14 @@ function AdministeredVaccineSchedule(props) {
 }
 
 export const ImmunisationForm = React.memo(
-  ({ onCancel, onSubmit, practitionerSuggester, facilitySuggester, getScheduledVaccines }) => {
+  ({
+    onCancel,
+    onSubmit,
+    practitionerSuggester,
+    facilitySuggester,
+    departmentSuggester,
+    getScheduledVaccines,
+  }) => {
     const [vaccineOptions, setVaccineOptions] = useState([]);
     const [category, setCategory] = useState();
     const [vaccineLabel, setVaccineLabel] = useState();
@@ -177,6 +184,13 @@ export const ImmunisationForm = React.memo(
               component={AutocompleteField}
               suggester={facilitySuggester}
               required
+            />
+            <Field
+              name="departmentId"
+              label="Department"
+              required
+              component={AutocompleteField}
+              suggester={departmentSuggester}
             />
             <Field name="batch" label="Batch" component={TextField} required />
             <ConfirmCancelRow

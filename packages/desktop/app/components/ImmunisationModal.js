@@ -16,6 +16,7 @@ const DumbImmunisationModal = React.memo(
     onClose,
     onCreateImmunisation,
     facilitySuggester,
+    departmentSuggester,
     getScheduledVaccines,
   }) => {
     return (
@@ -26,6 +27,7 @@ const DumbImmunisationModal = React.memo(
           practitionerSuggester={practitionerSuggester}
           facilitySuggester={facilitySuggester}
           vaccineSuggester={vaccineSuggester}
+          departmentSuggester={departmentSuggester}
           getScheduledVaccines={getScheduledVaccines}
         />
       </Modal>
@@ -41,6 +43,7 @@ export const ImmunisationModal = connectApi((api, dispatch, { patientId }) => ({
   practitionerSuggester: new Suggester(api, 'practitioner'),
   facilitySuggester: new Suggester(api, 'facility'),
   vaccineSuggester: new Suggester(api, 'vaccine'),
+  departmentSuggester: new Suggester(api, 'department'),
   getScheduledVaccines: async query => {
     return await api.get(`patient/${patientId}/scheduledVaccine`, query);
   },

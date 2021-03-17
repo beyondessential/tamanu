@@ -77,23 +77,14 @@ patientVaccineRoutes.post(
     if (!req.body.scheduledVaccineId) {
       res.status(400).send({ error: { message: 'scheduledVaccineId is required' } });
     }
-    const EPIDepartment = await req.models.ReferenceData.findOne({
-      where: {
-        type: REFERENCE_TYPES.DEPARTMENT,
-        code: 'EPI',
-      },
-    });
-    if (!EPIDepartment) {
-      res.status(500).send({ error: { message: "Couldn't find EPI Program" } });
-      return;
-    }
+ 
     const encounter = await req.models.Encounter.create({
       encounterType: ENCOUNTER_TYPES.CLINIC,
       startDate: req.body.date,
       patientId: req.params.id,
       locationId: req.body.locationId,
       examinerId: req.body.examinerId,
-      departmentId: EPIDepartment.get('id'),
+      departmentId: req.body.departmentId,
     });
     const newRecord = await req.models.AdministeredVaccine.create({
       ...req.body,
