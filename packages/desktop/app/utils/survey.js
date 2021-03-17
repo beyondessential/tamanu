@@ -1,4 +1,5 @@
 import { create, all as allMath } from 'mathjs';
+import { inRange } from 'lodash';
 
 import {
   TextField,
@@ -9,6 +10,8 @@ import {
   NullableBooleanField,
   AutocompleteField,
   NumberField,
+  InstructionTextField,
+  ReadOnlyTextField,
 } from 'desktop/app/components/Field';
 
 export const SURVEY_FIELD_TYPES = {
@@ -35,7 +38,7 @@ export const SURVEY_FIELD_TYPES = {
 export const QUESTION_COMPONENTS = {
   [SURVEY_FIELD_TYPES.TEXT]: TextField,
   [SURVEY_FIELD_TYPES.MULTILINE]: MultilineTextField,
-  [SURVEY_FIELD_TYPES.RADIO]: SelectField, // TODO: Implement proper radio field.
+  [SURVEY_FIELD_TYPES.RADIO]: SelectField, // TODO: Implement proper radio field?
   [SURVEY_FIELD_TYPES.SELECT]: SelectField,
   [SURVEY_FIELD_TYPES.MULTI_SELECT]: MultiselectField,
   [SURVEY_FIELD_TYPES.AUTOCOMPLETE]: AutocompleteField,
@@ -44,12 +47,12 @@ export const QUESTION_COMPONENTS = {
   [SURVEY_FIELD_TYPES.NUMBER]: NumberField,
   [SURVEY_FIELD_TYPES.BINARY]: NullableBooleanField,
   [SURVEY_FIELD_TYPES.CHECKBOX]: NullableBooleanField,
-  // [SURVEY_FIELD_TYPES.CALCULATED]: ReadOnlyField,
+  [SURVEY_FIELD_TYPES.CALCULATED]: ReadOnlyTextField,
   // [SURVEY_FIELD_TYPES.SURVEY_LINK]: SurveyLink,
   // [SURVEY_FIELD_TYPES.SURVEY_RESULT]: SurveyResult,
   // [SURVEY_FIELD_TYPES.SURVEY_ANSWER]: SurveyAnswerField,
-  [SURVEY_FIELD_TYPES.INSTRUCTION]: null,
-  // [SURVEY_FIELD_TYPES.RESULT]: null,
+  [SURVEY_FIELD_TYPES.INSTRUCTION]: InstructionTextField,
+  [SURVEY_FIELD_TYPES.RESULT]: null,
 };
 
 export function mapOptionsToValues(options) {
@@ -83,12 +86,14 @@ export function checkVisibility(
       if (answersEnablingFollowUp.type === 'range') {
         if (!value) return false;
         const { start, end } = answersEnablingFollowUp;
+        console.log({value, start, end})
         
         if (!start) return value < end;
         if (!end) return value >= start;
-        if (inRange(value, parseFloat(start), parseFloat(end))) {
+        if (inRange(parseFloat(value), parseFloat(start), parseFloat(end))) {
           return true;
         }
+        else return false;
       }
 
       return answersEnablingFollowUp.includes(values[questionId]);

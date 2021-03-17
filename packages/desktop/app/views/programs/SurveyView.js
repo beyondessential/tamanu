@@ -26,13 +26,10 @@ const Text = styled.div`
 `;
 
 const SurveyQuestion = ({ component }) => {
-  const { defaultText, type, defaultOptions, detail, code } = component.dataElement;
+  console.log(component)
+  const { defaultText, type, defaultOptions, code } = component.dataElement;
   const text = component.text || defaultText;
   const options = mapOptionsToValues(component.options || defaultOptions);
-
-  if (type === SURVEY_FIELD_TYPES.INSTRUCTION) {
-    return <Text>{text}</Text>;
-  }
 
   const FieldComponent = QUESTION_COMPONENTS[type] || QUESTION_COMPONENTS[SURVEY_FIELD_TYPES.TEXT];
 
@@ -42,7 +39,7 @@ const SurveyQuestion = ({ component }) => {
       component={FieldComponent}
       name={code}
       options={options}
-      helperText={detail}
+      helperText={component.detail}
     />
   );
 };
@@ -96,6 +93,14 @@ const SurveySummaryScreen = ({ onStepBack, onSurveyComplete }) => (
 const SurveyScreenPaginator = ({ survey, values, onSurveyComplete, onCancel, setFieldValue }) => {
   const { components } = survey;
   const [screenIndex, setScreenIndex] = useState(0);
+  useEffect(() => {
+    // recalculate dynamic fields
+    const calculatedValues = runCalculations(components, values);
+    // write values that have changed back into answers
+    Object.entries(calculatedValues)
+    .filter(([k, v]) => values[k] !== v)
+    .map(([k, v]) => setFieldValue(k, v));
+  }, [values]);
 
   const onStepBack = useCallback(() => {
     setScreenIndex(screenIndex - 1);
@@ -105,7 +110,6 @@ const SurveyScreenPaginator = ({ survey, values, onSurveyComplete, onCancel, set
     setScreenIndex(screenIndex + 1);
   }, [screenIndex]);
 
-  
   const maxIndex = components
   .map(x => x.screenIndex)
   .reduce((max, current) => Math.max(max, current), 0);
@@ -113,15 +117,6 @@ const SurveyScreenPaginator = ({ survey, values, onSurveyComplete, onCancel, set
     const screenComponents = components
     .filter(x => x.screenIndex === screenIndex)
     .sort((a, b) => a.componentIndex - b.componentIndex);
-
-    useEffect(() => {
-      // recalculate dynamic fields
-      const calculatedValues = runCalculations(screenComponents, values);
-      // write values that have changed back into answers
-      Object.entries(calculatedValues)
-      .filter(([k, v]) => values[k] !== v)
-      .map(([k, v]) => setFieldValue(k, v));
-    }, [values]);
 
     return (
       <SurveyScreen
