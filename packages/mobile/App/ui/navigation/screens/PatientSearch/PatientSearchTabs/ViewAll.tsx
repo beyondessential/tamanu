@@ -111,7 +111,7 @@ const Screen: FC<ViewAllScreenProps> = ({
 
   const [list, error] = useBackendEffect(
     ({ models }) => applyActiveFilters(models, activeFilters, searchField),
-    [searchField.value]
+    [searchField.value, activeFilters]
   );
 
   const onNavigateToPatientHome = useCallback((patient) => {
