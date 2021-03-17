@@ -18,10 +18,12 @@ import {
 import { Routes } from '/helpers/routes';
 import { ReportScreenProps } from '/interfaces/screens/HomeStack/ReportScreenProps';
 import { format, startOfToday, subDays } from 'date-fns';
+import { Not } from 'typeorm';
 import { useBackendEffect } from '~/ui/hooks';
 import { SummaryBoard } from './SummaryBoard';
 import { BarChartData } from '~/ui/interfaces/BarChartProps';
 import { RecentPatientSurveyReport } from './RecentPatientSurveyReport';
+import { Dropdown } from './components/Dropdown';
 
 interface ReportTypeButtons {
   isReportWeekly: boolean;
@@ -89,10 +91,13 @@ interface ReportChartProps {
     totalSurveys: number;
     encounterDate: string;
   };
+  selectedSurvey: string;
 }
 
-const ReportChart: FC<ReportChartProps> = ({ isReportWeekly, visitData, todayData }) =>
-  (isReportWeekly ? (
+const ReportChart: FC<ReportChartProps> = ({
+  isReportWeekly, visitData, todayData, selectedSurvey,
+}) => (
+  isReportWeekly ? (
     <>
       <StyledView marginBottom={screenPercentageToDP(7.53, Orientation.Height)}>
         <VisitChart visitData={visitData} />
@@ -103,20 +108,26 @@ const ReportChart: FC<ReportChartProps> = ({ isReportWeekly, visitData, todayDat
     </>
   ) : (
     <StyledView marginBottom={screenPercentageToDP(2.43, Orientation.Height)}>
-      <RecentPatientSurveyReport />
+      <RecentPatientSurveyReport selectedSurvey={selectedSurvey}/>
     </StyledView>
-  ));
-
-// TODO: implement selector for survey type.
+  )
+);
 
 export const ReportScreen = ({
   navigation,
 }: ReportScreenProps): ReactElement => {
+  const [selectedSurvey, setSelectedSurvey] = useState('program-cvd-fiji/survey-cvd-risk-fiji');
   const [isReportWeekly, setReportType] = useState<boolean>(true);
   const [data] = useBackendEffect(
-    ({ models }) => models.Encounter.getTotalEncountersAndResponses('program-cvd-fiji/survey-cvd-risk-fiji'),
-    [],
+    ({ models }) => models.Encounter.getTotalEncountersAndResponses(selectedSurvey),
+    [selectedSurvey],
   );
+
+  const [surveys] = useBackendEffect(({ models }) => models.Survey.find({
+    program: Not('program-referral_forms'),
+  }));
+
+  const reportList = surveys?.map((s) => ({ label: s.name, value: s.id }));
 
   const today = startOfToday();
   const todayString = format(today, 'yyyy-MM-dd');
@@ -125,8 +136,7 @@ export const ReportScreen = ({
   const visitData = new Array(28).fill('').reduce(
     (accum, _, index) => {
       const currentDate = format(subDays(today, 28 - index - 1), 'yyyy-MM-dd');
-      const receivedValueForDay =
-        data?.find((item) => item.encounterDate === currentDate)
+      const receivedValueForDay = data?.find((item) => item.encounterDate === currentDate)
           ?.totalEncounters || 0;
 
       return {
@@ -185,23 +195,32 @@ export const ReportScreen = ({
             onPress={navigateToExportData}
           />
         </RowView>
-        <StyledView flex={1} justifyContent="flex-end">
+        <StyledView flexDirection="row" justifyContent="flex-start" alignItems="center" flex={1}>
           <StyledText
             marginTop={screenPercentageToDP(2.43, Orientation.Height)}
             fontWeight="bold"
             color={theme.colors.WHITE}
             fontSize={screenPercentageToDP(3.4, Orientation.Height)}
-            marginBottom={screenPercentageToDP(3.64, Orientation.Height)}
           >
             Reports
           </StyledText>
+          {
+            reportList
+            && (
+              <Dropdown
+                options={reportList}
+                handleSelect={(value): void => { setSelectedSurvey(value); }}
+                selectedItem={selectedSurvey}
+              />
+            )
+          }
         </StyledView>
       </StyledSafeAreaView>
       <ReportTypeButtons
         onPress={onChangeReportType}
         isReportWeekly={isReportWeekly}
       />
-      <ReportChart isReportWeekly={isReportWeekly} visitData={visitData} todayData={todayData} />
+      <ReportChart isReportWeekly={isReportWeekly} visitData={visitData} todayData={todayData} selectedSurvey={selectedSurvey} />
     </FullView>
   );
 };

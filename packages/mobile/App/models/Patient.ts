@@ -115,7 +115,18 @@ export class Patient extends BaseModel implements IPatient {
       .addSelect('count(distinct encounter.patientId)', 'totalVisitors')
       .addSelect('count(distinct surveyResponse.encounterId)', 'totalSurveys')
       .leftJoin('patient.encounters', 'encounter')
-      .leftJoin('encounter.surveyResponses', 'surveyResponse')
+      .leftJoin(
+        (subQuery) => subQuery
+          .select('surveyResponse.id', 'id')
+          .addSelect('surveyResponse.encounterId', 'encounterId')
+          .from('survey_response', 'surveyResponse')
+          .where(
+            'surveyResponse.surveyId = :surveyId',
+            { surveyId },
+          ),
+        'surveyResponse',
+        '"surveyResponse"."encounterId" = encounter.id',
+      )
       .where("encounter.startDate >= datetime(:date, 'unixepoch')", {
         date: formatDateForQuery(date),
       })
@@ -127,7 +138,18 @@ export class Patient extends BaseModel implements IPatient {
       .select('count(distinct encounter.patientId)', 'totalVisitors')
       .addSelect('count(distinct surveyResponse.encounterId)', 'totalSurveys')
       .leftJoin('patient.encounters', 'encounter')
-      .leftJoin('encounter.surveyResponses', 'surveyResponse')
+      .leftJoin(
+        (subQuery) => subQuery
+          .select('surveyResponse.id', 'id')
+          .addSelect('surveyResponse.encounterId', 'encounterId')
+          .from('survey_response', 'surveyResponse')
+          .where(
+            'surveyResponse.surveyId = :surveyId',
+            { surveyId },
+          ),
+        'surveyResponse',
+        '"surveyResponse"."encounterId" = encounter.id',
+      )
       .where("encounter.startDate >= datetime(:date, 'unixepoch')", {
         date: formatDateForQuery(date),
       })
