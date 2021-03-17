@@ -94,6 +94,7 @@ export class Model extends sequelize.Model {
     'createdAt',
     'updatedAt',
     'markedForPush',
+    'markedForSync',
   ];
 
   // determines whether a mdoel will be pushed, pulled, both, or neither
