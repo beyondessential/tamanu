@@ -7,10 +7,21 @@ export const Sequelize = sequelize.Sequelize;
 
 const firstLetterLowercase = s => (s[0] || '').toLowerCase() + s.slice(1);
 
+// write a migration when adding to this list (e.g. 005_markedForPush.js)
+const MARKED_FOR_PUSH_MODELS = [
+  'Encounter',
+  'Patient',
+  'PatientAllergy',
+  'PatientCarePlan',
+  'PatientCondition',
+  'PatientFamilyHistory',
+  'PatientIssue',
+];
+
 export class Model extends sequelize.Model {
   static init(originalAttributes, { syncClientMode, ...options }) {
     const attributes = { ...originalAttributes };
-    if (syncClientMode && shouldPush(this)) {
+    if (MARKED_FOR_PUSH_MODELS.includes(this.name)) {
       attributes.markedForPush = {
         type: Sequelize.BOOLEAN,
         allowNull: false,
