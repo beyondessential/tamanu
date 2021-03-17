@@ -144,6 +144,9 @@ export const PROGRAM_DATA_ELEMENT_TYPE_VALUES = [
   'Arithmetic',
   'Condition',
   'Result',
+  'SurveyLink',
+  'SurveyAnswer',
+  'SurveyResult',
   // For later versions
   'Autocomplete',
   'Photo',

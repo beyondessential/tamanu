@@ -22,7 +22,7 @@ syncRoutes.get(
 
     const { store, query, params } = req;
     const { channel } = params;
-    const { since, limit = '100', page = '0' } = query;
+    const { since, limit = '100', page = '0', offset = '0' } = query;
 
     if (!since) {
       throw new InvalidParameterError('Sync GET request must include a "since" parameter');
@@ -31,7 +31,8 @@ syncRoutes.get(
     const count = await store.countSince(channel, since);
 
     const limitNum = parseInt(limit, 10) || undefined;
-    const offsetNum = limitNum ? parseInt(page, 10) * limit : undefined;
+    const pageBasedOffsetNum = limitNum ? parseInt(page, 10) * limit : undefined;
+    const offsetNum = parseInt(offset, 10) || pageBasedOffsetNum;
 
     await store.withModel(channel, async model => {
       const plan = createExportPlan(model);

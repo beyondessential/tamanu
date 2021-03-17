@@ -14,7 +14,7 @@ export class ImagingRequest extends Model {
         id: primaryKey,
 
         status: {
-          type: Sequelize.ENUM(Object.values(ALL_IMAGING_REQUEST_STATUS_TYPES)),
+          type: Sequelize.ENUM(ALL_IMAGING_REQUEST_STATUS_TYPES),
           allowNull: false,
           defaultValue: IMAGING_REQUEST_STATUS_TYPES.PENDING,
         },
