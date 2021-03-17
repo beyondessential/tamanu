@@ -38,6 +38,60 @@ async function comparePassword(user, password) {
   }
 }
 
+async function remoteLogin(models, email, password) {
+  // try logging in to sync server
+  const remote = new WebRemote();
+  const response = await remote.fetch('login', {
+    awaitConnection: false,
+    retryAuth: false,
+    method: 'POST',
+    body: {
+      email,
+      password,
+    }
+  });
+
+  // we've logged in as a valid remote user - update local database to match
+  const { user } = response;
+  const { id, ...userDetails } = user;
+  await models.User.upsert(
+    {
+      ...userDetails,
+      password,
+    },
+    { where: { id } }
+  );
+
+  const token = getToken(user);
+  return { token, remote: true };
+}
+
+async function localLogin(models, email, password) {
+  // some other error in communicating with sync server, revert to local login
+  const user = await models.User.scope('withPassword').findOne({ where: { email } });
+  const passwordMatch = await comparePassword(user, password);
+
+  if (!passwordMatch) {
+    throw new BadAuthenticationError('Incorrect username or password, please try again');
+  }
+
+  const token = getToken(user);
+  return { token, remote: false };
+}
+
+async function remoteLoginWithLocalFallback(models, email, password) {
+  try {
+    return await remoteLogin(models, email, password);
+  } catch(e) {
+    if(e.name === 'BadAuthenticationError') {
+      // actual bad credentials server-side
+      throw new BadAuthenticationError('Incorrect username or password, please try again');
+    }
+
+    return await localLogin(models, email, password);
+  }
+}
+
 export async function loginHandler(req, res, next) {
   const { body, models } = req;
   const { email, password } = body;
@@ -45,52 +99,11 @@ export async function loginHandler(req, res, next) {
   // no permission needed for login
   req.flagPermissionChecked();
 
-
   try {
-    // try logging in to sync server
-    const remote = new WebRemote();
-    const response = await remote.fetch('/login', {
-      awaitConnection: false,
-      retryAuth: false,
-      method: 'POST',
-      body: {
-        email,
-        password,
-      }
-    });
-
-    // we've logged in as a valid remote user - update local database to match
-    const { user } = response;
-    const { id, ...userDetails } = user;
-    await models.User.upsert(
-      {
-        ...userDetails,
-        password,
-      },
-      { where: { id } }
-    );
-
-    const token = getToken(user);
-    res.send({ token, remote: true });
-
+    const response = await remoteLoginWithLocalFallback(models, email, password);
+    res.send(response);
   } catch(e) {
-    if(e.name === 'BadAuthenticationError') {
-      // actual bad credentials server-side
-      next(new BadAuthenticationError('Incorrect username or password, please try again'));
-      return;
-    }
-
-    // some other error in communicating with sync server, revert to local login
-    const user = await models.User.scope('withPassword').findOne({ where: { email } });
-    const passwordMatch = await comparePassword(user, password);
-
-    if (!passwordMatch) {
-      next(new BadAuthenticationError('Incorrect username or password, please try again'));
-      return;
-    }
-
-    const token = getToken(user);
-    res.send({ token, remote: false });
+    next(e);
   }
 }
 
