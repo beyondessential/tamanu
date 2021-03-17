@@ -1,7 +1,8 @@
-import React, { useCallback, useState } from 'react';
+import React, { useCallback, useState, useEffect } from 'react';
 import styled from 'styled-components';
 import Alert from '@material-ui/lab/Alert';
 import { Typography } from '@material-ui/core';
+import { setFieldValue } from 'formik';
 
 import {
   Form,
@@ -18,6 +19,7 @@ import {
 import { FormGrid } from 'desktop/app/components/FormGrid';
 import { Button, OutlinedButton } from 'desktop/app/components/Button';
 import { ButtonRow } from 'desktop/app/components/ButtonRow';
+import { runCalculations } from 'desktop/app/utils';
 
 import { ProgramsPane, ProgramsPaneHeader, ProgramsPaneHeading } from './ProgramsPane';
 import { PatientDisplay } from './PatientDisplay';
@@ -126,7 +128,7 @@ const SurveyScreen = ({ components, values, onStepForward, onStepBack }) => {
   const questionElements = components
     .filter(c => checkVisibility(c, values, components))
     .map(c => <SurveyQuestion component={c} key={c.id} />);
-  console.log('values', values)
+
   return (
     <FormGrid columns={1}>
       {questionElements}
@@ -176,13 +178,25 @@ const SurveyScreenPaginator = ({ survey, values, onSurveyComplete, onCancel }) =
     setScreenIndex(screenIndex + 1);
   }, [screenIndex]);
 
+  
   const maxIndex = components
-    .map(x => x.screenIndex)
-    .reduce((max, current) => Math.max(max, current), 0);
+  .map(x => x.screenIndex)
+  .reduce((max, current) => Math.max(max, current), 0);
   if (screenIndex <= maxIndex) {
     const screenComponents = components
-      .filter(x => x.screenIndex === screenIndex)
-      .sort((a, b) => a.componentIndex - b.componentIndex);
+    .filter(x => x.screenIndex === screenIndex)
+    .sort((a, b) => a.componentIndex - b.componentIndex);
+
+    useEffect(() => {
+      // recalculate dynamic fields
+      const calculatedValues = runCalculations(screenComponents, values);
+  
+      // write values that have changed back into answers
+      Object.entries(calculatedValues)
+        .filter(([k, v]) => values[k] !== v)
+        .map(([k, v]) => (k, v));
+    }, [values]);
+
     return (
       <SurveyScreen
         values={values}
@@ -220,14 +234,19 @@ export const SurveyView = ({ survey, onSubmit, onCancel }) => {
     setSurveyCompleted(true);
   });
 
-  const renderSurvey = useCallback(({ submitForm, values }) => (
-    <SurveyScreenPaginator
-      survey={survey}
-      values={values}
-      onSurveyComplete={submitForm}
-      onCancel={onCancel}
-    />
-  ));
+  
+  const renderSurvey = ({ submitForm, values }) => {
+
+    
+    return (
+      <SurveyScreenPaginator
+        survey={survey}
+        values={values}
+        onSurveyComplete={submitForm}
+        onCancel={onCancel}
+      />
+    );
+  }
 
   const surveyContents = surveyCompleted ? (
     <SurveyCompletedMessage onResetClicked={onCancel} />
