@@ -1,4 +1,4 @@
-import { Entity, Column, ManyToOne, RelationId } from 'typeorm/browser';
+import { Entity, Column, ManyToOne, RelationId, BeforeInsert, BeforeUpdate } from 'typeorm/browser';
 import { BaseModel } from './BaseModel';
 import { IDiagnosis, Certainty } from '~/types';
 import { Encounter } from './Encounter';
@@ -24,6 +24,12 @@ export class Diagnosis extends BaseModel implements IDiagnosis {
   encounter: Encounter;
   @RelationId(({ encounter }) => encounter)
   encounterId?: string;
+
+  @BeforeInsert()
+  @BeforeUpdate()
+  async markEncounterForUpload() {
+    await this.markParent(Encounter, 'encounter', 'markedForUpload');
+  }
 
   static async getForPatient(patientId: string): Promise<Diagnosis[]> {
     return this.getRepository()

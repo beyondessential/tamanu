@@ -14,6 +14,7 @@ import { BaseModel, FindMarkedForUploadOptions } from './BaseModel';
 import { IEncounter, EncounterType, ReferenceDataType } from '~/types';
 import { Patient } from './Patient';
 import { Diagnosis } from './Diagnosis';
+import { Medication } from './Medication';
 import { ReferenceData, ReferenceDataRelation } from './ReferenceData';
 import { AdministeredVaccine } from './AdministeredVaccine';
 import { SurveyResponse } from './SurveyResponse';
@@ -72,6 +73,9 @@ export class Encounter extends BaseModel implements IEncounter {
     eager: true,
   })
   diagnoses: Diagnosis[];
+
+  @OneToMany(() => Medication, ({ encounter }) => encounter)
+  medications: Medication[];
 
   @OneToMany(() => Referral, referral => referral.initiatingEncounter)
   initiatedReferrals: Referral[]
@@ -185,6 +189,8 @@ export class Encounter extends BaseModel implements IEncounter {
     'administeredVaccines',
     'surveyResponses',
     'surveyResponses.answers',
+    'diagnoses',
+    'medications',
   ];
 
   // TODO: add examiner
