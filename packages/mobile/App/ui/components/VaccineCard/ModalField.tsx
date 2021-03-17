@@ -5,7 +5,7 @@ import { screenPercentageToDP, Orientation } from '/helpers/screen';
 
 type ModalFieldProps = {
   label: string;
-  value?: string;
+  value: string;
   Icon?: FC<any>;
 };
 

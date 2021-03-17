@@ -25,7 +25,7 @@ export function BaseStory(): ReactElement {
   );
 
   return (
-    <React.Fragment>
+    <>
       {showMessage && (
         <StyledText fontSize={30} color={theme.colors.WHITE}>
           Something called after debouce.
@@ -36,6 +36,6 @@ export function BaseStory(): ReactElement {
         value={text}
         onChange={onChangeText}
       />
-    </React.Fragment>
+    </>
   );
 }

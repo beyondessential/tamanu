@@ -34,7 +34,7 @@ import {
 import { version as AppVersion } from '/root/package.json';
 import { StatusBar, StatusBarStyle } from 'react-native';
 import { useFocusEffect } from '@react-navigation/native';
-import AuthContext from '~/ui/contexts/authContext/AuthContext';
+import AuthContext from '~/ui/contexts/AuthContext';
 import { BaseAppProps } from '~/ui/interfaces/BaseAppProps';
 import { authUserSelector } from '/helpers/selectors';
 
@@ -102,7 +102,7 @@ export const MoreScreen = ({ navigation }: BaseAppProps): ReactElement => {
   );
 
   const signOut = useCallback(() => {
-    authCtx.signOut(navigation);
+    authCtx.signOut();
   }, []);
 
   setStatusBar('dark-content', theme.colors.BACKGROUND_GREY);
@@ -118,7 +118,6 @@ export const MoreScreen = ({ navigation }: BaseAppProps): ReactElement => {
           size={screenPercentageToDP(9.72, Orientation.Height)}
           displayName={user && user.displayName}
           Icon={CameraInCircle}
-          gender={user && user.gender}
         />
         <StyledText
           fontSize={screenPercentageToDP(2.55, Orientation.Height)}
@@ -146,7 +145,7 @@ export const MoreScreen = ({ navigation }: BaseAppProps): ReactElement => {
             fontSize={screenPercentageToDP(1.7, Orientation.Height)}
             color={theme.colors.TEXT_SUPER_DARK}
           >
-            Victoria Hospital
+            {user.facility.name}
           </StyledText>
         </RowView>
         <Button

@@ -1,60 +1,72 @@
-import { Connection, createConnection, getConnectionManager } from 'typeorm';
+import {
+  Connection,
+  createConnection,
+  getConnectionManager,
+  ConnectionOptions,
+} from 'typeorm';
 import { DevSettings } from 'react-native';
-import * as modelsMap from '~/models';
-import { BaseModel } from '~/models/BaseModel';
+import { MODELS_ARRAY, MODELS_MAP } from '~/models/modelsMap';
+import { clear } from '~/services/config';
 
-interface ModelMap {
-  [key: string]: BaseModel,
-}
-
-const MODELS : ModelMap = Object.entries(modelsMap)
-  .reduce((allModelsObject, [modelName, model]) => ({
-    [modelName]: model,
-    ...allModelsObject,
-  }), {});
-
-const MODEL_LIST : BaseModel[] = Object.values(MODELS);
+const LOG_LEVELS = __DEV__ ? [
+  // 'error',
+  // 'query', 
+  'schema' as const,
+] : [];
 
 const CONNECTION_CONFIG = {
   type: 'react-native',
   database: 'tamanu',
   location: 'default',
-  logging: __DEV__ ? ['error', 'query', 'schema']: [],
+  logging: LOG_LEVELS,
   synchronize: false,
-  entities: MODEL_LIST,
-};
+  entities: MODELS_ARRAY,
+} as const;
 
 const TEST_CONNECTION_CONFIG = {
   type: 'sqlite',
-  database: `/tmp/tamanu-mobile-test-${Math.random()}.db`,
-  logging: __DEV__ ? ['error', 'query', 'schema'] : [],
+  database: `/tmp/tamanu-mobile-test-${Date.now()}-${process.env.JEST_WORKER_ID}.db`,
+  logging: false,
+  // logging: LOG_LEVELS,
   synchronize: true,
-  entities: MODEL_LIST,
-};
+  entities: MODELS_ARRAY,
+} as const;
+
+const getConnectionConfig = (): ConnectionOptions => {
+  const isJest = process.env.JEST_WORKER_ID !== undefined;
+  if (isJest) {
+    return TEST_CONNECTION_CONFIG;
+  }
+  return CONNECTION_CONFIG;
+}
 
 class DatabaseHelper {
-
   client: Connection = null;
-  models: ModelMap = MODELS;
+
+  models = MODELS_MAP;
 
   async forceSync(): Promise<any> {
     await this.client.synchronize();
   }
 
   async connect(): Promise<Connection> {
-    if(!this.client) {
+    if (!this.client) {
       await this.createClient();
     }
     return this.client;
   }
 
-  async createClient() {
+  async createClient(): Promise<ConnectionOptions | void> {
     try {
-      this.client = await createConnection(CONNECTION_CONFIG);
+      this.client = await createConnection(getConnectionConfig());
       await this.forceSync();
+
+      // TODO: this is a hack to fix an issue where models can't retrieve the correct connection in
+      // our tests because we're using a mix of typeorm and typeorm/browser
+      MODELS_ARRAY.forEach(m => m.useConnection(<any>this.client));
     } catch (error) {
-      if (error.name === "AlreadyHasActiveConnectionError") {
-        const existentConn = getConnectionManager().get("default");
+      if (error.name === 'AlreadyHasActiveConnectionError') {
+        const existentConn = getConnectionManager().get('default');
         this.client = existentConn;
       } else {
         console.error(error);
@@ -66,8 +78,8 @@ class DatabaseHelper {
 export const Database = new DatabaseHelper();
 
 if (__DEV__) {
-  DevSettings.addMenuItem("Clear database", async () => {
-    Database.client.dropDatabase();
+  DevSettings.addMenuItem('Clear database', async () => {
+    await clear();
     DevSettings.reload();
   });
 }

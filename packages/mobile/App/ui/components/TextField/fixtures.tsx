@@ -1,3 +1,4 @@
+/* eslint-disable react/no-unused-prop-types */
 import React, { useState } from 'react';
 import {
   TextInputMaskOptionProp,
@@ -7,15 +8,19 @@ import { TextField } from './TextField';
 import { MaskedTextField } from './MaskedTextField';
 interface BaseStoryProps {
   label?: string;
-  placeholder?: string;
   error?: string;
-  isOpen?: boolean;
-  required?: boolean;
-  masked?: boolean;
   options?: TextInputMaskOptionProp;
   maskType?: TextInputMaskTypeProp;
   multiline?: boolean;
 }
+
+const defaultBaseStoryProps = {
+  label: '',
+  error: '',
+  options: null,
+  maskType: null,
+  multiline: false,
+};
 
 export function BaseTextFieldStory({
   label,
@@ -36,6 +41,8 @@ export function BaseTextFieldStory({
     />
   );
 }
+
+BaseTextFieldStory.defaultProps = defaultBaseStoryProps;
 
 export function BaseMaskedTextFieldStory({
   label,
@@ -58,3 +65,5 @@ export function BaseMaskedTextFieldStory({
     />
   );
 }
+
+BaseMaskedTextFieldStory.defaultProps = defaultBaseStoryProps;

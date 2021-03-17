@@ -32,12 +32,13 @@ import {
 } from '/navigation/screens/home/Tabs';
 import { screenPercentageToDP, Orientation } from '/helpers/screen';
 import { IconWithSizeProps } from '../../interfaces/WithSizeProps';
+import { ErrorBoundary } from '~/ui/components/ErrorBoundary';
 
 const Tabs = createBottomTabNavigator();
 
 interface TabIconProps {
   Icon: FC<IconWithSizeProps>;
-  focused: boolean;
+  color: string;
 }
 
 export function TabIcon({ Icon, color }: TabIconProps): JSX.Element {
@@ -58,10 +59,12 @@ const TabScreenIcon = (Icon: FC<SvgProps>) => (props: {
 
 const HomeScreenOptions: BottomTabNavigationOptions = {
   tabBarIcon: TabScreenIcon(HomeBottomLogoIcon),
+  tabBarLabel: 'Home',
   tabBarTestID: 'HOME',
 };
 const ReportScreenOptions: BottomTabNavigationOptions = {
   tabBarIcon: TabScreenIcon(BarChartIcon),
+  tabBarLabel: 'Reports',
   tabBarTestID: 'REPORTS',
 };
 const SyncDataScreenOptions: BottomTabNavigationOptions = {
@@ -71,6 +74,7 @@ const SyncDataScreenOptions: BottomTabNavigationOptions = {
 };
 const MoreScreenOptions: BottomTabNavigationOptions = {
   tabBarIcon: TabScreenIcon(MoreMenuIcon),
+  tabBarLabel: 'More',
   tabBarTestID: 'MORE',
 };
 
@@ -100,7 +104,7 @@ function MyTabBar({
 
           const isFocused = state.index === index;
 
-          const onPress = () => {
+          const onPress = (): void => {
             const event = navigation.emit({
               type: 'tabPress',
               target: route.key,
@@ -112,7 +116,7 @@ function MyTabBar({
             }
           };
 
-          const onLongPress = () => {
+          const onLongPress = (): void => {
             navigation.emit({
               type: 'tabLongPress',
               target: route.key,
@@ -120,7 +124,7 @@ function MyTabBar({
           };
 
           return (
-            <StyledView flex={1}>
+            <StyledView key={route.key} flex={1}>
               <StyledTouchableOpacity
                 onPress={onPress}
                 onLongPress={onLongPress}
@@ -132,8 +136,8 @@ function MyTabBar({
                 justifyContent="center"
                 flex={1}
               >
-                {Icon &&
-                  Icon({
+                {Icon
+                  && Icon({
                     focused: isFocused,
                     color: isFocused
                       ? theme.colors.SECONDARY_MAIN
@@ -158,8 +162,8 @@ function MyTabBar({
   );
 }
 
-const TabNavigator = ({ selectedPatient }: BaseAppProps): ReactElement => {
-  return (
+const TabNavigator = ({ selectedPatient }: BaseAppProps): ReactElement => (
+  <ErrorBoundary>
     <Tabs.Navigator tabBar={MyTabBar}>
       <Tabs.Screen
         options={HomeScreenOptions}
@@ -182,7 +186,7 @@ const TabNavigator = ({ selectedPatient }: BaseAppProps): ReactElement => {
         component={MoreScreen}
       />
     </Tabs.Navigator>
-  );
-};
+  </ErrorBoundary>
+);
 
 export const HomeTabsStack = compose(withPatient)(TabNavigator);

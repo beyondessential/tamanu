@@ -7,9 +7,10 @@ import { Field } from '../FormField';
 import { screenPercentageToDP, Orientation } from '/helpers/screen';
 import { FormSectionProps } from '../../../interfaces/FormSectionProps';
 
-export const CauseOfDeathSection = ({ scrollToField }: FormSectionProps) => {
-  return (
-    <React.Fragment>
+export const CauseOfDeathSection = ({
+  scrollToField,
+}: FormSectionProps): JSX.Element => (
+    <>
       <StyledView
         marginBottom={screenPercentageToDP(0.605, Orientation.Height)}
       >
@@ -57,6 +58,5 @@ export const CauseOfDeathSection = ({ scrollToField }: FormSectionProps) => {
           onFocus={scrollToField('placeOfDeath')}
         />
       </StyledView>
-    </React.Fragment>
+    </>
   );
-};

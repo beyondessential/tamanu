@@ -1,14 +1,8 @@
-import React, { useState, useMemo, useCallback } from 'react';
-import { TouchableWithoutFeedback, Platform } from 'react-native';
-import { StyledView, StyledText } from '/styled/common';
-import { theme } from '/styled/theme';
-import { screenPercentageToDP, Orientation } from '/helpers/screen';
+import React, { useState, useCallback, useRef } from 'react';
+import { StyledView } from '/styled/common';
 import { BaseInputProps } from '../../interfaces/BaseInputProps';
-import { InputContainer } from '../TextField/styles';
-import * as Icons from '../Icons';
-import { TextFieldLabel } from '../TextField/TextFieldLabel';
-import { AndroidPicker } from './Picker.android';
-import { IOSPicker } from './Picker.ios';
+import MultiSelect from 'react-native-multiple-select';
+import { theme } from '~/ui/styled/theme';
 
 export interface SelectOption {
   label: string;
@@ -16,103 +10,58 @@ export interface SelectOption {
 }
 
 export interface DropdownProps extends BaseInputProps {
-  options: SelectOption[];
-  onChange: Function;
-  value: string | null;
-  isOpen?: boolean;
-  disabled?: boolean;
+  options?: SelectOption[];
+  onChange?: Function;
+  multiselect?: boolean;
 }
+
 export const Dropdown = React.memo(
   ({
-    value,
-    onChange,
-    error,
     options,
-    label,
-    disabled = false,
-    required = false,
+    onChange,
+    multiselect = false,
   }: DropdownProps) => {
-    const [open, setOpen] = useState(false);
-    const closeModal = useCallback(() => setOpen(false), []);
-    const openModal = useCallback(() => (disabled ? null : setOpen(true)), []);
-    const selectedOption = useMemo(
-      () => options.find(option => option.value === value),
-      [value],
+    const [selectedItems, setSelectedItems] = useState([]);
+    const componentRef = useRef(null);
+    const onSelectedItemsChange = useCallback(
+      (items) => {
+        setSelectedItems(items);
+        onChange(items.join(', ')) // Form submits selected items as comma separated string.
+      },
+      [selectedItems]
     );
+
     return (
-      <React.Fragment>
-        <StyledView
-          height={screenPercentageToDP('6.68', Orientation.Height)}
-          width="100%"
-        >
-          <TouchableWithoutFeedback onPress={openModal}>
-            <InputContainer
-              disabled={disabled}
-              flexDirection="row"
-              hasValue={value !== null}
-              error={error}
-              justifyContent="space-between"
-              paddingLeft={screenPercentageToDP(2.82, Orientation.Width)}
-              alignItems="center"
-            >
-              {label && (
-                <React.Fragment>
-                  <TextFieldLabel
-                    onFocus={disabled ? closeModal : setOpen}
-                    focus={open}
-                    isValueEmpty={value !== null}
-                    error={error}
-                  >
-                    {`${label}${required ? '*' : ''}`}
-                  </TextFieldLabel>
-                </React.Fragment>
-              )}
-              <StyledText
-                marginTop={screenPercentageToDP(1.8, Orientation.Height)}
-                accessibilityLabel={
-                  value && selectedOption ? selectedOption.label : ''
-                }
-                fontSize={screenPercentageToDP(2.18, Orientation.Height)}
-                color={theme.colors.TEXT_DARK}
-              >
-                {selectedOption ? selectedOption.label : ''}
-              </StyledText>
-              <StyledView marginRight={10} justifyContent="center">
-                <Icons.ArrowDownIcon
-                  fill={theme.colors.TEXT_SOFT}
-                  width={screenPercentageToDP(2.84, Orientation.Width)}
-                />
-              </StyledView>
-            </InputContainer>
-          </TouchableWithoutFeedback>
-        </StyledView>
-        <StyledView
-          height="100%"
-          background="transparent"
-          width="100%"
-          zIndex={open ? 3 : -1}
-          position="absolute"
-        >
-          {Platform.OS === 'ios' ? (
-            <IOSPicker
-              disabled={disabled}
-              onChange={onChange}
-              closeModal={closeModal}
-              items={options}
-              open={open}
-              selectedItem={value}
-            />
-          ) : (
-            <AndroidPicker
-              disabled={disabled}
-              closeModal={closeModal}
-              items={options}
-              onChange={onChange}
-              open={open}
-            />
-          )}
-        </StyledView>
-      </React.Fragment>
-    );
-  },
+      <StyledView
+        width="100%"
+        marginTop={10}
+      >
+        <MultiSelect
+          single={!multiselect}
+          items={options}
+          displayKey="label"
+          uniqueKey="value"
+          ref={componentRef}
+          onSelectedItemsChange={onSelectedItemsChange}
+          selectedItems={selectedItems}
+          selectText="Select Items"
+          searchInputPlaceholderText="Search Items..."
+          altFontFamily="ProximaNova-Light"
+          tagRemoveIconColor={theme.colors.PRIMARY_MAIN}
+          tagBorderColor={theme.colors.PRIMARY_MAIN}
+          tagTextColor={theme.colors.PRIMARY_MAIN}
+          selectedItemTextColor={theme.colors.PRIMARY_MAIN}
+          selectedItemIconColor={theme.colors.PRIMARY_MAIN}
+          itemTextColor="#000"
+          searchInputStyle={{ color: theme.colors.PRIMARY_MAIN }}
+          styleDropdownMenuSubsection={{ paddingLeft: 12 }}
+          styleMainWrapper={{ zIndex: 999 }}
+          submitButtonColor={theme.colors.SAFE}
+          submitButtonText="Confirm selection"
+        />
+      </StyledView>
+    )
+  }
 );
+
+export const MultiSelectDropdown = ({ ...props }): Element => <Dropdown multiselect={true} {...props} />;

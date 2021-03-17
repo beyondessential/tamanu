@@ -1,10 +1,10 @@
 import React from 'react';
-import {storiesOf} from '@storybook/react-native';
-import {UserAvatar, UserAvatarProps} from './index';
-import {CameraOutlineIcon, TakenOnTimeIcon} from '../Icons';
-import {CenterView, StyledView} from '/styled/common';
-import {theme} from '/styled/theme';
-import {screenPercentageToDP, Orientation} from '/helpers/screen';
+import { storiesOf } from '@storybook/react-native';
+import { UserAvatar, UserAvatarProps } from './index';
+import { CameraOutlineIcon, GivenOnTimeIcon } from '../Icons';
+import { CenterView, StyledView } from '/styled/common';
+import { theme } from '/styled/theme';
+import { screenPercentageToDP, Orientation } from '/helpers/screen';
 
 const makeUser = (image?: string, Icon?: any): UserAvatarProps => ({
   size: 25,
@@ -47,7 +47,7 @@ const withImageAndIconProps = makeUser(
 const newPatientAddedProps = makeUser(
   'https://res.cloudinary.com/dqkhy63yu/image/upload/v1573676957/Ellipse_4.png',
   <StyledView position="absolute" right="-20" bottom={30} zIndex={2}>
-    <TakenOnTimeIcon
+    <GivenOnTimeIcon
       height={screenPercentageToDP('3.88', Orientation.Height)}
       width={screenPercentageToDP('3.88', Orientation.Height)}
       fill={theme.colors.SAFE}

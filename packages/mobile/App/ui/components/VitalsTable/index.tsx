@@ -1,7 +1,7 @@
-import React, { memo } from 'react';
+import React, { memo, useCallback } from 'react';
 import { PatientVitalsProps } from '../../interfaces/PatientVitalsProps';
 import { Table } from '../Table';
-import { vitalsTableCols } from './VitalsTableColumns';
+import { vitalsRows, vitalsColumns } from './VitalsTableData';
 import { vitalsTableHeader } from './VitalsTableHeader';
 import { VitalsTableTitle } from './VitalsTableTitle';
 
@@ -10,13 +10,27 @@ interface VitalsTableProps {
 }
 
 export const VitalsTable = memo(
-  ({ patientData }: VitalsTableProps): JSX.Element => (
-    <Table
-      columns={vitalsTableCols}
-      Title={VitalsTableTitle}
-      data={patientData}
-      tableHeader={vitalsTableHeader}
-      columnKey="date"
-    />
-  ),
+  ({ patientData }: VitalsTableProps): JSX.Element => {
+    const columns = useCallback(() => vitalsColumns(patientData), [patientData])();
+    const cells = {};
+    patientData.forEach(vitals => {
+      cells[vitals.date.toString()] = [];
+      Object.entries(vitals).forEach(([key, value]) => {
+        cells[vitals.date.toString()].push({
+          label: key,
+          value,
+        });
+      });
+    });
+
+    return (
+      <Table
+        Title={VitalsTableTitle}
+        tableHeader={vitalsTableHeader}
+        rows={vitalsRows}
+        columns={columns}
+        cells={cells}
+      />
+    );
+  },
 );

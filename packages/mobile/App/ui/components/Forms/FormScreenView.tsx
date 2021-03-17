@@ -62,9 +62,8 @@ export const FormScreenView = ({
   // Check if the screen content is bigger then the ScrollContainer
   useEffect(() => {
     if (contentHeight > 0 && layoutHeight > 0) {
-      const contentBiggerThanScreen =
-        contentHeight - layoutHeight - scrollOffset >
-        beginningEndOfScreenThreshold;
+      const contentBiggerThanScreen = contentHeight - layoutHeight - scrollOffset
+        > beginningEndOfScreenThreshold;
       if (contentBiggerThanScreen) {
         setAnimated(true);
       } else {

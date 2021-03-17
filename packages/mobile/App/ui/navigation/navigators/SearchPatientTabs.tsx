@@ -33,8 +33,8 @@ import { WithPatientStoreProps } from '/store/ducks/patient';
 import { screenPercentageToDP, Orientation } from '/helpers/screen';
 
 type TabNavigationConfig = {
-  tabBarStyle?: StyleProp<ViewStyle>;
-  contentStyle?: StyleProp<ViewStyle>;
+  tabBarStyle: StyleProp<ViewStyle>;
+  contentStyle: StyleProp<ViewStyle>;
 };
 
 type TabNavigationOptions = {

@@ -1,4 +1,4 @@
-import React, { ReactElement, useMemo, useCallback } from 'react';
+import React, { ReactElement, useMemo, useCallback, useState } from 'react';
 import { compose } from 'redux';
 import { setStatusBar } from '/helpers/screen';
 // Components
@@ -10,48 +10,45 @@ import { Routes } from '/helpers/routes';
 import { theme } from '/styled/theme';
 // Containers
 import { withPatient } from '/containers/Patient';
+import { useBackend } from '~/ui/hooks';
+import { ErrorScreen } from '~/ui/components/ErrorScreen';
 
 const PatientHomeContainer = ({
   navigation,
   selectedPatient,
 }: PatientHomeScreenProps): ReactElement => {
+  const [errorMessage, setErrorMessage] = useState();
   const visitTypeButtons = useMemo(
     () => [
       {
         title: 'Sick \n or Injured',
         Icon: Icons.SickOrInjuredIcon,
-        onPress: (): void =>
-          navigation.navigate(Routes.HomeStack.SickOrInjuredTabs.name),
+        onPress: (): void => navigation.navigate(Routes.HomeStack.SickOrInjuredTabs.Index),
       },
       {
         title: 'Check up',
         Icon: Icons.CheckUpIcon,
-        onPress: (): void =>
-          navigation.navigate(Routes.HomeStack.CheckUpStack.name),
+        onPress: (): void => navigation.navigate(Routes.HomeStack.CheckUpStack.Index),
       },
       {
         title: 'Programs',
         Icon: Icons.PregnancyIcon,
-        onPress: (): void =>
-          navigation.navigate(Routes.HomeStack.ProgramStack.name),
+        onPress: (): void => navigation.navigate(Routes.HomeStack.ProgramStack.Index),
       },
       {
         title: 'Referral',
         Icon: Icons.FamilyPlanningIcon,
-        onPress: (): void =>
-          navigation.navigate(Routes.HomeStack.ReferralTabs.name),
+        onPress: (): void => navigation.navigate(Routes.HomeStack.ProgramStack.ReferralTabs.Index),
       },
       {
         title: 'Vaccine',
         Icon: Icons.VaccineIcon,
-        onPress: (): void =>
-          navigation.navigate(Routes.HomeStack.VaccineStack.name),
+        onPress: (): void => navigation.navigate(Routes.HomeStack.VaccineStack.Index),
       },
       {
         title: 'Deceased',
         Icon: Icons.DeceasedIcon,
-        onPress: (): void =>
-          navigation.navigate(Routes.HomeStack.DeceasedStack.name),
+        onPress: (): void => navigation.navigate(Routes.HomeStack.DeceasedStack.Index),
       },
     ],
     [],
@@ -60,30 +57,39 @@ const PatientHomeContainer = ({
   const patientMenuButtons = useMemo(
     () => [
       {
-        title: 'View patients details',
+        title: 'View patient details',
         Icon: Icons.PatientDetailsIcon,
-        onPress: (): void =>
-          navigation.navigate(Routes.HomeStack.PatientDetails),
+        onPress: (): void => navigation.navigate(Routes.HomeStack.PatientDetailsStack.Index),
       },
       {
         title: 'View History',
         Icon: Icons.HistoryIcon,
-        onPress: (): void =>
-          navigation.navigate(Routes.HomeStack.HistoryVitalsStack.name),
+        onPress: (): void => navigation.navigate(Routes.HomeStack.HistoryVitalsStack.Index),
       },
     ],
     [],
   );
 
   const onNavigateToSearchPatients = useCallback(() => {
-    navigation.navigate(Routes.HomeStack.SearchPatientStack.name);
+    navigation.navigate(Routes.HomeStack.SearchPatientStack.Index);
   }, []);
 
-  const onNavigateToPatientActions = useCallback(() => {
-    navigation.navigate(Routes.HomeStack.PatientActions);
-  }, []);
+  const { models, syncManager } = useBackend();
+  const onSyncPatient = useCallback(
+    async (): Promise<void> => {
+      try {
+        await models.Patient.markForSync(selectedPatient.id);
+        syncManager.runScheduledSync();
+        navigation.navigate(Routes.HomeStack.HomeTabs.SyncData);
+      } catch (error) {
+        setErrorMessage(error.message);
+      }
+    }, [selectedPatient],
+  );
 
   setStatusBar('light-content', theme.colors.PRIMARY_MAIN);
+
+  if (errorMessage) return <ErrorScreen error={errorMessage} />;
 
   return (
     <Screen
@@ -91,7 +97,7 @@ const PatientHomeContainer = ({
       navigateToSearchPatients={onNavigateToSearchPatients}
       visitTypeButtons={visitTypeButtons}
       patientMenuButtons={patientMenuButtons}
-      navigateToPatientActions={onNavigateToPatientActions}
+      markPatientForSync={onSyncPatient}
     />
   );
 };

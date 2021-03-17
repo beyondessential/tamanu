@@ -11,7 +11,7 @@ interface NotificationCheckboxProps {
 export const NotificationCheckbox = (
   props: NotificationCheckboxProps,
 ): ReactElement => (
-  <React.Fragment>
+  <>
     <Separator marginTop={20} />
     <StyledView marginTop={20} marginBottom={20}>
       <Checkbox
@@ -21,5 +21,5 @@ export const NotificationCheckbox = (
       />
     </StyledView>
     <Separator />
-  </React.Fragment>
+  </>
 );

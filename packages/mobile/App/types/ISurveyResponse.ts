@@ -2,10 +2,7 @@ import { ID } from './ID';
 
 export interface ISurveyResponse {
   id: ID;
-  
-  surveyId: ID;
-  encounterId: ID;
-
+  surveyId: ID
   startTime?: Date;
   endTime?: Date;
   result?: number;

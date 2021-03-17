@@ -1,5 +1,3 @@
-
-
 export const yearlyData = [
   {
     date: new Date('01/1/2019'),

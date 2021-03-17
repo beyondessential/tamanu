@@ -1,26 +1,25 @@
 {
   "parser": "@typescript-eslint/parser",
   "root": true,
-  "plugins": ["@typescript-eslint", "prettier"],
+  "plugins": ["@typescript-eslint"],
   "extends": [
     "plugin:@typescript-eslint/recommended",
-    "prettier/@typescript-eslint",        
-    "@beyondessential/eslint-config-beyondessential",    
-    "prettier"
+    "@beyondessential/eslint-config-beyondessential"   
   ],
   "env": {
     "jest": true,
     "jasmine": true
   },  
-  "settings": {   
+  "settings": {
     "import/resolver": { 
       "alias": {        
         "map": [                        
           ["/styled", "./App/ui/styled"],      
-          ["/helpers", "./App/ui/helpers"]  ,
+          ["/helpers", "./App/ui/helpers"],
+          ["/types", "./App/types/"],
           ["/interfaces", "./App/ui/interfaces"],
           ["/components", "./App/ui/components"],   
-          ["/navigation", "./App/ui/navigation"],         
+          ["/navigation", "./App/ui/navigation"],
           ["/containers", "./App/ui/containers"],
           ["/store", "./App/ui/store"],
           ["/models", "./App/ui/models"],
@@ -30,7 +29,8 @@
           ["/data", "./App/data"],
           ["/infra", "./App/infra"],
           ["/presentation", "./App/presentation"],
-          ["/root", "./"]                
+          ["/root", "./"],
+          ["~", "./App"]    
         ],
         "extensions": [".ts", ".js", ".jsx", ".tsx", ".json"]
       },
@@ -40,11 +40,28 @@
     }
   },
   "rules": {
+    "indent": "off",
+    "@typescript-eslint/indent": [
+      "error", 2,
+      {
+        "SwitchCase": 1
+      }
+    ],
+    "react/jsx-indent": [2, 2],
+    "react/jsx-indent-props": "off",
+    "max-classes-per-file": "off",
     "@typescript-eslint/no-non-null-assertion": "warn",
     "class-methods-use-this": "off",
-    "curly": "off",         
-    "react/jsx-one-expression-per-line": "off",    
+    "curly": "off",
+    "react/jsx-props-no-spreading": "off",
+    "react/jsx-closing-bracket-location": "off",
+    "react/jsx-one-expression-per-line": "off",
+    "react/jsx-curly-newline": "off",
+    "react/prop-types": ["off"],
+    "react/require-default-props": [2, { "forbidDefaultForRequired": false, "ignoreFunctionalComponents": true}],
     "@typescript-eslint/no-explicit-any": "off",
+    "@typescript-eslint/interface-name-prefix": "off",
+    "@typescript-eslint/explicit-function-return-type": "off",
     "object-curly-newline": "off",    
     "import/no-extraneous-dependencies": [
       "off",
@@ -73,6 +90,14 @@
       }
     ]
   },
+  "overrides": [
+    {
+      "files": ["*.ts", "*.tsx"],
+      "rules": {
+        "@typescript-eslint/explicit-function-return-type": ["error"]
+      }
+    }
+  ],
   "globals": {
     "__DEV__": true
   }

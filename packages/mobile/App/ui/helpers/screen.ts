@@ -1,12 +1,16 @@
 import {
   heightPercentageToDP,
-  widthPercentageToDP,  
+  widthPercentageToDP,
 } from 'react-native-responsive-screen';
-import { Dimensions,  StatusBar, Platform } from 'react-native';
+import { Dimensions, StatusBar, Platform } from 'react-native';
 import { VerticalPosition } from '/interfaces/VerticalPosition';
 import { useFocusEffect } from '@react-navigation/native';
 import { useCallback } from 'react';
-import { SCREEN_ORIENTATION } from './constants';
+
+export const SCREEN_ORIENTATION = {
+  PORTRAIT: 'portrait',
+  LANDSCAPE: 'landscape',
+};
 
 export enum Orientation {
   Width = 'width',
@@ -16,7 +20,7 @@ export enum Orientation {
 export function screenPercentageToDP(
   value: string | number,
   orientation: Orientation,
-): number {    
+): number {
   return orientation === Orientation.Width
     ? widthPercentageToDP(value)
     : heightPercentageToDP(value);
@@ -39,7 +43,7 @@ export const scrollTo = (
 };
 
 export const calculateVerticalPositions = (
-  fieldList: string[], inputOffset = 65
+  fieldList: string[], inputOffset = 65,
 ): VerticalPosition => {
   let verticalOffset = 0;
   return fieldList.reduce<VerticalPosition>((acc, cur, index) => {
@@ -52,10 +56,9 @@ export const calculateVerticalPositions = (
   }, {});
 };
 
-export const setStatusBar = (barStyle: 'light-content' | 'dark-content', backgroundColor: string): void => 
- useFocusEffect(
-    useCallback(() => {
-      if (Platform.OS === "android") StatusBar.setBackgroundColor(backgroundColor)
-      StatusBar.setBarStyle(barStyle);
-    }, []),
-  );
+export const setStatusBar = (barStyle: 'light-content' | 'dark-content', backgroundColor: string): void => useFocusEffect(
+  useCallback(() => {
+    if (Platform.OS === 'android') StatusBar.setBackgroundColor(backgroundColor);
+    StatusBar.setBarStyle(barStyle);
+  }, []),
+);

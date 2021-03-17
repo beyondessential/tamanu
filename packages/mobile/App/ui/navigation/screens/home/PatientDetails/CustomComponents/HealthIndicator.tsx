@@ -20,7 +20,7 @@ export const HealthIdentificationRow = ({
         fontWeight="bold"
         color={theme.colors.SECONDARY_MAIN}
       >
-        Health Identification Number
+        National Health Number
       </StyledText>
     </StyledView>
     <CenterView

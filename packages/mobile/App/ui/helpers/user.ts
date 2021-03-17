@@ -16,7 +16,7 @@ export const Genders = {
 };
 
 export function getGender(gender: string): string {
-  if(!gender) return 'Error';
+  if (!gender) return 'Error';
   const lowerCaseGender = gender.toLowerCase();
   if (lowerCaseGender === Genders.FEMALE) return 'Female';
   if (lowerCaseGender === Genders.MALE) return 'Male';

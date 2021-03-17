@@ -7,7 +7,7 @@ interface SeparatorProps extends StyledViewProps {
 }
 
 export const Separator = ({
-  width = '100%',
+  width,
   ...props
 }: SeparatorProps): ReactElement => (
   <StyledView width="100%" height={1} {...props}>
@@ -18,3 +18,7 @@ export const Separator = ({
     />
   </StyledView>
 );
+
+Separator.defaultProps = {
+  width: '100%',
+};

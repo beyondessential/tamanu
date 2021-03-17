@@ -3,14 +3,14 @@ import { SvgProps } from 'react-native-svg';
 import { StyleSheet, TouchableWithoutFeedback } from 'react-native';
 import { StyledView, StyledText } from '/styled/common';
 import { theme } from '/styled/theme';
-import { TakenOnTimeIcon } from '../Icons';
+import { GivenOnTimeIcon } from '../Icons';
 
 interface VisitTypeButtonProps {
   type?: string;
   selected: boolean;
-  title?: string;
-  subtitle?: string;
-  Icon?: FunctionComponent<SvgProps>;
+  title: string;
+  subtitle: string;
+  Icon: FunctionComponent<SvgProps>;
   onPress: (type: string) => void;
 }
 
@@ -53,7 +53,7 @@ export const VisitTypeButton = ({
           )}
           {selected && (
             <StyledView position="absolute" left={40} top="2%">
-              <TakenOnTimeIcon />
+              <GivenOnTimeIcon />
             </StyledView>
           )}
           {title && (
@@ -77,4 +77,8 @@ export const VisitTypeButton = ({
       </StyledView>
     </TouchableWithoutFeedback>
   );
+};
+
+VisitTypeButton.defaultProps = {
+  type: '',
 };

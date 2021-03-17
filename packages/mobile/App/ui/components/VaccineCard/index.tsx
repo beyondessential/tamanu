@@ -6,14 +6,18 @@ import React, {
 } from 'react';
 import { StyledView } from '/styled/common';
 import { VaccineCardHeader } from './VaccineCardHeader';
-import { IVaccine } from '~/types';
-import { VaccineStatus } from '/helpers/constants';
-import { NotTakenFields } from './NotTakenFields';
-import TakenOnTimeFields from './TakenOnTimeFields';
+import { IAdministeredVaccine } from '~/types';
+import { NotGivenFields } from './NotGivenFields';
+import GivenOnTimeFields from './GivenOnTimeFields';
 import { VaccineStatusHeader } from './VaccineStatusHeader';
-import { TakenNotOnScheduleFields } from './TakenNotOnSchedule';
+import { VaccineStatus } from '~/ui/helpers/patient';
 
-export type VaccineDataProps = IVaccine & { dateType: string };
+export type VaccineDataProps = {
+  administeredVaccine: IAdministeredVaccine;
+  status: string;
+  name: string;
+  code: string;
+};
 
 interface VaccineCardProps {
   vaccineData: VaccineDataProps;
@@ -26,20 +30,20 @@ export const VaccineCard: FunctionComponent<PropsWithChildren<
 >> = ({ vaccineData, onCloseModal, onEditDetails }: VaccineCardProps) => {
   const Fields: FC<VaccineDataProps> = useMemo(() => {
     switch (vaccineData.status) {
-      case VaccineStatus.NOT_TAKEN:
-        return NotTakenFields;
-      case VaccineStatus.TAKEN:
-        return TakenOnTimeFields;
-      case VaccineStatus.TAKEN_NOT_ON_TIME:
-        return TakenNotOnScheduleFields;
+      case VaccineStatus.NOT_GIVEN:
+        return NotGivenFields;
+      case VaccineStatus.GIVEN:
+        return GivenOnTimeFields;
       default:
-        return TakenOnTimeFields;
+        return GivenOnTimeFields;
     }
   }, [vaccineData.status]);
   return (
     <StyledView width="80.29%">
       <VaccineCardHeader
-        vaccine={vaccineData}
+        name={vaccineData.name}
+        code={vaccineData.code}
+        schedule={vaccineData.administeredVaccine.scheduledVaccine.schedule}
         onCloseModal={onCloseModal}
         onEditDetails={onEditDetails}
       />

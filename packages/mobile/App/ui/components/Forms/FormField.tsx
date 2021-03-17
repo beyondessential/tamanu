@@ -24,12 +24,10 @@ export const Field = ({
     <FormikField
       as={component}
       name={name}
-      onChange={(newValue: any): any =>
-        field.onChange({ target: { name, value: newValue } })
-      }
+      onChange={(newValue: any): any => field.onChange({ target: { name, value: newValue } })}
       value={field.value}
       label={label}
-      error={meta.touched && meta.error}
+      error={meta.error}
       type={type}
       disabled={disabled}
       options={options}

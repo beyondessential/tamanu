@@ -1,48 +1,51 @@
 import React, { FunctionComponent } from 'react';
 import { StyledView, RowView } from '/styled/common';
-import { TableData } from './TableData';
+import { ScrollView } from 'react-native-gesture-handler';
 
-export type Column = {
-  id?: string | number;
-  key: string;
-  title: string;
-  subtitle?: string;
-  accessor: (
-    row: any,
-    onPress?: (item: any) => void,
-    column?: any,
-  ) => JSX.Element;
-  rowHeader: (row: any, column?: any) => JSX.Element;
+export type Row = {
+  rowKey: string;
+  rowTitle: string;
+  rowHeader: () => Element;
+  cell: (cellContent: FunctionComponent<any>) => Element;
 };
 
 interface TableProps {
   Title: FunctionComponent<any>;
-  data: any;
-  columns: Column[];
+  cells: {};
+  rows: Row[];
+  columns: string[];
   tableHeader: any;
-  columnKey: string;
   onPressItem?: (item: any) => void;
 }
 
 export const Table = ({
   Title,
-  data,
+  rows,
   columns,
+  cells,
   tableHeader,
-  columnKey,
   onPressItem,
 }: TableProps): JSX.Element => (
   <RowView>
     <StyledView>
       <Title />
-      {columns.map(c => c.rowHeader(c))}
+      {rows.map(r => r.rowHeader())}
     </StyledView>
-    <TableData
-      columnKey={columnKey}
-      data={data}
-      columns={columns}
-      tableHeader={tableHeader}
-      onPressItem={onPressItem}
-    />
+    <ScrollView
+      bounces={false}
+      scrollEnabled
+      showsHorizontalScrollIndicator
+      horizontal
+    >
+      <RowView>
+        {columns.map((column: any) => (
+          <StyledView key={`${column}`}>
+            {tableHeader.accessor(column, onPressItem)}
+            {cells[column]
+            && rows.map(row => row.cell(cells[column].find(c => c[row.rowKey] === row.rowTitle)))}
+          </StyledView>
+        ))}
+      </RowView>
+    </ScrollView>
   </RowView>
 );

@@ -11,11 +11,11 @@ module.exports = {
   testPathIgnorePatterns: ['\\.snap$', '<rootDir>/node_modules/', 'e2e'],
   cacheDirectory: '.jest/cache',
   setupFiles: ['./jest.setup.ts'],
-  moduleDirectories: ['.', 'node_modules'],
   moduleNameMapper: {
     '^~(.*)$': '<rootDir>/App$1',
     '^/root(.*)$': '<rootDir>$1',
     '^/helpers(.*)$': '<rootDir>/App/ui/helpers$1',
+    '^/types(.*)$': '<rootDir>/App/types/$1',
     '^/styled(.*)$': '<rootDir>/App/ui/styled$1',
     '^/components(.*)$': '<rootDir>/App/ui/components$1',
     '^/interfaces(.*)$': '<rootDir>/App/ui/interfaces$1',
@@ -27,4 +27,12 @@ module.exports = {
     '/infra(.*)$': '<rootDir>/App/infra$1',
     '/presentation(.*)$': '<rootDir>/App/presentation$1',
   },
+  globals: {
+    'ts-jest': {
+      diagnostics: {
+        warnOnly: true,
+      },
+    },
+  },
+  collectCoverageFrom: ['App/**/*.{js,ts,jsx,tsx}', '!**/*.spec.{js,ts,jsx,tsx}'],
 };

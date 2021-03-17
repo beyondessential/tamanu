@@ -39,10 +39,10 @@ const TabLabel = React.memo(
           {focused ? (
             <Icon size={screenPercentageToDP(4.25, Orientation.Height)} />
           ) : (
-            <Icons.ScheduledVaccine
-              size={screenPercentageToDP(4.25, Orientation.Height)}
-            />
-          )}
+              <Icons.ScheduledVaccine
+                size={screenPercentageToDP(4.25, Orientation.Height)}
+              />
+            )}
         </StyledView>
         <StyledText
           marginTop={screenPercentageToDP(1.21, Orientation.Height)}

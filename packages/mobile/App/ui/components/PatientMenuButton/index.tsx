@@ -1,11 +1,11 @@
-import React, { FunctionComponent } from 'react';
+import React, { FunctionComponent, ComponentClass } from 'react';
 import { TouchableHighlight, StyleSheet } from 'react-native';
 import { SvgProps } from 'react-native-svg';
 import { theme } from '/styled/theme';
 import { StyledView, StyledText } from '/styled/common';
 import { screenPercentageToDP, Orientation } from '/helpers/screen';
 
-interface PatientMenuButton {
+export interface PatientMenuButtonProps {
   title: string;
   Icon: FunctionComponent<SvgProps>;
   onPress: () => void;
@@ -21,7 +21,7 @@ export const PatientMenuButton = ({
   title,
   Icon,
   onPress,
-}: PatientMenuButton): JSX.Element => (
+}: PatientMenuButtonProps): JSX.Element => (
   <TouchableHighlight
     underlayColor={theme.colors.BOX_OUTLINE}
     onPress={onPress}

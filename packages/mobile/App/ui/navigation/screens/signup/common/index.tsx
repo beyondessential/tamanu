@@ -8,10 +8,8 @@ export const UserIconContainer = ({
   size,
 }: {
   size: Value<number>;
-}): ReactElement => {
-  return (
-    <StyledView as={Animated.View} height={size} width={size}>
-      <UserIcon fill={theme.colors.SECONDARY_MAIN} />
-    </StyledView>
-  );
-};
+}): ReactElement => (
+  <StyledView as={Animated.View} height={size} width={size}>
+    <UserIcon fill={theme.colors.SECONDARY_MAIN} />
+  </StyledView>
+);

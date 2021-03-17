@@ -15,6 +15,7 @@ import { PatientActionsScreenProps } from '../../../interfaces/Screens/HomeStack
 import { compose } from 'redux';
 import { withPatient } from '/containers/Patient';
 import { sendEmail } from '/helpers/email';
+import { ErrorBoundary } from '~/ui/components/ErrorBoundary';
 
 const Screen = memo(
   ({ navigation, selectedPatient }: PatientActionsScreenProps) => {
@@ -51,83 +52,85 @@ const Screen = memo(
     }, []);
 
     return (
-      <StyledSafeAreaView background={theme.colors.PRIMARY_MAIN} flex={1}>
-        <StatusBar barStyle="light-content" />
-        <FullView background={theme.colors.PRIMARY_MAIN}>
-          <RowView justifyContent="flex-end">
-            <StyledTouchableOpacity
-              paddingLeft={20}
-              paddingRight={20}
-              paddingTop={20}
-              paddingBottom={20}
-              onPress={goBack}
-            >
-              <CrossIcon height={20} width={20} />
-            </StyledTouchableOpacity>
-          </RowView>
-          <StyledView
-            flex={1}
-            justifyContent="flex-end"
-            paddingLeft={70}
-            paddingRight={70}
-            paddingBottom={50}
-          >
-            {error && (
-              <StyledText
-                marginBottom={10}
-                textAlign="center"
-                color={theme.colors.WHITE}
+      <ErrorBoundary>
+        <StyledSafeAreaView background={theme.colors.PRIMARY_MAIN} flex={1}>
+          <StatusBar barStyle="light-content" />
+          <FullView background={theme.colors.PRIMARY_MAIN}>
+            <RowView justifyContent="flex-end">
+              <StyledTouchableOpacity
+                paddingLeft={20}
+                paddingRight={20}
+                paddingTop={20}
+                paddingBottom={20}
+                onPress={goBack}
               >
-                {error}
-              </StyledText>
-            )}
-            <Button
-              outline
-              borderColor={theme.colors.WHITE}
-              onPress={(): void => console.log('message')}
-              marginBottom={5}
+                <CrossIcon height={20} width={20} />
+              </StyledTouchableOpacity>
+            </RowView>
+            <StyledView
+              flex={1}
+              justifyContent="flex-end"
+              paddingLeft={70}
+              paddingRight={70}
+              paddingBottom={50}
             >
-              <ChatIcon />
-              <StyledText
-                fontWeight="bold"
-                color={theme.colors.WHITE}
-                marginLeft={10}
+              {error && (
+                <StyledText
+                  marginBottom={10}
+                  textAlign="center"
+                  color={theme.colors.WHITE}
+                >
+                  {error}
+                </StyledText>
+              )}
+              <Button
+                outline
+                borderColor={theme.colors.WHITE}
+                onPress={(): void => console.log('message')}
+                marginBottom={5}
               >
-                Message
-              </StyledText>
-            </Button>
-            <Button
-              outline
-              borderColor={theme.colors.WHITE}
-              onPress={onCallPatientPhone}
-              marginBottom={5}
-            >
-              <PhoneIcon />
-              <StyledText
-                fontWeight="bold"
-                color={theme.colors.WHITE}
-                marginLeft={10}
+                <ChatIcon />
+                <StyledText
+                  fontWeight="bold"
+                  color={theme.colors.WHITE}
+                  marginLeft={10}
+                >
+                  Message
+                </StyledText>
+              </Button>
+              <Button
+                outline
+                borderColor={theme.colors.WHITE}
+                onPress={onCallPatientPhone}
+                marginBottom={5}
               >
-                Call
-              </StyledText>
-            </Button>
-            <Button
-              outline
-              borderColor={theme.colors.WHITE}
-              onPress={onSendEmail}
-            >
-              <EmailIcon />
-              <StyledText
-                fontWeight="bold"
-                color={theme.colors.WHITE}
-                marginLeft={10}
+                <PhoneIcon />
+                <StyledText
+                  fontWeight="bold"
+                  color={theme.colors.WHITE}
+                  marginLeft={10}
+                >
+                  Call
+                </StyledText>
+              </Button>
+              <Button
+                outline
+                borderColor={theme.colors.WHITE}
+                onPress={onSendEmail}
               >
-                Email
-              </StyledText>
-            </Button>
-          </StyledView>
-        </FullView>
-      </StyledSafeAreaView>
+                <EmailIcon />
+                <StyledText
+                  fontWeight="bold"
+                  color={theme.colors.WHITE}
+                  marginLeft={10}
+                >
+                  Email
+                </StyledText>
+              </Button>
+            </StyledView>
+          </FullView>
+        </StyledSafeAreaView>
+      </ErrorBoundary>
     );
   },
 );

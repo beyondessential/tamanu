@@ -1,8 +1,9 @@
+import { ID } from './ID';
+
 export interface IUser {
-  id: number;
+  id: ID;
   email: string;
-  password?: string;
+  localPassword?: string;
   displayName: string;
   role: string;
-  gender: string;
 }

@@ -6,7 +6,7 @@ import { IPatient } from '~/types';
 
 import { generatePatient } from '~/dummyData/patients';
 
-export const genPatientSectionList = (): IPatient[] => new Array(80).fill(1).map(generatePatient);
+export const genPatientSectionList = (): IPatient[] => new Array(80).fill(1).map(() => generatePatient());
 
 export const data: IPatient[] = genPatientSectionList();
 

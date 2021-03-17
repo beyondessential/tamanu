@@ -1,29 +1,38 @@
-import { Entity, Column, ManyToOne } from 'typeorm/browser';
+import { Entity, Column, ManyToOne, RelationId } from 'typeorm/browser';
 import { BaseModel } from './BaseModel';
 import { Program } from './Program';
 import { Database } from '~/infra/db';
 
-import { ISurveyScreenComponent, ISurvey, IProgramDataElement } from '~/types';
+import { ISurvey, ISurveyResponse, SurveyTypes } from '~/types';
 
 @Entity('survey')
 export class Survey extends BaseModel implements ISurvey {
+  @Column({ type: 'varchar', default: SurveyTypes.Programs })
+  surveyType: SurveyTypes;
+
+  @RelationId(({ program }) => program)
+  programId: string;
+
+  responses: any[];
 
   @Column()
   name: string;
 
-  @ManyToOne(type => Program, program => program.surveys)
+  @ManyToOne(() => Program, program => program.surveys)
   program: Program;
 
-  getComponents() {
-    const repo = SurveyScreenComponent.getRepository();
+  components: any;
+
+  getComponents(): Promise<BaseModel[]> {
+    const repo = Database.models.SurveyScreenComponent.getRepository();
     return repo.find({
       where: { survey: { id: this.id } },
       relations: ['dataElement'],
-      order: { componentIndex: 'ASC' },
+      order: { screenIndex: 'ASC', componentIndex: 'ASC' },
     });
   }
 
-  static async getResponses(surveyId): Promise {
+  static async getResponses(surveyId: string): Promise<ISurveyResponse[]> {
     const responses = await Database.models.SurveyResponse.find({
       where: {
         survey: surveyId,
@@ -34,55 +43,3 @@ export class Survey extends BaseModel implements ISurvey {
   }
 }
 
-@Entity('program_data_element')
-export class ProgramDataElement extends BaseModel implements IProgramDataElement {
-
-  @Column()
-  code: string;
-
-  @Column()
-  indicator: string;
-
-  @Column()
-  defaultText: string;
-
-  @Column({ nullable: true })
-  defaultOptions?: string;
-
-  @Column()
-  type: string;
-}
-
-@Entity('survey_screen_component')
-export class SurveyScreenComponent extends BaseModel implements ISurveyScreenComponent {
-
-  @Column("int")
-  screenIndex: number;
-
-  @Column("int")
-  componentIndex: number;
-
-  @Column({ nullable: true })
-  text?: string;
-
-  @Column({ nullable: true })
-  visibilityCriteria?: string;
-
-  @Column({ nullable: true })
-  options?: string;
-
-  @ManyToOne(type => Survey, survey => survey.components)
-  survey: Survey;
-
-  @ManyToOne(type => ProgramDataElement)
-  dataElement: ProgramDataElement;
-
-  getOptions() {
-    return (this.options || this.dataElement.defaultOptions || "")
-      .split(",")
-      .map(x => x.trim())
-      .filter(x => x)
-      .map(x => ({ label: x, value: x }));
-  }
-
-}

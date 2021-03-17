@@ -4,8 +4,8 @@ import React, {
   useContext,
   useState,
 } from 'react';
-import {useSelector} from 'react-redux';
-import {Platform, KeyboardAvoidingView, StatusBar} from 'react-native';
+import { useSelector } from 'react-redux';
+import { Platform, KeyboardAvoidingView, StatusBar } from 'react-native';
 import {
   StyledView,
   StyledSafeAreaView,
@@ -14,21 +14,19 @@ import {
   StyledTouchableOpacity,
   StyledText,
 } from '/styled/common';
-import {CrossIcon, UserIcon} from '/components/Icons';
-import {Orientation, screenPercentageToDP} from '/helpers/screen';
-import {theme} from '/styled/theme';
-import {SignInForm} from '/components/Forms/SignInForm/SignInForm';
-import {SignInProps} from '/interfaces/Screens/SignUp/SignInProps';
-import {Routes} from '/helpers/routes';
-import AuthContext from '../../../contexts/authContext/AuthContext';
-import {ModalInfo} from '/components/ModalInfo';
-import UserContext from '/contexts/UserContext';
-import {authSelector} from '/helpers/selectors';
-import {SignInFormModel} from '/interfaces/forms/SignInFormProps';
+import { CrossIcon, UserIcon } from '/components/Icons';
+import { Orientation, screenPercentageToDP } from '/helpers/screen';
+import { theme } from '/styled/theme';
+import { SignInForm } from '/components/Forms/SignInForm/SignInForm';
+import { SignInProps } from '/interfaces/Screens/SignUp/SignInProps';
+import { Routes } from '/helpers/routes';
+import { ModalInfo } from '/components/ModalInfo';
+import { authSelector } from '/helpers/selectors';
+import { SignInFormModel } from '~/ui/interfaces/forms/SignInFormProps';
+import AuthContext from '~/ui/contexts/AuthContext';
 
-export const SignIn: FunctionComponent<any> = ({navigation}: SignInProps) => {
+export const SignIn: FunctionComponent<any> = ({ navigation }: SignInProps) => {
   const authCtx = useContext(AuthContext);
-  const userCtx = useContext(UserContext);
   const authState = useSelector(authSelector);
 
   const [modalVisible, setModalVisible] = useState(false);
@@ -47,21 +45,22 @@ export const SignIn: FunctionComponent<any> = ({navigation}: SignInProps) => {
     onChangeModalVisibility(true);
   }, []);
 
-  const onSubmitForm = useCallback(async (form: SignInFormModel) => {
+  const onSubmitForm = useCallback(async (values: SignInFormModel) => {
     try {
-      // await authCtx.signIn(form.email, form.password);
-      await userCtx.getUserData();
+      await authCtx.signIn(values);
+
       if (authState.isFirstTime) {
-        navigation.navigate(Routes.HomeStack.name);
+        navigation.navigate(Routes.HomeStack.Index);
       } else {
-        navigation.navigate(Routes.HomeStack.name, {
-          screen: Routes.HomeStack.HomeTabs.name,
+        navigation.navigate(Routes.HomeStack.Index, {
+          screen: Routes.HomeStack.HomeTabs.Index,
         });
       }
     } catch (error) {
       setModalError(error.message);
     }
   }, []);
+
   return (
     <FullView background={theme.colors.PRIMARY_MAIN}>
       <StatusBar barStyle="light-content" />

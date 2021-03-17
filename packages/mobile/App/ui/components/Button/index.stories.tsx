@@ -2,7 +2,7 @@ import React from 'react';
 import { storiesOf } from '@storybook/react-native';
 import { action } from '@storybook/addon-actions';
 import { theme } from '/styled/theme';
-import { RotateView, CenterView } from '/styled/common';
+import { CenterView, StyledView } from '/styled/common';
 import { Button } from './index';
 import * as Icons from '../Icons';
 
@@ -40,11 +40,11 @@ storiesOf('Button', module)
       backgroundColor={`${theme.colors.MAIN_SUPER_DARK}`}
       bordered
       textColor={theme.colors.WHITE}
-      onPress={action('rounded')}
+      onPress={action('rounded-with-icon')}
       buttonText="Filters"
     >
-      <RotateView>
-        <Icons.OptionsGlyph fill="white" height={20} />
-      </RotateView>
+      <StyledView marginRight={10}>
+        <Icons.FilterIcon fill="white" height={20} />
+      </StyledView>
     </Button>
   ));

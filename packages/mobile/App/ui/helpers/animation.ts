@@ -1,6 +1,4 @@
-import { timing, Easing, Clock,  set, cond, and, eq, block,clockRunning, startClock, Node , Value  } from 'react-native-reanimated';
-
-
+import { timing, Easing, Clock, set, cond, and, eq, block, clockRunning, startClock, Node, Value } from 'react-native-reanimated';
 
 /**
  * Uses an Animated State to change during the specified period of time.
@@ -17,7 +15,7 @@ export const animateState = (
   }).start();
 };
 
-export const  runTiming = (clock: Clock, value: number, dest: number): Node<number> => {
+export const runTiming = (clock: Clock, value: number, dest: number): Node<number> => {
   const state = {
     finished: new Value(1),
     position: new Value(value),
@@ -50,4 +48,4 @@ export const  runTiming = (clock: Clock, value: number, dest: number): Node<numb
     timing(clock, state, config),
     state.position,
   ]);
-}
+};

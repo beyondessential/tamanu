@@ -83,12 +83,8 @@ export const Screen = ({
     <StyledScrollView keyboardShouldPersistTaps="never">
       <FullView background={theme.colors.BACKGROUND_GREY}>
         <SexSection />
-        <AgeRangeSection />
         <DateSection />
         <NameSection />
-        <KeywordSection />
-        <SortBySection />
-        <OnlyShowOptions />
         <SubmitSection onSubmit={onSubmit} />
       </FullView>
     </StyledScrollView>

@@ -1,13 +1,39 @@
 import React, { ReactElement, useCallback } from 'react';
+import { compose } from 'redux';
 import { FullView, StyledSafeAreaView, StyledView } from '/styled/common';
-import { AccordionList } from '/components/Accordion';
-import { data } from '/components/Accordion/fixtures';
+import { PatientHistoryAccordion } from '~/ui/components/PatientHistoryAccordion';
 import { theme } from '/styled/theme';
 import { Button } from '/components/Button';
 import { FilterIcon } from '/components/Icons';
 import { screenPercentageToDP, Orientation } from '~/ui/helpers/screen';
+import { useBackendEffect } from '~/ui/hooks';
+import { LoadingScreen } from '~/ui/components/LoadingScreen';
+import { ErrorScreen } from '~/ui/components/ErrorScreen';
+import { withPatient } from '~/ui/containers/Patient';
+import { IDiagnosis, Certainty, IEncounter } from '~/types';
 
-export const VisitsScreen = (): ReactElement => {
+const DEFAULT_FIELD_VAL = 'N/A';
+
+const CERTAINTY_NAMES = Object.entries(Certainty).reduce((acc, [k, v]) => ({ ...acc, [v]: k }), {});
+
+const visitsHistoryRows = {
+  labRequest: {
+    name: 'Lab/Test results',
+    accessor: () => DEFAULT_FIELD_VAL,
+  },
+  diagnoses: {
+    name: 'Diagnosis',
+    accessor: (diagnoses: IDiagnosis[]) => diagnoses
+      .map(d => `${d.diagnosis?.name} (${d.certainty})`)
+      .join('\n\n') || DEFAULT_FIELD_VAL,
+  },
+  reasonForEncounter: {
+    name: 'Treatment notes',
+    accessor: () => DEFAULT_FIELD_VAL,
+  },
+};
+
+export const DumbVisistsScreen = ({ selectedPatient }): ReactElement => {
   const activeFilters = {
     count: 0,
   };
@@ -15,10 +41,18 @@ export const VisitsScreen = (): ReactElement => {
   const navigateToHistoryFilters = useCallback(() => {
     console.log('going to filters..');
   }, []);
+
+  const [data, error] = useBackendEffect(
+    ({ models }) => models.Encounter.getForPatient(selectedPatient.id),
+    [],
+  );
+
+  if (error) return <ErrorScreen error={error} />;
+
   return (
     <StyledSafeAreaView flex={1}>
       <FullView background={theme.colors.BACKGROUND_GREY}>
-        <AccordionList dataArray={data} />
+        {data ? <PatientHistoryAccordion dataArray={data} rows={visitsHistoryRows} /> : <LoadingScreen />}
         <StyledView
           position="absolute"
           zIndex={2}
@@ -32,9 +66,7 @@ export const VisitsScreen = (): ReactElement => {
             bordered
             textColor={theme.colors.WHITE}
             onPress={navigateToHistoryFilters}
-            buttonText={`Filters ${
-              activeFilters.count > 0 ? `${activeFilters.count}` : ''
-            }`}
+            buttonText={activeFilters.count ? `Filters: ${activeFilters.count}` : 'Filters'}
           >
             <StyledView
               marginRight={screenPercentageToDP(1.21, Orientation.Height)}
@@ -54,3 +86,5 @@ export const VisitsScreen = (): ReactElement => {
     </StyledSafeAreaView>
   );
 };
+
+export const VisitsScreen = compose(withPatient)(DumbVisistsScreen);

@@ -1,15 +1,33 @@
-import React, {useCallback, useState, ReactElement} from 'react';
-import {Screen} from './Screen';
-import {PatientDetails} from '/interfaces/PatientDetails';
-import {PatientDetailsScreenProps} from '/interfaces/screens/PatientDetailsScreenProps';
-import {Routes} from '/helpers/routes';
-import {compose} from 'redux';
-import {withPatient} from '/containers/Patient';
+import React, { useCallback, useState, ReactElement } from 'react';
+import { useIsFocused } from '@react-navigation/native';
+
+import { useBackendEffect } from '~/ui/hooks';
+import { Screen } from './Screen';
+import { PatientDetails } from '~/ui/interfaces/PatientDetails';
+import { PatientDetailsScreenProps } from '~/ui/interfaces/screens/PatientDetailsScreenProps';
+import { Routes } from '~/ui/helpers/routes';
+import { compose } from 'redux';
+import { withPatient } from '~/ui/containers/Patient';
+import { ErrorScreen } from '~/ui/components/ErrorScreen';
+import { LoadingScreen } from '~/ui/components/LoadingScreen';
 
 const Container = ({
   navigation,
   selectedPatient,
 }: PatientDetailsScreenProps): ReactElement => {
+  const isFocused = useIsFocused(); // reload issues whenever the page is focused
+  const [patientIssues, error] = useBackendEffect(
+    ({ models }) => {
+      if (isFocused) {
+        return models.PatientIssue.find({
+          order: { recordedDate: 'ASC' },
+          where: { patient: { id: selectedPatient.id } },
+        })
+      }
+    },
+    [isFocused, selectedPatient.id],
+  );
+
   /**
    * Implement fetch patientDetails data
    * from a mock server (or real)
@@ -31,9 +49,7 @@ const Container = ({
     familyHistory: {
       data: ['Haemochromatosis'],
     },
-    procedurePlan: {
-      data: [],
-    },
+    patientIssues,
     allergies: {
       data: ['rhinitis'],
     },
@@ -48,22 +64,29 @@ const Container = ({
 
   const onNavigateToFilters = useCallback(() => {
     navigation.navigate(Routes.HomeStack.PatientActions);
-  }, []);
+  }, [navigation]);
 
   const onNavigateBack = useCallback(() => {
     navigation.goBack();
-  }, []);
+  }, [navigation]);
 
   const onEditField = useCallback(() => {
     setEditField(!editField);
   }, [editField]);
 
+  const onEditPatientIssues = useCallback(() => {
+    navigation.navigate(Routes.HomeStack.PatientDetailsStack.AddPatientIssue);
+  }, [navigation]);
+
+  if (error) return <ErrorScreen error={error} />;
+  if (!patientIssues) return <LoadingScreen />;
+
   return (
     <Screen
       patientData={patientData}
       onNavigateBack={onNavigateBack}
-      onNavigateToFilters={onNavigateToFilters}
       onEditField={onEditField}
+      onEditPatientIssues={onEditPatientIssues}
       reminders={reminders}
       changeReminder={changeReminder}
     />

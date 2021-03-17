@@ -1,39 +1,38 @@
 import React, { ReactNode } from 'react';
 
 export interface RegisterAccountFormStep1Props {
-  firstName: string,
-  lastName: string,
-  email: string,
-  phone: string,
-  gender: string | null,
+  firstName: string;
+  lastName: string;
+  email: string;
+  phone: string;
+  gender: string | null;
 }
 
 export interface RegisterAccountFormStep2Props {
-  role: string | null,
-  homeFacility: string | null,
-  profession: string,
-  professionalRegistrationNumber: string,
-  firstYearOfRegistration: string | null,
+  role: string;
+  homeFacility: string;
+  profession: string;
+  professionalRegistrationNumber: string;
+  firstYearOfRegistration: string;
 }
 
 export interface RegisterAccountFormStep3Props {
   password: string;
   confirmPassword: string;
-  readPrivacyPolice: boolean,
+  readPrivacyPolice: boolean;
 }
 
 export type RegisterAccountContextFormProps = RegisterAccountFormStep1Props
- & RegisterAccountFormStep2Props
- & RegisterAccountFormStep3Props
+  & RegisterAccountFormStep2Props
+  & RegisterAccountFormStep3Props
 
 export type UpdateFormTypes = | RegisterAccountFormStep1Props
- | RegisterAccountFormStep2Props
- | RegisterAccountFormStep3Props
-
+  | RegisterAccountFormStep2Props
+  | RegisterAccountFormStep3Props
 
 export interface RegisterAccountContextProps {
-    registerFormState: RegisterAccountContextFormProps;
-    updateForm: Function;
+  registerFormState: RegisterAccountContextFormProps;
+  updateForm: Function;
 }
 
 export const RegisterAccountContext = React.createContext<RegisterAccountContextProps>({

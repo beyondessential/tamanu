@@ -14,6 +14,7 @@ module.exports = {
           '/components': './App/ui/components',
           '/interfaces': './App/ui/interfaces',
           '/helpers': './App/ui/helpers',
+          '/types': './App/types/',
           '/navigation': './App/ui/navigation',
           '/containers': './App/ui/containers',
           '/contexts': './App/ui/contexts',

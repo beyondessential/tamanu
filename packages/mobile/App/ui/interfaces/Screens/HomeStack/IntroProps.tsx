@@ -8,7 +8,6 @@ export interface IntroRouteProps {
   step: number;
 }
 
-
 export interface IntroScreenProps {
   navigation: NavigationProp<any>;
   route: {

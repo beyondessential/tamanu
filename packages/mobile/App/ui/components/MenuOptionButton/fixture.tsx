@@ -65,7 +65,7 @@ export const ProgramOptions = [
 
 export const PatientDetails = [
   {
-    title: 'View patients details',
+    title: 'View patient details',
     Icon: HistoryIcon,
     onPress: (): void => console.log('Patient details'),
   },
@@ -97,7 +97,6 @@ interface BaseStoryProps {
 
 export const BaseStory = ({ data }: BaseStoryProps): ReactElement => (
   <ThemeProvider theme={themeSystem}>
-    <StyledSafeAreaView />
     <FlatList
       showsVerticalScrollIndicator={false}
       style={styles.flatList}

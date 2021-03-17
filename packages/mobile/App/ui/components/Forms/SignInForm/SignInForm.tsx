@@ -6,16 +6,14 @@ import { SignInFields } from './SignInFields';
 
 export const SignInForm: FunctionComponent<SignInFormProps> = ({
   onSubmitForm,
-}: SignInFormProps) => {
-  return (
-    <Form
-      initialValues={signIninitialValues}
-      validationSchema={signInValidationSchema}
-      onSubmit={onSubmitForm}
-    >
-      {({ handleSubmit, isSubmitting }): ReactElement => (
-        <SignInFields handleSubmit={handleSubmit} isSubmitting={isSubmitting} />
-      )}
-    </Form>
-  );
-};
+}: SignInFormProps) => (
+  <Form
+    initialValues={signIninitialValues}
+    validationSchema={signInValidationSchema}
+    onSubmit={onSubmitForm}
+  >
+    {({ handleSubmit, isSubmitting }): ReactElement => (
+      <SignInFields handleSubmit={handleSubmit} isSubmitting={isSubmitting} />
+    )}
+  </Form>
+);

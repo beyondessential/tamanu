@@ -1,28 +1,26 @@
 import { Chance } from 'chance';
-import { GenderOptions } from '/helpers/constants';
-import { BloodTypes } from '/helpers/constants';
+import { sample } from 'lodash';
+import { GenderOptions, BloodTypes } from '/helpers/constants';
+import { IPatient } from '~/types';
 
-const chance = new Chance();
+const defaultGenerator = new Chance();
 
-const CITIES = [
-  'Melbourne',
-  'Adelaide',
-  'Hobart',
-  'Sydney',
-  'Brisbane',
-  'Darwin',
-  'Perth',
-  'Canberra',
-];
+const nameOptionsForGender = (gender: string): {} | { gender: 'male' | 'female' } => {
+  // the library we're using doesn't have a list of names for other genders
+  if (gender === 'male' || gender === 'female') {
+    return { gender };
+  };
+  return {};
+};
 
-export const generatePatient = () => {
-  const sex = (chance.bool() ? GenderOptions[0] : GenderOptions[1]).value;
-  const [firstName, middleName, lastName] = chance
-    .name({middle: true, gender: sex })
+export const generatePatient = (generator = defaultGenerator): IPatient => {
+  const gender = sample(Object.values(GenderOptions)).value;
+  const [firstName, middleName, lastName] = generator
+    .name({ middle: true, ...nameOptionsForGender(gender) })
     .split(' ');
   return {
-    id: chance.guid({version: 4}),
-    displayId: chance.string({
+    id: generator.guid({ version: 4 }),
+    displayId: generator.string({
       symbols: false,
       length: 6,
       casing: 'upper',
@@ -32,12 +30,9 @@ export const generatePatient = () => {
     firstName,
     middleName,
     lastName,
-    culturalName: chance.bool() ? "" : chance.name(),
-    bloodType: chance.pickone(BloodTypes).value,
-    telephone: chance.phone(),
-    sex,
-    dateOfBirth: chance.birthday(),
-    city: chance.pickone(CITIES),
+    culturalName: generator.bool() ? '' : generator.name(),
+    bloodType: generator.pickone(BloodTypes).value,
+    sex: gender,
+    dateOfBirth: generator.birthday(),
   };
 };
-

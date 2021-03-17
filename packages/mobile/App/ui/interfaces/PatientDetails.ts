@@ -1,15 +1,14 @@
 import { IPatient } from '~/types';
+import { IPatientIssue } from '~/types';
 
 export interface AllergiesProps {
   allergies: {
-    data: string[]
-  }
-}
-
-export interface ProcedurePlanDataProps {
-  procedurePlan: {
     data: string[];
   };
+}
+
+export interface PatientIssuesDataProps {
+  patientIssues: IPatientIssue[];
 }
 
 export interface FamilyHistoryDataProps {
@@ -46,4 +45,4 @@ export type PatientDetails = PatientGeneralInformationDataProps &
   OnGoingConditionsDataProps &
   FamilyHistoryDataProps &
   AllergiesProps &
-  ProcedurePlanDataProps;
+  PatientIssuesDataProps;

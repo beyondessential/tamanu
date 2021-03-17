@@ -29,7 +29,7 @@ interface ScreenProps {
   navigateToSearchPatients: () => void;
   visitTypeButtons: any[];
   patientMenuButtons: any[];
-  navigateToPatientActions: () => void;
+  markPatientForSync: () => void;
   selectedPatient: IPatient;
 }
 
@@ -37,8 +37,8 @@ export const Screen = ({
   visitTypeButtons,
   patientMenuButtons,
   navigateToSearchPatients,
-  navigateToPatientActions,
   selectedPatient,
+  markPatientForSync,
 }: ScreenProps): ReactElement => (
   <FullView background={theme.colors.PRIMARY_MAIN}>
     <StatusBar barStyle="light-content" />
@@ -51,7 +51,6 @@ export const Screen = ({
         <RowView alignItems="center">
           <BackButton onPress={navigateToSearchPatients} />
           <SearchButton onPress={navigateToSearchPatients} />
-          <DotsMenuButton onPress={navigateToPatientActions} />
         </RowView>
         <RowView
           marginTop={screenPercentageToDP(1.5, Orientation.Height)}
@@ -78,9 +77,8 @@ export const Screen = ({
               color={theme.colors.WHITE}
               fontSize={screenPercentageToDP(1.94, Orientation.Height)}
             >
-              {getGender(selectedPatient.gender)},{' '}
-              {getAgeFromDate(selectedPatient.dateOfBirth)} years old,{' '}
-              {selectedPatient.city}
+              {getGender(selectedPatient.sex)},{' '}
+              {getAgeFromDate(selectedPatient.dateOfBirth)} years old{' '}
             </StyledText>
             <Button
               marginTop={screenPercentageToDP(1.21, Orientation.Height)}
@@ -88,7 +86,7 @@ export const Screen = ({
               height={screenPercentageToDP(4.86, Orientation.Height)}
               buttonText="Sync Data"
               fontSize={screenPercentageToDP(1.57, Orientation.Height)}
-              onPress={(): null => null}
+              onPress={markPatientForSync}
               outline
               borderColor={theme.colors.WHITE}
             />

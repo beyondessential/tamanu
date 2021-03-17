@@ -1,4 +1,5 @@
 import React, { ReactElement, useCallback } from 'react';
+import { compose } from 'redux';
 import {
   TransitionPresets,
   createStackNavigator,
@@ -18,15 +19,12 @@ import { ArrowLeftIcon } from '/components/Icons';
 import { Routes } from '/helpers/routes';
 import { VaccineModalScreen } from '../screens/vaccine/VaccineModalScreen';
 import { screenPercentageToDP, Orientation } from '/helpers/screen';
+import { withPatient } from '~/ui/containers/Patient';
+import { ErrorBoundary } from '~/ui/components/ErrorBoundary';
 
 const Stack = createStackNavigator();
 
-const selectedPatient = {
-  firstName: 'Ugyen',
-  lastName: 'Wangdi',
-};
-
-const HeaderTitle = (): ReactElement => (
+const HeaderTitleComponent = ({ selectedPatient }): ReactElement => (
   <CenterView height="100%" position="absolute" zIndex={-1} width="100%">
     <StyledText
       fontSize={screenPercentageToDP(1.33, Orientation.Height)}
@@ -43,9 +41,11 @@ const HeaderTitle = (): ReactElement => (
   </CenterView>
 );
 
+const HeaderTitle = compose(withPatient)(HeaderTitleComponent)
+
 const Header = ({ navigation }: StackHeaderProps): ReactElement => {
   const goBack = useCallback(() => {
-    navigation.navigate(Routes.HomeStack.HomeTabs.name);
+    navigation.navigate(Routes.HomeStack.HomeTabs.Index);
   }, []);
   return (
     <StyledSafeAreaView background={theme.colors.PRIMARY_MAIN}>
@@ -69,29 +69,31 @@ const Header = ({ navigation }: StackHeaderProps): ReactElement => {
 };
 
 export const VaccineStack = (): ReactElement => (
-  <Stack.Navigator headerMode="screen">
-    <Stack.Screen
-      options={{
-        header: Header,
-      }}
-      name={Routes.HomeStack.VaccineStack.VaccineTabs.name}
-      component={VaccineTableTabs}
-    />
-    <Stack.Screen
-      options={{
-        header: () => null,
-        ...TransitionPresets.ModalSlideFromBottomIOS,
-      }}
-      name={Routes.HomeStack.VaccineStack.NewVaccineTabs.name}
-      component={NewVaccineTabs}
-    />
-    <Stack.Screen
-      options={{
-        header: () => null,
-        ...TransitionPresets.ModalSlideFromBottomIOS,
-      }}
-      name={Routes.HomeStack.VaccineStack.VaccineModalScreen}
-      component={VaccineModalScreen}
-    />
-  </Stack.Navigator>
+  <ErrorBoundary>
+    <Stack.Navigator headerMode="screen">
+      <Stack.Screen
+        options={{
+          header: Header,
+        }}
+        name={Routes.HomeStack.VaccineStack.VaccineTabs.Index}
+        component={VaccineTableTabs}
+      />
+      <Stack.Screen
+        options={{
+          header: (): null => null,
+          ...TransitionPresets.ModalSlideFromBottomIOS,
+        }}
+        name={Routes.HomeStack.VaccineStack.NewVaccineTabs.Index}
+        component={NewVaccineTabs}
+      />
+      <Stack.Screen
+        options={{
+          header: (): null => null,
+          ...TransitionPresets.ModalSlideFromBottomIOS,
+        }}
+        name={Routes.HomeStack.VaccineStack.VaccineModalScreen}
+        component={VaccineModalScreen}
+      />
+    </Stack.Navigator>
+  </ErrorBoundary>
 );

@@ -30,7 +30,7 @@ export const VaccineModalScreen = ({
   }, []);
 
   const onNavigateToEditDetails = useCallback(() => {
-    navigation.navigate(Routes.HomeStack.VaccineStack.NewVaccineTabs.name, {
+    navigation.navigate(Routes.HomeStack.VaccineStack.NewVaccineTabs.Index, {
       vaccine,
     });
   }, [vaccine]);
@@ -43,7 +43,7 @@ export const VaccineModalScreen = ({
           <VaccineCard
             onCloseModal={onNavigateBack}
             onEditDetails={onNavigateToEditDetails}
-            vaccineData={route.params.vaccine}
+            vaccineData={vaccine}
           />
         )}
       </CenterView>

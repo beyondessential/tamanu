@@ -19,10 +19,10 @@ import {
   StyledTouchableOpacity,
 } from '/styled/common';
 import { ArrowDownIcon } from '/components/Icons';
-import { VaccineStatus } from '/helpers/constants';
 import { Routes } from '/helpers/routes';
 import { VaccineDataProps } from '/components/VaccineCard';
 import { screenPercentageToDP, Orientation } from '/helpers/screen';
+import { VaccineStatus } from '~/ui/helpers/patient';
 
 type NewVaccineHeaderProps = {
   navigation: NavigationProp<any>;
@@ -34,7 +34,7 @@ const Header = ({
   vaccine,
 }: NewVaccineHeaderProps): ReactElement => {
   const onPress = useCallback(() => {
-    navigation.navigate(Routes.HomeStack.VaccineStack.VaccineTabs.name);
+    navigation.navigate(Routes.HomeStack.VaccineStack.VaccineTabs.Index);
   }, []);
   return (
     <SafeAreaView
@@ -57,8 +57,9 @@ const Header = ({
             {vaccine.name}
           </StyledText>
           <StyledText color={theme.colors.SECONDARY_MAIN} fontSize={21}>
-            {vaccine.subtitle}
+            {vaccine.code}
           </StyledText>
+          <StyledText color={theme.colors.WHITE}>{vaccine.schedule}</StyledText>
         </StyledView>
         <StyledView
           position="absolute"
@@ -69,9 +70,6 @@ const Header = ({
           <StyledTouchableOpacity onPress={onPress}>
             <ArrowDownIcon size={15} fill={theme.colors.WHITE} stroke={3} />
           </StyledTouchableOpacity>
-        </StyledView>
-        <StyledView height="100%" justifyContent="center" paddingRight={20}>
-          <StyledText color={theme.colors.WHITE}>{vaccine.dateType}</StyledText>
         </StyledView>
       </RowView>
     </SafeAreaView>
@@ -99,29 +97,23 @@ export const NewVaccineTabs = ({
   const routes = useMemo(
     () => [
       {
-        key: VaccineStatus.TAKEN,
-        title: 'TAKEN\nON TIME',
+        key: VaccineStatus.GIVEN,
+        title: 'GIVEN\nON TIME',
         vaccine: route.params.vaccine,
         color: theme.colors.SAFE,
-        icon: Icons.TakenOnTimeIcon,
+        icon: Icons.GivenOnTimeIcon,
       },
       {
-        key: VaccineStatus.TAKEN_NOT_ON_TIME,
-        title: 'TAKEN NOT \n ON SCHEDULE',
-        vaccine: route.params.vaccine,
-        color: theme.colors.ORANGE,
-        icon: Icons.TakenNotOnTimeIcon,
-      },
-      {
-        key: VaccineStatus.NOT_TAKEN,
-        title: 'NOT\nTAKEN ',
+        key: VaccineStatus.NOT_GIVEN,
+        title: 'NOT\nGIVEN ',
         vaccine: route.params.vaccine,
         color: theme.colors.PRIMARY_MAIN,
-        icon: Icons.NotTakenIcon,
+        icon: Icons.NotGivenIcon,
       },
     ],
     [route],
   );
+
   const [state, setState] = useState({
     index: 0,
     routes,
@@ -129,13 +121,7 @@ export const NewVaccineTabs = ({
 
   useEffect(() => {
     switch (route.params.vaccine.status) {
-      case VaccineStatus.TAKEN_NOT_ON_TIME:
-        setState({
-          index: 1,
-          routes,
-        });
-        break;
-      case VaccineStatus.NOT_TAKEN:
+      case VaccineStatus.NOT_GIVEN:
         setState({
           index: 2,
           routes,
@@ -151,9 +137,8 @@ export const NewVaccineTabs = ({
       <VaccineTabNavigator
         state={state}
         scenes={{
-          [VaccineStatus.TAKEN]: NewVaccineTab,
-          [VaccineStatus.TAKEN_NOT_ON_TIME]: NewVaccineTab,
-          [VaccineStatus.NOT_TAKEN]: NewVaccineTab,
+          [VaccineStatus.GIVEN]: NewVaccineTab,
+          [VaccineStatus.NOT_GIVEN]: NewVaccineTab,
         }}
         onChangeTab={setState}
       />

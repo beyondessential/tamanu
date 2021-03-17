@@ -1,12 +1,13 @@
-import React, {FunctionComponent, useContext} from 'react';
+import React, { FunctionComponent, useContext } from 'react';
 // Helpers
-import {Routes} from '/helpers/routes';
-import {noSwipeGestureOnNavigator} from '/helpers/navigators';
+import { Routes } from '/helpers/routes';
+import { noSwipeGestureOnNavigator } from '/helpers/navigators';
 //Stacks
-import {createStackNavigator} from '@react-navigation/stack';
-import {SignUpStack} from './SignUp';
-import {HomeStack} from './Home';
-import AuthContext from '../../contexts/authContext/AuthContext';
+import { createStackNavigator } from '@react-navigation/stack';
+import { SignUpStack } from './SignUp';
+import { HomeStack } from './Home';
+import AuthContext from '~/ui/contexts/AuthContext';
+import { AutocompleteModalScreen } from '~/ui/components/AutocompleteModal';
 
 const Stack = createStackNavigator();
 
@@ -17,14 +18,15 @@ export const Core: FunctionComponent<any> = () => {
       headerMode="none"
       initialRouteName={
         authCtx.isUserAuthenticated()
-          ? Routes.HomeStack.name
-          : Routes.SignUpStack.name
+          ? Routes.HomeStack.Index
+          : Routes.SignUpStack.Index
       }
     >
-      <Stack.Screen name={Routes.SignUpStack.name} component={SignUpStack} />
+      <Stack.Screen name={Routes.Autocomplete.Modal} component={AutocompleteModalScreen} />
+      <Stack.Screen name={Routes.SignUpStack.Index} component={SignUpStack} />
       <Stack.Screen
         options={noSwipeGestureOnNavigator}
-        name={Routes.HomeStack.name}
+        name={Routes.HomeStack.Index}
         component={HomeStack}
       />
     </Stack.Navigator>

@@ -1,73 +1,132 @@
-import React, { ReactElement, useEffect, useState, useCallback } from 'react';
-import { StyledText, FullView, CenterView, StyledView } from '/styled/common';
+import React, { ReactElement, useCallback, useContext, useEffect, useState } from 'react';
+import { activateKeepAwake, deactivateKeepAwake} from '@sayem314/react-native-keep-awake';
+import { CenterView, StyledText, StyledView } from '/styled/common';
 import { theme } from '/styled/theme';
-import { CircularProgress } from '/components/CircularProgress';
 import { Button } from '/components/Button';
-import {
-  setStatusBar,
-  screenPercentageToDP,
-  Orientation,
-} from '~/ui/helpers/screen';
+import moment from 'moment/src/moment';
+import { Orientation, screenPercentageToDP, setStatusBar } from '~/ui/helpers/screen';
+import { BackendContext } from '~/ui/contexts/BackendContext';
+import { SyncManager } from '~/services/sync';
+import { CircularProgress } from '/components/CircularProgress';
 
-export const SyncDataScreen = (): ReactElement => {
-  const [progress, setProgress] = useState(0);
-  useEffect(() => {
-    if (progress >= 100) setProgress(0);
-  }, [progress]);
+import { SyncErrorDisplay } from '~/ui/components/SyncErrorDisplay';
+
+export const SyncDataScreen = (props): ReactElement => {
+  const backend = useContext(BackendContext);
+  const syncManager: SyncManager = backend.syncManager;
+
+  const formatLastSyncTime = (lastSyncTime) => (lastSyncTime ? moment(lastSyncTime).fromNow() : '');
+
+  const [isSyncing, setIsSyncing] = useState(syncManager.isSyncing);
+  const [progress, setProgress] = useState(syncManager.progress);
+  const [channelName, setChannelName] = useState();
+  const [formattedLastSyncTime, setFormattedLastSyncTime] = useState(formatLastSyncTime(syncManager.lastSyncTime));
+
+  setStatusBar('light-content', theme.colors.MAIN_SUPER_DARK);
 
   const manualSync = useCallback(() => {
-    setProgress(0);
+    syncManager.runScheduledSync();
   }, []);
+
+  const errorDisplayAvailable = true;
+
+  useEffect(() => {
+    const handler = (action, event) => {
+      switch (action) {
+        case 'syncStarted':
+          setIsSyncing(true);
+          activateKeepAwake(); // don't let the device sleep while syncing
+          break;
+        case 'syncEnded':
+          setIsSyncing(false);
+          setFormattedLastSyncTime(formatLastSyncTime(syncManager.lastSyncTime));
+          deactivateKeepAwake();
+          break;
+        case 'progress':
+          setProgress(syncManager.progress);
+          break;
+        case 'channelSyncStarted': {
+          const channel = event;
+          const prettyChannel = channel.split(/(?=[A-Z])/).join(' ').toLowerCase(); // e.g. scheduledVaccine -> scheduled vaccine
+          setChannelName(prettyChannel);
+          break;
+        }
+        default:
+          break;
+      }
+    };
+    syncManager.emitter.on('*', handler);
+    return () => {
+      syncManager.emitter.off('*', handler);
+    };
+  });
 
   useEffect(() => {
     const interval = setInterval(() => {
-      setProgress(p => Math.min(p + 5, 100));
-    }, 600);
-    return (): void => clearInterval(interval);
+      setFormattedLastSyncTime(formatLastSyncTime(syncManager.lastSyncTime));
+    }, 1000);
+    return () => {
+      clearInterval(interval);
+    };
   }, []);
-  setStatusBar('light-content', theme.colors.MAIN_SUPER_DARK);
 
   return (
-    <FullView background={theme.colors.MAIN_SUPER_DARK}>
-      <CenterView flex={1}>
-        <CircularProgress progress={progress} />
+    <CenterView background={theme.colors.MAIN_SUPER_DARK} flex={1}>
+      <StyledView alignItems="center">
+        <CircularProgress progress={isSyncing ? progress : 0} />
         <StyledText
           marginTop={25}
           fontWeight={500}
           color={theme.colors.SECONDARY_MAIN}
           fontSize={screenPercentageToDP(2.55, Orientation.Height)}
+          textAlign="center"
         >
-          Data Syncing Now
+          {isSyncing ? (`Syncing ${channelName} data`) : 'Up to date'}
         </StyledText>
-        <StyledView
-          marginTop={screenPercentageToDP(9.72, Orientation.Height)}
-          alignItems="center"
-        >
+        {!isSyncing && formattedLastSyncTime ? (
+          <>
+            <StyledText
+              marginTop={screenPercentageToDP(9.72, Orientation.Height)}
+              fontSize={screenPercentageToDP(1.7, Orientation.Height)}
+              fontWeight={500}
+              color={theme.colors.WHITE}
+            >
+              Last successful Sync
+            </StyledText>
+            <StyledText
+              fontSize={screenPercentageToDP(1.7, Orientation.Height)}
+              fontWeight={500}
+              color={theme.colors.WHITE}
+            >
+              {formattedLastSyncTime}
+            </StyledText>
+          </>
+        ) : (
           <StyledText
+            marginTop={screenPercentageToDP(3.5, Orientation.Height)}
             fontSize={screenPercentageToDP(1.7, Orientation.Height)}
             fontWeight={500}
             color={theme.colors.WHITE}
           >
-            Last successful Sync
+            {progress}%
           </StyledText>
-          <StyledText
-            fontSize={screenPercentageToDP(1.7, Orientation.Height)}
-            fontWeight={500}
-            color={theme.colors.WHITE}
-          >
-            monday 10 august, 7:35pm
-          </StyledText>
-        </StyledView>
-        <Button
-          onPress={manualSync}
-          width={160}
-          outline
-          textColor={theme.colors.WHITE}
-          borderColor={theme.colors.WHITE}
-          buttonText="Manual Sync"
-          marginTop={20}
-        />
-      </CenterView>
-    </FullView>
+        )}
+        {isSyncing ? null
+          : (
+            <Button
+              onPress={manualSync}
+              width={160}
+              outline
+              textColor={theme.colors.WHITE}
+              borderColor={theme.colors.WHITE}
+              buttonText="Manual Sync"
+              marginTop={20}
+            />
+          )
+        }
+        <SyncErrorDisplay />
+      </StyledView>
+    </CenterView>
   );
 };
+

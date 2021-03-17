@@ -9,7 +9,7 @@ import {
 import { theme } from '/styled/theme';
 import { screenPercentageToDP, Orientation } from '/helpers/screen';
 import { Button } from '/components/Button';
-import { CrossIcon, TakenOnTimeIcon } from '/components/Icons';
+import { CrossIcon, GivenOnTimeIcon } from '/components/Icons';
 import { Routes } from '/helpers/routes';
 import { UserAvatar } from '/components/UserAvatar';
 import { compose } from 'redux';
@@ -33,7 +33,7 @@ const newPatientAddedMock = {
     'https://res.cloudinary.com/dqkhy63yu/image/upload/v1573676957/Ellipse_4.png',
   Icon: (
     <StyledView position="absolute" right="-20" bottom={30} zIndex={2}>
-      <TakenOnTimeIcon
+      <GivenOnTimeIcon
         size={screenPercentageToDP('3.88', Orientation.Height)}
       />
     </StyledView>
@@ -45,12 +45,12 @@ const Screen = ({
   setSelectedPatient,
 }: NewPatientScreenProps): ReactElement => {
   const onNavigateToHome = useCallback(() => {
-    navigation.navigate(Routes.HomeStack.HomeTabs.name);
+    navigation.navigate(Routes.HomeStack.HomeTabs.Index);
   }, []);
 
   const onAddAnotherPatient = useCallback(() => {
-    navigation.navigate(Routes.HomeStack.name, {
-      screen: Routes.HomeStack.RegisterPatientStack.name,
+    navigation.navigate(Routes.HomeStack.Index, {
+      screen: Routes.HomeStack.RegisterPatientStack.Index,
       params: {
         screen: Routes.HomeStack.RegisterPatientStack.PatientPersonalInfo,
       },
@@ -69,8 +69,8 @@ const Screen = ({
       lastVisit: new Date(),
     };
     setSelectedPatient(newPatient);
-    navigation.navigate(Routes.HomeStack.HomeTabs.name, {
-      screen: Routes.HomeStack.PatientDetails,
+    navigation.navigate(Routes.HomeStack.HomeTabs.Index, {
+      screen: Routes.HomeStack.PatientDetailsStack.Index,
     });
   }, []);
 

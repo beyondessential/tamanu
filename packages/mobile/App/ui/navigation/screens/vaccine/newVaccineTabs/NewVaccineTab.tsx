@@ -3,6 +3,8 @@ import { useNavigation } from '@react-navigation/native';
 import { ScrollView } from 'react-native';
 import { Route } from 'react-native-tab-view';
 import { SvgProps } from 'react-native-svg';
+import { compose } from 'redux';
+import { withPatient } from '~/ui/containers/Patient';
 import {
   FullView,
   StyledView,
@@ -18,6 +20,8 @@ import { SectionHeader } from '/components/SectionHeader';
 import { Button } from '/components/Button';
 import { VaccineDataProps } from '/components/VaccineCard';
 import { Orientation, screenPercentageToDP } from '/helpers/screen';
+import { useBackend } from '~/ui/hooks';
+import { IPatient } from '~/types';
 
 const SubmitButtons = ({
   onSubmit,
@@ -53,9 +57,12 @@ type NewVaccineTabProps = {
     color?: string;
     vaccine: VaccineDataProps;
   };
+  selectedPatient: IPatient;
 };
 
-export const NewVaccineTab = ({ route }: NewVaccineTabProps): ReactElement => {
+export const NewVaccineTabComponent = ({
+  route, selectedPatient,
+}: NewVaccineTabProps): ReactElement => {
   const { vaccine } = route;
   const navigation = useNavigation();
 
@@ -63,7 +70,27 @@ export const NewVaccineTab = ({ route }: NewVaccineTabProps): ReactElement => {
     navigation.goBack();
   }, []);
 
-  const onFormSubmit = useCallback(values => console.log(values), []);
+  const { models } = useBackend();
+  const recordVaccination = useCallback(
+    async (values: any): Promise<any> => {
+      const { reason, batch, status, date, scheduledVaccineId, examiner } = values;
+      const encounter = await models.Encounter.getOrCreateCurrentEncounter(
+        selectedPatient.id,
+        { examiner },
+      );
+
+      await models.AdministeredVaccine.createAndSaveOne({
+        reason,
+        batch,
+        status,
+        date,
+        scheduledVaccine: scheduledVaccineId,
+        encounter: encounter.id,
+      });
+
+      navigation.goBack();
+    }, [],
+  );
 
   return (
     <FullView>
@@ -82,14 +109,16 @@ export const NewVaccineTab = ({ route }: NewVaccineTabProps): ReactElement => {
             <SectionHeader h3>INFORMATION</SectionHeader>
           </StyledView>
           <VaccineForm
-            onSubmit={onFormSubmit}
+            onSubmit={recordVaccination}
             onCancel={onPressCancel}
             SubmitButtons={SubmitButtons}
             initialValues={vaccine}
-            type={route.key}
+            status={route.key}
           />
         </ScrollView>
       </StyledSafeAreaView>
     </FullView>
   );
 };
+
+export const NewVaccineTab = compose(withPatient)(NewVaccineTabComponent);

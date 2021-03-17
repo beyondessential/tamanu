@@ -36,6 +36,12 @@ If you are about to use IOS simulators you will also need to go into the `ios` f
 cd ios && pod install
 ```
 
+### Configure environment
+
+```
+cp .sampleenv .env
+```
+
 ### Making Project runnable
 
 #### Xcode
@@ -53,6 +59,12 @@ Open your console/terminal in the project folder
 
 Be sure to have [Xcode](https://apps.apple.com/br/app/xcode/id497799835?marginTop=12) and/or [Android Studio](https://www.google.com/search?q=android+studio&oq=android+studio&aqs=chrome..69i57j69i60l2j69i65l2j69i60.1366j0j4&sourceid=chrome&ie=UTF-8) installed in your computer.
 
+### Run emulator
+
+```
+yarn android
+```
+
 ### Run metro bundler
 
 The metro-bundler works with watchman to reload stuff into the device or emulator and show up updates during development.
@@ -65,29 +77,13 @@ yarn start
 ### Run storybook
 
 Storybook is our default component library which helps us checking the behavior and styles of components in an isolated environment.
-Be sure to have and Emulator/Simulator open and then Run it by using the following commands:
 
-```
-yarn run storybook
-```
+To run storybook:
+1. Have your emulator running
+1. Have your app running (metro bundler)
+1. Open the dev menu and press `Toggle Storybook`
 
-Now run the metro-bundler
-
-```
-yarn start
-```
-
-And at last run the app:
-
-```
-react-native run-ios
-```
-
-or for android:
-
-```
-react-native run-android
-```
+You can also run `yarn storybook-web-ui` for a little nicer experience.
 
 ## Emulator Command Hints
 
@@ -119,9 +115,9 @@ The builded app will be in:
 tamanu-mobile/android/app/build/outputs/apk/release/app-release.apk
 ```
 
-## Debugging 
+## Debugging
 
-The tamanu app has 2 integrations for debugging: 
+The tamanu app has 2 integrations for debugging:
 
 - [Flipper](https://fbflipper.com/)
 - [Reactotron](https://infinite.red/reactotron)
@@ -130,10 +126,40 @@ Flipper allow us to track database changes in sqlite files, and Reactotron has a
 
 All you have to do is download the tools and open them while running while development and it will automatically syncs to the program and show you the updates.
 
-#### Distribute
+#### Versioning
+
+We use a modified version of semver. The major and minor act as usual, but the patch increments forever, rather than getting reset to 0 every minor bump. This gives us a monotonic "build number" we can use as the Google Play Store version.
+
+To bump the version, edit it in `package.json`, and remember to increment the patch monotonically no matter what other changes are made.
+
+#### Internal distribution
 
 1. upload file in diawi.com
 2. share app with the team!
+#### Releasing
+
+App Center will build an apk and app bundle on every commit to dev and master. It is also connected directly to Google Play, making distribution easy _if_ you are releasing to all countries at once.
+
+To release a version to the Google Play store using App Center:
+- Open https://appcenter.ms/orgs/Beyond-Essential/apps/Tamanu-Mobile/build/branches/master
+- Click the latest build (top of the list)
+- Drop down "Distribute" and select "Store"
+- Choose "Production", edit the release notes as required, then submit
+
+It will take around 5 - 10 minutes to process, and then will enter Google Play's review and release process automatically.
+
+In future, we may need to roll out to a country at a time - this needs to be done directly through Google Play.
+
+### App Center builds
+App Center is all set up to build and sign both .aab app bundles (for the store, see above), and .apk files (for internal testing/non-store distribution).
+
+To make a release build of a branch:
+- Go to the [branches page in App Center](https://appcenter.ms/orgs/Beyond-Essential/apps/Tamanu-Mobile/build/branches)
+- Navigate to your branch
+- Hit the arrow beside configure then "clone from existing configuration" and choose dev
+- Hit "Save and build"
+- When finished, download the .apk file by choosing "Download" -> "Download build"
+- Optionally, remove the config from that branch so that it doesn't build on every push
 
 ### Generate IOS build
 
@@ -166,8 +192,6 @@ In the previous path you will be the "tamanuapp.app" we can:
 5. upload file in diawi.com
 6. share app with the team!
 
-### Base-app-structure
-
 #### File configurations
 App configuration files
 
@@ -184,7 +208,7 @@ App configuration files
 
 Environment:
 
-This project uses [react-native-config](https://github.com/luggit/react-native-config) for embedding env variables to android and ios. 
+This project uses [react-native-config](https://github.com/luggit/react-native-config) for embedding env variables to android and ios.
 Whenever we change the value of a env file variable we have to run the build process again so changes can take effect.
 
 To change which env file bundled into release make changes into:
@@ -231,4 +255,3 @@ App folder structure:
 | ios | Pods (cocoa-pods) installed. Some RN libraries require a native syncing that is done by running "pod install" in this folder. |
 | scripts | scripts for workarounds and  |
 | _mocks_ | fixed mocks for jest test runner  |
-

@@ -12,7 +12,7 @@ export const Section = ({
   title,
   children,
 }: PropsWithChildren<Section>): ReactElement => (
-  <React.Fragment>
+  <>
     <StyledView
       paddingTop={20}
       paddingLeft={20}
@@ -28,5 +28,5 @@ export const Section = ({
       {children}
     </StyledView>
     <Separator />
-  </React.Fragment>
+  </>
 );

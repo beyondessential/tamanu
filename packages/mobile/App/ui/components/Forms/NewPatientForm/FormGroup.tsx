@@ -33,3 +33,7 @@ export const FormGroup = ({
     </StyledView>
   );
 };
+
+FormGroup.defaultProps = {
+  marginTop: null,
+};

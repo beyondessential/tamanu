@@ -1,0 +1,109 @@
+@server = https://sync-dev.tamanu.io
+@token = {{login.response.body.token}}
+
+### Login
+# @name login
+POST {{server}}/v1/login
+Content-Type: application/json
+
+{
+  "email": "",
+  "password": ""
+}
+
+### Retrieve first 100 patient records for sync
+GET {{server}}/v1/sync/patient?since=0&offset=0&limit=100
+Authorization: Bearer {{token}}
+Accept: application/json
+
+### Get all surveys
+GET {{server}}/v1/sync/survey?since=1614690000000   HTTP/1.1
+Content-Type: application/json
+Authorization: Bearer {{token}}
+
+[]
+
+###
+
+# update an existing survey screen component
+POST {{server}}/v1/sync/survey HTTP/1.1
+Authorization: Bearer {{token}}
+Content-Type: application/json
+
+[
+  {
+    "recordType": "survey",
+    "data": {
+      "id": "program-referral_forms/survey-cvd_referral",
+      "programId": "program-hidden_forms"
+    }
+  },
+  {
+    "recordType": "survey",
+    "data": {
+      "id": "program-referral_forms/survey-bcp_referral",
+      "programId": "program-hidden_forms"
+    }
+  },
+  {
+    "recordType": "survey",
+    "data": {
+      "id": "program-referral_forms/survey-ccp_referral",
+      "programId": "program-hidden_forms"
+    }
+  }
+]
+
+###
+
+# See: https://github.com/beyondessential/tamanu/blob/dev/docs/Surveys.md for more info.
+# requires tamanu lan server to be running locally.
+POST http://localhost:4000/v1/admin/importSurvey
+X-Client-Version: 1.0.0
+Content-Type: application/json
+
+{
+  "file": "/Users/basgo/Downloads/Breast.Cancer.Referral.xlsx",
+  "programName": "Referrals",
+  "programCode": "referral_forms",
+  "surveyName": "Breast Cancer Screening Referral",
+  "surveyCode": "bcpr_referral",
+  "surveyType": "referral",
+  "dryRun": false
+}
+
+###
+
+# See: https://github.com/beyondessential/tamanu/blob/dev/docs/Surveys.md for more info.
+# requires tamanu lan server to be running locally.
+POST http://localhost:4000/v1/admin/importSurvey
+X-Client-Version: 1.0.0
+Content-Type: application/json
+
+{
+  "file": "/Users/basgo/Downloads/Cervical.Cancer.Referral.xlsx",
+  "programName": "Referrals",
+  "programCode": "referral_forms",
+  "surveyName": "Cervical Cancer Primary Referral",
+  "surveyCode": "ccpr_referral",
+  "surveyType": "referral",
+  "dryRun": false
+}
+
+###
+
+# See: https://github.com/beyondessential/tamanu/blob/dev/docs/Surveys.md for more info.
+# requires tamanu lan server to be running locally.
+POST http://localhost:4000/v1/admin/importSurvey
+X-Client-Version: 1.0.0
+Content-Type: application/json
+
+{
+  "file": "/Users/basgo/Downloads/CVD.Referral.xlsx",
+  "programName": "Referrals",
+  "programCode": "referral_forms",
+  "surveyName": "CVD Primary Referral",
+  "surveyCode": "cvdpr_referral",
+  "surveyType": "referral",
+  "dryRun": false
+}

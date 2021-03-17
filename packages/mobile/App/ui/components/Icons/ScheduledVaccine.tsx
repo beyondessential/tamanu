@@ -8,16 +8,14 @@ export const ScheduledVaccine = memo(
     size = screenPercentageToDP(3.64, Orientation.Height),
   }: {
     size: number;
-  }) => {
-    return (
-      <StyledView
-        borderRadius={50}
-        height={size}
-        width={size}
-        background={theme.colors.WHITE}
-        borderWidth={1}
-        borderColor={theme.colors.BOX_OUTLINE}
-      />
-    );
-  },
+  }) => (
+    <StyledView
+      borderRadius={50}
+      height={size}
+      width={size}
+      background={theme.colors.WHITE}
+      borderWidth={1}
+      borderColor={theme.colors.BOX_OUTLINE}
+    />
+  ),
 );

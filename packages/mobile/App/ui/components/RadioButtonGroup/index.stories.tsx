@@ -6,7 +6,7 @@ import { RadioButtonGroup } from './index';
 function RadioButtonGroupStory({
   error: defaultError,
 }: {
-  error?: boolean;
+  error: boolean;
 }): JSX.Element {
   const [error, setError] = useState(defaultError);
   const [options] = useState([
@@ -37,5 +37,5 @@ function RadioButtonGroupStory({
 
 storiesOf('Radio Button Group', module)
   .addDecorator((getStory: Function) => <CenterView>{getStory()}</CenterView>)
-  .add('Basic', () => <RadioButtonGroupStory />)
+  .add('Basic', () => <RadioButtonGroupStory error={false} />)
   .add('With error', () => <RadioButtonGroupStory error />);

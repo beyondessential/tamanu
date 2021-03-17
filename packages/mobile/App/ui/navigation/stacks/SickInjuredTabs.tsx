@@ -8,7 +8,9 @@ import { withPatient } from '/containers/Patient';
 import { IPatient } from '~/types';
 import { joinNames } from '/helpers/user';
 import { FullView } from '/styled/common';
-import { AddSickDetailScreen } from '../screens/sickOrInjured/AddSickDetails';
+import { AddIllnessScreen } from '../screens/sickOrInjured/AddIllnessDetails';
+import { PrescribeMedicationScreen } from '../screens/sickOrInjured/PrescribeMedication';
+import { ErrorBoundary } from '~/ui/components/ErrorBoundary';
 
 const Tabs = createTopTabNavigator();
 
@@ -25,29 +27,31 @@ const TabNavigator = ({
     navigation.goBack();
   }, []);
   return (
-    <FullView>
-      <StackHeader
-        title="Sick or Injured"
-        subtitle={joinNames(selectedPatient)}
-        onGoBack={goBack}
-      />
-      <Tabs.Navigator>
-        <Tabs.Screen
-          options={{
-            title: 'ADD DETAILS',
-          }}
-          name={Routes.HomeStack.SickOrInjuredTabs.AddSickDetailScreen}
-          component={AddSickDetailScreen}
+    <ErrorBoundary>
+      <FullView>
+        <StackHeader
+          title="Sick or Injured"
+          subtitle={joinNames(selectedPatient)}
+          onGoBack={goBack}
         />
-        <Tabs.Screen
-          options={{
-            title: 'VIEW HISTORY',
-          }}
-          name={Routes.HomeStack.SickOrInjuredTabs.ViewHistory}
-          component={AddSickDetailScreen}
-        />
-      </Tabs.Navigator>
-    </FullView>
+        <Tabs.Navigator>
+          <Tabs.Screen
+            options={{
+              title: 'ADD DETAILS',
+            }}
+            name={Routes.HomeStack.SickOrInjuredTabs.AddIllnessScreen}
+            component={AddIllnessScreen}
+          />
+          <Tabs.Screen
+            options={{
+              title: 'PRESCRIBE MEDICATION',
+            }}
+            name={Routes.HomeStack.SickOrInjuredTabs.PrescribeMedication}
+            component={PrescribeMedicationScreen}
+          />
+        </Tabs.Navigator>
+      </FullView>
+    </ErrorBoundary>
   );
 };
 

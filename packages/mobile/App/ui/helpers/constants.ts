@@ -1,5 +1,8 @@
+import { EncounterType } from '~/types';
 import * as Icons from '/components/Icons';
 import { theme } from '/styled/theme';
+import { VaccineStatus } from '/helpers/patient';
+import { ColorHelper } from './colors';
 
 export const DateFormats = {
   short: 'EEE, dd MMM',
@@ -49,9 +52,14 @@ export const VisitTypes = {
 };
 
 export const HeaderIcons = {
-  [VisitTypes.CLINIC]: Icons.ClipboardIcon,
-  [VisitTypes.HOSPITAL]: Icons.FirstAidKitIcon,
-  [VisitTypes.VISIT]: Icons.StethoscopeIcon,
+  //TODO: find correct icons for each EncounterType
+  [EncounterType.Clinic]: Icons.ClipboardIcon,
+  [EncounterType.Emergency]: Icons.FirstAidKitIcon,
+  [EncounterType.Admission]: Icons.StethoscopeIcon,
+  [EncounterType.Imaging]: Icons.FirstAidKitIcon,
+  [EncounterType.Observation]: Icons.FirstAidKitIcon,
+  [EncounterType.Triage]: Icons.FirstAidKitIcon,
+  [EncounterType.SurveyResponse]: Icons.FirstAidKitIcon,
 };
 
 export const PatientVitalsList = [
@@ -102,6 +110,10 @@ const labRole = {
   value: 'lab',
   label: 'Lab',
 };
+const practitionerRole = {
+  value: 'practitioner',
+  label: 'Practitioner',
+};
 export const userRolesOptions = [
   seniorDoctorRole,
   juniorDoctorRole,
@@ -112,49 +124,67 @@ export const userRolesOptions = [
   finnanceRole,
   radiologyRole,
   labRole,
+  practitionerRole,
 ];
 
-export const VaccineStatus = {
-  TAKEN: 'TAKEN',
-  TAKEN_NOT_ON_TIME: 'TAKEN_NOT_ON_TIME',
-  NOT_TAKEN: 'NOT_TAKEN',
-  SCHEDULED: 'SCHEDULED',
-};
-export const VaccineIcons = {
-  [VaccineStatus.TAKEN]: {
-    Icon: Icons.TakenOnTimeIcon,
-    color: theme.colors.SAFE,
-    text: 'TAKEN ON TIME',
-  },
-  [VaccineStatus.NOT_TAKEN]: {
-    Icon: Icons.NotTakenIcon,
+export const VaccineStatusCells = {
+  [VaccineStatus.UNKNOWN]: {
+    Icon: Icons.EmptyCircleIcon,
+    background: 'transparent',
     color: theme.colors.TEXT_SOFT,
-    text: 'NOT TAKEN',
+    text: 'UNKNOWN',
   },
-  [VaccineStatus.TAKEN_NOT_ON_TIME]: {
-    Icon: Icons.TakenNotOnTimeIcon,
-    color: theme.colors.ORANGE,
-    text: 'TAKEN NOT ON TIME',
+  [VaccineStatus.GIVEN]: {
+    Icon: Icons.GivenOnTimeIcon,
+    background: theme.colors.SAFE,
+    color: theme.colors.SAFE,
+    text: 'GIVEN ON TIME',
+  },
+  [VaccineStatus.NOT_GIVEN]: {
+    Icon: Icons.NotGivenIcon,
+    background: theme.colors.DISABLED_GREY,
+    color: theme.colors.TEXT_SOFT,
+    text: 'NOT GIVEN',
   },
   [VaccineStatus.SCHEDULED]: {
     Icon: Icons.EmptyCircleIcon,
-    color: theme.colors.ORANGE,
+    background: theme.colors.BACKGROUND_GREY,
+    color: theme.colors.TEXT_SOFT,
     text: 'SCHEDULED',
   },
-};
-
-export const SCREEN_ORIENTATION = {
-  PORTRAIT: 'portrait',
-  LANDSCAPE: 'landscape',
+  [VaccineStatus.MISSED]: {
+    Icon: Icons.CrossIcon,
+    background: theme.colors.ALERT,
+    color: theme.colors.TEXT_SOFT,
+    text: 'MISSED',
+  },
+  [VaccineStatus.DUE]: {
+    Icon: Icons.EmptyCircleIcon,
+    background: theme.colors.PRIMARY_MAIN,
+    color: theme.colors.TEXT_SOFT,
+    text: 'DUE NOW',
+  },
+  [VaccineStatus.OVERDUE]: {
+    Icon: Icons.EmptyCircleIcon,
+    background: theme.colors.SECONDARY_MAIN,
+    color: theme.colors.TEXT_SOFT,
+    text: 'OVERDUE',
+  },
+  [VaccineStatus.UPCOMING]: {
+    Icon: Icons.EmptyCircleIcon,
+    background: ColorHelper.halfTransparency(theme.colors.PRIMARY_MAIN),
+    color: theme.colors.TEXT_SOFT,
+    text: 'UPCOMING',
+  },
 };
 
 export const PhoneMask = { mask: '9999 9999 999' };
 
-export enum Gender {
-  Male = 'male',
-  Female = 'female',
-  Other = 'other'
-}
+export const Gender = {
+  Male: 'male',
+  Female: 'female',
+  Other: 'other',
+};
 
 export const MaleGender = {
   label: 'Male',
@@ -180,3 +210,13 @@ export const MarriedStatus = {
 export const SingleStatus = { value: 'single', label: 'Single' };
 export const Other = { value: 'other', label: 'Other' };
 export const MaritalStatusOptions = [SingleStatus, MarriedStatus, Other];
+
+export const EncounterTypeNames = {
+  admission: 'Admission',
+  clinic: 'Clinic',
+  imaging: 'Imaging',
+  emergency: 'Emergency',
+  observation: 'Observation',
+  triage: 'Triage',
+  surveyResponse: 'Survey response',
+};

@@ -1,27 +1,57 @@
-import { isCalculated } from '/helpers/fields';
-
-import { dummyPrograms } from '~/dummyData/programs';
 import { Database } from '~/infra/db';
-import { needsInitialPopulation, populateInitialData } from '~/infra/db/populate';
+import { SyncManager, WebSyncSource } from '~/services/sync';
+import { AuthService } from '~/services/auth';
+import { MODELS_MAP } from '~/models/modelsMap';
+
+const SYNC_PERIOD_MINUTES = 5;
 
 export class Backend {
+  randomId: any;
+
+  responses: any[];
+
+  initialised: boolean;
+
+  models: typeof MODELS_MAP;
+
+  syncManager: SyncManager;
+
+  syncSource: WebSyncSource;
+
+  auth: AuthService;
+
+  interval: number;
 
   constructor() {
-    this.responses = [];
-    this.initialised = false;
-    this.models = Database.models;
-
-    // keep a random id around so the provider can check if the backend object
-    // was regenerated - this should only happens via live reload (ie in development mode)
-    this.randomId = Math.random();
-  }
-
-  async initialise() {
-    await Database.connect();
     const { models } = Database;
-    if(await needsInitialPopulation(models)) {
-      await populateInitialData(models);
-    }
+    this.models = models;
+    this.syncSource = new WebSyncSource();
+    this.syncManager = new SyncManager(this.syncSource);
+    this.auth = new AuthService(models, this.syncSource);
   }
 
+  async initialise(): Promise<void> {
+    await Database.connect();
+    await this.auth.initialise();
+  }
+
+  startSyncService() {
+    this.stopSyncService();
+
+    // run once now, and then schedule for later
+    this.syncManager.runScheduledSync();
+
+    this.interval = setInterval(() => {
+      this.syncManager.runScheduledSync();
+    }, SYNC_PERIOD_MINUTES * 60 * 1000);
+  }
+
+  stopSyncService(): void {
+    // TODO: this has a race condition and should await any ongoing sync
+    if (!this.interval) {
+      return;
+    }
+    clearInterval(this.interval);
+    this.interval = null;
+  }
 }

@@ -77,7 +77,7 @@ export const RegisterAccountStep3Container: FC<any> = ({
   const onSubmitForm = useCallback(values => {
     Keyboard.dismiss();
     updateForm(values);
-    navigation.navigate(Routes.HomeStack.name);
+    navigation.navigate(Routes.HomeStack.Index);
   }, []);
 
   return (

@@ -1,8 +1,7 @@
-import React, { ReactElement, useEffect } from 'react';
+import React, { ReactElement } from 'react';
 import { RootStack } from '/navigation/stacks/Root';
 import './ui/reactotron';
-import { BackendProvider } from './services/backendProvider';
-import { Backend } from './services/backend';
+import { BackendProvider } from '~/ui/contexts/BackendContext';
 
 export const App = (): ReactElement => (
   <BackendProvider Component={RootStack} />

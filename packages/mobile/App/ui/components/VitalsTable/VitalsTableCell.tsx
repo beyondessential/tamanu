@@ -4,7 +4,7 @@ import { theme } from '/styled/theme';
 import { screenPercentageToDP, Orientation } from '/helpers/screen';
 
 export const VitalsTableCell = ({
-  children,
+  data,
 }: PropsWithChildren<any>): JSX.Element => (
   <StyledView
     paddingLeft={screenPercentageToDP(3.64, Orientation.Height)}
@@ -19,7 +19,7 @@ export const VitalsTableCell = ({
       fontSize={screenPercentageToDP(1.57, Orientation.Height)}
       color={theme.colors.TEXT_DARK}
     >
-      {children}
+      {data.value}
     </StyledText>
   </StyledView>
 );
