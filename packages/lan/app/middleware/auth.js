@@ -4,6 +4,7 @@ import { auth } from 'config';
 
 import { v4 as uuid } from 'uuid';
 
+import { WebRemote } from '~/sync';
 import { BadAuthenticationError } from 'shared/errors';
 
 const { tokenDuration } = auth;
@@ -44,16 +45,53 @@ export async function loginHandler(req, res, next) {
   // no permission needed for login
   req.flagPermissionChecked();
 
-  const user = await models.User.scope('withPassword').findOne({ where: { email } });
-  const passwordMatch = await comparePassword(user, password);
 
-  if (!passwordMatch) {
-    next(new BadAuthenticationError('Incorrect username or password, please try again'));
-    return;
+  try {
+    // try logging in to sync server
+    const remote = new WebRemote();
+    const response = await remote.fetch('/login', {
+      awaitConnection: false,
+      retryAuth: false,
+      method: 'POST',
+      body: {
+        email,
+        password,
+      }
+    });
+
+    // we've logged in as a valid remote user - update local database to match
+    const { user } = response;
+    const { id, ...userDetails } = user;
+    await models.User.upsert(
+      {
+        ...userDetails,
+        password,
+      },
+      { where: { id } }
+    );
+
+    const token = getToken(user);
+    res.send({ token, remote: true });
+
+  } catch(e) {
+    if(e.name === 'BadAuthenticationError') {
+      // actual bad credentials server-side
+      next(new BadAuthenticationError('Incorrect username or password, please try again'));
+      return;
+    }
+
+    // some other error in communicating with sync server, revert to local login
+    const user = await models.User.scope('withPassword').findOne({ where: { email } });
+    const passwordMatch = await comparePassword(user, password);
+
+    if (!passwordMatch) {
+      next(new BadAuthenticationError('Incorrect username or password, please try again'));
+      return;
+    }
+
+    const token = getToken(user);
+    res.send({ token, remote: false });
   }
-
-  const token = getToken(user);
-  res.send({ token });
 }
 
 export async function refreshHandler(req, res) {
