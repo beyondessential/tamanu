@@ -1,4 +1,5 @@
 import { v4 as uuidv4 } from 'uuid';
+import { omit } from 'lodash';
 import { initDatabase, closeDatabase } from 'sync-server/app/database';
 import {
   fakePatient,
@@ -87,7 +88,8 @@ describe('sqlWrapper', () => {
           });
 
           const since = new Date(1985, 5, 1).valueOf();
-          expect(await ctx.findSince(channel, since)).toEqual([
+          const records = await ctx.findSince(channel, since);
+          expect(records.map(r => omit(r, ['markedForPush']))).toEqual([
             {
               ...instance2,
               createdAt: new Date(1990, 5, 1),
@@ -106,7 +108,12 @@ describe('sqlWrapper', () => {
           await ctx.markRecordDeleted(channel, instance.id);
 
           const instances = await ctx.findSince(channel, 0);
-          expect(instances.find(r => r.id === instance.id)).toEqual({
+          expect(
+            omit(
+              instances.find(r => r.id === instance.id),
+              ['markedForPush'],
+            ),
+          ).toEqual({
             ...instance,
             createdAt: expect.any(Date),
             updatedAt: expect.any(Date),
