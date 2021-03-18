@@ -1,5 +1,6 @@
 import faye from 'faye';
 import { VERSION_COMPATIBILITY_ERRORS } from 'shared/constants';
+import { LOCAL_STORAGE_KEYS } from '../constants';
 
 const encodeQueryString = query =>
   Object.entries(query)
@@ -56,6 +57,10 @@ export class TamanuApi {
     this.authHeader = null;
     this.onVersionIncompatible = null;
     this.pendingSubscriptions = [];
+    const host = window.localStorage.getItem(LOCAL_STORAGE_KEYS.HOST);
+    if (host) {
+      this.setHost(host);
+    }
   }
 
   setHost(host) {
@@ -66,6 +71,9 @@ export class TamanuApi {
       this.subscribeToChanges(recordType, changeType, callback),
     );
     this.pendingSubscriptions = [];
+
+    // save host in local storage
+    window.localStorage.setItem(LOCAL_STORAGE_KEYS.HOST, host);
   }
 
   setAuthFailureHandler(handler) {
