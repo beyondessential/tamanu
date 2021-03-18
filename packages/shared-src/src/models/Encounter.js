@@ -39,7 +39,7 @@ export class Encounter extends Model {
     super.init(
       {
         id: primaryKey,
-        encounterType: Sequelize.ENUM(ENCOUNTER_TYPE_VALUES),
+        encounterType: Sequelize.STRING(31),
 
         startDate: {
           type: Sequelize.DATE,
