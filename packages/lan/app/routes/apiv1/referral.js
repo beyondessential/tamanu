@@ -43,25 +43,10 @@ referral.post(
       return acc;
     }, {});
 
-    // loop through each diagnosis
-    const diagnoses = Object.values(diagnosesMap);
-    if (diagnoses.length) {
-      await Promise.all(
-        diagnoses.map(async diagnosis =>
-          models.ReferralDiagnosis.create({
-            diagnosisId: diagnosis.diagnosisId,
-            certainty: diagnosis.certainty,
-            referralId: newReferral.get('id'),
-          }),
-        ),
-      );
-    }
     res.send(newReferral);
   }),
 );
 
 const referralRelations = permissionCheckingRouter('read', 'Referral');
-
-referralRelations.get('/:id/diagnoses', simpleGetList('ReferralDiagnosis', 'referralId'));
 
 referral.use(referralRelations);

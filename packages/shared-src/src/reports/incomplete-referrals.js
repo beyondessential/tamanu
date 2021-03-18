@@ -80,11 +80,6 @@ async function queryReferralsData(models, parameters) {
       { model: models.User, as: 'referredBy' },
       { model: models.ReferenceData, as: 'referredToDepartment' },
       { model: models.ReferenceData, as: 'referredToFacility' },
-      {
-        model: models.ReferralDiagnosis,
-        as: 'diagnoses',
-        include: [{ model: models.ReferenceData, as: 'Diagnosis' }],
-      },
     ],
     where: parametersToSqlWhere(parameters),
   });

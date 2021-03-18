@@ -59,16 +59,6 @@ describe('Incomplete Referrals report', () => {
         referredToFacilityId: facility,
       });
       [diagnosis1, diagnosis2] = await randomReferenceDataObjects(models, 'icd10', 2);
-      await models.ReferralDiagnosis.create({
-        certainty: 'confirmed',
-        referralId: referral.dataValues.id,
-        diagnosisId: diagnosis1.dataValues.id,
-      });
-      await models.ReferralDiagnosis.create({
-        certainty: 'confirmed',
-        referralId: referral.dataValues.id,
-        diagnosisId: diagnosis2.dataValues.id,
-      });
       await models.Referral.create({
         referralNumber: 'B',
         date: new Date(),
