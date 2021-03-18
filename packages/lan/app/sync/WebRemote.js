@@ -13,6 +13,9 @@ const DEFAULT_TIMEOUT = 10000;
 export class WebRemote {
   connectionPromise = null;
 
+  // test mocks don't always apply properly - this ensures the mock will be used
+  fetchImplementation = fetch;
+
   constructor() {
     this.host = config.sync.host;
     this.timeout = config.sync.timeout || DEFAULT_TIMEOUT;
@@ -52,7 +55,7 @@ export class WebRemote {
     }, this.timeout);
     let response;
     try {
-      response = await fetch(url, {
+      response = await this.fetchImplementation(url, {
         method,
         headers: {
           Accept: 'application/json',

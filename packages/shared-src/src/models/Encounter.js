@@ -1,6 +1,7 @@
 import { Sequelize } from 'sequelize';
 import { ENCOUNTER_TYPES, ENCOUNTER_TYPE_VALUES, NOTE_TYPES, SYNC_DIRECTIONS } from 'shared/constants';
 import { InvalidOperationError } from 'shared/errors';
+import { extendClassWithPatientChannel } from './sync';
 import { Model } from './Model';
 
 export class Encounter extends Model {
@@ -198,20 +199,6 @@ export class Encounter extends Model {
   ];
 
   static syncDirection = SYNC_DIRECTIONS.BIDIRECTIONAL;
-
-  static async getChannels() {
-    const patients = await this.sequelize.models.Patient.findAll({
-      // TODO: implement patient marking
-      // where: { markedForSync: true },
-      // raw: true,
-      // attributes: ['id'],
-    });
-    return patients.map(p => `patient/${p.id}/encounter`);
-  }
-
-  static syncParentIdFromChannel(channel) {
-    return channel.match(/patient\/([^\/]+)\/encounter/)[1];
-  }
-
-  static syncParentIdKey = 'patientId';
 }
+
+Object.assign(Encounter, extendClassWithPatientChannel('encounter'));

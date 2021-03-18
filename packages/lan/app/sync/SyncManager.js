@@ -132,6 +132,11 @@ export class SyncManager {
       models.SurveyScreenComponent,
 
       models.Patient,
+      models.PatientAllergy,
+      models.PatientCarePlan,
+      models.PatientCondition,
+      models.PatientFamilyHistory,
+      models.PatientIssue,
 
       models.Encounter,
     ];

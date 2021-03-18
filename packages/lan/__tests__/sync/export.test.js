@@ -1,7 +1,7 @@
 // TODO: add tests to shared-src and move this file there
 
 import { v4 as uuidv4 } from 'uuid';
-import { fakePatient, buildNestedEncounter, upsertAssociations } from 'shared/test-helpers';
+import { fake, fakePatient, buildNestedEncounter, upsertAssociations } from 'shared/test-helpers';
 import { createExportPlan, executeExportPlan } from 'shared/models/sync';
 import { createTestContext } from '../utilities';
 
@@ -26,18 +26,44 @@ const expectDeepMatch = (dbRecord, syncRecord) => {
 describe('export', () => {
   let models;
   let context;
+  const patientId = uuidv4();
   beforeAll(async () => {
     context = await createTestContext();
     models = context.models;
+    await models.Patient.create({ ...fakePatient(), id: patientId });
   });
 
-  const encounterPatientId = uuidv4();
   const testCases = [
     ['Patient', fakePatient],
     [
       'Encounter',
-      async () => buildNestedEncounter(context, encounterPatientId),
-      `patient/${encounterPatientId}/encounter`,
+      async () => buildNestedEncounter(context, patientId),
+      `patient/${patientId}/encounter`,
+    ],
+    [
+      'PatientAllergy',
+      () => ({ ...fake(models.PatientAllergy), patientId }),
+      `patient/${patientId}/allergy`,
+    ],
+    [
+      'PatientCarePlan',
+      () => ({ ...fake(models.PatientCarePlan), patientId }),
+      `patient/${patientId}/carePlan`,
+    ],
+    [
+      'PatientCondition',
+      () => ({ ...fake(models.PatientCondition), patientId }),
+      `patient/${patientId}/condition`,
+    ],
+    [
+      'PatientFamilyHistory',
+      () => ({ ...fake(models.PatientFamilyHistory), patientId }),
+      `patient/${patientId}/familyHistory`,
+    ],
+    [
+      'PatientIssue',
+      () => ({ ...fake(models.PatientIssue), patientId }),
+      `patient/${patientId}/issue`,
     ],
   ];
   testCases.forEach(([modelName, fakeRecord, overrideChannel]) => {
