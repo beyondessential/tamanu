@@ -2,6 +2,7 @@ import {
   buildNestedEncounter,
   upsertAssociations,
   fakeSurveyResponseAnswer,
+  fake,
 } from 'shared/test-helpers';
 import { createTestContext } from '../utilities';
 
@@ -19,6 +20,7 @@ describe('sync-related hooks', () => {
     await models.Encounter.create(encounter);
     await upsertAssociations(models.Encounter, encounter);
     const dbEncounter = await models.Encounter.findByPk(encounter.id);
+    expect(dbEncounter.markedForPush).toEqual(true);
 
     dbEncounter.markedForPush = false;
     dbEncounter.pushedAt = new Date();
@@ -39,5 +41,18 @@ describe('sync-related hooks', () => {
 
     // assert
     expect(await models.Encounter.findByPk(encounter.id)).toHaveProperty('markedForPush', true);
+  });
+
+  it('marks patients for push when patient subchannel models are updated', async () => {
+    // arrange
+    const { Patient, Encounter } = context.models;
+    const patient = await Patient.create(fake(Patient));
+    expect(patient.markedForSync).toEqual(false);
+
+    // act
+    await Encounter.create(await buildNestedEncounter(context, patient.id));
+
+    // assert
+    expect(await Patient.findByPk(patient.id)).toHaveProperty('markedForSync', true);
   });
 });

@@ -26,6 +26,11 @@ export class Patient extends Model {
         bloodType: Sequelize.STRING,
         email: Sequelize.STRING,
         additionalDetails: Sequelize.TEXT,
+        markedForSync: {
+          type: Sequelize.BOOLEAN,
+          allowNull: false,
+          defaultValue: false,
+        },
       },
       {
         ...options,
@@ -86,10 +91,9 @@ export class Patient extends Model {
 
   static async getSyncIds() {
     const patients = await this.sequelize.models.Patient.findAll({
-      // TODO: implement patient marking
-      // where: { markedForSync: true },
-      // raw: true,
-      // attributes: ['id'],
+      where: { markedForSync: true },
+      raw: true,
+      attributes: ['id'],
     });
     return patients.map(({ id }) => id);
   }

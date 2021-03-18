@@ -43,5 +43,23 @@ export const initSyncClientModeHooks = models => {
 
       // add hook to nested sync relations
       addHooksToNested(model);
+
+      // add hooks to patient subchannels
+      if (model.syncParentIdKey === 'patientId') {
+        model.addHook('beforeSave', 'markPatientForSync', async record => {
+          if (!record.patientId) {
+            return;
+          }
+          if (record.changed('pushedAt') || record.changed('pushedAt')) {
+            return;
+          }
+          const patient = await model.sequelize.models.Patient.findByPk(record.patientId);
+          if (!patient) {
+            return;
+          }
+          patient.markedForSync = true;
+          await patient.save();
+        });
+      }
     });
 };

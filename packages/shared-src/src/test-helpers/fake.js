@@ -229,6 +229,7 @@ const IGNORED_FIELDS = [
   'pushedAt',
   'pulledAt',
   'markedForPush',
+  'markedForSync',
 ];
 
 export const fake = model => {

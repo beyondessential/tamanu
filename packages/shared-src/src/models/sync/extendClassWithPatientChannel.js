@@ -1,6 +1,7 @@
-export const extendClassWithPatientChannel = name => {
+export const extendClassWithPatientChannel = (model, name) => {
+  // add channel methods and properties
   const channelRegex = new RegExp(`patient\/([^\/]+)\/${name}`);
-  return {
+  Object.assign(model, {
     async getChannels() {
       const ids = await this.sequelize.models.Patient.getSyncIds();
       return ids.map(id => `patient/${id}/${name}`);
@@ -9,5 +10,5 @@ export const extendClassWithPatientChannel = name => {
       return channel.match(channelRegex)[1];
     },
     syncParentIdKey: 'patientId',
-  };
+  });
 };
