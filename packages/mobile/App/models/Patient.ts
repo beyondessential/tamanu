@@ -166,9 +166,9 @@ export class Patient extends BaseModel implements IPatient {
 
     const query = repo.createQueryBuilder('patient')
       .select(['patient.id', 'firstName', 'lastName', 'dateOfBirth', 'sex'])
-      .addSelect("COALESCE(referrals.referredFacility,'not referred')", 'referredTo')
+      .addSelect("COALESCE(referral.referredFacility,'not referred')", 'referredTo')
       .innerJoin('patient.encounters', 'encounter')
-      .leftJoin('patient.referrals', 'referrals')
+      .leftJoin('encounter.initiatedReferrals', 'referral')
       .where("encounter.startDate >= datetime(:date, 'unixepoch')", {
         date: formatDateForQuery(date),
       })

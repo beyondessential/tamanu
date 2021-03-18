@@ -1,4 +1,4 @@
-import { Entity, ManyToOne, RelationId } from 'typeorm/browser';
+import { Column, Entity, ManyToOne, RelationId } from 'typeorm/browser';
 import { BaseModel } from './BaseModel';
 import { IReferral, ISurveyResponse, ISurveyScreenComponent } from '~/types';
 import { Encounter } from './Encounter';
@@ -6,6 +6,9 @@ import { SurveyResponse } from './SurveyResponse';
 
 @Entity('referral')
 export class Referral extends BaseModel implements IReferral {
+  @Column()
+  referredFacility?: string;
+
   @ManyToOne(() => Encounter, encounter => encounter.initiatedReferrals)
   initiatingEncounter: Encounter;
   @RelationId(({ initiatingEncounter }) => initiatingEncounter)

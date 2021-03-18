@@ -17,8 +17,9 @@ import {
 } from '/helpers/screen';
 import { Routes } from '/helpers/routes';
 import { ReportScreenProps } from '/interfaces/screens/HomeStack/ReportScreenProps';
-import { format, startOfToday, subDays } from 'date-fns';
+import { addHours, format, startOfToday, subDays } from 'date-fns';
 import { Not } from 'typeorm';
+import { useIsFocused } from '@react-navigation/core';
 import { useBackendEffect } from '~/ui/hooks';
 import { SummaryBoard } from './SummaryBoard';
 import { BarChartData } from '~/ui/interfaces/BarChartProps';
@@ -108,7 +109,7 @@ const ReportChart: FC<ReportChartProps> = ({
     </>
   ) : (
     <StyledView marginBottom={screenPercentageToDP(2.43, Orientation.Height)}>
-      <RecentPatientSurveyReport selectedSurvey={selectedSurvey}/>
+      <RecentPatientSurveyReport selectedSurvey={selectedSurvey} />
     </StyledView>
   )
 );
@@ -118,9 +119,11 @@ export const ReportScreen = ({
 }: ReportScreenProps): ReactElement => {
   const [selectedSurvey, setSelectedSurvey] = useState('program-cvd-fiji/survey-cvd-risk-fiji');
   const [isReportWeekly, setReportType] = useState<boolean>(true);
+  const isFocused = useIsFocused();
+
   const [data] = useBackendEffect(
     ({ models }) => models.Encounter.getTotalEncountersAndResponses(selectedSurvey),
-    [selectedSurvey],
+    [selectedSurvey, isFocused],
   );
 
   const [surveys] = useBackendEffect(({ models }) => models.Survey.find({
@@ -129,7 +132,7 @@ export const ReportScreen = ({
 
   const reportList = surveys?.map((s) => ({ label: s.name, value: s.id }));
 
-  const today = startOfToday();
+  const today = addHours(startOfToday(), 3);
   const todayString = format(today, 'yyyy-MM-dd');
   const todayData = data?.find((item) => item.encounterDate === todayString);
 
@@ -220,7 +223,12 @@ export const ReportScreen = ({
         onPress={onChangeReportType}
         isReportWeekly={isReportWeekly}
       />
-      <ReportChart isReportWeekly={isReportWeekly} visitData={visitData} todayData={todayData} selectedSurvey={selectedSurvey} />
+      <ReportChart
+        isReportWeekly={isReportWeekly}
+        visitData={visitData}
+        todayData={todayData}
+        selectedSurvey={selectedSurvey}
+      />
     </FullView>
   );
 };
