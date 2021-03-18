@@ -91,6 +91,7 @@ export class SyncManager {
         await Promise.all(
           modelInstances.map(m => {
             m.markedForPush = false;
+            m.pushedAt = new Date();
             return m.save();
           }),
         );

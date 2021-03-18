@@ -36,7 +36,7 @@ export const initSyncClientModeHooks = models => {
     .forEach(model => {
       // add hook to model itself
       model.addHook('beforeSave', 'markForPush', record => {
-        if (!record.changed || !record.changed('markedForPush') ) {
+        if (!record.changed || (!record.changed('pushedAt') && !record.changed('pushedAt'))) {
           record.markedForPush = true;
         }
       });

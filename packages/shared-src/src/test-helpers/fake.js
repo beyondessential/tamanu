@@ -222,7 +222,7 @@ const FIELD_HANDLERS = {
   ENUM: ({ type }) => sample(type.values),
 };
 
-const IGNORED_FIELDS = ['createdAt', 'updatedAt', 'deletedAt', 'markedForPush'];
+const IGNORED_FIELDS = ['createdAt', 'updatedAt', 'deletedAt', 'pushedAt', 'pulledAt', 'markedForPush'];
 
 export const fake = model => {
   const id = uuidv4();

@@ -27,6 +27,8 @@ export class Model extends sequelize.Model {
         allowNull: false,
         defaultValue: true,
       };
+      attributes.pushedAt = Sequelize.DATE;
+      attributes.pulledAt = Sequelize.DATE;
     }
     super.init(attributes, options);
     this.syncClientMode = syncClientMode;
