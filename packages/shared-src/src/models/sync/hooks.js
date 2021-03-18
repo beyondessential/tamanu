@@ -9,6 +9,9 @@ const addHooksToNested = model => {
     const associations = [];
     pathSegments.reduce((currentModel, segment) => {
       const association = currentModel.associations[segment];
+      if (!association) {
+        throw new Error(`could not find association ${segment} on ${currentModel.name}`);
+      }
       associations.push(association);
       return association.target;
     }, model);
