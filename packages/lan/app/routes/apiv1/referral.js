@@ -10,38 +10,10 @@ referral.put('/:id', simplePut('Referral'));
 referral.post(
   '/$',
   asyncHandler(async (req, res) => {
+    console.log({req: req.body});
     const { models } = req;
     req.checkPermission('create', 'Referral');
     const newReferral = await models.Referral.create(req.body);
-
-    // multiple diagnoses can be set as diagnosisId0, diagnosisCertainty0,
-    // diagnosisId1, diagnosisCertainty1
-    const diagnosisIdRegex = /^diagnosisId(?<diagnosisIndex>[\d]*)$/;
-    const diagnosisCertaintyRegex = /^diagnosisCertainty(?<diagnosisIndex>[\d]*)$/;
-
-    // group diagnoses and their corresponding certainty together
-    const diagnosesMap = Object.entries(req.body).reduce((acc, field) => {
-      if (!field[1]) {
-        // if field value is empty, we can skip
-        return acc;
-      }
-      const idResult = diagnosisIdRegex.exec(field[0]);
-      if (idResult) {
-        if (!acc[idResult.groups.diagnosisIndex]) {
-          acc[idResult.groups.diagnosisIndex] = {};
-        }
-        acc[idResult.groups.diagnosisIndex].diagnosisId = field[1];
-      }
-
-      const certaintyResult = diagnosisCertaintyRegex.exec(field[0]);
-      if (certaintyResult) {
-        if (!acc[certaintyResult.groups.diagnosisIndex]) {
-          acc[certaintyResult.groups.diagnosisIndex] = {};
-        }
-        acc[certaintyResult.groups.diagnosisIndex].certainty = field[1];
-      }
-      return acc;
-    }, {});
 
     res.send(newReferral);
   }),

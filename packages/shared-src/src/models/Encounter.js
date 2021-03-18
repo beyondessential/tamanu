@@ -90,6 +90,11 @@ export class Encounter extends Model {
       as: 'surveyResponses',
     });
 
+    this.hasMany(models.Referral, {
+      foreignKey: 'initiatingEncounterId',
+      as: 'referral',
+    });
+
     this.hasMany(models.AdministeredVaccine, {
       foreignKey: 'encounterId',
       as: 'administeredVaccines',

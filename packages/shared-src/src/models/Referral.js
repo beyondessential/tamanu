@@ -22,7 +22,7 @@ class Referral extends _Model.Model {
     }, { ...options,
       validate: {
         mustHaveValidEncounter() {
-          if (!this.patientId) {
+          if (!this.initiatingEncounterId) {
             throw new _errors.InvalidOperationError('A referral must have an initiating encounter');
           }
         },
@@ -43,7 +43,7 @@ class Referral extends _Model.Model {
       foreignKey: 'encounterId',
       as: 'completingEncounter'
     });
-    this.belongsTo(models.Encounter, {
+    this.belongsTo(models.SurveyResponse, {
       foreignKey: 'surveyResponseId',
       as: 'surveyResponse'
     });
