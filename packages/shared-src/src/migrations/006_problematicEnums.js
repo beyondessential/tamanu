@@ -1,3 +1,5 @@
+const Sequelize = require('sequelize');
+
 const ENCOUNTER_TYPES = [
   'admission',
   'clinic',
