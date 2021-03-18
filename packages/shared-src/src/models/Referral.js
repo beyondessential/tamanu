@@ -1,51 +1,33 @@
-import { Sequelize } from 'sequelize';
+"use strict";
 
-import { InvalidOperationError } from 'shared/errors';
+Object.defineProperty(exports, "__esModule", {
+  value: true
+});
+exports.Referral = void 0;
 
-import { Model } from './Model';
+var _sequelize = require("sequelize");
 
-export class Referral extends Model {
-  static init({ primaryKey, ...options }) {
-    super.init(
-      {
-        id: primaryKey,
-        referralNumber: Sequelize.STRING,
-        reasonForReferral: Sequelize.STRING,
-        cancelled: Sequelize.BOOLEAN,
-        urgent: Sequelize.BOOLEAN,
+var _errors = require("shared/errors");
 
-        date: {
-          type: Sequelize.DATE,
-          allowNull: false,
-          defaultValue: Sequelize.NOW,
+var _Model = require("./Model");
+
+class Referral extends _Model.Model {
+  static init({
+    primaryKey,
+    ...options
+  }) {
+    super.init({
+      id: primaryKey,
+      referredFacility: _sequelize.Sequelize.STRING,
+    }, { ...options,
+      validate: {
+        mustHaveValidEncounter() {
+          if (!this.patientId) {
+            throw new _errors.InvalidOperationError('A referral must have an initiating encounter');
+          }
         },
-      },
-      {
-        ...options,
-        validate: {
-          mustHaveValidPatient() {
-            if (!this.patientId) {
-              throw new InvalidOperationError('A referral must have a valid patient');
-            }
-          },
-          mustHaveValidReferredById() {
-            if (!this.referredById) {
-              throw new InvalidOperationError('A referral must have a valid referrer');
-            }
-          },
-          mustHaveValidReferredToDepartmentId() {
-            if (!this.referredToDepartmentId) {
-              throw new InvalidOperationError('A referral must have a valid referree department');
-            }
-          },
-          mustHaveValidReferredToFacilityId() {
-            if (!this.referredToFacilityId) {
-              throw new InvalidOperationError('A referral must have a valid referree facility');
-            }
-          },
-        },
-      },
-    );
+      }
+    });
   }
 
   static getListReferenceAssociations() {
@@ -56,25 +38,14 @@ export class Referral extends Model {
     this.belongsTo(models.Encounter, {
       foreignKey: 'encounterId',
     });
-    this.belongsTo(models.Patient, {
-      foreignKey: 'patientId',
-      as: 'patient',
+    this.belongsTo(models.Encounter, {
+      foreignKey: 'encounterId',
     });
-    this.belongsTo(models.User, {
-      foreignKey: 'referredById',
-      as: 'referredBy',
-    });
-    this.belongsTo(models.ReferenceData, {
-      foreignKey: 'referredToDepartmentId',
-      as: 'referredToDepartment',
-    });
-    this.belongsTo(models.ReferenceData, {
-      foreignKey: 'referredToFacilityId',
-      as: 'referredToFacility',
-    });
-    this.hasMany(models.ReferralDiagnosis, {
-      foreignKey: 'referralId',
-      as: 'diagnoses',
+    this.belongsTo(models.Encounter, {
+      foreignKey: 'surveyResponseId',
     });
   }
+
 }
+
+exports.Referral = Referral;
