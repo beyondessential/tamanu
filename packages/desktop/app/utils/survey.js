@@ -86,7 +86,6 @@ export function checkVisibility(
       if (answersEnablingFollowUp.type === 'range') {
         if (!value) return false;
         const { start, end } = answersEnablingFollowUp;
-        console.log({value, start, end})
         
         if (!start) return value < end;
         if (!end) return value >= start;
