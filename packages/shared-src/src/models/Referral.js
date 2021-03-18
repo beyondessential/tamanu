@@ -31,18 +31,21 @@ class Referral extends _Model.Model {
   }
 
   static getListReferenceAssociations() {
-    return ['referredToFacility', 'referredBy', 'referredToDepartment', 'patient'];
+    return ['initiatingEncounter', 'completingEncounter', 'surveyResponse'];
   }
 
   static initRelations(models) {
     this.belongsTo(models.Encounter, {
       foreignKey: 'encounterId',
+      as: 'initiatingEncounter'
     });
     this.belongsTo(models.Encounter, {
       foreignKey: 'encounterId',
+      as: 'completingEncounter'
     });
     this.belongsTo(models.Encounter, {
       foreignKey: 'surveyResponseId',
+      as: 'surveyResponse'
     });
   }
 
