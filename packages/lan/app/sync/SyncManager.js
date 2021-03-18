@@ -82,13 +82,16 @@ export class SyncManager {
 
       // unmark
       const unmarkRecords = async records => {
-        await model.update(
-          { markedForPush: false },
-          {
-            where: {
-              id: records.map(r => r.data.id),
-            },
+        const modelInstances = await model.findAll({
+          where: {
+            id: records.map(r => r.data.id),
           },
+        });
+        await Promise.all(
+          modelInstances.map(m => {
+            m.markedForSync = false;
+            return m.save();
+          }),
         );
       };
 
