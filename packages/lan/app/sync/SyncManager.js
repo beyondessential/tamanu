@@ -89,7 +89,7 @@ export class SyncManager {
         });
         await Promise.all(
           modelInstances.map(m => {
-            m.markedForSync = false;
+            m.markedForPush = false;
             return m.save();
           }),
         );
