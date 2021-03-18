@@ -239,7 +239,8 @@ export class Encounter extends Model {
     'labRequests.tests',
     'imagingRequests',
     'procedures',
-    'referrals',
+    'initiatedReferrals',
+    'completedReferrals',
     'vitals',
     'triages',
   ];
