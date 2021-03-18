@@ -13,8 +13,6 @@ export const login = (host, email, password) => async (dispatch, getState, { api
 
   try {
     const { user, token } = await api.login(host, email, password);
-    // login was successful, save the host in settings
-    window.localStorage.setItem(LOCAL_STORAGE_KEYS.HOST, host);
     dispatch({ type: LOGIN_SUCCESS, user, token });
   } catch (error) {
     dispatch({ type: LOGIN_FAILURE, error: error.message });
