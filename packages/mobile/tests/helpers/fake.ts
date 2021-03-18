@@ -153,6 +153,7 @@ const FIELD_HANDLERS = {
   Date: fakeDate,
   datetime: fakeDate,
   bigint: fakeNumber,
+  int: fakeNumber,
   Number: fakeNumber,
 };
 
