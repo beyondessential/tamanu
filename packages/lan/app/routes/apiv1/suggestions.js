@@ -44,14 +44,13 @@ function createSuggester(endpoint, modelName, whereSql, mapper = defaultMapper) 
       const sequelize = model.sequelize;
       const results = await sequelize.query(
         `
-      SELECT * 
-      FROM :tableName
+      SELECT *
+      FROM "${model.tableName}"
       WHERE ${whereSql}
       LIMIT :limit
     `,
         {
           replacements: {
-            tableName: model.tableName,
             search: `%${search}%`,
             limit: defaultLimit,
           },
