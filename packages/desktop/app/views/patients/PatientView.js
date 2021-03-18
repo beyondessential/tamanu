@@ -122,17 +122,24 @@ const ImmunisationsPane = React.memo(({ patient, readonly }) => {
 const RoutedEncounterModal = connectRoutedModal('/patients/view', 'checkin')(EncounterModal);
 const RoutedTriageModal = connectRoutedModal('/patients/view', 'triage')(TriageModal);
 
-const HistoryPane = connect(
-  state => ({
-    currentEncounter: state.patient.currentEncounter,
-    patientId: state.patient.id,
-  }),
-  dispatch => ({
-    onOpenCheckin: () => dispatch(push('/patients/view/checkin')),
-    onOpenTriage: () => dispatch(push('/patients/view/triage')),
-  }),
-)(
-  React.memo(({ patientId, currentEncounter, onOpenCheckin, onOpenTriage, disabled }) => {
+const HistoryPane = connectApi((api, dispatch, state) => ({
+  patient: state.patient,
+  onOpenCheckin: () => dispatch(push('/patients/view/checkin')),
+  onOpenTriage: () => dispatch(push('/patients/view/triage')),
+  onMarkForSync: async () => {
+    await api.put(`patient/${state.patient.id}`, { markedForSync: true });
+    dispatch(reloadPatient(state.patient.id));
+  },
+  onReload: () => dispatch(reloadPatient(state.patient.id)),
+}))(
+  React.memo(({
+    patient,
+    onOpenCheckin,
+    onOpenTriage,
+    onMarkForSync,
+    onReload,
+    disabled,
+  }) => {
     const { encounter, loadEncounter } = useEncounter();
     const onViewEncounter = useCallback(
       async id => {
@@ -143,13 +150,18 @@ const HistoryPane = connect(
     return (
       <div>
         <PatientEncounterSummary
-          encounter={currentEncounter}
+          encounter={patient?.currentEncounter}
           viewEncounter={onViewEncounter}
           openCheckin={onOpenCheckin}
           openTriage={onOpenTriage}
           disabled={disabled}
         />
-        <PatientHistory patientId={patientId} onItemClick={onViewEncounter} />
+        <PatientHistory
+          patient={patient}
+          onItemClick={onViewEncounter}
+          onMarkForSync={onMarkForSync}
+          onReload={onReload}
+        />
       </div>
     );
   }),
@@ -202,7 +214,7 @@ const TABS = [
     label: 'History',
     key: 'history',
     icon: 'fa fa-calendar-day',
-    render: () => <HistoryPane />,
+    render: props => <HistoryPane {...props} />,
   },
   {
     label: 'Details',
