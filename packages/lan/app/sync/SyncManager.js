@@ -82,6 +82,7 @@ export class SyncManager {
 
       // unmark
       const unmarkRecords = async records => {
+        // TODO use bulk update after https://github.com/beyondessential/tamanu-backlog/issues/463
         const modelInstances = await model.findAll({
           where: {
             id: records.map(r => r.data.id),
