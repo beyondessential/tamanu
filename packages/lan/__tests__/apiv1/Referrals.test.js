@@ -37,9 +37,6 @@ describe('Referrals', () => {
       ...(await createDummyEncounter(models)),
       patientId: patient.id,
     });
-    const result = await app.post('/v1/referral').send({
-      initiatingEncounter: encounter.id
-    });
 
     const result = await app.get(`/v1/patient/${patient.id}/referrals`);
     expect(result).toHaveSucceeded();
