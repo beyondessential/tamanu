@@ -50,12 +50,15 @@ const fetchOrThrowIfUnavailable = async (url, config) => {
 };
 
 export class TamanuApi {
-  constructor(appVersion) {
+  constructor(appVersion, host) {
     this.appVersion = appVersion;
     this.onAuthFailure = null;
     this.authHeader = null;
     this.onVersionIncompatible = null;
     this.pendingSubscriptions = [];
+    if (host) {
+      this.setHost(host);
+    }
   }
 
   setHost(host) {
