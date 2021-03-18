@@ -1,5 +1,10 @@
 import { Sequelize } from 'sequelize';
-import { ENCOUNTER_TYPES, ENCOUNTER_TYPE_VALUES, NOTE_TYPES, SYNC_DIRECTIONS } from 'shared/constants';
+import {
+  ENCOUNTER_TYPES,
+  ENCOUNTER_TYPE_VALUES,
+  NOTE_TYPES,
+  SYNC_DIRECTIONS,
+} from 'shared/constants';
 import { InvalidOperationError } from 'shared/errors';
 import { extendClassWithPatientChannel } from './sync';
 import { Model } from './Model';
@@ -11,27 +16,27 @@ export class Encounter extends Model {
       validate = {
         mustHaveValidEncounterType() {
           if (!this.deletedAt && !ENCOUNTER_TYPE_VALUES.includes(this.encounterType)) {
-            throw new InvalidOperationError('A encounter must have a valid encounter type.');
+            throw new InvalidOperationError('An encounter must have a valid encounter type.');
           }
         },
         mustHavePatient() {
           if (!this.deletedAt && !this.patientId) {
-            throw new InvalidOperationError('A encounter must have a patient.');
+            throw new InvalidOperationError('An encounter must have a patient.');
           }
         },
         mustHaveDepartment() {
           if (!this.deletedAt && !this.departmentId) {
-            throw new InvalidOperationError('A encounter must have a department.');
+            throw new InvalidOperationError('An encounter must have a department.');
           }
         },
         mustHaveLocation() {
           if (!this.deletedAt && !this.locationId) {
-            throw new InvalidOperationError('A encounter must have a location.');
+            throw new InvalidOperationError('An encounter must have a location.');
           }
         },
         mustHaveExaminer() {
           if (!this.deletedAt && !this.examinerId) {
-            throw new InvalidOperationError('A encounter must have an examiner.');
+            throw new InvalidOperationError('An encounter must have an examiner.');
           }
         },
       };
@@ -157,7 +162,7 @@ export class Encounter extends Model {
       }
 
       if (data.patientId && data.patientId !== this.patientId) {
-        throw new InvalidOperationError("A encounter's patient cannot be changed");
+        throw new InvalidOperationError("An encounter's patient cannot be changed");
       }
 
       if (data.encounterType && data.encounterType !== this.encounterType) {
