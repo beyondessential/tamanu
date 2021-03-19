@@ -19,8 +19,14 @@ describe('sync-related hooks', () => {
     await models.Encounter.create(encounter);
     await upsertAssociations(models.Encounter, encounter);
     const dbEncounter = await models.Encounter.findByPk(encounter.id);
+
     dbEncounter.markedForPush = false;
-    dbEncounter.save();
+    dbEncounter.pushedAt = new Date();
+    await dbEncounter.save();
+    dbEncounter.markedForPush = false;
+    dbEncounter.pushedAt = new Date();
+    await dbEncounter.save(); // done twice because sequelize's model.changed uses equality to check
+
     expect(await models.Encounter.findByPk(encounter.id)).toHaveProperty('markedForPush', false);
 
     // act

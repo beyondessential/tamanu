@@ -105,7 +105,10 @@ describe('import', () => {
 
         // assert
         const dbRecord = await model.findByPk(record.id, options);
-        expect(dbRecord.get({ plain: true })).toMatchObject(record);
+        expect(dbRecord.get({ plain: true })).toMatchObject({
+          ...record,
+          ...(model.tableAttributes.pushedAt ? { pulledAt: expect.any(Date) } : {}),
+        });
       });
 
       it('updates the record', async () => {
@@ -125,7 +128,10 @@ describe('import', () => {
 
         // assert
         const dbRecord = await model.findByPk(oldRecord.id, options);
-        expect(dbRecord.get({ plain: true })).toMatchObject(newRecord);
+        expect(dbRecord.get({ plain: true })).toMatchObject({
+          ...newRecord,
+          ...(model.tableAttributes.pushedAt ? { pulledAt: expect.any(Date) } : {}),
+        });
       });
 
       it('deletes tombstones', async () => {

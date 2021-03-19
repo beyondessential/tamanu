@@ -21,12 +21,14 @@ const MARKED_FOR_PUSH_MODELS = [
 export class Model extends sequelize.Model {
   static init(originalAttributes, { syncClientMode, ...options }) {
     const attributes = { ...originalAttributes };
-    if (MARKED_FOR_PUSH_MODELS.includes(this.name)) {
+    if (syncClientMode && MARKED_FOR_PUSH_MODELS.includes(this.name)) {
       attributes.markedForPush = {
         type: Sequelize.BOOLEAN,
         allowNull: false,
         defaultValue: true,
       };
+      attributes.pushedAt = Sequelize.DATE;
+      attributes.pulledAt = Sequelize.DATE;
     }
     super.init(attributes, options);
     this.syncClientMode = syncClientMode;
