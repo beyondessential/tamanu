@@ -1,6 +1,6 @@
 import { push } from 'connected-react-router';
 
-import { createReducer } from '../utils/createReducer';
+import { createStatePreservingReducer } from '../utils/createStatePreservingReducer';
 
 // actions
 const LAB_LOAD_START = 'LAB_LOAD_START';
@@ -38,4 +38,4 @@ const handlers = {
   }),
 };
 
-export const labRequestReducer = createReducer(defaultState, handlers);
+export const labRequestReducer = createStatePreservingReducer(defaultState, handlers);

@@ -1,4 +1,4 @@
-import { createReducer } from '../utils/createReducer';
+import { createStatePreservingReducer } from '../utils/createStatePreservingReducer';
 
 // actions
 
@@ -47,4 +47,4 @@ const handlers = {
   }),
 };
 
-export const optionsReducer = createReducer(defaultState, handlers);
+export const optionsReducer = createStatePreservingReducer(defaultState, handlers);

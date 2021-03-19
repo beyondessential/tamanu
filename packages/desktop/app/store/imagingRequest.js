@@ -2,7 +2,7 @@ import { push } from 'connected-react-router';
 
 import { reloadPatient } from './patient';
 
-import { createReducer } from '../utils/createReducer';
+import { createStatePreservingReducer } from '../utils/createStatePreservingReducer';
 
 // actions
 const IMAGING_LOAD_START = 'IMAGING_LOAD_START';
@@ -48,4 +48,4 @@ const handlers = {
   }),
 };
 
-export const imagingRequestReducer = createReducer(defaultState, handlers);
+export const imagingRequestReducer = createStatePreservingReducer(defaultState, handlers);

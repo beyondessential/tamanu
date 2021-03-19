@@ -1,6 +1,6 @@
 import { push } from 'connected-react-router';
 
-import { createReducer } from '../utils/createReducer';
+import { createStatePreservingReducer } from '../utils/createStatePreservingReducer';
 
 // actions
 const REFERRAL_LOAD_START = 'REFERRAL_LOAD_START';
@@ -39,4 +39,4 @@ const handlers = {
   }),
 };
 
-export const referralReducer = createReducer(defaultState, handlers);
+export const referralReducer = createStatePreservingReducer(defaultState, handlers);
