@@ -282,7 +282,14 @@ describe('Sync API', () => {
 
       const foundRecords = await ctx.store.findSince('patient', 0);
       const foundRecord = foundRecords.find(r => r.id === record.data.id);
-      const { createdAt, updatedAt, deletedAt, markedForPush, ...data } = foundRecord;
+      const {
+        createdAt,
+        updatedAt,
+        deletedAt,
+        markedForPush,
+        markedForSync,
+        ...data
+      } = foundRecord;
       expect(data).toEqual(record.data);
     });
 
