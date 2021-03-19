@@ -117,7 +117,7 @@ export class SyncManager {
   }
 
   async setLastSynced(channel, lastSynced) {
-    await this.context.models.SyncMetadata.upsert({ channel, lastSynced }, { where: { channel } });
+    await this.context.models.SyncMetadata.upsert({ channel, lastSynced });
   }
 
   async runSync() {
@@ -150,7 +150,7 @@ export class SyncManager {
         await this.pullAndImport(model);
       }
       if (shouldPush(model)) {
-        await this.exportAndPush(model);
+        // await this.exportAndPush(model);
       }
     }
   }
