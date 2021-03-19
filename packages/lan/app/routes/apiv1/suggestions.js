@@ -67,10 +67,19 @@ function createSuggester(endpoint, modelName, whereSql, mapper = defaultMapper) 
 }
 
 REFERENCE_TYPE_VALUES.map(typeName =>
-  createSuggester(typeName, 'ReferenceData', `name ILIKE :search AND type = '${typeName}'`),
+  createSuggester(
+    typeName,
+    'ReferenceData',
+    `LOWER(name) LIKE LOWER(:search) AND type = '${typeName}'`,
+  ),
 );
 
-createSuggester('practitioner', 'User', 'display_name ILIKE :search', ({ id, displayName }) => ({
-  id,
-  name: displayName,
-}));
+createSuggester(
+  'practitioner',
+  'User',
+  'LOWER(display_name) LIKE LOWER(:search)',
+  ({ id, displayName }) => ({
+    id,
+    name: displayName,
+  }),
+);
