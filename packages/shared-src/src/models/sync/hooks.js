@@ -36,7 +36,7 @@ export const initSyncClientModeHooks = models => {
     .forEach(model => {
       // add hook to model itself
       model.addHook('beforeSave', 'markForPush', record => {
-        if (!record.changed || (!record.changed('pushedAt') && !record.changed('pushedAt'))) {
+        if (!record.changed || !record.changed('pushedAt')) {
           record.markedForPush = true;
         }
       });
@@ -46,11 +46,11 @@ export const initSyncClientModeHooks = models => {
 
       // add hooks to patient subchannels
       if (model.syncParentIdKey === 'patientId') {
-        model.addHook('beforeSave', 'markPatientForSync', async record => {
+        model.addHook('beforeSave', 'markPatientForPush', async record => {
           if (!record.patientId) {
             return;
           }
-          if (record.changed('pushedAt') || record.changed('pushedAt')) {
+          if (record.changed('pushedAt')) {
             return;
           }
           const patient = await model.sequelize.models.Patient.findByPk(record.patientId);

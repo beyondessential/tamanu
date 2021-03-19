@@ -74,7 +74,7 @@ export class SyncManager {
 
   async exportAndPush(model, patientId) {
     for (const channel of await model.getChannels(patientId)) {
-      this.exportAndPushChannel(model, channel);
+      await this.exportAndPushChannel(model, channel);
     }
   }
 
