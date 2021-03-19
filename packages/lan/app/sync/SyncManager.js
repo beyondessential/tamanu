@@ -178,11 +178,14 @@ export class SyncManager {
     // if there's no existing job, begin working through the queue
     if (!this.workerPromise) {
       this.workerPromise = (async () => {
-        while (this.jobQueue.length > 0) {
-          const job = this.jobQueue.pop();
-          await job();
+        try {
+          while (this.jobQueue.length > 0) {
+            const job = this.jobQueue.pop();
+            await job();
+          }
+        } finally {
+          this.workerPromise = null;
         }
-        this.workerPromise = null;
       })();
     }
 
