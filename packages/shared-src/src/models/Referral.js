@@ -1,51 +1,31 @@
-"use strict";
+import { Sequelize } from 'sequelize';
+import { InvalidOperationError } from 'shared/errors';
+import { Model } from './Model';
 
-Object.defineProperty(exports, "__esModule", {
-  value: true
-});
-exports.Referral = void 0;
-
-var _sequelize = require("sequelize");
-
-var _errors = require("shared/errors");
-
-var _Model = require("./Model");
-
-class Referral extends _Model.Model {
-  static init({
-    primaryKey,
-    ...options
-  }) {
-    super.init({
-      id: primaryKey,
-      referredFacility: _sequelize.Sequelize.STRING,
-    }, { ...options,
-      validate: {
-        mustHaveValidEncounter() {
-          if (!this.initiatingEncounterId) {
-            throw new _errors.InvalidOperationError('A referral must have an initiating encounter');
-          }
-        },
-      }
-    });
+class Referral extends Model {
+  static init({ primaryKey, ...options }) {
+    super.init(
+      {
+        id: primaryKey,
+        referredFacility: Sequelize.STRING,
+      },
+      options,
+    );
   }
 
   static getListReferenceAssociations() {
-    return ['initiatingEncounter', 'completingEncounter', 'surveyResponse'];
+    return ['surveyResponse'];
   }
 
   static initRelations(models) {
     this.belongsTo(models.Encounter, {
-      foreignKey: 'encounterId',
-      as: 'initiatingEncounter'
+      foreignKey: 'initiatingEncounterId',
     });
     this.belongsTo(models.Encounter, {
-      foreignKey: 'encounterId',
-      as: 'completingEncounter'
+      foreignKey: 'completingEncounterId',
     });
     this.belongsTo(models.SurveyResponse, {
       foreignKey: 'surveyResponseId',
-      as: 'surveyResponse'
     });
   }
 

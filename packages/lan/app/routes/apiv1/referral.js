@@ -10,7 +10,6 @@ referral.put('/:id', simplePut('Referral'));
 referral.post(
   '/$',
   asyncHandler(async (req, res) => {
-    console.log({req: req.body});
     const { models } = req;
     req.checkPermission('create', 'Referral');
     const newReferral = await models.Referral.create(req.body);
