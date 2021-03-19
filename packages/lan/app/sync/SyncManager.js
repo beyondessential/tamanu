@@ -117,7 +117,7 @@ export class SyncManager {
   }
 
   async setLastSynced(channel, lastSynced) {
-    await this.context.models.SyncMetadata.upsert({ channel, lastSynced });
+    await this.context.models.SyncMetadata.upsert({ channel, lastSynced }, { where: { channel } });
   }
 
   async runSync() {
