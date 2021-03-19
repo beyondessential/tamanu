@@ -150,7 +150,7 @@ export class SyncManager {
         await this.pullAndImport(model);
       }
       if (shouldPush(model)) {
-        // await this.exportAndPush(model);
+        await this.exportAndPush(model);
       }
     }
   }
