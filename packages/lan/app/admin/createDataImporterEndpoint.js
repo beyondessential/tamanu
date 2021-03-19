@@ -4,6 +4,8 @@ import { unlink } from 'fs';
 import { getUploadedData } from './getUploadedData';
 import { sendSyncRequest } from './sendSyncRequest';
 
+import { compareModelPriority } from 'shared/models/sync/order';
+
 export function createDataImporterEndpoint(importer) {
   return asyncHandler(async (req, res) => {
     const start = Date.now();
@@ -73,8 +75,14 @@ export function createDataImporterEndpoint(importer) {
 
     // sync to server
     if(!dryRun) {
-      // TODO: arrange records in safe import order
-      for(const [k, v] of Object.entries(recordsByType)) {
+      // sort into safe order
+      const sortedRecordGroups = Object.entries(sortableRecordsByType)
+        .sort((a, b) => {
+          return compareModelPriority(a[0], b[0]);
+        });
+
+      // send to sync server in batches
+      for(const [k, v] of sortedRecordGroups) {
         if(k === 'referenceData') {
           await sendSyncRequest('reference', v);
         } else {
