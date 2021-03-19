@@ -1,4 +1,5 @@
 import { Sequelize } from 'sequelize';
+import { SYNC_DIRECTIONS } from 'shared/constants';
 import { Model } from './Model';
 
 export class Patient extends Model {
@@ -11,7 +12,7 @@ export class Patient extends Model {
           unique: true,
           allowNull: false,
         },
-
+        title: Sequelize.STRING,
         firstName: Sequelize.STRING,
         middleName: Sequelize.STRING,
         lastName: Sequelize.STRING,
@@ -23,6 +24,8 @@ export class Patient extends Model {
           allowNull: false,
         },
         bloodType: Sequelize.STRING,
+        email: Sequelize.STRING,
+        additionalDetails: Sequelize.TEXT,
       },
       {
         ...options,
@@ -38,6 +41,56 @@ export class Patient extends Model {
 
     this.belongsTo(models.ReferenceData, {
       foreignKey: 'villageId',
+      as: 'village',
     });
+
+    this.belongsTo(models.ReferenceData, {
+      foreignKey: 'ethnicityId',
+      as: 'ethnicity',
+    });
+    this.belongsTo(models.ReferenceData, {
+      foreignKey: 'nationalityId',
+      as: 'nationality',
+    });
+    this.belongsTo(models.ReferenceData, {
+      foreignKey: 'countryId',
+      as: 'country',
+    });
+    this.belongsTo(models.ReferenceData, {
+      foreignKey: 'divisionId',
+      as: 'division',
+    });
+    this.belongsTo(models.ReferenceData, {
+      foreignKey: 'subdivisionId',
+      as: 'subdivision',
+    });
+    this.belongsTo(models.ReferenceData, {
+      foreignKey: 'medicalAreaId',
+      as: 'medicalArea',
+    });
+    this.belongsTo(models.ReferenceData, {
+      foreignKey: 'nursingZoneId',
+      as: 'nursingZone',
+    });
+    this.belongsTo(models.ReferenceData, {
+      foreignKey: 'settlementId',
+      as: 'settlement',
+    });
+    this.belongsTo(models.ReferenceData, {
+      foreignKey: 'occupationId',
+      as: 'occupation',
+    });
+  }
+
+  static syncDirection = SYNC_DIRECTIONS.BIDIRECTIONAL;
+
+  static async getSyncIds() {
+    const patients = await this.sequelize.models.Patient.findAll({
+      // TODO: implement patient marking
+      // where: { markedForSync: true },
+      // raw: true,
+      // attributes: ['id'],
+    });
+    return patients.map(({ id }) => id);
   }
 }

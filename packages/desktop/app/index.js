@@ -16,7 +16,7 @@ import { startDataChangeResponder } from './DataChangeResponder';
 
 import { registerYup } from './utils/errorMessages';
 
-import { authFailure } from './store/auth';
+import { authFailure, versionIncompatible } from './store/auth';
 
 function initStore() {
   const history = createHashHistory();
@@ -59,8 +59,12 @@ function start() {
   // set up data change responder to trigger reloads when relevant data changes server-side
   startDataChangeResponder(API, store);
 
-  API.setAuthFailureHandler(response => {
+  API.setAuthFailureHandler(() => {
     store.dispatch(authFailure());
+  });
+
+  API.setVersionIncompatibleHandler((isTooLow, minVersion, maxVersion) => {
+    store.dispatch(versionIncompatible(isTooLow, minVersion, maxVersion));
   });
 
   const persistor = initPersistor(store);

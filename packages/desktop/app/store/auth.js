@@ -1,17 +1,18 @@
 import { createStatePreservingReducer } from '../utils/createStatePreservingReducer';
+import { LOCAL_STORAGE_KEYS } from '../constants';
 
 // actions
 const LOGIN_START = 'LOGIN_START';
 const LOGIN_SUCCESS = 'LOGIN_SUCCESS';
 const LOGIN_FAILURE = 'LOGIN_FAILURE';
 const LOGOUT = 'LOGOUT';
-const TOKEN_REJECTION = 'TOKEN_REJECTION';
+const LOGOUT_WITH_ERROR = 'LOGOUT_WITH_ERROR';
 
-export const login = (email, password) => async (dispatch, getState, { api }) => {
+export const login = (host, email, password) => async (dispatch, getState, { api }) => {
   dispatch({ type: LOGIN_START });
 
   try {
-    const { user, token } = await api.login(email, password);
+    const { user, token } = await api.login(host, email, password);
     dispatch({ type: LOGIN_SUCCESS, user, token });
   } catch (error) {
     dispatch({ type: LOGIN_FAILURE, error: error.message });
@@ -20,8 +21,15 @@ export const login = (email, password) => async (dispatch, getState, { api }) =>
 
 export const authFailure = () => async dispatch => {
   dispatch({
-    type: TOKEN_REJECTION,
+    type: LOGOUT_WITH_ERROR,
     error: 'Your session has expired. Please log in again.',
+  });
+};
+
+export const versionIncompatible = message => async dispatch => {
+  dispatch({
+    type: LOGOUT_WITH_ERROR,
+    error: message,
   });
 };
 
@@ -56,7 +64,7 @@ const actionHandlers = {
     loading: false,
     error: action.error,
   }),
-  [TOKEN_REJECTION]: action => ({
+  [LOGOUT_WITH_ERROR]: action => ({
     user: defaultState.user,
     error: action.error,
   }),

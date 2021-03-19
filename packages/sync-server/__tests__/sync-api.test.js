@@ -1,22 +1,21 @@
 import { subDays, subHours } from 'date-fns';
 import { v4 as uuidv4 } from 'uuid';
 
-import { convertFromDbRecord, convertToDbRecord } from 'sync-server/app/convertDbRecord';
+import { fakePatient, buildNestedEncounter, upsertAssociations } from 'shared/test-helpers';
 
+import { convertFromDbRecord, convertToDbRecord } from 'sync-server/app/convertDbRecord';
 import { createTestContext, unsafeSetUpdatedAt } from './utilities';
-import { fakePatient } from './fake';
-import { buildNestedEncounter } from './factory';
 
 const makeDate = (daysAgo, hoursAgo = 0) => {
   return subHours(subDays(new Date(), daysAgo), hoursAgo).valueOf();
 };
 
-const compareRecordsById = (a, b) => a.data.id.localeCompare(b.data.id);
-
 const fakeSyncRecordPatient = (...args) => convertFromDbRecord(fakePatient(...args));
 
 const OLDEST = { ...fakeSyncRecordPatient('oldest_'), lastSynced: makeDate(20) };
 const SECOND_OLDEST = { ...fakeSyncRecordPatient('second-oldest_'), lastSynced: makeDate(10) };
+
+// TODO: add exhaustive tests for sync API for each channel
 
 describe('Sync API', () => {
   let app = null;
@@ -136,6 +135,33 @@ describe('Sync API', () => {
         expect(responseRecordIds.sort()).toEqual(expectedRecordIds.sort());
       });
 
+      it('should return records after a custom offset with inconsistent limits between calls', async () => {
+        const results = [];
+
+        let recordsPulled = 0;
+        do {
+          const limit = Math.ceil(Math.random() * 5);
+          const url = `/v1/sync/patient?since=0&limit=${limit}&offset=${recordsPulled}`;
+          const result = await app.get(url);
+          expect(result).toHaveSucceeded();
+          expect(result.body.records.length).toEqual(
+            Math.min(limit, TOTAL_RECORDS - recordsPulled),
+          );
+          results.push(result);
+          recordsPulled += limit;
+        } while (recordsPulled <= TOTAL_RECORDS);
+
+        const responseRecordIds = results
+          .map(r => r.body.records)
+          .flat()
+          .map(r => r.data.firstName.split('_')[0]);
+        const expectedRecordIds = new Array(TOTAL_RECORDS)
+          .fill(0)
+          .map((_, i) => `test-pagination-${i}`);
+
+        expect(responseRecordIds.sort()).toEqual(expectedRecordIds.sort());
+      });
+
       it('should include the count of the entire query', async () => {
         const result = await app.get(`/v1/sync/patient?since=0&limit=5`);
         expect(result).toHaveSucceeded();
@@ -154,8 +180,9 @@ describe('Sync API', () => {
     it('should return nested encounter relationships', async () => {
       // arrange
       const patientId = uuidv4();
-      const encounter = await buildNestedEncounter({ wrapper: ctx.store }, patientId)();
-      await ctx.store.upsert(`patient/${patientId}/encounter`, encounter);
+      const encounter = await buildNestedEncounter(ctx.store, patientId);
+      await ctx.store.models.Encounter.create(encounter);
+      await upsertAssociations(ctx.store.models.Encounter, encounter);
 
       // act
       const result = await app.get(`/v1/sync/patient%2F${patientId}%2Fencounter?since=0`);
@@ -255,15 +282,16 @@ describe('Sync API', () => {
 
       const foundRecords = await ctx.store.findSince('patient', 0);
       const foundRecord = foundRecords.find(r => r.id === record.data.id);
-      const { createdAt, updatedAt, deletedAt, ...data } = foundRecord;
+      const { createdAt, updatedAt, deletedAt, markedForPush, ...data } = foundRecord;
       expect(data).toEqual(record.data);
     });
 
     it('should upsert nested encounter relationships', async () => {
       // arrange
       const patientId = uuidv4();
-      const encounterToInsert = await buildNestedEncounter({ wrapper: ctx.store }, patientId)();
-      await ctx.store.upsert(`patient/${patientId}/encounter`, encounterToInsert);
+      const encounterToInsert = await buildNestedEncounter(ctx.store, patientId);
+      await ctx.store.models.Encounter.create(encounterToInsert);
+      await upsertAssociations(ctx.store.models.Encounter, encounterToInsert);
 
       // act
       const getResult = await app.get(`/v1/sync/patient%2F${patientId}%2Fencounter?since=0`);
@@ -280,7 +308,18 @@ describe('Sync API', () => {
 
       // assert
       expect(result.body).toHaveProperty('count', 1);
-      const [encounterAfterPost] = await ctx.store.findSince(`patient/${patientId}/encounter`, 0);
+      const encounterAfterPost = await ctx.store.models.Encounter.findOne({
+        where: { patientId },
+        include: [
+          { association: 'administeredVaccines' },
+          { association: 'diagnoses' },
+          { association: 'medications' },
+          {
+            association: 'surveyResponses',
+            include: [{ association: 'answers' }],
+          },
+        ],
+      });
       expect(encounterAfterPost).toHaveProperty(['administeredVaccines', 0, 'batch'], 'test batch');
       expect(encounterAfterPost).toHaveProperty(['surveyResponses', 0, 'result'], 3.141592);
       expect(encounterAfterPost).toHaveProperty(

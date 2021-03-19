@@ -9,7 +9,6 @@ export class ReportRequestProcessor extends ScheduledTask {
   }
 
   async run() {
-    log.info('Report Request Processor task');
     let requests = await this.context.store.models.ReportRequest.findAll({
       where: {
         status: REPORT_REQUEST_STATUSES.RECEIVED,

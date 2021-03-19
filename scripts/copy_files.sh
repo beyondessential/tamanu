@@ -1,5 +1,11 @@
 #!/bin/bash
 echo "Copying files to /tamanu"
+
+# ensure target directory is clean & exists
+rm -rf ./deploy
+mkdir -p deploy
+
+# set up repo
 rm -rf /tamanu/scripts
 mkdir -p /tamanu
 cd /.tmp

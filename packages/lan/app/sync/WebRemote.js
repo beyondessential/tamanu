@@ -13,6 +13,9 @@ const DEFAULT_TIMEOUT = 10000;
 export class WebRemote {
   connectionPromise = null;
 
+  // test mocks don't always apply properly - this ensures the mock will be used
+  fetchImplementation = fetch;
+
   constructor() {
     this.host = config.sync.host;
     this.timeout = config.sync.timeout || DEFAULT_TIMEOUT;
@@ -49,10 +52,10 @@ export class WebRemote {
     const controller = new AbortController();
     const timeoutHandle = setTimeout(() => {
       controller.abort();
-    }, 100 || this.timeout);
+    }, this.timeout);
     let response;
     try {
-      response = await fetch(url, {
+      response = await this.fetchImplementation(url, {
         method,
         headers: {
           Accept: 'application/json',
@@ -69,7 +72,7 @@ export class WebRemote {
     } catch (e) {
       // TODO: import AbortError from node-fetch once we're on v3.0
       if (e.name === 'AbortError') {
-        throw new RemoteTimeoutError(`Server failed to respond within ${this.timeout}ms`);
+        throw new RemoteTimeoutError(`Server failed to respond within ${this.timeout}ms - ${url}`);
       }
       throw e;
     } finally {
@@ -132,13 +135,14 @@ export class WebRemote {
     }
   }
 
-  async receive(channel, { since = 0, limit = 100, page = 0 } = {}) {
+  async pull(channel, { since = 0, limit = 100, page = 0 } = {}) {
     const path = `sync/${encodeURIComponent(channel)}?since=${since}&limit=${limit}&page=${page}`;
     return this.fetch(path);
   }
 
-  async send() {
-    throw new Error('WebRemote: send is not implemented yet');
+  async push(channel, body) {
+    const path = `sync/${encodeURIComponent(channel)}`;
+    return this.fetch(path, { method: 'POST', body });
   }
 
   async whoami() {

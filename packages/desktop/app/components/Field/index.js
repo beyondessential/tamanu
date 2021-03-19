@@ -9,6 +9,7 @@ export * from './NullableBooleanField';
 
 // fancy fields
 export * from './AutocompleteField';
+export * from './ServerDetectingField';
 
 // form helpers
 export * from './Form';

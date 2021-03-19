@@ -1,7 +1,7 @@
 import { Sequelize, ValidationError } from 'sequelize';
 import { InvalidOperationError } from 'shared/errors';
+import { REFERENCE_TYPE_VALUES, SYNC_DIRECTIONS } from 'shared/constants';
 import { Model } from './Model';
-import { REFERENCE_TYPE_VALUES } from '../constants';
 
 export class ReferenceData extends Model {
   static init({ primaryKey, ...options }) {
@@ -13,7 +13,7 @@ export class ReferenceData extends Model {
           allowNull: false,
         },
         type: {
-          type: Sequelize.ENUM(REFERENCE_TYPE_VALUES),
+          type: Sequelize.STRING(31),
           allowNull: false,
         },
         name: {
@@ -52,5 +52,11 @@ export class ReferenceData extends Model {
       throw new InvalidOperationError('The type of a reference data item cannot be changed');
     }
     return super.update(values);
+  }
+
+  static syncDirection = SYNC_DIRECTIONS.PULL_ONLY;
+
+  static getChannels() {
+    return ['reference'];
   }
 }

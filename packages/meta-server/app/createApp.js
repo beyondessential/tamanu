@@ -15,7 +15,7 @@ export function createApp() {
   // Init our app
   const app = express();
   app.use(compression());
-  app.use(bodyParser.json());
+  app.use(bodyParser.json({ limit: '50mb' }));
   app.use(bodyParser.urlencoded({ extended: true }));
 
   app.use((req, res, next) => {

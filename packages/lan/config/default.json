@@ -3,6 +3,10 @@
   "admin": {
     "allowAdminRoutes": false
   },
+  "discovery": {
+    "overrideAddress": "",
+    "protocol": "https"
+  },
   "sync": {
     "schedule": "*/10 * * * *",
     "host": "https://sync-dev.tamanu.io",

@@ -1,8 +1,5 @@
 import { BadAuthenticationError, InvalidOperationError } from 'shared/errors';
-import fetch from 'node-fetch';
-
 import { WebRemote } from '~/sync/WebRemote';
-jest.mock('node-fetch');
 
 const fakeResponse = (response, body) => {
   const validBody = JSON.parse(JSON.stringify(body));
@@ -21,6 +18,14 @@ const fakeTimeout = message => (url, opts) =>
     opts.signal.addEventListener('abort', () => reject(new AbortError(message)));
   });
 
+const fetch = jest.fn();
+
+const createRemote = () => {
+  const remote = new WebRemote();
+  remote.fetchImplementation = fetch;
+  return remote;
+};
+
 describe('WebRemote', () => {
   const authSuccess = fakeSuccess({
     token: 'this-is-not-real',
@@ -35,26 +40,26 @@ describe('WebRemote', () => {
 
   describe('authentication', () => {
     it('authenticates against a remote sync-server', async () => {
-      const remote = new WebRemote();
+      const remote = createRemote();
       fetch.mockReturnValueOnce(authSuccess);
       await remote.connect();
       expect(remote.token).toEqual('this-is-not-real');
     });
 
     it('throws a BadAuthenticationError if the credentials are invalid', async () => {
-      const remote = new WebRemote();
+      const remote = createRemote();
       fetch.mockReturnValueOnce(authInvalid);
       expect(remote.connect()).rejects.toThrow(BadAuthenticationError);
     });
 
     it('throws an InvalidOperationError if any other server error is returned', async () => {
-      const remote = new WebRemote();
+      const remote = createRemote();
       fetch.mockReturnValueOnce(authFailure);
       expect(remote.connect()).rejects.toThrow(InvalidOperationError);
     });
 
     it('retrieves user data', async () => {
-      const remote = new WebRemote();
+      const remote = createRemote();
       fetch
         .mockReturnValueOnce(authSuccess)
         .mockReturnValueOnce(fakeSuccess({ displayName: 'Fake User' }));
@@ -62,7 +67,7 @@ describe('WebRemote', () => {
     });
 
     it('retries if a token is invalid', async () => {
-      const remote = new WebRemote();
+      const remote = createRemote();
       fetch
         .mockReturnValueOnce(authSuccess)
         .mockReturnValueOnce(authInvalid)
@@ -73,7 +78,7 @@ describe('WebRemote', () => {
 
     it('times out requests', async () => {
       jest.useFakeTimers();
-      const remote = new WebRemote();
+      const remote = createRemote();
       fetch.mockImplementationOnce(fakeTimeout('fake timeout'));
       const connectPromise = remote.connect();
       jest.runAllTimers();
@@ -81,24 +86,40 @@ describe('WebRemote', () => {
     });
   });
 
-  describe('receive', () => {
-    it('receives records', async () => {
-      const remote = new WebRemote();
+  describe('pull', () => {
+    it('pulls records', async () => {
+      const remote = createRemote();
       const body = {
         records: [{ id: 'abc' }],
         count: 1,
         requestedAt: 123456,
       };
       fetch.mockReturnValueOnce(authSuccess).mockReturnValueOnce(fakeSuccess(body));
-      expect(remote.receive('reference')).resolves.toEqual(body);
+      expect(remote.pull('reference')).resolves.toEqual(body);
     });
 
     it('throws an error on an invalid response', async () => {
-      const remote = new WebRemote();
+      const remote = createRemote();
       fetch.mockReturnValueOnce(authSuccess).mockReturnValueOnce(fakeFailure(403));
-      expect(remote.receive('reference')).rejects.toThrow(InvalidOperationError);
+      expect(remote.pull('reference')).rejects.toThrow(InvalidOperationError);
     });
   });
 
-  it.todo('sends records');
+  describe('push', () => {
+    it('pushes records', async () => {
+      const remote = createRemote();
+      const body = {
+        count: 1,
+        requestedAt: 123456,
+      };
+      fetch.mockReturnValueOnce(authSuccess).mockReturnValueOnce(fakeSuccess(body));
+      expect(remote.push('reference', [{ id: 'abc' }])).resolves.toEqual(body);
+    });
+
+    it('throws an error on an invalid response', async () => {
+      const remote = createRemote();
+      fetch.mockReturnValueOnce(authSuccess).mockReturnValueOnce(fakeFailure(403));
+      expect(remote.push('reference')).rejects.toThrow(InvalidOperationError);
+    });
+  });
 });

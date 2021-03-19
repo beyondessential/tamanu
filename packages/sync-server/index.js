@@ -3,6 +3,7 @@ import { log } from './app/logging';
 import { createApp } from './app/createApp';
 import { initDatabase } from './app/database';
 import { startScheduledTasks } from './app/tasks';
+import { createReferralNotification } from 'shared/tasks/CreateReferralNotification';
 
 const port = config.port;
 
@@ -33,6 +34,16 @@ export async function run() {
   });
 
   startScheduledTasks(context);
+
+  if (config.notifications && config.notifications.referralCreated) {
+    context.models.Referral.addHook(
+      'afterCreate',
+      'create referral notification hook',
+      referral => {
+        createReferralNotification(referral, context.models);
+      },
+    );
+  }
 }
 
 run();

@@ -1,7 +1,7 @@
 {
   "name": "desktop",
   "productName": "Tamanu",
-  "version": "0.0.1",
+  "version": "1.0.0",
   "description": "Tamanu Desktop application",
   "private": true,
   "homepage": "https://github.com/beyondessential/tamanu.git#readme",
@@ -18,11 +18,11 @@
     "flow-typed": "rimraf flow-typed/npm && flow-typed install --overwrite || true",
     "lint": "eslint app",
     "lint-stats": "eslint app --format ../scripts/eslint-stats.js",
-    "package": "npm run build && build --publish never",
-    "package-all": "npm run build && build -mwl --publish never",
-    "package-linux": "npm run build && build --linux --publish never",
-    "package-win": "npm run build && build --win --x64 --publish never",
-    "postinstall": "./scripts/fix-npm-module.sh",
+    "package": "npm run build && electron-builder --publish never",
+    "package-all": "npm run build && electron-builder -mwl --publish never",
+    "package-linux": "npm run build && electron-builder --linux --publish never",
+    "package-win": "npm run build && electron-builder --win --x64 --publish never",
+    "package-and-publish-win": "npm run build && electron-builder --win --x64 --publish always",
     "prestart": "npm run build",
     "start": "cross-env NODE_ENV=production electron ./app/",
     "start-dev": "npm run dev",
@@ -56,6 +56,12 @@
       "dist/main.prod.js.map",
       "package.json"
     ],
+    "publish": {
+      "provider": "s3",
+      "bucket": "tamanu-builds",
+      "region": "ap-southeast-2",
+      "path": "will be set by build_desktop.sh"
+    },
     "dmg": {
       "contents": [
         {
@@ -120,10 +126,11 @@
     "cross-spawn": "^6.0.5",
     "css-loader": "^1.0.0",
     "detect-port": "^1.2.3",
-    "electron": "^11.2.0",
-    "electron-builder": "^20.36.2",
+    "electron": "^11.3.0",
+    "electron-builder": "^22.10.5",
     "electron-devtools-installer": "^3.1.1",
     "electron-rebuild": "^1.8.2",
+    "electron-updater": "^4.3.5",
     "enzyme": "^3.3.0",
     "enzyme-adapter-react-16": "^1.1.1",
     "enzyme-to-json": "^3.3.4",
@@ -165,9 +172,8 @@
     "style-loader": "^0.21.0",
     "stylelint": "^9.4.0",
     "stylelint-config-standard": "^18.2.0",
-    "uglifyjs-webpack-plugin": "1.2.7",
     "url-loader": "^1.0.1",
-    "webpack": "^4.31.0",
+    "webpack": "^5.24.0",
     "webpack-bundle-analyzer": "^2.13.1",
     "webpack-cli": "^3.3.2",
     "webpack-dev-server": "^3.7.2",
@@ -199,7 +205,6 @@
     "connected-react-router": "^6.5.2",
     "deep-equal": "^1.0.1",
     "devtron": "^1.4.0",
-    "dotenv-webpack": "^1.5.7",
     "electron-debug": "^2.0.0",
     "faye": "^1.2.4",
     "formik": "^1.5.2",
@@ -246,5 +251,10 @@
     "node": ">=7.x <11.0",
     "npm": ">=4.x",
     "yarn": ">=0.21.3"
+  },
+  "workspaces": {
+    "nohoist": [
+      "electron"
+    ]
   }
 }

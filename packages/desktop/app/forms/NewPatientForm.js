@@ -57,6 +57,14 @@ export const NewPatientForm = memo(
     patientSuggester,
     facilitySuggester,
     villageSuggester,
+    ethnicitySuggester,
+    nationalitySuggester,
+    divisionSuggester,
+    subdivisionSuggester,
+    medicalAreaSuggester,
+    nursingZoneSuggester,
+    settlementSuggester,
+    occupationSuggester,
     isBirth,
   }) => {
     const [isExpanded, setExpanded] = useState(false);
@@ -67,7 +75,13 @@ export const NewPatientForm = memo(
             <Field name="displayId" component={IdField} regenerateId={generateId} />
           </IdBanner>
         </IdBannerContainer>
-        <PrimaryDetailsGroup villageSuggester={villageSuggester} />
+        <PrimaryDetailsGroup
+          villageSuggester={villageSuggester}
+          ethnicitySuggester={ethnicitySuggester}
+          nationalitySuggester={nationalitySuggester}
+          divisionSuggester={divisionSuggester}
+          subdivisionSuggester={subdivisionSuggester}
+        />
         <AdditionalInformationRow>
           <div>
             Add additional information <span>(religion, occupation, blood type...)</span>
@@ -84,6 +98,10 @@ export const NewPatientForm = memo(
               isBirth={isBirth}
               patientSuggester={patientSuggester}
               facilitySuggester={facilitySuggester}
+              medicalAreaSuggester={medicalAreaSuggester}
+              nursingZoneSuggester={nursingZoneSuggester}
+              settlementSuggester={settlementSuggester}
+              occupationSuggester={occupationSuggester}
             />
           </FormGrid>
         </Collapse>

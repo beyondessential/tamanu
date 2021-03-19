@@ -71,6 +71,9 @@ export async function createTestContext() {
   const dbResult = await initDatabase();
   const { models, sequelize } = dbResult;
 
+  // do NOT time out during create context
+  jest.setTimeout(1000 * 60 * 60 * 24);
+
   // sync db and remove old test data
   await sequelize.sync();
   await deleteAllTestIds(dbResult);
@@ -104,6 +107,8 @@ export async function createTestContext() {
 
     return baseApp.asUser(newUser);
   };
+
+  jest.setTimeout(30 * 1000); // more generous than the default 5s but not crazy
 
   return { baseApp, sequelize, models };
 }

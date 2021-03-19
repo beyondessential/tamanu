@@ -1,3 +1,4 @@
 #!/bin/bash
 echo "Pushing to S3"
-aws s3 cp ./deploy/ s3://${S3_BUCKET}/ --recursive --exclude "server-*"
+ls ./deploy
+aws s3 cp ./deploy/ s3://${S3_BUCKET}/ --recursive --exclude "server-*" --no-progress

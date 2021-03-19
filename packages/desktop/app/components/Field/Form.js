@@ -24,6 +24,7 @@ export const Field = formikConnect(({ formik: { errors }, name, helperText, ...p
 
 export class Form extends React.PureComponent {
   static propTypes = {
+    onError: PropTypes.func,
     onSubmit: PropTypes.func.isRequired,
     render: PropTypes.func.isRequired,
     showInlineErrorsOnly: PropTypes.bool,
@@ -31,6 +32,7 @@ export class Form extends React.PureComponent {
 
   static defaultProps = {
     showInlineErrorsOnly: false,
+    onError: null,
   };
 
   state = {
@@ -39,6 +41,9 @@ export class Form extends React.PureComponent {
   };
 
   setErrors = validationErrors => {
+    if (this.props.onError) {
+      this.props.onError(validationErrors);
+    }
     this.setState({ validationErrors, isErrorDialogVisible: true });
   };
 

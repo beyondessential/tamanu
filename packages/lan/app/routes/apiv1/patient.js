@@ -3,22 +3,115 @@ import asyncHandler from 'express-async-handler';
 import { QueryTypes } from 'sequelize';
 import moment from 'moment';
 
-import {
-  simpleGet,
-  simplePut,
-  simplePost,
-  simpleGetList,
-  permissionCheckingRouter,
-  runPaginatedQuery,
-} from './crudHelpers';
+import { simpleGetList, permissionCheckingRouter, runPaginatedQuery } from './crudHelpers';
 
 import { renameObjectKeys } from '~/utils/renameObjectKeys';
+import { NotFoundError } from 'shared/errors';
 
 export const patient = express.Router();
 
-patient.get('/:id', simpleGet('Patient'));
-patient.put('/:id', simplePut('Patient'));
-patient.post('/$', simplePost('Patient'));
+const AdditionalDetailsProperties = [
+  'placeOfBirth',
+  'cityTown',
+  'streetVillage',
+  'maritalStatus',
+  'bloodType',
+  'primaryContactNumber',
+  'secondaryContactNumber',
+  'socialMediaPlatform',
+  'socialMediaName',
+  'educationalAttainment',
+  'patientType',
+];
+
+function stringifyAdditionalDetails(reqBody) {
+  return JSON.stringify(
+    AdditionalDetailsProperties.reduce((acc, p) => {
+      if (reqBody[p]) {
+        acc[p] = reqBody[p];
+      }
+      return acc;
+    }, {}),
+  );
+}
+
+function parseAdditionalDetails(patient) {
+  const parsedAdditionalDetails = patient.get('additionalDetails')
+    ? JSON.parse(patient.get('additionalDetails'))
+    : {};
+
+  // NOTE: if there's no values for additional details, we need to
+  // set the property to null, so it will override desktop app
+  // state reducer spread
+  return AdditionalDetailsProperties.reduce((acc, property) => {
+    if (acc[property] === undefined) {
+      acc[property] = null;
+    }
+    return acc;
+  }, parsedAdditionalDetails);
+}
+
+function dbRecordToResponse(patientRecord) {
+  return {
+    ...patientRecord.get({
+      plain: true,
+    }),
+    ...parseAdditionalDetails(patientRecord),
+  };
+}
+
+function requestBodyToRecord(reqBody) {
+  return {
+    ...reqBody,
+    additionalDetails: stringifyAdditionalDetails(reqBody),
+  };
+}
+
+patient.get(
+  '/:id',
+  asyncHandler(async (req, res) => {
+    const {
+      models: { Patient },
+      params,
+    } = req;
+    req.checkPermission('read', 'Patient');
+    const patient = await Patient.findByPk(params.id, {
+      include: Patient.getFullReferenceAssociations(),
+    });
+    if (!patient) throw new NotFoundError();
+
+    res.send(dbRecordToResponse(patient));
+  }),
+);
+
+patient.put(
+  '/:id',
+  asyncHandler(async (req, res) => {
+    const {
+      models: { Patient },
+      params,
+    } = req;
+    req.checkPermission('read', 'Patient');
+    const patient = await Patient.findByPk(params.id);
+    if (!patient) throw new NotFoundError();
+    req.checkPermission('write', patient);
+    await patient.update(requestBodyToRecord(req.body));
+    res.send(dbRecordToResponse(patient));
+  }),
+);
+
+patient.post(
+  '/$',
+  asyncHandler(async (req, res) => {
+    const {
+      models: { Patient },
+    } = req;
+    req.checkPermission('create', 'Patient');
+    const newPatient = requestBodyToRecord(req.body);
+    const object = await Patient.create(newPatient);
+    res.send(dbRecordToResponse(object));
+  }),
+);
 
 const patientRelations = permissionCheckingRouter('read', 'Patient');
 

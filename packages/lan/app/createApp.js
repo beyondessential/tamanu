@@ -5,6 +5,7 @@ import compression from 'compression';
 
 import routes from './routes';
 import errorHandler from './middleware/errorHandler';
+import { versionCompatibility } from './middleware/versionCompatibility';
 
 import { log } from './logging';
 
@@ -16,7 +17,7 @@ export function createApp({ sequelize, models }) {
   // Init our app
   const app = express();
   app.use(compression());
-  app.use(bodyParser.json());
+  app.use(bodyParser.json({ limit: '50mb' }));
   app.use(bodyParser.urlencoded({ extended: true }));
 
   app.use((req, res, next) => {
@@ -39,6 +40,8 @@ export function createApp({ sequelize, models }) {
 
     next();
   });
+
+  app.use(versionCompatibility);
 
   app.use('/', routes);
 
