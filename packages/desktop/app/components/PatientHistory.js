@@ -1,9 +1,8 @@
 import React from 'react';
-import { connectApi } from '../api';
-import { DataFetchingTable } from './Table';
-import { RefreshIconButton } from '../components/Button';
 
+import { DataFetchingTable } from './Table';
 import { DateDisplay } from './DateDisplay';
+import { MarkPatientForSync } from './MarkPatientForSync';
 import { ENCOUNTER_OPTIONS_BY_VALUE } from '../constants';
 
 const getDate = ({ startDate }) => <DateDisplay date={startDate} />;
@@ -18,17 +17,9 @@ const columns = [
   { key: 'description', title: 'Description', accessor: getDescription },
 ];
 
-export const PatientHistory = ({ patient, markedForSync, pulledAt, onItemClick, onMarkForSync, onReload }) => {
-  if (!patient) {
-    return null;
-  }
+export const PatientHistory = ({ patient, pulledAt, onItemClick }) => {
   if (!patient.markedForSync) {
-    return (
-      <div>
-        Not yet marked for sync
-        <RefreshIconButton onClick={onMarkForSync} />
-      </div>
-    );
+    return <MarkPatientForSync patient={patient} />;
   }
   return (
     <DataFetchingTable

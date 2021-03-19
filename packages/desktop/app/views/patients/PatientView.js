@@ -122,24 +122,17 @@ const ImmunisationsPane = React.memo(({ patient, readonly }) => {
 const RoutedEncounterModal = connectRoutedModal('/patients/view', 'checkin')(EncounterModal);
 const RoutedTriageModal = connectRoutedModal('/patients/view', 'triage')(TriageModal);
 
-const HistoryPane = connectApi((api, dispatch, state) => ({
-  patient: state.patient,
-  onOpenCheckin: () => dispatch(push('/patients/view/checkin')),
-  onOpenTriage: () => dispatch(push('/patients/view/triage')),
-  onMarkForSync: async () => {
-    await api.put(`patient/${state.patient.id}`, { markedForSync: true });
-    dispatch(reloadPatient(state.patient.id));
-  },
-  onReload: () => dispatch(reloadPatient(state.patient.id)),
-}))(
-  React.memo(({
-    patient,
-    onOpenCheckin,
-    onOpenTriage,
-    onMarkForSync,
-    onReload,
-    disabled,
-  }) => {
+const HistoryPane = connect(
+  state => ({
+    currentEncounter: state.patient.currentEncounter,
+    patient: state.patient,
+  }),
+  dispatch => ({
+    onOpenCheckin: () => dispatch(push('/patients/view/checkin')),
+    onOpenTriage: () => dispatch(push('/patients/view/triage')),
+  }),
+)(
+  React.memo(({ patient, currentEncounter, onOpenCheckin, onOpenTriage, disabled }) => {
     const { encounter, loadEncounter } = useEncounter();
     const onViewEncounter = useCallback(
       async id => {
@@ -150,18 +143,13 @@ const HistoryPane = connectApi((api, dispatch, state) => ({
     return (
       <div>
         <PatientEncounterSummary
-          encounter={patient?.currentEncounter}
+          encounter={currentEncounter}
           viewEncounter={onViewEncounter}
           openCheckin={onOpenCheckin}
           openTriage={onOpenTriage}
           disabled={disabled}
         />
-        <PatientHistory
-          patient={patient}
-          onItemClick={onViewEncounter}
-          onMarkForSync={onMarkForSync}
-          onReload={onReload}
-        />
+        <PatientHistory patient={patient} onItemClick={onViewEncounter} />
       </div>
     );
   }),
@@ -214,7 +202,7 @@ const TABS = [
     label: 'History',
     key: 'history',
     icon: 'fa fa-calendar-day',
-    render: props => <HistoryPane {...props} />,
+    render: () => <HistoryPane />,
   },
   {
     label: 'Details',
