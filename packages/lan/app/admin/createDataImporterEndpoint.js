@@ -24,7 +24,7 @@ export function createDataImporterEndpoint(importer) {
 
     // we don't need the file any more
     if(deleteFileAfterImport) {
-      unlink(file);
+      unlink(file, () => null);
     }
 
     // split up records according to record type
@@ -63,7 +63,7 @@ export function createDataImporterEndpoint(importer) {
     });
 
     // bail out now if things are broken
-    if(erroredRecords) {
+    if(erroredRecords && erroredRecords.length > 0) {
       res.send({
         success: false,
         erroredRecords,
