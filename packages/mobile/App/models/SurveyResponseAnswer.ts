@@ -13,7 +13,7 @@ export class SurveyResponseAnswer extends BaseModel
   @Column({ nullable: true })
   name: string;
 
-  @Column()
+  @Column({ nullable: true })
   body: string;
 
   @ManyToOne(() => SurveyResponse, surveyResponse => surveyResponse.answers)

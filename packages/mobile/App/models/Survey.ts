@@ -7,7 +7,7 @@ import { ISurvey, ISurveyResponse, SurveyTypes } from '~/types';
 
 @Entity('survey')
 export class Survey extends BaseModel implements ISurvey {
-  @Column({ type: 'varchar', default: SurveyTypes.Programs })
+  @Column({ type: 'varchar', default: SurveyTypes.Programs, nullable: true })
   surveyType: SurveyTypes;
 
   @RelationId(({ program }) => program)
@@ -15,7 +15,7 @@ export class Survey extends BaseModel implements ISurvey {
 
   responses: any[];
 
-  @Column()
+  @Column({ nullable: true })
   name: string;
 
   @ManyToOne(() => Program, program => program.surveys)

@@ -35,7 +35,7 @@ export class Encounter extends BaseModel implements IEncounter {
   @Column({ nullable: true })
   endDate?: Date;
 
-  @Column({ default: '' })
+  @Column({ default: '', nullable: true })
   reasonForEncounter: string;
 
   @Index()

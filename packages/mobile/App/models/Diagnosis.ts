@@ -6,13 +6,13 @@ import { ReferenceData, ReferenceDataRelation } from './ReferenceData';
 
 @Entity('diagnosis')
 export class Diagnosis extends BaseModel implements IDiagnosis {
-  @Column()
+  @Column({ nullable: true })
   isPrimary: boolean;
 
   @Column()
   date: Date;
 
-  @Column({ type: 'varchar' })
+  @Column({ type: 'varchar', nullable: true })
   certainty: Certainty;
 
   @ReferenceDataRelation()

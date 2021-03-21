@@ -18,13 +18,13 @@ import { Referral } from './Referral';
 
 @Entity('survey_response')
 export class SurveyResponse extends BaseModel implements ISurveyResponse {
-  @Column()
+  @Column({ nullable: true })
   startTime: Date;
 
-  @Column()
+  @Column({ nullable: true })
   endTime: Date;
 
-  @Column({ default: 0 })
+  @Column({ default: 0, nullable: true })
   result: number;
 
   @Column({ default: '' })
@@ -38,7 +38,7 @@ export class SurveyResponse extends BaseModel implements ISurveyResponse {
 
   @ManyToOne(() => Encounter, encounter => encounter.surveyResponses)
   encounter: Encounter;
-  
+
   @RelationId(({ encounter }) => encounter)
   encounterId: string;
 
