@@ -1,8 +1,4 @@
-import React from 'react';
-
 import { FieldTypes } from './fields';
-import { Suggester } from './suggester';
-import { Routes } from './routes';
 
 import { TextField } from '~/ui/components/TextField/TextField';
 import { RadioButtonGroup } from '~/ui/components/RadioButtonGroup';
@@ -16,6 +12,7 @@ import { SurveyQuestionAutocomplete } from '../components/AutocompleteModal/Surv
 import { SurveyLink } from '../components/Forms/SurveyForm/SurveyLink';
 import { SurveyResult } from '../components/Forms/SurveyForm/SurveyResult';
 import { SurveyAnswerField } from '../components/Forms/SurveyForm/SurveyAnswerField';
+import { PatientDataField } from '../components/Forms/SurveyForm/PatientDataField';
 
 export const FieldByType = {
   [FieldTypes.TEXT]: TextField,
@@ -33,6 +30,7 @@ export const FieldByType = {
   [FieldTypes.SURVEY_LINK]: SurveyLink,
   [FieldTypes.SURVEY_RESULT]: SurveyResult,
   [FieldTypes.SURVEY_ANSWER]: SurveyAnswerField,
+  [FieldTypes.PATIENT_DATA]: PatientDataField,
   [FieldTypes.INSTRUCTION]: null,
   [FieldTypes.RESULT]: null,
 };
