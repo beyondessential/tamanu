@@ -13,6 +13,7 @@ import { SurveyLink } from '../components/Forms/SurveyForm/SurveyLink';
 import { SurveyResult } from '../components/Forms/SurveyForm/SurveyResult';
 import { SurveyAnswerField } from '../components/Forms/SurveyForm/SurveyAnswerField';
 import { PatientDataField } from '../components/Forms/SurveyForm/PatientDataField';
+import { UserDataField } from '../components/Forms/SurveyForm/UserDataField';
 
 export const FieldByType = {
   [FieldTypes.TEXT]: TextField,
@@ -31,6 +32,7 @@ export const FieldByType = {
   [FieldTypes.SURVEY_RESULT]: SurveyResult,
   [FieldTypes.SURVEY_ANSWER]: SurveyAnswerField,
   [FieldTypes.PATIENT_DATA]: PatientDataField,
+  [FieldTypes.USER_DATA]: UserDataField,
   [FieldTypes.INSTRUCTION]: null,
   [FieldTypes.RESULT]: null,
 };
