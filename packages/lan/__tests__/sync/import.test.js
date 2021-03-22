@@ -9,6 +9,7 @@ import {
   fakeSurvey,
   fakeSurveyScreenComponent,
   fakeUser,
+  fake,
   buildScheduledVaccine,
   buildNestedEncounter,
 } from 'shared/test-helpers';
@@ -31,12 +32,13 @@ const toSyncRecord = record => ({
 describe('import', () => {
   let models;
   let context;
+  const patientId = uuidv4();
   beforeAll(async () => {
     context = await createTestContext();
     models = context.models;
+    await models.Patient.create({ ...fakePatient(), id: patientId });
   });
 
-  const encounterPatientId = uuidv4();
   const rootTestCases = [
     ['Patient', fakePatient],
     ['Program', fakeProgram],
@@ -48,7 +50,8 @@ describe('import', () => {
     ['User', fakeUser],
     [
       'Encounter',
-      async () => buildNestedEncounter(context, encounterPatientId),
+      async () => buildNestedEncounter(context, patientId),
+      `patient/${patientId}/encounter`,
       {
         include: [
           { association: 'administeredVaccines' },
@@ -60,10 +63,35 @@ describe('import', () => {
           },
         ],
       },
-      `patient/${encounterPatientId}/encounter`,
+    ],
+    [
+      'PatientAllergy',
+      () => ({ ...fake(models.PatientAllergy), patientId }),
+      `patient/${patientId}/allergy`,
+    ],
+    [
+      'PatientCarePlan',
+      () => ({ ...fake(models.PatientCarePlan), patientId }),
+      `patient/${patientId}/carePlan`,
+    ],
+    [
+      'PatientCondition',
+      () => ({ ...fake(models.PatientCondition), patientId }),
+      `patient/${patientId}/condition`,
+    ],
+    [
+      'PatientFamilyHistory',
+      () => ({ ...fake(models.PatientFamilyHistory), patientId }),
+      `patient/${patientId}/familyHistory`,
+    ],
+    [
+      'PatientIssue',
+      () => ({ ...fake(models.PatientIssue), patientId }),
+      `patient/${patientId}/issue`,
     ],
   ];
-  rootTestCases.forEach(([modelName, fakeRecord, options = {}, overrideChannel = null]) => {
+
+  rootTestCases.forEach(([modelName, fakeRecord, overrideChannel = null, options = {}]) => {
     describe(modelName, () => {
       it('creates the record', async () => {
         // arrange
@@ -77,7 +105,10 @@ describe('import', () => {
 
         // assert
         const dbRecord = await model.findByPk(record.id, options);
-        expect(dbRecord.get({ plain: true })).toMatchObject(record);
+        expect(dbRecord.get({ plain: true })).toMatchObject({
+          ...record,
+          ...(model.tableAttributes.pushedAt ? { pulledAt: expect.any(Date) } : {}),
+        });
       });
 
       it('updates the record', async () => {
@@ -97,7 +128,10 @@ describe('import', () => {
 
         // assert
         const dbRecord = await model.findByPk(oldRecord.id, options);
-        expect(dbRecord.get({ plain: true })).toMatchObject(newRecord);
+        expect(dbRecord.get({ plain: true })).toMatchObject({
+          ...newRecord,
+          ...(model.tableAttributes.pushedAt ? { pulledAt: expect.any(Date) } : {}),
+        });
       });
 
       it('deletes tombstones', async () => {

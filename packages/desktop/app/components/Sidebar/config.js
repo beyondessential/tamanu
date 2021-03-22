@@ -262,7 +262,7 @@ export const items = [
   },
   {
     key: 'immunisations',
-    label: 'Immunisations',
+    label: 'Immunisation',
     path: '/immunisations',
     icon: vaccineIcon,
     ability: { action: 'read' },

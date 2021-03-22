@@ -108,7 +108,7 @@ const ImmunisationsPane = React.memo(({ patient, readonly }) => {
           color="primary"
           disabled={readonly}
         >
-          New immunisation
+          Give Vaccine
         </Button>
         <ButtonSpacer />
         <Button onClick={() => setIsCertificateModalOpen(true)} variant="outlined" color="primary">
@@ -234,7 +234,7 @@ const TABS = [
     icon: 'fa fa-file-medical-alt',
   },
   {
-    label: 'Immunisations',
+    label: 'Immunisation',
     key: 'a',
     icon: 'fa fa-syringe',
     render: props => <ImmunisationsPane {...props} />,

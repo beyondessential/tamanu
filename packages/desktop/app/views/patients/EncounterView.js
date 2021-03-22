@@ -471,7 +471,7 @@ export const EncounterView = connect(state => ({
 }))(({ patient }) => {
   const { encounter, isLoadingEncounter } = useEncounter();
 
-  if (!encounter || isLoadingEncounter) return <LoadingIndicator />;
+  if (!encounter || isLoadingEncounter || patient.loading) return <LoadingIndicator />;
 
   return <DumbEncounterView encounter={encounter} patient={patient} />;
 });

@@ -34,6 +34,11 @@ export class SqlWrapper {
     [
       ['patient', this.models.Patient],
       ['patient/:patientId/encounter', this.models.Encounter],
+      ['patient/:patientId/allergy', this.models.PatientAllergy],
+      ['patient/:patientId/carePlan', this.models.PatientCarePlan],
+      ['patient/:patientId/condition', this.models.PatientCondition],
+      ['patient/:patientId/familyHistory', this.models.PatientFamilyHistory],
+      ['patient/:patientId/issue', this.models.PatientIssue],
       ['program', this.models.Program],
       ['programDataElement', this.models.ProgramDataElement],
       ['reference', this.models.ReferenceData],

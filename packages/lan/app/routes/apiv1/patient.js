@@ -7,6 +7,7 @@ import { simpleGetList, permissionCheckingRouter, runPaginatedQuery } from './cr
 
 import { renameObjectKeys } from '~/utils/renameObjectKeys';
 import { NotFoundError } from 'shared/errors';
+import { patientVaccineRoutes } from './patientVaccine';
 
 export const patient = express.Router();
 
@@ -363,3 +364,5 @@ patient.get(
     });
   }),
 );
+
+patient.use(patientVaccineRoutes);

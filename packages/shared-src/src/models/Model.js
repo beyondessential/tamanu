@@ -7,15 +7,28 @@ export const Sequelize = sequelize.Sequelize;
 
 const firstLetterLowercase = s => (s[0] || '').toLowerCase() + s.slice(1);
 
+// write a migration when adding to this list (e.g. 005_markedForPush.js)
+const MARKED_FOR_PUSH_MODELS = [
+  'Encounter',
+  'Patient',
+  'PatientAllergy',
+  'PatientCarePlan',
+  'PatientCondition',
+  'PatientFamilyHistory',
+  'PatientIssue',
+];
+
 export class Model extends sequelize.Model {
   static init(originalAttributes, { syncClientMode, ...options }) {
     const attributes = { ...originalAttributes };
-    if (syncClientMode && shouldPush(this)) {
+    if (syncClientMode && MARKED_FOR_PUSH_MODELS.includes(this.name)) {
       attributes.markedForPush = {
         type: Sequelize.BOOLEAN,
         allowNull: false,
         defaultValue: true,
       };
+      attributes.pushedAt = Sequelize.DATE;
+      attributes.pulledAt = Sequelize.DATE;
     }
     super.init(attributes, options);
     this.syncClientMode = syncClientMode;
@@ -94,6 +107,7 @@ export class Model extends sequelize.Model {
     'createdAt',
     'updatedAt',
     'markedForPush',
+    'markedForSync',
   ];
 
   // determines whether a mdoel will be pushed, pulled, both, or neither

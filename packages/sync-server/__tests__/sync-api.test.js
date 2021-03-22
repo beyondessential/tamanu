@@ -15,6 +15,8 @@ const fakeSyncRecordPatient = (...args) => convertFromDbRecord(fakePatient(...ar
 const OLDEST = { ...fakeSyncRecordPatient('oldest_'), lastSynced: makeDate(20) };
 const SECOND_OLDEST = { ...fakeSyncRecordPatient('second-oldest_'), lastSynced: makeDate(10) };
 
+// TODO: add exhaustive tests for sync API for each channel
+
 describe('Sync API', () => {
   let app = null;
   let ctx = null;
@@ -121,6 +123,33 @@ describe('Sync API', () => {
           expect(result.body.records.length).toEqual(5);
           results.push(result);
         }
+
+        const responseRecordIds = results
+          .map(r => r.body.records)
+          .flat()
+          .map(r => r.data.firstName.split('_')[0]);
+        const expectedRecordIds = new Array(TOTAL_RECORDS)
+          .fill(0)
+          .map((_, i) => `test-pagination-${i}`);
+
+        expect(responseRecordIds.sort()).toEqual(expectedRecordIds.sort());
+      });
+
+      it('should return records after a custom offset with inconsistent limits between calls', async () => {
+        const results = [];
+
+        let recordsPulled = 0;
+        do {
+          const limit = Math.ceil(Math.random() * 5);
+          const url = `/v1/sync/patient?since=0&limit=${limit}&offset=${recordsPulled}`;
+          const result = await app.get(url);
+          expect(result).toHaveSucceeded();
+          expect(result.body.records.length).toEqual(
+            Math.min(limit, TOTAL_RECORDS - recordsPulled),
+          );
+          results.push(result);
+          recordsPulled += limit;
+        } while (recordsPulled <= TOTAL_RECORDS);
 
         const responseRecordIds = results
           .map(r => r.body.records)
@@ -253,7 +282,7 @@ describe('Sync API', () => {
 
       const foundRecords = await ctx.store.findSince('patient', 0);
       const foundRecord = foundRecords.find(r => r.id === record.data.id);
-      const { createdAt, updatedAt, deletedAt, ...data } = foundRecord;
+      const { createdAt, updatedAt, deletedAt, markedForPush, ...data } = foundRecord;
       expect(data).toEqual(record.data);
     });
 

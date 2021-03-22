@@ -1,3 +1,4 @@
+import { Sequelize } from 'sequelize';
 import { memoize, without, pick } from 'lodash';
 import { propertyPathsToTree } from './metadata';
 
@@ -79,6 +80,7 @@ const executeImportPlanInner = async (
   if (foreignKey) {
     values[foreignKey] = parentId || null;
   }
+  values.pulledAt = new Date();
 
   // sequelize upserts don't work because they insert before update - hack to work around this
   // this could cause a race condition if anything but SyncManager does it, or if two syncs run at once!
