@@ -89,7 +89,7 @@ describe('sqlWrapper', () => {
 
           const since = new Date(1985, 5, 1).valueOf();
           const records = await ctx.findSince(channel, since);
-          expect(records.map(r => omit(r, ['markedForPush']))).toEqual([
+          expect(records.map(r => omit(r, ['markedForPush', 'markedForSync']))).toEqual([
             {
               ...instance2,
               createdAt: new Date(1990, 5, 1),
@@ -111,7 +111,7 @@ describe('sqlWrapper', () => {
           expect(
             omit(
               instances.find(r => r.id === instance.id),
-              ['markedForPush'],
+              ['markedForPush', 'markedForSync'],
             ),
           ).toEqual({
             ...instance,

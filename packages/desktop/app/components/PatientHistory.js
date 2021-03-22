@@ -1,7 +1,8 @@
 import React from 'react';
-import { DataFetchingTable } from './Table';
 
+import { DataFetchingTable } from './Table';
 import { DateDisplay } from './DateDisplay';
+import { MarkPatientForSync } from './MarkPatientForSync';
 import { ENCOUNTER_OPTIONS_BY_VALUE } from '../constants';
 
 const getDate = ({ startDate }) => <DateDisplay date={startDate} />;
@@ -16,11 +17,16 @@ const columns = [
   { key: 'description', title: 'Description', accessor: getDescription },
 ];
 
-export const PatientHistory = ({ patientId, onItemClick }) => (
-  <DataFetchingTable
-    columns={columns}
-    onRowClick={row => onItemClick(row.id)}
-    noDataMessage="No historical records for this patient."
-    endpoint={`patient/${patientId}/encounters`}
-  />
-);
+export const PatientHistory = ({ patient, pulledAt, onItemClick }) => {
+  if (!patient.markedForSync) {
+    return <MarkPatientForSync patient={patient} />;
+  }
+  return (
+    <DataFetchingTable
+      columns={columns}
+      onRowClick={row => onItemClick(row.id)}
+      noDataMessage="No historical records for this patient."
+      endpoint={`patient/${patient.id}/encounters`}
+    />
+  );
+};

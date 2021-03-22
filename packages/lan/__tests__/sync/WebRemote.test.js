@@ -1,5 +1,5 @@
 import { BadAuthenticationError, InvalidOperationError } from 'shared/errors';
-import { WebRemote } from '~/sync/WebRemote';
+const { WebRemote } = jest.requireActual('~/sync/WebRemote');
 
 const fakeResponse = (response, body) => {
   const validBody = JSON.parse(JSON.stringify(body));

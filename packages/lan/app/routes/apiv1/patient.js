@@ -210,6 +210,7 @@ const makeFilter = (check, sql, transform) => {
 };
 
 const sortKeys = {
+  markedForSync: 'patients.marked_for_sync',
   displayId: 'patients.display_id',
   lastName: 'UPPER(patients.last_name)',
   culturalName: 'UPPER(patients.cultural_name)',

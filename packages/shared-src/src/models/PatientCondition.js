@@ -29,4 +29,4 @@ export class PatientCondition extends Model {
   static syncDirection = SYNC_DIRECTIONS.BIDIRECTIONAL;
 }
 
-Object.assign(PatientCondition, extendClassWithPatientChannel('condition'));
+extendClassWithPatientChannel(PatientCondition, 'condition');

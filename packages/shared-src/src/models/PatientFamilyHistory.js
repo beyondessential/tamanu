@@ -29,4 +29,4 @@ export class PatientFamilyHistory extends Model {
   static syncDirection = SYNC_DIRECTIONS.BIDIRECTIONAL;
 }
 
-Object.assign(PatientFamilyHistory, extendClassWithPatientChannel('familyHistory'));
+extendClassWithPatientChannel(PatientFamilyHistory, 'familyHistory');

@@ -206,4 +206,4 @@ export class Encounter extends Model {
   static syncDirection = SYNC_DIRECTIONS.BIDIRECTIONAL;
 }
 
-Object.assign(Encounter, extendClassWithPatientChannel('encounter'));
+extendClassWithPatientChannel(Encounter, 'encounter');
