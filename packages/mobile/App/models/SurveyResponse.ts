@@ -18,13 +18,13 @@ import { Referral } from './Referral';
 
 @Entity('survey_response')
 export class SurveyResponse extends BaseModel implements ISurveyResponse {
-  @Column({ nullable: true })
+  @Column({ default: () => 'CURRENT_TIMESTAMP' })
   startTime: Date;
 
   @Column({ nullable: true })
   endTime: Date;
 
-  @Column({ default: 0, nullable: true })
+  @Column({ default: 0 })
   result: number;
 
   @Column({ default: '' })

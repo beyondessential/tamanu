@@ -15,16 +15,16 @@ export class Patient extends BaseModel implements IPatient {
   @Column()
   displayId: string;
 
-  @Column({ nullable: true })
+  @Column({ default: '' })
   firstName: string;
 
-  @Column({ nullable: true })
+  @Column({ default: '' })
   middleName: string;
 
-  @Column({ nullable: true })
+  @Column({ default: '' })
   lastName: string;
 
-  @Column({ nullable: true })
+  @Column({ default: '' })
   culturalName: string;
 
   @Column({ nullable: true })

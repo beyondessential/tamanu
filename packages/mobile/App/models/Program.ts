@@ -3,7 +3,7 @@ import { BaseModel } from './BaseModel';
 
 @Entity('program')
 export class Program extends BaseModel {
-  @Column({ nullable: true })
+  @Column({ default: '' })
   name: string;
 
   surveys: any;

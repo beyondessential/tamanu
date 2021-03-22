@@ -10,10 +10,10 @@ export class SurveyScreenComponent extends BaseModel
   implements ISurveyScreenComponent {
   required: boolean;
 
-  @Column({ type: 'int', nullable: true })
+  @Column({ type: 'int', default: 0 })
   screenIndex: number;
 
-  @Column({ type: 'int', nullable: true })
+  @Column({ type: 'int', default: 0 })
   componentIndex: number;
 
   @Column({ nullable: true })
