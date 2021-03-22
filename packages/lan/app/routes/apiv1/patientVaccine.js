@@ -87,8 +87,8 @@ patientVaccineRoutes.post(
       departmentId: req.body.departmentId,
     });
     const newRecord = await req.models.AdministeredVaccine.create({
-      ...req.body,
       status: 'UNKNOWN',
+      ...req.body,
       encounterId: encounter.get('id'),
     });
     res.send(newRecord);
