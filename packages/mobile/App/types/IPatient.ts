@@ -3,6 +3,7 @@ import { IReferenceData } from './IReferenceData';
 export interface IPatient {
   id: string;
   displayId: string;
+  title?: string;
   firstName: string;
   lastName: string;
   middleName?: string;
@@ -12,6 +13,7 @@ export interface IPatient {
   bloodType?: string;
   primaryContactNumber?: string;
   secondaryContactNumber?: string;
+  placeOfBirth?: string;
   maritalStatus?: string;
   cityTown?: string;
   streetVillage?: string;

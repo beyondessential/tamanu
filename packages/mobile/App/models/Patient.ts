@@ -7,7 +7,7 @@ import { Encounter } from './Encounter';
 import { PatientIssue } from './PatientIssue';
 import { IPatient } from '~/types';
 import { formatDateForQuery } from '~/infra/db/helpers';
-import { ReferenceData } from './ReferenceData';
+import { ReferenceData, ReferenceDataRelation } from './ReferenceData';
 const TIME_OFFSET = 3;
 
 @Entity('patient')
@@ -63,58 +63,53 @@ export class Patient extends BaseModel implements IPatient {
   @Column({ nullable: true })
   socialMedia?: string;
 
-  @ManyToOne(() => ReferenceData)
-  nationality?: ReferenceData;
 
-  @RelationId(({ id }: ReferenceData) => id)
+
+  @ReferenceDataRelation()
+  nationality?: ReferenceData;
+  @RelationId(({ nationality }) => nationality)
   nationalityId?: string;
 
-  @ManyToOne(() => ReferenceData)
-  country?: ReferenceData;
 
-  @RelationId(({ id }: ReferenceData) => id)
+  @ReferenceDataRelation()
+  country?: ReferenceData;
+  @RelationId(({ country }) => country)
   countryId?: string;
 
-  @ManyToOne(() => ReferenceData)
-  division?: ReferenceData;
 
-  @RelationId(({ id }: ReferenceData) => id)
+  @ReferenceDataRelation()
+  division?: ReferenceData;
+  @RelationId(({ division }) => division)
   divisionId?: string;
 
-  @ManyToOne(() => ReferenceData)
+  @ReferenceDataRelation()
   subdivision?: ReferenceData;
-
-  @RelationId(({ id }: ReferenceData) => id)
+  @RelationId(({ subdivision }) => subdivision)
   subdivisionId?: string;
 
-  @ManyToOne(() => ReferenceData)
+  @ReferenceDataRelation()
   medicalArea?: ReferenceData;
-
-  @RelationId(({ id }: ReferenceData) => id)
+  @RelationId(({ medicalArea }) => medicalArea)
   medicalAreaId?: string;
 
-  @ManyToOne(() => ReferenceData)
+  @ReferenceDataRelation()
   nursingZone?: ReferenceData;
+  @RelationId(({ nursingZone }) => nursingZone)
+  nursingZoneId?: string;
 
-  @RelationId(({ id }: ReferenceData) => id)
-  nursingZoneId: string;
-
-  @ManyToOne(() => ReferenceData)
+  @ReferenceDataRelation()
   settlement?: ReferenceData;
-
-  @RelationId(({ id }: ReferenceData) => id)
+  @RelationId(({ settlement }) => settlement)
   settlementId?: string;
 
-  @ManyToOne(() => ReferenceData)
+  @ReferenceDataRelation()
   ethnicity?: ReferenceData;
-
-  @RelationId(({ id }: ReferenceData) => id)
+  @RelationId(({ ethnicity }) => ethnicity)
   ethnicityId?: string;
 
-  @ManyToOne(() => ReferenceData)
+  @ReferenceDataRelation()
   occupation?: ReferenceData;
-
-  @RelationId(({ id }: ReferenceData) => id)
+  @RelationId(({ occupation }) => occupation)
   occupationId?: string;
 
   //----------------------------------------------------------

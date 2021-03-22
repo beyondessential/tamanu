@@ -23,7 +23,16 @@ describe('findRecentlyViewed', () => {
     sex: 'fred',
     dateOfBirth: new Date(1971, 5, 1),
     culturalName: 'Fredde',
-    bloodType: 'FRED+'
+    bloodType: 'FRED+',
+    cityTown: null,
+    educationalLevel: null,
+    maritalStatus: null,
+    placeOfBirth: null,
+    primaryContactNumber: null,
+    secondaryContactNumber: null,
+    socialMedia: null,
+    streetVillage: null,
+    title: null,
   };
   const patients: IPatient[] = [
     { ...genericPatient, id: 'id-2' },
@@ -39,12 +48,12 @@ describe('findRecentlyViewed', () => {
   });
 
   it('fixes patient order', async () => {
-    const result = await Database.models.Patient.findRecentlyViewed()
+    const result = await Database.models.Patient.findRecentlyViewed();
     expect(result.map(r => r.id)).toEqual(['id-3', 'id-2']);
   });
 
   it('removes missing patients', async () => {
-    const result = await Database.models.Patient.findRecentlyViewed()
+    const result = await Database.models.Patient.findRecentlyViewed();
     expect(result.map(r => r.id)).not.toContain('id-1');
   });
 });
@@ -96,7 +105,7 @@ describe('getSyncable', () => {
     let syncablePatients: Patient[];
     const nanoseconds = await time(async () => {
       syncablePatients = await Database.models.Patient.getSyncable();
-    })
+    });
 
     // assert
     const milliseconds = nanoseconds / BigInt(1e+6);
