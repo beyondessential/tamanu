@@ -1,6 +1,7 @@
 import { Sequelize } from 'sequelize';
 import { InvalidOperationError } from 'shared/errors';
 import { Model } from './Model';
+import { SYNC_DIRECTIONS } from 'shared/constants';
 
 const QUESTION_TYPES = {
   NUMBER: 'number',
@@ -84,4 +85,6 @@ export class LabTestType extends Model {
       options: optionStringToArray(options),
     };
   }
+
+  static syncDirection = SYNC_DIRECTIONS.PULL_ONLY;
 }

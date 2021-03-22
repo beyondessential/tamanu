@@ -14,6 +14,7 @@ import {
   buildNestedEncounter,
 } from 'shared/test-helpers';
 import { createImportPlan, executeImportPlan } from 'shared/models/sync';
+import { REFERENCE_TYPES } from 'shared/constants';
 import { createTestContext } from '../utilities';
 
 // converts a db record and all its relations to a sync record
@@ -88,6 +89,17 @@ describe('import', () => {
       'PatientIssue',
       () => ({ ...fake(models.PatientIssue), patientId }),
       `patient/${patientId}/issue`,
+    ],
+    [
+      'LabTestType',
+      async () => {
+        const labTestCategory = {
+          ...fake(models.ReferenceData),
+          type: REFERENCE_TYPES.LAB_TEST_TYPE,
+        };
+        await models.ReferenceData.create(labTestCategory);
+        return { ...fake(models.LabTestType), labTestCategoryId: labTestCategory.id };
+      },
     ],
   ];
 
