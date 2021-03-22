@@ -1,13 +1,13 @@
-import { Entity, Column, OneToMany } from 'typeorm/browser';
+import { Entity, Column, OneToMany, ManyToOne } from 'typeorm/browser';
 import { getUniqueId } from 'react-native-device-info';
 import { addHours, startOfDay, subYears } from 'date-fns';
 import { readConfig } from '~/services/config';
 import { BaseModel } from './BaseModel';
 import { Encounter } from './Encounter';
-import { Referral } from './Referral';
 import { PatientIssue } from './PatientIssue';
 import { IPatient } from '~/types';
 import { formatDateForQuery } from '~/infra/db/helpers';
+import { ReferenceData } from './ReferenceData';
 const TIME_OFFSET = 3;
 
 @Entity('patient')
@@ -15,26 +15,80 @@ export class Patient extends BaseModel implements IPatient {
   @Column()
   displayId: string;
 
-  @Column({ default: '' })
+  @Column()
+  title?: string;
+
+  @Column()
   firstName: string;
 
-  @Column({ default: '' })
-  middleName: string;
+  @Column()
+  middleName?: string;
 
   @Column({ default: '' })
   lastName: string;
 
-  @Column({ default: '' })
-  culturalName: string;
+  @Column()
+  culturalName?: string;
 
   @Column({ nullable: true })
   dateOfBirth: Date;
 
-  @Column({ nullable: true })
-  bloodType: string;
+  @Column()
+  placeOfBirth?: string;
+
+  @Column()
+  bloodType?: string;
+
+  @Column()
+  primaryContactNumber?: string;
+
+  @Column()
+  secondaryContactNumber?: string;
 
   @Column()
   sex: string;
+
+  @Column()
+  maritalStatus?: string;
+
+  @Column()
+  cityTown?: string;
+
+  @Column()
+  streetVillage?: string;
+
+  @Column()
+  educationalLevel?: string;
+
+  @Column()
+  socialMedia?: string;
+
+  @ManyToOne(() => ReferenceData)
+  nationality?: ReferenceData;
+
+  @ManyToOne(() => ReferenceData)
+  country?: ReferenceData;
+
+  @ManyToOne(() => ReferenceData)
+  division?: ReferenceData;
+
+  @ManyToOne(() => ReferenceData)
+  subdivision?: ReferenceData;
+
+  @ManyToOne(() => ReferenceData)
+  medicalArea?: ReferenceData;
+
+  @ManyToOne(() => ReferenceData)
+  nursingZone?: ReferenceData;
+
+  @ManyToOne(() => ReferenceData)
+  settlement?: ReferenceData;
+
+  @ManyToOne(() => ReferenceData)
+  ethnicity?: ReferenceData;
+
+  @ManyToOne(() => ReferenceData)
+  occupation?: ReferenceData;
 
   //----------------------------------------------------------
   // sync info
@@ -47,9 +101,6 @@ export class Patient extends BaseModel implements IPatient {
 
   @OneToMany(() => Encounter, encounter => encounter.patient)
   encounters: Encounter[]
-
-  @OneToMany(() => Referral, referral => referral.patient)
-  referrals: Referral[]
 
   @OneToMany(() => PatientIssue, issue => issue.patient)
   issues: PatientIssue[]
