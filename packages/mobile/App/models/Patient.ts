@@ -15,52 +15,52 @@ export class Patient extends BaseModel implements IPatient {
   @Column()
   displayId: string;
 
-  @Column()
+  @Column({ nullable: true })
   title?: string;
 
   @Column()
   firstName: string;
 
-  @Column()
+  @Column({ nullable: true })
   middleName?: string;
 
-  @Column({ default: '' })
+  @Column()
   lastName: string;
 
-  @Column()
+  @Column({ nullable: true })
   culturalName?: string;
 
   @Column({ nullable: true })
   dateOfBirth: Date;
 
-  @Column()
+  @Column({ nullable: true })
   placeOfBirth?: string;
 
-  @Column()
+  @Column({ nullable: true })
   bloodType?: string;
 
-  @Column()
+  @Column({ nullable: true })
   primaryContactNumber?: string;
 
-  @Column()
+  @Column({ nullable: true })
   secondaryContactNumber?: string;
 
   @Column()
   sex: string;
 
-  @Column()
+  @Column({ nullable: true })
   maritalStatus?: string;
 
-  @Column()
+  @Column({ nullable: true })
   cityTown?: string;
 
-  @Column()
+  @Column({ nullable: true })
   streetVillage?: string;
 
-  @Column()
+  @Column({ nullable: true })
   educationalLevel?: string;
 
-  @Column()
+  @Column({ nullable: true })
   socialMedia?: string;
 
   @ManyToOne(() => ReferenceData)
