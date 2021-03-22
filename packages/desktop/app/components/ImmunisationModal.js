@@ -37,7 +37,7 @@ const DumbImmunisationModal = React.memo(
 
 export const ImmunisationModal = connectApi((api, dispatch, { patientId }) => ({
   onCreateImmunisation: async data => {
-    await api.post(`patient/${patientId}/administeredVaccines`, { ...data, patientId });
+    await api.post(`patient/${patientId}/administeredVaccine`, { ...data, patientId });
     dispatch(reloadPatient(patientId));
   },
   practitionerSuggester: new Suggester(api, 'practitioner'),
