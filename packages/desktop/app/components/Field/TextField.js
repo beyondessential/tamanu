@@ -68,10 +68,6 @@ export const ReadOnlyTextField = ({ field, ...props }) => (
   <TextInput disabled name={field.name} value={field.value || ''} onChange={field.onChange} {...props} />
 );
 
-export const InstructionTextField = ({ label, helperText }) => (
-  <p>{label} {helperText}</p>
-);
-
 TextInput.propTypes = {
   name: PropTypes.string,
   value: PropTypes.oneOfType([PropTypes.string, PropTypes.number]),

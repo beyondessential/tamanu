@@ -11,11 +11,10 @@ import { FormGrid } from 'desktop/app/components/FormGrid';
 import { Button, OutlinedButton } from 'desktop/app/components/Button';
 import { ButtonRow } from 'desktop/app/components/ButtonRow';
 import {
-  SURVEY_FIELD_TYPES,
-  QUESTION_COMPONENTS,
   mapOptionsToValues,
   checkVisibility,
   runCalculations,
+  getComponentForQuestionType,
 } from 'desktop/app/utils';
 
 import { ProgramsPane, ProgramsPaneHeader, ProgramsPaneHeading } from './ProgramsPane';
@@ -30,7 +29,7 @@ const SurveyQuestion = ({ component }) => {
   const text = component.text || defaultText;
   const options = mapOptionsToValues(component.options || defaultOptions);
 
-  const FieldComponent = QUESTION_COMPONENTS[type] || QUESTION_COMPONENTS[SURVEY_FIELD_TYPES.TEXT];
+  const FieldComponent = getComponentForQuestionType(type);
 
   return (
     <Field
@@ -92,14 +91,6 @@ const SurveySummaryScreen = ({ onStepBack, onSurveyComplete }) => (
 const SurveyScreenPaginator = ({ survey, values, onSurveyComplete, onCancel, setFieldValue }) => {
   const { components } = survey;
   const [screenIndex, setScreenIndex] = useState(0);
-  useEffect(() => {
-    // recalculate dynamic fields
-    const calculatedValues = runCalculations(components, values);
-    // write values that have changed back into answers
-    Object.entries(calculatedValues)
-    .filter(([k, v]) => values[k] !== v)
-    .map(([k, v]) => setFieldValue(k, v));
-  }, [values]);
 
   const onStepBack = useCallback(() => {
     setScreenIndex(screenIndex - 1);
@@ -110,12 +101,12 @@ const SurveyScreenPaginator = ({ survey, values, onSurveyComplete, onCancel, set
   }, [screenIndex]);
 
   const maxIndex = components
-  .map(x => x.screenIndex)
-  .reduce((max, current) => Math.max(max, current), 0);
+    .map(x => x.screenIndex)
+    .reduce((max, current) => Math.max(max, current), 0);
   if (screenIndex <= maxIndex) {
     const screenComponents = components
-    .filter(x => x.screenIndex === screenIndex)
-    .sort((a, b) => a.componentIndex - b.componentIndex);
+      .filter(x => x.screenIndex === screenIndex)
+      .sort((a, b) => a.componentIndex - b.componentIndex);
 
     return (
       <SurveyScreen
@@ -157,6 +148,16 @@ export const SurveyView = ({ survey, onSubmit, onCancel }) => {
   
   const renderSurvey = (props) => {
     const { submitForm, values, setFieldValue } = props;
+
+    useEffect(() => {
+      // recalculate dynamic fields
+      const calculatedValues = runCalculations(survey.components, values);
+      // write values that have changed back into answers
+      Object.entries(calculatedValues)
+        .filter(([k, v]) => values[k] !== v)
+        .map(([k, v]) => setFieldValue(k, v));
+    }, [values]);
+
     return (
       <SurveyScreenPaginator
         survey={survey}

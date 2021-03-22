@@ -38,7 +38,7 @@ export const SelectInput = ({
   const [selected, setSelected] = useState();
   const handleChange = useCallback((selectedOptions) => {
     setSelected(selectedOptions)
-    const value = !multiselect ? selectedOptions.value : selectedOptions.map(x => x.value).join(', ');
+    const value = multiselect ? selectedOptions.map(x => x.value).join(', ') : selectedOptions.value;
     onChange({ target: { value, name } })
   }, [])
 

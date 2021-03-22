@@ -10,50 +10,42 @@ import {
   NullableBooleanField,
   AutocompleteField,
   NumberField,
-  InstructionTextField,
   ReadOnlyTextField,
 } from 'desktop/app/components/Field';
+import { PROGRAM_DATA_ELEMENT_TYPES } from '../../../shared-src/src/constants';
 
-export const SURVEY_FIELD_TYPES = {
-  TEXT: 'FreeText',
-  MULTILINE: 'Multiline',
-  RADIO: 'Radio',
-  SELECT: 'Select',
-  MULTI_SELECT: 'MultiSelect',
-  AUTOCOMPLETE: 'Autocomplete',
-  DATE: 'Date',
-  SUBMISSION_DATE: 'SubmissionDate',
-  INSTRUCTION: 'Instruction',
-  NUMBER: 'Number',
-  BINARY: 'Binary',
-  CHECKBOX: 'Checkbox',
-  CALCULATED: 'CalculatedQuestion',
-  CONDITION: 'ConditionQuestion',
-  RESULT: 'Result',
-  SURVEY_ANSWER: 'SurveyAnswer',
-  SURVEY_RESULT: 'SurveyResult',
-  SURVEY_LINK: 'SurveyLink',
+
+const InstructionField = ({ label, helperText }) => (
+  <p>{label} {helperText}</p>
+);
+
+const QUESTION_COMPONENTS = {
+  [PROGRAM_DATA_ELEMENT_TYPES.TEXT]: TextField,
+  [PROGRAM_DATA_ELEMENT_TYPES.MULTILINE]: MultilineTextField,
+  [PROGRAM_DATA_ELEMENT_TYPES.RADIO]: SelectField, // TODO: Implement proper radio field?
+  [PROGRAM_DATA_ELEMENT_TYPES.SELECT]: SelectField,
+  [PROGRAM_DATA_ELEMENT_TYPES.MULTI_SELECT]: MultiselectField,
+  [PROGRAM_DATA_ELEMENT_TYPES.AUTOCOMPLETE]: AutocompleteField,
+  [PROGRAM_DATA_ELEMENT_TYPES.DATE]: DateField,
+  [PROGRAM_DATA_ELEMENT_TYPES.SUBMISSION_DATE]: DateField,
+  [PROGRAM_DATA_ELEMENT_TYPES.NUMBER]: NumberField,
+  [PROGRAM_DATA_ELEMENT_TYPES.BINARY]: NullableBooleanField,
+  [PROGRAM_DATA_ELEMENT_TYPES.CHECKBOX]: NullableBooleanField,
+  [PROGRAM_DATA_ELEMENT_TYPES.CALCULATED]: ReadOnlyTextField,
+  // [PROGRAM_DATA_ELEMENT_TYPES.SURVEY_LINK]: SurveyLink,
+  // [PROGRAM_DATA_ELEMENT_TYPES.SURVEY_RESULT]: SurveyResult,
+  // [PROGRAM_DATA_ELEMENT_TYPES.SURVEY_ANSWER]: SurveyAnswerField,
+  [PROGRAM_DATA_ELEMENT_TYPES.INSTRUCTION]: InstructionField,
+  [PROGRAM_DATA_ELEMENT_TYPES.RESULT]: null,
 };
 
-export const QUESTION_COMPONENTS = {
-  [SURVEY_FIELD_TYPES.TEXT]: TextField,
-  [SURVEY_FIELD_TYPES.MULTILINE]: MultilineTextField,
-  [SURVEY_FIELD_TYPES.RADIO]: SelectField, // TODO: Implement proper radio field?
-  [SURVEY_FIELD_TYPES.SELECT]: SelectField,
-  [SURVEY_FIELD_TYPES.MULTI_SELECT]: MultiselectField,
-  [SURVEY_FIELD_TYPES.AUTOCOMPLETE]: AutocompleteField,
-  [SURVEY_FIELD_TYPES.DATE]: DateField,
-  [SURVEY_FIELD_TYPES.SUBMISSION_DATE]: DateField,
-  [SURVEY_FIELD_TYPES.NUMBER]: NumberField,
-  [SURVEY_FIELD_TYPES.BINARY]: NullableBooleanField,
-  [SURVEY_FIELD_TYPES.CHECKBOX]: NullableBooleanField,
-  [SURVEY_FIELD_TYPES.CALCULATED]: ReadOnlyTextField,
-  // [SURVEY_FIELD_TYPES.SURVEY_LINK]: SurveyLink,
-  // [SURVEY_FIELD_TYPES.SURVEY_RESULT]: SurveyResult,
-  // [SURVEY_FIELD_TYPES.SURVEY_ANSWER]: SurveyAnswerField,
-  [SURVEY_FIELD_TYPES.INSTRUCTION]: InstructionTextField,
-  [SURVEY_FIELD_TYPES.RESULT]: null,
-};
+export function getComponentForQuestionType(type) {
+  const component = QUESTION_COMPONENTS[type];
+  if(component === undefined) {
+    return TextField;
+  }
+  return component;
+}
 
 export function mapOptionsToValues(options) {
   if (!options) return null;
