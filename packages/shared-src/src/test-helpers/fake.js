@@ -216,6 +216,7 @@ const FIELD_HANDLERS = {
   'TIMESTAMP WITH TIME ZONE': fakeDate,
   DATETIME: fakeDate,
   'VARCHAR(255)': fakeString,
+  'VARCHAR(31)': (...args) => fakeString(...args).slice(0, 31),
   TEXT: fakeString,
   INTEGER: fakeInt,
   FLOAT: fakeFloat,
