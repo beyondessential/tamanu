@@ -62,8 +62,8 @@ export class LabTestType extends Model {
             }
           },
           mustHaveCategory() {
-            if (!this.labTestCategoryId) {
-              throw new InvalidOperationError('A lab test must belong to a category');
+            if (!this.deletedAt && !this.labTestCategoryId) {
+              throw new InvalidOperationError('A lab test type must belong to a category');
             }
           },
         },
