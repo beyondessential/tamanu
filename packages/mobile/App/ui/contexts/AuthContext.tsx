@@ -1,4 +1,4 @@
-import React, { createContext, PropsWithChildren, ReactElement, useContext, useEffect, RefObject } from 'react';
+import React, { createContext, PropsWithChildren, ReactElement, useContext, useEffect, useState, RefObject } from 'react';
 import { NavigationContainerRef } from '@react-navigation/native';
 import NetInfo from '@react-native-community/netinfo';
 import { compose } from 'redux';
@@ -6,13 +6,14 @@ import { withAuth } from '~/ui/containers/Auth';
 import { WithAuthStoreProps } from '~/ui/store/ducks/auth';
 import { Routes } from '~/ui/helpers/routes';
 import { BackendContext } from '~/ui/contexts/BackendContext';
-import { SyncConnectionParameters } from '~/types';
+import { IUser, SyncConnectionParameters } from '~/types';
 
 type AuthProviderProps = WithAuthStoreProps & {
   navRef: RefObject<NavigationContainerRef>;
 }
 
 interface AuthContextData {
+  user: IUser;
   signIn: (params: SyncConnectionParameters) => Promise<void>;
   signOut: () => void;
   isUserAuthenticated: () => boolean;
@@ -32,6 +33,7 @@ const Provider = ({
   ...props
 }: PropsWithChildren<AuthProviderProps>): ReactElement => {
   const checkFirstSession = (): boolean => props.isFirstTime;
+  const [user, setUserData] = useState();
 
   const setUserFirstSignIn = (): void => {
     props.setFirstSignIn(false);
@@ -46,12 +48,14 @@ const Provider = ({
   const localSignIn = async (params: SyncConnectionParameters): Promise<void> => {
     const user = await backend.auth.localSignIn(params);
     setUser({ facility: dummyFacility, ...user });
+    setUserData({ facility: dummyFacility, ...user });
     setSignedInStatus(true);
   };
 
   const remoteSignIn = async (params: SyncConnectionParameters): Promise<void> => {
     const { user, token } = await backend.auth.remoteSignIn(params);
     setUser({ facility: dummyFacility, ...user });
+    setUserData({ facility: dummyFacility, ...user });
     setToken(token);
     setSignedInStatus(true);
   };
@@ -110,6 +114,7 @@ const Provider = ({
         signOut,
         isUserAuthenticated,
         checkFirstSession,
+        user,
       }}
     >
       {children}
