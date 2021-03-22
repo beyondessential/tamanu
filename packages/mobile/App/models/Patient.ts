@@ -1,4 +1,4 @@
-import { Entity, Column, OneToMany, ManyToOne } from 'typeorm/browser';
+import { Entity, Column, OneToMany, ManyToOne, RelationId } from 'typeorm/browser';
 import { getUniqueId } from 'react-native-device-info';
 import { addHours, startOfDay, subYears } from 'date-fns';
 import { readConfig } from '~/services/config';
@@ -66,29 +66,56 @@ export class Patient extends BaseModel implements IPatient {
   @ManyToOne(() => ReferenceData)
   nationality?: ReferenceData;
 
+  @RelationId(({ id }: ReferenceData) => id)
+  nationalityId?: string;
+
   @ManyToOne(() => ReferenceData)
   country?: ReferenceData;
+
+  @RelationId(({ id }: ReferenceData) => id)
+  countryId?: string;
 
   @ManyToOne(() => ReferenceData)
   division?: ReferenceData;
 
+  @RelationId(({ id }: ReferenceData) => id)
+  divisionId?: string;
+
   @ManyToOne(() => ReferenceData)
   subdivision?: ReferenceData;
+
+  @RelationId(({ id }: ReferenceData) => id)
+  subdivisionId?: string;
 
   @ManyToOne(() => ReferenceData)
   medicalArea?: ReferenceData;
 
+  @RelationId(({ id }: ReferenceData) => id)
+  medicalAreaId?: string;
+
   @ManyToOne(() => ReferenceData)
   nursingZone?: ReferenceData;
+
+  @RelationId(({ id }: ReferenceData) => id)
+  nursingZoneId: string;
 
   @ManyToOne(() => ReferenceData)
   settlement?: ReferenceData;
 
+  @RelationId(({ id }: ReferenceData) => id)
+  settlementId?: string;
+
   @ManyToOne(() => ReferenceData)
   ethnicity?: ReferenceData;
 
+  @RelationId(({ id }: ReferenceData) => id)
+  ethnicityId?: string;
+
   @ManyToOne(() => ReferenceData)
   occupation?: ReferenceData;
+
+  @RelationId(({ id }: ReferenceData) => id)
+  occupationId?: string;
 
   //----------------------------------------------------------
   // sync info
