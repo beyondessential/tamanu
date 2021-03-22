@@ -21,7 +21,7 @@ const columns = [
 
 export const ImmunisationsTable = React.memo(({ patient }) => (
   <DataFetchingTable
-    endpoint={`patient/${patient.id}/administeredVaccine`}
+    endpoint={`patient/${patient.id}/administeredVaccines`}
     columns={columns}
     noDataMessage="No vaccinations found"
   />

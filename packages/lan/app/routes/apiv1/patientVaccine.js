@@ -6,7 +6,7 @@ import { ENCOUNTER_TYPES, REFERENCE_TYPES } from 'shared/constants';
 export const patientVaccineRoutes = express.Router();
 
 patientVaccineRoutes.get(
-  '/:id/scheduledVaccine',
+  '/:id/scheduledVaccines',
   asyncHandler(async (req, res) => {
     req.checkPermission('list', 'PatientVaccine');
 
@@ -96,7 +96,7 @@ patientVaccineRoutes.post(
 );
 
 patientVaccineRoutes.get(
-  '/:id/administeredVaccine',
+  '/:id/administeredVaccines',
   asyncHandler(async (req, res) => {
     req.checkPermission('list', 'PatientVaccine');
     const results = await req.models.AdministeredVaccine.findAll({
