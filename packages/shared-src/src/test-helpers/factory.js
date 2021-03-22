@@ -1,6 +1,6 @@
 import { v4 as uuidv4 } from 'uuid';
 
-import { REFERENCE_TYPES } from 'shared/constants';
+import { REFERENCE_TYPES, IMAGING_REQUEST_STATUS_TYPES } from 'shared/constants';
 import {
   fakeAdministeredVaccine,
   fakeEncounter,
@@ -15,6 +15,7 @@ import {
   fakeSurveyResponse,
   fakeSurveyResponseAnswer,
   fakeUser,
+  fake,
 } from './fake';
 
 // TODO: generic
@@ -86,6 +87,26 @@ export const buildNestedEncounter = async (ctx, patientId) => {
   encounterMedication.medicationId = medication.id;
   encounterMedication.prescriberId = encounter.examinerId;
   encounter.medications = [encounterMedication];
+
+  const labRequest = fake(ctx.models.LabRequest);
+  delete labRequest.encounterId;
+  encounter.labRequests = [labRequest];
+
+  const labTest = fake(ctx.models.LabTest);
+  delete labTest.labRequestId;
+  labRequest.tests = [labTest];
+
+  const imagingType = { ...fake(ctx.models.ReferenceData), type: REFERENCE_TYPES.IMAGING_TYPE };
+  await ctx.models.ReferenceData.upsert(imagingType);
+
+  const imagingRequest = {
+    ...fake(ctx.models.ImagingRequest),
+    status: IMAGING_REQUEST_STATUS_TYPES.COMPLETED,
+    requestedById: encounter.examinerId,
+    imagingTypeId: imagingType.id,
+  };
+  delete imagingRequest.encounterId;
+  encounter.imagingRequests = [imagingRequest];
 
   return encounter;
 };

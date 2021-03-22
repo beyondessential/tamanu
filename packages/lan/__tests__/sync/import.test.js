@@ -62,6 +62,11 @@ describe('import', () => {
             association: 'surveyResponses',
             include: [{ association: 'answers' }],
           },
+          {
+            association: 'labRequests',
+            include: [{ association: 'tests' }],
+          },
+          { association: 'imagingRequests' },
         ],
       },
     ],
