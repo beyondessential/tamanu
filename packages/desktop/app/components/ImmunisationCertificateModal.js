@@ -19,7 +19,7 @@ const DumbImmunisationCertificateModal = ({ getImmunisations, open, onClose, pat
 
 export const ImmunisationCertificateModal = connectApi((api, dispatch, { patient }) => ({
   async getImmunisations() {
-    const response = await api.get(`patient/${patient.id}/administeredVaccine`);
+    const response = await api.get(`patient/${patient.id}/administeredVaccines`);
     return response.data;
   },
 }))(DumbImmunisationCertificateModal);
