@@ -56,20 +56,20 @@ describe('PatientVaccine', () => {
 
   it('should reject with insufficient permissions', async () => {
     const noPermsApp = await baseApp.asRole('base');
-    const result = await noPermsApp.get('/v1/patient/1/scheduledVaccines', {});
+    const result = await noPermsApp.get('/v1/patient/1/scheduledVaccine', {});
     expect(result).toBeForbidden();
   });
 
   describe('get scheduled vaccines', () => {
     it('should get a list of scheduled vaccines', async () => {
-      const result = await app.get(`/v1/patient/1/scheduledVaccines`);
+      const result = await app.get(`/v1/patient/1/scheduledVaccine`);
       expect(result).toHaveSucceeded();
       expect(result.body).toHaveLength(2);
     });
 
     it('should get a list of scheduled vaccines based on category', async () => {
       const result = await app.get(
-        '/v1/patient/1/scheduledVaccines?category=' + VACCINE_CATEGORIES.CAMPAIGN,
+        '/v1/patient/1/scheduledVaccine?category=' + VACCINE_CATEGORIES.CAMPAIGN,
       );
       expect(result).toHaveSucceeded();
       expect(result.body).toHaveLength(1);
@@ -78,7 +78,7 @@ describe('PatientVaccine', () => {
 
     it('should indicate administered vaccine', async () => {
       const patient1Result = await app.get(
-        `/v1/patient/${patient.id}/scheduledVaccines?category=${VACCINE_CATEGORIES.ROUTINE}`,
+        `/v1/patient/${patient.id}/scheduledVaccine?category=${VACCINE_CATEGORIES.ROUTINE}`,
       );
       expect(patient1Result).toHaveSucceeded();
       expect(patient1Result.body).toHaveLength(1);
@@ -88,7 +88,7 @@ describe('PatientVaccine', () => {
       ]);
 
       const patient2Result = await app.get(
-        `/v1/patient/${patient2.id}/scheduledVaccines?category=${VACCINE_CATEGORIES.ROUTINE}`,
+        `/v1/patient/${patient2.id}/scheduledVaccine?category=${VACCINE_CATEGORIES.ROUTINE}`,
       );
       expect(patient2Result).toHaveSucceeded();
       expect(patient2Result.body).toHaveLength(1);
