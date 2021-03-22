@@ -9,16 +9,16 @@ export class ScheduledVaccine extends BaseModel implements IScheduledVaccine {
   @Column({ nullable: true })
   index?: number;
 
-  @Column()
+  @Column({ default: '' })
   label: string;
 
-  @Column()
+  @Column({ default: '' })
   schedule: string;
 
   @Column({ nullable: true })
   weeksFromBirthDue?: number;
 
-  @Column()
+  @Column({ default: '' })
   category: string;
 
   @ReferenceDataRelation()

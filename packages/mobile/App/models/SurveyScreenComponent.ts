@@ -10,10 +10,10 @@ export class SurveyScreenComponent extends BaseModel
   implements ISurveyScreenComponent {
   required: boolean;
 
-  @Column('int')
+  @Column({ type: 'int', default: 0 })
   screenIndex: number;
 
-  @Column('int')
+  @Column({ type: 'int', default: 0 })
   componentIndex: number;
 
   @Column({ nullable: true })
@@ -65,7 +65,7 @@ export class SurveyScreenComponent extends BaseModel
       return [];
     }
   }
-  
+
   getConfigObject(): any {
     if (!this.config) return {};
     const configObject = {};
