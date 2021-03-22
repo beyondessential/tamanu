@@ -96,7 +96,10 @@ export class LabRequest extends Model {
       as: 'category',
     });
 
-    this.hasMany(models.LabTest, { as: 'tests' });
+    this.hasMany(models.LabTest, {
+      foreignKey: 'labRequestId',
+      as: 'tests'
+    });
   }
 
   static getListReferenceAssociations() {
