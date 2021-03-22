@@ -5,6 +5,7 @@ import React, {
   ReactElement,
   useState,
 } from 'react';
+import { useSelector } from 'react-redux';
 import { useNavigation } from '@react-navigation/native';
 import { SurveyScreen } from '../SurveyScreen';
 import { StyledText, StyledView, FullView } from '~/ui/styled/common';
@@ -19,6 +20,7 @@ import { ISurveyScreenComponent } from '~/types/ISurvey';
 import { useBackend, useBackendEffect } from '~/ui/hooks';
 import { SurveyTypes } from '~/types';
 import { ErrorBoundary } from '~/ui/components/ErrorBoundary';
+import { authUserSelector } from '~/ui/helpers/selectors';
 
 export const SurveyResponseScreen = ({
   route,
@@ -39,12 +41,15 @@ export const SurveyResponseScreen = ({
     [survey]
   );
 
+  const user = useSelector(authUserSelector);
+
   const { models } = useBackend();
   const onSubmit = useCallback(
     async (values: any) => {
       const model = isReferral ? models.Referral : models.SurveyResponse;
       const response = await model.submit(
         selectedPatientId,
+        user.id,
         {
           surveyId,
           components,

@@ -76,6 +76,7 @@ export class SurveyResponse extends BaseModel implements ISurveyResponse {
 
   static async submit(
     patientId: string,
+    userId: string,
     surveyData: ISurveyResponse & {
       encounterReason: string,
       components: ISurveyScreenComponent[],
@@ -92,7 +93,7 @@ export class SurveyResponse extends BaseModel implements ISurveyResponse {
 
     try {
       setNote("Creating encounter...");
-      const encounter = await Encounter.getOrCreateCurrentEncounter(patientId, {
+      const encounter = await Encounter.getOrCreateCurrentEncounter(patientId, userId, {
         startDate: new Date(),
         endDate: new Date(),
         reasonForEncounter: encounterReason,

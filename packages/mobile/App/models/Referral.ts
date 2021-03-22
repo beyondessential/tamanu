@@ -24,6 +24,7 @@ export class Referral extends BaseModel implements IReferral {
 
   static async submit(
     patientId: string,
+    userId: string,
     surveyData: ISurveyResponse & {
       encounterReason: string,
       components: ISurveyScreenComponent[],
@@ -31,7 +32,7 @@ export class Referral extends BaseModel implements IReferral {
     values: object,
     setNote: (note: string) => void = () => null,
   ) {
-    const response = await SurveyResponse.submit(patientId, surveyData, values, setNote);
+    const response = await SurveyResponse.submit(patientId, userId, surveyData, values, setNote);
     const referralRecord: Referral = await Referral.createAndSaveOne({
       initiatingEncounter: response.encounter,
       surveyResponse: response.id,

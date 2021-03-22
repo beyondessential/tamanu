@@ -21,6 +21,7 @@ import {
   fakeSurvey,
   fakeSurveyResponse,
   fakeSurveyResponseAnswer,
+  fakeUser,
 } from '/root/tests/helpers/fake';
 
 jest.mock('./source');
@@ -89,6 +90,9 @@ describe('SyncManager', () => {
         // arrange
         const { models } = Database;
 
+        const user = fakeUser();
+        await models.User.createAndSaveOne(user);
+
         const patient = fakePatient();
         await models.Patient.createAndSaveOne(patient);
 
@@ -106,6 +110,7 @@ describe('SyncManager', () => {
         // act
         const encounter = fakeEncounter();
         encounter.patientId = patient.id;
+        encounter.examinerId = user.id;
         const administeredVaccine = fakeAdministeredVaccine();
         const surveyResponse = fakeSurveyResponse();
         surveyResponse.surveyId = survey.id;
@@ -192,11 +197,15 @@ describe('SyncManager', () => {
         // arrange
         const { syncManager, mockedSource } = createManager();
 
+        const user = fakeUser();
+        await Database.models.User.createAndSaveOne(user);
+
         const patient = fakePatient();
         await Database.models.Patient.createAndSaveOne(patient);
 
         const encounter = fakeEncounter();
         encounter.patient = patient.id;
+        encounter.examiner = user.id;
         await Database.models.Encounter.createAndSaveOne(encounter);
 
         const administeredVaccine = fakeAdministeredVaccine();
@@ -231,6 +240,7 @@ describe('SyncManager', () => {
         const data = {
           ...encounter,
           patientId: patient.id,
+          examinerId: user.id,
           administeredVaccines: [
             {
               data: {
@@ -259,6 +269,7 @@ describe('SyncManager', () => {
           ],
         };
         delete data.patient;
+        delete data.examiner;
         delete data.administeredVaccines[0].data.encounter;
         delete data.surveyResponses[0].data.encounter;
         delete data.surveyResponses[0].data.survey;

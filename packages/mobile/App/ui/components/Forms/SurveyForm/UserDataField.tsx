@@ -1,23 +1,14 @@
-import React, { useContext } from 'react';
-
-import AuthContext from '~/ui/contexts/AuthContext';
+import React from 'react';
 
 import { StyledView } from '/styled/common';
-import { Field } from '../FormField';
-import { TextField } from '../../TextField/TextField';
+import { CurrentUserField } from '../../CurrentUserField/CurrentUserField';
 
-export const UserDataField = ({ name, config, defaultText }) => {
-  const { user } = useContext(AuthContext);
-
-  return (
-    <StyledView marginTop={10}>
-      <Field
-        component={TextField}
-        name={name}
-        label={defaultText}
-        value={user[config.column]}
-        disabled
-      />
-    </StyledView>
-  );
-}
+export const UserDataField = ({ name, config, defaultText }) => (
+  <StyledView marginTop={10}>
+    <CurrentUserField
+      name={name}
+      label={defaultText}
+      valueKey={config.column}
+    />
+  </StyledView>
+);

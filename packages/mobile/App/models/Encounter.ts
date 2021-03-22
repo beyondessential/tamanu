@@ -16,6 +16,7 @@ import { Patient } from './Patient';
 import { Diagnosis } from './Diagnosis';
 import { Medication } from './Medication';
 import { ReferenceData, ReferenceDataRelation } from './ReferenceData';
+import { User } from './User';
 import { AdministeredVaccine } from './AdministeredVaccine';
 import { SurveyResponse } from './SurveyResponse';
 import { formatDateForQuery } from '~/infra/db/helpers';
@@ -41,12 +42,15 @@ export class Encounter extends BaseModel implements IEncounter {
   @Index()
   @ManyToOne(() => Patient, (patient) => patient.encounters, { eager: true })
   patient: Patient;
+
   @RelationId(({ patient }) => patient)
   patientId: string;
 
-  // TODO: Add model and add examiner dropdown for this field
-  @Column({ nullable: true })
-  examiner?: string;
+  @ManyToOne(() => User)
+  examiner: User;
+
+  @RelationId(({ examiner }) => examiner)
+  examinerId: string;
 
   // TODO: Add model, automatically attach all lab requests to the encounter
   @Column({ nullable: true })
@@ -91,6 +95,7 @@ export class Encounter extends BaseModel implements IEncounter {
 
   static async getOrCreateCurrentEncounter(
     patientId: string,
+    userId: string,
     createdEncounterOptions: any
   ): Promise<Encounter> {
     const repo = this.getRepository();
@@ -108,6 +113,7 @@ export class Encounter extends BaseModel implements IEncounter {
 
     return Encounter.createAndSaveOne({
       patient: patientId,
+      examiner: userId,
       startDate: new Date(),
       endDate: null,
       encounterType: EncounterType.Clinic,
@@ -192,6 +198,4 @@ export class Encounter extends BaseModel implements IEncounter {
     'diagnoses',
     'medications',
   ];
-
-  // TODO: add examiner
 }

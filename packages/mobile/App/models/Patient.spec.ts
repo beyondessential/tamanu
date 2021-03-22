@@ -1,7 +1,7 @@
 import { mocked } from 'ts-jest/utils';
 import { chunk, sortedIndexOf } from 'lodash';
 
-import { fakePatient, fakeEncounter } from '/root/tests/helpers/fake';
+import { fakePatient, fakeEncounter, fakeUser } from '/root/tests/helpers/fake';
 import { time } from '/root/tests/helpers/benchmark';
 import { IPatient } from '~/types';
 import { Patient } from '~/models/Patient';
@@ -66,6 +66,9 @@ describe('getSyncable', () => {
   });
 
   it('completes in less than 5s with 30k patients and 3k encounters', async () => {
+    const user = fakeUser();
+    await Database.models.User.insert(user);
+
     // arrange
     for (let i = 0; i < (30 * 1000); i++) {
       // create patient
@@ -77,6 +80,7 @@ describe('getSyncable', () => {
       if (i % 10 === 0) {
         const encounter = fakeEncounter();
         encounter.patient = patient;
+        encounter.examiner = user;
         encounter.markedForUpload = true;
         encounters.push(encounter);
       }

@@ -4,6 +4,7 @@ import { ScrollView } from 'react-native';
 import { Route } from 'react-native-tab-view';
 import { SvgProps } from 'react-native-svg';
 import { compose } from 'redux';
+import { useSelector } from 'react-redux';
 import { withPatient } from '~/ui/containers/Patient';
 import {
   FullView,
@@ -22,6 +23,7 @@ import { VaccineDataProps } from '/components/VaccineCard';
 import { Orientation, screenPercentageToDP } from '/helpers/screen';
 import { useBackend } from '~/ui/hooks';
 import { IPatient } from '~/types';
+import { authUserSelector } from '~/ui/helpers/selectors';
 
 const SubmitButtons = ({
   onSubmit,
@@ -70,13 +72,15 @@ export const NewVaccineTabComponent = ({
     navigation.goBack();
   }, []);
 
+  const user = useSelector(authUserSelector);
+
   const { models } = useBackend();
   const recordVaccination = useCallback(
     async (values: any): Promise<any> => {
-      const { reason, batch, status, date, scheduledVaccineId, examiner } = values;
+      const { reason, batch, status, date, scheduledVaccineId } = values;
       const encounter = await models.Encounter.getOrCreateCurrentEncounter(
         selectedPatient.id,
-        { examiner },
+        user.id,
       );
 
       await models.AdministeredVaccine.createAndSaveOne({
