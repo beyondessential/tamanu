@@ -51,14 +51,13 @@ function makeScreen(screen, componentData) {
     .flat();
 }
 
-export async function importSurvey({ file, metadata }) {
-  const { 
-    programCode,
-    programName, 
-    surveyCode,
-    surveyName,
-  } = metadata;
-
+export async function importSurvey({ 
+  file,
+  programCode,
+  programName, 
+  surveyCode,
+  surveyName,
+}) {
   log.info(`Reading surveys from ${file}...`);
 
   const data = readSurveyXSLX(programName, file);
@@ -85,9 +84,11 @@ export async function importSurvey({ file, metadata }) {
     )
     .flat();
 
-  return [
-    programElement,
-    surveyElement,
-    ...screenElements,
-  ];
+  return {
+    records: [
+      programElement,
+      surveyElement,
+      ...screenElements,
+    ],
+  }
 }

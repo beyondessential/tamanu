@@ -22,18 +22,18 @@ Content-Type: application/json
 Content-Disposition: form-data; name="jsonData"
 
 {
-  "surveyName": "Breast Cancer Primary Screening Form",
-  "surveyCode": "breast-primary-screening",
-  "programName": "Primary Screening Fiji",
-  "programCode": "PS-Fiji",
-  "dryRun": true
+  "surveyName": "SNAP Intervention Form",
+  "surveyCode": "snap-fiji-2",
+  "programName": "SNAP Fiji",
+  "programCode": "snap-fiji-2",
+  "dryRun": false
 }
 
 --{{boundary}}
 Content-Disposition: form-data; name="file"; filename="import.xlsx"
 Content-Type: application/vnd.ms-excel
 
-< M:\beyond\documents\Breast.Cancer.Primary.Screening.Form.xlsx
+< M:\beyond\documents\SNAP.Intervention.Form.xlsx
 --{{boundary}}--
 
 ##--------------------------------------------
@@ -46,7 +46,10 @@ Content-Disposition: form-data; name="jsonData"
 Content-Type: application/json
 
 {
-  "dryRun": true
+  "dryRun": true,
+  "whitelist": [
+    "labTestTypes"
+  ]
 }
 
 --{{boundary}}
