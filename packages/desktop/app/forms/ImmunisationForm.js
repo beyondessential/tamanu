@@ -96,7 +96,7 @@ export const ImmunisationForm = React.memo(
           setVaccineOptions([]);
         }
       },
-      [setVaccineOptions],
+      [setVaccineOptions, setScheduleOptions, setAdministeredOptions],
     );
     return (
       <Form
