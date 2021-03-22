@@ -47,7 +47,10 @@ export const buildEncounter = async (ctx, patientId) => {
 export const buildNestedEncounter = async (ctx, patientId) => {
   const encounter = await buildEncounter(ctx, patientId);
 
-  const administeredVaccine = fakeAdministeredVaccine();
+  const scheduledVaccine = await fakeScheduledVaccine();
+  await ctx.models.ScheduledVaccine.upsert(scheduledVaccine);
+
+  const administeredVaccine = fakeAdministeredVaccine('test-', scheduledVaccine.id);
   delete administeredVaccine.encounterId;
   encounter.administeredVaccines = [administeredVaccine];
 

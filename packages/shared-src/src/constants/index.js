@@ -216,3 +216,11 @@ export const VERSION_COMPATIBILITY_ERRORS = {
   LOW: 'Client version too low',
   HIGH: 'Client version too high',
 };
+
+export const VACCINE_CATEGORIES = {
+  ROUTINE: 'Routine',
+  CATCHUP: 'Catchup',
+  CAMPAIGN: 'Campaign',
+};
+
+export const VACCINE_CATEGORIES_VALUES = Object.values(VACCINE_CATEGORIES);
