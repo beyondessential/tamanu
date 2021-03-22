@@ -210,6 +210,7 @@ export function fakeEncounterMedication(prefix = 'test-') {
 const fakeDate = () => new Date(random(0, Date.now()));
 const fakeString = ({ Model, fieldName }, id) => `${Model.name}.${fieldName}.${id}`;
 const fakeInt = () => random(0, 10);
+const fakeFloat = () => Math.random() * 1000;
 const fakeBool = () => sample([true, false]);
 const FIELD_HANDLERS = {
   'TIMESTAMP WITH TIME ZONE': fakeDate,
@@ -217,6 +218,7 @@ const FIELD_HANDLERS = {
   'VARCHAR(255)': fakeString,
   TEXT: fakeString,
   INTEGER: fakeInt,
+  FLOAT: fakeFloat,
   'TINYINT(1)': fakeBool,
   BOOLEAN: fakeBool,
   ENUM: ({ type }) => sample(type.values),
