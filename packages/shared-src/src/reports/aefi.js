@@ -19,7 +19,7 @@ function parametersToSqlWhere(parameters) {
           if (!where.startTime) {
             where.startTime = {};
           }
-          where.startTime[Op.lte] = value;
+          where.startTime[Op.lt] = value;
           break;
         default:
           break;
