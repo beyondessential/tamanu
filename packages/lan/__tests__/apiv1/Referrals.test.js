@@ -35,6 +35,6 @@ describe('Referrals', () => {
     });
     const result = await app.get(`/v1/patient/${patient.id}/referrals`);
     expect(result).toHaveSucceeded();
-    expect(result.body.length).toEqual(1);
+    expect(result.body.length).toEqual(2);
   });
 });
