@@ -1,5 +1,5 @@
 import asyncHandler from 'express-async-handler';
-import { generateAefiReport } from '../../../../../shared-src/src/reports/aefi';
+import { generateAefiReport } from 'shared/reports/aefi';
 
 export const createAefiReport = asyncHandler(async (req, res) => {
   req.checkPermission('list', 'Survey');
