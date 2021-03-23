@@ -1,3 +1,4 @@
+import asyncPool from 'tiny-async-pool';
 import {
   shouldPush,
   shouldPull,
@@ -9,6 +10,8 @@ import {
 import { log } from 'shared/services/logging';
 
 const EXPORT_LIMIT = 100;
+
+const MAX_CONCURRENT_CHANNEL_SYNCS = 4;
 
 export class SyncManager {
   host = '';
@@ -26,9 +29,9 @@ export class SyncManager {
   }
 
   async pullAndImport(model, patientId) {
-    for (const channel of await model.getChannels(patientId)) {
-      await this.pullAndImportChannel(model, channel);
-    }
+    await asyncPool(MAX_CONCURRENT_CHANNEL_SYNCS, await model.getChannels(patientId), channel =>
+      this.pullAndImportChannel(model, channel),
+    );
   }
 
   async pullAndImportChannel(model, channel) {
@@ -73,9 +76,9 @@ export class SyncManager {
   }
 
   async exportAndPush(model, patientId) {
-    for (const channel of await model.getChannels(patientId)) {
-      await this.exportAndPushChannel(model, channel);
-    }
+    await asyncPool(MAX_CONCURRENT_CHANNEL_SYNCS, await model.getChannels(patientId), channel =>
+      this.exportAndPushChannel(model, channel),
+    );
   }
 
   async exportAndPushChannel(model, channel) {
