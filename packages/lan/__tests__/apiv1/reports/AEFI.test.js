@@ -5,8 +5,8 @@ import {
 } from 'shared/demoData/patients';
 import { createDummyAefiSurveyAnswers } from 'shared/demoData/surveyResponses';
 import { createAdministeredVaccine, createScheduledVaccine } from 'shared/demoData/vaccines';
-import { createDummyAefiProgramDataElements } from '../../../../shared-src/src/demoData/programDataElements';
-import { createDummyAefiSurveyScreenComponent } from '../../../../shared-src/src/demoData/surveyScreenComponents';
+import { createDummyAefiProgramDataElements } from 'shared/demoData/programDataElements';
+import { createDummyAefiSurveyScreenComponent } from 'shared/demoData/surveyScreenComponents';
 import { createTestContext } from '../../utilities';
 
 describe('AEFI report', () => {
