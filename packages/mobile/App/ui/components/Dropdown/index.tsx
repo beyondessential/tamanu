@@ -13,6 +13,8 @@ export interface DropdownProps extends BaseInputProps {
   options?: SelectOption[];
   onChange?: Function;
   multiselect?: boolean;
+  label?: string;
+  placeholderText?: string;
 }
 
 export const Dropdown = React.memo(
@@ -20,6 +22,8 @@ export const Dropdown = React.memo(
     options,
     onChange,
     multiselect = false,
+    label = 'Select Items',
+    placeholderText = 'Search Items...',
   }: DropdownProps) => {
     const [selectedItems, setSelectedItems] = useState([]);
     const componentRef = useRef(null);
@@ -44,8 +48,8 @@ export const Dropdown = React.memo(
           ref={componentRef}
           onSelectedItemsChange={onSelectedItemsChange}
           selectedItems={selectedItems}
-          selectText="Select Items"
-          searchInputPlaceholderText="Search Items..."
+          selectText={label}
+          searchInputPlaceholderText={placeholderText}
           altFontFamily="ProximaNova-Light"
           tagRemoveIconColor={theme.colors.PRIMARY_MAIN}
           tagBorderColor={theme.colors.PRIMARY_MAIN}
