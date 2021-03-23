@@ -222,7 +222,7 @@ const FIELD_HANDLERS = {
   FLOAT: fakeFloat,
   'TINYINT(1)': fakeBool,
   BOOLEAN: fakeBool,
-  ENUM: ({ type }) => sample(type.values),
+  ENUM: (model, { type }) => sample(type.values),
 };
 
 const IGNORED_FIELDS = [
