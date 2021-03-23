@@ -1,4 +1,4 @@
-import { Entity, Column, RelationId, Index, OneToOne } from 'typeorm/browser';
+import { Entity, Column, RelationId, OneToOne } from 'typeorm/browser';
 import { BaseModel } from './BaseModel';
 import { IPatientAdditionalData } from '~/types';
 import { ReferenceData, ReferenceDataRelation } from './ReferenceData';
@@ -6,7 +6,6 @@ import { Patient } from './Patient';
 
 @Entity('patient_additional_data')
 export class PatientAdditionalData extends BaseModel implements IPatientAdditionalData {
-
   @OneToOne(() => Patient, (patient) => patient.additionalData, { eager: true })
   patient: Patient;
 

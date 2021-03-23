@@ -24,16 +24,8 @@ describe('findRecentlyViewed', () => {
     sex: 'fred',
     dateOfBirth: new Date(1971, 5, 1),
     culturalName: 'Fredde',
-    bloodType: 'FRED+',
-    cityTown: null,
-    educationalLevel: null,
-    maritalStatus: null,
-    placeOfBirth: null,
-    primaryContactNumber: null,
-    secondaryContactNumber: null,
-    socialMedia: null,
-    streetVillage: null,
     title: null,
+    additionalData: null,
   };
   const patients: IPatient[] = [
     { ...genericPatient, id: 'id-2' },
@@ -63,7 +55,6 @@ describe('getSyncable', () => {
   const CHUNK_SIZE = 30;
   const patients = [];
   const encounters = [];
-
 
   afterEach(async () => {
     for (const encounterChunk of chunk(encounters, CHUNK_SIZE)) {

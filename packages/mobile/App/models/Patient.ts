@@ -1,4 +1,4 @@
-import { Entity, Column, OneToMany, OneToOne } from 'typeorm/browser';
+import { Entity, Column, OneToMany } from 'typeorm/browser';
 import { getUniqueId } from 'react-native-device-info';
 import { addHours, startOfDay, subYears } from 'date-fns';
 import { readConfig } from '~/services/config';
@@ -36,8 +36,11 @@ export class Patient extends BaseModel implements IPatient {
   @Column()
   sex: string;
 
-  @OneToOne(() => PatientAdditionalData, additionalData => additionalData.patient)
+  @OneToMany(() => PatientAdditionalData, additionalData => additionalData.patient)
   additionalData: IPatientAdditionalData;
+
+  // @RelationId(({ additionalData }) => additionalData)
+  // additionalDataId?: string;
 
   //----------------------------------------------------------
   // sync info

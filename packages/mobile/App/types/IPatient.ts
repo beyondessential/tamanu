@@ -11,5 +11,7 @@ export interface IPatient {
   dateOfBirth: Date;
   culturalName?: string;
   cityTown?: string;
-  additionalData: IPatientAdditionalData;
+  additionalData?: IPatientAdditionalData;
+  markedForSync?: boolean;
+  lastSynced?: number;
 }

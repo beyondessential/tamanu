@@ -27,7 +27,6 @@ beforeAll(async () => {
 });
 
 describe('ImportPlan', () => {
-
   type TestCase = [typeof BaseModel, () => SyncRecordData];
 
   const testCases: TestCase[] = [
@@ -68,7 +67,7 @@ describe('ImportPlan', () => {
             updatedAt: expect.any(Date),
             uploadedAt: null,
             markedForUpload: false,
-          }
+          },
         ]);
       });
 
@@ -136,7 +135,7 @@ describe('ImportPlan', () => {
             updatedAt: expect.any(Date),
             uploadedAt: null,
             markedForUpload: false, // currently last-write-wins
-          }
+          },
         ]);
       });
     });
