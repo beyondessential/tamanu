@@ -1,13 +1,13 @@
-import { Entity, Column, OneToMany, ManyToOne, RelationId } from 'typeorm/browser';
+import { Entity, Column, OneToMany, OneToOne } from 'typeorm/browser';
 import { getUniqueId } from 'react-native-device-info';
 import { addHours, startOfDay, subYears } from 'date-fns';
 import { readConfig } from '~/services/config';
 import { BaseModel } from './BaseModel';
 import { Encounter } from './Encounter';
 import { PatientIssue } from './PatientIssue';
-import { IPatient } from '~/types';
+import { IPatient, IPatientAdditionalData } from '~/types';
 import { formatDateForQuery } from '~/infra/db/helpers';
-import { ReferenceData, ReferenceDataRelation } from './ReferenceData';
+import { PatientAdditionalData } from './PatientAdditionalData';
 const TIME_OFFSET = 3;
 
 @Entity('patient')
@@ -33,84 +33,11 @@ export class Patient extends BaseModel implements IPatient {
   @Column({ nullable: true })
   dateOfBirth: Date;
 
-  @Column({ nullable: true })
-  placeOfBirth?: string;
-
-  @Column({ nullable: true })
-  bloodType?: string;
-
-  @Column({ nullable: true })
-  primaryContactNumber?: string;
-
-  @Column({ nullable: true })
-  secondaryContactNumber?: string;
-
   @Column()
   sex: string;
 
-  @Column({ nullable: true })
-  maritalStatus?: string;
-
-  @Column({ nullable: true })
-  cityTown?: string;
-
-  @Column({ nullable: true })
-  streetVillage?: string;
-
-  @Column({ nullable: true })
-  educationalLevel?: string;
-
-  @Column({ nullable: true })
-  socialMedia?: string;
-
-
-
-  @ReferenceDataRelation()
-  nationality?: ReferenceData;
-  @RelationId(({ nationality }) => nationality)
-  nationalityId?: string;
-
-
-  @ReferenceDataRelation()
-  country?: ReferenceData;
-  @RelationId(({ country }) => country)
-  countryId?: string;
-
-
-  @ReferenceDataRelation()
-  division?: ReferenceData;
-  @RelationId(({ division }) => division)
-  divisionId?: string;
-
-  @ReferenceDataRelation()
-  subdivision?: ReferenceData;
-  @RelationId(({ subdivision }) => subdivision)
-  subdivisionId?: string;
-
-  @ReferenceDataRelation()
-  medicalArea?: ReferenceData;
-  @RelationId(({ medicalArea }) => medicalArea)
-  medicalAreaId?: string;
-
-  @ReferenceDataRelation()
-  nursingZone?: ReferenceData;
-  @RelationId(({ nursingZone }) => nursingZone)
-  nursingZoneId?: string;
-
-  @ReferenceDataRelation()
-  settlement?: ReferenceData;
-  @RelationId(({ settlement }) => settlement)
-  settlementId?: string;
-
-  @ReferenceDataRelation()
-  ethnicity?: ReferenceData;
-  @RelationId(({ ethnicity }) => ethnicity)
-  ethnicityId?: string;
-
-  @ReferenceDataRelation()
-  occupation?: ReferenceData;
-  @RelationId(({ occupation }) => occupation)
-  occupationId?: string;
+  @OneToOne(() => PatientAdditionalData, additionalData => additionalData.patient)
+  additionalData: IPatientAdditionalData;
 
   //----------------------------------------------------------
   // sync info
@@ -147,10 +74,12 @@ export class Patient extends BaseModel implements IPatient {
       .filter(patient => !!patient);
   }
 
+  static async countSyncable(): Promise<number> {
+    return this.count({ markedForSync: true });
+  }
+
   static async getSyncable(): Promise<Patient[]> {
-    return this.find({
-      where: { markedForSync: true },
-    });
+    return this.find({ markedForSync: true });
   }
 
   static async getRecentVisitors(surveyId: string): Promise<any[]> {

@@ -9,6 +9,7 @@ import { Database } from '~/infra/db';
 import { readConfig } from '~/services/config';
 jest.mock('~/services/config');
 const mockedReadConfig = mocked(readConfig);
+jest.setTimeout(60000); // can be slow to create/delete records
 
 beforeAll(async () => {
   await Database.connect();
@@ -59,11 +60,10 @@ describe('findRecentlyViewed', () => {
 });
 
 describe('getSyncable', () => {
-  const CHUNK_SIZE = 50;
+  const CHUNK_SIZE = 30;
   const patients = [];
   const encounters = [];
 
-  jest.setTimeout(60000); // can be slow to create/delete records
 
   afterEach(async () => {
     for (const encounterChunk of chunk(encounters, CHUNK_SIZE)) {
@@ -103,6 +103,7 @@ describe('getSyncable', () => {
 
     // act
     let syncablePatients: Patient[];
+
     const nanoseconds = await time(async () => {
       syncablePatients = await Database.models.Patient.getSyncable();
     });
