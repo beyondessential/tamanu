@@ -87,7 +87,6 @@ async function queryReferralsData(models, parameters) {
     }],
     where: parametersToSqlWhere(parameters),
   });
-  
   return result;
 }
 

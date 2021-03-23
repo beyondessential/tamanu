@@ -27,4 +27,14 @@ describe('Referrals', () => {
     });
     expect(result).toHaveSucceeded();
   });
+
+  it('should get all referrals for a patient', async () => {
+    await app.post('/v1/referral').send({
+      initiatingEncounterId: encounter.id,
+      referredFacility: 'Test facility'
+    });
+    const result = await app.get(`/v1/patient/${patient.id}/referrals`);
+    expect(result).toHaveSucceeded();
+    expect(result.body.length).toEqual(1);
+  });
 });

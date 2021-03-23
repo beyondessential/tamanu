@@ -99,7 +99,6 @@ describe('Incomplete Referrals report', () => {
       expect(result).toHaveSucceeded();
       expect(result.body.length).toEqual(2);
       // the order of diagnoses is not guaranteed, so we just check for count
-      // console.log(result.body)
       expect(result.body[1][3].split(',').length).toEqual(2);
     });
   });

@@ -92,7 +92,7 @@ export class Encounter extends Model {
 
     this.hasMany(models.Referral, {
       foreignKey: 'initiatingEncounterId',
-      as: 'createdReferrals',
+      as: 'initiatedReferrals',
     });
     this.hasMany(models.Referral, {
       foreignKey: 'completingEncounterId',

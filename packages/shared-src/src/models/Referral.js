@@ -1,8 +1,7 @@
 import { Sequelize } from 'sequelize';
-import { InvalidOperationError } from 'shared/errors';
 import { Model } from './Model';
 
-class Referral extends Model {
+export class Referral extends Model {
   static init({ primaryKey, ...options }) {
     super.init(
       {
@@ -32,5 +31,3 @@ class Referral extends Model {
   }
 
 }
-
-exports.Referral = Referral;
