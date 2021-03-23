@@ -19,9 +19,9 @@ export function createDataImporterEndpoint(importer) {
     } = await getUploadedData(req);
 
     // parse uploaded file
-    const records = await importer({
+    const { records, ...importerOutput } = await importer({
       file,
-      metadata,
+      ...metadata,
     });
 
     // we don't need the file any more
@@ -73,14 +73,14 @@ export function createDataImporterEndpoint(importer) {
       return;
     }
 
+    // sort into safe order
+    const sortedRecordGroups = Object.entries(recordsByType)
+      .sort((a, b) => {
+        return compareModelPriority(a[0], b[0]);
+      });
+
     // sync to server
     if(!dryRun) {
-      // sort into safe order
-      const sortedRecordGroups = Object.entries(sortableRecordsByType)
-        .sort((a, b) => {
-          return compareModelPriority(a[0], b[0]);
-        });
-
       // send to sync server in batches
       for(const [k, v] of sortedRecordGroups) {
         if(k === 'referenceData') {
@@ -96,6 +96,7 @@ export function createDataImporterEndpoint(importer) {
       success: true,
       duration: (Date.now() - start) / 1000.0,
       recordCounts,
+      ...importerOutput,
     });
 
   });
