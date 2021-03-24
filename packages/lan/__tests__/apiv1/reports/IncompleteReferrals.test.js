@@ -1,8 +1,6 @@
 import { REFERENCE_TYPES } from 'shared/constants';
 import {
   createDummyPatient,
-  createDummyEncounter,
-  createDummyEncounterDiagnosis,
   randomReferenceId,
   randomReferenceIds,
   randomReferenceDataObjects,
@@ -22,9 +20,8 @@ describe('Incomplete Referrals report', () => {
   let facility = null;
   let baseApp = null;
   let models = null;
-  let expectedDiagnosis1 = null;
-  let expectedDiagnosis2 = null;
-  let encounter = null;
+  let diagnosis1 = null;
+  let diagnosis2 = null;
 
   beforeAll(async () => {
     const ctx = await createTestContext();
@@ -42,27 +39,6 @@ describe('Incomplete Referrals report', () => {
     practitioner2 = await randomUser(models);
     department = await randomReferenceId(models, REFERENCE_TYPES.DEPARTMENT);
     facility = await randomReferenceId(models, REFERENCE_TYPES.FACILITY);
-    expectedDiagnosis1 = await randomReferenceId(models, 'icd10');
-    expectedDiagnosis2 = await randomReferenceId(models, 'icd10');
-    encounter = await models.Encounter.create({
-      ...(await createDummyEncounter(models)),
-      patientId: patient1.id,
-    });
-
-    await models.EncounterDiagnosis.create(
-      await createDummyEncounterDiagnosis(models, {
-        current: true,
-        diagnosisId: expectedDiagnosis1,
-        encounterId: encounter.dataValues.id,
-      }),
-    );
-    await models.EncounterDiagnosis.create(
-      await createDummyEncounterDiagnosis(models, {
-        current: true,
-        diagnosisId: expectedDiagnosis2,
-        encounterId: encounter.dataValues.id,
-      }),
-    );
   });
 
   it('should reject creating a diagnoses report with insufficient permissions', async () => {
@@ -75,15 +51,37 @@ describe('Incomplete Referrals report', () => {
     beforeAll(async () => {
       await models.Referral.destroy({ where: {}, truncate: true });
       const referral = await models.Referral.create({
-        initiatingEncounterId: encounter.id,
-        referredFacility: 'Test facility'
+        referralNumber: 'A',
+        date: new Date(),
+        patientId: patient1.dataValues.id,
+        referredById: practitioner1,
+        referredToDepartmentId: department,
+        referredToFacilityId: facility,
+      });
+      [diagnosis1, diagnosis2] = await randomReferenceDataObjects(models, 'icd10', 2);
+      await models.ReferralDiagnosis.create({
+        certainty: 'confirmed',
+        referralId: referral.dataValues.id,
+        diagnosisId: diagnosis1.dataValues.id,
+      });
+      await models.ReferralDiagnosis.create({
+        certainty: 'confirmed',
+        referralId: referral.dataValues.id,
+        diagnosisId: diagnosis2.dataValues.id,
+      });
+      await models.Referral.create({
+        referralNumber: 'B',
+        date: new Date(),
+        patientId: patient2.dataValues.id,
+        referredById: practitioner2,
+        referredToDepartmentId: department,
+        referredToFacilityId: facility,
       });
     });
     it('should return only requested village', async () => {
       const result = await app.post('/v1/reports/incomplete-referrals').send({
-      parameters: { village: village1 },
+        parameters: { village: village1 },
       });
-
       expect(result).toHaveSucceeded();
       expect(result.body.length).toEqual(2);
       expect(result.body[1][0]).toEqual(patient1.firstName);
@@ -94,8 +92,6 @@ describe('Incomplete Referrals report', () => {
       const result = await app.post('/v1/reports/incomplete-referrals').send({
         parameters: { village: village1 },
       });
-
-
       expect(result).toHaveSucceeded();
       expect(result.body.length).toEqual(2);
       // the order of diagnoses is not guaranteed, so we just check for count
