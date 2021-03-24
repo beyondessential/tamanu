@@ -160,17 +160,19 @@ export class SyncManager {
       };
 
       // wait for all channels to complete before leaving this model's function
-      await new Promise((resolve, reject) => {
-        (async () => {
-          try {
-            for (const channel of channels) {
-              await pool.start(syncChannel, channel, resolve);
+      if (channels.length > 0) {
+        await new Promise((resolve, reject) => {
+          (async () => {
+            try {
+              for (const channel of channels) {
+                await pool.start(syncChannel, channel, resolve);
+              }
+            } catch (e) {
+              reject(e);
             }
-          } catch (e) {
-            reject(e);
-          }
-        })();
-      });
+          })();
+        });
+      }
     });
 
     // wait for any remaining promises to complete (probably unnecessary)
