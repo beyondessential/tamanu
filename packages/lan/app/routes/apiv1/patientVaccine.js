@@ -77,10 +77,11 @@ patientVaccineRoutes.post(
     if (!req.body.scheduledVaccineId) {
       res.status(400).send({ error: { message: 'scheduledVaccineId is required' } });
     }
- 
+
     const encounter = await req.models.Encounter.create({
       encounterType: ENCOUNTER_TYPES.CLINIC,
       startDate: req.body.date,
+      endDate: req.body.date,
       patientId: req.params.id,
       locationId: req.body.locationId,
       examinerId: req.body.examinerId,
