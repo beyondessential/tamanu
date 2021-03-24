@@ -122,7 +122,7 @@ export function fakeUser(prefix = 'test-') {
 
 export function fakeProgram(prefix = 'test-') {
   const id = uuidv4();
-  return fakeStringFields(`${prefix}program_${id})_`, ['id', 'name', 'code']);
+  return fakeStringFields(`${prefix}program_${id}_`, ['id', 'name', 'code']);
 }
 
 export function fakeAdministeredVaccine(prefix = 'test-', scheduledVaccineId) {
