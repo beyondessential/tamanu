@@ -6,37 +6,37 @@ import { DIAGNOSIS_CERTAINTY, DIAGNOSIS_CERTAINTY_VALUES } from 'shared/constant
 module.exports = {
   up: async query => {
     // remove old cols
-    await query.removeColumn('referral', 'referral_number');
-    await query.removeColumn('referral', 'reason_for_referral');
-    await query.removeColumn('referral', 'cancelled');
-    await query.removeColumn('referral', 'urgent');
-    await query.removeColumn('referral', 'date');
-    await query.removeColumn('referral', 'encounter_id');
-    await query.removeColumn('referral', 'patient_id');
-    await query.removeColumn('referral', 'referred_by_id');
-    await query.removeColumn('referral', 'referred_to_department_id');
-    await query.removeColumn('referral', 'referred_to_facility_id');
+    await query.removeColumn('referrals', 'referral_number');
+    await query.removeColumn('referrals', 'reason_for_referral');
+    await query.removeColumn('referrals', 'cancelled');
+    await query.removeColumn('referrals', 'urgent');
+    await query.removeColumn('referrals', 'date');
+    await query.removeColumn('referrals', 'encounter_id');
+    await query.removeColumn('referrals', 'patient_id');
+    await query.removeColumn('referrals', 'referred_by_id');
+    await query.removeColumn('referrals', 'referred_to_department_id');
+    await query.removeColumn('referrals', 'referred_to_facility_id');
 
     // add new cols
-    await query.addColumn('referral', 'referredFacility', Sequelize.STRING);
-    await query.addColumn('referral', 'initiating_encounter_id', {
+    await query.addColumn('referrals', 'referredFacility', Sequelize.STRING);
+    await query.addColumn('referrals', 'initiating_encounter_id', {
       type: Sequelize.STRING,
       references: {
-        model: 'encounter',
+        model: 'encounters',
         key: 'id'
       }
     });
-    await query.addColumn('referral', 'completing_encounter_id', {
+    await query.addColumn('referrals', 'completing_encounter_id', {
       type: Sequelize.STRING,
       references: {
-        model: 'encounter',
+        model: 'encounters',
         key: 'id'
       }
     });
-    await query.addColumn('referral', 'survey_response_id', {
+    await query.addColumn('referrals', 'survey_response_id', {
       type: Sequelize.STRING,
       references: {
-        model: 'survey_response',
+        model: 'survey_responses',
         key: 'id'
       }
     });
@@ -45,44 +45,44 @@ module.exports = {
     await query.dropTable('referral_diagnoses');
   },
   down: async query => {
-    await query.addColumn('referral', 'referral_number', Sequelize.STRING);
-    await query.addColumn('referral', 'reason_for_referral', Sequelize.STRING);
-    await query.addColumn('referral', 'cancelled', Sequelize.BOOLEAN);
-    await query.addColumn('referral', 'urgent', Sequelize.BOOLEAN);
-    await query.addColumn('referral', 'date', {
+    await query.addColumn('referrals', 'referral_number', Sequelize.STRING);
+    await query.addColumn('referrals', 'reason_for_referral', Sequelize.STRING);
+    await query.addColumn('referrals', 'cancelled', Sequelize.BOOLEAN);
+    await query.addColumn('referrals', 'urgent', Sequelize.BOOLEAN);
+    await query.addColumn('referrals', 'date', {
       type: Sequelize.DATE,
       allowNull: false,
       defaultValue: Sequelize.NOW
     });
-    await query.addColumn('referral', 'encounter_id', {
+    await query.addColumn('referrals', 'encounter_id', {
       type: Sequelize.STRING,
       references: {
         model: 'encounter',
         key: 'id'
       }
     });
-    await query.addColumn('referral', 'patient_id', {
+    await query.addColumn('referrals', 'patient_id', {
       type: Sequelize.STRING,
       references: {
         model: 'patient',
         key: 'id'
       }
     });
-    await query.addColumn('referral', 'referred_by_id', {
+    await query.addColumn('referrals', 'referred_by_id', {
       type: Sequelize.STRING,
       references: {
         model: 'user',
         key: 'id'
       }
     });
-    await query.addColumn('referral', 'referred_to_department_id', {
+    await query.addColumn('referrals', 'referred_to_department_id', {
       type: Sequelize.STRING,
       references: {
         model: 'reference_data',
         key: 'id'
       }
     });
-    await query.addColumn('referral', 'referred_to_facility_id', {
+    await query.addColumn('referrals', 'referred_to_facility_id', {
       type: Sequelize.STRING,
       references: {
         model: 'reference_data',
