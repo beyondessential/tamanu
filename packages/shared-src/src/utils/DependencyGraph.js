@@ -49,19 +49,23 @@ export class DependencyGraph {
   async run(fn) {
     let currentGraph = this;
     const running = {};
-    const results = {};
+    const completed = {};
 
     const runJob = async name => {
-      results[name] = await fn(name);
+      await fn(name);
+      completed[name] = true;
       delete running[name];
       currentGraph = currentGraph.removeDep(name);
     };
 
     let remainingJobsCount;
+    // while there are remaining jobs, loop through the graph finding unstarted jobs
+    // with no dependencies, and removing completed dependencies, until there's
+    // nothing left
     do {
       remainingJobsCount = currentGraph.nodeCount();
       for (const [jobName, jobDeps] of Object.entries(currentGraph.nodes)) {
-        if (!running[jobName] && !results[jobName] && jobDeps.length === 0) {
+        if (running[jobName] === undefined && completed[jobName] === undefined && jobDeps.length === 0) {
           running[jobName] = runJob(jobName);
         }
       }
@@ -69,9 +73,10 @@ export class DependencyGraph {
       if (runningList.length > 0) {
         await Promise.race(runningList);
       }
-    } while (remainingJobsCount > 0 && remainingJobsCount > currentGraph.nodeCount());
-
-    return results;
+      if (remainingJobsCount === currentGraph.nodeCount()) {
+        throw new Error('DependencyGraph: cycle detected');
+      }
+    } while (currentGraph.nodeCount() > 0);
   }
 
   static fromModels(models) {
