@@ -81,7 +81,7 @@ export async function initDatabase(dbOptions) {
 
   const logging = verbose ? s => log.debug(s) : null;
   const options = sqlitePath
-    ? { dialect: 'sqlite', dialectModule: sqlite3, storage: sqlitePath }
+    ? { dialect: 'sqlite', dialectModule: sqlite3, storage: sqlitePath, transactionType: Sequelize.Transaction.TYPES.IMMEDIATE }
     : { dialect: 'postgres' };
   const sequelize = new Sequelize(name, username, password, {
     ...options,
