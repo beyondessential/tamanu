@@ -28,12 +28,6 @@ export class SyncManager {
     this.context = context;
   }
 
-  async pullAndImport(model, patientId) {
-    await asyncPool(MAX_CONCURRENT_CHANNEL_SYNCS, await model.getChannels(patientId), channel =>
-      this.pullAndImportChannel(model, channel),
-    );
-  }
-
   async pullAndImportChannel(model, channel) {
     const since = await this.getLastSynced(channel);
     log.info(`SyncManager.pullAndImport: syncing ${channel} (last: ${since})`);
@@ -73,12 +67,6 @@ export class SyncManager {
     // However, they're implemented on mobile, so perhaps we should either remove them there or add them here.
 
     await this.setLastSynced(channel, requestedAt);
-  }
-
-  async exportAndPush(model, patientId) {
-    await asyncPool(MAX_CONCURRENT_CHANNEL_SYNCS, await model.getChannels(patientId), channel =>
-      this.exportAndPushChannel(model, channel),
-    );
   }
 
   async exportAndPushChannel(model, channel) {
@@ -131,6 +119,18 @@ export class SyncManager {
 
   async setLastSynced(channel, lastSynced) {
     await this.context.models.SyncMetadata.upsert({ channel, lastSynced });
+  }
+
+  async pullAndImport(model, patientId) {
+    await asyncPool(MAX_CONCURRENT_CHANNEL_SYNCS, await model.getChannels(patientId), channel =>
+      this.pullAndImportChannel(model, channel),
+    );
+  }
+
+  async exportAndPush(model, patientId) {
+    await asyncPool(MAX_CONCURRENT_CHANNEL_SYNCS, await model.getChannels(patientId), channel =>
+      this.exportAndPushChannel(model, channel),
+    );
   }
 
   async runSync(patientId = null) {

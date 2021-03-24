@@ -17,7 +17,7 @@ describe('SyncManager', () => {
     context.remote.push.mockReset();
   });
 
-  describe('pullAndImport', () => {
+  describe('pullAndImportChannel', () => {
     it('pulls pages of records and imports them', async () => {
       // arrange
       const records = [
@@ -46,7 +46,7 @@ describe('SyncManager', () => {
         });
 
       // act
-      await context.syncManager.pullAndImport(context.models.ReferenceData);
+      await context.syncManager.pullAndImportChannel(context.models.ReferenceData, 'reference');
 
       // assert
       const createdRecords = await context.models.ReferenceData.findAll({
@@ -75,13 +75,13 @@ describe('SyncManager', () => {
         });
 
       // act
-      await context.syncManager.pullAndImport(context.models.ReferenceData);
+      await context.syncManager.pullAndImportChannel(context.models.ReferenceData, 'reference');
 
       // assert
       const metadata = await context.models.SyncMetadata.findOne({ where: { channel } });
       expect(metadata.lastSynced).toEqual(1234);
 
-      await context.syncManager.pullAndImport(context.models.ReferenceData);
+      await context.syncManager.pullAndImportChannel(context.models.ReferenceData, 'reference');
       const calls = context.remote.pull.mock.calls;
       expect(calls[calls.length - 1][1]).toHaveProperty('since', 1234);
     });
@@ -123,7 +123,7 @@ describe('SyncManager', () => {
     });
   });
 
-  describe('exportAndPush', () => {
+  describe('exportAndPushChannel', () => {
     const getRecord = ({ id }) => context.models.Patient.findByPk(id);
 
     it('exports pages of records and pushes them', async () => {
@@ -137,7 +137,7 @@ describe('SyncManager', () => {
       expect(await getRecord(record)).toHaveProperty('markedForPush', true);
 
       // act
-      await context.syncManager.exportAndPush(context.models.Patient);
+      await context.syncManager.exportAndPushChannel(context.models.Patient, 'patient');
 
       // assert
       expect(await getRecord(record)).toHaveProperty('markedForPush', false);
