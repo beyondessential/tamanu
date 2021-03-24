@@ -31,7 +31,7 @@ export class SyncManager {
 
   async pullAndImportChannel(model, channel) {
     const since = await this.getLastSynced(channel);
-    log.info(`SyncManager.pullAndImport: syncing ${channel} (last: ${since})`);
+    log.debug(`SyncManager.pullAndImport: syncing ${channel} (last: ${since})`);
 
     const plan = createImportPlan(model);
     const importRecords = async syncRecords => {
@@ -68,6 +68,8 @@ export class SyncManager {
     // However, they're implemented on mobile, so perhaps we should either remove them there or add them here.
 
     await this.setLastSynced(channel, requestedAt);
+
+    log.debug(`SyncManager.pullAndImport: finished syncing ${channel}`);
   }
 
   async exportAndPushChannel(model, channel) {
@@ -123,6 +125,8 @@ export class SyncManager {
   }
 
   async runSyncImmediately(patientId = null) {
+    log.info(`SyncManager: starting sync (patientId = ${patientId})`);
+
     const { models } = this.context;
 
     // form a graph of dependencies based on which models belong to others
@@ -177,6 +181,8 @@ export class SyncManager {
 
     // wait for any remaining promises to complete (probably unnecessary)
     await pool.flush();
+
+    log.info(`SyncManager: ending sync`);
   }
 
   async runSync(patientId = null) {
