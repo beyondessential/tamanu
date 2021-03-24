@@ -77,20 +77,31 @@ export const NewVaccineTabComponent = ({
   const { models } = useBackend();
   const recordVaccination = useCallback(
     async (values: any): Promise<any> => {
-      const { reason, batch, status, date, scheduledVaccineId } = values;
+      const { reason, batch, status, date, scheduledVaccineId, administeredVaccine } = values;
       const encounter = await models.Encounter.getOrCreateCurrentEncounter(
         selectedPatient.id,
         user.id,
       );
-
-      await models.AdministeredVaccine.createAndSaveOne({
-        reason,
-        batch,
-        status,
-        date,
-        scheduledVaccine: scheduledVaccineId,
-        encounter: encounter.id,
-      });
+      if(administeredVaccine?.id){
+        const repo = await models.AdministeredVaccine.getRepository();
+        await repo.update(administeredVaccine.id, {
+          reason,
+          batch,
+          status,
+          date,
+          scheduledVaccine: scheduledVaccineId,
+          encounter: encounter.id,
+        });
+      } else{
+        await models.AdministeredVaccine.createAndSaveOne({
+          reason,
+          batch,
+          status,
+          date,
+          scheduledVaccine: scheduledVaccineId,
+          encounter: encounter.id,
+        });
+    }
 
       navigation.goBack();
     }, [],
