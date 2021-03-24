@@ -46,6 +46,7 @@ const defaultState = {
   loading: false,
   user: null,
   error: null,
+  token: null,
 };
 
 const actionHandlers = {
@@ -67,9 +68,11 @@ const actionHandlers = {
   [LOGOUT_WITH_ERROR]: action => ({
     user: defaultState.user,
     error: action.error,
+    token: null,
   }),
   [LOGOUT]: () => ({
     user: defaultState.user,
+    token: null,
   }),
 };
 
