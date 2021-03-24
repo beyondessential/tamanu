@@ -68,7 +68,6 @@ export const NewVaccineTabComponent = ({
   const { vaccine } = route;
   const { administeredVaccine } = vaccine;
   const navigation = useNavigation();
-  console.log(vaccine);
 
   const onPressCancel = useCallback(() => {
     navigation.goBack();
@@ -79,12 +78,13 @@ export const NewVaccineTabComponent = ({
   const { models } = useBackend();
   const recordVaccination = useCallback(
     async (values: any): Promise<any> => {
-      const { reason, batch, status, date, scheduledVaccineId, administeredVaccine } = values;
+      const { reason, batch, status, date, scheduledVaccineId } = values;
       const encounter = await models.Encounter.getOrCreateCurrentEncounter(
         selectedPatient.id,
         user.id,
       );
-      if(administeredVaccine?.id){
+      if(administeredVaccine){ 
+        // Updating existing administeredVaccine
         const repo = await models.AdministeredVaccine.getRepository();
         await repo.update(administeredVaccine.id, {
           reason,
@@ -94,7 +94,7 @@ export const NewVaccineTabComponent = ({
           scheduledVaccine: scheduledVaccineId,
           encounter: encounter.id,
         });
-      } else{
+      } else {
         await models.AdministeredVaccine.createAndSaveOne({
           reason,
           batch,
@@ -103,7 +103,7 @@ export const NewVaccineTabComponent = ({
           scheduledVaccine: scheduledVaccineId,
           encounter: encounter.id,
         });
-    }
+      }
 
       navigation.goBack();
     }, [],
@@ -129,7 +129,7 @@ export const NewVaccineTabComponent = ({
             onSubmit={recordVaccination}
             onCancel={onPressCancel}
             SubmitButtons={SubmitButtons}
-            initialValues={{...administeredVaccine, administeredVaccine}}
+            initialValues={{ ...vaccine, ...(administeredVaccine || {}) }}
             status={route.key}
           />
         </ScrollView>
