@@ -66,7 +66,9 @@ export const NewVaccineTabComponent = ({
   route, selectedPatient,
 }: NewVaccineTabProps): ReactElement => {
   const { vaccine } = route;
+  const { administeredVaccine } = vaccine;
   const navigation = useNavigation();
+  console.log(vaccine);
 
   const onPressCancel = useCallback(() => {
     navigation.goBack();
@@ -127,7 +129,7 @@ export const NewVaccineTabComponent = ({
             onSubmit={recordVaccination}
             onCancel={onPressCancel}
             SubmitButtons={SubmitButtons}
-            initialValues={vaccine}
+            initialValues={{...administeredVaccine, administeredVaccine}}
             status={route.key}
           />
         </ScrollView>
