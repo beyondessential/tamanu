@@ -1,7 +1,7 @@
 import { DependencyGraph } from 'shared/utils';
 import { createTestContext } from './utilities';
 
-describe('depgraph', () => {
+describe('DependencyGraph', () => {
   let models;
   beforeAll(async () => {
     models = (await createTestContext()).models;
@@ -12,7 +12,8 @@ describe('depgraph', () => {
     const deps = DependencyGraph.fromModels(models);
 
     // act
-    const resultsOrder = Object.keys(await deps.run(name => name));
+    const resultsOrder = [];
+    await deps.run(name => resultsOrder.push(name));
 
     // assert
     resultsOrder.forEach((result, resultIndex) => {
