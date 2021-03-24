@@ -1,4 +1,4 @@
-import asyncPool from 'tiny-async-pool';
+import PromisePool from '@mixmaxhq/promise-pool';
 import {
   shouldPush,
   shouldPull,
@@ -8,6 +8,7 @@ import {
   executeExportPlan,
 } from 'shared/models/sync';
 import { log } from 'shared/services/logging';
+import { DependencyGraph } from 'shared/utils';
 
 const EXPORT_LIMIT = 100;
 
@@ -121,54 +122,63 @@ export class SyncManager {
     await this.context.models.SyncMetadata.upsert({ channel, lastSynced });
   }
 
-  async pullAndImport(model, patientId) {
-    await asyncPool(MAX_CONCURRENT_CHANNEL_SYNCS, await model.getChannels(patientId), channel =>
-      this.pullAndImportChannel(model, channel),
-    );
-  }
+  async runSyncImmediately(patientId = null) {
+    const { models } = this.context;
 
-  async exportAndPush(model, patientId) {
-    await asyncPool(MAX_CONCURRENT_CHANNEL_SYNCS, await model.getChannels(patientId), channel =>
-      this.exportAndPushChannel(model, channel),
-    );
+    // form a graph of dependencies based on which models belong to others
+    const graph = DependencyGraph.fromModels(models);
+
+    // limit concurrent channel syncs using a promise pool
+    const pool = new PromisePool({
+      // number of channels to sync concurrently
+      numConcurrent: MAX_CONCURRENT_CHANNEL_SYNCS,
+      // at most we'll have one pending start() call per model - more than that is a bug
+      maxPending: Object.keys(models).length,
+    });
+
+    // run syncs as soon as their dependencies complete
+    await graph.run(async modelName => {
+      const model = models[modelName];
+
+      // keep track of how many channels have completed
+      let numCompleted = 0;
+      const channels = await model.getChannels(patientId);
+
+      const syncChannel = async (channel, resolve) => {
+        if (shouldPull(model)) {
+          await this.pullAndImportChannel(model, channel);
+        }
+        if (shouldPush(model)) {
+          await this.exportAndPushChannel(model, channel);
+        }
+
+        // resolve our promise once all channels have completed
+        numCompleted++;
+        if (numCompleted === channels.length) {
+          resolve();
+        }
+      };
+
+      // wait for all channels to complete before leaving this model's function
+      await new Promise((resolve, reject) => {
+        (async () => {
+          try {
+            for (const channel of channels) {
+              await pool.start(syncChannel, channel, resolve);
+            }
+          } catch (e) {
+            reject(e);
+          }
+        })();
+      });
+    });
+
+    // wait for any remaining promises to complete (probably unnecessary)
+    await pool.flush();
   }
 
   async runSync(patientId = null) {
-    const run = async () => {
-      const { models } = this.context;
-
-      // ordered array because some models depend on others
-      const modelsToSync = [
-        models.ReferenceData,
-        models.User,
-
-        models.ScheduledVaccine,
-
-        models.Program,
-        models.Survey,
-        models.ProgramDataElement,
-        models.SurveyScreenComponent,
-
-        models.Patient,
-        models.PatientAllergy,
-        models.PatientCarePlan,
-        models.PatientCondition,
-        models.PatientFamilyHistory,
-        models.PatientIssue,
-
-        models.LabTestType,
-        models.Encounter,
-      ];
-
-      for (const model of modelsToSync) {
-        if (shouldPull(model)) {
-          await this.pullAndImport(model, patientId);
-        }
-        if (shouldPush(model)) {
-          await this.exportAndPush(model, patientId);
-        }
-      }
-    };
+    const run = async () => this.runSyncImmediately(patientId);
 
     // queue up new job
     if (this.patientId) {
