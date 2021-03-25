@@ -6,7 +6,7 @@ import { connectApi } from 'desktop/app/api';
 import { reloadPatient } from 'desktop/app/store/patient';
 
 import { SurveyView } from 'desktop/app/views/programs/SurveyView';
-import { SurveySelector } from 'desktop/app/views/programs/SurveySelector';
+import { ProgramSurveySelector } from 'desktop/app/views/programs/ProgramSurveySelector';
 import { LoadingIndicator } from 'desktop/app/components/LoadingIndicator';
 import { DumbPatientListingView } from 'desktop/app/views/patients/PatientListingView';
 
@@ -52,7 +52,7 @@ const DumbSurveyFlow = React.memo(
 
     if (!survey) {
       return (
-        <SurveySelector
+        <ProgramSurveySelector
           programs={programsList}
           onSelectSurvey={onSelectSurvey}
           onFetchSurveysList={onFetchSurveysList}
