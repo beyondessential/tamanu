@@ -186,7 +186,7 @@ class TableComponent extends React.Component {
     const { isLoading, errorMessage, data, noDataMessage } = this.props;
     if (isLoading) return 'Loading...';
     if (errorMessage) return errorMessage;
-    if (data.length === 0) return noDataMessage;
+    if (!data || data.length === 0) return noDataMessage;
     return null;
   }
 
