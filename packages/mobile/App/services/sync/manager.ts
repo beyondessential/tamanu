@@ -65,7 +65,6 @@ export class SyncManager {
     }
 
     this.emitter.on('*', (action, ...args) => {
-      if (action === 'syncedRecord') return;
       if (action === 'syncRecordError') {
         this.errors.push(args[0]);
         console.warn('error', args[0]);
@@ -153,32 +152,16 @@ export class SyncManager {
 
     let requestedAt: Timestamp = 0;
 
-    // Some records will fail on the first attempt due to foreign key constraints
-    // (most commonly, when a dependency record has been updated so it appears
-    // after its dependent in the sync queue)
-    // So we keep these records in a queue and retry them at the end of the download.
-    let pendingRecords = [];
-
     const importPlan = createImportPlan(model);
     const importRecords = async (records: SyncRecord[]): Promise<void> => {
-      await Promise.all(records.map(async r => {
-        try {
-          await executeImportPlan(importPlan, r);
-          this.emitter.emit('syncedRecord', model.name);
-        } catch (e) {
-          if (e.message.match(/FOREIGN KEY constraint failed/)) {
-            // this error is to be expected! just push it
-            r.ERROR_MESSAGE = e.message;
-            pendingRecords.push(r);
-          } else {
-            console.warn('syncRecordError', e, r);
-            this.emitter.emit('syncRecordError', {
-              record: r,
-              error: e,
-            });
-          }
-        }
-      }));
+      const { failures } = await executeImportPlan(importPlan, records);
+      failures.forEach(({ error, recordId }) => {
+        console.warn('syncRecordError', error, recordId);
+        this.emitter.emit('syncRecordError', {
+          recordId,
+          error,
+        });
+      });
     };
 
     try {
@@ -228,26 +211,6 @@ export class SyncManager {
       console.warn(e);
     }
 
-    // Now try re-importing all of the pending records.
-    // As there might be multiple levels of dependency, we might need a few
-    // passes over the queue! But if we get a pass where the queue doesn't
-    // decrease in size at all, we know there's a for-real error and we should
-    // terminate the process.
-    while (pendingRecords.length > 0) {
-      if (this.verbose) {
-        console.log(`Reattempting ${pendingRecords.length} failed records...`);
-      }
-      const thisPass = pendingRecords;
-      pendingRecords = [];
-      await importRecords(thisPass);
-      // syncRecords will re populate pendingRecords
-      if (pendingRecords.length === thisPass.length) {
-        console.warn('Could not import remaining queue members:');
-        console.warn(JSON.stringify(pendingRecords, null, 2));
-        pendingRecords.map(r => this.errors.push(r));
-        throw new Error(`Could not import any ${pendingRecords.length} remaining queue members`);
-      }
-    }
     this.emitter.emit('importEnded', channel);
 
     return requestedAt;
