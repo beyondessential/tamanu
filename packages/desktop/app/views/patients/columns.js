@@ -57,7 +57,7 @@ export const village = {
   key: 'villageName',
   title: 'Village',
   minWidth: 100,
-  accessor: row => row.villageName,
+  accessor: row => row?.villageName || null,
 };
 
 export const location = {
