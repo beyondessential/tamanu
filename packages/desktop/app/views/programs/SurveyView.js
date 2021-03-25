@@ -147,15 +147,13 @@ export const SurveyView = ({ survey, onSubmit, onCancel }) => {
 
   
   const renderSurvey = (props) => {
-    const { submitForm, values, setFieldValue } = props;
+    const { submitForm, values, setValues } = props;
 
     useEffect(() => {
       // recalculate dynamic fields
       const calculatedValues = runCalculations(survey.components, values);
       // write values that have changed back into answers
-      Object.entries(calculatedValues)
-        .filter(([k, v]) => values[k] !== v)
-        .map(([k, v]) => setFieldValue(k, v));
+      setValues(calculatedValues);
     }, [values]);
 
     return (
