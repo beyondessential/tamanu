@@ -92,6 +92,15 @@ const SurveyScreenPaginator = ({ survey, values, onSurveyComplete, onCancel, set
   const { components } = survey;
   const [screenIndex, setScreenIndex] = useState(0);
 
+  useEffect(() => {
+    // recalculate dynamic fields
+    const calculatedValues = runCalculations(components, values);
+    // write values that have changed back into answers
+    Object.entries(calculatedValues)
+      .filter(([k, v]) => values[k] !== v)
+      .map(([k, v]) => setFieldValue(k, v));
+    }, [values]);
+
   const onStepBack = useCallback(() => {
     setScreenIndex(screenIndex - 1);
   }, [screenIndex]);
@@ -103,6 +112,7 @@ const SurveyScreenPaginator = ({ survey, values, onSurveyComplete, onCancel, set
   const maxIndex = components
     .map(x => x.screenIndex)
     .reduce((max, current) => Math.max(max, current), 0);
+
   if (screenIndex <= maxIndex) {
     const screenComponents = components
       .filter(x => x.screenIndex === screenIndex)
@@ -136,7 +146,6 @@ const SurveyCompletedMessage = React.memo(({ onResetClicked }) => (
   </div>
 ));
 
-
 export const SurveyView = ({ survey, onSubmit, onCancel }) => {
   const [surveyCompleted, setSurveyCompleted] = useState(false);
 
@@ -145,16 +154,8 @@ export const SurveyView = ({ survey, onSubmit, onCancel }) => {
     setSurveyCompleted(true);
   });
 
-  
   const renderSurvey = (props) => {
-    const { submitForm, values, setValues } = props;
-
-    useEffect(() => {
-      // recalculate dynamic fields
-      const calculatedValues = runCalculations(survey.components, values);
-      // write values that have changed back into answers
-      setValues(calculatedValues);
-    }, [values]);
+    const { submitForm, values, setFieldValue } = props;
 
     return (
       <SurveyScreenPaginator

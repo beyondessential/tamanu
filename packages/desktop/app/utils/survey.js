@@ -1,3 +1,4 @@
+import React from 'react';
 import { create, all as allMath } from 'mathjs';
 import { inRange } from 'lodash';
 
@@ -132,7 +133,7 @@ export function runCalculations(
 
 
 function fallbackParseVisibilityCriteria({ visibilityCriteria, dataElement }, values, components) {
-  if ([SURVEY_FIELD_TYPES.RESULT, SURVEY_FIELD_TYPES.CALCULATED].includes(dataElement.type)) {
+  if ([PROGRAM_DATA_ELEMENT_TYPES.RESULT, PROGRAM_DATA_ELEMENT_TYPES.CALCULATED].includes(dataElement.type)) {
     return false;
   }
   if (!visibilityCriteria) return true;
