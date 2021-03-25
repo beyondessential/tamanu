@@ -153,6 +153,7 @@ export class SyncManager {
         models.PatientFamilyHistory,
         models.PatientIssue,
 
+        models.LabTestType,
         models.Encounter,
       ];
 

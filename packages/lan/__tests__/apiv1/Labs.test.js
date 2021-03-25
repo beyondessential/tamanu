@@ -84,7 +84,7 @@ describe('Labs', () => {
   */
 
   it('should record a test result', async () => {
-    const labRequest = await models.LabRequest.create(
+    const labRequest = await models.LabRequest.createWithTests(
       await randomLabRequest(models, { patientId }),
     );
     const [labTest] = await labRequest.getTests();
@@ -103,7 +103,7 @@ describe('Labs', () => {
   test.todo('should record multiple test results');
 
   it('should update the status of a lab test', async () => {
-    const labRequest = await models.LabRequest.create(
+    const labRequest = await models.LabRequest.createWithTests(
       await randomLabRequest(models, { patientId }),
     );
     const [labTest] = await labRequest.getTests();
@@ -116,7 +116,7 @@ describe('Labs', () => {
   });
 
   it('should update the status of a lab request', async () => {
-    const { id: requestId } = await models.LabRequest.create(
+    const { id: requestId } = await models.LabRequest.createWithTests(
       await randomLabRequest(models, { patientId }),
     );
     const status = LAB_REQUEST_STATUSES.TO_BE_VERIFIED;
@@ -128,7 +128,7 @@ describe('Labs', () => {
   });
 
   it('should publish a lab request', async () => {
-    const { id: requestId } = await models.LabRequest.create(
+    const { id: requestId } = await models.LabRequest.createWithTests(
       await randomLabRequest(models, { patientId }),
     );
     const status = LAB_REQUEST_STATUSES.PUBLISHED;

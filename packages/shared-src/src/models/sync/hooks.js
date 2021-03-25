@@ -22,6 +22,9 @@ const addHooksToNested = model => {
       // walk backward through the associations and find the parent at each level
       for (const { source, foreignKey } of reversedAssociations) {
         currentRecord = await source.findByPk(currentRecord[foreignKey]);
+        if (!currentRecord) {
+          return;
+        }
       }
       // mark the parent record for push
       currentRecord.markedForPush = true;

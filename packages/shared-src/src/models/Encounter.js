@@ -119,9 +119,16 @@ export class Encounter extends Model {
       as: 'medications',
     });
 
-    // this.hasMany(models.Medication);
-    // this.hasMany(models.LabRequest);
-    // this.hasMany(models.ImagingRequest);
+    this.hasMany(models.LabRequest, {
+      foreignKey: 'encounterId',
+      as: 'labRequests',
+    });
+
+    this.hasMany(models.ImagingRequest, {
+      foreignKey: 'encounterId',
+      as: 'imagingRequests',
+    });
+
     // this.hasMany(models.Procedure);
     // this.hasMany(models.Report);
   }
@@ -210,6 +217,9 @@ export class Encounter extends Model {
     'surveyResponses.answers',
     'diagnoses',
     'medications',
+    'labRequests',
+    'labRequests.tests',
+    'imagingRequests',
   ];
 
   static syncDirection = SYNC_DIRECTIONS.BIDIRECTIONAL;

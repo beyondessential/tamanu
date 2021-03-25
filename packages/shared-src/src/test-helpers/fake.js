@@ -208,18 +208,21 @@ export function fakeEncounterMedication(prefix = 'test-') {
 }
 
 const fakeDate = () => new Date(random(0, Date.now()));
-const fakeString = ({ Model, fieldName }, id) => `${Model.name}.${fieldName}.${id}`;
+const fakeString = (model, { fieldName }, id) => `${model.name}.${fieldName}.${id}`;
 const fakeInt = () => random(0, 10);
+const fakeFloat = () => Math.random() * 1000;
 const fakeBool = () => sample([true, false]);
 const FIELD_HANDLERS = {
   'TIMESTAMP WITH TIME ZONE': fakeDate,
   DATETIME: fakeDate,
   'VARCHAR(255)': fakeString,
+  'VARCHAR(31)': (...args) => fakeString(...args).slice(0, 31),
   TEXT: fakeString,
   INTEGER: fakeInt,
+  FLOAT: fakeFloat,
   'TINYINT(1)': fakeBool,
   BOOLEAN: fakeBool,
-  ENUM: ({ type }) => sample(type.values),
+  ENUM: (model, { type }) => sample(type.values),
 };
 
 const IGNORED_FIELDS = [
@@ -243,7 +246,7 @@ export const fake = model => {
     } else if (IGNORED_FIELDS.includes(attribute.fieldName)) {
       // ignore metadata fields
     } else if (FIELD_HANDLERS[type]) {
-      record[name] = FIELD_HANDLERS[type](attribute, id);
+      record[name] = FIELD_HANDLERS[type](model, attribute, id);
     } else {
       // if you hit this error, you probably need to add a new field handler
       throw new Error(`Could not fake field ${model.name}.${name} of type ${type}`);
