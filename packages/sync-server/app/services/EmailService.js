@@ -1,8 +1,17 @@
+import config from 'config';
+import mailgun from 'mailgun-js';
 import { COMMUNICATION_STATUSES } from 'shared/constants';
 
+let mailgunService = null;
+if (config.mailgun && config.mailgun.apiKey && config.mailgun.domain) {
+  mailgunService = mailgun({ apiKey: config.mailgun.apiKey, domain: config.mailgun.domain });
+}
+
 export async function sendEmail(email) {
-  // TODO: Implement integration with email service
-  await sleep(200);
+  // no mailgun service, unable to send email
+  if (!mailgunService) {
+    return { status: COMMUNICATION_STATUSES.ERROR, error: 'Email service not found' };
+  }
   if (!email.from) {
     return {
       status: COMMUNICATION_STATUSES.BAD_FORMAT,
@@ -21,11 +30,10 @@ export async function sendEmail(email) {
       error: 'Missing subject',
     };
   }
-  return { status: COMMUNICATION_STATUSES.SENT };
-}
-
-function sleep(ms) {
-  return new Promise(resolve => {
-    setTimeout(resolve, ms);
-  });
+  try {
+    const emailResult = await mailgunService.messages().send(email);
+    return { status: COMMUNICATION_STATUSES.SENT, result: emailResult };
+  } catch (e) {
+    return { status: COMMUNICATION_STATUSES.ERROR, error: e.message };
+  }
 }
