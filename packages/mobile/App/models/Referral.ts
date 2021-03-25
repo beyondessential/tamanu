@@ -1,4 +1,4 @@
-import { Entity, ManyToOne, RelationId } from 'typeorm/browser';
+import { Entity, ManyToOne, RelationId, BeforeUpdate, BeforeInsert } from 'typeorm/browser';
 import { BaseModel } from './BaseModel';
 import { IReferral, ISurveyResponse, ISurveyScreenComponent } from '~/types';
 import { Encounter } from './Encounter';
@@ -21,6 +21,12 @@ export class Referral extends BaseModel implements IReferral {
   @RelationId(({ surveyResponse }) => surveyResponse)
   surveyResponseId: string;
 
+  @BeforeInsert()
+  @BeforeUpdate()
+  async markEncounterForUpload() {
+    await this.markParent(Encounter, 'initiatingEncounter', 'markedForUpload');
+    await this.markParent(Encounter, 'completingEncounter', 'markedForUpload');
+  }
 
   static async submit(
     patientId: string,

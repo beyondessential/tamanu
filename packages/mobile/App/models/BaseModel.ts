@@ -85,6 +85,9 @@ export abstract class BaseModel extends BaseEntity {
         .of(this)
         .loadOne();
     }
+    if (!entity) {
+      return;
+    }
     entity[flag] = true;
     await entity.save();
   }

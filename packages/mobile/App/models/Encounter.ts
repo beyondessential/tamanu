@@ -19,6 +19,7 @@ import { ReferenceData, ReferenceDataRelation } from './ReferenceData';
 import { User } from './User';
 import { AdministeredVaccine } from './AdministeredVaccine';
 import { SurveyResponse } from './SurveyResponse';
+import { Vitals } from './Vitals';
 import { formatDateForQuery } from '~/infra/db/helpers';
 import { SummaryInfo } from '~/ui/navigation/screens/home/Tabs/PatientHome/ReportScreen/SummaryBoard';
 import { Referral } from './Referral';
@@ -92,6 +93,9 @@ export class Encounter extends BaseModel implements IEncounter {
 
   @OneToMany(() => SurveyResponse, (surveyResponse) => surveyResponse.encounter)
   surveyResponses: SurveyResponse[];
+
+  @OneToMany(() => Vitals, ({ encounter }) => encounter)
+  vitals: Vitals[];
 
   static async getOrCreateCurrentEncounter(
     patientId: string,
@@ -197,5 +201,8 @@ export class Encounter extends BaseModel implements IEncounter {
     'surveyResponses.answers',
     'diagnoses',
     'medications',
+    'vitals',
+    'initiatedReferrals',
+    'completedReferrals',
   ];
 }
