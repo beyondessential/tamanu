@@ -61,7 +61,7 @@ export class ReportRequestProcessor extends ScheduledTask {
         const excelData = await reportDataGenerator(this.context.store.models, parameters);
         await writeExcelFile(excelData, fileName);
         await sendEmail({
-          from: `no-reply@${config.mailgun.domain}`,
+          from: config.mailgun.from,
           to: request.recipients,
           subject: request.reportType,
           attachment: fileName,
