@@ -10,6 +10,7 @@ import {
   BillingRoutes,
   AdministrationRoutes,
   ProgramsRoutes,
+  ReferralsRoutes,
   ReportsRoutes,
   ImmunisationRoutes,
 } from './routes';
@@ -26,6 +27,7 @@ export const RoutingApp = React.memo(() => (
       <Route path="/invoices" component={BillingRoutes} />
       <Route path="/admin" component={AdministrationRoutes} />
       <Route path="/programs" component={ProgramsRoutes} />
+      <Route path="/referrals" component={ReferralsRoutes} />
       <Route path="/reports" component={ReportsRoutes} />
       <Route path="/immunisations" component={ImmunisationRoutes} />
       {/*

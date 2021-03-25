@@ -32,4 +32,10 @@ export class Survey extends Model {
   }
 
   static syncDirection = SYNC_DIRECTIONS.PULL_ONLY;
+
+  static getAllReferrals() {
+    return this.findAll({
+      where: { surveyType: SURVEY_TYPES.REFERRAL }
+    });
+  }
 }

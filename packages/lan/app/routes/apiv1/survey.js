@@ -6,6 +6,17 @@ import { findRouteObject, permissionCheckingRouter, simpleGetList } from './crud
 export const survey = express.Router();
 
 survey.get(
+  '/referrals',
+  asyncHandler(async (req, res) => {
+    const { models } = req;
+    req.checkPermission('list', 'Survey');
+    const referrals = await models.Survey.getAllReferrals();
+
+    res.send({ referrals });
+  }),
+);
+
+survey.get(
   '/:id',
   asyncHandler(async (req, res) => {
     const { models, params } = req;

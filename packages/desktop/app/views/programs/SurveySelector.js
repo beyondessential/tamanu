@@ -14,14 +14,23 @@ const StyledButtonRow = styled(ButtonRow)`
   margin-top: 24px;
 `;
 
-export const SurveySelector = React.memo(({ onSelectSurvey, programs, onFetchSurveysList }) => {
+export const SurveySelector = React.memo(({ onSelectSurvey, programs = [], onFetchSurveysList }) => {
   const [selectedProgramId, setSelectedProgramId] = useState(null);
   const [selectedSurveyId, setSelectedSurveyId] = useState(null);
   const [surveyOptions, setSurveyOptions] = useState(null);
   const [programOptions, setProgramOptions] = useState(null);
 
   useEffect(() => {
-    setProgramOptions(programs.map(x => ({ value: x.id, label: x.name })));
+    (async () => {
+      if (programs === null) {
+        const { referrals } = await onFetchSurveysList();
+
+        setSurveyOptions(referrals.map(x => ({ value: x.id, label: x.name })));
+      } else {
+        setProgramOptions(programs.map(x => ({ value: x.id, label: x.name })));
+      }
+    })()
+
   }, [programs]);
 
   const onChangeProgram = useCallback(async event => {
@@ -54,17 +63,17 @@ export const SurveySelector = React.memo(({ onSelectSurvey, programs, onFetchSur
           <ProgramsPaneHeading variant="h6">Select a survey</ProgramsPaneHeading>
         </ProgramsPaneHeader>
         <FormGrid columns={1}>
-          <SelectInput
+          {programs && <SelectInput
             options={programOptions}
             value={selectedProgramId}
             onChange={onChangeProgram}
             label="Select program"
-          />
+          />}
           <SelectInput
             options={surveyOptions}
             value={selectedSurveyId}
             onChange={onChangeSurvey}
-            disabled={!selectedProgramId}
+            disabled={programs && !selectedProgramId}
             label="Select survey"
           />
           <StyledButtonRow>
