@@ -10,6 +10,10 @@ import { getToken } from 'lan/app/middleware/auth';
 import { allSeeds } from './seed';
 import { deleteAllTestIds } from './setupUtilities';
 
+import { SyncManager } from '~/sync';
+import { WebRemote } from '~/sync/WebRemote';
+jest.mock('~/sync/WebRemote');
+
 const chance = new Chance();
 
 const formatError = response => `
@@ -110,5 +114,11 @@ export async function createTestContext() {
 
   jest.setTimeout(30 * 1000); // more generous than the default 5s but not crazy
 
-  return { baseApp, sequelize, models };
+  const remote = new WebRemote();
+
+  const context = { baseApp, sequelize, models, remote };
+
+  context.syncManager = new SyncManager(context);
+
+  return context;
 }

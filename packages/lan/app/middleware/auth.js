@@ -56,6 +56,7 @@ async function remoteLogin(models, email, password) {
   const { id, ...userDetails } = user;
   await models.User.upsert(
     {
+      id,
       ...userDetails,
       password,
     },

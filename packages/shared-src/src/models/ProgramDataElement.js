@@ -13,7 +13,7 @@ export class ProgramDataElement extends Model {
         indicator: Sequelize.STRING,
         defaultText: Sequelize.STRING,
         defaultOptions: Sequelize.STRING,
-        type: Sequelize.ENUM(PROGRAM_DATA_ELEMENT_TYPE_VALUES),
+        type: Sequelize.STRING(31),
       },
       {
         ...options,

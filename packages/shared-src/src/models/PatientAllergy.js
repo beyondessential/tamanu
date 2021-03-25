@@ -28,4 +28,4 @@ export class PatientAllergy extends Model {
   static syncDirection = SYNC_DIRECTIONS.BIDIRECTIONAL;
 }
 
-Object.assign(PatientAllergy, extendClassWithPatientChannel('allergy'));
+extendClassWithPatientChannel(PatientAllergy, 'allergy');

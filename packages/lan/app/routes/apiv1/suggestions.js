@@ -44,14 +44,13 @@ function createSuggester(endpoint, modelName, whereSql, mapper = defaultMapper) 
       const sequelize = model.sequelize;
       const results = await sequelize.query(
         `
-      SELECT * 
-      FROM :tableName
+      SELECT *
+      FROM "${model.tableName}"
       WHERE ${whereSql}
       LIMIT :limit
     `,
         {
           replacements: {
-            tableName: model.tableName,
             search: `%${search}%`,
             limit: defaultLimit,
           },
@@ -68,10 +67,19 @@ function createSuggester(endpoint, modelName, whereSql, mapper = defaultMapper) 
 }
 
 REFERENCE_TYPE_VALUES.map(typeName =>
-  createSuggester(typeName, 'ReferenceData', `name LIKE :search AND type = '${typeName}'`),
+  createSuggester(
+    typeName,
+    'ReferenceData',
+    `LOWER(name) LIKE LOWER(:search) AND type = '${typeName}'`,
+  ),
 );
 
-createSuggester('practitioner', 'User', 'display_name LIKE :search', ({ id, displayName }) => ({
-  id,
-  name: displayName,
-}));
+createSuggester(
+  'practitioner',
+  'User',
+  'LOWER(display_name) LIKE LOWER(:search)',
+  ({ id, displayName }) => ({
+    id,
+    name: displayName,
+  }),
+);

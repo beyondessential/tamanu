@@ -125,11 +125,11 @@ export function fakeProgram(prefix = 'test-') {
   return fakeStringFields(`${prefix}program_${id})_`, ['id', 'name', 'code']);
 }
 
-export function fakeAdministeredVaccine(prefix = 'test-') {
+export function fakeAdministeredVaccine(prefix = 'test-', scheduledVaccineId) {
   const id = uuidv4();
   return {
     encounterId: null,
-    scheduledVaccineId: null,
+    scheduledVaccineId: scheduledVaccineId,
     date: new Date(random(0, Date.now())),
     ...fakeStringFields(`${prefix}administeredVaccine_${id}_`, [
       'id',
@@ -222,7 +222,15 @@ const FIELD_HANDLERS = {
   ENUM: ({ type }) => sample(type.values),
 };
 
-const IGNORED_FIELDS = ['createdAt', 'updatedAt', 'deletedAt', 'markedForPush'];
+const IGNORED_FIELDS = [
+  'createdAt',
+  'updatedAt',
+  'deletedAt',
+  'pushedAt',
+  'pulledAt',
+  'markedForPush',
+  'markedForSync',
+];
 
 export const fake = model => {
   const id = uuidv4();

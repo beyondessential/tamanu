@@ -1,7 +1,9 @@
+import { readFile, utils } from 'xlsx';
 import { log } from '../logging';
-import { readDataDefinition, convertNameToCode } from '~/dataDefinitionImporter';
 
-import { sendSyncRequest } from './sendSyncRequest';
+const sanitise = string => string.trim().replace(/[^A-Za-z0-9]+/g, '');
+const convertSheetNameToImporterId = sheetName => sanitise(sheetName).toLowerCase();
+const convertNameToCode = name => sanitise(name).toUpperCase();
 
 const referenceDataTransformer = type => item => {
   const { name } = item;
@@ -10,6 +12,7 @@ const referenceDataTransformer = type => item => {
   return {
     recordType: 'referenceData',
     data: {
+      // TODO: replace with '-' separator
       id: `ref/${type}/${code}`,
       ...item,
       code,
@@ -18,42 +21,80 @@ const referenceDataTransformer = type => item => {
   };
 };
 
-const transformers = {
-  villages: referenceDataTransformer('village'),
-  drugs: referenceDataTransformer('drug'),
-  allergies: referenceDataTransformer('allergy'),
-  departments: referenceDataTransformer('department'),
-  locations: referenceDataTransformer('location'),
-  diagnoses: referenceDataTransformer('icd10'),
-  // Disabled as they are not supported in mobile yet
-  triagereasons: null, // referenceDataTransformer('triageReason'),
-  imagingtypes: null, // referenceDataTransformer('imagingType'),
-  procedures: null, // referenceDataTransformer('procedureType'),
-  // TODO
-  users: null,
-  patients: null,
-  labtesttypes: null,
-};
+const makeTransformer = (sheetName, transformer) => ({ 
+  sheetName,
+  transformer
+});
 
-export async function importData({ file, dryRun }) {
+const transformers = [
+  makeTransformer('facilities', referenceDataTransformer('facilities')),
+  makeTransformer('villages', referenceDataTransformer('village')),
+  makeTransformer('drugs', referenceDataTransformer('drug')),
+  makeTransformer('allergies', referenceDataTransformer('allergy')),
+  makeTransformer('departments', referenceDataTransformer('department')),
+  makeTransformer('locations', referenceDataTransformer('location')),
+  makeTransformer('diagnoses', referenceDataTransformer('icd10')),
+  makeTransformer('triageReasons', referenceDataTransformer('triageReason')),
+  makeTransformer('imagingTypes', referenceDataTransformer('imagingType')),
+  makeTransformer('procedures', referenceDataTransformer('procedureType')),
+  makeTransformer('careplans', referenceDataTransformer('carePlan')),
+  makeTransformer('ethnicities', referenceDataTransformer('ethnicity')),
+  makeTransformer('nationalities', referenceDataTransformer('nationality')),
+  makeTransformer('divisions', referenceDataTransformer('division')),
+  makeTransformer('subdivisions', referenceDataTransformer('subdivision')),
+  makeTransformer('medicalareas', referenceDataTransformer('medicalArea')),
+  makeTransformer('nursingzones', referenceDataTransformer('nursingZone')),
+  makeTransformer('settlements', referenceDataTransformer('settlement')),
+  makeTransformer('occupations', referenceDataTransformer('occupation')),
+  makeTransformer('users', null),
+  makeTransformer('patients', null),
+  makeTransformer('roles', null),
+  makeTransformer('labTestTypes', null),
+];
+
+export async function importData({ file, dryRun, whitelist = [] }) {
   log.info(`Importing data definitions from ${file}...`);
 
   // parse xlsx
-  const sheetData = await readDataDefinition(file);
+  const workbook = readFile(file);
+  const sheets = Object.entries(workbook.Sheets)
+    .reduce((group, [sheetName, sheet]) => ({
+      ...group,
+      [sanitise(sheetName).toLowerCase()]: sheet,
+    }), {});
+
+  const lowercaseWhitelist = whitelist.map(x => x.toLowerCase());
+  const sheetResults = {};
 
   // then restructure the parsed data to sync record format
-  const records = sheetData
-    .map(sheet => {
-      const transformer = transformers[sheet.importerId];
-      if (!transformer) return null;
-      return sheet.data.map(transformer);
+  const records = transformers
+    .map(({ sheetName, transformer }) => {
+      if(whitelist.length > 0 && !lowercaseWhitelist.includes(sheetName.toLowerCase())) {
+        sheetResults[sheetName] = 'Not on whitelist.';
+        return [];
+      }
+      const sheet = sheets[sheetName.toLowerCase()];
+      if(!sheet) {
+        sheetResults[sheetName] = 'No sheet';
+        return [];
+      }
+      if(!transformer) {
+        sheetResults[sheetName] = 'Not implemented yet';
+        return [];
+      }
+      const data = utils.sheet_to_json(sheet);
+      if(data.length === 0) {
+        sheetResults[sheetName] = 'No records';
+        return [];
+      }
+      sheetResults[sheetName] = `${data.length} records read`;
+      return data.map(transformer);
     })
     .filter(x => x)
     .flat();
 
-  if (dryRun) {
-    console.log(records);
-  } else {
-    await sendSyncRequest('reference', records);
-  }
+  return { 
+    records,
+    sheetResults,
+  };
 }

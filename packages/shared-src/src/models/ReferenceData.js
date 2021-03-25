@@ -13,7 +13,7 @@ export class ReferenceData extends Model {
           allowNull: false,
         },
         type: {
-          type: Sequelize.ENUM(REFERENCE_TYPE_VALUES),
+          type: Sequelize.STRING(31),
           allowNull: false,
         },
         name: {

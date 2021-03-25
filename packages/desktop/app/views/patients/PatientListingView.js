@@ -6,6 +6,7 @@ import { TopBar, PageContainer, DataFetchingTable } from '../../components';
 import { DropdownButton } from '../../components/DropdownButton';
 import { PatientSearchBar, NewPatientModal } from './components';
 import {
+  markedForSync,
   displayId,
   firstName,
   lastName,
@@ -20,7 +21,7 @@ import {
 
 const PATIENT_SEARCH_ENDPOINT = 'patient';
 
-const BASE_COLUMNS = [displayId, firstName, lastName, culturalName, village, sex, dateOfBirth];
+const BASE_COLUMNS = [markedForSync, displayId, firstName, lastName, culturalName, village, sex, dateOfBirth];
 
 const BASE_COLUMNS_ON_PATIENT = BASE_COLUMNS.map(column => ({
   ...column,

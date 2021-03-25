@@ -51,8 +51,13 @@ function makeScreen(screen, componentData) {
     .flat();
 }
 
-export async function importSurvey(taskDefinition) {
-  const { file, programCode, programName, surveyCode, surveyName, dryRun } = taskDefinition;
+export async function importSurvey({ 
+  file,
+  programCode,
+  programName, 
+  surveyCode,
+  surveyName,
+}) {
   log.info(`Reading surveys from ${file}...`);
 
   const data = readSurveyXSLX(programName, file);
@@ -79,18 +84,11 @@ export async function importSurvey(taskDefinition) {
     )
     .flat();
 
-  const components = screenElements.filter(x => x.recordType === 'surveyScreenComponent');
-  const pdes = screenElements.filter(x => x.recordType === 'programDataElement');
-
-  if (dryRun) {
-    [programElement, surveyElement, pdes, components].map(x => console.log(x));
-    return;
+  return {
+    records: [
+      programElement,
+      surveyElement,
+      ...screenElements,
+    ],
   }
-
-  await sendSyncRequest('program', [programElement]);
-  await sendSyncRequest('survey', [surveyElement]);
-  await sendSyncRequest('programDataElement', pdes);
-  await sendSyncRequest('surveyScreenComponent', components);
-
-  log.info('Program records uploaded.');
 }

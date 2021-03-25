@@ -27,4 +27,4 @@ export class PatientIssue extends Model {
   static syncDirection = SYNC_DIRECTIONS.BIDIRECTIONAL;
 }
 
-Object.assign(PatientIssue, extendClassWithPatientChannel('issue'));
+extendClassWithPatientChannel(PatientIssue, 'issue');
