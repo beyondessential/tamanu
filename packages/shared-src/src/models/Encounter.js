@@ -88,8 +88,6 @@ export class Encounter extends Model {
       as: 'department',
     });
 
-    this.hasMany(models.Vitals, { as: 'vitals' });
-
     this.hasMany(models.SurveyResponse, {
       foreignKey: 'encounterId',
       as: 'surveyResponses',
@@ -127,6 +125,26 @@ export class Encounter extends Model {
     this.hasMany(models.ImagingRequest, {
       foreignKey: 'encounterId',
       as: 'imagingRequests',
+    });
+
+    this.hasMany(models.Procedure, {
+      foreignKey: 'encounterId',
+      as: 'procedures',
+    });
+
+    this.hasMany(models.Referral, {
+      foreignKey: 'encounterId',
+      as: 'referrals',
+    });
+
+    this.hasMany(models.Vitals, {
+      foreignKey: 'encounterId',
+      as: 'vitals',
+    });
+
+    this.hasMany(models.Triage, {
+      foreignKey: 'encounterId',
+      as: 'triages',
     });
 
     // this.hasMany(models.Procedure);
@@ -220,6 +238,11 @@ export class Encounter extends Model {
     'labRequests',
     'labRequests.tests',
     'imagingRequests',
+    'procedures',
+    'initiatedReferrals',
+    'completedReferrals',
+    'vitals',
+    'triages',
   ];
 
   static syncDirection = SYNC_DIRECTIONS.BIDIRECTIONAL;
