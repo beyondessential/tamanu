@@ -9,7 +9,7 @@ import { ScheduledTask } from 'shared/tasks';
 import { log } from '~/logging';
 import { sendEmail } from '../services/EmailService';
 import { writeExcelFile } from '../utils/excel';
-import { createFilePathForEmailAttachment } from '../utils/files';
+import { createFilePathForEmailAttachment, removeFile } from '../utils/files';
 
 const reportDataGeneratorMapper = {
   admissions: generateAdmissionsReport,
@@ -32,7 +32,9 @@ export class ReportRequestProcessor extends ScheduledTask {
       order: [['createdAt', 'ASC']], // process in order received
       limit: 10,
     });
-    const requestProcesses = requests.map(async request => {
+
+    for (let i = 0; i < requests.length; i++) {
+      const request = requests[i];
       const requestObject = request.get({ plain: true });
       if (!config.mailgun?.domain) {
         log.error(`Email config missing`);
@@ -51,10 +53,12 @@ export class ReportRequestProcessor extends ScheduledTask {
           status: REPORT_REQUEST_STATUSES.ERROR,
         });
       }
+      const fileName = await createFilePathForEmailAttachment(
+        `${requestObject.reportType}-report-${new Date().getTime()}.xlsx`,
+      );
       try {
         const parameters = requestObject.parameters ? JSON.parse(requestObject.parameters) : {};
         const excelData = await reportDataGenerator(this.context.store.models, parameters);
-        const fileName = await createFilePathForEmailAttachment('report.xlsx');
         await writeExcelFile(excelData, fileName);
         await sendEmail({
           from: `no-reply@${config.mailgun.domain}`,
@@ -62,17 +66,18 @@ export class ReportRequestProcessor extends ScheduledTask {
           subject: request.reportType,
           attachment: fileName,
         });
-        return request.update({
+        await removeFile(fileName);
+        await request.update({
           status: REPORT_REQUEST_STATUSES.PROCESSED,
         });
       } catch (e) {
         log.error(`Failed to generate report, ${e.message}`);
         log.error(e.stack);
-        return request.update({
+        await removeFile(fileName);
+        await request.update({
           status: REPORT_REQUEST_STATUSES.ERROR,
         });
       }
-    });
-    await Promise.all(requestProcesses);
+    }
   }
 }
