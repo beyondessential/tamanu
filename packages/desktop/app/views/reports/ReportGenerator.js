@@ -15,15 +15,9 @@ const SuccessMessageContainer = styled(Grid)`
   background-color: ${green[50]};
 `;
 
-const SuccessMessage = styled(Typography)`
-  padding-left: 2px;
-  padding-bottom: 20px;
-`;
-
 const SuccessfulSubmitMessage = ({ resetForm }) => {
   return (
     <SuccessMessageContainer>
-      <SuccessMessage color="textPrimary">Report was generated.</SuccessMessage>
       <Button variant="outlined" color="primary" onClick={resetForm}>
         Generate another report
       </Button>

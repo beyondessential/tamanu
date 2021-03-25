@@ -5,7 +5,15 @@ import { connect } from 'react-redux';
 import styled from 'styled-components';
 import * as Yup from 'yup';
 import { connectApi } from '../../api';
-import { AutocompleteField, Button, DateField, Field, Form, TextField } from '../../components';
+import {
+  AutocompleteField,
+  Button,
+  DateField,
+  Field,
+  Form,
+  RadioField,
+  TextField,
+} from '../../components';
 import { FormGrid } from '../../components/FormGrid';
 import { Colors } from '../../constants';
 import { getCurrentUser } from '../../store/auth';
@@ -109,13 +117,21 @@ const ReportTypeField = ({ onValueChange, ...props }) => {
   return <AutocompleteField {...props} onChange={changeCallback} />;
 };
 
-const DumbReportGeneratorForm = ({ currentUser, generateReport, onSuccessfulSubmit }) => {
+const DumbReportGeneratorForm = ({
+  currentUser,
+  generateReport,
+  onSuccessfulSubmit,
+  createReportRequest,
+}) => {
   const [submitError, setSubmitError] = useState();
   const [parameters, setParameters] = useState([]);
-  const submitRequestReport = useCallback(
-    async formValues => {
-      const { reportType, emails, ...restValues } = formValues;
-      try {
+  const [dataSource, setDataSource] = useState('thisFacility');
+  const [isDataSourceFieldDisabled, setIsDataSourceFieldDisabled] = useState(false);
+
+  async function submitRequestReport(formValues) {
+    const { reportType, emails, ...restValues } = formValues;
+    try {
+      if (dataSource === 'thisFacility') {
         const excelData = await generateReport(reportType, {
           parameters: restValues,
         });
@@ -125,14 +141,16 @@ const DumbReportGeneratorForm = ({ currentUser, generateReport, onSuccessfulSubm
           defaultFileName: reportType,
         });
         console.log('file saved at ', filePath);
-        onSuccessfulSubmit && onSuccessfulSubmit();
-      } catch (e) {
-        console.error('Error submitting report request', e);
-        setSubmitError(e);
+      } else {
+        await createReportRequest({ ...formValues, emailList: parseEmails(formValues.emails) });
       }
-    },
-    [generateReport],
-  );
+
+      onSuccessfulSubmit && onSuccessfulSubmit();
+    } catch (e) {
+      console.error('Error submitting report request', e);
+      setSubmitError(e);
+    }
+  }
 
   return (
     <Form
@@ -164,6 +182,21 @@ const DumbReportGeneratorForm = ({ currentUser, generateReport, onSuccessfulSubm
                   setParameters(ParametersByReportType[type] || []);
                 }}
               />
+              <Field
+                name="dataSource"
+                label="For"
+                value={dataSource}
+                onChange={e => {
+                  setDataSource(e.target.value);
+                }}
+                inline
+                options={[
+                  { label: 'This facility', value: 'thisFacility' },
+                  { label: 'All facilities', value: 'allFacilities' },
+                ]}
+                component={RadioField}
+                disabled={isDataSourceFieldDisabled}
+              />
             </FormGrid>
             {parameters.length > 0 ? (
               <>
@@ -183,19 +216,21 @@ const DumbReportGeneratorForm = ({ currentUser, generateReport, onSuccessfulSubm
               <Field name="fromDate" label="From date" component={DateField} />
               <Field name="toDate" label="To date" component={DateField} />
             </FormGrid>
-            {/* This will be used when we request reports to be emailed */}
-            {/* <Spacer />
+            <Spacer />
             <EmailInputContainer>
-              <Field
-                name="emails"
-                label="Email to (separate emails with a comma)"
-                component={TextField}
-                placeholder="example@example.com"
-                multiline
-                rows={3}
-                validate={validateCommaSeparatedEmails}
-              />
-            </EmailInputContainer> */}
+              {dataSource === 'allFacilities' ? (
+                <Field
+                  name="emails"
+                  label="Email to (separate emails with a comma)"
+                  component={TextField}
+                  placeholder="example@example.com"
+                  multiline
+                  rows={3}
+                  validate={validateCommaSeparatedEmails}
+                  required={dataSource === 'allFacilities'}
+                />
+              ) : null}
+            </EmailInputContainer>
             {submitError && <SubmitErrorMessage />}
             <Spacer />
             <Button variant="contained" color="primary" type="submit">
@@ -211,6 +246,9 @@ const DumbReportGeneratorForm = ({ currentUser, generateReport, onSuccessfulSubm
 const IntermediateReportGeneratorForm = connectApi(api => ({
   generateReport: async (reportType, body) => {
     return await api.post(`reports/${reportType}`, body);
+  },
+  createReportRequest: async request => {
+    return await api.post(`reportRequest`, request);
   },
 }))(DumbReportGeneratorForm);
 
