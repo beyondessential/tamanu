@@ -6,7 +6,7 @@ import { Patient } from './Patient';
 
 @Entity('patient_additional_data')
 export class PatientAdditionalData extends BaseModel implements IPatientAdditionalData {
-  @OneToOne(() => Patient, (patient) => patient.additionalData, { eager: true })
+  @OneToOne(() => Patient, (patient) => patient.additionalData)
   patient: Patient;
 
   @Column({ nullable: true })

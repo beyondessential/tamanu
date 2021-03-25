@@ -10,7 +10,6 @@ export interface IPatient {
   sex: string;
   dateOfBirth: Date;
   culturalName?: string;
-  cityTown?: string;
   additionalData?: IPatientAdditionalData;
   markedForSync?: boolean;
   lastSynced?: number;

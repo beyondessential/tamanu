@@ -6,6 +6,7 @@ export interface IPatientAdditionalData {
   bloodType?: string;
   primaryContactNumber?: string;
   secondaryContactNumber?: string;
+  cityTown?: string;
   placeOfBirth?: string;
   maritalStatus?: string;
   streetVillage?: string;
@@ -20,6 +21,15 @@ export interface IPatientAdditionalData {
   settlement?: IReferenceData;
   ethnicity?: IReferenceData;
   occupation?: IReferenceData;
+  nationalityId?: string;
+  countryId?: string;
+  divisionId?: string;
+  subdivisionId?: string;
+  medicalAreaId?: string;
+  nursingZoneId?: string;
+  settlementId?: string;
+  ethnicityId?: string;
+  occupationId?: string;
 
   markedForSync?: boolean;
   lastSynced?: number;

@@ -52,7 +52,7 @@ describe('findRecentlyViewed', () => {
 });
 
 describe('getSyncable', () => {
-  const CHUNK_SIZE = 30;
+  const CHUNK_SIZE = 50;
   const patients = [];
   const encounters = [];
 

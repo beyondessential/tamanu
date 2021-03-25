@@ -39,9 +39,6 @@ export class Patient extends BaseModel implements IPatient {
   @OneToMany(() => PatientAdditionalData, additionalData => additionalData.patient)
   additionalData: IPatientAdditionalData;
 
-  // @RelationId(({ additionalData }) => additionalData)
-  // additionalDataId?: string;
-
   //----------------------------------------------------------
   // sync info
 
@@ -75,10 +72,6 @@ export class Patient extends BaseModel implements IPatient {
       .map(storedId => list.find(({ id }) => id === storedId))
       // filter removes patients who couldn't be found (which occurs when a patient was deleted)
       .filter(patient => !!patient);
-  }
-
-  static async countSyncable(): Promise<number> {
-    return this.count({ markedForSync: true });
   }
 
   static async getSyncable(): Promise<Patient[]> {
