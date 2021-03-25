@@ -1,7 +1,12 @@
 "use strict";
 
 const Sequelize = require('sequelize');
-import { DIAGNOSIS_CERTAINTY, DIAGNOSIS_CERTAINTY_VALUES } from 'shared/constants';
+
+const DIAGNOSIS_CERTAINTY = {
+  SUSPECTED: 'suspected',
+  CONFIRMED: 'confirmed',
+};
+const DIAGNOSIS_CERTAINTY_VALUES = Object.values(DIAGNOSIS_CERTAINTY);
 
 module.exports = {
   up: async query => {
