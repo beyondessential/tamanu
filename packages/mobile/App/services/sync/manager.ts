@@ -164,52 +164,48 @@ export class SyncManager {
       });
     };
 
-    try {
-      let importTask: Promise<void>;
-      let offset = 0;
-      let limit = INITIAL_DOWNLOAD_LIMIT;
-      this.emitter.emit('importStarted', channel);
-      while (true) {
-        // We want to download each page of records while the current page
-        // of records is being imported - this means that the database IO
-        // and network IO are running in parallel rather than running in
-        // alternating sequence.
-        const startTime = Date.now();
-        const downloadTask = downloadPage(offset, limit);
+    let importTask: Promise<void>;
+    let offset = 0;
+    let limit = INITIAL_DOWNLOAD_LIMIT;
+    this.emitter.emit('importStarted', channel);
+    while (true) {
+      // We want to download each page of records while the current page
+      // of records is being imported - this means that the database IO
+      // and network IO are running in parallel rather than running in
+      // alternating sequence.
+      const startTime = Date.now();
+      const downloadTask = downloadPage(offset, limit);
 
-        // wait for import task to complete before progressing in loop
-        await importTask;
+      // wait for import task to complete before progressing in loop
+      await importTask;
 
-        // wait for the current page download to complete
-        const response = await downloadTask;
-        const downloadTime = Date.now() - startTime;
+      // wait for the current page download to complete
+      const response = await downloadTask;
+      const downloadTime = Date.now() - startTime;
 
-        if (response === null) {
-          // ran into an error
-          break;
-        }
-
-        // keep importing until we hit a page with 0 records
-        // (this does mean we're always making 1 more web request than
-        // is necessary, probably room for optimisation here)
-        if (response.records.length === 0) {
-          break;
-        }
-
-        updateProgress(response.records.length, response.count);
-
-        // we have records to import - import them
-        this.emitter.emit('importingPage', `${channel}-offset-${offset}-limit-${limit}`);
-        importTask = importRecords(response.records);
-        requestedAt = requestedAt || response.requestedAt;
-
-        offset += response.records.length;
-        limit = calculateDynamicLimit(limit, downloadTime);
+      if (response === null) {
+        // ran into an error
+        break;
       }
-      await importTask; // wait for any final import task to finish
-    } catch (e) {
-      console.warn(e);
+
+      // keep importing until we hit a page with 0 records
+      // (this does mean we're always making 1 more web request than
+      // is necessary, probably room for optimisation here)
+      if (response.records.length === 0) {
+        break;
+      }
+
+      updateProgress(response.records.length, response.count);
+
+      // we have records to import - import them
+      this.emitter.emit('importingPage', `${channel}-offset-${offset}-limit-${limit}`);
+      importTask = importRecords(response.records);
+      requestedAt = requestedAt || response.requestedAt;
+
+      offset += response.records.length;
+      limit = calculateDynamicLimit(limit, downloadTime);
     }
+    await importTask; // wait for any final import task to finish
 
     this.emitter.emit('importEnded', channel);
 
@@ -242,39 +238,35 @@ export class SyncManager {
     // TODO: progress handling
 
     // export and upload loop
-    try {
-      let lastSeenId: string;
-      let uploadPromise: Promise<UploadRecordsResponse>;
-      this.emitter.emit('exportStarted', channel);
-      let page = 0;
-      while (true) {
-        const knownPage = page;
+    let lastSeenId: string;
+    let uploadPromise: Promise<UploadRecordsResponse>;
+    this.emitter.emit('exportStarted', channel);
+    let page = 0;
+    while (true) {
+      const knownPage = page;
 
-        // begin exporting records
-        const exportPromise = exportRecords(knownPage, lastSeenId);
+      // begin exporting records
+      const exportPromise = exportRecords(knownPage, lastSeenId);
 
-        // finish uploading previous batch
-        await uploadPromise;
+      // finish uploading previous batch
+      await uploadPromise;
 
-        // finish exporting records
-        const recordsChunk = await exportPromise;
-        if (recordsChunk.length === 0) {
-          break;
-        }
-        lastSeenId = recordsChunk[recordsChunk.length - 1].data.id;
-
-        // begin uploading current batch
-        uploadPromise = uploadRecords(knownPage, recordsChunk).then(async (data) => {
-          // mark previous batch as synced after uploading
-          // done using promises so these two steps can be interleaved with exporting
-          await markRecordsUploaded(knownPage, recordsChunk, data.requestedAt);
-          return data;
-        });
-
-        page++;
+      // finish exporting records
+      const recordsChunk = await exportPromise;
+      if (recordsChunk.length === 0) {
+        break;
       }
-    } catch (e) {
-      console.warn(e);
+      lastSeenId = recordsChunk[recordsChunk.length - 1].data.id;
+
+      // begin uploading current batch
+      uploadPromise = uploadRecords(knownPage, recordsChunk).then(async (data) => {
+        // mark previous batch as synced after uploading
+        // done using promises so these two steps can be interleaved with exporting
+        await markRecordsUploaded(knownPage, recordsChunk, data.requestedAt);
+        return data;
+      });
+
+      page++;
     }
     this.emitter.emit('exportEnded', channel);
   }
@@ -303,16 +295,12 @@ export class SyncManager {
 
     this.emitter.emit('channelSyncStarted', channel);
     let requestedAt: Timestamp = null;
-    try {
-      requestedAt = await this.downloadAndImport(model, channel, lastSynced);
-      if (model.shouldExport) {
-        await this.exportAndUpload(model, channel);
-      }
-      if (requestedAt) {
-        await this.updateChannelSyncDate(channel, requestedAt);
-      }
-    } catch (e) {
-      console.error(e);
+    requestedAt = await this.downloadAndImport(model, channel, lastSynced);
+    if (model.shouldExport) {
+      await this.exportAndUpload(model, channel);
+    }
+    if (requestedAt) {
+      await this.updateChannelSyncDate(channel, requestedAt);
     }
     this.emitter.emit('channelSyncEnded', channel);
     return requestedAt;
