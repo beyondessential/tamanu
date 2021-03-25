@@ -59,7 +59,13 @@ const DumbSurveyFlow = React.memo(
 const SurveyFlow = connectApi(api => ({
   onFetchSurvey: id => api.get(`survey/${id}`),
   onFetchSurveysList: () => api.get(`survey/referrals`),
-  onSubmitSurvey: data => api.post(`surveyResponse`, data),
+  onSubmitSurvey: async data => {
+    const response = await api.post(`surveyResponse`, data);
+    return api.post('referral', {
+      initiatingEncounter: response.encounterId,
+      surveyResponseId: response.id,
+    });
+  },
 }))(DumbSurveyFlow);
 
 const DumbPatientLinker = React.memo(({ patient, patientId, onViewPatient }) => {

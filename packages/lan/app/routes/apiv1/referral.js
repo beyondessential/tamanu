@@ -12,6 +12,7 @@ referral.post(
   asyncHandler(async (req, res) => {
     const { models } = req;
     req.checkPermission('create', 'Referral');
+
     const newReferral = await models.Referral.create(req.body);
 
     res.send(newReferral);

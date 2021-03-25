@@ -15,7 +15,6 @@ survey.get(
     res.send({ referrals });
   }),
 );
-
 survey.get(
   '/:id',
   asyncHandler(async (req, res) => {
