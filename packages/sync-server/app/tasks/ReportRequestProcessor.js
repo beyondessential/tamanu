@@ -1,5 +1,5 @@
 import config from 'config';
-import { REPORT_REQUEST_STATUSES } from 'shared/constants';
+import { COMMUNICATION_STATUSES, REPORT_REQUEST_STATUSES } from 'shared/constants';
 import {
   generateAdmissionsReport,
   generateIncompleteReferralsReport,
@@ -36,7 +36,7 @@ export class ReportRequestProcessor extends ScheduledTask {
     for (let i = 0; i < requests.length; i++) {
       const request = requests[i];
       const requestObject = request.get({ plain: true });
-      if (!config.mailgun?.domain) {
+      if (!config.mailgun.from) {
         log.error(`Email config missing`);
         return request.update({
           status: REPORT_REQUEST_STATUSES.ERROR,
@@ -60,23 +60,29 @@ export class ReportRequestProcessor extends ScheduledTask {
         const parameters = requestObject.parameters ? JSON.parse(requestObject.parameters) : {};
         const excelData = await reportDataGenerator(this.context.store.models, parameters);
         await writeExcelFile(excelData, fileName);
-        await sendEmail({
+        const result = await sendEmail({
           from: config.mailgun.from,
           to: request.recipients,
           subject: request.reportType,
           attachment: fileName,
         });
-        await removeFile(fileName);
-        await request.update({
-          status: REPORT_REQUEST_STATUSES.PROCESSED,
-        });
+        if (result.status === COMMUNICATION_STATUSES.SENT) {
+          await request.update({
+            status: REPORT_REQUEST_STATUSES.PROCESSED,
+          });
+        } else {
+          await request.update({
+            status: REPORT_REQUEST_STATUSES.ERROR,
+          });
+        }
       } catch (e) {
         log.error(`Failed to generate report, ${e.message}`);
         log.error(e.stack);
-        await removeFile(fileName);
         await request.update({
           status: REPORT_REQUEST_STATUSES.ERROR,
         });
+      } finally {
+        await removeFile(fileName);
       }
     }
   }

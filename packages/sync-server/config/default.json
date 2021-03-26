@@ -19,5 +19,9 @@
       "password": "admin"
     }
   },
-  "mailgun": {}
+  "mailgun": {
+    "domain": "",
+    "apiKey": "",
+    "from": ""
+  }
 }

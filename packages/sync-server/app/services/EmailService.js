@@ -2,11 +2,8 @@ import config from 'config';
 import mailgun from 'mailgun-js';
 import { COMMUNICATION_STATUSES } from 'shared/constants';
 
-let mailgunService = null;
-if (config.mailgun && config.mailgun.apiKey && config.mailgun.domain) {
-  mailgunService = mailgun({ apiKey: config.mailgun.apiKey, domain: config.mailgun.domain });
-}
-
+const { apiKey, domain } = config.mailgun;
+const mailgunService = apiKey && domain ? mailgun({ apiKey, domain }) : null;
 export async function sendEmail(email) {
   // no mailgun service, unable to send email
   if (!mailgunService) {
