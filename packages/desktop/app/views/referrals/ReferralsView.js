@@ -29,13 +29,13 @@ const DumbReferralFlow = React.memo(
       })()
     }, []);
 
-    const onSelectSurvey = useCallback(async id => {
+    const onSelectReferral = useCallback(async id => {
       const response = await onFetchReferral(encodeURIComponent(id));
       setReferral(response);
       setStartTime(new Date());
     });
 
-    const onCancelSurvey = useCallback(() => {
+    const onCancelReferral = useCallback(() => {
       setReferral(null);
     });
 
@@ -62,7 +62,7 @@ const DumbReferralFlow = React.memo(
             </ProgramsPaneHeader>
             <FormGrid columns={1}>
               <SurveySelector
-                onSelectSurvey={onSelectSurvey}
+                onSelectSurvey={onSelectReferral}
                 surveys={referralForms}
                 buttonText="Begin Referral"
               />
@@ -72,7 +72,7 @@ const DumbReferralFlow = React.memo(
       );
     }
 
-    return <SurveyView onSubmit={onSubmit} survey={referral} onCancel={onCancelSurvey} />;
+    return <SurveyView onSubmit={onSubmit} survey={referral} onCancel={onCancelReferral} />;
   },
 );
 
