@@ -18,5 +18,10 @@
       "role": "administrator",
       "password": "admin"
     }
+  },
+  "mailgun": {
+    "domain": "",
+    "apiKey": "",
+    "from": ""
   }
 }

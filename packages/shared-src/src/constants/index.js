@@ -160,7 +160,11 @@ export const PROGRAM_DATA_ELEMENT_TYPE_VALUES = [
   'CodeGenerator',
 ];
 
-export const REPORT_REQUEST_STATUSES = { RECEIVED: 'Received', PROCESSED: 'Processed' };
+export const REPORT_REQUEST_STATUSES = {
+  RECEIVED: 'Received',
+  PROCESSED: 'Processed',
+  ERROR: 'Error',
+};
 
 export const REPORT_REQUEST_STATUS_VALUES = Object.values(REPORT_REQUEST_STATUSES);
 
