@@ -23,11 +23,11 @@ survey.get(
   asyncHandler(async (req, res) => {
     const { models } = req;
     req.checkPermission('list', 'Survey');
-    const referrals = await models.Survey.findAll({
+    const referralSurveys = await models.Survey.findAll({
       where: { surveyType: req.query.type }
     });
 
-    res.send({ referrals });
+    res.send({ referralSurveys });
   }),
 );
 
