@@ -9,6 +9,7 @@ import { SurveyView } from 'desktop/app/views/programs/SurveyView';
 import { ProgramSurveySelector } from 'desktop/app/views/programs/ProgramSurveySelector';
 import { LoadingIndicator } from 'desktop/app/components/LoadingIndicator';
 import { DumbPatientListingView } from 'desktop/app/views/patients/PatientListingView';
+import { SURVEY_TYPES } from 'shared/constants';
 
 const DumbSurveyFlow = React.memo(
   ({ onFetchSurvey, onSubmitSurvey, onFetchProgramsList, onFetchSurveysList, patient }) => {
@@ -19,6 +20,7 @@ const DumbSurveyFlow = React.memo(
     useEffect(() => {
       (async () => {
         const { data } = await onFetchProgramsList();
+        console.log("🚀 ~ file: ProgramsView.js ~ line 22 ~ data", data)
         setProgramsList(data);
       })();
     }, []);
@@ -67,7 +69,10 @@ const DumbSurveyFlow = React.memo(
 const SurveyFlow = connectApi(api => ({
   onFetchSurvey: id => api.get(`survey/${id}`),
   onFetchProgramsList: () => api.get('program'),
-  onFetchSurveysList: programId => api.get(`program/${programId}/surveys`),
+  onFetchSurveysList: async programId => {
+    const surveys = await api.get(`program/${programId}/surveys`);
+    return surveys.filter(x => x.surveyType === SURVEY_TYPES.PROGRAMS);
+  },
   onSubmitSurvey: data => api.post(`surveyResponse`, data),
 }))(DumbSurveyFlow);
 
