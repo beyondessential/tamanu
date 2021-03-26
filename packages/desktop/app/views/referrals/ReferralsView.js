@@ -25,7 +25,7 @@ const DumbReferralFlow = React.memo(
       (async () => {
         const response = await fetchReferralSurveys();
 
-        setReferralSurveys(response.referralSurveys.map(x => ({ value: x.id, label: x.name })));
+        setReferralSurveys(response.surveys.map(x => ({ value: x.id, label: x.name })));
       })()
     }, []);
 
