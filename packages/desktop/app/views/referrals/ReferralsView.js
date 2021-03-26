@@ -16,43 +16,43 @@ import { PatientDisplay } from '../programs/PatientDisplay';
 import { ProgramsPane, ProgramsPaneHeader, ProgramsPaneHeading } from '../programs/ProgramsPane';
 
 const DumbReferralFlow = React.memo(
-  ({ onFetchReferral, onSubmitReferral, fetchReferralForms, patient }) => {
-    const [referral, setReferral] = useState(null);
-    const [referralForms, setReferralForms] = useState(null);
+  ({ onFetchReferralSurvey, onSubmitReferral, fetchReferralSurveys, patient }) => {
+    const [referralSurvey, setReferralSurvey] = useState(null);
+    const [referralSurveys, setReferralSurveys] = useState(null);
     const [startTime, setStartTime] = useState(null);
 
     useEffect(() => {
       (async () => {
-        const response = await fetchReferralForms();
+        const response = await fetchReferralSurveys();
 
-        setReferralForms(response.referrals.map(x => ({ value: x.id, label: x.name })));
+        setReferralSurveys(response.referrals.map(x => ({ value: x.id, label: x.name })));
       })()
     }, []);
 
-    const onSelectReferral = useCallback(async id => {
-      const response = await onFetchReferral(encodeURIComponent(id));
-      setReferral(response);
+    const onSelectReferralSurvey = useCallback(async id => {
+      const response = await onFetchReferralSurvey(encodeURIComponent(id));
+      setReferralSurvey(response);
       setStartTime(new Date());
     });
 
     const onCancelReferral = useCallback(() => {
-      setReferral(null);
+      setReferralSurvey(null);
     });
 
     const onSubmit = useCallback(
       data => {
         onSubmitReferral({
-          surveyId: referral.id,
+          surveyId: referralSurvey.id,
           startTime: startTime,
           patientId: patient.id,
           endTime: new Date(),
           answers: data,
         });
       },
-      [startTime, referral],
+      [startTime, referralSurvey],
     );
 
-    if (!referral) {
+    if (!referralSurvey) {
       return (
         <>
           <PatientDisplay />
@@ -62,8 +62,8 @@ const DumbReferralFlow = React.memo(
             </ProgramsPaneHeader>
             <FormGrid columns={1}>
               <SurveySelector
-                onSelectSurvey={onSelectReferral}
-                surveys={referralForms}
+                onSelectSurvey={onSelectReferralSurvey}
+                surveys={referralSurveys}
                 buttonText="Begin Referral"
               />
             </FormGrid>
@@ -72,12 +72,12 @@ const DumbReferralFlow = React.memo(
       );
     }
 
-    return <SurveyView onSubmit={onSubmit} survey={referral} onCancel={onCancelReferral} />;
+    return <SurveyView onSubmit={onSubmit} survey={referralSurvey} onCancel={onCancelReferral} />;
   },
 );
 
 const ReferralFlow = connectApi(api => ({
-  onFetchReferral: id => api.get(`survey/${id}`),
+  onFetchReferralSurvey: id => api.get(`survey/${id}`),
   onSubmitReferral: async data => {
     const response = await api.post(`surveyResponse`, data);
 
@@ -86,7 +86,7 @@ const ReferralFlow = connectApi(api => ({
       surveyResponseId: response.id,
     });
   },
-  fetchReferralForms: () => api.get(`survey`, { type: SURVEY_TYPES.REFERRAL }),
+  fetchReferralSurveys: () => api.get(`survey`, { type: SURVEY_TYPES.REFERRAL }),
 }))(DumbReferralFlow);
 
 const DumbPatientLinker = React.memo(({ patient, patientId, onViewPatient }) => {
