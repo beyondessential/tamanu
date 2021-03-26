@@ -27,6 +27,7 @@ const REPORT_TYPE_OPTIONS = [
   { label: 'Incomplete referrals', value: 'incomplete-referrals' },
   { label: 'Recent Diagnoses', value: 'recent-diagnoses' },
   { label: 'Admissions Report', value: 'admissions' },
+  { label: 'COVID vaccine campaign line list', value: 'covid-vaccine-list' },
 ];
 
 const Spacer = styled.div`
@@ -105,6 +106,7 @@ const ParametersByReportType = {
     { ParameterField: PractitionerField },
   ],
   admissions: [{ ParameterField: PractitionerField }],
+  'covid-vaccine-list': [{ ParameterField: VillageField }],
 };
 
 // adding an onValueChange hook to the report type field
