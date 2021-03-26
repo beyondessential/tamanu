@@ -3,6 +3,7 @@ import {
   generateAdmissionsReport,
   generateIncompleteReferralsReport,
   generateRecentDiagnosesReport,
+  generateCovidVaccineListReport,
 } from 'shared/reports';
 import asyncHandler from 'express-async-handler';
 
@@ -20,6 +21,10 @@ const ReportTypeMapper = {
   'recent-diagnoses': {
     permission: 'EncounterDiagnosis',
     dataGenerator: generateRecentDiagnosesReport,
+  },
+  'covid-vaccine-list': {
+    permission: 'PatientVaccine',
+    dataGenerator: generateCovidVaccineListReport,
   },
 };
 
