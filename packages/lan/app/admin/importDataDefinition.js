@@ -52,7 +52,7 @@ const transformers = [
   makeTransformer('labTestTypes', null),
 ];
 
-export async function importData({ file, dryRun, whitelist = [] }) {
+export async function importData({ file, whitelist = [] }) {
   log.info(`Importing data definitions from ${file}...`);
 
   // parse xlsx
@@ -70,24 +70,21 @@ export async function importData({ file, dryRun, whitelist = [] }) {
   const records = transformers
     .map(({ sheetName, transformer }) => {
       if(whitelist.length > 0 && !lowercaseWhitelist.includes(sheetName.toLowerCase())) {
-        sheetResults[sheetName] = 'Not on whitelist.';
         return [];
       }
       const sheet = sheets[sheetName.toLowerCase()];
       if(!sheet) {
-        sheetResults[sheetName] = 'No sheet';
         return [];
       }
       if(!transformer) {
-        sheetResults[sheetName] = 'Not implemented yet';
+        sheetResults[sheetName] = { 
+          error: 'Not implemented yet',
+        };
         return [];
       }
       const data = utils.sheet_to_json(sheet);
-      if(data.length === 0) {
-        sheetResults[sheetName] = 'No records';
-        return [];
-      }
-      sheetResults[sheetName] = `${data.length} records read`;
+      sheetResults[sheetName] = { count: data.length };
+
       return data.map(transformer);
     })
     .filter(x => x)

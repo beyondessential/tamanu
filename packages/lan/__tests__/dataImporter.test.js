@@ -1,40 +1,25 @@
-import { importDataDefinition } from '~/dataDefinitionImporter';
-import { createTestContext } from './utilities';
+import { importData } from '~/admin/importDataDefinition';
 
 const TEST_DATA_PATH = './data/test_definitions.xlsx';
-// Disabled these tests as functionality has moved to the admin importer tool,
-// sending records to sync server instead of importing directly to DB.
-// This test should be updated to reflect that.
-//
-xdescribe('Data definition import', () => {
-  let models = null;
 
-  beforeAll(async () => {
-    const ctx = await createTestContext();
-    models = ctx.models;
-  });
+describe('Data definition import', () => {
 
   it('should read a file successfully', async () => {
-    const results = {};
-    await importDataDefinition(models, TEST_DATA_PATH, sheetResult => {
-      results[sheetResult.type] = sheetResult;
-    });
+    const { records, sheetResults } = await importData({ file: TEST_DATA_PATH });
 
-    expect(results.users.created).toEqual(5);
-    expect(results.villages.created).toEqual(34);
-    expect(results.labtesttypes.created).toEqual(18);
-    expect(results.labtesttypes.errors).toHaveLength(0);
+    expect(records.every(r => r.data.id));
 
-    // import it again and make sure it's all idempotent
-    const updateResults = {};
-    await importDataDefinition(models, TEST_DATA_PATH, sheetResult => {
-      updateResults[sheetResult.type] = sheetResult;
-    });
+    expect(sheetResults.villages).toHaveProperty('count', 34);
+    expect(sheetResults.drugs).toHaveProperty('count', 19);
+    expect(sheetResults.allergies).toHaveProperty('count', 15);
+    expect(sheetResults.departments).toHaveProperty('count', 12);
+    expect(sheetResults.locations).toHaveProperty('count', 8);
+    expect(sheetResults.diagnoses).toHaveProperty('count', 29);
+    expect(sheetResults.triageReasons).toHaveProperty('count', 18);
+    expect(sheetResults.imagingTypes).toHaveProperty('count', 3);
+    expect(sheetResults.procedures).toHaveProperty('count', 18);
 
-    expect(updateResults.users.errors.length).toEqual(5);
-    expect(
-      updateResults.users.errors.every(x => x.includes('cannot be updated via bulk import')),
-    ).toEqual(true);
-    expect(updateResults.villages.updated).toEqual(34);
+    // expect(sheetResults.users).toHaveProperty('count', 10);
+    // expect(sheetResults.labTestTypes).toHaveProperty('count', 10);
   });
 });
