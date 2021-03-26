@@ -2,6 +2,7 @@ import config from 'config';
 import { COMMUNICATION_STATUSES, REPORT_REQUEST_STATUSES } from 'shared/constants';
 import {
   generateAdmissionsReport,
+  generateCovidVaccineListReport,
   generateIncompleteReferralsReport,
   generateRecentDiagnosesReport,
 } from 'shared/reports';
@@ -15,6 +16,7 @@ const reportDataGeneratorMapper = {
   admissions: generateAdmissionsReport,
   ['incomplete-referrals']: generateIncompleteReferralsReport,
   ['recent-diagnoses']: generateRecentDiagnosesReport,
+  ['covid-vaccine-list']: generateCovidVaccineListReport,
 };
 
 // run at 30 seconds interval, process 10 report requests each time
