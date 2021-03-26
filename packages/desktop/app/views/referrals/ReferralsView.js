@@ -78,14 +78,7 @@ const DumbReferralFlow = React.memo(
 
 const ReferralFlow = connectApi(api => ({
   onFetchReferralSurvey: id => api.get(`survey/${id}`),
-  onSubmitReferral: async data => {
-    const response = await api.post(`surveyResponse`, data);
-
-    return api.post('referral', {
-      initiatingEncounterId: response.encounterId,
-      surveyResponseId: response.id,
-    });
-  },
+  onSubmitReferral: async data => api.post('referral', data),
   fetchReferralSurveys: () => api.get(`survey`, { type: SURVEY_TYPES.REFERRAL }),
 }))(DumbReferralFlow);
 
