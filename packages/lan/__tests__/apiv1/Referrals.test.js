@@ -68,6 +68,7 @@ describe('Referrals', () => {
   let testProgram = null;
   let testSurvey = null;
   let answers = {};
+  let result = null;
 
   beforeAll(async () => {
     const ctx = await createTestContext();
@@ -85,11 +86,9 @@ describe('Referrals', () => {
     testSurvey.dataElements.forEach(q => {
       answers[q.id] = getRandomAnswer(q);
     });
-  });
 
-  it('should record a referral request', async () => {
     const { departmentId, locationId } = encounter;
-    const result = await app.post('/v1/referral').send({
+    result = await app.post('/v1/referral').send({
       answers,
       startTime: Date.now(),
       endTime: Date.now(),
@@ -98,12 +97,16 @@ describe('Referrals', () => {
       departmentId,
       locationId,
     });
+  });
+
+  it('should record a referral request', async () => {
     expect(result).toHaveSucceeded();
   });
 
   it('should get all referrals for a patient', async () => {
     const { departmentId, locationId } = encounter;
-    const result = await app.post('/v1/referral').send({
+    // create a second referral
+    await app.post('/v1/referral').send({
       answers,
       startTime: Date.now(),
       endTime: Date.now(),
@@ -112,7 +115,9 @@ describe('Referrals', () => {
       departmentId,
       locationId,
     });
+
+    const result = await app.get(`/v1/patient/${patient.id}/referrals`);
     expect(result).toHaveSucceeded();
-    expect(result.body.length).toEqual(2);
+    expect(result.body.count).toEqual(2);
   });
 });
