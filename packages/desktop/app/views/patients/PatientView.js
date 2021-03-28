@@ -58,26 +58,20 @@ const AppointmentPane = React.memo(({ patient, readonly }) => {
   );
 });
 
-const ReferralPane = React.memo(({ patient, readonly }) => {
-  const [modalOpen, setModalOpen] = React.useState(false);
-
-  return (
+const ReferralPane = connect(null, dispatch => ({
+  onNavigateToReferrals: () => dispatch(push('/referrals')),
+}))(
+  React.memo(({ onNavigateToReferrals, patient }) => (
     <div>
-      <ReferralModal open={modalOpen} patientId={patient.id} onClose={() => setModalOpen(false)} />
       <ReferralTable patientId={patient.id} />
       <ContentPane>
-        <Button
-          onClick={() => setModalOpen(true)}
-          variant="contained"
-          color="primary"
-          disabled={readonly}
-        >
+        <Button onClick={onNavigateToReferrals} variant="contained" color="primary">
           New referral
         </Button>
       </ContentPane>
     </div>
-  );
-});
+  )),
+);
 
 const ButtonSpacer = styled.div`
   display: inline;

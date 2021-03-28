@@ -36,6 +36,7 @@ surveyResponse.post(
 
     req.checkPermission('create', 'SurveyResponse');
 
+    /** TODO: Remove this temporary code to handle required locationId and departmentId fields */
     const getRefDataId = async type => {
       const code = config.survey.defaultCodes[type];
       const record = await models.ReferenceData.findOne({ where: { type, code } });

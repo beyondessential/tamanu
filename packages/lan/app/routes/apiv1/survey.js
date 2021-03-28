@@ -18,6 +18,18 @@ survey.get(
     });
   }),
 );
+survey.get(
+  '/$',
+  asyncHandler(async (req, res) => {
+    const { models } = req;
+    req.checkPermission('list', 'Survey');
+    const surveys = await models.Survey.findAll({
+      where: { surveyType: req.query.type }
+    });
+
+    res.send({ surveys });
+  }),
+);
 
 const surveyRelations = permissionCheckingRouter('list', 'SurveyResponse');
 surveyRelations.get('/:id/surveyResponses', simpleGetList('SurveyResponse', 'surveyId'));
