@@ -1,6 +1,5 @@
 import { Op } from 'sequelize';
 import moment from 'moment';
-import { ENCOUNTER_TYPES } from 'shared/constants';
 import { generateReportFromQueryData } from './utilities';
 
 const reportColumnTemplate = [
