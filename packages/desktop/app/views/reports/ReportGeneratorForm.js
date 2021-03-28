@@ -28,6 +28,8 @@ const REPORT_TYPE_OPTIONS = [
   { label: 'Recent Diagnoses', value: 'recent-diagnoses' },
   { label: 'Admissions Report', value: 'admissions' },
   { label: 'COVID vaccine campaign line list', value: 'covid-vaccine-list' },
+  { label: 'COVID vaccine campaign - First dose summary', value: 'covid-vaccine-summary-dose1' },
+  { label: 'COVID vaccine campaign - Second dose summary', value: 'covid-vaccine-summary-dose2' },
 ];
 
 const Spacer = styled.div`
@@ -107,6 +109,13 @@ const ParametersByReportType = {
   ],
   admissions: [{ ParameterField: PractitionerField }],
   'covid-vaccine-list': [{ ParameterField: VillageField }],
+  'covid-vaccine-summary-dose1': [],
+  'covid-vaccine-summary-dose2': [],
+};
+
+const DefaultDataSource = {
+  'covid-vaccine-summary-dose1': 'allFacilities',
+  'covid-vaccine-summary-dose2': 'allFacilities',
 };
 
 // adding an onValueChange hook to the report type field
@@ -182,6 +191,13 @@ const DumbReportGeneratorForm = ({
                 required
                 onValueChange={type => {
                   setParameters(ParametersByReportType[type] || []);
+                  if (DefaultDataSource[type]) {
+                    setIsDataSourceFieldDisabled(true);
+                    setDataSource(DefaultDataSource[type]);
+                  } else {
+                    setIsDataSourceFieldDisabled(false);
+                    setDataSource('thisFacility');
+                  }
                 }}
               />
               <Field
