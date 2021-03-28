@@ -87,7 +87,7 @@ describe('Referrals', () => {
     });
   });
 
-  it.only('should record a referral request', async () => {
+  it('should record a referral request', async () => {
     const { departmentId, locationId } = encounter;
     const result = await app.post('/v1/referral').send({
       answers,
