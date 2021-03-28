@@ -1,6 +1,8 @@
-import React from 'react';
-import MuiMenuItem from '@material-ui/core/MenuItem';
+import React, { useState, useCallback } from 'react';
 import PropTypes from 'prop-types';
+import Select from 'react-select'
+
+
 import { OuterLabelFieldWrapper } from './OuterLabelFieldWrapper';
 import { StyledTextField } from './TextField';
 
@@ -12,6 +14,8 @@ export const SelectInput = ({
   disabled,
   readonly,
   onChange,
+  multiselect,
+  name,
   ...props
 }) => {
   const isReadonly = (readonly && !disabled) || (value && !onChange);
@@ -31,28 +35,33 @@ export const SelectInput = ({
     );
   }
 
+  const [selected, setSelected] = useState();
+  const handleChange = useCallback((selectedOptions) => {
+    setSelected(selectedOptions)
+    const value = multiselect ? selectedOptions.map(x => x.value).join(', ') : selectedOptions.value;
+    onChange({ target: { value, name } })
+  }, [])
+
   return (
     <OuterLabelFieldWrapper label={label} {...props}>
-      <StyledTextField
-        select
-        value={value || ''}
-        onChange={onChange}
-        variant="outlined"
-        classes={classes}
-        {...props}
-      >
-        {options.map(o => (
-          <MuiMenuItem key={o.value} value={o.value}>
-            {o.label}
-          </MuiMenuItem>
-        ))}
-      </StyledTextField>
+
+    <Select
+      value={selected}
+      isMulti={multiselect}
+      onChange={handleChange}
+      options={options}
+      {...props}
+    />
     </OuterLabelFieldWrapper>
   );
 };
 
 export const SelectField = ({ field, ...props }) => (
-  <SelectInput name={field.name} value={field.value || ''} onChange={field.onChange} {...props} />
+  <SelectInput name={field.name} onChange={field.onChange} {...props} />
+);
+
+export const MultiselectField = ({ field, ...props }) => (
+  <SelectInput multiselect name={field.name} onChange={field.onChange} {...props} />
 );
 
 SelectInput.propTypes = {
@@ -61,10 +70,12 @@ SelectInput.propTypes = {
   onChange: PropTypes.func,
   options: PropTypes.arrayOf(PropTypes.instanceOf(Object)),
   fullWidth: PropTypes.bool,
+  multiselect: PropTypes.bool,
 };
 
 SelectInput.defaultProps = {
   value: '',
   options: [],
   fullWidth: true,
+  multiselect: false,
 };

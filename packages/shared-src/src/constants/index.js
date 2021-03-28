@@ -128,37 +128,27 @@ export const REFERENCE_TYPE_VALUES = Object.values(REFERENCE_TYPES);
 
 // for explanation of types, see
 // https://docs.google.com/spreadsheets/d/1qwfw1AOED7WiElOCJwt_VHo_JaDhr6ZIiJMqjRCXajQ/edit#gid=1797422705
-export const PROGRAM_DATA_ELEMENT_TYPE_VALUES = [
-  'FreeText',
-  'Multiline',
-  'Radio',
-  'Select',
-  'Date',
-  'SubmissionDate',
-  'Instruction',
-  'Number',
-  'Binary',
-  'Checkbox',
-  'CalculatedQuestion',
-  'ConditionQuestion',
-  'Arithmetic',
-  'Condition',
-  'Result',
-  'SurveyLink',
-  'SurveyAnswer',
-  'SurveyResult',
-  // For later versions
-  'Autocomplete',
-  'Photo',
-  // Meditrak-specific
-  'Geolocate',
-  'DaysSince',
-  'MonthsSince',
-  'YearsSince',
-  'Entity',
-  'PrimaryEntity',
-  'CodeGenerator',
-];
+export const PROGRAM_DATA_ELEMENT_TYPES = {
+  TEXT: 'FreeText',
+  MULTILINE: 'Multiline',
+  RADIO: 'Radio',
+  SELECT: 'Select',
+  MULTI_SELECT: 'MultiSelect',
+  AUTOCOMPLETE: 'Autocomplete',
+  DATE: 'Date',
+  SUBMISSION_DATE: 'SubmissionDate',
+  INSTRUCTION: 'Instruction',
+  NUMBER: 'Number',
+  BINARY: 'Binary',
+  CHECKBOX: 'Checkbox',
+  CALCULATED: 'CalculatedQuestion',
+  CONDITION: 'ConditionQuestion',
+  RESULT: 'Result',
+  SURVEY_ANSWER: 'SurveyAnswer',
+  SURVEY_RESULT: 'SurveyResult',
+  SURVEY_LINK: 'SurveyLink',
+};
+export const PROGRAM_DATA_ELEMENT_TYPE_VALUES = Object.values(PROGRAM_DATA_ELEMENT_TYPES);
 
 export const REPORT_REQUEST_STATUSES = {
   RECEIVED: 'Received',
