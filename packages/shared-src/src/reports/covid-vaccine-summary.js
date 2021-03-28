@@ -92,13 +92,13 @@ async function queryCovidVaccineSummaryData(models, parameters) {
         acc['over65'][villageName] = 0;
       }
       if (patientAge > 65) {
-        acc['over65'][villageName] = (acc['over65'][villageName] ?? 0) + 1;
+        acc['over65'][villageName] = acc['over65'][villageName] + 1;
       }
 
       if (acc['total'][villageName] === undefined) {
         acc['total'][villageName] = 0;
       }
-      acc['total'][villageName] = (acc['total'][villageName] ?? 0) + 1;
+      acc['total'][villageName] = acc['total'][villageName] + 1;
 
       return acc;
     },
