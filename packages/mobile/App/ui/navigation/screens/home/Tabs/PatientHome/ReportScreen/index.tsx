@@ -94,11 +94,11 @@ interface ReportChartProps {
     totalSurveys: number;
     encounterDate: string;
   };
-  selectedSurvey: string;
+  selectedSurveyId: string;
 }
 
 const ReportChart: FC<ReportChartProps> = ({
-  isReportWeekly, visitData, todayData, selectedSurvey,
+  isReportWeekly, visitData, todayData, selectedSurveyId,
 }) => (
   isReportWeekly ? (
     <>
@@ -111,7 +111,7 @@ const ReportChart: FC<ReportChartProps> = ({
     </>
   ) : (
     <StyledView marginBottom={screenPercentageToDP(2.43, Orientation.Height)}>
-      <RecentPatientSurveyReport selectedSurvey={selectedSurvey} />
+      <RecentPatientSurveyReport selectedSurveyId={selectedSurveyId} />
     </StyledView>
   )
 );
@@ -119,13 +119,13 @@ const ReportChart: FC<ReportChartProps> = ({
 export const ReportScreen = ({
   navigation,
 }: ReportScreenProps): ReactElement => {
-  const [selectedSurvey, setSelectedSurvey] = useState('program-cvd-fiji/survey-cvd-risk-fiji');
+  const [selectedSurveyId, setSelectedSurveyId] = useState('');
   const [isReportWeekly, setReportType] = useState<boolean>(true);
   const isFocused = useIsFocused();
 
   const [data] = useBackendEffect(
-    ({ models }) => models.Encounter.getTotalEncountersAndResponses(selectedSurvey),
-    [selectedSurvey, isFocused],
+    ({ models }) => models.Encounter.getTotalEncountersAndResponses(selectedSurveyId),
+    [selectedSurveyId, isFocused],
   );
 
   const [surveys] = useBackendEffect(({ models }) => models.Survey.find({
@@ -214,8 +214,8 @@ export const ReportScreen = ({
             && (
               <Dropdown
                 options={reportList}
-                handleSelect={(value): void => { setSelectedSurvey(value); }}
-                selectedItem={selectedSurvey}
+                handleSelect={(value): void => { setSelectedSurveyId(value); }}
+                selectedItem={selectedSurveyId}
               />
             )
           }
@@ -225,12 +225,16 @@ export const ReportScreen = ({
         onPress={onChangeReportType}
         isReportWeekly={isReportWeekly}
       />
-      <ReportChart
-        isReportWeekly={isReportWeekly}
-        visitData={visitData}
-        todayData={todayData}
-        selectedSurvey={selectedSurvey}
-      />
+      {
+        selectedSurveyId && (
+          <ReportChart
+            isReportWeekly={isReportWeekly}
+            visitData={visitData}
+            todayData={todayData}
+            selectedSurveyId={selectedSurveyId}
+          />
+        )
+      }
     </FullView>
   );
 };

@@ -8,13 +8,13 @@ import { Table, Row, ColumnCategory, Cell, BorderRow, HeaderRow, DataCell, DataT
 import { DateFormats } from '/helpers/constants';
 
 interface IOwnProps {
-  selectedSurvey: string;
+  selectedSurveyId: string;
 }
 
-export const RecentPatientSurveyReport: FC<IOwnProps> = ({ selectedSurvey }) => {
+export const RecentPatientSurveyReport: FC<IOwnProps> = ({ selectedSurveyId }) => {
   const [recentVisitorsData] = useBackendEffect(
-    ({ models }) => models.Patient.getRecentVisitors(selectedSurvey),
-    [selectedSurvey],
+    ({ models }) => models.Patient.getRecentVisitors(selectedSurveyId),
+    [selectedSurveyId],
   );
   const [genderData, ageData, visitorsData] = recentVisitorsData || [null, null, null];
 
