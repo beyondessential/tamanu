@@ -65,8 +65,10 @@ export const calculateVerticalPositions = (
   }, {});
 };
 
-// eslint-disable-next-line max-len
-export const calculateDropdownPosition = (placeholderPosition: number, dataLength: number): number => {
+export const calculateDropdownPosition = (
+  placeholderPosition: number, 
+  dataLength: number
+): number => {
   const dropdownHeight = dataLength * dropdownSize.itemHeight + dropdownSize.padding
     > dropdownSize.dropdownMaxHeight
     ? dropdownSize.dropdownMaxHeight

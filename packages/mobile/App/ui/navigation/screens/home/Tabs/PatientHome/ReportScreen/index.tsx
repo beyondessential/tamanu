@@ -26,6 +26,8 @@ import { BarChartData } from '~/ui/interfaces/BarChartProps';
 import { RecentPatientSurveyReport } from './RecentPatientSurveyReport';
 import { Dropdown } from './components/Dropdown';
 
+import { SurveyTypes } from '~/types';
+
 interface ReportTypeButtons {
   isReportWeekly: boolean;
   onPress: () => void;
@@ -127,7 +129,7 @@ export const ReportScreen = ({
   );
 
   const [surveys] = useBackendEffect(({ models }) => models.Survey.find({
-    program: Not('program-referral_forms'),
+    surveyType: SurveyTypes.Programs,
   }));
 
   const reportList = surveys?.map((s) => ({ label: s.name, value: s.id }));

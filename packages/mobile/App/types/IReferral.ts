@@ -4,7 +4,7 @@ import { ISurveyResponse } from './ISurveyResponse';
 
 export interface IReferral {
   id: ID;
-  referralFacility?: string;
+  referredFacility?: string;
   initiatingEncounter: IEncounter;
   initiatingEncounterId: ID;
   completingEncounter?: IEncounter;
