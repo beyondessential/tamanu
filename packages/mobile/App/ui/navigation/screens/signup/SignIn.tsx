@@ -47,6 +47,11 @@ export const SignIn: FunctionComponent<any> = ({ navigation }: SignInProps) => {
 
   const onSubmitForm = useCallback(async (values: SignInFormModel) => {
     try {
+      if (!values.server) {
+        // TODO it would be better to properly respond to form validation and show the error
+        setModalError('Please select a server to connect to');
+        return;
+      }
       await authCtx.signIn(values);
 
       if (authState.isFirstTime) {

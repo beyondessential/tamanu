@@ -4,10 +4,10 @@ import { addHours, startOfDay, subYears } from 'date-fns';
 import { readConfig } from '~/services/config';
 import { BaseModel } from './BaseModel';
 import { Encounter } from './Encounter';
-import { Referral } from './Referral';
 import { PatientIssue } from './PatientIssue';
-import { IPatient } from '~/types';
+import { IPatient, IPatientAdditionalData } from '~/types';
 import { formatDateForQuery } from '~/infra/db/helpers';
+import { PatientAdditionalData } from './PatientAdditionalData';
 const TIME_OFFSET = 3;
 
 @Entity('patient')
@@ -15,26 +15,29 @@ export class Patient extends BaseModel implements IPatient {
   @Column()
   displayId: string;
 
-  @Column()
+  @Column({ nullable: true })
+  title?: string;
+
+  @Column({ default: '' })
   firstName: string;
 
-  @Column()
-  middleName: string;
+  @Column({ default: '' })
+  middleName?: string;
 
-  @Column()
+  @Column({ default: '' })
   lastName: string;
 
-  @Column()
-  culturalName: string;
+  @Column({ nullable: true })
+  culturalName?: string;
 
-  @Column()
+  @Column({ nullable: true })
   dateOfBirth: Date;
 
   @Column()
-  bloodType: string;
-
-  @Column()
   sex: string;
+
+  @OneToMany(() => PatientAdditionalData, additionalData => additionalData.patient)
+  additionalData: IPatientAdditionalData;
 
   //----------------------------------------------------------
   // sync info
@@ -47,9 +50,6 @@ export class Patient extends BaseModel implements IPatient {
 
   @OneToMany(() => Encounter, encounter => encounter.patient)
   encounters: Encounter[]
-
-  @OneToMany(() => Referral, referral => referral.patient)
-  referrals: Referral[]
 
   @OneToMany(() => PatientIssue, issue => issue.patient)
   issues: PatientIssue[]
@@ -75,9 +75,7 @@ export class Patient extends BaseModel implements IPatient {
   }
 
   static async getSyncable(): Promise<Patient[]> {
-    return this.find({
-      where: { markedForSync: true },
-    });
+    return this.find({ markedForSync: true });
   }
 
   static async getRecentVisitors(surveyId: string): Promise<any[]> {

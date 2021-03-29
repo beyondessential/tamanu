@@ -1,7 +1,7 @@
 import { mocked } from 'ts-jest/utils';
 import { chunk, sortedIndexOf } from 'lodash';
 
-import { fakePatient, fakeEncounter } from '/root/tests/helpers/fake';
+import { fakePatient, fakeEncounter, fakeUser } from '/root/tests/helpers/fake';
 import { time } from '/root/tests/helpers/benchmark';
 import { IPatient } from '~/types';
 import { Patient } from '~/models/Patient';
@@ -9,6 +9,7 @@ import { Database } from '~/infra/db';
 import { readConfig } from '~/services/config';
 jest.mock('~/services/config');
 const mockedReadConfig = mocked(readConfig);
+jest.setTimeout(60000); // can be slow to create/delete records
 
 beforeAll(async () => {
   await Database.connect();
@@ -23,7 +24,8 @@ describe('findRecentlyViewed', () => {
     sex: 'fred',
     dateOfBirth: new Date(1971, 5, 1),
     culturalName: 'Fredde',
-    bloodType: 'FRED+'
+    title: null,
+    additionalData: null,
   };
   const patients: IPatient[] = [
     { ...genericPatient, id: 'id-2' },
@@ -39,12 +41,12 @@ describe('findRecentlyViewed', () => {
   });
 
   it('fixes patient order', async () => {
-    const result = await Database.models.Patient.findRecentlyViewed()
+    const result = await Database.models.Patient.findRecentlyViewed();
     expect(result.map(r => r.id)).toEqual(['id-3', 'id-2']);
   });
 
   it('removes missing patients', async () => {
-    const result = await Database.models.Patient.findRecentlyViewed()
+    const result = await Database.models.Patient.findRecentlyViewed();
     expect(result.map(r => r.id)).not.toContain('id-1');
   });
 });
@@ -53,8 +55,6 @@ describe('getSyncable', () => {
   const CHUNK_SIZE = 50;
   const patients = [];
   const encounters = [];
-
-  jest.setTimeout(60000); // can be slow to create/delete records
 
   afterEach(async () => {
     for (const encounterChunk of chunk(encounters, CHUNK_SIZE)) {
@@ -66,6 +66,9 @@ describe('getSyncable', () => {
   });
 
   it('completes in less than 5s with 30k patients and 3k encounters', async () => {
+    const user = fakeUser();
+    await Database.models.User.insert(user);
+
     // arrange
     for (let i = 0; i < (30 * 1000); i++) {
       // create patient
@@ -77,6 +80,7 @@ describe('getSyncable', () => {
       if (i % 10 === 0) {
         const encounter = fakeEncounter();
         encounter.patient = patient;
+        encounter.examiner = user;
         encounter.markedForUpload = true;
         encounters.push(encounter);
       }
@@ -90,9 +94,10 @@ describe('getSyncable', () => {
 
     // act
     let syncablePatients: Patient[];
+
     const nanoseconds = await time(async () => {
       syncablePatients = await Database.models.Patient.getSyncable();
-    })
+    });
 
     // assert
     const milliseconds = nanoseconds / BigInt(1e+6);

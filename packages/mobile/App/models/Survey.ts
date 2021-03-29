@@ -15,7 +15,7 @@ export class Survey extends BaseModel implements ISurvey {
 
   responses: any[];
 
-  @Column()
+  @Column({ default: '' })
   name: string;
 
   @ManyToOne(() => Program, program => program.surveys)

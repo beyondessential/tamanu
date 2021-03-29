@@ -65,7 +65,6 @@ export class SyncManager {
     }
 
     this.emitter.on('*', (action, ...args) => {
-      if (action === 'syncedRecord') return;
       if (action === 'syncRecordError') {
         this.errors.push(args[0]);
         console.warn('error', args[0]);
@@ -153,101 +152,61 @@ export class SyncManager {
 
     let requestedAt: Timestamp = 0;
 
-    // Some records will fail on the first attempt due to foreign key constraints
-    // (most commonly, when a dependency record has been updated so it appears
-    // after its dependent in the sync queue)
-    // So we keep these records in a queue and retry them at the end of the download.
-    let pendingRecords = [];
-
     const importPlan = createImportPlan(model);
     const importRecords = async (records: SyncRecord[]): Promise<void> => {
-      await Promise.all(records.map(async r => {
-        try {
-          await executeImportPlan(importPlan, r);
-          this.emitter.emit('syncedRecord', model.name);
-        } catch (e) {
-          if (e.message.match(/FOREIGN KEY constraint failed/)) {
-            // this error is to be expected! just push it
-            r.ERROR_MESSAGE = e.message;
-            pendingRecords.push(r);
-          } else {
-            console.warn('syncRecordError', e, r);
-            this.emitter.emit('syncRecordError', {
-              record: r,
-              error: e,
-            });
-          }
-        }
-      }));
+      const { failures } = await executeImportPlan(importPlan, records);
+      failures.forEach(({ error, recordId }) => {
+        console.warn('syncRecordError', error, recordId);
+        this.emitter.emit('syncRecordError', {
+          recordId,
+          error,
+        });
+      });
     };
 
-    try {
-      let importTask: Promise<void>;
-      let offset = 0;
-      let limit = INITIAL_DOWNLOAD_LIMIT;
-      this.emitter.emit('importStarted', channel);
-      while (true) {
-        // We want to download each page of records while the current page
-        // of records is being imported - this means that the database IO
-        // and network IO are running in parallel rather than running in
-        // alternating sequence.
-        const startTime = Date.now();
-        const downloadTask = downloadPage(offset, limit);
+    let importTask: Promise<void>;
+    let offset = 0;
+    let limit = INITIAL_DOWNLOAD_LIMIT;
+    this.emitter.emit('importStarted', channel);
+    while (true) {
+      // We want to download each page of records while the current page
+      // of records is being imported - this means that the database IO
+      // and network IO are running in parallel rather than running in
+      // alternating sequence.
+      const startTime = Date.now();
+      const downloadTask = downloadPage(offset, limit);
 
-        // wait for import task to complete before progressing in loop
-        await importTask;
+      // wait for import task to complete before progressing in loop
+      await importTask;
 
-        // wait for the current page download to complete
-        const response = await downloadTask;
-        const downloadTime = Date.now() - startTime;
+      // wait for the current page download to complete
+      const response = await downloadTask;
+      const downloadTime = Date.now() - startTime;
 
-        if (response === null) {
-          // ran into an error
-          break;
-        }
-
-        // keep importing until we hit a page with 0 records
-        // (this does mean we're always making 1 more web request than
-        // is necessary, probably room for optimisation here)
-        if (response.records.length === 0) {
-          break;
-        }
-
-        updateProgress(response.records.length, response.count);
-
-        // we have records to import - import them
-        this.emitter.emit('importingPage', `${channel}-offset-${offset}-limit-${limit}`);
-        importTask = importRecords(response.records);
-        requestedAt = requestedAt || response.requestedAt;
-
-        offset += response.records.length;
-        limit = calculateDynamicLimit(limit, downloadTime);
+      if (response === null) {
+        // ran into an error
+        break;
       }
-      await importTask; // wait for any final import task to finish
-    } catch (e) {
-      console.warn(e);
+
+      // keep importing until we hit a page with 0 records
+      // (this does mean we're always making 1 more web request than
+      // is necessary, probably room for optimisation here)
+      if (response.records.length === 0) {
+        break;
+      }
+
+      updateProgress(response.records.length, response.count);
+
+      // we have records to import - import them
+      this.emitter.emit('importingPage', `${channel}-offset-${offset}-limit-${limit}`);
+      importTask = importRecords(response.records);
+      requestedAt = requestedAt || response.requestedAt;
+
+      offset += response.records.length;
+      limit = calculateDynamicLimit(limit, downloadTime);
     }
+    await importTask; // wait for any final import task to finish
 
-    // Now try re-importing all of the pending records.
-    // As there might be multiple levels of dependency, we might need a few
-    // passes over the queue! But if we get a pass where the queue doesn't
-    // decrease in size at all, we know there's a for-real error and we should
-    // terminate the process.
-    while (pendingRecords.length > 0) {
-      if (this.verbose) {
-        console.log(`Reattempting ${pendingRecords.length} failed records...`);
-      }
-      const thisPass = pendingRecords;
-      pendingRecords = [];
-      await importRecords(thisPass);
-      // syncRecords will re populate pendingRecords
-      if (pendingRecords.length === thisPass.length) {
-        console.warn('Could not import remaining queue members:');
-        console.warn(JSON.stringify(pendingRecords, null, 2));
-        pendingRecords.map(r => this.errors.push(r));
-        throw new Error(`Could not import any ${pendingRecords.length} remaining queue members`);
-      }
-    }
     this.emitter.emit('importEnded', channel);
 
     return requestedAt;
@@ -279,39 +238,35 @@ export class SyncManager {
     // TODO: progress handling
 
     // export and upload loop
-    try {
-      let lastSeenId: string;
-      let uploadPromise: Promise<UploadRecordsResponse>;
-      this.emitter.emit('exportStarted', channel);
-      let page = 0;
-      while (true) {
-        const knownPage = page;
+    let lastSeenId: string;
+    let uploadPromise: Promise<UploadRecordsResponse>;
+    this.emitter.emit('exportStarted', channel);
+    let page = 0;
+    while (true) {
+      const knownPage = page;
 
-        // begin exporting records
-        const exportPromise = exportRecords(knownPage, lastSeenId);
+      // begin exporting records
+      const exportPromise = exportRecords(knownPage, lastSeenId);
 
-        // finish uploading previous batch
-        await uploadPromise;
+      // finish uploading previous batch
+      await uploadPromise;
 
-        // finish exporting records
-        const recordsChunk = await exportPromise;
-        if (recordsChunk.length === 0) {
-          break;
-        }
-        lastSeenId = recordsChunk[recordsChunk.length - 1].data.id;
-
-        // begin uploading current batch
-        uploadPromise = uploadRecords(knownPage, recordsChunk).then(async (data) => {
-          // mark previous batch as synced after uploading
-          // done using promises so these two steps can be interleaved with exporting
-          await markRecordsUploaded(knownPage, recordsChunk, data.requestedAt);
-          return data;
-        });
-
-        page++;
+      // finish exporting records
+      const recordsChunk = await exportPromise;
+      if (recordsChunk.length === 0) {
+        break;
       }
-    } catch (e) {
-      console.warn(e);
+      lastSeenId = recordsChunk[recordsChunk.length - 1].data.id;
+
+      // begin uploading current batch
+      uploadPromise = uploadRecords(knownPage, recordsChunk).then(async (data) => {
+        // mark previous batch as synced after uploading
+        // done using promises so these two steps can be interleaved with exporting
+        await markRecordsUploaded(knownPage, recordsChunk, data.requestedAt);
+        return data;
+      });
+
+      page++;
     }
     this.emitter.emit('exportEnded', channel);
   }
@@ -340,16 +295,12 @@ export class SyncManager {
 
     this.emitter.emit('channelSyncStarted', channel);
     let requestedAt: Timestamp = null;
-    try {
-      requestedAt = await this.downloadAndImport(model, channel, lastSynced);
-      if (model.shouldExport) {
-        await this.exportAndUpload(model, channel);
-      }
-      if (requestedAt) {
-        await this.updateChannelSyncDate(channel, requestedAt);
-      }
-    } catch (e) {
-      console.error(e);
+    requestedAt = await this.downloadAndImport(model, channel, lastSynced);
+    if (model.shouldExport) {
+      await this.exportAndUpload(model, channel);
+    }
+    if (requestedAt) {
+      await this.updateChannelSyncDate(channel, requestedAt);
     }
     this.emitter.emit('channelSyncEnded', channel);
     return requestedAt;

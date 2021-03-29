@@ -1,5 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { useNetInfo } from "@react-native-community/netinfo";
+import { useField } from 'formik';
 
 import { Field } from '../FormField';
 import { Dropdown, SelectOption } from '../../Dropdown';
@@ -28,10 +29,13 @@ export const ServerSelector = () => {
   const [options, setOptions] = useState([]);
   const netInfo = useNetInfo();
 
+  const fieldHelpers = useField('server')[2];
+
   useEffect(() => {
     (async () => {
       const existing = await readConfig('syncServerLocation');
       setExistingHost(existing);
+      fieldHelpers.setValue(existing);
       if(!existing && netInfo.isInternetReachable) {
         const servers = await fetchServers();
         setOptions(servers);
@@ -55,7 +59,7 @@ export const ServerSelector = () => {
       name="server"
       component={Dropdown}
       options={options}
-      label="Country"
+      label="Select a country"
     />
   );
 };
