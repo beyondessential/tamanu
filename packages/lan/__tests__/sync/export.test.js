@@ -89,11 +89,11 @@ describe('export', () => {
         const { records: firstRecords } = await executeExportPlan(plan, channel, { limit: 1 });
         const { records: secondRecords } = await executeExportPlan(plan, channel, {
           limit: 1,
-          since: getSyncCursorFromRecord(firstRecords[0]),
+          since: getSyncCursorFromRecord(firstRecords[0].data),
         });
         const { records: thirdRecords } = await executeExportPlan(plan, channel, {
           limit: 1,
-          since: getSyncCursorFromRecord(secondRecords[0]),
+          since: getSyncCursorFromRecord(secondRecords[0].data),
         });
 
         // assert
