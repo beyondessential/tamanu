@@ -1,4 +1,4 @@
-import React, { ReactElement, useState, useCallback, FC } from 'react';
+import React, { ReactElement, useState, useCallback, FC, useEffect } from 'react';
 import {
   StyledText,
   FullView,
@@ -132,6 +132,13 @@ export const ReportScreen = ({
     surveyType: SurveyTypes.Programs,
   }));
 
+  useEffect(() => {
+    // automatically select the first survey as soon as surveys are loaded
+    if(!selectedSurveyId && surveys && surveys.length > 0) {
+      setSelectedSurveyId(surveys[0].id);
+    }
+  }, [surveys, selectedSurveyId]);
+
   const reportList = surveys?.map((s) => ({ label: s.name, value: s.id }));
 
   const today = addHours(startOfToday(), 3);
@@ -226,14 +233,14 @@ export const ReportScreen = ({
         isReportWeekly={isReportWeekly}
       />
       {
-        selectedSurveyId && (
+        selectedSurveyId ? (
           <ReportChart
             isReportWeekly={isReportWeekly}
             visitData={visitData}
             todayData={todayData}
             selectedSurveyId={selectedSurveyId}
           />
-        )
+        ) : null
       }
     </FullView>
   );
