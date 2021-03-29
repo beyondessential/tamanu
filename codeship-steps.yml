@@ -47,6 +47,10 @@
       tag: ^(dev|ci-)
       service: awsdeployment
       command: ./scripts/deploy_sync_dev.sh
+    - name: deploy_sync_demo_environment
+      tag: ^(master|506-ci-should-deploy-master-to-demo)
+      service: awsdeployment
+      command: ./scripts/deploy_sync_demo.sh
     - name: deploy_meta_dev_environment
       tag: ^(dev|ci-)
       service: awsdeployment
