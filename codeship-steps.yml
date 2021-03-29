@@ -29,7 +29,7 @@
       tag: ^(release-desktop-)
       command: ./scripts/build_desktop.sh build-and-release
     - name: build_sync_release
-      tag: ^(master|dev|ci-)
+      tag: ^(master|dev|ci-|506-ci-should-deploy-master-to-demo)
       service: app
       command: ./scripts/build_package_release.sh sync-server
     - name: build_meta_release
