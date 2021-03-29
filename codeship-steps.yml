@@ -29,7 +29,7 @@
       tag: ^(release-desktop-)
       command: ./scripts/build_desktop.sh build-and-release
     - name: build_sync_release
-      tag: ^(master|dev|ci-|506-ci-should-deploy-master-to-demo)
+      tag: ^(master|dev|ci-)
       service: app
       command: ./scripts/build_package_release.sh sync-server
     - name: build_meta_release
@@ -48,7 +48,7 @@
       service: awsdeployment
       command: ./scripts/deploy_sync_dev.sh
     - name: deploy_sync_demo_environment
-      tag: ^(master|506-ci-should-deploy-master-to-demo)
+      tag: ^(master)
       service: awsdeployment
       command: ./scripts/deploy_sync_demo.sh
     - name: deploy_meta_dev_environment
