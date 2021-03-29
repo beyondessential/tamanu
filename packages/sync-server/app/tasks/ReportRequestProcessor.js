@@ -5,6 +5,8 @@ import {
   generateCovidVaccineListReport,
   generateIncompleteReferralsReport,
   generateRecentDiagnosesReport,
+  generateCovidVaccineSummaryDose1Report,
+  generateCovidVaccineSummaryDose2Report,
 } from 'shared/reports';
 import { ScheduledTask } from 'shared/tasks';
 import { log } from '~/logging';
