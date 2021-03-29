@@ -2,7 +2,7 @@
 
 import { v4 as uuidv4 } from 'uuid';
 import { fake, fakePatient, buildNestedEncounter, upsertAssociations } from 'shared/test-helpers';
-import { createExportPlan, executeExportPlan } from 'shared/models/sync';
+import { createExportPlan, executeExportPlan, getSyncCursorFromRecord } from 'shared/models/sync';
 import { createTestContext } from '../utilities';
 
 const expectDeepMatch = (dbRecord, syncRecord) => {
@@ -74,9 +74,10 @@ describe('export', () => {
         const channel = overrideChannel || (await model.getChannels())[0];
         const plan = createExportPlan(model);
         await model.truncate();
-        const records = [await fakeRecord(), await fakeRecord()].sort((r1, r2) =>
-          r1.id.localeCompare(r2.id),
-        );
+        const records = [
+          { ...(await fakeRecord()), updatedAt: Date.now() - 100 },
+          { ...(await fakeRecord()), updatedAt: Date.now() },
+        ];
         await Promise.all(
           records.map(async record => {
             await model.create(record);
@@ -85,14 +86,14 @@ describe('export', () => {
         );
 
         // act
-        const firstRecords = await executeExportPlan(plan, channel, { limit: 1 });
-        const secondRecords = await executeExportPlan(plan, channel, {
+        const { records: firstRecords } = await executeExportPlan(plan, channel, { limit: 1 });
+        const { records: secondRecords } = await executeExportPlan(plan, channel, {
           limit: 1,
-          after: firstRecords[0],
+          since: getSyncCursorFromRecord(firstRecords[0]),
         });
-        const thirdRecords = await executeExportPlan(plan, channel, {
+        const { records: thirdRecords } = await executeExportPlan(plan, channel, {
           limit: 1,
-          after: secondRecords[0],
+          since: getSyncCursorFromRecord(secondRecords[0]),
         });
 
         // assert

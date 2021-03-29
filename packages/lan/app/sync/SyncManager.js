@@ -32,7 +32,7 @@ export class SyncManager {
   }
 
   async pullAndImportChannel(model, channel) {
-    const since = await this.getLastSynced(channel);
+    const since = await this.getChannelPullCursor(channel);
     log.info(`SyncManager.pullAndImport: syncing ${channel} (last: ${since})`);
 
     const plan = createImportPlan(model);
@@ -42,18 +42,14 @@ export class SyncManager {
       }
     };
 
-    let lastCount = 0;
-    let page = 0;
-    let requestedAt = null;
-    do {
+    let cursor = null;
+    while (true) {
       // pull
-      log.debug(`SyncManager.pullAndImport: pulling page ${page} of ${channel}`);
-      const result = await this.context.remote.pull(channel, { page, since });
+      log.debug(`SyncManager.pullAndImport: pulling since ${since} for ${channel}`);
+      const result = await this.context.remote.pull(channel, { since: cursor });
+      cursor = result.cursor;
       const syncRecords = result.records;
-      requestedAt =
-        requestedAt === null ? result.requestedAt : Math.min(requestedAt, result.requestedAt);
-      lastCount = syncRecords.length;
-      if (lastCount === 0) {
+      if (syncRecords.length === 0) {
         log.debug(`SyncManager.pullAndImport: reached end of ${channel}`);
         break;
       }
@@ -61,15 +57,8 @@ export class SyncManager {
       // import
       log.debug(`SyncManager.pullAndImport: importing ${syncRecords.length} ${model.name} records`);
       await importRecords(syncRecords);
-
-      page++;
-    } while (lastCount);
-
-    // TODO: retry foreign key failures?
-    // Right now, our schema doesn't have any cycles in it, so neither retries nor stubs are strictly necessary.
-    // However, they're implemented on mobile, so perhaps we should either remove them there or add them here.
-
-    await this.setLastSynced(channel, requestedAt);
+      await this.setChannelPullCursor(channel, cursor);
+    }
   }
 
   async exportAndPush(model, patientId) {
@@ -83,11 +72,9 @@ export class SyncManager {
 
     // export
     const plan = createExportPlan(model);
-    const exportRecords = (after = null, limit = EXPORT_LIMIT) => {
-      log.debug(
-        `SyncManager.exportAndPush: exporting up to ${limit} records after ${after?.data?.id}`,
-      );
-      return executeExportPlan(plan, channel, { after, limit });
+    const exportRecords = (since = null, limit = EXPORT_LIMIT) => {
+      log.debug(`SyncManager.exportAndPush: exporting up to ${limit} records since ${since}`);
+      return executeExportPlan(plan, channel, { since, limit });
     };
 
     // unmark
@@ -107,27 +94,28 @@ export class SyncManager {
       );
     };
 
-    let after = null;
+    let cursor = null;
     do {
-      const records = await exportRecords(after);
-      after = records[records.length - 1] || null;
+      const exportResponse = await exportRecords(cursor);
+      const { records } = exportResponse;
       if (records.length > 0) {
         log.debug(`SyncManager.exportAndPush: pushing ${records.length} to sync server`);
         await this.context.remote.push(channel, records);
         await unmarkRecords(records);
       }
-    } while (after !== null);
+      cursor = exportResponse.cursor;
+    } while (cursor);
 
     log.debug(`SyncManager.exportAndPush: reached end of ${channel}`);
   }
 
-  async getLastSynced(channel) {
+  async getChannelPullCursor(channel) {
     const metadata = await this.context.models.SyncMetadata.findOne({ where: { channel } });
-    return metadata?.lastSynced || 0;
+    return metadata?.pullCursor;
   }
 
-  async setLastSynced(channel, lastSynced) {
-    await this.context.models.SyncMetadata.upsert({ channel, lastSynced });
+  async setChannelPullCursor(channel, pullCursor) {
+    await this.context.models.SyncMetadata.upsert({ channel, pullCursor });
   }
 
   async runSync(patientId = null) {
