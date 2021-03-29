@@ -1,4 +1,4 @@
-import React, { useState, useCallback } from 'react';
+import React, { useState, useCallback, useEffect } from 'react';
 
 import { DataFetchingTable } from './Table';
 import { DateDisplay } from './DateDisplay';
@@ -51,19 +51,28 @@ const ActionDropdown = React.memo(({ row }) => {
   );
 });
 
-const StatusDisplay = React.memo(({ encounterId, cancelled }) => {
-  if (encounterId) return 'Complete';
-  if (cancelled) return 'Cancelled';
+const StatusDisplay = React.memo(({ completingEncounter }) => {
+  if (completingEncounter) return 'Complete';
   return 'Pending';
 });
 
-const getDate = ({ date }) => <DateDisplay date={date} />;
-const getDepartment = ({ referredToDepartment }) =>
-  referredToDepartment ? referredToDepartment.name : 'Unknown';
-const getDisplayName = ({ referredBy }) => (referredBy || {}).displayName || 'Unknown';
-const getStatus = ({ encounterId, cancelled }) => (
-  <StatusDisplay encounterId={encounterId} cancelled={cancelled} />
-);
+const ReferenceDataDisplay = React.memo(({ id }) => {
+  const [name, setName] = useState('Unknown');
+
+  useEffect(() => {
+    (async () => {
+      const result = await models.ReferenceData.findOne({ where: { id } });
+      setName(result.name);
+    })();
+  }, [id]);
+
+  return name;
+});
+
+const getDate = ({ initiatingEncounter }) => <DateDisplay date={initiatingEncounter.startDate} />;
+const getDepartment = ({ initiatingEncounter }) => <ReferenceDataDisplay id={initiatingEncounter.departmentId} />;
+const getDisplayName = ({ initiatingEncounter }) => (initiatingEncounter.examiner || {}).displayName || 'Unknown';
+const getStatus = ({ completingEncounter }) => completingEncounter ? 'Complete' : 'Pending';
 
 const getActions = row => (
   <ActionDropdown row={row} />
