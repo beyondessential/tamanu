@@ -15,7 +15,7 @@ export class SurveyScreenComponent extends Model {
         validationCriteria: Sequelize.STRING,
         detail: Sequelize.STRING,
         config: Sequelize.STRING,
-        options: Sequelize.STRING,
+        options: Sequelize.TEXT,
         calculation: Sequelize.STRING,
       },
       options,

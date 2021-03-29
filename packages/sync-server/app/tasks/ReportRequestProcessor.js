@@ -17,6 +17,8 @@ const reportDataGeneratorMapper = {
   ['incomplete-referrals']: generateIncompleteReferralsReport,
   ['recent-diagnoses']: generateRecentDiagnosesReport,
   ['covid-vaccine-list']: generateCovidVaccineListReport,
+  ['covid-vaccine-summary-dose1']: generateCovidVaccineSummaryDose1Report,
+  ['covid-vaccine-summary-dose2']: generateCovidVaccineSummaryDose2Report,
 };
 
 // run at 30 seconds interval, process 10 report requests each time

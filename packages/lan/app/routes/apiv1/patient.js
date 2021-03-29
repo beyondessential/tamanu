@@ -138,12 +138,12 @@ patientRelations.get('/:id/referrals', asyncHandler(async (req, res) => {
     include: [{
       association: 'initiatingEncounter',
       where: {
-        patientId: params.id,
+        '$initiatingEncounter.patient_id$': params.id,
       }
     }]
   });
 
-  res.send(patientReferrals);
+  res.send({ count: patientReferrals.length, data: patientReferrals });
 }));
 
 patientRelations.get(
