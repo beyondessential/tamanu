@@ -60,7 +60,6 @@ export const ServerSelector = () => {
       component={Dropdown}
       options={options}
       label="Select a country"
-      placeholderText="Search for a country..."
     />
   );
 };
