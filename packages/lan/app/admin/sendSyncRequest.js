@@ -1,7 +1,7 @@
 import config from 'config';
 import fetch from 'node-fetch';
 
-import { log } from '../logging';
+import { log } from 'shared/services/logging';
 
 const splitIntoChunks = (arr, chunkSize) =>
   new Array(Math.ceil(arr.length / chunkSize))

@@ -10,7 +10,7 @@ import {
   executeExportPlan,
 } from 'shared/models/sync';
 
-import { log } from './logging';
+import { log } from 'shared/services/logging';
 
 export const syncRoutes = express.Router();
 

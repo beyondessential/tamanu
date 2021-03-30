@@ -1,5 +1,6 @@
 import config from 'config';
-import { log } from './app/logging';
+
+import { log } from 'shared/services/logging';
 
 import { createApp } from './app/createApp';
 

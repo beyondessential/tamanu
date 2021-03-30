@@ -3,11 +3,11 @@ import bodyParser from 'body-parser';
 import morgan from 'morgan';
 import compression from 'compression';
 
+import { log } from 'shared/services/logging';
+
 import { routes } from './routes';
 import { authMiddleware } from './middleware/auth';
 import errorHandler from './middleware/errorHandler';
-
-import { log } from './logging';
 
 import { version } from '../package.json';
 

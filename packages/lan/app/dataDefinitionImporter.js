@@ -1,7 +1,7 @@
 import { readFile, utils } from 'xlsx';
 import moment from 'moment';
 
-import { log } from '~/logging';
+import { log } from 'shared/services/logging';
 
 const sanitise = string => string.trim().replace(/[^A-Za-z]+/g, '');
 

@@ -4,7 +4,7 @@ import moment from 'moment';
 import { Op } from 'sequelize';
 
 import { ScheduledTask } from 'shared/tasks';
-import { log } from '~/logging';
+import { log } from 'shared/services/logging';
 
 export class EncounterDischarger extends ScheduledTask {
   constructor(context) {

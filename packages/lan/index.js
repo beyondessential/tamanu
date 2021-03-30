@@ -1,7 +1,7 @@
 import config from 'config';
+import { log } from 'shared/services/logging';
 import { initDatabase } from './app/database';
 import { addPatientMarkForSyncHook, SyncManager, WebRemote } from './app/sync';
-import { log } from './app/logging';
 
 import { createApp } from './app/createApp';
 
