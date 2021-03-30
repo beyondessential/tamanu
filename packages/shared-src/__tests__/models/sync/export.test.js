@@ -1,9 +1,7 @@
-// TODO: add tests to shared-src and move this file there
-
 import { v4 as uuidv4 } from 'uuid';
 import { fake, fakePatient, buildNestedEncounter, upsertAssociations } from 'shared/test-helpers';
 import { createExportPlan, executeExportPlan } from 'shared/models/sync';
-import { createTestContext } from '../utilities';
+import { initDb } from '../../initDb';
 
 const expectDeepMatch = (dbRecord, syncRecord) => {
   Object.keys(dbRecord).forEach(field => {
@@ -28,7 +26,7 @@ describe('export', () => {
   let context;
   const patientId = uuidv4();
   beforeAll(async () => {
-    context = await createTestContext();
+    context = await initDb({ syncClientMode: true }); // TODO: test server mode too
     models = context.models;
     await models.Patient.create({ ...fakePatient(), id: patientId });
   });

@@ -1,5 +1,3 @@
-// TODO: add tests to shared-src and move this file there
-
 import { v4 as uuidv4 } from 'uuid';
 import {
   fakePatient,
@@ -15,7 +13,7 @@ import {
 } from 'shared/test-helpers';
 import { createImportPlan, executeImportPlan } from 'shared/models/sync';
 import { REFERENCE_TYPES } from 'shared/constants';
-import { createTestContext } from '../utilities';
+import { initDb } from '../../initDb';
 
 // converts a db record and all its relations to a sync record
 const toSyncRecord = record => ({
@@ -35,7 +33,7 @@ describe('import', () => {
   let context;
   const patientId = uuidv4();
   beforeAll(async () => {
-    context = await createTestContext();
+    context = await initDb({ syncClientMode: true }); // TODO: test server mode too
     models = context.models;
     await models.Patient.create({ ...fakePatient(), id: patientId });
   });

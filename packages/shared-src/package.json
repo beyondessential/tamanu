@@ -9,7 +9,9 @@
   "license": "SEE LICENSE IN license",
   "scripts": {
     "build": "yarn run babel --root-mode upward --out-dir ../shared src",
-    "build-watch": "yarn run build --watch"
+    "build-watch": "yarn run build --watch",
+    "test": "NODE_ENV=test jest",
+    "test-coverage": "yarn test --coverage"
   },
   "private": true,
   "devDependencies": {
