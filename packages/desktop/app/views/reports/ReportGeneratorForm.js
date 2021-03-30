@@ -30,6 +30,7 @@ const REPORT_TYPE_OPTIONS = [
   { label: 'COVID vaccine campaign line list', value: 'covid-vaccine-list' },
   { label: 'COVID vaccine campaign - First dose summary', value: 'covid-vaccine-summary-dose1' },
   { label: 'COVID vaccine campaign - Second dose summary', value: 'covid-vaccine-summary-dose2' },
+  { label: 'Adverse Event Following Immunization', value: 'aefi' },
 ];
 
 const Spacer = styled.div`
@@ -111,6 +112,7 @@ const ParametersByReportType = {
   'covid-vaccine-list': [{ ParameterField: VillageField }],
   'covid-vaccine-summary-dose1': [],
   'covid-vaccine-summary-dose2': [],
+  aefi: [{ ParameterField: VillageField }],
 };
 
 const DefaultDataSource = {

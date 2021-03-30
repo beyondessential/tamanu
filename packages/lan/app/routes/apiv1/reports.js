@@ -1,6 +1,7 @@
 import express from 'express';
 import {
   generateAdmissionsReport,
+  generateAefiReport,
   generateIncompleteReferralsReport,
   generateRecentDiagnosesReport,
   generateCovidVaccineListReport,
@@ -25,6 +26,10 @@ const ReportTypeMapper = {
   'covid-vaccine-list': {
     permission: 'PatientVaccine',
     dataGenerator: generateCovidVaccineListReport,
+  },
+  aefi: {
+    permission: 'Survey',
+    dataGenerator: generateAefiReport,
   },
 };
 
