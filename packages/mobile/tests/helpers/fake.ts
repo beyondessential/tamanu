@@ -4,6 +4,7 @@ import { random, sample } from 'lodash';
 import {
   DataElementType,
   EncounterType,
+  SurveyTypes,
   IAdministeredVaccine,
   IEncounter,
   IPatient,
@@ -65,7 +66,7 @@ export const fakeSurvey = (): ISurvey => ({
   id: `survey-id-${uuidv4()}`,
   programId: null,
   name: 'survey-name',
-  surveyType: 'programs',
+  surveyType: SurveyTypes.Programs,
 });
 
 export const fakeSurveyScreenComponent = (): ISurveyScreenComponent => ({
