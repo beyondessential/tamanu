@@ -1,9 +1,19 @@
-import { Entity, Column, ManyToOne, OneToMany, BeforeUpdate, BeforeInsert, RelationId } from 'typeorm/browser';
+import { 
+  Entity, 
+  Column, 
+  ManyToOne, 
+  OneToMany,
+  BeforeUpdate,
+  BeforeInsert,
+  RelationId,
+} from 'typeorm/browser';
 
-import { BaseModel } from './BaseModel';
-import { Survey } from './Survey';
-import { Encounter } from './Encounter';
-import { SurveyResponseAnswer } from './SurveyResponseAnswer';
+import { 
+  ISurveyResponse, 
+  IProgramDataElement, 
+  ISurveyScreenComponent,
+  EncounterType,
+} from '~/types';
 
 import {
   getStringValue,
@@ -13,7 +23,10 @@ import {
 
 import { runCalculations } from '~/ui/helpers/calculations';
 
-import { ISurveyResponse, IProgramDataElement, ISurveyScreenComponent } from '~/types';
+import { BaseModel } from './BaseModel';
+import { Survey } from './Survey';
+import { Encounter } from './Encounter';
+import { SurveyResponseAnswer } from './SurveyResponseAnswer';
 import { Referral } from './Referral';
 
 @Entity('survey_response')
@@ -96,6 +109,7 @@ export class SurveyResponse extends BaseModel implements ISurveyResponse {
       const encounter = await Encounter.getOrCreateCurrentEncounter(patientId, userId, {
         startDate: new Date(),
         endDate: new Date(),
+        encounterType: EncounterType.SurveyResponse,
         reasonForEncounter: encounterReason,
       });
 
