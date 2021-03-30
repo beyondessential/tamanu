@@ -1,4 +1,6 @@
 import React, { useCallback, useMemo } from 'react';
+import { useSelector } from 'react-redux';
+
 //Components
 import {
   StyledSafeAreaView,
@@ -12,13 +14,13 @@ import { theme } from '/styled/theme';
 import { StepMarker } from '/components/StepMarker';
 import { Button } from '/components/Button';
 //helpers
+import { authUserSelector } from '~/ui/helpers/selectors';
 import { disableAndroidBackButton } from '/helpers/android';
 // Props
 import { NavigationProp } from '@react-navigation/native';
 import { IntroScreenProps } from '/interfaces/screens/HomeStack';
 
 export interface IntroRouteProps {
-  user: { name: string };
   message: string;
   title: string;
   nextRoute: string | '';
@@ -32,17 +34,14 @@ interface IntroProps {
   };
 }
 
-const isFirstStep = (step: number): void => {
+export const Intro = (props: IntroScreenProps): JSX.Element => {
+  const { navigation, route } = props;
+  const { title, message, step, nextRoute } = route.params;
+  const user = useSelector(authUserSelector);
+
   if (step === 1) {
     disableAndroidBackButton();
   }
-};
-
-export const Intro = (props: IntroScreenProps): JSX.Element => {
-  const { navigation, route } = props;
-  const { user, title, message, step, nextRoute } = route.params;
-
-  isFirstStep(step);
 
   const Icon = useMemo(() => {
     switch (step) {
@@ -73,7 +72,7 @@ export const Intro = (props: IntroScreenProps): JSX.Element => {
         fontWeight="bold"
         color={theme.colors.WHITE}
       >
-        Welcome, John!
+        Welcome, {user.displayName}!
       </StyledText>
       <StyledView marginTop={screenPercentageToDP('7.17', Orientation.Height)}>
         <Icon
