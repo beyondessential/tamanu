@@ -41,6 +41,7 @@ const calculateDynamicLimit = (currentLimit, downloadTime) => {
     );
     return newLimit;
 }
+
 export class SyncManager {
   isSyncing = false;
 
@@ -66,8 +67,9 @@ export class SyncManager {
 
     this.emitter.on('*', (action, ...args) => {
       if (action === 'syncRecordError') {
-        this.errors.push(args[0]);
-        console.warn('error', args[0]);
+        const syncError = args[0];
+        this.errors.push(syncError);
+        console.warn('error', syncError);
         return;
       }
 
@@ -156,9 +158,8 @@ export class SyncManager {
     const importRecords = async (records: SyncRecord[]): Promise<void> => {
       const { failures } = await executeImportPlan(importPlan, records);
       failures.forEach(({ error, recordId }) => {
-        console.warn('syncRecordError', error, recordId);
         this.emitter.emit('syncRecordError', {
-          recordId,
+          record: { id: recordId },
           error,
         });
       });
