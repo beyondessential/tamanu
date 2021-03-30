@@ -25,7 +25,7 @@ const Text = styled.div`
 `;
 
 const SurveyQuestion = ({ component }) => {
-  const { defaultText, type, defaultOptions, code, id } = component.dataElement;
+  const { defaultText, type, defaultOptions, id } = component.dataElement;
   const text = component.text || defaultText;
   const options = mapOptionsToValues(component.options || defaultOptions);
   const FieldComponent = getComponentForQuestionType(type);
