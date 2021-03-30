@@ -1,4 +1,4 @@
-import React, { useState, useCallback } from 'react';
+import React, { useState, useCallback, useEffect } from 'react';
 
 import { DataFetchingTable } from './Table';
 import { DateDisplay } from './DateDisplay';
@@ -8,6 +8,7 @@ import { EncounterModal } from './EncounterModal';
 import { useEncounter } from '../contexts/Encounter';
 import { useReferral } from '../contexts/Referral';
 import { ReferralDetailsModal } from './ReferralDetailsModal';
+import { connectApi } from '../api';
 
 const ActionDropdown = React.memo(({ row }) => {
   const [open, setOpen] = useState(false);
@@ -17,7 +18,7 @@ const ActionDropdown = React.memo(({ row }) => {
     loadEncounter(row.encounterId, true);
   }, [row]);
   const onCancelReferral = useCallback(async () => {
-    await writeReferral(row.id, { cancelled: true });
+    console.log("TODO: Delete referral object")
   }, [row]);
 
   const actions = [
@@ -51,19 +52,42 @@ const ActionDropdown = React.memo(({ row }) => {
   );
 });
 
-const StatusDisplay = React.memo(({ encounterId, cancelled }) => {
-  if (encounterId) return 'Complete';
-  if (cancelled) return 'Cancelled';
-  return 'Pending';
-});
+const ReferenceDataDisplay = React.memo(({ id, fetchReferenceData }) => {
+  const [name, setName] = useState('Unknown');
 
-const getDate = ({ date }) => <DateDisplay date={date} />;
-const getDepartment = ({ referredToDepartment }) =>
-  referredToDepartment ? referredToDepartment.name : 'Unknown';
-const getDisplayName = ({ referredBy }) => (referredBy || {}).displayName || 'Unknown';
-const getStatus = ({ encounterId, cancelled }) => (
-  <StatusDisplay encounterId={encounterId} cancelled={cancelled} />
-);
+  useEffect(() => {
+    (async () => {
+      const result = await fetchReferenceData(encodeURIComponent(id));
+      if (result) setName(result.name);
+    })();
+  }, [id]);
+
+  return name;
+});
+const ConnectedReferenceDataDisplay = connectApi(api => ({
+  fetchReferenceData: id => api.get(`referenceData/${id}`),
+}))(ReferenceDataDisplay);
+
+const ExaminerDisplay = React.memo(({ id, fetchReferenceData }) => {
+  const [name, setName] = useState('Unknown');
+
+  useEffect(() => {
+    (async () => {
+      const result = await fetchReferenceData(encodeURIComponent(id));
+      if (result) setName(result.displayName);
+    })();
+  }, [id]);
+
+  return name;
+});
+const ConnectedExaminerDisplay = connectApi(api => ({
+  fetchReferenceData: id => api.get(`user/${id}`),
+}))(ExaminerDisplay);
+
+const getDate = ({ initiatingEncounter }) => <DateDisplay date={initiatingEncounter.startDate} />;
+const getDepartment = ({ initiatingEncounter }) => <ConnectedReferenceDataDisplay id={initiatingEncounter.departmentId} />;
+const getDisplayName = ({ initiatingEncounter }) => <ConnectedExaminerDisplay id={initiatingEncounter.examinerId} />;
+const getStatus = ({ completingEncounter }) => completingEncounter ? 'Complete' : 'Pending';
 
 const getActions = row => (
   <ActionDropdown row={row} />
