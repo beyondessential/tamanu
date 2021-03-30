@@ -34,12 +34,12 @@ export async function generateAefiReport(models, parameters = {}) {
   const aefiSurvey = await models.Survey.findOne({
     where: {
       name: 'Immunisation',
-      '$Program.name$': 'AEFI Report',
+      '$program.name$': 'AEFI Report',
     },
     include: [
       {
         model: models.Program,
-        as: 'Program',
+        as: 'program',
       },
     ],
   });

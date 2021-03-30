@@ -24,6 +24,7 @@ export class Survey extends Model {
   static initRelations(models) {
     this.belongsTo(models.Program, {
       foreignKey: 'programId',
+      as: 'program',
     });
     this.hasMany(models.SurveyScreenComponent, {
       as: 'components',
@@ -35,7 +36,7 @@ export class Survey extends Model {
 
   static getAllReferrals() {
     return this.findAll({
-      where: { surveyType: SURVEY_TYPES.REFERRAL }
+      where: { surveyType: SURVEY_TYPES.REFERRAL },
     });
   }
 }
