@@ -71,7 +71,7 @@ const SurveyFlow = connectApi(api => ({
   onFetchProgramsList: () => api.get('program'),
   onFetchSurveysList: async programId => {
     const surveys = await api.get(`program/${programId}/surveys`);
-    return surveys.filter(x => x.surveyType === SURVEY_TYPES.PROGRAMS);
+    return surveys.data.filter(x => x.surveyType === SURVEY_TYPES.PROGRAMS);
   },
   onSubmitSurvey: data => api.post(`surveyResponse`, data),
 }))(DumbSurveyFlow);
