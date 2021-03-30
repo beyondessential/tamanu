@@ -3,10 +3,12 @@ import {
   createDummyPatient,
   randomReferenceId,
 } from 'shared/demoData/patients';
-import { createDummyAefiSurveyAnswers } from 'shared/demoData/surveyResponses';
+import {
+  createDummyAefiSurveyAnswers,
+  createDummyAefiProgramDataElements,
+  createDummyAefiSurveyScreenComponent,
+} from 'shared/demoData';
 import { createAdministeredVaccine, createScheduledVaccine } from 'shared/demoData/vaccines';
-import { createDummyAefiProgramDataElements } from 'shared/demoData/programDataElements';
-import { createDummyAefiSurveyScreenComponent } from 'shared/demoData/surveyScreenComponents';
 import { createTestContext } from '../../utilities';
 
 describe('AEFI report', () => {
