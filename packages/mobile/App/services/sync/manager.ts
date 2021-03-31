@@ -120,8 +120,8 @@ export class SyncManager {
         await this.runPatientSync(patient);
       }
     } finally {
-      this.emitter.emit('syncEnded');
       this.isSyncing = false;
+      this.emitter.emit('syncEnded');
     }
   }
 
