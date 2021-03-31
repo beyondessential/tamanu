@@ -11,28 +11,34 @@ const SEPARATOR = ';'; // some token that will never be in a timestamp or id
 export const getSyncCursorFromRecord = ({ updatedAt, id }) =>
   `${updatedAt.getTime()}${SEPARATOR}${id}`;
 
-// splits 'timestamp;id' into [timestamp, id]
-export const parseSyncCursor = cursor => (cursor ? cursor.split(SEPARATOR) : [0]);
-
-const ensureNumber = input => {
+const parseNumberOrZero = input => {
   if (typeof input === 'string') {
     const parsed = parseInt(input, 10);
-    return parsed; // might be NaN
+    if (!Number.isFinite(parsed)) {
+      return 0;
+    }
+    return parsed;
   }
   return input;
 };
 
+// splits 'timestamp;id' into [timestamp, id]
+const parseSyncCursor = cursor => {
+  const [fromUpdatedAtString = '0', afterId = ''] = cursor ? cursor.split(SEPARATOR) : [];
+  return [parseNumberOrZero(fromUpdatedAtString), afterId];
+};
+
 export const syncCursorToWhereCondition = cursor => {
-  const [fromUpdatedAt = '0', afterId = ''] = parseSyncCursor(cursor);
+  const [fromUpdatedAt, afterId] = parseSyncCursor(cursor);
   return {
     [Op.or]: [
       {
         // updatedAt is either strictly greater than the cursor
-        updatedAt: { [Op.gt]: ensureNumber(fromUpdatedAt) },
+        updatedAt: { [Op.gt]: fromUpdatedAt },
       },
       {
         // or equal to, but with the id breaking any conflicts
-        updatedAt: ensureNumber(fromUpdatedAt),
+        updatedAt: fromUpdatedAt,
         id: { [Op.gt]: afterId },
       },
     ],
