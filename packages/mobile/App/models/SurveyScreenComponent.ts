@@ -69,6 +69,11 @@ export class SurveyScreenComponent extends BaseModel
   getConfigObject(): any {
     if (!this.config) return {};
 
-    return JSON.parse(this.config);
+    try {
+      return JSON.parse(this.config);
+    } catch(e) {
+      console.warn(`Invalid config in survey screen component ${this.id}`);
+      return {};
+    }
   }
 }
