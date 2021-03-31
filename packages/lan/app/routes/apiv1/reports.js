@@ -1,37 +1,8 @@
 import express from 'express';
-import {
-  generateAdmissionsReport,
-  generateAefiReport,
-  generateIncompleteReferralsReport,
-  generateRecentDiagnosesReport,
-  generateCovidVaccineListReport,
-} from 'shared/reports';
+import { ReportTypeMapper } from 'shared/reports';
 import asyncHandler from 'express-async-handler';
 
 export const reports = express.Router();
-
-const ReportTypeMapper = {
-  admissions: {
-    permission: 'Encounter',
-    dataGenerator: generateAdmissionsReport,
-  },
-  'incomplete-referrals': {
-    permission: 'Referral',
-    dataGenerator: generateIncompleteReferralsReport,
-  },
-  'recent-diagnoses': {
-    permission: 'EncounterDiagnosis',
-    dataGenerator: generateRecentDiagnosesReport,
-  },
-  'covid-vaccine-list': {
-    permission: 'PatientVaccine',
-    dataGenerator: generateCovidVaccineListReport,
-  },
-  aefi: {
-    permission: 'Survey',
-    dataGenerator: generateAefiReport,
-  },
-};
 
 reports.post(
   '/:reportType',
