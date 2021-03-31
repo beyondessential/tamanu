@@ -66,6 +66,7 @@ export const NewVaccineTabComponent = ({
   route, selectedPatient,
 }: NewVaccineTabProps): ReactElement => {
   const { vaccine } = route;
+  const { administeredVaccine } = vaccine;
   const navigation = useNavigation();
 
   const onPressCancel = useCallback(() => {
@@ -82,8 +83,8 @@ export const NewVaccineTabComponent = ({
         selectedPatient.id,
         user.id,
       );
-
       await models.AdministeredVaccine.createAndSaveOne({
+        id: (administeredVaccine?.id || undefined),
         reason,
         batch,
         status,
@@ -116,7 +117,7 @@ export const NewVaccineTabComponent = ({
             onSubmit={recordVaccination}
             onCancel={onPressCancel}
             SubmitButtons={SubmitButtons}
-            initialValues={vaccine}
+            initialValues={{ ...vaccine, ...(administeredVaccine || {}) }}
             status={route.key}
           />
         </ScrollView>
