@@ -97,9 +97,9 @@ export class SyncManager {
       console.warn('Tried to start syncing while sync in progress');
       return;
     }
-    this.isSyncing = true;
 
     try {
+      this.isSyncing = true;
       this.emitter.emit('syncStarted');
 
       const { models } = Database;
