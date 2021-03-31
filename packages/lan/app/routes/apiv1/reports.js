@@ -7,17 +7,17 @@ export const reports = express.Router();
 reports.post(
   '/:reportType',
   asyncHandler(async (req, res) => {
-    const reportTypeHandler = getReportModule(req.params.reportType);
-    if (!reportTypeHandler) {
+    const reportModule = getReportModule(req.params.reportType);
+    if (!reportModule) {
       res.status(500).send({});
       return;
     }
-    req.checkPermission('read', reportTypeHandler.permission);
+    req.checkPermission('read', reportModule.permission);
     const {
       models,
       body: { parameters },
     } = req;
-    const excelData = await reportTypeHandler.dataGenerator(models, parameters);
+    const excelData = await reportModule.dataGenerator(models, parameters);
     res.send(excelData);
   }),
 );
