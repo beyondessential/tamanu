@@ -26,20 +26,20 @@ const OPTIMAL_DOWNLOAD_TIME_PER_PAGE = 2000; // aim for 2 seconds per page
 
 // Set the current page size based on how long the previous page took to complete.
 const calculateDynamicLimit = (currentLimit, downloadTime) => {
-    const durationPerRecord = downloadTime / currentLimit;
-    const optimalPageSize = OPTIMAL_DOWNLOAD_TIME_PER_PAGE / durationPerRecord;
-    let newLimit = optimalPageSize;
+  const durationPerRecord = downloadTime / currentLimit;
+  const optimalPageSize = OPTIMAL_DOWNLOAD_TIME_PER_PAGE / durationPerRecord;
+  let newLimit = optimalPageSize;
 
-    newLimit = Math.floor(newLimit);
-    newLimit = Math.max(
-      newLimit,
-      MIN_DOWNLOAD_LIMIT,
-    );
-    newLimit = Math.min(
-      newLimit,
-      MAX_DOWNLOAD_LIMIT,
-    );
-    return newLimit;
+  newLimit = Math.floor(newLimit);
+  newLimit = Math.max(
+    newLimit,
+    MIN_DOWNLOAD_LIMIT,
+  );
+  newLimit = Math.min(
+    newLimit,
+    MAX_DOWNLOAD_LIMIT,
+  );
+  return newLimit;
 }
 
 export class SyncManager {
@@ -99,27 +99,30 @@ export class SyncManager {
     }
     this.isSyncing = true;
 
-    this.emitter.emit('syncStarted');
+    try {
+      this.emitter.emit('syncStarted');
 
-    const { models } = Database;
+      const { models } = Database;
 
-    await this.runChannelSync(models.ReferenceData, 'reference');
-    await this.runChannelSync(models.User, 'user');
+      await this.runChannelSync(models.ReferenceData, 'reference');
+      await this.runChannelSync(models.User, 'user');
 
-    await this.runChannelSync(models.ScheduledVaccine, 'scheduledVaccine');
+      await this.runChannelSync(models.ScheduledVaccine, 'scheduledVaccine');
 
-    await this.runChannelSync(models.Program, 'program');
-    await this.runChannelSync(models.Survey, 'survey');
-    await this.runChannelSync(models.ProgramDataElement, 'programDataElement');
-    await this.runChannelSync(models.SurveyScreenComponent, 'surveyScreenComponent');
+      await this.runChannelSync(models.Program, 'program');
+      await this.runChannelSync(models.Survey, 'survey');
+      await this.runChannelSync(models.ProgramDataElement, 'programDataElement');
+      await this.runChannelSync(models.SurveyScreenComponent, 'surveyScreenComponent');
 
-    await this.runChannelSync(models.Patient, 'patient');
+      await this.runChannelSync(models.Patient, 'patient');
 
-    for (const patient of await models.Patient.getSyncable()) {
-      await this.runPatientSync(patient);
+      for (const patient of await models.Patient.getSyncable()) {
+        await this.runPatientSync(patient);
+      }
+    } finally {
+      this.emitter.emit('syncEnded');
+      this.isSyncing = false;
     }
-    this.emitter.emit('syncEnded');
-    this.isSyncing = false;
   }
 
   async markPatientForSync(patient: Patient): Promise<void> {
