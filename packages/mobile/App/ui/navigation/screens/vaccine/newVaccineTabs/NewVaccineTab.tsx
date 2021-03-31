@@ -65,7 +65,7 @@ type NewVaccineTabProps = {
 export const NewVaccineTabComponent = ({
   route, selectedPatient,
 }: NewVaccineTabProps): ReactElement => {
-  const { vaccine, vaccineId, administeredVaccineId } = route;
+  const { vaccine } = route;
   const { administeredVaccine } = vaccine;
   const navigation = useNavigation();
 
