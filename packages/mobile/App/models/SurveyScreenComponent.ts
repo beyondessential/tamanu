@@ -68,15 +68,12 @@ export class SurveyScreenComponent extends BaseModel
 
   getConfigObject(): any {
     if (!this.config) return {};
-    const configObject = {};
 
-    this.config
-      .split("\n")
-      .map(x => x.split(':'))
-      .forEach(x => {
-        if (x[0]) configObject[x[0].trim()] = x[1]?.trim();
-      });
-
-    return configObject;
+    try {
+      return JSON.parse(this.config);
+    } catch(e) {
+      console.warn(`Invalid config in survey screen component ${this.id}`);
+      return {};
+    }
   }
 }

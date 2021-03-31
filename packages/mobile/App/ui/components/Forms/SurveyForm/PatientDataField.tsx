@@ -8,9 +8,10 @@ import { joinNames } from '~/ui/helpers/user';
 
 const transformPatientData = (patient, config) => {
   const { dateOfBirth, firstName, lastName } = patient;
+  
   switch (config.column) {
     case 'age':
-      return getAgeFromDate(dateOfBirth);
+      return getAgeFromDate(dateOfBirth).toString();
     case 'fullName':
       return joinNames({ firstName, lastName });
     default:
