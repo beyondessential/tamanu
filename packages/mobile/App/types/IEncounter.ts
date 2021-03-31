@@ -22,7 +22,7 @@ export interface IEncounter {
   startDate: Date;
   endDate?: Date;
 
-  reasonForEncounter: string;
+  reasonForEncounter?: string;
 
   location?: IReferenceData;
   department?: IReferenceData;

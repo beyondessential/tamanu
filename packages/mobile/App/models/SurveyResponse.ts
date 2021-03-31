@@ -18,17 +18,17 @@ import { Referral } from './Referral';
 
 @Entity('survey_response')
 export class SurveyResponse extends BaseModel implements ISurveyResponse {
-  @Column({ default: () => 'CURRENT_TIMESTAMP' })
-  startTime: Date;
+  @Column({ nullable: true })
+  startTime?: Date;
 
   @Column({ nullable: true })
-  endTime: Date;
+  endTime?: Date;
 
-  @Column({ default: 0 })
-  result: number;
+  @Column({ default: 0, nullable: true })
+  result?: number;
 
-  @Column({ default: '' })
-  resultText: string;
+  @Column({ default: '', nullable: true })
+  resultText?: string;
 
   @ManyToOne(() => Survey, survey => survey.responses)
   survey: Survey;

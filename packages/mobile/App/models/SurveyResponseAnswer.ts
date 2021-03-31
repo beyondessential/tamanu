@@ -10,11 +10,11 @@ import { ISurveyResponseAnswer } from '~/types';
 export class SurveyResponseAnswer extends BaseModel
   implements ISurveyResponseAnswer {
 
-  @Column({ default: '' })
-  name: string;
+  @Column({ nullable: true })
+  name?: string;
 
-  @Column({ default: '' })
-  body: string;
+  @Column({ nullable: true })
+  body?: string;
 
   @ManyToOne(() => SurveyResponse, surveyResponse => surveyResponse.answers)
   response: SurveyResponse;

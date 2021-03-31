@@ -18,20 +18,20 @@ export class Patient extends BaseModel implements IPatient {
   @Column({ nullable: true })
   title?: string;
 
-  @Column({ default: '' })
-  firstName: string;
+  @Column({ nullable: true })
+  firstName?: string;
 
-  @Column({ default: '' })
+  @Column({ nullable: true })
   middleName?: string;
 
-  @Column({ default: '' })
-  lastName: string;
+  @Column({ nullable: true })
+  lastName?: string;
 
   @Column({ nullable: true })
   culturalName?: string;
 
   @Column({ nullable: true })
-  dateOfBirth: Date;
+  dateOfBirth?: Date;
 
   @Column()
   sex: string;
