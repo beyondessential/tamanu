@@ -1,7 +1,7 @@
 import express from 'express';
 import asyncHandler from 'express-async-handler';
 import { REPORT_REQUEST_STATUSES } from 'shared/constants';
-import { ReportTypeMapper } from 'shared/reports';
+import { getReportModule } from 'shared/reports';
 
 export const reportRequest = express.Router();
 
@@ -19,8 +19,8 @@ reportRequest.post(
       res.status(400).send({ message: 'reportType missing' });
       return;
     }
-    req.checkPermission('read', ReportTypeMapper[body.reportType]?.permission);
-    
+    req.checkPermission('read', getReportModule(body.reportType)?.permission);
+
     const newReportRequest = {
       reportType: body.reportType,
       recipients: body.emailList.join(','),

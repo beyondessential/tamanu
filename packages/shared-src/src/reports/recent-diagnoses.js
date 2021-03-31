@@ -80,7 +80,9 @@ async function queryDiagnosesData(models, parameters) {
   return result;
 }
 
-export async function generateRecentDiagnosesReport(models, parameters) {
+export async function dataGenerator(models, parameters) {
   const queryResults = await queryDiagnosesData(models, parameters);
   return generateReportFromQueryData(queryResults, reportColumnTemplate);
 }
+
+export const permission = 'EncounterDiagnosis';

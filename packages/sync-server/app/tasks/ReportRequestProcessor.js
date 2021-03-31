@@ -1,6 +1,6 @@
 import config from 'config';
 import { COMMUNICATION_STATUSES, REPORT_REQUEST_STATUSES } from 'shared/constants';
-import { ReportTypeMapper } from 'shared/reports';
+import { getReportModule } from 'shared/reports';
 import { ScheduledTask } from 'shared/tasks';
 import { log } from '~/logging';
 import { sendEmail } from '../services/EmailService';
@@ -33,7 +33,7 @@ export class ReportRequestProcessor extends ScheduledTask {
         });
       }
 
-      const reportDataGenerator = ReportTypeMapper[requestObject.reportType].dataGenerator;
+      const reportDataGenerator = getReportModule(requestObject.reportType).dataGenerator;
 
       if (!reportDataGenerator) {
         log.error(

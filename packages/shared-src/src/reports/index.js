@@ -1,40 +1,38 @@
-import { generateAdmissionsReport } from './admissions';
-import { generateIncompleteReferralsReport } from './incomplete-referrals';
-import { generateRecentDiagnosesReport } from './recent-diagnoses';
-import { generateCovidVaccineListReport } from './covid-vaccine-list';
+import * as admissions from './admissions';
+import * as incompleteReferrals from './incomplete-referrals';
+import * as recentDiagnoses from './recent-diagnoses';
+import * as covidVaccineList from './covid-vaccine-list';
 import {
   generateCovidVaccineSummaryDose1Report,
   generateCovidVaccineSummaryDose2Report,
+  permission as covidVaccineSummaryPermission,
 } from './covid-vaccine-summary';
-import { generateAefiReport } from './aefi';
+import * as aefi from './aefi';
 
-export const ReportTypeMapper = {
-  admissions: {
-    permission: 'Encounter',
-    dataGenerator: generateAdmissionsReport,
-  },
-  'incomplete-referrals': {
-    permission: 'Referral',
-    dataGenerator: generateIncompleteReferralsReport,
-  },
-  'recent-diagnoses': {
-    permission: 'EncounterDiagnosis',
-    dataGenerator: generateRecentDiagnosesReport,
-  },
-  'covid-vaccine-list': {
-    permission: 'PatientVaccine',
-    dataGenerator: generateCovidVaccineListReport,
-  },
-  'covid-vaccine-summary-dose1': {
-    permission: 'PatientVaccine',
-    dataGenerator: generateCovidVaccineSummaryDose1Report,
-  },
-  'covid-vaccine-summary-dose2': {
-    permission: 'PatientVaccine',
-    dataGenerator: generateCovidVaccineSummaryDose2Report,
-  },
-  aefi: {
-    permission: 'Survey',
-    dataGenerator: generateAefiReport,
-  },
-};
+
+export function getReportModule(reportType) {
+  switch (reportType) {
+    default:
+      return {};
+    case 'admissions':
+      return admissions;
+    case 'incomplete-referrals':
+      return incompleteReferrals;
+    case 'recent-diagnoses':
+      return recentDiagnoses;
+    case 'covid-vaccine-list':
+      return covidVaccineList;
+    case 'covid-vaccine-summary-dose1':
+      return {
+        permission: covidVaccineSummaryPermission,
+        dataGenerator: generateCovidVaccineSummaryDose1Report,
+      };
+    case 'covid-vaccine-summary-dose2':
+      return {
+        permission: covidVaccineSummaryPermission,
+        dataGenerator: generateCovidVaccineSummaryDose2Report,
+      };
+    case 'aefi':
+      return aefi;
+  }
+}
