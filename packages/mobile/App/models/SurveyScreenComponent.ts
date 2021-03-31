@@ -68,15 +68,7 @@ export class SurveyScreenComponent extends BaseModel
 
   getConfigObject(): any {
     if (!this.config) return {};
-    const configObject = {};
 
-    this.config
-      .split("\n")
-      .map(x => x.split(':'))
-      .forEach(x => {
-        if (x[0]) configObject[x[0].trim()] = x[1]?.trim();
-      });
-
-    return configObject;
+    return JSON.parse(this.config);
   }
 }
