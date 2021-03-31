@@ -11,9 +11,9 @@ export class SyncMetadata extends Model {
           allowNull: false,
           unique: true,
         },
-        lastSynced: {
-          type: Sequelize.BIGINT,
-          defaultValue: 0,
+        pullCursor: {
+          type: Sequelize.STRING,
+          defaultValue: '0',
         },
       },
       {

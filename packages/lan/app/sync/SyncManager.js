@@ -32,9 +32,6 @@ export class SyncManager {
   }
 
   async pullAndImportChannel(model, channel) {
-    const since = await this.getChannelPullCursor(channel);
-    log.info(`SyncManager.pullAndImport: syncing ${channel} (last: ${since})`);
-
     const plan = createImportPlan(model);
     const importRecords = async syncRecords => {
       for (const syncRecord of syncRecords) {
@@ -42,10 +39,11 @@ export class SyncManager {
       }
     };
 
-    let cursor = null;
+    let cursor = await this.getChannelPullCursor(channel);
+    log.info(`SyncManager.pullAndImport: syncing ${channel} (last: ${cursor})`);
     while (true) {
       // pull
-      log.debug(`SyncManager.pullAndImport: pulling since ${since} for ${channel}`);
+      log.debug(`SyncManager.pullAndImport: pulling since ${cursor} for ${channel}`);
       const result = await this.context.remote.pull(channel, { since: cursor });
       cursor = result.cursor;
       const syncRecords = result.records;

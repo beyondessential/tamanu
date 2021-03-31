@@ -84,11 +84,6 @@ const executeExportPlanInner = async ({ model, associations, columns }, options)
   for (const dbRecord of dbRecords) {
     const syncRecord = { data: {} };
 
-    // add lastSynced (if we're not in client mode)
-    if (!model.syncClientMode) {
-      syncRecord.lastSynced = dbRecord.updatedAt.valueOf();
-    }
-
     if (!model.syncClientMode && dbRecord.deletedAt) {
       // don't return any data for tombstones
       syncRecord.data.id = dbRecord.id;

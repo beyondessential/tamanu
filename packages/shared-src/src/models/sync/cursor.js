@@ -12,14 +12,16 @@ export const getSyncCursorFromRecord = ({ updatedAt, id }) =>
   `${updatedAt.getTime()}${SEPARATOR}${id}`;
 
 const parseNumberOrZero = input => {
-  if (typeof input === 'string') {
-    const parsed = parseInt(input, 10);
-    if (!Number.isFinite(parsed)) {
-      return 0;
-    }
+  if (Number.isFinite(input)) {
+    return input; // already a number
+  }
+
+  const parsed = parseInt(input, 10);
+  if (Number.isFinite(parsed)) {
     return parsed;
   }
-  return input;
+
+  return 0; // unable to parse a number, return 0 instead
 };
 
 // splits 'timestamp;id' into [timestamp, id]

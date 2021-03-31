@@ -1,9 +1,12 @@
 // TODO: add tests to shared-src and move this file there
 
 import { v4 as uuidv4 } from 'uuid';
-import { fake, fakePatient, buildNestedEncounter, upsertAssociations } from 'shared/test-helpers';
-import { createExportPlan, executeExportPlan, getSyncCursorFromRecord } from 'shared/models/sync';
-import { createTestContext } from '../utilities';
+import { subDays, format } from 'date-fns';
+import { buildNestedEncounter, fake, fakePatient, upsertAssociations } from 'shared/test-helpers';
+import { createExportPlan, executeExportPlan } from 'shared/models/sync';
+import { createTestContext, unsafeSetUpdatedAt } from '../utilities';
+
+const makeDate = daysAgo => format(subDays(new Date(), daysAgo), 'yyyy-MM-dd hh:mm:ss.SSS +00:00');
 
 const expectDeepMatch = (dbRecord, syncRecord) => {
   Object.keys(dbRecord).forEach(field => {
@@ -74,26 +77,37 @@ describe('export', () => {
         const channel = overrideChannel || (await model.getChannels())[0];
         const plan = createExportPlan(model);
         await model.truncate();
-        const records = [
-          { ...(await fakeRecord()), updatedAt: Date.now() - 100 },
-          { ...(await fakeRecord()), updatedAt: Date.now() },
-        ];
+        const records = [await fakeRecord(), await fakeRecord()];
+        const updatedAts = [makeDate(20), makeDate(0)];
         await Promise.all(
-          records.map(async record => {
+          records.map(async (record, i) => {
             await model.create(record);
             await upsertAssociations(model, record);
+            await unsafeSetUpdatedAt(context.sequelize, {
+              table: model.tableName,
+              id: record.id,
+              updated_at: updatedAts[i],
+            });
           }),
         );
 
         // act
-        const { records: firstRecords } = await executeExportPlan(plan, channel, { limit: 1 });
-        const { records: secondRecords } = await executeExportPlan(plan, channel, {
-          limit: 1,
-          since: getSyncCursorFromRecord(firstRecords[0].data),
-        });
+        const { records: firstRecords, cursor: firstCursor } = await executeExportPlan(
+          plan,
+          channel,
+          { limit: 1 },
+        );
+        const { records: secondRecords, cursor: secondCursor } = await executeExportPlan(
+          plan,
+          channel,
+          {
+            limit: 1,
+            since: firstCursor,
+          },
+        );
         const { records: thirdRecords } = await executeExportPlan(plan, channel, {
           limit: 1,
-          since: getSyncCursorFromRecord(secondRecords[0].data),
+          since: secondCursor,
         });
 
         // assert
