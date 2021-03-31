@@ -1,4 +1,4 @@
-import { log } from '~/logging';
+import { log } from 'shared/services/logging';
 
 export const addPatientMarkForSyncHook = context => {
   context.models.Patient.addHook('afterSave', 'syncWhenMarkedForSync', async patient => {

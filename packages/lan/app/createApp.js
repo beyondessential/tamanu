@@ -2,12 +2,11 @@ import express from 'express';
 import bodyParser from 'body-parser';
 import morgan from 'morgan';
 import compression from 'compression';
+import { log } from 'shared/services/logging';
 
 import routes from './routes';
 import errorHandler from './middleware/errorHandler';
 import { versionCompatibility } from './middleware/versionCompatibility';
-
-import { log } from './logging';
 
 import { version } from '../package.json';
 

@@ -1,5 +1,5 @@
 import { readFile, utils } from 'xlsx';
-import { log } from '../logging';
+import { log } from 'shared/services/logging';
 
 const sanitise = string => string.trim().replace(/[^A-Za-z0-9]+/g, '');
 const convertSheetNameToImporterId = sheetName => sanitise(sheetName).toLowerCase();

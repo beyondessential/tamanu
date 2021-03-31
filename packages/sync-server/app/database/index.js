@@ -1,7 +1,8 @@
 import config from 'config';
 
+import { log } from 'shared/services/logging';
+
 import { SqlWrapper } from './wrapper/sqlWrapper';
-import { log } from '../logging';
 
 let existingConnection = null;
 

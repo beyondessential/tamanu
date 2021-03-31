@@ -61,6 +61,7 @@
   "dependencies": {
     "babel-eslint": "^10.0.1",
     "concurrently": "^5.2.0",
+    "config": "3.0.1",
     "pm2": "^4.5.0"
   }
 }

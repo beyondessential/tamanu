@@ -1,4 +1,5 @@
 import config from 'config';
+
 import { COMMUNICATION_STATUSES, REPORT_REQUEST_STATUSES } from 'shared/constants';
 import {
   generateAdmissionsReport,
@@ -9,7 +10,8 @@ import {
   generateCovidVaccineSummaryDose2Report,
 } from 'shared/reports';
 import { ScheduledTask } from 'shared/tasks';
-import { log } from '~/logging';
+import { log } from 'shared/services/logging';
+
 import { sendEmail } from '../services/EmailService';
 import { writeExcelFile } from '../utils/excel';
 import { createFilePathForEmailAttachment, removeFile } from '../utils/files';

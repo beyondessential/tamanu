@@ -1,7 +1,7 @@
 import config from 'config';
 
 import { ScheduledTask } from 'shared/tasks';
-import { log } from '~/logging';
+import { log } from 'shared/services/logging';
 
 export class SyncTask extends ScheduledTask {
   context = null;
