@@ -65,7 +65,7 @@ type NewVaccineTabProps = {
 export const NewVaccineTabComponent = ({
   route, selectedPatient,
 }: NewVaccineTabProps): ReactElement => {
-  const { vaccine } = route;
+  const { vaccine, vaccineId, administeredVaccineId } = route;
   const { administeredVaccine } = vaccine;
   const navigation = useNavigation();
 
@@ -83,27 +83,15 @@ export const NewVaccineTabComponent = ({
         selectedPatient.id,
         user.id,
       );
-      if(administeredVaccine){ 
-        // Updating existing administeredVaccine
-        const repo = await models.AdministeredVaccine.getRepository();
-        await repo.update(administeredVaccine.id, {
-          reason,
-          batch,
-          status,
-          date,
-          scheduledVaccine: scheduledVaccineId,
-          encounter: encounter.id,
-        });
-      } else {
-        await models.AdministeredVaccine.createAndSaveOne({
-          reason,
-          batch,
-          status,
-          date,
-          scheduledVaccine: scheduledVaccineId,
-          encounter: encounter.id,
-        });
-      }
+      await models.AdministeredVaccine.createAndSaveOne({
+        id: (administeredVaccine?.id || undefined),
+        reason,
+        batch,
+        status,
+        date,
+        scheduledVaccine: scheduledVaccineId,
+        encounter: encounter.id,
+      });
 
       navigation.goBack();
     }, [],
