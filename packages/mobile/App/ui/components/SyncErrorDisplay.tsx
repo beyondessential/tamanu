@@ -4,6 +4,12 @@ import { StyledText, StyledView } from '/styled/common';
 import { BackendContext } from '~/ui/contexts/BackendContext';
 import { SyncManager } from '~/services/sync';
 
+function stringifyError(e) {
+  if(typeof e === "string") return e;
+  if(e.name || e.message) return `${e.name}: ${e.message}`;
+  return JSON.stringify(e);
+}
+
 export const SyncErrorDisplay = (): ReactElement => {
   const [index, setIndex] = useState(0);
   const [errorCount, setErrorCount] = useState(0);
@@ -48,7 +54,7 @@ export const SyncErrorDisplay = (): ReactElement => {
           {error
             ? (
               <StyledView>
-                <StyledText color="red">{error.error.message}</StyledText>
+                <StyledText color="red">{stringifyError(error.error)}</StyledText>
                 <StyledText color="white">{JSON.stringify(error.record)}</StyledText>
               </StyledView>
             )

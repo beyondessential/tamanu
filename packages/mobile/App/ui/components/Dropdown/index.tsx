@@ -4,6 +4,8 @@ import { BaseInputProps } from '../../interfaces/BaseInputProps';
 import MultiSelect from 'react-native-multiple-select';
 import { theme } from '~/ui/styled/theme';
 
+const MIN_COUNT_FILTERABLE_BY_DEFAULT = 8;
+
 export interface SelectOption {
   label: string;
   value: string;
@@ -15,6 +17,7 @@ export interface DropdownProps extends BaseInputProps {
   multiselect?: boolean;
   label?: string;
   placeholderText?: string;
+  filterable?: boolean;
 }
 
 export const Dropdown = React.memo(
@@ -34,6 +37,7 @@ export const Dropdown = React.memo(
       },
       [selectedItems]
     );
+    const filterable = options.length >= MIN_COUNT_FILTERABLE_BY_DEFAULT;
 
     return (
       <StyledView
@@ -49,7 +53,7 @@ export const Dropdown = React.memo(
           onSelectedItemsChange={onSelectedItemsChange}
           selectedItems={selectedItems}
           selectText={label}
-          searchInputPlaceholderText={placeholderText}
+          searchInputPlaceholderText={filterable ? placeholderText : label}
           altFontFamily="ProximaNova-Light"
           tagRemoveIconColor={theme.colors.PRIMARY_MAIN}
           tagBorderColor={theme.colors.PRIMARY_MAIN}
@@ -62,6 +66,8 @@ export const Dropdown = React.memo(
           styleMainWrapper={{ zIndex: 999 }}
           submitButtonColor={theme.colors.SAFE}
           submitButtonText="Confirm selection"
+          textInputProps={filterable ? {} : { editable: false, autoFocus: false }}
+          searchIcon={filterable ? undefined : null}
         />
       </StyledView>
     )

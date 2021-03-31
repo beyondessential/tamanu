@@ -4,10 +4,10 @@ import { addHours, startOfDay, subYears } from 'date-fns';
 import { readConfig } from '~/services/config';
 import { BaseModel } from './BaseModel';
 import { Encounter } from './Encounter';
-import { Referral } from './Referral';
 import { PatientIssue } from './PatientIssue';
-import { IPatient } from '~/types';
+import { IPatient, IPatientAdditionalData } from '~/types';
 import { formatDateForQuery } from '~/infra/db/helpers';
+import { PatientAdditionalData } from './PatientAdditionalData';
 const TIME_OFFSET = 3;
 
 @Entity('patient')
@@ -15,26 +15,29 @@ export class Patient extends BaseModel implements IPatient {
   @Column()
   displayId: string;
 
+  @Column({ nullable: true })
+  title?: string;
+
   @Column({ default: '' })
   firstName: string;
 
   @Column({ default: '' })
-  middleName: string;
+  middleName?: string;
 
   @Column({ default: '' })
   lastName: string;
 
-  @Column({ default: '' })
-  culturalName: string;
+  @Column({ nullable: true })
+  culturalName?: string;
 
   @Column({ nullable: true })
   dateOfBirth: Date;
 
-  @Column({ nullable: true })
-  bloodType: string;
-
   @Column()
   sex: string;
+
+  @OneToMany(() => PatientAdditionalData, additionalData => additionalData.patient)
+  additionalData: IPatientAdditionalData;
 
   //----------------------------------------------------------
   // sync info
@@ -47,9 +50,6 @@ export class Patient extends BaseModel implements IPatient {
 
   @OneToMany(() => Encounter, encounter => encounter.patient)
   encounters: Encounter[]
-
-  @OneToMany(() => Referral, referral => referral.patient)
-  referrals: Referral[]
 
   @OneToMany(() => PatientIssue, issue => issue.patient)
   issues: PatientIssue[]
@@ -75,9 +75,7 @@ export class Patient extends BaseModel implements IPatient {
   }
 
   static async getSyncable(): Promise<Patient[]> {
-    return this.find({
-      where: { markedForSync: true },
-    });
+    return this.find({ markedForSync: true });
   }
 
   static async getRecentVisitors(surveyId: string): Promise<any[]> {
@@ -115,7 +113,18 @@ export class Patient extends BaseModel implements IPatient {
       .addSelect('count(distinct encounter.patientId)', 'totalVisitors')
       .addSelect('count(distinct surveyResponse.encounterId)', 'totalSurveys')
       .leftJoin('patient.encounters', 'encounter')
-      .leftJoin('encounter.surveyResponses', 'surveyResponse')
+      .leftJoin(
+        (subQuery) => subQuery
+          .select('surveyResponse.id', 'id')
+          .addSelect('surveyResponse.encounterId', 'encounterId')
+          .from('survey_response', 'surveyResponse')
+          .where(
+            'surveyResponse.surveyId = :surveyId',
+            { surveyId },
+          ),
+        'surveyResponse',
+        '"surveyResponse"."encounterId" = encounter.id',
+      )
       .where("encounter.startDate >= datetime(:date, 'unixepoch')", {
         date: formatDateForQuery(date),
       })
@@ -127,7 +136,18 @@ export class Patient extends BaseModel implements IPatient {
       .select('count(distinct encounter.patientId)', 'totalVisitors')
       .addSelect('count(distinct surveyResponse.encounterId)', 'totalSurveys')
       .leftJoin('patient.encounters', 'encounter')
-      .leftJoin('encounter.surveyResponses', 'surveyResponse')
+      .leftJoin(
+        (subQuery) => subQuery
+          .select('surveyResponse.id', 'id')
+          .addSelect('surveyResponse.encounterId', 'encounterId')
+          .from('survey_response', 'surveyResponse')
+          .where(
+            'surveyResponse.surveyId = :surveyId',
+            { surveyId },
+          ),
+        'surveyResponse',
+        '"surveyResponse"."encounterId" = encounter.id',
+      )
       .where("encounter.startDate >= datetime(:date, 'unixepoch')", {
         date: formatDateForQuery(date),
       })
@@ -144,9 +164,9 @@ export class Patient extends BaseModel implements IPatient {
 
     const query = repo.createQueryBuilder('patient')
       .select(['patient.id', 'firstName', 'lastName', 'dateOfBirth', 'sex'])
-      .addSelect("COALESCE(referrals.referredFacility,'not referred')", 'referredTo')
+      .addSelect("COALESCE(referral.referredFacility,'not referred')", 'referredTo')
       .innerJoin('patient.encounters', 'encounter')
-      .leftJoin('patient.referrals', 'referrals')
+      .leftJoin('encounter.initiatedReferrals', 'referral')
       .where("encounter.startDate >= datetime(:date, 'unixepoch')", {
         date: formatDateForQuery(date),
       })
