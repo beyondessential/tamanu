@@ -1,14 +1,7 @@
-import { Op, Sequelize } from 'sequelize';
+import { Sequelize } from 'sequelize';
 import { memoize, without } from 'lodash';
 import { propertyPathsToTree } from './metadata';
-
-const ensureNumber = (input) => {
-  if (typeof input === 'string') {
-    const parsed = parseInt(input, 10);
-    return parsed; // might be NaN
-  }
-  return input;
-};
+import { getSyncCursorFromRecord, syncCursorToWhereCondition } from './cursor';
 
 export const createExportPlan = memoize(model => {
   const relationTree = propertyPathsToTree(model.includedSyncRelations);
@@ -42,12 +35,16 @@ const createExportPlanInner = (model, relationTree, foreignKey) => {
   return { model, associations, foreignKey, columns };
 };
 
-export const executeExportPlan = async (plan, channel, { after, offset, since, limit = 100 }) => {
+export const executeExportPlan = async (plan, channel, { since, limit = 100 }) => {
   const { model, foreignKey } = plan;
   const { syncClientMode } = model;
   const options = {
     where: {},
-    order: [['id', 'ASC']],
+    order: [
+      // order by clause must remain consistent for the sync cursor to work - don't change!
+      ['updated_at', 'ASC'],
+      ['id', 'ASC'],
+    ],
   };
   if (syncClientMode) {
     // only push marked records in server mode
@@ -55,43 +52,37 @@ export const executeExportPlan = async (plan, channel, { after, offset, since, l
   }
   if (!syncClientMode) {
     // load deleted records in server mode
-    options.paranoid = false; 
+    options.paranoid = false;
   }
   if (foreignKey) {
     const parentId = model.syncParentIdFromChannel(channel);
     if (!parentId) {
-      throw new Error(`Must provide parentId for models like ${plan.model.name} with syncParentIdKey set`);
+      throw new Error(
+        `Must provide parentId for models like ${plan.model.name} with syncParentIdKey set`,
+      );
     }
     options.where[foreignKey] = parentId;
   }
   if (limit) {
     options.limit = limit;
   }
-  if (after) {
-    options.where.id = { [Op.gt]: after.data.id };
-  } else if (offset) {
-    // TODO: remove once sync-server uses after instead of offset
-    options.offset = offset;
-  }
   if (since) {
-    options.where.updatedAt = { [Op.gte]: ensureNumber(since) };
+    options.where = {
+      ...options.where,
+      ...syncCursorToWhereCondition(since),
+    };
   }
 
-  return executeExportPlanInner(plan, options, since);
+  return executeExportPlanInner(plan, options);
 };
 
-export const executeExportPlanInner = async ({ model, associations, columns }, options, since) => {
+const executeExportPlanInner = async ({ model, associations, columns }, options) => {
   // query records
   const dbRecords = await model.findAll(options);
 
   const syncRecords = [];
   for (const dbRecord of dbRecords) {
     const syncRecord = { data: {} };
-
-    // add lastSynced (if we're not in client mode)
-    if (!model.syncClientMode) {
-      syncRecord.lastSynced = dbRecord.updatedAt.valueOf();
-    }
 
     if (!model.syncClientMode && dbRecord.deletedAt) {
       // don't return any data for tombstones
@@ -109,16 +100,19 @@ export const executeExportPlanInner = async ({ model, associations, columns }, o
         const associationOptions = {
           where: { [associationPlan.foreignKey]: dbRecord.id },
         };
-        syncRecord.data[associationName] = await executeExportPlanInner(
+        const { records: innerRecords } = await executeExportPlanInner(
           associationPlan,
           associationOptions,
-          since,
         );
+        syncRecord.data[associationName] = innerRecords;
       }
     }
 
     syncRecords.push(syncRecord);
   }
 
-  return syncRecords;
+  // records already sorted by updatedAt then id, get the sync cursor from the last item
+  const maxRecord = dbRecords[dbRecords.length - 1];
+  const cursor = maxRecord && getSyncCursorFromRecord(maxRecord);
+  return { records: syncRecords, cursor };
 };

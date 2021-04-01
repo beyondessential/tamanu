@@ -86,7 +86,7 @@ describe('sqlWrapper', () => {
         });
 
         it('finds no records when empty', async () => {
-          const records = await ctx.findSince(channel, 0, { limit: 10, offset: 0 });
+          const records = await ctx.findSince(channel, '0', { limit: 10 });
           expect(records).toHaveLength(0);
         });
 
@@ -101,7 +101,7 @@ describe('sqlWrapper', () => {
             await ctx.upsert(channel, instance2);
           });
 
-          const since = new Date(1985, 5, 1).valueOf();
+          const since = new Date(1985, 5, 1).valueOf().toString();
           const records = await ctx.findSince(channel, since);
           expect(records.map(r => omit(r, ['markedForPush', 'markedForSync']))).toEqual([
             {
@@ -121,7 +121,7 @@ describe('sqlWrapper', () => {
 
           await ctx.markRecordDeleted(channel, instance.id);
 
-          const instances = await ctx.findSince(channel, 0);
+          const instances = await ctx.findSince(channel, '0');
           expect(
             omit(
               instances.find(r => r.id === instance.id),
@@ -141,7 +141,7 @@ describe('sqlWrapper', () => {
 
           await ctx.unsafeRemoveAllOfChannel(channel);
 
-          expect(await ctx.findSince(channel, 0)).toEqual([]);
+          expect(await ctx.findSince(channel, '0')).toEqual([]);
         });
       });
     });
