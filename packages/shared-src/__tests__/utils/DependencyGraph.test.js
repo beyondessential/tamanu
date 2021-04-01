@@ -1,10 +1,10 @@
 import { DependencyGraph } from 'shared/utils';
-import { createTestContext } from './utilities';
+import { initDb } from '../initDb';
 
 describe('DependencyGraph', () => {
   let models;
   beforeAll(async () => {
-    models = (await createTestContext()).models;
+    models = (await initDb()).models;
   });
 
   it('forms a dependency graph of models and runs it in order', async () => {
