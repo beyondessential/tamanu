@@ -33,7 +33,7 @@ export class ReportRequestProcessor extends ScheduledTask {
         });
       }
 
-      const reportDataGenerator = getReportModule(requestObject.reportType).dataGenerator;
+      const reportDataGenerator = getReportModule(requestObject.reportType)?.dataGenerator;
 
       if (!reportDataGenerator) {
         log.error(
