@@ -7,6 +7,7 @@ export const ERRORS = {
   DUPLICATE_ID: 'duplicateId',
   INVALID_CODE: 'invalidCode',
   BAD_FOREIGN_KEY: 'badForeignKey',
+  FIELD_TOO_LONG: 'fieldTooLong',
 };
 
 const sanitise = string => string.trim().replace(/[^A-Za-z0-9]+/g, '');
@@ -14,10 +15,12 @@ const convertSheetNameToImporterId = sheetName => sanitise(sheetName).toLowerCas
 const convertNameToCode = name => sanitise(name).toUpperCase();
 
 const referenceDataTransformer = type => item => {
+  const code = item.code;
   return {
     recordType: 'referenceData',
     data: {
       ...item,
+      code: (typeof code === 'number') ? `${code}` : code,
       type,
     },
   };
@@ -37,10 +40,29 @@ const baseValidator = (record, { recordsById }) => {
   }
 };
 
+const safeCodeRegex = /^[A-Za-z0-9-.\/]+$/;
+const referenceDataValidator = (record, context) => {
+  const base = baseValidator(record, context);
+  if(base) return base;
+
+  if(!record.data.code?.match(safeCodeRegex)) {
+    return {
+      error: ERRORS.INVALID_CODE,
+    };
+  }
+
+  if(record.data.name.length > 255) {
+    return {
+      error: ERRORS.FIELD_TOO_LONG,
+      field: 'name',
+    };
+  }
+};
+
 function validate(record, context) {
   const { recordType } = record; 
   // TODO: per-recordType validators
-  const validator = baseValidator; 
+  const validator = referenceDataValidator; 
   return {
     ...validator(record, context),
     ...record
