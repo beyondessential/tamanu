@@ -1,6 +1,6 @@
 import { FieldTypes } from './fields';
 
-import { TextField } from '~/ui/components/TextField/TextField';
+import { TextField, LimitedTextField } from '~/ui/components/TextField/TextField';
 import { RadioButtonGroup } from '~/ui/components/RadioButtonGroup';
 import { DateField } from '~/ui/components/DateField/DateField';
 import { Dropdown, MultiSelectDropdown } from '~/ui/components/Dropdown';
@@ -16,7 +16,7 @@ import { PatientDataField } from '../components/Forms/SurveyForm/PatientDataFiel
 import { UserDataField } from '../components/Forms/SurveyForm/UserDataField';
 
 export const FieldByType = {
-  [FieldTypes.TEXT]: TextField,
+  [FieldTypes.TEXT]: LimitedTextField,
   [FieldTypes.MULTILINE]: TextField,
   [FieldTypes.RADIO]: RadioButtonGroup,
   [FieldTypes.SELECT]: Dropdown,
