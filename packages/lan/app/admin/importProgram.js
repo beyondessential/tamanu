@@ -86,8 +86,6 @@ export async function importSurvey({
     )
     .flat();
 
-  console.log(screenElements.filter(x => x.data.id.match(/NCD_63/)));
-
   return {
     records: [
       programElement,
