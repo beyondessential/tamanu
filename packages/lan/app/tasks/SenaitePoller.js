@@ -2,7 +2,7 @@ import { get, post, jar } from 'request';
 import config from 'config';
 import moment from 'moment';
 import { ScheduledTask } from 'shared/tasks';
-import { log } from '~/logging';
+import { log } from 'shared/services/logging';
 
 // if there's an error creating a lab request in senaite
 // set it to "manual" status (indicating 'you'll need to do this manually')

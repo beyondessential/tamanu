@@ -1,5 +1,5 @@
 import { readFile, utils } from 'xlsx';
-import { log } from '../logging';
+import { log } from 'shared/services/logging';
 
 export const ERRORS = {
   MISSING_ID: 'missingId',

@@ -10,7 +10,7 @@ import {
   executeExportPlan,
 } from 'shared/models/sync';
 
-import { log } from './logging';
+import { log } from 'shared/services/logging';
 
 export const syncRoutes = express.Router();
 
@@ -22,7 +22,7 @@ syncRoutes.get(
 
     const { store, query, params } = req;
     const { channel } = params;
-    const { since, limit = '100', page = '0', offset = '0' } = query;
+    const { since, limit = '100' } = query;
 
     if (!since) {
       throw new InvalidParameterError('Sync GET request must include a "since" parameter');
@@ -31,15 +31,12 @@ syncRoutes.get(
     const count = await store.countSince(channel, since);
 
     const limitNum = parseInt(limit, 10) || undefined;
-    const pageBasedOffsetNum = limitNum ? parseInt(page, 10) * limit : undefined;
-    const offsetNum = parseInt(offset, 10) || pageBasedOffsetNum;
 
     await store.withModel(channel, async model => {
       const plan = createExportPlan(model);
-      const records = await executeExportPlan(plan, channel, {
-        limit: limitNum,
-        offset: offsetNum,
+      const { records, cursor } = await executeExportPlan(plan, channel, {
         since,
+        limit: limitNum,
       });
 
       log.info(`GET from ${channel} : ${count} records`);
@@ -47,6 +44,7 @@ syncRoutes.get(
         count,
         requestedAt,
         records,
+        cursor,
       });
     });
   }),

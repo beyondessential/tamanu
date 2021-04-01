@@ -62,16 +62,16 @@ describe('SyncManager', () => {
       // arrange
       const data = { id: `test-${uuidv4()}`, code: 'r1', name: 'r1', type: REFERENCE_TYPES.DRUG };
       const channel = 'reference';
+      const now = Date.now();
       context.remote.pull
         .mockResolvedValueOnce({
           records: [{ data }],
           count: 1,
-          requestedAt: 1234,
+          cursor: `${now};${data.id}`,
         })
         .mockResolvedValue({
           records: [],
           count: 0,
-          requestedAt: 2345,
         });
 
       // act
@@ -79,11 +79,11 @@ describe('SyncManager', () => {
 
       // assert
       const metadata = await context.models.SyncMetadata.findOne({ where: { channel } });
-      expect(metadata.lastSynced).toEqual(1234);
+      expect(metadata.pullCursor).toEqual(`${now};${data.id}`);
 
       await context.syncManager.pullAndImport(context.models.ReferenceData);
       const calls = context.remote.pull.mock.calls;
-      expect(calls[calls.length - 1][1]).toHaveProperty('since', 1234);
+      expect(calls[calls.length - 1][1]).toHaveProperty('since', `${now};${data.id}`);
     });
 
     it('handles foreign key constraints in deleted models', async () => {

@@ -1,6 +1,6 @@
 import shortid from 'shortid';
 
-import { log } from '../logging';
+import { log } from 'shared/services/logging';
 import { readSurveyXSLX } from '../surveyImporter';
 import { sendSyncRequest } from './sendSyncRequest';
 

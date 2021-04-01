@@ -1,12 +1,5 @@
-import { Op, Sequelize } from 'sequelize';
-
-function ensureNumber(input) {
-  if (typeof input === 'string') {
-    const parsed = parseInt(input, 10);
-    return parsed; // might be NaN
-  }
-  return input;
-}
+import { Sequelize } from 'sequelize';
+import { syncCursorToWhereCondition } from 'shared/models/sync';
 
 export function upsertQuery(values) {
   // added for consistency with the other queries
@@ -16,19 +9,16 @@ export function upsertQuery(values) {
 
 export function countSinceQuery({ since }) {
   return {
-    where: {
-      updatedAt: { [Op.gte]: ensureNumber(since) },
-    },
+    where: syncCursorToWhereCondition(since),
     paranoid: false,
   };
 }
+
 export function findSinceQuery({ since, limit, offset }) {
   return {
     limit,
     offset,
-    where: {
-      updatedAt: { [Op.gte]: ensureNumber(since) },
-    },
+    where: syncCursorToWhereCondition(since),
     order: ['updated_at', 'id'],
     paranoid: false,
   };

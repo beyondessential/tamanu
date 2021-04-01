@@ -32,11 +32,12 @@ export class SqlWrapper {
   buildChannelRouter() {
     const channelRouter = wayfarer();
     [
+      ['labTestType', this.models.LabTestType],
       ['patient', this.models.Patient],
-      ['patient/:patientId/encounter', this.models.Encounter],
       ['patient/:patientId/allergy', this.models.PatientAllergy],
       ['patient/:patientId/carePlan', this.models.PatientCarePlan],
       ['patient/:patientId/condition', this.models.PatientCondition],
+      ['patient/:patientId/encounter', this.models.Encounter],
       ['patient/:patientId/familyHistory', this.models.PatientFamilyHistory],
       ['patient/:patientId/issue', this.models.PatientIssue],
       ['program', this.models.Program],

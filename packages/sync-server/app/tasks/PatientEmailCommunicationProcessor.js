@@ -1,7 +1,8 @@
 import config from 'config';
 import { PATIENT_COMMUNICATION_CHANNELS, COMMUNICATION_STATUSES } from 'shared/constants';
 import { ScheduledTask } from 'shared/tasks';
-import { log } from '~/logging';
+import { log } from 'shared/services/logging';
+
 import { sendEmail } from '../services/EmailService';
 
 export class PatientEmailCommunicationProcessor extends ScheduledTask {

@@ -1,19 +1,24 @@
-import { subDays, subHours } from 'date-fns';
+import { subDays, format } from 'date-fns';
 import { v4 as uuidv4 } from 'uuid';
 
-import { fakePatient, buildNestedEncounter, upsertAssociations } from 'shared/test-helpers';
+import {
+  buildNestedEncounter,
+  expectDeepSyncRecordsMatch,
+  fakePatient,
+  unsafeSetUpdatedAt,
+  upsertAssociations,
+} from 'shared/test-helpers';
 
 import { convertFromDbRecord, convertToDbRecord } from 'sync-server/app/convertDbRecord';
-import { createTestContext, unsafeSetUpdatedAt } from './utilities';
+import { createTestContext } from './utilities';
 
-const makeDate = (daysAgo, hoursAgo = 0) => {
-  return subHours(subDays(new Date(), daysAgo), hoursAgo).valueOf();
-};
+export const makeUpdatedAt = daysAgo =>
+  format(subDays(new Date(), daysAgo), "yyyy-MM-dd'T'hh:mm:ss+00:00");
 
 const fakeSyncRecordPatient = (...args) => convertFromDbRecord(fakePatient(...args));
 
-const OLDEST = { ...fakeSyncRecordPatient('oldest_'), lastSynced: makeDate(20) };
-const SECOND_OLDEST = { ...fakeSyncRecordPatient('second-oldest_'), lastSynced: makeDate(10) };
+const OLDEST = { ...fakeSyncRecordPatient('oldest_'), updatedAt: makeUpdatedAt(20) };
+const SECOND_OLDEST = { ...fakeSyncRecordPatient('second-oldest_'), updatedAt: makeUpdatedAt(10) };
 
 // TODO: add exhaustive tests for sync API for each channel
 
@@ -27,10 +32,10 @@ describe('Sync API', () => {
     await Promise.all(
       [OLDEST, SECOND_OLDEST].map(async r => {
         await ctx.store.upsert('patient', convertToDbRecord(r));
-        await unsafeSetUpdatedAt(ctx.store, {
+        await unsafeSetUpdatedAt(ctx.store.sequelize, {
           table: 'patients',
           id: r.data.id,
-          updated_at: new Date(r.lastSynced),
+          updated_at: r.updatedAt,
         });
       }),
     );
@@ -45,17 +50,18 @@ describe('Sync API', () => {
     });
 
     it('should get some records', async () => {
-      const result = await app.get(`/v1/sync/patient?since=${OLDEST.lastSynced - 1}`);
+      const result = await app.get(`/v1/sync/patient?since=0`);
       expect(result).toHaveSucceeded();
 
       const { body } = result;
       expect(body.count).toBeGreaterThan(0);
       expect(body).toHaveProperty('records');
-      expect(body).toHaveProperty('requestedAt');
+      expect(body).toHaveProperty('cursor');
       expect(body.records.length).toBeGreaterThan(0);
 
       const firstRecord = body.records[0];
-      expect(firstRecord).toEqual(JSON.parse(JSON.stringify(OLDEST)));
+      const { updatedAt, ...oldestWithoutUpdatedAt } = OLDEST;
+      expect(firstRecord).toEqual(JSON.parse(JSON.stringify(oldestWithoutUpdatedAt)));
       expect(firstRecord).not.toHaveProperty('channel');
       expect(firstRecord.data).not.toHaveProperty('channel');
 
@@ -65,22 +71,62 @@ describe('Sync API', () => {
     });
 
     it('should filter out older records', async () => {
-      const result = await app.get(`/v1/sync/patient?since=${SECOND_OLDEST.lastSynced - 1}`);
+      const result = await app.get(`/v1/sync/patient?since=${SECOND_OLDEST.updatedAt - 1}`);
       expect(result).toHaveSucceeded();
 
       const { body } = result;
       const firstRecord = body.records[0];
-      expect(firstRecord).toHaveProperty('lastSynced', SECOND_OLDEST.lastSynced);
+      expect(firstRecord).toHaveProperty('id', SECOND_OLDEST.id);
     });
 
-    it('should have count and requestedAt fields', async () => {
-      const result = await app.get(`/v1/sync/patient?since=${OLDEST.lastSynced - 1}`);
+    it('should split updatedAt conflicts using id', async () => {
+      // arrange
+      const updatedAt = makeUpdatedAt(5);
+      await Promise.all(
+        [0, 1].map(async () => {
+          const p = fakePatient();
+          await ctx.store.upsert('patient', p);
+          await unsafeSetUpdatedAt(ctx.store.sequelize, {
+            table: 'patients',
+            id: p.id,
+            updated_at: updatedAt,
+          });
+        }),
+      );
+      const recordsInIdOrder = (
+        await ctx.store.models.Patient.findAll({ where: { updatedAt }, raw: true })
+      ).sort((a, b) => a.id.localeCompare(b.id));
+      expect(recordsInIdOrder.length).toEqual(2); // should now be two records with the same updatedAt
+      const earlierIdRecord = recordsInIdOrder[0];
+      const laterIdRecord = recordsInIdOrder[1];
+
+      // delete the markedForSync field that won't be returned from the sync endpoint
+      delete earlierIdRecord.markedForSync;
+      delete laterIdRecord.markedForSync;
+
+      // act
+      const response1 = await app.get(
+        `/v1/sync/patient?since=${new Date(updatedAt).valueOf() - 1}&limit=1`,
+      );
+      const { records: firstRecords, cursor: firstCursor } = response1.body;
+      const response2 = await app.get(`/v1/sync/patient?since=${firstCursor}&limit=1`);
+      const { records: secondRecords, cursor: secondCursor } = response2.body;
+
+      // assert
+      expect(firstCursor.split(';')[1]).toEqual(earlierIdRecord.id);
+      expectDeepSyncRecordsMatch([earlierIdRecord], firstRecords);
+      expect(secondCursor.split(';')[1]).toEqual(laterIdRecord.id);
+      expectDeepSyncRecordsMatch([laterIdRecord], secondRecords);
+    });
+
+    it('should have count and cursor fields', async () => {
+      const result = await app.get(`/v1/sync/patient?since=${OLDEST.updatedAt - 1}`);
       expect(result).toHaveSucceeded();
-      expect(result.body).toHaveProperty('requestedAt', expect.any(Number));
       expect(result.body).toHaveProperty('count', expect.any(Number));
+      expect(result.body).toHaveProperty('cursor', expect.any(String));
     });
 
-    describe('Pagination', () => {
+    describe('Limits', () => {
       const TOTAL_RECORDS = 20;
       let records = null;
 
@@ -90,7 +136,7 @@ describe('Sync API', () => {
         // instantiate 20 records
         records = new Array(TOTAL_RECORDS)
           .fill(0)
-          .map((zero, i) => fakeSyncRecordPatient(`test-pagination-${i}_`));
+          .map((zero, i) => fakeSyncRecordPatient(`test-limits-${i}_`));
 
         // import in series so there's a predictable order to test against
         await Promise.all(records.map(r => ctx.store.upsert('patient', convertToDbRecord(r))));
@@ -111,37 +157,14 @@ describe('Sync API', () => {
         }
       });
 
-      it('should return a second page of records', async () => {
-        const PAGE_SIZE = 5;
-        const PAGE_COUNT = Math.ceil(TOTAL_RECORDS / PAGE_SIZE);
-        const results = [];
-
-        for (let i = 0; i < PAGE_COUNT; ++i) {
-          const url = `/v1/sync/patient?since=0&limit=5&page=${i}`;
-          const result = await app.get(url);
-          expect(result).toHaveSucceeded();
-          expect(result.body.records.length).toEqual(5);
-          results.push(result);
-        }
-
-        const responseRecordIds = results
-          .map(r => r.body.records)
-          .flat()
-          .map(r => r.data.firstName.split('_')[0]);
-        const expectedRecordIds = new Array(TOTAL_RECORDS)
-          .fill(0)
-          .map((_, i) => `test-pagination-${i}`);
-
-        expect(responseRecordIds.sort()).toEqual(expectedRecordIds.sort());
-      });
-
-      it('should return records after a custom offset with inconsistent limits between calls', async () => {
+      it('should return records after a cursor with inconsistent limits between calls', async () => {
         const results = [];
 
         let recordsPulled = 0;
+        let cursor = '0';
         do {
           const limit = Math.ceil(Math.random() * 5);
-          const url = `/v1/sync/patient?since=0&limit=${limit}&offset=${recordsPulled}`;
+          const url = `/v1/sync/patient?since=${cursor}&limit=${limit}`;
           const result = await app.get(url);
           expect(result).toHaveSucceeded();
           expect(result.body.records.length).toEqual(
@@ -149,6 +172,7 @@ describe('Sync API', () => {
           );
           results.push(result);
           recordsPulled += limit;
+          cursor = result.body.cursor;
         } while (recordsPulled <= TOTAL_RECORDS);
 
         const responseRecordIds = results
@@ -157,12 +181,12 @@ describe('Sync API', () => {
           .map(r => r.data.firstName.split('_')[0]);
         const expectedRecordIds = new Array(TOTAL_RECORDS)
           .fill(0)
-          .map((_, i) => `test-pagination-${i}`);
+          .map((_, i) => `test-limits-${i}`);
 
         expect(responseRecordIds.sort()).toEqual(expectedRecordIds.sort());
       });
 
-      it('should include the count of the entire query', async () => {
+      it('should include the count of all records beyond since', async () => {
         const result = await app.get(`/v1/sync/patient?since=0&limit=5`);
         expect(result).toHaveSucceeded();
         expect(result.body).toHaveProperty('count', TOTAL_RECORDS);
@@ -171,9 +195,11 @@ describe('Sync API', () => {
         expect(secondResult).toHaveSucceeded();
         expect(secondResult.body).toHaveProperty('count', TOTAL_RECORDS);
 
-        const thirdResult = await app.get(`/v1/sync/patient?since=0&limit=5&page=2`);
+        const thirdResult = await app.get(
+          `/v1/sync/patient?since=${secondResult.body.cursor}&limit=5`,
+        );
         expect(thirdResult).toHaveSucceeded();
-        expect(thirdResult.body).toHaveProperty('count', TOTAL_RECORDS);
+        expect(thirdResult.body).toHaveProperty('count', TOTAL_RECORDS - 3);
       });
     });
 
@@ -191,12 +217,10 @@ describe('Sync API', () => {
       expect(result.body).toMatchObject({
         records: [
           {
-            lastSynced: expect.any(Number),
             data: {
               id: encounter.id,
               administeredVaccines: [
                 {
-                  lastSynced: expect.any(Number),
                   data: {
                     id: encounter.administeredVaccines[0].id,
                     encounterId: encounter.id,
@@ -205,13 +229,11 @@ describe('Sync API', () => {
               ],
               surveyResponses: [
                 {
-                  lastSynced: expect.any(Number),
                   data: {
                     id: encounter.surveyResponses[0].id,
                     encounterId: encounter.id,
                     answers: [
                       {
-                        lastSynced: expect.any(Number),
                         data: {
                           id: encounter.surveyResponses[0].answers[0].id,
                           responseId: encounter.surveyResponses[0].id,
@@ -246,18 +268,18 @@ describe('Sync API', () => {
     });
 
     it('should add a record to a channel', async () => {
-      const precheck = await ctx.store.findSince('patient', 0);
+      const precheck = await ctx.store.findSince('patient', '0');
       expect(precheck).toHaveProperty('length', 0);
 
       const result = await app.post('/v1/sync/patient').send(fakeSyncRecordPatient());
       expect(result).toHaveSucceeded();
 
-      const postcheck = await ctx.store.findSince('patient', 0);
+      const postcheck = await ctx.store.findSince('patient', '0');
       expect(postcheck.length).toEqual(1);
     });
 
     it('should add multiple records to reference data', async () => {
-      const precheck = await ctx.store.findSince('patient', 0);
+      const precheck = await ctx.store.findSince('patient', '0');
       expect(precheck.length).toEqual(1);
 
       const record1 = fakeSyncRecordPatient();
@@ -265,7 +287,7 @@ describe('Sync API', () => {
       const result = await app.post('/v1/sync/patient').send([record1, record2]);
       expect(result).toHaveSucceeded();
 
-      const postcheck = await ctx.store.findSince('patient', 0);
+      const postcheck = await ctx.store.findSince('patient', '0');
       expect(postcheck.length).toEqual(3);
       const postcheckIds = postcheck
         .slice(1)
@@ -280,7 +302,7 @@ describe('Sync API', () => {
 
       expect(result).toHaveSucceeded();
 
-      const foundRecords = await ctx.store.findSince('patient', 0);
+      const foundRecords = await ctx.store.findSince('patient', '0');
       const foundRecord = foundRecords.find(r => r.id === record.data.id);
       const {
         createdAt,
@@ -356,7 +378,7 @@ describe('Sync API', () => {
       beforeEach(async () => {
         patient = fakeSyncRecordPatient();
         await ctx.store.upsert('patient', convertToDbRecord(patient));
-        await unsafeSetUpdatedAt(ctx.store, {
+        await unsafeSetUpdatedAt(ctx.store.sequelize, {
           table: 'patients',
           id: patient.data.id,
           updated_at: new Date(1971, 0, 1), // 1st Jan 1971, or epoch + 1yr
@@ -389,8 +411,20 @@ describe('Sync API', () => {
         expect(getResult.body.records[0]).toHaveProperty('data.id', patient.data.id);
       });
 
-      it('should update the lastSynced timestamp', async () => {
-        expect(record.lastSynced.valueOf()).toBeGreaterThan(new Date(1971, 0, 1).valueOf());
+      it('should update the updatedAt timestamp', async () => {
+        const [[{ updated_at: updatedAt }]] = await ctx.store.sequelize.query(
+          `
+          SELECT updated_at
+          FROM patients
+          WHERE id = :patientId;
+        `,
+          {
+            replacements: {
+              patientId: record.data.id,
+            },
+          },
+        );
+        expect(updatedAt.valueOf()).toBeGreaterThan(new Date(1971, 0, 1).valueOf());
       });
 
       it('should have count and requestedAt fields', async () => {

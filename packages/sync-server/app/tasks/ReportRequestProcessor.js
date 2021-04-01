@@ -1,25 +1,13 @@
 import config from 'config';
+
 import { COMMUNICATION_STATUSES, REPORT_REQUEST_STATUSES } from 'shared/constants';
-import {
-  generateAdmissionsReport,
-  generateCovidVaccineListReport,
-  generateIncompleteReferralsReport,
-  generateRecentDiagnosesReport,
-} from 'shared/reports';
+import { getReportModule } from 'shared/reports';
 import { ScheduledTask } from 'shared/tasks';
-import { log } from '~/logging';
+import { log } from 'shared/services/logging';
+
 import { sendEmail } from '../services/EmailService';
 import { writeExcelFile } from '../utils/excel';
 import { createFilePathForEmailAttachment, removeFile } from '../utils/files';
-
-const reportDataGeneratorMapper = {
-  admissions: generateAdmissionsReport,
-  ['incomplete-referrals']: generateIncompleteReferralsReport,
-  ['recent-diagnoses']: generateRecentDiagnosesReport,
-  ['covid-vaccine-list']: generateCovidVaccineListReport,
-  ['covid-vaccine-summary-dose1']: generateCovidVaccineSummaryDose1Report,
-  ['covid-vaccine-summary-dose2']: generateCovidVaccineSummaryDose2Report,
-};
 
 // run at 30 seconds interval, process 10 report requests each time
 export class ReportRequestProcessor extends ScheduledTask {
@@ -47,7 +35,7 @@ export class ReportRequestProcessor extends ScheduledTask {
         });
       }
 
-      const reportDataGenerator = reportDataGeneratorMapper[requestObject.reportType];
+      const reportDataGenerator = getReportModule(requestObject.reportType)?.dataGenerator;
 
       if (!reportDataGenerator) {
         log.error(

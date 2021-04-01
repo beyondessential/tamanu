@@ -1,10 +1,10 @@
 import dgram from 'dgram';
 import config from 'config';
 
-import { log } from './logging';
-import { version } from '../package.json';
-
+import { log } from 'shared/services/logging';
 import { DISCOVERY_MAGIC_STRING, DISCOVERY_PORT } from 'shared/constants';
+
+import { version } from '../package.json';
 
 export function listenForServerQueries() {
   const socket = dgram.createSocket('udp4');
