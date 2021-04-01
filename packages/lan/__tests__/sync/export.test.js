@@ -1,30 +1,18 @@
 // TODO: add tests to shared-src and move this file there
-
 import { v4 as uuidv4 } from 'uuid';
 import { subDays, format } from 'date-fns';
-import { buildNestedEncounter, fake, fakePatient, upsertAssociations } from 'shared/test-helpers';
+import {
+  buildNestedEncounter,
+  expectDeepSyncRecordMatch,
+  fake,
+  fakePatient,
+  upsertAssociations,
+} from 'shared/test-helpers';
 import { createExportPlan, executeExportPlan } from 'shared/models/sync';
 import { createTestContext, unsafeSetUpdatedAt } from '../utilities';
 
-const makeDate = daysAgo => format(subDays(new Date(), daysAgo), 'yyyy-MM-dd hh:mm:ss.SSS +00:00');
-
-const expectDeepMatch = (dbRecord, syncRecord) => {
-  Object.keys(dbRecord).forEach(field => {
-    if (Array.isArray(dbRecord[field])) {
-      // iterate over relation fields
-      expect(syncRecord.data).toHaveProperty(`${field}.length`);
-      dbRecord[field].forEach(childDbRecord => {
-        const childSyncRecord = syncRecord.data[field].find(r => r.data.id === childDbRecord.id);
-        expect(childSyncRecord).toBeDefined();
-        expectDeepMatch(childDbRecord, childSyncRecord);
-      });
-    } else if (dbRecord[field] instanceof Date) {
-      expect(syncRecord.data).toHaveProperty(field, dbRecord[field].toISOString());
-    } else {
-      expect(syncRecord.data).toHaveProperty(field, dbRecord[field]);
-    }
-  });
-};
+const makeUpdatedAt = daysAgo =>
+  format(subDays(new Date(), daysAgo), 'yyyy-MM-dd hh:mm:ss.SSS +00:00');
 
 describe('export', () => {
   let models;
@@ -78,7 +66,7 @@ describe('export', () => {
         const plan = createExportPlan(model);
         await model.truncate();
         const records = [await fakeRecord(), await fakeRecord()];
-        const updatedAts = [makeDate(20), makeDate(0)];
+        const updatedAts = [makeUpdatedAt(20), makeUpdatedAt(0)];
         await Promise.all(
           records.map(async (record, i) => {
             await model.create(record);
@@ -112,9 +100,9 @@ describe('export', () => {
 
         // assert
         expect(firstRecords.length).toEqual(1);
-        expectDeepMatch(records[0], firstRecords[0]);
+        expectDeepSyncRecordMatch(records[0], firstRecords[0]);
         expect(secondRecords.length).toEqual(1);
-        expectDeepMatch(records[1], secondRecords[0]);
+        expectDeepSyncRecordMatch(records[1], secondRecords[0]);
         expect(thirdRecords.length).toEqual(0);
       });
     });

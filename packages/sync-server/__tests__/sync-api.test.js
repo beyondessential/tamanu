@@ -1,17 +1,23 @@
 import { subDays, format } from 'date-fns';
 import { v4 as uuidv4 } from 'uuid';
 
-import { fakePatient, buildNestedEncounter, upsertAssociations } from 'shared/test-helpers';
+import {
+  fakePatient,
+  buildNestedEncounter,
+  upsertAssociations,
+  expectDeepSyncRecordsMatch,
+} from 'shared/test-helpers';
 
 import { convertFromDbRecord, convertToDbRecord } from 'sync-server/app/convertDbRecord';
 import { createTestContext, unsafeSetUpdatedAt } from './utilities';
 
-const makeDate = daysAgo => format(subDays(new Date(), daysAgo), 'yyyy-MM-dd hh:mm:ss.SSS +00:00');
+export const makeUpdatedAt = daysAgo =>
+  format(subDays(new Date(), daysAgo), "yyyy-MM-dd'T'hh:mm:ss+00:00");
 
 const fakeSyncRecordPatient = (...args) => convertFromDbRecord(fakePatient(...args));
 
-const OLDEST = { ...fakeSyncRecordPatient('oldest_'), updatedAt: makeDate(20) };
-const SECOND_OLDEST = { ...fakeSyncRecordPatient('second-oldest_'), updatedAt: makeDate(10) };
+const OLDEST = { ...fakeSyncRecordPatient('oldest_'), updatedAt: makeUpdatedAt(20) };
+const SECOND_OLDEST = { ...fakeSyncRecordPatient('second-oldest_'), updatedAt: makeUpdatedAt(10) };
 
 // TODO: add exhaustive tests for sync API for each channel
 
@@ -72,7 +78,45 @@ describe('Sync API', () => {
       expect(firstRecord).toHaveProperty('id', SECOND_OLDEST.id);
     });
 
-    it.todo('should split updatedAt conflicts using id');
+    it('should split updatedAt conflicts using id', async () => {
+      // arrange
+      const updatedAt = makeUpdatedAt(5);
+      await Promise.all(
+        [0, 1].map(async () => {
+          const p = fakePatient();
+          await ctx.store.upsert('patient', p);
+          await unsafeSetUpdatedAt(ctx.store, {
+            table: 'patients',
+            id: p.id,
+            updated_at: updatedAt,
+          });
+        }),
+      );
+      const recordsInIdOrder = (
+        await ctx.store.models.Patient.findAll({ where: { updatedAt }, raw: true })
+      ).sort((a, b) => a.id.localeCompare(b.id));
+      expect(recordsInIdOrder.length).toEqual(2); // should now be two records with the same updatedAt
+      const earlierIdRecord = recordsInIdOrder[0];
+      const laterIdRecord = recordsInIdOrder[1];
+
+      // delete the markedForSync field that won't be returned from the sync endpoint
+      delete earlierIdRecord.markedForSync;
+      delete laterIdRecord.markedForSync;
+
+      // act
+      const response1 = await app.get(
+        `/v1/sync/patient?since=${new Date(updatedAt).valueOf() - 1}&limit=1`,
+      );
+      const { records: firstRecords, cursor: firstCursor } = response1.body;
+      const response2 = await app.get(`/v1/sync/patient?since=${firstCursor}&limit=1`);
+      const { records: secondRecords, cursor: secondCursor } = response2.body;
+
+      // assert
+      expect(firstCursor.split(';')[1]).toEqual(earlierIdRecord.id);
+      expectDeepSyncRecordsMatch([earlierIdRecord], firstRecords);
+      expect(secondCursor.split(';')[1]).toEqual(laterIdRecord.id);
+      expectDeepSyncRecordsMatch([laterIdRecord], secondRecords);
+    });
 
     it('should have count and cursor fields', async () => {
       const result = await app.get(`/v1/sync/patient?since=${OLDEST.updatedAt - 1}`);
