@@ -30,7 +30,9 @@ function parametersToSqlWhere(parameters) {
   return whereClause;
 }
 
-export async function generateAefiReport(models, parameters = {}) {
+export const permission = 'Survey';
+
+export async function dataGenerator(models, parameters = {}) {
   const aefiSurvey = await models.Survey.findOne({
     where: {
       name: 'Immunisation',
