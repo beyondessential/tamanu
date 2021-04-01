@@ -69,8 +69,8 @@ export const DumbAddVitalsScreen = ({ selectedPatient, navigation }): ReactEleme
           />
           <Field
             component={NumberField}
-            label="SvO2 (%)"
-            name="svO2"
+            label="SpO2 (%)"
+            name="spO2"
           />
           <Field
             component={Dropdown}
@@ -107,7 +107,7 @@ export const DumbAddVitalsScreen = ({ selectedPatient, navigation }): ReactEleme
       heartRate: Yup.number(),
       respiratoryRate: Yup.number(),
       temperature: Yup.number(),
-      svO2: Yup.number(),
+      spO2: Yup.number(),
       avpu: Yup.string(), // AVPUType
       comment: Yup.string(),
     });
@@ -120,7 +120,7 @@ export const DumbAddVitalsScreen = ({ selectedPatient, navigation }): ReactEleme
     'heartRate',
     'respiratoryRate',
     'temperature',
-    'svO2',
+    'spO2',
     'avpu',
   ];
 

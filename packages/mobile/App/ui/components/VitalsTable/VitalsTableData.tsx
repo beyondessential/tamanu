@@ -13,7 +13,7 @@ export const vitalRowFieldsToNames = {
   heartRate: 'Heart Rate',
   respiratoryRate: 'Respiratory Rate',
   temperature: 'Temperature (ºC)',
-  svO2: 'SvO2 (%)',
+  spO2: 'SpO2 (%)',
   avpu: 'AVPU',
 };
 
@@ -25,7 +25,7 @@ export const vitalsRows: Row[] = [
   'heartRate',
   'respiratoryRate',
   'temperature',
-  'svO2',
+  'spO2',
   'avpu',
 ].map(r => ({
   rowKey: 'label',
