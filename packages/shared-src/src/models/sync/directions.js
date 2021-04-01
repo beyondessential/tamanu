@@ -7,3 +7,8 @@ export const shouldPull = model =>
 export const shouldPush = model =>
   model.syncDirection === SYNC_DIRECTIONS.PUSH_ONLY ||
   model.syncDirection === SYNC_DIRECTIONS.BIDIRECTIONAL;
+
+export const shouldSync = model =>
+  model.syncDirection === SYNC_DIRECTIONS.PUSH_ONLY ||
+  model.syncDirection === SYNC_DIRECTIONS.PULL_ONLY ||
+  model.syncDirection === SYNC_DIRECTIONS.BIDIRECTIONAL;
