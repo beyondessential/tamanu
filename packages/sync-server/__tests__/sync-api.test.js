@@ -32,7 +32,7 @@ describe('Sync API', () => {
     await Promise.all(
       [OLDEST, SECOND_OLDEST].map(async r => {
         await ctx.store.upsert('patient', convertToDbRecord(r));
-        await unsafeSetUpdatedAt(ctx.store, {
+        await unsafeSetUpdatedAt(ctx.store.sequelize, {
           table: 'patients',
           id: r.data.id,
           updated_at: r.updatedAt,
@@ -86,7 +86,7 @@ describe('Sync API', () => {
         [0, 1].map(async () => {
           const p = fakePatient();
           await ctx.store.upsert('patient', p);
-          await unsafeSetUpdatedAt(ctx.store, {
+          await unsafeSetUpdatedAt(ctx.store.sequelize, {
             table: 'patients',
             id: p.id,
             updated_at: updatedAt,
@@ -378,7 +378,7 @@ describe('Sync API', () => {
       beforeEach(async () => {
         patient = fakeSyncRecordPatient();
         await ctx.store.upsert('patient', convertToDbRecord(patient));
-        await unsafeSetUpdatedAt(ctx.store, {
+        await unsafeSetUpdatedAt(ctx.store.sequelize, {
           table: 'patients',
           id: patient.data.id,
           updated_at: new Date(1971, 0, 1), // 1st Jan 1971, or epoch + 1yr
