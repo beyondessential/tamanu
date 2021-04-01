@@ -19,7 +19,12 @@ reportRequest.post(
       res.status(400).send({ message: 'reportType missing' });
       return;
     }
-    req.checkPermission('read', getReportModule(body.reportType)?.permission);
+    const reportModule = getReportModule(body.reportType);
+    if(!reportModule) {
+      res.status(400).send({ message: 'invalid reportType' });
+      return;
+    }
+    req.checkPermission('read', reportModule.permission);
 
     const newReportRequest = {
       reportType: body.reportType,
