@@ -1,32 +1,28 @@
 import winston from 'winston';
 import config from 'config';
 
-const { logPath } = config;
+// defensive destructure to allow for testing shared-src directly
+const { 
+  path,
+  consoleLevel,
+} = (config?.log) || {}; 
 
 export const log = winston.createLogger({
   level: 'info',
   format: winston.format.json(),
-  transports: logPath && [
-    new winston.transports.File({ filename: `${logPath}/error.log`, level: 'error' }),
-    new winston.transports.File({ filename: `${logPath}/combined.log` }),
+  transports: path && [
+    new winston.transports.File({ filename: `${path}/error.log`, level: 'error' }),
+    new winston.transports.File({ filename: `${path}/combined.log` }),
   ],
 });
 
-if (['development', 'production'].includes(process.env.NODE_ENV)) {
-  const level = process.env.NODE_ENV === 'development' ? 'debug' : 'info';
+
+if (consoleLevel) {
   log.add(
     new winston.transports.Console({
       format: winston.format.combine(winston.format.colorize(), winston.format.simple()),
-      level,
+      level: consoleLevel,
     }),
   );
 }
 
-if (['test'].includes(process.env.NODE_ENV)) {
-  log.add(
-    new winston.transports.Console({
-      format: winston.format.combine(winston.format.colorize(), winston.format.simple()),
-      level: 'warn',
-    }),
-  );
-}
