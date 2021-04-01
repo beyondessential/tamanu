@@ -1,10 +1,11 @@
 import winston from 'winston';
 import config from 'config';
 
+// defensive destructure to allow for testing shared-src directly
 const { 
   path,
   consoleLevel,
-} = config.log;
+} = (config?.log) || {}; 
 
 export const log = winston.createLogger({
   level: 'info',
