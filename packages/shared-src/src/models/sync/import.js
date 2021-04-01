@@ -1,5 +1,5 @@
 import { Sequelize } from 'sequelize';
-import { memoize, without, pick } from 'lodash';
+import { memoize, without, pick, pickBy } from 'lodash';
 import { propertyPathsToTree } from './metadata';
 
 export const createImportPlan = memoize(model => {
@@ -76,11 +76,16 @@ const executeImportPlanInner = async (
   }
 
   // use only allowed columns
-  const values = pick(data, ...columns);
+  let values = pick(data, ...columns);
   if (foreignKey) {
     values[foreignKey] = parentId || null;
   }
   values.pulledAt = new Date();
+
+  // on the server, remove null or undefined fields
+  if (!model.syncClientMode) {
+    values = pickBy(values, value => value !== undefined && value !== null);
+  }
 
   // sequelize upserts don't work because they insert before update - hack to work around this
   // this could cause a race condition if anything but SyncManager does it, or if two syncs run at once!

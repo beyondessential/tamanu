@@ -4,13 +4,13 @@ import {
   fakeSurveyResponseAnswer,
   fake,
 } from 'shared/test-helpers';
-import { createTestContext } from '../utilities';
+import { initDb } from '../../initDb';
 
 describe('sync-related hooks', () => {
   let models;
   let context;
   beforeAll(async () => {
-    context = await createTestContext();
+    context = await initDb({ syncClientMode: true });
     models = context.models;
   });
 

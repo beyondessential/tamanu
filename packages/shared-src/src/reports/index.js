@@ -6,3 +6,4 @@ export {
   generateCovidVaccineSummaryDose1Report,
   generateCovidVaccineSummaryDose2Report,
 } from './covid-vaccine-summary';
+export { generateAefiReport } from './aefi';

@@ -1,5 +1,5 @@
 import { getCodeForErrorName } from 'shared/errors';
-import { log } from '../logging';
+import { log } from 'shared/services/logging';
 
 // eslint-disable-next-line no-unused-vars
 export default function errorHandler(error, req, res, _) {

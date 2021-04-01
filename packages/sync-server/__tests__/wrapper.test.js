@@ -13,6 +13,7 @@ import {
   buildScheduledVaccine,
   buildEncounter,
 } from 'shared/test-helpers';
+import { REFERENCE_TYPES } from 'shared/constants';
 
 import { withDate } from './utilities';
 
@@ -41,6 +42,19 @@ describe('sqlWrapper', () => {
     ['survey', fakeSurvey],
     ['surveyScreenComponent', fakeSurveyScreenComponent],
     ['user', fakeUser],
+    [
+      'labTestType',
+      async () => {
+        const category = await ctx.models.ReferenceData.create({
+          ...fake(ctx.models.ReferenceData),
+          type: REFERENCE_TYPES.LAB_TEST_CATEGORY,
+        });
+        return {
+          ...fake(ctx.models.LabTestType),
+          labTestCategoryId: category.id,
+        };
+      },
+    ],
   ];
 
   const patientId = uuidv4();

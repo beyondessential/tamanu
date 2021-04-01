@@ -7,6 +7,8 @@ import pg from 'pg';
 // issue & resolution here: https://github.com/sequelize/sequelize/issues/9489#issuecomment-486047783
 import sqlite3 from 'sqlite3';
 
+import { log } from './logging';
+
 import { migrateUp, migrateDown } from './migrations';
 import * as models from '../models';
 import { initSyncClientModeHooks } from '../models/sync';
@@ -37,7 +39,6 @@ export async function initDatabase(dbOptions) {
   const {
     username,
     password,
-    log,
     testMode=false,
     host=null,
     port=null,

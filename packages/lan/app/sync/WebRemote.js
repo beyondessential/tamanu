@@ -3,9 +3,9 @@ import AbortController from 'abort-controller';
 import config from 'config';
 
 import { BadAuthenticationError, InvalidOperationError, RemoteTimeoutError } from 'shared/errors';
+import { log } from 'shared/services/logging';
 
 import { version } from '~/../package.json';
-import { log } from '~/logging';
 
 const API_VERSION = 'v1';
 const DEFAULT_TIMEOUT = 10000;

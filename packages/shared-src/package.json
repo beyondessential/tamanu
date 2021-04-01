@@ -9,7 +9,9 @@
   "license": "SEE LICENSE IN license",
   "scripts": {
     "build": "yarn run babel --root-mode upward --out-dir ../shared src",
-    "build-watch": "yarn run build --watch"
+    "build-watch": "yarn run build --watch",
+    "test": "NODE_ENV=test jest",
+    "test-coverage": "yarn test --coverage"
   },
   "private": true,
   "devDependencies": {
@@ -24,6 +26,7 @@
     "babel-jest": "^24.5.0",
     "bcrypt": "^3.0.1",
     "chance": "^1.0.18",
+    "config": "3.0.1",
     "date-fns": "^2.19.0",
     "eslint": "^5.15.2",
     "jest": "^24.5.0",

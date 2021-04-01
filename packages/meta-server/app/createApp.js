@@ -3,9 +3,10 @@ import bodyParser from 'body-parser';
 import morgan from 'morgan';
 import compression from 'compression';
 
+import { log } from 'shared/services/logging';
+
 import { versionRouter } from './versions';
 import { serversRouter } from './servers';
-import { log } from './logging';
 
 import { version } from '../package.json';
 

@@ -182,6 +182,7 @@ export const PATIENT_COMMUNICATION_TYPES_VALUES = Object.values(PATIENT_COMMUNIC
 export const SURVEY_TYPES = {
   PROGRAMS: 'programs',
   REFERRAL: 'referral',
+  OBSOLETE: 'obsolete',
 };
 
 export const COMMUNICATION_STATUSES = {
