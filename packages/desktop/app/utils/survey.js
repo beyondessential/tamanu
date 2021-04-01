@@ -3,7 +3,7 @@ import { create, all as allMath } from 'mathjs';
 import { inRange } from 'lodash';
 
 import {
-  TextField,
+  LimitedTextField,
   MultilineTextField,
   SelectField,
   MultiselectField,
@@ -21,7 +21,7 @@ const InstructionField = ({ label, helperText }) => (
 );
 
 const QUESTION_COMPONENTS = {
-  [PROGRAM_DATA_ELEMENT_TYPES.TEXT]: TextField,
+  [PROGRAM_DATA_ELEMENT_TYPES.TEXT]: LimitedTextField,
   [PROGRAM_DATA_ELEMENT_TYPES.MULTILINE]: MultilineTextField,
   [PROGRAM_DATA_ELEMENT_TYPES.RADIO]: SelectField, // TODO: Implement proper radio field?
   [PROGRAM_DATA_ELEMENT_TYPES.SELECT]: SelectField,
@@ -43,7 +43,7 @@ const QUESTION_COMPONENTS = {
 export function getComponentForQuestionType(type) {
   const component = QUESTION_COMPONENTS[type];
   if(component === undefined) {
-    return TextField;
+    return LimitedTextField;
   }
   return component;
 }
