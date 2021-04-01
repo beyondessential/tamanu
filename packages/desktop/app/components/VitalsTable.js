@@ -15,7 +15,7 @@ const vitalsRows = [
   { key: 'dbp', title: 'DBP', rounding: 0, unit: '' },
   { key: 'heartRate', title: 'Heart rate', rounding: 0, unit: '/min' },
   { key: 'respiratoryRate', title: 'Respiratory rate', rounding: 0, unit: '/min' },
-  { key: 'svo2', title: 'SvO2', rounding: 0, unit: '%' },
+  { key: 'spo2', title: 'SpO2', rounding: 0, unit: '%' },
   { key: 'avpu', title: 'AVPU', unit: '/min' },
 ];
 
