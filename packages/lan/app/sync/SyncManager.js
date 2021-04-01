@@ -70,9 +70,9 @@ export class SyncManager {
 
     // export
     const plan = createExportPlan(model);
-    const exportRecords = (since = null, limit = EXPORT_LIMIT) => {
-      log.debug(`SyncManager.exportAndPush: exporting up to ${limit} records since ${since}`);
-      return executeExportPlan(plan, channel, { since, limit });
+    const exportRecords = (cursor = null, limit = EXPORT_LIMIT) => {
+      log.debug(`SyncManager.exportAndPush: exporting up to ${limit} records since ${cursor}`);
+      return executeExportPlan(plan, channel, { since: cursor, limit });
     };
 
     // unmark
