@@ -117,7 +117,7 @@ interface BarChartProps {
   };
 }
 
-const verticalContentInset = { top: 10, right: 0, bottom: 0 };
+const verticalContentInset = { top: 10, right: 0, bottom: 5 };
 const axesSvg = { fontSize: 12, fill: theme.colors.TEXT_DARK };
 
 export const VisitChart = ({ visitData }: BarChartProps): JSX.Element => {
@@ -130,6 +130,12 @@ export const VisitChart = ({ visitData }: BarChartProps): JSX.Element => {
     : format(parseISO(firstData.date), DateFormats.DAY_MONTH_YEAR_SHORT);
   const todayFormatted = format(parseISO(lastData.date), DateFormats.DAY_MONTH_YEAR_SHORT);
 
+  const { max, min } = visitData.data.reduce((accum, item) => ({
+    max: accum.max < item.value ? item.value : accum.max,
+    min: accum.min > item.value ? item.value : accum.min,
+  }), { max: 0, min: 0 });
+
+  const numTicks = max - min;
   return (
     <StyledView>
       <RowView
@@ -187,6 +193,7 @@ export const VisitChart = ({ visitData }: BarChartProps): JSX.Element => {
               data={visitData.data}
               svg={barStyle}
               spacingInner={0.2}
+              contentInset={verticalContentInset}
             >
               <CustomGrid x={(): number => 0} data={[]} />
             </BarChart>
@@ -198,6 +205,7 @@ export const VisitChart = ({ visitData }: BarChartProps): JSX.Element => {
             data={visitData.data}
             contentInset={verticalContentInset}
             svg={axesSvg}
+            numberOfTicks={numTicks}
           />
         </RowView>
       </StyledView>

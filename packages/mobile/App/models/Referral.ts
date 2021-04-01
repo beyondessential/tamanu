@@ -1,4 +1,4 @@
-import { Entity, ManyToOne, RelationId } from 'typeorm/browser';
+import { Entity, Column, ManyToOne, RelationId, BeforeUpdate, BeforeInsert } from 'typeorm/browser';
 import { BaseModel } from './BaseModel';
 import { IReferral, ISurveyResponse, ISurveyScreenComponent } from '~/types';
 import { Encounter } from './Encounter';
@@ -6,6 +6,9 @@ import { SurveyResponse } from './SurveyResponse';
 
 @Entity('referral')
 export class Referral extends BaseModel implements IReferral {
+  @Column()
+  referredFacility?: string;
+
   @ManyToOne(() => Encounter, encounter => encounter.initiatedReferrals)
   initiatingEncounter: Encounter;
   @RelationId(({ initiatingEncounter }) => initiatingEncounter)
@@ -21,9 +24,16 @@ export class Referral extends BaseModel implements IReferral {
   @RelationId(({ surveyResponse }) => surveyResponse)
   surveyResponseId: string;
 
+  @BeforeInsert()
+  @BeforeUpdate()
+  async markEncounterForUpload() {
+    await this.markParent(Encounter, 'initiatingEncounter', 'markedForUpload');
+    await this.markParent(Encounter, 'completingEncounter', 'markedForUpload');
+  }
 
   static async submit(
     patientId: string,
+    userId: string,
     surveyData: ISurveyResponse & {
       encounterReason: string,
       components: ISurveyScreenComponent[],
@@ -31,7 +41,7 @@ export class Referral extends BaseModel implements IReferral {
     values: object,
     setNote: (note: string) => void = () => null,
   ) {
-    const response = await SurveyResponse.submit(patientId, surveyData, values, setNote);
+    const response = await SurveyResponse.submit(patientId, userId, surveyData, values, setNote);
     const referralRecord: Referral = await Referral.createAndSaveOne({
       initiatingEncounter: response.encounter,
       surveyResponse: response.id,

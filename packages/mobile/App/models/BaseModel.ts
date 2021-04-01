@@ -1,3 +1,4 @@
+import { pick } from 'lodash';
 import {
   BaseEntity,
   PrimaryColumn,
@@ -12,10 +13,14 @@ import {
   Repository,
 } from 'typeorm/browser';
 
+export type ModelPojo = {
+  id: string;
+};
+
 export type FindMarkedForUploadOptions = {
-  channel: string,
-  limit?: number,
-  after?: string,
+  channel: string;
+  limit?: number;
+  after?: string;
 };
 
 function sanitiseForImport<T>(repo: Repository<T>, data: { [key: string]: any }) {
@@ -23,9 +28,9 @@ function sanitiseForImport<T>(repo: Repository<T>, data: { [key: string]: any })
   // exist on the table in the database. We need to accommodate receiving records
   // from the sync server that don't match up 100% (to allow for changes over time)
   // so we just strip those extraneous fields out here.
-  // 
+  //
   // Note that fields that are necessary-but-not-in-the-sync-record need to be
-  // accommodated too, but that's done by making those fields nullable or 
+  // accommodated too, but that's done by making those fields nullable or
   // giving them sane defaults)
 
   const columns = repo.metadata.columns.map(({ propertyName }) => propertyName);
@@ -79,6 +84,9 @@ export abstract class BaseModel extends BaseEntity {
         .relation(thisModel, parentProperty)
         .of(this)
         .loadOne();
+    }
+    if (!entity) {
+      return;
     }
     entity[flag] = true;
     await entity.save();
@@ -134,4 +142,15 @@ export abstract class BaseModel extends BaseEntity {
   // Include these relations on uploaded model
   // Does not currently handle lazy or embedded relations
   static includedSyncRelations: string[] = [];
+
+  getPlainData(): ModelPojo {
+    const thisModel = this.constructor as typeof BaseModel;
+    const repo = thisModel.getRepository();
+    const { metadata } = repo;
+    const allColumns = [
+      ...metadata.columns,
+      ...metadata.relationIds, // typeorm thinks these aren't columns
+    ].map(({ propertyName }) => propertyName);
+    return pick(this, allColumns) as ModelPojo;
+  }
 }

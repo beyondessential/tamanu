@@ -11,10 +11,10 @@ export class SurveyResponseAnswer extends BaseModel
   implements ISurveyResponseAnswer {
 
   @Column({ nullable: true })
-  name: string;
+  name?: string;
 
-  @Column()
-  body: string;
+  @Column({ nullable: true })
+  body?: string;
 
   @ManyToOne(() => SurveyResponse, surveyResponse => surveyResponse.answers)
   response: SurveyResponse;

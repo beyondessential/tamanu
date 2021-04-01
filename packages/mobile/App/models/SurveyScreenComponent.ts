@@ -10,11 +10,11 @@ export class SurveyScreenComponent extends BaseModel
   implements ISurveyScreenComponent {
   required: boolean;
 
-  @Column('int')
-  screenIndex: number;
+  @Column({ type: 'int', nullable: true })
+  screenIndex?: number;
 
-  @Column('int')
-  componentIndex: number;
+  @Column({ type: 'int', nullable: true })
+  componentIndex?: number;
 
   @Column({ nullable: true })
   text?: string;
@@ -65,18 +65,15 @@ export class SurveyScreenComponent extends BaseModel
       return [];
     }
   }
-  
+
   getConfigObject(): any {
     if (!this.config) return {};
-    const configObject = {};
 
-    this.config
-      .split("\n")
-      .map(x => x.split(':'))
-      .forEach(x => {
-        if (x[0]) configObject[x[0].trim()] = x[1]?.trim();
-      });
-
-    return configObject;
+    try {
+      return JSON.parse(this.config);
+    } catch(e) {
+      console.warn(`Invalid config in survey screen component ${this.id}`);
+      return {};
+    }
   }
 }

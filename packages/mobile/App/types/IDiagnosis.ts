@@ -12,7 +12,7 @@ export const CERTAINTY_OPTIONS = createDropdownOptionsFromObject(Certainty);
 export interface IDiagnosis {
   id: ID;
   date: Date;
-  certainty: Certainty;
-  isPrimary: boolean;
+  certainty?: Certainty;
+  isPrimary?: boolean;
   diagnosis: IReferenceData;
 }

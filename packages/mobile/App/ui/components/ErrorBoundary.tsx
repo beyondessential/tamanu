@@ -43,6 +43,7 @@ export class ErrorBoundary extends React.PureComponent<ErrorBoundaryProps, Error
   state = { error: null };
 
   componentDidCatch(error) {
+    console.error(error);
     this.setState({ error });
   }
 
