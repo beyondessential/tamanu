@@ -151,7 +151,13 @@ export async function importData({ file, whitelist = [] }) {
 
   // set up validation context
   const recordsById = allRecords.reduce(
-    (all, current) => ({ ...all, [current.data.id]: current }),
+    (all, current) => { 
+      const { id } = current.data;
+      return {
+        ...all,
+        [id]: all[id] || current,
+      };
+    },
     {}
   );
   const validationContext = { recordsById };
