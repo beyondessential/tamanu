@@ -1,14 +1,7 @@
 import { readFile, utils } from 'xlsx';
 import { log } from 'shared/services/logging';
 
-export const ERRORS = {
-  MISSING_ID: 'missingId',
-  INVALID_ID: 'invalidId',
-  DUPLICATE_ID: 'duplicateId',
-  INVALID_CODE: 'invalidCode',
-  BAD_FOREIGN_KEY: 'badForeignKey',
-  FIELD_TOO_LONG: 'fieldTooLong',
-};
+import { validate } from './importerValidators';
 
 const sanitise = string => string.trim().replace(/[^A-Za-z0-9]+/g, '');
 const convertSheetNameToImporterId = sheetName => sanitise(sheetName).toLowerCase();
@@ -25,49 +18,6 @@ const referenceDataTransformer = type => item => {
     },
   };
 };
-
-const safeIdRegex = /^[A-Za-z0-9-]+$/;
-const baseValidator = (record, { recordsById }) => {
-  const { id } = record.data;
-  if(!id) return { error: ERRORS.MISSING_ID };
-  if(!id.match(safeIdRegex)) return { error: ERRORS.INVALID_ID };
-
-  if(recordsById[id] !== record) {
-    return {
-      error: ERRORS.DUPLICATE_ID,
-      duplicateOf: recordsById[id],
-    };
-  }
-};
-
-const safeCodeRegex = /^[A-Za-z0-9-.\/]+$/;
-const referenceDataValidator = (record, context) => {
-  const base = baseValidator(record, context);
-  if(base) return base;
-
-  if(!record.data.code?.match(safeCodeRegex)) {
-    return {
-      error: ERRORS.INVALID_CODE,
-    };
-  }
-
-  if(record.data.name.length > 255) {
-    return {
-      error: ERRORS.FIELD_TOO_LONG,
-      field: 'name',
-    };
-  }
-};
-
-function validate(record, context) {
-  const { recordType } = record; 
-  // TODO: per-recordType validators
-  const validator = referenceDataValidator; 
-  return {
-    ...validator(record, context),
-    ...record
-  };
-}
 
 const makeTransformer = (sheetName, transformer) => ({ 
   sheetName,

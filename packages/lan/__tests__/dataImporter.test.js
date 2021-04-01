@@ -1,4 +1,5 @@
-import { importData, ERRORS } from '~/admin/importDataDefinition';
+import { importData } from '~/admin/importDataDefinition';
+import { ERRORS } from '~/admin/importerValidators';
 
 const TEST_DATA_PATH = './__tests__/importers/test_definitions.xlsx';
 
