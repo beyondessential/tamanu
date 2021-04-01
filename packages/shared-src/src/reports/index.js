@@ -13,7 +13,7 @@ import * as aefi from './aefi';
 export function getReportModule(reportType) {
   switch (reportType) {
     default:
-      return {};
+      return null;
     case 'admissions':
       return admissions;
     case 'incomplete-referrals':
