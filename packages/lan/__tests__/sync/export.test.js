@@ -6,10 +6,11 @@ import {
   expectDeepSyncRecordMatch,
   fake,
   fakePatient,
+  unsafeSetUpdatedAt,
   upsertAssociations,
 } from 'shared/test-helpers';
 import { createExportPlan, executeExportPlan } from 'shared/models/sync';
-import { createTestContext, unsafeSetUpdatedAt } from '../utilities';
+import { createTestContext } from '../utilities';
 
 const makeUpdatedAt = daysAgo =>
   format(subDays(new Date(), daysAgo), 'yyyy-MM-dd hh:mm:ss.SSS +00:00');

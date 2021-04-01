@@ -4,7 +4,6 @@ import http from 'http';
 
 import { createApp } from 'sync-server/app/createApp';
 import { initDatabase, closeDatabase } from 'sync-server/app/database';
-import { QueryTypes } from 'sequelize';
 import { getToken } from 'sync-server/app/middleware/auth';
 
 const chance = new Chance();
@@ -129,13 +128,4 @@ export async function withDate(fakeDate, fn) {
   } finally {
     global.Date = OldDate;
   }
-}
-
-// https://github.com/sequelize/sequelize/issues/3759#issuecomment-524036513
-// THIS IS NOT SAFE! It interpolates a table name directly. Do not use it outside tests.
-export async function unsafeSetUpdatedAt(store, { table, ...replacements }) {
-  return store.sequelize.query(`UPDATE ${table} SET updated_at = :updated_at WHERE id = :id`, {
-    type: QueryTypes.UPDATE,
-    replacements,
-  });
 }

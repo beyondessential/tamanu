@@ -2,14 +2,15 @@ import { subDays, format } from 'date-fns';
 import { v4 as uuidv4 } from 'uuid';
 
 import {
-  fakePatient,
   buildNestedEncounter,
-  upsertAssociations,
   expectDeepSyncRecordsMatch,
+  fakePatient,
+  unsafeSetUpdatedAt,
+  upsertAssociations,
 } from 'shared/test-helpers';
 
 import { convertFromDbRecord, convertToDbRecord } from 'sync-server/app/convertDbRecord';
-import { createTestContext, unsafeSetUpdatedAt } from './utilities';
+import { createTestContext } from './utilities';
 
 export const makeUpdatedAt = daysAgo =>
   format(subDays(new Date(), daysAgo), "yyyy-MM-dd'T'hh:mm:ss+00:00");

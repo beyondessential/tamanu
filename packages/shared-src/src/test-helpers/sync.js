@@ -1,3 +1,5 @@
+import { QueryTypes } from 'sequelize';
+
 export const expectDeepSyncRecordMatch = (dbRecord, syncRecord) => {
   const { updatedAt, createdAt, deletedAt, markedForSync, password, ...syncableData } = dbRecord;
   Object.keys(syncableData).forEach(field => {
@@ -19,3 +21,12 @@ export const expectDeepSyncRecordMatch = (dbRecord, syncRecord) => {
 
 export const expectDeepSyncRecordsMatch = (dbRecords, syncRecords) =>
   dbRecords.forEach((r, i) => expectDeepSyncRecordMatch(r, syncRecords[i]));
+
+// https://github.com/sequelize/sequelize/issues/3759#issuecomment-524036513
+// THIS IS NOT SAFE! It interpolates a table name directly. Do not use it outside tests.
+export async function unsafeSetUpdatedAt(sequelize, { table, ...replacements }) {
+  return sequelize.query(`UPDATE ${table} SET updated_at = :updated_at WHERE id = :id`, {
+    type: QueryTypes.UPDATE,
+    replacements,
+  });
+}
