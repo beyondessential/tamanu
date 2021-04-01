@@ -1,33 +1,59 @@
 import { readFile, utils } from 'xlsx';
 import { log } from '../logging';
 
+export const ERRORS = {
+  MISSING_ID: 'missingId',
+  INVALID_ID: 'invalidId',
+  DUPLICATE_ID: 'duplicateId',
+  INVALID_CODE: 'invalidCode',
+  BAD_FOREIGN_KEY: 'badForeignKey',
+};
+
 const sanitise = string => string.trim().replace(/[^A-Za-z0-9]+/g, '');
 const convertSheetNameToImporterId = sheetName => sanitise(sheetName).toLowerCase();
 const convertNameToCode = name => sanitise(name).toUpperCase();
 
 const referenceDataTransformer = type => item => {
-  const { name } = item;
-  const code = (item.code && `${item.code}`) || convertNameToCode(name);
-
   return {
     recordType: 'referenceData',
     data: {
-      // TODO: replace with '-' separator
-      id: `ref/${type}/${code}`,
       ...item,
-      code,
       type,
     },
   };
 };
 
+const safeIdRegex = /^[A-Za-z0-9-]+$/;
+const baseValidator = (record, { recordsById }) => {
+  const { id } = record.data;
+  if(!id) return { error: ERRORS.MISSING_ID };
+  if(!id.match(safeIdRegex)) return { error: ERRORS.INVALID_ID };
+
+  if(recordsById[id] !== record) {
+    return {
+      error: ERRORS.DUPLICATE_ID,
+      duplicateOf: recordsById[id],
+    };
+  }
+};
+
+function validate(record, context) {
+  const { recordType } = record; 
+  // TODO: per-recordType validators
+  const validator = baseValidator; 
+  return {
+    ...validator(record, context),
+    ...record
+  };
+}
+
 const makeTransformer = (sheetName, transformer) => ({ 
   sheetName,
-  transformer
+  transformer,
 });
 
 const transformers = [
-  makeTransformer('facilities', referenceDataTransformer('facilities')),
+  makeTransformer('facilities', referenceDataTransformer('facility')),
   makeTransformer('villages', referenceDataTransformer('village')),
   makeTransformer('drugs', referenceDataTransformer('drug')),
   makeTransformer('allergies', referenceDataTransformer('allergy')),
@@ -46,6 +72,7 @@ const transformers = [
   makeTransformer('nursingzones', referenceDataTransformer('nursingZone')),
   makeTransformer('settlements', referenceDataTransformer('settlement')),
   makeTransformer('occupations', referenceDataTransformer('occupation')),
+  makeTransformer('labTestCategories', referenceDataTransformer('labTestCategory')),
   makeTransformer('users', null),
   makeTransformer('patients', null),
   makeTransformer('roles', null),
@@ -64,34 +91,67 @@ export async function importData({ file, whitelist = [] }) {
     }), {});
 
   const lowercaseWhitelist = whitelist.map(x => x.toLowerCase());
-  const sheetResults = {};
 
-  // then restructure the parsed data to sync record format
-  const records = transformers
-    .map(({ sheetName, transformer }) => {
-      if(whitelist.length > 0 && !lowercaseWhitelist.includes(sheetName.toLowerCase())) {
-        return [];
-      }
+  // figure out which transformers we're actually using
+  const activeTransformers = transformers.filter(({ sheetName, transformer }) => {
+    if(!transformer) return false;
+    if(whitelist.length > 0 && !lowercaseWhitelist.includes(sheetName.toLowerCase())) {
+      return false;
+    }
+    const sheet = sheets[sheetName.toLowerCase()];
+    if(!sheet) return false;
+
+    return true;
+  });
+
+  // restructure the parsed data to sync record format
+  const allRecords = activeTransformers
+    .map(({ sheetName, transformer, validator }) => {
       const sheet = sheets[sheetName.toLowerCase()];
-      if(!sheet) {
-        return [];
-      }
-      if(!transformer) {
-        sheetResults[sheetName] = { 
-          error: 'Not implemented yet',
-        };
-        return [];
-      }
       const data = utils.sheet_to_json(sheet);
-      sheetResults[sheetName] = { count: data.length };
 
-      return data.map(transformer);
+      // track some additional properties against each item for validation
+      data.forEach(d => {
+        Object.defineProperty(d, '__sheet__', { 
+          enumerable: false, 
+          value: sheetName,
+        });
+      });
+
+      return data.map(item => ({
+        sheet: item.__sheet__,
+        row: (item.__rowNum__ + 1), // account for 0-based js vs 1-based excel
+        ...transformer(item),
+      }));
     })
-    .filter(x => x)
-    .flat();
+    .flat()
+    .filter(x => x);
 
+  // set up validation context
+  const recordsById = allRecords.reduce(
+    (all, current) => ({ ...all, [current.data.id]: current }),
+    {}
+  );
+  const validationContext = { recordsById };
+
+  // validate all records and then group them by status
+  const validatedRecords = allRecords.map(r => validate(r, validationContext));
+  const goodRecords = validatedRecords.filter(x => !x.error).filter(x => x);
+  const badRecords = validatedRecords.filter(x => x.error);
+
+  // compile some stats on successes 
+  const sheetResults = {};
+  activeTransformers.map(({ sheetName }) => {
+    const filter = r => r.sheet === sheetName;
+    sheetResults[sheetName] = {
+      ok: goodRecords.filter(filter).length,
+      error: badRecords.filter(filter).length,
+    };
+  });
+  
   return { 
-    records,
+    records: goodRecords,
+    errors: badRecords,
     sheetResults,
   };
 }

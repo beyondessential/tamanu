@@ -57,6 +57,7 @@ export async function importSurvey({
   programName, 
   surveyCode,
   surveyName,
+  surveyType = 'programs',
 }) {
   log.info(`Reading surveys from ${file}...`);
 
@@ -72,6 +73,7 @@ export async function importSurvey({
     id: `${programElement.data.id}/survey-${idify(surveyCode)}`,
     name: surveyName,
     programId: programElement.data.id,
+    surveyType,
   });
 
   // data and component elements
@@ -83,6 +85,8 @@ export async function importSurvey({
       }),
     )
     .flat();
+
+  console.log(screenElements.filter(x => x.data.id.match(/NCD_63/)));
 
   return {
     records: [
