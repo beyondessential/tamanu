@@ -7,10 +7,10 @@ module.exports = {
   },
 
   down: async query => {
-    await query.addColumn('sync_metadata', 'last_synced');
-    await query.removeColumn('sync_metadata', 'pull_cursor', {
+    await query.addColumn('sync_metadata', 'last_synced', {
       type: Sequelize.BIGINT,
       defaultValue: 0,
     });
+    await query.removeColumn('sync_metadata', 'pull_cursor');
   },
 };
