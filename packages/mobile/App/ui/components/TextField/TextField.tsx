@@ -30,6 +30,7 @@ export interface TextFieldProps extends BaseInputProps {
   autoCapitalize?: 'none' | 'words' | 'sentences' | 'characters' | undefined;
   onFocus?: () => void;
   onBlur?: () => void;
+  charLimit?: number
 }
 
 const styles = StyleSheet.create({
@@ -56,6 +57,7 @@ export const TextField = React.memo(
     onFocus,
     onBlur,
     hideValue = false,
+    charLimit,
   }: TextFieldProps): JSX.Element => {
     const [focused, setFocus] = useState(false);
     const inputRef: Ref<any> = useRef(null);
@@ -132,9 +134,15 @@ export const TextField = React.memo(
             secureTextEntry={secure}
             placeholder={placeholder}
             blurOnSubmit={!multiline}
+            maxLength={charLimit}
           />
         </InputContainer>
       </StyledView>
     );
   },
 );
+
+export const LimitedTextField = (props: TextFieldProps) => {
+  const { charLimit = 255 } = props;
+  return <TextField {...props} charLimit={charLimit} />
+};
