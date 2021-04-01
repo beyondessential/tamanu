@@ -8,12 +8,8 @@ import { DownloadRecordsResponse, UploadRecordsResponse, SyncRecord, SyncSource 
 import { createImportPlan, executeImportPlan } from './import';
 import { createExportPlan, executeExportPlan } from './export';
 
-type SyncOptions = {
-  overrideLastSynced?: Timestamp,
-};
-
 export type SyncManagerOptions = {
-  verbose?: boolean,
+  verbose?: boolean;
 };
 
 type Timestamp = number;
@@ -25,7 +21,7 @@ const MAX_DOWNLOAD_LIMIT = 500;
 const OPTIMAL_DOWNLOAD_TIME_PER_PAGE = 2000; // aim for 2 seconds per page
 
 // Set the current page size based on how long the previous page took to complete.
-const calculateDynamicLimit = (currentLimit, downloadTime) => {
+const calculateDynamicLimit = (currentLimit, downloadTime): number => {
   const durationPerRecord = downloadTime / currentLimit;
   const optimalPageSize = OPTIMAL_DOWNLOAD_TIME_PER_PAGE / durationPerRecord;
   let newLimit = optimalPageSize;
@@ -40,8 +36,7 @@ const calculateDynamicLimit = (currentLimit, downloadTime) => {
     MAX_DOWNLOAD_LIMIT,
   );
   return newLimit;
-}
-
+};
 export class SyncManager {
   isSyncing = false;
 
@@ -133,15 +128,13 @@ export class SyncManager {
     await this.runScheduledSync();
   }
 
-  async downloadAndImport(model: typeof BaseModel, channel: string, since: Timestamp): Promise<Timestamp> {
-    const downloadPage = (offset: number, limit: number): Promise<DownloadRecordsResponse> => {
-      this.emitter.emit('downloadingPage', `${channel}-offset-${offset}-limit-${limit}`);
-      return this.syncSource.downloadRecords(
-        channel,
-        since,
-        offset,
-        limit,
-      );
+  async downloadAndImport(
+    model: typeof BaseModel,
+    channel: string,
+  ): Promise<void> {
+    const downloadPage = (since: string, limit: number): Promise<DownloadRecordsResponse> => {
+      this.emitter.emit('downloadingPage', `${channel}-since-${since}-limit-${limit}`);
+      return this.syncSource.downloadRecords(channel, since, limit);
     };
 
     let numDownloaded = 0;
@@ -149,16 +142,15 @@ export class SyncManager {
       this.progress = progress;
       this.emitter.emit('progress', this.progress);
     };
-    const updateProgress = (stepSize: number, total: number): void => {
+    const updateProgress = (stepSize: number, remaining: number): void => {
       numDownloaded += stepSize;
+      const total = numDownloaded + remaining;
       setProgress(Math.ceil((numDownloaded / total) * 100));
     };
     setProgress(0);
 
-    let requestedAt: Timestamp = 0;
-
     const importPlan = createImportPlan(model);
-    const importRecords = async (records: SyncRecord[]): Promise<void> => {
+    const importRecords = async (records: SyncRecord[], pullCursor: string): Promise<void> => {
       const { failures } = await executeImportPlan(importPlan, records);
       failures.forEach(({ error, recordId }) => {
         this.emitter.emit('syncRecordError', {
@@ -166,10 +158,11 @@ export class SyncManager {
           error,
         });
       });
+      await this.updateChannelPullCursor(channel, pullCursor);
     };
 
+    let cursor = await this.getChannelPullCursor(channel);
     let importTask: Promise<void>;
-    let offset = 0;
     let limit = INITIAL_DOWNLOAD_LIMIT;
     this.emitter.emit('importStarted', channel);
     while (true) {
@@ -178,7 +171,7 @@ export class SyncManager {
       // and network IO are running in parallel rather than running in
       // alternating sequence.
       const startTime = Date.now();
-      const downloadTask = downloadPage(offset, limit);
+      const downloadTask = downloadPage(cursor, limit);
 
       // wait for import task to complete before progressing in loop
       await importTask;
@@ -201,22 +194,20 @@ export class SyncManager {
 
       updateProgress(response.records.length, response.count);
 
-      // we have records to import - import them
-      this.emitter.emit('importingPage', `${channel}-offset-${offset}-limit-${limit}`);
-      importTask = importRecords(response.records);
-      requestedAt = requestedAt || response.requestedAt;
+      cursor = response.cursor;
 
-      offset += response.records.length;
+      // we have records to import - import them
+      this.emitter.emit('importingPage', `${channel}-since-${cursor}-limit-${limit}`);
+      importTask = importRecords(response.records, cursor);
+
       limit = calculateDynamicLimit(limit, downloadTime);
     }
     await importTask; // wait for any final import task to finish
 
     this.emitter.emit('importEnded', channel);
-
-    return requestedAt;
   }
 
-  async exportAndUpload(model: typeof BaseModel, channel: string) {
+  async exportAndUpload(model: typeof BaseModel, channel: string): Promise<void> {
     // function definitions
     const exportPlan = createExportPlan(model);
     const exportRecords = async (page: number, afterId?: string): Promise<SyncRecord[]> => {
@@ -226,18 +217,25 @@ export class SyncManager {
         after: afterId,
         limit: UPLOAD_LIMIT,
       })).map(r => executeExportPlan(exportPlan, r));
-    }
+    };
 
-    const uploadRecords = async (page: number, syncRecords: SyncRecord[]): Promise<UploadRecordsResponse> => {
+    const uploadRecords = async (
+      page: number,
+      syncRecords: SyncRecord[],
+    ): Promise<UploadRecordsResponse> => {
       // TODO: detect and retry failures (need to pass back from server)
       this.emitter.emit('uploadingPage', `${channel}-${page}`);
       return this.syncSource.uploadRecords(channel, syncRecords);
-    }
+    };
 
-    const markRecordsUploaded = async (page: number, records: SyncRecord[], requestedAt: Timestamp): Promise<void> => {
+    const markRecordsUploaded = async (
+      page: number,
+      records: SyncRecord[],
+      requestedAt: Timestamp,
+    ): Promise<void> => {
       this.emitter.emit('markingPageUploaded', `${channel}-${page}`);
       return model.markUploaded(records.map(r => r.data.id), new Date(requestedAt));
-    }
+    };
 
     // TODO: progress handling
 
@@ -275,51 +273,28 @@ export class SyncManager {
     this.emitter.emit('exportEnded', channel);
   }
 
-  async getChannelSyncTimestamp(channel: string): Promise<Timestamp> {
-    const timestampString = await readConfig(`syncTimestamp.${channel}`, '0');
-    const timestamp = parseInt(timestampString, 10);
-    if (Number.isNaN(timestamp)) {
-      return 0;
-    }
-    return timestamp;
+  async getChannelPullCursor(channel: string): Promise<string> {
+    return readConfig(`pullCursor.${channel}`, '0');
   }
 
-  async updateChannelSyncDate(channel: string, timestamp: Timestamp): Promise<void> {
-    await writeConfig(`syncTimestamp.${channel}`, timestamp.toString());
+  async updateChannelPullCursor(channel: string, pullCursor: string): Promise<void> {
+    await writeConfig(`pullCursor.${channel}`, pullCursor);
   }
 
   async runChannelSync(
     model: typeof BaseModel,
     channel: string,
-    { overrideLastSynced = null }: SyncOptions = {},
-  ): Promise<Timestamp> {
-    const lastSynced = (overrideLastSynced === null)
-      ? await this.getChannelSyncTimestamp(channel)
-      : overrideLastSynced;
-
+  ): Promise<void> {
     this.emitter.emit('channelSyncStarted', channel);
-    let requestedAt: Timestamp = null;
-    requestedAt = await this.downloadAndImport(model, channel, lastSynced);
+    await this.downloadAndImport(model, channel);
     if (model.shouldExport) {
       await this.exportAndUpload(model, channel);
     }
-    if (requestedAt) {
-      await this.updateChannelSyncDate(channel, requestedAt);
-    }
     this.emitter.emit('channelSyncEnded', channel);
-    return requestedAt;
   }
 
-  async runPatientSync(patient: Patient): Promise<Timestamp> {
-    const overrideLastSynced = patient.lastSynced;
-    const lastSynced = Math.min(
-      await this.runChannelSync(Database.models.Encounter, `patient/${patient.id}/encounter`, { overrideLastSynced }),
-      await this.runChannelSync(Database.models.PatientIssue, `patient/${patient.id}/issue`, { overrideLastSynced }),
-    );
-    if (lastSynced) {
-      patient.lastSynced = lastSynced;
-      await patient.save();
-    }
-    return lastSynced;
+  async runPatientSync(patient: Patient): Promise<void> {
+    await this.runChannelSync(Database.models.Encounter, `patient/${patient.id}/encounter`);
+    await this.runChannelSync(Database.models.PatientIssue, `patient/${patient.id}/issue`);
   }
 }

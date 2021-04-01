@@ -25,13 +25,11 @@ import { SyncRecord, SyncRecordData } from './source';
 const RECORDS_PER_TEST = 100;
 
 type SyncRecordOverrides = {
-  lastSynced?: Date;
   isDeleted?: boolean;
   data?: object;
 }
 
 const generateSyncRecord = (fake, overrides: SyncRecordOverrides = {}): SyncRecord => ({
-  lastSynced: new Date(1972, 5, 1),
   ...overrides,
   data: {
     ...fake(),

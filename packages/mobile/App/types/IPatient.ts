@@ -12,5 +12,4 @@ export interface IPatient {
   culturalName?: string;
   additionalData?: IPatientAdditionalData;
   markedForSync?: boolean;
-  lastSynced?: number;
 }

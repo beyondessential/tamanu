@@ -45,9 +45,6 @@ export class Patient extends BaseModel implements IPatient {
   @Column({ default: false })
   markedForSync: boolean; // TODO: should markedForUpload on children cascade upward to this?
 
-  @Column({ type: 'bigint', default: 0 })
-  lastSynced: number;
-
   @OneToMany(() => Encounter, encounter => encounter.patient)
   encounters: Encounter[]
 

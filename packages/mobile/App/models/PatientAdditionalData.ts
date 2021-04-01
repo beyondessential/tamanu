@@ -92,7 +92,4 @@ export class PatientAdditionalData extends BaseModel implements IPatientAddition
 
   @Column({ default: false })
   markedForSync: boolean;
-
-  @Column({ type: 'bigint', default: 0 })
-  lastSynced: number;
 }

@@ -32,5 +32,4 @@ export interface IPatientAdditionalData {
   occupationId?: string;
 
   markedForSync?: boolean;
-  lastSynced?: number;
 }
