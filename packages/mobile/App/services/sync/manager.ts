@@ -64,7 +64,14 @@ export class SyncManager {
       if (action === 'syncRecordError') {
         const syncError = args[0];
         this.errors.push(syncError);
-        console.warn('error', syncError);
+        console.warn('Sync record error', syncError);
+        return;
+      }
+
+      if (action === 'channelSyncError') {
+        const syncError = args[0].error;
+        this.errors.push(syncError);
+        console.warn('Channel sync error', syncError);
         return;
       }
 
@@ -143,8 +150,8 @@ export class SyncManager {
       this.emitter.emit('progress', this.progress);
     };
     const updateProgress = (stepSize: number, remaining: number): void => {
-      numDownloaded += stepSize;
       const total = numDownloaded + remaining;
+      numDownloaded += stepSize;
       setProgress(Math.ceil((numDownloaded / total) * 100));
     };
     setProgress(0);
@@ -158,6 +165,11 @@ export class SyncManager {
           error,
         });
       });
+      if (failures.length > 0) {
+        throw new Error(
+          `${failures.length} individual record failures`,
+        );
+      }
       await this.updateChannelPullCursor(channel, pullCursor);
     };
 
@@ -286,9 +298,17 @@ export class SyncManager {
     channel: string,
   ): Promise<void> {
     this.emitter.emit('channelSyncStarted', channel);
-    await this.downloadAndImport(model, channel);
+    try {
+      await this.downloadAndImport(model, channel);
+    } catch (e) {
+      this.emitter.emit('channelSyncError', { channel, error: e.message });
+    }
     if (model.shouldExport) {
-      await this.exportAndUpload(model, channel);
+      try {
+        await this.exportAndUpload(model, channel);
+      } catch (e) {
+        this.emitter.emit('channelSyncError', { channel, error: e.message });
+      }
     }
     this.emitter.emit('channelSyncEnded', channel);
   }

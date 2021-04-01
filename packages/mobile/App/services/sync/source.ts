@@ -50,6 +50,20 @@ export interface SyncSource {
 
 const API_VERSION = 1;
 
+const MAX_FETCH_WAIT_TIME = 45 * 1000; // 45 seconds in milliseconds
+
+const createTimeoutPromise = (): Promise<void> => new Promise((resolve, reject) => {
+  const id = setTimeout(() => {
+    clearTimeout(id);
+    reject(new Error('Network request timed out'));
+  }, MAX_FETCH_WAIT_TIME);
+});
+
+const fetchWithTimeout = (url, config) => Promise.race([
+  fetch(url, config),
+  createTimeoutPromise(),
+]);
+
 export class WebSyncSource implements SyncSource {
   path: string;
 
@@ -91,7 +105,7 @@ export class WebSyncSource implements SyncSource {
       const queryString = Object.entries(query).map(([k, v]) => `${k}=${v}`).join('&');
       const url = `${this.path}/sync/${encodeURIComponent(channel)}?${queryString}`;
 
-      const response = await fetch(url, {
+      const response = await fetchWithTimeout(url, {
         method: 'GET',
         headers: {
           'Authorization': `Bearer ${this.token}`,
@@ -110,7 +124,7 @@ export class WebSyncSource implements SyncSource {
   async uploadRecords(channel: string, records: SyncRecord[]): Promise<UploadRecordsResponse | null> {
     try {
       const url = `${this.path}/sync/${encodeURIComponent(channel)}`;
-      const rawResponse = await fetch(url, {
+      const rawResponse = await fetchWithTimeout(url, {
         method: 'POST',
         headers: {
           'Authorization': `Bearer ${this.token}`,
@@ -135,7 +149,7 @@ export class WebSyncSource implements SyncSource {
 
       const body = JSON.stringify({ email, password });
 
-      const response = await fetch(url, {
+      const response = await fetchWithTimeout(url, {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
