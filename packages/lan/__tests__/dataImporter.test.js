@@ -1,50 +1,62 @@
 import { importData } from '~/admin/importDataDefinition';
+import { processRecordSet } from '~/admin/processRecordSet';
 import { ERRORS } from '~/admin/importerValidators';
 
 const TEST_DATA_PATH = './__tests__/importers/test_definitions.xlsx';
 
+// the importer can take a little while 
+jest.setTimeout(30000);
+
 describe('Data definition import', () => {
 
-  let importedData = null;
+  let resultInfo = null;
+  let recordGroups = null;
 
   beforeAll(async () => {
-    importedData = await importData({ file: TEST_DATA_PATH });
+    const rawData = await importData({ file: TEST_DATA_PATH });
+    const { 
+      recordGroups: rg, 
+      ...rest 
+    } = processRecordSet(rawData);
+    resultInfo = rest;
+    recordGroups = rg;
   });
 
   it('should ensure every record has an id', () => {
-    importedData.records.map(r => {
-      expect(r).toHaveProperty('data.id');
-    });
+    for(const [k, records] of recordGroups) {
+      records.map(r => {
+        expect(r).toHaveProperty('data.id');
+      });
+    }
   });
 
   it('should flag records with missing ids', () => {
-    const missingIds = importedData.errors.filter(x => x.error === ERRORS.MISSING_ID);
+    const missingIds = resultInfo.errors.filter(x => x.error === ERRORS.MISSING_ID);
     expect(missingIds.length).toBeGreaterThan(0);
   });
 
   it('should flag records with invalid ids', () => {
-    const invalidIds = importedData.errors.filter(x => x.error === ERRORS.INVALID_ID);
+    const invalidIds = resultInfo.errors.filter(x => x.error === ERRORS.INVALID_ID);
     expect(invalidIds.length).toBeGreaterThan(0);
   });
 
   it('should flag records with duplicate ids', () => {
-    const duplicateIds = importedData.errors.filter(x => x.error === ERRORS.DUPLICATE_ID);
+    const duplicateIds = resultInfo.errors.filter(x => x.error === ERRORS.DUPLICATE_ID);
     expect(duplicateIds.length).toBeGreaterThan(0);
   });
 
   it('should import a bunch of reference data items', () => {
-    const { sheetResults } = importedData;
+    const { records } = resultInfo.stats;
 
-    expect(sheetResults.villages).toHaveProperty('ok', 10);
-    expect(sheetResults.drugs).toHaveProperty('ok', 10);
-    expect(sheetResults.allergies).toHaveProperty('ok', 10);
-    expect(sheetResults.departments).toHaveProperty('ok', 10);
-    expect(sheetResults.locations).toHaveProperty('ok', 10);
-    expect(sheetResults.diagnoses).toHaveProperty('ok', 10);
-    expect(sheetResults.triageReasons).toHaveProperty('ok', 10);
-    expect(sheetResults.procedures).toHaveProperty('ok', 10);
-
-    expect(sheetResults.imagingTypes).toHaveProperty('ok', 3);
+    expect(records).toHaveProperty('referenceData:village', 10);
+    expect(records).toHaveProperty('referenceData:drug', 10);
+    expect(records).toHaveProperty('referenceData:allergy', 10);
+    expect(records).toHaveProperty('referenceData:department', 10);
+    expect(records).toHaveProperty('referenceData:location', 10);
+    expect(records).toHaveProperty('referenceData:icd10', 10);
+    expect(records).toHaveProperty('referenceData:triageReason', 10);
+    expect(records).toHaveProperty('referenceData:procedureType', 10);
+    expect(records).toHaveProperty('referenceData:imagingType', 3);
   });
 
   xit('should import user records', () => {

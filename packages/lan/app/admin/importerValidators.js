@@ -54,3 +54,31 @@ export function validate(record, context) {
   };
 }
 
+export function validateRecordSet(records, options = {}) {
+  const {
+    trustForeignKeys,
+  } = options;
+
+  // set up validation context
+  const recordsById = records.reduce(
+    (all, current) => { 
+      const { id } = current.data;
+      return {
+        ...all,
+        [id]: all[id] || current,
+      };
+    },
+    {}
+  );
+  const validationContext = { recordsById };
+
+  // validate all records and then group them by status
+  const validatedRecords = records.map(r => validate(r, validationContext));
+  const goodRecords = validatedRecords.filter(x => !x.error).filter(x => x);
+  const badRecords = validatedRecords.filter(x => x.error);
+
+  return { 
+    records: goodRecords,
+    errors: badRecords,
+  };
+}

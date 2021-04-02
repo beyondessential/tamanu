@@ -1,8 +1,6 @@
 import { readFile, utils } from 'xlsx';
 import { log } from 'shared/services/logging';
 
-import { validate } from './importerValidators';
-
 const sanitise = string => string.trim().replace(/[^A-Za-z0-9]+/g, '');
 const convertSheetNameToImporterId = sheetName => sanitise(sheetName).toLowerCase();
 const convertNameToCode = name => sanitise(name).toUpperCase();
@@ -62,9 +60,24 @@ export async function importData({ file, whitelist = [] }) {
       [sanitise(sheetName).toLowerCase()]: sheet,
     }), {});
 
-  const lowercaseWhitelist = whitelist.map(x => x.toLowerCase());
+  // set up the importer
+  const importSheet = (sheetName, transformer) => {
+    const sheet = sheets[sheetName.toLowerCase()];
+    const data = utils.sheet_to_json(sheet);
+
+    return data.map(item => {
+      const transformed = transformer(item);
+      if(!transformed) return null;
+      return {
+        sheet: sheetName,
+        row: (item.__rowNum__ + 1), // account for 0-based js vs 1-based excel
+        ...transformed,
+      };
+    }).flat();
+  };
 
   // figure out which transformers we're actually using
+  const lowercaseWhitelist = whitelist.map(x => x.toLowerCase());
   const activeTransformers = transformers.filter(({ sheetName, transformer }) => {
     if(!transformer) return false;
     if(whitelist.length > 0 && !lowercaseWhitelist.includes(sheetName.toLowerCase())) {
@@ -77,59 +90,8 @@ export async function importData({ file, whitelist = [] }) {
   });
 
   // restructure the parsed data to sync record format
-  const allRecords = activeTransformers
-    .map(({ sheetName, transformer, validator }) => {
-      const sheet = sheets[sheetName.toLowerCase()];
-      const data = utils.sheet_to_json(sheet);
-
-      // track some additional properties against each item for validation
-      data.forEach(d => {
-        Object.defineProperty(d, '__sheet__', { 
-          enumerable: false, 
-          value: sheetName,
-        });
-      });
-
-      return data.map(item => ({
-        sheet: item.__sheet__,
-        row: (item.__rowNum__ + 1), // account for 0-based js vs 1-based excel
-        ...transformer(item),
-      }));
-    })
+  return activeTransformers
+    .map(({ sheetName, transformer }) => importSheet(sheetName, transformer))
     .flat()
     .filter(x => x);
-
-  // set up validation context
-  const recordsById = allRecords.reduce(
-    (all, current) => { 
-      const { id } = current.data;
-      return {
-        ...all,
-        [id]: all[id] || current,
-      };
-    },
-    {}
-  );
-  const validationContext = { recordsById };
-
-  // validate all records and then group them by status
-  const validatedRecords = allRecords.map(r => validate(r, validationContext));
-  const goodRecords = validatedRecords.filter(x => !x.error).filter(x => x);
-  const badRecords = validatedRecords.filter(x => x.error);
-
-  // compile some stats on successes 
-  const sheetResults = {};
-  activeTransformers.map(({ sheetName }) => {
-    const filter = r => r.sheet === sheetName;
-    sheetResults[sheetName] = {
-      ok: goodRecords.filter(filter).length,
-      error: badRecords.filter(filter).length,
-    };
-  });
-  
-  return { 
-    records: goodRecords,
-    errors: badRecords,
-    sheetResults,
-  };
 }

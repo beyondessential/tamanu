@@ -6,6 +6,8 @@ import { sendSyncRequest } from './sendSyncRequest';
 
 import { compareModelPriority } from 'shared/models/sync/order';
 
+import { processRecordSet } from './processRecordSet';
+
 export function createDataImporterEndpoint(importer) {
   return asyncHandler(async (req, res) => {
     const start = Date.now();
@@ -20,11 +22,7 @@ export function createDataImporterEndpoint(importer) {
     } = await getUploadedData(req);
 
     // parse uploaded file
-    const {
-      records,
-      errors = [],
-      ...importerOutput
-    } = await importer({
+    const recordSet = await importer({
       file,
       ...metadata,
     });
@@ -34,49 +32,28 @@ export function createDataImporterEndpoint(importer) {
       unlink(file, () => null);
     }
 
-    // split up records according to record type
-    const recordsByType = records
-      .reduce((state, record) => ({
-        ...state,
-        [record.recordType]: (state[record.recordType] || []).concat([record]),
-      }), {});
-
-    // get some analytics
-    const recordCounts = {};
-    Object.entries(recordsByType).map(([k, v]) => {
-      recordCounts[k] = v.length;
-    });
-    (recordsByType.referenceData || []).map(record => {
-      const key = `referenceData.${record.data.type}`;
-      recordCounts[key] = (recordCounts[key] || 0) + 1;
-    });
-    recordCounts.total = records.length;
-
-    // sort into safe order
-    const sortedRecordGroups = Object.entries(recordsByType)
-      .sort((a, b) => {
-        return compareModelPriority(a[0], b[0]);
-      });
+    const {
+      recordGroups, 
+      ...resultInfo
+    } = processRecordSet(recordSet);
 
     const sendResult = (extraData = {}) => res.send({
-      errors,
-      duration: (Date.now() - start) / 1000.0,
-      recordCounts,
-      ...importerOutput,
+      ...resultInfo,
       ...extraData,
+      duration: (Date.now() - start) / 1000.0,
     });
 
     // bail out early
     if(dryRun) {
-      sendResult({ sentData: false, didntSendReason: "dry run" });
+      sendResult({ sentData: false, didntSendReason: "dryRun" });
       return;
-    } else if(errors.length > 0 && !allowErrors) {
-      sendResult({ sentData: false, didntSendReason: "validation failed" });
+    } else if(resultInfo.errors.length > 0 && !allowErrors) {
+      sendResult({ sentData: false, didntSendReason: "validationFailed" });
       return;
     }
 
     // send to sync server in batches
-    for(const [k, v] of sortedRecordGroups) {
+    for(const [k, v] of recordGroups) {
       if(k === 'referenceData') {
         await sendSyncRequest('reference', v);
       } else {
