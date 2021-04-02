@@ -1,83 +1,39 @@
+import * as yup from 'yup';
 
-export const ERRORS = {
-  MISSING_ID: 'missingId',
-  INVALID_ID: 'invalidId',
-  DUPLICATE_ID: 'duplicateId',
-  INVALID_CODE: 'invalidCode',
-  MISSING_FIELD: 'missingField',
-  BAD_FOREIGN_KEY: 'badForeignKey',
-  FIELD_TOO_LONG: 'fieldTooLong',
-};
+function createValidationSchemas(context) {
+  const safeIdRegex = /^[A-Za-z0-9-]+$/;
+  const baseSchema = yup.object()
+    .shape({
+      id: yup.string().required().matches(safeIdRegex, 'id must not have spaces or punctuation other than -'),
+    });
 
-const safeIdRegex = /^[A-Za-z0-9-]+$/;
-const baseValidator = (record, { recordsById }) => {
-  const { id } = record.data;
-  if(!id) return { error: ERRORS.MISSING_ID };
-  if(!id.match(safeIdRegex)) return { error: ERRORS.INVALID_ID };
+  const safeCodeRegex = /^[A-Za-z0-9-.\/]+$/;
+  const referenceDataSchema = baseSchema
+    .shape({
+      type: yup.string().required(),
+      code: yup.string().required().matches(safeCodeRegex, 'code must not have spaces or punctuation other than -./'),
+      name: yup.string().required().max(255),
+    });
 
-  if(recordsById[id] !== record) {
-    return {
-      error: ERRORS.DUPLICATE_ID,
-      duplicateOf: recordsById[id],
-    };
-  }
-};
+  const patientSchema = baseSchema;
 
-const safeCodeRegex = /^[A-Za-z0-9-.\/]+$/;
-const referenceDataValidator = (record, context) => {
-  const base = baseValidator(record, context);
-  if(base) return base;
+  const userSchema = baseSchema
+    .shape({
+      email: yup.string().required(),
+      displayName: yup.string().required(),
+      password: yup.string().required(),
+    });
 
-  if(!record.data.code?.match(safeCodeRegex)) {
-    return {
-      error: ERRORS.INVALID_CODE,
-    };
-  }
-
-  if(record.data.name.length > 255) {
-    return {
-      error: ERRORS.FIELD_TOO_LONG,
-      field: 'name',
-    };
-  }
-};
-
-const patientValidator = (record, context) => {
-  const base = baseValidator(record, context);
-  if(base) return base;
-};
-
-const userValidator = (record, context) => {
-  const base = baseValidator(record, context);
-  if(base) return base;
-
-  if(!record.data.email) {
-    return { error: ERRORS.MISSING_FIELD, field: 'email' };
-  }
-  if(!record.data.displayName) {
-    return { error: ERRORS.MISSING_FIELD, field: 'displayName' };
-  }
-  if(!record.data.password) {
-    return { error: ERRORS.MISSING_FIELD, field: 'password' };
-  }
-};
-
-const validatorsByRecordType = {
-  referenceData: referenceDataValidator,
-  patient: patientValidator,
-  user: userValidator,
-};
-
-export function validate(record, context) {
-  const { recordType } = record;
-  const validator = validatorsByRecordType[recordType] || baseValidator;
   return {
-    ...validator(record, context),
-    ...record
+    base: baseSchema,
+    referenceData: referenceDataSchema,
+    patient: patientSchema,
+    user: userSchema,
   };
 }
 
-export function validateRecordSet(records, options = {}) {
+
+export async function validateRecordSet(records, options = {}) {
   const {
     trustForeignKeys,
   } = options;
@@ -95,10 +51,34 @@ export function validateRecordSet(records, options = {}) {
   );
   const validationContext = { recordsById };
 
+  const schemas = createValidationSchemas(validationContext);
+  const validate = async (record) => {
+    const { recordType, data } = record;
+    const schema = schemas[recordType] || schemas.base;
+
+    try {
+      await schema.validate(data);
+  
+      // perform id duplicate check outside of schemas as it relies on consistent
+      // object identities, which is yup's validation does not guarantee
+      const existing = recordsById[data.id];
+      if(existing !== record) {
+        throw new yup.ValidationError(`id ${data.id} is already being used at ${existing.sheet}:${existing.row}`);
+      }
+
+      return record;
+    } catch(e) {
+      return {
+        ...record,
+        errors: e.errors,
+      };
+    }
+  };
+
   // validate all records and then group them by status
-  const validatedRecords = records.map(r => validate(r, validationContext));
-  const goodRecords = validatedRecords.filter(x => !x.error).filter(x => x);
-  const badRecords = validatedRecords.filter(x => x.error);
+  const validatedRecords = await Promise.all(records.map(validate));
+  const goodRecords = validatedRecords.filter(x => !x.errors).filter(x => x);
+  const badRecords = validatedRecords.filter(x => x.errors);
 
   return { 
     records: goodRecords,

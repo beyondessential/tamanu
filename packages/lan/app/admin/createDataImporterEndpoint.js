@@ -35,7 +35,7 @@ export function createDataImporterEndpoint(importer) {
     const {
       recordGroups, 
       ...resultInfo
-    } = processRecordSet(recordSet);
+    } = await processRecordSet(recordSet);
 
     const sendResult = (extraData = {}) => res.send({
       ...resultInfo,

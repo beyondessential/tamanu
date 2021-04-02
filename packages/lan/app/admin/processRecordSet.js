@@ -27,11 +27,11 @@ function getRecordCounts(recordsByType) {
   return recordCounts;
 }
 
-export function processRecordSet(recordSet) {
+export async function processRecordSet(recordSet) {
   const { 
     records,
     errors = [],
-  } = validateRecordSet(recordSet);
+  } = await validateRecordSet(recordSet);
 
   // split up records according to record type
   const recordsByType = groupRecordsByType(records);

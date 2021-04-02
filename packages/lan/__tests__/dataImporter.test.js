@@ -1,6 +1,6 @@
+import util from 'util';
 import { importData } from '~/admin/importDataDefinition';
 import { processRecordSet } from '~/admin/processRecordSet';
-import { ERRORS } from '~/admin/importerValidators';
 
 const TEST_DATA_PATH = './__tests__/importers/test_definitions.xlsx';
 
@@ -17,7 +17,7 @@ describe('Data definition import', () => {
     const { 
       recordGroups: rg, 
       ...rest 
-    } = processRecordSet(rawData);
+    } = await processRecordSet(rawData);
     resultInfo = rest;
     recordGroups = rg;
   });
@@ -30,19 +30,26 @@ describe('Data definition import', () => {
     }
   });
 
+  const expectError = (recordType, text) => {
+    const hasError = record => record.errors.some(e => e.includes(text));
+    const condition = record => record.recordType === recordType && hasError(record);
+    expect(resultInfo.errors.some(condition)).toEqual(true);
+  };
+
   it('should flag records with missing ids', () => {
-    const missingIds = resultInfo.errors.filter(x => x.error === ERRORS.MISSING_ID);
-    expect(missingIds.length).toBeGreaterThan(0);
+    expectError('referenceData', 'id is a required field');
   });
 
   it('should flag records with invalid ids', () => {
-    const invalidIds = resultInfo.errors.filter(x => x.error === ERRORS.INVALID_ID);
-    expect(invalidIds.length).toBeGreaterThan(0);
+    expectError('referenceData', 'id must not have spaces or punctuation');
+  });
+
+  it('should flag records with invalid codes', () => {
+    expectError('referenceData', 'code must not have spaces or punctuation');
   });
 
   it('should flag records with duplicate ids', () => {
-    const duplicateIds = resultInfo.errors.filter(x => x.error === ERRORS.DUPLICATE_ID);
-    expect(duplicateIds.length).toBeGreaterThan(0);
+    expectError('referenceData', 'is already being used at');
   });
 
   it('should import a bunch of reference data items', () => {
