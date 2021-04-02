@@ -76,4 +76,12 @@ describe('Data definition import', () => {
     expect(records).toHaveProperty('patient', 10);
   });
 
+  it('should report an error if an FK search comes up empty', () => {
+    expectError('patient', 'could not find a referenceData called "village-nowhere"');
+  });
+
+  it('should report an error if an FK is of the wrong type', () => {
+    expectError('patient', 'linked referenceData for');
+  });
+
 });

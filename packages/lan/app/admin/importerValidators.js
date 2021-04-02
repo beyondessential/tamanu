@@ -1,4 +1,5 @@
 import * as yup from 'yup';
+import { ValidationError } from 'yup';
 
 const safeIdRegex = /^[A-Za-z0-9-]+$/;
 const baseSchema = yup.object()
@@ -14,7 +15,10 @@ const referenceDataSchema = baseSchema
     name: yup.string().required().max(255),
   });
 
-const patientSchema = baseSchema;
+const patientSchema = baseSchema
+  .shape({
+    villageId: yup.string(),
+  });
 
 const userSchema = baseSchema
   .shape({
@@ -30,11 +34,51 @@ const validationSchemas = {
   user: userSchema,
 };
 
-export async function validateRecordSet(records, options = {}) {
-  const {
-    trustForeignKeys,
-  } = options;
+const pairers = {
+  patient: (data, findRecordId) => {
+    const {
+      village,
+      ...rest
+    } = data;
+    if(!village) return data;
 
+    const villageId = findRecordId('referenceData', village, 'name');
+    return {
+      villageId,
+      ...rest
+    };
+  },
+};
+
+const createRecordFinder = (records, recordsById) => (
+  recordType,
+  search,
+  searchField = 'name'
+) => {
+  // don't run an empty search, if a relation is mandatory
+  // it should be set in the schema
+  if(!search) return '';
+
+  const byId = recordsById[search];
+  if(byId) {
+    if(byId.recordType !== recordType) {
+      throw new ValidationError(`linked ${recordType} for ${search} was of type ${byId.recordType}`);
+    }
+    return search;
+  }
+
+  const found = records.find(r => {
+    if(r.recordType !== recordType || (r.recordType === "referenceData" && r.data.type === recordType)) return false;
+    if(r.data[searchField].toLowerCase() === search.toLowerCase()) {
+      return true;
+    }
+  });
+
+  if(found) return found.data.id;
+  throw new ValidationError(`could not find a ${recordType} called "${search}"`);
+};
+
+export async function validateRecordSet(records) {
   // set up validation context
   const recordsById = records.reduce(
     (all, current) => { 
@@ -47,21 +91,30 @@ export async function validateRecordSet(records, options = {}) {
     {}
   );
 
+  const findRecordId = createRecordFinder(records, recordsById);
+
   const validate = async (record) => {
     const { recordType, data } = record;
     const schema = validationSchemas[recordType] || schemas.base;
 
     try {
-      await schema.validate(data);
-  
       // perform id duplicate check outside of schemas as it relies on consistent
       // object identities, which yup's validation does not guarantee
       const existing = recordsById[data.id];
       if(existing !== record) {
-        throw new yup.ValidationError(`id ${data.id} is already being used at ${existing.sheet}:${existing.row}`);
+        throw new ValidationError(`id ${data.id} is already being used at ${existing.sheet}:${existing.row}`);
       }
 
-      return record;
+      // populate all FKs for this data object
+      const pairer = pairers[recordType] || (data => data);
+      const linkedData = pairer(data, findRecordId);
+
+      const validatedData = await schema.validate(linkedData);
+
+      return {
+        ...record,
+        data: validatedData,
+      };
     } catch(e) {
       return {
         ...record,
