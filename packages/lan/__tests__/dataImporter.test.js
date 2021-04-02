@@ -59,15 +59,14 @@ describe('Data definition import', () => {
     expect(records).toHaveProperty('referenceData:imagingType', 3);
   });
 
-  xit('should import user records', () => {
-    const { sheetResults } = importedData;
-
-    expect(sheetResults.users).toHaveProperty('ok', 10);
+  it('should import user records', () => {
+    const { records } = resultInfo.stats;
+    expect(records).toHaveProperty('user', 10);
   });
 
-  xit('should import patient records', () => {
-    const { sheetResults } = importedData;
-    expect(sheetResults.labTestTypes).toHaveProperty('ok', 10);
+  it('should import patient records', () => {
+    const { records } = resultInfo.stats;
+    expect(records).toHaveProperty('patient', 10);
   });
 
 });

@@ -4,6 +4,7 @@ export const ERRORS = {
   INVALID_ID: 'invalidId',
   DUPLICATE_ID: 'duplicateId',
   INVALID_CODE: 'invalidCode',
+  MISSING_FIELD: 'missingField',
   BAD_FOREIGN_KEY: 'badForeignKey',
   FIELD_TOO_LONG: 'fieldTooLong',
 };
@@ -41,8 +42,30 @@ const referenceDataValidator = (record, context) => {
   }
 };
 
+const patientValidator = (record, context) => {
+  const base = baseValidator(record, context);
+  if(base) return base;
+};
+
+const userValidator = (record, context) => {
+  const base = baseValidator(record, context);
+  if(base) return base;
+
+  if(!record.data.email) {
+    return { error: ERRORS.MISSING_FIELD, field: 'email' };
+  }
+  if(!record.data.displayName) {
+    return { error: ERRORS.MISSING_FIELD, field: 'displayName' };
+  }
+  if(!record.data.password) {
+    return { error: ERRORS.MISSING_FIELD, field: 'password' };
+  }
+};
+
 const validatorsByRecordType = {
-  referenceData: referenceDataValidator
+  referenceData: referenceDataValidator,
+  patient: patientValidator,
+  user: userValidator,
 };
 
 export function validate(record, context) {
