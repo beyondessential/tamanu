@@ -50,27 +50,27 @@ const validationSchemas = {
 };
 
 const pairers = {
-  patient: (data, findRecordId) => {
+  patient: (data, linker) => {
     const {
       village,
       ...rest
     } = data;
     if(!village) return data;
 
-    const villageId = findRecordId('referenceData', village, 'name');
+    const villageId = linker.findRecordId('referenceData', village, 'name');
     return {
       villageId,
       ...rest
     };
   },
-  labTestType: (data, findRecordId) => {
+  labTestType: (data, linker) => {
     const {
       category,
       ...rest
     } = data;
     if(!category) return data;
 
-    const categoryId = findRecordId('referenceData', category, 'name');
+    const categoryId = linker.findRecordId('referenceData', category, 'name');
     return {
       categoryId,
       ...rest
@@ -78,48 +78,60 @@ const pairers = {
   },
 };
 
-const createRecordFinder = (records, recordsById) => (
-  recordType,
-  search,
-  searchField = 'name'
-) => {
-  // don't run an empty search, if a relation is mandatory
-  // it should be set in the schema
-  if(!search) return '';
+class ForeignKeyLinker {
 
-  const byId = recordsById[search];
-  if(byId) {
-    if(byId.recordType !== recordType) {
-      throw new ValidationError(`linked ${recordType} for ${search} was of type ${byId.recordType}`);
-    }
-    return search;
+  constructor(records) {
+    this.records = records;
+    this.recordsById = records.reduce(
+      (all, current) => { 
+        const { id } = current.data;
+        return {
+          ...all,
+          [id]: all[id] || current,
+        };
+      },
+      {}
+    );
   }
 
-  const found = records.find(r => {
-    if(r.recordType !== recordType || (r.recordType === "referenceData" && r.data.type === recordType)) return false;
-    if(r.data[searchField].toLowerCase() === search.toLowerCase()) {
-      return true;
-    }
-  });
+  getRecord(recordId) {
+    return this.recordsById[recordId];
+  }
 
-  if(found) return found.data.id;
-  throw new ValidationError(`could not find a ${recordType} called "${search}"`);
-};
+  findRecordId(recordType, search, searchField = 'name') {
+    // don't run an empty search, if a relation is mandatory
+    // it should be set in the schema
+    if(!search) return '';
+
+    // if a record with exactly `search` as its id is found, use it
+    // (but make sure it's the right type first)
+    const byId = this.recordsById[search];
+    if(byId) {
+      if(byId.recordType !== recordType) {
+        throw new ValidationError(`linked ${recordType} for ${search} was of type ${byId.recordType}`);
+      }
+      return search;
+    }
+
+    // otherwise we just loop over the whole array for one
+    // with a matching field
+    const found = this.records.find(r => {
+      if(r.recordType !== recordType || (r.recordType === "referenceData" && r.data.type === recordType)) return false;
+      if(r.data[searchField].toLowerCase() === search.toLowerCase()) {
+        return true;
+      }
+    });
+
+    if(found) return found.data.id;
+    throw new ValidationError(`could not find a ${recordType} called "${search}"`);
+  }
+
+}
 
 export async function validateRecordSet(records) {
   // set up validation context
-  const recordsById = records.reduce(
-    (all, current) => { 
-      const { id } = current.data;
-      return {
-        ...all,
-        [id]: all[id] || current,
-      };
-    },
-    {}
-  );
 
-  const findRecordId = createRecordFinder(records, recordsById);
+  const linker = new ForeignKeyLinker(records);
 
   const validate = async (record) => {
     const { recordType, data } = record;
@@ -128,14 +140,14 @@ export async function validateRecordSet(records) {
     try {
       // perform id duplicate check outside of schemas as it relies on consistent
       // object identities, which yup's validation does not guarantee
-      const existing = recordsById[data.id];
+      const existing = linker.getRecord(data.id);
       if(existing !== record) {
         throw new ValidationError(`id ${data.id} is already being used at ${existing.sheet}:${existing.row}`);
       }
 
       // populate all FKs for this data object
       const pairer = pairers[recordType] || (data => data);
-      const linkedData = pairer(data, findRecordId);
+      const linkedData = pairer(data, linker);
 
       const validatedData = await schema.validate(linkedData);
 
@@ -144,10 +156,13 @@ export async function validateRecordSet(records) {
         data: validatedData,
       };
     } catch(e) {
+      if(e.errors) {
       return {
         ...record,
         errors: e.errors,
       };
+      }
+      throw e;
     }
   };
 
