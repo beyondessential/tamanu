@@ -70,7 +70,7 @@ export async function validateRecordSet(records) {
     try {
       // perform id duplicate check outside of schemas as it relies on consistent
       // object identities, which yup's validation does not guarantee
-      fkManager.ensureUniqueId(record);
+      fkManager.assertUniqueId(record);
 
       // populate all FKs for this data object
       const fkSchema = foreignKeySchemas[recordType] || {};

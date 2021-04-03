@@ -20,7 +20,7 @@ export class ForeignKeyManager {
     return this.recordsById[recordId];
   }
 
-  ensureUniqueId(record) {
+  assertUniqueId(record) {
     const { data } = record;
     const existing = this.getRecord(data.id);
     if(existing !== record) {
