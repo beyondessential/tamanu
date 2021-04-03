@@ -27,11 +27,26 @@ const userSchema = baseSchema
     password: yup.string().required(),
   });
 
+
+const LAB_TEST_RESULT_TYPES = ['Number', 'Select', 'FreeText'];
+const rangeRegex = /^[0-9.]+, [0-9.]+$/;
+const labTestSchema = baseSchema
+  .shape({
+    name: yup.string().required(),
+    categoryId: yup.string().required(),
+    resultType: yup.string().required().oneOf(LAB_TEST_RESULT_TYPES),
+    options: yup.string(),
+    unit: yup.string(),
+    maleRange: yup.string().matches(rangeRegex),
+    femaleRange: yup.string().matches(rangeRegex),
+  });
+
 const validationSchemas = {
   base: baseSchema,
   referenceData: referenceDataSchema,
   patient: patientSchema,
   user: userSchema,
+  labTestType: labTestSchema,
 };
 
 const pairers = {
@@ -45,6 +60,19 @@ const pairers = {
     const villageId = findRecordId('referenceData', village, 'name');
     return {
       villageId,
+      ...rest
+    };
+  },
+  labTestType: (data, findRecordId) => {
+    const {
+      category,
+      ...rest
+    } = data;
+    if(!category) return data;
+
+    const categoryId = findRecordId('referenceData', category, 'name');
+    return {
+      categoryId,
       ...rest
     };
   },

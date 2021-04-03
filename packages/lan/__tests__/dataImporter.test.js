@@ -63,7 +63,7 @@ describe('Data definition import', () => {
     expect(records).toHaveProperty('referenceData:icd10', 10);
     expect(records).toHaveProperty('referenceData:triageReason', 10);
     expect(records).toHaveProperty('referenceData:procedureType', 10);
-    expect(records).toHaveProperty('referenceData:imagingType', 3);
+    expect(records).toHaveProperty('referenceData:imagingType', 4);
   });
 
   it('should import user records', () => {
@@ -74,6 +74,11 @@ describe('Data definition import', () => {
   it('should import patient records', () => {
     const { records } = resultInfo.stats;
     expect(records).toHaveProperty('patient', 10);
+  });
+
+  it('should import lab test type records', () => {
+    const { records } = resultInfo.stats;
+    expect(records).toHaveProperty('labTestType', 10);
   });
 
   it('should report an error if an FK search comes up empty', () => {

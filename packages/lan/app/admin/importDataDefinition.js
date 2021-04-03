@@ -35,6 +35,15 @@ const patientTransformer = item => {
   };
 };
 
+const labTestTypeTransformer = item => {
+  return {
+    recordType: 'labTestType',
+    data: {
+      ...item,
+    },
+  };
+};
+
 const makeTransformer = (sheetName, transformer) => ({ 
   sheetName,
   transformer,
@@ -63,8 +72,8 @@ const transformers = [
   makeTransformer('labTestCategories', referenceDataTransformer('labTestCategory')),
   makeTransformer('users', userTransformer),
   makeTransformer('patients', patientTransformer),
+  makeTransformer('labTestTypes', labTestTypeTransformer),
   makeTransformer('roles', null),
-  makeTransformer('labTestTypes', null),
 ];
 
 export async function importData({ file, whitelist = [] }) {
