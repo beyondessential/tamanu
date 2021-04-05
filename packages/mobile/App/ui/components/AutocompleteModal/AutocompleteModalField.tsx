@@ -27,7 +27,7 @@ export const AutocompleteModalField = ({
   });
 
   useEffect(() => {
-    if (!value || !suggester) return;
+    if (!value || !suggester) return; // TODO: Understand this
     (async (): Promise<void> => {
       const data = await suggester.fetchCurrentOption(value);
       if (data) setLabel(data.label);
