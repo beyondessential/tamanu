@@ -24,11 +24,11 @@ export const PatientCard = ({
     lastName,
     dateOfBirth,
     sex,
+    village
   } = patient;
 
   // TODO: These fields aren't on the patient model yet.
   const image = null;
-  const village = 'Village goes here';
   const lastViewed = new Date();
 
   const name = joinNames({ firstName, lastName });
@@ -82,7 +82,7 @@ export const PatientCard = ({
               fontWeight={500}
               color={theme.colors.TEXT_MID}
             >
-              {village}
+              {village?.name ?? ''}
             </StyledText>
           </StyledView>
         </ColumnView>
