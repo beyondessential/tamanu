@@ -1,4 +1,4 @@
-import { Entity, Column, OneToMany } from 'typeorm/browser';
+import { Entity, Column, OneToMany, RelationId } from 'typeorm/browser';
 import { getUniqueId } from 'react-native-device-info';
 import { addHours, startOfDay, subYears } from 'date-fns';
 import { readConfig } from '~/services/config';
@@ -8,6 +8,7 @@ import { PatientIssue } from './PatientIssue';
 import { IPatient, IPatientAdditionalData } from '~/types';
 import { formatDateForQuery } from '~/infra/db/helpers';
 import { PatientAdditionalData } from './PatientAdditionalData';
+import { ReferenceData, ReferenceDataRelation } from './ReferenceData';
 const TIME_OFFSET = 3;
 
 @Entity('patient')
@@ -35,6 +36,11 @@ export class Patient extends BaseModel implements IPatient {
 
   @Column()
   sex: string;
+
+  @ReferenceDataRelation()
+  village: ReferenceData;
+  @RelationId(({ village }) => village)
+  villageId?: string;
 
   @OneToMany(() => PatientAdditionalData, additionalData => additionalData.patient)
   additionalData: IPatientAdditionalData;

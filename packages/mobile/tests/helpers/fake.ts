@@ -32,6 +32,8 @@ export const fakePatient = (): IPatient => {
     middleName: `patient_middleName-${uuid}`,
     lastName: `patient_lastName-${uuid}`,
     culturalName: `patient_culturalName-${uuid}`,
+    village: null,
+    villageId: null,
     dateOfBirth: new Date(),
     sex: `female-${uuid}`,
     markedForSync: false,
