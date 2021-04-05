@@ -31,7 +31,9 @@ export const GeneralInfo = (
     ['Social media name', `@${chance.animal().replace(/[^a-zA-Z]/g, '')}${chance.natural({ min: 0, max: 99, exclude: [69] })}`],
 
     ['Email', chance.email()],
+    ['Village', data.generalInfo.villageId || 'Not Listed'],
   ];
+
   const rows = chunk(fields, 2);
   return (
     <StyledView width="100%">
