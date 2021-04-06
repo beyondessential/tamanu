@@ -17,6 +17,24 @@ const referenceDataTransformer = type => item => {
   };
 };
 
+const userTransformer = item => {
+  return {
+    recordType: 'user',
+    data: {
+      ...item,
+    },
+  };
+};
+
+const patientTransformer = item => {
+  return {
+    recordType: 'patient',
+    data: {
+      ...item,
+    },
+  };
+};
+
 const makeTransformer = (sheetName, transformer) => ({ 
   sheetName,
   transformer,
@@ -43,8 +61,8 @@ const transformers = [
   makeTransformer('settlements', referenceDataTransformer('settlement')),
   makeTransformer('occupations', referenceDataTransformer('occupation')),
   makeTransformer('labTestCategories', referenceDataTransformer('labTestCategory')),
-  makeTransformer('users', null),
-  makeTransformer('patients', null),
+  makeTransformer('users', userTransformer),
+  makeTransformer('patients', patientTransformer),
   makeTransformer('roles', null),
   makeTransformer('labTestTypes', null),
 ];

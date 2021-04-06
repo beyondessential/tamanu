@@ -2,13 +2,15 @@ import { compareModelPriority } from 'shared/models/sync/order';
 
 import { validateRecordSet } from './importerValidators';
 
-const groupRecordsByType = records => records
-  .reduce((state, record) => ({
-    ...state,
-    [record.recordType]: (state[record.recordType] || []).concat([record]),
-  }), {});
+function groupRecordsByType(records) {
+  return records
+    .reduce((state, record) => ({
+      ...state,
+      [record.recordType]: (state[record.recordType] || []).concat([record]),
+    }), {});
+}
 
-const getRecordCounts = (recordsByType) => {
+function getRecordCounts(recordsByType) {
   // get some analytics
   const recordCounts = {};
   let total = 0;
@@ -23,13 +25,13 @@ const getRecordCounts = (recordsByType) => {
   recordCounts.total = total;
 
   return recordCounts;
-};
+}
 
-export const processRecordSet = (recordSet) => {
+export async function processRecordSet(recordSet) {
   const { 
     records,
     errors = [],
-  } = validateRecordSet(recordSet);
+  } = await validateRecordSet(recordSet);
 
   // split up records according to record type
   const recordsByType = groupRecordsByType(records);
@@ -49,4 +51,4 @@ export const processRecordSet = (recordSet) => {
       errors: getRecordCounts(errorsByType),
     },
   };
-};
+}
