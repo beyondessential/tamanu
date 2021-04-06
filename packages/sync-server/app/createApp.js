@@ -3,12 +3,12 @@ import bodyParser from 'body-parser';
 import morgan from 'morgan';
 import compression from 'compression';
 
+import { log } from 'shared/services/logging';
+
 import { routes } from './routes';
 import { authMiddleware } from './middleware/auth';
 import errorHandler from './middleware/errorHandler';
 import { versionCompatibility } from './middleware/versionCompatibility';
-
-import { log } from './logging';
 
 import { version } from '../package.json';
 
@@ -18,7 +18,7 @@ export function createApp({ store }) {
   // Init our app
   const app = express();
   app.use(compression());
-  app.use(bodyParser.json());
+  app.use(bodyParser.json({ limit: '50mb' }));
   app.use(bodyParser.urlencoded({ extended: true }));
 
   app.use(

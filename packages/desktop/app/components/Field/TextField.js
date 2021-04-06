@@ -56,8 +56,18 @@ export const TextInput = ({ value = '', label, ...props }) => (
   </OuterLabelFieldWrapper>
 );
 
+export const LimitedTextField = ({ limit = 255, ...props }) => <TextField {...props} inputProps={{ maxLength: limit }} />;
+
 export const TextField = ({ field, ...props }) => (
   <TextInput name={field.name} value={field.value || ''} onChange={field.onChange} {...props} />
+);
+
+export const MultilineTextField = ({ field, ...props }) => (
+  <TextInput multiline name={field.name} value={field.value || ''} onChange={field.onChange} {...props} />
+);
+
+export const ReadOnlyTextField = ({ field, ...props }) => (
+  <TextInput disabled name={field.name} value={field.value || ''} onChange={field.onChange} {...props} />
 );
 
 TextInput.propTypes = {

@@ -1,4 +1,5 @@
 import { v4 as uuidv4 } from 'uuid';
+import { omit } from 'lodash';
 import { initDatabase, closeDatabase } from 'sync-server/app/database';
 import {
   fakePatient,
@@ -8,12 +9,21 @@ import {
   fakeSurvey,
   fakeSurveyScreenComponent,
   fakeUser,
+  fake,
   buildScheduledVaccine,
   buildEncounter,
-  buildNestedEncounter,
 } from 'shared/test-helpers';
+import { REFERENCE_TYPES } from 'shared/constants';
 
 import { withDate } from './utilities';
+
+const withoutArrays = record =>
+  Object.entries(record).reduce((memo, [k, v]) => {
+    if (Array.isArray(v)) {
+      return memo;
+    }
+    return { ...memo, [k]: v };
+  }, {});
 
 describe('sqlWrapper', () => {
   let ctx = null;
@@ -32,11 +42,39 @@ describe('sqlWrapper', () => {
     ['survey', fakeSurvey],
     ['surveyScreenComponent', fakeSurveyScreenComponent],
     ['user', fakeUser],
+    [
+      'labTestType',
+      async () => {
+        const category = await ctx.models.ReferenceData.create({
+          ...fake(ctx.models.ReferenceData),
+          type: REFERENCE_TYPES.LAB_TEST_CATEGORY,
+        });
+        return {
+          ...fake(ctx.models.LabTestType),
+          labTestCategoryId: category.id,
+        };
+      },
+    ],
   ];
 
   const patientId = uuidv4();
+  beforeAll(async () => {
+    await ctx.models.Patient.create({ ...fakePatient(), id: patientId });
+  });
+
   const nestedPatientTestCases = [
-    [`patient/${patientId}/encounter`, () => buildEncounter(ctx, patientId)],
+    [
+      `patient/${patientId}/encounter`,
+      async () => withoutArrays(await buildEncounter(ctx, patientId)),
+    ],
+    [`patient/${patientId}/allergy`, () => ({ ...fake(ctx.models.PatientAllergy), patientId })],
+    [`patient/${patientId}/carePlan`, () => ({ ...fake(ctx.models.PatientCarePlan), patientId })],
+    [`patient/${patientId}/condition`, () => ({ ...fake(ctx.models.PatientCondition), patientId })],
+    [
+      `patient/${patientId}/familyHistory`,
+      () => ({ ...fake(ctx.models.PatientFamilyHistory), patientId }),
+    ],
+    [`patient/${patientId}/issue`, () => ({ ...fake(ctx.models.PatientIssue), patientId })],
   ];
 
   const allTestCases = [...rootTestCases, ...nestedPatientTestCases];
@@ -48,7 +86,7 @@ describe('sqlWrapper', () => {
         });
 
         it('finds no records when empty', async () => {
-          const records = await ctx.findSince(channel, 0, { limit: 10, offset: 0 });
+          const records = await ctx.findSince(channel, '0', { limit: 10 });
           expect(records).toHaveLength(0);
         });
 
@@ -63,8 +101,9 @@ describe('sqlWrapper', () => {
             await ctx.upsert(channel, instance2);
           });
 
-          const since = new Date(1985, 5, 1).valueOf();
-          expect(await ctx.findSince(channel, since)).toEqual([
+          const since = new Date(1985, 5, 1).valueOf().toString();
+          const records = await ctx.findSince(channel, since);
+          expect(records.map(r => omit(r, ['markedForPush', 'markedForSync']))).toEqual([
             {
               ...instance2,
               createdAt: new Date(1990, 5, 1),
@@ -82,8 +121,13 @@ describe('sqlWrapper', () => {
 
           await ctx.markRecordDeleted(channel, instance.id);
 
-          const instances = await ctx.findSince(channel, 0);
-          expect(instances.find(r => r.id === instance.id)).toEqual({
+          const instances = await ctx.findSince(channel, '0');
+          expect(
+            omit(
+              instances.find(r => r.id === instance.id),
+              ['markedForPush', 'markedForSync'],
+            ),
+          ).toEqual({
             ...instance,
             createdAt: expect.any(Date),
             updatedAt: expect.any(Date),
@@ -97,7 +141,7 @@ describe('sqlWrapper', () => {
 
           await ctx.unsafeRemoveAllOfChannel(channel);
 
-          expect(await ctx.findSince(channel, 0)).toEqual([]);
+          expect(await ctx.findSince(channel, '0')).toEqual([]);
         });
       });
     });
@@ -116,131 +160,6 @@ describe('sqlWrapper', () => {
           const wrongChannel = [prefix, wrongId, suffix].join('/');
           await expect(ctx.upsert(wrongChannel, await fakeInstance())).rejects.toThrow();
         });
-      });
-    });
-  });
-
-  describe('encounters', () => {
-    const encounterChannel = `patient/${patientId}/encounter`;
-    beforeAll(async () => {
-      await ctx.upsert('patient', { ...fakePatient(), patientId });
-    });
-
-    beforeEach(async () => {
-      await ctx.unsafeRemoveAllOfChannel(encounterChannel);
-    });
-
-    it('finds no nested records when there are none', async () => {
-      // arrange
-      const encounter = await buildEncounter(ctx, patientId);
-
-      // act
-      await ctx.upsert(encounterChannel, encounter);
-      const foundEncounters = await ctx.findSince(encounterChannel, 0);
-
-      // assert
-      expect(foundEncounters.length).toBe(1);
-      const [foundEncounter] = foundEncounters;
-      expect(foundEncounter).toHaveProperty('surveyResponses', []);
-      expect(foundEncounter).toHaveProperty('administeredVaccines', []);
-    });
-
-    it('finds and counts nested records', async () => {
-      // arrange
-      const encounter = await buildNestedEncounter(ctx, patientId);
-
-      const otherPatientId = uuidv4(); // add another encounter to test nested record isolation
-      const otherEncounter = await buildNestedEncounter(ctx, otherPatientId);
-      await ctx.upsert(`patient/${otherPatientId}/encounter`, otherEncounter);
-
-      // act
-      await ctx.upsert(encounterChannel, encounter);
-      const foundEncounters = await ctx.findSince(encounterChannel, 0);
-
-      // assert
-      expect(foundEncounters.length).toBe(1);
-
-      const [foundEncounter] = foundEncounters;
-      const timestamps = {
-        createdAt: expect.any(Date),
-        updatedAt: expect.any(Date),
-        deletedAt: null,
-      };
-      expect(foundEncounter).toEqual({
-        ...encounter,
-        ...timestamps,
-        administeredVaccines: [
-          {
-            ...encounter.administeredVaccines[0],
-            ...timestamps,
-            encounterId: encounter.id,
-          },
-        ],
-        surveyResponses: [
-          {
-            ...encounter.surveyResponses[0],
-            ...timestamps,
-            encounterId: encounter.id,
-            answers: [
-              {
-                ...encounter.surveyResponses[0].answers[0],
-                ...timestamps,
-                responseId: expect.anything(),
-              },
-            ],
-          },
-        ],
-      });
-      const [foundSurveyResponse] = foundEncounter.surveyResponses;
-      expect(foundSurveyResponse.answers[0].responseId).toEqual(foundSurveyResponse.id);
-    });
-
-    it('marks related objects as deleted', async () => {
-      // arrange
-      const encounter = await buildNestedEncounter(ctx, patientId);
-      await ctx.upsert(encounterChannel, encounter);
-
-      // act
-      await ctx.markRecordDeleted(encounterChannel, encounter.id);
-
-      // assert
-      const [foundEncounter] = await ctx.findSince(encounterChannel, 0);
-      expect(foundEncounter).toHaveProperty('deletedAt', expect.any(Date));
-      expect(foundEncounter).toHaveProperty(
-        ['administeredVaccines', 0, 'deletedAt'],
-        expect.any(Date),
-      );
-      expect(foundEncounter).toHaveProperty(['surveyResponses', 0, 'deletedAt'], expect.any(Date));
-      expect(foundEncounter).toHaveProperty(
-        ['surveyResponses', 0, 'answers', 0, 'deletedAt'],
-        expect.any(Date),
-      );
-    });
-
-    it('inserts an encounter without nested relationships', async () => {
-      // arrange
-      const encounter = await buildEncounter(ctx, patientId);
-      encounter.surveyResponses = null;
-      encounter.administeredVaccines = null;
-
-      // act
-      await ctx.upsert(encounterChannel, encounter);
-      const foundEncounters = await ctx.findSince(encounterChannel, 0);
-
-      // assert
-      expect(foundEncounters.length).toBe(1);
-
-      const [foundEncounter] = foundEncounters;
-      const timestamps = {
-        createdAt: expect.any(Date),
-        updatedAt: expect.any(Date),
-        deletedAt: null,
-      };
-      expect(foundEncounter).toEqual({
-        ...encounter,
-        ...timestamps,
-        administeredVaccines: [],
-        surveyResponses: [],
       });
     });
   });

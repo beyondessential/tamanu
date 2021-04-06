@@ -58,26 +58,20 @@ const AppointmentPane = React.memo(({ patient, readonly }) => {
   );
 });
 
-const ReferralPane = React.memo(({ patient, readonly }) => {
-  const [modalOpen, setModalOpen] = React.useState(false);
-
-  return (
+const ReferralPane = connect(null, dispatch => ({
+  onNavigateToReferrals: () => dispatch(push('/referrals')),
+}))(
+  React.memo(({ onNavigateToReferrals, patient }) => (
     <div>
-      <ReferralModal open={modalOpen} patientId={patient.id} onClose={() => setModalOpen(false)} />
       <ReferralTable patientId={patient.id} />
       <ContentPane>
-        <Button
-          onClick={() => setModalOpen(true)}
-          variant="contained"
-          color="primary"
-          disabled={readonly}
-        >
+        <Button onClick={onNavigateToReferrals} variant="contained" color="primary">
           New referral
         </Button>
       </ContentPane>
     </div>
-  );
-});
+  )),
+);
 
 const ButtonSpacer = styled.div`
   display: inline;
@@ -108,7 +102,7 @@ const ImmunisationsPane = React.memo(({ patient, readonly }) => {
           color="primary"
           disabled={readonly}
         >
-          New immunisation
+          Give Vaccine
         </Button>
         <ButtonSpacer />
         <Button onClick={() => setIsCertificateModalOpen(true)} variant="outlined" color="primary">
@@ -125,14 +119,14 @@ const RoutedTriageModal = connectRoutedModal('/patients/view', 'triage')(TriageM
 const HistoryPane = connect(
   state => ({
     currentEncounter: state.patient.currentEncounter,
-    patientId: state.patient.id,
+    patient: state.patient,
   }),
   dispatch => ({
     onOpenCheckin: () => dispatch(push('/patients/view/checkin')),
     onOpenTriage: () => dispatch(push('/patients/view/triage')),
   }),
 )(
-  React.memo(({ patientId, currentEncounter, onOpenCheckin, onOpenTriage, disabled }) => {
+  React.memo(({ patient, currentEncounter, onOpenCheckin, onOpenTriage, disabled }) => {
     const { encounter, loadEncounter } = useEncounter();
     const onViewEncounter = useCallback(
       async id => {
@@ -149,7 +143,7 @@ const HistoryPane = connect(
           openTriage={onOpenTriage}
           disabled={disabled}
         />
-        <PatientHistory patientId={patientId} onItemClick={onViewEncounter} />
+        <PatientHistory patient={patient} onItemClick={onViewEncounter} />
       </div>
     );
   }),
@@ -167,6 +161,13 @@ const ConnectedPatientDetailsForm = connectApi((api, dispatch, { patient }) => (
   facilitySuggester: new Suggester(api, 'facility'),
   villageSuggester: new Suggester(api, 'village'),
   ethnicitySuggester: new Suggester(api, 'ethnicity'),
+  nationalitySuggester: new Suggester(api, 'nationality'),
+  divisionSuggester: new Suggester(api, 'division'),
+  subdivisionSuggester: new Suggester(api, 'subdivision'),
+  medicalAreaSuggester: new Suggester(api, 'medicalArea'),
+  nursingZoneSuggester: new Suggester(api, 'nursingZone'),
+  settlementSuggester: new Suggester(api, 'settlement'),
+  occupationSuggester: new Suggester(api, 'occupation'),
 }))(
   React.memo(props => (
     <ContentPane>
@@ -227,7 +228,7 @@ const TABS = [
     icon: 'fa fa-file-medical-alt',
   },
   {
-    label: 'Immunisations',
+    label: 'Immunisation',
     key: 'a',
     icon: 'fa fa-syringe',
     render: props => <ImmunisationsPane {...props} />,

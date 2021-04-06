@@ -24,7 +24,13 @@ export class Patient extends Model {
           allowNull: false,
         },
         bloodType: Sequelize.STRING,
+        email: Sequelize.STRING,
         additionalDetails: Sequelize.TEXT,
+        markedForSync: {
+          type: Sequelize.BOOLEAN,
+          allowNull: false,
+          defaultValue: false,
+        },
       },
       {
         ...options,
@@ -47,7 +53,48 @@ export class Patient extends Model {
       foreignKey: 'ethnicityId',
       as: 'ethnicity',
     });
+    this.belongsTo(models.ReferenceData, {
+      foreignKey: 'nationalityId',
+      as: 'nationality',
+    });
+    this.belongsTo(models.ReferenceData, {
+      foreignKey: 'countryId',
+      as: 'country',
+    });
+    this.belongsTo(models.ReferenceData, {
+      foreignKey: 'divisionId',
+      as: 'division',
+    });
+    this.belongsTo(models.ReferenceData, {
+      foreignKey: 'subdivisionId',
+      as: 'subdivision',
+    });
+    this.belongsTo(models.ReferenceData, {
+      foreignKey: 'medicalAreaId',
+      as: 'medicalArea',
+    });
+    this.belongsTo(models.ReferenceData, {
+      foreignKey: 'nursingZoneId',
+      as: 'nursingZone',
+    });
+    this.belongsTo(models.ReferenceData, {
+      foreignKey: 'settlementId',
+      as: 'settlement',
+    });
+    this.belongsTo(models.ReferenceData, {
+      foreignKey: 'occupationId',
+      as: 'occupation',
+    });
   }
 
   static syncDirection = SYNC_DIRECTIONS.BIDIRECTIONAL;
+
+  static async getSyncIds() {
+    const patients = await this.sequelize.models.Patient.findAll({
+      where: { markedForSync: true },
+      raw: true,
+      attributes: ['id'],
+    });
+    return patients.map(({ id }) => id);
+  }
 }

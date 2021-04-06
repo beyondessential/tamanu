@@ -1,6 +1,8 @@
 import { Sequelize } from 'sequelize';
+import { extendClassWithPatientChannel } from './sync';
 import { Model } from './Model';
-import { PATIENT_ISSUE_TYPES } from '../constants';
+import { PATIENT_ISSUE_TYPES, SYNC_DIRECTIONS } from '../constants';
+
 export class PatientIssue extends Model {
   static init({ primaryKey, ...options }) {
     super.init(
@@ -21,4 +23,8 @@ export class PatientIssue extends Model {
   static initRelations(models) {
     this.belongsTo(models.Patient, { foreignKey: 'patientId' });
   }
+
+  static syncDirection = SYNC_DIRECTIONS.BIDIRECTIONAL;
 }
+
+extendClassWithPatientChannel(PatientIssue, 'issue');

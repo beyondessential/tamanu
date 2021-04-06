@@ -2,11 +2,14 @@ import React, { useEffect, useState, memo } from 'react';
 import InputAdornment from '@material-ui/core/InputAdornment';
 
 import { discoverServer } from '../../api/discovery';
+import { LOCAL_STORAGE_KEYS } from '../../constants';
 import { TextField } from './TextField';
 import { RefreshIconButton } from '../Button';
 
 export const ServerDetectingField = memo(({ setFieldValue, ...props }) => {
   const [statusMessage, setStatusMessage] = useState('');
+
+  const setHost = host => setFieldValue(props.field.name, host);
 
   const attemptServerDetection = async () => {
     setStatusMessage('Detecting server, please wait...');
@@ -19,7 +22,7 @@ export const ServerDetectingField = memo(({ setFieldValue, ...props }) => {
 
       const { protocol, address, port } = serverDetails;
       const host = `${protocol}://${address}:${port}`;
-      setFieldValue(props.field.name, host);
+      setHost(host);
       setStatusMessage();
     } catch (error) {
       setStatusMessage(error.message);
@@ -28,7 +31,12 @@ export const ServerDetectingField = memo(({ setFieldValue, ...props }) => {
 
   // attempt to detect on first mount
   useEffect(() => {
-    attemptServerDetection();
+    const savedHost = window.localStorage.getItem(LOCAL_STORAGE_KEYS.HOST);
+    if (savedHost) {
+      setHost(savedHost);
+    } else {
+      attemptServerDetection();
+    }
   }, []);
 
   return (

@@ -10,6 +10,10 @@ import { getToken } from 'lan/app/middleware/auth';
 import { allSeeds } from './seed';
 import { deleteAllTestIds } from './setupUtilities';
 
+import { SyncManager } from '~/sync';
+import { WebRemote } from '~/sync/WebRemote';
+jest.mock('~/sync/WebRemote');
+
 const chance = new Chance();
 
 const formatError = response => `
@@ -71,6 +75,9 @@ export async function createTestContext() {
   const dbResult = await initDatabase();
   const { models, sequelize } = dbResult;
 
+  // do NOT time out during create context
+  jest.setTimeout(1000 * 60 * 60 * 24);
+
   // sync db and remove old test data
   await sequelize.sync();
   await deleteAllTestIds(dbResult);
@@ -105,5 +112,13 @@ export async function createTestContext() {
     return baseApp.asUser(newUser);
   };
 
-  return { baseApp, sequelize, models };
+  jest.setTimeout(30 * 1000); // more generous than the default 5s but not crazy
+
+  const remote = new WebRemote();
+
+  const context = { baseApp, sequelize, models, remote };
+
+  context.syncManager = new SyncManager(context);
+
+  return context;
 }

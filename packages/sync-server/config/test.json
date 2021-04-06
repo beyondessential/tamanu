@@ -4,5 +4,8 @@
   },
   "auth": {
     "reportNoUserError": true
+  },
+  "log": {
+    "consoleLevel": "warn"
   }
 }

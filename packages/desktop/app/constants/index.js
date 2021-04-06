@@ -340,6 +340,16 @@ export const maritalStatusOptions = [
   { value: 'Unknown', label: 'Unknown' },
 ];
 
+export const educationalAttainmentOptions = [
+  { value: 'No formal schooling', label: 'No formal schooling' },
+  { value: 'Less than primary school', label: 'Less than primary school' },
+  { value: 'Primary school completed', label: 'Primary school completed' },
+  { value: 'Sec school completed', label: 'Sec school completed' },
+  { value: 'High school completed', label: 'High school completed' },
+  { value: 'University completed', label: 'University completed' },
+  { value: 'Post grad completed', label: 'Post grad completed' },
+];
+
 export const SEX_VALUE_INDEX = createValueIndex(sexOptions);
 
 export const lookupOptions = [
@@ -1444,4 +1454,8 @@ export const REPORT_TYPES = {
   LINE_CHART: 'line-graph',
   RAW: 'raw',
   TABLE: 'table',
+};
+
+export const LOCAL_STORAGE_KEYS = {
+  HOST: 'host',
 };

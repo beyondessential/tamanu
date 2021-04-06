@@ -1,7 +1,10 @@
 import express from 'express';
 import asyncHandler from 'express-async-handler';
+import config from 'config';
 
-import { simpleGet, simplePut, simpleGetList, permissionCheckingRouter } from './crudHelpers';
+import { REFERENCE_TYPES } from 'shared/constants';
+
+import { simpleGet, simplePut, permissionCheckingRouter } from './crudHelpers';
 
 export const referral = express.Router();
 
@@ -10,58 +13,40 @@ referral.put('/:id', simplePut('Referral'));
 referral.post(
   '/$',
   asyncHandler(async (req, res) => {
-    const { models } = req;
+    const { models, body, db } = req;
+
     req.checkPermission('create', 'Referral');
-    const newReferral = await models.Referral.create(req.body);
 
-    // multiple diagnoses can be set as diagnosisId0, diagnosisCertainty0,
-    // diagnosisId1, diagnosisCertainty1
-    const diagnosisIdRegex = /^diagnosisId(?<diagnosisIndex>[\d]*)$/;
-    const diagnosisCertaintyRegex = /^diagnosisCertainty(?<diagnosisIndex>[\d]*)$/;
-
-    // group diagnoses and their corresponding certainty together
-    const diagnosesMap = Object.entries(req.body).reduce((acc, field) => {
-      if (!field[1]) {
-        // if field value is empty, we can skip
-        return acc;
+    /** TODO: Remove this temporary code to handle required locationId and departmentId fields */
+    const getRefDataId = async type => {
+      const code = config.survey.defaultCodes[type];
+      const record = await models.ReferenceData.findOne({ where: { type, code } });
+      if (!record) {
+        return null;
       }
-      const idResult = diagnosisIdRegex.exec(field[0]);
-      if (idResult) {
-        if (!acc[idResult.groups.diagnosisIndex]) {
-          acc[idResult.groups.diagnosisIndex] = {};
-        }
-        acc[idResult.groups.diagnosisIndex].diagnosisId = field[1];
-      }
+      return record.id;
+    };
 
-      const certaintyResult = diagnosisCertaintyRegex.exec(field[0]);
-      if (certaintyResult) {
-        if (!acc[certaintyResult.groups.diagnosisIndex]) {
-          acc[certaintyResult.groups.diagnosisIndex] = {};
-        }
-        acc[certaintyResult.groups.diagnosisIndex].certainty = field[1];
-      }
-      return acc;
-    }, {});
-
-    // loop through each diagnosis
-    const diagnoses = Object.values(diagnosesMap);
-    if (diagnoses.length) {
-      await Promise.all(
-        diagnoses.map(async diagnosis =>
-          models.ReferralDiagnosis.create({
-            diagnosisId: diagnosis.diagnosisId,
-            certainty: diagnosis.certainty,
-            referralId: newReferral.get('id'),
-          }),
-        ),
-      );
-    }
-    res.send(newReferral);
+    const updatedBody = {
+      locationId: body.locationId || (await getRefDataId(REFERENCE_TYPES.LOCATION)),
+      departmentId: body.departmentId || (await getRefDataId(REFERENCE_TYPES.DEPARTMENT)),
+      examinerId: req.user.id,
+      ...body,
+    };
+    
+    await db.transaction(async () => {
+      const surveyResponseRecord = await models.SurveyResponse.createWithAnswers(updatedBody);
+      const referral = await models.Referral.create({
+        initiatingEncounterId: surveyResponseRecord.encounterId,
+        surveyResponseId: surveyResponseRecord.id,
+        ...req.body,
+      });
+      
+      res.send(referral);
+    });
   }),
 );
 
 const referralRelations = permissionCheckingRouter('read', 'Referral');
-
-referralRelations.get('/:id/diagnoses', simpleGetList('ReferralDiagnosis', 'referralId'));
 
 referral.use(referralRelations);

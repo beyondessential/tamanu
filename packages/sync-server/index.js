@@ -1,9 +1,11 @@
 import config from 'config';
-import { log } from './app/logging';
+
+import { log } from 'shared/services/logging';
+import { createReferralNotification } from 'shared/tasks/CreateReferralNotification';
+
 import { createApp } from './app/createApp';
 import { initDatabase } from './app/database';
 import { startScheduledTasks } from './app/tasks';
-import { createReferralNotification } from 'shared/tasks/CreateReferralNotification';
 
 const port = config.port;
 

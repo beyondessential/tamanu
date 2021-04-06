@@ -7,12 +7,12 @@ import { simpleGetList, permissionCheckingRouter, runPaginatedQuery } from './cr
 
 import { renameObjectKeys } from '~/utils/renameObjectKeys';
 import { NotFoundError } from 'shared/errors';
+import { patientVaccineRoutes } from './patientVaccine';
 
 export const patient = express.Router();
 
 const AdditionalDetailsProperties = [
   'placeOfBirth',
-  'country',
   'cityTown',
   'streetVillage',
   'maritalStatus',
@@ -21,6 +21,8 @@ const AdditionalDetailsProperties = [
   'secondaryContactNumber',
   'socialMediaPlatform',
   'socialMediaName',
+  'educationalAttainment',
+  'patientType',
 ];
 
 function stringifyAdditionalDetails(reqBody) {
@@ -123,9 +125,26 @@ patientRelations.get('/:id/issues', simpleGetList('PatientIssue', 'patientId'));
 patientRelations.get('/:id/conditions', simpleGetList('PatientCondition', 'patientId'));
 patientRelations.get('/:id/allergies', simpleGetList('PatientAllergy', 'patientId'));
 patientRelations.get('/:id/familyHistory', simpleGetList('PatientFamilyHistory', 'patientId'));
-patientRelations.get('/:id/referrals', simpleGetList('Referral', 'patientId'));
 patientRelations.get('/:id/immunisations', simpleGetList('Immunisation', 'patientId'));
 patientRelations.get('/:id/carePlans', simpleGetList('PatientCarePlan', 'patientId'));
+
+patientRelations.get('/:id/referrals', asyncHandler(async (req, res) => {
+  const { models, params } = req;
+
+  req.checkPermission('read', 'Patient');
+  req.checkPermission('read', 'Encounter');
+
+  const patientReferrals = await models.Referral.findAll({
+    include: [{
+      association: 'initiatingEncounter',
+      where: {
+        '$initiatingEncounter.patient_id$': params.id,
+      }
+    }]
+  });
+
+  res.send({ count: patientReferrals.length, data: patientReferrals });
+}));
 
 patientRelations.get(
   '/:id/surveyResponses',
@@ -208,6 +227,7 @@ const makeFilter = (check, sql, transform) => {
 };
 
 const sortKeys = {
+  markedForSync: 'patients.marked_for_sync',
   displayId: 'patients.display_id',
   lastName: 'UPPER(patients.last_name)',
   culturalName: 'UPPER(patients.cultural_name)',
@@ -362,3 +382,5 @@ patient.get(
     });
   }),
 );
+
+patient.use(patientVaccineRoutes);

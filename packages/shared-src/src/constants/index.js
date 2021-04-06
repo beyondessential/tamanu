@@ -114,43 +114,47 @@ export const REFERENCE_TYPES = {
   VACCINE: 'vaccine',
   VILLAGE: 'village',
   CARE_PLAN: 'carePlan',
-  ETHNICITY: 'ethnicity'
+  ETHNICITY: 'ethnicity',
+  NATIONALITY: 'nationality',
+  DIVISION: 'division',
+  SUBDIVISION: 'subdivision',
+  MEDICAL_AREA: 'medicalArea',
+  NURSING_ZONE: 'nursingZone',
+  SETTLEMENT: 'settlement',
+  OCCUPATION: 'occupation',
 };
 
 export const REFERENCE_TYPE_VALUES = Object.values(REFERENCE_TYPES);
 
 // for explanation of types, see
 // https://docs.google.com/spreadsheets/d/1qwfw1AOED7WiElOCJwt_VHo_JaDhr6ZIiJMqjRCXajQ/edit#gid=1797422705
-export const PROGRAM_DATA_ELEMENT_TYPE_VALUES = [
-  'FreeText',
-  'Multiline',
-  'Radio',
-  'Select',
-  'Date',
-  'SubmissionDate',
-  'Instruction',
-  'Number',
-  'Binary',
-  'Checkbox',
-  'CalculatedQuestion',
-  'ConditionQuestion',
-  'Arithmetic',
-  'Condition',
-  'Result',
-  // For later versions
-  'Autocomplete',
-  'Photo',
-  // Meditrak-specific
-  'Geolocate',
-  'DaysSince',
-  'MonthsSince',
-  'YearsSince',
-  'Entity',
-  'PrimaryEntity',
-  'CodeGenerator',
-];
+export const PROGRAM_DATA_ELEMENT_TYPES = {
+  TEXT: 'FreeText',
+  MULTILINE: 'Multiline',
+  RADIO: 'Radio',
+  SELECT: 'Select',
+  MULTI_SELECT: 'MultiSelect',
+  AUTOCOMPLETE: 'Autocomplete',
+  DATE: 'Date',
+  SUBMISSION_DATE: 'SubmissionDate',
+  INSTRUCTION: 'Instruction',
+  NUMBER: 'Number',
+  BINARY: 'Binary',
+  CHECKBOX: 'Checkbox',
+  CALCULATED: 'CalculatedQuestion',
+  CONDITION: 'ConditionQuestion',
+  RESULT: 'Result',
+  SURVEY_ANSWER: 'SurveyAnswer',
+  SURVEY_RESULT: 'SurveyResult',
+  SURVEY_LINK: 'SurveyLink',
+};
+export const PROGRAM_DATA_ELEMENT_TYPE_VALUES = Object.values(PROGRAM_DATA_ELEMENT_TYPES);
 
-export const REPORT_REQUEST_STATUSES = { RECEIVED: 'Received', PROCESSED: 'Processed' };
+export const REPORT_REQUEST_STATUSES = {
+  RECEIVED: 'Received',
+  PROCESSED: 'Processed',
+  ERROR: 'Error',
+};
 
 export const REPORT_REQUEST_STATUS_VALUES = Object.values(REPORT_REQUEST_STATUSES);
 
@@ -178,6 +182,7 @@ export const PATIENT_COMMUNICATION_TYPES_VALUES = Object.values(PATIENT_COMMUNIC
 export const SURVEY_TYPES = {
   PROGRAMS: 'programs',
   REFERRAL: 'referral',
+  OBSOLETE: 'obsolete',
 };
 
 export const COMMUNICATION_STATUSES = {
@@ -206,3 +211,11 @@ export const VERSION_COMPATIBILITY_ERRORS = {
   LOW: 'Client version too low',
   HIGH: 'Client version too high',
 };
+
+export const VACCINE_CATEGORIES = {
+  ROUTINE: 'Routine',
+  CATCHUP: 'Catchup',
+  CAMPAIGN: 'Campaign',
+};
+
+export const VACCINE_CATEGORIES_VALUES = Object.values(VACCINE_CATEGORIES);

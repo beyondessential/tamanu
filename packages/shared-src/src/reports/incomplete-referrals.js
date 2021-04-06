@@ -2,14 +2,23 @@ import { Op } from 'sequelize';
 import { generateReportFromQueryData } from './utilities';
 
 const reportColumnTemplate = [
-  { title: 'Patient First Name', accessor: data => data.patient.firstName },
-  { title: 'Patient Last Name', accessor: data => data.patient.lastName },
-  { title: 'National Health Number', accessor: data => data.patient.displayId },
+  {
+    title: 'Patient First Name',
+    accessor: referral => referral.initiatingEncounter.patient.firstName,
+  },
+  {
+    title: 'Patient Last Name',
+    accessor: referral => referral.initiatingEncounter.patient.lastName,
+  },
+  {
+    title: 'National Health Number',
+    accessor: referral => referral.initiatingEncounter.patient.displayId,
+  },
   {
     title: 'Diagnoses',
-    accessor: data => {
-      if (data.diagnoses && data.diagnoses.length) {
-        return data.diagnoses
+    accessor: referral => {
+      if (referral.initiatingEncounter.diagnoses && referral.initiatingEncounter.diagnoses.length) {
+        return referral.initiatingEncounter.diagnoses
           .map(d => {
             if (d.Diagnosis && d.Diagnosis.name) {
               return d.Diagnosis.name;
@@ -23,10 +32,15 @@ const reportColumnTemplate = [
       return undefined;
     },
   },
-  { title: 'Referring Doctor', accessor: data => data.referredBy.displayName },
-  { title: 'Department', accessor: data => data.referredToDepartment?.name || '' },
-  { title: 'Facility', accessor: data => data.referredToFacility?.name || '' },
-  { title: 'Date', accessor: data => data.date },
+  {
+    title: 'Referring Doctor',
+    accessor: referral => referral.initiatingEncounter.examiner.displayName,
+  },
+  {
+    title: 'Department',
+    accessor: referral => referral.initiatingEncounter.referredToDepartment?.name || '',
+  },
+  { title: 'Date', accessor: referral => referral.initiatingEncounter.startDate },
 ];
 
 function parametersToSqlWhere(parameters) {
@@ -36,7 +50,7 @@ function parametersToSqlWhere(parameters) {
       (where, [key, value]) => {
         switch (key) {
           case 'village':
-            where['$patient.village_id$'] = value;
+            where['$initiatingEncounter.patient.village_id$'] = value;
             break;
           case 'practitioner':
             where.referredById = value;
@@ -61,7 +75,7 @@ function parametersToSqlWhere(parameters) {
         return where;
       },
       {
-        encounterId: {
+        completing_encounter_id: {
           [Op.is]: null,
         },
       },
@@ -73,17 +87,19 @@ async function queryReferralsData(models, parameters) {
   const result = await models.Referral.findAll({
     include: [
       {
-        model: models.Patient,
-        as: 'patient',
-        include: [{ model: models.ReferenceData, as: 'village' }],
-      },
-      { model: models.User, as: 'referredBy' },
-      { model: models.ReferenceData, as: 'referredToDepartment' },
-      { model: models.ReferenceData, as: 'referredToFacility' },
-      {
-        model: models.ReferralDiagnosis,
-        as: 'diagnoses',
-        include: [{ model: models.ReferenceData, as: 'Diagnosis' }],
+        model: models.Encounter,
+        as: 'initiatingEncounter',
+        include: [
+          {
+            model: models.Patient,
+            as: 'patient',
+            include: [{ model: models.ReferenceData, as: 'village' }],
+          },
+          {
+            model: models.EncounterDiagnosis,
+            as: 'diagnoses',
+          },
+        ],
       },
     ],
     where: parametersToSqlWhere(parameters),
@@ -91,7 +107,9 @@ async function queryReferralsData(models, parameters) {
   return result;
 }
 
-export async function generateIncompleteReferralsReport(models, parameters) {
+export async function dataGenerator(models, parameters) {
   const queryResults = await queryReferralsData(models, parameters);
   return generateReportFromQueryData(queryResults, reportColumnTemplate);
 }
+
+export const permission = 'Referral';

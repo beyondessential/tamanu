@@ -4,6 +4,7 @@ import config from 'config';
 
 import { importSurvey } from '../../admin/importProgram';
 import { importData } from '../../admin/importDataDefinition';
+import { createDataImporterEndpoint } from '../../admin/createDataImporterEndpoint';
 
 const adminRoutes = express.Router();
 
@@ -25,35 +26,5 @@ adminRoutes.use((req, res, next) => {
 });
 //*****************************
 
-adminRoutes.post('/importSurvey', asyncHandler(async (req, res) => {
-  const { 
-    file,
-    programName,
-    programCode,
-    surveyName,
-    surveyCode,
-    dryRun,
-  } = req.body;
-
-  await importSurvey({
-    file,
-    programCode,
-    programName,
-    surveyCode,
-    surveyName,
-    dryRun,
-  });
-
-  res.send({ success: true });
-}));
-
-adminRoutes.post('/importData', asyncHandler(async (req, res) => {
-  const { 
-    file,
-    dryRun,
-  } = req.body;
-
-  importData({ file, dryRun });
-
-  res.send({ success: true });
-}));
+adminRoutes.post('/importSurvey', createDataImporterEndpoint(importSurvey));
+adminRoutes.post('/importData', createDataImporterEndpoint(importData));

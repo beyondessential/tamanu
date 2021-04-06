@@ -1,7 +1,7 @@
 import config from 'config';
 import fetch from 'node-fetch';
 
-import { log } from '../logging';
+import { log } from 'shared/services/logging';
 
 const splitIntoChunks = (arr, chunkSize) =>
   new Array(Math.ceil(arr.length / chunkSize))
@@ -28,13 +28,12 @@ export async function sendSyncRequest(channel, records) {
     });
 
     if (response.error) {
-      throw new Error(response.error);
+      throw new Error(response.error.message);
     }
 
     if (!response.ok) {
       const body = await response.json();
-      console.warn(body);
-      throw new Error(body);
+      throw new Error(body?.error?.message);
     }
 
     log.info(`Uploaded ${part.length} reference records. Response:`, await response.json());

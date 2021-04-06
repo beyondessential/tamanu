@@ -7,6 +7,10 @@
     "overrideAddress": "",
     "protocol": "https"
   },
+  "log": {
+    "path": "",
+    "consoleLevel": "info"
+  },
   "sync": {
     "schedule": "*/10 * * * *",
     "host": "https://sync-dev.tamanu.io",

@@ -2,5 +2,8 @@
   "db": {
     "name": "test",
     "sqlitePath": "/tmp/tamanu-test.db"
+  },
+  "log": {
+    "consoleLevel": "warn"
   }
 }

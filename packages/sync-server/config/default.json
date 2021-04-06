@@ -5,7 +5,11 @@
     "verbose": false,
     "username": "",
     "password": "",
-    "syncOnStartup": false
+    "syncOnStartup": true
+  },
+  "log": {
+    "path": "",
+    "consoleLevel": "info"
   },
   "auth": {
     "saltRounds": 12,
@@ -18,5 +22,10 @@
       "role": "administrator",
       "password": "admin"
     }
+  },
+  "mailgun": {
+    "domain": "",
+    "apiKey": "",
+    "from": ""
   }
 }

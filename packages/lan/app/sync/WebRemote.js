@@ -5,9 +5,9 @@ import config from 'config';
 import { BadAuthenticationError, InvalidOperationError, RemoteTimeoutError } from 'shared/errors';
 import { VERSION_COMPATIBILITY_ERRORS } from 'shared/constants';
 import { getResponseJsonSafely } from 'shared/utils';
+import { log } from 'shared/services/logging';
 
 import { version } from '~/../package.json';
-import { log } from '~/logging';
 
 const API_VERSION = 'v1';
 const DEFAULT_TIMEOUT = 10000;
@@ -28,6 +28,9 @@ const getVersionIncompatibleMessage = (error, response) => {
 
 export class WebRemote {
   connectionPromise = null;
+
+  // test mocks don't always apply properly - this ensures the mock will be used
+  fetchImplementation = fetch;
 
   constructor() {
     this.host = config.sync.host;
@@ -68,7 +71,7 @@ export class WebRemote {
     }, this.timeout);
     let response;
     try {
-      response = await fetch(url, {
+      response = await this.fetchImplementation(url, {
         method,
         headers: {
           Accept: 'application/json',

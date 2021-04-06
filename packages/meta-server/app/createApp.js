@@ -3,9 +3,10 @@ import bodyParser from 'body-parser';
 import morgan from 'morgan';
 import compression from 'compression';
 
+import { log } from 'shared/services/logging';
+
 import { versionRouter } from './versions';
 import { serversRouter } from './servers';
-import { log } from './logging';
 
 import { version } from '../package.json';
 
@@ -15,7 +16,7 @@ export function createApp() {
   // Init our app
   const app = express();
   app.use(compression());
-  app.use(bodyParser.json());
+  app.use(bodyParser.json({ limit: '50mb' }));
   app.use(bodyParser.urlencoded({ extended: true }));
 
   app.use((req, res, next) => {

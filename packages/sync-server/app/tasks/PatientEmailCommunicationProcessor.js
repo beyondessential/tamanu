@@ -1,6 +1,8 @@
+import config from 'config';
 import { PATIENT_COMMUNICATION_CHANNELS, COMMUNICATION_STATUSES } from 'shared/constants';
 import { ScheduledTask } from 'shared/tasks';
-import { log } from '~/logging';
+import { log } from 'shared/services/logging';
+
 import { sendEmail } from '../services/EmailService';
 
 export class PatientEmailCommunicationProcessor extends ScheduledTask {
@@ -36,15 +38,15 @@ export class PatientEmailCommunicationProcessor extends ScheduledTask {
       try {
         const result = await sendEmail({
           to: emailPlain.patient?.email,
-          from: 'no-reply@tamanu.com',
+          from: config.mailgun.from,
           subject: emailPlain.subject,
           content: emailPlain.content,
         });
         return email.update({
-            status: result.status,
-            error: result.error,
+          status: result.status,
+          error: result.error,
         });
-      } catch(e) {
+      } catch (e) {
         return email.update({
           status: COMMUNICATION_STATUSES.ERROR,
           error: e.message,

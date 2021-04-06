@@ -20,7 +20,7 @@ export class Vitals extends Model {
         dbp: Sequelize.FLOAT,
         heartRate: Sequelize.FLOAT,
         respiratoryRate: Sequelize.FLOAT,
-        svo2: Sequelize.FLOAT,
+        spo2: Sequelize.FLOAT,
         avpu: Sequelize.ENUM(AVPU_OPTIONS.map(x => x.value)),
       },
       {
@@ -40,7 +40,7 @@ export class Vitals extends Model {
               this.dbp,
               this.heartRate,
               this.respiratoryRate,
-              this.svo2,
+              this.spo2,
               this.avpu,
             ];
             if (!allReadings.some(x => x)) {

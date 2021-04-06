@@ -10,12 +10,12 @@
 - name: build_shared
   service: app
   command: ./scripts/build_shared.sh
-- name: build_and_test
+- name: test
+  service: app
+  command: ./scripts/test.sh
+- name: build
   type: parallel
   steps:
-    - name: test
-      service: app
-      command: ./scripts/test.sh
     - name: build_and_pack_lan_installer
       service: app
       tag: ^(master|dev|ci-)
@@ -47,6 +47,10 @@
       tag: ^(dev|ci-)
       service: awsdeployment
       command: ./scripts/deploy_sync_dev.sh
+    - name: deploy_sync_demo_environment
+      tag: ^(master)
+      service: awsdeployment
+      command: ./scripts/deploy_sync_demo.sh
     - name: deploy_meta_dev_environment
       tag: ^(dev|ci-)
       service: awsdeployment

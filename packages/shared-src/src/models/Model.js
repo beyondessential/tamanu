@@ -7,15 +7,28 @@ export const Sequelize = sequelize.Sequelize;
 
 const firstLetterLowercase = s => (s[0] || '').toLowerCase() + s.slice(1);
 
+// write a migration when adding to this list (e.g. 005_markedForPush.js)
+const MARKED_FOR_PUSH_MODELS = [
+  'Encounter',
+  'Patient',
+  'PatientAllergy',
+  'PatientCarePlan',
+  'PatientCondition',
+  'PatientFamilyHistory',
+  'PatientIssue',
+];
+
 export class Model extends sequelize.Model {
   static init(originalAttributes, { syncClientMode, ...options }) {
     const attributes = { ...originalAttributes };
-    if (syncClientMode && shouldPush(this)) {
+    if (syncClientMode && MARKED_FOR_PUSH_MODELS.includes(this.name)) {
       attributes.markedForPush = {
         type: Sequelize.BOOLEAN,
         allowNull: false,
         defaultValue: true,
       };
+      attributes.pushedAt = Sequelize.DATE;
+      attributes.pulledAt = Sequelize.DATE;
     }
     super.init(attributes, options);
     this.syncClientMode = syncClientMode;
@@ -94,11 +107,23 @@ export class Model extends sequelize.Model {
     'createdAt',
     'updatedAt',
     'markedForPush',
+    'markedForSync',
   ];
 
+  // determines whether a mdoel will be pushed, pulled, both, or neither
   static syncDirection = SYNC_DIRECTIONS.DO_NOT_SYNC;
 
-  static channel() {
-    return lowerFirst(this.name);
+  // returns one or more channels to push to
+  static getChannels() {
+    return [lowerFirst(this.name)];
   }
+
+  // extracts and returns a parentId from a channel, if applicable
+  // only called if syncParentIdKey is set
+  static syncParentIdFromChannel() {
+    throw new Error('Models with syncParentIdKey must implement syncParentIdFromChannel');
+  }
+
+  // if set to a string representing a field, extracts an id from the channel and sets it on the model
+  static syncParentIdKey = null;
 }

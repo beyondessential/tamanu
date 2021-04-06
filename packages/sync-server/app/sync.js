@@ -1,9 +1,16 @@
 import express from 'express';
 import asyncHandler from 'express-async-handler';
-import { InvalidParameterError, NotFoundError } from 'shared/errors';
+import { /* InvalidOperationError, */ InvalidParameterError, NotFoundError } from 'shared/errors';
+import {
+  // shouldPush,
+  // shouldPull,
+  createImportPlan,
+  executeImportPlan,
+  createExportPlan,
+  executeExportPlan,
+} from 'shared/models/sync';
 
-import { log } from './logging';
-import { convertToDbRecord, convertFromDbRecord } from './convertDbRecord';
+import { log } from 'shared/services/logging';
 
 export const syncRoutes = express.Router();
 
@@ -15,7 +22,7 @@ syncRoutes.get(
 
     const { store, query, params } = req;
     const { channel } = params;
-    const { since, limit = '100', page = '0' } = query;
+    const { since, limit = '100' } = query;
 
     if (!since) {
       throw new InvalidParameterError('Sync GET request must include a "since" parameter');
@@ -24,18 +31,21 @@ syncRoutes.get(
     const count = await store.countSince(channel, since);
 
     const limitNum = parseInt(limit, 10) || undefined;
-    const offsetNum = limitNum ? parseInt(page, 10) * limit : undefined;
-    const dbRecords = await store.findSince(channel, since, {
-      limit: limitNum,
-      offset: offsetNum,
-    });
-    const records = dbRecords.map(record => convertFromDbRecord(record));
 
-    log.info(`GET from ${channel} : ${count} records`);
-    res.send({
-      count,
-      requestedAt,
-      records,
+    await store.withModel(channel, async model => {
+      const plan = createExportPlan(model);
+      const { records, cursor } = await executeExportPlan(plan, channel, {
+        since,
+        limit: limitNum,
+      });
+
+      log.info(`GET from ${channel} : ${count} records`);
+      res.send({
+        count,
+        requestedAt,
+        records,
+        cursor,
+      });
     });
   }),
 );
@@ -49,22 +59,28 @@ syncRoutes.post(
     const { store, params, body } = req;
     const { channel } = params;
 
-    const upsert = record => {
-      const lastSynced = requestedAt;
-      const dbRecord = convertToDbRecord(record);
-      return store.upsert(channel, { lastSynced, ...dbRecord });
-    };
+    await store.withModel(channel, async model => {
+      const plan = createImportPlan(model);
+      const upsert = async record => {
+        // TODO: sort out permissions
+        // if (!shouldPush(model)) {
+        //   throw new InvalidOperationError(`Pushing to channel "${channel}" is not allowed`);
+        // }
+        await executeImportPlan(plan, channel, record);
+        return 1;
+      };
 
-    if (Array.isArray(body)) {
-      const upserts = await Promise.all(body.map(upsert));
-      const count = upserts.filter(x => x).length;
-      log.info(`POST to ${channel} : ${count} records`);
-      res.send({ count });
-    } else {
-      log.info(`POST to ${channel} : 1 record`);
-      const count = await upsert(body);
-      res.send({ count, requestedAt });
-    }
+      if (Array.isArray(body)) {
+        const upserts = await Promise.all(body.map(upsert));
+        const count = upserts.filter(x => x).length;
+        log.info(`POST to ${channel} : ${count} records`);
+        res.send({ count });
+      } else {
+        log.info(`POST to ${channel} : 1 record`);
+        const count = await upsert(body);
+        res.send({ count, requestedAt });
+      }
+    });
   }),
 );
 

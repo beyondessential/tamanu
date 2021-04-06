@@ -6,7 +6,6 @@ import { ENCOUNTER_PATIENT } from '../../database/includes';
 import {
   simpleGet,
   simplePut,
-  simplePost,
   simpleGetList,
   permissionCheckingRouter,
 } from './crudHelpers';
@@ -15,7 +14,15 @@ export const labRequest = express.Router();
 
 labRequest.get('/:id', simpleGet('LabRequest'));
 labRequest.put('/:id', simplePut('LabRequest'));
-labRequest.post('/$', simplePost('LabRequest'));
+labRequest.post(
+  '/$',
+  asyncHandler(async (req, res) => {
+    const { models } = req;
+    req.checkPermission('create', 'LabRequest');
+    const object = await models.LabRequest.createWithTests(req.body);
+    res.send(object);
+  }),
+);
 
 const globalLabRequests = permissionCheckingRouter('list', 'LabRequest');
 globalLabRequests.get('/$', simpleGetList('LabRequest', '', { include: [ENCOUNTER_PATIENT] }));

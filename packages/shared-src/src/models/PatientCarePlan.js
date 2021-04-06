@@ -1,4 +1,6 @@
 import { Sequelize } from 'sequelize';
+import { SYNC_DIRECTIONS } from 'shared/constants';
+import { extendClassWithPatientChannel } from './sync';
 import { Model } from './Model';
 
 export class PatientCarePlan extends Model {
@@ -21,4 +23,8 @@ export class PatientCarePlan extends Model {
   static getListReferenceAssociations() {
     return ['carePlan', 'examiner'];
   }
+
+  static syncDirection = SYNC_DIRECTIONS.BIDIRECTIONAL;
 }
+
+extendClassWithPatientChannel(PatientCarePlan, 'carePlan');

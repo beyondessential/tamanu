@@ -1,12 +1,5 @@
-import { Op, Sequelize } from 'sequelize';
-
-function ensureNumber(input) {
-  if (typeof input === 'string') {
-    const parsed = parseInt(input, 10);
-    return parsed; // might be NaN
-  }
-  return input;
-}
+import { Sequelize } from 'sequelize';
+import { syncCursorToWhereCondition } from 'shared/models/sync';
 
 export function upsertQuery(values) {
   // added for consistency with the other queries
@@ -16,19 +9,16 @@ export function upsertQuery(values) {
 
 export function countSinceQuery({ since }) {
   return {
-    where: {
-      updatedAt: { [Op.gte]: ensureNumber(since) },
-    },
+    where: syncCursorToWhereCondition(since),
     paranoid: false,
   };
 }
+
 export function findSinceQuery({ since, limit, offset }) {
   return {
     limit,
     offset,
-    where: {
-      updatedAt: { [Op.gte]: ensureNumber(since) },
-    },
+    where: syncCursorToWhereCondition(since),
     order: ['updated_at', 'id'],
     paranoid: false,
   };
@@ -64,17 +54,38 @@ export class BasicHandler {
     return this.model.destroy({ truncate: true, cascade: true, force: true });
   }
 
-  async upsert(record, params) {
-    await this.model.upsert(...upsertQuery(record, params));
+  async upsert(record, params, channel) {
+    const [values, options] = upsertQuery(record, params);
+
+    // TODO: get rid of upsert so we don't duplicate funtionality between here and import
+    if (this.model.syncParentIdKey) {
+      const parentId = this.model.syncParentIdFromChannel(channel);
+      if (!parentId) {
+        throw new Error(
+          `Must provide parentId for models like ${this.model.name} with syncParentIdKey set`,
+        );
+      }
+      const existing = values[this.model.syncParentIdKey];
+      if (existing && existing !== parentId) {
+        throw new Error(
+          `Tried to insert record with ${this.model.syncParentIdKey} ${existing} to channel with ${this.model.syncParentIdKey} ${parentId}`,
+        );
+      }
+      values[this.model.syncParentIdKey] = parentId;
+    }
+
+    await this.model.upsert(values, options);
     return 1;
   }
 
-  async countSince(params) {
-    return this.model.count(countSinceQuery(params));
+  async countSince(params, channel) {
+    const query = this.queryWithParentId(channel, countSinceQuery(params));
+    return this.model.count(query);
   }
 
-  async findSince(params) {
-    const records = await this.model.findAll(findSinceQuery(params));
+  async findSince(params, channel) {
+    const query = this.queryWithParentId(channel, findSinceQuery(params));
+    const records = await this.model.findAll(query);
     return records.map(result => result.get({ plain: true }));
   }
 
@@ -82,5 +93,25 @@ export class BasicHandler {
     // use update instead of destroy so we can change both fields
     const [num] = await this.model.update(...markDeletedQuery({ id }));
     return num;
+  }
+
+  queryWithParentId(channel, query) {
+    if (!this.model.syncParentIdKey) {
+      return query;
+    }
+
+    const parentId = this.model.syncParentIdFromChannel(channel);
+    if (!parentId) {
+      throw new Error(
+        `Must provide parentId for models like ${this.model.name} with syncParentIdKey set`,
+      );
+    }
+    return {
+      ...query,
+      where: {
+        ...query.where,
+        [this.model.syncParentIdKey]: parentId,
+      },
+    };
   }
 }

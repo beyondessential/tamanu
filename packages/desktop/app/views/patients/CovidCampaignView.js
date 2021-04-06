@@ -5,32 +5,39 @@ import { TopBar, PageContainer, DataFetchingTable } from '../../components';
 import { displayId, firstName, lastName, village } from './columns';
 import { ImmunisationSearchBar, PatientImmunisationsModal } from './components';
 
-const VaccineStatusComponent = ({ row }) => {
-  const [vaccinations, setVaccinations] = useState([]);
-
-  const getVaccinations = async () => {
-    const patientVaccinations = await API.get(`patient/${row.id}/immunisations`);
-    setVaccinations(patientVaccinations.data);
-  };
+const CovidVaccinationStatusComponent = ({ row }) => {
+  const [covidVaccinationStatus, setCovidVaccinationStatus] = useState('No dose');
 
   useEffect(() => {
+    const getVaccinations = async () => {
+      const { data: patientVaccinations } = await API.get(`patient/${row.id}/administeredVaccines`);
+      const covidVaccinations = patientVaccinations.filter(
+        v => v.scheduledVaccine?.label === 'COVAX',
+      );
+
+      if (covidVaccinations.length === 1) {
+        setCovidVaccinationStatus('1 Dose');
+      }
+      if (covidVaccinations.length >= 2) {
+        setCovidVaccinationStatus('Complete');
+      }
+    };
     getVaccinations();
   }, []);
 
-  const covidVaccinations = vaccinations.filter(v => v.schedule === 'Campaign');
-  if (covidVaccinations.length === 1) return '1 Dose';
-  if (covidVaccinations.length >= 2) return 'Complete';
-  return 'No dose';
+  return covidVaccinationStatus;
 };
 
 export const covidVaccinationStatus = {
   key: 'vaccinationStatus',
   title: 'Vaccination Status',
   minWidth: 100,
-  accessor: row => <VaccineStatusComponent row={row} />,
+  accessor: row => <CovidVaccinationStatusComponent row={row} />,
   asyncExportAccessor: async row => {
-    const patientVaccinations = await API.get(`patient/${row.id}/immunisations`);
-    const covidVaccinations = patientVaccinations.data.filter(v => v.schedule === 'Campaign');
+    const patientVaccinations = await API.get(`patient/${row.id}/administeredVaccines`);
+    const covidVaccinations = patientVaccinations.data.filter(
+      v => v.scheduledVaccine?.label === 'COVAX',
+    );
     if (covidVaccinations.length === 1) return '1 Dose';
     if (covidVaccinations.length >= 2) return 'Complete';
     return 'No dose';
@@ -78,4 +85,3 @@ export const CovidCampaignView = React.memo(({ getPatientVaccinations }) => {
     </PageContainer>
   );
 });
-

@@ -24,7 +24,14 @@ export const ButtonRow = React.memo(({ children, ...props }) => (
 ));
 
 export const ConfirmCancelRow = React.memo(
-  ({ onCancel, onConfirm, confirmText = 'Confirm', cancelText = 'Cancel', ...props }) => (
+  ({
+    onCancel,
+    onConfirm,
+    confirmText = 'Confirm',
+    cancelText = 'Cancel',
+    confirmDisabled,
+    ...props
+  }) => (
     <ButtonRow {...props}>
       {onCancel && (
         <Button variant="contained" onClick={onCancel}>
@@ -32,7 +39,7 @@ export const ConfirmCancelRow = React.memo(
         </Button>
       )}
       {onConfirm && (
-        <Button variant="contained" color="primary" onClick={onConfirm}>
+        <Button variant="contained" color="primary" onClick={onConfirm} disabled={confirmDisabled}>
           {confirmText}
         </Button>
       )}

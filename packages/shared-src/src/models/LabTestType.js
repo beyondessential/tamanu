@@ -1,6 +1,7 @@
 import { Sequelize } from 'sequelize';
 import { InvalidOperationError } from 'shared/errors';
 import { Model } from './Model';
+import { SYNC_DIRECTIONS } from 'shared/constants';
 
 const QUESTION_TYPES = {
   NUMBER: 'number',
@@ -62,8 +63,8 @@ export class LabTestType extends Model {
             }
           },
           mustHaveCategory() {
-            if (!this.labTestCategoryId) {
-              throw new InvalidOperationError('A lab test must belong to a category');
+            if (!this.deletedAt && !this.labTestCategoryId) {
+              throw new InvalidOperationError('A lab test type must belong to a category');
             }
           },
         },
@@ -84,4 +85,6 @@ export class LabTestType extends Model {
       options: optionStringToArray(options),
     };
   }
+
+  static syncDirection = SYNC_DIRECTIONS.PULL_ONLY;
 }

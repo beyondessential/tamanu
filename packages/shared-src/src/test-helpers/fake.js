@@ -1,6 +1,8 @@
+import { Sequelize } from 'sequelize';
 import { random, sample } from 'lodash';
 import { v4 as uuidv4 } from 'uuid';
 import {
+  DIAGNOSIS_CERTAINTY_VALUES,
   ENCOUNTER_TYPE_VALUES,
   PROGRAM_DATA_ELEMENT_TYPE_VALUES,
   REFERENCE_TYPE_VALUES,
@@ -34,6 +36,15 @@ export function fakePatient(prefix = 'test-') {
     additionalDetails: null,
     ethnicityId: null,
     title: null,
+    countryId: null,
+    divisionId: null,
+    subdivisionId: null,
+    email: null,
+    medicalAreaId: null,
+    nationalityId: null,
+    nursingZoneId: null,
+    occupationId: null,
+    settlementId: null,
   };
 }
 
@@ -114,11 +125,11 @@ export function fakeProgram(prefix = 'test-') {
   return fakeStringFields(`${prefix}program_${id})_`, ['id', 'name', 'code']);
 }
 
-export function fakeAdministeredVaccine(prefix = 'test-') {
+export function fakeAdministeredVaccine(prefix = 'test-', scheduledVaccineId) {
   const id = uuidv4();
   return {
     encounterId: null,
-    scheduledVaccineId: null,
+    scheduledVaccineId: scheduledVaccineId,
     date: new Date(random(0, Date.now())),
     ...fakeStringFields(`${prefix}administeredVaccine_${id}_`, [
       'id',
@@ -164,3 +175,82 @@ export function fakeSurveyResponseAnswer(prefix = 'test-') {
     ...fakeStringFields(`${prefix}surveyResponseAnswer_${id}_`, ['id', 'name', 'body']),
   };
 }
+
+export function fakeEncounterDiagnosis(prefix = 'test-') {
+  const id = uuidv4();
+  return {
+    certainty: sample(DIAGNOSIS_CERTAINTY_VALUES),
+    date: new Date(random(0, Date.now())),
+    isPrimary: sample([true, false]),
+    encounterId: null,
+    diagnosisId: null,
+    ...fakeStringFields(`${prefix}encounterDiagnosis_${id}_`, ['id']),
+  };
+}
+
+export function fakeEncounterMedication(prefix = 'test-') {
+  const id = uuidv4();
+  return {
+    date: new Date(random(0, Date.now())),
+    endDate: new Date(random(0, Date.now())),
+    qtyMorning: random(0, 10),
+    qtyLunch: random(0, 10),
+    qtyEvening: random(0, 10),
+    qtyNight: random(0, 10),
+    ...fakeStringFields(`${prefix}encounterMedication_${id}_`, [
+      'id',
+      'prescription',
+      'note',
+      'indication',
+      'route',
+    ]),
+  };
+}
+
+const fakeDate = () => new Date(random(0, Date.now()));
+const fakeString = (model, { fieldName }, id) => `${model.name}.${fieldName}.${id}`;
+const fakeInt = () => random(0, 10);
+const fakeFloat = () => Math.random() * 1000;
+const fakeBool = () => sample([true, false]);
+const FIELD_HANDLERS = {
+  'TIMESTAMP WITH TIME ZONE': fakeDate,
+  DATETIME: fakeDate,
+  'VARCHAR(255)': fakeString,
+  'VARCHAR(31)': (...args) => fakeString(...args).slice(0, 31),
+  TEXT: fakeString,
+  INTEGER: fakeInt,
+  FLOAT: fakeFloat,
+  'TINYINT(1)': fakeBool,
+  BOOLEAN: fakeBool,
+  ENUM: (model, { type }) => sample(type.values),
+};
+
+const IGNORED_FIELDS = [
+  'createdAt',
+  'updatedAt',
+  'deletedAt',
+  'pushedAt',
+  'pulledAt',
+  'markedForPush',
+  'markedForSync',
+];
+
+export const fake = model => {
+  const id = uuidv4();
+  const record = {};
+  for (const [name, attribute] of Object.entries(model.tableAttributes)) {
+    const type = attribute.type;
+    if (attribute.references) {
+      // null out id fields
+      record[name] = null;
+    } else if (IGNORED_FIELDS.includes(attribute.fieldName)) {
+      // ignore metadata fields
+    } else if (FIELD_HANDLERS[type]) {
+      record[name] = FIELD_HANDLERS[type](model, attribute, id);
+    } else {
+      // if you hit this error, you probably need to add a new field handler
+      throw new Error(`Could not fake field ${model.name}.${name} of type ${type}`);
+    }
+  }
+  return record;
+};

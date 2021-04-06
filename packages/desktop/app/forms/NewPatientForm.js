@@ -58,6 +58,13 @@ export const NewPatientForm = memo(
     facilitySuggester,
     villageSuggester,
     ethnicitySuggester,
+    nationalitySuggester,
+    divisionSuggester,
+    subdivisionSuggester,
+    medicalAreaSuggester,
+    nursingZoneSuggester,
+    settlementSuggester,
+    occupationSuggester,
     isBirth,
   }) => {
     const [isExpanded, setExpanded] = useState(false);
@@ -71,6 +78,9 @@ export const NewPatientForm = memo(
         <PrimaryDetailsGroup
           villageSuggester={villageSuggester}
           ethnicitySuggester={ethnicitySuggester}
+          nationalitySuggester={nationalitySuggester}
+          divisionSuggester={divisionSuggester}
+          subdivisionSuggester={subdivisionSuggester}
         />
         <AdditionalInformationRow>
           <div>
@@ -88,6 +98,10 @@ export const NewPatientForm = memo(
               isBirth={isBirth}
               patientSuggester={patientSuggester}
               facilitySuggester={facilitySuggester}
+              medicalAreaSuggester={medicalAreaSuggester}
+              nursingZoneSuggester={nursingZoneSuggester}
+              settlementSuggester={settlementSuggester}
+              occupationSuggester={occupationSuggester}
             />
           </FormGrid>
         </Collapse>

@@ -40,11 +40,7 @@ const UnderlineP = styled.p`
 
 const UnderlineEmptySpace = () => <UnderlineP>{new Array(100).fill('\u00A0')}</UnderlineP>;
 
-const DumbImmunisationCertificate = ({
-  currentUser,
-  patient,
-  immunisations,
-}) => {
+const DumbImmunisationCertificate = ({ currentUser, patient, immunisations }) => {
   const [hasEditedRecord, setHasEditedRecord] = React.useState(false);
 
   React.useEffect(() => {
@@ -80,6 +76,7 @@ const DumbImmunisationCertificate = ({
           <tr>
             <td>Vaccine type</td>
             <td>Vaccine given</td>
+            <td>Schedule</td>
             <td>Health facility</td>
             <td>Given by</td>
             <td>Date</td>
@@ -89,12 +86,13 @@ const DumbImmunisationCertificate = ({
           {immunisations.map((immunisation, index) => (
             <tr key={index}>
               <td>
-                {immunisation.vaccine}
+                {immunisation.scheduledVaccine?.label}
                 {immunisation.createdAt !== immunisation.updatedAt ? ' *' : ''}
               </td>
-              <td>{immunisation.vaccine}</td>
-              <td>{immunisation.facility ? immunisation.facility.name : ''}</td>
-              <td>{immunisation.givenBy ? immunisation.givenBy.displayName : ''}</td>
+              <td>{immunisation.scheduledVaccine?.label}</td>
+              <td>{immunisation.scheduledVaccine?.schedule}</td>
+              <td>{immunisation.encounter?.location?.name || ''}</td>
+              <td>{immunisation.encounter?.examiner?.displayName || ''}</td>
               <td>{new Date(immunisation.date).toLocaleDateString()}</td>
             </tr>
           ))}

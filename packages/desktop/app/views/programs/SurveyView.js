@@ -1,4 +1,4 @@
-import React, { useCallback, useState } from 'react';
+import React, { useCallback, useState, useEffect } from 'react';
 import styled from 'styled-components';
 import Alert from '@material-ui/lab/Alert';
 import { Typography } from '@material-ui/core';
@@ -6,66 +6,29 @@ import { Typography } from '@material-ui/core';
 import {
   Form,
   Field,
-  TextField,
-  SelectField,
-  DateField,
-  NullableBooleanField,
-  AutocompleteField,
-  NumberField,
 } from 'desktop/app/components/Field';
 import { FormGrid } from 'desktop/app/components/FormGrid';
 import { Button, OutlinedButton } from 'desktop/app/components/Button';
 import { ButtonRow } from 'desktop/app/components/ButtonRow';
+import {
+  mapOptionsToValues,
+  checkVisibility,
+  runCalculations,
+  getComponentForQuestionType,
+} from 'desktop/app/utils';
 
 import { ProgramsPane, ProgramsPaneHeader, ProgramsPaneHeading } from './ProgramsPane';
 import { PatientDisplay } from './PatientDisplay';
-
-const SURVEY_FIELD_TYPES = {
-  INSTRUCTION: 'Instruction',
-  AUTOCOMPLETE: 'Autocomplete',
-  DATE: 'Date',
-  FREETEXT: 'FreeText',
-  RADIO: 'Radio',
-  SELECT: 'Select',
-  BINARY: 'Binary',
-  CHECKBOX: 'Checkbox',
-  NUMBER: 'Number',
-  RESULT: 'Result',
-  CALCULATED: 'Calculated',
-};
-
-const QUESTION_COMPONENTS = {
-  Instruction: null,
-  Autocomplete: AutocompleteField,
-  Date: DateField,
-  FreeText: TextField,
-  Radio: SelectField,
-  Select: SelectField,
-  Binary: NullableBooleanField,
-  Checkbox: NullableBooleanField,
-  Number: NumberField,
-  default: TextField,
-};
-
-function mapOptionsToValues(options) {
-  if (!options) return null;
-  return options.map(x => ({ label: x, value: x }));
-}
 
 const Text = styled.div`
   margin-bottom: 10px;
 `;
 
 const SurveyQuestion = ({ component }) => {
-  const { defaultText, type, id, defaultOptions, detail } = component.dataElement;
+  const { defaultText, type, defaultOptions, id } = component.dataElement;
   const text = component.text || defaultText;
   const options = mapOptionsToValues(component.options || defaultOptions);
-
-  if (type === 'Instruction') {
-    return <Text>{text}</Text>;
-  }
-
-  const FieldComponent = QUESTION_COMPONENTS[type] || QUESTION_COMPONENTS.default;
+  const FieldComponent = getComponentForQuestionType(type);
 
   return (
     <Field
@@ -73,7 +36,7 @@ const SurveyQuestion = ({ component }) => {
       component={FieldComponent}
       name={id}
       options={options}
-      helperText={detail}
+      helperText={component.detail}
     />
   );
 };
@@ -81,30 +44,6 @@ const SurveyQuestion = ({ component }) => {
 const StyledButtonRow = styled(ButtonRow)`
   margin-top: 24px;
 `;
-
-function checkVisibility({ visibilityCriteria, dataElement }, values, components) {
-  if ([SURVEY_FIELD_TYPES.RESULT, SURVEY_FIELD_TYPES.CALCULATED].includes(dataElement.type))
-    return false;
-  if (!visibilityCriteria) return true;
-
-  const [code, requiredValue] = visibilityCriteria.split(':').map(x => x.trim());
-  const referencedComponent = components.find(c => c.dataElement.code === code);
-  if (!referencedComponent) return true;
-
-  const key = referencedComponent.dataElement.id;
-  const formValue = values[key];
-
-  const sanitisedValue = (requiredValue || '').toLowerCase().trim();
-
-  if (typeof formValue === 'boolean') {
-    if (formValue && sanitisedValue === 'yes') return true;
-    if (!formValue && sanitisedValue === 'no') return true;
-  }
-
-  if (sanitisedValue === (formValue || '').toLowerCase().trim()) return true;
-
-  return false;
-}
 
 const SurveyScreen = ({ components, values, onStepForward, onStepBack }) => {
   const questionElements = components
@@ -148,9 +87,18 @@ const SurveySummaryScreen = ({ onStepBack, onSurveyComplete }) => (
   </div>
 );
 
-const SurveyScreenPaginator = ({ survey, values, onSurveyComplete, onCancel }) => {
+const SurveyScreenPaginator = ({ survey, values, onSurveyComplete, onCancel, setFieldValue }) => {
   const { components } = survey;
   const [screenIndex, setScreenIndex] = useState(0);
+
+  useEffect(() => {
+    // recalculate dynamic fields
+    const calculatedValues = runCalculations(components, values);
+    // write values that have changed back into answers
+    Object.entries(calculatedValues)
+      .filter(([k, v]) => values[k] !== v)
+      .map(([k, v]) => setFieldValue(k, v));
+    }, [values]);
 
   const onStepBack = useCallback(() => {
     setScreenIndex(screenIndex - 1);
@@ -163,10 +111,12 @@ const SurveyScreenPaginator = ({ survey, values, onSurveyComplete, onCancel }) =
   const maxIndex = components
     .map(x => x.screenIndex)
     .reduce((max, current) => Math.max(max, current), 0);
+
   if (screenIndex <= maxIndex) {
     const screenComponents = components
       .filter(x => x.screenIndex === screenIndex)
       .sort((a, b) => a.componentIndex - b.componentIndex);
+
     return (
       <SurveyScreen
         values={values}
@@ -195,7 +145,6 @@ const SurveyCompletedMessage = React.memo(({ onResetClicked }) => (
   </div>
 ));
 
-
 export const SurveyView = ({ survey, onSubmit, onCancel }) => {
   const [surveyCompleted, setSurveyCompleted] = useState(false);
 
@@ -204,14 +153,19 @@ export const SurveyView = ({ survey, onSubmit, onCancel }) => {
     setSurveyCompleted(true);
   });
 
-  const renderSurvey = useCallback(({ submitForm, values }) => (
-    <SurveyScreenPaginator
-      survey={survey}
-      values={values}
-      onSurveyComplete={submitForm}
-      onCancel={onCancel}
-    />
-  ));
+  const renderSurvey = (props) => {
+    const { submitForm, values, setFieldValue } = props;
+
+    return (
+      <SurveyScreenPaginator
+        survey={survey}
+        values={values}
+        setFieldValue={setFieldValue}
+        onSurveyComplete={submitForm}
+        onCancel={onCancel}
+      />
+    );
+  }
 
   const surveyContents = surveyCompleted ? (
     <SurveyCompletedMessage onResetClicked={onCancel} />

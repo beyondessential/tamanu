@@ -12,3 +12,4 @@ export * from './users';
 export * from './villages';
 export * from './carePlan';
 export * from './patients';
+export * from './aefiSurvey';

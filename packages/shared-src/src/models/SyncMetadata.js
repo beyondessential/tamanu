@@ -9,11 +9,12 @@ export class SyncMetadata extends Model {
         channel: {
           type: Sequelize.STRING,
           allowNull: false,
+          unique: true,
         },
-        lastSynced: {
-          type: Sequelize.BIGINT,
-          defaultValue: 0,
-        }
+        pullCursor: {
+          type: Sequelize.STRING,
+          defaultValue: '0',
+        },
       },
       {
         ...options,

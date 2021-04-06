@@ -55,14 +55,14 @@ export class LabRequest extends Model {
     );
   }
 
-  static create(data) {
+  static createWithTests(data) {
     return this.sequelize.transaction(async () => {
       const { labTestTypeIds = [] } = data;
       if (!labTestTypeIds.length) {
         throw new InvalidOperationError('A request must have at least one test');
       }
 
-      const base = await super.create(data);
+      const base = await this.create(data);
 
       // then create tests
       const { LabTest } = this.sequelize.models;
@@ -96,7 +96,10 @@ export class LabRequest extends Model {
       as: 'category',
     });
 
-    this.hasMany(models.LabTest, { as: 'tests' });
+    this.hasMany(models.LabTest, {
+      foreignKey: 'labRequestId',
+      as: 'tests'
+    });
   }
 
   static getListReferenceAssociations() {

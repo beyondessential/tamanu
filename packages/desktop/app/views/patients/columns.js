@@ -1,9 +1,18 @@
 import React from 'react';
 import { DateDisplay } from '../../components';
 import { capitaliseFirstLetter } from '../../utils/capitalise';
+import { CloudDownload, CloudOff } from '@material-ui/icons';
 
 const DateOfBirthCell = React.memo(({ value }) => <DateDisplay date={value} />);
 const SexCell = React.memo(({ value = '' }) => <span>{capitaliseFirstLetter(value)}</span>);
+const SyncedCell = React.memo(({ value }) => value === true ? <CloudDownload /> : <CloudOff />);
+
+export const markedForSync = {
+  key: 'markedForSync',
+  title: 'Sync',
+  minWidth: 26,
+  CellComponent: SyncedCell,
+};
 
 export const displayId = {
   key: 'displayId',
@@ -48,7 +57,7 @@ export const village = {
   key: 'villageName',
   title: 'Village',
   minWidth: 100,
-  accessor: row => row.villageName,
+  accessor: row => row?.villageName || null,
 };
 
 export const location = {

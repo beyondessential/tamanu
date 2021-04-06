@@ -1,9 +1,11 @@
 import { v4 as uuidv4 } from 'uuid';
 
-import { REFERENCE_TYPES } from 'shared/constants';
+import { REFERENCE_TYPES, IMAGING_REQUEST_STATUS_TYPES } from 'shared/constants';
 import {
   fakeAdministeredVaccine,
   fakeEncounter,
+  fakeEncounterDiagnosis,
+  fakeEncounterMedication,
   fakePatient,
   fakeProgramDataElement,
   fakeReferenceData,
@@ -13,6 +15,7 @@ import {
   fakeSurveyResponse,
   fakeSurveyResponseAnswer,
   fakeUser,
+  fake,
 } from './fake';
 
 // TODO: generic
@@ -45,7 +48,10 @@ export const buildEncounter = async (ctx, patientId) => {
 export const buildNestedEncounter = async (ctx, patientId) => {
   const encounter = await buildEncounter(ctx, patientId);
 
-  const administeredVaccine = fakeAdministeredVaccine();
+  const scheduledVaccine = await fakeScheduledVaccine();
+  await ctx.models.ScheduledVaccine.upsert(scheduledVaccine);
+
+  const administeredVaccine = fakeAdministeredVaccine('test-', scheduledVaccine.id);
   delete administeredVaccine.encounterId;
   encounter.administeredVaccines = [administeredVaccine];
 
@@ -64,6 +70,43 @@ export const buildNestedEncounter = async (ctx, patientId) => {
   delete surveyResponseAnswer.responseId;
   surveyResponseAnswer.dataElementId = programDataElement.id;
   surveyResponse.answers = [surveyResponseAnswer];
+
+  const diagnosis = fakeReferenceData();
+  await ctx.models.ReferenceData.create(diagnosis);
+
+  const encounterDiagnosis = fakeEncounterDiagnosis();
+  delete encounterDiagnosis.encounterId;
+  encounterDiagnosis.diagnosisId = diagnosis.id;
+  encounter.diagnoses = [encounterDiagnosis];
+
+  const medication = fakeReferenceData();
+  await ctx.models.ReferenceData.create(medication);
+
+  const encounterMedication = fakeEncounterMedication();
+  delete encounterMedication.encounterId;
+  encounterMedication.medicationId = medication.id;
+  encounterMedication.prescriberId = encounter.examinerId;
+  encounter.medications = [encounterMedication];
+
+  const labRequest = fake(ctx.models.LabRequest);
+  delete labRequest.encounterId;
+  encounter.labRequests = [labRequest];
+
+  const labTest = fake(ctx.models.LabTest);
+  delete labTest.labRequestId;
+  labRequest.tests = [labTest];
+
+  const imagingType = { ...fake(ctx.models.ReferenceData), type: REFERENCE_TYPES.IMAGING_TYPE };
+  await ctx.models.ReferenceData.upsert(imagingType);
+
+  const imagingRequest = {
+    ...fake(ctx.models.ImagingRequest),
+    status: IMAGING_REQUEST_STATUS_TYPES.COMPLETED,
+    requestedById: encounter.examinerId,
+    imagingTypeId: imagingType.id,
+  };
+  delete imagingRequest.encounterId;
+  encounter.imagingRequests = [imagingRequest];
 
   return encounter;
 };
@@ -111,4 +154,19 @@ export const buildScheduledVaccine = async ctx => {
   scheduledVaccine.vaccineId = vaccineId;
 
   return scheduledVaccine;
+};
+
+export const upsertAssociations = async (model, record) => {
+  for (const [name, association] of Object.entries(model.associations)) {
+    const associatedRecords = record[name];
+    if (associatedRecords) {
+      for (const associatedRecord of associatedRecords) {
+        await association.target.upsert({
+          ...associatedRecord,
+          [association.foreignKey]: record.id,
+        });
+        await upsertAssociations(association.target, associatedRecord);
+      }
+    }
+  }
 };
