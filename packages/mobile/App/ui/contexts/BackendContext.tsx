@@ -4,7 +4,7 @@ import { Backend } from '~/services/backend';
 
 import { LoadingScreen } from '~/ui/components/LoadingScreen';
 
-export const BackendContext = React.createContext(undefined);
+export const BackendContext = React.createContext<Backend>(undefined);
 
 const backend = new Backend();
 

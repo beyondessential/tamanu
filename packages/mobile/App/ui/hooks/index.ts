@@ -33,4 +33,4 @@ export const useBackendEffect = (call, dependencies = []): ResultArray<any> => {
   return useCancelableEffect(() => call(backend), dependencies);
 };
 
-export const useBackend = (): any => useContext(BackendContext);
+export const useBackend = () => useContext(BackendContext);
