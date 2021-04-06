@@ -1,3 +1,4 @@
+import { VERSION_COMPATIBILITY_ERRORS } from 'shared/constants';
 import { BadAuthenticationError, InvalidOperationError } from 'shared/errors';
 const { WebRemote } = jest.requireActual('~/sync/WebRemote');
 
@@ -37,6 +38,14 @@ describe('WebRemote', () => {
   });
   const authInvalid = fakeFailure(401);
   const authFailure = fakeFailure(503);
+  const clientVersionLow = fakeFailure(400, {
+    message: VERSION_COMPATIBILITY_ERRORS.LOW,
+    error: 'InvalidClientVersion',
+  });
+  const clientVersionHigh = fakeFailure(400, {
+    message: VERSION_COMPATIBILITY_ERRORS.HIGH,
+    error: 'InvalidClientVersion',
+  });
 
   describe('authentication', () => {
     it('authenticates against a remote sync-server', async () => {
@@ -50,6 +59,14 @@ describe('WebRemote', () => {
       const remote = createRemote();
       fetch.mockReturnValueOnce(authInvalid);
       expect(remote.connect()).rejects.toThrow(BadAuthenticationError);
+    });
+
+    it('throws an InvalidOperationError with an appropriate message if the client version is not supported', async () => {
+      const remote = createRemote();
+      fetch.mockReturnValueOnce(clientVersionLow);
+      fetch.mockReturnValueOnce(clientVersionHigh);
+      expect(remote.connect()).rejects.toThrow(InvalidOperationError, /please upgrade/i);
+      expect(remote.connect()).rejects.toThrow(InvalidOperationError, /only supports up to/i);
     });
 
     it('throws an InvalidOperationError if any other server error is returned', async () => {
