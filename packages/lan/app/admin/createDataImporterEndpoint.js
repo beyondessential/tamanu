@@ -6,7 +6,7 @@ import { sendSyncRequest } from './sendSyncRequest';
 
 import { compareModelPriority } from 'shared/models/sync/order';
 
-import { processRecordSet } from './processRecordSet';
+import { preprocessRecordSet } from './preprocessRecordSet';
 
 export function createDataImporterEndpoint(importer) {
   return asyncHandler(async (req, res) => {
@@ -35,7 +35,7 @@ export function createDataImporterEndpoint(importer) {
     const {
       recordGroups, 
       ...resultInfo
-    } = await processRecordSet(recordSet);
+    } = await preprocessRecordSet(recordSet);
 
     const sendResult = (extraData = {}) => res.send({
       ...resultInfo,

@@ -14,20 +14,24 @@ function getRecordCounts(recordsByType) {
   // get some analytics
   const recordCounts = {};
   let total = 0;
-  Object.entries(recordsByType).map(([k, v]) => {
+
+  // count base record types
+  Object.entries(recordsByType).forEach(([k, v]) => {
     recordCounts[k] = v.length;
     total += v.length;
   });
-  (recordsByType.referenceData || []).map(record => {
+  recordCounts.total = total;
+
+  // count reference data records by subtype
+  (recordsByType.referenceData || []).forEach(record => {
     const key = `referenceData:${record.data.type}`;
     recordCounts[key] = (recordCounts[key] || 0) + 1;
   });
-  recordCounts.total = total;
 
   return recordCounts;
 }
 
-export async function processRecordSet(recordSet) {
+export async function preprocessRecordSet(recordSet) {
   const { 
     records,
     errors = [],

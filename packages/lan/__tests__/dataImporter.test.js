@@ -1,6 +1,6 @@
 import util from 'util';
 import { importData } from '~/admin/importDataDefinition';
-import { processRecordSet } from '~/admin/processRecordSet';
+import { preprocessRecordSet } from '~/admin/preprocessRecordSet';
 
 const TEST_DATA_PATH = './__tests__/importers/test_definitions.xlsx';
 
@@ -17,7 +17,7 @@ describe('Data definition import', () => {
     const { 
       recordGroups: rg, 
       ...rest 
-    } = await processRecordSet(rawData);
+    } = await preprocessRecordSet(rawData);
     resultInfo = rest;
     recordGroups = rg;
   });
@@ -63,7 +63,7 @@ describe('Data definition import', () => {
     expect(records).toHaveProperty('referenceData:icd10', 10);
     expect(records).toHaveProperty('referenceData:triageReason', 10);
     expect(records).toHaveProperty('referenceData:procedureType', 10);
-    expect(records).toHaveProperty('referenceData:imagingType', 3);
+    expect(records).toHaveProperty('referenceData:imagingType', 4);
   });
 
   it('should import user records', () => {
@@ -74,6 +74,19 @@ describe('Data definition import', () => {
   it('should import patient records', () => {
     const { records } = resultInfo.stats;
     expect(records).toHaveProperty('patient', 10);
+  });
+
+  it('should import lab test type records', () => {
+    const { records } = resultInfo.stats;
+    expect(records).toHaveProperty('labTestType', 10);
+  });
+
+  it('should report an error if an FK search comes up empty', () => {
+    expectError('patient', 'could not find a referenceData called "village-nowhere"');
+  });
+
+  it('should report an error if an FK is of the wrong type', () => {
+    expectError('patient', 'linked referenceData for');
   });
 
 });

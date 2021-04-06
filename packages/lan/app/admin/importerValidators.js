@@ -1,4 +1,7 @@
 import * as yup from 'yup';
+import { ValidationError } from 'yup';
+
+import { ForeignKeyStore } from './ForeignKeyStore';
 
 const safeIdRegex = /^[A-Za-z0-9-]+$/;
 const baseSchema = yup.object()
@@ -14,7 +17,10 @@ const referenceDataSchema = baseSchema
     name: yup.string().required().max(255),
   });
 
-const patientSchema = baseSchema;
+const patientSchema = baseSchema
+  .shape({
+    villageId: yup.string(),
+  });
 
 const userSchema = baseSchema
   .shape({
@@ -23,46 +29,82 @@ const userSchema = baseSchema
     password: yup.string().required(),
   });
 
+
+const LAB_TEST_RESULT_TYPES = ['Number', 'Select', 'FreeText'];
+const rangeRegex = /^[0-9.]+, [0-9.]+$/;
+const labTestSchema = baseSchema
+  .shape({
+    name: yup.string().required(),
+    categoryId: yup.string().required(),
+    resultType: yup.string().required().oneOf(LAB_TEST_RESULT_TYPES),
+    options: yup.string(),
+    unit: yup.string(),
+    maleRange: yup.string().matches(rangeRegex),
+    femaleRange: yup.string().matches(rangeRegex),
+  });
+
 const validationSchemas = {
   base: baseSchema,
   referenceData: referenceDataSchema,
   patient: patientSchema,
   user: userSchema,
+  labTestType: labTestSchema,
 };
 
-export async function validateRecordSet(records, options = {}) {
-  const {
-    trustForeignKeys,
-  } = options;
+const foreignKeySchemas = {
+  patient: {
+    village: 'referenceData',
+  },
+  labTestType: {
+    category: 'referenceData',
+  },
+};
 
-  // set up validation context
-  const recordsById = records.reduce(
-    (all, current) => { 
-      const { id } = current.data;
-      return {
-        ...all,
-        [id]: all[id] || current,
-      };
-    },
-    {}
-  );
+class ForeignKeyLinker {
+  constructor(fkStore) {
+    this.fkStore = fkStore;
+  }
+
+  link(record) {
+    const { data, recordType } = record; 
+    const schema = foreignKeySchemas[recordType];
+
+    if(!schema) return;
+
+    for(const [field, recordType] of Object.entries(schema)) {
+      const search = data[field];
+      if(!search) continue;
+      delete data[field];
+      data[`${field}Id`] = this.fkStore.findRecordId(recordType, search);
+    }
+  }
+}
+
+export async function validateRecordSet(records) {
+  const fkStore = new ForeignKeyStore(records);
+  const fkLinker = new ForeignKeyLinker(fkStore);
 
   const validate = async (record) => {
     const { recordType, data } = record;
     const schema = validationSchemas[recordType] || schemas.base;
 
     try {
-      await schema.validate(data);
-  
       // perform id duplicate check outside of schemas as it relies on consistent
       // object identities, which yup's validation does not guarantee
-      const existing = recordsById[data.id];
-      if(existing !== record) {
-        throw new yup.ValidationError(`id ${data.id} is already being used at ${existing.sheet}:${existing.row}`);
-      }
+      fkStore.assertUniqueId(record);
 
-      return record;
+      // populate all FKs for this data object
+      fkLinker.link(record);
+
+      const validatedData = await schema.validate(data);
+
+      return {
+        ...record,
+        data: validatedData,
+      };
     } catch(e) {
+      if(!e instanceof ValidationError) throw e;
+
       return {
         ...record,
         errors: e.errors,
