@@ -1,4 +1,4 @@
-import { createTestContext } from './utilities';
+import { createTestContext } from '../utilities';
 
 const TEST_EMAIL = 'test@beyondessential.com.au';
 const TEST_PASSWORD = '1Q2Q3Q4Q';
