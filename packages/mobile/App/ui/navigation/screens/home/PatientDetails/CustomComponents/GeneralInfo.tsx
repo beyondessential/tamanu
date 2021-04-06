@@ -31,7 +31,7 @@ export const GeneralInfo = (
     ['Social media name', `@${chance.animal().replace(/[^a-zA-Z]/g, '')}${chance.natural({ min: 0, max: 99, exclude: [69] })}`],
 
     ['Email', chance.email()],
-    ['Village', data.generalInfo.villageId || 'Not Listed'],
+    ['Village', data.generalInfo.village?.name ?? ''],
   ];
 
   const rows = chunk(fields, 2);
