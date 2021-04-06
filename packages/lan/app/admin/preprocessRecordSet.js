@@ -31,7 +31,7 @@ function getRecordCounts(recordsByType) {
   return recordCounts;
 }
 
-export async function processRecordSet(recordSet) {
+export async function preprocessRecordSet(recordSet) {
   const { 
     records,
     errors = [],

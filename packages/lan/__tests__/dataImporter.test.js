@@ -1,6 +1,6 @@
 import util from 'util';
 import { importData } from '~/admin/importDataDefinition';
-import { processRecordSet } from '~/admin/processRecordSet';
+import { preprocessRecordSet } from '~/admin/preprocessRecordSet';
 
 const TEST_DATA_PATH = './__tests__/importers/test_definitions.xlsx';
 
@@ -17,7 +17,7 @@ describe('Data definition import', () => {
     const { 
       recordGroups: rg, 
       ...rest 
-    } = await processRecordSet(rawData);
+    } = await preprocessRecordSet(rawData);
     resultInfo = rest;
     recordGroups = rg;
   });

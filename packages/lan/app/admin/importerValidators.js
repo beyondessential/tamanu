@@ -1,7 +1,7 @@
 import * as yup from 'yup';
 import { ValidationError } from 'yup';
 
-import { ForeignKeyManager } from './ForeignKeyManager';
+import { ForeignKeyStore } from './ForeignKeyStore';
 
 const safeIdRegex = /^[A-Za-z0-9-]+$/;
 const baseSchema = yup.object()
@@ -60,8 +60,29 @@ const foreignKeySchemas = {
   },
 };
 
+class ForeignKeyLinker {
+  constructor(fkStore) {
+    this.fkStore = fkStore;
+  }
+
+  link(record) {
+    const { data, recordType } = record; 
+    const schema = foreignKeySchemas[recordType];
+
+    if(!schema) return;
+
+    for(const [field, recordType] of Object.entries(schema)) {
+      const search = data[field];
+      if(!search) continue;
+      delete data[field];
+      data[`${field}Id`] = this.fkStore.findRecordId(recordType, search);
+    }
+  }
+}
+
 export async function validateRecordSet(records) {
-  const fkManager = new ForeignKeyManager(records);
+  const fkStore = new ForeignKeyStore(records);
+  const fkLinker = new ForeignKeyLinker(fkStore);
 
   const validate = async (record) => {
     const { recordType, data } = record;
@@ -70,11 +91,10 @@ export async function validateRecordSet(records) {
     try {
       // perform id duplicate check outside of schemas as it relies on consistent
       // object identities, which yup's validation does not guarantee
-      fkManager.assertUniqueId(record);
+      fkStore.assertUniqueId(record);
 
       // populate all FKs for this data object
-      const fkSchema = foreignKeySchemas[recordType] || {};
-      fkManager.linkForeignKeys(data, fkSchema);
+      fkLinker.link(record);
 
       const validatedData = await schema.validate(data);
 
@@ -83,7 +103,7 @@ export async function validateRecordSet(records) {
         data: validatedData,
       };
     } catch(e) {
-      if(e.name !== 'ValidationError') throw e;
+      if(!e instanceof ValidationError) throw e;
 
       return {
         ...record,

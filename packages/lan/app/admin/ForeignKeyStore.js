@@ -1,7 +1,9 @@
 import { ValidationError } from 'yup';
 
-export class ForeignKeyManager {
+export class ForeignKeyStore {
 
+  // Records should be an array of sync records, ie:
+  // { recordType: 'foo', data: { id: 'bar', ...otherData }, ...otherMetadata }
   constructor(records) {
     this.records = records;
     this.recordsById = records.reduce(
@@ -28,6 +30,19 @@ export class ForeignKeyManager {
     }
   }
   
+  // This function
+  // A) searches for an exact ID match
+  // B) searches for a caseless match on a field which is passed in, defaulting to 'name'
+  // C) throws an error if there's nothing
+  // 
+  // Path A allows for importing datasheets that represent relationships just
+  // by direct ID, for eg a data set that has been exported from another system.
+  //
+  // Path B allows for importing datasheets that have been populated or edited
+  // by hand, so that a data entrant can just type the names of villages or
+  // facilities without having to copy+paste IDs everywhere. (and path C 
+  // protects against typos in this situation)
+  //
   findRecordId(recordType, search, searchField = 'name') {
     // don't run an empty search, if a relation is mandatory
     // it should be set in the schema
@@ -54,18 +69,9 @@ export class ForeignKeyManager {
       }
       return r.data[searchField].toLowerCase() === search.toLowerCase();
     });
-
     if(found) return found.data.id;
-    throw new ValidationError(`could not find a ${recordType} called "${search}"`);
-  }
 
-  linkForeignKeys(record, foreignKeySchema) {
-    for(const [field, recordType] of Object.entries(foreignKeySchema)) {
-      const search = record[field];
-      if(!search) continue;
-      delete record[field];
-      record[`${field}Id`] = this.findRecordId(recordType, search);
-    }
+    throw new ValidationError(`could not find a ${recordType} called "${search}"`);
   }
 
 }
