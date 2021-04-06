@@ -1,4 +1,4 @@
-import { Like } from 'typeorm/browser';
+import { BaseEntity, FindManyOptions, Like, ObjectLiteral } from 'typeorm/browser';
 import { BaseModel } from '~/models/BaseModel';
 
 export interface OptionType {
@@ -6,22 +6,35 @@ export interface OptionType {
   value: string;
 }
 
+type BaseModelType = typeof BaseModel;
+export interface BaseModelSubclass extends BaseModelType {
+  id: string,
+  name: string,
+}
+
+interface SuggesterOptions<ModelType> extends FindManyOptions<ModelType> {
+  column: string,
+  where: ObjectLiteral, // Override FindManyOptions to disallow 'where' being type string
+}
+
 const defaultFormatter = ({ name, id }): OptionType => ({ label: name, value: id });
 
-export class Suggester {
-  model: any;
+export class Suggester<ModelType extends BaseModelSubclass> {
+  model: ModelType;
 
-  options: any;
+  options: SuggesterOptions<ModelType>;
 
-  formatter: ({ id }) => OptionType;
+  formatter: (entity: ModelType) => OptionType;
 
-  constructor(model: BaseModel, options, formatter = defaultFormatter) {
+  constructor(model: ModelType, options, formatter = defaultFormatter) {
     this.model = model;
     this.options = options;
     this.formatter = formatter;
   }
 
-  async fetch(options): Promise<any> {
+  async fetch(options): Promise<ModelType[]> {
+    // Not sure why this.model.getRepository returns type:
+    // Repository<BaseModel>, not Repository<ModelType>, but it does
     const data = await this.model
       .getRepository()
       .find(options);
@@ -29,7 +42,8 @@ export class Suggester {
     return data;
   }
 
-  fetchCurrentOption = async (value: string): Promise<any> => {
+  fetchCurrentOption = async (value: string | null): Promise<OptionType> => {
+    if(!value) return undefined;
     try {
       const data = await this.model
         .getRepository()
@@ -41,7 +55,7 @@ export class Suggester {
     }
   };
 
-  fetchSuggestions = async (search: string): Promise<any> => {
+  fetchSuggestions = async (search: string): Promise<OptionType[]> => {
     const {
       where = {},
       column = 'name',

@@ -18,7 +18,7 @@ export const VillageSection = (): ReactElement => {
   const { models } = useBackend();
 
   const villageSuggester = new Suggester(
-    models.ReferenceData,
+    models.ReferenceData, // ReferenceData clearly inherits from a class which has id, plus it implements an interface with id...
     {
       where: {
         type: ReferenceDataType.Village,
