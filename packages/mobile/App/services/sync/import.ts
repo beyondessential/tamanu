@@ -126,11 +126,14 @@ const executeUpdateOrCreates = async (
     return { failures: [] };
   }
   const updateOrCreateFn = buildUpdateOrCreateFn(model);
-  const rows: { [key: string]: any }[] = syncRecords.map(sr => ({
-    ...fromSyncRecord(sr),
-    markedForUpload: false,
-    [`${parentField}`]: { id: sr.parentId },
-  }));
+  const rows: { [key: string]: any }[] = syncRecords.map(sr => {
+    const row = {
+      ...fromSyncRecord(sr),
+      markedForUpload: false,
+    };
+    if (parentField) row[parentField] = sr.parentId;
+    return row;
+  });
 
   const failures = [];
 
@@ -181,8 +184,8 @@ const executeUpdates = async (
   importPlan,
   syncRecords,
   model => async rowOrRows => {
-    const entityOrEntities = model.create(rowOrRows);
-    return importPlan.model.save(entityOrEntities, { listeners: false });
+    const rows = Array.isArray(rowOrRows) ? rowOrRows : [rowOrRows];
+    return Promise.all(rows.map(async row => model.update({ id: row.id }, row)));
   },
 );
 
