@@ -36,10 +36,11 @@ export const AutocompleteModalField = ({
   });
 
   useEffect(() => {
-    if (!value || !suggester) return; // TODO: Understand this
+    if (!suggester) return;
     (async (): Promise<void> => {
       const data = await suggester.fetchCurrentOption(value);
       if (data) setLabel(data.label);
+      else setLabel(placeholder);
     })();
   }, [value]);
 
