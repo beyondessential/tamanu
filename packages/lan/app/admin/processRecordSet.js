@@ -1,0 +1,52 @@
+import { compareModelPriority } from 'shared/models/sync/order';
+
+import { validateRecordSet } from './importerValidators';
+
+const groupRecordsByType = records => records
+  .reduce((state, record) => ({
+    ...state,
+    [record.recordType]: (state[record.recordType] || []).concat([record]),
+  }), {});
+
+const getRecordCounts = (recordsByType) => {
+  // get some analytics
+  const recordCounts = {};
+  let total = 0;
+  Object.entries(recordsByType).map(([k, v]) => {
+    recordCounts[k] = v.length;
+    total += v.length;
+  });
+  (recordsByType.referenceData || []).map(record => {
+    const key = `referenceData:${record.data.type}`;
+    recordCounts[key] = (recordCounts[key] || 0) + 1;
+  });
+  recordCounts.total = total;
+
+  return recordCounts;
+};
+
+export const processRecordSet = (recordSet) => {
+  const { 
+    records,
+    errors = [],
+  } = validateRecordSet(recordSet);
+
+  // split up records according to record type
+  const recordsByType = groupRecordsByType(records);
+  const errorsByType = groupRecordsByType(errors);
+
+  // sort into safe order
+  const sortedRecordGroups = Object.entries(recordsByType)
+    .sort((a, b) => {
+      return compareModelPriority(a[0], b[0]);
+    });
+
+  return {
+    recordGroups: sortedRecordGroups,
+    errors,
+    stats: {
+      records: getRecordCounts(recordsByType),
+      errors: getRecordCounts(errorsByType),
+    },
+  };
+};

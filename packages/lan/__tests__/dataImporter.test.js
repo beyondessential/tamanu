@@ -1,40 +1,73 @@
-import { importDataDefinition } from '~/dataDefinitionImporter';
-import { createTestContext } from './utilities';
+import { importData } from '~/admin/importDataDefinition';
+import { processRecordSet } from '~/admin/processRecordSet';
+import { ERRORS } from '~/admin/importerValidators';
 
-const TEST_DATA_PATH = './data/test_definitions.xlsx';
-// Disabled these tests as functionality has moved to the admin importer tool,
-// sending records to sync server instead of importing directly to DB.
-// This test should be updated to reflect that.
-//
-xdescribe('Data definition import', () => {
-  let models = null;
+const TEST_DATA_PATH = './__tests__/importers/test_definitions.xlsx';
+
+// the importer can take a little while 
+jest.setTimeout(30000);
+
+describe('Data definition import', () => {
+
+  let resultInfo = null;
+  let recordGroups = null;
 
   beforeAll(async () => {
-    const ctx = await createTestContext();
-    models = ctx.models;
+    const rawData = await importData({ file: TEST_DATA_PATH });
+    const { 
+      recordGroups: rg, 
+      ...rest 
+    } = processRecordSet(rawData);
+    resultInfo = rest;
+    recordGroups = rg;
   });
 
-  it('should read a file successfully', async () => {
-    const results = {};
-    await importDataDefinition(models, TEST_DATA_PATH, sheetResult => {
-      results[sheetResult.type] = sheetResult;
-    });
-
-    expect(results.users.created).toEqual(5);
-    expect(results.villages.created).toEqual(34);
-    expect(results.labtesttypes.created).toEqual(18);
-    expect(results.labtesttypes.errors).toHaveLength(0);
-
-    // import it again and make sure it's all idempotent
-    const updateResults = {};
-    await importDataDefinition(models, TEST_DATA_PATH, sheetResult => {
-      updateResults[sheetResult.type] = sheetResult;
-    });
-
-    expect(updateResults.users.errors.length).toEqual(5);
-    expect(
-      updateResults.users.errors.every(x => x.includes('cannot be updated via bulk import')),
-    ).toEqual(true);
-    expect(updateResults.villages.updated).toEqual(34);
+  it('should ensure every record has an id', () => {
+    for(const [k, records] of recordGroups) {
+      records.map(r => {
+        expect(r).toHaveProperty('data.id');
+      });
+    }
   });
+
+  it('should flag records with missing ids', () => {
+    const missingIds = resultInfo.errors.filter(x => x.error === ERRORS.MISSING_ID);
+    expect(missingIds.length).toBeGreaterThan(0);
+  });
+
+  it('should flag records with invalid ids', () => {
+    const invalidIds = resultInfo.errors.filter(x => x.error === ERRORS.INVALID_ID);
+    expect(invalidIds.length).toBeGreaterThan(0);
+  });
+
+  it('should flag records with duplicate ids', () => {
+    const duplicateIds = resultInfo.errors.filter(x => x.error === ERRORS.DUPLICATE_ID);
+    expect(duplicateIds.length).toBeGreaterThan(0);
+  });
+
+  it('should import a bunch of reference data items', () => {
+    const { records } = resultInfo.stats;
+
+    expect(records).toHaveProperty('referenceData:village', 10);
+    expect(records).toHaveProperty('referenceData:drug', 10);
+    expect(records).toHaveProperty('referenceData:allergy', 10);
+    expect(records).toHaveProperty('referenceData:department', 10);
+    expect(records).toHaveProperty('referenceData:location', 10);
+    expect(records).toHaveProperty('referenceData:icd10', 10);
+    expect(records).toHaveProperty('referenceData:triageReason', 10);
+    expect(records).toHaveProperty('referenceData:procedureType', 10);
+    expect(records).toHaveProperty('referenceData:imagingType', 3);
+  });
+
+  xit('should import user records', () => {
+    const { sheetResults } = importedData;
+
+    expect(sheetResults.users).toHaveProperty('ok', 10);
+  });
+
+  xit('should import patient records', () => {
+    const { sheetResults } = importedData;
+    expect(sheetResults.labTestTypes).toHaveProperty('ok', 10);
+  });
+
 });
