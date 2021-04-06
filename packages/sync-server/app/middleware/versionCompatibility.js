@@ -11,8 +11,8 @@ const SUPPORTED_CLIENT_VERSIONS = {
     max: '1.0.0',
   },
   'Tamanu Mobile': {
-    min: '1.0.3',
-    max: '1.0.3',
+    min: '1.0.5',
+    max: '1.0.5',
   },
 };
 
