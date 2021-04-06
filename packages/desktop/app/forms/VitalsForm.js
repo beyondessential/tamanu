@@ -36,7 +36,7 @@ export class VitalsForm extends React.PureComponent {
         <Field name="heartRate" label="Heart rate" component={NumberField} />
         <Field name="respiratoryRate" label="Respiratory rate" component={NumberField} />
         <Field name="temperature" label="Temperature (ºC)" component={NumberField} />
-        <Field name="svo2" label="SvO2 (%)" component={NumberField} />
+        <Field name="spo2" label="SpO2 (%)" component={NumberField} />
         <Field name="avpu" label="AVPU" component={SelectField} options={AVPU_OPTIONS} />
         <ConfirmCancelRow confirmText="Record" onConfirm={submitForm} onCancel={onCancel} />
       </FormGrid>
@@ -62,7 +62,7 @@ export class VitalsForm extends React.PureComponent {
           heartRate: yup.number(),
           respiratoryRate: yup.number(),
           temperature: yup.number(),
-          svo2: yup.number(),
+          spo2: yup.number(),
           avpu: yup.string(),
         })}
         validate={values => {
