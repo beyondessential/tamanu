@@ -15,6 +15,11 @@ const styles = StyleSheet.create({
   buttonContainer: {
     elevation: 1,
   },
+  textContainer: {
+    // Vertically centers itself in available space
+    marginTop: 'auto',
+    marginBottom: 'auto',
+  },
 });
 
 export const PatientMenuButton = ({
@@ -40,11 +45,12 @@ export const PatientMenuButton = ({
         height={screenPercentageToDP('5.83', Orientation.Height)}
         width={screenPercentageToDP('5.83', Orientation.Height)}
       />
-      <StyledView marginTop={screenPercentageToDP('0.82', Orientation.Height)}>
+      <StyledView style={styles.textContainer}>
         <StyledText
           textAlign="center"
           color={theme.colors.PRIMARY_MAIN}
-          fontSize={screenPercentageToDP('1.94', Orientation.Height)}
+          fontWeight="700"
+          fontSize={screenPercentageToDP('2.2', Orientation.Height)}
         >
           {title}
         </StyledText>
