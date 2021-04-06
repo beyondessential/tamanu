@@ -6,6 +6,7 @@ export * from './PatientFamilyHistory';
 export * from './PatientCondition';
 export * from './PatientAllergy';
 export * from './PatientIssue';
+export * from './PatientAdditionalData';
 
 export * from './Encounter';
 export * from './Triage';
