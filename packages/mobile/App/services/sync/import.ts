@@ -1,4 +1,4 @@
-import { chunk, pick, memoize, flatten } from 'lodash';
+import { pick, memoize, flatten } from 'lodash';
 
 import { SyncRecord } from './source';
 import { BaseModel } from '~/models/BaseModel';
@@ -8,23 +8,22 @@ import { RelationsTree, extractRelationsTree, extractIncludedColumns } from './m
 // TODO: handle lazy and/or embedded relations
 
 export type ImportPlan = {
-  model: typeof BaseModel,
-  parentField?: string,
-  fromSyncRecord: (syncRecord: SyncRecord) => object,
+  model: typeof BaseModel;
+  parentField?: string;
+  fromSyncRecord: (syncRecord: SyncRecord) => object;
   children: {
-    [name: string]: ImportPlan,
-  },
+    [name: string]: ImportPlan;
+  };
 }
 
 export type ImportFailure = {
-  error: string,
-  recordId: string,
+  error: string;
+  recordId: string;
 };
 
 export type ImportResponse = {
-  failures: ImportFailure[],
+  failures: ImportFailure[];
 };
-
 
 interface UpsertableSyncRecord extends SyncRecord {
   parentId?: string;
@@ -47,7 +46,10 @@ export const createImportPlan = memoize((model: typeof BaseModel) => {
  *    Input: a plan created using createImportPlan and records to import, including nested relations
  *    Output: imports the records into the db, returns an object containing any errors
  */
-export const executeImportPlan = async (importPlan: ImportPlan, syncRecords: SyncRecord[]) => {
+export const executeImportPlan = async (
+  importPlan: ImportPlan,
+  syncRecords: SyncRecord[],
+): Promise<ImportResponse> => {
   const { model } = importPlan;
 
   // split records into create, update, delete
@@ -65,12 +67,17 @@ export const executeImportPlan = async (importPlan: ImportPlan, syncRecords: Syn
 
   // return combined failures
   return { failures: [...createFailures, ...updateFailures, ...deleteFailures] };
-}
+};
 
-const createImportPlanInner = (model: typeof BaseModel, relationsTree: RelationsTree, parentField: string | null) => {
+const createImportPlanInner = (
+  model: typeof BaseModel,
+  relationsTree: RelationsTree,
+  parentField: string | null,
+): ImportPlan => {
   const children = {};
+  const relations = model.getRepository().metadata.relations;
   for (const [name, nestedTree] of Object.entries(relationsTree)) {
-    const relationMetadata = model.getRepository().metadata.relations.find(r => r.propertyPath === name);
+    const relationMetadata = relations.find(r => r.propertyPath === name);
     const nestedModel = relationMetadata.inverseRelation.target;
     if (typeof nestedModel === 'function') {
       const nestedParentField = relationMetadata.inverseSidePropertyPath;
@@ -80,7 +87,8 @@ const createImportPlanInner = (model: typeof BaseModel, relationsTree: Relations
         nestedParentField,
       );
     }
-  };
+  }
+
   return {
     model,
     parentField,
@@ -104,7 +112,7 @@ const executeDeletes = async (
     return { failures: recordIds.map(id => ({
       error: `Delete failed with ${e.message}`,
       recordId: id,
-    }))};
+    })) };
   }
   return { failures: [] };
 };
@@ -121,7 +129,7 @@ const executeUpdateOrCreates = async (
   const rows: { [key: string]: any }[] = syncRecords.map(sr => ({
     ...fromSyncRecord(sr),
     markedForUpload: false,
-    [parentField]: sr.parentId,
+    [`${parentField}`]: { id: sr.parentId },
   }));
 
   const failures = [];
@@ -144,15 +152,14 @@ const executeUpdateOrCreates = async (
   for (const [relationName, relationPlan] of Object.entries(children)) {
     const childRecords: UpsertableSyncRecord[] = flatten(syncRecords
       .map(sr => (sr.data[relationName] || [])
-        .map(child => ({ ...child, parentId: sr.data.id }))
-      ));
+        .map(child => ({ ...child, parentId: sr.data.id, parent: sr.data }))));
     if (childRecords) {
       const { failures: childFailures } = await executeUpdateOrCreates(
         relationPlan,
         childRecords,
         buildUpdateOrCreateFn,
       );
-      failures.push(...childFailures)
+      failures.push(...childFailures);
     }
   }
   return { failures };
@@ -161,7 +168,7 @@ const executeUpdateOrCreates = async (
 const executeCreates = async (
   importPlan: ImportPlan,
   syncRecords: SyncRecord[],
-) => executeUpdateOrCreates(
+): Promise<ImportResponse> => executeUpdateOrCreates(
   importPlan,
   syncRecords,
   model => async rowOrRows => model.insert(rowOrRows),
@@ -170,13 +177,13 @@ const executeCreates = async (
 const executeUpdates = async (
   importPlan: ImportPlan,
   syncRecords: SyncRecord[],
-) => executeUpdateOrCreates(
+): Promise<ImportResponse> => executeUpdateOrCreates(
   importPlan,
   syncRecords,
   model => async rowOrRows => {
     const entityOrEntities = model.create(rowOrRows);
     return importPlan.model.save(entityOrEntities, { listeners: false });
-  }
+  },
 );
 
 /*
@@ -185,7 +192,7 @@ const executeUpdates = async (
  *    Input: a model
  *    Output: a function that will convert a SyncRecord into an object matching that model
  */
-const buildFromSyncRecord = (model: typeof BaseModel) => {
+const buildFromSyncRecord = (model: typeof BaseModel): (syncRecord: SyncRecord) => object => {
   const includedColumns = extractIncludedColumns(model);
 
   return ({ data }: SyncRecord): object => {
@@ -194,12 +201,12 @@ const buildFromSyncRecord = (model: typeof BaseModel) => {
   };
 };
 
-const stripId = (key: string | any) => {
+const stripId = (key: string | any): string => {
   if (typeof key !== 'string' || key === 'displayId' || key === 'deviceId') {
     return key;
   }
   return key.replace(/Id$/, '');
-}
+};
 
 /*
  *   stripIdSuffixes
@@ -209,10 +216,8 @@ const stripId = (key: string | any) => {
  *    as "relationId" - this just strips the "Id" suffix from any fields that
  *    have them. It's a bit of a blunt instrument, but, there you go.
  */
-const stripIdSuffixes = (data: object): object => {
-  return Object.entries(data)
-    .reduce((state, [key, value]) => ({
-      ...state,
-      [stripId(key)]: value,
-    }), {});
-}
+const stripIdSuffixes = (data: object): object => Object.entries(data)
+  .reduce((state, [key, value]) => ({
+    ...state,
+    [stripId(key)]: value,
+  }), {});
