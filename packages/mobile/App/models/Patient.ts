@@ -8,7 +8,7 @@ import { PatientIssue } from './PatientIssue';
 import { IPatient, IPatientAdditionalData } from '~/types';
 import { formatDateForQuery } from '~/infra/db/helpers';
 import { PatientAdditionalData } from './PatientAdditionalData';
-import { ReferenceData, ReferenceDataRelation } from './ReferenceData';
+import { ReferenceData, NullableReferenceDataRelation } from './ReferenceData';
 const TIME_OFFSET = 3;
 
 @Entity('patient')
@@ -37,8 +37,8 @@ export class Patient extends BaseModel implements IPatient {
   @Column()
   sex: string;
 
-  @ReferenceDataRelation()
-  village: ReferenceData;
+  @NullableReferenceDataRelation()
+  village?: ReferenceData;
   @RelationId(({ village }) => village)
   villageId?: string;
 
