@@ -111,7 +111,7 @@ export class WebRemote {
       // handle version incompatibility
       if (response.status === 400 && error) {
         const versionIncompatibleMessage = getVersionIncompatibleMessage(error, response);
-        throw new InvalidOperationError(versionIncompatibleMessage);
+        if (versionIncompatibleMessage) throw new InvalidOperationError(versionIncompatibleMessage);
       }
       throw new InvalidOperationError(`Server responded with status code ${response.status}`);
     }
