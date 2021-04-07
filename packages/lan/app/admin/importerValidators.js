@@ -73,9 +73,14 @@ class ForeignKeyLinker {
 
     for(const [field, recordType] of Object.entries(schema)) {
       const search = data[field];
-      if(!search) continue;
+      if (!search) continue;
+      const found = this.fkStore.findRecord(recordType, search);
+      const foundId = found?.data?.id;
+      if (!foundId) {
+        throw new ValidationError(`matching record from ${found.sheet}:${found.row} has no id`);
+      }
+      data[`${field}Id`] = foundId;
       delete data[field];
-      data[`${field}Id`] = this.fkStore.findRecordId(recordType, search);
     }
   }
 }
@@ -103,7 +108,7 @@ export async function validateRecordSet(records) {
         data: validatedData,
       };
     } catch(e) {
-      if(!e instanceof ValidationError) throw e;
+      if (!(e instanceof ValidationError)) throw e;
 
       return {
         ...record,

@@ -43,7 +43,7 @@ export class ForeignKeyStore {
   // facilities without having to copy+paste IDs everywhere. (and path C 
   // protects against typos in this situation)
   //
-  findRecordId(recordType, search, searchField = 'name') {
+  findRecord(recordType, search, searchField = 'name') {
     // don't run an empty search, if a relation is mandatory
     // it should be set in the schema
     if(!search) return '';
@@ -55,7 +55,7 @@ export class ForeignKeyStore {
       if(byId.recordType !== recordType) {
         throw new ValidationError(`linked ${recordType} for ${search} was of type ${byId.recordType}`);
       }
-      return search;
+      return byId;
     }
 
     // otherwise we just loop over the whole array for one
@@ -69,7 +69,7 @@ export class ForeignKeyStore {
       }
       return r.data[searchField].toLowerCase() === search.toLowerCase();
     });
-    if(found) return found.data.id;
+    if(found) return found;
 
     throw new ValidationError(`could not find a ${recordType} called "${search}"`);
   }

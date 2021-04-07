@@ -71,15 +71,17 @@ export async function importData({ file, whitelist = [] }) {
     const sheet = sheets[sheetName.toLowerCase()];
     const data = utils.sheet_to_json(sheet);
 
-    return data.map(item => {
-      const transformed = transformer(item);
-      if(!transformed) return null;
-      return {
-        sheet: sheetName,
-        row: (item.__rowNum__ + 1), // account for 0-based js vs 1-based excel
-        ...transformed,
-      };
-    });
+    return data
+      .filter(item => Object.values(item).some(x => x))
+      .map(item => {
+        const transformed = transformer(item);
+        if(!transformed) return null;
+        return {
+          sheet: sheetName,
+          row: (item.__rowNum__ + 1), // account for 0-based js vs 1-based excel
+          ...transformed,
+        };
+      });
   };
 
   // figure out which transformers we're actually using
