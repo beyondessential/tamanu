@@ -1,4 +1,4 @@
-import React, { useCallback, ReactElement, useMemo } from 'react';
+import React, { useCallback, ReactElement } from 'react';
 import { StatusBar } from 'react-native';
 import { useField, useFormikContext } from 'formik';
 import { FullView } from '/styled/common';
@@ -8,24 +8,16 @@ import { theme } from '/styled/theme';
 import { Routes } from '/helpers/routes';
 import { PatientPersonalInfoScreenProps } from '../../../interfaces/screens/RegisterPatientStack/PatientPersonalInfoScreen';
 
-const useScreenFields = () => {
-  const firstName = useField('firstName');
-  const middleName = useField('middleName');
-  const lastName = useField('lastName');
-  const email = useField('email');
-  const phone = useField('phone');
-  const province = useField('province');
-  const city = useField('city');
-  const address = useField('address');
-
-  const fields = useMemo(
-    () => [firstName, middleName, lastName, email, phone, province, city, address],
-    [firstName[1].value, middleName[1].value, lastName[1].value, email[1].value,
-      phone[1].value, province[1].value, city[1].value, address[1].value]
-  );
-
-  return fields;
-}
+const currentScreenFields = [
+  'firstName',
+  'middleName',
+  'lastName',
+  'email',
+  'phone',
+  'province',
+  'city',
+  'address',
+];
 
 export const PatientPersonalInfoScreen = ({
   navigation,
@@ -33,7 +25,7 @@ export const PatientPersonalInfoScreen = ({
   const onGoBack = useCallback(() => {
     navigation.navigate(Routes.HomeStack.HomeTabs.Index);
   }, []);
-  const screenFields = useScreenFields();
+  const screenFields = currentScreenFields.map(fieldName => useField(fieldName));
   const form = useFormikContext();
 
   const validateForm = useCallback((): boolean => {

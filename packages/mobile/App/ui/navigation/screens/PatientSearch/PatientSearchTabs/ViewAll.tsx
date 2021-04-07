@@ -22,7 +22,7 @@ import { ViewAllScreenProps } from '/interfaces/screens/PatientSearchStack';
 import { Button } from '/components/Button';
 import { theme } from '/styled/theme';
 import { FilterIcon } from '/components/Icons/FilterIcon';
-import { useFilterFields } from './PatientFilterScreen';
+import { FilterArray } from './PatientFilterScreen';
 import { IPatient } from '~/types';
 import { screenPercentageToDP, Orientation } from '/helpers/screen';
 
@@ -73,23 +73,24 @@ const getActiveFilters = (
 const applyActiveFilters = (
   models,
   { filters }: ActiveFilters,
-  { value }: FieldInputProps<any>,
-): IPatient[] => models.Patient.find({
-  order: {
-    lastName: 'ASC',
-    firstName: 'ASC',
-    markedForSync: 'DESC',
-  },
-  where: [
-    { displayId: Like(`%${value}%`), ...filters },
-    { firstName: Like(`%${value}%`), ...filters },
-    { middleName: Like(`%${value}%`), ...filters },
-    { lastName: Like(`%${value}%`), ...filters },
-    { culturalName: Like(`%${value}%`), ...filters },
-  ],
-  take: 100,
-  cache: true,
-});
+  { value }: FieldInputProps<any>
+): IPatient[] =>
+  models.Patient.find({
+    order: {
+      lastName: 'ASC',
+      firstName: 'ASC',
+      markedForSync: 'DESC',
+    },
+    where: [
+      { displayId: Like(`%${value}%`), ...filters },
+      { firstName: Like(`%${value}%`), ...filters },
+      { middleName: Like(`%${value}%`), ...filters },
+      { lastName: Like(`%${value}%`), ...filters },
+      { culturalName: Like(`%${value}%`), ...filters },
+    ],
+    take: 100,
+    cache: true,
+  });
 
 const Screen: FC<ViewAllScreenProps> = ({
   navigation,
@@ -98,18 +99,19 @@ const Screen: FC<ViewAllScreenProps> = ({
   /** Get Search Input */
   const [searchField] = useField('search');
   // Get filters
-  const filterFields = useFilterFields();
+  const filters = FilterArray.map((fieldName) => useField(fieldName));
   const activeFilters = useMemo(
-    () => filterFields.reduce<ActiveFilters>(getActiveFilters, {
-      count: 0,
-      filters: {},
-    }),
-    [filterFields],
+    () =>
+      filters.reduce<ActiveFilters>(getActiveFilters, {
+        count: 0,
+        filters: {},
+      }),
+    [filters]
   );
 
   const [list, error] = useBackendEffect(
     ({ models }) => applyActiveFilters(models, activeFilters, searchField),
-    [searchField.value, activeFilters],
+    [searchField.value, activeFilters]
   );
 
   const onNavigateToPatientHome = useCallback((patient) => {
@@ -121,7 +123,7 @@ const Screen: FC<ViewAllScreenProps> = ({
 
   const onNavigateToFilters = useCallback(
     () => navigation.navigate(Routes.HomeStack.SearchPatientStack.FilterSearch),
-    [],
+    []
   );
 
   if (!list) {

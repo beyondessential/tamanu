@@ -6,7 +6,6 @@ export interface ISurveyResponse {
   startTime?: Date;
   endTime?: Date;
   result?: number;
-  resultText?: string;
 }
 
 export interface ISurveyResponseAnswer {
@@ -15,6 +14,6 @@ export interface ISurveyResponseAnswer {
   responseId: ID;
   dataElementId: ID;
 
-  name?: string;
-  body?: string;
+  name: string;
+  body: string;
 }

@@ -7,14 +7,10 @@ import { theme } from '~/ui/styled/theme';
 import { Table, Row, ColumnCategory, Cell, BorderRow, HeaderRow, DataCell, DataText } from './RecentPatientSurveyReportStyled';
 import { DateFormats } from '/helpers/constants';
 
-interface IOwnProps {
-  selectedSurveyId: string;
-}
-
-export const RecentPatientSurveyReport: FC<IOwnProps> = ({ selectedSurveyId }) => {
+export const RecentPatientSurveyReport: FC = () => {
   const [recentVisitorsData] = useBackendEffect(
-    ({ models }) => models.Patient.getRecentVisitors(selectedSurveyId),
-    [selectedSurveyId],
+    ({ models }) => models.Patient.getRecentVisitors('program-cvd-fiji/survey-cvd-risk-fiji'),
+    [],
   );
   const [genderData, ageData, visitorsData] = recentVisitorsData || [null, null, null];
 

@@ -1,6 +1,5 @@
 import React, { ReactElement, useMemo, useRef, useCallback, useEffect, useState } from 'react';
 import { compose } from 'redux';
-import { useSelector } from 'react-redux';
 import { Formik } from 'formik';
 import { ScrollView } from 'react-native-gesture-handler';
 import { Field } from '/components/Forms/FormField';
@@ -24,8 +23,6 @@ import { CERTAINTY_OPTIONS, Certainty, ReferenceDataType } from '~/types';
 import { Suggester } from '~/ui/helpers/suggester';
 import { ReferenceData } from '~/models/ReferenceData';
 import { Dropdown } from '~/ui/components/Dropdown';
-import { authUserSelector } from '~/ui/helpers/selectors';
-import { CurrentUserField } from '~/ui/components/CurrentUserField/CurrentUserField';
 
 const IllnessFormSchema = Yup.object().shape({
   certainty: Yup.mixed().oneOf(Object.values(Certainty)).required(),
@@ -48,14 +45,11 @@ export const DumbAddIllnessScreen = ({ selectedPatient, navigation }): ReactElem
     navigation.navigate(Routes.HomeStack.HistoryVitalsStack.Index);
   }, []);
 
-  const user = useSelector(authUserSelector);
-
   const onRecordIllness = useCallback(
     async ({ diagnosis, certainty }: any): Promise<any> => {
       // TODO: persist fields other than diagnosis and certainty
       const encounter = await models.Encounter.getOrCreateCurrentEncounter(
         selectedPatient.id,
-        user.id,
       );
 
       await models.Diagnosis.createAndSaveOne({
@@ -112,7 +106,8 @@ export const DumbAddIllnessScreen = ({ selectedPatient, navigation }): ReactElem
                 <StyledView
                   justifyContent="space-between"
                 >
-                  <CurrentUserField
+                  <Field
+                    component={TextField}
                     name="examiner"
                     label="Examiner"
                   />

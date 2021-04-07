@@ -9,7 +9,6 @@ import {
 import { DateField } from '../../DateField/DateField';
 import { Field } from '../FormField';
 import { TextField } from '../../TextField/TextField';
-import { CurrentUserField } from '../../CurrentUserField/CurrentUserField';
 
 export const VaccineFormNotGiven = (): JSX.Element => (
   getOrientation() === SCREEN_ORIENTATION.PORTRAIT ? (
@@ -23,7 +22,8 @@ export const VaccineFormNotGiven = (): JSX.Element => (
         name="reason"
         label="Reason"
       />
-      <CurrentUserField
+      <Field
+        component={TextField}
         name="examiner"
         label="Examiner"
       />
@@ -42,7 +42,8 @@ export const VaccineFormNotGiven = (): JSX.Element => (
           />
         </StyledView>
         <StyledView width="49%">
-          <CurrentUserField
+          <Field
+            component={TextField}
             name="examiner"
             label="Examiner"
           />

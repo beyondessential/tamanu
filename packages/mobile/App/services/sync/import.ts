@@ -1,8 +1,7 @@
-import { chunk, pick, memoize, flatten } from 'lodash';
+import { pick, memoize } from 'lodash';
 
 import { SyncRecord } from './source';
 import { BaseModel } from '~/models/BaseModel';
-import { chunkRows } from '~/infra/db/helpers';
 import { RelationsTree, extractRelationsTree, extractIncludedColumns } from './metadata';
 
 // TODO: handle lazy and/or embedded relations
@@ -14,20 +13,6 @@ export type ImportPlan = {
   children: {
     [name: string]: ImportPlan,
   },
-}
-
-export type ImportFailure = {
-  error: string,
-  recordId: string,
-};
-
-export type ImportResponse = {
-  failures: ImportFailure[],
-};
-
-
-interface UpsertableSyncRecord extends SyncRecord {
-  parentId?: string;
 }
 
 /*
@@ -44,27 +29,11 @@ export const createImportPlan = memoize((model: typeof BaseModel) => {
 /*
  *   executeImportPlan
  *
- *    Input: a plan created using createImportPlan and records to import, including nested relations
- *    Output: imports the records into the db, returns an object containing any errors
+ *    Input: a plan created using createImportPlan and a record to import, including nested relations
+ *    Output: imports the record into the db
  */
-export const executeImportPlan = async (importPlan: ImportPlan, syncRecords: SyncRecord[]) => {
-  const { model } = importPlan;
-
-  // split records into create, update, delete
-  const ids = syncRecords.map(r => r.data.id);
-  const existing = await model.findByIds(ids);
-  const existingIdSet = new Set(existing.map(e => e.id));
-  const recordsForCreate = syncRecords.filter(r => !r.isDeleted && !existingIdSet.has(r.data.id));
-  const recordsForUpdate = syncRecords.filter(r => !r.isDeleted && existingIdSet.has(r.data.id));
-  const recordsForDelete = syncRecords.filter(r => r.isDeleted);
-
-  // run each import process
-  const { failures: createFailures } = await executeCreates(importPlan, recordsForCreate);
-  const { failures: updateFailures } = await executeUpdates(importPlan, recordsForUpdate);
-  const { failures: deleteFailures } = await executeDeletes(importPlan, recordsForDelete);
-
-  // return combined failures
-  return { failures: [...createFailures, ...updateFailures, ...deleteFailures] };
+export const executeImportPlan = async (importPlan: ImportPlan, syncRecord: SyncRecord) => {
+  return executeImportPlanInner(importPlan, syncRecord);
 }
 
 const createImportPlanInner = (model: typeof BaseModel, relationsTree: RelationsTree, parentField: string | null) => {
@@ -89,95 +58,41 @@ const createImportPlanInner = (model: typeof BaseModel, relationsTree: Relations
   };
 };
 
-const executeDeletes = async (
-  { model }: ImportPlan,
-  syncRecords: SyncRecord[],
-): Promise<ImportResponse> => {
-  if (syncRecords.length === 0) {
-    return { failures: [] };
-  }
-  const recordIds = syncRecords.map(r => r.data.id);
-  try {
-    // if records don't exist, it will just ignore them rather than throwing an error
-    await model.delete(recordIds);
-  } catch (e) {
-    return { failures: recordIds.map(id => ({
-      error: `Delete failed with ${e.message}`,
-      recordId: id,
-    }))};
-  }
-  return { failures: [] };
-};
-
-const executeUpdateOrCreates = async (
+const executeImportPlanInner = async (
   { model, parentField, fromSyncRecord, children }: ImportPlan,
-  syncRecords: UpsertableSyncRecord[],
-  buildUpdateOrCreateFn: Function,
-): Promise<ImportResponse> => {
-  if (syncRecords.length === 0) {
-    return { failures: [] };
-  }
-  const updateOrCreateFn = buildUpdateOrCreateFn(model);
-  const rows: { [key: string]: any }[] = syncRecords.map(sr => ({
-    ...fromSyncRecord(sr),
-    markedForUpload: false,
-    [parentField]: sr.parentId,
-  }));
-
-  const failures = [];
-
-  for (const batchOfRows of chunkRows(rows)) {
-    try {
-      await updateOrCreateFn(batchOfRows);
-    } catch (e) {
-      // try records individually, some may succeed
-      await Promise.all(batchOfRows.map(async row => {
-        try {
-          await updateOrCreateFn(row);
-        } catch (error) {
-          failures.push({ error: `Update or create failed with ${error.message}`, recordId: row.id });
-        }
-      }));
+  syncRecord: SyncRecord,
+  parentId?: string,
+) => {
+  if (syncRecord.isDeleted) {
+    await model.delete({ id: syncRecord.data.id });
+  } else {
+    const fields: { [key: string]: any } = {
+      ...fromSyncRecord(syncRecord),
+      markedForUpload: false,
+    };
+    if (!!parentId) {
+      fields[parentField] = parentId;
+    }
+    const existing = await model.count({ id: fields.id });
+    if (existing > 0) {
+      await model.update(fields.id, fields);
+    } else {
+      await model.insert(fields);
     }
   }
-
   for (const [relationName, relationPlan] of Object.entries(children)) {
-    const childRecords: UpsertableSyncRecord[] = flatten(syncRecords
-      .map(sr => (sr.data[relationName] || [])
-        .map(child => ({ ...child, parentId: sr.data.id }))
-      ));
+    const childRecords = syncRecord.data[relationName];
     if (childRecords) {
-      const { failures: childFailures } = await executeUpdateOrCreates(
-        relationPlan,
-        childRecords,
-        buildUpdateOrCreateFn,
-      );
-      failures.push(...childFailures)
+      for (const childRecord of childRecords) {
+        await executeImportPlanInner(
+          relationPlan,
+          childRecord,
+          syncRecord.data.id,
+        );
+      }
     }
   }
-  return { failures };
 };
-
-const executeCreates = async (
-  importPlan: ImportPlan,
-  syncRecords: SyncRecord[],
-) => executeUpdateOrCreates(
-  importPlan,
-  syncRecords,
-  model => async rowOrRows => model.insert(rowOrRows),
-);
-
-const executeUpdates = async (
-  importPlan: ImportPlan,
-  syncRecords: SyncRecord[],
-) => executeUpdateOrCreates(
-  importPlan,
-  syncRecords,
-  model => async rowOrRows => {
-    const entityOrEntities = model.create(rowOrRows);
-    return importPlan.model.save(entityOrEntities, { listeners: false });
-  }
-);
 
 /*
  *   buildFromSyncRecord

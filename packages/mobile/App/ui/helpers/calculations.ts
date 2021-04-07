@@ -16,8 +16,8 @@ export function runCalculations(
 
     try {
       const value = math.evaluate(c.calculation, inputValues);
-      if (!Number.isFinite(value)) {
-        throw new Error('Value is not a valid number');
+      if(Number.isNaN(value)) {
+        throw new Error('Value is NaN');
       }
       inputValues[c.dataElement.code] = value;
       calculatedValues[c.dataElement.code] = value;

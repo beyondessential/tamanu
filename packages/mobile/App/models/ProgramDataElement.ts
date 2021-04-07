@@ -7,14 +7,14 @@ import { IProgramDataElement, DataElementType } from '~/types';
 @Entity('program_data_element')
 export class ProgramDataElement extends BaseModel
   implements IProgramDataElement {
-  @Column({ nullable: true })
-  code?: string;
+  @Column()
+  code: string;
 
-  @Column({ default: '', nullable: true })
+  @Column({ nullable: true, default: '' })
   name?: string;
 
-  @Column({ default: '', nullable: true })
-  defaultText?: string;
+  @Column({ default: '' })
+  defaultText: string;
 
   @Column({ nullable: true })
   defaultOptions?: string;

@@ -1,6 +1,5 @@
 import React, { ReactElement, useCallback } from 'react';
 import { compose } from 'redux';
-import { useSelector } from 'react-redux';
 import { Formik } from 'formik';
 import { ScrollView } from 'react-native-gesture-handler';
 import { Field } from '/components/Forms/FormField';
@@ -22,7 +21,6 @@ import { ReferenceDataType } from '~/types';
 import { Suggester } from '~/ui/helpers/suggester';
 import { ReferenceData } from '~/models/ReferenceData';
 import { NumberField } from '~/ui/components/NumberField';
-import { authUserSelector } from '~/ui/helpers/selectors';
 
 const styles = StyleSheet.create({
   KeyboardAvoidingViewStyles: { flex: 1 },
@@ -40,13 +38,10 @@ export const DumbPrescribeMedicationScreen = ({ selectedPatient, navigation }): 
     navigation.navigate(Routes.HomeStack.HistoryVitalsStack.Index);
   }, []);
 
-  const user = useSelector(authUserSelector);
-
   const onPrescribeMedication = useCallback(
     async (values): Promise<any> => {
       const encounter = await models.Encounter.getOrCreateCurrentEncounter(
         selectedPatient.id,
-        user.id,
       );
 
       await models.Medication.createAndSaveOne({

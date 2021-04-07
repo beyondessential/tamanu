@@ -123,7 +123,7 @@ export const NewVaccineTabs = ({
     switch (route.params.vaccine.status) {
       case VaccineStatus.NOT_GIVEN:
         setState({
-          index: 1,
+          index: 2,
           routes,
         });
         break;

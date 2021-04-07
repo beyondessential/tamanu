@@ -5,7 +5,7 @@ import { IPatientIssue, PatientIssueType } from '~/types';
 
 @Entity('patient_issue')
 export class PatientIssue extends BaseModel implements IPatientIssue {
-  @Column({ nullable: true })
+  @Column()
   note?: string;
 
   @Column()

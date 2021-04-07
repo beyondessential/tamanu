@@ -1,14 +1,19 @@
-import React, { useCallback, ReactElement, useMemo } from 'react';
+import React, { useCallback, ReactElement } from 'react';
+import { useField } from 'formik';
 import { Screen } from './Screen';
 import { Routes } from '/helpers/routes';
 import { BaseAppProps } from '/interfaces/BaseAppProps';
-import { useFilterFields } from './hooks';
+
+export const FilterArray = [
+  'sex',
+  'dateOfBirth',
+  'firstName',
+  'lastName',
+];
 
 const Container = ({ navigation, route }: BaseAppProps): ReactElement => {
   const { onChangeFilters } = route.params;
-
-  const fields = useFilterFields();
-
+  const fields = FilterArray.map(filterName => useField(filterName));
   const onNavigateBack = useCallback(() => {
     navigation.navigate(
       Routes.HomeStack.SearchPatientStack.SearchPatientTabs.Index,

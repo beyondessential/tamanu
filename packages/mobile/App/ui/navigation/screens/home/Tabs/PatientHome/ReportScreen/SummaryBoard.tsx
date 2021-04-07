@@ -19,32 +19,36 @@ export const SummaryBoard: FC<Props> = ({ todayData }) => (
     height={screenPercentageToDP(13.36, Orientation.Height)}
     alignSelf="center"
   >
-    <FullView justifyContent="center" alignItems="center">
-      <StyledText
-        fontSize={screenPercentageToDP(3.4, Orientation.Height)}
-        fontWeight="bold"
-      >
-        {todayData?.totalEncounters || '0'}
-      </StyledText>
-      <StyledText
-        color={theme.colors.TEXT_MID}
-        fontSize={screenPercentageToDP(1.7, Orientation.Height)}
-      >
-        People attended today
-      </StyledText>
-    </FullView>
-    <FullView justifyContent="center" alignItems="center">
-      <StyledText
-        fontSize={screenPercentageToDP(3.4, Orientation.Height)}
-        fontWeight="bold"
-      >
-        {todayData?.totalSurveys || 0}
-      </StyledText>
-      <StyledText
-        fontSize={screenPercentageToDP(1.7, Orientation.Height)}
-      >
-        Screenings completed today
-      </StyledText>
-    </FullView>
+    {todayData && (
+      <>
+        <FullView justifyContent="center" alignItems="center">
+          <StyledText
+            fontSize={screenPercentageToDP(3.4, Orientation.Height)}
+            fontWeight="bold"
+          >
+            {todayData.totalEncounters}
+          </StyledText>
+          <StyledText
+            color={theme.colors.TEXT_MID}
+            fontSize={screenPercentageToDP(1.7, Orientation.Height)}
+          >
+            People attended today
+          </StyledText>
+        </FullView>
+        <FullView justifyContent="center" alignItems="center">
+          <StyledText
+            fontSize={screenPercentageToDP(3.4, Orientation.Height)}
+            fontWeight="bold"
+          >
+            {todayData.totalSurveys}
+          </StyledText>
+          <StyledText
+            fontSize={screenPercentageToDP(1.7, Orientation.Height)}
+          >
+            Screenings completed today
+          </StyledText>
+        </FullView>
+      </>
+    )}
   </RowView>
 );

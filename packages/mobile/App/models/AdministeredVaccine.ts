@@ -13,10 +13,10 @@ export class AdministeredVaccine extends BaseModel implements IAdministeredVacci
   status: string;
 
   @Column({ nullable: true })
-  reason?: string;
+  reason: string;
 
   @Column({ nullable: true })
-  location?: string;
+  location: string;
 
   @Column()
   date: Date;

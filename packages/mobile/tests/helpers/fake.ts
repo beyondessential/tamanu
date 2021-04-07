@@ -4,7 +4,6 @@ import { random, sample } from 'lodash';
 import {
   DataElementType,
   EncounterType,
-  SurveyTypes,
   IAdministeredVaccine,
   IEncounter,
   IPatient,
@@ -18,6 +17,7 @@ import {
   ISurveyResponseAnswer,
   ISurveyScreenComponent,
   IUser,
+  PatientIssueType,
 } from '~/types';
 
 import { BaseModel } from '~/models/BaseModel';
@@ -25,7 +25,6 @@ import { BaseModel } from '~/models/BaseModel';
 export const fakePatient = (): IPatient => {
   const uuid = uuidv4();
   return {
-    title: 'Ms.',
     id: `patient-id-${uuid}`,
     displayId: `patient_displayId-${uuid}`,
     firstName: `patient_firstName-${uuid}`,
@@ -33,67 +32,83 @@ export const fakePatient = (): IPatient => {
     lastName: `patient_lastName-${uuid}`,
     culturalName: `patient_culturalName-${uuid}`,
     dateOfBirth: new Date(),
+    bloodType: 'A+',
     sex: `female-${uuid}`,
     markedForSync: false,
+    lastSynced: 0,
   };
 };
 
-export const fakeEncounter = (): IEncounter => ({
-  id: `encounter-id-${uuidv4()}`,
-  encounterType: EncounterType.Clinic,
-  startDate: new Date(),
-  reasonForEncounter: 'encounter-reason',
-  deviceId: null,
-});
+export const fakeEncounter = (): IEncounter => {
+  return {
+    id: `encounter-id-${uuidv4()}`,
+    encounterType: EncounterType.Clinic,
+    startDate: new Date(),
+    reasonForEncounter: 'encounter-reason',
+    deviceId: null
+  };
+};
 
-export const fakeAdministeredVaccine = (): IAdministeredVaccine => ({
-  id: `administered-vaccine-id-${uuidv4()}`,
-  status: 'done',
-  date: new Date(),
-});
+export const fakeAdministeredVaccine = (): IAdministeredVaccine => {
+  return {
+    id: `administered-vaccine-id-${uuidv4()}`,
+    status: 'done',
+    date: new Date(),
+  };
+};
 
-export const fakeProgramDataElement = (): IProgramDataElement => ({
-  id: `program-data-element-id-${uuidv4()}`,
-  code: 'program-data-element-code',
-  defaultText: 'program-data-element-defaultText',
-  type: DataElementType.FreeText,
-  defaultOptions: null,
-  name: 'program-data-element-name',
-});
+export const fakeProgramDataElement = (): IProgramDataElement => {
+  return {
+    id: `program-data-element-id-${uuidv4()}`,
+    code: 'program-data-element-code',
+    defaultText: 'program-data-element-defaultText',
+    type: DataElementType.FreeText,
+    defaultOptions: null,
+    name: 'program-data-element-name',
+  };
+};
 
-export const fakeSurvey = (): ISurvey => ({
-  id: `survey-id-${uuidv4()}`,
-  programId: null,
-  name: 'survey-name',
-  surveyType: SurveyTypes.Programs,
-});
+export const fakeSurvey = (): ISurvey => {
+  return {
+    id: `survey-id-${uuidv4()}`,
+    programId: null,
+    name: 'survey-name',
+    surveyType: 'programs'
+  };
+};
 
-export const fakeSurveyScreenComponent = (): ISurveyScreenComponent => ({
-  id: `survey-screen-component-${uuidv4()}`,
-  dataElementId: null,
-  surveyId: null,
-  screenIndex: 1,
-  componentIndex: 2,
-  text: 'survey-screen-component-text',
-  visibilityCriteria: 'survey-screen-component-visibilityCriteria',
-  validationCriteria: 'survey-screen-component-validationCriteria',
-  options: 'survey-screen-component-options',
-  detail: 'survey-screen-component-detail',
-  config: 'survey-screen-component-config',
-  calculation: '',
-});
+export const fakeSurveyScreenComponent = (): ISurveyScreenComponent => {
+  return {
+    id: `survey-screen-component-${uuidv4()}`,
+    dataElementId: null,
+    surveyId: null,
+    screenIndex: 1,
+    componentIndex: 2,
+    text: 'survey-screen-component-text',
+    visibilityCriteria: 'survey-screen-component-visibilityCriteria',
+    validationCriteria: 'survey-screen-component-validationCriteria',
+    options: 'survey-screen-component-options',
+    detail: 'survey-screen-component-detail',
+    config: 'survey-screen-component-config',
+    calculation: '',
+  };
+};
 
-export const fakeSurveyResponse = (): ISurveyResponse => ({
-  id: `survey-response-id-${uuidv4()}`,
-  startTime: new Date(),
-  endTime: new Date(),
-});
+export const fakeSurveyResponse = (): ISurveyResponse => {
+  return {
+    id: `survey-response-id-${uuidv4()}`,
+    startTime: new Date(),
+    endTime: new Date(),
+  };
+};
 
-export const fakeSurveyResponseAnswer = (): ISurveyResponseAnswer => ({
-  id: `survey-response-answer-id-${uuidv4()}`,
-  body: 'survey-response-answer-body',
-  name: 'survey-response-answer-name',
-});
+export const fakeSurveyResponseAnswer = (): ISurveyResponseAnswer => {
+  return {
+    id: `survey-response-answer-id-${uuidv4()}`,
+    body: 'survey-response-answer-body',
+    name: 'survey-response-answer-name',
+  };
+};
 
 export const fakeReferenceData = (): IReferenceData => {
   const uuid = uuidv4();
@@ -139,7 +154,7 @@ export const fakeProgram = (): IProgram => {
 };
 
 type FakeOptions = {
-  relations?: string[];
+  relations?: string[],
 };
 
 const fakeDate = () => new Date(random(0, Date.now()));
@@ -153,7 +168,6 @@ const FIELD_HANDLERS = {
   Date: fakeDate,
   datetime: fakeDate,
   bigint: fakeNumber,
-  int: fakeNumber,
   Number: fakeNumber,
 };
 
@@ -173,7 +187,7 @@ export const fake = (model: typeof BaseModel, { relations = [] }: FakeOptions = 
     } else if (column.propertyName === 'id') {
       record.id = id;
     } else if (FIELD_HANDLERS[typeId]) {
-      record[column.propertyName] = FIELD_HANDLERS[typeId](column, id);
+      record[column.propertyName] = FIELD_HANDLERS[typeId](column, id)
     } else {
       throw new Error(`Could not fake field ${model.name}.${column.propertyName} of type ${typeId}`);
     }

@@ -1,6 +1,10 @@
-import { FieldTypes } from './fields';
+import React from 'react';
 
-import { TextField, LimitedTextField } from '~/ui/components/TextField/TextField';
+import { FieldTypes } from './fields';
+import { Suggester } from './suggester';
+import { Routes } from './routes';
+
+import { TextField } from '~/ui/components/TextField/TextField';
 import { RadioButtonGroup } from '~/ui/components/RadioButtonGroup';
 import { DateField } from '~/ui/components/DateField/DateField';
 import { Dropdown, MultiSelectDropdown } from '~/ui/components/Dropdown';
@@ -12,11 +16,9 @@ import { SurveyQuestionAutocomplete } from '../components/AutocompleteModal/Surv
 import { SurveyLink } from '../components/Forms/SurveyForm/SurveyLink';
 import { SurveyResult } from '../components/Forms/SurveyForm/SurveyResult';
 import { SurveyAnswerField } from '../components/Forms/SurveyForm/SurveyAnswerField';
-import { PatientDataField } from '../components/Forms/SurveyForm/PatientDataField';
-import { UserDataField } from '../components/Forms/SurveyForm/UserDataField';
 
 export const FieldByType = {
-  [FieldTypes.TEXT]: LimitedTextField,
+  [FieldTypes.TEXT]: TextField,
   [FieldTypes.MULTILINE]: TextField,
   [FieldTypes.RADIO]: RadioButtonGroup,
   [FieldTypes.SELECT]: Dropdown,
@@ -31,8 +33,6 @@ export const FieldByType = {
   [FieldTypes.SURVEY_LINK]: SurveyLink,
   [FieldTypes.SURVEY_RESULT]: SurveyResult,
   [FieldTypes.SURVEY_ANSWER]: SurveyAnswerField,
-  [FieldTypes.PATIENT_DATA]: PatientDataField,
-  [FieldTypes.USER_DATA]: UserDataField,
   [FieldTypes.INSTRUCTION]: null,
   [FieldTypes.RESULT]: null,
 };

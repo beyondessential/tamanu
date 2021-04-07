@@ -6,7 +6,6 @@ import { Routes } from '/helpers/routes';
 import { NewProgramEntryTabs } from './NewProgramEntryTabs';
 import { ReferralFormListScreen } from '../screens/referrals/ReferralFormListScreen';
 import { SurveyResponseScreen } from '../screens/programs/tabs/SurveyResponseScreen';
-import { SurveyTypes } from '~/types';
 
 const Stack = createStackNavigator();
 
@@ -24,7 +23,7 @@ export const ReferralFormStack = ({ route }): ReactElement => {
       initialParams={{
         surveyId,
         selectedPatient,
-        surveyType: SurveyTypes.Referral,
+        surveyType: 'referral',
       }}
       options={{
         title: 'Add Details',

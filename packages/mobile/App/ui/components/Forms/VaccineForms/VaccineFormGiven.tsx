@@ -8,7 +8,6 @@ import {
 } from '/helpers/screen';
 import { DateField } from '../../DateField/DateField';
 import { TextField } from '../../TextField/TextField';
-import { CurrentUserField } from '../../CurrentUserField/CurrentUserField';
 import { Field } from '../FormField';
 
 export const VaccineFormGiven = (): JSX.Element => (
@@ -19,7 +18,11 @@ export const VaccineFormGiven = (): JSX.Element => (
     >
       <Field component={DateField} name="date" label="Date" />
       <Field component={TextField} name="batch" label="Batch No." />
-      <CurrentUserField name="examiner" label="Examiner" />
+      <Field
+        component={TextField}
+        name="examiner"
+        label="Examiner"
+      />
     </StyledView>
   ) : (
     <StyledView>
@@ -31,7 +34,11 @@ export const VaccineFormGiven = (): JSX.Element => (
           <Field component={TextField} name="batch" label="Batch No." />
         </StyledView>
         <StyledView width="49%">
-          <CurrentUserField name="examiner" label="Examiner" />
+          <Field
+            component={TextField}
+            name="examiner"
+            label="Examiner"
+          />
         </StyledView>
       </RowView>
     </StyledView>

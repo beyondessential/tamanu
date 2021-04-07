@@ -1,4 +1,4 @@
-import React, { ReactElement, useState, useCallback, FC, useEffect } from 'react';
+import React, { ReactElement, useState, useCallback, FC } from 'react';
 import {
   StyledText,
   FullView,
@@ -17,16 +17,11 @@ import {
 } from '/helpers/screen';
 import { Routes } from '/helpers/routes';
 import { ReportScreenProps } from '/interfaces/screens/HomeStack/ReportScreenProps';
-import { addHours, format, startOfToday, subDays } from 'date-fns';
-import { Not } from 'typeorm';
-import { useIsFocused } from '@react-navigation/core';
+import { format, startOfToday, subDays } from 'date-fns';
 import { useBackendEffect } from '~/ui/hooks';
 import { SummaryBoard } from './SummaryBoard';
 import { BarChartData } from '~/ui/interfaces/BarChartProps';
 import { RecentPatientSurveyReport } from './RecentPatientSurveyReport';
-import { Dropdown } from './components/Dropdown';
-
-import { SurveyTypes } from '~/types';
 
 interface ReportTypeButtons {
   isReportWeekly: boolean;
@@ -94,13 +89,10 @@ interface ReportChartProps {
     totalSurveys: number;
     encounterDate: string;
   };
-  selectedSurveyId: string;
 }
 
-const ReportChart: FC<ReportChartProps> = ({
-  isReportWeekly, visitData, todayData, selectedSurveyId,
-}) => (
-  isReportWeekly ? (
+const ReportChart: FC<ReportChartProps> = ({ isReportWeekly, visitData, todayData }) =>
+  (isReportWeekly ? (
     <>
       <StyledView marginBottom={screenPercentageToDP(7.53, Orientation.Height)}>
         <VisitChart visitData={visitData} />
@@ -111,44 +103,30 @@ const ReportChart: FC<ReportChartProps> = ({
     </>
   ) : (
     <StyledView marginBottom={screenPercentageToDP(2.43, Orientation.Height)}>
-      <RecentPatientSurveyReport selectedSurveyId={selectedSurveyId} />
+      <RecentPatientSurveyReport />
     </StyledView>
-  )
-);
+  ));
+
+// TODO: implement selector for survey type.
 
 export const ReportScreen = ({
   navigation,
 }: ReportScreenProps): ReactElement => {
-  const [selectedSurveyId, setSelectedSurveyId] = useState('');
   const [isReportWeekly, setReportType] = useState<boolean>(true);
-  const isFocused = useIsFocused();
-
   const [data] = useBackendEffect(
-    ({ models }) => models.Encounter.getTotalEncountersAndResponses(selectedSurveyId),
-    [selectedSurveyId, isFocused],
+    ({ models }) => models.Encounter.getTotalEncountersAndResponses('program-cvd-fiji/survey-cvd-risk-fiji'),
+    [],
   );
 
-  const [surveys] = useBackendEffect(({ models }) => models.Survey.find({
-    surveyType: SurveyTypes.Programs,
-  }));
-
-  useEffect(() => {
-    // automatically select the first survey as soon as surveys are loaded
-    if(!selectedSurveyId && surveys && surveys.length > 0) {
-      setSelectedSurveyId(surveys[0].id);
-    }
-  }, [surveys, selectedSurveyId]);
-
-  const reportList = surveys?.map((s) => ({ label: s.name, value: s.id }));
-
-  const today = addHours(startOfToday(), 3);
+  const today = startOfToday();
   const todayString = format(today, 'yyyy-MM-dd');
   const todayData = data?.find((item) => item.encounterDate === todayString);
 
   const visitData = new Array(28).fill('').reduce(
     (accum, _, index) => {
       const currentDate = format(subDays(today, 28 - index - 1), 'yyyy-MM-dd');
-      const receivedValueForDay = data?.find((item) => item.encounterDate === currentDate)
+      const receivedValueForDay =
+        data?.find((item) => item.encounterDate === currentDate)
           ?.totalEncounters || 0;
 
       return {
@@ -207,41 +185,23 @@ export const ReportScreen = ({
             onPress={navigateToExportData}
           />
         </RowView>
-        <StyledView flexDirection="row" justifyContent="flex-start" alignItems="center" flex={1}>
+        <StyledView flex={1} justifyContent="flex-end">
           <StyledText
             marginTop={screenPercentageToDP(2.43, Orientation.Height)}
             fontWeight="bold"
             color={theme.colors.WHITE}
             fontSize={screenPercentageToDP(3.4, Orientation.Height)}
+            marginBottom={screenPercentageToDP(3.64, Orientation.Height)}
           >
             Reports
           </StyledText>
-          {
-            reportList
-            && (
-              <Dropdown
-                options={reportList}
-                handleSelect={(value): void => { setSelectedSurveyId(value); }}
-                selectedItem={selectedSurveyId}
-              />
-            )
-          }
         </StyledView>
       </StyledSafeAreaView>
       <ReportTypeButtons
         onPress={onChangeReportType}
         isReportWeekly={isReportWeekly}
       />
-      {
-        selectedSurveyId ? (
-          <ReportChart
-            isReportWeekly={isReportWeekly}
-            visitData={visitData}
-            todayData={todayData}
-            selectedSurveyId={selectedSurveyId}
-          />
-        ) : null
-      }
+      <ReportChart isReportWeekly={isReportWeekly} visitData={visitData} todayData={todayData} />
     </FullView>
   );
 };

@@ -1,6 +1,5 @@
 import React, { useMemo, useCallback, useRef, ReactElement } from 'react';
 import { compose } from 'redux';
-import { useSelector } from 'react-redux';
 import { FullView, StyledView, StyledSafeAreaView } from '/styled/common';
 import { theme } from '/styled/theme';
 import { TextField } from '/components/TextField/TextField';
@@ -21,7 +20,6 @@ import { withPatient } from '~/ui/containers/Patient';
 import { Dropdown } from '~/ui/components/Dropdown';
 import { ReferenceDataField } from '~/ui/components/ReferenceDataField';
 import { EncounterType, ReferenceDataType } from '~/types';
-import { authUserSelector } from '~/ui/helpers/selectors';
 
 const initialValues = {
   encounterType: '',
@@ -103,15 +101,12 @@ const DumbCreateEncounterForm = ({ selectedPatient }): ReactElement => {
     []
   );
 
-  const user = useSelector(authUserSelector);
-
   const { models } = useBackend();
   const createEncounter = useCallback(
     (values: any): void =>
       models.Encounter.createAndSaveOne({
         ...values,
         patient: selectedPatient.id,
-        examiner: user.id,
       }),
     []
   );

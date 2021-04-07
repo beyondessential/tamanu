@@ -4,21 +4,21 @@
   "plugins": ["@typescript-eslint"],
   "extends": [
     "plugin:@typescript-eslint/recommended",
-    "@beyondessential/eslint-config-beyondessential"
+    "@beyondessential/eslint-config-beyondessential"   
   ],
   "env": {
     "jest": true,
     "jasmine": true
-  },
+  },  
   "settings": {
-    "import/resolver": {
-      "alias": {
-        "map": [
-          ["/styled", "./App/ui/styled"],
+    "import/resolver": { 
+      "alias": {        
+        "map": [                        
+          ["/styled", "./App/ui/styled"],      
           ["/helpers", "./App/ui/helpers"],
           ["/types", "./App/types/"],
           ["/interfaces", "./App/ui/interfaces"],
-          ["/components", "./App/ui/components"],
+          ["/components", "./App/ui/components"],   
           ["/navigation", "./App/ui/navigation"],
           ["/containers", "./App/ui/containers"],
           ["/store", "./App/ui/store"],
@@ -30,7 +30,7 @@
           ["/infra", "./App/infra"],
           ["/presentation", "./App/presentation"],
           ["/root", "./"],
-          ["~", "./App"]
+          ["~", "./App"]    
         ],
         "extensions": [".ts", ".js", ".jsx", ".tsx", ".json"]
       },
@@ -62,7 +62,7 @@
     "@typescript-eslint/no-explicit-any": "off",
     "@typescript-eslint/interface-name-prefix": "off",
     "@typescript-eslint/explicit-function-return-type": "off",
-    "object-curly-newline": "off",
+    "object-curly-newline": "off",    
     "import/no-extraneous-dependencies": [
       "off",
       {
@@ -87,21 +87,6 @@
         "ts": "never",
         "tsx": "never",
         "mjs": "never"
-      }
-    ],
-    "no-restricted-syntax": [
-      "error",
-      {
-        "selector": "ForInStatement",
-        "message": "for..in loops iterate over the entire prototype chain, which is virtually never what you want. Use Object.{keys,values,entries}, and iterate over the resulting array."
-      },
-      {
-        "selector": "LabeledStatement",
-        "message": "Labels are a form of GOTO; using them makes code confusing and hard to maintain and understand."
-      },
-      {
-        "selector": "WithStatement",
-        "message": "`with` is disallowed in strict mode because it makes code impossible to predict and optimize."
       }
     ]
   },

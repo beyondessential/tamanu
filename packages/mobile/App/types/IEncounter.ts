@@ -2,7 +2,6 @@ import { ID } from './ID';
 import { IReferenceData } from './IReferenceData';
 import { IDiagnosis } from './IDiagnosis';
 import { IPatient } from './IPatient';
-import { IUser } from './IUser';
 
 export enum EncounterType {
   Admission = 'admission',
@@ -22,7 +21,7 @@ export interface IEncounter {
   startDate: Date;
   endDate?: Date;
 
-  reasonForEncounter?: string;
+  reasonForEncounter: string;
 
   location?: IReferenceData;
   department?: IReferenceData;
@@ -30,8 +29,6 @@ export interface IEncounter {
   diagnoses?: IDiagnosis[];
 
   patient?: IPatient;
-
-  examiner?: IUser;
 
   markedForUpload?: boolean;
 

@@ -11,6 +11,7 @@ import { DeceasedForm } from '/components/Forms/DeceasedForm';
 import { StackHeader } from '/components/StackHeader';
 
 const initialValues = {
+  staffMember: '',
   deathCertificateNumber: '',
   date: null,
   time: null,
