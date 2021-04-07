@@ -1,5 +1,4 @@
-import compareVersions from 'semver-compare';
-import { VERSION_COMPATIBILITY_ERRORS } from 'shared/constants';
+import { buildVersionCompatibilityCheck } from 'shared/utils';
 
 // If a new version of the mobile app is being released in conjunction with an update to the sync
 // server, set `min` for `Tamanu Mobile` to reflect that, and mobile users will be logged out until
@@ -20,15 +19,10 @@ const SUPPORTED_CLIENT_VERSIONS = {
   },
 };
 
-const respondWithError = (res, error) => {
-  res.status(400).json({ error });
-};
-
 export const versionCompatibility = (req, res, next) => {
-  const clientVersion = req.header('X-Version');
   const clientType = req.header('X-Runtime');
 
-  if (!clientVersion || !clientType) {
+  if (!clientType) {
     // a thirdparty tool (or internal test suite) is using the API; ignore version checking
     next();
     return;
@@ -36,9 +30,11 @@ export const versionCompatibility = (req, res, next) => {
 
   const clientTypes = Object.keys(SUPPORTED_CLIENT_VERSIONS);
   if (!clientTypes.includes(clientType)) {
-    respondWithError(res, {
-      message: `The only supported client types are ${clientTypes.join(', ')}`,
-      name: 'InvalidClientType',
+    res.status(400).json({
+      error: {
+        message: `The only supported client types are ${clientTypes.join(', ')}`,
+        name: 'InvalidClientType',
+      },
     });
     return;
   }
@@ -46,24 +42,6 @@ export const versionCompatibility = (req, res, next) => {
   const clientInfo = SUPPORTED_CLIENT_VERSIONS[clientType];
   const { min, max } = clientInfo;
 
-  // include the min/max supported clients with any response
-  res.setHeader(`X-Min-Client-Version`, min);
-  res.setHeader(`X-Max-Client-Version`, max);
-
-  // check the connecting client is supported, and respond with an error if not
-  if (compareVersions(clientVersion, min) < 0) {
-    respondWithError(res, {
-      message: VERSION_COMPATIBILITY_ERRORS.LOW,
-      name: 'InvalidClientVersion',
-    });
-    return;
-  }
-  if (compareVersions(clientVersion, max) > 0) {
-    respondWithError(res, {
-      message: VERSION_COMPATIBILITY_ERRORS.HIGH,
-      name: 'InvalidClientVersion',
-    });
-    return;
-  }
-  next();
+  const runCheck = buildVersionCompatibilityCheck(min, max);
+  runCheck(req, res, next);
 };

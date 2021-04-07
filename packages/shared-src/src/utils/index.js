@@ -1,5 +1,6 @@
 import jsonPrune from 'json-prune';
 
+export * from './buildVersionCompatibilityCheck';
 export * from './getResponseJsonSafely';
 export * from './parse-object';
 export * from './valueIndex';
