@@ -1,9 +1,19 @@
-import { Entity, Column, ManyToOne, OneToMany, BeforeUpdate, BeforeInsert, RelationId } from 'typeorm/browser';
+import { 
+  Entity, 
+  Column, 
+  ManyToOne, 
+  OneToMany,
+  BeforeUpdate,
+  BeforeInsert,
+  RelationId,
+} from 'typeorm/browser';
 
-import { BaseModel } from './BaseModel';
-import { Survey } from './Survey';
-import { Encounter } from './Encounter';
-import { SurveyResponseAnswer } from './SurveyResponseAnswer';
+import { 
+  ISurveyResponse, 
+  IProgramDataElement, 
+  ISurveyScreenComponent,
+  EncounterType,
+} from '~/types';
 
 import {
   getStringValue,
@@ -13,22 +23,25 @@ import {
 
 import { runCalculations } from '~/ui/helpers/calculations';
 
-import { ISurveyResponse, IProgramDataElement, ISurveyScreenComponent } from '~/types';
+import { BaseModel } from './BaseModel';
+import { Survey } from './Survey';
+import { Encounter } from './Encounter';
+import { SurveyResponseAnswer } from './SurveyResponseAnswer';
 import { Referral } from './Referral';
 
 @Entity('survey_response')
 export class SurveyResponse extends BaseModel implements ISurveyResponse {
-  @Column()
-  startTime: Date;
+  @Column({ nullable: true })
+  startTime?: Date;
 
-  @Column()
-  endTime: Date;
+  @Column({ nullable: true })
+  endTime?: Date;
 
-  @Column({ default: 0 })
-  result: number;
+  @Column({ default: 0, nullable: true })
+  result?: number;
 
-  @Column({ default: '' })
-  resultText: string;
+  @Column({ default: '', nullable: true })
+  resultText?: string;
 
   @ManyToOne(() => Survey, survey => survey.responses)
   survey: Survey;
@@ -38,7 +51,7 @@ export class SurveyResponse extends BaseModel implements ISurveyResponse {
 
   @ManyToOne(() => Encounter, encounter => encounter.surveyResponses)
   encounter: Encounter;
-  
+
   @RelationId(({ encounter }) => encounter)
   encounterId: string;
 
@@ -76,6 +89,7 @@ export class SurveyResponse extends BaseModel implements ISurveyResponse {
 
   static async submit(
     patientId: string,
+    userId: string,
     surveyData: ISurveyResponse & {
       encounterReason: string,
       components: ISurveyScreenComponent[],
@@ -92,9 +106,10 @@ export class SurveyResponse extends BaseModel implements ISurveyResponse {
 
     try {
       setNote("Creating encounter...");
-      const encounter = await Encounter.getOrCreateCurrentEncounter(patientId, {
+      const encounter = await Encounter.getOrCreateCurrentEncounter(patientId, userId, {
         startDate: new Date(),
         endDate: new Date(),
+        encounterType: EncounterType.SurveyResponse,
         reasonForEncounter: encounterReason,
       });
 

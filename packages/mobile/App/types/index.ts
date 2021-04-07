@@ -15,3 +15,4 @@ export * from './IDiagnosis';
 export * from './IScheduledVaccine';
 export * from './IMedication';
 export * from './IReferral';
+export * from './IPatientAditionalData';

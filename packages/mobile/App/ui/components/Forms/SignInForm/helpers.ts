@@ -7,7 +7,7 @@ export const signInValidationSchema = Yup.object().shape({
   password: Yup.string(), //.required(),
   server: Yup.string(),
 });
-export const signIninitialValues = {
+export const signInInitialValues = {
   email: '',
   password: '',
   server: '',

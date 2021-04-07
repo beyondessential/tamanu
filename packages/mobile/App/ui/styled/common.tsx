@@ -163,7 +163,7 @@ export const StyledNavigationView = styled(SafeAreaView) <StyledViewProps>`
 `;
 
 export const StyledText = styled.Text<StyledTextProps>`
-  ${color}      
+  ${color}
   ${fontWeight}
   ${fontSize}
   ${lineHeight}

@@ -20,7 +20,7 @@ export interface IVitals {
   heartRate?: number;
   respiratoryRate?: number;
   temperature?: number;
-  svO2?: number;
+  spO2?: number;
 
   avpu?: AVPUType;
 

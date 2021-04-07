@@ -1,4 +1,4 @@
-import { Entity, Column, ManyToOne, RelationId } from 'typeorm/browser';
+import { Entity, Column, ManyToOne, RelationId, BeforeInsert, BeforeUpdate } from 'typeorm/browser';
 import { BaseModel } from './BaseModel';
 import { AVPUType, IVitals } from '~/types';
 import { Encounter } from './Encounter';
@@ -30,7 +30,7 @@ export class Vitals extends BaseModel implements IVitals {
   temperature?: number;
 
   @Column({ type: 'int', nullable: true })
-  svO2?: number;
+  spO2?: number;
 
   @Column({ type: 'varchar', nullable: true })
   avpu?: AVPUType;
@@ -39,6 +39,12 @@ export class Vitals extends BaseModel implements IVitals {
   encounter: Encounter;
   @RelationId(({ encounter }) => encounter)
   encounterId?: string;
+
+  @BeforeInsert()
+  @BeforeUpdate()
+  async markEncounterForUpload() {
+    await this.markParent(Encounter, 'encounter', 'markedForUpload');
+  }
 
   static async getForPatient(patientId: string): Promise<Vitals[]> {
     return this.getRepository()

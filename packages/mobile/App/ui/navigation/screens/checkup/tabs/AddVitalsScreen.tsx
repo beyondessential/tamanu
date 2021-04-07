@@ -2,6 +2,7 @@ import React, { useMemo, useCallback, useRef, ReactElement } from 'react';
 import { Formik } from 'formik';
 import * as Yup from 'yup';
 import { compose } from 'redux';
+import { useSelector } from 'react-redux';
 import { FullView, StyledView, StyledSafeAreaView } from '/styled/common';
 import { Routes } from '/helpers/routes';
 import { theme } from '/styled/theme';
@@ -20,6 +21,7 @@ import { FormScreenView } from '/components/Forms/FormScreenView';
 import { NumberField } from '~/ui/components/NumberField';
 import { Dropdown } from '~/ui/components/Dropdown';
 import { AVPUType } from '~/types';
+import { authUserSelector } from '~/ui/helpers/selectors';
 
 export const DumbAddVitalsScreen = ({ selectedPatient, navigation }): ReactElement => {
   const renderFormFields = useCallback(
@@ -67,8 +69,8 @@ export const DumbAddVitalsScreen = ({ selectedPatient, navigation }): ReactEleme
           />
           <Field
             component={NumberField}
-            label="SvO2 (%)"
-            name="svO2"
+            label="SpO2 (%)"
+            name="spO2"
           />
           <Field
             component={Dropdown}
@@ -105,7 +107,7 @@ export const DumbAddVitalsScreen = ({ selectedPatient, navigation }): ReactEleme
       heartRate: Yup.number(),
       respiratoryRate: Yup.number(),
       temperature: Yup.number(),
-      svO2: Yup.number(),
+      spO2: Yup.number(),
       avpu: Yup.string(), // AVPUType
       comment: Yup.string(),
     });
@@ -118,7 +120,7 @@ export const DumbAddVitalsScreen = ({ selectedPatient, navigation }): ReactEleme
     'heartRate',
     'respiratoryRate',
     'temperature',
-    'svO2',
+    'spO2',
     'avpu',
   ];
 
@@ -142,11 +144,14 @@ export const DumbAddVitalsScreen = ({ selectedPatient, navigation }): ReactEleme
     })
   }, []);
 
+  const user = useSelector(authUserSelector);
+
   const { models } = useBackend();
   const recordVitals = useCallback(
     async (values: any): Promise<any> => {
       const encounter = await models.Encounter.getOrCreateCurrentEncounter(
         selectedPatient.id,
+        user.id,
         { reasonForEncounter: values.comments },
       );
 

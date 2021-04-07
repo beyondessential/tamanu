@@ -1,14 +1,15 @@
+import { IPatientAdditionalData } from './IPatientAditionalData';
+
 export interface IPatient {
   id: string;
   displayId: string;
-  firstName: string;
-  lastName: string;
-  middleName: string;
+  title?: string;
+  firstName?: string;
+  lastName?: string;
+  middleName?: string;
   sex: string;
-  dateOfBirth: Date;
-  culturalName: string;
-  bloodType: string;
-
+  dateOfBirth?: Date;
+  culturalName?: string;
+  additionalData?: IPatientAdditionalData;
   markedForSync?: boolean;
-  lastSynced?: number;
 }

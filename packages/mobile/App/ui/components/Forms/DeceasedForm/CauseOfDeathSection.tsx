@@ -6,6 +6,7 @@ import { DateField } from '../../DateField/DateField';
 import { Field } from '../FormField';
 import { screenPercentageToDP, Orientation } from '/helpers/screen';
 import { FormSectionProps } from '../../../interfaces/FormSectionProps';
+import { CurrentUserField } from '../../CurrentUserField/CurrentUserField';
 
 export const CauseOfDeathSection = ({
   scrollToField,
@@ -20,11 +21,9 @@ export const CauseOfDeathSection = ({
         height={screenPercentageToDP(45.87, Orientation.Height)}
         justifyContent="space-between"
       >
-        <Field
-          component={TextField}
+        <CurrentUserField
           name="staffMember"
           label="Staff Member"
-          onFocus={scrollToField('staffMember')}
         />
         <Field
           component={TextField}

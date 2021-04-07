@@ -1,6 +1,4 @@
 import React, { useEffect, useState } from 'react';
-import { compose } from 'redux';
-import { withPatient } from '~/ui/containers/Patient';
 
 import { StyledView } from '/styled/common';
 import { useBackend } from '~/ui/hooks';

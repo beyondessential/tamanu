@@ -8,12 +8,8 @@ import { DownloadRecordsResponse, UploadRecordsResponse, SyncRecord, SyncSource 
 import { createImportPlan, executeImportPlan } from './import';
 import { createExportPlan, executeExportPlan } from './export';
 
-type SyncOptions = {
-  overrideLastSynced?: Timestamp,
-};
-
 export type SyncManagerOptions = {
-  verbose?: boolean,
+  verbose?: boolean;
 };
 
 type Timestamp = number;
@@ -25,22 +21,22 @@ const MAX_DOWNLOAD_LIMIT = 500;
 const OPTIMAL_DOWNLOAD_TIME_PER_PAGE = 2000; // aim for 2 seconds per page
 
 // Set the current page size based on how long the previous page took to complete.
-const calculateDynamicLimit = (currentLimit, downloadTime) => {
-    const durationPerRecord = downloadTime / currentLimit;
-    const optimalPageSize = OPTIMAL_DOWNLOAD_TIME_PER_PAGE / durationPerRecord;
-    let newLimit = optimalPageSize;
+const calculateDynamicLimit = (currentLimit, downloadTime): number => {
+  const durationPerRecord = downloadTime / currentLimit;
+  const optimalPageSize = OPTIMAL_DOWNLOAD_TIME_PER_PAGE / durationPerRecord;
+  let newLimit = optimalPageSize;
 
-    newLimit = Math.floor(newLimit);
-    newLimit = Math.max(
-      newLimit,
-      MIN_DOWNLOAD_LIMIT,
-    );
-    newLimit = Math.min(
-      newLimit,
-      MAX_DOWNLOAD_LIMIT,
-    );
-    return newLimit;
-}
+  newLimit = Math.floor(newLimit);
+  newLimit = Math.max(
+    newLimit,
+    MIN_DOWNLOAD_LIMIT,
+  );
+  newLimit = Math.min(
+    newLimit,
+    MAX_DOWNLOAD_LIMIT,
+  );
+  return newLimit;
+};
 export class SyncManager {
   isSyncing = false;
 
@@ -65,10 +61,17 @@ export class SyncManager {
     }
 
     this.emitter.on('*', (action, ...args) => {
-      if (action === 'syncedRecord') return;
       if (action === 'syncRecordError') {
-        this.errors.push(args[0]);
-        console.warn('error', args[0]);
+        const syncError = args[0];
+        this.errors.push(syncError);
+        console.warn('Sync record error', syncError);
+        return;
+      }
+
+      if (action === 'channelSyncError') {
+        const syncError = args[0].error;
+        this.errors.push(syncError);
+        console.warn('Channel sync error', syncError);
         return;
       }
 
@@ -96,29 +99,33 @@ export class SyncManager {
       console.warn('Tried to start syncing while sync in progress');
       return;
     }
-    this.isSyncing = true;
 
-    this.emitter.emit('syncStarted');
+    try {
+      this.isSyncing = true;
+      this.errors = [];
+      this.emitter.emit('syncStarted');
 
-    const { models } = Database;
+      const { models } = Database;
 
-    await this.runChannelSync(models.ReferenceData, 'reference');
-    await this.runChannelSync(models.User, 'user');
+      await this.runChannelSync(models.ReferenceData, 'reference');
+      await this.runChannelSync(models.User, 'user');
 
-    await this.runChannelSync(models.ScheduledVaccine, 'scheduledVaccine');
+      await this.runChannelSync(models.ScheduledVaccine, 'scheduledVaccine');
 
-    await this.runChannelSync(models.Program, 'program');
-    await this.runChannelSync(models.Survey, 'survey');
-    await this.runChannelSync(models.ProgramDataElement, 'programDataElement');
-    await this.runChannelSync(models.SurveyScreenComponent, 'surveyScreenComponent');
+      await this.runChannelSync(models.Program, 'program');
+      await this.runChannelSync(models.Survey, 'survey');
+      await this.runChannelSync(models.ProgramDataElement, 'programDataElement');
+      await this.runChannelSync(models.SurveyScreenComponent, 'surveyScreenComponent');
 
-    await this.runChannelSync(models.Patient, 'patient');
+      await this.runChannelSync(models.Patient, 'patient');
 
-    for (const patient of await models.Patient.getSyncable()) {
-      await this.runPatientSync(patient);
+      for (const patient of await models.Patient.getSyncable()) {
+        await this.runPatientSync(patient);
+      }
+    } finally {
+      this.isSyncing = false;
+      this.emitter.emit('syncEnded');
     }
-    this.emitter.emit('syncEnded');
-    this.isSyncing = false;
   }
 
   async markPatientForSync(patient: Patient): Promise<void> {
@@ -129,15 +136,13 @@ export class SyncManager {
     await this.runScheduledSync();
   }
 
-  async downloadAndImport(model: typeof BaseModel, channel: string, since: Timestamp): Promise<Timestamp> {
-    const downloadPage = (offset: number, limit: number): Promise<DownloadRecordsResponse> => {
-      this.emitter.emit('downloadingPage', `${channel}-offset-${offset}-limit-${limit}`);
-      return this.syncSource.downloadRecords(
-        channel,
-        since,
-        offset,
-        limit,
-      );
+  async downloadAndImport(
+    model: typeof BaseModel,
+    channel: string,
+  ): Promise<void> {
+    const downloadPage = (since: string, limit: number): Promise<DownloadRecordsResponse> => {
+      this.emitter.emit('downloadingPage', `${channel}-since-${since}-limit-${limit}`);
+      return this.syncSource.downloadRecords(channel, since, limit);
     };
 
     let numDownloaded = 0;
@@ -145,115 +150,77 @@ export class SyncManager {
       this.progress = progress;
       this.emitter.emit('progress', this.progress);
     };
-    const updateProgress = (stepSize: number, total: number): void => {
+    const updateProgress = (stepSize: number, remaining: number): void => {
+      const total = numDownloaded + remaining;
       numDownloaded += stepSize;
       setProgress(Math.ceil((numDownloaded / total) * 100));
     };
     setProgress(0);
 
-    let requestedAt: Timestamp = 0;
-
-    // Some records will fail on the first attempt due to foreign key constraints
-    // (most commonly, when a dependency record has been updated so it appears
-    // after its dependent in the sync queue)
-    // So we keep these records in a queue and retry them at the end of the download.
-    let pendingRecords = [];
-
     const importPlan = createImportPlan(model);
-    const importRecords = async (records: SyncRecord[]): Promise<void> => {
-      await Promise.all(records.map(async r => {
-        try {
-          await executeImportPlan(importPlan, r);
-          this.emitter.emit('syncedRecord', model.name);
-        } catch (e) {
-          if (e.message.match(/FOREIGN KEY constraint failed/)) {
-            // this error is to be expected! just push it
-            r.ERROR_MESSAGE = e.message;
-            pendingRecords.push(r);
-          } else {
-            console.warn('syncRecordError', e, r);
-            this.emitter.emit('syncRecordError', {
-              record: r,
-              error: e,
-            });
-          }
-        }
-      }));
+    const importRecords = async (records: SyncRecord[], pullCursor: string): Promise<void> => {
+      const { failures } = await executeImportPlan(importPlan, records);
+      failures.forEach(({ error, recordId }) => {
+        this.emitter.emit('syncRecordError', {
+          record: { id: recordId },
+          error,
+        });
+      });
+      if (failures.length > 0) {
+        throw new Error(
+          `${failures.length} individual record failures`,
+        );
+      }
+      await this.updateChannelPullCursor(channel, pullCursor);
     };
 
-    try {
-      let importTask: Promise<void>;
-      let offset = 0;
-      let limit = INITIAL_DOWNLOAD_LIMIT;
-      this.emitter.emit('importStarted', channel);
-      while (true) {
-        // We want to download each page of records while the current page
-        // of records is being imported - this means that the database IO
-        // and network IO are running in parallel rather than running in
-        // alternating sequence.
-        const startTime = Date.now();
-        const downloadTask = downloadPage(offset, limit);
+    let cursor = await this.getChannelPullCursor(channel);
+    let importTask: Promise<void>;
+    let limit = INITIAL_DOWNLOAD_LIMIT;
+    this.emitter.emit('importStarted', channel);
+    while (true) {
+      // We want to download each page of records while the current page
+      // of records is being imported - this means that the database IO
+      // and network IO are running in parallel rather than running in
+      // alternating sequence.
+      const startTime = Date.now();
+      const downloadTask = downloadPage(cursor, limit);
 
-        // wait for import task to complete before progressing in loop
-        await importTask;
+      // wait for import task to complete before progressing in loop
+      await importTask;
 
-        // wait for the current page download to complete
-        const response = await downloadTask;
-        const downloadTime = Date.now() - startTime;
+      // wait for the current page download to complete
+      const response = await downloadTask;
+      const downloadTime = Date.now() - startTime;
 
-        if (response === null) {
-          // ran into an error
-          break;
-        }
-
-        // keep importing until we hit a page with 0 records
-        // (this does mean we're always making 1 more web request than
-        // is necessary, probably room for optimisation here)
-        if (response.records.length === 0) {
-          break;
-        }
-
-        updateProgress(response.records.length, response.count);
-
-        // we have records to import - import them
-        this.emitter.emit('importingPage', `${channel}-offset-${offset}-limit-${limit}`);
-        importTask = importRecords(response.records);
-        requestedAt = requestedAt || response.requestedAt;
-
-        offset += response.records.length;
-        limit = calculateDynamicLimit(limit, downloadTime);
+      if (response === null) {
+        // ran into an error
+        break;
       }
-      await importTask; // wait for any final import task to finish
-    } catch (e) {
-      console.warn(e);
+
+      // keep importing until we hit a page with 0 records
+      // (this does mean we're always making 1 more web request than
+      // is necessary, probably room for optimisation here)
+      if (response.records.length === 0) {
+        break;
+      }
+
+      updateProgress(response.records.length, response.count);
+
+      cursor = response.cursor;
+
+      // we have records to import - import them
+      this.emitter.emit('importingPage', `${channel}-since-${cursor}-limit-${limit}`);
+      importTask = importRecords(response.records, cursor);
+
+      limit = calculateDynamicLimit(limit, downloadTime);
     }
+    await importTask; // wait for any final import task to finish
 
-    // Now try re-importing all of the pending records.
-    // As there might be multiple levels of dependency, we might need a few
-    // passes over the queue! But if we get a pass where the queue doesn't
-    // decrease in size at all, we know there's a for-real error and we should
-    // terminate the process.
-    while (pendingRecords.length > 0) {
-      if (this.verbose) {
-        console.log(`Reattempting ${pendingRecords.length} failed records...`);
-      }
-      const thisPass = pendingRecords;
-      pendingRecords = [];
-      await importRecords(thisPass);
-      // syncRecords will re populate pendingRecords
-      if (pendingRecords.length === thisPass.length) {
-        console.warn('Could not import remaining queue members:');
-        console.warn(JSON.stringify(pendingRecords, null, 2));
-        pendingRecords.map(r => this.errors.push(r));
-        throw new Error(`Could not import any ${pendingRecords.length} remaining queue members`);
-      }
-    }
     this.emitter.emit('importEnded', channel);
-
-    return requestedAt;
   }
 
-  async exportAndUpload(model: typeof BaseModel, channel: string) {
+  async exportAndUpload(model: typeof BaseModel, channel: string): Promise<void> {
     // function definitions
     const exportPlan = createExportPlan(model);
     const exportRecords = async (page: number, afterId?: string): Promise<SyncRecord[]> => {
@@ -263,108 +230,92 @@ export class SyncManager {
         after: afterId,
         limit: UPLOAD_LIMIT,
       })).map(r => executeExportPlan(exportPlan, r));
-    }
+    };
 
-    const uploadRecords = async (page: number, syncRecords: SyncRecord[]): Promise<UploadRecordsResponse> => {
+    const uploadRecords = async (
+      page: number,
+      syncRecords: SyncRecord[],
+    ): Promise<UploadRecordsResponse> => {
       // TODO: detect and retry failures (need to pass back from server)
       this.emitter.emit('uploadingPage', `${channel}-${page}`);
       return this.syncSource.uploadRecords(channel, syncRecords);
-    }
+    };
 
-    const markRecordsUploaded = async (page: number, records: SyncRecord[], requestedAt: Timestamp): Promise<void> => {
+    const markRecordsUploaded = async (
+      page: number,
+      records: SyncRecord[],
+      requestedAt: Timestamp,
+    ): Promise<void> => {
       this.emitter.emit('markingPageUploaded', `${channel}-${page}`);
       return model.markUploaded(records.map(r => r.data.id), new Date(requestedAt));
-    }
+    };
 
     // TODO: progress handling
 
     // export and upload loop
-    try {
-      let lastSeenId: string;
-      let uploadPromise: Promise<UploadRecordsResponse>;
-      this.emitter.emit('exportStarted', channel);
-      let page = 0;
-      while (true) {
-        const knownPage = page;
+    let lastSeenId: string;
+    let uploadPromise: Promise<UploadRecordsResponse>;
+    this.emitter.emit('exportStarted', channel);
+    let page = 0;
+    while (true) {
+      const knownPage = page;
 
-        // begin exporting records
-        const exportPromise = exportRecords(knownPage, lastSeenId);
+      // begin exporting records
+      const exportPromise = exportRecords(knownPage, lastSeenId);
 
-        // finish uploading previous batch
-        await uploadPromise;
+      // finish uploading previous batch
+      await uploadPromise;
 
-        // finish exporting records
-        const recordsChunk = await exportPromise;
-        if (recordsChunk.length === 0) {
-          break;
-        }
-        lastSeenId = recordsChunk[recordsChunk.length - 1].data.id;
-
-        // begin uploading current batch
-        uploadPromise = uploadRecords(knownPage, recordsChunk).then(async (data) => {
-          // mark previous batch as synced after uploading
-          // done using promises so these two steps can be interleaved with exporting
-          await markRecordsUploaded(knownPage, recordsChunk, data.requestedAt);
-          return data;
-        });
-
-        page++;
+      // finish exporting records
+      const recordsChunk = await exportPromise;
+      if (recordsChunk.length === 0) {
+        break;
       }
-    } catch (e) {
-      console.warn(e);
+      lastSeenId = recordsChunk[recordsChunk.length - 1].data.id;
+
+      // begin uploading current batch
+      uploadPromise = uploadRecords(knownPage, recordsChunk).then(async (data) => {
+        // mark previous batch as synced after uploading
+        // done using promises so these two steps can be interleaved with exporting
+        await markRecordsUploaded(knownPage, recordsChunk, data.requestedAt);
+        return data;
+      });
+
+      page++;
     }
     this.emitter.emit('exportEnded', channel);
   }
 
-  async getChannelSyncTimestamp(channel: string): Promise<Timestamp> {
-    const timestampString = await readConfig(`syncTimestamp.${channel}`, '0');
-    const timestamp = parseInt(timestampString, 10);
-    if (Number.isNaN(timestamp)) {
-      return 0;
-    }
-    return timestamp;
+  async getChannelPullCursor(channel: string): Promise<string> {
+    return readConfig(`pullCursor.${channel}`, '0');
   }
 
-  async updateChannelSyncDate(channel: string, timestamp: Timestamp): Promise<void> {
-    await writeConfig(`syncTimestamp.${channel}`, timestamp.toString());
+  async updateChannelPullCursor(channel: string, pullCursor: string): Promise<void> {
+    await writeConfig(`pullCursor.${channel}`, pullCursor);
   }
 
   async runChannelSync(
     model: typeof BaseModel,
     channel: string,
-    { overrideLastSynced = null }: SyncOptions = {},
-  ): Promise<Timestamp> {
-    const lastSynced = (overrideLastSynced === null)
-      ? await this.getChannelSyncTimestamp(channel)
-      : overrideLastSynced;
-
+  ): Promise<void> {
     this.emitter.emit('channelSyncStarted', channel);
-    let requestedAt: Timestamp = null;
     try {
-      requestedAt = await this.downloadAndImport(model, channel, lastSynced);
-      if (model.shouldExport) {
-        await this.exportAndUpload(model, channel);
-      }
-      if (requestedAt) {
-        await this.updateChannelSyncDate(channel, requestedAt);
-      }
+      await this.downloadAndImport(model, channel);
     } catch (e) {
-      console.error(e);
+      this.emitter.emit('channelSyncError', { channel, error: e.message });
+    }
+    if (model.shouldExport) {
+      try {
+        await this.exportAndUpload(model, channel);
+      } catch (e) {
+        this.emitter.emit('channelSyncError', { channel, error: e.message });
+      }
     }
     this.emitter.emit('channelSyncEnded', channel);
-    return requestedAt;
   }
 
-  async runPatientSync(patient: Patient): Promise<Timestamp> {
-    const overrideLastSynced = patient.lastSynced;
-    const lastSynced = Math.min(
-      await this.runChannelSync(Database.models.Encounter, `patient/${patient.id}/encounter`, { overrideLastSynced }),
-      await this.runChannelSync(Database.models.PatientIssue, `patient/${patient.id}/issue`, { overrideLastSynced }),
-    );
-    if (lastSynced) {
-      patient.lastSynced = lastSynced;
-      await patient.save();
-    }
-    return lastSynced;
+  async runPatientSync(patient: Patient): Promise<void> {
+    await this.runChannelSync(Database.models.Encounter, `patient/${patient.id}/encounter`);
+    await this.runChannelSync(Database.models.PatientIssue, `patient/${patient.id}/issue`);
   }
 }

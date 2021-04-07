@@ -7,6 +7,15 @@ import { VerticalPosition } from '/interfaces/VerticalPosition';
 import { useFocusEffect } from '@react-navigation/native';
 import { useCallback } from 'react';
 
+export const dropdownSize = {
+  itemHeight: 44,
+  dropdownMaxHeight: 165,
+  padding: 16,
+  distanceFromScreenBottom: 40,
+  distanceFromPlaceholder: -32,
+};
+
+
 export const SCREEN_ORIENTATION = {
   PORTRAIT: 'portrait',
   LANDSCAPE: 'landscape',
@@ -56,9 +65,31 @@ export const calculateVerticalPositions = (
   }, {});
 };
 
+export const calculateDropdownPosition = (
+  placeholderPosition: number, 
+  dataLength: number
+): number => {
+  const dropdownHeight = dataLength * dropdownSize.itemHeight + dropdownSize.padding
+    > dropdownSize.dropdownMaxHeight
+    ? dropdownSize.dropdownMaxHeight
+    : dataLength * dropdownSize.itemHeight + dropdownSize.padding;
+
+  const screenDimensions = Dimensions.get('window');
+
+  const initialPosition = placeholderPosition - dropdownSize.distanceFromPlaceholder;
+  const bottomMax = screenDimensions.height - dropdownSize.distanceFromScreenBottom;
+
+  if (initialPosition + dropdownHeight > bottomMax) {
+    return bottomMax - dropdownHeight;
+  }
+  return initialPosition;
+};
+
+
 export const setStatusBar = (barStyle: 'light-content' | 'dark-content', backgroundColor: string): void => useFocusEffect(
   useCallback(() => {
     if (Platform.OS === 'android') StatusBar.setBackgroundColor(backgroundColor);
     StatusBar.setBarStyle(barStyle);
   }, []),
 );
+
