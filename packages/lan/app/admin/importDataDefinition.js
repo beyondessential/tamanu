@@ -2,20 +2,21 @@ import { readFile, utils } from 'xlsx';
 import { log } from 'shared/services/logging';
 
 const sanitise = string => string.trim().replace(/[^A-Za-z0-9]+/g, '');
-const convertSheetNameToImporterId = sheetName => sanitise(sheetName).toLowerCase();
-const convertNameToCode = name => sanitise(name).toUpperCase();
+
+const recordTransformer = type => item => ({
+  recordType: type,
+  data: {
+    ...item,
+  },
+});
 
 const referenceDataTransformer = type => item => {
-  const { name } = item;
-  const code = (item.code && `${item.code}`) || convertNameToCode(name);
-
+  const code = item.code;
   return {
     recordType: 'referenceData',
     data: {
-      // TODO: replace with '-' separator
-      id: `ref/${type}/${code}`,
       ...item,
-      code,
+      code: (typeof code === 'number') ? `${code}` : code,
       type,
     },
   };
@@ -23,11 +24,12 @@ const referenceDataTransformer = type => item => {
 
 const makeTransformer = (sheetName, transformer) => ({ 
   sheetName,
-  transformer
+  transformer,
 });
 
+// define as an array so that we can make guarantees about order
 const transformers = [
-  makeTransformer('facilities', referenceDataTransformer('facilities')),
+  makeTransformer('facilities', referenceDataTransformer('facility')),
   makeTransformer('villages', referenceDataTransformer('village')),
   makeTransformer('drugs', referenceDataTransformer('drug')),
   makeTransformer('allergies', referenceDataTransformer('allergy')),
@@ -46,13 +48,14 @@ const transformers = [
   makeTransformer('nursingzones', referenceDataTransformer('nursingZone')),
   makeTransformer('settlements', referenceDataTransformer('settlement')),
   makeTransformer('occupations', referenceDataTransformer('occupation')),
-  makeTransformer('users', null),
-  makeTransformer('patients', null),
+  makeTransformer('labTestCategories', referenceDataTransformer('labTestCategory')),
+  makeTransformer('users', recordTransformer('user')),
+  makeTransformer('patients', recordTransformer('patient')),
+  makeTransformer('labTestTypes', recordTransformer('labTestType')),
   makeTransformer('roles', null),
-  makeTransformer('labTestTypes', null),
 ];
 
-export async function importData({ file, dryRun, whitelist = [] }) {
+export async function importData({ file, whitelist = [] }) {
   log.info(`Importing data definitions from ${file}...`);
 
   // parse xlsx
@@ -63,38 +66,38 @@ export async function importData({ file, dryRun, whitelist = [] }) {
       [sanitise(sheetName).toLowerCase()]: sheet,
     }), {});
 
-  const lowercaseWhitelist = whitelist.map(x => x.toLowerCase());
-  const sheetResults = {};
+  // set up the importer
+  const importSheet = (sheetName, transformer) => {
+    const sheet = sheets[sheetName.toLowerCase()];
+    const data = utils.sheet_to_json(sheet);
 
-  // then restructure the parsed data to sync record format
-  const records = transformers
-    .map(({ sheetName, transformer }) => {
-      if(whitelist.length > 0 && !lowercaseWhitelist.includes(sheetName.toLowerCase())) {
-        sheetResults[sheetName] = 'Not on whitelist.';
-        return [];
-      }
-      const sheet = sheets[sheetName.toLowerCase()];
-      if(!sheet) {
-        sheetResults[sheetName] = 'No sheet';
-        return [];
-      }
-      if(!transformer) {
-        sheetResults[sheetName] = 'Not implemented yet';
-        return [];
-      }
-      const data = utils.sheet_to_json(sheet);
-      if(data.length === 0) {
-        sheetResults[sheetName] = 'No records';
-        return [];
-      }
-      sheetResults[sheetName] = `${data.length} records read`;
-      return data.map(transformer);
-    })
-    .filter(x => x)
-    .flat();
-
-  return { 
-    records,
-    sheetResults,
+    return data.map(item => {
+      const transformed = transformer(item);
+      if(!transformed) return null;
+      return {
+        sheet: sheetName,
+        row: (item.__rowNum__ + 1), // account for 0-based js vs 1-based excel
+        ...transformed,
+      };
+    });
   };
+
+  // figure out which transformers we're actually using
+  const lowercaseWhitelist = whitelist.map(x => x.toLowerCase());
+  const activeTransformers = transformers.filter(({ sheetName, transformer }) => {
+    if(!transformer) return false;
+    if(whitelist.length > 0 && !lowercaseWhitelist.includes(sheetName.toLowerCase())) {
+      return false;
+    }
+    const sheet = sheets[sheetName.toLowerCase()];
+    if(!sheet) return false;
+
+    return true;
+  });
+
+  // restructure the parsed data to sync record format
+  return activeTransformers
+    .map(({ sheetName, transformer }) => importSheet(sheetName, transformer))
+    .flat()
+    .filter(x => x);
 }
