@@ -4,7 +4,7 @@ import { buildVersionCompatibilityCheck } from 'shared/utils';
 // server, set `min` for `Tamanu Mobile` to reflect that, and mobile users will be logged out until
 // they have updated. Similarly with the LAN server, it won't be able to sync if its version is
 // not supported.
-const SUPPORTED_CLIENT_VERSIONS = {
+export const SUPPORTED_CLIENT_VERSIONS = {
   'Tamanu LAN Server': {
     min: '1.0.0',
     max: '1.0.0', // note that higher patch versions will be allowed to connect

@@ -1,5 +1,9 @@
 import { VERSION_COMPATIBILITY_ERRORS } from 'shared/constants';
 import { createTestContext } from '../utilities';
+import { SUPPORTED_CLIENT_VERSIONS } from '../../app/middleware/versionCompatibility';
+
+const MIN_MOBILE_VERSION = SUPPORTED_CLIENT_VERSIONS['Tamanu Mobile'].min;
+const MIN_LAN_VERSION = SUPPORTED_CLIENT_VERSIONS['Tamanu LAN Server'].min;
 
 describe('Version compatibility', () => {
   let baseApp;
@@ -18,7 +22,7 @@ describe('Version compatibility', () => {
     it('Should allow a supported client', async () => {
       const response = await app.get('/').set({
         'X-Runtime': 'Tamanu LAN Server',
-        'X-Version': '1.0.0',
+        'X-Version': MIN_LAN_VERSION,
       });
       expect(response).toHaveSucceeded();
       expect(response.body).toHaveProperty('index', true);
@@ -39,7 +43,7 @@ describe('Version compatibility', () => {
     it('Should deny a client over the maximum', async () => {
       const response = await app.get('/').set({
         'X-Runtime': 'Tamanu LAN Server',
-        'X-Version': '1.2.1',
+        'X-Version': '10.2.1',
       });
 
       expect(response).not.toHaveSucceeded();
@@ -53,7 +57,7 @@ describe('Version compatibility', () => {
     it('Should allow a supported client', async () => {
       const response = await app.get('/').set({
         'X-Runtime': 'Tamanu Mobile',
-        'X-Version': '1.0.5',
+        'X-Version': MIN_MOBILE_VERSION,
       });
       expect(response).toHaveSucceeded();
       expect(response.body).toHaveProperty('index', true);
@@ -74,7 +78,7 @@ describe('Version compatibility', () => {
     it('Should deny a client over the maximum', async () => {
       const response = await app.get('/').set({
         'X-Runtime': 'Tamanu Mobile',
-        'X-Version': '1.2.1',
+        'X-Version': '10.2.1',
       });
 
       expect(response).not.toHaveSucceeded();
@@ -87,7 +91,7 @@ describe('Version compatibility', () => {
   describe('Other client version checking', () => {
     it('Should allow any version of an unspecified client (so that tests work)', async () => {
       await Promise.all(
-        ['0.0.1', '1.0.0', '1.0.5', '999.999.999'].map(async version => {
+        ['0.0.1', '1.0.0', '1.0.9', '999.999.999'].map(async version => {
           const response = await app.get('/').set({
             'X-Version': version,
           });
@@ -99,7 +103,7 @@ describe('Version compatibility', () => {
 
     it('Should deny an unknown client type of any version', async () => {
       await Promise.all(
-        ['0.0.1', '1.0.0', '1.0.5', '999.999.999'].map(async version => {
+        ['0.0.1', '1.0.0', '1.0.9', '999.999.999'].map(async version => {
           const response = await app.get('/').set({
             'X-Runtime': 'Unknown Client',
             'X-Version': version,
