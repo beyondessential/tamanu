@@ -1,4 +1,3 @@
-import util from 'util';
 import { importSurvey } from '~/admin/importProgram';
 import { preprocessRecordSet } from '~/admin/preprocessRecordSet';
 
@@ -27,8 +26,6 @@ describe('Importing surveys', () => {
 
     resultInfo = rest;
     recordGroups = rg;
-    
-    console.log(util.inspect(resultInfo, { depth: 10 }));
   });
 
   it('Should import a survey', () => {
@@ -37,6 +34,15 @@ describe('Importing surveys', () => {
     expect(records).toHaveProperty('survey', 1);
     expect(records).toHaveProperty('programDataElement', 19);
     expect(records).toHaveProperty('surveyScreenComponent', 19);
+  });
+
+  describe('Survey validation', () => {
+    test.todo('Should ensure questions all have a valid type');
+    test.todo('Should ensure visibilityCriteria fields have valid syntax');
+    test.todo('Should ensure validationCriteria fields have valid syntax');
+    test.todo('Should ensure config fields have valid syntax');
+    test.todo('Should ensure calculation fields have valid syntax');
+    test.todo('Should ensure options and optionLabels fields have valid syntax');
   });
 
 });
