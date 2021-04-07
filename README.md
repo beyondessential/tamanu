@@ -96,7 +96,7 @@ the desktop directory using `yarn storybook`.
 
 ### Sync server
 
-First open [packages/sync-server/config/default.json](packages/sync-server/config/default.json) and change `syncOnStartup` (within `db`) to `true`, then:
+By default, the sync server will not run migrations automatically. To enable automatic migrations, set `db.syncOnStartup` to `true` within your local configuration (see the `Config` section above).
 
 #### OSX
 
