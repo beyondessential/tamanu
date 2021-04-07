@@ -106,7 +106,7 @@ export class WebRemote {
     }
 
     if (!response.ok) {
-      const { error } = getResponseJsonSafely(response);
+      const { error } = await getResponseJsonSafely(response);
 
       // handle version incompatibility
       if (response.status === 400 && error) {
