@@ -31,7 +31,6 @@ const REPORT_TYPE_OPTIONS = [
   { label: 'COVID vaccine campaign - First dose summary', value: 'covid-vaccine-summary-dose1' },
   { label: 'COVID vaccine campaign - Second dose summary', value: 'covid-vaccine-summary-dose2' },
   { label: 'Adverse Event Following Immunization', value: 'aefi' },
-  { label: 'Fiji Recent Diagnoses Summary', value: 'fiji-recent-diagnoses-summary' },
 ];
 
 const Spacer = styled.div`
@@ -114,19 +113,6 @@ const ParametersByReportType = {
   'covid-vaccine-summary-dose1': [],
   'covid-vaccine-summary-dose2': [],
   aefi: [{ ParameterField: VillageField }],
-  'fiji-recent-diagnoses-summary': [
-    {
-      ParameterField: DiagnosisField,
-      required: true,
-      name: 'diagnosis',
-      label: 'Diagnosis',
-      validation: Yup.string().required('Diagnosis is required'),
-    },
-    { ParameterField: DiagnosisField, name: 'diagnosis2', label: 'Diagnosis 2' },
-    { ParameterField: DiagnosisField, name: 'diagnosis3', label: 'Diagnosis 3' },
-    { ParameterField: DiagnosisField, name: 'diagnosis4', label: 'Diagnosis 4' },
-    { ParameterField: DiagnosisField, name: 'diagnosis5', label: 'Diagnosis 5' },
-  ],
 };
 
 const DefaultDataSource = {

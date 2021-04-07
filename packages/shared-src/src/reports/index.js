@@ -8,10 +8,11 @@ import {
   permission as covidVaccineSummaryPermission,
 } from './covid-vaccine-summary';
 import * as aefi from './aefi';
-import * as fijiRecentDiagnosesSummary from './fiji-recent-diagnoses-summary';
 
 export function getReportModule(reportType) {
   switch (reportType) {
+    default:
+      return null;
     case 'admissions':
       return admissions;
     case 'incomplete-referrals':
@@ -32,9 +33,5 @@ export function getReportModule(reportType) {
       };
     case 'aefi':
       return aefi;
-    case 'fiji-recent-diagnoses-summary':
-      return fijiRecentDiagnosesSummary;
-    default:
-      return null;
   }
 }
