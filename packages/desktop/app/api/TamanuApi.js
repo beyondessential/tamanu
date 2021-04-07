@@ -1,5 +1,6 @@
 import faye from 'faye';
 import { VERSION_COMPATIBILITY_ERRORS } from 'shared/constants';
+import { getResponseJsonSafely } from 'shared/utils';
 import { LOCAL_STORAGE_KEYS } from '../constants';
 
 const encodeQueryString = query =>
@@ -10,17 +11,7 @@ const encodeQueryString = query =>
 
 const REFRESH_DURATION = 2.5 * 60 * 1000; // refresh if token is more than 2.5 minutes old
 
-const getResponseJsonSafely = async response => {
-  try {
-    return response.json();
-  } catch (e) {
-    // log json parsing errors, but still return a valid object
-    console.error(e);
-    return {};
-  }
-};
-
-const getVersionIncompatibleMessage = async (error, response) => {
+const getVersionIncompatibleMessage = (error, response) => {
   if (error.message === VERSION_COMPATIBILITY_ERRORS.LOW) {
     const minAppVersion = response.headers.get('X-Min-Client-Version');
     return `Please upgrade to Tamanu Desktop v${minAppVersion} or higher. Try closing and reopening, or contact your system administrator.`;
@@ -116,7 +107,8 @@ export class TamanuApi {
       headers: {
         ...this.authHeader,
         ...headers,
-        'X-Client-Version': this.appVersion,
+        'X-Version': this.appVersion,
+        'X-Runtime': 'Tamanu Desktop',
       },
       ...otherConfig,
     });
@@ -141,7 +133,7 @@ export class TamanuApi {
 
     // handle version incompatibility
     if (response.status === 400 && error) {
-      const versionIncompatibleMessage = await getVersionIncompatibleMessage(error, response);
+      const versionIncompatibleMessage = getVersionIncompatibleMessage(error, response);
       if (versionIncompatibleMessage) {
         if (this.onVersionIncompatible) {
           this.onVersionIncompatible(versionIncompatibleMessage);
@@ -196,7 +188,6 @@ export class TamanuApi {
    * @param {*} changeType  Currently one of save, remove, wipe, or * for all
    */
   subscribeToChanges(recordType, changeType, callback) {
-    console.log('subbing', recordType, changeType);
     // until the faye client has been set up, push any subscriptions into an array
     if (!this.fayeClient) {
       this.pendingSubscriptions.push({ recordType, changeType, callback });
