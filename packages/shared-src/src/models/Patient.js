@@ -23,9 +23,7 @@ export class Patient extends Model {
           type: Sequelize.ENUM('male', 'female', 'other'),
           allowNull: false,
         },
-        bloodType: Sequelize.STRING,
         email: Sequelize.STRING,
-        additionalDetails: Sequelize.TEXT,
         markedForSync: {
           type: Sequelize.BOOLEAN,
           allowNull: false,
@@ -44,46 +42,15 @@ export class Patient extends Model {
       foreignKey: 'patientId',
     });
 
-    this.belongsTo(models.ReferenceData, {
-      foreignKey: 'villageId',
-      as: 'village',
+    // technically this relation is hasOne but this just describes 
+    // "there is another table referencing this one by id"
+    this.hasMany(models.PatientAdditionalData, {
+      foreignKey: 'patientId',
     });
 
     this.belongsTo(models.ReferenceData, {
-      foreignKey: 'ethnicityId',
-      as: 'ethnicity',
-    });
-    this.belongsTo(models.ReferenceData, {
-      foreignKey: 'nationalityId',
-      as: 'nationality',
-    });
-    this.belongsTo(models.ReferenceData, {
-      foreignKey: 'countryId',
-      as: 'country',
-    });
-    this.belongsTo(models.ReferenceData, {
-      foreignKey: 'divisionId',
-      as: 'division',
-    });
-    this.belongsTo(models.ReferenceData, {
-      foreignKey: 'subdivisionId',
-      as: 'subdivision',
-    });
-    this.belongsTo(models.ReferenceData, {
-      foreignKey: 'medicalAreaId',
-      as: 'medicalArea',
-    });
-    this.belongsTo(models.ReferenceData, {
-      foreignKey: 'nursingZoneId',
-      as: 'nursingZone',
-    });
-    this.belongsTo(models.ReferenceData, {
-      foreignKey: 'settlementId',
-      as: 'settlement',
-    });
-    this.belongsTo(models.ReferenceData, {
-      foreignKey: 'occupationId',
-      as: 'occupation',
+      foreignKey: 'villageId',
+      as: 'village',
     });
   }
 
