@@ -4,17 +4,17 @@ import {
   Orientation,
 } from '/helpers/screen';
 import { theme } from '/styled/theme';
-import { Button } from '../Button';
 import { useNavigation } from '@react-navigation/native';
+import { Button } from '../Button';
 import { Suggester, BaseModelSubclass } from '~/ui/helpers/suggester';
 
 interface AutocompleteModalFieldProps {
-  value?: string,
-  placeholder?: string,
-  onChange: (newValue: string) => void,
-  suggester: Suggester<BaseModelSubclass>, // Do we make the props a generic type based on the suggester?
-  modalRoute: string,
-};
+  value?: string;
+  placeholder?: string;
+  onChange: (newValue: string) => void;
+  suggester: Suggester<BaseModelSubclass>;
+  modalRoute: string;
+}
 
 export const AutocompleteModalField = ({
   value,

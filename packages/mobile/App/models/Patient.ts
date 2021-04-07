@@ -40,7 +40,7 @@ export class Patient extends BaseModel implements IPatient {
   @NullableReferenceDataRelation()
   village?: ReferenceData;
   @RelationId(({ village }) => village)
-  villageId?: string;
+  villageId?: string | null;
 
   @OneToMany(() => PatientAdditionalData, additionalData => additionalData.patient)
   additionalData: IPatientAdditionalData;
