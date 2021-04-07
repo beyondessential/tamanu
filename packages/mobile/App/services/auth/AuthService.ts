@@ -22,7 +22,7 @@ export class AuthService {
     this.syncSource = syncSource;
     this.syncSource.emitter.on('error', (err) => {
       if (err instanceof AuthenticationError) {
-        this.emitter.emit('authError');
+        this.emitter.emit('authError', err);
       }
     });
   }

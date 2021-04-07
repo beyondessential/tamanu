@@ -102,6 +102,7 @@ export class SyncManager {
 
     try {
       this.isSyncing = true;
+      this.errors = [];
       this.emitter.emit('syncStarted');
 
       const { models } = Database;

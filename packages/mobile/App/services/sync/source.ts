@@ -7,17 +7,18 @@ import {
   invalidTokenMessage,
   generalErrorMessage,
 } from '~/services/auth/error';
+import { version } from '/root/package.json';
 
 export type DownloadRecordsResponse = {
   count: number;
   cursor: string;
   records: SyncRecord[];
-}
+};
 
 export type UploadRecordsResponse = {
   count: number;
   requestedAt: number;
-}
+};
 
 export interface SyncRecord {
   ERROR_MESSAGE?: string;
@@ -44,7 +45,7 @@ export interface SyncSource {
 
   uploadRecords(
     channel: string,
-    records: object[],
+    records: object[]
   ): Promise<UploadRecordsResponse | null>;
 }
 
@@ -59,20 +60,81 @@ const createTimeoutPromise = (): Promise<void> => new Promise((resolve, reject) 
   }, MAX_FETCH_WAIT_TIME);
 });
 
-const fetchWithTimeout = (url, config) => Promise.race([
+const fetchWithTimeout = (url, config): Promise<Response> => Promise.race([
   fetch(url, config),
   createTimeoutPromise(),
 ]);
 
+const getResponseJsonSafely = async (response): Promise<Record<string, any>> => {
+  try {
+    return response.json();
+  } catch (e) {
+    // log json parsing errors, but still return a valid object
+    console.error(e);
+    return {};
+  }
+};
+
 export class WebSyncSource implements SyncSource {
-  path: string;
+  host: string;
 
   token: string | null;
 
   emitter = mitt();
 
   connect(host: string) {
-    this.path = `${host}/v${API_VERSION}`;
+    this.host = host;
+  }
+
+  async fetch(path: string, config) {
+    const url = `${this.host}/v${API_VERSION}/${path}`;
+    const extraHeaders = config?.headers || {};
+    const headers = {
+      Authorization: `Bearer ${this.token}`,
+      Accept: 'application/json',
+      'X-Runtime': 'Tamanu Mobile',
+      'X-Version': version,
+      ...extraHeaders,
+    };
+    const response = await fetchWithTimeout(url, {
+      ...config,
+      headers,
+    });
+
+    if (response.status === 401) {
+      throw new AuthenticationError(path.includes('/login') ? invalidUserCredentialsMessage : invalidTokenMessage);
+    }
+
+    if (response.status === 400) {
+      const { error } = await getResponseJsonSafely(response);
+      if (error?.name === 'InvalidClientVersion') {
+        const minAppVersion = response.headers.get('X-Min-Client-Version');
+        const maxAppVersion = response.headers.get('X-Max-Client-Version');
+        throw new AuthenticationError(
+          `Your version of Tamanu Mobile is not supported. Please download and install a version between v${minAppVersion} and v${maxAppVersion}`,
+        );
+      }
+    }
+
+    if (!response.ok) {
+      throw new Error(generalErrorMessage);
+    }
+
+    return response.json();
+  }
+
+  async get(path: string) {
+    return this.fetch(path, { method: 'GET' });
+  }
+
+  async post(path: string, body) {
+    return this.fetch(path, {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+      },
+      body,
+    });
   }
 
   setToken(token: string) {
@@ -103,40 +165,22 @@ export class WebSyncSource implements SyncSource {
         limit,
       };
       const queryString = Object.entries(query).map(([k, v]) => `${k}=${v}`).join('&');
-      const url = `${this.path}/sync/${encodeURIComponent(channel)}?${queryString}`;
+      const path = `sync/${encodeURIComponent(channel)}?${queryString}`;
 
-      const response = await fetchWithTimeout(url, {
-        method: 'GET',
-        headers: {
-          'Authorization': `Bearer ${this.token}`,
-          'Accept': 'application/json',
-        },
-      });
-      if (response.status === 401) {
-        throw new AuthenticationError(invalidTokenMessage);
-      }
-      return await response.json();
+      const response = await this.get(path);
+      return response;
     } catch (err) {
       this.throwError(err);
     }
   }
 
-  async uploadRecords(channel: string, records: SyncRecord[]): Promise<UploadRecordsResponse | null> {
+  async uploadRecords(
+    channel: string,
+    records: SyncRecord[]
+  ): Promise<UploadRecordsResponse | null> {
     try {
-      const url = `${this.path}/sync/${encodeURIComponent(channel)}`;
-      const rawResponse = await fetchWithTimeout(url, {
-        method: 'POST',
-        headers: {
-          'Authorization': `Bearer ${this.token}`,
-          'Content-Type': 'application/json',
-          'Accept': 'application/json',
-        },
-        body: JSON.stringify(records),
-      });
-      if (rawResponse.status === 401) {
-        throw new AuthenticationError(invalidTokenMessage);
-      }
-      const response = await rawResponse.json();
+      const path = `sync/${encodeURIComponent(channel)}`;
+      const response = await this.post(path, JSON.stringify(records));
       return response;
     } catch (err) {
       this.throwError(err);
@@ -145,31 +189,11 @@ export class WebSyncSource implements SyncSource {
 
   async login(email: string, password: string): Promise<LoginResponse> {
     try {
-      const url = `${this.path}/login`;
-
-      const body = JSON.stringify({ email, password });
-
-      const response = await fetchWithTimeout(url, {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-        },
-        body,
-      });
-
-      if (response.status >= 500) {
-        throw new AuthenticationError(generalErrorMessage);
-      }
-
-      if (response.status == 401) {
-        throw new AuthenticationError(invalidUserCredentialsMessage);
-      }
-
-      const data = await response.json();
+      const data = await this.post('/login', JSON.stringify({ email, password }));
 
       if (!data.token || !data.user) {
         // auth failed in some other regard
-        console.warn("Auth failed with an inexplicable error", data);
+        console.warn('Auth failed with an inexplicable error', data);
         throw new AuthenticationError(generalErrorMessage);
       }
 

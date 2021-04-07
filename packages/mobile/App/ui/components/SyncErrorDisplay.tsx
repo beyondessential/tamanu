@@ -20,13 +20,19 @@ export const SyncErrorDisplay = (): ReactElement => {
 
   useEffect(() => {
     setErrorCount(syncManager.errors.length);
-    const handler = ({ channel, error }): void => {
+    const errorHandler = ({ channel, error }): void => {
       setErrorMessage(`Failed to sync ${channel} with ${error}`);
       setErrorCount(syncManager.errors.length);
     };
-    syncManager.emitter.on('channelSyncError', handler);
+    const errorResetHandler = (): void => {
+      setErrorMessage('');
+      setErrorCount(syncManager.errors.length); // should be zero
+    };
+    syncManager.emitter.on('channelSyncError', errorHandler);
+    syncManager.emitter.on('syncStarted', errorResetHandler);
     return (): void => {
-      syncManager.emitter.off('channelSyncError', handler);
+      syncManager.emitter.off('channelSyncError', errorHandler);
+      syncManager.emitter.off('syncStarted', errorResetHandler);
     };
   }, []);
 
