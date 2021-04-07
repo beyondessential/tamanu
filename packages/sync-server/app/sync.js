@@ -14,6 +14,38 @@ import { log } from 'shared/services/logging';
 
 export const syncRoutes = express.Router();
 
+// check for pending changes across a batch of channels
+syncRoutes.get(
+  '/channels',
+  asyncHandler(async (req, res) => {
+    // grab the requested time before running any queries
+    const requestedAt = Date.now();
+
+    const { store, query } = req;
+    const channels = Object.keys(query);
+
+    if (!channels || channels.length === 0) {
+      throw new InvalidParameterError(
+        'Checking `/channels` endpoint must include at least one channel/since query parameter',
+      );
+    }
+
+    const channelChangeChecks = await Promise.all(
+      channels.map(async channel => {
+        const count = await store.countSince(channel, query[channel]);
+        return count > 0;
+      }),
+    );
+
+    const channelsWithChanges = channels.filter((c, i) => !!channelChangeChecks[i]);
+
+    res.send({
+      requestedAt,
+      channelsWithChanges,
+    });
+  }),
+);
+
 syncRoutes.get(
   '/:channel',
   asyncHandler(async (req, res) => {
