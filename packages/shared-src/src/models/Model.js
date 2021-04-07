@@ -16,6 +16,7 @@ const MARKED_FOR_PUSH_MODELS = [
   'PatientCondition',
   'PatientFamilyHistory',
   'PatientIssue',
+  'ReportRequest',
 ];
 
 export class Model extends sequelize.Model {
@@ -103,12 +104,7 @@ export class Model extends sequelize.Model {
 
   static includedSyncRelations = [];
 
-  static excludedSyncColumns = [
-    'createdAt',
-    'updatedAt',
-    'markedForPush',
-    'markedForSync',
-  ];
+  static excludedSyncColumns = ['createdAt', 'updatedAt', 'markedForPush', 'markedForSync'];
 
   // determines whether a mdoel will be pushed, pulled, both, or neither
   static syncDirection = SYNC_DIRECTIONS.DO_NOT_SYNC;

@@ -9,7 +9,6 @@ import {
 } from './covid-vaccine-summary';
 import * as aefi from './aefi';
 
-
 export function getReportModule(reportType) {
   switch (reportType) {
     default:

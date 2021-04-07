@@ -141,6 +141,7 @@ export class SyncManager {
 
         models.LabTestType,
         models.Encounter,
+        models.ReportRequest,
       ];
 
       for (const model of modelsToSync) {

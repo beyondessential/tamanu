@@ -33,10 +33,12 @@ describe('import', () => {
     let models;
     let context;
     const patientId = uuidv4();
+    const userId = uuidv4();
     beforeAll(async () => {
       context = await initDb({ syncClientMode: true }); // TODO: test server mode too
       models = context.models;
       await models.Patient.create({ ...fakePatient(), id: patientId });
+      await models.User.create({ ...fakeUser(), id: userId });
     });
 
     const rootTestCases = [
@@ -105,6 +107,7 @@ describe('import', () => {
           return { ...fake(models.LabTestType), labTestCategoryId: labTestCategory.id };
         },
       ],
+      ['ReportRequest', () => ({ ...fake(models.ReportRequest), requestedByUserId: userId })],
     ];
 
     rootTestCases.forEach(([modelName, fakeRecord, overrideChannel = null, options = {}]) => {
@@ -175,7 +178,7 @@ describe('import', () => {
       const context = await initDb({ syncClientMode: false });
       models = context.models;
     });
-    
+
     it('removes null or undefined fields when importing', async () => {
       // arrange
       const { Patient } = models;
