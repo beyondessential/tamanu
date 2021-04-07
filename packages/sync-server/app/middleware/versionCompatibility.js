@@ -8,11 +8,15 @@ import { VERSION_COMPATIBILITY_ERRORS } from 'shared/constants';
 const SUPPORTED_CLIENT_VERSIONS = {
   'Tamanu LAN Server': {
     min: '1.0.0',
-    max: '1.0.0',
+    // keep the patch number of 'max' well above the current version, so we can release new patches
+    // without releasing a new sync server
+    max: '1.0.999',
   },
   'Tamanu Mobile': {
     min: '1.0.5',
-    max: '1.0.5',
+    // keep the patch number of 'max' well above the current version, so we can release new patches
+    // without releasing a new sync server
+    max: '1.0.999',
   },
 };
 
