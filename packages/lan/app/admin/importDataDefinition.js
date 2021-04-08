@@ -68,6 +68,7 @@ const transformers = [
   makeTransformer('users', recordTransformer('user')),
   makeTransformer('patients', patientDataTransformer),
   makeTransformer('labTestTypes', recordTransformer('labTestType')),
+  makeTransformer('vaccineSchedules', recordTransformer('scheduledVaccine')),
   makeTransformer('roles', null),
 ];
 
