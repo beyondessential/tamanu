@@ -43,6 +43,20 @@ export class SurveyScreenComponent extends Model {
     }).map(c => c.forResponse());
   }
 
+  getOptions() {
+    try {
+      const optionString = this.options || this.dataElement.defaultOptions || '';
+      if (!optionString) {
+        return [];
+      }
+      const optionArray = JSON.parse(optionString);
+      return Object.entries(optionArray).map(([label, value]) => ({ label, value }));
+    } catch (e) {
+      console.error(e);
+      return [];
+    }
+  }
+
   forResponse() {
     const { options, ...values } = this.dataValues;
     return {
