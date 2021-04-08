@@ -32,6 +32,9 @@ export interface ISurveyScreenComponent {
   options?: string;
   calculation?: string;
   source?: string;
+
+  getConfigObject();
+  getOptions();
 }
 
 export enum DataElementType {

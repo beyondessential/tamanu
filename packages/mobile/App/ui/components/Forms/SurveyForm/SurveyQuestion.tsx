@@ -12,9 +12,9 @@ interface SurveyQuestionProps {
 
 function getField(type: string): Element {
   const field = FieldByType[type];
-  
-  if(field || field === null) return field;
-  return () => <StyledText>{`No field type ${type}`}</StyledText>;
+
+  if (field || field === null) return field;
+  return (): Element => <StyledText>{`No field type ${type}`}</StyledText>;
 }
 
 export const SurveyQuestion = ({
@@ -23,7 +23,7 @@ export const SurveyQuestion = ({
 }: SurveyQuestionProps): ReactElement => {
   const { dataElement } = component;
   const fieldInput: any = getField(dataElement.type);
-  if(!fieldInput) return null;
+  if (!fieldInput) return null;
   const isMultiline = dataElement.type === FieldTypes.MULTILINE;
   const config = component && component.getConfigObject();
 
