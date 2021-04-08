@@ -31,7 +31,7 @@ export class SurveyScreenComponent extends BaseModel
   @Column({ nullable: true })
   config?: string;
 
-  @Column({ nullable: true, type: "text" })
+  @Column({ nullable: true, type: 'text' })
   options?: string;
 
   @ManyToOne(() => Survey, survey => survey.components)
@@ -55,11 +55,8 @@ export class SurveyScreenComponent extends BaseModel
       if (!optionString) {
         return [];
       }
-      const optionArray: string[] = JSON.parse(optionString);
-      return optionArray
-        .map(x => x.trim())
-        .filter(x => x)
-        .map(x => ({ label: x, value: x }));
+      const optionArray = JSON.parse(optionString);
+      return Object.entries(optionArray).map(([label, value]) => ({ label, value }));
     } catch (e) {
       console.error(e);
       return [];
@@ -71,7 +68,8 @@ export class SurveyScreenComponent extends BaseModel
 
     try {
       return JSON.parse(this.config);
-    } catch(e) {
+    } catch (e) {
+      // eslint-disable-next-line no-console
       console.warn(`Invalid config in survey screen component ${this.id}`);
       return {};
     }
