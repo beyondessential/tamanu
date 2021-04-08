@@ -21,6 +21,9 @@ const referenceDataSchema = baseSchema
 const patientSchema = baseSchema
   .shape({
     villageId: yup.string(),
+    firstName: yup.string().required(),
+    lastName: yup.string().required(),
+    dateOfBirth: yup.date().required(),
   });
 
 const userSchema = baseSchema
@@ -29,7 +32,6 @@ const userSchema = baseSchema
     displayName: yup.string().required(),
     password: yup.string().required(),
   });
-
 
 const LAB_TEST_RESULT_TYPES = ['Number', 'Select', 'FreeText'];
 const rangeRegex = /^[0-9.]+, [0-9.]+$/;
@@ -73,6 +75,8 @@ const validationSchemas = {
   programDataElement: programDataElementSchema,
 };
 
+// TODO: allow referencedata relations to specify reference data type
+// so that for eg a village and facility with the same name don't get confused
 const foreignKeySchemas = {
   patient: {
     village: 'referenceData',
