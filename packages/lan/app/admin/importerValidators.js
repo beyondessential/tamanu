@@ -1,6 +1,7 @@
 import * as yup from 'yup';
 import { ValidationError } from 'yup';
 
+import { PROGRAM_DATA_ELEMENT_TYPE_VALUES } from 'shared/constants';
 import { ForeignKeyStore } from './ForeignKeyStore';
 
 const safeIdRegex = /^[A-Za-z0-9-]+$/;
@@ -43,12 +44,33 @@ const labTestSchema = baseSchema
     femaleRange: yup.string().matches(rangeRegex),
   });
 
+const programDataElementSchema = baseSchema
+  .shape({
+    indicator: yup.string(),
+    type: yup.string().required().oneOf(PROGRAM_DATA_ELEMENT_TYPE_VALUES),
+  });
+
+const surveyScreenComponentSchema = baseSchema
+  .shape({
+    visibilityCriteria: yup.string(),
+    validationCriteria: yup.string(),
+    config: yup.string(),
+    screenIndex: yup.number().required(),
+    componentIndex: yup.number().required(),
+    options: yup.string(),
+    calculation: yup.string(),
+    surveyId: yup.string().required(),
+    dataElementId: yup.string().required(),
+  });
+
 const validationSchemas = {
   base: baseSchema,
   referenceData: referenceDataSchema,
   patient: patientSchema,
   user: userSchema,
   labTestType: labTestSchema,
+  surveyScreenComponent: surveyScreenComponentSchema,
+  programDataElement: programDataElementSchema,
 };
 
 const foreignKeySchemas = {
@@ -91,7 +113,7 @@ export async function validateRecordSet(records) {
 
   const validate = async (record) => {
     const { recordType, data } = record;
-    const schema = validationSchemas[recordType] || schemas.base;
+    const schema = validationSchemas[recordType] || validationSchemas.base;
 
     try {
       // perform id duplicate check outside of schemas as it relies on consistent
