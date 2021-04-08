@@ -5,6 +5,7 @@ import {
   buildNestedEncounter,
   expectDeepSyncRecordsMatch,
   fakePatient,
+  fakeReferenceData,
   unsafeSetUpdatedAt,
   upsertAssociations,
 } from 'shared/test-helpers';
@@ -15,10 +16,19 @@ import { createTestContext } from './utilities';
 export const makeUpdatedAt = daysAgo =>
   format(subDays(new Date(), daysAgo), "yyyy-MM-dd'T'hh:mm:ss+00:00");
 
+const getUpdatedAtTimestamp = ({ updatedAt }) => new Date(updatedAt).valueOf();
+
 const fakeSyncRecordPatient = (...args) => convertFromDbRecord(fakePatient(...args));
 
-const OLDEST = { ...fakeSyncRecordPatient('oldest_'), updatedAt: makeUpdatedAt(20) };
-const SECOND_OLDEST = { ...fakeSyncRecordPatient('second-oldest_'), updatedAt: makeUpdatedAt(10) };
+const OLDEST_PATIENT = { ...fakeSyncRecordPatient('oldest_'), updatedAt: makeUpdatedAt(20) };
+const SECOND_OLDEST_PATIENT = {
+  ...fakeSyncRecordPatient('second-oldest_'),
+  updatedAt: makeUpdatedAt(10),
+};
+const REFERENCE_DATA = {
+  ...fakeReferenceData('aaa_early_id_'),
+  updatedAt: OLDEST_PATIENT.updatedAt,
+};
 
 // TODO: add exhaustive tests for sync API for each channel
 
@@ -30,7 +40,7 @@ describe('Sync API', () => {
     app = await ctx.baseApp.asRole('practitioner');
 
     await Promise.all(
-      [OLDEST, SECOND_OLDEST].map(async r => {
+      [OLDEST_PATIENT, SECOND_OLDEST_PATIENT].map(async r => {
         await ctx.store.upsert('patient', convertToDbRecord(r));
         await unsafeSetUpdatedAt(ctx.store.sequelize, {
           table: 'patients',
@@ -39,9 +49,60 @@ describe('Sync API', () => {
         });
       }),
     );
+    await ctx.store.upsert('reference', REFERENCE_DATA);
+    await unsafeSetUpdatedAt(ctx.store.sequelize, {
+      table: 'reference_data',
+      id: REFERENCE_DATA.id,
+      updated_at: REFERENCE_DATA.updatedAt,
+    });
   });
 
   afterAll(async () => ctx.close());
+
+  describe('Checking channels for changes', () => {
+    it('should error if no channels are provided', async () => {
+      const result = await app.get('/v1/sync/channels');
+      expect(result).toHaveRequestError();
+    });
+
+    it('should return all requested channels that have pending changes since the beginning of time', async () => {
+      const result = await app.get('/v1/sync/channels?patient=0&survey=0&reference=0');
+      expect(result).toHaveSucceeded();
+      const { body } = result;
+      expect(body.channelsWithChanges).toEqual(['patient', 'reference']);
+    });
+
+    it('should return all requested channels that have pending changes since a sync cursor', async () => {
+      const syncCursor = getUpdatedAtTimestamp(SECOND_OLDEST_PATIENT) - 1;
+      const result = await app.get(
+        `/v1/sync/channels?patient=${syncCursor}&reference=${syncCursor}`,
+      );
+      expect(result).toHaveSucceeded();
+      const { body } = result;
+      expect(body.channelsWithChanges).toEqual(['patient']);
+    });
+
+    it('should return all requested channels that have pending changes using different sync cursors', async () => {
+      const patientSyncCursor = getUpdatedAtTimestamp(SECOND_OLDEST_PATIENT) - 1;
+      const referenceSyncCursor = getUpdatedAtTimestamp(OLDEST_PATIENT) - 1;
+      const result = await app.get(
+        `/v1/sync/channels?patient=${patientSyncCursor}&reference=${referenceSyncCursor}`,
+      );
+      expect(result).toHaveSucceeded();
+      const { body } = result;
+      expect(body.channelsWithChanges).toEqual(['patient', 'reference']);
+    });
+
+    it('should differentiate timestamp clashes correctly using id', async () => {
+      const syncCursor = `${getUpdatedAtTimestamp(REFERENCE_DATA)};${REFERENCE_DATA.id}`;
+      const result = await app.get(
+        `/v1/sync/channels?patient=${syncCursor}&reference=${syncCursor}`,
+      );
+      expect(result).toHaveSucceeded();
+      const { body } = result;
+      expect(body.channelsWithChanges).toEqual(['patient']);
+    });
+  });
 
   describe('Reads', () => {
     it('should error if no since parameter is provided', async () => {
@@ -60,7 +121,7 @@ describe('Sync API', () => {
       expect(body.records.length).toBeGreaterThan(0);
 
       const firstRecord = body.records[0];
-      const { updatedAt, ...oldestWithoutUpdatedAt } = OLDEST;
+      const { updatedAt, ...oldestWithoutUpdatedAt } = OLDEST_PATIENT;
       expect(firstRecord).toEqual(JSON.parse(JSON.stringify(oldestWithoutUpdatedAt)));
       expect(firstRecord).not.toHaveProperty('channel');
       expect(firstRecord.data).not.toHaveProperty('channel');
@@ -71,12 +132,14 @@ describe('Sync API', () => {
     });
 
     it('should filter out older records', async () => {
-      const result = await app.get(`/v1/sync/patient?since=${SECOND_OLDEST.updatedAt - 1}`);
+      const result = await app.get(
+        `/v1/sync/patient?since=${getUpdatedAtTimestamp(SECOND_OLDEST_PATIENT) - 1}`,
+      );
       expect(result).toHaveSucceeded();
 
       const { body } = result;
       const firstRecord = body.records[0];
-      expect(firstRecord).toHaveProperty('id', SECOND_OLDEST.id);
+      expect(firstRecord).toHaveProperty('id', SECOND_OLDEST_PATIENT.id);
     });
 
     it('should split updatedAt conflicts using id', async () => {
@@ -106,7 +169,7 @@ describe('Sync API', () => {
 
       // act
       const response1 = await app.get(
-        `/v1/sync/patient?since=${new Date(updatedAt).valueOf() - 1}&limit=1`,
+        `/v1/sync/patient?since=${getUpdatedAtTimestamp({ updatedAt }) - 1}&limit=1`,
       );
       const { records: firstRecords, cursor: firstCursor } = response1.body;
       const response2 = await app.get(`/v1/sync/patient?since=${firstCursor}&limit=1`);
@@ -120,7 +183,9 @@ describe('Sync API', () => {
     });
 
     it('should have count and cursor fields', async () => {
-      const result = await app.get(`/v1/sync/patient?since=${OLDEST.updatedAt - 1}`);
+      const result = await app.get(
+        `/v1/sync/patient?since=${OLDEST_PATIENT.updatedAt.valueOf() - 1}`,
+      );
       expect(result).toHaveSucceeded();
       expect(result.body).toHaveProperty('count', expect.any(Number));
       expect(result.body).toHaveProperty('cursor', expect.any(String));
