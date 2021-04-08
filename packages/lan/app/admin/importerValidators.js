@@ -65,6 +65,16 @@ const surveyScreenComponentSchema = baseSchema
     dataElementId: yup.string().required(),
   });
 
+const scheduledVaccineSchema = baseSchema
+  .shape({
+    category: yup.string().required(),
+    label: yup.string().required(),
+    schedule: yup.string().required(),
+    weeksFromBirthDue: yup.number(),
+    index: yup.number().required(),
+    vaccineId: yup.string().required(),
+  });
+
 const validationSchemas = {
   base: baseSchema,
   referenceData: referenceDataSchema,
@@ -73,6 +83,7 @@ const validationSchemas = {
   labTestType: labTestSchema,
   surveyScreenComponent: surveyScreenComponentSchema,
   programDataElement: programDataElementSchema,
+  scheduledVaccine: scheduledVaccineSchema,
 };
 
 // TODO: allow referencedata relations to specify reference data type
@@ -83,6 +94,9 @@ const foreignKeySchemas = {
   },
   labTestType: {
     category: 'referenceData',
+  },
+  scheduledVaccine: {
+    vaccine: 'referenceData',
   },
 };
 
