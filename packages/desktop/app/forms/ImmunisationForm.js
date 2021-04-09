@@ -70,9 +70,9 @@ export const ImmunisationForm = React.memo(
     onCancel,
     onSubmit,
     practitionerSuggester,
-    facilitySuggester,
     departmentSuggester,
     getScheduledVaccines,
+    locationSuggester,
   }) => {
     const [vaccineOptions, setVaccineOptions] = useState([]);
     const [category, setCategory] = useState();
@@ -180,9 +180,9 @@ export const ImmunisationForm = React.memo(
             />
             <Field
               name="locationId"
-              label="Health Facility"
+              label="Location"
               component={AutocompleteField}
-              suggester={facilitySuggester}
+              suggester={locationSuggester}
               required
             />
             <Field
