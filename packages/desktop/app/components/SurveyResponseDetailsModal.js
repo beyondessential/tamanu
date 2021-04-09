@@ -72,7 +72,7 @@ export const SurveyResponseDetailsModal = connectApi(api => ({
         name,
       };
     })
-    .filter(r => r.answer);
+    .filter(r => r.answer !== undefined);
 
   return (
     <Modal title="Survey response" open={surveyResponseId} onClose={onClose}>
