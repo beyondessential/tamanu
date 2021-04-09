@@ -7,7 +7,7 @@ import { SurveyResultBadge } from './SurveyResultBadge';
 import { connectApi } from '../api/connectApi';
 
 const COLUMNS = [
-  { key: 'text', title: 'Indicator', accessor: ({ indicator }) => indicator },
+  { key: 'text', title: 'Indicator', accessor: ({ name }) => name },
   {
     key: 'value',
     title: 'Value',
@@ -39,8 +39,7 @@ export const SurveyResponseDetailsModal = connectApi(api => ({
   const [loading, setLoading] = useState(false);
 
   useEffect(() => {
-    if (!surveyResponseId) {
-    } else {
+    if (surveyResponseId) {
       setLoading(true);
       (async () => {
         const details = await fetchResponseDetails(surveyResponseId);
@@ -59,18 +58,21 @@ export const SurveyResponseDetailsModal = connectApi(api => ({
   }
 
   const { components, answers } = surveyDetails;
-  const answerRows = components.filter(shouldShow).map(component => {
-    const { dataElement, id } = component;
-    const { type, indicator } = dataElement;
-    const answerObject = answers.find(a => a.dataElementId === dataElement.id);
-    const answer = answerObject ? answerObject.body : 'N/A';
-    return {
-      id,
-      type,
-      answer,
-      indicator,
-    };
-  });
+  const answerRows = components
+    .filter(shouldShow)
+    .map(component => {
+      const { dataElement, id } = component;
+      const { type, name } = dataElement;
+      const answerObject = answers.find(a => a.dataElementId === dataElement.id);
+      const answer = answerObject?.body;
+      return {
+        id,
+        type,
+        answer,
+        name,
+      };
+    })
+    .filter(r => r.answer !== undefined);
 
   return (
     <Modal title="Survey response" open={surveyResponseId} onClose={onClose}>

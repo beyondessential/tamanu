@@ -1,6 +1,6 @@
 import express from 'express';
 import asyncHandler from 'express-async-handler';
-import { QueryTypes } from 'sequelize';
+import { QueryTypes, Op } from 'sequelize';
 import { ENCOUNTER_TYPES, REFERENCE_TYPES } from 'shared/constants';
 
 export const patientVaccineRoutes = express.Router();
@@ -78,19 +78,35 @@ patientVaccineRoutes.post(
       res.status(400).send({ error: { message: 'scheduledVaccineId is required' } });
     }
 
-    const encounter = await req.models.Encounter.create({
-      encounterType: ENCOUNTER_TYPES.CLINIC,
-      startDate: req.body.date,
-      endDate: req.body.date,
-      patientId: req.params.id,
-      locationId: req.body.locationId,
-      examinerId: req.body.examinerId,
-      departmentId: req.body.departmentId,
+    let encounterId;
+    const existingEncounter = await req.models.Encounter.findOne({
+      where: {
+        endDate: {
+          [Op.is]: null,
+        },
+        patientId: req.params.id,
+      },
     });
+
+    if (existingEncounter) {
+      encounterId = existingEncounter.get('id');
+    } else {
+      const newEncounter = await req.models.Encounter.create({
+        encounterType: ENCOUNTER_TYPES.CLINIC,
+        startDate: req.body.date,
+        endDate: req.body.date,
+        patientId: req.params.id,
+        locationId: req.body.locationId,
+        examinerId: req.body.examinerId,
+        departmentId: req.body.departmentId,
+      });
+      encounterId = newEncounter.get('id');
+    }
+
     const newRecord = await req.models.AdministeredVaccine.create({
-      status: 'UNKNOWN',
+      status: 'GIVEN',
       ...req.body,
-      encounterId: encounter.get('id'),
+      encounterId,
     });
     res.send(newRecord);
   }),

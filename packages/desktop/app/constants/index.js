@@ -1459,3 +1459,14 @@ export const REPORT_TYPES = {
 export const LOCAL_STORAGE_KEYS = {
   HOST: 'host',
 };
+
+export const VACCINE_STATUS = {
+  UNKNOWN: 'UNKNOWN',
+  GIVEN: 'GIVEN',
+  NOT_GIVEN: 'NOT_GIVEN',
+  SCHEDULED: 'SCHEDULED',
+  MISSED: 'MISSED',
+  DUE: 'DUE',
+  UPCOMING: 'UPCOMING',
+  OVERDUE: 'OVERDUE',
+};
