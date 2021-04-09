@@ -7,21 +7,24 @@ import { SurveyResultBadge } from './SurveyResultBadge';
 import { connectApi } from '../api/connectApi';
 
 const COLUMNS = [
-  { key: 'text', title: 'Indicator', accessor: ({ indicator }) => indicator },
-  { key: 'value', title: 'Value', accessor: ({ answer, type }) => {
-    if(type === 'Result') {
-      const value = parseFloat(answer);
-      return <SurveyResultBadge result={value} />;
-    } else if(type === 'Calculated') {
-      return parseFloat(answer).toFixed(2);
-    } else {
+  { key: 'text', title: 'Indicator', accessor: ({ name }) => name },
+  {
+    key: 'value',
+    title: 'Value',
+    accessor: ({ answer, type }) => {
+      if (type === 'Result') {
+        const value = parseFloat(answer);
+        return <SurveyResultBadge result={value} />;
+      } else if (type === 'Calculated') {
+        return parseFloat(answer).toFixed(2);
+      }
       return answer;
-    }
-  } },
+    },
+  },
 ];
 
 function shouldShow(component) {
-  switch(component.dataElement.type) {
+  switch (component.dataElement.type) {
     case 'Instruction':
       return false;
     default:
@@ -36,9 +39,7 @@ export const SurveyResponseDetailsModal = connectApi(api => ({
   const [loading, setLoading] = useState(false);
 
   useEffect(() => {
-    if(!surveyResponseId) {
-      return;
-    } else {
+    if (surveyResponseId) {
       setLoading(true);
       (async () => {
         const details = await fetchResponseDetails(surveyResponseId);
@@ -48,7 +49,7 @@ export const SurveyResponseDetailsModal = connectApi(api => ({
     }
   }, [surveyResponseId]);
 
-  if(loading || !surveyDetails) {
+  if (loading || !surveyDetails) {
     return (
       <Modal title="Survey response" open={surveyResponseId} onClose={onClose}>
         Loading...
@@ -61,23 +62,21 @@ export const SurveyResponseDetailsModal = connectApi(api => ({
     .filter(shouldShow)
     .map(component => {
       const { dataElement, id } = component;
-      const { defaultText, type, indicator } = dataElement;
+      const { type, name } = dataElement;
       const answerObject = answers.find(a => a.dataElementId === dataElement.id);
-      const answer = answerObject ? answerObject.body : 'N/A';
-      return { 
+      const answer = answerObject?.body;
+      return {
         id,
         type,
         answer,
-        indicator
+        name,
       };
-    });
+    })
+    .filter(r => r.answer);
 
   return (
     <Modal title="Survey response" open={surveyResponseId} onClose={onClose}>
-      <Table
-        data={answerRows}
-        columns={COLUMNS}
-      />
+      <Table data={answerRows} columns={COLUMNS} />
     </Modal>
   );
 });
