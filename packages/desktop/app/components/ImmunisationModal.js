@@ -7,6 +7,7 @@ import { connectApi } from '../api/connectApi';
 import { reloadPatient } from '../store/patient';
 
 import { ImmunisationForm } from '../forms/ImmunisationForm';
+import { VACCINE_STATUS } from '../constants';
 
 const DumbImmunisationModal = React.memo(
   ({
@@ -37,14 +38,16 @@ const DumbImmunisationModal = React.memo(
 
 export const ImmunisationModal = connectApi((api, dispatch, { patientId }) => ({
   onCreateImmunisation: async data => {
-    await api.post(`patient/${patientId}/administeredVaccine`, { ...data, patientId });
+    await api.post(`patient/${patientId}/administeredVaccine`, {
+      ...data,
+      patientId,
+      status: VACCINE_STATUS.GIVEN,
+    });
     dispatch(reloadPatient(patientId));
   },
   practitionerSuggester: new Suggester(api, 'practitioner'),
   facilitySuggester: new Suggester(api, 'facility'),
   vaccineSuggester: new Suggester(api, 'vaccine'),
   departmentSuggester: new Suggester(api, 'department'),
-  getScheduledVaccines: async query => {
-    return await api.get(`patient/${patientId}/scheduledVaccines`, query);
-  },
+  getScheduledVaccines: async query => api.get(`patient/${patientId}/scheduledVaccines`, query),
 }))(DumbImmunisationModal);
