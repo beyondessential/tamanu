@@ -80,11 +80,11 @@ export const ImmunisationForm = React.memo(
     const [administeredOptions, setAdministeredOptions] = useState([]);
     const [scheduleOptions, setScheduleOptions] = useState([]);
     const scheduledVaccinesToOptions = useCallback(
-      async category => {
+      async scheduledCategory => {
         try {
           setAdministeredOptions([]);
           setScheduleOptions([]);
-          const availableScheduledVaccines = await getScheduledVaccines({ category });
+          const availableScheduledVaccines = await getScheduledVaccines({ scheduledCategory });
           setVaccineOptions(
             availableScheduledVaccines.map(vaccine => ({
               label: vaccine.label,
@@ -195,7 +195,7 @@ export const ImmunisationForm = React.memo(
             <Field name="batch" label="Batch" component={TextField} />
             <ConfirmCancelRow
               onConfirm={submitForm}
-              confirmDisabled={scheduleOptions.length == 0}
+              confirmDisabled={scheduleOptions.length === 0}
               onCancel={onCancel}
             />
           </FormGrid>
