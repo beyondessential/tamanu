@@ -59,24 +59,23 @@ describe('Patient', () => {
       expect(result.body).toHaveProperty('firstName', newPatient.firstName);
       expect(result.body).toHaveProperty('lastName', newPatient.lastName);
       expect(result.body).toHaveProperty('title', newPatient.title);
-      expect(result.body).toHaveProperty('placeOfBirth', newPatient.placeOfBirth);
     });
 
     it('should update patient details', async () => {
-      // skip placeOfBirth, to be added in PUT request
-      const newPatient = await createDummyPatient(models, { placeOfBirth: '' });
+      // skip middleName, to be added in PUT request
+      const newPatient = await createDummyPatient(models, { middleName: '' });
       const result = await app.post('/v1/patient').send(newPatient);
-      expect(result.body.placeOfBirth).toBeNull();
+      expect(result.body.middleName).toBeNull();
 
       const newVillage = await randomReferenceId(models, 'village');
       const updateResult = await app.put(`/v1/patient/${result.body.id}`).send({
         villageId: newVillage,
-        placeOfBirth: 'Birthplace',
+        middleName: 'MiddleName',
       });
 
       expect(updateResult).toHaveSucceeded();
       expect(updateResult.body).toHaveProperty('villageId', newVillage);
-      expect(updateResult.body).toHaveProperty('placeOfBirth', 'Birthplace');
+      expect(updateResult.body).toHaveProperty('middleName', 'MiddleName');
     });
 
     test.todo('should create a new patient as a new birth');
