@@ -104,7 +104,7 @@ patientVaccineRoutes.post(
     }
 
     const newRecord = await req.models.AdministeredVaccine.create({
-      status: 'UNKNOWN',
+      status: 'GIVEN',
       ...req.body,
       encounterId,
     });
