@@ -108,7 +108,7 @@ export const ReferralTable = React.memo(({ patientId }) => {
   const onSelectReferral = useCallback(referral => {
     setSelectedReferralId(referral.surveyResponseId);
   }, []);
-  const cancelReferral = useCallback(() => setSelectedReferralId(null), []);
+  const onCloseReferral = useCallback(() => setSelectedReferralId(null), []);
 
   return (
     <>
