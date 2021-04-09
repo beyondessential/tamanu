@@ -12,7 +12,7 @@ export class ProgramDataElement extends Model {
         name: Sequelize.STRING,
         indicator: Sequelize.STRING,
         defaultText: Sequelize.STRING,
-        defaultOptions: Sequelize.TEXT,
+        defaultOptions: Sequelize.STRING,
         type: Sequelize.STRING(31),
       },
       {

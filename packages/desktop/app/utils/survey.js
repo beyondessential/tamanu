@@ -48,6 +48,11 @@ export function getComponentForQuestionType(type) {
   return component;
 }
 
+export function mapOptionsToValues(options) {
+  if (!options) return null;
+  return options.map(x => ({ label: x, value: x }));
+}
+
 export function checkVisibility(
   component,
   values,
