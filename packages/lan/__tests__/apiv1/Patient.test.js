@@ -65,7 +65,7 @@ describe('Patient', () => {
       // skip middleName, to be added in PUT request
       const newPatient = await createDummyPatient(models, { middleName: '' });
       const result = await app.post('/v1/patient').send(newPatient);
-      expect(result.body.middleName).toBeNull();
+      expect(result.body.middleName).toEqual('');
 
       const newVillage = await randomReferenceId(models, 'village');
       const updateResult = await app.put(`/v1/patient/${result.body.id}`).send({
