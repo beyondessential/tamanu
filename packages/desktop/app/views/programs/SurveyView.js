@@ -19,7 +19,6 @@ const Text = styled.div`
 const SurveyQuestion = ({ component }) => {
   const { defaultText, type, id } = component.dataElement;
   const text = component.text || defaultText;
-  const options = component.getOptions && component.getOptions();
   const FieldComponent = getComponentForQuestionType(type);
 
   return (
@@ -27,7 +26,7 @@ const SurveyQuestion = ({ component }) => {
       label={text}
       component={FieldComponent}
       name={id}
-      options={options}
+      options={component.getOptions()}
       helperText={component.detail}
     />
   );

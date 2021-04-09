@@ -45,7 +45,7 @@ export class SurveyScreenComponent extends Model {
 
   getOptions() {
     try {
-      const optionString = this.options || this.dataElement.defaultOptions || '';
+      const optionString = this.options || this.dataElement?.defaultOptions || '';
       if (!optionString) {
         return [];
       }

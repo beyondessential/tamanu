@@ -8,20 +8,23 @@ import { connectApi } from '../api/connectApi';
 
 const COLUMNS = [
   { key: 'text', title: 'Indicator', accessor: ({ indicator }) => indicator },
-  { key: 'value', title: 'Value', accessor: ({ answer, type }) => {
-    if(type === 'Result') {
-      const value = parseFloat(answer);
-      return <SurveyResultBadge result={value} />;
-    } else if(type === 'Calculated') {
-      return parseFloat(answer).toFixed(2);
-    } else {
+  {
+    key: 'value',
+    title: 'Value',
+    accessor: ({ answer, type }) => {
+      if (type === 'Result') {
+        const value = parseFloat(answer);
+        return <SurveyResultBadge result={value} />;
+      } else if (type === 'Calculated') {
+        return parseFloat(answer).toFixed(2);
+      }
       return answer;
-    }
-  } },
+    },
+  },
 ];
 
 function shouldShow(component) {
-  switch(component.dataElement.type) {
+  switch (component.dataElement.type) {
     case 'Instruction':
       return false;
     default:
@@ -36,8 +39,7 @@ export const SurveyResponseDetailsModal = connectApi(api => ({
   const [loading, setLoading] = useState(false);
 
   useEffect(() => {
-    if(!surveyResponseId) {
-      return;
+    if (!surveyResponseId) {
     } else {
       setLoading(true);
       (async () => {
@@ -48,7 +50,7 @@ export const SurveyResponseDetailsModal = connectApi(api => ({
     }
   }, [surveyResponseId]);
 
-  if(loading || !surveyDetails) {
+  if (loading || !surveyDetails) {
     return (
       <Modal title="Survey response" open={surveyResponseId} onClose={onClose}>
         Loading...
@@ -57,27 +59,22 @@ export const SurveyResponseDetailsModal = connectApi(api => ({
   }
 
   const { components, answers } = surveyDetails;
-  const answerRows = components
-    .filter(shouldShow)
-    .map(component => {
-      const { dataElement, id } = component;
-      const { defaultText, type, indicator } = dataElement;
-      const answerObject = answers.find(a => a.dataElementId === dataElement.id);
-      const answer = answerObject ? answerObject.body : 'N/A';
-      return { 
-        id,
-        type,
-        answer,
-        indicator
-      };
-    });
+  const answerRows = components.filter(shouldShow).map(component => {
+    const { dataElement, id } = component;
+    const { type, indicator } = dataElement;
+    const answerObject = answers.find(a => a.dataElementId === dataElement.id);
+    const answer = answerObject ? answerObject.body : 'N/A';
+    return {
+      id,
+      type,
+      answer,
+      indicator,
+    };
+  });
 
   return (
     <Modal title="Survey response" open={surveyResponseId} onClose={onClose}>
-      <Table
-        data={answerRows}
-        columns={COLUMNS}
-      />
+      <Table data={answerRows} columns={COLUMNS} />
     </Modal>
   );
 });
