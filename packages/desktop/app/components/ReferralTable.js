@@ -112,7 +112,7 @@ export const ReferralTable = React.memo(({ patientId }) => {
 
   return (
     <>
-      <SurveyResponseDetailsModal surveyResponseId={selectedReferralId} onClose={cancelReferral} />
+      <SurveyResponseDetailsModal surveyResponseId={selectedReferralId} onClose={onCloseReferral} />
       <DataFetchingTable
         columns={columns}
         endpoint={`patient/${patientId}/referrals`}
