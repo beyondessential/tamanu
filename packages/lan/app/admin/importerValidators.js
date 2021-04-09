@@ -1,6 +1,7 @@
 import * as yup from 'yup';
 import { ValidationError } from 'yup';
 
+import { PROGRAM_DATA_ELEMENT_TYPE_VALUES } from 'shared/constants';
 import { ForeignKeyStore } from './ForeignKeyStore';
 
 const safeIdRegex = /^[A-Za-z0-9-]+$/;
@@ -20,6 +21,9 @@ const referenceDataSchema = baseSchema
 const patientSchema = baseSchema
   .shape({
     villageId: yup.string(),
+    firstName: yup.string().required(),
+    lastName: yup.string().required(),
+    dateOfBirth: yup.date().required(),
   });
 
 const userSchema = baseSchema
@@ -28,7 +32,6 @@ const userSchema = baseSchema
     displayName: yup.string().required(),
     password: yup.string().required(),
   });
-
 
 const LAB_TEST_RESULT_TYPES = ['Number', 'Select', 'FreeText'];
 const rangeRegex = /^[0-9.]+, [0-9.]+$/;
@@ -43,20 +46,57 @@ const labTestSchema = baseSchema
     femaleRange: yup.string().matches(rangeRegex),
   });
 
+const programDataElementSchema = baseSchema
+  .shape({
+    indicator: yup.string(),
+    type: yup.string().required().oneOf(PROGRAM_DATA_ELEMENT_TYPE_VALUES),
+  });
+
+const surveyScreenComponentSchema = baseSchema
+  .shape({
+    visibilityCriteria: yup.string(),
+    validationCriteria: yup.string(),
+    config: yup.string(),
+    screenIndex: yup.number().required(),
+    componentIndex: yup.number().required(),
+    options: yup.string(),
+    calculation: yup.string(),
+    surveyId: yup.string().required(),
+    dataElementId: yup.string().required(),
+  });
+
+const scheduledVaccineSchema = baseSchema
+  .shape({
+    category: yup.string().required(),
+    label: yup.string().required(),
+    schedule: yup.string().required(),
+    weeksFromBirthDue: yup.number(),
+    index: yup.number().required(),
+    vaccineId: yup.string().required(),
+  });
+
 const validationSchemas = {
   base: baseSchema,
   referenceData: referenceDataSchema,
   patient: patientSchema,
   user: userSchema,
   labTestType: labTestSchema,
+  surveyScreenComponent: surveyScreenComponentSchema,
+  programDataElement: programDataElementSchema,
+  scheduledVaccine: scheduledVaccineSchema,
 };
 
+// TODO: allow referencedata relations to specify reference data type
+// so that for eg a village and facility with the same name don't get confused
 const foreignKeySchemas = {
   patient: {
     village: 'referenceData',
   },
   labTestType: {
     category: 'referenceData',
+  },
+  scheduledVaccine: {
+    vaccine: 'referenceData',
   },
 };
 
@@ -91,7 +131,7 @@ export async function validateRecordSet(records) {
 
   const validate = async (record) => {
     const { recordType, data } = record;
-    const schema = validationSchemas[recordType] || schemas.base;
+    const schema = validationSchemas[recordType] || validationSchemas.base;
 
     try {
       // perform id duplicate check outside of schemas as it relies on consistent

@@ -29,17 +29,16 @@ export class ReportRequestProcessor extends ScheduledTask {
       const request = requests[i];
       const requestObject = request.get({ plain: true });
       if (!config.mailgun.from) {
-        log.error(`Email config missing`);
+        log.error(`ReportRequestProcessorError - Email config missing`);
         return request.update({
           status: REPORT_REQUEST_STATUSES.ERROR,
         });
       }
 
       const reportDataGenerator = getReportModule(requestObject.reportType)?.dataGenerator;
-
       if (!reportDataGenerator) {
         log.error(
-          `Unable to find report generator for report ${requestObject.id} of type ${requestObject.reportType}`,
+          `ReportRequestProcessorError - Unable to find report generator for report ${requestObject.id} of type ${requestObject.reportType}`,
         );
         return request.update({
           status: REPORT_REQUEST_STATUSES.ERROR,
@@ -55,7 +54,8 @@ export class ReportRequestProcessor extends ScheduledTask {
         const result = await sendEmail({
           from: config.mailgun.from,
           to: request.recipients,
-          subject: request.reportType,
+          subject: 'Report delivery',
+          text: 'Report requested: ' + requestObject.reportType,
           attachment: fileName,
         });
         if (result.status === COMMUNICATION_STATUSES.SENT) {
@@ -63,12 +63,13 @@ export class ReportRequestProcessor extends ScheduledTask {
             status: REPORT_REQUEST_STATUSES.PROCESSED,
           });
         } else {
+          log.error(`ReportRequestProcessorError - Mailgun error: ${result.error}`);
           await request.update({
             status: REPORT_REQUEST_STATUSES.ERROR,
           });
         }
       } catch (e) {
-        log.error(`Failed to generate report, ${e.message}`);
+        log.error(`ReportRequestProcessorError - Failed to generate report, ${e.message}`);
         log.error(e.stack);
         await request.update({
           status: REPORT_REQUEST_STATUSES.ERROR,
