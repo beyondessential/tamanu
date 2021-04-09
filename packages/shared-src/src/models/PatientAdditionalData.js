@@ -1,8 +1,7 @@
-import { Entity, Column, RelationId, OneToOne } from 'typeorm/browser';
-import { BaseModel } from './BaseModel';
-import { IPatientAdditionalData } from '~/types';
-import { ReferenceData, ReferenceDataRelation } from './ReferenceData';
-import { Patient } from './Patient';
+import { Sequelize } from 'sequelize';
+import { SYNC_DIRECTIONS } from 'shared/constants';
+import { Model } from './Model';
+import { extendClassWithPatientChannel } from './sync';
 
 export class PatientAdditionalData extends Model {
   static init({ primaryKey, ...options }) {
