@@ -1,6 +1,7 @@
-import fetch, { AbortError } from 'node-fetch';
+import fetch from 'node-fetch';
 import AbortController from 'abort-controller';
 import config from 'config';
+import { chunk } from 'lodash';
 
 import { BadAuthenticationError, InvalidOperationError, RemoteTimeoutError } from 'shared/errors';
 import { VERSION_COMPATIBILITY_ERRORS } from 'shared/constants';
@@ -156,6 +157,26 @@ export class WebRemote {
     } finally {
       this.connectionPromise = null;
     }
+  }
+
+  async fetchChannelsWithChanges(channelsToCheck) {
+    const batchSize = 25; // check 25 channels at a time, to avoid exceeding max url length
+    const channelsWithPendingChanges = [];
+    for (const batchOfChannels of chunk(Object.entries(channelsToCheck), batchSize)) {
+      const query = batchOfChannels.reduce(
+        (acc, [channel, cursor]) => ({
+          ...acc,
+          [channel]: cursor,
+        }),
+        {},
+      );
+      const queryString = Object.entries(query)
+        .map(([k, v]) => `${k}=${v}`)
+        .join('&');
+      const { channelsWithChanges } = await this.fetch(`sync/channels?${queryString}`);
+      channelsWithPendingChanges.push(...channelsWithChanges);
+    }
+    return channelsWithPendingChanges;
   }
 
   async pull(channel, { since = 0, limit = 100, page = 0 } = {}) {

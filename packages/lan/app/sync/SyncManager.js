@@ -26,12 +26,24 @@ export class SyncManager {
   }
 
   async pullAndImport(model, patientId) {
-    for (const channel of await model.getChannels(patientId)) {
-      await this.pullAndImportChannel(model, channel);
+    const channels = await model.getChannels(patientId);
+    const cursorsByChannel = {};
+    await Promise.all(
+      channels.map(async c => {
+        const cursor = await this.getChannelPullCursor(c);
+        cursorsByChannel[c] = cursor;
+      }),
+    );
+    const channelsToPull =
+      channels.length === 1
+        ? channels // waste of effort to check which need pulling if there's only 1, just pull
+        : await this.context.remote.fetchChannelsWithChanges(cursorsByChannel);
+    for (const channel of channelsToPull) {
+      await this.pullAndImportChannel(model, channel, cursorsByChannel[channel]);
     }
   }
 
-  async pullAndImportChannel(model, channel) {
+  async pullAndImportChannel(model, channel, initialCursor = '0') {
     const plan = createImportPlan(model);
     const importRecords = async syncRecords => {
       for (const syncRecord of syncRecords) {
@@ -39,7 +51,7 @@ export class SyncManager {
       }
     };
 
-    let cursor = await this.getChannelPullCursor(channel);
+    let cursor = initialCursor;
     log.info(`SyncManager.pullAndImport: syncing ${channel} (last: ${cursor})`);
     while (true) {
       // pull
