@@ -17,7 +17,6 @@ export type VaccineDataProps = {
   status: string;
   name: string;
   code: string;
-  scheduledVaccineId?: string;
 };
 
 interface VaccineCardProps {
