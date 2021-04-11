@@ -102,6 +102,7 @@ export const Screen = ({
             id={patientData.id}
             generalInfo={patientData.generalInfo}
           />
+          {/* Not functional yet
           <NotificationCheckbox value={reminders} onChange={changeReminder} />
           <FamilyInformation
             onEdit={onEditField}
@@ -116,6 +117,7 @@ export const Screen = ({
             familyHistory={patientData.familyHistory}
           />
           <AllergiesList onEdit={onEditField} allergies={patientData.allergies} />
+          */}
           <PatientIssues
             onEdit={onEditPatientIssues}
             patientIssues={patientData.patientIssues}
