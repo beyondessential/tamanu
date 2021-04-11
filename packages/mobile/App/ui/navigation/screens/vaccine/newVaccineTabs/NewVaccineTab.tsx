@@ -1,13 +1,10 @@
 import React, { ReactElement, useCallback, FC } from 'react';
 import { useNavigation } from '@react-navigation/native';
 import { ScrollView } from 'react-native';
-import { Popup } from 'popup-ui';
 import { Route } from 'react-native-tab-view';
 import { SvgProps } from 'react-native-svg';
 import { compose } from 'redux';
 import { useSelector } from 'react-redux';
-import { addWeeks, format } from 'date-fns';
-import Icon from 'react-native-vector-icons/MaterialCommunityIcons';
 import { withPatient } from '~/ui/containers/Patient';
 import {
   FullView,
@@ -24,7 +21,7 @@ import { SectionHeader } from '/components/SectionHeader';
 import { Button } from '/components/Button';
 import { VaccineDataProps } from '/components/VaccineCard';
 import { Orientation, screenPercentageToDP } from '/helpers/screen';
-import { useBackend, useBackendEffect } from '~/ui/hooks';
+import { useBackend } from '~/ui/hooks';
 import { IPatient } from '~/types';
 import { authUserSelector } from '~/ui/helpers/selectors';
 
@@ -76,15 +73,6 @@ export const NewVaccineTabComponent = ({
     navigation.goBack();
   }, []);
 
-  const [currentVaccine] = useBackendEffect(
-    ({ models }) => models.ScheduledVaccine.findOne({ id: vaccine.scheduledVaccineId }),
-    [],
-  );
-  const [nextVaccine] = useBackendEffect(
-    ({ models }) => models.ScheduledVaccine.getNextVaccineCalendar(vaccine.scheduledVaccineId),
-    [],
-  );
-
   const user = useSelector(authUserSelector);
 
   const { models } = useBackend();
@@ -109,19 +97,6 @@ export const NewVaccineTabComponent = ({
     }, [],
   );
 
-  if (currentVaccine && nextVaccine) {
-    const totalWeeks = nextVaccine.weeksFromBirthDue - currentVaccine.weeksFromBirthDue;
-    const nextVaccineDate = format(addWeeks(new Date(), totalWeeks), 'do LLLL yyyy');
-    Popup.show({
-      type: 'Warning',
-      title: 'Complete',
-      button: true,
-      textBody:
-            `Your next ${vaccine.code} vaccine is in ${totalWeeks} weeks, around the following date:\n\n${nextVaccineDate}`,
-      buttonText: 'Ok',
-      callback: () => Popup.hide(),
-    });
-  }
   return (
     <FullView>
       <StyledSafeAreaView
