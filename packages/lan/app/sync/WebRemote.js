@@ -160,23 +160,15 @@ export class WebRemote {
   }
 
   async fetchChannelsWithChanges(channelsToCheck) {
-    const batchSize = 25; // check 25 channels at a time, to avoid exceeding max url length
-    const channelsWithPendingChanges = [];
-    for (const batchOfChannels of chunk(Object.entries(channelsToCheck), batchSize)) {
-      const query = batchOfChannels.reduce(
-        (acc, [channel, cursor]) => ({
-          ...acc,
-          [channel]: cursor,
-        }),
-        {},
-      );
-      const queryString = Object.entries(query)
-        .map(([k, v]) => `${k}=${v}`)
-        .join('&');
-      const { channelsWithChanges } = await this.fetch(`sync/channels?${queryString}`);
-      channelsWithPendingChanges.push(...channelsWithChanges);
-    }
-    return channelsWithPendingChanges;
+    const body = channelsToCheck.reduce(
+      (acc, { channel, cursor = '0' }) => ({
+        ...acc,
+        [channel]: cursor,
+      }),
+      {},
+    );
+    const { channelsWithChanges } = await this.fetch(`sync/channels`, { body });
+    return channelsWithChanges;
   }
 
   async pull(channel, { since = 0, limit = 100, page = 0 } = {}) {
