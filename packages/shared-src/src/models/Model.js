@@ -7,7 +7,7 @@ export const Sequelize = sequelize.Sequelize;
 
 const firstLetterLowercase = s => (s[0] || '').toLowerCase() + s.slice(1);
 
-// write a migration when adding to this list (e.g. 005_markedForPush.js)
+// write a migration when adding to this list (e.g. 005_markedForPush.js and 007_pushedAt.js)
 const MARKED_FOR_PUSH_MODELS = [
   'Encounter',
   'Patient',

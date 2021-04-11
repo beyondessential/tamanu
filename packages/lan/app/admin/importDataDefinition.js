@@ -1,6 +1,8 @@
 import { readFile, utils } from 'xlsx';
 import { log } from 'shared/services/logging';
 
+import { getJsDateFromExcel } from 'excel-date-to-js';
+
 const sanitise = string => string.trim().replace(/[^A-Za-z0-9]+/g, '');
 
 const recordTransformer = type => item => ({
@@ -18,6 +20,20 @@ const referenceDataTransformer = type => item => {
       ...item,
       code: (typeof code === 'number') ? `${code}` : code,
       type,
+    },
+  };
+};
+
+const patientDataTransformer = item => {
+  const {
+    dateOfBirth,
+    ...otherFields
+  } = item;
+  return {
+    recordType: 'patient',
+    data: {
+      dateOfBirth: dateOfBirth && getJsDateFromExcel(dateOfBirth),
+      ...otherFields,
     },
   };
 };
@@ -50,8 +66,9 @@ const transformers = [
   makeTransformer('occupations', referenceDataTransformer('occupation')),
   makeTransformer('labTestCategories', referenceDataTransformer('labTestCategory')),
   makeTransformer('users', recordTransformer('user')),
-  makeTransformer('patients', recordTransformer('patient')),
+  makeTransformer('patients', patientDataTransformer),
   makeTransformer('labTestTypes', recordTransformer('labTestType')),
+  makeTransformer('vaccineSchedules', recordTransformer('scheduledVaccine')),
   makeTransformer('roles', null),
 ];
 
@@ -71,15 +88,17 @@ export async function importData({ file, whitelist = [] }) {
     const sheet = sheets[sheetName.toLowerCase()];
     const data = utils.sheet_to_json(sheet);
 
-    return data.map(item => {
-      const transformed = transformer(item);
-      if(!transformed) return null;
-      return {
-        sheet: sheetName,
-        row: (item.__rowNum__ + 1), // account for 0-based js vs 1-based excel
-        ...transformed,
-      };
-    });
+    return data
+      .filter(item => Object.values(item).some(x => x))
+      .map(item => {
+        const transformed = transformer(item);
+        if(!transformed) return null;
+        return {
+          sheet: sheetName,
+          row: (item.__rowNum__ + 1), // account for 0-based js vs 1-based excel
+          ...transformed,
+        };
+      });
   };
 
   // figure out which transformers we're actually using

@@ -22,7 +22,6 @@ syncRoutes.post(
     const requestedAt = Date.now();
 
     const { store, body } = req;
-    console.log(body);
     const channels = Object.keys(body);
 
     if (!channels || channels.length === 0) {

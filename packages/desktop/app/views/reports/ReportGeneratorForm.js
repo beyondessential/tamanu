@@ -155,7 +155,11 @@ const DumbReportGeneratorForm = ({
         });
         console.log('file saved at ', filePath);
       } else {
-        await createReportRequest({ ...formValues, emailList: parseEmails(formValues.emails) });
+        await createReportRequest({
+          reportType,
+          parameters: restValues,
+          emailList: parseEmails(formValues.emails),
+        });
       }
 
       onSuccessfulSubmit && onSuccessfulSubmit();
