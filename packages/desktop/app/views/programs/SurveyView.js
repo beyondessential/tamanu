@@ -26,7 +26,7 @@ const SurveyQuestion = ({ component }) => {
       label={text}
       component={FieldComponent}
       name={id}
-      options={component.getOptions()}
+      options={component?.getOptions() && component.getOptions()}
       helperText={component.detail}
     />
   );
