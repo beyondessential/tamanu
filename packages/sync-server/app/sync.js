@@ -26,7 +26,7 @@ syncRoutes.post(
 
     if (!channels || channels.length === 0) {
       throw new InvalidParameterError(
-        'Checking `/channels` endpoint must include at least one channel/since query parameter',
+        'Checking `/channels` endpoint must include at least one channel/since in the body',
       );
     }
 

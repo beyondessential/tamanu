@@ -167,7 +167,7 @@ export class WebRemote {
       }),
       {},
     );
-    const { channelsWithChanges } = await this.fetch(`sync/channels`, { body });
+    const { channelsWithChanges } = await this.fetch(`sync/channels`, { method: 'POST', body });
     return channelsWithChanges;
   }
 
