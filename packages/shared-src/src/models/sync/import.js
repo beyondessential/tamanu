@@ -1,6 +1,16 @@
-import { Sequelize } from 'sequelize';
-import { memoize, without, pick, pickBy } from 'lodash';
+import { Sequelize, Op } from 'sequelize';
+import { chunk, flatten, memoize, without, pick, pickBy } from 'lodash';
 import { propertyPathsToTree } from './metadata';
+
+// SQLite < v3.32 has a hard limit of 999 bound parameters per query
+// see https://www.sqlite.org/limits.html for more
+// All newer versions and Postgres limits are higher
+const SQLITE_MAX_PARAMETERS = 999;
+export const chunkRows = rows => {
+  const maxColumnsPerRow = rows.reduce((max, r) => Math.max(Object.keys(r).length, max), 0);
+  const rowsPerChunk = Math.floor(SQLITE_MAX_PARAMETERS / maxColumnsPerRow);
+  return chunk(rows, rowsPerChunk);
+};
 
 export const createImportPlan = memoize(model => {
   const relationTree = propertyPathsToTree(model.includedSyncRelations);
@@ -29,82 +39,141 @@ const createImportPlanInner = (model, relationTree, foreignKey) => {
   return { model, columns, children, foreignKey };
 };
 
-export const executeImportPlan = async (plan, channel, syncRecord) => {
+export const executeImportPlan = async (plan, channel, syncRecords) => {
+  const { model } = plan;
   let parentId = null;
   if (plan.foreignKey) {
-    parentId = plan.model.syncParentIdFromChannel(channel);
+    parentId = model.syncParentIdFromChannel(channel);
     if (!parentId) {
-      throw new Error('Must provide parentId for models like ${plan.model.name} with syncParentIdKey set');
-    }
-  }
-  return plan.model.sequelize.transaction(async () => executeImportPlanInner(plan, syncRecord, parentId))
-};
-
-const executeImportPlanInner = async (
-  { model, columns, children, foreignKey },
-  syncRecord,
-  parentId = null,
-) => {
-  const { data, isDeleted } = syncRecord;
-  let { id } = data;
-  // if we're on the client, a missing ID is an error
-  // on the server, we just generate one - continue on
-  if (model.syncClientMode && !id) {
-    throw new Error('executeImportPlan: record id was missing');
-  }
-
-  if (isDeleted) {
-    if (model.syncClientMode) {
-      // delete tombstones if we're in client mode
-      const record = await model.findByPk(id);
-      await record?.destroy();
-    } else {
-      // mark them deleted if we're in server mode
-      // this case shouldn't be hit under normal use
-      await model.update(
-        {
-          deletedAt: Sequelize.literal('CURRENT_TIMESTAMP'),
-          updatedAt: Sequelize.literal('CURRENT_TIMESTAMP'),
-        },
-        {
-          where: { id },
-          paranoid: false,
-        },
+      throw new Error(
+        `Must provide parentId for models like ${model.name} with syncParentIdKey set`,
       );
     }
-    return;
   }
 
-  // use only allowed columns
-  let values = pick(data, ...columns);
-  if (foreignKey) {
-    values[foreignKey] = parentId || null;
-  }
-  values.pulledAt = new Date();
+  return model.sequelize.transaction(async () => {
+    // split records into create, update, delete
+    const idsForDelete = syncRecords.filter(r => r.isDeleted).map(r => r.data.id);
+    const idsForUpsert = syncRecords.filter(r => !r.isDeleted && r.data.id).map(r => r.data.id);
+    const existing = await model.findByIds(idsForUpsert);
+    const existingIdSet = new Set(existing.map(e => e.id));
+    const recordsForCreate = syncRecords
+      .filter(r => !r.isDeleted && !existingIdSet.has(r.data.id))
+      .map(r => r.data);
+    const recordsForUpdate = syncRecords
+      .filter(r => !r.isDeleted && existingIdSet.has(r.data.id))
+      .map(r => r.data);
 
-  // on the server, remove null or undefined fields
-  if (!model.syncClientMode) {
-    values = pickBy(values, value => value !== undefined && value !== null);
+    // run each import process
+    const createSuccessCount = await executeCreates(plan, recordsForCreate);
+    const updateSuccessCount = await executeUpdates(plan, recordsForUpdate);
+    const deleteSuccessCount = await executeDeletes(plan, idsForDelete);
+
+    // return count of successes
+    return createSuccessCount + updateSuccessCount + deleteSuccessCount;
+  });
+};
+
+const executeDeletes = async (importPlan, idsForDelete) => {
+  const { model } = importPlan;
+
+  // delete tombstones if we're in client mode
+  if (model.syncClientMode) {
+    const deleteCount = await model.destroy({ where: { id: { [Op.in]: idsForDelete } } });
+    return deleteCount;
   }
 
-  // sequelize upserts don't work because they insert before update - hack to work around this
-  // this could cause a race condition if anything but SyncManager does it, or if two syncs run at once!
-  // see also: https://github.com/sequelize/sequelize/issues/5711
-  let numUpdated = 0;
-  if (id) {
-    // only try updating a model we have an id for - otherwise, it's definitely an insert
-    numUpdated = (await model.update(values, { where: { id } }))[0];
-  }
-  if (numUpdated === 0) {
-    const createdRecord = await model.create(values);
-    id = createdRecord.id;
+  // mark them deleted if we're in server mode
+  // this case shouldn't be hit under normal use
+  const [deleteCount] = await model.update(
+    {
+      deletedAt: Sequelize.literal('CURRENT_TIMESTAMP'),
+      updatedAt: Sequelize.literal('CURRENT_TIMESTAMP'),
+    },
+    {
+      where: {
+        id: {
+          [Op.in]: idsForDelete,
+        },
+      },
+      paranoid: false,
+    },
+  );
+  return deleteCount;
+};
+
+const executeCreates = async (importPlan, records) => {
+  // ensure all records have ids
+  const recordsWithIds = records.map(data => {
+    if (data.id) return data;
+    // if we're on the client, a missing ID is an error
+    if (importPlan.syncClientMode) {
+      throw new Error('executeImportPlan: record id was missing');
+    }
+    // on the server, we just generate one now, so we can easily pass correct parent ids during
+    // bulk create of children later
+    return { ...data, id: importPlan.model.generateId() };
+  });
+  return executeUpdateOrCreates(importPlan, recordsWithIds, model => async rows =>
+    model.bulkCreate(rows),
+  );
+};
+
+const executeUpdates = async (importPlan, records) =>
+  executeUpdateOrCreates(importPlan, records, model => async rows => {
+    await Promise.all(rows.map(async row => model.update(row, { where: { id: row.id } })));
+    return rows;
+  });
+
+const executeUpdateOrCreates = async (
+  { model, columns, children },
+  records,
+  buildUpdateOrCreateFn,
+) => {
+  if (records.length === 0) {
+    return 0;
   }
 
-  for (const [relationName, plan] of Object.entries(children)) {
-    if (data[relationName]) {
-      for (const childRecord of data[relationName]) {
-        await executeImportPlanInner(plan, childRecord, id);
-      }
+  const updateOrCreateFn = buildUpdateOrCreateFn(model);
+
+  const rows = records.map(data => {
+    // use only allowed columns
+    let values = pick(data, ...columns);
+    values.pulledAt = new Date();
+
+    // on the server, remove null or undefined fields
+    if (!model.syncClientMode) {
+      values = pickBy(values, value => value !== undefined && value !== null);
+    }
+
+    return values;
+  });
+
+  for (const batchOfRows of chunkRows(rows)) {
+    await updateOrCreateFn(batchOfRows);
+  }
+
+  for (const [relationName, relationPlan] of Object.entries(children)) {
+    const { foreignKey } = relationPlan;
+
+    const childRecords = flatten(
+      // eslint-disable-next-line no-loop-func
+      records.map(data => {
+        const childrenOfRecord = data[relationName];
+        if (!childrenOfRecord) {
+          return [];
+        }
+
+        return childrenOfRecord.map(child => ({
+          ...child,
+          [foreignKey]: data.id,
+        }));
+      }),
+    );
+    if (childRecords) {
+      await executeUpdateOrCreates(relationPlan, childRecords, buildUpdateOrCreateFn);
     }
   }
+
+  return records.length; // TODO return actual number of successful upserts
 };

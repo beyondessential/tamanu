@@ -34,9 +34,7 @@ export class SyncManager {
   async pullAndImportChannel(model, channel) {
     const plan = createImportPlan(model);
     const importRecords = async syncRecords => {
-      for (const syncRecord of syncRecords) {
-        await executeImportPlan(plan, channel, syncRecord);
-      }
+      await executeImportPlan(plan, channel, syncRecords);
     };
 
     let cursor = await this.getChannelPullCursor(channel);
