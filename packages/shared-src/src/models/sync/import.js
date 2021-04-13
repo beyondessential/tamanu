@@ -165,7 +165,7 @@ const executeUpdateOrCreates = async (
         }
 
         return childrenOfRecord.map(child => ({
-          ...child,
+          ...child.data,
           [foreignKey]: data.id,
         }));
       }),
