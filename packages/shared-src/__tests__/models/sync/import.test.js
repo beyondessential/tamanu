@@ -120,7 +120,7 @@ describe('import', () => {
 
           // act
           const plan = createImportPlan(model);
-          await executeImportPlan(plan, channel, toSyncRecord(record));
+          await executeImportPlan(plan, channel, [toSyncRecord(record)]);
 
           // assert
           const dbRecord = await model.findByPk(record.id, options);
@@ -143,7 +143,7 @@ describe('import', () => {
 
           // act
           const plan = createImportPlan(model);
-          await executeImportPlan(plan, channel, toSyncRecord(newRecord));
+          await executeImportPlan(plan, channel, [toSyncRecord(newRecord)]);
 
           // assert
           const dbRecord = await model.findByPk(oldRecord.id, options);
@@ -162,7 +162,7 @@ describe('import', () => {
 
           // act
           const plan = createImportPlan(model);
-          await executeImportPlan(plan, channel, { ...toSyncRecord(record), isDeleted: true });
+          await executeImportPlan(plan, channel, [{ ...toSyncRecord(record), isDeleted: true }]);
 
           // assert
           const dbRecord = await model.findByPk(record.id, options);
@@ -193,7 +193,7 @@ describe('import', () => {
 
       // act
       const plan = createImportPlan(Patient);
-      await executeImportPlan(plan, channel, toSyncRecord(newPatient));
+      await executeImportPlan(plan, channel, [toSyncRecord(newPatient)]);
 
       // assert
       const dbPatient = await Patient.findByPk(oldPatient.id);
