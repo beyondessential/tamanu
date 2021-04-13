@@ -3,7 +3,7 @@ import { pick, lowerFirst } from 'lodash';
 import { shouldPush } from './sync';
 import { SYNC_DIRECTIONS } from 'shared/constants';
 
-export const { Sequelize, Op, Utils } = sequelize;
+const { Sequelize, Op, Utils } = sequelize;
 
 const firstLetterLowercase = s => (s[0] || '').toLowerCase() + s.slice(1);
 
