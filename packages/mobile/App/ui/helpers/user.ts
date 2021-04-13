@@ -1,5 +1,7 @@
 export function getUserInitials(username: string): string {
-  return `${username.split(' ')[0][0]}${username.split(' ')[1][0]}`;
+  const [firstName, ...restOfNames] = username.split(' ');
+  const lastName = restOfNames.length > 0 && restOfNames[restOfNames.length - 1];
+  return `${firstName[0]}${lastName ? lastName[0] : ''}`;
 }
 
 interface NameProps {
