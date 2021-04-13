@@ -170,8 +170,13 @@ const executeUpdateOrCreates = async (
         }));
       }),
     );
-    if (childRecords) {
-      await executeUpdateOrCreates(relationPlan, childRecords, buildUpdateOrCreateFn);
+    if (childRecords && childRecords.length > 0) {
+      const existing = await relationPlan.model.findByIds(childRecords.map(r => r.id));
+      const existingIdSet = new Set(existing.map(e => e.id));
+      const recordsForCreate = childRecords.filter(r => !existingIdSet.has(r.id));
+      const recordsForUpdate = childRecords.filter(r => existingIdSet.has(r.id));
+      await executeCreates(relationPlan, recordsForCreate);
+      executeUpdates(relationPlan, recordsForUpdate);
     }
   }
 
