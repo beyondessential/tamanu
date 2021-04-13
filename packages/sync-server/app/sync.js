@@ -101,15 +101,10 @@ syncRoutes.post(
         return executeImportPlan(plan, channel, records);
       };
 
-      if (Array.isArray(body)) {
-        const count = await upsert(body);
-        log.info(`POST to ${channel} : ${count} records`);
-        res.send({ count });
-      } else {
-        log.info(`POST to ${channel} : 1 record`);
-        const count = await upsert(body);
-        res.send({ count, requestedAt });
-      }
+      const syncRecords = Array.isArray(body) ? body : [body];
+      const count = await upsert(syncRecords);
+      log.info(`POST to ${channel} : ${count} records`);
+      res.send({ count, requestedAt });
     });
   }),
 );
