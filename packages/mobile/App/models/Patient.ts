@@ -1,4 +1,4 @@
-import { Entity, Column, OneToMany } from 'typeorm/browser';
+import { Entity, Column, OneToMany, Index } from 'typeorm/browser';
 import { getUniqueId } from 'react-native-device-info';
 import { addHours, startOfDay, subYears } from 'date-fns';
 import { readConfig } from '~/services/config';
@@ -37,6 +37,7 @@ export class Patient extends BaseModel implements IPatient {
   @Column()
   sex: string;
 
+  @Index()
   @NullableReferenceDataRelation()
   village?: ReferenceData;
   @IdRelation()
