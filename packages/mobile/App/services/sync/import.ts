@@ -25,10 +25,6 @@ export type ImportResponse = {
   failures: ImportFailure[];
 };
 
-interface UpsertableSyncRecord extends SyncRecord {
-  parentId?: string;
-}
-
 /*
  *   createImportPlan
  *
@@ -118,8 +114,8 @@ const executeDeletes = async (
 };
 
 const executeUpdateOrCreates = async (
-  { model, parentField, fromSyncRecord, children }: ImportPlan,
-  syncRecords: UpsertableSyncRecord[],
+  { model, fromSyncRecord, children }: ImportPlan,
+  syncRecords: SyncRecord[],
   buildUpdateOrCreateFn: Function,
 ): Promise<ImportResponse> => {
   if (syncRecords.length === 0) {
@@ -131,7 +127,6 @@ const executeUpdateOrCreates = async (
       ...fromSyncRecord(sr),
       markedForUpload: false,
     };
-    if (parentField) row[parentField] = sr.parentId;
     return row;
   });
 
@@ -153,9 +148,11 @@ const executeUpdateOrCreates = async (
   }
 
   for (const [relationName, relationPlan] of Object.entries(children)) {
-    const childRecords: UpsertableSyncRecord[] = flatten(syncRecords
+    const childRecords: SyncRecord[] = flatten(syncRecords
       .map(sr => (sr.data[relationName] || [])
-        .map(child => ({ ...child, parentId: sr.data.id, parent: sr.data }))));
+        .map(child => ({
+          ...child,
+          data: { ...child.data, [relationPlan.parentField]: sr.data.id } }))));
     if (childRecords) {
       const { failures: childFailures } = await executeUpdateOrCreates(
         relationPlan,
