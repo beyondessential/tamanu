@@ -26,6 +26,7 @@ export const VillageSection = (): ReactElement => {
     },
   );
 
+  // uses new IdRelation decorator on model, so the field is `villageId` and not `village`
   return (
     <Section title="Village">
       <StyledView
@@ -39,7 +40,7 @@ export const VillageSection = (): ReactElement => {
           navigation={navigation}
           suggester={villageSuggester}
           modalRoute={Routes.Autocomplete.Modal}
-          name="village"
+          name="villageId"
         />
       </StyledView>
     </Section>

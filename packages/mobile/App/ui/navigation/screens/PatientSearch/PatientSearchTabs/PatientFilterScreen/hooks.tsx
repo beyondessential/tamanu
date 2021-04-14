@@ -6,11 +6,12 @@ export const useFilterFields = () => {
   const dateOfBirth = useField('dateOfBirth');
   const firstName = useField('firstName');
   const lastName = useField('lastName');
-  const village = useField('village');
+  // uses new IdRelation decorator on model, so the field is `villageId` and not `village`
+  const villageId = useField('villageId');
 
   const fields = useMemo(
-    () => [sex, dateOfBirth, firstName, lastName, village],
-    [sex[1].value, dateOfBirth[1].value, firstName[1].value, lastName[1].value, village[1].value],
+    () => [sex, dateOfBirth, firstName, lastName, villageId],
+    [sex[1].value, dateOfBirth[1].value, firstName[1].value, lastName[1].value, villageId[1].value],
   );
 
   return fields;
