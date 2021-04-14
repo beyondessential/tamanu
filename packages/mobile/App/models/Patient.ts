@@ -1,8 +1,8 @@
-import { Entity, Column, OneToMany, RelationId } from 'typeorm/browser';
+import { Entity, Column, OneToMany } from 'typeorm/browser';
 import { getUniqueId } from 'react-native-device-info';
 import { addHours, startOfDay, subYears } from 'date-fns';
 import { readConfig } from '~/services/config';
-import { BaseModel } from './BaseModel';
+import { BaseModel, IdRelation } from './BaseModel';
 import { Encounter } from './Encounter';
 import { PatientIssue } from './PatientIssue';
 import { IPatient, IPatientAdditionalData } from '~/types';
@@ -39,7 +39,7 @@ export class Patient extends BaseModel implements IPatient {
 
   @NullableReferenceDataRelation()
   village?: ReferenceData;
-  @RelationId(({ village }) => village)
+  @IdRelation()
   villageId?: string | null;
 
   @OneToMany(() => PatientAdditionalData, additionalData => additionalData.patient)
