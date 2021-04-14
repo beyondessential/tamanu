@@ -109,10 +109,12 @@ const executeDeletes = async (
     // if records don't exist, it will just ignore them rather than throwing an error
     await model.delete(recordIds);
   } catch (e) {
-    return { failures: recordIds.map(id => ({
-      error: `Delete failed with ${e.message}`,
-      recordId: id,
-    })) };
+    return {
+      failures: recordIds.map(id => ({
+        error: `Delete failed with ${e.message}`,
+        recordId: id,
+      }))
+    };
   }
   return { failures: [] };
 };
@@ -196,31 +198,39 @@ const executeUpdates = async (
  *    Output: a function that will convert a SyncRecord into an object matching that model
  */
 const buildFromSyncRecord = (model: typeof BaseModel): (syncRecord: SyncRecord) => object => {
+  const { metadata } = model.getRepository();
+
+  // find columns to include
   const includedColumns = extractIncludedColumns(model);
+  // populate `fieldMapping` with `RelationId` to `Relation` mappings (not necessary for `IdRelation`)
+  const fieldMapping = getRelationIdsFieldMapping(model);
 
   return ({ data }: SyncRecord): object => {
-    const dbRecord = stripIdSuffixes(pick(data, includedColumns));
+    const dbRecord = mapFields(fieldMapping, pick(data, includedColumns));
     return dbRecord;
   };
 };
 
-const stripId = (key: string | any): string => {
-  if (typeof key !== 'string' || key === 'displayId' || key === 'deviceId') {
-    return key;
+/*
+ *    mapFields
+ *
+ *      Input: [['fooId', 'foo']], { fooId: '123abc' }
+ *      Ouput: { foo: '123abc' }
+ */
+export const mapFields = (mapping: [string, string][], obj: { [key: string]: any }) => {
+  const newObj = { ...obj };
+  for (const [fromKey, toKey] of mapping) {
+    delete newObj[fromKey];
+    if (obj.hasOwnProperty(fromKey)) {
+      newObj[toKey] = obj[fromKey];
+    }
   }
-  return key.replace(/Id$/, '');
+  return newObj;
 };
 
-/*
- *   stripIdSuffixes
- *
- *    TypeORM expects foreign key writes to be done against just the bare name
- *    of the relation, rather than "relationId", but the data is all serialised
- *    as "relationId" - this just strips the "Id" suffix from any fields that
- *    have them. It's a bit of a blunt instrument, but, there you go.
- */
-const stripIdSuffixes = (data: object): object => Object.entries(data)
-  .reduce((state, [key, value]) => ({
-    ...state,
-    [stripId(key)]: value,
-  }), {});
+export const getRelationIdsFieldMapping = (model: typeof BaseModel) =>
+  model
+    .getRepository()
+    .metadata
+    .relationIds
+    .map((rid): [string, string] => [rid.propertyName, rid.relation.propertyName]);
