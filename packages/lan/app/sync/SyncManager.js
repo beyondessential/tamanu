@@ -25,12 +25,12 @@ const calculateDynamicLimit = (currentLimit, pullTime) => {
   newLimit = Math.max(
     newLimit,
     MIN_PULL_LIMIT,
-    Math.floor(newLimit - newLimit * MAX_LIMIT_CHANGE_PER_BATCH),
+    Math.floor(currentLimit - currentLimit * MAX_LIMIT_CHANGE_PER_BATCH),
   );
   newLimit = Math.min(
     newLimit,
     MAX_PULL_LIMIT,
-    Math.floor(newLimit + newLimit * MAX_LIMIT_CHANGE_PER_BATCH),
+    Math.floor(currentLimit + currentLimit * MAX_LIMIT_CHANGE_PER_BATCH),
   );
   return newLimit;
 };
