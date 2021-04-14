@@ -24,6 +24,7 @@ function getAnswerText(question, answer): string | number {
       return typeof answer === 'number' ? answer.toFixed(1) : answer;
     case FieldTypes.TEXT:
     case FieldTypes.SELECT:
+    case FieldTypes.MULTI_SELECT:
     case FieldTypes.RESULT:
     case FieldTypes.RADIO:
     case FieldTypes.CONDITION:

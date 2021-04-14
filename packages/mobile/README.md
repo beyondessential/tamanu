@@ -130,7 +130,7 @@ All you have to do is download the tools and open them while running while devel
 
 We use a modified version of semver. The major and minor act as usual, but the patch increments forever, rather than getting reset to 0 every minor bump. This gives us a monotonic "build number" we can use as the Google Play Store version.
 
-To bump the version, edit it in `package.json`, and remember to increment the patch monotonically no matter what other changes are made.
+To bump the version, edit it in `package.json`, and remember to increment the patch monotonically no matter what other changes are made. Any minor bump should have an accompanying release of the sync server, with a matching bump to `SUPPORTED_CLIENT_VERSIONS`
 
 #### Internal distribution
 

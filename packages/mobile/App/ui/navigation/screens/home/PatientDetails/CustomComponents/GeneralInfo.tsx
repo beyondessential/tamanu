@@ -12,7 +12,7 @@ import { DateFormats } from '/helpers/constants';
 export const GeneralInfo = (
   data: PatientGeneralInformationDataProps,
 ): ReactElement => {
-  const chance = new Chance(data.generalInfo.id); // seed random with user id for reproducible values
+  // const chance = new Chance(data.generalInfo.id); // seed random with user id for reproducible values
 
   const fields = [
     ['First name', data.generalInfo.firstName],
@@ -22,16 +22,16 @@ export const GeneralInfo = (
     ['Cultural/tradition name', data.generalInfo.culturalName || 'None'],
 
     ['Date of Birth', formatDate(new Date(data.generalInfo.dateOfBirth), DateFormats.DDMMYY)],
-    ['Blood type', `${chance.pickone(['A', 'B', 'AB', 'O'])}${chance.pickone(['+', '-'])}`],
-
-    ['Residential address', `${chance.address()}, ${chance.city()}, Fiji`],
-    ['Contact number', `${chance.phone({ formatted: false }).slice(0, 3)} ${chance.phone({ formatted: false }).slice(0, 4)}`],
-
-    ['Social media platform', chance.pickone(['Facebook', 'Instagram', 'LinkedIn', 'Twitter', 'Viber', 'Whatsapp'])],
-    ['Social media name', `@${chance.animal().replace(/[^a-zA-Z]/g, '')}${chance.natural({ min: 0, max: 99, exclude: [69] })}`],
-
-    ['Email', chance.email()],
     ['Village', data.generalInfo.village?.name ?? ''],
+
+    /*
+       ['Blood type', `${chance.pickone(['A', 'B', 'AB', 'O'])}${chance.pickone(['+', '-'])}`],
+       ['Residential address', `${chance.address()}, ${chance.city()}, Fiji`],
+       ['Contact number', `${chance.phone({ formatted: false }).slice(0, 3)} ${chance.phone({ formatted: false }).slice(0, 4)}`],
+       ['Social media platform', chance.pickone(['Facebook', 'Instagram', 'LinkedIn', 'Twitter', 'Viber', 'Whatsapp'])],
+       ['Social media name', `@${chance.animal().replace(/[^a-zA-Z]/g, '')}${chance.natural({ min: 0, max: 99, exclude: [69] })}`],
+       ['Email', chance.email()],
+     */
   ];
 
   const rows = chunk(fields, 2);
