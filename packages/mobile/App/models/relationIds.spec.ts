@@ -2,8 +2,13 @@ import { Database } from '~/infra/db';
 import { BaseModel } from '~/models/BaseModel';
 import { MODELS_ARRAY, MODELS_MAP } from '~/models/modelsMap';
 
-const verifyModelHasRelationIdPerManyToOneRelation = (model: typeof BaseModel): string[] => {
-  const { relationIds, manyToOneRelations, oneToOneRelations } = model.getRepository().metadata;
+const verifyModelHasIdsForRelations = (model: typeof BaseModel): string[] => {
+  const { relationIds, columns, manyToOneRelations, oneToOneRelations } = model.getRepository().metadata;
+
+  const columnsIndex = columns.reduce((memo, column) => ({
+    ...memo,
+    [column.propertyName]: column,
+  }), {});
 
   const relationIdsIndex = relationIds.reduce((memo, relationId) => ({
     ...memo,
@@ -13,14 +18,14 @@ const verifyModelHasRelationIdPerManyToOneRelation = (model: typeof BaseModel): 
   return [
     ...manyToOneRelations.map(relation => {
       const idPath = `${relation.propertyPath}Id`;
-      if (!relationIdsIndex[idPath]) {
-        return `many-to-one relation "${relation.propertyPath}" needs a corresponding "@RelationId() ${idPath}: string;" property`;
+      if (!relationIdsIndex[idPath] && !columnsIndex[idPath]) {
+        return `many-to-one relation "${relation.propertyPath}" needs a corresponding @RelationId()/@IdRelation()/@Column definition and a "${idPath}: string;" property`;
       }
     }),
     ...oneToOneRelations.map(relation => {
       const idPath = `${relation.propertyPath}Id`;
-      if (relation.isOneToOneOwner && !relationIdsIndex[idPath]) {
-        return `one-to-one relation "${relation.propertyPath}" needs a corresponding "@RelationId() ${idPath}: string;" property`;
+      if (relation.isOneToOneOwner && !relationIdsIndex[idPath] && !columnsIndex[idPath]) {
+        return `one-to-one relation "${relation.propertyPath}" needs a corresponding @RelationId()/@IdRelation()/@Column definition and a "${idPath}: string;" property`;
       }
     }),
   ];
@@ -28,7 +33,7 @@ const verifyModelHasRelationIdPerManyToOneRelation = (model: typeof BaseModel): 
 
 const verifyModel = (model: typeof BaseModel): string[] | null => {
   return [
-    ...verifyModelHasRelationIdPerManyToOneRelation(model),
+    ...verifyModelHasIdsForRelations(model),
   ];
 }
 

@@ -4,8 +4,17 @@ import {
   Orientation,
 } from '/helpers/screen';
 import { theme } from '/styled/theme';
-import { Button } from '../Button';
 import { useNavigation } from '@react-navigation/native';
+import { Button } from '../Button';
+import { Suggester, BaseModelSubclass } from '~/ui/helpers/suggester';
+
+interface AutocompleteModalFieldProps {
+  value?: string;
+  placeholder?: string;
+  onChange: (newValue: string) => void;
+  suggester: Suggester<BaseModelSubclass>;
+  modalRoute: string;
+}
 
 export const AutocompleteModalField = ({
   value,
@@ -13,7 +22,7 @@ export const AutocompleteModalField = ({
   onChange,
   suggester,
   modalRoute,
-}): JSX.Element => {
+}: AutocompleteModalFieldProps): JSX.Element => {
   const navigation = useNavigation();
   const [label, setLabel] = useState(placeholder);
   const onPress = (selectedItem): void => {
@@ -27,10 +36,11 @@ export const AutocompleteModalField = ({
   });
 
   useEffect(() => {
-    if (!value || !suggester) return;
+    if (!suggester) return;
     (async (): Promise<void> => {
       const data = await suggester.fetchCurrentOption(value);
       if (data) setLabel(data.label);
+      else setLabel(placeholder);
     })();
   }, [value]);
 

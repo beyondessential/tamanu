@@ -22,7 +22,9 @@ export interface ISurveyScreenComponent {
   required: boolean;
 
   survey?: ISurvey;
+  surveyId?: string;
   dataElement?: IProgramDataElement;
+  dataElementId?: string;
 
   screenIndex?: number;
   componentIndex?: number;

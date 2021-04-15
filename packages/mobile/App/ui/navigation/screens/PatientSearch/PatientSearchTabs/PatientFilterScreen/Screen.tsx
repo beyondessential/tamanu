@@ -17,6 +17,7 @@ import {
   KeywordSection,
   SortBySection,
   OnlyShowOptions,
+  VillageSection
 } from './CustomComponents';
 import SubmitSection from './CustomComponents/SubmitSection';
 import { Orientation, screenPercentageToDP } from '/helpers/screen';
@@ -85,6 +86,7 @@ export const Screen = ({
         <SexSection />
         <DateSection />
         <NameSection />
+        <VillageSection />
         <SubmitSection onSubmit={onSubmit} />
       </FullView>
     </StyledScrollView>
