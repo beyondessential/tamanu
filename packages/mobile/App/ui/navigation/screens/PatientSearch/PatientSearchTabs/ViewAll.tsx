@@ -73,8 +73,8 @@ const applyActiveFilters = (
   // Must match ONE of following lines entirely. ([{a}, {b}] is OR, [{a, b}] is AND)
   // Note also that the filters can override 'firstName' for example, (making the search field irrelevant?)
   where: [
-    { firstName: Like(`%${value}%`), ...filters },
     { displayId: Like(`%${value}%`), ...filters },
+    { firstName: Like(`%${value}%`), ...filters },
     { middleName: Like(`%${value}%`), ...filters },
     { lastName: Like(`%${value}%`), ...filters },
     { culturalName: Like(`%${value}%`), ...filters },
