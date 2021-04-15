@@ -1,6 +1,6 @@
 import { Entity, Column, ManyToOne, BeforeUpdate, BeforeInsert, RelationId } from 'typeorm/browser';
 import { BaseModel } from './BaseModel';
-import { IAdministeredVaccine } from '~/types';
+import { IAdministeredVaccine, InjectionSiteType } from '~/types';
 import { Encounter } from './Encounter';
 import { ScheduledVaccine } from './ScheduledVaccine';
 
@@ -15,6 +15,9 @@ export class AdministeredVaccine extends BaseModel implements IAdministeredVacci
   @Column({ nullable: true })
   reason?: string;
 
+  @Column({ type: 'varchar', nullable: true }) // <- QUESTION: other enums specify 'text' or 'type: varchar'. Why, and should we?
+  injectionSite?: InjectionSiteType;
+  
   @Column({ nullable: true })
   location?: string;
 
