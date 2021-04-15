@@ -20,3 +20,12 @@ export enum InjectionSiteType {
   Oral = 'Oral',
   Other = 'Other',
 }
+
+export const INJECTION_SITE_OPTIONS = [
+  InjectionSiteType.LeftArm,
+  InjectionSiteType.RightArm,
+  InjectionSiteType.LeftThigh,
+  InjectionSiteType.RightThigh,
+  InjectionSiteType.Oral,
+  InjectionSiteType.Other,
+];
