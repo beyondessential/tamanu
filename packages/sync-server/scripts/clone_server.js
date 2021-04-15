@@ -29,7 +29,9 @@ const CHANNELS = [
   'survey',
   'surveyScreenComponent',
 ];
-const PATIENT_CHANNELS = ['encounter'];
+const PATIENT_CHANNELS = [
+  'encounter',
+];
 
 async function asyncSleep(ms) {
   return new Promise(resolve => {
@@ -42,11 +44,12 @@ async function fetchChannel(channel) {
   console.log(`fetching ${channel}:`);
   let count = null;
   let records = [];
-  let page = 0;
+  let nextCursor = '0;asdfsdaf';
+  let lastCursor = '';
   do {
     const url = `${fromUrl}/v1/sync/${encodeURIComponent(
       channel,
-    )}?since=0&limit=${DOWN_LIMIT}&page=${page}`;
+    )}?since=${nextCursor.split(';')[0]}&limit=${DOWN_LIMIT}`;
     console.log(`  <- GET ${url}`);
     const response = await fetch(url, {
       headers: HEADERS,
@@ -57,9 +60,10 @@ async function fetchChannel(channel) {
     }
     const json = await response.json();
     count = json.records.length;
+    lastCursor = nextCursor;
+    nextCursor = json.cursor;
     records = [...records, ...json.records];
-    page++;
-  } while (count > 0);
+  } while (lastCursor !== nextCursor);
   return records;
 }
 
@@ -108,6 +112,9 @@ async function copyChannel(channel) {
 
   // upload
   console.log(`fetched ${results.length} records, uploading`);
+  // const seenIds = []; // For use if there are duplicate id errors
+  // const filteredResults = results.filter(({ data }) => seenIds.includes(data.id) ? false : seenIds.push(data.id) || true);
+
   await sendToChannel(channel, results);
 
   // delete
