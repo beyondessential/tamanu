@@ -31,6 +31,7 @@ const REPORT_TYPE_OPTIONS = [
   { label: 'COVID vaccine campaign - First dose summary', value: 'covid-vaccine-summary-dose1' },
   { label: 'COVID vaccine campaign - Second dose summary', value: 'covid-vaccine-summary-dose2' },
   { label: 'Adverse Event Following Immunization', value: 'aefi' },
+  { label: 'Samoa Adverse Event Following Immunisation', value: 'samoa-aefi' },
 ];
 
 const Spacer = styled.div`
@@ -113,6 +114,7 @@ const ParametersByReportType = {
   'covid-vaccine-summary-dose1': [],
   'covid-vaccine-summary-dose2': [],
   aefi: [{ ParameterField: VillageField }],
+  'samoa-aefi': [{ ParameterField: VillageField }],
 };
 
 const DefaultDataSource = {
