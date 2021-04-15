@@ -6,7 +6,7 @@ export interface IAdministeredVaccine {
   location?: string;
   injectionSite?: InjectionSiteType;
   reason?: string;
-  scheduledVaccine?: IScheduledVaccine; // Not sure when this could be null?
+  scheduledVaccine?: IScheduledVaccine;
   scheduledVaccineId?: string,
   batch?: string;
   status: string;

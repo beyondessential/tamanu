@@ -15,7 +15,7 @@ export class AdministeredVaccine extends BaseModel implements IAdministeredVacci
   @Column({ nullable: true })
   reason?: string;
 
-  @Column({ type: 'varchar', nullable: true }) // <- QUESTION: other enums specify 'text' or 'type: varchar'. Why, and should we?
+  @Column({ type: 'varchar', nullable: true })
   injectionSite?: InjectionSiteType;
   
   @Column({ nullable: true })
