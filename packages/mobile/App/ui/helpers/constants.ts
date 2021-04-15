@@ -3,6 +3,7 @@ import * as Icons from '/components/Icons';
 import { theme } from '/styled/theme';
 import { VaccineStatus } from '/helpers/patient';
 import { ColorHelper } from './colors';
+import { FC } from 'react';
 
 export const DateFormats = {
   short: 'EEE, dd MMM',
@@ -127,7 +128,16 @@ export const userRolesOptions = [
   practitionerRole,
 ];
 
-export const VaccineStatusCells = {
+type VaccineStatusCellsType = {
+  [key in VaccineStatus]: {
+    Icon: FC<any>;
+    background: string;
+    color: string;
+    text: string;
+  };
+};
+
+export const VaccineStatusCells: VaccineStatusCellsType = {
   [VaccineStatus.UNKNOWN]: {
     Icon: Icons.EmptyCircleIcon,
     background: 'transparent',

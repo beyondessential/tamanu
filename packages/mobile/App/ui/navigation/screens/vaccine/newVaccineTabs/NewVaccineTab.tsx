@@ -14,6 +14,7 @@ import {
 } from '/styled/common';
 import {
   VaccineForm,
+  VaccineFormValues,
   SubmitButtonsProps,
 } from '/components/Forms/VaccineForms';
 import { theme } from '/styled/theme';
@@ -24,6 +25,7 @@ import { Orientation, screenPercentageToDP } from '/helpers/screen';
 import { useBackend } from '~/ui/hooks';
 import { IPatient } from '~/types';
 import { authUserSelector } from '~/ui/helpers/selectors';
+import { VaccineStatus } from '~/ui/helpers/patient';
 
 const SubmitButtons = ({
   onSubmit,
@@ -77,8 +79,7 @@ export const NewVaccineTabComponent = ({
 
   const { models } = useBackend();
   const recordVaccination = useCallback(
-    async (values: any): Promise<any> => {
-      const { reason, batch, status, date, scheduledVaccineId } = values;
+    async (values: VaccineFormValues): Promise<void> => {
       const encounter = await models.Encounter.getOrCreateCurrentEncounter(
         selectedPatient.id,
         user.id,
@@ -117,8 +118,8 @@ export const NewVaccineTabComponent = ({
             onSubmit={recordVaccination}
             onCancel={onPressCancel}
             SubmitButtons={SubmitButtons}
-            initialValues={{ ...vaccine, ...(administeredVaccine || {}) }}
-            status={route.key}
+            initialValues={{ ...vaccine, ...administeredVaccine }}
+            status={route.key as VaccineStatus}
           />
         </ScrollView>
       </StyledSafeAreaView>
