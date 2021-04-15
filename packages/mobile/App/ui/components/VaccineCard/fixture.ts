@@ -9,7 +9,6 @@ export const givenOnTimeProps = {
   type: 'Engerix-B®',
   batch: 'EB155480',
   manufacture: 'Vaccine AJV',
-  administered: 'Sarah De connick',
 };
 
 export const notGivenProps = {
@@ -18,5 +17,4 @@ export const notGivenProps = {
   subtitle: '(Tuberculosis)',
   dateType: 'Birth',
   date: new Date('04/22/2019'),
-  administered: 'Sarah De connick',
 };

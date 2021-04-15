@@ -16,6 +16,7 @@ import { Dropdown } from '../../Dropdown';
 
 const InjectionSiteDropdown = ({onChange, label}): JSX.Element => {
   return <Dropdown 
+    nullableOption
     options={INJECTION_SITE_OPTIONS.map(o => ({ label: o, value: o }))}
     onChange={onChange}
     multiselect={false}

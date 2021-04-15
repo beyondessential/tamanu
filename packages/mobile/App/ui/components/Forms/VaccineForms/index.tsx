@@ -4,6 +4,7 @@ import { VaccineFormNotGiven } from './VaccineFormNotGiven';
 import { VaccineFormGiven } from './VaccineFormGiven';
 import { FullView } from '/styled/common';
 import { VaccineStatus } from '~/ui/helpers/patient';
+import { InjectionSiteType } from '~/types';
 
 const getFormType = (status: VaccineStatus): { Form: FC<any> } => {
   switch (status) {
@@ -22,9 +23,10 @@ export type SubmitButtonsProps = {
 };
 export type VaccineFormValues = {
   date: Date;
-  administered: string;
   reason?: string;
   batch?: string;
+  injectionSite?: InjectionSiteType;
+  scheduledVaccineId?: string,  
   status: VaccineStatus;
 };
 interface VaccineForm {
@@ -41,7 +43,7 @@ const createInitialValues = (
   date: null,
   reason: null,
   batch: '',
-  administered: null,
+  injectionSite: null,
   ...initialValues,
 });
 
