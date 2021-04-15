@@ -62,8 +62,9 @@ export class SyncManager {
       channels.length === 1
         ? channels // waste of effort to check which need pulling if there's only 1, just pull
         : await this.context.remote.fetchChannelsWithChanges(channelsWithCursors);
+    const channelsToPullSet = new Set(channelsToPull);
     for (const { channel, cursor } of channelsWithCursors) {
-      if (channelsToPull.includes(channel)) {
+      if (channelsToPullSet.has(channel)) {
         await this.pullAndImportChannel(model, channel, cursor);
       }
     }
