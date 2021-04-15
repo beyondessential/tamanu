@@ -17,14 +17,12 @@ export interface DropdownProps extends BaseInputProps {
   multiselect?: boolean;
   label?: string;
   placeholderText?: string;
-  nullableOption?: boolean;
 }
 
 export const Dropdown = React.memo(
   ({
     options,
     onChange,
-    nullableOption = false,
     multiselect = false,
     label = 'Select Items',
     placeholderText = 'Search Items...',
@@ -33,20 +31,12 @@ export const Dropdown = React.memo(
     const componentRef = useRef(null);
     const onSelectedItemsChange = useCallback(
       (items) => {
-        setSelectedItems(items.filter(i => i !== null));
+        setSelectedItems(items);
         onChange(items.join(', ')) // Form submits selected items as comma separated string.
       },
       [selectedItems]
     );
     const filterable = options.length >= MIN_COUNT_FILTERABLE_BY_DEFAULT;
-
-    const displayedOptions = nullableOption ? [
-      {
-        value: null,
-        label: '[ Clear ]',
-      },
-      ...options,
-    ] : options;
 
     return (
       <StyledView
@@ -55,7 +45,7 @@ export const Dropdown = React.memo(
       >
         <MultiSelect
           single={!multiselect}
-          items={displayedOptions}
+          items={options}
           displayKey="label"
           uniqueKey="value"
           ref={componentRef}
