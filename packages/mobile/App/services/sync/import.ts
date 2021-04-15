@@ -1,8 +1,8 @@
-import { pick, memoize, flatten } from 'lodash';
+import { pick, memoize, flatten, chunk } from 'lodash';
 
 import { SyncRecord } from './source';
 import { BaseModel } from '~/models/BaseModel';
-import { chunkRows } from '~/infra/db/helpers';
+import { chunkRows, SQLITE_MAX_PARAMETERS } from '~/infra/db/helpers';
 import { RelationsTree, extractRelationsTree, extractIncludedColumns } from './metadata';
 
 // TODO: handle lazy and/or embedded relations
@@ -24,10 +24,6 @@ export type ImportFailure = {
 export type ImportResponse = {
   failures: ImportFailure[];
 };
-
-interface UpsertableSyncRecord extends SyncRecord {
-  parentId?: string;
-}
 
 /*
  *   createImportPlan
@@ -54,8 +50,11 @@ export const executeImportPlan = async (
 
   // split records into create, update, delete
   const ids = syncRecords.map(r => r.data.id);
-  const existing = await model.findByIds(ids);
-  const existingIdSet = new Set(existing.map(e => e.id));
+  const existingIdSet = new Set();
+  for (const batchOfIds of chunk(ids, SQLITE_MAX_PARAMETERS)) {
+    const batchOfExisting = await model.findByIds(batchOfIds, { select: ['id'] });
+    batchOfExisting.forEach(r => existingIdSet.add(r.id));
+  }
   const recordsForCreate = syncRecords.filter(r => !r.isDeleted && !existingIdSet.has(r.data.id));
   const recordsForUpdate = syncRecords.filter(r => !r.isDeleted && existingIdSet.has(r.data.id));
   const recordsForDelete = syncRecords.filter(r => r.isDeleted);
@@ -120,8 +119,8 @@ const executeDeletes = async (
 };
 
 const executeUpdateOrCreates = async (
-  { model, parentField, fromSyncRecord, children }: ImportPlan,
-  syncRecords: UpsertableSyncRecord[],
+  { model, fromSyncRecord, children }: ImportPlan,
+  syncRecords: SyncRecord[],
   buildUpdateOrCreateFn: Function,
 ): Promise<ImportResponse> => {
   if (syncRecords.length === 0) {
@@ -133,7 +132,6 @@ const executeUpdateOrCreates = async (
       ...fromSyncRecord(sr),
       markedForUpload: false,
     };
-    if (parentField) row[parentField] = sr.parentId;
     return row;
   });
 
@@ -155,9 +153,11 @@ const executeUpdateOrCreates = async (
   }
 
   for (const [relationName, relationPlan] of Object.entries(children)) {
-    const childRecords: UpsertableSyncRecord[] = flatten(syncRecords
+    const childRecords: SyncRecord[] = flatten(syncRecords
       .map(sr => (sr.data[relationName] || [])
-        .map(child => ({ ...child, parentId: sr.data.id, parent: sr.data }))));
+        .map(child => ({
+          ...child,
+          data: { ...child.data, [relationPlan.parentField]: sr.data.id } }))));
     if (childRecords) {
       const { failures: childFailures } = await executeUpdateOrCreates(
         relationPlan,
