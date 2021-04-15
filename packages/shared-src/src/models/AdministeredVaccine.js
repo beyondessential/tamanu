@@ -2,6 +2,14 @@ import { Sequelize } from 'sequelize';
 import { InvalidOperationError } from 'shared/errors';
 import { Model } from './Model';
 
+const INJECTION_SITE_OPTIONS = [
+  'Left arm',
+  'Right arm',
+  'Left thigh',
+  'Right thigh',
+  'Oral',
+  'Other',
+];
 export class AdministeredVaccine extends Model {
   static init({ primaryKey, ...options }) {
     options.validate = {
@@ -26,6 +34,7 @@ export class AdministeredVaccine extends Model {
         },
         reason: Sequelize.STRING,
         location: Sequelize.STRING,
+        injectionSite: Sequelize.ENUM(INJECTION_SITE_OPTIONS),
         date: {
           type: Sequelize.DATE,
           allowNull: false,
