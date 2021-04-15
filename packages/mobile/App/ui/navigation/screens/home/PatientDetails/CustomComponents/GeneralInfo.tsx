@@ -22,19 +22,18 @@ export const GeneralInfo = (
     ['Cultural/tradition name', data.generalInfo.culturalName || 'None'],
 
     ['Date of Birth', formatDate(new Date(data.generalInfo.dateOfBirth), DateFormats.DDMMYY)],
+    ['Village', data.generalInfo.village?.name ?? ''],
 
     /*
-    ['Blood type', `${chance.pickone(['A', 'B', 'AB', 'O'])}${chance.pickone(['+', '-'])}`],
-
-    ['Residential address', `${chance.address()}, ${chance.city()}, Fiji`],
-    ['Contact number', `${chance.phone({ formatted: false }).slice(0, 3)} ${chance.phone({ formatted: false }).slice(0, 4)}`],
-
-    ['Social media platform', chance.pickone(['Facebook', 'Instagram', 'LinkedIn', 'Twitter', 'Viber', 'Whatsapp'])],
-    ['Social media name', `@${chance.animal().replace(/[^a-zA-Z]/g, '')}${chance.natural({ min: 0, max: 99, exclude: [69] })}`],
-
-    ['Email', chance.email()],
-    */
+       ['Blood type', `${chance.pickone(['A', 'B', 'AB', 'O'])}${chance.pickone(['+', '-'])}`],
+       ['Residential address', `${chance.address()}, ${chance.city()}, Fiji`],
+       ['Contact number', `${chance.phone({ formatted: false }).slice(0, 3)} ${chance.phone({ formatted: false }).slice(0, 4)}`],
+       ['Social media platform', chance.pickone(['Facebook', 'Instagram', 'LinkedIn', 'Twitter', 'Viber', 'Whatsapp'])],
+       ['Social media name', `@${chance.animal().replace(/[^a-zA-Z]/g, '')}${chance.natural({ min: 0, max: 99, exclude: [69] })}`],
+       ['Email', chance.email()],
+     */
   ];
+
   const rows = chunk(fields, 2);
   return (
     <StyledView width="100%">

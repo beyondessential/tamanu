@@ -45,3 +45,9 @@ export const ReferenceDataRelation = (): any => ManyToOne(
   undefined,
   { eager: true },
 );
+
+export const NullableReferenceDataRelation = (): any => ManyToOne(
+  () => ReferenceData,
+  undefined,
+  { eager: true, nullable: true },
+);

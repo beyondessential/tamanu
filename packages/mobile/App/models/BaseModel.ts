@@ -42,6 +42,10 @@ function sanitiseForImport<T>(repo: Repository<T>, data: { [key: string]: any })
     }), {});
 }
 
+// This is used instead of @RelationId provided by typeorm, because
+// typeorm's @RelationId causes a O(n^2) operation for every query to that model.
+export const IdRelation = (options = {}): any => Column({ nullable: true, ...options });
+
 export abstract class BaseModel extends BaseEntity {
   @PrimaryColumn()
   @Generated('uuid')

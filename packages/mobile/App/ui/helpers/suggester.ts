@@ -1,4 +1,4 @@
-import { Like } from 'typeorm/browser';
+import { FindManyOptions, Like, ObjectLiteral } from 'typeorm/browser';
 import { BaseModel } from '~/models/BaseModel';
 
 export interface OptionType {
@@ -6,22 +6,30 @@ export interface OptionType {
   value: string;
 }
 
-const defaultFormatter = ({ name, id }): OptionType => ({ label: name, value: id });
+export type BaseModelSubclass = typeof BaseModel;
 
-export class Suggester {
-  model: any;
+interface SuggesterOptions<ModelType> extends FindManyOptions<ModelType> {
+  column: string;
+  where: ObjectLiteral; // Suggester only takes 'where' of type object.
+}
 
-  options: any;
+const defaultFormatter = (model): OptionType => ({ label: model.name, value: model.id });
 
-  formatter: ({ id }) => OptionType;
+export class Suggester<ModelType extends BaseModelSubclass> {
+  model: ModelType;
 
-  constructor(model: BaseModel, options, formatter = defaultFormatter) {
+  options: SuggesterOptions<ModelType>;
+
+  formatter: (entity: BaseModel) => OptionType;
+
+  constructor(model: ModelType, options, formatter = defaultFormatter) {
     this.model = model;
     this.options = options;
+    // If you don't provide a formatter, this assumes that your model has "name" and "id" fields
     this.formatter = formatter;
   }
 
-  async fetch(options): Promise<any> {
+  async fetch(options): Promise<BaseModel[]> {
     const data = await this.model
       .getRepository()
       .find(options);
@@ -29,7 +37,8 @@ export class Suggester {
     return data;
   }
 
-  fetchCurrentOption = async (value: string): Promise<any> => {
+  fetchCurrentOption = async (value: string | null): Promise<OptionType> => {
+    if (!value) return undefined;
     try {
       const data = await this.model
         .getRepository()
@@ -41,7 +50,7 @@ export class Suggester {
     }
   };
 
-  fetchSuggestions = async (search: string): Promise<any> => {
+  fetchSuggestions = async (search: string): Promise<OptionType[]> => {
     const {
       where = {},
       column = 'name',
