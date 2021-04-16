@@ -25,6 +25,12 @@ describe('export', () => {
     models = context.models;
     await models.Patient.create({ ...fakePatient(), id: patientId });
     await models.User.create({ ...fakeUser(), id: userId });
+    await models.ReferenceData.create({
+      type: 'facility',
+      name: 'Test Facility',
+      code: 'test-facility',
+      id: 'test-facility',
+    });
   });
 
   const testCases = [
@@ -60,6 +66,12 @@ describe('export', () => {
       `patient/${patientId}/issue`,
     ],
     ['ReportRequest', () => ({ ...fake(models.ReportRequest), requestedByUserId: userId })],
+    [
+      'Location',
+      async () => {
+        return { ...fake(models.Location), facilityId: 'test-facility' };
+      },
+    ],
   ];
   testCases.forEach(([modelName, fakeRecord, overrideChannel]) => {
     describe(modelName, () => {
