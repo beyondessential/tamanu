@@ -51,18 +51,32 @@ export class SyncManager {
   }
 
   async pullAndImport(model, patientId) {
-    for (const channel of await model.getChannels(patientId)) {
-      await this.pullAndImportChannel(model, channel);
+    const channels = await model.getChannels(patientId);
+    const channelsWithCursors = await Promise.all(
+      channels.map(async channel => {
+        const cursor = await this.getChannelPullCursor(channel);
+        return { channel, cursor };
+      }),
+    );
+    const channelsToPull =
+      channels.length === 1
+        ? channels // waste of effort to check which need pulling if there's only 1, just pull
+        : await this.context.remote.fetchChannelsWithChanges(channelsWithCursors);
+    const channelsToPullSet = new Set(channelsToPull);
+    for (const { channel, cursor } of channelsWithCursors) {
+      if (channelsToPullSet.has(channel)) {
+        await this.pullAndImportChannel(model, channel, cursor);
+      }
     }
   }
 
-  async pullAndImportChannel(model, channel) {
+  async pullAndImportChannel(model, channel, initialCursor = '0') {
     const plan = createImportPlan(model);
     const importRecords = async syncRecords => {
       await executeImportPlan(plan, channel, syncRecords);
     };
 
-    let cursor = await this.getChannelPullCursor(channel);
+    let cursor = initialCursor;
     let limit = INITIAL_PULL_LIMIT;
     log.info(`SyncManager.pullAndImport: syncing ${channel} (last: ${cursor})`);
     while (true) {

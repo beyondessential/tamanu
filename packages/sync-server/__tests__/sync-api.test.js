@@ -61,12 +61,14 @@ describe('Sync API', () => {
 
   describe('Checking channels for changes', () => {
     it('should error if no channels are provided', async () => {
-      const result = await app.get('/v1/sync/channels');
+      const result = await app.post('/v1/sync/channels').send();
       expect(result).toHaveRequestError();
     });
 
     it('should return all requested channels that have pending changes since the beginning of time', async () => {
-      const result = await app.get('/v1/sync/channels?patient=0&survey=0&reference=0');
+      const result = await app
+        .post('/v1/sync/channels')
+        .send({ patient: '0', survey: '0', reference: '0' });
       expect(result).toHaveSucceeded();
       const { body } = result;
       expect(body.channelsWithChanges).toEqual(['patient', 'reference']);
@@ -74,9 +76,9 @@ describe('Sync API', () => {
 
     it('should return all requested channels that have pending changes since a sync cursor', async () => {
       const syncCursor = getUpdatedAtTimestamp(SECOND_OLDEST_PATIENT) - 1;
-      const result = await app.get(
-        `/v1/sync/channels?patient=${syncCursor}&reference=${syncCursor}`,
-      );
+      const result = await app
+        .post('/v1/sync/channels')
+        .send({ patient: syncCursor, reference: syncCursor });
       expect(result).toHaveSucceeded();
       const { body } = result;
       expect(body.channelsWithChanges).toEqual(['patient']);
@@ -85,9 +87,9 @@ describe('Sync API', () => {
     it('should return all requested channels that have pending changes using different sync cursors', async () => {
       const patientSyncCursor = getUpdatedAtTimestamp(SECOND_OLDEST_PATIENT) - 1;
       const referenceSyncCursor = getUpdatedAtTimestamp(OLDEST_PATIENT) - 1;
-      const result = await app.get(
-        `/v1/sync/channels?patient=${patientSyncCursor}&reference=${referenceSyncCursor}`,
-      );
+      const result = await app
+        .post('/v1/sync/channels')
+        .send({ patient: patientSyncCursor, reference: referenceSyncCursor });
       expect(result).toHaveSucceeded();
       const { body } = result;
       expect(body.channelsWithChanges).toEqual(['patient', 'reference']);
@@ -95,9 +97,10 @@ describe('Sync API', () => {
 
     it('should differentiate timestamp clashes correctly using id', async () => {
       const syncCursor = `${getUpdatedAtTimestamp(REFERENCE_DATA)};${REFERENCE_DATA.id}`;
-      const result = await app.get(
-        `/v1/sync/channels?patient=${syncCursor}&reference=${syncCursor}`,
-      );
+      const result = await app.post('/v1/sync/channels').send({
+        patient: syncCursor,
+        reference: syncCursor,
+      });
       expect(result).toHaveSucceeded();
       const { body } = result;
       expect(body.channelsWithChanges).toEqual(['patient']);
