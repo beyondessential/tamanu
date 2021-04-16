@@ -14,6 +14,13 @@ export type SyncManagerOptions = {
 
 type Timestamp = number;
 
+type ChannelInfo = {
+  channel: string;
+  model: typeof BaseModel;
+  cursor?: string;
+  serverHasChanges?: boolean;
+};
+
 const UPLOAD_LIMIT = 100;
 const INITIAL_DOWNLOAD_LIMIT = 100;
 const MIN_DOWNLOAD_LIMIT = 1;
@@ -109,21 +116,45 @@ export class SyncManager {
       this.emitter.emit('syncStarted');
 
       const { models } = Database;
+      const syncablePatients = await models.Patient.getSyncable();
 
-      await this.runChannelSync(models.ReferenceData, 'reference');
-      await this.runChannelSync(models.User, 'user');
+      // channels in order of sync, so that foreign keys exist before referencing records use them
+      const channelInfos: ChannelInfo[] = [
+        { channel: 'reference', model: models.ReferenceData },
+        { channel: 'user', model: models.User },
 
-      await this.runChannelSync(models.ScheduledVaccine, 'scheduledVaccine');
+        { channel: 'scheduledVaccine', model: models.ScheduledVaccine },
 
-      await this.runChannelSync(models.Program, 'program');
-      await this.runChannelSync(models.Survey, 'survey');
-      await this.runChannelSync(models.ProgramDataElement, 'programDataElement');
-      await this.runChannelSync(models.SurveyScreenComponent, 'surveyScreenComponent');
+        { channel: 'program', model: models.Program },
+        { channel: 'survey', model: models.Survey },
+        { channel: 'programDataElement', model: models.ProgramDataElement },
+        { channel: 'surveyScreenComponent', model: models.SurveyScreenComponent },
 
-      await this.runChannelSync(models.Patient, 'patient');
+        { channel: 'patient', model: models.Patient },
+        ...syncablePatients.map(p => ({
+          channel: `patient/${p.id}/encounter`,
+          model: models.Encounter })),
+        ...syncablePatients.map(p => ({
+          channel: `patient/${p.id}/issue`,
+          model: models.PatientIssue })),
+      ];
 
-      for (const patient of await models.Patient.getSyncable()) {
-        await this.runPatientSync(patient);
+      // add current cursor to each channel info
+      await Promise.all(channelInfos.map(async ({ channel }, i) => {
+        const cursor = await this.getChannelPullCursor(channel);
+        channelInfos[i].cursor = cursor;
+      }));
+
+      // add pending changes state to each channel info
+      const channelsWithChanges = await this.syncSource.fetchChannelsWithChanges(channelInfos);
+      const channelsWithChangesSet = new Set(channelsWithChanges);
+      channelInfos.forEach(({ channel }, i) => {
+        channelInfos[i].serverHasChanges = channelsWithChangesSet.has(channel);
+      });
+
+      // run sync for each channel
+      for (const channelInfo of channelInfos) {
+        await this.runChannelSync(channelInfo);
       }
     } finally {
       this.isSyncing = false;
@@ -142,6 +173,7 @@ export class SyncManager {
   async downloadAndImport(
     model: typeof BaseModel,
     channel: string,
+    initialCursor: string,
   ): Promise<void> {
     const downloadPage = (since: string, limit: number): Promise<DownloadRecordsResponse> => {
       this.emitter.emit('downloadingPage', `${channel}-since-${since}-limit-${limit}`);
@@ -177,7 +209,7 @@ export class SyncManager {
       await this.updateChannelPullCursor(channel, pullCursor);
     };
 
-    let cursor = await this.getChannelPullCursor(channel);
+    let cursor = initialCursor;
     let importTask: Promise<void>;
     let limit = INITIAL_DOWNLOAD_LIMIT;
     this.emitter.emit('importStarted', channel);
@@ -297,15 +329,15 @@ export class SyncManager {
     await writeConfig(`pullCursor.${channel}`, pullCursor);
   }
 
-  async runChannelSync(
-    model: typeof BaseModel,
-    channel: string,
-  ): Promise<void> {
+  async runChannelSync(channelInfo: ChannelInfo): Promise<void> {
+    const { channel, model, cursor, serverHasChanges } = channelInfo;
     this.emitter.emit('channelSyncStarted', channel);
-    try {
-      await this.downloadAndImport(model, channel);
-    } catch (e) {
-      this.emitter.emit('channelSyncError', { channel, error: e.message });
+    if (serverHasChanges) {
+      try {
+        await this.downloadAndImport(model, channel, cursor);
+      } catch (e) {
+        this.emitter.emit('channelSyncError', { channel, error: e.message });
+      }
     }
     if (model.shouldExport) {
       try {
@@ -315,10 +347,5 @@ export class SyncManager {
       }
     }
     this.emitter.emit('channelSyncEnded', channel);
-  }
-
-  async runPatientSync(patient: Patient): Promise<void> {
-    await this.runChannelSync(Database.models.Encounter, `patient/${patient.id}/encounter`);
-    await this.runChannelSync(Database.models.PatientIssue, `patient/${patient.id}/issue`);
   }
 }
