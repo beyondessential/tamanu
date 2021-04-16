@@ -47,8 +47,7 @@ export class SqlWrapper {
       ['survey', this.models.Survey],
       ['surveyScreenComponent', this.models.SurveyScreenComponent],
       ['user', this.models.User],
-      ['reportRequest', this.models.ReportRequest],
-      ['location', this.models.Location],
+      ['reportRequest', this.models.ReportRequest]
     ].forEach(([route, model]) => {
       this.builtRoutes.push(route);
       // TODO: deprecate handlers
