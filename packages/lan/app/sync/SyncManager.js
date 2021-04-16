@@ -9,6 +9,31 @@ import {
 import { log } from 'shared/services/logging';
 
 const EXPORT_LIMIT = 100;
+const INITIAL_PULL_LIMIT = 100;
+const MIN_PULL_LIMIT = 1;
+const MAX_PULL_LIMIT = 10000;
+const OPTIMAL_PULL_TIME_PER_PAGE = 2000; // aim for 2 seconds per page
+const MAX_LIMIT_CHANGE_PER_BATCH = 0.2; // max 20% increase from batch to batch, or it is too jumpy
+
+// Set the current page size based on how long the previous page took to complete.
+const calculateDynamicLimit = (currentLimit, pullTime) => {
+  const durationPerRecord = pullTime / currentLimit;
+  const optimalPageSize = OPTIMAL_PULL_TIME_PER_PAGE / durationPerRecord;
+  let newLimit = optimalPageSize;
+
+  newLimit = Math.floor(newLimit);
+  newLimit = Math.max(
+    newLimit,
+    MIN_PULL_LIMIT,
+    Math.floor(currentLimit - currentLimit * MAX_LIMIT_CHANGE_PER_BATCH),
+  );
+  newLimit = Math.min(
+    newLimit,
+    MAX_PULL_LIMIT,
+    Math.floor(currentLimit + currentLimit * MAX_LIMIT_CHANGE_PER_BATCH),
+  );
+  return newLimit;
+};
 
 export class SyncManager {
   host = '';
@@ -26,25 +51,41 @@ export class SyncManager {
   }
 
   async pullAndImport(model, patientId) {
-    for (const channel of await model.getChannels(patientId)) {
-      await this.pullAndImportChannel(model, channel);
+    const channels = await model.getChannels(patientId);
+    const channelsWithCursors = await Promise.all(
+      channels.map(async channel => {
+        const cursor = await this.getChannelPullCursor(channel);
+        return { channel, cursor };
+      }),
+    );
+    const channelsToPull =
+      channels.length === 1
+        ? channels // waste of effort to check which need pulling if there's only 1, just pull
+        : await this.context.remote.fetchChannelsWithChanges(channelsWithCursors);
+    const channelsToPullSet = new Set(channelsToPull);
+    for (const { channel, cursor } of channelsWithCursors) {
+      if (channelsToPullSet.has(channel)) {
+        await this.pullAndImportChannel(model, channel, cursor);
+      }
     }
   }
 
-  async pullAndImportChannel(model, channel) {
+  async pullAndImportChannel(model, channel, initialCursor = '0') {
     const plan = createImportPlan(model);
     const importRecords = async syncRecords => {
-      for (const syncRecord of syncRecords) {
-        await executeImportPlan(plan, channel, syncRecord);
-      }
+      await executeImportPlan(plan, channel, syncRecords);
     };
 
-    let cursor = await this.getChannelPullCursor(channel);
+    let cursor = initialCursor;
+    let limit = INITIAL_PULL_LIMIT;
     log.info(`SyncManager.pullAndImport: syncing ${channel} (last: ${cursor})`);
     while (true) {
       // pull
-      log.debug(`SyncManager.pullAndImport: pulling since ${cursor} for ${channel}`);
-      const result = await this.context.remote.pull(channel, { since: cursor });
+      log.debug(
+        `SyncManager.pullAndImport: pulling ${limit} records since ${cursor} for ${channel}`,
+      );
+      const startTime = Date.now();
+      const result = await this.context.remote.pull(channel, { since: cursor, limit });
       cursor = result.cursor;
       const syncRecords = result.records;
       if (syncRecords.length === 0) {
@@ -56,6 +97,8 @@ export class SyncManager {
       log.debug(`SyncManager.pullAndImport: importing ${syncRecords.length} ${model.name} records`);
       await importRecords(syncRecords);
       await this.setChannelPullCursor(channel, cursor);
+      const pullTime = Date.now() - startTime;
+      limit = calculateDynamicLimit(limit, pullTime);
     }
   }
 
@@ -142,6 +185,7 @@ export class SyncManager {
         models.LabTestType,
         models.Encounter,
         models.ReportRequest,
+        models.Location,
       ];
 
       for (const model of modelsToSync) {

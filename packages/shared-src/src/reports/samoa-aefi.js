@@ -35,8 +35,8 @@ export const permission = 'Survey';
 export async function dataGenerator(models, parameters = {}) {
   const aefiSurvey = await models.Survey.findOne({
     where: {
-      name: 'Immunisation',
-      '$program.name$': 'AEFI Report',
+      name: 'Samoa AEFI',
+      '$program.name$': 'Samoa AEFI',
     },
     include: [
       {

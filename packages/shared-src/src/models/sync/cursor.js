@@ -26,7 +26,9 @@ const parseNumberOrZero = input => {
 
 // splits 'timestamp;id' into [timestamp, id]
 const parseSyncCursor = cursor => {
-  const [fromUpdatedAtString = '0', afterId = ''] = cursor ? cursor.split(SEPARATOR) : [];
+  const [fromUpdatedAtString = '0', afterId = ''] = cursor
+    ? cursor.toString().split(SEPARATOR)
+    : [];
   return [parseNumberOrZero(fromUpdatedAtString), afterId];
 };
 
