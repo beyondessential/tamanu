@@ -20,7 +20,7 @@ const Screen = ({ selectedPatient }: ProgramListScreenProps): ReactElement => {
   const navigation = useNavigation();
 
   const [surveys, error] = useBackendEffect(({ models }) => models.Survey.find({
-    program: 'program-referral_forms',
+    surveyType: SurveyTypes.Referral,
   }));
 
   const onNavigateToSurvey = (survey): any => {
