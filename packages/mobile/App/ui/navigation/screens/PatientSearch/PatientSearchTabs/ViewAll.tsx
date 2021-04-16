@@ -41,20 +41,19 @@ type FieldProp = [
 
 const getActiveFilters = (
   filters: ActiveFilters,
-  filter: FieldProp
+  filter: FieldProp,
 ): ActiveFilters => {
   const field = filter[0];
   const activeFilters = { ...filters };
 
   if (field.value) {
     activeFilters.count += 1;
-    
-    if (field.name === 'sex' && field.value === 'all') { /* Don't add a filter, (but do increase filter count) */ } 
+    if (field.name === 'sex' && field.value === 'all') { /* Don't add a filter, (but do increase filter count) */ }
     else if (field.name === 'dateOfBirth') {
       const date = format(field.value, 'yyyy-MM-dd');
       activeFilters.filters[field.name] = Like(`%${date}%`);
     } else {
-      activeFilters.filters[field.name] = field.value;
+      activeFilters.filters[field.name] = Like(`%${field.value}%`);
     }
   }
 
