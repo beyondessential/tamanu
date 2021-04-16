@@ -1,6 +1,6 @@
 import React, { ReactElement, useCallback, FC, useMemo } from 'react';
 import { format } from 'date-fns';
-import { Like } from 'typeorm';
+import { Like, FindOperator } from 'typeorm';
 import {
   useField,
   FieldInputProps,
@@ -29,10 +29,7 @@ import { screenPercentageToDP, Orientation } from '/helpers/screen';
 interface ActiveFilters {
   count: number;
   filters: {
-    [key: string]: {
-      name: string;
-      value: any;
-    };
+    [key: string]: FindOperator<string> | any
   };
 }
 
@@ -44,27 +41,20 @@ type FieldProp = [
 
 const getActiveFilters = (
   filters: ActiveFilters,
-  filter: FieldProp
+  filter: FieldProp,
 ): ActiveFilters => {
   const field = filter[0];
   const activeFilters = { ...filters };
 
-  if (field.name === 'sex' && field.value === 'all') {
-    activeFilters.count += 1;
-    return activeFilters;
-  }
-
   if (field.value) {
     activeFilters.count += 1;
-
-    if (field.name === 'dateOfBirth') {
+    if (field.name === 'sex' && field.value === 'all') { /* Don't add a filter, (but do increase filter count) */ }
+    else if (field.name === 'dateOfBirth') {
       const date = format(field.value, 'yyyy-MM-dd');
       activeFilters.filters[field.name] = Like(`%${date}%`);
     } else {
-      activeFilters.filters[field.name] = field.value;
+      activeFilters.filters[field.name] = Like(`%${field.value}%`);
     }
-
-    return activeFilters;
   }
 
   return activeFilters;
@@ -80,6 +70,8 @@ const applyActiveFilters = (
     firstName: 'ASC',
     markedForSync: 'DESC',
   },
+  // Must match ONE of following lines entirely. ([{a}, {b}] is OR, [{a, b}] is AND)
+  // Note also that the filters can override 'firstName' for example, (making the search field irrelevant?)
   where: [
     { displayId: Like(`%${value}%`), ...filters },
     { firstName: Like(`%${value}%`), ...filters },

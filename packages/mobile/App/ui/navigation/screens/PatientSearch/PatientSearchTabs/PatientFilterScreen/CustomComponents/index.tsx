@@ -6,3 +6,4 @@ export * from './NameSection';
 export * from './OnlyShowSection';
 export * from './SortBySection';
 export * from './SubmitSection';
+export * from './VillageSection';

@@ -53,17 +53,34 @@ const API_VERSION = 1;
 
 const MAX_FETCH_WAIT_TIME = 45 * 1000; // 45 seconds in milliseconds
 
-const createTimeoutPromise = (): Promise<void> => new Promise((resolve, reject) => {
-  const id = setTimeout(() => {
-    clearTimeout(id);
-    reject(new Error('Network request timed out'));
-  }, MAX_FETCH_WAIT_TIME);
-});
+type TimeoutPromiseResponse = {
+  promise: Promise<void>;
+  cleanup: () => void;
+};
+const createTimeoutPromise = (): TimeoutPromiseResponse => {
+  let cleanup: () => void;
+  const promise: Promise<void> = new Promise((resolve, reject) => {
+    const id = setTimeout(() => {
+      clearTimeout(id);
+      reject(new Error('Network request timed out'));
+    }, MAX_FETCH_WAIT_TIME);
+    cleanup = (): void => {
+      clearTimeout(id);
+      resolve();
+    };
+  });
+  return { promise, cleanup };
+};
 
-const fetchWithTimeout = (url, config): Promise<Response> => Promise.race([
-  fetch(url, config),
-  createTimeoutPromise(),
-]);
+const fetchWithTimeout = async (url, config): Promise<Response> => {
+  const { cleanup, promise: timeoutPromise } = createTimeoutPromise();
+  try {
+    const response = await Promise.race([fetch(url, config), timeoutPromise]);
+    return response;
+  } finally {
+    cleanup();
+  }
+};
 
 const getResponseJsonSafely = async (response): Promise<Record<string, any>> => {
   try {
