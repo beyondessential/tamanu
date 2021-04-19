@@ -186,11 +186,11 @@ export class WebSyncSource implements SyncSource {
       const batchSize = 1000; // pretty arbitrary, avoid overwhelming the server with e.g. 100k channels
       const channelsWithPendingChanges = [];
       for (const batchOfChannels of chunk(channelsToCheck, batchSize)) {
-        const query = batchOfChannels.reduce((acc, { channel, cursor = '0' }) => ({
+        const body = batchOfChannels.reduce((acc, { channel, cursor = '0' }) => ({
           ...acc,
           [channel]: cursor,
         }), {});
-        const { channelsWithChanges } = await this.get('sync/channels', query);
+        const { channelsWithChanges } = await this.post('sync/channels', {}, body);
         channelsWithPendingChanges.push(...channelsWithChanges);
       }
       return channelsWithPendingChanges;
