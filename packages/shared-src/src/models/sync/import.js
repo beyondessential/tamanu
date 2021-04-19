@@ -115,7 +115,7 @@ const executeCreates = async (importPlan, records) => {
     return { ...data, id: importPlan.model.generateId() };
   });
   return executeUpdateOrCreates(importPlan, recordsWithIds, model => async rows =>
-    model.bulkCreate(rows),
+    model.bulkCreate(rows.map(r => ({ ...r, markedForPush: false }))),
   );
 };
 

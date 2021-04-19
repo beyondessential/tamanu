@@ -138,31 +138,44 @@ describe('import', () => {
           const dbRecord = await model.findByPk(record.id, options);
           expect(dbRecord.get({ plain: true })).toMatchObject({
             ...record,
-            ...(model.tableAttributes.pushedAt ? { pulledAt: expect.any(Date) } : {}),
+            ...(model.tableAttributes.pushedAt
+              ? { pulledAt: expect.any(Date), markedForPush: false }
+              : {}),
           });
         });
 
         it('updates the record', async () => {
-          // arrange
           const model = models[modelName];
-          const oldRecord = await fakeRecord();
-          const newRecord = {
-            ...(await fakeRecord()),
-            id: oldRecord.id,
-          };
-          await model.create(oldRecord);
-          const channel = overrideChannel || (await model.getChannels())[0];
+          const isPushable = !!model.tableAttributes.pushedAt;
+          const markedForPushCases = isPushable ? [true, false] : [null];
+          for (const originalMarkedForPush of markedForPushCases) {
+            // arrange
+            const oldRecord = await fakeRecord();
+            if (isPushable) {
+              await model.update(
+                { markedForPush: originalMarkedForPush },
+                { where: { id: oldRecord.id } },
+              );
+            }
+            const newRecord = {
+              ...(await fakeRecord()),
+              id: oldRecord.id,
+            };
+            const channel = overrideChannel || (await model.getChannels())[0];
 
-          // act
-          const plan = createImportPlan(model);
-          await executeImportPlan(plan, channel, [toSyncRecord(newRecord)]);
+            // act
+            const plan = createImportPlan(model);
+            await executeImportPlan(plan, channel, [toSyncRecord(newRecord)]);
 
-          // assert
-          const dbRecord = await model.findByPk(oldRecord.id, options);
-          expect(dbRecord.get({ plain: true })).toMatchObject({
-            ...newRecord,
-            ...(model.tableAttributes.pushedAt ? { pulledAt: expect.any(Date) } : {}),
-          });
+            // assert
+            const dbRecord = await model.findByPk(oldRecord.id, { ...options, plain: true });
+            expect(dbRecord).toMatchObject(newRecord);
+            if (isPushable) {
+              expect(dbRecord.pulledAt).toEqual(expect.any(Date));
+              // shouldn't change markedForPush status
+              expect(dbRecord.markedForPush).toEqual(originalMarkedForPush);
+            }
+          }
         });
 
         it('deletes tombstones', async () => {
