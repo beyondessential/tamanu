@@ -1,7 +1,7 @@
 import React, { useState, useCallback, useRef } from 'react';
 import { StyledView } from '/styled/common';
-import { BaseInputProps } from '../../interfaces/BaseInputProps';
 import MultiSelect from 'react-native-multiple-select';
+import { BaseInputProps } from '../../interfaces/BaseInputProps';
 import { theme } from '~/ui/styled/theme';
 
 const MIN_COUNT_FILTERABLE_BY_DEFAULT = 8;
@@ -33,9 +33,9 @@ export const Dropdown = React.memo(
     const onSelectedItemsChange = useCallback(
       (items) => {
         setSelectedItems(items);
-        onChange(items.join(', ')) // Form submits selected items as comma separated string.
+        onChange(items.join(', ')); // Form submits selected items as comma separated string.
       },
-      [selectedItems]
+      [selectedItems],
     );
     const filterable = options.length >= MIN_COUNT_FILTERABLE_BY_DEFAULT;
 
@@ -70,8 +70,8 @@ export const Dropdown = React.memo(
           searchIcon={filterable ? undefined : null}
         />
       </StyledView>
-    )
-  }
+    );
+  },
 );
 
-export const MultiSelectDropdown = ({ ...props }): Element => <Dropdown multiselect={true} {...props} />;
+export const MultiSelectDropdown = ({ ...props }): Element => <Dropdown multiselect {...props} />;
