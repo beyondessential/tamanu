@@ -163,17 +163,17 @@ export class WebRemote {
     const batchSize = 1000; // pretty arbitrary, avoid overwhelming the server with e.g. 100k channels
     const channelsWithPendingChanges = [];
     for (const batchOfChannels of chunk(Object.entries(channelsToCheck), batchSize)) {
-      const query = batchOfChannels.reduce(
+      const body = batchOfChannels.reduce(
         (acc, [channel, cursor]) => ({
           ...acc,
           [channel]: cursor,
         }),
         {},
       );
-      const queryString = Object.entries(query)
-        .map(([k, v]) => `${k}=${v}`)
-        .join('&');
-      const { channelsWithChanges } = await this.fetch(`sync/channels?${queryString}`);
+      const { channelsWithChanges } = await this.fetch(`sync/channels`, {
+        method: 'POST',
+        body,
+      });
       channelsWithPendingChanges.push(...channelsWithChanges);
     }
     return channelsWithPendingChanges;
