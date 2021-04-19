@@ -151,6 +151,7 @@ describe('import', () => {
           for (const originalMarkedForPush of markedForPushCases) {
             // arrange
             const oldRecord = await fakeRecord();
+            await model.create(oldRecord);
             if (isPushable) {
               await model.update(
                 { markedForPush: originalMarkedForPush },
