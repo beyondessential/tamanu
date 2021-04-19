@@ -153,10 +153,9 @@ describe('import', () => {
             const oldRecord = await fakeRecord();
             await model.create(oldRecord);
             if (isPushable) {
-              await model.update(
-                { markedForPush: originalMarkedForPush },
-                { where: { id: oldRecord.id } },
-              );
+              const record = await model.findByPk(oldRecord.id);
+              record.markedForPush = originalMarkedForPush;
+              await record.save();
             }
             const newRecord = {
               ...(await fakeRecord()),

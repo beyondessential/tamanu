@@ -1,3 +1,4 @@
+import { isEqual } from 'lodash';
 import { shouldPush } from './directions';
 import { propertyPathsToTree, ensurePathsAreExhaustive } from './metadata';
 
@@ -20,7 +21,7 @@ const addHooksToNested = model => {
     const leafModel = associations[associations.length - 1].target;
 
     const reversedAssociations = associations.reverse();
-    leafModel.addHook('beforeSave', 'markRootForPush', async (rawRecord) => {
+    leafModel.addHook('beforeSave', 'markRootForPush', async rawRecord => {
       let currentRecord = rawRecord;
       // walk backward through the associations and find the parent at each level
       for (const { source, foreignKey } of reversedAssociations) {
@@ -42,9 +43,12 @@ export const initSyncClientModeHooks = models => {
     .forEach(model => {
       // add hook to model itself
       model.addHook('beforeSave', 'markForPush', record => {
-        if (!record.changed || !record.changed('pushedAt')) {
-          record.markedForPush = true;
+        // if only excluded sync columns were changed, it's not a change we want to sync elsewhere
+        const changedFields = record?.changed() || [];
+        if (changedFields.every(field => model.excludedSyncColumns.includes(field))) {
+          return;
         }
+        record.markedForPush = true;
       });
 
       // add hook to nested sync relations
