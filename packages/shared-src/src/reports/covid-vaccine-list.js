@@ -14,6 +14,7 @@ const reportColumnTemplate = [
   { title: 'First dose date', accessor: data => data.dose1Date },
   { title: 'Second dose given', accessor: data => data.dose2 },
   { title: 'Second dose date', accessor: data => data.dose2Date },
+  { title: 'Vaccine Name', accessor: data => data.vaccineLabel },
 ];
 
 function parametersToSqlWhere(parameters) {
@@ -49,7 +50,9 @@ function parametersToSqlWhere(parameters) {
         return where;
       },
       {
-        '$scheduledVaccine.label$': 'COVAX',
+        '$scheduledVaccine.label$': {
+          [Op.in]: ['COVAX', 'COVID-19-AZ'],
+        },
       },
     );
 
@@ -88,7 +91,7 @@ async function queryCovidVaccineListData(models, parameters) {
         patient: { displayId, firstName, lastName, dateOfBirth, village },
       },
       date,
-      scheduledVaccine: { schedule },
+      scheduledVaccine: { schedule, label },
     } = vaccine;
     if (!acc[patientId]) {
       acc[patientId] = {
@@ -98,6 +101,7 @@ async function queryCovidVaccineListData(models, parameters) {
         village: village?.name,
         dose1: 'No',
         dose2: 'No',
+        vaccineLabel: label,
       };
     }
     if (schedule === 'Dose 1') {

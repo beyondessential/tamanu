@@ -20,7 +20,6 @@ const DumbSurveyFlow = React.memo(
     useEffect(() => {
       (async () => {
         const { data } = await onFetchProgramsList();
-        console.log("🚀 ~ file: ProgramsView.js ~ line 22 ~ data", data)
         setProgramsList(data);
       })();
     }, []);
