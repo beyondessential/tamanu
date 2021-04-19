@@ -85,7 +85,6 @@ authMiddleware.use(
 
     if (config.auth.allowDummyToken && token === FAKE_TOKEN) {
       req.user = await store.findUser(config.auth.initialUser.email);
-      console.log(req.user);
       next();
       return;
     }
