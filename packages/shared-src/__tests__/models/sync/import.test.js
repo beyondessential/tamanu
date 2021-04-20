@@ -138,19 +138,29 @@ describe('import', () => {
           const dbRecord = await model.findByPk(record.id, options);
           expect(dbRecord.get({ plain: true })).toMatchObject({
             ...record,
-            ...(model.tableAttributes.pushedAt ? { pulledAt: expect.any(Date) } : {}),
+            ...(model.tableAttributes.pushedAt
+              ? { pulledAt: expect.any(Date), markedForPush: false }
+              : {}),
           });
         });
 
         it('updates the record', async () => {
           // arrange
           const model = models[modelName];
+          const isPushable = !!model.tableAttributes.pushedAt;
           const oldRecord = await fakeRecord();
+          await model.create(oldRecord);
+          if (isPushable) {
+            // the newly created record should have markedForPush set to true initially
+            await expect(model.findByPk(oldRecord.id)).resolves.toHaveProperty(
+              'markedForPush',
+              true,
+            );
+          }
           const newRecord = {
             ...(await fakeRecord()),
             id: oldRecord.id,
           };
-          await model.create(oldRecord);
           const channel = overrideChannel || (await model.getChannels())[0];
 
           // act
@@ -158,11 +168,14 @@ describe('import', () => {
           await executeImportPlan(plan, channel, [toSyncRecord(newRecord)]);
 
           // assert
-          const dbRecord = await model.findByPk(oldRecord.id, options);
-          expect(dbRecord.get({ plain: true })).toMatchObject({
-            ...newRecord,
-            ...(model.tableAttributes.pushedAt ? { pulledAt: expect.any(Date) } : {}),
-          });
+          const dbRecord = await model.findByPk(oldRecord.id, { ...options, plain: true });
+          expect(dbRecord).toMatchObject(newRecord);
+          if (isPushable) {
+            expect(dbRecord.pulledAt).toEqual(expect.any(Date));
+            // even if there were pending changes, they will have been overwritten by the import
+            // from the server, so should change markedForPush status to false
+            expect(dbRecord.markedForPush).toEqual(false);
+          }
         });
 
         it('deletes tombstones', async () => {
