@@ -6,7 +6,7 @@ import { SqlWrapper } from './wrapper/sqlWrapper';
 
 let existingConnection = null;
 
-export async function initDatabase({ testMode = false }) {
+export async function initDatabase({ isFirstProcess = true, testMode = false }) {
   // connect to database
   if (existingConnection) {
     return existingConnection;
@@ -23,7 +23,7 @@ export async function initDatabase({ testMode = false }) {
   if (testMode) {
     await store.sequelize.drop();
     await store.sequelize.sync({ force: true });
-  } else if (config.db.syncOnStartup) {
+  } else if (isFirstProcess && config.db.syncOnStartup) {
     await store.sequelize.migrate();
   } else {
     log.warn('Not doing any migrations');
