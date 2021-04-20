@@ -25,7 +25,6 @@ describe('sync-related hooks', () => {
     dbEncounter.markedForPush = false;
     dbEncounter.pushedAt = new Date();
     await dbEncounter.save();
-
     await expect(models.Encounter.findByPk(encounter.id)).resolves.toHaveProperty(
       'markedForPush',
       false,
@@ -43,6 +42,62 @@ describe('sync-related hooks', () => {
     return expect(models.Encounter.findByPk(encounter.id)).resolves.toHaveProperty(
       'markedForPush',
       true,
+    );
+  });
+
+  it('does not mark for push if pulledAt changes', async () => {
+    // arrange
+    const encounter = await buildNestedEncounter(context);
+    await models.Encounter.create(encounter);
+    await upsertAssociations(models.Encounter, encounter);
+    const dbEncounter = await models.Encounter.findByPk(encounter.id);
+    expect(dbEncounter.markedForPush).toEqual(true);
+
+    dbEncounter.markedForPush = false;
+    dbEncounter.pushedAt = new Date();
+    await dbEncounter.save();
+    await expect(models.Encounter.findByPk(encounter.id)).resolves.toHaveProperty(
+      'markedForPush',
+      false,
+    );
+
+    // act
+    dbEncounter.endDate = new Date(); // update a field that would normally sync
+    dbEncounter.pulledAt = new Date(); // pulledAt indicates update via import, so shouldn't mark for push
+    await dbEncounter.save();
+
+    // assert
+    return expect(models.Encounter.findByPk(encounter.id)).resolves.toHaveProperty(
+      'markedForPush',
+      false,
+    );
+  });
+
+  it('does not mark for push if only sync info columns change', async () => {
+    // arrange
+    const encounter = await buildNestedEncounter(context);
+    await models.Encounter.create(encounter);
+    await upsertAssociations(models.Encounter, encounter);
+    const dbEncounter = await models.Encounter.findByPk(encounter.id);
+    expect(dbEncounter.markedForPush).toEqual(true);
+
+    dbEncounter.markedForPush = false;
+    dbEncounter.pushedAt = new Date();
+    await dbEncounter.save();
+    await expect(models.Encounter.findByPk(encounter.id)).resolves.toHaveProperty(
+      'markedForPush',
+      false,
+    );
+
+    // act - update fields that, on their own, shouldn't trigger a sync
+    dbEncounter.pushedAt = new Date();
+    dbEncounter.markedForSync = !!dbEncounter.markedForSync;
+    await dbEncounter.save();
+
+    // assert
+    return expect(models.Encounter.findByPk(encounter.id)).resolves.toHaveProperty(
+      'markedForPush',
+      false,
     );
   });
 
