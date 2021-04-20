@@ -12,8 +12,12 @@ const InvisibleButton = styled.div`
 const InvisibleSyncButton = connectApi(api => ({
   onClick: async () => {
     console.log('Triggering manual sync on LAN server');
-    await api.post(`sync/run`);
-    console.log('Manual sync complete');
+    try {
+      await api.post(`sync/run`);
+      console.log('Manual sync complete');
+    } catch (e) {
+      console.log('Manual sync failed');
+    }
   },
 }))(InvisibleButton);
 
