@@ -8,6 +8,7 @@ import { log } from 'shared/services/logging';
 import { routes } from './routes';
 import { authMiddleware } from './middleware/auth';
 import errorHandler from './middleware/errorHandler';
+import { versionCompatibility } from './middleware/versionCompatibility';
 
 import { version } from '../package.json';
 
@@ -20,12 +21,6 @@ export function createApp({ store }) {
   app.use(bodyParser.json({ limit: '50mb' }));
   app.use(bodyParser.urlencoded({ extended: true }));
 
-  app.use((req, res, next) => {
-    res.setHeader('X-Runtime', 'Tamanu Sync Server');
-    res.setHeader('X-Version', version);
-    next();
-  });
-
   app.use(
     morgan(isDevelopment ? 'dev' : 'tiny', {
       stream: {
@@ -33,6 +28,14 @@ export function createApp({ store }) {
       },
     }),
   );
+
+  app.use((req, res, next) => {
+    res.setHeader('X-Runtime', 'Tamanu Sync Server');
+    res.setHeader('X-Version', version);
+    next();
+  });
+
+  app.use(versionCompatibility);
 
   app.use((req, res, next) => {
     req.store = store;

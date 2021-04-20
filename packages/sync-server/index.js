@@ -26,7 +26,9 @@ async function performInitialSetup({ store }) {
 }
 
 export async function run() {
-  const context = await initDatabase({ testMode: false });
+  // NODE_APP_INSTANCE is set by PM2; if it's not present, assume this process is the first
+  const isFirstProcess = !process.env.NODE_APP_INSTANCE || process.env.NODE_APP_INSTANCE === '0';
+  const context = await initDatabase({ isFirstProcess, testMode: false });
 
   await performInitialSetup(context);
 
@@ -35,7 +37,10 @@ export async function run() {
     log.info(`Server is running on port ${port}!`);
   });
 
-  startScheduledTasks(context);
+  // only execute tasks on the first worker process
+  if (isFirstProcess) {
+    startScheduledTasks(context);
+  }
 
   if (config.notifications && config.notifications.referralCreated) {
     context.models.Referral.addHook(

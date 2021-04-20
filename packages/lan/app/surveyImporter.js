@@ -49,7 +49,7 @@ function importDataElement(row) {
 
   return {
     newScreen: yesOrNo(newScreen),
-    defaultOptions: newlinesToArray(options),
+    defaultOptions: options,
     optionLabels: newlinesToArray(optionLabels),
     defaultText: text,
     ...rest,

@@ -29,14 +29,14 @@ authMiddleware.post(
     const { store, body } = req;
     const { email, password } = body;
 
-    if(!email && !password) {
-      if(!config.auth.allowDummyToken) {
+    if (!email && !password) {
+      if (!config.auth.allowDummyToken) {
         throw new BadAuthenticationError('Missing credentials');
       }
 
       // send a token for the initial user
       const initialUser = await store.findUser(config.auth.initialUser.email);
-      if(!initialUser) {
+      if (!initialUser) {
         throw new BadAuthenticationError('No such user');
       }
       res.send({
@@ -85,7 +85,6 @@ authMiddleware.use(
 
     if (config.auth.allowDummyToken && token === FAKE_TOKEN) {
       req.user = await store.findUser(config.auth.initialUser.email);
-      console.log(req.user);
       next();
       return;
     }

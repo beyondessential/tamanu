@@ -33,6 +33,7 @@ describe('sqlWrapper', () => {
 
   afterAll(closeDatabase);
 
+  const userId = uuidv4();
   const rootTestCases = [
     ['patient', fakePatient],
     ['program', fakeProgram],
@@ -53,6 +54,16 @@ describe('sqlWrapper', () => {
           ...fake(ctx.models.LabTestType),
           labTestCategoryId: category.id,
         };
+      },
+    ],
+    [
+      'reportRequest',
+      async () => {
+        const existingUser = await ctx.models.User.findByPk(userId);
+        if (!existingUser) {
+          await ctx.models.User.create({ ...fakeUser(), id: userId });
+        }
+        return { ...fake(ctx.models.ReportRequest), requestedByUserId: userId };
       },
     ],
   ];

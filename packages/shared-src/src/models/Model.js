@@ -3,11 +3,11 @@ import { pick, lowerFirst } from 'lodash';
 import { shouldPush } from './sync';
 import { SYNC_DIRECTIONS } from 'shared/constants';
 
-export const Sequelize = sequelize.Sequelize;
+const { Sequelize, Op, Utils } = sequelize;
 
 const firstLetterLowercase = s => (s[0] || '').toLowerCase() + s.slice(1);
 
-// write a migration when adding to this list (e.g. 005_markedForPush.js)
+// write a migration when adding to this list (e.g. 005_markedForPush.js and 007_pushedAt.js)
 const MARKED_FOR_PUSH_MODELS = [
   'Encounter',
   'Patient',
@@ -16,6 +16,8 @@ const MARKED_FOR_PUSH_MODELS = [
   'PatientCondition',
   'PatientFamilyHistory',
   'PatientIssue',
+  'ReportRequest',
+  'Location',
 ];
 
 export class Model extends sequelize.Model {
@@ -32,6 +34,11 @@ export class Model extends sequelize.Model {
     }
     super.init(attributes, options);
     this.syncClientMode = syncClientMode;
+    this.defaultIdValue = attributes.id.defaultValue;
+  }
+
+  static generateId() {
+    return Utils.toDefaultValue(this.defaultIdValue);
   }
 
   forResponse() {
@@ -103,12 +110,7 @@ export class Model extends sequelize.Model {
 
   static includedSyncRelations = [];
 
-  static excludedSyncColumns = [
-    'createdAt',
-    'updatedAt',
-    'markedForPush',
-    'markedForSync',
-  ];
+  static excludedSyncColumns = ['createdAt', 'updatedAt', 'markedForPush', 'markedForSync'];
 
   // determines whether a mdoel will be pushed, pulled, both, or neither
   static syncDirection = SYNC_DIRECTIONS.DO_NOT_SYNC;
@@ -126,4 +128,10 @@ export class Model extends sequelize.Model {
 
   // if set to a string representing a field, extracts an id from the channel and sets it on the model
   static syncParentIdKey = null;
+
+  static async findByIds(ids) {
+    return this.findAll({
+      where: { id: { [Op.in]: ids } },
+    });
+  }
 }

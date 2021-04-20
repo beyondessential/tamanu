@@ -5,6 +5,7 @@ import {
   expectDeepSyncRecordMatch,
   fake,
   fakePatient,
+  fakeUser,
   unsafeSetUpdatedAt,
   upsertAssociations,
 } from 'shared/test-helpers';
@@ -18,10 +19,18 @@ describe('export', () => {
   let models;
   let context;
   const patientId = uuidv4();
+  const userId = uuidv4();
   beforeAll(async () => {
     context = await initDb({ syncClientMode: true }); // TODO: test server mode too
     models = context.models;
     await models.Patient.create({ ...fakePatient(), id: patientId });
+    await models.User.create({ ...fakeUser(), id: userId });
+    await models.ReferenceData.create({
+      type: 'facility',
+      name: 'Test Facility',
+      code: 'test-facility',
+      id: 'test-facility',
+    });
   });
 
   const testCases = [
@@ -55,6 +64,13 @@ describe('export', () => {
       'PatientIssue',
       () => ({ ...fake(models.PatientIssue), patientId }),
       `patient/${patientId}/issue`,
+    ],
+    ['ReportRequest', () => ({ ...fake(models.ReportRequest), requestedByUserId: userId })],
+    [
+      'Location',
+      async () => {
+        return { ...fake(models.Location), facilityId: 'test-facility' };
+      },
     ],
   ];
   testCases.forEach(([modelName, fakeRecord, overrideChannel]) => {

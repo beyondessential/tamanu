@@ -33,10 +33,18 @@ describe('import', () => {
     let models;
     let context;
     const patientId = uuidv4();
+    const userId = uuidv4();
     beforeAll(async () => {
       context = await initDb({ syncClientMode: true }); // TODO: test server mode too
       models = context.models;
       await models.Patient.create({ ...fakePatient(), id: patientId });
+      await models.User.create({ ...fakeUser(), id: userId });
+      await models.ReferenceData.create({
+        type: 'facility',
+        name: 'Test Facility',
+        code: 'test-facility',
+        id: 'test-facility',
+      });
     });
 
     const rootTestCases = [
@@ -105,6 +113,13 @@ describe('import', () => {
           return { ...fake(models.LabTestType), labTestCategoryId: labTestCategory.id };
         },
       ],
+      ['ReportRequest', () => ({ ...fake(models.ReportRequest), requestedByUserId: userId })],
+      [
+        'Location',
+        async () => {
+          return { ...fake(models.Location), facilityId: 'test-facility' };
+        },
+      ],
     ];
 
     rootTestCases.forEach(([modelName, fakeRecord, overrideChannel = null, options = {}]) => {
@@ -117,7 +132,7 @@ describe('import', () => {
 
           // act
           const plan = createImportPlan(model);
-          await executeImportPlan(plan, channel, toSyncRecord(record));
+          await executeImportPlan(plan, channel, [toSyncRecord(record)]);
 
           // assert
           const dbRecord = await model.findByPk(record.id, options);
@@ -140,7 +155,7 @@ describe('import', () => {
 
           // act
           const plan = createImportPlan(model);
-          await executeImportPlan(plan, channel, toSyncRecord(newRecord));
+          await executeImportPlan(plan, channel, [toSyncRecord(newRecord)]);
 
           // assert
           const dbRecord = await model.findByPk(oldRecord.id, options);
@@ -159,7 +174,7 @@ describe('import', () => {
 
           // act
           const plan = createImportPlan(model);
-          await executeImportPlan(plan, channel, { ...toSyncRecord(record), isDeleted: true });
+          await executeImportPlan(plan, channel, [{ ...toSyncRecord(record), isDeleted: true }]);
 
           // assert
           const dbRecord = await model.findByPk(record.id, options);
@@ -175,7 +190,7 @@ describe('import', () => {
       const context = await initDb({ syncClientMode: false });
       models = context.models;
     });
-    
+
     it('removes null or undefined fields when importing', async () => {
       // arrange
       const { Patient } = models;
@@ -190,7 +205,7 @@ describe('import', () => {
 
       // act
       const plan = createImportPlan(Patient);
-      await executeImportPlan(plan, channel, toSyncRecord(newPatient));
+      await executeImportPlan(plan, channel, [toSyncRecord(newPatient)]);
 
       // assert
       const dbPatient = await Patient.findByPk(oldPatient.id);

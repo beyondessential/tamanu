@@ -42,6 +42,13 @@ export function createApp({ sequelize, models }) {
 
   app.use(versionCompatibility);
 
+  // index route for debugging connectivity
+  app.get('/$', (req, res) => {
+    res.send({
+      index: true,
+    });
+  });
+
   app.use('/', routes);
 
   // Dis-allow all other routes

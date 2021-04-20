@@ -8,7 +8,7 @@ import {
   permission as covidVaccineSummaryPermission,
 } from './covid-vaccine-summary';
 import * as aefi from './aefi';
-
+import * as samoaAefi from './samoa-aefi';
 
 export function getReportModule(reportType) {
   switch (reportType) {
@@ -34,5 +34,7 @@ export function getReportModule(reportType) {
       };
     case 'aefi':
       return aefi;
+    case 'samoa-aefi':
+      return samoaAefi;
   }
 }
