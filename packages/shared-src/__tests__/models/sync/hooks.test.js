@@ -25,11 +25,11 @@ describe('sync-related hooks', () => {
     dbEncounter.markedForPush = false;
     dbEncounter.pushedAt = new Date();
     await dbEncounter.save();
-    dbEncounter.markedForPush = false;
-    dbEncounter.pushedAt = new Date();
-    await dbEncounter.save(); // done twice because sequelize's model.changed uses equality to check
 
-    expect(await models.Encounter.findByPk(encounter.id)).toHaveProperty('markedForPush', false);
+    await expect(models.Encounter.findByPk(encounter.id)).resolves.toHaveProperty(
+      'markedForPush',
+      false,
+    );
 
     // act
     const newAnswer = {
@@ -40,7 +40,10 @@ describe('sync-related hooks', () => {
     await models.SurveyResponseAnswer.create(newAnswer);
 
     // assert
-    expect(await models.Encounter.findByPk(encounter.id)).toHaveProperty('markedForPush', true);
+    return expect(models.Encounter.findByPk(encounter.id)).resolves.toHaveProperty(
+      'markedForPush',
+      true,
+    );
   });
 
   it('marks patients for push when patient subchannel models are updated', async () => {
