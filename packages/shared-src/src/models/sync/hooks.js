@@ -37,14 +37,7 @@ const addHooksToNested = model => {
   }
 };
 
-const ignoreChangesWhenMarkingForPush = [
-  'createdAt',
-  'updatedAt',
-  'markedForPush',
-  'markedForSync',
-  'pushedAt',
-  'pulledAt',
-];
+const syncSpecificColumns = ['markedForPush', 'markedForSync', 'pushedAt', 'pulledAt'];
 
 export const initSyncClientModeHooks = models => {
   Object.values(models)
@@ -52,11 +45,18 @@ export const initSyncClientModeHooks = models => {
     .forEach(model => {
       // add hook to model itself
       model.addHook('beforeSave', 'markForPush', record => {
-        // if only excluded sync columns were changed, it's not a change we want to sync elsewhere
         const changedFields = record?.changed() || [];
-        if (changedFields.every(field => ignoreChangesWhenMarkingForPush.includes(field))) {
+
+        // if only sync related columns were changed, it's not a change we care to sync elsewhere
+        if (changedFields.every(field => syncSpecificColumns.includes(field))) {
           return;
         }
+
+        // if this change was caused by an import, we don't want to sync it back up to the server
+        if (changedFields.includes('pulledAt')) {
+          return;
+        }
+
         record.markedForPush = true;
       });
 
