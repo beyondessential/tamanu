@@ -145,36 +145,36 @@ describe('import', () => {
         });
 
         it('updates the record', async () => {
+          // arrange
           const model = models[modelName];
           const isPushable = !!model.tableAttributes.pushedAt;
-          const markedForPushCases = isPushable ? [true, false] : [null];
-          for (const originalMarkedForPush of markedForPushCases) {
-            // arrange
-            const oldRecord = await fakeRecord();
-            await model.create(oldRecord);
-            if (isPushable) {
-              const record = await model.findByPk(oldRecord.id);
-              record.markedForPush = originalMarkedForPush;
-              await record.save();
-            }
-            const newRecord = {
-              ...(await fakeRecord()),
-              id: oldRecord.id,
-            };
-            const channel = overrideChannel || (await model.getChannels())[0];
+          const oldRecord = await fakeRecord();
+          await model.create(oldRecord);
+          if (isPushable) {
+            // the newly created record should have markedForPush set to true initially
+            await expect(model.findByPk(oldRecord.id)).resolves.toHaveProperty(
+              'markedForPush',
+              true,
+            );
+          }
+          const newRecord = {
+            ...(await fakeRecord()),
+            id: oldRecord.id,
+          };
+          const channel = overrideChannel || (await model.getChannels())[0];
 
-            // act
-            const plan = createImportPlan(model);
-            await executeImportPlan(plan, channel, [toSyncRecord(newRecord)]);
+          // act
+          const plan = createImportPlan(model);
+          await executeImportPlan(plan, channel, [toSyncRecord(newRecord)]);
 
-            // assert
-            const dbRecord = await model.findByPk(oldRecord.id, { ...options, plain: true });
-            expect(dbRecord).toMatchObject(newRecord);
-            if (isPushable) {
-              expect(dbRecord.pulledAt).toEqual(expect.any(Date));
-              // shouldn't change markedForPush status
-              expect(dbRecord.markedForPush).toEqual(originalMarkedForPush);
-            }
+          // assert
+          const dbRecord = await model.findByPk(oldRecord.id, { ...options, plain: true });
+          expect(dbRecord).toMatchObject(newRecord);
+          if (isPushable) {
+            expect(dbRecord.pulledAt).toEqual(expect.any(Date));
+            // even if there were pending changes, they will have been overwritten by the import
+            // from the server, so should change markedForPush status to false
+            expect(dbRecord.markedForPush).toEqual(false);
           }
         });
 

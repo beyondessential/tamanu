@@ -115,7 +115,7 @@ const executeCreates = async (importPlan, records) => {
     return { ...data, id: importPlan.model.generateId() };
   });
   return executeUpdateOrCreates(importPlan, recordsWithIds, model => async rows =>
-    model.bulkCreate(rows.map(r => ({ ...r, markedForPush: false }))),
+    model.bulkCreate(rows),
   );
 };
 
@@ -139,7 +139,10 @@ const executeUpdateOrCreates = async (
   const rows = records.map(data => {
     // use only allowed columns
     let values = pick(data, ...columns);
+
+    // set flags so that changes don't get immediately marked for push back to the server
     values.pulledAt = new Date();
+    values.markedForPush = false;
 
     // on the server, remove null or undefined fields
     if (!model.syncClientMode) {
