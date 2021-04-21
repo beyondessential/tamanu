@@ -189,11 +189,11 @@ export class SyncManager {
       ];
 
       for (const model of modelsToSync) {
-        if (shouldPull(model)) {
-          await this.pullAndImport(model, patientId);
-        }
         if (shouldPush(model)) {
           await this.exportAndPush(model, patientId);
+        }
+        if (shouldPull(model)) {
+          await this.pullAndImport(model, patientId);
         }
       }
     };
