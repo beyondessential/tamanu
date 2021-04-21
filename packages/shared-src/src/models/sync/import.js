@@ -144,9 +144,11 @@ const executeUpdateOrCreates = async (
     values.pulledAt = new Date();
     values.markedForPush = false;
 
-    // on the server, remove null or undefined fields
+    // on the server, remove null or undefined fields, and run any other model-specific
+    // santization (e.g. auto-closing outpatient encounters)
     if (!model.syncClientMode) {
       values = pickBy(values, value => value !== undefined && value !== null);
+      values = model.sanitizeForSyncServer ? model.sanitizeForSyncServer(values) : values;
     }
 
     return values;
