@@ -37,9 +37,7 @@ user.get(
         },
       ],
     });
-    const users = userFacilities
-      .map(userFacility => userFacility.get({ plain: true }))
-      .map(plainUser => plainUser.user);
+    const users = userFacilities.map(userFacility => userFacility.get({ plain: true }).user);
     res.send(users);
   }),
 );

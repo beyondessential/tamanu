@@ -30,7 +30,7 @@ export class UserFacility extends Model {
     });
   }
 
-  static async create(values) {
+  static async create(values, options) {
     const { facilityId } = values;
     const existingFacility = await this.sequelize.models.ReferenceData.findOne({
       where: {
@@ -41,7 +41,7 @@ export class UserFacility extends Model {
     if (!existingFacility) {
       throw new ValidationError(`Invalid facilityId: ${facilityId}`);
     }
-    return super.create(values);
+    return super.create(values, options);
   }
 
   static syncDirection = SYNC_DIRECTIONS.PULL_ONLY;
