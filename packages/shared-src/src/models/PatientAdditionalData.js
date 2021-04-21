@@ -17,8 +17,9 @@ export class PatientAdditionalData extends Model {
         streetVillage: Sequelize.STRING,
         educationalLevel: Sequelize.STRING,
         socialMedia: Sequelize.STRING,
+        title: Sequelize.STRING,
       },
-      options
+      options,
     );
   }
 

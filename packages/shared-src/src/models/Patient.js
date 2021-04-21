@@ -12,7 +12,6 @@ export class Patient extends Model {
           unique: true,
           allowNull: false,
         },
-        title: Sequelize.STRING,
         firstName: Sequelize.STRING,
         middleName: Sequelize.STRING,
         lastName: Sequelize.STRING,

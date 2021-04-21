@@ -10,6 +10,7 @@ const reference = {
 
 const movedFields = {
   blood_type: Sequelize.STRING,
+  title: Sequelize.STRING,
   ethnicity_id: reference,
   nationality_id: reference,
   country_id: reference,
