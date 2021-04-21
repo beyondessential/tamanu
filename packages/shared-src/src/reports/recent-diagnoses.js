@@ -1,5 +1,5 @@
 import { Op } from 'sequelize';
-import moment from 'moment';
+import { differenceInYears, subDays } from 'date-fns';
 import { generateReportFromQueryData } from './utilities';
 
 const reportColumnTemplate = [
@@ -8,7 +8,20 @@ const reportColumnTemplate = [
   { title: 'Patient First Name', accessor: data => data.Encounter.patient.firstName },
   { title: 'Patient Last Name', accessor: data => data.Encounter.patient.lastName },
   { title: 'National Health Number', accessor: data => data.Encounter.patient.displayId },
+  {
+    title: 'Age',
+    accessor: data => {
+      return differenceInYears(new Date(), data.Encounter.patient.dateOfBirth);
+    },
+  },
   { title: 'Sex', accessor: data => data.Encounter.patient.sex },
+  {
+    title: 'Contact Number',
+    accessor: data => {
+      const additionalDetails = JSON.parse(data.Encounter.patient.additionalDetails || '{}');
+      return additionalDetails.primaryContactNumber || additionalDetails.secondaryContactNumber;
+    },
+  },
   { title: 'Village', accessor: data => data.Encounter.patient.ReferenceDatum.name },
   { title: 'Doctor/Nurse', accessor: data => data.Encounter.examiner?.displayName || '' },
   { title: 'Department', accessor: data => data.Encounter.department?.name || '' },
@@ -18,9 +31,7 @@ const reportColumnTemplate = [
 
 function parametersToSqlWhere(parameters) {
   if (!parameters.fromDate) {
-    parameters.fromDate = moment()
-      .subtract(30, 'days')
-      .toISOString();
+    parameters.fromDate = subDays(new Date(), 30).toISOString();
   }
   const whereClause = Object.entries(parameters)
     .filter(([, val]) => val)
