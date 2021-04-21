@@ -16,11 +16,21 @@ const Container = ({
   selectedPatient,
 }: PatientDetailsScreenProps): ReactElement => {
   const isFocused = useIsFocused(); // reload issues whenever the page is focused
-  const [patientIssues, error] = useBackendEffect(
+  const [patientIssues, issuesError] = useBackendEffect(
     ({ models }) => {
       if (isFocused) {
         return models.PatientIssue.find({
           order: { recordedDate: 'ASC' },
+          where: { patient: { id: selectedPatient.id } },
+        })
+      }
+    },
+    [isFocused, selectedPatient.id],
+  );
+  const [patientAdditionalData, additionalDataError] = useBackendEffect(
+    ({ models }) => {
+      if (isFocused) {
+        return models.PatientAdditionalData.find({
           where: { patient: { id: selectedPatient.id } },
         })
       }
@@ -38,21 +48,8 @@ const Container = ({
       ...selectedPatient,
       culturalTraditionName: null,
     },
-    reminderWarnings: true,
-    parentsInfo: {
-      fatherName: 'Nuno Wangdi',
-      motherName: 'Rose Wangdi',
-    },
-    ongoingConditions: {
-      data: ['Hepatitis C', 'Asthma'],
-    },
-    familyHistory: {
-      data: ['Haemochromatosis'],
-    },
     patientIssues,
-    allergies: {
-      data: ['rhinitis'],
-    },
+    patientAdditionalData,
   };
 
   const [reminders, setReminders] = useState(patientData.reminderWarnings);
@@ -78,7 +75,8 @@ const Container = ({
     navigation.navigate(Routes.HomeStack.PatientDetailsStack.AddPatientIssue);
   }, [navigation]);
 
-  if (error) return <ErrorScreen error={error} />;
+  if (issuesError) return <ErrorScreen error={issuesError} />;
+  if (additionalDataError) return <ErrorScreen error={additionalDataError} />;
   if (!patientIssues) return <LoadingScreen />;
 
   return (

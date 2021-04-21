@@ -1,3 +1,4 @@
+/* eslint-disable */
 import React, { ReactElement } from 'react';
 import { theme } from '~/ui/styled/theme';
 import {
@@ -25,6 +26,7 @@ import {
   PatientIssues,
 } from './CustomComponents';
 import { AllergiesList } from './CustomComponents/AllergiesList';
+import { AdditionalInfo } from './CustomComponents/AdditionalInfo';
 
 const avatarMock = {
   id: 54,
@@ -84,7 +86,7 @@ export const Screen = ({
                 fontSize={screenPercentageToDP(1.94, Orientation.Height)}
               >
                 {getGender(patientData.generalInfo.sex)},{' '}
-                {getAgeFromDate(new Date(patientData.generalInfo.dateOfBirth))} years old,{' '}
+                {getAgeFromDate(new Date(patientData.generalInfo.dateOfBirth))} years old
               </StyledText>
             </StyledView>
           </RowView>
@@ -99,6 +101,10 @@ export const Screen = ({
           paddingTop={20}
         >
           <GeneralInfo
+            id={patientData.id}
+            generalInfo={patientData.generalInfo}
+          />
+          <AdditionalInfo
             id={patientData.id}
             generalInfo={patientData.generalInfo}
           />
