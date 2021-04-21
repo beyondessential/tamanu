@@ -1,3 +1,4 @@
+import config from 'config';
 import express from 'express';
 import asyncHandler from 'express-async-handler';
 
@@ -20,6 +21,26 @@ user.get(
     }
     req.checkPermission('read', req.user);
     res.send(req.user);
+  }),
+);
+
+user.get(
+  '/current-facility',
+  asyncHandler(async (req, res) => {
+    req.checkPermission('list', 'User');
+    const userFacilities = await req.models.UserFacility.findAll({
+      where: { facilityId: config.currentFacilityId },
+      include: [
+        {
+          model: req.models.User,
+          as: 'user',
+        },
+      ],
+    });
+    const users = userFacilities
+      .map(userFacility => userFacility.get({ plain: true }))
+      .map(plainUser => plainUser.user);
+    res.send(users);
   }),
 );
 

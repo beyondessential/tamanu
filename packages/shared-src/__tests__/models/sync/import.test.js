@@ -34,6 +34,7 @@ describe('import', () => {
     let context;
     const patientId = uuidv4();
     const userId = uuidv4();
+    const facilityId = uuidv4();
     beforeAll(async () => {
       context = await initDb({ syncClientMode: true }); // TODO: test server mode too
       models = context.models;
@@ -43,7 +44,7 @@ describe('import', () => {
         type: 'facility',
         name: 'Test Facility',
         code: 'test-facility',
-        id: 'test-facility',
+        id: facilityId,
       });
     });
 
@@ -117,7 +118,14 @@ describe('import', () => {
       [
         'Location',
         async () => {
-          return { ...fake(models.Location), facilityId: 'test-facility' };
+          return { ...fake(models.Location), facilityId };
+        },
+      ],
+      [
+        'UserFacility',
+        async () => {
+          const user = await models.User.create(fakeUser());
+          return { id: uuidv4(), userId: user.id, facilityId };
         },
       ],
     ];
