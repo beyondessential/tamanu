@@ -186,6 +186,7 @@ export class SyncManager {
         models.Encounter,
         models.ReportRequest,
         models.Location,
+        models.UserFacility,
       ];
 
       for (const model of modelsToSync) {
