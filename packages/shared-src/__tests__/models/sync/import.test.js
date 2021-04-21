@@ -9,6 +9,7 @@ import {
   fakeUser,
   fake,
   buildScheduledVaccine,
+  buildEncounter,
   buildNestedEncounter,
 } from 'shared/test-helpers';
 import { createImportPlan, executeImportPlan } from 'shared/models/sync';
@@ -198,10 +199,13 @@ describe('import', () => {
   });
 
   describe('in server mode', () => {
+    let context;
     let models;
+    const patientId = uuidv4();
     beforeAll(async () => {
-      const context = await initDb({ syncClientMode: false });
+      context = await initDb({ syncClientMode: false });
       models = context.models;
+      await models.Patient.create({ ...fakePatient(), id: patientId });
     });
 
     it('removes null or undefined fields when importing', async () => {
@@ -227,6 +231,40 @@ describe('import', () => {
         firstName: oldPatient.firstName,
         ...(Patient.tableAttributes.pushedAt ? { pulledAt: expect.any(Date) } : {}),
       });
+    });
+
+    it('closes old outpatient encounters when importing', async () => {
+      // arrange
+      const { Encounter } = models;
+      const channel = `patient/${patientId}/encounter`;
+      const today = new Date();
+      const yesterday = new Date(today.getTime() - 24 * 60 * 60 * 1000);
+      const endOfYesterday = new Date(new Date(yesterday).setHours(23, 59, 59, 999));
+      const todayEncounter = {
+        ...(await buildEncounter(context, patientId)),
+        startDate: today.toISOString(),
+        endDate: null,
+        encounterType: 'clinic',
+      };
+      const yesterdayEncounter = {
+        ...(await buildEncounter(context, patientId)),
+        startDate: yesterday.toISOString(),
+        endDate: null,
+        encounterType: 'clinic',
+      };
+
+      // act
+      const plan = createImportPlan(Encounter);
+      await executeImportPlan(plan, channel, [
+        toSyncRecord(todayEncounter),
+        toSyncRecord(yesterdayEncounter),
+      ]);
+
+      // assert
+      const dbTodayEncounter = await Encounter.findByPk(todayEncounter.id);
+      const dbYesterdayEncounter = await Encounter.findByPk(yesterdayEncounter.id);
+      expect(dbTodayEncounter.endDate).toEqual(null);
+      expect(dbYesterdayEncounter.endDate).toEqual(endOfYesterday);
     });
   });
 });

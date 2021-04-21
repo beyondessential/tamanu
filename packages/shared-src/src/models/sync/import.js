@@ -75,6 +75,8 @@ export const executeImportPlan = async (plan, channel, syncRecords) => {
 };
 
 const executeDeletes = async (importPlan, idsForDelete) => {
+  if (idsForDelete.length === 0) return 0;
+
   const { model } = importPlan;
 
   // delete tombstones if we're in client mode
@@ -114,9 +116,9 @@ const executeCreates = async (importPlan, records) => {
     // bulk create of children later
     return { ...data, id: importPlan.model.generateId() };
   });
-  return executeUpdateOrCreates(importPlan, recordsWithIds, model => async rows =>
-    model.bulkCreate(rows),
-  );
+  return executeUpdateOrCreates(importPlan, recordsWithIds, model => async rows => {
+    return model.bulkCreate(rows);
+  });
 };
 
 const executeUpdates = async (importPlan, records) =>

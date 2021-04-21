@@ -148,13 +148,14 @@ export class Encounter extends Model {
   }
 
   static checkNeedsAutoDischarge({ encounterType, startDate, endDate }) {
-    const startOfDay = moment()
-      .startOf('day')
-      .toDate();
-    return encounterType === ENCOUNTER_TYPES.CLINIC && startDate < startOfDay && !endDate;
+    return (
+      encounterType === ENCOUNTER_TYPES.CLINIC &&
+      moment(startDate).isBefore(new Date(), 'day') &&
+      !endDate
+    );
   }
 
-  static async getAutoDischargeEndDate({ startDate }) {
+  static getAutoDischargeEndDate({ startDate }) {
     return moment(startDate)
       .endOf('day')
       .toDate();
