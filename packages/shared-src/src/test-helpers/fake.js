@@ -31,7 +31,6 @@ export function fakePatient(prefix = 'test-') {
     ]),
     sex: sample(['male', 'female', 'other']),
     dateOfBirth: new Date(random(0, Date.now())),
-    title: null,
     email: null,
     villageId: null,
   };
