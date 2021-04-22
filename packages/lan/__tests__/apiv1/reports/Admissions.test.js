@@ -1,10 +1,9 @@
 import {
   createDummyPatient,
   createDummyEncounter,
-  randomUser,
   randomReferenceId,
 } from 'shared/demoData/patients';
-import moment from 'moment';
+import { subDays } from 'date-fns';
 import { createTestContext } from '../../utilities';
 import { ENCOUNTER_TYPES } from 'shared/constants';
 
@@ -42,9 +41,7 @@ describe('Admissions report', () => {
       await models.Encounter.create(
         await createDummyEncounter(models, {
           encounterType: ENCOUNTER_TYPES.ADMISSION,
-          startDate: moment()
-            .subtract(1, 'day')
-            .toISOString(),
+          startDate: subDays(new Date(), 1).toISOString(),
           patientId: expectedPatient.dataValues.id,
           locationId: expectedLocation,
         }),
@@ -54,9 +51,7 @@ describe('Admissions report', () => {
       await models.Encounter.create(
         await createDummyEncounter(models, {
           encounterType: ENCOUNTER_TYPES.EMERGENCY,
-          startDate: moment()
-            .subtract(1, 'day')
-            .toISOString(),
+          startDate: subDays(new Date(), 1).toISOString(),
           patientId: wrongPatient.dataValues.id,
           locationId: expectedLocation,
         }),
