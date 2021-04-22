@@ -32,7 +32,6 @@ describe('Patient', () => {
     expect(result.body).toHaveProperty('displayId', patient.displayId);
     expect(result.body).toHaveProperty('firstName', patient.firstName);
     expect(result.body).toHaveProperty('lastName', patient.lastName);
-    expect(result.body).toHaveProperty('title', patient.title);
   });
 
   test.todo('should get a list of patient conditions');
