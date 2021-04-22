@@ -32,6 +32,7 @@ export const reloadPatient = id => async (dispatch, getState, { api }) => {
       issues,
       conditions,
       carePlans,
+      additionalDetails,
     ] = await Promise.all([
       api.get(`patient/${id}`),
       api.get(`patient/${id}/currentEncounter`),
@@ -40,6 +41,7 @@ export const reloadPatient = id => async (dispatch, getState, { api }) => {
       api.get(`patient/${id}/issues`),
       api.get(`patient/${id}/conditions`),
       api.get(`patient/${id}/carePlans`),
+      api.get(`patient/${id}/additionalDetails`),
     ]);
 
     dispatch({
@@ -51,6 +53,7 @@ export const reloadPatient = id => async (dispatch, getState, { api }) => {
         allergies: allergies.data,
         familyHistory: familyHistory.data,
         carePlans: carePlans.data,
+        additionalDetails: additionalDetails,
         ...patient,
       },
     });

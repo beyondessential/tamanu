@@ -11,60 +11,17 @@ import { patientVaccineRoutes } from './patientVaccine';
 
 export const patient = express.Router();
 
-const AdditionalDetailsProperties = [
-  'placeOfBirth',
-  'cityTown',
-  'streetVillage',
-  'maritalStatus',
-  'bloodType',
-  'primaryContactNumber',
-  'secondaryContactNumber',
-  'socialMediaPlatform',
-  'socialMediaName',
-  'educationalAttainment',
-  'patientType',
-];
-
-function stringifyAdditionalDetails(reqBody) {
-  return JSON.stringify(
-    AdditionalDetailsProperties.reduce((acc, p) => {
-      if (reqBody[p]) {
-        acc[p] = reqBody[p];
-      }
-      return acc;
-    }, {}),
-  );
-}
-
-function parseAdditionalDetails(patient) {
-  const parsedAdditionalDetails = patient.get('additionalDetails')
-    ? JSON.parse(patient.get('additionalDetails'))
-    : {};
-
-  // NOTE: if there's no values for additional details, we need to
-  // set the property to null, so it will override desktop app
-  // state reducer spread
-  return AdditionalDetailsProperties.reduce((acc, property) => {
-    if (acc[property] === undefined) {
-      acc[property] = null;
-    }
-    return acc;
-  }, parsedAdditionalDetails);
-}
-
 function dbRecordToResponse(patientRecord) {
   return {
     ...patientRecord.get({
       plain: true,
     }),
-    ...parseAdditionalDetails(patientRecord),
   };
 }
 
 function requestBodyToRecord(reqBody) {
   return {
     ...reqBody,
-    additionalDetails: stringifyAdditionalDetails(reqBody),
   };
 }
 
@@ -128,6 +85,19 @@ patient.post(
 const patientRelations = permissionCheckingRouter('read', 'Patient');
 
 patientRelations.get('/:id/encounters', simpleGetList('Encounter', 'patientId'));
+
+patientRelations.get(
+  '/:id/additionalDetails',
+  asyncHandler(async (req, res) => {
+    const { models, params } = req;
+
+    req.checkPermission('read', 'Patient');
+    const patientAdditionalData = await models.PatientAdditionalData.findOne({
+      patientId: params.id,
+    });
+    res.send(patientAdditionalData);
+  }),
+);
 
 // TODO
 // patientRelations.get('/:id/appointments', simpleGetList('Appointment', 'patientId'));

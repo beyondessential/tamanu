@@ -238,7 +238,7 @@ const TABS = [
 export const DumbPatientView = React.memo(({ patient, loading }) => {
   const [currentTab, setCurrentTab] = React.useState('history');
   const disabled = !!patient.death;
-
+  console.log({ patient });
   if (loading) return <LoadingIndicator />;
   return (
     <React.Fragment>

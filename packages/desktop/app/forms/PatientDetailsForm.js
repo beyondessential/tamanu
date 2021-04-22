@@ -240,5 +240,11 @@ export const PatientDetailsForm = ({
     ],
   );
 
-  return <Form render={render} initialValues={patient} onSubmit={onSubmit} />;
+  return (
+    <Form
+      render={render}
+      initialValues={{ ...patient, ...patient.additionalDetails }}
+      onSubmit={onSubmit}
+    />
+  );
 };
