@@ -54,6 +54,19 @@ describe('Auth', () => {
       expect(response.body).not.toHaveProperty('user.hashedPassword');
     });
 
+    it('Should return feature flags in the login response', async () => {
+      const response = await baseApp.post('/v1/login').send({
+        email: TEST_EMAIL,
+        password: TEST_PASSWORD,
+      });
+
+      expect(response).toHaveSucceeded();
+      expect(response.body).toHaveProperty('featureFlags.patientFieldOverrides.displayId', {
+        shortLabel: 'NHN',
+        longLabel: 'National Health Number',
+      });
+    });
+
     it('Should reject an empty credential', async () => {
       const response = await baseApp.post('/v1/login').send({
         email: TEST_EMAIL,
