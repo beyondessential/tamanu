@@ -1,5 +1,5 @@
 import { Op } from 'sequelize';
-import moment from 'moment';
+import { subDays } from 'date-fns';
 import { generateReportFromQueryData } from './utilities';
 
 const reportColumnTemplate = [
@@ -9,6 +9,7 @@ const reportColumnTemplate = [
   },
   { title: 'UID', accessor: data => data.uid },
   { title: 'DOB', accessor: data => data.dob },
+  { title: 'Sex', accessor: data => data.sex },
   { title: 'Village', accessor: data => data.village },
   { title: 'First dose given', accessor: data => data.dose1 },
   { title: 'First dose date', accessor: data => data.dose1Date },
@@ -19,9 +20,7 @@ const reportColumnTemplate = [
 
 function parametersToSqlWhere(parameters) {
   if (!parameters.fromDate) {
-    parameters.fromDate = moment()
-      .subtract(30, 'days')
-      .toISOString();
+    parameters.fromDate = subDays(new Date(), 30).toISOString();
   }
 
   const whereClause = Object.entries(parameters)
@@ -88,7 +87,7 @@ async function queryCovidVaccineListData(models, parameters) {
     const {
       encounter: {
         patientId,
-        patient: { displayId, firstName, lastName, dateOfBirth, village },
+        patient: { displayId, firstName, lastName, dateOfBirth, village, sex },
       },
       date,
       scheduledVaccine: { schedule, label },
@@ -102,6 +101,7 @@ async function queryCovidVaccineListData(models, parameters) {
         dose1: 'No',
         dose2: 'No',
         vaccineLabel: label,
+        sex,
       };
     }
     if (schedule === 'Dose 1') {

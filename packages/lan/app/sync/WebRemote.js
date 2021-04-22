@@ -162,9 +162,9 @@ export class WebRemote {
   async fetchChannelsWithChanges(channelsToCheck) {
     const batchSize = 1000; // pretty arbitrary, avoid overwhelming the server with e.g. 100k channels
     const channelsWithPendingChanges = [];
-    for (const batchOfChannels of chunk(Object.entries(channelsToCheck), batchSize)) {
+    for (const batchOfChannels of chunk(channelsToCheck, batchSize)) {
       const body = batchOfChannels.reduce(
-        (acc, [channel, cursor]) => ({
+        (acc, { channel, cursor }) => ({
           ...acc,
           [channel]: cursor,
         }),

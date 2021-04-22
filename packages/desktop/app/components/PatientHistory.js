@@ -27,6 +27,7 @@ export const PatientHistory = ({ patient, pulledAt, onItemClick }) => {
       onRowClick={row => onItemClick(row.id)}
       noDataMessage="No historical records for this patient."
       endpoint={`patient/${patient.id}/encounters`}
+      initialSort={{ orderBy: 'startDate', order: 'desc' }}
     />
   );
 };

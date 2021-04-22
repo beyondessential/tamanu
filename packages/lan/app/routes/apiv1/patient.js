@@ -247,6 +247,12 @@ patient.get(
 
     const sortKey = sortKeys[orderBy] || sortKeys.displayId;
     const sortDirection = order.toLowerCase() === 'asc' ? 'ASC' : 'DESC';
+    // add secondary search terms so no matter what the primary order, the results are secondarily
+    // sorted sensibly
+    const secondarySearchTerm = [sortKeys.lastName, sortKeys.firstName, sortKeys.displayId]
+      .filter(v => v !== orderBy)
+      .map(v => `${v} ASC`)
+      .join(', ');
 
     // query is always going to come in as strings, has to be set manually
     ['ageMax', 'ageMin']
@@ -296,7 +302,7 @@ patient.get(
 
     const from = `
       FROM patients
-        LEFT JOIN encounters 
+        LEFT JOIN encounters
           ON (encounters.patient_id = patients.id AND encounters.end_date IS NULL)
         LEFT JOIN reference_data AS department
           ON (department.type = 'department' AND department.id = encounters.department_id)
@@ -332,8 +338,8 @@ patient.get(
 
     const result = await req.db.query(
       `
-        SELECT 
-          patients.*, 
+        SELECT
+          patients.*,
           encounters.id AS encounter_id,
           encounters.encounter_type,
           department.id AS department_id,
@@ -343,8 +349,8 @@ patient.get(
           village.id AS village_id,
           village.name AS village_name
         ${from}
-        
-        ORDER BY ${sortKey} ${sortDirection} NULLS LAST
+
+        ORDER BY ${sortKey} ${sortDirection}, ${secondarySearchTerm} NULLS LAST
         LIMIT :limit
         OFFSET :offset
       `,

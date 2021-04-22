@@ -152,7 +152,7 @@ export class SyncManager {
 
   async getChannelPullCursor(channel) {
     const metadata = await this.context.models.SyncMetadata.findOne({ where: { channel } });
-    return metadata?.pullCursor;
+    return metadata?.pullCursor || '0';
   }
 
   async setChannelPullCursor(channel, pullCursor) {
@@ -186,6 +186,7 @@ export class SyncManager {
         models.Encounter,
         models.ReportRequest,
         models.Location,
+        models.UserFacility,
       ];
 
       for (const model of modelsToSync) {

@@ -139,7 +139,10 @@ const executeUpdateOrCreates = async (
   const rows = records.map(data => {
     // use only allowed columns
     let values = pick(data, ...columns);
+
+    // set flags so that changes don't get immediately marked for push back to the server
     values.pulledAt = new Date();
+    values.markedForPush = false;
 
     // on the server, remove null or undefined fields
     if (!model.syncClientMode) {
