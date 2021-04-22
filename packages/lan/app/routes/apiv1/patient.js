@@ -3,10 +3,10 @@ import asyncHandler from 'express-async-handler';
 import { QueryTypes } from 'sequelize';
 import moment from 'moment';
 
+import { NotFoundError } from 'shared/errors';
 import { simpleGetList, permissionCheckingRouter, runPaginatedQuery } from './crudHelpers';
 
 import { renameObjectKeys } from '~/utils/renameObjectKeys';
-import { NotFoundError } from 'shared/errors';
 import { patientVaccineRoutes } from './patientVaccine';
 
 export const patient = express.Router();
@@ -89,7 +89,7 @@ patient.put(
   '/:id',
   asyncHandler(async (req, res) => {
     const {
-      models: { Patient },
+      models: { Patient, PatientAdditionalData },
       params,
     } = req;
     req.checkPermission('read', 'Patient');
@@ -97,6 +97,17 @@ patient.put(
     if (!patient) throw new NotFoundError();
     req.checkPermission('write', patient);
     await patient.update(requestBodyToRecord(req.body));
+
+    const patientAdditionalData = await PatientAdditionalData.findOne({ patient_id: patient.id });
+    if (!patientAdditionalData) {
+      await PatientAdditionalData.create({
+        ...requestBodyToRecord(req.body),
+        patient_id: patient.id,
+      });
+    } else {
+      await patientAdditionalData.update(requestBodyToRecord(req.body));
+    }
+
     res.send(dbRecordToResponse(patient));
   }),
 );
@@ -128,23 +139,28 @@ patientRelations.get('/:id/familyHistory', simpleGetList('PatientFamilyHistory',
 patientRelations.get('/:id/immunisations', simpleGetList('Immunisation', 'patientId'));
 patientRelations.get('/:id/carePlans', simpleGetList('PatientCarePlan', 'patientId'));
 
-patientRelations.get('/:id/referrals', asyncHandler(async (req, res) => {
-  const { models, params } = req;
+patientRelations.get(
+  '/:id/referrals',
+  asyncHandler(async (req, res) => {
+    const { models, params } = req;
 
-  req.checkPermission('read', 'Patient');
-  req.checkPermission('read', 'Encounter');
+    req.checkPermission('read', 'Patient');
+    req.checkPermission('read', 'Encounter');
 
-  const patientReferrals = await models.Referral.findAll({
-    include: [{
-      association: 'initiatingEncounter',
-      where: {
-        '$initiatingEncounter.patient_id$': params.id,
-      }
-    }]
-  });
+    const patientReferrals = await models.Referral.findAll({
+      include: [
+        {
+          association: 'initiatingEncounter',
+          where: {
+            '$initiatingEncounter.patient_id$': params.id,
+          },
+        },
+      ],
+    });
 
-  res.send({ count: patientReferrals.length, data: patientReferrals });
-}));
+    res.send({ count: patientReferrals.length, data: patientReferrals });
+  }),
+);
 
 patientRelations.get(
   '/:id/surveyResponses',
