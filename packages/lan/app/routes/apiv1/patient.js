@@ -87,7 +87,7 @@ const patientRelations = permissionCheckingRouter('read', 'Patient');
 patientRelations.get('/:id/encounters', simpleGetList('Encounter', 'patientId'));
 
 patientRelations.get(
-  '/:id/additionalDetails',
+  '/:id/additionalData',
   asyncHandler(async (req, res) => {
     const { models, params } = req;
 

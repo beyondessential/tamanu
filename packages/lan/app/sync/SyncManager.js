@@ -181,6 +181,7 @@ export class SyncManager {
         models.PatientCondition,
         models.PatientFamilyHistory,
         models.PatientIssue,
+        models.PatientAdditionalData,
 
         models.LabTestType,
         models.Encounter,
