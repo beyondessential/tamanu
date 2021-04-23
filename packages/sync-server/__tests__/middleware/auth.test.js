@@ -118,6 +118,7 @@ describe('Auth', () => {
           displayName: DISPLAY_NAME,
           role: 'practitioner',
         },
+        featureFlags: expect.any(Object),
       });
     });
 
