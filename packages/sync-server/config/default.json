@@ -29,10 +29,12 @@
     "from": ""
   },
   "featureFlags": {
-    "patientFieldOverrides": {
-      "displayId": {
-        "shortLabel": "NHN",
-        "longLabel": "National Health Number"
+    "data": {
+      "patientFieldOverrides": {
+        "displayId": {
+          "shortLabel": "NHN",
+          "longLabel": "National Health Number"
+        }
       }
     }
   }

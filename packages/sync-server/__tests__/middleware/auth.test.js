@@ -64,6 +64,7 @@ describe('Auth', () => {
       expect(response.body).toHaveProperty('featureFlags.patientFieldOverrides.displayId', {
         shortLabel: 'NHN',
         longLabel: 'National Health Number',
+        hidden: false,
       });
     });
 

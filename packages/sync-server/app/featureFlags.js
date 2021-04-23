@@ -1,6 +1,44 @@
 import config from 'config';
-import express from 'express';
-import asyncHandler from 'express-async-handler';
+import * as yup from 'yup';
 
-// in the future this might do asychronous work, so we're returning a promise
-export const getFeatureFlags = () => Promise.resolve(config.featureFlags.data);
+const patientFieldSchema = yup
+  .object({
+    shortLabel: yup.string().when('hidden', {
+      is: false,
+      then: yup.string().required(),
+    }),
+    longLabel: yup.string().when('hidden', {
+      is: false,
+      then: yup.string().required(),
+    }),
+    hidden: yup
+      .boolean()
+      .required()
+      .default(false),
+  })
+  .noUnknown();
+
+const patientFieldsSchema = yup
+  .object(
+    ['displayId'].reduce(
+      (fields, field) => ({
+        ...fields,
+        [field]: patientFieldSchema,
+      }),
+      {},
+    ),
+  )
+  .noUnknown();
+
+const rootFlagSchema = yup
+  .object({
+    patientFieldOverrides: patientFieldsSchema,
+  })
+  .required()
+  .noUnknown();
+
+export const getFeatureFlags = async () => {
+  const flags = config.featureFlags.data;
+  // TODO: once feature flags are persisted in the db, validate on save, not load
+  return rootFlagSchema.validate(flags);
+};
