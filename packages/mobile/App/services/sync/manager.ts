@@ -332,16 +332,16 @@ export class SyncManager {
   async runChannelSync(channelInfo: ChannelInfo): Promise<void> {
     const { channel, model, cursor, serverHasChanges } = channelInfo;
     this.emitter.emit('channelSyncStarted', channel);
-    if (serverHasChanges) {
+    if (model.shouldExport) {
       try {
-        await this.downloadAndImport(model, channel, cursor);
+        await this.exportAndUpload(model, channel);
       } catch (e) {
         this.emitter.emit('channelSyncError', { channel, error: e.message });
       }
     }
-    if (model.shouldExport) {
+    if (serverHasChanges) {
       try {
-        await this.exportAndUpload(model, channel);
+        await this.downloadAndImport(model, channel, cursor);
       } catch (e) {
         this.emitter.emit('channelSyncError', { channel, error: e.message });
       }
