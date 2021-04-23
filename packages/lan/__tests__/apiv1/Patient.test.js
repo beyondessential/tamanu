@@ -69,11 +69,17 @@ describe('Patient', () => {
       const updateResult = await app.put(`/v1/patient/${result.body.id}`).send({
         villageId: newVillage,
         middleName: 'MiddleName',
+        bloodType: 'AB+',
       });
 
       expect(updateResult).toHaveSucceeded();
       expect(updateResult.body).toHaveProperty('villageId', newVillage);
       expect(updateResult.body).toHaveProperty('middleName', 'MiddleName');
+
+      const additionalDataResult = await app.get(`/v1/patient/${result.body.id}/additionalData`);
+
+      expect(additionalDataResult).toHaveSucceeded();
+      expect(additionalDataResult.body).toHaveProperty('bloodType', 'AB+');
     });
 
     test.todo('should create a new patient as a new birth');
