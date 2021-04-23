@@ -1,4 +1,5 @@
 import mitt from 'mitt';
+import { chunk } from 'lodash';
 
 import { IUser } from '~/types';
 import {
@@ -20,6 +21,11 @@ export type UploadRecordsResponse = {
   requestedAt: number;
 };
 
+type ChannelWithSyncCursor = {
+  channel: string;
+  cursor?: string;
+};
+
 export interface SyncRecord {
   ERROR_MESSAGE?: string;
   isDeleted?: boolean;
@@ -37,6 +43,10 @@ export interface LoginResponse {
 }
 
 export interface SyncSource {
+  fetchChannelsWithChanges(
+    channels: ChannelWithSyncCursor[],
+  ): Promise<string[]>;
+
   downloadRecords(
     channel: string,
     since: string,
@@ -103,8 +113,9 @@ export class WebSyncSource implements SyncSource {
     this.host = host;
   }
 
-  async fetch(path: string, config) {
-    const url = `${this.host}/v${API_VERSION}/${path}`;
+  async fetch(path: string, query: Record<string, string>, config) {
+    const queryString = Object.entries(query).map(([k, v]) => `${k}=${v}`).join('&');
+    const url = `${this.host}/v${API_VERSION}/${path}?${queryString}`;
     const extraHeaders = config?.headers || {};
     const headers = {
       Authorization: `Bearer ${this.token}`,
@@ -140,17 +151,17 @@ export class WebSyncSource implements SyncSource {
     return response.json();
   }
 
-  async get(path: string) {
-    return this.fetch(path, { method: 'GET' });
+  async get(path: string, query: Record<string, string>) {
+    return this.fetch(path, query, { method: 'GET' });
   }
 
-  async post(path: string, body) {
-    return this.fetch(path, {
+  async post(path: string, query: Record<string, string>, body) {
+    return this.fetch(path, query, {
       method: 'POST',
       headers: {
         'Content-Type': 'application/json',
       },
-      body,
+      body: JSON.stringify(body),
     });
   }
 
@@ -170,6 +181,24 @@ export class WebSyncSource implements SyncSource {
     throw err;
   }
 
+  async fetchChannelsWithChanges(channelsToCheck: ChannelWithSyncCursor[]): Promise<string[]> {
+    try {
+      const batchSize = 1000; // pretty arbitrary, avoid overwhelming the server with e.g. 100k channels
+      const channelsWithPendingChanges = [];
+      for (const batchOfChannels of chunk(channelsToCheck, batchSize)) {
+        const body = batchOfChannels.reduce((acc, { channel, cursor = '0' }) => ({
+          ...acc,
+          [channel]: cursor,
+        }), {});
+        const { channelsWithChanges } = await this.post('sync/channels', {}, body);
+        channelsWithPendingChanges.push(...channelsWithChanges);
+      }
+      return channelsWithPendingChanges;
+    } catch (err) {
+      this.throwError(err);
+    }
+  }
+
   async downloadRecords(
     channel: string,
     since: string,
@@ -181,10 +210,9 @@ export class WebSyncSource implements SyncSource {
         since,
         limit,
       };
-      const queryString = Object.entries(query).map(([k, v]) => `${k}=${v}`).join('&');
-      const path = `sync/${encodeURIComponent(channel)}?${queryString}`;
+      const path = `sync/${encodeURIComponent(channel)}`;
 
-      const response = await this.get(path);
+      const response = await this.get(path, query);
       return response;
     } catch (err) {
       this.throwError(err);
@@ -197,7 +225,7 @@ export class WebSyncSource implements SyncSource {
   ): Promise<UploadRecordsResponse | null> {
     try {
       const path = `sync/${encodeURIComponent(channel)}`;
-      const response = await this.post(path, JSON.stringify(records));
+      const response = await this.post(path, {}, records);
       return response;
     } catch (err) {
       this.throwError(err);
@@ -206,7 +234,7 @@ export class WebSyncSource implements SyncSource {
 
   async login(email: string, password: string): Promise<LoginResponse> {
     try {
-      const data = await this.post('/login', JSON.stringify({ email, password }));
+      const data = await this.post('login', {}, { email, password });
 
       if (!data.token || !data.user) {
         // auth failed in some other regard

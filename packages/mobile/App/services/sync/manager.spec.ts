@@ -1,10 +1,7 @@
-import { v4 as uuidv4 } from 'uuid';
-
 import { Database } from '~/infra/db';
 import { Patient } from '~/models/Patient';
 import { PatientIssue } from '~/models/PatientIssue';
 import { Encounter } from '~/models/Encounter';
-import { BaseModel } from '~/models/BaseModel';
 import { readConfig, writeConfig } from '~/services/config';
 
 import { SyncManager } from './manager';
@@ -29,19 +26,19 @@ jest.mock('./source');
 const MockedWebSyncSource = <jest.Mock<WebSyncSource>>WebSyncSource;
 
 const createManager = (): ({
-  emittedEvents: { action: string | Symbol, event: any }[],
-  syncManager: SyncManager,
-  mockedSource: any,
+  emittedEvents: { action: string | symbol; event: any }[];
+  syncManager: SyncManager;
+  mockedSource: any;
 }) => {
   // mock WebSyncSource
   MockedWebSyncSource.mockClear();
-  const syncManager = new SyncManager(new MockedWebSyncSource(""), { verbose: false });
+  const syncManager = new SyncManager(new MockedWebSyncSource(''), { verbose: false });
   expect(MockedWebSyncSource).toHaveBeenCalledTimes(1);
   const mockedSource = MockedWebSyncSource.mock.instances[0];
 
   // detect emitted events
   const emittedEvents = [];
-  syncManager.emitter.on('*', (action: string | Symbol, event: any) => {
+  syncManager.emitter.on('*', (action: string | symbol, event: any) => {
     emittedEvents.push({ action, event });
   });
 
@@ -76,7 +73,7 @@ describe('SyncManager', () => {
           records: [],
         }));
         // act
-        await syncManager.downloadAndImport(Survey, 'survey', 0);
+        await syncManager.downloadAndImport(Survey, 'survey', '0');
 
         // assert
         const storedSurvey = await Survey.findOne(survey.id, { relations: ['program'] });
@@ -103,9 +100,6 @@ describe('SyncManager', () => {
         await models.Survey.createAndSaveOne(survey);
 
         const channel = `patient/${patient.id}/encounter`;
-
-        const now = Date.now();
-        const before = now - 10000;
 
         // act
         const encounter = fakeEncounter();
@@ -137,7 +131,7 @@ describe('SyncManager', () => {
                       },
                     ],
                   },
-                }
+                },
               ],
             },
           },
@@ -151,7 +145,7 @@ describe('SyncManager', () => {
           count: 0,
           records: [],
         }));
-        await syncManager.downloadAndImport(models.Encounter, channel);
+        await syncManager.downloadAndImport(models.Encounter, channel, '0');
 
         // assert
         expect(mockedSource.downloadRecords).toHaveBeenCalledTimes(2);
@@ -280,20 +274,87 @@ describe('SyncManager', () => {
     });
   });
 
-  describe('runPatientSync', () => {
-    const models = [Encounter, PatientIssue];
-
-    it('downloads subchannels of a patient', async () => {
+  describe('runScheduledSync', () => {
+    it('only runs one sync at a time', async () => {
       // arrange
       const { syncManager, mockedSource } = createManager();
+      let resolveFirstFetchChannels;
+      const firstFetchChannelsPromise = new Promise(resolve => {
+        resolveFirstFetchChannels = resolve;
+      });
+      mockedSource.fetchChannelsWithChanges.mockReturnValueOnce(firstFetchChannelsPromise);
 
-      const patient = await Patient.createAndSaveOne<Patient>(await fake(Patient));
-      const now = Date.now();
+      // act
+      const firstSyncPromise = syncManager.runScheduledSync();
+      // while previous sync is still running, waiting for the fetch channels request to resolve,
+      // kick off another run
+      const secondSyncPromise = syncManager.runScheduledSync();
+      // resolve the fetch channels request so the first sync can finish
+      resolveFirstFetchChannels([]);
+
+      await Promise.all([firstSyncPromise, secondSyncPromise]);
+
+      // assert
+      // fetchChannels should only be called once across the two simultaneous syncs
+      expect(mockedSource.fetchChannelsWithChanges).toBeCalledTimes(1);
+    });
+
+    it('does not download any channels when none have pending changes', async () => {
+      // arrange
+      const { syncManager, mockedSource } = createManager();
+      mockedSource.fetchChannelsWithChanges.mockResolvedValueOnce([]);
+
+      // act
+      await syncManager.runScheduledSync();
+
+      // assert
+      expect(mockedSource.fetchChannelsWithChanges).toBeCalledTimes(1);
+      expect(mockedSource.downloadRecords).not.toBeCalled();
+    });
+
+    it('syncs all channels that the server indicates has changes', async () => {
+      // arrange
+      const { syncManager, mockedSource } = createManager();
+      mockedSource.fetchChannelsWithChanges.mockResolvedValueOnce(['user', 'patient']);
+      mockedSource.downloadRecords.mockResolvedValue({
+        count: 0,
+        records: [],
+      });
+
+      // act
+      await syncManager.runScheduledSync();
+
+      // assert
+      expect(mockedSource.fetchChannelsWithChanges).toBeCalledTimes(1);
+      expect(mockedSource.downloadRecords).toBeCalledTimes(2);
+      expect(mockedSource.downloadRecords).toHaveBeenCalledWith('user', '0', expect.any(Number));
+      expect(mockedSource.downloadRecords).toHaveBeenCalledWith('patient', '0', expect.any(Number));
+    });
+
+    it('includes subchannels of patients marked for sync', async () => {
+      const models = [Encounter, PatientIssue];
+      const { syncManager, mockedSource } = createManager();
+
+      // mark all existing patients false as precondition
+      await Patient.update({}, { markedForSync: false });
+
+      const patient = await Patient.createAndSaveOne<Patient>({
+        ...(await fake(Patient)),
+        markedForSync: true,
+      });
+      const syncablePatients = await Patient.getSyncable();
+      expect(syncablePatients.length).toEqual(1);
+      expect(syncablePatients[0].id).toEqual(patient.id);
 
       const records = await Promise.all(models.map(model => fake(
         model,
         { relations: model.includedSyncRelations },
       )));
+
+      mockedSource.fetchChannelsWithChanges.mockResolvedValueOnce([
+        `patient/${patient.id}/encounter`,
+        `patient/${patient.id}/issue`,
+      ]);
 
       records.forEach(record => {
         mockedSource.downloadRecords.mockResolvedValueOnce({
@@ -308,9 +369,15 @@ describe('SyncManager', () => {
       });
 
       // act
-      await syncManager.runPatientSync(patient);
+      await syncManager.runScheduledSync();
 
       // assert
+      expect(mockedSource.fetchChannelsWithChanges).toBeCalledTimes(1);
+      const receivedArgs = mockedSource.fetchChannelsWithChanges.mock.calls[0];
+      expect(receivedArgs[0].map(c => c.channel)).toEqual(expect.arrayContaining([
+        `patient/${patient.id}/encounter`,
+        `patient/${patient.id}/issue`,
+      ]));
       await Promise.all(records.map(async (record, i) => {
         const model = models[i];
         const dbRecords = await model.find({
@@ -319,66 +386,10 @@ describe('SyncManager', () => {
         });
         expect(dbRecords).toMatchObject([record]);
       }));
-
       expect(await readConfig(`pullCursor.patient/${patient.id}/encounter`)).toEqual('finished-sync-1');
       expect(await readConfig(`pullCursor.patient/${patient.id}/issue`)).toEqual('finished-sync-1');
-      expect(mockedSource.downloadRecords.mock.calls.length).toEqual(records.length * 2);
-      expect(mockedSource.uploadRecords.mock.calls.length).toEqual(0);
-    });
-
-    it('uploads subchannels of a patient', async () => {
-      // arrange
-      const { syncManager, mockedSource } = createManager();
-
-      const patient = await Patient.createAndSaveOne<Patient>(await fake(Patient));
-      const otherPatient = await Patient.createAndSaveOne<Patient>(await fake(Patient));
-      const now = Date.now();
-
-      // set up sync cursors as though there's been previous sync of subchannels
-      await writeConfig(`pullCursor.patient/${patient.id}/encounter`, 'past-sync-cursor');
-      await writeConfig(`pullCursor.patient/${patient.id}/issue`, 'past-sync-cursor');
-
-      const records = await Promise.all(models.map(async model => {
-        // make the record itself
-        const record = await fake(model, { relations: model.includedSyncRelations });
-        await model.createAndSaveOne({ ...record, patient: { id: patient.id } });
-        await createRelations(model, record);
-
-        // make another record for a different patient to test isolation
-        const otherRecord = await fake(model, { relations: model.includedSyncRelations });
-        await model.createAndSaveOne({ ...otherRecord, patient: { id: otherPatient.id } });
-        await createRelations(model, otherRecord);
-
-        return record;
-      }));
-
-      records.forEach(() => {
-        mockedSource.downloadRecords.mockResolvedValueOnce({
-          count: 0,
-          records: [],
-          cursor: 'finished-sync-1'
-        });
-        mockedSource.uploadRecords.mockResolvedValueOnce({
-          count: 1,
-          requestedAt: now,
-        });
-      });
-
-      // act
-      await syncManager.runPatientSync(patient);
-
-      // assert
-      await Promise.all(records.map(async (record, i) => {
-        const syncRecords = mockedSource.uploadRecords.mock.calls[i][1];
-        expect(syncRecords).toMatchObject([toSyncRecord(record)]);
-      }));
-
-      // sync cursors for patient shouldn't change unless records are downloaded
-      expect(await readConfig(`pullCursor.patient/${patient.id}/encounter`)).toEqual('past-sync-cursor');
-      expect(await readConfig(`pullCursor.patient/${patient.id}/issue`)).toEqual('past-sync-cursor');
-
-      expect(mockedSource.downloadRecords.mock.calls.length).toEqual(records.length);
-      expect(mockedSource.uploadRecords.mock.calls.length).toEqual(records.length);
+      expect(mockedSource.downloadRecords).toBeCalledTimes(records.length * 2);
+      expect(mockedSource.uploadRecords).toBeCalledTimes(0);
     });
   });
 });

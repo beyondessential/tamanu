@@ -5,16 +5,16 @@ import { useBackend } from '~/ui/hooks';
 
 import { AutocompleteModalField } from './AutocompleteModalField';
 
-export const SurveyQuestionAutocomplete = ({ ...props }) => {
+export const SurveyQuestionAutocomplete = ({ ...props }): JSX.Element => {
   const { models } = useBackend();
-  const { config } = props;
+  const { source, column, ...otherOptions } = props.config;
+  let columnName = column;
+  if (source === 'ReferenceData') columnName = 'name'; // Removes some oft-duplicate boilerplate from survey import file
 
   const suggester = new Suggester(
-    models[config.source],
-    {
-      column: config.column,
-    },
-    (val) => ({ label: val[config.column], value: val.id })
+    models[source],
+    { ...otherOptions, column: columnName },
+    (val) => ({ label: val[columnName], value: val.id }),
   );
 
   return (

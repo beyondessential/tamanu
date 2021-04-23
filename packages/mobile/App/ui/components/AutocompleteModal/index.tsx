@@ -1,6 +1,6 @@
 import React, { ReactElement, useCallback, useState, useEffect } from 'react';
 import { StyleSheet, View, Text } from 'react-native';
-import { Button } from "react-native-paper";
+import { Button } from 'react-native-paper';
 import { NavigationProp } from '@react-navigation/native';
 import Autocomplete from 'react-native-autocomplete-input';
 import { TouchableOpacity } from 'react-native-gesture-handler';
@@ -26,17 +26,17 @@ const styles = StyleSheet.create({
     position: 'absolute',
     bottom: 0,
     width: '100%',
-    borderRadius: 0
-  }
+    borderRadius: 0,
+  },
 });
 
 type AutocompleteModalScreenProps = {
   navigation: NavigationProp<any>;
   route: {
     params: {
-      suggester: Suggester,
-      callback: (item: any) => any,
-  }};
+      suggester: Suggester;
+      callback: (item: any) => any;
+    };};
 };
 
 export const AutocompleteModalScreen = ({
@@ -44,12 +44,15 @@ export const AutocompleteModalScreen = ({
   navigation,
 }: AutocompleteModalScreenProps): ReactElement => {
   const { callback, suggester } = route.params;
-  const [searchTerm, setSearchTerm] = useState(null);
+  const [searchTerm, setSearchTerm] = useState('');
+  const [isLoading, setIsLoading] = useState(false);
   const [displayedOptions, setDisplayedOptions] = useState([]);
 
   useEffect(() => {
     (async (): Promise<void> => {
+      setIsLoading(true);
       const data = await suggester.fetchSuggestions(searchTerm);
+      setIsLoading(false);
       setDisplayedOptions(data);
     })();
   }, [searchTerm]);
@@ -70,13 +73,12 @@ export const AutocompleteModalScreen = ({
         placeholder="Search..."
         data={displayedOptions}
         onChangeText={setSearchTerm}
-        autoFocus={true}
+        autoFocus
         renderItem={({ item }): JSX.Element => {
           useDarkBackground = !useDarkBackground;
-          
           return (
             <TouchableOpacity
-            onPress={(): void => onSelectItem(item)}
+              onPress={(): void => onSelectItem(item)}
             >
               <Text style={useDarkBackground ? styles.darkItemText : styles.lightItemText}>
                 {item.label}
@@ -89,7 +91,8 @@ export const AutocompleteModalScreen = ({
         mode="contained"
         style={styles.backButton}
         onPress={onNavigateBack}
-      >Back</Button>
+      >Back
+      </Button>
     </View>
   );
 };
