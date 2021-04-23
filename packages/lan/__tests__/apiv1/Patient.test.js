@@ -57,7 +57,6 @@ describe('Patient', () => {
       expect(result.body).toHaveProperty('displayId', newPatient.displayId);
       expect(result.body).toHaveProperty('firstName', newPatient.firstName);
       expect(result.body).toHaveProperty('lastName', newPatient.lastName);
-      expect(result.body).toHaveProperty('title', newPatient.title);
     });
 
     it('should update patient details', async () => {
