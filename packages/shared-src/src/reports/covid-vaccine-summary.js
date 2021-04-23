@@ -1,12 +1,9 @@
 import { Op } from 'sequelize';
-import moment from 'moment';
-import { differenceInYears } from 'date-fns';
+import { differenceInYears, subDays } from 'date-fns';
 
 function parametersToSqlWhere(parameters) {
   if (!parameters.fromDate) {
-    parameters.fromDate = moment()
-      .subtract(30, 'days')
-      .toISOString();
+    parameters.fromDate = subDays(new Date(), 30).toISOString();
   }
 
   const whereClause = Object.entries(parameters)
@@ -36,7 +33,7 @@ function parametersToSqlWhere(parameters) {
       },
       {
         '$scheduledVaccine.label$': {
-          [Op.in]: ['COVAX', 'COVID-19 AZ'],
+          [Op.in]: ['COVAX', 'COVID-19'],
         },
       },
     );

@@ -1,3 +1,4 @@
+import { isEqual } from 'lodash';
 import { shouldPush } from './directions';
 import { propertyPathsToTree, ensurePathsAreExhaustive } from './metadata';
 
@@ -20,7 +21,7 @@ const addHooksToNested = model => {
     const leafModel = associations[associations.length - 1].target;
 
     const reversedAssociations = associations.reverse();
-    leafModel.addHook('beforeSave', 'markRootForPush', async (rawRecord) => {
+    leafModel.addHook('beforeSave', 'markRootForPush', async rawRecord => {
       let currentRecord = rawRecord;
       // walk backward through the associations and find the parent at each level
       for (const { source, foreignKey } of reversedAssociations) {
@@ -36,15 +37,27 @@ const addHooksToNested = model => {
   }
 };
 
+const syncSpecificColumns = ['markedForPush', 'markedForSync', 'pushedAt', 'pulledAt'];
+
 export const initSyncClientModeHooks = models => {
   Object.values(models)
     .filter(model => model.syncClientMode && shouldPush(model))
     .forEach(model => {
       // add hook to model itself
       model.addHook('beforeSave', 'markForPush', record => {
-        if (!record.changed || !record.changed('pushedAt')) {
-          record.markedForPush = true;
+        const changedFields = record?.changed() || [];
+
+        // if only sync related columns were changed, it's not a change we care to sync elsewhere
+        if (changedFields.every(field => syncSpecificColumns.includes(field))) {
+          return;
         }
+
+        // if this change was caused by an import, we don't want to sync it back up to the server
+        if (changedFields.includes('pulledAt')) {
+          return;
+        }
+
+        record.markedForPush = true;
       });
 
       // add hook to nested sync relations

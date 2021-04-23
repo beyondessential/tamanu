@@ -18,6 +18,7 @@ const MARKED_FOR_PUSH_MODELS = [
   'PatientIssue',
   'ReportRequest',
   'Location',
+  'UserFacility',
 ];
 
 export class Model extends sequelize.Model {

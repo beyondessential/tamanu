@@ -1,12 +1,12 @@
 import {
   createDummyPatient,
   createDummyEncounter,
-  randomUser,
   randomReferenceId,
   createDummyEncounterDiagnosis,
   randomReferenceData,
+  randomReferenceIds,
 } from 'shared/demoData/patients';
-import moment from 'moment';
+import { subDays } from 'date-fns';
 import { createTestContext } from '../../utilities';
 import { ENCOUNTER_TYPES } from 'shared/constants';
 
@@ -26,8 +26,7 @@ describe('Recent Diagnoses report', () => {
     app = await baseApp.asRole('practitioner');
     const villageId = await randomReferenceId(models, 'village');
     patient1 = await models.Patient.create(await createDummyPatient(models, { villageId }));
-    expectedDiagnosis = await randomReferenceId(models, 'icd10');
-    wrongDiagnosis = await randomReferenceId(models, 'icd10');
+    [expectedDiagnosis, wrongDiagnosis] = await randomReferenceIds(models, 'icd10', 2);
     expectedLocation = await randomReferenceId(models, 'location');
   });
 
@@ -47,9 +46,7 @@ describe('Recent Diagnoses report', () => {
       const encounter = await models.Encounter.create(
         await createDummyEncounter(models, {
           encounterType: ENCOUNTER_TYPES.ADMISSION,
-          startDate: moment()
-            .subtract(1, 'day')
-            .toISOString(),
+          startDate: subDays(new Date(), 1).toISOString(),
           patientId: patient1.dataValues.id,
           locationId: expectedLocation,
         }),
@@ -86,9 +83,7 @@ describe('Recent Diagnoses report', () => {
       const encounter = await models.Encounter.create(
         await createDummyEncounter(models, {
           encounterType: ENCOUNTER_TYPES.ADMISSION,
-          startDate: moment()
-            .subtract(1, 'day')
-            .toISOString(),
+          startDate: subDays(new Date(), 1).toISOString(),
           patientId: patient1.dataValues.id,
           locationId: expectedLocation,
         }),
