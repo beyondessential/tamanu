@@ -1,0 +1,1 @@
+export { AllAppointmentsView } from './AllAppointmentsView';

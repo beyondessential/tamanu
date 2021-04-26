@@ -5,6 +5,7 @@ import { NotActiveView } from '../views';
 
 import { AppointmentListingView } from '../views/scheduling/AppointmentListingView';
 import { NewAppointmentView } from '../views/scheduling/NewAppointmentView';
+import { AllAppointmentsView } from '../views/appointments';
 
 export const SchedulingRoutes = React.memo(({ match }) => (
   <Switch>
@@ -12,7 +13,7 @@ export const SchedulingRoutes = React.memo(({ match }) => (
     <Route path={`${match.path}/week`} component={NotActiveView} />
     <Route path={`${match.path}/today`} component={NotActiveView} />
     <Route path={`${match.path}/search`} component={NotActiveView} />
-    <Route path={`${match.path}/calendar`} component={NotActiveView} />
+    <Route path={`${match.path}/calendar`} component={AllAppointmentsView} />
     <Route path={`${match.path}/appointmentByPatient/:patientId`} component={NotActiveView} />
     <Route path={`${match.path}/appointment/new`} component={NewAppointmentView} />
     <Route path={`${match.path}/appointment/:id`} component={NotActiveView} />
