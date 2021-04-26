@@ -20,7 +20,7 @@ export const RoutingApp = React.memo(() => (
     <Switch>
       <Redirect exact path="/" to="/patients" />
       <Route path="/patients" component={PatientsRoutes} />
-      <Route path="/appointments" component={SchedulingRoutes} />
+      <Route path="/scheduling" component={SchedulingRoutes} />
       <Route path="/imaging" component={ImagingRoutes} />
       <Route path="/medication" component={MedicationRoutes} />
       <Route path="/labs" component={LabsRoutes} />
