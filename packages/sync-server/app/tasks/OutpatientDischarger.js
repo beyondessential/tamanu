@@ -11,16 +11,14 @@ import { log } from 'shared/services/logging';
 export class OutpatientDischarger extends ScheduledTask {
   constructor(context) {
     super(config.schedules.outpatientDischarger, log);
-    this.context = context;
+    this.models = context.store.models;
 
     // run once on startup (in case the server was down when it was scheduled)
     this.run();
   }
 
   async run() {
-    const { models } = this.context;
-
-    const oldEncounters = await models.Encounter.findAll({
+    const oldEncounters = await this.models.Encounter.findAll({
       where: {
         encounterType: 'clinic',
         endDate: null,
@@ -38,7 +36,7 @@ export class OutpatientDischarger extends ScheduledTask {
 
     const tasks = oldEncounters.map(async encounter => {
       await encounter.update({
-        endDate: models.Encounter.getAutoDischargeEndDate(encounter),
+        endDate: this.models.Encounter.getAutoDischargeEndDate(encounter),
         dischargeNote: 'Automatically discharged',
       });
       log.info(`Auto-closed encounter with id ${encounter.id}`);
