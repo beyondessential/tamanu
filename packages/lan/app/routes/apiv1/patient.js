@@ -23,6 +23,9 @@ const AdditionalDetailsProperties = [
   'socialMediaName',
   'educationalAttainment',
   'patientType',
+  'birthCertificateNumber',
+  'drivingLicenseNumber',
+  'passportNumber',
 ];
 
 function stringifyAdditionalDetails(reqBody) {

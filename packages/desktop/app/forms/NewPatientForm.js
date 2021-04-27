@@ -115,6 +115,7 @@ export const NewPatientForm = memo(
         render={renderForm}
         initialValues={{
           displayId: generateId(),
+          patientType: 'local',
           ...editedObject,
         }}
         validationSchema={yup.object().shape({

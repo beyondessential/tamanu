@@ -31,9 +31,12 @@ export const PrimaryDetailsGroup = ({
   subdivisionSuggester,
 }) => (
   <React.Fragment>
+    <Field name="birthCertificateNumber" label="Birth Certificate Number" component={TextField} />
+    <Field name="drivingLicenseNumber" label="Driving License Number" component={TextField} />
+    <Field name="passportNumber" label="Passport Number" component={TextField} />
+    <Field name="title" label="Title" component={SelectField} options={titleOptions} />
     <Field name="firstName" label="First name" component={TextField} required />
     <Field name="middleName" label="Middle name" component={TextField} />
-    <Field name="title" label="Title" component={SelectField} options={titleOptions} />
     <Field name="lastName" label="Last name" component={TextField} required />
     <Field name="culturalName" label="Cultural/Traditional name" component={TextField} />
     <Field
@@ -58,7 +61,6 @@ export const PrimaryDetailsGroup = ({
       suggester={nationalitySuggester}
     />
     <Field name="cityTown" label="City/Town" component={TextField} />
-    <Field name="streetVillage" label="Street/Village" component={TextField} />
     <Field
       name="divisionId"
       label="Division"
@@ -73,13 +75,13 @@ export const PrimaryDetailsGroup = ({
     />
     <Field
       name="maritalStatus"
-      label="MaritalStatus"
+      label="Marital Status"
       component={SelectField}
       options={maritalStatusOptions}
     />
     <Field
       name="ethnicityId"
-      label="Ethnicity"
+      label="Tribe"
       component={AutocompleteField}
       suggester={ethnicitySuggester}
     />
@@ -121,21 +123,12 @@ export const SecondaryDetailsGroup = ({
       name="patientType"
       label="Patient Type"
       options={[
-        { value: 'charity', label: 'Charity' },
-        { value: 'private', label: 'Private' },
+        { value: 'local', label: 'Local' },
+        { value: 'visitor', label: 'Visitor' },
       ]}
       inline
     />
     <Field name="bloodType" label="Blood type" component={SelectField} options={bloodOptions} />
-    <Field name="referredBy" label="Referred by" component={TextField} />
-    <Field name="referredDate" label="Referred date" component={DateField} />
-    <Field
-      name="homeClinic"
-      label="Home clinic"
-      component={AutocompleteField}
-      suggester={facilitySuggester}
-      required={isBirth}
-    />
     <Field
       name="medicalAreaId"
       label="Medical Area"
@@ -155,7 +148,6 @@ export const SecondaryDetailsGroup = ({
       suggester={settlementSuggester}
     />
 
-    <Field name="residentialAddress" label="Residential address" component={TextField} />
     <Field
       name="primaryContactNumber"
       label="Primary Contact Number"
@@ -168,13 +160,6 @@ export const SecondaryDetailsGroup = ({
       component={TextField}
       type="tel"
     />
-    <Field
-      name="socialMediaPlatform"
-      label="Social media platform"
-      component={SelectField}
-      options={socialMediaOptions}
-    />
-    <Field name="socialMediaName" label="Social media name" component={TextField} />
     <Field name="email" label="Email" component={TextField} />
     <Field
       name="educationalAttainment"
