@@ -1,0 +1,38 @@
+{
+  "folders": [
+    {
+      "name": "root",
+      "path": "."
+    },
+    {
+      "name": "desktop",
+      "path": "packages/desktop"
+    },
+    {
+      "name": "lan",
+      "path": "packages/lan"
+    },
+    {
+      "name": "meta-server",
+      "path": "packages/meta-server"
+    },
+    {
+      "name": "scripts",
+      "path": "packages/scripts"
+    },
+    {
+      "name": "shared-src",
+      "path": "packages/shared-src"
+    },
+    {
+      "name": "sync-server",
+      "path": "packages/sync-server"
+    }
+  ],
+  "settings": {
+    "cSpell.language": "en-GB",
+    "files.exclude": {
+      "packages/": true
+    }
+  }
+}
