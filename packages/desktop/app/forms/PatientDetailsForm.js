@@ -41,7 +41,7 @@ export const PrimaryDetailsGroup = ({
     <Field name="culturalName" label="Cultural/Traditional name" component={TextField} />
     <Field
       name="villageId"
-      label="Village"
+      label="District"
       component={AutocompleteField}
       suggester={villageSuggester}
     />
@@ -60,8 +60,8 @@ export const PrimaryDetailsGroup = ({
       component={AutocompleteField}
       suggester={nationalitySuggester}
     />
-    <Field name="cityTown" label="City/Town" component={TextField} />
-    <Field
+    <Field name="cityTown" label="Residential Address" component={TextField} />
+    {/* <Field
       name="divisionId"
       label="Division"
       component={AutocompleteField}
@@ -72,7 +72,7 @@ export const PrimaryDetailsGroup = ({
       label="Sub Division"
       component={AutocompleteField}
       suggester={subdivisionSuggester}
-    />
+    /> */}
     <Field
       name="maritalStatus"
       label="Marital Status"
@@ -129,13 +129,13 @@ export const SecondaryDetailsGroup = ({
       inline
     />
     <Field name="bloodType" label="Blood type" component={SelectField} options={bloodOptions} />
-    <Field
+    {/* <Field
       name="medicalAreaId"
       label="Medical Area"
       component={AutocompleteField}
       suggester={medicalAreaSuggester}
-    />
-    <Field
+    /> */}
+    {/* <Field
       name="nursingZoneId"
       label="Nursing Zone"
       component={AutocompleteField}
@@ -146,7 +146,7 @@ export const SecondaryDetailsGroup = ({
       label="Settlement"
       component={AutocompleteField}
       suggester={settlementSuggester}
-    />
+    /> */}
 
     <Field
       name="primaryContactNumber"
@@ -161,12 +161,12 @@ export const SecondaryDetailsGroup = ({
       type="tel"
     />
     <Field name="email" label="Email" component={TextField} />
-    <Field
+    {/* <Field
       name="educationalAttainment"
       label="Educational Attainment"
       component={SelectField}
       options={educationalAttainmentOptions}
-    />
+    /> */}
   </React.Fragment>
 );
 
