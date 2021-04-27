@@ -25,17 +25,17 @@ export const RegisterPatientStack = ({
         initialValues={newPatientFormValues}
         validationSchema={Yup.object().shape({
           firstName: Yup.string().required(),
-          middleName: Yup.string().required(),
           lastName: Yup.string().required(),
-          email: Yup.string().required(),
-          phone: Yup.string().required(),
-          province: Yup.string().required(),
-          city: Yup.string().required(),
-          address: Yup.string().required(),
-          bloodType: Yup.string().required(),
           gender: Yup.string().required(),
-          maritalStatus: Yup.string().required(),
-          licenseNumber: Yup.string().required(),
+          middleName: Yup.string(),
+          email: Yup.string(),
+          phone: Yup.string(),
+          province: Yup.string(),
+          city: Yup.string(),
+          address: Yup.string(),
+          bloodType: Yup.string(),
+          maritalStatus: Yup.string(),
+          licenseNumber: Yup.string(),
         })}
         onSubmit={onSubmitForm}
       >
