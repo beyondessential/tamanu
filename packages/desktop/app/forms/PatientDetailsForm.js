@@ -23,6 +23,16 @@ import {
   educationalAttainmentOptions,
 } from '../constants';
 
+const placeOfBirthOptions = [
+  { value: 'nauru', label: 'Nauru' },
+  { value: 'outsidenauru', label: 'Outside Nauru' },
+];
+
+const religiousOptions = [
+  { value: 'christian', label: 'Christian' },
+  { value: 'other', label: 'Other' },
+];
+
 export const PrimaryDetailsGroup = ({
   villageSuggester,
   ethnicitySuggester,
@@ -31,9 +41,9 @@ export const PrimaryDetailsGroup = ({
   subdivisionSuggester,
 }) => (
   <React.Fragment>
-    <Field name="birthCertificateNumber" label="Birth Certificate Number" component={TextField} />
-    <Field name="drivingLicenseNumber" label="Driving License Number" component={TextField} />
-    <Field name="passportNumber" label="Passport Number" component={TextField} />
+    <Field name="birthCertificateNumber" label="Birth certificate number" component={TextField} />
+    <Field name="drivingLicenseNumber" label="Driving license number" component={TextField} />
+    <Field name="passportNumber" label="Passport number" component={TextField} />
     <Field name="title" label="Title" component={SelectField} options={titleOptions} />
     <Field name="firstName" label="First name" component={TextField} required />
     <Field name="middleName" label="Middle name" component={TextField} />
@@ -46,7 +56,7 @@ export const PrimaryDetailsGroup = ({
       suggester={villageSuggester}
     />
     <Field name="dateOfBirth" label="Date of birth" component={DateField} required />
-    <Field name="placeOfBirth" label="Place of birth" component={TextField} />
+    <Field name="placeOfBirth" label="Place of birth" component={SelectField} options={placeOfBirthOptions} />
     <Field name="sex" label="Sex" component={RadioField} options={sexOptions} inline required />
     <Field
       name="nationalityId"
@@ -98,7 +108,7 @@ export const SecondaryDetailsGroup = ({
   occupationSuggester,
 }) => (
   <React.Fragment>
-    <Field name="religion" label="Religion" component={TextField} />
+    <Field name="religion" label="Religion" component={SelectField} options={religiousOptions} />
     <Field
       name="occupationId"
       label="Occupation"
