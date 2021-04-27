@@ -11,10 +11,7 @@ const patientFieldSchema = yup
       is: false,
       then: yup.string().required(),
     }),
-    hidden: yup
-      .boolean()
-      .required()
-      .default(false),
+    hidden: yup.boolean().default(false),
   })
   .noUnknown();
 
