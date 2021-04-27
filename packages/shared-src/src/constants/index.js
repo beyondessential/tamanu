@@ -147,6 +147,7 @@ export const PROGRAM_DATA_ELEMENT_TYPES = {
   SURVEY_ANSWER: 'SurveyAnswer',
   SURVEY_RESULT: 'SurveyResult',
   SURVEY_LINK: 'SurveyLink',
+  PHOTO: 'Photo',
 };
 export const PROGRAM_DATA_ELEMENT_TYPE_VALUES = Object.values(PROGRAM_DATA_ELEMENT_TYPES);
 
