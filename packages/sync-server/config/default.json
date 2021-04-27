@@ -27,5 +27,15 @@
     "domain": "",
     "apiKey": "",
     "from": ""
+  },
+  "featureFlags": {
+    "data": {
+      "patientFieldOverrides": {
+        "displayId": {
+          "shortLabel": "NHN",
+          "longLabel": "National Health Number"
+        }
+      }
+    }
   }
 }
