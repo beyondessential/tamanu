@@ -12,7 +12,7 @@ import { version } from '../package.json';
 
 const isDevelopment = process.env.NODE_ENV === 'development';
 
-export function createApp({ sequelize, models }) {
+export function createApp({ sequelize, models, syncManager }) {
   // Init our app
   const app = express();
   app.use(compression());
@@ -36,6 +36,7 @@ export function createApp({ sequelize, models }) {
   app.use((req, res, next) => {
     req.models = models;
     req.db = sequelize;
+    req.syncManager = syncManager;
 
     next();
   });

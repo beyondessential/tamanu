@@ -7,6 +7,7 @@ import jwt from 'jsonwebtoken';
 
 import { ForbiddenError, BadAuthenticationError } from 'shared/errors';
 
+import { getFeatureFlags } from '../featureFlags';
 import { convertFromDbRecord, convertToDbRecord } from '../convertDbRecord';
 
 export const authMiddleware = express.Router();
@@ -62,8 +63,9 @@ authMiddleware.post(
     }
 
     const token = await getToken(user);
+    const featureFlags = await getFeatureFlags();
 
-    res.send({ token, user: convertFromDbRecord(stripUser(user)).data });
+    res.send({ token, featureFlags, user: convertFromDbRecord(stripUser(user)).data });
   }),
 );
 
