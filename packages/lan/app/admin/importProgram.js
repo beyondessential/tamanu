@@ -1,17 +1,12 @@
-import shortid from 'shortid';
-
 import { log } from 'shared/services/logging';
 import { readSurveyXSLX } from '../surveyImporter';
 import { sendSyncRequest } from './sendSyncRequest';
 
-const idify = name => name.toLowerCase().replace(/\W/g, '-');
+const idify = name => name.toLowerCase().replace(/\W/g, '');
 
 const makeRecord = (recordType, data) => ({
   recordType,
-  data: {
-    id: shortid(),
-    ...data,
-  },
+  data,
 });
 
 function makeScreen(screen, componentData) {
@@ -27,13 +22,13 @@ function makeScreen(screen, componentData) {
       } = component;
 
       const dataElement = makeRecord('programDataElement', {
-        id: `dataElement/${elementData.code}`,
+        id: `pde-${elementData.code}`,
         defaultOptions: '',
         ...elementData,
       });
 
       const surveyScreenComponent = makeRecord('surveyScreenComponent', {
-        id: `${componentData.surveyId}/component-${elementData.code}`,
+        id: `${componentData.surveyId}-${elementData.code}`,
         dataElementId: dataElement.data.id,
         text: '',
         options: '',
@@ -57,6 +52,7 @@ export async function importSurvey({
   programName, 
   surveyCode,
   surveyName,
+  surveyType = 'programs',
 }) {
   log.info(`Reading surveys from ${file}...`);
 
@@ -69,9 +65,10 @@ export async function importSurvey({
   });
 
   const surveyElement = makeRecord('survey', {
-    id: `${programElement.data.id}/survey-${idify(surveyCode)}`,
+    id: `${programElement.data.id}-${idify(surveyCode)}`,
     name: surveyName,
     programId: programElement.data.id,
+    surveyType,
   });
 
   // data and component elements
@@ -84,11 +81,9 @@ export async function importSurvey({
     )
     .flat();
 
-  return {
-    records: [
-      programElement,
-      surveyElement,
-      ...screenElements,
-    ],
-  }
+  return [
+    programElement,
+    surveyElement,
+    ...screenElements,
+  ];
 }

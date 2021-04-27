@@ -1,5 +1,5 @@
 import { Op } from 'sequelize';
-import moment from 'moment';
+import { subDays } from 'date-fns';
 import { ENCOUNTER_TYPES } from 'shared/constants';
 import { generateReportFromQueryData } from './utilities';
 
@@ -16,9 +16,7 @@ const reportColumnTemplate = [
 
 function parametersToSqlWhere(parameters) {
   if (!parameters.fromDate) {
-    parameters.fromDate = moment()
-      .subtract(30, 'days')
-      .toISOString();
+    parameters.fromDate = subDays(new Date(), 30).toISOString();
   }
 
   const whereClause = Object.entries(parameters)
@@ -66,7 +64,9 @@ async function queryAdmissionsData(models, parameters) {
   return result;
 }
 
-export async function generateAdmissionsReport(models, parameters) {
+export async function dataGenerator(models, parameters) {
   const queryResults = await queryAdmissionsData(models, parameters);
   return generateReportFromQueryData(queryResults, reportColumnTemplate);
 }
+
+export const permission = 'Encounter';

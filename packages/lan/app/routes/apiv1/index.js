@@ -31,6 +31,8 @@ import { patientCarePlan } from './patientCarePlan';
 
 import { admin } from './admin';
 import { setting } from './setting';
+import { location } from './location';
+import { sync } from './sync';
 
 export const apiv1 = express.Router();
 
@@ -71,3 +73,7 @@ apiv1.use('/patientCarePlan', patientCarePlan);
 apiv1.use('/admin', admin);
 
 apiv1.use('/setting', setting);
+
+apiv1.use('/location', location);
+
+apiv1.use('/sync', sync);

@@ -9,7 +9,7 @@ const mapRelations = (data, f) => {
 };
 
 export const convertToDbRecord = syncRecord => {
-  const { data, lastSynced, ...metadata } = syncRecord;
+  const { data, ...metadata } = syncRecord;
   return {
     ...metadata,
     ...mapRelations(data, convertToDbRecord),
@@ -20,7 +20,6 @@ export const convertFromDbRecord = dbRecord => {
   const { id, updatedAt, createdAt, deletedAt, password, ...data } = dbRecord;
 
   return {
-    lastSynced: updatedAt?.valueOf(),
     ...(deletedAt ? { isDeleted: true } : {}),
     data: {
       id,

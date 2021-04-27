@@ -1,34 +1,37 @@
 import { v4 as uuidv4 } from 'uuid';
-import { fake, fakePatient, buildNestedEncounter, upsertAssociations } from 'shared/test-helpers';
+import { subDays, format } from 'date-fns';
+import {
+  buildNestedEncounter,
+  expectDeepSyncRecordMatch,
+  fake,
+  fakePatient,
+  fakeUser,
+  unsafeSetUpdatedAt,
+  upsertAssociations,
+} from 'shared/test-helpers';
 import { createExportPlan, executeExportPlan } from 'shared/models/sync';
 import { initDb } from '../../initDb';
 
-const expectDeepMatch = (dbRecord, syncRecord) => {
-  Object.keys(dbRecord).forEach(field => {
-    if (Array.isArray(dbRecord[field])) {
-      // iterate over relation fields
-      expect(syncRecord.data).toHaveProperty(`${field}.length`);
-      dbRecord[field].forEach(childDbRecord => {
-        const childSyncRecord = syncRecord.data[field].find(r => r.data.id === childDbRecord.id);
-        expect(childSyncRecord).toBeDefined();
-        expectDeepMatch(childDbRecord, childSyncRecord);
-      });
-    } else if (dbRecord[field] instanceof Date) {
-      expect(syncRecord.data).toHaveProperty(field, dbRecord[field].toISOString());
-    } else {
-      expect(syncRecord.data).toHaveProperty(field, dbRecord[field]);
-    }
-  });
-};
+const makeUpdatedAt = daysAgo =>
+  format(subDays(new Date(), daysAgo), 'yyyy-MM-dd hh:mm:ss.SSS +00:00');
 
 describe('export', () => {
   let models;
   let context;
   const patientId = uuidv4();
+  const userId = uuidv4();
+  const facilityId = uuidv4();
   beforeAll(async () => {
     context = await initDb({ syncClientMode: true }); // TODO: test server mode too
     models = context.models;
     await models.Patient.create({ ...fakePatient(), id: patientId });
+    await models.User.create({ ...fakeUser(), id: userId });
+    await models.ReferenceData.create({
+      type: 'facility',
+      name: 'Test Facility',
+      code: 'test-facility',
+      id: facilityId,
+    });
   });
 
   const testCases = [
@@ -63,6 +66,20 @@ describe('export', () => {
       () => ({ ...fake(models.PatientIssue), patientId }),
       `patient/${patientId}/issue`,
     ],
+    ['ReportRequest', () => ({ ...fake(models.ReportRequest), requestedByUserId: userId })],
+    [
+      'Location',
+      async () => {
+        return { ...fake(models.Location), facilityId };
+      },
+    ],
+    [
+      'UserFacility',
+      async () => {
+        const user = await models.User.create(fakeUser());
+        return { id: uuidv4(), userId: user.id, facilityId };
+      },
+    ],
   ];
   testCases.forEach(([modelName, fakeRecord, overrideChannel]) => {
     describe(modelName, () => {
@@ -72,32 +89,44 @@ describe('export', () => {
         const channel = overrideChannel || (await model.getChannels())[0];
         const plan = createExportPlan(model);
         await model.truncate();
-        const records = [await fakeRecord(), await fakeRecord()].sort((r1, r2) =>
-          r1.id.localeCompare(r2.id),
-        );
+        const records = [await fakeRecord(), await fakeRecord()];
+        const updatedAts = [makeUpdatedAt(20), makeUpdatedAt(0)];
         await Promise.all(
-          records.map(async record => {
+          records.map(async (record, i) => {
             await model.create(record);
             await upsertAssociations(model, record);
+            await unsafeSetUpdatedAt(context.sequelize, {
+              table: model.tableName,
+              id: record.id,
+              updated_at: updatedAts[i],
+            });
           }),
         );
 
         // act
-        const firstRecords = await executeExportPlan(plan, channel, { limit: 1 });
-        const secondRecords = await executeExportPlan(plan, channel, {
+        const { records: firstRecords, cursor: firstCursor } = await executeExportPlan(
+          plan,
+          channel,
+          { limit: 1 },
+        );
+        const { records: secondRecords, cursor: secondCursor } = await executeExportPlan(
+          plan,
+          channel,
+          {
+            limit: 1,
+            since: firstCursor,
+          },
+        );
+        const { records: thirdRecords } = await executeExportPlan(plan, channel, {
           limit: 1,
-          after: firstRecords[0],
-        });
-        const thirdRecords = await executeExportPlan(plan, channel, {
-          limit: 1,
-          after: secondRecords[0],
+          since: secondCursor,
         });
 
         // assert
         expect(firstRecords.length).toEqual(1);
-        expectDeepMatch(records[0], firstRecords[0]);
+        expectDeepSyncRecordMatch(records[0], firstRecords[0]);
         expect(secondRecords.length).toEqual(1);
-        expectDeepMatch(records[1], secondRecords[0]);
+        expectDeepSyncRecordMatch(records[1], secondRecords[0]);
         expect(thirdRecords.length).toEqual(0);
       });
     });

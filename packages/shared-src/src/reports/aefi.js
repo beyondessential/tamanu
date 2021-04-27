@@ -30,7 +30,9 @@ function parametersToSqlWhere(parameters) {
   return whereClause;
 }
 
-export async function generateAefiReport(models, parameters = {}) {
+export const permission = 'Survey';
+
+export async function dataGenerator(models, parameters = {}) {
   const aefiSurvey = await models.Survey.findOne({
     where: {
       name: 'Immunisation',
@@ -49,6 +51,9 @@ export async function generateAefiReport(models, parameters = {}) {
       surveyId: aefiSurvey.get('id'),
       ['$dataElement.name$']: {
         [Op.not]: null,
+      },
+      ['$dataElement.type$']: {
+        [Op.not]: 'Instruction',
       },
     },
     include: [{ model: models.ProgramDataElement, as: 'dataElement' }],

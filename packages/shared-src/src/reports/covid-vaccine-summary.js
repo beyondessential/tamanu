@@ -1,12 +1,9 @@
 import { Op } from 'sequelize';
-import moment from 'moment';
-import { differenceInYears } from 'date-fns';
+import { differenceInYears, subDays } from 'date-fns';
 
 function parametersToSqlWhere(parameters) {
   if (!parameters.fromDate) {
-    parameters.fromDate = moment()
-      .subtract(30, 'days')
-      .toISOString();
+    parameters.fromDate = subDays(new Date(), 30).toISOString();
   }
 
   const whereClause = Object.entries(parameters)
@@ -35,7 +32,9 @@ function parametersToSqlWhere(parameters) {
         return where;
       },
       {
-        '$scheduledVaccine.label$': 'COVAX',
+        '$scheduledVaccine.label$': {
+          [Op.in]: ['COVAX', 'COVID-19'],
+        },
       },
     );
 
@@ -123,7 +122,7 @@ async function queryCovidVaccineSummaryData(models, parameters) {
   ];
 }
 
-export async function generateCovidVaccineSummaryReport(models, parameters) {
+async function generateCovidVaccineSummaryReport(models, parameters) {
   return await queryCovidVaccineSummaryData(models, parameters);
 }
 
@@ -136,3 +135,5 @@ export async function generateCovidVaccineSummaryDose2Report(models, parameters)
   parameters.schedule = 'Dose 2';
   return await generateCovidVaccineSummaryReport(models, parameters);
 }
+
+export const permission = 'PatientVaccine';

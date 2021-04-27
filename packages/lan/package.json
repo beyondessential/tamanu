@@ -1,6 +1,6 @@
 {
   "name": "lan",
-  "version": "0.0.1",
+  "version": "1.0.2",
   "description": "Lan server for Tamanu desktop app",
   "homepage": "https://github.com/beyondessential/tamanu.git#readme",
   "repository": "git@github.com:beyondessential/tamanu.git",
@@ -69,6 +69,8 @@
     "compression": "^1.7.2",
     "config": "^3.0.1",
     "connect-flash": "^0.1.1",
+    "date-fns": "^2.19.0",
+    "excel-date-to-js": "^1.0.6",
     "express": "^4.16.2",
     "express-async-handler": "^1.1.4",
     "express-session": "^1.15.6",
@@ -88,10 +90,14 @@
     "request": "^2.88.0",
     "request-promise": "^4.2.2",
     "semver-compare": "^1.0.0",
+    "semver-diff": "^3.1.1",
     "sequelize": "^5.21.3",
     "shortid": "^2.2.13",
     "sqlite3": "^4.1.1",
+    "umzug": "^2.3.0",
     "uuid": "^8.1.0",
-    "winston": "^3.2.1"
+    "winston": "^3.2.1",
+    "xlsx": "^0.16.9",
+    "yup": "^0.27.0"
   }
 }

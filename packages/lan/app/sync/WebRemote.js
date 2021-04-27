@@ -1,14 +1,31 @@
-import fetch, { AbortError } from 'node-fetch';
+import fetch from 'node-fetch';
 import AbortController from 'abort-controller';
 import config from 'config';
+import { chunk } from 'lodash';
 
 import { BadAuthenticationError, InvalidOperationError, RemoteTimeoutError } from 'shared/errors';
+import { VERSION_COMPATIBILITY_ERRORS } from 'shared/constants';
+import { getResponseJsonSafely } from 'shared/utils';
 import { log } from 'shared/services/logging';
 
 import { version } from '~/../package.json';
 
 const API_VERSION = 'v1';
 const DEFAULT_TIMEOUT = 10000;
+
+const getVersionIncompatibleMessage = (error, response) => {
+  if (error.message === VERSION_COMPATIBILITY_ERRORS.LOW) {
+    const minVersion = response.headers.get('X-Min-Client-Version');
+    return `Please upgrade to Tamanu LAN Server v${minVersion} or higher.`;
+  }
+
+  if (error.message === VERSION_COMPATIBILITY_ERRORS.HIGH) {
+    const maxVersion = response.headers.get('X-Max-Client-Version');
+    return `The Tamanu Sync Server only supports up to v${maxVersion} of the LAN Server, and needs to be upgraded. Please contact your system administrator.`;
+  }
+
+  return null;
+};
 
 export class WebRemote {
   connectionPromise = null;
@@ -90,6 +107,13 @@ export class WebRemote {
     }
 
     if (!response.ok) {
+      const { error } = await getResponseJsonSafely(response);
+
+      // handle version incompatibility
+      if (response.status === 400 && error) {
+        const versionIncompatibleMessage = getVersionIncompatibleMessage(error, response);
+        if (versionIncompatibleMessage) throw new InvalidOperationError(versionIncompatibleMessage);
+      }
       throw new InvalidOperationError(`Server responded with status code ${response.status}`);
     }
 
@@ -133,6 +157,26 @@ export class WebRemote {
     } finally {
       this.connectionPromise = null;
     }
+  }
+
+  async fetchChannelsWithChanges(channelsToCheck) {
+    const batchSize = 1000; // pretty arbitrary, avoid overwhelming the server with e.g. 100k channels
+    const channelsWithPendingChanges = [];
+    for (const batchOfChannels of chunk(channelsToCheck, batchSize)) {
+      const body = batchOfChannels.reduce(
+        (acc, { channel, cursor }) => ({
+          ...acc,
+          [channel]: cursor,
+        }),
+        {},
+      );
+      const { channelsWithChanges } = await this.fetch(`sync/channels`, {
+        method: 'POST',
+        body,
+      });
+      channelsWithPendingChanges.push(...channelsWithChanges);
+    }
+    return channelsWithPendingChanges;
   }
 
   async pull(channel, { since = 0, limit = 100, page = 0 } = {}) {

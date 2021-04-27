@@ -2,6 +2,9 @@
   "admin": {
     "allowAdminRoutes": true
   },
+  "log": {
+    "console": "debug"
+  },
   "discovery": {
     "protocol": "http"
   },

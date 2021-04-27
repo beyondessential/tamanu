@@ -3,19 +3,11 @@ import styled from 'styled-components';
 import Alert from '@material-ui/lab/Alert';
 import { Typography } from '@material-ui/core';
 
-import {
-  Form,
-  Field,
-} from 'desktop/app/components/Field';
+import { Form, Field } from 'desktop/app/components/Field';
 import { FormGrid } from 'desktop/app/components/FormGrid';
 import { Button, OutlinedButton } from 'desktop/app/components/Button';
 import { ButtonRow } from 'desktop/app/components/ButtonRow';
-import {
-  mapOptionsToValues,
-  checkVisibility,
-  runCalculations,
-  getComponentForQuestionType,
-} from 'desktop/app/utils';
+import { checkVisibility, runCalculations, getComponentForQuestionType } from 'desktop/app/utils';
 
 import { ProgramsPane, ProgramsPaneHeader, ProgramsPaneHeading } from './ProgramsPane';
 import { PatientDisplay } from './PatientDisplay';
@@ -25,9 +17,9 @@ const Text = styled.div`
 `;
 
 const SurveyQuestion = ({ component }) => {
-  const { defaultText, type, defaultOptions, id } = component.dataElement;
+  const { defaultText, type, id } = component.dataElement;
   const text = component.text || defaultText;
-  const options = mapOptionsToValues(component.options || defaultOptions);
+  const options = component.hasOwnProperty('getOptions') && component.getOptions();
   const FieldComponent = getComponentForQuestionType(type);
 
   return (
@@ -72,13 +64,13 @@ const COMPLETE_MESSAGE = `
 
 const SurveySummaryScreen = ({ onStepBack, onSurveyComplete }) => (
   <div>
-    <Typography variant="h6" gutterBottom>Survey Complete</Typography>
+    <Typography variant="h6" gutterBottom>
+      Survey Complete
+    </Typography>
     <Text>{COMPLETE_MESSAGE}</Text>
     <div>
       <StyledButtonRow>
-        <OutlinedButton onClick={onStepBack}>
-          Prev
-        </OutlinedButton>
+        <OutlinedButton onClick={onStepBack}>Prev</OutlinedButton>
         <Button color="primary" variant="contained" onClick={onSurveyComplete}>
           Complete
         </Button>
@@ -98,7 +90,7 @@ const SurveyScreenPaginator = ({ survey, values, onSurveyComplete, onCancel, set
     Object.entries(calculatedValues)
       .filter(([k, v]) => values[k] !== v)
       .map(([k, v]) => setFieldValue(k, v));
-    }, [values]);
+  }, [values]);
 
   const onStepBack = useCallback(() => {
     setScreenIndex(screenIndex - 1);
@@ -153,7 +145,7 @@ export const SurveyView = ({ survey, onSubmit, onCancel }) => {
     setSurveyCompleted(true);
   });
 
-  const renderSurvey = (props) => {
+  const renderSurvey = props => {
     const { submitForm, values, setFieldValue } = props;
 
     return (
@@ -165,7 +157,7 @@ export const SurveyView = ({ survey, onSubmit, onCancel }) => {
         onCancel={onCancel}
       />
     );
-  }
+  };
 
   const surveyContents = surveyCompleted ? (
     <SurveyCompletedMessage onResetClicked={onCancel} />

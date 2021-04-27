@@ -1,5 +1,5 @@
 import { Op } from 'sequelize';
-import moment from 'moment';
+import { subDays } from 'date-fns';
 import { generateReportFromQueryData } from './utilities';
 
 const reportColumnTemplate = [
@@ -9,18 +9,18 @@ const reportColumnTemplate = [
   },
   { title: 'UID', accessor: data => data.uid },
   { title: 'DOB', accessor: data => data.dob },
+  { title: 'Sex', accessor: data => data.sex },
   { title: 'Village', accessor: data => data.village },
   { title: 'First dose given', accessor: data => data.dose1 },
   { title: 'First dose date', accessor: data => data.dose1Date },
   { title: 'Second dose given', accessor: data => data.dose2 },
   { title: 'Second dose date', accessor: data => data.dose2Date },
+  { title: 'Vaccine Name', accessor: data => data.vaccineLabel },
 ];
 
 function parametersToSqlWhere(parameters) {
   if (!parameters.fromDate) {
-    parameters.fromDate = moment()
-      .subtract(30, 'days')
-      .toISOString();
+    parameters.fromDate = subDays(new Date(), 30).toISOString();
   }
 
   const whereClause = Object.entries(parameters)
@@ -49,7 +49,9 @@ function parametersToSqlWhere(parameters) {
         return where;
       },
       {
-        '$scheduledVaccine.label$': 'COVAX',
+        '$scheduledVaccine.label$': {
+          [Op.in]: ['COVAX', 'COVID-19'],
+        },
       },
     );
 
@@ -85,10 +87,10 @@ async function queryCovidVaccineListData(models, parameters) {
     const {
       encounter: {
         patientId,
-        patient: { displayId, firstName, lastName, dateOfBirth, village },
+        patient: { displayId, firstName, lastName, dateOfBirth, village, sex },
       },
       date,
-      scheduledVaccine: { schedule },
+      scheduledVaccine: { schedule, label },
     } = vaccine;
     if (!acc[patientId]) {
       acc[patientId] = {
@@ -98,6 +100,8 @@ async function queryCovidVaccineListData(models, parameters) {
         village: village?.name,
         dose1: 'No',
         dose2: 'No',
+        vaccineLabel: label,
+        sex,
       };
     }
     if (schedule === 'Dose 1') {
@@ -113,7 +117,9 @@ async function queryCovidVaccineListData(models, parameters) {
   return Object.values(patients);
 }
 
-export async function generateCovidVaccineListReport(models, parameters) {
+export async function dataGenerator(models, parameters) {
   const queryResults = await queryCovidVaccineListData(models, parameters);
   return generateReportFromQueryData(queryResults, reportColumnTemplate);
 }
+
+export const permission = 'PatientVaccine';

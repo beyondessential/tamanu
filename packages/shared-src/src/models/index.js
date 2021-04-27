@@ -38,3 +38,5 @@ export * from './PatientCarePlan';
 
 export * from './Setting';
 export * from './PatientCommunication';
+export * from './Location';
+export * from './UserFacility';

@@ -16,28 +16,31 @@ export class User extends Model {
     this.password = hashedPassword;
   }
 
-  static async update(values, ...args) {
+  static async sanitizeForInsert(values) {
     const { password, ...otherValues } = values;
-    if (password) {
-      otherValues.password = await hash(password, this.SALT_ROUNDS);
-    }
-    return super.update(otherValues, ...args);
+    if (!password) return values;
+
+    return { ...otherValues, password: await hash(password, this.SALT_ROUNDS) };
+  }
+
+  static async update(values, ...args) {
+    const sanitizedValues = await this.sanitizeForInsert(values);
+    return super.update(sanitizedValues, ...args);
   }
 
   static async create(values, ...args) {
-    const { password, ...otherValues } = values;
-    if (password) {
-      otherValues.password = await hash(password, this.SALT_ROUNDS);
-    }
-    return super.create(otherValues, ...args);
+    const sanitizedValues = await this.sanitizeForInsert(values);
+    return super.create(sanitizedValues, ...args);
+  }
+
+  static async bulkCreate(records, ...args) {
+    const sanitizedRecords = await Promise.all(records.map(r => this.sanitizeForInsert(r)));
+    return super.bulkCreate(sanitizedRecords, ...args);
   }
 
   static async upsert(values, ...args) {
-    const { password, ...otherValues } = values;
-    if (password) {
-      otherValues.password = await hash(password, this.SALT_ROUNDS);
-    }
-    return super.upsert(otherValues, ...args);
+    const sanitizedValues = await this.sanitizeForInsert(values);
+    return super.upsert(sanitizedValues, ...args);
   }
 
   static init({ primaryKey, ...options }) {

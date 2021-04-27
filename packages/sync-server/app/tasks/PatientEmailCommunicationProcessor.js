@@ -34,7 +34,7 @@ export class PatientEmailCommunicationProcessor extends ScheduledTask {
       log.info('\n');
       log.info(`Processing email : ${emailPlain.id}`);
       log.info(`Email type       : ${emailPlain.type}`);
-      log.info(`Email to         : ${emailPlain.patient?.email}`);
+      log.info(`Email to patient : ${emailPlain.patient?.id}`);
       try {
         const result = await sendEmail({
           to: emailPlain.patient?.email,
