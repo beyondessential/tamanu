@@ -28,6 +28,9 @@
     "apiKey": "",
     "from": ""
   },
+  "schedules": {
+    "outpatientDischarger": "0 0 2 ? * * *"
+  },
   "featureFlags": {
     "data": {
       "patientFieldOverrides": {
