@@ -27,6 +27,6 @@ describe('DependencyGraph', () => {
 
   it('includes dependencies from includedSyncRelations', () => {
     const graph = DependencyGraph.fromModels(models);
-    expect(graph.nodes.Encounter).toContain('AdministeredVaccine');
+    expect(graph.nodes.Encounter).toContain('LabTestType');
   });
 });

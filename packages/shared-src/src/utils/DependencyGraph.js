@@ -64,7 +64,7 @@ export class DependencyGraph {
     // while there are remaining jobs, loop through the graph finding unstarted jobs
     // with no dependencies, and removing completed dependencies, until there's
     // nothing left
-    do {
+    while (currentGraph.nodeCount() > 0) {
       remainingJobsCount = currentGraph.nodeCount();
       for (const [jobName, jobDeps] of Object.entries(currentGraph.nodes)) {
         if (running[jobName] === undefined && completed[jobName] === undefined && jobDeps.length === 0) {
@@ -76,43 +76,56 @@ export class DependencyGraph {
         await Promise.race(runningList);
       }
       if (remainingJobsCount === currentGraph.nodeCount()) {
+        console.error(currentGraph.nodes);
         throw new Error('DependencyGraph: cycle detected');
       }
-    } while (currentGraph.nodeCount() > 0);
+    }
   }
 
   static fromModels(models) {
     // calculate direct dependencies
     const fullDeps = {};
     Object.entries(models).forEach(([modelName, model]) => {
-      const depList = Object.values(model.associations)
-        .map(association => {
-          if (association.associationType === 'BelongsTo') {
-            return association.target.name;
-          }
-          if (association.associationType === 'BelongsToMany') {
-            // TODO: implement BelongsToMany
-            throw new Error('DependencyGraph: BelongsToMany not implemented yet');
-          }
-          return null;
-        })
-        .filter(name => name);
+      if (!shouldSync(model)) {
+        return;
+      }
+      const depList = getDepsFromModel(model);
       fullDeps[modelName] = depList;
     });
 
     // calculate includedSyncRelation dependencies
     const syncableDeps = {};
-    Object.entries(models).filter(model => !shouldSync(model)).forEach(([modelName, model]) => {
+    Object.entries(models).forEach(([modelName, model]) => {
+      if (!shouldSync(model)) {
+        return;
+      }
       const relationDepList = model.includedSyncRelations.map(relationPath => {
         const nestedModels = getModelsFromRelationPath(model, relationPath);
-        return nestedModels.map(nm => nm.name);
-      }).flat();
+        return nestedModels.map(nm => getDepsFromModel(nm));
+      }).flat(2).filter(depName => depName !== modelName);
       syncableDeps[modelName] = [...new Set([...fullDeps[modelName], ...relationDepList])]; // get unique values
     });
 
     return new DependencyGraph(syncableDeps);
   }
 }
+
+const getDepsFromModel = model => 
+  Object.values(model.associations)
+    .map(association => {
+      if (!shouldSync(association.target)) {
+        return null;
+      }
+      if (association.associationType === 'BelongsTo') {
+        return association.target.name;
+      }
+      if (association.associationType === 'BelongsToMany') {
+        // TODO: implement BelongsToMany
+        throw new Error('DependencyGraph: BelongsToMany not implemented yet');
+      }
+      return null;
+    })
+    .filter(name => name);
 
 const getModelsFromRelationPath = (rootModel, path) => {
   const models = [];
