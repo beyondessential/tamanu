@@ -75,6 +75,8 @@ export const executeImportPlan = async (plan, channel, syncRecords) => {
 };
 
 const executeDeletes = async (importPlan, idsForDelete) => {
+  if (idsForDelete.length === 0) return 0;
+
   const { model } = importPlan;
 
   // delete tombstones if we're in client mode
@@ -114,9 +116,9 @@ const executeCreates = async (importPlan, records) => {
     // bulk create of children later
     return { ...data, id: importPlan.model.generateId() };
   });
-  return executeUpdateOrCreates(importPlan, recordsWithIds, model => async rows =>
-    model.bulkCreate(rows),
-  );
+  return executeUpdateOrCreates(importPlan, recordsWithIds, model => async rows => {
+    return model.bulkCreate(rows);
+  });
 };
 
 const executeUpdates = async (importPlan, records) =>
@@ -144,9 +146,11 @@ const executeUpdateOrCreates = async (
     values.pulledAt = new Date();
     values.markedForPush = false;
 
-    // on the server, remove null or undefined fields
+    // on the server, remove null or undefined fields, and run any other model-specific
+    // santization (e.g. auto-closing outpatient encounters)
     if (!model.syncClientMode) {
       values = pickBy(values, value => value !== undefined && value !== null);
+      values = model.sanitizeForSyncServer ? model.sanitizeForSyncServer(values) : values;
     }
 
     return values;
