@@ -44,12 +44,12 @@ async function fetchChannel(channel) {
   console.log(`fetching ${channel}:`);
   let count = null;
   let records = [];
-  let nextCursor = '0;asdfsdaf';
+  let nextCursor = '0;[channel_specific_cursor_data]';
   let lastCursor = '';
   do {
     const url = `${fromUrl}/v1/sync/${encodeURIComponent(
       channel,
-    )}?since=${nextCursor.split(';')[0]}&limit=${DOWN_LIMIT}`;
+    )}?since=${nextCursor}&limit=${DOWN_LIMIT}`;
     console.log(`  <- GET ${url}`);
     const response = await fetch(url, {
       headers: HEADERS,
@@ -63,7 +63,7 @@ async function fetchChannel(channel) {
     lastCursor = nextCursor;
     nextCursor = json.cursor;
     records = [...records, ...json.records];
-  } while (lastCursor !== nextCursor);
+  } while (nextCursor && lastCursor !== nextCursor);
   return records;
 }
 
