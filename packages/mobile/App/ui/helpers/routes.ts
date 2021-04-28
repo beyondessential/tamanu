@@ -51,7 +51,6 @@ export const Routes = {
         Index: '',
         AddDetails: '',
         ViewHistory: '',
-        CreateEncounter: '',
       },
     },
     ProgramStack: {

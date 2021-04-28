@@ -159,10 +159,9 @@ const executeUpdateOrCreates = async (
           ...child,
           data: { ...child.data, [relationPlan.parentField]: sr.data.id } }))));
     if (childRecords) {
-      const { failures: childFailures } = await executeUpdateOrCreates(
+      const { failures: childFailures } = await executeImportPlan(
         relationPlan,
         childRecords,
-        buildUpdateOrCreateFn,
       );
       failures.push(...childFailures);
     }

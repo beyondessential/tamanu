@@ -25,8 +25,8 @@ export const FieldTypes = {
   USER_DATA: 'UserData',
 };
 
-export const getStringValue = (type: string, value: any): string  => {
-  switch(type) {
+export const getStringValue = (type: string, value: any): string => {
+  switch (type) {
     case FieldTypes.TEXT:
     case FieldTypes.MULTILINE:
       return value;
@@ -36,16 +36,16 @@ export const getStringValue = (type: string, value: any): string  => {
       return value && value.toISOString();
     case FieldTypes.BINARY:
     case FieldTypes.CHECKBOX:
-      if(typeof value === 'string') return value;
+      if (typeof value === 'string') return value;
       // booleans should all be stored as Yes/No to match meditrak
-      return value ? "Yes" : "No";
+      return value ? 'Yes' : 'No';
     case FieldTypes.CALCULATED:
       // TODO: configurable precision on calculated fields
       return value.toFixed(1);
     default:
       return `${value}`;
   }
-}
+};
 
 export function isCalculated(fieldType: string): boolean {
   switch (fieldType) {
@@ -86,7 +86,7 @@ export function getResultValue(allComponents: ISurveyScreenComponent[], values: 
   // use the last visible component in the array
   const component = resultComponents[resultComponents.length - 1];
 
-  if(!component) {
+  if (!component) {
     // this survey does not have a result field
     return { result: 0, resultText: '' };
   }
@@ -94,24 +94,24 @@ export function getResultValue(allComponents: ISurveyScreenComponent[], values: 
   const rawValue = values[component.dataElement.code];
 
   // invalid values just get empty results
-  if(rawValue === undefined || rawValue === null || Number.isNaN(rawValue)) {
+  if (rawValue === undefined || rawValue === null || Number.isNaN(rawValue)) {
     return { result: 0, resultText: component.detail || '' };
   }
 
   // string values just get passed on directly
-  if(typeof rawValue === "string") {
+  if (typeof rawValue === 'string') {
     return { result: 0, resultText: rawValue };
   }
 
   // numeric data gets formatted
-  return { 
+  return {
     result: rawValue,
     resultText: formatResultText(rawValue, component),
   };
 }
 
 function compareData(dataType: string, expected: string, given: any): boolean {
-  switch(dataType) {
+  switch (dataType) {
     case FieldTypes.BINARY:
       if (expected === 'yes' && given === true) return true;
       if (expected === 'no' && given === false) return true;
@@ -122,9 +122,11 @@ function compareData(dataType: string, expected: string, given: any): boolean {
       const parsed = parseFloat(expected);
       const diff = Math.abs(parsed - given);
 
-      const threshold = 0.05;  // TODO: configurable
+      const threshold = 0.05; // TODO: configurable
       if (diff < threshold) return true;
-      break;  
+      break;
+    case FieldTypes.MULTI_SELECT:
+      return given.split(', ').includes(expected);
     default:
       if (expected === given) return true;
       break;
@@ -134,9 +136,9 @@ function compareData(dataType: string, expected: string, given: any): boolean {
 }
 
 export function checkVisibilityCriteria(
-  component: ISurveyScreenComponent, 
-  allComponents: ISurveyScreenComponent[], 
-  values: any
+  component: ISurveyScreenComponent,
+  allComponents: ISurveyScreenComponent[],
+  values: any,
 ): boolean {
   const { visibilityCriteria, dataElement } = component;
   // nothing set - show by default
@@ -159,7 +161,7 @@ export function checkVisibilityCriteria(
       if (answersEnablingFollowUp.type === 'range') {
         if (!value) return false;
         const { start, end } = answersEnablingFollowUp;
-        
+
         if (!start) return value < end;
         if (!end) return value >= start;
         if (inRange(value, parseFloat(start), parseFloat(end))) {
@@ -167,19 +169,22 @@ export function checkVisibilityCriteria(
         }
       }
 
+      if (dataElement.type === DataElementType.MultiSelect) {
+        return answersEnablingFollowUp.includes(values[questionId].split(', '));
+      }
+
       return answersEnablingFollowUp.includes(values[questionId]);
-    }
+    };
 
     return conjunction === 'and'
       ? Object.entries(restOfCriteria).every(checkIfQuestionMeetsCriteria)
       : Object.entries(restOfCriteria).some(checkIfQuestionMeetsCriteria);
-  } catch(error) {
+  } catch (error) {
     console.warn(`Error parsing JSON visilbity criteria, using fallback.
                   \nError message: ${error}`);
 
     return fallbackParseVisibilityCriteria(visibilityCriteria, values, allComponents);
   }
-
 }
 
 /**
@@ -195,14 +200,14 @@ const fallbackParseVisibilityCriteria = (visibilityCriteria, values, allComponen
   ] = visibilityCriteria.split(/\s*:\s*/);
 
   let givenAnswer = values[elementCode] || '';
-  if(givenAnswer.toLowerCase) {
+  if (givenAnswer.toLowerCase) {
     givenAnswer = givenAnswer.toLowerCase().trim();
   }
   const expectedTrimmed = expectedAnswer.toLowerCase().trim();
 
   const comparisonComponent = allComponents.find(x => x.dataElement.code === elementCode);
 
-  if(!comparisonComponent) {
+  if (!comparisonComponent) {
     console.warn(`Comparison component ${elementCode} not found!`);
     return false;
   }
@@ -210,4 +215,4 @@ const fallbackParseVisibilityCriteria = (visibilityCriteria, values, allComponen
   const comparisonDataType = comparisonComponent.dataElement.type;
 
   return compareData(comparisonDataType, expectedTrimmed, givenAnswer);
-}
+};
