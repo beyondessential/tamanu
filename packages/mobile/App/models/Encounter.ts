@@ -100,7 +100,7 @@ export class Encounter extends BaseModel implements IEncounter {
   static async getOrCreateCurrentEncounter(
     patientId: string,
     userId: string,
-    createdEncounterOptions: any = {}
+    createdEncounterOptions: any = {},
   ): Promise<Encounter> {
     const repo = this.getRepository();
 
