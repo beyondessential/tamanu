@@ -13,7 +13,7 @@ module.exports = {
   up: async query => {
     // missing columns to add
     await query.addColumn('administered_vaccines', 'injection_site', {
-      type: Sequelize.ENUM(INJECTION_SITE_OPTIONS),
+      type: Sequelize.STRING,
     });
 
   },

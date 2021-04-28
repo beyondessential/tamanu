@@ -10,6 +10,7 @@ const INJECTION_SITE_OPTIONS = [
   'Oral',
   'Other',
 ];
+
 export class AdministeredVaccine extends Model {
   static init({ primaryKey, ...options }) {
     options.validate = {
@@ -34,7 +35,7 @@ export class AdministeredVaccine extends Model {
         },
         reason: Sequelize.STRING,
         location: Sequelize.STRING,
-        injectionSite: Sequelize.ENUM(INJECTION_SITE_OPTIONS),
+        injectionSite: Sequelize.STRING,
         date: {
           type: Sequelize.DATE,
           allowNull: false,
