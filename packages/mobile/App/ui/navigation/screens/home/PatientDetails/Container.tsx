@@ -1,12 +1,12 @@
 import React, { useCallback, useState, ReactElement } from 'react';
 import { useIsFocused } from '@react-navigation/native';
 
+import { compose } from 'redux';
 import { useBackendEffect } from '~/ui/hooks';
 import { Screen } from './Screen';
 import { PatientDetails } from '~/ui/interfaces/PatientDetails';
 import { PatientDetailsScreenProps } from '~/ui/interfaces/screens/PatientDetailsScreenProps';
 import { Routes } from '~/ui/helpers/routes';
-import { compose } from 'redux';
 import { withPatient } from '~/ui/containers/Patient';
 import { ErrorScreen } from '~/ui/components/ErrorScreen';
 import { LoadingScreen } from '~/ui/components/LoadingScreen';
@@ -22,7 +22,7 @@ const Container = ({
         return models.PatientIssue.find({
           order: { recordedDate: 'ASC' },
           where: { patient: { id: selectedPatient.id } },
-        })
+        });
       }
     },
     [isFocused, selectedPatient.id],
@@ -32,7 +32,7 @@ const Container = ({
       if (isFocused) {
         return models.PatientAdditionalData.find({
           where: { patient: { id: selectedPatient.id } },
-        })
+        });
       }
     },
     [isFocused, selectedPatient.id],
@@ -77,7 +77,7 @@ const Container = ({
 
   if (issuesError) return <ErrorScreen error={issuesError} />;
   if (additionalDataError) return <ErrorScreen error={additionalDataError} />;
-  if (!patientIssues) return <LoadingScreen />;
+  if (!patientIssues || !patientAdditionalData) return <LoadingScreen />;
 
   return (
     <Screen
