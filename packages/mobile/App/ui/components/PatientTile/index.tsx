@@ -20,7 +20,7 @@ export const PatientTile = (patient: IPatient): JSX.Element => {
       <StyledView marginLeft={20}>
         <UserAvatar
           size={screenPercentageToDP('4.86', Orientation.Height)}
-          gender={sex}
+          sex={sex}
           displayName={joinNames({ firstName, lastName })}
         />
       </StyledView>

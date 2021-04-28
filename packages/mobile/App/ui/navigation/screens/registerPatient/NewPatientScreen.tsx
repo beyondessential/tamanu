@@ -28,7 +28,7 @@ const mockPatientData = {
 const newPatientAddedMock = {
   size: screenPercentageToDP('16.40', Orientation.Height),
   displayName: 'Alice Klein',
-  gender: 'female',
+  sex: 'female',
   image:
     'https://res.cloudinary.com/dqkhy63yu/image/upload/v1573676957/Ellipse_4.png',
   Icon: (
@@ -115,7 +115,7 @@ const Screen = ({
           {newPatientAddedMock.displayName}
         </StyledText>
         <StyledText color={theme.colors.TEXT_MID} marginTop={10}>
-          {newPatientAddedMock.gender}, {mockPatientData.age} years old,{' '}
+          {newPatientAddedMock.sex}, {mockPatientData.age} years old,{' '}
           {mockPatientData.city}
         </StyledText>
         <StyledText
