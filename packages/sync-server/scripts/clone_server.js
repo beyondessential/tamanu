@@ -44,7 +44,7 @@ async function fetchChannel(channel) {
   console.log(`fetching ${channel}:`);
   let count = null;
   let records = [];
-  let nextCursor = '0;[channel_specific_conflict_breaker]';
+  let nextCursor = '0';
   let lastCursor = '';
   do {
     const url = `${fromUrl}/v1/sync/${encodeURIComponent(

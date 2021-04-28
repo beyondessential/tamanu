@@ -1,14 +1,5 @@
 const Sequelize = require('sequelize');
 
-const INJECTION_SITE_OPTIONS = [
-  'Left arm',
-  'Right arm',
-  'Left thigh',
-  'Right thigh',
-  'Oral',
-  'Other',
-];
-
 module.exports = {
   up: async query => {
     // missing columns to add
