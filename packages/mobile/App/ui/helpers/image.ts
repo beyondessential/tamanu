@@ -1,6 +1,33 @@
 import { Platform } from 'react-native';
 import ImagePicker, { ImagePickerResponse } from 'react-native-image-picker';
 import { check, PERMISSIONS, request } from 'react-native-permissions';
+import { getFileInDocumentsPath } from './file';
+
+export const imageDataIsFileName = (imageData: string) =>
+  imageData &&
+  imageData.length < 100 &&
+  imageData.search('.*?.(jpg|png)') !== -1;
+
+/**
+ * Get a ReactNative ImageSource object.
+ * @param {string} imageData
+ * Either a filename inside documents or a base64 string.
+ */
+export const getImageSourceFromData = (imageData: any) => {
+  if (typeof imageData === 'string') {
+    let uri;
+
+    if (imageDataIsFileName(imageData)) {
+      uri = getFileInDocumentsPath(imageData);
+    } else {
+      uri = imageToBase64URI(imageData);
+    }
+
+    return { uri };
+  }
+
+  return imageData;
+};
 
 export const launchImagePicker = (): Promise<ImagePickerResponse> => new Promise((
   resolve, reject,

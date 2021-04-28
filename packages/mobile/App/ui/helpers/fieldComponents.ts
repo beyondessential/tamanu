@@ -7,6 +7,7 @@ import { Dropdown, MultiSelectDropdown } from '~/ui/components/Dropdown';
 import { Checkbox } from '~/ui/components/Checkbox';
 import { NumberField } from '~/ui/components/NumberField';
 import { ReadOnlyField } from '~/ui/components/ReadOnlyField';
+import { UploadPhoto } from '~/ui/components/UploadPhoto';
 
 import { SurveyQuestionAutocomplete } from '../components/AutocompleteModal/SurveyQuestionAutocomplete';
 import { SurveyLink } from '../components/Forms/SurveyForm/SurveyLink';
@@ -33,6 +34,7 @@ export const FieldByType = {
   [FieldTypes.SURVEY_ANSWER]: SurveyAnswerField,
   [FieldTypes.PATIENT_DATA]: PatientDataField,
   [FieldTypes.USER_DATA]: UserDataField,
+  [FieldTypes.PHOTO]: UploadPhoto,
   [FieldTypes.INSTRUCTION]: null,
   [FieldTypes.RESULT]: null,
 };

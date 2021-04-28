@@ -23,6 +23,7 @@ export const FieldTypes = {
   SURVEY_LINK: 'SurveyLink',
   PATIENT_DATA: 'PatientData',
   USER_DATA: 'UserData',
+  PHOTO: 'Photo',
 };
 
 export const getStringValue = (type: string, value: any): string => {
