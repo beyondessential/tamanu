@@ -1,4 +1,5 @@
-import dgram from "dgram";
+import dgram from 'dgram';
+import { isEqual } from 'lodash';
 
 import { DISCOVERY_PORT, DISCOVERY_MAGIC_STRING } from 'shared/constants';
 
@@ -10,18 +11,22 @@ export async function discoverServer() {
   let timeout;
 
   const promise = new Promise((resolve, reject) => {
+    const servers = [];
+
     socket.on('message', (msg, rinfo) => {
       if(`${msg}`.includes(DISCOVERY_MAGIC_STRING)) {
         try {
           const data = JSON.parse(msg);
           const { port, version, overrideAddress, protocol  } = data;
-          clearTimeout(timeout);
-          resolve({
+          const server = {
             address: overrideAddress || rinfo.address,
             protocol,
             port,
             version,
-          });
+          };
+          if (!servers.find(s => isEqual(s, server))) {
+            servers.push(server);
+          }
         } catch(e) {
           console.warn(e);
         }
@@ -31,8 +36,14 @@ export async function discoverServer() {
     socket.on('listening', () => {
       socket.setBroadcast(true);
       socket.send(DISCOVERY_MAGIC_STRING, PORT, BROADCAST_IP);
-      timeout = setTimeout(
-        () => reject('Server discovery broadcast timed out'),
+      setTimeout(
+        () => {
+          if (servers.length === 0) {
+            reject(new Error('Server discovery broadcast timed out'));
+          } else {
+            resolve(servers);
+          }
+        },
         2000,
       );
     });
