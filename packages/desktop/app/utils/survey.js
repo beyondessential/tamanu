@@ -12,9 +12,9 @@ import {
   AutocompleteField,
   NumberField,
   ReadOnlyTextField,
+  UnsupportedPhotoField,
 } from 'desktop/app/components/Field';
 import { PROGRAM_DATA_ELEMENT_TYPES } from '../../../shared-src/src/constants';
-
 
 const InstructionField = ({ label, helperText }) => (
   <p>{label} {helperText}</p>
@@ -34,6 +34,7 @@ const QUESTION_COMPONENTS = {
   [PROGRAM_DATA_ELEMENT_TYPES.CHECKBOX]: NullableBooleanField,
   [PROGRAM_DATA_ELEMENT_TYPES.CALCULATED]: ReadOnlyTextField,
   [PROGRAM_DATA_ELEMENT_TYPES.INSTRUCTION]: InstructionField,
+  [PROGRAM_DATA_ELEMENT_TYPES.PHOTO]: UnsupportedPhotoField,
   // [PROGRAM_DATA_ELEMENT_TYPES.RESULT]: null,
   // [PROGRAM_DATA_ELEMENT_TYPES.SURVEY_LINK]: null,
   // [PROGRAM_DATA_ELEMENT_TYPES.SURVEY_RESULT]: null,
