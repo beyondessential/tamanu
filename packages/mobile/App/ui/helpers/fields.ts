@@ -1,6 +1,13 @@
 import { inRange } from 'lodash';
+import RNFS from 'react-native-fs';
 
 import { ISurveyScreenComponent, DataElementType } from '~/types/ISurvey';
+import { resizeImage } from './image';
+
+const IMAGE_RESIZE_OPTIONS = {
+  maxWidth: 1920,
+  maxHeight: 1920,
+};
 
 export const FieldTypes = {
   TEXT: 'FreeText',
@@ -23,9 +30,10 @@ export const FieldTypes = {
   SURVEY_LINK: 'SurveyLink',
   PATIENT_DATA: 'PatientData',
   USER_DATA: 'UserData',
+  PHOTO: 'Photo',
 };
 
-export const getStringValue = (type: string, value: any): string => {
+export const getStringValue = async (type: string, value: any): Promise<string> => {
   switch (type) {
     case FieldTypes.TEXT:
     case FieldTypes.MULTILINE:
@@ -39,6 +47,10 @@ export const getStringValue = (type: string, value: any): string => {
       if (typeof value === 'string') return value;
       // booleans should all be stored as Yes/No to match meditrak
       return value ? 'Yes' : 'No';
+    case FieldTypes.PHOTO: {
+      const { path } = await resizeImage(`file://${value}`, IMAGE_RESIZE_OPTIONS);
+      return RNFS.readFile(path, 'base64');
+    }
     case FieldTypes.CALCULATED:
       // TODO: configurable precision on calculated fields
       return value.toFixed(1);
@@ -143,7 +155,7 @@ export function checkVisibilityCriteria(
   const { visibilityCriteria, dataElement } = component;
   // nothing set - show by default
   if (!visibilityCriteria) return true;
-  
+
   try {
     const criteriaObject = JSON.parse(visibilityCriteria);
 

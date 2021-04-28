@@ -1,6 +1,23 @@
 import { Platform } from 'react-native';
 import ImagePicker, { ImagePickerResponse } from 'react-native-image-picker';
+import ImageResizer from 'react-native-image-resizer';
 import { check, PERMISSIONS, request } from 'react-native-permissions';
+
+/**
+ * @see https://github.com/bamlab/react-native-image-resizer#api
+ */
+interface ResizeOptions {
+  maxWidth: number;
+  maxHeight: number;
+  compressFormat?: 'JPEG' | 'PNG' | 'WEBP';
+  quality?: number;
+  rotation?: number;
+  outputPath?: string;
+  keepMeta?: boolean;
+  mode?: 'contain' | 'cover' | 'stretch';
+  onlyScaleDown?: boolean;
+}
+
 
 export const launchImagePicker = (): Promise<ImagePickerResponse> => new Promise((
   resolve, reject,
@@ -73,3 +90,29 @@ export const getImageFromPhotoLibrary = async (): Promise<Nullable<
 };
 
 export const imageToBase64URI = (image: string): string => `data:image/jpeg;base64, ${image}`;
+
+export const resizeImage = (path: string, options: ResizeOptions) => {
+  const {
+    maxWidth,
+    maxHeight,
+    compressFormat = 'JPEG',
+    quality = 100,
+    rotation,
+    outputPath,
+    keepMeta,
+    mode,
+    onlyScaleDown = true,
+  } = options;
+
+  return ImageResizer.createResizedImage(
+    path,
+    maxWidth,
+    maxHeight,
+    compressFormat,
+    quality,
+    rotation,
+    outputPath,
+    keepMeta,
+    { mode, onlyScaleDown },
+  );
+};
