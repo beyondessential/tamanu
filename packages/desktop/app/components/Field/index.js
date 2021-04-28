@@ -6,6 +6,7 @@ export * from './SelectField';
 export * from './CheckField';
 export * from './RadioField';
 export * from './NullableBooleanField';
+export * from './UnsupportedPhotoField.js';
 
 // fancy fields
 export * from './AutocompleteField';
