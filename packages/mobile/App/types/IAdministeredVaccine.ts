@@ -22,11 +22,4 @@ export enum InjectionSiteType {
   Other = 'Other',
 }
 
-export const INJECTION_SITE_OPTIONS = [
-  InjectionSiteType.LeftArm,
-  InjectionSiteType.RightArm,
-  InjectionSiteType.LeftThigh,
-  InjectionSiteType.RightThigh,
-  InjectionSiteType.Oral,
-  InjectionSiteType.Other,
-];
+export const INJECTION_SITE_OPTIONS = Object.keys(InjectionSiteType).map(k => InjectionSiteType[k as string] as InjectionSiteType);
