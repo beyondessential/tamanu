@@ -1,11 +1,8 @@
 import React, { useState, useCallback } from 'react';
 import { Dimensions, Text } from 'react-native';
 import { StyledView, StyledImage } from '/styled/common';
-import {
-  getImageFromPhotoLibrary,
-  getImageSourceFromData
-} from '/helpers/image';
-import { saveFile } from '/helpers/file';
+import { getImageFromPhotoLibrary } from '/helpers/image';
+import { saveFileInDocuments } from '/helpers/file';
 import { BaseInputProps } from '../../interfaces/BaseInputProps';
 import { Button } from '~/ui/components/Button';
 
@@ -15,13 +12,13 @@ export interface PhotoProps extends BaseInputProps {
 }
 
 interface UploadedImageProps {
-  imageData: string;
+  imagePath: string;
 }
 
 interface UploadPhotoComponent {
   onPressChoosePhoto: Function;
   onPressRemovePhoto: Function;
-  imageData: string;
+  imagePath: string;
   errorMessage?: string;
 }
 
@@ -31,16 +28,12 @@ const ImageActionButton = ({ onPress, label }) => (
   <Button buttonText={label} onPress={onPress} flex={1} margin={5} />
 );
 
-const UploadedImage = ({ imageData }: UploadedImageProps) => (
-  <StyledView
-    flex={1}
-    justifyContent="center"
-    alignItems="center"
-  >
+const UploadedImage = ({ imagePath }: UploadedImageProps) => (
+  <StyledView flex={1} justifyContent="center" alignItems="center">
     <StyledImage
       width="100%"
       height={IMAGE_WIDTH}
-      source={getImageSourceFromData(imageData)}
+      source={{ uri: `file://${imagePath}` }}
       resizeMode="cover"
     />
   </StyledView>
@@ -49,43 +42,27 @@ const UploadedImage = ({ imageData }: UploadedImageProps) => (
 const UploadPhotoComponent = ({
   onPressChoosePhoto,
   onPressRemovePhoto,
-  imageData,
-  errorMessage
-}: UploadPhotoComponent) => {
-  return (
-    <StyledView marginTop={5}>
-      {imageData && <UploadedImage imageData={imageData} />}
-      {!imageData && errorMessage && (
-        <Text>{`Error loading photo: ${errorMessage}`}</Text>
-      )}
-      <StyledView
-        justifyContent="space-between"
-        flexDirection="row"
-        flex={1}
-        marginLeft={-10}
-      >
-        {
-          <ImageActionButton
-            onPress={onPressChoosePhoto}
-            label={!imageData ? 'Add photo' : 'Change photo'}
-          />
-        }
-        {imageData && (
-          <ImageActionButton
-            onPress={onPressRemovePhoto}
-            label={'Remove photo'}
-          />
-        )}
-      </StyledView>
+  imagePath,
+  errorMessage,
+}: UploadPhotoComponent) => (
+  <StyledView marginTop={5}>
+    {imagePath && <UploadedImage imagePath={imagePath} />}
+    {!imagePath && errorMessage && <Text>{`Error loading photo: ${errorMessage}`}</Text>}
+    <StyledView justifyContent="space-between" flexDirection="row" flex={1} marginLeft={-10}>
+      <ImageActionButton
+        onPress={onPressChoosePhoto}
+        label={!imagePath ? 'Add photo' : 'Change photo'}
+      />
+      {imagePath && <ImageActionButton onPress={onPressRemovePhoto} label="Remove photo" />}
     </StyledView>
-  );
-};
+  </StyledView>
+);
 
 export const UploadPhoto = React.memo(({ onChange, value }: PhotoProps) => {
   const [errorMessage, setErrorMessage] = useState(null);
 
   const addPhotoCallback = useCallback(async () => {
-    let image;
+    let image: { data: string };
     try {
       image = await getImageFromPhotoLibrary();
       if (!image) {
@@ -101,15 +78,15 @@ export const UploadPhoto = React.memo(({ onChange, value }: PhotoProps) => {
     const time = new Date().getTime();
     const fileName = `${time}-photo.jpg`;
 
-    await saveFile(image.data, fileName);
-    onChange(fileName);
+    const filePath = await saveFileInDocuments(image.data, fileName);
+    onChange(filePath);
   }, []);
 
   const removePhotoCallback = useCallback(() => onChange(null), []);
 
   return (
     <UploadPhotoComponent
-      imageData={value}
+      imagePath={value}
       errorMessage={errorMessage}
       onPressChoosePhoto={addPhotoCallback}
       onPressRemovePhoto={removePhotoCallback}

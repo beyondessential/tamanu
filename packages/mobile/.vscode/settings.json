@@ -1,6 +1,6 @@
 {
   "editor.formatOnPaste": true,
-  "editor.formatOnSave": false,
+  "editor.formatOnSave": true,
   "[typescript]": {
     "editor.formatOnSave": true
   },
@@ -12,13 +12,17 @@
     "javascript",
     "javascriptreact",
     {
-      "language": "typescript",      
+      "language": "typescript"
     },
     {
-      "language": "typescriptreact",      
+      "language": "typescriptreact"
     }
-],
-"editor.tabSize": 2,
-"editor.detectIndentation": false,
-"python.pythonPath": "/usr/local/bin/python3"
+  ],
+  "editor.tabSize": 2,
+  "editor.detectIndentation": false,
+  "python.pythonPath": "/usr/local/bin/python3",
+  "cSpell.words": [
+    "RNFS"
+  ],
+  "editor.formatOnSaveMode": "modifications"
 }

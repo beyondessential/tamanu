@@ -1,33 +1,23 @@
 import { Platform } from 'react-native';
 import ImagePicker, { ImagePickerResponse } from 'react-native-image-picker';
+import ImageResizer from 'react-native-image-resizer';
 import { check, PERMISSIONS, request } from 'react-native-permissions';
-import { getFileInDocumentsPath } from './file';
-
-export const imageDataIsFileName = (imageData: string) =>
-  imageData &&
-  imageData.length < 100 &&
-  imageData.search('.*?.(jpg|png)') !== -1;
 
 /**
- * Get a ReactNative ImageSource object.
- * @param {string} imageData
- * Either a filename inside documents or a base64 string.
+ * @see https://github.com/bamlab/react-native-image-resizer#api
  */
-export const getImageSourceFromData = (imageData: any) => {
-  if (typeof imageData === 'string') {
-    let uri;
+interface ResizeOptions {
+  maxWidth: number;
+  maxHeight: number;
+  compressFormat?: 'JPEG' | 'PNG' | 'WEBP';
+  quality?: number;
+  rotation?: number;
+  outputPath?: string;
+  keepMeta?: boolean;
+  mode?: 'contain' | 'cover' | 'stretch';
+  onlyScaleDown?: boolean;
+}
 
-    if (imageDataIsFileName(imageData)) {
-      uri = getFileInDocumentsPath(imageData);
-    } else {
-      uri = imageToBase64URI(imageData);
-    }
-
-    return { uri };
-  }
-
-  return imageData;
-};
 
 export const launchImagePicker = (): Promise<ImagePickerResponse> => new Promise((
   resolve, reject,
@@ -100,3 +90,29 @@ export const getImageFromPhotoLibrary = async (): Promise<Nullable<
 };
 
 export const imageToBase64URI = (image: string): string => `data:image/jpeg;base64, ${image}`;
+
+export const resizeImage = (path: string, options: ResizeOptions) => {
+  const {
+    maxWidth,
+    maxHeight,
+    compressFormat = 'JPEG',
+    quality = 100,
+    rotation,
+    outputPath,
+    keepMeta,
+    mode,
+    onlyScaleDown = true,
+  } = options;
+
+  return ImageResizer.createResizedImage(
+    path,
+    maxWidth,
+    maxHeight,
+    compressFormat,
+    quality,
+    rotation,
+    outputPath,
+    keepMeta,
+    { mode, onlyScaleDown },
+  );
+};
