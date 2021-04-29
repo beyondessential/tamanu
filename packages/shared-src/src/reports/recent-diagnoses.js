@@ -39,10 +39,10 @@ function parametersToSqlWhere(parameters) {
       (where, [key, value]) => {
         switch (key) {
           case 'village':
-            where['$Encounter->patient.village_id$'] = value;
+            where['$encounter->patient.village_id$'] = value;
             break;
           case 'practitioner':
-            where['$Encounter.examiner_id$'] = value;
+            where['$encounter.examiner_id$'] = value;
             break;
           case 'fromDate':
             where.date[Op.gte] = value;
