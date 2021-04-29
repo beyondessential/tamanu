@@ -3,7 +3,6 @@ import * as Icons from '/components/Icons';
 import { theme } from '/styled/theme';
 import { VaccineStatus } from '/helpers/patient';
 import { ColorHelper } from './colors';
-import { FC } from 'react';
 
 export const DateFormats = {
   short: 'EEE, dd MMM',
