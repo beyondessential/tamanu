@@ -27,7 +27,7 @@ const Container = ({
     },
     [isFocused, selectedPatient.id],
   );
-  const [patientAdditionalData, additionalDataError] = useBackendEffect(
+  const [additionalData, additionalDataError] = useBackendEffect(
     ({ models }) => {
       if (isFocused) {
         return models.PatientAdditionalData.find({
@@ -49,7 +49,7 @@ const Container = ({
       culturalTraditionName: null,
     },
     patientIssues,
-    patientAdditionalData,
+    additionalData,
   };
 
   const [reminders, setReminders] = useState(patientData.reminderWarnings);
@@ -77,7 +77,7 @@ const Container = ({
 
   if (issuesError) return <ErrorScreen error={issuesError} />;
   if (additionalDataError) return <ErrorScreen error={additionalDataError} />;
-  if (!patientIssues || !patientAdditionalData) return <LoadingScreen />;
+  if (!patientIssues || !additionalData) return <LoadingScreen />;
 
   return (
     <Screen

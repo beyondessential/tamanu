@@ -1,12 +1,11 @@
 import React, { ReactElement } from 'react';
 
 import { FieldRowDisplay } from '~/ui/components/FieldRowDisplay';
-import { IPatientAdditionalData } from '~/types';
 import { PatientSection } from './PatientSection';
 
-export const AdditionalInfo = (
-  data: IPatientAdditionalData,
-): ReactElement => {
+export const AdditionalInfo = ({
+  data,
+}): ReactElement => {
   const fields = [
     ['Place of Birth', data.placeOfBirth],
     ['Title', data.title],
@@ -21,7 +20,7 @@ export const AdditionalInfo = (
     ['Nationality', data.nationality?.name],
     ['Country', data.country?.name],
     ['Division', data.division?.name],
-    ['Sub Division', data.subdivision?.name],
+    ['Sub-division', data.subdivision?.name],
     ['Medical Area', data.medicalArea?.name],
     ['Nursing Zone', data.nursingZone?.name],
     ['Settlement', data.settlement?.name],

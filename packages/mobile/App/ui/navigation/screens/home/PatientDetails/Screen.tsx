@@ -88,8 +88,7 @@ export const Screen = ({
           generalInfo={patientData.generalInfo}
         />
         <AdditionalInfo
-          id={patientData.id}
-          generalInfo={patientData.generalInfo}
+          data={patientData.patientAdditionalData}
         />
         {/* Not functional yet
           <NotificationCheckbox value={reminders} onChange={changeReminder} />
