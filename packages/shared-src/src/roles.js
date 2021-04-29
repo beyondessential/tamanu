@@ -102,6 +102,11 @@ export const practitioner = (user, allow, forbid) => {
   allow('write', 'PatientFamilyHistory');
   allow('create', 'PatientFamilyHistory');
 
+  allow('list', 'PatientAdditionalData');
+  allow('read', 'PatientAdditionalData');
+  allow('write', 'PatientAdditionalData');
+  allow('create', 'PatientAdditionalData');
+
   allow('list', 'PatientAllergy');
   allow('read', 'PatientAllergy');
   allow('write', 'PatientAllergy');
@@ -133,7 +138,7 @@ export const practitioner = (user, allow, forbid) => {
   allow('list', 'Location');
   allow('read', 'Location');
   allow('create', 'Location');
-  allow('write', 'Location')
+  allow('write', 'Location');
 };
 
 export const admin = (user, allow, forbid) => {

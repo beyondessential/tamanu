@@ -55,11 +55,14 @@ patient.put(
     req.checkPermission('write', patient);
     await patient.update(requestBodyToRecord(req.body));
 
-    const patientAdditionalData = await PatientAdditionalData.findOne({ patient_id: patient.id });
+    const patientAdditionalData = await PatientAdditionalData.findOne({
+      where: { patientId: patient.id },
+    });
+
     if (!patientAdditionalData) {
       await PatientAdditionalData.create({
         ...requestBodyToRecord(req.body),
-        patient_id: patient.id,
+        patientId: patient.id,
       });
     } else {
       await patientAdditionalData.update(requestBodyToRecord(req.body));
@@ -86,19 +89,6 @@ const patientRelations = permissionCheckingRouter('read', 'Patient');
 
 patientRelations.get('/:id/encounters', simpleGetList('Encounter', 'patientId'));
 
-patientRelations.get(
-  '/:id/additionalData',
-  asyncHandler(async (req, res) => {
-    const { models, params } = req;
-
-    req.checkPermission('read', 'Patient');
-    const patientAdditionalData = await models.PatientAdditionalData.findOne({
-      patientId: params.id,
-    });
-    res.send(patientAdditionalData);
-  }),
-);
-
 // TODO
 // patientRelations.get('/:id/appointments', simpleGetList('Appointment', 'patientId'));
 
@@ -108,6 +98,7 @@ patientRelations.get('/:id/allergies', simpleGetList('PatientAllergy', 'patientI
 patientRelations.get('/:id/familyHistory', simpleGetList('PatientFamilyHistory', 'patientId'));
 patientRelations.get('/:id/immunisations', simpleGetList('Immunisation', 'patientId'));
 patientRelations.get('/:id/carePlans', simpleGetList('PatientCarePlan', 'patientId'));
+patientRelations.get('/:id/additionalData', simpleGetList('PatientAdditionalData', 'patientId'));
 
 patientRelations.get(
   '/:id/referrals',

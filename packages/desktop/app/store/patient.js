@@ -53,7 +53,7 @@ export const reloadPatient = id => async (dispatch, getState, { api }) => {
         allergies: allergies.data,
         familyHistory: familyHistory.data,
         carePlans: carePlans.data,
-        additionalData: additionalData,
+        additionalData: additionalData.count > 0 ? additionalData.data[0] : [],
         ...patient,
       },
     });
