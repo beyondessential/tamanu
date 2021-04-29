@@ -129,7 +129,7 @@ export const userRolesOptions = [
 
 type VaccineStatusCellsType = {
   [key in VaccineStatus]: {
-    Icon: (props: any) => React.ReactNode;
+    Icon: React.ReactNode;
     background: string;
     color: string;
     text: string;
