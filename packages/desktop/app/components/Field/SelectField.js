@@ -1,7 +1,6 @@
-import React, { useState, useCallback } from 'react';
+import React, { useState, useCallback, useEffect } from 'react';
 import PropTypes from 'prop-types';
-import Select from 'react-select'
-
+import Select from 'react-select';
 
 import { OuterLabelFieldWrapper } from './OuterLabelFieldWrapper';
 import { StyledTextField } from './TextField';
@@ -16,6 +15,7 @@ export const SelectInput = ({
   onChange,
   multiselect,
   name,
+  form: { initialValues },
   ...props
 }) => {
   const isReadonly = (readonly && !disabled) || (value && !onChange);
@@ -36,22 +36,35 @@ export const SelectInput = ({
   }
 
   const [selected, setSelected] = useState();
-  const handleChange = useCallback((selectedOptions) => {
-    setSelected(selectedOptions)
-    const value = multiselect ? selectedOptions.map(x => x.value).join(', ') : selectedOptions.value;
-    onChange({ target: { value, name } })
-  }, [])
+  const handleChange = useCallback(selectedOptions => {
+    setSelected(selectedOptions);
+    const newValue = multiselect
+      ? selectedOptions.map(x => x.value).join(', ')
+      : selectedOptions.value;
+    onChange({ target: { value: newValue, name } });
+  }, []);
+
+  // support initial values
+  useEffect(() => {
+    if (!multiselect) {
+      const initialOption = options.find(o => o.value === initialValues[name]);
+      setSelected(initialOption);
+    } else {
+      const initialOptionValues = initialValues[name].split(', ');
+      const initialOptions = options.filter(o => initialOptionValues.includes(o.value));
+      setSelected(initialOptions);
+    }
+  }, []);
 
   return (
     <OuterLabelFieldWrapper label={label} {...props}>
-
-    <Select
-      value={selected}
-      isMulti={multiselect}
-      onChange={handleChange}
-      options={options}
-      {...props}
-    />
+      <Select
+        value={selected}
+        isMulti={multiselect}
+        onChange={handleChange}
+        options={options}
+        {...props}
+      />
     </OuterLabelFieldWrapper>
   );
 };
