@@ -20,10 +20,14 @@ export const ServerDetectingField = memo(({ setFieldValue, ...props }) => {
         return;
       }
 
-      const { protocol, address, port } = serverDetails;
+      const { protocol, address, port } = serverDetails[0];
       const host = `${protocol}://${address}:${port}`;
       setHost(host);
-      setStatusMessage();
+      if (serverDetails.length === 1) {
+        setStatusMessage();
+      } else {
+        setStatusMessage('Detected multiple running servers. Using the first to respond');
+      }
     } catch (error) {
       setStatusMessage(error.message);
     }

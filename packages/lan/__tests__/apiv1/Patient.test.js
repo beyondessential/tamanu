@@ -32,7 +32,6 @@ describe('Patient', () => {
     expect(result.body).toHaveProperty('displayId', patient.displayId);
     expect(result.body).toHaveProperty('firstName', patient.firstName);
     expect(result.body).toHaveProperty('lastName', patient.lastName);
-    expect(result.body).toHaveProperty('title', patient.title);
   });
 
   test.todo('should get a list of patient conditions');
@@ -58,25 +57,29 @@ describe('Patient', () => {
       expect(result.body).toHaveProperty('displayId', newPatient.displayId);
       expect(result.body).toHaveProperty('firstName', newPatient.firstName);
       expect(result.body).toHaveProperty('lastName', newPatient.lastName);
-      expect(result.body).toHaveProperty('title', newPatient.title);
-      expect(result.body).toHaveProperty('placeOfBirth', newPatient.placeOfBirth);
     });
 
     it('should update patient details', async () => {
-      // skip placeOfBirth, to be added in PUT request
-      const newPatient = await createDummyPatient(models, { placeOfBirth: '' });
+      // skip middleName, to be added in PUT request
+      const newPatient = await createDummyPatient(models, { middleName: '' });
       const result = await app.post('/v1/patient').send(newPatient);
-      expect(result.body.placeOfBirth).toBeNull();
+      expect(result.body.middleName).toEqual('');
 
       const newVillage = await randomReferenceId(models, 'village');
       const updateResult = await app.put(`/v1/patient/${result.body.id}`).send({
         villageId: newVillage,
-        placeOfBirth: 'Birthplace',
+        middleName: 'MiddleName',
+        bloodType: 'AB+',
       });
 
       expect(updateResult).toHaveSucceeded();
       expect(updateResult.body).toHaveProperty('villageId', newVillage);
-      expect(updateResult.body).toHaveProperty('placeOfBirth', 'Birthplace');
+      expect(updateResult.body).toHaveProperty('middleName', 'MiddleName');
+
+      const additionalDataResult = await app.get(`/v1/patient/${result.body.id}/additionalData`);
+
+      expect(additionalDataResult).toHaveSucceeded();
+      expect(additionalDataResult.body).toHaveProperty('bloodType', 'AB+');
     });
 
     test.todo('should create a new patient as a new birth');

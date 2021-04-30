@@ -3,68 +3,29 @@ import asyncHandler from 'express-async-handler';
 import { QueryTypes } from 'sequelize';
 import moment from 'moment';
 
-import { simpleGetList, permissionCheckingRouter, runPaginatedQuery } from './crudHelpers';
+import { NotFoundError } from 'shared/errors';
+import {
+  simpleGetList,
+  permissionCheckingRouter,
+  runPaginatedQuery,
+} from './crudHelpers';
 
 import { renameObjectKeys } from '~/utils/renameObjectKeys';
-import { NotFoundError } from 'shared/errors';
 import { patientVaccineRoutes } from './patientVaccine';
 
 export const patient = express.Router();
-
-const AdditionalDetailsProperties = [
-  'placeOfBirth',
-  'cityTown',
-  'streetVillage',
-  'maritalStatus',
-  'bloodType',
-  'primaryContactNumber',
-  'secondaryContactNumber',
-  'socialMediaPlatform',
-  'socialMediaName',
-  'educationalAttainment',
-  'patientType',
-];
-
-function stringifyAdditionalDetails(reqBody) {
-  return JSON.stringify(
-    AdditionalDetailsProperties.reduce((acc, p) => {
-      if (reqBody[p]) {
-        acc[p] = reqBody[p];
-      }
-      return acc;
-    }, {}),
-  );
-}
-
-function parseAdditionalDetails(patient) {
-  const parsedAdditionalDetails = patient.get('additionalDetails')
-    ? JSON.parse(patient.get('additionalDetails'))
-    : {};
-
-  // NOTE: if there's no values for additional details, we need to
-  // set the property to null, so it will override desktop app
-  // state reducer spread
-  return AdditionalDetailsProperties.reduce((acc, property) => {
-    if (acc[property] === undefined) {
-      acc[property] = null;
-    }
-    return acc;
-  }, parsedAdditionalDetails);
-}
 
 function dbRecordToResponse(patientRecord) {
   return {
     ...patientRecord.get({
       plain: true,
     }),
-    ...parseAdditionalDetails(patientRecord),
   };
 }
 
 function requestBodyToRecord(reqBody) {
   return {
     ...reqBody,
-    additionalDetails: stringifyAdditionalDetails(reqBody),
   };
 }
 
@@ -89,7 +50,7 @@ patient.put(
   '/:id',
   asyncHandler(async (req, res) => {
     const {
-      models: { Patient },
+      models: { Patient, PatientAdditionalData },
       params,
     } = req;
     req.checkPermission('read', 'Patient');
@@ -97,6 +58,20 @@ patient.put(
     if (!patient) throw new NotFoundError();
     req.checkPermission('write', patient);
     await patient.update(requestBodyToRecord(req.body));
+
+    const patientAdditionalData = await PatientAdditionalData.findOne({
+      where: { patientId: patient.id },
+    });
+
+    if (!patientAdditionalData) {
+      await PatientAdditionalData.create({
+        ...requestBodyToRecord(req.body),
+        patientId: patient.id,
+      });
+    } else {
+      await patientAdditionalData.update(requestBodyToRecord(req.body));
+    }
+
     res.send(dbRecordToResponse(patient));
   }),
 );
@@ -127,6 +102,21 @@ patientRelations.get('/:id/allergies', simpleGetList('PatientAllergy', 'patientI
 patientRelations.get('/:id/familyHistory', simpleGetList('PatientFamilyHistory', 'patientId'));
 patientRelations.get('/:id/immunisations', simpleGetList('Immunisation', 'patientId'));
 patientRelations.get('/:id/carePlans', simpleGetList('PatientCarePlan', 'patientId'));
+
+patientRelations.get(
+  '/:id/additionalData',
+  asyncHandler(async (req, res) => {
+    const { models, params } = req;
+
+    req.checkPermission('read', 'Patient');
+
+    const additionalData = await models.PatientAdditionalData.findOne({
+      where: { patientId: params.id },
+    });
+
+    res.send(additionalData || {});
+  }),
+);
 
 patientRelations.get(
   '/:id/referrals',
