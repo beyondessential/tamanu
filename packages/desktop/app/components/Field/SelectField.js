@@ -84,6 +84,9 @@ SelectInput.propTypes = {
   options: PropTypes.arrayOf(PropTypes.instanceOf(Object)),
   fullWidth: PropTypes.bool,
   multiselect: PropTypes.bool,
+  form: PropTypes.shape({
+    initialValues: PropTypes.shape({}),
+  }),
 };
 
 SelectInput.defaultProps = {
@@ -91,4 +94,7 @@ SelectInput.defaultProps = {
   options: [],
   fullWidth: true,
   multiselect: false,
+  form: {
+    initialValues: {},
+  },
 };
