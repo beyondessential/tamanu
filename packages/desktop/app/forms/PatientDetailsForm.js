@@ -87,55 +87,19 @@ export const PrimaryDetailsGroup = ({
 );
 
 export const SecondaryDetailsGroup = ({
-  isBirth,
-  patientSuggester,
-  facilitySuggester,
   medicalAreaSuggester,
   nursingZoneSuggester,
   settlementSuggester,
   occupationSuggester,
 }) => (
   <React.Fragment>
-    <Field name="religion" label="Religion" component={TextField} />
     <Field
       name="occupationId"
       label="Occupation"
       component={AutocompleteField}
       suggester={occupationSuggester}
     />
-    <Field
-      name="mother.id"
-      label="Mother"
-      component={AutocompleteField}
-      suggester={patientSuggester}
-      required={isBirth}
-    />
-    <Field
-      name="father.id"
-      label="Father"
-      component={AutocompleteField}
-      suggester={patientSuggester}
-    />
-    <Field
-      component={RadioField}
-      name="patientType"
-      label="Patient Type"
-      options={[
-        { value: 'charity', label: 'Charity' },
-        { value: 'private', label: 'Private' },
-      ]}
-      inline
-    />
     <Field name="bloodType" label="Blood type" component={SelectField} options={bloodOptions} />
-    <Field name="referredBy" label="Referred by" component={TextField} />
-    <Field name="referredDate" label="Referred date" component={DateField} />
-    <Field
-      name="homeClinic"
-      label="Home clinic"
-      component={AutocompleteField}
-      suggester={facilitySuggester}
-      required={isBirth}
-    />
     <Field
       name="medicalAreaId"
       label="Medical Area"
@@ -155,7 +119,6 @@ export const SecondaryDetailsGroup = ({
       suggester={settlementSuggester}
     />
 
-    <Field name="residentialAddress" label="Residential address" component={TextField} />
     <Field
       name="primaryContactNumber"
       label="Primary Contact Number"
@@ -169,15 +132,13 @@ export const SecondaryDetailsGroup = ({
       type="tel"
     />
     <Field
-      name="socialMediaPlatform"
+      name="socialMedia"
       label="Social media platform"
       component={SelectField}
       options={socialMediaOptions}
     />
-    <Field name="socialMediaName" label="Social media name" component={TextField} />
-    <Field name="email" label="Email" component={TextField} />
     <Field
-      name="educationalAttainment"
+      name="educationalLevel"
       label="Educational Attainment"
       component={SelectField}
       options={educationalAttainmentOptions}
@@ -240,5 +201,11 @@ export const PatientDetailsForm = ({
     ],
   );
 
-  return <Form render={render} initialValues={patient} onSubmit={onSubmit} />;
+  return (
+    <Form
+      render={render}
+      initialValues={{ ...patient, ...patient.additionalData }}
+      onSubmit={onSubmit}
+    />
+  );
 };
