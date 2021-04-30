@@ -1,5 +1,4 @@
 import { ID } from './ID';
-import { IReferenceData } from './IReferenceData';
 
 export enum AVPUType {
   Alert = 'alert',
@@ -11,20 +10,15 @@ export enum AVPUType {
 export interface IVitals {
   id: ID;
 
-  date: Date;
+  dateRecorded: Date;
 
+  temperature?: number;
   weight?: number;
   height?: number;
   sbp?: number;
   dbp?: number;
   heartRate?: number;
   respiratoryRate?: number;
-  temperature?: number;
   spO2?: number;
-
   avpu?: AVPUType;
-
-  comments?: string;
-
-  location?: IReferenceData;
 }
