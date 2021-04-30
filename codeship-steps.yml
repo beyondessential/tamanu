@@ -41,7 +41,7 @@
   steps:
     - name: push_artefacts_to_s3
       service: awsdeployment
-      tag: ^(dev|ci-)
+      tag: ^(master|dev|ci-)
       command: ./scripts/push.sh
     - name: deploy_sync_dev_environment
       tag: ^(dev|ci-)
