@@ -242,7 +242,7 @@ export const DumbPatientView = React.memo(({ patient, loading }) => {
   if (loading) return <LoadingIndicator />;
   return (
     <React.Fragment>
-      {/* <PatientAlert alerts={patient.alerts} /> */}
+      <PatientAlert alerts={patient.alerts} />
       <TwoColumnDisplay>
         <PatientInfoPane patient={patient} disabled={disabled} />
         <TabDisplay

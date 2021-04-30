@@ -4,7 +4,11 @@ import { QueryTypes } from 'sequelize';
 import moment from 'moment';
 
 import { NotFoundError } from 'shared/errors';
-import { simpleGetList, permissionCheckingRouter, runPaginatedQuery } from './crudHelpers';
+import {
+  simpleGetList,
+  permissionCheckingRouter,
+  runPaginatedQuery,
+} from './crudHelpers';
 
 import { renameObjectKeys } from '~/utils/renameObjectKeys';
 import { patientVaccineRoutes } from './patientVaccine';
@@ -98,7 +102,21 @@ patientRelations.get('/:id/allergies', simpleGetList('PatientAllergy', 'patientI
 patientRelations.get('/:id/familyHistory', simpleGetList('PatientFamilyHistory', 'patientId'));
 patientRelations.get('/:id/immunisations', simpleGetList('Immunisation', 'patientId'));
 patientRelations.get('/:id/carePlans', simpleGetList('PatientCarePlan', 'patientId'));
-patientRelations.get('/:id/additionalData', simpleGetList('PatientAdditionalData', 'patientId'));
+
+patientRelations.get(
+  '/:id/additionalData',
+  asyncHandler(async (req, res) => {
+    const { models, params } = req;
+
+    req.checkPermission('read', 'Patient');
+
+    const additionalData = await models.PatientAdditionalData.findOne({
+      where: { patientId: params.id },
+    });
+
+    res.send(additionalData || {});
+  }),
+);
 
 patientRelations.get(
   '/:id/referrals',
