@@ -27,5 +27,18 @@
     "domain": "",
     "apiKey": "",
     "from": ""
+  },
+  "schedules": {
+    "outpatientDischarger": "0 0 2 ? * * *"
+  },
+  "featureFlags": {
+    "data": {
+      "patientFieldOverrides": {
+        "displayId": {
+          "shortLabel": "NHN",
+          "longLabel": "National Health Number"
+        }
+      }
+    }
   }
 }

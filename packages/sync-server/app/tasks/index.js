@@ -1,7 +1,8 @@
+import { OutpatientDischarger } from './OutpatientDischarger';
 import { PatientEmailCommunicationProcessor } from './PatientEmailCommunicationProcessor';
 import { ReportRequestProcessor } from './ReportRequestProcessor';
 
-const TASKS = [ReportRequestProcessor, PatientEmailCommunicationProcessor];
+const TASKS = [OutpatientDischarger, ReportRequestProcessor, PatientEmailCommunicationProcessor];
 
 export function startScheduledTasks(context) {
   const tasks = TASKS.map(Task => new Task(context));
