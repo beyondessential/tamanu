@@ -1,11 +1,11 @@
 import { sign, verify } from 'jsonwebtoken';
 import { compare } from 'bcrypt';
 import { auth } from 'config';
-
 import { v4 as uuid } from 'uuid';
 
-import { WebRemote } from '~/sync';
 import { BadAuthenticationError } from 'shared/errors';
+
+import { WebRemote } from '~/sync';
 
 const { tokenDuration } = auth;
 
@@ -48,7 +48,7 @@ async function remoteLogin(models, email, password) {
     body: {
       email,
       password,
-    }
+    },
   });
 
   // we've logged in as a valid remote user - update local database to match
@@ -60,7 +60,7 @@ async function remoteLogin(models, email, password) {
       ...userDetails,
       password,
     },
-    { where: { id } }
+    { where: { id } },
   );
 
   const token = getToken(user);
@@ -82,19 +82,19 @@ async function localLogin(models, email, password) {
 
 async function remoteLoginWithLocalFallback(models, email, password) {
   // always log in locally when testing
-  if(process.env.NODE_ENV === 'test') {
-    return await localLogin(models, email, password);
+  if (process.env.NODE_ENV === 'test') {
+    return localLogin(models, email, password);
   }
 
   try {
     return await remoteLogin(models, email, password);
-  } catch(e) {
-    if(e.name === 'BadAuthenticationError') {
+  } catch (e) {
+    if (e.name === 'BadAuthenticationError') {
       // actual bad credentials server-side
       throw new BadAuthenticationError('Incorrect username or password, please try again');
     }
 
-    return await localLogin(models, email, password);
+    return localLogin(models, email, password);
   }
 }
 
@@ -108,7 +108,7 @@ export async function loginHandler(req, res, next) {
   try {
     const response = await remoteLoginWithLocalFallback(models, email, password);
     res.send(response);
-  } catch(e) {
+  } catch (e) {
     next(e);
   }
 }
