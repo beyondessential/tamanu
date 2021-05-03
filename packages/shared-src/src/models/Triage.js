@@ -65,7 +65,7 @@ export class Triage extends Model {
     const reasonForEncounter = `Presented at emergency department with ${reasonsText}`;
 
     const department = await ReferenceData.findOne({
-      where: { code: 'EMERGENCY', type: 'department' },
+      where: { code: 'Emergency', type: 'department' },
     });
 
     return this.sequelize.transaction(async () => {
