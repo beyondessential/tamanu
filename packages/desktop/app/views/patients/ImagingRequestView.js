@@ -39,7 +39,7 @@ const ImagingRequestInfoPane = React.memo(({ imagingRequest }) => (
 ));
 
 export const DumbImagingRequestView = React.memo(({ imagingRequest, patient, loading }) => {
-  if (loading) return <LoadingIndicator />;
+  if (loading || patient.loading) return <LoadingIndicator />;
   return (
     <TwoColumnDisplay>
       <PatientInfoPane patient={patient} />
