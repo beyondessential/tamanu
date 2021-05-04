@@ -21,7 +21,7 @@ const BackLink = connect(
 const ImagingRequestInfoPane = React.memo(({ imagingRequest }) => (
   <FormGrid columns={3}>
     <TextInput value={imagingRequest.id} label="Request ID" />
-    <TextInput value={(imagingRequest.type || {}).name} label="Request type" />
+    <TextInput value={imagingRequest.imagingType?.name} label="Request type" />
     <TextInput value={imagingRequest.urgent ? 'Urgent' : 'Standard'} label="Urgency" />
     <TextInput
       value={IMAGING_REQUEST_STATUS_LABELS[imagingRequest.status] || 'Unknown'}
@@ -38,8 +38,8 @@ const ImagingRequestInfoPane = React.memo(({ imagingRequest }) => (
   </FormGrid>
 ));
 
-export const DumbImagingRequestView = React.memo(({ imagingRequest, patient, loading }) => {
-  if (loading) return <LoadingIndicator />;
+export const DumbImagingRequestView = React.memo(({ imagingRequest, patient }) => {
+  if (patient.loading) return <LoadingIndicator />;
   return (
     <TwoColumnDisplay>
       <PatientInfoPane patient={patient} />

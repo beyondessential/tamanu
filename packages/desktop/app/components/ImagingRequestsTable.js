@@ -46,7 +46,10 @@ const DumbImagingRequestsTable = React.memo(({ encounterId, onImagingRequestSele
   const { loadEncounter } = useEncounter();
 
   const selectImagingRequest = useCallback(async imagingRequest => {
-    await loadEncounter(imagingRequest.encounter.id);
+    const { encounter } = imagingRequest;
+    if (encounter) {
+      await loadEncounter(encounter.id);
+    }
     onImagingRequestSelect(imagingRequest);
   }, []);
 
