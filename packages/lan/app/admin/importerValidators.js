@@ -35,10 +35,10 @@ const userSchema = baseSchema
 
 const LAB_TEST_RESULT_TYPES = ['Number', 'Select', 'FreeText'];
 const rangeRegex = /^[0-9.]+, [0-9.]+$/;
-const labTestSchema = baseSchema
+const labTestTypeSchema = baseSchema
   .shape({
     name: yup.string().required(),
-    categoryId: yup.string().required(),
+    labTestCategoryId: yup.string().required(),
     resultType: yup.string().required().oneOf(LAB_TEST_RESULT_TYPES),
     options: yup.string(),
     unit: yup.string(),
@@ -80,7 +80,7 @@ const validationSchemas = {
   referenceData: referenceDataSchema,
   patient: patientSchema,
   user: userSchema,
-  labTestType: labTestSchema,
+  labTestType: labTestTypeSchema,
   surveyScreenComponent: surveyScreenComponentSchema,
   programDataElement: programDataElementSchema,
   scheduledVaccine: scheduledVaccineSchema,
@@ -93,7 +93,7 @@ const foreignKeySchemas = {
     village: 'referenceData',
   },
   labTestType: {
-    category: 'referenceData',
+    labTestCategory: 'referenceData',
   },
   scheduledVaccine: {
     vaccine: 'referenceData',
