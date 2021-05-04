@@ -1,43 +1,79 @@
-import React, { useCallback, useRef, ReactElement, useMemo } from 'react';
-import { calculateVerticalPositions, scrollTo } from '/helpers/screen';
+import React, { useCallback, ReactElement } from 'react';
+import { useNavigation } from '@react-navigation/native';
+import { compose } from 'redux';
+import { Formik } from 'formik';
+import { KeyboardAvoidingView, StyleSheet } from 'react-native';
+import { ScrollView } from 'react-native-gesture-handler';
+import * as Yup from 'yup';
 import { FullView } from '/styled/common';
 import { NameSection } from './NameSection';
-import { ContactDetailsSection } from './ContactDetailsSection';
+import { KeyInformationSection } from './KeyInformationSection';
 import { LocationDetailsSection } from './LocationDetailsSection';
 import { SubmitSection } from './SubmitSection';
-import { newPatientFormValues } from '/helpers/form';
-import { FormScreenView } from '../../FormScreenView';
+import { generateId } from '~/ui/helpers/patient';
+import { Patient } from '~/models/Patient';
+import { withPatient } from '~/ui/containers/Patient';
+import { Routes } from '~/ui/helpers/routes';
 
 export type FormSection = {
   scrollToField: (fieldName: string) => () => void;
 };
 
-type PatientPersonalInfoFormProps = {
-  onPressNext: () => void;
-};
+const styles = StyleSheet.create({
+  KeyboardAvoidingView: { flex: 1 },
+  ScrollView: { flex: 1 },
+  ScrollViewContentContainer: { padding: 20 },
+});
 
-export const PatientPersonalInfoForm = ({
-  onPressNext,
-}: PatientPersonalInfoFormProps): ReactElement => {
-  const scrollViewRef = useRef<any>(null);
-  const verticalPositions = useMemo(
-    () => calculateVerticalPositions(Object.keys(newPatientFormValues)),
-    [],
-  );
-  const scrollToComponent = useCallback(
-    (fieldName: string) => (): void => {
-      scrollTo(scrollViewRef, verticalPositions[fieldName]);
-    },
-    [scrollViewRef],
-  );
+export const FormComponent = ({
+  setSelectedPatient,
+}): ReactElement => {
+  const navigation = useNavigation();
+  const onSubmitForm = useCallback(async (values) => {
+    // submit form to server for new patient
+    const newPatient = await Patient.createAndSaveOne({
+      ...values,
+      displayId: generateId(),
+      markedForSync: true,
+    });
+    setSelectedPatient(newPatient);
+    navigation.navigate(Routes.HomeStack.RegisterPatientStack.NewPatient);
+  }, []);
+
   return (
-    <FullView>
-      <FormScreenView scrollViewRef={scrollViewRef}>
-        <NameSection scrollToField={scrollToComponent} />
-        <ContactDetailsSection scrollToField={scrollToComponent} />
-        <LocationDetailsSection scrollToField={scrollToComponent} />
-      </FormScreenView>
-      <SubmitSection onPress={onPressNext} />
+    <FullView padding={10}>
+      <Formik
+        onSubmit={onSubmitForm}
+        validationSchema={Yup.object().shape({
+          firstName: Yup.string().required(),
+          middleName: Yup.string(),
+          lastName: Yup.string().required(),
+          culturalName: Yup.string(),
+          dateOfBirth: Yup.date().required(),
+          sex: Yup.string().required(),
+          village: Yup.string(),
+        })}
+        initialValues={{}}
+      >
+        {({ handleSubmit }): JSX.Element => (
+          <KeyboardAvoidingView
+            style={styles.KeyboardAvoidingView}
+            behavior="padding"
+          >
+            <ScrollView
+              style={styles.ScrollView}
+              contentContainerStyle={styles.ScrollViewContentContainer}
+            >
+              <NameSection />
+              <KeyInformationSection />
+              <LocationDetailsSection />
+              <SubmitSection onPress={handleSubmit} />
+            </ScrollView>
+          </KeyboardAvoidingView>
+        )}
+      </Formik>
     </FullView>
   );
 };
+
+export const PatientPersonalInfoForm = compose(withPatient)(FormComponent);

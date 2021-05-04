@@ -1,4 +1,5 @@
 import { differenceInWeeks } from 'date-fns';
+import { StringifyOptions } from 'querystring';
 
 export enum VaccineStatus {
   UNKNOWN = 'UNKNOWN',
@@ -37,3 +38,16 @@ export function getVaccineStatus(weeksUntilDue): VaccineStatus {
 
   return VaccineStatus.UNKNOWN;
 }
+
+const generators = {
+  A: (): string => String.fromCharCode(65 + Math.floor(Math.random() * 26)),
+  0: (): string => Math.floor(Math.random() * 10).toFixed(0),
+};
+
+function createIdGenerator(format): () => {} {
+  const generatorPattern = Array.from(format).map((char: string) => generators[char] || ((): string => ''));
+
+  return (): string => generatorPattern.map(generator => generator()).join('');
+}
+
+export const generateId = createIdGenerator('AAAA000000');
