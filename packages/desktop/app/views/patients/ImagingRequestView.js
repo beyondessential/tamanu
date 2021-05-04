@@ -28,10 +28,9 @@ const ImagingRequestInfoPane = React.memo(({ imagingRequest }) => (
       label="Status"
     />
     <DateInput value={imagingRequest.requestedDate} label="Requested date" />
-    <DateTimeInput value={imagingRequest.sampleTime} label="Sample date" />
     <TextInput
       multiline
-      value={imagingRequest.notes}
+      value={imagingRequest.note}
       label="Notes"
       style={{ gridColumn: '1 / -1' }}
     />
