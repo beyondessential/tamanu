@@ -18,6 +18,7 @@ export interface DropdownProps extends BaseInputProps {
   label?: string;
   placeholderText?: string;
   filterable?: boolean;
+  value?: string | string[];
 }
 
 export const Dropdown = React.memo(
@@ -27,8 +28,9 @@ export const Dropdown = React.memo(
     multiselect = false,
     label = 'Select Items',
     placeholderText = 'Search Items...',
+    value = [],
   }: DropdownProps) => {
-    const [selectedItems, setSelectedItems] = useState([]);
+    const [selectedItems, setSelectedItems] = useState(Array.isArray(value) ? value : [value]);
     const componentRef = useRef(null);
     const onSelectedItemsChange = useCallback(
       (items) => {
