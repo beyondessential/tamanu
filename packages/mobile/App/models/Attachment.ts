@@ -10,8 +10,8 @@ export enum FileType {
 
 @Entity('attachment')
 export class Attachment extends BaseModel {
-  @Column()
-  size: number; //size in bytes
+  @Column({ nullable: true })
+  size?: number; //size in bytes
 
   @Column({ type: 'varchar' })
   type: FileType;
