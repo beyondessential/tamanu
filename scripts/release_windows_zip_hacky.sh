@@ -1,6 +1,15 @@
 #!/bin/bash
 set -euxo pipefail
 
+#
+# This script builds a release according to
+# https://docs.google.com/document/d/1hzFNpv9VAV9tVa-9H_H7gfjrd-LUmS84oWTM3MBfwBk/edit
+#
+# Releasing like this is a hack to get around our executable builds not working properly with
+# migrations. In an ideal world we'd eventually delete it, as the deployment steps are
+# quite manual and introduce moving parts like yarn and npm to the server environment.
+#
+
 WORKSPACE="${1?must specify a workspace}"
 
 # build release
