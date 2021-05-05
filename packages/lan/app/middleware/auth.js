@@ -38,7 +38,7 @@ async function comparePassword(user, password) {
   }
 }
 
-async function remoteLogin(models, email, password) {
+export async function remoteLogin(models, email, password) {
   // try logging in to sync server
   const remote = new WebRemote();
   const response = await remote.fetch('login', {
