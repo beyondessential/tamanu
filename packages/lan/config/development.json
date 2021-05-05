@@ -3,7 +3,7 @@
     "allowAdminRoutes": true
   },
   "log": {
-    "console": "debug"
+    "consoleLevel": "debug"
   },
   "discovery": {
     "protocol": "http"
@@ -13,5 +13,10 @@
     "username": "",
     "password": "",
     "sqlitePath": null
+  },
+  "sync": {
+    "host": "https://sync-dev.tamanu.io",
+    "email": "admin@tamanu.io",
+    "password": "admin"
   }
 }

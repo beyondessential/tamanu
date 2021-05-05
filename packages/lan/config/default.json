@@ -13,7 +13,7 @@
   },
   "sync": {
     "schedule": "*/10 * * * *",
-    "host": "https://sync-dev.tamanu.io",
+    "host": "https://example.com",
     "email": "",
     "password": "",
     "timeout": 10000
