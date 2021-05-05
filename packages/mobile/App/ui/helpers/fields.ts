@@ -47,10 +47,6 @@ export const getStringValue = async (type: string, value: any): Promise<string> 
       if (typeof value === 'string') return value;
       // booleans should all be stored as Yes/No to match meditrak
       return value ? 'Yes' : 'No';
-    case FieldTypes.PHOTO: {
-      const { path } = await resizeImage(`file://${value}`, IMAGE_RESIZE_OPTIONS);
-      return RNFS.readFile(path, 'base64');
-    }
     case FieldTypes.CALCULATED:
       // TODO: configurable precision on calculated fields
       return value.toFixed(1);
