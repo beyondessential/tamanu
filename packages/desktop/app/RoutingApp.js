@@ -14,12 +14,14 @@ import {
   ReportsRoutes,
   ImmunisationRoutes,
 } from './routes';
+import { AllAppointmentsView } from './views/appointments';
 
 export const RoutingApp = React.memo(() => (
   <App>
     <Switch>
       <Redirect exact path="/" to="/patients" />
       <Route path="/patients" component={PatientsRoutes} />
+      <Route path="/appointments" component={AllAppointmentsView} />
       <Route path="/scheduling" component={SchedulingRoutes} />
       <Route path="/imaging" component={ImagingRoutes} />
       <Route path="/medication" component={MedicationRoutes} />

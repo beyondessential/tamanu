@@ -58,6 +58,21 @@ export const items = [
     ],
   },
   {
+    key: 'appointments',
+    label: 'Appointments',
+    path: '/appointments',
+    icon: scheduleIcon,
+    ability: { subject: 'appointment' },
+    children: [
+      {
+        label: 'All appointments',
+        path: '/appointments',
+        icon: submenuIcons.table,
+        ability: { action: 'read' },
+      },
+    ],
+  },
+  {
     key: 'scheduling',
     label: 'Scheduling',
     path: '/scheduling',

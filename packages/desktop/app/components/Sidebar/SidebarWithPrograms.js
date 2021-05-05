@@ -1,5 +1,6 @@
 import React, { useEffect, useState, memo } from 'react';
 import { find } from 'lodash';
+import config from 'config';
 import { submenuIcons } from './config';
 import { Sidebar } from './Sidebar';
 
@@ -17,7 +18,10 @@ export const SidebarWithPrograms = memo(({ items, ...restOfProps }) => {
     })();
   }, []); // [] means it will run only once, on first mount
 
-  const itemsWithPrograms = [...items];
+  // only enable new Appointments page in development
+  const itemsWithPrograms = items.filter(
+    i => i.key !== 'appointments' || process.env.NODE_ENV === 'development',
+  );
   const programsNav = find(itemsWithPrograms, { key: 'programs' });
   if (programs.length > 0) {
     programsNav.hidden = false;
