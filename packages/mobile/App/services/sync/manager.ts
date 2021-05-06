@@ -121,6 +121,8 @@ export class SyncManager {
       const channelInfos: ChannelInfo[] = [
         { channel: 'reference', model: models.ReferenceData },
         { channel: 'user', model: models.User },
+        
+        { channel: 'attachment', model: models.Attachment },
 
         { channel: 'scheduledVaccine', model: models.ScheduledVaccine },
 
@@ -136,7 +138,6 @@ export class SyncManager {
         ...syncablePatients.map(p => ({
           channel: `patient/${p.id}/issue`,
           model: models.PatientIssue })),
-        { channel: 'attachment', model: models.Attachment },
       ];
 
       // add current cursor to each channel info
