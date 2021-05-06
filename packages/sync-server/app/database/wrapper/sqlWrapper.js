@@ -55,6 +55,9 @@ export class SqlWrapper {
     ].forEach(([route, model]) => {
       this.builtRoutes.push(route);
       // TODO: deprecate handlers
+      if (!model) {
+        throw new Error(`SqlWrapper: no model for route ${route}`);
+      }
       const handler = new BasicHandler(model);
       channelRouter.on(route, async (urlParams, f) => {
         const params = { ...urlParams, route };

@@ -9,7 +9,9 @@
     "protocol": "http"
   },
   "db": {
-    "name": "develop",
-    "sqlitePath": "data/tamanu-dev.db"
+    "name": "tamanu-lan",
+    "username": "",
+    "password": "",
+    "sqlitePath": null
   }
 }

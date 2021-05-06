@@ -33,7 +33,7 @@
     "password": "admin"
   },
   "auth": {
-    "saltRounds": 10,
+    "saltRounds": 12,
     "tokenDuration": "1h"
   },
   "survey": {
