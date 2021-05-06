@@ -30,12 +30,12 @@ interface UploadPhotoComponent {
 
 const IMAGE_WIDTH = Dimensions.get('window').width * 0.6;
 
-const ImageActionButton = ({ onPress, label }) => (
-  <Button buttonText={label} onPress={onPress} flex={1} margin={5} />
+const ImageActionButton = ({ onPress, label, marginTop }) => (
+  <Button buttonText={label} onPress={onPress} margin={5} marginTop={marginTop}/>
 );
 
 const UploadedImage = ({ imageData }: UploadedImageProps) => (
-  <StyledView flex={1} justifyContent="center" alignItems="center">
+  <StyledView justifyContent="center" alignItems="center">
     <StyledImage
       width="100%"
       height={IMAGE_WIDTH}
@@ -51,20 +51,21 @@ const UploadPhotoComponent = ({
   imageData,
   errorMessage,
 }: UploadPhotoComponent) => (
-  <StyledView marginTop={5}>
+    <StyledView marginTop={5}>
     {imageData && <UploadedImage imageData={imageData} />}
     {!imageData && errorMessage && <Text>{`Error loading photo: ${errorMessage}`}</Text>}
-    <StyledView justifyContent="space-between" flexDirection="row" flex={1} marginLeft={-10}>
+    <StyledView justifyContent="space-between" marginLeft={-10}>
       <ImageActionButton
         onPress={onPressChoosePhoto}
         label={!imageData ? 'Add photo' : 'Change photo'}
+        marginTop={5}
       />
-      {imageData && <ImageActionButton onPress={onPressRemovePhoto} label="Remove photo" />}
+      {imageData && <ImageActionButton onPress={onPressRemovePhoto} label="Remove photo" marginTop={0}/>}
     </StyledView>
   </StyledView>
 );
 
-export const UploadPhoto = React.memo(({ onChange, value }: PhotoProps) => {
+export const UploadPhoto = ({ onChange, value }) => {
   const [errorMessage, setErrorMessage] = useState(null);
   const [imageData, setImageData] = useState(null);
   const { models } = useBackend();
@@ -116,4 +117,4 @@ export const UploadPhoto = React.memo(({ onChange, value }: PhotoProps) => {
       onPressRemovePhoto={removePhotoCallback}
     />
   );
-});
+};
