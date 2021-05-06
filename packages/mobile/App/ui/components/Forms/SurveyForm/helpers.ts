@@ -1,8 +1,10 @@
 import { FieldTypes } from '/helpers/fields';
-import { ISurveyScreenComponent } from '~/types';
+import { IPatient, ISurveyScreenComponent, IUser } from '~/types';
 import * as Yup from 'yup';
 import { screenPercentageToDP, Orientation } from '/helpers/screen';
 import { VerticalPosition } from '/interfaces/VerticalPosition';
+import { getAgeFromDate } from '/helpers/date';
+import { joinNames } from '/helpers/user';
 
 function getInitialValue(dataElement): JSX.Element {
   switch (dataElement.type) {
@@ -16,8 +18,24 @@ function getInitialValue(dataElement): JSX.Element {
   }
 }
 
+function transformPatientData(patient: IPatient, config): string {
+  const { column = 'fullName' } = config;
+  const { dateOfBirth, firstName, lastName } = patient;
+
+  switch (column) {
+    case 'age':
+      return getAgeFromDate(dateOfBirth).toString();
+    case 'fullName':
+      return joinNames({ firstName, lastName });
+    default:
+      return patient[column];
+  }
+}
+
 export function getFormInitialValues(
   components: ISurveyScreenComponent[],
+  currentUser: IUser,
+  patient: IPatient,
 ): { [key: string]: any } {
   const initialValues = components.reduce<{ [key: string]: any }>(
     (acc, { dataElement }) => {
@@ -31,6 +49,26 @@ export function getFormInitialValues(
     },
     {},
   );
+
+  // other data
+  for (const component of components) {
+    // type definition of config is string, but in usage its an object...
+    const config = component.getConfigObject();
+
+    // current user data
+    if (component.dataElement.type === 'UserData') {
+      const { column = 'displayName' } = config;
+      const userValue = currentUser[column];
+      if (userValue !== undefined) initialValues[component.dataElement.code] = userValue;
+    }
+
+    // patient data
+    if (component.dataElement.type === 'PatientData') {
+      const patientValue = transformPatientData(patient, config);
+      if (patientValue !== undefined) initialValues[component.dataElement.code] = patientValue;
+    }
+  }
+
   return initialValues;
 }
 
@@ -74,4 +112,3 @@ export function getFormSchema(
   );
   return Yup.object().shape(objectShapeSchema);
 }
-

@@ -70,6 +70,8 @@ export enum DataElementType {
   SurveyAnswer = 'SurveyAnswer',
   SurveyResult = 'SurveyResult',
   SurveyLink = 'SurveyLink',
+  UserData = 'UserData',
+  PatientData = 'PatientData',
 }
 
 export interface IProgramDataElement {
