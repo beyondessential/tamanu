@@ -50,6 +50,11 @@ export function getComponentForQuestionType(type) {
 
 export function mapOptionsToValues(options) {
   if (!options) return null;
+  if (typeof options === 'object') {
+    // sometimes this is a map of value => value
+    return Object.values(options).map(x => ({ label: x, value: x }));
+  }
+  if (!Array.isArray(options)) return null;
   return options.map(x => ({ label: x, value: x }));
 }
 
