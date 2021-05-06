@@ -11,7 +11,7 @@ export const SubmitSection = ({
   const form = useFormikContext();
   return (
     <StyledView
-      flex={10 / 10}
+      flex={1}
       background={theme.colors.BACKGROUND_GREY}
       justifyContent="flex-end"
       marginTop={40}

@@ -1,5 +1,4 @@
 import { differenceInWeeks } from 'date-fns';
-import { StringifyOptions } from 'querystring';
 
 export enum VaccineStatus {
   UNKNOWN = 'UNKNOWN',
