@@ -37,7 +37,7 @@ const QUESTION_COMPONENTS = {
   [PROGRAM_DATA_ELEMENT_TYPES.SURVEY_RESULT]: null,
   [PROGRAM_DATA_ELEMENT_TYPES.SURVEY_ANSWER]: null,
   [PROGRAM_DATA_ELEMENT_TYPES.PATIENT_DATA]: null,
-  [PROGRAM_DATA_ELEMENT_TYPES.USER_DATA]: null,
+  [PROGRAM_DATA_ELEMENT_TYPES.USER_DATA]: ReadOnlyTextField,
   [PROGRAM_DATA_ELEMENT_TYPES.INSTRUCTION]: InstructionField,
   [PROGRAM_DATA_ELEMENT_TYPES.RESULT]: null,
 };
@@ -176,7 +176,19 @@ function getInitialValue(dataElement) {
   }
 }
 
-export function getFormInitialValues(components) {
+function getConfigObject(componentId, configString) {
+  if (!configString) return {};
+
+  try {
+    return JSON.parse(configString);
+  } catch (e) {
+    // eslint-disable-next-line no-console
+    console.warn(`Invalid config in survey screen component ${componentId}`);
+    return {};
+  }
+}
+
+export function getFormInitialValues(components, currentUser = {}) {
   const initialValues = components.reduce((acc, { dataElement }) => {
     const initialValue = getInitialValue(dataElement);
     const propName = dataElement.id;
@@ -186,5 +198,19 @@ export function getFormInitialValues(components) {
     acc[propName] = initialValue;
     return acc;
   }, {});
+
+  // other data
+  for (const component of components) {
+    // type definition of config is string, but in usage its an object...
+    const config = getConfigObject(component.id, component.config) || {};
+
+    // current user data
+    if (component.dataElement.type === 'UserData') {
+      const { column = 'displayName' } = config;
+      const userValue = currentUser[column];
+      if (userValue !== undefined) initialValues[component.dataElement.id] = userValue;
+    }
+  }
+
   return initialValues;
 }

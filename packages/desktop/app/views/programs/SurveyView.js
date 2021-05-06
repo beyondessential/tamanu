@@ -145,9 +145,9 @@ const SurveyCompletedMessage = React.memo(({ onResetClicked }) => (
   </div>
 ));
 
-export const SurveyView = ({ survey, onSubmit, onCancel }) => {
+export const SurveyView = ({ survey, onSubmit, onCancel, currentUser }) => {
   const { components } = survey;
-  const initialValues = getFormInitialValues(components);
+  const initialValues = getFormInitialValues(components, currentUser);
 
   const [surveyCompleted, setSurveyCompleted] = useState(false);
 

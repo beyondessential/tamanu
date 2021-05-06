@@ -14,9 +14,10 @@ import { SURVEY_TYPES } from 'shared/constants';
 import { SurveySelector } from '../programs/SurveySelector';
 import { PatientDisplay } from '../programs/PatientDisplay';
 import { ProgramsPane, ProgramsPaneHeader, ProgramsPaneHeading } from '../programs/ProgramsPane';
+import { getCurrentUser } from '../../store';
 
 const DumbReferralFlow = React.memo(
-  ({ onFetchReferralSurvey, onSubmitReferral, fetchReferralSurveys, patient }) => {
+  ({ onFetchReferralSurvey, onSubmitReferral, fetchReferralSurveys, patient, currentUser }) => {
     const [referralSurvey, setReferralSurvey] = useState(null);
     const [referralSurveys, setReferralSurveys] = useState(null);
     const [startTime, setStartTime] = useState(null);
@@ -72,7 +73,7 @@ const DumbReferralFlow = React.memo(
       );
     }
 
-    return <SurveyView onSubmit={onSubmit} survey={referralSurvey} onCancel={onCancelReferral} />;
+    return <SurveyView onSubmit={onSubmit} survey={referralSurvey} onCancel={onCancelReferral} currentUser={currentUser} />;
   },
 );
 
@@ -82,18 +83,19 @@ const ReferralFlow = connectApi(api => ({
   fetchReferralSurveys: () => api.get(`survey`, { type: SURVEY_TYPES.REFERRAL }),
 }))(DumbReferralFlow);
 
-const DumbPatientLinker = React.memo(({ patient, patientId, onViewPatient }) => {
+const DumbPatientLinker = React.memo(({ patient, patientId, onViewPatient, currentUser }) => {
   if (!patientId) {
     return <DumbPatientListingView onViewPatient={onViewPatient} />;
   }
 
-  return <ReferralFlow patient={patient} />;
+  return <ReferralFlow patient={patient} currentUser={currentUser} />;
 });
 
 export const ReferralsView = connect(
   state => ({
     patientId: state.patient.id,
     patient: state.patient,
+    currentUser: getCurrentUser(state),
   }),
   dispatch => ({
     onViewPatient: id => dispatch(reloadPatient(id)),
