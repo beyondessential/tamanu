@@ -48,6 +48,11 @@ export function getComponentForQuestionType(type) {
   return component;
 }
 
+export function mapOptionsToValues(options) {
+  if (!options) return null;
+  return options.map(x => ({ label: x, value: x }));
+}
+
 export function checkVisibility(
   component,
   values,
@@ -56,7 +61,7 @@ export function checkVisibility(
   const { visibilityCriteria, dataElement } = component;
   // nothing set - show by default
   if (!visibilityCriteria) return true;
-  
+
   try {
     const criteriaObject = JSON.parse(visibilityCriteria);
 
@@ -74,7 +79,7 @@ export function checkVisibility(
       if (answersEnablingFollowUp.type === 'range') {
         if (!value) return false;
         const { start, end } = answersEnablingFollowUp;
-        
+
         if (!start) return value < end;
         if (!end) return value >= start;
         if (inRange(parseFloat(value), parseFloat(start), parseFloat(end))) {
