@@ -17,7 +17,6 @@ export interface DropdownProps extends BaseInputProps {
   multiselect?: boolean;
   label?: string;
   placeholderText?: string;
-  filterable?: boolean;
   value?: string | string[];
 }
 
