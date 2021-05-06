@@ -7,7 +7,12 @@ import { Form, Field } from 'desktop/app/components/Field';
 import { FormGrid } from 'desktop/app/components/FormGrid';
 import { Button, OutlinedButton } from 'desktop/app/components/Button';
 import { ButtonRow } from 'desktop/app/components/ButtonRow';
-import { checkVisibility, runCalculations, getComponentForQuestionType, mapOptionsToValues } from 'desktop/app/utils';
+import {
+  checkVisibility,
+  runCalculations,
+  getComponentForQuestionType,
+  mapOptionsToValues,
+} from 'desktop/app/utils';
 
 import { ProgramsPane, ProgramsPaneHeader, ProgramsPaneHeading } from './ProgramsPane';
 import { PatientDisplay } from './PatientDisplay';
@@ -21,6 +26,8 @@ const SurveyQuestion = ({ component }) => {
   const text = component.text || defaultText;
   const options = mapOptionsToValues(component.options || defaultOptions);
   const FieldComponent = getComponentForQuestionType(type);
+
+  if (!FieldComponent) return <Text>{text}</Text>;
 
   return (
     <Field
