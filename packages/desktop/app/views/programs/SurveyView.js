@@ -12,6 +12,7 @@ import {
   runCalculations,
   getComponentForQuestionType,
   mapOptionsToValues,
+  getFormInitialValues,
 } from 'desktop/app/utils';
 
 import { ProgramsPane, ProgramsPaneHeader, ProgramsPaneHeading } from './ProgramsPane';
@@ -145,6 +146,9 @@ const SurveyCompletedMessage = React.memo(({ onResetClicked }) => (
 ));
 
 export const SurveyView = ({ survey, onSubmit, onCancel }) => {
+  const { components } = survey;
+  const initialValues = getFormInitialValues(components);
+
   const [surveyCompleted, setSurveyCompleted] = useState(false);
 
   const onSubmitSurvey = useCallback(async data => {
@@ -169,7 +173,7 @@ export const SurveyView = ({ survey, onSubmit, onCancel }) => {
   const surveyContents = surveyCompleted ? (
     <SurveyCompletedMessage onResetClicked={onCancel} />
   ) : (
-    <Form onSubmit={onSubmitSurvey} render={renderSurvey} />
+    <Form initialValues={initialValues} onSubmit={onSubmitSurvey} render={renderSurvey} />
   );
 
   return (

@@ -163,3 +163,28 @@ function fallbackParseVisibilityCriteria({ visibilityCriteria, dataElement }, va
 
   return false;
 }
+
+function getInitialValue(dataElement) {
+  switch (dataElement.type) {
+    case PROGRAM_DATA_ELEMENT_TYPES.TEXT:
+    case PROGRAM_DATA_ELEMENT_TYPES.MULTILINE:
+    case PROGRAM_DATA_ELEMENT_TYPES.NUMBER:
+      return '';
+    case PROGRAM_DATA_ELEMENT_TYPES.DATE:
+    default:
+      return undefined;
+  }
+}
+
+export function getFormInitialValues(components) {
+  const initialValues = components.reduce((acc, { dataElement }) => {
+    const initialValue = getInitialValue(dataElement);
+    const propName = dataElement.id;
+    if (initialValue === undefined) {
+      return acc;
+    }
+    acc[propName] = initialValue;
+    return acc;
+  }, {});
+  return initialValues;
+}
