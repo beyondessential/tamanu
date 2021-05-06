@@ -24,6 +24,11 @@ export class ImagingRequest extends Model {
           allowNull: false,
           defaultValue: Sequelize.NOW,
         },
+
+        note: {
+          type: Sequelize.STRING,
+          allowNull: true,
+        },
       },
       {
         ...options,

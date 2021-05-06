@@ -33,6 +33,8 @@
     "cSpell.language": "en-GB",
     "files.exclude": {
       "packages/": true
-    }
+    },
+    "editor.formatOnSave": true,
+    "editor.formatOnSaveMode": "modifications"
   }
 }

@@ -56,6 +56,30 @@ The [`config` docs](https://github.com/lorenwest/node-config/wiki/Configuration-
 
 ### LAN server
 
+#### Setup
+
+##### OSX
+
+Run:
+
+```bash
+brew install postgres
+brew services start postgres
+createdb tamanu-lan
+yarn install
+```
+
+##### WSL
+
+Install the [PostgreSQL server](https://www.postgresql.org/download/windows/). Open pgAdmin and add a new database `tamanu-lan`, then run:
+
+```bash
+yarn install
+```
+
+
+#### Run
+
 The Tamanu desktop app needs a lan server running to operate correctly. For
 local development, this can just be another process on the same host.
 

@@ -19,7 +19,7 @@ export const reloadImagingRequest = id => async (dispatch, getState, { api }) =>
   const imagingRequest = await api.get(`imagingRequest/${id}`);
   // TODO handle error state
 
-  const encounter = imagingRequest.encounters[0];
+  const encounter = imagingRequest.encounters?.[0];
   if (encounter) {
     const patient = encounter.patient[0];
     if (patient) {
