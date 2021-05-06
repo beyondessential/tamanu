@@ -17,9 +17,7 @@ export interface DropdownProps extends BaseInputProps {
   multiselect?: boolean;
   label?: string;
   placeholderText?: string;
-  // From dev:
-  // filterable?: boolean;
-  // value?: string | string[];
+  value?: string | string[];
 }
 
 export const Dropdown = React.memo(
