@@ -1,38 +1,10 @@
-import { ISurveyScreenComponent } from '~/types/ISurvey';
-
 import { getResultValue, FieldTypes } from '~/ui/helpers/fields';
 import { runCalculations } from '~/ui/helpers/calculations';
-
-function makeDummyComponent(c: any, index: number): ISurveyScreenComponent {
-  return {
-    id: `component-${c.code}`,
-    required: false,
-    dataElement: { 
-      id: c.code,
-      code: c.code,
-      name: c.name,
-      type: c.type,
-      defaultText: '',
-      defaultOptions: '',
-    },
-    screenIndex: 0,
-    componentIndex: index,
-    text: '',
-    visibilityCriteria: '',
-    options: '',
-    ...c,
-  };
-}
-
-function makeDummySurvey(parts: any[]): ISurveyScreenComponent[] {
-  return parts.map((p, i) => makeDummyComponent(p, i));
-}
+import { makeDummySurvey } from '/root/tests/helpers/mock';
 
 describe('Survey calculations', () => {
-  
   describe('CalculatedField', () => {
-
-    it('should run a trivial calculation', () => { 
+    it('should run a trivial calculation', () => {
       const survey = makeDummySurvey([
         { code: 'TEST', type: FieldTypes.CALCULATED, calculation: '1' },
       ]);
@@ -40,7 +12,7 @@ describe('Survey calculations', () => {
       expect(calculations.TEST).toEqual(1);
     });
 
-    it('should run a simple calculation', () => { 
+    it('should run a simple calculation', () => {
       const survey = makeDummySurvey([
         { code: 'TEST', type: FieldTypes.CALCULATED, calculation: '1 + 1' },
       ]);
@@ -48,7 +20,7 @@ describe('Survey calculations', () => {
       expect(calculations.TEST).toEqual(2);
     });
 
-    it('should run several calculations', () => { 
+    it('should run several calculations', () => {
       const survey = makeDummySurvey([
         { code: 'TEST', type: FieldTypes.CALCULATED, calculation: '3 * 5' },
         { code: 'TEST_2', type: FieldTypes.CALCULATED, calculation: '100 - 1' },
@@ -58,7 +30,7 @@ describe('Survey calculations', () => {
       expect(calculations.TEST_2).toEqual(99);
     });
 
-    it('should use substitutions', () => { 
+    it('should use substitutions', () => {
       const survey = makeDummySurvey([
         { code: 'TEST', type: FieldTypes.CALCULATED, calculation: 'TEST_1 + TEST_2' },
       ]);
@@ -69,7 +41,7 @@ describe('Survey calculations', () => {
       expect(calculations.TEST).toEqual(1024);
     });
 
-    it('should use second-order substitutions', () => { 
+    it('should use second-order substitutions', () => {
       const survey = makeDummySurvey([
         { code: 'TEST_BEFORE', type: FieldTypes.CALCULATED, calculation: 'TEST_1 + TEST_2' },
         { code: 'TEST_AFTER', type: FieldTypes.CALCULATED, calculation: 'TEST_BEFORE + 2000' },
@@ -81,7 +53,7 @@ describe('Survey calculations', () => {
       expect(calculations.TEST_AFTER).toEqual(3024);
     });
 
-    it('should register errored calculations as undefined', () => { 
+    it('should register errored calculations as undefined', () => {
       const survey = makeDummySurvey([
         { code: 'TEST_WORKS', type: FieldTypes.CALCULATED, calculation: 'TEST_1 * 3' },
         { code: 'TEST_BROKEN', type: FieldTypes.CALCULATED, calculation: 'TEST_NONEXISTENT' },
@@ -94,12 +66,10 @@ describe('Survey calculations', () => {
       expect(calculations).toHaveProperty('TEST_BROKEN', null);
       expect(calculations).toHaveProperty('TEST_BROKEN_2', null);
     });
-
   });
 
   describe('Results', () => {
-
-    it('should return correct values for absent result field', () => { 
+    it('should return correct values for absent result field', () => {
       const survey = makeDummySurvey([
         { code: 'TEST', type: 'Number' },
       ]);
@@ -146,7 +116,7 @@ describe('Survey calculations', () => {
         { code: 'TEST_CHECK', type: 'Result', visibilityCriteria: 'REF: Yes' },
       ]);
 
-      it('should use a visible result field', () => { 
+      it('should use a visible result field', () => {
         const { result, resultText } = getResultValue(visibilitySurvey, {
           TEST_CHECK: 100,
           TEST_ALWAYS: 0,
@@ -156,7 +126,7 @@ describe('Survey calculations', () => {
         expect(resultText).toEqual('100%');
       });
 
-      it('should ignore a non-visible result field', () => { 
+      it('should ignore a non-visible result field', () => {
         const { result, resultText } = getResultValue(visibilitySurvey, {
           TEST_CHECK: 0,
           TEST_ALWAYS: 100,
@@ -173,7 +143,7 @@ describe('Survey calculations', () => {
         { code: 'TEST_C', type: 'Result' },
       ]);
 
-      it('should use the last result field if multiple are visible', () => { 
+      it('should use the last result field if multiple are visible', () => {
         const { result, resultText } = getResultValue(multiVisibilitySurvey, {
           TEST_A: 0,
           TEST_B: 50,
@@ -183,8 +153,6 @@ describe('Survey calculations', () => {
         expect(result).toEqual(100);
         expect(resultText).toEqual('100%');
       });
-
     });
   });
-
 });

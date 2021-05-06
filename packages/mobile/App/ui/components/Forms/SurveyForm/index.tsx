@@ -1,6 +1,7 @@
 import React, { ReactElement, useMemo, useEffect } from 'react';
 import { Formik } from 'formik';
 
+import { useSelector } from 'react-redux';
 import {
   getFormInitialValues,
   getFormSchema,
@@ -8,6 +9,7 @@ import {
 import { FormFields } from './FormFields';
 
 import { runCalculations } from '~/ui/helpers/calculations';
+import { authUserSelector } from '/helpers/selectors';
 
 export type SurveyFormProps = {
   onSubmit: (values: any) => void;
@@ -22,13 +24,14 @@ export const SurveyForm = ({
   note,
   patient,
 }: SurveyFormProps): ReactElement => {
-  const initialValues = useMemo(() => getFormInitialValues(components), [components]);
+  const currentUser = useSelector(authUserSelector);
+  const initialValues = useMemo(() => getFormInitialValues(components, currentUser, patient), [components]);
   const formValidationSchema = useMemo(() => getFormSchema(components), [components]);
 
   return (
     <Formik
       validationSchema={formValidationSchema}
-      initialValues={{}}
+      initialValues={initialValues}
       onSubmit={onSubmit}
     >
       {({ handleSubmit, values, setFieldValue }): ReactElement => {
