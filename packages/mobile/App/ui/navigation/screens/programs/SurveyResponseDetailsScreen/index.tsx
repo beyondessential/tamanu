@@ -28,6 +28,8 @@ function getAnswerText(question, answer): string | number {
     case FieldTypes.RESULT:
     case FieldTypes.RADIO:
     case FieldTypes.CONDITION:
+    case FieldTypes.USER_DATA:
+    case FieldTypes.PATIENT_DATA:
       return answer || 'N/A';
     case FieldTypes.BINARY:
     case FieldTypes.CHECKBOX:
@@ -43,7 +45,7 @@ function getAnswerText(question, answer): string | number {
 
 const isCalculated = (question): JSX.Element => {
   const questionType = question.dataElement.type;
-  switch(question.dataElement.type) {
+  switch (question.dataElement.type) {
     case FieldTypes.CALCULATED:
     case FieldTypes.RESULT:
       return true;
@@ -62,7 +64,7 @@ const AnswerItem = ({ question, answer, index }): JSX.Element => (
     paddingRight={16}
     background={index % 2 ? theme.colors.WHITE : theme.colors.BACKGROUND_GREY}
   >
-    <StyledView maxWidth={'80%'}>
+    <StyledView maxWidth="80%">
       <StyledText fontWeight="bold" color={theme.colors.LIGHT_BLUE}>
         {question.dataElement.name}
       </StyledText>
@@ -85,15 +87,15 @@ export const SurveyResponseDetailsScreen = ({ route }): JSX.Element => {
 
   const [surveyResponse, error] = useBackendEffect(
     ({ models }) => models.SurveyResponse.getFullResponse(surveyResponseId),
-    [surveyResponseId]
+    [surveyResponseId],
   );
 
-  if(error) {
+  if (error) {
     console.error(error);
     return <StyledText>{error}</StyledText>;
   }
 
-  if(!surveyResponse) {
+  if (!surveyResponse) {
     return <LoadingScreen />;
   }
 
@@ -105,12 +107,12 @@ export const SurveyResponseDetailsScreen = ({ route }): JSX.Element => {
     return {
       question: q,
       answer: (answerObject || null) && answerObject.body,
-    }
-  }
+    };
+  };
 
   const questionToAnswerItem = ({ question, answer }, i): JSX.Element => (
-    <AnswerItem 
-      key={question.id} 
+    <AnswerItem
+      key={question.id}
       index={i}
       question={question}
       answer={answer}
