@@ -21,6 +21,19 @@ module.exports = {
         type: Sequelize.BLOB,
         allowNull: false,
       },
+      marked_for_push: {
+        type: Sequelize.BOOLEAN,
+        allowNull: false,
+        defaultValue: true,
+      },
+      pushed_at: {
+        type: Sequelize.DATE,
+        allowNull: true,
+      },
+      pulled_at: {
+        type: Sequelize.DATE,
+        allowNull: true,
+      },
       created_at: {
         type: Sequelize.DATE,
         defaultValue: Sequelize.NOW,
