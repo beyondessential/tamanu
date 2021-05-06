@@ -35,6 +35,7 @@ export const FormComponent = ({
       ...values,
       displayId: generateId(),
       markedForSync: true,
+      markedForUpload: true,
     });
     setSelectedPatient(newPatient);
     navigation.navigate(Routes.HomeStack.RegisterPatientStack.NewPatient);

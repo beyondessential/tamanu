@@ -58,6 +58,8 @@ export class Patient extends BaseModel implements IPatient {
   @OneToMany(() => PatientIssue, issue => issue.patient)
   issues: PatientIssue[]
 
+  static shouldExport = true;
+
   static async markForSync(patientId: string): Promise<void> {
     const repo = this.getRepository();
 
