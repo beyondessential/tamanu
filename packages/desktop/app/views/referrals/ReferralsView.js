@@ -73,7 +73,7 @@ const DumbReferralFlow = React.memo(
       );
     }
 
-    return <SurveyView onSubmit={onSubmit} survey={referralSurvey} onCancel={onCancelReferral} currentUser={currentUser} />;
+    return <SurveyView onSubmit={onSubmit} survey={referralSurvey} onCancel={onCancelReferral} patient={patient} currentUser={currentUser} />;
   },
 );
 

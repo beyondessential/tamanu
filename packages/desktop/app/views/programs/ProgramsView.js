@@ -62,7 +62,7 @@ const DumbSurveyFlow = React.memo(
       );
     }
 
-    return <SurveyView onSubmit={onSubmit} survey={survey} onCancel={onCancelSurvey} currentUser={currentUser} />;
+    return <SurveyView onSubmit={onSubmit} survey={survey} onCancel={onCancelSurvey} patient={patient} currentUser={currentUser} />;
   },
 );
 

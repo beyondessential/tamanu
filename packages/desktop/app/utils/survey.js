@@ -14,6 +14,8 @@ import {
   ReadOnlyTextField,
 } from 'desktop/app/components/Field';
 import { PROGRAM_DATA_ELEMENT_TYPES } from '../../../shared-src/src/constants';
+import { getAgeFromDate } from 'shared-src/src/utils/date';
+import { joinNames } from './user';
 
 
 const InstructionField = ({ label, helperText }) => (
@@ -36,7 +38,7 @@ const QUESTION_COMPONENTS = {
   [PROGRAM_DATA_ELEMENT_TYPES.SURVEY_LINK]: null,
   [PROGRAM_DATA_ELEMENT_TYPES.SURVEY_RESULT]: null,
   [PROGRAM_DATA_ELEMENT_TYPES.SURVEY_ANSWER]: null,
-  [PROGRAM_DATA_ELEMENT_TYPES.PATIENT_DATA]: null,
+  [PROGRAM_DATA_ELEMENT_TYPES.PATIENT_DATA]: ReadOnlyTextField,
   [PROGRAM_DATA_ELEMENT_TYPES.USER_DATA]: ReadOnlyTextField,
   [PROGRAM_DATA_ELEMENT_TYPES.INSTRUCTION]: InstructionField,
   [PROGRAM_DATA_ELEMENT_TYPES.RESULT]: null,
@@ -188,7 +190,21 @@ function getConfigObject(componentId, configString) {
   }
 }
 
-export function getFormInitialValues(components, currentUser = {}) {
+function transformPatientData(patient, config) {
+  const { column = 'fullName' } = config;
+  const { dateOfBirth, firstName, lastName } = patient;
+
+  switch (column) {
+    case 'age':
+      return getAgeFromDate(dateOfBirth).toString();
+    case 'fullName':
+      return joinNames({ firstName, lastName });
+    default:
+      return patient[column];
+  }
+}
+
+export function getFormInitialValues(components, patient, currentUser = {}) {
   const initialValues = components.reduce((acc, { dataElement }) => {
     const initialValue = getInitialValue(dataElement);
     const propName = dataElement.id;
@@ -209,6 +225,12 @@ export function getFormInitialValues(components, currentUser = {}) {
       const { column = 'displayName' } = config;
       const userValue = currentUser[column];
       if (userValue !== undefined) initialValues[component.dataElement.id] = userValue;
+    }
+
+    // patient data
+    if (component.dataElement.type === 'PatientData') {
+      const patientValue = transformPatientData(patient, config);
+      if (patientValue !== undefined) initialValues[component.dataElement.id] = patientValue;
     }
   }
 
