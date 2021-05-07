@@ -16,9 +16,9 @@ export const dropdownSize = {
 };
 
 
-export const SCREEN_ORIENTATION = {
-  PORTRAIT: 'portrait',
-  LANDSCAPE: 'landscape',
+export enum SCREEN_ORIENTATION {
+  PORTRAIT = 'portrait',
+  LANDSCAPE = 'landscape',
 };
 
 export enum Orientation {
@@ -35,7 +35,7 @@ export function screenPercentageToDP(
     : heightPercentageToDP(value);
 }
 
-export const getOrientation = (): string => {
+export const getOrientation = (): SCREEN_ORIENTATION => {
   if (Dimensions.get('window').width < Dimensions.get('window').height) {
     return SCREEN_ORIENTATION.PORTRAIT;
   }

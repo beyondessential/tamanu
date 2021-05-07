@@ -99,9 +99,6 @@ const BaseHomeScreen = ({ navigation, user }: BaseAppProps): ReactElement => {
     navigation.navigate(Routes.HomeStack.RegisterPatientStack.Index);
   }, []);
 
-  const onNavigateToAnonymousPatient = useCallback(() => {
-    console.log('navigate to anonymous patient...');
-  }, []);
   setStatusBar('light-content', theme.colors.PRIMARY_MAIN);
 
   return (
@@ -163,13 +160,9 @@ const BaseHomeScreen = ({ navigation, user }: BaseAppProps): ReactElement => {
         >
           <RowView width="100%" justifyContent="space-between">
             <HomeMenuButton
-              onPress={onNavigateToAnonymousPatient}
-              text="Anonymous Patient"
-            />
-            {/* UNIMPLEMENTED <HomeMenuButton
               onPress={onNavigateToRegisterPatient}
               text={'Register\nNew Patient'}
-            /> */}
+            />
           </RowView>
         </StyledView>
         <RecentlyViewedPatientTiles />

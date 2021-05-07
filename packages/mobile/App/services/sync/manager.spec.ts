@@ -389,7 +389,7 @@ describe('SyncManager', () => {
       expect(await readConfig(`pullCursor.patient/${patient.id}/encounter`)).toEqual('finished-sync-1');
       expect(await readConfig(`pullCursor.patient/${patient.id}/issue`)).toEqual('finished-sync-1');
       expect(mockedSource.downloadRecords).toBeCalledTimes(records.length * 2);
-      expect(mockedSource.uploadRecords).toBeCalledTimes(0);
+      expect(mockedSource.uploadRecords).toBeCalledTimes(1);
     });
   });
 });

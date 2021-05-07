@@ -100,9 +100,12 @@ export class Encounter extends BaseModel implements IEncounter {
   static async getOrCreateCurrentEncounter(
     patientId: string,
     userId: string,
-    createdEncounterOptions: any
+    createdEncounterOptions: any = {},
   ): Promise<Encounter> {
     const repo = this.getRepository();
+
+    // The 3 hour offset is a completely arbitrary time we decided would be safe to
+    // close the previous days encounters at, rather than midnight.
     const date = addHours(startOfDay(new Date()), TIME_OFFSET);
 
     const found = await repo
@@ -136,7 +139,8 @@ export class Encounter extends BaseModel implements IEncounter {
     const repo = this.getRepository();
 
     return repo.find({
-      patient: { id: patientId },
+      where: { patient: { id: patientId } },
+      order: { startDate: 'DESC' },
     });
   }
 
