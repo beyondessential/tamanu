@@ -8,6 +8,7 @@ import {
   labRequestReducer,
   imagingRequestReducer,
   decisionSupportReducer,
+  featureFlagsReducer,
 } from './store';
 
 export const createReducers = history => ({
@@ -19,4 +20,5 @@ export const createReducers = history => ({
   labRequest: labRequestReducer,
   imagingRequest: imagingRequestReducer,
   decisionSupport: decisionSupportReducer,
+  featureFlags: featureFlagsReducer,
 });
