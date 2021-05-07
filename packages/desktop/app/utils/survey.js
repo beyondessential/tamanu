@@ -47,7 +47,7 @@ export function getComponentForQuestionType(type) {
   }
   return component;
 }
-
+// TODO: figure out why defaultOptions is an object in the database, should it be an array? Also what's up with options, is it ever set by anything? There's no survey_screen_component.options in the db that are not null.
 export function mapOptionsToValues(options) {
   if (!options) return null;
   if (typeof options === 'object') {
