@@ -34,9 +34,29 @@ export const findRouteObject = async (req, modelName) => {
   return object;
 };
 
+const findBelongingObject = async (req, modelName, foreignKey) => {
+  const { models, params } = req;
+  const model = models[modelName];
+
+  req.checkPermission('read', modelName);
+  const object = await model.findOne({
+    where: { [foreignKey]: params.id },
+    include: model.getFullReferenceAssociations(),
+  });
+  if (!object) throw new NotFoundError();
+
+  return object;
+};
+
 export const simpleGet = modelName =>
   asyncHandler(async (req, res) => {
     const object = await findRouteObject(req, modelName);
+    res.send(object);
+  });
+
+export const simpleGetBelonging = (modelName, foreignKey) =>
+  asyncHandler(async (req, res) => {
+    const object = await findBelongingObject(req, modelName, foreignKey);
     res.send(object);
   });
 
