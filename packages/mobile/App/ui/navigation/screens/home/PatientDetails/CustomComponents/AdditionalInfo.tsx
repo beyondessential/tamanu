@@ -6,7 +6,6 @@ import { PatientSection } from './PatientSection';
 export const AdditionalInfo = ({
   data,
 }): ReactElement => {
-  console.log("🚀 ~ file: AdditionalInfo.tsx ~ line 9 ~ data", data)
   const fields = [
     ['Place of Birth', data.placeOfBirth],
     ['Title', data.title],
