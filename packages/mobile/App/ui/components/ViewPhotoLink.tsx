@@ -9,6 +9,10 @@ import { StyledView, StyledText, StyledImage } from '/styled/common';
 import { imageToBase64URI } from '/helpers/image';
 import { saveFileInDocuments, deleteFileInDocuments } from '/helpers/file';
 import { BaseInputProps } from '../interfaces/BaseInputProps';
+import FlashMessage, {
+  showMessage,
+  hideMessage
+} from 'react-native-flash-message';
 
 export interface ViewPhotoLinkProps extends BaseInputProps {
   imageId: string;
@@ -75,17 +79,24 @@ export const ViewPhotoLink = React.memo(({ imageId }: ViewPhotoLinkProps) => {
 
   const imagePressCallback = useCallback(async () => {
     Alert.alert(
-      'Image',
-      'Save image to phone?',
+      'Save image',
+      'Save image to Camera Roll?',
       [
         {
           text: 'Save',
           onPress: async () => {
-            const filePath = await saveFileInDocuments(imageData, imageId);
+            const time = new Date().getTime();
+            const fileName = `${time}-image.jpg`;
+            const filePath = await saveFileInDocuments(imageData, fileName);
             await CameraRoll.save(`file://${filePath}`, {
               type: 'photo'
             });
-            await deleteFileInDocuments(imageId);
+            await deleteFileInDocuments(fileName);
+
+            showMessage({
+              message: 'Image saved',
+              type: 'success'
+            });
           },
           style: 'default'
         },
@@ -130,6 +141,7 @@ export const ViewPhotoLink = React.memo(({ imageId }: ViewPhotoLinkProps) => {
             message='Loading image...'
           />
         )}
+        <FlashMessage position='top' />
       </Modal>
     </View>
   );

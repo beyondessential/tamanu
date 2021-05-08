@@ -61,6 +61,7 @@
     "react-native-config": "^0.12.0",
     "react-native-device-info": "^8.0.1",
     "react-native-fast-image": "^7.0.2",
+    "react-native-flash-message": "^0.1.23",
     "react-native-flipper": "^0.39.0",
     "react-native-fs": "^2.17.0",
     "react-native-gesture-handler": "^1.6.1",
