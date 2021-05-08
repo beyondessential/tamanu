@@ -5,7 +5,7 @@ import { SurveyResponseAnswer } from './SurveyResponseAnswer';
 export enum FileType {
   JPEG = 'jpeg',
   PNG = 'png',
-  WEBP = 'webp',
+  WEBP = 'webp'
 }
 
 @Entity('attachment')
@@ -16,14 +16,14 @@ export class Attachment extends BaseModel {
   @Column({ type: 'varchar' })
   type: FileType;
 
-  @Column({ type: 'blob'})
+  @Column({ type: 'blob' })
   data: Buffer;
 
   static shouldImport = false;
 
   static shouldExport = true;
 
-  static uploadLimit = 10;
+  static uploadLimit = 1;
 
   static async filterExportRecords(ids: string[]) {
     // Only export attachments that are attached to a survey response answers
@@ -32,7 +32,7 @@ export class Attachment extends BaseModel {
       .createQueryBuilder('survey_response_answer')
       .where('survey_response_answer.body IN (:...ids)', { ids })
       .getMany();
-    
+
     return attachmentAnswers.map(a => a.body);
   }
 
