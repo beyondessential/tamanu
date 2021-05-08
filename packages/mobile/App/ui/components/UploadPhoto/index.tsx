@@ -138,4 +138,4 @@ export const UploadPhoto = React.memo(({ onChange, value }: PhotoProps) => {
       onPressRemovePhoto={removePhotoCallback}
     />
   );
-};
+});
