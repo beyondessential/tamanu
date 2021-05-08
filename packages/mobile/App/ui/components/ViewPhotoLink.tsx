@@ -1,12 +1,13 @@
 import React, { useCallback, useState } from 'react';
-import { Dimensions, View } from 'react-native';
-import Modal from 'react-native-modal';
+import { Dimensions, View, Alert, TouchableOpacity } from 'react-native';
 import { useNetInfo } from '@react-native-community/netinfo';
-import { TouchableOpacity } from 'react-native';
+import CameraRoll from '@react-native-community/cameraroll';
+import Modal from 'react-native-modal';
 import { useBackend } from '~/ui/hooks';
 import { theme } from '/styled/theme';
 import { StyledView, StyledText, StyledImage } from '/styled/common';
 import { imageToBase64URI } from '/helpers/image';
+import { saveFileInDocuments, deleteFileInDocuments } from '/helpers/file';
 import { BaseInputProps } from '../interfaces/BaseInputProps';
 
 export interface ViewPhotoLinkProps extends BaseInputProps {
@@ -61,7 +62,8 @@ export const ViewPhotoLink = React.memo(({ imageId }: ViewPhotoLinkProps) => {
       setErrorMessage(null);
     } catch (error) {
       setImageData(null);
-      setErrorMessage(error.errorMessage);
+      setLoading(false);
+      setErrorMessage(error.message);
     }
   }, [netInfo]);
 
@@ -71,6 +73,32 @@ export const ViewPhotoLink = React.memo(({ imageId }: ViewPhotoLinkProps) => {
     setErrorMessage(null);
   }, []);
 
+  const imagePressCallback = useCallback(async () => {
+    Alert.alert(
+      'Image',
+      'Save image to phone?',
+      [
+        {
+          text: 'Save',
+          onPress: async () => {
+            const filePath = await saveFileInDocuments(imageData, imageId);
+            await CameraRoll.save(`file://${filePath}`, {
+              type: 'photo'
+            });
+            await deleteFileInDocuments(imageId);
+          },
+          style: 'default'
+        },
+        {
+          text: 'Cancel',
+          style: 'cancel'
+        }
+      ],
+      {
+        cancelable: true
+      }
+    );
+  }, [imageData]);
   return (
     <View>
       <TouchableOpacity onPress={openModalCallback}>
@@ -84,12 +112,14 @@ export const ViewPhotoLink = React.memo(({ imageId }: ViewPhotoLinkProps) => {
       </TouchableOpacity>
       <Modal isVisible={showModal} onBackdropPress={closeModalCallback}>
         {imageData && (
-          <StyledImage
-            textAlign='center'
-            height={MODAL_HEIGHT}
-            source={{ uri: imageToBase64URI(imageData) }}
-            resizeMode='cover'
-          />
+          <TouchableOpacity onLongPress={imagePressCallback}>
+            <StyledImage
+              textAlign='center'
+              height={MODAL_HEIGHT}
+              source={{ uri: imageToBase64URI(imageData) }}
+              resizeMode='cover'
+            />
+          </TouchableOpacity>
         )}
         {errorMessage && (
           <Message color={theme.colors.ALERT} message={errorMessage} />
