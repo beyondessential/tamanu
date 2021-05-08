@@ -3,13 +3,18 @@ import { Dimensions, Text } from 'react-native';
 import RNFS from 'react-native-fs';
 import { useBackend } from '~/ui/hooks';
 import { StyledView, StyledImage } from '/styled/common';
-import { getImageFromPhotoLibrary, resizeImage, imageToBase64URI } from '/helpers/image';
+import {
+  getImageFromPhotoLibrary,
+  resizeImage,
+  imageToBase64URI
+} from '/helpers/image';
 import { BaseInputProps } from '../../interfaces/BaseInputProps';
 import { Button } from '~/ui/components/Button';
 
 const IMAGE_RESIZE_OPTIONS = {
   maxWidth: 1920,
   maxHeight: 1920,
+  quality: 20
 };
 
 export interface PhotoProps extends BaseInputProps {
@@ -30,17 +35,22 @@ interface UploadPhotoComponent {
 
 const IMAGE_WIDTH = Dimensions.get('window').width * 0.6;
 
-const ImageActionButton = ({ onPress, label }) => (
-  <Button buttonText={label} onPress={onPress} flex={1} margin={5} />
+const ImageActionButton = ({ onPress, label, marginTop }) => (
+  <Button
+    buttonText={label}
+    onPress={onPress}
+    margin={5}
+    marginTop={marginTop}
+  />
 );
 
 const UploadedImage = ({ imageData }: UploadedImageProps) => (
-  <StyledView flex={1} justifyContent="center" alignItems="center">
+  <StyledView justifyContent='center' alignItems='center'>
     <StyledImage
-      width="100%"
+      width='100%'
       height={IMAGE_WIDTH}
-      source={{ uri: imageToBase64URI(imageData)}}
-      resizeMode="cover"
+      source={{ uri: imageToBase64URI(imageData) }}
+      resizeMode='cover'
     />
   </StyledView>
 );
@@ -49,22 +59,31 @@ const UploadPhotoComponent = ({
   onPressChoosePhoto,
   onPressRemovePhoto,
   imageData,
-  errorMessage,
+  errorMessage
 }: UploadPhotoComponent) => (
   <StyledView marginTop={5}>
     {imageData && <UploadedImage imageData={imageData} />}
-    {!imageData && errorMessage && <Text>{`Error loading photo: ${errorMessage}`}</Text>}
-    <StyledView justifyContent="space-between" flexDirection="row" flex={1} marginLeft={-10}>
+    {!imageData && errorMessage && (
+      <Text>{`Error loading photo: ${errorMessage}`}</Text>
+    )}
+    <StyledView justifyContent='space-between' marginLeft={-10}>
       <ImageActionButton
         onPress={onPressChoosePhoto}
         label={!imageData ? 'Add photo' : 'Change photo'}
+        marginTop={5}
       />
-      {imageData && <ImageActionButton onPress={onPressRemovePhoto} label="Remove photo" />}
+      {imageData && (
+        <ImageActionButton
+          onPress={onPressRemovePhoto}
+          label='Remove photo'
+          marginTop={0}
+        />
+      )}
     </StyledView>
   </StyledView>
 );
 
-export const UploadPhoto = React.memo(({ onChange, value }: PhotoProps) => {
+export const UploadPhoto = ({ onChange, value }) => {
   const [errorMessage, setErrorMessage] = useState(null);
   const [imageData, setImageData] = useState(null);
   const { models } = useBackend();
@@ -97,12 +116,15 @@ export const UploadPhoto = React.memo(({ onChange, value }: PhotoProps) => {
     }
 
     // resized images provided with base64 data is only stored in app cache
-    const { path, size } = await resizeImage(imageToBase64URI(image.data), IMAGE_RESIZE_OPTIONS);
+    const { path, size } = await resizeImage(
+      imageToBase64URI(image.data),
+      IMAGE_RESIZE_OPTIONS
+    );
     const data = await RNFS.readFile(`file://${path}`, 'base64');
     const { id } = await models.Attachment.createAndSaveOne({
       data,
       size,
-      type: 'jpeg',
+      type: 'jpeg'
     });
     onChange(id);
     setImageData(image.data);
@@ -116,4 +138,4 @@ export const UploadPhoto = React.memo(({ onChange, value }: PhotoProps) => {
       onPressRemovePhoto={removePhotoCallback}
     />
   );
-});
+};

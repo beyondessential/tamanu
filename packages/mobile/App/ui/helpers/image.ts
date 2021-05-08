@@ -18,26 +18,27 @@ interface ResizeOptions {
   onlyScaleDown?: boolean;
 }
 
-
-export const launchImagePicker = (): Promise<ImagePickerResponse> => new Promise((
-  resolve, reject,
-) => {
-  ImagePicker.showImagePicker(
-    {
-      title: 'Select Profile Photo',
-    },
-    imagePickerResponse => {
-      if (imagePickerResponse.error) {
-        // Add log later
-        reject(new Error(imagePickerResponse.error));
-      } else if (imagePickerResponse.didCancel) {
-        resolve();
-      } else {
-        resolve(imagePickerResponse);
+export const launchImagePicker = (): Promise<ImagePickerResponse> =>
+  new Promise((resolve, reject) => {
+    ImagePicker.showImagePicker(
+      {
+        title: 'Select Photo',
+        // work around for image-picker bug when taking photo:
+        //https://github.com/react-native-image-picker/react-native-image-picker/issues/655
+        rotation: 360
+      },
+      imagePickerResponse => {
+        if (imagePickerResponse.error) {
+          // Add log later
+          reject(new Error(imagePickerResponse.error));
+        } else if (imagePickerResponse.didCancel) {
+          resolve();
+        } else {
+          resolve(imagePickerResponse);
+        }
       }
-    },
-  );
-});
+    );
+  });
 
 export const getImageFromPhotoLibrary = async (): Promise<Nullable<
   ImagePickerResponse
@@ -47,11 +48,11 @@ export const getImageFromPhotoLibrary = async (): Promise<Nullable<
   if (OS === 'android') {
     try {
       const photoLibraryPermissionAndroid = await check(
-        PERMISSIONS.ANDROID.WRITE_EXTERNAL_STORAGE,
+        PERMISSIONS.ANDROID.WRITE_EXTERNAL_STORAGE
       );
       if (photoLibraryPermissionAndroid !== 'granted') {
         const photoLibraryPermissionRequest = await request(
-          PERMISSIONS.ANDROID.WRITE_EXTERNAL_STORAGE,
+          PERMISSIONS.ANDROID.WRITE_EXTERNAL_STORAGE
         );
         if (photoLibraryPermissionRequest === 'granted') {
           image = await launchImagePicker();
@@ -68,11 +69,11 @@ export const getImageFromPhotoLibrary = async (): Promise<Nullable<
   } else {
     try {
       const photoLibraryPermissionIOS = await check(
-        PERMISSIONS.IOS.PHOTO_LIBRARY,
+        PERMISSIONS.IOS.PHOTO_LIBRARY
       );
       if (photoLibraryPermissionIOS !== 'granted') {
         const photoLibraryPermissionRequest = await request(
-          PERMISSIONS.IOS.PHOTO_LIBRARY,
+          PERMISSIONS.IOS.PHOTO_LIBRARY
         );
         if (photoLibraryPermissionRequest === 'granted') {
           image = await launchImagePicker();
@@ -89,7 +90,8 @@ export const getImageFromPhotoLibrary = async (): Promise<Nullable<
   return image;
 };
 
-export const imageToBase64URI = (image: string): string => `data:image/jpeg;base64, ${image}`;
+export const imageToBase64URI = (image: string): string =>
+  `data:image/jpeg;base64, ${image}`;
 
 export const resizeImage = (path: string, options: ResizeOptions) => {
   const {
@@ -101,7 +103,7 @@ export const resizeImage = (path: string, options: ResizeOptions) => {
     outputPath,
     keepMeta,
     mode,
-    onlyScaleDown = true,
+    onlyScaleDown = true
   } = options;
 
   return ImageResizer.createResizedImage(
@@ -113,6 +115,6 @@ export const resizeImage = (path: string, options: ResizeOptions) => {
     rotation,
     outputPath,
     keepMeta,
-    { mode, onlyScaleDown },
+    { mode, onlyScaleDown }
   );
 };
