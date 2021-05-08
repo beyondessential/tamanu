@@ -83,7 +83,7 @@ const UploadPhotoComponent = ({
   </StyledView>
 );
 
-export const UploadPhoto = ({ onChange, value }) => {
+export const UploadPhoto = React.memo(({ onChange, value }: PhotoProps) => {
   const [errorMessage, setErrorMessage] = useState(null);
   const [imageData, setImageData] = useState(null);
   const { models } = useBackend();
