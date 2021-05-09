@@ -8,6 +8,7 @@ import {
   resizeImage,
   imageToBase64URI
 } from '/helpers/image';
+import { deleteFileInDocuments } from '/helpers/file';
 import { BaseInputProps } from '../../interfaces/BaseInputProps';
 import { Button } from '~/ui/components/Button';
 
@@ -31,6 +32,7 @@ interface UploadPhotoComponent {
   onPressRemovePhoto: Function;
   imageData: string;
   errorMessage?: string;
+  loading: boolean;
 }
 
 const IMAGE_WIDTH = Dimensions.get('window').width * 0.6;
@@ -55,16 +57,29 @@ const UploadedImage = ({ imageData }: UploadedImageProps) => (
   </StyledView>
 );
 
+const LoadingPlaceholder = () => (
+  <StyledView
+    justifyContent='center'
+    alignItems='center'
+    width='100%'
+    height={IMAGE_WIDTH}
+  >
+    <Text>Loading image...</Text>
+  </StyledView>
+);
+
 const UploadPhotoComponent = ({
   onPressChoosePhoto,
   onPressRemovePhoto,
   imageData,
-  errorMessage
+  errorMessage,
+  loading
 }: UploadPhotoComponent) => (
   <StyledView marginTop={5}>
+    {loading && <LoadingPlaceholder />}
     {imageData && <UploadedImage imageData={imageData} />}
     {!imageData && errorMessage && (
-      <Text>{`Error loading photo: ${errorMessage}`}</Text>
+      <Text>{`Error loading image: ${errorMessage}`}</Text>
     )}
     <StyledView justifyContent='space-between' marginLeft={-10}>
       <ImageActionButton
@@ -84,29 +99,30 @@ const UploadPhotoComponent = ({
 );
 
 export const UploadPhoto = React.memo(({ onChange, value }: PhotoProps) => {
+  const [loading, setLoading] = useState(false);
   const [errorMessage, setErrorMessage] = useState(null);
   const [imageData, setImageData] = useState(null);
+  const [imagePath, setImagePath] = useState(null);
   const { models } = useBackend();
 
-  const removeAttachment = useCallback(async () => {
+  const removeAttachment = useCallback(async (value, imagePath) => {
     if (value) {
-      const attachment = await models.Attachment.findOne({ id: value });
-      if (attachment) {
-        // Calling remove() rather than delete() to trigger
-        // @AfterRemove decorator to also remove the file
-        await attachment.remove();
-      }
+      await models.Attachment.delete(value);
+    }
+    if (imagePath) {
+      await deleteFileInDocuments(imagePath);
+      setImagePath(null);
     }
   }, []);
 
   const removePhotoCallback = useCallback(async () => {
     onChange(null);
     setImageData(null);
-    await removeAttachment();
-  }, []);
+    await removeAttachment(value, imagePath);
+  }, [value, imagePath]);
 
   const addPhotoCallback = useCallback(async () => {
-    let image: { data: string };
+    let image: { data: string; uri: string };
     try {
       image = await getImageFromPhotoLibrary();
       if (!image) {
@@ -119,23 +135,32 @@ export const UploadPhoto = React.memo(({ onChange, value }: PhotoProps) => {
       return;
     }
 
+    setImageData(null);
+    setLoading(true);
+
+    // image-picker produces quite expensive files so
+    // always delete them straight away to save storage
+    await deleteFileInDocuments(image.uri.replace('file://', ''));
+
     // Remove previous photo when selecting a new photo
-    await removeAttachment();
+    await removeAttachment(value, imagePath);
 
     const { path, size } = await resizeImage(imageToBase64URI(image.data), {
       outputPath: RNFS.DocumentDirectoryPath,
       rotation: 0,
       ...IMAGE_RESIZE_OPTIONS
     });
-
     const { id } = await models.Attachment.createAndSaveOne({
       filePath: path,
       size,
       type: 'jpeg'
     });
+
     onChange(id);
+    setImagePath(path);
     setImageData(image.data);
-  }, []);
+    setLoading(false);
+  }, [value, imagePath]);
 
   return (
     <UploadPhotoComponent
@@ -143,6 +168,7 @@ export const UploadPhoto = React.memo(({ onChange, value }: PhotoProps) => {
       errorMessage={errorMessage}
       onPressChoosePhoto={addPhotoCallback}
       onPressRemovePhoto={removePhotoCallback}
+      loading={loading}
     />
   );
 });
