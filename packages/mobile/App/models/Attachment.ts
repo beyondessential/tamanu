@@ -1,6 +1,7 @@
-import { Entity, Column } from 'typeorm/browser';
+import { Entity, Column, AfterLoad, AfterRemove } from 'typeorm/browser';
 import { BaseModel } from './BaseModel';
 import { SurveyResponseAnswer } from './SurveyResponseAnswer';
+import { readFileInDocuments, deleteFileInDocuments } from '../ui/helpers/file';
 
 export enum FileType {
   JPEG = 'jpeg',
@@ -16,8 +17,11 @@ export class Attachment extends BaseModel {
   @Column({ type: 'varchar' })
   type: FileType;
 
-  @Column({ type: 'blob' })
+  @Column({ type: 'blob', nullable: true })
   data: Buffer;
+
+  @Column()
+  filePath: string; // will not be synced up, only for local usage
 
   static shouldImport = false;
 
@@ -37,7 +41,37 @@ export class Attachment extends BaseModel {
   }
 
   static async postExportCleanUp() {
-    // Don't need to store attachments locally after export.
+    // Clean up all attachments and their associated files after export.
+    // We might have a lot of scenarios that attachments may hang around
+    // like exiting while doing survey,... So I feel that it is safest
+    // to do clean everything after exporting.
+    const attachments = await this.getRepository()
+      .createQueryBuilder('attachment')
+      .select('filePath')
+      .getRawMany();
+    for (const { filePath } of attachments) {
+      await deleteFileInDocuments(filePath);
+    }
     await this.getRepository().clear();
   }
+
+  @AfterLoad()
+  async populateDataFromPath() {
+    // Sqlite cannot handle select query with very large blob.
+    // So this is a work around to avoid that.
+    // 'data' will also be synced up.
+    // Ideally, with file compressing, attachments should not be too large, but this is just in case.
+    const base64 = await readFileInDocuments(this.filePath);
+    this.data = Buffer.from(base64, 'base64');
+  }
+
+  @AfterRemove()
+  async cleanUpFile() {
+    await deleteFileInDocuments(this.filePath);
+  }
+
+  static excludedSyncColumns: string[] = [
+    ...BaseModel.excludedSyncColumns,
+    'filePath'
+  ];
 }

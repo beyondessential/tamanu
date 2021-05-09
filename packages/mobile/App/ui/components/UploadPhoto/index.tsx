@@ -88,12 +88,21 @@ export const UploadPhoto = React.memo(({ onChange, value }: PhotoProps) => {
   const [imageData, setImageData] = useState(null);
   const { models } = useBackend();
 
+  const removeAttachment = useCallback(async () => {
+    if (value) {
+      const attachment = await models.Attachment.findOne({ id: value });
+      if (attachment) {
+        // Calling remove() rather than delete() to trigger
+        // @AfterRemove decorator to also remove the file
+        await attachment.remove();
+      }
+    }
+  }, []);
+
   const removePhotoCallback = useCallback(async () => {
     onChange(null);
     setImageData(null);
-    if (value) {
-      await models.Attachment.delete(value);
-    }
+    await removeAttachment();
   }, []);
 
   const addPhotoCallback = useCallback(async () => {
@@ -111,18 +120,16 @@ export const UploadPhoto = React.memo(({ onChange, value }: PhotoProps) => {
     }
 
     // Remove previous photo when selecting a new photo
-    if (value) {
-      await models.Attachment.delete(value);
-    }
+    await removeAttachment();
 
-    // resized images provided with base64 data is only stored in app cache
-    const { path, size } = await resizeImage(
-      imageToBase64URI(image.data),
-      IMAGE_RESIZE_OPTIONS
-    );
-    const data = await RNFS.readFile(`file://${path}`, 'base64');
+    const { path, size } = await resizeImage(imageToBase64URI(image.data), {
+      outputPath: RNFS.DocumentDirectoryPath,
+      rotation: 0,
+      ...IMAGE_RESIZE_OPTIONS
+    });
+
     const { id } = await models.Attachment.createAndSaveOne({
-      data,
+      filePath: path,
       size,
       type: 'jpeg'
     });
