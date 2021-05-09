@@ -61,13 +61,10 @@ export class Attachment extends BaseModel {
     // So this is a work around to avoid that.
     // 'data' will also be synced up.
     // Ideally, with file compressing, attachments should not be too large, but this is just in case.
-    const base64 = await readFileInDocuments(this.filePath);
-    this.data = Buffer.from(base64, 'base64');
-  }
-
-  @AfterRemove()
-  async cleanUpFile() {
-    await deleteFileInDocuments(this.filePath);
+    if (this.filePath) {
+      const base64 = await readFileInDocuments(this.filePath);
+      this.data = Buffer.from(base64, 'base64');
+    }
   }
 
   static excludedSyncColumns: string[] = [

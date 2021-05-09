@@ -17,5 +17,8 @@ export const saveFileInDocuments = async (
 };
 
 export const deleteFileInDocuments = async (filePath: string) => {
-  await RNFS.unlink(filePath);
+  if (RNFS.exists(filePath)) {
+    await RNFS.unlink(filePath);
+    console.log(`File path ${filePath} deleted`);
+  }
 };
