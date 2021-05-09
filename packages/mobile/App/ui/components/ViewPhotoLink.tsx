@@ -9,10 +9,7 @@ import { StyledView, StyledText, StyledImage } from '/styled/common';
 import { imageToBase64URI } from '/helpers/image';
 import { saveFileInDocuments, deleteFileInDocuments } from '/helpers/file';
 import { BaseInputProps } from '../interfaces/BaseInputProps';
-import FlashMessage, {
-  showMessage,
-  hideMessage
-} from 'react-native-flash-message';
+import FlashMessage, { showMessage } from 'react-native-flash-message';
 
 export interface ViewPhotoLinkProps extends BaseInputProps {
   imageId: string;
@@ -95,7 +92,8 @@ export const ViewPhotoLink = React.memo(({ imageId }: ViewPhotoLinkProps) => {
 
             showMessage({
               message: 'Image saved',
-              type: 'success'
+              type: 'default',
+              backgroundColor: theme.colors.BRIGHT_BLUE
             });
           },
           style: 'default'
