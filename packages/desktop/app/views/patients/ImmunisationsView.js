@@ -1,8 +1,8 @@
 import React, { useState } from 'react';
-import { pick } from 'lodash';
 
 import { TopBar, PageContainer, DataFetchingTable } from '../../components';
 import { connectFlags } from '../../flags';
+import { getColumns } from './columns';
 import {
   displayId,
   firstName,
@@ -29,7 +29,7 @@ const COLUMN_NAMES = [
 const DumbPatientImmunisationsTable = React.memo(({ getFlag, onPatientSelect, ...props }) => (
   <DataFetchingTable
     endpoint="patient"
-    columns={Object.values(pick(getColumns(getFlag), COLUMN_NAMES))}
+    columns={getColumns(getFlag, COLUMN_NAMES)}
     noDataMessage="No patients found"
     onRowClick={onPatientSelect}
     {...props}

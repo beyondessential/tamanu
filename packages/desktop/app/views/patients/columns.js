@@ -1,14 +1,16 @@
 import React from 'react';
+import { pick } from 'lodash';
+import { CloudDownload, CloudOff } from '@material-ui/icons';
+
 import { DateDisplay } from '../../components';
 import { capitaliseFirstLetter } from '../../utils/capitalise';
-import { CloudDownload, CloudOff } from '@material-ui/icons';
 
 const DateOfBirthCell = React.memo(({ value }) => <DateDisplay date={value} />);
 const SexCell = React.memo(({ value = '' }) => <span>{capitaliseFirstLetter(value)}</span>);
 const SyncedCell = React.memo(({ value }) => value === true ? <CloudDownload /> : <CloudOff />);
 
-export const getColumns = getFlag => {
-  return {
+export const getColumns = (getFlag, names) => {
+  return Object.values(pick({
     markedForSync: {
       key: 'markedForSync',
       title: 'Sync',
@@ -94,6 +96,6 @@ export const getColumns = getFlag => {
       minWidth: 100,
       accessor: row => row.vaccinationStatus || 'Unknown',
     },  
-  };
+  }, names));
 };
 

@@ -51,7 +51,7 @@ const COLUMN_NAMES = ['displayId', 'firstName', 'lastName', 'village', 'covidVac
 const DumbPatientCovidCampaignTable = React.memo(({ onPatientSelect, getVaccines, getFlag, ...props }) => (
   <DataFetchingTable
     endpoint="patient"
-    columns={Object.values(pick(getColumns(getFlag), COLUMN_NAMES))}
+    columns={getColumns(getFlag, COLUMN_NAMES)}
     noDataMessage="No patients found"
     exportName="Covid Campaign"
     onRowClick={onPatientSelect}

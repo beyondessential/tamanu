@@ -23,7 +23,7 @@ const StyledDataTable = styled(DataFetchingTable)`
 const DumbPatientTable = React.memo(({ onViewPatient, showInpatientDetails, getFlag, ...props }) => {
   const isSortable = showInpatientDetails;
   const columnNames = showInpatientDetails ? INPATIENT_COLUMN_NAMES : LISTING_COLUMN_NAMES;
-  let columns = Object.values(pick(getColumns(getFlag), columnNames));
+  let columns = getColumns(getFlag, columnNames);
   if (isSortable) {
     columns = columns.map(column => ({
       ...column,
