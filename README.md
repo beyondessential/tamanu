@@ -189,7 +189,7 @@ the API url and login credentials as well (see config/default.json for how this 
         - T3 micro is probably fine 
         - generate new credentials and save them in the tamanu folder in lastpass
         - set retention to "create snapshot" so that if the environment gets destroyed we have a backup
-     - add the relevant keypair (tamanu-eb-key-pair) in the security section
+     - add the relevant keypair (tamanu-eb-key-pair, _not tamanu-key-pair_) in the security section
      - configure anything else you need (monitoring, alerts, databases, scaling, larger instances than t2.micro, etc.)
         - email notifications to team-tamanu@beyondessential.com.au
   4. create the environment (this can take a while)
