@@ -217,7 +217,7 @@ the API url and login credentials as well (see config/default.json for how this 
     - create record
     - A record
     - Alias on
-    - alias to EB environment, pick the appropraite zone & EB app
+    - alias to EB environment, pick the appropriate zone & EB app
 - add steps to [codeship-steps.yml](codeship-steps.yml):
   1. build a release version of just that package (excluding the rest of the monorepo) using [scripts/build_package_release.sh](scripts/build_package_release.sh)
   2. deploy the release using a one-line script similar to [scripts/deploy_meta_dev.sh](scripts/deploy_meta_dev.sh) or [scripts/deploy_sync_dev.sh](scripts/deploy_sync_dev.sh)
