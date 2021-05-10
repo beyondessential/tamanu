@@ -58,7 +58,7 @@ export const PrimaryDetailsGroup = ({
       suggester={nationalitySuggester}
     />
     <Field name="cityTown" label="City/Town" component={TextField} />
-    <Field name="streetVillage" label="Street/Village" component={TextField} />
+    <Field name="streetVillage" label="Residential Landmark" component={TextField} />
     <Field
       name="divisionId"
       label="Division"
