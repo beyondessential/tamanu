@@ -1,5 +1,6 @@
 import { createStatePreservingReducer } from '../utils/createStatePreservingReducer';
 import { LOCAL_STORAGE_KEYS } from '../constants';
+import { setFeatureFlags } from './featureFlags';
 
 // actions
 const LOGIN_START = 'LOGIN_START';
@@ -12,7 +13,8 @@ export const login = (host, email, password) => async (dispatch, getState, { api
   dispatch({ type: LOGIN_START });
 
   try {
-    const { user, token } = await api.login(host, email, password);
+    const { user, token, featureFlags } = await api.login(host, email, password);
+    dispatch(setFeatureFlags(featureFlags));
     dispatch({ type: LOGIN_SUCCESS, user, token });
   } catch (error) {
     dispatch({ type: LOGIN_FAILURE, error: error.message });

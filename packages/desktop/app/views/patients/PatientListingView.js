@@ -1,48 +1,46 @@
 import React, { useState, useCallback } from 'react';
 import { connect } from 'react-redux';
 import styled from 'styled-components';
+import { pick } from 'lodash';
 import { viewPatient } from '../../store/patient';
 import { TopBar, PageContainer, DataFetchingTable } from '../../components';
 import { DropdownButton } from '../../components/DropdownButton';
 import { PatientSearchBar, NewPatientModal } from './components';
-import {
-  markedForSync,
-  displayId,
-  firstName,
-  lastName,
-  culturalName,
-  village,
-  sex,
-  dateOfBirth,
-  status,
-  location,
-  department,
-} from './columns';
+import { getColumns } from './columns';
+import { connectFlags } from '../../flags';
 
 const PATIENT_SEARCH_ENDPOINT = 'patient';
 
-const BASE_COLUMNS = [markedForSync, displayId, firstName, lastName, culturalName, village, sex, dateOfBirth];
+const BASE_COLUMN_NAMES = ['markedForSync', 'displayId', 'firstName', 'lastName', 'culturalName', 'village', 'sex', 'dateOfBirth'];
 
-const BASE_COLUMNS_ON_PATIENT = BASE_COLUMNS.map(column => ({
-  ...column,
-  sortable: false,
-}));
-
-const LISTING_COLUMNS = [...BASE_COLUMNS, status];
-const INPATIENT_COLUMNS = [...BASE_COLUMNS_ON_PATIENT, location, department];
+const LISTING_COLUMN_NAMES = [...BASE_COLUMN_NAMES, 'status'];
+const INPATIENT_COLUMN_NAMES = [...BASE_COLUMN_NAMES, 'location', 'department'];
 
 const StyledDataTable = styled(DataFetchingTable)`
   margin: 24px;
 `;
 
-const PatientTable = React.memo(({ onViewPatient, showInpatientDetails, ...props }) => (
-  <StyledDataTable
-    columns={showInpatientDetails ? INPATIENT_COLUMNS : LISTING_COLUMNS}
-    noDataMessage="No patients found"
-    onRowClick={row => onViewPatient(row.id)}
-    {...props}
-  />
-));
+const DumbPatientTable = React.memo(({ onViewPatient, showInpatientDetails, getFlag, ...props }) => {
+  const isSortable = showInpatientDetails;
+  const columnNames = showInpatientDetails ? INPATIENT_COLUMN_NAMES : LISTING_COLUMN_NAMES;
+  let columns = Object.values(pick(getColumns(getFlag), columnNames));
+  if (isSortable) {
+    columns = colums.map(column => ({
+      ...column,
+      sortable: false,
+    }));
+  }
+  return (
+    <StyledDataTable
+      columns={columns}
+      noDataMessage="No patients found"
+      onRowClick={row => onViewPatient(row.id)}
+      {...props}
+    />
+  );
+});
+
+const PatientTable = connectFlags(DumbPatientTable);
 
 const NewPatientButton = React.memo(({ onCreateNewPatient }) => {
   const [isCreatingPatient, setCreatingPatient] = useState(false);
