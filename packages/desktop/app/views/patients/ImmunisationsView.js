@@ -1,6 +1,8 @@
 import React, { useState } from 'react';
+import { pick } from 'lodash';
 
 import { TopBar, PageContainer, DataFetchingTable } from '../../components';
+import { connectFlags } from '../../flags';
 import {
   displayId,
   firstName,
@@ -13,26 +15,28 @@ import {
 } from './columns';
 import { PatientSearchBar, PatientImmunisationsModal } from './components';
 
-const COLUMNS = [
-  displayId,
-  firstName,
-  lastName,
-  culturalName,
-  village,
-  sex,
-  dateOfBirth,
-  vaccinationStatus,
+const COLUMN_NAMES = [
+  'displayId',
+  'firstName',
+  'lastName',
+  'culturalName',
+  'village',
+  'sex',
+  'dateOfBirth',
+  'vaccinationStatus',
 ];
 
-const PatientImmunisationsTable = React.memo(({ onPatientSelect, ...props }) => (
+const DumbPatientImmunisationsTable = React.memo(({ getFlag, onPatientSelect, ...props }) => (
   <DataFetchingTable
     endpoint="patient"
-    columns={COLUMNS}
+    columns={Object.values(pick(getColumns(getFlag), COLUMN_NAMES))}
     noDataMessage="No patients found"
     onRowClick={onPatientSelect}
     {...props}
   />
 ));
+
+const PatientImmunisationsTable = connectFlags(DumbPatientImmunisationsTable);
 
 export const ImmunisationsView = React.memo(() => {
   const [searchParameters, setSearchParameters] = useState({});

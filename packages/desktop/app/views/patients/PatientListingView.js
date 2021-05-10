@@ -25,7 +25,7 @@ const DumbPatientTable = React.memo(({ onViewPatient, showInpatientDetails, getF
   const columnNames = showInpatientDetails ? INPATIENT_COLUMN_NAMES : LISTING_COLUMN_NAMES;
   let columns = Object.values(pick(getColumns(getFlag), columnNames));
   if (isSortable) {
-    columns = colums.map(column => ({
+    columns = columns.map(column => ({
       ...column,
       sortable: false,
     }));
