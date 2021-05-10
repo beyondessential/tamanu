@@ -24,7 +24,7 @@ export const PatientCard = ({
     lastName,
     dateOfBirth,
     sex,
-    village
+    village,
   } = patient;
 
   // TODO: These fields aren't on the patient model yet.
@@ -46,7 +46,7 @@ export const PatientCard = ({
             size={screenPercentageToDP(4.86, Orientation.Height)}
             displayName={name}
             image={image}
-            gender={sex}
+            sex={sex}
           />
           <StyledText
             color={theme.colors.TEXT_DARK}

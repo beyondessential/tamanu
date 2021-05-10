@@ -137,6 +137,9 @@ export class SyncManager {
         ...syncablePatients.map(p => ({
           channel: `patient/${p.id}/issue`,
           model: models.PatientIssue })),
+        ...syncablePatients.map(p => ({
+          channel: `patient/${p.id}/additionalData`,
+          model: models.PatientAdditionalData })),
       ];
 
       // add current cursor to each channel info

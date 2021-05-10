@@ -122,7 +122,7 @@ const BaseHomeScreen = ({ navigation, user }: BaseAppProps): ReactElement => {
               <UserAvatar
                 size={screenPercentageToDP(5.46, Orientation.Height)}
                 displayName={user && user.displayName}
-                gender={user && user.gender}
+                sex={user && user.gender}
               />
             </RowView>
             <StyledText
