@@ -54,7 +54,7 @@ export const simpleGet = modelName =>
     res.send(object);
   });
 
-export const simpleGetBelonging = (modelName, foreignKey) =>
+export const simpleGetHasOne = (modelName, foreignKey) =>
   asyncHandler(async (req, res) => {
     const object = await findBelongingObject(req, modelName, foreignKey);
     res.send(object);

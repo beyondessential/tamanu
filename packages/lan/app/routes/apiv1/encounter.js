@@ -6,7 +6,7 @@ import { NOTE_RECORD_TYPES } from 'shared/models/Note';
 
 import {
   simpleGet,
-  simpleGetBelonging,
+  simpleGetHasOne,
   simplePost,
   simpleGetList,
   permissionCheckingRouter,
@@ -68,7 +68,7 @@ encounter.post(
 );
 
 const encounterRelations = permissionCheckingRouter('read', 'Encounter');
-encounterRelations.get('/:id/discharge', simpleGetBelonging('Discharge', 'encounterId'));
+encounterRelations.get('/:id/discharge', simpleGetHasOne('Discharge', 'encounterId'));
 encounterRelations.get('/:id/vitals', simpleGetList('Vitals', 'encounterId'));
 encounterRelations.get('/:id/diagnoses', simpleGetList('EncounterDiagnosis', 'encounterId'));
 encounterRelations.get('/:id/medications', simpleGetList('EncounterMedication', 'encounterId'));
