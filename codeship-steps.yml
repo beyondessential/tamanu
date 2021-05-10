@@ -18,22 +18,22 @@
   steps:
     - name: build_and_pack_lan_installer
       service: app
-      tag: ^(master|dev|ci-)
+      tag: ^(master|dev|staging|ci-)
       command: ./scripts/build_lan.sh
     - name: build_and_pack_desktop_installer
       service: app
-      tag: ^(master|dev|ci-)
+      tag: ^(master|dev|staging|ci-)
       command: ./scripts/build_desktop.sh build-only
     - name: build_and_release_desktop_installer
       service: app
       tag: ^(release-desktop-)
       command: ./scripts/build_desktop.sh build-and-release
     - name: build_sync_release
-      tag: ^(master|dev|ci-)
+      tag: ^(master|dev|staging|ci-)
       service: app
       command: ./scripts/build_package_release.sh sync-server
     - name: build_meta_release
-      tag: ^(master|dev|ci-)
+      tag: ^(master|dev|staging|ci-)
       service: app
       command: ./scripts/build_package_release.sh meta-server
 - name: push_and_deploy
@@ -41,7 +41,7 @@
   steps:
     - name: push_artefacts_to_s3
       service: awsdeployment
-      tag: ^(master|dev|ci-)
+      tag: ^(master|dev|staging|ci-)
       command: ./scripts/push.sh
     - name: deploy_sync_dev_environment
       tag: ^(dev|ci-)
