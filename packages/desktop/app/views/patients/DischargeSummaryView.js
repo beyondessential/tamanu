@@ -1,12 +1,14 @@
 /* eslint-disable react/jsx-one-expression-per-line */
 import React, { useState, useEffect } from 'react';
 import { connect } from 'react-redux';
+import { compose } from 'redux';
 import styled from 'styled-components';
 import PrintIcon from '@material-ui/icons/Print';
 
 import { printPage, PrintPortal } from '../../print';
 
 import { connectApi } from '../../api';
+import { connectFlags } from '../../flags';
 import { BackButton, Button } from '../../components/Button';
 import { DateDisplay } from '../../components/DateDisplay';
 import { TopBar } from '../../components';
@@ -105,7 +107,7 @@ const MedicationsList = ({ medications }) => {
   ));
 };
 
-const DumbSummaryPage = React.memo(({ patient, encounter, onFetchEncounterDischarge }) => {
+const DumbSummaryPage = React.memo(({ patient, encounter, onFetchEncounterDischarge, getFlag }) => {
   const [discharge, setDischarge] = useState(null);
 
   const {
@@ -137,7 +139,7 @@ const DumbSummaryPage = React.memo(({ patient, encounter, onFetchEncounterDischa
           <span>{`${patient.firstName} ${patient.lastName}`}</span>
         </h4>
         <h4>
-          <Label>NHN: </Label>
+          <Label>{getFlag('patientFieldOverrides.displayId.shortLabel')}: </Label>
           <span>{patient.displayId}</span>
         </h4>
       </Header>
@@ -218,9 +220,12 @@ const DumbSummaryPage = React.memo(({ patient, encounter, onFetchEncounterDischa
   );
 });
 
-const SummaryPage = connectApi(api => ({
-  onFetchEncounterDischarge: id => api.get(`encounter/${id}/discharge`),
-}))(DumbSummaryPage);
+const SummaryPage = compose(
+  connectApi(api => ({
+    onFetchEncounterDischarge: id => api.get(`encounter/${id}/discharge`),
+  })),
+  connectFlags,
+)(DumbSummaryPage);
 
 const NavContainer = styled.div`
   display: flex;

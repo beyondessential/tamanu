@@ -375,53 +375,6 @@ export const pregnancyOutcomes = [
   { value: 'fetalDeath', label: 'Fetal Death' },
 ];
 
-export const outPatientColumns = [
-  {
-    key: 'displayId',
-    title: 'NHN',
-    headerStyle,
-    style: columnStyle,
-    minWidth: 80,
-  },
-  {
-    key: 'firstName',
-    title: 'First Name',
-    headerStyle,
-    style: columnStyle,
-    minWidth: 100,
-  },
-  {
-    key: 'lastName',
-    title: 'Last Name',
-    headerStyle,
-    style: columnStyle,
-    minWidth: 100,
-  },
-  {
-    key: 'sex',
-    title: 'Sex',
-    headerStyle,
-    style: columnStyle,
-    minWidth: 80,
-  },
-  {
-    key: 'dateOfBirth',
-    accessor: row => moment(row.dateOfBirth).format(dateFormat),
-    title: 'DOB',
-    headerStyle,
-    style: columnStyle,
-    minWidth: 100,
-  },
-  {
-    key: 'actions',
-    title: 'Actions',
-    headerStyle,
-    style: columnStyle,
-    minWidth: 250,
-    CellComponent: () => {},
-  },
-];
-
 export const patientContactColumns = [
   {
     key: 'name',
@@ -776,47 +729,6 @@ export const proceduresMedicationColumns = [
     style: columnStyle,
     minWidth: 250,
     CellComponent: null,
-  },
-];
-
-export const programsPatientsColumns = [
-  {
-    key: 'displayId',
-    title: 'NHN',
-    headerStyle,
-    style: columnStyle,
-    minWidth: 80,
-  },
-  {
-    key: 'firstName',
-    title: 'First Name',
-    headerStyle,
-    style: columnStyle,
-    minWidth: 100,
-  },
-  {
-    key: 'lastName',
-    title: 'Last Name',
-    headerStyle,
-    style: columnStyle,
-    minWidth: 100,
-  },
-  {
-    key: 'sex',
-    title: 'Sex',
-    headerStyle,
-    style: columnStyle,
-    minWidth: 80,
-    filterable: false,
-  },
-  {
-    key: 'dateOfBirth',
-    accessor: row => moment(row.dateOfBirth).format(dateFormat),
-    title: 'DOB',
-    headerStyle,
-    style: columnStyle,
-    minWidth: 100,
-    filterable: false,
   },
 ];
 

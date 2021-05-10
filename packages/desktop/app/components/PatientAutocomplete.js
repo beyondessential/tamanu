@@ -2,20 +2,21 @@ import React from 'react';
 import Collapse from '@material-ui/core/Collapse';
 
 import { Table } from './Table';
+import { connectFlags } '../flags';
 
 import { TextInput, DateDisplay } from '.';
 
 const DateOfBirthCell = React.memo(({ value }) => <DateDisplay date={value} showDuration />);
 
-const COLUMNS = [
+const getColumns = getFlag => [
   { key: 'firstName', title: 'First Name' },
   { key: 'lastName', title: 'Last Name' },
   { key: 'sex', title: 'Sex' },
   { key: 'dateOfBirth', title: 'Date of Birth', CellComponent: DateOfBirthCell },
-  { key: 'displayId', title: 'NHN' },
+  { key: 'displayId', title: getFlag('patientFieldOverrides.displayId.shortLabel') },
 ];
 
-export class PatientAutocomplete extends React.PureComponent {
+class DumbPatientAutocomplete extends React.PureComponent {
   state = {
     searchTerm: '',
     suggestions: [],
@@ -49,7 +50,7 @@ export class PatientAutocomplete extends React.PureComponent {
         <TextInput label="Patient name" value={searchTerm} onChange={this.updateSearchTerm} />
         <Collapse in={expanded}>
           <Table
-            columns={COLUMNS}
+            columns={getColumns(getFlag)}
             data={suggestions}
             onRowClick={onPatientSelect}
             noDataMessage="No patients found matching your search"
@@ -59,3 +60,5 @@ export class PatientAutocomplete extends React.PureComponent {
     );
   }
 }
+
+export const PatientAutocomplete = connectFlags(DumbPatientAutocomplete);
