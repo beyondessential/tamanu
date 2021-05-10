@@ -182,7 +182,7 @@ the API url and login credentials as well (see config/default.json for how this 
      - select an environment type of "load balancing" in the capacity section, and select a max of 1 instance if you're setting up a dev environment
      - add an https listener in the "load balancer" section, using the ACM certificate you set up earlier
        - use the certificate you created earlier
-       - use default security policy (ELBSecurityPoliy-2016-08)
+       - use default security policy (ELBSecurityPolicy-2016-08)
      - set up managed updates (this will make sure instances are kept up to date with software patches)
      - create a new database
         - we're using postgres 13.2
@@ -195,9 +195,9 @@ the API url and login credentials as well (see config/default.json for how this 
   4. create the environment (this can take a while)
   5. visit your created url to make sure everything's working ok (at this point it will still be running the AWS sample app)
   6. set up the environment variables via Configuration -> Software -> Environment properties
-    - the environment here is a NODE_CONFIG variable set to a json string
+    - the only environment variable to set is `NODE_CONFIG`, set to a json string
     - it's easiest to copy the config from an existing environment
-    - make sure to update the database connection details in that json string though
+    - make sure to update the database connection details in that json string!
       - host from RDS "Connectivity & security" / "Endpoint & port"
       - password from earlier
       - username should just be postgres
