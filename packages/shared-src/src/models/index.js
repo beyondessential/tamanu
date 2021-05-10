@@ -9,6 +9,7 @@ export * from './PatientIssue';
 export * from './PatientAdditionalData';
 
 export * from './Encounter';
+export * from './Discharge';
 export * from './Triage';
 
 export * from './ReferenceData';

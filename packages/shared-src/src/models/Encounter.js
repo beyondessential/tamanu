@@ -69,6 +69,11 @@ export class Encounter extends Model {
   }
 
   static initRelations(models) {
+    this.hasOne(models.Discharge, {
+      foreignKey: 'dischargerId',
+      as: 'discharge',
+    });
+
     this.belongsTo(models.Patient, {
       foreignKey: 'patientId',
       as: 'patient',
@@ -260,6 +265,7 @@ export class Encounter extends Model {
     'initiatedReferrals',
     'completedReferrals',
     'vitals',
+    'discharge',
     'triages',
   ];
 
