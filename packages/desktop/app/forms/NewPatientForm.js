@@ -131,7 +131,7 @@ export const NewPatientForm = memo(
             : optionalForeignKey('Mother must be a valid patient'),
           homeClinic: isBirth && yup.string().required(),
 
-          father: yup.string() && optionalForeignKey('Father must be a valid patient'),
+          father: optionalForeignKey('Father must be a valid patient'),
           religion: yup.string(),
           occupation: yup.string(),
           externalId: yup.string(),
