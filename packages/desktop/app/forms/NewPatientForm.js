@@ -75,13 +75,7 @@ export const NewPatientForm = memo(
             <Field name="displayId" component={IdField} regenerateId={generateId} />
           </IdBanner>
         </IdBannerContainer>
-        <PrimaryDetailsGroup
-          villageSuggester={villageSuggester}
-          ethnicitySuggester={ethnicitySuggester}
-          nationalitySuggester={nationalitySuggester}
-          divisionSuggester={divisionSuggester}
-          subdivisionSuggester={subdivisionSuggester}
-        />
+        <PrimaryDetailsGroup villageSuggester={villageSuggester} />
         <AdditionalInformationRow>
           <div>
             Add additional information <span>(religion, occupation, blood type...)</span>
@@ -102,6 +96,10 @@ export const NewPatientForm = memo(
               nursingZoneSuggester={nursingZoneSuggester}
               settlementSuggester={settlementSuggester}
               occupationSuggester={occupationSuggester}
+              ethnicitySuggester={ethnicitySuggester}
+              nationalitySuggester={nationalitySuggester}
+              divisionSuggester={divisionSuggester}
+              subdivisionSuggester={subdivisionSuggester}
             />
           </FormGrid>
         </Collapse>
@@ -133,10 +131,9 @@ export const NewPatientForm = memo(
             : optionalForeignKey('Mother must be a valid patient'),
           homeClinic: isBirth && yup.string().required(),
 
-          father: optionalForeignKey('Father must be a valid patient'),
+          father: yup.string() && optionalForeignKey('Father must be a valid patient'),
           religion: yup.string(),
           occupation: yup.string(),
-          father: yup.string(),
           externalId: yup.string(),
           patientType: yup.string(),
         })}

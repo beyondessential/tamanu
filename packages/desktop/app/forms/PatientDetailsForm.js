@@ -23,19 +23,7 @@ import {
   educationalAttainmentOptions,
 } from '../constants';
 
-export const PrimaryDetailsGroup = ({
-  villageSuggester,
-  ethnicitySuggester,
-  nationalitySuggester,
-  divisionSuggester,
-  subdivisionSuggester,
-  patientSuggester,
-  facilitySuggester,
-  medicalAreaSuggester,
-  nursingZoneSuggester,
-  settlementSuggester,
-  occupationSuggester,
-}) => (
+export const PrimaryDetailsGroup = ({ villageSuggester }) => (
   <React.Fragment>
     <Field name="firstName" label="First name" component={TextField} required />
     <Field name="middleName" label="Middle name" component={TextField} />
@@ -49,6 +37,20 @@ export const PrimaryDetailsGroup = ({
       suggester={villageSuggester}
     />
     <Field name="sex" label="Sex" component={RadioField} options={sexOptions} inline required />
+  </React.Fragment>
+);
+
+export const SecondaryDetailsGroup = ({
+  medicalAreaSuggester,
+  nursingZoneSuggester,
+  settlementSuggester,
+  occupationSuggester,
+  ethnicitySuggester,
+  nationalitySuggester,
+  divisionSuggester,
+  subdivisionSuggester,
+}) => (
+  <React.Fragment>
     <Field name="bloodType" label="Blood type" component={SelectField} options={bloodOptions} />
     <Field name="title" label="Title" component={SelectField} options={titleOptions} />
     <Field name="placeOfBirth" label="Place of birth" component={TextField} />
@@ -165,6 +167,8 @@ export const PatientDetailsForm = ({
           nationalitySuggester={nationalitySuggester}
           divisionSuggester={divisionSuggester}
           subdivisionSuggester={subdivisionSuggester}
+        />
+        <SecondaryDetailsGroup
           patientSuggester={patientSuggester}
           facilitySuggester={facilitySuggester}
           medicalAreaSuggester={medicalAreaSuggester}
