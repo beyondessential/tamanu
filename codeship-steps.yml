@@ -1,57 +1,61 @@
-- name: copy_files
-  service: app
-  command: /.tmp/scripts/copy_files.sh
-- name: reinstate_ssh
-  service: app
-  command: ./scripts/fix_ssh.sh
-- name: install_dependencies
-  service: app
-  command: ./scripts/install.sh
-- name: build_shared
-  service: app
-  command: ./scripts/build_shared.sh
-- name: test
-  service: app
-  command: ./scripts/test.sh
-- name: build
-  type: parallel
+- name: All steps
+  type: serial
+  encrypted_dockercfg_path: dockercfg.encrypted
   steps:
-    - name: build_and_pack_lan_installer
+    - name: copy_files
       service: app
-      tag: ^(master|dev|staging|ci-)
-      command: ./scripts/build_lan.sh
-    - name: build_and_pack_desktop_installer
+      command: /.tmp/scripts/copy_files.sh
+    - name: reinstate_ssh
       service: app
-      tag: ^(master|dev|staging|ci-)
-      command: ./scripts/build_desktop.sh build-only
-    - name: build_and_release_desktop_installer
+      command: ./scripts/fix_ssh.sh
+    - name: install_dependencies
       service: app
-      tag: ^(release-desktop-)
-      command: ./scripts/build_desktop.sh build-and-release
-    - name: build_sync_release
-      tag: ^(master|dev|staging|ci-)
+      command: ./scripts/install.sh
+    - name: build_shared
       service: app
-      command: ./scripts/build_package_release.sh sync-server
-    - name: build_meta_release
-      tag: ^(master|dev|staging|ci-)
+      command: ./scripts/build_shared.sh
+    - name: test
       service: app
-      command: ./scripts/build_package_release.sh meta-server
-- name: push_and_deploy
-  type: parallel
-  steps:
-    - name: push_artefacts_to_s3
-      service: awsdeployment
-      tag: ^(master|dev|staging|ci-)
-      command: ./scripts/push.sh
-    - name: deploy_sync_dev_environment
-      tag: ^(dev|ci-)
-      service: awsdeployment
-      command: ./scripts/deploy_sync_dev.sh
-    - name: deploy_sync_demo_environment
-      tag: ^(master)
-      service: awsdeployment
-      command: ./scripts/deploy_sync_demo.sh
-    - name: deploy_meta_dev_environment
-      tag: ^(dev|ci-)
-      service: awsdeployment
-      command: ./scripts/deploy_meta_dev.sh
+      command: ./scripts/test.sh
+    - name: build
+      type: parallel
+      steps:
+        - name: build_and_pack_lan_installer
+          service: app
+          tag: ^(master|dev|staging|ci-)
+          command: ./scripts/build_lan.sh
+        - name: build_and_pack_desktop_installer
+          service: app
+          tag: ^(master|dev|staging|ci-)
+          command: ./scripts/build_desktop.sh build-only
+        - name: build_and_release_desktop_installer
+          service: app
+          tag: ^(release-desktop-)
+          command: ./scripts/build_desktop.sh build-and-release
+        - name: build_sync_release
+          tag: ^(master|dev|staging|ci-)
+          service: app
+          command: ./scripts/build_package_release.sh sync-server
+        - name: build_meta_release
+          tag: ^(master|dev|staging|ci-)
+          service: app
+          command: ./scripts/build_package_release.sh meta-server
+    - name: push_and_deploy
+      type: parallel
+      steps:
+        - name: push_artefacts_to_s3
+          service: awsdeployment
+          tag: ^(master|dev|staging|ci-)
+          command: ./scripts/push.sh
+        - name: deploy_sync_dev_environment
+          tag: ^(dev|ci-)
+          service: awsdeployment
+          command: ./scripts/deploy_sync_dev.sh
+        - name: deploy_sync_demo_environment
+          tag: ^(master)
+          service: awsdeployment
+          command: ./scripts/deploy_sync_demo.sh
+        - name: deploy_meta_dev_environment
+          tag: ^(dev|ci-)
+          service: awsdeployment
+          command: ./scripts/deploy_meta_dev.sh
