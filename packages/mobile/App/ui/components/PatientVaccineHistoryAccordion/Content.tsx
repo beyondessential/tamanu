@@ -22,7 +22,7 @@ const styles = StyleSheet.create({
 });
 
 const VaccinationDetailsList = ({ status, date, reason, scheduledVaccine }): JSX.Element => (
-  <RowView>
+  <RowView width="100%">
     <View style={styles.section}>
       <Text style={styles.item}>
         {`Schedule: ${scheduledVaccine.schedule}`}
@@ -37,7 +37,6 @@ const VaccinationDetailsList = ({ status, date, reason, scheduledVaccine }): JSX
         {`Reason: ${reason || 'n/A'}`}
       </Text>
     </View>
-    <Separator />
   </RowView>
 );
 
@@ -46,18 +45,16 @@ export const Content = (
   index: number,
   isActive: boolean,
 ): JSX.Element => (
-  <StyledView height={200}>
-    <RowView
+  <StyledView>
+    <ColumnView
       width="100%"
       background={
         theme.colors.BACKGROUND_GREY
       }
-      height={60}
-      alignItems="center"
       paddingLeft={20}
       paddingRight={20}
     >
       {section.data.map(d => <VaccinationDetailsList {...d} />)}
-    </RowView>
+    </ColumnView>
   </StyledView>
 );
