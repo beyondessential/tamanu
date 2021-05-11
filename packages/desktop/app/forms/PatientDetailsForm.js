@@ -23,66 +23,20 @@ import {
   educationalAttainmentOptions,
 } from '../constants';
 
-export const PrimaryDetailsGroup = ({
-  villageSuggester,
-  ethnicitySuggester,
-  nationalitySuggester,
-  divisionSuggester,
-  subdivisionSuggester,
-}) => (
+export const PrimaryDetailsGroup = ({ villageSuggester }) => (
   <React.Fragment>
     <Field name="firstName" label="First name" component={TextField} required />
     <Field name="middleName" label="Middle name" component={TextField} />
-    <Field name="title" label="Title" component={SelectField} options={titleOptions} />
     <Field name="lastName" label="Last name" component={TextField} required />
     <Field name="culturalName" label="Cultural/Traditional name" component={TextField} />
+    <Field name="dateOfBirth" label="Date of birth" component={DateField} required />
     <Field
       name="villageId"
       label="Village"
       component={AutocompleteField}
       suggester={villageSuggester}
     />
-    <Field name="dateOfBirth" label="Date of birth" component={DateField} required />
-    <Field name="placeOfBirth" label="Place of birth" component={TextField} />
     <Field name="sex" label="Sex" component={RadioField} options={sexOptions} inline required />
-    <Field
-      name="nationalityId"
-      label="Nationality"
-      component={AutocompleteField}
-      suggester={nationalitySuggester}
-    />
-    <Field
-      name="countryId"
-      label="Country"
-      component={AutocompleteField}
-      suggester={nationalitySuggester}
-    />
-    <Field name="cityTown" label="City/Town" component={TextField} />
-    <Field name="streetVillage" label="Residential Landmark" component={TextField} />
-    <Field
-      name="divisionId"
-      label="Division"
-      component={AutocompleteField}
-      suggester={divisionSuggester}
-    />
-    <Field
-      name="subdivisionId"
-      label="Sub Division"
-      component={AutocompleteField}
-      suggester={subdivisionSuggester}
-    />
-    <Field
-      name="maritalStatus"
-      label="MaritalStatus"
-      component={SelectField}
-      options={maritalStatusOptions}
-    />
-    <Field
-      name="ethnicityId"
-      label="Ethnicity"
-      component={AutocompleteField}
-      suggester={ethnicitySuggester}
-    />
   </React.Fragment>
 );
 
@@ -91,34 +45,21 @@ export const SecondaryDetailsGroup = ({
   nursingZoneSuggester,
   settlementSuggester,
   occupationSuggester,
+  ethnicitySuggester,
+  nationalitySuggester,
+  divisionSuggester,
+  subdivisionSuggester,
 }) => (
   <React.Fragment>
-    <Field
-      name="occupationId"
-      label="Occupation"
-      component={AutocompleteField}
-      suggester={occupationSuggester}
-    />
     <Field name="bloodType" label="Blood type" component={SelectField} options={bloodOptions} />
+    <Field name="title" label="Title" component={SelectField} options={titleOptions} />
+    <Field name="placeOfBirth" label="Place of birth" component={TextField} />
     <Field
-      name="medicalAreaId"
-      label="Medical Area"
-      component={AutocompleteField}
-      suggester={medicalAreaSuggester}
+      name="maritalStatus"
+      label="Marital Status"
+      component={SelectField}
+      options={maritalStatusOptions}
     />
-    <Field
-      name="nursingZoneId"
-      label="Nursing Zone"
-      component={AutocompleteField}
-      suggester={nursingZoneSuggester}
-    />
-    <Field
-      name="settlementId"
-      label="Settlement"
-      component={AutocompleteField}
-      suggester={settlementSuggester}
-    />
-
     <Field
       name="primaryContactNumber"
       label="Primary Contact Number"
@@ -136,6 +77,62 @@ export const SecondaryDetailsGroup = ({
       label="Social media platform"
       component={SelectField}
       options={socialMediaOptions}
+    />
+    <Field
+      name="settlementId"
+      label="Settlement"
+      component={AutocompleteField}
+      suggester={settlementSuggester}
+    />
+    <Field name="streetVillage" label="Residential Landmark" component={TextField} />
+    <Field name="cityTown" label="City/Town" component={TextField} />
+    <Field
+      name="subdivisionId"
+      label="Sub Division"
+      component={AutocompleteField}
+      suggester={subdivisionSuggester}
+    />
+    <Field
+      name="divisionId"
+      label="Division"
+      component={AutocompleteField}
+      suggester={divisionSuggester}
+    />
+    <Field
+      name="countryId"
+      label="Country"
+      component={AutocompleteField}
+      suggester={nationalitySuggester}
+    />
+    <Field
+      name="medicalAreaId"
+      label="Medical Area"
+      component={AutocompleteField}
+      suggester={medicalAreaSuggester}
+    />
+    <Field
+      name="nursingZoneId"
+      label="Nursing Zone"
+      component={AutocompleteField}
+      suggester={nursingZoneSuggester}
+    />
+    <Field
+      name="nationalityId"
+      label="Nationality"
+      component={AutocompleteField}
+      suggester={nationalitySuggester}
+    />
+    <Field
+      name="ethnicityId"
+      label="Ethnicity"
+      component={AutocompleteField}
+      suggester={ethnicitySuggester}
+    />
+    <Field
+      name="occupationId"
+      label="Occupation"
+      component={AutocompleteField}
+      suggester={occupationSuggester}
     />
     <Field
       name="educationalLevel"
