@@ -1,11 +1,11 @@
 import { sign, verify } from 'jsonwebtoken';
 import { compare } from 'bcrypt';
 import { auth } from 'config';
-
 import { v4 as uuid } from 'uuid';
 
-import { WebRemote } from '~/sync';
 import { BadAuthenticationError } from 'shared/errors';
+
+import { WebRemote } from '~/sync';
 
 const { tokenDuration } = auth;
 
@@ -38,7 +38,7 @@ async function comparePassword(user, password) {
   }
 }
 
-async function remoteLogin(models, email, password) {
+export async function remoteLogin(models, email, password) {
   // try logging in to sync server
   const remote = new WebRemote();
   const response = await remote.fetch('login', {
@@ -48,23 +48,30 @@ async function remoteLogin(models, email, password) {
     body: {
       email,
       password,
-    }
+    },
   });
 
   // we've logged in as a valid remote user - update local database to match
-  const { user } = response;
+  const { user, featureFlags } = response;
   const { id, ...userDetails } = user;
-  await models.User.upsert(
-    {
-      id,
-      ...userDetails,
-      password,
-    },
-    { where: { id } }
-  );
+
+  await models.User.sequelize.transaction(async () => {
+    await models.User.upsert(
+      {
+        id,
+        ...userDetails,
+        password,
+      },
+      { where: { id } },
+    );
+    await models.UserFeatureFlagsCache.upsert({
+      userId: id,
+      featureFlags: JSON.stringify(featureFlags),
+    });
+  });
 
   const token = getToken(user);
-  return { token, remote: true };
+  return { token, remote: true, featureFlags };
 }
 
 async function localLogin(models, email, password) {
@@ -76,25 +83,30 @@ async function localLogin(models, email, password) {
     throw new BadAuthenticationError('Incorrect username or password, please try again');
   }
 
+  const featureFlagsCache = await models.UserFeatureFlagsCache.findOne({
+    where: { userId: user.id },
+  });
+  const featureFlags = JSON.parse(featureFlagsCache.featureFlags);
+
   const token = getToken(user);
-  return { token, remote: false };
+  return { token, remote: false, featureFlags };
 }
 
 async function remoteLoginWithLocalFallback(models, email, password) {
   // always log in locally when testing
-  if(process.env.NODE_ENV === 'test') {
-    return await localLogin(models, email, password);
+  if (process.env.NODE_ENV === 'test') {
+    return localLogin(models, email, password);
   }
 
   try {
     return await remoteLogin(models, email, password);
-  } catch(e) {
-    if(e.name === 'BadAuthenticationError') {
+  } catch (e) {
+    if (e.name === 'BadAuthenticationError') {
       // actual bad credentials server-side
       throw new BadAuthenticationError('Incorrect username or password, please try again');
     }
 
-    return await localLogin(models, email, password);
+    return localLogin(models, email, password);
   }
 }
 
@@ -108,7 +120,7 @@ export async function loginHandler(req, res, next) {
   try {
     const response = await remoteLoginWithLocalFallback(models, email, password);
     res.send(response);
-  } catch(e) {
+  } catch (e) {
     next(e);
   }
 }

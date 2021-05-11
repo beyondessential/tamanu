@@ -112,14 +112,14 @@ export const DischargeForm = ({ practitionerSuggester, onCancel, onSubmit }) => 
             helperText="Requires mSupply"
           />
           <Field
-            name="dischargePhysician.id"
+            name="discharge.dischargerId"
             label="Discharging physician"
             component={AutocompleteField}
             suggester={practitionerSuggester}
             required
           />
           <Field
-            name="dischargeNotes"
+            name="discharge.note"
             label="Discharge treatment plan and follow-up notes"
             component={TextField}
             multiline
@@ -141,8 +141,12 @@ export const DischargeForm = ({ practitionerSuggester, onCancel, onSubmit }) => 
         }}
         validationSchema={yup.object().shape({
           endDate: yup.date().required(),
-          dischargePhysician: foreignKey('Discharging physician is a required field'),
-          dischargeNotes: yup.string(),
+          discharge: yup
+            .object()
+            .shape({
+              dischargerId: foreignKey('Discharging physician is a required field'),
+            })
+            .required(),
         })}
       />
     </div>
