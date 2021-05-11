@@ -2,7 +2,7 @@ import React, { memo } from 'react';
 import styled from 'styled-components';
 import { grey } from '@material-ui/core/colors';
 
-import { connectFlags } from '../flags';
+import { useFlags } from '../contexts/FeatureFlags';
 import { DateDisplay } from './DateDisplay';
 import { PatientInitialsIcon } from './PatientInitialsIcon';
 import { Colors } from '../constants';
@@ -101,14 +101,15 @@ const DeceasedIndicator = memo(({ death }) => (
   </DeceasedText>
 ));
 
-const DumbHealthIdDisplay = memo(({ patient, getFlag }) => (
-  <HealthIdContainer>
-    <HealthIdLabelText>{getFlag('patientFieldOverrides.displayId.longLabel')}</HealthIdLabelText>
-    <InvertedDisplayIdLabel>{patient.displayId}</InvertedDisplayIdLabel>
-  </HealthIdContainer>
+const HealthIdDisplay = memo(({ patient }) => {
+  const { getFlag } = useFlags();
+  return {
+    <HealthIdContainer>
+      <HealthIdLabelText>{getFlag('patientFieldOverrides.displayId.longLabel')}</HealthIdLabelText>
+      <InvertedDisplayIdLabel>{patient.displayId}</InvertedDisplayIdLabel>
+    </HealthIdContainer>
+  };
 ));
-
-const HealthIdDisplay = connectFlags(DumbHealthIdDisplay);
 
 export const CoreInfoDisplay = memo(({ patient }) => (
   <React.Fragment>

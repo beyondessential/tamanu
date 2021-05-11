@@ -2,7 +2,7 @@ import React from 'react';
 import Collapse from '@material-ui/core/Collapse';
 
 import { Table } from './Table';
-import { connectFlags } '../flags';
+import { useFlags } '../contexts/FeatureFlags';
 
 import { TextInput, DateDisplay } from '.';
 
@@ -16,7 +16,7 @@ const getColumns = getFlag => [
   { key: 'displayId', title: getFlag('patientFieldOverrides.displayId.shortLabel') },
 ];
 
-class DumbPatientAutocomplete extends React.PureComponent {
+export class PatientAutocomplete extends React.PureComponent {
   state = {
     searchTerm: '',
     suggestions: [],
@@ -44,6 +44,7 @@ class DumbPatientAutocomplete extends React.PureComponent {
   render() {
     const { onPatientSelect } = this.props;
     const { searchTerm, suggestions, expanded } = this.state;
+    const { getFlag } = useFlags();
 
     return (
       <div>
@@ -60,5 +61,3 @@ class DumbPatientAutocomplete extends React.PureComponent {
     );
   }
 }
-
-export const PatientAutocomplete = connectFlags(DumbPatientAutocomplete);

@@ -3,10 +3,9 @@ import styled from 'styled-components';
 import moment from 'moment';
 import Paper from '@material-ui/core/Paper';
 import { connect } from 'react-redux';
-import { compose } from 'redux';
 
 import { viewPatientEncounter } from '../store/patient';
-import { connectFlags } from '../flags';
+import { useFlags } from '../contexts/FeatureFlags';
 import { TopBar, PageContainer, DataFetchingTable } from '../components';
 import { TriageStatisticsCard } from '../components/TriageStatisticsCard';
 import { DateDisplay } from '../components/DateDisplay';
@@ -146,6 +145,7 @@ const DumbTriageTable = React.memo(({ onViewEncounter, getFlag, ...props }) => {
     await loadEncounter(triage.encounterId);
     onViewEncounter(triage);
   }, []);
+  const { getFlag } = useFlags();
 
   return (
     <DataFetchingTable
@@ -158,12 +158,9 @@ const DumbTriageTable = React.memo(({ onViewEncounter, getFlag, ...props }) => {
   );
 });
 
-const TriageTable = compose(
-  connectFlags,
-  connect(null, dispatch => ({
-    onViewEncounter: triage => dispatch(viewPatientEncounter(triage.patientId, triage.encounterId)),
-  })),
-)(DumbTriageTable);
+const TriageTable = connect(null, dispatch => ({
+  onViewEncounter: triage => dispatch(viewPatientEncounter(triage.patientId, triage.encounterId)),
+}))(DumbTriageTable);
 
 export const TriageListingView = React.memo(() => (
   <PageContainer>

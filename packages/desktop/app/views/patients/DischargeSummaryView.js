@@ -1,14 +1,13 @@
 /* eslint-disable react/jsx-one-expression-per-line */
 import React, { useState, useEffect } from 'react';
 import { connect } from 'react-redux';
-import { compose } from 'redux';
 import styled from 'styled-components';
 import PrintIcon from '@material-ui/icons/Print';
 
 import { printPage, PrintPortal } from '../../print';
 
 import { connectApi } from '../../api';
-import { connectFlags } from '../../flags';
+import { useFlags } from '../../contexts/FeatureFlags';
 import { BackButton, Button } from '../../components/Button';
 import { DateDisplay } from '../../components/DateDisplay';
 import { TopBar } from '../../components';
@@ -107,7 +106,7 @@ const MedicationsList = ({ medications }) => {
   ));
 };
 
-const DumbSummaryPage = React.memo(({ patient, encounter, onFetchEncounterDischarge, getFlag }) => {
+const DumbSummaryPage = React.memo(({ patient, encounter, onFetchEncounterDischarge }) => {
   const [discharge, setDischarge] = useState(null);
 
   const {
@@ -129,6 +128,8 @@ const DumbSummaryPage = React.memo(({ patient, encounter, onFetchEncounterDischa
       setDischarge(data);
     })();
   }, []);
+
+  const { getFlag } = useFlags();
 
   return (
     <SummaryPageContainer>
@@ -220,12 +221,9 @@ const DumbSummaryPage = React.memo(({ patient, encounter, onFetchEncounterDischa
   );
 });
 
-const SummaryPage = compose(
-  connectApi(api => ({
-    onFetchEncounterDischarge: id => api.get(`encounter/${id}/discharge`),
-  })),
-  connectFlags,
-)(DumbSummaryPage);
+const SummaryPage = connectApi(api => ({
+  onFetchEncounterDischarge: id => api.get(`encounter/${id}/discharge`),
+}))(DumbSummaryPage);
 
 const NavContainer = styled.div`
   display: flex;

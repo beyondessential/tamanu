@@ -2,12 +2,11 @@ import React, { memo, useCallback } from 'react';
 import styled from 'styled-components';
 import FingerprintIcon from '@material-ui/icons/Fingerprint';
 import SearchIcon from '@material-ui/icons/Search';
-import { compose } from 'redux';
 
 import { Button, Form, Field, TextField, AutocompleteField } from '../../../components';
 import { Colors } from '../../../constants';
 import { connectApi } from '../../../api';
-import { connectFlags } from '../../../flags';
+import { useFlags } from '../../../contexts/FeatureFlags';
 import { Suggester } from '../../../utils/suggester';
 
 const Container = styled.div`
@@ -92,7 +91,7 @@ const RightSection = styled(Section)`
   border-left: 1px solid ${Colors.outline};
 `;
 
-const DumbPatientSearchBar = memo(({ onSearch, villageSuggester, getFlag }) => {
+const DumbPatientSearchBar = memo(({ onSearch, villageSuggester }) => {
   // We can't use onSearch directly as formik will call it with an unwanted second param
   const handleSearch = useCallback(
     ({ village = {}, ...other }) => {
@@ -105,6 +104,7 @@ const DumbPatientSearchBar = memo(({ onSearch, villageSuggester, getFlag }) => {
     },
     [onSearch],
   );
+  const { getFlag } = useFlags();
 
   const renderSearchBar = React.useCallback(
     ({ submitForm }) => (
@@ -150,9 +150,6 @@ const DumbPatientSearchBar = memo(({ onSearch, villageSuggester, getFlag }) => {
   );
 });
 
-export const PatientSearchBar = compose(
-  connectApi(api => ({
-    villageSuggester: new Suggester(api, 'village'),
-  })),
-  connectFlags,
-)(DumbPatientSearchBar);
+export const PatientSearchBar = connectApi(api => ({
+  villageSuggester: new Suggester(api, 'village'),
+}))(DumbPatientSearchBar);

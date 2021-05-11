@@ -7,7 +7,7 @@ import { TopBar, PageContainer, DataFetchingTable } from '../../components';
 import { DropdownButton } from '../../components/DropdownButton';
 import { PatientSearchBar, NewPatientModal } from './components';
 import { getColumns } from './columns';
-import { connectFlags } from '../../flags';
+import { useFlags } from '../../contexts/FeatureFlags';
 
 const PATIENT_SEARCH_ENDPOINT = 'patient';
 
@@ -20,9 +20,10 @@ const StyledDataTable = styled(DataFetchingTable)`
   margin: 24px;
 `;
 
-const DumbPatientTable = React.memo(({ onViewPatient, showInpatientDetails, getFlag, ...props }) => {
+const PatientTable = React.memo(({ onViewPatient, showInpatientDetails, getFlag, ...props }) => {
   const isSortable = showInpatientDetails;
   const columnNames = showInpatientDetails ? INPATIENT_COLUMN_NAMES : LISTING_COLUMN_NAMES;
+  const { getFlag } = useFlags();
   let columns = getColumns(getFlag, columnNames);
   if (isSortable) {
     columns = columns.map(column => ({
@@ -39,8 +40,6 @@ const DumbPatientTable = React.memo(({ onViewPatient, showInpatientDetails, getF
     />
   );
 });
-
-const PatientTable = connectFlags(DumbPatientTable);
 
 const NewPatientButton = React.memo(({ onCreateNewPatient }) => {
   const [isCreatingPatient, setCreatingPatient] = useState(false);
