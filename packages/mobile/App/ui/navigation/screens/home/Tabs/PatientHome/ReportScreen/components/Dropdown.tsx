@@ -54,7 +54,7 @@ export const Dropdown: FC<IDropdownProps> = (props) => {
       <ReportSelectorContainer ref={placeholderRef}>
         <TouchableWithoutFeedback onPress={handlePress} style={{ flex: 1 }}>
           <PlaceholderContainer>
-            <OptionItemText>{selectedItem.label}</OptionItemText>
+            <OptionItemText>{!props.options.length ? 'No options available' : selectedItem.label}</OptionItemText>
             <Icon name={isOpen ? 'caret-up' : 'caret-down'} />
           </PlaceholderContainer>
         </TouchableWithoutFeedback>
