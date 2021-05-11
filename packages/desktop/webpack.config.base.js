@@ -69,7 +69,6 @@ export default {
     modules: [path.join(__dirname, 'app'), 'node_modules'],
     alias: {
       Shared: path.resolve(__dirname, '../shared/'),
-      '/root': path.resolve(__dirname, '..', '..'),
     },
   },
 
