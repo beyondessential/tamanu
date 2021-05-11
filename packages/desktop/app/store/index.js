@@ -4,4 +4,3 @@ export * from './patient';
 export * from './labRequest';
 export * from './imagingRequest';
 export * from './decisionSupport';
-export * from './featureFlags';

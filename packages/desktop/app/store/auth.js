@@ -1,6 +1,5 @@
 import { createStatePreservingReducer } from '../utils/createStatePreservingReducer';
 import { LOCAL_STORAGE_KEYS } from '../constants';
-import { setFeatureFlags } from './featureFlags';
 
 // actions
 const LOGIN_START = 'LOGIN_START';
@@ -14,8 +13,7 @@ export const login = (host, email, password) => async (dispatch, getState, { api
 
   try {
     const { user, token, featureFlags } = await api.login(host, email, password);
-    dispatch(setFeatureFlags(featureFlags));
-    dispatch({ type: LOGIN_SUCCESS, user, token });
+    dispatch({ type: LOGIN_SUCCESS, user, token, featureFlags });
   } catch (error) {
     dispatch({ type: LOGIN_FAILURE, error: error.message });
   }
@@ -62,6 +60,7 @@ const actionHandlers = {
     user: action.user,
     error: defaultState.error,
     token: action.token,
+    featureFlags: action.featureFlags,
   }),
   [LOGIN_FAILURE]: action => ({
     loading: false,
