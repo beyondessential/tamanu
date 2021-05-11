@@ -80,5 +80,12 @@ export class User extends Model {
     this.SALT_ROUNDS = this.SALT_ROUNDS || DEFAULT_SALT_ROUNDS;
   }
 
+  static initRelations(models) {
+    this.hasMany(models.Discharge, {
+      foreignKey: 'dischargerId',
+      as: 'discharges',
+    });
+  }
+
   static syncDirection = SYNC_DIRECTIONS.PULL_ONLY;
 }

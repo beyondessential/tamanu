@@ -48,6 +48,11 @@ export const practitioner = (user, allow, forbid) => {
   allow('create', 'Procedure');
   allow('write', 'Procedure');
 
+  allow('read', 'Discharge');
+  allow('list', 'Discharge');
+  allow('create', 'Discharge');
+  allow('write', 'Discharge');
+
   allow('read', 'Triage');
   allow('list', 'Triage');
   allow('create', 'Triage');
