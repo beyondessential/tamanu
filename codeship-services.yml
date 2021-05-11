@@ -1,6 +1,7 @@
 app:
   build: .
   encrypted_env_file: codeship.env.encrypted
+  encrypted_dockercfg_path: dockercfg.encrypted
   volumes:
     - ./.tmp:/tamanu
     - ./.ssh:/root/.ssh
@@ -18,12 +19,14 @@ awsdeployment:
   build:
     dockerfile: Dockerfile.deploy
   encrypted_env_file: codeship.env.encrypted
+  encrypted_dockercfg_path: dockercfg.encrypted
   volumes:
     - ./.tmp:/tamanu
     - ./.ssh:/root/.ssh
 
 postgres:
   image: healthcheck/postgres
+  encrypted_dockercfg_path: dockercfg.encrypted
   environment:
     - POSTGRES_DB=postgres
     - POSTGRES_USER=postgres
