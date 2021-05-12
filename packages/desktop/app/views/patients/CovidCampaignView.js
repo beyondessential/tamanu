@@ -1,10 +1,8 @@
 import React, { useEffect, useState } from 'react';
-import { pick } from 'lodash';
-
 import { API } from '../../api';
-import { useFlags } from '../../contexts/FeatureFlags';
+
 import { TopBar, PageContainer, DataFetchingTable } from '../../components';
-import { getColumns } from './columns';
+import { displayId, firstName, lastName, village } from './columns';
 import { ImmunisationSearchBar, PatientImmunisationsModal } from './components';
 
 const CovidVaccinationStatusComponent = ({ row }) => {
@@ -46,21 +44,18 @@ export const covidVaccinationStatus = {
   },
 };
 
-const COLUMN_NAMES = ['displayId', 'firstName', 'lastName', 'village', 'covidVaccinationStatus'];
+const COLUMNS = [displayId, firstName, lastName, village, covidVaccinationStatus];
 
-const PatientCovidCampaignTable = React.memo(({ onPatientSelect, getVaccines, ...props }) => {
-  const { getFlag } = useFlags();
-  return (
-    <DataFetchingTable
-      endpoint="patient"
-      columns={getColumns(getFlag, COLUMN_NAMES)}
-      noDataMessage="No patients found"
-      exportName="Covid Campaign"
-      onRowClick={onPatientSelect}
-      {...props}
-    />
-  );
-});
+const PatientCovidCampaignTable = React.memo(({ onPatientSelect, getVaccines, ...props }) => (
+  <DataFetchingTable
+    endpoint="patient"
+    columns={COLUMNS}
+    noDataMessage="No patients found"
+    exportName="Covid Campaign"
+    onRowClick={onPatientSelect}
+    {...props}
+  />
+));
 
 export const CovidCampaignView = React.memo(({ getPatientVaccinations }) => {
   const [searchParameters, setSearchParameters] = useState({});
