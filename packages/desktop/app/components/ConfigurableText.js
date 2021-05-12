@@ -2,15 +2,14 @@ import { React } from 'react';
 
 import { useFlags } from '../contexts/FeatureFlags';
 
-export ConfigurableText = ({ key }) => {
+export const ConfigurableText = ({ flag }) => {
   const { getFlag } = useFlags();
-
-  if (!key) {
-    return '<no key specified>';
+  if (!flag) {
+    return '<no flag specified>';
   }
-  const value = getFlag(key);
+  const value = getFlag(flag);
   if (typeof value !== 'string') {
-    return `<key not set to text: ${key}>`;
+    return `<flag not set to text: ${flag}>`;
   }
-  return `${getFlag(key)}`;
+  return `${getFlag(flag)}`;
 };
