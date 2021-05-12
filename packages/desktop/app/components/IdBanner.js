@@ -40,7 +40,7 @@ export const IdBanner = ({ children }) => {
   const { getFlag } = useFlags();
   return (
     <IdFieldContainer>
-      <IdFieldTitle>{getFlag(patientFieldOverrides.displayId.longLabel)}</IdFieldTitle>
+      <IdFieldTitle>{getFlag('patientFieldOverrides.displayId.longLabel')}</IdFieldTitle>
 
       {children}
 
