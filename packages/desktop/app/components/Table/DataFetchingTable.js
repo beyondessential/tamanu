@@ -47,6 +47,10 @@ const DumbDataFetchingTable = memo(
             count,
             isLoading: false,
           });
+          if (data.length === 0 && count !== 0 && page !== 0) {
+            // https://github.com/beyondessential/tamanu-backlog/issues/669
+            setPage(Math.min(page, Math.ceil(count / rowsPerPage) - 1)); // (-1 because pages are 0 indexed)
+          }
         } catch (error) {
           console.error(error);
           updateFetchState({ errorMessage: error.message, isLoading: false });
@@ -54,7 +58,7 @@ const DumbDataFetchingTable = memo(
       })();
 
       return () => {
-        updateFetchState = () => {}; // discard the fetch state update if this request is stale
+        updateFetchState = () => { }; // discard the fetch state update if this request is stale
       };
     }, [page, rowsPerPage, sorting, fetchOptions]);
 
