@@ -1,4 +1,4 @@
-import React, { useState, useContext } from 'react';
+import React, { useState, useContext, useEffect } from 'react';
 import { connect } from 'react-redux';
 import { get } from 'lodash';
 
@@ -10,7 +10,7 @@ const FeatureFlagsContext = React.createContext({
 
 export const useFlags = () => useContext(FeatureFlagsContext);
 
-const DumbFeatureFlagsProvider = ({ reduxFeatureFlags }) => {
+const DumbFeatureFlagsProvider = ({ children, reduxFeatureFlags }) => {
   const [featureFlags, setFeatureFlags] = useState({});
 
   useEffect(

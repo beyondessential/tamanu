@@ -139,7 +139,7 @@ const getColumns = getFlag => [
   { key: 'locationName', title: 'Location', accessor: row => row.locationName },
 ];
 
-const DumbTriageTable = React.memo(({ onViewEncounter, getFlag, ...props }) => {
+const DumbTriageTable = React.memo(({ onViewEncounter, ...props }) => {
   const { loadEncounter } = useEncounter();
   const viewEncounter = useCallback(async triage => {
     await loadEncounter(triage.encounterId);

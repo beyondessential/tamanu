@@ -20,7 +20,7 @@ const StyledDataTable = styled(DataFetchingTable)`
   margin: 24px;
 `;
 
-const PatientTable = React.memo(({ onViewPatient, showInpatientDetails, getFlag, ...props }) => {
+const PatientTable = React.memo(({ onViewPatient, showInpatientDetails, ...props }) => {
   const isSortable = showInpatientDetails;
   const columnNames = showInpatientDetails ? INPATIENT_COLUMN_NAMES : LISTING_COLUMN_NAMES;
   const { getFlag } = useFlags();

@@ -41,7 +41,7 @@ const ScanFingerprintLabel = styled.div`
   color: ${Colors.primary};
 `;
 
-getflatconst SectionLabel = styled.div`
+const SectionLabel = styled.div`
   font-size: 16px;
   font-weight: 500;
   color: ${Colors.primary};

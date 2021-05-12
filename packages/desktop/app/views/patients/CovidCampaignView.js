@@ -60,7 +60,7 @@ const PatientCovidCampaignTable = React.memo(({ onPatientSelect, getVaccines, ..
       {...props}
     />
   );
-));
+});
 
 export const CovidCampaignView = React.memo(({ getPatientVaccinations }) => {
   const [searchParameters, setSearchParameters] = useState({});

@@ -103,13 +103,13 @@ const DeceasedIndicator = memo(({ death }) => (
 
 const HealthIdDisplay = memo(({ patient }) => {
   const { getFlag } = useFlags();
-  return {
+  return (
     <HealthIdContainer>
       <HealthIdLabelText>{getFlag('patientFieldOverrides.displayId.longLabel')}</HealthIdLabelText>
       <InvertedDisplayIdLabel>{patient.displayId}</InvertedDisplayIdLabel>
     </HealthIdContainer>
-  };
-));
+  );
+});
 
 export const CoreInfoDisplay = memo(({ patient }) => (
   <React.Fragment>

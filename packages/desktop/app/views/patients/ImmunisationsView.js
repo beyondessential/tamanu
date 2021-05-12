@@ -26,7 +26,7 @@ const COLUMN_NAMES = [
   'vaccinationStatus',
 ];
 
-const PatientImmunisationsTable = React.memo(({ getFlag, onPatientSelect, ...props }) => {
+const PatientImmunisationsTable = React.memo(({ onPatientSelect, ...props }) => {
   const { getFlag } = useFlags();
   return (
     <DataFetchingTable
