@@ -122,6 +122,10 @@ export const REFERENCE_TYPES = {
   NURSING_ZONE: 'nursingZone',
   SETTLEMENT: 'settlement',
   OCCUPATION: 'occupation',
+  COUNTRY: 'country',
+  FAMILY_RELATION: 'familyRelation',
+  PLACE_OF_BIRTH: 'placeOfBirth',
+  RELIGION: 'religion',
 };
 
 export const REFERENCE_TYPE_VALUES = Object.values(REFERENCE_TYPES);
