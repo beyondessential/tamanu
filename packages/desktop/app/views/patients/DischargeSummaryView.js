@@ -5,9 +5,8 @@ import styled from 'styled-components';
 import PrintIcon from '@material-ui/icons/Print';
 
 import { printPage, PrintPortal } from '../../print';
-
+import { ConfigurableText } from '../../components/ConfigurableText';
 import { connectApi } from '../../api';
-import { useFlags } from '../../contexts/FeatureFlags';
 import { BackButton, Button } from '../../components/Button';
 import { DateDisplay } from '../../components/DateDisplay';
 import { TopBar } from '../../components';
@@ -129,8 +128,6 @@ const DumbSummaryPage = React.memo(({ patient, encounter, onFetchEncounterDischa
     })();
   }, []);
 
-  const { getFlag } = useFlags();
-
   return (
     <SummaryPageContainer>
       <PrintLetterhead />
@@ -140,7 +137,9 @@ const DumbSummaryPage = React.memo(({ patient, encounter, onFetchEncounterDischa
           <span>{`${patient.firstName} ${patient.lastName}`}</span>
         </h4>
         <h4>
-          <Label>{getFlag('patientFieldOverrides.displayId.shortLabel')}: </Label>
+          <Label>
+            <ConfigurableText flag="patientFieldOverrides.displayId.shortLabel"/>
+          </Label>
           <span>{patient.displayId}</span>
         </h4>
       </Header>

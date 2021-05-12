@@ -3,10 +3,16 @@ import styled from 'styled-components';
 import FingerprintIcon from '@material-ui/icons/Fingerprint';
 import SearchIcon from '@material-ui/icons/Search';
 
-import { Button, Form, Field, TextField, AutocompleteField } from '../../../components';
+import {
+  ConfigurableText,
+  Button,
+  Form,
+  Field,
+  TextField,
+  AutocompleteField,
+} from '../../../components';
 import { Colors } from '../../../constants';
 import { connectApi } from '../../../api';
-import { useFlags } from '../../../contexts/FeatureFlags';
 import { Suggester } from '../../../utils/suggester';
 
 const Container = styled.div`
@@ -104,7 +110,6 @@ const DumbPatientSearchBar = memo(({ onSearch, villageSuggester }) => {
     },
     [onSearch],
   );
-  const { getFlag } = useFlags();
 
   const renderSearchBar = React.useCallback(
     ({ submitForm }) => (
@@ -120,7 +125,7 @@ const DumbPatientSearchBar = memo(({ onSearch, villageSuggester }) => {
         />
         <Field
           component={TextField}
-          placeholder={getFlag('patientFieldOverrides.displayId.shortLabel')}
+          placeholder={<ConfigurableText flag="patientFieldOverrides.displayId.shortLabel"/>}
           name="displayId"
         />
         <Button color="primary" variant="contained" onClick={submitForm} type="submit">

@@ -2,7 +2,7 @@ import React from 'react';
 import styled from 'styled-components';
 import { PersonAdd } from '@material-ui/icons';
 
-import { useFlags } from '../contexts/FeatureFlags';
+import { ConfigurableText } from './ConfigurableText';
 import { Colors } from '../constants';
 
 const IdFieldContainer = styled.div`
@@ -37,10 +37,11 @@ const AddUserIcon = styled.div`
 `;
 
 export const IdBanner = ({ children }) => {
-  const { getFlag } = useFlags();
   return (
     <IdFieldContainer>
-      <IdFieldTitle>{getFlag('patientFieldOverrides.displayId.longLabel')}</IdFieldTitle>
+      <IdFieldTitle>
+        <ConfigurableText flag="patientFieldOverrides.displayId.longLabel"/>
+      </IdFieldTitle>
 
       {children}
 

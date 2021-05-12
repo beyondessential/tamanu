@@ -5,8 +5,7 @@ import Paper from '@material-ui/core/Paper';
 import { connect } from 'react-redux';
 
 import { viewPatientEncounter } from '../store/patient';
-import { useFlags } from '../contexts/FeatureFlags';
-import { TopBar, PageContainer, DataFetchingTable } from '../components';
+import { ConfigurableText, TopBar, PageContainer, DataFetchingTable } from '../components';
 import { TriageStatisticsCard } from '../components/TriageStatisticsCard';
 import { DateDisplay } from '../components/DateDisplay';
 import { LiveDurationDisplay } from '../components/LiveDurationDisplay';
@@ -94,7 +93,7 @@ function getRowColor({ encounterType, score }) {
   }
 }
 
-const getColumns = getFlag => [
+const COLUMNS = [
   {
     key: 'score',
     title: 'Wait time',
@@ -115,7 +114,7 @@ const getColumns = getFlag => [
   },
   {
     key: 'displayId',
-    title: getFlag('patientFieldOverrides.displayId.shortLabel'),
+    title: <ConfigurableText flag="patientFieldOverrides.displayId.shortLabel"/>,
     accessor: row => row.displayId,
   },
   {
@@ -145,12 +144,11 @@ const DumbTriageTable = React.memo(({ onViewEncounter, ...props }) => {
     await loadEncounter(triage.encounterId);
     onViewEncounter(triage);
   }, []);
-  const { getFlag } = useFlags();
 
   return (
     <DataFetchingTable
       endpoint="triage"
-      columns={getColumns(getFlag)}
+      columns={COLUMNS}
       noDataMessage="No patients found"
       onRowClick={viewEncounter}
       {...props}

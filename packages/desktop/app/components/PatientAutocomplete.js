@@ -2,18 +2,18 @@ import React from 'react';
 import Collapse from '@material-ui/core/Collapse';
 
 import { Table } from './Table';
-import { useFlags } '../contexts/FeatureFlags';
+import { ConfigurableText } from './ConfigurableText';
 
 import { TextInput, DateDisplay } from '.';
 
 const DateOfBirthCell = React.memo(({ value }) => <DateDisplay date={value} showDuration />);
 
-const getColumns = getFlag => [
+const COLUMNS [
   { key: 'firstName', title: 'First Name' },
   { key: 'lastName', title: 'Last Name' },
   { key: 'sex', title: 'Sex' },
   { key: 'dateOfBirth', title: 'Date of Birth', CellComponent: DateOfBirthCell },
-  { key: 'displayId', title: getFlag('patientFieldOverrides.displayId.shortLabel') },
+  { key: 'displayId', title: <ConfigurableText flag="patientFieldOverrides.displayId.shortLabel"/> },
 ];
 
 export class PatientAutocomplete extends React.PureComponent {
@@ -44,14 +44,12 @@ export class PatientAutocomplete extends React.PureComponent {
   render() {
     const { onPatientSelect } = this.props;
     const { searchTerm, suggestions, expanded } = this.state;
-    const { getFlag } = useFlags();
-
     return (
       <div>
         <TextInput label="Patient name" value={searchTerm} onChange={this.updateSearchTerm} />
         <Collapse in={expanded}>
           <Table
-            columns={getColumns(getFlag)}
+            columns={COLUMNS}
             data={suggestions}
             onRowClick={onPatientSelect}
             noDataMessage="No patients found matching your search"
