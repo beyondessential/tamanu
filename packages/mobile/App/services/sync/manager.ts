@@ -91,6 +91,18 @@ export class SyncManager {
     });
   }
 
+  async waitForEnd(): Promise<void> {
+    if (this.isSyncing) {
+      return new Promise(resolve => {
+        const done = () => {
+          resolve();
+          this.emitter.off('syncEnded', done);
+        };
+        this.emitter.on('syncEnded', done);
+      });
+    }
+  }
+
   async runScheduledSync(): Promise<void> {
     // query the server for any new data
     // - how do we know whether data is new?
