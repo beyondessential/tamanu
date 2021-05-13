@@ -37,14 +37,7 @@ export async function dataGenerator(models, parameters = {}) {
   const aefiSurvey = await models.Survey.findOne({
     where: {
       code: 'samoaaefi',
-      '$program.code$': 'samoaimmunisation',
     },
-    include: [
-      {
-        model: models.Program,
-        as: 'program',
-      },
-    ],
   });
 
   const aefiSurveyColumns = await models.SurveyScreenComponent.findAll({
