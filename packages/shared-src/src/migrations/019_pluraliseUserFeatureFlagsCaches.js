@@ -23,6 +23,18 @@ module.exports = {
             key: 'id',
           },
         },
+        created_at: {
+          type: Sequelize.DATE,
+          defaultValue: Sequelize.NOW,
+        },
+        updated_at: {
+          type: Sequelize.DATE,
+          defaultValue: Sequelize.NOW,
+        },
+        deleted_at: {
+          type: Sequelize.DATE,
+          defaultValue: Sequelize.NOW,
+        },
       },
       {},
     );
