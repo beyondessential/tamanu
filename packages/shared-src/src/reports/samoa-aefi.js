@@ -33,17 +33,11 @@ function parametersToSqlWhere(parameters) {
 export const permission = 'Survey';
 
 export async function dataGenerator(models, parameters = {}) {
+  // see https://docs.google.com/spreadsheets/d/1xgc_E_RStT6AXWiNzv7pTA9EbjIZEdIR/edit#gid=777794303 for codes
   const aefiSurvey = await models.Survey.findOne({
     where: {
-      name: 'Samoa AEFI',
-      '$program.name$': 'Samoa AEFI',
+      code: 'samoaaefi',
     },
-    include: [
-      {
-        model: models.Program,
-        as: 'program',
-      },
-    ],
   });
 
   const aefiSurveyColumns = await models.SurveyScreenComponent.findAll({
