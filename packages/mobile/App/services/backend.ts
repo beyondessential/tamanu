@@ -48,12 +48,11 @@ export class Backend {
         await this.syncManager.runScheduledSync();
       } catch (e) {
         if (e instanceof AuthenticationError) {
-          // expected - just log
+          // expected - just log message
           console.log(`Auth failed while running sync (this is probably normal): ${e}`);
         } else {
-          // unexpected - log and throw
+          // unexpected - log the entire stack
           console.error(e.stack);
-          throw e;
         }
       }
     };
