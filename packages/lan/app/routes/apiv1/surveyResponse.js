@@ -42,7 +42,7 @@ surveyResponse.post(
       const record = await models.ReferenceData.findOne({ where: { type, code } });
       if (!record) {
         throw new Error(
-          `Could not look up default reference data type ${type} for encounter: code ${code} not found`,
+          `Could not look up default reference data type ${type} for encounter: code ${code} not found (check survey.defaultCodes.${type} in the config)`,
         );
       }
       return record.id;
