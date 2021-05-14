@@ -121,7 +121,7 @@ export class Form extends React.PureComponent {
   };
 
   render() {
-    const { onSubmit, showInlineErrorsOnly, initialValues, ...props } = this.props;
+    const { onSubmit, showInlineErrorsOnly, ...props } = this.props;
     const { validationErrors, isErrorDialogVisible } = this.state;
 
     // read children from additional props rather than destructuring so
@@ -139,7 +139,6 @@ export class Form extends React.PureComponent {
           initialStatus={{
             page: 1,
           }}
-          initialValues={initialValues}
           {...props}
           render={this.renderFormContents}
         />

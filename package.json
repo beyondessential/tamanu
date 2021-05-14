@@ -30,7 +30,7 @@
     "meta-start": "yarn run meta-start-dev"
   },
   "engines": {
-    "node": "^12 || ^14"
+    "node": "^12"
   },
   "private": true,
   "workspaces": {
