@@ -4,6 +4,7 @@ import { auth } from 'config';
 import { v4 as uuid } from 'uuid';
 
 import { BadAuthenticationError } from 'shared/errors';
+import { log } from 'shared/services/logging';
 
 import { WebRemote } from '~/sync';
 
@@ -106,6 +107,7 @@ async function remoteLoginWithLocalFallback(models, email, password) {
       throw new BadAuthenticationError('Incorrect username or password, please try again');
     }
 
+    log.warn(`remoteLoginWithLocalFallback: remote login failed: ${e}`);
     return localLogin(models, email, password);
   }
 }
