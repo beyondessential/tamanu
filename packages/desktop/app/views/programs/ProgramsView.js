@@ -36,16 +36,14 @@ const DumbSurveyFlow = React.memo(
     });
 
     const onSubmit = useCallback(
-      data => {
-        onSubmitSurvey({
-          surveyId: survey.id,
-          startTime: startTime,
-          patientId: patient.id,
-          endTime: new Date(),
-          answers: data,
-        });
-      },
-      [startTime, survey],
+      data => onSubmitSurvey({
+        surveyId: survey.id,
+        startTime: startTime,
+        patientId: patient.id,
+        endTime: new Date(),
+        answers: data,
+      }),
+      [startTime, survey, patient],
     );
 
     if (!programsList) {

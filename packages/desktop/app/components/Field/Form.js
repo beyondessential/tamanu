@@ -88,6 +88,7 @@ export class Form extends React.PureComponent {
       });
     } catch (e) {
       console.error('Error submitting form: ', e);
+      this.setErrors([e.message]);
     }
 
     setSubmitting(false);
