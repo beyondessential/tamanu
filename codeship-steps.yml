@@ -51,6 +51,10 @@
           tag: ^(dev|ci-)
           service: awsdeployment
           command: ./scripts/deploy_sync_dev.sh
+        - name: deploy_sync_staging_environment
+          tag: ^(staging)$
+          service: awsdeployment
+          command: ./scripts/deploy_sync_staging.sh
         - name: deploy_sync_demo_environment
           tag: ^(master)
           service: awsdeployment
