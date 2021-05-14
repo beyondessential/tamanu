@@ -169,8 +169,10 @@ export function checkVisibilityCriteria(
         }
       }
 
-      if (dataElement.type === DataElementType.MultiSelect) {
-        return answersEnablingFollowUp.includes(values[questionId].split(', '));
+      const matchingComponent = allComponents.find(x => x.dataElement?.code === questionId);
+      if (matchingComponent?.dataElement?.type === DataElementType.MultiSelect) {
+        const givenValues = values[questionId].split(', ');
+        return givenValues.includes(answersEnablingFollowUp);
       }
 
       return answersEnablingFollowUp.includes(values[questionId]);
