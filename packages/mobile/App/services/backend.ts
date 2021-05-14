@@ -41,7 +41,7 @@ export class Backend {
     if (this.interval) {
       return; // already started
     }
-    await this.stopSyncService();
+    await this.syncManager.waitForEnd();
 
     const run = async () => {
       try {
