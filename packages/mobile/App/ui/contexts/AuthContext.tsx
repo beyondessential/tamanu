@@ -62,14 +62,16 @@ const Provider = ({
 
   const signIn = async (params: SyncConnectionParameters): Promise<void> => {
     const network = await NetInfo.fetch();
-    if (!network.isConnected) {
-      return localSignIn(params);
+    if (network.isConnected) {
+      await remoteSignIn(params);
+    } else {
+      await localSignIn(params);
     }
-    return remoteSignIn(params);
+    backend.startSyncService(); // we deliberately don't await this
   };
 
   const signOut = (): void => {
-    backend.stopSyncService();
+    backend.stopSyncService(); // we deliberately don't await this
     signOutUser();
     const currentRoute = navRef.current?.getCurrentRoute().name;
     const signUpRoutes = [
