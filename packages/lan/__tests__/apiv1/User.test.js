@@ -1,5 +1,7 @@
-import { getToken } from 'lan/app/middleware/auth';
+import { getToken, remoteLogin } from 'lan/app/middleware/auth';
 import Chance from 'chance';
+import { pick } from 'lodash';
+import { WebRemote } from '~/sync/WebRemote';
 import { createTestContext } from '../utilities';
 
 const chance = new Chance();
@@ -14,17 +16,21 @@ describe('User', () => {
   let adminApp = null;
   let baseApp = null;
   let models = null;
+  let remote = null;
 
   beforeAll(async () => {
     const ctx = await createTestContext();
     baseApp = ctx.baseApp;
     models = ctx.models;
+    remote = ctx.remote;
+    WebRemote.mockImplementation(() => remote);
     adminApp = await baseApp.asRole('admin');
   });
 
   describe('auth', () => {
     let authUser = null;
     const rawPassword = 'PASSWORD';
+    const featureFlags = { foo: 'bar' };
 
     beforeAll(async () => {
       authUser = await models.User.create(
@@ -32,6 +38,10 @@ describe('User', () => {
           password: rawPassword,
         }),
       );
+      await models.UserFeatureFlagsCache.create({
+        userId: authUser.id,
+        featureFlags: JSON.stringify(featureFlags),
+      });
     });
 
     it('should obtain a valid login token', async () => {
@@ -87,6 +97,34 @@ describe('User', () => {
         password: rawPassword,
       });
       expect(result).toHaveRequestError();
+    });
+
+    it('should return cached feature flags in the login request', async () => {
+      const result = await baseApp.post('/v1/login').send({
+        email: authUser.email,
+        password: rawPassword,
+      });
+      expect(result).toHaveSucceeded();
+      expect(result.body).toHaveProperty('featureFlags');
+      expect(result.body.featureFlags).toEqual(featureFlags);
+    });
+
+    it('should pass feature flags through from a remote login request', async () => {
+      remote.fetch.mockResolvedValueOnce({
+        user: pick(authUser, ['id', 'role', 'email', 'displayName']),
+        featureFlags: featureFlags,
+      });
+      const result = await remoteLogin(models, authUser.email, rawPassword);
+      expect(result).toHaveProperty('featureFlags', featureFlags);
+      const cache = await models.UserFeatureFlagsCache.findOne({
+        where: {
+          userId: authUser.id,
+        },
+        raw: true,
+      });
+      expect(cache).toMatchObject({
+        featureFlags: JSON.stringify(featureFlags),
+      });
     });
   });
 

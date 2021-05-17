@@ -56,6 +56,29 @@ describe('Encounter', () => {
     expect(result).toHaveRequestError();
   });
 
+  it('should get a discharge', async () => {
+    const encounter = await models.Encounter.create({
+      ...(await createDummyEncounter(models)),
+      patientId: patient.id,
+    });
+    const { id: dischargeId } = await models.Discharge.create({
+      encounterId: encounter.id,
+      dischargerId: app.user.id,
+    });
+
+    const result = await app.get(`/v1/encounter/${encounter.id}/discharge`);
+
+    expect(result).toHaveSucceeded();
+    expect(result.body).toMatchObject({
+      id: dischargeId,
+      encounterId: encounter.id,
+      dischargerId: app.user.id,
+      discharger: {
+        id: app.user.id,
+      },
+    });
+  });
+
   it('should get a list of notes', async () => {
     const encounter = await models.Encounter.create({
       ...(await createDummyEncounter(models)),
@@ -240,15 +263,29 @@ describe('Encounter', () => {
           endDate: null,
           reasonForEncounter: 'before',
         });
-
         const endDate = new Date();
+
         const result = await app.put(`/v1/encounter/${v.id}`).send({
           endDate,
+          discharge: {
+            encounterId: v.id,
+            dischargerId: app.user.id,
+          },
         });
         expect(result).toHaveSucceeded();
 
         const updated = await models.Encounter.findByPk(v.id);
         expect(updated.endDate).toEqual(endDate);
+
+        const discharges = await models.Discharge.findAll({
+          where: { encounterId: v.id },
+        });
+        // Discharges have a 1-1 relationship with encounters
+        expect(discharges).toHaveLength(1);
+        expect(discharges[0]).toMatchObject({
+          encounterId: v.id,
+          dischargerId: app.user.id,
+        });
 
         const notes = await v.getNotes();
         const check = x => x.content.includes('Discharged');

@@ -9,6 +9,7 @@ export * from './PatientIssue';
 export * from './PatientAdditionalData';
 
 export * from './Encounter';
+export * from './Discharge';
 export * from './Triage';
 
 export * from './ReferenceData';
@@ -42,3 +43,4 @@ export * from './PatientCommunication';
 
 export * from './Location';
 export * from './UserFacility';
+export * from './UserFeatureFlagsCache';
