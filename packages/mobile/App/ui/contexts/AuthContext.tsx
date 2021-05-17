@@ -7,6 +7,7 @@ import { WithAuthStoreProps } from '~/ui/store/ducks/auth';
 import { Routes } from '~/ui/helpers/routes';
 import { BackendContext } from '~/ui/contexts/BackendContext';
 import { IUser, SyncConnectionParameters } from '~/types';
+import { useFlags } from '~/ui/contexts/FeatureFlagsContext';
 
 type AuthProviderProps = WithAuthStoreProps & {
   navRef: RefObject<NavigationContainerRef>;
@@ -34,6 +35,7 @@ const Provider = ({
 }: PropsWithChildren<AuthProviderProps>): ReactElement => {
   const checkFirstSession = (): boolean => props.isFirstTime;
   const [user, setUserData] = useState();
+  const { setFlags } = useFlags();
 
   const setUserFirstSignIn = (): void => {
     props.setFirstSignIn(false);
@@ -53,7 +55,8 @@ const Provider = ({
   };
 
   const remoteSignIn = async (params: SyncConnectionParameters): Promise<void> => {
-    const { user, token } = await backend.auth.remoteSignIn(params);
+    const { user, token, featureFlags } = await backend.auth.remoteSignIn(params);
+    setFlags(featureFlags);
     setUser({ facility: dummyFacility, ...user });
     setUserData({ facility: dummyFacility, ...user });
     setToken(token);
@@ -85,6 +88,7 @@ const Provider = ({
         routes: [{ name: Routes.SignUpStack.Index }],
       });
     }
+    setFlags({});
   };
 
   // start a session if there's a stored token
