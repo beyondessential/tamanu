@@ -14,6 +14,8 @@ import {
   ReadOnlyTextField,
 } from 'desktop/app/components/Field';
 import { PROGRAM_DATA_ELEMENT_TYPES } from '../../../shared-src/src/constants';
+import { getAgeFromDate } from 'shared-src/src/utils/date';
+import { joinNames } from './user';
 
 
 const InstructionField = ({ label, helperText }) => (
@@ -33,11 +35,13 @@ const QUESTION_COMPONENTS = {
   [PROGRAM_DATA_ELEMENT_TYPES.BINARY]: NullableBooleanField,
   [PROGRAM_DATA_ELEMENT_TYPES.CHECKBOX]: NullableBooleanField,
   [PROGRAM_DATA_ELEMENT_TYPES.CALCULATED]: ReadOnlyTextField,
+  [PROGRAM_DATA_ELEMENT_TYPES.SURVEY_LINK]: null,
+  [PROGRAM_DATA_ELEMENT_TYPES.SURVEY_RESULT]: null,
+  [PROGRAM_DATA_ELEMENT_TYPES.SURVEY_ANSWER]: null,
+  [PROGRAM_DATA_ELEMENT_TYPES.PATIENT_DATA]: ReadOnlyTextField,
+  [PROGRAM_DATA_ELEMENT_TYPES.USER_DATA]: ReadOnlyTextField,
   [PROGRAM_DATA_ELEMENT_TYPES.INSTRUCTION]: InstructionField,
-  // [PROGRAM_DATA_ELEMENT_TYPES.RESULT]: null,
-  // [PROGRAM_DATA_ELEMENT_TYPES.SURVEY_LINK]: null,
-  // [PROGRAM_DATA_ELEMENT_TYPES.SURVEY_RESULT]: null,
-  // [PROGRAM_DATA_ELEMENT_TYPES.SURVEY_ANSWER]: null,
+  [PROGRAM_DATA_ELEMENT_TYPES.RESULT]: null,
 };
 
 export function getComponentForQuestionType(type) {
@@ -160,4 +164,75 @@ function fallbackParseVisibilityCriteria({ visibilityCriteria, dataElement }, va
   if (sanitisedValue === (formValue || '').toLowerCase().trim()) return true;
 
   return false;
+}
+
+function getInitialValue(dataElement) {
+  switch (dataElement.type) {
+    case PROGRAM_DATA_ELEMENT_TYPES.TEXT:
+    case PROGRAM_DATA_ELEMENT_TYPES.MULTILINE:
+    case PROGRAM_DATA_ELEMENT_TYPES.NUMBER:
+      return '';
+    case PROGRAM_DATA_ELEMENT_TYPES.DATE:
+    default:
+      return undefined;
+  }
+}
+
+function getConfigObject(componentId, configString) {
+  if (!configString) return {};
+
+  try {
+    return JSON.parse(configString);
+  } catch (e) {
+    // eslint-disable-next-line no-console
+    console.warn(`Invalid config in survey screen component ${componentId}`);
+    return {};
+  }
+}
+
+function transformPatientData(patient, config) {
+  const { column = 'fullName' } = config;
+  const { dateOfBirth, firstName, lastName } = patient;
+
+  switch (column) {
+    case 'age':
+      return getAgeFromDate(dateOfBirth).toString();
+    case 'fullName':
+      return joinNames({ firstName, lastName });
+    default:
+      return patient[column];
+  }
+}
+
+export function getFormInitialValues(components, patient, currentUser = {}) {
+  const initialValues = components.reduce((acc, { dataElement }) => {
+    const initialValue = getInitialValue(dataElement);
+    const propName = dataElement.id;
+    if (initialValue === undefined) {
+      return acc;
+    }
+    acc[propName] = initialValue;
+    return acc;
+  }, {});
+
+  // other data
+  for (const component of components) {
+    // type definition of config is string, but in usage its an object...
+    const config = getConfigObject(component.id, component.config) || {};
+
+    // current user data
+    if (component.dataElement.type === 'UserData') {
+      const { column = 'displayName' } = config;
+      const userValue = currentUser[column];
+      if (userValue !== undefined) initialValues[component.dataElement.id] = userValue;
+    }
+
+    // patient data
+    if (component.dataElement.type === 'PatientData') {
+      const patientValue = transformPatientData(patient, config);
+      if (patientValue !== undefined) initialValues[component.dataElement.id] = patientValue;
+    }
+  }
+
+  return initialValues;
 }
