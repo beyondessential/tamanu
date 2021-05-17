@@ -30,8 +30,9 @@ export const FeatureFlagsProvider = ({
       value={{
         getFlag: flagPath => get(mergedFlags, flagPath),
         setFlags: async (flagsToSet) => {
+          const jsonFlags = JSON.stringify(flagsToSet); // make sure we can stringify before setting flags
           setFeatureFlags(flagsToSet);
-          await writeConfig(CONFIG_KEY, JSON.stringify(flagsToSet));
+          await writeConfig(CONFIG_KEY, jsonFlags);
         }
       }}>
       {children}
