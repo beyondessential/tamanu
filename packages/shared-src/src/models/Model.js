@@ -1,6 +1,5 @@
 import * as sequelize from 'sequelize';
-import { pick, lowerFirst } from 'lodash';
-import { shouldPush } from './sync';
+import { lowerFirst } from 'lodash';
 import { SYNC_DIRECTIONS } from 'shared/constants';
 
 const { Sequelize, Op, Utils } = sequelize;

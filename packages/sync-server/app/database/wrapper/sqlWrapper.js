@@ -51,6 +51,7 @@ export class SqlWrapper {
       ['reportRequest', this.models.ReportRequest],
       ['location', this.models.Location],
       ['userFacility', this.models.UserFacility],
+      ['attachment', this.models.Attachment],
     ].forEach(([route, model]) => {
       this.builtRoutes.push(route);
       // TODO: deprecate handlers
