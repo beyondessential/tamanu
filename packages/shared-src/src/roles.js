@@ -139,6 +139,9 @@ export const practitioner = (user, allow, forbid) => {
   allow('read', 'Location');
   allow('create', 'Location');
   allow('write', 'Location');
+
+  allow('list', 'Attachment');
+  allow('read', 'Attachment');
 };
 
 export const admin = (user, allow, forbid) => {
