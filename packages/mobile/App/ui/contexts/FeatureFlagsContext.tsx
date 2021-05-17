@@ -8,7 +8,7 @@ interface FeatureFlagsContextData {
   setFlags: (flags: object) => Promise<void>;
 }
 
-const OVERRIDES = {}; // add values to this to test feature flags in development
+const TEST_FLAG_OVERRIDES = {}; // add values to this to test feature flags in development
 const CONFIG_KEY = 'featureFlags';
 
 const FeatureFlagsContext = createContext<FeatureFlagsContextData>({} as FeatureFlagsContextData);
