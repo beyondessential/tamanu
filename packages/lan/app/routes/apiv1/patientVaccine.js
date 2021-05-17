@@ -19,7 +19,7 @@ patientVaccineRoutes.get(
 
     const results = await req.db.query(
       `
-      SELECT 
+      SELECT
         sv.id
         , max(sv.category) AS category
         , max(sv.label) AS label
@@ -30,7 +30,7 @@ patientVaccineRoutes.get(
         FROM scheduled_vaccines sv
         LEFT JOIN (
           SELECT
-            *
+            av.*
           FROM
             administered_vaccines av
             JOIN encounters e ON av.encounter_id = e.id
@@ -118,7 +118,7 @@ patientVaccineRoutes.get(
     req.checkPermission('list', 'PatientVaccine');
     const results = await req.models.AdministeredVaccine.findAll({
       where: {
-        ['$Encounter.patient_id$']: req.params.id,
+        ['$encounter.patient_id$']: req.params.id,
       },
       include: [
         {

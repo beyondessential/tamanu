@@ -3,26 +3,22 @@ import { preprocessRecordSet } from '~/admin/preprocessRecordSet';
 
 const TEST_DATA_PATH = './__tests__/importers/test_definitions.xlsx';
 
-// the importer can take a little while 
+// the importer can take a little while
 jest.setTimeout(30000);
 
 describe('Data definition import', () => {
-
   let resultInfo = null;
   let recordGroups = null;
 
   beforeAll(async () => {
     const rawData = await importData({ file: TEST_DATA_PATH });
-    const { 
-      recordGroups: rg, 
-      ...rest 
-    } = await preprocessRecordSet(rawData);
+    const { recordGroups: rg, ...rest } = await preprocessRecordSet(rawData);
     resultInfo = rest;
     recordGroups = rg;
   });
 
   it('should ensure every record has an id', () => {
-    for(const [k, records] of recordGroups) {
+    for (const [k, records] of recordGroups) {
       records.map(r => {
         expect(r).toHaveProperty('data.id');
       });
@@ -87,5 +83,4 @@ describe('Data definition import', () => {
   it('should report an error if an FK is of the wrong type', () => {
     expectError('patient', 'linked referenceData for');
   });
-
 });

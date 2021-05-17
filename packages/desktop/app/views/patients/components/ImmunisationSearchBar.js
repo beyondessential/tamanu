@@ -2,7 +2,15 @@ import React, { memo, useCallback } from 'react';
 import styled from 'styled-components';
 import FingerprintIcon from '@material-ui/icons/Fingerprint';
 import SearchIcon from '@material-ui/icons/Search';
-import { Button, Form, Field, TextField, AutocompleteField } from '../../../components';
+
+import {
+  ConfigurableText,
+  Button,
+  Form,
+  Field,
+  TextField,
+  AutocompleteField,
+} from '../../../components';
 import { Colors } from '../../../constants';
 import { connectApi } from '../../../api';
 import { Suggester } from '../../../utils/suggester';
@@ -106,7 +114,11 @@ const DumbPatientSearchBar = memo(({ onSearch, villageSuggester }) => {
   const renderSearchBar = React.useCallback(
     ({ submitForm }) => (
       <SearchInputContainer>
-        <Field component={TextField} placeholder="NHN" name="displayId" />
+        <Field
+          component={TextField}
+          placeholder={<ConfigurableText flag="patientFieldOverrides.displayId.shortLabel"/>}
+          name="displayId"
+        />
         <Field component={TextField} placeholder="First name" name="firstName" />
         <Field component={TextField} placeholder="Last name" name="lastName" />
         <Field

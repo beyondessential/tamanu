@@ -19,7 +19,7 @@
     "initialUser": {
       "email": "admin@tamanu.io",
       "displayName": "Initial Admin",
-      "role": "administrator",
+      "role": "admin",
       "password": "admin"
     }
   },
@@ -27,6 +27,9 @@
     "domain": "",
     "apiKey": "",
     "from": ""
+  },
+  "schedules": {
+    "outpatientDischarger": "0 0 2 ? * * *"
   },
   "featureFlags": {
     "data": {

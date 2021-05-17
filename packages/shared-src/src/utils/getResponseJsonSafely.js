@@ -1,9 +1,11 @@
+import { log } from 'shared/services/logging';
+
 export const getResponseJsonSafely = async response => {
   try {
-    return response.json();
+    return await response.json();
   } catch (e) {
     // log json parsing errors, but still return a valid object
-    console.error(e);
+    log.warn(`getResponseJsonSafely: Error parsing JSON: ${e}`);
     return {};
   }
 };

@@ -33,7 +33,7 @@
     "password": "admin"
   },
   "auth": {
-    "saltRounds": 10,
+    "saltRounds": 12,
     "tokenDuration": "1h"
   },
   "survey": {
@@ -41,9 +41,6 @@
       "department": "MEDICAL",
       "location": "SHORTSTAY"
     }
-  },
-  "schedules": {
-    "encounterDischarger": "0 0 2 ? * * *"
   },
   "currentFacilityId": ""
 }

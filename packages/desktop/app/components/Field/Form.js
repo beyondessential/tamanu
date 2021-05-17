@@ -28,11 +28,13 @@ export class Form extends React.PureComponent {
     onSubmit: PropTypes.func.isRequired,
     render: PropTypes.func.isRequired,
     showInlineErrorsOnly: PropTypes.bool,
+    initialValues: PropTypes.object,
   };
 
   static defaultProps = {
     showInlineErrorsOnly: false,
     onError: null,
+    initialValues: {},
   };
 
   state = {
@@ -86,6 +88,7 @@ export class Form extends React.PureComponent {
       });
     } catch (e) {
       console.error('Error submitting form: ', e);
+      this.setErrors([e.message]);
     }
 
     setSubmitting(false);

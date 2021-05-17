@@ -120,7 +120,6 @@ export async function createDummyEncounter(models, { current, ...overrides } = {
 export async function createDummyPatient(models, overrides = {}) {
   const gender = overrides.sex || chance.pick(['male', 'female']);
   const title = overrides.title || chance.pick(['Mr', 'Mrs', 'Ms']);
-  const placeOfBirth = overrides.placeOfBirth || chance.country({ full: true });
   return {
     displayId: generateId(),
     firstName: chance.first({ gender }),
@@ -129,7 +128,6 @@ export async function createDummyPatient(models, overrides = {}) {
     sex: chance.bool({ likelihood: 5 }) ? 'other' : gender,
     dateOfBirth: chance.birthday(),
     title,
-    placeOfBirth,
     ...overrides,
   };
 }

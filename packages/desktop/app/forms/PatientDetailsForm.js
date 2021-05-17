@@ -23,48 +23,69 @@ import {
   educationalAttainmentOptions,
 } from '../constants';
 
-export const PrimaryDetailsGroup = ({
-  villageSuggester,
-  ethnicitySuggester,
-  nationalitySuggester,
-  divisionSuggester,
-  subdivisionSuggester,
-}) => (
+export const PrimaryDetailsGroup = ({ villageSuggester }) => (
   <React.Fragment>
     <Field name="firstName" label="First name" component={TextField} required />
     <Field name="middleName" label="Middle name" component={TextField} />
-    <Field name="title" label="Title" component={SelectField} options={titleOptions} />
     <Field name="lastName" label="Last name" component={TextField} required />
     <Field name="culturalName" label="Cultural/Traditional name" component={TextField} />
+    <Field name="dateOfBirth" label="Date of birth" component={DateField} required />
     <Field
       name="villageId"
       label="Village"
       component={AutocompleteField}
       suggester={villageSuggester}
     />
-    <Field name="dateOfBirth" label="Date of birth" component={DateField} required />
-    <Field name="placeOfBirth" label="Place of birth" component={TextField} />
     <Field name="sex" label="Sex" component={RadioField} options={sexOptions} inline required />
+  </React.Fragment>
+);
+
+export const SecondaryDetailsGroup = ({
+  medicalAreaSuggester,
+  nursingZoneSuggester,
+  settlementSuggester,
+  occupationSuggester,
+  ethnicitySuggester,
+  nationalitySuggester,
+  divisionSuggester,
+  subdivisionSuggester,
+}) => (
+  <React.Fragment>
+    <Field name="bloodType" label="Blood type" component={SelectField} options={bloodOptions} />
+    <Field name="title" label="Title" component={SelectField} options={titleOptions} />
+    <Field name="placeOfBirth" label="Place of birth" component={TextField} />
     <Field
-      name="nationalityId"
-      label="Nationality"
-      component={AutocompleteField}
-      suggester={nationalitySuggester}
+      name="maritalStatus"
+      label="Marital Status"
+      component={SelectField}
+      options={maritalStatusOptions}
     />
     <Field
-      name="countryId"
-      label="Country"
-      component={AutocompleteField}
-      suggester={nationalitySuggester}
+      name="primaryContactNumber"
+      label="Primary Contact Number"
+      component={TextField}
+      type="tel"
     />
+    <Field
+      name="secondaryContactNumber"
+      label="Secondary Contact Number"
+      component={TextField}
+      type="tel"
+    />
+    <Field
+      name="socialMedia"
+      label="Social media platform"
+      component={SelectField}
+      options={socialMediaOptions}
+    />
+    <Field
+      name="settlementId"
+      label="Settlement"
+      component={AutocompleteField}
+      suggester={settlementSuggester}
+    />
+    <Field name="streetVillage" label="Residential Landmark" component={TextField} />
     <Field name="cityTown" label="City/Town" component={TextField} />
-    <Field name="streetVillage" label="Street/Village" component={TextField} />
-    <Field
-      name="divisionId"
-      label="Division"
-      component={AutocompleteField}
-      suggester={divisionSuggester}
-    />
     <Field
       name="subdivisionId"
       label="Sub Division"
@@ -72,69 +93,16 @@ export const PrimaryDetailsGroup = ({
       suggester={subdivisionSuggester}
     />
     <Field
-      name="maritalStatus"
-      label="MaritalStatus"
-      component={SelectField}
-      options={maritalStatusOptions}
-    />
-    <Field
-      name="ethnicityId"
-      label="Ethnicity"
+      name="divisionId"
+      label="Division"
       component={AutocompleteField}
-      suggester={ethnicitySuggester}
+      suggester={divisionSuggester}
     />
-  </React.Fragment>
-);
-
-export const SecondaryDetailsGroup = ({
-  isBirth,
-  patientSuggester,
-  facilitySuggester,
-  medicalAreaSuggester,
-  nursingZoneSuggester,
-  settlementSuggester,
-  occupationSuggester,
-}) => (
-  <React.Fragment>
-    <Field name="religion" label="Religion" component={TextField} />
     <Field
-      name="occupationId"
-      label="Occupation"
+      name="countryId"
+      label="Country"
       component={AutocompleteField}
-      suggester={occupationSuggester}
-    />
-    <Field
-      name="mother.id"
-      label="Mother"
-      component={AutocompleteField}
-      suggester={patientSuggester}
-      required={isBirth}
-    />
-    <Field
-      name="father.id"
-      label="Father"
-      component={AutocompleteField}
-      suggester={patientSuggester}
-    />
-    <Field
-      component={RadioField}
-      name="patientType"
-      label="Patient Type"
-      options={[
-        { value: 'charity', label: 'Charity' },
-        { value: 'private', label: 'Private' },
-      ]}
-      inline
-    />
-    <Field name="bloodType" label="Blood type" component={SelectField} options={bloodOptions} />
-    <Field name="referredBy" label="Referred by" component={TextField} />
-    <Field name="referredDate" label="Referred date" component={DateField} />
-    <Field
-      name="homeClinic"
-      label="Home clinic"
-      component={AutocompleteField}
-      suggester={facilitySuggester}
-      required={isBirth}
+      suggester={nationalitySuggester}
     />
     <Field
       name="medicalAreaId"
@@ -149,35 +117,25 @@ export const SecondaryDetailsGroup = ({
       suggester={nursingZoneSuggester}
     />
     <Field
-      name="settlementId"
-      label="Settlement"
+      name="nationalityId"
+      label="Nationality"
       component={AutocompleteField}
-      suggester={settlementSuggester}
-    />
-
-    <Field name="residentialAddress" label="Residential address" component={TextField} />
-    <Field
-      name="primaryContactNumber"
-      label="Primary Contact Number"
-      component={TextField}
-      type="tel"
+      suggester={nationalitySuggester}
     />
     <Field
-      name="secondaryContactNumber"
-      label="Secondary Contact Number"
-      component={TextField}
-      type="tel"
+      name="ethnicityId"
+      label="Ethnicity"
+      component={AutocompleteField}
+      suggester={ethnicitySuggester}
     />
     <Field
-      name="socialMediaPlatform"
-      label="Social media platform"
-      component={SelectField}
-      options={socialMediaOptions}
+      name="occupationId"
+      label="Occupation"
+      component={AutocompleteField}
+      suggester={occupationSuggester}
     />
-    <Field name="socialMediaName" label="Social media name" component={TextField} />
-    <Field name="email" label="Email" component={TextField} />
     <Field
-      name="educationalAttainment"
+      name="educationalLevel"
       label="Educational Attainment"
       component={SelectField}
       options={educationalAttainmentOptions}
@@ -240,5 +198,11 @@ export const PatientDetailsForm = ({
     ],
   );
 
-  return <Form render={render} initialValues={patient} onSubmit={onSubmit} />;
+  return (
+    <Form
+      render={render}
+      initialValues={{ ...patient, ...patient.additionalData }}
+      onSubmit={onSubmit}
+    />
+  );
 };

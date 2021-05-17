@@ -1,7 +1,8 @@
 import React, { memo } from 'react';
 import styled from 'styled-components';
-
 import { grey } from '@material-ui/core/colors';
+
+import { ConfigurableText } from './ConfigurableText';
 import { DateDisplay } from './DateDisplay';
 import { PatientInitialsIcon } from './PatientInitialsIcon';
 import { Colors } from '../constants';
@@ -102,7 +103,9 @@ const DeceasedIndicator = memo(({ death }) => (
 
 const HealthIdDisplay = memo(({ patient }) => (
   <HealthIdContainer>
-    <HealthIdLabelText>National Health Number</HealthIdLabelText>
+    <HealthIdLabelText>
+      <ConfigurableText flag="patientFieldOverrides.displayId.longLabel"/>
+    </HealthIdLabelText>
     <InvertedDisplayIdLabel>{patient.displayId}</InvertedDisplayIdLabel>
   </HealthIdContainer>
 ));

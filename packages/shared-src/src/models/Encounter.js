@@ -1,4 +1,5 @@
 import { Sequelize } from 'sequelize';
+import moment from 'moment';
 import {
   ENCOUNTER_TYPES,
   ENCOUNTER_TYPE_VALUES,
@@ -68,6 +69,11 @@ export class Encounter extends Model {
   }
 
   static initRelations(models) {
+    this.hasOne(models.Discharge, {
+      foreignKey: 'dischargerId',
+      as: 'discharge',
+    });
+
     this.belongsTo(models.Patient, {
       foreignKey: 'patientId',
       as: 'patient',
@@ -144,6 +150,28 @@ export class Encounter extends Model {
 
     // this.hasMany(models.Procedure);
     // this.hasMany(models.Report);
+  }
+
+  static checkNeedsAutoDischarge({ encounterType, startDate, endDate }) {
+    return (
+      encounterType === ENCOUNTER_TYPES.CLINIC &&
+      moment(startDate).isBefore(new Date(), 'day') &&
+      !endDate
+    );
+  }
+
+  static getAutoDischargeEndDate({ startDate }) {
+    return moment(startDate)
+      .endOf('day')
+      .toDate();
+  }
+
+  static sanitizeForSyncServer(values) {
+    // if the encounter is for an outpatient and started before today, it should be closed
+    if (this.checkNeedsAutoDischarge(values)) {
+      return { ...values, endDate: this.getAutoDischargeEndDate(values) };
+    }
+    return values;
   }
 
   async addSystemNote(content) {
@@ -237,6 +265,7 @@ export class Encounter extends Model {
     'initiatedReferrals',
     'completedReferrals',
     'vitals',
+    'discharge',
     'triages',
   ];
 

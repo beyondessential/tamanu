@@ -74,7 +74,6 @@ class DumbImagingRequestForm extends React.PureComponent {
           component={AutocompleteField}
           suggester={practitionerSuggester}
         />
-        <Field name="sampleTime" label="Sample time" required component={DateTimeField} />
         <div>
           <Field name="urgent" label="Urgent?" component={CheckField} />
         </div>
@@ -88,7 +87,7 @@ class DumbImagingRequestForm extends React.PureComponent {
           suggester={imagingTypeSuggester}
         />
         <Field
-          name="notes"
+          name="note"
           label="Notes"
           component={TextField}
           multiline
@@ -124,7 +123,6 @@ class DumbImagingRequestForm extends React.PureComponent {
         validationSchema={yup.object().shape({
           requestedById: foreignKey('Requesting doctor is required'),
           imagingTypeId: foreignKey('Imaging request type must be selected'),
-          sampleTime: yup.date().required(),
           requestedDate: yup.date().required(),
         })}
       />
