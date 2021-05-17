@@ -24,7 +24,7 @@ export const FeatureFlagsProvider = ({
     })();
   });
 
-  const mergedFlags = { ...featureFlags, ...OVERRIDES };
+  const mergedFlags = { ...featureFlags, ...TEST_FLAG_OVERRIDES };
   return (
     <FeatureFlagsContext.Provider
       value={{
