@@ -8,6 +8,9 @@ type ConfigurableTextProps = {
 export const ConfigurableText = ({ flag }: ConfigurableTextProps): ReactElement => {
   const { getFlag } = useFlags();
   if (!flag) {
+    if (__DEV__) {
+      throw new Error(`ConfigurableText: missing flag!`);
+    }
     return <>{'no flag specified'}</>;
   }
   const value = getFlag(flag);
