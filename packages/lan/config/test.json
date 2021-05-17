@@ -5,5 +5,11 @@
   },
   "log": {
     "consoleLevel": "warn"
+  },
+  "survey": {
+    "defaultCodes": {
+      "department": "General",
+      "location": "Ward-1"
+    }
   }
 }
