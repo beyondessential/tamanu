@@ -40,7 +40,7 @@ const rootFlagSchema = yup
   .noUnknown();
 
 export const getFeatureFlags = async () => {
-  const flags = defaultsDeep({}, defaultFeatureFlags, config.featureFlags.data);
+  const flags = defaultsDeep({}, config.featureFlags.data, defaultFeatureFlags);
 
   // TODO: once feature flags are persisted in the db, validate on save, not load
   return rootFlagSchema.validate(flags);
