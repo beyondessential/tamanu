@@ -10,6 +10,7 @@ fi
 rm -rf ${LAN_ROOT}/release && mkdir ${LAN_ROOT}/release
 yarn workspace lan run build
 cp ${LAN_ROOT}/.bin/*.node ${LAN_ROOT}/release/
+cp ${LAN_ROOT}/start.bat ${LAN_ROOT}/
 mkdir ${LAN_ROOT}/release/config && cp ${LAN_ROOT}/config/*.json ${LAN_ROOT}/release/config/
 mkdir ${LAN_ROOT}/release/data && touch ${LAN_ROOT}/release/data/.keep
 
