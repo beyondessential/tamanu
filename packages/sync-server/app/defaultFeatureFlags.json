@@ -1,0 +1,9 @@
+{
+  "patientFieldOverrides": {
+    "displayId": {
+      "shortLabel": "NHN",
+      "longLabel": "National Health Number",
+      "hidden": false
+    }
+  }
+}

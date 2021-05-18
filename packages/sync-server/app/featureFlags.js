@@ -1,5 +1,10 @@
 import config from 'config';
 import * as yup from 'yup';
+import { defaultsDeep } from 'lodash';
+
+// eslint struggles with .json files, even though webpack has no trouble
+// eslint-disable-next-line import/no-unresolved
+import defaultFeatureFlags from '~/defaultFeatureFlags.json';
 
 const patientFieldSchema = yup
   .object({
@@ -35,7 +40,8 @@ const rootFlagSchema = yup
   .noUnknown();
 
 export const getFeatureFlags = async () => {
-  const flags = config.featureFlags.data;
+  const flags = defaultsDeep({}, defaultFeatureFlags, config.featureFlags.data);
+
   // TODO: once feature flags are persisted in the db, validate on save, not load
   return rootFlagSchema.validate(flags);
 };
