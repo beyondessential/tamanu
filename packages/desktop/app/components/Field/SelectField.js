@@ -15,6 +15,7 @@ export const SelectInput = ({
   onChange,
   multiselect,
   name,
+  form: { initialValues },
   ...props
 }) => {
   const isReadonly = (readonly && !disabled) || (value && !onChange);
