@@ -1,8 +1,9 @@
-import React, { memo, useCallback } from 'react';
+import React, { memo, useMemo, useCallback } from 'react';
 import styled from 'styled-components';
 import FingerprintIcon from '@material-ui/icons/Fingerprint';
 import SearchIcon from '@material-ui/icons/Search';
 
+import { useFlags } from '../../../contexts/FeatureFlags';
 import {
   ConfigurableText,
   Button,
@@ -97,7 +98,7 @@ const RightSection = styled(Section)`
   border-left: 1px solid ${Colors.outline};
 `;
 
-const DumbPatientSearchBar = memo(({ onSearch, villageSuggester }) => {
+const DumbPatientSearchBar = ({ onSearch, villageSuggester }) => {
   // We can't use onSearch directly as formik will call it with an unwanted second param
   const handleSearch = useCallback(
     ({ village = {}, ...other }) => {
@@ -111,30 +112,41 @@ const DumbPatientSearchBar = memo(({ onSearch, villageSuggester }) => {
     [onSearch],
   );
 
+  const { getFlag } = useFlags();
+
+  const fields = useMemo(() => [
+    ['firstName'],
+    ['lastName'],
+    ['culturalName'],
+    ['villageName', { suggester: villageSuggester, component: AutocompleteField, name: 'villageId' }],
+    ['displayId'],
+  ]
+    .map(([key, props = {}]) => (
+      getFlag(`patientFieldOverrides.${key}.hidden`) === true ? null : (
+        <Field
+          name={key}
+          key={key}
+          placeholder={getFlag(`patientFieldOverrides.${key}.longLabel`)}
+          component={TextField}
+          {...props}
+        />
+      )
+    ))
+    .filter(c => c),
+    [villageSuggester, getFlag],
+  );
+
   const renderSearchBar = React.useCallback(
     ({ submitForm }) => (
       <SearchInputContainer>
-        <Field component={TextField} placeholder="First name" name="firstName" />
-        <Field component={TextField} placeholder="Last name" name="lastName" />
-        <Field component={TextField} placeholder="Cultural/Traditional name" name="culturalName" />
-        <Field
-          component={AutocompleteField}
-          suggester={villageSuggester}
-          placeholder="Village"
-          name="villageId"
-        />
-        <Field
-          component={TextField}
-          placeholder={<ConfigurableText flag="patientFieldOverrides.displayId.shortLabel"/>}
-          name="displayId"
-        />
+        {fields}
         <Button color="primary" variant="contained" onClick={submitForm} type="submit">
           <PaddedSearchIcon />
           Search
         </Button>
       </SearchInputContainer>
     ),
-    [],
+    [fields],
   );
 
   return (
@@ -153,7 +165,7 @@ const DumbPatientSearchBar = memo(({ onSearch, villageSuggester }) => {
       </RightSection>
     </Container>
   );
-});
+};
 
 export const PatientSearchBar = connectApi(api => ({
   villageSuggester: new Suggester(api, 'village'),

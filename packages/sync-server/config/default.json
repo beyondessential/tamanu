@@ -34,9 +34,60 @@
   "featureFlags": {
     "data": {
       "patientFieldOverrides": {
-        "displayId": {
-          "shortLabel": "NHN",
-          "longLabel": "National Health Number"
+        "patientFieldOverrides": {
+          "markedForSync": {
+            "shortLabel": "Sync",
+            "longLabel": "Marked for sync"
+          },
+          "displayId": {
+            "shortLabel": "NHN",
+            "longLabel": "National Health Number"
+          },
+          "firstName": {
+            "shortLabel": "First Name",
+            "longLabel": "First Name"
+          },
+          "lastName": {
+            "shortLabel": "Last Name",
+            "longLabel": "Last Name"
+          },
+          "culturalName": {
+            "shortLabel": "Cultural Name",
+            "longLabel": "Cultural/Traditional name",
+            "hidden": false
+          },
+          "sex": {
+            "shortLabel": "Sex",
+            "longLabel": "Sex",
+            "hidden": false
+          },
+          "dateOfBirth": {
+            "shortLabel": "DOB",
+            "longLabel": "Date of Birth"
+          },
+          "villageName": {
+            "shortLabel": "Village",
+            "longLabel": "Village",
+            "hidden": false
+          },
+          "locationName": {
+            "shortLabel": "Location",
+            "longLabel": "Location"
+          },
+          "departmentName": {
+            "shortLabel": "Department",
+            "longLabel": "Department"
+          },
+          "encounterType": {
+            "shortLabel": "Status",
+            "longLabel": "Status",
+            "hidden": false
+          },
+          "vaccinationStatus": {
+            "shortLabel": "Vaccine Status",
+            "longLabel": "Vaccine Status",
+            "hidden": false
+          }
         }
       }
     }

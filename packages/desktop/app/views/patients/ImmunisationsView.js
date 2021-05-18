@@ -1,5 +1,6 @@
 import React, { useState } from 'react';
 
+import { useFlags } from '../../contexts/FeatureFlags';
 import { TopBar, PageContainer, DataFetchingTable } from '../../components';
 import {
   displayId,
@@ -10,6 +11,7 @@ import {
   sex,
   dateOfBirth,
   vaccinationStatus,
+  filterHiddenColumns,
 } from './columns';
 import { PatientSearchBar, PatientImmunisationsModal } from './components';
 
@@ -24,17 +26,21 @@ const COLUMNS = [
   vaccinationStatus,
 ];
 
-const PatientImmunisationsTable = React.memo(({ onPatientSelect, ...props }) => (
-  <DataFetchingTable
-    endpoint="patient"
-    columns={COLUMNS}
-    noDataMessage="No patients found"
-    onRowClick={onPatientSelect}
-    {...props}
-  />
-));
+const PatientImmunisationsTable = React.memo(({ onPatientSelect, ...props }) => {
+  const { getFlag } = useFlags();
+  const columns = filterHiddenColumns(COLUMNS, getFlag);
+  return (
+    <DataFetchingTable
+      endpoint="patient"
+      columns={COLUMNS}
+      noDataMessage="No patients found"
+      onRowClick={onPatientSelect}
+      {...props}
+    />
+  );
+});
 
-export const ImmunisationsView = React.memo(() => {
+export const ImmunisationsView = () => {
   const [searchParameters, setSearchParameters] = useState({});
   const [modalOpen, setModalOpen] = useState(false);
   const [patient, setPatient] = useState({});
@@ -57,4 +63,4 @@ export const ImmunisationsView = React.memo(() => {
       <PatientImmunisationsTable onPatientSelect={onRowClick} fetchOptions={searchParameters} />
     </PageContainer>
   );
-});
+};

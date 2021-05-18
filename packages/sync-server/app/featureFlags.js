@@ -1,5 +1,8 @@
 import config from 'config';
 import * as yup from 'yup';
+import { defaultsDeep } from 'lodash';
+
+import { log } from 'shared/services/logging';
 
 const patientFieldSchema = yup
   .object({
@@ -11,20 +14,53 @@ const patientFieldSchema = yup
       is: false,
       then: yup.string().required(),
     }),
-    hidden: yup.boolean().default(false),
+    hidden: yup.boolean().required(),
+  })
+  .default({}) // necessary to stop yup throwing hard-to-debug errors
+  .noUnknown();
+
+const unhideablePatientFieldSchema = yup
+  .object({
+    shortLabel: yup.string().required(),
+    longLabel: yup.string().required(),
   })
   .noUnknown();
 
+const UNHIDEABLE_FIELDS = [
+  'markedForSync',
+  'displayId',
+  'firstName',
+  'lastName',
+  'dateOfBirth',
+  'locationName',
+  'departmentName',
+];
+
+const HIDEABLE_FIELDS = [
+  'culturalName',
+  'sex',
+  'villageName', // TODO: can we call this village?
+  'encounterType',
+  'vaccinationStatus',
+];
+
 const patientFieldsSchema = yup
-  .object(
-    ['displayId'].reduce(
+  .object({
+    ...UNHIDEABLE_FIELDS.reduce(
+      (fields, field) => ({
+        ...fields,
+        [field]: unhideablePatientFieldSchema,
+      }),
+      {},
+    ),
+    ...HIDEABLE_FIELDS.reduce(
       (fields, field) => ({
         ...fields,
         [field]: patientFieldSchema,
       }),
       {},
     ),
-  )
+  })
   .noUnknown();
 
 const rootFlagSchema = yup
@@ -34,8 +70,21 @@ const rootFlagSchema = yup
   .required()
   .noUnknown();
 
+// TODO: once feature flags are persisted in the db, validate on save, not load
+const flags = defaultsDeep(config.featureFlags.data);
+rootFlagSchema
+  .validate(flags, { strict: true, abortEarly: false })
+  .then(() => {
+    log.info('Feature flags validated successfully.');
+  })
+  .catch(e => {
+    const errors = e.inner.map(inner => `\n  - ${inner.message}`);
+    log.error(
+      `Error(s) validating feature flags (check featureFlags.data in your config):${errors}`,
+    );
+  });
+console.log(flags); // TODO: remove before PR review
+
 export const getFeatureFlags = async () => {
-  const flags = config.featureFlags.data;
-  // TODO: once feature flags are persisted in the db, validate on save, not load
-  return rootFlagSchema.validate(flags);
+  return flags;
 };

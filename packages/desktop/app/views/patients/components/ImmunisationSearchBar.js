@@ -97,6 +97,7 @@ const RightSection = styled(Section)`
   border-left: 1px solid ${Colors.outline};
 `;
 
+// TODO: deduplicate and merge with PatientSearchBar
 const DumbPatientSearchBar = memo(({ onSearch, villageSuggester }) => {
   // We can't use onSearch directly as formik will call it with an unwanted second param
   const handleSearch = useCallback(

@@ -25,60 +25,60 @@ export const displayId = {
 
 export const firstName = {
   key: 'firstName',
-  title: 'First Name',
+  title: <ConfigurableText flag="patientFieldOverrides.firstName.shortLabel"/>,
   minWidth: 100,
 };
 
 export const lastName = {
   key: 'lastName',
-  title: 'Last Name',
+  title: <ConfigurableText flag="patientFieldOverrides.lastName.shortLabel"/>,
   minWidth: 100,
 };
 
 export const culturalName = {
   key: 'culturalName',
-  title: 'Cultural Name',
+  title: <ConfigurableText flag="patientFieldOverrides.culturalName.shortLabel"/>,
   minWidth: 100,
 };
 
 export const sex = {
   key: 'sex',
-  title: 'Sex',
+  title: <ConfigurableText flag="patientFieldOverrides.sex.shortLabel"/>,
   minWidth: 80,
   CellComponent: SexCell,
 };
 
 export const dateOfBirth = {
   key: 'dateOfBirth',
-  title: 'DOB',
+  title: <ConfigurableText flag="patientFieldOverrides.dateOfBirth.shortLabel"/>,
   minWidth: 100,
   CellComponent: DateOfBirthCell,
 };
 
 export const village = {
   key: 'villageName',
-  title: 'Village',
+  title: <ConfigurableText flag="patientFieldOverrides.villageName.shortLabel"/>,
   minWidth: 100,
   accessor: row => row?.villageName || null,
 };
 
 export const location = {
   key: 'locationName',
-  title: 'Location',
+  title: <ConfigurableText flag="patientFieldOverrides.locationName.shortLabel"/>,
   minWidth: 100,
   accessor: row => row.locationName,
 };
 
 export const department = {
   key: 'departmentName',
-  title: 'Department',
+  title: <ConfigurableText flag="patientFieldOverrides.departmentName.shortLabel"/>,
   minWidth: 100,
   accessor: row => row.departmentName,
 };
 
 export const status = {
   key: 'encounterType',
-  title: 'Status',
+  title: <ConfigurableText flag="patientFieldOverrides.encounterType.shortLabel"/>,
   minWidth: 100,
   accessor: ({ encounterType }) => {
     if (!encounterType) return '';
@@ -90,7 +90,10 @@ export const status = {
 
 export const vaccinationStatus = {
   key: 'vaccinationStatus',
-  title: 'Vaccine Status',
+  title: <ConfigurableText flag="patientFieldOverrides.vaccinationStatus.shortLabel"/>,
   minWidth: 100,
   accessor: row => row.vaccinationStatus || 'Unknown',
 };
+
+export const filterHiddenColumns =
+  (columns, getFlag) => columns.filter(({ key }) => !getFlag(`patientFieldOverrides.${key}.hidden`));
