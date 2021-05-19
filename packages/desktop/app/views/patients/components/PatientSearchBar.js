@@ -98,7 +98,7 @@ const RightSection = styled(Section)`
   border-left: 1px solid ${Colors.outline};
 `;
 
-const DumbPatientSearchBar = ({ onSearch, villageSuggester }) => {
+export const CustomisablePatientSearchBar = ({ onSearch, fields, ...props }) => {
   // We can't use onSearch directly as formik will call it with an unwanted second param
   const handleSearch = useCallback(
     ({ village = {}, ...other }) => {
@@ -114,32 +114,28 @@ const DumbPatientSearchBar = ({ onSearch, villageSuggester }) => {
 
   const { getFlag } = useFlags();
 
-  const fields = useMemo(() => [
-    ['firstName'],
-    ['lastName'],
-    ['culturalName'],
-    ['villageName', { suggester: villageSuggester, component: AutocompleteField, name: 'villageId' }],
-    ['displayId'],
-  ]
-    .map(([key, props = {}]) => (
-      getFlag(`patientFieldOverrides.${key}.hidden`) === true ? null : (
-        <Field
-          name={key}
-          key={key}
-          placeholder={getFlag(`patientFieldOverrides.${key}.longLabel`)}
-          component={TextField}
-          {...props}
-        />
-      )
-    ))
-    .filter(c => c),
-    [villageSuggester, getFlag],
+  const fieldElements = useMemo(() =>
+    fields
+      .map(([key, { suggesterKey, ...fieldProps } = {}]) => (
+        getFlag(`patientFieldOverrides.${key}.hidden`) === true ? null : (
+          <Field
+            name={key}
+            key={key}
+            placeholder={getFlag(`patientFieldOverrides.${key}.longLabel`)}
+            component={TextField}
+            suggester={props[suggesterKey]}
+            {...fieldProps}
+          />
+        )
+      ))
+      .filter(c => c),
+    [getFlag, fields, props],
   );
 
   const renderSearchBar = React.useCallback(
     ({ submitForm }) => (
       <SearchInputContainer>
-        {fields}
+        {fieldElements}
         <Button color="primary" variant="contained" onClick={submitForm} type="submit">
           <PaddedSearchIcon />
           Search
@@ -152,7 +148,7 @@ const DumbPatientSearchBar = ({ onSearch, villageSuggester }) => {
   return (
     <Container>
       <Section>
-        <SectionLabel>Search for patients</SectionLabel>
+        <SectionLabel>{title}</SectionLabel>
         <Form
           onSubmit={handleSearch}
           render={renderSearchBar}
@@ -166,6 +162,20 @@ const DumbPatientSearchBar = ({ onSearch, villageSuggester }) => {
     </Container>
   );
 };
+
+const DumbPatientSearchBar = (props) => (
+  <CustomisablePatientSearchBar
+    title="Search for patients"
+    fields={[
+      ['firstName'],
+      ['lastName'],
+      ['culturalName'],
+      ['villageName', { suggesterKey: 'villageSuggester', component: AutocompleteField, name: 'villageId' }],
+      ['displayId'],
+    ]}
+    {...props}
+  />
+);
 
 export const PatientSearchBar = connectApi(api => ({
   villageSuggester: new Suggester(api, 'village'),
