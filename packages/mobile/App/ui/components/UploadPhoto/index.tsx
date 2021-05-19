@@ -153,7 +153,7 @@ export const UploadPhoto = React.memo(({ onChange, value }: PhotoProps) => {
     const { id } = await models.Attachment.createAndSaveOne({
       filePath: path,
       size,
-      type: 'jpeg'
+      type: 'image/jpeg'
     });
 
     onChange(id);

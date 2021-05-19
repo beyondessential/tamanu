@@ -3,19 +3,13 @@ import { BaseModel } from './BaseModel';
 import { SurveyResponseAnswer } from './SurveyResponseAnswer';
 import { readFileInDocuments, deleteFileInDocuments } from '../ui/helpers/file';
 
-export enum FileType {
-  JPEG = 'jpeg',
-  PNG = 'png',
-  WEBP = 'webp'
-}
-
 @Entity('attachment')
 export class Attachment extends BaseModel {
   @Column({ nullable: true })
   size?: number; //size in bytes
 
   @Column({ type: 'varchar' })
-  type: FileType;
+  type: string;
 
   @Column({ type: 'blob', nullable: true })
   data: Buffer;
