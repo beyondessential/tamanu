@@ -69,6 +69,11 @@
           "longLabel": "Village",
           "hidden": false
         },
+        "villageId": {
+          "shortLabel": "Village",
+          "longLabel": "Village",
+          "hidden": false
+        },
         "locationName": {
           "shortLabel": "Location",
           "longLabel": "Location"

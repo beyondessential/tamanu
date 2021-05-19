@@ -169,7 +169,7 @@ const DumbPatientSearchBar = (props) => (
       ['firstName'],
       ['lastName'],
       ['culturalName'],
-      ['villageName', { suggesterKey: 'villageSuggester', component: AutocompleteField, name: 'villageId' }],
+      ['villageId', { suggesterKey: 'villageSuggester', component: AutocompleteField }],
       ['displayId'],
     ]}
     {...props}

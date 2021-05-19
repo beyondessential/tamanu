@@ -12,7 +12,7 @@ const DumbImmunisationSearchBar = (props) => (
       ['displayId'],
       ['firstName'],
       ['lastName'],
-      ['villageName', { suggesterKey: 'villageSuggester', component: AutocompleteField, name: 'villageId' }],
+      ['villageId', { suggesterKey: 'villageSuggester', component: AutocompleteField }],
       ['vaccinationStatus'],
     ]}
     {...props}
