@@ -7,7 +7,7 @@ import { ButtonRow } from './ButtonRow';
 import { InfoPaneList } from './InfoPaneList';
 import { CoreInfoDisplay } from './PatientCoreInfo';
 import { PatientAlert } from './PatientAlert';
-import { PatientStickerLabelPage } from './PatientStickerLabel';
+import { PatientPrintDetailsModal } from './PatientPrinting';
 
 import {
   AllergyForm,
@@ -137,6 +137,21 @@ const RecordDeathSection = memo(({ patient, readonly }) => {
   );
 });
 
+const PrintSection = memo(({ patient, readonly }) => {
+  const [isModalOpen, setModalOpen] = useState(false);
+  const openModal = useCallback(() => setModalOpen(true), [setModalOpen]);
+  const closeModal = useCallback(() => setModalOpen(false), [setModalOpen]);
+
+  return ( // TODO: Understand disabled prop
+    <React.Fragment>
+      <Button variant="contained" color="primary" disabled={readonly} onClick={openModal}>
+        Print ID
+      </Button>
+      <PatientPrintDetailsModal disabled={readonly} open={isModalOpen} onClose={closeModal} patient={patient} />
+    </React.Fragment>
+  );
+});
+
 const Buttons = styled(ButtonRow)`
   margin-top: 30px;
 `;
@@ -149,7 +164,7 @@ const InfoPaneLists = memo(props => (
     <PatientIssuesDisplay {...props} />
     <CarePlanDisplay {...props} />
     <Buttons>
-      <PatientStickerLabelPage {...props} />
+      <PrintSection {...props} />
       <RecordDeathSection {...props} />
     </Buttons>
   </ListsSection>

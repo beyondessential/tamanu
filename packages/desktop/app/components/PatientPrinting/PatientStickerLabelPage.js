@@ -1,13 +1,12 @@
 import React from 'react';
 import styled from 'styled-components';
 
-import Barcode from 'react-barcode';
+import { SEX_VALUE_INDEX } from '../../constants';
+import { DateDisplay } from '../DateDisplay';
+import { Button } from '../Button';
+import { PatientBarcode } from './PatientBarcode';
 
-import { SEX_VALUE_INDEX } from '../constants';
-import { DateDisplay } from './DateDisplay';
-import { Button } from './Button';
-
-import { printPage, PrintPortal } from '../print';
+import { printPage, PrintPortal } from '../../print';
 
 const Sticker = styled.div`
   font-family: monospace;
@@ -16,23 +15,10 @@ const Sticker = styled.div`
   padding: 0.2rem;
 `;
 
-const BarcodeFrame = styled.div`
-  width: 128px;
-  height: 35px;
-  margin-right: 1rem;
-  overflow: hidden;
-`;
-
-const PatientBarcode = ({ patient }) => (
-  <BarcodeFrame>
-    <Barcode value={patient.displayId} width={1} height={35} margin={0} />
-  </BarcodeFrame>
-);
-
 export const PatientStickerLabel = ({ patient }) => (
   <Sticker>
     <div>
-      <PatientBarcode patient={patient} />
+      <PatientBarcode patient={patient} width={'128px'} height={'35px'} />
       <div>
         <strong>{patient.displayId}</strong>
       </div>
