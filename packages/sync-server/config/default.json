@@ -43,26 +43,35 @@
           "longLabel": "National Health Number"
         },
         "firstName": {
-          "shortLabel": "First Name",
-          "longLabel": "First Name"
+          "shortLabel": "First name",
+          "longLabel": "First name"
+        },
+        "middleName": {
+          "shortLabel": "Middle name",
+          "longLabel": "Middle name"
         },
         "lastName": {
-          "shortLabel": "Last Name",
-          "longLabel": "Last Name"
+          "shortLabel": "Last name",
+          "longLabel": "Last name"
         },
         "culturalName": {
-          "shortLabel": "Cultural Name",
-          "longLabel": "Cultural/Traditional name",
-          "hidden": false
+          "shortLabel": "Cultural name",
+          "longLabel": "Cultural/traditional name",
+          "hidden": true
         },
         "sex": {
           "shortLabel": "Sex",
           "longLabel": "Sex",
           "hidden": false
         },
+        "bloodType": {
+          "shortLabel": "Blood type",
+          "longLabel": "Blood type",
+          "hidden": false
+        },
         "dateOfBirth": {
           "shortLabel": "DOB",
-          "longLabel": "Date of Birth"
+          "longLabel": "Date of birth"
         },
         "villageName": {
           "shortLabel": "Village",
@@ -88,8 +97,8 @@
           "hidden": false
         },
         "vaccinationStatus": {
-          "shortLabel": "Vaccine Status",
-          "longLabel": "Vaccine Status",
+          "shortLabel": "Vaccine status",
+          "longLabel": "Vaccine status",
           "hidden": false
         }
       }
