@@ -2,6 +2,7 @@ import React, { memo } from 'react';
 import styled from 'styled-components';
 import { grey } from '@material-ui/core/colors';
 
+import { useFlags } from '../contexts/FeatureFlags';
 import { ConfigurableText } from './ConfigurableText';
 import { DateDisplay } from './DateDisplay';
 import { PatientInitialsIcon } from './PatientInitialsIcon';
@@ -83,12 +84,15 @@ const HealthIdLabelText = styled.div`
   font-size: 12px;
 `;
 
-const CoreInfoCell = memo(({ label, children }) => (
-  <CoreInfoCellContainer>
-    <CoreInfoLabel>{label}</CoreInfoLabel>
-    <CoreInfoValue>{children}</CoreInfoValue>
-  </CoreInfoCellContainer>
-));
+const CoreInfoCell = memo(({ flag, children }) => {
+  const { getFlag } = useFlags();
+  return (
+    <CoreInfoCellContainer>
+      <CoreInfoLabel>{getFlag(flag)}</CoreInfoLabel>
+      <CoreInfoValue>{children}</CoreInfoValue>
+    </CoreInfoCellContainer>
+  );
+});
 
 const DeceasedText = styled.div`
   opacity: 0.8;
@@ -124,8 +128,8 @@ export const CoreInfoDisplay = memo(({ patient }) => (
       </NameContainer>
     </NameSection>
     <CoreInfoSection>
-      <CoreInfoCell label="Sex">{patient.sex}</CoreInfoCell>
-      <CoreInfoCell label="DOB">
+      <CoreInfoCell flag="patientFieldOverrides.sex.shortLabel">{patient.sex}</CoreInfoCell>
+      <CoreInfoCell flag="patientFieldOverrides.dateOfBirth.shortLabel">
         <DateDisplay date={patient.dateOfBirth} />
       </CoreInfoCell>
     </CoreInfoSection>
