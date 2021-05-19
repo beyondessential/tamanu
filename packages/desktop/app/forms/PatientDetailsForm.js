@@ -25,18 +25,18 @@ import {
 
 export const PrimaryDetailsGroup = ({ villageSuggester }) => (
   <React.Fragment>
-    <Field name="firstName" label="First name" component={TextField} required />
-    <Field name="middleName" label="Middle name" component={TextField} />
-    <Field name="lastName" label="Last name" component={TextField} required />
-    <Field name="culturalName" label="Cultural/Traditional name" component={TextField} />
-    <Field name="dateOfBirth" label="Date of birth" component={DateField} required />
+    <Field name="firstName" flag="patientFieldOverrides.firstName" component={TextField} required />
+    <Field name="middleName" flag="patientFieldOverrides.middleName" component={TextField} />
+    <Field name="lastName" flag="patientFieldOverrides.lastName" component={TextField} required />
+    <Field name="culturalName" flag="patientFieldOverrides.culturalName" component={TextField} />
+    <Field name="dateOfBirth" flag="patientFieldOverrides.dateOfBirth" component={DateField} required />
     <Field
       name="villageId"
-      label="Village"
+      flag="patientFieldOverrides.villageId"
       component={AutocompleteField}
       suggester={villageSuggester}
     />
-    <Field name="sex" label="Sex" component={RadioField} options={sexOptions} inline required />
+    <Field name="sex" flag="patientFieldOverrides.sex" component={RadioField} options={sexOptions} inline required />
   </React.Fragment>
 );
 
