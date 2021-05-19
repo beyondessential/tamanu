@@ -75,12 +75,18 @@ const scheduledVaccineSchema = baseSchema
     vaccineId: yup.string().required(),
   });
 
+const surveySchema = baseSchema
+  .shape({
+    surveyType: yup.string().required().oneOf(['programs', 'referral', 'obsolete']),
+  });
+
 const validationSchemas = {
   base: baseSchema,
   referenceData: referenceDataSchema,
   patient: patientSchema,
   user: userSchema,
   labTestType: labTestTypeSchema,
+  survey: surveySchema,
   surveyScreenComponent: surveyScreenComponentSchema,
   programDataElement: programDataElementSchema,
   scheduledVaccine: scheduledVaccineSchema,
