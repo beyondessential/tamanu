@@ -1,4 +1,5 @@
 import React, { useCallback } from 'react';
+import { Modal, Dimensions } from 'react-native';
 import { StyledView, StyledText, FullView } from '/styled/common';
 import { theme } from '/styled/theme';
 
@@ -9,7 +10,7 @@ import { formatStringDate } from '/helpers/date';
 import { DateFormats } from '/helpers/constants';
 import { FieldTypes } from '/helpers/fields';
 import { SurveyResultBadge } from '/components/SurveyResultBadge';
-
+import { ViewPhotoLink } from '/components/ViewPhotoLink';
 import { LoadingScreen } from '~/ui/components/LoadingScreen';
 import { useBackendEffect } from '~/ui/hooks';
 
@@ -54,6 +55,17 @@ const isCalculated = (question): JSX.Element => {
   }
 };
 
+const renderAnswer = (question, answer) => {
+  switch (question.dataElement.type) {
+    case FieldTypes.RESULT:
+      return (<SurveyResultBadge result={answer} />)
+    case FieldTypes.PHOTO:
+      return (<ViewPhotoLink imageId={answer}/>)
+    default:
+      return (<StyledText>{getAnswerText(question, answer)}</StyledText>)
+  }
+};
+
 const AnswerItem = ({ question, answer, index }): JSX.Element => (
   <StyledView
     minHeight={40}
@@ -69,11 +81,9 @@ const AnswerItem = ({ question, answer, index }): JSX.Element => (
         {question.dataElement.name}
       </StyledText>
     </StyledView>
-    {question.dataElement.type === FieldTypes.RESULT ? (
-      <SurveyResultBadge result={answer} />
-    ) : (
-      <StyledText>{getAnswerText(question, answer)}</StyledText>
-    )}
+    {
+      renderAnswer(question, answer)
+    }
   </StyledView>
 );
 
@@ -124,7 +134,7 @@ export const SurveyResponseDetailsScreen = ({ route }): JSX.Element => {
     .map(attachAnswer)
     .filter(q => q.answer !== null && q.answer !== '')
     .map(questionToAnswerItem);
-
+  
   return (
     <FullView>
       <StackHeader
