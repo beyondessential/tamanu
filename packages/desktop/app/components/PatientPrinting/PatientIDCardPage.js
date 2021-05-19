@@ -90,6 +90,7 @@ export const PatientIDCard = ({ patient }) => (
         <div width={'1in'} height={'1.3in'} background={'red'}>
           <TamanuLogo size={'20mm'} />
         </div>
+        {/* TODO: Center label */}
         <PhotoLabel patient={patient} />
       </PhotoContainer>
       <Details>
@@ -121,11 +122,13 @@ const PatientIDPage = styled.div`
   margin-top: 0.5in;
 `;
 
-export const PatientIDCardPage = ({ patient, readonly }) => (
-  <React.Fragment>
-    <Button onClick={() => printPage()} variant="contained" color="primary" disabled={readonly}>
-      Print ID
-    </Button>
+export const PatientIDCardPage = ({ patient, readonly, closePrintingModal }) => {
+  React.useEffect(() => {
+    printPage();
+    // closePrintingModal();
+  });
+
+  return (
     <PrintPortal>
       <LetterPage>
         <PatientIDPage>
@@ -135,5 +138,5 @@ export const PatientIDCardPage = ({ patient, readonly }) => (
         </PatientIDPage>
       </LetterPage>
     </PrintPortal>
-  </React.Fragment>
-);
+  );
+};

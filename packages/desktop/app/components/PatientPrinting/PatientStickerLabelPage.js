@@ -49,11 +49,13 @@ const LabelPage = styled.div`
   margin-top: 0.5in;
 `;
 
-export const PatientStickerLabelPage = ({ patient, readonly }) => (
-  <React.Fragment>
-    <Button onClick={() => printPage()} variant="contained" color="primary" disabled={readonly}>
-      Print labels
-    </Button>
+export const PatientStickerLabelPage = ({ patient, readonly, closePrintingModal }) => {
+  React.useEffect(() => {
+    printPage();
+    // closePrintingModal();
+  });
+
+  return (
     <PrintPortal>
       <LetterPage>
         <LabelPage>
@@ -63,5 +65,5 @@ export const PatientStickerLabelPage = ({ patient, readonly }) => (
         </LabelPage>
       </LetterPage>
     </PrintPortal>
-  </React.Fragment>
-);
+  );
+};
