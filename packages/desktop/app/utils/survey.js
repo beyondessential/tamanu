@@ -12,11 +12,11 @@ import {
   AutocompleteField,
   NumberField,
   ReadOnlyTextField,
+  UnsupportedPhotoField,
 } from 'desktop/app/components/Field';
 import { PROGRAM_DATA_ELEMENT_TYPES } from '../../../shared-src/src/constants';
 import { getAgeFromDate } from 'shared-src/src/utils/date';
 import { joinNames } from './user';
-
 
 const InstructionField = ({ label, helperText }) => (
   <p>{label} {helperText}</p>
@@ -41,6 +41,7 @@ const QUESTION_COMPONENTS = {
   [PROGRAM_DATA_ELEMENT_TYPES.PATIENT_DATA]: ReadOnlyTextField,
   [PROGRAM_DATA_ELEMENT_TYPES.USER_DATA]: ReadOnlyTextField,
   [PROGRAM_DATA_ELEMENT_TYPES.INSTRUCTION]: InstructionField,
+  [PROGRAM_DATA_ELEMENT_TYPES.PHOTO]: UnsupportedPhotoField,
   [PROGRAM_DATA_ELEMENT_TYPES.RESULT]: null,
 };
 
