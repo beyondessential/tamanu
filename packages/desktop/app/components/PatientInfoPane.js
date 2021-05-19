@@ -142,7 +142,7 @@ const PrintSection = memo(({ patient, readonly }) => {
   const openModal = useCallback(() => setModalOpen(true), [setModalOpen]);
   const closeModal = useCallback(() => setModalOpen(false), [setModalOpen]);
 
-  return ( // TODO: Understand disabled prop
+  return ( // TODO: Determine readonly behaviour @mclean
     <React.Fragment>
       <Button variant="contained" color="primary" disabled={readonly} onClick={openModal}>
         Print ID

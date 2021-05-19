@@ -1,1 +1,1 @@
-export { PatientPrintDetailsModal } from './PatientPrintDetailsModal'
+export { PatientPrintDetailsModal } from './PatientPrintDetailsModal';

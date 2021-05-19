@@ -2,11 +2,10 @@ import { BrowserWindow, ipcMain, ipcRenderer } from 'electron';
 import React from 'react';
 import { createPortal } from 'react-dom';
 
-let __globalShowPrintingPageForTest__ = true;
 
 export const PRINT_EVENT = 'print-page';
 
-export const printPage = () => console.log('Printing! 🎉') ?? ipcRenderer.send(PRINT_EVENT);
+export const printPage = () => ipcRenderer.send(PRINT_EVENT);
 
 export function registerPrintListener() {
   ipcMain.on(PRINT_EVENT, event => {
@@ -18,10 +17,7 @@ export function registerPrintListener() {
   });
 }
 
-export const PrintPortal = ({ children }) => {
-  console.log("rendering portal, ", __globalShowPrintingPageForTest__);
-  if (__globalShowPrintingPageForTest__) return <div>{children}</div>;
-
+export const PrintPortal = React.memo(({ children }) => {
   const el = document.createElement('div');
 
   React.useEffect(() => {
@@ -33,4 +29,4 @@ export const PrintPortal = ({ children }) => {
   });
 
   return createPortal(children, el);
-};
+});
