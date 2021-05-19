@@ -1,7 +1,9 @@
 import React from 'react';
-import { DateDisplay } from '../../components';
-import { capitaliseFirstLetter } from '../../utils/capitalise';
+import { pick } from 'lodash';
 import { CloudDownload, CloudOff } from '@material-ui/icons';
+
+import { ConfigurableText, DateDisplay } from '../../components';
+import { capitaliseFirstLetter } from '../../utils/capitalise';
 
 const DateOfBirthCell = React.memo(({ value }) => <DateDisplay date={value} />);
 const SexCell = React.memo(({ value = '' }) => <span>{capitaliseFirstLetter(value)}</span>);
@@ -16,7 +18,7 @@ export const markedForSync = {
 
 export const displayId = {
   key: 'displayId',
-  title: 'NHN',
+  title: <ConfigurableText flag="patientFieldOverrides.displayId.shortLabel"/>,
   minWidth: 80,
   accessor: row => row.displayId || `(${row.id})`,
 };

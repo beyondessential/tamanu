@@ -1,7 +1,6 @@
 import { Sequelize } from 'sequelize';
 import { InvalidOperationError } from 'shared/errors';
 import { Model } from './Model';
-
 export class AdministeredVaccine extends Model {
   static init({ primaryKey, ...options }) {
     options.validate = {
@@ -26,6 +25,7 @@ export class AdministeredVaccine extends Model {
         },
         reason: Sequelize.STRING,
         location: Sequelize.STRING,
+        injectionSite: Sequelize.STRING,
         date: {
           type: Sequelize.DATE,
           allowNull: false,

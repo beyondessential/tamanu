@@ -148,6 +148,8 @@ export const PROGRAM_DATA_ELEMENT_TYPES = {
   SURVEY_RESULT: 'SurveyResult',
   SURVEY_LINK: 'SurveyLink',
   PHOTO: 'Photo',
+  PATIENT_DATA: 'PatientData',
+  USER_DATA: 'UserData',
 };
 export const PROGRAM_DATA_ELEMENT_TYPE_VALUES = Object.values(PROGRAM_DATA_ELEMENT_TYPES);
 

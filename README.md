@@ -56,30 +56,6 @@ The [`config` docs](https://github.com/lorenwest/node-config/wiki/Configuration-
 
 ### LAN server
 
-#### Setup
-
-##### OSX
-
-Run:
-
-```bash
-brew install postgres
-brew services start postgres
-createdb tamanu-lan
-yarn install
-```
-
-##### WSL
-
-Install the [PostgreSQL server](https://www.postgresql.org/download/windows/). Open pgAdmin and add a new database `tamanu-lan`, then run:
-
-```bash
-yarn install
-```
-
-
-#### Run
-
 The Tamanu desktop app needs a lan server running to operate correctly. For
 local development, this can just be another process on the same host.
 
@@ -205,10 +181,43 @@ the API url and login credentials as well (see config/default.json for how this 
   3. hit "Configure more options"
      - select an environment type of "load balancing" in the capacity section, and select a max of 1 instance if you're setting up a dev environment
      - add an https listener in the "load balancer" section, using the ACM certificate you set up earlier
-     - add `NODE_CONFIG`=`{"port":8080,"foo":"bar"}` to environment properties in the software section
-     - add the relevant keypair (probably tamanu-eb-key-pair) in the security section
+       - use the certificate you created earlier
+       - use default security policy (ELBSecurityPolicy-2016-08)
      - set up managed updates (this will make sure instances are kept up to date with software patches)
+     - create a new database
+        - we're using postgres 13.2
+        - T3 micro is probably fine 
+        - generate new credentials and save them in the tamanu folder in lastpass
+        - set retention to "create snapshot" so that if the environment gets destroyed we have a backup
+     - add the relevant keypair (tamanu-eb-key-pair, _not tamanu-key-pair_) in the security section
      - configure anything else you need (monitoring, alerts, databases, scaling, larger instances than t2.micro, etc.)
+        - email notifications to team-tamanu@beyondessential.com.au
+  4. create the environment (this can take a while)
+  5. visit your created url to make sure everything's working ok (at this point it will still be running the AWS sample app)
+  6. set up the environment variables via Configuration -> Software -> Environment properties
+    - the only environment variable to set is `NODE_CONFIG`, set to a json string
+    - it's easiest to copy the config from an existing environment
+    - make sure to update the database connection details in that json string!
+      - host from RDS "Connectivity & security" / "Endpoint & port"
+      - password from earlier
+      - username should just be postgres
+  7. Now you'll need to create the actual database (RDS will create the cluster, not the environment)
+    - set up eb ssh access to your new environment
+      - (we're in ap-southeast-2 / Sydney)
+    - you will need to paste in the connection string from AWS
+    - use the password you made earlier
+    - do everything as the postgres user
+    - `CREATE DATABASE "tamanu-sync";`
+  8. deploy the application version you want to the new environment
+    - Applications -> Application versions
+    - pick the version you want
+    - deploy to your newly created environment
+  9. get over into Route 53
+    - use the tamanu.io hosted zone
+    - create record
+    - A record
+    - Alias on
+    - alias to EB environment, pick the appropriate zone & EB app
 - add steps to [codeship-steps.yml](codeship-steps.yml):
   1. build a release version of just that package (excluding the rest of the monorepo) using [scripts/build_package_release.sh](scripts/build_package_release.sh)
   2. deploy the release using a one-line script similar to [scripts/deploy_meta_dev.sh](scripts/deploy_meta_dev.sh) or [scripts/deploy_sync_dev.sh](scripts/deploy_sync_dev.sh)

@@ -1,11 +1,12 @@
 /* eslint-disable react/jsx-one-expression-per-line */
-import React from 'react';
+import React, { useState, useEffect } from 'react';
 import { connect } from 'react-redux';
 import styled from 'styled-components';
 import PrintIcon from '@material-ui/icons/Print';
 
 import { printPage, PrintPortal } from '../../print';
-
+import { ConfigurableText } from '../../components/ConfigurableText';
+import { connectApi } from '../../api';
 import { BackButton, Button } from '../../components/Button';
 import { DateDisplay } from '../../components/DateDisplay';
 import { TopBar } from '../../components';
@@ -104,7 +105,9 @@ const MedicationsList = ({ medications }) => {
   ));
 };
 
-const SummaryPage = React.memo(({ patient, encounter }) => {
+const DumbSummaryPage = React.memo(({ patient, encounter, onFetchEncounterDischarge }) => {
+  const [discharge, setDischarge] = useState(null);
+
   const {
     diagnoses,
     procedures,
@@ -113,12 +116,17 @@ const SummaryPage = React.memo(({ patient, encounter }) => {
     endDate,
     location,
     examiner,
-    dischargePhysician,
     reasonForEncounter,
-    dischargeNotes,
   } = encounter;
   const primaryDiagnoses = diagnoses.filter(d => d.isPrimary);
   const secondaryDiagnoses = diagnoses.filter(d => !d.isPrimary);
+
+  useEffect(() => {
+    (async () => {
+      const data = await onFetchEncounterDischarge(encounter.id);
+      setDischarge(data);
+    })();
+  }, []);
 
   return (
     <SummaryPageContainer>
@@ -129,7 +137,9 @@ const SummaryPage = React.memo(({ patient, encounter }) => {
           <span>{`${patient.firstName} ${patient.lastName}`}</span>
         </h4>
         <h4>
-          <Label>NHN: </Label>
+          <Label>
+            <ConfigurableText flag="patientFieldOverrides.displayId.shortLabel"/>
+          </Label>
           <span>{patient.displayId}</span>
         </h4>
       </Header>
@@ -156,12 +166,12 @@ const SummaryPage = React.memo(({ patient, encounter }) => {
       <Content>
         <div>
           <Label>Supervising physician: </Label>
-          <span>{examiner && examiner.displayName}</span>
+          <span>{examiner?.displayName}</span>
         </div>
         <div />
         <div>
-          <Label>Discharge physician: </Label>
-          <span>{dischargePhysician && dischargePhysician.displayName}</span>
+          <Label>Discharging physician: </Label>
+          <span>{discharge?.discharger?.displayName}</span>
         </div>
         <div />
       </Content>
@@ -202,13 +212,17 @@ const SummaryPage = React.memo(({ patient, encounter }) => {
 
         <div>
           <Label>Discharge planning notes:</Label>
-          <div>{dischargeNotes}</div>
+          <div>{discharge?.note}</div>
         </div>
         <div />
       </Content>
     </SummaryPageContainer>
   );
 });
+
+const SummaryPage = connectApi(api => ({
+  onFetchEncounterDischarge: id => api.get(`encounter/${id}/discharge`),
+}))(DumbSummaryPage);
 
 const NavContainer = styled.div`
   display: flex;
