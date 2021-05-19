@@ -4,7 +4,6 @@ import styled from 'styled-components';
 
 import { SEX_VALUE_INDEX, Colors } from '../../constants';
 import { DateDisplay } from '../DateDisplay';
-import { Button } from '../Button';
 import { PatientBarcode } from './PatientBarcode';
 
 import { printPage, PrintPortal } from '../../print';
@@ -25,11 +24,10 @@ const Details = styled.div`
   margin-left: 5mm;
 `;
 
-// No display, just a placeholder for letterhead. TODO: remove background
+// No display, just a placeholder for letterhead.
 const TopBar = styled.div`
   width: 100%;
   height: 10.6mm;
-  background: blue;
 `;
 
 const MainSection = styled.div`
@@ -54,11 +52,10 @@ const BarcodeRow = styled.div`
   margin-left: calc(1in + 4mm);
 `;
 
-// No display, just a placeholder for letterhead. TODO: remove background
+// No display, just a placeholder for letterhead.
 const BottomBar = styled.div`
   width: 100%;
   height: 3.5mm;
-  background: blue;
   margin-top: auto;
 `;
 
@@ -76,12 +73,12 @@ const MRIDRow = ({ id }) => (
 );
 
 const PhotoLabel = ({ patient }) => (
-  <div style={{ fontSize: '2.2mm' }}>
+  <div style={{ fontSize: '2.2mm', textAlign: 'center' }}>
     <strong style={{ margin: 'auto' }}> {`${patient.title ? `${patient.title}. ` : ''}${patient.firstName} ${patient.lastName}`} </strong>
   </div>
 );
 
-export const PatientIDCard = ({ patient }) => (
+export const PatientIDCard = ({ patient }) => console.log(patient) ?? (
   <Card>
     <TopBar />
     <MainSection>
@@ -90,15 +87,14 @@ export const PatientIDCard = ({ patient }) => (
         <div width={'1in'} height={'1.3in'} background={'red'}>
           <TamanuLogo size={'20mm'} />
         </div>
-        {/* TODO: Center label */}
         <PhotoLabel patient={patient} />
       </PhotoContainer>
       <Details>
-        <MRIDRow id={'ABCDEF'} />
+        <MRIDRow id={patient.displayId} />
         <DetailsRow label={'Surname'} value={patient.lastName} />
         <DetailsRow label={'First Name'} value={patient.firstName} />
-        <DetailsRow label={'Date of Birth'} value={'ABC'} />
-        <DetailsRow label={'Nationality'} value={'ABC'} />
+        <DetailsRow label={'Date of Birth'} value={DateDisplay.rawFormat(patient.dateOfBirth)} />
+        <DetailsRow label={'Nationality'} value={'TODO'} /> {/* TODO: Not sure where the nationality is, I couldn't find it on the patient model */}
         <DetailsRow label={'Sex'} value={SEX_VALUE_INDEX[patient.sex].label} />
       </Details>
     </MainSection>
@@ -109,32 +105,28 @@ export const PatientIDCard = ({ patient }) => (
   </Card>
 );
 
-// A4 is 8.3in x 11.7in (https://a-size.com/a4-paper-size/)
+// A4 is 8.3in x 11.7in (https://a-size.com/a4-paper-size/). Not sure if this is different?
 const LetterPage = styled.div`
   background: white;
   width: 8.5in;
   height: 11in;
 `;
 
-// TODO: Refactor this code intended to print multiple per page
 const PatientIDPage = styled.div`
   margin-left: 0.2198in;
   margin-top: 0.5in;
 `;
 
-export const PatientIDCardPage = ({ patient, readonly, closePrintingModal }) => {
+export const PatientIDCardPage = ({ patient }) => {
   React.useEffect(() => {
     printPage();
-    // closePrintingModal();
   });
 
   return (
     <PrintPortal>
       <LetterPage>
         <PatientIDPage>
-          {new Array(1).fill(0).map((x, i) => (
-            <PatientIDCard key={i} patient={patient} />
-          ))}
+          <PatientIDCard patient={patient} />
         </PatientIDPage>
       </LetterPage>
     </PrintPortal>

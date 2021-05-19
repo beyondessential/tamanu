@@ -49,10 +49,9 @@ const LabelPage = styled.div`
   margin-top: 0.5in;
 `;
 
-export const PatientStickerLabelPage = ({ patient, readonly, closePrintingModal }) => {
+export const PatientStickerLabelPage = ({ patient }) => {
   React.useEffect(() => {
-    printPage();
-    // closePrintingModal();
+    printPage(); // TODO: This needs to be fixed @mclean
   });
 
   return (
