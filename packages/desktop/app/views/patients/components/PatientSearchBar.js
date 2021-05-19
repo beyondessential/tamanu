@@ -98,7 +98,7 @@ const RightSection = styled(Section)`
   border-left: 1px solid ${Colors.outline};
 `;
 
-export const CustomisablePatientSearchBar = ({ onSearch, fields, ...props }) => {
+export const CustomisablePatientSearchBar = ({ title, onSearch, fields, ...props }) => {
   // We can't use onSearch directly as formik will call it with an unwanted second param
   const handleSearch = useCallback(
     ({ village = {}, ...other }) => {
@@ -152,7 +152,6 @@ export const CustomisablePatientSearchBar = ({ onSearch, fields, ...props }) => 
         <Form
           onSubmit={handleSearch}
           render={renderSearchBar}
-          villageSuggester={villageSuggester}
         />
       </Section>
       <RightSection>

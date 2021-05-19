@@ -3,6 +3,7 @@ import React from 'react';
 import { CustomisablePatientSearchBar } from './PatientSearchBar';
 import { connectApi } from '../../../api';
 import { Suggester } from '../../../utils/suggester';
+import { AutocompleteField } from '../../../components';
 
 const DumbImmunisationSearchBar = (props) => (
   <CustomisablePatientSearchBar
