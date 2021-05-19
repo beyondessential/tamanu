@@ -2,7 +2,6 @@ import { BrowserWindow, ipcMain, ipcRenderer } from 'electron';
 import React from 'react';
 import { createPortal } from 'react-dom';
 
-
 export const PRINT_EVENT = 'print-page';
 
 export const printPage = () => ipcRenderer.send(PRINT_EVENT);
