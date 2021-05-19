@@ -1,16 +1,16 @@
-import { 
-  Entity, 
-  Column, 
-  ManyToOne, 
+import {
+  Entity,
+  Column,
+  ManyToOne,
   OneToMany,
   BeforeUpdate,
   BeforeInsert,
   RelationId,
 } from 'typeorm/browser';
 
-import { 
-  ISurveyResponse, 
-  IProgramDataElement, 
+import {
+  ISurveyResponse,
+  IProgramDataElement,
   ISurveyScreenComponent,
   EncounterType,
 } from '~/types';
@@ -56,7 +56,7 @@ export class SurveyResponse extends BaseModel implements ISurveyResponse {
   encounterId: string;
 
   @OneToMany(() => Referral, referral => referral.surveyResponse)
-  referral: Referral
+  referral: Referral;
 
   @OneToMany(() => SurveyResponseAnswer, answer => answer.response)
   answers: SurveyResponseAnswer[];
@@ -91,8 +91,8 @@ export class SurveyResponse extends BaseModel implements ISurveyResponse {
     patientId: string,
     userId: string,
     surveyData: ISurveyResponse & {
-      encounterReason: string,
-      components: ISurveyScreenComponent[],
+      encounterReason: string;
+      components: ISurveyScreenComponent[];
     },
     values: object,
     setNote: (note: string) => void = () => null,
@@ -105,7 +105,7 @@ export class SurveyResponse extends BaseModel implements ISurveyResponse {
     } = surveyData;
 
     try {
-      setNote("Creating encounter...");
+      setNote('Creating encounter...');
       const encounter = await Encounter.getOrCreateCurrentEncounter(patientId, userId, {
         startDate: new Date(),
         endDate: new Date(),
@@ -121,7 +121,7 @@ export class SurveyResponse extends BaseModel implements ISurveyResponse {
         resultText,
       } = getResultValue(components, finalValues);
 
-      setNote("Creating response object...");
+      setNote('Creating response object...');
       const responseRecord: SurveyResponse = await SurveyResponse.createAndSaveOne({
         encounter: encounter.id,
         survey: surveyId,
@@ -132,7 +132,7 @@ export class SurveyResponse extends BaseModel implements ISurveyResponse {
         ...otherData,
       });
 
-      setNote("Attaching answers...");
+      setNote('Attaching answers...');
       const findDataElement = (code: string): IProgramDataElement => {
         const component = components.find(c => c.dataElement.code === code);
         if (!component) return null;
@@ -153,7 +153,7 @@ export class SurveyResponse extends BaseModel implements ISurveyResponse {
           continue;
         }
 
-        const body = getStringValue(dataElement.type, value);
+        const body = await getStringValue(dataElement.type, value);
 
         setNote(`Attaching answer for ${dataElement.id}...`);
         await SurveyResponseAnswer.createAndSaveOne({
