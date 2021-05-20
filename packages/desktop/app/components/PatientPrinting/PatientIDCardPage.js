@@ -59,10 +59,19 @@ const BottomBar = styled.div`
   margin-top: auto;
 `;
 
+const DetailsValue = styled.span`
+  font-weight: bold;
+`
+
+const DetailsKey = styled.span`
+  width: 23mm;
+  font-weight: bold;
+`;
 
 const DetailsRow = ({ label, value }) => (
   <div style={{ lineHeight: '4mm', fontSize: '2.4mm', display: 'flex', flexDirection: 'row' }}>
-    <strong style={{ width: '23mm' }}>{`${label}: `}</strong> {value}
+    <DetailsKey>{`${label}: `}</DetailsKey>
+    <DetailsValue>{value}</DetailsValue>
   </div>
 );
 
@@ -108,18 +117,6 @@ export const PatientIDCard = ({ patient }) => console.log("auu") ?? (
   </Card>
 );
 
-// A4 is 8.3in x 11.7in (https://a-size.com/a4-paper-size/). Not sure if this is different?
-const LetterPage = styled.div`
-  background: white;
-  width: 8.5in;
-  height: 11in;
-`;
-
-const PatientIDPage = styled.div`
-  margin-left: 0.2198in;
-  margin-top: 0.5in;
-`;
-
 export const PatientIDCardPage = ({ patient }) => {
   React.useEffect(() => {
     printPage();
@@ -127,11 +124,7 @@ export const PatientIDCardPage = ({ patient }) => {
 
   return (
     <PrintPortal>
-      <LetterPage>
-        <PatientIDPage>
-          <PatientIDCard patient={patient} />
-        </PatientIDPage>
-      </LetterPage>
+      <PatientIDCard patient={patient} />
     </PrintPortal>
   );
 };

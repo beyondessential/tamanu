@@ -51,9 +51,7 @@ const LabelPage = styled.div`
 
 export const PatientStickerLabelPage = ({ patient }) => {
   React.useEffect(() => {
-    setTimeout(() => {
-      printPage(); // TODO: This needs to be fixed @mclean
-    }, 500);
+    printPage();
   });
 
   return (

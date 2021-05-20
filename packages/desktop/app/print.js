@@ -10,10 +10,9 @@ export function registerPrintListener() {
   ipcMain.on(PRINT_EVENT, event => {
     const win = BrowserWindow.fromWebContents(event.sender);
 
-    win.webContents.print({}, (error, data) => {
-      console.log("it's this bit that's logging");
-      if (error) {
-        console.log(error, error.message);
+    win.webContents.print({}, (success, failureReason) => {
+      if (!success) {
+        console.error(failureReason);
       }
     });
   });
