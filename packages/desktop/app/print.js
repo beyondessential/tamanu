@@ -11,7 +11,10 @@ export function registerPrintListener() {
     const win = BrowserWindow.fromWebContents(event.sender);
 
     win.webContents.print({}, (error, data) => {
-      if (error) return console.log(error.message);
+      console.log("it's this bit that's logging");
+      if (error) {
+        console.log(error, error.message);
+      }
     });
   });
 }

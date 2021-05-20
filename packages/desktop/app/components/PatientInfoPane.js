@@ -137,17 +137,10 @@ const RecordDeathSection = memo(({ patient, readonly }) => {
   );
 });
 
-const PrintSection = memo(({ patient, readonly }) => {
-  const [isModalOpen, setModalOpen] = useState(false);
-  const openModal = useCallback(() => setModalOpen(true), [setModalOpen]);
-  const closeModal = useCallback(() => setModalOpen(false), [setModalOpen]);
-
+const PrintSection = memo(({ patient }) => {
   return ( // TODO: Determine readonly behaviour @mclean
     <React.Fragment>
-      <Button variant="contained" color="primary" disabled={readonly} onClick={openModal}>
-        Print ID
-      </Button>
-      <PatientPrintDetailsModal disabled={readonly} open={isModalOpen} onClose={closeModal} patient={patient} />
+      <PatientPrintDetailsModal patient={patient} />
     </React.Fragment>
   );
 });
