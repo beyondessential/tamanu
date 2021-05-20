@@ -9,12 +9,17 @@ import { PatientBarcode } from './PatientBarcode';
 import { printPage, PrintPortal } from '../../print';
 import { TamanuLogo } from '../TamanuLogo';
 
+const cardDimensions = {
+  width: 85.6,
+  height: 53.92,
+};
+
 const Card = styled.div`
   display: flex;
   flex-direction: column;
   padding: 0.2rem;
-  width: 85.6mm;
-  height: 53.92mm;
+  width: ${cardDimensions.width}mm;
+  height: ${cardDimensions.height}mm;
 `;
 
 const Details = styled.div`
@@ -119,7 +124,17 @@ export const PatientIDCard = ({ patient }) => console.log("auu") ?? (
 
 export const PatientIDCardPage = ({ patient }) => {
   React.useEffect(() => {
-    printPage();
+    printPage({
+      landscape: true,
+      margins: {
+        marginType: 'none',
+      },
+      pageSize: {
+        // it expects dimensions in microns
+        height: cardDimensions.width * 1000,
+        width: cardDimensions.height * 1000,
+      }
+    });
   });
 
   return (
