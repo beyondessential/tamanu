@@ -84,7 +84,7 @@ export const ImmunisationForm = React.memo(
         try {
           setAdministeredOptions([]);
           setScheduleOptions([]);
-          const availableScheduledVaccines = await getScheduledVaccines({ scheduledCategory });
+          const availableScheduledVaccines = await getScheduledVaccines({ category });
           setVaccineOptions(
             availableScheduledVaccines.map(vaccine => ({
               label: vaccine.label,
