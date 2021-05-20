@@ -1,9 +1,20 @@
 import express from 'express';
 import asyncHandler from 'express-async-handler';
 import { QueryTypes, Op } from 'sequelize';
-import { ENCOUNTER_TYPES, REFERENCE_TYPES } from 'shared/constants';
+import { ENCOUNTER_TYPES } from 'shared/constants';
 
 export const patientVaccineRoutes = express.Router();
+
+const isZeroStringOrNumber = value => {
+  let num = value;
+  if (typeof num === 'string') {
+    num = Number.parseInt(value, 10);
+  }
+  if (typeof num !== 'number' || Number.isNaN(num) || !Number.isFinite(num)) {
+    throw new Error(`isZeroStringOrNumber: expected real numeric string or number, got ${value}`);
+  }
+  return num === 0;
+};
 
 patientVaccineRoutes.get(
   '/:id/scheduledVaccines',
@@ -62,7 +73,7 @@ patientVaccineRoutes.get(
         allVaccines[vaccineSchedule.label].schedules.push({
           schedule: vaccineSchedule.schedule,
           scheduledVaccineId: vaccineSchedule.id,
-          administered: !!vaccineSchedule.administered,
+          administered: !isZeroStringOrNumber(vaccineSchedule.administered),
         });
         return allVaccines;
       }, {});
