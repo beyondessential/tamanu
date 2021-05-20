@@ -137,13 +137,7 @@ const RecordDeathSection = memo(({ patient, readonly }) => {
   );
 });
 
-const PrintSection = memo(({ patient }) => {
-  return ( // TODO: Determine readonly behaviour @mclean
-    <React.Fragment>
-      <PatientPrintDetailsModal patient={patient} />
-    </React.Fragment>
-  );
-});
+const PrintSection = memo(({ patient }) => <PatientPrintDetailsModal patient={patient} />);
 
 const Buttons = styled(ButtonRow)`
   margin-top: 30px;
