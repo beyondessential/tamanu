@@ -23,13 +23,7 @@ const DumbFeatureFlagsProvider = ({ children, reduxFeatureFlags }) => {
   return (
     <FeatureFlagsContext.Provider
       value={{
-        getFlag: path => {
-          const value = get(featureFlags, path);
-          if (value === undefined) {
-            return path;
-          }
-          return value;
-        },
+        getFlag: path => get(featureFlags, path),
       }}
     >
       {children}
