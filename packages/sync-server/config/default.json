@@ -64,14 +64,104 @@
           "longLabel": "Sex",
           "hidden": false
         },
+        "dateOfBirth": {
+          "shortLabel": "DOB",
+          "longLabel": "Date of birth"
+        },
         "bloodType": {
           "shortLabel": "Blood type",
           "longLabel": "Blood type",
           "hidden": false
         },
-        "dateOfBirth": {
-          "shortLabel": "DOB",
-          "longLabel": "Date of birth"
+        "title": {
+          "shortLabel": "Title",
+          "longLabel": "Title",
+          "hidden": false
+        },
+        "placeOfBirth": {
+          "shortLabel": "Place of birth",
+          "longLabel": "Place of birth",
+          "hidden": false
+        },
+        "maritalStatus": {
+          "shortLabel": "Marital status",
+          "longLabel": "Marital status",
+          "hidden": false
+        },
+        "primaryContactNumber": {
+          "shortLabel": "Primary contact number",
+          "longLabel": "Primary contact number",
+          "hidden": false
+        },
+        "secondaryContactNumber": {
+          "shortLabel": "Secondary contact number",
+          "longLabel": "Secondary contact number",
+          "hidden": false
+        },
+        "socialMedia": {
+          "shortLabel": "Social media",
+          "longLabel": "Social media",
+          "hidden": false
+        },
+        "settlementId": {
+          "shortLabel": "Settlement",
+          "longLabel": "Settlement",
+          "hidden": false
+        },
+        "streetVillage": {
+          "shortLabel": "Residential landmark",
+          "longLabel": "Residential landmark",
+          "hidden": false
+        },
+        "cityTown": {
+          "shortLabel": "City/town",
+          "longLabel": "City/town",
+          "hidden": false
+        },
+        "subdivisionId": {
+          "shortLabel": "Sub Division",
+          "longLabel": "Sub Division",
+          "hidden": false
+        },
+        "divisionId": {
+          "shortLabel": "Division",
+          "longLabel": "Division",
+          "hidden": false
+        },
+        "countryId": {
+          "shortLabel": "Country",
+          "longLabel": "Country",
+          "hidden": false
+        },
+        "medicalAreaId": {
+          "shortLabel": "Medical area",
+          "longLabel": "Medical area",
+          "hidden": false
+        },
+        "nursingZoneId": {
+          "shortLabel": "Nursing zone",
+          "longLabel": "Nursing zone",
+          "hidden": false
+        },
+        "nationalityId": {
+          "shortLabel": "Nationality",
+          "longLabel": "Nationality",
+          "hidden": false
+        },
+        "ethnicityId": {
+          "shortLabel": "Ethnicity",
+          "longLabel": "Ethnicity",
+          "hidden": false
+        },
+        "occupationId": {
+          "shortLabel": "Occupation",
+          "longLabel": "Occupation",
+          "hidden": false
+        },
+        "educationalLevel": {
+          "shortLabel": "Educational attainment",
+          "longLabel": "Educational attainment",
+          "hidden": false
         },
         "villageName": {
           "shortLabel": "Village",
