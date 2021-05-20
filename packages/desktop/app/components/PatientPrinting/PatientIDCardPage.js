@@ -78,15 +78,19 @@ const PhotoLabel = ({ patient }) => (
   </div>
 );
 
-export const PatientIDCard = ({ patient }) => console.log(patient) ?? (
+// TODO: use actual patient photo 
+const PatientPhoto = ({ patient }) => (
+  <div width={'1in'} height={'1.3in'} background={'red'}>
+    <TamanuLogo size={'20mm'} />
+  </div>
+);
+
+export const PatientIDCard = ({ patient }) => console.log("auu") ?? (
   <Card>
     <TopBar />
     <MainSection>
       <PhotoContainer>
-        {/* TODO: Replace logo with photo of patient */}
-        <div width={'1in'} height={'1.3in'} background={'red'}>
-          <TamanuLogo size={'20mm'} />
-        </div>
+        <PatientPhoto patient={patient} />
         <PhotoLabel patient={patient} />
       </PhotoContainer>
       <Details>
@@ -94,7 +98,6 @@ export const PatientIDCard = ({ patient }) => console.log(patient) ?? (
         <DetailsRow label={'Surname'} value={patient.lastName} />
         <DetailsRow label={'First Name'} value={patient.firstName} />
         <DetailsRow label={'Date of Birth'} value={DateDisplay.rawFormat(patient.dateOfBirth)} />
-        <DetailsRow label={'Nationality'} value={'TODO'} /> {/* TODO: Not sure where the nationality is, I couldn't find it on the patient model */}
         <DetailsRow label={'Sex'} value={SEX_VALUE_INDEX[patient.sex].label} />
       </Details>
     </MainSection>

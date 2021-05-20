@@ -26,7 +26,12 @@ const PRINT_OPTIONS = [
 const PrintOptionList = ({ setCurrentlyPrinting }) => {
   return (
     <div style={{ display: 'flex', flexDirection: 'row' }}>
-      {PRINT_OPTIONS.map(({ label, icon }) => <PrintOption label={label} onPress={() => setCurrentlyPrinting(label)} icon={icon} />)}
+      {PRINT_OPTIONS.map(({ label, icon }) => <PrintOption 
+        key={label} 
+        label={label} 
+        onPress={() => setCurrentlyPrinting(label)} 
+        icon={icon}
+      />)}
     </div>
   )
 }
