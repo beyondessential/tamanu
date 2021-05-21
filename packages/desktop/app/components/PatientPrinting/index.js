@@ -4,6 +4,7 @@ import styled from 'styled-components';
 import { Modal } from '../Modal';
 import { Button } from '../Button';
 import { Colors } from '../../constants';
+import { useApi } from '../../api';
 
 import { PatientIDCardPage } from './PatientIDCardPage';
 import { PatientStickerLabelPage } from './PatientStickerLabelPage';
@@ -60,18 +61,17 @@ const PrintOption = ({ label, icon, onPress }) => {
   );
 }
 
-const imageB64Data = `iVBORw0KGgoAAAANSUhEUgAAAAUAAAAFCAYAAACNbyblAAAAHElEQVQI12P4 //8/w38GIAXDIBKE0DHxgljNBAAO9TXL0Y4OHwAAAABJRU5ErkJggg==`;
 
-async function getPatientProfileImage(patientId) {
-  return new Promise((resolve) => {
-    setTimeout(() => resolve(imageB64Data), 2500);
-  });
+async function getPatientProfileImage(api, patientId) {
+  const { data } = await api.get(`patient/${patientId}/profilePicture`);
+  return data;
 }
 
 export const PatientPrintDetailsModal = ({ patient }) => {
     const [isModalOpen, setModalOpen] = useState(false);
     const [printType, setPrintType] = useState(null);
     const [imageData, setImageData] = useState("");
+    const api = useApi();
 
     const openModal = useCallback(() => {
       setModalOpen(true);
@@ -85,7 +85,7 @@ export const PatientPrintDetailsModal = ({ patient }) => {
       setPrintType(type);
       setImageData("");
       if (type === 'idcard') {
-        const data = await getPatientProfileImage(patient.id);
+        const data = await getPatientProfileImage(api, patient.id);
         setImageData(data);
       }
     }, [setPrintType]);

@@ -118,6 +118,18 @@ patientRelations.get(
   }),
 );
 
+const imageB64Data = `iVBORw0KGgoAAAANSUhEUgAAAAUAAAAFCAYAAACNbyblAAAAHElEQVQI12P4 //8/w38GIAXDIBKE0DHxgljNBAAO9TXL0Y4OHwAAAABJRU5ErkJggg==`;
+
+patientRelations.get(
+  '/:id/profilePicture',
+  asyncHandler(async (req, res) => {
+    res.send({
+      mimeType: 'image/jpeg',
+      data: imageB64Data
+    });
+  }),
+);
+
 patientRelations.get(
   '/:id/referrals',
   asyncHandler(async (req, res) => {
