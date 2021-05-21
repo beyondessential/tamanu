@@ -123,6 +123,43 @@ const imageB64Data = `iVBORw0KGgoAAAANSUhEUgAAAAUAAAAFCAYAAACNbyblAAAAHElEQVQI12
 patientRelations.get(
   '/:id/profilePicture',
   asyncHandler(async (req, res) => {
+    const { models, params } = req;
+
+    // what we want is:
+    // - the answer body
+    // - of a programdataelement with code 'ProfilePhoto'
+    // - on a surveyresponse 
+    // - attached to an encounter
+    // - with this patient
+    const photoCode = 'ProfilePhoto';
+    const patientId = params.id;
+    const result = await req.db.query(
+      `
+        SELECT body FROM survey_response_answers
+          FROM
+            survey_response_answers
+            LEFT JOIN survey_responses
+              ON (survey_response_answers.response_id = survey_responses.id)
+            LEFT JOIN encounters
+              ON (survey_responses.encounter_id = encounters.id)
+            LEFT JOIN program_data_elements
+              ON (survey_response_answers.program_data_element_id = program_data_elements.id)
+          WHERE
+            encounters.patient_id = :patientId
+            AND program_data_elements.code = :photoCode
+        LIMIT 1
+      `,
+      {
+        replacements: { 
+          patientId,
+          photoCode,
+        },
+        type: QueryTypes.SELECT,
+      },
+    );
+
+    console.log(result);
+
     res.send({
       mimeType: 'image/jpeg',
       data: imageB64Data
