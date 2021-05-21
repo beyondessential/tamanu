@@ -38,7 +38,7 @@ const StyledDataTable = styled(DataFetchingTable)`
 `;
 
 const PatientTable = React.memo(({ onViewPatient, showInpatientDetails, ...props }) => {
-  const columns = showInpatientDetails ? INPATIENT_COLUMNS : LISTING_COLUMNS);
+  const columns = showInpatientDetails ? INPATIENT_COLUMNS : LISTING_COLUMNS;
   return (
     <StyledDataTable
       columns={columns}

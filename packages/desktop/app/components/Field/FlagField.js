@@ -1,7 +1,7 @@
 import React from 'react';
 
-import { Field } from '../components/Field';
-import { useFlags } from '../contexts/FeatureFlags';
+import { Field } from './Field';
+import { useFlags } from '../../contexts/FeatureFlags';
 
 export const FlagField = ({ name, flag: propFlag, ...props }) => {
   const { getFlag } = useFlags();
