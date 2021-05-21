@@ -65,7 +65,7 @@ export class AuthService {
     return user;
   }
 
-  async remoteSignIn(params: SyncConnectionParameters): Promise<{ user: IUser, token: string }> {
+  async remoteSignIn(params: SyncConnectionParameters): Promise<{ user: IUser, token: string, featureFlags: object }> {
     // always use the server stored in config if there is one - last thing
     // we want is a device syncing down data from one server and then up
     // to another!
@@ -75,7 +75,7 @@ export class AuthService {
     // create the sync source and log in to it
     this.syncSource.connect(server);
     console.log(`Getting token from ${server}`);
-    const { user, token } = await this.syncSource.login(params.email, params.password);
+    const { user, token, featureFlags } = await this.syncSource.login(params.email, params.password);
     console.log(`Signed in as ${user.displayName}`);
 
     if (!syncServerLocation) {
@@ -87,7 +87,7 @@ export class AuthService {
     // kick off a local save
     const userData = await this.saveLocalUser(user, params.password);
 
-    return { user: userData, token };
+    return { user: userData, token, featureFlags };
   }
 
   startSession(token: string) {
