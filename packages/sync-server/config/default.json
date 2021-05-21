@@ -33,6 +33,13 @@
   },
   "featureFlags": {
     "data": {
+      "patientFieldOverrides": {
+        "deprecated": true,
+        "displayId": {
+          "shortLabel": "NHN",
+          "longLabel": "National Health Number"
+        }
+      },
       "fields": {
         "markedForSync": {
           "shortLabel": "Sync",

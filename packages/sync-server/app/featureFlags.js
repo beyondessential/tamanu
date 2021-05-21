@@ -77,6 +77,15 @@ const fieldsSchema = yup
 const rootFlagSchema = yup
   .object({
     fields: fieldsSchema,
+    // TODO: patientFieldOverrides is only here for backwards compatibility
+    // It may be safely removed if we've broken compatibility since 2021-05-21
+    patientFieldOverrides: yup.object({
+      deprecated: yup.boolean().oneOf([true]),
+      displayId: yup.object({
+        shortLabel: yup.string().required(),
+        longLabel: yup.string().required(),
+      }),
+    }),
   })
   .required()
   .noUnknown();
