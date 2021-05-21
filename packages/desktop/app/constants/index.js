@@ -352,22 +352,6 @@ export const educationalAttainmentOptions = [
 
 export const SEX_VALUE_INDEX = createValueIndex(sexOptions);
 
-export const lookupOptions = [
-  { value: 'billing_categories', label: 'Billing Categories' },
-  { value: 'clinic_list', label: 'Clinic Locations' },
-  { value: 'diagnosis_list', label: 'Diagnoses' },
-  { value: 'patient_status_list', label: 'Patient Status List' },
-  { value: 'physician_list', label: 'Physicians' },
-  { value: 'procedure_list', label: 'Procedures' },
-  { value: 'procedure_locations', label: 'Procedures Locations' },
-  { value: 'radiologists', label: 'Radiologists' },
-  { value: 'sex', label: 'Sex' },
-  { value: 'unit_types', label: 'Unit Types' },
-  { value: 'encounter_location_list', label: 'Encounter Locations' },
-  { value: 'encounter_types', label: 'Encounter Types' },
-  { value: 'female', label: 'Female' },
-];
-
 export const pregnancyOutcomes = [
   { value: '', label: 'N/A' },
   { value: 'liveBirth', label: 'Live Birth' },
