@@ -102,14 +102,18 @@ const Base64Image = ({ data, mediaType = "image/jpeg", ...props }) => (
 const PhotoFrame = styled.div`
   width: 1in;
   height: 1.3in;
-  margin-top: -1px;
-  border: 1px solid green;
+`;
+
+const SizedBase64Image = styled(Base64Image)`
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
 `;
 
 const PatientPhoto = ({ imageData }) => (
   <PhotoFrame>
     { imageData 
-        ? <Base64Image mediaType="image/jpeg" data={imageData} />
+        ? <SizedBase64Image mediaType="image/jpeg" data={imageData} />
         : null
     }
   </PhotoFrame>

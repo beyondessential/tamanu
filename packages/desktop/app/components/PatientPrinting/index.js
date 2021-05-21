@@ -31,7 +31,7 @@ const PrintOptionList = ({ setCurrentlyPrinting }) => {
     <div style={{ display: 'flex', flexDirection: 'row' }}>
       {PRINT_OPTION_ENTRIES.map(([key, { label, icon }]) => <PrintOption 
         key={key} 
-        label={key} 
+        label={label} 
         onPress={() => setCurrentlyPrinting(key)} 
         icon={icon}
       />)}
@@ -63,14 +63,19 @@ const PrintOption = ({ label, icon, onPress }) => {
 
 
 async function getPatientProfileImage(api, patientId) {
-  const { data } = await api.get(`patient/${patientId}/profilePicture`);
-  return data;
+  try {
+    const { data } = await api.get(`patient/${patientId}/profilePicture`);
+    return data;
+  } catch(e) {
+    // 1x1 blank png 
+    return 'iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAQAAAC1HAwCAAAAC0lEQVR42mNkYAAAAAYAAjCB0C8AAAAASUVORK5CYII=';
+  }
 }
 
 export const PatientPrintDetailsModal = ({ patient }) => {
     const [isModalOpen, setModalOpen] = useState(false);
     const [printType, setPrintType] = useState(null);
-    const [imageData, setImageData] = useState("");
+    const [imageData, setImageData] = useState('');
     const api = useApi();
 
     const openModal = useCallback(() => {
@@ -83,7 +88,7 @@ export const PatientPrintDetailsModal = ({ patient }) => {
 
     const setCurrentlyPrinting = useCallback(async (type) => {
       setPrintType(type);
-      setImageData("");
+      setImageData('');
       if (type === 'idcard') {
         const data = await getPatientProfileImage(api, patient.id);
         setImageData(data);
@@ -103,7 +108,7 @@ export const PatientPrintDetailsModal = ({ patient }) => {
         if (imageData) {
           const Component = PRINT_OPTIONS.idcard.component;
           return <Component patient={patient} imageData={imageData} />;
-        } else{
+        } else {
           return (
             <Modal title="Working" open>
               <div>Preparing ID card...</div>
