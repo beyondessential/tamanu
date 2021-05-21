@@ -158,7 +158,7 @@ export const DumbAddVitalsScreen = ({ selectedPatient, navigation }): ReactEleme
       await models.Vitals.createAndSaveOne({
         ...values,
         encounter: encounter.id,
-        date: new Date(),
+        dateRecorded: new Date(),
       });
 
       navigateToHistory();

@@ -61,7 +61,7 @@ export const Screen = ({
           >
             <UserAvatar
               size={screenPercentageToDP(7.29, Orientation.Height)}
-              gender={selectedPatient.gender}
+              sex={selectedPatient.sex}
               displayName={joinNames(selectedPatient)}
             />
           </StyledView>

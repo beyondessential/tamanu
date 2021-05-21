@@ -4,8 +4,9 @@ import { VaccineFormNotGiven } from './VaccineFormNotGiven';
 import { VaccineFormGiven } from './VaccineFormGiven';
 import { FullView } from '/styled/common';
 import { VaccineStatus } from '~/ui/helpers/patient';
+import { InjectionSiteType } from '~/types';
 
-const getFormType = (status: string): { Form: FC<any> } => {
+const getFormType = (status: VaccineStatus): { Form: FC<any> } => {
   switch (status) {
     case VaccineStatus.GIVEN:
       return { Form: VaccineFormGiven };
@@ -20,28 +21,29 @@ export type SubmitButtonsProps = {
   onSubmit: (values: any) => void;
   onCancel: () => void;
 };
-type VaccineFormInitialValues = {
+export type VaccineFormValues = {
   date: Date;
-  administered: string;
   reason?: string;
   batch?: string;
-  status: string;
+  injectionSite?: InjectionSiteType;
+  scheduledVaccineId?: string,  
+  status: VaccineStatus;
 };
 interface VaccineForm {
-  status: any;
-  initialValues: VaccineFormInitialValues;
-  onSubmit: (values: any) => void;
+  status: VaccineStatus;
+  initialValues: VaccineFormValues;
+  onSubmit: (values: VaccineFormValues) => void;
   SubmitButtons?: FC<SubmitButtonsProps>;
   onCancel: () => void;
 }
 
 const createInitialValues = (
-  initialValues: VaccineFormInitialValues,
-): VaccineFormInitialValues => ({
+  initialValues: VaccineFormValues,
+): VaccineFormValues => ({
   date: null,
   reason: null,
   batch: '',
-  administered: null,
+  injectionSite: null,
   ...initialValues,
 });
 

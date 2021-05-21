@@ -3,7 +3,9 @@ import { VitalsTableRowHeader } from './VitalsTableRowHeader';
 import { VitalsTableCell } from './VitalsTableCell';
 import { Row } from '../Table';
 
-export const vitalsColumns = (patientData): string[] => patientData.map(d => d.date.toString());
+export const vitalsColumns = (
+  patientData,
+): string[] => patientData.map(d => d.dateRecorded.toString());
 
 export const vitalRowFieldsToNames = {
   weight: 'Weight (kg)',

@@ -91,6 +91,18 @@ export class SyncManager {
     });
   }
 
+  async waitForEnd(): Promise<void> {
+    if (this.isSyncing) {
+      return new Promise(resolve => {
+        const done = () => {
+          resolve();
+          this.emitter.off('syncEnded', done);
+        };
+        this.emitter.on('syncEnded', done);
+      });
+    }
+  }
+
   async runScheduledSync(): Promise<void> {
     // query the server for any new data
     // - how do we know whether data is new?
@@ -137,6 +149,9 @@ export class SyncManager {
         ...syncablePatients.map(p => ({
           channel: `patient/${p.id}/issue`,
           model: models.PatientIssue })),
+        ...syncablePatients.map(p => ({
+          channel: `patient/${p.id}/additionalData`,
+          model: models.PatientAdditionalData })),
       ];
 
       // add current cursor to each channel info

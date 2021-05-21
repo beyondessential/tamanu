@@ -9,40 +9,17 @@ import {
 import { theme } from '/styled/theme';
 import { screenPercentageToDP, Orientation } from '/helpers/screen';
 import { Button } from '/components/Button';
-import { CrossIcon, GivenOnTimeIcon } from '/components/Icons';
+import { CrossIcon } from '/components/Icons';
 import { Routes } from '/helpers/routes';
-import { UserAvatar } from '/components/UserAvatar';
 import { compose } from 'redux';
 import { withPatient } from '/containers/Patient';
-import { IPatient } from '~/types';
-import { FemaleGender } from '/helpers/constants';
 import { NewPatientScreenProps } from '/interfaces/screens/RegisterPatientStack/NewPatientScreenProps';
-
-const mockPatientData = {
-  name: 'Alice Klein',
-  gender: 'female',
-  age: 34,
-  city: 'Flemington',
-};
-
-const newPatientAddedMock = {
-  size: screenPercentageToDP('16.40', Orientation.Height),
-  displayName: 'Alice Klein',
-  gender: 'female',
-  image:
-    'https://res.cloudinary.com/dqkhy63yu/image/upload/v1573676957/Ellipse_4.png',
-  Icon: (
-    <StyledView position="absolute" right="-20" bottom={30} zIndex={2}>
-      <GivenOnTimeIcon
-        size={screenPercentageToDP('3.88', Orientation.Height)}
-      />
-    </StyledView>
-  ),
-};
+import { joinNames } from '~/ui/helpers/user';
+import { getAgeFromDate } from '~/ui/helpers/date';
 
 const Screen = ({
   navigation,
-  setSelectedPatient,
+  selectedPatient,
 }: NewPatientScreenProps): ReactElement => {
   const onNavigateToHome = useCallback(() => {
     navigation.navigate(Routes.HomeStack.HomeTabs.Index);
@@ -58,17 +35,6 @@ const Screen = ({
   }, []);
 
   const onStartVisit = useCallback(() => {
-    const newPatient: IPatient = {
-      dateOfBirth: new Date(),
-      bloodType: 'A+',
-      city: 'Flemington',
-      firstName: 'Alice',
-      lastName: 'Klein',
-      gender: FemaleGender.value,
-      id: '1234789123654',
-      lastVisit: new Date(),
-    };
-    setSelectedPatient(newPatient);
     navigation.navigate(Routes.HomeStack.HomeTabs.Index, {
       screen: Routes.HomeStack.PatientDetailsStack.Index,
     });
@@ -83,12 +49,13 @@ const Screen = ({
         <RowView width="100%" justifyContent="flex-end">
           <Button
             onPress={onNavigateToHome}
-            width={80}
+            width={24}
+            marginRight={10}
             backgroundColor="transparent"
           >
             <CrossIcon
-              height={screenPercentageToDP(2.43, Orientation.Height)}
-              width={screenPercentageToDP(2.43, Orientation.Height)}
+              height={24}
+              width={24}
             />
           </Button>
         </RowView>
@@ -100,7 +67,13 @@ const Screen = ({
         alignItems="center"
         zIndex={2}
       >
-        <UserAvatar {...newPatientAddedMock} />
+        <StyledText
+          color={theme.colors.WHITE}
+          fontSize={screenPercentageToDP(3.4, Orientation.Height)}
+          fontWeight="bold"
+        >
+          {selectedPatient.displayId}
+        </StyledText>
       </StyledView>
       <FullView
         paddingTop={screenPercentageToDP(7.65, Orientation.Height)}
@@ -112,11 +85,10 @@ const Screen = ({
           fontSize={screenPercentageToDP(3.4, Orientation.Height)}
           fontWeight="bold"
         >
-          {newPatientAddedMock.displayName}
+          {joinNames(selectedPatient)}
         </StyledText>
         <StyledText color={theme.colors.TEXT_MID} marginTop={10}>
-          {newPatientAddedMock.gender}, {mockPatientData.age} years old,{' '}
-          {mockPatientData.city}
+          {selectedPatient.gender} {getAgeFromDate(selectedPatient.dateOfBirth).toString()} years old{' '}
         </StyledText>
         <StyledText
           fontSize={screenPercentageToDP(2.55, Orientation.Height)}
@@ -124,7 +96,7 @@ const Screen = ({
           marginTop={90}
           textAlign="center"
         >
-          This patient has been{'\n'}added to the database
+          {selectedPatient.firstName} has been{'\n'}added to the database
         </StyledText>
         <StyledSafeAreaView
           flex={1}

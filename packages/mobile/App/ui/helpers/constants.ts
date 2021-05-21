@@ -127,7 +127,16 @@ export const userRolesOptions = [
   practitionerRole,
 ];
 
-export const VaccineStatusCells = {
+type VaccineStatusCellsType = {
+  [key in VaccineStatus]: {
+    Icon: (props: Record<string, any>) => React.ReactElement;
+    background: string;
+    color: string;
+    text: string;
+  };
+};
+
+export const VaccineStatusCells: VaccineStatusCellsType = {
   [VaccineStatus.UNKNOWN]: {
     Icon: Icons.EmptyCircleIcon,
     background: 'transparent',

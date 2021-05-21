@@ -4,6 +4,7 @@ import { IReferenceData } from './IReferenceData';
 export interface IPatientAdditionalData {
   patient: IPatient;
   bloodType?: string;
+  title?: string;
   primaryContactNumber?: string;
   secondaryContactNumber?: string;
   cityTown?: string;

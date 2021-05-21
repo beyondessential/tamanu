@@ -2,9 +2,10 @@ import React, { memo } from 'react';
 import { RowView, StyledText } from '/styled/common';
 import { VaccineStatusCells } from '/helpers/constants';
 import { theme } from '/styled/theme';
+import { VaccineStatus } from '~/ui/helpers/patient';
 
 interface VaccineStatusProps {
-  status: string;
+  status: VaccineStatus;
 }
 
 export const VaccineStatusHeader = ({

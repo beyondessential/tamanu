@@ -7,7 +7,7 @@ import { screenPercentageToDP, Orientation } from '/helpers/screen';
 export interface UserAvatarProps {
   image?: string;
   displayName: string;
-  gender: string;
+  sex: string;
   size: number;
   Icon?: JSX.Element;
 }
@@ -15,7 +15,7 @@ export interface UserAvatarProps {
 export const UserAvatar = ({
   image,
   displayName,
-  gender,
+  sex,
   size,
   Icon,
 }: UserAvatarProps): JSX.Element => {
@@ -25,8 +25,8 @@ export const UserAvatar = ({
   );
   const backgroundColor: string = React.useMemo(() => {
     if (image) return 'transparent';
-    return gender === Genders.MALE ? theme.colors.SAFE : theme.colors.ALERT;
-  }, [gender, image]);
+    return sex === Genders.MALE ? theme.colors.SAFE : theme.colors.ALERT;
+  }, [sex, image]);
 
   return (
     <StyledView
@@ -46,8 +46,8 @@ export const UserAvatar = ({
           {userInitials}
         </StyledText>
       ) : (
-          <StyledImage source={{ uri: image }} width={size} height={size} />
-        )}
+        <StyledImage source={{ uri: image }} width={size} height={size} />
+      )}
       {Icon && Icon}
     </StyledView>
   );
