@@ -107,9 +107,9 @@ const COLUMNS = [
       />
     ),
   },
-  { key: 'chiefComplaint' },
+  { key: 'chiefComplaint', title: 'Chief complaint' },
   { key: 'displayId' },
-  { key: 'patientName', accessor: row => `${row.firstName} ${row.lastName}` },
+  { key: 'patientName', title: 'Patient', accessor: row => `${row.firstName} ${row.lastName}` },
   { key: 'dateOfBirth', accessor: row => <DateDisplay date={row.dateOfBirth} /> },
   {
     key: 'sex',

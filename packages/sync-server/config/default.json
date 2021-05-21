@@ -60,14 +60,6 @@
           "longLabel": "Cultural/traditional name",
           "hidden": false
         },
-        "patientName": {
-          "shortLabel": "Patient",
-          "longLabel": "Patient"
-        },
-        "chiefComplaint": {
-          "shortLabel": "Chief complaint",
-          "longLabel": "Chief complaint"
-        },
         "sex": {
           "shortLabel": "Sex",
           "longLabel": "Sex",

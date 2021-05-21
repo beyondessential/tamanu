@@ -211,7 +211,7 @@ class TableComponent extends React.Component {
           direction={order}
           onClick={() => onChangeOrderBy(key)}
         >
-          {title ? title : getFlag(`fields.${key}.shortLabel`)}
+          {title || getFlag(`fields.${key}.shortLabel`) || key}
         </TableSortLabel>
       ) : (
         title
