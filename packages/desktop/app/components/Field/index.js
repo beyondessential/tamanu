@@ -1,5 +1,6 @@
 // simple fields
 export * from './Field';
+export * from './FlagField';
 export * from './TextField';
 export * from './NumberField';
 export * from './DateField';
