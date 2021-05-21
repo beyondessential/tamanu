@@ -92,19 +92,35 @@ const PhotoLabel = ({ patient }) => (
   </div>
 );
 
-// TODO: use actual patient photo 
-const PatientPhoto = ({ patient }) => (
-  <div width={'1in'} height={'1.3in'} background={'red'}>
-    <TamanuLogo size={'20mm'} />
-  </div>
+const Base64Image = ({ data, mediaType = "image/jpeg", ...props }) => (
+  <img 
+    {...props} 
+    src={`data:${mediaType};base64,${data}`}
+  />
 );
 
-export const PatientIDCard = ({ patient }) => console.log("auu") ?? (
+const PhotoFrame = styled.div`
+  width: 1in;
+  height: 1.3in;
+  margin-top: -1px;
+  border: 1px solid green;
+`;
+
+const PatientPhoto = ({ imageData }) => (
+  <PhotoFrame>
+    { imageData 
+        ? <Base64Image mediaType="image/jpeg" data={imageData} />
+        : null
+    }
+  </PhotoFrame>
+);
+
+export const PatientIDCard = ({ patient, imageData }) => (
   <Card>
     <TopBar />
     <MainSection>
       <PhotoContainer>
-        <PatientPhoto patient={patient} />
+        <PatientPhoto imageData={imageData} />
         <PhotoLabel patient={patient} />
       </PhotoContainer>
       <Details>
@@ -122,7 +138,7 @@ export const PatientIDCard = ({ patient }) => console.log("auu") ?? (
   </Card>
 );
 
-export const PatientIDCardPage = ({ patient }) => {
+export const PatientIDCardPage = ({ patient, imageData }) => {
   React.useEffect(() => {
     printPage({
       landscape: true,
@@ -139,7 +155,7 @@ export const PatientIDCardPage = ({ patient }) => {
 
   return (
     <PrintPortal>
-      <PatientIDCard patient={patient} />
+      <PatientIDCard patient={patient} imageData={imageData} />
     </PrintPortal>
   );
 };

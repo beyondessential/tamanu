@@ -10,26 +10,28 @@ import { PatientStickerLabelPage } from './PatientStickerLabelPage';
 import { StickerIcon } from './StickerIcon';
 import { IDCardIcon } from './IDCardIcon';
 
-const PRINT_OPTIONS = [
-  {
+const PRINT_OPTIONS = {
+  barcode: {
     label: "Print labels",
     component: PatientStickerLabelPage,
     icon: StickerIcon,
   },
-  {
+  idcard: {
     label: "Print ID",
     component: PatientIDCardPage,
     icon: IDCardIcon,
   }
-];
+};
+
+const PRINT_OPTION_ENTRIES = Object.entries(PRINT_OPTIONS);
 
 const PrintOptionList = ({ setCurrentlyPrinting }) => {
   return (
     <div style={{ display: 'flex', flexDirection: 'row' }}>
-      {PRINT_OPTIONS.map(({ label, icon }) => <PrintOption 
-        key={label} 
-        label={label} 
-        onPress={() => setCurrentlyPrinting(label)} 
+      {PRINT_OPTION_ENTRIES.map(([key, { label, icon }]) => <PrintOption 
+        key={key} 
+        label={key} 
+        onPress={() => setCurrentlyPrinting(key)} 
         icon={icon}
       />)}
     </div>
@@ -58,8 +60,19 @@ const PrintOption = ({ label, icon, onPress }) => {
   );
 }
 
+const imageB64Data = `iVBORw0KGgoAAAANSUhEUgAAAAUAAAAFCAYAAACNbyblAAAAHElEQVQI12P4 //8/w38GIAXDIBKE0DHxgljNBAAO9TXL0Y4OHwAAAABJRU5ErkJggg==`;
+
+async function getPatientProfileImage(patientId) {
+  return new Promise((resolve) => {
+    setTimeout(() => resolve(imageB64Data), 2500);
+  });
+}
+
 export const PatientPrintDetailsModal = ({ patient }) => {
     const [isModalOpen, setModalOpen] = useState(false);
+    const [printType, setPrintType] = useState(null);
+    const [imageData, setImageData] = useState("");
+
     const openModal = useCallback(() => {
       setModalOpen(true);
       setCurrentlyPrinting(null);
@@ -68,24 +81,50 @@ export const PatientPrintDetailsModal = ({ patient }) => {
       setModalOpen(false);
     }, [setModalOpen]);
 
-    const [currentlyPrinting, setCurrentlyPrinting] = useState(null);
-    const CurrentlyPrintingComponent = PRINT_OPTIONS.find(({ label }) => label === currentlyPrinting)?.component;
+    const setCurrentlyPrinting = useCallback(async (type) => {
+      setPrintType(type);
+      setImageData("");
+      if (type === 'idcard') {
+        const data = await getPatientProfileImage(patient.id);
+        setImageData(data);
+      }
+    }, [setPrintType]);
+
+
+    // The print system & the modals both use React's portal functionality,
+    // which unfortunately means a printed page will show up blank if any
+    // modal is mounted - so when we are actually printing something, 
+    // we make sure to unmount the modal at the same time.
+    const mainComponent = (() => {
+      if (printType === 'barcode') {
+        const Component = PRINT_OPTIONS.barcode.component;
+        return <Component patient={patient} />;
+      } else if (printType === 'idcard') {
+        if (imageData) {
+          const Component = PRINT_OPTIONS.idcard.component;
+          return <Component patient={patient} imageData={imageData} />;
+        } else{
+          return (
+            <Modal title="Working" open>
+              <div>Preparing ID card...</div>
+            </Modal>
+          );
+        }
+      } else {
+        return (
+          <Modal title="Select label" open={isModalOpen} onClose={closeModal}>
+            <PrintOptionList setCurrentlyPrinting={setCurrentlyPrinting} />
+          </Modal>
+        );
+      }
+    })();
 
     return (
       <React.Fragment>
         <Button variant="contained" color="primary" onClick={openModal}>
           Print ID
         </Button>
-        {
-          // The print system & the modals both use React's portal functionality,
-          // which unfortunately means a printed page will show up blank if any
-          // modal is mounted - so we immediately unmount it when a selection is made
-          CurrentlyPrintingComponent  
-            ? <CurrentlyPrintingComponent patient={patient} />
-            : <Modal title="Select label" open={isModalOpen} onClose={closeModal}>
-                <PrintOptionList setCurrentlyPrinting={setCurrentlyPrinting} />
-              </Modal>
-        }
+        { mainComponent }
       </React.Fragment>
     );
   };
