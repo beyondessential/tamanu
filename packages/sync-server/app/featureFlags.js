@@ -4,7 +4,7 @@ import { defaultsDeep } from 'lodash';
 
 import { log } from 'shared/services/logging';
 
-const patientFieldSchema = yup
+const fieldSchema = yup
   .object({
     shortLabel: yup.string().when('hidden', {
       is: false,
@@ -19,7 +19,7 @@ const patientFieldSchema = yup
   .default({}) // necessary to stop yup throwing hard-to-debug errors
   .noUnknown();
 
-const unhideablePatientFieldSchema = yup
+const unhideableFieldSchema = yup
   .object({
     shortLabel: yup.string().required(),
     longLabel: yup.string().required(),
@@ -65,19 +65,19 @@ const HIDEABLE_FIELDS = [
   'middleName',
 ];
 
-const patientFieldsSchema = yup
+const fieldsSchema = yup
   .object({
     ...UNHIDEABLE_FIELDS.reduce(
       (fields, field) => ({
         ...fields,
-        [field]: unhideablePatientFieldSchema,
+        [field]: unhideableFieldSchema,
       }),
       {},
     ),
     ...HIDEABLE_FIELDS.reduce(
       (fields, field) => ({
         ...fields,
-        [field]: patientFieldSchema,
+        [field]: fieldSchema,
       }),
       {},
     ),
@@ -86,7 +86,7 @@ const patientFieldsSchema = yup
 
 const rootFlagSchema = yup
   .object({
-    patientFieldOverrides: patientFieldsSchema,
+    fields: fieldsSchema,
   })
   .required()
   .noUnknown();

@@ -33,7 +33,7 @@
   },
   "featureFlags": {
     "data": {
-      "patientFieldOverrides": {
+      "fields": {
         "markedForSync": {
           "shortLabel": "Sync",
           "longLabel": "Marked for sync"

@@ -70,10 +70,10 @@ const DumbImmunisationCertificate = ({ currentUser, patient, immunisations }) =>
     return null;
   }
   const primaryDetails = PRIMARY_DETAILS_FIELDS
-    .filter(([name]) => getFlag(`patientFieldOverrides.${name}.hidden`) !== true)
+    .filter(([name]) => getFlag(`fields.${name}.hidden`) !== true)
     .map(([name, accessor]) => (
       <p key={name}>
-        {getFlag(`patientFieldOverrides.${name}.shortLabel`) || name}: {accessor ? accessor(patient) : patient[name]}
+        {getFlag(`fields.${name}.shortLabel`) || name}: {accessor ? accessor(patient) : patient[name]}
       </p>
     ));
 

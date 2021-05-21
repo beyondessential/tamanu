@@ -5,7 +5,7 @@ import { useFlags } from '../contexts/FeatureFlags';
 
 export const PatientField = ({ name, flag: propFlag, ...props }) => {
   const { getFlag } = useFlags();
-  const flag = propFlag || `patientFieldOverrides.${name}`;
+  const flag = propFlag || `fields.${name}`;
   const { hidden, longLabel } = getFlag(flag);
   if (hidden) {
     return null;

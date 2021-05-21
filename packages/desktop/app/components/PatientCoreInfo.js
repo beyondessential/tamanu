@@ -108,7 +108,7 @@ const DeceasedIndicator = memo(({ death }) => (
 const HealthIdDisplay = memo(({ patient }) => (
   <HealthIdContainer>
     <HealthIdLabelText>
-      <ConfigurableText flag="patientFieldOverrides.displayId.longLabel"/>
+      <ConfigurableText flag="fields.displayId.longLabel"/>
     </HealthIdLabelText>
     <InvertedDisplayIdLabel>{patient.displayId}</InvertedDisplayIdLabel>
   </HealthIdContainer>
@@ -128,8 +128,8 @@ export const CoreInfoDisplay = memo(({ patient }) => (
       </NameContainer>
     </NameSection>
     <CoreInfoSection>
-      <CoreInfoCell flag="patientFieldOverrides.sex.shortLabel">{patient.sex}</CoreInfoCell>
-      <CoreInfoCell flag="patientFieldOverrides.dateOfBirth.shortLabel">
+      <CoreInfoCell flag="fields.sex.shortLabel">{patient.sex}</CoreInfoCell>
+      <CoreInfoCell flag="fields.dateOfBirth.shortLabel">
         <DateDisplay date={patient.dateOfBirth} />
       </CoreInfoCell>
     </CoreInfoSection>

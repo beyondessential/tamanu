@@ -40,7 +40,7 @@ export const IdBanner = ({ children }) => {
   return (
     <IdFieldContainer>
       <IdFieldTitle>
-        <ConfigurableText flag="patientFieldOverrides.displayId.longLabel"/>
+        <ConfigurableText flag="fields.displayId.longLabel"/>
       </IdFieldTitle>
 
       {children}

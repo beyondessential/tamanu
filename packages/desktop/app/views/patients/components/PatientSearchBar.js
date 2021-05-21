@@ -117,11 +117,11 @@ export const CustomisablePatientSearchBar = ({ title, onSearch, fields, ...props
   const fieldElements = useMemo(() =>
     fields
       .map(([key, { suggesterKey, ...fieldProps } = {}]) => (
-        getFlag(`patientFieldOverrides.${key}.hidden`) === true ? null : (
+        getFlag(`fields.${key}.hidden`) === true ? null : (
           <Field
             name={key}
             key={key}
-            placeholder={getFlag(`patientFieldOverrides.${key}.longLabel`)}
+            placeholder={getFlag(`fields.${key}.longLabel`)}
             component={TextField}
             suggester={props[suggesterKey]}
             {...fieldProps}

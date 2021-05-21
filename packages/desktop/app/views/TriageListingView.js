@@ -114,7 +114,7 @@ const COLUMNS = [
   },
   {
     key: 'displayId',
-    title: <ConfigurableText flag="patientFieldOverrides.displayId.shortLabel"/>,
+    title: <ConfigurableText flag="fields.displayId.shortLabel"/>,
     accessor: row => row.displayId,
   },
   {

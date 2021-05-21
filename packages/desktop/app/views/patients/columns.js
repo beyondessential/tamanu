@@ -18,67 +18,67 @@ export const markedForSync = {
 
 export const displayId = {
   key: 'displayId',
-  title: <ConfigurableText flag="patientFieldOverrides.displayId.shortLabel"/>,
+  title: <ConfigurableText flag="fields.displayId.shortLabel"/>,
   minWidth: 80,
   accessor: row => row.displayId || `(${row.id})`,
 };
 
 export const firstName = {
   key: 'firstName',
-  title: <ConfigurableText flag="patientFieldOverrides.firstName.shortLabel"/>,
+  title: <ConfigurableText flag="fields.firstName.shortLabel"/>,
   minWidth: 100,
 };
 
 export const lastName = {
   key: 'lastName',
-  title: <ConfigurableText flag="patientFieldOverrides.lastName.shortLabel"/>,
+  title: <ConfigurableText flag="fields.lastName.shortLabel"/>,
   minWidth: 100,
 };
 
 export const culturalName = {
   key: 'culturalName',
-  title: <ConfigurableText flag="patientFieldOverrides.culturalName.shortLabel"/>,
+  title: <ConfigurableText flag="fields.culturalName.shortLabel"/>,
   minWidth: 100,
 };
 
 export const sex = {
   key: 'sex',
-  title: <ConfigurableText flag="patientFieldOverrides.sex.shortLabel"/>,
+  title: <ConfigurableText flag="fields.sex.shortLabel"/>,
   minWidth: 80,
   CellComponent: SexCell,
 };
 
 export const dateOfBirth = {
   key: 'dateOfBirth',
-  title: <ConfigurableText flag="patientFieldOverrides.dateOfBirth.shortLabel"/>,
+  title: <ConfigurableText flag="fields.dateOfBirth.shortLabel"/>,
   minWidth: 100,
   CellComponent: DateOfBirthCell,
 };
 
 export const village = {
   key: 'villageName',
-  title: <ConfigurableText flag="patientFieldOverrides.villageName.shortLabel"/>,
+  title: <ConfigurableText flag="fields.villageName.shortLabel"/>,
   minWidth: 100,
   accessor: row => row?.villageName || null,
 };
 
 export const location = {
   key: 'locationName',
-  title: <ConfigurableText flag="patientFieldOverrides.locationName.shortLabel"/>,
+  title: <ConfigurableText flag="fields.locationName.shortLabel"/>,
   minWidth: 100,
   accessor: row => row.locationName,
 };
 
 export const department = {
   key: 'departmentName',
-  title: <ConfigurableText flag="patientFieldOverrides.departmentName.shortLabel"/>,
+  title: <ConfigurableText flag="fields.departmentName.shortLabel"/>,
   minWidth: 100,
   accessor: row => row.departmentName,
 };
 
 export const status = {
   key: 'encounterType',
-  title: <ConfigurableText flag="patientFieldOverrides.encounterType.shortLabel"/>,
+  title: <ConfigurableText flag="fields.encounterType.shortLabel"/>,
   minWidth: 100,
   accessor: ({ encounterType }) => {
     if (!encounterType) return '';
@@ -90,10 +90,10 @@ export const status = {
 
 export const vaccinationStatus = {
   key: 'vaccinationStatus',
-  title: <ConfigurableText flag="patientFieldOverrides.vaccinationStatus.shortLabel"/>,
+  title: <ConfigurableText flag="fields.vaccinationStatus.shortLabel"/>,
   minWidth: 100,
   accessor: row => row.vaccinationStatus || 'Unknown',
 };
 
 export const filterHiddenColumns =
-  (columns, getFlag) => columns.filter(({ key }) => !getFlag(`patientFieldOverrides.${key}.hidden`));
+  (columns, getFlag) => columns.filter(({ key }) => !getFlag(`fields.${key}.hidden`));

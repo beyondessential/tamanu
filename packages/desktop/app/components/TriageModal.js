@@ -53,10 +53,10 @@ const DumbTriageModal = React.memo(({ open, patient, onClose, ...rest }) => {
   const { displayId, firstName, lastName, sex, dateOfBirth } = patient;
   const { getFlag } = useFlags();
   const detailsFields = DETAILS_FIELD_DEFINITIONS
-    .filter(([name]) => getFlag(`patientFieldOverrides.${name}.hidden`) !== true)
+    .filter(([name]) => getFlag(`fields.${name}.hidden`) !== true)
     .map(([name, accessor]) => (
       <React.Fragment key={name}>
-        <DetailLabel>{getFlag(`patientFieldOverrides.${name}.longLabel`)}:</DetailLabel>
+        <DetailLabel>{getFlag(`fields.${name}.longLabel`)}:</DetailLabel>
         <DetailValue>{accessor ? accessor(patient) : patient[name]}</DetailValue>
       </React.Fragment>
     ));
