@@ -64,7 +64,6 @@ describe('Auth', () => {
       expect(response.body).toHaveProperty('featureFlags.fields.displayId', {
         shortLabel: 'NHN',
         longLabel: 'National Health Number',
-        hidden: false,
       });
     });
 
