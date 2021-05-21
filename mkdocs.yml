@@ -1,0 +1,4 @@
+site_name: Tamanu
+nav:
+    - Home: index.md
+theme: readthedocs
