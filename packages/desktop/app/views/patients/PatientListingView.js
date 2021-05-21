@@ -19,7 +19,6 @@ import {
   status,
   location,
   department,
-  filterHiddenColumns,
 } from './columns';
 
 const PATIENT_SEARCH_ENDPOINT = 'patient';
@@ -39,11 +38,7 @@ const StyledDataTable = styled(DataFetchingTable)`
 `;
 
 const PatientTable = React.memo(({ onViewPatient, showInpatientDetails, ...props }) => {
-  const { getFlag } = useFlags();
-  const columns = filterHiddenColumns(
-    showInpatientDetails ? INPATIENT_COLUMNS : LISTING_COLUMNS,
-    getFlag,
-  );
+  const columns = showInpatientDetails ? INPATIENT_COLUMNS : LISTING_COLUMNS);
   return (
     <StyledDataTable
       columns={columns}

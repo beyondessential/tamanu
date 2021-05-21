@@ -3,7 +3,7 @@ import { API } from '../../api';
 
 import { useFlags } from '../../contexts/FeatureFlags';
 import { TopBar, PageContainer, DataFetchingTable } from '../../components';
-import { displayId, firstName, lastName, village, filterHiddenColumns } from './columns';
+import { displayId, firstName, lastName, village } from './columns';
 import { ImmunisationSearchBar, PatientImmunisationsModal } from './components';
 
 const CovidVaccinationStatusComponent = ({ row }) => {
@@ -49,11 +49,10 @@ const COLUMNS = [displayId, firstName, lastName, village, covidVaccinationStatus
 
 const PatientCovidCampaignTable = React.memo(({ onPatientSelect, getVaccines, ...props }) => {
   const { getFlag } = useFlags();
-  const columns = filterHiddenColumns(COLUMNS, getFlag);
   return (
     <DataFetchingTable
       endpoint="patient"
-      columns={columns}
+      columns={COLUMNS}
       noDataMessage="No patients found"
       exportName="Covid Campaign"
       onRowClick={onPatientSelect}

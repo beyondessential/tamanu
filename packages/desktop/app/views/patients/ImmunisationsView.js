@@ -11,7 +11,6 @@ import {
   sex,
   dateOfBirth,
   vaccinationStatus,
-  filterHiddenColumns,
 } from './columns';
 import { PatientSearchBar, PatientImmunisationsModal } from './components';
 
@@ -26,19 +25,15 @@ const COLUMNS = [
   vaccinationStatus,
 ];
 
-const PatientImmunisationsTable = React.memo(({ onPatientSelect, ...props }) => {
-  const { getFlag } = useFlags();
-  const columns = filterHiddenColumns(COLUMNS, getFlag);
-  return (
-    <DataFetchingTable
-      endpoint="patient"
-      columns={COLUMNS}
-      noDataMessage="No patients found"
-      onRowClick={onPatientSelect}
-      {...props}
-    />
-  );
-});
+const PatientImmunisationsTable = React.memo(({ onPatientSelect, ...props }) => (
+  <DataFetchingTable
+    endpoint="patient"
+    columns={COLUMNS}
+    noDataMessage="No patients found"
+    onRowClick={onPatientSelect}
+    {...props}
+  />
+));
 
 export const ImmunisationsView = () => {
   const [searchParameters, setSearchParameters] = useState({});

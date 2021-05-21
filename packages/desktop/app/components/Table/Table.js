@@ -313,7 +313,10 @@ class TableComponent extends React.Component {
   }
 }
 
-export const Table = (props) => {
+export const Table = ({ columns: allColumns, ...props }) => {
   const { getFlag } = useFlags();
-  return <TableComponent getFlag={getFlag} {...props} />;
+  const columns = allColumns.filter(
+    ({ key }) => getFlag(`fields.${key}.hidden`) !== true,
+  );
+  return <TableComponent columns={columns} getFlag={getFlag} {...props} />;
 }
