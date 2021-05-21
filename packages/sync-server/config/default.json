@@ -48,7 +48,8 @@
         },
         "middleName": {
           "shortLabel": "Middle name",
-          "longLabel": "Middle name"
+          "longLabel": "Middle name",
+          "hidden": false
         },
         "lastName": {
           "shortLabel": "Last name",
@@ -57,7 +58,7 @@
         "culturalName": {
           "shortLabel": "Cultural name",
           "longLabel": "Cultural/traditional name",
-          "hidden": true
+          "hidden": false
         },
         "sex": {
           "shortLabel": "Sex",

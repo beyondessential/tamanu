@@ -39,9 +39,30 @@ const UNHIDEABLE_FIELDS = [
 const HIDEABLE_FIELDS = [
   'culturalName',
   'sex',
-  'villageName', // TODO: can we call this village?
+  'villageName',
+  'villageId',
   'encounterType',
   'vaccinationStatus',
+  'bloodType',
+  'title',
+  'placeOfBirth',
+  'maritalStatus',
+  'primaryContactNumber',
+  'secondaryContactNumber',
+  'socialMedia',
+  'settlementId',
+  'streetVillage',
+  'cityTown',
+  'subdivisionId',
+  'divisionId',
+  'countryId',
+  'medicalAreaId',
+  'nursingZoneId',
+  'nationalityId',
+  'ethnicityId',
+  'occupationId',
+  'educationalLevel',
+  'middleName',
 ];
 
 const patientFieldsSchema = yup
