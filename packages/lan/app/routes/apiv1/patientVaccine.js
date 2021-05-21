@@ -5,15 +5,15 @@ import { ENCOUNTER_TYPES } from 'shared/constants';
 
 export const patientVaccineRoutes = express.Router();
 
-const isZeroStringOrNumber = value => {
+const asRealNumber = value => {
   let num = value;
   if (typeof num === 'string') {
     num = Number.parseInt(value, 10);
   }
   if (typeof num !== 'number' || Number.isNaN(num) || !Number.isFinite(num)) {
-    throw new Error(`isZeroStringOrNumber: expected real numeric string or number, got ${value}`);
+    throw new Error(`asRealNumber: expected real numeric string or number, got ${value}`);
   }
-  return num === 0;
+  return num;
 };
 
 patientVaccineRoutes.get(
@@ -73,7 +73,7 @@ patientVaccineRoutes.get(
         allVaccines[vaccineSchedule.label].schedules.push({
           schedule: vaccineSchedule.schedule,
           scheduledVaccineId: vaccineSchedule.id,
-          administered: !isZeroStringOrNumber(vaccineSchedule.administered),
+          administered: asRealNumber(vaccineSchedule.administered) > 0,
         });
         return allVaccines;
       }, {});
