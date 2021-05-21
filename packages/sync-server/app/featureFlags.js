@@ -103,7 +103,6 @@ rootFlagSchema
       `Error(s) validating feature flags (check featureFlags.data in your config):${errors}`,
     );
   });
-console.log(flags); // TODO: remove before PR review
 
 export const getFeatureFlags = async () => {
   return flags;
