@@ -107,35 +107,18 @@ const COLUMNS = [
       />
     ),
   },
-  {
-    key: 'chiefComplaint',
-    title: 'Chief complaint',
-    accessor: row => row.chiefComplaint,
-  },
-  {
-    key: 'displayId',
-    title: <ConfigurableText flag="fields.displayId.shortLabel"/>,
-    accessor: row => row.displayId,
-  },
-  {
-    key: 'patientName',
-    title: 'Patient',
-    accessor: row => `${row.firstName} ${row.lastName}`,
-  },
-  {
-    key: 'dateOfBirth',
-    title: 'Date of birth',
-    accessor: row => <DateDisplay date={row.dateOfBirth} />,
-  },
+  { key: 'chiefComplaint' },
+  { key: 'displayId' },
+  { key: 'patientName', accessor: row => `${row.firstName} ${row.lastName}` },
+  { key: 'dateOfBirth', accessor: row => <DateDisplay date={row.dateOfBirth} /> },
   {
     key: 'sex',
-    title: 'Sex',
     accessor: row => {
       const sex = row.sex || '';
       return capitaliseFirstLetter(sex);
     },
   },
-  { key: 'locationName', title: 'Location', accessor: row => row.locationName },
+  { key: 'locationName' },
 ];
 
 const DumbTriageTable = React.memo(({ onViewEncounter, ...props }) => {

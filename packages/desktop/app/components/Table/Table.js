@@ -19,6 +19,7 @@ import TablePagination from '@material-ui/core/TablePagination';
 import { Button } from '@material-ui/core';
 import SaveAltIcon from '@material-ui/icons/SaveAlt';
 
+import { useFlags } from '../../contexts/FeatureFlags';
 import { ErrorBoundary } from '../ErrorBoundary';
 import { Colors } from '../../constants';
 
@@ -141,7 +142,7 @@ class TableComponent extends React.Component {
     columns: PropTypes.arrayOf(
       PropTypes.shape({
         key: PropTypes.string.isRequired,
-        title: PropTypes.node.isRequired,
+        title: PropTypes.node,
         accessor: PropTypes.func,
         sortable: PropTypes.bool,
       }),
@@ -202,7 +203,7 @@ class TableComponent extends React.Component {
   };
 
   renderHeaders() {
-    const { columns, order, orderBy, onChangeOrderBy } = this.props;
+    const { columns, order, orderBy, onChangeOrderBy, getFlag } = this.props;
     const getContent = (key, sortable, title) =>
       sortable ? (
         <TableSortLabel
@@ -210,7 +211,7 @@ class TableComponent extends React.Component {
           direction={order}
           onClick={() => onChangeOrderBy(key)}
         >
-          {title}
+          {title ? title : getFlag(`fields.${key}.shortLabel`)}
         </TableSortLabel>
       ) : (
         title
@@ -312,4 +313,7 @@ class TableComponent extends React.Component {
   }
 }
 
-export const Table = TableComponent;
+export const Table = (props) => {
+  const { getFlag } = useFlags();
+  return <TableComponent getFlag={getFlag} {...props} />;
+}
