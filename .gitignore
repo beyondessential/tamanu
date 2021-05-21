@@ -41,4 +41,6 @@ build
 .keys
 .tmp
 
+.idea
 /dockercfg
+

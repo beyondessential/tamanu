@@ -1,6 +1,8 @@
 import React from 'react';
 import styled from 'styled-components';
 import { PersonAdd } from '@material-ui/icons';
+
+import { ConfigurableText } from './ConfigurableText';
 import { Colors } from '../constants';
 
 const IdFieldContainer = styled.div`
@@ -34,12 +36,14 @@ const AddUserIcon = styled.div`
   }
 `;
 
-export const IdBanner = props => {
+export const IdBanner = ({ children }) => {
   return (
     <IdFieldContainer>
-      <IdFieldTitle>National Health Number</IdFieldTitle>
+      <IdFieldTitle>
+        <ConfigurableText flag="patientFieldOverrides.displayId.longLabel"/>
+      </IdFieldTitle>
 
-      {props.children}
+      {children}
 
       <AddUserIcon>
         <PersonAdd />
@@ -47,3 +51,4 @@ export const IdBanner = props => {
     </IdFieldContainer>
   );
 };
+

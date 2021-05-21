@@ -308,7 +308,9 @@ describe('Programs', () => {
       expect(encounter.endDate).toBeDefined();
     });
 
-    it('should require a department', async () => {
+    // TODO: this is not actually true - a default department is assigned
+    // reinstate this test once defaults are no longer set
+    it.skip('should require a department', async () => {
       // get some valid ids
       const { examinerId, locationId } = await createDummyEncounter(models);
 
@@ -321,7 +323,9 @@ describe('Programs', () => {
       expect(result).toHaveRequestError();
     });
 
-    it('should require a location', async () => {
+    // TODO: this is not actually true - a default location is assigned
+    // reinstate this test once defaults are no longer set
+    it.skip('should require a location', async () => {
       // get some valid ids
       const { examinerId, locationId } = await createDummyEncounter(models);
 

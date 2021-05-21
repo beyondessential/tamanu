@@ -3,7 +3,7 @@ import { Modal } from './Modal';
 
 import { Table } from './Table';
 import { SurveyResultBadge } from './SurveyResultBadge';
-
+import { ViewPhotoLink } from './ViewPhotoLink';
 import { connectApi } from '../api/connectApi';
 
 const COLUMNS = [
@@ -17,6 +17,8 @@ const COLUMNS = [
         return <SurveyResultBadge result={value} />;
       } else if (type === 'Calculated') {
         return parseFloat(answer).toFixed(2);
+      } else if (type === 'Photo') {
+        return <ViewPhotoLink imageId={answer} />;
       }
       return answer;
     },

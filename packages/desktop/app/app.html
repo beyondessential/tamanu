@@ -15,7 +15,17 @@
       })();
     </script>
     <style>
+
+      @page {
+        margin: 0;
+      }
+
       @media print {
+        html, body {
+          margin: 0;
+          padding: 0;
+        }
+
         #root {
           display: none;
         }
