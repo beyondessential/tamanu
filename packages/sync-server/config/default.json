@@ -173,11 +173,6 @@
           "shortLabel": "Village",
           "longLabel": "Village",
           "hidden": false
-        },
-        "village": {
-          "shortLabel": "Village",
-          "longLabel": "Village",
-          "hidden": false
         }
       }
     }
