@@ -131,7 +131,17 @@ export abstract class BaseModel extends BaseEntity {
     });
   }
 
+  static async filterExportRecords(ids: string[]) {
+    return ids;
+  }
+
+  static async postExportCleanUp() {}
+
+  static shouldImport = true;
+
   static shouldExport = false;
+
+  static uploadLimit = 100;
 
   // Exclude these properties from uploaded model
   // May be columns or relationIds

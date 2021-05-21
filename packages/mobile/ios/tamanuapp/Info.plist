@@ -57,7 +57,9 @@
 	<string>Tamanu would like to access your contacts for sending messages and making calls.</string>
 	<key>NSPhotoLibraryUsageDescription</key>
 	<string>Tamanu would like to find a Profile Photo in your Photo Library.</string>
-	<key>UIAppFonts</key>
+	<key>NSCameraUsageDescription</key>
+	<string>Tamanu would like to use the camera to take pictures for surveying</string>
+  <key>UIAppFonts</key>
 	<array>
 		<string>AntDesign.ttf</string>
 		<string>Entypo.ttf</string>
