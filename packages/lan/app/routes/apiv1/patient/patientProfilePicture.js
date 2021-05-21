@@ -6,8 +6,6 @@ import { WebRemote } from '~/sync';
 
 export const patientProfilePicture = express.Router();
 
-const imageB64Data = `iVBORw0KGgoAAAANSUhEUgAAAAUAAAAFCAYAAACNbyblAAAAHElEQVQI12P4 //8/w38GIAXDIBKE0DHxgljNBAAO9TXL0Y4OHwAAAABJRU5ErkJggg==`;
-
 patientProfilePicture.get(
   '/:id/profilePicture',
   asyncHandler(async (req, res) => {

@@ -67,7 +67,7 @@ async function getPatientProfileImage(api, patientId) {
     const { data } = await api.get(`patient/${patientId}/profilePicture`);
     return data;
   } catch(e) {
-    // 1x1 blank png 
+    // 1x1 blank pixel
     return 'iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAQAAAC1HAwCAAAAC0lEQVR42mNkYAAAAAYAAjCB0C8AAAAASUVORK5CYII=';
   }
 }
@@ -102,9 +102,12 @@ export const PatientPrintDetailsModal = ({ patient }) => {
     // we make sure to unmount the modal at the same time.
     const mainComponent = (() => {
       if (printType === 'barcode') {
+        // just printing barcodes, no additional steps
         const Component = PRINT_OPTIONS.barcode.component;
         return <Component patient={patient} />;
       } else if (printType === 'idcard') {
+        // printing ID card -- wait until profile pic download completes
+        // (triggered in the callback above)
         if (imageData) {
           const Component = PRINT_OPTIONS.idcard.component;
           return <Component patient={patient} imageData={imageData} />;
@@ -116,6 +119,7 @@ export const PatientPrintDetailsModal = ({ patient }) => {
           );
         }
       } else {
+        // no selection yet -- show selection modal
         return (
           <Modal title="Select label" open={isModalOpen} onClose={closeModal}>
             <PrintOptionList setCurrentlyPrinting={setCurrentlyPrinting} />
