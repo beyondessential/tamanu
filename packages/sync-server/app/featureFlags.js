@@ -32,8 +32,6 @@ const UNHIDEABLE_FIELDS = [
   'firstName',
   'lastName',
   'dateOfBirth',
-  'locationName',
-  'departmentName',
 ];
 
 const HIDEABLE_FIELDS = [

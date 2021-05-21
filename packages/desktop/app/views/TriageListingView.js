@@ -118,7 +118,7 @@ const COLUMNS = [
       return capitaliseFirstLetter(sex);
     },
   },
-  { key: 'locationName' },
+  { key: 'locationName', title: 'Location' },
 ];
 
 const DumbTriageTable = React.memo(({ onViewEncounter, ...props }) => {

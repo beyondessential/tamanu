@@ -174,13 +174,10 @@
           "longLabel": "Village",
           "hidden": false
         },
-        "locationName": {
-          "shortLabel": "Location",
-          "longLabel": "Location"
-        },
-        "departmentName": {
-          "shortLabel": "Department",
-          "longLabel": "Department"
+        "village": {
+          "shortLabel": "Village",
+          "longLabel": "Village",
+          "hidden": false
         },
         "encounterType": {
           "shortLabel": "Status",

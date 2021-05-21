@@ -56,14 +56,14 @@ export const village = {
 
 export const location = {
   key: 'locationName',
+  title: 'Location',
   minWidth: 100,
-  accessor: row => row.locationName,
 };
 
 export const department = {
   key: 'departmentName',
+  title: 'Department',
   minWidth: 100,
-  accessor: row => row.departmentName,
 };
 
 export const status = {
