@@ -178,16 +178,6 @@
           "shortLabel": "Village",
           "longLabel": "Village",
           "hidden": false
-        },
-        "encounterType": {
-          "shortLabel": "Status",
-          "longLabel": "Status",
-          "hidden": false
-        },
-        "vaccinationStatus": {
-          "shortLabel": "Vaccine status",
-          "longLabel": "Vaccine status",
-          "hidden": false
         }
       }
     }

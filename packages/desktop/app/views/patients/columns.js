@@ -68,6 +68,7 @@ export const department = {
 
 export const status = {
   key: 'encounterType',
+  title: 'Status',
   minWidth: 100,
   accessor: ({ encounterType }) => {
     if (!encounterType) return '';
@@ -79,6 +80,7 @@ export const status = {
 
 export const vaccinationStatus = {
   key: 'vaccinationStatus',
+  title: 'Vaccine status',
   minWidth: 100,
   accessor: row => row.vaccinationStatus || 'Unknown',
 };
