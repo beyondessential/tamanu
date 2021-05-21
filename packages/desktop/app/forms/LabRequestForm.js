@@ -36,6 +36,13 @@ function getEncounterLabel(encounter) {
   return `${encounterDate} (${encounterTypeLabel})`;
 }
 
+function filterTestTypes(testTypes, conditions) {
+  const { labTestCategoryId } = conditions;
+  return labTestCategoryId
+    ? testTypes.filter(tt => tt.labTestCategoryId === labTestCategoryId)
+    : testTypes;
+}
+
 export class LabRequestForm extends React.PureComponent {
   static propTypes = {
     onSubmit: PropTypes.func.isRequired,
@@ -62,9 +69,7 @@ export class LabRequestForm extends React.PureComponent {
     const { examiner = {} } = encounter;
     const examinerLabel = examiner.displayName;
     const encounterLabel = getEncounterLabel(encounter);
-    const filteredTestTypes = testTypes.filter(
-      x => x.labTestCategoryId === values.labTestCategoryId,
-    );
+    const filteredTestTypes = filterTestTypes(testTypes, values);
 
     return (
       <FormGrid>

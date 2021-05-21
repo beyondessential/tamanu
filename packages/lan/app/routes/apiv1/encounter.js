@@ -6,6 +6,7 @@ import { NOTE_RECORD_TYPES } from 'shared/models/Note';
 
 import {
   simpleGet,
+  simpleGetHasOne,
   simplePost,
   simpleGetList,
   permissionCheckingRouter,
@@ -26,6 +27,15 @@ encounter.put(
     const object = await models.Encounter.findByPk(id);
     if (!object) throw new NotFoundError();
     req.checkPermission('write', object);
+
+    if (req.body.discharge) {
+      req.checkPermission('write', 'Discharge');
+      await models.Discharge.create({
+        ...req.body.discharge,
+        encounterId: id,
+      });
+    }
+
     if (referralId) {
       const referral = await models.Referral.findByPk(referralId);
       referral.update({ encounterId: id });
@@ -58,6 +68,7 @@ encounter.post(
 );
 
 const encounterRelations = permissionCheckingRouter('read', 'Encounter');
+encounterRelations.get('/:id/discharge', simpleGetHasOne('Discharge', 'encounterId'));
 encounterRelations.get('/:id/vitals', simpleGetList('Vitals', 'encounterId'));
 encounterRelations.get('/:id/diagnoses', simpleGetList('EncounterDiagnosis', 'encounterId'));
 encounterRelations.get('/:id/medications', simpleGetList('EncounterMedication', 'encounterId'));

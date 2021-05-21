@@ -40,6 +40,7 @@ export class SqlWrapper {
       ['patient/:patientId/encounter', this.models.Encounter],
       ['patient/:patientId/familyHistory', this.models.PatientFamilyHistory],
       ['patient/:patientId/issue', this.models.PatientIssue],
+      ['patient/:patientId/additionalData', this.models.PatientAdditionalData],
       ['program', this.models.Program],
       ['programDataElement', this.models.ProgramDataElement],
       ['reference', this.models.ReferenceData],
@@ -53,6 +54,9 @@ export class SqlWrapper {
     ].forEach(([route, model]) => {
       this.builtRoutes.push(route);
       // TODO: deprecate handlers
+      if (!model) {
+        throw new Error(`SqlWrapper: no model for route ${route}`);
+      }
       const handler = new BasicHandler(model);
       channelRouter.on(route, async (urlParams, f) => {
         const params = { ...urlParams, route };

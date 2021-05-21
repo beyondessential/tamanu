@@ -10,6 +10,7 @@ export const MODEL_DEPENDENCY_ORDER = [
   'PatientCondition',
   'PatientFamilyHistory',
   'PatientIssue',
+  'PatientAdditionalData',
 
   'EncounterDiagnosis',
   'EncounterMedication',

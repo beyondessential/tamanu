@@ -47,6 +47,16 @@ export function getComponentForQuestionType(type) {
   }
   return component;
 }
+// TODO: figure out why defaultOptions is an object in the database, should it be an array? Also what's up with options, is it ever set by anything? There's no survey_screen_component.options in the db that are not null.
+export function mapOptionsToValues(options) {
+  if (!options) return null;
+  if (typeof options === 'object') {
+    // sometimes this is a map of value => value
+    return Object.values(options).map(x => ({ label: x, value: x }));
+  }
+  if (!Array.isArray(options)) return null;
+  return options.map(x => ({ label: x, value: x }));
+}
 
 export function checkVisibility(
   component,
@@ -56,7 +66,7 @@ export function checkVisibility(
   const { visibilityCriteria, dataElement } = component;
   // nothing set - show by default
   if (!visibilityCriteria) return true;
-  
+
   try {
     const criteriaObject = JSON.parse(visibilityCriteria);
 
@@ -74,7 +84,7 @@ export function checkVisibility(
       if (answersEnablingFollowUp.type === 'range') {
         if (!value) return false;
         const { start, end } = answersEnablingFollowUp;
-        
+
         if (!start) return value < end;
         if (!end) return value >= start;
         if (inRange(parseFloat(value), parseFloat(start), parseFloat(end))) {

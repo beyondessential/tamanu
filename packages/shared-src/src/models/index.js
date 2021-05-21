@@ -6,8 +6,10 @@ export * from './PatientFamilyHistory';
 export * from './PatientCondition';
 export * from './PatientAllergy';
 export * from './PatientIssue';
+export * from './PatientAdditionalData';
 
 export * from './Encounter';
+export * from './Discharge';
 export * from './Triage';
 
 export * from './ReferenceData';
@@ -38,5 +40,7 @@ export * from './PatientCarePlan';
 
 export * from './Setting';
 export * from './PatientCommunication';
+
 export * from './Location';
 export * from './UserFacility';
+export * from './UserFeatureFlagsCache';

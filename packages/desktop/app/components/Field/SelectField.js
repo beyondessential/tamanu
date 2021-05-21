@@ -46,13 +46,13 @@ export const SelectInput = ({
 
   // support initial values
   useEffect(() => {
-    if (!multiselect) {
-      const initialOption = options.find(o => o.value === initialValues[name]);
-      setSelected(initialOption);
-    } else {
-      const initialOptionValues = initialValues[name].split(', ');
+    if (multiselect) {
+      const initialOptionValues = initialValues[name]?.split(', ') || [];
       const initialOptions = options.filter(o => initialOptionValues.includes(o.value));
       setSelected(initialOptions);
+    } else {
+      const initialOption = options.find(o => o.value === initialValues[name]);
+      setSelected(initialOption);
     }
   }, []);
 
