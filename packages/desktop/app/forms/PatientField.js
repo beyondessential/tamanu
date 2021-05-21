@@ -13,6 +13,7 @@ export const PatientField = ({ name, flag: propFlag, ...props }) => {
   return (
     <Field
       label={longLabel || flag}
+      name={name}
       {...props}
     />
   );
