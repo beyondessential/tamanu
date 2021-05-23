@@ -11,7 +11,8 @@ import {
 } from './crudHelpers';
 
 import { renameObjectKeys } from '~/utils/renameObjectKeys';
-import { patientVaccineRoutes } from './patientVaccine';
+import { patientVaccineRoutes } from './patient/patientVaccine';
+import { patientProfilePicture } from './patient/patientProfilePicture';
 
 export const patient = express.Router();
 
@@ -117,6 +118,8 @@ patientRelations.get(
     res.send(additionalData || {});
   }),
 );
+
+patientRelations.use(patientProfilePicture);
 
 patientRelations.get(
   '/:id/referrals',

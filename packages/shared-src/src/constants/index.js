@@ -222,3 +222,12 @@ export const VACCINE_CATEGORIES = {
 };
 
 export const VACCINE_CATEGORIES_VALUES = Object.values(VACCINE_CATEGORIES);
+
+export const INJECTION_SITE_OPTIONS = {
+  LEFT_ARM: 'Left arm',
+  RIGHT_ARM: 'Right arm',
+  LEFT_THIGH: 'Left thigh',
+  RIGHT_THIGH: 'Right thigh',
+  ORAL: 'Oral',
+  OTHER: 'Other',
+};
