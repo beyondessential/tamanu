@@ -2,14 +2,11 @@ import React, { useCallback } from 'react';
 import styled from 'styled-components';
 import moment from 'moment';
 import Paper from '@material-ui/core/Paper';
-
 import { connect } from 'react-redux';
 
 import { viewPatientEncounter } from '../store/patient';
-
-import { TopBar, PageContainer, DataFetchingTable } from '../components';
+import { ConfigurableText, TopBar, PageContainer, DataFetchingTable } from '../components';
 import { TriageStatisticsCard } from '../components/TriageStatisticsCard';
-
 import { DateDisplay } from '../components/DateDisplay';
 import { LiveDurationDisplay } from '../components/LiveDurationDisplay';
 import { TRIAGE_COLORS_BY_LEVEL } from '../constants';
@@ -115,7 +112,11 @@ const COLUMNS = [
     title: 'Chief complaint',
     accessor: row => row.chiefComplaint,
   },
-  { key: 'displayId', title: 'NHN', accessor: row => row.displayId },
+  {
+    key: 'displayId',
+    title: <ConfigurableText flag="patientFieldOverrides.displayId.shortLabel"/>,
+    accessor: row => row.displayId,
+  },
   {
     key: 'patientName',
     title: 'Patient',
@@ -137,27 +138,27 @@ const COLUMNS = [
   { key: 'locationName', title: 'Location', accessor: row => row.locationName },
 ];
 
+const DumbTriageTable = React.memo(({ onViewEncounter, ...props }) => {
+  const { loadEncounter } = useEncounter();
+  const viewEncounter = useCallback(async triage => {
+    await loadEncounter(triage.encounterId);
+    onViewEncounter(triage);
+  }, []);
+
+  return (
+    <DataFetchingTable
+      endpoint="triage"
+      columns={COLUMNS}
+      noDataMessage="No patients found"
+      onRowClick={viewEncounter}
+      {...props}
+    />
+  );
+});
+
 const TriageTable = connect(null, dispatch => ({
   onViewEncounter: triage => dispatch(viewPatientEncounter(triage.patientId, triage.encounterId)),
-}))(
-  React.memo(({ onViewEncounter, ...props }) => {
-    const { loadEncounter } = useEncounter();
-    const viewEncounter = useCallback(async triage => {
-      await loadEncounter(triage.encounterId);
-      onViewEncounter(triage);
-    }, []);
-
-    return (
-      <DataFetchingTable
-        endpoint="triage"
-        columns={COLUMNS}
-        noDataMessage="No patients found"
-        onRowClick={viewEncounter}
-        {...props}
-      />
-    );
-  }),
-);
+}))(DumbTriageTable);
 
 export const TriageListingView = React.memo(() => (
   <PageContainer>

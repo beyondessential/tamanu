@@ -3,6 +3,7 @@ import styled from 'styled-components';
 import FormControlLabel from '@material-ui/core/FormControlLabel';
 import Checkbox from '@material-ui/core/Checkbox';
 
+import { INJECTION_SITE_OPTIONS } from 'shared/constants'
 import { OuterLabelFieldWrapper } from '../components/Field/OuterLabelFieldWrapper';
 import { ConfirmCancelRow } from '../components/ButtonRow';
 import { FormGrid } from '../components/FormGrid';
@@ -84,7 +85,7 @@ export const ImmunisationForm = React.memo(
         try {
           setAdministeredOptions([]);
           setScheduleOptions([]);
-          const availableScheduledVaccines = await getScheduledVaccines({ scheduledCategory });
+          const availableScheduledVaccines = await getScheduledVaccines({ category });
           setVaccineOptions(
             availableScheduledVaccines.map(vaccine => ({
               label: vaccine.label,
@@ -184,6 +185,12 @@ export const ImmunisationForm = React.memo(
               component={AutocompleteField}
               suggester={locationSuggester}
               required
+            />
+            <Field
+              name="injectionSite"
+              label="Injection Site"
+              component={SelectField}
+              options={Object.values(INJECTION_SITE_OPTIONS).map(site => ({ label: site, value: site }))}
             />
             <Field
               name="departmentId"

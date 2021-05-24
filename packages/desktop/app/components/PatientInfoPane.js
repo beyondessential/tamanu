@@ -7,7 +7,7 @@ import { ButtonRow } from './ButtonRow';
 import { InfoPaneList } from './InfoPaneList';
 import { CoreInfoDisplay } from './PatientCoreInfo';
 import { PatientAlert } from './PatientAlert';
-import { PatientStickerLabelPage } from './PatientStickerLabel';
+import { PatientPrintDetailsModal } from './PatientPrinting';
 
 import {
   AllergyForm,
@@ -137,6 +137,8 @@ const RecordDeathSection = memo(({ patient, readonly }) => {
   );
 });
 
+const PrintSection = memo(({ patient }) => <PatientPrintDetailsModal patient={patient} />);
+
 const Buttons = styled(ButtonRow)`
   margin-top: 30px;
 `;
@@ -149,7 +151,7 @@ const InfoPaneLists = memo(props => (
     <PatientIssuesDisplay {...props} />
     <CarePlanDisplay {...props} />
     <Buttons>
-      <PatientStickerLabelPage {...props} />
+      <PrintSection {...props} />
       <RecordDeathSection {...props} />
     </Buttons>
   </ListsSection>

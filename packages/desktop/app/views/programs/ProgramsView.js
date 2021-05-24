@@ -4,6 +4,7 @@ import { connect } from 'react-redux';
 import { connectApi } from 'desktop/app/api';
 
 import { reloadPatient } from 'desktop/app/store/patient';
+import { getCurrentUser } from 'desktop/app/store/auth';
 
 import { SurveyView } from 'desktop/app/views/programs/SurveyView';
 import { ProgramSurveySelector } from 'desktop/app/views/programs/ProgramSurveySelector';
@@ -12,7 +13,7 @@ import { DumbPatientListingView } from 'desktop/app/views/patients/PatientListin
 import { SURVEY_TYPES } from 'shared/constants';
 
 const DumbSurveyFlow = React.memo(
-  ({ onFetchSurvey, onSubmitSurvey, onFetchProgramsList, onFetchSurveysList, patient }) => {
+  ({ onFetchSurvey, onSubmitSurvey, onFetchProgramsList, onFetchSurveysList, patient, currentUser }) => {
     const [survey, setSurvey] = React.useState(null);
     const [programsList, setProgramsList] = React.useState(null);
     const [startTime, setStartTime] = React.useState(null);
@@ -35,16 +36,14 @@ const DumbSurveyFlow = React.memo(
     });
 
     const onSubmit = useCallback(
-      data => {
-        onSubmitSurvey({
-          surveyId: survey.id,
-          startTime: startTime,
-          patientId: patient.id,
-          endTime: new Date(),
-          answers: data,
-        });
-      },
-      [startTime, survey],
+      data => onSubmitSurvey({
+        surveyId: survey.id,
+        startTime: startTime,
+        patientId: patient.id,
+        endTime: new Date(),
+        answers: data,
+      }),
+      [startTime, survey, patient],
     );
 
     if (!programsList) {
@@ -61,7 +60,7 @@ const DumbSurveyFlow = React.memo(
       );
     }
 
-    return <SurveyView onSubmit={onSubmit} survey={survey} onCancel={onCancelSurvey} />;
+    return <SurveyView onSubmit={onSubmit} survey={survey} onCancel={onCancelSurvey} patient={patient} currentUser={currentUser} />;
   },
 );
 
@@ -75,18 +74,19 @@ const SurveyFlow = connectApi(api => ({
   onSubmitSurvey: data => api.post(`surveyResponse`, data),
 }))(DumbSurveyFlow);
 
-const DumbPatientLinker = React.memo(({ patient, patientId, onViewPatient }) => {
+const DumbPatientLinker = React.memo(({ patient, patientId, onViewPatient, currentUser }) => {
   if (!patientId) {
     return <DumbPatientListingView onViewPatient={onViewPatient} />;
   }
 
-  return <SurveyFlow patient={patient} />;
+  return <SurveyFlow patient={patient} currentUser={currentUser} />;
 });
 
 export const ProgramsView = connect(
   state => ({
     patientId: state.patient.id,
     patient: state.patient,
+    currentUser: getCurrentUser(state),
   }),
   dispatch => ({
     onViewPatient: id => dispatch(reloadPatient(id)),

@@ -13,3 +13,4 @@ export * from './SearchBar';
 export * from './Table';
 export * from './TamanuLogo';
 export * from './ImmunisationsTable';
+export * from './ConfigurableText';
