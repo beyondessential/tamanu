@@ -47,6 +47,7 @@ export const SecondaryDetailsGroup = ({
   occupationSuggester,
   ethnicitySuggester,
   nationalitySuggester,
+  countrySuggester,
   divisionSuggester,
   subdivisionSuggester,
 }) => (
@@ -102,7 +103,7 @@ export const SecondaryDetailsGroup = ({
       name="countryId"
       label="Country"
       component={AutocompleteField}
-      suggester={nationalitySuggester}
+      suggester={countrySuggester}
     />
     <Field
       name="medicalAreaId"
@@ -149,6 +150,7 @@ export const PatientDetailsForm = ({
   villageSuggester,
   ethnicitySuggester,
   nationalitySuggester,
+  countrySuggester,
   divisionSuggester,
   subdivisionSuggester,
   medicalAreaSuggester,
@@ -175,6 +177,7 @@ export const PatientDetailsForm = ({
           nursingZoneSuggester={nursingZoneSuggester}
           settlementSuggester={settlementSuggester}
           occupationSuggester={occupationSuggester}
+          countrySuggester={countrySuggester}
         />
         <ButtonRow>
           <Button variant="contained" color="primary" onClick={submitForm}>
