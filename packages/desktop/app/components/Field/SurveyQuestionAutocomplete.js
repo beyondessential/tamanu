@@ -11,7 +11,7 @@ const getSuggesterEndpointForConfig = config => {
   if (config?.source === 'ReferenceData') return config?.where?.type;
   if (config?.source === 'User') return 'practitioner';
 
-  // autocomplete component will log an error when given null suggester.
+  // autocomplete component won't crash when given an invalid endpoint, it just logs an error.
   return null;
 };
 
