@@ -162,6 +162,7 @@ const ConnectedPatientDetailsForm = connectApi((api, dispatch, { patient }) => (
   villageSuggester: new Suggester(api, 'village'),
   ethnicitySuggester: new Suggester(api, 'ethnicity'),
   nationalitySuggester: new Suggester(api, 'nationality'),
+  countrySuggester: new Suggester(api, 'country'),
   divisionSuggester: new Suggester(api, 'division'),
   subdivisionSuggester: new Suggester(api, 'subdivision'),
   medicalAreaSuggester: new Suggester(api, 'medicalArea'),

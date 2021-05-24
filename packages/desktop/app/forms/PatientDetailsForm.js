@@ -42,6 +42,7 @@ export const SecondaryDetailsGroup = ({
   occupationSuggester,
   ethnicitySuggester,
   nationalitySuggester,
+  countrySuggester,
   divisionSuggester,
   subdivisionSuggester,
 }) => (
@@ -58,7 +59,7 @@ export const SecondaryDetailsGroup = ({
     <FlagField name="cityTown" component={TextField} />
     <FlagField name="subdivisionId" component={AutocompleteField} suggester={subdivisionSuggester} />
     <FlagField name="divisionId" component={AutocompleteField} suggester={divisionSuggester} />
-    <FlagField name="countryId" component={AutocompleteField} suggester={nationalitySuggester} />
+    <FlagField name="countryId" component={AutocompleteField} suggester={countrySuggester} />
     <FlagField name="medicalAreaId" component={AutocompleteField} suggester={medicalAreaSuggester} />
     <FlagField name="nursingZoneId" component={AutocompleteField} suggester={nursingZoneSuggester} />
     <FlagField name="nationalityId" component={AutocompleteField} suggester={nationalitySuggester} />
@@ -74,6 +75,7 @@ export const PatientDetailsForm = ({
   villageSuggester,
   ethnicitySuggester,
   nationalitySuggester,
+  countrySuggester,
   divisionSuggester,
   subdivisionSuggester,
   medicalAreaSuggester,
@@ -100,6 +102,7 @@ export const PatientDetailsForm = ({
           nursingZoneSuggester={nursingZoneSuggester}
           settlementSuggester={settlementSuggester}
           occupationSuggester={occupationSuggester}
+          countrySuggester={countrySuggester}
         />
         <ButtonRow>
           <Button variant="contained" color="primary" onClick={submitForm}>
