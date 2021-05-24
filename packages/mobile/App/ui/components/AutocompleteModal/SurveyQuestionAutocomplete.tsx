@@ -12,13 +12,13 @@ const SOURCE_TO_COLUMN_MAP = {
 
 export const SurveyQuestionAutocomplete = ({ ...props }): JSX.Element => {
   const { models } = useBackend();
-  const { source, ...otherOptions } = props.config;
+  const { source, where } = props.config;
 
   const columnName = SOURCE_TO_COLUMN_MAP[source];
 
   const suggester = new Suggester(
     models[source],
-    { ...otherOptions, column: columnName },
+    { where, column: columnName },
     (val) => ({ label: val[columnName], value: val.id }),
   );
 

@@ -54,7 +54,6 @@ export class Suggester<ModelType extends BaseModelSubclass> {
     const {
       where = {},
       column = 'name',
-      ...otherOptions
     } = this.options;
 
     try {
@@ -63,7 +62,6 @@ export class Suggester<ModelType extends BaseModelSubclass> {
           [column]: Like(`%${search}%`),
           ...where,
         },
-        ...otherOptions,
       });
 
       return data.map(this.formatter);
