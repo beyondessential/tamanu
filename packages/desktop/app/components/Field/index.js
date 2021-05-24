@@ -7,6 +7,7 @@ export * from './CheckField';
 export * from './RadioField';
 export * from './NullableBooleanField';
 export * from './UnsupportedPhotoField';
+export * from './SurveyQuestionAutocomplete';
 
 // fancy fields
 export * from './AutocompleteField';
