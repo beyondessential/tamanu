@@ -3,7 +3,7 @@ import styled from 'styled-components';
 import moment from 'moment';
 import { push } from 'connected-react-router';
 
-import { useFlags } from '../contexts/FeatureFlags';
+import { useLocalisation } from '../contexts/Localisation';
 import { Modal } from './Modal';
 import { Suggester } from '../utils/suggester';
 import { Colors } from '../constants';
@@ -51,12 +51,12 @@ const DETAILS_FIELD_DEFINITIONS = [
 
 const DumbTriageModal = React.memo(({ open, patient, onClose, ...rest }) => {
   const { displayId, firstName, lastName, sex, dateOfBirth } = patient;
-  const { getFlag } = useFlags();
+  const { getLocalisation } = useLocalisation();
   const detailsFields = DETAILS_FIELD_DEFINITIONS
-    .filter(([name]) => getFlag(`fields.${name}.hidden`) !== true)
+    .filter(([name]) => getLocalisation(`fields.${name}.hidden`) !== true)
     .map(([name, accessor]) => (
       <React.Fragment key={name}>
-        <DetailLabel>{getFlag(`fields.${name}.longLabel`)}:</DetailLabel>
+        <DetailLabel>{getLocalisation(`fields.${name}.longLabel`)}:</DetailLabel>
         <DetailValue>{accessor ? accessor(patient) : patient[name]}</DetailValue>
       </React.Fragment>
     ));

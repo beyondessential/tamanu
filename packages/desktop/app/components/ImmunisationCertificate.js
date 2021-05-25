@@ -2,7 +2,7 @@ import React from 'react';
 import { connect } from 'react-redux';
 import styled from 'styled-components';
 
-import { useFlags } from '../contexts/FeatureFlags';
+import { useLocalisation } from '../contexts/Localisation';
 import { Colors } from '../constants';
 import { getCurrentUser } from '../store/auth';
 import { PrintLetterhead } from './PrintLetterhead';
@@ -64,16 +64,16 @@ const DumbImmunisationCertificate = ({ currentUser, patient, immunisations }) =>
     );
   }, [immunisations]);
 
-  const { getFlag } = useFlags();
+  const { getLocalisation } = useLocalisation();
 
   if (!immunisations) {
     return null;
   }
   const primaryDetails = PRIMARY_DETAILS_FIELDS
-    .filter(([name]) => getFlag(`fields.${name}.hidden`) !== true)
+    .filter(([name]) => getLocalisation(`fields.${name}.hidden`) !== true)
     .map(([name, accessor]) => (
       <p key={name}>
-        {getFlag(`fields.${name}.shortLabel`) || name}: {accessor ? accessor(patient) : patient[name]}
+        {getLocalisation(`fields.${name}.shortLabel`) || name}: {accessor ? accessor(patient) : patient[name]}
       </p>
     ));
 

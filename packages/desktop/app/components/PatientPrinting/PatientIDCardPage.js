@@ -1,7 +1,7 @@
 import React from 'react';
 import styled from 'styled-components';
 
-import { useFlags } from '../../contexts/FeatureFlags';
+import { useLocalisation } from '../../contexts/Localisation';
 import { SEX_VALUE_INDEX, Colors } from '../../constants';
 import { DateDisplay } from '../DateDisplay';
 import { PatientBarcode } from './PatientBarcode';
@@ -74,8 +74,8 @@ const DetailsKey = styled.span`
 `;
 
 const DetailsRow = ({ name, value }) => {
-  const { getFlag } = useFlags();
-  const label = getFlag(`fields.${name}.shortLabel`);
+  const { getLocalisation } = useLocalisation();
+  const label = getLocalisation(`fields.${name}.shortLabel`);
   return (
     <div style={{ lineHeight: '4mm', fontSize: '2.4mm', display: 'flex', flexDirection: 'row' }}>
       <DetailsKey>{label}: </DetailsKey>
@@ -85,8 +85,8 @@ const DetailsRow = ({ name, value }) => {
 };
 
 const DisplayIdRow = ({ id }) => {
-  const { getFlag } = useFlags();
-  const label = getFlag(`fields.displayId.shortLabel`);
+  const { getLocalisation } = useLocalisation();
+  const label = getLocalisation(`fields.displayId.shortLabel`);
   return (
     <div style={{ fontSize: '3.3mm', paddingBottom: '0.1rem', display: 'flex', flexDirection: 'row' }}>
       <strong style={{ width: '23mm' }}>{label}: </strong> <strong>{id}</strong>

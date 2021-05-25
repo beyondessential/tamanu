@@ -1,21 +1,20 @@
 import React from 'react';
 
 import { Field } from './Field';
-import { useFlags } from '../../contexts/FeatureFlags';
+import { useLocalisation } from '../../contexts/Localisation';
 
-export const LocalisedField = ({ name, flag: propFlag, ...props }) => {
-  const { getFlag } = useFlags();
-  const flag = propFlag || `fields.${name}`;
-  const { hidden, longLabel } = getFlag(flag);
+export const LocalisedField = ({ name, path: propPath, ...props }) => {
+  const { getLocalisation } = useLocalisation();
+  const path = propPath || `fields.${name}`;
+  const { hidden, longLabel } = getLocalisation(path);
   if (hidden) {
     return null;
   }
   return (
     <Field
-      label={longLabel || flag}
+      label={longLabel || path}
       name={name}
       {...props}
     />
   );
 };
-

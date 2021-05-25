@@ -3,7 +3,7 @@ import styled from 'styled-components';
 import FingerprintIcon from '@material-ui/icons/Fingerprint';
 import SearchIcon from '@material-ui/icons/Search';
 
-import { useFlags } from '../../../contexts/FeatureFlags';
+import { useLocalisation } from '../../../contexts/Localisation';
 import {
   ConfigurableText,
   Button,
@@ -112,16 +112,16 @@ export const CustomisablePatientSearchBar = ({ title, onSearch, fields, ...props
     [onSearch],
   );
 
-  const { getFlag } = useFlags();
+  const { getLocalisation } = useLocalisation();
 
   const fieldElements = useMemo(() =>
     fields
       .map(([key, { suggesterKey, ...fieldProps } = {}]) => (
-        getFlag(`fields.${key}.hidden`) === true ? null : (
+        getLocalisation(`fields.${key}.hidden`) === true ? null : (
           <Field
             name={key}
             key={key}
-            placeholder={getFlag(`fields.${key}.longLabel`)}
+            placeholder={getLocalisation(`fields.${key}.longLabel`)}
             component={TextField}
             suggester={props[suggesterKey]}
             {...fieldProps}
@@ -129,7 +129,7 @@ export const CustomisablePatientSearchBar = ({ title, onSearch, fields, ...props
         )
       ))
       .filter(c => c),
-    [getFlag, fields, props],
+    [getLocalisation, fields, props],
   );
 
   const renderSearchBar = React.useCallback(

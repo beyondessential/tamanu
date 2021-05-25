@@ -1,6 +1,5 @@
 import React, { useState } from 'react';
 
-import { useFlags } from '../../contexts/FeatureFlags';
 import { TopBar, PageContainer, DataFetchingTable } from '../../components';
 import {
   displayId,
