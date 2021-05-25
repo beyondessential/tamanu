@@ -61,7 +61,7 @@ describe('Auth', () => {
       });
 
       expect(response).toHaveSucceeded();
-      expect(response.body).toHaveProperty('featureFlags.fields.displayId', {
+      expect(response.body).toHaveProperty('localisation.fields.displayId', {
         shortLabel: 'NHN',
         longLabel: 'National Health Number',
       });
@@ -117,7 +117,7 @@ describe('Auth', () => {
           displayName: DISPLAY_NAME,
           role: 'practitioner',
         },
-        featureFlags: expect.any(Object),
+        localisation: expect.any(Object),
       });
     });
 

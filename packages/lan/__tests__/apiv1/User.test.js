@@ -30,7 +30,7 @@ describe('User', () => {
   describe('auth', () => {
     let authUser = null;
     const rawPassword = 'PASSWORD';
-    const featureFlags = { foo: 'bar' };
+    const localisation = { foo: 'bar' };
 
     beforeAll(async () => {
       authUser = await models.User.create(
@@ -40,7 +40,7 @@ describe('User', () => {
       );
       await models.UserFeatureFlagsCache.create({
         userId: authUser.id,
-        featureFlags: JSON.stringify(featureFlags),
+        localisation: JSON.stringify(localisation),
       });
     });
 
@@ -105,17 +105,17 @@ describe('User', () => {
         password: rawPassword,
       });
       expect(result).toHaveSucceeded();
-      expect(result.body).toHaveProperty('featureFlags');
-      expect(result.body.featureFlags).toEqual(featureFlags);
+      expect(result.body).toHaveProperty('localisation');
+      expect(result.body.localisation).toEqual(localisation);
     });
 
     it('should pass feature flags through from a remote login request', async () => {
       remote.fetch.mockResolvedValueOnce({
         user: pick(authUser, ['id', 'role', 'email', 'displayName']),
-        featureFlags: featureFlags,
+        localisation: localisation,
       });
       const result = await remoteLogin(models, authUser.email, rawPassword);
-      expect(result).toHaveProperty('featureFlags', featureFlags);
+      expect(result).toHaveProperty('localisation', localisation);
       const cache = await models.UserFeatureFlagsCache.findOne({
         where: {
           userId: authUser.id,
@@ -123,7 +123,7 @@ describe('User', () => {
         raw: true,
       });
       expect(cache).toMatchObject({
-        featureFlags: JSON.stringify(featureFlags),
+        localisation: JSON.stringify(localisation),
       });
     });
   });

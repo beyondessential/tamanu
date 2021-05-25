@@ -7,7 +7,7 @@ import jwt from 'jsonwebtoken';
 
 import { ForbiddenError, BadAuthenticationError } from 'shared/errors';
 
-import { getFeatureFlags } from '../featureFlags';
+import { getLocalisation } from '../localisation';
 import { convertFromDbRecord, convertToDbRecord } from '../convertDbRecord';
 
 export const authMiddleware = express.Router();
@@ -63,9 +63,25 @@ authMiddleware.post(
     }
 
     const token = await getToken(user);
-    const featureFlags = await getFeatureFlags();
+    const localisation = await getLocalisation();
 
-    res.send({ token, featureFlags, user: convertFromDbRecord(stripUser(user)).data });
+    // TODO: supports versions desktop-1.2.0/mobile-1.2.14 and older, remove once we no longer support these
+    const featureFlags = {
+      patientFieldOverrides: {
+        displayId: {
+          shortLabel: 'NHN',
+          longLabel: 'National Health Number',
+          hidden: false,
+        },
+      },
+    };
+
+    res.send({
+      token,
+      featureFlags,
+      localisation,
+      user: convertFromDbRecord(stripUser(user)).data,
+    });
   }),
 );
 

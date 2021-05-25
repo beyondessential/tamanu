@@ -31,15 +31,8 @@
   "schedules": {
     "outpatientDischarger": "0 0 2 ? * * *"
   },
-  "featureFlags": {
+  "localisation": {
     "data": {
-      "patientFieldOverrides": {
-        "deprecated": true,
-        "displayId": {
-          "shortLabel": "NHN",
-          "longLabel": "National Health Number"
-        }
-      },
       "fields": {
         "markedForSync": {
           "shortLabel": "Sync",
