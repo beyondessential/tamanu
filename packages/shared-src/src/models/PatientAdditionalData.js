@@ -1,5 +1,5 @@
 import { Sequelize } from 'sequelize';
-import { SYNC_DIRECTIONS } from 'shared/constants';
+import { SYNC_DIRECTIONS, REFERENCE_TYPES } from 'shared/constants';
 import { Model } from './Model';
 import { extendClassWithPatientChannel } from './sync';
 
@@ -18,6 +18,9 @@ export class PatientAdditionalData extends Model {
         educationalLevel: Sequelize.STRING,
         socialMedia: Sequelize.STRING,
         title: Sequelize.STRING,
+        birthCertificate: Sequelize.STRING,
+        drivingLicense: Sequelize.STRING,
+        passport: Sequelize.STRING,
       },
       options,
     );
@@ -43,6 +46,8 @@ export class PatientAdditionalData extends Model {
     referenceRelation('settlement');
     referenceRelation('ethnicity');
     referenceRelation('occupation');
+    referenceRelation('religion');
+    referenceRelation('patientBillingType');
   }
 
   static syncDirection = SYNC_DIRECTIONS.BIDIRECTIONAL;
