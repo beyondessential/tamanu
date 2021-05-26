@@ -1,6 +1,8 @@
 import React from 'react';
 import { connect } from 'react-redux';
 import styled from 'styled-components';
+
+import { useFlags } from '../contexts/FeatureFlags';
 import { Colors } from '../constants';
 import { getCurrentUser } from '../store/auth';
 import { PrintLetterhead } from './PrintLetterhead';
@@ -40,6 +42,15 @@ const UnderlineP = styled.p`
 
 const UnderlineEmptySpace = () => <UnderlineP>{new Array(100).fill('\u00A0')}</UnderlineP>;
 
+const PRIMARY_DETAILS_FIELDS = [
+  ['firstName'],
+  ['lastName'],
+  ['dateOfBirth', ({ dateOfBirth }) => new Date(dateOfBirth).toLocaleDateString()],
+  ['Birthplace', () => null], // TODO: not populated
+  ['sex'],
+  ['Mother', () => null], // TODO: not populated
+];
+
 const DumbImmunisationCertificate = ({ currentUser, patient, immunisations }) => {
   const [hasEditedRecord, setHasEditedRecord] = React.useState(false);
 
@@ -53,9 +64,18 @@ const DumbImmunisationCertificate = ({ currentUser, patient, immunisations }) =>
     );
   }, [immunisations]);
 
+  const { getFlag } = useFlags();
+
   if (!immunisations) {
     return null;
   }
+  const primaryDetails = PRIMARY_DETAILS_FIELDS
+    .filter(([name]) => getFlag(`fields.${name}.hidden`) !== true)
+    .map(([name, accessor]) => (
+      <p key={name}>
+        {getFlag(`fields.${name}.shortLabel`) || name}: {accessor ? accessor(patient) : patient[name]}
+      </p>
+    ));
 
   return (
     <div>
@@ -63,12 +83,7 @@ const DumbImmunisationCertificate = ({ currentUser, patient, immunisations }) =>
       <Spacer />
       <PatientDetailsHeader>Personal vaccination certificate</PatientDetailsHeader>
       <TwoColumnContainer>
-        <p>First name: {patient.firstName}</p>
-        <p>Last name: {patient.lastName}</p>
-        <p>DOB: {new Date(patient.dateOfBirth).toLocaleDateString()}</p>
-        <p>Birthplace:</p>
-        <p>Gender: {patient.sex}</p>
-        <p>Mother:</p>
+        {primaryDetails}
       </TwoColumnContainer>
       <Spacer />
       <VaccineTable>

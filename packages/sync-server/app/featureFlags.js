@@ -1,7 +1,10 @@
 import config from 'config';
 import * as yup from 'yup';
+import { defaultsDeep } from 'lodash';
 
-const patientFieldSchema = yup
+import { log } from 'shared/services/logging';
+
+const fieldSchema = yup
   .object({
     shortLabel: yup.string().when('hidden', {
       is: false,
@@ -11,31 +14,96 @@ const patientFieldSchema = yup
       is: false,
       then: yup.string().required(),
     }),
-    hidden: yup.boolean().default(false),
+    hidden: yup.boolean().required(),
+  })
+  .default({}) // necessary to stop yup throwing hard-to-debug errors
+  .noUnknown();
+
+const unhideableFieldSchema = yup
+  .object({
+    shortLabel: yup.string().required(),
+    longLabel: yup.string().required(),
   })
   .noUnknown();
 
-const patientFieldsSchema = yup
-  .object(
-    ['displayId'].reduce(
+const UNHIDEABLE_FIELDS = ['markedForSync', 'displayId', 'firstName', 'lastName', 'dateOfBirth'];
+
+const HIDEABLE_FIELDS = [
+  'culturalName',
+  'sex',
+  'villageName',
+  'villageId',
+  'bloodType',
+  'title',
+  'placeOfBirth',
+  'maritalStatus',
+  'primaryContactNumber',
+  'secondaryContactNumber',
+  'socialMedia',
+  'settlementId',
+  'streetVillage',
+  'cityTown',
+  'subdivisionId',
+  'divisionId',
+  'countryId',
+  'medicalAreaId',
+  'nursingZoneId',
+  'nationalityId',
+  'ethnicityId',
+  'occupationId',
+  'educationalLevel',
+  'middleName',
+];
+
+const fieldsSchema = yup
+  .object({
+    ...UNHIDEABLE_FIELDS.reduce(
       (fields, field) => ({
         ...fields,
-        [field]: patientFieldSchema,
+        [field]: unhideableFieldSchema,
       }),
       {},
     ),
-  )
+    ...HIDEABLE_FIELDS.reduce(
+      (fields, field) => ({
+        ...fields,
+        [field]: fieldSchema,
+      }),
+      {},
+    ),
+  })
   .noUnknown();
 
 const rootFlagSchema = yup
   .object({
-    patientFieldOverrides: patientFieldsSchema,
+    fields: fieldsSchema,
+    // TODO: patientFieldOverrides is only here for backwards compatibility
+    // It may be safely removed if we've broken compatibility since 2021-05-21
+    patientFieldOverrides: yup.object({
+      deprecated: yup.boolean().oneOf([true]),
+      displayId: yup.object({
+        shortLabel: yup.string().required(),
+        longLabel: yup.string().required(),
+      }),
+    }),
   })
   .required()
   .noUnknown();
 
+// TODO: once feature flags are persisted in the db, validate on save, not load
+const flags = defaultsDeep(config.featureFlags.data);
+rootFlagSchema
+  .validate(flags, { strict: true, abortEarly: false })
+  .then(() => {
+    log.info('Feature flags validated successfully.');
+  })
+  .catch(e => {
+    const errors = e.inner.map(inner => `\n  - ${inner.message}`);
+    log.error(
+      `Error(s) validating feature flags (check featureFlags.data in your config):${errors}`,
+    );
+  });
+
 export const getFeatureFlags = async () => {
-  const flags = config.featureFlags.data;
-  // TODO: once feature flags are persisted in the db, validate on save, not load
-  return rootFlagSchema.validate(flags);
+  return flags;
 };

@@ -1,6 +1,8 @@
 import React, { useState, useCallback } from 'react';
 import { connect } from 'react-redux';
 import styled from 'styled-components';
+
+import { useFlags } from '../../contexts/FeatureFlags';
 import { viewPatient } from '../../store/patient';
 import { TopBar, PageContainer, DataFetchingTable } from '../../components';
 import { DropdownButton } from '../../components/DropdownButton';
@@ -35,14 +37,17 @@ const StyledDataTable = styled(DataFetchingTable)`
   margin: 24px;
 `;
 
-const PatientTable = React.memo(({ onViewPatient, showInpatientDetails, ...props }) => (
-  <StyledDataTable
-    columns={showInpatientDetails ? INPATIENT_COLUMNS : LISTING_COLUMNS}
-    noDataMessage="No patients found"
-    onRowClick={row => onViewPatient(row.id)}
-    {...props}
-  />
-));
+const PatientTable = React.memo(({ onViewPatient, showInpatientDetails, ...props }) => {
+  const columns = showInpatientDetails ? INPATIENT_COLUMNS : LISTING_COLUMNS;
+  return (
+    <StyledDataTable
+      columns={columns}
+      noDataMessage="No patients found"
+      onRowClick={row => onViewPatient(row.id)}
+      {...props}
+    />
+  );
+});
 
 const NewPatientButton = React.memo(({ onCreateNewPatient }) => {
   const [isCreatingPatient, setCreatingPatient] = useState(false);
@@ -88,7 +93,7 @@ const selectPatientConnector = connect(null, dispatch => ({
   onViewPatient: id => dispatch(viewPatient(id)),
 }));
 
-export const DumbPatientListingView = React.memo(({ onViewPatient }) => {
+export const DumbPatientListingView = ({ onViewPatient }) => {
   const [searchParameters, setSearchParameters] = useState({});
 
   return (
@@ -104,7 +109,7 @@ export const DumbPatientListingView = React.memo(({ onViewPatient }) => {
       />
     </PageContainer>
   );
-});
+};
 
 export const PatientListingView = selectPatientConnector(DumbPatientListingView);
 

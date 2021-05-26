@@ -6,7 +6,7 @@ import { Button } from '../components/Button';
 
 import {
   Form,
-  Field,
+  FlagField,
   DateField,
   AutocompleteField,
   TextField,
@@ -25,18 +25,13 @@ import {
 
 export const PrimaryDetailsGroup = ({ villageSuggester }) => (
   <React.Fragment>
-    <Field name="firstName" label="First name" component={TextField} required />
-    <Field name="middleName" label="Middle name" component={TextField} />
-    <Field name="lastName" label="Last name" component={TextField} required />
-    <Field name="culturalName" label="Cultural/Traditional name" component={TextField} />
-    <Field name="dateOfBirth" label="Date of birth" component={DateField} required />
-    <Field
-      name="villageId"
-      label="Village"
-      component={AutocompleteField}
-      suggester={villageSuggester}
-    />
-    <Field name="sex" label="Sex" component={RadioField} options={sexOptions} inline required />
+    <FlagField name="firstName" component={TextField} required />
+    <FlagField name="middleName" component={TextField} />
+    <FlagField name="lastName" component={TextField} required />
+    <FlagField name="culturalName" component={TextField} />
+    <FlagField name="dateOfBirth" component={DateField} required />
+    <FlagField name="villageId" component={AutocompleteField} suggester={villageSuggester} />
+    <FlagField name="sex" component={RadioField} options={sexOptions} inline required />
   </React.Fragment>
 );
 
@@ -52,95 +47,25 @@ export const SecondaryDetailsGroup = ({
   subdivisionSuggester,
 }) => (
   <React.Fragment>
-    <Field name="bloodType" label="Blood type" component={SelectField} options={bloodOptions} />
-    <Field name="title" label="Title" component={SelectField} options={titleOptions} />
-    <Field name="placeOfBirth" label="Place of birth" component={TextField} />
-    <Field
-      name="maritalStatus"
-      label="Marital Status"
-      component={SelectField}
-      options={maritalStatusOptions}
-    />
-    <Field
-      name="primaryContactNumber"
-      label="Primary Contact Number"
-      component={TextField}
-      type="tel"
-    />
-    <Field
-      name="secondaryContactNumber"
-      label="Secondary Contact Number"
-      component={TextField}
-      type="tel"
-    />
-    <Field
-      name="socialMedia"
-      label="Social media platform"
-      component={SelectField}
-      options={socialMediaOptions}
-    />
-    <Field
-      name="settlementId"
-      label="Settlement"
-      component={AutocompleteField}
-      suggester={settlementSuggester}
-    />
-    <Field name="streetVillage" label="Residential Landmark" component={TextField} />
-    <Field name="cityTown" label="City/Town" component={TextField} />
-    <Field
-      name="subdivisionId"
-      label="Sub Division"
-      component={AutocompleteField}
-      suggester={subdivisionSuggester}
-    />
-    <Field
-      name="divisionId"
-      label="Division"
-      component={AutocompleteField}
-      suggester={divisionSuggester}
-    />
-    <Field
-      name="countryId"
-      label="Country"
-      component={AutocompleteField}
-      suggester={countrySuggester}
-    />
-    <Field
-      name="medicalAreaId"
-      label="Medical Area"
-      component={AutocompleteField}
-      suggester={medicalAreaSuggester}
-    />
-    <Field
-      name="nursingZoneId"
-      label="Nursing Zone"
-      component={AutocompleteField}
-      suggester={nursingZoneSuggester}
-    />
-    <Field
-      name="nationalityId"
-      label="Nationality"
-      component={AutocompleteField}
-      suggester={nationalitySuggester}
-    />
-    <Field
-      name="ethnicityId"
-      label="Ethnicity"
-      component={AutocompleteField}
-      suggester={ethnicitySuggester}
-    />
-    <Field
-      name="occupationId"
-      label="Occupation"
-      component={AutocompleteField}
-      suggester={occupationSuggester}
-    />
-    <Field
-      name="educationalLevel"
-      label="Educational Attainment"
-      component={SelectField}
-      options={educationalAttainmentOptions}
-    />
+    <FlagField name="bloodType" component={SelectField} options={bloodOptions} />
+    <FlagField name="title" component={SelectField} options={titleOptions} />
+    <FlagField name="placeOfBirth" component={TextField} />
+    <FlagField name="maritalStatus" component={SelectField} options={maritalStatusOptions} />
+    <FlagField name="primaryContactNumber" component={TextField} type="tel" />
+    <FlagField name="secondaryContactNumber" component={TextField} type="tel" />
+    <FlagField name="socialMedia" component={SelectField} options={socialMediaOptions} />
+    <FlagField name="settlementId" component={AutocompleteField} suggester={settlementSuggester} />
+    <FlagField name="streetVillage" component={TextField} />
+    <FlagField name="cityTown" component={TextField} />
+    <FlagField name="subdivisionId" component={AutocompleteField} suggester={subdivisionSuggester} />
+    <FlagField name="divisionId" component={AutocompleteField} suggester={divisionSuggester} />
+    <FlagField name="countryId" component={AutocompleteField} suggester={countrySuggester} />
+    <FlagField name="medicalAreaId" component={AutocompleteField} suggester={medicalAreaSuggester} />
+    <FlagField name="nursingZoneId" component={AutocompleteField} suggester={nursingZoneSuggester} />
+    <FlagField name="nationalityId" component={AutocompleteField} suggester={nationalitySuggester} />
+    <FlagField name="ethnicityId" component={AutocompleteField} suggester={ethnicitySuggester} />
+    <FlagField name="occupationId" component={AutocompleteField} suggester={occupationSuggester} />
+    <FlagField name="educationalLevel" component={SelectField} options={educationalAttainmentOptions} />
   </React.Fragment>
 );
 

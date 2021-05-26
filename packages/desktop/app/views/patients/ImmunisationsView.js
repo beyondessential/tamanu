@@ -1,5 +1,6 @@
 import React, { useState } from 'react';
 
+import { useFlags } from '../../contexts/FeatureFlags';
 import { TopBar, PageContainer, DataFetchingTable } from '../../components';
 import {
   displayId,
@@ -34,7 +35,7 @@ const PatientImmunisationsTable = React.memo(({ onPatientSelect, ...props }) => 
   />
 ));
 
-export const ImmunisationsView = React.memo(() => {
+export const ImmunisationsView = () => {
   const [searchParameters, setSearchParameters] = useState({});
   const [modalOpen, setModalOpen] = useState(false);
   const [patient, setPatient] = useState({});
@@ -57,4 +58,4 @@ export const ImmunisationsView = React.memo(() => {
       <PatientImmunisationsTable onPatientSelect={onRowClick} fetchOptions={searchParameters} />
     </PageContainer>
   );
-});
+};

@@ -1,16 +1,14 @@
 import React from 'react';
 import styled from 'styled-components';
 import moment from 'moment';
-
 import { push } from 'connected-react-router';
+
+import { useFlags } from '../contexts/FeatureFlags';
 import { Modal } from './Modal';
 import { Suggester } from '../utils/suggester';
 import { Colors } from '../constants';
-
 import { connectApi } from '../api/connectApi';
-
 import { TriageForm } from '../forms/TriageForm';
-
 import { DisplayIdLabel } from './DisplayIdLabel';
 
 const PatientDetails = styled.div`
@@ -44,8 +42,25 @@ const Header = styled.div`
   margin-bottom: 20px;
 `;
 
+const DETAILS_FIELD_DEFINITIONS = [
+  ['firstName'],
+  ['lastName'],
+  ['sex'],
+  ['dateOfBirth', ({ dateOfBirth }) => moment(dateOfBirth).format('MM/DD/YYYY')],
+];
+
 const DumbTriageModal = React.memo(({ open, patient, onClose, ...rest }) => {
   const { displayId, firstName, lastName, sex, dateOfBirth } = patient;
+  const { getFlag } = useFlags();
+  const detailsFields = DETAILS_FIELD_DEFINITIONS
+    .filter(([name]) => getFlag(`fields.${name}.hidden`) !== true)
+    .map(([name, accessor]) => (
+      <React.Fragment key={name}>
+        <DetailLabel>{getFlag(`fields.${name}.longLabel`)}:</DetailLabel>
+        <DetailValue>{accessor ? accessor(patient) : patient[name]}</DetailValue>
+      </React.Fragment>
+    ));
+
   return (
     <Modal title="New Emergency Triage" open={open} width="md" onClose={onClose}>
       <PatientDetails>
@@ -54,11 +69,7 @@ const DumbTriageModal = React.memo(({ open, patient, onClose, ...rest }) => {
           <DisplayIdLabel>{displayId}</DisplayIdLabel>
         </Header>
         <div>
-          <DetailLabel>First Name:</DetailLabel> <DetailValue>{firstName}</DetailValue>
-          <DetailLabel>Last Name:</DetailLabel> <DetailValue>{lastName}</DetailValue>
-          <DetailLabel>Sex:</DetailLabel> <DetailValue>{sex}</DetailValue>
-          <DetailLabel>Date of Birth:</DetailLabel>
-          <DetailValue>{moment(dateOfBirth).format('MM/DD/YYYY')}</DetailValue>
+          {detailsFields}
         </div>
       </PatientDetails>
       <TriageForm onCancel={onClose} {...rest} />

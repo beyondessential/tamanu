@@ -61,10 +61,9 @@ describe('Auth', () => {
       });
 
       expect(response).toHaveSucceeded();
-      expect(response.body).toHaveProperty('featureFlags.patientFieldOverrides.displayId', {
+      expect(response.body).toHaveProperty('featureFlags.fields.displayId', {
         shortLabel: 'NHN',
         longLabel: 'National Health Number',
-        hidden: false,
       });
     });
 

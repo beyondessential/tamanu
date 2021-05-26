@@ -138,7 +138,7 @@ const DumbSummaryPage = React.memo(({ patient, encounter, onFetchEncounterDischa
         </h4>
         <h4>
           <Label>
-            <ConfigurableText flag="patientFieldOverrides.displayId.shortLabel"/>
+            <ConfigurableText flag="fields.displayId.shortLabel"/>
           </Label>
           <span>{patient.displayId}</span>
         </h4>

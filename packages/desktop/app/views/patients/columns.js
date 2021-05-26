@@ -11,53 +11,45 @@ const SyncedCell = React.memo(({ value }) => value === true ? <CloudDownload /> 
 
 export const markedForSync = {
   key: 'markedForSync',
-  title: 'Sync',
   minWidth: 26,
   CellComponent: SyncedCell,
 };
 
 export const displayId = {
   key: 'displayId',
-  title: <ConfigurableText flag="patientFieldOverrides.displayId.shortLabel"/>,
   minWidth: 80,
   accessor: row => row.displayId || `(${row.id})`,
 };
 
 export const firstName = {
   key: 'firstName',
-  title: 'First Name',
   minWidth: 100,
 };
 
 export const lastName = {
   key: 'lastName',
-  title: 'Last Name',
   minWidth: 100,
 };
 
 export const culturalName = {
   key: 'culturalName',
-  title: 'Cultural Name',
   minWidth: 100,
 };
 
 export const sex = {
   key: 'sex',
-  title: 'Sex',
   minWidth: 80,
   CellComponent: SexCell,
 };
 
 export const dateOfBirth = {
   key: 'dateOfBirth',
-  title: 'DOB',
   minWidth: 100,
   CellComponent: DateOfBirthCell,
 };
 
 export const village = {
   key: 'villageName',
-  title: 'Village',
   minWidth: 100,
   accessor: row => row?.villageName || null,
 };
@@ -66,14 +58,12 @@ export const location = {
   key: 'locationName',
   title: 'Location',
   minWidth: 100,
-  accessor: row => row.locationName,
 };
 
 export const department = {
   key: 'departmentName',
   title: 'Department',
   minWidth: 100,
-  accessor: row => row.departmentName,
 };
 
 export const status = {
@@ -90,7 +80,7 @@ export const status = {
 
 export const vaccinationStatus = {
   key: 'vaccinationStatus',
-  title: 'Vaccine Status',
+  title: 'Vaccine status',
   minWidth: 100,
   accessor: row => row.vaccinationStatus || 'Unknown',
 };
