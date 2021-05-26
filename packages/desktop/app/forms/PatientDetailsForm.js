@@ -6,7 +6,7 @@ import { Button } from '../components/Button';
 
 import {
   Form,
-  FlagField,
+  LocalisedField,
   DateField,
   AutocompleteField,
   TextField,
@@ -25,13 +25,13 @@ import {
 
 export const PrimaryDetailsGroup = ({ villageSuggester }) => (
   <React.Fragment>
-    <FlagField name="firstName" component={TextField} required />
-    <FlagField name="middleName" component={TextField} />
-    <FlagField name="lastName" component={TextField} required />
-    <FlagField name="culturalName" component={TextField} />
-    <FlagField name="dateOfBirth" component={DateField} required />
-    <FlagField name="villageId" component={AutocompleteField} suggester={villageSuggester} />
-    <FlagField name="sex" component={RadioField} options={sexOptions} inline required />
+    <LocalisedField name="firstName" component={TextField} required />
+    <LocalisedField name="middleName" component={TextField} />
+    <LocalisedField name="lastName" component={TextField} required />
+    <LocalisedField name="culturalName" component={TextField} />
+    <LocalisedField name="dateOfBirth" component={DateField} required />
+    <LocalisedField name="villageId" component={AutocompleteField} suggester={villageSuggester} />
+    <LocalisedField name="sex" component={RadioField} options={sexOptions} inline required />
   </React.Fragment>
 );
 
@@ -47,25 +47,25 @@ export const SecondaryDetailsGroup = ({
   subdivisionSuggester,
 }) => (
   <React.Fragment>
-    <FlagField name="bloodType" component={SelectField} options={bloodOptions} />
-    <FlagField name="title" component={SelectField} options={titleOptions} />
-    <FlagField name="placeOfBirth" component={TextField} />
-    <FlagField name="maritalStatus" component={SelectField} options={maritalStatusOptions} />
-    <FlagField name="primaryContactNumber" component={TextField} type="tel" />
-    <FlagField name="secondaryContactNumber" component={TextField} type="tel" />
-    <FlagField name="socialMedia" component={SelectField} options={socialMediaOptions} />
-    <FlagField name="settlementId" component={AutocompleteField} suggester={settlementSuggester} />
-    <FlagField name="streetVillage" component={TextField} />
-    <FlagField name="cityTown" component={TextField} />
-    <FlagField name="subdivisionId" component={AutocompleteField} suggester={subdivisionSuggester} />
-    <FlagField name="divisionId" component={AutocompleteField} suggester={divisionSuggester} />
-    <FlagField name="countryId" component={AutocompleteField} suggester={countrySuggester} />
-    <FlagField name="medicalAreaId" component={AutocompleteField} suggester={medicalAreaSuggester} />
-    <FlagField name="nursingZoneId" component={AutocompleteField} suggester={nursingZoneSuggester} />
-    <FlagField name="nationalityId" component={AutocompleteField} suggester={nationalitySuggester} />
-    <FlagField name="ethnicityId" component={AutocompleteField} suggester={ethnicitySuggester} />
-    <FlagField name="occupationId" component={AutocompleteField} suggester={occupationSuggester} />
-    <FlagField name="educationalLevel" component={SelectField} options={educationalAttainmentOptions} />
+    <LocalisedField name="bloodType" component={SelectField} options={bloodOptions} />
+    <LocalisedField name="title" component={SelectField} options={titleOptions} />
+    <LocalisedField name="placeOfBirth" component={TextField} />
+    <LocalisedField name="maritalStatus" component={SelectField} options={maritalStatusOptions} />
+    <LocalisedField name="primaryContactNumber" component={TextField} type="tel" />
+    <LocalisedField name="secondaryContactNumber" component={TextField} type="tel" />
+    <LocalisedField name="socialMedia" component={SelectField} options={socialMediaOptions} />
+    <LocalisedField name="settlementId" component={AutocompleteField} suggester={settlementSuggester} />
+    <LocalisedField name="streetVillage" component={TextField} />
+    <LocalisedField name="cityTown" component={TextField} />
+    <LocalisedField name="subdivisionId" component={AutocompleteField} suggester={subdivisionSuggester} />
+    <LocalisedField name="divisionId" component={AutocompleteField} suggester={divisionSuggester} />
+    <LocalisedField name="countryId" component={AutocompleteField} suggester={countrySuggester} />
+    <LocalisedField name="medicalAreaId" component={AutocompleteField} suggester={medicalAreaSuggester} />
+    <LocalisedField name="nursingZoneId" component={AutocompleteField} suggester={nursingZoneSuggester} />
+    <LocalisedField name="nationalityId" component={AutocompleteField} suggester={nationalitySuggester} />
+    <LocalisedField name="ethnicityId" component={AutocompleteField} suggester={ethnicitySuggester} />
+    <LocalisedField name="occupationId" component={AutocompleteField} suggester={occupationSuggester} />
+    <LocalisedField name="educationalLevel" component={SelectField} options={educationalAttainmentOptions} />
   </React.Fragment>
 );
 

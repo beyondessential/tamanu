@@ -2,8 +2,8 @@ import React, { memo } from 'react';
 import styled from 'styled-components';
 import { grey } from '@material-ui/core/colors';
 
-import { useFlags } from '../contexts/FeatureFlags';
-import { ConfigurableText } from './ConfigurableText';
+import { useLocalisation } from '../contexts/Localisation';
+import { LocalisedText } from './LocalisedText';
 import { DateDisplay } from './DateDisplay';
 import { PatientInitialsIcon } from './PatientInitialsIcon';
 import { Colors } from '../constants';
@@ -84,11 +84,11 @@ const HealthIdLabelText = styled.div`
   font-size: 12px;
 `;
 
-const CoreInfoCell = memo(({ flag, children }) => {
-  const { getFlag } = useFlags();
+const CoreInfoCell = memo(({ path, children }) => {
+  const { getLocalisation } = useLocalisation();
   return (
     <CoreInfoCellContainer>
-      <CoreInfoLabel>{getFlag(flag)}</CoreInfoLabel>
+      <CoreInfoLabel>{getLocalisation(path)}</CoreInfoLabel>
       <CoreInfoValue>{children}</CoreInfoValue>
     </CoreInfoCellContainer>
   );
@@ -108,7 +108,7 @@ const DeceasedIndicator = memo(({ death }) => (
 const HealthIdDisplay = memo(({ patient }) => (
   <HealthIdContainer>
     <HealthIdLabelText>
-      <ConfigurableText flag="fields.displayId.longLabel"/>
+      <LocalisedText path="fields.displayId.longLabel"/>
     </HealthIdLabelText>
     <InvertedDisplayIdLabel>{patient.displayId}</InvertedDisplayIdLabel>
   </HealthIdContainer>
@@ -128,8 +128,8 @@ export const CoreInfoDisplay = memo(({ patient }) => (
       </NameContainer>
     </NameSection>
     <CoreInfoSection>
-      <CoreInfoCell flag="fields.sex.shortLabel">{patient.sex}</CoreInfoCell>
-      <CoreInfoCell flag="fields.dateOfBirth.shortLabel">
+      <CoreInfoCell path="fields.sex.shortLabel">{patient.sex}</CoreInfoCell>
+      <CoreInfoCell path="fields.dateOfBirth.shortLabel">
         <DateDisplay date={patient.dateOfBirth} />
       </CoreInfoCell>
     </CoreInfoSection>

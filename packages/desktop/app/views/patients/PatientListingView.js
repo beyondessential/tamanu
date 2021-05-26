@@ -2,7 +2,6 @@ import React, { useState, useCallback } from 'react';
 import { connect } from 'react-redux';
 import styled from 'styled-components';
 
-import { useFlags } from '../../contexts/FeatureFlags';
 import { viewPatient } from '../../store/patient';
 import { TopBar, PageContainer, DataFetchingTable } from '../../components';
 import { DropdownButton } from '../../components/DropdownButton';

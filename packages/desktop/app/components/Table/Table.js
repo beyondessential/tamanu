@@ -19,7 +19,7 @@ import TablePagination from '@material-ui/core/TablePagination';
 import { Button } from '@material-ui/core';
 import SaveAltIcon from '@material-ui/icons/SaveAlt';
 
-import { useFlags } from '../../contexts/FeatureFlags';
+import { useLocalisation } from '../../contexts/Localisation';
 import { ErrorBoundary } from '../ErrorBoundary';
 import { Colors } from '../../constants';
 
@@ -203,7 +203,7 @@ class TableComponent extends React.Component {
   };
 
   renderHeaders() {
-    const { columns, order, orderBy, onChangeOrderBy, getFlag } = this.props;
+    const { columns, order, orderBy, onChangeOrderBy, getLocalisation } = this.props;
     const getContent = (key, sortable, title) =>
       sortable ? (
         <TableSortLabel
@@ -211,7 +211,7 @@ class TableComponent extends React.Component {
           direction={order}
           onClick={() => onChangeOrderBy(key)}
         >
-          {title || getFlag(`fields.${key}.shortLabel`) || key}
+          {title || getLocalisation(`fields.${key}.shortLabel`) || key}
         </TableSortLabel>
       ) : (
         title
@@ -314,9 +314,9 @@ class TableComponent extends React.Component {
 }
 
 export const Table = ({ columns: allColumns, ...props }) => {
-  const { getFlag } = useFlags();
+  const { getLocalisation } = useLocalisation();
   const columns = allColumns.filter(
-    ({ key }) => getFlag(`fields.${key}.hidden`) !== true,
+    ({ key }) => getLocalisation(`fields.${key}.hidden`) !== true,
   );
-  return <TableComponent columns={columns} getFlag={getFlag} {...props} />;
+  return <TableComponent columns={columns} getLocalisation={getLocalisation} {...props} />;
 }

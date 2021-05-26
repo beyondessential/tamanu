@@ -74,36 +74,25 @@ const fieldsSchema = yup
   })
   .noUnknown();
 
-const rootFlagSchema = yup
-  .object({
-    fields: fieldsSchema,
-    // TODO: patientFieldOverrides is only here for backwards compatibility
-    // It may be safely removed if we've broken compatibility since 2021-05-21
-    patientFieldOverrides: yup.object({
-      deprecated: yup.boolean().oneOf([true]),
-      displayId: yup.object({
-        shortLabel: yup.string().required(),
-        longLabel: yup.string().required(),
-      }),
-    }),
-  })
+const rootLocalisationSchema = yup
+  .object({ fields: fieldsSchema })
   .required()
   .noUnknown();
 
-// TODO: once feature flags are persisted in the db, validate on save, not load
-const flags = defaultsDeep(config.featureFlags.data);
-rootFlagSchema
-  .validate(flags, { strict: true, abortEarly: false })
+// TODO: once localisation is persisted in the db, validate on save, not load
+const localisation = defaultsDeep(config.localisation.data);
+rootLocalisationSchema
+  .validate(localisation, { strict: true, abortEarly: false })
   .then(() => {
-    log.info('Feature flags validated successfully.');
+    log.info('Localisation validated successfully.');
   })
   .catch(e => {
     const errors = e.inner.map(inner => `\n  - ${inner.message}`);
     log.error(
-      `Error(s) validating feature flags (check featureFlags.data in your config):${errors}`,
+      `Error(s) validating localisation (check localisation.data in your config):${errors}`,
     );
   });
 
-export const getFeatureFlags = async () => {
-  return flags;
+export const getLocalisation = async () => {
+  return localisation;
 };

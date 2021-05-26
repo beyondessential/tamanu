@@ -2,7 +2,7 @@ import React from 'react';
 import styled from 'styled-components';
 import { PersonAdd } from '@material-ui/icons';
 
-import { ConfigurableText } from './ConfigurableText';
+import { LocalisedText } from './LocalisedText';
 import { Colors } from '../constants';
 
 const IdFieldContainer = styled.div`
@@ -40,7 +40,7 @@ export const IdBanner = ({ children }) => {
   return (
     <IdFieldContainer>
       <IdFieldTitle>
-        <ConfigurableText flag="fields.displayId.longLabel"/>
+        <LocalisedText path="fields.displayId.longLabel"/>
       </IdFieldTitle>
 
       {children}
