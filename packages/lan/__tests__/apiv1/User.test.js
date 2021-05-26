@@ -38,7 +38,7 @@ describe('User', () => {
           password: rawPassword,
         }),
       );
-      await models.UserFeatureFlagsCache.create({
+      await models.UserLocalisationCache.create({
         userId: authUser.id,
         localisation: JSON.stringify(localisation),
       });
@@ -116,7 +116,7 @@ describe('User', () => {
       });
       const result = await remoteLogin(models, authUser.email, rawPassword);
       expect(result).toHaveProperty('localisation', localisation);
-      const cache = await models.UserFeatureFlagsCache.findOne({
+      const cache = await models.UserLocalisationCache.findOne({
         where: {
           userId: authUser.id,
         },
