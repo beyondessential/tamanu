@@ -3,4 +3,5 @@ nav:
     - Home: index.md
     - Surveys: surveys.md
     - Models: models.md
+    - API: api.md
 theme: readthedocs
