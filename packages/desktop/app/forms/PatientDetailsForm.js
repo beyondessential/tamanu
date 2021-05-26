@@ -38,7 +38,7 @@ const DumbPrimaryDetailsGroup = ({ villageSuggester }) => (
   </React.Fragment>
 );
 
-export const PrimaryDetailsGroup = connectApi((api, dispatch, { patient }) => ({
+export const PrimaryDetailsGroup = connectApi(api => ({
   villageSuggester: new Suggester(api, 'village'),
 }))(DumbPrimaryDetailsGroup);
 
@@ -61,22 +61,54 @@ const DumbSecondaryDetailsGroup = ({
     <LocalisedField name="primaryContactNumber" component={TextField} type="tel" />
     <LocalisedField name="secondaryContactNumber" component={TextField} type="tel" />
     <LocalisedField name="socialMedia" component={SelectField} options={socialMediaOptions} />
-    <LocalisedField name="settlementId" component={AutocompleteField} suggester={settlementSuggester} />
+    <LocalisedField
+      name="settlementId"
+      component={AutocompleteField}
+      suggester={settlementSuggester}
+    />
     <LocalisedField name="streetVillage" component={TextField} />
     <LocalisedField name="cityTown" component={TextField} />
-    <LocalisedField name="subdivisionId" component={AutocompleteField} suggester={subdivisionSuggester} />
+    <LocalisedField
+      name="subdivisionId"
+      component={AutocompleteField}
+      suggester={subdivisionSuggester}
+    />
     <LocalisedField name="divisionId" component={AutocompleteField} suggester={divisionSuggester} />
     <LocalisedField name="countryId" component={AutocompleteField} suggester={countrySuggester} />
-    <LocalisedField name="medicalAreaId" component={AutocompleteField} suggester={medicalAreaSuggester} />
-    <LocalisedField name="nursingZoneId" component={AutocompleteField} suggester={nursingZoneSuggester} />
-    <LocalisedField name="nationalityId" component={AutocompleteField} suggester={nationalitySuggester} />
-    <LocalisedField name="ethnicityId" component={AutocompleteField} suggester={ethnicitySuggester} />
-    <LocalisedField name="occupationId" component={AutocompleteField} suggester={occupationSuggester} />
-    <LocalisedField name="educationalLevel" component={SelectField} options={educationalAttainmentOptions} />
+    <LocalisedField
+      name="medicalAreaId"
+      component={AutocompleteField}
+      suggester={medicalAreaSuggester}
+    />
+    <LocalisedField
+      name="nursingZoneId"
+      component={AutocompleteField}
+      suggester={nursingZoneSuggester}
+    />
+    <LocalisedField
+      name="nationalityId"
+      component={AutocompleteField}
+      suggester={nationalitySuggester}
+    />
+    <LocalisedField
+      name="ethnicityId"
+      component={AutocompleteField}
+      suggester={ethnicitySuggester}
+    />
+    <LocalisedField
+      name="occupationId"
+      component={AutocompleteField}
+      suggester={occupationSuggester}
+    />
+    <LocalisedField
+      name="educationalLevel"
+      component={SelectField}
+      options={educationalAttainmentOptions}
+    />
   </React.Fragment>
 );
 
-export const SecondaryDetailsGroup = connectApi((api, dispatch, { patient }) => ({
+export const SecondaryDetailsGroup = connectApi(api => ({
   countrySuggester: new Suggester(api, 'country'),
   divisionSuggester: new Suggester(api, 'division'),
   ethnicitySuggester: new Suggester(api, 'ethnicity'),
@@ -87,22 +119,20 @@ export const SecondaryDetailsGroup = connectApi((api, dispatch, { patient }) => 
   occupationSuggester: new Suggester(api, 'occupation'),
   settlementSuggester: new Suggester(api, 'settlement'),
   subdivisionSuggester: new Suggester(api, 'subdivision'),
-}))(SecondaryDetailsGroup);
+}))(DumbSecondaryDetailsGroup);
 
 export const PatientDetailsForm = ({ patient, onSubmit }) => {
-  const render = React.useCallback(
-    ({ submitForm }) => (
-      <FormGrid>
-        <PrimaryDetailsGroup />
-        <SecondaryDetailsGroup />
-        <ButtonRow>
-          <Button variant="contained" color="primary" onClick={submitForm}>
-            Save
-          </Button>
-        </ButtonRow>
-      </FormGrid>
-    ),
-  );
+  const render = React.useCallback(({ submitForm }) => (
+    <FormGrid>
+      <PrimaryDetailsGroup />
+      <SecondaryDetailsGroup />
+      <ButtonRow>
+        <Button variant="contained" color="primary" onClick={submitForm}>
+          Save
+        </Button>
+      </ButtonRow>
+    </FormGrid>
+  ));
 
   return (
     <Form
