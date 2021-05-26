@@ -95,7 +95,7 @@ A named group of Surveys.
 
 ### ProgramDataElement
 
-A program data element represents a single question in a survey, and has relations with SurveyScreenComponent and SurveyResponseAnswer to create and save surveys and referrals.
+A program data element represents a single survey question, reusable across different surveys. Information regarding a ProgramDataElement's survey-specific information (for eg page number) is stored in SurveyScreenComponent. Actual submitted patient data for a ProgramDataElement is stored in SurveyResponseAnswer.
 
 ### ReferenceData
 
@@ -106,6 +106,8 @@ A reference data item has a name, a code, and an ID (where "code" is just a uniq
 ### Referral
 
 A referral to another facility. This model is lightweight by design, only tracking the core data of where the referral is for. Any medical information related to the referral (for eg a diagnosis) should just be stored on the initiating encounter, while custom metadata should be attached via a SurveyResponse.
+
+:warning: Not to be confused with a Survey object having `surveyType == 'referral'`! This kind of Survey commonly gets shorthanded as a Referral; this practice should be discouraged.
 
 ### ReportRequest
 
@@ -121,11 +123,11 @@ TODO
 
 ### Survey
 
-Surveys are a general purpose tool for creating forms and can be used for many applications, e.g.  referrals and screenings.
+Surveys are a general purpose tool for creating forms and can be used for many applications, e.g. referrals and screenings.
 
 ### SurveyResponse
 
-A survey response hold information about a completed survey, including a calculated result if applicable. It holds the relations to all the answered questions and also an encounter in which the survey was conducted.
+A survey response hold information about a completed survey, including a calculated result if applicable. It holds the relations to all the answered questions and also the encounter in which the survey was conducted.
 
 ### SurveyResponseAnswer
 
@@ -133,14 +135,15 @@ A survey response answer represents an answer to a single question (program data
 
 ### SurveyScreenComponent
 
-Survey screen components contain a group of questions that are used to render a single page of questions in a (optionally) multi-page survey.
+Represents metadata for a question on a survey (for eg, position within the survey, any survey-specific overrides). The actual contents of the question (question type, text, etc) is stored in ProgramDataElement.
 
 ### SyncMetadata
 
-TODO
+Utility table to help manage the sync process. Not directly related to any patient or medical information.
 
 ### Triage
-TODO
+
+Emergency department triage information. Tracks very limited information - further data (for eg diagnoses or notes) should be recorded against an attached Encounter object instead.
 
 ### User
 
@@ -150,8 +153,9 @@ Users of the application, required to be able to login to either the tamanu mobi
 
 Represents the relationship between a user and which facility they work from.
 
-### UserFeatureFlagsCache
-TODO
+### UserLocalisationCache
+
+Cached localisation values from the server.
 
 ### Vitals
 
