@@ -13,12 +13,9 @@ export const useLocalisation = () => useContext(LocalisationContext);
 const DumbLocalisationProvider = ({ children, reduxLocalisation }) => {
   const [localisation, setLocalisation] = useState({});
 
-  useEffect(
-    () => {
-      setLocalisation({ ...reduxLocalisation, ...overrides });
-    },
-    [reduxLocalisation],
-  );
+  useEffect(() => {
+    setLocalisation({ ...reduxLocalisation, ...overrides });
+  }, [reduxLocalisation]);
 
   return (
     <LocalisationContext.Provider

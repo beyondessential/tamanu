@@ -52,6 +52,8 @@ const DumbSecondaryDetailsGroup = ({
   countrySuggester,
   divisionSuggester,
   subdivisionSuggester,
+  religionSuggester,
+  patientBillingTypeSuggester,
 }) => (
   <React.Fragment>
     <LocalisedField name="bloodType" component={SelectField} options={bloodOptions} />
@@ -105,6 +107,15 @@ const DumbSecondaryDetailsGroup = ({
       component={SelectField}
       options={educationalAttainmentOptions}
     />
+    <LocalisedField name="birthCertificate" component={TextField} />
+    <LocalisedField name="drivingLicense" component={TextField} />
+    <LocalisedField name="passport" component={TextField} />
+    <LocalisedField name="religionId" component={AutocompleteField} suggester={religionSuggester} />
+    <LocalisedField
+      name="patientBillingTypeId"
+      component={AutocompleteField}
+      suggester={patientBillingTypeSuggester}
+    />
   </React.Fragment>
 );
 
@@ -119,6 +130,8 @@ export const SecondaryDetailsGroup = connectApi(api => ({
   occupationSuggester: new Suggester(api, 'occupation'),
   settlementSuggester: new Suggester(api, 'settlement'),
   subdivisionSuggester: new Suggester(api, 'subdivision'),
+  religionSuggester: new Suggester(api, 'religion'),
+  patientBillingTypeSuggester: new Suggester(api, 'patientBillingType'),
 }))(DumbSecondaryDetailsGroup);
 
 export const PatientDetailsForm = ({ patient, onSubmit }) => {
