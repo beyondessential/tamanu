@@ -27,8 +27,6 @@ import { PatientEncounterSummary } from './components/PatientEncounterSummary';
 import { DataFetchingSurveyResponsesTable } from '../../components/SurveyResponsesTable';
 
 import { PatientDetailsForm } from '../../forms/PatientDetailsForm';
-import { Suggester } from '../../utils/suggester';
-
 import { reloadPatient } from '../../store/patient';
 
 import { useEncounter } from '../../contexts/Encounter';
@@ -154,21 +152,6 @@ const ConnectedPatientDetailsForm = connectApi((api, dispatch, { patient }) => (
     await api.put(`patient/${patient.id}`, data);
     dispatch(reloadPatient(patient.id));
   },
-  patientSuggester: new Suggester(api, 'patient', ({ id, firstName, lastName }) => ({
-    value: id,
-    label: `${firstName} ${lastName}`,
-  })),
-  facilitySuggester: new Suggester(api, 'facility'),
-  villageSuggester: new Suggester(api, 'village'),
-  ethnicitySuggester: new Suggester(api, 'ethnicity'),
-  nationalitySuggester: new Suggester(api, 'nationality'),
-  countrySuggester: new Suggester(api, 'country'),
-  divisionSuggester: new Suggester(api, 'division'),
-  subdivisionSuggester: new Suggester(api, 'subdivision'),
-  medicalAreaSuggester: new Suggester(api, 'medicalArea'),
-  nursingZoneSuggester: new Suggester(api, 'nursingZone'),
-  settlementSuggester: new Suggester(api, 'settlement'),
-  occupationSuggester: new Suggester(api, 'occupation'),
 }))(
   React.memo(props => (
     <ContentPane>

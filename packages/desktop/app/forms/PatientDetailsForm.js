@@ -1,5 +1,8 @@
 import React from 'react';
 
+import { connectApi } from '../api';
+import { Suggester } from '../utils/suggester';
+
 import { FormGrid } from '../components/FormGrid';
 import { ButtonRow } from '../components/ButtonRow';
 import { Button } from '../components/Button';
@@ -23,7 +26,7 @@ import {
   educationalAttainmentOptions,
 } from '../constants';
 
-export const PrimaryDetailsGroup = ({ villageSuggester }) => (
+const DumbPrimaryDetailsGroup = ({ villageSuggester }) => (
   <React.Fragment>
     <LocalisedField name="firstName" component={TextField} required />
     <LocalisedField name="middleName" component={TextField} />
@@ -35,7 +38,11 @@ export const PrimaryDetailsGroup = ({ villageSuggester }) => (
   </React.Fragment>
 );
 
-export const SecondaryDetailsGroup = ({
+export const PrimaryDetailsGroup = connectApi((api, dispatch, { patient }) => ({
+  villageSuggester: new Suggester(api, 'village'),
+}))(DumbPrimaryDetailsGroup);
+
+const DumbSecondaryDetailsGroup = ({
   medicalAreaSuggester,
   nursingZoneSuggester,
   settlementSuggester,
@@ -69,41 +76,25 @@ export const SecondaryDetailsGroup = ({
   </React.Fragment>
 );
 
-export const PatientDetailsForm = ({
-  patientSuggester,
-  facilitySuggester,
-  villageSuggester,
-  ethnicitySuggester,
-  nationalitySuggester,
-  countrySuggester,
-  divisionSuggester,
-  subdivisionSuggester,
-  medicalAreaSuggester,
-  nursingZoneSuggester,
-  settlementSuggester,
-  occupationSuggester,
-  patient,
-  onSubmit,
-}) => {
+export const SecondaryDetailsGroup = connectApi((api, dispatch, { patient }) => ({
+  countrySuggester: new Suggester(api, 'country'),
+  divisionSuggester: new Suggester(api, 'division'),
+  ethnicitySuggester: new Suggester(api, 'ethnicity'),
+  facilitySuggester: new Suggester(api, 'facility'),
+  medicalAreaSuggester: new Suggester(api, 'medicalArea'),
+  nationalitySuggester: new Suggester(api, 'nationality'),
+  nursingZoneSuggester: new Suggester(api, 'nursingZone'),
+  occupationSuggester: new Suggester(api, 'occupation'),
+  settlementSuggester: new Suggester(api, 'settlement'),
+  subdivisionSuggester: new Suggester(api, 'subdivision'),
+}))(SecondaryDetailsGroup);
+
+export const PatientDetailsForm = ({ patient, onSubmit }) => {
   const render = React.useCallback(
     ({ submitForm }) => (
       <FormGrid>
-        <PrimaryDetailsGroup
-          villageSuggester={villageSuggester}
-          ethnicitySuggester={ethnicitySuggester}
-          nationalitySuggester={nationalitySuggester}
-          divisionSuggester={divisionSuggester}
-          subdivisionSuggester={subdivisionSuggester}
-        />
-        <SecondaryDetailsGroup
-          patientSuggester={patientSuggester}
-          facilitySuggester={facilitySuggester}
-          medicalAreaSuggester={medicalAreaSuggester}
-          nursingZoneSuggester={nursingZoneSuggester}
-          settlementSuggester={settlementSuggester}
-          occupationSuggester={occupationSuggester}
-          countrySuggester={countrySuggester}
-        />
+        <PrimaryDetailsGroup />
+        <SecondaryDetailsGroup />
         <ButtonRow>
           <Button variant="contained" color="primary" onClick={submitForm}>
             Save
@@ -111,19 +102,6 @@ export const PatientDetailsForm = ({
         </ButtonRow>
       </FormGrid>
     ),
-    [
-      villageSuggester,
-      ethnicitySuggester,
-      nationalitySuggester,
-      patientSuggester,
-      facilitySuggester,
-      divisionSuggester,
-      subdivisionSuggester,
-      medicalAreaSuggester,
-      nursingZoneSuggester,
-      settlementSuggester,
-      occupationSuggester,
-    ],
   );
 
   return (

@@ -54,17 +54,6 @@ export const NewPatientForm = memo(
     onSubmit,
     onCancel,
     generateId,
-    patientSuggester,
-    facilitySuggester,
-    villageSuggester,
-    ethnicitySuggester,
-    nationalitySuggester,
-    divisionSuggester,
-    subdivisionSuggester,
-    medicalAreaSuggester,
-    nursingZoneSuggester,
-    settlementSuggester,
-    occupationSuggester,
     isBirth,
   }) => {
     const [isExpanded, setExpanded] = useState(false);
@@ -75,7 +64,7 @@ export const NewPatientForm = memo(
             <Field name="displayId" component={IdField} regenerateId={generateId} />
           </IdBanner>
         </IdBannerContainer>
-        <PrimaryDetailsGroup villageSuggester={villageSuggester} />
+        <PrimaryDetailsGroup />
         <AdditionalInformationRow>
           <div>
             Add additional information <span>(religion, occupation, blood type...)</span>
@@ -88,19 +77,7 @@ export const NewPatientForm = memo(
         </AdditionalInformationRow>
         <Collapse in={isExpanded} style={{ gridColumn: 'span 2' }}>
           <FormGrid>
-            <SecondaryDetailsGroup
-              isBirth={isBirth}
-              patientSuggester={patientSuggester}
-              facilitySuggester={facilitySuggester}
-              medicalAreaSuggester={medicalAreaSuggester}
-              nursingZoneSuggester={nursingZoneSuggester}
-              settlementSuggester={settlementSuggester}
-              occupationSuggester={occupationSuggester}
-              ethnicitySuggester={ethnicitySuggester}
-              nationalitySuggester={nationalitySuggester}
-              divisionSuggester={divisionSuggester}
-              subdivisionSuggester={subdivisionSuggester}
-            />
+            <SecondaryDetailsGroup isBirth={isBirth} />
           </FormGrid>
         </Collapse>
         <ModalActionRow confirmText="Create" onConfirm={submitForm} onCancel={onCancel} />
