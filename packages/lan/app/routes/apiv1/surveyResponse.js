@@ -33,24 +33,26 @@ surveyResponse.get(
         JSON.parse(componentConfig),
       ]);
     const autocompleteComponentMap = new Map(autocompleteComponents);
-    const transformedAnswers = [];
-    for (const a of answers) {
-      const componentConfig = autocompleteComponentMap.get(a.dataValues.dataElementId);
-      if (componentConfig === undefined) {
-        transformedAnswers.push(a);
-      } else {
-        const result = await models[componentConfig.source].findByPk(a.dataValues.body);
+
+    // Transform Autocomplete answers from: { body: ReferenceData.id } to: { body: ReferenceData.name, originalBody: ReferenceData.id }
+    const transformedAnswers = await Promise.all(
+      answers.map(async answer => {
+        const componentConfig = autocompleteComponentMap.get(answer.dataValues.dataElementId);
+        if (!componentConfig) {
+          return answer;
+        }
+        const result = await models[componentConfig.source].findByPk(answer.dataValues.body);
         const answerDisplayValue =
           result[MODEL_COLUMN_TO_ANSWER_DISPLAY_VALUE[componentConfig.source]];
 
         const transformedAnswer = {
-          ...a.dataValues,
-          originalBody: a.dataValues.body,
+          ...answer.dataValues,
+          originalBody: answer.dataValues.body,
           body: answerDisplayValue,
         };
-        transformedAnswers.push(transformedAnswer);
-      }
-    }
+        return transformedAnswer;
+      }),
+    );
 
     res.send({
       ...surveyResponseRecord.forResponse(),
