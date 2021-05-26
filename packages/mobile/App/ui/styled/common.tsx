@@ -132,6 +132,7 @@ export const StyledView = styled.View<StyledViewProps>`
   ${zIndex}
   ${justifyContent}
   ${alignItems}
+  ${height}
 `;
 
 export const StyledSafeAreaView = styled(SafeAreaView) <StyledViewProps>`    

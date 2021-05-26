@@ -1,7 +1,7 @@
 import React, { useState } from 'react';
 import { StyleSheet, Text, View } from 'react-native';
 import Accordion from 'react-native-collapsible/Accordion';
-import { StyledView } from '/styled/common';
+import { StyledScrollView } from '/styled/common';
 import { Header } from './Header';
 import { Content } from './Content';
 
@@ -15,7 +15,7 @@ export const PatientVaccineHistoryAccordion = ({
   };
 
   return (
-    <StyledView flex={1} width="100%">
+    <StyledScrollView flex={1} width="100%">
       <Accordion
         sections={dataArray}
         underlayColor="transparent"
@@ -24,6 +24,6 @@ export const PatientVaccineHistoryAccordion = ({
         renderContent={Content}
         onChange={updateSections}
       />
-    </StyledView>
+    </StyledScrollView>
   );
 };
