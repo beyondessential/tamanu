@@ -7,6 +7,11 @@ import { REFERENCE_TYPES } from 'shared/constants';
 
 export const surveyResponse = express.Router();
 
+const MODEL_COLUMN_TO_ANSWER_DISPLAY_VALUE = {
+  User: 'displayName',
+  ReferenceData: 'name',
+};
+
 surveyResponse.get(
   '/:id',
   asyncHandler(async (req, res) => {
@@ -21,10 +26,36 @@ surveyResponse.get(
       where: { responseId: params.id },
     });
 
+    const autocompleteComponents = components
+      .filter(c => c.dataElement.dataValues.type === 'Autocomplete')
+      .map(({ dataElementId, config: componentConfig }) => [
+        dataElementId,
+        JSON.parse(componentConfig),
+      ]);
+    const autocompleteComponentMap = new Map(autocompleteComponents);
+    const transformedAnswers = [];
+    for (const a of answers) {
+      const componentConfig = autocompleteComponentMap.get(a.dataValues.dataElementId);
+      if (componentConfig === undefined) {
+        transformedAnswers.push(a);
+      } else {
+        const result = await models[componentConfig.source].findByPk(a.dataValues.body);
+        const answerDisplayValue =
+          result[MODEL_COLUMN_TO_ANSWER_DISPLAY_VALUE[componentConfig.source]];
+
+        const transformedAnswer = {
+          ...a.dataValues,
+          originalBody: a.dataValues.body,
+          body: answerDisplayValue,
+        };
+        transformedAnswers.push(transformedAnswer);
+      }
+    }
+
     res.send({
       ...surveyResponseRecord.forResponse(),
       components,
-      answers,
+      answers: transformedAnswers,
     });
   }),
 );
