@@ -1,6 +1,7 @@
-import React, { ReactElement, useMemo, useCallback, useState } from 'react';
+import React, { ReactElement, useMemo, useCallback, useState, useEffect } from 'react';
 import { compose } from 'redux';
 import { setStatusBar } from '/helpers/screen';
+import { Popup } from 'popup-ui';
 // Components
 import * as Icons from '/components/Icons';
 import { PatientHomeScreenProps } from '/interfaces/screens/HomeStack';
@@ -10,13 +11,15 @@ import { Routes } from '/helpers/routes';
 import { theme } from '/styled/theme';
 // Containers
 import { withPatient } from '/containers/Patient';
-import { useBackend } from '~/ui/hooks';
+import { useBackend, useBackendEffect } from '~/ui/hooks';
 import { ErrorScreen } from '~/ui/components/ErrorScreen';
+import { useIsFocused } from '@react-navigation/core';
 
 const PatientHomeContainer = ({
   navigation,
   selectedPatient,
 }: PatientHomeScreenProps): ReactElement => {
+  const isFocused = useIsFocused(); // reload issues whenever the page is focused
   const [errorMessage, setErrorMessage] = useState();
   const visitTypeButtons = useMemo(
     () => [
@@ -87,9 +90,36 @@ const PatientHomeContainer = ({
     }, [selectedPatient],
   );
 
+  const [patientIssues, issuesError] = useBackendEffect(
+    ({ models }) => {
+      if (isFocused) {
+        return models.PatientIssue.find({
+          order: { recordedDate: 'ASC' },
+          where: { patient: { id: selectedPatient.id } },
+        });
+      }
+    },
+    [isFocused, selectedPatient.id],
+  );
+
   setStatusBar('light-content', theme.colors.PRIMARY_MAIN);
 
   if (errorMessage) return <ErrorScreen error={errorMessage} />;
+
+  console.log(patientIssues, issuesError);
+  useEffect(() => {
+    Popup.show({
+      type: 'Warning',
+      title: 'Vaccine Warning',
+      button: true,
+      textBody: `This person has previously had an adverse reaction to a vaccine. DO NOT VACCINATE & REFER PATIENT TO EPI COORDINATOR.`,
+      buttonText: 'Ok',
+      callback: () => {
+        // navigation.replace(resetRoute);
+        Popup.hide();
+      },
+    });
+  }, [patientIssues?.length ?? 0, selectedPatient.id]);
 
   return (
     <Screen
