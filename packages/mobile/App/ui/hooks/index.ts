@@ -4,7 +4,7 @@ import { BackendContext } from '~/ui/contexts/BackendContext';
 
 export type ResultArray<T> = [T | null, Error | null];
 
-export const useCancelableEffect = <T>(fetcher: (() => T), dependencies = []): ResultArray<T> => {
+export const useCancelableEffect = <T>(fetcher: (() => Promise<T> | T), dependencies = []): ResultArray<T> => {
   const [data, setData] = useState(null);
   const [error, setError] = useState(null);
 
@@ -28,7 +28,7 @@ export const useCancelableEffect = <T>(fetcher: (() => T), dependencies = []): R
   return [data, error];
 };
 
-export const useBackendEffect = <T>(call: (backend: Backend) => T, dependencies = []): ResultArray<T> => {
+export const useBackendEffect = <T>(call: (backend: Backend) => Promise<T> | T, dependencies = []): ResultArray<T> => {
   const backend = useContext(BackendContext);
 
   return useCancelableEffect(() => call(backend), dependencies);
