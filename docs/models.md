@@ -2,17 +2,17 @@
 
 Models implementations can be found in: `packages/shared-src/src/models`
 
-### AdministeredVaccines
+### AdministeredVaccine
 
-AdministeredVaccine represents a vaccination a patient has recieved. The specific vaccine is represented in the ScheduledVaccine relationship.
+A vaccination a patient has recieved. The specific vaccine is represented in the ScheduledVaccine relationship.
 
 ### Attachment
 
-TODO
+Metadata for an attached document (for eg an image or a pdf). Actual attachment data is not synced; data should be fetched over an internet connection from the sync server (though the data column in this table can be used as a local cache).
 
 ### Discharge
 
-TODO
+Details of a discharge from a hospital admission. Most encounter types are closed by simply setting an endDate, this model is simply to attach additional discharge information. 
 
 ### Encounter
 
@@ -22,27 +22,27 @@ TODO: Add note explaining auto-closing encounters
 
 ### EncounterDiagnosis
 
-TODO
+A diagnosis given to a patient.
 
 ### EncounterMedication
 
-TODO
+A prescription of medication to a patient.
 
 ### ImagingRequest
 
-TODO
+A request for imaging (for eg an x-ray or a colposcopy).
 
 ### LabRequest
 
-TODO
+A request for labs. Multiple tests can be attached to a single request (a single sample may be tested for several different conditions).
 
 ### LabTest
 
-TODO
+A request for a single lab test. Always part of a LabRequest.
 
 ### LabTestType
 
-TODO
+A type of lab test, with name and code but also includes configurations like healthy ranges to display next to results, options for dropdowns etc.
 
 ### Location
 
@@ -55,31 +55,31 @@ arbitrary information to some data.
 
 ### Patient
 
-The Patient model holds a small set of basic information about patients in the system, more detailed information, such as conditions, allergies and additional data are held in separate tables via relations.
+The Patient model is the central reference point for a patient's data. The table itself holds a small set of basic information, and is synced to all devices regardless of whether that patient attends a particular facility. This means that adding fields to this table should be done VERY rarely, as it represents a security risk (low control over which devices it ends up on) as well as data traffic risk (each new byte of data added to the core patient record will be multiplied by the # of patients in that system - easily hundreds of thousands, possibly millions - for every device!).
 
 ### PatientAdditionalData
 
-Holds extra, non-essential data about Patients.
+Holds most of a patient's non-encounter data (for eg contact information, social media). Only synced to facilities that have marked that patient for sync.
 
 ### PatientAllergy
 
-A list of patients allergies
+A allergy recorded for a patient (for eg peanuts or penicillin). 
 
 ### PatientCarePlan
 
-A list of patients care plans
+A care plan for a patient.
 
 ### PatientCommunication
 
-A list of communications (e.g. email, text) sent to a patient.
+A communication (e.g. email, text) to be sent to a patient. The sync server is responsible for actually processing these communications.
 
-### PatientConditions
+### PatientCondition
 
-A list of patients known medical conditions
+An ongoing medical condition.
 
 ### PatientFamilyHistory
 
-A list of patients family history
+A piece of medical history within that patient's family.
 
 ### PatientIssue
 
@@ -91,8 +91,7 @@ A procedure (e.g. surgery) for a Patient, with information about the team admini
 
 ### Program
 
-A Program is a simple structure to group Surveys together. Programs just have a name and code,
-and can have many Surveys related to it.
+A named group of Surveys.
 
 ### ProgramDataElement
 
@@ -102,9 +101,11 @@ A program data element represents a single question in a survey, and has relatio
 
 Reference data is a core table in Tamanu that allows for huge amounts of customisation across deployments. There are many types of reference data, all used to populate the app with data such as locations, drugs, allergies, diagnoses, and many more. Each deployment has a reference data excel sheet that is imported to the sync server and syncs down to lan and mobile devices to populate data in the apps.
 
+A reference data item has a name, a code, and an ID (where "code" is just a unique string for that reference data item within its type, for eg an ICD10 code). If a type of reference data requires additional metadata beyond these fields, then it should be split out into a separate table.
+
 ### Referral
 
-A referral is much like a Survey, but used specifically for patient referrals (Under the hood, the referral forms are just Surveys with a `surveyType` of `referral`).
+A referral to another facility. This model is lightweight by design, only tracking the core data of where the referral is for. Any medical information related to the referral (for eg a diagnosis) should just be stored on the initiating encounter, while custom metadata should be attached via a SurveyResponse.
 
 ### ReportRequest
 
