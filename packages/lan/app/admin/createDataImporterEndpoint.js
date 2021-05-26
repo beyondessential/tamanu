@@ -1,5 +1,6 @@
 import asyncHandler from 'express-async-handler';
 import { unlink } from 'fs';
+import config from 'config';
 
 import { getUploadedData } from './getUploadedData';
 import { sendSyncRequest } from './sendSyncRequest';
@@ -40,6 +41,7 @@ export function createDataImporterEndpoint(importer) {
     const sendResult = (extraData = {}) => res.send({
       ...resultInfo,
       ...extraData,
+      server: config.sync.host,
       duration: (Date.now() - start) / 1000.0,
     });
 
