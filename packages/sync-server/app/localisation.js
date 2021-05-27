@@ -30,6 +30,7 @@ const UNHIDEABLE_FIELDS = ['markedForSync', 'displayId', 'firstName', 'lastName'
 
 const HIDEABLE_FIELDS = [
   'culturalName',
+  'sexName',
   'sexId',
   'villageName',
   'villageId',
