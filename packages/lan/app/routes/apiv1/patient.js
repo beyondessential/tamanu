@@ -362,7 +362,7 @@ patient.get(
           location.id AS location_id,
           location.name AS location_name,
           village.id AS village_id,
-          village.name AS village_name
+          village.name AS village_name,
           sex.name AS sex_name
         ${from}
 
