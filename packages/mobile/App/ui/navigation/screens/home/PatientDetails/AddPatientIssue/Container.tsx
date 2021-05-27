@@ -30,6 +30,7 @@ const Container = ({
 
   const onRecordPatientIssue = useCallback(
     async ({ note }: Partial<IPatientIssue>) => {
+      // TODO: Do we need to wait for the backend call before navigating? The delay confused me, but might be needed for something?
       await models.PatientIssue.createAndSaveOne({
         note,
         recordedDate: new Date(),
