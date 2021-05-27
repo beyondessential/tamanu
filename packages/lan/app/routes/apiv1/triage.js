@@ -18,9 +18,10 @@ const sortKeys = {
   score: 'score',
   patientName: 'UPPER(patients.last_name || patients.first_name)',
   chiefComplaint: 'chief_complaint',
-  id: 'patients.display_id',
+  displayId: 'patients.display_id',
   dateOfBirth: 'patients.date_of_birth',
   locationName: 'location_name',
+  sexName: 'sex_name',
 };
 
 triage.get(
@@ -48,7 +49,8 @@ triage.get(
           encounters.id as encounter_id,
           patients.*,
           location.name AS location_name,
-          complaint.name AS chief_complaint
+          complaint.name AS chief_complaint,
+          sex.name AS sex_name
         FROM triages
           LEFT JOIN encounters
            ON (encounters.id = triages.encounter_id)
@@ -58,6 +60,8 @@ triage.get(
            ON (encounters.location_id = location.id)
           LEFT JOIN reference_data AS complaint
            ON (triages.chief_complaint_id = complaint.id)
+          LEFT JOIN reference_data AS sex
+           ON (patients.sex_id = sex.id)
         ORDER BY ${sortKey} ${sortDirection} NULLS LAST
       `,
       {
