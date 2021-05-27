@@ -49,6 +49,7 @@ export class SqlWrapper {
       ['surveyScreenComponent', this.models.SurveyScreenComponent],
       ['user', this.models.User],
       ['reportRequest', this.models.ReportRequest],
+      ['facility', this.models.Facility],
       ['location', this.models.Location],
       ['userFacility', this.models.UserFacility],
       ['attachment', this.models.Attachment],

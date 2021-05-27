@@ -186,6 +186,7 @@ export class SyncManager {
         models.LabTestType,
         models.Encounter,
         models.ReportRequest,
+        models.Facility,
         models.Location,
         models.UserFacility,
       ];
