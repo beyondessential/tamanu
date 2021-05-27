@@ -56,6 +56,12 @@ export const testImagingTypes = splitIds(`
   Ultrasound
 `).map(x => ({ ...x, type: 'imagingType' }));
 
+export const testSexes = ['male', 'female', 'other', 'some-long-string'].map(s => ({
+  _id: `ref/sex/${s}`,
+  name: s,
+  type: 'sex',
+}));
+
 export const allSeeds = [
   ...testDiagnoses,
   ...testDrugs,
@@ -66,5 +72,6 @@ export const allSeeds = [
   ...testFacilities,
   ...testVillages,
   ...testAllergies,
-  ...CARE_PLANS
+  ...testSexes,
+  ...CARE_PLANS,
 ];

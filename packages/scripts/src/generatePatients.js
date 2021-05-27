@@ -49,7 +49,7 @@ async function run() {
 
   users.map(async r => {
     const user = {
-      sex: sexIds[r.gender] || sexIds.other,
+      sexId: sexIds[r.gender] || sexIds.other,
       firstName: titleCase(r.name.first),
       lastName: titleCase(r.name.last),
       dateOfBirth: r.dob.date.split('T')[0],

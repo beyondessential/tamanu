@@ -83,11 +83,10 @@ export async function createTestContext() {
   await deleteAllTestIds(dbResult);
 
   // populate with reference data
-  const tasks = allSeeds
-    .map(d => ({ code: d.name, ...d }))
-    .map(d => models.ReferenceData.create(d));
+  const refData = allSeeds.map(d => ({ code: d.name, ...d }));
+  const refDataPromise = models.ReferenceData.bulkCreate(refData, { ignoreDuplicates: true });
   await seedLabTests(models);
-  await Promise.all(tasks);
+  await refDataPromise;
 
   const expressApp = createApp(dbResult);
 

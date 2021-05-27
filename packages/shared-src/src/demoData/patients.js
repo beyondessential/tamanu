@@ -121,12 +121,13 @@ export async function createDummyPatient(models, overrides = {}) {
   const gender = overrides.sex || chance.pick(['male', 'female']);
   const sexCode = chance.bool({ likelihood: 5 }) ? 'other' : gender;
   const title = overrides.title || chance.pick(['Mr', 'Mrs', 'Ms']);
+  const sexes = await models.ReferenceData.findAll({ where: { type: 'sex' } });
   return {
     displayId: generateId(),
     firstName: chance.first({ gender }),
     lastName: chance.last(),
     culturalName: chance.last(),
-    sexId: `ref/sex/${sexCode}`,
+    sexId: sexes.find(s => s.code === sexCode).id,
     dateOfBirth: chance.birthday(),
     title,
     ...overrides,

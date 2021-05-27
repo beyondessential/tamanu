@@ -19,7 +19,6 @@ export function fakeStringFields(prefix, fields) {
 
 export function fakePatient(prefix = 'test-') {
   const id = uuidv4();
-  const sexCode = sample(['male', 'female', 'other']);
   return {
     ...fakeStringFields(`${prefix}patient_${id}_`, [
       'id',
@@ -29,10 +28,10 @@ export function fakePatient(prefix = 'test-') {
       'culturalName',
       'displayId',
     ]),
-    sexId: `ref/sex/${sexCode}`,
     dateOfBirth: new Date(random(0, Date.now())),
     email: null,
     villageId: null,
+    sexId: null,
   };
 }
 
