@@ -18,10 +18,6 @@ export class Patient extends Model {
         culturalName: Sequelize.STRING,
 
         dateOfBirth: Sequelize.DATE,
-        sex: {
-          type: Sequelize.ENUM('male', 'female', 'other'),
-          allowNull: false,
-        },
         email: Sequelize.STRING,
         markedForSync: {
           type: Sequelize.BOOLEAN,
@@ -50,6 +46,11 @@ export class Patient extends Model {
     this.belongsTo(models.ReferenceData, {
       foreignKey: 'villageId',
       as: 'village',
+    });
+
+    this.belongsTo(models.ReferenceData, {
+      foreignKey: 'sexId',
+      as: 'sex',
     });
   }
 
