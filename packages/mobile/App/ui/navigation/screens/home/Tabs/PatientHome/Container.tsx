@@ -2,6 +2,7 @@ import React, { ReactElement, useMemo, useCallback, useState, useEffect } from '
 import { compose } from 'redux';
 import { setStatusBar } from '/helpers/screen';
 import { Popup } from 'popup-ui';
+import { IPatientIssue, PatientIssueType } from '/types/IPatientIssue';
 // Components
 import * as Icons from '/components/Icons';
 import { PatientHomeScreenProps } from '/interfaces/screens/HomeStack';
@@ -14,6 +15,45 @@ import { withPatient } from '/containers/Patient';
 import { useBackend, useBackendEffect } from '~/ui/hooks';
 import { ErrorScreen } from '~/ui/components/ErrorScreen';
 import { useIsFocused } from '@react-navigation/core';
+
+interface IPopup {
+  title: string,
+  textBody: string,
+}
+
+const showPopupChain = (popups : IPopup[]) => {
+  if(popups.length === 0) return;
+  const [currentPopup, ...restOfChain] = popups;
+  const { title, textBody } = currentPopup;
+  console.log('popping', { title, textBody });
+
+  Popup.show({
+      type: 'Warning',
+      title,
+      textBody,
+      callback: () => {
+        restOfChain.length > 0 ? showPopupChain(restOfChain) : Popup.hide();
+      }
+    });
+}
+
+const formatNoteToPopup = (note: string): IPopup => {
+  const [firstPart, secondPart] = note.split(/:(.+)/);
+  return secondPart ? {
+    title: firstPart,
+    textBody: secondPart,
+  } : {
+    title: '',
+    textBody: firstPart,
+  }
+}
+
+const showPatientWarningPopups = (issues: IPatientIssue[]) =>
+    showPopupChain(
+      issues
+        .filter(({type}) => type === PatientIssueType.Warning)
+        .map(({ note }) => formatNoteToPopup(note))
+);
 
 const PatientHomeContainer = ({
   navigation,
@@ -105,20 +145,16 @@ const PatientHomeContainer = ({
   setStatusBar('light-content', theme.colors.PRIMARY_MAIN);
 
   if (errorMessage) return <ErrorScreen error={errorMessage} />;
-
+  const patientIssues2 = [
+    { note: 'hi', type: 'warning' },
+    { note: 'hi2', type: 'issue' },
+    { note: 'hi3', type: 'warning' },
+    { note: 'hi4: Hey', type: 'warning' },
+    { note: 'hi4: Hey : ho', type: 'warning' },
+  ]
   console.log(patientIssues, issuesError);
   useEffect(() => {
-    Popup.show({
-      type: 'Warning',
-      title: 'Vaccine Warning',
-      button: true,
-      textBody: `This person has previously had an adverse reaction to a vaccine. DO NOT VACCINATE & REFER PATIENT TO EPI COORDINATOR.`,
-      buttonText: 'Ok',
-      callback: () => {
-        // navigation.replace(resetRoute);
-        Popup.hide();
-      },
-    });
+    showPatientWarningPopups(patientIssues2);
   }, [patientIssues?.length ?? 0, selectedPatient.id]);
 
   return (
