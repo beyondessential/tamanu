@@ -173,6 +173,31 @@
           "shortLabel": "Village",
           "longLabel": "Village",
           "hidden": false
+        },
+        "birthCertificate": {
+          "shortLabel": "Birth certificate",
+          "longLabel": "Birth certificate number",
+          "hidden": false
+        },
+        "drivingLicense": {
+          "shortLabel": "Driving license",
+          "longLabel": "Driving license number",
+          "hidden": false
+        },
+        "passport": {
+          "shortLabel": "Passport",
+          "longLabel": "Passport number",
+          "hidden": false
+        },
+        "religionId": {
+          "shortLabel": "Religion",
+          "longLabel": "Religion",
+          "hidden": false
+        },
+        "patientBillingTypeId": {
+          "shortLabel": "Type",
+          "longLabel": "Patient type",
+          "hidden": false
         }
       }
     }

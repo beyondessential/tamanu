@@ -53,6 +53,11 @@ const HIDEABLE_FIELDS = [
   'occupationId',
   'educationalLevel',
   'middleName',
+  'birthCertificate',
+  'drivingLicense',
+  'passport',
+  'religionId',
+  'patientBillingTypeId',
 ];
 
 const fieldsSchema = yup

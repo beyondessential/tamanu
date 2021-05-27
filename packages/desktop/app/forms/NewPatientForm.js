@@ -48,96 +48,66 @@ const AdditionalInformationRow = styled.div`
   }
 `;
 
-export const NewPatientForm = memo(
-  ({
-    editedObject,
-    onSubmit,
-    onCancel,
-    generateId,
-    patientSuggester,
-    facilitySuggester,
-    villageSuggester,
-    ethnicitySuggester,
-    nationalitySuggester,
-    divisionSuggester,
-    subdivisionSuggester,
-    medicalAreaSuggester,
-    nursingZoneSuggester,
-    settlementSuggester,
-    occupationSuggester,
-    isBirth,
-  }) => {
-    const [isExpanded, setExpanded] = useState(false);
-    const renderForm = ({ submitForm }) => (
-      <FormGrid>
-        <IdBannerContainer>
-          <IdBanner>
-            <Field name="displayId" component={IdField} regenerateId={generateId} />
-          </IdBanner>
-        </IdBannerContainer>
-        <PrimaryDetailsGroup villageSuggester={villageSuggester} />
-        <AdditionalInformationRow>
-          <div>
-            Add additional information <span>(religion, occupation, blood type...)</span>
-          </div>
-          {isExpanded ? (
-            <MinusIconButton onClick={() => setExpanded(false)} />
-          ) : (
-            <PlusIconButton onClick={() => setExpanded(true)} />
-          )}
-        </AdditionalInformationRow>
-        <Collapse in={isExpanded} style={{ gridColumn: 'span 2' }}>
-          <FormGrid>
-            <SecondaryDetailsGroup
-              isBirth={isBirth}
-              patientSuggester={patientSuggester}
-              facilitySuggester={facilitySuggester}
-              medicalAreaSuggester={medicalAreaSuggester}
-              nursingZoneSuggester={nursingZoneSuggester}
-              settlementSuggester={settlementSuggester}
-              occupationSuggester={occupationSuggester}
-              ethnicitySuggester={ethnicitySuggester}
-              nationalitySuggester={nationalitySuggester}
-              divisionSuggester={divisionSuggester}
-              subdivisionSuggester={subdivisionSuggester}
-            />
-          </FormGrid>
-        </Collapse>
-        <ModalActionRow confirmText="Create" onConfirm={submitForm} onCancel={onCancel} />
-      </FormGrid>
-    );
+export const NewPatientForm = memo(({ editedObject, onSubmit, onCancel, generateId, isBirth }) => {
+  const [isExpanded, setExpanded] = useState(false);
+  const renderForm = ({ submitForm }) => (
+    <FormGrid>
+      <IdBannerContainer>
+        <IdBanner>
+          <Field name="displayId" component={IdField} regenerateId={generateId} />
+        </IdBanner>
+      </IdBannerContainer>
+      <PrimaryDetailsGroup />
+      <AdditionalInformationRow>
+        <div>
+          Add additional information
+          <span> (religion, occupation, blood type...)</span>
+        </div>
+        {isExpanded ? (
+          <MinusIconButton onClick={() => setExpanded(false)} />
+        ) : (
+          <PlusIconButton onClick={() => setExpanded(true)} />
+        )}
+      </AdditionalInformationRow>
+      <Collapse in={isExpanded} style={{ gridColumn: 'span 2' }}>
+        <FormGrid>
+          <SecondaryDetailsGroup isBirth={isBirth} />
+        </FormGrid>
+      </Collapse>
+      <ModalActionRow confirmText="Create" onConfirm={submitForm} onCancel={onCancel} />
+    </FormGrid>
+  );
 
-    return (
-      <Form
-        onSubmit={onSubmit}
-        render={renderForm}
-        initialValues={{
-          displayId: generateId(),
-          ...editedObject,
-        }}
-        validationSchema={yup.object().shape({
-          firstName: yup.string().required(),
-          middleName: yup.string(),
-          lastName: yup.string().required(),
-          culturalName: yup.string(),
-          dateOfBirth: yup.date().required(),
-          sex: yup
-            .string()
-            .oneOf(sexValues)
-            .required(),
+  return (
+    <Form
+      onSubmit={onSubmit}
+      render={renderForm}
+      initialValues={{
+        displayId: generateId(),
+        ...editedObject,
+      }}
+      validationSchema={yup.object().shape({
+        firstName: yup.string().required(),
+        middleName: yup.string(),
+        lastName: yup.string().required(),
+        culturalName: yup.string(),
+        dateOfBirth: yup.date().required(),
+        sex: yup
+          .string()
+          .oneOf(sexValues)
+          .required(),
 
-          mother: isBirth
-            ? foreignKey('Mother must be selected')
-            : optionalForeignKey('Mother must be a valid patient'),
-          homeClinic: isBirth && yup.string().required(),
+        mother: isBirth
+          ? foreignKey('Mother must be selected')
+          : optionalForeignKey('Mother must be a valid patient'),
+        homeClinic: isBirth && yup.string().required(),
 
-          father: optionalForeignKey('Father must be a valid patient'),
-          religion: yup.string(),
-          occupation: yup.string(),
-          externalId: yup.string(),
-          patientType: yup.string(),
-        })}
-      />
-    );
-  },
-);
+        father: optionalForeignKey('Father must be a valid patient'),
+        religion: yup.string(),
+        occupation: yup.string(),
+        externalId: yup.string(),
+        patientType: yup.string(),
+      })}
+    />
+  );
+});

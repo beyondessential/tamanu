@@ -131,6 +131,7 @@ export const REFERENCE_TYPES = {
   PATIENT_TYPE: 'patientType',
   BLOOD_TYPE: 'bloodType',
   SOCIAL_MEDIA_PLATFORM: 'socialMediaPlatform',
+  PATIENT_BILLING_TYPE: 'patientBillingType',
 };
 
 export const REFERENCE_TYPE_VALUES = Object.values(REFERENCE_TYPES);
