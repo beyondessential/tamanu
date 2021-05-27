@@ -99,8 +99,13 @@ export async function initDatabase(dbOptions) {
   // so it's a bit of a pain. This approach lets us do:
   // $ MIGRATE_DOWN=true yarn run lan-start-dev
   // which is pretty close.
-  if(process.env.MIGRATE_DOWN) {
-    await migrateDown(log, sequelize);
+  if (process.env.MIGRATE_DOWN) {
+    try {
+      await migrateDown(log, sequelize);
+    } catch (e) {
+      log.error(e);
+      process.exit(1);
+    }
     process.exit(0);
   }
 
@@ -108,7 +113,7 @@ export async function initDatabase(dbOptions) {
   // of calling it to the implementing server (this allows for skipping migrations
   // in favour of calling sequelize.sync() during test mode)
   sequelize.migrate = sqlitePath
-    ? sequelize.sync  // just sync in sqlite mode, migrations may contain pg-specific sql
+    ? sequelize.sync // just sync in sqlite mode, migrations may contain pg-specific sql
     : () => migrateUp(log, sequelize);
 
   // init all models
