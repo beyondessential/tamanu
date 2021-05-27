@@ -21,7 +21,6 @@ type ChannelInfo = {
   serverHasChanges?: boolean;
 };
 
-const UPLOAD_LIMIT = 100;
 const INITIAL_DOWNLOAD_LIMIT = 100;
 const MIN_DOWNLOAD_LIMIT = 1;
 const MAX_DOWNLOAD_LIMIT = 999; // match sql max params for optimum speed (avoid chunking id fetches)
@@ -134,6 +133,8 @@ export class SyncManager {
       const channelInfos: ChannelInfo[] = [
         { channel: 'reference', model: models.ReferenceData },
         { channel: 'user', model: models.User },
+        
+        { channel: 'attachment', model: models.Attachment },
 
         { channel: 'scheduledVaccine', model: models.ScheduledVaccine },
 
@@ -278,7 +279,7 @@ export class SyncManager {
       return (await model.findMarkedForUpload({
         channel,
         after: afterId,
-        limit: UPLOAD_LIMIT,
+        limit: model.uploadLimit,
       })).map(r => executeExportPlan(exportPlan, r));
     };
 
@@ -323,8 +324,15 @@ export class SyncManager {
       }
       lastSeenId = recordsChunk[recordsChunk.length - 1].data.id;
 
+      const recordIdsToExport = await model.filterExportRecords(recordsChunk.map(r => r.data.id));
+      const recordsToExport = recordsChunk.filter(r => recordIdsToExport.includes(r.data.id));
+  
+      if (recordsToExport.length === 0) {
+        continue;
+      }
+
       // begin uploading current batch
-      uploadPromise = uploadRecords(knownPage, recordsChunk).then(async (data) => {
+      uploadPromise = uploadRecords(knownPage, recordsToExport).then(async (data) => {
         // mark previous batch as synced after uploading
         // done using promises so these two steps can be interleaved with exporting
         await markRecordsUploaded(knownPage, recordsChunk, data.requestedAt);
@@ -333,6 +341,10 @@ export class SyncManager {
 
       page++;
     }
+
+    // When reach here, export is successful, perform any clean up.
+    await model.postExportCleanUp();
+
     this.emitter.emit('exportEnded', channel);
   }
 
@@ -354,7 +366,7 @@ export class SyncManager {
         this.emitter.emit('channelSyncError', { channel, error: e.message });
       }
     }
-    if (serverHasChanges) {
+    if (model.shouldImport && serverHasChanges) {
       try {
         await this.downloadAndImport(model, channel, cursor);
       } catch (e) {
