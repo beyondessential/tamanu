@@ -1,4 +1,3 @@
-import { Sequelize } from 'sequelize';
 import { random, sample } from 'lodash';
 import { v4 as uuidv4 } from 'uuid';
 import {
@@ -20,6 +19,7 @@ export function fakeStringFields(prefix, fields) {
 
 export function fakePatient(prefix = 'test-') {
   const id = uuidv4();
+  const sexCode = sample(['male', 'female', 'other']);
   return {
     ...fakeStringFields(`${prefix}patient_${id}_`, [
       'id',
@@ -29,7 +29,7 @@ export function fakePatient(prefix = 'test-') {
       'culturalName',
       'displayId',
     ]),
-    sex: sample(['male', 'female', 'other']),
+    sexId: `ref/sex/${sexCode}`,
     dateOfBirth: new Date(random(0, Date.now())),
     email: null,
     villageId: null,

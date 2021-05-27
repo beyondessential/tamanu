@@ -2,7 +2,6 @@ import React from 'react';
 import styled from 'styled-components';
 
 import { useLocalisation } from '../../contexts/Localisation';
-import { SEX_VALUE_INDEX, Colors } from '../../constants';
 import { DateDisplay } from '../DateDisplay';
 import { PatientBarcode } from './PatientBarcode';
 
@@ -140,7 +139,7 @@ export const PatientIDCard = ({ patient, imageData }) => (
         <DetailsRow name="lastName" value={patient.lastName} />
         <DetailsRow name="firstName" value={patient.firstName} />
         <DetailsRow name="dateOfBirth" value={DateDisplay.rawFormat(patient.dateOfBirth)} />
-        <DetailsRow name="sex" value={SEX_VALUE_INDEX[patient.sex].label} />
+        <DetailsRow name="sexId" value={patient.sex?.name} />
       </Details>
     </MainSection>
     <BarcodeRow>

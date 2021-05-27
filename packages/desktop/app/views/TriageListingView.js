@@ -111,13 +111,7 @@ const COLUMNS = [
   { key: 'displayId' },
   { key: 'patientName', title: 'Patient', accessor: row => `${row.firstName} ${row.lastName}` },
   { key: 'dateOfBirth', accessor: row => <DateDisplay date={row.dateOfBirth} /> },
-  {
-    key: 'sex',
-    accessor: row => {
-      const sex = row.sex || '';
-      return capitaliseFirstLetter(sex);
-    },
-  },
+  { key: 'sexId', accessor: ({ sex }) => sex?.name },
   { key: 'locationName', title: 'Location' },
 ];
 

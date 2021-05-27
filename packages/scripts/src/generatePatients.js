@@ -41,9 +41,15 @@ async function run() {
   const details = await getDetails();
   const users = JSON.parse(details).results;
 
+  const sexIds = {
+    male: 'ref/sex/male',
+    female: 'ref/sex/female',
+    other: 'ref/sex/other',
+  };
+
   users.map(async r => {
     const user = {
-      sex: r.gender,
+      sex: sexIds[r.gender] || sexIds.other,
       firstName: titleCase(r.name.first),
       lastName: titleCase(r.name.last),
       dateOfBirth: r.dob.date.split('T')[0],

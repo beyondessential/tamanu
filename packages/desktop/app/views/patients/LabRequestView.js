@@ -20,9 +20,10 @@ import { LAB_REQUEST_STATUS_LABELS } from '../../constants';
 import { capitaliseFirstLetter } from '../../utils/capitalise';
 
 const makeRangeStringAccessor = sex => row => {
+  // TODO: sex is now reference data; this business logic is probably wrong
   const type = row.labTestType;
 
-  if (sex === 'male') {
+  if (sex?.code === 'male') {
     return `${type.maleMin} – ${type.maleMax}`;
   }
 

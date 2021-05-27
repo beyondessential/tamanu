@@ -6,7 +6,6 @@ import { ConfigurableText, DateDisplay } from '../../components';
 import { capitaliseFirstLetter } from '../../utils/capitalise';
 
 const DateOfBirthCell = React.memo(({ value }) => <DateDisplay date={value} />);
-const SexCell = React.memo(({ value = '' }) => <span>{capitaliseFirstLetter(value)}</span>);
 const SyncedCell = React.memo(({ value }) => value === true ? <CloudDownload /> : <CloudOff />);
 
 export const markedForSync = {
@@ -36,10 +35,9 @@ export const culturalName = {
   minWidth: 100,
 };
 
-export const sex = {
-  key: 'sex',
+export const sexName = {
+  key: 'sexName',
   minWidth: 80,
-  CellComponent: SexCell,
 };
 
 export const dateOfBirth = {
@@ -51,7 +49,6 @@ export const dateOfBirth = {
 export const village = {
   key: 'villageName',
   minWidth: 100,
-  accessor: row => row?.villageName || null,
 };
 
 export const location = {

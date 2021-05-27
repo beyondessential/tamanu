@@ -119,13 +119,14 @@ export async function createDummyEncounter(models, { current, ...overrides } = {
 
 export async function createDummyPatient(models, overrides = {}) {
   const gender = overrides.sex || chance.pick(['male', 'female']);
+  const sexCode = chance.bool({ likelihood: 5 }) ? 'other' : gender;
   const title = overrides.title || chance.pick(['Mr', 'Mrs', 'Ms']);
   return {
     displayId: generateId(),
     firstName: chance.first({ gender }),
     lastName: chance.last(),
     culturalName: chance.last(),
-    sex: chance.bool({ likelihood: 5 }) ? 'other' : gender,
+    sexId: `ref/sex/${sexCode}`,
     dateOfBirth: chance.birthday(),
     title,
     ...overrides,

@@ -65,39 +65,30 @@ async function queryCovidVaccineSummaryData(models, parameters) {
   const administeredVaccines = result.map(r => r.get({ plain: true }));
   const today = new Date();
   const countBySheet = administeredVaccines.reduce(
-    function(acc, vaccine) {
+    (acc, vaccine) => {
       if (!vaccine.encounter?.patientId) {
         return acc;
       }
 
       const {
         encounter: {
-          patient: { dateOfBirth, village, sex },
+          patient: { dateOfBirth, village, sex: sexObject },
         },
       } = vaccine;
+      const sex = sexObject?.name;
 
       const villageName = village?.name ?? 'Unknown';
       acc.uniqueVillages[villageName] = true;
-      if (acc['male'][villageName] === undefined) {
-        acc['male'][villageName] = 0;
+      if (sex === 'male' || sex === 'female') {
+        acc[sex][villageName] = (acc[sex][villageName] || 0) + 1;
       }
-      if (acc['female'][villageName] === undefined) {
-        acc['female'][villageName] = 0;
-      }
-      acc[sex][villageName] = acc[sex][villageName] + 1;
 
       const patientAge = differenceInYears(today, dateOfBirth);
-      if (acc['over65'][villageName] === undefined) {
-        acc['over65'][villageName] = 0;
-      }
       if (patientAge > 65) {
-        acc['over65'][villageName] = acc['over65'][villageName] + 1;
+        acc.over65[villageName] = (acc.over65[villageName] || 0) + 1;
       }
 
-      if (acc['total'][villageName] === undefined) {
-        acc['total'][villageName] = 0;
-      }
-      acc['total'][villageName] = acc['total'][villageName] + 1;
+      acc.total[villageName] = (acc.total[villageName] || 0) + 1;
 
       return acc;
     },
@@ -115,25 +106,23 @@ async function queryCovidVaccineSummaryData(models, parameters) {
   return [
     // first row, labels, first column is empty
     ['', ...allVillages],
-    ['Male', ...allVillages.map(v => countBySheet['male'][v])],
-    ['Female', ...allVillages.map(v => countBySheet['female'][v])],
-    ['> 65 y.o', ...allVillages.map(v => countBySheet['over65'][v])],
-    ['Total', ...allVillages.map(v => countBySheet['total'][v])],
+    ['Male', ...allVillages.map(v => countBySheet.male[v])],
+    ['Female', ...allVillages.map(v => countBySheet.female[v])],
+    ['> 65 y.o', ...allVillages.map(v => countBySheet.over65[v])],
+    ['Total', ...allVillages.map(v => countBySheet.total[v])],
   ];
 }
 
 async function generateCovidVaccineSummaryReport(models, parameters) {
-  return await queryCovidVaccineSummaryData(models, parameters);
+  return queryCovidVaccineSummaryData(models, parameters);
 }
 
 export async function generateCovidVaccineSummaryDose1Report(models, parameters) {
-  parameters.schedule = 'Dose 1';
-  return await generateCovidVaccineSummaryReport(models, parameters);
+  return generateCovidVaccineSummaryReport(models, { ...parameters, schedule: 'Dose 1' });
 }
 
 export async function generateCovidVaccineSummaryDose2Report(models, parameters) {
-  parameters.schedule = 'Dose 2';
-  return await generateCovidVaccineSummaryReport(models, parameters);
+  return generateCovidVaccineSummaryReport(models, { ...parameters, schedule: 'Dose 2' });
 }
 
 export const permission = 'PatientVaccine';

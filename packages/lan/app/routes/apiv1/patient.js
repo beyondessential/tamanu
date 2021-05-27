@@ -236,7 +236,7 @@ const sortKeys = {
   locationName: 'location.name',
   departmentName: 'department.name',
   encounterType: 'encounters.encounter_type',
-  sex: 'patients.sex',
+  sexName: 'sex_name',
 };
 
 patient.get(
@@ -304,6 +304,7 @@ patient.get(
           .toDate(),
       })),
       makeFilter(filterParams.villageId, `patients.village_id = :villageId`),
+      makeFilter(filterParams.sexId, `patients.sex_id = :sexId`),
       makeFilter(filterParams.locationId, `location.id = :locationId`),
       makeFilter(filterParams.departmentId, `department.id = :departmentId`),
       makeFilter(filterParams.inpatient, `encounters.encounter_type = 'admission'`),
@@ -322,6 +323,8 @@ patient.get(
           ON (location.type = 'location' AND location.id = encounters.location_id)
         LEFT JOIN reference_data AS village
           ON (village.type = 'village' AND village.id = patients.village_id)
+        LEFT JOIN reference_data AS sex
+          ON (sex.type = 'sex' AND sex.id = patients.sex_id)
       ${whereClauses && `WHERE ${whereClauses}`}
     `;
 
@@ -360,6 +363,7 @@ patient.get(
           location.name AS location_name,
           village.id AS village_id,
           village.name AS village_name
+          sex.name AS sex_name
         ${from}
 
         ORDER BY ${sortKey} ${sortDirection}, ${secondarySearchTerm} NULLS LAST

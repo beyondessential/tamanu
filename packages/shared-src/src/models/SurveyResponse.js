@@ -3,7 +3,8 @@ import { InvalidOperationError } from 'shared/errors';
 import { Model } from './Model';
 
 function riskCalculation(patient, getf, getb) {
-  const male = patient.sex === 'male';
+  // TODO: this is probably wrong for sex === 'other', or other possible values
+  const male = patient.sex?.code === 'male';
   const age = getf('NCDScreen5');
 
   const hdl = 1.55;

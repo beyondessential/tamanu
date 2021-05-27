@@ -60,7 +60,12 @@
           "longLabel": "Cultural/traditional name",
           "hidden": false
         },
-        "sex": {
+        "sexId": {
+          "shortLabel": "Sex",
+          "longLabel": "Sex",
+          "hidden": false
+        },
+        "sexName": {
           "shortLabel": "Sex",
           "longLabel": "Sex",
           "hidden": false

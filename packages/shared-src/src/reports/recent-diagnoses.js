@@ -14,7 +14,7 @@ const reportColumnTemplate = [
       return differenceInYears(new Date(), data.Encounter.patient.dateOfBirth);
     },
   },
-  { title: 'Sex', accessor: data => data.Encounter.patient.sex },
+  { title: 'Sex', accessor: data => data.Encounter.patient.sex?.name },
   {
     title: 'Contact Number',
     accessor: data => {
@@ -22,7 +22,7 @@ const reportColumnTemplate = [
       return additionalDetails.primaryContactNumber || additionalDetails.secondaryContactNumber;
     },
   },
-  { title: 'Village', accessor: data => data.Encounter.patient.ReferenceDatum.name },
+  { title: 'Village', accessor: data => data.Encounter.patient.village?.name },
   { title: 'Doctor/Nurse', accessor: data => data.Encounter.examiner?.displayName || '' },
   { title: 'Department', accessor: data => data.Encounter.department?.name || '' },
   { title: 'Certainty', accessor: data => data.certainty },
@@ -78,7 +78,10 @@ async function queryDiagnosesData(models, parameters) {
           {
             model: models.Patient,
             as: 'patient',
-            include: [{ model: models.ReferenceData, as: 'village' }],
+            include: [
+              { model: models.ReferenceData, as: 'village' },
+              { model: models.ReferenceData, as: 'sex' },
+            ],
           },
           { model: models.User, as: 'examiner' },
           { model: models.ReferenceData, as: 'department' },

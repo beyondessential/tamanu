@@ -13,12 +13,10 @@ import {
   DateField,
   AutocompleteField,
   TextField,
-  RadioField,
   SelectField,
 } from '../components/Field';
 
 import {
-  sexOptions,
   bloodOptions,
   titleOptions,
   socialMediaOptions,
@@ -26,7 +24,7 @@ import {
   educationalAttainmentOptions,
 } from '../constants';
 
-const DumbPrimaryDetailsGroup = ({ villageSuggester }) => (
+const DumbPrimaryDetailsGroup = ({ villageSuggester, sexSuggester }) => (
   <React.Fragment>
     <LocalisedField name="firstName" component={TextField} required />
     <LocalisedField name="middleName" component={TextField} />
@@ -34,12 +32,13 @@ const DumbPrimaryDetailsGroup = ({ villageSuggester }) => (
     <LocalisedField name="culturalName" component={TextField} />
     <LocalisedField name="dateOfBirth" component={DateField} required />
     <LocalisedField name="villageId" component={AutocompleteField} suggester={villageSuggester} />
-    <LocalisedField name="sex" component={RadioField} options={sexOptions} inline required />
+    <LocalisedField name="sexId" component={AutocompleteField} suggester={sexSuggester} required />
   </React.Fragment>
 );
 
 export const PrimaryDetailsGroup = connectApi(api => ({
   villageSuggester: new Suggester(api, 'village'),
+  sexSuggester: new Suggester(api, 'sex'),
 }))(DumbPrimaryDetailsGroup);
 
 const DumbSecondaryDetailsGroup = ({

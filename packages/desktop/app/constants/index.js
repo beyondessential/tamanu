@@ -305,12 +305,6 @@ export const bloodOptions = [
   { value: 'O-', label: 'O-' },
 ];
 
-export const sexOptions = [
-  { value: 'male', label: 'Male' },
-  { value: 'female', label: 'Female' },
-  { value: 'other', label: 'Other' },
-];
-
 export const titleOptions = [
   { value: 'Mr', label: 'Mr' },
   { value: 'Mrs', label: 'Mrs' },
@@ -349,8 +343,6 @@ export const educationalAttainmentOptions = [
   { value: 'University completed', label: 'University completed' },
   { value: 'Post grad completed', label: 'Post grad completed' },
 ];
-
-export const SEX_VALUE_INDEX = createValueIndex(sexOptions);
 
 export const pregnancyOutcomes = [
   { value: '', label: 'N/A' },

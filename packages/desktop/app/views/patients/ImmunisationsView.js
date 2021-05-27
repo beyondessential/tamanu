@@ -7,7 +7,7 @@ import {
   lastName,
   culturalName,
   village,
-  sex,
+  sexName,
   dateOfBirth,
   vaccinationStatus,
 } from './columns';
@@ -19,7 +19,7 @@ const COLUMNS = [
   lastName,
   culturalName,
   village,
-  sex,
+  sexName,
   dateOfBirth,
   vaccinationStatus,
 ];

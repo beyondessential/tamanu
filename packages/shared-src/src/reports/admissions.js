@@ -7,8 +7,8 @@ const reportColumnTemplate = [
   { title: 'Patient First Name', accessor: data => data.patient.firstName },
   { title: 'Patient Last Name', accessor: data => data.patient.lastName },
   { title: 'National Health Number', accessor: data => data.patient.displayId },
-  { title: 'Sex', accessor: data => data.patient.sex },
-  { title: 'Village', accessor: data => data.patient.ReferenceDatum.name },
+  { title: 'Sex', accessor: data => data.patient.sex?.code },
+  { title: 'Village', accessor: data => data.patient.village?.name },
   { title: 'Doctor/Nurse', accessor: data => data.examiner?.displayName },
   { title: 'Admission Date', accessor: data => data.startDate },
   { title: 'Discharge Date', accessor: data => data.endDate },
@@ -53,7 +53,10 @@ async function queryAdmissionsData(models, parameters) {
       {
         model: models.Patient,
         as: 'patient',
-        include: [{ model: models.ReferenceData, as: 'village' }],
+        include: [
+          { model: models.ReferenceData, as: 'village' },
+          { model: models.ReferenceData, as: 'sex' },
+        ],
       },
       { model: models.User, as: 'examiner' },
       { model: models.ReferenceData, as: 'location' },

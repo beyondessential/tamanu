@@ -1,9 +1,7 @@
 import React from 'react';
 import styled from 'styled-components';
 
-import { SEX_VALUE_INDEX } from '../../constants';
 import { DateDisplay } from '../DateDisplay';
-import { Button } from '../Button';
 import { PatientBarcode } from './PatientBarcode';
 
 import { printPage, PrintPortal } from '../../print';
@@ -18,7 +16,7 @@ const Sticker = styled.div`
 export const PatientStickerLabel = ({ patient }) => (
   <Sticker>
     <div>
-      <PatientBarcode patient={patient} width={'128px'} height={'35px'} />
+      <PatientBarcode patient={patient} width="128px" height="35px" />
       <div>
         <strong>{patient.displayId}</strong>
       </div>
@@ -26,7 +24,7 @@ export const PatientStickerLabel = ({ patient }) => (
       {patient.culturalName && <div>{`(${patient.culturalName})`}</div>}
     </div>
     <div>
-      <div>{SEX_VALUE_INDEX[patient.sex].label}</div>
+      <div>{patient.sex?.name}</div>
       <div>
         <DateDisplay date={patient.dateOfBirth} showDuration />
       </div>

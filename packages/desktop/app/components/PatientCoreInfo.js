@@ -108,7 +108,7 @@ const DeceasedIndicator = memo(({ death }) => (
 const HealthIdDisplay = memo(({ patient }) => (
   <HealthIdContainer>
     <HealthIdLabelText>
-      <LocalisedText path="fields.displayId.longLabel"/>
+      <LocalisedText path="fields.displayId.longLabel" />
     </HealthIdLabelText>
     <InvertedDisplayIdLabel>{patient.displayId}</InvertedDisplayIdLabel>
   </HealthIdContainer>
@@ -128,7 +128,7 @@ export const CoreInfoDisplay = memo(({ patient }) => (
       </NameContainer>
     </NameSection>
     <CoreInfoSection>
-      <CoreInfoCell path="fields.sex.shortLabel">{patient.sex}</CoreInfoCell>
+      <CoreInfoCell path="fields.sexId.shortLabel">{patient.sex?.name}</CoreInfoCell>
       <CoreInfoCell path="fields.dateOfBirth.shortLabel">
         <DateDisplay date={patient.dateOfBirth} />
       </CoreInfoCell>

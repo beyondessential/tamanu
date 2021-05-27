@@ -98,10 +98,10 @@ async function queryCovidVaccineListData(models, parameters) {
         uid: displayId,
         dob: dateOfBirth.toLocaleDateString(),
         village: village?.name,
+        sex: sex?.name,
         dose1: 'No',
         dose2: 'No',
         vaccineLabel: label,
-        sex,
       };
     }
     if (schedule === 'Dose 1') {
