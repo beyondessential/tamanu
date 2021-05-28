@@ -30,8 +30,7 @@ const DumbPrimaryDetailsGroup = ({ villageSuggester }) => {
   const { getLocalisation } = useLocalisation();
   let filteredSexOptions = sexOptions;
   if (getLocalisation('features.hideOtherSex') === true) {
-    const { other, ...rest } = filteredSexOptions;
-    filteredSexOptions = rest;
+    filteredSexOptions = filteredSexOptions.filter(s => s.value !== 'other');
   }
 
   return (
