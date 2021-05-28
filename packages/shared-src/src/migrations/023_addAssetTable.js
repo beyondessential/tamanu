@@ -9,18 +9,6 @@ module.exports = {
         allowNull: false,
         primaryKey: true,
       },
-      name: {
-        type: Sequelize.STRING(255),
-        allowNull: false,
-      },
-      type: {
-        type: Sequelize.STRING(31),
-        allowNull: false,
-      },
-      data: {
-        type: Sequelize.BLOB,
-        allowNull: false,
-      },
       created_at: {
         type: Sequelize.DATE,
         defaultValue: Sequelize.NOW,
@@ -32,6 +20,18 @@ module.exports = {
       deleted_at: {
         type: Sequelize.DATE,
         defaultValue: Sequelize.NOW,
+      },
+      name: {
+        type: Sequelize.STRING,
+        allowNull: false,
+      },
+      type: {
+        type: Sequelize.STRING,
+        allowNull: false,
+      },
+      data: {
+        type: Sequelize.BLOB,
+        allowNull: false,
       },
     });
   },
