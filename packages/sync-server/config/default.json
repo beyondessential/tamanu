@@ -84,6 +84,11 @@
           "longLabel": "Place of birth",
           "hidden": false
         },
+        "countryOfBirthId": {
+          "shortLabel": "Country of birth",
+          "longLabel": "Country of birth",
+          "hidden": false
+        },
         "maritalStatus": {
           "shortLabel": "Marital status",
           "longLabel": "Marital status",

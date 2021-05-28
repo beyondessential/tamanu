@@ -36,6 +36,7 @@ const HIDEABLE_FIELDS = [
   'bloodType',
   'title',
   'placeOfBirth',
+  'countryOfBirthId',
   'maritalStatus',
   'primaryContactNumber',
   'secondaryContactNumber',

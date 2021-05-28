@@ -46,7 +46,8 @@ const PRIMARY_DETAILS_FIELDS = [
   ['firstName'],
   ['lastName'],
   ['dateOfBirth', ({ dateOfBirth }) => new Date(dateOfBirth).toLocaleDateString()],
-  ['Birthplace', () => null], // TODO: not populated
+  ['placeOfBirth', ({ additionalData }) => additionalData?.placeOfBirth],
+  ['countryOfBirthId', ({ additionalData }) => additionalData?.countryOfBirth?.name],
   ['sex'],
   ['Mother', () => null], // TODO: not populated
 ];
@@ -59,7 +60,7 @@ const DumbImmunisationCertificate = ({ currentUser, patient, immunisations }) =>
       return;
     }
     setHasEditedRecord(
-      immunisations.findIndex(immunisation => immunisation.createdAt != immunisation.updatedAt) !==
+      immunisations.findIndex(immunisation => immunisation.createdAt !== immunisation.updatedAt) !==
         -1,
     );
   }, [immunisations]);
@@ -69,22 +70,20 @@ const DumbImmunisationCertificate = ({ currentUser, patient, immunisations }) =>
   if (!immunisations) {
     return null;
   }
-  const primaryDetails = PRIMARY_DETAILS_FIELDS
-    .filter(([name]) => getLocalisation(`fields.${name}.hidden`) !== true)
-    .map(([name, accessor]) => (
-      <p key={name}>
-        {getLocalisation(`fields.${name}.shortLabel`) || name}: {accessor ? accessor(patient) : patient[name]}
-      </p>
-    ));
+  const primaryDetails = PRIMARY_DETAILS_FIELDS.filter(
+    ([name]) => getLocalisation(`fields.${name}.hidden`) !== true,
+  ).map(([name, accessor]) => {
+    const label = getLocalisation(`fields.${name}.shortLabel`) || name;
+    const value = (accessor ? accessor(patient) : patient[name]) || '';
+    return <p key={name}>{`${label}: ${value}`}</p>;
+  });
 
   return (
     <div>
       <PrintLetterhead />
       <Spacer />
       <PatientDetailsHeader>Personal vaccination certificate</PatientDetailsHeader>
-      <TwoColumnContainer>
-        {primaryDetails}
-      </TwoColumnContainer>
+      <TwoColumnContainer>{primaryDetails}</TwoColumnContainer>
       <Spacer />
       <VaccineTable>
         <thead>
@@ -98,8 +97,8 @@ const DumbImmunisationCertificate = ({ currentUser, patient, immunisations }) =>
           </tr>
         </thead>
         <tbody>
-          {immunisations.map((immunisation, index) => (
-            <tr key={index}>
+          {immunisations.map(immunisation => (
+            <tr key={immunisation.id}>
               <td>
                 {immunisation.scheduledVaccine?.label}
                 {immunisation.createdAt !== immunisation.updatedAt ? ' *' : ''}
@@ -115,8 +114,8 @@ const DumbImmunisationCertificate = ({ currentUser, patient, immunisations }) =>
       </VaccineTable>
       <Spacer />
       <TwoColumnContainer>
-        <p>Printed by: {currentUser ? currentUser.displayName : ''}</p>
-        <p>Printing date: {new Date().toLocaleDateString()}</p>
+        <p>{`Printed by: ${currentUser ? currentUser.displayName : ''}`}</p>
+        <p>{`Printing date: ${new Date().toLocaleDateString()}`}</p>
       </TwoColumnContainer>
       <Spacer />
       <UserEntrySection>

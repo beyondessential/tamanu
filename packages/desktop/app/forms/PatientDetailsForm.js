@@ -70,9 +70,17 @@ const DumbSecondaryDetailsGroup = ({
   patientBillingTypeSuggester,
 }) => (
   <React.Fragment>
+    <LocalisedField name="birthCertificate" component={TextField} />
+    <LocalisedField name="drivingLicense" component={TextField} />
+    <LocalisedField name="passport" component={TextField} />
     <LocalisedField name="bloodType" component={SelectField} options={bloodOptions} />
     <LocalisedField name="title" component={SelectField} options={titleOptions} />
     <LocalisedField name="placeOfBirth" component={TextField} />
+    <LocalisedField
+      name="countryOfBirthId"
+      component={AutocompleteField}
+      suggester={countrySuggester}
+    />
     <LocalisedField name="maritalStatus" component={SelectField} options={maritalStatusOptions} />
     <LocalisedField name="primaryContactNumber" component={TextField} type="tel" />
     <LocalisedField name="secondaryContactNumber" component={TextField} type="tel" />
@@ -121,9 +129,6 @@ const DumbSecondaryDetailsGroup = ({
       component={SelectField}
       options={educationalAttainmentOptions}
     />
-    <LocalisedField name="birthCertificate" component={TextField} />
-    <LocalisedField name="drivingLicense" component={TextField} />
-    <LocalisedField name="passport" component={TextField} />
     <LocalisedField name="religionId" component={AutocompleteField} suggester={religionSuggester} />
     <LocalisedField
       name="patientBillingTypeId"
