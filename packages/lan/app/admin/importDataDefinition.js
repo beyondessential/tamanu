@@ -38,14 +38,14 @@ const patientDataTransformer = item => {
   };
 };
 
-const makeTransformer = (sheetName, transformer) => ({ 
+const makeTransformer = (sheetName, transformer) => ({
   sheetName,
   transformer,
 });
 
 // define as an array so that we can make guarantees about order
 const transformers = [
-  makeTransformer('facilities', referenceDataTransformer('facility')),
+  makeTransformer('facilities', recordTransformer('facility')),
   makeTransformer('villages', referenceDataTransformer('village')),
   makeTransformer('drugs', referenceDataTransformer('drug')),
   makeTransformer('allergies', referenceDataTransformer('allergy')),
