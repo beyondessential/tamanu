@@ -31,7 +31,7 @@ const DumbPrintLetterhead = ({ getLetterheadSettings }) => {
   }, []);
   return (
     <Header>
-      <LogoImage src={`data:${logoType};base64,${letterheadLogo}`} />
+      {letterheadLogo && <LogoImage src={`data:${logoType};base64,${letterheadLogo}`} />}
       <HeaderText>
         <h3>{getLocalisation('templates.letterhead.title')}</h3>
         <p>
