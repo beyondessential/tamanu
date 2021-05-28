@@ -199,6 +199,9 @@
           "longLabel": "Patient type",
           "hidden": false
         }
+      },
+      "features": {
+        "hideOtherSex": true
       }
     }
   }

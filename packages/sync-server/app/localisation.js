@@ -80,7 +80,12 @@ const fieldsSchema = yup
   .noUnknown();
 
 const rootLocalisationSchema = yup
-  .object({ fields: fieldsSchema })
+  .object({
+    fields: fieldsSchema,
+    features: {
+      hideOtherSex: yup.boolean().required(),
+    },
+  })
   .required()
   .noUnknown();
 
