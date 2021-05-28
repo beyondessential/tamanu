@@ -67,6 +67,9 @@ export const SelectInput = ({
         isMulti={multiselect}
         onChange={handleChange}
         options={options}
+        menuPlacement="auto"
+        menuPosition="fixed"
+        menuShouldBlockScroll="true"
         {...props}
       />
     </OuterLabelFieldWrapper>
@@ -78,7 +81,13 @@ export const SelectField = ({ field, ...props }) => (
 );
 
 export const MultiselectField = ({ field, ...props }) => (
-  <SelectInput multiselect name={field.name} onChange={field.onChange} value={field.value} {...props} />
+  <SelectInput
+    multiselect
+    name={field.name}
+    onChange={field.onChange}
+    value={field.value}
+    {...props}
+  />
 );
 
 SelectInput.propTypes = {
