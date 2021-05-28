@@ -49,14 +49,6 @@ const VaccinationDetailsList = ({ status, date, reason, scheduledVaccine }): JSX
           {format(date, 'do MMM yyyy h:mmaa')}
         </Text>
       </View>
-      <View style={styles.row}>
-        <Text style={styles.item}>
-          Reason:
-        </Text>
-        <Text style={styles.item}>
-          {reason || 'N/A'}
-        </Text>
-      </View>
     </View>
   </RowView>
 );
