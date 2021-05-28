@@ -1,0 +1,102 @@
+import React, { useState } from 'react';
+import Collapse from '@material-ui/core/Collapse';
+import * as yup from 'yup';
+import styled from 'styled-components';
+import { FormGrid } from '../components/FormGrid';
+import {
+  Button,
+  CheckField,
+  Field,
+  Form,
+  MinusIconButton,
+  PlusIconButton,
+  ServerDetectingField,
+  TextField,
+} from '../components';
+
+const LoginButton = styled(Button)`
+  font-size: 16px;
+  line-height: 18px;
+  padding-top: 16px;
+  padding-bottom: 16px;
+`;
+
+const RememberMeAdvancedRow = styled.div`
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  font-size: 16px;
+`;
+
+const AdvancedButtonSpan = styled.span`
+  .MuiButtonBase-root {
+    padding: 0px 0px 0px 9px;
+    font-size: 20px;
+  }
+`;
+
+export const LoginForm = React.memo(({ onSubmit, errorMessage, rememberEmail }) => {
+  const [isAdvancedExpanded, setAdvancedExpanded] = useState(false);
+
+  const onError = errors => {
+    if (errors.host) {
+      setAdvancedExpanded(true);
+    }
+  };
+
+  const renderForm = ({ setFieldValue }) => {
+    return (
+      <FormGrid columns={1}>
+        <div>{errorMessage}</div>
+        <Field name="email" type="email" label="Email" required component={TextField} />
+        <Field name="password" label="Password" type="password" required component={TextField} />
+        <RememberMeAdvancedRow>
+          <Field name="rememberMe" label="Remember me" component={CheckField} />
+          <AdvancedButtonSpan>
+            Advanced
+            {isAdvancedExpanded ? (
+              <MinusIconButton
+                onClick={() => setAdvancedExpanded(false)}
+                styles={{ padding: '0px' }}
+              />
+            ) : (
+              <PlusIconButton onClick={() => setAdvancedExpanded(true)} />
+            )}
+          </AdvancedButtonSpan>
+        </RememberMeAdvancedRow>
+        <Collapse in={isAdvancedExpanded}>
+          <Field
+            name="host"
+            label="LAN Server Address"
+            required
+            component={ServerDetectingField}
+            setFieldValue={setFieldValue}
+          />
+        </Collapse>
+        <LoginButton fullWidth variant="contained" color="primary" type="submit">
+          Login to your account
+        </LoginButton>
+      </FormGrid>
+    );
+  };
+
+  return (
+    <Form
+      onSubmit={onSubmit}
+      onError={onError}
+      render={renderForm}
+      initialValues={{
+        email: rememberEmail,
+        rememberMe: !!rememberEmail,
+      }}
+      validationSchema={yup.object().shape({
+        host: yup.string().required(),
+        email: yup
+          .string()
+          .email('Must enter a valid email')
+          .required(),
+        password: yup.string().required(),
+      })}
+    />
+  );
+});
