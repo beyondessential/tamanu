@@ -83,7 +83,7 @@ const rootLocalisationSchema = yup
   .object({
     fields: fieldsSchema,
     features: {
-      hideOtherSex: yup.boolean().isRequired(),
+      hideOtherSex: yup.boolean().required(),
     },
   })
   .required()
