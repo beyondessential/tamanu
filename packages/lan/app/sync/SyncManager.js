@@ -167,8 +167,9 @@ export class SyncManager {
       const modelsToSync = [
         models.ReferenceData,
         models.User,
-        models.Facility,
         models.Asset,
+        models.Facility,
+        models.Department,
 
         models.ScheduledVaccine,
 

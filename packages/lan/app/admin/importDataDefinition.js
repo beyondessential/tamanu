@@ -49,7 +49,7 @@ const transformers = [
   makeTransformer('villages', referenceDataTransformer('village')),
   makeTransformer('drugs', referenceDataTransformer('drug')),
   makeTransformer('allergies', referenceDataTransformer('allergy')),
-  makeTransformer('departments', referenceDataTransformer('department')),
+  makeTransformer('departments', recordTransformer('department')),
   makeTransformer('locations', referenceDataTransformer('location')),
   makeTransformer('diagnoses', referenceDataTransformer('icd10')),
   makeTransformer('triageReasons', referenceDataTransformer('triageReason')),

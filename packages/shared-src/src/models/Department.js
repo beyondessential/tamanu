@@ -1,9 +1,17 @@
 import { Sequelize } from 'sequelize';
 import { SYNC_DIRECTIONS } from 'shared/constants';
+import { InvalidOperationError } from 'shared/errors';
 import { Model } from './Model';
 
-export class Facility extends Model {
+export class Department extends Model {
   static init({ primaryKey, ...options }) {
+    const validate = {
+      mustHaveFacility() {
+        if (!this.deletedAt && !this.facilityId) {
+          throw new InvalidOperationError('A department must have a facility.');
+        }
+      },
+    };
     super.init(
       {
         id: primaryKey,
@@ -15,22 +23,20 @@ export class Facility extends Model {
           type: Sequelize.STRING,
           allowNull: false,
         },
-        division: Sequelize.STRING,
-        type: Sequelize.STRING,
       },
       {
         ...options,
+        validate,
         indexes: [{ unique: true, fields: ['code'] }],
       },
     );
   }
 
   static initRelations(models) {
-    this.hasMany(models.Department, {
+    this.belongsTo(models.Facility, {
       foreignKey: 'facilityId',
     });
   }
-
 
   static syncDirection = SYNC_DIRECTIONS.PULL_ONLY;
 }

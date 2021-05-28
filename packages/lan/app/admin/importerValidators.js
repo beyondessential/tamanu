@@ -5,18 +5,25 @@ import { PROGRAM_DATA_ELEMENT_TYPE_VALUES } from 'shared/constants';
 import { ForeignKeyStore } from './ForeignKeyStore';
 
 const safeIdRegex = /^[A-Za-z0-9-]+$/;
-const baseSchema = yup.object()
-  .shape({
-    id: yup.string().required().matches(safeIdRegex, 'id must not have spaces or punctuation other than -'),
-  });
-
 const safeCodeRegex = /^[A-Za-z0-9-.\/]+$/;
-const referenceDataSchema = baseSchema
-  .shape({
-    type: yup.string().required(),
-    code: yup.string().required().matches(safeCodeRegex, 'code must not have spaces or punctuation other than -./'),
-    name: yup.string().required().max(255),
-  });
+
+const fieldTypes = {
+  id: yup.string().matches(safeIdRegex, 'id must not have spaces or punctuation other than -'),
+  code: yup
+    .string()
+    .matches(safeCodeRegex, 'code must not have spaces or punctuation other than -./'),
+  name: yup.string().max(255),
+};
+
+const baseSchema = yup.object().shape({
+  id: fieldTypes.id.required(),
+});
+
+const referenceDataSchema = baseSchema.shape({
+  type: yup.string().required(),
+  code: fieldTypes.code.required(),
+  name: fieldTypes.name.required(),
+});
 
 const patientSchema = baseSchema
   .shape({
@@ -32,6 +39,19 @@ const userSchema = baseSchema
     displayName: yup.string().required(),
     password: yup.string().required(),
   });
+
+const facilitySchema = baseSchema.shape({
+  code: fieldTypes.code.required(),
+  name: fieldTypes.name.required(),
+  division: yup.string(),
+  type: yup.string(),
+});
+
+const departmentSchema = baseSchema.shape({
+  code: fieldTypes.code.required(),
+  name: fieldTypes.name.required(),
+  facilityId: yup.string(),
+});
 
 const LAB_TEST_RESULT_TYPES = ['Number', 'Select', 'FreeText'];
 const rangeRegex = /^[0-9.]+, [0-9.]+$/;
@@ -85,6 +105,8 @@ const validationSchemas = {
   referenceData: referenceDataSchema,
   patient: patientSchema,
   user: userSchema,
+  facility: facilitySchema,
+  department: departmentSchema,
   labTestType: labTestTypeSchema,
   survey: surveySchema,
   surveyScreenComponent: surveyScreenComponentSchema,
@@ -95,6 +117,9 @@ const validationSchemas = {
 // TODO: allow referencedata relations to specify reference data type
 // so that for eg a village and facility with the same name don't get confused
 const foreignKeySchemas = {
+  department: {
+    facility: 'facility',
+  },
   patient: {
     village: 'referenceData',
   },
@@ -112,7 +137,7 @@ class ForeignKeyLinker {
   }
 
   link(record) {
-    const { data, recordType } = record; 
+    const { data, recordType } = record;
     const schema = foreignKeySchemas[recordType];
 
     if(!schema) return;
@@ -168,7 +193,7 @@ export async function validateRecordSet(records) {
   const goodRecords = validatedRecords.filter(x => !x.errors).filter(x => x);
   const badRecords = validatedRecords.filter(x => x.errors);
 
-  return { 
+  return {
     records: goodRecords,
     errors: badRecords,
   };

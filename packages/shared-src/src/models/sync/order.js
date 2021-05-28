@@ -1,6 +1,8 @@
 export const MODEL_DEPENDENCY_ORDER = [
   'ReferenceData',
   'User',
+  'Facility',
+  'Department',
 
   'Patient',
   'Encounter',
