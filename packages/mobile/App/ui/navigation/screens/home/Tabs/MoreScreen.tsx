@@ -2,7 +2,6 @@ import React, {
   ReactElement,
   useMemo,
   useCallback,
-  useState,
   useContext,
 } from 'react';
 import { useSelector } from 'react-redux';
@@ -26,13 +25,12 @@ import { Separator } from '/components/Separator';
 import { FlatList } from 'react-native-gesture-handler';
 import {
   CameraOutlineIcon,
-  SettingsIcon,
   FeedbackIcon,
   QuestionIcon,
   RingIcon,
 } from '/components/Icons';
 import { version as AppVersion } from '/root/package.json';
-import { StatusBar, StatusBarStyle } from 'react-native';
+import { StatusBar, StatusBarStyle, Linking} from 'react-native';
 import { useFocusEffect } from '@react-navigation/native';
 import AuthContext from '~/ui/contexts/AuthContext';
 import { BaseAppProps } from '~/ui/interfaces/BaseAppProps';
@@ -78,19 +76,14 @@ export const MoreScreen = ({ navigation }: BaseAppProps): ReactElement => {
   const settings = useMemo(
     () => [
       {
-        title: 'Settings',
-        Icon: SettingsIcon,
-        onPress: (): void => console.log('Settings'),
-      },
-      {
         title: 'Feedback',
         Icon: FeedbackIcon,
-        onPress: (): void => console.log('Feedback'),
+        onPress: (): Promise<void> => Linking.openURL('mailto: support@tamanu.io'),
       },
       {
         title: 'FAQs',
         Icon: QuestionIcon,
-        onPress: (): void => console.log('Question'),
+        onPress: (): Promise<void> => Linking.openURL('https://www.tamanu.io'),
       },
       {
         title: 'Notifications',
