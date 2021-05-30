@@ -26,9 +26,9 @@ const GivenOnTimeFields: FC<VaccineDataProps> = ({ administeredVaccine }) => (
     <Separator />
     <ModalField label="Injection site" value={administeredVaccine.injectionSite || 'Unknown'} />
     <Separator />
-    <ModalField label="Administered By" value={administeredVaccine.encounter.examiner || 'Unknown'} />
+    <ModalField label="Administered By" value={administeredVaccine.encounter.examiner.displayName ?? 'Unknown'} />
     <Separator />
-    <ModalField label="Location" value={administeredVaccine.encounter.location || 'Unknown'} />
+    <ModalField label="Location" value={administeredVaccine.encounter.location.name ?? 'Unknown'} />
   </StyledView>
 );
 
