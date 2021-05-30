@@ -4,6 +4,7 @@
 ### Create/update some reference data items
 ### For type column, please insert mime type of the asset
 ### For data column, please insert base64 encoded string of the asset
+### Insert existing "id" if you want to update the asset
 POST {{server}}/v1/sync/asset  HTTP/1.1
 Authorization: Bearer {{token}}
 Content-Type: application/json
