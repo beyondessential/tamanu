@@ -29,7 +29,7 @@ import { screenPercentageToDP, Orientation } from '/helpers/screen';
 interface ActiveFilters {
   count: number;
   filters: {
-    [key: string]: FindOperator<string> | any
+    [key: string]: FindOperator<string> | any;
   };
 }
 
@@ -48,8 +48,11 @@ const getActiveFilters = (
 
   if (field.value) {
     activeFilters.count += 1;
-    if (field.name === 'sex' && field.value === 'all') { /* Don't add a filter, (but do increase filter count) */ }
-    else if (field.name === 'dateOfBirth') {
+    if (field.name === 'sex') {
+      if (field.value !== 'all') {
+        activeFilters.filters[field.name] = Like(`${field.value}`);
+      }
+    } else if (field.name === 'dateOfBirth') {
       const date = format(field.value, 'yyyy-MM-dd');
       activeFilters.filters[field.name] = Like(`%${date}%`);
     } else {
