@@ -34,6 +34,8 @@ export const NoteTable = React.memo(({ encounterId }) => {
     [setIsNoteModalOpen, setNoteId, setEditedObject],
   );
   const sortNotes = useCallback(notes => {
+    // The sorting rule for Notes is to pin the Treatment Plans to the top
+    // And sort everything chronologically
     const treatmentPlanNotes = notes
       .filter(n => n.noteType === 'treatmentPlan')
       .sort((n1, n2) => n2.date.localeCompare(n1.date));
