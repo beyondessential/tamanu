@@ -110,11 +110,10 @@ const RowContainer = React.memo(({ children, onClick }) => (
 
 const Row = React.memo(({ columns, data, onClick }) => {
   const cells = columns.map(
-    ({ key, accessor, CellComponent, numeric, maxWidth = 300, cellColor, dontCallRowInput }) => {
+    ({ key, accessor, CellComponent, numeric, maxWidth, cellColor, dontCallRowInput }) => {
       const value = accessor ? React.createElement(accessor, data) : data[key];
       const displayValue = value === 0 ? '0' : value;
       const backgroundColor = typeof cellColor === 'function' ? cellColor(data) : cellColor;
-
       return (
         <StyledTableCell
           onClick={dontCallRowInput ? preventInputCallback : undefined}
@@ -126,9 +125,7 @@ const Row = React.memo(({ columns, data, onClick }) => {
             {CellComponent ? (
               <CellComponent value={displayValue} />
             ) : (
-              <StyledTableCellContent title={displayValue} maxWidth={maxWidth}>
-                {displayValue}
-              </StyledTableCellContent>
+              <DisplayValue maxWidth={maxWidth} displayValue={displayValue} />
             )}
           </ErrorBoundary>
         </StyledTableCell>
@@ -141,6 +138,16 @@ const Row = React.memo(({ columns, data, onClick }) => {
 const ErrorSpan = styled.span`
   color: #ff0000;
 `;
+
+const DisplayValue = React.memo(({ maxWidth, displayValue }) =>
+  maxWidth ? (
+    <StyledTableCellContent title={displayValue} maxWidth={maxWidth}>
+      {displayValue}
+    </StyledTableCellContent>
+  ) : (
+    displayValue
+  ),
+);
 
 const ErrorRow = React.memo(({ colSpan, children }) => (
   <RowContainer>

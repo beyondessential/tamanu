@@ -10,7 +10,7 @@ const getTypeLabel = ({ noteType }) => noteTypes.find(x => x.value === noteType)
 const COLUMNS = [
   { key: 'date', title: 'Date', accessor: ({ date }) => <DateDisplay date={date} showTime /> },
   { key: 'noteType', title: 'Type', accessor: getTypeLabel },
-  { key: 'content', title: 'Content', maxWidth: 200 },
+  { key: 'content', title: 'Content', maxWidth: 400 },
 ];
 
 export const NoteTable = React.memo(({ encounterId }) => {
