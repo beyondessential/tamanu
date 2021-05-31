@@ -40,6 +40,9 @@ $ yarn
 
 ## Configure
 
+<details>
+<summary>Configuration overview</summary>
+
 The modules use `config`, which helps manage different configurations easily. Each module has a
 `config/` directory, with several files in it. The base configuration is in `config/default.json`,
 and the values there will be used unless overridden by a more specific configuration (for eg
@@ -50,6 +53,7 @@ be checked into version control. This file should contain the information for da
 local credentials, etc.
 
 The [`config` docs](https://github.com/lorenwest/node-config/wiki/Configuration-Files) have more info on how that works.
+</details>
 
 ## Run
 
