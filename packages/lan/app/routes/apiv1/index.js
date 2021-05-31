@@ -35,6 +35,7 @@ import { setting } from './setting';
 import { location } from './location';
 import { attachment } from './attachment';
 import { sync } from './sync';
+import { syncHealth } from './syncHealth';
 
 export const apiv1 = express.Router();
 
@@ -82,3 +83,5 @@ apiv1.use('/location', location);
 apiv1.use('/attachment', attachment);
 
 apiv1.use('/sync', sync);
+
+apiv1.use('/syncHealth', syncHealth);

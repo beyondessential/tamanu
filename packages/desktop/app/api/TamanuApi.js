@@ -126,6 +126,14 @@ export class TamanuApi {
 
     const { error } = await getResponseJsonSafely(response);
 
+    // handle sync server version incompatibility with lan
+    if (response.status === 422) {
+      // The desktop client and lan server should still work without
+      // a connected sync server, we just want to notify the user they aren't
+      // connected to sync.
+      return error?.message;
+    }
+
     // handle auth expiring
     if ([401, 403].includes(response.status) && this.onAuthFailure) {
       this.onAuthFailure('Your session has expired. Please log in again.');
