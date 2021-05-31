@@ -85,7 +85,7 @@ When the app detects an empty or missing db on startup, it'll run an importer on
 </details>
 
 <details>
-<summary>### Desktop app</summary>
+<summary>Desktop app</summary>
 
 Once there is a LAN server up and running, run this to start the Electron app for development.
 
