@@ -21,23 +21,25 @@ const Container = styled.div`
 
 export const SyncHealthNotificationComponent = () => {
   const api = useContext(ApiContext);
-  const [response, setResponse] = useState();
+  const [message, setMessage] = useState();
 
   useEffect(() => {
     (async () => {
-      const message = await api.get('syncHealth');
-      setResponse(message);
+      const res = await api.get('syncHealth');
+      if (!res?.healthy) {
+        setMessage(res.error);
+      }
     })();
   }, []);
 
-  // We only get a response if the request returns a 422 error,
-  // so we can safely render nothing until we have a value in response.
-  if (!response) return <></>;
+  // We only set a message if the server is unhealthy, so as long as message is undefined,
+  // we don't need to render a warning.
+  if (!message) return null;
 
   return (
     <Container>
       <h3>Sync Health: Unable to sync</h3>
-      <p>{`${response}`}</p>
+      <p>{`${message}`}</p>
     </Container>
   );
 };
