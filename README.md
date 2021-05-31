@@ -4,16 +4,15 @@
 
 [ ![Codeship Status for beyondessential/tamanu](https://app.codeship.com/projects/9355b080-d34d-0136-45ef-2e8db6e7ba42/status?branch=codeship)](https://app.codeship.com/projects/316346)
 
-The monorepo has four main components:
-
-- [desktop](packages/desktop): the main Electron app
-- [lan](packages/lan): the local server, which the app communicates with
-- [sync-server](packages/sync-server): the synchronisation server, which lan server and mobile client instances communicate with to synchronise data
-- [shared-src](packages/shared-src): shared code among Tamanu components
-
-Additionally:
-
-- [shared](packages/shared): the build output of the `shared-src` module (ignored by version control)
+| Package | Runbook | Description |
+| ------- | ------- | ----------- |
+| [sync-server](packages/sync-server) | [sync-server runbook](https://docs.google.com/document/d/1hzFNpv9VAV9tVa-9H_H7gfjrd-LUmS84oWTM3MBfwBk/edit#) | The synchronisation server, which lan server and mobile client instances communicate with to synchronise data |
+| [lan](packages/lan) | TODO | The local server, which the app communicates with |
+| [meta-server](packages/meta-server) | TODO | The metadata server, which serves information about app versions and known sync-server installations |
+| [desktop](packages/desktop) | TODO | The main Electron app |
+| [mobile](https://github.com/beyondessential/tamanu-mobile/) | TODO | The mobile app (in a separate repository) |
+| [shared-src](packages/shared-src) | N/A | Shared code among Tamanu components |
+| [shared](packages/shared) | N/A | The build output of the `shared-src` module (ignored by version control) |
 
 The latest version for each Tamanu service (Local Area Network Server, Desktop Client & Mobile Client) can be retrieved with a HTTP GET request via their respective public API routes:
 
