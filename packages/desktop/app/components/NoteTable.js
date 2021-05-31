@@ -34,10 +34,12 @@ export const NoteTable = React.memo(({ encounterId }) => {
     [setIsNoteModalOpen, setNoteId, setEditedObject],
   );
   const sortNotes = useCallback(notes => {
-    const treatmentPlanNotes = notes.filter(n => n.noteType === 'treatmentPlan');
+    const treatmentPlanNotes = notes
+      .filter(n => n.noteType === 'treatmentPlan')
+      .sort((n1, n2) => n2.date.localeCompare(n1.date));
     const otherNotes = notes
       .filter(n => n.noteType !== 'treatmentPlan')
-      .sort((n1, n2) => n1.date - n2.date);
+      .sort((n1, n2) => n2.date.localeCompare(n1.date));
     return [...treatmentPlanNotes, ...otherNotes];
   }, []);
 
