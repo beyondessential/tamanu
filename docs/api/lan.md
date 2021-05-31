@@ -1,10 +1,9 @@
-# API Endpoint Docs
+# LAN server API Endpoint Docs
 
 Route implementations can be found in: `packages/lan/app/routes`
 
 TODO: 
   - Add explanation of how route permissions work.
-  - Sync route
 
 ### Suggestions
 
