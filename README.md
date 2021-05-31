@@ -53,7 +53,8 @@ The [`config` docs](https://github.com/lorenwest/node-config/wiki/Configuration-
 
 ## Run
 
-### LAN server
+<details>
+<summary>LAN server</summary>
 
 The Tamanu desktop app needs a lan server running to operate correctly. For
 local development, this can just be another process on the same host.
@@ -81,8 +82,10 @@ When the app detects an empty or missing db on startup, it'll run an importer on
 - the initial definitions file to import is defined in `config.initialDataPath` (`packages/lan/data/demo_definitions.xlsx` by default)
 - by default, the database is an sqlite db at `packages/lan/data/tamanu-dev.db`; deleting that file and restarting the lan process to trigger the import is the quickest way to get a fresh database
 - this is also true for production! initial production deployment expects a data definition document to be provided
+</details>
 
-### Desktop app
+<details>
+<summary>### Desktop app</summary>
 
 Once there is a LAN server up and running, run this to start the Electron app for development.
 
@@ -92,8 +95,10 @@ $ yarn desktop-start-dev
 
 Note that we also use storybook to develop components in isolation, which you can run from within
 the desktop directory using `yarn storybook`.
+</details>
 
-### Sync server
+<details>
+<summary>Sync server</summary>
 
 By default, the sync server will not run migrations automatically. To enable automatic migrations, set `db.syncOnStartup` to `true` within your local configuration (see the `Config` section above).
 
@@ -117,22 +122,26 @@ Install the [PostgreSQL server](https://www.postgresql.org/download/windows/). O
 yarn install
 yarn sync-start-dev
 ```
+</details>
 
 ## Integrations
 
-### Senaite
+<details>
+<summary>Senaite (non-functional)</summary>
 
 _NB: The Senaite integration is currently non-functional_
 
 Senaite is disabled by default. To enable it, update your config/local.json to include the Senaite
 information. The most relevant key is `enabled: true` but you'll almost certainly have to update
 the API url and login credentials as well (see config/default.json for how this should be structured).
+</details>
 
 ## CI / CD
 
 > **Note: [codeship pro](https://codeship.com/features/pro) is required**
 
-### Setup
+<details>
+<summary>Setup</summary>
 
 - install [Jet CLI](https://documentation.codeship.com/pro/jet-cli/installation/)
 - download your codeship project's AES key from _Project Settings_
@@ -141,15 +150,19 @@ the API url and login credentials as well (see config/default.json for how this 
 - use [jet encrypt](https://documentation.codeship.com/pro/jet-cli/encrypt/) to encrypt ENV variables e.g `jet encrypt codeship.env codeship.env.encrypted`
 - make sure that `codeship.env` is kept safe or remove it
 - use `jet` cli to test build pipelines e.g `jet steps --tag "dev"`
+</details>
 
-### Pipeline
+<details>
+<summary>Pipeline</summary>
 
 - `dev`, `master`, and any branch starting with `ci-` trigger build automatically
 - `desktop` is built and packaged for Windows, then published to S3 by `electron-builder` (see "App updates" in the [readme of Desktop](https://github.com/beyondessential/tamanu/blob/dev/packages/desktop/README.md))
 - `lan` builds are zipped and manually pushed to S3, within the `tamanu-builds` bucket
 - `sync-server` and `meta-server` builds get deployed to an AWS Elastic Beanstalk cluster
+</details>
 
-### Environment variables
+<details>
+<summary>Environment variables</summary>
 
 - `AWS_ACCESS_KEY_ID` and `AWS_SECRET_ACCESS_KEY`: AWS auth keys with S3 write access
 - `CONFIG_DESKTOP`: desktop config `single lined env variables` e.g `FOO1=bar1\nFOO2=bar2`
@@ -158,15 +171,19 @@ the API url and login credentials as well (see config/default.json for how this 
 - `SERVER_URL_$BRANCH`: SSH server url e.g `user@host`
 - `$ENV`: represents different set of configs e.g `DEMO`, `SERVER1`, `SERVER2`
 - `$BRANCH`: the branch this build process is triggered for e.g `DEV`, `MASTER`
+</details>
 
-### Dependencies
+<details>
+<summary>Dependencies</summary>
 
 - `codeship-services.yml` codeship services definition
 - `codeship-steps.yml` CI / CD steps are defined here
 - `Dockerfile` and `Dockerfile.deploy` describe build environments
 - `codeship.env.encrypted` encrypted ENV variables passed to docker during build process
+</details>
 
-### Server deployments
+<details>
+<summary>Server deployments</summary>
 
 #### Setting up a new Elastic Beanstalk application and environment:
 
@@ -230,3 +247,4 @@ the API url and login credentials as well (see config/default.json for how this 
 - remember to run `chmod u+x scripts/deploy_$MYSERVICE_$MYENV.sh` so your deploy script is executable
 - if your service imports dependencies it should list them as `dependencies` (not `devDependencies`) in its own `package.json`; it can find unlisted dependencies in the monorepo's root `node_modules` folder during local development, but won't be able to import them once deployed
 - you can ssh into your instances by setting up the eb cli and then running `eb ssh`; this is useful for setting up a database, or for in-depth debugging
+</details>
