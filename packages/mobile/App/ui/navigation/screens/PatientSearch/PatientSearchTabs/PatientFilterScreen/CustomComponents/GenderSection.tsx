@@ -17,7 +17,7 @@ const options = [
 ];
 
 export const SexSection = (): ReactElement => (
-  <Section title="Sex">
+  <Section defaultTitle="Sex" name="sex">
     <Field
       component={RadioButtonGroup}
       name="sex"
