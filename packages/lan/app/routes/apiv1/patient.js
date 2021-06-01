@@ -4,11 +4,7 @@ import { QueryTypes } from 'sequelize';
 import moment from 'moment';
 
 import { NotFoundError } from 'shared/errors';
-import {
-  simpleGetList,
-  permissionCheckingRouter,
-  runPaginatedQuery,
-} from './crudHelpers';
+import { simpleGetList, permissionCheckingRouter, runPaginatedQuery } from './crudHelpers';
 
 import { renameObjectKeys } from '~/utils/renameObjectKeys';
 import { patientVaccineRoutes } from './patient/patientVaccine';
@@ -291,18 +287,34 @@ patient.get(
         `UPPER(patients.cultural_name) LIKE UPPER(:culturalName)`,
         ({ culturalName }) => ({ culturalName: `${culturalName}%` }),
       ),
-      makeFilter(filterParams.ageMax, `patients.date_of_birth >= :dobEarliest`, ({ ageMax }) => ({
-        dobEarliest: moment()
+      // For age filter
+      makeFilter(filterParams.ageMax, `patients.date_of_birth >= :dobMin`, ({ ageMax }) => ({
+        dobMin: moment()
           .startOf('day')
           .subtract(ageMax + 1, 'years')
           .add(1, 'day')
           .toDate(),
       })),
-      makeFilter(filterParams.ageMin, `patients.date_of_birth <= :dobLatest`, ({ ageMin }) => ({
-        dobLatest: moment()
+      makeFilter(filterParams.ageMin, `patients.date_of_birth <= :dobMax`, ({ ageMin }) => ({
+        dobMax: moment()
           .subtract(ageMin, 'years')
           .endOf('day')
           .toDate(),
+      })),
+      // For DOB filter
+      makeFilter(
+        filterParams.dobFrom,
+        `DATE(patients.date_of_birth) >= :dobFrom`,
+        ({ dobFrom }) => ({
+          dobFrom: moment(dobFrom)
+            .startOf('day')
+            .toISOString(),
+        }),
+      ),
+      makeFilter(filterParams.dobTo, `DATE(patients.date_of_birth) <= :dobTo`, ({ dobTo }) => ({
+        dobTo: moment(dobTo)
+          .endOf('day')
+          .toISOString(),
       })),
       makeFilter(filterParams.villageId, `patients.village_id = :villageId`),
       makeFilter(filterParams.locationId, `location.id = :locationId`),
