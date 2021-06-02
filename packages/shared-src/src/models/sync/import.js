@@ -151,6 +151,8 @@ const executeUpdateOrCreates = async (
     if (!model.syncClientMode) {
       values = pickBy(values, value => value !== undefined && value !== null);
       values = model.sanitizeForSyncServer ? model.sanitizeForSyncServer(values) : values;
+    } else {
+      values = model.sanitizeForSyncClient ? model.sanitizeForSyncClient(values) : values;
     }
 
     return values;
