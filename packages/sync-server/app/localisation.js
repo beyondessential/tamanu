@@ -61,6 +61,16 @@ const HIDEABLE_FIELDS = [
   'patientBillingTypeId',
 ];
 
+const templatesSchema = yup.object({
+  letterhead: yup
+    .object({
+      title: yup.string(),
+      subTitle: yup.string(),
+    })
+    .default({})
+    .noUnknown(),
+});
+
 const fieldsSchema = yup
   .object({
     ...UNHIDEABLE_FIELDS.reduce(
@@ -83,6 +93,7 @@ const fieldsSchema = yup
 const rootLocalisationSchema = yup
   .object({
     fields: fieldsSchema,
+    templates: templatesSchema,
     features: {
       hideOtherSex: yup.boolean().required(),
     },

@@ -8,7 +8,7 @@ import { NoteForm } from '../forms/NoteForm';
 import { useEncounter } from '../contexts/Encounter';
 
 const DumbNoteModal = React.memo(
-  ({ open, onClose, onSaveNote, practitionerSuggester, encounterId }) => {
+  ({ open, onClose, onSaveNote, practitionerSuggester, encounterId, editedObject }) => {
     const { loadEncounter } = useEncounter();
 
     const saveNote = useCallback(async data => {
@@ -23,16 +23,18 @@ const DumbNoteModal = React.memo(
           onSubmit={saveNote}
           onCancel={onClose}
           practitionerSuggester={practitionerSuggester}
+          editedObject={editedObject}
         />
       </Modal>
     );
   },
 );
 
-export const NoteModal = connectApi((api, dispatch, { encounterId }) => ({
+export const NoteModal = connectApi((api, dispatch, { encounterId, noteId: existingNoteId }) => ({
   onSaveNote: async data => {
-    if (data.id) {
-      await api.put(`note/${data.id}`, data);
+    const noteId = existingNoteId || data.id;
+    if (noteId) {
+      await api.put(`note/${noteId}`, data);
     } else {
       await api.post(`encounter/${encounterId}/notes`, data);
     }

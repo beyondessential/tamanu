@@ -70,6 +70,13 @@ const StyledTableContainer = styled.div`
   margin: 1rem;
 `;
 
+const StyledTableCellContent = styled.div`
+  max-width: ${props => props.maxWidth}px;
+  overflow: hidden;
+  white-space: nowrap;
+  text-overflow: ellipsis;
+`;
+
 const StyledTableCell = styled(TableCell)`
   padding: 16px;
   background: ${props => props.background};
@@ -103,11 +110,10 @@ const RowContainer = React.memo(({ children, onClick }) => (
 
 const Row = React.memo(({ columns, data, onClick }) => {
   const cells = columns.map(
-    ({ key, accessor, CellComponent, numeric, cellColor, dontCallRowInput }) => {
+    ({ key, accessor, CellComponent, numeric, maxWidth, cellColor, dontCallRowInput }) => {
       const value = accessor ? React.createElement(accessor, data) : data[key];
       const displayValue = value === 0 ? '0' : value;
       const backgroundColor = typeof cellColor === 'function' ? cellColor(data) : cellColor;
-
       return (
         <StyledTableCell
           onClick={dontCallRowInput ? preventInputCallback : undefined}
@@ -116,7 +122,11 @@ const Row = React.memo(({ columns, data, onClick }) => {
           align={numeric ? 'right' : 'left'}
         >
           <ErrorBoundary ErrorComponent={CellError}>
-            {CellComponent ? <CellComponent value={displayValue} /> : displayValue}
+            {CellComponent ? (
+              <CellComponent value={displayValue} />
+            ) : (
+              <DisplayValue maxWidth={maxWidth} displayValue={displayValue} />
+            )}
           </ErrorBoundary>
         </StyledTableCell>
       );
@@ -128,6 +138,16 @@ const Row = React.memo(({ columns, data, onClick }) => {
 const ErrorSpan = styled.span`
   color: #ff0000;
 `;
+
+const DisplayValue = React.memo(({ maxWidth, displayValue }) =>
+  maxWidth ? (
+    <StyledTableCellContent title={displayValue} maxWidth={maxWidth}>
+      {displayValue}
+    </StyledTableCellContent>
+  ) : (
+    displayValue
+  ),
+);
 
 const ErrorRow = React.memo(({ colSpan, children }) => (
   <RowContainer>
@@ -225,7 +245,7 @@ class TableComponent extends React.Component {
   }
 
   renderBodyContent() {
-    const { data, columns, onRowClick, errorMessage, rowIdKey } = this.props;
+    const { data, customSort, columns, onRowClick, errorMessage, rowIdKey } = this.props;
     const error = this.getErrorMessage();
     if (error) {
       return (
@@ -234,7 +254,8 @@ class TableComponent extends React.Component {
         </ErrorRow>
       );
     }
-    return data.map(rowData => {
+    const sortedData = customSort ? customSort(data) : data;
+    return sortedData.map(rowData => {
       const key = rowData[rowIdKey] || rowData[columns[0].key];
       return <Row data={rowData} key={key} columns={columns} onClick={onRowClick} />;
     });
@@ -315,8 +336,6 @@ class TableComponent extends React.Component {
 
 export const Table = ({ columns: allColumns, ...props }) => {
   const { getLocalisation } = useLocalisation();
-  const columns = allColumns.filter(
-    ({ key }) => getLocalisation(`fields.${key}.hidden`) !== true,
-  );
+  const columns = allColumns.filter(({ key }) => getLocalisation(`fields.${key}.hidden`) !== true);
   return <TableComponent columns={columns} getLocalisation={getLocalisation} {...props} />;
-}
+};
