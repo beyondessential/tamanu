@@ -50,7 +50,7 @@ const getActiveFilters = (
     activeFilters.count += 1;
     if (field.name === 'sex') {
       if (field.value !== 'all') {
-        activeFilters.filters[field.name] = Like(`${field.value}`);
+        activeFilters.filters[field.name] = field.value;
       }
     } else if (field.name === 'dateOfBirth') {
       const date = format(field.value, 'yyyy-MM-dd');
