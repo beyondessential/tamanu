@@ -75,43 +75,43 @@ export const SignIn: FunctionComponent<any> = ({ navigation }: SignInProps) => {
         message={errorMessage}
       />
       <StyledSafeAreaView>
-        <RowView
-          width="100%"
-          justifyContent="flex-end"
-          position="absolute"
-          top={Platform.OS === 'ios' ? 30 : 0}
-        >
-          <StyledTouchableOpacity
-            onPress={(): void => navigation.navigate(Routes.SignUpStack.Intro)}
-            padding={screenPercentageToDP(2.43, Orientation.Height)}
-          >
-            <CrossIcon
-              height={screenPercentageToDP(2.43, Orientation.Height)}
-              width={screenPercentageToDP(2.43, Orientation.Height)}
-            />
-          </StyledTouchableOpacity>
-        </RowView>
-        <StyledView
-          width="100%"
-          alignItems="center"
-          marginTop={screenPercentageToDP(7.29, Orientation.Height)}
-          marginBottom={screenPercentageToDP(14.7, Orientation.Height)}
-        >
-          <UserIcon
-            height={screenPercentageToDP(7.29, Orientation.Height)}
-            width={screenPercentageToDP(7.29, Orientation.Height)}
-            fill={theme.colors.SECONDARY_MAIN}
-          />
-          <StyledText
-            marginTop={screenPercentageToDP('2.43', Orientation.Height)}
-            fontSize={screenPercentageToDP('2.55', Orientation.Height)}
-            color={theme.colors.WHITE}
-            fontWeight="bold"
-          >
-            Sign in
-          </StyledText>
-        </StyledView>
         <KeyboardAvoidingView behavior="position">
+          <RowView
+            width="100%"
+            justifyContent="flex-end"
+            position="absolute"
+            top={Platform.OS === 'ios' ? 30 : 0}
+          >
+            <StyledTouchableOpacity
+              onPress={(): void => navigation.navigate(Routes.SignUpStack.Intro)}
+              padding={screenPercentageToDP(2.43, Orientation.Height)}
+            >
+              <CrossIcon
+                height={screenPercentageToDP(2.43, Orientation.Height)}
+                width={screenPercentageToDP(2.43, Orientation.Height)}
+              />
+            </StyledTouchableOpacity>
+          </RowView>
+          <StyledView
+            width="100%"
+            alignItems="center"
+            marginTop={screenPercentageToDP(7.29, Orientation.Height)}
+            marginBottom={screenPercentageToDP(14.7, Orientation.Height)}
+          >
+            <UserIcon
+              height={screenPercentageToDP(7.29, Orientation.Height)}
+              width={screenPercentageToDP(7.29, Orientation.Height)}
+              fill={theme.colors.SECONDARY_MAIN}
+            />
+            <StyledText
+              marginTop={screenPercentageToDP('2.43', Orientation.Height)}
+              fontSize={screenPercentageToDP('2.55', Orientation.Height)}
+              color={theme.colors.WHITE}
+              fontWeight="bold"
+            >
+              Sign in
+            </StyledText>
+          </StyledView>
           <SignInForm onSubmitForm={onSubmitForm} />
           <StyledTouchableOpacity onPress={onNavigateToForgotPassword}>
             <StyledText
@@ -127,6 +127,6 @@ export const SignIn: FunctionComponent<any> = ({ navigation }: SignInProps) => {
           </StyledTouchableOpacity>
         </KeyboardAvoidingView>
       </StyledSafeAreaView>
-    </FullView>
+    </FullView >
   );
 };
