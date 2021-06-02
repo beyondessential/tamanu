@@ -1,0 +1,47 @@
+@token=fake-token
+@server=https://sync-demo.tamanu.io
+@since=0
+
+### Log in
+POST {{server}}/v1/login
+Content-Type: application/json
+
+{
+    "email": "",
+    "password": ""
+}
+
+### Get current user details
+GET {{server}}/v1/whoami
+Authorization: Bearer {{token}}
+
+### List users
+GET {{server}}/v1/sync/user?since={{since}}
+Authorization: Bearer {{token}}
+
+### Create an account
+# The server will hash the password if provided
+POST {{server}}/v1/sync/user
+Content-Type: application/json
+Authorization: Bearer {{token}}
+
+[{
+    "data": {
+        "email": "my.email@domain.com",
+        "password": "open-sesame",
+        "displayName": "Test User",
+        "role": "practitioner"
+    }
+}]
+
+### Update user details (including changing a password)
+POST {{server}}/v1/sync/user
+Content-Type: application/json
+Authorization: Bearer {{token}}
+
+[{
+    "data": {
+        "id": "my-user-id",
+        "password": "open-sesame",
+    }
+}]

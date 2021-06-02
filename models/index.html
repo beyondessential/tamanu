@@ -1,0 +1,307 @@
+<!DOCTYPE html>
+<!--[if IE 8]><html class="no-js lt-ie9" lang="en" > <![endif]-->
+<!--[if gt IE 8]><!--> <html class="no-js" lang="en" > <!--<![endif]-->
+<head>
+  <meta charset="utf-8">
+  <meta http-equiv="X-UA-Compatible" content="IE=edge">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  
+  
+  
+  <link rel="shortcut icon" href="../img/favicon.ico">
+  <title>Models - Tamanu</title>
+  <link rel="stylesheet" href="https://fonts.googleapis.com/css?family=Lato:400,700|Roboto+Slab:400,700|Inconsolata:400,700" />
+
+  <link rel="stylesheet" href="../css/theme.css" />
+  <link rel="stylesheet" href="../css/theme_extra.css" />
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/9.12.0/styles/github.min.css" />
+  
+  <script>
+    // Current page data
+    var mkdocs_page_name = "Models";
+    var mkdocs_page_input_path = "models.md";
+    var mkdocs_page_url = null;
+  </script>
+  
+  <script src="../js/jquery-2.1.1.min.js" defer></script>
+  <script src="../js/modernizr-2.8.3.min.js" defer></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/9.12.0/highlight.min.js"></script>
+  <script>hljs.initHighlightingOnLoad();</script> 
+  
+</head>
+
+<body class="wy-body-for-nav" role="document">
+
+  <div class="wy-grid-for-nav">
+
+    
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side stickynav">
+    <div class="wy-side-scroll">
+      <div class="wy-side-nav-search">
+        <a href=".." class="icon icon-home"> Tamanu</a>
+        <div role="search">
+  <form id ="rtd-search-form" class="wy-form" action="../search.html" method="get">
+    <input type="text" name="q" placeholder="Search docs" title="Type search term here" />
+  </form>
+</div>
+      </div>
+
+      <div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="main navigation">
+                <ul>
+                    <li class="toctree-l1"><a class="reference internal" href="..">Home</a>
+                    </li>
+                </ul>
+                <ul>
+                    <li class="toctree-l1"><a class="reference internal" href="../surveys/">Surveys</a>
+                    </li>
+                </ul>
+                <ul class="current">
+                    <li class="toctree-l1 current"><a class="reference internal current" href="./">Models</a>
+    <ul class="current">
+    <li class="toctree-l2"><a class="reference internal" href="#administeredvaccine">AdministeredVaccine</a>
+    </li>
+    <li class="toctree-l2"><a class="reference internal" href="#attachment">Attachment</a>
+    </li>
+    <li class="toctree-l2"><a class="reference internal" href="#discharge">Discharge</a>
+    </li>
+    <li class="toctree-l2"><a class="reference internal" href="#encounter">Encounter</a>
+    </li>
+    <li class="toctree-l2"><a class="reference internal" href="#encounterdiagnosis">EncounterDiagnosis</a>
+    </li>
+    <li class="toctree-l2"><a class="reference internal" href="#encountermedication">EncounterMedication</a>
+    </li>
+    <li class="toctree-l2"><a class="reference internal" href="#imagingrequest">ImagingRequest</a>
+    </li>
+    <li class="toctree-l2"><a class="reference internal" href="#labrequest">LabRequest</a>
+    </li>
+    <li class="toctree-l2"><a class="reference internal" href="#labtest">LabTest</a>
+    </li>
+    <li class="toctree-l2"><a class="reference internal" href="#labtesttype">LabTestType</a>
+    </li>
+    <li class="toctree-l2"><a class="reference internal" href="#location">Location</a>
+    </li>
+    <li class="toctree-l2"><a class="reference internal" href="#note">Note</a>
+    </li>
+    <li class="toctree-l2"><a class="reference internal" href="#patient">Patient</a>
+    </li>
+    <li class="toctree-l2"><a class="reference internal" href="#patientadditionaldata">PatientAdditionalData</a>
+    </li>
+    <li class="toctree-l2"><a class="reference internal" href="#patientallergy">PatientAllergy</a>
+    </li>
+    <li class="toctree-l2"><a class="reference internal" href="#patientcareplan">PatientCarePlan</a>
+    </li>
+    <li class="toctree-l2"><a class="reference internal" href="#patientcommunication">PatientCommunication</a>
+    </li>
+    <li class="toctree-l2"><a class="reference internal" href="#patientcondition">PatientCondition</a>
+    </li>
+    <li class="toctree-l2"><a class="reference internal" href="#patientfamilyhistory">PatientFamilyHistory</a>
+    </li>
+    <li class="toctree-l2"><a class="reference internal" href="#patientissue">PatientIssue</a>
+    </li>
+    <li class="toctree-l2"><a class="reference internal" href="#procedure">Procedure</a>
+    </li>
+    <li class="toctree-l2"><a class="reference internal" href="#program">Program</a>
+    </li>
+    <li class="toctree-l2"><a class="reference internal" href="#programdataelement">ProgramDataElement</a>
+    </li>
+    <li class="toctree-l2"><a class="reference internal" href="#referencedata">ReferenceData</a>
+    </li>
+    <li class="toctree-l2"><a class="reference internal" href="#referral">Referral</a>
+    </li>
+    <li class="toctree-l2"><a class="reference internal" href="#reportrequest">ReportRequest</a>
+    </li>
+    <li class="toctree-l2"><a class="reference internal" href="#scheduledvaccine">ScheduledVaccine</a>
+    </li>
+    <li class="toctree-l2"><a class="reference internal" href="#setting">Setting</a>
+    </li>
+    <li class="toctree-l2"><a class="reference internal" href="#survey">Survey</a>
+    </li>
+    <li class="toctree-l2"><a class="reference internal" href="#surveyresponse">SurveyResponse</a>
+    </li>
+    <li class="toctree-l2"><a class="reference internal" href="#surveyresponseanswer">SurveyResponseAnswer</a>
+    </li>
+    <li class="toctree-l2"><a class="reference internal" href="#surveyscreencomponent">SurveyScreenComponent</a>
+    </li>
+    <li class="toctree-l2"><a class="reference internal" href="#syncmetadata">SyncMetadata</a>
+    </li>
+    <li class="toctree-l2"><a class="reference internal" href="#triage">Triage</a>
+    </li>
+    <li class="toctree-l2"><a class="reference internal" href="#user">User</a>
+    </li>
+    <li class="toctree-l2"><a class="reference internal" href="#userfacility">UserFacility</a>
+    </li>
+    <li class="toctree-l2"><a class="reference internal" href="#userlocalisationcache">UserLocalisationCache</a>
+    </li>
+    <li class="toctree-l2"><a class="reference internal" href="#vitals">Vitals</a>
+    </li>
+    </ul>
+                    </li>
+                </ul>
+                <ul>
+                    <li class="toctree-l1"><a class="" href="../api.md">API</a>
+                    </li>
+                </ul>
+      </div>
+    </div>
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap">
+
+      
+      <nav class="wy-nav-top" role="navigation" aria-label="top navigation">
+        <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+        <a href="..">Tamanu</a>
+      </nav>
+
+      
+      <div class="wy-nav-content">
+        <div class="rst-content">
+          <div role="navigation" aria-label="breadcrumbs navigation">
+  <ul class="wy-breadcrumbs">
+    <li><a href="..">Docs</a> &raquo;</li>
+    
+      
+    
+    <li>Models</li>
+    <li class="wy-breadcrumbs-aside">
+      
+    </li>
+  </ul>
+  
+  <hr/>
+</div>
+          <div role="main">
+            <div class="section">
+              
+                <h1 id="models">Models</h1>
+<p>Models implementations can be found in: <code>packages/shared-src/src/models</code></p>
+<h3 id="administeredvaccine">AdministeredVaccine</h3>
+<p>A vaccination a patient has recieved. The specific vaccine is represented in the ScheduledVaccine relationship.</p>
+<h3 id="attachment">Attachment</h3>
+<p>Metadata for an attached document (for eg an image or a pdf). Actual attachment data is not synced; data should be fetched over an internet connection from the sync server (though the data column in this table can be used as a local cache).</p>
+<h3 id="discharge">Discharge</h3>
+<p>Details of a discharge from a hospital admission. Most encounter types are closed by simply setting an endDate, this model is simply to attach additional discharge information. </p>
+<h3 id="encounter">Encounter</h3>
+<p>Encounters are core to the Tamanu platform. An Encounter represents an instance of care with a patient and has information about the time and date, patient, user, as well as location details. Most interactions with a patient will cause an Encounter to be created.</p>
+<p>TODO: Add note explaining auto-closing encounters</p>
+<h3 id="encounterdiagnosis">EncounterDiagnosis</h3>
+<p>A diagnosis given to a patient.</p>
+<h3 id="encountermedication">EncounterMedication</h3>
+<p>A prescription of medication to a patient.</p>
+<h3 id="imagingrequest">ImagingRequest</h3>
+<p>A request for imaging (for eg an x-ray or a colposcopy).</p>
+<h3 id="labrequest">LabRequest</h3>
+<p>A request for labs. Multiple tests can be attached to a single request (a single sample may be tested for several different conditions).</p>
+<h3 id="labtest">LabTest</h3>
+<p>A request for a single lab test. Always part of a LabRequest.</p>
+<h3 id="labtesttype">LabTestType</h3>
+<p>A type of lab test, with name and code but also includes configurations like healthy ranges to display next to results, options for dropdowns etc.</p>
+<h3 id="location">Location</h3>
+<p>A Location essentially a wrapper around a Facility, adding a parent name and code, used for reporting.</p>
+<h3 id="note">Note</h3>
+<p>A Note can be user generated or app generated, and can be added to any other model as a relationship, it is a generic way of adding
+arbitrary information to some data.</p>
+<h3 id="patient">Patient</h3>
+<p>The Patient model is the central reference point for a patient's data. The table itself holds a small set of basic information, and is synced to all devices regardless of whether that patient attends a particular facility. This means that adding fields to this table should be done VERY rarely, as it represents a security risk (low control over which devices it ends up on) as well as data traffic risk (each new byte of data added to the core patient record will be multiplied by the # of patients in that system - easily hundreds of thousands, possibly millions - for every device!).</p>
+<h3 id="patientadditionaldata">PatientAdditionalData</h3>
+<p>Holds most of a patient's non-encounter data (for eg contact information, social media). Only synced to facilities that have marked that patient for sync.</p>
+<h3 id="patientallergy">PatientAllergy</h3>
+<p>A allergy recorded for a patient (for eg peanuts or penicillin). </p>
+<h3 id="patientcareplan">PatientCarePlan</h3>
+<p>A care plan for a patient.</p>
+<h3 id="patientcommunication">PatientCommunication</h3>
+<p>A communication (e.g. email, text) to be sent to a patient. The sync server is responsible for actually processing these communications.</p>
+<h3 id="patientcondition">PatientCondition</h3>
+<p>An ongoing medical condition.</p>
+<h3 id="patientfamilyhistory">PatientFamilyHistory</h3>
+<p>A piece of medical history within that patient's family.</p>
+<h3 id="patientissue">PatientIssue</h3>
+<p>A list of patient issues. Can include warnings about a patient for users.</p>
+<h3 id="procedure">Procedure</h3>
+<p>A procedure (e.g. surgery) for a Patient, with information about the team administering the procedure.</p>
+<h3 id="program">Program</h3>
+<p>A named group of Surveys.</p>
+<h3 id="programdataelement">ProgramDataElement</h3>
+<p>A program data element represents a single survey question, reusable across different surveys. Information regarding a ProgramDataElement's survey-specific information (for eg page number) is stored in SurveyScreenComponent. Actual submitted patient data for a ProgramDataElement is stored in SurveyResponseAnswer.</p>
+<h3 id="referencedata">ReferenceData</h3>
+<p>Reference data is a core table in Tamanu that allows for huge amounts of customisation across deployments. There are many types of reference data, all used to populate the app with data such as locations, drugs, allergies, diagnoses, and many more. Each deployment has a reference data excel sheet that is imported to the sync server and syncs down to lan and mobile devices to populate data in the apps.</p>
+<p>A reference data item has a name, a code, and an ID (where "code" is just a unique string for that reference data item within its type, for eg an ICD10 code). If a type of reference data requires additional metadata beyond these fields, then it should be split out into a separate table.</p>
+<h3 id="referral">Referral</h3>
+<p>A referral to another facility. This model is lightweight by design, only tracking the core data of where the referral is for. Any medical information related to the referral (for eg a diagnosis) should just be stored on the initiating encounter, while custom metadata should be attached via a SurveyResponse.</p>
+<p>:warning: Not to be confused with a Survey object having <code>surveyType == 'referral'</code>! This kind of Survey commonly gets shorthanded as a Referral; this practice should be discouraged.</p>
+<h3 id="reportrequest">ReportRequest</h3>
+<p>Lists all requested reports from the current device, which are then sent to the sync server to be created and delivered.</p>
+<h3 id="scheduledvaccine">ScheduledVaccine</h3>
+<p>Scheduled vaccines combined to create a full vaccination schedule, from birth to adulthood for a patient.</p>
+<h3 id="setting">Setting</h3>
+<p>TODO</p>
+<h3 id="survey">Survey</h3>
+<p>Surveys are a general purpose tool for creating forms and can be used for many applications, e.g. referrals and screenings.</p>
+<h3 id="surveyresponse">SurveyResponse</h3>
+<p>A survey response hold information about a completed survey, including a calculated result if applicable. It holds the relations to all the answered questions and also the encounter in which the survey was conducted.</p>
+<h3 id="surveyresponseanswer">SurveyResponseAnswer</h3>
+<p>A survey response answer represents an answer to a single question (program data element) in a specific survey.</p>
+<h3 id="surveyscreencomponent">SurveyScreenComponent</h3>
+<p>Represents metadata for a question on a survey (for eg, position within the survey, any survey-specific overrides). The actual contents of the question (question type, text, etc) is stored in ProgramDataElement.</p>
+<h3 id="syncmetadata">SyncMetadata</h3>
+<p>Utility table to help manage the sync process. Not directly related to any patient or medical information.</p>
+<h3 id="triage">Triage</h3>
+<p>Emergency department triage information. Tracks very limited information - further data (for eg diagnoses or notes) should be recorded against an attached Encounter object instead.</p>
+<h3 id="user">User</h3>
+<p>Users of the application, required to be able to login to either the tamanu mobile or desktop applications.</p>
+<h3 id="userfacility">UserFacility</h3>
+<p>Represents the relationship between a user and which facility they work from.</p>
+<h3 id="userlocalisationcache">UserLocalisationCache</h3>
+<p>Cached localisation values from the server.</p>
+<h3 id="vitals">Vitals</h3>
+<p>Hold information about a patients recorded vitals (e.g. temperature, weight, height). and what date those vitals were recorded on.</p>
+              
+            </div>
+          </div>
+          <footer>
+  
+    <div class="rst-footer-buttons" role="navigation" aria-label="footer navigation">
+      
+      
+        <a href="../surveys/" class="btn btn-neutral" title="Surveys"><span class="icon icon-circle-arrow-left"></span> Previous</a>
+      
+    </div>
+  
+
+  <hr/>
+
+  <div role="contentinfo">
+    <!-- Copyright etc -->
+    
+  </div>
+
+  Built with <a href="https://www.mkdocs.org/">MkDocs</a> using a <a href="https://github.com/snide/sphinx_rtd_theme">theme</a> provided by <a href="https://readthedocs.org">Read the Docs</a>.
+</footer>
+      
+        </div>
+      </div>
+
+    </section>
+
+  </div>
+
+  <div class="rst-versions" role="note" aria-label="versions">
+    <span class="rst-current-version" data-toggle="rst-current-version">
+      
+      
+        <span><a href="../surveys/" style="color: #fcfcfc;">&laquo; Previous</a></span>
+      
+      
+    </span>
+</div>
+    <script>var base_url = '..';</script>
+    <script src="../js/theme.js" defer></script>
+      <script src="../search/main.js" defer></script>
+    <script defer>
+        window.onload = function () {
+            SphinxRtdTheme.Navigation.enable(true);
+        };
+    </script>
+
+</body>
+</html>

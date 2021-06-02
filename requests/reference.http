@@ -1,0 +1,27 @@
+
+@token=fake-token
+@server=https://sync-dev.tamanu.io
+
+### Get a list of reference data
+GET {{server}}/v1/sync/reference?since=0  HTTP/1.1
+Authorization: Bearer {{token}}
+
+### Create/update some reference data items
+POST {{server}}/v1/sync/reference  HTTP/1.1
+Authorization: Bearer {{token}}
+Content-Type: application/json
+
+[
+    { "data": {
+        "id": "ref/facility/FACILITYA",
+        "code": "DIABETES",
+        "type": "carePlan",
+        "name": "Diabetes"
+    }},
+    { "data": {
+        "id": "ref/carePlan/HYPERTENSION",
+        "code": "HYPERTENSION",
+        "type": "carePlan",
+        "name": "Hypertension"
+    }}
+]
