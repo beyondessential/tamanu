@@ -5,6 +5,8 @@ import { readConfig, writeConfig } from '~/services/config';
 
 interface LocalisationContextData {
   getLocalisation: (path: string) => any;
+  getString: (path: string, defaultValue?: string) => string;
+  getBool: (path: string, defaultValue?: boolean) => boolean;
   setLocalisation: (localisationToSet: object) => Promise<void>;
 }
 
@@ -16,7 +18,7 @@ const LocalisationContext = createContext<LocalisationContextData>({} as Localis
 export const LocalisationProvider = ({
   children,
 }: PropsWithChildren<object>): ReactElement => {
-  const [localisation, setLocalisation] = useState({});
+  const [localisation, setLocalisationInner] = useState({});
   useEffect(() => {
     (async () => {
       const strLocalisation = await readConfig(CONFIG_KEY);
@@ -24,17 +26,46 @@ export const LocalisationProvider = ({
     })();
   });
 
+  // helpers
+  const getLocalisation = path => get(mergedLocalisation, path);
+
+  const getString = (path: string, defaultValue?: string): string => {
+    const value = getLocalisation(path);
+    if (typeof value === 'string') {
+      return value;
+    }
+    if (typeof defaultValue === 'string') {
+      return value;
+    }
+    return path;
+  };
+
+  const getBool = (path: string, defaultValue?: boolean): boolean => {
+    const value = getLocalisation(path);
+    if (typeof value === 'boolean') {
+      return value;
+    }
+    if (typeof defaultValue === 'boolean') {
+      return value;
+    }
+    return false;
+  };
+
+  const setLocalisation = async (localisationToSet: object) => {
+    // make sure we can stringify before setting localisation
+    const jsonLocalisation = JSON.stringify(localisationToSet);
+    setLocalisationInner(localisationToSet);
+    await writeConfig(CONFIG_KEY, jsonLocalisation);
+  };
+
   const mergedLocalisation = { ...localisation, ...TEST_LOCALISATION_OVERRIDES };
   return (
     <LocalisationContext.Provider
       value={{
-        getLocalisation: path => get(mergedLocalisation, path),
-        setLocalisation: async (localisationToSet) => {
-          // make sure we can stringify before setting localisation
-          const jsonLocalisation = JSON.stringify(localisationToSet);
-          setLocalisation(localisationToSet);
-          await writeConfig(CONFIG_KEY, jsonLocalisation);
-        }
+        getLocalisation,
+        getString,
+        getBool,
+        setLocalisation,
       }}>
       {children}
     </LocalisationContext.Provider>
