@@ -30,7 +30,7 @@ export const LocalisationProvider = ({
       value={{
         getLocalisation: path => get(mergedLocalisation, path),
         setLocalisation: async (localisationToSet) => {
-          // make sure we can stringif_y before setting localisation
+          // make sure we can stringify before setting localisation
           const jsonLocalisation = JSON.stringify(localisationToSet);
           setLocalisation(localisationToSet);
           await writeConfig(CONFIG_KEY, jsonLocalisation);
