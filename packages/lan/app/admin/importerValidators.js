@@ -53,6 +53,12 @@ const departmentSchema = baseSchema.shape({
   facilityId: yup.string(),
 });
 
+const locationSchema = baseSchema.shape({
+  code: fieldTypes.code.required(),
+  name: fieldTypes.name.required(),
+  facilityId: yup.string(),
+});
+
 const LAB_TEST_RESULT_TYPES = ['Number', 'Select', 'FreeText'];
 const rangeRegex = /^[0-9.]+, [0-9.]+$/;
 const labTestTypeSchema = baseSchema
@@ -107,6 +113,7 @@ const validationSchemas = {
   user: userSchema,
   facility: facilitySchema,
   department: departmentSchema,
+  location: locationSchema,
   labTestType: labTestTypeSchema,
   survey: surveySchema,
   surveyScreenComponent: surveyScreenComponentSchema,
@@ -118,6 +125,9 @@ const validationSchemas = {
 // so that for eg a village and facility with the same name don't get confused
 const foreignKeySchemas = {
   department: {
+    facility: 'facility',
+  },
+  location: {
     facility: 'facility',
   },
   patient: {

@@ -50,7 +50,7 @@ const transformers = [
   makeTransformer('drugs', referenceDataTransformer('drug')),
   makeTransformer('allergies', referenceDataTransformer('allergy')),
   makeTransformer('departments', recordTransformer('department')),
-  makeTransformer('locations', referenceDataTransformer('location')),
+  makeTransformer('locations', recordTransformer('location')),
   makeTransformer('diagnoses', referenceDataTransformer('icd10')),
   makeTransformer('triageReasons', referenceDataTransformer('triageReason')),
   makeTransformer('imagingTypes', referenceDataTransformer('imagingType')),

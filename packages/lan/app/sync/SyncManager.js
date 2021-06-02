@@ -170,6 +170,7 @@ export class SyncManager {
         models.Asset,
         models.Facility,
         models.Department,
+        models.Location,
 
         models.ScheduledVaccine,
 

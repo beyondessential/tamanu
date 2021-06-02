@@ -3,6 +3,7 @@ export const MODEL_DEPENDENCY_ORDER = [
   'User',
   'Facility',
   'Department',
+  'Location',
 
   'Patient',
   'Encounter',
