@@ -9,7 +9,7 @@ import { Provider } from 'react-redux';
 import { themeSystem } from '/styled/common';
 import { store, persistor } from '/store/index';
 import { AuthProvider } from '~/ui/contexts/AuthContext';
-import { FeatureFlagsProvider } from '~/ui/contexts/FeatureFlagsContext';
+import { LocalisationProvider } from '~/ui/contexts/LocalisationContext';
 import { Core } from './Core';
 import { theme } from '../../styled/theme';
 
@@ -32,11 +32,11 @@ export const RootStack = (): ReactElement => {
             <ThemeProvider theme={themeSystem}>
               <PaperProvider theme={paperTheme}>
                 <NavigationContainer ref={navigationRef}>
-                  <FeatureFlagsProvider>
+                  <LocalisationProvider>
                     <AuthProvider navRef={navigationRef}>
                       <Core />
                     </AuthProvider>
-                  </FeatureFlagsProvider>
+                  </LocalisationProvider>
                 </NavigationContainer>
               </PaperProvider>
             </ThemeProvider>
