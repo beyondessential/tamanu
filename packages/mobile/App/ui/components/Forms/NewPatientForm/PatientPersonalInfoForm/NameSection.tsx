@@ -1,27 +1,27 @@
 import React, { ReactElement } from 'react';
 import { TextField } from '../../../TextField/TextField';
 import { FormGroup } from '../FormGroup';
-import { Field } from '../../FormField';
+import { LocalisedField } from '~/ui/components/Forms/LocalisedField';
 
 export const NameSection = (): ReactElement => (
   <FormGroup sectionName="NAME">
-    <Field
-      label="First Name"
+    <LocalisedField
+      defaultLabel="First Name"
       name="firstName"
       component={TextField}
     />
-    <Field
-      label="Middle Name"
+    <LocalisedField
+      defaultLabel="Middle Name"
       name="middleName"
       component={TextField}
     />
-    <Field
-      label="Last Name"
+    <LocalisedField
+      defaultLabel="Last Name"
       name="lastName"
       component={TextField}
     />
-    <Field
-      label="Cultural Name"
+    <LocalisedField
+      defaultLabel="Cultural Name"
       name="culturalName"
       component={TextField}
     />
