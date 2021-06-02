@@ -26,7 +26,7 @@ export const SyncHealthNotificationComponent = () => {
   useEffect(() => {
     (async () => {
       const res = await api.get('syncHealth');
-      if (!res?.healthy) {
+      if (!res.healthy) {
         setMessage(res.error);
       }
     })();
