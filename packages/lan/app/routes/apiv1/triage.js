@@ -26,15 +26,14 @@ triage.post(
 
     const triageRecord = await models.Triage.create(req.body);
 
-    let vitalsRecord;
     if (vitals) {
-      vitalsRecord = await models.Vitals.create({
+      await models.Vitals.create({
         ...vitals,
         encounterId: triageRecord.encounterId,
       });
     }
 
-    res.send({ triage: triageRecord, vitals: vitalsRecord });
+    res.send(triageRecord);
   }),
 );
 
