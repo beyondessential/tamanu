@@ -303,19 +303,23 @@ patient.get(
       })),
       // For DOB filter
       makeFilter(
-        filterParams.dobFrom,
-        `DATE(patients.date_of_birth) >= :dobFrom`,
-        ({ dobFrom }) => ({
-          dobFrom: moment(dobFrom)
+        filterParams.dateOfBirthFrom,
+        `DATE(patients.date_of_birth) >= :dateOfBirthFrom`,
+        ({ dateOfBirthFrom }) => ({
+          dateOfBirthFrom: moment(dateOfBirthFrom)
             .startOf('day')
             .toISOString(),
         }),
       ),
-      makeFilter(filterParams.dobTo, `DATE(patients.date_of_birth) <= :dobTo`, ({ dobTo }) => ({
-        dobTo: moment(dobTo)
-          .endOf('day')
-          .toISOString(),
-      })),
+      makeFilter(
+        filterParams.dateOfBirthTo,
+        `DATE(patients.date_of_birth) <= :dateOfBirthTo`,
+        ({ dateOfBirthTo }) => ({
+          dateOfBirthTo: moment(dateOfBirthTo)
+            .endOf('day')
+            .toISOString(),
+        }),
+      ),
       makeFilter(filterParams.villageId, `patients.village_id = :villageId`),
       makeFilter(filterParams.locationId, `location.id = :locationId`),
       makeFilter(filterParams.departmentId, `department.id = :departmentId`),

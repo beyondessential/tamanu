@@ -25,11 +25,6 @@ const Container = styled.div`
   background: ${Colors.white};
 `;
 
-const DatePlaceholder = styled.div`
-  font-size: 11pt;
-  color: #8e8e8e;
-`;
-
 const ScanFingerprintIcon = styled(FingerprintIcon)`
   color: ${Colors.secondary};
 `;
@@ -186,32 +181,8 @@ const DumbPatientSearchBar = props => (
       ['culturalName'],
       ['villageId', { suggesterKey: 'villageSuggester', component: AutocompleteField }],
       ['displayId'],
-      [
-        'dobFrom',
-        {
-          component: DateField,
-          InputProps: {
-            startAdornment: (
-              <InputAdornment position="start">
-                <DatePlaceholder>DOB From</DatePlaceholder>
-              </InputAdornment>
-            ),
-          },
-        },
-      ],
-      [
-        'dobTo',
-        {
-          component: DateField,
-          InputProps: {
-            startAdornment: (
-              <InputAdornment position="start">
-                <DatePlaceholder>DOB To</DatePlaceholder>
-              </InputAdornment>
-            ),
-          },
-        },
-      ],
+      ['dateOfBirthFrom', { localisationLabel: 'shortLabel', component: DateField }],
+      ['dateOfBirthTo', { localisationLabel: 'shortLabel', component: DateField }],
     ]}
     {...props}
   />
