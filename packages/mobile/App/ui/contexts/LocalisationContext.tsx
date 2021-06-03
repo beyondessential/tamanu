@@ -19,12 +19,15 @@ export const LocalisationProvider = ({
   children,
 }: PropsWithChildren<object>): ReactElement => {
   const [localisation, setLocalisationInner] = useState({});
+
   useEffect(() => {
     (async () => {
       const strLocalisation = await readConfig(CONFIG_KEY);
       setLocalisationInner(JSON.parse(strLocalisation));
     })();
   });
+
+  const mergedLocalisation = { ...localisation, ...TEST_LOCALISATION_OVERRIDES };
 
   // helpers
   const getLocalisation = (path: string) => get(mergedLocalisation, path);
@@ -58,7 +61,6 @@ export const LocalisationProvider = ({
     await writeConfig(CONFIG_KEY, jsonLocalisation);
   };
 
-  const mergedLocalisation = { ...localisation, ...TEST_LOCALISATION_OVERRIDES };
   return (
     <LocalisationContext.Provider
       value={{
