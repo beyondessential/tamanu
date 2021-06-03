@@ -27,7 +27,7 @@ export const LocalisationProvider = ({
   });
 
   // helpers
-  const getLocalisation = path => get(mergedLocalisation, path);
+  const getLocalisation = (path: string) => get(mergedLocalisation, path);
 
   const getString = (path: string, defaultValue?: string): string => {
     const value = getLocalisation(path);
