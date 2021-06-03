@@ -1,5 +1,5 @@
 import { log } from 'shared/services/logging';
-import { readSurveyXSLX } from '../surveyImporter';
+import { readSurveyXSLX } from './surveyImporter';
 import { sendSyncRequest } from './sendSyncRequest';
 
 const idify = name => name.toLowerCase().replace(/\W/g, '');

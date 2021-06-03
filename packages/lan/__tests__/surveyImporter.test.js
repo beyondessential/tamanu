@@ -1,7 +1,6 @@
 import { importSurvey } from '~/admin/importProgram';
 import { preprocessRecordSet } from '~/admin/preprocessRecordSet';
-
-import { readSurveyXSLX } from 'lan/app/surveyImporter';
+import { readSurveyXSLX } from '~/admin/surveyImporter';
 
 const TEST_SURVEY_PATH = './data/test_programs.xlsx';
 
