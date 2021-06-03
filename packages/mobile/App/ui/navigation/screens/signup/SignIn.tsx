@@ -127,6 +127,6 @@ export const SignIn: FunctionComponent<any> = ({ navigation }: SignInProps) => {
           </StyledTouchableOpacity>
         </KeyboardAvoidingView>
       </StyledSafeAreaView>
-    </FullView >
+    </FullView>
   );
 };
