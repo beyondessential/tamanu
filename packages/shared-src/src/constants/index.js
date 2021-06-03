@@ -160,6 +160,7 @@ export const PROGRAM_DATA_ELEMENT_TYPES = {
   PHOTO: 'Photo',
   PATIENT_DATA: 'PatientData',
   USER_DATA: 'UserData',
+  PATIENT_ISSUE: 'PatientIssue',
 };
 export const PROGRAM_DATA_ELEMENT_TYPE_VALUES = Object.values(PROGRAM_DATA_ELEMENT_TYPES);
 

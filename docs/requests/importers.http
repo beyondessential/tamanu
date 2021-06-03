@@ -58,3 +58,16 @@ Content-Type: application/vnd.ms-excel
 
 < M:\beyond\tamanu\packages\lan\data\test_definitions.xlsx
 --{{boundary}}--
+
+###
+POST http://localhost:4000/v1/admin/importSurvey
+Content-Type: application/json
+
+{
+  "file": "/home/alastair/BE/testSurvey.xlsx",
+  "programName": "Alastair Test Program",
+  "programCode": "Alastair-Test-Program",
+  "surveyName": "Alastair Test Survey With PatientIssue - Adverse Event Following Immunisation Form",
+  "surveyCode": "Alastair-Test-Survey-4",
+  "dryRun": false
+}

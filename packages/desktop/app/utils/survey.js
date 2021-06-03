@@ -13,6 +13,7 @@ import {
   NumberField,
   ReadOnlyTextField,
   UnsupportedPhotoField,
+  PatientIssueCreaterField,
 } from 'desktop/app/components/Field';
 import { PROGRAM_DATA_ELEMENT_TYPES } from '../../../shared-src/src/constants';
 import { getAgeFromDate } from 'shared-src/src/utils/date';
@@ -43,11 +44,13 @@ const QUESTION_COMPONENTS = {
   [PROGRAM_DATA_ELEMENT_TYPES.INSTRUCTION]: InstructionField,
   [PROGRAM_DATA_ELEMENT_TYPES.PHOTO]: UnsupportedPhotoField,
   [PROGRAM_DATA_ELEMENT_TYPES.RESULT]: null,
+  [PROGRAM_DATA_ELEMENT_TYPES.PATIENT_ISSUE]: PatientIssueCreaterField,
 };
 
 export function getComponentForQuestionType(type) {
   const component = QUESTION_COMPONENTS[type];
-  if(component === undefined) {
+  console.log()
+  if (component === undefined) {
     return LimitedTextField;
   }
   return component;
@@ -104,7 +107,7 @@ export function checkVisibility(
     return conjunction === 'and'
       ? Object.entries(restOfCriteria).every(checkIfQuestionMeetsCriteria)
       : Object.entries(restOfCriteria).some(checkIfQuestionMeetsCriteria);
-  } catch(error) {
+  } catch (error) {
     console.warn(`Error parsing visilbity criteria as JSON, using fallback.
                   \nError message: ${error}
                   \nJSON: ${visibilityCriteria}`);
@@ -123,17 +126,17 @@ export function runCalculations(
   const inputValues = { ...values };
   const calculatedValues = {};
 
-  for(const c of components) {
-    if(!c.calculation) continue;
+  for (const c of components) {
+    if (!c.calculation) continue;
 
     try {
       const value = math.evaluate(c.calculation, inputValues);
-      if(Number.isNaN(value)) {
+      if (Number.isNaN(value)) {
         throw new Error('Value is NaN');
       }
       inputValues[c.dataElement.code] = value;
       calculatedValues[c.dataElement.code] = value.toFixed(2);
-    } catch(e) {
+    } catch (e) {
       calculatedValues[c.dataElement.code] = null;
     }
   }

@@ -14,6 +14,7 @@ export * from './SurveyQuestionAutocomplete';
 // fancy fields
 export * from './AutocompleteField';
 export * from './ServerDetectingField';
+export * from './PatientIssueCreaterField';
 
 // form helpers
 export * from './Form';
