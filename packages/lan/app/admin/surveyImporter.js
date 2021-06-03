@@ -2,6 +2,13 @@ import { readFile, utils } from 'xlsx';
 
 const yesOrNo = value => !!(value && value.toLowerCase() === 'yes');
 
+const idify = name => name.toLowerCase().replace(/\W/g, '');
+
+const makeRecord = (recordType, data) => ({
+  recordType,
+  data,
+});
+
 function newlinesToArray(data) {
   if (!data) return null;
 
@@ -18,33 +25,44 @@ function newlinesToArray(data) {
   return JSON.stringify(array);
 }
 
-function importDataElement(row) {
-  // Extract dataElement details from spreadsheet row
-  //
-  // # columns in spreadsheet
-  // ## imported directly
-  // code
-  // type
-  // indicator
-  // text
-  // detail
-  //
-  // ## booleans
-  // newScreen
-  //
-  // ## arrays
-  // options
-  // optionLabels
-  //
-  // ## not handled yet
-  // config
-  // optionColors
-  // visibilityCriteria
-  // validationCriteria
-  // optionSet
-  // questionLabel
-  // detailLabel
+function makeScreen(questions, componentData) {
+  return questions
+    .map((component, i) => {
+      const {
+        visibilityCriteria = '',
+        validationCriteria = '',
+        detail = '',
+        config = '',
+        calculation = '',
+        ...elementData
+      } = component;
 
+      const dataElement = makeRecord('programDataElement', {
+        id: `pde-${elementData.code}`,
+        defaultOptions: '',
+        ...elementData,
+      });
+
+      const surveyScreenComponent = makeRecord('surveyScreenComponent', {
+        id: `${componentData.surveyId}-${elementData.code}`,
+        dataElementId: dataElement.data.id,
+        text: '',
+        options: '',
+        componentIndex: i,
+        visibilityCriteria,
+        validationCriteria,
+        detail,
+        config,
+        calculation,
+        ...componentData,
+      });
+
+      return [dataElement, surveyScreenComponent];
+    })
+    .flat();
+}
+
+function importDataElement(row) {
   const { newScreen, options, optionLabels, text, ...rest } = row;
 
   return {
@@ -56,32 +74,34 @@ function importDataElement(row) {
   };
 }
 
-function splitIntoScreens(dataElements) {
-  const screenStarts = dataElements
+function splitIntoScreens(questions) {
+  const screenStarts = questions
     .map((q, i) => ({ newScreen: q.newScreen, i }))
     .filter(q => q.i === 0 || q.newScreen)
-    .concat([{ i: dataElements.length }]);
+    .concat([{ i: questions.length }]);
 
   return screenStarts.slice(0, -1).map((q, i) => {
     const start = q.i;
     const end = screenStarts[i + 1].i;
-    return {
-      dataElements: dataElements.slice(start, end),
-    };
+    return questions.slice(start, end);
   });
 }
 
-function importSurveySheet(data) {
-  const dataElements = data.map(importDataElement).filter(q => q.code);
+function importSurveySheet(data, surveyId) {
+  const questions = data.map(importDataElement).filter(q => q.code);
+  const screens = splitIntoScreens(questions);
 
-  const survey = {
-    screens: splitIntoScreens(dataElements),
-  };
-
-  return survey;
+  return screens
+    .map((x, i) => 
+      makeScreen(x, {
+        surveyId,
+        screenIndex: i,
+      }),
+    )
+    .flat();
 }
 
-export function readSurveyXSLX(surveyName, path) {
+export function readSurveyXSLX(path) {
   const workbook = readFile(path);
   const metadataSheet = workbook.Sheets.Metadata;
 
@@ -109,6 +129,12 @@ export function readSurveyXSLX(surveyName, path) {
     return undefined;
   })();
 
+  // main container elements
+  const programRecord = makeRecord('program', {
+    id: `program-${idify(programMetadata.programCode)}`,
+    name: programMetadata.programName,
+  });
+
   if (!headerRow) {
     throw new Error("A survey workbook Metadata sheet must have a row starting with a 'name' or 'code' cell");
   }
@@ -130,11 +156,18 @@ export function readSurveyXSLX(surveyName, path) {
         throw new Error(`Sheet named ${md.name} was not found in the workbook`);
       }
 
-      return {
-        ...md,
-        ...importSurveySheet(data)
-      };
-    });
+      const surveyRecord = makeRecord('survey', {
+        id: `${programRecord.data.id}-${idify(md.code)}`,
+        name: md.name,
+        programId: programRecord.data.id,
+        surveyType: md.surveyType,
+      });
+
+      return [
+        surveyRecord,
+        ...importSurveySheet(data, surveyRecord.data.id)
+      ];
+    }).flat();
 
   // let's also warn the user about ignored sheets
   const ignoredSheetNames = Object.keys(workbook.Sheets).filter(name => {
@@ -147,12 +180,9 @@ export function readSurveyXSLX(surveyName, path) {
     }
   });
 
-  console.log(programMetadata, surveys);
-
-  return { 
-    program: programMetadata,
-    surveys,
-    ignoredSheetNames,
-  };
+  return [
+    programRecord,
+    ...surveys.flat(),
+  ];
 }
 

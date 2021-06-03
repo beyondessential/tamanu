@@ -2,7 +2,7 @@ import express from 'express';
 import asyncHandler from 'express-async-handler';
 import config from 'config';
 
-import { importSurvey } from '../../admin/importProgram';
+import { importSurvey } from '../../admin/surveyImporter';
 import { importData } from '../../admin/importDataDefinition';
 import { createDataImporterEndpoint } from '../../admin/createDataImporterEndpoint';
 

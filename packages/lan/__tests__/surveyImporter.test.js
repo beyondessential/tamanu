@@ -12,10 +12,6 @@ describe('Importing surveys', () => {
   beforeAll(async () => {
     const rawData = await importSurvey({ 
       file: TEST_SURVEY_PATH,
-      programName: 'Test Program',
-      programCode: 'test-program',
-      surveyName: 'Test Survey',
-      surveyCode: 'test-survey',
     });
 
     const { 
