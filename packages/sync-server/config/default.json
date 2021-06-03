@@ -26,7 +26,8 @@
   "mailgun": {
     "domain": "",
     "apiKey": "",
-    "from": ""
+    "from": "",
+    "toAddressOverride": ""
   },
   "schedules": {
     "outpatientDischarger": "0 0 2 ? * * *"

@@ -2,7 +2,7 @@ import config from 'config';
 import mailgun from 'mailgun-js';
 import { COMMUNICATION_STATUSES } from 'shared/constants';
 
-const { apiKey, domain } = config.mailgun;
+const { apiKey, domain, toAddressOverride } = config.mailgun;
 const mailgunService = apiKey && domain ? mailgun({ apiKey, domain }) : null;
 export async function sendEmail(email) {
   // no mailgun service, unable to send email
@@ -27,8 +27,22 @@ export async function sendEmail(email) {
       error: 'Missing subject',
     };
   }
+
+  let resolvedTo = email.to;
+  let resolvedSubject = email.subject;
+
+  if (process.env.NODE_ENV !== 'production') {
+    if (!toAddressOverride) {
+      throw new Error('Must specify toAddressOverride in non-prod environments');
+    }
+    resolvedTo = toAddressOverride;
+    resolvedSubject += ` (${email.to})`;
+  }
+
+  const resolvedEmail = { ...email, to: resolvedTo, subject: resolvedSubject };
+
   try {
-    const emailResult = await mailgunService.messages().send(email);
+    const emailResult = await mailgunService.messages().send(resolvedEmail);
     return { status: COMMUNICATION_STATUSES.SENT, result: emailResult };
   } catch (e) {
     return { status: COMMUNICATION_STATUSES.ERROR, error: e.message };
