@@ -22,7 +22,7 @@ export const LocalisationProvider = ({
   useEffect(() => {
     (async () => {
       const strLocalisation = await readConfig(CONFIG_KEY);
-      setLocalisation(JSON.parse(strLocalisation));
+      setLocalisationInner(JSON.parse(strLocalisation));
     })();
   });
 
