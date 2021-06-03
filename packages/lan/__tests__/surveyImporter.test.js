@@ -1,6 +1,5 @@
 import { importSurvey } from '~/admin/importProgram';
 import { preprocessRecordSet } from '~/admin/preprocessRecordSet';
-import { readSurveyXSLX } from '~/admin/surveyImporter';
 
 const TEST_SURVEY_PATH = './data/test_programs.xlsx';
 
@@ -26,7 +25,7 @@ describe('Importing surveys', () => {
   it('Should import a survey', () => {
     const { records } = resultInfo.stats;
     expect(records).toHaveProperty('program', 1);
-    expect(records).toHaveProperty('survey', 1);
+    expect(records).toHaveProperty('survey', 2);
     expect(records).toHaveProperty('programDataElement', 19);
     expect(records).toHaveProperty('surveyScreenComponent', 19);
   });

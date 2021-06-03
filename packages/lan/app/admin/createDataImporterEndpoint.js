@@ -1,5 +1,5 @@
 import asyncHandler from 'express-async-handler';
-import { unlink } from 'fs';
+import { unlink, existsSync } from 'fs';
 
 import { getUploadedData } from './getUploadedData';
 import { sendSyncRequest } from './sendSyncRequest';
