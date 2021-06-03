@@ -38,7 +38,7 @@ export const LocalisationProvider = ({
       return value;
     }
     if (typeof defaultValue === 'string') {
-      return value;
+      return defaultValue;
     }
     return path;
   };
