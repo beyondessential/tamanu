@@ -1,18 +1,27 @@
 import React, { ReactElement } from 'react';
-import { FormGroup } from '../FormGroup';
-import { Field } from '../../FormField';
-import { GenderOptions } from '/helpers/constants';
-import { RadioButtonGroup } from '../../../RadioButtonGroup';
+
+import { useLocalisation } from '~/ui/contexts/LocalisationContext';
+import { FormGroup } from '~/ui/components/Forms/NewPatientForm/FormGroup';
+import { LocalisedField } from '~/ui/components/Forms/LocalisedField';
+import { GenderOptions, Gender } from '~/ui/helpers/constants';
+import { RadioButtonGroup } from '~/ui/components/RadioButtonGroup';
 import { DateField } from '~/ui/components/DateField/DateField';
 
-export const KeyInformationSection = (): ReactElement => (
-  <FormGroup sectionName="KEY INFORMATION" marginTop>
-    <Field
-      label="Gender"
-      name="sex"
-      options={GenderOptions}
-      component={RadioButtonGroup}
-    />
-    <Field component={DateField} name="dateOfBirth" label="Date of Birth" />
-  </FormGroup>
-);
+export const KeyInformationSection = (): ReactElement => {
+  const { getBool } = useLocalisation()
+  let filteredGenderOptions = GenderOptions;
+  if (getBool('features.hideOtherSex') === true) {
+    filteredGenderOptions = filteredGenderOptions.filter(({ value }) => value !== Gender.Other);
+  }
+  return (
+    <FormGroup sectionName="KEY INFORMATION" marginTop>
+      <LocalisedField
+        defaultLabel="Sex"
+        name="sex"
+        options={filteredGenderOptions}
+        component={RadioButtonGroup}
+      />
+      <LocalisedField component={DateField} name="dateOfBirth" defaultLabel="Date of Birth" />
+    </FormGroup>
+  );
+}
