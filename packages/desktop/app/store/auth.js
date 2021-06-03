@@ -7,6 +7,13 @@ const LOGIN_SUCCESS = 'LOGIN_SUCCESS';
 const LOGIN_FAILURE = 'LOGIN_FAILURE';
 const LOGOUT = 'LOGOUT';
 const LOGOUT_WITH_ERROR = 'LOGOUT_WITH_ERROR';
+const REQUEST_PASSWORD_RESET_START = 'REQUEST_PASSWORD_RESET_START';
+const REQUEST_PASSWORD_RESET_SUCCESS = 'REQUEST_PASSWORD_RESET_SUCCESS';
+const REQUEST_PASSWORD_RESET_FAILURE = 'REQUEST_PASSWORD_RESET_FAILURE';
+const PASSWORD_RESET_RESTART = 'PASSWORD_RESET_RESTART';
+const CHANGE_PASSWORD_START = 'CHANGE_PASSWORD_START';
+const CHANGE_PASSWORD_SUCCESS = 'CHANGE_PASSWORD_SUCCESS';
+const CHANGE_PASSWORD_FAILURE = 'CHANGE_PASSWORD_FAILURE';
 
 export const login = (host, email, password) => async (dispatch, getState, { api }) => {
   dispatch({ type: LOGIN_START });
@@ -37,6 +44,32 @@ export const logout = () => ({
   type: LOGOUT,
 });
 
+export const requestPasswordReset = (host, email) => async (dispatch, getState, { api }) => {
+  dispatch({ type: REQUEST_PASSWORD_RESET_START });
+
+  try {
+    await api.requestPasswordReset(host, email);
+    dispatch({ type: REQUEST_PASSWORD_RESET_SUCCESS, email });
+  } catch (error) {
+    dispatch({ type: REQUEST_PASSWORD_RESET_FAILURE, error: error.message });
+  }
+};
+
+export const restartPasswordResetFlow = () => async dispatch => {
+  dispatch({ type: PASSWORD_RESET_RESTART });
+};
+
+export const changePassword = ({ host, ...data }) => async (dispatch, getState, { api }) => {
+  dispatch({ type: CHANGE_PASSWORD_START });
+
+  try {
+    await api.changePassword(host, data);
+    dispatch({ type: CHANGE_PASSWORD_SUCCESS });
+  } catch (error) {
+    dispatch({ type: CHANGE_PASSWORD_FAILURE, error: error.message });
+  }
+};
+
 // selectors
 export const getCurrentUser = ({ auth }) => auth.user;
 export const checkIsLoggedIn = state => !!getCurrentUser(state);
@@ -47,6 +80,17 @@ const defaultState = {
   user: null,
   error: null,
   token: null,
+  resetPassword: {
+    loading: false,
+    success: false,
+    error: null,
+    lastEmailUsed: null,
+  },
+  changePassword: {
+    loading: false,
+    success: false,
+    error: null,
+  },
 };
 
 const actionHandlers = {
@@ -61,6 +105,8 @@ const actionHandlers = {
     error: defaultState.error,
     token: action.token,
     localisation: action.localisation,
+    resetPassword: defaultState.resetPassword,
+    changePassword: defaultState.changePassword,
   }),
   [LOGIN_FAILURE]: action => ({
     loading: false,
@@ -74,6 +120,52 @@ const actionHandlers = {
   [LOGOUT]: () => ({
     user: defaultState.user,
     token: null,
+  }),
+  [REQUEST_PASSWORD_RESET_START]: () => ({
+    resetPassword: {
+      ...defaultState.resetPassword,
+      loading: true,
+    },
+  }),
+  [REQUEST_PASSWORD_RESET_SUCCESS]: ({ email }) => ({
+    resetPassword: {
+      ...defaultState.resetPassword,
+      success: true,
+      lastEmailUsed: email,
+    },
+    changePassword: {
+      ...defaultState.changePassword, // reset form for next step
+    },
+  }),
+  [PASSWORD_RESET_RESTART]: () => ({
+    resetPassword: {
+      ...defaultState.resetPassword,
+    },
+  }),
+  [REQUEST_PASSWORD_RESET_FAILURE]: action => ({
+    resetPassword: {
+      ...defaultState.resetPassword,
+      error: action.error,
+    },
+  }),
+  [CHANGE_PASSWORD_START]: () => ({
+    changePassword: {
+      ...defaultState.changePassword,
+      loading: true,
+    },
+  }),
+  [CHANGE_PASSWORD_SUCCESS]: () => ({
+    resetPassword: defaultState.resetPassword,
+    changePassword: {
+      ...defaultState.changePassword,
+      success: true,
+    },
+  }),
+  [CHANGE_PASSWORD_FAILURE]: action => ({
+    changePassword: {
+      ...defaultState.changePassword,
+      error: action.error,
+    },
   }),
 };
 

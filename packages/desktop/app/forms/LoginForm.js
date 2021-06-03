@@ -35,7 +35,7 @@ const AdvancedButtonSpan = styled.span`
   }
 `;
 
-export const LoginForm = React.memo(({ onSubmit, errorMessage, rememberEmail }) => {
+export const LoginForm = React.memo(({ onSubmit, errorMessage, rememberEmail, onNavToResetPassword }) => {
   const [isAdvancedExpanded, setAdvancedExpanded] = useState(false);
 
   const onError = errors => {
@@ -76,6 +76,7 @@ export const LoginForm = React.memo(({ onSubmit, errorMessage, rememberEmail }) 
         <LoginButton fullWidth variant="contained" color="primary" type="submit">
           Login to your account
         </LoginButton>
+        <Button onClick={onNavToResetPassword}>Forgot your password?</Button>
       </FormGrid>
     );
   };

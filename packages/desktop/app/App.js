@@ -6,7 +6,7 @@ import 'typeface-roboto';
 import { TamanuLogoWhite } from './components/TamanuLogo';
 import { ConnectedSidebar } from './components/Sidebar';
 import { Appbar } from './components/Appbar';
-import { login, checkIsLoggedIn } from './store/auth';
+import { checkIsLoggedIn } from './store/auth';
 import { getCurrentRoute } from './store/router';
 import { ConnectedLoginView } from './views';
 import { Colors } from './constants';
@@ -72,10 +72,4 @@ const mapStateToProps = state => ({
   currentRoute: getCurrentRoute(state),
 });
 
-const mapDispatchToProps = dispatch => ({
-  onLogin: ({ host, email, password }) => {
-    dispatch(login(host, email, password));
-  },
-});
-
-export const App = connect(mapStateToProps, mapDispatchToProps)(DumbApp);
+export const App = connect(mapStateToProps)(DumbApp);

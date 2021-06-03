@@ -6,7 +6,17 @@ import { TamanuLogo } from '../components';
 import { REMEMBER_EMAIL_KEY } from '../constants';
 import { splashImages } from '../constants/images';
 import { LoginForm } from '../forms/LoginForm';
+import { ResetPasswordForm } from '../forms/ResetPasswordForm';
+import { ChangePasswordForm } from '../forms/ChangePasswordForm';
+import {
+  changePassword,
+  checkIsLoggedIn,
+  login,
+  requestPasswordReset,
+  restartPasswordResetFlow,
+} from '../store';
 import { SyncHealthNotificationComponent } from '../components/SyncHealthNotification';
+
 
 const Grid = styled.div`
   display: grid;
@@ -27,32 +37,100 @@ const LogoContainer = styled.div`
   text-align: center;
 `;
 
-export const LoginView = memo(({ errorMessage, onLogin }) => {
-  const rememberEmail = localStorage.getItem(REMEMBER_EMAIL_KEY);
+export const LoginView = memo(
+  ({
+    onLogin,
+    loginError,
+    onRequestPasswordReset,
+    requestPasswordResetError,
+    requestPasswordResetSuccess,
+    resetPasswordEmail,
+    onRestartResetPasswordFlow,
+    onChangePassword,
+    changePasswordError,
+    changePasswordSuccess,
+  }) => {
+    const rememberEmail = localStorage.getItem(REMEMBER_EMAIL_KEY);
 
-  const onSubmit = data => {
-    const { host, email, password, rememberMe } = data;
+    const [screen, setScreen] = useState('login');
 
-    if (rememberMe) {
-      localStorage.setItem(REMEMBER_EMAIL_KEY, email);
-    } else {
-      localStorage.removeItem(REMEMBER_EMAIL_KEY);
-    }
+    const onSubmitLogin = data => {
+      const { host, email, password, rememberMe } = data;
 
-    onLogin({ host, email, password });
-  };
+      if (rememberMe) {
+        localStorage.setItem(REMEMBER_EMAIL_KEY, email);
+      } else {
+        localStorage.removeItem(REMEMBER_EMAIL_KEY);
+      }
 
-  return (
-    <Grid>
-      <LoginContainer>
-        <SyncHealthNotificationComponent />
-        <LogoContainer>
-          <TamanuLogo size="150px" />
-        </LogoContainer>
-        <LoginForm onSubmit={onSubmit} errorMessage={errorMessage} rememberEmail={rememberEmail}/>
-      </LoginContainer>
-    </Grid>
-  );
+      onLogin({ host, email, password });
+    };
+
+    return (
+      <Grid>
+        <LoginContainer>
+          <SyncHealthNotificationComponent />
+          <LogoContainer>
+            <TamanuLogo size="150px" />
+          </LogoContainer>
+          {screen === 'login' && (
+            <LoginForm
+              onSubmit={onSubmitLogin}
+              errorMessage={loginError}
+              rememberEmail={rememberEmail}
+              onNavToResetPassword={() => setScreen('resetPassword')}
+            />
+          )}
+          {screen === 'resetPassword' && (
+            <ResetPasswordForm
+              onSubmit={onRequestPasswordReset}
+              onRestartFlow={onRestartResetPasswordFlow}
+              errorMessage={requestPasswordResetError}
+              success={requestPasswordResetSuccess}
+              initialEmail={rememberEmail}
+              resetPasswordEmail={resetPasswordEmail}
+              onNavToChangePassword={() => setScreen('changePassword')}
+              onNavToLogin={() => setScreen('login')}
+            />
+          )}
+          {screen === 'changePassword' && (
+            <ChangePasswordForm
+              onSubmit={onChangePassword}
+              errorMessage={changePasswordError}
+              success={changePasswordSuccess}
+              email={resetPasswordEmail}
+              onNavToLogin={() => setScreen('login')}
+              onNavToResetPassword={() => setScreen('resetPassword')}
+            />
+          )}
+        </LoginContainer>
+      </Grid>
+    );
+  },
+);
+
+const mapStateToProps = state => ({
+  loginError: state.auth.error,
+  requestPasswordResetError: state.auth.resetPassword.error,
+  requestPasswordResetSuccess: state.auth.resetPassword.success,
+  resetPasswordEmail: state.auth.resetPassword.lastEmailUsed,
+  changePasswordError: state.auth.changePassword.error,
+  changePasswordSuccess: state.auth.changePassword.success,
 });
 
-export const ConnectedLoginView = connect(state => ({ errorMessage: state.auth.error }))(LoginView);
+const mapDispatchToProps = dispatch => ({
+  onLogin: ({ host, email, password }) => {
+    dispatch(login(host, email, password));
+  },
+  onRequestPasswordReset: ({ host, email }) => {
+    dispatch(requestPasswordReset(host, email));
+  },
+  onRestartResetPasswordFlow: () => {
+    dispatch(restartPasswordResetFlow());
+  },
+  onChangePassword: data => {
+    dispatch(changePassword(data));
+  },
+});
+
+export const ConnectedLoginView = connect(mapStateToProps, mapDispatchToProps)(LoginView);
