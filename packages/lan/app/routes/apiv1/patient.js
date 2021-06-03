@@ -113,6 +113,7 @@ patientRelations.get(
 
     const additionalData = await models.PatientAdditionalData.findOne({
       where: { patientId: params.id },
+      include: models.PatientAdditionalData.getFullReferenceAssociations(),
     });
 
     res.send(additionalData || {});

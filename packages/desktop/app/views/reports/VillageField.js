@@ -1,13 +1,12 @@
 import React from 'react';
 import { connectApi } from '../../api';
-import { AutocompleteField, Field } from '../../components';
+import { AutocompleteField, LocalisedField } from '../../components';
 import { Suggester } from '../../utils/suggester';
 
 const DumbVillageField = ({ villageSuggester, required }) => {
   return (
-    <Field
+    <LocalisedField
       name="village"
-      label="Village"
       component={AutocompleteField}
       suggester={villageSuggester}
       required={required}

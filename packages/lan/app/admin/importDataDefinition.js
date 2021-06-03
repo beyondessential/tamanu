@@ -65,6 +65,7 @@ const transformers = [
   makeTransformer('settlements', referenceDataTransformer('settlement')),
   makeTransformer('occupations', referenceDataTransformer('occupation')),
   makeTransformer('labTestCategories', referenceDataTransformer('labTestCategory')),
+  makeTransformer('patientBillingType', referenceDataTransformer('patientBillingType')),
   makeTransformer('users', recordTransformer('user')),
   makeTransformer('patients', patientDataTransformer),
   makeTransformer('labTestTypes', recordTransformer('labTestType')),

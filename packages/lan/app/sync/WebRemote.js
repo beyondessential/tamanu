@@ -16,12 +16,12 @@ const DEFAULT_TIMEOUT = 10000;
 const getVersionIncompatibleMessage = (error, response) => {
   if (error.message === VERSION_COMPATIBILITY_ERRORS.LOW) {
     const minVersion = response.headers.get('X-Min-Client-Version');
-    return `Please upgrade to Tamanu LAN Server v${minVersion} or higher.`;
+    return `Please upgrade to Tamanu Facility Server v${minVersion} or higher.`;
   }
 
   if (error.message === VERSION_COMPATIBILITY_ERRORS.HIGH) {
     const maxVersion = response.headers.get('X-Max-Client-Version');
-    return `The Tamanu Sync Server only supports up to v${maxVersion} of the LAN Server, and needs to be upgraded. Please contact your system administrator.`;
+    return `The Tamanu Sync Server only supports up to v${maxVersion} of the Facility Server, and needs to be upgraded. Please contact your system administrator.`;
   }
 
   return null;

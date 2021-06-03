@@ -32,6 +32,7 @@ const REPORT_TYPE_OPTIONS = [
   { label: 'COVID vaccine campaign - Second dose summary', value: 'covid-vaccine-summary-dose2' },
   { label: 'Adverse Event Following Immunization', value: 'aefi' },
   { label: 'Samoa Adverse Event Following Immunisation', value: 'samoa-aefi' },
+  { label: 'Number of patients registered by date', value: 'number-patients-registered-by-date' },
 ];
 
 const Spacer = styled.div`
@@ -115,11 +116,13 @@ const ParametersByReportType = {
   'covid-vaccine-summary-dose2': [],
   aefi: [{ ParameterField: VillageField }],
   'samoa-aefi': [{ ParameterField: VillageField }],
+  'number-patients-registered-by-date': [],
 };
 
 const DefaultDataSource = {
   'covid-vaccine-summary-dose1': 'allFacilities',
   'covid-vaccine-summary-dose2': 'allFacilities',
+  'number-patients-registered-by-date': 'allFacilities',
 };
 
 // adding an onValueChange hook to the report type field

@@ -1,12 +1,15 @@
 import React from 'react';
 
+import { useLocalisation } from '../contexts/Localisation';
+import { connectApi } from '../api';
+import { Suggester } from '../utils/suggester';
 import { FormGrid } from '../components/FormGrid';
 import { ButtonRow } from '../components/ButtonRow';
 import { Button } from '../components/Button';
 
 import {
   Form,
-  Field,
+  LocalisedField,
   DateField,
   AutocompleteField,
   TextField,
@@ -23,180 +26,145 @@ import {
   educationalAttainmentOptions,
 } from '../constants';
 
-export const PrimaryDetailsGroup = ({ villageSuggester }) => (
-  <React.Fragment>
-    <Field name="firstName" label="First name" component={TextField} required />
-    <Field name="middleName" label="Middle name" component={TextField} />
-    <Field name="lastName" label="Last name" component={TextField} required />
-    <Field name="culturalName" label="Cultural/Traditional name" component={TextField} />
-    <Field name="dateOfBirth" label="Date of birth" component={DateField} required />
-    <Field
-      name="villageId"
-      label="Village"
-      component={AutocompleteField}
-      suggester={villageSuggester}
-    />
-    <Field name="sex" label="Sex" component={RadioField} options={sexOptions} inline required />
-  </React.Fragment>
-);
+const DumbPrimaryDetailsGroup = ({ villageSuggester }) => {
+  const { getLocalisation } = useLocalisation();
+  let filteredSexOptions = sexOptions;
+  if (getLocalisation('features.hideOtherSex') === true) {
+    filteredSexOptions = filteredSexOptions.filter(s => s.value !== 'other');
+  }
 
-export const SecondaryDetailsGroup = ({
+  return (
+    <React.Fragment>
+      <LocalisedField name="firstName" component={TextField} required />
+      <LocalisedField name="middleName" component={TextField} />
+      <LocalisedField name="lastName" component={TextField} required />
+      <LocalisedField name="culturalName" component={TextField} />
+      <LocalisedField name="dateOfBirth" component={DateField} required />
+      <LocalisedField name="villageId" component={AutocompleteField} suggester={villageSuggester} />
+      <LocalisedField
+        name="sex"
+        component={RadioField}
+        options={filteredSexOptions}
+        inline
+        required
+      />
+    </React.Fragment>
+  );
+};
+
+export const PrimaryDetailsGroup = connectApi(api => ({
+  villageSuggester: new Suggester(api, 'village'),
+}))(DumbPrimaryDetailsGroup);
+
+const DumbSecondaryDetailsGroup = ({
   medicalAreaSuggester,
   nursingZoneSuggester,
   settlementSuggester,
   occupationSuggester,
   ethnicitySuggester,
   nationalitySuggester,
+  countrySuggester,
   divisionSuggester,
   subdivisionSuggester,
+  religionSuggester,
+  patientBillingTypeSuggester,
 }) => (
   <React.Fragment>
-    <Field name="bloodType" label="Blood type" component={SelectField} options={bloodOptions} />
-    <Field name="title" label="Title" component={SelectField} options={titleOptions} />
-    <Field name="placeOfBirth" label="Place of birth" component={TextField} />
-    <Field
-      name="maritalStatus"
-      label="Marital Status"
-      component={SelectField}
-      options={maritalStatusOptions}
+    <LocalisedField name="birthCertificate" component={TextField} />
+    <LocalisedField name="drivingLicense" component={TextField} />
+    <LocalisedField name="passport" component={TextField} />
+    <LocalisedField name="bloodType" component={SelectField} options={bloodOptions} />
+    <LocalisedField name="title" component={SelectField} options={titleOptions} />
+    <LocalisedField name="placeOfBirth" component={TextField} />
+    <LocalisedField
+      name="countryOfBirthId"
+      component={AutocompleteField}
+      suggester={countrySuggester}
     />
-    <Field
-      name="primaryContactNumber"
-      label="Primary Contact Number"
-      component={TextField}
-      type="tel"
-    />
-    <Field
-      name="secondaryContactNumber"
-      label="Secondary Contact Number"
-      component={TextField}
-      type="tel"
-    />
-    <Field
-      name="socialMedia"
-      label="Social media platform"
-      component={SelectField}
-      options={socialMediaOptions}
-    />
-    <Field
+    <LocalisedField name="maritalStatus" component={SelectField} options={maritalStatusOptions} />
+    <LocalisedField name="primaryContactNumber" component={TextField} type="tel" />
+    <LocalisedField name="secondaryContactNumber" component={TextField} type="tel" />
+    <LocalisedField name="socialMedia" component={SelectField} options={socialMediaOptions} />
+    <LocalisedField
       name="settlementId"
-      label="Settlement"
       component={AutocompleteField}
       suggester={settlementSuggester}
     />
-    <Field name="streetVillage" label="Residential Landmark" component={TextField} />
-    <Field name="cityTown" label="City/Town" component={TextField} />
-    <Field
+    <LocalisedField name="streetVillage" component={TextField} />
+    <LocalisedField name="cityTown" component={TextField} />
+    <LocalisedField
       name="subdivisionId"
-      label="Sub Division"
       component={AutocompleteField}
       suggester={subdivisionSuggester}
     />
-    <Field
-      name="divisionId"
-      label="Division"
-      component={AutocompleteField}
-      suggester={divisionSuggester}
-    />
-    <Field
-      name="countryId"
-      label="Country"
-      component={AutocompleteField}
-      suggester={nationalitySuggester}
-    />
-    <Field
+    <LocalisedField name="divisionId" component={AutocompleteField} suggester={divisionSuggester} />
+    <LocalisedField name="countryId" component={AutocompleteField} suggester={countrySuggester} />
+    <LocalisedField
       name="medicalAreaId"
-      label="Medical Area"
       component={AutocompleteField}
       suggester={medicalAreaSuggester}
     />
-    <Field
+    <LocalisedField
       name="nursingZoneId"
-      label="Nursing Zone"
       component={AutocompleteField}
       suggester={nursingZoneSuggester}
     />
-    <Field
+    <LocalisedField
       name="nationalityId"
-      label="Nationality"
       component={AutocompleteField}
       suggester={nationalitySuggester}
     />
-    <Field
+    <LocalisedField
       name="ethnicityId"
-      label="Ethnicity"
       component={AutocompleteField}
       suggester={ethnicitySuggester}
     />
-    <Field
+    <LocalisedField
       name="occupationId"
-      label="Occupation"
       component={AutocompleteField}
       suggester={occupationSuggester}
     />
-    <Field
+    <LocalisedField
       name="educationalLevel"
-      label="Educational Attainment"
       component={SelectField}
       options={educationalAttainmentOptions}
+    />
+    <LocalisedField name="religionId" component={AutocompleteField} suggester={religionSuggester} />
+    <LocalisedField
+      name="patientBillingTypeId"
+      component={AutocompleteField}
+      suggester={patientBillingTypeSuggester}
     />
   </React.Fragment>
 );
 
-export const PatientDetailsForm = ({
-  patientSuggester,
-  facilitySuggester,
-  villageSuggester,
-  ethnicitySuggester,
-  nationalitySuggester,
-  divisionSuggester,
-  subdivisionSuggester,
-  medicalAreaSuggester,
-  nursingZoneSuggester,
-  settlementSuggester,
-  occupationSuggester,
-  patient,
-  onSubmit,
-}) => {
-  const render = React.useCallback(
-    ({ submitForm }) => (
-      <FormGrid>
-        <PrimaryDetailsGroup
-          villageSuggester={villageSuggester}
-          ethnicitySuggester={ethnicitySuggester}
-          nationalitySuggester={nationalitySuggester}
-          divisionSuggester={divisionSuggester}
-          subdivisionSuggester={subdivisionSuggester}
-        />
-        <SecondaryDetailsGroup
-          patientSuggester={patientSuggester}
-          facilitySuggester={facilitySuggester}
-          medicalAreaSuggester={medicalAreaSuggester}
-          nursingZoneSuggester={nursingZoneSuggester}
-          settlementSuggester={settlementSuggester}
-          occupationSuggester={occupationSuggester}
-        />
-        <ButtonRow>
-          <Button variant="contained" color="primary" onClick={submitForm}>
-            Save
-          </Button>
-        </ButtonRow>
-      </FormGrid>
-    ),
-    [
-      villageSuggester,
-      ethnicitySuggester,
-      nationalitySuggester,
-      patientSuggester,
-      facilitySuggester,
-      divisionSuggester,
-      subdivisionSuggester,
-      medicalAreaSuggester,
-      nursingZoneSuggester,
-      settlementSuggester,
-      occupationSuggester,
-    ],
-  );
+export const SecondaryDetailsGroup = connectApi(api => ({
+  countrySuggester: new Suggester(api, 'country'),
+  divisionSuggester: new Suggester(api, 'division'),
+  ethnicitySuggester: new Suggester(api, 'ethnicity'),
+  facilitySuggester: new Suggester(api, 'facility'),
+  medicalAreaSuggester: new Suggester(api, 'medicalArea'),
+  nationalitySuggester: new Suggester(api, 'nationality'),
+  nursingZoneSuggester: new Suggester(api, 'nursingZone'),
+  occupationSuggester: new Suggester(api, 'occupation'),
+  settlementSuggester: new Suggester(api, 'settlement'),
+  subdivisionSuggester: new Suggester(api, 'subdivision'),
+  religionSuggester: new Suggester(api, 'religion'),
+  patientBillingTypeSuggester: new Suggester(api, 'patientBillingType'),
+}))(DumbSecondaryDetailsGroup);
+
+export const PatientDetailsForm = ({ patient, onSubmit }) => {
+  const render = React.useCallback(({ submitForm }) => (
+    <FormGrid>
+      <PrimaryDetailsGroup />
+      <SecondaryDetailsGroup />
+      <ButtonRow>
+        <Button variant="contained" color="primary" onClick={submitForm}>
+          Save
+        </Button>
+      </ButtonRow>
+    </FormGrid>
+  ));
 
   return (
     <Form

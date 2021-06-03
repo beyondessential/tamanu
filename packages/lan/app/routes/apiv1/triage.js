@@ -12,7 +12,30 @@ export const triage = express.Router();
 
 triage.get('/:id', simpleGet('Triage'));
 triage.put('/:id', simplePut('Triage'));
-triage.post('/$', simplePost('Triage'));
+
+triage.post(
+  '/$',
+  asyncHandler(async (req, res) => {
+    const { models } = req;
+    const { vitals } = req.body;
+
+    req.checkPermission('create', 'Triage');
+    if (vitals) {
+      req.checkPermission('create', 'Vitals');
+    }
+
+    const triageRecord = await models.Triage.create(req.body);
+
+    if (vitals) {
+      await models.Vitals.create({
+        ...vitals,
+        encounterId: triageRecord.encounterId,
+      });
+    }
+
+    res.send(triageRecord);
+  }),
+);
 
 const sortKeys = {
   score: 'score',

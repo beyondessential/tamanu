@@ -9,7 +9,7 @@ import {
   MultiselectField,
   DateField,
   NullableBooleanField,
-  AutocompleteField,
+  SurveyQuestionAutocomplete,
   NumberField,
   ReadOnlyTextField,
   UnsupportedPhotoField,
@@ -28,7 +28,7 @@ const QUESTION_COMPONENTS = {
   [PROGRAM_DATA_ELEMENT_TYPES.RADIO]: SelectField, // TODO: Implement proper radio field?
   [PROGRAM_DATA_ELEMENT_TYPES.SELECT]: SelectField,
   [PROGRAM_DATA_ELEMENT_TYPES.MULTI_SELECT]: MultiselectField,
-  [PROGRAM_DATA_ELEMENT_TYPES.AUTOCOMPLETE]: AutocompleteField,
+  [PROGRAM_DATA_ELEMENT_TYPES.AUTOCOMPLETE]: SurveyQuestionAutocomplete,
   [PROGRAM_DATA_ELEMENT_TYPES.DATE]: DateField,
   [PROGRAM_DATA_ELEMENT_TYPES.SUBMISSION_DATE]: DateField,
   [PROGRAM_DATA_ELEMENT_TYPES.NUMBER]: NumberField,
@@ -179,7 +179,7 @@ function getInitialValue(dataElement) {
   }
 }
 
-function getConfigObject(componentId, configString) {
+export function getConfigObject(componentId, configString) {
   if (!configString) return {};
 
   try {

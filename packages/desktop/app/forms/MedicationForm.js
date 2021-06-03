@@ -52,6 +52,10 @@ export const MedicationForm = React.memo(
         date: yup.date().required(),
         endDate: yup.date(),
         note: yup.string(),
+        quantity: yup
+          .number()
+          .integer()
+          .positive(),
       })}
       render={({ submitForm }) => (
         <FormGrid>
@@ -90,6 +94,7 @@ export const MedicationForm = React.memo(
             <Field name="qtyNight" label="Night" component={NumberField} />
           </FormGrid>
           <Field name="indication" label="Indication" component={TextField} />
+          <Field name="quantity" label="Discharge Quantity" component={NumberField} />
           <ConfirmCancelRow onConfirm={submitForm} onCancel={onCancel} />
         </FormGrid>
       )}

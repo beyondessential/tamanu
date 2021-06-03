@@ -34,7 +34,6 @@
     "files.exclude": {
       "packages/": true
     },
-    "editor.formatOnSave": true,
-    "editor.formatOnSaveMode": "modifications"
+    "editor.formatOnSave": false
   }
 }

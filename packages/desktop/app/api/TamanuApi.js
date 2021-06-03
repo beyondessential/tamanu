@@ -78,12 +78,12 @@ export class TamanuApi {
   async login(host, email, password) {
     this.setHost(host);
     const response = await this.post('login', { email, password });
-    const { token, featureFlags } = response;
+    const { token, localisation } = response;
     this.setToken(token);
     this.lastRefreshed = Date.now();
 
     const user = await this.get('user/me');
-    return { user, token, featureFlags };
+    return { user, token, localisation };
   }
 
   async refreshToken() {

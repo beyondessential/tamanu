@@ -1,6 +1,6 @@
 import React, { useEffect, useState } from 'react';
 import styled from 'styled-components';
-
+import { useLocalisation } from '../contexts/Localisation';
 import { connectApi } from '../api/connectApi';
 
 const Header = styled.div`
@@ -20,23 +20,22 @@ const HeaderText = styled.div`
 `;
 
 const DumbPrintLetterhead = ({ getLetterheadSettings }) => {
-  const [letterheadLogo, setLetterheadLogo] = useState();
-  const [letterheadTitle, setLetterheadTitle] = useState();
-  const [letterheadSubtitle, setLetterheadSubtitle] = useState();
+  const { getLocalisation } = useLocalisation();
+  const [letterheadLogo, setLetterheadLogo] = useState('');
+  const [logoType, setLogoType] = useState('');
   useEffect(() => {
     getLetterheadSettings().then(response => {
-      setLetterheadLogo(response['letterhead-logo']);
-      setLetterheadTitle(response['letterhead-title']);
-      setLetterheadSubtitle(response['letterhead-subtitle']);
+      setLetterheadLogo(Buffer.from(response.data).toString('base64'));
+      setLogoType(response.type);
     });
   }, []);
   return (
     <Header>
-      <LogoImage src={letterheadLogo} />
+      {letterheadLogo && <LogoImage src={`data:${logoType};base64,${letterheadLogo}`} />}
       <HeaderText>
-        <h3>{letterheadTitle}</h3>
+        <h3>{getLocalisation('templates.letterhead.title')}</h3>
         <p>
-          <strong>{letterheadSubtitle}</strong>
+          <strong>{getLocalisation('templates.letterhead.subTitle')}</strong>
         </p>
       </HeaderText>
     </Header>
@@ -45,6 +44,6 @@ const DumbPrintLetterhead = ({ getLetterheadSettings }) => {
 
 export const PrintLetterhead = connectApi(api => ({
   async getLetterheadSettings() {
-    return await api.get('setting?names=letterhead-logo,letterhead-title,letterhead-subtitle');
+    return api.get('asset/letterhead-logo');
   },
 }))(DumbPrintLetterhead);
