@@ -107,14 +107,22 @@ export class WebRemote {
     }
 
     if (!response.ok) {
-      const { error } = await getResponseJsonSafely(response);
+      const responseBody = await getResponseJsonSafely(response);
+      const { error } = responseBody;
 
       // handle version incompatibility
       if (response.status === 400 && error) {
         const versionIncompatibleMessage = getVersionIncompatibleMessage(error, response);
         if (versionIncompatibleMessage) throw new InvalidOperationError(versionIncompatibleMessage);
       }
-      throw new InvalidOperationError(`Server responded with status code ${response.status}`);
+
+      const err = new InvalidOperationError(`Server responded with status code ${response.status}`);
+      // attach status and body from response
+      err.remoteResponse = {
+        status: response.status,
+        body: responseBody,
+      };
+      throw err;
     }
 
     return response.json();
@@ -191,5 +199,27 @@ export class WebRemote {
 
   async whoami() {
     return this.fetch('whoami');
+  }
+
+  async forwardRequest(req, endpoint) {
+    try {
+      const response = await this.fetch(endpoint, {
+        method: req.method,
+        body: req.body,
+      });
+
+      return response;
+    } catch (err) {
+      if (err.remoteResponse) {
+        // pass sync server response back
+        const remoteErrorMsg = err.remoteResponse.body.error?.message;
+        const passThroughError = new Error(remoteErrorMsg ?? err);
+        passThroughError.status = err.remoteResponse.status;
+        throw passThroughError;
+      } else {
+        // fallback
+        throw new Error(`Sync server error: ${err}`);
+      }
+    }
   }
 }
