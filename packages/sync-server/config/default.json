@@ -69,6 +69,14 @@
           "shortLabel": "DOB",
           "longLabel": "Date of birth"
         },
+        "dateOfBirthFrom": {
+          "shortLabel": "DOB from",
+          "longLabel": "Date of birth from"
+        },
+        "dateOfBirthTo": {
+          "shortLabel": "DOB to",
+          "longLabel": "Date of birth to"
+        },
         "bloodType": {
           "shortLabel": "Blood type",
           "longLabel": "Blood type",
