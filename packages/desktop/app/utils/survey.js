@@ -49,7 +49,6 @@ const QUESTION_COMPONENTS = {
 
 export function getComponentForQuestionType(type) {
   const component = QUESTION_COMPONENTS[type];
-  console.log()
   if (component === undefined) {
     return LimitedTextField;
   }

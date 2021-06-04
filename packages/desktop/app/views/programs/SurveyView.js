@@ -55,7 +55,6 @@ const StyledButtonRow = styled(ButtonRow)`
 `;
 
 const SurveyScreen = ({ components, values, onStepForward, onStepBack }) => {
-  console.log(components, values);
   const questionElements = components
     .filter(c => checkVisibility(c, values, components))
     .map(c => <SurveyQuestion component={c} key={c.id} />);
@@ -99,7 +98,6 @@ const SurveySummaryScreen = ({ onStepBack, onSurveyComplete }) => (
 
 const SurveyScreenPaginator = ({ survey, values, onSurveyComplete, onCancel, setFieldValue }) => {
   const { components } = survey;
-  console.log({ survey });
   const [screenIndex, setScreenIndex] = useState(0);
 
   useEffect(() => {
