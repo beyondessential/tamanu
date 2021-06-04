@@ -11,10 +11,9 @@ const Text = styled.p`
   align-self: flex-end;
 `;
 
-export const PatientIssueCreater = ({ value, name, config, onChange, createIssue }) => {
-  console.log({ value, name, config, onChange });
+export const PatientIssueCreater = ({ config, createIssue }) => {
   React.useEffect(() => {
-    (async () => createIssue({ type: 'warning', note: 'This is a test issue' }))();
+    (async () => createIssue({ type: config.issueType, note: config.issueNote || }))();
   }, [])
 
   return (
