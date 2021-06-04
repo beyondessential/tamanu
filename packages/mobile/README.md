@@ -2,6 +2,12 @@
 
 This is the Tamanu App Repository.
 
+| Package | Runbook | Description |
+| ------- | ------- | ----------- |
+| [mobile](https://github.com/beyondessential/tamanu-mobile/) | [mobile runbook](https://beyond-essential.slab.com/posts/todo-tamanu-mobile-runbook-8vj8qceu) | The mobile app |
+
+The rest of the Tamanu system is in [a separate monorepo](https://github.com/beyondessential/tamanu).
+
 - [install](#Install)
   - [Installing dependencies](#Installing-dependencies)
   - [Making Project runnable](#making-Project-runnable)

@@ -2,7 +2,7 @@ import React, { ReactElement } from 'react';
 import { RowView, StyledView, StyledText, CenterView } from '/styled/common';
 import { theme } from '/styled/theme';
 import { screenPercentageToDP, Orientation } from '/helpers/screen';
-import { ConfigurableText } from '~/ui/components/ConfigurableText';
+import { LocalisedText } from '~/ui/components/LocalisedText';
 
 export const HealthIdentificationRow = ({
   patientId,
@@ -21,7 +21,7 @@ export const HealthIdentificationRow = ({
         fontWeight="bold"
         color={theme.colors.SECONDARY_MAIN}
       >
-        <ConfigurableText flag="patientFieldOverrides.displayId.longLabel" />
+        <LocalisedText path="fields.displayId.longLabel" />
       </StyledText>
     </StyledView>
     <CenterView

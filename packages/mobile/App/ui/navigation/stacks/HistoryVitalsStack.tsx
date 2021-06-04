@@ -4,25 +4,24 @@ import { createStackNavigator } from '@react-navigation/stack';
 import { Routes } from '/helpers/routes';
 import {
   FullView,
-  RowView,
-  StyledTouchableOpacity,
-  StyledSafeAreaView,
-  StyledText,
 } from '/styled/common';
-import { ArrowLeftIcon, KebabIcon } from '/components/Icons';
+import { compose } from 'redux';
 import { HistoryVitalsTabs } from './HistoryVitalsTabs';
-import { theme } from '/styled/theme';
-import { screenPercentageToDP, Orientation } from '/helpers/screen';
-import { ErrorBoundary } from '~/ui/components/ErrorBoundary';
+import { ErrorBoundary } from '/components/ErrorBoundary';
+import { BaseAppProps } from '/interfaces/BaseAppProps';
+import { withPatient } from '~/ui/containers/Patient';
+import { StackHeader } from '~/ui/components/StackHeader';
+import { joinNames } from '~/ui/helpers/user';
 
 const Stack = createStackNavigator();
 
-interface HistoryVitalsStackProps {
+interface HistoryVitalsStackProps extends BaseAppProps{
   navigation: NavigationProp<any>;
 }
 
-export const HistoryVitalsStack = ({
+const TabNavigator = ({
   navigation,
+  selectedPatient,
 }: HistoryVitalsStackProps): ReactElement => {
   const goBack = useCallback(() => {
     navigation.goBack();
@@ -34,37 +33,12 @@ export const HistoryVitalsStack = ({
   return (
     <ErrorBoundary>
       <FullView>
-        <StyledSafeAreaView
-          background={theme.colors.PRIMARY_MAIN}
-          height={screenPercentageToDP(19.87, Orientation.Height)}
-        >
-          <RowView justifyContent="space-between">
-            <StyledTouchableOpacity
-              padding={screenPercentageToDP(2.43, Orientation.Height)}
-              onPress={goBack}
-            >
-              <ArrowLeftIcon
-                height={screenPercentageToDP(2.43, Orientation.Height)}
-                width={screenPercentageToDP(2.43, Orientation.Height)}
-              />
-            </StyledTouchableOpacity>
-            <StyledTouchableOpacity
-              padding={screenPercentageToDP(2.43, Orientation.Height)}
-              onPress={navigateToPatientActions}
-            >
-              <KebabIcon />
-            </StyledTouchableOpacity>
-          </RowView>
-          <StyledText
-            marginBottom={screenPercentageToDP(3.64, Orientation.Height)}
-            marginLeft={screenPercentageToDP(2.43, Orientation.Height)}
-            fontWeight="bold"
-            fontSize={screenPercentageToDP(3.4, Orientation.Height)}
-            color={theme.colors.WHITE}
-          >
-            History
-          </StyledText>
-        </StyledSafeAreaView>
+        <StackHeader
+          title="History"
+          subtitle={joinNames(selectedPatient)}
+          onGoBack={goBack}
+          onRightSideIconTap={navigateToPatientActions}
+        />
         <Stack.Navigator headerMode="none">
           <Stack.Screen
             name={Routes.HomeStack.HistoryVitalsStack.Index}
@@ -75,3 +49,5 @@ export const HistoryVitalsStack = ({
     </ErrorBoundary>
   );
 };
+
+export const HistoryVitalsStack = compose(withPatient)(TabNavigator);

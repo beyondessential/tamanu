@@ -46,6 +46,8 @@ export class AdministeredVaccine extends BaseModel implements IAdministeredVacci
     return this.getRepository()
       .createQueryBuilder('administered_vaccine')
       .leftJoinAndSelect('administered_vaccine.encounter', 'encounter')
+      .leftJoinAndSelect('encounter.location', 'location')
+      .leftJoinAndSelect('encounter.examiner', 'examiner')
       .leftJoinAndSelect('administered_vaccine.scheduledVaccine', 'scheduledVaccine')
       .leftJoinAndSelect('scheduledVaccine.vaccine', 'vaccine')
       .where('encounter.patient.id = :patient', { patient: patientId })
