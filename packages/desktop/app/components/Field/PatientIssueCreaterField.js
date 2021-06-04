@@ -11,7 +11,7 @@ const Text = styled.p`
   align-self: flex-end;
 `;
 
-export const PatientIssueCreater = ({ config, createIssue }) => {
+export const PatientIssueCreator = ({ config, createIssue }) => {
   React.useEffect(() => {
     (async () => createIssue({ type: config.issueType, note: config.issueNote || }))();
   }, [])
@@ -21,8 +21,8 @@ export const PatientIssueCreater = ({ config, createIssue }) => {
   );
 };
 
-export const DumbPatientIssueCreaterField = props => (
-  <PatientIssueCreater
+export const DumbPatientIssueCreatorField = props => (
+  <PatientIssueCreator
     name={props.field.name}
     value={props.field.value}
     config={props.field.config}
@@ -31,16 +31,16 @@ export const DumbPatientIssueCreaterField = props => (
   />
 );
 
-export const PatientIssueCreaterField = connect(state => ({
+export const PatientIssueCreatorField = connect(state => ({
   patient: state.patient,
 }))(connectApi((api, dispatch, { patient }) => ({
   createIssue: async data => {
     console.log('Adding issue: ', { ...data, patientId: patient.id })
     await api.post(`patientIssue`, { ...data, patientId: patient.id });
   },
-}))(DumbPatientIssueCreaterField));
+}))(DumbPatientIssueCreatorField));
 
-PatientIssueCreater.propTypes = {
+PatientIssueCreator.propTypes = {
   name: PropTypes.string,
   value: PropTypes.string,
   onChange: PropTypes.func,
@@ -49,7 +49,7 @@ PatientIssueCreater.propTypes = {
   })
 };
 
-PatientIssueCreater.defaultProps = {
+PatientIssueCreator.defaultProps = {
   name: undefined,
   value: undefined,
   onChange: undefined,
