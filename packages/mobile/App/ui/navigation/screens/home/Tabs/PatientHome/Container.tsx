@@ -25,7 +25,6 @@ const showPopupChain = (popups : IPopup[]) => {
   if(popups.length === 0) return;
   const [currentPopup, ...restOfChain] = popups;
   const { title, textBody } = currentPopup;
-  console.log('popping', { title, textBody });
 
   Popup.show({
       type: 'Warning',
@@ -145,16 +144,9 @@ const PatientHomeContainer = ({
   setStatusBar('light-content', theme.colors.PRIMARY_MAIN);
 
   if (errorMessage) return <ErrorScreen error={errorMessage} />;
-  const patientIssues2 = [
-    { note: 'hi', type: 'warning' },
-    { note: 'hi2', type: 'issue' },
-    { note: 'hi3', type: 'warning' },
-    { note: 'hi4: Hey', type: 'warning' },
-    { note: 'hi4: Hey : ho', type: 'warning' },
-  ]
-  console.log(patientIssues, issuesError);
+
   useEffect(() => {
-    showPatientWarningPopups(patientIssues2);
+    showPatientWarningPopups(patientIssues || []);
   }, [patientIssues?.length ?? 0, selectedPatient.id]);
 
   return (
