@@ -5,7 +5,7 @@ import { Field } from '../FormField';
 import { Button } from '../../Button';
 import { screenPercentageToDP, Orientation } from '/helpers/screen';
 import { TextField } from '../../TextField/TextField';
-import { ServerSelector } from './ServerSelector';
+import { ServerSelector } from '../../ServerSelectorField/ServerSelector';
 
 type SignInFieldsProps = {
   handleSubmit: (value: any) => void;
