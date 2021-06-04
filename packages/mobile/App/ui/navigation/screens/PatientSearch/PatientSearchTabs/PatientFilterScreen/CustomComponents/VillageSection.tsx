@@ -7,6 +7,7 @@ import { StyledView } from '~/ui/styled/common';
 import { LocalisedField } from '~/ui/components/Forms/LocalisedField';
 import { AutocompleteModalField } from '~/ui/components/AutocompleteModal/AutocompleteModalField';
 // Helpers
+import { useLocalisation } from '~/ui/contexts/LocalisationContext';
 import { screenPercentageToDP, Orientation } from '~/ui/helpers/screen';
 import { Routes } from '~/ui/helpers/routes';
 import { ReferenceDataType } from '~/types';
@@ -16,6 +17,7 @@ import { useBackend } from '~/ui/hooks';
 export const VillageSection = (): ReactElement => {
   const navigation = useNavigation();
   const { models } = useBackend();
+  const { getString } = useLocalisation();
 
   const villageSuggester = new Suggester(
     models.ReferenceData, // ReferenceData clearly inherits from a class which has id, plus it implements an interface with id...
@@ -36,7 +38,7 @@ export const VillageSection = (): ReactElement => {
         <LocalisedField
           defaultLabel="Village"
           component={AutocompleteModalField}
-          placeholder="Search villages"
+          placeholder={`Search for ${getString('fields.villageId.longLabel', 'Village')}`}
           navigation={navigation}
           suggester={villageSuggester}
           modalRoute={Routes.Autocomplete.Modal}
