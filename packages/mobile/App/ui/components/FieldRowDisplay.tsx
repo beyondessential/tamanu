@@ -30,11 +30,11 @@ export const FieldRowDisplay = ({
       )}
       {rows.map(row => (
         <RowView key={row.map(([name]) => name).join(',')} marginTop={20}>
-          {row.map(([name, defaultTitle, info]) => (
+          {row.map(([name, info]) => (
             <InformationBox
               key={name}
               flex={1}
-              title={getString(`fields.${name}.longLabel`, defaultTitle)}
+              title={getString(`fields.${name}.longLabel`)}
               info={info}
             />
           ))}
