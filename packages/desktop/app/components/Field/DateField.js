@@ -37,12 +37,18 @@ const CalendarIcon = styled(CalendarToday)`
   color: #cccccc;
 `;
 
+const DatePlaceholder = styled.div`
+  font-size: 11pt;
+  color: #8e8e8e;
+`;
+
 export const DateInput = ({
   type = 'date',
   value,
   format = 'YYYY-MM-DD',
   onChange,
   name,
+  placeholder,
   ...props
 }) => {
   const [currentText, setCurrentText] = React.useState(fromRFC3339(value, format));
@@ -79,7 +85,7 @@ export const DateInput = ({
       InputProps={{
         startAdornment: (
           <InputAdornment position="start">
-            <CalendarIcon />
+            {placeholder ? <DatePlaceholder>{placeholder}</DatePlaceholder> : <CalendarIcon />}
           </InputAdornment>
         ),
       }}
