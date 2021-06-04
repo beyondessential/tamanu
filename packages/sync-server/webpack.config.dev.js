@@ -13,6 +13,7 @@ module.exports = {
       delay: 500,
       watch: [
         './dist',
+        './config',
         '../shared',
       ],
     }),

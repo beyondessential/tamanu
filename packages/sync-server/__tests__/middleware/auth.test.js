@@ -61,10 +61,9 @@ describe('Auth', () => {
       });
 
       expect(response).toHaveSucceeded();
-      expect(response.body).toHaveProperty('featureFlags.patientFieldOverrides.displayId', {
+      expect(response.body).toHaveProperty('localisation.fields.displayId', {
         shortLabel: 'NHN',
         longLabel: 'National Health Number',
-        hidden: false,
       });
     });
 
@@ -118,6 +117,7 @@ describe('Auth', () => {
           displayName: DISPLAY_NAME,
           role: 'practitioner',
         },
+        localisation: expect.any(Object),
         featureFlags: expect.any(Object),
       });
     });

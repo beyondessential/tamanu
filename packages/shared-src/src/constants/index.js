@@ -116,12 +116,22 @@ export const REFERENCE_TYPES = {
   CARE_PLAN: 'carePlan',
   ETHNICITY: 'ethnicity',
   NATIONALITY: 'nationality',
+  COUNTRY: 'country',
   DIVISION: 'division',
   SUBDIVISION: 'subdivision',
   MEDICAL_AREA: 'medicalArea',
   NURSING_ZONE: 'nursingZone',
   SETTLEMENT: 'settlement',
   OCCUPATION: 'occupation',
+  SEX: 'sex',
+  PLACE_OF_BIRTH: 'placeOfBirth',
+  MARITAL_STATUS: 'maritalStatus',
+  RELIGION: 'religion',
+  FAMILY_RELATION: 'familyRelation',
+  PATIENT_TYPE: 'patientType',
+  BLOOD_TYPE: 'bloodType',
+  SOCIAL_MEDIA_PLATFORM: 'socialMediaPlatform',
+  PATIENT_BILLING_TYPE: 'patientBillingType',
 };
 
 export const REFERENCE_TYPE_VALUES = Object.values(REFERENCE_TYPES);

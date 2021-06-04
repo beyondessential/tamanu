@@ -1,14 +1,17 @@
-import React, { memo, useCallback } from 'react';
+import React, { memo, useMemo, useCallback } from 'react';
 import styled from 'styled-components';
 import FingerprintIcon from '@material-ui/icons/Fingerprint';
 import SearchIcon from '@material-ui/icons/Search';
+import InputAdornment from '@material-ui/core/InputAdornment';
 
+import { useLocalisation } from '../../../contexts/Localisation';
 import {
   ConfigurableText,
   Button,
   Form,
   Field,
   TextField,
+  DateField,
   AutocompleteField,
 } from '../../../components';
 import { Colors } from '../../../constants';
@@ -56,7 +59,8 @@ const SectionLabel = styled.div`
 
 const SearchInputContainer = styled.div`
   display: grid;
-  grid-template-columns: 2fr 2fr 2.5fr 2fr 2fr 1.5fr;
+  grid-template-columns: repeat(4, 2fr);
+  grid-row-gap: 10px;
 
   .MuiInputBase-input {
     padding-top: 16px;
@@ -68,20 +72,23 @@ const SearchInputContainer = styled.div`
     border-right: none;
   }
 
-  > :first-child {
+  > :first-child,
+  > :nth-child(5n) {
     fieldset {
       border-radius: 4px 0 0 4px;
     }
   }
 
-  button {
-    border-radius: 0;
-  }
-
-  :last-child {
-    button {
+  > :nth-child(4n),
+  > :last-child {
+    fieldset {
+      border-right: 1px solid ${Colors.outline};
       border-radius: 0 4px 4px 0;
     }
+  }
+
+  button {
+    border-radius: 0;
   }
 `;
 
@@ -97,7 +104,7 @@ const RightSection = styled(Section)`
   border-left: 1px solid ${Colors.outline};
 `;
 
-const DumbPatientSearchBar = memo(({ onSearch, villageSuggester }) => {
+export const CustomisablePatientSearchBar = ({ title, onSearch, fields, ...props }) => {
   // We can't use onSearch directly as formik will call it with an unwanted second param
   const handleSearch = useCallback(
     ({ village = {}, ...other }) => {
@@ -111,41 +118,51 @@ const DumbPatientSearchBar = memo(({ onSearch, villageSuggester }) => {
     [onSearch],
   );
 
+  const { getLocalisation } = useLocalisation();
+
+  const fieldElements = useMemo(
+    () =>
+      fields
+        .map(([key, { suggesterKey, ...fieldProps } = {}]) =>
+          getLocalisation(`fields.${key}.hidden`) === true ? null : (
+            <Field
+              name={key}
+              key={key}
+              placeholder={getLocalisation(`fields.${key}.longLabel`)}
+              component={TextField}
+              suggester={props[suggesterKey]}
+              {...fieldProps}
+            />
+          ),
+        )
+        .filter(c => c),
+    [getLocalisation, fields, props],
+  );
+
   const renderSearchBar = React.useCallback(
     ({ submitForm }) => (
-      <SearchInputContainer>
-        <Field component={TextField} placeholder="First name" name="firstName" />
-        <Field component={TextField} placeholder="Last name" name="lastName" />
-        <Field component={TextField} placeholder="Cultural/Traditional name" name="culturalName" />
-        <Field
-          component={AutocompleteField}
-          suggester={villageSuggester}
-          placeholder="Village"
-          name="villageId"
-        />
-        <Field
-          component={TextField}
-          placeholder={<ConfigurableText flag="patientFieldOverrides.displayId.shortLabel"/>}
-          name="displayId"
-        />
-        <Button color="primary" variant="contained" onClick={submitForm} type="submit">
+      <div>
+        <SearchInputContainer>{fieldElements}</SearchInputContainer>
+        <Button
+          style={{ marginTop: 10 }}
+          color="primary"
+          variant="contained"
+          onClick={submitForm}
+          type="submit"
+        >
           <PaddedSearchIcon />
           Search
         </Button>
-      </SearchInputContainer>
+      </div>
     ),
-    [],
+    [fields],
   );
 
   return (
     <Container>
       <Section>
-        <SectionLabel>Search for patients</SectionLabel>
-        <Form
-          onSubmit={handleSearch}
-          render={renderSearchBar}
-          villageSuggester={villageSuggester}
-        />
+        <SectionLabel>{title}</SectionLabel>
+        <Form onSubmit={handleSearch} render={renderSearchBar} />
       </Section>
       <RightSection>
         <ScanFingerprintButton />
@@ -153,7 +170,23 @@ const DumbPatientSearchBar = memo(({ onSearch, villageSuggester }) => {
       </RightSection>
     </Container>
   );
-});
+};
+
+const DumbPatientSearchBar = props => (
+  <CustomisablePatientSearchBar
+    title="Search for patients"
+    fields={[
+      ['firstName'],
+      ['lastName'],
+      ['culturalName'],
+      ['villageId', { suggesterKey: 'villageSuggester', component: AutocompleteField }],
+      ['displayId'],
+      ['dateOfBirthFrom', { localisationLabel: 'shortLabel', component: DateField }],
+      ['dateOfBirthTo', { localisationLabel: 'shortLabel', component: DateField }],
+    ]}
+    {...props}
+  />
+);
 
 export const PatientSearchBar = connectApi(api => ({
   villageSuggester: new Suggester(api, 'village'),
