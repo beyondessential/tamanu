@@ -26,7 +26,15 @@ const unhideableFieldSchema = yup
   })
   .noUnknown();
 
-const UNHIDEABLE_FIELDS = ['markedForSync', 'displayId', 'firstName', 'lastName', 'dateOfBirth'];
+const UNHIDEABLE_FIELDS = [
+  'markedForSync',
+  'displayId',
+  'firstName',
+  'lastName',
+  'dateOfBirth',
+  'dateOfBirthFrom',
+  'dateOfBirthTo',
+];
 
 const HIDEABLE_FIELDS = [
   'culturalName',
@@ -36,6 +44,7 @@ const HIDEABLE_FIELDS = [
   'bloodType',
   'title',
   'placeOfBirth',
+  'countryOfBirthId',
   'maritalStatus',
   'primaryContactNumber',
   'secondaryContactNumber',
@@ -60,6 +69,16 @@ const HIDEABLE_FIELDS = [
   'patientBillingTypeId',
 ];
 
+const templatesSchema = yup.object({
+  letterhead: yup
+    .object({
+      title: yup.string(),
+      subTitle: yup.string(),
+    })
+    .default({})
+    .noUnknown(),
+});
+
 const fieldsSchema = yup
   .object({
     ...UNHIDEABLE_FIELDS.reduce(
@@ -80,7 +99,13 @@ const fieldsSchema = yup
   .noUnknown();
 
 const rootLocalisationSchema = yup
-  .object({ fields: fieldsSchema })
+  .object({
+    fields: fieldsSchema,
+    templates: templatesSchema,
+    features: {
+      hideOtherSex: yup.boolean().required(),
+    },
+  })
   .required()
   .noUnknown();
 

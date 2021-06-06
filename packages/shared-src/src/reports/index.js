@@ -9,6 +9,7 @@ import {
 } from './covid-vaccine-summary';
 import * as aefi from './aefi';
 import * as samoaAefi from './samoa-aefi';
+import * as numberPatientsRegisteredByDate from './number-patients-registered-by-date';
 
 export function getReportModule(reportType) {
   switch (reportType) {
@@ -36,5 +37,7 @@ export function getReportModule(reportType) {
       return aefi;
     case 'samoa-aefi':
       return samoaAefi;
+    case 'number-patients-registered-by-date':
+      return numberPatientsRegisteredByDate;
   }
 }

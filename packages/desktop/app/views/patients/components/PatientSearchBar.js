@@ -2,6 +2,7 @@ import React, { memo, useMemo, useCallback } from 'react';
 import styled from 'styled-components';
 import FingerprintIcon from '@material-ui/icons/Fingerprint';
 import SearchIcon from '@material-ui/icons/Search';
+import InputAdornment from '@material-ui/core/InputAdornment';
 
 import { useLocalisation } from '../../../contexts/Localisation';
 import {
@@ -10,6 +11,7 @@ import {
   Form,
   Field,
   TextField,
+  DateField,
   AutocompleteField,
 } from '../../../components';
 import { Colors } from '../../../constants';
@@ -57,7 +59,8 @@ const SectionLabel = styled.div`
 
 const SearchInputContainer = styled.div`
   display: grid;
-  grid-template-columns: 2fr 2fr 2.5fr 2fr 2fr 1.5fr;
+  grid-template-columns: repeat(4, 2fr);
+  grid-row-gap: 10px;
 
   .MuiInputBase-input {
     padding-top: 16px;
@@ -69,20 +72,23 @@ const SearchInputContainer = styled.div`
     border-right: none;
   }
 
-  > :first-child {
+  > :first-child,
+  > :nth-child(5n) {
     fieldset {
       border-radius: 4px 0 0 4px;
     }
   }
 
-  button {
-    border-radius: 0;
-  }
-
-  :last-child {
-    button {
+  > :nth-child(4n),
+  > :last-child {
+    fieldset {
+      border-right: 1px solid ${Colors.outline};
       border-radius: 0 4px 4px 0;
     }
+  }
+
+  button {
+    border-radius: 0;
   }
 `;
 
@@ -114,33 +120,40 @@ export const CustomisablePatientSearchBar = ({ title, onSearch, fields, ...props
 
   const { getLocalisation } = useLocalisation();
 
-  const fieldElements = useMemo(() =>
-    fields
-      .map(([key, { suggesterKey, ...fieldProps } = {}]) => (
-        getLocalisation(`fields.${key}.hidden`) === true ? null : (
-          <Field
-            name={key}
-            key={key}
-            placeholder={getLocalisation(`fields.${key}.longLabel`)}
-            component={TextField}
-            suggester={props[suggesterKey]}
-            {...fieldProps}
-          />
+  const fieldElements = useMemo(
+    () =>
+      fields
+        .map(([key, { suggesterKey, ...fieldProps } = {}]) =>
+          getLocalisation(`fields.${key}.hidden`) === true ? null : (
+            <Field
+              name={key}
+              key={key}
+              placeholder={getLocalisation(`fields.${key}.longLabel`)}
+              component={TextField}
+              suggester={props[suggesterKey]}
+              {...fieldProps}
+            />
+          ),
         )
-      ))
-      .filter(c => c),
+        .filter(c => c),
     [getLocalisation, fields, props],
   );
 
   const renderSearchBar = React.useCallback(
     ({ submitForm }) => (
-      <SearchInputContainer>
-        {fieldElements}
-        <Button color="primary" variant="contained" onClick={submitForm} type="submit">
+      <div>
+        <SearchInputContainer>{fieldElements}</SearchInputContainer>
+        <Button
+          style={{ marginTop: 10 }}
+          color="primary"
+          variant="contained"
+          onClick={submitForm}
+          type="submit"
+        >
           <PaddedSearchIcon />
           Search
         </Button>
-      </SearchInputContainer>
+      </div>
     ),
     [fields],
   );
@@ -149,10 +162,7 @@ export const CustomisablePatientSearchBar = ({ title, onSearch, fields, ...props
     <Container>
       <Section>
         <SectionLabel>{title}</SectionLabel>
-        <Form
-          onSubmit={handleSearch}
-          render={renderSearchBar}
-        />
+        <Form onSubmit={handleSearch} render={renderSearchBar} />
       </Section>
       <RightSection>
         <ScanFingerprintButton />
@@ -162,7 +172,7 @@ export const CustomisablePatientSearchBar = ({ title, onSearch, fields, ...props
   );
 };
 
-const DumbPatientSearchBar = (props) => (
+const DumbPatientSearchBar = props => (
   <CustomisablePatientSearchBar
     title="Search for patients"
     fields={[
@@ -171,6 +181,8 @@ const DumbPatientSearchBar = (props) => (
       ['culturalName'],
       ['villageId', { suggesterKey: 'villageSuggester', component: AutocompleteField }],
       ['displayId'],
+      ['dateOfBirthFrom', { localisationLabel: 'shortLabel', component: DateField }],
+      ['dateOfBirthTo', { localisationLabel: 'shortLabel', component: DateField }],
     ]}
     {...props}
   />

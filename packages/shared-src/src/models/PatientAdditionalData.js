@@ -32,10 +32,11 @@ export class PatientAdditionalData extends Model {
       as: 'patient',
     });
 
-    const referenceRelation = name => this.belongsTo(models.ReferenceData, {
-      foreignKey: `${name}Id`,
-      as: name,
-    });
+    const referenceRelation = name =>
+      this.belongsTo(models.ReferenceData, {
+        foreignKey: `${name}Id`,
+        as: name,
+      });
 
     referenceRelation('nationality');
     referenceRelation('country');
@@ -48,6 +49,11 @@ export class PatientAdditionalData extends Model {
     referenceRelation('occupation');
     referenceRelation('religion');
     referenceRelation('patientBillingType');
+    referenceRelation('countryOfBirth');
+  }
+
+  static getFullReferenceAssociations() {
+    return ['countryOfBirth'];
   }
 
   static syncDirection = SYNC_DIRECTIONS.BIDIRECTIONAL;

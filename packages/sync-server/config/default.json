@@ -69,6 +69,14 @@
           "shortLabel": "DOB",
           "longLabel": "Date of birth"
         },
+        "dateOfBirthFrom": {
+          "shortLabel": "DOB from",
+          "longLabel": "Date of birth from"
+        },
+        "dateOfBirthTo": {
+          "shortLabel": "DOB to",
+          "longLabel": "Date of birth to"
+        },
         "bloodType": {
           "shortLabel": "Blood type",
           "longLabel": "Blood type",
@@ -82,6 +90,11 @@
         "placeOfBirth": {
           "shortLabel": "Place of birth",
           "longLabel": "Place of birth",
+          "hidden": false
+        },
+        "countryOfBirthId": {
+          "shortLabel": "Country of birth",
+          "longLabel": "Country of birth",
           "hidden": false
         },
         "maritalStatus": {
@@ -198,6 +211,15 @@
           "shortLabel": "Type",
           "longLabel": "Patient type",
           "hidden": false
+        }
+      },
+      "features": {
+        "hideOtherSex": true
+      },
+      "templates": {
+        "letterhead": {
+          "title": "TAMANU MINISTRY OF HEALTH & MEDICAL SERVICES",
+          "subTitle": "PO Box 12345, Melbourne, Australia"
         }
       }
     }
