@@ -18,7 +18,7 @@ const CERTAINTY_NAMES = Object.entries(Certainty).reduce((acc, [k, v]) => ({ ...
 
 const visitsHistoryRows = {
   labRequest: {
-    name: 'Lab/Test results',
+    name: 'Test results',
     accessor: () => DEFAULT_FIELD_VAL,
   },
   diagnoses: {
