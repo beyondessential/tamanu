@@ -26,6 +26,7 @@ export const AdditionalInfo = ({
     ['ethnicityId', data?.ethnicity?.name],
     ['occupationId', data?.occupation?.name],
     ['educationLevel', data?.educationalLevel],
+    // TODO: add PatientAdditionalData fields here
   ];
 
   return (
