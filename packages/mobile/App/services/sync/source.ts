@@ -145,6 +145,11 @@ export class WebSyncSource implements SyncSource {
       }
     }
 
+    if (response.status === 422) {
+      const { error } = await getResponseJsonSafely(response);
+      throw new Error(error.message);
+    }
+
     if (!response.ok) {
       throw new Error(generalErrorMessage);
     }
