@@ -10,26 +10,24 @@ interface Section {
   // either specify a title...
   title?: string;
 
-  // ...or a name, and an optional defaultTitle
-  name?: string;
-  defaultTitle?: string;
+  // ...or a path to a localised field
+  localisedField?: string;
 }
 
 export const Section = ({
   title: propTitle,
-  defaultTitle,
-  name,
+  localisedField,
   children,
 }: PropsWithChildren<Section>): ReactElement => {
   const { getString, getBool } = useLocalisation();
 
   let title: string;
-  if (name) {
-    const isHidden = getBool(`fields.${name}.hidden`);
+  if (localisedField) {
+    const isHidden = getBool(`${localisedField}.hidden`);
     if (isHidden) {
       return null;
     }
-    title = getString(`fields.${name}.longLabel`, defaultTitle);
+    title = getString(`${localisedField}.longLabel`);
   } else if (title) {
     title = propTitle;
   }

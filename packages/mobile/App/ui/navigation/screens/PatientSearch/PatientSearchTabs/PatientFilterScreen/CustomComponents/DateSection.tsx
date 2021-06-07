@@ -5,7 +5,7 @@ import { Field } from '/components/Forms/FormField';
 import { DateField } from '/components/DateField/DateField';
 
 export const DateSection = (): ReactElement => (
-  <Section name="dateOfBirth" defaultTitle="Date of Birth">
+  <Section localisedField="fields.dateOfBirth">
     <Field component={DateField} name="dateOfBirth" />
   </Section>
 );

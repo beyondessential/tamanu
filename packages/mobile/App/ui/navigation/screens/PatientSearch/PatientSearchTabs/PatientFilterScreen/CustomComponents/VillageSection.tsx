@@ -30,13 +30,12 @@ export const VillageSection = (): ReactElement => {
 
   // uses new IdRelation decorator on model, so the field is `villageId` and not `village`
   return (
-    <Section name="villageId" defaultTitle="Village">
+    <Section localisedField="fields.villageId">
       <StyledView
         height={screenPercentageToDP(15.01, Orientation.Height)}
         justifyContent="space-between"
       >
         <LocalisedField
-          defaultLabel="Village"
           component={AutocompleteModalField}
           placeholder={`Search for ${getString('fields.villageId.longLabel', 'Village')}`}
           navigation={navigation}

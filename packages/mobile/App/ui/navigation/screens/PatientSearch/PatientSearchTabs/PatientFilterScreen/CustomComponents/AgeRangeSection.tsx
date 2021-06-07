@@ -13,7 +13,7 @@ import { theme } from '~/ui/styled/theme';
 export const AgeRangeSection = (): ReactElement => {
   const [field] = useField('age');
   return (
-    <Section name="ageRange" defaultTitle="Age range">
+    <Section localisedField="ageRange">
       <CenterView>
         <StyledText
           fontSize={screenPercentageToDP(1.94, Orientation.Height)}
