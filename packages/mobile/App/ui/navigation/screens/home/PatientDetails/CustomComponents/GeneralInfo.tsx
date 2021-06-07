@@ -15,7 +15,6 @@ export const GeneralInfo = (
     ['culturalName', data.generalInfo.culturalName || 'None'],
     ['dateOfBirth', formatDate(new Date(data.generalInfo.dateOfBirth), DateFormats.DDMMYY)],
     ['villageId', data.generalInfo.village?.name ?? ''],
-    // TODO: add Patient fields here
   ];
 
   return <FieldRowDisplay fields={fields} header="General Information" fieldsPerRow={2} />;
