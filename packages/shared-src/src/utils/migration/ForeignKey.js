@@ -67,6 +67,6 @@ export class ForeignKey {
   getColumn = () => this.column;
 
   setReferencedTable = referencedTable => {
-    this.setReferencedTable = referencedTable;
+    this.referencedTable = referencedTable;
   };
 }
