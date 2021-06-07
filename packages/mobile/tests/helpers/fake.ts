@@ -127,6 +127,7 @@ export const fakeScheduledVaccine = (): IScheduledVaccine => {
     label: `scheduled-vaccine-label-${uuid}`,
     schedule: `scheduled-vaccine-schedule-${uuid}`,
     weeksFromBirthDue: 5,
+    weeksFromLastVaccinationDue: null,
     category: `scheduled-vaccine-category-${uuid}`,
   };
 };
