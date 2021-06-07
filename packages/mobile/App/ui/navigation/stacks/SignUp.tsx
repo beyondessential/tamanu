@@ -11,8 +11,10 @@ import { RegisterAccountStep1Container } from '../screens/signup/RegisterAccount
 import { RegisterAccountStep2Container } from '../screens/signup/RegisterAccountScreenStep2';
 import { RegisterAccountStep3Container } from '../screens/signup/RegisterAccountScreenStep3';
 import { SignIn } from '../screens/signup/SignIn';
+import { ResetPassword } from '../screens/signup/ResetPassword';
 // Contexts
 import { RegisterAccountProvider } from '../../contexts/RegisterAccountContext';
+
 
 const Stack = createStackNavigator();
 
@@ -41,6 +43,11 @@ export const SignUpStack = (): ReactElement => (
       <Stack.Screen
         name={Routes.SignUpStack.SignIn}
         component={SignIn}
+        options={TransitionStyle}
+      />
+      <Stack.Screen
+        name={Routes.SignUpStack.ResetPassword}
+        component={ResetPassword}
         options={TransitionStyle}
       />
     </Stack.Navigator>

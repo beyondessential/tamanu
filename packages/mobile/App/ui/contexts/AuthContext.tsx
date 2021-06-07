@@ -8,6 +8,7 @@ import { Routes } from '~/ui/helpers/routes';
 import { BackendContext } from '~/ui/contexts/BackendContext';
 import { IUser, SyncConnectionParameters } from '~/types';
 import { useLocalisation } from '~/ui/contexts/LocalisationContext';
+import { ResetPasswordFormModel } from '/interfaces/forms/ResetPasswordFormProps';
 
 type AuthProviderProps = WithAuthStoreProps & {
   navRef: RefObject<NavigationContainerRef>;
@@ -20,6 +21,7 @@ interface AuthContextData {
   isUserAuthenticated: () => boolean;
   setUserFirstSignIn: () => void;
   checkFirstSession: () => boolean;
+  requestResetPassword: (params: ResetPasswordFormModel) => void;
 }
 
 const AuthContext = createContext<AuthContextData>({} as AuthContextData);
@@ -91,6 +93,10 @@ const Provider = ({
     setLocalisation({});
   };
 
+  const requestResetPassword = async (params: ResetPasswordFormModel): Promise<void> => {
+    await backend.auth.requestResetPassword(params);
+  };
+
   // start a session if there's a stored token
   useEffect(() => {
     if (props.token && props.user) {
@@ -121,6 +127,7 @@ const Provider = ({
         isUserAuthenticated,
         checkFirstSession,
         user,
+        requestResetPassword,
       }}
     >
       {children}
