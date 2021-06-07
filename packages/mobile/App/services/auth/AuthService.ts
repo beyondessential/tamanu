@@ -10,6 +10,7 @@ import {
   invalidUserCredentialsMessage,
 } from './error';
 import {ResetPasswordFormModel} from "/interfaces/forms/ResetPasswordFormProps";
+import {ChangePasswordFormModel} from "/interfaces/forms/ChangePasswordFormProps";
 
 export class AuthService {
   models: typeof MODELS_MAP;
@@ -103,5 +104,11 @@ export class AuthService {
     const { server, email } = params;
     this.syncSource.connect(server);
     await this.syncSource.post('resetPassword', {}, { email });
+  }
+
+  async changePassword(params: ChangePasswordFormModel): Promise<void> {
+    const { server, ...rest } = params;
+    this.syncSource.connect(server);
+    await this.syncSource.post('changePassword', {}, { ...rest });
   }
 }
