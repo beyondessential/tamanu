@@ -15,13 +15,8 @@ export const KeyInformationSection = (): ReactElement => {
   }
   return (
     <FormGroup sectionName="KEY INFORMATION" marginTop>
-      <LocalisedField
-        defaultLabel="Sex"
-        name="sex"
-        options={filteredGenderOptions}
-        component={RadioButtonGroup}
-      />
-      <LocalisedField component={DateField} name="dateOfBirth" defaultLabel="Date of Birth" />
+      <LocalisedField name="sex" options={filteredGenderOptions} component={RadioButtonGroup} />
+      <LocalisedField name="dateOfBirth" component={DateField} />
     </FormGroup>
   );
 }

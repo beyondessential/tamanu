@@ -27,7 +27,6 @@ export const LocationDetailsSection = (): ReactElement => {
   return (
     <FormGroup sectionName="LOCATION DETAILS" marginTop>
       <LocalisedField
-        defaultLabel="Village"
         component={AutocompleteModalField}
         placeholder={`Search for ${getString('fields.villageId.longLabel', 'Village')}`}
         navigation={navigation}

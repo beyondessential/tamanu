@@ -5,25 +5,9 @@ import { LocalisedField } from '~/ui/components/Forms/LocalisedField';
 
 export const NameSection = (): ReactElement => (
   <FormGroup sectionName="NAME">
-    <LocalisedField
-      defaultLabel="First Name"
-      name="firstName"
-      component={TextField}
-    />
-    <LocalisedField
-      defaultLabel="Middle Name"
-      name="middleName"
-      component={TextField}
-    />
-    <LocalisedField
-      defaultLabel="Last Name"
-      name="lastName"
-      component={TextField}
-    />
-    <LocalisedField
-      defaultLabel="Cultural Name"
-      name="culturalName"
-      component={TextField}
-    />
+    <LocalisedField name="firstName" component={TextField} />
+    <LocalisedField name="middleName" component={TextField} />
+    <LocalisedField name="lastName" component={TextField} />
+    <LocalisedField name="culturalName" component={TextField} />
   </FormGroup>
 );

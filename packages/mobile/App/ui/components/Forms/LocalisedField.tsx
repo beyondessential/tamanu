@@ -4,13 +4,11 @@ import { useLocalisation } from '~/ui/contexts/LocalisationContext';
 import { Field, FieldProps } from './FormField';
 
 type LocalisedFieldProps = FieldProps & {
-  defaultLabel?: string;
   path?: string;
 };
 
 export const LocalisedField = ({
   name,
-  defaultLabel,
   path = `fields.${name}`,
   ...props
 }: LocalisedFieldProps): JSX.Element => {
@@ -20,6 +18,6 @@ export const LocalisedField = ({
   if (isHidden) {
     return null;
   }
-  const label = getString(`${path}.longLabel`, defaultLabel);
+  const label = getString(`${path}.longLabel`);
   return <Field {...props} name={name} label={label} />;
 };
