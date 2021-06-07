@@ -11,23 +11,23 @@ interface Section {
   title?: string;
 
   // ...or a path to a localised field
-  localisedField?: string;
+  localisationPath?: string;
 }
 
 export const Section = ({
   title: propTitle,
-  localisedField,
+  localisationPath,
   children,
 }: PropsWithChildren<Section>): ReactElement => {
   const { getString, getBool } = useLocalisation();
 
   let title: string;
-  if (localisedField) {
-    const isHidden = getBool(`${localisedField}.hidden`);
+  if (localisationPath) {
+    const isHidden = getBool(`${localisationPath}.hidden`);
     if (isHidden) {
       return null;
     }
-    title = getString(`${localisedField}.longLabel`);
+    title = getString(`${localisationPath}.longLabel`);
   } else if (title) {
     title = propTitle;
   }

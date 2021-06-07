@@ -30,7 +30,7 @@ export const VillageSection = (): ReactElement => {
 
   // uses new IdRelation decorator on model, so the field is `villageId` and not `village`
   return (
-    <Section localisedField="fields.villageId">
+    <Section localisationPath="fields.villageId">
       <StyledView
         height={screenPercentageToDP(15.01, Orientation.Height)}
         justifyContent="space-between"
