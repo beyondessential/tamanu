@@ -29,8 +29,17 @@ export class Facility extends Model {
     this.hasMany(models.Department, {
       foreignKey: 'facilityId',
     });
-  }
+    this.hasMany(models.Location, {
+      foreignKey: 'facilityId',
+    });
+    this.hasMany(models.UserFacility, {
+      foreignKey: 'facilityId',
+    });
 
+    this.belongsToMany(models.User, {
+      through: 'UserFacility',
+    });
+  }
 
   static syncDirection = SYNC_DIRECTIONS.PULL_ONLY;
 }

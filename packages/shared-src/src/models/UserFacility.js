@@ -1,4 +1,3 @@
-import { Sequelize } from 'sequelize';
 import { SYNC_DIRECTIONS } from 'shared/constants';
 import { Model } from './Model';
 
@@ -20,7 +19,7 @@ export class UserFacility extends Model {
   }
 
   static initRelations(models) {
-    this.belongsTo(models.ReferenceData, {
+    this.belongsTo(models.Facility, {
       foreignKey: 'facilityId',
       as: 'facility',
     });

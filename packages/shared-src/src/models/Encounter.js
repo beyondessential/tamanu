@@ -84,12 +84,12 @@ export class Encounter extends Model {
       as: 'examiner',
     });
 
-    this.belongsTo(models.ReferenceData, {
+    this.belongsTo(models.Location, {
       foreignKey: 'locationId',
       as: 'location',
     });
 
-    this.belongsTo(models.ReferenceData, {
+    this.belongsTo(models.Department, {
       foreignKey: 'departmentId',
       as: 'department',
     });
@@ -211,7 +211,7 @@ export class Encounter extends Model {
   }
 
   async update(data) {
-    const { ReferenceData } = this.sequelize.models;
+    const { Department, Location } = this.sequelize.models;
 
     return this.sequelize.transaction(async () => {
       if (data.endDate && !this.endDate) {
@@ -227,8 +227,8 @@ export class Encounter extends Model {
       }
 
       if (data.locationId && data.locationId !== this.locationId) {
-        const oldLocation = await ReferenceData.findByPk(this.locationId);
-        const newLocation = await ReferenceData.findByPk(data.locationId);
+        const oldLocation = await Location.findOn({ where: { id: this.locationId } });
+        const newLocation = await Location.findOn({ where: { id: data.locationId } });
         if (!newLocation) {
           throw new InvalidOperationError('Invalid location specified');
         }
@@ -238,8 +238,8 @@ export class Encounter extends Model {
       }
 
       if (data.departmentId && data.departmentId !== this.departmentId) {
-        const oldDepartment = await ReferenceData.findByPk(this.departmentId);
-        const newDepartment = await ReferenceData.findByPk(data.departmentId);
+        const oldDepartment = await Department.findOne({ where: { id: this.departmentId } });
+        const newDepartment = await Department.findOne({ where: { id: data.departmentId } });
         if (!newDepartment) {
           throw new InvalidOperationError('Invalid department specified');
         }
