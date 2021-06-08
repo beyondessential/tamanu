@@ -1,6 +1,8 @@
 app:
   build: .
   encrypted_env_file: codeship.env.encrypted
+  cached: true
+  default_cache_branch: dev
   volumes:
     - ./.tmp:/tamanu
     - ./.ssh:/root/.ssh
@@ -10,7 +12,6 @@ app:
     CONFIG_SYNC_DB_HOST: postgres
     CONFIG_SYNC_DB_USERNAME: postgres
     CONFIG_SYNC_DB_PASSWORD: postgres
-
   depends_on:
     - postgres
 
@@ -18,12 +19,16 @@ awsdeployment:
   build:
     dockerfile: Dockerfile.deploy
   encrypted_env_file: codeship.env.encrypted
+  cached: true
+  default_cache_branch: dev
   volumes:
     - ./.tmp:/tamanu
     - ./.ssh:/root/.ssh
 
 postgres:
   image: healthcheck/postgres
+  cached: true
+  default_cache_branch: dev
   environment:
     - POSTGRES_DB=postgres
     - POSTGRES_USER=postgres
