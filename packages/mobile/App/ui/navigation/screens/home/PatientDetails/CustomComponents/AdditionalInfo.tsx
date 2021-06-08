@@ -7,9 +7,13 @@ export const AdditionalInfo = ({
   data,
 }): ReactElement => {
   const fields = [
+    ['birthCertificate', data?.birthCertificate],
+    ['drivingLicense', data?.drivingLicense],
+    ['passport', data?.passport],
     ['bloodType', data?.bloodType],
     ['title', data?.title],
     ['placeOfBirth', data?.placeOfBirth],
+    ['countryOfBirthId', data?.countryOfBirth?.name],
     ['maritalStatus', data?.maritalStatus],
     ['primaryContactNumber', data?.primaryContactNumber],
     ['secondaryContactNumber', data?.secondaryContactNumber],
@@ -25,7 +29,9 @@ export const AdditionalInfo = ({
     ['nationalityId', data?.nationality?.name],
     ['ethnicityId', data?.ethnicity?.name],
     ['occupationId', data?.occupation?.name],
-    ['educationLevel', data?.educationalLevel],
+    ['educationalLevel', data?.educationalLevel],
+    ['religionId', data?.religion?.name],
+    ['patientBillingTypeId', data?.patientBillingType?.name],
   ];
 
   return (
