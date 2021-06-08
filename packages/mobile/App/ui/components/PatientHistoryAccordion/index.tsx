@@ -1,8 +1,9 @@
 import React, { useCallback, useState } from 'react';
 import Accordion from 'react-native-collapsible/Accordion';
-import { StyledView } from '/styled/common';
+import { StyledScrollView } from '/styled/common';
 import Header from './Header';
 import { HistoryTable } from '../HistoryTable';
+import { Spacer } from '../Spacer';
 
 interface AccordionListProps {
   dataArray: VisitOverviewProps[];
@@ -24,8 +25,10 @@ export const PatientHistoryAccordion = ({
     [dataArray, rows],
   );
 
+  const keyExtractor = useCallback((item) => item.id, [dataArray]);
+
   return (
-    <StyledView flex={1} width="100%">
+    <StyledScrollView flex={1} width="100%">
       <Accordion
         sections={dataArray}
         underlayColor="transparent"
@@ -33,7 +36,9 @@ export const PatientHistoryAccordion = ({
         renderHeader={Header}
         renderContent={content}
         onChange={updateSections}
+        keyExtractor={keyExtractor}
       />
-    </StyledView>
+      <Spacer height="80px" />
+    </StyledScrollView>
   );
 };

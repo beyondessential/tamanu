@@ -40,7 +40,7 @@ export interface SyncRecordData {
 export interface LoginResponse {
   token: string;
   user: IUser;
-  featureFlags: object;
+  localisation: object;
 }
 
 export interface SyncSource {
