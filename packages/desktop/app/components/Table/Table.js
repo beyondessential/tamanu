@@ -291,7 +291,23 @@ class TableComponent extends React.Component {
                 return;
               }
 
-              dx[c.key] = d[c.key];
+              if (c.accessor) {
+                const value = c.accessor(d);
+                // True if accessor returns a React element,
+                // which we can't export to a excel sheet, so just use the raw value.
+                // (e.g. dates)
+                if (typeof value === 'object') {
+                  dx[c.key] = d[c.key];
+                  return;
+                }
+
+                if (typeof value === 'string') {
+                  dx[c.key] = value;
+                  return;
+                }
+
+                dx[c.key] = 'Error: Could not parse column';
+              }
             }),
           );
           return dx;
