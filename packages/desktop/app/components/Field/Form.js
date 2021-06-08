@@ -2,7 +2,9 @@ import React from 'react';
 import { Formik, Field as FormikField, connect as formikConnect } from 'formik';
 import PropTypes from 'prop-types';
 import { Typography } from '@material-ui/core';
+
 import { Dialog } from '../Dialog';
+import { Field } from './Field';
 
 const ErrorMessage = ({ errors, name }) => `${errors[name]}`;
 
@@ -12,15 +14,6 @@ const FormErrors = ({ errors }) =>
       <ErrorMessage errors={errors} name={name} />
     </Typography>
   ));
-
-export const Field = formikConnect(({ formik: { errors }, name, helperText, ...props }) => (
-  <FormikField
-    {...props}
-    error={!!errors[name]}
-    helperText={errors[name] || helperText}
-    name={name}
-  />
-));
 
 export class Form extends React.PureComponent {
   static propTypes = {

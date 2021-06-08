@@ -1,6 +1,8 @@
 import React from 'react';
 import { connect } from 'react-redux';
 import styled from 'styled-components';
+
+import { useLocalisation } from '../contexts/Localisation';
 import { Colors } from '../constants';
 import { getCurrentUser } from '../store/auth';
 import { PrintLetterhead } from './PrintLetterhead';
@@ -40,6 +42,16 @@ const UnderlineP = styled.p`
 
 const UnderlineEmptySpace = () => <UnderlineP>{new Array(100).fill('\u00A0')}</UnderlineP>;
 
+const PRIMARY_DETAILS_FIELDS = [
+  ['firstName'],
+  ['lastName'],
+  ['dateOfBirth', ({ dateOfBirth }) => new Date(dateOfBirth).toLocaleDateString()],
+  ['placeOfBirth', ({ additionalData }) => additionalData?.placeOfBirth],
+  ['countryOfBirthId', ({ additionalData }) => additionalData?.countryOfBirth?.name],
+  ['sex'],
+  ['Mother', () => null], // TODO: not populated
+];
+
 const DumbImmunisationCertificate = ({ currentUser, patient, immunisations }) => {
   const [hasEditedRecord, setHasEditedRecord] = React.useState(false);
 
@@ -48,28 +60,30 @@ const DumbImmunisationCertificate = ({ currentUser, patient, immunisations }) =>
       return;
     }
     setHasEditedRecord(
-      immunisations.findIndex(immunisation => immunisation.createdAt != immunisation.updatedAt) !==
+      immunisations.findIndex(immunisation => immunisation.createdAt !== immunisation.updatedAt) !==
         -1,
     );
   }, [immunisations]);
 
+  const { getLocalisation } = useLocalisation();
+
   if (!immunisations) {
     return null;
   }
+  const primaryDetails = PRIMARY_DETAILS_FIELDS.filter(
+    ([name]) => getLocalisation(`fields.${name}.hidden`) !== true,
+  ).map(([name, accessor]) => {
+    const label = getLocalisation(`fields.${name}.shortLabel`) || name;
+    const value = (accessor ? accessor(patient) : patient[name]) || '';
+    return <p key={name}>{`${label}: ${value}`}</p>;
+  });
 
   return (
     <div>
       <PrintLetterhead />
       <Spacer />
       <PatientDetailsHeader>Personal vaccination certificate</PatientDetailsHeader>
-      <TwoColumnContainer>
-        <p>First name: {patient.firstName}</p>
-        <p>Last name: {patient.lastName}</p>
-        <p>DOB: {new Date(patient.dateOfBirth).toLocaleDateString()}</p>
-        <p>Birthplace:</p>
-        <p>Gender: {patient.sex}</p>
-        <p>Mother:</p>
-      </TwoColumnContainer>
+      <TwoColumnContainer>{primaryDetails}</TwoColumnContainer>
       <Spacer />
       <VaccineTable>
         <thead>
@@ -83,8 +97,8 @@ const DumbImmunisationCertificate = ({ currentUser, patient, immunisations }) =>
           </tr>
         </thead>
         <tbody>
-          {immunisations.map((immunisation, index) => (
-            <tr key={index}>
+          {immunisations.map(immunisation => (
+            <tr key={immunisation.id}>
               <td>
                 {immunisation.scheduledVaccine?.label}
                 {immunisation.createdAt !== immunisation.updatedAt ? ' *' : ''}
@@ -100,8 +114,8 @@ const DumbImmunisationCertificate = ({ currentUser, patient, immunisations }) =>
       </VaccineTable>
       <Spacer />
       <TwoColumnContainer>
-        <p>Printed by: {currentUser ? currentUser.displayName : ''}</p>
-        <p>Printing date: {new Date().toLocaleDateString()}</p>
+        <p>{`Printed by: ${currentUser ? currentUser.displayName : ''}`}</p>
+        <p>{`Printing date: ${new Date().toLocaleDateString()}`}</p>
       </TwoColumnContainer>
       <Spacer />
       <UserEntrySection>

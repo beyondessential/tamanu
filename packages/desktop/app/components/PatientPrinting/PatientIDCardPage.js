@@ -1,7 +1,7 @@
 import React from 'react';
 import styled from 'styled-components';
 
-
+import { useLocalisation } from '../../contexts/Localisation';
 import { SEX_VALUE_INDEX, Colors } from '../../constants';
 import { DateDisplay } from '../DateDisplay';
 import { PatientBarcode } from './PatientBarcode';
@@ -73,18 +73,26 @@ const DetailsKey = styled.span`
   font-weight: bold;
 `;
 
-const DetailsRow = ({ label, value }) => (
-  <div style={{ lineHeight: '4mm', fontSize: '2.4mm', display: 'flex', flexDirection: 'row' }}>
-    <DetailsKey>{`${label}: `}</DetailsKey>
-    <DetailsValue>{value}</DetailsValue>
-  </div>
-);
+const DetailsRow = ({ name, value }) => {
+  const { getLocalisation } = useLocalisation();
+  const label = getLocalisation(`fields.${name}.shortLabel`);
+  return (
+    <div style={{ lineHeight: '4mm', fontSize: '2.4mm', display: 'flex', flexDirection: 'row' }}>
+      <DetailsKey>{label}: </DetailsKey>
+      <DetailsValue>{value}</DetailsValue>
+    </div>
+  );
+};
 
-const MRIDRow = ({ id }) => (
-  <div style={{ fontSize: '3.3mm', paddingBottom: '0.1rem', display: 'flex', flexDirection: 'row' }}>
-    <strong style={{ width: '23mm' }}>{`MRID: `}</strong> <strong>{id}</strong>
-  </div>
-);
+const DisplayIdRow = ({ id }) => {
+  const { getLocalisation } = useLocalisation();
+  const label = getLocalisation(`fields.displayId.shortLabel`);
+  return (
+    <div style={{ fontSize: '3.3mm', paddingBottom: '0.1rem', display: 'flex', flexDirection: 'row' }}>
+      <strong style={{ width: '23mm' }}>{label}: </strong> <strong>{id}</strong>
+    </div>
+  );
+};
 
 const PhotoLabel = ({ patient }) => (
   <div style={{ fontSize: '2.2mm', textAlign: 'center' }}>
@@ -92,27 +100,47 @@ const PhotoLabel = ({ patient }) => (
   </div>
 );
 
-// TODO: use actual patient photo 
-const PatientPhoto = ({ patient }) => (
-  <div width={'1in'} height={'1.3in'} background={'red'}>
-    <TamanuLogo size={'20mm'} />
-  </div>
+const Base64Image = ({ data, mediaType = "image/jpeg", ...props }) => (
+  <img 
+    {...props} 
+    src={`data:${mediaType};base64,${data}`}
+  />
 );
 
-export const PatientIDCard = ({ patient }) => console.log("auu") ?? (
+const PhotoFrame = styled.div`
+  width: 1in;
+  height: 1.3in;
+`;
+
+const SizedBase64Image = styled(Base64Image)`
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+`;
+
+const PatientPhoto = ({ imageData }) => (
+  <PhotoFrame>
+    { imageData 
+        ? <SizedBase64Image mediaType="image/jpeg" data={imageData} />
+        : null
+    }
+  </PhotoFrame>
+);
+
+export const PatientIDCard = ({ patient, imageData }) => (
   <Card>
     <TopBar />
     <MainSection>
       <PhotoContainer>
-        <PatientPhoto patient={patient} />
+        <PatientPhoto imageData={imageData} />
         <PhotoLabel patient={patient} />
       </PhotoContainer>
       <Details>
-        <MRIDRow id={patient.displayId} />
-        <DetailsRow label={'Surname'} value={patient.lastName} />
-        <DetailsRow label={'First Name'} value={patient.firstName} />
-        <DetailsRow label={'Date of Birth'} value={DateDisplay.rawFormat(patient.dateOfBirth)} />
-        <DetailsRow label={'Sex'} value={SEX_VALUE_INDEX[patient.sex].label} />
+        <DisplayIdRow id={patient.displayId} />
+        <DetailsRow name="lastName" value={patient.lastName} />
+        <DetailsRow name="firstName" value={patient.firstName} />
+        <DetailsRow name="dateOfBirth" value={DateDisplay.rawFormat(patient.dateOfBirth)} />
+        <DetailsRow name="sex" value={SEX_VALUE_INDEX[patient.sex].label} />
       </Details>
     </MainSection>
     <BarcodeRow>
@@ -122,7 +150,7 @@ export const PatientIDCard = ({ patient }) => console.log("auu") ?? (
   </Card>
 );
 
-export const PatientIDCardPage = ({ patient }) => {
+export const PatientIDCardPage = ({ patient, imageData }) => {
   React.useEffect(() => {
     printPage({
       landscape: true,
@@ -139,7 +167,7 @@ export const PatientIDCardPage = ({ patient }) => {
 
   return (
     <PrintPortal>
-      <PatientIDCard patient={patient} />
+      <PatientIDCard patient={patient} imageData={imageData} />
     </PrintPortal>
   );
 };

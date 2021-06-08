@@ -31,12 +31,195 @@
   "schedules": {
     "outpatientDischarger": "0 0 2 ? * * *"
   },
-  "featureFlags": {
+  "localisation": {
     "data": {
-      "patientFieldOverrides": {
+      "fields": {
+        "markedForSync": {
+          "shortLabel": "Sync",
+          "longLabel": "Marked for sync"
+        },
         "displayId": {
           "shortLabel": "NHN",
           "longLabel": "National Health Number"
+        },
+        "firstName": {
+          "shortLabel": "First name",
+          "longLabel": "First name"
+        },
+        "middleName": {
+          "shortLabel": "Middle name",
+          "longLabel": "Middle name",
+          "hidden": false
+        },
+        "lastName": {
+          "shortLabel": "Last name",
+          "longLabel": "Last name"
+        },
+        "culturalName": {
+          "shortLabel": "Cultural name",
+          "longLabel": "Cultural/traditional name",
+          "hidden": false
+        },
+        "sex": {
+          "shortLabel": "Sex",
+          "longLabel": "Sex",
+          "hidden": false
+        },
+        "dateOfBirth": {
+          "shortLabel": "DOB",
+          "longLabel": "Date of birth"
+        },
+        "dateOfBirthFrom": {
+          "shortLabel": "DOB from",
+          "longLabel": "Date of birth from"
+        },
+        "dateOfBirthTo": {
+          "shortLabel": "DOB to",
+          "longLabel": "Date of birth to"
+        },
+        "bloodType": {
+          "shortLabel": "Blood type",
+          "longLabel": "Blood type",
+          "hidden": false
+        },
+        "title": {
+          "shortLabel": "Title",
+          "longLabel": "Title",
+          "hidden": false
+        },
+        "placeOfBirth": {
+          "shortLabel": "Place of birth",
+          "longLabel": "Place of birth",
+          "hidden": false
+        },
+        "countryOfBirthId": {
+          "shortLabel": "Country of birth",
+          "longLabel": "Country of birth",
+          "hidden": false
+        },
+        "maritalStatus": {
+          "shortLabel": "Marital status",
+          "longLabel": "Marital status",
+          "hidden": false
+        },
+        "primaryContactNumber": {
+          "shortLabel": "Primary contact number",
+          "longLabel": "Primary contact number",
+          "hidden": false
+        },
+        "secondaryContactNumber": {
+          "shortLabel": "Secondary contact number",
+          "longLabel": "Secondary contact number",
+          "hidden": false
+        },
+        "socialMedia": {
+          "shortLabel": "Social media",
+          "longLabel": "Social media",
+          "hidden": false
+        },
+        "settlementId": {
+          "shortLabel": "Settlement",
+          "longLabel": "Settlement",
+          "hidden": false
+        },
+        "streetVillage": {
+          "shortLabel": "Residential landmark",
+          "longLabel": "Residential landmark",
+          "hidden": false
+        },
+        "cityTown": {
+          "shortLabel": "City/town",
+          "longLabel": "City/town",
+          "hidden": false
+        },
+        "subdivisionId": {
+          "shortLabel": "Sub Division",
+          "longLabel": "Sub Division",
+          "hidden": false
+        },
+        "divisionId": {
+          "shortLabel": "Division",
+          "longLabel": "Division",
+          "hidden": false
+        },
+        "countryId": {
+          "shortLabel": "Country",
+          "longLabel": "Country",
+          "hidden": false
+        },
+        "medicalAreaId": {
+          "shortLabel": "Medical area",
+          "longLabel": "Medical area",
+          "hidden": false
+        },
+        "nursingZoneId": {
+          "shortLabel": "Nursing zone",
+          "longLabel": "Nursing zone",
+          "hidden": false
+        },
+        "nationalityId": {
+          "shortLabel": "Nationality",
+          "longLabel": "Nationality",
+          "hidden": false
+        },
+        "ethnicityId": {
+          "shortLabel": "Ethnicity",
+          "longLabel": "Ethnicity",
+          "hidden": false
+        },
+        "occupationId": {
+          "shortLabel": "Occupation",
+          "longLabel": "Occupation",
+          "hidden": false
+        },
+        "educationalLevel": {
+          "shortLabel": "Educational attainment",
+          "longLabel": "Educational attainment",
+          "hidden": false
+        },
+        "villageName": {
+          "shortLabel": "Village",
+          "longLabel": "Village",
+          "hidden": false
+        },
+        "villageId": {
+          "shortLabel": "Village",
+          "longLabel": "Village",
+          "hidden": false
+        },
+        "birthCertificate": {
+          "shortLabel": "Birth certificate",
+          "longLabel": "Birth certificate number",
+          "hidden": false
+        },
+        "drivingLicense": {
+          "shortLabel": "Driving license",
+          "longLabel": "Driving license number",
+          "hidden": false
+        },
+        "passport": {
+          "shortLabel": "Passport",
+          "longLabel": "Passport number",
+          "hidden": false
+        },
+        "religionId": {
+          "shortLabel": "Religion",
+          "longLabel": "Religion",
+          "hidden": false
+        },
+        "patientBillingTypeId": {
+          "shortLabel": "Type",
+          "longLabel": "Patient type",
+          "hidden": false
+        }
+      },
+      "features": {
+        "hideOtherSex": true
+      },
+      "templates": {
+        "letterhead": {
+          "title": "TAMANU MINISTRY OF HEALTH & MEDICAL SERVICES",
+          "subTitle": "PO Box 12345, Melbourne, Australia"
         }
       }
     }

@@ -23,6 +23,7 @@ export class EncounterMedication extends Model {
         qtyLunch: Sequelize.INTEGER,
         qtyEvening: Sequelize.INTEGER,
         qtyNight: Sequelize.INTEGER,
+        quantity: Sequelize.INTEGER,
       },
       {
         ...options,

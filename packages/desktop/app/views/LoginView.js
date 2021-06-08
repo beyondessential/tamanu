@@ -10,6 +10,7 @@ import { splashImages } from '../constants/images';
 
 import { Form, Field, TextField, CheckField, ServerDetectingField } from '../components/Field';
 import { FormGrid } from '../components/FormGrid';
+import { SyncHealthNotificationComponent } from '../components/SyncHealthNotification';
 
 const Grid = styled.div`
   display: grid;
@@ -113,6 +114,7 @@ export const LoginView = memo(({ errorMessage, onLogin }) => {
   return (
     <Grid>
       <LoginContainer>
+        <SyncHealthNotificationComponent />
         <LogoContainer>
           <TamanuLogo size="150px" />
         </LogoContainer>

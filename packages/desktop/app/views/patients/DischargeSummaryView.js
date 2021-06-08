@@ -5,7 +5,7 @@ import styled from 'styled-components';
 import PrintIcon from '@material-ui/icons/Print';
 
 import { printPage, PrintPortal } from '../../print';
-import { ConfigurableText } from '../../components/ConfigurableText';
+import { LocalisedText } from '../../components/LocalisedText';
 import { connectApi } from '../../api';
 import { BackButton, Button } from '../../components/Button';
 import { DateDisplay } from '../../components/DateDisplay';
@@ -138,7 +138,7 @@ const DumbSummaryPage = React.memo(({ patient, encounter, onFetchEncounterDischa
         </h4>
         <h4>
           <Label>
-            <ConfigurableText flag="patientFieldOverrides.displayId.shortLabel"/>
+            <LocalisedText path="fields.displayId.shortLabel"/>
           </Label>
           <span>{patient.displayId}</span>
         </h4>

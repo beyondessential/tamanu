@@ -13,6 +13,7 @@ import {
   getComponentForQuestionType,
   mapOptionsToValues,
   getFormInitialValues,
+  getConfigObject,
 } from 'desktop/app/utils';
 
 import { ProgramsPane, ProgramsPaneHeader, ProgramsPaneHeading } from './ProgramsPane';
@@ -23,9 +24,16 @@ const Text = styled.div`
 `;
 
 const SurveyQuestion = ({ component }) => {
-  const { defaultText, type, defaultOptions, id } = component.dataElement;
-  const text = component.text || defaultText;
-  const options = mapOptionsToValues(component.options || defaultOptions);
+  const {
+    dataElement,
+    detail,
+    config: componentConfig,
+    options: componentOptions,
+    text: componentText,
+  } = component;
+  const { defaultText, type, defaultOptions, id } = dataElement;
+  const text = componentText || defaultText;
+  const options = mapOptionsToValues(componentOptions || defaultOptions);
   const FieldComponent = getComponentForQuestionType(type);
 
   if (!FieldComponent) return <Text>{text}</Text>;
@@ -36,7 +44,8 @@ const SurveyQuestion = ({ component }) => {
       component={FieldComponent}
       name={id}
       options={options}
-      helperText={component.detail}
+      config={getConfigObject(id, componentConfig)}
+      helperText={detail}
     />
   );
 };
