@@ -58,7 +58,11 @@ const buildJsonSearchString = conditions => {
     .join('');
 };
 
-const tableToModelName = table => upperFirst(Utils.camelize(table));
+// eg `user_facilities` => `UserFacilities`
+const tableToModelName = table =>
+  table === 'reference_data'
+    ? 'ReferenceData' // This avoids using the singular version of data ('datum')
+    : upperFirst(Utils.singularize(Utils.camelize(table)));
 
 const updateAnswerBodies = async (query, answerIds, valueMapping) =>
   Promise.all(
