@@ -306,8 +306,10 @@ class TableComponent extends React.Component {
                   return;
                 }
 
-                dx[c.key] = 'Error: Could not parse column';
+                dx[c.key] = 'Error: Could not parse accessor';
               }
+              // Some columns have no accessor at all.
+              dx[c.key] = d[c.key];
             }),
           );
           return dx;
