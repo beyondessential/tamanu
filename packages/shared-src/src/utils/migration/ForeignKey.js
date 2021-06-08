@@ -1,4 +1,4 @@
-import Utils from 'sequelize/lib/utils';
+import { plural } from 'pluralize';
 import * as yup from 'yup';
 
 const fieldsSchema = yup.object().shape({
@@ -21,7 +21,7 @@ export class ForeignKey {
       table: fields.table,
       referencedEntity: fields.referencedEntity,
       column: fields.column || `${fields.referencedEntity}_id`,
-      referencedTable: fields.referencedTable || Utils.pluralize(fields.referencedEntity),
+      referencedTable: fields.referencedTable || plural(fields.referencedEntity),
       referencedColumn: fields.referencedColumn || 'id',
     };
 

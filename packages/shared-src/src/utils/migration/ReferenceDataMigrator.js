@@ -1,5 +1,5 @@
 import { keyBy } from 'lodash';
-import Utils from 'sequelize/lib/utils';
+import { singular } from 'pluralize';
 import { v4 as uuid } from 'uuid';
 
 import { ForeignKey } from './ForeignKey';
@@ -84,7 +84,7 @@ export class ReferenceDataMigrator {
   };
 
   importReferenceDataFrom = async (table, options = {}) => {
-    const typePrefix = `${Utils.singularize(table)}`;
+    const typePrefix = `${singular(table)}`;
     const addTypePrefixToId = record => ({ ...record, id: `${typePrefix}-${record.code}` });
 
     await this.migrateOrThrow(table, REFERENCE_DATA_TABLE, {
