@@ -1,8 +1,5 @@
 import express from 'express';
 import asyncHandler from 'express-async-handler';
-import config from 'config';
-
-import { REFERENCE_TYPES } from 'shared/constants';
 
 import { simpleGet, simplePut, permissionCheckingRouter } from './crudHelpers';
 
@@ -17,23 +14,14 @@ referral.post(
 
     req.checkPermission('create', 'Referral');
 
-    /** TODO: Remove this temporary code to handle required locationId and departmentId fields */
-    const getRefDataId = async type => {
-      const code = config.survey.defaultCodes[type];
-      const record = await models.ReferenceData.findOne({ where: { type, code } });
-      if (!record) {
-        return null;
-      }
-      return record.id;
-    };
-
+    const getDefaultId = async type => models.SurveyResponseAnswer.getDefaultId(type);
     const updatedBody = {
-      locationId: body.locationId || (await getRefDataId(REFERENCE_TYPES.LOCATION)),
-      departmentId: body.departmentId || (await getRefDataId(REFERENCE_TYPES.DEPARTMENT)),
+      locationId: body.locationId || (await getDefaultId('location')),
+      departmentId: body.departmentId || (await getDefaultId('department')),
       examinerId: req.user.id,
       ...body,
     };
-    
+
     await db.transaction(async () => {
       const surveyResponseRecord = await models.SurveyResponse.createWithAnswers(updatedBody);
       const referral = await models.Referral.create({
@@ -41,7 +29,7 @@ referral.post(
         surveyResponseId: surveyResponseRecord.id,
         ...req.body,
       });
-      
+
       res.send(referral);
     });
   }),
