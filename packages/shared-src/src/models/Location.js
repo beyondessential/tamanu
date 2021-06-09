@@ -33,8 +33,8 @@ export class Location extends Model {
   }
 
   static initRelations(models) {
-    this.hasOne(models.Encounter, {
-      foreignKey: 'departmentId',
+    this.hasMany(models.Encounter, {
+      foreignKey: 'locationId',
     });
 
     this.belongsTo(models.Facility, {

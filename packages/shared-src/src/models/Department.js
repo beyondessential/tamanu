@@ -33,7 +33,7 @@ export class Department extends Model {
   }
 
   static initRelations(models) {
-    this.hasOne(models.Encounter, {
+    this.hasMany(models.Encounter, {
       foreignKey: 'departmentId',
     });
 
