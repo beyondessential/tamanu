@@ -33,6 +33,7 @@ import { patientCarePlan } from './patientCarePlan';
 import { admin } from './admin';
 import { setting } from './setting';
 import { asset } from './asset';
+import { department } from './department';
 import { location } from './location';
 import { attachment } from './attachment';
 import { sync } from './sync';
@@ -81,6 +82,7 @@ apiv1.use('/setting', setting);
 
 apiv1.use('/asset', asset);
 
+apiv1.use('/department', department);
 apiv1.use('/location', location);
 
 apiv1.use('/attachment', attachment);

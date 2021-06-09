@@ -52,28 +52,28 @@ const ActionDropdown = React.memo(({ row }) => {
   );
 });
 
-const ReferenceDataDisplay = React.memo(({ id, fetchReferenceData }) => {
+const DepartmentDisplay = React.memo(({ id, fetchData }) => {
   const [name, setName] = useState('Unknown');
 
   useEffect(() => {
     (async () => {
-      const result = await fetchReferenceData(encodeURIComponent(id));
+      const result = await fetchData(encodeURIComponent(id));
       if (result) setName(result.name);
     })();
   }, [id]);
 
   return name;
 });
-const ConnectedReferenceDataDisplay = connectApi(api => ({
-  fetchReferenceData: id => api.get(`referenceData/${id}`),
-}))(ReferenceDataDisplay);
+const ConnectedDepartmentDisplay = connectApi(api => ({
+  fetchData: id => api.get(`department/${id}`),
+}))(DepartmentDisplay);
 
-const ExaminerDisplay = React.memo(({ id, fetchReferenceData }) => {
+const ExaminerDisplay = React.memo(({ id, fetchData }) => {
   const [name, setName] = useState('Unknown');
 
   useEffect(() => {
     (async () => {
-      const result = await fetchReferenceData(encodeURIComponent(id));
+      const result = await fetchData(encodeURIComponent(id));
       if (result) setName(result.displayName);
     })();
   }, [id]);
@@ -86,7 +86,7 @@ const ConnectedExaminerDisplay = connectApi(api => ({
 
 const getDate = ({ initiatingEncounter }) => <DateDisplay date={initiatingEncounter.startDate} />;
 const getDepartment = ({ initiatingEncounter }) => (
-  <ConnectedReferenceDataDisplay id={initiatingEncounter.departmentId} />
+  <ConnectedDepartmentDisplay id={initiatingEncounter.departmentId} />
 );
 const getDisplayName = ({ initiatingEncounter }) => (
   <ConnectedExaminerDisplay id={initiatingEncounter.examinerId} />
