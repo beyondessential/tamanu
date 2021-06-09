@@ -227,8 +227,8 @@ export class Encounter extends Model {
       }
 
       if (data.locationId && data.locationId !== this.locationId) {
-        const oldLocation = await Location.findOn({ where: { id: this.locationId } });
-        const newLocation = await Location.findOn({ where: { id: data.locationId } });
+        const oldLocation = await Location.findOne({ where: { id: this.locationId } });
+        const newLocation = await Location.findOne({ where: { id: data.locationId } });
         if (!newLocation) {
           throw new InvalidOperationError('Invalid location specified');
         }
