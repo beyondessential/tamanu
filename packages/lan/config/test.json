@@ -8,8 +8,8 @@
   },
   "survey": {
     "defaultCodes": {
-      "department": "General",
-      "location": "Ward-1"
+      "department": "Emergency",
+      "location": "Bed 1"
     }
   }
 }

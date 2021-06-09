@@ -1,13 +1,12 @@
-import { REFERENCE_TYPES } from 'shared/constants';
 import {
   createDummyPatient,
   createDummyEncounter,
   createDummyEncounterDiagnosis,
   randomReferenceId,
   randomReferenceIds,
-  randomReferenceDataObjects,
+  randomRecordId,
   randomUser,
-} from 'shared/demoData/patients';
+} from 'shared/demoData';
 import { createTestContext } from '../../utilities';
 
 describe('Incomplete Referrals report', () => {
@@ -40,8 +39,8 @@ describe('Incomplete Referrals report', () => {
     );
     practitioner1 = await randomUser(models);
     practitioner2 = await randomUser(models);
-    department = await randomReferenceId(models, REFERENCE_TYPES.DEPARTMENT);
-    facility = await randomReferenceId(models, REFERENCE_TYPES.FACILITY);
+    department = await randomRecordId(models, 'Department');
+    facility = await randomRecordId(models, 'Facility');
     expectedDiagnosis1 = await randomReferenceId(models, 'icd10');
     expectedDiagnosis2 = await randomReferenceId(models, 'icd10');
     encounter = await models.Encounter.create({
@@ -76,12 +75,12 @@ describe('Incomplete Referrals report', () => {
       await models.Referral.destroy({ where: {}, truncate: true });
       const referral = await models.Referral.create({
         initiatingEncounterId: encounter.id,
-        referredFacility: 'Test facility'
+        referredFacility: 'Test facility',
       });
     });
     it('should return only requested village', async () => {
       const result = await app.post('/v1/reports/incomplete-referrals').send({
-      parameters: { village: village1 },
+        parameters: { village: village1 },
       });
 
       expect(result).toHaveSucceeded();
@@ -94,7 +93,6 @@ describe('Incomplete Referrals report', () => {
       const result = await app.post('/v1/reports/incomplete-referrals').send({
         parameters: { village: village1 },
       });
-
 
       expect(result).toHaveSucceeded();
       expect(result.body.length).toEqual(2);
