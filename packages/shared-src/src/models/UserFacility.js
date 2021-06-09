@@ -1,3 +1,4 @@
+import { ValidationError } from 'sequelize';
 import { SYNC_DIRECTIONS } from 'shared/constants';
 import { Model } from './Model';
 
@@ -31,11 +32,8 @@ export class UserFacility extends Model {
 
   static async create(values, options) {
     const { facilityId } = values;
-    const existingFacility = await this.sequelize.models.ReferenceData.findOne({
-      where: {
-        id: facilityId,
-        type: 'facility',
-      },
+    const existingFacility = await this.sequelize.models.Facility.findOne({
+      where: { id: facilityId },
     });
     if (!existingFacility) {
       throw new ValidationError(`Invalid facilityId: ${facilityId}`);
