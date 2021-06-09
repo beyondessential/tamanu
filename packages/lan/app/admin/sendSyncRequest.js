@@ -2,14 +2,13 @@ import config from 'config';
 import fetch from 'node-fetch';
 
 import { log } from 'shared/services/logging';
-import { WebRemote } from '../sync/WebRemote';
 
 const splitIntoChunks = (arr, chunkSize) =>
   new Array(Math.ceil(arr.length / chunkSize))
     .fill(0)
     .map((v, i) => arr.slice(i * chunkSize, (i + 1) * chunkSize));
 
-export async function sendSyncRequest(channel, records) {
+export async function sendSyncRequest(channel, records, token) {
   const maxRecordsPerRequest = 250;
 
   const parts = splitIntoChunks(records, maxRecordsPerRequest);
@@ -17,15 +16,13 @@ export async function sendSyncRequest(channel, records) {
     `Syncing ${records.length} records (across ${parts.length} chunks) on ${channel} to ${config.sync.host}...`,
   );
 
-  const remote = new WebRemote();
-  await remote.connect();
   const url = `${config.sync.host}/v1/sync/${encodeURIComponent(channel)}`;
   for (const part of parts) {
     const response = await fetch(url, {
       method: 'POST',
       headers: {
         'Content-Type': 'application/json',
-        Authorization: `Bearer ${remote.token}`,
+        Authorization: `Bearer ${token}`,
       },
       body: JSON.stringify(part),
     });

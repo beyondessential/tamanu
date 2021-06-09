@@ -7,6 +7,7 @@ import { sendSyncRequest } from './sendSyncRequest';
 import { compareModelPriority } from 'shared/models/sync/order';
 
 import { preprocessRecordSet } from './preprocessRecordSet';
+import { WebRemote } from '../sync/WebRemote';
 
 export function createDataImporterEndpoint(importer) {
   return asyncHandler(async (req, res) => {
@@ -53,11 +54,13 @@ export function createDataImporterEndpoint(importer) {
     }
 
     // send to sync server in batches
+    const remote = new WebRemote();
+    await remote.connect();
     for(const [k, v] of recordGroups) {
       if(k === 'referenceData') {
-        await sendSyncRequest('reference', v);
+        await sendSyncRequest('reference', v, remote.token);
       } else {
-        await sendSyncRequest(k, v);
+        await sendSyncRequest(k, v, remote.token);
       }
     }
 
