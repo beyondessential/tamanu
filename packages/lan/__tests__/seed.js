@@ -61,9 +61,6 @@ export const allSeeds = [
   ...testDrugs,
   ...testTriageReasons,
   ...testImagingTypes,
-  ...testLocations,
-  ...testDepartments,
-  ...testFacilities,
   ...testVillages,
   ...testAllergies,
   ...CARE_PLANS

@@ -1,7 +1,7 @@
 import supertest from 'supertest';
 import Chance from 'chance';
 
-import { seedLabTests } from 'shared/demoData/labTestTypes';
+import { seedDepartments, seedFacilities, seedLocations, seedLabTests } from 'shared/demoData';
 
 import { createApp } from 'lan/app/createApp';
 import { initDatabase } from 'lan/app/database';
@@ -86,8 +86,13 @@ export async function createTestContext() {
   const tasks = allSeeds
     .map(d => ({ code: d.name, ...d }))
     .map(d => models.ReferenceData.create(d));
-  await seedLabTests(models);
   await Promise.all(tasks);
+
+  // Order here is important, as some models depend on others
+  await seedLabTests(models);
+  await seedFacilities(models);
+  await seedDepartments(models);
+  await seedLocations(models);
 
   const expressApp = createApp(dbResult);
 

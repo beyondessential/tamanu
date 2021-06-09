@@ -1,4 +1,5 @@
 import { splitIds } from './splitIds';
+import { randomRecordId } from './utilities';
 
 export const LOCATIONS = splitIds(`
   Bed 1
@@ -10,3 +11,9 @@ export const LOCATIONS = splitIds(`
   Acute Area
   Waiting Area
 `);
+
+export const seedLocations = async models => {
+  const facilityId = await randomRecordId(models, 'Facility');
+  const locations = LOCATIONS.map(d => ({ ...d, code: d.name, facilityId }));
+  return models.Location.bulkCreate(locations);
+};

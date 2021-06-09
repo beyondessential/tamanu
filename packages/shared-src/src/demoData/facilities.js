@@ -13,3 +13,8 @@ export const FACILITIES = splitIds(`
   Thornbury
   Traralgon
 `);
+
+export const seedFacilities = async models => {
+  const facilities = FACILITIES.map(d => ({ ...d, code: d.name }));
+  return models.Facility.bulkCreate(facilities);
+};
