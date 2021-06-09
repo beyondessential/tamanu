@@ -2,6 +2,7 @@ import config from 'config';
 import fetch from 'node-fetch';
 
 import { log } from 'shared/services/logging';
+import { WebRemote } from '../sync/WebRemote';
 
 const splitIntoChunks = (arr, chunkSize) =>
   new Array(Math.ceil(arr.length / chunkSize))
@@ -16,13 +17,15 @@ export async function sendSyncRequest(channel, records) {
     `Syncing ${records.length} records (across ${parts.length} chunks) on ${channel} to ${config.sync.host}...`,
   );
 
+  const remote = new WebRemote();
+  await remote.connect();
   const url = `${config.sync.host}/v1/sync/${encodeURIComponent(channel)}`;
   for (const part of parts) {
     const response = await fetch(url, {
       method: 'POST',
       headers: {
         'Content-Type': 'application/json',
-        Authorization: 'Bearer fake-token',
+        Authorization: `Bearer ${remote.token}`,
       },
       body: JSON.stringify(part),
     });
