@@ -3,26 +3,14 @@ import moment from 'moment';
 
 import { generateId } from '../utils/generateId';
 import { ENCOUNTER_TYPES } from '../constants';
+import { TIME_INTERVALS, randomDate, randomRecordId } from './utilities';
 
-const HOUR = 1000 * 60 * 60;
-const DAY = HOUR * 24;
+const { HOUR } = TIME_INTERVALS;
 
 const chance = new Chance();
 
-function randomDate(minDaysAgo = 1, maxDaysAgo = 365) {
-  const ago = chance.natural({ min: DAY * minDaysAgo, max: DAY * maxDaysAgo });
-  return new Date(Date.now() - ago);
-}
-
-function randomDateBetween(start, end) {
-  return new Date(chance.natural({ min: start.getTime(), max: end.getTime() }));
-}
-
 export async function randomUser(models) {
-  const obj = await models.User.findOne({
-    order: models.ReferenceData.sequelize.random(),
-  });
-  return obj.id;
+  return randomRecordId(models, 'User');
 }
 
 export async function randomReferenceId(models, type) {
@@ -93,7 +81,7 @@ export async function createDummyTriage(models, overrides) {
     closedTime: null,
     chiefComplaintId: await randomReferenceId(models, 'triageReason'),
     secondaryComplaintId: chance.bool() ? null : await randomReferenceId(models, 'triageReason'),
-    locationId: await randomReferenceId(models, 'location'),
+    locationId: await randomRecordId(models, 'Location'),
     practitionerId: await randomUser(models),
     ...overrides,
   };
@@ -110,8 +98,8 @@ export async function createDummyEncounter(models, { current, ...overrides } = {
     startDate: startDate,
     endDate: current ? undefined : endDate,
     reasonForEncounter: chance.sentence({ words: chance.integer({ min: 4, max: 8 }) }),
-    locationId: await randomReferenceId(models, 'location'),
-    departmentId: await randomReferenceId(models, 'department'),
+    locationId: await randomRecordId(models, 'Location'),
+    departmentId: await randomRecordId(models, 'Department'),
     examinerId: await randomUser(models),
     ...overrides,
   };
