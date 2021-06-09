@@ -27,7 +27,7 @@ const createMigrationList = optionsByType => [
   {
     type: 'location',
     table: 'locations',
-    referencingTables: ['encounters'],
+    referencingTables: ['encounters', 'procedures'],
     options: optionsByType.location,
   },
   {
