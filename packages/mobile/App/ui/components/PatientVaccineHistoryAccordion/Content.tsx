@@ -1,9 +1,8 @@
 import React from 'react';
 import { format } from 'date-fns';
-import { SectionList, StyleSheet, Text, View } from 'react-native';
-import { StyledView, RowView, StyledText, ColumnView, FullView } from '/styled/common';
+import { StyleSheet, Text, View } from 'react-native';
+import { StyledView, RowView, ColumnView } from '/styled/common';
 import { theme } from '/styled/theme';
-import { Separator } from '../Separator';
 
 const styles = StyleSheet.create({
   container: {
@@ -12,6 +11,7 @@ const styles = StyleSheet.create({
   },
   section: {
     display: 'flex',
+    width: '100%',
     paddingTop: 36,
   },
   item: {
@@ -19,23 +19,36 @@ const styles = StyleSheet.create({
     fontWeight: 'bold',
     fontSize: 16,
   },
+  row: {
+    display: 'flex',
+    justifyContent: 'space-between',
+    flexDirection: 'row',
+    width: '100%',
+  },
 });
-
 const VaccinationDetailsList = ({ status, date, reason, scheduledVaccine }): JSX.Element => (
   <RowView width="100%">
     <View style={styles.section}>
-      <Text style={styles.item}>
-        {`Schedule: ${scheduledVaccine.schedule}`}
-      </Text>
-      <Text style={styles.item}>
-        {`Status: ${status.toLowerCase()}`}
-      </Text>
-      <Text style={styles.item}>
-        {`Date: ${format(date, 'dd-MM-yyyy hh:mm')}`}
-      </Text>
-      <Text style={styles.item}>
-        {`Reason: ${reason || 'n/A'}`}
-      </Text>
+      <View style={styles.row}>
+        <Text style={styles.item}>Schedule:</Text>
+        <Text style={styles.item}>{scheduledVaccine.schedule}</Text>
+      </View>
+      <View style={styles.row}>
+        <Text style={styles.item}>
+          Status:
+        </Text>
+        <Text style={styles.item}>
+          {status.toLowerCase()}
+        </Text>
+      </View>
+      <View style={styles.row}>
+        <Text style={styles.item}>
+          Date:
+        </Text>
+        <Text style={styles.item}>
+          {format(date, 'do MMM yyyy h:mmaa')}
+        </Text>
+      </View>
     </View>
   </RowView>
 );

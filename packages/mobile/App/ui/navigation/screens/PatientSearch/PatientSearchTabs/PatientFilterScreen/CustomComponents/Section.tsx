@@ -1,32 +1,53 @@
 import React, { ReactElement, PropsWithChildren } from 'react';
-import { StyledView } from '/styled/common';
-import { SectionHeader } from '/components/SectionHeader';
-import { screenPercentageToDP, Orientation } from '/helpers/screen';
-import { Separator } from '/components/Separator';
+
+import { useLocalisation } from '~/ui/contexts/LocalisationContext';
+import { StyledView } from '~/ui/styled/common';
+import { SectionHeader } from '~/ui/components/SectionHeader';
+import { screenPercentageToDP, Orientation } from '~/ui/helpers/screen';
+import { Separator } from '~/ui/components/Separator';
 
 interface Section {
-  title: string;
+  // either specify a title...
+  title?: string;
+
+  // ...or a path to a localised field
+  localisationPath?: string;
 }
 
 export const Section = ({
-  title,
+  title: propTitle,
+  localisationPath,
   children,
-}: PropsWithChildren<Section>): ReactElement => (
-  <>
-    <StyledView
-      paddingTop={20}
-      paddingLeft={20}
-      paddingRight={20}
-      marginBottom={20}
-    >
-      <SectionHeader
-        h1
-        marginBottom={screenPercentageToDP(2.43, Orientation.Height)}
+}: PropsWithChildren<Section>): ReactElement => {
+  const { getString, getBool } = useLocalisation();
+
+  let title: string;
+  if (localisationPath) {
+    const isHidden = getBool(`${localisationPath}.hidden`);
+    if (isHidden) {
+      return null;
+    }
+    title = getString(`${localisationPath}.longLabel`);
+  } else if (title) {
+    title = propTitle;
+  }
+  return (
+    <>
+      <StyledView
+        paddingTop={20}
+        paddingLeft={20}
+        paddingRight={20}
+        marginBottom={20}
       >
-        {title}
-      </SectionHeader>
-      {children}
-    </StyledView>
-    <Separator />
-  </>
-);
+        <SectionHeader
+          h1
+          marginBottom={screenPercentageToDP(2.43, Orientation.Height)}
+        >
+          {title}
+        </SectionHeader>
+        {children}
+      </StyledView>
+      <Separator />
+    </>
+  );
+};

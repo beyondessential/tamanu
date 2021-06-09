@@ -1,9 +1,10 @@
 import React, { ReactElement } from 'react';
+
 //Components
 import { Section } from './Section';
-import { StyledView } from '/styled/common';
-import { Field } from '/components/Forms/FormField';
-import { TextField } from '/components/TextField/TextField';
+import { StyledView } from '~/ui/styled/common';
+import { LocalisedField } from '~/ui/components/Forms/LocalisedField';
+import { TextField } from '~/ui/components/TextField/TextField';
 // Helpers
 import { screenPercentageToDP, Orientation } from '/helpers/screen';
 
@@ -13,8 +14,8 @@ export const NameSection = (): ReactElement => (
       height={screenPercentageToDP(15.01, Orientation.Height)}
       justifyContent="space-between"
     >
-      <Field label="First Name" component={TextField} name="firstName" />
-      <Field label="Last Name" component={TextField} name="lastName" />
+      <LocalisedField component={TextField} name="firstName" />
+      <LocalisedField component={TextField} name="lastName" />
     </StyledView>
   </Section>
 );
