@@ -95,7 +95,7 @@ describe('PatientVaccine', () => {
       expect(patient2Result.body[0].schedules).toEqual([
         { administered: false, schedule: 'Dose 1', scheduledVaccineId: scheduled1.id },
         { administered: false, schedule: 'Dose 2', scheduledVaccineId: scheduled2.id },
-      ]);;
+      ]);
     });
   });
 });
