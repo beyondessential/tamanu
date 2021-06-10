@@ -17,6 +17,9 @@ import { AdministeredVaccine } from './AdministeredVaccine';
 import { Referral } from './Referral';
 import { Medication } from './Medication';
 import { Attachment } from './Attachment';
+import { Facility } from './Facility';
+import { Department } from './Department';
+import { Location } from './Location';
 import { BaseModel } from './BaseModel';
 
 export const MODELS_ARRAY: typeof BaseModel[] = [
@@ -39,6 +42,9 @@ export const MODELS_ARRAY: typeof BaseModel[] = [
   Medication,
   Referral,
   Attachment,
+  Facility,
+  Department,
+  Location,
 ];
 
 export const MODELS_MAP = {
@@ -61,4 +67,7 @@ export const MODELS_MAP = {
   Medication,
   Referral,
   Attachment,
+  Facility,
+  Department,
+  Location,
 };

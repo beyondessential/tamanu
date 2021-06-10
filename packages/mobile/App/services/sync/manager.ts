@@ -132,8 +132,11 @@ export class SyncManager {
       // channels in order of sync, so that foreign keys exist before referencing records use them
       const channelInfos: ChannelInfo[] = [
         { channel: 'reference', model: models.ReferenceData },
+        { channel: 'facility', model: models.Facility },
+        { channel: 'location', model: models.Location },
+        { channel: 'department', model: models.Department },
         { channel: 'user', model: models.User },
-        
+
         { channel: 'attachment', model: models.Attachment },
 
         { channel: 'scheduledVaccine', model: models.ScheduledVaccine },
@@ -326,7 +329,7 @@ export class SyncManager {
 
       const recordIdsToExport = await model.filterExportRecords(recordsChunk.map(r => r.data.id));
       const recordsToExport = recordsChunk.filter(r => recordIdsToExport.includes(r.data.id));
-  
+
       if (recordsToExport.length === 0) {
         continue;
       }
