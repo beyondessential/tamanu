@@ -27,6 +27,9 @@ const stripUser = user => {
   return userData;
 };
 
+authModule.use('/resetPassword', resetPassword);
+authModule.use('/changePassword', changePassword);
+
 authModule.post(
   '/login',
   asyncHandler(async (req, res) => {
@@ -148,6 +151,3 @@ authModule.post(
     res.send({ count: 1, requestedAt });
   }),
 );
-
-authModule.use('/resetPassword', resetPassword);
-authModule.use('/changePassword', changePassword);
