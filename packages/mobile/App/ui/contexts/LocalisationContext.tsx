@@ -1,74 +1,28 @@
-import React, { createContext, useContext, useState, useEffect, PropsWithChildren, ReactElement } from 'react';
-import { get } from 'lodash';
+import React, { createContext, useContext, useMemo, PropsWithChildren, ReactElement } from 'react';
 
-import { readConfig, writeConfig } from '~/services/config';
+import { BackendContext } from '~/ui/contexts/BackendContext';
 
 interface LocalisationContextData {
   getLocalisation: (path: string) => any;
   getString: (path: string, defaultValue?: string) => string;
   getBool: (path: string, defaultValue?: boolean) => boolean;
-  setLocalisation: (localisationToSet: object) => Promise<void>;
 }
-
-const TEST_LOCALISATION_OVERRIDES = {}; // add values to this to test localisation in development
-const CONFIG_KEY = 'localisation';
 
 const LocalisationContext = createContext<LocalisationContextData>({} as LocalisationContextData);
 
 export const LocalisationProvider = ({
   children,
 }: PropsWithChildren<object>): ReactElement => {
-  const [localisation, setLocalisationInner] = useState({});
+  const backend = useContext(BackendContext);
 
-  useEffect(() => {
-    (async () => {
-      const strLocalisation = await readConfig(CONFIG_KEY);
-      setLocalisationInner(JSON.parse(strLocalisation));
-    })();
-  });
-
-  const mergedLocalisation = { ...localisation, ...TEST_LOCALISATION_OVERRIDES };
-
-  // helpers
-  const getLocalisation = (path: string) => get(mergedLocalisation, path);
-
-  const getString = (path: string, defaultValue?: string): string => {
-    const value = getLocalisation(path);
-    if (typeof value === 'string') {
-      return value;
-    }
-    if (typeof defaultValue === 'string') {
-      return defaultValue;
-    }
-    return path;
-  };
-
-  const getBool = (path: string, defaultValue?: boolean): boolean => {
-    const value = getLocalisation(path);
-    if (typeof value === 'boolean') {
-      return value;
-    }
-    if (typeof defaultValue === 'boolean') {
-      return value;
-    }
-    return false;
-  };
-
-  const setLocalisation = async (localisationToSet: object) => {
-    // make sure we can stringify before setting localisation
-    const jsonLocalisation = JSON.stringify(localisationToSet);
-    setLocalisationInner(localisationToSet);
-    await writeConfig(CONFIG_KEY, jsonLocalisation);
-  };
+  const helpers: LocalisationContextData = useMemo(() => ({
+    getLocalisation: path => backend.localisation.getLocalisation(path),
+    getString: (path, defaultString) => backend.localisation.getString(path, defaultString),
+    getBool: (path, defaultBool) => backend.localisation.getBool(path, defaultBool),
+  }), [backend, backend.localisation, backend.localisation.localisations]);
 
   return (
-    <LocalisationContext.Provider
-      value={{
-        getLocalisation,
-        getString,
-        getBool,
-        setLocalisation,
-      }}>
+    <LocalisationContext.Provider value={helpers}>
       {children}
     </LocalisationContext.Provider>
   );

@@ -87,7 +87,9 @@ export class AuthService {
     // kick off a local save
     const userData = await this.saveLocalUser(user, params.password);
 
-    return { user: userData, token, localisation };
+    const result = { user: userData, token, localisation };
+    this.emitter.emit('remoteSignIn', result);
+    return result;
   }
 
   startSession(token: string) {
