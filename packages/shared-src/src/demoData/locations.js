@@ -1,5 +1,4 @@
-import { splitIds } from './splitIds';
-import { randomRecordId } from './utilities';
+import { randomRecordId, splitIds } from './utilities';
 
 export const LOCATIONS = splitIds(`
   Bed 1

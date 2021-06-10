@@ -1,5 +1,4 @@
-import { ICD10_DIAGNOSES, TRIAGE_DIAGNOSES, DRUGS, CARE_PLANS } from 'shared/demoData';
-import { splitIds } from 'shared/demoData/splitIds';
+import { ICD10_DIAGNOSES, TRIAGE_DIAGNOSES, DRUGS, CARE_PLANS, splitIds } from 'shared/demoData';
 
 export const testDiagnoses = ICD10_DIAGNOSES.slice(0, 50);
 export const testDrugs = DRUGS.slice(0, 50);

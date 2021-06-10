@@ -1,4 +1,4 @@
-import { splitIds } from './splitIds';
+import { splitIds } from './utilities';
 
 const prehashed12345Password = '$2b$10$HViO/gGVnhXT/pKmWoleBe6kRIiN0vXnNKGvgdRq5i/PoRUAsO/xG';
 
