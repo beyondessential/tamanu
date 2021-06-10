@@ -216,4 +216,12 @@ describe('Auth', () => {
     expect(body).not.toHaveProperty('password');
     expect(body).not.toHaveProperty('hashedPassword');
   });
+
+  describe('Change password', () => { 
+    test.todo('Should create a one-time login for a password reset request');
+    test.todo('Should consume a one-time login and reset a password'); 
+    test.todo('Should reject a password reset if no one-time login exists'); 
+    test.todo('Should reject a password reset if the OTL is consumed'); 
+    test.todo('Should reject a password reset if the OTL is expired');
+  }); 
 });
