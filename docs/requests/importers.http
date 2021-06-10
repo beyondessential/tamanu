@@ -51,6 +51,7 @@ Content-Type: application/json
   "dryRun": true,
   "allowErrors": false,
   "whitelist": [
+    "labTestTypes"
   ]
 }
 
