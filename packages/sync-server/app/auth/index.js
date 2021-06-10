@@ -10,7 +10,10 @@ import { ForbiddenError, BadAuthenticationError } from 'shared/errors';
 import { getLocalisation } from '../localisation';
 import { convertFromDbRecord, convertToDbRecord } from '../convertDbRecord';
 
-export const authMiddleware = express.Router();
+import { changePassword } from './changePassword';
+import { resetPassword } from './resetPassword';
+
+export const authModule = express.Router();
 
 export const getToken = async (user, expiry) => {
   return jwt.sign({ userId: user.id }, JWT_SECRET);
@@ -24,7 +27,7 @@ const stripUser = user => {
   return userData;
 };
 
-authMiddleware.post(
+authModule.post(
   '/login',
   asyncHandler(async (req, res) => {
     const { store, body } = req;
@@ -85,7 +88,7 @@ authMiddleware.post(
   }),
 );
 
-authMiddleware.use(
+authModule.use(
   asyncHandler(async (req, res, next) => {
     const { store, headers } = req;
 
@@ -128,7 +131,7 @@ authMiddleware.use(
   }),
 );
 
-authMiddleware.get(
+authModule.get(
   '/whoami',
   asyncHandler((req, res) => {
     res.send(convertFromDbRecord(req.user).data);
@@ -136,7 +139,7 @@ authMiddleware.get(
 );
 
 // TODO: remove this hack once we've verified nothing needs to upsert new or existing users
-authMiddleware.post(
+authModule.post(
   '/upsertUser',
   asyncHandler(async (req, res) => {
     const requestedAt = Date.now();
@@ -145,3 +148,6 @@ authMiddleware.post(
     res.send({ count: 1, requestedAt });
   }),
 );
+
+authModule.use('/resetPassword', resetPassword);
+authModule.use('/changePassword', changePassword);

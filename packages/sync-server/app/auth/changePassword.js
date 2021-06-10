@@ -36,24 +36,16 @@ changePassword.post(
 const doChangePassword = async (store, { email, newPassword, token }) => {
   const { models } = store;
 
-  // An attacker could use !user to get a list of user accounts
-  // so we return the same result for !user and !token
-  const userOrTokenNotFound = new ValidationError(`User or token not found`);
-
   const user = await store.findUser(email);
-
-  if (!user) {
-    log.info(`User with email ${email} not found`);
-    throw userOrTokenNotFound;
-  }
+  const userId = user ? user.id : 'thwart-timing-attack';
 
   const oneTimeLogin = await models.OneTimeLogin.findOne({
-    where: { userId: user.id, token },
+    where: { userId, token },
   });
 
   if (!oneTimeLogin) {
-    log.info(`One time login with user ${user.id} and token ${token} not found`);
-    throw userOrTokenNotFound;
+    log.info(`One time login with email ${email} and token ${token} not found`);
+    throw new ValidationError(`User or token not found`);
   }
 
   if (oneTimeLogin.usedAt !== null) {

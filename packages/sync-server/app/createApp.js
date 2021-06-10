@@ -6,7 +6,7 @@ import compression from 'compression';
 import { log } from 'shared/services/logging';
 
 import { routes } from './routes';
-import { authMiddleware } from './middleware/auth';
+import { authModule } from './auth';
 import errorHandler from './middleware/errorHandler';
 import { versionCompatibility } from './middleware/versionCompatibility';
 
@@ -51,7 +51,7 @@ export function createApp({ store }) {
   });
 
   // API v1
-  app.use('/v1', authMiddleware);
+  app.use('/v1', authModule);
   app.use('/v1', routes);
 
   // Dis-allow all other routes
