@@ -5,7 +5,7 @@ import { COMMUNICATION_STATUSES } from 'shared/constants';
 import { log } from 'shared/services/logging';
 import * as yup from 'yup';
 import moment from 'moment';
-import { sendEmail } from './services/EmailService';
+import { sendEmail } from '../services/EmailService';
 
 export const resetPassword = express.Router();
 

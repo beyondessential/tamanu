@@ -4,7 +4,7 @@ import http from 'http';
 
 import { createApp } from 'sync-server/app/createApp';
 import { initDatabase, closeDatabase } from 'sync-server/app/database';
-import { getToken } from 'sync-server/app/middleware/auth';
+import { getToken } from 'sync-server/app/auth';
 
 const chance = new Chance();
 
