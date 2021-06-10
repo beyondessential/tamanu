@@ -9,16 +9,19 @@ import {
 import { theme } from '/styled/theme';
 import { VaccineStatusCells } from '/helpers/constants';
 import { screenPercentageToDP, Orientation } from '/helpers/screen';
-import { IAdministeredVaccine, IScheduledVaccine } from '~/types';
+import { IAdministeredVaccine, IPatient, IScheduledVaccine } from '~/types';
 import { getVaccineStatus, VaccineStatus } from '~/ui/helpers/patient';
 
 interface VaccineCellMetadata {
-   weeksUntilDue?: number;
-   scheduledVaccineId?: string;
-   vaccineStatus: VaccineStatus;
-   schedule: ReactElement;
-   vaccine: IScheduledVaccine;
-   administeredVaccine: IAdministeredVaccine;
+  weeksUntilDue?: number;
+  index?: number;
+  weeksFromLastVaccinationDue?: number;
+  scheduledVaccineId?: string;
+  vaccineStatus: VaccineStatus;
+  schedule: ReactElement;
+  vaccine: IScheduledVaccine;
+  patient: IPatient;
+  administeredData: IAdministeredVaccine[];
 }
 
 interface VaccineTableCellProps {
@@ -58,31 +61,36 @@ export const VaccineTableCell = ({
   onPress,
 }: VaccineTableCellProps): JSX.Element => {
   if (!data) return <CellContent status={VaccineStatus.UNKNOWN} />;
-  const { vaccine, vaccineStatus, weeksUntilDue, id, administeredVaccine } = data;
-  const dueStatus = getVaccineStatus(weeksUntilDue);
+  const {
+    vaccine,
+    vaccineStatus,
+    weeksUntilDue,
+    weeksFromLastVaccinationDue,
+    id,
+    index,
+    patient,
+    administeredData,
+  } = data;
+  const dueStatus = getVaccineStatus(
+    { weeksUntilDue, weeksFromLastVaccinationDue, id, index, vaccine },
+    patient,
+    administeredData,
+  );
+  const administeredVaccine = administeredData && administeredData.find(
+    v => v.scheduledVaccine.id === id,
+  );
+
   let cellStatus = vaccineStatus || dueStatus || VaccineStatus.UNKNOWN;
   if (vaccineStatus === VaccineStatus.SCHEDULED) cellStatus = dueStatus;
 
   const onPressItem = useCallback(() => {
     if (vaccineStatus === VaccineStatus.SCHEDULED) {
-      if (dueStatus === VaccineStatus.MISSED) {
+      if (dueStatus.message) {
         Popup.show({
           type: 'Warning',
-          title: 'Vaccine missed',
+          title: 'Vaccination Warning',
           button: true,
-          textBody:
-            `Patient has missed this vaccine by ${Math.abs(weeksUntilDue)} weeks, please refer to the catchup schedule.`,
-          buttonText: 'Ok',
-          callback: () => Popup.hide(),
-        });
-        return;
-      }
-      if (dueStatus === VaccineStatus.SCHEDULED) {
-        Popup.show({
-          type: 'Warning',
-          title: 'Vaccine not due',
-          button: true,
-          textBody: `This patient should receive this vaccine in ${weeksUntilDue} weeks.`,
+          textBody: dueStatus.message,
           buttonText: 'Ok',
           callback: () => Popup.hide(),
         });
