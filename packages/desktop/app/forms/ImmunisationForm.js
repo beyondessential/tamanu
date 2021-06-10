@@ -130,7 +130,6 @@ export const ImmunisationForm = React.memo(
                 onChange={e => {
                   const label = e.target.value;
                   setVaccineLabel(label);
-                  console.log('file: ', vaccineOptions)
                   const vaccine = vaccineOptions.find(v => v.label === label);
                   if (vaccine) {
                     setAdministeredOptions(
