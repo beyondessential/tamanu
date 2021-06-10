@@ -46,7 +46,7 @@ patientVaccineRoutes.get(
             administered_vaccines av
             JOIN encounters e ON av.encounter_id = e.id
           WHERE
-            e.patient_id = :patientId) av ON sv.id = av.scheduled_vaccine_id
+            e.patient_id = :patientId) av ON sv.id = av.scheduled_vaccine_id AND av.status = 'GIVEN'
         ${whereClause}
         GROUP BY sv.id
         ORDER BY max(sv.label), max(sv.schedule);
@@ -130,6 +130,7 @@ patientVaccineRoutes.get(
     const results = await req.models.AdministeredVaccine.findAll({
       where: {
         ['$encounter.patient_id$']: req.params.id,
+        status: 'GIVEN',
       },
       include: [
         {
