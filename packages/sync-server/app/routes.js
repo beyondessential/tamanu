@@ -1,6 +1,5 @@
 import express from 'express';
 
-import { resetPassword, changePassword } from './auth';
 import { syncRoutes } from './sync';
 import { attachmentRoutes } from './attachment';
 

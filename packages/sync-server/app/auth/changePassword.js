@@ -3,7 +3,6 @@ import asyncHandler from 'express-async-handler';
 import { log } from 'shared/services/logging';
 import * as yup from 'yup';
 import { ValidationError } from 'yup';
-import moment from 'moment';
 
 export const changePassword = express.Router();
 
