@@ -1,6 +1,7 @@
-import React, { createContext, useContext, useMemo, PropsWithChildren, ReactElement } from 'react';
+import React, { createContext, useContext, useState, useEffect, useMemo, PropsWithChildren, ReactElement } from 'react';
 
 import { BackendContext } from '~/ui/contexts/BackendContext';
+import { LocalisationService } from '~/services/localisation';
 
 interface LocalisationContextData {
   getLocalisation: (path: string) => any;
@@ -10,16 +11,31 @@ interface LocalisationContextData {
 
 const LocalisationContext = createContext<LocalisationContextData>({} as LocalisationContextData);
 
+const makeHelpers = (localisation: LocalisationService): LocalisationContextData => ({
+  getLocalisation: path => localisation.getLocalisation(path),
+  getString: (path, defaultString) => localisation.getString(path, defaultString),
+  getBool: (path, defaultBool) => localisation.getBool(path, defaultBool),
+});
+
 export const LocalisationProvider = ({
   children,
 }: PropsWithChildren<object>): ReactElement => {
   const backend = useContext(BackendContext);
 
-  const helpers: LocalisationContextData = useMemo(() => ({
-    getLocalisation: path => backend.localisation.getLocalisation(path),
-    getString: (path, defaultString) => backend.localisation.getString(path, defaultString),
-    getBool: (path, defaultBool) => backend.localisation.getBool(path, defaultBool),
-  }), [backend, backend.localisation, backend.localisation.localisations]);
+  const defaultHelpers = useMemo(() => makeHelpers(backend.localisation), [backend, backend.localisation])
+  const [helpers, setHelpers] = useState(defaultHelpers);
+
+  useEffect(() => {
+    const onChanged = () => {
+      // updates the helper functions whenever the localisation changes,
+      // in order to make components update with the new value
+      setHelpers(makeHelpers(backend.localisation));
+    };
+    backend.localisation.emitter.on('changed', onChanged);
+    return () => {
+      backend.localisation.emitter.off('changed', onChanged);
+    };
+  }, [backend, backend.localisation]);
 
   return (
     <LocalisationContext.Provider value={helpers}>
