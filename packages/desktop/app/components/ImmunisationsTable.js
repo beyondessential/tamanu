@@ -21,10 +21,11 @@ const columns = [
   { key: 'batch', title: 'Batch', accessor: getBatch },
 ];
 
-export const ImmunisationsTable = React.memo(({ patient }) => (
+export const ImmunisationsTable = React.memo(({ patient, onItemClick }) => (
   <DataFetchingTable
     endpoint={`patient/${patient.id}/administeredVaccines`}
     columns={columns}
+    onRowClick={row => onItemClick(row.id)}
     noDataMessage="No vaccinations found"
   />
 ));
