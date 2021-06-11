@@ -22,18 +22,20 @@ Content-Type: application/json
 Content-Disposition: form-data; name="jsonData"
 
 {
-  "surveyName": "SNAP Intervention Form",
-  "surveyCode": "snap-fiji-2",
-  "programName": "SNAP Fiji",
-  "programCode": "snap-fiji-2",
-  "dryRun": false
+  "surveyName": "Refer to Another Service",
+  "surveyCode": "iraqrefertoanotherservice",
+  "programName": "Assistive Technology Project",
+  "programCode": "assistivetechnologyproject",
+  "referralType": "referral",
+  "allowErrors": false,
+  "dryRun": true
 }
 
 --{{boundary}}
 Content-Disposition: form-data; name="file"; filename="import.xlsx"
 Content-Type: application/vnd.ms-excel
 
-< M:\beyond\documents\SNAP.Intervention.Form.xlsx
+< M:\beyond\documents\imports\(Iraq) Refer to Another Service.xlsx
 --{{boundary}}--
 
 ##--------------------------------------------
@@ -47,6 +49,7 @@ Content-Type: application/json
 
 {
   "dryRun": true,
+  "allowErrors": false,
   "whitelist": [
     "labTestTypes"
   ]
@@ -56,5 +59,5 @@ Content-Type: application/json
 Content-Disposition: form-data; name="file"; filename="import.xlsx"
 Content-Type: application/vnd.ms-excel
 
-< M:\beyond\tamanu\packages\lan\data\test_definitions.xlsx
+< M:\beyond\documents\imports\Tamanu Iraq - Reference Data Workbook.xlsx
 --{{boundary}}--
