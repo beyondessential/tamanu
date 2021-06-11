@@ -1,4 +1,6 @@
 export const extendClassWithPatientChannel = (model, name) => {
+  // TODO: rework
+
   // add channel methods and properties
   const channelRegex = new RegExp(`patient\/([^\/]+)\/${name}`);
 

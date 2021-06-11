@@ -3,6 +3,7 @@ import { memoize, without } from 'lodash';
 import { propertyPathsToTree } from './metadata';
 import { getSyncCursorFromRecord, syncCursorToWhereCondition } from './cursor';
 
+// TODO: rework to use channelRoutes instead of parentId
 export const createExportPlan = memoize(model => {
   const relationTree = propertyPathsToTree(model.includedSyncRelations);
   return createExportPlanInner(model, relationTree, model.syncParentIdKey);

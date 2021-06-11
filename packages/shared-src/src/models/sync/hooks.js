@@ -64,6 +64,7 @@ export const initSyncClientModeHooks = models => {
       addHooksToNested(model);
 
       // add hooks to patient subchannels
+      // TODO: hook inside extend-patient-thingy
       if (model.syncParentIdKey === 'patientId') {
         model.addHook('beforeSave', 'markPatientForPush', async record => {
           if (!record.patientId) {

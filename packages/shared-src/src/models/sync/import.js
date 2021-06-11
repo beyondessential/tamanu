@@ -12,6 +12,7 @@ export const chunkRows = rows => {
   return chunk(rows, rowsPerChunk);
 };
 
+// TODO: rework to use channelRoutes instead of parentId
 export const createImportPlan = memoize(model => {
   const relationTree = propertyPathsToTree(model.includedSyncRelations);
   return createImportPlanInner(model, relationTree, model.syncParentIdKey);
