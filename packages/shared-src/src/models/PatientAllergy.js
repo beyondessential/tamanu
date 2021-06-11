@@ -26,6 +26,8 @@ export class PatientAllergy extends Model {
   }
 
   static syncDirection = SYNC_DIRECTIONS.BIDIRECTIONAL;
+
+  static channelRoutes = ['patient/:patientId/allergy'];
 }
 
 extendClassWithPatientChannel(PatientAllergy, 'allergy');

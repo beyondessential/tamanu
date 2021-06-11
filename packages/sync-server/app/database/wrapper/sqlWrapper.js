@@ -31,40 +31,16 @@ export class SqlWrapper {
 
   buildChannelRouter() {
     const channelRouter = wayfarer();
-    [
-      ['labTestType', this.models.LabTestType],
-      ['patient', this.models.Patient],
-      ['patient/:patientId/allergy', this.models.PatientAllergy],
-      ['patient/:patientId/carePlan', this.models.PatientCarePlan],
-      ['patient/:patientId/condition', this.models.PatientCondition],
-      ['patient/:patientId/encounter', this.models.Encounter],
-      ['patient/:patientId/familyHistory', this.models.PatientFamilyHistory],
-      ['patient/:patientId/issue', this.models.PatientIssue],
-      ['patient/:patientId/additionalData', this.models.PatientAdditionalData],
-      ['program', this.models.Program],
-      ['programDataElement', this.models.ProgramDataElement],
-      ['reference', this.models.ReferenceData],
-      ['scheduledVaccine', this.models.ScheduledVaccine],
-      ['survey', this.models.Survey],
-      ['surveyScreenComponent', this.models.SurveyScreenComponent],
-      ['user', this.models.User],
-      ['reportRequest', this.models.ReportRequest],
-      ['location', this.models.Location],
-      ['userFacility', this.models.UserFacility],
-      ['attachment', this.models.Attachment],
-      ['asset', this.models.Asset],
-    ].forEach(([route, model]) => {
-      this.builtRoutes.push(route);
-      // TODO: deprecate handlers
-      if (!model) {
-        throw new Error(`SqlWrapper: no model for route ${route}`);
+    for (const model of Object.values(this.models)) {
+      for (const route of model.channelRoutes) {
+        this.builtRoutes.push(route);
+        const handler = new BasicHandler(model); // TODO: deprecate handlers
+        channelRouter.on(route, async (urlParams, f) => {
+          const params = { ...urlParams, route };
+          return f(handler, params, model);
+        });
       }
-      const handler = new BasicHandler(model);
-      channelRouter.on(route, async (urlParams, f) => {
-        const params = { ...urlParams, route };
-        return f(handler, params, model);
-      });
-    });
+    }
     return channelRouter;
   }
 

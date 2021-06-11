@@ -59,4 +59,6 @@ export class ReferenceData extends Model {
   static getChannels() {
     return ['reference'];
   }
+
+  static channelRoutes = ['reference'];
 }

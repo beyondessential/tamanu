@@ -121,6 +121,9 @@ export class Model extends sequelize.Model {
     return [lowerFirst(this.name)];
   }
 
+  // list of channels that the model should be available on
+  static channelRoutes = [];
+
   // extracts and returns a parentId from a channel, if applicable
   // only called if syncParentIdKey is set
   static syncParentIdFromChannel() {

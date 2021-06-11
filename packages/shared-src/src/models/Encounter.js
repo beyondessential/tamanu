@@ -270,6 +270,8 @@ export class Encounter extends Model {
   ];
 
   static syncDirection = SYNC_DIRECTIONS.BIDIRECTIONAL;
+
+  static channelRoutes = ['patient/:patientId/encounter'];
 }
 
 extendClassWithPatientChannel(Encounter, 'encounter');

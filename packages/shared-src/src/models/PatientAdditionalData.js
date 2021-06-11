@@ -57,6 +57,8 @@ export class PatientAdditionalData extends Model {
   }
 
   static syncDirection = SYNC_DIRECTIONS.BIDIRECTIONAL;
+
+  static channelRoutes = ['patient/:patientId/additionalData'];
 }
 
 extendClassWithPatientChannel(PatientAdditionalData, 'additionalData');

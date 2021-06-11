@@ -25,6 +25,8 @@ export class PatientCarePlan extends Model {
   }
 
   static syncDirection = SYNC_DIRECTIONS.BIDIRECTIONAL;
+
+  static channelRoutes = ['patient/:patientId/carePlan'];
 }
 
 extendClassWithPatientChannel(PatientCarePlan, 'carePlan');

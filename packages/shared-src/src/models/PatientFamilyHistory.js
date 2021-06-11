@@ -21,12 +21,14 @@ export class PatientFamilyHistory extends Model {
     this.belongsTo(models.User, { foreignKey: 'practitionerId', as: 'practitioner' });
     this.belongsTo(models.ReferenceData, { foreignKey: 'diagnosisId', as: 'diagnosis' });
   }
-  
+
   static getListReferenceAssociations() {
-    return ['diagnosis']
+    return ['diagnosis'];
   }
 
   static syncDirection = SYNC_DIRECTIONS.BIDIRECTIONAL;
+
+  static channelRoutes = ['patient/:patientId/familyHistory'];
 }
 
 extendClassWithPatientChannel(PatientFamilyHistory, 'familyHistory');
