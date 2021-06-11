@@ -4,6 +4,8 @@ import { Database } from '~/infra/db';
 import { readConfig, writeConfig } from '~/services/config';
 import { Patient } from '~/models/Patient';
 import { BaseModel } from '~/models/BaseModel';
+import { LocalisationService } from '~/services/localisation';
+
 import { DownloadRecordsResponse, UploadRecordsResponse, SyncRecord, SyncSource } from './source';
 import { createImportPlan, executeImportPlan } from './import';
 import { createExportPlan, executeExportPlan } from './export';
@@ -28,7 +30,7 @@ const OPTIMAL_DOWNLOAD_TIME_PER_PAGE = 2000; // aim for 2 seconds per page
 const MAX_LIMIT_CHANGE_PER_PAGE = 0.2; // max 20% increase from batch to batch, or it is too jumpy
 
 // Set the current page size based on how long the previous page took to complete.
-const calculateDynamicLimit = (currentLimit, downloadTime): number => {
+const calculateDynamicLimit = (currentLimit: number, downloadTime: number): number => {
   const durationPerRecord = downloadTime / currentLimit;
   const optimalPageSize = OPTIMAL_DOWNLOAD_TIME_PER_PAGE / durationPerRecord;
   let newLimit = optimalPageSize;
@@ -57,13 +59,17 @@ export class SyncManager {
 
   syncSource: SyncSource = null;
 
+  localisation: LocalisationService;
+
   verbose = true;
 
   constructor(
     syncSource: SyncSource,
+    localisation: LocalisationService,
     { verbose }: SyncManagerOptions = {},
   ) {
     this.syncSource = syncSource;
+    this.localisation = localisation;
 
     if (verbose !== undefined) {
       this.verbose = verbose;

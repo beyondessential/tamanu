@@ -3,6 +3,7 @@ import { Patient } from '~/models/Patient';
 import { PatientIssue } from '~/models/PatientIssue';
 import { Encounter } from '~/models/Encounter';
 import { readConfig } from '~/services/config';
+import { LocalisationService } from '~/services/localisation';
 
 import { SyncManager } from './manager';
 import { WebSyncSource } from './source';
@@ -24,6 +25,9 @@ import {
 jest.mock('./source');
 const MockedWebSyncSource = <jest.Mock<WebSyncSource>>WebSyncSource;
 
+jest.mock('~/services/localisation/LocalisationService');
+const MockedLocalisationService = <jest.Mock<LocalisationService>>LocalisationService;
+
 const createManager = (): ({
   emittedEvents: { action: string | symbol; event: any }[];
   syncManager: SyncManager;
@@ -31,7 +35,7 @@ const createManager = (): ({
 }) => {
   // mock WebSyncSource
   MockedWebSyncSource.mockClear();
-  const syncManager = new SyncManager(new MockedWebSyncSource(''), { verbose: false });
+  const syncManager = new SyncManager(new MockedWebSyncSource(''), new MockedLocalisationService(), { verbose: false });
   expect(MockedWebSyncSource).toHaveBeenCalledTimes(1);
   const mockedSource = MockedWebSyncSource.mock.instances[0];
 
