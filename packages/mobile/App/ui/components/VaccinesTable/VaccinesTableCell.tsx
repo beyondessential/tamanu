@@ -13,8 +13,8 @@ import { IAdministeredVaccine, IPatient, IScheduledVaccine } from '~/types';
 import { getVaccineStatus, VaccineStatus } from '~/ui/helpers/patient';
 
 interface VaccineCellMetadata {
-  weeksUntilDue?: number;
   index?: number;
+  weeksFromBirthDue?: number;
   weeksFromLastVaccinationDue?: number;
   scheduledVaccineId?: string;
   vaccineStatus: VaccineStatus;
@@ -64,7 +64,7 @@ export const VaccineTableCell = ({
   const {
     vaccine,
     vaccineStatus,
-    weeksUntilDue,
+    weeksFromBirthDue,
     weeksFromLastVaccinationDue,
     id,
     index,
@@ -72,7 +72,7 @@ export const VaccineTableCell = ({
     administeredData,
   } = data;
   const dueStatus = getVaccineStatus(
-    { weeksUntilDue, weeksFromLastVaccinationDue, id, index, vaccine },
+    { weeksFromBirthDue, weeksFromLastVaccinationDue, id, index, vaccine },
     patient,
     administeredData,
   );
@@ -80,8 +80,8 @@ export const VaccineTableCell = ({
     v => v.scheduledVaccine.id === id,
   );
 
-  let cellStatus = vaccineStatus || dueStatus || VaccineStatus.UNKNOWN;
-  if (vaccineStatus === VaccineStatus.SCHEDULED) cellStatus = dueStatus;
+  let cellStatus = vaccineStatus || dueStatus.status || VaccineStatus.UNKNOWN;
+  if (vaccineStatus === VaccineStatus.SCHEDULED) cellStatus = dueStatus.status;
 
   const onPressItem = useCallback(() => {
     if (vaccineStatus === VaccineStatus.SCHEDULED) {
