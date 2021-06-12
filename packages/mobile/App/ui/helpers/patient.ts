@@ -9,6 +9,7 @@ export enum VaccineStatus {
   DUE = 'DUE',
   UPCOMING = 'UPCOMING',
   OVERDUE = 'OVERDUE',
+  RECORDED_IN_ERROR = 'RECORDED_IN_ERROR',
 }
 
 export function getWeeksFromDate(date: string): number {
