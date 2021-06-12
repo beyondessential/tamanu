@@ -2,6 +2,7 @@ import express from 'express';
 import asyncHandler from 'express-async-handler';
 import { QueryTypes, Op } from 'sequelize';
 import { ENCOUNTER_TYPES } from 'shared/constants';
+import { NotFoundError } from 'shared/errors';
 
 export const patientVaccineRoutes = express.Router();
 
@@ -78,6 +79,19 @@ patientVaccineRoutes.get(
         return allVaccines;
       }, {});
     res.send(Object.values(vaccines));
+  }),
+);
+
+patientVaccineRoutes.put(
+  '/:id/administeredVaccine/:vaccineId',
+  asyncHandler(async (req, res) => {
+    const { models, params } = req;
+    req.checkPermission('read', 'PatientVaccine');
+    const object = await models.AdministeredVaccine.findByPk(params.vaccineId);
+    if (!object) throw new NotFoundError();
+    req.checkPermission('write', 'PatientVaccine');
+    await object.update(req.body);
+    res.send(object);
   }),
 );
 
