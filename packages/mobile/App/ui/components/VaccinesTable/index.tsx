@@ -8,7 +8,7 @@ import { VaccinesTableTitle } from './VaccinesTableTitle';
 import { vaccineTableHeader } from './VaccineTableHeader';
 import { ErrorScreen } from '../ErrorScreen';
 import { LoadingScreen } from '../LoadingScreen';
-import { getWeeksFromBirth, VaccineStatus } from '~/ui/helpers/patient';
+import { VaccineStatus } from '~/ui/helpers/patient';
 import { VaccineTableCell } from './VaccinesTableCell';
 
 interface VaccinesTableProps {
