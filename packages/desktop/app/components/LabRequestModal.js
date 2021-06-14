@@ -1,6 +1,6 @@
 import React, { useCallback } from 'react';
 import { push } from 'connected-react-router';
-import shortid from 'shortid';
+import { customAlphabet } from 'nanoid';
 
 import { Modal } from './Modal';
 import { Suggester } from '../utils/suggester';
@@ -9,6 +9,8 @@ import { useEncounter } from '../contexts/Encounter';
 import { connectApi } from '../api/connectApi';
 
 import { ConnectedLabRequestForm } from '../forms/LabRequestForm';
+
+const ALPHABET_FOR_ID = 'ABCDEFGH' + /*I*/ 'JK' + /*L*/ 'MN' + /*O*/ 'PQRSTUVWXYZ' + /*01*/ '23456789';
 
 const DumbLabRequestModal = React.memo(
   ({ open, encounter, practitionerSuggester, onClose, onSubmit }) => {
@@ -26,7 +28,7 @@ const DumbLabRequestModal = React.memo(
           onCancel={onClose}
           encounter={encounter}
           practitionerSuggester={practitionerSuggester}
-          generateId={shortid.generate}
+          generateId={() => customAlphabet(ALPHABET_FOR_ID, 6)}
         />
       </Modal>
     );
