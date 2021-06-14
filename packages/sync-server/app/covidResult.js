@@ -1,6 +1,6 @@
 import express from 'express';
 import asyncHandler from 'express-async-handler';
-import { ForbiddenError } from 'shared/errors';
+import { InvalidParameterError } from 'shared/errors';
 import { LAB_REQUEST_STATUSES } from 'shared/constants';
 
 export const covidResultRoutes = express.Router();
@@ -13,7 +13,7 @@ const getPatientInitials = patient => `${patient.firstName ? patient.firstName.s
 covidResultRoutes.get(
   '/:displayId',
   asyncHandler(async (req, res) => {
-    const { query, params } = req;
+    const { params } = req;
     const { displayId } = params;
     const { models } = req.store;
     const labRequest = await models.LabRequest.findOne({
@@ -25,11 +25,19 @@ covidResultRoutes.get(
     });
 
     if (!labRequest) {
-      // Not too sure about this error...
-      throw new ForbiddenError('You do not have permission to view this labRequest.');
+      res.send({
+        error: 'No lab request found for the given ID'
+      });
+      return;
     }
 
     const { status, createdAt, encounterId } = labRequest;
+
+    if (status !== LAB_REQUEST_STATUSES.PUBLISHED) {
+      res.send({
+        error: "Can't view results until results are published",
+      });
+    }
     const encounter = await models.Encounter.findOne({ where: { id: encounterId } });
     const patient = await models.Patient.findOne({ where: { id: encounter.patientId } });
 
@@ -39,10 +47,6 @@ covidResultRoutes.get(
         labTestTypeId: COVID_SWAB_LAB_TEST_TYPE_ID
       }
     });
-
-    if (status !== LAB_REQUEST_STATUSES.PUBLISHED) {
-      throw new ForbiddenError('You do not have permission to view this labRequest until results are published');
-    }
 
     res.send({
       data: {
