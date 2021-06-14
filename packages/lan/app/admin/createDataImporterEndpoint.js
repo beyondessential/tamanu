@@ -55,13 +55,9 @@ export function createDataImporterEndpoint(importer) {
 
     // send to sync server in batches
     const remote = new WebRemote();
-    await remote.connect();
-    for(const [k, v] of recordGroups) {
-      if(k === 'referenceData') {
-        await sendSyncRequest('reference', v, remote.token);
-      } else {
-        await sendSyncRequest(k, v, remote.token);
-      }
+    for(const [recordType, record] of recordGroups) {
+      const endpoint = (recordType === 'referenceData') ? 'reference' : recordType;
+      await sendSyncRequest(remote, endpoint, record);
     }
 
     sendResult({ sentData: true });
