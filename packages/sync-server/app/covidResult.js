@@ -16,7 +16,7 @@ covidResultRoutes.get(
     const { params } = req;
     const { displayId } = params;
     const { models } = req.store;
-    const labRequest = await models.LabRequest.findOne({
+    const labRequests = await models.LabRequest.findAll({
       where: {
         id: displayId,
         labTestCategoryId: COVID_LAB_TEST_CATEGORY_ID,
@@ -24,36 +24,27 @@ covidResultRoutes.get(
       order: [['createdAt', 'DESC']],
     });
 
-    if (!labRequest) {
-      res.send({
-        error: 'No lab request found for the given ID'
+    const labRequestsToReport = labRequests
+      .map(({ createdAt, encounterId, status }) => {
+        const encounter = await models.Encounter.findOne({ where: { id: encounterId } });
+        const patient = await models.Patient.findOne({ where: { id: encounter.patientId } });
+
+        const { result } = await models.LabTest.findOne({
+          where: {
+            labRequestId: displayId,
+            labTestTypeId: COVID_SWAB_LAB_TEST_TYPE_ID
+          }
+        });
+
+        return {
+          testDate: createdAt,
+          patientInitials: getPatientInitials(patient),
+          testResult: status === LAB_REQUEST_STATUSES.PUBLISHED ? result : 'Unpublished',
+        }
       });
-      return;
-    }
-
-    const { status, createdAt, encounterId } = labRequest;
-
-    if (status !== LAB_REQUEST_STATUSES.PUBLISHED) {
-      res.send({
-        error: "Can't view results until results are published",
-      });
-    }
-    const encounter = await models.Encounter.findOne({ where: { id: encounterId } });
-    const patient = await models.Patient.findOne({ where: { id: encounter.patientId } });
-
-    const { result } = await models.LabTest.findOne({
-      where: {
-        labRequestId: displayId,
-        labTestTypeId: COVID_SWAB_LAB_TEST_TYPE_ID
-      }
-    });
 
     res.send({
-      data: {
-        testDate: createdAt,
-        patientInitials: getPatientInitials(patient),
-        testResult: result,
-      }
+      data: labRequestsToReport,
     });
   }),
 );
