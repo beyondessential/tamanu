@@ -26,7 +26,17 @@ const unhideableFieldSchema = yup
   })
   .noUnknown();
 
-const UNHIDEABLE_FIELDS = ['markedForSync', 'displayId', 'firstName', 'lastName', 'dateOfBirth'];
+const UNHIDEABLE_FIELDS = [
+  'markedForSync',
+  'displayId',
+  'firstName',
+  'lastName',
+  'dateOfBirth',
+  'age',
+  'ageRange',
+  'dateOfBirthFrom',
+  'dateOfBirthTo',
+];
 
 const HIDEABLE_FIELDS = [
   'culturalName',

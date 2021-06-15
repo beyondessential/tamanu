@@ -16,6 +16,7 @@ const servers = [
     type: 'live',
     host: 'https://motivation-sync-iraq.tamanu.io',
   },
+  { name: 'Nauru', type: 'live', host: 'https://sync.tamanu-nauru.org' },
 ];
 
 serversRouter.get('/', (req, res) => {

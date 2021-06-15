@@ -69,6 +69,14 @@
           "shortLabel": "DOB",
           "longLabel": "Date of birth"
         },
+        "dateOfBirthFrom": {
+          "shortLabel": "DOB from",
+          "longLabel": "Date of birth from"
+        },
+        "dateOfBirthTo": {
+          "shortLabel": "DOB to",
+          "longLabel": "Date of birth to"
+        },
         "bloodType": {
           "shortLabel": "Blood type",
           "longLabel": "Blood type",
@@ -203,6 +211,14 @@
           "shortLabel": "Type",
           "longLabel": "Patient type",
           "hidden": false
+        },
+        "ageRange": {
+          "shortLabel": "Age range",
+          "longLabel": "Age range"
+        },
+        "age": {
+          "shortLabel": "Age",
+          "longLabel": "Age"
         }
       },
       "features": {
