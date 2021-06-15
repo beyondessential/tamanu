@@ -13,7 +13,7 @@ import {
   NumberField,
   ReadOnlyTextField,
   UnsupportedPhotoField,
-  PatientIssueCreatorField,
+  // PatientIssueCreatorField,
 } from 'desktop/app/components/Field';
 import { PROGRAM_DATA_ELEMENT_TYPES } from '../../../shared-src/src/constants';
 import { getAgeFromDate } from 'shared-src/src/utils/date';
@@ -44,7 +44,7 @@ const QUESTION_COMPONENTS = {
   [PROGRAM_DATA_ELEMENT_TYPES.INSTRUCTION]: InstructionField,
   [PROGRAM_DATA_ELEMENT_TYPES.PHOTO]: UnsupportedPhotoField,
   [PROGRAM_DATA_ELEMENT_TYPES.RESULT]: null,
-  [PROGRAM_DATA_ELEMENT_TYPES.PATIENT_ISSUE]: PatientIssueCreatorField,
+  [PROGRAM_DATA_ELEMENT_TYPES.PATIENT_ISSUE]: ReadOnlyTextField,
 };
 
 export function getComponentForQuestionType(type) {
@@ -234,6 +234,11 @@ export function getFormInitialValues(components, patient, currentUser = {}) {
     if (component.dataElement.type === 'PatientData') {
       const patientValue = transformPatientData(patient, config);
       if (patientValue !== undefined) initialValues[component.dataElement.id] = patientValue;
+    }
+
+    // patient issue
+    if (component.dataElement.type === 'PatientIssue') {
+      initialValues[component.dataElement.id] = 'A patient issue will be submitted upon submission of this survey';
     }
   }
 
