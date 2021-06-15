@@ -145,12 +145,12 @@ export async function initDatabase(dbOptions) {
 
   // build router to convert channelRoutes (e.g. `[patient/:patientId/issue]`) to a model + params
   // (e.g. PatientIssue + { patientId: 'abc123', route: '...' })
-  const channelRouter = wayfarer();
+  sequelize.channelRouter = wayfarer();
   for (const model of modelClasses) {
     for (const route of model.channelRoutes) {
-      channelRouter.on(route, async (params, f) => f(model, params));
+      sequelize.channelRouter.on(route, async (params, f) => f(model, params));
     }
   }
 
-  return { sequelize, models, channelRouter };
+  return { sequelize, models };
 }

@@ -15,10 +15,9 @@ export class SqlWrapper {
   }
 
   async init() {
-    const { sequelize, models, channelRouter } = await this._dbPromise;
+    const { sequelize, models } = await this._dbPromise;
     this.sequelize = sequelize;
     this.models = models;
-    this.channelRouter = channelRouter;
     return this;
   }
 
@@ -31,14 +30,14 @@ export class SqlWrapper {
     if (process.env.NODE_ENV !== 'test') {
       throw new Error('DO NOT use unsafeRemoveAllOfChannel outside tests!');
     }
-    return this.channelRouter(channel, model => {
+    return this.sequelize.channelRouter(channel, model => {
       const handler = new BasicHandler(model);
       return handler.unsafeRemoveAll();
     });
   }
 
   async upsert(channel, record) {
-    return this.channelRouter(channel, (model, params) => {
+    return this.sequelize.channelRouter(channel, (model, params) => {
       const handler = new BasicHandler(model);
       return handler.upsert(record, params, channel);
     });
@@ -46,25 +45,25 @@ export class SqlWrapper {
 
   // TODO: this is a hack to enable sharing import/export across sync and lan
   async withModel(channel, f) {
-    return this.channelRouter(channel, (model, params) => f(model, params));
+    return this.sequelize.channelRouter(channel, (model, params) => f(model, params));
   }
 
   async countSince(channel, since) {
-    return this.channelRouter(channel, (model, params) => {
+    return this.sequelize.channelRouter(channel, (model, params) => {
       const handler = new BasicHandler(model);
       return handler.countSince({ ...params, since }, channel);
     });
   }
 
   async findSince(channel, since, { limit, offset } = {}) {
-    return this.channelRouter(channel, (model, params) => {
+    return this.sequelize.channelRouter(channel, (model, params) => {
       const handler = new BasicHandler(model);
       return handler.findSince({ ...params, since, limit, offset }, channel);
     });
   }
 
   async markRecordDeleted(channel, id) {
-    return this.channelRouter(channel, model => {
+    return this.sequelize.channelRouter(channel, model => {
       const handler = new BasicHandler(model);
       return handler.markRecordDeleted(id);
     });
