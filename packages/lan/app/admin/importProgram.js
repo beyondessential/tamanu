@@ -138,10 +138,10 @@ export function importProgram({ file, whitelist }) {
   })();
 
   // detect if we're importing to home server
-  const { homeServer, country } = programMetadata;
+  const { homeServer = "", country } = programMetadata;
   const { host } = config.sync;
   // ignore slashes when comparing servers - easiest way to account for trailing slashes that may or may not be present
-  const importingToHome = homeServer.replace("/", "") === host.replace("/", "");
+  const importingToHome = !homeServer || homeServer.replace("/", "") === host.replace("/", "");
   const prefix = (!importingToHome && country) ? `(${country}) ` : "";
   
   if (!importingToHome) {
@@ -163,7 +163,7 @@ export function importProgram({ file, whitelist }) {
   // read metadata table starting at header row
   const surveyMetadata = utils.sheet_to_json(metadataSheet, { range: headerRow });
 
-  const shouldImportSurvey = ({ status, name, code }) => {
+  const shouldImportSurvey = ({ status = "", name, code }) => {
     // check against whitelist
     if (whitelist && whitelist.length > 0) {
       if (!whitelist.some(x => x === name || x === code)) {
@@ -173,10 +173,15 @@ export function importProgram({ file, whitelist }) {
 
     // check against home server & publication status
     switch (status) {
-      case "publish": return true;
-      case "hidden": return false;
-      case "draft": return !importingToHome;
-      default: throw new Error(`Survey ${name} has invalid status ${status}. Must be one of publish, draft, hidden.`);
+      case "publish":
+        return true;
+      case "hidden":
+        return false;
+      case "draft": 
+      case "":
+        return !importingToHome;
+      default:
+        throw new Error(`Survey ${name} has invalid status ${status}. Must be one of publish, draft, hidden.`);
     }
   };
 

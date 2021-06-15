@@ -1,16 +1,16 @@
-import { importSurvey } from '~/admin/importProgram';
+import { importProgram } from '~/admin/importProgram';
 import { preprocessRecordSet } from '~/admin/preprocessRecordSet';
 
-const TEST_SURVEY_PATH = './data/test_programs.xlsx';
+const TEST_PROGRAMS_PATH = './data/test_programs.xlsx';
 
-describe('Importing surveys', () => {
+describe('Importing programs', () => {
 
   let resultInfo = null;
   let recordGroups = null;
 
   beforeAll(async () => {
-    const rawData = await importSurvey({ 
-      file: TEST_SURVEY_PATH,
+    const rawData = await importProgram({ 
+      file: TEST_PROGRAMS_PATH,
     });
 
     const { 
