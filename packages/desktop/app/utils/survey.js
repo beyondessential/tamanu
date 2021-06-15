@@ -23,6 +23,10 @@ const InstructionField = ({ label, helperText }) => (
   <p>{label} {helperText}</p>
 );
 
+const PatientIssueField = ({ label }) => (
+  <p>{label}</p>
+);
+
 const QUESTION_COMPONENTS = {
   [PROGRAM_DATA_ELEMENT_TYPES.TEXT]: LimitedTextField,
   [PROGRAM_DATA_ELEMENT_TYPES.MULTILINE]: MultilineTextField,
@@ -44,7 +48,7 @@ const QUESTION_COMPONENTS = {
   [PROGRAM_DATA_ELEMENT_TYPES.INSTRUCTION]: InstructionField,
   [PROGRAM_DATA_ELEMENT_TYPES.PHOTO]: UnsupportedPhotoField,
   [PROGRAM_DATA_ELEMENT_TYPES.RESULT]: null,
-  [PROGRAM_DATA_ELEMENT_TYPES.PATIENT_ISSUE]: ReadOnlyTextField,
+  [PROGRAM_DATA_ELEMENT_TYPES.PATIENT_ISSUE]: PatientIssueField,
 };
 
 export function getComponentForQuestionType(type) {
@@ -72,6 +76,7 @@ export function checkVisibility(
 ) {
   const { visibilityCriteria, dataElement } = component;
   // nothing set - show by default
+  console.log(component);
   if (!visibilityCriteria) return true;
 
   try {
@@ -88,6 +93,7 @@ export function checkVisibility(
 
     const checkIfQuestionMeetsCriteria = ([questionId, answersEnablingFollowUp]) => {
       const value = values[questionId];
+      console.log(value, answersEnablingFollowUp);
       if (answersEnablingFollowUp.type === 'range') {
         if (!value) return false;
         const { start, end } = answersEnablingFollowUp;
@@ -152,6 +158,7 @@ function fallbackParseVisibilityCriteria({ visibilityCriteria, dataElement }, va
 
   const [code, requiredValue] = visibilityCriteria.split(':').map(x => x.trim());
   const referencedComponent = components.find(c => c.dataElement.code === code);
+  console.log(referencedComponent, components, code, requiredValue);
   if (!referencedComponent) return true;
 
   const key = referencedComponent.dataElement.id;
@@ -176,7 +183,7 @@ function getInitialValue(dataElement) {
     case PROGRAM_DATA_ELEMENT_TYPES.NUMBER:
       return '';
     case PROGRAM_DATA_ELEMENT_TYPES.PATIENT_ISSUE:
-      return 'A patient issue will be submitted upon submission of this survey';
+    // return 'A patient issue will be submitted upon submission of this survey'; // dataElement.name
     case PROGRAM_DATA_ELEMENT_TYPES.DATE:
     default:
       return undefined;
