@@ -35,6 +35,7 @@ surveyResponse.post(
     const { models, body, db } = req;
 
     req.checkPermission('create', 'SurveyResponse');
+    console.log(body);
 
     /** TODO: Remove this temporary code to handle required locationId and departmentId fields */
     const getRefDataId = async type => {

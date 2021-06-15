@@ -53,6 +53,18 @@ function riskCalculation(patient, getf, getb) {
   return risk;
 }
 
+function getConfigObject(componentId, configString) {
+  if (!configString) return {};
+  console.log(configString);
+  return JSON.parse(configString);
+  try {
+    return JSON.parse(configString);
+  } catch (e) {
+    // eslint-disable-next-line no-console
+    console.warn(`Invalid config in survey screen component ${componentId}`);
+    return {};
+  }
+}
 export class SurveyResponse extends Model {
   static init({ primaryKey, ...options }) {
     super.init(
@@ -191,7 +203,29 @@ export class SurveyResponse extends Model {
 
   static async createWithAnswers(data) {
     const models = this.sequelize.models;
-    const { answers, surveyId, patientId, ...responseData } = data;
+    const { answers, actions, surveyId, patientId, ...responseData } = data;
+
+    // Handle actions
+    const questions = await models.SurveyScreenComponent.getComponentsForSurvey(surveyId);
+    const actionQuestions = questions
+      .filter(q => q.dataElement.type === 'PatientIssue')
+      .filter(({ dataElement }) => Object.keys(actions).includes(dataElement.id));
+
+    for (const q of actionQuestions) {
+      if (!q) continue;
+      const { dataElement, config: configString } = q;
+      switch (dataElement.type) {
+        case 'PatientIssue': {
+          const config = JSON.parse(configString) || {};
+          console.log(configString, config);
+          console.log(JSON.parse(configString));
+          if (!config.issueNote || !config.issueType) throw new InvalidOperationError(`Ill-configured PatientIssue with config: ${configString}`);
+          await models.PatientIssue.create({ patientId, type: config.issueType, note: config.issueNote });
+        }
+        default:
+        // pass
+      }
+    }
 
     // ensure survey exists
     const survey = await models.Survey.findByPk(surveyId);

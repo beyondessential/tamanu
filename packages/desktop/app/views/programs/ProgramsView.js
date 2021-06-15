@@ -12,6 +12,18 @@ import { LoadingIndicator } from 'desktop/app/components/LoadingIndicator';
 import { DumbPatientListingView } from 'desktop/app/views/patients/PatientListingView';
 import { SURVEY_TYPES } from 'shared/constants';
 
+const getAnswersFromData = (data, survey) =>
+  Object.entries(data).reduce((acc, [key, val]) => {
+    if (survey.components.find(({ dataElement }) => dataElement.id === key)?.dataElement?.type !== 'PatientIssue') acc[key] = val;
+    return acc;
+  }, {})
+
+const getActionsFromData = (data, survey) =>
+  Object.entries(data).reduce((acc, [key, _]) => {
+    if (survey.components.find(({ dataElement }) => dataElement.id === key)?.dataElement?.type === 'PatientIssue') acc[key] = true;
+    return acc;
+  }, {})
+
 const DumbSurveyFlow = React.memo(
   ({ onFetchSurvey, onSubmitSurvey, onFetchProgramsList, onFetchSurveysList, patient, currentUser }) => {
     const [survey, setSurvey] = React.useState(null);
@@ -41,7 +53,8 @@ const DumbSurveyFlow = React.memo(
         startTime: startTime,
         patientId: patient.id,
         endTime: new Date(),
-        answers: data,
+        answers: getAnswersFromData(data, survey),
+        actions: getActionsFromData(data, survey),
       }),
       [startTime, survey, patient],
     );

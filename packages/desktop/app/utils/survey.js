@@ -175,6 +175,8 @@ function getInitialValue(dataElement) {
     case PROGRAM_DATA_ELEMENT_TYPES.MULTILINE:
     case PROGRAM_DATA_ELEMENT_TYPES.NUMBER:
       return '';
+    case PROGRAM_DATA_ELEMENT_TYPES.PATIENT_ISSUE:
+      return 'A patient issue will be submitted upon submission of this survey';
     case PROGRAM_DATA_ELEMENT_TYPES.DATE:
     default:
       return undefined;
@@ -234,11 +236,6 @@ export function getFormInitialValues(components, patient, currentUser = {}) {
     if (component.dataElement.type === 'PatientData') {
       const patientValue = transformPatientData(patient, config);
       if (patientValue !== undefined) initialValues[component.dataElement.id] = patientValue;
-    }
-
-    // patient issue
-    if (component.dataElement.type === 'PatientIssue') {
-      initialValues[component.dataElement.id] = 'A patient issue will be submitted upon submission of this survey';
     }
   }
 
