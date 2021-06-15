@@ -104,7 +104,7 @@ function importSurveySheet(data, surveyId) {
     .flat();
 }
 
-export function importProgram({ file }) {
+export function importProgram({ file, whitelist }) {
   if (!existsSync(file)) {
     throw new Error(`File ${file} not found`);
   }
@@ -156,7 +156,15 @@ export function importProgram({ file }) {
   // read metadata table starting at header row
   const surveyMetadata = utils.sheet_to_json(metadataSheet, { range: headerRow });
 
-  const shouldImportSurvey = ({ status, name }) => {
+  const shouldImportSurvey = ({ status, name, code }) => {
+    // check against whitelist
+    if (whitelist && whitelist.length > 0) {
+      if (!whitelist.some(x => x === name || x === code)) {
+        return false;
+      }
+    }
+
+    // check against home server & publication status
     switch (status) {
       case "publish": return true;
       case "hidden": return false;

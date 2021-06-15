@@ -22,14 +22,18 @@ Content-Type: application/json
 Content-Disposition: form-data; name="jsonData"
 
 {
-  "dryRun": false
+  "whitelist": [
+
+  ],
+  "showRecords": false,
+  "dryRun": true
 }
 
 --{{boundary}}
 Content-Disposition: form-data; name="file"; filename="import.xlsx"
 Content-Type: application/vnd.ms-excel
 
-< M:\beyond\documents\imports\(Iraq) Registration Form.xlsx
+< M:\beyond\documents\imports\(PNG) Assistive Technology Project.xlsx
 --{{boundary}}--
 
 ##--------------------------------------------
