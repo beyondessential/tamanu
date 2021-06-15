@@ -1,6 +1,7 @@
 import { log } from 'shared/services/logging';
 import { existsSync } from 'fs';
 import { readFile, utils } from 'xlsx';
+import config from 'config';
 
 const yesOrNo = value => !!(value && value.toLowerCase() === 'yes');
 
@@ -103,7 +104,7 @@ function importSurveySheet(data, surveyId) {
     .flat();
 }
 
-export function importSurvey({ file }) {
+export function importProgram({ file }) {
   if (!existsSync(file)) {
     throw new Error(`File ${file} not found`);
   }
@@ -113,7 +114,7 @@ export function importSurvey({ file }) {
   const metadataSheet = workbook.Sheets.Metadata;
 
   if (!metadataSheet) {
-    throw new Error("A survey workbook must have a sheet named Metadata");
+    throw new Error("A program workbook must have a sheet named Metadata");
   }
 
   const programMetadata = {};
@@ -136,10 +137,16 @@ export function importSurvey({ file }) {
     return undefined;
   })();
 
+  // detect if we're importing to home server
+  const { homeServer, country } = programMetadata;
+  // ignore slashes when comparing servers - easiest way to account for trailing slashes that may or may not be present
+  const importingToHome = homeServer.replace("/", "") === config.sync.host.replace("/", "");
+  const prefix = (!importingToHome && country) ? `(${country}) ` : "";
+  
   // main container elements
   const programRecord = makeRecord('program', {
     id: `program-${idify(programMetadata.programCode)}`,
-    name: programMetadata.programName,
+    name: `${prefix}${programMetadata.programName}`,
   });
 
   if (!headerRow) {
@@ -149,13 +156,18 @@ export function importSurvey({ file }) {
   // read metadata table starting at header row
   const surveyMetadata = utils.sheet_to_json(metadataSheet, { range: headerRow });
 
-  const shouldSkipSurvey = (md) => {
-    return false;
+  const shouldImportSurvey = ({ status, name }) => {
+    switch (status) {
+      case "publish": return true;
+      case "hidden": return false;
+      case "draft": return !importingToHome;
+      default: throw new Error(`Survey ${name} has invalid status ${status}. Must be one of publish, draft, hidden.`);
+    }
   };
 
   // then loop over each survey defined in metadata and import it
   const surveys = surveyMetadata
-    .filter(md => !shouldSkipSurvey(md.name))
+    .filter(shouldImportSurvey)
     .map(md => {
       const data = utils.sheet_to_json(workbook.Sheets[md.name]);
       
@@ -165,14 +177,16 @@ export function importSurvey({ file }) {
 
       const surveyRecord = makeRecord('survey', {
         id: `${programRecord.data.id}-${idify(md.code)}`,
-        name: md.name,
+        name: `${prefix}${md.name}`,
         programId: programRecord.data.id,
         surveyType: md.surveyType,
       });
 
+      const records = importSurveySheet(data, surveyRecord.data.id);
+
       return [
         surveyRecord,
-        ...importSurveySheet(data, surveyRecord.data.id)
+        ...records,
       ];
     }).flat();
 
