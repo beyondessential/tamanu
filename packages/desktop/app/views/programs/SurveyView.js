@@ -54,10 +54,18 @@ const StyledButtonRow = styled(ButtonRow)`
   margin-top: 24px;
 `;
 
-const SurveyScreen = ({ components, values, onStepForward, onStepBack }) => {
+const SurveyScreen = ({ components, values, onStepForward, onStepBack, setFieldValue }) => {
+  console.log(components);
   const questionElements = components
     .filter(c => checkVisibility(c, values, components))
     .map(c => <SurveyQuestion component={c} key={c.id} />);
+
+  // const invisibleQuestionElements = components.filter(c => !checkVisibility(c, values, components));
+
+  // invisibleQuestionElements.forEach(({ dataElement }) => {
+  //   if (values[dataElement.id] !== undefined)
+  //     setFieldValue(dataElement.id, undefined);
+  // });
 
   return (
     <FormGrid columns={1}>
@@ -129,6 +137,7 @@ const SurveyScreenPaginator = ({ survey, values, onSurveyComplete, onCancel, set
     return (
       <SurveyScreen
         values={values}
+        setFieldValue={setFieldValue}
         components={screenComponents}
         onStepForward={onStepForward}
         onStepBack={screenIndex > 0 ? onStepBack : onCancel}

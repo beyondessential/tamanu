@@ -23,10 +23,6 @@ const InstructionField = ({ label, helperText }) => (
   <p>{label} {helperText}</p>
 );
 
-const PatientIssueField = ({ label }) => (
-  <p>{label}</p>
-);
-
 const QUESTION_COMPONENTS = {
   [PROGRAM_DATA_ELEMENT_TYPES.TEXT]: LimitedTextField,
   [PROGRAM_DATA_ELEMENT_TYPES.MULTILINE]: MultilineTextField,
@@ -48,7 +44,7 @@ const QUESTION_COMPONENTS = {
   [PROGRAM_DATA_ELEMENT_TYPES.INSTRUCTION]: InstructionField,
   [PROGRAM_DATA_ELEMENT_TYPES.PHOTO]: UnsupportedPhotoField,
   [PROGRAM_DATA_ELEMENT_TYPES.RESULT]: null,
-  [PROGRAM_DATA_ELEMENT_TYPES.PATIENT_ISSUE]: PatientIssueField,
+  [PROGRAM_DATA_ELEMENT_TYPES.PATIENT_ISSUE]: InstructionField,
 };
 
 export function getComponentForQuestionType(type) {
@@ -183,6 +179,7 @@ function getInitialValue(dataElement) {
     case PROGRAM_DATA_ELEMENT_TYPES.NUMBER:
       return '';
     case PROGRAM_DATA_ELEMENT_TYPES.PATIENT_ISSUE:
+    // return false;
     // return 'A patient issue will be submitted upon submission of this survey'; // dataElement.name
     case PROGRAM_DATA_ELEMENT_TYPES.DATE:
     default:

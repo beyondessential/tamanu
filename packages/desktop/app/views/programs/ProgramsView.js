@@ -11,18 +11,24 @@ import { ProgramSurveySelector } from 'desktop/app/views/programs/ProgramSurveyS
 import { LoadingIndicator } from 'desktop/app/components/LoadingIndicator';
 import { DumbPatientListingView } from 'desktop/app/views/patients/PatientListingView';
 import { SURVEY_TYPES } from 'shared/constants';
+import { checkVisibility } from '../../utils';
 
 const getAnswersFromData = (data, survey) =>
   Object.entries(data).reduce((acc, [key, val]) => {
     if (survey.components.find(({ dataElement }) => dataElement.id === key)?.dataElement?.type !== 'PatientIssue') acc[key] = val;
     return acc;
-  }, {})
+  }, {});
 
-const getActionsFromData = (data, survey) =>
-  Object.entries(data).reduce((acc, [key, _]) => {
-    if (survey.components.find(({ dataElement }) => dataElement.id === key)?.dataElement?.type === 'PatientIssue') acc[key] = true;
+const getActionsFromData = (data, survey) => console.log(data) ??
+  Object.entries(data).reduce((acc, [key, val]) => {
+    const component = survey.components.find(({ dataElement }) => dataElement.id === key);
+    if (component?.dataElement?.type === 'PatientIssue') {
+      if (checkVisibility(component, data, survey.components)) {
+        acc[key] = true;
+      }
+    }
     return acc;
-  }, {})
+  }, {});
 
 const DumbSurveyFlow = React.memo(
   ({ onFetchSurvey, onSubmitSurvey, onFetchProgramsList, onFetchSurveysList, patient, currentUser }) => {
