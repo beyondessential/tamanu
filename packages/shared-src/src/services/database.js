@@ -148,7 +148,7 @@ export async function initDatabase(dbOptions) {
   const channelRouter = wayfarer();
   for (const model of modelClasses) {
     for (const route of model.channelRoutes) {
-      channelRouter.on(route, async (urlParams, f) => f(model, { ...urlParams, route }));
+      channelRouter.on(route, async (params, f) => f(model, params));
     }
   }
 
