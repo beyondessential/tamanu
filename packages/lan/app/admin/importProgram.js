@@ -189,12 +189,15 @@ export function importProgram({ file, whitelist }) {
   const surveys = surveyMetadata
     .filter(shouldImportSurvey)
     .map(md => {
-      const data = utils.sheet_to_json(workbook.Sheets[md.name]);
-      
-      if (!data) {
-        throw new Error(`Sheet named ${md.name} was not found in the workbook`);
+      // Strip punctuation from workbook names before trying to find them
+      // (this mirrors the punctuation stripping that node-xlsx does internally)
+      const worksheet = workbook.Sheets[md.name.replace(/[^\w\s]/g, '')] || workbook.Sheets[md.code];
+      if(!worksheet) {
+        const keys = Object.keys(workbook.Sheets);
+        throw new Error(`Sheet named "${md.name}" was not found in the workbook. (found: ${keys})`);
       }
-
+      const data = utils.sheet_to_json(worksheet);
+      
       const surveyRecord = makeRecord('survey', {
         id: `${programRecord.data.id}-${idify(md.code)}`,
         name: `${prefix}${md.name}`,
