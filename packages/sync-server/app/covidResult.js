@@ -25,7 +25,7 @@ const transformLabRequest = async (models, labRequest) => {
   return {
     testDate: createdAt,
     patientInitials: getPatientInitials(patient),
-    testResult: status === LAB_REQUEST_STATUSES.PUBLISHED ? result : 'Unpublished',
+    testResult: status === LAB_REQUEST_STATUSES.PUBLISHED ? result : 'Result not available yet',
   };
 }
 
