@@ -1,9 +1,21 @@
 import express from 'express';
 import asyncHandler from 'express-async-handler';
 import { QueryTypes, Op } from 'sequelize';
-import { ENCOUNTER_TYPES, REFERENCE_TYPES } from 'shared/constants';
+import { ENCOUNTER_TYPES } from 'shared/constants';
+import { NotFoundError } from 'shared/errors';
 
 export const patientVaccineRoutes = express.Router();
+
+const asRealNumber = value => {
+  let num = value;
+  if (typeof num === 'string') {
+    num = Number.parseInt(value, 10);
+  }
+  if (typeof num !== 'number' || Number.isNaN(num) || !Number.isFinite(num)) {
+    throw new Error(`asRealNumber: expected real numeric string or number, got ${value}`);
+  }
+  return num;
+};
 
 patientVaccineRoutes.get(
   '/:id/scheduledVaccines',
@@ -35,7 +47,7 @@ patientVaccineRoutes.get(
             administered_vaccines av
             JOIN encounters e ON av.encounter_id = e.id
           WHERE
-            e.patient_id = :patientId) av ON sv.id = av.scheduled_vaccine_id
+            e.patient_id = :patientId) av ON sv.id = av.scheduled_vaccine_id AND av.status = 'GIVEN'
         ${whereClause}
         GROUP BY sv.id
         ORDER BY max(sv.label), max(sv.schedule);
@@ -62,11 +74,24 @@ patientVaccineRoutes.get(
         allVaccines[vaccineSchedule.label].schedules.push({
           schedule: vaccineSchedule.schedule,
           scheduledVaccineId: vaccineSchedule.id,
-          administered: !!vaccineSchedule.administered,
+          administered: asRealNumber(vaccineSchedule.administered) > 0,
         });
         return allVaccines;
       }, {});
     res.send(Object.values(vaccines));
+  }),
+);
+
+patientVaccineRoutes.put(
+  '/:id/administeredVaccine/:vaccineId',
+  asyncHandler(async (req, res) => {
+    const { models, params } = req;
+    req.checkPermission('read', 'PatientVaccine');
+    const object = await models.AdministeredVaccine.findByPk(params.vaccineId);
+    if (!object) throw new NotFoundError();
+    req.checkPermission('write', 'PatientVaccine');
+    await object.update(req.body);
+    res.send(object);
   }),
 );
 
@@ -119,6 +144,7 @@ patientVaccineRoutes.get(
     const results = await req.models.AdministeredVaccine.findAll({
       where: {
         ['$encounter.patient_id$']: req.params.id,
+        status: 'GIVEN',
       },
       include: [
         {

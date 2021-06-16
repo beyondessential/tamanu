@@ -15,7 +15,18 @@
       })();
     </script>
     <style>
+
+      @page {
+        margin: 0;
+        margin-bottom: -0.5cm; // prevent page-bottom margin from creating new blank pages
+      }
+
       @media print {
+        html, body {
+          margin: 0;
+          padding: 0;
+        }
+
         #root {
           display: none;
         }

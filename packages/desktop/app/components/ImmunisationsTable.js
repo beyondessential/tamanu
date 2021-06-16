@@ -8,6 +8,7 @@ const getVaccineName = record => record.scheduledVaccine?.label || 'Unknown';
 const getDate = ({ date }) => <DateDisplay date={date} />;
 const getAdministerer = record => record.encounter?.examiner?.displayName || 'Unknown';
 const getFacility = record => record.encounter?.location?.name || '';
+const getInjectionSite = ({ injectionSite }) => injectionSite || 'Unknown';
 const getBatch = ({ batch }) => batch || 'Unknown';
 
 const columns = [
@@ -16,13 +17,15 @@ const columns = [
   { key: 'date', title: 'Date', accessor: getDate },
   { key: 'givenBy', title: 'Given by', accessor: getAdministerer },
   { key: 'facility', title: 'Facility', accessor: getFacility },
+  { key: 'injectionSite', title: 'Injection site', accessor: getInjectionSite },
   { key: 'batch', title: 'Batch', accessor: getBatch },
 ];
 
-export const ImmunisationsTable = React.memo(({ patient }) => (
+export const ImmunisationsTable = React.memo(({ patient, onItemClick }) => (
   <DataFetchingTable
     endpoint={`patient/${patient.id}/administeredVaccines`}
     columns={columns}
+    onRowClick={row => onItemClick(row.id)}
     noDataMessage="No vaccinations found"
   />
 ));

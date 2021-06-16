@@ -18,7 +18,7 @@ export const getImageSourceFromData = imageData => {
       uri = `data:image/jpeg;base64,${imageData}`;
     }
 
-    return { uri };
+    return uri;
   }
 
   return imageData;

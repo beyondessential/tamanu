@@ -3,7 +3,7 @@ const defaultFormatter = ({ name, id }) => ({ label: name, value: id });
 export class Suggester {
   constructor(api, endpoint, formatter = defaultFormatter) {
     this.api = api;
-    this.endpoint = `suggestions/${endpoint}`;
+    this.endpoint = `suggestions/${encodeURIComponent(endpoint)}`;
     this.formatter = formatter;
   }
 
@@ -13,7 +13,7 @@ export class Suggester {
 
   fetchCurrentOption = async value => {
     try {
-      const data = await this.fetch(`/${value}`);
+      const data = await this.fetch(`/${encodeURIComponent(value)}`);
       return this.formatter(data);
     } catch (e) {
       return undefined;

@@ -14,6 +14,7 @@ const DumbDataFetchingTable = memo(
     onRowClick,
     transformRow,
     initialSort = DEFAULT_SORT,
+    customSort,
     className,
     exportName = 'TamanuExport',
   }) => {
@@ -82,6 +83,7 @@ const DumbDataFetchingTable = memo(
         onRowClick={onRowClick}
         className={className}
         exportName={exportName}
+        customSort={customSort}
       />
     );
   },

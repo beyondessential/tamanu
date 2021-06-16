@@ -11,6 +11,17 @@ const servers = [
   { name: 'Fiji', type: 'live', host: 'https://fiji.tamanu.io' },
   { name: 'Tonga', type: 'live', host: 'https://tonga.tamanu.io' },
   { name: 'Samoa', type: 'live', host: 'https://tamanu-sync.health.gov.ws' },
+  {
+    name: 'Motivation Australia - Iraq',
+    type: 'live',
+    host: 'https://motivation-sync-iraq.tamanu.io',
+  },
+  {
+    name: 'Motivation Australia - Papua New Guinea',
+    type: 'live',
+    host: 'https://motivation-sync-png.tamanu.io',
+  },
+  { name: 'Nauru', type: 'live', host: 'https://sync.tamanu-nauru.org' },
 ];
 
 serversRouter.get('/', (req, res) => {

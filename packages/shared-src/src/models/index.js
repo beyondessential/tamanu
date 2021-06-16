@@ -43,4 +43,6 @@ export * from './PatientCommunication';
 
 export * from './Location';
 export * from './UserFacility';
-export * from './UserFeatureFlagsCache';
+export * from './Attachment';
+export * from './UserLocalisationCache';
+export * from './Asset';

@@ -8,12 +8,15 @@ import { MuiThemeProvider, StylesProvider } from '@material-ui/core/styles';
 import { RoutingApp } from './RoutingApp';
 import { theme } from './theme';
 import { EncounterProvider } from './contexts/Encounter';
+import { LocalisationProvider } from './contexts/Localisation';
 import { ReferralProvider } from './contexts/Referral';
 
 const StateContextProviders = ({ children, store }) => (
   <EncounterProvider store={store}>
     <ReferralProvider>
-      {children}
+      <LocalisationProvider store={store}>
+        {children}
+      </LocalisationProvider>
     </ReferralProvider>
   </EncounterProvider>
 );

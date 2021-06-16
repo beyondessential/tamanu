@@ -17,5 +17,5 @@ const Container = styled.div`
 `;
 
 export const PatientInitialsIcon = memo(({ patient }) => (
-  <Container>{`${patient.firstName.substring(0, 1)}${patient.lastName.substring(0, 1)}`}</Container>
+  <Container>{`${patient.firstName ? patient.firstName.substring(0, 1) : ''}${patient.lastName ? patient.lastName.substring(0, 1) : ''}`}</Container>
 )); // TODO add sync status symbol

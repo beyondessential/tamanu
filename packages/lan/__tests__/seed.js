@@ -15,11 +15,11 @@ export const testAllergies = splitIds(`
 `).map(x => ({ ...x, type: 'allergy' }));
 
 export const testLocations = splitIds(`
-  Ward 1
-  Ward 2
-  Ward 3
-  Ward 4
-  Ward 5
+  Ward-1
+  Ward-2
+  Ward-3
+  Ward-4
+  Ward-5
 `).map(x => ({ ...x, type: 'location' }));
 
 export const testDepartments = splitIds(`

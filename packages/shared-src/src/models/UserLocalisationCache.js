@@ -1,12 +1,12 @@
 import { Sequelize } from 'sequelize';
 import { Model } from './Model';
 
-export class UserFeatureFlagsCache extends Model {
+export class UserLocalisationCache extends Model {
   static init({ primaryKey, ...options }) {
     super.init(
       {
         id: primaryKey,
-        featureFlags: {
+        localisation: {
           type: Sequelize.STRING,
           allowNull: false,
         },

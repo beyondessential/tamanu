@@ -71,8 +71,14 @@ const scheduledVaccineSchema = baseSchema
     label: yup.string().required(),
     schedule: yup.string().required(),
     weeksFromBirthDue: yup.number(),
+    weeksFromLastVaccinationDue: yup.number(),
     index: yup.number().required(),
     vaccineId: yup.string().required(),
+  });
+
+const surveySchema = baseSchema
+  .shape({
+    surveyType: yup.string().required().oneOf(['programs', 'referral', 'obsolete']),
   });
 
 const validationSchemas = {
@@ -81,6 +87,7 @@ const validationSchemas = {
   patient: patientSchema,
   user: userSchema,
   labTestType: labTestTypeSchema,
+  survey: surveySchema,
   surveyScreenComponent: surveyScreenComponentSchema,
   programDataElement: programDataElementSchema,
   scheduledVaccine: scheduledVaccineSchema,

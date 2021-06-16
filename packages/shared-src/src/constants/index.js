@@ -116,12 +116,22 @@ export const REFERENCE_TYPES = {
   CARE_PLAN: 'carePlan',
   ETHNICITY: 'ethnicity',
   NATIONALITY: 'nationality',
+  COUNTRY: 'country',
   DIVISION: 'division',
   SUBDIVISION: 'subdivision',
   MEDICAL_AREA: 'medicalArea',
   NURSING_ZONE: 'nursingZone',
   SETTLEMENT: 'settlement',
   OCCUPATION: 'occupation',
+  SEX: 'sex',
+  PLACE_OF_BIRTH: 'placeOfBirth',
+  MARITAL_STATUS: 'maritalStatus',
+  RELIGION: 'religion',
+  FAMILY_RELATION: 'familyRelation',
+  PATIENT_TYPE: 'patientType',
+  BLOOD_TYPE: 'bloodType',
+  SOCIAL_MEDIA_PLATFORM: 'socialMediaPlatform',
+  PATIENT_BILLING_TYPE: 'patientBillingType',
 };
 
 export const REFERENCE_TYPE_VALUES = Object.values(REFERENCE_TYPES);
@@ -147,6 +157,9 @@ export const PROGRAM_DATA_ELEMENT_TYPES = {
   SURVEY_ANSWER: 'SurveyAnswer',
   SURVEY_RESULT: 'SurveyResult',
   SURVEY_LINK: 'SurveyLink',
+  PHOTO: 'Photo',
+  PATIENT_DATA: 'PatientData',
+  USER_DATA: 'UserData',
 };
 export const PROGRAM_DATA_ELEMENT_TYPE_VALUES = Object.values(PROGRAM_DATA_ELEMENT_TYPES);
 
@@ -219,3 +232,12 @@ export const VACCINE_CATEGORIES = {
 };
 
 export const VACCINE_CATEGORIES_VALUES = Object.values(VACCINE_CATEGORIES);
+
+export const INJECTION_SITE_OPTIONS = {
+  LEFT_ARM: 'Left arm',
+  RIGHT_ARM: 'Right arm',
+  LEFT_THIGH: 'Left thigh',
+  RIGHT_THIGH: 'Right thigh',
+  ORAL: 'Oral',
+  OTHER: 'Other',
+};

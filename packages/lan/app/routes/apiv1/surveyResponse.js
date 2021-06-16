@@ -7,6 +7,11 @@ import { REFERENCE_TYPES } from 'shared/constants';
 
 export const surveyResponse = express.Router();
 
+const MODEL_COLUMN_TO_ANSWER_DISPLAY_VALUE = {
+  User: 'displayName',
+  ReferenceData: 'name',
+};
+
 surveyResponse.get(
   '/:id',
   asyncHandler(async (req, res) => {
@@ -21,10 +26,38 @@ surveyResponse.get(
       where: { responseId: params.id },
     });
 
+    const autocompleteComponents = components
+      .filter(c => c.dataElement.dataValues.type === 'Autocomplete')
+      .map(({ dataElementId, config: componentConfig }) => [
+        dataElementId,
+        JSON.parse(componentConfig),
+      ]);
+    const autocompleteComponentMap = new Map(autocompleteComponents);
+
+    // Transform Autocomplete answers from: { body: ReferenceData.id } to: { body: ReferenceData.name, originalBody: ReferenceData.id }
+    const transformedAnswers = await Promise.all(
+      answers.map(async answer => {
+        const componentConfig = autocompleteComponentMap.get(answer.dataValues.dataElementId);
+        if (!componentConfig) {
+          return answer;
+        }
+        const result = await models[componentConfig.source].findByPk(answer.dataValues.body);
+        const answerDisplayValue =
+          result[MODEL_COLUMN_TO_ANSWER_DISPLAY_VALUE[componentConfig.source]];
+
+        const transformedAnswer = {
+          ...answer.dataValues,
+          originalBody: answer.dataValues.body,
+          body: answerDisplayValue,
+        };
+        return transformedAnswer;
+      }),
+    );
+
     res.send({
       ...surveyResponseRecord.forResponse(),
       components,
-      answers,
+      answers: transformedAnswers,
     });
   }),
 );
@@ -41,7 +74,9 @@ surveyResponse.post(
       const code = config.survey.defaultCodes[type];
       const record = await models.ReferenceData.findOne({ where: { type, code } });
       if (!record) {
-        return null;
+        throw new Error(
+          `Could not look up default reference data type ${type} for encounter: code ${code} not found (check survey.defaultCodes.${type} in the config)`,
+        );
       }
       return record.id;
     };

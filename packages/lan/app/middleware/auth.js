@@ -4,10 +4,22 @@ import { auth } from 'config';
 import { v4 as uuid } from 'uuid';
 
 import { BadAuthenticationError } from 'shared/errors';
+import { log } from 'shared/services/logging';
 
 import { WebRemote } from '~/sync';
 
 const { tokenDuration } = auth;
+
+// TODO: supports versions desktop-1.2.0/mobile-1.2.14 and older, remove once we no longer support these
+const featureFlags = {
+  patientFieldOverrides: {
+    displayId: {
+      shortLabel: 'NHN',
+      longLabel: 'National Health Number',
+      hidden: false,
+    },
+  },
+};
 
 // regenerate the secret key whenever the server restarts.
 // this will invalidate all current tokens, but they're meant to expire fairly quickly anyway.
@@ -52,7 +64,7 @@ export async function remoteLogin(models, email, password) {
   });
 
   // we've logged in as a valid remote user - update local database to match
-  const { user, featureFlags } = response;
+  const { user, localisation } = response;
   const { id, ...userDetails } = user;
 
   await models.User.sequelize.transaction(async () => {
@@ -64,14 +76,14 @@ export async function remoteLogin(models, email, password) {
       },
       { where: { id } },
     );
-    await models.UserFeatureFlagsCache.upsert({
+    await models.UserLocalisationCache.upsert({
       userId: id,
-      featureFlags: JSON.stringify(featureFlags),
+      localisation: JSON.stringify(localisation),
     });
   });
 
   const token = getToken(user);
-  return { token, remote: true, featureFlags };
+  return { token, remote: true, localisation, featureFlags };
 }
 
 async function localLogin(models, email, password) {
@@ -83,13 +95,13 @@ async function localLogin(models, email, password) {
     throw new BadAuthenticationError('Incorrect username or password, please try again');
   }
 
-  const featureFlagsCache = await models.UserFeatureFlagsCache.findOne({
+  const localisationCache = await models.UserLocalisationCache.findOne({
     where: { userId: user.id },
   });
-  const featureFlags = JSON.parse(featureFlagsCache.featureFlags);
+  const localisation = JSON.parse(localisationCache.localisation);
 
   const token = getToken(user);
-  return { token, remote: false, featureFlags };
+  return { token, remote: false, localisation, featureFlags };
 }
 
 async function remoteLoginWithLocalFallback(models, email, password) {
@@ -106,6 +118,7 @@ async function remoteLoginWithLocalFallback(models, email, password) {
       throw new BadAuthenticationError('Incorrect username or password, please try again');
     }
 
+    log.warn(`remoteLoginWithLocalFallback: remote login failed: ${e}`);
     return localLogin(models, email, password);
   }
 }

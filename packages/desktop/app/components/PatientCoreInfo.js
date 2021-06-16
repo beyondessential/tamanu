@@ -1,7 +1,9 @@
 import React, { memo } from 'react';
 import styled from 'styled-components';
-
 import { grey } from '@material-ui/core/colors';
+
+import { useLocalisation } from '../contexts/Localisation';
+import { LocalisedText } from './LocalisedText';
 import { DateDisplay } from './DateDisplay';
 import { PatientInitialsIcon } from './PatientInitialsIcon';
 import { Colors } from '../constants';
@@ -82,12 +84,15 @@ const HealthIdLabelText = styled.div`
   font-size: 12px;
 `;
 
-const CoreInfoCell = memo(({ label, children }) => (
-  <CoreInfoCellContainer>
-    <CoreInfoLabel>{label}</CoreInfoLabel>
-    <CoreInfoValue>{children}</CoreInfoValue>
-  </CoreInfoCellContainer>
-));
+const CoreInfoCell = memo(({ path, children }) => {
+  const { getLocalisation } = useLocalisation();
+  return (
+    <CoreInfoCellContainer>
+      <CoreInfoLabel>{getLocalisation(path)}</CoreInfoLabel>
+      <CoreInfoValue>{children}</CoreInfoValue>
+    </CoreInfoCellContainer>
+  );
+});
 
 const DeceasedText = styled.div`
   opacity: 0.8;
@@ -102,7 +107,9 @@ const DeceasedIndicator = memo(({ death }) => (
 
 const HealthIdDisplay = memo(({ patient }) => (
   <HealthIdContainer>
-    <HealthIdLabelText>National Health Number</HealthIdLabelText>
+    <HealthIdLabelText>
+      <LocalisedText path="fields.displayId.longLabel"/>
+    </HealthIdLabelText>
     <InvertedDisplayIdLabel>{patient.displayId}</InvertedDisplayIdLabel>
   </HealthIdContainer>
 ));
@@ -121,8 +128,8 @@ export const CoreInfoDisplay = memo(({ patient }) => (
       </NameContainer>
     </NameSection>
     <CoreInfoSection>
-      <CoreInfoCell label="Sex">{patient.sex}</CoreInfoCell>
-      <CoreInfoCell label="DOB">
+      <CoreInfoCell path="fields.sex.shortLabel">{patient.sex}</CoreInfoCell>
+      <CoreInfoCell path="fields.dateOfBirth.shortLabel">
         <DateDisplay date={patient.dateOfBirth} />
       </CoreInfoCell>
     </CoreInfoSection>

@@ -35,7 +35,7 @@ export class Note extends Model {
           defaultValue: Sequelize.NOW,
         },
         noteType: {
-          type: Sequelize.ENUM(NOTE_TYPE_VALUES),
+          type: Sequelize.STRING,
           allowNull: false,
         },
         content: {
