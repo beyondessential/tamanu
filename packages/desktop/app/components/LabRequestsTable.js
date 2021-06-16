@@ -30,7 +30,7 @@ const getRequestType = ({ category }) => (category || {}).name || 'Unknown';
 const getDate = ({ requestedDate }) => <DateDisplay date={requestedDate} />;
 
 const encounterColumns = [
-  { key: 'id', title: 'Request ID' },
+  { key: 'displayId', title: 'Request ID' },
   { key: 'labRequestType', title: 'Type', accessor: getRequestType, sortable: false },
   { key: 'status', title: 'Status', accessor: getStatus },
   { key: 'displayName', title: 'Requested by', accessor: getDisplayName, sortable: false },

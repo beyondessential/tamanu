@@ -130,13 +130,13 @@ export class LabRequestForm extends React.PureComponent {
   };
 
   render() {
-    const { onSubmit, editedObject, generateId = shortid.generate } = this.props;
+    const { onSubmit, editedObject, generateDisplayId } = this.props;
     return (
       <Form
         onSubmit={onSubmit}
         render={this.renderForm}
         initialValues={{
-          id: generateId(),
+          displayId: generateDisplayId(),
           requestedDate: new Date(),
           sampleTime: new Date(),
           ...editedObject,
