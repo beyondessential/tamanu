@@ -210,8 +210,6 @@ export class SurveyResponse extends Model {
   static async createWithAnswers(data) {
     const models = this.sequelize.models;
     const { answers, actions, surveyId, patientId, ...responseData } = data;
-    console.log(data);
-
 
     // ensure survey exists
     const survey = await models.Survey.findByPk(surveyId);
