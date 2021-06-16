@@ -47,9 +47,8 @@ const DumbDataFetchingTable = memo(
             count,
             isLoading: false,
           });
-          if (data.length === 0 && count !== 0 && page !== 0) {
-            // https://github.com/beyondessential/tamanu-backlog/issues/669
-            setPage(Math.min(page, Math.ceil(count / rowsPerPage) - 1)); // (-1 because pages are 0 indexed)
+          if (page !== 0) {
+            setPage(0); //
           }
         } catch (error) {
           console.error(error);
