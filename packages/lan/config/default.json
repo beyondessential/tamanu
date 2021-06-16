@@ -16,7 +16,8 @@
     "host": "https://sync-dev.tamanu.io",
     "email": "",
     "password": "",
-    "timeout": 10000
+    "timeout": 10000,
+    "readOnly": false
   },
   "port": 4000,
   "db": {
