@@ -48,9 +48,6 @@ const DumbDataFetchingTable = memo(
             count,
             isLoading: false,
           });
-          if (page !== 0) {
-            setPage(0); //
-          }
         } catch (error) {
           console.error(error);
           updateFetchState({ errorMessage: error.message, isLoading: false });
@@ -61,6 +58,8 @@ const DumbDataFetchingTable = memo(
         updateFetchState = () => { }; // discard the fetch state update if this request is stale
       };
     }, [page, rowsPerPage, sorting, fetchOptions]);
+
+    useEffect(() => setPage(0), [fetchOptions]);
 
     const { data, count, isLoading, errorMessage } = fetchState;
     const { order, orderBy } = sorting;
