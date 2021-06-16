@@ -13,7 +13,6 @@ import {
   NumberField,
   ReadOnlyTextField,
   UnsupportedPhotoField,
-  // PatientIssueCreatorField,
 } from 'desktop/app/components/Field';
 import { PROGRAM_DATA_ELEMENT_TYPES } from '../../../shared-src/src/constants';
 import { getAgeFromDate } from 'shared-src/src/utils/date';
@@ -72,7 +71,6 @@ export function checkVisibility(
 ) {
   const { visibilityCriteria, dataElement } = component;
   // nothing set - show by default
-  console.log(component);
   if (!visibilityCriteria) return true;
 
   try {
@@ -89,7 +87,6 @@ export function checkVisibility(
 
     const checkIfQuestionMeetsCriteria = ([questionId, answersEnablingFollowUp]) => {
       const value = values[questionId];
-      console.log(value, answersEnablingFollowUp);
       if (answersEnablingFollowUp.type === 'range') {
         if (!value) return false;
         const { start, end } = answersEnablingFollowUp;
@@ -154,7 +151,6 @@ function fallbackParseVisibilityCriteria({ visibilityCriteria, dataElement }, va
 
   const [code, requiredValue] = visibilityCriteria.split(':').map(x => x.trim());
   const referencedComponent = components.find(c => c.dataElement.code === code);
-  console.log(referencedComponent, components, code, requiredValue);
   if (!referencedComponent) return true;
 
   const key = referencedComponent.dataElement.id;
@@ -177,10 +173,8 @@ function getInitialValue(dataElement) {
     case PROGRAM_DATA_ELEMENT_TYPES.TEXT:
     case PROGRAM_DATA_ELEMENT_TYPES.MULTILINE:
     case PROGRAM_DATA_ELEMENT_TYPES.NUMBER:
+    case PROGRAM_DATA_ELEMENT_TYPES.PATIENT_ISSUE: // This is important (doesn't make sense that it is important though...)
       return '';
-    case PROGRAM_DATA_ELEMENT_TYPES.PATIENT_ISSUE:
-    // return false;
-    // return 'A patient issue will be submitted upon submission of this survey'; // dataElement.name
     case PROGRAM_DATA_ELEMENT_TYPES.DATE:
     default:
       return undefined;
