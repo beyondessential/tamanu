@@ -98,7 +98,7 @@ export const NewVaccineTabs = ({
     () => [
       {
         key: VaccineStatus.GIVEN,
-        title: 'GIVEN\nON TIME',
+        title: 'GIVEN',
         vaccine: route.params.vaccine,
         color: theme.colors.SAFE,
         icon: Icons.GivenOnTimeIcon,
