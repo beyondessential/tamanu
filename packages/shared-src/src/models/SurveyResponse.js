@@ -53,8 +53,7 @@ function riskCalculation(patient, getf, getb) {
   return risk;
 }
 
-const handleSurveyResponseActions = (actions, models) => {
-  const questions = await models.SurveyScreenComponent.getComponentsForSurvey(surveyId);
+const handleSurveyResponseActions = async (models, actions, questions, patientId) => {
   const actionQuestions = questions
     .filter(q => q.dataElement.type === 'PatientIssue')
     .filter(({ dataElement }) => Object.keys(actions).includes(dataElement.id));
@@ -146,9 +145,8 @@ export class SurveyResponse extends Model {
     });
   }
 
-  static async runCalculations(patientId, surveyId, models, answersObject) {
+  static async runCalculations(patientId, questions, models, answersObject) {
     const patient = await models.Patient.findByPk(patientId);
-    const questions = await models.SurveyScreenComponent.getComponentsForSurvey(surveyId);
 
     const calculatedAnswers = {};
     let result = null;
@@ -212,8 +210,8 @@ export class SurveyResponse extends Model {
   static async createWithAnswers(data) {
     const models = this.sequelize.models;
     const { answers, actions, surveyId, patientId, ...responseData } = data;
+    console.log(data);
 
-    handleSurveyResponseActions(actions, models);
 
     // ensure survey exists
     const survey = await models.Survey.findByPk(surveyId);
@@ -221,9 +219,13 @@ export class SurveyResponse extends Model {
       throw new InvalidOperationError(`Invalid survey ID: ${surveyId}`);
     }
 
+    const questions = await models.SurveyScreenComponent.getComponentsForSurvey(surveyId);
+
+    await handleSurveyResponseActions(models, actions, questions, patientId);
+
     const { answers: calculatedAnswers, result } = await this.runCalculations(
       patientId,
-      surveyId,
+      questions,
       models,
       answers,
     );
