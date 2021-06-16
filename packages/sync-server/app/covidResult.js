@@ -22,13 +22,11 @@ const transformLabRequest = async (models, labRequest) => {
     }
   });
 
-  return status === LAB_REQUEST_STATUSES.PUBLISHED
-    ? {
-      testDate: createdAt,
-      patientInitials: getPatientInitials(patient),
-      testResult: result
-    }
-    : null;
+  return {
+    testDate: createdAt,
+    patientInitials: getPatientInitials(patient),
+    testResult: status === LAB_REQUEST_STATUSES.PUBLISHED ? result : 'Unpublished',
+  };
 }
 
 covidResultRoutes.get(
@@ -47,7 +45,7 @@ covidResultRoutes.get(
     const labRequestsToReport = await Promise.all(labRequests.map(labRequest => transformLabRequest(models, labRequest)));
 
     res.send({
-      data: labRequestsToReport.filter(lr => !!lr),
+      data: labRequestsToReport,
     });
   }),
 );
