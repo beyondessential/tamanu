@@ -239,3 +239,19 @@ export function getFormInitialValues(components, patient, currentUser = {}) {
 
   return initialValues;
 }
+
+export const getAnswersFromData = (data, survey) =>
+  Object.entries(data).reduce((acc, [key, val]) => {
+    if (survey.components.find(({ dataElement }) => dataElement.id === key)?.dataElement?.type !== 'PatientIssue') acc[key] = val;
+    return acc;
+  }, {});
+
+export const getActionsFromData = (data, survey) => Object.entries(data).reduce((acc, [key, val]) => {
+  const component = survey.components.find(({ dataElement }) => dataElement.id === key);
+  if (component?.dataElement?.type === 'PatientIssue') {
+    if (checkVisibility(component, data, survey.components)) {
+      acc[key] = true;
+    }
+  }
+  return acc;
+}, {});
