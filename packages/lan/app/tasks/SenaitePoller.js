@@ -109,7 +109,7 @@ export class SenaitePoller extends ScheduledTask {
     });
   }
 
-  async createLabRequestsOnSenaite() {
+  async createLabRequestsOnSenaite() { // TODO: AL
     // Get all requests that need a senaite record created. That is:
     // - no senaite ID
     // - status is not senaite error (ie, previously attempted and failed)

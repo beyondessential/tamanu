@@ -50,12 +50,17 @@ export class LabRequest extends Model {
           type: Sequelize.STRING,
           allowNull: true,
         },
+
+        displayId: {
+          type: Sequelize.STRING,
+          allowNull: false,
+        },
       },
       options,
     );
   }
 
-  static createWithTests(data) {
+  static createWithTests(data) { // TODO: AL
     return this.sequelize.transaction(async () => {
       const { labTestTypeIds = [] } = data;
       if (!labTestTypeIds.length) {
