@@ -213,7 +213,6 @@ export class SurveyResponse extends Model {
     const models = this.sequelize.models;
     const { answers, actions, surveyId, patientId, ...responseData } = data;
 
-    // Handle actions
     handleSurveyResponseActions(actions, models);
 
     // ensure survey exists
