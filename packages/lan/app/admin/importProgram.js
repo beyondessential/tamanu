@@ -189,15 +189,6 @@ export function importProgram({ file, whitelist }) {
   const surveys = surveyMetadata
     .filter(shouldImportSurvey)
     .map(md => {
-      // Strip punctuation from workbook names before trying to find them
-      // (this mirrors the punctuation stripping that node-xlsx does internally)
-      const worksheet = workbook.Sheets[md.name.replace(/[^\w\s]/g, '')] || workbook.Sheets[md.code];
-      if(!worksheet) {
-        const keys = Object.keys(workbook.Sheets);
-        throw new Error(`Sheet named "${md.name}" was not found in the workbook. (found: ${keys})`);
-      }
-      const data = utils.sheet_to_json(worksheet);
-      
       const surveyRecord = makeRecord('survey', {
         id: `${programRecord.data.id}-${idify(md.code)}`,
         name: `${prefix}${md.name}`,
@@ -205,6 +196,21 @@ export function importProgram({ file, whitelist }) {
         surveyType: md.surveyType,
       });
 
+      // don't import questions for obsoleted surveys
+      // (or even read their worksheet, or check if it exists)
+      if (md.surveyType === "obsolete") {
+        return [surveyRecord];
+      }
+
+      // Strip some characters from workbook names before trying to find them
+      // (this mirrors the punctuation stripping that node-xlsx does internally)
+      const worksheet = workbook.Sheets[md.name.replace(/['"]/g, '')] || workbook.Sheets[md.code];
+      if(!worksheet && md.surveyType !== "obsolete") {
+        const keys = Object.keys(workbook.Sheets);
+        throw new Error(`Sheet named "${md.name}" was not found in the workbook. (found: ${keys})`);
+      }
+      const data = utils.sheet_to_json(worksheet);
+      
       const records = importSurveySheet(data, surveyRecord.data.id);
 
       return [
