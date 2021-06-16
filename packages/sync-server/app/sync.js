@@ -91,21 +91,19 @@ syncRoutes.post(
     const { store, params, body } = req;
     const { channel } = params;
 
-    await store.withModel(channel, async model => {
-      const plan = createImportPlan(model);
-      const upsert = async records => {
-        // TODO: sort out permissions
-        // if (!shouldPush(model)) {
-        //   throw new InvalidOperationError(`Pushing to channel "${channel}" is not allowed`);
-        // }
-        return executeImportPlan(plan, channel, records);
-      };
+    const plan = createImportPlan(store.sequelize, channel);
+    const upsert = async records => {
+      // TODO: sort out permissions
+      // if (!shouldPush(model)) {
+      //   throw new InvalidOperationError(`Pushing to channel "${channel}" is not allowed`);
+      // }
+      return executeImportPlan(plan, records);
+    };
 
-      const syncRecords = Array.isArray(body) ? body : [body];
-      const count = await upsert(syncRecords);
-      log.info(`POST to ${channel} : ${count} records`);
-      res.send({ count, requestedAt });
-    });
+    const syncRecords = Array.isArray(body) ? body : [body];
+    const count = await upsert(syncRecords);
+    log.info(`POST to ${channel} : ${count} records`);
+    res.send({ count, requestedAt });
   }),
 );
 

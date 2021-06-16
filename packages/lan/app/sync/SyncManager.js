@@ -71,9 +71,9 @@ export class SyncManager {
   }
 
   async pullAndImportChannel(model, channel, initialCursor = '0') {
-    const plan = createImportPlan(model);
+    const plan = createImportPlan(model.sequelize, channel);
     const importRecords = async syncRecords => {
-      await executeImportPlan(plan, channel, syncRecords);
+      await executeImportPlan(plan, syncRecords);
     };
 
     let cursor = initialCursor;

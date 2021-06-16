@@ -140,8 +140,8 @@ describe('import', () => {
           const channel = overrideChannel || (await model.getChannels())[0];
 
           // act
-          const plan = createImportPlan(model);
-          await executeImportPlan(plan, channel, [toSyncRecord(record)]);
+          const plan = createImportPlan(model.sequelize, channel);
+          await executeImportPlan(plan, [toSyncRecord(record)]);
 
           // assert
           const dbRecord = await model.findByPk(record.id, options);
@@ -173,8 +173,8 @@ describe('import', () => {
           const channel = overrideChannel || (await model.getChannels())[0];
 
           // act
-          const plan = createImportPlan(model);
-          await executeImportPlan(plan, channel, [toSyncRecord(newRecord)]);
+          const plan = createImportPlan(model.sequelize, channel);
+          await executeImportPlan(plan, [toSyncRecord(newRecord)]);
 
           // assert
           const dbRecord = await model.findByPk(oldRecord.id, { ...options, plain: true });
@@ -195,8 +195,8 @@ describe('import', () => {
           const channel = overrideChannel || (await model.getChannels())[0];
 
           // act
-          const plan = createImportPlan(model);
-          await executeImportPlan(plan, channel, [{ ...toSyncRecord(record), isDeleted: true }]);
+          const plan = createImportPlan(model.sequelize, channel);
+          await executeImportPlan(plan, [{ ...toSyncRecord(record), isDeleted: true }]);
 
           // assert
           const dbRecord = await model.findByPk(record.id, options);
@@ -229,8 +229,8 @@ describe('import', () => {
       const channel = 'patient';
 
       // act
-      const plan = createImportPlan(Patient);
-      await executeImportPlan(plan, channel, [toSyncRecord(newPatient)]);
+      const plan = createImportPlan(Patient.sequelize, channel);
+      await executeImportPlan(plan, [toSyncRecord(newPatient)]);
 
       // assert
       const dbPatient = await Patient.findByPk(oldPatient.id);
@@ -262,8 +262,8 @@ describe('import', () => {
       };
 
       // act
-      const plan = createImportPlan(Encounter);
-      await executeImportPlan(plan, channel, [
+      const plan = createImportPlan(Encounter.sequelize, channel);
+      await executeImportPlan(plan, [
         toSyncRecord(todayEncounter),
         toSyncRecord(yesterdayEncounter),
       ]);

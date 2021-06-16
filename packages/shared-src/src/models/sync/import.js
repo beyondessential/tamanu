@@ -1,6 +1,12 @@
 import { Sequelize, Op } from 'sequelize';
-import { chunk, flatten, memoize, without, pick, pickBy } from 'lodash';
+import { chunk, flatten, without, pick, pickBy } from 'lodash';
 import { propertyPathsToTree } from './metadata';
+import {
+  paramsToParentIdConfigs,
+  associationToParentIdConfigs,
+  extractStaticParentIds,
+  extractDynamicParentIds,
+} from './parentIds';
 
 // SQLite < v3.32 has a hard limit of 999 bound parameters per query
 // see https://www.sqlite.org/limits.html for more
@@ -12,13 +18,15 @@ export const chunkRows = rows => {
   return chunk(rows, rowsPerChunk);
 };
 
-// TODO: rework to use channelRoutes instead of parentId
-export const createImportPlan = memoize(model => {
-  const relationTree = propertyPathsToTree(model.includedSyncRelations);
-  return createImportPlanInner(model, relationTree, model.syncParentIdKey);
-});
+export const createImportPlan = (sequelize, channel) => {
+  return sequelize.channelRouter(channel, (model, params) => {
+    const relationTree = propertyPathsToTree(model.includedSyncRelations);
+    const parentIdConfigs = paramsToParentIdConfigs(params);
+    return createImportPlanInner(model, relationTree, parentIdConfigs);
+  });
+};
 
-const createImportPlanInner = (model, relationTree, foreignKey) => {
+const createImportPlanInner = (model, relationTree, parentIdConfigs) => {
   // columns
   const allColumns = Object.keys(model.tableAttributes);
   const columns = without(allColumns, ...model.excludedSyncColumns);
@@ -26,31 +34,23 @@ const createImportPlanInner = (model, relationTree, foreignKey) => {
   //relations
   const children = Object.entries(relationTree).reduce((memo, [relationName, childTree]) => {
     const association = model.associations[relationName];
-    const childParentIdKey = association.foreignKey;
+    const childParentIdConfigs = associationToParentIdConfigs(association);
     const childModel = association.target;
     if (!childModel) {
       throw new Error(
         `createImportPlan: no such relation ${relationName} (defined in includedSyncRelations on ${model.name})`,
       );
     }
-    const childPlan = createImportPlanInner(childModel, childTree, childParentIdKey);
+    const childPlan = createImportPlanInner(childModel, childTree, childParentIdConfigs);
     return { ...memo, [relationName]: childPlan };
   }, {});
 
-  return { model, columns, children, foreignKey };
+  return { model, columns, children, parentIdConfigs };
 };
 
-export const executeImportPlan = async (plan, channel, syncRecords) => {
-  const { model } = plan;
-  let parentId = null;
-  if (plan.foreignKey) {
-    parentId = model.syncParentIdFromChannel(channel);
-    if (!parentId) {
-      throw new Error(
-        `Must provide parentId for models like ${model.name} with syncParentIdKey set`,
-      );
-    }
-  }
+export const executeImportPlan = async (plan, syncRecords) => {
+  const { model, parentIdConfigs } = plan;
+  const parentIds = extractStaticParentIds(parentIdConfigs);
 
   return model.sequelize.transaction(async () => {
     // split records into create, update, delete
@@ -60,10 +60,10 @@ export const executeImportPlan = async (plan, channel, syncRecords) => {
     const existingIdSet = new Set(existing.map(e => e.id));
     const recordsForCreate = syncRecords
       .filter(r => !r.isDeleted && !existingIdSet.has(r.data.id))
-      .map(r => r.data);
+      .map(r => ({ ...r.data, ...parentIds }));
     const recordsForUpdate = syncRecords
       .filter(r => !r.isDeleted && existingIdSet.has(r.data.id))
-      .map(r => r.data);
+      .map(r => ({ ...r.data, ...parentIds }));
 
     // run each import process
     const createSuccessCount = await executeCreates(plan, recordsForCreate);
@@ -164,7 +164,7 @@ const executeUpdateOrCreates = async (
   }
 
   for (const [relationName, relationPlan] of Object.entries(children)) {
-    const { foreignKey } = relationPlan;
+    const { parentIdConfigs } = relationPlan;
 
     const childRecords = flatten(
       // eslint-disable-next-line no-loop-func
@@ -174,9 +174,10 @@ const executeUpdateOrCreates = async (
           return [];
         }
 
+        const parentIds = extractDynamicParentIds(parentIdConfigs, data);
         return childrenOfRecord.map(child => ({
           ...child.data,
-          [foreignKey]: data.id,
+          ...parentIds,
         }));
       }),
     );

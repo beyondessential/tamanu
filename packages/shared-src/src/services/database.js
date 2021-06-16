@@ -148,7 +148,7 @@ export async function initDatabase(dbOptions) {
   sequelize.channelRouter = wayfarer();
   for (const model of modelClasses) {
     for (const route of model.channelRoutes) {
-      sequelize.channelRouter.on(route, async (params, f) => f(model, params));
+      sequelize.channelRouter.on(route, (params, f) => f(model, params));
     }
   }
 
