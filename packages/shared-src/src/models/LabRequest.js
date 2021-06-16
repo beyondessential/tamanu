@@ -60,7 +60,7 @@ export class LabRequest extends Model {
     );
   }
 
-  static createWithTests(data) { // TODO: AL
+  static createWithTests(data) {
     return this.sequelize.transaction(async () => {
       const { labTestTypeIds = [] } = data;
       if (!labTestTypeIds.length) {

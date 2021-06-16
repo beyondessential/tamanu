@@ -89,7 +89,7 @@ export const buildNestedEncounter = async (ctx, patientId) => {
   encounter.medications = [encounterMedication];
 
   const labRequest = fake(ctx.models.LabRequest);
-  delete labRequest.encounterId; // TODO: AL
+  delete labRequest.encounterId;
   encounter.labRequests = [labRequest];
 
   const labTest = fake(ctx.models.LabTest);

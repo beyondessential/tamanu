@@ -71,7 +71,7 @@ export class LabRequestForm extends React.PureComponent {
     const encounterLabel = getEncounterLabel(encounter);
     const filteredTestTypes = filterTestTypes(testTypes, values);
 
-    return ( // TODO: AL 
+    return (
       <FormGrid>
         <Field name="displayId" label="Lab request number" disabled component={TextField} />
         <Field name="requestedDate" label="Order date" required component={DateField} />
