@@ -5,6 +5,7 @@ export * from './IPatient';
 export * from './IPatientIssue';
 export * from './IEncounter';
 export * from './ILabRequest';
+export * from './ILabTest';
 export * from './IUser';
 export * from './IProgram';
 export * from './ISurvey';

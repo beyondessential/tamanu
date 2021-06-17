@@ -1,6 +1,9 @@
 import { createDropdownOptionsFromObject } from '~/ui/helpers/fields';
 import { ID } from './ID';
+import { IEncounter } from './IEncounter';
+import { ILabTest } from './ILabTest';
 import { IReferenceData } from './IReferenceData';
+import { IUser } from './IUser';
 
 export enum Status {
   RECEPTION_PENDING = 'reception_pending',
@@ -22,4 +25,15 @@ export interface ILabRequest {
   senaiteId?: String;  
   sampleId?: String;  
   note?: String;
+
+  encounter: IEncounter;
+  encounterId?: string;
+  
+  requestedBy: IUser;
+  requestedById?: string;
+  
+  category: IReferenceData;
+  labTestCategoryId?: string;
+
+  tests: ILabTest[];
 }
