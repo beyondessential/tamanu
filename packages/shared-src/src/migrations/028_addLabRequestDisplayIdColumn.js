@@ -10,14 +10,14 @@ module.exports = {
       type: sequelize.STRING,
       allowNull: false,
       // Or could add a default value while adding the column, then remove it later.
-      // defaultValue: 'NO_DISPLAY_ID',
+      defaultValue: 'NO_DISPLAY_ID',
     });
 
     // Removing the default value
-    // await query.changeColumn('lab_requests', 'display_id', {
-    //   type: sequelize.STRING,
-    //   allowNull: false,
-    // });
+    await query.changeColumn('lab_requests', 'display_id', {
+      type: sequelize.STRING,
+      allowNull: false,
+    });
   },
   down: async query => {
     await query.removeColumn('lab_requests', 'display_id');
