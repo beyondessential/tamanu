@@ -64,20 +64,18 @@ syncRoutes.get(
 
     const limitNum = parseInt(limit, 10) || undefined;
 
-    await store.withModel(channel, async model => {
-      const plan = createExportPlan(model);
-      const { records, cursor } = await executeExportPlan(plan, channel, {
-        since,
-        limit: limitNum,
-      });
+    const plan = createExportPlan(store.sequelize, channel);
+    const { records, cursor } = await executeExportPlan(plan, {
+      since,
+      limit: limitNum,
+    });
 
-      log.info(`GET from ${channel} : ${count} records`);
-      res.send({
-        count,
-        requestedAt,
-        records,
-        cursor,
-      });
+    log.info(`GET from ${channel} : ${count} records`);
+    res.send({
+      count,
+      requestedAt,
+      records,
+      cursor,
     });
   }),
 );

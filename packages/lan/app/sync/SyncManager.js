@@ -112,10 +112,10 @@ export class SyncManager {
     log.debug(`SyncManager.exportAndPush: syncing ${channel}`);
 
     // export
-    const plan = createExportPlan(model);
+    const plan = createExportPlan(model.sequelize, channel);
     const exportRecords = (cursor = null, limit = EXPORT_LIMIT) => {
       log.debug(`SyncManager.exportAndPush: exporting up to ${limit} records since ${cursor}`);
-      return executeExportPlan(plan, channel, { since: cursor, limit });
+      return executeExportPlan(plan, { since: cursor, limit });
     };
 
     // unmark
