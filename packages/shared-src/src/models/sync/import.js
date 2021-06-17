@@ -6,6 +6,7 @@ import {
   associationToParentIdConfigs,
   extractStaticParentIds,
   extractDynamicParentIds,
+  assertParentIdsMatch,
 } from './parentIds';
 
 // SQLite < v3.32 has a hard limit of 999 bound parameters per query
@@ -60,10 +61,10 @@ export const executeImportPlan = async (plan, syncRecords) => {
     const existingIdSet = new Set(existing.map(e => e.id));
     const recordsForCreate = syncRecords
       .filter(r => !r.isDeleted && !existingIdSet.has(r.data.id))
-      .map(r => ({ ...r.data, ...parentIds }));
+      .map(r => assertParentIdsMatch(r.data, parentIds));
     const recordsForUpdate = syncRecords
       .filter(r => !r.isDeleted && existingIdSet.has(r.data.id))
-      .map(r => ({ ...r.data, ...parentIds }));
+      .map(r => assertParentIdsMatch(r.data, parentIds));
 
     // run each import process
     const createSuccessCount = await executeCreates(plan, recordsForCreate);
@@ -175,10 +176,7 @@ const executeUpdateOrCreates = async (
         }
 
         const parentIds = extractDynamicParentIds(parentIdConfigs, data);
-        return childrenOfRecord.map(child => ({
-          ...child.data,
-          ...parentIds,
-        }));
+        return childrenOfRecord.map(child => assertParentIdsMatch(child.data, parentIds));
       }),
     );
     if (childRecords && childRecords.length > 0) {

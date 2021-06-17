@@ -44,3 +44,16 @@ export const extractStaticParentIds = parentIdConfigs => {
   }
   return parentIds;
 };
+
+export const assertParentIdsMatch = (data, parentIds) => {
+  for (const [key, parentValue] of Object.entries(parentIds)) {
+    const dataValue = data[key];
+    if (parentValue !== dataValue) {
+      console.log(data);
+      throw new Error(
+        `Mismatch between parentId ${key}, expected ${parentValue} but got ${dataValue}`,
+      );
+    }
+  }
+  return data;
+};
