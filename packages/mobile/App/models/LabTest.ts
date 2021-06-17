@@ -26,17 +26,17 @@ export class LabTest extends BaseModel implements ILabTest {
   @ManyToOne(() => LabRequest, labRequest => labRequest.tests)
   labRequest: LabRequest;
   @RelationId(({ labRequest }) => labRequest)
-  labRequestId?: string;
+  labRequestId: string;
   
   @ReferenceDataRelation()
   category: ReferenceData;
   @RelationId(({ category }) => category)
-  categoryId?: string;
+  categoryId: string;
 
   @ManyToOne(() => LabTestType)
   labTestType: LabTestType;
   @RelationId(({ labTestType }) => labTestType)
-  labTestTypeId?: string;
+  labTestTypeId: string;
 
   // static getListReferenceAssociations() {
   //   return ['category', 'labTestType'];

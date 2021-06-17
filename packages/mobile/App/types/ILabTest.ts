@@ -26,5 +26,5 @@ export interface ILabTest {
   categoryId: string;
 
   labTestType: ILabTestType;
-  labTestTypeId?: string;
+  labTestTypeId: string;
 }
