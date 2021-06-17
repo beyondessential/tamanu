@@ -5,7 +5,7 @@ import { ILabTest } from './ILabTest';
 import { IReferenceData } from './IReferenceData';
 import { IUser } from './IUser';
 
-export enum Status {
+export enum LabRequestStatus {
   RECEPTION_PENDING = 'reception_pending',
   RESULTS_PENDING = 'results_pending',
   TO_BE_VERIFIED = 'to_be_verified',
@@ -13,7 +13,7 @@ export enum Status {
   PUBLISHED = 'published',
 };
 
-export const STATUS_OPTIONS = createDropdownOptionsFromObject(Status);
+export const LAB_REQUEST_STATUS_OPTIONS = createDropdownOptionsFromObject(LabRequestStatus);
 
 export interface ILabRequest {
   id: ID;
@@ -21,7 +21,7 @@ export interface ILabRequest {
   requestedDate: Date;
   urgent: boolean;  
   specimenAttached: boolean;  
-  status?: String;
+  status?: LabRequestStatus;
   senaiteId?: String;  
   sampleId?: String;  
   note?: String;

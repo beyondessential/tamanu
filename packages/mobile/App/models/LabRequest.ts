@@ -1,7 +1,7 @@
 import { Entity, Column, ManyToOne, RelationId, BeforeInsert, BeforeUpdate } from 'typeorm/browser';
 
 import { BaseModel } from './BaseModel';
-import { ILabRequest, Status } from '~/types';
+import { ILabRequest, LabRequestStatus } from '~/types';
 import { Encounter } from './Encounter';
 import { ReferenceData, ReferenceDataRelation } from './ReferenceData';
 import { OneToMany } from 'typeorm';
@@ -26,8 +26,8 @@ export class LabRequest extends BaseModel implements ILabRequest {
   @Column({ nullable: true, default: false })
   specimenAttached: boolean;
   
-  @Column({ type: 'varchar', nullable: true, default: Status.RECEPTION_PENDING })
-  status?: Status;
+  @Column({ type: 'varchar', nullable: true, default: LabRequestStatus.RECEPTION_PENDING })
+  status?: LabRequestStatus;
   
   @Column({ type: 'varchar', nullable: true })
   senaiteId?: String;

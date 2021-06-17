@@ -1,22 +1,17 @@
 import { createDropdownOptionsFromObject } from '~/ui/helpers/fields';
 import { ID } from './ID';
-import { ILabRequest } from './ILabRequest';
+import { ILabRequest, LabRequestStatus} from './ILabRequest';
+import { ILabTestType } from './ILabTestType';
 import { IReferenceData } from './IReferenceData';
 
-enum Status {
-  RECEPTION_PENDING = 'reception_pending',
-  RESULTS_PENDING = 'results_pending',
-  TO_BE_VERIFIED = 'to_be_verified',
-  VERIFIED = 'verified',
-  PUBLISHED = 'published',
-};
+export import LabTestStatus = LabRequestStatus; // TODO: fix this mess
 
-// export const STATUS_OPTIONS = createDropdownOptionsFromObject(Status);
+export const LAB_TEST_STATUS_OPTIONS = createDropdownOptionsFromObject(LabTestStatus);
 
 export interface ILabTest {
   id: ID;
   sampleTime: Date;
-  status: Status; // Use different status!!
+  status: LabTestStatus; // Use different status!!
   result: String;
 
   labRequest: ILabRequest;
