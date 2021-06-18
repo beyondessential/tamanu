@@ -37,28 +37,28 @@ export class SqlWrapper {
   }
 
   async upsert(channel, record) {
-    return this.sequelize.channelRouter(channel, (model, params) => {
+    return this.sequelize.channelRouter(channel, (model, parentIds) => {
       const handler = new BasicHandler(model);
-      return handler.upsert(record, params, channel);
+      return handler.upsert(record, parentIds);
     });
   }
 
   // TODO: this is a hack to enable sharing import/export across sync and lan
   async withModel(channel, f) {
-    return this.sequelize.channelRouter(channel, (model, params) => f(model, params));
+    return this.sequelize.channelRouter(channel, (model, parentIds) => f(model, parentIds));
   }
 
   async countSince(channel, since) {
-    return this.sequelize.channelRouter(channel, (model, params) => {
+    return this.sequelize.channelRouter(channel, (model, parentIds) => {
       const handler = new BasicHandler(model);
-      return handler.countSince({ ...params, since }, channel);
+      return handler.countSince({ since }, parentIds);
     });
   }
 
   async findSince(channel, since, { limit, offset } = {}) {
-    return this.sequelize.channelRouter(channel, (model, params) => {
+    return this.sequelize.channelRouter(channel, (model, parentIds) => {
       const handler = new BasicHandler(model);
-      return handler.findSince({ ...params, since, limit, offset }, channel);
+      return handler.findSince({ since, limit, offset }, parentIds);
     });
   }
 

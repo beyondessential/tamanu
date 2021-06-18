@@ -1,5 +1,5 @@
 import { Sequelize } from 'sequelize';
-import { syncCursorToWhereCondition } from 'shared/models/sync';
+import { syncCursorToWhereCondition, assertParentIdsMatch } from 'shared/models/sync';
 
 // TODO: rework to use channelRoutes instead of parentId
 
@@ -56,37 +56,21 @@ export class BasicHandler {
     return this.model.destroy({ truncate: true, cascade: true, force: true });
   }
 
-  async upsert(record, params, channel) {
-    const [values, options] = upsertQuery(record, params);
-
+  async upsert(record, parentIds) {
     // TODO: get rid of upsert so we don't duplicate funtionality between here and import
-    if (this.model.syncParentIdKey) {
-      const parentId = this.model.syncParentIdFromChannel(channel);
-      if (!parentId) {
-        throw new Error(
-          `Must provide parentId for models like ${this.model.name} with syncParentIdKey set`,
-        );
-      }
-      const existing = values[this.model.syncParentIdKey];
-      if (existing && existing !== parentId) {
-        throw new Error(
-          `Tried to insert record with ${this.model.syncParentIdKey} ${existing} to channel with ${this.model.syncParentIdKey} ${parentId}`,
-        );
-      }
-      values[this.model.syncParentIdKey] = parentId;
-    }
-
+    assertParentIdsMatch(record, parentIds);
+    const [values, options] = upsertQuery(record);
     await this.model.upsert(values, options);
     return 1;
   }
 
-  async countSince(params, channel) {
-    const query = this.queryWithParentId(channel, countSinceQuery(params));
+  async countSince(params, parentIds) {
+    const query = this.queryWithParentIds(parentIds, countSinceQuery(params));
     return this.model.count(query);
   }
 
-  async findSince(params, channel) {
-    const query = this.queryWithParentId(channel, findSinceQuery(params));
+  async findSince(params, parentIds) {
+    const query = this.queryWithParentIds(parentIds, findSinceQuery(params));
     const records = await this.model.findAll(query);
     return records.map(result => result.get({ plain: true }));
   }
@@ -97,22 +81,16 @@ export class BasicHandler {
     return num;
   }
 
-  queryWithParentId(channel, query) {
+  queryWithParentIds(parentIds, query) {
     if (!this.model.syncParentIdKey) {
       return query;
     }
 
-    const parentId = this.model.syncParentIdFromChannel(channel);
-    if (!parentId) {
-      throw new Error(
-        `Must provide parentId for models like ${this.model.name} with syncParentIdKey set`,
-      );
-    }
     return {
       ...query,
       where: {
         ...query.where,
-        [this.model.syncParentIdKey]: parentId,
+        ...parentIds,
       },
     };
   }
