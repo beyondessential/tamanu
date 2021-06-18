@@ -32,6 +32,9 @@ export class LabRequest extends BaseModel implements ILabRequest {
   @Column({ type: 'varchar', nullable: true })
   sampleId?: string;
   
+  @Column({ type: 'varchar', nullable: false })
+  displayId: string;
+  
   @Column({ type: 'varchar', nullable: true })
   note?: string;
 

@@ -25,6 +25,7 @@ export interface ILabRequest {
   senaiteId?: string;  
   sampleId?: string;  
   note?: string;
+  displayId: string;
 
   encounter: IEncounter;
   encounterId?: string;
@@ -48,6 +49,7 @@ export interface IDataRequiredToCreateLabRequest {
   senaiteId?: string;  
   sampleId?: string;  
   note?: string;
+  displayId: string;
 
   encounter: string;
   
