@@ -46,9 +46,9 @@ const PatientHomeContainer = ({
         onPress: (): void => navigation.navigate(Routes.HomeStack.VaccineStack.Index),
       },
       {
-        title: 'Deceased',
-        Icon: Icons.DeceasedIcon,
-        onPress: (): void => navigation.navigate(Routes.HomeStack.DeceasedStack.Index),
+        title: 'Lab Request',
+        Icon: Icons.DeceasedIcon, // TODO: Change
+        onPress: (): void => navigation.navigate(Routes.HomeStack.LabRequestStack.Index),
       },
     ],
     [],

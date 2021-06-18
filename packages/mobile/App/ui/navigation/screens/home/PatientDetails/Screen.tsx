@@ -21,6 +21,7 @@ import {
   PatientIssues,
 } from './CustomComponents';
 import { AdditionalInfo } from './CustomComponents/AdditionalInfo';
+import { Button } from '~/ui/components/Button';
 
 interface PatientDetailScreenProps {
   onNavigateBack: () => void;
@@ -29,6 +30,7 @@ interface PatientDetailScreenProps {
   onEditPatientIssues: () => void;
   changeReminder: (value: boolean) => void;
   reminders: boolean;
+  onRecordDeath: () => void;
 }
 
 export const Screen = ({
@@ -38,6 +40,7 @@ export const Screen = ({
   onEditField,
   changeReminder,
   reminders,
+  onRecordDeath,
 }: PatientDetailScreenProps): ReactElement => (
   <FullView>
     <StyledSafeAreaView background={theme.colors.PRIMARY_MAIN}>
@@ -110,6 +113,7 @@ export const Screen = ({
           onEdit={onEditPatientIssues}
           patientIssues={patientData.patientIssues}
         />
+        <Button marginBottom={40} onPress={onRecordDeath} buttonText={'Record patient death'}/>
       </StyledScrollView>
     </FullView>
   </FullView>

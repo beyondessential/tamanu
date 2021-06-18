@@ -37,3 +37,23 @@ export interface ILabRequest {
 
   tests: ILabTest[];
 }
+
+export interface IDataRequiredToCreateLabRequest {
+  id?: ID; // has default
+  sampleTime?: Date; // has default
+  requestedDate?: Date; // has default
+  urgent?: boolean;  
+  specimenAttached?: boolean;
+  status?: LabRequestStatus;
+  senaiteId?: string;  
+  sampleId?: string;  
+  note?: string;
+
+  encounter: string;
+  
+  requestedBy: string;
+  
+  category: string;
+
+  labTestTypeIds: string[];
+}

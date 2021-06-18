@@ -46,7 +46,28 @@ export const MODELS_ARRAY: typeof BaseModel[] = [
   LabTest,
   LabTestType,
 ];
-
+// AdministeredVaccine
+// Attachment
+// Diagnosis
+// Encounter
+// LabRequest
+// LabTest
+// LabTestType
+// Medication
+// Patient
+// PatientAdditionalData
+// PatientIssue
+// Program
+// ProgramDataElement
+// ReferenceData
+// Referral
+// ScheduledVaccine
+// Survey
+// SurveyResponse
+// SurveyResponseAnswer
+// SurveyScreenComponent
+// User
+// Vitals
 export const MODELS_MAP = {
   ReferenceData,
   Patient,

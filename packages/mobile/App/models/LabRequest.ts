@@ -1,7 +1,7 @@
 import { Entity, Column, ManyToOne, RelationId, BeforeInsert, BeforeUpdate } from 'typeorm/browser';
 
 import { BaseModel } from './BaseModel';
-import { ILabRequest, LabRequestStatus } from '~/types';
+import { IDataRequiredToCreateLabRequest, ILabRequest, LabRequestStatus } from '~/types';
 import { Encounter } from './Encounter';
 import { ReferenceData, ReferenceDataRelation } from './ReferenceData';
 import { OneToMany } from 'typeorm';
@@ -59,37 +59,33 @@ export class LabRequest extends BaseModel implements ILabRequest {
     await this.markParent(Encounter, 'encounter', 'markedForUpload');
   }
 
-  // static async getForPatient(patientId: string): Promise<Diagnosis[]> {
-  //   return this.getRepository()
-  //     .createQueryBuilder('diagnosis')
-  //     .leftJoin('diagnosis.encounter', 'encounter')
-  //     .where('encounter.patient = :patientId', { patientId })
-  //     .getMany();
+  static async getForPatient(patientId: string): Promise<LabRequest[]> {
+    return this.getRepository()
+      .createQueryBuilder('labRequest')
+      .leftJoin('labRequest.encounter', 'encounter')
+      .where('encounter.patient = :patientId', { patientId })
+      .getMany();
+  }
 
-  // static createWithTests(data) {
-  //   return this.sequelize.transaction(async () => {
-  //     const { labTestTypeIds = [] } = data;
-  //     if (!labTestTypeIds.length) {
-  //       throw new InvalidOperationError('A request must have at least one test');
-  //     }
+  static async createWithTests(data: IDataRequiredToCreateLabRequest) {
+    const { labTestTypeIds = [] } = data;
+    if (!labTestTypeIds.length) {
+      throw new Error('A request must have at least one test');
+    }
 
-  //     const base = await this.create(data);
+    const base = await this.createAndSaveOne(data);
 
-  //     // then create tests
-  //     const { LabTest } = this.sequelize.models;
-
-  //     await Promise.all(
-  //       labTestTypeIds.map(t =>
-  //         LabTest.create({
-  //           labTestTypeId: t,
-  //           labRequestId: base.id,
-  //         }),
-  //       ),
-  //     );
-
-  //     return base;
-  //   });
-  // }
+    // then create tests
+    await Promise.all(
+      labTestTypeIds.map(t =>
+        LabTest.createAndSaveOne({
+          labTestTypeId: t,
+          labRequestId: base.id,
+        })));
+        
+    return base;
+  }
+}
   
   
   // static getListReferenceAssociations() {
@@ -101,5 +97,3 @@ export class LabRequest extends BaseModel implements ILabRequest {
   //     where: { labRequestId: this.id },
   //   });
   // }
-}
-
