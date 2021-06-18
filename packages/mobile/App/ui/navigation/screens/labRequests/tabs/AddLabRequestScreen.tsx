@@ -1,41 +1,24 @@
-import React, { useMemo, useCallback, useRef, ReactElement } from 'react';
+import React, { useMemo, useCallback, ReactElement } from 'react';
 import { Formik } from 'formik';
-import * as Yup from 'yup';
 import { compose } from 'redux';
 import { useSelector } from 'react-redux';
-import { FullView, StyledView, StyledSafeAreaView } from '/styled/common';
+import { FullView, StyledSafeAreaView } from '/styled/common';
 import { Routes } from '/helpers/routes';
 import { theme } from '/styled/theme';
-import { TextField } from '/components/TextField/TextField';
-import { Button } from '/components/Button';
-import { Field } from '/components/Forms/FormField';
-import { FormValidationMessage } from '/components/Forms/FormValidationMessage';
 import { useBackend } from '~/ui/hooks';
 import { withPatient } from '~/ui/containers/Patient';
-import { SectionHeader } from '/components/SectionHeader';
 import {
   Orientation,
   screenPercentageToDP,
 } from '/helpers/screen';
-import { FormScreenView } from '/components/Forms/FormScreenView';
-import { NumberField } from '~/ui/components/NumberField';
-import { Dropdown } from '~/ui/components/Dropdown';
-import { AVPUType } from '~/types';
+import { IPatient, ReferenceDataType } from '~/types';
 import { authUserSelector } from '~/ui/helpers/selectors';
-import { Text } from 'react-native';
-import { DateField } from '~/ui/components/DateField/DateField';
-import { CurrentUserField } from '~/ui/components/CurrentUserField/CurrentUserField';
-import { SymbolDisplayPartKind } from 'typescript';
+import { Suggester } from '~/ui/helpers/suggester';
 import { ID } from '~/types/ID';
+import { customAlphabet } from 'nanoid/non-secure';
+import { LabRequestForm } from '~/ui/components/Forms/LabRequestForm';
 
-const LabRequestNumberField = () => {
-  return (
-    <Field
-      component={NumberField}
-      label="Lab Request Number"
-      name="displayId"
-    />);
-}
+const ALPHABET_FOR_ID = 'ABCDEFGH' + /*I*/ 'JK' + /*L*/ 'MN' + /*O*/ 'PQRSTUVWXYZ' + /*01*/ '23456789';
 
 interface LabRequestFormData {
   displayId: ID,
@@ -43,68 +26,27 @@ interface LabRequestFormData {
   requestedBy: string,
   urgent: boolean,
   specimenAttached: boolean,
-  labTestCategory: string,
+  category: string,
 }
 
-export const DumbAddLabRequestScreen = ({ selectedPatient, navigation }): ReactElement => {
-  const renderFormFields = useCallback(
-    ({ handleSubmit, errors }): ReactElement => (
-      <FormScreenView>
-        <StyledView
-          height={screenPercentageToDP(89.64, Orientation.Height)}
-          justifyContent="space-between"
-        >
-          <LabRequestNumberField />
-          <SectionHeader h3>DETAILS</SectionHeader>
-          <StyledView
-            justifyContent="space-between"
-          >
-            <Field
-              component={DateField}
-              label="Date"
-              name="requestedDate"
-            />
-            <Field
-              component={CurrentUserField}
-              label="Requested by"
-              name="requestedBy"
-            />
-            <Field
-              component={TextField} // Binary Field
-              label="Urgent?"
-              name="urgent"
-            />
-          </StyledView>
-          <SectionHeader h3>SPECIMEN</SectionHeader>
-          <Field
-            component={TextField}
-            label="comments"
-            name="comments"
-          />
-          <SectionHeader h3>LAB REQUEST TYPE</SectionHeader>
-          <Field
-            component={Dropdown}
-            label="Type"
-            name="labRequestType"
-            options={[ {label: 'hi', value: 'hi'}]}
-          />
-          <Text>{'All tests for this lab request type will be requested (UI not built yet)'}</Text>
-          <FormValidationMessage message={errors.form} />
-          <Button
-            marginTop={20}
-            backgroundColor={theme.colors.PRIMARY_MAIN}
-            buttonText="Submit"
-            onPress={handleSubmit}
-          />
-        </StyledView>
-      </FormScreenView>
-    ),
-    [],
-  );
+const defaultInitialValues = {
+  // displayId: '',
+  // requestedDate: new Date(),
+  requestedBy: '',
+  urgent: false,
+  specimenAttached: false,
+  category: '',
+}
 
+interface DumbAddLabRequestScreenProps {
+  selectedPatient: IPatient,
+  navigation: any,
+};
+
+export const DumbAddLabRequestScreen = ({ selectedPatient, navigation }: DumbAddLabRequestScreenProps): ReactElement => {
+  const displayId = useMemo(customAlphabet(ALPHABET_FOR_ID, 6), [selectedPatient]);
 
   const validationSchema = undefined; // TODO:
-
 
   const navigateToHistory = useCallback(() => {
     navigation.reset({
@@ -127,15 +69,28 @@ export const DumbAddLabRequestScreen = ({ selectedPatient, navigation }): ReactE
 
       await models.LabRequest.createWithTests({
         ...values,
-        category: encounter.id,
         encounter: encounter.id,
         labTestTypeIds: [],
-        // dateRecorded: new Date(),
       });
 
       navigateToHistory();
     }, [],
   );
+
+  const labRequestCategorySuggester = new Suggester(
+    models.ReferenceData,
+    {
+      where: {
+        type: ReferenceDataType.LabTestCategory,
+      },
+    },
+  );
+  
+  const initialValues = {
+    ...defaultInitialValues,
+    requestedDate: new Date(),
+    displayId,
+  }
 
   return (
     <StyledSafeAreaView flex={1}>
@@ -144,12 +99,13 @@ export const DumbAddLabRequestScreen = ({ selectedPatient, navigation }): ReactE
         paddingBottom={screenPercentageToDP(4.86, Orientation.Height)}
       >
         <Formik
-          initialValues={{}}
-          // validate={validate}
+          initialValues={initialValues}
           validationSchema={validationSchema}
           onSubmit={recordLabRequest}
+          labRequestCategorySuggester={labRequestCategorySuggester}
+          navigation={navigation}
         >
-          {renderFormFields}
+          {LabRequestForm}
         </Formik>
       </FullView>
     </StyledSafeAreaView>
