@@ -26,7 +26,7 @@ interface LabRequestFormData {
   requestedBy: string,
   urgent: boolean,
   specimenAttached: boolean,
-  category: string,
+  categoryId: string,
 }
 
 const defaultInitialValues = {
@@ -35,14 +35,13 @@ const defaultInitialValues = {
   requestedBy: '',
   urgent: false,
   specimenAttached: false,
-  category: '',
+  categoryId: null,
 }
 
 interface DumbAddLabRequestScreenProps {
   selectedPatient: IPatient,
   navigation: any,
 };
-
 export const DumbAddLabRequestScreen = ({ selectedPatient, navigation }: DumbAddLabRequestScreenProps): ReactElement => {
   const displayId = useMemo(customAlphabet(ALPHABET_FOR_ID, 6), [selectedPatient]);
 
@@ -67,25 +66,27 @@ export const DumbAddLabRequestScreen = ({ selectedPatient, navigation }: DumbAdd
         { reasonForEncounter: 'lab request from mobile' },
       );
 
+      console.log(values);
+      const labTestTypes = await models.LabTestType.find({
+        where: {
+          category: { id: values.categoryId },
+        }
+      });
+
+      console.log(labTestTypes);
+
       await models.LabRequest.createWithTests({
         ...values,
+        requestedBy: user.id,
         encounter: encounter.id,
-        labTestTypeIds: [],
+        category: values.categoryId,
+        labTestTypeIds: labTestTypes.map(ltt => ltt.id),
       });
 
       navigateToHistory();
     }, [],
   );
 
-  const labRequestCategorySuggester = new Suggester(
-    models.ReferenceData,
-    {
-      where: {
-        type: ReferenceDataType.LabTestCategory,
-      },
-    },
-  );
-  
   const initialValues = {
     ...defaultInitialValues,
     requestedDate: new Date(),
@@ -102,7 +103,6 @@ export const DumbAddLabRequestScreen = ({ selectedPatient, navigation }: DumbAdd
           initialValues={initialValues}
           validationSchema={validationSchema}
           onSubmit={recordLabRequest}
-          labRequestCategorySuggester={labRequestCategorySuggester}
           navigation={navigation}
         >
           {LabRequestForm}

@@ -19,6 +19,10 @@ import { CurrentUserField } from '~/ui/components/CurrentUserField/CurrentUserFi
 import { AutocompleteModalField } from '../../AutocompleteModal/AutocompleteModalField';
 import { Routes } from '~/ui/helpers/routes';
 import { Checkbox } from '../../Checkbox';
+import { Suggester } from '~/ui/helpers/suggester';
+import { ReferenceData } from '~/models/ReferenceData';
+import { ReferenceDataType } from '~/types';
+import { useBackend } from '~/ui/hooks';
 
 const LabRequestNumberField = () => {
   return (
@@ -26,10 +30,17 @@ const LabRequestNumberField = () => {
       component={NumberField}
       label="Lab Request Number"
       name="displayId"
+      disabled
     />);
 }
+interface LabRequestFormProps {
+  handleSubmit: any,
+  errors: any,
+  labRequestCategorySuggester: Suggester<typeof ReferenceData>,
+  navigation: any,
+};
 
-export const LabRequestForm = ({ handleSubmit, errors, labRequestCategorySuggester, navigation }): ReactElement => (
+const DumbLabRequestForm = ({ handleSubmit, errors, labRequestCategorySuggester, navigation }: LabRequestFormProps): ReactElement => (
       <FormScreenView>
         <StyledView
           height={screenPercentageToDP(89.64, Orientation.Height)}
@@ -57,11 +68,7 @@ export const LabRequestForm = ({ handleSubmit, errors, labRequestCategorySuggest
             />
           </StyledView>
           <SectionHeader h3>SPECIMEN</SectionHeader>
-          <Field
-            component={TextField}
-            label="comments"
-            name="comments"
-          />
+          <Text>{'Cannot yet attach specimens on mobile (UI not built yet)'}</Text>
           <SectionHeader h3>LAB REQUEST TYPE</SectionHeader>
           <Field
             component={AutocompleteModalField}
@@ -83,3 +90,23 @@ export const LabRequestForm = ({ handleSubmit, errors, labRequestCategorySuggest
         </StyledView>
       </FormScreenView>
     );
+
+export const LabRequestForm = ({ handleSubmit, errors, navigation }) => {
+  const { models } = useBackend();
+
+  const labRequestCategorySuggester = new Suggester(
+    models.ReferenceData,
+    {
+      where: {
+        type: ReferenceDataType.LabTestCategory,
+      },
+    },
+  );
+
+  return <DumbLabRequestForm 
+    handleSubmit={handleSubmit}
+    errors={errors}
+    navigation={navigation}
+    labRequestCategorySuggester={labRequestCategorySuggester}
+  />
+};
