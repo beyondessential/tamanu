@@ -103,7 +103,7 @@ const Provider = ({
   // sign user out if an auth error was thrown
   useEffect(() => {
     const handler = (err: Error) => {
-      console.log(`signing out user with token ${props.token}: recieved auth error:`, err);
+      console.log(`signing out user with token ${props.token}: received auth error:`, err);
       signOut();
     };
     backend.auth.emitter.on('authError', handler);

@@ -11,6 +11,7 @@ import { VaccineStatusCells } from '/helpers/constants';
 import { screenPercentageToDP, Orientation } from '/helpers/screen';
 import { IAdministeredVaccine, IPatient, IScheduledVaccine } from '~/types';
 import { getVaccineStatus, VaccineStatus } from '~/ui/helpers/patient';
+import { BypassWarningIcon } from './BypassWarningIcon';
 
 interface VaccineCellMetadata {
   index?: number;
@@ -83,23 +84,37 @@ export const VaccineTableCell = ({
   let cellStatus = vaccineStatus || dueStatus.status || VaccineStatus.UNKNOWN;
   if (vaccineStatus === VaccineStatus.SCHEDULED) cellStatus = dueStatus.status;
 
+  const onAdminister = useCallback(() => {
+    onPress({ ...vaccine, status: vaccineStatus, scheduledVaccineId: id, administeredVaccine });
+    Popup.hide();
+  }, [data]);
+
   const onPressItem = useCallback(() => {
     if (vaccineStatus === VaccineStatus.SCHEDULED) {
-      if (dueStatus.message) {
+      const popupProps = {
+        type: 'Warning',
+        title: 'Vaccination Warning',
+        button: true,
+        textBody: dueStatus.message,
+        buttonText: 'Ok',
+        callback: (): void => Popup.hide(),
+      };
+
+      if (dueStatus.bypassIcon) {
         Popup.show({
-          type: 'Warning',
-          title: 'Vaccination Warning',
-          button: true,
-          textBody: dueStatus.message,
-          buttonText: 'Ok',
-          callback: () => Popup.hide(),
+          ...popupProps,
+          icon: <BypassWarningIcon onBypassWarning={(): void => onAdminister()} />,
         });
+        return;
+      }
+      if (dueStatus.message) {
+        Popup.show(popupProps);
         return;
       }
     }
 
     if (vaccineStatus) {
-      onPress({ ...vaccine, status: vaccineStatus, scheduledVaccineId: id, administeredVaccine });
+      onAdminister();
     }
   }, [data]);
 

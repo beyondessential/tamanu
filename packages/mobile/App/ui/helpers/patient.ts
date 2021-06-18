@@ -19,6 +19,7 @@ export function getWeeksFromDate(date: string): number {
 type VaccineStatusMessage = {
   status: VaccineStatus;
   message?: string;
+  bypassIcon?: boolean;
 };
 
 function getVaccineStatusForWeeksFromBirthDue(weeksUntilDue): VaccineStatusMessage {
@@ -60,13 +61,14 @@ function getVaccineStatusForWeeksFromLastVaccinationDue(
   if (!previouslyAdministeredVaccine) {
     return {
       status: VaccineStatus.SCHEDULED,
-      message: `This patient has not recieved dose ${index - 1} of this vaccine.`,
+      message: `This patient has not received dose ${index - 1} of this vaccine.`,
     };
   }
   if (weeksUntilGapPeriodPassed > 0) {
     return {
       status: VaccineStatus.SCHEDULED,
       message: `This patient is not due to receive this vaccine for ${weeksUntilGapPeriodPassed} weeks.`,
+      bypassIcon: true,
     };
   }
 
