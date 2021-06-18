@@ -15,12 +15,13 @@ export const DumbViewHistoryScreen = ({ selectedPatient }): ReactElement => {
   );
 
   if (error) return <ErrorScreen error={error} />;
+  if (!data) return <LoadingScreen />;
 
   return (
     <StyledSafeAreaView flex={1}>
       <FullView>
-        {/* {data ? <LabRequestTable patientData={data} /> : <LoadingScreen />} */}
         <Text>{JSON.stringify(data)}</Text>
+        {/* <LabRequestTable patientData={data} /> */}
       </FullView>
     </StyledSafeAreaView>
   );
