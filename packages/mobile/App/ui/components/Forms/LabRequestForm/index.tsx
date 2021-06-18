@@ -13,7 +13,7 @@ import {
 import { FormScreenView } from '/components/Forms/FormScreenView';
 import { NumberField } from '~/ui/components/NumberField';
 import { Dropdown } from '~/ui/components/Dropdown';
-import { Text } from 'react-native';
+import { Text, View } from 'react-native';
 import { DateField } from '~/ui/components/DateField/DateField';
 import { CurrentUserField } from '~/ui/components/CurrentUserField/CurrentUserField';
 import { AutocompleteModalField } from '../../AutocompleteModal/AutocompleteModalField';
@@ -61,11 +61,14 @@ const DumbLabRequestForm = ({ handleSubmit, errors, labRequestCategorySuggester,
               label="Requested by"
               name="requestedBy"
             />
-            <Field
-              component={Checkbox} // Binary Field
-              label="Urgent?"
-              name="urgent"
-            />
+            <View style={{display: 'flex', flexDirection: 'row'}}>
+              <Text>{'Urgent?:'}</Text>
+              <Field
+                component={Checkbox} // Binary Field
+                label="Urgent?"
+                name="urgent"
+              />
+            </View>
           </StyledView>
           <SectionHeader h3>SPECIMEN</SectionHeader>
           <Text>{'Cannot yet attach specimens on mobile (UI not built yet)'}</Text>

@@ -88,12 +88,13 @@ export class LabRequest extends BaseModel implements ILabRequest {
         
     return base;
   }
+
+  static getListReferenceAssociations() {
+    return ['requestedBy', 'category'];
+  }
 }
   
   
-  // static getListReferenceAssociations() {
-  //   return ['requestedBy', 'category'];
-  // }
   
   // getTests() {
   //   return this.sequelize.models.LabTest.findAll({
