@@ -13,12 +13,11 @@ export class LabTest extends BaseModel implements ILabTest {
   @Column({ nullable: false, default: () => "CURRENT_TIMESTAMP" })
   sampleTime: Date;
 
-  
   @Column({ type: 'varchar', nullable: false, default: LabTestStatus.RECEPTION_PENDING })
   status: LabTestStatus;
   
   @Column({ type: 'varchar', nullable: false, default: '' })
-  result: String;
+  result: string;
 
   @ManyToOne(() => LabRequest, labRequest => labRequest.tests)
   labRequest: LabRequest;

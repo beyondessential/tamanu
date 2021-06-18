@@ -9,38 +9,38 @@ import { ReferenceData, ReferenceDataRelation } from './ReferenceData';
 export class LabTestType extends BaseModel implements ILabTestType {
 
   @Column({ nullable: false })
-  code: String;
+  code: string;
 
   @Column({ nullable: false, default: '' })
-  name: String;
+  name: string;
 
   @Column({ nullable: false, default: '' })
-  unit: String;
+  unit: string;
 
   @Column({ nullable: true })
-  maleMin: number;
+  maleMin?: number;
 
   @Column({ nullable: true })
-  maleMax: number;
+  maleMax?: number;
 
   @Column({ nullable: true })
-  femaleMin: number;
+  femaleMin?: number;
 
   @Column({ nullable: true })
-  femaleMax: number;
+  femaleMax?: number;
 
   @Column({ nullable: true })
-  rangeText: String;
+  rangeText?: string;
 
   @Column({ type: 'varchar', nullable: false, default: LabTestQuestionType.NUMBER })
   questionType: LabTestQuestionType;
 
   @Column({ nullable: true })
-  options: String;
+  options?: string;
 
   // TODO: What to do with relations with no "as"
   @ReferenceDataRelation()
   category: ReferenceData;
   @RelationId(({ category }) => category)
-  labTestCategoryId?: string;
+  labTestCategoryId: string;
 }

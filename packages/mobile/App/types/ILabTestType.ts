@@ -3,6 +3,7 @@
 
 // import { createDropdownOptionsFromObject } from '~/ui/helpers/fields';
 import { ID } from './ID';
+import { IReferenceData } from './IReferenceData';
 
 export enum LabTestQuestionType {
   NUMBER = 'number',
@@ -13,14 +14,17 @@ export enum LabTestQuestionType {
 
 export interface ILabTestType {
   id: ID;
-  code: String,
-  name: String,
-  unit: String,
-  maleMin: number,
-  maleMax: number,
-  femaleMin: number,
-  femaleMax: number,
-  rangeText: String,
+  code: string,
+  name: string,
+  unit: string,
+  maleMin?: number,
+  maleMax?: number,
+  femaleMin?: number,
+  femaleMax?: number,
+  rangeText?: string,
   questionType: LabTestQuestionType,
-  options: String,
+  options?: string,
+
+  category: IReferenceData,
+  labTestCategoryId: string,
 }

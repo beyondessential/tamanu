@@ -19,12 +19,12 @@ export interface ILabRequest {
   id: ID;
   sampleTime: Date;
   requestedDate: Date;
-  urgent: boolean;  
-  specimenAttached: boolean;  
+  urgent?: boolean;  
+  specimenAttached?: boolean;
   status?: LabRequestStatus;
-  senaiteId?: String;  
-  sampleId?: String;  
-  note?: String;
+  senaiteId?: string;  
+  sampleId?: string;  
+  note?: string;
 
   encounter: IEncounter;
   encounterId?: string;

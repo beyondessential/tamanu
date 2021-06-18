@@ -19,7 +19,7 @@ export interface ILabTest {
   id: ID;
   sampleTime: Date;
   status: LabTestStatus;
-  result: String;
+  result: string;
 
   labRequest: ILabRequest;
   labRequestId: string;

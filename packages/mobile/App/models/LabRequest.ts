@@ -18,37 +18,37 @@ export class LabRequest extends BaseModel implements ILabRequest {
   requestedDate: Date;
 
   @Column({ nullable: true, default: false })
-  urgent: boolean;
+  urgent?: boolean;
   
   @Column({ nullable: true, default: false })
-  specimenAttached: boolean;
+  specimenAttached?: boolean;
   
   @Column({ type: 'varchar', nullable: true, default: LabRequestStatus.RECEPTION_PENDING })
   status?: LabRequestStatus;
   
   @Column({ type: 'varchar', nullable: true })
-  senaiteId?: String;
+  senaiteId?: string;
   
   @Column({ type: 'varchar', nullable: true })
-  sampleId?: String;
+  sampleId?: string;
   
   @Column({ type: 'varchar', nullable: true })
-  note?: String;
+  note?: string;
 
   @ManyToOne(() => Encounter, encounter => encounter.labRequests)
   encounter: Encounter;
   @RelationId(({ encounter }) => encounter)
-  encounterId?: string;
+  encounterId: string;
   
   @ManyToOne(() => User, user => user.labRequests)
   requestedBy: User;
   @RelationId(({ requestedBy }) => requestedBy)
-  requestedById?: string;
+  requestedById: string;
   
   @ReferenceDataRelation()
   category: ReferenceData;
   @RelationId(({ category }) => category)
-  labTestCategoryId?: string;
+  labTestCategoryId: string;
   
   @OneToMany(() => LabTest, labTest => labTest.labRequest)
   tests: LabTest[];
