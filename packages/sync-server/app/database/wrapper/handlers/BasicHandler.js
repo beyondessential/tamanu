@@ -1,8 +1,6 @@
 import { Sequelize } from 'sequelize';
 import { syncCursorToWhereCondition, assertParentIdsMatch } from 'shared/models/sync';
 
-// TODO: rework to use channelRoutes instead of parentId
-
 export function upsertQuery(values) {
   // added for consistency with the other queries
   // currently just passes values and an empty options object directly through to upsert
