@@ -14,10 +14,10 @@ const LAB_REQUEST_STATUS_VALUES = [];//Object.values(LAB_REQUEST_STATUSES);
 @Entity('labRequest')
 export class LabRequest extends BaseModel implements ILabRequest {
   // https://github.com/typeorm/typeorm/issues/877#issuecomment-772051282 (+ timezones??)
-  @Column({ nullable: false, default: () => "now()" })
+  @Column({ nullable: false, default: () => "CURRENT_TIMESTAMP" })
   sampleTime: Date;
 
-  @Column({ nullable: false, default: () => "now()" })
+  @Column({ nullable: false, default: () => "CURRENT_TIMESTAMP" })
   requestedDate: Date;
 
   @Column({ nullable: true, default: false })
@@ -48,7 +48,7 @@ export class LabRequest extends BaseModel implements ILabRequest {
   
   @ManyToOne(() => User, user => user.labRequests)
   requestedBy: User;
-  @RelationId(({ user }) => user)
+  @RelationId(({ requestedBy }) => requestedBy)
   requestedById?: string;
   
   @ReferenceDataRelation()

@@ -13,7 +13,7 @@ import { LabTestType } from './LabTestType';
 @Entity('labTest')
 export class LabTest extends BaseModel implements ILabTest {
   // https://github.com/typeorm/typeorm/issues/877#issuecomment-772051282 (+ timezones??)
-  @Column({ nullable: false, default: () => "now()" })
+  @Column({ nullable: false, default: () => "CURRENT_TIMESTAMP" })
   sampleTime: Date;
 
   

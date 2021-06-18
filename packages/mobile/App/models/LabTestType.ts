@@ -4,7 +4,7 @@ import { Entity, Column, ManyToOne, RelationId, BeforeInsert, BeforeUpdate } fro
 import { ILabTestType, LabTestQuestionType } from "~/types";
 import { BaseModel } from './BaseModel';
 import { ReferenceData, ReferenceDataRelation } from './ReferenceData';
-@Entity('labTest')
+@Entity('labTestType')
 export class LabTestType extends BaseModel implements ILabTestType {
 
   @Column({ nullable: false })
@@ -31,7 +31,7 @@ export class LabTestType extends BaseModel implements ILabTestType {
   @Column({ nullable: true })
   rangeText: String;
 
-  @Column({ nullable: false, default: LabTestQuestionType.NUMBER })
+  @Column({ type: 'varchar', nullable: false, default: LabTestQuestionType.NUMBER })
   questionType: LabTestQuestionType;
 
   @Column({ nullable: true })

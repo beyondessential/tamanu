@@ -133,6 +133,8 @@ export class SyncManager {
       const channelInfos: ChannelInfo[] = [
         { channel: 'reference', model: models.ReferenceData },
         { channel: 'user', model: models.User },
+
+        { channel: 'labTestType', model: models.LabTestType },
         
         { channel: 'attachment', model: models.Attachment },
 
