@@ -25,5 +25,12 @@ export class Facility extends Model {
     );
   }
 
+  static initRelations(models) {
+    this.hasMany(models.Department, {
+      foreignKey: 'facilityId',
+    });
+  }
+
+
   static syncDirection = SYNC_DIRECTIONS.PULL_ONLY;
 }

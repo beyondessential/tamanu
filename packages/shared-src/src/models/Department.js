@@ -3,12 +3,12 @@ import { SYNC_DIRECTIONS } from 'shared/constants';
 import { InvalidOperationError } from 'shared/errors';
 import { Model } from './Model';
 
-export class Location extends Model {
+export class Department extends Model {
   static init({ primaryKey, ...options }) {
     const validate = {
       mustHaveFacility() {
         if (!this.deletedAt && !this.facilityId) {
-          throw new InvalidOperationError('A location must have a facility.');
+          throw new InvalidOperationError('A department must have a facility.');
         }
       },
     };

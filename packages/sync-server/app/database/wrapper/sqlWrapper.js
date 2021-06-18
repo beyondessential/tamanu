@@ -50,6 +50,7 @@ export class SqlWrapper {
       ['user', this.models.User],
       ['reportRequest', this.models.ReportRequest],
       ['facility', this.models.Facility],
+      ['department', this.models.Department],
       ['location', this.models.Location],
       ['userFacility', this.models.UserFacility],
       ['attachment', this.models.Attachment],

@@ -3,7 +3,7 @@ const Sequelize = require('sequelize');
 module.exports = {
   up: async query => {
     await query.createTable(
-      'facilities',
+      'departments',
       {
         id: {
           type: Sequelize.STRING,
@@ -31,11 +31,12 @@ module.exports = {
           type: Sequelize.STRING,
           allowNull: false,
         },
-        division: {
+        facility_id: {
           type: Sequelize.STRING,
-        },
-        type: {
-          type: Sequelize.STRING,
+          references: {
+            model: 'facilities',
+            key: 'id',
+          },
         },
       },
       {
@@ -44,6 +45,6 @@ module.exports = {
     );
   },
   down: async query => {
-    await query.dropTable('facilities');
+    await query.dropTable('departments');
   },
 };
