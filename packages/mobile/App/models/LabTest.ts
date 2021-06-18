@@ -1,12 +1,9 @@
 
-import { Entity, Column, ManyToOne, RelationId, BeforeInsert, BeforeUpdate } from 'typeorm/browser';
+import { Entity, Column, ManyToOne, RelationId } from 'typeorm/browser';
 
 import { BaseModel } from './BaseModel';
 import { ILabTest, LabTestStatus } from '~/types';
-import { Encounter } from './Encounter';
 import { ReferenceData, ReferenceDataRelation } from './ReferenceData';
-import { OneToMany } from 'typeorm';
-import { User } from './User';
 import { LabRequest } from './LabRequest';
 import { LabTestType } from './LabTestType';
 
@@ -18,10 +15,10 @@ export class LabTest extends BaseModel implements ILabTest {
 
   
   @Column({ type: 'varchar', nullable: false, default: LabTestStatus.RECEPTION_PENDING })
-  status: LabTestStatus; // Use different status!!
+  status: LabTestStatus;
   
   @Column({ type: 'varchar', nullable: false, default: '' })
-  result: String; // Use different status!!
+  result: String;
 
   @ManyToOne(() => LabRequest, labRequest => labRequest.tests)
   labRequest: LabRequest;

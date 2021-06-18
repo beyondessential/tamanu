@@ -1,9 +1,10 @@
 
-import { Entity, Column, ManyToOne, RelationId, BeforeInsert, BeforeUpdate } from 'typeorm/browser';
+import { Entity, Column, RelationId } from 'typeorm/browser';
 
 import { ILabTestType, LabTestQuestionType } from "~/types";
 import { BaseModel } from './BaseModel';
 import { ReferenceData, ReferenceDataRelation } from './ReferenceData';
+
 @Entity('labTestType')
 export class LabTestType extends BaseModel implements ILabTestType {
 
@@ -37,8 +38,9 @@ export class LabTestType extends BaseModel implements ILabTestType {
   @Column({ nullable: true })
   options: String;
 
+  // TODO: What to do with relations with no "as"
   @ReferenceDataRelation()
-  category: ReferenceData; // No "as" in original...
+  category: ReferenceData;
   @RelationId(({ category }) => category)
   labTestCategoryId?: string;
 }

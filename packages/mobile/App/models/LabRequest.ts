@@ -7,9 +7,6 @@ import { ReferenceData, ReferenceDataRelation } from './ReferenceData';
 import { OneToMany } from 'typeorm';
 import { LabTest } from './LabTest';
 import { User } from './User';
-// import { LAB_REQUEST_STATUSES } from 'shared/constants';
-
-const LAB_REQUEST_STATUS_VALUES = [];//Object.values(LAB_REQUEST_STATUSES);
 
 @Entity('labRequest')
 export class LabRequest extends BaseModel implements ILabRequest {
@@ -31,15 +28,12 @@ export class LabRequest extends BaseModel implements ILabRequest {
   
   @Column({ type: 'varchar', nullable: true })
   senaiteId?: String;
-  //   type: Sequelize.STRING,
   
   @Column({ type: 'varchar', nullable: true })
   sampleId?: String;
-  //   type: Sequelize.STRING,
   
   @Column({ type: 'varchar', nullable: true })
   note?: String;
-  //   type: Sequelize.STRING,
 
   @ManyToOne(() => Encounter, encounter => encounter.labRequests)
   encounter: Encounter;
@@ -56,7 +50,7 @@ export class LabRequest extends BaseModel implements ILabRequest {
   @RelationId(({ category }) => category)
   labTestCategoryId?: string;
   
-  @OneToMany(() => LabTest, labTest => labTest.labRequest) // eager?
+  @OneToMany(() => LabTest, labTest => labTest.labRequest)
   tests: LabTest[];
 
   @BeforeInsert()
@@ -71,8 +65,6 @@ export class LabRequest extends BaseModel implements ILabRequest {
   //     .leftJoin('diagnosis.encounter', 'encounter')
   //     .where('encounter.patient = :patientId', { patientId })
   //     .getMany();
-
-
 
   // static createWithTests(data) {
   //   return this.sequelize.transaction(async () => {

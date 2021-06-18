@@ -57,23 +57,19 @@ export class Encounter extends BaseModel implements IEncounter {
   // TODO: Is this a model, referenceData or just string?
   @Column({ nullable: true })
   medication?: string;
-  
+
   @Column({ nullable: true })
   deviceId?: string;
-  
+
   @ReferenceDataRelation()
   department: ReferenceData;
   @RelationId(({ department }) => department)
   departmentId?: string;
-  
+
   @ReferenceDataRelation()
   location: ReferenceData;
   @RelationId(({ location }) => location)
   locationId?: string;
-  
-  // TODO: Add model, automatically attach all lab requests to the encounter
-  // @Column({ nullable: true })
-  // labRequest?: string;
 
   @OneToMany(() => LabRequest, (labRequest) => labRequest.encounter, {
     eager: true,

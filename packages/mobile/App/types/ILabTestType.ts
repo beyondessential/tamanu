@@ -1,10 +1,8 @@
 
 
 
-import { createDropdownOptionsFromObject } from '~/ui/helpers/fields';
+// import { createDropdownOptionsFromObject } from '~/ui/helpers/fields';
 import { ID } from './ID';
-import { ILabRequest } from './ILabRequest';
-import { IReferenceData } from './IReferenceData';
 
 export enum LabTestQuestionType {
   NUMBER = 'number',
@@ -25,7 +23,4 @@ export interface ILabTestType {
   rangeText: String,
   questionType: LabTestQuestionType,
   options: String,
-   // String vs text??
 }
-
- 
