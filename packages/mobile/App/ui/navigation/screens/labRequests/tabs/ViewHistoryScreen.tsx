@@ -37,7 +37,7 @@ const LabRequestRow = ({ labRequest, index }: LabRequestRowProps): JSX.Element =
         {formatDate(labRequest.requestedDate, DateFormats.DAY_MONTH_YEAR_SHORT)}
       </StyledText>
       <StyledText fontWeight="bold" color={theme.colors.LIGHT_BLUE}>
-        {labRequest.category?.name || 'Covid swab'}
+        {labRequest.category.name}
       </StyledText>
     </StyledView>
     <StyledView alignItems="flex-end" justifyContent="center" maxWidth="60%" > 
@@ -62,7 +62,7 @@ export const DumbViewHistoryScreen = ({ selectedPatient }): ReactElement => {
 
   return (
     <>
-      <StyledText>{'This list shows lab requests from this device only (although they should sync)'}</StyledText>
+      <StyledText>{'Lab results can only be viewed in Tamanu Desktop'}</StyledText>
       <ScrollView>
         {rows}
       </ScrollView>

@@ -67,6 +67,7 @@ export class LabRequest extends BaseModel implements ILabRequest {
       .createQueryBuilder('labRequest')
       .leftJoin('labRequest.encounter', 'encounter')
       .where('encounter.patient = :patientId', { patientId })
+      .leftJoinAndSelect('labRequest.category', 'category')
       .getMany();
   }
 
