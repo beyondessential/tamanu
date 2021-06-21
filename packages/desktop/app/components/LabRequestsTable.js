@@ -10,6 +10,7 @@ import { viewLab } from '../store/labRequest';
 import { PatientNameDisplay } from './PatientNameDisplay';
 import { viewPatientEncounter } from '../store/patient';
 import { useEncounter } from '../contexts/Encounter';
+import { LocalisedText } from './LocalisedText';
 
 const StatusLabel = styled.div`
   background: ${p => p.color};
@@ -40,7 +41,12 @@ const encounterColumns = [
 
 const globalColumns = [
   { key: 'patient', title: 'Patient', accessor: getPatientName, sortable: false },
-  { key: 'patient', title: 'Patient ID', accessor: getPatientDisplayId, sortable: false },
+  {
+    key: 'patient',
+    title: <LocalisedText path="fields.displayId.longLabel" />,
+    accessor: getPatientDisplayId,
+    sortable: false,
+  },
   ...encounterColumns,
 ];
 
