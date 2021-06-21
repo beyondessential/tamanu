@@ -25,6 +25,7 @@ const StatusDisplay = React.memo(({ status }) => (
 
 const getDisplayName = ({ requestedBy }) => (requestedBy || {}).displayName || 'Unknown';
 const getPatientName = ({ encounter }) => <PatientNameDisplay patient={encounter.patient} />;
+const getPatientDisplayId = ({ encounter }) => encounter.patient.displayId || 'Unknown';
 const getStatus = ({ status }) => <StatusDisplay status={status} />;
 const getRequestType = ({ category }) => (category || {}).name || 'Unknown';
 const getDate = ({ requestedDate }) => <DateDisplay date={requestedDate} />;
@@ -39,6 +40,7 @@ const encounterColumns = [
 
 const globalColumns = [
   { key: 'patient', title: 'Patient', accessor: getPatientName, sortable: false },
+  { key: 'patient', title: 'Patient ID', accessor: getPatientDisplayId, sortable: false },
   ...encounterColumns,
 ];
 
