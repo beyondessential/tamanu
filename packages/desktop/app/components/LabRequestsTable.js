@@ -42,8 +42,7 @@ const encounterColumns = [
 const globalColumns = [
   { key: 'patient', title: 'Patient', accessor: getPatientName, sortable: false },
   {
-    key: 'patient',
-    title: <LocalisedText path="fields.displayId.longLabel" />,
+    key: 'displayId',
     accessor: getPatientDisplayId,
     sortable: false,
   },
