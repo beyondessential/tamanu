@@ -211,9 +211,18 @@
           "shortLabel": "Type",
           "longLabel": "Patient type",
           "hidden": false
+        },
+        "ageRange": {
+          "shortLabel": "Age range",
+          "longLabel": "Age range"
+        },
+        "age": {
+          "shortLabel": "Age",
+          "longLabel": "Age"
         }
       },
       "features": {
+        "registerNewPatient": true,
         "hideOtherSex": true
       },
       "templates": {

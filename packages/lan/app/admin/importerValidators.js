@@ -71,6 +71,7 @@ const scheduledVaccineSchema = baseSchema
     label: yup.string().required(),
     schedule: yup.string().required(),
     weeksFromBirthDue: yup.number(),
+    weeksFromLastVaccinationDue: yup.number(),
     index: yup.number().required(),
     vaccineId: yup.string().required(),
   });
