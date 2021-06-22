@@ -1,24 +1,30 @@
 export const extendClassWithPatientChannel = (model, name) => {
-  // TODO: rework
+  // this should be fine - we're explicitly extending the class
+  // eslint-disable-next-line no-param-reassign
+  model.getChannels = async patientId => {
+    let ids;
+    if (patientId) {
+      ids = [patientId];
+    } else {
+      ids = await model.sequelize.models.Patient.getSyncIds();
+    }
+    return ids.map(id => `patient/${id}/${name}`);
+  };
 
-  // add channel methods and properties
-  const channelRegex = new RegExp(`patient\/([^\/]+)\/${name}`);
-
-  Object.assign(model, {
-    async getChannels(patientId) {
-      let ids;
-      if (patientId){
-        ids = [patientId];
-      } else {
-        ids = await this.sequelize.models.Patient.getSyncIds();
+  model.afterInit(() => {
+    model.addHook('beforeSave', 'markPatientForPush', async record => {
+      if (!record.patientId) {
+        return;
       }
-      return ids.map(id => `patient/${id}/${name}`);
-    },
-
-    syncParentIdFromChannel(channel) {
-      return channel.match(channelRegex)[1];
-    },
-
-    syncParentIdKey: 'patientId',
+      if (record.changed('pushedAt')) {
+        return;
+      }
+      const patient = await model.sequelize.models.Patient.findByPk(record.patientId);
+      if (!patient) {
+        return;
+      }
+      patient.markedForSync = true;
+      await patient.save();
+    });
   });
 };
