@@ -63,12 +63,12 @@ export class BasicHandler {
   }
 
   async countSince(params, parentIds) {
-    const query = this.queryWithParentIds(parentIds, countSinceQuery(params));
+    const query = queryWithParentIds(parentIds, countSinceQuery(params));
     return this.model.count(query);
   }
 
   async findSince(params, parentIds) {
-    const query = this.queryWithParentIds(parentIds, findSinceQuery(params));
+    const query = queryWithParentIds(parentIds, findSinceQuery(params));
     const records = await this.model.findAll(query);
     return records.map(result => result.get({ plain: true }));
   }
