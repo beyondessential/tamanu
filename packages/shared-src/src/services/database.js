@@ -138,18 +138,23 @@ export async function initDatabase(dbOptions) {
     }
   });
 
-  // init global hooks that live in shared-src
+  // init global sync hooks that live in shared-src
   if (syncClientMode) {
     initSyncClientModeHooks(models);
   }
 
-  // build router to convert channelRoutes (e.g. `[patient/:patientId/issue]`) to a model + params
+  // router to convert channelRoutes (e.g. `[patient/:patientId/issue]`) to a model + params
   // (e.g. PatientIssue + { patientId: 'abc123', route: '...' })
   sequelize.channelRouter = wayfarer();
+
   for (const model of modelClasses) {
+    // add channel route to channelRouter
     for (const route of model.channelRoutes) {
       sequelize.channelRouter.on(route, (params, f) => f(model, params));
     }
+
+    // run afterInit callbacks for model
+    await Promise.all(model.afterInitCallbacks.map(fn => fn()));
   }
 
   return { sequelize, models };
