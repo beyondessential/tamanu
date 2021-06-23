@@ -1,5 +1,5 @@
-@token=eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ1c2VySWQiOiJmMTZlZWNlNS04M2UzLTQ5MzUtYmE4NC0xNGZlZmQyYTQ2YTciLCJpYXQiOjE2MjQzNTIxNjJ9.E6d6_t4JI1SmdCpa7HMLyI1aFvia99Wqzp6cwNxvcVk
-@server=sync.tamanu-nauru.org
+@token=fake-token
+@server=https://sync-demo.tamanu.io
 @since=0
 
 ### Log in
@@ -7,8 +7,8 @@ POST {{server}}/v1/login
 Content-Type: application/json
 
 {
-    "email": "admin@tamanu.io",
-    "password": "admin"
+    "email": "",
+    "password": ""
 }
 
 ### Get current user details
@@ -41,7 +41,7 @@ Authorization: Bearer {{token}}
 
 [{
     "data": {
-        "id": "user-RajPrasad",
-        "email": "raj.prasad@thepalladiumgroup.com"
+        "id": "my-user-id",
+        "password": "open-sesame",
     }
 }]
