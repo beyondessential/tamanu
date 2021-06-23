@@ -43,11 +43,6 @@ export class SqlWrapper {
     });
   }
 
-  // TODO: this is a hack to enable sharing import/export across sync and lan
-  async withModel(channel, f) {
-    return this.sequelize.channelRouter(channel, (model, parentIds) => f(model, parentIds));
-  }
-
   async countSince(channel, since) {
     return this.sequelize.channelRouter(channel, (model, parentIds) => {
       const handler = new BasicHandler(model);
