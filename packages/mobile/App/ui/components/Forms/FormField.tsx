@@ -17,14 +17,21 @@ export const Field = ({
   type,
   disabled = false,
   options,
+  onChange,
   ...rest
 }: FieldProps): JSX.Element => {
   const [field, meta] = useField(name);
+  const combinedOnChange = (newValue: any) => {
+    if (onChange) {
+      onChange(newValue);
+    }
+    return field.onChange({ target: { name, value: newValue } });
+  };
   return (
     <FormikField
       as={component}
       name={name}
-      onChange={(newValue: any): any => field.onChange({ target: { name, value: newValue } })}
+      onChange={combinedOnChange}
       value={field.value}
       label={label}
       error={meta.error}

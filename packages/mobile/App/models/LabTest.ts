@@ -33,8 +33,4 @@ export class LabTest extends BaseModel implements ILabTest {
   labTestType: LabTestType;
   @RelationId(({ labTestType }) => labTestType)
   labTestTypeId: string;
-
-  // static getListReferenceAssociations() {
-  //   return ['category', 'labTestType'];
-  // 
 }
