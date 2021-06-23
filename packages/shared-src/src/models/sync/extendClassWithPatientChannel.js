@@ -12,7 +12,10 @@ export const extendClassWithPatientChannel = (model, name) => {
   };
 
   model.afterInit(() => {
-    model.addHook('beforeSave', 'markPatientForPush', async record => {
+    const HOOK_TRIGGER = 'beforeSave';
+    const HOOK_NAME = 'markPatientForPush';
+    model.removeHook(HOOK_TRIGGER, HOOK_NAME);
+    model.addHook(HOOK_TRIGGER, HOOK_NAME, async record => {
       if (!record.patientId) {
         return;
       }
