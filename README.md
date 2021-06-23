@@ -6,11 +6,11 @@
 
 | Package | Runbook | Description |
 | ------- | ------- | ----------- |
-| [sync-server](packages/sync-server) | [sync-server runbook](https://docs.google.com/document/d/1hzFNpv9VAV9tVa-9H_H7gfjrd-LUmS84oWTM3MBfwBk/edit#) | The synchronisation server, which lan server and mobile client instances communicate with to synchronise data |
-| [lan](packages/lan) | TODO | The local server, which the app communicates with |
-| [meta-server](packages/meta-server) | TODO | The metadata server, which serves information about app versions and known sync-server installations |
-| [desktop](packages/desktop) | TODO | The main Electron app |
-| [mobile](https://github.com/beyondessential/tamanu-mobile/) | TODO | The mobile app (in a separate repository) |
+| [sync-server](packages/sync-server) | [sync-server runbook](https://beyond-essential.slab.com/posts/tamanu-sync-server-runbook-et0trny5) | The synchronisation server, which lan server and mobile client instances communicate with to synchronise data |
+| [lan](packages/lan) | [lan runbook](https://beyond-essential.slab.com/posts/todo-tamanu-lan-runbook-ezljl0qk) | The local server, which the app communicates with |
+| [meta-server](packages/meta-server) | [meta-server runbook](https://beyond-essential.slab.com/posts/todo-tamanu-meta-server-runbook-0zbgw7m7) | The metadata server, which serves information about app versions and known sync-server installations |
+| [desktop](packages/desktop) | [desktop runbook](https://beyond-essential.slab.com/posts/todo-tamanu-desktop-runbook-i2bmy57c) | The main Electron app |
+| [mobile](https://github.com/beyondessential/tamanu-mobile/) | [mobile runbook](https://beyond-essential.slab.com/posts/todo-tamanu-mobile-runbook-8vj8qceu) | The mobile app (in [a separate repository](https://github.com/beyondessential/tamanu)) |
 | [shared-src](packages/shared-src) | N/A | Shared code among Tamanu components |
 | [shared](packages/shared) | N/A | The build output of the `shared-src` module (ignored by version control) |
 

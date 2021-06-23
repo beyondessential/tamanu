@@ -55,9 +55,11 @@ const DumbDataFetchingTable = memo(
       })();
 
       return () => {
-        updateFetchState = () => {}; // discard the fetch state update if this request is stale
+        updateFetchState = () => { }; // discard the fetch state update if this request is stale
       };
     }, [page, rowsPerPage, sorting, fetchOptions]);
+
+    useEffect(() => setPage(0), [fetchOptions]);
 
     const { data, count, isLoading, errorMessage } = fetchState;
     const { order, orderBy } = sorting;
