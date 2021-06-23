@@ -35,12 +35,24 @@ labRequest.get(
 
     const filters = [
       makeFilter(filterParams.requestId, `lab_requests.id = :requestId`),
-      makeFilter(filterParams.status, `lab_requests.status = :status`),
-      makeFilter(filterParams.category, `category.name = :category`),
-      makeFilter(filterParams.displayId, `patient.display_id = :displayId`),
+      makeFilter(
+        filterParams.status,
+        `UPPER(lab_requests.status) LIKE UPPER(:status)`,
+        ({ status }) => ({ status: `${status}%` }),
+      ),
+      makeFilter(
+        filterParams.category,
+        `UPPER(category.name) LIKE UPPER(:category)`,
+        ({ category }) => ({ category: `${category}%` }),
+      ),
+      makeFilter(
+        filterParams.displayId,
+        `UPPER(patient.display_id) LIKE UPPER(:displayId)`,
+        ({ displayId }) => ({ displayId: `${displayId}%` }),
+      ),
       makeFilter(
         filterParams.requestedDateFrom,
-        `DATE(lab_requets.requested_date) >= :requestedDate`,
+        `DATE(lab_requests.requested_date) >= :requestedDateFrom`,
         ({ requestedDateFrom }) => ({
           requestedDateFrom: moment(requestedDateFrom)
             .startOf('day')
@@ -49,7 +61,7 @@ labRequest.get(
       ),
       makeFilter(
         filterParams.requestedDateTo,
-        `DATE(lab_requets.requested_date) <= :requestedDateTo`,
+        `DATE(lab_requests.requested_date) <= :requestedDateTo`,
         ({ requestedDateTo }) => ({
           requestedDateTo: moment(requestedDateTo)
             .endOf('day')
@@ -64,10 +76,12 @@ labRequest.get(
       FROM lab_requests
         LEFT JOIN encounters AS encounter
           ON (encounter.id = lab_requests.encounter_id)
-        LEFT JOIN patients AS patient
-          ON (patient.id = encounter.patient_id)
         LEFT JOIN reference_data AS category
           ON (category.type = 'labTestCategory' AND lab_requests.lab_test_category_id = category.id)
+        INNER JOIN patients AS patient
+          ON (patient.id = encounter.patient_id)
+        INNER JOIN users AS examiner
+          ON (examiner.id = encounter.examiner_id)
       ${whereClauses && `WHERE ${whereClauses}`}
     `;
 
@@ -98,8 +112,11 @@ labRequest.get(
       `
         SELECT
           lab_requests.*,
-          encounters.id AS encounter_id,
-          patients.id AS patient_id,
+          patient.display_id AS patient_id,
+          patient.first_name AS first_name,
+          patient.last_name AS last_name,
+          examiner.display_name AS requested_by,
+          encounter.id AS encounter_id,
           category.id AS category_id,
           category.name AS category_name
         ${from}

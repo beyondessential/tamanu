@@ -23,19 +23,19 @@ const StatusDisplay = React.memo(({ status }) => (
   </StatusLabel>
 ));
 
-const getDisplayName = ({ requestedBy }) => (requestedBy || {}).displayName || 'Unknown';
-const getPatientName = ({ encounter }) => <PatientNameDisplay patient={encounter.patient} />;
-const getPatientDisplayId = ({ encounter }) => encounter.patient.displayId || 'Unknown';
+const getDisplayName = ({ requestedBy }) => requestedBy || 'Unknown';
+const getPatientName = row => <PatientNameDisplay patient={row} />;
+const getPatientDisplayId = ({ patientId }) => patientId || 'Unknown';
 const getStatus = ({ status }) => <StatusDisplay status={status} />;
-const getRequestType = ({ category }) => (category || {}).name || 'Unknown';
+const getRequestType = ({ categoryName }) => categoryName || 'Unknown';
 const getDate = ({ requestedDate }) => <DateDisplay date={requestedDate} />;
 
 const encounterColumns = [
-  { key: 'id', title: 'Request ID' },
+  { key: 'id', title: 'Request ID', sortable: false },
   { key: 'labRequestType', title: 'Type', accessor: getRequestType, sortable: false },
-  { key: 'status', title: 'Status', accessor: getStatus },
+  { key: 'status', title: 'Status', accessor: getStatus, sortable: false },
   { key: 'displayName', title: 'Requested by', accessor: getDisplayName, sortable: false },
-  { key: 'requestedDate', title: 'Date', accessor: getDate },
+  { key: 'requestedDate', title: 'Date', accessor: getDate, sortable: false },
 ];
 
 const globalColumns = [
