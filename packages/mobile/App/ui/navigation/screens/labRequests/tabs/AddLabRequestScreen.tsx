@@ -126,7 +126,7 @@ export const DumbAddLabRequestScreen = ({
         specimenAttached,
         requestedBy: user.id,
         encounter: encounter.id,
-        category: values.categoryId,
+        labTestCategory: values.categoryId,
         sampleTime: combinedSampleTime,
         labTestTypeIds: values.labTestTypes
       });

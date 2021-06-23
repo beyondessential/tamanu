@@ -72,7 +72,7 @@ const LabRequestRow = ({ labRequest }: LabRequestRowProps): JSX.Element => {
           color={theme.colors.TEXT_DARK}
           fontSize={13}
         >
-          {labRequest.category.name}
+          {labRequest.labTestCategory.name}
         </StyledText>
       </StyledView>
       <StyledView width={screenPercentageToDP(35, Orientation.Width)}>

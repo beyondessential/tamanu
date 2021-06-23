@@ -40,7 +40,7 @@ export class LabTestType extends BaseModel implements ILabTestType {
 
   // TODO: What to do with relations with no "as"
   @ReferenceDataRelation()
-  category: ReferenceData;
-  @RelationId(({ category }) => category)
+  labTestCategory: ReferenceData;
+  @RelationId(({ labTestCategory }) => labTestCategory)
   labTestCategoryId: string;
 }

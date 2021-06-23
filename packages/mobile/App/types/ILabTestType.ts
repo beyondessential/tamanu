@@ -25,6 +25,6 @@ export interface ILabTestType {
   questionType: LabTestQuestionType,
   options?: string,
 
-  category: IReferenceData,
+  labTestCategory: IReferenceData,
   labTestCategoryId: string,
 }

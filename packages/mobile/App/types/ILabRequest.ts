@@ -33,7 +33,7 @@ export interface ILabRequest {
   requestedBy: IUser;
   requestedById?: string;
   
-  category: IReferenceData;
+  labTestCategory: IReferenceData;
   labTestCategoryId?: string;
 
   tests: ILabTest[];
@@ -55,7 +55,7 @@ export interface IDataRequiredToCreateLabRequest {
   
   requestedBy: string;
   
-  category: string;
+  labTestCategory: string;
 
   labTestTypeIds: string[];
 }

@@ -70,8 +70,8 @@ export class LabRequest extends BaseModel implements ILabRequest {
   requestedById: string;
 
   @ReferenceDataRelation()
-  category: ReferenceData;
-  @RelationId(({ category }) => category)
+  labTestCategory: ReferenceData;
+  @RelationId(({ labTestCategory }) => labTestCategory)
   labTestCategoryId: string;
 
   @OneToMany(
@@ -91,7 +91,7 @@ export class LabRequest extends BaseModel implements ILabRequest {
       .createQueryBuilder('labRequest')
       .leftJoin('labRequest.encounter', 'encounter')
       .where('encounter.patient = :patientId', { patientId })
-      .leftJoinAndSelect('labRequest.category', 'category')
+      .leftJoinAndSelect('labRequest.labTestCategory', 'labTestCategory')
       .getMany();
   }
 
@@ -117,6 +117,6 @@ export class LabRequest extends BaseModel implements ILabRequest {
   }
 
   static getListReferenceAssociations() {
-    return ['requestedBy', 'category'];
+    return ['requestedBy', 'labTestCategory'];
   }
 }

@@ -48,7 +48,7 @@ const DumbLabRequestForm = ({
   const [labTestTypes, setLabTestTypes] = useState([]);
   const handleLabRequestTypeSelected = useCallback(async selectedValue => {
     const labTestTypes = await models.LabTestType.find({
-      where: { category: selectedValue }
+      where: { labTestCategory: selectedValue }
     });
     const labTestTypeOptions = labTestTypes.map(labTestType => ({
       id: labTestType.id,
