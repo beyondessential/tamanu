@@ -8,7 +8,7 @@ import { VaccinesTableTitle } from './VaccinesTableTitle';
 import { vaccineTableHeader } from './VaccineTableHeader';
 import { ErrorScreen } from '../ErrorScreen';
 import { LoadingScreen } from '../LoadingScreen';
-import { getWeeksFromBirth, VaccineStatus } from '~/ui/helpers/patient';
+import { VaccineStatus } from '~/ui/helpers/patient';
 import { VaccineTableCell } from './VaccinesTableCell';
 
 interface VaccinesTableProps {
@@ -68,17 +68,19 @@ export const VaccinesTable = ({
       v => v.scheduledVaccine.id === scheduledVaccine.id,
     );
 
-    const weeksUntilDue = scheduledVaccine.weeksFromBirthDue
-      ? scheduledVaccine.weeksFromBirthDue - getWeeksFromBirth(selectedPatient.dateOfBirth)
-      : null;
-
     const vaccineStatus = administeredVaccine
       ? administeredVaccine.status
       : VaccineStatus.SCHEDULED;
 
     cells[scheduledVaccine.schedule] = [
       ...(cells[scheduledVaccine.schedule] || []),
-      { ...scheduledVaccine, vaccineStatus, weeksUntilDue, administeredVaccine },
+      {
+        ...scheduledVaccine,
+        vaccineStatus,
+        administeredVaccine,
+        administeredData,
+        patient: selectedPatient,
+      },
     ];
   });
 

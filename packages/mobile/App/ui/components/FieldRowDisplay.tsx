@@ -1,9 +1,10 @@
 import React from 'react';
 import { chunk } from 'lodash';
 
-import { StyledView, RowView } from '/styled/common';
-import { SectionHeader } from '/components/SectionHeader';
-import { InformationBox } from '../navigation/screens/home/PatientDetails/CustomComponents';
+import { useLocalisation } from '~/ui/contexts/LocalisationContext';
+import { StyledView, RowView } from '~/ui/styled/common';
+import { SectionHeader } from '~/ui/components/SectionHeader';
+import { InformationBox } from '~/ui/navigation/screens/home/PatientDetails/CustomComponents';
 
 interface FieldRowDisplayProps {
   fields: string[][];
@@ -16,7 +17,9 @@ export const FieldRowDisplay = ({
   header,
   fieldsPerRow,
 }: FieldRowDisplayProps): JSX.Element => {
-  const rows = chunk(fields, fieldsPerRow);
+  const { getString, getBool } = useLocalisation();
+  const visibleFields = fields.filter(([name]) => getBool(`fields.${name}.hidden`) !== true);
+  const rows = chunk(visibleFields, fieldsPerRow);
 
   return (
     <StyledView width="100%">
@@ -26,12 +29,12 @@ export const FieldRowDisplay = ({
         </SectionHeader>
       )}
       {rows.map(row => (
-        <RowView key={`${row[0]}${row[1]}`} marginTop={20}>
-          {row.map(([title, info]) => (
+        <RowView key={row.map(([name]) => name).join(',')} marginTop={20}>
+          {row.map(([name, info]) => (
             <InformationBox
-              key={title}
+              key={name}
               flex={1}
-              title={title}
+              title={getString(`fields.${name}.longLabel`)}
               info={info}
             />
           ))}

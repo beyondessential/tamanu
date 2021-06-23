@@ -147,7 +147,7 @@ export const VaccineStatusCells: VaccineStatusCellsType = {
     Icon: Icons.GivenOnTimeIcon,
     background: theme.colors.SAFE,
     color: theme.colors.SAFE,
-    text: 'GIVEN ON TIME',
+    text: 'GIVEN',
   },
   [VaccineStatus.NOT_GIVEN]: {
     Icon: Icons.NotGivenIcon,
