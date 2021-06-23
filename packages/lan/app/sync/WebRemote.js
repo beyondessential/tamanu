@@ -11,7 +11,6 @@ import { log } from 'shared/services/logging';
 import { version } from '~/../package.json';
 
 const API_VERSION = 'v1';
-const DEFAULT_TIMEOUT = 10000;
 
 const getVersionIncompatibleMessage = (error, response) => {
   if (error.message === VERSION_COMPATIBILITY_ERRORS.LOW) {
@@ -35,7 +34,8 @@ export class WebRemote {
 
   constructor() {
     this.host = config.sync.host;
-    this.timeout = config.sync.timeout || DEFAULT_TIMEOUT;
+    this.timeout = config.sync.timeout;
+    this.batchSize = config.sync.channelBatchSize;
   }
 
   async fetch(endpoint, params = {}) {
@@ -160,9 +160,8 @@ export class WebRemote {
   }
 
   async fetchChannelsWithChanges(channelsToCheck) {
-    const batchSize = 1000; // pretty arbitrary, avoid overwhelming the server with e.g. 100k channels
     const channelsWithPendingChanges = [];
-    for (const batchOfChannels of chunk(channelsToCheck, batchSize)) {
+    for (const batchOfChannels of chunk(channelsToCheck, this.batchSize)) {
       const body = batchOfChannels.reduce(
         (acc, { channel, cursor }) => ({
           ...acc,

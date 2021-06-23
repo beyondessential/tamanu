@@ -17,6 +17,7 @@
     "email": "",
     "password": "",
     "timeout": 10000,
+    "channelBatchSize": 1000,
     "readOnly": false
   },
   "port": 4000,
