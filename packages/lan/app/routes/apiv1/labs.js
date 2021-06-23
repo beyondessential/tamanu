@@ -1,14 +1,12 @@
 import express from 'express';
 import asyncHandler from 'express-async-handler';
+import moment from 'moment';
+import { QueryTypes } from 'sequelize';
 
 import { REFERENCE_TYPES } from 'shared/constants';
-import { ENCOUNTER_PATIENT } from '../../database/includes';
-import {
-  simpleGet,
-  simplePut,
-  simpleGetList,
-  permissionCheckingRouter,
-} from './crudHelpers';
+import { makeFilter } from '~/utils/query';
+import { renameObjectKeys } from '~/utils/renameObjectKeys';
+import { simpleGet, simplePut, simpleGetList, permissionCheckingRouter } from './crudHelpers';
 
 export const labRequest = express.Router();
 
@@ -24,9 +22,111 @@ labRequest.post(
   }),
 );
 
-const globalLabRequests = permissionCheckingRouter('list', 'LabRequest');
-globalLabRequests.get('/$', simpleGetList('LabRequest', '', { include: [ENCOUNTER_PATIENT] }));
-labRequest.use(globalLabRequests);
+labRequest.get(
+  '/$',
+  asyncHandler(async (req, res) => {
+    const {
+      models: { LabRequest },
+      query,
+    } = req;
+    req.checkPermission('list', 'LabRequest');
+
+    const { rowsPerPage = 10, page = 0, ...filterParams } = query;
+
+    const filters = [
+      makeFilter(filterParams.requestId, `lab_requests.id = :requestId`),
+      makeFilter(filterParams.status, `lab_requests.status = :status`),
+      makeFilter(filterParams.category, `category.name = :category`),
+      makeFilter(filterParams.displayId, `patient.display_id = :displayId`),
+      makeFilter(
+        filterParams.requestedDateFrom,
+        `DATE(lab_requets.requested_date) >= :requestedDate`,
+        ({ requestedDateFrom }) => ({
+          requestedDateFrom: moment(requestedDateFrom)
+            .startOf('day')
+            .toISOString(),
+        }),
+      ),
+      makeFilter(
+        filterParams.requestedDateTo,
+        `DATE(lab_requets.requested_date) <= :requestedDateTo`,
+        ({ requestedDateTo }) => ({
+          requestedDateTo: moment(requestedDateTo)
+            .endOf('day')
+            .toISOString(),
+        }),
+      ),
+    ].filter(f => f);
+
+    const whereClauses = filters.map(f => f.sql).join(' AND ');
+
+    const from = `
+      FROM lab_requests
+        LEFT JOIN encounters AS encounter
+          ON (encounter.id = lab_requests.encounter_id)
+        LEFT JOIN patients AS patient
+          ON (patient.id = encounter.patient_id)
+        LEFT JOIN reference_data AS category
+          ON (category.type = 'labTestCategory' AND lab_requests.lab_test_category_id = category.id)
+      ${whereClauses && `WHERE ${whereClauses}`}
+    `;
+
+    const filterReplacements = filters
+      .filter(f => f.transform)
+      .reduce(
+        (current, { transform }) => ({
+          ...current,
+          ...transform(current),
+        }),
+        filterParams,
+      );
+
+    const countResult = await req.db.query(`SELECT COUNT(1) AS count ${from}`, {
+      replacements: filterReplacements,
+      type: QueryTypes.SELECT,
+    });
+
+    const { count } = countResult[0];
+
+    if (count === 0) {
+      // save ourselves a query
+      res.send({ data: [], count });
+      return;
+    }
+
+    const result = await req.db.query(
+      `
+        SELECT
+          lab_requests.*,
+          encounters.id AS encounter_id,
+          patients.id AS patient_id,
+          category.id AS category_id,
+          category.name AS category_name
+        ${from}
+
+        LIMIT :limit
+        OFFSET :offset
+      `,
+      {
+        replacements: {
+          ...filterReplacements,
+          limit: rowsPerPage,
+          offset: page * rowsPerPage,
+        },
+        model: LabRequest,
+        type: QueryTypes.SELECT,
+        mapToModel: true,
+      },
+    );
+
+    const forResponse = result.map(x => renameObjectKeys(x.forResponse()));
+
+    res.send({
+      data: forResponse,
+      count,
+    });
+  }),
+);
 
 const labRelations = permissionCheckingRouter('read', 'LabRequest');
 labRelations.get('/:id/tests', simpleGetList('LabTest', 'labRequestId'));

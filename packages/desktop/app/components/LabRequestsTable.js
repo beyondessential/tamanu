@@ -10,7 +10,6 @@ import { viewLab } from '../store/labRequest';
 import { PatientNameDisplay } from './PatientNameDisplay';
 import { viewPatientEncounter } from '../store/patient';
 import { useEncounter } from '../contexts/Encounter';
-import { LocalisedText } from './LocalisedText';
 
 const StatusLabel = styled.div`
   background: ${p => p.color};
@@ -49,7 +48,7 @@ const globalColumns = [
   ...encounterColumns,
 ];
 
-const DumbLabRequestsTable = React.memo(({ encounterId, onLabSelect }) => {
+const DumbLabRequestsTable = React.memo(({ encounterId, onLabSelect, fetchOptions }) => {
   const { loadEncounter, encounter } = useEncounter();
   const selectLab = useCallback(async lab => {
     if (!encounter) {
@@ -65,6 +64,7 @@ const DumbLabRequestsTable = React.memo(({ encounterId, onLabSelect }) => {
       columns={encounterId ? encounterColumns : globalColumns}
       noDataMessage="No lab requests found"
       onRowClick={selectLab}
+      fetchOptions={fetchOptions}
     />
   );
 });
