@@ -9,38 +9,38 @@ export const DateFormats = {
   DAY_MONTH_YEAR_SHORT: 'dd MMM yyyy',
   DAY_MONTH: 'dd MMM',
   DDMMYY: 'dd/MM/yyyy',
-  SHORT_MONTH: 'MMM'
+  SHORT_MONTH: 'MMM',
 };
 
 export const BloodTypes = [
   {
     value: 'A+',
-    label: 'A+'
+    label: 'A+',
   },
   {
     value: 'A-',
-    label: 'A-'
+    label: 'A-',
   },
   {
     value: 'B+',
-    label: 'B+'
+    label: 'B+',
   },
   {
     value: 'O+',
-    label: 'O+'
+    label: 'O+',
   },
   {
     value: 'AB+',
-    label: 'AB+'
+    label: 'AB+',
   },
   {
     value: 'AB-',
-    label: 'AB-'
-  }
+    label: 'AB-',
+  },
 ];
 
 export const TimeFormats = {
-  HHMMSS: 'pp'
+  HHMMSS: 'pp',
 };
 
 export const FilterTypeAll = 'All';
@@ -48,7 +48,7 @@ export const FilterTypeAll = 'All';
 export const VisitTypes = {
   HOSPITAL: 'Hospital',
   CLINIC: 'Clinic',
-  VISIT: 'Visit'
+  VISIT: 'Visit',
 };
 
 export const HeaderIcons = {
@@ -59,7 +59,7 @@ export const HeaderIcons = {
   [EncounterType.Imaging]: Icons.FirstAidKitIcon,
   [EncounterType.Observation]: Icons.FirstAidKitIcon,
   [EncounterType.Triage]: Icons.FirstAidKitIcon,
-  [EncounterType.SurveyResponse]: Icons.FirstAidKitIcon
+  [EncounterType.SurveyResponse]: Icons.FirstAidKitIcon,
 };
 
 export const PatientVitalsList = [
@@ -71,48 +71,48 @@ export const PatientVitalsList = [
   'heartRate',
   'respiratoryRate',
   'sv02',
-  'avpu'
+  'avpu',
 ];
 
 const seniorDoctorRole = {
   value: 'senior-doctor',
-  label: 'Senior Doctor'
+  label: 'Senior Doctor',
 };
 const juniorDoctorRole = {
   value: 'junior-doctor',
-  label: 'Junior Doctor'
+  label: 'Junior Doctor',
 };
 const seniorNurse = {
   value: 'senior-nurse',
-  label: 'Senior Nurse'
+  label: 'Senior Nurse',
 };
 const juniorNurse = {
   value: 'junior-nurse',
-  label: 'Junior Nurse'
+  label: 'Junior Nurse',
 };
 const midWife = {
   value: 'midwife',
-  label: 'Midwife'
+  label: 'Midwife',
 };
 const appliedHealth = {
   value: 'applied-health',
-  label: 'Applied Health'
+  label: 'Applied Health',
 };
 const finnanceRole = {
   value: 'finance',
-  label: 'Finance'
+  label: 'Finance',
 };
 const radiologyRole = {
   value: 'radiology',
-  label: 'Radiology'
+  label: 'Radiology',
 };
 const labRole = {
   value: 'lab',
-  label: 'Lab'
+  label: 'Lab',
 };
 const practitionerRole = {
   value: 'practitioner',
-  label: 'Practitioner'
+  label: 'Practitioner',
 };
 export const userRolesOptions = [
   seniorDoctorRole,
@@ -124,7 +124,7 @@ export const userRolesOptions = [
   finnanceRole,
   radiologyRole,
   labRole,
-  practitionerRole
+  practitionerRole,
 ];
 
 type VaccineStatusCellsType = {
@@ -141,50 +141,50 @@ export const VaccineStatusCells: VaccineStatusCellsType = {
     Icon: Icons.EmptyCircleIcon,
     background: 'transparent',
     color: theme.colors.TEXT_SOFT,
-    text: 'UNKNOWN'
+    text: 'UNKNOWN',
   },
   [VaccineStatus.GIVEN]: {
     Icon: Icons.GivenOnTimeIcon,
     background: theme.colors.SAFE,
     color: theme.colors.SAFE,
-    text: 'GIVEN'
+    text: 'GIVEN',
   },
   [VaccineStatus.NOT_GIVEN]: {
     Icon: Icons.NotGivenIcon,
     background: theme.colors.DISABLED_GREY,
     color: theme.colors.TEXT_SOFT,
-    text: 'NOT GIVEN'
+    text: 'NOT GIVEN',
   },
   [VaccineStatus.SCHEDULED]: {
     Icon: Icons.EmptyCircleIcon,
     background: theme.colors.BACKGROUND_GREY,
     color: theme.colors.TEXT_SOFT,
-    text: 'SCHEDULED'
+    text: 'SCHEDULED',
   },
   [VaccineStatus.MISSED]: {
     Icon: Icons.CrossIcon,
     background: theme.colors.ALERT,
     color: theme.colors.TEXT_SOFT,
-    text: 'MISSED'
+    text: 'MISSED',
   },
   [VaccineStatus.DUE]: {
     Icon: Icons.EmptyCircleIcon,
     background: theme.colors.PRIMARY_MAIN,
     color: theme.colors.TEXT_SOFT,
-    text: 'DUE NOW'
+    text: 'DUE NOW',
   },
   [VaccineStatus.OVERDUE]: {
     Icon: Icons.EmptyCircleIcon,
     background: theme.colors.SECONDARY_MAIN,
     color: theme.colors.TEXT_SOFT,
-    text: 'OVERDUE'
+    text: 'OVERDUE',
   },
   [VaccineStatus.UPCOMING]: {
     Icon: Icons.EmptyCircleIcon,
     background: ColorHelper.halfTransparency(theme.colors.PRIMARY_MAIN),
     color: theme.colors.TEXT_SOFT,
-    text: 'UPCOMING'
-  }
+    text: 'UPCOMING',
+  },
 };
 
 export const PhoneMask = { mask: '9999 9999 999' };
@@ -192,29 +192,29 @@ export const PhoneMask = { mask: '9999 9999 999' };
 export const Gender = {
   Male: 'male',
   Female: 'female',
-  Other: 'other'
+  Other: 'other',
 };
 
 export const MaleGender = {
   label: 'Male',
-  value: Gender.Male
+  value: Gender.Male,
 };
 
 export const OtherGender = {
   label: 'Other',
-  value: Gender.Other
+  value: Gender.Other,
 };
 
 export const FemaleGender = {
   label: 'Female',
-  value: Gender.Female
+  value: Gender.Female,
 };
 
 export const GenderOptions = [MaleGender, FemaleGender, OtherGender];
 
 export const MarriedStatus = {
   value: 'married',
-  label: 'Married'
+  label: 'Married',
 };
 export const SingleStatus = { value: 'single', label: 'Single' };
 export const Other = { value: 'other', label: 'Other' };
@@ -227,7 +227,7 @@ export const EncounterTypeNames = {
   emergency: 'Emergency',
   observation: 'Observation',
   triage: 'Triage',
-  surveyResponse: 'Survey response'
+  surveyResponse: 'Survey response',
 };
 
 export const LabRequestStatus = {

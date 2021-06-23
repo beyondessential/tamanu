@@ -1,10 +1,8 @@
-// import { createDropdownOptionsFromObject } from '~/ui/helpers/fields';
 import { ID } from './ID';
 import { ILabRequest } from './ILabRequest';
 import { ILabTestType } from './ILabTestType';
 import { IReferenceData } from './IReferenceData';
 
-// TODO: Maybe don't copy LabRequestStatus manually
 export enum LabTestStatus {
   RECEPTION_PENDING = 'reception_pending',
   RESULTS_PENDING = 'results_pending',
@@ -12,8 +10,6 @@ export enum LabTestStatus {
   VERIFIED = 'verified',
   PUBLISHED = 'published',
 };
-
-// export const LAB_TEST_STATUS_OPTIONS = createDropdownOptionsFromObject(LabTestStatus);
 
 export interface ILabTest {
   id: ID;
