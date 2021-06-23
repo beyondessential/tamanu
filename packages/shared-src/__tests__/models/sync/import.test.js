@@ -34,7 +34,6 @@ describe('import', () => {
     let models;
     let context;
     const patientId = uuidv4();
-    const encounterId = uuidv4();
     const userId = uuidv4();
     const facilityId = uuidv4();
     beforeAll(async () => {
