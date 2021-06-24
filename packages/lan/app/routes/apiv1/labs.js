@@ -3,12 +3,7 @@ import asyncHandler from 'express-async-handler';
 
 import { REFERENCE_TYPES } from 'shared/constants';
 import { ENCOUNTER_PATIENT } from '../../database/includes';
-import {
-  simpleGet,
-  simplePut,
-  simpleGetList,
-  permissionCheckingRouter,
-} from './crudHelpers';
+import { simpleGet, simplePut, simpleGetList, permissionCheckingRouter } from './crudHelpers';
 
 export const labRequest = express.Router();
 
@@ -56,6 +51,23 @@ labTest.get(
 
     const records = await req.models.ReferenceData.findAll({
       where: { type: REFERENCE_TYPES.LAB_TEST_CATEGORY },
+    });
+
+    res.send({
+      data: records,
+      count: records.length,
+    });
+  }),
+);
+
+labTest.get(
+  '/priorities$',
+  asyncHandler(async (req, res) => {
+    // always allow reading lab urgency options
+    req.flagPermissionChecked();
+
+    const records = await req.models.ReferenceData.findAll({
+      where: { type: REFERENCE_TYPES.LAB_TEST_PRIORITY },
     });
 
     res.send({
