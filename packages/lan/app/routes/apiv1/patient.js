@@ -77,12 +77,22 @@ patient.post(
   '/$',
   asyncHandler(async (req, res) => {
     const {
-      models: { Patient },
+      db,
+      models: { Patient, PatientAdditionalData },
     } = req;
     req.checkPermission('create', 'Patient');
-    const newPatient = requestBodyToRecord(req.body);
-    const object = await Patient.create(newPatient);
-    res.send(dbRecordToResponse(object));
+    const patientData = requestBodyToRecord(req.body);
+
+    await db.transaction(async () => {
+      const patientRecord = await Patient.create(patientData);
+
+      await PatientAdditionalData.create({
+        ...patientData,
+        patientId: patientRecord.id,
+      });
+
+      res.send(dbRecordToResponse(patientRecord));
+    });
   }),
 );
 

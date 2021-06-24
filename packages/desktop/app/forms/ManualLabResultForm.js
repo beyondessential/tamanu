@@ -15,10 +15,16 @@ function getComponentForTest(questionType, options) {
 function renderOptions(options) {
   if (!options) return [];
 
-  return options.map(value => ({
-    value,
-    label: capitaliseFirstLetter(value),
-  }));
+  const trimmed = options.trim();
+  if (!trimmed) return [];
+  return trimmed
+    .split(', ')
+    .map(x => x.trim())
+    .filter(x => x)
+    .map(value => ({
+      value,
+      label: capitaliseFirstLetter(value),
+    }));
 }
 
 export const ManualLabResultForm = ({ onSubmit, onClose, labTest }) => {

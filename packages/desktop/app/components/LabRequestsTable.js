@@ -10,6 +10,7 @@ import { viewLab } from '../store/labRequest';
 import { PatientNameDisplay } from './PatientNameDisplay';
 import { viewPatientEncounter } from '../store/patient';
 import { useEncounter } from '../contexts/Encounter';
+import { LocalisedText } from './LocalisedText';
 
 const StatusLabel = styled.div`
   background: ${p => p.color};
@@ -25,6 +26,7 @@ const StatusDisplay = React.memo(({ status }) => (
 
 const getDisplayName = ({ requestedBy }) => (requestedBy || {}).displayName || 'Unknown';
 const getPatientName = ({ encounter }) => <PatientNameDisplay patient={encounter.patient} />;
+const getPatientDisplayId = ({ encounter }) => encounter.patient.displayId || 'Unknown';
 const getStatus = ({ status }) => <StatusDisplay status={status} />;
 const getRequestType = ({ category }) => (category || {}).name || 'Unknown';
 const getDate = ({ requestedDate }) => <DateDisplay date={requestedDate} />;
@@ -39,6 +41,11 @@ const encounterColumns = [
 
 const globalColumns = [
   { key: 'patient', title: 'Patient', accessor: getPatientName, sortable: false },
+  {
+    key: 'displayId',
+    accessor: getPatientDisplayId,
+    sortable: false,
+  },
   ...encounterColumns,
 ];
 
