@@ -53,8 +53,8 @@ export class AdministeredVaccine extends BaseModel implements IAdministeredVacci
       .leftJoinAndSelect('scheduledVaccine.vaccine', 'vaccine')
       .where('encounter.patient.id = :patient', { patient: patientId })
       .andWhere(
-        'administered_vaccine.status = :given OR administered_vaccine.status = :notgiven',
-        { given: VaccineStatus.GIVEN, notgiven: VaccineStatus.NOT_GIVEN },
+        'administered_vaccine.status IN (:...status)',
+        { status: [VaccineStatus.GIVEN, VaccineStatus.NOT_GIVEN] },
       )
       .getMany();
   }
