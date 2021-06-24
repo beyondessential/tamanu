@@ -160,22 +160,53 @@ export class WebRemote {
   }
 
   async fetchChannelsWithChanges(channelsToCheck) {
-    const batchSize = 1000; // pretty arbitrary, avoid overwhelming the server with e.g. 100k channels
+    let batchSize = 1000;
+    const maxChannelErrors = 100;
+    const maxBatchSize = 5000;
+    const minBatchSize = 50;
+    const throttle = factor => {
+      batchSize = Math.min(maxBatchSize, Math.max(minBatchSize, Math.floor(batchSize * factor)));
+    };
+
+    log.info(`Beginning channel check for ${channelsToCheck.length} total patients`);
     const channelsWithPendingChanges = [];
-    for (const batchOfChannels of chunk(channelsToCheck, batchSize)) {
-      const body = batchOfChannels.reduce(
-        (acc, { channel, cursor }) => ({
-          ...acc,
-          [channel]: cursor,
-        }),
-        {},
-      );
-      const { channelsWithChanges } = await this.fetch(`sync/channels`, {
-        method: 'POST',
-        body,
-      });
-      channelsWithPendingChanges.push(...channelsWithChanges);
+    const channelsLeftToCheck = [...channelsToCheck];
+    const errors = [];
+    while (channelsLeftToCheck.length > 0) {
+      const batchOfChannels = channelsLeftToCheck.splice(0, batchSize);
+      try {
+        if(Math.random() < 0.2) {
+          throw new Error("oops");
+        }
+        log.debug(`Checking channels for ${batchOfChannels.length} patients`);
+        const body = batchOfChannels.reduce(
+          (acc, { channel, cursor }) => ({
+            ...acc,
+            [channel]: cursor,
+          }),
+          {},
+        );
+        const { channelsWithChanges } = await this.fetch(`sync/channels`, {
+          method: 'POST',
+          body,
+        });
+        log.debug(`OK! ${channelsLeftToCheck.length} left.`);
+        channelsWithPendingChanges.push(...channelsWithChanges);
+        throttle(1.2);
+      } catch(e) {
+        // errored - put those channels back into the queue
+        errors.push(e);
+        if(errors.length > maxChannelErrors) {
+          log.error(errors);
+          throw new Error("Too many errors encountered, aborting sync entirely");
+        }
+        channelsLeftToCheck.push(...batchOfChannels);
+        throttle(0.5);
+        log.debug(`Failed! Putting them to the back of the queue and slowing to batches of ${batchSize}; ${channelsLeftToCheck.length} left.`);
+      }
     }
+
+    log.debug(`Channel check finished. Found ${channelsWithPendingChanges.length} channels with pending changes.`);
     return channelsWithPendingChanges;
   }
 
