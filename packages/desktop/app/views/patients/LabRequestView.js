@@ -95,6 +95,7 @@ const LabRequestInfoPane = React.memo(({ labRequest }) => (
     <TextInput value={labRequest.id} label="Request ID" />
     <TextInput value={(labRequest.category || {}).name} label="Request type" />
     <TextInput value={labRequest.urgent ? 'Urgent' : 'Standard'} label="Urgency" />
+    <TextInput value={(labRequest.priority || {}).name} label="Priority" />
     <TextInput value={LAB_REQUEST_STATUS_LABELS[labRequest.status] || 'Unknown'} label="Status" />
     <DateInput value={labRequest.requestedDate} label="Requested date" />
     <DateTimeInput value={labRequest.sampleTime} label="Sample date" />

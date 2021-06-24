@@ -182,4 +182,21 @@ labTest.get(
   }),
 );
 
+labTest.get(
+  '/priorities$',
+  asyncHandler(async (req, res) => {
+    // always allow reading lab urgency options
+    req.flagPermissionChecked();
+
+    const records = await req.models.ReferenceData.findAll({
+      where: { type: REFERENCE_TYPES.LAB_TEST_PRIORITY },
+    });
+
+    res.send({
+      data: records,
+      count: records.length,
+    });
+  }),
+);
+
 labTest.put('/:id', simplePut('LabTest'));
