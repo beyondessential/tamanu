@@ -161,7 +161,7 @@ export class WebRemote {
 
   async fetchChannelsWithChanges(channelsToCheck) {
     const config = {
-      initialBatchSize: 10,
+      initialBatchSize: 1000,
       maxErrors: 100,
       maxBatchSize: 5000,
       minBatchSize: 50,
