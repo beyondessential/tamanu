@@ -23,11 +23,12 @@ export class LabRequest extends Model {
           defaultValue: Sequelize.NOW,
         },
 
-        urgent: {
+        specimenAttached: {
           type: Sequelize.BOOLEAN,
           defaultValue: false,
         },
-        specimenAttached: {
+
+        urgent: {
           type: Sequelize.BOOLEAN,
           defaultValue: false,
         },
@@ -96,14 +97,19 @@ export class LabRequest extends Model {
       as: 'category',
     });
 
+    this.belongsTo(models.ReferenceData, {
+      foreignKey: 'labTestPriorityId',
+      as: 'priority',
+    });
+
     this.hasMany(models.LabTest, {
       foreignKey: 'labRequestId',
-      as: 'tests'
+      as: 'tests',
     });
   }
 
   static getListReferenceAssociations() {
-    return ['requestedBy', 'category'];
+    return ['requestedBy', 'category', 'priority'];
   }
 
   getTests() {
