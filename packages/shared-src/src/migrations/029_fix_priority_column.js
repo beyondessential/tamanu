@@ -4,7 +4,7 @@ module.exports = {
   up: async query => {
     await query.removeColumn('lab_requests', 'priority');
 
-    await query.add('lab_requests', 'lab_test_priority_id', {
+    await query.addColumn('lab_requests', 'lab_test_priority_id', {
       type: Sequelize.STRING,
       references: {
         model: 'reference_data',
@@ -14,7 +14,7 @@ module.exports = {
   },
 
   down: async query => {
-    await query.add('lab_requests', 'priority', {
+    await query.addColumn('lab_requests', 'priority', {
       type: Sequelize.STRING,
       references: {
         model: 'reference_data',
