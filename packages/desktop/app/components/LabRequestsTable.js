@@ -23,12 +23,12 @@ const StatusDisplay = React.memo(({ status }) => (
   </StatusLabel>
 ));
 
-const getDisplayName = ({ requestedBy }) => requestedBy || 'Unknown';
+const getDisplayName = ({ requestedBy }) => (requestedBy || {})?.displayName || requestedBy || 'Unknown';
 const getPatientName = row => <PatientNameDisplay patient={row} />;
-const getPatientDisplayId = ({ patientId }) => patientId || 'Unknown';
+const getPatientDisplayId = ({ patientDisplayId }) => patientDisplayId || 'Unknown';
 const getStatus = ({ status }) => <StatusDisplay status={status} />;
-const getRequestType = ({ categoryName }) => categoryName || 'Unknown';
-const getPriority = ({ priority }) => (priority || {}).name || '';
+const getRequestType = ({ categoryName, category }) => categoryName || (category || {}).name || 'Unknown';
+const getPriority = ({ priorityName, priority }) => priorityName || (priority || {}).name || 'Unknown';
 const getDate = ({ requestedDate }) => <DateDisplay date={requestedDate} />;
 
 const encounterColumns = [
@@ -51,9 +51,9 @@ const globalColumns = [
 ];
 
 const DumbLabRequestsTable = React.memo(({ encounterId, onLabSelect, fetchOptions }) => {
-  const { loadEncounter, encounter } = useEncounter();
+  const { loadEncounter } = useEncounter();
   const selectLab = useCallback(async lab => {
-    if (!encounter) {
+    if (!encounterId) {
       // no encounter, likely on the labs page
       await loadEncounter(lab.encounterId);
     }
@@ -73,8 +73,8 @@ const DumbLabRequestsTable = React.memo(({ encounterId, onLabSelect, fetchOption
 
 export const LabRequestsTable = connect(null, dispatch => ({
   onLabSelect: lab => {
-    const { encounter, id } = lab;
-    if (encounter) dispatch(viewPatientEncounter(encounter.patient.id, encounter.id));
+    const { encounterId, id, patientId } = lab;
+    if (patientId) dispatch(viewPatientEncounter(patientId, encounterId));
 
     dispatch(viewLab(id));
   },
