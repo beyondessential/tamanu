@@ -47,7 +47,7 @@ const PatientHomeContainer = ({
       },
       {
         title: 'Lab Request',
-        Icon: Icons.DeceasedIcon, // TODO: Change
+        Icon: Icons.LabRequestIcon,
         onPress: (): void => navigation.navigate(Routes.HomeStack.LabRequestStack.Index),
       },
     ],
