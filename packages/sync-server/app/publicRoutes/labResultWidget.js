@@ -3,7 +3,7 @@ import asyncHandler from 'express-async-handler';
 import { InvalidParameterError } from 'shared/errors';
 import { LAB_REQUEST_STATUSES } from 'shared/constants';
 
-export const covidResultRoutes = express.Router();
+export const labResultWidgetRoutes = express.Router();
 
 const COVID_LAB_TEST_CATEGORY_ID = 'labTestCategory-FBC';
 const COVID_SWAB_LAB_TEST_TYPE_ID = 'labTestType-Lymphocytes';
@@ -29,7 +29,7 @@ const transformLabRequest = async (models, labRequest) => {
   };
 }
 
-covidResultRoutes.get(
+labResultWidgetRoutes.get(
   '/:displayId',
   asyncHandler(async (req, res) => {
     const { params } = req;
