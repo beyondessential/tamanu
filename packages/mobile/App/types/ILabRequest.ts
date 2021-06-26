@@ -11,7 +11,7 @@ export enum LabRequestStatus {
   TO_BE_VERIFIED = 'to_be_verified',
   VERIFIED = 'verified',
   PUBLISHED = 'published',
-};
+}
 
 export const LAB_REQUEST_STATUS_OPTIONS = createDropdownOptionsFromObject(LabRequestStatus);
 
@@ -19,22 +19,25 @@ export interface ILabRequest {
   id: ID;
   sampleTime: Date;
   requestedDate: Date;
-  urgent?: boolean;  
+  urgent?: boolean;
   specimenAttached?: boolean;
   status?: LabRequestStatus;
-  senaiteId?: string;  
-  sampleId?: string;  
+  senaiteId?: string;
+  sampleId?: string;
   note?: string;
   displayId: string;
 
   encounter: IEncounter;
   encounterId?: string;
-  
+
   requestedBy: IUser;
   requestedById?: string;
-  
+
   labTestCategory: IReferenceData;
   labTestCategoryId?: string;
+
+  labTestPriority?: IReferenceData;
+  labTestPriorityId?: string;
 
   tests: ILabTest[];
 }
@@ -43,19 +46,21 @@ export interface IDataRequiredToCreateLabRequest {
   id?: ID; // has default
   sampleTime?: Date; // has default
   requestedDate?: Date; // has default
-  urgent?: boolean;  
+  urgent?: boolean;
   specimenAttached?: boolean;
   status?: LabRequestStatus;
-  senaiteId?: string;  
-  sampleId?: string;  
+  senaiteId?: string;
+  sampleId?: string;
   note?: string;
   displayId: string;
 
   encounter: string;
-  
+
   requestedBy: string;
-  
+
   labTestCategory: string;
+
+  labTestPriority?: string;
 
   labTestTypeIds: string[];
 }

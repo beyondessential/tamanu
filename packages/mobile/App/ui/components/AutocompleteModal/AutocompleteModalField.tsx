@@ -14,6 +14,7 @@ interface AutocompleteModalFieldProps {
   onChange: (newValue: string) => void;
   suggester: Suggester<BaseModelSubclass>;
   modalRoute: string;
+  marginTop?: number;
 }
 
 export const AutocompleteModalField = ({
@@ -22,6 +23,7 @@ export const AutocompleteModalField = ({
   onChange,
   suggester,
   modalRoute,
+  marginTop,
 }: AutocompleteModalFieldProps): JSX.Element => {
   const navigation = useNavigation();
   const [label, setLabel] = useState(placeholder);
@@ -46,7 +48,9 @@ export const AutocompleteModalField = ({
 
   return (
     <Button
-      marginTop={screenPercentageToDP(1.22, Orientation.Height)}
+      marginTop={marginTop !== undefined
+        ? marginTop
+        : screenPercentageToDP(1.22, Orientation.Height)}
       backgroundColor={theme.colors.WHITE}
       textColor="#888888"
       buttonText={label}

@@ -9,7 +9,7 @@ export enum LabTestStatus {
   TO_BE_VERIFIED = 'to_be_verified',
   VERIFIED = 'verified',
   PUBLISHED = 'published',
-};
+}
 
 export interface ILabTest {
   id: ID;

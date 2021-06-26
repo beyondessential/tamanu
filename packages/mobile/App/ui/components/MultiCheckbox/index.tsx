@@ -7,7 +7,6 @@ import { Checkbox } from '../Checkbox';
 
 interface CheckboxProps extends BaseInputProps {
   onChange: Function;
-  text: string;
   value: string[];
   background?: string;
   color?: string;
@@ -20,16 +19,16 @@ export const MultiCheckbox = ({
   onChange,
   error,
   background,
-  color
+  color,
 }: CheckboxProps): JSX.Element => {
   const handleCallback = useCallback(
     (isSelected, optionId) => {
       const selectedValues = isSelected
         ? [...new Set([...value, optionId])]
-        : value.filter(v => v != optionId);
+        : value.filter(v => v !== optionId);
       onChange(selectedValues);
     },
-    [onChange, value, options]
+    [onChange, value, options],
   );
 
   return (
@@ -53,5 +52,5 @@ export const MultiCheckbox = ({
 
 MultiCheckbox.defaultProps = {
   background: theme.colors.WHITE,
-  color: theme.colors.PRIMARY_MAIN
+  color: theme.colors.PRIMARY_MAIN,
 };

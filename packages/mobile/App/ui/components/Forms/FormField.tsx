@@ -21,7 +21,7 @@ export const Field = ({
   ...rest
 }: FieldProps): JSX.Element => {
   const [field, meta] = useField(name);
-  const combinedOnChange = (newValue: any) => {
+  const combinedOnChange = (newValue: any): any => {
     if (onChange) {
       onChange(newValue);
     }

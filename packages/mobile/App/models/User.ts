@@ -26,7 +26,7 @@ export class User extends BaseModel implements IUser {
 
   @OneToMany(() => LabRequest, labRequest => labRequest.requestedBy)
   labRequests: LabRequest[];
-  
+
   static excludedSyncColumns: string[] = [
     ...BaseModel.excludedSyncColumns,
     'localPassword',

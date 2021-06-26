@@ -4,18 +4,17 @@ import {
   ManyToOne,
   RelationId,
   BeforeInsert,
-  BeforeUpdate
+  BeforeUpdate,
 } from 'typeorm/browser';
-
+import { OneToMany } from 'typeorm';
 import { BaseModel } from './BaseModel';
 import {
   IDataRequiredToCreateLabRequest,
   ILabRequest,
-  LabRequestStatus
+  LabRequestStatus,
 } from '~/types';
 import { Encounter } from './Encounter';
 import { ReferenceData, ReferenceDataRelation } from './ReferenceData';
-import { OneToMany } from 'typeorm';
 import { LabTest } from './LabTest';
 import { User } from './User';
 
@@ -37,7 +36,7 @@ export class LabRequest extends BaseModel implements ILabRequest {
   @Column({
     type: 'varchar',
     nullable: true,
-    default: LabRequestStatus.RECEPTION_PENDING
+    default: LabRequestStatus.RECEPTION_PENDING,
   })
   status?: LabRequestStatus;
 
@@ -53,18 +52,12 @@ export class LabRequest extends BaseModel implements ILabRequest {
   @Column({ type: 'varchar', nullable: true })
   note?: string;
 
-  @ManyToOne(
-    () => Encounter,
-    encounter => encounter.labRequests
-  )
+  @ManyToOne(() => Encounter, (encounter) => encounter.labRequests)
   encounter: Encounter;
   @RelationId(({ encounter }) => encounter)
   encounterId: string;
 
-  @ManyToOne(
-    () => User,
-    user => user.labRequests
-  )
+  @ManyToOne(() => User, (user) => user.labRequests)
   requestedBy: User;
   @RelationId(({ requestedBy }) => requestedBy)
   requestedById: string;
@@ -74,10 +67,12 @@ export class LabRequest extends BaseModel implements ILabRequest {
   @RelationId(({ labTestCategory }) => labTestCategory)
   labTestCategoryId: string;
 
-  @OneToMany(
-    () => LabTest,
-    labTest => labTest.labRequest
-  )
+  @ReferenceDataRelation()
+  labTestPriority: ReferenceData;
+  @RelationId(({ labTestPriority }) => labTestPriority)
+  labTestPriorityId: string;
+
+  @OneToMany(() => LabTest, (labTest) => labTest.labRequest)
   tests: LabTest[];
 
   @BeforeInsert()
@@ -95,7 +90,9 @@ export class LabRequest extends BaseModel implements ILabRequest {
       .getMany();
   }
 
-  static async createWithTests(data: IDataRequiredToCreateLabRequest) {
+  static async createWithTests(
+    data: IDataRequiredToCreateLabRequest,
+  ): Promise<BaseModel> {
     const { labTestTypeIds = [] } = data;
     if (!labTestTypeIds.length) {
       throw new Error('A request must have at least one test');
@@ -105,18 +102,12 @@ export class LabRequest extends BaseModel implements ILabRequest {
 
     // then create tests
     await Promise.all(
-      labTestTypeIds.map(labTestTypeId =>
-        LabTest.createAndSaveOne({
-          labTestType: labTestTypeId,
-          labRequest: labRequest.id
-        })
-      )
+      labTestTypeIds.map((labTestTypeId) => LabTest.createAndSaveOne({
+        labTestType: labTestTypeId,
+        labRequest: labRequest.id,
+      })),
     );
 
     return labRequest;
-  }
-
-  static getListReferenceAssociations() {
-    return ['requestedBy', 'labTestCategory'];
   }
 }

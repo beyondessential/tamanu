@@ -1,13 +1,11 @@
-
 import { Entity, Column, RelationId } from 'typeorm/browser';
 
-import { ILabTestType, LabTestQuestionType } from "~/types";
+import { ILabTestType, LabTestQuestionType } from '~/types';
 import { BaseModel } from './BaseModel';
 import { ReferenceData, ReferenceDataRelation } from './ReferenceData';
 
 @Entity('labTestType')
 export class LabTestType extends BaseModel implements ILabTestType {
-
   @Column({ nullable: false })
   code: string;
 

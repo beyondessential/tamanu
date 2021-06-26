@@ -235,5 +235,5 @@ export const LabRequestStatus = {
   results_pending: 'Results pending',
   to_be_verified: 'To be verified',
   verified: 'Verified',
-  published: 'published'
+  published: 'published',
 };

@@ -1,4 +1,3 @@
-
 import { Entity, Column, ManyToOne, RelationId } from 'typeorm/browser';
 
 import { BaseModel } from './BaseModel';
@@ -10,12 +9,12 @@ import { LabTestType } from './LabTestType';
 @Entity('labTest')
 export class LabTest extends BaseModel implements ILabTest {
   // https://github.com/typeorm/typeorm/issues/877#issuecomment-772051282 (+ timezones??)
-  @Column({ nullable: false, default: () => "CURRENT_TIMESTAMP" })
+  @Column({ nullable: false, default: () => 'CURRENT_TIMESTAMP' })
   sampleTime: Date;
 
   @Column({ type: 'varchar', nullable: false, default: LabTestStatus.RECEPTION_PENDING })
   status: LabTestStatus;
-  
+
   @Column({ type: 'varchar', nullable: false, default: '' })
   result: string;
 
@@ -23,7 +22,7 @@ export class LabTest extends BaseModel implements ILabTest {
   labRequest: LabRequest;
   @RelationId(({ labRequest }) => labRequest)
   labRequestId: string;
-  
+
   @ReferenceDataRelation()
   category: ReferenceData;
   @RelationId(({ category }) => category)

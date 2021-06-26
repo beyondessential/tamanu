@@ -126,7 +126,7 @@ export const DateField = React.memo(
                   label
                     ? screenPercentageToDP(2.2, Orientation.Height)
                     : screenPercentageToDP(1.2, Orientation.Height)
-                }              >
+                }>
                 {formatValue()}
               </StyledText>
               <StyledView
