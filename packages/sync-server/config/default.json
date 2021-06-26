@@ -32,6 +32,14 @@
     "outpatientDischarger": "0 0 2 ? * * *"
   },
   "localisation": {
+    "labResultWidget": {
+      "categoryWhitelist": [
+        "labTestCategory-FBC"
+      ],
+      "testTypeWhitelist": [
+        "labTestType-Lymphocytes"
+      ]
+    },
     "data": {
       "fields": {
         "markedForSync": {
