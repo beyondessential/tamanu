@@ -1,6 +1,7 @@
 import { Database } from '~/infra/db';
 import { SyncManager, WebSyncSource } from '~/services/sync';
 import { AuthService } from '~/services/auth';
+import { LocalisationService } from '~/services/localisation';
 import { AuthenticationError } from '~/services/auth/error';
 import { MODELS_MAP } from '~/models/modelsMap';
 
@@ -21,6 +22,8 @@ export class Backend {
 
   auth: AuthService;
 
+  localisation: LocalisationService;
+
   interval: number;
 
   constructor() {
@@ -29,6 +32,7 @@ export class Backend {
     this.syncSource = new WebSyncSource();
     this.syncManager = new SyncManager(this.syncSource);
     this.auth = new AuthService(models, this.syncSource);
+    this.localisation = new LocalisationService(this.auth);
   }
 
   async initialise(): Promise<void> {
