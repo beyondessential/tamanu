@@ -9,7 +9,7 @@ import { encounterOptions } from '../constants';
 import {
   getLabTestTypes,
   getLabTestCategories,
-  getLabTestDescriptions,
+  getLabTestPriorities,
   loadOptions,
 } from '../store/options';
 
@@ -94,7 +94,7 @@ export class LabRequestForm extends React.PureComponent {
           <Field name="specimenAttached" label="Specimen attached?" component={CheckField} />
           <Field name="urgent" label="Urgent?" component={CheckField} />
           <Field
-            name="priority"
+            name="labTestPriorityId"
             label="Priority"
             component={SelectField}
             options={testDescriptions}
@@ -181,7 +181,7 @@ export const ConnectedLabRequestForm = connect(
       value: id,
       label: name,
     })),
-    testDescriptions: getLabTestDescriptions(state).map(({ id, name }) => ({
+    testDescriptions: getLabTestPriorities(state).map(({ id, name }) => ({
       value: id,
       label: name,
     })),

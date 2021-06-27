@@ -28,7 +28,7 @@ export const loadOptions = () => async (dispatch, getState, { api }) => {
 
 export const getLabTestTypes = state => state.options.labTestTypes;
 export const getLabTestCategories = state => state.options.labTestCategories;
-export const labTestPriorities = state => state.options.labTestPriorities;
+export const getLabTestPriorities = state => state.options.labTestPriorities;
 export const getImagingTypes = state => state.options.imagingTypes;
 
 // reducers

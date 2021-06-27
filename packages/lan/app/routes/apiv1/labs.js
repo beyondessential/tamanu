@@ -78,9 +78,11 @@ labRequest.get(
           ON (encounter.id = lab_requests.encounter_id)
         LEFT JOIN reference_data AS category
           ON (category.type = 'labTestCategory' AND lab_requests.lab_test_category_id = category.id)
-        INNER JOIN patients AS patient
+        LEFT JOIN reference_data AS priority
+          ON (priority.type = 'labTestPriority' AND lab_requests.lab_test_priority_id = priority.id)
+        LEFT JOIN patients AS patient
           ON (patient.id = encounter.patient_id)
-        INNER JOIN users AS examiner
+        LEFT JOIN users AS examiner
           ON (examiner.id = encounter.examiner_id)
       ${whereClauses && `WHERE ${whereClauses}`}
     `;
@@ -112,13 +114,16 @@ labRequest.get(
       `
         SELECT
           lab_requests.*,
-          patient.display_id AS patient_id,
+          patient.display_id AS patient_display_id,
+          patient.id AS patient_id,
           patient.first_name AS first_name,
           patient.last_name AS last_name,
           examiner.display_name AS requested_by,
           encounter.id AS encounter_id,
           category.id AS category_id,
-          category.name AS category_name
+          category.name AS category_name,
+          priority.id AS priority_id,
+          priority.name AS priority_name
         ${from}
 
         LIMIT :limit
