@@ -160,21 +160,60 @@ export class WebRemote {
   }
 
   async fetchChannelsWithChanges(channelsToCheck) {
-    const channelsWithPendingChanges = [];
-    for (const batchOfChannels of chunk(channelsToCheck, this.batchSize)) {
-      const body = batchOfChannels.reduce(
-        (acc, { channel, cursor }) => ({
-          ...acc,
-          [channel]: cursor,
-        }),
-        {},
+    const config = {
+      initialBatchSize: 1000,
+      maxErrors: 100,
+      maxBatchSize: 5000,
+      minBatchSize: 50,
+      throttleFactorUp: 1.2,
+      throttleFactorDown: 0.5,
+    };
+
+    let batchSize = config.initialBatchSize;
+
+    const throttle = factor => {
+      batchSize = Math.min(
+        config.maxBatchSize, 
+        Math.max(config.minBatchSize, Math.ceil(batchSize * factor))
       );
-      const { channelsWithChanges } = await this.fetch(`sync/channels`, {
-        method: 'POST',
-        body,
-      });
-      channelsWithPendingChanges.push(...channelsWithChanges);
+    };
+
+    log.info(`WebRemote.fetchChannelsWithChanges: Beginning channel check for ${channelsToCheck.length} total patients`);
+    const channelsWithPendingChanges = [];
+    const channelsLeftToCheck = [...channelsToCheck];
+    const errors = [];
+    while (channelsLeftToCheck.length > 0) {
+      const batchOfChannels = channelsLeftToCheck.splice(0, batchSize);
+      try {
+        log.debug(`WebRemote.fetchChannelsWithChanges: Checking channels for ${batchOfChannels.length} patients`);
+        const body = batchOfChannels.reduce(
+          (acc, { channel, cursor }) => ({
+            ...acc,
+            [channel]: cursor,
+          }),
+          {},
+        );
+        const { channelsWithChanges } = await this.fetch(`sync/channels`, {
+          method: 'POST',
+          body,
+        });
+        log.debug(`WebRemote.fetchChannelsWithChanges: OK! ${channelsLeftToCheck.length} left.`);
+        channelsWithPendingChanges.push(...channelsWithChanges);
+        throttle(config.throttleFactorUp);
+      } catch(e) {
+        // errored - put those channels back into the queue
+        errors.push(e);
+        if(errors.length > config.maxErrors) {
+          log.error(errors);
+          throw new Error("Too many errors encountered, aborting sync entirely");
+        }
+        channelsLeftToCheck.push(...batchOfChannels);
+        throttle(config.throttleFactorDown);
+        log.debug(`WebRemote.fetchChannelsWithChanges: Failed! Returning records to the back of the queue and slowing to batches of ${batchSize}; ${channelsLeftToCheck.length} left.`);
+      }
     }
+
+    log.debug(`WebRemote.fetchChannelsWithChanges: Channel check finished. Found ${channelsWithPendingChanges.length} channels with pending changes.`);
     return channelsWithPendingChanges;
   }
 
