@@ -71,9 +71,7 @@ export class Encounter extends BaseModel implements IEncounter {
   @RelationId(({ location }) => location)
   locationId?: string;
 
-  @OneToMany(() => LabRequest, (labRequest) => labRequest.encounter, {
-    eager: true,
-  })
+  @OneToMany(() => LabRequest, (labRequest) => labRequest.encounter)
   labRequests: LabRequest[];
 
   @OneToMany(() => Diagnosis, (diagnosis) => diagnosis.encounter, {
