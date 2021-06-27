@@ -1,72 +1,44 @@
-import React, { createContext, useContext, useState, useEffect, PropsWithChildren, ReactElement } from 'react';
-import { get } from 'lodash';
+import React, { createContext, useContext, useState, useEffect, useMemo, PropsWithChildren, ReactElement } from 'react';
 
-import { readConfig, writeConfig } from '~/services/config';
+import { BackendContext } from '~/ui/contexts/BackendContext';
+import { LocalisationService } from '~/services/localisation';
 
 interface LocalisationContextData {
   getLocalisation: (path: string) => any;
   getString: (path: string, defaultValue?: string) => string;
   getBool: (path: string, defaultValue?: boolean) => boolean;
-  setLocalisation: (localisationToSet: object) => Promise<void>;
 }
 
-const TEST_LOCALISATION_OVERRIDES = {}; // add values to this to test localisation in development
-const CONFIG_KEY = 'localisation';
-
 const LocalisationContext = createContext<LocalisationContextData>({} as LocalisationContextData);
+
+const makeHelpers = (localisation: LocalisationService): LocalisationContextData => ({
+  getLocalisation: path => localisation.getLocalisation(path),
+  getString: (path, defaultString) => localisation.getString(path, defaultString),
+  getBool: (path, defaultBool) => localisation.getBool(path, defaultBool),
+});
 
 export const LocalisationProvider = ({
   children,
 }: PropsWithChildren<object>): ReactElement => {
-  const [localisation, setLocalisationInner] = useState({});
+  const backend = useContext(BackendContext);
+
+  const defaultHelpers = useMemo(() => makeHelpers(backend.localisation), [backend, backend.localisation])
+  const [helpers, setHelpers] = useState(defaultHelpers);
+
   useEffect(() => {
-    (async () => {
-      const strLocalisation = await readConfig(CONFIG_KEY);
-      setLocalisation(JSON.parse(strLocalisation));
-    })();
-  });
+    const onChanged = () => {
+      // updates the helper functions whenever the localisation changes,
+      // in order to make components update with the new value
+      setHelpers(makeHelpers(backend.localisation));
+    };
+    backend.localisation.emitter.on('changed', onChanged);
+    return () => {
+      backend.localisation.emitter.off('changed', onChanged);
+    };
+  }, [backend, backend.localisation]);
 
-  // helpers
-  const getLocalisation = path => get(mergedLocalisation, path);
-
-  const getString = (path: string, defaultValue?: string): string => {
-    const value = getLocalisation(path);
-    if (typeof value === 'string') {
-      return value;
-    }
-    if (typeof defaultValue === 'string') {
-      return value;
-    }
-    return path;
-  };
-
-  const getBool = (path: string, defaultValue?: boolean): boolean => {
-    const value = getLocalisation(path);
-    if (typeof value === 'boolean') {
-      return value;
-    }
-    if (typeof defaultValue === 'boolean') {
-      return value;
-    }
-    return false;
-  };
-
-  const setLocalisation = async (localisationToSet: object) => {
-    // make sure we can stringify before setting localisation
-    const jsonLocalisation = JSON.stringify(localisationToSet);
-    setLocalisationInner(localisationToSet);
-    await writeConfig(CONFIG_KEY, jsonLocalisation);
-  };
-
-  const mergedLocalisation = { ...localisation, ...TEST_LOCALISATION_OVERRIDES };
   return (
-    <LocalisationContext.Provider
-      value={{
-        getLocalisation,
-        getString,
-        getBool,
-        setLocalisation,
-      }}>
+    <LocalisationContext.Provider value={helpers}>
       {children}
     </LocalisationContext.Provider>
   );

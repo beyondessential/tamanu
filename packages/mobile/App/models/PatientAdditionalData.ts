@@ -1,5 +1,5 @@
 import { Entity, Column, RelationId, ManyToOne } from 'typeorm/browser';
-import { BaseModel } from './BaseModel';
+import { BaseModel, IdRelation } from './BaseModel';
 import { IPatientAdditionalData } from '~/types';
 import { ReferenceData, ReferenceDataRelation } from './ReferenceData';
 import { Patient } from './Patient';
@@ -40,6 +40,15 @@ export class PatientAdditionalData extends BaseModel implements IPatientAddition
 
   @Column({ nullable: true })
   socialMedia?: string;
+
+  @Column({ nullable: true })
+  birthCertificate?: string;
+
+  @Column({ nullable: true })
+  drivingLicense?: string;
+
+  @Column({ nullable: true })
+  passport?: string;
 
   @ReferenceDataRelation()
   nationality?: ReferenceData;
@@ -85,6 +94,21 @@ export class PatientAdditionalData extends BaseModel implements IPatientAddition
   occupation?: ReferenceData;
   @RelationId(({ occupation }) => occupation)
   occupationId?: string;
+
+  @ReferenceDataRelation()
+  religion?: ReferenceData;
+  @IdRelation()
+  religionId?: string | null;
+
+  @ReferenceDataRelation()
+  patientBillingType?: ReferenceData;
+  @IdRelation()
+  patientBillingTypeId?: string | null;
+
+  @ReferenceDataRelation()
+  countryOfBirth?: ReferenceData;
+  @IdRelation()
+  countryOfBirthId?: string | null;
 
   @Column({ default: false })
   markedForSync: boolean;

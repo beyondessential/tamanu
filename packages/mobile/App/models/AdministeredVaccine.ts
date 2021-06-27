@@ -3,6 +3,7 @@ import { BaseModel } from './BaseModel';
 import { IAdministeredVaccine, InjectionSiteType } from '~/types';
 import { Encounter } from './Encounter';
 import { ScheduledVaccine } from './ScheduledVaccine';
+import { VaccineStatus } from '~/ui/helpers/patient';
 
 @Entity('administered_vaccine')
 export class AdministeredVaccine extends BaseModel implements IAdministeredVaccine {
@@ -51,6 +52,10 @@ export class AdministeredVaccine extends BaseModel implements IAdministeredVacci
       .leftJoinAndSelect('administered_vaccine.scheduledVaccine', 'scheduledVaccine')
       .leftJoinAndSelect('scheduledVaccine.vaccine', 'vaccine')
       .where('encounter.patient.id = :patient', { patient: patientId })
+      .andWhere(
+        'administered_vaccine.status IN (:...status)',
+        { status: [VaccineStatus.GIVEN, VaccineStatus.NOT_GIVEN] },
+      )
       .getMany();
   }
 }

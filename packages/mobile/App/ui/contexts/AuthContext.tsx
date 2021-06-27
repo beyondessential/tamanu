@@ -7,7 +7,6 @@ import { WithAuthStoreProps } from '~/ui/store/ducks/auth';
 import { Routes } from '~/ui/helpers/routes';
 import { BackendContext } from '~/ui/contexts/BackendContext';
 import { IUser, SyncConnectionParameters } from '~/types';
-import { useLocalisation } from '~/ui/contexts/LocalisationContext';
 
 type AuthProviderProps = WithAuthStoreProps & {
   navRef: RefObject<NavigationContainerRef>;
@@ -35,7 +34,6 @@ const Provider = ({
 }: PropsWithChildren<AuthProviderProps>): ReactElement => {
   const checkFirstSession = (): boolean => props.isFirstTime;
   const [user, setUserData] = useState();
-  const { setLocalisation } = useLocalisation();
 
   const setUserFirstSignIn = (): void => {
     props.setFirstSignIn(false);
@@ -55,8 +53,7 @@ const Provider = ({
   };
 
   const remoteSignIn = async (params: SyncConnectionParameters): Promise<void> => {
-    const { user, token, localisation } = await backend.auth.remoteSignIn(params);
-    setLocalisation(localisation);
+    const { user, token } = await backend.auth.remoteSignIn(params);
     setUser({ facility: dummyFacility, ...user });
     setUserData({ facility: dummyFacility, ...user });
     setToken(token);
@@ -88,7 +85,6 @@ const Provider = ({
         routes: [{ name: Routes.SignUpStack.Index }],
       });
     }
-    setLocalisation({});
   };
 
   // start a session if there's a stored token
@@ -103,7 +99,7 @@ const Provider = ({
   // sign user out if an auth error was thrown
   useEffect(() => {
     const handler = (err: Error) => {
-      console.log(`signing out user with token ${props.token}: recieved auth error:`, err);
+      console.log(`signing out user with token ${props.token}: received auth error:`, err);
       signOut();
     };
     backend.auth.emitter.on('authError', handler);

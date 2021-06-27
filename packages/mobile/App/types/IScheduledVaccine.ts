@@ -7,6 +7,7 @@ export interface IScheduledVaccine {
   label?: string;
   schedule?: string;
   weeksFromBirthDue?: number;
+  weeksFromLastVaccinationDue?: number;
   category?: string;
   vaccine: IReferenceData;
 }
