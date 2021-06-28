@@ -14,7 +14,7 @@ import {
   USERS,
 } from 'Shared/demoData';
 import { LoginView } from '../app/views/LoginView';
-import { VisitForm } from '../app/forms/VisitForm';
+import { EncounterForm } from '../app/forms/EncounterForm';
 import { TriageForm } from '../app/forms/TriageForm';
 import { VitalsForm } from '../app/forms/VitalsForm';
 import { ProcedureForm } from '../app/forms/ProcedureForm';
@@ -57,14 +57,14 @@ storiesOf('Forms/LoginForm', module)
 
 storiesOf('Forms/VisitForm', module)
   .add('Default', () => (
-    <VisitForm
+    <EncounterForm
       onSubmit={action('submit')}
       locationSuggester={locationSuggester}
       practitionerSuggester={practitionerSuggester}
     />
   ))
   .add('Editing', () => (
-    <VisitForm
+    <EncounterForm
       onSubmit={action('submit')}
       locationSuggester={locationSuggester}
       practitionerSuggester={practitionerSuggester}
