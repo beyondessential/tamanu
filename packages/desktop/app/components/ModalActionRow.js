@@ -1,5 +1,6 @@
 import styled from 'styled-components';
 import { FullWidthRow } from './Modal';
+import { Colors } from '../constants';
 import { ConfirmCancelRow } from './ButtonRow';
 
 const ActionRow = styled(ConfirmCancelRow)`
