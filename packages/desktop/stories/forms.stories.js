@@ -13,7 +13,7 @@ import {
   PATIENTS,
   USERS,
 } from 'Shared/demoData';
-import { LoginView } from '../app/views/LoginView';
+// import { LoginView } from '../app/views/LoginView';
 import { EncounterForm } from '../app/forms/EncounterForm';
 import { TriageForm } from '../app/forms/TriageForm';
 import { VitalsForm } from '../app/forms/VitalsForm';
@@ -47,6 +47,8 @@ const patientSuggester = createDummySuggester(
 const drugSuggester = createDummySuggester(mapToSuggestions(DRUGS));
 
 storiesOf('Forms/LoginForm', module)
+  .add('broken', () => <div>Login view unstorybookable until ServerDetectingField can be separated out</div>);
+  /*
   .add('default', () => <LoginView login={action('login')} />)
   .add('expired', () => (
     <LoginView
@@ -54,6 +56,7 @@ storiesOf('Forms/LoginForm', module)
       errorMessage="Your session has expired. Please log in again."
     />
   ));
+  */
 
 storiesOf('Forms/VisitForm', module)
   .add('Default', () => (
