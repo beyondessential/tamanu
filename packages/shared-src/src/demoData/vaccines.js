@@ -18,7 +18,7 @@ export async function createAdministeredVaccine(models, overrides = {}) {
   return {
     id: generateId(),
     batch: chance.tv(),
-    status: 'given',
+    status: 'GIVEN',
     date: new Date(),
     ...overrides
   };

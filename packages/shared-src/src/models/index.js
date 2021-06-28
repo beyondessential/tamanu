@@ -45,3 +45,4 @@ export * from './Location';
 export * from './UserFacility';
 export * from './Attachment';
 export * from './UserLocalisationCache';
+export * from './Asset';

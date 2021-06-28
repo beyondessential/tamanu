@@ -7,6 +7,9 @@ import {
   executeExportPlan,
 } from 'shared/models/sync';
 import { log } from 'shared/services/logging';
+import config from 'config';
+
+const { readOnly } = config.sync;
 
 const EXPORT_LIMIT = 100;
 const INITIAL_PULL_LIMIT = 100;
@@ -167,6 +170,7 @@ export class SyncManager {
       const modelsToSync = [
         models.ReferenceData,
         models.User,
+        models.Asset,
 
         models.ScheduledVaccine,
 
@@ -191,7 +195,7 @@ export class SyncManager {
       ];
 
       for (const model of modelsToSync) {
-        if (shouldPush(model)) {
+        if (!readOnly && shouldPush(model)) {
           await this.exportAndPush(model, patientId);
         }
         if (shouldPull(model)) {

@@ -40,6 +40,7 @@ export function fakeScheduledVaccine(prefix = 'test-') {
   const id = uuidv4();
   return {
     weeksFromBirthDue: random(0, 1000),
+    weeksFromLastVaccinationDue: null,
     index: random(0, 50),
     vaccineId: null,
     ...fakeStringFields(`${prefix}scheduledVaccine_${id}_`, [

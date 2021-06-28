@@ -1,8 +1,8 @@
 import React from 'react';
 
+import { useLocalisation } from '../contexts/Localisation';
 import { connectApi } from '../api';
 import { Suggester } from '../utils/suggester';
-
 import { FormGrid } from '../components/FormGrid';
 import { ButtonRow } from '../components/ButtonRow';
 import { Button } from '../components/Button';
@@ -26,17 +26,31 @@ import {
   educationalAttainmentOptions,
 } from '../constants';
 
-const DumbPrimaryDetailsGroup = ({ villageSuggester }) => (
-  <React.Fragment>
-    <LocalisedField name="firstName" component={TextField} required />
-    <LocalisedField name="middleName" component={TextField} />
-    <LocalisedField name="lastName" component={TextField} required />
-    <LocalisedField name="culturalName" component={TextField} />
-    <LocalisedField name="dateOfBirth" component={DateField} required />
-    <LocalisedField name="villageId" component={AutocompleteField} suggester={villageSuggester} />
-    <LocalisedField name="sex" component={RadioField} options={sexOptions} inline required />
-  </React.Fragment>
-);
+const DumbPrimaryDetailsGroup = ({ villageSuggester }) => {
+  const { getLocalisation } = useLocalisation();
+  let filteredSexOptions = sexOptions;
+  if (getLocalisation('features.hideOtherSex') === true) {
+    filteredSexOptions = filteredSexOptions.filter(s => s.value !== 'other');
+  }
+
+  return (
+    <React.Fragment>
+      <LocalisedField name="firstName" component={TextField} required />
+      <LocalisedField name="middleName" component={TextField} />
+      <LocalisedField name="lastName" component={TextField} required />
+      <LocalisedField name="culturalName" component={TextField} />
+      <LocalisedField name="dateOfBirth" component={DateField} required />
+      <LocalisedField name="villageId" component={AutocompleteField} suggester={villageSuggester} />
+      <LocalisedField
+        name="sex"
+        component={RadioField}
+        options={filteredSexOptions}
+        inline
+        required
+      />
+    </React.Fragment>
+  );
+};
 
 export const PrimaryDetailsGroup = connectApi(api => ({
   villageSuggester: new Suggester(api, 'village'),
@@ -56,9 +70,17 @@ const DumbSecondaryDetailsGroup = ({
   patientBillingTypeSuggester,
 }) => (
   <React.Fragment>
+    <LocalisedField name="birthCertificate" component={TextField} />
+    <LocalisedField name="drivingLicense" component={TextField} />
+    <LocalisedField name="passport" component={TextField} />
     <LocalisedField name="bloodType" component={SelectField} options={bloodOptions} />
     <LocalisedField name="title" component={SelectField} options={titleOptions} />
     <LocalisedField name="placeOfBirth" component={TextField} />
+    <LocalisedField
+      name="countryOfBirthId"
+      component={AutocompleteField}
+      suggester={countrySuggester}
+    />
     <LocalisedField name="maritalStatus" component={SelectField} options={maritalStatusOptions} />
     <LocalisedField name="primaryContactNumber" component={TextField} type="tel" />
     <LocalisedField name="secondaryContactNumber" component={TextField} type="tel" />
@@ -107,9 +129,6 @@ const DumbSecondaryDetailsGroup = ({
       component={SelectField}
       options={educationalAttainmentOptions}
     />
-    <LocalisedField name="birthCertificate" component={TextField} />
-    <LocalisedField name="drivingLicense" component={TextField} />
-    <LocalisedField name="passport" component={TextField} />
     <LocalisedField name="religionId" component={AutocompleteField} suggester={religionSuggester} />
     <LocalisedField
       name="patientBillingTypeId"

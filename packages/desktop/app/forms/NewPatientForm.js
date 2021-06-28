@@ -3,8 +3,8 @@ import styled from 'styled-components';
 import * as yup from 'yup';
 import Collapse from '@material-ui/core/Collapse';
 
+import { useLocalisation } from '../contexts/Localisation';
 import { foreignKey, optionalForeignKey } from '../utils/validation';
-
 import { Form, Field } from '../components/Field';
 import { IdField } from '../components/Field/IdField';
 import { FormGrid } from '../components/FormGrid';
@@ -14,8 +14,6 @@ import { IdBanner } from '../components/IdBanner';
 import { Colors, sexOptions } from '../constants';
 
 import { PrimaryDetailsGroup, SecondaryDetailsGroup } from './PatientDetailsForm';
-
-const sexValues = sexOptions.map(o => o.value);
 
 const IdBannerContainer = styled.div`
   margin: -20px -32px 0 -32px;
@@ -77,6 +75,12 @@ export const NewPatientForm = memo(({ editedObject, onSubmit, onCancel, generate
       <ModalActionRow confirmText="Create" onConfirm={submitForm} onCancel={onCancel} />
     </FormGrid>
   );
+
+  const { getLocalisation } = useLocalisation();
+  let sexValues = sexOptions.map(o => o.value);
+  if (getLocalisation('features.hideOtherSex') === true) {
+    sexValues = sexValues.filter(s => s !== 'other');
+  }
 
   return (
     <Form

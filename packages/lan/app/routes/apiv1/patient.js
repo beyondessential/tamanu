@@ -4,13 +4,10 @@ import { QueryTypes } from 'sequelize';
 import moment from 'moment';
 
 import { NotFoundError } from 'shared/errors';
-import {
-  simpleGetList,
-  permissionCheckingRouter,
-  runPaginatedQuery,
-} from './crudHelpers';
+import { simpleGetList, permissionCheckingRouter, runPaginatedQuery } from './crudHelpers';
 
 import { renameObjectKeys } from '~/utils/renameObjectKeys';
+import { makeFilter } from '~/utils/query';
 import { patientVaccineRoutes } from './patient/patientVaccine';
 import { patientProfilePicture } from './patient/patientProfilePicture';
 
@@ -81,12 +78,22 @@ patient.post(
   '/$',
   asyncHandler(async (req, res) => {
     const {
-      models: { Patient },
+      db,
+      models: { Patient, PatientAdditionalData },
     } = req;
     req.checkPermission('create', 'Patient');
-    const newPatient = requestBodyToRecord(req.body);
-    const object = await Patient.create(newPatient);
-    res.send(dbRecordToResponse(object));
+    const patientData = requestBodyToRecord(req.body);
+
+    await db.transaction(async () => {
+      const patientRecord = await Patient.create(patientData);
+
+      await PatientAdditionalData.create({
+        ...patientData,
+        patientId: patientRecord.id,
+      });
+
+      res.send(dbRecordToResponse(patientRecord));
+    });
   }),
 );
 
@@ -113,6 +120,7 @@ patientRelations.get(
 
     const additionalData = await models.PatientAdditionalData.findOne({
       where: { patientId: params.id },
+      include: models.PatientAdditionalData.getFullReferenceAssociations(),
     });
 
     res.send(additionalData || {});
@@ -215,15 +223,6 @@ patient.get(
   }),
 );
 
-const makeFilter = (check, sql, transform) => {
-  if (!check) return null;
-
-  return {
-    sql,
-    transform,
-  };
-};
-
 const sortKeys = {
   markedForSync: 'patients.marked_for_sync',
   displayId: 'patients.display_id',
@@ -290,19 +289,39 @@ patient.get(
         `UPPER(patients.cultural_name) LIKE UPPER(:culturalName)`,
         ({ culturalName }) => ({ culturalName: `${culturalName}%` }),
       ),
-      makeFilter(filterParams.ageMax, `patients.date_of_birth >= :dobEarliest`, ({ ageMax }) => ({
-        dobEarliest: moment()
+      // For age filter
+      makeFilter(filterParams.ageMax, `patients.date_of_birth >= :dobMin`, ({ ageMax }) => ({
+        dobMin: moment()
           .startOf('day')
           .subtract(ageMax + 1, 'years')
           .add(1, 'day')
           .toDate(),
       })),
-      makeFilter(filterParams.ageMin, `patients.date_of_birth <= :dobLatest`, ({ ageMin }) => ({
-        dobLatest: moment()
+      makeFilter(filterParams.ageMin, `patients.date_of_birth <= :dobMax`, ({ ageMin }) => ({
+        dobMax: moment()
           .subtract(ageMin, 'years')
           .endOf('day')
           .toDate(),
       })),
+      // For DOB filter
+      makeFilter(
+        filterParams.dateOfBirthFrom,
+        `DATE(patients.date_of_birth) >= :dateOfBirthFrom`,
+        ({ dateOfBirthFrom }) => ({
+          dateOfBirthFrom: moment(dateOfBirthFrom)
+            .startOf('day')
+            .toISOString(),
+        }),
+      ),
+      makeFilter(
+        filterParams.dateOfBirthTo,
+        `DATE(patients.date_of_birth) <= :dateOfBirthTo`,
+        ({ dateOfBirthTo }) => ({
+          dateOfBirthTo: moment(dateOfBirthTo)
+            .endOf('day')
+            .toISOString(),
+        }),
+      ),
       makeFilter(filterParams.villageId, `patients.village_id = :villageId`),
       makeFilter(filterParams.locationId, `location.id = :locationId`),
       makeFilter(filterParams.departmentId, `department.id = :departmentId`),

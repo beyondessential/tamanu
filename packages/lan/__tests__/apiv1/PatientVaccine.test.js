@@ -69,7 +69,7 @@ describe('PatientVaccine', () => {
 
     it('should get a list of scheduled vaccines based on category', async () => {
       const result = await app.get(
-        '/v1/patient/1/scheduledVaccines?category=' + VACCINE_CATEGORIES.CAMPAIGN,
+        `/v1/patient/1/scheduledVaccines?category=${VACCINE_CATEGORIES.CAMPAIGN}`,
       );
       expect(result).toHaveSucceeded();
       expect(result.body).toHaveLength(1);
@@ -95,7 +95,22 @@ describe('PatientVaccine', () => {
       expect(patient2Result.body[0].schedules).toEqual([
         { administered: false, schedule: 'Dose 1', scheduledVaccineId: scheduled1.id },
         { administered: false, schedule: 'Dose 2', scheduledVaccineId: scheduled2.id },
-      ]);;
+      ]);
+    });
+  });
+
+  describe('Edit administered vaccines', () => {
+    it('Should mark an administered vaccine as recorded in error', async () => {
+      const result = await app.get(`/v1/patient/${patient.id}/administeredVaccines`);
+      expect(result).toHaveSucceeded();
+      expect(result.body.count).toEqual(1);
+      expect(result.body.data[0].status).toEqual('GIVEN');
+
+      const markedAsRecordedInError = await app
+        .put(`/v1/patient/${patient.id}/administeredVaccine/${result.body.data[0].id}`)
+        .send({ status: 'RECORDED_IN_ERROR' });
+      expect(markedAsRecordedInError).toHaveSucceeded();
+      expect(markedAsRecordedInError.body.status).toEqual('RECORDED_IN_ERROR');
     });
   });
 });
