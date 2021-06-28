@@ -77,6 +77,9 @@ function importDataElement(row) {
   };
 }
 
+// Break an array of questions into chunks, with the split points determined
+// by a newScreen: true property. (with newScreen: true questions placed as 
+// the first element of each chunk)
 function splitIntoScreens(questions) {
   const screenStarts = questions
     .map((q, i) => ({ newScreen: q.newScreen, i }))
@@ -117,11 +120,19 @@ export function importProgram({ file, whitelist }) {
     throw new Error("A program workbook must have a sheet named Metadata");
   }
 
+  // The Metadata sheet follows this structure:
+  // first few rows: program metadata (key in column A, value in column B)
+  // then: survey metadata header row (with name & code in columns A/B, then other keys)
+  // then: survey metadata values (corresponding to keys in the header row)
+
   const programMetadata = {};
   
-  // find the header row
+  // Read rows as program metadata until we hit the survey header row
+  // (this should be within the first few rows, there aren't many program metadata keys and
+  // there's no reason to add blank rows here)
   const headerRow = (() => {
-    for (let i = 0; i < 10; ++i) {
+    const rowsToSearch = 10; // there are only a handful of metadata keys, so give up pretty early
+    for (let i = 0; i < rowsToSearch; ++i) {
       let cell = metadataSheet[`A${i+1}`];
       if (!cell) continue;
       if (cell.v == 'code' || cell.v == 'name') {
@@ -134,15 +145,15 @@ export function importProgram({ file, whitelist }) {
     }
 
     // we've exhausted the search
-    return undefined;
+    throw new Error("A survey workbook Metadata sheet must have a row starting with a 'name' or 'code' cell");
   })();
 
   // detect if we're importing to home server
   const { homeServer = "", country } = programMetadata;
   const { host } = config.sync;
+
   // ignore slashes when comparing servers - easiest way to account for trailing slashes that may or may not be present
   const importingToHome = !homeServer || homeServer.replace("/", "") === host.replace("/", "");
-  const prefix = (!importingToHome && country) ? `(${country}) ` : "";
   
   if (!importingToHome) {
     if (!host.match(/(dev|demo|staging)/)) {
@@ -150,16 +161,24 @@ export function importProgram({ file, whitelist }) {
     }
   }
 
+  if (!programMetadata.programCode) {
+    throw new Error("A program must have a code");
+  }
+
+  if (!programMetadata.programName) {
+    throw new Error("A program must have a name");
+  }
+
+  // Use a country prefix (eg "(Samoa)" if we're importing to a server other
+  // than the home server.
+  const prefix = (!importingToHome && country) ? `(${country}) ` : "";
+
   // main container elements
   const programRecord = makeRecord('program', {
     id: `program-${idify(programMetadata.programCode)}`,
     name: `${prefix}${programMetadata.programName}`,
   });
-
-  if (!headerRow) {
-    throw new Error("A survey workbook Metadata sheet must have a row starting with a 'name' or 'code' cell");
-  }
-
+  
   // read metadata table starting at header row
   const surveyMetadata = utils.sheet_to_json(metadataSheet, { range: headerRow });
 
