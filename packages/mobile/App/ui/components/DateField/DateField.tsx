@@ -1,6 +1,5 @@
 import React, { useState, useCallback, ReactElement } from 'react';
-import { TouchableWithoutFeedback, Platform, StyleSheet } from 'react-native';
-import DateTimePickerModal from 'react-native-modal-datetime-picker';
+import { TouchableWithoutFeedback, StyleSheet } from 'react-native';
 import DateTimePicker from '@react-native-community/datetimepicker';
 import { StyledView, StyledText } from '/styled/common';
 import { formatDate } from '/helpers/date';
@@ -24,17 +23,17 @@ const styles = StyleSheet.create({
   },
 });
 
-type IOSDatePickerProps = {
+type DatePickerProps = {
   onDateChange: (event: any, selectedDate: any) => void;
   isVisible: boolean;
   mode: 'date' | 'time';
 };
 
-const IOSDatePicker = ({
+const DatePicker = ({
   onDateChange,
   isVisible,
   mode,
-}: IOSDatePickerProps): ReactElement => (isVisible ? (
+}: DatePickerProps): ReactElement => (isVisible ? (
   <DateTimePicker
     value={new Date()}
     mode={mode}
@@ -64,7 +63,6 @@ export const DateField = React.memo(
   }: DateFieldProps) => {
     const [isDatePickerVisible, setDatePickerVisible] = useState(false);
     const showDatePicker = useCallback(() => setDatePickerVisible(true), []);
-    const hideDatePicker = useCallback(() => setDatePickerVisible(false), []);
     const onAndroidDateChange = useCallback(
       (event, selectedDate) => {
         if (selectedDate) {
@@ -83,14 +81,6 @@ export const DateField = React.memo(
       }
       return null;
     }, [mode, value]);
-
-    const onIOSDateConfirm = useCallback(
-      (date: Date) => {
-        setDatePickerVisible(false);
-        onChange(date);
-      },
-      [onChange],
-    );
 
     const IconComponent = mode === 'date' ? Icons.CalendarIcon : Icons.ClockIcon;
 
@@ -143,20 +133,16 @@ export const DateField = React.memo(
             </InputContainer>
           </TouchableWithoutFeedback>
         </StyledView>
-        {Platform.OS === 'ios' ? (
-          <DateTimePickerModal
-            isVisible={disabled ? false : isDatePickerVisible}
-            mode={mode}
-            onConfirm={onIOSDateConfirm}
-            onCancel={hideDatePicker}
-          />
-        ) : (
-          <IOSDatePicker
-            onDateChange={onAndroidDateChange}
-            mode={mode}
-            isVisible={isDatePickerVisible}
-          />
-        )}
+        {
+          // see: https://github.com/react-native-datetimepicker/datetimepicker/issues/182#issuecomment-643156239
+          React.useMemo(() => (
+            <DatePicker
+              onDateChange={onAndroidDateChange}
+              mode={mode}
+              isVisible={isDatePickerVisible}
+            />
+          ), [isDatePickerVisible])
+        }
       </StyledView>
     );
   },
