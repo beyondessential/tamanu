@@ -6,7 +6,12 @@ import { connect } from 'react-redux';
 
 import { foreignKey } from '../utils/validation';
 import { encounterOptions } from '../constants';
-import { getLabTestTypes, getLabTestCategories, loadOptions } from '../store/options';
+import {
+  getLabTestTypes,
+  getLabTestCategories,
+  getLabTestPriorities,
+  loadOptions,
+} from '../store/options';
 
 import {
   Form,
@@ -65,6 +70,7 @@ export class LabRequestForm extends React.PureComponent {
       testTypes,
       encounter = {},
       testCategories,
+      testDescriptions,
     } = this.props;
     const { examiner = {} } = encounter;
     const examinerLabel = examiner.displayName;
@@ -87,6 +93,12 @@ export class LabRequestForm extends React.PureComponent {
         <div>
           <Field name="specimenAttached" label="Specimen attached?" component={CheckField} />
           <Field name="urgent" label="Urgent?" component={CheckField} />
+          <Field
+            name="labTestPriorityId"
+            label="Priority"
+            component={SelectField}
+            options={testDescriptions}
+          />
         </div>
         <FormSeparatorLine />
         <TextInput label="Encounter" disabled value={encounterLabel} />
@@ -166,6 +178,10 @@ export const ConnectedLabRequestForm = connect(
   state => ({
     testTypes: getLabTestTypes(state),
     testCategories: getLabTestCategories(state).map(({ id, name }) => ({
+      value: id,
+      label: name,
+    })),
+    testDescriptions: getLabTestPriorities(state).map(({ id, name }) => ({
       value: id,
       label: name,
     })),

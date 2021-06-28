@@ -234,7 +234,7 @@ class TableComponent extends React.Component {
           {title || getLocalisation(`fields.${key}.shortLabel`) || key}
         </TableSortLabel>
       ) : (
-        title
+        title || getLocalisation(`fields.${key}.shortLabel`) || key
       );
 
     return columns.map(({ key, title, numeric, sortable = true }) => (
