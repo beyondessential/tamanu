@@ -34,10 +34,10 @@
   "localisation": {
     "labResultWidget": {
       "categoryWhitelist": [
-        "labTestCategory-Other"
+        "labTestCategory-COVID"
       ],
       "testTypeWhitelist": [
-        "labTestType-COVID19NasalSwab"
+        "labTestType-COVID"
       ]
     },
     "data": {
@@ -230,7 +230,6 @@
         }
       },
       "features": {
-        "registerNewPatient": true,
         "hideOtherSex": true
       },
       "templates": {
