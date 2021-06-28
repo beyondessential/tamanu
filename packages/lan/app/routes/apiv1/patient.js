@@ -7,6 +7,7 @@ import { NotFoundError } from 'shared/errors';
 import { simpleGetList, permissionCheckingRouter, runPaginatedQuery } from './crudHelpers';
 
 import { renameObjectKeys } from '~/utils/renameObjectKeys';
+import { makeFilter } from '~/utils/query';
 import { patientVaccineRoutes } from './patient/patientVaccine';
 import { patientProfilePicture } from './patient/patientProfilePicture';
 
@@ -77,12 +78,22 @@ patient.post(
   '/$',
   asyncHandler(async (req, res) => {
     const {
-      models: { Patient },
+      db,
+      models: { Patient, PatientAdditionalData },
     } = req;
     req.checkPermission('create', 'Patient');
-    const newPatient = requestBodyToRecord(req.body);
-    const object = await Patient.create(newPatient);
-    res.send(dbRecordToResponse(object));
+    const patientData = requestBodyToRecord(req.body);
+
+    await db.transaction(async () => {
+      const patientRecord = await Patient.create(patientData);
+
+      await PatientAdditionalData.create({
+        ...patientData,
+        patientId: patientRecord.id,
+      });
+
+      res.send(dbRecordToResponse(patientRecord));
+    });
   }),
 );
 
@@ -211,15 +222,6 @@ patient.get(
     res.json(currentEncounter);
   }),
 );
-
-const makeFilter = (check, sql, transform) => {
-  if (!check) return null;
-
-  return {
-    sql,
-    transform,
-  };
-};
 
 const sortKeys = {
   markedForSync: 'patients.marked_for_sync',

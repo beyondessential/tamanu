@@ -80,7 +80,7 @@ const StyledDeleteButton = styled(Button)`
 
 export const DeleteButton = props => (
   <StyledDeleteButton variant="contained" {...props}>
-    Delete
+    {props.children || 'Delete'}
   </StyledDeleteButton>
 );
 

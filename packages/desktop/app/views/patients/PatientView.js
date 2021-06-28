@@ -81,11 +81,11 @@ const ImmunisationsPane = React.memo(({ patient, readonly }) => {
   const [isAdministerModalOpen, setIsAdministerModalOpen] = React.useState(false);
   const [isCertificateModalOpen, setIsCertificateModalOpen] = React.useState(false);
   const [isEditAdministeredModalOpen, setIsEditAdministeredModalOpen] = React.useState(false);
-  const [vaccineRecordId, setVaccineRecordId] = React.useState();
+  const [vaccineData, setVaccineData] = React.useState();
   const onOpenEditModal = useCallback(
-    async id => {
+    async row => {
       setIsEditAdministeredModalOpen(true);
-      setVaccineRecordId(id);
+      setVaccineData(row);
     },
     [patient],
   );
@@ -100,7 +100,7 @@ const ImmunisationsPane = React.memo(({ patient, readonly }) => {
       <EditAdministeredVaccineModal
         open={isEditAdministeredModalOpen}
         patientId={patient.id}
-        vaccineRecordId={vaccineRecordId}
+        vaccineRecord={vaccineData}
         onClose={() => setIsEditAdministeredModalOpen(false)}
       />
       <ImmunisationsTable patient={patient} onItemClick={id => onOpenEditModal(id)} />
