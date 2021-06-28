@@ -15,7 +15,7 @@ import {
 } from '../components/Field';
 import { ImageInfoModal } from '../components/InfoModal';
 import { FormGrid } from '../components/FormGrid';
-import { ModalActionRow } from '../components/ButtonRow';
+import { ModalActionRow } from '../components/ModalActionRow';
 import { NestedVitalsModal } from '../components/NestedVitalsModal';
 
 import triageFlowchart from '../assets/images/triage-flowchart.png';
