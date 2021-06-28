@@ -64,15 +64,17 @@ const renderAnswer = (question, answer) => {
     case FieldTypes.PHOTO:
       return (<ViewPhotoLink imageId={answer}/>)
     default:
-      return (<StyledText>{getAnswerText(question, answer)}</StyledText>)
+      return (<StyledText textAlign="right">{getAnswerText(question, answer)}</StyledText>)
   }
 };
 
 const AnswerItem = ({ question, answer, index }): JSX.Element => (
   <StyledView
     minHeight={40}
+    maxWidth="100%"
     justifyContent="space-between"
     flexDirection="row"
+    flexGrow={1}
     alignItems="center"
     paddingLeft={16}
     paddingRight={16}
@@ -83,9 +85,11 @@ const AnswerItem = ({ question, answer, index }): JSX.Element => (
         {question.dataElement.name}
       </StyledText>
     </StyledView>
-    {
-      renderAnswer(question, answer)
-    }
+    <StyledView alignItems="flex-end" justifyContent="center" maxWidth="60%" > 
+      {
+        renderAnswer(question, answer)
+      }
+    </StyledView>
   </StyledView>
 );
 
