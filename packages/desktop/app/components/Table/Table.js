@@ -234,7 +234,7 @@ class TableComponent extends React.Component {
           {title || getLocalisation(`fields.${key}.shortLabel`) || key}
         </TableSortLabel>
       ) : (
-        title
+        title || getLocalisation(`fields.${key}.shortLabel`) || key
       );
 
     return columns.map(({ key, title, numeric, sortable = true }) => (
@@ -306,7 +306,10 @@ class TableComponent extends React.Component {
                   return;
                 }
 
-                dx[c.key] = 'Error: Could not parse column';
+                dx[c.key] = 'Error: Could not parse accessor';
+              } else {
+                // Some columns have no accessor at all.
+                dx[c.key] = d[c.key];
               }
             }),
           );

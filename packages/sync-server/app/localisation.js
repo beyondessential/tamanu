@@ -32,6 +32,8 @@ const UNHIDEABLE_FIELDS = [
   'firstName',
   'lastName',
   'dateOfBirth',
+  'age',
+  'ageRange',
   'dateOfBirthFrom',
   'dateOfBirthTo',
 ];

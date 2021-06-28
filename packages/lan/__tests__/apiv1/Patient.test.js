@@ -59,6 +59,21 @@ describe('Patient', () => {
       expect(result.body).toHaveProperty('lastName', newPatient.lastName);
     });
 
+    it('should create a new patient with additional data', async () => {
+      const newPatient = await createDummyPatient(models);
+      const result = await app.post('/v1/patient').send({
+        ...newPatient,
+        passport: 'TEST-PASSPORT',
+      });
+
+      expect(result).toHaveSucceeded();
+
+      const id = result.body.id;
+      const additional = await models.PatientAdditionalData.findOne({ where: { patientId: id } });
+      expect(additional).toBeTruthy();
+      expect(additional).toHaveProperty('passport', 'TEST-PASSPORT');
+    });
+
     it('should update patient details', async () => {
       // skip middleName, to be added in PUT request
       const newPatient = await createDummyPatient(models, { middleName: '' });
