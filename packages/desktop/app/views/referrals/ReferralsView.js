@@ -15,6 +15,7 @@ import { SurveySelector } from '../programs/SurveySelector';
 import { PatientDisplay } from '../programs/PatientDisplay';
 import { ProgramsPane, ProgramsPaneHeader, ProgramsPaneHeading } from '../programs/ProgramsPane';
 import { getCurrentUser } from '../../store';
+import { getAnswersFromData, getActionsFromData } from '../../utils';
 
 const DumbReferralFlow = React.memo(
   ({ onFetchReferralSurvey, onSubmitReferral, fetchReferralSurveys, patient, currentUser }) => {
@@ -47,7 +48,8 @@ const DumbReferralFlow = React.memo(
           startTime: startTime,
           patientId: patient.id,
           endTime: new Date(),
-          answers: data,
+          answers: getAnswersFromData(data, referralSurvey),
+          actions: getActionsFromData(data, referralSurvey),
         });
       },
       [startTime, referralSurvey],
