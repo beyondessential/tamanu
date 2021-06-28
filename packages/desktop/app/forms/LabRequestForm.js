@@ -79,7 +79,7 @@ export class LabRequestForm extends React.PureComponent {
 
     return (
       <FormGrid>
-        <Field name="id" label="Lab request number" disabled component={TextField} />
+        <Field name="displayId" label="Lab request number" disabled component={TextField} />
         <Field name="requestedDate" label="Order date" required component={DateField} />
         <TextInput label="Supervising doctor" disabled value={examinerLabel} />
         <Field
@@ -142,13 +142,13 @@ export class LabRequestForm extends React.PureComponent {
   };
 
   render() {
-    const { onSubmit, editedObject, generateId = shortid.generate } = this.props;
+    const { onSubmit, editedObject, generateDisplayId } = this.props;
     return (
       <Form
         onSubmit={onSubmit}
         render={this.renderForm}
         initialValues={{
-          id: generateId(),
+          displayId: generateDisplayId(),
           requestedDate: new Date(),
           sampleTime: new Date(),
           ...editedObject,

@@ -51,6 +51,11 @@ export class LabRequest extends Model {
           type: Sequelize.STRING,
           allowNull: true,
         },
+
+        displayId: {
+          type: Sequelize.STRING,
+          allowNull: false,
+        },
       },
       options,
     );

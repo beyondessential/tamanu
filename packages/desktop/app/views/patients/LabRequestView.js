@@ -92,7 +92,7 @@ const ChangeLabStatusButton = React.memo(({ labRequest }) => {
 
 const LabRequestInfoPane = React.memo(({ labRequest }) => (
   <FormGrid columns={3}>
-    <TextInput value={labRequest.id} label="Request ID" />
+    <TextInput value={labRequest.displayId} label="Request ID" />
     <TextInput value={(labRequest.category || {}).name} label="Request type" />
     <TextInput value={labRequest.urgent ? 'Urgent' : 'Standard'} label="Urgency" />
     <TextInput value={(labRequest.priority || {}).name} label="Priority" />
