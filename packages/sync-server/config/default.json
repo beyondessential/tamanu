@@ -34,10 +34,10 @@
   "localisation": {
     "labResultWidget": {
       "categoryWhitelist": [
-        "labTestCategory-FBC"
+        "labTestCategory-Other"
       ],
       "testTypeWhitelist": [
-        "labTestType-Lymphocytes"
+        "labTestType-COVID19NasalSwab"
       ]
     },
     "data": {
