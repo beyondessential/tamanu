@@ -27,13 +27,13 @@ const showPopupChain = (popups : IPopup[]) => {
   const { title, textBody } = currentPopup;
 
   Popup.show({
-      type: 'Warning',
-      title,
-      textBody,
-      callback: () => {
-        restOfChain.length > 0 ? showPopupChain(restOfChain) : Popup.hide();
-      }
-    });
+    type: 'Warning',
+    title,
+    textBody,
+    callback: () => {
+      restOfChain.length > 0 ? showPopupChain(restOfChain) : Popup.hide();
+    }
+  });
 }
 
 const formatNoteToPopup = (note: string): IPopup => {
