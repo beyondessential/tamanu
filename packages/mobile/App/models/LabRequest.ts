@@ -84,7 +84,7 @@ export class LabRequest extends BaseModel implements ILabRequest {
   static async getForPatient(patientId: string): Promise<LabRequest[]> {
     return this.getRepository()
       .createQueryBuilder('labRequest')
-      .leftJoin('labRequest.encounter', 'encounter')
+      .leftJoinAndSelect('labRequest.encounter', 'encounter')
       .where('encounter.patient = :patientId', { patientId })
       .leftJoinAndSelect('labRequest.labTestCategory', 'labTestCategory')
       .getMany();

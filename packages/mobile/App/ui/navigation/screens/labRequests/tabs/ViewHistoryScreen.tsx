@@ -12,7 +12,18 @@ import { ScrollView } from 'react-native-gesture-handler';
 import { formatDate } from '/helpers/date';
 import { DateFormats, LabRequestStatus } from '~/ui/helpers/constants';
 import { Orientation, screenPercentageToDP } from '/helpers/screen';
+import { Svg, Circle } from 'react-native-svg';
 
+const SyncStatusindicator = ({ synced }) => {
+  return (
+    <StyledView flexDirection="row">
+      <Svg height="20" width="20">
+        <Circle fill={synced ? 'green' : 'red'} r={5} cx={10} cy={10} />
+      </Svg>
+      <StyledText color={theme.colors.TEXT_DARK} fontSize={13}>{synced ? 'Synced' : 'Syncing'}</StyledText>
+    </StyledView>
+  );
+};
 interface LabRequestRowProps {
   labRequest: ILabRequest;
 }
@@ -75,9 +86,7 @@ const LabRequestRow = ({ labRequest }: LabRequestRowProps): JSX.Element => (
       </StyledText>
     </StyledView>
     <StyledView width={screenPercentageToDP(35, Orientation.Width)}>
-      <StyledText color={theme.colors.TEXT_DARK} fontSize={13}>
-        {LabRequestStatus[labRequest.status]}
-      </StyledText>
+      <SyncStatusindicator synced={!labRequest.markedForUpload || !labRequest.encounter.markedForUpload}/>
     </StyledView>
   </StyledView>
 );
