@@ -34,11 +34,15 @@ labRequest.get(
     const { rowsPerPage = 10, page = 0, ...filterParams } = query;
 
     const filters = [
-      makeFilter(filterParams.requestId, `lab_requests.id = :requestId`),
       makeFilter(
         filterParams.status,
         `UPPER(lab_requests.status) LIKE UPPER(:status)`,
         ({ status }) => ({ status: `${status}%` }),
+      ),
+      makeFilter(
+        filterParams.requestId,
+        `UPPER(lab_requests.display_id) LIKE UPPER(:requestId)`,
+        ({ requestId }) => ({ requestId: `%${requestId}%` }),
       ),
       makeFilter(
         filterParams.category,
