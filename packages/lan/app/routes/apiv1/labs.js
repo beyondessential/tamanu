@@ -42,7 +42,7 @@ labRequest.get(
       makeFilter(
         filterParams.requestId,
         `UPPER(lab_requests.display_id) LIKE UPPER(:requestId)`,
-        ({ requestId }) => ({ requestId: `%${requestId}%` }),
+        ({ requestId }) => ({ requestId: `${requestId}%` }),
       ),
       makeFilter(
         filterParams.category,
