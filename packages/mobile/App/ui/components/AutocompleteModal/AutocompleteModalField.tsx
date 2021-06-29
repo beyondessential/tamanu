@@ -48,9 +48,7 @@ export const AutocompleteModalField = ({
 
   return (
     <Button
-      marginTop={marginTop !== undefined
-        ? marginTop
-        : screenPercentageToDP(1.22, Orientation.Height)}
+      marginTop={marginTop ?? screenPercentageToDP(1.22, Orientation.Height)}
       backgroundColor={theme.colors.WHITE}
       textColor="#888888"
       buttonText={label}
