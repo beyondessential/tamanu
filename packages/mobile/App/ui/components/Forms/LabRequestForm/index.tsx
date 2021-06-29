@@ -62,7 +62,6 @@ const DumbLabRequestForm = ({
         <LabRequestNumberField />
         <StyledView
           marginTop={screenPercentageToDP(2.105, Orientation.Height)}
-          // height={screenPercentageToDP(32.87, Orientation.Height)}
           justifyContent="space-between"
         >
           <SectionHeader h3>DETAILS</SectionHeader>
