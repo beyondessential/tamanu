@@ -74,7 +74,7 @@ const DumbLabRequestForm = ({
           <Field
             component={AutocompleteModalField}
             label="Priority"
-            placeholder="Search for priorities"
+            placeholder="Select priority"
             navigation={navigation}
             suggester={labRequestPrioritySuggester}
             modalRoute={Routes.Autocomplete.Modal}
