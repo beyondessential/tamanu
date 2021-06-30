@@ -2,7 +2,7 @@ import React, { useCallback } from 'react';
 import styled from 'styled-components';
 import MuiTextField from '@material-ui/core/TextField';
 import { Button } from '../Button';
-import { useElectron } from '../contexts/Electron';
+import { useElectron } from '../../contexts/Electron';
 import { OuterLabelFieldWrapper } from './OuterLabelFieldWrapper';
 
 // this import means that file chooser can't be previewed in storybook
