@@ -1,6 +1,6 @@
 import { Sequelize } from 'sequelize';
 import { SYNC_DIRECTIONS } from 'shared/constants';
-import { extendClassWithPatientChannel } from './sync';
+import { nestClassUnderPatientForSync } from './sync';
 import { Model } from './Model';
 
 export class PatientAllergy extends Model {
@@ -30,4 +30,4 @@ export class PatientAllergy extends Model {
   static channelRoutes = ['patient/:patientId/allergy'];
 }
 
-extendClassWithPatientChannel(PatientAllergy, 'allergy');
+nestClassUnderPatientForSync(PatientAllergy, 'allergy');

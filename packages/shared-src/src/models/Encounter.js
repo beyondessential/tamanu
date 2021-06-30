@@ -7,7 +7,7 @@ import {
   SYNC_DIRECTIONS,
 } from 'shared/constants';
 import { InvalidOperationError } from 'shared/errors';
-import { extendClassWithPatientChannel } from './sync';
+import { nestClassUnderPatientForSync } from './sync';
 import { Model } from './Model';
 
 export class Encounter extends Model {
@@ -274,4 +274,4 @@ export class Encounter extends Model {
   static channelRoutes = ['patient/:patientId/encounter'];
 }
 
-extendClassWithPatientChannel(Encounter, 'encounter');
+nestClassUnderPatientForSync(Encounter, 'encounter');
