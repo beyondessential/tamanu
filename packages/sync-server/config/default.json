@@ -32,6 +32,14 @@
     "outpatientDischarger": "0 0 2 ? * * *"
   },
   "localisation": {
+    "labResultWidget": {
+      "categoryWhitelist": [
+        "labTestCategory-COVID"
+      ],
+      "testTypeWhitelist": [
+        "labTestType-COVID"
+      ]
+    },
     "data": {
       "fields": {
         "markedForSync": {
@@ -222,7 +230,6 @@
         }
       },
       "features": {
-        "registerNewPatient": true,
         "hideOtherSex": true
       },
       "templates": {
