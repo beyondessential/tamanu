@@ -1,5 +1,5 @@
 import React from 'react';
-import { configure, addDecorator } from '@storybook/react';
+import { configure, addDecorator, storiesOf } from '@storybook/react';
 
 import { ThemeProvider } from 'styled-components';
 import { Colors } from '../app/constants';
@@ -16,7 +16,18 @@ function loadStories() {
   const keys = req
     .keys()
     .sort()
-    .forEach(filename => req(filename));
+    .forEach(filename => {
+      try {
+        req(filename)
+      } catch(e) {
+        storiesOf('ERROR DURING IMPORT', module).add(filename, () => (
+          <div>
+            <div><strong>{e.toString()}</strong></div>
+            <pre>{e.stack}</pre>
+          </div>
+        ));
+      }
+    });
 }
 
 const NoteDisplay = styled.div`
