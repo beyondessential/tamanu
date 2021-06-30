@@ -6,21 +6,32 @@ import { SurveyResultBadge } from './SurveyResultBadge';
 import { ViewPhotoLink } from './ViewPhotoLink';
 import { connectApi } from '../api/connectApi';
 
+const convertBinaryToYesNo = value => {
+  if (value === 'true' || value === '1') return 'Yes';
+  if (value === 'false' || value === '0') return 'No';
+  return value;
+}
+
 const COLUMNS = [
   { key: 'text', title: 'Indicator', accessor: ({ name }) => name },
   {
     key: 'value',
     title: 'Value',
     accessor: ({ answer, type }) => {
-      if (type === 'Result') {
-        const value = parseFloat(answer);
-        return <SurveyResultBadge result={value} />;
-      } else if (type === 'Calculated') {
-        return parseFloat(answer).toFixed(2);
-      } else if (type === 'Photo') {
-        return <ViewPhotoLink imageId={answer} />;
+      switch (type) {
+        case 'Result': {
+          const value = parseFloat(answer);
+          return <SurveyResultBadge result={value} />;
+        }
+        case 'Calculated':
+          return parseFloat(answer).toFixed(2);
+        case 'Photo':
+          return <ViewPhotoLink imageId={answer} />;
+        case 'Checkbox':
+          return convertBinaryToYesNo(answer);
+        default:
+          return answer;
       }
-      return answer;
     },
   },
 ];
