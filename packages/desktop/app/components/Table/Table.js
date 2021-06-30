@@ -6,8 +6,6 @@
 import React from 'react';
 import PropTypes from 'prop-types';
 import styled from 'styled-components';
-import XLSX from 'xlsx';
-import { remote, shell } from 'electron';
 import MaterialTable from '@material-ui/core/Table';
 import TableBody from '@material-ui/core/TableBody';
 import TableCell from '@material-ui/core/TableCell';
@@ -19,7 +17,10 @@ import TablePagination from '@material-ui/core/TablePagination';
 import { Button } from '@material-ui/core';
 import SaveAltIcon from '@material-ui/icons/SaveAlt';
 
+import XLSX from 'xlsx';
+
 import { useLocalisation } from '../../contexts/Localisation';
+import { useElectron } from '../../contexts/Electron';
 import { ErrorBoundary } from '../ErrorBoundary';
 import { Colors } from '../../constants';
 
@@ -278,6 +279,7 @@ class TableComponent extends React.Component {
 
   render() {
     const { page, className, data, columns, exportName } = this.props;
+    const { showSaveDialog, openPath } = useElectron();
     const onDownloadData = async () => {
       const headers = columns.map(c => c.key);
       const rows = await Promise.all(
@@ -323,11 +325,11 @@ class TableComponent extends React.Component {
       const wb = XLSX.utils.book_new();
       XLSX.utils.book_append_sheet(wb, ws, exportName);
 
-      /* show a file-save dialog and write the workbook */
-      const path = await remote.dialog.showSaveDialog();
+      // show a file-save dialog and write the workbook
+      const path = await showSaveDialog();
       if (path.canceled) return; // Dialog was cancelled - don't write file.
       XLSX.writeFile(wb, `${path.filePath}.xlsx`);
-      shell.openPath(`${path.filePath}.xlsx`);
+      openPath(`${path.filePath}.xlsx`);
     };
 
     return (

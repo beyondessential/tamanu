@@ -4,13 +4,14 @@ import { connect } from 'react-redux';
 import styled from 'styled-components';
 import PrintIcon from '@material-ui/icons/Print';
 
-import { printPage, PrintPortal } from '../../print';
+import { PrintPortal } from '../../print';
 import { LocalisedText } from '../../components/LocalisedText';
 import { connectApi } from '../../api';
 import { BackButton, Button } from '../../components/Button';
 import { DateDisplay } from '../../components/DateDisplay';
 import { TopBar } from '../../components';
 import { useEncounter } from '../../contexts/Encounter';
+import { useElectron } from '../../contexts/Electron';
 import { PrintLetterhead } from '../../components/PrintLetterhead';
 import { Colors } from '../../constants';
 
@@ -234,6 +235,7 @@ const NavContainer = styled.div`
 
 const DumbDischargeSummaryView = React.memo(({ patient }) => {
   const { encounter } = useEncounter();
+  const { printPage } = useElectron();
 
   return (
     <>

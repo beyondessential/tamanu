@@ -2,11 +2,13 @@ import React from 'react';
 import styled from 'styled-components';
 
 import { useLocalisation } from '../../contexts/Localisation';
+import { useElectron } from '../../contexts/Electron';
+
 import { SEX_VALUE_INDEX, Colors } from '../../constants';
 import { DateDisplay } from '../DateDisplay';
 import { PatientBarcode } from './PatientBarcode';
 
-import { printPage, PrintPortal } from '../../print';
+import { PrintPortal } from '../../print';
 import { TamanuLogo } from '../TamanuLogo';
 
 const cardDimensions = {
@@ -151,6 +153,7 @@ export const PatientIDCard = ({ patient, imageData }) => (
 );
 
 export const PatientIDCardPage = ({ patient, imageData }) => {
+  const { printPage } = useElectron();
   React.useEffect(() => {
     printPage({
       landscape: true,
