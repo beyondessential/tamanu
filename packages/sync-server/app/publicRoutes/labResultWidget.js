@@ -6,7 +6,10 @@ import { LAB_REQUEST_STATUSES, LAB_TEST_STATUSES } from 'shared/constants';
 
 export const labResultWidgetRoutes = express.Router();
 
-const getPatientInitials = patient => `${patient.firstName ? patient.firstName.substring(0, 1) : ''}${patient.middleName ? patient.middleName.substring(0, 1) : ''}${patient.lastName ? patient.lastName.substring(0, 1) : ''}`;
+const getInitial = s => s ? s[0] : '';
+
+const getPatientInitials = ({ firstName, middleName, lastName }) =>
+  `${getInitial(firstName)}${getInitial(middleName)}${getInitial(lastName)}`;
 
 const transformLabRequest = async (models, labRequest, testTypeWhitelist) => {
   const { id, createdAt, encounterId, status } = labRequest;
@@ -51,9 +54,13 @@ labResultWidgetRoutes.get(
       },
     });
 
-    const returnableLabRequests = labRequests.filter(({ labTestCategoryId }) => categoryWhitelist.includes(labTestCategoryId));
+    const returnableLabRequests = labRequests
+      .filter(({ labTestCategoryId }) => categoryWhitelist.includes(labTestCategoryId));
 
-    const labRequestsToReport = await Promise.all(returnableLabRequests.map(labRequest => transformLabRequest(models, labRequest, testTypeWhitelist)));
+    const labRequestsToReport = await Promise.all(
+      returnableLabRequests
+        .map(labRequest => transformLabRequest(models, labRequest, testTypeWhitelist))
+    );
 
     res.send({
       data: labRequestsToReport,
