@@ -7,7 +7,7 @@ const DumbVillageField = ({ villageSuggester, required }) => {
   return (
     <LocalisedField
       name="village"
-      label="Village"
+      path="fields.villageId"
       component={AutocompleteField}
       suggester={villageSuggester}
       required={required}
