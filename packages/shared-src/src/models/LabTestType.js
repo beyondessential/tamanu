@@ -87,4 +87,6 @@ export class LabTestType extends Model {
   }
 
   static syncDirection = SYNC_DIRECTIONS.PULL_ONLY;
+
+  static channelRoutes = ['labTestType'];
 }

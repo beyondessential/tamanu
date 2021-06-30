@@ -1,5 +1,5 @@
 import { Sequelize } from 'sequelize';
-import { extendClassWithPatientChannel } from './sync';
+import { nestClassUnderPatientForSync } from './sync';
 import { Model } from './Model';
 import { PATIENT_ISSUE_TYPES, SYNC_DIRECTIONS } from '../constants';
 
@@ -25,6 +25,8 @@ export class PatientIssue extends Model {
   }
 
   static syncDirection = SYNC_DIRECTIONS.BIDIRECTIONAL;
+
+  static channelRoutes = ['patient/:patientId/issue'];
 }
 
-extendClassWithPatientChannel(PatientIssue, 'issue');
+nestClassUnderPatientForSync(PatientIssue, 'issue');

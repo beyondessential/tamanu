@@ -66,4 +66,6 @@ export class SurveyScreenComponent extends Model {
   }
 
   static syncDirection = SYNC_DIRECTIONS.PULL_ONLY;
+
+  static channelRoutes = ['surveyScreenComponent'];
 }

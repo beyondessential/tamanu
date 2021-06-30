@@ -121,18 +121,21 @@ export class Model extends sequelize.Model {
     return [lowerFirst(this.name)];
   }
 
-  // extracts and returns a parentId from a channel, if applicable
-  // only called if syncParentIdKey is set
-  static syncParentIdFromChannel() {
-    throw new Error('Models with syncParentIdKey must implement syncParentIdFromChannel');
-  }
-
-  // if set to a string representing a field, extracts an id from the channel and sets it on the model
-  static syncParentIdKey = null;
+  // list of channels that the model should be available on
+  static channelRoutes = [];
 
   static async findByIds(ids) {
     return this.findAll({
       where: { id: { [Op.in]: ids } },
     });
+  }
+
+  // list of callbacks to call after model is initialised
+  static afterInitCallbacks = [];
+
+  // adds a function to be called once model is initialised
+  // (useful for hooks and anything else that needs an initialised model)
+  static afterInit(fn) {
+    this.afterInitCallbacks.push(fn);
   }
 }
