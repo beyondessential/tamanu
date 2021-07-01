@@ -19,10 +19,8 @@ const COLUMNS = [
     title: 'Value',
     accessor: ({ answer, type }) => {
       switch (type) {
-        case 'Result': {
-          const value = parseFloat(answer);
-          return <SurveyResultBadge result={value} />;
-        }
+        case 'Result':
+          return <SurveyResultBadge result={parseFloat(answer)} />;
         case 'Calculated':
           return parseFloat(answer).toFixed(2);
         case 'Photo':
