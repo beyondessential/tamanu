@@ -28,7 +28,7 @@ const DumbLabRequestModal = React.memo(
           onCancel={onClose}
           encounter={encounter}
           practitionerSuggester={practitionerSuggester}
-          generateDisplayId={() => customAlphabet(ALPHABET_FOR_ID, 6)}
+          generateDisplayId={customAlphabet(ALPHABET_FOR_ID, 6)}
         />
       </Modal>
     );

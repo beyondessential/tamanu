@@ -18,6 +18,8 @@ import { ChangeLabStatusModal } from '../../components/ChangeLabStatusModal';
 import { LAB_REQUEST_STATUS_LABELS } from '../../constants';
 
 import { capitaliseFirstLetter } from '../../utils/capitalise';
+import { ChangeLaboratoryModal } from '../../components/ChangeLaboratoryModal';
+import { getLabTestLaboratories, loadOptions } from '../../store/options';
 
 const makeRangeStringAccessor = sex => row => {
   const type = row.labTestType;
@@ -90,6 +92,20 @@ const ChangeLabStatusButton = React.memo(({ labRequest }) => {
   );
 });
 
+const ChangeLaboratoryButton = React.memo(({ labRequest }) => {
+  const [isModalOpen, setModalOpen] = React.useState(false);
+  const openModal = React.useCallback(() => setModalOpen(true), [setModalOpen]);
+  const closeModal = React.useCallback(() => setModalOpen(false), [setModalOpen]);
+  return (
+    <React.Fragment>
+      <Button variant="outlined" onClick={openModal}>
+        Change laboratory
+      </Button>
+      <ChangeLaboratoryModal labRequest={labRequest} open={isModalOpen} onClose={closeModal} />
+    </React.Fragment>
+  );
+});
+
 const LabRequestInfoPane = React.memo(({ labRequest }) => (
   <FormGrid columns={3}>
     <TextInput value={labRequest.displayId} label="Request ID" />
@@ -97,6 +113,7 @@ const LabRequestInfoPane = React.memo(({ labRequest }) => (
     <TextInput value={labRequest.urgent ? 'Urgent' : 'Standard'} label="Urgency" />
     <TextInput value={(labRequest.priority || {}).name} label="Priority" />
     <TextInput value={LAB_REQUEST_STATUS_LABELS[labRequest.status] || 'Unknown'} label="Status" />
+    <TextInput value={(labRequest.laboratory || {}).name} label="Laboratory" />
     <DateInput value={labRequest.requestedDate} label="Requested date" />
     <DateTimeInput value={labRequest.sampleTime} label="Sample date" />
     <TextInput multiline value={labRequest.note} label="Notes" style={{ gridColumn: '1 / -1' }} />
@@ -110,7 +127,10 @@ export const DumbLabRequestView = React.memo(({ labRequest, patient, loading }) 
       <PatientInfoPane patient={patient} />
       <div>
         <TopBar title="Lab request">
-          <ChangeLabStatusButton labRequest={labRequest} />
+          <div>
+            <ChangeLabStatusButton labRequest={labRequest} />{' '}
+            <ChangeLaboratoryButton labRequest={labRequest} />
+          </div>
         </TopBar>
         <BackLink />
         <ContentPane>
@@ -122,8 +142,13 @@ export const DumbLabRequestView = React.memo(({ labRequest, patient, loading }) 
   );
 });
 
-export const LabRequestView = connect(state => ({
-  loading: state.labRequest.loading,
-  labRequest: state.labRequest,
-  patient: state.patient,
-}))(DumbLabRequestView);
+export const LabRequestView = connect(
+  state => ({
+    loading: state.labRequest.loading,
+    labRequest: state.labRequest,
+    patient: state.patient,
+  }),
+  dispatch => ({
+    onMount: () => dispatch(loadOptions()),
+  }),
+)(DumbLabRequestView);

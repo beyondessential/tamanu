@@ -34,16 +34,30 @@ labRequest.get(
     const { rowsPerPage = 10, page = 0, ...filterParams } = query;
 
     const filters = [
-      makeFilter(filterParams.requestId, `lab_requests.id = :requestId`),
       makeFilter(
         filterParams.status,
         `UPPER(lab_requests.status) LIKE UPPER(:status)`,
         ({ status }) => ({ status: `${status}%` }),
       ),
       makeFilter(
+        filterParams.requestId,
+        `UPPER(lab_requests.display_id) LIKE UPPER(:requestId)`,
+        ({ requestId }) => ({ requestId: `${requestId}%` }),
+      ),
+      makeFilter(
         filterParams.category,
         `UPPER(category.name) LIKE UPPER(:category)`,
         ({ category }) => ({ category: `${category}%` }),
+      ),
+      makeFilter(
+        filterParams.priority,
+        `UPPER(priority.name) LIKE UPPER(:priority)`,
+        ({ priority }) => ({ priority: `${priority}%` }),
+      ),
+      makeFilter(
+        filterParams.laboratory,
+        `UPPER(laboratory.name) LIKE UPPER(:laboratory)`,
+        ({ laboratory }) => ({ laboratory: `${laboratory}%` }),
       ),
       makeFilter(
         filterParams.displayId,
@@ -80,6 +94,8 @@ labRequest.get(
           ON (category.type = 'labTestCategory' AND lab_requests.lab_test_category_id = category.id)
         LEFT JOIN reference_data AS priority
           ON (priority.type = 'labTestPriority' AND lab_requests.lab_test_priority_id = priority.id)
+        LEFT JOIN reference_data AS laboratory
+          ON (laboratory.type = 'labTestLaboratory' AND lab_requests.lab_test_laboratory_id = laboratory.id)
         LEFT JOIN patients AS patient
           ON (patient.id = encounter.patient_id)
         LEFT JOIN users AS examiner
@@ -123,7 +139,9 @@ labRequest.get(
           category.id AS category_id,
           category.name AS category_name,
           priority.id AS priority_id,
-          priority.name AS priority_name
+          priority.name AS priority_name,
+          laboratory.id AS laboratory_id,
+          laboratory.name AS laboratory_name
         ${from}
 
         LIMIT :limit
@@ -195,6 +213,23 @@ labTest.get(
 
     const records = await req.models.ReferenceData.findAll({
       where: { type: REFERENCE_TYPES.LAB_TEST_PRIORITY },
+    });
+
+    res.send({
+      data: records,
+      count: records.length,
+    });
+  }),
+);
+
+labTest.get(
+  '/laboratories$',
+  asyncHandler(async (req, res) => {
+    // always allow reading lab urgency options
+    req.flagPermissionChecked();
+
+    const records = await req.models.ReferenceData.findAll({
+      where: { type: REFERENCE_TYPES.LAB_TEST_LABORATORY },
     });
 
     res.send({

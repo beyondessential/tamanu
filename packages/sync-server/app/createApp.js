@@ -6,6 +6,7 @@ import compression from 'compression';
 import { log } from 'shared/services/logging';
 
 import { routes } from './routes';
+import { publicRoutes } from './publicRoutes';
 import { authMiddleware } from './middleware/auth';
 import errorHandler from './middleware/errorHandler';
 import { versionCompatibility } from './middleware/versionCompatibility';
@@ -51,6 +52,9 @@ export function createApp({ store }) {
   });
 
   // API v1
+  // UNAUTHENTICATED (mounted before authMiddleware)
+  app.use('/v1/public', publicRoutes);
+
   app.use('/v1', authMiddleware);
   app.use('/v1', routes);
 
