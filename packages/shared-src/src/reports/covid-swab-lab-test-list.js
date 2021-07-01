@@ -19,6 +19,9 @@ const parametersToSqlWhere = parameters => {
         case 'village':
           newWhere['$labRequest->encounter->patient.village_id$'] = value;
           break;
+        case 'labTestLaboratory':
+          newWhere['$labRequest.lab_test_laboratory_id$'] = value;
+          break;
         case 'fromDate':
           if (!newWhere.date) {
             newWhere.date = {};
@@ -46,29 +49,30 @@ export const dataGenerator = async (models, parameters = {}) => {
   const reportColumnTemplate = [
     {
       title: 'Patient first name',
-      accessor: data => data.labRequest.encounter.patient.firstName,
+      accessor: data => data.labRequest?.encounter?.patient?.firstName,
     },
     {
       title: 'Patient last name',
-      accessor: data => data.labRequest.encounter.patient.lastName,
+      accessor: data => data.labRequest?.encounter?.patient?.lastName,
     },
     {
       title: 'DOB',
-      accessor: data => moment(data.labRequest.encounter.patient.dateOfBirth).format('DD-MM-YYYY'),
+      accessor: data =>
+        moment(data.labRequest?.encounter?.patient?.dateOfBirth).format('DD-MM-YYYY'),
     },
-    { title: 'Sex', accessor: data => data.labRequest.encounter.patient.sex },
-    { title: 'Patient ID', accessor: data => data.labRequest.encounter.patient.displayId },
-    { title: 'Lab request ID', accessor: data => data.labRequest.displayId },
+    { title: 'Sex', accessor: data => data.labRequest?.encounter?.patient?.sex },
+    { title: 'Patient ID', accessor: data => data.labRequest?.encounter?.patient?.displayId },
+    { title: 'Lab request ID', accessor: data => data.labRequest?.displayId },
     {
       title: 'Lab request type',
       accessor: data => data.labRequest.category.name,
     },
     { title: 'Status', accessor: data => LAB_REQUEST_STATUS_LABELS[data.status] || data.status },
     { title: 'Result', accessor: data => data.result },
-    { title: 'Requested by', accessor: data => data.labRequest.requestedBy },
+    { title: 'Requested by', accessor: data => data.labRequest?.requestedBy },
     { title: 'Date', accessor: data => moment(data.date).format('DD-MM-YYYY') },
-    { title: 'Priority', accessor: data => data.labRequest.priority },
-    // TODO Testing laboratory column
+    { title: 'Priority', accessor: data => data.labRequest?.priority?.name },
+    { title: 'Testing laboratory', accessor: data => data.labRequest?.laboratory?.name },
   ];
 
   const whereClause = parametersToSqlWhere(parameters);
@@ -91,6 +95,8 @@ export const dataGenerator = async (models, parameters = {}) => {
             ],
           },
           { model: models.ReferenceData, as: 'category' },
+          { model: models.ReferenceData, as: 'priority' },
+          { model: models.ReferenceData, as: 'laboratory' },
         ],
       },
       {

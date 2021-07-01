@@ -19,6 +19,9 @@ const parametersToSqlWhere = parameters => {
         case 'village':
           newWhere['$labRequest->encounter->patient.village_id$'] = value;
           break;
+        case 'labTestLaboratory':
+          newWhere['$labRequest.lab_test_laboratory_id$'] = value;
+          break;
         case 'fromDate':
           if (!newWhere.date) {
             newWhere.date = {};
@@ -66,7 +69,7 @@ export const dataGenerator = async (models, parameters = {}) => {
 
   const whereClause = parametersToSqlWhere(parameters);
 
-  const villageInclude = [
+  const includes = [
     {
       model: models.LabRequest,
       as: 'labRequest',
@@ -85,6 +88,7 @@ export const dataGenerator = async (models, parameters = {}) => {
             },
           ],
         },
+        { model: models.ReferenceData, as: 'laboratory' },
       ],
     },
   ];
@@ -96,7 +100,7 @@ export const dataGenerator = async (models, parameters = {}) => {
       'result',
       [Sequelize.literal(`COUNT(*)`), 'count'],
     ],
-    include: parameters.village ? villageInclude : undefined,
+    include: parameters.village || parameters.labTestLaboratory ? includes : undefined,
     where: whereClause,
     group: ['testDate', 'result'],
     order: [[Sequelize.literal(`"testDate"`), 'ASC']],
