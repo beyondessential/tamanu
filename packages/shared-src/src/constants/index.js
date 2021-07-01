@@ -109,6 +109,7 @@ export const REFERENCE_TYPES = {
   LAB_TEST_CATEGORY: 'labTestCategory',
   LAB_TEST_TYPE: 'labTestType',
   LAB_TEST_PRIORITY: 'labTestPriority',
+  LAB_TEST_LABORATORY: 'labTestLaboratory',
   FACILITY: 'facility',
   LOCATION: 'location',
   DEPARTMENT: 'department',
