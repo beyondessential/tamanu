@@ -1,7 +1,7 @@
 import { importProgram } from '~/admin/importProgram';
 import { preprocessRecordSet } from '~/admin/preprocessRecordSet';
 
-const TEST_PROGRAMS_PATH = './data/test_programs.xlsx';
+const TEST_PROGRAMS_PATH = './__tests__/importers/test_programs.xlsx';
 
 describe('Importing programs', () => {
 

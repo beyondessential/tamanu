@@ -1,5 +1,4 @@
 {
-  "initialDataPath": "data/demo_definitions.xlsx",
   "admin": {
     "allowAdminRoutes": false
   },
