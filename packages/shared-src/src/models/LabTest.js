@@ -33,6 +33,7 @@ export class LabTest extends Model {
   static initRelations(models) {
     this.belongsTo(models.LabRequest, {
       foreignKey: 'labRequestId',
+      as: 'labRequest',
     });
 
     this.belongsTo(models.ReferenceData, {

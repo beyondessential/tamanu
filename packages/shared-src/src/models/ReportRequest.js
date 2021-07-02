@@ -26,4 +26,6 @@ export class ReportRequest extends Model {
       onDelete: "CASCADE",
     });
   }
+
+  static channelRoutes = ['reportRequest'];
 }

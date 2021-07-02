@@ -25,4 +25,6 @@ export class Program extends Model {
   }
 
   static syncDirection = SYNC_DIRECTIONS.PULL_ONLY;
+
+  static channelRoutes = ['program'];
 }

@@ -7,6 +7,7 @@ import { NotFoundError } from 'shared/errors';
 import { simpleGetList, permissionCheckingRouter, runPaginatedQuery } from './crudHelpers';
 
 import { renameObjectKeys } from '~/utils/renameObjectKeys';
+import { makeFilter } from '~/utils/query';
 import { patientVaccineRoutes } from './patient/patientVaccine';
 import { patientProfilePicture } from './patient/patientProfilePicture';
 
@@ -221,15 +222,6 @@ patient.get(
     res.json(currentEncounter);
   }),
 );
-
-const makeFilter = (check, sql, transform) => {
-  if (!check) return null;
-
-  return {
-    sql,
-    transform,
-  };
-};
 
 const sortKeys = {
   markedForSync: 'patients.marked_for_sync',

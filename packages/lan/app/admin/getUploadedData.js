@@ -13,17 +13,21 @@ async function getMultipartData(req) {
           ...otherFields
         } = fields;
 
-        const parsedData = jsonData ? JSON.parse(jsonData) : {};
+        try {
+          const parsedData = jsonData ? JSON.parse(jsonData) : {};
 
-        const fileInfo = files.file
-          ? { file: files.file[0].path, deleteFileAfterImport: true }
-          : { };
-          
-        resolve({ 
-          ...parsedData, 
-          ...otherFields, 
-          ...fileInfo,
-        });
+          const fileInfo = files.file
+            ? { file: files.file[0].path, deleteFileAfterImport: true }
+            : { };
+            
+          resolve({ 
+            ...parsedData, 
+            ...otherFields, 
+            ...fileInfo,
+          });
+        } catch(e) {
+          reject(e);
+        }
       }
     });
   });

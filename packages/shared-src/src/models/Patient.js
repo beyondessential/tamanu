@@ -63,4 +63,6 @@ export class Patient extends Model {
     });
     return patients.map(({ id }) => id);
   }
+
+  static channelRoutes = ['patient'];
 }

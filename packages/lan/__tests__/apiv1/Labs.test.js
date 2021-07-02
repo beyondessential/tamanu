@@ -16,6 +16,7 @@ const randomLabRequest = async (models, overrides) => {
   return {
     categoryId,
     labTestTypeIds,
+    displayId: 'TESTID',
     ...overrides,
   };
 };
@@ -140,7 +141,7 @@ describe('Labs', () => {
   });
 
   describe("Options", () => {
-    
+
     it("should fetch lab test type options", async () => {
       const response = await app.get(`/v1/labTest/options`);
       expect(response).toHaveSucceeded();
@@ -164,7 +165,7 @@ describe('Labs', () => {
       expect(withOptions.length).toBeGreaterThan(0);
       expect(withOptions.every(x => Array.isArray(x.options))).toEqual(true);
     });
-    
+
     it("should fetch lab test categories", async () => {
       const response = await app.get(`/v1/labTest/categories`);
       expect(response).toHaveSucceeded();
