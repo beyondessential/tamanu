@@ -48,6 +48,7 @@ const calculateDynamicLimit = (currentLimit: number, downloadTime: number): numb
   );
   return newLimit;
 };
+
 export class SyncManager {
   isSyncing = false;
 
@@ -140,6 +141,8 @@ export class SyncManager {
 
       const { models } = Database;
       const syncablePatients = await models.Patient.getSyncable();
+      const syncableScheduledVaccineIds =
+        this.localisation.getArrayOfStrings('sync.syncAllEncountersForTheseScheduledVaccines');
 
       // channels in order of sync, so that foreign keys exist before referencing records use them
       const channelInfos: ChannelInfo[] = [
@@ -160,6 +163,10 @@ export class SyncManager {
         { channel: 'patient', model: models.Patient },
         ...syncablePatients.map(p => ({
           channel: `patient/${p.id}/encounter`,
+          model: models.Encounter
+        })),
+        ...syncableScheduledVaccineIds.map((svid: string) => ({
+          channel: `scheduledVaccine/${svid}/encounter`,
           model: models.Encounter
         })),
         ...syncablePatients.map(p => ({

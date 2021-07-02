@@ -4,6 +4,7 @@ import { PatientIssue } from '~/models/PatientIssue';
 import { Encounter } from '~/models/Encounter';
 import { readConfig } from '~/services/config';
 import { LocalisationService } from '~/services/localisation';
+import { IPatient, IScheduledVaccine } from '~/types';
 
 import { SyncManager } from './manager';
 import { WebSyncSource } from './source';
@@ -16,6 +17,7 @@ import {
   fakePatient,
   fakeProgram,
   fakeProgramDataElement,
+  fakeScheduledVaccine,
   fakeSurvey,
   fakeSurveyResponse,
   fakeSurveyResponseAnswer,
@@ -33,11 +35,15 @@ const createManager = (): ({
   syncManager: SyncManager;
   mockedSource: any;
 }) => {
-  // mock WebSyncSource
+  // mock WebSyncSource and MockedLocalisationServoce
   MockedWebSyncSource.mockClear();
-  const syncManager = new SyncManager(new MockedWebSyncSource(''), new MockedLocalisationService(), { verbose: false });
+  MockedLocalisationService.mockClear();
+  const mockedSource = new MockedWebSyncSource('');
+  const mockedLocalisation = new MockedLocalisationService() as any; // TODO: ts isn't recognising this is a mock
+  const syncManager = new SyncManager(mockedSource, mockedLocalisation, { verbose: false });
   expect(MockedWebSyncSource).toHaveBeenCalledTimes(1);
-  const mockedSource = MockedWebSyncSource.mock.instances[0];
+  expect(MockedWebSyncSource).toHaveBeenCalledTimes(1);
+  mockedLocalisation.getArrayOfStrings.mockReturnValue([]);
 
   // detect emitted events
   const emittedEvents = [];
@@ -86,15 +92,24 @@ describe('SyncManager', () => {
     });
 
     describe('encounters', () => {
-      it('downloads and imports an encounter', async () => {
+      let patient: IPatient;
+      let scheduledVaccine: IScheduledVaccine;
+      beforeEach(async () => {
+        const { models } = Database;
+
+        patient = fakePatient();
+        await models.Patient.createAndSaveOne(patient);
+
+        scheduledVaccine = fakeScheduledVaccine();
+        await models.ScheduledVaccine.createAndSaveOne(scheduledVaccine);
+      });
+
+      const testEncounterDownloadAndImport = async (channel: string) => {
         // arrange
         const { models } = Database;
 
         const user = fakeUser();
         await models.User.createAndSaveOne(user);
-
-        const patient = fakePatient();
-        await models.Patient.createAndSaveOne(patient);
 
         const programDataElement = fakeProgramDataElement();
         await models.ProgramDataElement.createAndSaveOne(programDataElement);
@@ -102,13 +117,12 @@ describe('SyncManager', () => {
         const survey = fakeSurvey();
         await models.Survey.createAndSaveOne(survey);
 
-        const channel = `patient/${patient.id}/encounter`;
-
         // act
         const encounter = fakeEncounter();
         encounter.patientId = patient.id;
         encounter.examinerId = user.id;
         const administeredVaccine = fakeAdministeredVaccine();
+        administeredVaccine.scheduledVaccineId = scheduledVaccine.id;
         const surveyResponse = fakeSurveyResponse();
         surveyResponse.surveyId = survey.id;
         const answer = fakeSurveyResponseAnswer();
@@ -182,6 +196,14 @@ describe('SyncManager', () => {
           ...answer,
           responseId: surveyResponse.id,
         });
+      };
+
+      it('downloads and imports an encounter nested under a patient', async () => {
+        await testEncounterDownloadAndImport(`patient/${patient.id}/encounter`);
+      });
+
+      it('downloads and imports an encounter nested under a scheduledVaccine', async () => {
+        await testEncounterDownloadAndImport(`scheduledVaccine/${scheduledVaccine.id}/encounter`);
       });
     });
   });
@@ -274,6 +296,8 @@ describe('SyncManager', () => {
         delete data.surveyResponses[0].data.answers[0].data.response;
         expect(call).toMatchObject([channel, [{ data }]]);
       });
+
+      // TODO: do same as import, except export should actually use the scheduled vaccine id from the channel
     });
   });
 
