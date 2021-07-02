@@ -8,7 +8,8 @@ import { Button, MinusIconButton, PlusIconButton, TamanuLogo } from '../componen
 import { REMEMBER_EMAIL_KEY } from '../constants';
 import { splashImages } from '../constants/images';
 
-import { Form, Field, TextField, CheckField, ServerDetectingField } from '../components/Field';
+import { Form, Field, TextField, CheckField } from '../components/Field';
+import { ServerDetectingField } from '../components/Field/ServerDetectingField';
 import { FormGrid } from '../components/FormGrid';
 import { SyncHealthNotificationComponent } from '../components/SyncHealthNotification';
 

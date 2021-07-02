@@ -6,8 +6,6 @@
 import React from 'react';
 import PropTypes from 'prop-types';
 import styled from 'styled-components';
-import XLSX from 'xlsx';
-import { remote, shell } from 'electron';
 import MaterialTable from '@material-ui/core/Table';
 import TableBody from '@material-ui/core/TableBody';
 import TableCell from '@material-ui/core/TableCell';
@@ -19,7 +17,10 @@ import TablePagination from '@material-ui/core/TablePagination';
 import { Button } from '@material-ui/core';
 import SaveAltIcon from '@material-ui/icons/SaveAlt';
 
+import XLSX from 'xlsx';
+
 import { useLocalisation } from '../../contexts/Localisation';
+import { useElectron } from '../../contexts/Electron';
 import { ErrorBoundary } from '../ErrorBoundary';
 import { Colors } from '../../constants';
 
@@ -277,59 +278,7 @@ class TableComponent extends React.Component {
   }
 
   render() {
-    const { page, className, data, columns, exportName } = this.props;
-    const onDownloadData = async () => {
-      const headers = columns.map(c => c.key);
-      const rows = await Promise.all(
-        data.map(async d => {
-          const dx = {};
-          await Promise.all(
-            columns.map(async c => {
-              if (c.asyncExportAccessor) {
-                const value = await c.asyncExportAccessor(d);
-                dx[c.key] = value;
-                return;
-              }
-
-              if (c.accessor) {
-                const value = c.accessor(d);
-                // True if accessor returns a React element,
-                // which we can't export to a excel sheet, so just use the raw value.
-                // (e.g. dates)
-                if (typeof value === 'object') {
-                  dx[c.key] = d[c.key];
-                  return;
-                }
-
-                if (typeof value === 'string') {
-                  dx[c.key] = value;
-                  return;
-                }
-
-                dx[c.key] = 'Error: Could not parse accessor';
-              } else {
-                // Some columns have no accessor at all.
-                dx[c.key] = d[c.key];
-              }
-            }),
-          );
-          return dx;
-        }),
-      );
-
-      const ws = XLSX.utils.json_to_sheet(rows, {
-        header: headers,
-      });
-      const wb = XLSX.utils.book_new();
-      XLSX.utils.book_append_sheet(wb, ws, exportName);
-
-      /* show a file-save dialog and write the workbook */
-      const path = await remote.dialog.showSaveDialog();
-      if (path.canceled) return; // Dialog was cancelled - don't write file.
-      XLSX.writeFile(wb, `${path.filePath}.xlsx`);
-      shell.openPath(`${path.filePath}.xlsx`);
-    };
-
+    const { page, className, data, columns, onDownloadData } = this.props;
     return (
       <StyledTableContainer className={className}>
         <StyledTable>
@@ -353,8 +302,70 @@ class TableComponent extends React.Component {
   }
 }
 
-export const Table = ({ columns: allColumns, ...props }) => {
+export const Table = ({ columns: allColumns, data, exportName, ...props }) => {
   const { getLocalisation } = useLocalisation();
   const columns = allColumns.filter(({ key }) => getLocalisation(`fields.${key}.hidden`) !== true);
-  return <TableComponent columns={columns} getLocalisation={getLocalisation} {...props} />;
+
+  const { showSaveDialog, openPath } = useElectron();
+  const onDownloadData = async () => {
+    const headers = columns.map(c => c.key);
+    const rows = await Promise.all(
+      data.map(async d => {
+        const dx = {};
+        await Promise.all(
+          columns.map(async c => {
+            if (c.asyncExportAccessor) {
+              const value = await c.asyncExportAccessor(d);
+              dx[c.key] = value;
+              return;
+            }
+
+            if (c.accessor) {
+              const value = c.accessor(d);
+              // True if accessor returns a React element,
+              // which we can't export to a excel sheet, so just use the raw value.
+              // (e.g. dates)
+              if (typeof value === 'object') {
+                dx[c.key] = d[c.key];
+                return;
+              }
+
+              if (typeof value === 'string') {
+                dx[c.key] = value;
+                return;
+              }
+
+              dx[c.key] = 'Error: Could not parse accessor';
+            } else {
+              // Some columns have no accessor at all.
+              dx[c.key] = d[c.key];
+            }
+          }),
+        );
+        return dx;
+      }),
+    );
+
+    const ws = XLSX.utils.json_to_sheet(rows, {
+      header: headers,
+    });
+    const wb = XLSX.utils.book_new();
+    XLSX.utils.book_append_sheet(wb, ws, exportName);
+
+    // show a file-save dialog and write the workbook
+    const path = await showSaveDialog();
+    if (path.canceled) return; // Dialog was cancelled - don't write file.
+    XLSX.writeFile(wb, `${path.filePath}.xlsx`);
+    openPath(`${path.filePath}.xlsx`);
+  };
+
+  return (
+    <TableComponent 
+      columns={columns} 
+      data={data}
+      onDownloadData={onDownloadData}
+      getLocalisation={getLocalisation} 
+      {...props}
+    />
+  );
 };

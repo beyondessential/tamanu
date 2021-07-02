@@ -10,6 +10,7 @@ import { theme } from './theme';
 import { EncounterProvider } from './contexts/Encounter';
 import { LocalisationProvider } from './contexts/Localisation';
 import { ReferralProvider } from './contexts/Referral';
+import { ElectronProvider } from './contexts/ElectronProvider';
 
 const StateContextProviders = ({ children, store }) => (
   <EncounterProvider store={store}>
@@ -29,8 +30,10 @@ export default function Root({ store, history }) {
           <StylesProvider injectFirst>
             <MuiThemeProvider theme={theme}>
               <ThemeProvider theme={theme}>
-                <CssBaseline />
-                <RoutingApp />
+                <ElectronProvider>
+                  <CssBaseline />
+                  <RoutingApp />
+                </ElectronProvider>
               </ThemeProvider>
             </MuiThemeProvider>
           </StylesProvider>

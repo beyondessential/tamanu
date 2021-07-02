@@ -3,7 +3,7 @@ import * as yup from 'yup';
 
 import { Form, Field, TextField } from '../components/Field';
 import { FormGrid } from '../components/FormGrid';
-import { ModalActionRow } from '../components/ButtonRow';
+import { ModalActionRow } from '../components/ModalActionRow';
 
 export const NewLocationForm = memo(({ editedObject, onSubmit, onCancel }) => {
   const renderForm = useCallback(
