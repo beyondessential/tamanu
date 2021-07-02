@@ -4,7 +4,7 @@ import { Modal } from './Modal';
 import { connectApi } from '../api/connectApi';
 import { reloadLab } from '../store/labRequest';
 
-import { ConnectedChangeLaboratoryForm } from '../forms/ChangeLaboratoryForm';
+import { ChangeLaboratoryForm } from '../forms/ChangeLaboratoryForm';
 
 export const ChangeLaboratoryModal = connectApi((api, dispatch, { labRequest }) => ({
   onSubmit: async data => {
@@ -13,6 +13,6 @@ export const ChangeLaboratoryModal = connectApi((api, dispatch, { labRequest }) 
   },
 }))(({ labRequest, onClose, open, onSubmit }) => (
   <Modal open={open} onClose={onClose} title="Change lab request laboratory">
-    <ConnectedChangeLaboratoryForm labRequest={labRequest} onSubmit={onSubmit} onCancel={onClose} />
+    <ChangeLaboratoryForm labRequest={labRequest} onSubmit={onSubmit} onCancel={onClose} />
   </Modal>
 ));

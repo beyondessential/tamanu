@@ -19,7 +19,6 @@ import { LAB_REQUEST_STATUS_LABELS } from '../../constants';
 
 import { capitaliseFirstLetter } from '../../utils/capitalise';
 import { ChangeLaboratoryModal } from '../../components/ChangeLaboratoryModal';
-import { getLabTestLaboratories, loadOptions } from '../../store/options';
 
 const makeRangeStringAccessor = sex => row => {
   const type = row.labTestType;
@@ -142,13 +141,8 @@ export const DumbLabRequestView = React.memo(({ labRequest, patient, loading }) 
   );
 });
 
-export const LabRequestView = connect(
-  state => ({
-    loading: state.labRequest.loading,
-    labRequest: state.labRequest,
-    patient: state.patient,
-  }),
-  dispatch => ({
-    onMount: () => dispatch(loadOptions()),
-  }),
-)(DumbLabRequestView);
+export const LabRequestView = connect(state => ({
+  loading: state.labRequest.loading,
+  labRequest: state.labRequest,
+  patient: state.patient,
+}))(DumbLabRequestView);
