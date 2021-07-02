@@ -10,6 +10,8 @@ export const LabRequestsSearchBar = props => (
       ['requestId', { placeholder: 'Request ID' }],
       ['category', { placeholder: 'Type' }],
       ['status', { placeholder: 'Status' }],
+      ['priority', { placeholder: 'Priority' }],
+      ['laboratory', { placeholder: 'Laboratory' }],
       ['requestedDateFrom', { placeholder: 'Requested from', component: DateField }],
       ['requestedDateTo', { placeholder: 'Requested to', component: DateField }],
     ]}

@@ -70,7 +70,7 @@ export class LabRequestForm extends React.PureComponent {
       testTypes,
       encounter = {},
       testCategories,
-      testDescriptions,
+      testPriorities,
     } = this.props;
     const { examiner = {} } = encounter;
     const examinerLabel = examiner.displayName;
@@ -97,7 +97,7 @@ export class LabRequestForm extends React.PureComponent {
             name="labTestPriorityId"
             label="Priority"
             component={SelectField}
-            options={testDescriptions}
+            options={testPriorities}
           />
         </div>
         <FormSeparatorLine />
@@ -181,7 +181,7 @@ export const ConnectedLabRequestForm = connect(
       value: id,
       label: name,
     })),
-    testDescriptions: getLabTestPriorities(state).map(({ id, name }) => ({
+    testPriorities: getLabTestPriorities(state).map(({ id, name }) => ({
       value: id,
       label: name,
     })),
