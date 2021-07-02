@@ -57,28 +57,12 @@ export const initSyncClientModeHooks = models => {
           return;
         }
 
+        // we're using this the right way for a sequelize hook
+        // eslint-disable-next-line no-param-reassign
         record.markedForPush = true;
       });
 
       // add hook to nested sync relations
       addHooksToNested(model);
-
-      // add hooks to patient subchannels
-      if (model.syncParentIdKey === 'patientId') {
-        model.addHook('beforeSave', 'markPatientForPush', async record => {
-          if (!record.patientId) {
-            return;
-          }
-          if (record.changed('pushedAt')) {
-            return;
-          }
-          const patient = await model.sequelize.models.Patient.findByPk(record.patientId);
-          if (!patient) {
-            return;
-          }
-          patient.markedForSync = true;
-          await patient.save();
-        });
-      }
     });
 };

@@ -22,4 +22,6 @@ export class Attachment extends Model {
   }
 
   static syncDirection = SYNC_DIRECTIONS.PUSH_ONLY;
+
+  static channelRoutes = ['attachment'];
 }

@@ -39,4 +39,6 @@ export class Survey extends Model {
       where: { surveyType: SURVEY_TYPES.REFERRAL },
     });
   }
+
+  static channelRoutes = ['survey'];
 }

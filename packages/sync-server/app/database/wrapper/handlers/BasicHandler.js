@@ -1,40 +1,40 @@
 import { Sequelize } from 'sequelize';
-import { syncCursorToWhereCondition } from 'shared/models/sync';
+import { syncCursorToWhereCondition, assertParentIdsMatch } from 'shared/models/sync';
 
-export function upsertQuery(values) {
-  // added for consistency with the other queries
-  // currently just passes values and an empty options object directly through to upsert
-  return [values, {}];
-}
+// added for consistency with the other queries
+// currently just passes values and an empty options object directly through to upsert
+export const upsertQuery = values => [values, {}];
 
-export function countSinceQuery({ since }) {
-  return {
-    where: syncCursorToWhereCondition(since),
-    paranoid: false,
-  };
-}
+export const countSinceQuery = ({ since }) => ({
+  where: syncCursorToWhereCondition(since),
+  paranoid: false,
+});
 
-export function findSinceQuery({ since, limit, offset }) {
-  return {
-    limit,
-    offset,
-    where: syncCursorToWhereCondition(since),
-    order: ['updated_at', 'id'],
-    paranoid: false,
-  };
-}
+export const findSinceQuery = ({ since, limit, offset }) => ({
+  limit,
+  offset,
+  where: syncCursorToWhereCondition(since),
+  order: ['updated_at', 'id'],
+  paranoid: false,
+});
 
-export function markDeletedQuery({ id }) {
-  return [
-    {
-      deletedAt: Sequelize.literal('CURRENT_TIMESTAMP'),
-      updatedAt: Sequelize.literal('CURRENT_TIMESTAMP'),
-    },
-    {
-      where: { id },
-    },
-  ];
-}
+export const markDeletedQuery = ({ id }) => [
+  {
+    deletedAt: Sequelize.literal('CURRENT_TIMESTAMP'),
+    updatedAt: Sequelize.literal('CURRENT_TIMESTAMP'),
+  },
+  {
+    where: { id },
+  },
+];
+
+export const queryWithParentIds = (parentIds, query) => ({
+  ...query,
+  where: {
+    ...query.where,
+    ...parentIds,
+  },
+});
 
 export class BasicHandler {
   model = null;
@@ -54,37 +54,21 @@ export class BasicHandler {
     return this.model.destroy({ truncate: true, cascade: true, force: true });
   }
 
-  async upsert(record, params, channel) {
-    const [values, options] = upsertQuery(record, params);
-
+  async upsert(record, parentIds) {
     // TODO: get rid of upsert so we don't duplicate funtionality between here and import
-    if (this.model.syncParentIdKey) {
-      const parentId = this.model.syncParentIdFromChannel(channel);
-      if (!parentId) {
-        throw new Error(
-          `Must provide parentId for models like ${this.model.name} with syncParentIdKey set`,
-        );
-      }
-      const existing = values[this.model.syncParentIdKey];
-      if (existing && existing !== parentId) {
-        throw new Error(
-          `Tried to insert record with ${this.model.syncParentIdKey} ${existing} to channel with ${this.model.syncParentIdKey} ${parentId}`,
-        );
-      }
-      values[this.model.syncParentIdKey] = parentId;
-    }
-
+    assertParentIdsMatch(record, parentIds);
+    const [values, options] = upsertQuery(record);
     await this.model.upsert(values, options);
     return 1;
   }
 
-  async countSince(params, channel) {
-    const query = this.queryWithParentId(channel, countSinceQuery(params));
+  async countSince(params, parentIds) {
+    const query = queryWithParentIds(parentIds, countSinceQuery(params));
     return this.model.count(query);
   }
 
-  async findSince(params, channel) {
-    const query = this.queryWithParentId(channel, findSinceQuery(params));
+  async findSince(params, parentIds) {
+    const query = queryWithParentIds(parentIds, findSinceQuery(params));
     const records = await this.model.findAll(query);
     return records.map(result => result.get({ plain: true }));
   }
@@ -93,25 +77,5 @@ export class BasicHandler {
     // use update instead of destroy so we can change both fields
     const [num] = await this.model.update(...markDeletedQuery({ id }));
     return num;
-  }
-
-  queryWithParentId(channel, query) {
-    if (!this.model.syncParentIdKey) {
-      return query;
-    }
-
-    const parentId = this.model.syncParentIdFromChannel(channel);
-    if (!parentId) {
-      throw new Error(
-        `Must provide parentId for models like ${this.model.name} with syncParentIdKey set`,
-      );
-    }
-    return {
-      ...query,
-      where: {
-        ...query.where,
-        [this.model.syncParentIdKey]: parentId,
-      },
-    };
   }
 }

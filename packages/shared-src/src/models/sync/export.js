@@ -1,20 +1,31 @@
 import { Sequelize } from 'sequelize';
-import { memoize, without } from 'lodash';
+import { without } from 'lodash';
 import { propertyPathsToTree } from './metadata';
 import { getSyncCursorFromRecord, syncCursorToWhereCondition } from './cursor';
 
-export const createExportPlan = memoize(model => {
-  const relationTree = propertyPathsToTree(model.includedSyncRelations);
-  return createExportPlanInner(model, relationTree, model.syncParentIdKey);
-});
+import {
+  paramsToParentIdConfigs,
+  associationToParentIdConfigs,
+  extractStaticParentIds,
+  extractDynamicParentIds,
+} from './parentIds';
 
-const createExportPlanInner = (model, relationTree, foreignKey) => {
+export const createExportPlan = (sequelize, channel) => {
+  return sequelize.channelRouter(channel, (model, params) => {
+    const relationTree = propertyPathsToTree(model.includedSyncRelations);
+    const parentIdConfigs = paramsToParentIdConfigs(params);
+    return createExportPlanInner(model, relationTree, parentIdConfigs);
+  });
+};
+
+const createExportPlanInner = (model, relationTree, parentIdConfigs) => {
   // generate nested association exporters
   const associations = Object.entries(relationTree).reduce((memo, [associationName, subTree]) => {
     const association = model.associations[associationName];
+    const childParentIdConfigs = associationToParentIdConfigs(association);
     return {
       ...memo,
-      [associationName]: createExportPlanInner(association.target, subTree, association.foreignKey),
+      [associationName]: createExportPlanInner(association.target, subTree, childParentIdConfigs),
     };
   }, {});
 
@@ -32,11 +43,11 @@ const createExportPlanInner = (model, relationTree, foreignKey) => {
     {},
   );
 
-  return { model, associations, foreignKey, columns };
+  return { model, associations, parentIdConfigs, columns };
 };
 
-export const executeExportPlan = async (plan, channel, { since, limit = 100 }) => {
-  const { model, foreignKey } = plan;
+export const executeExportPlan = async (plan, { since, limit = 100 }) => {
+  const { model, parentIdConfigs } = plan;
   const { syncClientMode } = model;
   const options = {
     where: {},
@@ -54,14 +65,12 @@ export const executeExportPlan = async (plan, channel, { since, limit = 100 }) =
     // load deleted records in server mode
     options.paranoid = false;
   }
-  if (foreignKey) {
-    const parentId = model.syncParentIdFromChannel(channel);
-    if (!parentId) {
-      throw new Error(
-        `Must provide parentId for models like ${plan.model.name} with syncParentIdKey set`,
-      );
-    }
-    options.where[foreignKey] = parentId;
+  if (parentIdConfigs) {
+    const parentIds = extractStaticParentIds(parentIdConfigs);
+    options.where = {
+      ...options.where,
+      ...parentIds,
+    };
   }
   if (limit) {
     options.limit = limit;
@@ -76,7 +85,9 @@ export const executeExportPlan = async (plan, channel, { since, limit = 100 }) =
   return executeExportPlanInner(plan, options);
 };
 
-const executeExportPlanInner = async ({ model, associations, columns }, options) => {
+const executeExportPlanInner = async (plan, options) => {
+  const { model, associations, columns } = plan;
+
   // query records
   const dbRecords = await model.findAll(options);
 
@@ -97,9 +108,8 @@ const executeExportPlanInner = async ({ model, associations, columns }, options)
 
       // query associations
       for (const [associationName, associationPlan] of Object.entries(associations)) {
-        const associationOptions = {
-          where: { [associationPlan.foreignKey]: dbRecord.id },
-        };
+        const parentIds = extractDynamicParentIds(associationPlan.parentIdConfigs, dbRecord);
+        const associationOptions = { where: parentIds };
         const { records: innerRecords } = await executeExportPlanInner(
           associationPlan,
           associationOptions,
