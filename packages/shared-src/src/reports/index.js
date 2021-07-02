@@ -10,6 +10,8 @@ import {
 import * as aefi from './aefi';
 import * as samoaAefi from './samoa-aefi';
 import * as numberPatientsRegisteredByDate from './number-patients-registered-by-date';
+import * as covidSwabLabTestList from './covid-swab-lab-test-list';
+import * as covidSwabLabTestsSummary from './covid-swab-lab-tests-summary';
 
 export function getReportModule(reportType) {
   switch (reportType) {
@@ -39,5 +41,9 @@ export function getReportModule(reportType) {
       return samoaAefi;
     case 'number-patients-registered-by-date':
       return numberPatientsRegisteredByDate;
+    case 'covid-swab-lab-test-list':
+      return covidSwabLabTestList;
+    case 'covid-swab-lab-tests-summary':
+      return covidSwabLabTestsSummary;
   }
 }
