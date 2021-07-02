@@ -29,6 +29,7 @@ const getPatientDisplayId = ({ patientDisplayId }) => patientDisplayId || 'Unkno
 const getStatus = ({ status }) => <StatusDisplay status={status} />;
 const getRequestType = ({ categoryName, category }) => categoryName || (category || {}).name || 'Unknown';
 const getPriority = ({ priorityName, priority }) => priorityName || (priority || {}).name || 'Unknown';
+const getLaboratory = ({ laboratoryName, laboratory }) => laboratoryName || (laboratory || {}).name || 'Unknown';
 const getDate = ({ requestedDate }) => <DateDisplay date={requestedDate} />;
 
 const encounterColumns = [
@@ -38,6 +39,7 @@ const encounterColumns = [
   { key: 'displayName', title: 'Requested by', accessor: getDisplayName, sortable: false },
   { key: 'requestedDate', title: 'Date', accessor: getDate, sortable: false },
   { key: 'priority', title: 'Priority', accessor: getPriority },
+  { key: 'laboratory', title: 'Laboratory', accessor: getLaboratory },
 ];
 
 const globalColumns = [

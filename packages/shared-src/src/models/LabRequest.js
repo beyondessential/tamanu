@@ -107,6 +107,11 @@ export class LabRequest extends Model {
       as: 'priority',
     });
 
+    this.belongsTo(models.ReferenceData, {
+      foreignKey: 'labTestLaboratoryId',
+      as: 'laboratory',
+    });
+
     this.hasMany(models.LabTest, {
       foreignKey: 'labRequestId',
       as: 'tests',
@@ -114,7 +119,7 @@ export class LabRequest extends Model {
   }
 
   static getListReferenceAssociations() {
-    return ['requestedBy', 'category', 'priority'];
+    return ['requestedBy', 'category', 'priority', 'laboratory'];
   }
 
   getTests() {

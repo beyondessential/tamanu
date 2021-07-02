@@ -50,6 +50,16 @@ labRequest.get(
         ({ category }) => ({ category: `${category}%` }),
       ),
       makeFilter(
+        filterParams.priority,
+        `UPPER(priority.name) LIKE UPPER(:priority)`,
+        ({ priority }) => ({ priority: `${priority}%` }),
+      ),
+      makeFilter(
+        filterParams.laboratory,
+        `UPPER(laboratory.name) LIKE UPPER(:laboratory)`,
+        ({ laboratory }) => ({ laboratory: `${laboratory}%` }),
+      ),
+      makeFilter(
         filterParams.displayId,
         `UPPER(patient.display_id) LIKE UPPER(:displayId)`,
         ({ displayId }) => ({ displayId: `${displayId}%` }),
@@ -84,6 +94,8 @@ labRequest.get(
           ON (category.type = 'labTestCategory' AND lab_requests.lab_test_category_id = category.id)
         LEFT JOIN reference_data AS priority
           ON (priority.type = 'labTestPriority' AND lab_requests.lab_test_priority_id = priority.id)
+        LEFT JOIN reference_data AS laboratory
+          ON (laboratory.type = 'labTestLaboratory' AND lab_requests.lab_test_laboratory_id = laboratory.id)
         LEFT JOIN patients AS patient
           ON (patient.id = encounter.patient_id)
         LEFT JOIN users AS examiner
@@ -127,7 +139,9 @@ labRequest.get(
           category.id AS category_id,
           category.name AS category_name,
           priority.id AS priority_id,
-          priority.name AS priority_name
+          priority.name AS priority_name,
+          laboratory.id AS laboratory_id,
+          laboratory.name AS laboratory_name
         ${from}
 
         LIMIT :limit
