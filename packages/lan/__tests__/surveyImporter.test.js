@@ -25,9 +25,9 @@ describe('Importing programs', () => {
   it('Should import a survey', () => {
     const { records } = resultInfo.stats;
     expect(records).toHaveProperty('program', 1);
-    expect(records).toHaveProperty('survey', 2);
-    expect(records).toHaveProperty('programDataElement', 19);
-    expect(records).toHaveProperty('surveyScreenComponent', 19);
+    expect(records).toHaveProperty('survey', 1);
+    expect(records).toHaveProperty('programDataElement', 21);
+    expect(records).toHaveProperty('surveyScreenComponent', 21);
   });
 
   describe('Survey validation', () => {
