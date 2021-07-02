@@ -7,9 +7,16 @@ import { ViewPhotoLink } from './ViewPhotoLink';
 import { connectApi } from '../api/connectApi';
 
 const convertBinaryToYesNo = value => {
-  if (value === 'true' || value === '1') return 'Yes';
-  if (value === 'false' || value === '0') return 'No';
-  return value;
+  switch (value) {
+    case 'true':
+    case '1':
+      return 'Yes';
+    case 'false':
+    case '0':
+      return 'No';
+    default:
+      return value;
+  }
 }
 
 const COLUMNS = [
