@@ -50,7 +50,7 @@ export const DumbAddLabRequestScreen = ({
   selectedPatient,
   navigation,
 }: DumbAddLabRequestScreenProps): ReactElement => {
-  const displayId = useMemo(customAlphabet(ALPHABET_FOR_ID, 6), [
+  const displayId = useMemo(customAlphabet(ALPHABET_FOR_ID, 7), [
     selectedPatient,
   ]);
 
