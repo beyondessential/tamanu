@@ -36,7 +36,8 @@ const transformLabRequest = async (models, labRequest, testTypeWhitelist) => {
     patientInitials: getPatientInitials(patient),
     testResults: returnableLabTests.map(({ result, status, labTestTypeId }) => ({
       testType: labTestTypeId,
-      result: status === LAB_TEST_STATUSES.PUBLISHED ? result : 'Result not available yet'
+      // Note: This will return lab test results even if the lab test is NOT published
+      result,
     })),
   };
 }
