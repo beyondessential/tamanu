@@ -2,30 +2,45 @@ import React, { memo, useState, useCallback } from 'react';
 import styled from 'styled-components';
 import * as yup from 'yup';
 
-import { Form, Field, TextField } from 'desktop/app/components/Field';
+import { 
+  Form,
+  Field,
+  TextField,
+  CheckField,
+} from 'desktop/app/components/Field';
 import { FileChooserField, FILTER_EXCEL } from 'desktop/app/components/Field/FileChooserField';
 import { FormGrid } from 'desktop/app/components/FormGrid';
 import { ButtonRow } from 'desktop/app/components/ButtonRow';
 
-import { readFileSync } from 'fs';
+// import { readFileSync } from 'fs';
 
 import { Button } from 'desktop/app/components/Button';
-
-import { connectApi } from '../../api';
 
 const Container = styled.div`
   padding: 32px;
 `;
 
+/*
 function readFileAsBlob(path) {
   const fileData = readFileSync(path);
   return new Blob([fileData]);
 }
+*/
 
 const ProgramUploadForm = ({ handleSubmit }) => (
   <FormGrid columns={1}>
-    <Field component={TextField} label="Program name" name="programName" required />
-    <Field component={TextField} label="Survey name" name="surveyName" required />
+    <Field
+      component={CheckField}
+      label="Test run"
+      name="dryRun"
+      required
+    />
+    <Field
+      component={CheckField}
+      label="Skip invalid records"
+      name="allowErrors"
+      required
+    />
     <Field
       component={FileChooserField}
       filters={[FILTER_EXCEL]}
@@ -55,14 +70,14 @@ const SuccessDisplay = ({ successInfo }) => {
   );
 };
 
-const DumbProgramsAdminView = memo(({ onSubmit }) => {
+export const ProgramsAdminView = memo(({ onSubmit }) => {
   const [resetKey, setResetKey] = useState(Math.random());
   const [successInfo, setSuccessInfo] = useState(null);
 
   const onSubmitUpload = useCallback(
     async ({ file, ...data }) => {
       const results = await onSubmit({
-        file: readFileAsBlob(file),
+        // file: readFileAsBlob(file),
         ...data,
       });
       // reset the form
@@ -80,8 +95,8 @@ const DumbProgramsAdminView = memo(({ onSubmit }) => {
         key={resetKey}
         onSubmit={onSubmitUpload}
         validationSchema={yup.object().shape({
-          programName: yup.string().required(),
-          surveyName: yup.string().required(),
+          dryRun: yup.bool(),
+          allowErrors: yup.bool(),
           file: yup.string().required(),
         })}
         render={ProgramUploadForm}
@@ -89,7 +104,3 @@ const DumbProgramsAdminView = memo(({ onSubmit }) => {
     </Container>
   );
 });
-
-export const ProgramsAdminView = connectApi(api => ({
-  onSubmit: async data => api.multipart('program', data),
-}))(DumbProgramsAdminView);
