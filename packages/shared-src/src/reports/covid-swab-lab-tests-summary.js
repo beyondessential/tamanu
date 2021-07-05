@@ -113,13 +113,14 @@ export const dataGenerator = async (models, parameters = {}) => {
     const positiveRecord = records.find(r => r.result === 'Positive');
     const negativeRecord = records.find(r => r.result === 'Negative');
     const testFailedRecord = records.find(r => r.result === 'Test failed');
-    const noResultRecord = records.find(r => r.result === null);
+    const noResultRecord = records.find(r => r.result === null || r.result === '');
 
     const positiveRecordCount = positiveRecord ? Number(positiveRecord.count) : 0;
     const negativeRecordCount = negativeRecord ? Number(negativeRecord.count) : 0;
     const testFailedRecordCount = testFailedRecord ? Number(testFailedRecord.count) : 0;
     const noResultRecordCount = noResultRecord ? Number(noResultRecord.count) : 0;
-    const totalRecordCount = positiveRecordCount + negativeRecordCount + testFailedRecordCount;
+    const totalRecordCount =
+      positiveRecordCount + negativeRecordCount + testFailedRecordCount + noResultRecordCount;
 
     return {
       testDate,
