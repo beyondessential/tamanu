@@ -1,0 +1,2 @@
+This directory needs to exist as it's the default location for sqlite.
+TODO: This can be deleted once sqlite support has been discontinued.

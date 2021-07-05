@@ -46,22 +46,39 @@ const labTestTypeSchema = baseSchema
     femaleRange: yup.string().matches(rangeRegex),
   });
 
+const jsonString = () => yup.string()
+  .test(
+    'is-json',
+    '${path} is not valid JSON',
+    value => {
+      if(!value) return true;
+      try {
+        JSON.parse(value);
+        return true;
+      } catch(e) {
+        return false;
+      }
+    }
+  );
+
 const programDataElementSchema = baseSchema
   .shape({
     indicator: yup.string(),
     type: yup.string().required().oneOf(PROGRAM_DATA_ELEMENT_TYPE_VALUES),
+    defaultOptions: jsonString(),
   });
 
 const surveyScreenComponentSchema = baseSchema
   .shape({
-    visibilityCriteria: yup.string(),
-    validationCriteria: yup.string(),
-    config: yup.string(),
+    visibilityCriteria: jsonString(),
+    validationCriteria: jsonString(),
+    config: jsonString(),
     screenIndex: yup.number().required(),
     componentIndex: yup.number().required(),
-    options: yup.string(),
+    options: jsonString(),
     calculation: yup.string(),
     surveyId: yup.string().required(),
+    detail: yup.string().max(255),
     dataElementId: yup.string().required(),
   });
 
