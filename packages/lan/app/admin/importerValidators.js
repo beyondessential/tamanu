@@ -46,7 +46,7 @@ const labTestTypeSchema = baseSchema
     femaleRange: yup.string().matches(rangeRegex),
   });
 
-const jsonString = yup.string()
+const jsonString = () => yup.string()
   .test(
     'is-json',
     '${path} is not valid JSON',
@@ -65,17 +65,17 @@ const programDataElementSchema = baseSchema
   .shape({
     indicator: yup.string(),
     type: yup.string().required().oneOf(PROGRAM_DATA_ELEMENT_TYPE_VALUES),
-    defaultOptions: jsonString,
+    defaultOptions: jsonString(),
   });
 
 const surveyScreenComponentSchema = baseSchema
   .shape({
-    visibilityCriteria: jsonString,
-    validationCriteria: jsonString,
-    config: jsonString,
+    visibilityCriteria: jsonString(),
+    validationCriteria: jsonString(),
+    config: jsonString(),
     screenIndex: yup.number().required(),
     componentIndex: yup.number().required(),
-    options: jsonString,
+    options: jsonString(),
     calculation: yup.string(),
     surveyId: yup.string().required(),
     detail: yup.string().max(255),
