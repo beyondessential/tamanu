@@ -67,10 +67,14 @@ export const dataGenerator = async (models, parameters = {}) => {
       title: 'Lab request type',
       accessor: data => data.labRequest.category.name,
     },
-    { title: 'Status', accessor: data => LAB_REQUEST_STATUS_LABELS[data.status] || data.status },
+    {
+      title: 'Status',
+      accessor: data =>
+        LAB_REQUEST_STATUS_LABELS[data.labRequest?.status] || data.labRequest?.status,
+    },
     { title: 'Result', accessor: data => data.result },
-    { title: 'Requested by', accessor: data => data.labRequest?.requestedBy },
-    { title: 'Date', accessor: data => moment(data.date).format('DD-MM-YYYY') },
+    { title: 'Requested by', accessor: data => data.labRequest?.requestedBy?.displayName },
+    { title: 'Requested date', accessor: data => moment(data.date).format('DD-MM-YYYY') },
     { title: 'Priority', accessor: data => data.labRequest?.priority?.name },
     { title: 'Testing laboratory', accessor: data => data.labRequest?.laboratory?.name },
   ];
@@ -97,6 +101,7 @@ export const dataGenerator = async (models, parameters = {}) => {
           { model: models.ReferenceData, as: 'category' },
           { model: models.ReferenceData, as: 'priority' },
           { model: models.ReferenceData, as: 'laboratory' },
+          { model: models.User, as: 'requestedBy' },
         ],
       },
       {
