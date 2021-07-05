@@ -47,7 +47,6 @@ const ResultsPane = React.memo(({ labRequest, patient }) => {
   const closeModal = React.useCallback(() => setModalOpen(false), [setModalOpen]);
   const openModal = React.useCallback(
     test => {
-      if (test.result) return;
       setActiveTest(test);
       setModalOpen(true);
     },
