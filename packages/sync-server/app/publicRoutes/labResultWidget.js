@@ -38,8 +38,7 @@ const transformLabRequest = async (models, labRequest, testTypeWhitelist) => {
   return {
     testDate: createdAt,
     patientInitials: getPatientInitials(patient),
-    testResults: returnableLabTests.map(({ result, labTestTypeId }) => ({
-      testType: labTestTypeId,
+    testResults: returnableLabTests.map(({ result }) => ({
       result,
     })),
   };
