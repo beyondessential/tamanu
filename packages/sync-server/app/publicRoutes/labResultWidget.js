@@ -23,20 +23,23 @@ const transformLabRequest = async (models, labRequest, testTypeWhitelist) => {
     }
   }
 
+  // Note that we're not filtering on publication status of lab tests, only 
+  // lab requests. (this is just because currently (2021-07-05) there's
+  // actually no way in the UI to publish a lab test)
   const labTests = await models.LabTest.findAll({
     where: {
       labRequestId: id,
     }
   });
 
-  const returnableLabTests = labTests.filter(({ labTestTypeId }) => testTypeWhitelist.includes(labTestTypeId));
+  const returnableLabTests = labTests
+    .filter(({ labTestTypeId }) => testTypeWhitelist.includes(labTestTypeId));
 
   return {
     testDate: createdAt,
     patientInitials: getPatientInitials(patient),
-    testResults: returnableLabTests.map(({ result, status, labTestTypeId }) => ({
-      testType: labTestTypeId,
-      result: status === LAB_TEST_STATUSES.PUBLISHED ? result : 'Result not available yet'
+    testResults: returnableLabTests.map(({ result }) => ({
+      result,
     })),
   };
 }
