@@ -28,6 +28,9 @@
     "apiKey": "",
     "from": ""
   },
+  "cors": {
+    "allowedOrigin": ""
+  },
   "schedules": {
     "outpatientDischarger": "0 0 2 ? * * *"
   },
