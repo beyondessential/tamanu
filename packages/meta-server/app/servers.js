@@ -21,6 +21,11 @@ const servers = [
     type: 'live',
     host: 'https://motivation-sync-png.tamanu.io',
   },
+  {
+    name: 'Motivation Australia - India',
+    type: 'live',
+    host: 'https://motivation-sync-india.tamanu.io',
+  },
   { name: 'Nauru', type: 'live', host: 'https://sync.tamanu-nauru.org' },
 ];
 
