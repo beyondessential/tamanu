@@ -1,5 +1,6 @@
+import { Sequelize, Op } from 'sequelize';
 import { initDatabase } from 'shared/services/database';
-import { BasicHandler } from './handlers';
+import { syncCursorToWhereCondition } from 'shared/models/sync';
 
 export class SqlWrapper {
   models = null;
@@ -27,15 +28,28 @@ export class SqlWrapper {
 
   async countSince(channel, since) {
     return this.sequelize.channelRouter(channel, (model, params) => {
-      const handler = new BasicHandler(model);
-      return handler.countSince({ since }, params);
+      return model.count({
+        paranoid: false,
+        where: {
+          [Op.and]: [syncCursorToWhereCondition(since), params],
+        },
+      });
     });
   }
 
   async markRecordDeleted(channel, id) {
-    return this.sequelize.channelRouter(channel, model => {
-      const handler = new BasicHandler(model);
-      return handler.markRecordDeleted(id);
+    return this.sequelize.channelRouter(channel, async model => {
+      // use update instead of destroy so we can change both fields
+      const [num] = await model.update(
+        {
+          deletedAt: Sequelize.literal('CURRENT_TIMESTAMP'),
+          updatedAt: Sequelize.literal('CURRENT_TIMESTAMP'),
+        },
+        {
+          where: { id },
+        },
+      );
+      return num;
     });
   }
   //------------------------------------
