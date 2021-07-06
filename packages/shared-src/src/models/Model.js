@@ -18,30 +18,42 @@ const func = opts =>
 const isTruthy = v => !!v;
 
 const syncConfigSchema = yup.object({
+  // whether a model should be pushed to the server, pulled from the server, or both
   direction: yup
     .string()
     .oneOf(SYNC_DIRECTIONS_VALUES)
     .required(),
+  // list of columns to exclude when syncing
   excludedColumns: yup.array(yup.string()).test(isTruthy),
+  // list of relations to include when syncing, may be deeply nested
+  // e.g. ['labRequests', 'labRequests.tests']
   includedRelations: yup.array(yup.string()).test(isTruthy),
   // returns one or more channels to push to
   getChannels: func().required(),
+  // list of channel routes, e.g. handlers for different channels
   channelRoutes: yup
     .array(
       yup.object({
+        // function to convert params to a sequelize where condition
         paramsToWhere: func().required(),
+        // list of parameters a channel can have
         params: yup
           .array(
             yup
               .object({
+                // name of the parameter, e.g. 'patientId'
                 name: yup.string().required(),
+                // whether to throw an error if the parameter isn't provided, defaults to true
                 isRequired: yup.boolean().required(),
+                // whether to throw an error if the parameter doesn't match the record, defaults to true
                 mustMatchRecord: yup.boolean().required(),
+                // function to validate the parameter, defaults to using isRequired and mustMatchRecord
                 validate: func().required(),
               })
               .required(),
           )
           .test(isTruthy),
+        // function to validate a record for a channel, defaults to validating all the params against the record
         validate: func().required(),
       }),
     )
