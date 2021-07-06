@@ -15,14 +15,8 @@ cp ${LAN_ROOT}/start.bat ${LAN_ROOT}/release/
 
 # copy config files
 mkdir ${LAN_ROOT}/release/config
-cp ${LAN_ROOT}/config/*.json ${LAN_ROOT}/release/config/
-
-# remove local.json if it was included in the config files 
-# (shouldn't happen in CI but can occur during a local build)
-LOCAL_CONFIG=${LAN_ROOT}/release/config/local.json
-if [ -f "${LOCAL_CONFIG}" ]; then
-  rm ${LOCAL_CONFIG}
-fi
+shopt -s extglob
+cp ${LAN_ROOT}/config/!(local).json ${LAN_ROOT}/release/config/
 
 # set up data directory
 # TODO: this line can be removed once sqlite support is discontinued
