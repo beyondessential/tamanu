@@ -1,5 +1,5 @@
 import * as sequelize from 'sequelize';
-import { lowerFirst } from 'lodash';
+import { lowerFirst, pick } from 'lodash';
 import * as yup from 'yup';
 import { log } from 'shared/services/logging';
 import { SYNC_DIRECTIONS, SYNC_DIRECTIONS_VALUES } from 'shared/constants';
@@ -42,6 +42,7 @@ const syncConfigSchema = yup.object({
               .required(),
           )
           .test(isTruthy),
+        validate: func().required(),
       }),
     )
     .test(isTruthy),
@@ -187,9 +188,13 @@ export class Model extends sequelize.Model {
     rootConfig.channelRoutes = rootConfig.channelRoutes.map(providedRouteConfig => {
       const routeDefaults = {
         params: [],
-        paramsToWhere: paramsObject => paramsObject,
+        paramsToWhere: paramsObject => {
+          return pick(
+            paramsObject,
+            routeConfig.params.map(p => p.name),
+          );
+        },
         validate: (record, paramsObject) => {
-          // TODO: call within import
           for (const paramConfig of routeConfig.params) {
             paramConfig.validate(record, paramsObject);
           }
@@ -217,7 +222,7 @@ export class Model extends sequelize.Model {
             }
             if (mustMatchRecord === true && value && value !== record[name]) {
               throw new Error(
-                `${this.name}.syncConfig.validate: param ${name} doesn't match record`,
+                `${this.name}.syncConfig.validate: param ${name}=${value} doesn't match record.${name}=${record[name]}`,
               );
             }
           },

@@ -1,13 +1,6 @@
 import { Sequelize, Op } from 'sequelize';
 import { chunk, flatten, without, pick, pickBy } from 'lodash';
 import { propertyPathsToTree } from './metadata';
-import {
-  paramsToParentIdConfigs,
-  associationToParentIdConfigs,
-  extractStaticParentIds,
-  extractDynamicParentIds,
-  assertParentIdsMatch,
-} from './parentIds';
 
 // SQLite < v3.32 has a hard limit of 999 bound parameters per query
 // see https://www.sqlite.org/limits.html for more
@@ -20,14 +13,14 @@ export const chunkRows = rows => {
 };
 
 export const createImportPlan = (sequelize, channel) => {
-  return sequelize.channelRouter(channel, (model, params) => {
+  return sequelize.channelRouter(channel, (model, params, channelRoute) => {
     const relationTree = propertyPathsToTree(model.syncConfig.includedRelations);
-    const parentIdConfigs = paramsToParentIdConfigs(params);
-    return createImportPlanInner(model, relationTree, parentIdConfigs);
+    const validateRecord = record => channelRoute.validate(record, params);
+    return createImportPlanInner(model, relationTree, validateRecord);
   });
 };
 
-const createImportPlanInner = (model, relationTree, parentIdConfigs) => {
+const createImportPlanInner = (model, relationTree, validateRecord) => {
   // columns
   const allColumns = Object.keys(model.tableAttributes);
   const columns = without(allColumns, ...model.syncConfig.excludedColumns);
@@ -35,23 +28,28 @@ const createImportPlanInner = (model, relationTree, parentIdConfigs) => {
   //relations
   const children = Object.entries(relationTree).reduce((memo, [relationName, childTree]) => {
     const association = model.associations[relationName];
-    const childParentIdConfigs = associationToParentIdConfigs(association);
     const childModel = association.target;
     if (!childModel) {
       throw new Error(
         `createImportPlan: no such relation ${relationName} (defined in includedRelations on ${model.name}.syncConfig)`,
       );
     }
-    const childPlan = createImportPlanInner(childModel, childTree, childParentIdConfigs);
+    const validateChild = (record, parentRecord) => {
+      if (record[association.foreignKey] !== parentRecord.id) {
+        throw new Error(
+          `import: validateChild: child ${childModel.name}<${record.id}> didn't match ${model.name}<${parentRecord.id}>`,
+        );
+      }
+    };
+    const childPlan = createImportPlanInner(childModel, childTree, validateChild);
     return { ...memo, [relationName]: childPlan };
   }, {});
 
-  return { model, columns, children, parentIdConfigs };
+  return { model, columns, children, validateRecord };
 };
 
 export const executeImportPlan = async (plan, syncRecords) => {
-  const { model, parentIdConfigs } = plan;
-  const parentIds = extractStaticParentIds(parentIdConfigs);
+  const { model, validateRecord } = plan;
 
   return model.sequelize.transaction(async () => {
     // split records into create, update, delete
@@ -61,10 +59,16 @@ export const executeImportPlan = async (plan, syncRecords) => {
     const existingIdSet = new Set(existing.map(e => e.id));
     const recordsForCreate = syncRecords
       .filter(r => !r.isDeleted && !existingIdSet.has(r.data.id))
-      .map(r => assertParentIdsMatch(r.data, parentIds));
+      .map(({ data }) => {
+        validateRecord(data, null);
+        return data;
+      });
     const recordsForUpdate = syncRecords
       .filter(r => !r.isDeleted && existingIdSet.has(r.data.id))
-      .map(r => assertParentIdsMatch(r.data, parentIds));
+      .map(({ data }) => {
+        validateRecord(data, null);
+        return data;
+      });
 
     // run each import process
     const createSuccessCount = await executeCreates(plan, recordsForCreate);
@@ -165,8 +169,6 @@ const executeUpdateOrCreates = async (
   }
 
   for (const [relationName, relationPlan] of Object.entries(children)) {
-    const { parentIdConfigs } = relationPlan;
-
     const childRecords = flatten(
       // eslint-disable-next-line no-loop-func
       records.map(data => {
@@ -174,9 +176,10 @@ const executeUpdateOrCreates = async (
         if (!childrenOfRecord) {
           return [];
         }
-
-        const parentIds = extractDynamicParentIds(parentIdConfigs, data);
-        return childrenOfRecord.map(child => assertParentIdsMatch(child.data, parentIds));
+        return childrenOfRecord.map(({ data: childData }) => {
+          relationPlan.validateRecord(childData, data);
+          return childData;
+        });
       }),
     );
     if (childRecords && childRecords.length > 0) {
