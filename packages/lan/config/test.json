@@ -11,5 +11,8 @@
       "department": "General",
       "location": "Ward-1"
     }
+  },
+  "sync": {
+    "syncAllLabRequests": true
   }
 }

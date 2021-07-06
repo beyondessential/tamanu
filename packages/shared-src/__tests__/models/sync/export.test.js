@@ -36,11 +36,8 @@ describe('export', () => {
 
   const testCases = [
     ['Patient', fakePatient],
-    [
-      'Encounter',
-      async () => buildNestedEncounter(context, patientId),
-      `patient/${patientId}/encounter`,
-    ],
+    ['Encounter', () => buildNestedEncounter(context, patientId), `patient/${patientId}/encounter`],
+    ['Encounter', () => buildNestedEncounter(context, patientId), 'labRequest/all/encounter'],
     [
       'PatientAllergy',
       () => ({ ...fake(models.PatientAllergy), patientId }),
