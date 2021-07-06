@@ -6,23 +6,19 @@ import { getSyncCursorFromRecord, syncCursorToWhereCondition } from './cursor';
 export const createExportPlan = (sequelize, channel) => {
   return sequelize.channelRouter(channel, (model, params, channelRoute) => {
     const relationTree = propertyPathsToTree(model.syncConfig.includedRelations);
-    const whereQuery = channelRoute.paramsToWhere(params);
-    return createExportPlanInner(model, relationTree, whereQuery);
+    const { where, includes } = channelRoute.queryFromParams(params);
+    return createExportPlanInner(model, relationTree, { where, includes });
   });
 };
 
-const createExportPlanInner = (model, relationTree, whereQuery = null, foreignKey = null) => {
+const createExportPlanInner = (model, relationTree, query) => {
   // generate nested association exporters
   const associations = Object.entries(relationTree).reduce((memo, [associationName, subTree]) => {
     const association = model.associations[associationName];
+    const { foreignKey } = association;
     return {
       ...memo,
-      [associationName]: createExportPlanInner(
-        association.target,
-        subTree,
-        null,
-        association.foreignKey,
-      ),
+      [associationName]: createExportPlanInner(association.target, subTree, { foreignKey }),
     };
   }, {});
 
@@ -40,17 +36,16 @@ const createExportPlanInner = (model, relationTree, whereQuery = null, foreignKe
     {},
   );
 
-  return { model, associations, columns, whereQuery, foreignKey };
+  return { model, associations, columns, query };
 };
 
 export const executeExportPlan = async (plan, { since, limit = 100 }) => {
-  const { model, whereQuery } = plan;
-  const { syncClientMode } = model;
+  const { syncClientMode } = plan.model;
 
   // add clauses to where query
   const whereClauses = [];
-  if (whereQuery) {
-    whereClauses.push(whereQuery);
+  if (plan.query.where) {
+    whereClauses.push(plan.query.where);
   }
   if (syncClientMode) {
     // only push marked records in server mode
@@ -70,6 +65,7 @@ export const executeExportPlan = async (plan, { since, limit = 100 }) => {
     where: {
       [Op.and]: whereClauses,
     },
+    includes: plan.query.includes,
   };
   if (!syncClientMode) {
     // load deleted records in server mode
@@ -105,9 +101,13 @@ const executeExportPlanInner = async (plan, options) => {
 
       // query associations
       for (const [associationName, associationPlan] of Object.entries(associations)) {
+        const { foreignKey } = associationPlan.query;
+        if (!foreignKey) {
+          throw new Error(`executeExportPlanInner: missing foreign key for ${associationName}`);
+        }
         const associationOptions = {
           where: {
-            [associationPlan.foreignKey]: dbRecord.id,
+            [foreignKey]: dbRecord.id,
           },
         };
         const { records: innerRecords } = await executeExportPlanInner(

@@ -34,8 +34,9 @@ const syncConfigSchema = yup.object({
   channelRoutes: yup
     .array(
       yup.object({
-        // function to convert params to a sequelize where condition
-        paramsToWhere: func().required(),
+        // function to convert params to an object with a sequelize `where` and optional `include`
+        // e.g. { where: { foo: '1' }, include: [{ ... }] }
+        queryFromParams: func().required(),
         // list of parameters a channel can have
         params: yup
           .array(
@@ -200,11 +201,13 @@ export class Model extends sequelize.Model {
     rootConfig.channelRoutes = rootConfig.channelRoutes.map(providedRouteConfig => {
       const routeDefaults = {
         params: [],
-        paramsToWhere: paramsObject => {
-          return pick(
-            paramsObject,
-            routeConfig.params.map(p => p.name),
-          );
+        queryFromParams: paramsObject => {
+          return {
+            where: pick(
+              paramsObject,
+              routeConfig.params.map(p => p.name),
+            ),
+          };
         },
         validate: (record, paramsObject) => {
           for (const paramConfig of routeConfig.params) {
