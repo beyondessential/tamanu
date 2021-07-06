@@ -16,17 +16,24 @@ export class PatientIssue extends Model {
           allowNull: false,
         },
       },
-      options,
+      {
+        ...options,
+        syncConfig: {
+          syncDirection: SYNC_DIRECTIONS.BIDIRECTIONAL,
+          channelRoutes: [
+            {
+              route: 'patient/:patientId/issue',
+              params: [{ name: 'patientId' }],
+            },
+          ],
+        },
+      },
     );
   }
 
   static initRelations(models) {
     this.belongsTo(models.Patient, { foreignKey: 'patientId' });
   }
-
-  static syncDirection = SYNC_DIRECTIONS.BIDIRECTIONAL;
-
-  static channelRoutes = ['patient/:patientId/issue'];
 }
 
 nestClassUnderPatientForSync(PatientIssue, 'issue');

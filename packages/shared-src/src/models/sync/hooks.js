@@ -1,10 +1,9 @@
-import { isEqual } from 'lodash';
 import { shouldPush } from './directions';
-import { propertyPathsToTree, ensurePathsAreExhaustive } from './metadata';
+import { ensurePathsAreExhaustive } from './metadata';
 
 const addHooksToNested = model => {
-  // for every relation defined in includedSyncRelations, including intermediates
-  for (const relationPath of ensurePathsAreExhaustive(model.includedSyncRelations)) {
+  // for every relation defined in includedRelations, including intermediates
+  for (const relationPath of ensurePathsAreExhaustive(model.syncConfig.includedRelations)) {
     // traverse a path like 'foo.bars.bazes' and retrieve an array of association metadata
     const pathSegments = relationPath.split('.');
     const associations = [];

@@ -11,7 +11,18 @@ export class PatientAllergy extends Model {
         note: Sequelize.STRING,
         recordedDate: { type: Sequelize.DATE, defaultValue: Sequelize.NOW, allowNull: false },
       },
-      options,
+      {
+        ...options,
+        syncConfig: {
+          syncDirection: SYNC_DIRECTIONS.BIDIRECTIONAL,
+          channelRoutes: [
+            {
+              route: 'patient/:patientId/allergy',
+              params: [{ name: 'patientId' }],
+            },
+          ],
+        },
+      },
     );
   }
 
@@ -24,10 +35,6 @@ export class PatientAllergy extends Model {
   static getListReferenceAssociations() {
     return ['allergy'];
   }
-
-  static syncDirection = SYNC_DIRECTIONS.BIDIRECTIONAL;
-
-  static channelRoutes = ['patient/:patientId/allergy'];
 }
 
 nestClassUnderPatientForSync(PatientAllergy, 'allergy');

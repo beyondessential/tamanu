@@ -1,10 +1,51 @@
 import * as sequelize from 'sequelize';
 import { lowerFirst } from 'lodash';
-import { SYNC_DIRECTIONS } from 'shared/constants';
+import * as yup from 'yup';
+import { log } from 'shared/services/logging';
+import { SYNC_DIRECTIONS, SYNC_DIRECTIONS_VALUES } from 'shared/constants';
 
 const { Sequelize, Op, Utils } = sequelize;
 
 const firstLetterLowercase = s => (s[0] || '').toLowerCase() + s.slice(1);
+
+const func = opts =>
+  yup.object(opts).test(
+    'is-function',
+    (value, { path }) => `${path} is not a function`,
+    value => typeof value === 'function',
+  );
+
+const isTruthy = v => !!v;
+
+const syncConfigSchema = yup.object({
+  direction: yup
+    .string()
+    .oneOf(SYNC_DIRECTIONS_VALUES)
+    .required(),
+  excludedColumns: yup.array(yup.string()).test(isTruthy),
+  includedRelations: yup.array(yup.string()).test(isTruthy),
+  // returns one or more channels to push to
+  getChannels: func().required(),
+  channelRoutes: yup
+    .array(
+      yup.object({
+        paramsToWhere: func().required(),
+        params: yup
+          .array(
+            yup
+              .object({
+                name: yup.string().required(),
+                isRequired: yup.boolean().required(),
+                mustMatchRecord: yup.boolean().required(),
+                validate: func().required(),
+              })
+              .required(),
+          )
+          .test(isTruthy),
+      }),
+    )
+    .test(isTruthy),
+});
 
 // write a migration when adding to this list (e.g. 005_markedForPush.js and 007_pushedAt.js)
 const MARKED_FOR_PUSH_MODELS = [
@@ -22,7 +63,7 @@ const MARKED_FOR_PUSH_MODELS = [
 ];
 
 export class Model extends sequelize.Model {
-  static init(originalAttributes, { syncClientMode, ...options }) {
+  static init(originalAttributes, { syncClientMode, syncConfig, ...options }) {
     const attributes = { ...originalAttributes };
     if (syncClientMode && MARKED_FOR_PUSH_MODELS.includes(this.name)) {
       attributes.markedForPush = {
@@ -36,6 +77,7 @@ export class Model extends sequelize.Model {
     super.init(attributes, options);
     this.syncClientMode = syncClientMode;
     this.defaultIdValue = attributes.id.defaultValue;
+    this.setSyncConfig(syncConfig);
   }
 
   static generateId() {
@@ -109,21 +151,6 @@ export class Model extends sequelize.Model {
     return this.getListReferenceAssociations();
   }
 
-  static includedSyncRelations = [];
-
-  static excludedSyncColumns = ['createdAt', 'updatedAt', 'markedForPush', 'markedForSync'];
-
-  // determines whether a mdoel will be pushed, pulled, both, or neither
-  static syncDirection = SYNC_DIRECTIONS.DO_NOT_SYNC;
-
-  // returns one or more channels to push to
-  static getChannels() {
-    return [lowerFirst(this.name)];
-  }
-
-  // list of channels that the model should be available on
-  static channelRoutes = [];
-
   static async findByIds(ids) {
     return this.findAll({
       where: { id: { [Op.in]: ids } },
@@ -137,5 +164,84 @@ export class Model extends sequelize.Model {
   // (useful for hooks and anything else that needs an initialised model)
   static afterInit(fn) {
     this.afterInitCallbacks.push(fn);
+  }
+
+  static syncConfig = {};
+
+  static setSyncConfig(providedConfig = {}) {
+    // merge global config
+    const globalDefaults = {
+      direction: SYNC_DIRECTIONS.DO_NOT_SYNC,
+      excludedColumns: ['createdAt', 'updatedAt', 'markedForPush', 'markedForSync'],
+      includedRelations: [],
+      getChannels: () => [lowerFirst(this.name)],
+      channelRoutes: [],
+    };
+
+    const rootConfig = {
+      ...globalDefaults,
+      ...providedConfig,
+    };
+
+    // merge channel route config
+    rootConfig.channelRoutes = rootConfig.channelRoutes.map(providedRouteConfig => {
+      const routeDefaults = {
+        params: [], // e.g. { name: 'patientId', isRequired: true, mustMatchRecord: true, validate: () => { throw new Error('Error message'); } }
+        paramsToWhere: paramsObject => paramsObject,
+        validate: (record, paramsObject) => {
+          // TODO: call within import
+          for (const paramConfig of routeConfig.params) {
+            paramConfig.validate(record, paramsObject);
+          }
+        },
+      };
+      const routeConfig = {
+        ...routeDefaults,
+        ...providedRouteConfig,
+      };
+
+      // merge param config
+      routeConfig.params = routeConfig.params.map(providedParamConfig => {
+        const paramDefaults = {
+          isRequired: true,
+          mustMatchRecord: true,
+          validate: (record, paramsObject) => {
+            const { name, isRequired, mustMatchRecord } = paramConfig;
+            const value = paramsObject[name];
+            if (!value) {
+              if (isRequired === true) {
+                throw new Error(`${this.name}.syncConfig.validate: param ${name} is required`);
+              } else {
+                return; // don't validate a missing parameter
+              }
+            }
+            if (mustMatchRecord === true && value && value !== record[name]) {
+              throw new Error(
+                `${this.name}.syncConfig.validate: param ${name} doesn't match record`,
+              );
+            }
+          },
+        };
+        const paramConfig = {
+          ...paramDefaults,
+          ...providedParamConfig,
+        };
+        return paramConfig;
+      });
+
+      return routeConfig;
+    });
+
+    // set
+    try {
+      // validateSync is called that because it's synchronous, it has nothing to do with our sync
+      syncConfigSchema.validateSync(rootConfig);
+      this.syncConfig = rootConfig;
+    } catch (e) {
+      log.error(
+        [`${this.name}.setSyncConfig: error validating config:`, ...e.errors].join('\n - '),
+      );
+      throw e;
+    }
   }
 }

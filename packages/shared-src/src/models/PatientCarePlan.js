@@ -10,7 +10,18 @@ export class PatientCarePlan extends Model {
         id: primaryKey,
         date: { type: Sequelize.DATE, defaultValue: Sequelize.NOW, allowNull: false },
       },
-      options,
+      {
+        ...options,
+        syncConfig: {
+          syncDirection: SYNC_DIRECTIONS.BIDIRECTIONAL,
+          channelRoutes: [
+            {
+              route: 'patient/:patientId/carePlan',
+              params: [{ name: 'patientId' }],
+            },
+          ],
+        },
+      },
     );
   }
 
@@ -23,10 +34,6 @@ export class PatientCarePlan extends Model {
   static getListReferenceAssociations() {
     return ['carePlan', 'examiner'];
   }
-
-  static syncDirection = SYNC_DIRECTIONS.BIDIRECTIONAL;
-
-  static channelRoutes = ['patient/:patientId/carePlan'];
 }
 
 nestClassUnderPatientForSync(PatientCarePlan, 'carePlan');

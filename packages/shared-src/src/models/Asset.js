@@ -13,6 +13,10 @@ export class Asset extends Model {
       },
       {
         ...options,
+        syncConfig: {
+          syncDirection: SYNC_DIRECTIONS.PULL_ONLY,
+          channelRoutes: [{ route: 'asset' }],
+        },
       },
     );
   }
@@ -34,8 +38,4 @@ export class Asset extends Model {
     // otherwise blob data will be truncated
     return { ...restOfValues, data: Buffer.from(data) };
   }
-
-  static syncDirection = SYNC_DIRECTIONS.PULL_ONLY;
-
-  static channelRoutes = ['asset'];
 }

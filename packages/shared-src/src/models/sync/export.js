@@ -12,7 +12,7 @@ import {
 
 export const createExportPlan = (sequelize, channel) => {
   return sequelize.channelRouter(channel, (model, params) => {
-    const relationTree = propertyPathsToTree(model.includedSyncRelations);
+    const relationTree = propertyPathsToTree(model.syncConfig.includedRelations);
     const parentIdConfigs = paramsToParentIdConfigs(params);
     return createExportPlanInner(model, relationTree, parentIdConfigs);
   });
@@ -31,7 +31,7 @@ const createExportPlanInner = (model, relationTree, parentIdConfigs) => {
 
   // generate formatters for columns
   const allColumnNames = Object.keys(model.tableAttributes);
-  const columns = without(allColumnNames, ...model.excludedSyncColumns).reduce(
+  const columns = without(allColumnNames, ...model.syncConfig.excludedColumns).reduce(
     (memo, columnName) => {
       const columnType = model.tableAttributes[columnName].type;
       let formatter = null; // default to passing the value straight through

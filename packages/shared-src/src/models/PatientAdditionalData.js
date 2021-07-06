@@ -22,7 +22,18 @@ export class PatientAdditionalData extends Model {
         drivingLicense: Sequelize.STRING,
         passport: Sequelize.STRING,
       },
-      options,
+      {
+        ...options,
+        syncConfig: {
+          syncDirection: SYNC_DIRECTIONS.BIDIRECTIONAL,
+          channelRoutes: [
+            {
+              route: 'patient/:patientId/additionalData',
+              params: [{ name: 'patientId' }],
+            },
+          ],
+        },
+      },
     );
   }
 
@@ -55,10 +66,6 @@ export class PatientAdditionalData extends Model {
   static getFullReferenceAssociations() {
     return ['countryOfBirth'];
   }
-
-  static syncDirection = SYNC_DIRECTIONS.BIDIRECTIONAL;
-
-  static channelRoutes = ['patient/:patientId/additionalData'];
 }
 
 nestClassUnderPatientForSync(PatientAdditionalData, 'additionalData');

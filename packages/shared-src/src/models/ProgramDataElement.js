@@ -1,5 +1,5 @@
 import { Sequelize } from 'sequelize';
-import { PROGRAM_DATA_ELEMENT_TYPE_VALUES, SYNC_DIRECTIONS } from 'shared/constants';
+import { SYNC_DIRECTIONS } from 'shared/constants';
 import { parseOrNull } from 'shared/utils/parse-or-null';
 import { Model } from './Model';
 
@@ -18,6 +18,10 @@ export class ProgramDataElement extends Model {
       {
         ...options,
         indexes: [{ unique: true, fields: ['code'] }],
+        syncConfig: {
+          syncDirection: SYNC_DIRECTIONS.PULL_ONLY,
+          channelRoutes: [{ route: 'programDataElement' }],
+        },
       },
     );
   }
@@ -29,8 +33,4 @@ export class ProgramDataElement extends Model {
       defaultOptions: parseOrNull(defaultOptions),
     };
   }
-
-  static syncDirection = SYNC_DIRECTIONS.PULL_ONLY;
-
-  static channelRoutes = ['programDataElement'];
 }

@@ -1,7 +1,7 @@
 export const nestClassUnderPatientForSync = (model, name) => {
   // this should be fine - we're explicitly extending the class
   // eslint-disable-next-line no-param-reassign
-  model.getChannels = async patientId => {
+  model.getChannels = async patientId => { // TODO: fix
     let ids;
     if (patientId) {
       ids = [patientId];

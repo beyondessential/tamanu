@@ -21,7 +21,7 @@ export const chunkRows = rows => {
 
 export const createImportPlan = (sequelize, channel) => {
   return sequelize.channelRouter(channel, (model, params) => {
-    const relationTree = propertyPathsToTree(model.includedSyncRelations);
+    const relationTree = propertyPathsToTree(model.syncConfig.includedRelations);
     const parentIdConfigs = paramsToParentIdConfigs(params);
     return createImportPlanInner(model, relationTree, parentIdConfigs);
   });
@@ -30,7 +30,7 @@ export const createImportPlan = (sequelize, channel) => {
 const createImportPlanInner = (model, relationTree, parentIdConfigs) => {
   // columns
   const allColumns = Object.keys(model.tableAttributes);
-  const columns = without(allColumns, ...model.excludedSyncColumns);
+  const columns = without(allColumns, ...model.syncConfig.excludedColumns);
 
   //relations
   const children = Object.entries(relationTree).reduce((memo, [relationName, childTree]) => {
@@ -39,7 +39,7 @@ const createImportPlanInner = (model, relationTree, parentIdConfigs) => {
     const childModel = association.target;
     if (!childModel) {
       throw new Error(
-        `createImportPlan: no such relation ${relationName} (defined in includedSyncRelations on ${model.name})`,
+        `createImportPlan: no such relation ${relationName} (defined in includedRelations on ${model.name}.syncConfig)`,
       );
     }
     const childPlan = createImportPlanInner(childModel, childTree, childParentIdConfigs);

@@ -13,6 +13,10 @@ export class Attachment extends Model {
       },
       {
         ...options,
+        syncConfig: {
+          syncDirection: SYNC_DIRECTIONS.PUSH_ONLY,
+          channelRoutes: [{ route: 'attachment' }],
+        },
       },
     );
   }
@@ -20,8 +24,4 @@ export class Attachment extends Model {
   static sanitizeForSyncServer({ data, ...restOfValues }) {
     return { ...restOfValues, data: Buffer.from(data, 'base64') };
   }
-
-  static syncDirection = SYNC_DIRECTIONS.PUSH_ONLY;
-
-  static channelRoutes = ['attachment'];
 }

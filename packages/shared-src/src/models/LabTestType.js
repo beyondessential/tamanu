@@ -1,7 +1,7 @@
 import { Sequelize } from 'sequelize';
 import { InvalidOperationError } from 'shared/errors';
-import { Model } from './Model';
 import { SYNC_DIRECTIONS } from 'shared/constants';
+import { Model } from './Model';
 
 const QUESTION_TYPES = {
   NUMBER: 'number',
@@ -11,10 +11,13 @@ const QUESTION_TYPES = {
 const QUESTION_TYPE_VALUES = Object.values(QUESTION_TYPES);
 
 function optionStringToArray(s) {
-  if(!s) return undefined;
+  if (!s) return undefined;
   const trimmed = s.trim();
-  if(!trimmed) return undefined;
-  return trimmed.split(", ").map(x => x.trim()).filter(x => x);
+  if (!trimmed) return undefined;
+  return trimmed
+    .split(', ')
+    .map(x => x.trim())
+    .filter(x => x);
 }
 
 export class LabTestType extends Model {
@@ -54,6 +57,10 @@ export class LabTestType extends Model {
       },
       {
         ...options,
+        syncConfig: {
+          syncDirection: SYNC_DIRECTIONS.PULL_ONLY,
+          channelRoutes: [{ route: 'labTestType' }],
+        },
         validate: {
           mustHaveValidOptions() {
             const parsed = optionStringToArray(this.options);
@@ -85,8 +92,4 @@ export class LabTestType extends Model {
       options: optionStringToArray(options),
     };
   }
-
-  static syncDirection = SYNC_DIRECTIONS.PULL_ONLY;
-
-  static channelRoutes = ['labTestType'];
 }

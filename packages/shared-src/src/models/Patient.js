@@ -31,6 +31,10 @@ export class Patient extends Model {
       },
       {
         ...options,
+        syncConfig: {
+          syncDirection: SYNC_DIRECTIONS.BIDIRECTIONAL,
+          channelRoutes: [{ route: 'patient' }],
+        },
         indexes: [{ fields: ['display_id'] }, { fields: ['last_name'] }],
       },
     );
@@ -41,7 +45,7 @@ export class Patient extends Model {
       foreignKey: 'patientId',
     });
 
-    // technically this relation is hasOne but this just describes 
+    // technically this relation is hasOne but this just describes
     // "there is another table referencing this one by id"
     this.hasMany(models.PatientAdditionalData, {
       foreignKey: 'patientId',
@@ -53,8 +57,6 @@ export class Patient extends Model {
     });
   }
 
-  static syncDirection = SYNC_DIRECTIONS.BIDIRECTIONAL;
-
   static async getSyncIds() {
     const patients = await this.sequelize.models.Patient.findAll({
       where: { markedForSync: true },
@@ -63,6 +65,4 @@ export class Patient extends Model {
     });
     return patients.map(({ id }) => id);
   }
-
-  static channelRoutes = ['patient'];
 }

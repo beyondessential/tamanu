@@ -153,8 +153,8 @@ export async function initDatabase(dbOptions) {
      *   a channel route: `patient/:patientId/foobar`
      *   a channel:       `patient/1234abcd/foobar`
      */
-    for (const channelRoute of model.channelRoutes) {
-      sequelize.channelRouter.on(channelRoute, (params, f) => f(model, params));
+    for (const { route } of model.syncConfig.channelRoutes) {
+      sequelize.channelRouter.on(route, (params, f) => f(model, params));
     }
 
     // run afterInit callbacks for model

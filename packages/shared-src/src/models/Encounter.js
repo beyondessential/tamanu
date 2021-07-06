@@ -42,6 +42,31 @@ export class Encounter extends Model {
         },
       };
     }
+    const syncConfig = {
+      syncDirection: SYNC_DIRECTIONS.BIDIRECTIONAL,
+      includedRelations: [
+        'administeredVaccines',
+        'surveyResponses',
+        'surveyResponses.answers',
+        'diagnoses',
+        'medications',
+        'labRequests',
+        'labRequests.tests',
+        'imagingRequests',
+        'procedures',
+        'initiatedReferrals',
+        'completedReferrals',
+        'vitals',
+        'discharge',
+        'triages',
+      ],
+      channelRoutes: [
+        {
+          route: 'patient/:patientId/encounter',
+          params: [{ name: 'patientId' }],
+        },
+      ],
+    };
     super.init(
       {
         id: primaryKey,
@@ -60,6 +85,7 @@ export class Encounter extends Model {
       {
         ...options,
         validate,
+        syncConfig,
       },
     );
   }
@@ -251,27 +277,6 @@ export class Encounter extends Model {
       return super.update(data);
     });
   }
-
-  static includedSyncRelations = [
-    'administeredVaccines',
-    'surveyResponses',
-    'surveyResponses.answers',
-    'diagnoses',
-    'medications',
-    'labRequests',
-    'labRequests.tests',
-    'imagingRequests',
-    'procedures',
-    'initiatedReferrals',
-    'completedReferrals',
-    'vitals',
-    'discharge',
-    'triages',
-  ];
-
-  static syncDirection = SYNC_DIRECTIONS.BIDIRECTIONAL;
-
-  static channelRoutes = ['patient/:patientId/encounter'];
 }
 
 nestClassUnderPatientForSync(Encounter, 'encounter');

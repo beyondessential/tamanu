@@ -1,4 +1,4 @@
-import { Sequelize } from 'sequelize';
+import { ValidationError } from 'sequelize';
 import { SYNC_DIRECTIONS } from 'shared/constants';
 import { Model } from './Model';
 
@@ -10,6 +10,10 @@ export class UserFacility extends Model {
       },
       {
         ...options,
+        syncConfig: {
+          syncDirection: SYNC_DIRECTIONS.PULL_ONLY,
+          channelRoutes: [{ route: 'userFacility' }],
+        },
         uniqueKeys: {
           user_location_unique: {
             fields: ['user_id', 'facility_id'],
@@ -43,8 +47,4 @@ export class UserFacility extends Model {
     }
     return super.create(values, options);
   }
-
-  static syncDirection = SYNC_DIRECTIONS.PULL_ONLY;
-
-  static channelRoutes = ['userFacility'];
 }

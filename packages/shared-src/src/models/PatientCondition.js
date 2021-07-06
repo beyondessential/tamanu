@@ -12,7 +12,18 @@ export class PatientCondition extends Model {
         recordedDate: { type: Sequelize.DATE, defaultValue: Sequelize.NOW, allowNull: false },
         resolved: { type: Sequelize.BOOLEAN, defaultValue: false },
       },
-      options,
+      {
+        ...options,
+        syncConfig: {
+          syncDirection: SYNC_DIRECTIONS.BIDIRECTIONAL,
+          channelRoutes: [
+            {
+              route: 'patient/:patientId/condition',
+              params: [{ name: 'patientId' }],
+            },
+          ],
+        },
+      },
     );
   }
 
@@ -25,10 +36,6 @@ export class PatientCondition extends Model {
   static getListReferenceAssociations() {
     return ['condition'];
   }
-
-  static syncDirection = SYNC_DIRECTIONS.BIDIRECTIONAL;
-
-  static channelRoutes = ['patient/:patientId/condition'];
 }
 
 nestClassUnderPatientForSync(PatientCondition, 'condition');

@@ -12,7 +12,18 @@ export class PatientFamilyHistory extends Model {
         recordedDate: { type: Sequelize.DATE, defaultValue: Sequelize.NOW, allowNull: false },
         relationship: Sequelize.STRING,
       },
-      options,
+      {
+        ...options,
+        syncConfig: {
+          syncDirection: SYNC_DIRECTIONS.BIDIRECTIONAL,
+          channelRoutes: [
+            {
+              route: 'patient/:patientId/familyHistory',
+              params: [{ name: 'patientId' }],
+            },
+          ],
+        },
+      },
     );
   }
 
@@ -25,10 +36,6 @@ export class PatientFamilyHistory extends Model {
   static getListReferenceAssociations() {
     return ['diagnosis'];
   }
-
-  static syncDirection = SYNC_DIRECTIONS.BIDIRECTIONAL;
-
-  static channelRoutes = ['patient/:patientId/familyHistory'];
 }
 
 nestClassUnderPatientForSync(PatientFamilyHistory, 'familyHistory');
