@@ -2,7 +2,13 @@ import { Op } from 'sequelize';
 import { v4 as uuidv4 } from 'uuid';
 
 import { REFERENCE_TYPES } from 'shared/constants';
-import { fakeProgram, fakeSurvey, fakePatient } from 'shared/test-helpers';
+import {
+  fakeProgram,
+  fakeSurvey,
+  fakePatient,
+  buildNestedEncounter,
+  upsertAssociations,
+} from 'shared/test-helpers';
 
 import { createTestContext } from '../utilities';
 
@@ -10,6 +16,9 @@ describe('SyncManager', () => {
   let context;
   beforeAll(async () => {
     context = await createTestContext();
+    context.remote.fetchChannelsWithChanges.mockImplementation(channels =>
+      Promise.resolve(channels),
+    );
   });
 
   beforeEach(() => {
@@ -169,6 +178,48 @@ describe('SyncManager', () => {
 
       // assert
       expect(await getRecord(record)).toHaveProperty('markedForPush', true);
+    });
+  });
+
+  describe('encounters with a lab request', () => {
+    it('pushes them', async () => {
+      // arrange
+      const patientId = uuidv4();
+      const encounter = await buildNestedEncounter(context, patientId);
+      await context.models.Encounter.create(encounter);
+      await upsertAssociations(context.models.Encounter, encounter);
+      await context.models.Patient.update(
+        { markedForPush: false, markedForSync: false },
+        { where: { id: patientId } },
+      );
+
+      // act
+      await context.syncManager.exportAndPush(context.models.Encounter);
+
+      // assert
+      const pushedChannels = context.remote.push.mock.calls.map(([channel]) => channel);
+      expect(pushedChannels).toContain('labRequest/all/encounter');
+
+      const pushedObject = context.remote.push.mock.calls
+        .map(([, array]) => array)
+        .flat()
+        .find(({ data: { id } }) => id === encounter.id);
+      expect(pushedObject).toHaveProperty('data.id', encounter.id);
+    });
+
+    it('pulls them', async () => {
+      // arrange
+      context.remote.pull.mockResolvedValue({
+        records: [],
+        count: 0,
+      });
+
+      // act
+      await context.syncManager.pullAndImport(context.models.Encounter);
+
+      // assert
+      const pulledChannels = context.remote.pull.mock.calls.map(([channel]) => channel);
+      expect(pulledChannels).toContain('labRequest/all/encounter');
     });
   });
 });
