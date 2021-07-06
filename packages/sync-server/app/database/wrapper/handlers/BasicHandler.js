@@ -28,11 +28,11 @@ export const markDeletedQuery = ({ id }) => [
   },
 ];
 
-export const queryWithParentIds = (parentIds, query) => ({
+export const queryWithParentIds = (params, query) => ({
   ...query,
   where: {
     ...query.where,
-    ...parentIds,
+    ...params,
   },
 });
 
@@ -46,13 +46,13 @@ export class BasicHandler {
     this.model = model;
   }
 
-  async countSince(params, parentIds) {
-    const query = queryWithParentIds(parentIds, countSinceQuery(params));
+  async countSince(options, params) {
+    const query = queryWithParentIds(params, countSinceQuery(options));
     return this.model.count(query);
   }
 
-  async findSince(params, parentIds) {
-    const query = queryWithParentIds(parentIds, findSinceQuery(params));
+  async findSince(options, params) {
+    const query = queryWithParentIds(params, findSinceQuery(options));
     const records = await this.model.findAll(query);
     return records.map(result => result.get({ plain: true }));
   }

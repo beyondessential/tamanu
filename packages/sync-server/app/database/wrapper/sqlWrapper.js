@@ -26,16 +26,16 @@ export class SqlWrapper {
   }
 
   async countSince(channel, since) {
-    return this.sequelize.channelRouter(channel, (model, parentIds) => {
+    return this.sequelize.channelRouter(channel, (model, params) => {
       const handler = new BasicHandler(model);
-      return handler.countSince({ since }, parentIds);
+      return handler.countSince({ since }, params);
     });
   }
 
   async findSince(channel, since, { limit, offset } = {}) {
-    return this.sequelize.channelRouter(channel, (model, parentIds) => {
+    return this.sequelize.channelRouter(channel, (model, params) => {
       const handler = new BasicHandler(model);
-      return handler.findSince({ since, limit, offset }, parentIds);
+      return handler.findSince({ since, limit, offset }, params);
     });
   }
 
