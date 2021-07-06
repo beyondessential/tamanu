@@ -41,7 +41,7 @@ describe('Sync API', () => {
 
     await Promise.all(
       [OLDEST_PATIENT, SECOND_OLDEST_PATIENT].map(async r => {
-        await ctx.store.upsert('patient', convertToDbRecord(r));
+        await ctx.store.models.Patient.upsert(convertToDbRecord(r));
         await unsafeSetUpdatedAt(ctx.store.sequelize, {
           table: 'patients',
           id: r.data.id,
@@ -49,7 +49,7 @@ describe('Sync API', () => {
         });
       }),
     );
-    await ctx.store.upsert('reference', REFERENCE_DATA);
+    await ctx.store.models.ReferenceData.upsert(REFERENCE_DATA);
     await unsafeSetUpdatedAt(ctx.store.sequelize, {
       table: 'reference_data',
       id: REFERENCE_DATA.id,
@@ -151,7 +151,7 @@ describe('Sync API', () => {
       await Promise.all(
         [0, 1].map(async () => {
           const p = fakePatient();
-          await ctx.store.upsert('patient', p);
+          await ctx.store.models.Patient.upsert(p);
           await unsafeSetUpdatedAt(ctx.store.sequelize, {
             table: 'patients',
             id: p.id,
@@ -207,7 +207,7 @@ describe('Sync API', () => {
           .map((zero, i) => fakeSyncRecordPatient(`test-limits-${i}_`));
 
         // import in series so there's a predictable order to test against
-        await Promise.all(records.map(r => ctx.store.upsert('patient', convertToDbRecord(r))));
+        await Promise.all(records.map(r => ctx.store.models.Patient.upsert(convertToDbRecord(r))));
       });
 
       it('should only return $limit records', async () => {
@@ -445,7 +445,7 @@ describe('Sync API', () => {
 
       beforeEach(async () => {
         patient = fakeSyncRecordPatient();
-        await ctx.store.upsert('patient', convertToDbRecord(patient));
+        await ctx.store.models.Patient.upsert(convertToDbRecord(patient));
         await unsafeSetUpdatedAt(ctx.store.sequelize, {
           table: 'patients',
           id: patient.data.id,

@@ -25,13 +25,6 @@ export class SqlWrapper {
     await this.sequelize.close();
   }
 
-  async upsert(channel, record) {
-    return this.sequelize.channelRouter(channel, (model, parentIds) => {
-      const handler = new BasicHandler(model);
-      return handler.upsert(record, parentIds);
-    });
-  }
-
   async countSince(channel, since) {
     return this.sequelize.channelRouter(channel, (model, parentIds) => {
       const handler = new BasicHandler(model);

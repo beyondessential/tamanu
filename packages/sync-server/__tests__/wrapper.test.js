@@ -93,7 +93,9 @@ describe('sqlWrapper', () => {
     allTestCases.forEach(([channel, fakeInstance]) => {
       describe(channel, () => {
         beforeAll(async () => {
-          await ctx.sequelize.channelRouter(channel, model => model.destroy({ where: {}, force: true }));
+          await ctx.sequelize.channelRouter(channel, model =>
+            model.destroy({ where: {}, force: true }),
+          );
         });
 
         it('finds no records when empty', async () => {
@@ -104,12 +106,12 @@ describe('sqlWrapper', () => {
         it('finds and counts records after an insertion', async () => {
           const instance1 = await fakeInstance();
           await withDate(new Date(1980, 5, 1), async () => {
-            await ctx.upsert(channel, instance1);
+            await ctx.sequelize.channelRouter(channel, model => model.upsert(instance1));
           });
 
           const instance2 = await fakeInstance();
           await withDate(new Date(1990, 5, 1), async () => {
-            await ctx.upsert(channel, instance2);
+            await ctx.sequelize.channelRouter(channel, model => model.upsert(instance2));
           });
 
           const since = new Date(1985, 5, 1).valueOf().toString();
@@ -128,7 +130,7 @@ describe('sqlWrapper', () => {
         it('marks records as deleted', async () => {
           const instance = await fakeInstance();
           instance.id = uuidv4();
-          await ctx.upsert(channel, instance);
+          await ctx.sequelize.channelRouter(channel, model => model.upsert(instance));
 
           await ctx.markRecordDeleted(channel, instance.id);
 
@@ -144,23 +146,6 @@ describe('sqlWrapper', () => {
             updatedAt: expect.any(Date),
             deletedAt: expect.any(Date),
           });
-        });
-      });
-    });
-  });
-
-  describe('nested patient channels', () => {
-    nestedPatientTestCases.forEach(([channel, fakeInstance]) => {
-      describe(channel, () => {
-        beforeAll(async () => {
-          await ctx.sequelize.channelRouter(channel, model => model.destroy({ where: {}, force: true }));
-        });
-
-        it('throws an error when inserting valid records nested under the wrong patient', async () => {
-          const [prefix, , suffix] = channel.split('/');
-          const wrongId = uuidv4();
-          const wrongChannel = [prefix, wrongId, suffix].join('/');
-          await expect(ctx.upsert(wrongChannel, await fakeInstance())).rejects.toThrow();
         });
       });
     });

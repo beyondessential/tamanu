@@ -1,5 +1,5 @@
 import { Sequelize } from 'sequelize';
-import { syncCursorToWhereCondition, assertParentIdsMatch } from 'shared/models/sync';
+import { syncCursorToWhereCondition } from 'shared/models/sync';
 
 // added for consistency with the other queries
 // currently just passes values and an empty options object directly through to upsert
@@ -44,14 +44,6 @@ export class BasicHandler {
       throw new Error(`BasicHandler: must pass a model`);
     }
     this.model = model;
-  }
-
-  async upsert(record, parentIds) {
-    // TODO: get rid of upsert so we don't duplicate funtionality between here and import
-    assertParentIdsMatch(record, parentIds);
-    const [values, options] = upsertQuery(record);
-    await this.model.upsert(values, options);
-    return 1;
   }
 
   async countSince(params, parentIds) {
