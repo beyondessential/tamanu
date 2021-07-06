@@ -1,7 +1,6 @@
 import { Sequelize } from 'sequelize';
-import { SYNC_DIRECTIONS, REFERENCE_TYPES } from 'shared/constants';
 import { Model } from './Model';
-import { nestClassUnderPatientForSync } from './sync';
+import { initSyncForModelNestedUnderPatient } from './sync';
 
 export class PatientAdditionalData extends Model {
   static init({ primaryKey, ...options }) {
@@ -24,15 +23,7 @@ export class PatientAdditionalData extends Model {
       },
       {
         ...options,
-        syncConfig: {
-          syncDirection: SYNC_DIRECTIONS.BIDIRECTIONAL,
-          channelRoutes: [
-            {
-              route: 'patient/:patientId/additionalData',
-              params: [{ name: 'patientId' }],
-            },
-          ],
-        },
+        syncConfig: initSyncForModelNestedUnderPatient(this, 'additionalData'),
       },
     );
   }
@@ -67,5 +58,3 @@ export class PatientAdditionalData extends Model {
     return ['countryOfBirth'];
   }
 }
-
-nestClassUnderPatientForSync(PatientAdditionalData, 'additionalData');

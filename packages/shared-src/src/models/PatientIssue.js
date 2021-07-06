@@ -1,7 +1,7 @@
 import { Sequelize } from 'sequelize';
-import { nestClassUnderPatientForSync } from './sync';
+import { initSyncForModelNestedUnderPatient } from './sync';
 import { Model } from './Model';
-import { PATIENT_ISSUE_TYPES, SYNC_DIRECTIONS } from '../constants';
+import { PATIENT_ISSUE_TYPES } from '../constants';
 
 export class PatientIssue extends Model {
   static init({ primaryKey, ...options }) {
@@ -18,15 +18,7 @@ export class PatientIssue extends Model {
       },
       {
         ...options,
-        syncConfig: {
-          syncDirection: SYNC_DIRECTIONS.BIDIRECTIONAL,
-          channelRoutes: [
-            {
-              route: 'patient/:patientId/issue',
-              params: [{ name: 'patientId' }],
-            },
-          ],
-        },
+        syncConfig: initSyncForModelNestedUnderPatient(this, 'issue'),
       },
     );
   }
@@ -35,5 +27,3 @@ export class PatientIssue extends Model {
     this.belongsTo(models.Patient, { foreignKey: 'patientId' });
   }
 }
-
-nestClassUnderPatientForSync(PatientIssue, 'issue');

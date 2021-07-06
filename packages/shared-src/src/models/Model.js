@@ -186,7 +186,7 @@ export class Model extends sequelize.Model {
     // merge channel route config
     rootConfig.channelRoutes = rootConfig.channelRoutes.map(providedRouteConfig => {
       const routeDefaults = {
-        params: [], // e.g. { name: 'patientId', isRequired: true, mustMatchRecord: true, validate: () => { throw new Error('Error message'); } }
+        params: [],
         paramsToWhere: paramsObject => paramsObject,
         validate: (record, paramsObject) => {
           // TODO: call within import

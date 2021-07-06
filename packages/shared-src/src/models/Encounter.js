@@ -1,13 +1,8 @@
 import { Sequelize } from 'sequelize';
 import moment from 'moment';
-import {
-  ENCOUNTER_TYPES,
-  ENCOUNTER_TYPE_VALUES,
-  NOTE_TYPES,
-  SYNC_DIRECTIONS,
-} from 'shared/constants';
+import { ENCOUNTER_TYPES, ENCOUNTER_TYPE_VALUES, NOTE_TYPES } from 'shared/constants';
 import { InvalidOperationError } from 'shared/errors';
-import { nestClassUnderPatientForSync } from './sync';
+import { initSyncForModelNestedUnderPatient } from './sync';
 import { Model } from './Model';
 
 export class Encounter extends Model {
@@ -43,7 +38,6 @@ export class Encounter extends Model {
       };
     }
     const syncConfig = {
-      syncDirection: SYNC_DIRECTIONS.BIDIRECTIONAL,
       includedRelations: [
         'administeredVaccines',
         'surveyResponses',
@@ -60,12 +54,7 @@ export class Encounter extends Model {
         'discharge',
         'triages',
       ],
-      channelRoutes: [
-        {
-          route: 'patient/:patientId/encounter',
-          params: [{ name: 'patientId' }],
-        },
-      ],
+      ...initSyncForModelNestedUnderPatient(this, 'encounter'),
     };
     super.init(
       {
@@ -278,5 +267,3 @@ export class Encounter extends Model {
     });
   }
 }
-
-nestClassUnderPatientForSync(Encounter, 'encounter');
