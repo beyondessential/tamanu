@@ -93,7 +93,7 @@ describe('sqlWrapper', () => {
     allTestCases.forEach(([channel, fakeInstance]) => {
       describe(channel, () => {
         beforeAll(async () => {
-          await ctx.unsafeRemoveAllOfChannel(channel);
+          await ctx.sequelize.channelRouter(channel, model => model.destroy({ where: {}, force: true }));
         });
 
         it('finds no records when empty', async () => {
@@ -145,15 +145,6 @@ describe('sqlWrapper', () => {
             deletedAt: expect.any(Date),
           });
         });
-
-        it('removes all records of a channel', async () => {
-          const record = await fakeInstance();
-          await ctx.upsert(channel, record);
-
-          await ctx.unsafeRemoveAllOfChannel(channel);
-
-          expect(await ctx.findSince(channel, '0')).toEqual([]);
-        });
       });
     });
   });
@@ -162,7 +153,7 @@ describe('sqlWrapper', () => {
     nestedPatientTestCases.forEach(([channel, fakeInstance]) => {
       describe(channel, () => {
         beforeAll(async () => {
-          await ctx.unsafeRemoveAllOfChannel(channel);
+          await ctx.sequelize.channelRouter(channel, model => model.destroy({ where: {}, force: true }));
         });
 
         it('throws an error when inserting valid records nested under the wrong patient', async () => {

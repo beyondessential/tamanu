@@ -46,14 +46,6 @@ export class BasicHandler {
     this.model = model;
   }
 
-  // ONLY FOR TESTS, ignores "paranoid"'s soft deletion
-  async unsafeRemoveAll() {
-    if (process.env.NODE_ENV !== 'test') {
-      throw new Error('DO NOT use unsafeRemoveAllOfChannel outside tests!');
-    }
-    return this.model.destroy({ truncate: true, cascade: true, force: true });
-  }
-
   async upsert(record, parentIds) {
     // TODO: get rid of upsert so we don't duplicate funtionality between here and import
     assertParentIdsMatch(record, parentIds);

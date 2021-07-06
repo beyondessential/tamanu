@@ -25,17 +25,6 @@ export class SqlWrapper {
     await this.sequelize.close();
   }
 
-  // ONLY FOR TESTS, ignores "paranoid"'s soft deletion
-  async unsafeRemoveAllOfChannel(channel) {
-    if (process.env.NODE_ENV !== 'test') {
-      throw new Error('DO NOT use unsafeRemoveAllOfChannel outside tests!');
-    }
-    return this.sequelize.channelRouter(channel, model => {
-      const handler = new BasicHandler(model);
-      return handler.unsafeRemoveAll();
-    });
-  }
-
   async upsert(channel, record) {
     return this.sequelize.channelRouter(channel, (model, parentIds) => {
       const handler = new BasicHandler(model);

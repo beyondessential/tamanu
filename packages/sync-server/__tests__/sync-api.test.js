@@ -199,7 +199,7 @@ describe('Sync API', () => {
       let records = null;
 
       beforeAll(async () => {
-        await ctx.store.unsafeRemoveAllOfChannel('patient');
+        await ctx.store.models.Patient.destroy({ where: {}, force: true });
 
         // instantiate 20 records
         records = new Array(TOTAL_RECORDS)
@@ -332,7 +332,7 @@ describe('Sync API', () => {
 
   describe('Writes', () => {
     beforeAll(async () => {
-      await ctx.store.unsafeRemoveAllOfChannel('patient');
+      await ctx.store.models.Patient.destroy({ where: {}, force: true });
     });
 
     it('should add a record to a channel', async () => {
@@ -435,7 +435,7 @@ describe('Sync API', () => {
 
   describe('Deletes', () => {
     beforeEach(async () => {
-      await ctx.store.unsafeRemoveAllOfChannel('patient');
+      await ctx.store.models.Patient.destroy({ where: {}, force: true });
     });
 
     describe('on success', () => {
