@@ -32,13 +32,6 @@ export class SqlWrapper {
     });
   }
 
-  async findSince(channel, since, { limit, offset } = {}) {
-    return this.sequelize.channelRouter(channel, (model, params) => {
-      const handler = new BasicHandler(model);
-      return handler.findSince({ since, limit, offset }, params);
-    });
-  }
-
   async markRecordDeleted(channel, id) {
     return this.sequelize.channelRouter(channel, model => {
       const handler = new BasicHandler(model);

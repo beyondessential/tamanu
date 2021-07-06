@@ -336,18 +336,18 @@ describe('Sync API', () => {
     });
 
     it('should add a record to a channel', async () => {
-      const precheck = await ctx.store.findSince('patient', '0');
+      const precheck = await ctx.store.models.Patient.findAll();
       expect(precheck).toHaveProperty('length', 0);
 
       const result = await app.post('/v1/sync/patient').send(fakeSyncRecordPatient());
       expect(result).toHaveSucceeded();
 
-      const postcheck = await ctx.store.findSince('patient', '0');
+      const postcheck = await ctx.store.models.Patient.findAll();
       expect(postcheck.length).toEqual(1);
     });
 
     it('should add multiple records to reference data', async () => {
-      const precheck = await ctx.store.findSince('patient', '0');
+      const precheck = await ctx.store.models.Patient.findAll();
       expect(precheck.length).toEqual(1);
 
       const record1 = fakeSyncRecordPatient();
@@ -355,7 +355,7 @@ describe('Sync API', () => {
       const result = await app.post('/v1/sync/patient').send([record1, record2]);
       expect(result).toHaveSucceeded();
 
-      const postcheck = await ctx.store.findSince('patient', '0');
+      const postcheck = await ctx.store.models.Patient.findAll();
       expect(postcheck.length).toEqual(3);
       const postcheckIds = postcheck
         .slice(1)
@@ -370,8 +370,8 @@ describe('Sync API', () => {
 
       expect(result).toHaveSucceeded();
 
-      const foundRecords = await ctx.store.findSince('patient', '0');
-      const foundRecord = foundRecords.find(r => r.id === record.data.id);
+      const foundRecords = await ctx.store.models.Patient.findAll();
+      const foundRecord = foundRecords.find(r => r.id === record.data.id).get({ plain: true });
       const {
         createdAt,
         updatedAt,

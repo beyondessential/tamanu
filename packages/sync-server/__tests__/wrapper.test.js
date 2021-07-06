@@ -98,12 +98,11 @@ describe('sqlWrapper', () => {
           );
         });
 
-        it('finds no records when empty', async () => {
-          const records = await ctx.findSince(channel, '0', { limit: 10 });
-          expect(records).toHaveLength(0);
+        it('counts no records when empty', async () => {
+          expect(await ctx.countSince(channel, '0')).toEqual(0);
         });
 
-        it('finds and counts records after an insertion', async () => {
+        it('counts records after an insertion', async () => {
           const instance1 = await fakeInstance();
           await withDate(new Date(1980, 5, 1), async () => {
             await ctx.sequelize.channelRouter(channel, model => model.upsert(instance1));
@@ -115,15 +114,6 @@ describe('sqlWrapper', () => {
           });
 
           const since = new Date(1985, 5, 1).valueOf().toString();
-          const records = await ctx.findSince(channel, since);
-          expect(records.map(r => omit(r, ['markedForPush', 'markedForSync']))).toEqual([
-            {
-              ...instance2,
-              createdAt: new Date(1990, 5, 1),
-              updatedAt: new Date(1990, 5, 1),
-              deletedAt: null,
-            },
-          ]);
           expect(await ctx.countSince(channel, since)).toEqual(1);
         });
 
@@ -134,12 +124,14 @@ describe('sqlWrapper', () => {
 
           await ctx.markRecordDeleted(channel, instance.id);
 
-          const instances = await ctx.findSince(channel, '0');
+          const instances = await ctx.sequelize.channelRouter(channel, model =>
+            model.findAll({ paranoid: false }),
+          );
           expect(
-            omit(
-              instances.find(r => r.id === instance.id),
-              ['markedForPush', 'markedForSync'],
-            ),
+            omit(instances.find(r => r.id === instance.id).get({ plain: true }), [
+              'markedForPush',
+              'markedForSync',
+            ]),
           ).toEqual({
             ...instance,
             createdAt: expect.any(Date),
