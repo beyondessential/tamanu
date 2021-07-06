@@ -57,10 +57,7 @@ export class LabTestType extends Model {
       },
       {
         ...options,
-        syncConfig: {
-          syncDirection: SYNC_DIRECTIONS.PULL_ONLY,
-          channelRoutes: [{ route: 'labTestType' }],
-        },
+        syncConfig: { syncDirection: SYNC_DIRECTIONS.PULL_ONLY },
         validate: {
           mustHaveValidOptions() {
             const parsed = optionStringToArray(this.options);

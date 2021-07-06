@@ -188,7 +188,7 @@ export class Model extends sequelize.Model {
       excludedColumns: ['createdAt', 'updatedAt', 'markedForPush', 'markedForSync'],
       includedRelations: [],
       getChannels: () => [lowerFirst(this.name)],
-      channelRoutes: [],
+      channelRoutes: [{ route: lowerFirst(this.name) }],
     };
 
     const rootConfig = {

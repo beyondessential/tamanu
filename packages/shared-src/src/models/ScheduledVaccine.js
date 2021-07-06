@@ -16,10 +16,7 @@ export class ScheduledVaccine extends Model {
       },
       {
         ...options,
-        syncConfig: {
-          syncDirection: SYNC_DIRECTIONS.PULL_ONLY,
-          channelRoutes: [{ route: 'scheduledVaccine' }],
-        },
+        syncConfig: { syncDirection: SYNC_DIRECTIONS.PULL_ONLY },
       },
     );
   }

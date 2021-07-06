@@ -18,10 +18,7 @@ export class Location extends Model {
       },
       {
         ...options,
-        syncConfig: {
-          syncDirection: SYNC_DIRECTIONS.PULL_ONLY,
-          channelRoutes: [{ route: 'location' }],
-        },
+        syncConfig: { syncDirection: SYNC_DIRECTIONS.PULL_ONLY },
         indexes: [{ unique: true, fields: ['code'] }],
       },
     );

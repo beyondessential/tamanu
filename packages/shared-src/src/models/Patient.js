@@ -31,10 +31,7 @@ export class Patient extends Model {
       },
       {
         ...options,
-        syncConfig: {
-          syncDirection: SYNC_DIRECTIONS.BIDIRECTIONAL,
-          channelRoutes: [{ route: 'patient' }],
-        },
+        syncConfig: { syncDirection: SYNC_DIRECTIONS.BIDIRECTIONAL },
         indexes: [{ fields: ['display_id'] }, { fields: ['last_name'] }],
       },
     );

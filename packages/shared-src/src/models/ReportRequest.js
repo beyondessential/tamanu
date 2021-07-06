@@ -14,10 +14,7 @@ export class ReportRequest extends Model {
       },
       {
         ...options,
-        syncConfig: {
-          syncDirection: SYNC_DIRECTIONS.PUSH_ONLY,
-          channelRoutes: [{ route: 'reportRequest' }],
-        },
+        syncConfig: { syncDirection: SYNC_DIRECTIONS.PUSH_ONLY },
       },
     );
   }

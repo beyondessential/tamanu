@@ -20,10 +20,7 @@ export class SurveyScreenComponent extends Model {
       },
       {
         ...options,
-        syncConfig: {
-          syncDirection: SYNC_DIRECTIONS.PULL_ONLY,
-          channelRoutes: [{ route: 'surveyScreenComponent' }],
-        },
+        syncConfig: { syncDirection: SYNC_DIRECTIONS.PULL_ONLY },
       },
     );
   }

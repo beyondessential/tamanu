@@ -74,10 +74,7 @@ export class User extends Model {
           },
         },
         indexes: [{ fields: ['email'] }],
-        syncConfig: {
-          syncDirection: SYNC_DIRECTIONS.PULL_ONLY,
-          channelRoutes: [{ route: 'user' }],
-        },
+        syncConfig: { syncDirection: SYNC_DIRECTIONS.PULL_ONLY },
       },
     );
 

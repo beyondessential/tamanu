@@ -13,10 +13,7 @@ export class Program extends Model {
       {
         ...options,
         indexes: [{ unique: true, fields: ['code'] }],
-        syncConfig: {
-          syncDirection: SYNC_DIRECTIONS.PULL_ONLY,
-          channelRoutes: [{ route: 'program' }],
-        },
+        syncConfig: { syncDirection: SYNC_DIRECTIONS.PULL_ONLY },
       },
     );
   }

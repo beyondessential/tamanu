@@ -13,10 +13,7 @@ export class Attachment extends Model {
       },
       {
         ...options,
-        syncConfig: {
-          syncDirection: SYNC_DIRECTIONS.PUSH_ONLY,
-          channelRoutes: [{ route: 'attachment' }],
-        },
+        syncConfig: { syncDirection: SYNC_DIRECTIONS.PUSH_ONLY },
       },
     );
   }
