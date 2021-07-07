@@ -18,6 +18,7 @@ export class Location extends Model {
       },
       {
         ...options,
+        syncConfig: { syncDirection: SYNC_DIRECTIONS.PULL_ONLY },
         indexes: [{ unique: true, fields: ['code'] }],
       },
     );
@@ -43,8 +44,4 @@ export class Location extends Model {
     }
     return super.create(values);
   }
-
-  static syncDirection = SYNC_DIRECTIONS.PULL_ONLY;
-
-  static channelRoutes = ['location'];
 }

@@ -1,13 +1,8 @@
 import { Sequelize } from 'sequelize';
 import moment from 'moment';
-import {
-  ENCOUNTER_TYPES,
-  ENCOUNTER_TYPE_VALUES,
-  NOTE_TYPES,
-  SYNC_DIRECTIONS,
-} from 'shared/constants';
+import { ENCOUNTER_TYPES, ENCOUNTER_TYPE_VALUES, NOTE_TYPES } from 'shared/constants';
 import { InvalidOperationError } from 'shared/errors';
-import { nestClassUnderPatientForSync } from './sync';
+import { initSyncForModelNestedUnderPatient } from './sync';
 import { Model } from './Model';
 
 export class Encounter extends Model {
@@ -42,6 +37,25 @@ export class Encounter extends Model {
         },
       };
     }
+    const syncConfig = {
+      includedRelations: [
+        'administeredVaccines',
+        'surveyResponses',
+        'surveyResponses.answers',
+        'diagnoses',
+        'medications',
+        'labRequests',
+        'labRequests.tests',
+        'imagingRequests',
+        'procedures',
+        'initiatedReferrals',
+        'completedReferrals',
+        'vitals',
+        'discharge',
+        'triages',
+      ],
+      ...initSyncForModelNestedUnderPatient(this, 'encounter'),
+    };
     super.init(
       {
         id: primaryKey,
@@ -60,6 +74,7 @@ export class Encounter extends Model {
       {
         ...options,
         validate,
+        syncConfig,
       },
     );
   }
@@ -251,27 +266,4 @@ export class Encounter extends Model {
       return super.update(data);
     });
   }
-
-  static includedSyncRelations = [
-    'administeredVaccines',
-    'surveyResponses',
-    'surveyResponses.answers',
-    'diagnoses',
-    'medications',
-    'labRequests',
-    'labRequests.tests',
-    'imagingRequests',
-    'procedures',
-    'initiatedReferrals',
-    'completedReferrals',
-    'vitals',
-    'discharge',
-    'triages',
-  ];
-
-  static syncDirection = SYNC_DIRECTIONS.BIDIRECTIONAL;
-
-  static channelRoutes = ['patient/:patientId/encounter'];
 }
-
-nestClassUnderPatientForSync(Encounter, 'encounter');

@@ -116,7 +116,7 @@ describe('import', () => {
           // arrange
           const model = models[modelName];
           const record = await fakeRecord();
-          const channel = overrideChannel || (await model.getChannels())[0];
+          const channel = overrideChannel || (await model.syncConfig.getChannels())[0];
 
           // act
           const plan = createImportPlan(model.sequelize, channel);
@@ -149,7 +149,7 @@ describe('import', () => {
             ...(await fakeRecord()),
             id: oldRecord.id,
           };
-          const channel = overrideChannel || (await model.getChannels())[0];
+          const channel = overrideChannel || (await model.syncConfig.getChannels())[0];
 
           // act
           const plan = createImportPlan(model.sequelize, channel);
@@ -171,7 +171,7 @@ describe('import', () => {
           const model = models[modelName];
           const record = await fakeRecord();
           await model.create(record);
-          const channel = overrideChannel || (await model.getChannels())[0];
+          const channel = overrideChannel || (await model.syncConfig.getChannels())[0];
 
           // act
           const plan = createImportPlan(model.sequelize, channel);

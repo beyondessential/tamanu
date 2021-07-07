@@ -1,16 +1,6 @@
-export const nestClassUnderPatientForSync = (model, name) => {
-  // this should be fine - we're explicitly extending the class
-  // eslint-disable-next-line no-param-reassign
-  model.getChannels = async patientId => {
-    let ids;
-    if (patientId) {
-      ids = [patientId];
-    } else {
-      ids = await model.sequelize.models.Patient.getSyncIds();
-    }
-    return ids.map(id => `patient/${id}/${name}`);
-  };
+import { SYNC_DIRECTIONS } from '../../constants';
 
+export const initSyncForModelNestedUnderPatient = (model, name) => {
   model.afterInit(() => {
     const HOOK_TRIGGER = 'beforeSave';
     const HOOK_NAME = 'markPatientForPush';
@@ -33,4 +23,23 @@ export const nestClassUnderPatientForSync = (model, name) => {
       await patient.save();
     });
   });
+
+  return {
+    syncDirection: SYNC_DIRECTIONS.BIDIRECTIONAL,
+    channelRoutes: [
+      {
+        route: `patient/:patientId/${name}`,
+        params: [{ name: 'patientId' }],
+      },
+    ],
+    getChannels: async patientId => {
+      let ids;
+      if (patientId) {
+        ids = [patientId];
+      } else {
+        ids = await model.sequelize.models.Patient.getSyncIds();
+      }
+      return ids.map(id => `patient/${id}/${name}`);
+    },
+  };
 };

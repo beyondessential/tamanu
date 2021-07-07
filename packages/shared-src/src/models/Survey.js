@@ -17,6 +17,7 @@ export class Survey extends Model {
       {
         ...options,
         indexes: [{ unique: true, fields: ['code'] }],
+        syncConfig: { syncDirection: SYNC_DIRECTIONS.PULL_ONLY },
       },
     );
   }
@@ -32,13 +33,9 @@ export class Survey extends Model {
     });
   }
 
-  static syncDirection = SYNC_DIRECTIONS.PULL_ONLY;
-
   static getAllReferrals() {
     return this.findAll({
       where: { surveyType: SURVEY_TYPES.REFERRAL },
     });
   }
-
-  static channelRoutes = ['survey'];
 }

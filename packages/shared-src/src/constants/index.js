@@ -227,6 +227,8 @@ export const SYNC_DIRECTIONS = {
   BIDIRECTIONAL: 'bidirectional',
 };
 
+export const SYNC_DIRECTIONS_VALUES = Object.values(SYNC_DIRECTIONS);
+
 // these are arbitrary, the only thing that matters is they are shared between desktop and lan
 export const DISCOVERY_PORT = 53391;
 export const DISCOVERY_MAGIC_STRING = 'ee671721-9d4d-4e0e-b231-81872206a735';

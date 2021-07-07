@@ -18,7 +18,10 @@ export class SurveyScreenComponent extends Model {
         options: Sequelize.TEXT,
         calculation: Sequelize.STRING,
       },
-      options,
+      {
+        ...options,
+        syncConfig: { syncDirection: SYNC_DIRECTIONS.PULL_ONLY },
+      },
     );
   }
 
@@ -64,8 +67,4 @@ export class SurveyScreenComponent extends Model {
       options: parseOrNull(options),
     };
   }
-
-  static syncDirection = SYNC_DIRECTIONS.PULL_ONLY;
-
-  static channelRoutes = ['surveyScreenComponent'];
 }

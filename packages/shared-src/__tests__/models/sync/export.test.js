@@ -86,7 +86,7 @@ describe('export', () => {
       it('exports pages of records', async () => {
         // arrange
         const model = models[modelName];
-        const channel = overrideChannel || (await model.getChannels())[0];
+        const channel = overrideChannel || (await model.syncConfig.getChannels())[0];
         const plan = createExportPlan(model.sequelize, channel);
         await model.truncate();
         const records = [await fakeRecord(), await fakeRecord()];

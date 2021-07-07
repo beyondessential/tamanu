@@ -1,5 +1,6 @@
+import { Sequelize, Op } from 'sequelize';
 import { initDatabase } from 'shared/services/database';
-import { BasicHandler } from './handlers';
+import { syncCursorToWhereCondition } from 'shared/models/sync';
 
 export class SqlWrapper {
   models = null;
@@ -25,42 +26,32 @@ export class SqlWrapper {
     await this.sequelize.close();
   }
 
-  // ONLY FOR TESTS, ignores "paranoid"'s soft deletion
-  async unsafeRemoveAllOfChannel(channel) {
-    if (process.env.NODE_ENV !== 'test') {
-      throw new Error('DO NOT use unsafeRemoveAllOfChannel outside tests!');
-    }
-    return this.sequelize.channelRouter(channel, model => {
-      const handler = new BasicHandler(model);
-      return handler.unsafeRemoveAll();
-    });
-  }
-
-  async upsert(channel, record) {
-    return this.sequelize.channelRouter(channel, (model, parentIds) => {
-      const handler = new BasicHandler(model);
-      return handler.upsert(record, parentIds);
-    });
-  }
-
   async countSince(channel, since) {
-    return this.sequelize.channelRouter(channel, (model, parentIds) => {
-      const handler = new BasicHandler(model);
-      return handler.countSince({ since }, parentIds);
-    });
-  }
-
-  async findSince(channel, since, { limit, offset } = {}) {
-    return this.sequelize.channelRouter(channel, (model, parentIds) => {
-      const handler = new BasicHandler(model);
-      return handler.findSince({ since, limit, offset }, parentIds);
+    return this.sequelize.channelRouter(channel, (model, params, channelRoute) => {
+      const { where, includes } = channelRoute.queryFromParams(params);
+      return model.count({
+        paranoid: false,
+        where: {
+          [Op.and]: [syncCursorToWhereCondition(since), where],
+        },
+        includes,
+      });
     });
   }
 
   async markRecordDeleted(channel, id) {
-    return this.sequelize.channelRouter(channel, model => {
-      const handler = new BasicHandler(model);
-      return handler.markRecordDeleted(id);
+    return this.sequelize.channelRouter(channel, async model => {
+      // use update instead of destroy so we can change both fields
+      const [num] = await model.update(
+        {
+          deletedAt: Sequelize.literal('CURRENT_TIMESTAMP'),
+          updatedAt: Sequelize.literal('CURRENT_TIMESTAMP'),
+        },
+        {
+          where: { id },
+        },
+      );
+      return num;
     });
   }
   //------------------------------------

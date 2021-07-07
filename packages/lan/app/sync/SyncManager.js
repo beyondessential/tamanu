@@ -54,7 +54,7 @@ export class SyncManager {
   }
 
   async pullAndImport(model, patientId) {
-    const channels = await model.getChannels(patientId);
+    const channels = await model.syncConfig.getChannels(patientId);
     const channelsWithCursors = await Promise.all(
       channels.map(async channel => {
         const cursor = await this.getChannelPullCursor(channel);
@@ -106,7 +106,7 @@ export class SyncManager {
   }
 
   async exportAndPush(model, patientId) {
-    for (const channel of await model.getChannels(patientId)) {
+    for (const channel of await model.syncConfig.getChannels(patientId)) {
       await this.exportAndPushChannel(model, channel);
     }
   }

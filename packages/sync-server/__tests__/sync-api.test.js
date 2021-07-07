@@ -41,7 +41,7 @@ describe('Sync API', () => {
 
     await Promise.all(
       [OLDEST_PATIENT, SECOND_OLDEST_PATIENT].map(async r => {
-        await ctx.store.upsert('patient', convertToDbRecord(r));
+        await ctx.store.models.Patient.upsert(convertToDbRecord(r));
         await unsafeSetUpdatedAt(ctx.store.sequelize, {
           table: 'patients',
           id: r.data.id,
@@ -49,7 +49,7 @@ describe('Sync API', () => {
         });
       }),
     );
-    await ctx.store.upsert('reference', REFERENCE_DATA);
+    await ctx.store.models.ReferenceData.upsert(REFERENCE_DATA);
     await unsafeSetUpdatedAt(ctx.store.sequelize, {
       table: 'reference_data',
       id: REFERENCE_DATA.id,
@@ -151,7 +151,7 @@ describe('Sync API', () => {
       await Promise.all(
         [0, 1].map(async () => {
           const p = fakePatient();
-          await ctx.store.upsert('patient', p);
+          await ctx.store.models.Patient.upsert(p);
           await unsafeSetUpdatedAt(ctx.store.sequelize, {
             table: 'patients',
             id: p.id,
@@ -199,7 +199,7 @@ describe('Sync API', () => {
       let records = null;
 
       beforeAll(async () => {
-        await ctx.store.unsafeRemoveAllOfChannel('patient');
+        await ctx.store.models.Patient.destroy({ where: {}, force: true });
 
         // instantiate 20 records
         records = new Array(TOTAL_RECORDS)
@@ -207,7 +207,7 @@ describe('Sync API', () => {
           .map((zero, i) => fakeSyncRecordPatient(`test-limits-${i}_`));
 
         // import in series so there's a predictable order to test against
-        await Promise.all(records.map(r => ctx.store.upsert('patient', convertToDbRecord(r))));
+        await Promise.all(records.map(r => ctx.store.models.Patient.upsert(convertToDbRecord(r))));
       });
 
       it('should only return $limit records', async () => {
@@ -332,22 +332,22 @@ describe('Sync API', () => {
 
   describe('Writes', () => {
     beforeAll(async () => {
-      await ctx.store.unsafeRemoveAllOfChannel('patient');
+      await ctx.store.models.Patient.destroy({ where: {}, force: true });
     });
 
     it('should add a record to a channel', async () => {
-      const precheck = await ctx.store.findSince('patient', '0');
+      const precheck = await ctx.store.models.Patient.findAll();
       expect(precheck).toHaveProperty('length', 0);
 
       const result = await app.post('/v1/sync/patient').send(fakeSyncRecordPatient());
       expect(result).toHaveSucceeded();
 
-      const postcheck = await ctx.store.findSince('patient', '0');
+      const postcheck = await ctx.store.models.Patient.findAll();
       expect(postcheck.length).toEqual(1);
     });
 
     it('should add multiple records to reference data', async () => {
-      const precheck = await ctx.store.findSince('patient', '0');
+      const precheck = await ctx.store.models.Patient.findAll();
       expect(precheck.length).toEqual(1);
 
       const record1 = fakeSyncRecordPatient();
@@ -355,7 +355,7 @@ describe('Sync API', () => {
       const result = await app.post('/v1/sync/patient').send([record1, record2]);
       expect(result).toHaveSucceeded();
 
-      const postcheck = await ctx.store.findSince('patient', '0');
+      const postcheck = await ctx.store.models.Patient.findAll();
       expect(postcheck.length).toEqual(3);
       const postcheckIds = postcheck
         .slice(1)
@@ -370,8 +370,8 @@ describe('Sync API', () => {
 
       expect(result).toHaveSucceeded();
 
-      const foundRecords = await ctx.store.findSince('patient', '0');
-      const foundRecord = foundRecords.find(r => r.id === record.data.id);
+      const foundRecords = await ctx.store.models.Patient.findAll();
+      const foundRecord = foundRecords.find(r => r.id === record.data.id).get({ plain: true });
       const {
         createdAt,
         updatedAt,
@@ -435,7 +435,7 @@ describe('Sync API', () => {
 
   describe('Deletes', () => {
     beforeEach(async () => {
-      await ctx.store.unsafeRemoveAllOfChannel('patient');
+      await ctx.store.models.Patient.destroy({ where: {}, force: true });
     });
 
     describe('on success', () => {
@@ -445,7 +445,7 @@ describe('Sync API', () => {
 
       beforeEach(async () => {
         patient = fakeSyncRecordPatient();
-        await ctx.store.upsert('patient', convertToDbRecord(patient));
+        await ctx.store.models.Patient.upsert(convertToDbRecord(patient));
         await unsafeSetUpdatedAt(ctx.store.sequelize, {
           table: 'patients',
           id: patient.data.id,

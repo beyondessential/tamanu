@@ -1,6 +1,5 @@
 import { Sequelize } from 'sequelize';
-import { SYNC_DIRECTIONS } from 'shared/constants';
-import { nestClassUnderPatientForSync } from './sync';
+import { initSyncForModelNestedUnderPatient } from './sync';
 import { Model } from './Model';
 
 export class PatientAllergy extends Model {
@@ -11,7 +10,10 @@ export class PatientAllergy extends Model {
         note: Sequelize.STRING,
         recordedDate: { type: Sequelize.DATE, defaultValue: Sequelize.NOW, allowNull: false },
       },
-      options,
+      {
+        ...options,
+        syncConfig: initSyncForModelNestedUnderPatient(this, 'allergy'),
+      },
     );
   }
 
@@ -24,10 +26,4 @@ export class PatientAllergy extends Model {
   static getListReferenceAssociations() {
     return ['allergy'];
   }
-
-  static syncDirection = SYNC_DIRECTIONS.BIDIRECTIONAL;
-
-  static channelRoutes = ['patient/:patientId/allergy'];
 }
-
-nestClassUnderPatientForSync(PatientAllergy, 'allergy');

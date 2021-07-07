@@ -141,7 +141,7 @@ authMiddleware.post(
   asyncHandler(async (req, res) => {
     const requestedAt = Date.now();
     const { store, body } = req;
-    await store.upsert('user', convertToDbRecord(body));
+    await store.models.User.upsert(convertToDbRecord(body));
     res.send({ count: 1, requestedAt });
   }),
 );
