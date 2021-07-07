@@ -17,7 +17,7 @@ export const channelRouteConfigSchema = yup.object({
 export class ChannelRouteConfig {
   route;
 
-  _queryFromParamsImpl;
+  queryFromParams;
 
   params;
 
@@ -34,7 +34,7 @@ export class ChannelRouteConfig {
     } = options;
 
     this.route = route;
-    this._queryFromParamsImpl = queryFromParams;
+    this.queryFromParams = queryFromParams;
 
     // merge param config
     this.params = params.map(paramConfigOptions => new ParamConfig(model, paramConfigOptions));
@@ -44,9 +44,5 @@ export class ChannelRouteConfig {
     for (const paramConfig of this.params) {
       paramConfig.validate(record, paramsObject);
     }
-  }
-
-  queryFromParams(paramsObject) {
-    return this._queryFromParamsImpl(paramsObject);
   }
 }
