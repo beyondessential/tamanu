@@ -47,8 +47,6 @@ const transformLabRequest = async (models, labRequest, testTypeWhitelist) => {
 labResultWidgetRoutes.get(
   '/:displayId',
   asyncHandler(async (req, res) => {
-    req.flagPermissionChecked();
-
     const { params } = req;
     const { displayId } = params;
     const { models } = req.store;
