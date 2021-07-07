@@ -1,65 +1,9 @@
 import * as sequelize from 'sequelize';
-import { lowerFirst, pick } from 'lodash';
-import * as yup from 'yup';
-import { log } from 'shared/services/logging';
-import { SYNC_DIRECTIONS, SYNC_DIRECTIONS_VALUES } from 'shared/constants';
+import { SyncConfig } from './sync';
 
 const { Sequelize, Op, Utils } = sequelize;
 
 const firstLetterLowercase = s => (s[0] || '').toLowerCase() + s.slice(1);
-
-const func = opts =>
-  yup.object(opts).test(
-    'is-function',
-    (value, { path }) => `${path} is not a function`,
-    value => typeof value === 'function',
-  );
-
-const isTruthy = v => !!v;
-
-const syncConfigSchema = yup.object({
-  // whether a model should be pushed to the server, pulled from the server, or both
-  direction: yup
-    .string()
-    .oneOf(SYNC_DIRECTIONS_VALUES)
-    .required(),
-  // list of columns to exclude when syncing
-  excludedColumns: yup.array(yup.string()).test(isTruthy),
-  // list of relations to include when syncing, may be deeply nested
-  // e.g. ['labRequests', 'labRequests.tests']
-  includedRelations: yup.array(yup.string()).test(isTruthy),
-  // returns one or more channels to push to
-  getChannels: func().required(),
-  // list of channel routes, e.g. handlers for different channels
-  channelRoutes: yup
-    .array(
-      yup.object({
-        // function to convert params to an object with a sequelize `where` and optional `include`
-        // e.g. { where: { foo: '1' }, include: [{ ... }] }
-        queryFromParams: func().required(),
-        // list of parameters a channel can have
-        params: yup
-          .array(
-            yup
-              .object({
-                // name of the parameter, e.g. 'patientId'
-                name: yup.string().required(),
-                // whether to throw an error if the parameter isn't provided, defaults to true
-                isRequired: yup.boolean().required(),
-                // whether to throw an error if the parameter doesn't match the record, defaults to true
-                mustMatchRecord: yup.boolean().required(),
-                // function to validate the parameter, defaults to using isRequired and mustMatchRecord
-                validate: func().required(),
-              })
-              .required(),
-          )
-          .test(isTruthy),
-        // function to validate a record for a channel, defaults to validating all the params against the record
-        validate: func().required(),
-      }),
-    )
-    .test(isTruthy),
-});
 
 // write a migration when adding to this list (e.g. 005_markedForPush.js and 007_pushedAt.js)
 const MARKED_FOR_PUSH_MODELS = [
@@ -91,7 +35,7 @@ export class Model extends sequelize.Model {
     super.init(attributes, options);
     this.syncClientMode = syncClientMode;
     this.defaultIdValue = attributes.id.defaultValue;
-    this.setSyncConfig(syncConfig);
+    this.syncConfig = new SyncConfig(this, syncConfig);
   }
 
   static generateId() {
@@ -181,87 +125,4 @@ export class Model extends sequelize.Model {
   }
 
   static syncConfig = {};
-
-  static setSyncConfig(providedConfig = {}) {
-    // merge global config
-    const globalDefaults = {
-      direction: SYNC_DIRECTIONS.DO_NOT_SYNC,
-      excludedColumns: ['createdAt', 'updatedAt', 'markedForPush', 'markedForSync'],
-      includedRelations: [],
-      getChannels: () => [lowerFirst(this.name)],
-      channelRoutes: [{ route: lowerFirst(this.name) }],
-    };
-
-    const rootConfig = {
-      ...globalDefaults,
-      ...providedConfig,
-    };
-
-    // merge channel route config
-    rootConfig.channelRoutes = rootConfig.channelRoutes.map(providedRouteConfig => {
-      const routeDefaults = {
-        params: [],
-        queryFromParams: paramsObject => {
-          return {
-            where: pick(
-              paramsObject,
-              routeConfig.params.map(p => p.name),
-            ),
-          };
-        },
-        validate: (record, paramsObject) => {
-          for (const paramConfig of routeConfig.params) {
-            paramConfig.validate(record, paramsObject);
-          }
-        },
-      };
-      const routeConfig = {
-        ...routeDefaults,
-        ...providedRouteConfig,
-      };
-
-      // merge param config
-      routeConfig.params = routeConfig.params.map(providedParamConfig => {
-        const paramDefaults = {
-          isRequired: true,
-          mustMatchRecord: true,
-          validate: (record, paramsObject) => {
-            const { name, isRequired, mustMatchRecord } = paramConfig;
-            const value = paramsObject[name];
-            if (!value) {
-              if (isRequired === true) {
-                throw new Error(`${this.name}.syncConfig.validate: param ${name} is required`);
-              } else {
-                return; // don't validate a missing parameter
-              }
-            }
-            if (mustMatchRecord === true && value && value !== record[name]) {
-              throw new Error(
-                `${this.name}.syncConfig.validate: param ${name}=${value} doesn't match record.${name}=${record[name]}`,
-              );
-            }
-          },
-        };
-        const paramConfig = {
-          ...paramDefaults,
-          ...providedParamConfig,
-        };
-        return paramConfig;
-      });
-
-      return routeConfig;
-    });
-
-    // set
-    try {
-      // validateSync is called that because it's synchronous, it has nothing to do with our sync
-      syncConfigSchema.validateSync(rootConfig);
-      this.syncConfig = rootConfig;
-    } catch (e) {
-      log.error(
-        [`${this.name}.setSyncConfig: error validating config:`, ...e.errors].join('\n - '),
-      );
-      throw e;
-    }
-  }
 }
