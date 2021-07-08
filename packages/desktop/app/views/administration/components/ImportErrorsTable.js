@@ -28,6 +28,7 @@ const COLUMNS = [
 export const ImportErrorsTable = ({ errors=[] }) => {
   return (
     <Table
+      rowIdKey="row"
       columns={COLUMNS}
       noDataMessage="All good!"
       data={errors}
