@@ -63,7 +63,7 @@ export const dataGenerator = async (models, parameters = {}) => {
       title: 'Positive',
       accessor: data => data.positiveRecordCount,
     },
-    { title: 'Failed', accessor: data => data.testFailedRecordCount },
+    { title: 'Inconclusive', accessor: data => data.inconclusiveRecordCount },
     { title: 'No result yet', accessor: data => data.noResultRecordCount },
   ];
 
@@ -110,21 +110,21 @@ export const dataGenerator = async (models, parameters = {}) => {
   const reportData = Object.entries(labTestDataByDate).map(([testDate, records]) => {
     const positiveRecord = records.find(r => r.result === 'Positive');
     const negativeRecord = records.find(r => r.result === 'Negative');
-    const testFailedRecord = records.find(r => r.result === 'Test failed');
+    const inconclusiveRecord = records.find(r => r.result === 'Inconclusive');
     const noResultRecord = records.find(r => r.result === null || r.result === '');
 
     const positiveRecordCount = positiveRecord ? Number(positiveRecord.count) : 0;
     const negativeRecordCount = negativeRecord ? Number(negativeRecord.count) : 0;
-    const testFailedRecordCount = testFailedRecord ? Number(testFailedRecord.count) : 0;
+    const inconclusiveRecordCount = inconclusiveRecord ? Number(inconclusiveRecord.count) : 0;
     const noResultRecordCount = noResultRecord ? Number(noResultRecord.count) : 0;
     const totalRecordCount =
-      positiveRecordCount + negativeRecordCount + testFailedRecordCount + noResultRecordCount;
+      positiveRecordCount + negativeRecordCount + inconclusiveRecordCount + noResultRecordCount;
 
     return {
       testDate,
       positiveRecordCount,
       negativeRecordCount,
-      testFailedRecordCount,
+      inconclusiveRecordCount,
       noResultRecordCount,
       totalRecordCount,
     };
