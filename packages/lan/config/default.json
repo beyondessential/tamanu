@@ -1,5 +1,4 @@
 {
-  "initialDataPath": "data/demo_definitions.xlsx",
   "admin": {
     "allowAdminRoutes": false
   },
@@ -17,7 +16,8 @@
     "email": "",
     "password": "",
     "timeout": 10000,
-    "readOnly": false
+    "readOnly": false,
+    "syncAllLabRequests": false
   },
   "port": 4000,
   "db": {

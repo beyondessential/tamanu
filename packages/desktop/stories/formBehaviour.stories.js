@@ -7,7 +7,7 @@ import { TextField } from '../app/components';
 
 import { Button } from '../app/components/Button';
 import { FormGrid } from '../app/components/FormGrid';
-import { Field, Form } from '../app/components/Field/Form';
+import { Field, Form } from '../app/components/Field';
 
 async function asyncSubmit(data) {
   action('submitStart')(data);

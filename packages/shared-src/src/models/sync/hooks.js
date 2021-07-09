@@ -1,10 +1,9 @@
-import { isEqual } from 'lodash';
 import { shouldPush } from './directions';
-import { propertyPathsToTree, ensurePathsAreExhaustive } from './metadata';
+import { ensurePathsAreExhaustive } from './metadata';
 
 const addHooksToNested = model => {
-  // for every relation defined in includedSyncRelations, including intermediates
-  for (const relationPath of ensurePathsAreExhaustive(model.includedSyncRelations)) {
+  // for every relation defined in includedRelations, including intermediates
+  for (const relationPath of ensurePathsAreExhaustive(model.syncConfig.includedRelations)) {
     // traverse a path like 'foo.bars.bazes' and retrieve an array of association metadata
     const pathSegments = relationPath.split('.');
     const associations = [];
@@ -57,28 +56,12 @@ export const initSyncClientModeHooks = models => {
           return;
         }
 
+        // we're using this the right way for a sequelize hook
+        // eslint-disable-next-line no-param-reassign
         record.markedForPush = true;
       });
 
       // add hook to nested sync relations
       addHooksToNested(model);
-
-      // add hooks to patient subchannels
-      if (model.syncParentIdKey === 'patientId') {
-        model.addHook('beforeSave', 'markPatientForPush', async record => {
-          if (!record.patientId) {
-            return;
-          }
-          if (record.changed('pushedAt')) {
-            return;
-          }
-          const patient = await model.sequelize.models.Patient.findByPk(record.patientId);
-          if (!patient) {
-            return;
-          }
-          patient.markedForSync = true;
-          await patient.save();
-        });
-      }
     });
 };

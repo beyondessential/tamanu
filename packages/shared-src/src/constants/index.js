@@ -35,6 +35,14 @@ export const LAB_REQUEST_STATUSES = {
   PUBLISHED: 'published',
 };
 
+export const LAB_REQUEST_STATUS_LABELS = {
+  [LAB_REQUEST_STATUSES.RECEPTION_PENDING]: 'Reception pending',
+  [LAB_REQUEST_STATUSES.RESULTS_PENDING]: 'Results pending',
+  [LAB_REQUEST_STATUSES.TO_BE_VERIFIED]: 'To be verified',
+  [LAB_REQUEST_STATUSES.VERIFIED]: 'Verified',
+  [LAB_REQUEST_STATUSES.PUBLISHED]: 'Published',
+};
+
 export const LAB_TEST_STATUSES = LAB_REQUEST_STATUSES;
 
 export const NOTE_TYPES = {
@@ -109,6 +117,8 @@ export const REFERENCE_TYPES = {
   LAB_TEST_CATEGORY: 'labTestCategory',
   LAB_TEST_TYPE: 'labTestType',
   LAB_TEST_PRIORITY: 'labTestPriority',
+  LAB_TEST_LABORATORY: 'labTestLaboratory',
+  LAB_TEST_METHOD: 'labTestMethod',
   FACILITY: 'facility',
   LOCATION: 'location',
   DEPARTMENT: 'department',
@@ -161,6 +171,7 @@ export const PROGRAM_DATA_ELEMENT_TYPES = {
   PHOTO: 'Photo',
   PATIENT_DATA: 'PatientData',
   USER_DATA: 'UserData',
+  PATIENT_ISSUE: 'PatientIssue',
 };
 export const PROGRAM_DATA_ELEMENT_TYPE_VALUES = Object.values(PROGRAM_DATA_ELEMENT_TYPES);
 
@@ -216,6 +227,8 @@ export const SYNC_DIRECTIONS = {
   PULL_ONLY: 'pull_only',
   BIDIRECTIONAL: 'bidirectional',
 };
+
+export const SYNC_DIRECTIONS_VALUES = Object.values(SYNC_DIRECTIONS);
 
 // these are arbitrary, the only thing that matters is they are shared between desktop and lan
 export const DISCOVERY_PORT = 53391;

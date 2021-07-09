@@ -1,5 +1,5 @@
 import asyncHandler from 'express-async-handler';
-import { unlink } from 'fs';
+import { unlink, existsSync } from 'fs';
 
 import { getUploadedData } from './getUploadedData';
 import { sendSyncRequest } from './sendSyncRequest';
@@ -18,6 +18,7 @@ export function createDataImporterEndpoint(importer) {
       file,
       deleteFileAfterImport,
       dryRun = false,
+      showRecords = false,
       allowErrors = false,
       ...metadata
     } = await getUploadedData(req);
@@ -41,6 +42,7 @@ export function createDataImporterEndpoint(importer) {
     const sendResult = (extraData = {}) => res.send({
       ...resultInfo,
       ...extraData,
+      records: showRecords ? recordGroups : undefined,
       duration: (Date.now() - start) / 1000.0,
     });
 

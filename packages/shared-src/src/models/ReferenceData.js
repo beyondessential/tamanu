@@ -34,6 +34,11 @@ export class ReferenceData extends Model {
             fields: ['code', 'type'],
           },
         ],
+        syncConfig: {
+          syncDirection: SYNC_DIRECTIONS.PULL_ONLY,
+          getChannels: () => ['reference'],
+          channelRoutes: [{ route: 'reference' }],
+        },
       },
     );
   }
@@ -52,11 +57,5 @@ export class ReferenceData extends Model {
       throw new InvalidOperationError('The type of a reference data item cannot be changed');
     }
     return super.update(values);
-  }
-
-  static syncDirection = SYNC_DIRECTIONS.PULL_ONLY;
-
-  static getChannels() {
-    return ['reference'];
   }
 }

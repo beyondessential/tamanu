@@ -1,5 +1,5 @@
 import { Sequelize, Op } from 'sequelize';
-import { chunk, flatten, memoize, without, pick, pickBy } from 'lodash';
+import { chunk, flatten, without, pick, pickBy } from 'lodash';
 import { propertyPathsToTree } from './metadata';
 
 // SQLite < v3.32 has a hard limit of 999 bound parameters per query
@@ -12,44 +12,44 @@ export const chunkRows = rows => {
   return chunk(rows, rowsPerChunk);
 };
 
-export const createImportPlan = memoize(model => {
-  const relationTree = propertyPathsToTree(model.includedSyncRelations);
-  return createImportPlanInner(model, relationTree, model.syncParentIdKey);
-});
+export const createImportPlan = (sequelize, channel) => {
+  return sequelize.channelRouter(channel, (model, params, channelRoute) => {
+    const relationTree = propertyPathsToTree(model.syncConfig.includedRelations);
+    const validateRecord = record => channelRoute.validate(record, params);
+    return createImportPlanInner(model, relationTree, validateRecord);
+  });
+};
 
-const createImportPlanInner = (model, relationTree, foreignKey) => {
+const createImportPlanInner = (model, relationTree, validateRecord) => {
   // columns
   const allColumns = Object.keys(model.tableAttributes);
-  const columns = without(allColumns, ...model.excludedSyncColumns);
+  const columns = without(allColumns, ...model.syncConfig.excludedColumns);
 
   //relations
   const children = Object.entries(relationTree).reduce((memo, [relationName, childTree]) => {
     const association = model.associations[relationName];
-    const childParentIdKey = association.foreignKey;
     const childModel = association.target;
     if (!childModel) {
       throw new Error(
-        `createImportPlan: no such relation ${relationName} (defined in includedSyncRelations on ${model.name})`,
+        `createImportPlan: no such relation ${relationName} (defined in includedRelations on ${model.name}.syncConfig)`,
       );
     }
-    const childPlan = createImportPlanInner(childModel, childTree, childParentIdKey);
+    const validateChild = (record, parentRecord) => {
+      if (record[association.foreignKey] !== parentRecord.id) {
+        throw new Error(
+          `import: validateChild: child ${childModel.name}<${record.id}> didn't match ${model.name}<${parentRecord.id}>`,
+        );
+      }
+    };
+    const childPlan = createImportPlanInner(childModel, childTree, validateChild);
     return { ...memo, [relationName]: childPlan };
   }, {});
 
-  return { model, columns, children, foreignKey };
+  return { model, columns, children, validateRecord };
 };
 
-export const executeImportPlan = async (plan, channel, syncRecords) => {
-  const { model } = plan;
-  let parentId = null;
-  if (plan.foreignKey) {
-    parentId = model.syncParentIdFromChannel(channel);
-    if (!parentId) {
-      throw new Error(
-        `Must provide parentId for models like ${model.name} with syncParentIdKey set`,
-      );
-    }
-  }
+export const executeImportPlan = async (plan, syncRecords) => {
+  const { model, validateRecord } = plan;
 
   return model.sequelize.transaction(async () => {
     // split records into create, update, delete
@@ -59,10 +59,16 @@ export const executeImportPlan = async (plan, channel, syncRecords) => {
     const existingIdSet = new Set(existing.map(e => e.id));
     const recordsForCreate = syncRecords
       .filter(r => !r.isDeleted && !existingIdSet.has(r.data.id))
-      .map(r => r.data);
+      .map(({ data }) => {
+        validateRecord(data, null);
+        return data;
+      });
     const recordsForUpdate = syncRecords
       .filter(r => !r.isDeleted && existingIdSet.has(r.data.id))
-      .map(r => r.data);
+      .map(({ data }) => {
+        validateRecord(data, null);
+        return data;
+      });
 
     // run each import process
     const createSuccessCount = await executeCreates(plan, recordsForCreate);
@@ -163,8 +169,6 @@ const executeUpdateOrCreates = async (
   }
 
   for (const [relationName, relationPlan] of Object.entries(children)) {
-    const { foreignKey } = relationPlan;
-
     const childRecords = flatten(
       // eslint-disable-next-line no-loop-func
       records.map(data => {
@@ -172,11 +176,10 @@ const executeUpdateOrCreates = async (
         if (!childrenOfRecord) {
           return [];
         }
-
-        return childrenOfRecord.map(child => ({
-          ...child.data,
-          [foreignKey]: data.id,
-        }));
+        return childrenOfRecord.map(({ data: childData }) => {
+          relationPlan.validateRecord(childData, data);
+          return childData;
+        });
       }),
     );
     if (childRecords && childRecords.length > 0) {

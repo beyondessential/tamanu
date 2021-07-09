@@ -34,16 +34,30 @@ labRequest.get(
     const { rowsPerPage = 10, page = 0, ...filterParams } = query;
 
     const filters = [
-      makeFilter(filterParams.requestId, `lab_requests.id = :requestId`),
       makeFilter(
         filterParams.status,
         `UPPER(lab_requests.status) LIKE UPPER(:status)`,
         ({ status }) => ({ status: `${status}%` }),
       ),
       makeFilter(
+        filterParams.requestId,
+        `UPPER(lab_requests.display_id) LIKE UPPER(:requestId)`,
+        ({ requestId }) => ({ requestId: `${requestId}%` }),
+      ),
+      makeFilter(
         filterParams.category,
         `UPPER(category.name) LIKE UPPER(:category)`,
         ({ category }) => ({ category: `${category}%` }),
+      ),
+      makeFilter(
+        filterParams.priority,
+        `UPPER(priority.name) LIKE UPPER(:priority)`,
+        ({ priority }) => ({ priority: `${priority}%` }),
+      ),
+      makeFilter(
+        filterParams.laboratory,
+        `UPPER(laboratory.name) LIKE UPPER(:laboratory)`,
+        ({ laboratory }) => ({ laboratory: `${laboratory}%` }),
       ),
       makeFilter(
         filterParams.displayId,
@@ -78,9 +92,13 @@ labRequest.get(
           ON (encounter.id = lab_requests.encounter_id)
         LEFT JOIN reference_data AS category
           ON (category.type = 'labTestCategory' AND lab_requests.lab_test_category_id = category.id)
-        INNER JOIN patients AS patient
+        LEFT JOIN reference_data AS priority
+          ON (priority.type = 'labTestPriority' AND lab_requests.lab_test_priority_id = priority.id)
+        LEFT JOIN reference_data AS laboratory
+          ON (laboratory.type = 'labTestLaboratory' AND lab_requests.lab_test_laboratory_id = laboratory.id)
+        LEFT JOIN patients AS patient
           ON (patient.id = encounter.patient_id)
-        INNER JOIN users AS examiner
+        LEFT JOIN users AS examiner
           ON (examiner.id = encounter.examiner_id)
       ${whereClauses && `WHERE ${whereClauses}`}
     `;
@@ -112,13 +130,18 @@ labRequest.get(
       `
         SELECT
           lab_requests.*,
-          patient.display_id AS patient_id,
+          patient.display_id AS patient_display_id,
+          patient.id AS patient_id,
           patient.first_name AS first_name,
           patient.last_name AS last_name,
           examiner.display_name AS requested_by,
           encounter.id AS encounter_id,
           category.id AS category_id,
-          category.name AS category_name
+          category.name AS category_name,
+          priority.id AS priority_id,
+          priority.name AS priority_name,
+          laboratory.id AS laboratory_id,
+          laboratory.name AS laboratory_name
         ${from}
 
         LIMIT :limit
