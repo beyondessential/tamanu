@@ -70,6 +70,7 @@ const transformers = [
   makeTransformer('patientBillingType', referenceDataTransformer('patientBillingType')),
   makeTransformer('labTestPriorities', referenceDataTransformer('labTestPriority')),
   makeTransformer('labTestLaboratory', referenceDataTransformer('labTestLaboratory')),
+  makeTransformer('labTestMethods', referenceDataTransformer('labTestMethod')),
   makeTransformer('users', recordTransformer('user')),
   makeTransformer('patients', patientDataTransformer),
   makeTransformer('labTestTypes', recordTransformer('labTestType')),
