@@ -11,7 +11,7 @@ const MODEL_COLUMN_TO_ANSWER_DISPLAY_VALUE = {
 
 const parametersToSqlWhere = parameters => {
   const defaultWhereClause = {
-    labTestTypeId: 'labTestType-COVID',
+    '$labRequest.lab_test_category_id$': 'labTestCategory-COVID',
   };
 
   if (!parameters || !Object.keys(parameters).length) {

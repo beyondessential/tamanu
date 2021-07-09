@@ -4,7 +4,7 @@ import { generateReportFromQueryData } from './utilities';
 
 const parametersToSqlWhere = parameters => {
   const defaultWhereClause = {
-    labTestTypeId: 'labTestType-COVID',
+    '$labRequest.lab_test_category_id$': 'labTestCategory-COVID',
   };
 
   if (!parameters || !Object.keys(parameters).length) {
@@ -69,30 +69,6 @@ export const dataGenerator = async (models, parameters = {}) => {
 
   const whereClause = parametersToSqlWhere(parameters);
 
-  const includes = [
-    {
-      model: models.LabRequest,
-      as: 'labRequest',
-      attributes: [],
-      include: [
-        {
-          model: models.Encounter,
-          as: 'encounter',
-          attributes: [],
-          include: [
-            {
-              model: models.Patient,
-              as: 'patient',
-              attributes: [],
-              include: [{ model: models.ReferenceData, as: 'village' }],
-            },
-          ],
-        },
-        { model: models.ReferenceData, as: 'laboratory' },
-      ],
-    },
-  ];
-
   const labTestData = await models.LabTest.findAll({
     includeIgnoreAttributes: false,
     attributes: [
@@ -100,7 +76,29 @@ export const dataGenerator = async (models, parameters = {}) => {
       'result',
       [Sequelize.literal(`COUNT(*)`), 'count'],
     ],
-    include: parameters.village || parameters.labTestLaboratory ? includes : undefined,
+    include: [
+      {
+        model: models.LabRequest,
+        as: 'labRequest',
+        attributes: [],
+        include: [
+          {
+            model: models.Encounter,
+            as: 'encounter',
+            attributes: [],
+            include: [
+              {
+                model: models.Patient,
+                as: 'patient',
+                attributes: [],
+                include: [{ model: models.ReferenceData, as: 'village' }],
+              },
+            ],
+          },
+          { model: models.ReferenceData, as: 'laboratory' },
+        ],
+      },
+    ],
     where: whereClause,
     group: ['testDate', 'result'],
     order: [[Sequelize.literal(`"testDate"`), 'ASC']],
