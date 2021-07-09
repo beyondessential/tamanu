@@ -271,60 +271,68 @@ describe('Sync API', () => {
       });
     });
 
-    it('should return nested encounter relationships', async () => {
-      // arrange
-      const patientId = uuidv4();
-      const encounter = await buildNestedEncounter(ctx.store, patientId);
-      await ctx.store.models.Encounter.create(encounter);
-      await upsertAssociations(ctx.store.models.Encounter, encounter);
+    const patientId = uuidv4();
+    [
+      `/v1/sync/patient%2F${patientId}%2Fencounter?since=0`,
+      `/v1/sync/labRequest%2Fall%2Fencounter?since=0`,
+    ].forEach(url => {
+      describe(`from the url ${url}`, () => {
+        it('should return nested encounter relationships', async () => {
+          // arrange
+          await ctx.store.models.Encounter.destroy({ where: {}, force: true });
+          const encounter = await buildNestedEncounter(ctx.store, patientId);
+          await ctx.store.models.Encounter.create(encounter);
+          await upsertAssociations(ctx.store.models.Encounter, encounter);
 
-      // act
-      const result = await app.get(`/v1/sync/patient%2F${patientId}%2Fencounter?since=0`);
+          // act
+          const result = await app.get(url);
 
-      // assert
-      expect(result.body).toMatchObject({
-        records: [
-          {
-            data: {
-              id: encounter.id,
-              administeredVaccines: [
-                {
-                  data: {
-                    id: encounter.administeredVaccines[0].id,
-                    encounterId: encounter.id,
-                  },
-                },
-              ],
-              surveyResponses: [
-                {
-                  data: {
-                    id: encounter.surveyResponses[0].id,
-                    encounterId: encounter.id,
-                    answers: [
-                      {
-                        data: {
-                          id: encounter.surveyResponses[0].answers[0].id,
-                          responseId: encounter.surveyResponses[0].id,
-                        },
+          // assert
+          expect(result.body).toMatchObject({
+            records: [
+              {
+                data: {
+                  id: encounter.id,
+                  administeredVaccines: [
+                    {
+                      data: {
+                        id: encounter.administeredVaccines[0].id,
+                        encounterId: encounter.id,
                       },
-                    ],
-                  },
+                    },
+                  ],
+                  surveyResponses: [
+                    {
+                      data: {
+                        id: encounter.surveyResponses[0].id,
+                        encounterId: encounter.id,
+                        answers: [
+                          {
+                            data: {
+                              id: encounter.surveyResponses[0].answers[0].id,
+                              responseId: encounter.surveyResponses[0].id,
+                            },
+                          },
+                        ],
+                      },
+                    },
+                  ],
                 },
-              ],
-            },
-          },
-        ],
-      });
-      [
-        [],
-        ['data', 'administeredVaccines', 0],
-        ['data', 'surveyResults', 0],
-        ['data', 'surveyResults', 0, 'answers', 0],
-        ['data', 'surveyResults', 0, 'data', 'answers', 0],
-      ].forEach(path => {
-        ['updatedAt', 'createdAt', 'deletedAt'].forEach(key => {
-          expect(result).not.toHaveProperty([...path, key]);
-          expect(result).not.toHaveProperty([...path, 'data', key]);
+              },
+            ],
+          });
+          [
+            [],
+            ['data', 'administeredVaccines', 0],
+            ['data', 'surveyResults', 0],
+            ['data', 'surveyResults', 0, 'answers', 0],
+            ['data', 'surveyResults', 0, 'data', 'answers', 0],
+          ].forEach(path => {
+            ['updatedAt', 'createdAt', 'deletedAt'].forEach(key => {
+              expect(result).not.toHaveProperty([...path, key]);
+              expect(result).not.toHaveProperty([...path, 'data', key]);
+            });
+          });
         });
       });
     });
@@ -383,46 +391,57 @@ describe('Sync API', () => {
       expect(data).toEqual(record.data);
     });
 
-    it('should upsert nested encounter relationships', async () => {
-      // arrange
-      const patientId = uuidv4();
-      const encounterToInsert = await buildNestedEncounter(ctx.store, patientId);
-      await ctx.store.models.Encounter.create(encounterToInsert);
-      await upsertAssociations(ctx.store.models.Encounter, encounterToInsert);
+    const patientId = uuidv4();
+    [
+      `/v1/sync/patient%2F${patientId}%2Fencounter?since=0`,
+      `/v1/sync/labRequest%2Fall%2Fencounter?since=0`,
+    ].forEach(url => {
+      describe(`from the url ${url}`, () => {
+        it('should upsert nested encounter relationships', async () => {
+          // arrange
+          await ctx.store.models.Encounter.destroy({ where: {}, force: true });
+          const encounterToInsert = await buildNestedEncounter(ctx.store, patientId);
+          await ctx.store.models.Encounter.create(encounterToInsert);
+          await upsertAssociations(ctx.store.models.Encounter, encounterToInsert);
 
-      // act
-      const getResult = await app.get(`/v1/sync/patient%2F${patientId}%2Fencounter?since=0`);
-      const syncEncounter = getResult.body.records.find(
-        ({ data }) => data.id === encounterToInsert.id,
-      );
-      syncEncounter.data.administeredVaccines[0].data.batch = 'test batch';
-      syncEncounter.data.surveyResponses[0].data.result = 3.141592;
-      syncEncounter.data.surveyResponses[0].data.answers[0].data.body = 'test body';
+          // act
+          const getResult = await app.get(url);
+          const syncEncounter = getResult.body.records.find(
+            ({ data }) => data.id === encounterToInsert.id,
+          );
+          syncEncounter.data.administeredVaccines[0].data.batch = 'test batch';
+          syncEncounter.data.surveyResponses[0].data.result = 3.141592;
+          syncEncounter.data.surveyResponses[0].data.answers[0].data.body = 'test body';
 
-      const result = await app
-        .post(`/v1/sync/patient%2F${patientId}%2Fencounter?since=0`)
-        .send(syncEncounter);
+          const result = await app
+            .post(`/v1/sync/patient%2F${patientId}%2Fencounter?since=0`)
+            .send(syncEncounter);
 
-      // assert
-      expect(result.body).toHaveProperty('count', 1);
-      const encounterAfterPost = await ctx.store.models.Encounter.findOne({
-        where: { patientId },
-        include: [
-          { association: 'administeredVaccines' },
-          { association: 'diagnoses' },
-          { association: 'medications' },
-          {
-            association: 'surveyResponses',
-            include: [{ association: 'answers' }],
-          },
-        ],
+          // assert
+          expect(result.body).toHaveProperty('count', 1);
+          const encounterAfterPost = await ctx.store.models.Encounter.findOne({
+            where: { patientId },
+            include: [
+              { association: 'administeredVaccines' },
+              { association: 'diagnoses' },
+              { association: 'medications' },
+              {
+                association: 'surveyResponses',
+                include: [{ association: 'answers' }],
+              },
+            ],
+          });
+          expect(encounterAfterPost).toHaveProperty(
+            ['administeredVaccines', 0, 'batch'],
+            'test batch',
+          );
+          expect(encounterAfterPost).toHaveProperty(['surveyResponses', 0, 'result'], 3.141592);
+          expect(encounterAfterPost).toHaveProperty(
+            ['surveyResponses', 0, 'answers', 0, 'body'],
+            'test body',
+          );
+        });
       });
-      expect(encounterAfterPost).toHaveProperty(['administeredVaccines', 0, 'batch'], 'test batch');
-      expect(encounterAfterPost).toHaveProperty(['surveyResponses', 0, 'result'], 3.141592);
-      expect(encounterAfterPost).toHaveProperty(
-        ['surveyResponses', 0, 'answers', 0, 'body'],
-        'test body',
-      );
     });
 
     it('should have count and requestedAt fields', async () => {

@@ -1,7 +1,10 @@
 import { Sequelize } from 'sequelize';
 import moment from 'moment';
+import config from 'config';
+
 import { ENCOUNTER_TYPES, ENCOUNTER_TYPE_VALUES, NOTE_TYPES } from 'shared/constants';
 import { InvalidOperationError } from 'shared/errors';
+
 import { initSyncForModelNestedUnderPatient } from './sync';
 import { Model } from './Model';
 
@@ -37,6 +40,7 @@ export class Encounter extends Model {
         },
       };
     }
+    const nestedSyncConfig = initSyncForModelNestedUnderPatient(this, 'encounter');
     const syncConfig = {
       includedRelations: [
         'administeredVaccines',
@@ -54,7 +58,31 @@ export class Encounter extends Model {
         'discharge',
         'triages',
       ],
-      ...initSyncForModelNestedUnderPatient(this, 'encounter'),
+      ...nestedSyncConfig,
+      channelRoutes: [
+        ...nestedSyncConfig.channelRoutes,
+        {
+          route: 'labRequest/:selector/encounter',
+          mustMatchRecord: false,
+          queryFromParams: ({ selector }) => {
+            if (selector === 'all') {
+              // all encounters that have a lab request
+              return {
+                where: {},
+                includes: [{ association: 'labRequests', required: true }],
+              };
+            }
+            throw new Error(`Encounter queryFromParams: unsupported selector: ${selector}`);
+          },
+        },
+      ],
+      getChannels: async patientId => {
+        const nestedChannels = await nestedSyncConfig.getChannels(patientId);
+        if (config.sync.syncAllLabRequests) {
+          return [...nestedChannels, 'labRequest/all/encounter'];
+        }
+        return nestedChannels;
+      },
     };
     super.init(
       {
