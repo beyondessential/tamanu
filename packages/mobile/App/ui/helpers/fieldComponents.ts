@@ -35,4 +35,5 @@ export const FieldByType = {
   [FieldTypes.PHOTO]: UploadPhoto,
   [FieldTypes.INSTRUCTION]: null,
   [FieldTypes.RESULT]: null,
+  [FieldTypes.PATIENT_ISSUE_GENERATOR]: ReadOnlyField,
 };

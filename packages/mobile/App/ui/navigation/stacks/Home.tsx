@@ -19,6 +19,7 @@ import { DeceasedStack } from './DeceasedStack';
 import { PatientActionsScreen } from '../screens/patientActions';
 import { HistoryVitalsStack } from './HistoryVitalsStack';
 import { ExportDataScreen } from '../screens/home/ExportDataScreen';
+import { LabRequestStack } from './LabRequestStack';
 // Helpers
 import { noSwipeGestureOnNavigator } from '/helpers/navigators';
 import { Routes } from '/helpers/routes';
@@ -99,6 +100,10 @@ export const HomeStack = ({ navigator: Navi }): ReactElement => {
       <Stack.Screen
         name={Routes.HomeStack.DeceasedStack.Index}
         component={DeceasedStack}
+      />
+      <Stack.Screen
+        name={Routes.HomeStack.LabRequestStack.Index}
+        component={LabRequestStack}
       />
     </Stack.Navigator>
   );
