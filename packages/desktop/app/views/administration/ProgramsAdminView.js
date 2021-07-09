@@ -1,4 +1,5 @@
 import React, { memo, useState, useCallback } from 'react';
+import styled from 'styled-components';
 
 import { readFileSync } from 'fs';
 
@@ -10,18 +11,24 @@ function readFileAsBlob(path) {
   return new Blob([fileData]);
 }
 
-export const ProgramsAdminView = memo(({ onSubmit }) => {
+const Container = styled.div`
+  padding: 32px;
+`;
+
+
+export const ProgramsAdminView = memo(() => {
   const api = useApi();
   const onSubmit = useCallback(
     async ({ file, ...data }) => {
       const fileData = readFileAsBlob(file);
       // send to api
-      api.postUpload('admin/importProgram', {
+      const response = await api.multipart('admin/importProgram', {
+        file: fileData,
         ...data,
-        fileData,
       });
-    },
-    [onSubmit],
+
+      return response;
+    }
   );
 
   return (

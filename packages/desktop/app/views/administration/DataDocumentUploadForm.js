@@ -1,5 +1,4 @@
 import React, { memo, useState, useCallback } from 'react';
-import styled from 'styled-components';
 import * as yup from 'yup';
 
 import { 
@@ -12,23 +11,10 @@ import { FileChooserField, FILTER_EXCEL } from 'desktop/app/components/Field/Fil
 import { FormGrid } from 'desktop/app/components/FormGrid';
 import { ButtonRow } from 'desktop/app/components/ButtonRow';
 
-// import { readFileSync } from 'fs';
-
 import { Button } from 'desktop/app/components/Button';
 
 import { ImportStatsDisplay } from './components/ImportStatsDisplay';
 import { ImportErrorsTable } from './components/ImportErrorsTable';
-
-const Container = styled.div`
-  padding: 32px;
-`;
-
-/*
-function readFileAsBlob(path) {
-  const fileData = readFileSync(path);
-  return new Blob([fileData]);
-}
-*/
 
 const ProgramUploadForm = ({ submitForm, isSubmitting, ...rest }) => (
   <FormGrid columns={1}>
@@ -105,7 +91,7 @@ export const DataDocumentUploadForm = memo(({ onSubmit, onReceiveResult }) => {
   const [result, setResult] = useState(null);
 
   const onSubmitUpload = useCallback(
-    async ({ file, ...data }) => {
+    async (data) => {
       const result = await onSubmit(data);
 
       if(result.sentData) {
@@ -123,7 +109,7 @@ export const DataDocumentUploadForm = memo(({ onSubmit, onReceiveResult }) => {
   );
 
   return (
-    <Container>
+    <React.Fragment>
       <Form
         key={resetKey}
         onSubmit={onSubmitUpload}
@@ -135,6 +121,6 @@ export const DataDocumentUploadForm = memo(({ onSubmit, onReceiveResult }) => {
         render={ProgramUploadForm}
       />
       <OutcomeDisplay result={result} />
-    </Container>
+    </React.Fragment>
   );
 });
