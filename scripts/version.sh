@@ -1,8 +1,8 @@
 #!/usr/bin/env bash
 
-V=$1
+VERSION=$1
 
-if [ -z "$V" ]; then
+if [ -z "$VERSION" ]; then
   cat << EOF
 This script sets all the relevant version numbers in the repo 
 
@@ -15,11 +15,11 @@ fi
 TEMP_PATH=/tmp/package_json_version_bump
 version() {
   echo "  $1"
-  cat $1 | jq '.version = $v' --arg v $V > $TEMP_PATH
+  cat $1 | jq '.version = $v' --arg v $VERSION > $TEMP_PATH
   mv $TEMP_PATH $1
 }
 
-echo "Bumping package.jsons to $V"
+echo "Bumping package.jsons to $VERSION"
 version package.json
 version packages/desktop/package.json
 version packages/desktop/app/package.json
