@@ -135,7 +135,7 @@ export const dataGenerator = async (models, parameters = {}) => {
     { title: 'Requested date', accessor: data => data.requestedDate },
     { title: 'Priority', accessor: data => data.priority },
     { title: 'Testing laboratory', accessor: data => data.testingLaboratory },
-    //TODO: Add Testing date
+    { title: 'Testing date', accessor: data => data.testingDate },
     { title: 'Health facility', accessor: data => data.healthFacility },
     { title: 'Ward', accessor: data => data.ward },
     { title: 'Division', accessor: data => data.division },
@@ -239,6 +239,7 @@ export const dataGenerator = async (models, parameters = {}) => {
       result: labTest.result,
       requestedBy: labTest.labRequest?.requestedBy?.displayName,
       requestedDate: moment(labTest.date).format('DD-MM-YYYY'),
+      testingDate: moment(labTest.completedDate).format('DD-MM-YYYY'),
       priority: labTest.labRequest?.priority?.name,
       testingLaboratory: labTest.labRequest?.laboratory?.name,
       healthFacility: getAnswer(`${encounterId}|pde-FijCOVSamp4`),
