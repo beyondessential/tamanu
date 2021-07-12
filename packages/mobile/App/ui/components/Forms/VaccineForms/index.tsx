@@ -5,6 +5,7 @@ import { VaccineFormGiven } from './VaccineFormGiven';
 import { FullView } from '/styled/common';
 import { VaccineStatus } from '~/ui/helpers/patient';
 import { InjectionSiteType } from '~/types';
+import * as Yup from 'yup';
 
 const getFormType = (status: VaccineStatus): { Form: FC<any> } => {
   switch (status) {
@@ -60,6 +61,9 @@ export const VaccineForm = ({
     <FullView>
       <Formik
         onSubmit={onSubmit}
+        validationSchema={Yup.object().shape({
+            date: Yup.date().required(),
+        })}
         initialValues={createInitialValues({ ...initialValues, status })}
       >
         {({ handleSubmit }): JSX.Element => (
