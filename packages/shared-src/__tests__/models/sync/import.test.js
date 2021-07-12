@@ -116,7 +116,7 @@ describe('import', () => {
           // arrange
           const model = models[modelName];
           const record = await fakeRecord();
-          const channel = overrideChannel || (await model.getChannels())[0];
+          const channel = overrideChannel || (await model.syncConfig.getChannels())[0];
 
           // act
           const plan = createImportPlan(model.sequelize, channel);
@@ -149,7 +149,7 @@ describe('import', () => {
             ...(await fakeRecord()),
             id: oldRecord.id,
           };
-          const channel = overrideChannel || (await model.getChannels())[0];
+          const channel = overrideChannel || (await model.syncConfig.getChannels())[0];
 
           // act
           const plan = createImportPlan(model.sequelize, channel);
@@ -171,7 +171,7 @@ describe('import', () => {
           const model = models[modelName];
           const record = await fakeRecord();
           await model.create(record);
-          const channel = overrideChannel || (await model.getChannels())[0];
+          const channel = overrideChannel || (await model.syncConfig.getChannels())[0];
 
           // act
           const plan = createImportPlan(model.sequelize, channel);
@@ -187,83 +187,88 @@ describe('import', () => {
     describe('Encounter', () => {
       const buildEncounterWithId = optionalEncounterId =>
         buildNestedEncounter(context, patientId, optionalEncounterId);
-      const channel = `patient/${patientId}/encounter`;
-      const options = {
-        include: [
-          { association: 'administeredVaccines' },
-          { association: 'diagnoses' },
-          { association: 'medications' },
-          {
-            association: 'surveyResponses',
-            include: [{ association: 'answers' }],
-          },
-          {
-            association: 'labRequests',
-            include: [{ association: 'tests' }],
-          },
-          { association: 'imagingRequests' },
-        ],
-      };
 
-      it('creates the record', async () => {
-        // arrange
-        const model = models.Encounter;
-        const record = await buildEncounterWithId();
+      [`patient/${patientId}/encounter`, 'labRequest/all/encounter'].forEach(channel => {
+        const options = {
+          include: [
+            { association: 'administeredVaccines' },
+            { association: 'diagnoses' },
+            { association: 'medications' },
+            {
+              association: 'surveyResponses',
+              include: [{ association: 'answers' }],
+            },
+            {
+              association: 'labRequests',
+              include: [{ association: 'tests' }],
+            },
+            { association: 'imagingRequests' },
+          ],
+        };
 
-        // act
-        const plan = createImportPlan(model.sequelize, channel);
-        await executeImportPlan(plan, [toSyncRecord(record)]);
+        it('creates the record', async () => {
+          // arrange
+          const model = models.Encounter;
+          const record = await buildEncounterWithId();
 
-        // assert
-        const dbRecord = await model.findByPk(record.id, options);
-        expect(dbRecord.get({ plain: true })).toMatchObject({
-          ...record,
-          ...(model.tableAttributes.pushedAt
-            ? { pulledAt: expect.any(Date), markedForPush: false }
-            : {}),
+          // act
+          const plan = createImportPlan(model.sequelize, channel);
+          await executeImportPlan(plan, [toSyncRecord(record)]);
+
+          // assert
+          const dbRecord = await model.findByPk(record.id, options);
+          expect(dbRecord.get({ plain: true })).toMatchObject({
+            ...record,
+            ...(model.tableAttributes.pushedAt
+              ? { pulledAt: expect.any(Date), markedForPush: false }
+              : {}),
+          });
         });
-      });
 
-      it('updates the record', async () => {
-        // arrange
-        const model = models.Encounter;
-        const isPushable = !!model.tableAttributes.pushedAt;
-        const oldRecord = await buildEncounterWithId();
-        await model.create(oldRecord);
-        if (isPushable) {
-          // the newly created record should have markedForPush set to true initially
-          await expect(model.findByPk(oldRecord.id)).resolves.toHaveProperty('markedForPush', true);
-        }
-        const newRecord = await buildEncounterWithId(oldRecord.id);
+        it('updates the record', async () => {
+          // arrange
+          const model = models.Encounter;
+          const isPushable = !!model.tableAttributes.pushedAt;
+          const oldRecord = await buildEncounterWithId();
+          await model.create(oldRecord);
+          if (isPushable) {
+            // the newly created record should have markedForPush set to true initially
+            await expect(model.findByPk(oldRecord.id)).resolves.toHaveProperty(
+              'markedForPush',
+              true,
+            );
+          }
+          const newRecord = await buildEncounterWithId(oldRecord.id);
 
-        // act
-        const plan = createImportPlan(model.sequelize, channel);
-        await executeImportPlan(plan, [toSyncRecord(newRecord)]);
+          // act
+          const plan = createImportPlan(model.sequelize, channel);
+          await executeImportPlan(plan, [toSyncRecord(newRecord)]);
 
-        // assert
-        const dbRecord = await model.findByPk(oldRecord.id, { ...options, plain: true });
-        expect(dbRecord).toMatchObject(newRecord);
-        if (isPushable) {
-          expect(dbRecord.pulledAt).toEqual(expect.any(Date));
-          // even if there were pending changes, they will have been overwritten by the import
-          // from the server, so should change markedForPush status to false
-          expect(dbRecord.markedForPush).toEqual(false);
-        }
-      });
+          // assert
+          const dbRecord = await model.findByPk(oldRecord.id, { ...options, plain: true });
+          expect(dbRecord).toMatchObject(newRecord);
+          if (isPushable) {
+            expect(dbRecord.pulledAt).toEqual(expect.any(Date));
+            // even if there were pending changes, they will have been overwritten by the import
+            // from the server, so should change markedForPush status to false
+            expect(dbRecord.markedForPush).toEqual(false);
+          }
+        });
 
-      it('deletes tombstones', async () => {
-        // arrange
-        const model = models.Encounter;
-        const record = await buildEncounterWithId();
-        await model.create(record);
+        it('deletes tombstones', async () => {
+          // arrange
+          const model = models.Encounter;
+          const record = await buildEncounterWithId();
+          await model.create(record);
 
-        // act
-        const plan = createImportPlan(model.sequelize, channel);
-        await executeImportPlan(plan, [{ ...toSyncRecord(record), isDeleted: true }]);
+          // act
+          const plan = createImportPlan(model.sequelize, channel);
+          await executeImportPlan(plan, [{ ...toSyncRecord(record), isDeleted: true }]);
 
-        // assert
-        const dbRecord = await model.findByPk(record.id, options);
-        expect(dbRecord).toEqual(null);
+          // assert
+          const dbRecord = await model.findByPk(record.id, options);
+          expect(dbRecord).toEqual(null);
+        });
       });
     });
   });

@@ -1,6 +1,5 @@
 import { Sequelize } from 'sequelize';
-import { SYNC_DIRECTIONS } from 'shared/constants';
-import { nestClassUnderPatientForSync } from './sync';
+import { initSyncForModelNestedUnderPatient } from './sync';
 import { Model } from './Model';
 
 export class PatientCarePlan extends Model {
@@ -10,7 +9,10 @@ export class PatientCarePlan extends Model {
         id: primaryKey,
         date: { type: Sequelize.DATE, defaultValue: Sequelize.NOW, allowNull: false },
       },
-      options,
+      {
+        ...options,
+        syncConfig: initSyncForModelNestedUnderPatient(this, 'carePlan'),
+      },
     );
   }
 
@@ -23,10 +25,4 @@ export class PatientCarePlan extends Model {
   static getListReferenceAssociations() {
     return ['carePlan', 'examiner'];
   }
-
-  static syncDirection = SYNC_DIRECTIONS.BIDIRECTIONAL;
-
-  static channelRoutes = ['patient/:patientId/carePlan'];
 }
-
-nestClassUnderPatientForSync(PatientCarePlan, 'carePlan');

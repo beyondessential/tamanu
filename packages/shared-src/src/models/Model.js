@@ -1,6 +1,5 @@
 import * as sequelize from 'sequelize';
-import { lowerFirst } from 'lodash';
-import { SYNC_DIRECTIONS } from 'shared/constants';
+import { SyncConfig } from './sync';
 
 const { Sequelize, Op, Utils } = sequelize;
 
@@ -22,7 +21,7 @@ const MARKED_FOR_PUSH_MODELS = [
 ];
 
 export class Model extends sequelize.Model {
-  static init(originalAttributes, { syncClientMode, ...options }) {
+  static init(originalAttributes, { syncClientMode, syncConfig, ...options }) {
     const attributes = { ...originalAttributes };
     if (syncClientMode && MARKED_FOR_PUSH_MODELS.includes(this.name)) {
       attributes.markedForPush = {
@@ -36,6 +35,7 @@ export class Model extends sequelize.Model {
     super.init(attributes, options);
     this.syncClientMode = syncClientMode;
     this.defaultIdValue = attributes.id.defaultValue;
+    this.syncConfig = new SyncConfig(this, syncConfig);
   }
 
   static generateId() {
@@ -109,21 +109,6 @@ export class Model extends sequelize.Model {
     return this.getListReferenceAssociations();
   }
 
-  static includedSyncRelations = [];
-
-  static excludedSyncColumns = ['createdAt', 'updatedAt', 'markedForPush', 'markedForSync'];
-
-  // determines whether a mdoel will be pushed, pulled, both, or neither
-  static syncDirection = SYNC_DIRECTIONS.DO_NOT_SYNC;
-
-  // returns one or more channels to push to
-  static getChannels() {
-    return [lowerFirst(this.name)];
-  }
-
-  // list of channels that the model should be available on
-  static channelRoutes = [];
-
   static async findByIds(ids) {
     return this.findAll({
       where: { id: { [Op.in]: ids } },
@@ -138,4 +123,6 @@ export class Model extends sequelize.Model {
   static afterInit(fn) {
     this.afterInitCallbacks.push(fn);
   }
+
+  static syncConfig = {};
 }

@@ -1,37 +1,30 @@
-import { Sequelize } from 'sequelize';
+import { Sequelize, Op } from 'sequelize';
 import { without } from 'lodash';
 import { propertyPathsToTree } from './metadata';
 import { getSyncCursorFromRecord, syncCursorToWhereCondition } from './cursor';
 
-import {
-  paramsToParentIdConfigs,
-  associationToParentIdConfigs,
-  extractStaticParentIds,
-  extractDynamicParentIds,
-} from './parentIds';
-
 export const createExportPlan = (sequelize, channel) => {
-  return sequelize.channelRouter(channel, (model, params) => {
-    const relationTree = propertyPathsToTree(model.includedSyncRelations);
-    const parentIdConfigs = paramsToParentIdConfigs(params);
-    return createExportPlanInner(model, relationTree, parentIdConfigs);
+  return sequelize.channelRouter(channel, (model, params, channelRoute) => {
+    const relationTree = propertyPathsToTree(model.syncConfig.includedRelations);
+    const { where, includes } = channelRoute.queryFromParams(params);
+    return createExportPlanInner(model, relationTree, { where, includes });
   });
 };
 
-const createExportPlanInner = (model, relationTree, parentIdConfigs) => {
+const createExportPlanInner = (model, relationTree, query) => {
   // generate nested association exporters
   const associations = Object.entries(relationTree).reduce((memo, [associationName, subTree]) => {
     const association = model.associations[associationName];
-    const childParentIdConfigs = associationToParentIdConfigs(association);
+    const { foreignKey } = association;
     return {
       ...memo,
-      [associationName]: createExportPlanInner(association.target, subTree, childParentIdConfigs),
+      [associationName]: createExportPlanInner(association.target, subTree, { foreignKey }),
     };
   }, {});
 
   // generate formatters for columns
   const allColumnNames = Object.keys(model.tableAttributes);
-  const columns = without(allColumnNames, ...model.excludedSyncColumns).reduce(
+  const columns = without(allColumnNames, ...model.syncConfig.excludedColumns).reduce(
     (memo, columnName) => {
       const columnType = model.tableAttributes[columnName].type;
       let formatter = null; // default to passing the value straight through
@@ -43,43 +36,43 @@ const createExportPlanInner = (model, relationTree, parentIdConfigs) => {
     {},
   );
 
-  return { model, associations, parentIdConfigs, columns };
+  return { model, associations, columns, query };
 };
 
 export const executeExportPlan = async (plan, { since, limit = 100 }) => {
-  const { model, parentIdConfigs } = plan;
-  const { syncClientMode } = model;
+  const { syncClientMode } = plan.model;
+
+  // add clauses to where query
+  const whereClauses = [];
+  if (plan.query.where) {
+    whereClauses.push(plan.query.where);
+  }
+  if (syncClientMode) {
+    // only push marked records in server mode
+    whereClauses.push({ markedForPush: true });
+  }
+  if (since) {
+    whereClauses.push(syncCursorToWhereCondition(since));
+  }
+
+  // build options
   const options = {
-    where: {},
     order: [
       // order by clause must remain consistent for the sync cursor to work - don't change!
       ['updated_at', 'ASC'],
       ['id', 'ASC'],
     ],
+    where: {
+      [Op.and]: whereClauses,
+    },
+    includes: plan.query.includes,
   };
-  if (syncClientMode) {
-    // only push marked records in server mode
-    options.where.markedForPush = true;
-  }
   if (!syncClientMode) {
     // load deleted records in server mode
     options.paranoid = false;
   }
-  if (parentIdConfigs) {
-    const parentIds = extractStaticParentIds(parentIdConfigs);
-    options.where = {
-      ...options.where,
-      ...parentIds,
-    };
-  }
   if (limit) {
     options.limit = limit;
-  }
-  if (since) {
-    options.where = {
-      ...options.where,
-      ...syncCursorToWhereCondition(since),
-    };
   }
 
   return executeExportPlanInner(plan, options);
@@ -108,8 +101,15 @@ const executeExportPlanInner = async (plan, options) => {
 
       // query associations
       for (const [associationName, associationPlan] of Object.entries(associations)) {
-        const parentIds = extractDynamicParentIds(associationPlan.parentIdConfigs, dbRecord);
-        const associationOptions = { where: parentIds };
+        const { foreignKey } = associationPlan.query;
+        if (!foreignKey) {
+          throw new Error(`executeExportPlanInner: missing foreign key for ${associationName}`);
+        }
+        const associationOptions = {
+          where: {
+            [foreignKey]: dbRecord.id,
+          },
+        };
         const { records: innerRecords } = await executeExportPlanInner(
           associationPlan,
           associationOptions,

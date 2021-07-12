@@ -1,6 +1,6 @@
 import { Sequelize } from 'sequelize';
-import { Model } from './Model';
 import { SYNC_DIRECTIONS } from 'shared/constants';
+import { Model } from './Model';
 
 export class Program extends Model {
   static init({ primaryKey, ...options }) {
@@ -13,6 +13,7 @@ export class Program extends Model {
       {
         ...options,
         indexes: [{ unique: true, fields: ['code'] }],
+        syncConfig: { syncDirection: SYNC_DIRECTIONS.PULL_ONLY },
       },
     );
   }
@@ -23,8 +24,4 @@ export class Program extends Model {
       foreignKey: 'programId',
     });
   }
-
-  static syncDirection = SYNC_DIRECTIONS.PULL_ONLY;
-
-  static channelRoutes = ['program'];
 }

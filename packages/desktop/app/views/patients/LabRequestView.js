@@ -19,6 +19,7 @@ import { LAB_REQUEST_STATUS_LABELS } from '../../constants';
 
 import { capitaliseFirstLetter } from '../../utils/capitalise';
 import { ChangeLaboratoryModal } from '../../components/ChangeLaboratoryModal';
+import { DateDisplay } from '../../components';
 
 const makeRangeStringAccessor = sex => row => {
   const type = row.labTestType;
@@ -30,6 +31,9 @@ const makeRangeStringAccessor = sex => row => {
   return `${type.femaleMin} – ${type.femaleMax}`;
 };
 
+const getDate = ({ completedDate }) => <DateDisplay date={completedDate} />;
+const getMethod = ({ labTestMethod }) => (labTestMethod || {}).name || 'Unknown';
+
 const columns = sex => [
   { title: 'Test', key: 'type', accessor: row => row.labTestType.name },
   {
@@ -38,6 +42,9 @@ const columns = sex => [
     accessor: ({ result }) => (result ? capitaliseFirstLetter(result) : ''),
   },
   { title: 'Reference', key: 'reference', accessor: makeRangeStringAccessor(sex) },
+  { title: 'Method', key: 'labTestMethod', accessor: getMethod, sortable: false },
+  { title: 'Laboratory officer', key: 'laboratoryOfficer' },
+  { title: 'Completed', key: 'completedDate', accessor: getDate, sortable: false },
 ];
 
 const ResultsPane = React.memo(({ labRequest, patient }) => {
@@ -47,7 +54,6 @@ const ResultsPane = React.memo(({ labRequest, patient }) => {
   const closeModal = React.useCallback(() => setModalOpen(false), [setModalOpen]);
   const openModal = React.useCallback(
     test => {
-      if (test.result) return;
       setActiveTest(test);
       setModalOpen(true);
     },

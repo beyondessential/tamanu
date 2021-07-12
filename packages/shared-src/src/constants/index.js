@@ -118,6 +118,7 @@ export const REFERENCE_TYPES = {
   LAB_TEST_TYPE: 'labTestType',
   LAB_TEST_PRIORITY: 'labTestPriority',
   LAB_TEST_LABORATORY: 'labTestLaboratory',
+  LAB_TEST_METHOD: 'labTestMethod',
   FACILITY: 'facility',
   LOCATION: 'location',
   DEPARTMENT: 'department',
@@ -226,6 +227,8 @@ export const SYNC_DIRECTIONS = {
   PULL_ONLY: 'pull_only',
   BIDIRECTIONAL: 'bidirectional',
 };
+
+export const SYNC_DIRECTIONS_VALUES = Object.values(SYNC_DIRECTIONS);
 
 // these are arbitrary, the only thing that matters is they are shared between desktop and lan
 export const DISCOVERY_PORT = 53391;

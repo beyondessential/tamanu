@@ -36,11 +36,8 @@ describe('export', () => {
 
   const testCases = [
     ['Patient', fakePatient],
-    [
-      'Encounter',
-      async () => buildNestedEncounter(context, patientId),
-      `patient/${patientId}/encounter`,
-    ],
+    ['Encounter', () => buildNestedEncounter(context, patientId), `patient/${patientId}/encounter`],
+    ['Encounter', () => buildNestedEncounter(context, patientId), 'labRequest/all/encounter'],
     [
       'PatientAllergy',
       () => ({ ...fake(models.PatientAllergy), patientId }),
@@ -86,7 +83,7 @@ describe('export', () => {
       it('exports pages of records', async () => {
         // arrange
         const model = models[modelName];
-        const channel = overrideChannel || (await model.getChannels())[0];
+        const channel = overrideChannel || (await model.syncConfig.getChannels())[0];
         const plan = createExportPlan(model.sequelize, channel);
         await model.truncate();
         const records = [await fakeRecord(), await fakeRecord()];

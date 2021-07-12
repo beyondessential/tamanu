@@ -34,6 +34,11 @@ export class ReferenceData extends Model {
             fields: ['code', 'type'],
           },
         ],
+        syncConfig: {
+          syncDirection: SYNC_DIRECTIONS.PULL_ONLY,
+          getChannels: () => ['reference'],
+          channelRoutes: [{ route: 'reference' }],
+        },
       },
     );
   }
@@ -53,12 +58,4 @@ export class ReferenceData extends Model {
     }
     return super.update(values);
   }
-
-  static syncDirection = SYNC_DIRECTIONS.PULL_ONLY;
-
-  static getChannels() {
-    return ['reference'];
-  }
-
-  static channelRoutes = ['reference'];
 }

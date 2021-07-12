@@ -21,9 +21,42 @@ const servers = [
     type: 'live',
     host: 'https://motivation-sync-png.tamanu.io',
   },
+  {
+    name: 'Motivation Australia - India',
+    type: 'live',
+    host: 'https://motivation-sync-india.tamanu.io',
+  },
   { name: 'Nauru', type: 'live', host: 'https://sync.tamanu-nauru.org' },
 ];
 
 serversRouter.get('/', (req, res) => {
   res.send(servers);
+});
+
+serversRouter.get('/readable', (req, res) => {
+  const rows = servers.map(s => `
+    <tr>
+      <td>${s.name}</td>
+      <td>${s.type}</td>
+      <td><a href="${s.host}">${s.host}</a></td>
+    </tr>
+  `).join('');
+  const template = `
+    <!doctype html>
+    <html>
+      <head><title>Server index</title></head>
+      <body>
+        <table>
+          <tr>
+            <th>Name</th>
+            <th>Type</th>
+            <th>Host</th>
+          </tr>
+          ${rows}
+        </table>
+      </body>
+    </html>
+  `;
+  
+  res.send(template);
 });
