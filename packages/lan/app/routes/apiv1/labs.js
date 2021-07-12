@@ -100,6 +100,8 @@ labRequest.get(
           ON (patient.id = encounter.patient_id)
         LEFT JOIN users AS examiner
           ON (examiner.id = encounter.examiner_id)
+        LEFT JOIN users AS requester
+          ON (requester.id = lab_requests.requested_by_id)
       ${whereClauses && `WHERE ${whereClauses}`}
     `;
 
@@ -134,7 +136,8 @@ labRequest.get(
           patient.id AS patient_id,
           patient.first_name AS first_name,
           patient.last_name AS last_name,
-          examiner.display_name AS requested_by,
+          examiner.display_name AS examiner,
+          requester.display_name AS requested_by,
           encounter.id AS encounter_id,
           category.id AS category_id,
           category.name AS category_name,
