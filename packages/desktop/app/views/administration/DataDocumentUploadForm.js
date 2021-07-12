@@ -16,7 +16,7 @@ import { Button } from 'desktop/app/components/Button';
 import { ImportStatsDisplay } from './components/ImportStatsDisplay';
 import { ImportErrorsTable } from './components/ImportErrorsTable';
 
-const ProgramUploadForm = ({ submitForm, isSubmitting, ...rest }) => (
+const ProgramUploadForm = ({ submitForm, isSubmitting, additionalFields, ...rest }) => (
   <FormGrid columns={1}>
     <Field
       component={CheckField}
@@ -37,6 +37,7 @@ const ProgramUploadForm = ({ submitForm, isSubmitting, ...rest }) => (
       name="file"
       required
     />
+    {additionalFields || null}
     <ButtonRow>
       <Button
         disabled={isSubmitting}
@@ -57,7 +58,7 @@ const OutcomeHeader = ({ result }) => {
     );
   } else if (result.didntSendReason === 'validationFailed') {
     return (
-      <h3>Please fix correct these validation issues and try again</h3>
+      <h3>Please correct these validation issues and try again</h3>
     );
   } else if (result.didntSendReason === 'dryRun') {
     return (
@@ -79,14 +80,16 @@ const OutcomeDisplay = ({ result }) => {
     <div>
       <OutcomeHeader result={result} />
       <hr />
-      {result.errors && (
+      <div>{`Target server: ${result.serverInfo.host}`}</div>
+      <h4>Records imported</h4>
+      <ImportStatsDisplay stats={result.stats} />
+      <h4>Validation results</h4>
       <ImportErrorsTable errors={result.errors} />
-      )}
     </div>
   );
 };
 
-export const DataDocumentUploadForm = memo(({ onSubmit, onReceiveResult }) => {
+export const DataDocumentUploadForm = memo(({ onSubmit, onReceiveResult, additionalFields }) => {
   const [resetKey, setResetKey] = useState(Math.random());
   const [result, setResult] = useState(null);
 
@@ -108,6 +111,13 @@ export const DataDocumentUploadForm = memo(({ onSubmit, onReceiveResult }) => {
     [onSubmit],
   );
 
+  const renderForm = useCallback(props => (
+    <ProgramUploadForm
+      {...props}
+      additionalFields={additionalFields}
+    />
+  ));
+
   return (
     <React.Fragment>
       <Form
@@ -118,7 +128,11 @@ export const DataDocumentUploadForm = memo(({ onSubmit, onReceiveResult }) => {
           allowErrors: yup.bool(),
           file: yup.string(),
         })}
-        render={ProgramUploadForm}
+        initialValues={{
+          dryRun: true,
+        }}
+        render={renderForm}
+        pingu="1231231"
       />
       <OutcomeDisplay result={result} />
     </React.Fragment>

@@ -159,9 +159,11 @@ export class TamanuApi {
 
   async multipart(endpoint, body) {
     const formData = new FormData();
-    Object.entries(body).map(([key, value]) => {
-      formData.append(key, value);
-    });
+
+    const { file, ...metadata } = body;
+
+    formData.append('jsonData', JSON.stringify(metadata));
+    formData.append('file', body.file);
 
     return this.fetch(endpoint, null, {
       method: 'POST',

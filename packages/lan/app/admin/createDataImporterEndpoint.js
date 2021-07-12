@@ -23,6 +23,8 @@ export function createDataImporterEndpoint(importer) {
       ...metadata
     } = await getUploadedData(req);
 
+    console.log("allow errors param", allowErrors);
+
     // parse uploaded file
     const recordSet = await importer({
       file,
@@ -56,11 +58,13 @@ export function createDataImporterEndpoint(importer) {
     }
 
     // send to sync server in batches
+    /*
     const remote = new WebRemote();
     for(const [recordType, record] of recordGroups) {
       const endpoint = (recordType === 'referenceData') ? 'reference' : recordType;
       await sendSyncRequest(remote, endpoint, record);
     }
+    */
 
     sendResult({ sentData: true });
   });
