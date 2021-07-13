@@ -24,14 +24,14 @@ module.exports = {
       lab_request_id: {
         type: Sequelize.STRING,
         references: {
-          model: 'lab_request',
+          model: 'lab_requests',
           key: 'id',
         },
       },
       updated_by_id: {
         type: Sequelize.STRING,
         references: {
-          model: 'user',
+          model: 'users',
           key: 'id',
         },
       },
