@@ -96,9 +96,13 @@ export class TamanuApi {
   }
 
   async refreshToken() {
-    const response = await this.post('refresh');
-    const { token } = response;
-    this.setToken(token);
+    try {
+      const response = await this.post('refresh');
+      const { token } = response;
+      this.setToken(token);
+    } catch (e) {
+      console.error(e);
+    }
   }
 
   setToken(token) {
