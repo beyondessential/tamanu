@@ -6,8 +6,8 @@ import { getSyncCursorFromRecord, syncCursorToWhereCondition } from './cursor';
 export const createExportPlan = (sequelize, channel) => {
   return sequelize.channelRouter(channel, (model, params, channelRoute) => {
     const relationTree = propertyPathsToTree(model.syncConfig.includedRelations);
-    const { where, includes } = channelRoute.queryFromParams(params);
-    return createExportPlanInner(model, relationTree, { where, includes });
+    const { where, include } = channelRoute.queryFromParams(params);
+    return createExportPlanInner(model, relationTree, { where, include });
   });
 };
 
@@ -65,7 +65,7 @@ export const executeExportPlan = async (plan, { since, limit = 100 }) => {
     where: {
       [Op.and]: whereClauses,
     },
-    includes: plan.query.includes,
+    include: plan.query.include,
   };
   if (!syncClientMode) {
     // load deleted records in server mode
