@@ -19,7 +19,9 @@ import { getAgeFromDate } from 'shared-src/src/utils/date';
 import { joinNames } from './user';
 
 const InstructionField = ({ label, helperText }) => (
-  <p>{label} {helperText}</p>
+  <p>
+    {label} {helperText}
+  </p>
 );
 
 const QUESTION_COMPONENTS = {
@@ -64,11 +66,7 @@ export function mapOptionsToValues(options) {
   return options.map(x => ({ label: x, value: x }));
 }
 
-export function checkVisibility(
-  component,
-  values,
-  allComponents,
-) {
+export function checkVisibility(component, values, allComponents) {
   const { visibilityCriteria, dataElement } = component;
   // nothing set - show by default
   if (!visibilityCriteria) return true;
@@ -95,12 +93,11 @@ export function checkVisibility(
         if (!end) return value >= start;
         if (inRange(parseFloat(value), parseFloat(start), parseFloat(end))) {
           return true;
-        }
-        else return false;
+        } else return false;
       }
 
       return answersEnablingFollowUp.includes(values[questionId]);
-    }
+    };
 
     return conjunction === 'and'
       ? Object.entries(restOfCriteria).every(checkIfQuestionMeetsCriteria)
@@ -117,10 +114,7 @@ export function checkVisibility(
 // set up math context
 const math = create(allMath);
 
-export function runCalculations(
-  components,
-  values,
-) {
+export function runCalculations(components, values) {
   const inputValues = { ...values };
   const calculatedValues = {};
 
@@ -142,9 +136,12 @@ export function runCalculations(
   return calculatedValues;
 }
 
-
 function fallbackParseVisibilityCriteria({ visibilityCriteria, dataElement }, values, components) {
-  if ([PROGRAM_DATA_ELEMENT_TYPES.RESULT, PROGRAM_DATA_ELEMENT_TYPES.CALCULATED].includes(dataElement.type)) {
+  if (
+    [PROGRAM_DATA_ELEMENT_TYPES.RESULT, PROGRAM_DATA_ELEMENT_TYPES.CALCULATED].includes(
+      dataElement.type,
+    )
+  ) {
     return false;
   }
   if (!visibilityCriteria) return true;
@@ -242,16 +239,22 @@ export function getFormInitialValues(components, patient, currentUser = {}) {
 
 export const getAnswersFromData = (data, survey) =>
   Object.entries(data).reduce((acc, [key, val]) => {
-    if (survey.components.find(({ dataElement }) => dataElement.id === key)?.dataElement?.type !== 'PatientIssue') acc[key] = val;
+    if (
+      survey.components.find(({ dataElement }) => dataElement.id === key)?.dataElement?.type !==
+      'PatientIssue'
+    ) {
+      acc[key] = val;
+    }
     return acc;
   }, {});
 
-export const getActionsFromData = (data, survey) => Object.entries(data).reduce((acc, [key, val]) => {
-  const component = survey.components.find(({ dataElement }) => dataElement.id === key);
-  if (component?.dataElement?.type === 'PatientIssue') {
-    if (checkVisibility(component, data, survey.components)) {
-      acc[key] = true;
+export const getActionsFromData = (data, survey) =>
+  Object.entries(data).reduce((acc, [key, val]) => {
+    const component = survey.components.find(({ dataElement }) => dataElement.id === key);
+    if (component?.dataElement?.type === 'PatientIssue') {
+      if (checkVisibility(component, data, survey.components)) {
+        acc[key] = true;
+      }
     }
-  }
-  return acc;
-}, {});
+    return acc;
+  }, {});
