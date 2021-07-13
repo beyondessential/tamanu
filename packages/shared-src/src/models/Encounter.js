@@ -69,7 +69,7 @@ export class Encounter extends Model {
               // all encounters that have a lab request
               return {
                 where: {},
-                includes: [{ association: 'labRequests', required: true }],
+                include: [{ association: 'labRequests', required: true }],
               };
             }
             throw new Error(`Encounter queryFromParams: unsupported selector: ${selector}`);

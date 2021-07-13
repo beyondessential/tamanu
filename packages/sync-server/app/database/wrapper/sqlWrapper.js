@@ -28,13 +28,13 @@ export class SqlWrapper {
 
   async countSince(channel, since) {
     return this.sequelize.channelRouter(channel, (model, params, channelRoute) => {
-      const { where, includes } = channelRoute.queryFromParams(params);
+      const { where, include } = channelRoute.queryFromParams(params);
       return model.count({
         paranoid: false,
         where: {
           [Op.and]: [syncCursorToWhereCondition(since), where],
         },
-        includes,
+        include,
       });
     });
   }
