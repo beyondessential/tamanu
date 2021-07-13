@@ -8,9 +8,6 @@ import { DumbPatientListingView } from 'desktop/app/views/patients/PatientListin
 import { FormGrid } from 'desktop/app/components/FormGrid';
 import { SURVEY_TYPES } from 'shared/constants';
 
-
-
-
 import { SurveySelector } from '../programs/SurveySelector';
 import { PatientDisplay } from '../programs/PatientDisplay';
 import { ProgramsPane, ProgramsPaneHeader, ProgramsPaneHeading } from '../programs/ProgramsPane';
@@ -28,7 +25,7 @@ const DumbReferralFlow = React.memo(
         const response = await fetchReferralSurveys();
 
         setReferralSurveys(response.surveys.map(x => ({ value: x.id, label: x.name })));
-      })()
+      })();
     }, []);
 
     const onSelectReferralSurvey = useCallback(async id => {
@@ -75,7 +72,15 @@ const DumbReferralFlow = React.memo(
       );
     }
 
-    return <SurveyView onSubmit={onSubmit} survey={referralSurvey} onCancel={onCancelReferral} patient={patient} currentUser={currentUser} />;
+    return (
+      <SurveyView
+        onSubmit={onSubmit}
+        survey={referralSurvey}
+        onCancel={onCancelReferral}
+        patient={patient}
+        currentUser={currentUser}
+      />
+    );
   },
 );
 

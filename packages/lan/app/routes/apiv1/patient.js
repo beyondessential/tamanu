@@ -35,12 +35,12 @@ patient.get(
       params,
     } = req;
     req.checkPermission('read', 'Patient');
-    const patient = await Patient.findByPk(params.id, {
+    const _patient = await Patient.findByPk(params.id, {
       include: Patient.getFullReferenceAssociations(),
     });
-    if (!patient) throw new NotFoundError();
+    if (!_patient) throw new NotFoundError();
 
-    res.send(dbRecordToResponse(patient));
+    res.send(dbRecordToResponse(_patient));
   }),
 );
 
@@ -52,10 +52,10 @@ patient.put(
       params,
     } = req;
     req.checkPermission('read', 'Patient');
-    const patient = await Patient.findByPk(params.id);
-    if (!patient) throw new NotFoundError();
-    req.checkPermission('write', patient);
-    await patient.update(requestBodyToRecord(req.body));
+    const _patient = await Patient.findByPk(params.id);
+    if (!_patient) throw new NotFoundError();
+    req.checkPermission('write', _patient);
+    await _patient.update(requestBodyToRecord(req.body));
 
     const patientAdditionalData = await PatientAdditionalData.findOne({
       where: { patientId: patient.id },
@@ -64,13 +64,13 @@ patient.put(
     if (!patientAdditionalData) {
       await PatientAdditionalData.create({
         ...requestBodyToRecord(req.body),
-        patientId: patient.id,
+        patientId: _patient.id,
       });
     } else {
       await patientAdditionalData.update(requestBodyToRecord(req.body));
     }
 
-    res.send(dbRecordToResponse(patient));
+    res.send(dbRecordToResponse(_patient));
   }),
 );
 
@@ -144,6 +144,14 @@ patientRelations.get(
           where: {
             '$initiatingEncounter.patient_id$': params.id,
           },
+        },
+        {
+          association: 'surveyResponse',
+          include: [
+            {
+              association: 'answers',
+            },
+          ],
         },
       ],
     });
