@@ -31,6 +31,7 @@ export const FieldTypes = {
   PATIENT_DATA: 'PatientData',
   USER_DATA: 'UserData',
   PHOTO: 'Photo',
+  PATIENT_ISSUE_GENERATOR: 'PatientIssueGenerator',
 };
 
 export const getStringValue = async (type: string, value: any): Promise<string> => {
@@ -57,6 +58,7 @@ export const getStringValue = async (type: string, value: any): Promise<string> 
 
 export function isCalculated(fieldType: string): boolean {
   switch (fieldType) {
+    case FieldTypes.PATIENT_ISSUE_GENERATOR:
     case FieldTypes.CALCULATED:
     case FieldTypes.RESULT:
       return true;

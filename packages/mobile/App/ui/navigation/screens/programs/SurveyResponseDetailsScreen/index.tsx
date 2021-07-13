@@ -38,6 +38,8 @@ function getAnswerText(question, answer): string | number {
     case FieldTypes.DATE:
     case FieldTypes.SUBMISSION_DATE:
       return formatStringDate(answer, DateFormats.DDMMYY);
+    case FieldTypes.PATIENT_ISSUE_GENERATOR:
+      return 'PATIENT_ISSUE_GENERATOR';
     default:
       console.warn(`Unknown field type: ${question.dataElement.type}`);
       return `?? ${question.dataElement.type}`;

@@ -229,3 +229,11 @@ export const EncounterTypeNames = {
   triage: 'Triage',
   surveyResponse: 'Survey response',
 };
+
+export const LabRequestStatus = {
+  reception_pending: 'Reception pending',
+  results_pending: 'Results pending',
+  to_be_verified: 'To be verified',
+  verified: 'Verified',
+  published: 'published',
+};
