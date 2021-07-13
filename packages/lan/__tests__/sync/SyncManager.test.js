@@ -183,28 +183,37 @@ describe('SyncManager', () => {
 
   describe('encounters with a lab request', () => {
     it('pushes them', async () => {
-      // arrange
+      //// arrange
       const patientId = uuidv4();
-      const encounter = await buildNestedEncounter(context, patientId);
-      await context.models.Encounter.create(encounter);
-      await upsertAssociations(context.models.Encounter, encounter);
+
+      // lab encounter
+      const labEncounter = await buildNestedEncounter(context, patientId);
+      await context.models.Encounter.create(labEncounter);
+      await upsertAssociations(context.models.Encounter, labEncounter);
+
+      // unrelated encounter
+      const unrelatedEncounter = await buildNestedEncounter(context, patientId);
+      unrelatedEncounter.labRequests = [];
+      await context.models.Encounter.create(unrelatedEncounter);
+      await upsertAssociations(context.models.Encounter, unrelatedEncounter);
+
+      // unmark patient
       await context.models.Patient.update(
         { markedForPush: false, markedForSync: false },
         { where: { id: patientId } },
       );
 
-      // act
+      //// act
       await context.syncManager.exportAndPush(context.models.Encounter);
 
-      // assert
+      //// assert
       const pushedChannels = context.remote.push.mock.calls.map(([channel]) => channel);
       expect(pushedChannels).toContain('labRequest/all/encounter');
 
-      const pushedObject = context.remote.push.mock.calls
-        .map(([, array]) => array)
-        .flat()
-        .find(({ data: { id } }) => id === encounter.id);
-      expect(pushedObject).toHaveProperty('data.id', encounter.id);
+      const pushedObjects = context.remote.push.mock.calls.map(([, array]) => array).flat();
+      expect(pushedObjects).toHaveLength(1);
+      const pushedObject = pushedObjects.find(({ data: { id } }) => id === labEncounter.id);
+      expect(pushedObject).toHaveProperty('data.id', labEncounter.id);
     });
 
     it('pulls them', async () => {
