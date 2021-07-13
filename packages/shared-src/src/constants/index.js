@@ -186,6 +186,9 @@ export const REPORT_REQUEST_STATUS_VALUES = Object.values(REPORT_REQUEST_STATUSE
 export const DIAGNOSIS_CERTAINTY = {
   SUSPECTED: 'suspected',
   CONFIRMED: 'confirmed',
+  EMERGENCY: 'emergency',
+  DISPROVEN: 'disproven',
+  ERROR: 'error',
 };
 
 export const DIAGNOSIS_CERTAINTY_VALUES = Object.values(DIAGNOSIS_CERTAINTY);
