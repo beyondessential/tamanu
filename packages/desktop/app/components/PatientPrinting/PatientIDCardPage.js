@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { useEffect } from 'react';
 import styled from 'styled-components';
 
 import { useLocalisation } from '../../contexts/Localisation';
@@ -73,27 +73,39 @@ const DetailsKey = styled.span`
   font-weight: bold;
 `;
 
+const InfoRow = styled.div`
+  line-height: 4mm;
+  font-size: 2.4mm;
+  display: flex;
+  flex-direction: row;
+`;
+
 const DetailsRow = ({ name, value }) => {
   const { getLocalisation } = useLocalisation();
   const label = getLocalisation(`fields.${name}.shortLabel`);
   return (
-    <div style={{ lineHeight: '4mm', fontSize: '2.4mm', display: 'flex', flexDirection: 'row' }}>
+    <InfoRow>
       <DetailsKey>{`${label}: `}</DetailsKey>
       <DetailsValue>{value}</DetailsValue>
-    </div>
+    </InfoRow>
   );
 };
 
-const DisplayIdRow = ({ id }) => {
+const TopRow = styled.div`
+  font-size: 3.3mm;
+  padding-bottom: 0.1rem;
+  display: flex;
+  flex-direction: row;
+`;
+
+const DisplayIdRow = ({ name, value }) => {
   const { getLocalisation } = useLocalisation();
-  const label = getLocalisation(`fields.displayId.shortLabel`);
+  const label = getLocalisation(`fields.${name}.shortLabel`);
   return (
-    <div
-      style={{ fontSize: '3.3mm', paddingBottom: '0.1rem', display: 'flex', flexDirection: 'row' }}
-    >
-      <strong style={{ width: '23mm' }}>{`${label}: `}</strong>
-      <strong>{id}</strong>
-    </div>
+    <TopRow>
+      <DetailsKey>{`${label}: `}</DetailsKey>
+      <DetailsValue>{value}</DetailsValue>
+    </TopRow>
   );
 };
 
@@ -126,32 +138,9 @@ const PatientPhoto = ({ imageData }) => (
   </PhotoFrame>
 );
 
-export const PatientIDCard = ({ patient, imageData }) => (
-  <Card>
-    <TopBar />
-    <MainSection>
-      <PhotoContainer>
-        <PatientPhoto imageData={imageData} />
-        <PhotoLabel patient={patient} />
-      </PhotoContainer>
-      <Details>
-        <DisplayIdRow id={patient.displayId} />
-        <DetailsRow name="lastName" value={patient.lastName} />
-        <DetailsRow name="firstName" value={patient.firstName} />
-        <DetailsRow name="dateOfBirth" value={DateDisplay.rawFormat(patient.dateOfBirth)} />
-        <DetailsRow name="sex" value={SEX_VALUE_INDEX[patient.sex].label} />
-      </Details>
-    </MainSection>
-    <BarcodeRow>
-      <PatientBarcode patient={patient} width="43mm" height="5.9mm" />
-    </BarcodeRow>
-    <BottomBar />
-  </Card>
-);
-
 export const PatientIDCardPage = ({ patient, imageData }) => {
   const { printPage } = useElectron();
-  React.useEffect(() => {
+  useEffect(() => {
     printPage({
       landscape: true,
       margins: {
@@ -167,7 +156,26 @@ export const PatientIDCardPage = ({ patient, imageData }) => {
 
   return (
     <PrintPortal>
-      <PatientIDCard patient={patient} imageData={imageData} />
+      <Card>
+        <TopBar />
+        <MainSection>
+          <PhotoContainer>
+            <PatientPhoto imageData={imageData} />
+            <PhotoLabel patient={patient} />
+          </PhotoContainer>
+          <Details>
+            <DisplayIdRow name="displayId" value={patient.displayId} />
+            <DetailsRow name="lastName" value={patient.lastName} />
+            <DetailsRow name="firstName" value={patient.firstName} />
+            <DetailsRow name="dateOfBirth" value={DateDisplay.rawFormat(patient.dateOfBirth)} />
+            <DetailsRow name="sex" value={SEX_VALUE_INDEX[patient.sex].label} />
+          </Details>
+        </MainSection>
+        <BarcodeRow>
+          <PatientBarcode patient={patient} width="43mm" height="5.9mm" />
+        </BarcodeRow>
+        <BottomBar />
+      </Card>
     </PrintPortal>
   );
 };

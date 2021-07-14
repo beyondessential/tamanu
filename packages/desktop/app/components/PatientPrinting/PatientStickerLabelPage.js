@@ -1,11 +1,11 @@
-import React from 'react';
+import React, { useEffect } from 'react';
 import styled from 'styled-components';
 
 import { SEX_VALUE_INDEX } from '../../constants';
 import { DateDisplay } from '../DateDisplay';
 import { PatientBarcode } from './PatientBarcode';
 
-import { PrintPortal } from '../../print';
+import { PrintPortal, LetterPage } from '../../print';
 import { useElectron } from '../../contexts/Electron';
 
 const Sticker = styled.div`
@@ -34,12 +34,6 @@ export const PatientStickerLabel = ({ patient }) => (
   </Sticker>
 );
 
-const LetterPage = styled.div`
-  background: white;
-  width: 8.5in;
-  height: 11in;
-`;
-
 const LabelPage = styled.div`
   display: grid;
   grid-template-columns: repeat(3, 2.5935in);
@@ -51,7 +45,7 @@ const LabelPage = styled.div`
 
 export const PatientStickerLabelPage = ({ patient }) => {
   const { printPage } = useElectron();
-  React.useEffect(() => {
+  useEffect(() => {
     printPage();
   });
 

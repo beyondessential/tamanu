@@ -106,29 +106,31 @@ export const PatientPrintDetailsModal = ({ patient }) => {
   // modal is mounted - so when we are actually printing something,
   // we make sure to unmount the modal at the same time.
   const mainComponent = (() => {
-    if (printType === 'barcode') {
-      // just printing barcodes, no additional steps
-      const Component = PRINT_OPTIONS.barcode.component;
-      return <Component patient={patient} />;
-    } else if (printType === 'idcard') {
-      // printing ID card -- wait until profile pic download completes
-      // (triggered in the callback above)
-      if (imageData) {
-        const Component = PRINT_OPTIONS.idcard.component;
-        return <Component patient={patient} imageData={imageData} />;
-      }
+    if (!printType) {
+      // no selection yet -- show selection modal
       return (
-        <Modal title="Working" open>
-          <div>Preparing ID card...</div>
+        <Modal title="Select label" open={isModalOpen} onClose={closeModal}>
+          <PrintOptionList setCurrentlyPrinting={setCurrentlyPrinting} />
         </Modal>
       );
     }
-    // no selection yet -- show selection modal
-    return (
-      <Modal title="Select label" open={isModalOpen} onClose={closeModal}>
-        <PrintOptionList setCurrentlyPrinting={setCurrentlyPrinting} />
-      </Modal>
-    );
+    const Component = PRINT_OPTIONS[printType].component;
+    const props = {
+      patient,
+    };
+    if (printType === 'idcard') {
+      // printing ID card -- wait until profile pic download completes
+      // (triggered in the callback above)
+      if (!imageData) {
+        return (
+          <Modal title="Working" open>
+            <div>Preparing ID card...</div>
+          </Modal>
+        );
+      }
+      props.imageData = imageData;
+    }
+    return <Component {...props} />;
   })();
 
   return (
