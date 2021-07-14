@@ -1,13 +1,7 @@
 import express from 'express';
 import asyncHandler from 'express-async-handler';
 
-import { simpleGet, simplePut, simplePost } from './crudHelpers';
-
 export const labRequestLog = express.Router();
-
-labRequestLog.get('/:id', simpleGet('LabRequestLog'));
-labRequestLog.put('/:id', simplePut('LabRequestLog'));
-labRequestLog.post('/$', simplePost('LabRequestLog'));
 
 labRequestLog.get(
   '/labRequest/:id',
