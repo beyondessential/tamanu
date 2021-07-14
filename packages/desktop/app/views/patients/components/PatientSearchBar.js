@@ -2,18 +2,9 @@ import React, { memo, useMemo, useCallback } from 'react';
 import styled from 'styled-components';
 import FingerprintIcon from '@material-ui/icons/Fingerprint';
 import SearchIcon from '@material-ui/icons/Search';
-import InputAdornment from '@material-ui/core/InputAdornment';
 
 import { useLocalisation } from '../../../contexts/Localisation';
-import {
-  ConfigurableText,
-  Button,
-  Form,
-  Field,
-  TextField,
-  DateField,
-  AutocompleteField,
-} from '../../../components';
+import { Button, Form, Field, TextField, DateField, AutocompleteField } from '../../../components';
 import { Colors } from '../../../constants';
 import { connectApi } from '../../../api';
 import { Suggester } from '../../../utils/suggester';
