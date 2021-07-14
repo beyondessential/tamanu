@@ -4,7 +4,7 @@ import { connect } from 'react-redux';
 import styled from 'styled-components';
 import PrintIcon from '@material-ui/icons/Print';
 
-import { PrintPortal } from '../../print';
+import { PrintPortal } from '../../components/Print';
 import { LocalisedText } from '../../components/LocalisedText';
 import { connectApi } from '../../api';
 import { BackButton, Button } from '../../components/Button';

@@ -8,7 +8,7 @@ import { SEX_VALUE_INDEX } from '../../constants';
 import { DateDisplay } from '../DateDisplay';
 import { PatientBarcode } from './PatientBarcode';
 
-import { PrintPortal } from '../../print';
+import { PrintPortal } from '../Print';
 
 const cardDimensions = {
   width: 85.6,

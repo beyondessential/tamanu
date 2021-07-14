@@ -1,7 +1,8 @@
 import React, { useEffect } from 'react';
 
-import { PrintPortal, LetterPage } from '../../print';
 import { useElectron } from '../../contexts/Electron';
+
+import { PrintPortal, LetterPage } from '../Print';
 
 export const PatientCovidTestCert = ({ patient }) => {
   const { printPage } = useElectron();
