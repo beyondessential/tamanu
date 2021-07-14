@@ -19,13 +19,11 @@ storiesOf('TopBar', module)
   ))
   .add('With two buttons', () => (
     <TopBar title="With two buttons">
-      <ButtonRow>
-        <Button variant="outlined" onClick={action('cancel')}>
-          Cancel
-        </Button>
-        <Button color="primary" variant="contained" onClick={action('save')}>
-          Save
-        </Button>
-      </ButtonRow>
+      <Button variant="outlined" onClick={action('cancel')}>
+        Cancel
+      </Button>
+      <Button color="primary" variant="contained" onClick={action('save')}>
+        Save
+      </Button>
     </TopBar>
   ));
