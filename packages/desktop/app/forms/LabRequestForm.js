@@ -9,7 +9,7 @@ import { encounterOptions } from '../constants';
 import {
   getLabTestTypes,
   getLabTestCategories,
-  getLabTestDescriptions,
+  getLabTestPriorities,
   loadOptions,
 } from '../store/options';
 
@@ -70,7 +70,7 @@ export class LabRequestForm extends React.PureComponent {
       testTypes,
       encounter = {},
       testCategories,
-      testDescriptions,
+      testPriorities,
     } = this.props;
     const { examiner = {} } = encounter;
     const examinerLabel = examiner.displayName;
@@ -79,7 +79,7 @@ export class LabRequestForm extends React.PureComponent {
 
     return (
       <FormGrid>
-        <Field name="id" label="Lab request number" disabled component={TextField} />
+        <Field name="displayId" label="Lab request number" disabled component={TextField} />
         <Field name="requestedDate" label="Order date" required component={DateField} />
         <TextInput label="Supervising doctor" disabled value={examinerLabel} />
         <Field
@@ -94,10 +94,10 @@ export class LabRequestForm extends React.PureComponent {
           <Field name="specimenAttached" label="Specimen attached?" component={CheckField} />
           <Field name="urgent" label="Urgent?" component={CheckField} />
           <Field
-            name="priority"
+            name="labTestPriorityId"
             label="Priority"
             component={SelectField}
-            options={testDescriptions}
+            options={testPriorities}
           />
         </div>
         <FormSeparatorLine />
@@ -142,13 +142,13 @@ export class LabRequestForm extends React.PureComponent {
   };
 
   render() {
-    const { onSubmit, editedObject, generateId = shortid.generate } = this.props;
+    const { onSubmit, editedObject, generateDisplayId } = this.props;
     return (
       <Form
         onSubmit={onSubmit}
         render={this.renderForm}
         initialValues={{
-          id: generateId(),
+          displayId: generateDisplayId(),
           requestedDate: new Date(),
           sampleTime: new Date(),
           ...editedObject,
@@ -181,7 +181,7 @@ export const ConnectedLabRequestForm = connect(
       value: id,
       label: name,
     })),
-    testDescriptions: getLabTestDescriptions(state).map(({ id, name }) => ({
+    testPriorities: getLabTestPriorities(state).map(({ id, name }) => ({
       value: id,
       label: name,
     })),

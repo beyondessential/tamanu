@@ -8,7 +8,7 @@ import { foreignKey, optionalForeignKey } from '../utils/validation';
 import { Form, Field } from '../components/Field';
 import { IdField } from '../components/Field/IdField';
 import { FormGrid } from '../components/FormGrid';
-import { ModalActionRow } from '../components/ButtonRow';
+import { ModalActionRow } from '../components/ModalActionRow';
 import { PlusIconButton, MinusIconButton } from '../components';
 import { IdBanner } from '../components/IdBanner';
 import { Colors, sexOptions } from '../constants';

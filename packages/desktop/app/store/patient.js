@@ -68,6 +68,7 @@ const defaultState = {
   loading: true,
   id: null,
   error: null,
+  issues: [],
 };
 
 export const patientReducer = (state = defaultState, action) => {
@@ -77,6 +78,7 @@ export const patientReducer = (state = defaultState, action) => {
         loading: true,
         id: action.id,
         error: null,
+        issues: [],
       };
     case PATIENT_LOAD_ERROR:
       return {
@@ -94,6 +96,7 @@ export const patientReducer = (state = defaultState, action) => {
         loading: false,
         id: null,
         error: null,
+        issues: [],
       };
     default:
       return state;

@@ -31,6 +31,7 @@ const handlers = {
   [LAB_LOAD_START]: action => ({
     loading: true,
     id: action.id,
+    note: null,
   }),
   [LAB_LOAD_FINISH]: action => ({
     loading: false,

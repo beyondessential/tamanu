@@ -1,8 +1,7 @@
 import express from 'express';
-import asyncHandler from 'express-async-handler';
 import config from 'config';
 
-import { importSurvey } from '../../admin/importProgram';
+import { importProgram } from '~/admin/importProgram';
 import { importData } from '../../admin/importDataDefinition';
 import { createDataImporterEndpoint } from '../../admin/createDataImporterEndpoint';
 
@@ -26,5 +25,5 @@ adminRoutes.use((req, res, next) => {
 });
 //*****************************
 
-adminRoutes.post('/importSurvey', createDataImporterEndpoint(importSurvey));
+adminRoutes.post('/importProgram', createDataImporterEndpoint(importProgram));
 adminRoutes.post('/importData', createDataImporterEndpoint(importData));

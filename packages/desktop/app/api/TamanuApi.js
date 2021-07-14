@@ -1,7 +1,16 @@
 import faye from 'faye';
 import { VERSION_COMPATIBILITY_ERRORS } from 'shared/constants';
-import { getResponseJsonSafely } from 'shared/utils';
 import { LOCAL_STORAGE_KEYS } from '../constants';
+
+const getResponseJsonSafely = async response => {
+  try {
+    return await response.json();
+  } catch (e) {
+    // log json parsing errors, but still return a valid object
+    console.warn(`getResponseJsonSafely: Error parsing JSON: ${e}`);
+    return {};
+  }
+};
 
 const encodeQueryString = query =>
   Object.entries(query)

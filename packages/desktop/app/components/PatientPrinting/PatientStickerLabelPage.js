@@ -6,7 +6,8 @@ import { DateDisplay } from '../DateDisplay';
 import { Button } from '../Button';
 import { PatientBarcode } from './PatientBarcode';
 
-import { printPage, PrintPortal } from '../../print';
+import { PrintPortal } from '../../print';
+import { useElectron } from '../../contexts/Electron';
 
 const Sticker = styled.div`
   font-family: monospace;
@@ -50,6 +51,7 @@ const LabelPage = styled.div`
 `;
 
 export const PatientStickerLabelPage = ({ patient }) => {
+  const { printPage } = useElectron();
   React.useEffect(() => {
     printPage();
   });

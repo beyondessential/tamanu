@@ -54,7 +54,7 @@ export class SyncManager {
   }
 
   async pullAndImport(model, patientId) {
-    const channels = await model.getChannels(patientId);
+    const channels = await model.syncConfig.getChannels(patientId);
     const channelsWithCursors = await Promise.all(
       channels.map(async channel => {
         const cursor = await this.getChannelPullCursor(channel);
@@ -74,9 +74,9 @@ export class SyncManager {
   }
 
   async pullAndImportChannel(model, channel, initialCursor = '0') {
-    const plan = createImportPlan(model);
+    const plan = createImportPlan(model.sequelize, channel);
     const importRecords = async syncRecords => {
-      await executeImportPlan(plan, channel, syncRecords);
+      await executeImportPlan(plan, syncRecords);
     };
 
     let cursor = initialCursor;
@@ -106,7 +106,7 @@ export class SyncManager {
   }
 
   async exportAndPush(model, patientId) {
-    for (const channel of await model.getChannels(patientId)) {
+    for (const channel of await model.syncConfig.getChannels(patientId)) {
       await this.exportAndPushChannel(model, channel);
     }
   }
@@ -115,10 +115,10 @@ export class SyncManager {
     log.debug(`SyncManager.exportAndPush: syncing ${channel}`);
 
     // export
-    const plan = createExportPlan(model);
+    const plan = createExportPlan(model.sequelize, channel);
     const exportRecords = (cursor = null, limit = EXPORT_LIMIT) => {
       log.debug(`SyncManager.exportAndPush: exporting up to ${limit} records since ${cursor}`);
-      return executeExportPlan(plan, channel, { since: cursor, limit });
+      return executeExportPlan(plan, { since: cursor, limit });
     };
 
     // unmark

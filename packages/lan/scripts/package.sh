@@ -7,17 +7,20 @@ if [ -z "$LAN_ROOT" ]; then
   exit 1
 fi
 
+# build the app
 rm -rf ${LAN_ROOT}/release && mkdir ${LAN_ROOT}/release
 yarn workspace lan run build
 cp ${LAN_ROOT}/.bin/*.node ${LAN_ROOT}/release/
 cp ${LAN_ROOT}/start.bat ${LAN_ROOT}/release/
-mkdir ${LAN_ROOT}/release/config && cp ${LAN_ROOT}/config/*.json ${LAN_ROOT}/release/config/
-mkdir ${LAN_ROOT}/release/data && touch ${LAN_ROOT}/release/data/.keep
 
-# include demo data in non-master builds
-if [ "$CI_BRANCH" != "master" ]; then
-  cp ${LAN_ROOT}/data/*.xlsx ${LAN_ROOT}/release/data/.
-fi
+# copy config files
+mkdir ${LAN_ROOT}/release/config
+shopt -s extglob
+cp ${LAN_ROOT}/config/!(local).json ${LAN_ROOT}/release/config/
+
+# set up data directory
+# TODO: this line can be removed once sqlite support is discontinued
+mkdir ${LAN_ROOT}/release/data && touch ${LAN_ROOT}/release/data/.keep
 
 ${LAN_ROOT}/.bin/msi-packager \
   ${LAN_ROOT}/release \

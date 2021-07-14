@@ -5,7 +5,7 @@ import { getCurrentDecisionSupport, POP_DECISION_SUPPORT } from 'desktop/app/sto
 import { Modal } from './Modal';
 
 import { DateDisplay } from './DateDisplay';
-import { ModalActionRow } from './ButtonRow';
+import { ModalActionRow } from './ModalActionRow';
 
 const RepeatDiagnosisMessage = React.memo(({ previousDiagnoses }) => (
   <React.Fragment>

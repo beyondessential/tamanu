@@ -1,13 +1,11 @@
 import { Sequelize } from 'sequelize';
 import moment from 'moment';
-import {
-  ENCOUNTER_TYPES,
-  ENCOUNTER_TYPE_VALUES,
-  NOTE_TYPES,
-  SYNC_DIRECTIONS,
-} from 'shared/constants';
+import config from 'config';
+
+import { ENCOUNTER_TYPES, ENCOUNTER_TYPE_VALUES, NOTE_TYPES } from 'shared/constants';
 import { InvalidOperationError } from 'shared/errors';
-import { extendClassWithPatientChannel } from './sync';
+
+import { initSyncForModelNestedUnderPatient } from './sync';
 import { Model } from './Model';
 
 export class Encounter extends Model {
@@ -42,6 +40,50 @@ export class Encounter extends Model {
         },
       };
     }
+    const nestedSyncConfig = initSyncForModelNestedUnderPatient(this, 'encounter');
+    const syncConfig = {
+      includedRelations: [
+        'administeredVaccines',
+        'surveyResponses',
+        'surveyResponses.answers',
+        'diagnoses',
+        'medications',
+        'labRequests',
+        'labRequests.tests',
+        'imagingRequests',
+        'procedures',
+        'initiatedReferrals',
+        'completedReferrals',
+        'vitals',
+        'discharge',
+        'triages',
+      ],
+      ...nestedSyncConfig,
+      channelRoutes: [
+        ...nestedSyncConfig.channelRoutes,
+        {
+          route: 'labRequest/:selector/encounter',
+          mustMatchRecord: false,
+          queryFromParams: ({ selector }) => {
+            if (selector === 'all') {
+              // all encounters that have a lab request
+              return {
+                where: {},
+                include: [{ association: 'labRequests', required: true }],
+              };
+            }
+            throw new Error(`Encounter queryFromParams: unsupported selector: ${selector}`);
+          },
+        },
+      ],
+      getChannels: async patientId => {
+        const nestedChannels = await nestedSyncConfig.getChannels(patientId);
+        if (config.sync.syncAllLabRequests) {
+          return [...nestedChannels, 'labRequest/all/encounter'];
+        }
+        return nestedChannels;
+      },
+    };
     super.init(
       {
         id: primaryKey,
@@ -60,6 +102,7 @@ export class Encounter extends Model {
       {
         ...options,
         validate,
+        syncConfig,
       },
     );
   }
@@ -251,25 +294,4 @@ export class Encounter extends Model {
       return super.update(data);
     });
   }
-
-  static includedSyncRelations = [
-    'administeredVaccines',
-    'surveyResponses',
-    'surveyResponses.answers',
-    'diagnoses',
-    'medications',
-    'labRequests',
-    'labRequests.tests',
-    'imagingRequests',
-    'procedures',
-    'initiatedReferrals',
-    'completedReferrals',
-    'vitals',
-    'discharge',
-    'triages',
-  ];
-
-  static syncDirection = SYNC_DIRECTIONS.BIDIRECTIONAL;
 }
-
-extendClassWithPatientChannel(Encounter, 'encounter');

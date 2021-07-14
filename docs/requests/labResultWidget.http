@@ -1,0 +1,12 @@
+
+# No token as labResultWidget is a public route.
+# @token=fake-token 
+@server=http://localhost:3000
+
+### Get a list of reference data
+GET {{server}}/v1/sync/reference?since=0  HTTP/1.1
+# Authorization: Bearer {{token}}
+
+### Get the endpoint we're interested in
+GET {{server}}/v1/public/labResultWidget/3TTW49  HTTP/1.1
+# Authorization: Bearer {{token}}
