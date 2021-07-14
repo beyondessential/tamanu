@@ -51,7 +51,6 @@ patient.put(
       models: { Patient, PatientAdditionalData },
       params,
     } = req;
-    console.log(id, params);
     req.checkPermission('read', 'Patient');
     const _patient = await Patient.findByPk(params.id);
     if (!_patient) throw new NotFoundError();
