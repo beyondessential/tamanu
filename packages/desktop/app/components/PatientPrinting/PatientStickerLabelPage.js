@@ -3,7 +3,6 @@ import styled from 'styled-components';
 
 import { SEX_VALUE_INDEX } from '../../constants';
 import { DateDisplay } from '../DateDisplay';
-import { Button } from '../Button';
 import { PatientBarcode } from './PatientBarcode';
 
 import { PrintPortal } from '../../print';
@@ -61,7 +60,7 @@ export const PatientStickerLabelPage = ({ patient }) => {
       <LetterPage>
         <LabelPage>
           {[...Array(30).keys()].map(x => (
-            <PatientStickerLabel key={x} patient={patient} />
+            <PatientStickerLabel key={`label-${x}`} patient={patient} />
           ))}
         </LabelPage>
       </LetterPage>

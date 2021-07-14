@@ -27,11 +27,11 @@ const PRINT_OPTIONS = {
 const PrintOptionList = ({ setCurrentlyPrinting }) => {
   return (
     <div style={{ display: 'flex', flexDirection: 'row' }}>
-      {Object.entries(PRINT_OPTIONS).map(([key, { label, icon }]) => (
+      {Object.entries(PRINT_OPTIONS).map(([type, { label, icon }]) => (
         <PrintOption
-          key={key}
+          key={type}
           label={label}
-          onPress={() => setCurrentlyPrinting(key)}
+          onPress={() => setCurrentlyPrinting(type)}
           icon={icon}
         />
       ))}
