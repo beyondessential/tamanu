@@ -63,9 +63,9 @@ const searchTestPatients = [
   { firstName: 'pagination', lastName: 'I' },
   {
     firstName: 'more-than-one-open-encounter', encounters: [
-      { encounterType: 'clinic', current: false, startTime: yearsAgo(1) },
-      { encounterType: 'admission', current: true, startTime: yearsAgo(2) },
-      { encounterType: 'clinic', current: true, startTime: yearsAgo(3) }]
+      { id: 'should-be-ignored-1', encounterType: 'clinic', current: false, startTime: yearsAgo(1) },
+      { id: 'should-be-chosen', encounterType: 'admission', current: true, startTime: yearsAgo(2) },
+      { id: 'should-be-ignored-2', encounterType: 'clinic', current: true, startTime: yearsAgo(3) }]
   },
 ];
 
@@ -300,12 +300,9 @@ describe('Patient search', () => {
       });
       expect(response).toHaveSucceeded();
       expect(response.body.count).toEqual(1);
-      expect(response.body[0].encounterType).toEqual('admission');
+      console.log(response.body);
+      expect(response.body.data[0].encounterType).toEqual('admission');
 
-      // ensure the right encounter data is returned
-      response.body.data.map(responsePatient => {
-        expect(responsePatient).toHaveProperty('encounterType', 'clinic');
-      });
     });
   });
 

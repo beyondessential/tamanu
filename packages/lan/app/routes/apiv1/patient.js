@@ -341,19 +341,19 @@ patient.get(
     const whereClauses = filters.map(f => f.sql).join(' AND ');
 
 
-    // LEFT JOIN (
-    //   SELECT patient_id, max(start_date) AS most_recent_open_encounter
-    //   FROM encounters
-    //   WHERE end_date IS NULL
-    //   GROUP BY patient_id
-    // ) encounters_abc
-    // LEFT JOIN encounters
-    //   ON (encounters_abc.patient_id = encounters.patient_id AND encounters_abc.most_recent_open_encounter = encounters.start_date)
+
 
     const from = `
       FROM patients
+        LEFT JOIN (
+            SELECT patient_id, max(start_date) AS most_recent_open_encounter
+            FROM encounters
+            WHERE end_date IS NULL
+            GROUP BY patient_id
+          ) encounters_abc
+        ON patients.id = encounters_abc.patient_id
         LEFT JOIN encounters
-          ON (encounters.patient_id = patients.id AND encounters.end_date IS NULL)
+          ON (encounters_abc.patient_id = encounters.patient_id AND encounters_abc.most_recent_open_encounter = encounters.start_date)
         LEFT JOIN reference_data AS department
           ON (department.type = 'department' AND department.id = encounters.department_id)
         LEFT JOIN reference_data AS location
