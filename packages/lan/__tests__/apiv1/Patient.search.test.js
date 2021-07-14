@@ -63,9 +63,9 @@ const searchTestPatients = [
   { firstName: 'pagination', lastName: 'I' },
   {
     firstName: 'more-than-one-open-encounter', encounters: [
-      { id: 'should-be-ignored-1', encounterType: 'clinic', current: false, startTime: yearsAgo(1) },
-      { id: 'should-be-chosen', encounterType: 'admission', current: true, startTime: yearsAgo(2) },
-      { id: 'should-be-ignored-2', encounterType: 'clinic', current: true, startTime: yearsAgo(3) }]
+      { id: 'should-be-ignored-1', encounterType: 'clinic', current: false, startTime: moment.utc([2015, 0, 1, 8]).toISOString() },
+      { id: 'should-be-chosen', encounterType: 'admission', current: true, startTime: moment.utc([2014, 0, 1, 8]).toISOString() },
+      { id: 'should-be-ignored-2', encounterType: 'clinic', current: true, startTime: moment.utc([2013, 0, 1, 8]).toISOString() }]
   },
 ];
 
@@ -300,7 +300,9 @@ describe('Patient search', () => {
       });
       expect(response).toHaveSucceeded();
       expect(response.body.count).toEqual(1);
-      console.log(response.body);
+
+      // Make sure it chooses the correct encounter
+      expect(response.body.data[0].encounterId).toEqual('should-be-chosen');
       expect(response.body.data[0].encounterType).toEqual('admission');
 
     });
