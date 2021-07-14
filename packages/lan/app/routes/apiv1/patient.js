@@ -58,7 +58,7 @@ patient.put(
     await _patient.update(requestBodyToRecord(req.body));
 
     const patientAdditionalData = await PatientAdditionalData.findOne({
-      where: { patientId: patient.id },
+      where: { patientId: _patient.id },
     });
 
     if (!patientAdditionalData) {
