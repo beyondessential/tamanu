@@ -1,9 +1,7 @@
 import React, { useEffect } from 'react';
-import { connect } from 'react-redux';
 import styled from 'styled-components';
 
 import { Colors } from '../constants';
-import { getCurrentUser } from '../store/auth';
 import { Certificate, Spacer } from './Print/Certificate';
 
 const VaccineTable = styled.table`
@@ -19,7 +17,7 @@ const VaccineTable = styled.table`
   }
 `;
 
-const DumbImmunisationCertificate = ({ currentUser, patient, immunisations }) => {
+export const ImmunisationCertificate = ({ patient, immunisations }) => {
   const [hasEditedRecord, setHasEditedRecord] = React.useState(false);
 
   useEffect(() => {
@@ -36,11 +34,7 @@ const DumbImmunisationCertificate = ({ currentUser, patient, immunisations }) =>
     return null;
   }
   return (
-    <Certificate
-      currentUser={currentUser}
-      patient={patient}
-      header="Personal vaccination certificate"
-    >
+    <Certificate patient={patient} header="Personal vaccination certificate">
       <VaccineTable>
         <thead>
           <tr>
@@ -80,7 +74,3 @@ const DumbImmunisationCertificate = ({ currentUser, patient, immunisations }) =>
     </Certificate>
   );
 };
-
-export const ImmunisationCertificate = connect(state => ({
-  currentUser: getCurrentUser(state),
-}))(DumbImmunisationCertificate);

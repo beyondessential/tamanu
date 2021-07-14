@@ -1,6 +1,8 @@
 import React from 'react';
+import { useSelector } from 'react-redux';
 import styled from 'styled-components';
 
+import { getCurrentUser } from '../../store/auth';
 import { useLocalisation } from '../../contexts/Localisation';
 import { PrintLetterhead } from './Letterhead';
 
@@ -39,21 +41,24 @@ const UnderlineP = styled.p`
 
 const UnderlineEmptySpace = () => <UnderlineP>{new Array(100).fill('\u00A0')}</UnderlineP>;
 
-export const Certificate = ({ patient, currentUser, header, footer = null, children }) => {
+export const Certificate = ({ patient, header, footer = null, children }) => {
+  const currentUser = useSelector(getCurrentUser);
   const { getLocalisation } = useLocalisation();
-  const primaryDetails = PRIMARY_DETAILS_FIELDS.filter(
+  const primaryDetailsFields = PRIMARY_DETAILS_FIELDS.filter(
     ([name]) => getLocalisation(`fields.${name}.hidden`) !== true,
-  ).map(([name, accessor]) => {
-    const label = getLocalisation(`fields.${name}.shortLabel`) || name;
-    const value = (accessor ? accessor(patient) : patient[name]) || '';
-    return <p key={name}>{`${label}: ${value}`}</p>;
-  });
+  );
   return (
     <div>
       <PrintLetterhead />
       <Spacer />
       <PatientDetailsHeader>{header}</PatientDetailsHeader>
-      <TwoColumnContainer>{primaryDetails}</TwoColumnContainer>
+      <TwoColumnContainer>
+        {primaryDetailsFields.map(([name, accessor]) => {
+          const label = getLocalisation(`fields.${name}.shortLabel`) || name;
+          const value = (accessor ? accessor(patient) : patient[name]) || '';
+          return <p key={name}>{`${label}: ${value}`}</p>;
+        })}
+      </TwoColumnContainer>
       <Spacer />
       {children}
       <Spacer />
@@ -79,4 +84,4 @@ export const Certificate = ({ patient, currentUser, header, footer = null, child
       <Spacer />
     </div>
   );
-}
+};
