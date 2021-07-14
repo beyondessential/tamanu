@@ -206,7 +206,7 @@ describe('SyncManager', () => {
       await context.models.Encounter.create(vaccineEncounter);
       await upsertAssociations(context.models.Encounter, vaccineEncounter);
       jest
-        .spyOn(context.models.UserLocalisationCache, 'getLocalisationForUser')
+        .spyOn(context.models.UserLocalisationCache, 'getLocalisation')
         .mockImplementation(() =>
           Promise.resolve({
             sync: {
@@ -251,7 +251,7 @@ describe('SyncManager', () => {
       });
       const scheduledVaccineId = 'obviously-fake';
       jest
-        .spyOn(context.models.UserLocalisationCache, 'getLocalisationForUser')
+        .spyOn(context.models.UserLocalisationCache, 'getLocalisation')
         .mockImplementation(() =>
           Promise.resolve({
             sync: {

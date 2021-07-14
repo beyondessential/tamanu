@@ -22,7 +22,7 @@ export class UserLocalisationCache extends Model {
     });
   }
 
-  static async getLocalisationForUser(options) {
+  static async getLocalisation(options) {
     const localisationCache = await this.findOne(options);
     if (!localisationCache) {
       return null;

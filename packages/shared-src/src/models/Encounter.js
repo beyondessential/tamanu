@@ -99,7 +99,7 @@ export class Encounter extends Model {
         // query patient channels and localisation in parallel
         const [nestedChannels, localisation] = await Promise.all([
           nestedSyncConfig.getChannels(patientId),
-          this.sequelize.models.UserLocalisationCache.getLocalisationForUser({
+          this.sequelize.models.UserLocalisationCache.getLocalisation({
             include: {
               association: 'user',
               required: true,
