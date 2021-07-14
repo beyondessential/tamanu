@@ -79,7 +79,6 @@ export class Encounter extends Model {
           route: 'scheduledVaccine/:scheduledVaccineId/encounter',
           mustMatchRecord: false,
           queryFromParams: ({ scheduledVaccineId }) => {
-            console.log('queryFromParams hit');
             if (typeof scheduledVaccineId !== 'string') {
               throw new Error(
                 `Encounter queryFromParams: expected scheduledVaccineId to be a string, got ${scheduledVaccineId}`,
