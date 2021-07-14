@@ -35,7 +35,7 @@ function prusage {
 # determine eb environment
 if [ -n "${1:-}" ] && [ -n "${2:-}" ]; then
     ENVIRONMENT="$1-$2"
-    pushd "$SCRIPT_DIR/../../eb/$1"
+    pushd "$SCRIPT_DIR/../../eb/$1" > /dev/null
 else
     prusage
 fi
