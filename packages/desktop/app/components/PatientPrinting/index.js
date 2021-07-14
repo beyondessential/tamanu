@@ -8,6 +8,7 @@ import { useApi } from '../../api';
 
 import { PatientIDCardPage } from './PatientIDCardPage';
 import { PatientStickerLabelPage } from './PatientStickerLabelPage';
+import { PatientCovidTestCert } from './PatientCovidTestCert';
 import { StickerIcon } from './StickerIcon';
 import { IDCardIcon } from './IDCardIcon';
 
@@ -20,6 +21,11 @@ const PRINT_OPTIONS = {
   idcard: {
     label: 'Print ID',
     component: PatientIDCardPage,
+    icon: IDCardIcon,
+  },
+  covidTestCert: {
+    label: 'Print COVID-19 Test Certificate',
+    component: PatientCovidTestCert,
     icon: IDCardIcon,
   },
 };
