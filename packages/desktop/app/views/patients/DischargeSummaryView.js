@@ -12,7 +12,7 @@ import { DateDisplay } from '../../components/DateDisplay';
 import { TopBar } from '../../components';
 import { useEncounter } from '../../contexts/Encounter';
 import { useElectron } from '../../contexts/Electron';
-import { PrintLetterhead } from '../../components/PrintLetterhead';
+import { PrintLetterhead } from '../../components/Print/Letterhead';
 import { Colors } from '../../constants';
 
 const SummaryPageContainer = styled.div`
