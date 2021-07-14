@@ -114,17 +114,21 @@ export const CustomisablePatientSearchBar = ({ title, onSearch, fields, ...props
   const fieldElements = useMemo(
     () =>
       fields
-        .map(([key, { suggesterKey, placeholder, ...fieldProps } = {}]) =>
-          getLocalisation(`fields.${key}.hidden`) === true ? null : (
-            <Field
-              name={key}
-              key={key}
-              placeholder={getLocalisation(`fields.${key}.longLabel`) || placeholder}
-              component={TextField}
-              suggester={props[suggesterKey]}
-              {...fieldProps}
-            />
-          ),
+        .map(
+          ([
+            key,
+            { suggesterKey, placeholder, localisationLabel = 'longLabel', ...fieldProps } = {},
+          ]) =>
+            getLocalisation(`fields.${key}.hidden`) === true ? null : (
+              <Field
+                name={key}
+                key={key}
+                placeholder={getLocalisation(`fields.${key}.${localisationLabel}`) || placeholder}
+                component={TextField}
+                suggester={props[suggesterKey]}
+                {...fieldProps}
+              />
+            ),
         )
         .filter(c => c),
     [getLocalisation, fields, props],
