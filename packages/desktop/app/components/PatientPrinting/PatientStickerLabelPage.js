@@ -5,7 +5,7 @@ import { SEX_VALUE_INDEX } from '../../constants';
 import { DateDisplay } from '../DateDisplay';
 import { PatientBarcode } from './PatientBarcode';
 
-import { PrintPortal } from '../../print';
+import { PrintPortal, LetterPage } from '../../print';
 import { useElectron } from '../../contexts/Electron';
 
 const Sticker = styled.div`
@@ -33,12 +33,6 @@ export const PatientStickerLabel = ({ patient }) => (
     </div>
   </Sticker>
 );
-
-const LetterPage = styled.div`
-  background: white;
-  width: 8.5in;
-  height: 11in;
-`;
 
 const LabelPage = styled.div`
   display: grid;
