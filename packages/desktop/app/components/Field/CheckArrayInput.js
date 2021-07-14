@@ -1,4 +1,24 @@
 import React, { useCallback } from 'react';
+import styled from 'styled-components';
+
+const Group = styled.div`
+  display: flex;
+  flex-direction: row;
+  flex-wrap: wrap;
+`;
+
+const SelectableField = styled.div`
+  margin: 0.2rem;
+  padding: 0.2rem;
+  min-width: 8rem;
+  background: ${ p => {
+    if (p.noneSelected) {
+      return '#eee';
+    } else {
+      return p.selected ? '#cfc' : '#ccc'
+    }
+  } };
+`;
 
 export const CheckArrayInput = ({
   options,
@@ -22,19 +42,17 @@ export const CheckArrayInput = ({
   });
 
   return (
-    <div>
-      <div>
+      <Group>
         { options.map(({ value, label }) =>
-          <div 
+          <SelectableField 
             onClick={() => toggle(value)}
+            selected={currentList.includes(value)}
+            noneSelected={currentList.length === 0}
             key={value}
           >
-            <span>{ label }</span>
-            <span>{ currentList.includes(value) ? ' Y' : ' N' }</span>
-          </div>
+            { label }
+          </SelectableField>
         ) }
-      </div>
-      <pre>{JSON.stringify({ currentList }, null, 2)}</pre>
-    </div>
+      </Group>
   );
 };

@@ -22,8 +22,6 @@ export const ReferenceDataAdminView = memo(() => {
   const api = useApi();
   const onSubmit = useCallback(
     async ({ file, ...data }) => {
-      console.log(data);
-      return;
       const fileData = readFileAsBlob(file);
       // send to api
       const response = await api.multipart('admin/importData', {
@@ -41,9 +39,36 @@ export const ReferenceDataAdminView = memo(() => {
       label="Sheets"
       component={CheckArrayInput}
       options={[
-        { value: 'abc', label: 'Abc' },
-        { value: 'def', label: 'Def' },
-        { value: 'ghi', label: 'Ghi' },
+        { value: 'facilities', label: 'facility' },
+        { value: 'villages', label: 'village' },
+        { value: 'drugs', label: 'drug' },
+        { value: 'allergies', label: 'allergy' },
+        { value: 'departments', label: 'department' },
+        { value: 'locations', label: 'location' },
+        { value: 'diagnoses', label: 'icd10' },
+        { value: 'triageReasons', label: 'triageReason' },
+        { value: 'imagingTypes', label: 'imagingType' },
+        { value: 'procedures', label: 'procedureType' },
+        { value: 'careplans', label: 'carePlan' },
+        { value: 'ethnicities', label: 'ethnicity' },
+        { value: 'nationalities', label: 'nationality' },
+        { value: 'divisions', label: 'division' },
+        { value: 'subdivisions', label: 'subdivision' },
+        { value: 'medicalareas', label: 'medicalArea' },
+        { value: 'nursingzones', label: 'nursingZone' },
+        { value: 'settlements', label: 'settlement' },
+        { value: 'occupations', label: 'occupation' },
+        { value: 'religions', label: 'religion' },
+        { value: 'countries', label: 'country' },
+        { value: 'labTestCategories', label: 'labTestCategory' },
+        { value: 'patientBillingType', label: 'patientBillingType' },
+        { value: 'labTestPriorities', label: 'labTestPriority' },
+        { value: 'labTestLaboratory', label: 'labTestLaboratory' },
+        { value: 'labTestMethods', label: 'labTestMethod' },
+        { value: 'users', label: 'user' },
+        { value: 'patients', label: 'patient' },
+        { value: 'labTestTypes', label: 'labTestType' },
+        { value: 'vaccineSchedules', label: 'scheduledVaccine' },
       ]}
     />
   );
