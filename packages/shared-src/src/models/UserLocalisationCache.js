@@ -14,11 +14,19 @@ export class UserLocalisationCache extends Model {
       options,
     );
   }
-  
+
   static initRelations(models) {
     this.belongsTo(models.User, {
       foreignKey: 'userId',
       as: 'user',
     });
+  }
+
+  static async getLocalisationForUser(options) {
+    const localisationCache = await this.findOne(options);
+    if (!localisationCache) {
+      return null;
+    }
+    return JSON.parse(localisationCache.localisation);
   }
 }
