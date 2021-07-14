@@ -51,6 +51,7 @@ patient.put(
       models: { Patient, PatientAdditionalData },
       params,
     } = req;
+    console.log(id, params);
     req.checkPermission('read', 'Patient');
     const _patient = await Patient.findByPk(params.id);
     if (!_patient) throw new NotFoundError();
@@ -338,6 +339,16 @@ patient.get(
     ].filter(f => f);
 
     const whereClauses = filters.map(f => f.sql).join(' AND ');
+
+
+    // LEFT JOIN (
+    //   SELECT patient_id, max(start_date) AS most_recent_open_encounter
+    //   FROM encounters
+    //   WHERE end_date IS NULL
+    //   GROUP BY patient_id
+    // ) encounters_abc
+    // LEFT JOIN encounters
+    //   ON (encounters_abc.patient_id = encounters.patient_id AND encounters_abc.most_recent_open_encounter = encounters.start_date)
 
     const from = `
       FROM patients
