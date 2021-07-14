@@ -1,8 +1,16 @@
 const Sequelize = require('sequelize');
 
+const LAB_REQUEST_STATUSES = {
+  RECEPTION_PENDING: 'reception_pending',
+  RESULTS_PENDING: 'results_pending',
+  TO_BE_VERIFIED: 'to_be_verified',
+  VERIFIED: 'verified',
+  PUBLISHED: 'published',
+};
+
 module.exports = {
   up: async query => {
-    await query.createTable('lab_request_log', {
+    await query.createTable('lab_request_logs', {
       id: {
         type: Sequelize.STRING,
         defaultValue: Sequelize.UUIDV4,
@@ -20,6 +28,9 @@ module.exports = {
       deleted_at: {
         type: Sequelize.DATE,
         defaultValue: Sequelize.NOW,
+      },
+      status: {
+        type: Sequelize.ENUM(Object.values(LAB_REQUEST_STATUSES)),
       },
       lab_request_id: {
         type: Sequelize.STRING,

@@ -1,31 +1,19 @@
-import React, { useCallback, useEffect, useState } from 'react';
-import { useApi } from '../api';
-// STATUS (LAB_STATUS[labRequest.status]) | Date/time (of update) | Officer (current user)
-const LabRequestAuditPane = ({ labRequest }) => {
-  const api = useApi();
-  const [logs, setLogs] = useState([]);
-  // const saveDiagnosis = useCallback(async data => {
-  //   await onSaveDiagnosis(data);
-  //   await loadEncounter(encounterId);
-  //   onClose();
-  // }, []);
-  // useEffect(() => {
-  //   (async () => {
-  //     const programList = await fetchPrograms();
-  //     setPrograms(programList);
-  //   })();
-  // }, []); // [] means it will run only once, on first mount
+import React from 'react';
 
-  useEffect(() => {
-    (async () => {
-      const res = api.get('labRequestLog', {});
-      
-    })();
-  }, []);
+import { DataFetchingTable } from './Table';
+import { DateDisplay } from './DateDisplay';
+import { StatusDisplay } from './LabRequestsTable';
 
-  return (
-    <div>
-      <p>ok</p>
-    </div>
-  );
-};
+const COLUMNS = [
+  {
+    key: 'createdAt',
+    title: 'Date',
+    accessor: ({ createdAt }) => <DateDisplay date={createdAt} />,
+  },
+  { key: 'status', title: 'Status', accessor: ({ status }) => <StatusDisplay status={status} /> },
+  { key: 'updatedByDisplayName', title: 'Officer' },
+];
+
+export const LabRequestAuditPane = ({ labRequest }) => (
+  <DataFetchingTable columns={COLUMNS} endpoint={`labRequestLog/labRequest/${labRequest.id}`} />
+);

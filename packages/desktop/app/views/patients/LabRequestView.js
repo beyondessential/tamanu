@@ -20,6 +20,7 @@ import { LAB_REQUEST_STATUS_LABELS } from '../../constants';
 import { capitaliseFirstLetter } from '../../utils/capitalise';
 import { ChangeLaboratoryModal } from '../../components/ChangeLaboratoryModal';
 import { DateDisplay } from '../../components';
+import { LabRequestAuditPane } from '../../components/LabRequestAuditPane';
 
 const makeRangeStringAccessor = sex => row => {
   const type = row.labTestType;
@@ -142,6 +143,7 @@ export const DumbLabRequestView = React.memo(({ labRequest, patient, loading }) 
           <LabRequestInfoPane labRequest={labRequest} />
         </ContentPane>
         <ResultsPane labRequest={labRequest} patient={patient} />
+        <LabRequestAuditPane labRequest={labRequest} />
       </div>
     </TwoColumnDisplay>
   );
