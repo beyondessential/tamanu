@@ -39,8 +39,9 @@ export class SurveyResponseAnswer extends BaseModel
       .createQueryBuilder('survey_response_answer')
       .leftJoin('survey_response_answer.response', 'response')
       .leftJoin('response.encounter', 'encounter')
+      .leftJoin('survey_response_answer.dataElement', 'dataElement')
       .where('encounter.patientId = :patientId', { patientId })
-      .andWhere('survey_response_answer.dataElementCode = :dataElementCode', { dataElementCode })
+      .andWhere('dataElement.code = :dataElementCode', { dataElementCode })
       .orderBy('response.startTime', 'DESC')
       .getOne();
   }
