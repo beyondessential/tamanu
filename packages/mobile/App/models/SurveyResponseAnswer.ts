@@ -34,13 +34,13 @@ export class SurveyResponseAnswer extends BaseModel
     await this.markParent(SurveyResponse, 'response', 'markedForUpload');
   }
 
-  static async getLatestAnswerForPatient(patientId: string, dataElementId: string): Promise<ISurveyResponseAnswer> {
+  static async getLatestAnswerForPatient(patientId: string, dataElementCode: string): Promise<ISurveyResponseAnswer> {
     return this.getRepository()
       .createQueryBuilder('survey_response_answer')
       .leftJoin('survey_response_answer.response', 'response')
       .leftJoin('response.encounter', 'encounter')
       .where('encounter.patientId = :patientId', { patientId })
-      .andWhere('survey_response_answer.dataElementId = :dataElementId', { dataElementId: `pde-${dataElementId}` })
+      .andWhere('survey_response_answer.dataElementCode = :dataElementCode', { dataElementCode })
       .orderBy('response.startTime', 'DESC')
       .getOne();
   }
