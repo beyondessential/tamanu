@@ -2,6 +2,8 @@ import faye from 'faye';
 import { VERSION_COMPATIBILITY_ERRORS } from 'shared/constants';
 import { LOCAL_STORAGE_KEYS } from '../constants';
 
+const { HOST, TOKEN, LOCALISATION } = LOCAL_STORAGE_KEYS;
+
 const getResponseJsonSafely = async response => {
   try {
     return await response.json();
@@ -50,6 +52,30 @@ const fetchOrThrowIfUnavailable = async (url, config) => {
   }
 };
 
+function getLocalToken() {
+  return localStorage.getItem(TOKEN);
+}
+
+function saveLocalToken(token) {
+  localStorage.setItem(TOKEN, token);
+}
+
+function clearLocalToken() {
+  localStorage.removeItem(TOKEN);
+}
+
+function getLocalLocalisation() {
+  return JSON.parse(localStorage.getItem(LOCALISATION));
+}
+
+function saveLocalLocalisation(localisation) {
+  localStorage.setItem(LOCALISATION, JSON.stringify(localisation));
+}
+
+function clearLocalLocalisation() {
+  localStorage.removeItem(LOCALISATION);
+}
+
 export class TamanuApi {
   constructor(appVersion) {
     this.appVersion = appVersion;
@@ -57,7 +83,7 @@ export class TamanuApi {
     this.authHeader = null;
     this.onVersionIncompatible = null;
     this.pendingSubscriptions = [];
-    const host = window.localStorage.getItem(LOCAL_STORAGE_KEYS.HOST);
+    const host = window.localStorage.getItem(HOST);
     if (host) {
       this.setHost(host);
     }
@@ -73,7 +99,7 @@ export class TamanuApi {
     this.pendingSubscriptions = [];
 
     // save host in local storage
-    window.localStorage.setItem(LOCAL_STORAGE_KEYS.HOST, host);
+    window.localStorage.setItem(HOST, host);
   }
 
   setAuthFailureHandler(handler) {
@@ -84,10 +110,23 @@ export class TamanuApi {
     this.onVersionIncompatible = handler;
   }
 
+  async checkAuth() {
+    const token = getLocalToken();
+    if (!token) {
+      throw new Error('Not authenticated');
+    }
+    this.setToken(token);
+    const localisation = getLocalLocalisation();
+    const user = await this.get('user/me');
+    return { user, token, localisation };
+  }
+
   async login(host, email, password) {
     this.setHost(host);
     const response = await this.post('login', { email, password });
     const { token, localisation } = response;
+    saveLocalToken(token);
+    saveLocalLocalisation(localisation);
     this.setToken(token);
     this.lastRefreshed = Date.now();
 
@@ -135,12 +174,12 @@ export class TamanuApi {
       return response.json();
     }
 
-    console.error(response);
-
     const { error } = await getResponseJsonSafely(response);
 
     // handle auth expiring
     if ([401, 403].includes(response.status) && this.onAuthFailure) {
+      clearLocalToken();
+      clearLocalLocalisation();
       this.onAuthFailure('Your session has expired. Please log in again.');
     }
 

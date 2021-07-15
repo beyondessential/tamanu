@@ -7,6 +7,15 @@ const LOGIN_FAILURE = 'LOGIN_FAILURE';
 const LOGOUT = 'LOGOUT';
 const LOGOUT_WITH_ERROR = 'LOGOUT_WITH_ERROR';
 
+export const checkAuth = () => async (dispatch, getState, { api }) => {
+  try {
+    const { user, token, localisation } = await api.checkAuth();
+    dispatch({ type: LOGIN_SUCCESS, user, token, localisation });
+  } catch (e) {
+    dispatch({ type: LOGIN_FAILURE, error: 'Not authenticated' });
+  }
+};
+
 export const login = (host, email, password) => async (dispatch, getState, { api }) => {
   dispatch({ type: LOGIN_START });
 
