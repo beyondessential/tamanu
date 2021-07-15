@@ -1,7 +1,6 @@
 import React from 'react';
 import PropTypes from 'prop-types';
 import * as yup from 'yup';
-import shortid from 'shortid';
 import { connect } from 'react-redux';
 
 import { foreignKey } from '../utils/validation';
@@ -41,11 +40,10 @@ function getEncounterLabel(encounter) {
   return `${encounterDate} (${encounterTypeLabel})`;
 }
 
-function filterTestTypes(testTypes, conditions) {
-  const { labTestCategoryId } = conditions;
+function filterTestTypes(testTypes, { labTestCategoryId }) {
   return labTestCategoryId
     ? testTypes.filter(tt => tt.labTestCategoryId === labTestCategoryId)
-    : testTypes;
+    : [];
 }
 
 export class LabRequestForm extends React.PureComponent {
