@@ -139,7 +139,7 @@ const DumbSummaryPage = React.memo(({ patient, encounter, onFetchEncounterDischa
         </h4>
         <h4>
           <Label>
-            <LocalisedText path="fields.displayId.shortLabel"/>
+            <LocalisedText path="fields.displayId.shortLabel" />
           </Label>
           <span>{patient.displayId}</span>
         </h4>
@@ -239,7 +239,7 @@ const DumbDischargeSummaryView = React.memo(({ patient }) => {
 
   return (
     <>
-      <TopBar title="Patient Discharge Summary"></TopBar>
+      <TopBar title="Patient Discharge Summary" />
       <NavContainer>
         <StyledBackButton to="/patients/encounter" />
         <Button

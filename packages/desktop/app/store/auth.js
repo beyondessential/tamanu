@@ -1,5 +1,4 @@
 import { createStatePreservingReducer } from '../utils/createStatePreservingReducer';
-import { LOCAL_STORAGE_KEYS } from '../constants';
 
 // actions
 const LOGIN_START = 'LOGIN_START';

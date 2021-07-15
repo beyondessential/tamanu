@@ -9,11 +9,11 @@ import DialogTitle from '@material-ui/core/DialogTitle';
 import DialogActions from '@material-ui/core/DialogActions';
 import PrintIcon from '@material-ui/icons/Print';
 import CloseIcon from '@material-ui/icons/Close';
+import { IconButton } from '@material-ui/core';
 import { getCurrentRoute } from '../store/router';
 import { Colors } from '../constants';
 import { useElectron } from '../contexts/Electron';
 import { Button } from './Button';
-import { IconButton } from '@material-ui/core';
 
 const MODAL_PADDING = 32;
 
@@ -90,7 +90,7 @@ export const Modal = memo(
               <Button
                 color="primary"
                 variant="outlined"
-                onClick={printPage}
+                onClick={() => printPage()}
                 startIcon={<PrintIcon />}
                 size="small"
               >
