@@ -147,7 +147,7 @@ export const PatientIDCard = ({ patient, imageData }) => (
         <PhotoLabel patient={patient} />
       </PhotoContainer>
       <Details>
-        <DisplayIdRow id={patient.displayId} />
+        <DisplayIdRow name="displayId" value={patient.displayId} />
         <DetailsRow name="lastName" value={patient.lastName} />
         <DetailsRow name="firstName" value={patient.firstName} />
         <DetailsRow name="dateOfBirth" value={DateDisplay.rawFormat(patient.dateOfBirth)} />
