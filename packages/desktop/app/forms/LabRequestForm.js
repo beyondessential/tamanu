@@ -1,7 +1,6 @@
 import React from 'react';
 import PropTypes from 'prop-types';
 import * as yup from 'yup';
-import shortid from 'shortid';
 import { connect } from 'react-redux';
 
 import { foreignKey } from '../utils/validation';
