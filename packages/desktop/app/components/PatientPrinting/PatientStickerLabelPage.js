@@ -60,7 +60,7 @@ export const PatientStickerLabelPage = ({ patient }) => {
     <PrintPortal>
       <LetterPage>
         <LabelPage>
-          {[...Array(30)].map(x => (
+          {[...Array(30).keys()].map(x => (
             <PatientStickerLabel key={x} patient={patient} />
           ))}
         </LabelPage>
