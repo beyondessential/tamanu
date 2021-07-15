@@ -166,7 +166,7 @@ patientRelations.get(
   asyncHandler(async (req, res) => {
     const { db, models, params, query } = req;
     const patientId = params.id;
-    const result = await runPaginatedQuery(
+    const { count, data } = await runPaginatedQuery(
       db,
       models.SurveyResponse,
       `
@@ -202,7 +202,10 @@ patientRelations.get(
       query,
     );
 
-    res.send(result);
+    res.send({
+      count: parseInt(count, 10),
+      data,
+    });
   }),
 );
 
@@ -368,7 +371,7 @@ patientRoute.get(
       type: QueryTypes.SELECT,
     });
 
-    const { count } = countResult[0];
+    const count = parseInt(countResult[0].count, 10);
 
     if (count === 0) {
       // save ourselves a query

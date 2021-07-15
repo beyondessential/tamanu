@@ -120,7 +120,7 @@ labRequest.get(
       type: QueryTypes.SELECT,
     });
 
-    const { count } = countResult[0];
+    const count = parseInt(countResult[0].count, 10);
 
     if (count === 0) {
       // save ourselves a query

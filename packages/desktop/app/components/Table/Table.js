@@ -278,7 +278,7 @@ class TableComponent extends React.Component {
   }
 
   render() {
-    const { page, className, data, columns, onDownloadData } = this.props;
+    const { page, className, onDownloadData } = this.props;
     return (
       <StyledTableContainer className={className}>
         <StyledTable>
@@ -360,11 +360,11 @@ export const Table = ({ columns: allColumns, data, exportName, ...props }) => {
   };
 
   return (
-    <TableComponent 
-      columns={columns} 
+    <TableComponent
+      columns={columns}
       data={data}
       onDownloadData={onDownloadData}
-      getLocalisation={getLocalisation} 
+      getLocalisation={getLocalisation}
       {...props}
     />
   );
