@@ -8,7 +8,7 @@ const servers = [
   { name: 'Staging', type: 'dev', host: 'https://sync-staging.tamanu.io' },
   { name: 'Demo (Nauru)', type: 'live', host: 'https://sync-demo-nauru.tamanu.io' },
   { name: 'Stress testing', type: 'dev', host: 'https://sync-stress-test.tamanu.io' },
-  { name: 'Fiji', type: 'live', host: 'https://fiji.tamanu.io' },
+  { name: 'Fiji', type: 'live', host: 'https://sync.tamanu-fiji.org' },
   { name: 'Tonga', type: 'live', host: 'https://tonga.tamanu.io' },
   { name: 'Samoa', type: 'live', host: 'https://tamanu-sync.health.gov.ws' },
   {
@@ -34,13 +34,17 @@ serversRouter.get('/', (req, res) => {
 });
 
 serversRouter.get('/readable', (req, res) => {
-  const rows = servers.map(s => `
-    <tr>
-      <td>${s.name}</td>
-      <td>${s.type}</td>
-      <td><a href="${s.host}">${s.host}</a></td>
-    </tr>
-  `).join('');
+  const rows = servers
+    .map(
+      s => `
+        <tr>
+          <td>${s.name}</td>
+          <td>${s.type}</td>
+          <td><a href="${s.host}">${s.host}</a></td>
+        </tr>
+      `,
+    )
+    .join('');
   const template = `
     <!doctype html>
     <html>
@@ -57,6 +61,6 @@ serversRouter.get('/readable', (req, res) => {
       </body>
     </html>
   `;
-  
+
   res.send(template);
 });
