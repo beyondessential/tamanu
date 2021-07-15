@@ -7,7 +7,7 @@ import { TextField } from '../../TextField/TextField';
 import { useFormikContext } from 'formik';
 
 export const SurveyAnswerField = ({ patient, name, config, defaultText }) => {
-  const [surveyResponseAnswer, setSurveyResponseAnswer] = useState();
+  const [surveyResponseAnswer, setSurveyResponseAnswer]: [string, (newAnswer: string) => void] = useState();
   const { setFieldValue } = useFormikContext();
   const { models } = useBackend();
 
