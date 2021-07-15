@@ -40,11 +40,10 @@ function getEncounterLabel(encounter) {
   return `${encounterDate} (${encounterTypeLabel})`;
 }
 
-function filterTestTypes(testTypes, conditions) {
-  const { labTestCategoryId } = conditions;
+function filterTestTypes(testTypes, { labTestCategoryId }) {
   return labTestCategoryId
     ? testTypes.filter(tt => tt.labTestCategoryId === labTestCategoryId)
-    : testTypes;
+    : [];
 }
 
 export class LabRequestForm extends React.PureComponent {
