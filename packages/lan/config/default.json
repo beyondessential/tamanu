@@ -4,6 +4,7 @@
   },
   "discovery": {
     "overrideAddress": "",
+    "overridePort": null,
     "protocol": "https"
   },
   "log": {
