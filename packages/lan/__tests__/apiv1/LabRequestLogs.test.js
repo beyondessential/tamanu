@@ -36,16 +36,51 @@ describe('Lab request logs', () => {
     app = await baseApp.asRole('practitioner');
   });
 
-  it.only('should create a lab request log when updating a labs status', async () => {
-    const user = await baseApp.get('/v1/user/me');
-    const labRequest = await randomLabRequest(models, { patientId });
-    const response = await app.post('/v1/labRequest').send(labRequest);
-    const updatedRequest = await app.put(`labRequest/${response.body.id}`, {
-      status: LAB_REQUEST_STATUSES.PUBLISHED,
-      userId: user.id,
+  it('should throw an error if no userId is provided when updating a lab request', async () => {
+    const { id: requestId } = await models.LabRequest.createWithTests(
+      await randomLabRequest(models, { patientId }),
+    );
+    const status = LAB_REQUEST_STATUSES.TO_BE_VERIFIED;
+    const response = await app.put(`/v1/labRequest/${requestId}`).send({ status });
+    expect(response).toHaveRequestError();
+  });
+
+  it('should create a lab request log when updating a labs status', async () => {
+    const user = await app.get('/v1/user/me');
+    const { id: requestId } = await models.LabRequest.createWithTests(
+      await randomLabRequest(models, { patientId }),
+    );
+    const status = LAB_REQUEST_STATUSES.TO_BE_VERIFIED;
+    const userId = user.body.id;
+    const response = await app.put(`/v1/labRequest/${requestId}`).send({ status, userId });
+    expect(response).toHaveSucceeded();
+
+    const labRequest = await models.LabRequest.findByPk(requestId);
+
+    expect(labRequest).toHaveProperty('status', status);
+    expect(labRequest).toBeTruthy();
+    expect(labRequest.createdAt).toBeTruthy();
+
+    const labRequestLog = await models.LabRequestLog.findAll({
+      where: {
+        labRequestId: labRequest.id,
+      },
     });
-    expect(updatedRequest).toBeTruthy();
-    expect(updatedRequest.body.createdAt).toBeTruthy();
-    expect(updatedRequest.body.status).toEqual(LAB_REQUEST_STATUSES.PUBLISHED);
+    expect(labRequestLog.length).toEqual(1);
+  });
+
+  it('should not create a lab request log if not updating the lab request status', async () => {
+    const { id: requestId } = await models.LabRequest.createWithTests(
+      await randomLabRequest(models, { patientId }),
+    );
+    const response = await app.put(`/v1/labRequest/${requestId}`).send({ urgent: true });
+    expect(response).toHaveSucceeded();
+
+    const labRequestLog = await models.LabRequestLog.findAll({
+      where: {
+        labRequestId: response.body.id,
+      },
+    });
+    expect(labRequestLog.length).toEqual(0);
   });
 });
