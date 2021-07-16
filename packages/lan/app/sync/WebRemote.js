@@ -1,7 +1,6 @@
 import fetch from 'node-fetch';
 import AbortController from 'abort-controller';
 import config from 'config';
-import { chunk } from 'lodash';
 
 import { BadAuthenticationError, InvalidOperationError, RemoteTimeoutError } from 'shared/errors';
 import { VERSION_COMPATIBILITY_ERRORS } from 'shared/constants';
@@ -115,8 +114,10 @@ export class WebRemote {
         if (versionIncompatibleMessage) throw new InvalidOperationError(versionIncompatibleMessage);
       }
 
-      const errorMessage = error ? error.message : "no error message given";
-      throw new InvalidOperationError(`Server responded with status code ${response.status} (${errorMessage})`);
+      const errorMessage = error ? error.message : 'no error message given';
+      throw new InvalidOperationError(
+        `Server responded with status code ${response.status} (${errorMessage})`,
+      );
     }
 
     return response.json();
@@ -162,7 +163,7 @@ export class WebRemote {
   }
 
   async fetchChannelsWithChanges(channelsToCheck) {
-    const config = {
+    const algorithmConfig = {
       initialBatchSize: 1000,
       maxErrors: 100,
       maxBatchSize: 5000,
@@ -171,23 +172,27 @@ export class WebRemote {
       throttleFactorDown: 0.5,
     };
 
-    let batchSize = config.initialBatchSize;
+    let batchSize = algorithmConfig.initialBatchSize;
 
     const throttle = factor => {
       batchSize = Math.min(
-        config.maxBatchSize, 
-        Math.max(config.minBatchSize, Math.ceil(batchSize * factor))
+        algorithmConfig.maxBatchSize,
+        Math.max(algorithmConfig.minBatchSize, Math.ceil(batchSize * factor)),
       );
     };
 
-    log.info(`WebRemote.fetchChannelsWithChanges: Beginning channel check for ${channelsToCheck.length} total patients`);
+    log.info(
+      `WebRemote.fetchChannelsWithChanges: Beginning channel check for ${channelsToCheck.length} total patients`,
+    );
     const channelsWithPendingChanges = [];
     const channelsLeftToCheck = [...channelsToCheck];
     const errors = [];
     while (channelsLeftToCheck.length > 0) {
       const batchOfChannels = channelsLeftToCheck.splice(0, batchSize);
       try {
-        log.debug(`WebRemote.fetchChannelsWithChanges: Checking channels for ${batchOfChannels.length} patients`);
+        log.debug(
+          `WebRemote.fetchChannelsWithChanges: Checking channels for ${batchOfChannels.length} patients`,
+        );
         const body = batchOfChannels.reduce(
           (acc, { channel, cursor }) => ({
             ...acc,
@@ -201,21 +206,25 @@ export class WebRemote {
         });
         log.debug(`WebRemote.fetchChannelsWithChanges: OK! ${channelsLeftToCheck.length} left.`);
         channelsWithPendingChanges.push(...channelsWithChanges);
-        throttle(config.throttleFactorUp);
-      } catch(e) {
+        throttle(algorithmConfig.throttleFactorUp);
+      } catch (e) {
         // errored - put those channels back into the queue
         errors.push(e);
-        if(errors.length > config.maxErrors) {
+        if (errors.length > algorithmConfig.maxErrors) {
           log.error(errors);
-          throw new Error("Too many errors encountered, aborting sync entirely");
+          throw new Error('Too many errors encountered, aborting sync entirely');
         }
         channelsLeftToCheck.push(...batchOfChannels);
-        throttle(config.throttleFactorDown);
-        log.debug(`WebRemote.fetchChannelsWithChanges: Failed! Returning records to the back of the queue and slowing to batches of ${batchSize}; ${channelsLeftToCheck.length} left.`);
+        throttle(algorithmConfig.throttleFactorDown);
+        log.debug(
+          `WebRemote.fetchChannelsWithChanges: Failed! Returning records to the back of the queue and slowing to batches of ${batchSize}; ${channelsLeftToCheck.length} left.`,
+        );
       }
     }
 
-    log.debug(`WebRemote.fetchChannelsWithChanges: Channel check finished. Found ${channelsWithPendingChanges.length} channels with pending changes.`);
+    log.debug(
+      `WebRemote.fetchChannelsWithChanges: Channel check finished. Found ${channelsWithPendingChanges.length} channels with pending changes.`,
+    );
     return channelsWithPendingChanges;
   }
 
