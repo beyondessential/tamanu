@@ -168,6 +168,8 @@ export class SyncManager {
 
   async runSync(patientId = null) {
     const run = async () => {
+      const startTimestampMs = Date.now();
+      log.info(`SyncManager.runSync.run: began sync run`);
       const { models } = this.context;
 
       // ordered array because some models depend on others
@@ -206,6 +208,8 @@ export class SyncManager {
           await this.pullAndImport(model, patientId);
         }
       }
+      const elapsedTimeMs = Date.now() - startTimestampMs;
+      log.info(`SyncManager.runSync.run: finished sync run in ${elapsedTimeMs}ms`);
     };
 
     // queue up new job
