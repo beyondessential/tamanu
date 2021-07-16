@@ -25,6 +25,11 @@ const getVersionIncompatibleMessage = (error, response) => {
   return null;
 };
 
+const objectToQueryString = obj =>
+  Object.entries(obj)
+    .map(kv => kv.map(str => encodeURIComponent(str)).join('='))
+    .join('&');
+
 export class WebRemote {
   connectionPromise = null;
 
@@ -228,8 +233,9 @@ export class WebRemote {
     return channelsWithPendingChanges;
   }
 
-  async pull(channel, { since = 0, limit = 100, page = 0 } = {}) {
-    const path = `sync/${encodeURIComponent(channel)}?since=${since}&limit=${limit}&page=${page}`;
+  async pull(channel, { since = 0, limit = 100, page = 0, noCount = 'false' } = {}) {
+    const query = { since, limit, page, noCount };
+    const path = `sync/${encodeURIComponent(channel)}?${objectToQueryString(query)}`;
     return this.fetch(path);
   }
 

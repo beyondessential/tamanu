@@ -88,7 +88,11 @@ export class SyncManager {
         `SyncManager.pullAndImport: pulling ${limit} records since ${cursor} for ${channel}`,
       );
       const startTime = Date.now();
-      const result = await this.context.remote.pull(channel, { since: cursor, limit });
+      const result = await this.context.remote.pull(channel, {
+        since: cursor,
+        limit,
+        noCount: 'true',
+      });
       cursor = result.cursor;
       const syncRecords = result.records;
       if (syncRecords.length === 0) {
