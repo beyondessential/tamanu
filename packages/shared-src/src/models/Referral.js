@@ -27,7 +27,7 @@ export class Referral extends Model {
     });
     this.belongsTo(models.SurveyResponse, {
       foreignKey: 'surveyResponseId',
+      as: 'surveyResponse',
     });
   }
-
 }

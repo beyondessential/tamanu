@@ -81,6 +81,7 @@ triage.get(
            ON (encounters.location_id = location.id)
           LEFT JOIN reference_data AS complaint
            ON (triages.chief_complaint_id = complaint.id)
+        WHERE encounters.encounter_type = 'triage'
         ORDER BY ${sortKey} ${sortDirection} NULLS LAST
       `,
       {

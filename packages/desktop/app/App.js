@@ -1,5 +1,5 @@
-import React, { Component } from 'react';
-import { connect } from 'react-redux';
+import React from 'react';
+import { useDispatch, useSelector } from 'react-redux';
 import styled from 'styled-components';
 import 'typeface-roboto';
 
@@ -8,7 +8,7 @@ import { ConnectedSidebar } from './components/Sidebar';
 import { Appbar } from './components/Appbar';
 import { login, checkIsLoggedIn } from './store/auth';
 import { getCurrentRoute } from './store/router';
-import { ConnectedLoginView } from './views';
+import { LoginView } from './views';
 import { Colors } from './constants';
 import { ErrorBoundary } from './components/ErrorBoundary';
 import { DecisionSupportModal } from './components/DecisionSupportModal';
@@ -38,44 +38,33 @@ const AppBadge = styled.div`
   padding-left: 16px;
 `;
 
-class DumbApp extends Component {
-  renderAppContents() {
-    const { isUserLoggedIn, currentRoute } = this.props;
-    if (!isUserLoggedIn) {
-      return <ConnectedLoginView {...this.props} />;
-    }
-
+export function App({ children }) {
+  const dispatch = useDispatch();
+  const isUserLoggedIn = useSelector(checkIsLoggedIn);
+  const currentRoute = useSelector(getCurrentRoute);
+  if (!isUserLoggedIn) {
     return (
-      <AppContainer>
-        <AppBadge>
-          <TamanuLogoWhite />
-        </AppBadge>
-        <Appbar />
-        <ConnectedSidebar />
-        <ErrorBoundary errorKey={currentRoute}>
-          <AppContentsContainer>
-            {this.props.children}
-            <DecisionSupportModal />
-          </AppContentsContainer>
-        </ErrorBoundary>
-      </AppContainer>
+      <LoginView
+        onLogin={({ host, email, password }) => {
+          dispatch(login(host, email, password));
+        }}
+      />
     );
   }
 
-  render() {
-    return <div>{this.renderAppContents()}</div>;
-  }
+  return (
+    <AppContainer>
+      <AppBadge>
+        <TamanuLogoWhite />
+      </AppBadge>
+      <Appbar />
+      <ConnectedSidebar />
+      <ErrorBoundary errorKey={currentRoute}>
+        <AppContentsContainer>
+          {children}
+          <DecisionSupportModal />
+        </AppContentsContainer>
+      </ErrorBoundary>
+    </AppContainer>
+  );
 }
-
-const mapStateToProps = state => ({
-  isUserLoggedIn: checkIsLoggedIn(state),
-  currentRoute: getCurrentRoute(state),
-});
-
-const mapDispatchToProps = dispatch => ({
-  onLogin: ({ host, email, password }) => {
-    dispatch(login(host, email, password));
-  },
-});
-
-export const App = connect(mapStateToProps, mapDispatchToProps)(DumbApp);

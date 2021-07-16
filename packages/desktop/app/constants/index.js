@@ -13,8 +13,6 @@ import {
 
 export const MUI_SPACING_UNIT = 8;
 
-export const REMEMBER_EMAIL_KEY = 'remember-email';
-
 export const DISPLAY_ID_PLACEHOLDER = '-TMP-';
 
 export const PREGNANCY_PROGRAM_ID = 'program-pregnancy';
@@ -369,6 +367,9 @@ export const REPORT_TYPES = {
 
 export const LOCAL_STORAGE_KEYS = {
   HOST: 'host',
+  TOKEN: 'apiToken',
+  LOCALISATION: 'localisation',
+  REMEMBER_EMAIL: 'remember-email',
 };
 
 export const VACCINE_STATUS = {

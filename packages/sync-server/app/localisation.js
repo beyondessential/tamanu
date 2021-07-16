@@ -107,6 +107,9 @@ const rootLocalisationSchema = yup
     features: {
       hideOtherSex: yup.boolean().required(),
     },
+    sync: {
+      syncAllEncountersForTheseScheduledVaccines: yup.array(yup.string().required()).defined(),
+    },
   })
   .required()
   .noUnknown();

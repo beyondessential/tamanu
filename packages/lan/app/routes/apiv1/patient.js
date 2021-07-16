@@ -11,7 +11,8 @@ import { makeFilter } from '~/utils/query';
 import { patientVaccineRoutes } from './patient/patientVaccine';
 import { patientProfilePicture } from './patient/patientProfilePicture';
 
-export const patient = express.Router();
+const patientRoute = express.Router();
+export { patientRoute as patient };
 
 function dbRecordToResponse(patientRecord) {
   return {
@@ -27,7 +28,7 @@ function requestBodyToRecord(reqBody) {
   };
 }
 
-patient.get(
+patientRoute.get(
   '/:id',
   asyncHandler(async (req, res) => {
     const {
@@ -44,7 +45,7 @@ patient.get(
   }),
 );
 
-patient.put(
+patientRoute.put(
   '/:id',
   asyncHandler(async (req, res) => {
     const {
@@ -74,7 +75,7 @@ patient.put(
   }),
 );
 
-patient.post(
+patientRoute.post(
   '/$',
   asyncHandler(async (req, res) => {
     const {
@@ -145,6 +146,14 @@ patientRelations.get(
             '$initiatingEncounter.patient_id$': params.id,
           },
         },
+        {
+          association: 'surveyResponse',
+          include: [
+            {
+              association: 'answers',
+            },
+          ],
+        },
       ],
     });
 
@@ -157,7 +166,7 @@ patientRelations.get(
   asyncHandler(async (req, res) => {
     const { db, models, params, query } = req;
     const patientId = params.id;
-    const result = await runPaginatedQuery(
+    const { count, data } = await runPaginatedQuery(
       db,
       models.SurveyResponse,
       `
@@ -193,13 +202,16 @@ patientRelations.get(
       query,
     );
 
-    res.send(result);
+    res.send({
+      count: parseInt(count, 10),
+      data,
+    });
   }),
 );
 
-patient.use(patientRelations);
+patientRoute.use(patientRelations);
 
-patient.get(
+patientRoute.get(
   '/:id/currentEncounter',
   asyncHandler(async (req, res) => {
     const {
@@ -238,7 +250,7 @@ const sortKeys = {
   sex: 'patients.sex',
 };
 
-patient.get(
+patientRoute.get(
   '/$',
   asyncHandler(async (req, res) => {
     const {
@@ -359,7 +371,7 @@ patient.get(
       type: QueryTypes.SELECT,
     });
 
-    const { count } = countResult[0];
+    const count = parseInt(countResult[0].count, 10);
 
     if (count === 0) {
       // save ourselves a query
@@ -406,4 +418,4 @@ patient.get(
   }),
 );
 
-patient.use(patientVaccineRoutes);
+patientRoute.use(patientVaccineRoutes);
