@@ -11,6 +11,7 @@ import { PatientStickerLabelPage } from './PatientStickerLabelPage';
 import { PatientCovidTestCert } from './PatientCovidTestCert';
 import { StickerIcon } from './StickerIcon';
 import { IDCardIcon } from './IDCardIcon';
+import { CertificateIcon } from './CertificateIcon';
 
 const PRINT_OPTIONS = {
   barcode: {
@@ -26,7 +27,7 @@ const PRINT_OPTIONS = {
   covidTestCert: {
     label: 'Print COVID-19 Test Certificate',
     component: PatientCovidTestCert,
-    icon: IDCardIcon,
+    icon: CertificateIcon,
   },
 };
 
