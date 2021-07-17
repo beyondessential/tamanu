@@ -19,15 +19,15 @@ const TwoColumnContainer = styled.div`
   grid-template-columns: auto auto;
 `;
 
-const PRIMARY_DETAILS_FIELDS = [
-  ['firstName'],
-  ['lastName'],
-  ['dateOfBirth', ({ dateOfBirth }) => new Date(dateOfBirth).toLocaleDateString()],
-  ['placeOfBirth', ({ additionalData }) => additionalData?.placeOfBirth],
-  ['countryOfBirthId', ({ additionalData }) => additionalData?.countryOfBirth?.name],
-  ['sex'],
-  ['Mother', () => null], // TODO: not populated
-];
+const PRIMARY_DETAILS_FIELDS = {
+  firstName: null,
+  lastName: null,
+  dateOfBirth: ({ dateOfBirth }) => new Date(dateOfBirth).toLocaleDateString(),
+  placeOfBirth: ({ additionalData }) => additionalData?.placeOfBirth,
+  countryOfBirthId: ({ additionalData }) => additionalData?.countryOfBirth?.name,
+  sex: null,
+  Mother: () => null, // TODO: not populated
+};
 
 const UserEntrySection = styled.div`
   display: grid;
@@ -41,22 +41,25 @@ const UnderlineP = styled.p`
 
 const UnderlineEmptySpace = () => <UnderlineP>{new Array(100).fill('\u00A0')}</UnderlineP>;
 
-export const Certificate = ({ patient, header, footer = null, children }) => {
+export const Certificate = ({ patient, header, footer = null, primaryDetailsFields, children }) => {
   const currentUser = useSelector(getCurrentUser);
   const { getLocalisation } = useLocalisation();
-  const primaryDetailsFields = PRIMARY_DETAILS_FIELDS.filter(
-    ([name]) => getLocalisation(`fields.${name}.hidden`) !== true,
-  );
+  const detailsFieldsToDisplay =
+    primaryDetailsFields ||
+    Object.keys(PRIMARY_DETAILS_FIELDS).filter(
+      ([name]) => getLocalisation(`fields.${name}.hidden`) !== true,
+    );
   return (
     <div>
       <PrintLetterhead />
       <Spacer />
       <PatientDetailsHeader>{header}</PatientDetailsHeader>
       <TwoColumnContainer>
-        {primaryDetailsFields.map(([name, accessor]) => {
-          const label = getLocalisation(`fields.${name}.shortLabel`) || name;
-          const value = (accessor ? accessor(patient) : patient[name]) || '';
-          return <p key={name}>{`${label}: ${value}`}</p>;
+        {detailsFieldsToDisplay.map(field => {
+          const accessor = PRIMARY_DETAILS_FIELDS[field];
+          const label = getLocalisation(`fields.${field}.shortLabel`) || field;
+          const value = (accessor ? accessor(patient) : patient[field]) || '';
+          return <p key={field}>{`${label}: ${value}`}</p>;
         })}
       </TwoColumnContainer>
       <Spacer />

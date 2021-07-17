@@ -13,7 +13,18 @@ export const PatientCovidTestCert = ({ patient }) => {
 
   return (
     <PrintPortal>
-      <Certificate patient={patient} header="COVID-19 Test History">
+      <Certificate
+        patient={patient}
+        header="COVID-19 Test History"
+        primaryDetailsFields={[
+          'firstName',
+          'lastName',
+          'dateOfBirth',
+          'placeOfBirth',
+          'countryOfBirthId',
+          'sex',
+        ]}
+      >
         <table>
           <thead>
             <tr>
