@@ -18,6 +18,7 @@ export const Table = styled.table`
   thead {
     font-weight: bold;
   }
+  th,
   td {
     padding: 5px 10px;
     border: 1px solid ${Colors.darkText};

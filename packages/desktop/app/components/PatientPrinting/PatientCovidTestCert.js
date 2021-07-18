@@ -2,20 +2,54 @@ import React, { useState, useEffect } from 'react';
 
 import { Modal } from '../Modal';
 import { Certificate, Table } from '../Print/Certificate';
+import { mapDataToColumns } from '../Table/Table';
 
 import { connectApi } from '../../api';
+import { useLocalisation } from '../../contexts/Localisation';
 
 const DumbPatientCovidTestCert = ({ patient, getLabRequests }) => {
   const [open, setOpen] = useState(true);
-  const [requests, setRequests] = useState([]);
+  const [rows, setRows] = useState([]);
+  const { getLocalisation } = useLocalisation();
+
+  const columns = [
+    {
+      key: 'date-of-swab',
+      title: 'Date of swab',
+    },
+    {
+      key: 'date-of-test',
+      title: 'Date of test',
+    },
+    {
+      key: 'laboratory',
+      title: 'Laboratory',
+    },
+    {
+      key: 'displayId',
+      title: 'Request ID',
+    },
+    {
+      key: 'laboratoryOfficer',
+      title: 'Lab Officer',
+    },
+    {
+      key: 'method',
+      title: 'Method',
+    },
+    {
+      key: 'result',
+      title: 'Result',
+    },
+  ];
 
   useEffect(() => {
     (async () => {
       const response = await getLabRequests();
-      setRequests(response.data);
+      const requests = await Promise.all(response.data.map(r => mapDataToColumns(r, columns)));
+      setRows(requests);
     })();
   }, []);
-
   return (
     <Modal open={open} onClose={() => setOpen(false)} width="md" printable>
       <Certificate
@@ -33,27 +67,21 @@ const DumbPatientCovidTestCert = ({ patient, getLabRequests }) => {
         <Table>
           <thead>
             <tr>
-              <td>Date of swab</td>
-              <td>Date of test</td>
-              <td>Laboratory</td>
-              <td>Request ID</td>
-              <td>Lab Officer</td>
-              <td>Method</td>
-              <td>Result</td>
+              {columns.map(({ title, key }) => (
+                <th key={key}>{title || getLocalisation(`fields.${key}.shortLabel`) || key}</th>
+              ))}
             </tr>
           </thead>
           <tbody>
-            {requests.map(request => (
-              <tr>
-                <td></td>
-                <td></td>
-                <td></td>
-                <td key="displayId">{request.displayId}</td>
-                <td></td>
-                <td></td>
-                <td></td>
-              </tr>
-            ))}
+            {rows.map(row => {
+              return (
+                <tr key={row.displayId}>
+                  {Object.entries(row).map(([key, value]) => (
+                    <td key={key}>{value}</td>
+                  ))}
+                </tr>
+              );
+            })}
           </tbody>
         </Table>
       </Certificate>
@@ -62,5 +90,8 @@ const DumbPatientCovidTestCert = ({ patient, getLabRequests }) => {
 };
 
 export const PatientCovidTestCert = connectApi(api => ({
-  getLabRequests: () => api.get('/labRequest', {}),
+  getLabRequests: () =>
+    api.get('/labRequest', {
+      category: 'covid',
+    }),
 }))(DumbPatientCovidTestCert);
