@@ -24,17 +24,17 @@ export const StatusDisplay = React.memo(({ status }) => (
   </StatusLabel>
 ));
 
-const getDisplayName = ({ requestedBy }) =>
+const getRequestedBy = ({ requestedBy }) =>
   (requestedBy || {})?.displayName || requestedBy || 'Unknown';
 const getPatientName = row => <PatientNameDisplay patient={row} />;
 const getPatientDisplayId = ({ patientDisplayId }) => patientDisplayId || 'Unknown';
 const getStatus = ({ status }) => <StatusDisplay status={status} />;
-const getRequestId = ({ displayId }) => displayId;
+export const getRequestId = ({ displayId }) => displayId;
 const getRequestType = ({ categoryName, category }) =>
   categoryName || (category || {}).name || 'Unknown';
 const getPriority = ({ priorityName, priority }) =>
   priorityName || (priority || {}).name || 'Unknown';
-const getLaboratory = ({ laboratoryName, laboratory }) =>
+export const getLaboratory = ({ laboratoryName, laboratory }) =>
   laboratoryName || (laboratory || {}).name || 'Unknown';
 const getDate = ({ requestedDate }) => <DateDisplay date={requestedDate} />;
 
@@ -42,7 +42,7 @@ const encounterColumns = [
   { key: 'requestId', title: 'Request ID', sortable: false, accessor: getRequestId },
   { key: 'labRequestType', title: 'Type', accessor: getRequestType, sortable: false },
   { key: 'status', title: 'Status', accessor: getStatus, sortable: false },
-  { key: 'displayName', title: 'Requested by', accessor: getDisplayName, sortable: false },
+  { key: 'displayName', title: 'Requested by', accessor: getRequestedBy, sortable: false },
   { key: 'requestedDate', title: 'Date', accessor: getDate, sortable: false },
   { key: 'priority', title: 'Priority', accessor: getPriority },
   { key: 'laboratory', title: 'Laboratory', accessor: getLaboratory },

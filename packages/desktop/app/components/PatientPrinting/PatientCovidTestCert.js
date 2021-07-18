@@ -2,12 +2,13 @@ import React, { useState, useEffect } from 'react';
 
 import { Modal } from '../Modal';
 import { Certificate, Table } from '../Print/Certificate';
-import { mapDataToColumns } from '../Table/Table';
+import { DateDisplay } from '../DateDisplay';
+import { getRequestId, getLaboratory } from '../LabRequestsTable';
 
 import { connectApi } from '../../api';
 import { useLocalisation } from '../../contexts/Localisation';
 
-const DumbPatientCovidTestCert = ({ patient, getLabRequests }) => {
+const DumbPatientCovidTestCert = ({ patient, getLabRequests, getLabTests }) => {
   const [open, setOpen] = useState(true);
   const [rows, setRows] = useState([]);
   const { getLocalisation } = useLocalisation();
@@ -16,6 +17,7 @@ const DumbPatientCovidTestCert = ({ patient, getLabRequests }) => {
     {
       key: 'date-of-swab',
       title: 'Date of swab',
+      accessor: ({ sampleTime }) => <DateDisplay date={sampleTime} />,
     },
     {
       key: 'date-of-test',
@@ -24,10 +26,12 @@ const DumbPatientCovidTestCert = ({ patient, getLabRequests }) => {
     {
       key: 'laboratory',
       title: 'Laboratory',
+      accessor: getLaboratory,
     },
     {
-      key: 'displayId',
+      key: 'requestId',
       title: 'Request ID',
+      accessor: getRequestId,
     },
     {
       key: 'laboratoryOfficer',
@@ -36,6 +40,7 @@ const DumbPatientCovidTestCert = ({ patient, getLabRequests }) => {
     {
       key: 'method',
       title: 'Method',
+      accessor: ({ categoryName }) => categoryName,
     },
     {
       key: 'result',
@@ -46,8 +51,26 @@ const DumbPatientCovidTestCert = ({ patient, getLabRequests }) => {
   useEffect(() => {
     (async () => {
       const response = await getLabRequests();
-      const requests = await Promise.all(response.data.map(r => mapDataToColumns(r, columns)));
-      setRows(requests);
+      const requests = await Promise.all(
+        response.data.map(async request => {
+          const { data: tests } = await getLabTests(request.id);
+          return {
+            ...request,
+            result: tests[0].result,
+          };
+        }),
+      );
+      setRows(
+        requests.map(request => {
+          return {
+            rowId: request.id,
+            cells: columns.map(({ key, accessor }) => ({
+              key,
+              value: accessor ? React.createElement(accessor, request) : request[key],
+            })),
+          };
+        }),
+      );
     })();
   }, []);
   return (
@@ -75,8 +98,8 @@ const DumbPatientCovidTestCert = ({ patient, getLabRequests }) => {
           <tbody>
             {rows.map(row => {
               return (
-                <tr key={row.displayId}>
-                  {Object.entries(row).map(([key, value]) => (
+                <tr key={row.rowId}>
+                  {row.cells.map(({ key, value }) => (
                     <td key={key}>{value}</td>
                   ))}
                 </tr>
@@ -94,4 +117,5 @@ export const PatientCovidTestCert = connectApi(api => ({
     api.get('/labRequest', {
       category: 'covid',
     }),
+  getLabTests: id => api.get(`/labRequest/${id}/tests`),
 }))(DumbPatientCovidTestCert);

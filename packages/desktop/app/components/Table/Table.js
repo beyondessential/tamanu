@@ -302,44 +302,6 @@ class TableComponent extends React.Component {
   }
 }
 
-export const mapDataToColumns = async (data, columns) => {
-  const dx = {};
-  await Promise.all(
-    columns.map(async c => {
-      if (!c.key) {
-        return;
-      }
-      if (c.asyncExportAccessor) {
-        const value = await c.asyncExportAccessor(data);
-        dx[c.key] = value;
-        return;
-      }
-
-      if (c.accessor) {
-        const value = c.accessor(data);
-        // True if accessor returns a React element,
-        // which we can't export to a excel sheet, so just use the raw value.
-        // (e.g. dates)
-        if (typeof value === 'object') {
-          dx[c.key] = data[c.key];
-          return;
-        }
-
-        if (typeof value === 'string') {
-          dx[c.key] = value;
-          return;
-        }
-
-        dx[c.key] = 'Error: Could not parse accessor';
-      } else {
-        // Some columns have no accessor at all.
-        dx[c.key] = data[c.key];
-      }
-    }),
-  );
-  return dx;
-};
-
 export const Table = ({ columns: allColumns, data, exportName, ...props }) => {
   const { getLocalisation } = useLocalisation();
   const columns = allColumns.filter(({ key }) => getLocalisation(`fields.${key}.hidden`) !== true);
@@ -349,7 +311,38 @@ export const Table = ({ columns: allColumns, data, exportName, ...props }) => {
     const headers = columns.map(c => c.key);
     const rows = await Promise.all(
       data.map(async d => {
-        return mapDataToColumns(d, columns);
+        const dx = {};
+        await Promise.all(
+          columns.map(async c => {
+            if (c.asyncExportAccessor) {
+              const value = await c.asyncExportAccessor(d);
+              dx[c.key] = value;
+              return;
+            }
+
+            if (c.accessor) {
+              const value = c.accessor(d);
+              // True if accessor returns a React element,
+              // which we can't export to a excel sheet, so just use the raw value.
+              // (e.g. dates)
+              if (typeof value === 'object') {
+                dx[c.key] = d[c.key];
+                return;
+              }
+
+              if (typeof value === 'string') {
+                dx[c.key] = value;
+                return;
+              }
+
+              dx[c.key] = 'Error: Could not parse accessor';
+            } else {
+              // Some columns have no accessor at all.
+              dx[c.key] = d[c.key];
+            }
+          }),
+        );
+        return dx;
       }),
     );
 
