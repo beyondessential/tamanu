@@ -1,21 +1,6 @@
 import React, { useEffect } from 'react';
-import styled from 'styled-components';
 
-import { Colors } from '../constants';
-import { Certificate, Spacer } from './Print/Certificate';
-
-const VaccineTable = styled.table`
-  border: 1px solid ${Colors.darkText};
-  border-collapse: collapse;
-
-  thead {
-    font-weight: bold;
-  }
-  td {
-    padding: 5px 10px;
-    border: 1px solid ${Colors.darkText};
-  }
-`;
+import { Certificate, Spacer, Table } from './Print/Certificate';
 
 export const ImmunisationCertificate = ({ patient, immunisations }) => {
   const [hasEditedRecord, setHasEditedRecord] = React.useState(false);
@@ -35,7 +20,7 @@ export const ImmunisationCertificate = ({ patient, immunisations }) => {
   }
   return (
     <Certificate patient={patient} header="Personal vaccination certificate">
-      <VaccineTable>
+      <Table>
         <thead>
           <tr>
             <td>Vaccine type</td>
@@ -61,7 +46,7 @@ export const ImmunisationCertificate = ({ patient, immunisations }) => {
             </tr>
           ))}
         </tbody>
-      </VaccineTable>
+      </Table>
       {hasEditedRecord ? (
         <>
           <Spacer />

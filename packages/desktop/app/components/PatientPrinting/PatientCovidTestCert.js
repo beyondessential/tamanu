@@ -1,18 +1,11 @@
-import React, { useEffect } from 'react';
+import React from 'react';
 
-import { useElectron } from '../../contexts/Electron';
-
-import { PrintPortal } from '../Print';
-import { Certificate } from '../Print/Certificate';
+import { Modal } from '../Modal';
+import { Certificate, Table } from '../Print/Certificate';
 
 export const PatientCovidTestCert = ({ patient }) => {
-  const { printPage } = useElectron();
-  useEffect(() => {
-    printPage();
-  });
-
   return (
-    <PrintPortal>
+    <Modal open width="md" printable>
       <Certificate
         patient={patient}
         header="COVID-19 Test History"
@@ -25,7 +18,7 @@ export const PatientCovidTestCert = ({ patient }) => {
           'sex',
         ]}
       >
-        <table>
+        <Table>
           <thead>
             <tr>
               <td>Date of swab</td>
@@ -44,8 +37,8 @@ export const PatientCovidTestCert = ({ patient }) => {
               <td></td>
             </tr>
           </tbody>
-        </table>
+        </Table>
       </Certificate>
-    </PrintPortal>
+    </Modal>
   );
 };

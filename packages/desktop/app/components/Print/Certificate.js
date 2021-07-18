@@ -4,12 +4,25 @@ import styled from 'styled-components';
 
 import { getCurrentUser } from '../../store/auth';
 import { useLocalisation } from '../../contexts/Localisation';
+import { Colors } from '../../constants';
 import { PrintLetterhead } from './Letterhead';
 
 export const Spacer = styled.div`
   margin-top: 3rem;
 `;
 
+export const Table = styled.table`
+  border: 1px solid ${Colors.darkText};
+  border-collapse: collapse;
+
+  thead {
+    font-weight: bold;
+  }
+  td {
+    padding: 5px 10px;
+    border: 1px solid ${Colors.darkText};
+  }
+`;
 const PatientDetailsHeader = styled.strong`
   text-decoration: underline;
 `;
