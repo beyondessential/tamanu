@@ -15,9 +15,10 @@ const StatusLabel = styled.div`
   background: ${p => p.color};
   border-radius: 0.3rem;
   padding: 0.3rem;
+  width: fit-content;
 `;
 
-const StatusDisplay = React.memo(({ status }) => (
+export const StatusDisplay = React.memo(({ status }) => (
   <StatusLabel color={LAB_REQUEST_COLORS[status] || LAB_REQUEST_COLORS.unknown}>
     {LAB_REQUEST_STATUS_LABELS[status] || 'Unknown'}
   </StatusLabel>
