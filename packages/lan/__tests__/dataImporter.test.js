@@ -18,8 +18,8 @@ describe('Data definition import', () => {
   });
 
   it('should ensure every record has an id', () => {
-    for (const [k, records] of recordGroups) {
-      records.map(r => {
+    for (const [, records] of recordGroups) {
+      records.forEach(r => {
         expect(r).toHaveProperty('data.id');
       });
     }
@@ -53,8 +53,6 @@ describe('Data definition import', () => {
     expect(records).toHaveProperty('referenceData:village', 10);
     expect(records).toHaveProperty('referenceData:drug', 10);
     expect(records).toHaveProperty('referenceData:allergy', 10);
-    expect(records).toHaveProperty('referenceData:department', 10);
-    expect(records).toHaveProperty('referenceData:location', 10);
     expect(records).toHaveProperty('referenceData:icd10', 10);
     expect(records).toHaveProperty('referenceData:triageReason', 10);
     expect(records).toHaveProperty('referenceData:procedureType', 10);
@@ -64,6 +62,21 @@ describe('Data definition import', () => {
   it('should import user records', () => {
     const { records } = resultInfo.stats;
     expect(records).toHaveProperty('user', 10);
+  });
+
+  it('should import facility records', () => {
+    const { records } = resultInfo.stats;
+    expect(records).toHaveProperty('facility', 10);
+  });
+
+  it('should import department records', () => {
+    const { records } = resultInfo.stats;
+    expect(records).toHaveProperty('department', 10);
+  });
+
+  it('should import location records', () => {
+    const { records } = resultInfo.stats;
+    expect(records).toHaveProperty('location', 10);
   });
 
   it('should import patient records', () => {

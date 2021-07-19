@@ -1,8 +1,9 @@
 import {
   createDummyPatient,
   createDummyEncounter,
+  randomRecordId,
   randomReferenceId,
-} from 'shared/demoData/patients';
+} from 'shared/demoData';
 import { subDays } from 'date-fns';
 import { createTestContext } from '../../utilities';
 import { ENCOUNTER_TYPES } from 'shared/constants';
@@ -23,7 +24,7 @@ describe('Admissions report', () => {
     expectedPatient = await models.Patient.create(await createDummyPatient(models, { villageId }));
     wrongPatient = await models.Patient.create(await createDummyPatient(models, { villageId }));
     app = await baseApp.asRole('practitioner');
-    expectedLocation = await randomReferenceId(models, 'location');
+    expectedLocation = await randomRecordId(models, 'Location');
   });
 
   it('should reject creating an admissions report with insufficient permissions', async () => {

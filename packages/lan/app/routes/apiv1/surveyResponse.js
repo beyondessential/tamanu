@@ -1,14 +1,13 @@
 import express from 'express';
 import asyncHandler from 'express-async-handler';
 
-import config from 'config';
-
-import { REFERENCE_TYPES } from 'shared/constants';
-
 export const surveyResponse = express.Router();
 
 const MODEL_COLUMN_TO_ANSWER_DISPLAY_VALUE = {
   User: 'displayName',
+  Department: 'name',
+  Facility: 'name',
+  Location: 'name',
   ReferenceData: 'name',
 };
 

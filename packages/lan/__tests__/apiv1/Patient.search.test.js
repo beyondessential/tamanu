@@ -83,8 +83,8 @@ describe('Patient search', () => {
     app = await baseApp.asRole('practitioner');
 
     villages = await models.ReferenceData.findAll({ where: { type: 'village' } });
-    locations = await models.ReferenceData.findAll({ where: { type: 'location' } });
-    departments = await models.ReferenceData.findAll({ where: { type: 'department' } });
+    locations = await models.Location.findAll();
+    departments = await models.Department.findAll();
 
     await Promise.all(
       searchTestPatients.map(async ({ encounter: encounterData, ...data }, i) => {

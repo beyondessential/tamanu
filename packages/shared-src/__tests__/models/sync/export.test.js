@@ -21,17 +21,13 @@ describe('export', () => {
   const patientId = uuidv4();
   const userId = uuidv4();
   const facilityId = uuidv4();
+
   beforeAll(async () => {
     context = await initDb({ syncClientMode: true }); // TODO: test server mode too
     models = context.models;
     await models.Patient.create({ ...fakePatient(), id: patientId });
     await models.User.create({ ...fakeUser(), id: userId });
-    await models.ReferenceData.create({
-      type: 'facility',
-      name: 'Test Facility',
-      code: 'test-facility',
-      id: facilityId,
-    });
+    await models.Facility.create({ ...fake(models.Facility), id: facilityId });
   });
 
   const testCases = [
@@ -67,12 +63,6 @@ describe('export', () => {
       `patient/${patientId}/issue`,
     ],
     ['ReportRequest', () => ({ ...fake(models.ReportRequest), requestedByUserId: userId })],
-    [
-      'Location',
-      async () => {
-        return { ...fake(models.Location), facilityId };
-      },
-    ],
     [
       'UserFacility',
       async () => {
