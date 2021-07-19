@@ -115,6 +115,9 @@ export class WebSyncSource implements SyncSource {
   }
 
   async fetch(path: string, query: Record<string, string>, config) {
+    if (!this.host) {
+      throw new AuthenticationError('WebSyncSource.fetch: not connected to a host yet');
+    }
     const queryString = Object.entries(query).map(([k, v]) => `${k}=${v}`).join('&');
     const url = `${this.host}/v${API_VERSION}/${path}?${queryString}`;
     const extraHeaders = config?.headers || {};
