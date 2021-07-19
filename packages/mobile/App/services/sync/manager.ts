@@ -209,9 +209,13 @@ export class SyncManager {
 
     let numDownloaded = 0;
     const updateProgress = (stepSize: number): void => {
-      const total = numDownloaded + remaining;
       numDownloaded += stepSize;
-      this.setProgress(Math.ceil((numDownloaded / total) * 100));
+      this.setProgress(
+        Math.min(
+          Math.ceil((numDownloaded / total) * 100),
+          100,
+        ),
+      );
     };
     this.setProgress(0);
 
@@ -235,7 +239,7 @@ export class SyncManager {
     let cursor = initialCursor;
     let importTask: Promise<void>;
     let limit = INITIAL_DOWNLOAD_LIMIT;
-    let remaining: number | null;
+    let total: number | null;
     this.emitter.emit('importStarted', channel);
     while (true) {
       // We want to download each page of records while the current page
@@ -243,7 +247,7 @@ export class SyncManager {
       // and network IO are running in parallel rather than running in
       // alternating sequence.
       const startTime = Date.now();
-      const downloadTask = downloadPage(cursor, limit, { noCount: !!remaining });
+      const downloadTask = downloadPage(cursor, limit, { noCount: !!total });
 
       // wait for import task to complete before progressing in loop
       await importTask;
@@ -264,9 +268,9 @@ export class SyncManager {
         break;
       }
 
-      if (!remaining) {
-        // set remaining items once, at the start of the channel sync
-        remaining = response.count;
+      if (!total) {
+        // set total items once, at the start of the channel sync
+        total = response.count;
       }
       updateProgress(response.records.length);
 
