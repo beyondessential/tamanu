@@ -69,21 +69,10 @@ surveyResponse.post(
 
     req.checkPermission('create', 'SurveyResponse');
 
-    /** TODO: Remove this temporary code to handle required locationId and departmentId fields */
-    const getRefDataId = async type => {
-      const code = config.survey.defaultCodes[type];
-      const record = await models.ReferenceData.findOne({ where: { type, code } });
-      if (!record) {
-        throw new Error(
-          `Could not look up default reference data type ${type} for encounter: code ${code} not found (check survey.defaultCodes.${type} in the config)`,
-        );
-      }
-      return record.id;
-    };
-
+    const getDefaultId = async type => models.SurveyResponseAnswer.getDefaultId(type);
     const updatedBody = {
-      locationId: body.locationId || (await getRefDataId(REFERENCE_TYPES.LOCATION)),
-      departmentId: body.departmentId || (await getRefDataId(REFERENCE_TYPES.DEPARTMENT)),
+      locationId: body.locationId || (await getDefaultId('location')),
+      departmentId: body.departmentId || (await getDefaultId('department')),
       examinerId: req.user.id,
       ...body,
     };

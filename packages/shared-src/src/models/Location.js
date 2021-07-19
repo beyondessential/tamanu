@@ -33,6 +33,13 @@ export class Location extends Model {
   }
 
   static initRelations(models) {
+    this.hasMany(models.Encounter, {
+      foreignKey: 'locationId',
+    });
+    this.hasMany(models.Procedure, {
+      foreignKey: 'locationId',
+    });
+
     this.belongsTo(models.Facility, {
       foreignKey: 'facilityId',
     });

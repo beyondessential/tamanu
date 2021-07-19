@@ -85,6 +85,10 @@ export class User extends Model {
       foreignKey: 'dischargerId',
       as: 'discharges',
     });
+
+    this.belongsToMany(models.Facility, {
+      through: 'UserFacility',
+    });
   }
 
   static syncDirection = SYNC_DIRECTIONS.PULL_ONLY;

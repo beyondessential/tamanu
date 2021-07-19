@@ -34,6 +34,11 @@
     "files.exclude": {
       "packages/": true
     },
-    "editor.formatOnSave": false
+    "editor.formatOnSave": false,
+    "cSpell.words": [
+      "singularize",
+      "upsert",
+      "upserted"
+    ]
   }
 }

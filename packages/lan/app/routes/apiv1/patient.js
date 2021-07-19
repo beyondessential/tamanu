@@ -333,10 +333,10 @@ patient.get(
       FROM patients
         LEFT JOIN encounters
           ON (encounters.patient_id = patients.id AND encounters.end_date IS NULL)
-        LEFT JOIN reference_data AS department
-          ON (department.type = 'department' AND department.id = encounters.department_id)
-        LEFT JOIN reference_data AS location
-          ON (location.type = 'location' AND location.id = encounters.location_id)
+        LEFT JOIN departments AS department
+          ON (department.id = encounters.department_id)
+        LEFT JOIN locations AS location
+          ON (location.id = encounters.location_id)
         LEFT JOIN reference_data AS village
           ON (village.type = 'village' AND village.id = patients.village_id)
       ${whereClauses && `WHERE ${whereClauses}`}
