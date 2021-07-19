@@ -90,6 +90,11 @@ export class SyncManager {
     });
   }
 
+  setProgress(progress: number): void {
+    this.progress = progress;
+    this.emitter.emit('progress', this.progress);
+  }
+
   async waitForEnd(): Promise<void> {
     if (this.isSyncing) {
       return new Promise(resolve => {
@@ -121,6 +126,7 @@ export class SyncManager {
       return;
     }
 
+    let startTimeMs = Date.now();
     try {
       this.isSyncing = true;
       this.errors = [];
@@ -135,7 +141,7 @@ export class SyncManager {
         { channel: 'user', model: models.User },
 
         { channel: 'labTestType', model: models.LabTestType },
-        
+
         { channel: 'attachment', model: models.Attachment },
 
         { channel: 'scheduledVaccine', model: models.ScheduledVaccine },
@@ -148,13 +154,16 @@ export class SyncManager {
         { channel: 'patient', model: models.Patient },
         ...syncablePatients.map(p => ({
           channel: `patient/${p.id}/encounter`,
-          model: models.Encounter })),
+          model: models.Encounter
+        })),
         ...syncablePatients.map(p => ({
           channel: `patient/${p.id}/issue`,
-          model: models.PatientIssue })),
+          model: models.PatientIssue
+        })),
         ...syncablePatients.map(p => ({
           channel: `patient/${p.id}/additionalData`,
-          model: models.PatientAdditionalData })),
+          model: models.PatientAdditionalData
+        })),
       ];
 
       // add current cursor to each channel info
@@ -176,7 +185,7 @@ export class SyncManager {
       }
     } finally {
       this.isSyncing = false;
-      this.emitter.emit('syncEnded');
+      this.emitter.emit('syncEnded', `time=${Date.now() - startTimeMs}ms`);
     }
   }
 
@@ -193,22 +202,18 @@ export class SyncManager {
     channel: string,
     initialCursor: string,
   ): Promise<void> {
-    const downloadPage = (since: string, limit: number): Promise<DownloadRecordsResponse> => {
+    const downloadPage = (since: string, limit: number, options): Promise<DownloadRecordsResponse> => {
       this.emitter.emit('downloadingPage', `${channel}-since-${since}-limit-${limit}`);
-      return this.syncSource.downloadRecords(channel, since, limit);
+      return this.syncSource.downloadRecords(channel, since, limit, options);
     };
 
     let numDownloaded = 0;
-    const setProgress = (progress: number): void => {
-      this.progress = progress;
-      this.emitter.emit('progress', this.progress);
-    };
-    const updateProgress = (stepSize: number, remaining: number): void => {
+    const updateProgress = (stepSize: number): void => {
       const total = numDownloaded + remaining;
       numDownloaded += stepSize;
-      setProgress(Math.ceil((numDownloaded / total) * 100));
+      this.setProgress(Math.ceil((numDownloaded / total) * 100));
     };
-    setProgress(0);
+    this.setProgress(0);
 
     const importPlan = createImportPlan(model);
     const importRecords = async (records: SyncRecord[], pullCursor: string): Promise<void> => {
@@ -230,6 +235,7 @@ export class SyncManager {
     let cursor = initialCursor;
     let importTask: Promise<void>;
     let limit = INITIAL_DOWNLOAD_LIMIT;
+    let remaining: number | null;
     this.emitter.emit('importStarted', channel);
     while (true) {
       // We want to download each page of records while the current page
@@ -237,7 +243,7 @@ export class SyncManager {
       // and network IO are running in parallel rather than running in
       // alternating sequence.
       const startTime = Date.now();
-      const downloadTask = downloadPage(cursor, limit);
+      const downloadTask = downloadPage(cursor, limit, { noCount: !!remaining });
 
       // wait for import task to complete before progressing in loop
       await importTask;
@@ -258,7 +264,11 @@ export class SyncManager {
         break;
       }
 
-      updateProgress(response.records.length, response.count);
+      if (!remaining) {
+        // set remaining items once, at the start of the channel sync
+        remaining = response.count;
+      }
+      updateProgress(response.records.length);
 
       cursor = response.cursor;
 
@@ -328,7 +338,7 @@ export class SyncManager {
 
       const recordIdsToExport = await model.filterExportRecords(recordsChunk.map(r => r.data.id));
       const recordsToExport = recordsChunk.filter(r => recordIdsToExport.includes(r.data.id));
-  
+
       if (recordsToExport.length === 0) {
         continue;
       }
