@@ -49,6 +49,6 @@ module.exports = {
     });
   },
   down: async query => {
-    await query.dropTable('lab_request_log');
+    await query.dropTable('lab_request_logs');
   },
 };
