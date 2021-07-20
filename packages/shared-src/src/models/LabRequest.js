@@ -1,7 +1,7 @@
 import { Sequelize } from 'sequelize';
 import { InvalidOperationError } from 'shared/errors';
 
-import { LAB_REQUEST_STATUSES } from 'shared/constants';
+import { LAB_REQUEST_STATUSES, NOTE_TYPES } from 'shared/constants';
 import { Model } from './Model';
 
 const LAB_REQUEST_STATUS_VALUES = Object.values(LAB_REQUEST_STATUSES);
@@ -84,6 +84,14 @@ export class LabRequest extends Model {
 
       return base;
     });
+  }
+
+  async addLabNote(content) {
+    const { Note } = this.sequelize.models;
+
+    const note = await Note.createForRecord(this, NOTE_TYPES.OTHER, content);
+
+    return note;
   }
 
   static initRelations(models) {
