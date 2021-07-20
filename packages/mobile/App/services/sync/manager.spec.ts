@@ -141,7 +141,7 @@ describe('SyncManager', () => {
           cursor: 'finished-sync-1',
         }));
         mockedSource.downloadRecords.mockReturnValueOnce(Promise.resolve({
-          count: 0,
+          count: null,
           records: [],
         }));
         await syncManager.downloadAndImport(models.Encounter, channel, '0');
@@ -150,9 +150,9 @@ describe('SyncManager', () => {
         expect(mockedSource.downloadRecords).toHaveBeenCalledTimes(2);
 
         expect(mockedSource.downloadRecords)
-          .toHaveBeenCalledWith(channel, '0', expect.any(Number)); // first sync starts from '0'
+          .toHaveBeenCalledWith(channel, '0', expect.any(Number), { noCount: false }); // first sync starts from '0'
         expect(mockedSource.downloadRecords)
-          .toHaveBeenCalledWith(channel, 'finished-sync-1', expect.any(Number)); // subsequent uses cursor
+          .toHaveBeenCalledWith(channel, 'finished-sync-1', expect.any(Number), { noCount: true }); // subsequent uses cursor
 
         expect(
           await models.Encounter.findOne({ id: encounter.id }),
@@ -326,8 +326,8 @@ describe('SyncManager', () => {
       // assert
       expect(mockedSource.fetchChannelsWithChanges).toBeCalledTimes(1);
       expect(mockedSource.downloadRecords).toBeCalledTimes(2);
-      expect(mockedSource.downloadRecords).toHaveBeenCalledWith('user', '0', expect.any(Number));
-      expect(mockedSource.downloadRecords).toHaveBeenCalledWith('patient', '0', expect.any(Number));
+      expect(mockedSource.downloadRecords).toHaveBeenCalledWith('user', '0', expect.any(Number), { noCount: false });
+      expect(mockedSource.downloadRecords).toHaveBeenCalledWith('patient', '0', expect.any(Number), { noCount: false });
     });
 
     it('includes subchannels of patients marked for sync', async () => {
