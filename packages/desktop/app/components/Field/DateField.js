@@ -12,14 +12,14 @@ import { TextInput } from './TextField';
 //    this is always in RFC3339 format (which looks like "1996-12-19T16:39:57")
 //
 //  - currently entered date, which might be only partially entered
-//    this is a string in whatever format that has been given to the
+//    this is a string in whatever format that has been given to the 
 //    component through the `format` prop.
 //
 // As the string formats don't contain timezone information, the RFC3339 dates are
 // always in UTC - leaving it up to the local timezone can introduce some wacky
 // behaviour as the dates get converted back and forth.
 //
-// Care has to be taken with setting the string value, as the native date control
+// Care has to be taken with setting the string value, as the native date control 
 // has some unusual input handling (switching focus between day/month/year etc) that
 // a value change will interfere with.
 
