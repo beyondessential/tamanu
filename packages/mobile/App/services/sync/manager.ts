@@ -202,7 +202,7 @@ export class SyncManager {
     channel: string,
     initialCursor: string,
   ): Promise<void> {
-    const downloadPage = (since: string, limit: number, options): Promise<DownloadRecordsResponse> => {
+    const downloadPage = (since: string, limit: number, options: { noCount: boolean }): Promise<DownloadRecordsResponse> => {
       this.emitter.emit('downloadingPage', `${channel}-since-${since}-limit-${limit}`);
       return this.syncSource.downloadRecords(channel, since, limit, options);
     };

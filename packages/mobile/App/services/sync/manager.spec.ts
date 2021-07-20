@@ -2,14 +2,13 @@ import { Database } from '~/infra/db';
 import { Patient } from '~/models/Patient';
 import { PatientIssue } from '~/models/PatientIssue';
 import { Encounter } from '~/models/Encounter';
-import { readConfig, writeConfig } from '~/services/config';
+import { readConfig } from '~/services/config';
 
 import { SyncManager } from './manager';
 import { WebSyncSource } from './source';
 
 import {
   fake,
-  createRelations,
   toSyncRecord,
   fakeAdministeredVaccine,
   fakeEncounter,
@@ -278,7 +277,7 @@ describe('SyncManager', () => {
     it('only runs one sync at a time', async () => {
       // arrange
       const { syncManager, mockedSource } = createManager();
-      let resolveFirstFetchChannels;
+      let resolveFirstFetchChannels: ((value: string[]) => void);
       const firstFetchChannelsPromise = new Promise(resolve => {
         resolveFirstFetchChannels = resolve;
       });
@@ -374,7 +373,7 @@ describe('SyncManager', () => {
       // assert
       expect(mockedSource.fetchChannelsWithChanges).toBeCalledTimes(1);
       const receivedArgs = mockedSource.fetchChannelsWithChanges.mock.calls[0];
-      expect(receivedArgs[0].map(c => c.channel)).toEqual(expect.arrayContaining([
+      expect(receivedArgs[0].map(({ channel }) => channel)).toEqual(expect.arrayContaining([
         `patient/${patient.id}/encounter`,
         `patient/${patient.id}/issue`,
       ]));
