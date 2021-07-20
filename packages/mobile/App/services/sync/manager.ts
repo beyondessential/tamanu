@@ -247,14 +247,18 @@ export class SyncManager {
       // and network IO are running in parallel rather than running in
       // alternating sequence.
       const startTime = Date.now();
-      const downloadTask = downloadPage(cursor, limit, { noCount: !!total });
+      let downloadTime: number;
+      const downloadTask = downloadPage(cursor, limit, { noCount: !!total }).then(r => {
+        // set downloadTime as soon as downloadTask completes so it isn't depedent on import
+        downloadTime = Date.now() - startTime;
+        return r;
+      });
 
       // wait for import task to complete before progressing in loop
       await importTask;
 
       // wait for the current page download to complete
       const response = await downloadTask;
-      const downloadTime = Date.now() - startTime;
 
       if (response === null) {
         // ran into an error
