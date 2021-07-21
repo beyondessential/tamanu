@@ -81,7 +81,7 @@ triage.get(
            ON (encounters.location_id = location.id)
           LEFT JOIN reference_data AS complaint
            ON (triages.chief_complaint_id = complaint.id)
-        WHERE encounters.encounter_type = 'triage'
+        WHERE (encounters.encounter_type = 'triage' OR encounters.encounter_type = 'observation') AND encounters.end_date IS NULL
         ORDER BY ${sortKey} ${sortDirection} NULLS LAST
       `,
       {
