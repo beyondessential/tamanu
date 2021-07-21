@@ -18,8 +18,8 @@ import { ChangeLabStatusModal } from '../../components/ChangeLabStatusModal';
 import { LAB_REQUEST_STATUS_LABELS } from '../../constants';
 
 import { capitaliseFirstLetter } from '../../utils/capitalise';
+import { getCompletedDate, getMethod } from '../../utils/lab';
 import { ChangeLaboratoryModal } from '../../components/ChangeLaboratoryModal';
-import { DateDisplay } from '../../components';
 import { LabRequestNoteForm } from '../../forms/LabRequestNoteForm';
 import { LabRequestAuditPane } from '../../components/LabRequestAuditPane';
 import { useLabRequest } from '../../contexts/LabRequest';
@@ -36,9 +36,6 @@ const makeRangeStringAccessor = sex => ({ labTestType }) => {
   return 'N/A';
 };
 
-const getDate = ({ completedDate }) => <DateDisplay date={completedDate} />;
-const getMethod = ({ labTestMethod }) => (labTestMethod || {}).name || 'Unknown';
-
 const columns = sex => [
   { title: 'Test', key: 'type', accessor: row => row.labTestType.name },
   {
@@ -50,7 +47,7 @@ const columns = sex => [
   { title: 'Method', key: 'labTestMethod', accessor: getMethod, sortable: false },
   { title: 'Laboratory officer', key: 'laboratoryOfficer' },
   { title: 'Verification', key: 'verification' },
-  { title: 'Completed', key: 'completedDate', accessor: getDate, sortable: false },
+  { title: 'Completed', key: 'completedDate', accessor: getCompletedDate, sortable: false },
 ];
 
 const ResultsPane = React.memo(({ labRequest, patient }) => {

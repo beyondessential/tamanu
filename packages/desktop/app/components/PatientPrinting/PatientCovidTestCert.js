@@ -3,7 +3,7 @@ import React, { useState, useEffect } from 'react';
 import { Modal } from '../Modal';
 import { Certificate, Table } from '../Print/Certificate';
 import { DateDisplay } from '../DateDisplay';
-import { getRequestId, getLaboratory } from '../LabRequestsTable';
+import { getCompletedDate, getMethod, getRequestId, getLaboratory } from '../../utils/lab';
 
 import { connectApi } from '../../api';
 import { useLocalisation } from '../../contexts/Localisation';
@@ -22,6 +22,7 @@ const DumbPatientCovidTestCert = ({ patient, getLabRequests, getLabTests }) => {
     {
       key: 'date-of-test',
       title: 'Date of test',
+      accessor: getCompletedDate,
     },
     {
       key: 'laboratory',
@@ -40,7 +41,7 @@ const DumbPatientCovidTestCert = ({ patient, getLabRequests, getLabTests }) => {
     {
       key: 'method',
       title: 'Method',
-      accessor: ({ categoryName }) => categoryName,
+      accessor: getMethod,
     },
     {
       key: 'result',
@@ -56,20 +57,18 @@ const DumbPatientCovidTestCert = ({ patient, getLabRequests, getLabTests }) => {
           const { data: tests } = await getLabTests(request.id);
           return {
             ...request,
-            result: tests[0].result,
+            ...tests[0],
           };
         }),
       );
       setRows(
-        requests.map(request => {
-          return {
-            rowId: request.id,
-            cells: columns.map(({ key, accessor }) => ({
-              key,
-              value: accessor ? React.createElement(accessor, request) : request[key],
-            })),
-          };
-        }),
+        requests.map(request => ({
+          rowId: request.id,
+          cells: columns.map(({ key, accessor }) => ({
+            key,
+            value: accessor ? React.createElement(accessor, request) : request[key],
+          })),
+        })),
       );
     })();
   }, []);
