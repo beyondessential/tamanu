@@ -26,14 +26,28 @@ const StyledAbbr = styled.abbr`
   text-decoration: none;
 `;
 
-export const DateDisplay = React.memo(({ date, showDate = true, showTime = false, showDuration = false, ...props }) => (
-  <StyledAbbr {...props} title={formatLong(date)}>
-    {showDate && formatShort(date)}
-    {' '}
-    {showDuration && ` (${formatDuration(date)})`}
-    {' '}
-    {showTime && formatTime(date)}
-  </StyledAbbr>
-));
+export const DateDisplay = ({
+  date,
+  showDate = true,
+  showTime = false,
+  showDuration = false,
+  ...props
+}) => {
+  const parts = [];
+  if (showDate) {
+    parts.push(formatShort(date));
+  }
+  if (showDuration) {
+    parts.push(`(${formatDuration(date)})`);
+  }
+  if (showTime) {
+    parts.push(formatTime(date));
+  }
+  return (
+    <StyledAbbr {...props} title={formatLong(date)}>
+      {parts.join(' ')}
+    </StyledAbbr>
+  );
+};
 
 DateDisplay.rawFormat = formatShort;
