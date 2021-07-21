@@ -54,13 +54,13 @@ syncRoutes.get(
 
     const { store, query, params } = req;
     const { channel } = params;
-    const { since, limit = '100' } = query;
+    const { since, limit = '100', noCount = 'false' } = query;
 
     if (!since) {
       throw new InvalidParameterError('Sync GET request must include a "since" parameter');
     }
 
-    const count = await store.countSince(channel, since);
+    const count = noCount === 'true' ? null : await store.countSince(channel, since);
 
     const limitNum = parseInt(limit, 10) || undefined;
 
@@ -70,7 +70,8 @@ syncRoutes.get(
       limit: limitNum,
     });
 
-    log.info(`GET from ${channel} : ${count} records`);
+    const countMsg = noCount !== 'true' ? ` out of ${count}` : '';
+    log.info(`GET from ${channel} : returned ${records?.length}${countMsg} records`);
     res.send({
       count,
       requestedAt,

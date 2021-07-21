@@ -1,17 +1,19 @@
 import React, { memo, useState } from 'react';
-import { connect } from 'react-redux';
+import { useSelector } from 'react-redux';
 import styled from 'styled-components';
 import Collapse from '@material-ui/core/Collapse';
 import Paper from '@material-ui/core/Paper';
 import * as yup from 'yup';
 import { Button, MinusIconButton, PlusIconButton, TamanuLogo } from '../components';
-import { REMEMBER_EMAIL_KEY } from '../constants';
+import { LOCAL_STORAGE_KEYS } from '../constants';
 import { splashImages } from '../constants/images';
 
 import { Form, Field, TextField, CheckField } from '../components/Field';
 import { ServerDetectingField } from '../components/Field/ServerDetectingField';
 import { FormGrid } from '../components/FormGrid';
 import { SyncHealthNotificationComponent } from '../components/SyncHealthNotification';
+
+const { REMEMBER_EMAIL } = LOCAL_STORAGE_KEYS;
 
 const Grid = styled.div`
   display: grid;
@@ -53,16 +55,17 @@ const AdvancedButtonSpan = styled.span`
   }
 `;
 
-export const LoginView = memo(({ errorMessage, onLogin }) => {
+export const LoginView = memo(({ onLogin }) => {
   const [isAdvancedExpanded, setAdvancedExpanded] = useState(false);
 
+  const errorMessage = useSelector(state => state.auth.error);
   const onSubmit = data => {
     const { host, email, password, rememberMe } = data;
 
     if (rememberMe) {
-      localStorage.setItem(REMEMBER_EMAIL_KEY, email);
+      localStorage.setItem(REMEMBER_EMAIL, email);
     } else {
-      localStorage.removeItem(REMEMBER_EMAIL_KEY);
+      localStorage.removeItem(REMEMBER_EMAIL);
     }
 
     onLogin({ host, email, password });
@@ -110,7 +113,7 @@ export const LoginView = memo(({ errorMessage, onLogin }) => {
     );
   };
 
-  const rememberEmail = localStorage.getItem(REMEMBER_EMAIL_KEY);
+  const rememberEmail = localStorage.getItem(REMEMBER_EMAIL);
 
   return (
     <Grid>
@@ -140,5 +143,3 @@ export const LoginView = memo(({ errorMessage, onLogin }) => {
     </Grid>
   );
 });
-
-export const ConnectedLoginView = connect(state => ({ errorMessage: state.auth.error }))(LoginView);

@@ -153,6 +153,48 @@ export const SecondaryDetailsGroup = connectApi(api => ({
   patientBillingTypeSuggester: new Suggester(api, 'patientBillingType'),
 }))(DumbSecondaryDetailsGroup);
 
+function sanitiseRecordForValues(data) {
+  const {
+    // unwanted ids
+    id,
+    patientId,
+
+    // backend fields
+    markedForPush,
+    markedForSync,
+    createdAt,
+    updatedAt,
+    pushedAt,
+    pulledAt,
+
+    // state fields
+    loading,
+    error,
+
+    ...remaining
+  } = data;
+
+  return Object.entries(remaining)
+    .filter(([k, v]) => {
+      if (Array.isArray(v)) return false;
+      if (typeof v === 'object') return false;
+      return true;
+    })
+    .reduce((state, [k, v]) => ({ ...state, [k]: v }), {});
+}
+
+function stripPatientData(patient) {
+  // The patient object includes the entirety of patient state, not just the
+  // fields on the db record, and whatever we pass to initialValues will get
+  // sent on to the server if it isn't modified by a field on the form.
+  // So, we strip that out here.
+
+  return {
+    ...sanitiseRecordForValues(patient),
+    ...sanitiseRecordForValues(patient.additionalData),
+  };
+}
+
 export const PatientDetailsForm = ({ patient, onSubmit }) => {
   const render = React.useCallback(({ submitForm }) => (
     <FormGrid>
@@ -169,7 +211,7 @@ export const PatientDetailsForm = ({ patient, onSubmit }) => {
   return (
     <Form
       render={render}
-      initialValues={{ ...patient, ...patient.additionalData }}
+      initialValues={stripPatientData(patient)}
       onSubmit={onSubmit}
     />
   );

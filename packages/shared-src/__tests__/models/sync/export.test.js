@@ -21,6 +21,7 @@ describe('export', () => {
   const patientId = uuidv4();
   const userId = uuidv4();
   const facilityId = uuidv4();
+  const scheduledVaccineId = uuidv4();
   beforeAll(async () => {
     context = await initDb({ syncClientMode: true }); // TODO: test server mode too
     models = context.models;
@@ -32,12 +33,28 @@ describe('export', () => {
       code: 'test-facility',
       id: facilityId,
     });
+    await models.ScheduledVaccine.create({
+      ...fake(models.ScheduledVaccine),
+      id: scheduledVaccineId,
+    });
   });
 
   const testCases = [
     ['Patient', fakePatient],
     ['Encounter', () => buildNestedEncounter(context, patientId), `patient/${patientId}/encounter`],
     ['Encounter', () => buildNestedEncounter(context, patientId), 'labRequest/all/encounter'],
+    [
+      'Encounter',
+      async () => {
+        const encounter = await buildNestedEncounter(context, patientId);
+        encounter.administeredVaccines = encounter.administeredVaccines.map(v => ({
+          ...v,
+          scheduledVaccineId,
+        }));
+        return encounter;
+      },
+      `scheduledVaccine/${scheduledVaccineId}/encounter`,
+    ],
     [
       'PatientAllergy',
       () => ({ ...fake(models.PatientAllergy), patientId }),

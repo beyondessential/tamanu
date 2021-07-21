@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { useEffect } from 'react';
 import { connect } from 'react-redux';
 import styled from 'styled-components';
 
@@ -55,7 +55,7 @@ const PRIMARY_DETAILS_FIELDS = [
 const DumbImmunisationCertificate = ({ currentUser, patient, immunisations }) => {
   const [hasEditedRecord, setHasEditedRecord] = React.useState(false);
 
-  React.useEffect(() => {
+  useEffect(() => {
     if (!immunisations) {
       return;
     }

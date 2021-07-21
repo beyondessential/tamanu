@@ -48,7 +48,7 @@ function riskCalculation(patient, getf, getb) {
     getCoeff(14) * ((diabetes ? 1 : 0) - getM(14));
 
   const base = getM(15);
-  const risk = 1 - (base ** Math.exp(exp));
+  const risk = 1 - base ** Math.exp(exp);
 
   return risk;
 }
@@ -63,14 +63,22 @@ const handleSurveyResponseActions = async (models, actions, questions, patientId
     switch (dataElement.type) {
       case 'PatientIssue': {
         const config = JSON.parse(configString) || {};
-        if (!config.issueNote || !config.issueType) throw new InvalidOperationError(`Ill-configured PatientIssue with config: ${configString}`);
-        await models.PatientIssue.create({ patientId, type: config.issueType, note: config.issueNote });
+        if (!config.issueNote || !config.issueType)
+          throw new InvalidOperationError(
+            `Ill-configured PatientIssue with config: ${configString}`,
+          );
+        await models.PatientIssue.create({
+          patientId,
+          type: config.issueType,
+          note: config.issueNote,
+        });
+        break;
       }
       default:
       // pass
     }
   }
-}
+};
 
 export class SurveyResponse extends Model {
   static init({ primaryKey, ...options }) {
@@ -176,7 +184,7 @@ export class SurveyResponse extends Model {
 
     questions
       .filter(q => calculatedFieldTypes.includes(q.dataElement.type))
-      .map(({ dataElement }) => {
+      .forEach(({ dataElement }) => {
         const answer = runCalculation(dataElement, answersObject);
         calculatedAnswers[dataElement.id] = answer;
         if (dataElement.type === 'Result') {

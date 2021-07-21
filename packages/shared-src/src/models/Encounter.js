@@ -75,13 +75,57 @@ export class Encounter extends Model {
             throw new Error(`Encounter queryFromParams: unsupported selector: ${selector}`);
           },
         },
+        {
+          route: 'scheduledVaccine/:scheduledVaccineId/encounter',
+          mustMatchRecord: false,
+          queryFromParams: ({ scheduledVaccineId }) => {
+            if (typeof scheduledVaccineId !== 'string') {
+              throw new Error(
+                `Encounter queryFromParams: expected scheduledVaccineId to be a string, got ${scheduledVaccineId}`,
+              );
+            }
+            return {
+              where: {},
+              include: {
+                association: 'administeredVaccines',
+                required: true,
+                where: { scheduledVaccineId },
+              },
+            };
+          },
+        },
       ],
       getChannels: async patientId => {
-        const nestedChannels = await nestedSyncConfig.getChannels(patientId);
+        // query patient channels and localisation in parallel
+        const [nestedChannels, localisation] = await Promise.all([
+          nestedSyncConfig.getChannels(patientId),
+          this.sequelize.models.UserLocalisationCache.getLocalisation({
+            include: {
+              association: 'user',
+              required: true,
+              where: {
+                email: config.sync.email,
+              },
+            },
+          }),
+        ]);
+
+        // patient channels
+        const channels = [...nestedChannels];
+
+        // lab requests
         if (config.sync.syncAllLabRequests) {
-          return [...nestedChannels, 'labRequest/all/encounter'];
+          channels.push('labRequest/all/encounter');
         }
-        return nestedChannels;
+
+        // scheduled vaccines
+        const scheduledVaccineIdsToSync =
+          localisation?.sync?.syncAllEncountersForTheseScheduledVaccines || [];
+        for (const scheduledVaccineId of scheduledVaccineIdsToSync) {
+          channels.push(`scheduledVaccine/${scheduledVaccineId}/encounter`);
+        }
+
+        return channels;
       },
     };
     super.init(

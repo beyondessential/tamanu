@@ -185,10 +185,34 @@ describe('import', () => {
     });
 
     describe('Encounter', () => {
+      const scheduledVaccineId = uuidv4();
+      beforeAll(async () => {
+        await models.ScheduledVaccine.create({
+          ...fake(models.ScheduledVaccine),
+          id: scheduledVaccineId,
+        });
+      });
+
       const buildEncounterWithId = optionalEncounterId =>
         buildNestedEncounter(context, patientId, optionalEncounterId);
 
-      [`patient/${patientId}/encounter`, 'labRequest/all/encounter'].forEach(channel => {
+      [
+        [`patient/${patientId}/encounter`, buildEncounterWithId],
+        ['labRequest/all/encounter', buildEncounterWithId],
+        [
+          `scheduledVaccine/${scheduledVaccineId}/encounter`,
+          async id => {
+            const encounter = await buildEncounterWithId(id);
+            return {
+              ...encounter,
+              administeredVaccines: encounter.administeredVaccines.map(v => ({
+                ...v,
+                scheduledVaccineId,
+              })),
+            };
+          },
+        ],
+      ].forEach(([channel, build]) => {
         const options = {
           include: [
             { association: 'administeredVaccines' },
@@ -209,7 +233,7 @@ describe('import', () => {
         it('creates the record', async () => {
           // arrange
           const model = models.Encounter;
-          const record = await buildEncounterWithId();
+          const record = await build();
 
           // act
           const plan = createImportPlan(model.sequelize, channel);
@@ -229,7 +253,7 @@ describe('import', () => {
           // arrange
           const model = models.Encounter;
           const isPushable = !!model.tableAttributes.pushedAt;
-          const oldRecord = await buildEncounterWithId();
+          const oldRecord = await build();
           await model.create(oldRecord);
           if (isPushable) {
             // the newly created record should have markedForPush set to true initially
@@ -238,7 +262,7 @@ describe('import', () => {
               true,
             );
           }
-          const newRecord = await buildEncounterWithId(oldRecord.id);
+          const newRecord = await build(oldRecord.id);
 
           // act
           const plan = createImportPlan(model.sequelize, channel);
@@ -258,7 +282,7 @@ describe('import', () => {
         it('deletes tombstones', async () => {
           // arrange
           const model = models.Encounter;
-          const record = await buildEncounterWithId();
+          const record = await build();
           await model.create(record);
 
           // act

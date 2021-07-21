@@ -95,10 +95,9 @@ async function localLogin(models, email, password) {
     throw new BadAuthenticationError('Incorrect username or password, please try again');
   }
 
-  const localisationCache = await models.UserLocalisationCache.findOne({
+  const localisation = await models.UserLocalisationCache.getLocalisation({
     where: { userId: user.id },
   });
-  const localisation = JSON.parse(localisationCache.localisation);
 
   const token = getToken(user);
   return { token, remote: false, localisation, featureFlags };
