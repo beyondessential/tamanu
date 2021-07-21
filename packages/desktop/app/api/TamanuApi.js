@@ -1,5 +1,5 @@
 import faye from 'faye';
-import { readFile } from 'fs';
+import { readFileSync } from 'fs';
 
 import { VERSION_COMPATIBILITY_ERRORS } from 'shared/constants';
 import { LOCAL_STORAGE_KEYS } from '../constants';
@@ -160,7 +160,7 @@ export class TamanuApi {
   }
 
   async postWithFileUpload(endpoint, filePath, body) {
-    const fileData = await readFile(filePath);
+    const fileData = readFileSync(filePath);
     const blob = new Blob([fileData]);
 
     // We have to use multipart/formdata to support sending the file data,

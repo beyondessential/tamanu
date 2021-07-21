@@ -80,7 +80,7 @@ const OutcomeDisplay = ({ result }) => {
     <div>
       <OutcomeHeader result={result} />
       <hr />
-      <div>{`Target server: ${result.serverInfo.host}`}</div>
+      <div>{`Target server: ${result.serverInfo?.host}`}</div>
       <h4>Records imported</h4>
       <ImportStatsDisplay stats={result.stats} />
       <h4>Validation results</h4>

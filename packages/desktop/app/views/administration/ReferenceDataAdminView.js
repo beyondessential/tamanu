@@ -14,7 +14,7 @@ import { Field } from '../../components/Field';
 export const ReferenceDataAdminView = memo(() => {
   const api = useApi();
   const onSubmit = useCallback(
-    ({ file, ...data }) => api.postWithFileUpload('admin/importProgram', file, data)
+    ({ file, ...data }) => api.postWithFileUpload('admin/importData', file, data)
   );
 
   const whitelist = (
