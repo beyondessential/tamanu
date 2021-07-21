@@ -68,28 +68,38 @@ const ConnectedReferenceDataDisplay = connectApi(api => ({
   fetchReferenceData: id => api.get(`referenceData/${id}`),
 }))(ReferenceDataDisplay);
 
-const ExaminerDisplay = React.memo(({ id, fetchReferenceData }) => {
-  const [name, setName] = useState('Unknown');
+const ReferringDoctorDisplay = React.memo(
+  ({ surveyResponse: { surveyId, answers }, fetchUser, fetchSurvey }) => {
+    const [name, setName] = useState('Unknown');
 
-  useEffect(() => {
-    (async () => {
-      const result = await fetchReferenceData(encodeURIComponent(id));
-      if (result) setName(result.displayName);
-    })();
-  }, [id]);
+    useEffect(() => {
+      (async () => {
+        const survey = await fetchSurvey(encodeURIComponent(surveyId));
+        const referringDoctorComponent = survey.components.find(
+          ({ dataElement }) => dataElement.name === 'Referring doctor',
+        );
+        const referringDoctorAnswer = answers.find(
+          ({ dataElementId }) => dataElementId === referringDoctorComponent.dataElementId,
+        );
+        const result = await fetchUser(encodeURIComponent(referringDoctorAnswer.body));
+        if (result) setName(result.displayName);
+      })();
+    }, [surveyId]);
 
-  return name;
-});
-const ConnectedExaminerDisplay = connectApi(api => ({
-  fetchReferenceData: id => api.get(`user/${id}`),
-}))(ExaminerDisplay);
+    return name;
+  },
+);
+const ConnectedReferringDoctorDisplay = connectApi(api => ({
+  fetchUser: id => api.get(`user/${id}`),
+  fetchSurvey: id => api.get(`survey/${id}`),
+}))(ReferringDoctorDisplay);
 
 const getDate = ({ initiatingEncounter }) => <DateDisplay date={initiatingEncounter.startDate} />;
 const getDepartment = ({ initiatingEncounter }) => (
   <ConnectedReferenceDataDisplay id={initiatingEncounter.departmentId} />
 );
-const getDisplayName = ({ initiatingEncounter }) => (
-  <ConnectedExaminerDisplay id={initiatingEncounter.examinerId} />
+const getDisplayName = ({ surveyResponse }) => (
+  <ConnectedReferringDoctorDisplay surveyResponse={surveyResponse} />
 );
 const getStatus = ({ completingEncounter }) => (completingEncounter ? 'Complete' : 'Pending');
 

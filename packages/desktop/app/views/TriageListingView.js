@@ -5,7 +5,7 @@ import Paper from '@material-ui/core/Paper';
 import { connect } from 'react-redux';
 
 import { viewPatientEncounter } from '../store/patient';
-import { ConfigurableText, TopBar, PageContainer, DataFetchingTable } from '../components';
+import { TopBar, PageContainer, DataFetchingTable } from '../components';
 import { TriageStatisticsCard } from '../components/TriageStatisticsCard';
 import { DateDisplay } from '../components/DateDisplay';
 import { LiveDurationDisplay } from '../components/LiveDurationDisplay';

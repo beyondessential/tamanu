@@ -8,7 +8,7 @@ import { log } from 'shared/services/logging';
 
 import { WebRemote } from '~/sync';
 
-const { tokenDuration } = auth;
+const { tokenDuration, secret } = auth;
 
 // TODO: supports versions desktop-1.2.0/mobile-1.2.14 and older, remove once we no longer support these
 const featureFlags = {
@@ -23,7 +23,7 @@ const featureFlags = {
 
 // regenerate the secret key whenever the server restarts.
 // this will invalidate all current tokens, but they're meant to expire fairly quickly anyway.
-const jwtSecretKey = uuid();
+const jwtSecretKey = secret || uuid();
 
 export function getToken(user, expiresIn = tokenDuration) {
   return sign(
@@ -95,10 +95,9 @@ async function localLogin(models, email, password) {
     throw new BadAuthenticationError('Incorrect username or password, please try again');
   }
 
-  const localisationCache = await models.UserLocalisationCache.findOne({
+  const localisation = await models.UserLocalisationCache.getLocalisation({
     where: { userId: user.id },
   });
-  const localisation = JSON.parse(localisationCache.localisation);
 
   const token = getToken(user);
   return { token, remote: false, localisation, featureFlags };

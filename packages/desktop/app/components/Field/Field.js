@@ -9,4 +9,3 @@ export const Field = formikConnect(({ formik: { errors }, name, helperText, ...p
     name={name}
   />
 ));
-

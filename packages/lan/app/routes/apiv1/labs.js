@@ -3,6 +3,7 @@ import asyncHandler from 'express-async-handler';
 import moment from 'moment';
 import { QueryTypes } from 'sequelize';
 
+import { NotFoundError, InvalidOperationError } from 'shared/errors';
 import { REFERENCE_TYPES } from 'shared/constants';
 import { makeFilter } from '~/utils/query';
 import { renameObjectKeys } from '~/utils/renameObjectKeys';
@@ -11,7 +12,31 @@ import { simpleGet, simplePut, simpleGetList, permissionCheckingRouter } from '.
 export const labRequest = express.Router();
 
 labRequest.get('/:id', simpleGet('LabRequest'));
-labRequest.put('/:id', simplePut('LabRequest'));
+
+labRequest.put(
+  '/:id',
+  asyncHandler(async (req, res) => {
+    const { models, params } = req;
+    const { userId, ...rest } = req.body;
+    req.checkPermission('read', 'LabRequest');
+    const object = await models.LabRequest.findByPk(params.id);
+    if (!object) throw new NotFoundError();
+    req.checkPermission('write', object);
+    await object.update(rest);
+
+    if (rest.status) {
+      if (!userId) throw new InvalidOperationError('No user found for LabRequest status change.');
+      await models.LabRequestLog.create({
+        status: rest.status,
+        labRequestId: params.id,
+        updatedById: userId,
+      });
+    }
+
+    res.send(object);
+  }),
+);
+
 labRequest.post(
   '/$',
   asyncHandler(async (req, res) => {
@@ -100,6 +125,8 @@ labRequest.get(
           ON (patient.id = encounter.patient_id)
         LEFT JOIN users AS examiner
           ON (examiner.id = encounter.examiner_id)
+        LEFT JOIN users AS requester
+          ON (requester.id = lab_requests.requested_by_id)
       ${whereClauses && `WHERE ${whereClauses}`}
     `;
 
@@ -118,7 +145,7 @@ labRequest.get(
       type: QueryTypes.SELECT,
     });
 
-    const { count } = countResult[0];
+    const count = parseInt(countResult[0].count, 10);
 
     if (count === 0) {
       // save ourselves a query
@@ -134,7 +161,8 @@ labRequest.get(
           patient.id AS patient_id,
           patient.first_name AS first_name,
           patient.last_name AS last_name,
-          examiner.display_name AS requested_by,
+          examiner.display_name AS examiner,
+          requester.display_name AS requested_by,
           encounter.id AS encounter_id,
           category.id AS category_id,
           category.name AS category_name,

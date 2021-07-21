@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { useEffect } from 'react';
 import styled from 'styled-components';
 
 import { SEX_VALUE_INDEX } from '../../constants';
@@ -19,7 +19,7 @@ const Sticker = styled.div`
 export const PatientStickerLabel = ({ patient }) => (
   <Sticker>
     <div>
-      <PatientBarcode patient={patient} width={'128px'} height={'35px'} />
+      <PatientBarcode patient={patient} width="128px" height="35px" />
       <div>
         <strong>{patient.displayId}</strong>
       </div>
@@ -52,7 +52,7 @@ const LabelPage = styled.div`
 
 export const PatientStickerLabelPage = ({ patient }) => {
   const { printPage } = useElectron();
-  React.useEffect(() => {
+  useEffect(() => {
     printPage();
   });
 
@@ -60,8 +60,8 @@ export const PatientStickerLabelPage = ({ patient }) => {
     <PrintPortal>
       <LetterPage>
         <LabelPage>
-          {new Array(30).fill(0).map((x, i) => (
-            <PatientStickerLabel key={i} patient={patient} />
+          {[...Array(30).keys()].map(x => (
+            <PatientStickerLabel key={x} patient={patient} />
           ))}
         </LabelPage>
       </LetterPage>

@@ -7,8 +7,9 @@ import { reloadLab } from '../store/labRequest';
 import { ChangeLabStatusForm } from '../forms/ChangeLabStatusForm';
 
 export const ChangeLabStatusModal = connectApi((api, dispatch, { labRequest }) => ({
-  onSubmit: async data => {
-    await api.put(`labRequest/${labRequest.id}`, { status: data.status });
+  onSubmit: async ({ status }) => {
+    const { id } = await api.get('user/me');
+    await api.put(`labRequest/${labRequest.id}`, { status, userId: id });
     dispatch(reloadLab(labRequest.id));
   },
 }))(({ labRequest, onClose, open, onSubmit }) => (

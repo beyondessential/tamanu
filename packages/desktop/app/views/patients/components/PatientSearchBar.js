@@ -2,18 +2,9 @@ import React, { memo, useMemo, useCallback } from 'react';
 import styled from 'styled-components';
 import FingerprintIcon from '@material-ui/icons/Fingerprint';
 import SearchIcon from '@material-ui/icons/Search';
-import InputAdornment from '@material-ui/core/InputAdornment';
 
 import { useLocalisation } from '../../../contexts/Localisation';
-import {
-  ConfigurableText,
-  Button,
-  Form,
-  Field,
-  TextField,
-  DateField,
-  AutocompleteField,
-} from '../../../components';
+import { Button, Form, Field, TextField, DateField, AutocompleteField } from '../../../components';
 import { Colors } from '../../../constants';
 import { connectApi } from '../../../api';
 import { Suggester } from '../../../utils/suggester';
@@ -123,17 +114,21 @@ export const CustomisablePatientSearchBar = ({ title, onSearch, fields, ...props
   const fieldElements = useMemo(
     () =>
       fields
-        .map(([key, { suggesterKey, placeholder, ...fieldProps } = {}]) =>
-          getLocalisation(`fields.${key}.hidden`) === true ? null : (
-            <Field
-              name={key}
-              key={key}
-              placeholder={getLocalisation(`fields.${key}.longLabel`) || placeholder}
-              component={TextField}
-              suggester={props[suggesterKey]}
-              {...fieldProps}
-            />
-          ),
+        .map(
+          ([
+            key,
+            { suggesterKey, placeholder, localisationLabel = 'longLabel', ...fieldProps } = {},
+          ]) =>
+            getLocalisation(`fields.${key}.hidden`) === true ? null : (
+              <Field
+                name={key}
+                key={key}
+                placeholder={getLocalisation(`fields.${key}.${localisationLabel}`) || placeholder}
+                component={TextField}
+                suggester={props[suggesterKey]}
+                {...fieldProps}
+              />
+            ),
         )
         .filter(c => c),
     [getLocalisation, fields, props],
