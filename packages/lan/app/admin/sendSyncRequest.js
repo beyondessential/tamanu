@@ -9,7 +9,9 @@ const splitIntoChunks = (arr, chunkSize) =>
     .map((v, i) => arr.slice(i * chunkSize, (i + 1) * chunkSize));
 
 export async function sendSyncRequest(remote, channel, records) {
-  const maxRecordsPerRequest = 250;
+  // use a much lower # of requests per channel for users, as it can contain
+  // a call to bcrypt, which is intentionally slow, and this can time syncs out
+  const maxRecordsPerRequest = (channel === 'user') ? 3 : 250;
 
   const parts = splitIntoChunks(records, maxRecordsPerRequest);
   log.info(
