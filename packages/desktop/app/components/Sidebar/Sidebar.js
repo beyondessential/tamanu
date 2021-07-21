@@ -3,7 +3,7 @@ import styled from 'styled-components';
 import Divider from '@material-ui/core/Divider';
 import MuiList from '@material-ui/core/List';
 
-import { version } from '../../../package.json';
+import pkg from '../../../package.json';
 import { LogoutItem } from './LogoutItem';
 import { SecondarySidebarItem } from './SecondarySidebarItem';
 import { PrimarySidebarItem } from './PrimarySidebarItem';
@@ -101,7 +101,7 @@ export class Sidebar extends Component {
             <Divider />
             <LogoutItem onClick={this.onLogout} />
           </div>
-          <VersionContainer>Version {version}</VersionContainer>
+          <VersionContainer>Version {pkg.version}</VersionContainer>
         </SidebarMenuContainer>
       </SidebarContainer>
     );

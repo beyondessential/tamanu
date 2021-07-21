@@ -1,5 +1,7 @@
 import React from 'react';
 
+import CircularProgress from '@material-ui/core/CircularProgress';
+
 import { DataFetchingTable } from './Table';
 import { DateDisplay } from './DateDisplay';
 import { MarkPatientForSync } from './MarkPatientForSync';
@@ -17,7 +19,14 @@ const columns = [
   { key: 'description', title: 'Description', accessor: getDescription },
 ];
 
-export const PatientHistory = ({ patient, pulledAt, onItemClick }) => {
+export const PatientHistory = ({ patient, onItemClick }) => {
+  if (patient.syncing) {
+    return (
+      <div style={{ margin: '1rem' }}>
+        <CircularProgress />
+      </div>
+    );
+  }
   if (!patient.markedForSync) {
     return <MarkPatientForSync patient={patient} />;
   }

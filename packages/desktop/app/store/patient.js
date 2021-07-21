@@ -5,6 +5,7 @@ const PATIENT_LOAD_START = 'PATIENT_LOAD_START';
 const PATIENT_LOAD_ERROR = 'PATIENT_LOAD_ERROR';
 const PATIENT_LOAD_FINISH = 'PATIENT_LOAD_FINISH';
 const PATIENT_CLEAR = 'PATIENT_CLEAR';
+const PATIENT_WAIT_FOR_SYNC = 'PATIENT_WAIT_FOR_SYNC';
 
 export const viewPatientEncounter = (patientId, modal = '') => async dispatch => {
   dispatch(reloadPatient(patientId));
@@ -62,6 +63,11 @@ export const reloadPatient = id => async (dispatch, getState, { api }) => {
   }
 };
 
+export const waitForSync = (wait = true) => ({
+  type: PATIENT_WAIT_FOR_SYNC,
+  data: wait,
+});
+
 // reducers
 
 const defaultState = {
@@ -75,6 +81,7 @@ export const patientReducer = (state = defaultState, action) => {
   switch (action.type) {
     case PATIENT_LOAD_START:
       return {
+        ...state,
         loading: true,
         id: action.id,
         error: null,
@@ -82,21 +89,23 @@ export const patientReducer = (state = defaultState, action) => {
       };
     case PATIENT_LOAD_ERROR:
       return {
+        ...state,
         loading: false,
         error: action.error,
       };
     case PATIENT_LOAD_FINISH:
       return {
+        ...state,
         loading: false,
         error: null,
         ...action.patient,
       };
     case PATIENT_CLEAR:
+      return defaultState;
+    case PATIENT_WAIT_FOR_SYNC:
       return {
-        loading: false,
-        id: null,
-        error: null,
-        issues: [],
+        ...state,
+        syncing: action.data,
       };
     default:
       return state;

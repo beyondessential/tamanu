@@ -5,7 +5,7 @@ import styled from 'styled-components';
 import { Button } from './Button';
 import { connectApi } from '../api';
 import { Colors } from '../constants';
-import { reloadPatient } from '../store/patient';
+import { reloadPatient, waitForSync } from '../store/patient';
 
 const MarkPatientForSyncButton = styled(Button)`
   background: ${Colors.white};
@@ -32,8 +32,11 @@ const DumbMarkPatientForSync = ({ onMarkPatientForSync }) => {
 
 export const MarkPatientForSync = connectApi((api, dispatch, { patient }) => ({
   onMarkPatientForSync: async () => {
+    dispatch(waitForSync());
     await api.put(`patient/${patient.id}`, { markedForSync: true });
     dispatch(reloadPatient(patient.id));
+    // heuristically wait for 25 seconds to sync patients
+    await new Promise(resolve => setTimeout(resolve, 25000));
+    dispatch(waitForSync(false));
   },
 }))(DumbMarkPatientForSync);
-
