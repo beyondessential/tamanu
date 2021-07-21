@@ -134,6 +134,17 @@ describe('Sync API', () => {
       expect(firstRecord).not.toHaveProperty('index');
     });
 
+    it('should not return a count if noCount=true', async () => {
+      const result = await app.get(`/v1/sync/patient?since=0&noCount=true`);
+      expect(result).toHaveSucceeded();
+
+      const { body } = result;
+      expect(body.count).toBe(null);
+      expect(body).toHaveProperty('records');
+      expect(body).toHaveProperty('cursor');
+      expect(body.records.length).toBeGreaterThan(0);
+    });
+
     it('should filter out older records', async () => {
       const result = await app.get(
         `/v1/sync/patient?since=${getUpdatedAtTimestamp(SECOND_OLDEST_PATIENT) - 1}`,

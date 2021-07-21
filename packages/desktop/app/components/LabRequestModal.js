@@ -1,5 +1,4 @@
 import React, { useCallback } from 'react';
-import { push } from 'connected-react-router';
 import { customAlphabet } from 'nanoid';
 
 import { Modal } from './Modal';
@@ -10,7 +9,8 @@ import { connectApi } from '../api/connectApi';
 
 import { ConnectedLabRequestForm } from '../forms/LabRequestForm';
 
-const ALPHABET_FOR_ID = 'ABCDEFGH' + /*I*/ 'JK' + /*L*/ 'MN' + /*O*/ 'PQRSTUVWXYZ' + /*01*/ '23456789';
+const ALPHABET_FOR_ID =
+  'ABCDEFGH' + /*I*/ 'JK' + /*L*/ 'MN' + /*O*/ 'PQRSTUVWXYZ' + /*01*/ '23456789';
 
 const DumbLabRequestModal = React.memo(
   ({ open, encounter, practitionerSuggester, onClose, onSubmit }) => {
