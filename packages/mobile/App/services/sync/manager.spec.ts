@@ -2,14 +2,13 @@ import { Database } from '~/infra/db';
 import { Patient } from '~/models/Patient';
 import { PatientIssue } from '~/models/PatientIssue';
 import { Encounter } from '~/models/Encounter';
-import { readConfig, writeConfig } from '~/services/config';
+import { readConfig } from '~/services/config';
 
 import { SyncManager } from './manager';
 import { WebSyncSource } from './source';
 
 import {
   fake,
-  createRelations,
   toSyncRecord,
   fakeAdministeredVaccine,
   fakeEncounter,
@@ -142,7 +141,7 @@ describe('SyncManager', () => {
           cursor: 'finished-sync-1',
         }));
         mockedSource.downloadRecords.mockReturnValueOnce(Promise.resolve({
-          count: 0,
+          count: null,
           records: [],
         }));
         await syncManager.downloadAndImport(models.Encounter, channel, '0');
@@ -151,9 +150,9 @@ describe('SyncManager', () => {
         expect(mockedSource.downloadRecords).toHaveBeenCalledTimes(2);
 
         expect(mockedSource.downloadRecords)
-          .toHaveBeenCalledWith(channel, '0', expect.any(Number)); // first sync starts from '0'
+          .toHaveBeenCalledWith(channel, '0', expect.any(Number), { noCount: false }); // first sync starts from '0'
         expect(mockedSource.downloadRecords)
-          .toHaveBeenCalledWith(channel, 'finished-sync-1', expect.any(Number)); // subsequent uses cursor
+          .toHaveBeenCalledWith(channel, 'finished-sync-1', expect.any(Number), { noCount: true }); // subsequent uses cursor
 
         expect(
           await models.Encounter.findOne({ id: encounter.id }),
@@ -278,7 +277,7 @@ describe('SyncManager', () => {
     it('only runs one sync at a time', async () => {
       // arrange
       const { syncManager, mockedSource } = createManager();
-      let resolveFirstFetchChannels;
+      let resolveFirstFetchChannels: ((value: string[]) => void);
       const firstFetchChannelsPromise = new Promise(resolve => {
         resolveFirstFetchChannels = resolve;
       });
@@ -327,8 +326,8 @@ describe('SyncManager', () => {
       // assert
       expect(mockedSource.fetchChannelsWithChanges).toBeCalledTimes(1);
       expect(mockedSource.downloadRecords).toBeCalledTimes(2);
-      expect(mockedSource.downloadRecords).toHaveBeenCalledWith('user', '0', expect.any(Number));
-      expect(mockedSource.downloadRecords).toHaveBeenCalledWith('patient', '0', expect.any(Number));
+      expect(mockedSource.downloadRecords).toHaveBeenCalledWith('user', '0', expect.any(Number), { noCount: false });
+      expect(mockedSource.downloadRecords).toHaveBeenCalledWith('patient', '0', expect.any(Number), { noCount: false });
     });
 
     it('includes subchannels of patients marked for sync', async () => {
@@ -374,7 +373,7 @@ describe('SyncManager', () => {
       // assert
       expect(mockedSource.fetchChannelsWithChanges).toBeCalledTimes(1);
       const receivedArgs = mockedSource.fetchChannelsWithChanges.mock.calls[0];
-      expect(receivedArgs[0].map(c => c.channel)).toEqual(expect.arrayContaining([
+      expect(receivedArgs[0].map(({ channel }) => channel)).toEqual(expect.arrayContaining([
         `patient/${patient.id}/encounter`,
         `patient/${patient.id}/issue`,
       ]));

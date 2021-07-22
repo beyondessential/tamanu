@@ -52,6 +52,7 @@ export interface SyncSource {
     channel: string,
     since: string,
     limit: number,
+    { noCount: boolean },
   ): Promise<DownloadRecordsResponse | null>;
 
   uploadRecords(
@@ -207,12 +208,14 @@ export class WebSyncSource implements SyncSource {
     channel: string,
     since: string,
     limit: number,
+    { noCount = false } = {},
   ): Promise<DownloadRecordsResponse | null> {
     try {
       // TODO: error handling (incl timeout & token revokation)
       const query = {
         since,
-        limit,
+        limit: limit.toString(),
+        noCount: noCount.toString(),
       };
       const path = `sync/${encodeURIComponent(channel)}`;
 

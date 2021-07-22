@@ -29,9 +29,11 @@ export interface IEncounter {
 
   diagnoses?: IDiagnosis[];
 
-  patient?: IPatient;
+  patient?: IPatient | string;
+  patientId?: string;
 
-  examiner?: IUser;
+  examiner?: IUser | string;
+  examinerId?: string;
 
   markedForUpload?: boolean;
 
