@@ -1,13 +1,13 @@
 import React, { useCallback, useEffect, useState } from 'react';
-import { NOTE_TYPES } from 'shared/constants';
 import styled from 'styled-components';
-
 import * as yup from 'yup';
+
+import { NOTE_TYPES } from 'shared/constants';
+
 import { useApi } from '../api';
 import { AddButton } from '../components';
 import { Form, Field, TextField } from '../components/Field';
 import { FormGrid } from '../components/FormGrid';
-import { useEncounter } from '../contexts/Encounter';
 
 const NotesForm = styled.div`
   grid-column: 1 / -1;
@@ -74,7 +74,7 @@ export const LabRequestNoteForm = ({ labRequest }) => {
       />
       <NotesDisplay>
         {notes.map(note => (
-          <li>{note.content}</li>
+          <li key={`${note.createdAt}-${note.content}`}>{note.content}</li>
         ))}
       </NotesDisplay>
     </NotesForm>

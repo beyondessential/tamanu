@@ -203,15 +203,15 @@ labRequest.post(
     const { models, body, params } = req;
     const { id } = params;
     req.checkPermission('write', 'LabRequest');
-    const owner = await models.LabRequest.findByPk(id);
-    if (!owner) {
+    const lab = await models.LabRequest.findByPk(id);
+    if (!lab) {
       throw new NotFoundError();
     }
-    req.checkPermission('write', owner);
+    req.checkPermission('write', lab);
     const createdNote = await models.Note.create({
+      ...body,
       recordId: id,
       recordType: 'LabRequest',
-      ...body,
     });
 
     res.send(createdNote);
