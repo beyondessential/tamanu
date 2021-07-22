@@ -3,6 +3,7 @@ import asyncHandler from 'express-async-handler';
 import moment from 'moment';
 import { QueryTypes } from 'sequelize';
 
+import { NOTE_RECORD_TYPES } from 'shared/models/Note';
 import { NotFoundError, InvalidOperationError } from 'shared/errors';
 import { REFERENCE_TYPES } from 'shared/constants';
 import { makeFilter } from '~/utils/query';
@@ -196,8 +197,36 @@ labRequest.get(
   }),
 );
 
+labRequest.post(
+  '/:id/notes',
+  asyncHandler(async (req, res) => {
+    const { models, body, params } = req;
+    const { id } = params;
+    req.checkPermission('write', 'LabRequest');
+    const lab = await models.LabRequest.findByPk(id);
+    if (!lab) {
+      throw new NotFoundError();
+    }
+    req.checkPermission('write', lab);
+    const createdNote = await models.Note.create({
+      ...body,
+      recordId: id,
+      recordType: 'LabRequest',
+    });
+
+    res.send(createdNote);
+  }),
+);
+
 const labRelations = permissionCheckingRouter('read', 'LabRequest');
 labRelations.get('/:id/tests', simpleGetList('LabTest', 'labRequestId'));
+labRelations.get(
+  '/:id/notes',
+  simpleGetList('Note', 'recordId', {
+    additionalFilters: { recordType: NOTE_RECORD_TYPES.LAB_REQUEST },
+  }),
+);
+
 labRequest.use(labRelations);
 
 export const labTest = express.Router();

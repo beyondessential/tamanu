@@ -2,7 +2,7 @@ import React from 'react';
 import { connect } from 'react-redux';
 import { push } from 'connected-react-router';
 
-import { Button } from '../../components/Button';
+import { AddButton, Button } from '../../components/Button';
 import { ContentPane } from '../../components/ContentPane';
 import { LoadingIndicator } from '../../components/LoadingIndicator';
 import { PatientInfoPane } from '../../components/PatientInfoPane';
@@ -20,6 +20,7 @@ import { LAB_REQUEST_STATUS_LABELS } from '../../constants';
 import { capitaliseFirstLetter } from '../../utils/capitalise';
 import { ChangeLaboratoryModal } from '../../components/ChangeLaboratoryModal';
 import { DateDisplay } from '../../components';
+import { LabRequestNoteForm } from '../../forms/LabRequestNoteForm';
 import { LabRequestAuditPane } from '../../components/LabRequestAuditPane';
 
 const makeRangeStringAccessor = sex => row => {
@@ -122,7 +123,7 @@ const LabRequestInfoPane = React.memo(({ labRequest }) => (
     <TextInput value={(labRequest.laboratory || {}).name} label="Laboratory" />
     <DateInput value={labRequest.requestedDate} label="Requested date" />
     <DateTimeInput value={labRequest.sampleTime} label="Sample date" />
-    <TextInput multiline value={labRequest.note} label="Notes" style={{ gridColumn: '1 / -1' }} />
+    <LabRequestNoteForm labRequest={labRequest} />
   </FormGrid>
 ));
 
