@@ -74,7 +74,7 @@ export const LabRequestNoteForm = ({ labRequest }) => {
       />
       <NotesDisplay>
         {notes.map(note => (
-          <li key={`${note.createdAt}-${note.content}`}>{note.content}</li>
+          <li key={`${note.id}`}>{note.content}</li>
         ))}
       </NotesDisplay>
     </NotesForm>
