@@ -20,11 +20,8 @@ import { LAB_REQUEST_STATUS_LABELS } from '../../constants';
 import { capitaliseFirstLetter } from '../../utils/capitalise';
 import { ChangeLaboratoryModal } from '../../components/ChangeLaboratoryModal';
 import { DateDisplay } from '../../components';
-<<<<<<< HEAD
 import { LabRequestNoteForm } from '../../forms/LabRequestNoteForm';
-=======
 import { LabRequestAuditPane } from '../../components/LabRequestAuditPane';
->>>>>>> dev
 
 const makeRangeStringAccessor = sex => row => {
   const type = row.labTestType;
