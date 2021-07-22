@@ -88,10 +88,7 @@ export class LabRequest extends Model {
 
   async addLabNote(content) {
     const { Note } = this.sequelize.models;
-
-    const note = await Note.createForRecord(this, NOTE_TYPES.OTHER, content);
-
-    return note;
+    return Note.createForRecord(this, NOTE_TYPES.OTHER, content);
   }
 
   static initRelations(models) {
