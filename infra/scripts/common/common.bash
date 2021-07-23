@@ -9,16 +9,16 @@ KEYPAIR="~/.ssh/tamanu-eb-key-pair"
 
 # common functions
 function prlog {
-    echo "[script] $1"
+    >&2 echo "[script] $1"
 }
 
 function prwarn {
     MESSAGE="## $1 ##"
-    echo
-    echo "$MESSAGE" | sed -e 's/./#/g'
-    echo "$MESSAGE"
-    echo "$MESSAGE" | sed -e 's/./#/g'
-    echo
+    >&2 echo
+    echo "$MESSAGE" | sed -e 's/./#/g' >&2
+    >&2 echo "$MESSAGE"
+    echo "$MESSAGE" | sed -e 's/./#/g' >&2
+    >&2 echo
 }
 
 function prusage {
