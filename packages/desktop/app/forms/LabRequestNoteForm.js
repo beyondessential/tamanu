@@ -43,14 +43,17 @@ export const LabRequestNoteForm = ({ labRequest }) => {
     })();
   }, []);
 
-  const saveNote = useCallback(async ({ content }) => {
-    const newNote = await api.post(`labRequest/${labRequest.id}/notes`, {
-      content,
-      authorId: api.user.id,
-      noteType: NOTE_TYPES.OTHER,
-    });
-    setNotes([...notes, newNote]);
-  }, []);
+  const saveNote = useCallback(
+    async ({ content }) => {
+      const newNote = await api.post(`labRequest/${labRequest.id}/notes`, {
+        content,
+        authorId: api.user.id,
+        noteType: NOTE_TYPES.OTHER,
+      });
+      setNotes([newNote, ...notes]);
+    },
+    [notes],
+  );
 
   const renderForm = React.useCallback(
     ({ submitForm }) => (
@@ -67,7 +70,7 @@ export const LabRequestNoteForm = ({ labRequest }) => {
       <Form
         onSubmit={saveNote}
         render={renderForm}
-        initialValues={notes}
+        initialValues={{}}
         validationSchema={yup.object().shape({
           content: yup.string().required(),
         })}
