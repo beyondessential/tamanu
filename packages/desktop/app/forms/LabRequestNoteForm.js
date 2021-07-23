@@ -41,7 +41,7 @@ export const LabRequestNoteForm = ({ labRequest }) => {
       const res = await api.get(`labRequest/${labRequest.id}/notes`);
       setNotes(res.data);
     })();
-  }, [notes]);
+  }, []);
 
   const saveNote = useCallback(async ({ content }) => {
     const newNote = await api.post(`labRequest/${labRequest.id}/notes`, {
