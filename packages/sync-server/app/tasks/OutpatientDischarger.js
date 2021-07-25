@@ -17,6 +17,10 @@ export class OutpatientDischarger extends ScheduledTask {
     this.run();
   }
 
+  getName() {
+    return 'OutpatientDischarger';
+  }
+
   async run() {
     const oldEncounters = await this.models.Encounter.findAll({
       where: {

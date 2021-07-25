@@ -12,6 +12,10 @@ export class SyncTask extends ScheduledTask {
     this.runImmediately();
   }
 
+  getName() {
+    return 'SyncTask';
+  }
+
   async run() {
     return this.context.syncManager.runSync();
   }

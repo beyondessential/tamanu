@@ -16,6 +16,10 @@ export class ReportRequestProcessor extends ScheduledTask {
     this.context = context;
   }
 
+  getName() {
+    return 'ReportRequestProcessor';
+  }
+
   async run() {
     const requests = await this.context.store.models.ReportRequest.findAll({
       where: {

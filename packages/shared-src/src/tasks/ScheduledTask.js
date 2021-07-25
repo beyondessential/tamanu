@@ -2,8 +2,10 @@ import { scheduleJob } from 'node-schedule';
 
 export class ScheduledTask {
   getName() {
-    // get class name from reflection
-    return this.constructor.name;
+    // We can't use reflection here (this.constructor.name) as
+    // the class names are not preserved in minified builds.
+    // Each scheduled task should override getName() with the appropriate name.
+    return '??';
   }
 
   constructor(schedule, log) {

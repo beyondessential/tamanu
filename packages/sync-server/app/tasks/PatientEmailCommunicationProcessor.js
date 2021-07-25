@@ -11,6 +11,10 @@ export class PatientEmailCommunicationProcessor extends ScheduledTask {
     this.context = context;
   }
 
+  getName() {
+    return 'PatientEmailCommunicationProcessor';
+  }
+
   async run() {
     const { Patient, PatientCommunication } = this.context.store.models;
     let emailsToBeSent = await PatientCommunication.findAll({

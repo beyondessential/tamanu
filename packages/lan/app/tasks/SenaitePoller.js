@@ -27,6 +27,10 @@ export class SenaitePoller extends ScheduledTask {
     this.runInitialTasks();
   }
 
+  getName() {
+    return 'SenaitePoller';
+  }
+
   async runInitialTasks() {
     await this.login();
   }
