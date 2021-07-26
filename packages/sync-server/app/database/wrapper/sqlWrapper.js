@@ -41,17 +41,7 @@ export class SqlWrapper {
 
   async markRecordDeleted(channel, id) {
     return this.sequelize.channelRouter(channel, async model => {
-      // use update instead of destroy so we can change both fields
-      const [num] = await model.update(
-        {
-          deletedAt: Sequelize.literal('CURRENT_TIMESTAMP'),
-          updatedAt: Sequelize.literal('CURRENT_TIMESTAMP'),
-        },
-        {
-          where: { id },
-        },
-      );
-      return num;
+      return model.markRecordDeleted(id);
     });
   }
   //------------------------------------

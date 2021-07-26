@@ -93,6 +93,20 @@ export class Model extends sequelize.Model {
     });
   }
 
+  static async markRecordDeleted(id) {
+    // use update instead of destroy so we can change both fields
+    const [num] = await this.update(
+      {
+        deletedAt: Sequelize.literal('CURRENT_TIMESTAMP'),
+        updatedAt: Sequelize.literal('CURRENT_TIMESTAMP'),
+      },
+      {
+        where: { id },
+      },
+    );
+    return num;
+  }
+
   static getListReferenceAssociations() {
     // List of relations to include when fetching this model
     // as part of a list (eg to display in a table)
