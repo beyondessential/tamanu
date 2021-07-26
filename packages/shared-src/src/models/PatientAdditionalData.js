@@ -57,4 +57,19 @@ export class PatientAdditionalData extends Model {
   static getFullReferenceAssociations() {
     return ['countryOfBirth'];
   }
+
+  appendOverwriteRecord(newOverwrites) {
+    // TODO: actually add this field to the record & include it with a migration 
+    // (this function doesn't really do anything until then)
+
+    // the auto-reconciler will save older values of fields here for manual
+    // reconciliation later
+    let overwrites = [];
+    if (this.overwrites) {
+      overwrites = JSON.parse(this.overwrites);
+    }
+
+    overwrites = [...overwrites, ...newOverwrites];
+    this.overwrites = JSON.stringify(overwrites);
+  }
 }
