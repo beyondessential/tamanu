@@ -4,9 +4,9 @@ module.exports = {
   },
 
   down: async query => {
-    var query = 'DELETE FROM pg_enum ' +
+    var q = 'DELETE FROM pg_enum ' +
       'WHERE enumlabel = \'LabRequest\' ' +
       'AND enumtypid = ( SELECT oid FROM pg_type WHERE typname = \'enum_notes_record_type\')';
-    return query.sequelize.query(query);
+    return query.sequelize.query(q);
   },
 };
