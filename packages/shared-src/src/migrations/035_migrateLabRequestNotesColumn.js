@@ -26,7 +26,7 @@ module.exports = {
   },
 
   down: async query => {
-    await query.addColumn('lab_requests', 'note');
+    await query.addColumn('lab_requests', 'note', { type: Sequelize.STRING, allowNull: true });
     // the front-end will always set an author id through the new lab request notes flow,
     // so while this does rely on the assumption that no LabRequest note will be created
     // without an author_id via the app, it's the safest assumption we can rely on for this down migration.
