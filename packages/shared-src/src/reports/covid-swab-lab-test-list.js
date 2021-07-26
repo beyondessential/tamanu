@@ -254,11 +254,21 @@ export const dataGenerator = async (models, parameters = {}) => {
 
   const transformedAnswers = await getTransformedAnswers(models, answers);
 
-  const getLatestAnswerInDateRange = (labTestDate, nextLabTestDate, patientId, dataElementId) => {
+  const getLatestAnswerInDateRange = (
+    currentlabTestDate,
+    nextLabTestDate,
+    patientId,
+    dataElementId,
+  ) => {
     const answersInRange = transformedAnswers
       .filter(
         a =>
-          moment(a.responseEndTime).isBetween(labTestDate, nextLabTestDate, undefined, '[)') &&
+          moment(a.responseEndTime).isBetween(
+            currentlabTestDate,
+            nextLabTestDate,
+            undefined,
+            '[)', // '[)' means currentLabTestDate <= surveyResponse.endTime < nextLabTestDate
+          ) &&
           a.patientId === patientId &&
           a.dataElementId === dataElementId,
       )
@@ -269,10 +279,10 @@ export const dataGenerator = async (models, parameters = {}) => {
 
   const reportData = [];
 
-  // lab tests were already sorted in the sql.
+  // lab tests were already sorted by 'date' ASC in the sql.
   for (let i = 0; i < labTests.length; i++) {
     const labTest = labTests[i];
-    const currentLabTestDate = moment(labTest.date);
+    const currentLabTestDate = moment(labTest.date).startOf('day');
 
     //Get all lab tests regardless and filter fromDate and toDate in memory
     // to ensure that we have the date range from current lab test to the next lab test correctly.
@@ -287,8 +297,23 @@ export const dataGenerator = async (models, parameters = {}) => {
       continue;
     }
 
-    // If reaching the end of the array, use the current moment.
-    const nextLabTestDate = labTests[i + 1] ? moment(labTests[i + 1].date) : moment();
+    const nextLabTest = labTests[i + 1];
+    let nextLabTestDate;
+
+    if (nextLabTest) {
+      const nextLabTestTimestamp = labTests[i + 1].date;
+      // if next lab test not on the same date (next one on a different date,
+      // startOf('day') to exclude the next date when comparing range later
+      if (!currentLabTestDate.isSame(nextLabTestTimestamp, 'day')) {
+        nextLabTestDate = moment(nextLabTestTimestamp).startOf('day');
+      } else {
+        // if next lab test on the same date, just use its raw timestamp
+        nextLabTestDate = moment(nextLabTestTimestamp);
+      }
+    } else {
+      // use current time if there's no next lab test
+      nextLabTestDate = moment();
+    }
 
     const patientId = labTest.labRequest?.encounter?.patientId;
 
