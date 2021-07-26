@@ -69,7 +69,8 @@ describe('Patient', () => {
       expect(result).toHaveSucceeded();
 
       const id = result.body.id;
-      const additional = await models.PatientAdditionalData.findOne({ where: { patientId: id } });
+      const patientRecord = await models.Patient.findOne({ where: { id } });
+      const additional = await patientRecord.getAdditionalData();
       expect(additional).toBeTruthy();
       expect(additional).toHaveProperty('passport', 'TEST-PASSPORT');
     });

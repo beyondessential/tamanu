@@ -58,9 +58,7 @@ patientRoute.put(
     req.checkPermission('write', patient);
     await patient.update(requestBodyToRecord(req.body));
 
-    const patientAdditionalData = await PatientAdditionalData.findOne({
-      where: { patientId: patient.id },
-    });
+    const patientAdditionalData = await patient.getAdditionalData();
 
     if (!patientAdditionalData) {
       await PatientAdditionalData.create({

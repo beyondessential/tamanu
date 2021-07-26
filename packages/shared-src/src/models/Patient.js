@@ -54,6 +54,15 @@ export class Patient extends Model {
     });
   }
 
+  getAdditionalData() {
+    return this.sequelize.models.PatientAdditionalData.findOne({
+      where: {
+        patientId: this.id
+      },
+      order: [['createdAt', 'ASC NULLS FIRST']],
+    });
+  }
+
   static async getSyncIds() {
     const patients = await this.sequelize.models.Patient.findAll({
       where: { markedForSync: true },
