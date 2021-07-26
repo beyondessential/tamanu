@@ -55,7 +55,12 @@ export class AdditionalDataReconciler extends ScheduledTask {
 
           if (existingValue !== null) {
             // writing over a non-null with a non-null, log it against the record
-            overwrites.push({ key, newValue: value, oldValue: existingValue });
+            overwrites.push({ 
+              key,
+              newValue: value, 
+              oldValue: existingValue,
+              date: new Date(),
+            });
           }
           primary[key] = value;
         });
