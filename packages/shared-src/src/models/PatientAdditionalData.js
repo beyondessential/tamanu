@@ -20,6 +20,9 @@ export class PatientAdditionalData extends Model {
         birthCertificate: Sequelize.STRING,
         drivingLicense: Sequelize.STRING,
         passport: Sequelize.STRING,
+
+        // json field to track conflicts during record merging
+        conflicts: Sequelize.TEXT,
       },
       {
         ...options,
@@ -58,18 +61,18 @@ export class PatientAdditionalData extends Model {
     return ['countryOfBirth'];
   }
 
-  appendOverwriteRecord(newOverwrites) {
+  appendConflictRecords(newConflicts) {
     // TODO: actually add this field to the record & include it with a migration 
     // (this function doesn't really do anything until then)
 
     // the auto-reconciler will save older values of fields here for manual
     // reconciliation later
-    let overwrites = [];
-    if (this.overwrites) {
-      overwrites = JSON.parse(this.overwrites);
+    let conflicts = [];
+    if (this.conflicts) {
+      conflicts = JSON.parse(this.conflicts);
     }
 
-    overwrites = [...overwrites, ...newOverwrites];
-    this.overwrites = JSON.stringify(overwrites);
+    conflicts = [...conflicts, ...newConflicts];
+    this.conflicts = JSON.stringify(conflicts);
   }
 }

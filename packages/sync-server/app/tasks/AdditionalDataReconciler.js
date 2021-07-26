@@ -16,8 +16,7 @@ const KEYS_TO_IGNORE = [
 export class AdditionalDataReconciler extends ScheduledTask {
 
   constructor(context) {
-    // TODO every 5 seconds is much much too often
-    super('*/5 * * * * *', log);
+    super('0 */5 * * * *', log);
     this.context = context;
     this.runImmediately();
   }
@@ -41,7 +40,7 @@ export class AdditionalDataReconciler extends ScheduledTask {
     const subsequent = records.slice(1);
 
     // save values of later records to primary record
-    const overwrites = [];
+    const conflicts = [];
     let didExtend = false;
     const extend = record => {
       Object.entries(record.dataValues)
@@ -55,7 +54,7 @@ export class AdditionalDataReconciler extends ScheduledTask {
 
           if (existingValue !== null) {
             // writing over a non-null with a non-null, log it against the record
-            overwrites.push({ 
+            conflicts.push({ 
               key,
               newValue: value, 
               oldValue: existingValue,
@@ -68,7 +67,7 @@ export class AdditionalDataReconciler extends ScheduledTask {
     subsequent.map(r => extend(r));
 
     await sequelize.transaction(async () => {
-      primary.appendOverwriteRecord(overwrites);
+      primary.appendConflictRecords(conflicts);
       await primary.save();
 
       // delete all duplicates
@@ -97,7 +96,6 @@ export class AdditionalDataReconciler extends ScheduledTask {
     // reconcile each duplicated PAD item 
     for (let r of duplicateResults) {
       await this.reconcilePatient(r.patient_id);
-      return;
     }
   }
 }
