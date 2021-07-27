@@ -62,8 +62,6 @@ export class PatientAdditionalData extends Model {
   }
 
   appendConflictRecords(newConflicts) {
-    // (this function doesn't really do anything until then)
-
     // the auto-reconciler will save older values of fields here for manual
     // reconciliation later
     let conflicts = [];
