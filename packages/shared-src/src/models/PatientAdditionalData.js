@@ -62,7 +62,6 @@ export class PatientAdditionalData extends Model {
   }
 
   appendConflictRecords(newConflicts) {
-    // TODO: actually add this field to the record & include it with a migration 
     // (this function doesn't really do anything until then)
 
     // the auto-reconciler will save older values of fields here for manual
