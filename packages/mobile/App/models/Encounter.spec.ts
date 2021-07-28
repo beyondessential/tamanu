@@ -24,4 +24,9 @@ describe('Encounter', () => {
       expect(result[0]).toMatchObject(expectedResult);
     });
   });
+
+  describe('findMarkedForUpload', () => {
+    it.todo('finds marked encounters for a patient channel');
+    it.todo('finds marked encounters for a scheduledVaccine channel');
+  });
 });
