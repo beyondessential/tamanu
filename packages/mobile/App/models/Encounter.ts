@@ -187,8 +187,8 @@ export class Encounter extends BaseModel implements IEncounter {
   static async findMarkedForUpload(
     opts: FindMarkedForUploadOptions,
   ): Promise<BaseModel[]> {
-    const [, patientId] = opts.channel.match(/^patient\/(.*)\/encounter$/) || [];
-    const [, scheduledVaccineId] = opts.channel.match(/^scheduledVaccine\/(.*)\/encounter/) || [];
+    const patientId = (opts.channel.match(/^patient\/(.*)\/encounter$/) || [])[1];
+    const scheduledVaccineId = (opts.channel.match(/^scheduledVaccine\/(.*)\/encounter/) || [])[1];
     if (patientId) {
       const records = await this.findMarkedForUploadQuery(opts)
         .andWhere('patientId = :patientId', { patientId })
