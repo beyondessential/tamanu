@@ -1,5 +1,4 @@
 import { createDummyPatient, createDummyEncounter } from 'shared/demoData/patients';
-import Sequelize from 'sequelize';
 import moment from 'moment';
 import Chance from 'chance';
 import { createTestContext } from '../utilities';
@@ -81,13 +80,11 @@ describe('Patient search', () => {
   let departments = null;
   let baseApp = null;
   let models = null;
-  let sequelize = null;
 
   beforeAll(async () => {
     const ctx = await createTestContext();
     baseApp = ctx.baseApp;
     models = ctx.models;
-    sequelize = ctx.sequelize;
 
     app = await baseApp.asRole('practitioner');
 
@@ -104,7 +101,6 @@ describe('Patient search', () => {
         const patient = await models.Patient.create(patientData);
         if (encountersData) {
           for (const encounterData of encountersData) {
-            console.log('creating encounter with id', encounterData.id)
             await models.Encounter.create(
               await createDummyEncounter(models, {
                 ...encounterData,
