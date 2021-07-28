@@ -80,11 +80,13 @@ describe('Patient search', () => {
   let departments = null;
   let baseApp = null;
   let models = null;
+  let sequelize = null;
 
   beforeAll(async () => {
     const ctx = await createTestContext();
     baseApp = ctx.baseApp;
     models = ctx.models;
+    sequelize = ctx.sequelize;
 
     app = await baseApp.asRole('practitioner');
 
@@ -292,6 +294,20 @@ describe('Patient search', () => {
       response.body.data.map(responsePatient => {
         expect(responsePatient).toHaveProperty('departmentName', departments[0].name);
       });
+    });
+
+    it('Test sequelize dates', async () => {
+
+      // Want to test sequelize version in CI/CD
+      console.log(sequelize);
+
+      // expect(response).toHaveSucceeded();
+      // expect(response.body.count).toEqual(1);
+
+      // // Make sure it chooses the correct encounter
+      // expect(response.body.data[0].encounterId).toEqual('should-be-chosen');
+      // expect(response.body.data[0].encounterType).toEqual('admission');
+
     });
 
     it('should return only 1 result for patients with multiple open encounters', async () => {
