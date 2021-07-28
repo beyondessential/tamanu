@@ -1,22 +1,31 @@
-import React from 'react';
+import React, { useCallback } from 'react';
 import { Modal } from './Modal';
 
-import { connectApi } from '../api/connectApi';
-import { reloadLab } from '../store/labRequest';
-
 import { ManualLabResultForm } from '../forms/ManualLabResultForm';
+import { useLabRequest } from '../contexts/LabRequest';
 
-export const ManualLabResultModal = connectApi((api, dispatch, { labTest, labRequest }) => ({
-  onSubmit: async data => {
-    await api.put(`labTest/${labTest.id}`, { ...data, result: `${data.result}` });
-    dispatch(reloadLab(labRequest.id));
-  },
-}))(({ labTest, onClose, open, onSubmit }) => (
-  <Modal
-    open={open}
-    onClose={onClose}
-    title={`Enter result – ${labTest && labTest.labTestType.name}`}
-  >
-    <ManualLabResultForm labTest={labTest} onSubmit={onSubmit} onClose={onClose} />
-  </Modal>
-));
+export const ManualLabResultModal = ({ labTest, onClose, open }) => {
+  const { updateLabTest, labRequest } = useLabRequest();
+  const onSubmit = useCallback(
+    ({ result, completedDate, laboratoryOfficer, labTestMethodId }) => {
+      updateLabTest(labRequest.id, labTest.id, {
+        result: `${result}`,
+        completedDate,
+        laboratoryOfficer,
+        labTestMethodId,
+      });
+      onClose();
+    },
+    [labRequest, labTest],
+  );
+
+  return (
+    <Modal
+      open={open}
+      onClose={onClose}
+      title={`Enter result – ${labTest && labTest.labTestType.name}`}
+    >
+      <ManualLabResultForm labTest={labTest} onSubmit={onSubmit} onClose={onClose} />
+    </Modal>
+  );
+};
