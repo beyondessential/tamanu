@@ -22,7 +22,16 @@ import {
 
 const PATIENT_SEARCH_ENDPOINT = 'patient';
 
-const BASE_COLUMNS = [markedForSync, displayId, firstName, lastName, culturalName, village, sex, dateOfBirth];
+const BASE_COLUMNS = [
+  markedForSync,
+  displayId,
+  firstName,
+  lastName,
+  culturalName,
+  village,
+  sex,
+  dateOfBirth,
+];
 
 const BASE_COLUMNS_ON_PATIENT = BASE_COLUMNS.map(column => ({
   ...column,

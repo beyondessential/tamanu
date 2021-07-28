@@ -3,6 +3,8 @@ import asyncHandler from 'express-async-handler';
 import moment from 'moment';
 import { QueryTypes } from 'sequelize';
 
+import { NOTE_RECORD_TYPES } from 'shared/models/Note';
+import { NotFoundError, InvalidOperationError } from 'shared/errors';
 import { REFERENCE_TYPES } from 'shared/constants';
 import { makeFilter } from '~/utils/query';
 import { renameObjectKeys } from '~/utils/renameObjectKeys';
@@ -11,7 +13,31 @@ import { simpleGet, simplePut, simpleGetList, permissionCheckingRouter } from '.
 export const labRequest = express.Router();
 
 labRequest.get('/:id', simpleGet('LabRequest'));
-labRequest.put('/:id', simplePut('LabRequest'));
+
+labRequest.put(
+  '/:id',
+  asyncHandler(async (req, res) => {
+    const { models, params } = req;
+    const { userId, ...rest } = req.body;
+    req.checkPermission('read', 'LabRequest');
+    const object = await models.LabRequest.findByPk(params.id);
+    if (!object) throw new NotFoundError();
+    req.checkPermission('write', object);
+    await object.update(rest);
+
+    if (rest.status) {
+      if (!userId) throw new InvalidOperationError('No user found for LabRequest status change.');
+      await models.LabRequestLog.create({
+        status: rest.status,
+        labRequestId: params.id,
+        updatedById: userId,
+      });
+    }
+
+    res.send(object);
+  }),
+);
+
 labRequest.post(
   '/$',
   asyncHandler(async (req, res) => {
@@ -120,7 +146,7 @@ labRequest.get(
       type: QueryTypes.SELECT,
     });
 
-    const { count } = countResult[0];
+    const count = parseInt(countResult[0].count, 10);
 
     if (count === 0) {
       // save ourselves a query
@@ -171,8 +197,36 @@ labRequest.get(
   }),
 );
 
+labRequest.post(
+  '/:id/notes',
+  asyncHandler(async (req, res) => {
+    const { models, body, params } = req;
+    const { id } = params;
+    req.checkPermission('write', 'LabRequest');
+    const lab = await models.LabRequest.findByPk(id);
+    if (!lab) {
+      throw new NotFoundError();
+    }
+    req.checkPermission('write', lab);
+    const createdNote = await models.Note.create({
+      ...body,
+      recordId: id,
+      recordType: 'LabRequest',
+    });
+
+    res.send(createdNote);
+  }),
+);
+
 const labRelations = permissionCheckingRouter('read', 'LabRequest');
 labRelations.get('/:id/tests', simpleGetList('LabTest', 'labRequestId'));
+labRelations.get(
+  '/:id/notes',
+  simpleGetList('Note', 'recordId', {
+    additionalFilters: { recordType: NOTE_RECORD_TYPES.LAB_REQUEST },
+  }),
+);
+
 labRequest.use(labRelations);
 
 export const labTest = express.Router();

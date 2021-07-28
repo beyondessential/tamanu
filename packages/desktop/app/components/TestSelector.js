@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { useState, useCallback, useEffect } from 'react';
 import styled from 'styled-components';
 
 import { TextInput, CheckInput } from './Field';
@@ -32,13 +32,13 @@ const SelectorContainer = styled.div`
 `;
 
 export const TestSelectorInput = ({ name, testTypes, value = [], onChange, ...props }) => {
-  const [filter, setFilter] = React.useState('');
+  const [filter, setFilter] = useState('');
 
-  const isTestSelected = React.useCallback(testId => value.some(x => x === testId), [value]);
+  const isTestSelected = useCallback(testId => value.some(x => x === testId), [value]);
 
-  const updateValue = React.useCallback(
+  const updateValue = useCallback(
     (testId, isSelected) => {
-      const filteredValue = value.filter(v => testTypes.some(x => v === x.id));
+      const filteredValue = value.filter(v => testTypes.some(tt => v === tt.id));
       let selectedTests = [...filteredValue];
       if (isSelected) {
         selectedTests.push(testId);
@@ -51,7 +51,7 @@ export const TestSelectorInput = ({ name, testTypes, value = [], onChange, ...pr
   );
 
   // clear filter whenever testTypes change
-  React.useEffect(() => {
+  useEffect(() => {
     setFilter('');
   }, [testTypes]);
 

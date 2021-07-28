@@ -4,6 +4,7 @@
   },
   "discovery": {
     "overrideAddress": "",
+    "overridePort": null,
     "protocol": "https"
   },
   "log": {
@@ -11,7 +12,7 @@
     "consoleLevel": "info"
   },
   "sync": {
-    "schedule": "*/10 * * * *",
+    "schedule": "*/1 * * * *",
     "host": "https://sync-dev.tamanu.io",
     "email": "",
     "password": "",

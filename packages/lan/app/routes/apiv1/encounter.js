@@ -88,7 +88,7 @@ encounterRelations.get(
   asyncHandler(async (req, res) => {
     const { db, models, params, query } = req;
     const encounterId = params.id;
-    const result = await runPaginatedQuery(
+    const { count, data } = await runPaginatedQuery(
       db,
       models.SurveyResponse,
       `
@@ -123,7 +123,10 @@ encounterRelations.get(
       query,
     );
 
-    res.send(result);
+    res.send({
+      count: parseInt(count, 10),
+      data,
+    });
   }),
 );
 
