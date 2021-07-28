@@ -1,4 +1,5 @@
 import { createDummyPatient, createDummyEncounter } from 'shared/demoData/patients';
+import Sequelize from 'sequelize';
 import moment from 'moment';
 import Chance from 'chance';
 import { createTestContext } from '../utilities';
@@ -103,6 +104,7 @@ describe('Patient search', () => {
         const patient = await models.Patient.create(patientData);
         if (encountersData) {
           for (const encounterData of encountersData) {
+            console.log('creating encounter with id', encounterData.id)
             await models.Encounter.create(
               await createDummyEncounter(models, {
                 ...encounterData,
@@ -299,11 +301,34 @@ describe('Patient search', () => {
     it('Test sequelize dates', async () => {
 
       // Want to test sequelize version in CI/CD
-      console.log(sequelize);
+      // console.log(sequelize);
 
-      // expect(response).toHaveSucceeded();
-      // expect(response.body.count).toEqual(1);
+      // const TestTable = await sequelize.define('test_tables', {
+      //   // Name of Column #1 and its properties defined: id
+      //   user_id: {
+      //     type: Sequelize.INTEGER,
+      //     autoIncrement: true,
+      //     allowNull: false,
+      //     primaryKey: true
+      //   },
+      //   name: { type: Sequelize.STRING, allowNull: false },
+      //   time_column: { type: Sequelize.DATE }
+      // });
 
+      // await models.Encounter.create({ name: 'earlier_time', startDate: yearsAgo(10) });
+      // await models.Encounter.create({ name: 'later_time', startDate: yearsAgo(1) });
+
+      // await sequelize.sync();
+
+      const { id: patientId } = await models.Patient.findOne({ where: { firstName: 'more-than-one-open-encounter' } });
+
+      const mostRecentEntry = await sequelize.query(`
+        SELECT patient_id, date(max(start_date)) as max_start_date 
+        FROM encounters
+        GROUP BY patient_id;
+      `);
+
+      console.log(mostRecentEntry);
       // // Make sure it chooses the correct encounter
       // expect(response.body.data[0].encounterId).toEqual('should-be-chosen');
       // expect(response.body.data[0].encounterType).toEqual('admission');
