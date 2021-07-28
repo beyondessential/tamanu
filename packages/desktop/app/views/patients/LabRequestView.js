@@ -22,6 +22,7 @@ import { ChangeLaboratoryModal } from '../../components/ChangeLaboratoryModal';
 import { DateDisplay } from '../../components';
 import { LabRequestNoteForm } from '../../forms/LabRequestNoteForm';
 import { LabRequestAuditPane } from '../../components/LabRequestAuditPane';
+import { useLabRequest } from '../../contexts/LabRequest';
 
 const makeRangeStringAccessor = sex => row => {
   const type = row.labTestType;
@@ -127,8 +128,9 @@ const LabRequestInfoPane = React.memo(({ labRequest }) => (
   </FormGrid>
 ));
 
-export const DumbLabRequestView = React.memo(({ labRequest, patient, loading }) => {
-  if (loading) return <LoadingIndicator />;
+export const DumbLabRequestView = React.memo(({ patient }) => {
+  const { isLoading, labRequest } = useLabRequest();
+  if (isLoading) return <LoadingIndicator />;
   return (
     <TwoColumnDisplay>
       <PatientInfoPane patient={patient} />
@@ -151,7 +153,7 @@ export const DumbLabRequestView = React.memo(({ labRequest, patient, loading }) 
 });
 
 export const LabRequestView = connect(state => ({
-  loading: state.labRequest.loading,
-  labRequest: state.labRequest,
+  // loading: state.labRequest.loading,
+  // labRequest: state.labRequest,
   patient: state.patient,
 }))(DumbLabRequestView);
