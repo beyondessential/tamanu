@@ -339,9 +339,6 @@ patient.get(
 
     const whereClauses = filters.map(f => f.sql).join(' AND ');
 
-
-
-
     const from = `
       FROM patients
         LEFT JOIN (
