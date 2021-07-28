@@ -353,7 +353,7 @@ patient.get(
               WHERE end_date IS NULL
               GROUP BY patient_id
             ) recent_encounter_by_patient
-            ON recent_encounter_by_patient.patient_id = encounters.patient_id AND encounters.start_date = recent_encounter_by_patient.most_recent_open_encounter;
+            ON recent_encounter_by_patient.patient_id = encounters.patient_id AND encounters.start_date = recent_encounter_by_patient.most_recent_open_encounter
           ) encounters
         ON patients.id = encounters.patient_id
         LEFT JOIN reference_data AS department
