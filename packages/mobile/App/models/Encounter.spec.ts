@@ -1,5 +1,5 @@
 import { Database } from '~/infra/db';
-import { fakePatient, fakeEncounter, fakeUser } from '/root/tests/helpers/fake';
+import { fakePatient, fakeEncounter, fakeUser, fake, createWithRelations } from '/root/tests/helpers/fake';
 
 beforeAll(async () => {
   await Database.connect();
@@ -26,7 +26,41 @@ describe('Encounter', () => {
   });
 
   describe('findMarkedForUpload', () => {
-    it.todo('finds marked encounters for a patient channel');
-    it.todo('finds marked encounters for a scheduledVaccine channel');
+    it('finds marked encounters for a patient channel', async () => {
+      // arrange
+      const { Encounter } = Database.models;
+
+      const encounter = await fake(Encounter, {
+        relations: ['patient', 'examiner'],
+      });
+      await createWithRelations(Encounter, encounter);
+
+      // act
+      const results = await Encounter.findMarkedForUpload({ channel: `patient/${encounter.patient.id}/encounter` });
+
+      // assert
+      expect(results).toHaveLength(1);
+      expect(results[0]).toHaveProperty('id', encounter.id);
+    });
+
+    it('finds marked encounters for a scheduledVaccine channel', async () => {
+      // arrange
+      const { Encounter } = Database.models;
+
+      const encounter = await fake(Encounter, {
+        relations: ['patient', 'examiner', 'administeredVaccines', 'administeredVaccines.scheduledVaccine'],
+      });
+      await createWithRelations(Encounter, encounter);
+
+      const scheduledVaccine = encounter.administeredVaccines[0].scheduledVaccine;
+      const channel = `scheduledVaccine/${scheduledVaccine.id}/encounter`;
+
+      // act
+      const results = await Encounter.findMarkedForUpload({ channel });
+
+      // assert
+      expect(results).toHaveLength(1);
+      expect(results[0]).toHaveProperty('id', encounter.id);
+    });
   });
 });
