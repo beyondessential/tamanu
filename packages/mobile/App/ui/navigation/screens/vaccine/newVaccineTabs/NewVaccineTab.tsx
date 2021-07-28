@@ -70,7 +70,7 @@ export const NewVaccineTabComponent = ({
   const { vaccine } = route;
   const { administeredVaccine } = vaccine;
   const navigation = useNavigation();
-  const [recordingVaccination, setRecording] = useState(false);
+  const [isSubmitting, setSubmitting] = useState(false);
 
   const onPressCancel = useCallback(() => {
     navigation.goBack();
@@ -81,8 +81,8 @@ export const NewVaccineTabComponent = ({
   const { models } = useBackend();
   const recordVaccination = useCallback(
     async (values: VaccineFormValues): Promise<void> => {
-      if(recordingVaccination) return;
-      setRecording(true);
+      if(isSubmitting) return;
+      setSubmitting(true);
       const { scheduledVaccineId, ...otherValues } = values;
       const encounter = await models.Encounter.getOrCreateCurrentEncounter(
         selectedPatient.id,
@@ -96,7 +96,7 @@ export const NewVaccineTabComponent = ({
       });
 
       navigation.goBack();
-    }, [recordingVaccination],
+    }, [isSubmitting],
   );
 
   return (
