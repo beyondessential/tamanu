@@ -341,18 +341,15 @@ patient.get(
 
     const from = `
       FROM patients
-        LEFT JOIN (
-            SELECT encounters.*
-            FROM encounters
-            INNER JOIN (
-              SELECT patient_id, max(start_date) AS most_recent_open_encounter
-              FROM encounters
-              WHERE end_date IS NULL
-              GROUP BY patient_id
-            ) recent_encounter_by_patient
-            ON recent_encounter_by_patient.patient_id = encounters.patient_id AND encounters.start_date = recent_encounter_by_patient.most_recent_open_encounter
-          ) encounters
-        ON patients.id = encounters.patient_id
+        LEFT JOIN encounters
+        ON patients.id = encounters.patient_id AND encounters.start_date = (
+          SELECT encounters.start_date
+          FROM encounters
+          WHERE encounters.patient_id = patients.id
+          AND encounters.end_date IS NULL
+          ORDER BY encounters.start_date DESC
+          LIMIT 1
+        )
         LEFT JOIN reference_data AS department
           ON (department.type = 'department' AND department.id = encounters.department_id)
         LEFT JOIN reference_data AS location
