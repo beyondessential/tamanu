@@ -1,4 +1,4 @@
-import React, { ReactElement, useCallback, FC } from 'react';
+import React, { ReactElement, useCallback, FC, useState } from 'react';
 import { useNavigation } from '@react-navigation/native';
 import { ScrollView } from 'react-native';
 import { Route } from 'react-native-tab-view';
@@ -70,6 +70,7 @@ export const NewVaccineTabComponent = ({
   const { vaccine } = route;
   const { administeredVaccine } = vaccine;
   const navigation = useNavigation();
+  const [isSubmitting, setSubmitting] = useState(false);
 
   const onPressCancel = useCallback(() => {
     navigation.goBack();
@@ -80,6 +81,8 @@ export const NewVaccineTabComponent = ({
   const { models } = useBackend();
   const recordVaccination = useCallback(
     async (values: VaccineFormValues): Promise<void> => {
+      if(isSubmitting) return;
+      setSubmitting(true);
       const { scheduledVaccineId, ...otherValues } = values;
       const encounter = await models.Encounter.getOrCreateCurrentEncounter(
         selectedPatient.id,
@@ -93,7 +96,7 @@ export const NewVaccineTabComponent = ({
       });
 
       navigation.goBack();
-    }, [],
+    }, [isSubmitting],
   );
 
   return (
