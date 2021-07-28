@@ -153,7 +153,5 @@ export const DumbLabRequestView = React.memo(({ patient }) => {
 });
 
 export const LabRequestView = connect(state => ({
-  // loading: state.labRequest.loading,
-  // labRequest: state.labRequest,
   patient: state.patient,
 }))(DumbLabRequestView);
