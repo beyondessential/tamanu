@@ -64,9 +64,9 @@ const searchTestPatients = [
   { firstName: 'pagination', lastName: 'I' },
   {
     firstName: 'more-than-one-open-encounter', encounters: [
-      { id: 'should-be-ignored-1', encounterType: 'clinic', current: false, startTime: moment.utc([2015, 0, 1, 8]).toISOString() },
-      { id: 'should-be-chosen', encounterType: 'admission', current: true, startTime: moment.utc([2014, 0, 1, 8]).toISOString() },
-      { id: 'should-be-ignored-2', encounterType: 'clinic', current: true, startTime: moment.utc([2013, 0, 1, 8]).toISOString() }]
+      { id: 'should-be-ignored-1', encounterType: 'clinic', current: false, startDate: moment.utc([2015, 0, 1, 8]).toISOString() },
+      { id: 'should-be-chosen', encounterType: 'admission', current: true, startDate: moment.utc([2014, 0, 1, 8]).toISOString() },
+      { id: 'should-be-ignored-2', encounterType: 'clinic', current: true, startDate: moment.utc([2013, 0, 1, 8]).toISOString() }]
   },
 ];
 
@@ -296,43 +296,6 @@ describe('Patient search', () => {
       response.body.data.map(responsePatient => {
         expect(responsePatient).toHaveProperty('departmentName', departments[0].name);
       });
-    });
-
-    it('Test sequelize dates', async () => {
-
-      // Want to test sequelize version in CI/CD
-      // console.log(sequelize);
-
-      // const TestTable = await sequelize.define('test_tables', {
-      //   // Name of Column #1 and its properties defined: id
-      //   user_id: {
-      //     type: Sequelize.INTEGER,
-      //     autoIncrement: true,
-      //     allowNull: false,
-      //     primaryKey: true
-      //   },
-      //   name: { type: Sequelize.STRING, allowNull: false },
-      //   time_column: { type: Sequelize.DATE }
-      // });
-
-      // await models.Encounter.create({ name: 'earlier_time', startDate: yearsAgo(10) });
-      // await models.Encounter.create({ name: 'later_time', startDate: yearsAgo(1) });
-
-      // await sequelize.sync();
-
-      const { id: patientId } = await models.Patient.findOne({ where: { firstName: 'more-than-one-open-encounter' } });
-
-      const mostRecentEntry = await sequelize.query(`
-        SELECT patient_id, date(max(start_date)) as max_start_date 
-        FROM encounters
-        GROUP BY patient_id;
-      `);
-
-      console.log(mostRecentEntry);
-      // // Make sure it chooses the correct encounter
-      // expect(response.body.data[0].encounterId).toEqual('should-be-chosen');
-      // expect(response.body.data[0].encounterType).toEqual('admission');
-
     });
 
     it('should return only 1 result for patients with multiple open encounters', async () => {
