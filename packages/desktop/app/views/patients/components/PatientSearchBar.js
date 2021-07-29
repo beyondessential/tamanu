@@ -178,6 +178,10 @@ const DumbPatientSearchBar = props => (
       ['displayId'],
       ['dateOfBirthFrom', { localisationLabel: 'shortLabel', component: DateField }],
       ['dateOfBirthTo', { localisationLabel: 'shortLabel', component: DateField }],
+      [
+        'dateOfBirthExact',
+        { localisationLabel: 'shortLabel', placeholder: 'DOB exact', component: DateField },
+      ],
     ]}
     {...props}
   />

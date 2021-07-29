@@ -34,7 +34,7 @@ export class LabRequest extends Model {
         },
 
         status: {
-          type: Sequelize.ENUM(LAB_REQUEST_STATUS_VALUES),
+          type: Sequelize.STRING,
           defaultValue: LAB_REQUEST_STATUSES.RECEPTION_PENDING,
         },
 
