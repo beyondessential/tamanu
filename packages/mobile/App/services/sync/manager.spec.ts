@@ -210,7 +210,27 @@ describe('SyncManager', () => {
 
   describe('exportAndUpload', () => {
     describe('encounters', () => {
-      it('exports and uploads an encounter', async () => {
+      let patient: IPatient;
+      let scheduledVaccine: IScheduledVaccine;
+      beforeEach(async () => {
+        const { models } = Database;
+
+        patient = fakePatient();
+        await models.Patient.createAndSaveOne(patient);
+
+        scheduledVaccine = fakeScheduledVaccine();
+        await models.ScheduledVaccine.createAndSaveOne(scheduledVaccine);
+      });
+
+      it('exports and uploads an encounter nested under a patient', async () => {
+        await testEncounterExportAndUpload(`patient/${patient.id}/encounter`);
+      });
+
+      it('exports and uploads an encounter nested under a patient', async () => {
+        await testEncounterExportAndUpload(`patient/${patient.id}/encounter`);
+      });
+
+      const testEncounterExportAndUpload = async (channel: string) => {
         // TODO: find a workaround for the typeorm Id stripping
 
         // arrange
@@ -219,15 +239,13 @@ describe('SyncManager', () => {
         const user = fakeUser();
         await Database.models.User.createAndSaveOne(user);
 
-        const patient = fakePatient();
-        await Database.models.Patient.createAndSaveOne(patient);
-
         const encounter = fakeEncounter();
         encounter.patient = patient.id;
         encounter.examiner = user.id;
         await Database.models.Encounter.createAndSaveOne(encounter);
 
         const administeredVaccine = fakeAdministeredVaccine();
+        administeredVaccine.scheduledVaccine = scheduledVaccine.id;
         administeredVaccine.encounter = encounter.id;
         await Database.models.AdministeredVaccine.createAndSaveOne(administeredVaccine);
 
@@ -248,7 +266,6 @@ describe('SyncManager', () => {
         await Database.models.SurveyResponseAnswer.createAndSaveOne(answer);
 
         mockedSource.uploadRecords.mockReturnValueOnce({ count: 1, requestedAt: Date.now() });
-        const channel = `patient/${encounter.patient}/encounter`;
 
         // act
         await syncManager.exportAndUpload(Database.models.Encounter, channel);
@@ -264,6 +281,7 @@ describe('SyncManager', () => {
             {
               data: {
                 ...administeredVaccine,
+                scheduledVaccineId: scheduledVaccine.id,
                 encounterId: encounter.id,
               },
             },
@@ -290,14 +308,13 @@ describe('SyncManager', () => {
         delete data.patient;
         delete data.examiner;
         delete data.administeredVaccines[0].data.encounter;
+        delete data.administeredVaccines[0].data.scheduledVaccine;
         delete data.surveyResponses[0].data.encounter;
         delete data.surveyResponses[0].data.survey;
         delete data.surveyResponses[0].data.answers[0].data.dataElement;
         delete data.surveyResponses[0].data.answers[0].data.response;
         expect(call).toMatchObject([channel, [{ data }]]);
-      });
-
-      // TODO: do same as import, except export should actually use the scheduled vaccine id from the channel
+      };
     });
   });
 
