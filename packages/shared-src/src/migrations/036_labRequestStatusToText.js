@@ -26,9 +26,9 @@ module.exports = {
       ]),
       defaultValue: 'reception_pending',
     });
-    // ...set status based on the temp column, since it's the only value other than reception_pending...
+    // ...set status based on the temp column and cast to enum.
     await query.sequelize.query(
-      `UPDATE lab_requests SET status = 'confirmed' WHERE status_old = 'confirmed';`,
+      `UPDATE lab_requests SET status = status_old::enum_lab_requests_status`,
     );
     // ...and get rid of the old column
     await query.removeColumn('lab_requests', 'status_old');
