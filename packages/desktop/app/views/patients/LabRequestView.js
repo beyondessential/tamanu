@@ -28,9 +28,11 @@ const makeRangeStringAccessor = sex => row => {
   const type = row.labTestType;
 
   if (sex === 'male') {
+    if (!type.maleMin && !type.maleMax) return 'N/A';
     return `${type.maleMin} – ${type.maleMax}`;
   }
 
+  if (!type.femaleMin && !type.femaleMax) return 'N/A';
   return `${type.femaleMin} – ${type.femaleMax}`;
 };
 
@@ -44,7 +46,7 @@ const columns = sex => [
     key: 'result',
     accessor: ({ result }) => (result ? capitaliseFirstLetter(result) : ''),
   },
-  { title: 'Reference', key: 'reference', accessor: makeRangeStringAccessor(sex) },
+  { title: 'Clinical range', key: 'reference', accessor: makeRangeStringAccessor(sex) },
   { title: 'Method', key: 'labTestMethod', accessor: getMethod, sortable: false },
   { title: 'Laboratory officer', key: 'laboratoryOfficer' },
   { title: 'Completed', key: 'completedDate', accessor: getDate, sortable: false },
