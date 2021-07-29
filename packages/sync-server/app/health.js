@@ -1,4 +1,5 @@
 import express from 'express';
+import asyncHandler from 'express-async-handler';
 
 import config from 'config';
 import { log } from 'shared/services/logging';
@@ -42,7 +43,23 @@ function sanitise(object) {
   });
 }
 
-healthRoutes.get('/', async (req, res) => {
+async function getMigrations(sequelize) {
+  try {
+    const migrationManager = createMigrationInterface(log, sequelize);
+    throw new Error("oh nosie");
+    const migrations = (await migrationManager.executed())
+      .map(x => x.file);
+    return {
+      migrations
+    };
+  } catch(e) {
+    return {
+      migrationError: e.toString(),
+    };
+  }
+}
+
+healthRoutes.get('/', asyncHandler(async (req, res) => {
 
   const basics = {
     version,
@@ -55,18 +72,14 @@ healthRoutes.get('/', async (req, res) => {
     return;
   }
 
-  const migrationManager = createMigrationInterface(log, req.store.sequelize);
-  const migrations = (await migrationManager.executed())
-    .map(x => x.file);
-
   const adminOnly = {
     config: sanitise(config),
-    migrations,
     time: Intl.DateTimeFormat().resolvedOptions(),
+    ...(await getMigrations(req.store.sequelize)),
   };
 
   res.send({ 
     ...basics,
     ...adminOnly,
   });
-});
+}));
