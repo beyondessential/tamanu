@@ -7,11 +7,12 @@ import { useLabRequest } from '../contexts/LabRequest';
 export const ManualLabResultModal = ({ labTest, onClose, open }) => {
   const { updateLabTest, labRequest } = useLabRequest();
   const onSubmit = useCallback(
-    ({ result, completedDate, laboratoryOfficer, labTestMethodId }) => {
+    ({ result, completedDate, laboratoryOfficer, labTestMethodId, verification }) => {
       updateLabTest(labRequest.id, labTest.id, {
         result: `${result}`,
         completedDate,
         laboratoryOfficer,
+        verification,
         labTestMethodId,
       });
       onClose();

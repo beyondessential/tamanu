@@ -59,6 +59,7 @@ export const ManualLabResultForm = ({ onSubmit, onClose, labTest }) => {
           suggester={methodSuggester}
         />
         <Field label="Laboratory officer" name="laboratoryOfficer" component={TextField} />
+        <Field label="Verification" name="verification" component={TextField} />
         <Field label="Time of test" name="completedDate" component={DateTimeField} />
         <ConfirmCancelRow onConfirm={submitForm} onCancel={onClose} />
       </FormGrid>
