@@ -46,7 +46,6 @@ function sanitise(object) {
 async function getMigrations(sequelize) {
   try {
     const migrationManager = createMigrationInterface(log, sequelize);
-    throw new Error("oh nosie");
     const migrations = (await migrationManager.executed())
       .map(x => x.file);
     return {
@@ -59,27 +58,32 @@ async function getMigrations(sequelize) {
   }
 }
 
+function lofiCheckPermission(user) {
+  if (user?.role !== 'admin') {
+    throw new Error('forbidden');
+  }
+}
+
 healthRoutes.get('/', asyncHandler(async (req, res) => {
-
-  const basics = {
-    version,
-    uptime: uptime(),
-    serverTime: new Date(),
-  };
-
-  if (req.user?.role !== 'admin') {
-    res.send(basics);
+  try {
+    // TODO: replace with a proper permission check
+    // once that's been implemented for sync-server, for eg:
+    // req.checkPermission('read', 'SystemStatus');
+    lofiCheckPermission(req.user);
+  } catch (e) {
+    res.send({ version });
     return;
   }
 
-  const adminOnly = {
-    config: sanitise(config),
-    time: Intl.DateTimeFormat().resolvedOptions(),
-    ...(await getMigrations(req.store.sequelize)),
-  };
-
   res.send({ 
-    ...basics,
-    ...adminOnly,
+    version,
+    uptime: uptime(),
+    serverTime: new Date(),
+    timeOptions: Intl.DateTimeFormat().resolvedOptions(),
+    database: {
+      options: req.store.sequelize.options,
+      ...(await getMigrations(req.store.sequelize)),
+    },
+    config: sanitise(config),
   });
 }));
