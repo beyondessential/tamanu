@@ -5,7 +5,7 @@ export class ScheduledTask {
     // We can't use reflection here (this.constructor.name) as
     // the class names are not preserved in minified builds.
     // Each scheduled task should override getName() with the appropriate name.
-    return '??';
+    throw new Error("getName() must be overriden when inheriting from ScheduledTask");
   }
 
   constructor(schedule, log) {

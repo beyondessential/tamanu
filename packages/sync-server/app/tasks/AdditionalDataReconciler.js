@@ -35,9 +35,7 @@ export class AdditionalDataReconciler extends ScheduledTask {
       order: [['createdAt', 'ASC NULLS FIRST']],
     });
 
-    // grab first record as primary
-    const primary = records[0];
-    const subsequent = records.slice(1);
+    const [primary, ...subsequent] = records;
 
     // save values of later records to primary record
     const conflicts = [];
