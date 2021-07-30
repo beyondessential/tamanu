@@ -372,10 +372,6 @@ patientRoute.get(
         }),
         filterParams,
       );
-    console.log(
-      '🚀 ~ file: patient.js ~ line 377 ~ asyncHandler ~ filterReplacements',
-      filterReplacements,
-    );
 
     const countResult = await req.db.query(`SELECT COUNT(1) AS count ${from}`, {
       replacements: filterReplacements,
