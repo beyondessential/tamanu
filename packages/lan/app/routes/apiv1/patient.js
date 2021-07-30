@@ -338,9 +338,7 @@ patientRoute.get(
         filterParams.dateOfBirthExact,
         `DATE(patients.date_of_birth) = :dateOfBirthExact`,
         ({ dateOfBirthExact }) => ({
-          dateOfBirthExact: moment(dateOfBirthExact)
-            .endOf('day')
-            .toISOString(),
+          dateOfBirthExact: moment(new Date(dateOfBirthExact)).format('YYYY-MM-DD'),
         }),
       ),
       makeFilter(filterParams.villageId, `patients.village_id = :villageId`),
@@ -374,6 +372,10 @@ patientRoute.get(
         }),
         filterParams,
       );
+    console.log(
+      '🚀 ~ file: patient.js ~ line 377 ~ asyncHandler ~ filterReplacements',
+      filterReplacements,
+    );
 
     const countResult = await req.db.query(`SELECT COUNT(1) AS count ${from}`, {
       replacements: filterReplacements,
