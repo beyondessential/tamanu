@@ -16,7 +16,7 @@ const KEYS_TO_IGNORE = [
 export class AdditionalDataReconciler extends ScheduledTask {
 
   constructor(context) {
-    super('0 */5 * * * *', log);
+    super(config.schedules.additionalDataReconciler, log);
     this.context = context;
     this.runImmediately();
   }

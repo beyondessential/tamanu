@@ -32,7 +32,8 @@
     "allowedOrigin": ""
   },
   "schedules": {
-    "outpatientDischarger": "0 0 2 ? * * *"
+    "outpatientDischarger": "0 0 2 ? * * *",
+    "additionalDataReconciler": "0 */5 * * * *"
   },
   "localisation": {
     "labResultWidget": {
