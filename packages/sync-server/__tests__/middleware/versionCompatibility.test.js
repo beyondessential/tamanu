@@ -1,3 +1,5 @@
+import path from 'path';
+import fs from 'fs';
 import { VERSION_COMPATIBILITY_ERRORS } from 'shared/constants';
 import { createTestContext } from '../utilities';
 import { SUPPORTED_CLIENT_VERSIONS } from '../../app/middleware/versionCompatibility';
@@ -111,6 +113,48 @@ describe('Version compatibility', () => {
           expect(response).not.toHaveSucceeded();
         }),
       );
+    });
+  });
+
+  describe('Other packages', () => {
+    let versions;
+    beforeAll(async () => {
+      const packageFiles = [
+        'package.json',
+        'packages/desktop/package.json',
+        'packages/desktop/app/package.json',
+        'packages/sync-server/package.json',
+        'packages/lan/package.json',
+        'packages/shared-src/package.json',
+        'packages/shared/package.json',
+        'packages/meta-server/package.json',
+        'packages/scripts/package.json',
+      ];
+      versions = await Promise.all(
+        packageFiles.map(async filePath => {
+          const relativePath = `../../../../${filePath}`.split('/');
+          const normalisedPath = path.resolve(__dirname, ...relativePath);
+          const content = await fs.promises.readFile(normalisedPath);
+          return [filePath, JSON.parse(content).version];
+        }),
+      );
+    });
+
+    it('Should have the same version across all packages', async () => {
+      const [firstVersion, ...rest] = versions.map(([, v]) => v);
+      rest.forEach(subsequentVersion => {
+        expect(subsequentVersion).toEqual(firstVersion);
+      });
+    });
+
+    it('Should support the current version of the lan server', async () => {
+      const lanVersion = versions.find(([filePath]) => filePath === 'packages/lan/package.json')[1];
+      const response = await app.get('/').set({
+        'X-Runtime': 'Tamanu LAN Server',
+        'X-Version': lanVersion,
+      });
+      expect(response).toHaveSucceeded();
+      expect(response.body).toHaveProperty('index', true);
     });
   });
 });
