@@ -5,7 +5,6 @@ module.exports = {
     // missing columns to add
     await query.addColumn('patient_additional_data', 'conflicts', {
       type: Sequelize.TEXT,
-      default: '',
     });
   },
   down: async query => {
