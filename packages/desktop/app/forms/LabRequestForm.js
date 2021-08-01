@@ -147,8 +147,8 @@ export class LabRequestForm extends React.PureComponent {
         render={this.renderForm}
         initialValues={{
           displayId: generateDisplayId(),
-          requestedDate: new Date(),
-          sampleTime: new Date(),
+          requestedDate: new Date().toLocaleDateString(),
+          sampleTime: new Date().toLocaleString(),
           ...editedObject,
         }}
         validationSchema={yup.object().shape({

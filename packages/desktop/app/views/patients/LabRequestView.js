@@ -2,7 +2,7 @@ import React from 'react';
 import { connect } from 'react-redux';
 import { push } from 'connected-react-router';
 
-import { Button } from '../../components/Button';
+import { AddButton, Button } from '../../components/Button';
 import { ContentPane } from '../../components/ContentPane';
 import { LoadingIndicator } from '../../components/LoadingIndicator';
 import { PatientInfoPane } from '../../components/PatientInfoPane';
@@ -20,6 +20,9 @@ import { LAB_REQUEST_STATUS_LABELS } from '../../constants';
 import { capitaliseFirstLetter } from '../../utils/capitalise';
 import { ChangeLaboratoryModal } from '../../components/ChangeLaboratoryModal';
 import { DateDisplay } from '../../components';
+import { LabRequestNoteForm } from '../../forms/LabRequestNoteForm';
+import { LabRequestAuditPane } from '../../components/LabRequestAuditPane';
+import { useLabRequest } from '../../contexts/LabRequest';
 
 const makeRangeStringAccessor = sex => row => {
   const type = row.labTestType;
@@ -121,12 +124,13 @@ const LabRequestInfoPane = React.memo(({ labRequest }) => (
     <TextInput value={(labRequest.laboratory || {}).name} label="Laboratory" />
     <DateInput value={labRequest.requestedDate} label="Requested date" />
     <DateTimeInput value={labRequest.sampleTime} label="Sample date" />
-    <TextInput multiline value={labRequest.note} label="Notes" style={{ gridColumn: '1 / -1' }} />
+    <LabRequestNoteForm labRequest={labRequest} />
   </FormGrid>
 ));
 
-export const DumbLabRequestView = React.memo(({ labRequest, patient, loading }) => {
-  if (loading) return <LoadingIndicator />;
+export const DumbLabRequestView = React.memo(({ patient }) => {
+  const { isLoading, labRequest } = useLabRequest();
+  if (isLoading) return <LoadingIndicator />;
   return (
     <TwoColumnDisplay>
       <PatientInfoPane patient={patient} />
@@ -142,13 +146,12 @@ export const DumbLabRequestView = React.memo(({ labRequest, patient, loading }) 
           <LabRequestInfoPane labRequest={labRequest} />
         </ContentPane>
         <ResultsPane labRequest={labRequest} patient={patient} />
+        <LabRequestAuditPane labRequest={labRequest} />
       </div>
     </TwoColumnDisplay>
   );
 });
 
 export const LabRequestView = connect(state => ({
-  loading: state.labRequest.loading,
-  labRequest: state.labRequest,
   patient: state.patient,
 }))(DumbLabRequestView);
