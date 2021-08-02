@@ -80,7 +80,7 @@ export class ReportRequestProcessor extends ScheduledTask {
    * @returns {Promise<void>}
    */
   async sendReport(request, reportData) {
-    if (Array.isArray(request.recipients.email)) {
+    if (request.recipients.email) {
       await this.sendReportToEmail(request, reportData, request.recipients.email);
     }
     if (request.recipients.tupaia){
