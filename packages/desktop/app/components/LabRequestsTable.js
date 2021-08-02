@@ -6,10 +6,10 @@ import { DataFetchingTable } from './Table';
 import { DateDisplay } from './DateDisplay';
 
 import { LAB_REQUEST_STATUS_LABELS, LAB_REQUEST_COLORS } from '../constants';
-import { viewLab } from '../store/labRequest';
 import { PatientNameDisplay } from './PatientNameDisplay';
 import { viewPatientEncounter } from '../store/patient';
 import { useEncounter } from '../contexts/Encounter';
+import { useLabRequest } from '../contexts/LabRequest';
 
 const StatusLabel = styled.div`
   background: ${p => p.color};
@@ -58,14 +58,16 @@ const globalColumns = [
   ...encounterColumns,
 ];
 
-const DumbLabRequestsTable = React.memo(({ encounterId, onLabSelect, fetchOptions }) => {
+const DumbLabRequestsTable = React.memo(({ encounterId, viewPatient, fetchOptions }) => {
   const { loadEncounter } = useEncounter();
+  const { loadLabRequest } = useLabRequest();
   const selectLab = useCallback(async lab => {
     if (!encounterId) {
       // no encounter, likely on the labs page
       await loadEncounter(lab.encounterId);
     }
-    onLabSelect(lab);
+    if (lab.patientId) viewPatient(lab);
+    loadLabRequest(lab.id);
   }, []);
 
   return (
@@ -80,10 +82,5 @@ const DumbLabRequestsTable = React.memo(({ encounterId, onLabSelect, fetchOption
 });
 
 export const LabRequestsTable = connect(null, dispatch => ({
-  onLabSelect: lab => {
-    const { encounterId, id, patientId } = lab;
-    if (patientId) dispatch(viewPatientEncounter(patientId, encounterId));
-
-    dispatch(viewLab(id));
-  },
+  viewPatient: lab => dispatch(viewPatientEncounter(lab.patientId, lab.encounterId)),
 }))(DumbLabRequestsTable);

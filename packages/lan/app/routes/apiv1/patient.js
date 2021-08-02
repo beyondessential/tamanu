@@ -334,6 +334,13 @@ patientRoute.get(
             .toISOString(),
         }),
       ),
+      makeFilter(
+        filterParams.dateOfBirthExact,
+        `DATE(patients.date_of_birth) = :dateOfBirthExact`,
+        ({ dateOfBirthExact }) => ({
+          dateOfBirthExact: moment(new Date(dateOfBirthExact)).format('YYYY-MM-DD'),
+        }),
+      ),
       makeFilter(filterParams.villageId, `patients.village_id = :villageId`),
       makeFilter(filterParams.locationId, `location.id = :locationId`),
       makeFilter(filterParams.departmentId, `department.id = :departmentId`),

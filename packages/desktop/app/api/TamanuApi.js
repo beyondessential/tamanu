@@ -85,6 +85,7 @@ export class TamanuApi {
     this.authHeader = null;
     this.onVersionIncompatible = null;
     this.pendingSubscriptions = [];
+    this.user = null;
     const host = window.localStorage.getItem(HOST);
     if (host) {
       this.setHost(host);
@@ -133,6 +134,7 @@ export class TamanuApi {
     this.lastRefreshed = Date.now();
 
     const user = await this.get('user/me');
+    this.user = user;
     return { user, token, localisation };
   }
 
