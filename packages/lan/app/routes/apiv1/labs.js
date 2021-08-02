@@ -91,6 +91,16 @@ labRequest.get(
         ({ displayId }) => ({ displayId: `${displayId}%` }),
       ),
       makeFilter(
+        filterParams.firstName,
+        `UPPER(patient.first_name) LIKE UPPER(:firstName)`,
+        ({ firstName }) => ({ firstName: `${firstName}%` }),
+      ),
+      makeFilter(
+        filterParams.lastName,
+        `UPPER(patient.last_name) LIKE UPPER(:lastName)`,
+        ({ lastName }) => ({ lastName: `${lastName}%` }),
+      ),
+      makeFilter(
         filterParams.requestedDateFrom,
         `DATE(lab_requests.requested_date) >= :requestedDateFrom`,
         ({ requestedDateFrom }) => ({
