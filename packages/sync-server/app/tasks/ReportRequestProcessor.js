@@ -46,42 +46,76 @@ export class ReportRequestProcessor extends ScheduledTask {
         });
         return;
       }
-      const fileName = await createFilePathForEmailAttachment(
-        `${requestObject.reportType}-report-${new Date().getTime()}.xlsx`,
-      );
+
+      let reportData = null;
       try {
         const parameters = requestObject.parameters ? JSON.parse(requestObject.parameters) : {};
-        const excelData = await reportDataGenerator(this.context.store.models, parameters);
-        await writeExcelFile(excelData, fileName);
-        const result = await sendEmail({
-          from: config.mailgun.from,
-          to: request.recipients,
-          subject: 'Report delivery',
-          text: `Report requested: ${requestObject.reportType}`,
-          attachment: fileName,
-        });
-        if (result.status === COMMUNICATION_STATUSES.SENT) {
-          log.info(
-            `ReportRequestProcessorError - Sent report ${fileName} to ${request.recipients.length}`,
-          );
-          await request.update({
-            status: REPORT_REQUEST_STATUSES.PROCESSED,
-          });
-        } else {
-          log.error(`ReportRequestProcessorError - Mailgun error: ${result.error}`);
-          await request.update({
-            status: REPORT_REQUEST_STATUSES.ERROR,
-          });
-        }
+        reportData = await reportDataGenerator(this.context.store.models, parameters);
       } catch (e) {
         log.error(`ReportRequestProcessorError - Failed to generate report, ${e.message}`);
         log.error(e.stack);
         await request.update({
           status: REPORT_REQUEST_STATUSES.ERROR,
         });
-      } finally {
-        await removeFile(fileName);
+      }
+
+      try {
+        await this.sendReport(requestObject, reportData);
+        await request.update({
+          status: REPORT_REQUEST_STATUSES.PROCESSED,
+        });
+      } catch (e) {
+        log.error(`ReportRequestProcessorError - Failed to send, ${e.message}`);
+        log.error(e.stack);
+        await request.update({
+          status: REPORT_REQUEST_STATUSES.ERROR,
+        });
       }
     }
+  }
+
+  /**
+   * @param request {}
+   * @param reportData []
+   * @returns {Promise<void>}
+   */
+  async sendReport(request, reportData) {
+    if (request.recipients.email) {
+      await this.sendReportToEmail(request, reportData, request.recipients.email);
+    }
+    if (request.recipients.tupaia){
+      await this.sendReportToTupaia(request, reportData);
+    }
+  }
+
+  async sendReportToEmail(request, reportData, emailAddresses) {
+    const fileName = await createFilePathForEmailAttachment(
+      `${request.reportType}-report-${new Date().getTime()}.xlsx`,
+    );
+
+    try {
+      await writeExcelFile(reportData, fileName);
+
+      const result = await sendEmail({
+        from: config.mailgun.from,
+        to: emailAddresses.join(','),
+        subject: 'Report delivery',
+        text: `Report requested: ${request.reportType}`,
+        attachment: fileName,
+      });
+      if (result.status === COMMUNICATION_STATUSES.SENT) {
+        log.info(
+          `ReportRequestProcessorError - Sent report ${fileName} to ${emailAddresses.join(',')}`,
+        );
+      } else {
+        throw new Error(`Mailgun error: ${result.error}`);
+      }
+    } finally {
+      await removeFile(fileName);
+    }
+  }
+
+  async sendReportToTupaia(request, reportData) {
+    // TODO: implement
   }
 }
