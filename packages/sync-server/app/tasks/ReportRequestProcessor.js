@@ -83,6 +83,9 @@ export class ReportRequestProcessor extends ScheduledTask {
     if (Array.isArray(request.recipients.email)) {
       await this.sendReportToEmail(request, reportData, request.recipients.email);
     }
+    if (request.recipients.tupaia){
+      await this.sendReportToTupaia(request, reportData);
+    }
   }
 
   async sendReportToEmail(request, reportData, emailAddresses) {
@@ -110,5 +113,9 @@ export class ReportRequestProcessor extends ScheduledTask {
     } finally {
       await removeFile(fileName);
     }
+  }
+
+  async sendReportToTupaia(request, reportData) {
+    // TODO: implement
   }
 }
