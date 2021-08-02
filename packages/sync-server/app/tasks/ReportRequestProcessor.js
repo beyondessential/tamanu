@@ -80,8 +80,8 @@ export class ReportRequestProcessor extends ScheduledTask {
    * @returns {Promise<void>}
    */
   async sendReport(request, reportData) {
-    if (request.recipients) {
-      await this.sendReportToEmail(request, reportData, request.recipients);
+    if (Array.isArray(request.recipients.email)) {
+      await this.sendReportToEmail(request, reportData, request.recipients.email);
     }
   }
 
@@ -95,13 +95,15 @@ export class ReportRequestProcessor extends ScheduledTask {
 
       const result = await sendEmail({
         from: config.mailgun.from,
-        to: emailAddresses,
+        to: emailAddresses.join(','),
         subject: 'Report delivery',
         text: `Report requested: ${request.reportType}`,
         attachment: fileName,
       });
       if (result.status === COMMUNICATION_STATUSES.SENT) {
-        log.info(`ReportRequestProcessorError - Sent report ${fileName} to ${emailAddresses}`);
+        log.info(
+          `ReportRequestProcessorError - Sent report ${fileName} to ${emailAddresses.join(',')}`,
+        );
       } else {
         throw new Error(`Mailgun error: ${result.error}`);
       }
