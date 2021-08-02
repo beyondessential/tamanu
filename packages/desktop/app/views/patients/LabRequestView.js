@@ -47,6 +47,7 @@ const columns = sex => [
   { title: 'Reference', key: 'reference', accessor: makeRangeStringAccessor(sex) },
   { title: 'Method', key: 'labTestMethod', accessor: getMethod, sortable: false },
   { title: 'Laboratory officer', key: 'laboratoryOfficer' },
+  { title: 'Verification', key: 'verification' },
   { title: 'Completed', key: 'completedDate', accessor: getDate, sortable: false },
 ];
 
