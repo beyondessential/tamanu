@@ -8,8 +8,8 @@ import { LAB_REQUEST_STATUS_LABELS, LAB_REQUEST_STATUSES } from '../constants';
 const StyledSelectField = styled(SelectField)`
   .styled-select-container {
     padding: 8px 8px 2px 8px;
-    border-radius: 0 3px 3px 0;
     border: 1px solid #dedede;
+    border-right: none;
   }
 
   .styled-select__control,
