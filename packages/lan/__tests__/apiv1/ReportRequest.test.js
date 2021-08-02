@@ -27,7 +27,10 @@ describe('ReportRequest', () => {
       expect(result).toHaveSucceeded();
       expect(result.body).toHaveProperty('id');
       expect(result.body).toHaveProperty('reportType', 'incomplete-referrals');
-      expect(result.body).toHaveProperty('recipients', 'example@gmail.com,other@gmail.com');
+      expect(result.body).toHaveProperty(
+        'recipients',
+        JSON.stringify({ email: ['example@gmail.com', 'other@gmail.com'] }),
+      );
       expect(result.body).toHaveProperty('requestedByUserId', app.user.dataValues.id);
     });
   });
