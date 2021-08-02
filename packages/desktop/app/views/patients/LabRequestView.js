@@ -24,14 +24,16 @@ import { LabRequestNoteForm } from '../../forms/LabRequestNoteForm';
 import { LabRequestAuditPane } from '../../components/LabRequestAuditPane';
 import { useLabRequest } from '../../contexts/LabRequest';
 
-const makeRangeStringAccessor = sex => row => {
-  const type = row.labTestType;
+const makeRangeStringAccessor = sex => ({ labTestType }) => {
+  const max = (sex === 'male') ? labTestType.maleMax : labTestType.femaleMax;
+  const min = (sex === 'male') ? labTestType.maleMin : labTestType.femaleMin;
+  const hasMax = max || (max === 0);
+  const hasMin = min || (min === 0);
 
-  if (sex === 'male') {
-    return `${type.maleMin} – ${type.maleMax}`;
-  }
-
-  return `${type.femaleMin} – ${type.femaleMax}`;
+  if (hasMin && hasMax) return `${min} - ${max}`;
+  if (hasMin) return `>${min}`;
+  if (hasMax) return `<${max}`;
+  return 'N/A';
 };
 
 const getDate = ({ completedDate }) => <DateDisplay date={completedDate} />;
@@ -44,7 +46,7 @@ const columns = sex => [
     key: 'result',
     accessor: ({ result }) => (result ? capitaliseFirstLetter(result) : ''),
   },
-  { title: 'Reference', key: 'reference', accessor: makeRangeStringAccessor(sex) },
+  { title: 'Clinical range', key: 'reference', accessor: makeRangeStringAccessor(sex) },
   { title: 'Method', key: 'labTestMethod', accessor: getMethod, sortable: false },
   { title: 'Laboratory officer', key: 'laboratoryOfficer' },
   { title: 'Verification', key: 'verification' },
