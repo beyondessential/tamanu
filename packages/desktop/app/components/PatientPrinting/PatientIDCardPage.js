@@ -8,7 +8,7 @@ import { SEX_VALUE_INDEX } from '../../constants';
 import { DateDisplay } from '../DateDisplay';
 import { PatientBarcode } from './PatientBarcode';
 
-import { PrintPortal } from '../../print';
+import { PrintPortal } from '../Print';
 
 const cardDimensions = {
   width: 85.6,
@@ -138,29 +138,6 @@ const PatientPhoto = ({ imageData }) => (
   </PhotoFrame>
 );
 
-export const PatientIDCard = ({ patient, imageData }) => (
-  <Card>
-    <TopBar />
-    <MainSection>
-      <PhotoContainer>
-        <PatientPhoto imageData={imageData} />
-        <PhotoLabel patient={patient} />
-      </PhotoContainer>
-      <Details>
-        <DisplayIdRow name="displayId" value={patient.displayId} />
-        <DetailsRow name="lastName" value={patient.lastName} />
-        <DetailsRow name="firstName" value={patient.firstName} />
-        <DetailsRow name="dateOfBirth" value={DateDisplay.rawFormat(patient.dateOfBirth)} />
-        <DetailsRow name="sex" value={SEX_VALUE_INDEX[patient.sex].label} />
-      </Details>
-    </MainSection>
-    <BarcodeRow>
-      <PatientBarcode patient={patient} width="43mm" height="5.9mm" />
-    </BarcodeRow>
-    <BottomBar />
-  </Card>
-);
-
 export const PatientIDCardPage = ({ patient, imageData }) => {
   const { printPage } = useElectron();
   useEffect(() => {
@@ -179,7 +156,26 @@ export const PatientIDCardPage = ({ patient, imageData }) => {
 
   return (
     <PrintPortal>
-      <PatientIDCard patient={patient} imageData={imageData} />
+      <Card>
+        <TopBar />
+        <MainSection>
+          <PhotoContainer>
+            <PatientPhoto imageData={imageData} />
+            <PhotoLabel patient={patient} />
+          </PhotoContainer>
+          <Details>
+            <DisplayIdRow name="displayId" value={patient.displayId} />
+            <DetailsRow name="lastName" value={patient.lastName} />
+            <DetailsRow name="firstName" value={patient.firstName} />
+            <DetailsRow name="dateOfBirth" value={DateDisplay.rawFormat(patient.dateOfBirth)} />
+            <DetailsRow name="sex" value={SEX_VALUE_INDEX[patient.sex].label} />
+          </Details>
+        </MainSection>
+        <BarcodeRow>
+          <PatientBarcode patient={patient} width="43mm" height="5.9mm" />
+        </BarcodeRow>
+        <BottomBar />
+      </Card>
     </PrintPortal>
   );
 };
