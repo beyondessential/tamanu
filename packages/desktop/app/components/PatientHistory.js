@@ -1,7 +1,7 @@
-import React from 'react';
+import React, { useState } from 'react';
+import styled from 'styled-components';
 
-import CircularProgress from '@material-ui/core/CircularProgress';
-
+import { OutlinedButton } from './Button';
 import { DataFetchingTable } from './Table';
 import { DateDisplay } from './DateDisplay';
 import { MarkPatientForSync } from './MarkPatientForSync';
@@ -19,24 +19,36 @@ const columns = [
   { key: 'description', title: 'Description', accessor: getDescription },
 ];
 
+const SyncWarning = styled.p`
+  margin: 1rem;
+`;
+
+const RefreshButton = styled(OutlinedButton)`
+  margin-left: .5rem;
+`;
+
 export const PatientHistory = ({ patient, onItemClick }) => {
-  if (patient.syncing) {
-    return (
-      <div style={{ margin: '1rem' }}>
-        <CircularProgress />
-      </div>
-    );
-  }
+  const [refreshCount, setRefreshCount] = useState(0);
+
   if (!patient.markedForSync) {
     return <MarkPatientForSync patient={patient} />;
   }
   return (
-    <DataFetchingTable
-      columns={columns}
-      onRowClick={row => onItemClick(row.id)}
-      noDataMessage="No historical records for this patient."
-      endpoint={`patient/${patient.id}/encounters`}
-      initialSort={{ orderBy: 'startDate', order: 'desc' }}
-    />
+    <>
+      {patient.syncing && (
+        <SyncWarning>
+          Patient is being synced, so records might not be fully updated.
+          <RefreshButton onClick={() => setRefreshCount(refreshCount + 1)}>Refresh</RefreshButton>
+        </SyncWarning>
+      )}
+      <DataFetchingTable
+        columns={columns}
+        onRowClick={row => onItemClick(row.id)}
+        noDataMessage="No historical records for this patient."
+        endpoint={`patient/${patient.id}/encounters`}
+        initialSort={{ orderBy: 'startDate', order: 'desc' }}
+        refreshCount={refreshCount}
+      />
+    </>
   );
 };

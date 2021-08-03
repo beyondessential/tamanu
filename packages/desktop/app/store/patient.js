@@ -5,7 +5,7 @@ const PATIENT_LOAD_START = 'PATIENT_LOAD_START';
 const PATIENT_LOAD_ERROR = 'PATIENT_LOAD_ERROR';
 const PATIENT_LOAD_FINISH = 'PATIENT_LOAD_FINISH';
 const PATIENT_CLEAR = 'PATIENT_CLEAR';
-const PATIENT_WAIT_FOR_SYNC = 'PATIENT_WAIT_FOR_SYNC';
+const PATIENT_SYNCING = 'PATIENT_SYNCING';
 
 export const viewPatientEncounter = (patientId, modal = '') => async dispatch => {
   dispatch(reloadPatient(patientId));
@@ -63,10 +63,23 @@ export const reloadPatient = id => async (dispatch, getState, { api }) => {
   }
 };
 
-export const waitForSync = (wait = true) => ({
-  type: PATIENT_WAIT_FOR_SYNC,
-  data: wait,
-});
+export const syncPatient = () => async (dispatch, getState, { api }) => {
+  const { patient } = getState();
+  dispatch({
+    type: PATIENT_SYNCING,
+    data: true,
+  });
+  await api.put(`patient/${patient.id}`, { markedForSync: true });
+  dispatch(reloadPatient(patient.id));
+
+  // typically it takes a while for sync to complete
+  // so wait for about 30 seconds till removing syncing state
+  await new Promise(resolve => setTimeout(resolve, 30000));
+  dispatch({
+    type: PATIENT_SYNCING,
+    data: false,
+  });
+};
 
 // reducers
 
@@ -102,7 +115,7 @@ export const patientReducer = (state = defaultState, action) => {
       };
     case PATIENT_CLEAR:
       return defaultState;
-    case PATIENT_WAIT_FOR_SYNC:
+    case PATIENT_SYNCING:
       return {
         ...state,
         syncing: action.data,
