@@ -41,7 +41,7 @@ describe('Sync API', () => {
 
     await Promise.all(
       [OLDEST_PATIENT, SECOND_OLDEST_PATIENT].map(async r => {
-        await ctx.store.upsert('patient', convertToDbRecord(r));
+        await ctx.store.models.Patient.upsert(convertToDbRecord(r));
         await unsafeSetUpdatedAt(ctx.store.sequelize, {
           table: 'patients',
           id: r.data.id,
@@ -49,7 +49,7 @@ describe('Sync API', () => {
         });
       }),
     );
-    await ctx.store.upsert('reference', REFERENCE_DATA);
+    await ctx.store.models.ReferenceData.upsert(REFERENCE_DATA);
     await unsafeSetUpdatedAt(ctx.store.sequelize, {
       table: 'reference_data',
       id: REFERENCE_DATA.id,
@@ -134,6 +134,17 @@ describe('Sync API', () => {
       expect(firstRecord).not.toHaveProperty('index');
     });
 
+    it('should not return a count if noCount=true', async () => {
+      const result = await app.get(`/v1/sync/patient?since=0&noCount=true`);
+      expect(result).toHaveSucceeded();
+
+      const { body } = result;
+      expect(body.count).toBe(null);
+      expect(body).toHaveProperty('records');
+      expect(body).toHaveProperty('cursor');
+      expect(body.records.length).toBeGreaterThan(0);
+    });
+
     it('should filter out older records', async () => {
       const result = await app.get(
         `/v1/sync/patient?since=${getUpdatedAtTimestamp(SECOND_OLDEST_PATIENT) - 1}`,
@@ -151,7 +162,7 @@ describe('Sync API', () => {
       await Promise.all(
         [0, 1].map(async () => {
           const p = fakePatient();
-          await ctx.store.upsert('patient', p);
+          await ctx.store.models.Patient.upsert(p);
           await unsafeSetUpdatedAt(ctx.store.sequelize, {
             table: 'patients',
             id: p.id,
@@ -199,7 +210,7 @@ describe('Sync API', () => {
       let records = null;
 
       beforeAll(async () => {
-        await ctx.store.unsafeRemoveAllOfChannel('patient');
+        await ctx.store.models.Patient.destroy({ where: {}, force: true });
 
         // instantiate 20 records
         records = new Array(TOTAL_RECORDS)
@@ -207,7 +218,7 @@ describe('Sync API', () => {
           .map((zero, i) => fakeSyncRecordPatient(`test-limits-${i}_`));
 
         // import in series so there's a predictable order to test against
-        await Promise.all(records.map(r => ctx.store.upsert('patient', convertToDbRecord(r))));
+        await Promise.all(records.map(r => ctx.store.models.Patient.upsert(convertToDbRecord(r))));
       });
 
       it('should only return $limit records', async () => {
@@ -271,60 +282,68 @@ describe('Sync API', () => {
       });
     });
 
-    it('should return nested encounter relationships', async () => {
-      // arrange
-      const patientId = uuidv4();
-      const encounter = await buildNestedEncounter(ctx.store, patientId);
-      await ctx.store.models.Encounter.create(encounter);
-      await upsertAssociations(ctx.store.models.Encounter, encounter);
+    const patientId = uuidv4();
+    [
+      `/v1/sync/patient%2F${patientId}%2Fencounter?since=0`,
+      `/v1/sync/labRequest%2Fall%2Fencounter?since=0`,
+    ].forEach(url => {
+      describe(`from the url ${url}`, () => {
+        it('should return nested encounter relationships', async () => {
+          // arrange
+          await ctx.store.models.Encounter.destroy({ where: {}, force: true });
+          const encounter = await buildNestedEncounter(ctx.store, patientId);
+          await ctx.store.models.Encounter.create(encounter);
+          await upsertAssociations(ctx.store.models.Encounter, encounter);
 
-      // act
-      const result = await app.get(`/v1/sync/patient%2F${patientId}%2Fencounter?since=0`);
+          // act
+          const result = await app.get(url);
 
-      // assert
-      expect(result.body).toMatchObject({
-        records: [
-          {
-            data: {
-              id: encounter.id,
-              administeredVaccines: [
-                {
-                  data: {
-                    id: encounter.administeredVaccines[0].id,
-                    encounterId: encounter.id,
-                  },
-                },
-              ],
-              surveyResponses: [
-                {
-                  data: {
-                    id: encounter.surveyResponses[0].id,
-                    encounterId: encounter.id,
-                    answers: [
-                      {
-                        data: {
-                          id: encounter.surveyResponses[0].answers[0].id,
-                          responseId: encounter.surveyResponses[0].id,
-                        },
+          // assert
+          expect(result.body).toMatchObject({
+            records: [
+              {
+                data: {
+                  id: encounter.id,
+                  administeredVaccines: [
+                    {
+                      data: {
+                        id: encounter.administeredVaccines[0].id,
+                        encounterId: encounter.id,
                       },
-                    ],
-                  },
+                    },
+                  ],
+                  surveyResponses: [
+                    {
+                      data: {
+                        id: encounter.surveyResponses[0].id,
+                        encounterId: encounter.id,
+                        answers: [
+                          {
+                            data: {
+                              id: encounter.surveyResponses[0].answers[0].id,
+                              responseId: encounter.surveyResponses[0].id,
+                            },
+                          },
+                        ],
+                      },
+                    },
+                  ],
                 },
-              ],
-            },
-          },
-        ],
-      });
-      [
-        [],
-        ['data', 'administeredVaccines', 0],
-        ['data', 'surveyResults', 0],
-        ['data', 'surveyResults', 0, 'answers', 0],
-        ['data', 'surveyResults', 0, 'data', 'answers', 0],
-      ].forEach(path => {
-        ['updatedAt', 'createdAt', 'deletedAt'].forEach(key => {
-          expect(result).not.toHaveProperty([...path, key]);
-          expect(result).not.toHaveProperty([...path, 'data', key]);
+              },
+            ],
+          });
+          [
+            [],
+            ['data', 'administeredVaccines', 0],
+            ['data', 'surveyResults', 0],
+            ['data', 'surveyResults', 0, 'answers', 0],
+            ['data', 'surveyResults', 0, 'data', 'answers', 0],
+          ].forEach(path => {
+            ['updatedAt', 'createdAt', 'deletedAt'].forEach(key => {
+              expect(result).not.toHaveProperty([...path, key]);
+              expect(result).not.toHaveProperty([...path, 'data', key]);
+            });
+          });
         });
       });
     });
@@ -332,22 +351,22 @@ describe('Sync API', () => {
 
   describe('Writes', () => {
     beforeAll(async () => {
-      await ctx.store.unsafeRemoveAllOfChannel('patient');
+      await ctx.store.models.Patient.destroy({ where: {}, force: true });
     });
 
     it('should add a record to a channel', async () => {
-      const precheck = await ctx.store.findSince('patient', '0');
+      const precheck = await ctx.store.models.Patient.findAll();
       expect(precheck).toHaveProperty('length', 0);
 
       const result = await app.post('/v1/sync/patient').send(fakeSyncRecordPatient());
       expect(result).toHaveSucceeded();
 
-      const postcheck = await ctx.store.findSince('patient', '0');
+      const postcheck = await ctx.store.models.Patient.findAll();
       expect(postcheck.length).toEqual(1);
     });
 
     it('should add multiple records to reference data', async () => {
-      const precheck = await ctx.store.findSince('patient', '0');
+      const precheck = await ctx.store.models.Patient.findAll();
       expect(precheck.length).toEqual(1);
 
       const record1 = fakeSyncRecordPatient();
@@ -355,7 +374,7 @@ describe('Sync API', () => {
       const result = await app.post('/v1/sync/patient').send([record1, record2]);
       expect(result).toHaveSucceeded();
 
-      const postcheck = await ctx.store.findSince('patient', '0');
+      const postcheck = await ctx.store.models.Patient.findAll();
       expect(postcheck.length).toEqual(3);
       const postcheckIds = postcheck
         .slice(1)
@@ -370,8 +389,8 @@ describe('Sync API', () => {
 
       expect(result).toHaveSucceeded();
 
-      const foundRecords = await ctx.store.findSince('patient', '0');
-      const foundRecord = foundRecords.find(r => r.id === record.data.id);
+      const foundRecords = await ctx.store.models.Patient.findAll();
+      const foundRecord = foundRecords.find(r => r.id === record.data.id).get({ plain: true });
       const {
         createdAt,
         updatedAt,
@@ -383,46 +402,57 @@ describe('Sync API', () => {
       expect(data).toEqual(record.data);
     });
 
-    it('should upsert nested encounter relationships', async () => {
-      // arrange
-      const patientId = uuidv4();
-      const encounterToInsert = await buildNestedEncounter(ctx.store, patientId);
-      await ctx.store.models.Encounter.create(encounterToInsert);
-      await upsertAssociations(ctx.store.models.Encounter, encounterToInsert);
+    const patientId = uuidv4();
+    [
+      `/v1/sync/patient%2F${patientId}%2Fencounter?since=0`,
+      `/v1/sync/labRequest%2Fall%2Fencounter?since=0`,
+    ].forEach(url => {
+      describe(`from the url ${url}`, () => {
+        it('should upsert nested encounter relationships', async () => {
+          // arrange
+          await ctx.store.models.Encounter.destroy({ where: {}, force: true });
+          const encounterToInsert = await buildNestedEncounter(ctx.store, patientId);
+          await ctx.store.models.Encounter.create(encounterToInsert);
+          await upsertAssociations(ctx.store.models.Encounter, encounterToInsert);
 
-      // act
-      const getResult = await app.get(`/v1/sync/patient%2F${patientId}%2Fencounter?since=0`);
-      const syncEncounter = getResult.body.records.find(
-        ({ data }) => data.id === encounterToInsert.id,
-      );
-      syncEncounter.data.administeredVaccines[0].data.batch = 'test batch';
-      syncEncounter.data.surveyResponses[0].data.result = 3.141592;
-      syncEncounter.data.surveyResponses[0].data.answers[0].data.body = 'test body';
+          // act
+          const getResult = await app.get(url);
+          const syncEncounter = getResult.body.records.find(
+            ({ data }) => data.id === encounterToInsert.id,
+          );
+          syncEncounter.data.administeredVaccines[0].data.batch = 'test batch';
+          syncEncounter.data.surveyResponses[0].data.result = 3.141592;
+          syncEncounter.data.surveyResponses[0].data.answers[0].data.body = 'test body';
 
-      const result = await app
-        .post(`/v1/sync/patient%2F${patientId}%2Fencounter?since=0`)
-        .send(syncEncounter);
+          const result = await app
+            .post(`/v1/sync/patient%2F${patientId}%2Fencounter?since=0`)
+            .send(syncEncounter);
 
-      // assert
-      expect(result.body).toHaveProperty('count', 1);
-      const encounterAfterPost = await ctx.store.models.Encounter.findOne({
-        where: { patientId },
-        include: [
-          { association: 'administeredVaccines' },
-          { association: 'diagnoses' },
-          { association: 'medications' },
-          {
-            association: 'surveyResponses',
-            include: [{ association: 'answers' }],
-          },
-        ],
+          // assert
+          expect(result.body).toHaveProperty('count', 1);
+          const encounterAfterPost = await ctx.store.models.Encounter.findOne({
+            where: { patientId },
+            include: [
+              { association: 'administeredVaccines' },
+              { association: 'diagnoses' },
+              { association: 'medications' },
+              {
+                association: 'surveyResponses',
+                include: [{ association: 'answers' }],
+              },
+            ],
+          });
+          expect(encounterAfterPost).toHaveProperty(
+            ['administeredVaccines', 0, 'batch'],
+            'test batch',
+          );
+          expect(encounterAfterPost).toHaveProperty(['surveyResponses', 0, 'result'], 3.141592);
+          expect(encounterAfterPost).toHaveProperty(
+            ['surveyResponses', 0, 'answers', 0, 'body'],
+            'test body',
+          );
+        });
       });
-      expect(encounterAfterPost).toHaveProperty(['administeredVaccines', 0, 'batch'], 'test batch');
-      expect(encounterAfterPost).toHaveProperty(['surveyResponses', 0, 'result'], 3.141592);
-      expect(encounterAfterPost).toHaveProperty(
-        ['surveyResponses', 0, 'answers', 0, 'body'],
-        'test body',
-      );
     });
 
     it('should have count and requestedAt fields', async () => {
@@ -435,7 +465,7 @@ describe('Sync API', () => {
 
   describe('Deletes', () => {
     beforeEach(async () => {
-      await ctx.store.unsafeRemoveAllOfChannel('patient');
+      await ctx.store.models.Patient.destroy({ where: {}, force: true });
     });
 
     describe('on success', () => {
@@ -445,7 +475,7 @@ describe('Sync API', () => {
 
       beforeEach(async () => {
         patient = fakeSyncRecordPatient();
-        await ctx.store.upsert('patient', convertToDbRecord(patient));
+        await ctx.store.models.Patient.upsert(convertToDbRecord(patient));
         await unsafeSetUpdatedAt(ctx.store.sequelize, {
           table: 'patients',
           id: patient.data.id,

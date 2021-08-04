@@ -1,6 +1,5 @@
 import { Sequelize } from 'sequelize';
-import { SYNC_DIRECTIONS } from 'shared/constants';
-import { extendClassWithPatientChannel } from './sync';
+import { initSyncForModelNestedUnderPatient } from './sync';
 import { Model } from './Model';
 
 export class PatientCondition extends Model {
@@ -12,7 +11,10 @@ export class PatientCondition extends Model {
         recordedDate: { type: Sequelize.DATE, defaultValue: Sequelize.NOW, allowNull: false },
         resolved: { type: Sequelize.BOOLEAN, defaultValue: false },
       },
-      options,
+      {
+        ...options,
+        syncConfig: initSyncForModelNestedUnderPatient(this, 'condition'),
+      },
     );
   }
 
@@ -25,8 +27,4 @@ export class PatientCondition extends Model {
   static getListReferenceAssociations() {
     return ['condition'];
   }
-
-  static syncDirection = SYNC_DIRECTIONS.BIDIRECTIONAL;
 }
-
-extendClassWithPatientChannel(PatientCondition, 'condition');

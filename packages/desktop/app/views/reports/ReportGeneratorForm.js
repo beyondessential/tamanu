@@ -19,6 +19,7 @@ import { Colors } from '../../constants';
 import { getCurrentUser } from '../../store/auth';
 import { MUI_SPACING_UNIT } from '../../constants';
 import { VillageField } from './VillageField';
+import { LabTestLaboratoryField } from './LabTestLaboratoryField';
 import { PractitionerField } from './PractitionerField';
 import { DiagnosisField } from './DiagnosisField';
 import { saveExcelFile } from '../../utils/saveExcelFile';
@@ -33,6 +34,8 @@ const REPORT_TYPE_OPTIONS = [
   { label: 'Adverse Event Following Immunization', value: 'aefi' },
   { label: 'Samoa Adverse Event Following Immunisation', value: 'samoa-aefi' },
   { label: 'Number of patients registered by date', value: 'number-patients-registered-by-date' },
+  { label: 'COVID-19 Tests - Line list', value: 'covid-swab-lab-test-list' },
+  { label: 'COVID-19 Tests - Summary', value: 'covid-swab-lab-tests-summary' },
 ];
 
 const Spacer = styled.div`
@@ -117,6 +120,14 @@ const ParametersByReportType = {
   aefi: [{ ParameterField: VillageField }],
   'samoa-aefi': [{ ParameterField: VillageField }],
   'number-patients-registered-by-date': [],
+  'covid-swab-lab-test-list': [
+    { ParameterField: VillageField },
+    { ParameterField: LabTestLaboratoryField },
+  ],
+  'covid-swab-lab-tests-summary': [
+    { ParameterField: VillageField },
+    { ParameterField: LabTestLaboratoryField },
+  ],
 };
 
 const DefaultDataSource = {

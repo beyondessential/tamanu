@@ -33,6 +33,11 @@ export const practitioner = (user, allow, forbid) => {
   allow('write', 'LabRequest');
   allow('create', 'LabRequest');
 
+  allow('list', 'LabRequestLog');
+  allow('read', 'LabRequestLog');
+  allow('write', 'LabRequestLog');
+  allow('create', 'LabRequestLog');
+
   allow('list', 'LabTest');
   allow('read', 'LabTest');
   allow('write', 'LabTest');

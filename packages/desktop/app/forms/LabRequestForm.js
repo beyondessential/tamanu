@@ -1,12 +1,16 @@
 import React from 'react';
 import PropTypes from 'prop-types';
 import * as yup from 'yup';
-import shortid from 'shortid';
 import { connect } from 'react-redux';
 
 import { foreignKey } from '../utils/validation';
 import { encounterOptions } from '../constants';
-import { getLabTestTypes, getLabTestCategories, loadOptions } from '../store/options';
+import {
+  getLabTestTypes,
+  getLabTestCategories,
+  getLabTestPriorities,
+  loadOptions,
+} from '../store/options';
 
 import {
   Form,
@@ -36,11 +40,10 @@ function getEncounterLabel(encounter) {
   return `${encounterDate} (${encounterTypeLabel})`;
 }
 
-function filterTestTypes(testTypes, conditions) {
-  const { labTestCategoryId } = conditions;
+function filterTestTypes(testTypes, { labTestCategoryId }) {
   return labTestCategoryId
     ? testTypes.filter(tt => tt.labTestCategoryId === labTestCategoryId)
-    : testTypes;
+    : [];
 }
 
 export class LabRequestForm extends React.PureComponent {
@@ -65,6 +68,7 @@ export class LabRequestForm extends React.PureComponent {
       testTypes,
       encounter = {},
       testCategories,
+      testPriorities,
     } = this.props;
     const { examiner = {} } = encounter;
     const examinerLabel = examiner.displayName;
@@ -73,7 +77,7 @@ export class LabRequestForm extends React.PureComponent {
 
     return (
       <FormGrid>
-        <Field name="id" label="Lab request number" disabled component={TextField} />
+        <Field name="displayId" label="Lab request number" disabled component={TextField} />
         <Field name="requestedDate" label="Order date" required component={DateField} />
         <TextInput label="Supervising doctor" disabled value={examinerLabel} />
         <Field
@@ -87,6 +91,12 @@ export class LabRequestForm extends React.PureComponent {
         <div>
           <Field name="specimenAttached" label="Specimen attached?" component={CheckField} />
           <Field name="urgent" label="Urgent?" component={CheckField} />
+          <Field
+            name="labTestPriorityId"
+            label="Priority"
+            component={SelectField}
+            options={testPriorities}
+          />
         </div>
         <FormSeparatorLine />
         <TextInput label="Encounter" disabled value={encounterLabel} />
@@ -130,15 +140,15 @@ export class LabRequestForm extends React.PureComponent {
   };
 
   render() {
-    const { onSubmit, editedObject, generateId = shortid.generate } = this.props;
+    const { onSubmit, editedObject, generateDisplayId } = this.props;
     return (
       <Form
         onSubmit={onSubmit}
         render={this.renderForm}
         initialValues={{
-          id: generateId(),
-          requestedDate: new Date(),
-          sampleTime: new Date(),
+          displayId: generateDisplayId(),
+          requestedDate: new Date().toLocaleDateString(),
+          sampleTime: new Date().toLocaleString(),
           ...editedObject,
         }}
         validationSchema={yup.object().shape({
@@ -166,6 +176,10 @@ export const ConnectedLabRequestForm = connect(
   state => ({
     testTypes: getLabTestTypes(state),
     testCategories: getLabTestCategories(state).map(({ id, name }) => ({
+      value: id,
+      label: name,
+    })),
+    testPriorities: getLabTestPriorities(state).map(({ id, name }) => ({
       value: id,
       label: name,
     })),

@@ -9,7 +9,6 @@ export class LabTest extends Model {
     super.init(
       {
         id: primaryKey,
-
         date: {
           type: Sequelize.DATE,
           allowNull: false,
@@ -25,6 +24,15 @@ export class LabTest extends Model {
           allowNull: false,
           defaultValue: '',
         },
+        laboratoryOfficer: {
+          type: Sequelize.STRING,
+        },
+        verification: {
+          type: Sequelize.STRING,
+        },
+        completedDate: {
+          type: Sequelize.DATE,
+        },
       },
       options,
     );
@@ -33,11 +41,17 @@ export class LabTest extends Model {
   static initRelations(models) {
     this.belongsTo(models.LabRequest, {
       foreignKey: 'labRequestId',
+      as: 'labRequest',
     });
 
     this.belongsTo(models.ReferenceData, {
       foreignKey: 'categoryId',
       as: 'category',
+    });
+
+    this.belongsTo(models.ReferenceData, {
+      foreignKey: 'labTestMethodId',
+      as: 'labTestMethod',
     });
 
     this.belongsTo(models.LabTestType, {
@@ -47,6 +61,6 @@ export class LabTest extends Model {
   }
 
   static getListReferenceAssociations() {
-    return ['category', 'labTestType'];
+    return ['category', 'labTestType', 'labTestMethod'];
   }
 }

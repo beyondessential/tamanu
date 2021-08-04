@@ -1,10 +1,10 @@
 {
-  "initialDataPath": "data/demo_definitions.xlsx",
   "admin": {
     "allowAdminRoutes": false
   },
   "discovery": {
     "overrideAddress": "",
+    "overridePort": null,
     "protocol": "https"
   },
   "log": {
@@ -12,11 +12,13 @@
     "consoleLevel": "info"
   },
   "sync": {
-    "schedule": "*/10 * * * *",
+    "schedule": "*/1 * * * *",
     "host": "https://sync-dev.tamanu.io",
     "email": "",
     "password": "",
-    "timeout": 10000
+    "timeout": 10000,
+    "readOnly": false,
+    "syncAllLabRequests": false
   },
   "port": 4000,
   "db": {

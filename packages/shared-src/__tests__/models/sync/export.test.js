@@ -21,6 +21,7 @@ describe('export', () => {
   const patientId = uuidv4();
   const userId = uuidv4();
   const facilityId = uuidv4();
+  const scheduledVaccineId = uuidv4();
   beforeAll(async () => {
     context = await initDb({ syncClientMode: true }); // TODO: test server mode too
     models = context.models;
@@ -32,14 +33,27 @@ describe('export', () => {
       code: 'test-facility',
       id: facilityId,
     });
+    await models.ScheduledVaccine.create({
+      ...fake(models.ScheduledVaccine),
+      id: scheduledVaccineId,
+    });
   });
 
   const testCases = [
     ['Patient', fakePatient],
+    ['Encounter', () => buildNestedEncounter(context, patientId), `patient/${patientId}/encounter`],
+    ['Encounter', () => buildNestedEncounter(context, patientId), 'labRequest/all/encounter'],
     [
       'Encounter',
-      async () => buildNestedEncounter(context, patientId),
-      `patient/${patientId}/encounter`,
+      async () => {
+        const encounter = await buildNestedEncounter(context, patientId);
+        encounter.administeredVaccines = encounter.administeredVaccines.map(v => ({
+          ...v,
+          scheduledVaccineId,
+        }));
+        return encounter;
+      },
+      `scheduledVaccine/${scheduledVaccineId}/encounter`,
     ],
     [
       'PatientAllergy',
@@ -86,8 +100,8 @@ describe('export', () => {
       it('exports pages of records', async () => {
         // arrange
         const model = models[modelName];
-        const channel = overrideChannel || (await model.getChannels())[0];
-        const plan = createExportPlan(model);
+        const channel = overrideChannel || (await model.syncConfig.getChannels())[0];
+        const plan = createExportPlan(model.sequelize, channel);
         await model.truncate();
         const records = [await fakeRecord(), await fakeRecord()];
         const updatedAts = [makeUpdatedAt(20), makeUpdatedAt(0)];
@@ -104,20 +118,14 @@ describe('export', () => {
         );
 
         // act
-        const { records: firstRecords, cursor: firstCursor } = await executeExportPlan(
-          plan,
-          channel,
-          { limit: 1 },
-        );
-        const { records: secondRecords, cursor: secondCursor } = await executeExportPlan(
-          plan,
-          channel,
-          {
-            limit: 1,
-            since: firstCursor,
-          },
-        );
-        const { records: thirdRecords } = await executeExportPlan(plan, channel, {
+        const { records: firstRecords, cursor: firstCursor } = await executeExportPlan(plan, {
+          limit: 1,
+        });
+        const { records: secondRecords, cursor: secondCursor } = await executeExportPlan(plan, {
+          limit: 1,
+          since: firstCursor,
+        });
+        const { records: thirdRecords } = await executeExportPlan(plan, {
           limit: 1,
           since: secondCursor,
         });

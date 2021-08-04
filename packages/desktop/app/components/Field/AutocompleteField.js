@@ -115,10 +115,10 @@ class BaseAutocomplete extends Component {
 
   handleSuggestionChange = option => {
     const { onChange, name } = this.props;
-    const { value, label } = option;
+    const { value } = option;
 
     onChange({ target: { value, name } });
-    return label;
+    return value;
   };
 
   fetchOptions = async ({ value }) => {
@@ -134,10 +134,16 @@ class BaseAutocomplete extends Component {
   handleInputChange = (event, { newValue }) => {
     if (!newValue) {
       // when deleting field contents, clear the selection
-      this.handleSuggestionChange({ value: '', label: '' });
+      this.handleSuggestionChange({ value: undefined, label: '' });
     }
     if (typeof newValue !== 'undefined') {
-      this.setState({ displayedValue: newValue });
+      this.setState(prevState => {
+        const newSuggestion = prevState.suggestions.find(suggest => suggest.value === newValue);
+        if (!newSuggestion) {
+          return { displayedValue: newValue };
+        }
+        return { displayedValue: newSuggestion.label };
+      });
     }
   };
 
@@ -156,12 +162,13 @@ class BaseAutocomplete extends Component {
   };
 
   renderContainer = option => (
-    <SuggestionsContainer anchorEl={this.popperNode} open={!!option.children} placement="bottom-start" disablePortal>
-      <SuggestionsList
-        {...option.containerProps}
-      >
-        {option.children}
-      </SuggestionsList>
+    <SuggestionsContainer
+      anchorEl={this.popperNode}
+      open={!!option.children}
+      placement="bottom-start"
+      disablePortal
+    >
+      <SuggestionsList {...option.containerProps}>{option.children}</SuggestionsList>
     </SuggestionsContainer>
   );
 

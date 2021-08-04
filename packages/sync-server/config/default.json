@@ -29,10 +29,21 @@
     "from": "",
     "toAddressOverride": ""
   },
+  "cors": {
+    "allowedOrigin": ""
+  },
   "schedules": {
     "outpatientDischarger": "0 0 2 ? * * *"
   },
   "localisation": {
+    "labResultWidget": {
+      "categoryWhitelist": [
+        "labTestCategory-COVID"
+      ],
+      "testTypeWhitelist": [
+        "labTestType-COVID"
+      ]
+    },
     "data": {
       "fields": {
         "markedForSync": {
@@ -69,6 +80,18 @@
         "dateOfBirth": {
           "shortLabel": "DOB",
           "longLabel": "Date of birth"
+        },
+        "dateOfBirthFrom": {
+          "shortLabel": "DOB from",
+          "longLabel": "Date of birth from"
+        },
+        "dateOfBirthTo": {
+          "shortLabel": "DOB to",
+          "longLabel": "Date of birth to"
+        },
+        "dateOfBirthExact": {
+          "shortLabel": "DOB exact",
+          "longLabel": "Date of birth exact"
         },
         "bloodType": {
           "shortLabel": "Blood type",
@@ -204,6 +227,14 @@
           "shortLabel": "Type",
           "longLabel": "Patient type",
           "hidden": false
+        },
+        "ageRange": {
+          "shortLabel": "Age range",
+          "longLabel": "Age range"
+        },
+        "age": {
+          "shortLabel": "Age",
+          "longLabel": "Age"
         }
       },
       "features": {
@@ -214,6 +245,9 @@
           "title": "TAMANU MINISTRY OF HEALTH & MEDICAL SERVICES",
           "subTitle": "PO Box 12345, Melbourne, Australia"
         }
+      },
+      "sync": {
+        "syncAllEncountersForTheseScheduledVaccines": []
       }
     }
   }

@@ -1,6 +1,7 @@
 import { Sequelize } from 'sequelize';
 import { createNamespace } from 'cls-hooked';
 import pg from 'pg';
+import wayfarer from 'wayfarer';
 
 // an issue in how webpack's require handling interacts with sequelize means we need
 // to provide the module to sequelize manually
@@ -39,23 +40,20 @@ export async function initDatabase(dbOptions) {
   const {
     username,
     password,
-    testMode=false,
-    host=null,
-    port=null,
-    verbose=false,
-    makeEveryModelParanoid=false,
-    saltRounds=null,
-    primaryKeyDefault=Sequelize.UUIDV4,
-    hackToSkipEncounterValidation=false, // TODO: remove once mobile implements all relationships
-    syncClientMode=false,
+    testMode = false,
+    host = null,
+    port = null,
+    verbose = false,
+    makeEveryModelParanoid = false,
+    saltRounds = null,
+    primaryKeyDefault = Sequelize.UUIDV4,
+    hackToSkipEncounterValidation = false, // TODO: remove once mobile implements all relationships
+    syncClientMode = false,
   } = dbOptions;
-  let {
-    name,
-    sqlitePath=null,
-  } = dbOptions;
+  let { name, sqlitePath = null } = dbOptions;
 
   // configure one test db per jest worker
-  const workerId = process.env.JEST_WORKER_ID
+  const workerId = process.env.JEST_WORKER_ID;
   if (testMode && workerId) {
     if (sqlitePath) {
       const sections = sqlitePath.split('.');
@@ -99,7 +97,7 @@ export async function initDatabase(dbOptions) {
   // so it's a bit of a pain. This approach lets us do:
   // $ MIGRATE_DOWN=true yarn run lan-start-dev
   // which is pretty close.
-  if(process.env.MIGRATE_DOWN) {
+  if (process.env.MIGRATE_DOWN) {
     await migrateDown(log, sequelize);
     process.exit(0);
   }
@@ -108,7 +106,7 @@ export async function initDatabase(dbOptions) {
   // of calling it to the implementing server (this allows for skipping migrations
   // in favour of calling sequelize.sync() during test mode)
   sequelize.migrate = sqlitePath
-    ? sequelize.sync  // just sync in sqlite mode, migrations may contain pg-specific sql
+    ? sequelize.sync // just sync in sqlite mode, migrations may contain pg-specific sql
     : () => migrateUp(log, sequelize);
 
   // init all models
@@ -140,9 +138,27 @@ export async function initDatabase(dbOptions) {
     }
   });
 
-  // init global hooks that live in shared-src
+  // init global sync hooks that live in shared-src
   if (syncClientMode) {
     initSyncClientModeHooks(models);
+  }
+
+  // router to convert channelRoutes (e.g. `[patient/:patientId/issue]`) to a model + params
+  // (e.g. PatientIssue + { patientId: 'abc123', route: '...' })
+  sequelize.channelRouter = wayfarer();
+  for (const model of modelClasses) {
+    /*
+     * add channel route to channelRouter
+     *
+     *   a channel route: `patient/:patientId/foobar`
+     *   a channel:       `patient/1234abcd/foobar`
+     */
+    for (const channelRoute of model.syncConfig.channelRoutes) {
+      sequelize.channelRouter.on(channelRoute.route, (params, f) => f(model, params, channelRoute));
+    }
+
+    // run afterInit callbacks for model
+    await Promise.all(model.afterInitCallbacks.map(fn => fn()));
   }
 
   return { sequelize, models };

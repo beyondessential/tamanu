@@ -1,5 +1,5 @@
 import React from 'react';
-import { configure, addDecorator } from '@storybook/react';
+import { configure, addDecorator, storiesOf } from '@storybook/react';
 
 import { ThemeProvider } from 'styled-components';
 import { Colors } from '../app/constants';
@@ -8,6 +8,7 @@ import styled from 'styled-components';
 import { CssBaseline } from '@material-ui/core';
 import { MuiThemeProvider, StylesProvider } from '@material-ui/core/styles';
 import { theme } from '../app/theme';
+import { DummyElectronProvider } from '../app/contexts/Electron';
 
 // automatically import all files ending in *.stories.js
 const req = require.context('../stories', true, /stories.js$/);
@@ -15,7 +16,18 @@ function loadStories() {
   const keys = req
     .keys()
     .sort()
-    .forEach(filename => req(filename));
+    .forEach(filename => {
+      try {
+        req(filename)
+      } catch(e) {
+        storiesOf('ERROR DURING IMPORT', module).add(filename, () => (
+          <div>
+            <div><strong>{e.toString()}</strong></div>
+            <pre>{e.stack}</pre>
+          </div>
+        ));
+      }
+    });
 }
 
 const NoteDisplay = styled.div`
@@ -51,8 +63,10 @@ addDecorator(story => (
   <StylesProvider injectFirst>
     <MuiThemeProvider theme={theme}>
       <ThemeProvider theme={theme}>
-        <CssBaseline />
-        {story()}
+        <DummyElectronProvider >
+          <CssBaseline />
+          {story()}
+        </DummyElectronProvider >
       </ThemeProvider>
     </MuiThemeProvider>
   </StylesProvider>

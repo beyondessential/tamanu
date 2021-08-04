@@ -38,11 +38,6 @@ export class EncounterMedication extends Model {
               throw new Error('An encounter medication must be attached to an encounter.');
             }
           },
-          mustHavePrescriber() {
-            if (!this.prescriberId) {
-              throw new Error('An encounter medication must be attached to a prescriber.');
-            }
-          },
         },
       },
     );

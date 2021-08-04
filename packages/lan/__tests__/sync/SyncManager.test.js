@@ -2,7 +2,13 @@ import { Op } from 'sequelize';
 import { v4 as uuidv4 } from 'uuid';
 
 import { REFERENCE_TYPES } from 'shared/constants';
-import { fakeProgram, fakeSurvey, fakePatient } from 'shared/test-helpers';
+import {
+  fakeProgram,
+  fakeSurvey,
+  fakePatient,
+  buildNestedEncounter,
+  upsertAssociations,
+} from 'shared/test-helpers';
 
 import { createTestContext } from '../utilities';
 
@@ -13,9 +19,14 @@ describe('SyncManager', () => {
   });
 
   beforeEach(() => {
+    context.remote.fetchChannelsWithChanges.mockImplementation(channels =>
+      Promise.resolve(channels.map(c => c.channel)),
+    );
     context.remote.pull.mockReset();
     context.remote.push.mockReset();
   });
+
+  afterEach(() => jest.clearAllMocks());
 
   describe('pullAndImport', () => {
     it('pulls pages of records and imports them', async () => {
@@ -169,6 +180,94 @@ describe('SyncManager', () => {
 
       // assert
       expect(await getRecord(record)).toHaveProperty('markedForPush', true);
+    });
+  });
+
+  describe('encounters on channels other than patient', () => {
+    it('pushes them', async () => {
+      //// arrange
+      const patientId = uuidv4();
+
+      // unrelated encounter
+      const unrelatedEncounter = await buildNestedEncounter(context, patientId);
+      unrelatedEncounter.labRequests = [];
+      await context.models.Encounter.create(unrelatedEncounter);
+      await upsertAssociations(context.models.Encounter, unrelatedEncounter);
+
+      // encounter for lab request
+      const labEncounter = await buildNestedEncounter(context, patientId);
+      labEncounter.administeredVaccines = [];
+      await context.models.Encounter.create(labEncounter);
+      await upsertAssociations(context.models.Encounter, labEncounter);
+
+      // encounter for scheduledVaccine
+      const vaccineEncounter = await buildNestedEncounter(context, patientId);
+      vaccineEncounter.labRequests = [];
+      await context.models.Encounter.create(vaccineEncounter);
+      await upsertAssociations(context.models.Encounter, vaccineEncounter);
+      jest
+        .spyOn(context.models.UserLocalisationCache, 'getLocalisation')
+        .mockImplementation(() =>
+          Promise.resolve({
+            sync: {
+              syncAllEncountersForTheseScheduledVaccines: vaccineEncounter.administeredVaccines.map(
+                v => v.scheduledVaccineId,
+              ),
+            },
+          }),
+        );
+
+      // unmark patient
+      await context.models.Patient.update(
+        { markedForPush: false, markedForSync: false },
+        { where: { id: patientId } },
+      );
+
+      //// act
+      await context.syncManager.exportAndPush(context.models.Encounter);
+
+      //// assert
+      const pushedChannels = context.remote.push.mock.calls.map(([ch]) => ch);
+      expect(pushedChannels).toContain('labRequest/all/encounter');
+      vaccineEncounter.administeredVaccines.forEach(v => {
+        expect(pushedChannels).toContain(`scheduledVaccine/${v.scheduledVaccineId}/encounter`);
+      });
+      expect(pushedChannels).toHaveLength(2);
+
+      const pushedIds = context.remote.push.mock.calls
+        .map(([, array]) => array)
+        .flat()
+        .map(({ data: { id } }) => id);
+      expect(pushedIds).toContain(labEncounter.id);
+      expect(pushedIds).toContain(vaccineEncounter.id);
+      expect(pushedIds).toHaveLength(2);
+    });
+
+    it('pulls them', async () => {
+      // arrange
+      context.remote.pull.mockResolvedValue({
+        records: [],
+        count: 0,
+      });
+      const scheduledVaccineId = 'obviously-fake';
+      jest
+        .spyOn(context.models.UserLocalisationCache, 'getLocalisation')
+        .mockImplementation(() =>
+          Promise.resolve({
+            sync: {
+              syncAllEncountersForTheseScheduledVaccines: [scheduledVaccineId],
+            },
+          }),
+        );
+
+      // act
+      await context.syncManager.pullAndImport(context.models.Encounter);
+
+      // assert
+      const pulledChannels = context.remote.pull.mock.calls.map(([channel]) => channel);
+      expect(pulledChannels).toContain('labRequest/all/encounter');
+      expect(pulledChannels).toContain(`scheduledVaccine/${scheduledVaccineId}/encounter`);
+      expect(pulledChannels).toHaveLength(2);
     });
   });
 });

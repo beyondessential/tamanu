@@ -1,5 +1,4 @@
 import { createStatePreservingReducer } from '../utils/createStatePreservingReducer';
-import { LOCAL_STORAGE_KEYS } from '../constants';
 
 // actions
 const LOGIN_START = 'LOGIN_START';
@@ -14,6 +13,15 @@ const PASSWORD_RESET_RESTART = 'PASSWORD_RESET_RESTART';
 const CHANGE_PASSWORD_START = 'CHANGE_PASSWORD_START';
 const CHANGE_PASSWORD_SUCCESS = 'CHANGE_PASSWORD_SUCCESS';
 const CHANGE_PASSWORD_FAILURE = 'CHANGE_PASSWORD_FAILURE';
+
+export const checkAuth = () => async (dispatch, getState, { api }) => {
+  try {
+    const { user, token, localisation } = await api.checkAuth();
+    dispatch({ type: LOGIN_SUCCESS, user, token, localisation });
+  } catch (e) {
+    dispatch({ type: LOGIN_FAILURE, error: 'Not authenticated' });
+  }
+};
 
 export const login = (host, email, password) => async (dispatch, getState, { api }) => {
   dispatch({ type: LOGIN_START });

@@ -7,6 +7,8 @@ import { log } from 'shared/services/logging';
 
 import { routes } from './routes';
 import { authModule } from './auth';
+import { publicRoutes } from './publicRoutes';
+
 import errorHandler from './middleware/errorHandler';
 import { versionCompatibility } from './middleware/versionCompatibility';
 
@@ -51,6 +53,7 @@ export function createApp({ store }) {
   });
 
   // API v1
+  app.use('/v1/public', publicRoutes);
   app.use('/v1', authModule);
   app.use('/v1', routes);
 

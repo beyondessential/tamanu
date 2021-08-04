@@ -9,8 +9,9 @@ export class EncounterDiagnosis extends Model {
         id: primaryKey,
 
         certainty: {
-          type: Sequelize.ENUM(DIAGNOSIS_CERTAINTY_VALUES),
+          type: Sequelize.STRING,
           defaultValue: DIAGNOSIS_CERTAINTY.SUSPECTED,
+          isIn: DIAGNOSIS_CERTAINTY_VALUES, // application-level validation, not db-level
         },
         isPrimary: Sequelize.BOOLEAN,
         date: {

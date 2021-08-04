@@ -4,7 +4,6 @@ import PropTypes from 'prop-types';
 import { Typography } from '@material-ui/core';
 
 import { Dialog } from '../Dialog';
-import { Field } from './Field';
 
 const ErrorMessage = ({ errors, name }) => `${errors[name]}`;
 

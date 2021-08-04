@@ -1,7 +1,6 @@
 import fetch from 'node-fetch';
 import AbortController from 'abort-controller';
 import config from 'config';
-import { chunk } from 'lodash';
 
 import { BadAuthenticationError, InvalidOperationError, RemoteTimeoutError } from 'shared/errors';
 import { VERSION_COMPATIBILITY_ERRORS } from 'shared/constants';
@@ -11,7 +10,6 @@ import { log } from 'shared/services/logging';
 import { version } from '~/../package.json';
 
 const API_VERSION = 'v1';
-const DEFAULT_TIMEOUT = 10000;
 
 const getVersionIncompatibleMessage = (error, response) => {
   if (error.message === VERSION_COMPATIBILITY_ERRORS.LOW) {
@@ -27,6 +25,11 @@ const getVersionIncompatibleMessage = (error, response) => {
   return null;
 };
 
+const objectToQueryString = obj =>
+  Object.entries(obj)
+    .map(kv => kv.map(str => encodeURIComponent(str)).join('='))
+    .join('&');
+
 export class WebRemote {
   connectionPromise = null;
 
@@ -34,8 +37,9 @@ export class WebRemote {
   fetchImplementation = fetch;
 
   constructor() {
-    this.host = config.sync.host;
-    this.timeout = config.sync.timeout || DEFAULT_TIMEOUT;
+    this.host = config.sync.host.trim().replace(/\/*$/, "");
+    this.timeout = config.sync.timeout;
+    this.batchSize = config.sync.channelBatchSize;
   }
 
   async fetch(endpoint, params = {}) {
@@ -116,7 +120,10 @@ export class WebRemote {
         if (versionIncompatibleMessage) throw new InvalidOperationError(versionIncompatibleMessage);
       }
 
-      const err = new InvalidOperationError(`Server responded with status code ${response.status}`);
+      const errorMessage = error ? error.message : 'no error message given';
+      const err = new InvalidOperationError(
+        `Server responded with status code ${response.status} (${errorMessage})`,
+      );
       // attach status and body from response
       err.remoteResponse = {
         status: response.status,
@@ -168,27 +175,74 @@ export class WebRemote {
   }
 
   async fetchChannelsWithChanges(channelsToCheck) {
-    const batchSize = 1000; // pretty arbitrary, avoid overwhelming the server with e.g. 100k channels
-    const channelsWithPendingChanges = [];
-    for (const batchOfChannels of chunk(channelsToCheck, batchSize)) {
-      const body = batchOfChannels.reduce(
-        (acc, { channel, cursor }) => ({
-          ...acc,
-          [channel]: cursor,
-        }),
-        {},
+    const algorithmConfig = {
+      initialBatchSize: 1000,
+      maxErrors: 100,
+      maxBatchSize: 5000,
+      minBatchSize: 50,
+      throttleFactorUp: 1.2,
+      throttleFactorDown: 0.5,
+    };
+
+    let batchSize = algorithmConfig.initialBatchSize;
+
+    const throttle = factor => {
+      batchSize = Math.min(
+        algorithmConfig.maxBatchSize,
+        Math.max(algorithmConfig.minBatchSize, Math.ceil(batchSize * factor)),
       );
-      const { channelsWithChanges } = await this.fetch(`sync/channels`, {
-        method: 'POST',
-        body,
-      });
-      channelsWithPendingChanges.push(...channelsWithChanges);
+    };
+
+    log.info(
+      `WebRemote.fetchChannelsWithChanges: Beginning channel check for ${channelsToCheck.length} total patients`,
+    );
+    const channelsWithPendingChanges = [];
+    const channelsLeftToCheck = [...channelsToCheck];
+    const errors = [];
+    while (channelsLeftToCheck.length > 0) {
+      const batchOfChannels = channelsLeftToCheck.splice(0, batchSize);
+      try {
+        log.debug(
+          `WebRemote.fetchChannelsWithChanges: Checking channels for ${batchOfChannels.length} patients`,
+        );
+        const body = batchOfChannels.reduce(
+          (acc, { channel, cursor }) => ({
+            ...acc,
+            [channel]: cursor,
+          }),
+          {},
+        );
+        const { channelsWithChanges } = await this.fetch(`sync/channels`, {
+          method: 'POST',
+          body,
+        });
+        log.debug(`WebRemote.fetchChannelsWithChanges: OK! ${channelsLeftToCheck.length} left.`);
+        channelsWithPendingChanges.push(...channelsWithChanges);
+        throttle(algorithmConfig.throttleFactorUp);
+      } catch (e) {
+        // errored - put those channels back into the queue
+        errors.push(e);
+        if (errors.length > algorithmConfig.maxErrors) {
+          log.error(errors);
+          throw new Error('Too many errors encountered, aborting sync entirely');
+        }
+        channelsLeftToCheck.push(...batchOfChannels);
+        throttle(algorithmConfig.throttleFactorDown);
+        log.debug(
+          `WebRemote.fetchChannelsWithChanges: Failed! Returning records to the back of the queue and slowing to batches of ${batchSize}; ${channelsLeftToCheck.length} left.`,
+        );
+      }
     }
+
+    log.debug(
+      `WebRemote.fetchChannelsWithChanges: Channel check finished. Found ${channelsWithPendingChanges.length} channels with pending changes.`,
+    );
     return channelsWithPendingChanges;
   }
 
-  async pull(channel, { since = 0, limit = 100, page = 0 } = {}) {
-    const path = `sync/${encodeURIComponent(channel)}?since=${since}&limit=${limit}&page=${page}`;
+  async pull(channel, { since = 0, limit = 100, page = 0, noCount = 'false' } = {}) {
+    const query = { since, limit, page, noCount };
+    const path = `sync/${encodeURIComponent(channel)}?${objectToQueryString(query)}`;
     return this.fetch(path);
   }
 

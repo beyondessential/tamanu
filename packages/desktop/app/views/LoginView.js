@@ -1,10 +1,13 @@
 import React, { memo, useState } from 'react';
-import { connect } from 'react-redux';
+import { useSelector } from 'react-redux';
 import styled from 'styled-components';
 import Paper from '@material-ui/core/Paper';
-import { TamanuLogo } from '../components';
-import { REMEMBER_EMAIL_KEY } from '../constants';
+
+import * as yup from 'yup';
+import { Button, MinusIconButton, PlusIconButton, TamanuLogo } from '../components';
+import { LOCAL_STORAGE_KEYS } from '../constants';
 import { splashImages } from '../constants/images';
+
 import { LoginForm } from '../forms/LoginForm';
 import { ResetPasswordForm } from '../forms/ResetPasswordForm';
 import { ChangePasswordForm } from '../forms/ChangePasswordForm';
@@ -15,8 +18,10 @@ import {
   requestPasswordReset,
   restartPasswordResetFlow,
 } from '../store';
+
 import { SyncHealthNotificationComponent } from '../components/SyncHealthNotification';
 
+const { REMEMBER_EMAIL } = LOCAL_STORAGE_KEYS;
 
 const Grid = styled.div`
   display: grid;
@@ -66,6 +71,19 @@ export const LoginView = memo(
       onLogin({ host, email, password });
     };
 
+    const errorMessage = useSelector(state => state.auth.error);
+    const onSubmit = data => {
+      const { host, email, password, rememberMe } = data;
+
+      if (rememberMe) {
+        localStorage.setItem(REMEMBER_EMAIL, email);
+      } else {
+        localStorage.removeItem(REMEMBER_EMAIL);
+      }
+
+      onLogin({ host, email, password });
+    };
+
     return (
       <Grid>
         <LoginContainer>
@@ -106,7 +124,7 @@ export const LoginView = memo(
         </LoginContainer>
       </Grid>
     );
-  },
+  };
 );
 
 const mapStateToProps = state => ({

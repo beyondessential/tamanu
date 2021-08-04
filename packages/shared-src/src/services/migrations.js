@@ -20,12 +20,13 @@ export function createMigrationInterface(log, sequelize) {
       path: migrationsDir,
       params: [
         sequelize.getQueryInterface(),
-      ]
+      ],
+      wrap: updown => (...args) => sequelize.transaction(() => updown(...args)),  
     },
     storage: 'sequelize',
     storageOptions: {
       sequelize,
-    }
+    },
   });
 
   return umzug;

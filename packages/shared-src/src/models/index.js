@@ -21,6 +21,7 @@ export * from './EncounterDiagnosis';
 export * from './EncounterMedication';
 export * from './LabRequest';
 export * from './LabTest';
+export * from './LabRequestLog';
 export * from './LabTestType';
 export * from './ImagingRequest';
 

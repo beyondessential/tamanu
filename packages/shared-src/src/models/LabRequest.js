@@ -1,7 +1,7 @@
 import { Sequelize } from 'sequelize';
 import { InvalidOperationError } from 'shared/errors';
 
-import { LAB_REQUEST_STATUSES } from 'shared/constants';
+import { LAB_REQUEST_STATUSES, NOTE_TYPES } from 'shared/constants';
 import { Model } from './Model';
 
 const LAB_REQUEST_STATUS_VALUES = Object.values(LAB_REQUEST_STATUSES);
@@ -23,17 +23,18 @@ export class LabRequest extends Model {
           defaultValue: Sequelize.NOW,
         },
 
-        urgent: {
-          type: Sequelize.BOOLEAN,
-          defaultValue: false,
-        },
         specimenAttached: {
           type: Sequelize.BOOLEAN,
           defaultValue: false,
         },
 
+        urgent: {
+          type: Sequelize.BOOLEAN,
+          defaultValue: false,
+        },
+
         status: {
-          type: Sequelize.ENUM(LAB_REQUEST_STATUS_VALUES),
+          type: Sequelize.STRING,
           defaultValue: LAB_REQUEST_STATUSES.RECEPTION_PENDING,
         },
 
@@ -46,9 +47,9 @@ export class LabRequest extends Model {
           allowNull: true,
         },
 
-        note: {
+        displayId: {
           type: Sequelize.STRING,
-          allowNull: true,
+          allowNull: false,
         },
       },
       options,
@@ -80,6 +81,11 @@ export class LabRequest extends Model {
     });
   }
 
+  async addLabNote(content) {
+    const { Note } = this.sequelize.models;
+    return Note.createForRecord(this, NOTE_TYPES.OTHER, content);
+  }
+
   static initRelations(models) {
     this.belongsTo(models.User, {
       foreignKey: 'requestedById',
@@ -96,14 +102,24 @@ export class LabRequest extends Model {
       as: 'category',
     });
 
+    this.belongsTo(models.ReferenceData, {
+      foreignKey: 'labTestPriorityId',
+      as: 'priority',
+    });
+
+    this.belongsTo(models.ReferenceData, {
+      foreignKey: 'labTestLaboratoryId',
+      as: 'laboratory',
+    });
+
     this.hasMany(models.LabTest, {
       foreignKey: 'labRequestId',
-      as: 'tests'
+      as: 'tests',
     });
   }
 
   static getListReferenceAssociations() {
-    return ['requestedBy', 'category'];
+    return ['requestedBy', 'category', 'priority', 'laboratory'];
   }
 
   getTests() {

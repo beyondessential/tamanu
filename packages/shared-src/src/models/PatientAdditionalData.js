@@ -1,7 +1,6 @@
 import { Sequelize } from 'sequelize';
-import { SYNC_DIRECTIONS, REFERENCE_TYPES } from 'shared/constants';
 import { Model } from './Model';
-import { extendClassWithPatientChannel } from './sync';
+import { initSyncForModelNestedUnderPatient } from './sync';
 
 export class PatientAdditionalData extends Model {
   static init({ primaryKey, ...options }) {
@@ -22,7 +21,10 @@ export class PatientAdditionalData extends Model {
         drivingLicense: Sequelize.STRING,
         passport: Sequelize.STRING,
       },
-      options,
+      {
+        ...options,
+        syncConfig: initSyncForModelNestedUnderPatient(this, 'additionalData'),
+      },
     );
   }
 
@@ -55,8 +57,4 @@ export class PatientAdditionalData extends Model {
   static getFullReferenceAssociations() {
     return ['countryOfBirth'];
   }
-
-  static syncDirection = SYNC_DIRECTIONS.BIDIRECTIONAL;
 }
-
-extendClassWithPatientChannel(PatientAdditionalData, 'additionalData');

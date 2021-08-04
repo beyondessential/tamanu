@@ -59,27 +59,6 @@ describe('import', () => {
       ['SurveyScreenComponent', fakeSurveyScreenComponent],
       ['User', fakeUser],
       [
-        'Encounter',
-        async () => buildNestedEncounter(context, patientId),
-        `patient/${patientId}/encounter`,
-        {
-          include: [
-            { association: 'administeredVaccines' },
-            { association: 'diagnoses' },
-            { association: 'medications' },
-            {
-              association: 'surveyResponses',
-              include: [{ association: 'answers' }],
-            },
-            {
-              association: 'labRequests',
-              include: [{ association: 'tests' }],
-            },
-            { association: 'imagingRequests' },
-          ],
-        },
-      ],
-      [
         'PatientAllergy',
         () => ({ ...fake(models.PatientAllergy), patientId }),
         `patient/${patientId}/allergy`,
@@ -131,20 +110,20 @@ describe('import', () => {
       ],
     ];
 
-    rootTestCases.forEach(([modelName, fakeRecord, overrideChannel = null, options = {}]) => {
+    rootTestCases.forEach(([modelName, fakeRecord, overrideChannel = null]) => {
       describe(modelName, () => {
         it('creates the record', async () => {
           // arrange
           const model = models[modelName];
           const record = await fakeRecord();
-          const channel = overrideChannel || (await model.getChannels())[0];
+          const channel = overrideChannel || (await model.syncConfig.getChannels())[0];
 
           // act
-          const plan = createImportPlan(model);
-          await executeImportPlan(plan, channel, [toSyncRecord(record)]);
+          const plan = createImportPlan(model.sequelize, channel);
+          await executeImportPlan(plan, [toSyncRecord(record)]);
 
           // assert
-          const dbRecord = await model.findByPk(record.id, options);
+          const dbRecord = await model.findByPk(record.id);
           expect(dbRecord.get({ plain: true })).toMatchObject({
             ...record,
             ...(model.tableAttributes.pushedAt
@@ -170,14 +149,14 @@ describe('import', () => {
             ...(await fakeRecord()),
             id: oldRecord.id,
           };
-          const channel = overrideChannel || (await model.getChannels())[0];
+          const channel = overrideChannel || (await model.syncConfig.getChannels())[0];
 
           // act
-          const plan = createImportPlan(model);
-          await executeImportPlan(plan, channel, [toSyncRecord(newRecord)]);
+          const plan = createImportPlan(model.sequelize, channel);
+          await executeImportPlan(plan, [toSyncRecord(newRecord)]);
 
           // assert
-          const dbRecord = await model.findByPk(oldRecord.id, { ...options, plain: true });
+          const dbRecord = await model.findByPk(oldRecord.id, { plain: true });
           expect(dbRecord).toMatchObject(newRecord);
           if (isPushable) {
             expect(dbRecord.pulledAt).toEqual(expect.any(Date));
@@ -192,11 +171,123 @@ describe('import', () => {
           const model = models[modelName];
           const record = await fakeRecord();
           await model.create(record);
-          const channel = overrideChannel || (await model.getChannels())[0];
+          const channel = overrideChannel || (await model.syncConfig.getChannels())[0];
 
           // act
-          const plan = createImportPlan(model);
-          await executeImportPlan(plan, channel, [{ ...toSyncRecord(record), isDeleted: true }]);
+          const plan = createImportPlan(model.sequelize, channel);
+          await executeImportPlan(plan, [{ ...toSyncRecord(record), isDeleted: true }]);
+
+          // assert
+          const dbRecord = await model.findByPk(record.id);
+          expect(dbRecord).toEqual(null);
+        });
+      });
+    });
+
+    describe('Encounter', () => {
+      const scheduledVaccineId = uuidv4();
+      beforeAll(async () => {
+        await models.ScheduledVaccine.create({
+          ...fake(models.ScheduledVaccine),
+          id: scheduledVaccineId,
+        });
+      });
+
+      const buildEncounterWithId = optionalEncounterId =>
+        buildNestedEncounter(context, patientId, optionalEncounterId);
+
+      [
+        [`patient/${patientId}/encounter`, buildEncounterWithId],
+        ['labRequest/all/encounter', buildEncounterWithId],
+        [
+          `scheduledVaccine/${scheduledVaccineId}/encounter`,
+          async id => {
+            const encounter = await buildEncounterWithId(id);
+            return {
+              ...encounter,
+              administeredVaccines: encounter.administeredVaccines.map(v => ({
+                ...v,
+                scheduledVaccineId,
+              })),
+            };
+          },
+        ],
+      ].forEach(([channel, build]) => {
+        const options = {
+          include: [
+            { association: 'administeredVaccines' },
+            { association: 'diagnoses' },
+            { association: 'medications' },
+            {
+              association: 'surveyResponses',
+              include: [{ association: 'answers' }],
+            },
+            {
+              association: 'labRequests',
+              include: [{ association: 'tests' }],
+            },
+            { association: 'imagingRequests' },
+          ],
+        };
+
+        it('creates the record', async () => {
+          // arrange
+          const model = models.Encounter;
+          const record = await build();
+
+          // act
+          const plan = createImportPlan(model.sequelize, channel);
+          await executeImportPlan(plan, [toSyncRecord(record)]);
+
+          // assert
+          const dbRecord = await model.findByPk(record.id, options);
+          expect(dbRecord.get({ plain: true })).toMatchObject({
+            ...record,
+            ...(model.tableAttributes.pushedAt
+              ? { pulledAt: expect.any(Date), markedForPush: false }
+              : {}),
+          });
+        });
+
+        it('updates the record', async () => {
+          // arrange
+          const model = models.Encounter;
+          const isPushable = !!model.tableAttributes.pushedAt;
+          const oldRecord = await build();
+          await model.create(oldRecord);
+          if (isPushable) {
+            // the newly created record should have markedForPush set to true initially
+            await expect(model.findByPk(oldRecord.id)).resolves.toHaveProperty(
+              'markedForPush',
+              true,
+            );
+          }
+          const newRecord = await build(oldRecord.id);
+
+          // act
+          const plan = createImportPlan(model.sequelize, channel);
+          await executeImportPlan(plan, [toSyncRecord(newRecord)]);
+
+          // assert
+          const dbRecord = await model.findByPk(oldRecord.id, { ...options, plain: true });
+          expect(dbRecord).toMatchObject(newRecord);
+          if (isPushable) {
+            expect(dbRecord.pulledAt).toEqual(expect.any(Date));
+            // even if there were pending changes, they will have been overwritten by the import
+            // from the server, so should change markedForPush status to false
+            expect(dbRecord.markedForPush).toEqual(false);
+          }
+        });
+
+        it('deletes tombstones', async () => {
+          // arrange
+          const model = models.Encounter;
+          const record = await build();
+          await model.create(record);
+
+          // act
+          const plan = createImportPlan(model.sequelize, channel);
+          await executeImportPlan(plan, [{ ...toSyncRecord(record), isDeleted: true }]);
 
           // assert
           const dbRecord = await model.findByPk(record.id, options);
@@ -229,8 +320,8 @@ describe('import', () => {
       const channel = 'patient';
 
       // act
-      const plan = createImportPlan(Patient);
-      await executeImportPlan(plan, channel, [toSyncRecord(newPatient)]);
+      const plan = createImportPlan(Patient.sequelize, channel);
+      await executeImportPlan(plan, [toSyncRecord(newPatient)]);
 
       // assert
       const dbPatient = await Patient.findByPk(oldPatient.id);
@@ -262,8 +353,8 @@ describe('import', () => {
       };
 
       // act
-      const plan = createImportPlan(Encounter);
-      await executeImportPlan(plan, channel, [
+      const plan = createImportPlan(Encounter.sequelize, channel);
+      await executeImportPlan(plan, [
         toSyncRecord(todayEncounter),
         toSyncRecord(yesterdayEncounter),
       ]);

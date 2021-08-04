@@ -14,12 +14,12 @@ import { PatientInfoPane } from '../../components/PatientInfoPane';
 import { ContentPane } from '../../components/ContentPane';
 import { EncounterModal } from '../../components/EncounterModal';
 import { TriageModal } from '../../components/TriageModal';
-import { ReferralModal } from '../../components/ReferralModal';
 import { ReferralTable } from '../../components/ReferralTable';
 import { AppointmentModal } from '../../components/AppointmentModal';
 import { AppointmentTable } from '../../components/AppointmentTable';
 import { ImmunisationsTable } from '../../components/ImmunisationsTable';
 import { ImmunisationModal } from '../../components/ImmunisationModal';
+import { EditAdministeredVaccineModal } from '../../components/EditAdministeredVaccineModal';
 import { ImmunisationCertificateModal } from '../../components/ImmunisationCertificateModal';
 import { Button } from '../../components/Button';
 import { connectRoutedModal } from '../../components/Modal';
@@ -77,17 +77,32 @@ const ButtonSpacer = styled.div`
 `;
 
 const ImmunisationsPane = React.memo(({ patient, readonly }) => {
-  const [modalOpen, setModalOpen] = React.useState(false);
+  const [isAdministerModalOpen, setIsAdministerModalOpen] = React.useState(false);
   const [isCertificateModalOpen, setIsCertificateModalOpen] = React.useState(false);
+  const [isEditAdministeredModalOpen, setIsEditAdministeredModalOpen] = React.useState(false);
+  const [vaccineData, setVaccineData] = React.useState();
+  const onOpenEditModal = useCallback(
+    async row => {
+      setIsEditAdministeredModalOpen(true);
+      setVaccineData(row);
+    },
+    [patient],
+  );
 
   return (
     <div>
       <ImmunisationModal
-        open={modalOpen}
+        open={isAdministerModalOpen}
         patientId={patient.id}
-        onClose={() => setModalOpen(false)}
+        onClose={() => setIsAdministerModalOpen(false)}
       />
-      <ImmunisationsTable patient={patient} />
+      <EditAdministeredVaccineModal
+        open={isEditAdministeredModalOpen}
+        patientId={patient.id}
+        vaccineRecord={vaccineData}
+        onClose={() => setIsEditAdministeredModalOpen(false)}
+      />
+      <ImmunisationsTable patient={patient} onItemClick={id => onOpenEditModal(id)} />
       <ImmunisationCertificateModal
         open={isCertificateModalOpen}
         patient={patient}
@@ -95,7 +110,7 @@ const ImmunisationsPane = React.memo(({ patient, readonly }) => {
       />
       <ContentPane>
         <Button
-          onClick={() => setModalOpen(true)}
+          onClick={() => setIsAdministerModalOpen(true)}
           variant="contained"
           color="primary"
           disabled={readonly}

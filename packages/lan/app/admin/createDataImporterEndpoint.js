@@ -1,5 +1,5 @@
 import asyncHandler from 'express-async-handler';
-import { unlink } from 'fs';
+import { unlink, existsSync } from 'fs';
 
 import { getUploadedData } from './getUploadedData';
 import { sendSyncRequest } from './sendSyncRequest';
@@ -7,6 +7,7 @@ import { sendSyncRequest } from './sendSyncRequest';
 import { compareModelPriority } from 'shared/models/sync/order';
 
 import { preprocessRecordSet } from './preprocessRecordSet';
+import { WebRemote } from '../sync/WebRemote';
 
 export function createDataImporterEndpoint(importer) {
   return asyncHandler(async (req, res) => {
@@ -17,6 +18,7 @@ export function createDataImporterEndpoint(importer) {
       file,
       deleteFileAfterImport,
       dryRun = false,
+      showRecords = false,
       allowErrors = false,
       ...metadata
     } = await getUploadedData(req);
@@ -40,6 +42,7 @@ export function createDataImporterEndpoint(importer) {
     const sendResult = (extraData = {}) => res.send({
       ...resultInfo,
       ...extraData,
+      records: showRecords ? recordGroups : undefined,
       duration: (Date.now() - start) / 1000.0,
     });
 
@@ -53,12 +56,10 @@ export function createDataImporterEndpoint(importer) {
     }
 
     // send to sync server in batches
-    for(const [k, v] of recordGroups) {
-      if(k === 'referenceData') {
-        await sendSyncRequest('reference', v);
-      } else {
-        await sendSyncRequest(k, v);
-      }
+    const remote = new WebRemote();
+    for(const [recordType, record] of recordGroups) {
+      const endpoint = (recordType === 'referenceData') ? 'reference' : recordType;
+      await sendSyncRequest(remote, endpoint, record);
     }
 
     sendResult({ sentData: true });

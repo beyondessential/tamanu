@@ -4,17 +4,15 @@ import { QueryTypes } from 'sequelize';
 import moment from 'moment';
 
 import { NotFoundError } from 'shared/errors';
-import {
-  simpleGetList,
-  permissionCheckingRouter,
-  runPaginatedQuery,
-} from './crudHelpers';
+import { simpleGetList, permissionCheckingRouter, runPaginatedQuery } from './crudHelpers';
 
 import { renameObjectKeys } from '~/utils/renameObjectKeys';
+import { makeFilter } from '~/utils/query';
 import { patientVaccineRoutes } from './patient/patientVaccine';
 import { patientProfilePicture } from './patient/patientProfilePicture';
 
-export const patient = express.Router();
+const patientRoute = express.Router();
+export { patientRoute as patient };
 
 function dbRecordToResponse(patientRecord) {
   return {
@@ -30,7 +28,7 @@ function requestBodyToRecord(reqBody) {
   };
 }
 
-patient.get(
+patientRoute.get(
   '/:id',
   asyncHandler(async (req, res) => {
     const {
@@ -47,7 +45,7 @@ patient.get(
   }),
 );
 
-patient.put(
+patientRoute.put(
   '/:id',
   asyncHandler(async (req, res) => {
     const {
@@ -77,16 +75,26 @@ patient.put(
   }),
 );
 
-patient.post(
+patientRoute.post(
   '/$',
   asyncHandler(async (req, res) => {
     const {
-      models: { Patient },
+      db,
+      models: { Patient, PatientAdditionalData },
     } = req;
     req.checkPermission('create', 'Patient');
-    const newPatient = requestBodyToRecord(req.body);
-    const object = await Patient.create(newPatient);
-    res.send(dbRecordToResponse(object));
+    const patientData = requestBodyToRecord(req.body);
+
+    await db.transaction(async () => {
+      const patientRecord = await Patient.create(patientData);
+
+      await PatientAdditionalData.create({
+        ...patientData,
+        patientId: patientRecord.id,
+      });
+
+      res.send(dbRecordToResponse(patientRecord));
+    });
   }),
 );
 
@@ -138,6 +146,14 @@ patientRelations.get(
             '$initiatingEncounter.patient_id$': params.id,
           },
         },
+        {
+          association: 'surveyResponse',
+          include: [
+            {
+              association: 'answers',
+            },
+          ],
+        },
       ],
     });
 
@@ -150,7 +166,7 @@ patientRelations.get(
   asyncHandler(async (req, res) => {
     const { db, models, params, query } = req;
     const patientId = params.id;
-    const result = await runPaginatedQuery(
+    const { count, data } = await runPaginatedQuery(
       db,
       models.SurveyResponse,
       `
@@ -186,13 +202,16 @@ patientRelations.get(
       query,
     );
 
-    res.send(result);
+    res.send({
+      count: parseInt(count, 10),
+      data,
+    });
   }),
 );
 
-patient.use(patientRelations);
+patientRoute.use(patientRelations);
 
-patient.get(
+patientRoute.get(
   '/:id/currentEncounter',
   asyncHandler(async (req, res) => {
     const {
@@ -216,15 +235,6 @@ patient.get(
   }),
 );
 
-const makeFilter = (check, sql, transform) => {
-  if (!check) return null;
-
-  return {
-    sql,
-    transform,
-  };
-};
-
 const sortKeys = {
   markedForSync: 'patients.marked_for_sync',
   displayId: 'patients.display_id',
@@ -240,7 +250,7 @@ const sortKeys = {
   sex: 'patients.sex',
 };
 
-patient.get(
+patientRoute.get(
   '/$',
   asyncHandler(async (req, res) => {
     const {
@@ -291,19 +301,46 @@ patient.get(
         `UPPER(patients.cultural_name) LIKE UPPER(:culturalName)`,
         ({ culturalName }) => ({ culturalName: `${culturalName}%` }),
       ),
-      makeFilter(filterParams.ageMax, `patients.date_of_birth >= :dobEarliest`, ({ ageMax }) => ({
-        dobEarliest: moment()
+      // For age filter
+      makeFilter(filterParams.ageMax, `patients.date_of_birth >= :dobMin`, ({ ageMax }) => ({
+        dobMin: moment()
           .startOf('day')
           .subtract(ageMax + 1, 'years')
           .add(1, 'day')
           .toDate(),
       })),
-      makeFilter(filterParams.ageMin, `patients.date_of_birth <= :dobLatest`, ({ ageMin }) => ({
-        dobLatest: moment()
+      makeFilter(filterParams.ageMin, `patients.date_of_birth <= :dobMax`, ({ ageMin }) => ({
+        dobMax: moment()
           .subtract(ageMin, 'years')
           .endOf('day')
           .toDate(),
       })),
+      // For DOB filter
+      makeFilter(
+        filterParams.dateOfBirthFrom,
+        `DATE(patients.date_of_birth) >= :dateOfBirthFrom`,
+        ({ dateOfBirthFrom }) => ({
+          dateOfBirthFrom: moment(dateOfBirthFrom)
+            .startOf('day')
+            .toISOString(),
+        }),
+      ),
+      makeFilter(
+        filterParams.dateOfBirthTo,
+        `DATE(patients.date_of_birth) <= :dateOfBirthTo`,
+        ({ dateOfBirthTo }) => ({
+          dateOfBirthTo: moment(dateOfBirthTo)
+            .endOf('day')
+            .toISOString(),
+        }),
+      ),
+      makeFilter(
+        filterParams.dateOfBirthExact,
+        `DATE(patients.date_of_birth) = :dateOfBirthExact`,
+        ({ dateOfBirthExact }) => ({
+          dateOfBirthExact: moment(new Date(dateOfBirthExact)).format('YYYY-MM-DD'),
+        }),
+      ),
       makeFilter(filterParams.villageId, `patients.village_id = :villageId`),
       makeFilter(filterParams.locationId, `location.id = :locationId`),
       makeFilter(filterParams.departmentId, `department.id = :departmentId`),
@@ -315,8 +352,15 @@ patient.get(
 
     const from = `
       FROM patients
+        LEFT JOIN (
+            SELECT patient_id, max(start_date) AS most_recent_open_encounter
+            FROM encounters
+            WHERE end_date IS NULL
+            GROUP BY patient_id
+          ) recent_encounter_by_patient
+          ON patients.id = recent_encounter_by_patient.patient_id
         LEFT JOIN encounters
-          ON (encounters.patient_id = patients.id AND encounters.end_date IS NULL)
+          ON (patients.id = encounters.patient_id AND recent_encounter_by_patient.most_recent_open_encounter = encounters.start_date)
         LEFT JOIN reference_data AS department
           ON (department.type = 'department' AND department.id = encounters.department_id)
         LEFT JOIN reference_data AS location
@@ -341,7 +385,7 @@ patient.get(
       type: QueryTypes.SELECT,
     });
 
-    const { count } = countResult[0];
+    const count = parseInt(countResult[0].count, 10);
 
     if (count === 0) {
       // save ourselves a query
@@ -388,4 +432,4 @@ patient.get(
   }),
 );
 
-patient.use(patientVaccineRoutes);
+patientRoute.use(patientVaccineRoutes);

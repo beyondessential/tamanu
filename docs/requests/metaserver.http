@@ -1,0 +1,3 @@
+
+### Get server listing
+GET https://meta-dev.tamanu.io/servers

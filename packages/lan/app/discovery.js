@@ -10,7 +10,7 @@ export function listenForServerQueries() {
   const socket = dgram.createSocket('udp4');
   let address = '';
   const serverPort = config.port;
-  const { overrideAddress, protocol } = config.discovery;
+  const { overrideAddress, overridePort, protocol } = config.discovery;
 
   socket.on('message', (msg, rinfo) => {
     if (`${msg}`.trim() !== DISCOVERY_MAGIC_STRING) {
@@ -20,13 +20,17 @@ export function listenForServerQueries() {
     }
 
     log.info(`Sending server details to ${rinfo.address}:${rinfo.port}...`);
-    socket.send(JSON.stringify({
-      magicString: DISCOVERY_MAGIC_STRING,
-      port: serverPort,
-      overrideAddress,
-      protocol,
-      version,
-    }), rinfo.port, rinfo.address);
+    socket.send(
+      JSON.stringify({
+        magicString: DISCOVERY_MAGIC_STRING,
+        port: overridePort ?? serverPort,
+        overrideAddress,
+        protocol,
+        version,
+      }),
+      rinfo.port,
+      rinfo.address,
+    );
   });
 
   socket.on('listening', () => {
@@ -36,4 +40,3 @@ export function listenForServerQueries() {
 
   socket.bind(DISCOVERY_PORT);
 }
-
