@@ -106,8 +106,6 @@ export const headerStyle = {
   backgroundColor: Colors.searchTintColor,
 };
 
-const headerSortingStyle = { backgroundColor: '#c8e6c9' };
-
 export const dateFormat = 'L'; // 06/09/2014, swap mm and dd based on locale
 export const dateTimeFormat = 'YYYY-MM-DD hh:mm A';
 
@@ -156,13 +154,6 @@ for (let i = 0; i <= 59; i += 1) {
 export const getDifferenceDate = (today, target) => {
   const difference = moment.duration(moment(today).diff(moment(target)));
   return difference.humanize();
-};
-
-export const encounterStatuses = {
-  ADMITTED: 'Admitted',
-  DISCHARGED: 'Discharged',
-  CHECKED_IN: 'CheckedIn',
-  CHECKED_OUT: 'CheckedOut',
 };
 
 export const medicationStatuses = {

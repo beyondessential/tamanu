@@ -1,5 +1,5 @@
 import React from 'react';
-import { Formik } from 'formik';
+import { Formik, Field as FormikField, connect as formikConnect } from 'formik';
 import PropTypes from 'prop-types';
 import { Typography } from '@material-ui/core';
 

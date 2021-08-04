@@ -36,6 +36,7 @@ const UNHIDEABLE_FIELDS = [
   'ageRange',
   'dateOfBirthFrom',
   'dateOfBirthTo',
+  'dateOfBirthExact',
 ];
 
 const HIDEABLE_FIELDS = [

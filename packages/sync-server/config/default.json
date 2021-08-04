@@ -88,6 +88,10 @@
           "shortLabel": "DOB to",
           "longLabel": "Date of birth to"
         },
+        "dateOfBirthExact": {
+          "shortLabel": "DOB exact",
+          "longLabel": "Date of birth exact"
+        },
         "bloodType": {
           "shortLabel": "Blood type",
           "longLabel": "Blood type",

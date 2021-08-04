@@ -9,16 +9,16 @@ KEYPAIR="~/.ssh/tamanu-eb-key-pair"
 
 # common functions
 function prlog {
-    echo "[script] $1"
+    >&2 echo "[script] $1"
 }
 
 function prwarn {
     MESSAGE="## $1 ##"
-    echo
-    echo "$MESSAGE" | sed -e 's/./#/g'
-    echo "$MESSAGE"
-    echo "$MESSAGE" | sed -e 's/./#/g'
-    echo
+    >&2 echo
+    echo "$MESSAGE" | sed -e 's/./#/g' >&2
+    >&2 echo "$MESSAGE"
+    echo "$MESSAGE" | sed -e 's/./#/g' >&2
+    >&2 echo
 }
 
 function prusage {
@@ -30,6 +30,33 @@ function prusage {
     >&2 echo "    - the elasticbeanstalk cli installed and configured"
     >&2 echo "    - the tamanu-eb-key-pair saved in $HOME/.ssh/tamanu-eb-keypair"
     exit 1
+}
+
+function connect_postgres {
+    PORT="${PORT:-5433}"
+
+    # retrieve details from AWS
+    ENDPOINT="$(aws rds describe-db-instances | jq -r '.DBInstances[] | select((.TagList[] | select(.Key == "elasticbeanstalk:environment-name")).Value == "'"$ENVIRONMENT"'") | .Endpoint.Address')"
+    prlog "db endpoint: $ENDPOINT"
+    NODE_CONFIG="$(eb printenv "$ENVIRONMENT" | grep NODE_CONFIG | sed -e 's/.*NODE_CONFIG = //')"
+    NAME="$(echo "$NODE_CONFIG" | jq -r '.db.name')"
+    prlog "name: $NAME"
+    USERNAME="$(echo "$NODE_CONFIG" | jq -r '.db.username')"
+    prlog "username: $USERNAME"
+    PASSWORD="$(echo "$NODE_CONFIG" | jq -r '.db.password')"
+    prlog "password: <found password in environment NODE_CONFIG>"
+
+    # connect ssh
+    eb ssh --quiet --custom "ssh -i $KEYPAIR" --command ':' "$ENVIRONMENT"
+    eb ssh --quiet --custom "ssh -i $KEYPAIR -N -L $PORT:$ENDPOINT:5432" "$ENVIRONMENT" &
+    prlog "waiting for eb ssh to connect"
+    sleep 5 # let ssh connect
+    prlog "attempting psql connection"
+
+    # echo warning
+    prwarn "CONNECTING TO $ENVIRONMENT"
+
+    PG_CONNECTION_URL="postgresql://$USERNAME:$PASSWORD@localhost:$PORT/$NAME"
 }
 
 # determine eb environment
