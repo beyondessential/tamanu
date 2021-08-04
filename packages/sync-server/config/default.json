@@ -249,5 +249,8 @@
         "syncAllEncountersForTheseScheduledVaccines": []
       }
     }
+  },
+  "country": {
+    "name": "NotSet"
   }
 }
