@@ -78,12 +78,18 @@ export class ReportRequestProcessor extends ScheduledTask {
    * @returns {Promise<void>}
    */
   async sendReport(request, reportData) {
+    let sent = false;
     const recipients = request.getRecipients();
     if (recipients.email) {
       await this.sendReportToEmail(request, reportData, recipients.email);
+      sent = true;
     }
     if (recipients.tupaia) {
       await this.sendReportToTupaia(request, reportData);
+      sent = true;
+    }
+    if (!sent) {
+      throw new Error('No recipients');
     }
   }
 
