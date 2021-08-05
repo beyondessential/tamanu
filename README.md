@@ -28,7 +28,7 @@ First, clone the repo via git:
 $ git clone git@github.com:beyondessential/tamanu.git
 ```
 
-And then install dependencies with yarn.
+Install dependencies with yarn:
 
 ```bash
 $ cd tamanu
@@ -37,6 +37,17 @@ $ yarn config set workspaces-experimental true
 $ yarn config set workspaces-nohoist-experimental true
 $ yarn
 ```
+
+Install docker, then use it to build and run the system:
+
+```bash
+$ yarn build && docker compose up
+```
+```bash
+$ yarn desktop-start-dev
+```
+
+You can also run `yarn sync-start-dev`, `yarn lan-start-dev`, and `yarn meta-start-dev` to run individual processes without docker. You'll need to install postgres and configure databases for lan and sync.
 
 ## Configure
 
