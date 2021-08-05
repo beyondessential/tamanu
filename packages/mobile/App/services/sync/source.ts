@@ -52,6 +52,7 @@ export interface SyncSource {
     channel: string,
     since: string,
     limit: number,
+    { noCount: boolean },
   ): Promise<DownloadRecordsResponse | null>;
 
   uploadRecords(
@@ -115,6 +116,9 @@ export class WebSyncSource implements SyncSource {
   }
 
   async fetch(path: string, query: Record<string, string>, config) {
+    if (!this.host) {
+      throw new AuthenticationError('WebSyncSource.fetch: not connected to a host yet');
+    }
     const queryString = Object.entries(query).map(([k, v]) => `${k}=${v}`).join('&');
     const url = `${this.host}/v${API_VERSION}/${path}?${queryString}`;
     const extraHeaders = config?.headers || {};
@@ -204,12 +208,14 @@ export class WebSyncSource implements SyncSource {
     channel: string,
     since: string,
     limit: number,
+    { noCount = false } = {},
   ): Promise<DownloadRecordsResponse | null> {
     try {
       // TODO: error handling (incl timeout & token revokation)
       const query = {
         since,
-        limit,
+        limit: limit.toString(),
+        noCount: noCount.toString(),
       };
       const path = `sync/${encodeURIComponent(channel)}`;
 

@@ -30,9 +30,9 @@ export class Backend {
     const { models } = Database;
     this.models = models;
     this.syncSource = new WebSyncSource();
-    this.syncManager = new SyncManager(this.syncSource);
     this.auth = new AuthService(models, this.syncSource);
     this.localisation = new LocalisationService(this.auth);
+    this.syncManager = new SyncManager(this.syncSource, this.localisation);
   }
 
   async initialise(): Promise<void> {
