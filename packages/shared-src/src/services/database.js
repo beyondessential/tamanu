@@ -87,6 +87,7 @@ export async function initDatabase(dbOptions) {
     port,
     logging,
   });
+  await sequelize.authenticate();
 
   // set configuration variables for individual models
   models.User.SALT_ROUNDS = saltRounds;
