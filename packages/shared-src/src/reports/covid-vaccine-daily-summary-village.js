@@ -204,10 +204,6 @@ async function getVillages(otherConfig) {
 
   const countryName = config.country ? config.country.name : otherConfig.country?.name;
 
-  if (!countryName || countryName === 'NotSet') {
-    throw new Error('Country not set');
-  }
-
   return tupaiaApi.getEntities(countryName, 'village');
 }
 
