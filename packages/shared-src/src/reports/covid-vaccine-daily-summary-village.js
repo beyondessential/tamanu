@@ -199,10 +199,10 @@ function addTupaiaEntityCodes(data, villages) {
   }));
 }
 
-async function getVillages() {
+async function getVillages(otherConfig) {
   const tupaiaApi = new TupaiaApi();
 
-  const countryName = config.country?.name;
+  const countryName = config.country ? config.country.name : otherConfig.country?.name;
 
   if (!countryName || countryName === 'NotSet') {
     throw new Error('Country not set');
@@ -211,10 +211,10 @@ async function getVillages() {
   return tupaiaApi.getEntities(countryName, 'village');
 }
 
-export async function dataGenerator(models, parameters) {
+export async function dataGenerator(models, parameters, otherConfig) {
   const listData = await queryCovidVaccineListData(models, parameters);
 
-  const villages = await getVillages();
+  const villages = await getVillages(otherConfig);
 
   const tupaiaListData = addTupaiaEntityCodes(listData, villages);
 

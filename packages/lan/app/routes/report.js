@@ -12,7 +12,7 @@ reportRoutes.get('/:report', async (req, res) => {
   const reportName = req.params.report;
   const params = req.query || {};
   try {
-    const data = await generateReport(req.db, reportName, params);
+    const data = await generateReport(req.db, reportName, params, {});
     res.send(data);
   } catch (e) {
     res.status(500).send({ error: e.message });

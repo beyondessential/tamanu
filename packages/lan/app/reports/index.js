@@ -9,7 +9,14 @@ export const getAllReports = async () =>
     parameters,
   }));
 
-export const generateReport = async (db, reportName, userParams) => {
+/**
+ * @param db
+ * @param reportName string
+ * @param userParams {}
+ * @param otherConfig {} extra report config not provided by user
+ * @returns {Promise<*>}
+ */
+export const generateReport = async (db, reportName, userParams, otherConfig) => {
   const report = allReports[reportName];
   if (!report) {
     throw new Error(`No such report: ${reportName}`);
@@ -23,7 +30,7 @@ export const generateReport = async (db, reportName, userParams) => {
     ...userParams,
   };
 
-  const data = await report.run(db, params);
+  const data = await report.run(db, params, otherConfig);
 
   return {
     metadata: {

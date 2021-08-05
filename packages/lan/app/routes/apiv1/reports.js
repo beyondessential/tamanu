@@ -1,6 +1,8 @@
 import express from 'express';
 import { getReportModule } from 'shared/reports';
 import asyncHandler from 'express-async-handler';
+import { log } from 'shared/services/logging';
+import { getSyncServerConfig } from '../../sync/util';
 
 export const reports = express.Router();
 
@@ -13,11 +15,22 @@ reports.post(
       return;
     }
     req.checkPermission('read', reportModule.permission);
+
     const {
       models,
       body: { parameters },
     } = req;
-    const excelData = await reportModule.dataGenerator(models, parameters);
+
+    let otherConfig = {};
+    try {
+      otherConfig = await getSyncServerConfig();
+    } catch (e) {
+      log.warn(
+        `Failed to connect to sync server to fetch config when generating report ${req.params.reportType}`,
+      );
+    }
+
+    const excelData = await reportModule.dataGenerator(models, parameters, otherConfig);
     res.send(excelData);
   }),
 );
