@@ -33,7 +33,7 @@ export async function run() {
   await performInitialSetup(context);
 
   const app = createApp(context);
-  const server = app.listen(port, () => {
+  app.listen(port, () => {
     log.info(`Server is running on port ${port}!`);
   });
 
@@ -53,4 +53,12 @@ export async function run() {
   }
 }
 
-run();
+// catch and exit if run() throws an error
+(async () => {
+  try {
+    await run();
+  } catch (e) {
+    log.error('run(): fatal error:', e.stack);
+    process.exit(1);
+  }
+})();
