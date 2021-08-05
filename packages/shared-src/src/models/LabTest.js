@@ -27,6 +27,9 @@ export class LabTest extends Model {
         laboratoryOfficer: {
           type: Sequelize.STRING,
         },
+        verification: {
+          type: Sequelize.STRING,
+        },
         completedDate: {
           type: Sequelize.DATE,
         },
