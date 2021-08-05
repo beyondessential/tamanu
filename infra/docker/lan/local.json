@@ -1,8 +1,9 @@
 {
   "db": {
+    "host": "db",
     "name": "tamanu-lan",
-    "username": "",
-    "password": "",
+    "username": "tamanu-lan",
+    "password": "tamanu-lan",
     "sqlitePath": null
   }
 }
