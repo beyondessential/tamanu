@@ -7,6 +7,13 @@ services:
     ports:
       - "4000:4000"
     restart: on-failure
+  sync-server:
+    build:
+      context: .
+      dockerfile: infra/docker/sync-server/Dockerfile
+    ports:
+      - "3000:3000"
+    restart: on-failure
   db:
     build:
       context: .

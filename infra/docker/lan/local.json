@@ -5,5 +5,10 @@
     "username": "tamanu-lan",
     "password": "tamanu-lan",
     "sqlitePath": null
+  },
+  "sync": {
+    "host": "http://sync-server:3000",
+    "email": "admin@tamanu.io",
+    "password": "admin"
   }
 }
