@@ -120,7 +120,6 @@ describe('Auth', () => {
           role: 'practitioner',
         },
         localisation: expect.any(Object),
-        featureFlags: expect.any(Object),
       });
     });
 
