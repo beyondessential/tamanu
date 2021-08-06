@@ -69,6 +69,7 @@ labRequest.get(
       makeSimpleTextFilter('displayId', 'patient.display_id'),
       makeSimpleTextFilter('firstName', 'patient.first_name'),
       makeSimpleTextFilter('lastName', 'patient.last_name'),
+      makeSimpleTextFilter('patientId', 'patient.id'),
       makeFilter(
         filterParams.requestedDateFrom,
         `DATE(lab_requests.requested_date) >= :requestedDateFrom`,
