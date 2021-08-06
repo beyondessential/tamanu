@@ -111,9 +111,10 @@ const DumbPatientCovidTestCert = ({ patient, getLabRequests, getLabTests }) => {
   );
 };
 
-export const PatientCovidTestCert = connectApi(api => ({
+export const PatientCovidTestCert = connectApi((api, dispatch, { patient }) => ({
   getLabRequests: () =>
-    api.get('/labRequest', {
+    api.get(`/labRequest`, {
+      patientId: patient.id,
       category: 'covid',
     }),
   getLabTests: id => api.get(`/labRequest/${id}/tests`),
