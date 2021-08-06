@@ -71,7 +71,6 @@ export const LoginView = memo(
       onLogin({ host, email, password });
     };
 
-    const errorMessage = useSelector(state => state.auth.error);
     const onSubmit = data => {
       const { host, email, password, rememberMe } = data;
 

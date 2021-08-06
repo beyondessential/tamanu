@@ -6,6 +6,7 @@ import { log } from 'shared/services/logging';
 import * as yup from 'yup';
 import moment from 'moment';
 import { sendEmail } from '../services/EmailService';
+import { randomBytes } from 'crypto';
 
 export const resetPassword = express.Router();
 
@@ -42,19 +43,20 @@ resetPassword.post(
   }),
 );
 
-const createToken = (length = 6) => {
-  let token = '';
-  for (let i = 0; i < length; i++) {
-    token += Math.floor(Math.random() * 9) + 1;
-  }
-  return token;
+const createToken = async length => {
+  return new Promise((resolve, reject) => {
+    randomBytes(length, (err, buf) => {
+      if (err) reject(err);
+      resolve(buf.toString('base64'));
+    });
+  });
 };
 
 const createOneTimeLogin = async (models, user) => {
-  const token = createToken();
+  const token = await createToken(config.auth.resetPassword.tokenLength);
 
   const expiresAt = moment()
-    .add(20, 'minutes')
+    .add(config.auth.resetPassword.tokenExpiry, 'minutes')
     .toDate();
 
   await models.OneTimeLogin.create({
