@@ -1,3 +1,4 @@
+import fetch from 'node-fetch';
 import config from 'config';
 
 import { BadAuthenticationError, InvalidOperationError, RemoteTimeoutError } from 'shared/errors';
