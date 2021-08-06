@@ -2,7 +2,7 @@ import { sanitise } from './sanitise';
 
 export const getUrl = dirtyUrl => {
   const url = sanitise(dirtyUrl);
-  return `<a href="${url}">${sanitise(url)}</a>`;
+  return `<a href="${url}">${url}</a>`;
 };
 
 export const getBool = bool =>
