@@ -85,6 +85,7 @@ export class WebRemote {
             ...headers,
           },
           body: body && JSON.stringify(body),
+          timeout: this.timeout,
           ...otherParams,
         },
         this.fetchImplementation,
