@@ -1,11 +1,10 @@
-import fetch from 'node-fetch';
-import AbortController from 'abort-controller';
 import config from 'config';
 
 import { BadAuthenticationError, InvalidOperationError, RemoteTimeoutError } from 'shared/errors';
 import { VERSION_COMPATIBILITY_ERRORS } from 'shared/constants';
 import { getResponseJsonSafely } from 'shared/utils';
 import { log } from 'shared/services/logging';
+import { fetchWithTimeout } from 'shared/utils/fetchWithTimeout';
 
 import { version } from '~/../package.json';
 
@@ -37,7 +36,7 @@ export class WebRemote {
   fetchImplementation = fetch;
 
   constructor() {
-    this.host = config.sync.host.trim().replace(/\/*$/, "");
+    this.host = config.sync.host.trim().replace(/\/*$/, '');
     this.timeout = config.sync.timeout;
     this.batchSize = config.sync.channelBatchSize;
   }
@@ -70,34 +69,31 @@ export class WebRemote {
     const url = `${this.host}/${API_VERSION}/${endpoint}`;
     log.debug(`[sync] ${method} ${url}`);
 
-    const controller = new AbortController();
-    const timeoutHandle = setTimeout(() => {
-      controller.abort();
-    }, this.timeout);
     let response;
     try {
-      response = await this.fetchImplementation(url, {
-        method,
-        headers: {
-          Accept: 'application/json',
-          'X-Runtime': 'Tamanu LAN Server',
-          'X-Version': version,
-          Authorization: this.token ? `Bearer ${this.token}` : undefined,
-          'Content-Type': body ? 'application/json' : undefined,
-          ...headers,
+      response = await fetchWithTimeout(
+        url,
+        {
+          method,
+          headers: {
+            Accept: 'application/json',
+            'X-Runtime': 'Tamanu LAN Server',
+            'X-Version': version,
+            Authorization: this.token ? `Bearer ${this.token}` : undefined,
+            'Content-Type': body ? 'application/json' : undefined,
+            ...headers,
+          },
+          body: body && JSON.stringify(body),
+          ...otherParams,
         },
-        body: body && JSON.stringify(body),
-        ...otherParams,
-        signal: controller.signal,
-      });
+        this.fetchImplementation,
+      );
     } catch (e) {
       // TODO: import AbortError from node-fetch once we're on v3.0
       if (e.name === 'AbortError') {
         throw new RemoteTimeoutError(`Server failed to respond within ${this.timeout}ms - ${url}`);
       }
       throw e;
-    } finally {
-      clearTimeout(timeoutHandle);
     }
 
     const checkForInvalidToken = ({ status }) => status === 401;
