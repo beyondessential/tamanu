@@ -84,7 +84,7 @@ const getStatuses = () => {
       } catch (e) {
         log.warn(`getStatuses() failed: ${e.stack}`);
         status.success = false;
-        status.error = e.message;
+        status.error = e.toString();
       }
       return status;
     }),
