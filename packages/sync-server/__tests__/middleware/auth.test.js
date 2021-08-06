@@ -86,6 +86,7 @@ describe('Auth', () => {
 
   describe('User management', () => {
     const USER_EMAIL = 'user.management@tamanu.test.io';
+    const USER_ID = 'user-management';
     const DISPLAY_NAME = 'John Jones';
     const USER_PASSWORD = 'abc_123';
     const USER_PASSWORD_2 = 'abc_1234';
@@ -93,6 +94,7 @@ describe('Auth', () => {
     it('Should hash a password for a user synced through the api', async () => {
       const response = await app.post('/v1/sync/user').send({
         data: {
+          id: USER_ID,
           email: USER_EMAIL,
           password: USER_PASSWORD,
           displayName: DISPLAY_NAME,
@@ -112,7 +114,7 @@ describe('Auth', () => {
       expect(loginResponse.body).toEqual({
         token: expect.any(String),
         user: {
-          id: expect.any(String),
+          id: USER_ID,
           email: USER_EMAIL,
           displayName: DISPLAY_NAME,
           role: 'practitioner',
@@ -123,9 +125,9 @@ describe('Auth', () => {
     });
 
     it('Should hash an updated password for an existing user', async () => {
-      const response = await app.post('/v1/upsertUser').send({
+      const response = await app.post('/v1/sync/user').send({
         data: {
-          email: USER_EMAIL,
+          id: USER_ID,
           password: USER_PASSWORD_2,
           displayName: DISPLAY_NAME,
         },
@@ -137,19 +139,19 @@ describe('Auth', () => {
       expect(savedUser).toHaveProperty('displayName', DISPLAY_NAME);
       expect(savedUser.password.slice(0, 2)).toBe('$2'); // magic number for bcrypt hashes
 
-      // fail login with old password
-      const loginResponse = await baseApp.post('/v1/login').send({
-        email: USER_EMAIL,
-        password: USER_PASSWORD,
-      });
-      expect(loginResponse).toHaveRequestError();
-
       // succeed login with new password
-      const loginResponse2 = await baseApp.post('/v1/login').send({
+      const loginResponse = await baseApp.post('/v1/login').send({
         email: USER_EMAIL,
         password: USER_PASSWORD_2,
       });
-      expect(loginResponse2).toHaveSucceeded();
+      expect(loginResponse).toHaveSucceeded();
+
+      // fail login with old password
+      const loginResponse2 = await baseApp.post('/v1/login').send({
+        email: USER_EMAIL,
+        password: USER_PASSWORD,
+      });
+      expect(loginResponse2).toHaveRequestError();
     });
 
     it('Should include a new user in the GET /sync/user channel', async () => {
@@ -157,7 +159,7 @@ describe('Auth', () => {
       const newEmail = 'new-user-get@test.tamanu.io';
       const displayName = 'test-new';
 
-      const response = await app.post('/v1/upsertUser').send({
+      const response = await app.post('/v1/sync/user').send({
         data: {
           email: newEmail,
           displayName,
@@ -177,10 +179,10 @@ describe('Auth', () => {
       const now = new Date().valueOf();
       const displayNameUpdated = 'updated display name';
 
-      const response = await app.post('/v1/upsertUser').send({
+      const response = await app.post('/v1/sync/user').send({
         recordType: 'user',
         data: {
-          email: USER_EMAIL,
+          id: USER_ID,
           displayName: displayNameUpdated,
         },
       });

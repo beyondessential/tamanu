@@ -141,13 +141,3 @@ authModule.get(
   }),
 );
 
-// TODO: remove this hack once we've verified nothing needs to upsert new or existing users
-authModule.post(
-  '/upsertUser',
-  asyncHandler(async (req, res) => {
-    const requestedAt = Date.now();
-    const { store, body } = req;
-    await store.models.User.upsert(convertToDbRecord(body));
-    res.send({ count: 1, requestedAt });
-  }),
-);
