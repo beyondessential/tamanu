@@ -35,4 +35,12 @@ export async function run() {
   startDataChangePublisher(server, context);
 }
 
-run();
+// catch and exit if run() throws an error
+(async () => {
+  try {
+    await run();
+  } catch (e) {
+    log.error('run(): fatal error:', e.stack);
+    process.exit(1);
+  }
+})();

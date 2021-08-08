@@ -3,15 +3,42 @@ import asyncHandler from 'express-async-handler';
 import moment from 'moment';
 import { QueryTypes } from 'sequelize';
 
+import { NOTE_RECORD_TYPES } from 'shared/models/Note';
+import { NotFoundError, InvalidOperationError } from 'shared/errors';
 import { REFERENCE_TYPES } from 'shared/constants';
 import { makeFilter } from '~/utils/query';
 import { renameObjectKeys } from '~/utils/renameObjectKeys';
 import { simpleGet, simplePut, simpleGetList, permissionCheckingRouter } from './crudHelpers';
+import { makeSimpleTextFilterFactory } from '../../utils/query';
 
 export const labRequest = express.Router();
 
 labRequest.get('/:id', simpleGet('LabRequest'));
-labRequest.put('/:id', simplePut('LabRequest'));
+
+labRequest.put(
+  '/:id',
+  asyncHandler(async (req, res) => {
+    const { models, params } = req;
+    const { userId, ...rest } = req.body;
+    req.checkPermission('read', 'LabRequest');
+    const object = await models.LabRequest.findByPk(params.id);
+    if (!object) throw new NotFoundError();
+    req.checkPermission('write', object);
+    await object.update(rest);
+
+    if (rest.status) {
+      if (!userId) throw new InvalidOperationError('No user found for LabRequest status change.');
+      await models.LabRequestLog.create({
+        status: rest.status,
+        labRequestId: params.id,
+        updatedById: userId,
+      });
+    }
+
+    res.send(object);
+  }),
+);
+
 labRequest.post(
   '/$',
   asyncHandler(async (req, res) => {
@@ -32,38 +59,17 @@ labRequest.get(
     req.checkPermission('list', 'LabRequest');
 
     const { rowsPerPage = 10, page = 0, ...filterParams } = query;
-
+    const makeSimpleTextFilter = makeSimpleTextFilterFactory(filterParams);
     const filters = [
-      makeFilter(
-        filterParams.status,
-        `UPPER(lab_requests.status) LIKE UPPER(:status)`,
-        ({ status }) => ({ status: `${status}%` }),
-      ),
-      makeFilter(
-        filterParams.requestId,
-        `UPPER(lab_requests.display_id) LIKE UPPER(:requestId)`,
-        ({ requestId }) => ({ requestId: `${requestId}%` }),
-      ),
-      makeFilter(
-        filterParams.category,
-        `UPPER(category.name) LIKE UPPER(:category)`,
-        ({ category }) => ({ category: `${category}%` }),
-      ),
-      makeFilter(
-        filterParams.priority,
-        `UPPER(priority.name) LIKE UPPER(:priority)`,
-        ({ priority }) => ({ priority: `${priority}%` }),
-      ),
-      makeFilter(
-        filterParams.laboratory,
-        `UPPER(laboratory.name) LIKE UPPER(:laboratory)`,
-        ({ laboratory }) => ({ laboratory: `${laboratory}%` }),
-      ),
-      makeFilter(
-        filterParams.displayId,
-        `UPPER(patient.display_id) LIKE UPPER(:displayId)`,
-        ({ displayId }) => ({ displayId: `${displayId}%` }),
-      ),
+      makeSimpleTextFilter('status', 'lab_requests.status'),
+      makeSimpleTextFilter('requestId', 'lab_requests.display_id'),
+      makeSimpleTextFilter('category', 'category.name'),
+      makeSimpleTextFilter('priority', 'priority.name'),
+      makeSimpleTextFilter('laboratory', 'laboratory.name'),
+      makeSimpleTextFilter('displayId', 'patient.display_id'),
+      makeSimpleTextFilter('firstName', 'patient.first_name'),
+      makeSimpleTextFilter('lastName', 'patient.last_name'),
+      makeSimpleTextFilter('patientId', 'patient.id'),
       makeFilter(
         filterParams.requestedDateFrom,
         `DATE(lab_requests.requested_date) >= :requestedDateFrom`,
@@ -171,8 +177,36 @@ labRequest.get(
   }),
 );
 
+labRequest.post(
+  '/:id/notes',
+  asyncHandler(async (req, res) => {
+    const { models, body, params } = req;
+    const { id } = params;
+    req.checkPermission('write', 'LabRequest');
+    const lab = await models.LabRequest.findByPk(id);
+    if (!lab) {
+      throw new NotFoundError();
+    }
+    req.checkPermission('write', lab);
+    const createdNote = await models.Note.create({
+      ...body,
+      recordId: id,
+      recordType: 'LabRequest',
+    });
+
+    res.send(createdNote);
+  }),
+);
+
 const labRelations = permissionCheckingRouter('read', 'LabRequest');
 labRelations.get('/:id/tests', simpleGetList('LabTest', 'labRequestId'));
+labRelations.get(
+  '/:id/notes',
+  simpleGetList('Note', 'recordId', {
+    additionalFilters: { recordType: NOTE_RECORD_TYPES.LAB_REQUEST },
+  }),
+);
+
 labRequest.use(labRelations);
 
 export const labTest = express.Router();

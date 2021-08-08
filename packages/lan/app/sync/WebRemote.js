@@ -37,7 +37,7 @@ export class WebRemote {
   fetchImplementation = fetch;
 
   constructor() {
-    this.host = config.sync.host;
+    this.host = config.sync.host.trim().replace(/\/*$/, "");
     this.timeout = config.sync.timeout;
     this.batchSize = config.sync.channelBatchSize;
   }

@@ -1,7 +1,7 @@
 import React, { useEffect, useState } from 'react';
 import styled from 'styled-components';
-import { useLocalisation } from '../contexts/Localisation';
-import { connectApi } from '../api/connectApi';
+import { useLocalisation } from '../../contexts/Localisation';
+import { connectApi } from '../../api/connectApi';
 
 const Header = styled.div`
   display: flex;

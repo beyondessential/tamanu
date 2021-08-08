@@ -2,7 +2,7 @@ import React from 'react';
 import { connect } from 'react-redux';
 import { push } from 'connected-react-router';
 
-import { Button } from '../../components/Button';
+import { AddButton, Button } from '../../components/Button';
 import { ContentPane } from '../../components/ContentPane';
 import { LoadingIndicator } from '../../components/LoadingIndicator';
 import { PatientInfoPane } from '../../components/PatientInfoPane';
@@ -18,21 +18,23 @@ import { ChangeLabStatusModal } from '../../components/ChangeLabStatusModal';
 import { LAB_REQUEST_STATUS_LABELS } from '../../constants';
 
 import { capitaliseFirstLetter } from '../../utils/capitalise';
+import { getCompletedDate, getMethod } from '../../utils/lab';
 import { ChangeLaboratoryModal } from '../../components/ChangeLaboratoryModal';
-import { DateDisplay } from '../../components';
+import { LabRequestNoteForm } from '../../forms/LabRequestNoteForm';
+import { LabRequestAuditPane } from '../../components/LabRequestAuditPane';
+import { useLabRequest } from '../../contexts/LabRequest';
 
-const makeRangeStringAccessor = sex => row => {
-  const type = row.labTestType;
+const makeRangeStringAccessor = sex => ({ labTestType }) => {
+  const max = (sex === 'male') ? labTestType.maleMax : labTestType.femaleMax;
+  const min = (sex === 'male') ? labTestType.maleMin : labTestType.femaleMin;
+  const hasMax = max || (max === 0);
+  const hasMin = min || (min === 0);
 
-  if (sex === 'male') {
-    return `${type.maleMin} – ${type.maleMax}`;
-  }
-
-  return `${type.femaleMin} – ${type.femaleMax}`;
+  if (hasMin && hasMax) return `${min} - ${max}`;
+  if (hasMin) return `>${min}`;
+  if (hasMax) return `<${max}`;
+  return 'N/A';
 };
-
-const getDate = ({ completedDate }) => <DateDisplay date={completedDate} />;
-const getMethod = ({ labTestMethod }) => (labTestMethod || {}).name || 'Unknown';
 
 const columns = sex => [
   { title: 'Test', key: 'type', accessor: row => row.labTestType.name },
@@ -41,10 +43,11 @@ const columns = sex => [
     key: 'result',
     accessor: ({ result }) => (result ? capitaliseFirstLetter(result) : ''),
   },
-  { title: 'Reference', key: 'reference', accessor: makeRangeStringAccessor(sex) },
+  { title: 'Clinical range', key: 'reference', accessor: makeRangeStringAccessor(sex) },
   { title: 'Method', key: 'labTestMethod', accessor: getMethod, sortable: false },
   { title: 'Laboratory officer', key: 'laboratoryOfficer' },
-  { title: 'Completed', key: 'completedDate', accessor: getDate, sortable: false },
+  { title: 'Verification', key: 'verification' },
+  { title: 'Completed', key: 'completedDate', accessor: getCompletedDate, sortable: false },
 ];
 
 const ResultsPane = React.memo(({ labRequest, patient }) => {
@@ -121,12 +124,13 @@ const LabRequestInfoPane = React.memo(({ labRequest }) => (
     <TextInput value={(labRequest.laboratory || {}).name} label="Laboratory" />
     <DateInput value={labRequest.requestedDate} label="Requested date" />
     <DateTimeInput value={labRequest.sampleTime} label="Sample date" />
-    <TextInput multiline value={labRequest.note} label="Notes" style={{ gridColumn: '1 / -1' }} />
+    <LabRequestNoteForm labRequest={labRequest} />
   </FormGrid>
 ));
 
-export const DumbLabRequestView = React.memo(({ labRequest, patient, loading }) => {
-  if (loading) return <LoadingIndicator />;
+export const DumbLabRequestView = React.memo(({ patient }) => {
+  const { isLoading, labRequest } = useLabRequest();
+  if (isLoading) return <LoadingIndicator />;
   return (
     <TwoColumnDisplay>
       <PatientInfoPane patient={patient} />
@@ -142,13 +146,12 @@ export const DumbLabRequestView = React.memo(({ labRequest, patient, loading }) 
           <LabRequestInfoPane labRequest={labRequest} />
         </ContentPane>
         <ResultsPane labRequest={labRequest} patient={patient} />
+        <LabRequestAuditPane labRequest={labRequest} />
       </div>
     </TwoColumnDisplay>
   );
 });
 
 export const LabRequestView = connect(state => ({
-  loading: state.labRequest.loading,
-  labRequest: state.labRequest,
   patient: state.patient,
 }))(DumbLabRequestView);

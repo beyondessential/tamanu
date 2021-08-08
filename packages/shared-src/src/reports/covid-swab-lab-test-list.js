@@ -1,4 +1,4 @@
-import { Op } from 'sequelize';
+import { keyBy } from 'lodash';
 import moment from 'moment';
 import { generateReportFromQueryData } from './utilities';
 import { LAB_REQUEST_STATUS_LABELS } from '../constants';
@@ -254,11 +254,11 @@ export const dataGenerator = async (models, parameters = {}) => {
 
   const transformedAnswers = await getTransformedAnswers(models, answers);
 
-  const getLatestAnswerInDateRange = (
+  // Find latest survey response within date range using the answers.
+  const getLatestPatientSurveyResponseIdInDateRange = (
     currentlabTestDate,
     nextLabTestDate,
     patientId,
-    dataElementId,
   ) => {
     const answersInRange = transformedAnswers
       .filter(
@@ -268,13 +268,28 @@ export const dataGenerator = async (models, parameters = {}) => {
             nextLabTestDate,
             undefined,
             '[)', // '[)' means currentLabTestDate <= surveyResponse.endTime < nextLabTestDate
-          ) &&
-          a.patientId === patientId &&
-          a.dataElementId === dataElementId,
+          ) && a.patientId === patientId,
       )
       .sort((a1, a2) => moment(a1.responseEndTime).diff(moment(a2.responseEndTime)));
+    return answersInRange[answersInRange.length - 1]?.surveyResponseId;
+  };
 
-    return answersInRange[answersInRange.length - 1]?.body;
+  const answersByPatientSurveyResponseDataElement = keyBy(
+    transformedAnswers,
+    a => `${a.patientId}|${a.surveyResponseId}|${a.dataElementId}`, // should be unique
+  );
+
+  const getAnswer = (patientId, surveyResponseId, dataElementId) => {
+    if (!surveyResponseId) {
+      // survey response id can be empty if there are no responses in the range.
+      return undefined;
+    }
+    const answer =
+      answersByPatientSurveyResponseDataElement[
+        `${patientId}|${surveyResponseId}|${dataElementId}`
+      ];
+
+    return answer?.body;
   };
 
   const reportData = [];
@@ -317,6 +332,13 @@ export const dataGenerator = async (models, parameters = {}) => {
 
     const patientId = labTest.labRequest?.encounter?.patientId;
 
+    // Get the latest Fiji covid survey response id for a patient within date range,
+    // then use that survey response id to find the answers.
+    const latestPatientSurveyResponseId = getLatestPatientSurveyResponseIdInDateRange(
+      currentLabTestDate,
+      nextLabTestDate,
+      patientId,
+    );
     const labTestRecord = {
       firstName: labTest.labRequest?.encounter?.patient?.firstName,
       lastName: labTest.labRequest?.encounter?.patient?.lastName,
@@ -334,162 +356,32 @@ export const dataGenerator = async (models, parameters = {}) => {
       testingDate: labTest.completedDate ? moment(labTest.completedDate).format('DD-MM-YYYY') : '',
       priority: labTest.labRequest?.priority?.name,
       testingLaboratory: labTest.labRequest?.laboratory?.name,
-      healthFacility: getLatestAnswerInDateRange(
-        currentLabTestDate,
-        nextLabTestDate,
-        patientId,
-        'pde-FijCOVSamp4',
-      ),
-      division: getLatestAnswerInDateRange(
-        currentLabTestDate,
-        nextLabTestDate,
-        patientId,
-        'pde-FijCOVSamp6',
-      ),
-      subDivision: getLatestAnswerInDateRange(
-        currentLabTestDate,
-        nextLabTestDate,
-        patientId,
-        'pde-FijCOVSamp7',
-      ),
-      ethnicity: getLatestAnswerInDateRange(
-        currentLabTestDate,
-        nextLabTestDate,
-        patientId,
-        'pde-FijCOVSamp10',
-      ),
-      contactPhone: getLatestAnswerInDateRange(
-        currentLabTestDate,
-        nextLabTestDate,
-        patientId,
-        'pde-FijCOVSamp11',
-      ),
-      residentialAddress: getLatestAnswerInDateRange(
-        currentLabTestDate,
-        nextLabTestDate,
-        patientId,
-        'pde-FijCOVSamp12',
-      ),
-      latitude: getLatestAnswerInDateRange(
-        currentLabTestDate,
-        nextLabTestDate,
-        patientId,
-        'pde-FijCOVSamp13',
-      ),
-      longitude: getLatestAnswerInDateRange(
-        currentLabTestDate,
-        nextLabTestDate,
-        patientId,
-        'pde-FijCOVSamp14',
-      ),
-      purposeOfSample: getLatestAnswerInDateRange(
-        currentLabTestDate,
-        nextLabTestDate,
-        patientId,
-        'pde-FijCOVSamp15',
-      ),
-      recentAdmission: getLatestAnswerInDateRange(
-        currentLabTestDate,
-        nextLabTestDate,
-        patientId,
-        'pde-FijCOVSamp16',
-      ),
-      admissionDate: getLatestAnswerInDateRange(
-        currentLabTestDate,
-        nextLabTestDate,
-        patientId,
-        'pde-FijCOVSamp19',
-      ),
-      placeOfAdmission: getLatestAnswerInDateRange(
-        currentLabTestDate,
-        nextLabTestDate,
-        patientId,
-        'pde-FijCOVSamp20',
-      ),
-      medicalProblems: getLatestAnswerInDateRange(
-        currentLabTestDate,
-        nextLabTestDate,
-        patientId,
-        'pde-FijCOVSamp23',
-      ),
-      healthcareWorker: getLatestAnswerInDateRange(
-        currentLabTestDate,
-        nextLabTestDate,
-        patientId,
-        'pde-FijCOVSamp26',
-      ),
-      occupation: getLatestAnswerInDateRange(
-        currentLabTestDate,
-        nextLabTestDate,
-        patientId,
-        'pde-FijCOVSamp27',
-      ),
-      placeOfWork: getLatestAnswerInDateRange(
-        currentLabTestDate,
-        nextLabTestDate,
-        patientId,
-        'pde-FijCOVSamp28',
-      ),
-      linkToCluster: getLatestAnswerInDateRange(
-        currentLabTestDate,
-        nextLabTestDate,
-        patientId,
-        'pde-FijCOVSamp29',
-      ),
-      nameOfCluster: getLatestAnswerInDateRange(
-        currentLabTestDate,
-        nextLabTestDate,
-        patientId,
-        'pde-FijCOVSamp30',
-      ),
-      recentTravelHistory: getLatestAnswerInDateRange(
-        currentLabTestDate,
-        nextLabTestDate,
-        patientId,
-        'pde-FijCOVSamp31',
-      ),
-      pregnant: getLatestAnswerInDateRange(
-        currentLabTestDate,
-        nextLabTestDate,
-        patientId,
-        'pde-FijCOVSamp32',
-      ),
-      experiencingSymptoms: getLatestAnswerInDateRange(
-        currentLabTestDate,
-        nextLabTestDate,
-        patientId,
-        'pde-FijCOVSamp34',
-      ),
-      dateOfFirstSymptom: getLatestAnswerInDateRange(
-        currentLabTestDate,
-        nextLabTestDate,
-        patientId,
-        'pde-FijCOVSamp35',
-      ),
-      symptoms: getLatestAnswerInDateRange(
-        currentLabTestDate,
-        nextLabTestDate,
-        patientId,
-        'pde-FijCOVSamp36',
-      ),
-      vaccinated: getLatestAnswerInDateRange(
-        currentLabTestDate,
-        nextLabTestDate,
-        patientId,
-        'pde-FijCOVSamp38',
-      ),
-      dateOf1stDose: getLatestAnswerInDateRange(
-        currentLabTestDate,
-        nextLabTestDate,
-        patientId,
-        'pde-FijCOVSamp39',
-      ),
-      dateOf2ndDose: getLatestAnswerInDateRange(
-        currentLabTestDate,
-        nextLabTestDate,
-        patientId,
-        'pde-FijCOVSamp40',
-      ),
+      healthFacility: getAnswer(patientId, latestPatientSurveyResponseId, 'pde-FijCOVSamp4'),
+      division: getAnswer(patientId, latestPatientSurveyResponseId, 'pde-FijCOVSamp6'),
+      subDivision: getAnswer(patientId, latestPatientSurveyResponseId, 'pde-FijCOVSamp7'),
+      ethnicity: getAnswer(patientId, latestPatientSurveyResponseId, 'pde-FijCOVSamp10'),
+      contactPhone: getAnswer(patientId, latestPatientSurveyResponseId, 'pde-FijCOVSamp11'),
+      residentialAddress: getAnswer(patientId, latestPatientSurveyResponseId, 'pde-FijCOVSamp12'),
+      latitude: getAnswer(patientId, latestPatientSurveyResponseId, 'pde-FijCOVSamp13'),
+      longitude: getAnswer(patientId, latestPatientSurveyResponseId, 'pde-FijCOVSamp14'),
+      purposeOfSample: getAnswer(patientId, latestPatientSurveyResponseId, 'pde-FijCOVSamp15'),
+      recentAdmission: getAnswer(patientId, latestPatientSurveyResponseId, 'pde-FijCOVSamp16'),
+      admissionDate: getAnswer(patientId, latestPatientSurveyResponseId, 'pde-FijCOVSamp19'),
+      placeOfAdmission: getAnswer(patientId, latestPatientSurveyResponseId, 'pde-FijCOVSamp20'),
+      medicalProblems: getAnswer(patientId, latestPatientSurveyResponseId, 'pde-FijCOVSamp23'),
+      healthcareWorker: getAnswer(patientId, latestPatientSurveyResponseId, 'pde-FijCOVSamp26'),
+      occupation: getAnswer(patientId, latestPatientSurveyResponseId, 'pde-FijCOVSamp27'),
+      placeOfWork: getAnswer(patientId, latestPatientSurveyResponseId, 'pde-FijCOVSamp28'),
+      linkToCluster: getAnswer(patientId, latestPatientSurveyResponseId, 'pde-FijCOVSamp29'),
+      nameOfCluster: getAnswer(patientId, latestPatientSurveyResponseId, 'pde-FijCOVSamp30'),
+      recentTravelHistory: getAnswer(patientId, latestPatientSurveyResponseId, 'pde-FijCOVSamp31'),
+      pregnant: getAnswer(patientId, latestPatientSurveyResponseId, 'pde-FijCOVSamp32'),
+      experiencingSymptoms: getAnswer(patientId, latestPatientSurveyResponseId, 'pde-FijCOVSamp34'),
+      dateOfFirstSymptom: getAnswer(patientId, latestPatientSurveyResponseId, 'pde-FijCOVSamp35'),
+      symptoms: getAnswer(patientId, latestPatientSurveyResponseId, 'pde-FijCOVSamp36'),
+      vaccinated: getAnswer(patientId, latestPatientSurveyResponseId, 'pde-FijCOVSamp38'),
+      dateOf1stDose: getAnswer(patientId, latestPatientSurveyResponseId, 'pde-FijCOVSamp39'),
+      dateOf2ndDose: getAnswer(patientId, latestPatientSurveyResponseId, 'pde-FijCOVSamp40'),
     };
 
     reportData.push(labTestRecord);
