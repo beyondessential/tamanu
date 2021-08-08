@@ -25,13 +25,18 @@ export interface IEncounter {
   reasonForEncounter?: string;
 
   location?: IReferenceData;
+  locationId?: string;
+
   department?: IReferenceData;
+  departmentId?: string;
 
   diagnoses?: IDiagnosis[];
 
-  patient?: IPatient;
+  patient?: IPatient | string;
+  patientId?: string;
 
-  examiner?: IUser;
+  examiner?: IUser | string;
+  examinerId?: string;
 
   markedForUpload?: boolean;
 

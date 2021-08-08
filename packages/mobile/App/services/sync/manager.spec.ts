@@ -2,20 +2,22 @@ import { Database } from '~/infra/db';
 import { Patient } from '~/models/Patient';
 import { PatientIssue } from '~/models/PatientIssue';
 import { Encounter } from '~/models/Encounter';
-import { readConfig, writeConfig } from '~/services/config';
+import { readConfig } from '~/services/config';
+import { LocalisationService } from '~/services/localisation';
+import { IPatient, IScheduledVaccine } from '~/types';
 
 import { SyncManager } from './manager';
 import { WebSyncSource } from './source';
 
 import {
   fake,
-  createRelations,
   toSyncRecord,
   fakeAdministeredVaccine,
   fakeEncounter,
   fakePatient,
   fakeProgram,
   fakeProgramDataElement,
+  fakeScheduledVaccine,
   fakeSurvey,
   fakeSurveyResponse,
   fakeSurveyResponseAnswer,
@@ -25,16 +27,23 @@ import {
 jest.mock('./source');
 const MockedWebSyncSource = <jest.Mock<WebSyncSource>>WebSyncSource;
 
+jest.mock('~/services/localisation/LocalisationService');
+const MockedLocalisationService = <jest.Mock<LocalisationService>>LocalisationService;
+
 const createManager = (): ({
   emittedEvents: { action: string | symbol; event: any }[];
   syncManager: SyncManager;
   mockedSource: any;
 }) => {
-  // mock WebSyncSource
+  // mock WebSyncSource and MockedLocalisationServoce
   MockedWebSyncSource.mockClear();
-  const syncManager = new SyncManager(new MockedWebSyncSource(''), { verbose: false });
+  MockedLocalisationService.mockClear();
+  const mockedSource = new MockedWebSyncSource('');
+  const mockedLocalisation = new MockedLocalisationService() as any; // TODO: ts isn't recognising this is a mock
+  const syncManager = new SyncManager(mockedSource, mockedLocalisation, { verbose: false });
   expect(MockedWebSyncSource).toHaveBeenCalledTimes(1);
-  const mockedSource = MockedWebSyncSource.mock.instances[0];
+  expect(MockedWebSyncSource).toHaveBeenCalledTimes(1);
+  mockedLocalisation.getArrayOfStrings.mockReturnValue([]);
 
   // detect emitted events
   const emittedEvents = [];
@@ -83,15 +92,24 @@ describe('SyncManager', () => {
     });
 
     describe('encounters', () => {
-      it('downloads and imports an encounter', async () => {
+      let patient: IPatient;
+      let scheduledVaccine: IScheduledVaccine;
+      beforeEach(async () => {
+        const { models } = Database;
+
+        patient = fakePatient();
+        await models.Patient.createAndSaveOne(patient);
+
+        scheduledVaccine = fakeScheduledVaccine();
+        await models.ScheduledVaccine.createAndSaveOne(scheduledVaccine);
+      });
+
+      const testEncounterDownloadAndImport = async (channel: string) => {
         // arrange
         const { models } = Database;
 
         const user = fakeUser();
         await models.User.createAndSaveOne(user);
-
-        const patient = fakePatient();
-        await models.Patient.createAndSaveOne(patient);
 
         const programDataElement = fakeProgramDataElement();
         await models.ProgramDataElement.createAndSaveOne(programDataElement);
@@ -99,13 +117,12 @@ describe('SyncManager', () => {
         const survey = fakeSurvey();
         await models.Survey.createAndSaveOne(survey);
 
-        const channel = `patient/${patient.id}/encounter`;
-
         // act
         const encounter = fakeEncounter();
         encounter.patientId = patient.id;
         encounter.examinerId = user.id;
         const administeredVaccine = fakeAdministeredVaccine();
+        administeredVaccine.scheduledVaccineId = scheduledVaccine.id;
         const surveyResponse = fakeSurveyResponse();
         surveyResponse.surveyId = survey.id;
         const answer = fakeSurveyResponseAnswer();
@@ -142,7 +159,7 @@ describe('SyncManager', () => {
           cursor: 'finished-sync-1',
         }));
         mockedSource.downloadRecords.mockReturnValueOnce(Promise.resolve({
-          count: 0,
+          count: null,
           records: [],
         }));
         await syncManager.downloadAndImport(models.Encounter, channel, '0');
@@ -151,9 +168,9 @@ describe('SyncManager', () => {
         expect(mockedSource.downloadRecords).toHaveBeenCalledTimes(2);
 
         expect(mockedSource.downloadRecords)
-          .toHaveBeenCalledWith(channel, '0', expect.any(Number)); // first sync starts from '0'
+          .toHaveBeenCalledWith(channel, '0', expect.any(Number), { noCount: false }); // first sync starts from '0'
         expect(mockedSource.downloadRecords)
-          .toHaveBeenCalledWith(channel, 'finished-sync-1', expect.any(Number)); // subsequent uses cursor
+          .toHaveBeenCalledWith(channel, 'finished-sync-1', expect.any(Number), { noCount: true }); // subsequent uses cursor
 
         expect(
           await models.Encounter.findOne({ id: encounter.id }),
@@ -179,13 +196,41 @@ describe('SyncManager', () => {
           ...answer,
           responseId: surveyResponse.id,
         });
+      };
+
+      it('downloads and imports an encounter nested under a patient', async () => {
+        await testEncounterDownloadAndImport(`patient/${patient.id}/encounter`);
+      });
+
+      it('downloads and imports an encounter nested under a scheduledVaccine', async () => {
+        await testEncounterDownloadAndImport(`scheduledVaccine/${scheduledVaccine.id}/encounter`);
       });
     });
   });
 
   describe('exportAndUpload', () => {
     describe('encounters', () => {
-      it('exports and uploads an encounter', async () => {
+      let patient: IPatient;
+      let scheduledVaccine: IScheduledVaccine;
+      beforeEach(async () => {
+        const { models } = Database;
+
+        patient = fakePatient();
+        await models.Patient.createAndSaveOne(patient);
+
+        scheduledVaccine = fakeScheduledVaccine();
+        await models.ScheduledVaccine.createAndSaveOne(scheduledVaccine);
+      });
+
+      it('exports and uploads an encounter nested under a patient', async () => {
+        await testEncounterExportAndUpload(`patient/${patient.id}/encounter`);
+      });
+
+      it('exports and uploads an encounter nested under a patient', async () => {
+        await testEncounterExportAndUpload(`patient/${patient.id}/encounter`);
+      });
+
+      const testEncounterExportAndUpload = async (channel: string) => {
         // TODO: find a workaround for the typeorm Id stripping
 
         // arrange
@@ -194,15 +239,13 @@ describe('SyncManager', () => {
         const user = fakeUser();
         await Database.models.User.createAndSaveOne(user);
 
-        const patient = fakePatient();
-        await Database.models.Patient.createAndSaveOne(patient);
-
         const encounter = fakeEncounter();
         encounter.patient = patient.id;
         encounter.examiner = user.id;
         await Database.models.Encounter.createAndSaveOne(encounter);
 
         const administeredVaccine = fakeAdministeredVaccine();
+        administeredVaccine.scheduledVaccine = scheduledVaccine.id;
         administeredVaccine.encounter = encounter.id;
         await Database.models.AdministeredVaccine.createAndSaveOne(administeredVaccine);
 
@@ -223,7 +266,6 @@ describe('SyncManager', () => {
         await Database.models.SurveyResponseAnswer.createAndSaveOne(answer);
 
         mockedSource.uploadRecords.mockReturnValueOnce({ count: 1, requestedAt: Date.now() });
-        const channel = `patient/${encounter.patient}/encounter`;
 
         // act
         await syncManager.exportAndUpload(Database.models.Encounter, channel);
@@ -239,6 +281,7 @@ describe('SyncManager', () => {
             {
               data: {
                 ...administeredVaccine,
+                scheduledVaccineId: scheduledVaccine.id,
                 encounterId: encounter.id,
               },
             },
@@ -265,12 +308,13 @@ describe('SyncManager', () => {
         delete data.patient;
         delete data.examiner;
         delete data.administeredVaccines[0].data.encounter;
+        delete data.administeredVaccines[0].data.scheduledVaccine;
         delete data.surveyResponses[0].data.encounter;
         delete data.surveyResponses[0].data.survey;
         delete data.surveyResponses[0].data.answers[0].data.dataElement;
         delete data.surveyResponses[0].data.answers[0].data.response;
         expect(call).toMatchObject([channel, [{ data }]]);
-      });
+      };
     });
   });
 
@@ -278,7 +322,7 @@ describe('SyncManager', () => {
     it('only runs one sync at a time', async () => {
       // arrange
       const { syncManager, mockedSource } = createManager();
-      let resolveFirstFetchChannels;
+      let resolveFirstFetchChannels: ((value: string[]) => void);
       const firstFetchChannelsPromise = new Promise(resolve => {
         resolveFirstFetchChannels = resolve;
       });
@@ -327,8 +371,8 @@ describe('SyncManager', () => {
       // assert
       expect(mockedSource.fetchChannelsWithChanges).toBeCalledTimes(1);
       expect(mockedSource.downloadRecords).toBeCalledTimes(2);
-      expect(mockedSource.downloadRecords).toHaveBeenCalledWith('user', '0', expect.any(Number));
-      expect(mockedSource.downloadRecords).toHaveBeenCalledWith('patient', '0', expect.any(Number));
+      expect(mockedSource.downloadRecords).toHaveBeenCalledWith('user', '0', expect.any(Number), { noCount: false });
+      expect(mockedSource.downloadRecords).toHaveBeenCalledWith('patient', '0', expect.any(Number), { noCount: false });
     });
 
     it('includes subchannels of patients marked for sync', async () => {
@@ -374,7 +418,7 @@ describe('SyncManager', () => {
       // assert
       expect(mockedSource.fetchChannelsWithChanges).toBeCalledTimes(1);
       const receivedArgs = mockedSource.fetchChannelsWithChanges.mock.calls[0];
-      expect(receivedArgs[0].map(c => c.channel)).toEqual(expect.arrayContaining([
+      expect(receivedArgs[0].map(({ channel }) => channel)).toEqual(expect.arrayContaining([
         `patient/${patient.id}/encounter`,
         `patient/${patient.id}/issue`,
       ]));
