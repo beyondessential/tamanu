@@ -35,7 +35,7 @@ const unsafeRecreatePgDb = async ({ name, username, password, host, port }) => {
   }
 };
 
-export async function initDatabase(dbOptions) {
+async function connectToDatabase(dbOptions) {
   // connect to database
   const {
     username,
@@ -88,9 +88,13 @@ export async function initDatabase(dbOptions) {
     logging,
   });
 
-  // set configuration variables for individual models
-  models.User.SALT_ROUNDS = saltRounds;
+  return sequelize;
+}
 
+export async function initDatabase(dbOptions) {
+  const sequelize = await connectToDatabase(dbOptions);
+
+  /*
   // Ideally we could trigger a down-migration via something like
   // $ yarn run lan-start-dev --migrate-down
   // But the usual interface is going through package.json and webpack
@@ -108,6 +112,18 @@ export async function initDatabase(dbOptions) {
   sequelize.migrate = sqlitePath
     ? sequelize.sync // just sync in sqlite mode, migrations may contain pg-specific sql
     : () => migrateUp(log, sequelize);
+  */
+
+  const {
+    saltRounds,
+    primaryKeyDefault,
+    makeEveryModelParanoid,
+    hackToSkipEncounterValidation,
+    syncClientMode,
+  } = dbOptions;
+
+  // set configuration variables for individual models
+  models.User.SALT_ROUNDS = saltRounds;
 
   // init all models
   const modelClasses = Object.values(models);
