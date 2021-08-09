@@ -3,21 +3,21 @@ services:
   lan:
     build:
       context: .
-      dockerfile: infra/docker/lan/Dockerfile
+      dockerfile: packages/lan/docker/Dockerfile
     ports:
       - "4000:4000"
     restart: on-failure
   sync-server:
     build:
       context: .
-      dockerfile: infra/docker/sync-server/Dockerfile
+      dockerfile: packages/sync-server/docker/Dockerfile
     ports:
       - "3000:3000"
     restart: on-failure
   db:
     build:
       context: .
-      dockerfile: infra/docker/postgres/Dockerfile
+      dockerfile: packages/shared-src/docker/postgres/Dockerfile
     volumes:
       - ./docker-volumes/db:/var/lib/postgresql/data
     environment:
