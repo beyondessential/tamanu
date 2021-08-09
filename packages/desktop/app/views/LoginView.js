@@ -1,5 +1,5 @@
 import React, { memo, useState } from 'react';
-import { useSelector } from 'react-redux';
+import { connect, useSelector } from 'react-redux';
 import styled from 'styled-components';
 import Paper from '@material-ui/core/Paper';
 
@@ -55,7 +55,7 @@ export const LoginView = memo(
     changePasswordError,
     changePasswordSuccess,
   }) => {
-    const rememberEmail = localStorage.getItem(REMEMBER_EMAIL_KEY);
+    const rememberEmail = localStorage.getItem(REMEMBER_EMAIL);
 
     const [screen, setScreen] = useState('login');
 
@@ -63,9 +63,9 @@ export const LoginView = memo(
       const { host, email, password, rememberMe } = data;
 
       if (rememberMe) {
-        localStorage.setItem(REMEMBER_EMAIL_KEY, email);
+        localStorage.setItem(REMEMBER_EMAIL, email);
       } else {
-        localStorage.removeItem(REMEMBER_EMAIL_KEY);
+        localStorage.removeItem(REMEMBER_EMAIL);
       }
 
       onLogin({ host, email, password });
@@ -123,7 +123,7 @@ export const LoginView = memo(
         </LoginContainer>
       </Grid>
     );
-  };
+  }
 );
 
 const mapStateToProps = state => ({
