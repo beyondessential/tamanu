@@ -6,7 +6,7 @@ import 'typeface-roboto';
 import { TamanuLogoWhite } from './components/TamanuLogo';
 import { ConnectedSidebar } from './components/Sidebar';
 import { Appbar } from './components/Appbar';
-import { login, checkIsLoggedIn } from './store/auth';
+import { checkIsLoggedIn } from './store/auth';
 import { getCurrentRoute } from './store/router';
 import { LoginView } from './views';
 import { Colors } from './constants';

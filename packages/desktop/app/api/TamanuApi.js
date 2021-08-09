@@ -136,6 +136,16 @@ export class TamanuApi {
     return { user, token, localisation };
   }
 
+  async requestPasswordReset(host, email) {
+    this.setHost(host);
+    return this.post('resetPassword', { email });
+  }
+
+  async changePassword(host, data) {
+    this.setHost(host);
+    return this.post('changePassword', data);
+  }
+
   async refreshToken() {
     try {
       const response = await this.post('refresh');
