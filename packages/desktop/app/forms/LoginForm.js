@@ -10,9 +10,9 @@ import {
   Form,
   MinusIconButton,
   PlusIconButton,
-  ServerDetectingField,
   TextField,
 } from '../components';
+import { ServerDetectingField } from '../components/Field/ServerDetectingField';
 
 const LoginButton = styled(Button)`
   font-size: 16px;
