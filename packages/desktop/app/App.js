@@ -43,13 +43,7 @@ export function App({ children }) {
   const isUserLoggedIn = useSelector(checkIsLoggedIn);
   const currentRoute = useSelector(getCurrentRoute);
   if (!isUserLoggedIn) {
-    return (
-      <LoginView
-        onLogin={({ host, email, password }) => {
-          dispatch(login(host, email, password));
-        }}
-      />
-    );
+    return <LoginView />;
   }
 
   return (

@@ -42,7 +42,7 @@ const LogoContainer = styled.div`
   text-align: center;
 `;
 
-export const LoginView = memo(
+const DumbLoginView = memo(
   ({
     onLogin,
     loginError,
@@ -60,18 +60,6 @@ export const LoginView = memo(
     const [screen, setScreen] = useState('login');
 
     const onSubmitLogin = data => {
-      const { host, email, password, rememberMe } = data;
-
-      if (rememberMe) {
-        localStorage.setItem(REMEMBER_EMAIL, email);
-      } else {
-        localStorage.removeItem(REMEMBER_EMAIL);
-      }
-
-      onLogin({ host, email, password });
-    };
-
-    const onSubmit = data => {
       const { host, email, password, rememberMe } = data;
 
       if (rememberMe) {
@@ -150,4 +138,4 @@ const mapDispatchToProps = dispatch => ({
   },
 });
 
-export const ConnectedLoginView = connect(mapStateToProps, mapDispatchToProps)(LoginView);
+export const LoginView = connect(mapStateToProps, mapDispatchToProps)(DumbLoginView);
