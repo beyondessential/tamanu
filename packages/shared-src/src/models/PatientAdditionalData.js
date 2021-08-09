@@ -20,6 +20,10 @@ export class PatientAdditionalData extends Model {
         birthCertificate: Sequelize.STRING,
         drivingLicense: Sequelize.STRING,
         passport: Sequelize.STRING,
+        // Not using a ReferenceData relation here as this is used specifically for reports,
+        // and if ReferenceData was used, local reporting for this field would only work if the User existed
+        // on that machine.
+        registeredBy: Sequelize.STRING,
       },
       {
         ...options,
