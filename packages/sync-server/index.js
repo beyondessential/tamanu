@@ -60,6 +60,11 @@ async function serve() {
     log.info(`Server is running on port ${port}!`);
   });
 
+  process.on('SIGTERM', () => {
+    app.close();
+    context.sequelize.close();
+  });
+
   // only execute tasks on the first worker process
   if (isFirstProcess) {
     startScheduledTasks(context);

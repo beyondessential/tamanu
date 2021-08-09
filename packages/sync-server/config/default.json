@@ -21,12 +21,21 @@
       "displayName": "Initial Admin",
       "role": "admin",
       "password": "admin"
+    },
+    "resetPassword": {
+      "tokenLength": 6,
+      "tokenExpiry": 20
+    },
+    "rateLimit": {
+      "windowMinutes": 60,
+      "tries": 10
     }
   },
   "mailgun": {
     "domain": "",
     "apiKey": "",
-    "from": ""
+    "from": "",
+    "toAddressOverride": ""
   },
   "cors": {
     "allowedOrigin": ""

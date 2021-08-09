@@ -87,6 +87,7 @@ async function connectToDatabase(dbOptions) {
     port,
     logging,
   });
+  await sequelize.authenticate();
 
   return sequelize;
 }

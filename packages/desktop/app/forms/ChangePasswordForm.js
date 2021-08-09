@@ -1,0 +1,119 @@
+import React, { useState } from 'react';
+import * as yup from 'yup';
+import styled from 'styled-components';
+import Collapse from '@material-ui/core/Collapse';
+import { FormGrid } from '../components/FormGrid';
+import {
+  Button,
+  Field,
+  Form,
+  MinusIconButton,
+  PlusIconButton,
+  ServerDetectingField,
+  TextField,
+} from '../components';
+
+const PrimaryButton = styled(Button)`
+  font-size: 16px;
+  line-height: 18px;
+  padding-top: 16px;
+  padding-bottom: 16px;
+`;
+
+const AdvancedRow = styled.div`
+  display: flex;
+  flex-direction: column;
+  align-items: flex-end;
+  justify-content: space-between;
+  font-size: 16px;
+`;
+
+const AdvancedButtonSpan = styled.span`
+  .MuiButtonBase-root {
+    padding: 0px 0px 0px 9px;
+    font-size: 20px;
+  }
+`;
+
+const SuccessMessage = styled.p`
+  margin-top: 0;
+`;
+
+export const ChangePasswordForm = React.memo(
+  ({ onSubmit, errorMessage, success, email, onNavToLogin, onNavToResetPassword }) => {
+    const [isAdvancedExpanded, setAdvancedExpanded] = useState(false);
+
+    const renderForm = ({ setFieldValue }) => {
+      return (
+        <FormGrid columns={1}>
+          <h3>Reset Password</h3>
+          <div>Please enter the reset code you have received in your email</div>
+          <div>{errorMessage}</div>
+          <Field name="token" type="text" label="Reset Code" required component={TextField} />
+          <Field
+            name="newPassword"
+            type="password"
+            label="Enter a new password"
+            required
+            component={TextField}
+          />
+          <AdvancedRow>
+            <AdvancedButtonSpan>
+              Advanced
+              {isAdvancedExpanded ? (
+                <MinusIconButton
+                  onClick={() => setAdvancedExpanded(false)}
+                  styles={{ padding: '0px' }}
+                />
+              ) : (
+                <PlusIconButton onClick={() => setAdvancedExpanded(true)} />
+              )}
+            </AdvancedButtonSpan>
+          </AdvancedRow>
+          <Collapse in={isAdvancedExpanded}>
+            <Field
+              name="host"
+              label="LAN Server Address"
+              required
+              component={ServerDetectingField}
+              setFieldValue={setFieldValue}
+            />
+          </Collapse>
+          <PrimaryButton fullWidth variant="contained" color="primary" type="submit">
+            Change Password
+          </PrimaryButton>
+          <Button onClick={onNavToResetPassword}>Back</Button>
+        </FormGrid>
+      );
+    };
+
+    if (success) {
+      return (
+        <FormGrid columns={1}>
+          <h3>Reset Password</h3>
+          <SuccessMessage>Your password has been updated</SuccessMessage>
+          <PrimaryButton fullWidth variant="contained" color="primary" onClick={onNavToLogin}>
+            Login
+          </PrimaryButton>
+        </FormGrid>
+      );
+    }
+
+    return (
+      <Form
+        onSubmit={onSubmit}
+        render={renderForm}
+        initialValues={{
+          email,
+        }}
+        validationSchema={yup.object().shape({
+          token: yup.string().required(),
+          newPassword: yup
+            .string()
+            .min(5, 'Must be at least 5 characters')
+            .required(),
+        })}
+      />
+    );
+  },
+);
