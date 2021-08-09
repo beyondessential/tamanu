@@ -26,6 +26,11 @@ async function performInitialSetup({ store }) {
 }
 
 export async function run() {
+  process.on('SIGTERM', () => {
+    app.close();
+    context.sequelize.close();
+  });
+
   // NODE_APP_INSTANCE is set by PM2; if it's not present, assume this process is the first
   const isFirstProcess = !process.env.NODE_APP_INSTANCE || process.env.NODE_APP_INSTANCE === '0';
   const context = await initDatabase({ isFirstProcess, testMode: false });
