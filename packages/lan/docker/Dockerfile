@@ -1,19 +1,13 @@
-FROM node:12
-
-ARG DEBIAN_FRONTEND=noninteractive
-
-# install deps
-RUN apt-get update -y -qq
-RUN apt-get install -y -qq --no-install-recommends \
-        apt-transport-https \
-        build-essential \
-        ca-certificates
+FROM node:12-alpine
 
 WORKDIR /app
 
 # install deps
 COPY packages/lan/package.json yarn.lock .
-RUN yarn install --non-interactive --pure-lockfile --production
+RUN apk add --no-cache --virtual .build-deps make gcc g++ python && \
+    yarn install --non-interactive --pure-lockfile --production && \
+    yarn cache clean && \
+    apk del .build-deps
 
 # copy shared
 COPY packages/shared/ node_modules/shared
