@@ -1,12 +1,13 @@
 module.exports = {
   up: async query => {
-    return query.sequelize.query("ALTER TYPE enum_notes_record_type ADD VALUE 'LabRequest'");
+    // This migration can fail if enum_notes_record_type already includes LabRequest
+    // so if it fails we can just ignore it
+    // (if it fails for a different reason, we have bigger problems)
+    try {
+      await query.sequelize.query("ALTER TYPE enum_notes_record_type ADD VALUE 'LabRequest'");
+    } catch(e) {
+    }
   },
-
   down: async query => {
-    var q = 'DELETE FROM pg_enum ' +
-      'WHERE enumlabel = \'LabRequest\' ' +
-      'AND enumtypid = ( SELECT oid FROM pg_type WHERE typname = \'enum_notes_record_type\')';
-    return query.sequelize.query(q);
   },
 };
