@@ -1,10 +1,11 @@
 FROM node:12-alpine
 
 WORKDIR /app
+ARG NODE_NATIVE_BUILD_DEPS="make gcc g++ python"
 
 # install deps
 COPY packages/sync-server/package.json yarn.lock .
-RUN apk add --no-cache --virtual .build-deps make gcc g++ python && \
+RUN apk add --no-cache --virtual .build-deps $NODE_NATIVE_BUILD_DEPS && \
     yarn install --non-interactive --pure-lockfile --production && \
     yarn cache clean && \
     apk del .build-deps
