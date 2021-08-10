@@ -22,4 +22,13 @@ export class LocalMetadata extends Model {
       },
     );
   }
+
+  static async get(key) {
+    const { value } = await this.findOne({ where: { key } });
+    return value;
+  }
+
+  static async set(key, value) {
+    await this.upsert({ key, value }, { fields: ['key'] });
+  }
 }
