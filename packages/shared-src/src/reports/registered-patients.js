@@ -34,7 +34,7 @@ export const permission = 'Patient';
 export const dataGenerator = async (models, parameters = {}) => {
   const reportColumnTemplate = [
     { title: 'Date registered', accessor: data => data.dateCreated },
-    { title: 'Registered by', accessor: data => data.registeredBy },
+    { title: 'Registered by', accessor: data => data.registeredByName },
     { title: 'First name', accessor: data => data.first_name },
     { title: 'Middle name', accessor: data => data.middle_name },
     { title: 'Last name', accessor: data => data.last_name },
@@ -110,6 +110,11 @@ export const dataGenerator = async (models, parameters = {}) => {
             attributes: ['name'],
             as: 'patientBillingType',
           },
+          {
+            model: models.User,
+            attributes: ['displayName'],
+            as: 'registeredBy',
+          },
         ],
       },
     ],
@@ -127,6 +132,7 @@ export const dataGenerator = async (models, parameters = {}) => {
     const occupationName = additionalData?.occupation?.dataValues?.name ?? null;
     const religionName = additionalData?.religion?.dataValues?.name ?? null;
     const patientBillingTypeName = additionalData?.patientBillingType?.dataValues?.name ?? null;
+    const registeredByName = additionalData?.registeredBy?.dataValues?.displayName ?? null;
 
     return {
       ...dataValues,
@@ -138,6 +144,7 @@ export const dataGenerator = async (models, parameters = {}) => {
       occupationName,
       religionName,
       patientBillingTypeName,
+      registeredByName,
     };
   });
 
