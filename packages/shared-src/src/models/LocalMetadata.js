@@ -24,8 +24,8 @@ export class LocalMetadata extends Model {
   }
 
   static async get(key) {
-    const { value } = await this.findOne({ where: { key } });
-    return value;
+    const result = await this.findOne({ where: { key } });
+    return result?.value;
   }
 
   static async set(key, value) {
