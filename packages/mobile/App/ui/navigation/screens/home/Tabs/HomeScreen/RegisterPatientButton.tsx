@@ -13,6 +13,7 @@ import {
   StyledTouchableOpacity,
   StyledView,
 } from '/styled/common';
+import { Routes } from '/helpers/routes';
 
 const RegisterPatientButton = (): ReactElement => {
   const navigation = useNavigation();
