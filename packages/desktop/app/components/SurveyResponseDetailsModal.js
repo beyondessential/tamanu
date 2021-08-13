@@ -17,7 +17,7 @@ const convertBinaryToYesNo = value => {
     default:
       return value;
   }
-}
+};
 
 const COLUMNS = [
   { key: 'text', title: 'Indicator', accessor: ({ name }) => name },
@@ -69,7 +69,7 @@ export const SurveyResponseDetailsModal = connectApi(api => ({
 
   if (loading || !surveyDetails) {
     return (
-      <Modal title="Survey response" open={surveyResponseId} onClose={onClose}>
+      <Modal title="Survey response" open={!!surveyResponseId} onClose={onClose}>
         Loading...
       </Modal>
     );
@@ -93,7 +93,7 @@ export const SurveyResponseDetailsModal = connectApi(api => ({
     .filter(r => r.answer !== undefined);
 
   return (
-    <Modal title="Survey response" open={surveyResponseId} onClose={onClose}>
+    <Modal title="Survey response" open={!!surveyResponseId} onClose={onClose}>
       <Table data={answerRows} columns={COLUMNS} />
     </Modal>
   );
