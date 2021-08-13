@@ -152,6 +152,18 @@ yarn sync-start-dev
 
 </details>
 
+## Containers
+
+<details>
+<summary>Build images</summary>
+
+```bash
+docker build -f Dockerfile.shared -t shared .
+docker build -f packages/lan/docker/Dockerfile .
+docker build -f packages/sync-server/docker/Dockerfile .
+```
+
+</details>
 ## Integrations
 
 <details>

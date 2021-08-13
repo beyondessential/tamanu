@@ -1,0 +1,14 @@
+FROM node:12-alpine
+
+ARG NODE_NATIVE_BUILD_DEPS="make gcc g++ python2"
+
+WORKDIR /app
+
+COPY . .
+
+RUN apk add --no-cache --virtual .build-deps $NODE_NATIVE_BUILD_DEPS && \
+    yarn install && \
+    yarn cache clean && \
+    apk del .build-deps
+
+# RUN yarn build-shared

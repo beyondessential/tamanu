@@ -122,3 +122,29 @@
               tag: ^(dev$)
               service: awsdeployment
               command: ./scripts/deploy_meta.sh prod
+
+            - name: push_ecr_lan_server
+              service: app
+              type: push
+              # tag: ^(master$|dev$|staging$|ci-)
+              image_name: 843218180240.dkr.ecr.ap-southeast-2.amazonaws.com/tamanu-lan-server
+              registry: https://843218180240.dkr.ecr.ap-southeast-2.amazonaws.com
+              image_tag: latest # TODO this should not be latest
+              dockercfg_service: dockercfg-generator
+            # - name: push_ecr_lan_server
+            #   service: lan-server
+            #   type: push
+            #   # tag: ^(master$|dev$|staging$|ci-)
+            #   image_name: 843218180240.dkr.ecr.ap-southeast-2.amazonaws.com/tamanu-lan-server
+            #   registry: https://843218180240.dkr.ecr.ap-southeast-2.amazonaws.com
+            #   image_tag: latest # TODO this should not be latest
+            #   dockercfg_service: dockercfg-generator
+
+            # - name: push_ecr_sync_server
+            #   service: sync-server
+            #   type: push
+            #   # tag: ^(master$|dev$|staging$|ci-)
+            #   image_name: 843218180240.dkr.ecr.ap-southeast-2.amazonaws.com/tamanu-sync-server
+            #   registry: https://843218180240.dkr.ecr.ap-southeast-2.amazonaws.com
+            #   image_tag: latest # TODO this should not be latest
+            #   dockercfg_service: dockercfg-generator

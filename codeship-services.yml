@@ -38,3 +38,8 @@ mobile:
     context: packages/mobile
     dockerfile: Dockerfile
   encrypted_dockercfg_path: packages/mobile/dockercfg.encrypted
+
+dockercfg-generator:
+  image: codeship/aws-ecr-dockercfg-generator
+  add_docker: true
+  encrypted_env_file: codeship.env.encrypted
