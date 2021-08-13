@@ -204,6 +204,11 @@ const reportColumnTemplate = [
   },
   { title: 'Sex', accessor: data => data.sex },
   { title: 'Patient ID', accessor: data => data.patientId },
+
+  { title: 'Rapid diagnostic test (RDT) conducted', accessor: data => data.rdtConducted },
+  { title: 'RDT result', accessor: data => data.rdtResult },
+  { title: 'RDT date', accessor: data => data.rdtDate },
+
   { title: 'Lab request ID', accessor: data => data.labRequestId },
   {
     title: 'Lab request type',
@@ -294,6 +299,51 @@ export const dataGenerator = async (models, parameters = {}) => {
 
   const reportData = [];
 
+  // No lab tests, just include answers from latest survey
+  if (labTests.length === 0) {
+    const patientData = answers[0]?.surveyResponse?.encounter.patient;
+    const surveyAnswers = {};
+    transformedAnswers.forEach(({ dataElementId, body }) => {
+      surveyAnswers[dataElementId] = body;
+    });
+    reportData.push({
+      firstName: patientData?.firstName,
+      lastName: patientData?.lastName,
+      dob: patientData?.dateOfBirth ? moment(patientData?.dateOfBirth).format('DD-MM-YYYY') : '',
+      sex: patientData?.sex,
+      patientId: patientData?.displayId,
+      healthFacility: surveyAnswers['pde-FijCOVSamp4'],
+      division: surveyAnswers['pde-FijCOVSamp6'],
+      subDivision: surveyAnswers['pde-FijCOVSamp7'],
+      ethnicity: surveyAnswers['pde-FijCOVSamp10'],
+      contactPhone: surveyAnswers['pde-FijCOVSamp11'],
+      residentialAddress: surveyAnswers['pde-FijCOVSamp12'],
+      latitude: surveyAnswers['pde-FijCOVSamp13'],
+      longitude: surveyAnswers['pde-FijCOVSamp14'],
+      purposeOfSample: surveyAnswers['pde-FijCOVSamp15'],
+      recentAdmission: surveyAnswers['pde-FijCOVSamp16'],
+      admissionDate: surveyAnswers['pde-FijCOVSamp19'],
+      placeOfAdmission: surveyAnswers['pde-FijCOVSamp20'],
+      medicalProblems: surveyAnswers['pde-FijCOVSamp23'],
+      healthcareWorker: surveyAnswers['pde-FijCOVSamp26'],
+      occupation: surveyAnswers['pde-FijCOVSamp27'],
+      placeOfWork: surveyAnswers['pde-FijCOVSamp28'],
+      linkToCluster: surveyAnswers['pde-FijCOVSamp29'],
+      nameOfCluster: surveyAnswers['pde-FijCOVSamp30'],
+      recentTravelHistory: surveyAnswers['pde-FijCOVSamp31'],
+      pregnant: surveyAnswers['pde-FijCOVSamp32'],
+      experiencingSymptoms: surveyAnswers['pde-FijCOVSamp34'],
+      dateOfFirstSymptom: surveyAnswers['pde-FijCOVSamp35'],
+      symptoms: surveyAnswers['pde-FijCOVSamp36'],
+      vaccinated: surveyAnswers['pde-FijCOVSamp38'],
+      dateOf1stDose: surveyAnswers['pde-FijCOVSamp39'],
+      dateOf2ndDose: surveyAnswers['pde-FijCOVSamp40'],
+      rdtConducted: surveyAnswers['pde-FijCOVSamp42'],
+      rdtResult: surveyAnswers['pde-FijCOVSamp43'],
+      rdtDate: surveyAnswers['pde-FijCOVSamp52'],
+    });
+  }
+
   // lab tests were already sorted by 'date' ASC in the sql.
   for (let i = 0; i < labTests.length; i++) {
     const labTest = labTests[i];
@@ -382,6 +432,9 @@ export const dataGenerator = async (models, parameters = {}) => {
       vaccinated: getAnswer(patientId, latestPatientSurveyResponseId, 'pde-FijCOVSamp38'),
       dateOf1stDose: getAnswer(patientId, latestPatientSurveyResponseId, 'pde-FijCOVSamp39'),
       dateOf2ndDose: getAnswer(patientId, latestPatientSurveyResponseId, 'pde-FijCOVSamp40'),
+      rdtConducted: getAnswer(patientId, latestPatientSurveyResponseId, 'pde-FijCOVSamp42'),
+      rdtResult: getAnswer(patientId, latestPatientSurveyResponseId, 'pde-FijCOVSamp43'),
+      rdtDate: getAnswer(patientId, latestPatientSurveyResponseId, 'pde-FijCOVSamp52'),
     };
 
     reportData.push(labTestRecord);
