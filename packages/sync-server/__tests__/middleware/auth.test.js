@@ -218,11 +218,29 @@ describe('Auth', () => {
     expect(body).not.toHaveProperty('hashedPassword');
   });
 
-  describe('Change password', () => { 
-    test.todo('Should create a one-time login for a password reset request');
-    test.todo('Should consume a one-time login and reset a password'); 
-    test.todo('Should reject a password reset if no one-time login exists'); 
-    test.todo('Should reject a password reset if the OTL is consumed'); 
+  describe('Change password', () => {
+    it('Should create a one-time login for a password reset request', async () => {
+      const response = await baseApp.post('/v1/resetPassword').send({
+        email: TEST_EMAIL,
+      });
+      expect(response).toHaveSucceeded();
+
+      const otl = await store.models.OneTimeLogin.findOne({
+        include: [
+          {
+            association: 'user',
+            where: { email: TEST_EMAIL },
+          },
+        ],
+      });
+
+      expect(otl).toHaveProperty('token', expect.any(String));
+      expect(otl).toHaveProperty('user.email', TEST_EMAIL);
+    });
+
+    test.todo('Should consume a one-time login and reset a password');
+    test.todo('Should reject a password reset if no one-time login exists');
+    test.todo('Should reject a password reset if the OTL is consumed');
     test.todo('Should reject a password reset if the OTL is expired');
-  }); 
+  });
 });
