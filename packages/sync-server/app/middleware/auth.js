@@ -135,17 +135,6 @@ authMiddleware.get(
   }),
 );
 
-authMiddleware.get(
-  '/config',
-  asyncHandler((req, res) => {
-    res.send({
-      config: {
-        country: config.country,
-      },
-    });
-  }),
-);
-
 // TODO: remove this hack once we've verified nothing needs to upsert new or existing users
 authMiddleware.post(
   '/upsertUser',

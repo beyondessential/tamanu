@@ -247,8 +247,4 @@ export class WebRemote {
   async whoami() {
     return this.fetch('whoami');
   }
-
-  async config() {
-    return this.fetch('config');
-  }
 }

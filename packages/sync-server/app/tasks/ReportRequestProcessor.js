@@ -48,14 +48,7 @@ export class ReportRequestProcessor extends ScheduledTask {
 
       let reportData = null;
       try {
-        const otherConfig = {
-          country: config.country,
-        };
-        reportData = await reportDataGenerator(
-          this.context.store.models,
-          request.getParameters(),
-          otherConfig,
-        );
+        reportData = await reportDataGenerator(this.context.store.models, request.getParameters());
       } catch (e) {
         log.error(`ReportRequestProcessorError - Failed to generate report, ${e.message}`);
         log.error(e.stack);
