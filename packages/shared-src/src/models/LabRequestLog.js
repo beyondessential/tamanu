@@ -16,7 +16,7 @@ export class LabRequestLog extends Model {
       {
         ...options,
         syncConfig: { syncDirection: SYNC_DIRECTIONS.BIDIRECTIONAL },
-      }
+      },
     );
   }
 

@@ -193,6 +193,7 @@ export class SyncManager {
         models.PatientIssue,
         models.PatientAdditionalData,
 
+        models.LabRequestLog,
         models.LabTestType,
         models.Encounter,
         models.ReportRequest,
