@@ -1,6 +1,5 @@
 import React, { useEffect, useState, memo } from 'react';
 import { find } from 'lodash';
-import config from 'config';
 import { submenuIcons } from './config';
 import { Sidebar } from './Sidebar';
 
@@ -25,7 +24,7 @@ export const SidebarWithPrograms = memo(({ items, ...restOfProps }) => {
   const programsNav = find(itemsWithPrograms, { key: 'programs' });
   if (programs.length > 0) {
     programsNav.hidden = false;
-    programsNav.children = programs.map(({ name, id: id }) => ({
+    programsNav.children = programs.map(({ name, id }) => ({
       label: name,
       path: `/programs/${id}/patients`,
       icon: submenuIcons.action,

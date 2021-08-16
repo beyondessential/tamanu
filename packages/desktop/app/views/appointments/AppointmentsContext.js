@@ -62,10 +62,10 @@ export const AppointmentsContextProvider = props => {
         locationId: 'location-1',
         startTime: '2021-05-01T09:00:00.000',
         durationInMinutes: 30,
-        userId: 'user-1',
+        userId: 'user-2',
         user: {
-          id: 'user-1',
-          displayName: 'Test User',
+          id: 'user-2',
+          displayName: 'Test User 2',
         }
       },
       {
@@ -73,10 +73,10 @@ export const AppointmentsContextProvider = props => {
         locationId: 'location-2',
         startTime: '2021-05-01T11:00:00.000',
         durationInMinutes: 30,
-        userId: 'user-1',
+        userId: 'user-3',
         user: {
-          id: 'user-1',
-          displayName: 'Test User',
+          id: 'user-3',
+          displayName: 'Test User 3',
         }
       },
       {
@@ -95,9 +95,9 @@ export const AppointmentsContextProvider = props => {
         locationId: 'location-3',
         startTime: '2021-05-01T08:00:00.000',
         durationInMinutes: 30,
-        userId: 'user-1',
+        userId: 'user-4',
         user: {
-          id: 'user-1',
+          id: 'user-4',
           displayName: 'Long User Name',
         }
       },
@@ -106,10 +106,10 @@ export const AppointmentsContextProvider = props => {
         locationId: 'location-3',
         startTime: '2021-05-01T08:00:00.000',
         durationInMinutes: 30,
-        userId: 'user-1',
+        userId: 'user-5',
         user: {
-          id: 'user-1',
-          displayName: 'Test User',
+          id: 'user-5',
+          displayName: 'Test User 5',
         }
       },
       {
@@ -117,10 +117,10 @@ export const AppointmentsContextProvider = props => {
         locationId: 'location-3',
         startTime: '2021-05-01T08:00:00.000',
         durationInMinutes: 30,
-        userId: 'user-1',
+        userId: 'user-2',
         user: {
-          id: 'user-1',
-          displayName: 'Test User',
+          id: 'user-2',
+          displayName: 'Test User 2',
         }
       },
       {
@@ -128,9 +128,9 @@ export const AppointmentsContextProvider = props => {
         locationId: 'location-2',
         startTime: '2021-05-01T12:00:00.000',
         durationInMinutes: 30,
-        userId: 'user-1',
+        userId: 'user-6',
         user: {
-          id: 'user-1',
+          id: 'user-6',
           displayName: 'Long User Name',
         }
       },
@@ -139,10 +139,10 @@ export const AppointmentsContextProvider = props => {
         locationId: 'location-2',
         startTime: '2021-05-01T12:00:00.000',
         durationInMinutes: 30,
-        userId: 'user-1',
+        userId: 'user-7',
         user: {
-          id: 'user-1',
-          displayName: 'Test User',
+          id: 'user-7',
+          displayName: 'Test User 7',
         }
       },
       {
@@ -150,10 +150,10 @@ export const AppointmentsContextProvider = props => {
         locationId: 'location-2',
         startTime: '2021-05-01T12:00:00.000',
         durationInMinutes: 30,
-        userId: 'user-1',
+        userId: 'user-8',
         user: {
-          id: 'user-1',
-          displayName: 'Test User',
+          id: 'user-8',
+          displayName: 'Test User 8',
         }
       },
     ]);
