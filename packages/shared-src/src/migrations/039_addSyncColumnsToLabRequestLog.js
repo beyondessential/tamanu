@@ -18,7 +18,7 @@ module.exports = {
   down: async query => {
     await query.removeColumn('lab_request_logs', 'marked_for_push');
     await query.removeColumn('lab_request_logs', 'marked_for_sync');
-    await query.removeColumn('lab_request_logs');
-    await query.removeColumn('lab_request_logs');
+    await query.removeColumn('lab_request_logs', 'pushed_at');
+    await query.removeColumn('lab_request_logs', 'pulled_at');
   },
 };
