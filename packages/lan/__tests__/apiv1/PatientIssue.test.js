@@ -1,9 +1,6 @@
 import { createDummyPatient } from 'shared/demoData/patients';
 import { createTestContext } from '../utilities';
 
-// Skipping as test was failing due to timeout. Can be unskipped when
-// timeout is no longer an issue.
-// See https://github.com/beyondessential/tamanu-backlog/issues/819
 describe('PatientIssue', () => {
   let patient = null;
   let app = null;
