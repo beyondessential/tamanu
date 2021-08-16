@@ -27,10 +27,9 @@ export const SyncHealthNotificationComponent = () => {
     let isMounted = true;
     (async () => {
       const res = await api.get('syncHealth');
-      if (isMounted) {
-        if (!res.healthy) {
-          setMessage(res.error);
-        }
+      if (!isMounted) return;
+      if (!res.healthy) {
+        setMessage(res.error);
       }
     })();
     return () => {
