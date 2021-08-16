@@ -13,6 +13,11 @@ import { listenForServerQueries } from './app/discovery';
 const port = config.port;
 
 export async function run() {
+  process.on('SIGTERM', () => {
+    app.close();
+    context.sequelize.close();
+  });
+
   const context = await initDatabase();
 
   await context.sequelize.migrate();
@@ -35,4 +40,12 @@ export async function run() {
   startDataChangePublisher(server, context);
 }
 
-run();
+// catch and exit if run() throws an error
+(async () => {
+  try {
+    await run();
+  } catch (e) {
+    log.error('run(): fatal error:', e.stack);
+    process.exit(1);
+  }
+})();

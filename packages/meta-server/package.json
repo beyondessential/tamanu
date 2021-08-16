@@ -1,6 +1,6 @@
 {
   "name": "meta-server",
-  "version": "1.5.2",
+  "version": "1.6.0",
   "description": "Meta server for Tamanu",
   "homepage": "https://github.com/beyondessential/tamanu.git#readme",
   "repository": "git@github.com:beyondessential/tamanu.git",
@@ -48,11 +48,12 @@
   },
   "dependencies": {
     "@babel/polyfill": "^7.2.5",
+    "abort-controller": "^3.0.0",
     "await-to-js": "^2.0.1",
     "body-parser": "^1.19.0",
     "cls-hooked": "^4.2.2",
     "compression": "^1.7.2",
-    "config": "^3.0.1",
+    "config": "^3.3.6",
     "connect-flash": "^0.1.1",
     "express": "^4.16.2",
     "express-async-handler": "^1.1.4",
@@ -69,6 +70,7 @@
     "prompts": "^2.0.0",
     "request": "^2.88.0",
     "request-promise": "^4.2.2",
+    "sanitize-html": "^2.4.0",
     "winston": "^3.2.1"
   }
 }

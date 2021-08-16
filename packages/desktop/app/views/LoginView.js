@@ -1,16 +1,24 @@
 import React, { memo, useState } from 'react';
-import { useSelector } from 'react-redux';
+import { connect, useSelector } from 'react-redux';
 import styled from 'styled-components';
-import Collapse from '@material-ui/core/Collapse';
 import Paper from '@material-ui/core/Paper';
+
 import * as yup from 'yup';
 import { Button, MinusIconButton, PlusIconButton, TamanuLogo } from '../components';
 import { LOCAL_STORAGE_KEYS } from '../constants';
 import { splashImages } from '../constants/images';
 
-import { Form, Field, TextField, CheckField } from '../components/Field';
-import { ServerDetectingField } from '../components/Field/ServerDetectingField';
-import { FormGrid } from '../components/FormGrid';
+import { LoginForm } from '../forms/LoginForm';
+import { ResetPasswordForm } from '../forms/ResetPasswordForm';
+import { ChangePasswordForm } from '../forms/ChangePasswordForm';
+import {
+  changePassword,
+  checkIsLoggedIn,
+  login,
+  requestPasswordReset,
+  restartPasswordResetFlow,
+} from '../store';
+
 import { SyncHealthNotificationComponent } from '../components/SyncHealthNotification';
 
 const { REMEMBER_EMAIL } = LOCAL_STORAGE_KEYS;
@@ -34,112 +42,100 @@ const LogoContainer = styled.div`
   text-align: center;
 `;
 
-const LoginButton = styled(Button)`
-  font-size: 16px;
-  line-height: 18px;
-  padding-top: 16px;
-  padding-bottom: 16px;
-`;
+const DumbLoginView = memo(
+  ({
+    onLogin,
+    loginError,
+    onRequestPasswordReset,
+    requestPasswordResetError,
+    requestPasswordResetSuccess,
+    resetPasswordEmail,
+    onRestartResetPasswordFlow,
+    onChangePassword,
+    changePasswordError,
+    changePasswordSuccess,
+  }) => {
+    const rememberEmail = localStorage.getItem(REMEMBER_EMAIL);
 
-const RememberMeAdvancedRow = styled.div`
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
-  font-size: 16px;
-`;
+    const [screen, setScreen] = useState('login');
 
-const AdvancedButtonSpan = styled.span`
-  .MuiButtonBase-root {
-    padding: 0px 0px 0px 9px;
-    font-size: 20px;
-  }
-`;
+    const onSubmitLogin = data => {
+      const { host, email, password, rememberMe } = data;
 
-export const LoginView = memo(({ onLogin }) => {
-  const [isAdvancedExpanded, setAdvancedExpanded] = useState(false);
+      if (rememberMe) {
+        localStorage.setItem(REMEMBER_EMAIL, email);
+      } else {
+        localStorage.removeItem(REMEMBER_EMAIL);
+      }
 
-  const errorMessage = useSelector(state => state.auth.error);
-  const onSubmit = data => {
-    const { host, email, password, rememberMe } = data;
+      onLogin({ host, email, password });
+    };
 
-    if (rememberMe) {
-      localStorage.setItem(REMEMBER_EMAIL, email);
-    } else {
-      localStorage.removeItem(REMEMBER_EMAIL);
-    }
-
-    onLogin({ host, email, password });
-  };
-
-  const onError = errors => {
-    if (errors.host) {
-      setAdvancedExpanded(true);
-    }
-  };
-
-  const renderForm = ({ setFieldValue }) => {
     return (
-      <FormGrid columns={1}>
-        <div>{errorMessage}</div>
-        <Field name="email" type="email" label="Email" required component={TextField} />
-        <Field name="password" label="Password" type="password" required component={TextField} />
-        <RememberMeAdvancedRow>
-          <Field name="rememberMe" label="Remember me" component={CheckField} />
-          <AdvancedButtonSpan>
-            Advanced
-            {isAdvancedExpanded ? (
-              <MinusIconButton
-                onClick={() => setAdvancedExpanded(false)}
-                styles={{ padding: '0px' }}
-              />
-            ) : (
-              <PlusIconButton onClick={() => setAdvancedExpanded(true)} />
-            )}
-          </AdvancedButtonSpan>
-        </RememberMeAdvancedRow>
-        <Collapse in={isAdvancedExpanded}>
-          <Field
-            name="host"
-            label="LAN Server Address"
-            required
-            component={ServerDetectingField}
-            setFieldValue={setFieldValue}
-          />
-        </Collapse>
-        <LoginButton fullWidth variant="contained" color="primary" type="submit">
-          Login to your account
-        </LoginButton>
-      </FormGrid>
+      <Grid>
+        <LoginContainer>
+          <SyncHealthNotificationComponent />
+          <LogoContainer>
+            <TamanuLogo size="150px" />
+          </LogoContainer>
+          {screen === 'login' && (
+            <LoginForm
+              onSubmit={onSubmitLogin}
+              errorMessage={loginError}
+              rememberEmail={rememberEmail}
+              onNavToResetPassword={() => setScreen('resetPassword')}
+            />
+          )}
+          {screen === 'resetPassword' && (
+            <ResetPasswordForm
+              onSubmit={onRequestPasswordReset}
+              onRestartFlow={onRestartResetPasswordFlow}
+              errorMessage={requestPasswordResetError}
+              success={requestPasswordResetSuccess}
+              initialEmail={rememberEmail}
+              resetPasswordEmail={resetPasswordEmail}
+              onNavToChangePassword={() => setScreen('changePassword')}
+              onNavToLogin={() => setScreen('login')}
+            />
+          )}
+          {screen === 'changePassword' && (
+            <ChangePasswordForm
+              onSubmit={onChangePassword}
+              errorMessage={changePasswordError}
+              success={changePasswordSuccess}
+              email={resetPasswordEmail}
+              onNavToLogin={() => setScreen('login')}
+              onNavToResetPassword={() => setScreen('resetPassword')}
+            />
+          )}
+        </LoginContainer>
+      </Grid>
     );
-  };
+  }
+);
 
-  const rememberEmail = localStorage.getItem(REMEMBER_EMAIL);
-
-  return (
-    <Grid>
-      <LoginContainer>
-        <SyncHealthNotificationComponent />
-        <LogoContainer>
-          <TamanuLogo size="150px" />
-        </LogoContainer>
-        <Form
-          onSubmit={onSubmit}
-          onError={onError}
-          render={renderForm}
-          initialValues={{
-            email: rememberEmail,
-            rememberMe: !!rememberEmail,
-          }}
-          validationSchema={yup.object().shape({
-            host: yup.string().required(),
-            email: yup
-              .string()
-              .email('Must enter a valid email')
-              .required(),
-            password: yup.string().required(),
-          })}
-        />
-      </LoginContainer>
-    </Grid>
-  );
+const mapStateToProps = state => ({
+  loginError: state.auth.error,
+  requestPasswordResetError: state.auth.resetPassword.error,
+  requestPasswordResetSuccess: state.auth.resetPassword.success,
+  resetPasswordEmail: state.auth.resetPassword.lastEmailUsed,
+  changePasswordError: state.auth.changePassword.error,
+  changePasswordSuccess: state.auth.changePassword.success,
 });
+
+const mapDispatchToProps = dispatch => ({
+  onLogin: ({ host, email, password }) => {
+    dispatch(login(host, email, password));
+  },
+  onRequestPasswordReset: ({ host, email }) => {
+    dispatch(requestPasswordReset(host, email));
+  },
+  onRestartResetPasswordFlow: () => {
+    dispatch(restartPasswordResetFlow());
+  },
+  onChangePassword: data => {
+    dispatch(changePassword(data));
+  },
+});
+
+export const LoginView = connect(mapStateToProps, mapDispatchToProps)(DumbLoginView);

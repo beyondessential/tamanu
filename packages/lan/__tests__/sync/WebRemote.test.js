@@ -120,6 +120,7 @@ describe('WebRemote', () => {
     });
 
     it('times out requests', async () => {
+      jest.setTimeout(2000); // fail quickly
       jest.useFakeTimers();
       const remote = createRemote();
       fetch.mockImplementationOnce(fakeTimeout('fake timeout'));
