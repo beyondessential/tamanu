@@ -1,13 +1,12 @@
 import React from 'react';
-import { pick } from 'lodash';
 import { CloudDownload, CloudOff } from '@material-ui/icons';
 
-import { ConfigurableText, DateDisplay } from '../../components';
+import { DateDisplay } from '../../components';
 import { capitaliseFirstLetter } from '../../utils/capitalise';
 
 const DateOfBirthCell = React.memo(({ value }) => <DateDisplay date={value} />);
 const SexCell = React.memo(({ value = '' }) => <span>{capitaliseFirstLetter(value)}</span>);
-const SyncedCell = React.memo(({ value }) => value === true ? <CloudDownload /> : <CloudOff />);
+const SyncedCell = React.memo(({ value }) => (value === true ? <CloudDownload /> : <CloudOff />));
 
 export const markedForSync = {
   key: 'markedForSync',
