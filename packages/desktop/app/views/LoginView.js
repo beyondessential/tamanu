@@ -1,23 +1,16 @@
 import React, { memo, useState } from 'react';
-import { connect, useSelector } from 'react-redux';
+import { connect } from 'react-redux';
 import styled from 'styled-components';
 import Paper from '@material-ui/core/Paper';
 
-import * as yup from 'yup';
-import { Button, MinusIconButton, PlusIconButton, TamanuLogo } from '../components';
+import { TamanuLogo } from '../components';
 import { LOCAL_STORAGE_KEYS } from '../constants';
 import { splashImages } from '../constants/images';
 
 import { LoginForm } from '../forms/LoginForm';
 import { ResetPasswordForm } from '../forms/ResetPasswordForm';
 import { ChangePasswordForm } from '../forms/ChangePasswordForm';
-import {
-  changePassword,
-  checkIsLoggedIn,
-  login,
-  requestPasswordReset,
-  restartPasswordResetFlow,
-} from '../store';
+import { changePassword, login, requestPasswordReset, restartPasswordResetFlow } from '../store';
 
 import { SyncHealthNotificationComponent } from '../components/SyncHealthNotification';
 
@@ -111,7 +104,7 @@ const DumbLoginView = memo(
         </LoginContainer>
       </Grid>
     );
-  }
+  },
 );
 
 const mapStateToProps = state => ({

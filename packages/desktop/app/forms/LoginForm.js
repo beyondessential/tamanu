@@ -35,69 +35,71 @@ const AdvancedButtonSpan = styled.span`
   }
 `;
 
-export const LoginForm = React.memo(({ onSubmit, errorMessage, rememberEmail, onNavToResetPassword }) => {
-  const [isAdvancedExpanded, setAdvancedExpanded] = useState(false);
+export const LoginForm = React.memo(
+  ({ onSubmit, errorMessage, rememberEmail, onNavToResetPassword }) => {
+    const [isAdvancedExpanded, setAdvancedExpanded] = useState(false);
 
-  const onError = errors => {
-    if (errors.host) {
-      setAdvancedExpanded(true);
-    }
-  };
+    const onError = errors => {
+      if (errors.host) {
+        setAdvancedExpanded(true);
+      }
+    };
 
-  const renderForm = ({ setFieldValue }) => {
+    const renderForm = ({ setFieldValue }) => {
+      return (
+        <FormGrid columns={1}>
+          <div>{errorMessage}</div>
+          <Field name="email" type="email" label="Email" required component={TextField} />
+          <Field name="password" label="Password" type="password" required component={TextField} />
+          <RememberMeAdvancedRow>
+            <Field name="rememberMe" label="Remember me" component={CheckField} />
+            <AdvancedButtonSpan>
+              Advanced
+              {isAdvancedExpanded ? (
+                <MinusIconButton
+                  onClick={() => setAdvancedExpanded(false)}
+                  styles={{ padding: '0px' }}
+                />
+              ) : (
+                <PlusIconButton onClick={() => setAdvancedExpanded(true)} />
+              )}
+            </AdvancedButtonSpan>
+          </RememberMeAdvancedRow>
+          <Collapse in={isAdvancedExpanded}>
+            <Field
+              name="host"
+              label="LAN Server Address"
+              required
+              component={ServerDetectingField}
+              setFieldValue={setFieldValue}
+            />
+          </Collapse>
+          <LoginButton fullWidth variant="contained" color="primary" type="submit">
+            Login to your account
+          </LoginButton>
+          <Button onClick={onNavToResetPassword}>Forgot your password?</Button>
+        </FormGrid>
+      );
+    };
+
     return (
-      <FormGrid columns={1}>
-        <div>{errorMessage}</div>
-        <Field name="email" type="email" label="Email" required component={TextField} />
-        <Field name="password" label="Password" type="password" required component={TextField} />
-        <RememberMeAdvancedRow>
-          <Field name="rememberMe" label="Remember me" component={CheckField} />
-          <AdvancedButtonSpan>
-            Advanced
-            {isAdvancedExpanded ? (
-              <MinusIconButton
-                onClick={() => setAdvancedExpanded(false)}
-                styles={{ padding: '0px' }}
-              />
-            ) : (
-              <PlusIconButton onClick={() => setAdvancedExpanded(true)} />
-            )}
-          </AdvancedButtonSpan>
-        </RememberMeAdvancedRow>
-        <Collapse in={isAdvancedExpanded}>
-          <Field
-            name="host"
-            label="LAN Server Address"
-            required
-            component={ServerDetectingField}
-            setFieldValue={setFieldValue}
-          />
-        </Collapse>
-        <LoginButton fullWidth variant="contained" color="primary" type="submit">
-          Login to your account
-        </LoginButton>
-        <Button onClick={onNavToResetPassword}>Forgot your password?</Button>
-      </FormGrid>
+      <Form
+        onSubmit={onSubmit}
+        onError={onError}
+        render={renderForm}
+        initialValues={{
+          email: rememberEmail,
+          rememberMe: !!rememberEmail,
+        }}
+        validationSchema={yup.object().shape({
+          host: yup.string().required(),
+          email: yup
+            .string()
+            .email('Must enter a valid email')
+            .required(),
+          password: yup.string().required(),
+        })}
+      />
     );
-  };
-
-  return (
-    <Form
-      onSubmit={onSubmit}
-      onError={onError}
-      render={renderForm}
-      initialValues={{
-        email: rememberEmail,
-        rememberMe: !!rememberEmail,
-      }}
-      validationSchema={yup.object().shape({
-        host: yup.string().required(),
-        email: yup
-          .string()
-          .email('Must enter a valid email')
-          .required(),
-        password: yup.string().required(),
-      })}
-    />
-  );
-});
+  },
+);
