@@ -1,4 +1,5 @@
 import React, { memo, useState, useCallback } from 'react';
+import { useSelector } from 'react-redux';
 import * as yup from 'yup';
 
 import { 
@@ -10,6 +11,7 @@ import {
 import { FileChooserField, FILTER_EXCEL } from 'desktop/app/components/Field/FileChooserField';
 import { FormGrid } from 'desktop/app/components/FormGrid';
 import { ButtonRow } from 'desktop/app/components/ButtonRow';
+import { Notification } from 'desktop/app/components/Notification';
 
 import { Button } from 'desktop/app/components/Button';
 
@@ -117,6 +119,13 @@ export const DataDocumentUploadForm = memo(({ onSubmit, onReceiveResult, additio
       additionalFields={additionalFields}
     />
   ));
+
+  const user = useSelector(state => state.auth.user);
+  if (user?.role !== 'admin') {
+    return (
+      <Notification message="Data upload forms are available to admin users only." />
+    );
+  }
 
   return (
     <React.Fragment>
