@@ -6,7 +6,6 @@ export class OneTimeLogin extends Model {
     super.init(
       {
         id: primaryKey,
-        userId: { type: Sequelize.STRING, allowNull: false },
         token: { type: Sequelize.STRING, allowNull: false },
         expiresAt: { type: Sequelize.DATE, allowNull: false },
         usedAt: { type: Sequelize.DATE, allowNull: true },
@@ -17,5 +16,15 @@ export class OneTimeLogin extends Model {
 
   isExpired() {
     return this.expiresAt < new Date();
+  }
+
+  static initRelations(models) {
+    this.belongsTo(models.User, {
+      foreignKey: {
+        name: 'userId',
+        allowNull: false,
+      },
+      as: 'user',
+    });
   }
 }
