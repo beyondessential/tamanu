@@ -242,6 +242,7 @@
         }
       },
       "features": {
+        "registerNewPatient": true,
         "hideOtherSex": true
       },
       "templates": {
