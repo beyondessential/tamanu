@@ -1,5 +1,5 @@
 import React from 'react';
-import { useDispatch, useSelector } from 'react-redux';
+import { useSelector } from 'react-redux';
 import styled from 'styled-components';
 import 'typeface-roboto';
 
@@ -39,7 +39,6 @@ const AppBadge = styled.div`
 `;
 
 export function App({ children }) {
-  const dispatch = useDispatch();
   const isUserLoggedIn = useSelector(checkIsLoggedIn);
   const currentRoute = useSelector(getCurrentRoute);
   if (!isUserLoggedIn) {
