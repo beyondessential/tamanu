@@ -44,8 +44,5 @@
       "location": "SHORTSTAY"
     }
   },
-  "currentFacilityId": "",
-  "country": {
-    "name": "NotSet"
-  }
+  "currentFacilityId": ""
 }
