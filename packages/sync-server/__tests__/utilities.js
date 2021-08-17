@@ -116,7 +116,7 @@ export async function createTestContext() {
     await closeDatabase();
   };
 
-  return { baseApp, store, close };
+  return { baseApp, store, close, emailService };
 }
 
 export async function withDate(fakeDate, fn) {
