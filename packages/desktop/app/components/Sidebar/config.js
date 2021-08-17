@@ -236,6 +236,11 @@ export const items = [
         icon: submenuIcons.table,
         path: '/admin/programs',
       },
+      {
+        label: 'Data import',
+        icon: submenuIcons.table,
+        path: '/admin/refdata',
+      },
     ],
   },
   {
