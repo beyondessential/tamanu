@@ -2,6 +2,8 @@ import supertest from 'supertest';
 import Chance from 'chance';
 import http from 'http';
 
+import { COMMUNICATION_STATUSES } from 'shared/constants';
+
 import { createApp } from 'sync-server/app/createApp';
 import { initDatabase, closeDatabase } from 'sync-server/app/database';
 import { getToken } from 'sync-server/app/auth/utils';
@@ -77,8 +79,16 @@ export function extendExpect(expect) {
 
 export async function createTestContext() {
   const { store } = await initDatabase({ testMode: true });
+  const emailService = {
+    sendEmail: jest.fn().mockImplementation(() =>
+      Promise.resolve({
+        status: COMMUNICATION_STATUSES.SENT,
+        result: { '//': 'mailgun result not mocked' },
+      }),
+    ),
+  };
 
-  const expressApp = createApp({ store });
+  const expressApp = createApp({ store, emailService });
   const appServer = http.createServer(expressApp);
   const baseApp = supertest(appServer);
 
@@ -106,7 +116,7 @@ export async function createTestContext() {
     await closeDatabase();
   };
 
-  return { baseApp, store, close };
+  return { baseApp, store, close, emailService };
 }
 
 export async function withDate(fakeDate, fn) {

@@ -16,7 +16,7 @@ import { version } from '../package.json';
 
 const isDevelopment = process.env.NODE_ENV === 'development';
 
-export function createApp({ store }) {
+export function createApp({ store, emailService }) {
   // Init our app
   const app = express();
   app.use(compression());
@@ -41,6 +41,7 @@ export function createApp({ store }) {
 
   app.use((req, res, next) => {
     req.store = store;
+    req.emailService = emailService;
 
     next();
   });

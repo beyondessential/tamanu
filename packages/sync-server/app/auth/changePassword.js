@@ -18,7 +18,6 @@ const schema = yup.object({
   token: yup.string().required(),
 });
 
-// check for pending changes across a batch of channels
 changePassword.post(
   '/$',
   asyncHandler(async (req, res) => {
