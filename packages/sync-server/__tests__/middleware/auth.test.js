@@ -284,7 +284,7 @@ describe('Auth', () => {
         expect(await bcrypt.compare(newPassword, user.password)).toEqual(true);
 
         // expect the token to be used
-        const dbOtl = await store.models.OneTimeLogin.findOne({ token });
+        const dbOtl = await store.models.OneTimeLogin.findOne({ where: { token } });
         const otl = dbOtl.get({ plain: true });
         expect(otl).toHaveProperty('usedAt', expect.any(Date));
       });
