@@ -17,7 +17,10 @@ export class Appointment extends Model {
           allowNull: false,
           defaultValue: APPOINTMENT_TYPES.STANDARD,
         },
-        status: Sequelize.STRING,
+        status: {
+          type: Sequelize.STRING,
+          allowNull: false,
+        },
       },
       { ...options },
     );
