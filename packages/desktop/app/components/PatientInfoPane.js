@@ -1,6 +1,7 @@
 import React, { memo, useCallback, useState } from 'react';
 import styled from 'styled-components';
 
+import { PATIENT_ISSUE_TYPES } from 'shared/constants';
 import { Button } from './Button';
 import { ButtonRow } from './ButtonRow';
 
@@ -19,7 +20,6 @@ import {
 import { DeathModal } from './DeathModal';
 import { Colors } from '../constants';
 
-import { PATIENT_ISSUE_TYPES } from 'shared/constants';
 import { PatientCarePlanDetails } from './PatientCarePlanNotes';
 
 const OngoingConditionDisplay = memo(({ patient, readonly }) => (
@@ -71,7 +71,7 @@ const FamilyHistoryDisplay = memo(({ patient, readonly }) => (
 const shouldShowIssueInWarningModal = ({ type }) => type === PATIENT_ISSUE_TYPES.WARNING;
 
 const PatientIssuesDisplay = memo(({ patient, readonly }) => {
-  const { issues } = patient;
+  const { issues = [] } = patient;
   const warnings = issues.filter(shouldShowIssueInWarningModal);
   const sortedIssues = [
     ...warnings,

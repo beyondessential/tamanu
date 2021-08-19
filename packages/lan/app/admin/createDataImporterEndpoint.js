@@ -1,6 +1,8 @@
 import asyncHandler from 'express-async-handler';
 import { unlink, existsSync } from 'fs';
 
+import config from 'config';
+
 import { getUploadedData } from './getUploadedData';
 import { sendSyncRequest } from './sendSyncRequest';
 
@@ -43,6 +45,9 @@ export function createDataImporterEndpoint(importer) {
       ...resultInfo,
       ...extraData,
       records: showRecords ? recordGroups : undefined,
+      serverInfo: {
+        host: config.sync.host,
+      },
       duration: (Date.now() - start) / 1000.0,
     });
 

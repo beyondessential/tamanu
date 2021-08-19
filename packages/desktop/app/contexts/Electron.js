@@ -13,13 +13,16 @@ export const DummyElectronProvider = ({ children }) => {
         // filesystem
         showOpenDialog: async (...args) => {
           console.log("Show open dialog", ...args);
-          return [""];
+          return {
+            canceled: false,
+            filePaths: ['dummyFile.txt'],
+          };
         },
         showSaveDialog: async (...args) => {
           console.log("Show save dialog", ...args);
           return {
-            cancelled: false,
-            filePath: '',
+            canceled: false,
+            filePath: 'dummyFile.txt',
           };
         },
         openPath: (path) => console.log("Opening path", path),

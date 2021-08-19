@@ -8,7 +8,7 @@ import { Suggester } from '../utils/suggester';
 import { ChangeDepartmentForm } from '../forms/ChangeDepartmentForm';
 import { useEncounter } from '../contexts/Encounter';
 
-const DumbChangeDepartmentModal = React.memo(({ open, onClose, handleSubmit, ...rest }) => {
+const DumbChangeDepartmentModal = React.memo(({ open, onClose, ...rest }) => {
   const encounterCtx = useEncounter();
   const onSubmit = useCallback(
     data => {

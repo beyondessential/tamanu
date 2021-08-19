@@ -6,6 +6,7 @@ import { createReferralNotification } from 'shared/tasks/CreateReferralNotificat
 import { createApp } from './app/createApp';
 import { initDatabase } from './app/database';
 import { startScheduledTasks } from './app/tasks';
+import { EmailService } from './app/services/EmailService';
 
 const port = config.port;
 
@@ -26,9 +27,16 @@ async function performInitialSetup({ store }) {
 }
 
 export async function run() {
+  process.on('SIGTERM', () => {
+    app.close();
+    context.sequelize.close();
+  });
+
   // NODE_APP_INSTANCE is set by PM2; if it's not present, assume this process is the first
   const isFirstProcess = !process.env.NODE_APP_INSTANCE || process.env.NODE_APP_INSTANCE === '0';
-  const context = await initDatabase({ isFirstProcess, testMode: false });
+  const { store } = await initDatabase({ isFirstProcess, testMode: false });
+  const emailService = new EmailService();
+  const context = { store, emailService };
 
   await performInitialSetup(context);
 

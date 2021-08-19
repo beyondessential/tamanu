@@ -21,12 +21,17 @@
       "displayName": "Initial Admin",
       "role": "admin",
       "password": "admin"
+    },
+    "resetPassword": {
+      "tokenLength": 6,
+      "tokenExpiry": 20
     }
   },
   "mailgun": {
     "domain": "",
     "apiKey": "",
-    "from": ""
+    "from": "",
+    "toAddressOverride": ""
   },
   "cors": {
     "allowedOrigin": ""
@@ -237,6 +242,7 @@
         }
       },
       "features": {
+        "registerNewPatient": true,
         "hideOtherSex": true
       },
       "templates": {

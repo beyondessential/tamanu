@@ -30,6 +30,8 @@ import { immunisation } from './immunisation';
 import { reports } from './reports';
 import { reportRequest } from './reportRequest';
 import { patientCarePlan } from './patientCarePlan';
+import { resetPassword } from './resetPassword';
+import { changePassword } from './changePassword';
 
 import { admin } from './admin';
 import { setting } from './setting';
@@ -42,6 +44,8 @@ import { syncHealth } from './syncHealth';
 export const apiv1 = express.Router();
 
 apiv1.post('/login', loginHandler);
+apiv1.use('/resetPassword', resetPassword);
+apiv1.use('/changePassword', changePassword);
 
 apiv1.use(authMiddleware);
 apiv1.use(constructPermission);

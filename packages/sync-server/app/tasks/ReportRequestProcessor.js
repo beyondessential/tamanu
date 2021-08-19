@@ -5,7 +5,6 @@ import { getReportModule } from 'shared/reports';
 import { ScheduledTask } from 'shared/tasks';
 import { log } from 'shared/services/logging';
 
-import { sendEmail } from '../services/EmailService';
 import { writeExcelFile } from '../utils/excel';
 import { createFilePathForEmailAttachment, removeFile } from '../utils/files';
 
@@ -53,7 +52,7 @@ export class ReportRequestProcessor extends ScheduledTask {
         const parameters = requestObject.parameters ? JSON.parse(requestObject.parameters) : {};
         const excelData = await reportDataGenerator(this.context.store.models, parameters);
         await writeExcelFile(excelData, fileName);
-        const result = await sendEmail({
+        const result = await this.context.emailService.sendEmail({
           from: config.mailgun.from,
           to: request.recipients,
           subject: 'Report delivery',
