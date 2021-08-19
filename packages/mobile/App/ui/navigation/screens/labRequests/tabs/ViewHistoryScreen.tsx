@@ -1,4 +1,4 @@
-import React, { ReactElement, useCallback } from 'react';
+import React, { ReactElement, useEffect } from 'react';
 import { View, StyleSheet } from 'react-native';
 import { ScrollView } from 'react-native-gesture-handler';
 import { compose } from 'redux';
@@ -95,18 +95,22 @@ const LabRequestRow = ({ labRequest }: LabRequestRowProps): JSX.Element => (
 export const DumbViewHistoryScreen = ({ selectedPatient, navigation }): ReactElement => {
   const [data, error] = useBackendEffect(
     ({ models }) => models.LabRequest.getForPatient(selectedPatient.id),
-    [],
+    [selectedPatient],
   );
 
-  const goToNewRequest = useCallback(() => {
-    navigation.navigate(Routes.HomeStack.LabRequestStack.LabRequestTabs.NewRequest);
-  }, []);
+  useEffect(() => {
+    // can't use hooks after a render (i.e. don't move below !data check)
+    if (data?.length === 0) {
+      // Navigate on a delay in order to wait for navigation to this screen to complete
+      setTimeout(
+        () => navigation.navigate(Routes.HomeStack.LabRequestStack.LabRequestTabs.NewRequest),
+        30,
+      );
+    }
+  }, [data]);
 
   if (error) return <ErrorScreen error={error} />;
   if (!data) return <LoadingScreen />;
-  if (data.length === 0) {
-    goToNewRequest();
-  }
 
   const rows = data.map(labRequest => (
     <LabRequestRow key={labRequest.id} labRequest={labRequest} />
