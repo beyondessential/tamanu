@@ -21,6 +21,7 @@
   },
   "dependencies": {
     "@beyondessential/eslint-config-beyondessential": "2.3.0",
+    "@beyondessential/tupaia-api-client": "1.0.12",
     "@casl/ability": "^3.0.0",
     "await-to-js": "^2.0.1",
     "babel-jest": "^24.5.0",
