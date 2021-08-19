@@ -3,7 +3,7 @@ import { differenceInYears, subDays } from 'date-fns';
 import config from 'config';
 import moment from 'moment';
 import { keyBy } from 'lodash';
-import { DATA_TIME_FORMAT, TupaiaApi } from './TupaiaApiStub';
+import { DATA_TIME_FORMAT } from '@beyondessential/tupaia-api-client';
 import { generateReportFromQueryData } from './utilities';
 
 const reportColumnTemplate = [
@@ -199,18 +199,29 @@ function addTupaiaEntityCodes(data, villages) {
   }));
 }
 
-async function getVillages() {
-  const tupaiaApi = new TupaiaApi();
+async function getVillages(tupaiaApi) {
+  const reportConfig = config.reports?.['covid-vaccine-daily-summary-village'];
 
-  const countryName = config.country?.name;
+  if (!reportConfig) {
+    throw new Error('Report not configured');
+  }
 
-  return tupaiaApi.getEntities(countryName, 'village');
+  const { hierarchyName, countryCode } = reportConfig;
+
+  const entities = await tupaiaApi.entity.getDescendantsOfEntity(hierarchyName, countryCode, {
+    fields: ['code', 'name', 'type'],
+    filter: {
+      type: 'village',
+    },
+  });
+
+  return entities;
 }
 
-export async function dataGenerator(models, parameters) {
+export async function dataGenerator(models, parameters, tupaiaApi) {
   const listData = await queryCovidVaccineListData(models, parameters);
 
-  const villages = await getVillages();
+  const villages = await getVillages(tupaiaApi);
 
   const tupaiaListData = addTupaiaEntityCodes(listData, villages);
 

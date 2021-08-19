@@ -250,7 +250,10 @@
       }
     }
   },
-  "country": {
-    "name": "DemoLand"
+  "reports": {
+    "covid-vaccine-daily-summary-village": {
+      "countryCode": "WS",
+      "hierarchyName": "covid_samoa"
+    }
   }
 }
