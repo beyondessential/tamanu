@@ -1,5 +1,18 @@
 const Sequelize = require('sequelize');
-const { APPOINTMENT_TYPES, APPOINTMENT_STATUSES } = require('../constants');
+
+const APPOINTMENT_TYPES = {
+  STANDARD: 'Standard',
+  EMERGENCY: 'Emergency',
+  SPECIALIST: 'Specialist',
+  OTHER: 'Other',
+};
+
+const APPOINTMENT_STATUSES = {
+  CONFIRMED: 'Confirmed',
+  ARRIVED: 'Arrived',
+  NO_SHOW: 'No-show',
+  CANCELLED: 'Cancelled',
+};
 
 module.exports = {
   up: async query => {
@@ -52,7 +65,7 @@ module.exports = {
         },
       },
       type: {
-        type: Sequelize.ENUM(Object.values(APPOINTMENT_TYPES)),
+        type: Sequelize.STRING,
         defaultValue: APPOINTMENT_TYPES.STANDARD,
         allowNull: false,
       },

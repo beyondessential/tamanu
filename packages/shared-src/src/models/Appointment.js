@@ -1,5 +1,5 @@
 import { Sequelize } from 'sequelize';
-import { APPOINTMENT_TYPES } from 'shared/constants';
+import { APPOINTMENT_TYPES, APPOINTMENT_STATUSES } from 'shared/constants';
 import { Model } from './Model';
 
 export class Appointment extends Model {
@@ -13,13 +13,14 @@ export class Appointment extends Model {
         },
         endTime: Sequelize.DATE,
         type: {
-          type: Sequelize.ENUM(Object.values(APPOINTMENT_TYPES)),
+          type: Sequelize.STRING,
           allowNull: false,
           defaultValue: APPOINTMENT_TYPES.STANDARD,
         },
         status: {
           type: Sequelize.STRING,
           allowNull: false,
+          defaultValue: APPOINTMENT_STATUSES.CONFIRMED,
         },
       },
       { ...options },
