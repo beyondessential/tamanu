@@ -9,6 +9,7 @@ import { LoadingScreen } from '~/ui/components/LoadingScreen';
 import { withPatient } from '~/ui/containers/Patient';
 import { useBackendEffect } from '~/ui/hooks';
 import { ILabRequest } from '~/types';
+import { navigationConditionalRedirect } from '~/ui/helpers/navigators';
 import { StyledView, StyledText } from '/styled/common';
 import { theme } from '/styled/theme';
 import { formatDate } from '/helpers/date';
@@ -99,14 +100,11 @@ export const DumbViewHistoryScreen = ({ selectedPatient, navigation }): ReactEle
   );
 
   useEffect(() => {
-    // can't use hooks after a render (i.e. don't move below !data check)
-    if (data?.length === 0) {
-      // Navigate on a delay in order to wait for navigation to this screen to complete
-      setTimeout(
-        () => navigation.navigate(Routes.HomeStack.LabRequestStack.LabRequestTabs.NewRequest),
-        30,
-      );
-    }
+    navigationConditionalRedirect(
+      (!data || data.length === 0),
+      Routes.HomeStack.LabRequestStack.LabRequestTabs.NewRequest,
+      navigation,
+    );
   }, [data]);
 
   if (error) return <ErrorScreen error={error} />;
