@@ -157,7 +157,7 @@ export class Encounter extends Model {
 
   static initRelations(models) {
     this.hasOne(models.Discharge, {
-      foreignKey: 'dischargerId',
+      foreignKey: 'encounterId',
       as: 'discharge',
     });
 
