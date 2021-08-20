@@ -35,7 +35,7 @@ const unsafeRecreatePgDb = async ({ name, username, password, host, port }) => {
   }
 };
 
-export async function initDatabase(dbOptions) {
+async function connectToDatabase(dbOptions) {
   // connect to database
   const {
     username,
@@ -44,11 +44,6 @@ export async function initDatabase(dbOptions) {
     host = null,
     port = null,
     verbose = false,
-    makeEveryModelParanoid = false,
-    saltRounds = null,
-    primaryKeyDefault = Sequelize.UUIDV4,
-    hackToSkipEncounterValidation = false, // TODO: remove once mobile implements all relationships
-    syncClientMode = false,
   } = dbOptions;
   let { name, sqlitePath = null } = dbOptions;
 
@@ -93,6 +88,22 @@ export async function initDatabase(dbOptions) {
     sequelize.close();
   });
 
+  return sequelize;
+}
+
+export async function initDatabase(dbOptions) {
+  // connect to database
+  const {
+    makeEveryModelParanoid = false,
+    saltRounds = null,
+    primaryKeyDefault = Sequelize.UUIDV4,
+    hackToSkipEncounterValidation = false, // TODO: remove once mobile implements all relationships
+    syncClientMode = false,
+    sqlitePath,
+  } = dbOptions;
+
+  const sequelize = await connectToDatabase(dbOptions);
+  
   // set configuration variables for individual models
   models.User.SALT_ROUNDS = saltRounds;
 

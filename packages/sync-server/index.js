@@ -65,6 +65,7 @@ export async function run() {
     await run();
   } catch (e) {
     log.error(`run(): fatal error: ${e.toString()}`);
+    log.error(e.stack);
     process.exit(1);
   }
 })();
