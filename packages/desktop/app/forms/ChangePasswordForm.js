@@ -9,9 +9,9 @@ import {
   Form,
   MinusIconButton,
   PlusIconButton,
-  ServerDetectingField,
   TextField,
 } from '../components';
+import { ServerDetectingField, getSavedServer } from '../components/Field/ServerDetectingField';
 
 const PrimaryButton = styled(Button)`
   font-size: 16px;
@@ -41,7 +41,8 @@ const SuccessMessage = styled.p`
 
 export const ChangePasswordForm = React.memo(
   ({ onSubmit, errorMessage, success, email, onNavToLogin, onNavToResetPassword }) => {
-    const [isAdvancedExpanded, setAdvancedExpanded] = useState(false);
+    const needsServer = !getSavedServer();
+    const [isAdvancedExpanded, setAdvancedExpanded] = useState(needsServer);
 
     const renderForm = ({ setFieldValue }) => {
       return (
