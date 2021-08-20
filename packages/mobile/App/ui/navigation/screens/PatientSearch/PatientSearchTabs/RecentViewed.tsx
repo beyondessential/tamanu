@@ -17,7 +17,7 @@ import { StyledView, FullView } from '/styled/common';
 import { joinNames } from '/helpers/user';
 import { getAgeFromDate } from '~/ui/helpers/date';
 import { useRecentlyViewedPatients } from '~/ui/hooks/localConfig';
-import { navigationConditionalRedirect } from '~/ui/helpers/navigators';
+import { navigateAfterTimeout } from '~/ui/helpers/navigators';
 
 interface PatientListProps {
   list: any[];
@@ -32,11 +32,13 @@ const Screen = ({
   const [recentlyViewedPatients, error] = useRecentlyViewedPatients();
 
   useEffect(() => {
-    navigationConditionalRedirect(
-      (!recentlyViewedPatients || recentlyViewedPatients.length === 0),
-      Routes.HomeStack.SearchPatientStack.SearchPatientTabs.ViewAll,
-      navigation,
-    );
+    if (!recentlyViewedPatients) return;
+    if (recentlyViewedPatients.length === 0) {
+      navigateAfterTimeout(
+        navigation,
+        Routes.HomeStack.SearchPatientStack.SearchPatientTabs.ViewAll,
+      );
+    }
   }, [recentlyViewedPatients]);
 
   if (error) {

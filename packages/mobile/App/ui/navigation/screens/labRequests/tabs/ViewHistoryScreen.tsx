@@ -9,7 +9,7 @@ import { LoadingScreen } from '~/ui/components/LoadingScreen';
 import { withPatient } from '~/ui/containers/Patient';
 import { useBackendEffect } from '~/ui/hooks';
 import { ILabRequest } from '~/types';
-import { navigationConditionalRedirect } from '~/ui/helpers/navigators';
+import { navigateAfterTimeout } from '~/ui/helpers/navigators';
 import { StyledView, StyledText } from '/styled/common';
 import { theme } from '/styled/theme';
 import { formatDate } from '/helpers/date';
@@ -100,11 +100,13 @@ export const DumbViewHistoryScreen = ({ selectedPatient, navigation }): ReactEle
   );
 
   useEffect(() => {
-    navigationConditionalRedirect(
-      (!data || data.length === 0),
-      Routes.HomeStack.LabRequestStack.LabRequestTabs.NewRequest,
-      navigation,
-    );
+    if (!data) return;
+    if (data.length === 0) {
+      navigateAfterTimeout(
+        navigation,
+        Routes.HomeStack.LabRequestStack.LabRequestTabs.NewRequest,
+      );
+    }
   }, [data]);
 
   if (error) return <ErrorScreen error={error} />;
