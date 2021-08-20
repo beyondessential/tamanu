@@ -62,7 +62,11 @@ export async function migrateDown(log, sequelize) {
 }
 
 export function migrate(log, sequelize, options) {
-  switch (options.migrateDirection) {
+  const {
+    migrateDirection = "up",
+  } = options;
+
+  switch (migrateDirection) {
     case "up":
       return migrateUp(log, sequelize);
     case "down":

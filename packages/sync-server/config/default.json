@@ -5,7 +5,7 @@
     "verbose": false,
     "username": "",
     "password": "",
-    "syncOnStartup": true
+    "migrateOnStartup": false
   },
   "log": {
     "path": "",

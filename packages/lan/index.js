@@ -14,6 +14,10 @@ import { listenForServerQueries } from './app/discovery';
 async function serve(options) {
   const context = await initDatabase();
 
+  if(config.db.migrateOnStartup) {
+    await context.sequelize.migrate();
+  }
+
   context.remote = new WebRemote(context);
   context.remote.connect(); // preemptively connect remote to speed up sync
   context.syncManager = new SyncManager(context);
@@ -38,8 +42,8 @@ async function serve(options) {
 }
 
 async function migrate(options) {
-  const store = await initDatabase();
-  await store.sequelize.migrate(options);
+  const context = await initDatabase();
+  await context.sequelize.migrate(options);
   process.exit(0);
 }
 

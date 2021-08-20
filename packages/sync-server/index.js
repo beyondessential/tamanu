@@ -30,6 +30,10 @@ async function setup(store, options) {
 }
 
 async function serve(store, options) {
+  if(config.db.migrateOnStartup) {
+    await store.sequelize.migrate();
+  }
+
   const emailService = new EmailService();
   const context = { store, emailService };
   const app = createApp(context);
