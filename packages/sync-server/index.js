@@ -27,11 +27,6 @@ async function performInitialSetup({ store }) {
 }
 
 export async function run() {
-  process.on('SIGTERM', () => {
-    app.close();
-    context.sequelize.close();
-  });
-
   // NODE_APP_INSTANCE is set by PM2; if it's not present, assume this process is the first
   const isFirstProcess = !process.env.NODE_APP_INSTANCE || process.env.NODE_APP_INSTANCE === '0';
   const { store } = await initDatabase({ isFirstProcess, testMode: false });
@@ -43,6 +38,9 @@ export async function run() {
   const app = createApp(context);
   app.listen(port, () => {
     log.info(`Server is running on port ${port}!`);
+  });
+  process.on('SIGTERM', () => {
+    app.close();
   });
 
   // only execute tasks on the first worker process
@@ -66,7 +64,7 @@ export async function run() {
   try {
     await run();
   } catch (e) {
-    log.error('run(): fatal error:', e.stack);
+    log.error(`run(): fatal error: ${e.toString()}`);
     process.exit(1);
   }
 })();

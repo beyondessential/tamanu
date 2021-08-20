@@ -13,11 +13,6 @@ import { listenForServerQueries } from './app/discovery';
 const port = config.port;
 
 export async function run() {
-  process.on('SIGTERM', () => {
-    app.close();
-    context.sequelize.close();
-  });
-
   const context = await initDatabase();
 
   await context.sequelize.migrate();
@@ -29,6 +24,9 @@ export async function run() {
   const app = createApp(context);
   const server = app.listen(port, () => {
     log.info(`Server is running on port ${port}!`);
+  });
+  process.on('SIGTERM', () => {
+    app.close();
   });
 
   listenForServerQueries();

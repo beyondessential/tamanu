@@ -89,6 +89,10 @@ export async function initDatabase(dbOptions) {
   });
   await sequelize.authenticate();
 
+  process.on('SIGTERM', () => {
+    sequelize.close();
+  });
+
   // set configuration variables for individual models
   models.User.SALT_ROUNDS = saltRounds;
 
