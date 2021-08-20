@@ -10,7 +10,7 @@ import sqlite3 from 'sqlite3';
 
 import { log } from './logging';
 
-import { migrateUp, migrateDown } from './migrations';
+import { migrate } from './migrations';
 import * as models from '../models';
 import { initSyncClientModeHooks } from '../models/sync';
 
@@ -117,15 +117,7 @@ export async function initDatabase(dbOptions) {
       return;
     }
 
-    // TODO: move to migrations.js & refactor
-    switch (options.migrateDirection) {
-      case "up":
-        return migrateUp(log, sequelize);
-      case "down":
-        return migrateDown(log, sequelize);
-      default:
-        throw new Error(`Unrecognised migrate direction: ${options.migrateDirection}`);
-    }
+    return migrate(log, sequelize, options);
   };
 
   // init all models

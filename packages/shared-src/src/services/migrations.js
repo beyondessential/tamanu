@@ -60,3 +60,14 @@ export async function migrateDown(log, sequelize) {
     log.info(`Reverted migration ${reverted.file}.`);
   }
 }
+
+export function migrate(log, sequelize, options) {
+  switch (options.migrateDirection) {
+    case "up":
+      return migrateUp(log, sequelize);
+    case "down":
+      return migrateDown(log, sequelize);
+    default:
+      throw new Error(`Unrecognised migrate direction: ${options.migrateDirection}`);
+  }
+}
