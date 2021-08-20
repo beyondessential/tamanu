@@ -30,8 +30,7 @@
   "mailgun": {
     "domain": "",
     "apiKey": "",
-    "from": "",
-    "toAddressOverride": ""
+    "from": ""
   },
   "cors": {
     "allowedOrigin": ""
