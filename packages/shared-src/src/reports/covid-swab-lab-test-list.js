@@ -10,6 +10,41 @@ const MODEL_COLUMN_TO_ANSWER_DISPLAY_VALUE = {
 
 const FIJI_SAMP_SURVEY_ID = 'program-fijicovid19-fijicovidsampcollection';
 
+const SURVEY_QUESTION_CODES = {
+  healthFacility: 'pde-FijCOVSamp4',
+  division: 'pde-FijCOVSamp6',
+  subDivision: 'pde-FijCOVSamp7',
+  ethnicity: 'pde-FijCOVSamp10',
+  contactPhone: 'pde-FijCOVSamp11',
+  residentialAddress: 'pde-FijCOVSamp12',
+  latitude: 'pde-FijCOVSamp13',
+  longitude: 'pde-FijCOVSamp14',
+  purposeOfSample: 'pde-FijCOVSamp15',
+  recentAdmission: 'pde-FijCOVSamp16',
+  admissionDate: 'pde-FijCOVSamp19',
+  placeOfAdmission: 'pde-FijCOVSamp20',
+  medicalProblems: 'pde-FijCOVSamp23',
+  healthcareWorker: 'pde-FijCOVSamp26',
+  occupation: 'pde-FijCOVSamp27',
+  placeOfWork: 'pde-FijCOVSamp28',
+  linkToCluster: 'pde-FijCOVSamp29',
+  nameOfCluster: 'pde-FijCOVSamp30',
+  recentTravelHistory: 'pde-FijCOVSamp31',
+  pregnant: 'pde-FijCOVSamp32',
+  experiencingSymptoms: 'pde-FijCOVSamp34',
+  dateOfFirstSymptom: 'pde-FijCOVSamp35',
+  symptoms: 'pde-FijCOVSamp36',
+  vaccinated: 'pde-FijCOVSamp38',
+  dateOf1stDose: 'pde-FijCOVSamp39',
+  dateOf2ndDose: 'pde-FijCOVSamp40',
+  rdtConducted: 'pde-FijCOVSamp42',
+  rdtResult: 'pde-FijCOVSamp43',
+  rdtDate: 'pde-FijCOVSamp52',
+  highRisk: 'pde-FijCOVSamp59',
+  primaryContactHighRisk: 'pde-FijCOVSamp60',
+  highRiskDetails: 'pde-FijCOVSamp61',
+};
+
 const parametersToLabTestSqlWhere = parameters => {
   const defaultWhereClause = {
     '$labRequest.lab_test_category_id$': 'labTestCategory-COVID',
@@ -250,6 +285,16 @@ const reportColumnTemplate = [
   { title: 'Vaccinated', accessor: data => data.vaccinated },
   { title: 'Date of 1st dose', accessor: data => data.dateOf1stDose },
   { title: 'Date of 2nd dose', accessor: data => data.dateOf2ndDose },
+
+  {
+    title: 'Patient is at a higher risk of developing severe COVID-19',
+    accessor: data => data.highRisk,
+  },
+  {
+    title: 'Patient has a primary contact who is at a higher risk for developing severe COVID-19',
+    accessor: data => data.primaryContactHighRisk,
+  },
+  { title: 'Details of high risk primary contact', accessor: data => data.highRiskDetails },
 ];
 
 export const dataGenerator = async (models, parameters = {}) => {
@@ -306,42 +351,18 @@ export const dataGenerator = async (models, parameters = {}) => {
     transformedAnswers.forEach(({ dataElementId, body }) => {
       surveyAnswers[dataElementId] = body;
     });
-    reportData.push({
+    const dataValues = {
       firstName: patientData?.firstName,
       lastName: patientData?.lastName,
       dob: patientData?.dateOfBirth ? moment(patientData?.dateOfBirth).format('DD-MM-YYYY') : '',
       sex: patientData?.sex,
       patientId: patientData?.displayId,
-      healthFacility: surveyAnswers['pde-FijCOVSamp4'],
-      division: surveyAnswers['pde-FijCOVSamp6'],
-      subDivision: surveyAnswers['pde-FijCOVSamp7'],
-      ethnicity: surveyAnswers['pde-FijCOVSamp10'],
-      contactPhone: surveyAnswers['pde-FijCOVSamp11'],
-      residentialAddress: surveyAnswers['pde-FijCOVSamp12'],
-      latitude: surveyAnswers['pde-FijCOVSamp13'],
-      longitude: surveyAnswers['pde-FijCOVSamp14'],
-      purposeOfSample: surveyAnswers['pde-FijCOVSamp15'],
-      recentAdmission: surveyAnswers['pde-FijCOVSamp16'],
-      admissionDate: surveyAnswers['pde-FijCOVSamp19'],
-      placeOfAdmission: surveyAnswers['pde-FijCOVSamp20'],
-      medicalProblems: surveyAnswers['pde-FijCOVSamp23'],
-      healthcareWorker: surveyAnswers['pde-FijCOVSamp26'],
-      occupation: surveyAnswers['pde-FijCOVSamp27'],
-      placeOfWork: surveyAnswers['pde-FijCOVSamp28'],
-      linkToCluster: surveyAnswers['pde-FijCOVSamp29'],
-      nameOfCluster: surveyAnswers['pde-FijCOVSamp30'],
-      recentTravelHistory: surveyAnswers['pde-FijCOVSamp31'],
-      pregnant: surveyAnswers['pde-FijCOVSamp32'],
-      experiencingSymptoms: surveyAnswers['pde-FijCOVSamp34'],
-      dateOfFirstSymptom: surveyAnswers['pde-FijCOVSamp35'],
-      symptoms: surveyAnswers['pde-FijCOVSamp36'],
-      vaccinated: surveyAnswers['pde-FijCOVSamp38'],
-      dateOf1stDose: surveyAnswers['pde-FijCOVSamp39'],
-      dateOf2ndDose: surveyAnswers['pde-FijCOVSamp40'],
-      rdtConducted: surveyAnswers['pde-FijCOVSamp42'],
-      rdtResult: surveyAnswers['pde-FijCOVSamp43'],
-      rdtDate: surveyAnswers['pde-FijCOVSamp52'],
+    };
+
+    Object.entries(SURVEY_QUESTION_CODES).forEach(([key, code]) => {
+      dataValues[key] = surveyAnswers[code];
     });
+    reportData.push(dataValues);
   }
 
   // lab tests were already sorted by 'date' ASC in the sql.
@@ -406,36 +427,10 @@ export const dataGenerator = async (models, parameters = {}) => {
       testingDate: labTest.completedDate ? moment(labTest.completedDate).format('DD-MM-YYYY') : '',
       priority: labTest.labRequest?.priority?.name,
       testingLaboratory: labTest.labRequest?.laboratory?.name,
-      healthFacility: getAnswer(patientId, latestPatientSurveyResponseId, 'pde-FijCOVSamp4'),
-      division: getAnswer(patientId, latestPatientSurveyResponseId, 'pde-FijCOVSamp6'),
-      subDivision: getAnswer(patientId, latestPatientSurveyResponseId, 'pde-FijCOVSamp7'),
-      ethnicity: getAnswer(patientId, latestPatientSurveyResponseId, 'pde-FijCOVSamp10'),
-      contactPhone: getAnswer(patientId, latestPatientSurveyResponseId, 'pde-FijCOVSamp11'),
-      residentialAddress: getAnswer(patientId, latestPatientSurveyResponseId, 'pde-FijCOVSamp12'),
-      latitude: getAnswer(patientId, latestPatientSurveyResponseId, 'pde-FijCOVSamp13'),
-      longitude: getAnswer(patientId, latestPatientSurveyResponseId, 'pde-FijCOVSamp14'),
-      purposeOfSample: getAnswer(patientId, latestPatientSurveyResponseId, 'pde-FijCOVSamp15'),
-      recentAdmission: getAnswer(patientId, latestPatientSurveyResponseId, 'pde-FijCOVSamp16'),
-      admissionDate: getAnswer(patientId, latestPatientSurveyResponseId, 'pde-FijCOVSamp19'),
-      placeOfAdmission: getAnswer(patientId, latestPatientSurveyResponseId, 'pde-FijCOVSamp20'),
-      medicalProblems: getAnswer(patientId, latestPatientSurveyResponseId, 'pde-FijCOVSamp23'),
-      healthcareWorker: getAnswer(patientId, latestPatientSurveyResponseId, 'pde-FijCOVSamp26'),
-      occupation: getAnswer(patientId, latestPatientSurveyResponseId, 'pde-FijCOVSamp27'),
-      placeOfWork: getAnswer(patientId, latestPatientSurveyResponseId, 'pde-FijCOVSamp28'),
-      linkToCluster: getAnswer(patientId, latestPatientSurveyResponseId, 'pde-FijCOVSamp29'),
-      nameOfCluster: getAnswer(patientId, latestPatientSurveyResponseId, 'pde-FijCOVSamp30'),
-      recentTravelHistory: getAnswer(patientId, latestPatientSurveyResponseId, 'pde-FijCOVSamp31'),
-      pregnant: getAnswer(patientId, latestPatientSurveyResponseId, 'pde-FijCOVSamp32'),
-      experiencingSymptoms: getAnswer(patientId, latestPatientSurveyResponseId, 'pde-FijCOVSamp34'),
-      dateOfFirstSymptom: getAnswer(patientId, latestPatientSurveyResponseId, 'pde-FijCOVSamp35'),
-      symptoms: getAnswer(patientId, latestPatientSurveyResponseId, 'pde-FijCOVSamp36'),
-      vaccinated: getAnswer(patientId, latestPatientSurveyResponseId, 'pde-FijCOVSamp38'),
-      dateOf1stDose: getAnswer(patientId, latestPatientSurveyResponseId, 'pde-FijCOVSamp39'),
-      dateOf2ndDose: getAnswer(patientId, latestPatientSurveyResponseId, 'pde-FijCOVSamp40'),
-      rdtConducted: getAnswer(patientId, latestPatientSurveyResponseId, 'pde-FijCOVSamp42'),
-      rdtResult: getAnswer(patientId, latestPatientSurveyResponseId, 'pde-FijCOVSamp43'),
-      rdtDate: getAnswer(patientId, latestPatientSurveyResponseId, 'pde-FijCOVSamp52'),
     };
+    Object.entries(SURVEY_QUESTION_CODES).forEach(([key, code]) => {
+      labTestRecord[key] = getAnswer(patientId, latestPatientSurveyResponseId, code);
+    });
 
     reportData.push(labTestRecord);
   }

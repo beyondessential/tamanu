@@ -74,13 +74,6 @@ export const MEDICATION_STATUSES = {
   REQUESTED: 'Requested',
 };
 
-export const APPOINTMENT_STATUSES = {
-  ATTENDED: 'Attended',
-  SCHEDULED: 'Scheduled',
-  CANCELED: 'Canceled',
-  MISSED: 'Missed',
-};
-
 export const OPERATION_PLAN_STATUSES = {
   PLANNED: 'Planned',
   DROPPED: 'Dropped',
@@ -250,4 +243,18 @@ export const INJECTION_SITE_OPTIONS = {
   RIGHT_THIGH: 'Right thigh',
   ORAL: 'Oral',
   OTHER: 'Other',
+};
+
+export const APPOINTMENT_TYPES = {
+  STANDARD: 'Standard',
+  EMERGENCY: 'Emergency',
+  SPECIALIST: 'Specialist',
+  OTHER: 'Other',
+};
+
+export const APPOINTMENT_STATUSES = {
+  CONFIRMED: 'Confirmed',
+  ARRIVED: 'Arrived',
+  NO_SHOW: 'No-show',
+  CANCELLED: 'Cancelled',
 };
