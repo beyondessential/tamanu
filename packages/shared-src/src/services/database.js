@@ -107,23 +107,26 @@ export async function initDatabase(dbOptions) {
   // set configuration variables for individual models
   models.User.SALT_ROUNDS = saltRounds;
 
-  // Ideally we could trigger a down-migration via something like
-  // $ yarn run lan-start-dev --migrate-down
-  // But the usual interface is going through package.json and webpack
-  // so it's a bit of a pain. This approach lets us do:
-  // $ MIGRATE_DOWN=true yarn run lan-start-dev
-  // which is pretty close.
-  if (process.env.MIGRATE_DOWN) {
-    await migrateDown(log, sequelize);
-    process.exit(0);
-  }
-
   // attach migration function to the sequelize object - leaving the responsibility
   // of calling it to the implementing server (this allows for skipping migrations
   // in favour of calling sequelize.sync() during test mode)
-  sequelize.migrate = sqlitePath
-    ? sequelize.sync // just sync in sqlite mode, migrations may contain pg-specific sql
-    : () => migrateUp(log, sequelize);
+  sequelize.migrate = async options => {
+    if (sqlitePath) {
+      log.info("Syncing sqlite schema...");
+      await sequelize.sync();
+      return;
+    }
+
+    // TODO: move to migrations.js & refactor
+    switch (options.migrateDirection) {
+      case "up":
+        return migrateUp(log, sequelize);
+      case "down":
+        return migrateDown(log, sequelize);
+      default:
+        throw new Error(`Unrecognised migrate direction: ${options.migrateDirection}`);
+    }
+  };
 
   // init all models
   const modelClasses = Object.values(models);

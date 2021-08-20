@@ -3,7 +3,12 @@ import { log } from 'shared/services/logging';
 
 import { version } from 'argparse/package';
 
-const ARGS = (process.env.TAMANU_ARGS || '')
+// allow other methods of passing args in
+// env: allows yarn to pass through commands past webpack & babel
+// DEV_ARGS (below): allows a developer to benefit from live-reload
+//  while working on arguments-related stuff.
+const DEV_ARGS = '';
+const ARGS = (process.env.TAMANU_ARGS || DEV_ARGS)
   .trim()
   .split(/\s+/g)
   .filter(x => x);
@@ -16,6 +21,7 @@ function createParser() {
   parser.addArgument('command', {
     choices: [
       'serve',
+      'setup',
       'migrate', 
     ],
     nargs: '?', // allow empty
