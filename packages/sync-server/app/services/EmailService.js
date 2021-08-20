@@ -33,21 +33,8 @@ export class EmailService {
       };
     }
 
-    let resolvedTo = email.to;
-    let resolvedSubject = email.subject;
-
-    if (process.env.NODE_ENV !== 'production') {
-      if (!toAddressOverride) {
-        throw new Error('Must specify toAddressOverride in non-prod environments');
-      }
-      resolvedTo = toAddressOverride;
-      resolvedSubject += ` (${email.to})`;
-    }
-
-    const resolvedEmail = { ...email, to: resolvedTo, subject: resolvedSubject };
-
     try {
-      const emailResult = await this.mailgunService.messages().send(resolvedEmail);
+      const emailResult = await this.mailgunService.messages().send(email);
       return { status: COMMUNICATION_STATUSES.SENT, result: emailResult };
     } catch (e) {
       return { status: COMMUNICATION_STATUSES.ERROR, error: e.message };
