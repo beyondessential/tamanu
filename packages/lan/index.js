@@ -60,7 +60,7 @@ async function run(command, options) {
 (async () => {
   try {
     const { command, ...options } = parseArguments();
-    await run();
+    await run(command, options);
   } catch (e) {
     log.error(`run(): fatal error: ${e.toString()}`);
     log.error(e.stack);
