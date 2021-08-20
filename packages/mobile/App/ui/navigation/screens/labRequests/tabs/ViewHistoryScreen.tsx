@@ -1,4 +1,4 @@
-import React, { ReactElement, useCallback } from 'react';
+import React, { ReactElement, useEffect } from 'react';
 import { View, StyleSheet } from 'react-native';
 import { ScrollView } from 'react-native-gesture-handler';
 import { compose } from 'redux';
@@ -9,6 +9,7 @@ import { LoadingScreen } from '~/ui/components/LoadingScreen';
 import { withPatient } from '~/ui/containers/Patient';
 import { useBackendEffect } from '~/ui/hooks';
 import { ILabRequest } from '~/types';
+import { navigateAfterTimeout } from '~/ui/helpers/navigators';
 import { StyledView, StyledText } from '/styled/common';
 import { theme } from '/styled/theme';
 import { formatDate } from '/helpers/date';
@@ -95,18 +96,21 @@ const LabRequestRow = ({ labRequest }: LabRequestRowProps): JSX.Element => (
 export const DumbViewHistoryScreen = ({ selectedPatient, navigation }): ReactElement => {
   const [data, error] = useBackendEffect(
     ({ models }) => models.LabRequest.getForPatient(selectedPatient.id),
-    [],
+    [selectedPatient],
   );
 
-  const goToNewRequest = useCallback(() => {
-    navigation.navigate(Routes.HomeStack.LabRequestStack.LabRequestTabs.NewRequest);
-  }, []);
+  useEffect(() => {
+    if (!data) return;
+    if (data.length === 0) {
+      navigateAfterTimeout(
+        navigation,
+        Routes.HomeStack.LabRequestStack.LabRequestTabs.NewRequest,
+      );
+    }
+  }, [data]);
 
   if (error) return <ErrorScreen error={error} />;
   if (!data) return <LoadingScreen />;
-  if (data.length === 0) {
-    goToNewRequest();
-  }
 
   const rows = data.map(labRequest => (
     <LabRequestRow key={labRequest.id} labRequest={labRequest} />
