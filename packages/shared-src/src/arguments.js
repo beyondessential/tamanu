@@ -2,9 +2,8 @@ import { ArgumentParser } from 'argparse';
 import { log } from 'shared/services/logging';
 
 import { version } from 'argparse/package';
-console.log("shared version", version);
 
-const ARGS = (process.env.TAMANU_ARGS || 'check')
+const ARGS = (process.env.TAMANU_ARGS || '')
   .trim()
   .split(/\s+/g)
   .filter(x => x);
@@ -14,28 +13,28 @@ function createParser() {
     description: '',
   });
 
-  parser.add_argument('command', {
+  parser.addArgument('command', {
     choices: [
       'serve',
       'migrate', 
     ],
     nargs: '?', // allow empty
-    default: 'serve',
+    defaultValue: 'serve',
   });
 
-  const migrateDir = parser.add_mutually_exclusive_group();
-  migrateDir.add_argument('--up', {
+  const migrateDir = parser.addMutuallyExclusiveGroup();
+  migrateDir.addArgument('--up', {
     help: "Run database migrations",
-    action: 'store_const',
-    default: 'up',
+    action: 'storeConst',
+    defaultValue: 'up',
     dest: 'migrateDirection',
-    const: 'up',
+    constant: 'up',
   });
-  migrateDir.add_argument('--down', {
+  migrateDir.addArgument('--down', {
     help: "Run database migrations",
-    action: 'store_const',
+    action: 'storeConst',
     dest: 'migrateDirection',
-    const: 'down',
+    constant: 'down',
   });
 
   return parser;
