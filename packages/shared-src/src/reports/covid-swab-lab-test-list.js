@@ -297,7 +297,111 @@ const reportColumnTemplate = [
   { title: 'Details of high risk primary contact', accessor: data => data.highRiskDetails },
 ];
 
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 export const dataGenerator = async (models, parameters = {}) => {
+  // OUTPUT 1 PER PATIENT IF PATIENT HAS A COVID LAB TEST OR A COVID SURVEY: {
+  //   firstName: 'Fred',
+  //   lastName: 'Weasley',
+  //   dob: '12-08-2000',
+  //   sex: 'male',
+  //   patientId: 'VHAE141703',
+  //   labRequestId: '6WYBSY2',
+  //   labRequestType: 'COVID-19 Swab',
+  //   status: 'Reception pending',
+  //   result: '',
+  //   requestedBy: 'Admin',
+  //   requestedDate: '17-08-2021',
+  //   testingDate: '',
+  //   priority: 'High risk group',
+  //   testingLaboratory: undefined,
+  //   healthFacility: undefined,
+  //   division: 'Central',
+  //   subDivision: 'Suva',
+  //   ethnicity: undefined,
+  //   contactPhone: '908325456',
+  //   residentialAddress: 'High street Suva',
+  //   latitude: '',
+  //   longitude: '',
+  //   purposeOfSample: 'Symptoms',
+  //   recentAdmission: 'Yes',
+  //   admissionDate: '2021-08-15T00:32:34.529Z',
+  //   placeOfAdmission: 'CWMH',
+  //   medicalProblems: 'Cardiac, Hypertension',
+  //   healthcareWorker: 'No',
+  //   occupation: 'Taxi driver',
+  //   placeOfWork: 'Suva',
+  //   linkToCluster: 'Yes',
+  //   nameOfCluster: 'FPBS',
+  //   recentTravelHistory: 'Nil',
+  //   pregnant: 'No',
+  //   experiencingSymptoms: 'Yes',
+  //   dateOfFirstSymptom: '2021-08-16T00:33:38.194Z',
+  //   symptoms: 'Runny nose/Nasal congestion/Sneezing, Sore throat',
+  //   vaccinated: 'Yes',
+  //   dateOf1stDose: '2021-08-14T00:33:49.299Z',
+  //   dateOf2ndDose: undefined,
+  //   rdtConducted: 'Yes',
+  //   rdtResult: 'Negative',
+  //   rdtDate: '2021-08-17T00:31:22.161Z',
+  //   highRisk: undefined,
+  //   primaryContactHighRisk: undefined,
+  //   highRiskDetails: undefined
+  // },
+  // Get the latest Fiji covid survey response id for a patient within date range,
+  // then use that survey response id to find the answers.
+
+  const [results, metadata] = await models.Patient.sequelize.query(`
+    SELECT *
+    from lab_requests
+  `);
+  // select *
+  // from patients
+  // where survey_response.survey_id = survey_code OR lab_requests.lab_test_category = labTestCategory-COVID
+  // and optionally add village/laboratory/date constraints
+  // use most recent survey response and lab request to populate data.
+  console.log(results);
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
   const labTests = await getLabTests(models, parameters);
 
   const answers = await getFijiCovidAnswers(models, parameters);
@@ -433,6 +537,7 @@ export const dataGenerator = async (models, parameters = {}) => {
     });
 
     reportData.push(labTestRecord);
+    console.log(reportData);
   }
 
   return generateReportFromQueryData(reportData, reportColumnTemplate);
