@@ -60,3 +60,28 @@ export async function migrateDown(log, sequelize) {
     log.info(`Reverted migration ${reverted.file}.`);
   }
 }
+
+export async function assertUpToDate(log, sequelize, options) {
+  if (options.skipMigrationCheck) return;
+
+  const migrations = createMigrationInterface(log, sequelize);
+  const pending = await migrations.pending();
+  if (pending.length > 0) {
+    throw new Error(`There are ${pending.length} pending migrations. To start the server anyway, run with --skipMigrationCheck`);
+  }
+}
+
+export function migrate(log, sequelize, options) {
+  const {
+    migrateDirection = "up",
+  } = options;
+
+  switch (migrateDirection) {
+    case "up":
+      return migrateUp(log, sequelize);
+    case "down":
+      return migrateDown(log, sequelize);
+    default:
+      throw new Error(`Unrecognised migrate direction: ${options.migrateDirection}`);
+  }
+}
