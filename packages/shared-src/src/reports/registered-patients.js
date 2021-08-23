@@ -63,7 +63,7 @@ export const dataGenerator = async (models, parameters = {}) => {
   const patientsData = await models.Patient.findAll({
     attributes: [
       [Sequelize.literal(`DATE("Patient".created_at)`), 'dateCreated'],
-      [Sequelize.literal(`DATE("date_of_birth")`), 'dateOfBirth'],
+      [Sequelize.literal(`DATE("Patient".date_of_birth)`), 'dateOfBirth'],
       'first_name',
       'middle_name',
       'last_name',
@@ -136,7 +136,6 @@ export const dataGenerator = async (models, parameters = {}) => {
 
     return {
       ...dataValues,
-      ...additionalData,
       villageName,
       countryName,
       nationalityName,
@@ -145,6 +144,14 @@ export const dataGenerator = async (models, parameters = {}) => {
       religionName,
       patientBillingTypeName,
       registeredByName,
+      birthCertificate: additionalData?.birthCertificate,
+      drivingLicense: additionalData?.drivingLicense,
+      passport: additionalData?.passport,
+      bloodType: additionalData?.bloodType,
+      title: additionalData?.title,
+      maritalStatus: additionalData?.maritalStatus,
+      primaryContactNumber: additionalData?.primaryContactNumber,
+      secondaryContactNumber: additionalData?.secondaryContactNumber,
     };
   });
 
