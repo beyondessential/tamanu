@@ -10,7 +10,7 @@ import sqlite3 from 'sqlite3';
 
 import { log } from './logging';
 
-import { migrate } from './migrations';
+import { migrate, assertUpToDate } from './migrations';
 import * as models from '../models';
 import { initSyncClientModeHooks } from '../models/sync';
 
@@ -118,6 +118,10 @@ export async function initDatabase(dbOptions) {
     }
 
     return migrate(log, sequelize, options);
+  };
+
+  sequelize.assertUpToDate = async options => {
+    return assertUpToDate(log, sequelize, options);
   };
 
   // init all models

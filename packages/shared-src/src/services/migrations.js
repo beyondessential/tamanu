@@ -61,6 +61,16 @@ export async function migrateDown(log, sequelize) {
   }
 }
 
+export async function assertUpToDate(log, sequelize, options) {
+  if (options.skipMigrationCheck) return;
+
+  const migrations = createMigrationInterface(log, sequelize);
+  const pending = await migrations.pending();
+  if (pending.length > 0) {
+    throw new Error(`There are ${pending.length} pending migrations. To start the server anyway, run with --skipMigrationCheck`);
+  }
+}
+
 export function migrate(log, sequelize, options) {
   const {
     migrateDirection = "up",

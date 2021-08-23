@@ -14,8 +14,10 @@ import { listenForServerQueries } from './app/discovery';
 async function serve(options) {
   const context = await initDatabase();
 
-  if(config.db.migrateOnStartup) {
-    await context.sequelize.migrate();
+  if (config.db.migrateOnStartup) {
+    await context.sequelize.migrate({ migrateDirection: "up" });
+  } else {
+    await context.sequelize.assertUpToDate(options);
   }
 
   context.remote = new WebRemote(context);

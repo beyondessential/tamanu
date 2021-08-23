@@ -30,8 +30,10 @@ async function setup(store, options) {
 }
 
 async function serve(store, options) {
-  if(config.db.migrateOnStartup) {
-    await store.sequelize.migrate();
+  if (config.db.migrateOnStartup) {
+    await store.sequelize.migrate({ migrateDirection: "up" });
+  } else {
+    await store.sequelize.assertUpToDate(options);
   }
 
   const emailService = new EmailService();

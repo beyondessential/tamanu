@@ -1,8 +1,6 @@
 import { ArgumentParser } from 'argparse';
 import { log } from 'shared/services/logging';
 
-import { version } from 'argparse/package';
-
 // allow other methods of passing args in
 // env: allows yarn to pass through commands past webpack & babel
 // DEV_ARGS (below): allows a developer to benefit from live-reload
@@ -41,6 +39,11 @@ function createParser() {
     action: 'storeConst',
     dest: 'migrateDirection',
     constant: 'down',
+  });
+  parser.addArgument('--skipMigrationCheck', {
+    dest: 'skipMigrationCheck',
+    action: 'storeTrue',
+    defaultValue: false,
   });
 
   return parser;
