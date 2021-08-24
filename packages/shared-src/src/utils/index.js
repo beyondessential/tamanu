@@ -3,4 +3,5 @@ export * from './getResponseJsonSafely';
 export * from './parse-object';
 export * from './valueIndex';
 export * from './fetchWithTimeout';
+export * from './sleepAsync';
 export * from './jsonParse';
