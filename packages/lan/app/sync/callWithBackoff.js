@@ -30,7 +30,7 @@ export const callWithBackoff = async (
         log.error(
           `callWithBackoff: attempt ${attempt}/${maxRetries} failed, max retries exceeded: ${e.stack}`,
         );
-        throw new Error(`callWithBackoff: max retries exceeded`);
+        throw e;
       }
 
       // otherwise, calculate the next backoff delay
