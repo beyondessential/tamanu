@@ -18,7 +18,12 @@
     "password": "",
     "timeout": 10000,
     "readOnly": false,
-    "syncAllLabRequests": false
+    "syncAllLabRequests": false,
+    "backoff": {
+      "multiplierMs": 300,
+      "maxRetries": 15,
+      "maxWaitMs": 10000
+    }
   },
   "port": 4000,
   "db": {
