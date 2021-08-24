@@ -5,7 +5,11 @@ import { sleepAsync } from 'shared/utils';
 
 export const callWithBackoff = async (
   fn,
-  { maxRetries, maxWaitMs, multiplierMs } = config.sync.backoff,
+  {
+    maxRetries = config.sync.backoff.maxRetries,
+    maxWaitMs = config.sync.backoff.maxWaitMs,
+    multiplierMs = config.sync.backoff.multiplierMs,
+  } = {},
 ) => {
   if (!Number.isFinite(maxRetries) || maxRetries < 1) {
     throw new Error(
