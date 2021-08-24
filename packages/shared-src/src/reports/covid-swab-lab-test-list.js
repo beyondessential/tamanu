@@ -297,110 +297,112 @@ const reportColumnTemplate = [
   { title: 'Details of high risk primary contact', accessor: data => data.highRiskDetails },
 ];
 
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
 export const dataGenerator = async (models, parameters = {}) => {
-  // OUTPUT 1 PER PATIENT IF PATIENT HAS A COVID LAB TEST OR A COVID SURVEY: {
-  //   firstName: 'Fred',
-  //   lastName: 'Weasley',
-  //   dob: '12-08-2000',
-  //   sex: 'male',
-  //   patientId: 'VHAE141703',
-  //   labRequestId: '6WYBSY2',
-  //   labRequestType: 'COVID-19 Swab',
-  //   status: 'Reception pending',
-  //   result: '',
-  //   requestedBy: 'Admin',
-  //   requestedDate: '17-08-2021',
-  //   testingDate: '',
-  //   priority: 'High risk group',
-  //   testingLaboratory: undefined,
-  //   healthFacility: undefined,
-  //   division: 'Central',
-  //   subDivision: 'Suva',
-  //   ethnicity: undefined,
-  //   contactPhone: '908325456',
-  //   residentialAddress: 'High street Suva',
-  //   latitude: '',
-  //   longitude: '',
-  //   purposeOfSample: 'Symptoms',
-  //   recentAdmission: 'Yes',
-  //   admissionDate: '2021-08-15T00:32:34.529Z',
-  //   placeOfAdmission: 'CWMH',
-  //   medicalProblems: 'Cardiac, Hypertension',
-  //   healthcareWorker: 'No',
-  //   occupation: 'Taxi driver',
-  //   placeOfWork: 'Suva',
-  //   linkToCluster: 'Yes',
-  //   nameOfCluster: 'FPBS',
-  //   recentTravelHistory: 'Nil',
-  //   pregnant: 'No',
-  //   experiencingSymptoms: 'Yes',
-  //   dateOfFirstSymptom: '2021-08-16T00:33:38.194Z',
-  //   symptoms: 'Runny nose/Nasal congestion/Sneezing, Sore throat',
-  //   vaccinated: 'Yes',
-  //   dateOf1stDose: '2021-08-14T00:33:49.299Z',
-  //   dateOf2ndDose: undefined,
-  //   rdtConducted: 'Yes',
-  //   rdtResult: 'Negative',
-  //   rdtDate: '2021-08-17T00:31:22.161Z',
-  //   highRisk: undefined,
-  //   primaryContactHighRisk: undefined,
-  //   highRiskDetails: undefined
-  // },
-  // Get the latest Fiji covid survey response id for a patient within date range,
-  // then use that survey response id to find the answers.
+  const sequelize = models.Patient.sequelize;
 
-  const [results, metadata] = await models.Patient.sequelize.query(`
-    SELECT *
-    from lab_requests
+  // get all covid lab requests with patient and encounter details sorted by date
+  // NOTE: extract() is a POSTGRESQL ONLY function. This will NOT work in sqlite.
+  const [results] = await sequelize.query(`
+    select pa.id, pa.first_name, pa.last_name, pa.date_of_birth, pa.sex, pa.display_id, lr.requested_date, lr.id as lab_request_id
+    from lab_requests lr
+    left join encounters en on en.id = lr.encounter_id
+    left join patients pa on pa.id = en.patient_id
+    where lr.lab_test_category_id = 'labTestCategory-COVID'
+    order by lr.requested_date DESC;
   `);
-  // select *
-  // from patients
-  // where survey_response.survey_id = survey_code OR lab_requests.lab_test_category = labTestCategory-COVID
-  // and optionally add village/laboratory/date constraints
-  // use most recent survey response and lab request to populate data.
-  console.log(results);
+
+  // Get latest (requested_date) lab request for each patient,
+  // as we've already sorted them in the query, we just take the first result
+  // per patient and discard any following results, avoiding handling the date
+  // comparison in JS.
+  const latestLabRequestByPatient = results.reduce(
+    (data, result, i) => {
+      const newData = { ...data };
+
+      // most recent lab request for any patient
+      if (i === 0) newData.latestLabDate = result.requested_date;
+
+      // use first result for each patient,
+      // as this will be their most recent lab request
+      if (!data.patientsWithLab[result.id]) {
+        newData.patientsWithLab[result.id] = result;
+        // oldest lab request for any patient,
+        // within the results we are returning.
+        newData.oldestLabDate = result.requested_date;
+      }
+
+      return newData;
+    },
+    { latestLabDate: null, oldestLabDate: null, patientsWithLab: {} },
+  );
+
+  const { latestLabDate, oldestLabDate, patientsWithLab } = latestLabRequestByPatient;
+  console.log("🚀 ~ file: covid-swab-lab-test-list.js ~ line 340 ~ dataGenerator ~ patientsWithLab", patientsWithLab)
+
+  let maxTimestamp = new Date(latestLabDate);
+  maxTimestamp.setDate(maxTimestamp.getDate() + 5);
+  maxTimestamp = maxTimestamp.getTime();
+
+  let minTimestamp = new Date(oldestLabDate);
+  minTimestamp.setDate(minTimestamp.getDate() - 5);
+  minTimestamp = minTimestamp.getTime();
+
+  // get all survey responses within 5 days either side of oldest and most recent lab request
+  // we found in the above query.
+  const [surveyResults] = await sequelize.query(`
+    select sr.id as response_id, pa.id as patient_id
+    from survey_responses sr
+    left join encounters en on en.id = sr.encounter_id
+    left join patients pa on pa.id = en.patient_id
+    where
+      survey_id = 'program-fijicovid19-fijicovidsampcollection'
+      and extract(epoch from sr.end_time) * 1000 between ${minTimestamp} and ${maxTimestamp}
+    order by sr.end_time DESC;
+  `);
+
+  // Keep the latest survey response for each patient
+  const latestCovidSurveyByPatient = surveyResults.reduce((data, result) => {
+    const newData = { ...data };
+
+    // use first result for each patient,
+    // as this will be their most recent survey response
+    if (!data[result.patient_id]) newData[result.patient_id] = result;
+
+    return newData;
+  }, {});
+
+  // get survey respone answers for each survey we kept
+  const surveyResponseIds = Object.values(latestCovidSurveyByPatient).map(x => x.response_id);
+  const [surveyResponseResults] = await sequelize.query(
+    `
+      select body, response_id, data_element_id
+      from survey_response_answers
+      where response_id IN(:ids);
+    `,
+    {
+      replacements: { ids: surveyResponseIds },
+    },
+  );
+
+  const answersByResponseId = surveyResponseResults.reduce((data, result) => {
+    const newData = { ...data };
+    if (!newData[result.response_id]) newData[result.response_id] = {};
+
+    newData[result.response_id][result.data_element_id] = result.body;
+
+    return newData;
+  }, {});
+
+  const labRows = [];
+  const surveyOnlyRows = [];
+
+  // for (const [patientId, labData] of Object.entries(patientsWithLab)) {
+    
+  // }
 
 
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
+  // return an array per row in sheet, each element of the array is an object per row, { accessorFn: data.dateOf2ndDose }
+  return;
 
   const labTests = await getLabTests(models, parameters);
 
