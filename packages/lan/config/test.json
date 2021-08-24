@@ -4,7 +4,7 @@
     "sqlitePath": "/tmp/tamanu-test.db"
   },
   "log": {
-    "consoleLevel": "warn"
+    "consoleLevel": false
   },
   "survey": {
     "defaultCodes": {
