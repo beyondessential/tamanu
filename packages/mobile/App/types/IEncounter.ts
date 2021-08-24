@@ -25,7 +25,10 @@ export interface IEncounter {
   reasonForEncounter?: string;
 
   location?: IReferenceData;
+  locationId?: string;
+
   department?: IReferenceData;
+  departmentId?: string;
 
   diagnoses?: IDiagnosis[];
 

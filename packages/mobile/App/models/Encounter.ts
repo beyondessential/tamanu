@@ -187,16 +187,27 @@ export class Encounter extends BaseModel implements IEncounter {
   static async findMarkedForUpload(
     opts: FindMarkedForUploadOptions,
   ): Promise<BaseModel[]> {
-    const patientId = opts.channel.match(/^patient\/(.*)\/encounter$/)[1];
-    if (!patientId) {
-      throw new Error(`Could not extract patientId from ${opts.channel}`);
+    const patientId = (opts.channel.match(/^patient\/(.*)\/encounter$/) || [])[1];
+    const scheduledVaccineId = (opts.channel.match(/^scheduledVaccine\/(.*)\/encounter/) || [])[1];
+    if (patientId) {
+      const records = await this.findMarkedForUploadQuery(opts)
+        .andWhere('patientId = :patientId', { patientId })
+        .getMany();
+      return records as BaseModel[];
+    }
+    if (scheduledVaccineId) {
+      const records = await this.findMarkedForUploadQuery(opts)
+        .innerJoinAndSelect('Encounter.administeredVaccines', 'AdministeredVaccine')
+        .andWhere(
+          'AdministeredVaccine.scheduledVaccineId = :scheduledVaccineId',
+          { scheduledVaccineId },
+        )
+        .getMany();
+      return records as BaseModel[];
+
     }
 
-    const records = await this.findMarkedForUploadQuery(opts)
-      .andWhere('patientId = :patientId', { patientId })
-      .getMany();
-
-    return records as BaseModel[];
+    throw new Error(`Could not extract marked for upload from ${opts.channel}`);
   }
 
   static includedSyncRelations = [
