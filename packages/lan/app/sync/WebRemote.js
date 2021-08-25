@@ -73,8 +73,11 @@ export class WebRemote {
 
     let response;
     response = await callWithBackoff(async () => {
-      if (Math.random() < config.chaos.requestFailureRate) {
-        throw new Error('Chaos: made your request fail');
+      if (config.chaos.requestFailureRate) {
+        if (Math.random() < config.chaos.requestFailureRate) {
+          // intended to cause some % of requests to fail, to simulate a flaky connection
+          throw new Error('Chaos: made your request fail');
+        }
       }
       try {
         return await fetchWithTimeout(
