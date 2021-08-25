@@ -1,7 +1,9 @@
 import { Sequelize } from 'sequelize';
 import { Model } from './Model';
 
-export class LocalMetadata extends Model {
+// stores data written _by the server_
+// e.g. which host did we last connect to?
+export class LocalSystemFact extends Model {
   static init({ primaryKey, ...options }) {
     super.init(
       {

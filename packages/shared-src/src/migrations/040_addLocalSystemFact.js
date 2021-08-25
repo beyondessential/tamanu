@@ -2,7 +2,7 @@ const Sequelize = require('sequelize');
 
 module.exports = {
   up: async query => {
-    await query.createTable('local_metadata', {
+    await query.createTable('local_system_facts', {
       id: {
         type: Sequelize.STRING,
         defaultValue: Sequelize.UUIDV4,
@@ -30,13 +30,13 @@ module.exports = {
         allowNull: true,
       },
     });
-    await query.addIndex('local_metadata', {
+    await query.addIndex('local_system_facts', {
       fields: ['key'],
       unique: true,
     });
   },
   down: async query => {
     // index is automatically removed when the table is dropped
-    await query.dropTable('local_metadata');
+    await query.dropTable('local_system_facts');
   },
 };
