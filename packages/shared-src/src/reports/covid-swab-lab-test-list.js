@@ -111,7 +111,7 @@ export const dataGenerator = async (models, parameters = {}) => {
   );
 
   // get all covid lab requests with patient and encounter details sorted by date
-  // NOTE: extract() & TO_CHAR() are POSTGRESQL ONLY functions. This will NOT work in sqlite.
+  // NOTE: TO_CHAR() is a POSTGRESQL ONLY function. This will NOT work in sqlite.
   const [requestResults] = await sequelize.query(
     `
     select
@@ -133,43 +133,30 @@ export const dataGenerator = async (models, parameters = {}) => {
   `,
   );
 
-  // As we've already sorted them in the query, we just take the first result
+  // As we've already sorted by date in the query, we take the first result
   // per patient and discard any following results, avoiding handling the date
   // comparison in JS.
-  const latestLabRequestByPatient = requestResults.reduce(
-    (data, result, i) => {
-      const newData = { ...data };
-      const { village, labTestLaboratory, fromDate, toDate } = parameters;
+  const latestLabRequestByPatient = requestResults.reduce((data, result) => {
+    const newData = { ...data };
+    const { village, labTestLaboratory, fromDate, toDate } = parameters;
 
-      // most recent lab request for any patient
-      if (i === 0) newData.latestLabDate = result.requested_date;
+    // Filter results for given parameters
+    if (village && result.village_id !== village) return newData;
+    if (labTestLaboratory && result.lab_test_laboratory_id !== labTestLaboratory) return newData;
 
-      // Filter results for given parameters
-      if (village && result.village_id !== village) return newData;
-      if (labTestLaboratory && result.lab_test_laboratory_id !== labTestLaboratory) return newData;
+    const labDate = moment(result.requested_date);
+    if (fromDate && !toDate && labDate.isBefore(fromDate, 'day')) return newData;
+    if (!fromDate && toDate && labDate.isAfter(toDate, 'day')) return newData;
+    if (fromDate && toDate && !labDate.isBetween(fromDate, toDate, 'day', '[]')) return newData;
 
-      const labDate = moment(result.requested_date);
-      if (fromDate && !toDate && labDate.isBefore(fromDate, 'day')) return newData;
-      if (!fromDate && toDate && labDate.isAfter(toDate, 'day')) return newData;
-      if (fromDate && toDate && !labDate.isBetween(fromDate, toDate, 'day', '[]')) return newData;
+    if (!data[result.id]) {
+      newData[result.id] = result;
+    }
 
-      // use first result for each patient,
-      // as this will be their most recent lab request
-      if (!data.patientsWithLab[result.id]) {
-        newData.patientsWithLab[result.id] = result;
-        // record the oldest lab request for any patient,
-        // within the results we are returning.
-        newData.oldestLabDate = result.requested_date;
-      }
+    return newData;
+  }, {});
 
-      return newData;
-    },
-    { latestLabDate: null, oldestLabDate: null, patientsWithLab: {} },
-  );
-
-  const { latestLabDate, oldestLabDate, patientsWithLab } = latestLabRequestByPatient;
-
-  let labRequestIds = Object.values(patientsWithLab).map(x => x.lab_request_id);
+  let labRequestIds = Object.values(latestLabRequestByPatient).map(x => x.lab_request_id);
   if (labRequestIds.length === 0) labRequestIds = null;
   const [labTestResults] = await sequelize.query(
     `
@@ -188,10 +175,11 @@ export const dataGenerator = async (models, parameters = {}) => {
   const labTestByRequestId = labTestResults.reduce((data, labTest) => {
     const newData = { ...data };
 
-    // We just keep the first lab test per lab request to cover the edge-case
+    // We keep the first lab test per lab request to cover the edge-case
     // of users selecting more than 1 covid test on a single lab request.
     // We always want to show the test that has a result (thus ordering by result),
     // otherwise we don't care which test info we show if there's multiple.
+    // (because it's impossible for us to know which test will be done)
     if (!data[labTest.lab_request_id]) newData[labTest.lab_request_id] = labTest;
 
     return newData;
@@ -210,7 +198,6 @@ export const dataGenerator = async (models, parameters = {}) => {
   const latestCovidSurveyByPatient = surveyResponseResults.reduce((data, result) => {
     const newData = { ...data };
 
-    // patients first response will be their most recent
     if (!data[result.patient_id]) newData[result.patient_id] = result;
 
     return newData;
@@ -222,7 +209,7 @@ export const dataGenerator = async (models, parameters = {}) => {
     `
       select body, response_id, data_element_id
       from survey_response_answers
-      where response_id IN(:response_ids) and data_element_id IN(:data_element_ids);
+      where data_element_id IN(:data_element_ids);
     `,
     {
       replacements: {
@@ -234,27 +221,67 @@ export const dataGenerator = async (models, parameters = {}) => {
 
   const answersByResponseId = surveyAnswerResults.reduce((data, result) => {
     const newData = { ...data };
-    if (!newData[result.response_id]) newData[result.response_id] = {};
 
+    if (!newData[result.response_id]) newData[result.response_id] = {};
     newData[result.response_id][result.data_element_id] = result.body;
 
     return newData;
   }, {});
 
+  const [surveyRdtResults] = await sequelize.query(
+    `
+      select sra.response_id, en.patient_id,
+        pa.first_name, pa.last_name, TO_CHAR(pa.date_of_birth, 'DD-MM-YYYY') as date_of_birth,
+        pa.sex, pa.display_id
+      from survey_response_answers sra
+      left join survey_responses sr on sr.id = sra.response_id
+      left join encounters en on en.id = sr.encounter_id
+      left join patients pa on pa.id = en.patient_id
+      where data_element_id = 'pde-FijCOVSamp42' and body = 'Yes'
+      order by sr.end_time DESC;
+    `,
+  );
+  const latestRdtSurveyByPatient = surveyRdtResults.reduce((data, result) => {
+    const newData = { ...data };
+
+    if (!data[result.patient_id]) {
+      newData[result.patient_id] = result;
+    }
+
+    return newData;
+  }, {});
+
   const labRows = [];
+  const rdtRows = [];
 
-  // find patients in patientsWithLab without a latestCovidSurveyByPatient[patientId] where pde-FijCOVSamp42 = Yes
-  // find patients from surveyResponseResults where pde-FijCOVSamp42 = Yes that aren't in patientsWithLab
+  for (const [patientId, surveyData] of Object.entries(latestRdtSurveyByPatient)) {
+    const { response_id, patient_id, ...patientDetails } = surveyData;
 
-  for (const [patientId, labData] of Object.entries(patientsWithLab)) {
+    if (!latestLabRequestByPatient[patientId]) {
+      const {
+        'pde-FijCOVSamp4': FijCOVSamp4,
+        'pde-FijCOVSamp6': FijCOVSamp6,
+        'pde-FijCOVSamp10': FijCOVSamp10,
+        ...answers
+      } = answersByResponseId[response_id];
+
+      rdtRows.push({
+        ...patientDetails,
+        ...answers,
+        'pde-FijCOVSamp4': referenceDataIdToNames[FijCOVSamp4] || '',
+        'pde-FijCOVSamp6': referenceDataIdToNames[FijCOVSamp6] || '',
+        'pde-FijCOVSamp10': referenceDataIdToNames[FijCOVSamp10] || '',
+      });
+    }
+  }
+
+  for (const [patientId, labData] of Object.entries(latestLabRequestByPatient)) {
     let rowData = {};
     const { id, lab_request_id, requested_date, ...labDataToInclude } = labData;
     const { lab_request_id: request_id, ...testDataToInclude } = labTestByRequestId[lab_request_id];
 
     rowData = { ...labDataToInclude, ...testDataToInclude };
 
-    // We only want to include survey data for surveys that are
-    // within 5 days either side of the patients lab request.
     if (latestCovidSurveyByPatient[patientId]) {
       const { response_id, end_time } = latestCovidSurveyByPatient[patientId];
 
@@ -279,13 +306,34 @@ export const dataGenerator = async (models, parameters = {}) => {
           'pde-FijCOVSamp6': referenceDataIdToNames[FijCOVSamp6] || '',
           'pde-FijCOVSamp10': referenceDataIdToNames[FijCOVSamp10] || '',
         };
+      } else if (latestRdtSurveyByPatient[patientId]) {
+        const {
+          response_id: rdt_response_id,
+          patient_id,
+          ...patientDetails
+        } = latestRdtSurveyByPatient[patientId];
+
+        const {
+          'pde-FijCOVSamp4': FijCOVSamp4,
+          'pde-FijCOVSamp6': FijCOVSamp6,
+          'pde-FijCOVSamp10': FijCOVSamp10,
+          ...answers
+        } = answersByResponseId[rdt_response_id];
+
+        rdtRows.push({
+          ...patientDetails,
+          ...answers,
+          'pde-FijCOVSamp4': referenceDataIdToNames[FijCOVSamp4] || '',
+          'pde-FijCOVSamp6': referenceDataIdToNames[FijCOVSamp6] || '',
+          'pde-FijCOVSamp10': referenceDataIdToNames[FijCOVSamp10] || '',
+        });
       }
     }
 
     labRows.push(rowData);
   }
 
-  const allRows = [...labRows];
+  const allRows = [...labRows, ...rdtRows];
   return generateReportFromQueryData(allRows, reportColumnTemplate);
 };
 
