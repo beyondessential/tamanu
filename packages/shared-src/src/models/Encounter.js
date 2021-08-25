@@ -62,18 +62,12 @@ export class Encounter extends Model {
       channelRoutes: [
         ...nestedSyncConfig.channelRoutes,
         {
-          route: 'labRequest/:selector/encounter',
+          route: 'labRequest/all/encounter',
           mustMatchRecord: false,
-          queryFromParams: ({ selector }) => {
-            if (selector === 'all') {
-              // all encounters that have a lab request
-              return {
-                where: {},
-                include: [{ association: 'labRequests', required: true }],
-              };
-            }
-            throw new Error(`Encounter queryFromParams: unsupported selector: ${selector}`);
-          },
+          queryFromParams: () => ({
+            where: {},
+            include: [{ association: 'labRequests', required: true }],
+          }),
         },
         {
           route: 'scheduledVaccine/:scheduledVaccineId/encounter',
