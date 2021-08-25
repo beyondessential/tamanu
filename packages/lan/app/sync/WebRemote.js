@@ -5,9 +5,10 @@ import { BadAuthenticationError, InvalidOperationError, RemoteTimeoutError } fro
 import { VERSION_COMPATIBILITY_ERRORS } from 'shared/constants';
 import { getResponseJsonSafely } from 'shared/utils';
 import { log } from 'shared/services/logging';
-import { fetchWithTimeout } from 'shared/utils/fetchWithTimeout';
+import { fetchWithTimeout } from 'shared/utils';
 
 import { version } from '~/../package.json';
+import { callWithBackoff } from './callWithBackoff';
 
 const API_VERSION = 'v1';
 
@@ -71,32 +72,40 @@ export class WebRemote {
     log.debug(`[sync] ${method} ${url}`);
 
     let response;
-    try {
-      response = await fetchWithTimeout(
-        url,
-        {
-          method,
-          headers: {
-            Accept: 'application/json',
-            'X-Runtime': 'Tamanu LAN Server',
-            'X-Version': version,
-            Authorization: this.token ? `Bearer ${this.token}` : undefined,
-            'Content-Type': body ? 'application/json' : undefined,
-            ...headers,
-          },
-          body: body && JSON.stringify(body),
-          timeout: this.timeout,
-          ...otherParams,
-        },
-        this.fetchImplementation,
-      );
-    } catch (e) {
-      // TODO: import AbortError from node-fetch once we're on v3.0
-      if (e.name === 'AbortError') {
-        throw new RemoteTimeoutError(`Server failed to respond within ${this.timeout}ms - ${url}`);
+    response = await callWithBackoff(async () => {
+      if (config.debugging.requestFailureRate) {
+        if (Math.random() < config.debugging.requestFailureRate) {
+          // intended to cause some % of requests to fail, to simulate a flaky connection
+          throw new Error('Chaos: made your request fail');
+        }
       }
-      throw e;
-    }
+      try {
+        return await fetchWithTimeout(
+          url,
+          {
+            method,
+            headers: {
+              Accept: 'application/json',
+              'X-Runtime': 'Tamanu LAN Server',
+              'X-Version': version,
+              Authorization: this.token ? `Bearer ${this.token}` : undefined,
+              'Content-Type': body ? 'application/json' : undefined,
+              ...headers,
+            },
+            body: body && JSON.stringify(body),
+            timeout: this.timeout,
+            ...otherParams,
+          },
+          this.fetchImplementation,
+        );
+      } catch (e) {
+        // TODO: import AbortError from node-fetch once we're on v3.0
+        if (e.name === 'AbortError') {
+          throw new RemoteTimeoutError(`Server failed to respond within ${this.timeout}ms - ${url}`);
+        }
+        throw e;
+      };
+    });
 
     const checkForInvalidToken = ({ status }) => status === 401;
     if (checkForInvalidToken(response)) {

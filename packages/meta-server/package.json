@@ -60,7 +60,6 @@
     "express-session": "^1.15.6",
     "express-validator": "^6.5.0",
     "follow": "^1.1.0",
-    "json-prune": "^1.1.0",
     "lodash": "^4.17.5",
     "moment": "^2.21.0",
     "morgan": "^1.10.0",
