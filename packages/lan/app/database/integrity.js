@@ -14,6 +14,4 @@ async function ensureHostMatches(context) {
       `integrity check failed: sync.host mismatch: read ${configuredHost} from config, but already connected to ${lastHost} (you may need to drop and recreate the database, change the config back, or if you're 100% sure, remove the "host" key from the "local_metadata" table)`,
     );
   }
-
-  await LocalMetadata.set('host', configuredHost);
 }
