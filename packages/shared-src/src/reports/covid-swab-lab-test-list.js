@@ -41,7 +41,10 @@ const SURVEY_QUESTION_CODES = [
 const reportColumnTemplate = [
   { title: 'Patient first name', accessor: data => data.first_name },
   { title: 'Patient last name', accessor: data => data.last_name },
-  { title: 'DOB', accessor: data => data.date_of_birth },
+  {
+    title: 'DOB',
+    accessor: data => (data.date_of_birth ? moment(data.date_of_birth).format('DD-MM-YYYY') : ''),
+  },
   { title: 'Sex', accessor: data => data.sex },
   { title: 'Patient ID', accessor: data => data.display_id },
 
@@ -54,10 +57,17 @@ const reportColumnTemplate = [
   { title: 'Status', accessor: data => LAB_REQUEST_STATUS_LABELS[data.status] || data.status },
   { title: 'Result', accessor: data => data.result },
   { title: 'Requested by', accessor: data => data.requested_by_name },
-  { title: 'Requested date', accessor: data => data.lab_requested_date },
+  {
+    title: 'Requested date',
+    accessor: data =>
+      data.lab_requested_date ? moment(data.lab_requested_date).format('DD-MM-YYYY') : '',
+  },
   { title: 'Priority', accessor: data => data.lab_request_priority_name },
   { title: 'Testing laboratory', accessor: data => data.lab_request_laboratory_name },
-  { title: 'Testing date', accessor: data => data.completed_date },
+  {
+    title: 'Testing date',
+    accessor: data => (data.completed_date ? moment(data.completed_date).format('DD-MM-YYYY') : ''),
+  },
 
   { title: 'Health facility', accessor: data => data['pde-FijCOVSamp4'] },
   { title: 'Division', accessor: data => data['pde-FijCOVSamp6'] },
@@ -110,14 +120,12 @@ export const dataGenerator = async (models, parameters = {}) => {
     {},
   );
 
-  // get all covid lab requests with patient and encounter details sorted by date
-  // NOTE: TO_CHAR() is a POSTGRESQL ONLY function. This will NOT work in sqlite.
   const [requestResults] = await sequelize.query(
     `
     select
-      pa.id, pa.village_id, pa.first_name, pa.last_name, TO_CHAR(pa.date_of_birth, 'DD-MM-YYYY') as date_of_birth, pa.sex, pa.display_id,
+      pa.id, pa.village_id, pa.first_name, pa.last_name, pa.date_of_birth, pa.sex, pa.display_id,
       lr.id as lab_request_id, lr.requested_date, lr.lab_test_laboratory_id,
-      lr.display_id as lab_request_display_id, lr.status, TO_CHAR(lr.requested_date, 'DD-MM-YYYY') as lab_requested_date,
+      lr.display_id as lab_request_display_id, lr.status, lr.requested_date as lab_requested_date,
       users.display_name as requested_by_name,
       test_priority.name as lab_request_priority_name,
       test_laboratory.name as lab_request_laboratory_name
@@ -134,8 +142,7 @@ export const dataGenerator = async (models, parameters = {}) => {
   );
 
   // As we've already sorted by date in the query, we take the first result
-  // per patient and discard any following results, avoiding handling the date
-  // comparison in JS.
+  // per patient and discard any following results.
   const latestLabRequestByPatient = requestResults.reduce((data, result) => {
     const newData = { ...data };
     const { village, labTestLaboratory, fromDate, toDate } = parameters;
@@ -160,7 +167,7 @@ export const dataGenerator = async (models, parameters = {}) => {
   if (labRequestIds.length === 0) labRequestIds = null;
   const [labTestResults] = await sequelize.query(
     `
-      select result, TO_CHAR(completed_date, 'DD-MM-YYYY') as completed_date, lab_request_id,
+      select result, completed_date, lab_request_id,
         lab_test_types.name as lab_test_type_name
       from lab_tests
       left join lab_test_types on lab_test_types.id = lab_tests.lab_test_type_id
@@ -231,7 +238,7 @@ export const dataGenerator = async (models, parameters = {}) => {
   const [surveyRdtResults] = await sequelize.query(
     `
       select sra.response_id, en.patient_id,
-        pa.first_name, pa.last_name, TO_CHAR(pa.date_of_birth, 'DD-MM-YYYY') as date_of_birth,
+        pa.first_name, pa.last_name, pa.date_of_birth,
         pa.sex, pa.display_id
       from survey_response_answers sra
       left join survey_responses sr on sr.id = sra.response_id
