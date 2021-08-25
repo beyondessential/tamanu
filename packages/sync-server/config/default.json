@@ -5,7 +5,7 @@
     "verbose": false,
     "username": "",
     "password": "",
-    "syncOnStartup": true
+    "migrateOnStartup": false
   },
   "log": {
     "path": "",
@@ -30,8 +30,7 @@
   "mailgun": {
     "domain": "",
     "apiKey": "",
-    "from": "",
-    "toAddressOverride": ""
+    "from": ""
   },
   "cors": {
     "allowedOrigin": ""

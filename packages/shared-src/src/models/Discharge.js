@@ -35,7 +35,7 @@ export class Discharge extends Model {
   static initRelations(models) {
     this.belongsTo(models.Encounter, {
       foreignKey: 'encounterId',
-      as: 'discharge',
+      as: 'encounter',
     });
     this.belongsTo(models.User, {
       foreignKey: 'dischargerId',
