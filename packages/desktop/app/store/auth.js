@@ -1,3 +1,4 @@
+import { useSelector } from 'react-redux';
 import { createStatePreservingReducer } from '../utils/createStatePreservingReducer';
 
 // actions
@@ -178,3 +179,8 @@ const actionHandlers = {
 };
 
 export const authReducer = createStatePreservingReducer(defaultState, actionHandlers);
+
+const getUserSelector = state => state.auth?.user;
+export const useCurrentUser = () => {
+  return useSelector(getUserSelector);
+};
