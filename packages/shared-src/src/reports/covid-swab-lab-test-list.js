@@ -237,8 +237,8 @@ export const dataGenerator = async (models, parameters = {}) => {
 
   const [surveyRdtResults] = await sequelize.query(
     `
-      select sra.response_id, en.patient_id,
-        pa.first_name, pa.last_name, pa.date_of_birth,
+      select sra.response_id, en.patient_id, sr.end_time,
+        pa.first_name, pa.last_name, pa.date_of_birth, pa.village_id,
         pa.sex, pa.display_id
       from survey_response_answers sra
       left join survey_responses sr on sr.id = sra.response_id
@@ -250,6 +250,16 @@ export const dataGenerator = async (models, parameters = {}) => {
   );
   const latestRdtSurveyByPatient = surveyRdtResults.reduce((data, result) => {
     const newData = { ...data };
+    const { village, labTestLaboratory, fromDate, toDate } = parameters;
+
+    // Filter results for given parameters
+    if (village && result.village_id !== village) return newData;
+    if (labTestLaboratory) return newData;
+
+    const surveyDate = moment(result.end_time);
+    if (fromDate && !toDate && surveyDate.isBefore(fromDate, 'day')) return newData;
+    if (!fromDate && toDate && surveyDate.isAfter(toDate, 'day')) return newData;
+    if (fromDate && toDate && !surveyDate.isBetween(fromDate, toDate, 'day', '[]')) return newData;
 
     if (!data[result.patient_id]) {
       newData[result.patient_id] = result;
@@ -262,7 +272,7 @@ export const dataGenerator = async (models, parameters = {}) => {
   const rdtRows = [];
 
   for (const [patientId, surveyData] of Object.entries(latestRdtSurveyByPatient)) {
-    const { response_id, patient_id, ...patientDetails } = surveyData;
+    const { response_id, patient_id, village_id, end_time, ...patientColumnData } = surveyData;
 
     if (!latestLabRequestByPatient[patientId]) {
       const {
@@ -273,7 +283,7 @@ export const dataGenerator = async (models, parameters = {}) => {
       } = answersByResponseId[response_id];
 
       rdtRows.push({
-        ...patientDetails,
+        ...patientColumnData,
         ...answers,
         'pde-FijCOVSamp4': referenceDataIdToNames[FijCOVSamp4] || '',
         'pde-FijCOVSamp6': referenceDataIdToNames[FijCOVSamp6] || '',
