@@ -19,7 +19,6 @@ export async function initDatabase() {
     primaryKeyDefault: testMode ? createTestUUID : undefined,
     syncClientMode: true,
   });
-  await context.sequelize.migrate();
   await performIntegrityChecks(context);
   return context;
 }
