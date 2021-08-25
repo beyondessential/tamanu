@@ -10,13 +10,10 @@ export const log = winston.createLogger({
   transports: path && [
     new winston.transports.File({ filename: `${path}/error.log`, level: 'error' }),
     new winston.transports.File({ filename: `${path}/combined.log` }),
+    new winston.transports.Console({
+      format: winston.format.combine(winston.format.colorize(), winston.format.simple()),
+      level: consoleLevel || 'info',
+      silent: !consoleLevel,
+    }),
   ],
 });
-
-log.add(
-  new winston.transports.Console({
-    format: winston.format.combine(winston.format.colorize(), winston.format.simple()),
-    level: consoleLevel || 'info',
-    silent: !consoleLevel,
-  }),
-);
