@@ -51,7 +51,7 @@
     }
   },
   "currentFacilityId": "",
-  "chaos": {
+  "debugging": {
     "requestFailureRate": 0
   }
 }
