@@ -1,4 +1,5 @@
 import { Sequelize, Op } from 'sequelize';
+import moment from 'moment';
 import { generateReportFromQueryData } from './utilities';
 
 const parametersToSqlWhere = parameters => {
@@ -63,7 +64,7 @@ export const dataGenerator = async (models, parameters = {}) => {
   const patientsData = await models.Patient.findAll({
     attributes: [
       [Sequelize.literal(`DATE("Patient".created_at)`), 'dateCreated'],
-      [Sequelize.literal(`DATE("Patient".date_of_birth)`), 'dateOfBirth'],
+      'date_of_birth',
       'first_name',
       'middle_name',
       'last_name',
@@ -122,7 +123,23 @@ export const dataGenerator = async (models, parameters = {}) => {
     order: [[Sequelize.literal(`"dateCreated"`), 'ASC']],
   });
 
-  const reportData = patientsData.map(({ dataValues }) => {
+  const filteredData = patientsData.filter(({ dataValues }) => {
+    const { fromDate, toDate } = parameters;
+
+    // Filter results for given parameters
+    const registeredDate = moment(dataValues.dateCreated);
+    if (fromDate && !toDate && registeredDate.isBefore(fromDate, 'day')) return false;
+    if (!fromDate && toDate && registeredDate.isAfter(toDate, 'day')) return false;
+    if (fromDate && toDate && !registeredDate.isBetween(fromDate, toDate, 'day', '[]')) return false;
+
+    return true;
+  });
+
+  const reportData = filteredData.map(({ dataValues }) => {
+    const dateOfBirth = dataValues.date_of_birth
+      ? moment(dataValues.date_of_birth).format('DD-MM-YYYY')
+      : '';
+
     const villageName = dataValues.village?.dataValues?.name ?? null;
 
     const additionalData = dataValues.PatientAdditionalData[0]?.dataValues ?? null;
@@ -136,6 +153,7 @@ export const dataGenerator = async (models, parameters = {}) => {
 
     return {
       ...dataValues,
+      dateOfBirth,
       villageName,
       countryName,
       nationalityName,
