@@ -37,17 +37,17 @@ const DumbLabRequestTabs = ({
       >
         <Tabs.Screen
           options={{
-            title: 'New Request',
-          }}
-          name={Routes.HomeStack.LabRequestStack.LabRequestTabs.NewRequest}
-          component={AddLabRequestScreen}
-        />
-        <Tabs.Screen
-          options={{
             title: 'View History',
           }}
           name={Routes.HomeStack.LabRequestStack.LabRequestTabs.ViewHistory}
           component={ViewHistoryScreen}
+        />
+        <Tabs.Screen
+          options={{
+            title: 'New Request',
+          }}
+          name={Routes.HomeStack.LabRequestStack.LabRequestTabs.NewRequest}
+          component={AddLabRequestScreen}
         />
       </Tabs.Navigator>
     </>
