@@ -5,7 +5,7 @@ import { BadAuthenticationError, InvalidOperationError, RemoteTimeoutError } fro
 import { VERSION_COMPATIBILITY_ERRORS } from 'shared/constants';
 import { getResponseJsonSafely } from 'shared/utils';
 import { log } from 'shared/services/logging';
-import { fetchWithTimeout } from 'shared/utils';
+import { fetchWithTimeout } from 'shared/utils/fetchWithTimeout';
 
 import { version } from '~/../package.json';
 import { callWithBackoff } from './callWithBackoff';
