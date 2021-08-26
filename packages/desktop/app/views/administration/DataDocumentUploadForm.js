@@ -12,6 +12,9 @@ import { FormGrid } from 'desktop/app/components/FormGrid';
 import { ButtonRow } from 'desktop/app/components/ButtonRow';
 
 import { Button } from 'desktop/app/components/Button';
+import { Notification } from 'desktop/app/components/Notification';
+
+import { useCurrentUser } from 'desktop/app/store/auth';
 
 import { ImportStatsDisplay } from './components/ImportStatsDisplay';
 import { ImportErrorsTable } from './components/ImportErrorsTable';
@@ -117,6 +120,17 @@ export const DataDocumentUploadForm = memo(({ onSubmit, onReceiveResult, additio
       additionalFields={additionalFields}
     />
   ));
+
+  const user = useCurrentUser();
+  const isAdmin = user?.role === 'admin';
+
+  if (!isAdmin) {
+    return (
+      <Notification
+        message="Data uploads are available to admin users only."
+      />
+    );
+  }
 
   return (
     <React.Fragment>
