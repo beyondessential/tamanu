@@ -4,7 +4,7 @@
     "sqlitePath": "/tmp/tamanu-test.db"
   },
   "log": {
-    "consoleLevel": "warn"
+    "consoleLevel": null
   },
   "survey": {
     "defaultCodes": {
@@ -13,6 +13,11 @@
     }
   },
   "sync": {
-    "syncAllLabRequests": true
+    "syncAllLabRequests": true,
+    "backoff": {
+      "maxRetries": 1,
+      "multiplierMs": 0,
+      "maxWaitMs": 0
+    }
   }
 }

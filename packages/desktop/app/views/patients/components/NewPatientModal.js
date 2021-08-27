@@ -14,7 +14,7 @@ const DumbNewPatientModal = memo(({ open, onCancel, isBirth, ...formProps }) => 
 
 export const NewPatientModal = connectApi((api, dispatch, { onCreateNewPatient }) => ({
   onSubmit: async data => {
-    const newPatient = await api.post('patient', data);
+    const newPatient = await api.post('patient', { ...data, registeredById: api.user.id });
     onCreateNewPatient(newPatient);
   },
 }))(DumbNewPatientModal);

@@ -10,7 +10,7 @@ import sqlite3 from 'sqlite3';
 
 import { log } from './logging';
 
-import { migrateUp, migrateDown } from './migrations';
+import { migrate, assertUpToDate } from './migrations';
 import * as models from '../models';
 import { initSyncClientModeHooks } from '../models/sync';
 
@@ -35,7 +35,7 @@ const unsafeRecreatePgDb = async ({ name, username, password, host, port }) => {
   }
 };
 
-export async function initDatabase(dbOptions) {
+async function connectToDatabase(dbOptions) {
   // connect to database
   const {
     username,
@@ -44,11 +44,6 @@ export async function initDatabase(dbOptions) {
     host = null,
     port = null,
     verbose = false,
-    makeEveryModelParanoid = false,
-    saltRounds = null,
-    primaryKeyDefault = Sequelize.UUIDV4,
-    hackToSkipEncounterValidation = false, // TODO: remove once mobile implements all relationships
-    syncClientMode = false,
   } = dbOptions;
   let { name, sqlitePath = null } = dbOptions;
 
@@ -87,27 +82,47 @@ export async function initDatabase(dbOptions) {
     port,
     logging,
   });
+  await sequelize.authenticate();
 
+  process.on('SIGTERM', () => {
+    sequelize.close();
+  });
+
+  return sequelize;
+}
+
+export async function initDatabase(dbOptions) {
+  // connect to database
+  const {
+    makeEveryModelParanoid = false,
+    saltRounds = null,
+    primaryKeyDefault = Sequelize.UUIDV4,
+    hackToSkipEncounterValidation = false, // TODO: remove once mobile implements all relationships
+    syncClientMode = false,
+    sqlitePath,
+  } = dbOptions;
+
+  const sequelize = await connectToDatabase(dbOptions);
+  
   // set configuration variables for individual models
   models.User.SALT_ROUNDS = saltRounds;
-
-  // Ideally we could trigger a down-migration via something like
-  // $ yarn run lan-start-dev --migrate-down
-  // But the usual interface is going through package.json and webpack
-  // so it's a bit of a pain. This approach lets us do:
-  // $ MIGRATE_DOWN=true yarn run lan-start-dev
-  // which is pretty close.
-  if (process.env.MIGRATE_DOWN) {
-    await migrateDown(log, sequelize);
-    process.exit(0);
-  }
 
   // attach migration function to the sequelize object - leaving the responsibility
   // of calling it to the implementing server (this allows for skipping migrations
   // in favour of calling sequelize.sync() during test mode)
-  sequelize.migrate = sqlitePath
-    ? sequelize.sync // just sync in sqlite mode, migrations may contain pg-specific sql
-    : () => migrateUp(log, sequelize);
+  sequelize.migrate = async options => {
+    if (sqlitePath) {
+      log.info("Syncing sqlite schema...");
+      await sequelize.sync();
+      return;
+    }
+
+    return migrate(log, sequelize, options);
+  };
+
+  sequelize.assertUpToDate = async options => {
+    return assertUpToDate(log, sequelize, options);
+  };
 
   // init all models
   const modelClasses = Object.values(models);
