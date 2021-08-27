@@ -199,7 +199,7 @@ export class SyncManager {
         models.Location,
         models.UserFacility,
 
-        models.LabRequestLog,
+        // models.LabRequestLog,
       ];
 
       for (const model of modelsToSync) {
