@@ -90,8 +90,8 @@ export const Routes = {
     LabRequestStack: {
       Index: '',
       LabRequestTabs: {
-        NewRequest: '',
         ViewHistory: '',
+        NewRequest: '',
       },
     },
     HistoryVitalsStack: {
