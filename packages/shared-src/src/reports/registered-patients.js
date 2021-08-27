@@ -1,34 +1,6 @@
-import { Sequelize, Op } from 'sequelize';
+import { Sequelize } from 'sequelize';
 import moment from 'moment';
 import { generateReportFromQueryData } from './utilities';
-
-const parametersToSqlWhere = parameters => {
-  if (!parameters || !Object.keys(parameters).length) {
-    return undefined;
-  }
-
-  const whereClause = Object.entries(parameters)
-    .filter(([, val]) => val)
-    .reduce(
-      (where, [key, value]) => {
-        const newWhere = { ...where };
-        switch (key) {
-          case 'fromDate':
-            newWhere.createdAt[Op.gte] = value;
-            break;
-          case 'toDate':
-            newWhere.createdAt[Op.lte] = value;
-            break;
-          default:
-            break;
-        }
-        return newWhere;
-      },
-      { createdAt: {} },
-    );
-
-  return whereClause;
-};
 
 export const permission = 'Patient';
 
@@ -60,7 +32,6 @@ export const dataGenerator = async (models, parameters = {}) => {
     { title: 'Patient type', accessor: data => data.patientBillingTypeName },
   ];
 
-  const whereClause = parametersToSqlWhere(parameters);
   const patientsData = await models.Patient.findAll({
     attributes: [
       [Sequelize.literal(`DATE("Patient".created_at)`), 'dateCreated'],
@@ -119,7 +90,6 @@ export const dataGenerator = async (models, parameters = {}) => {
         ],
       },
     ],
-    where: whereClause,
     order: [[Sequelize.literal(`"dateCreated"`), 'ASC']],
   });
 
