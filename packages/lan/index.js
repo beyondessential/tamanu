@@ -49,10 +49,21 @@ async function migrate(options) {
   process.exit(0);
 }
 
+async function report(options) {
+  const context = await initDatabase();
+  const { getReportModule } = await import('shared/reports');
+  const module = getReportModule(options.name);
+  log.info(`Running report ${options.name} (with empty parameters)`);
+  const result = await module.dataGenerator(context.models, {});
+  console.log(result);
+  process.exit(0);
+}
+
 async function run(command, options) {
   const subcommand = {
     serve,
     migrate,
+    report,
   }[command];
 
   if (!subcommand) {
