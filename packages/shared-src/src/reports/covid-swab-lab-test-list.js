@@ -3,6 +3,8 @@ import moment from 'moment';
 import { generateReportFromQueryData } from './utilities';
 import { LAB_REQUEST_STATUS_LABELS } from '../constants';
 
+const yieldControl = () => new Promise(resolve => setTimeout(resolve, 20));
+
 const MODEL_COLUMN_TO_ANSWER_DISPLAY_VALUE = {
   User: 'displayName',
   ReferenceData: 'name',
@@ -433,6 +435,7 @@ export const dataGenerator = async (models, parameters = {}) => {
     });
 
     reportData.push(labTestRecord);
+    await yieldControl();
   }
 
   return generateReportFromQueryData(reportData, reportColumnTemplate);

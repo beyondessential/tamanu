@@ -11,7 +11,7 @@ import * as aefi from './aefi';
 import * as samoaAefi from './samoa-aefi';
 import * as numberPatientsRegisteredByDate from './number-patients-registered-by-date';
 import * as registeredPatients from './registered-patients';
-// import * as covidSwabLabTestList from './covid-swab-lab-test-list';
+import * as covidSwabLabTestList from './covid-swab-lab-test-list';
 import * as covidSwabLabTestsSummary from './covid-swab-lab-tests-summary';
 
 export function getReportModule(reportType) {
@@ -45,8 +45,7 @@ export function getReportModule(reportType) {
     case 'registered-patients':
       return registeredPatients;
     case 'covid-swab-lab-test-list':
-      // return covidSwabLabTestList;
-      throw new Error('covid-swab-lab-test-list has been temporarily disabled');
+      return covidSwabLabTestList;
     case 'covid-swab-lab-tests-summary':
       return covidSwabLabTestsSummary;
   }
