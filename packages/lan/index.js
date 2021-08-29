@@ -51,6 +51,8 @@ async function migrate(options) {
 
 async function report(options) {
   const context = await initDatabase();
+  // going via inline import rather than top-level just to keep diff footprint small during a hotfix
+  // should be fine to pull to the top level 
   const { getReportModule } = await import('shared/reports');
   const module = getReportModule(options.name);
   log.info(`Running report ${options.name} (with empty parameters)`);
