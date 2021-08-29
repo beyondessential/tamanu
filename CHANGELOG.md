@@ -8,7 +8,7 @@
 
 ### Features ⭐
 
-- (left blank)
+- Add registered patients line-list report
 
 ## Tweaks ⚖️
 

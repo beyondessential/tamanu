@@ -11,7 +11,11 @@ import { startDataChangePublisher } from './app/DataChangePublisher';
 
 import { listenForServerQueries } from './app/discovery';
 
+import { version } from './package.json';
+
 async function serve(options) {
+  log.info(`Starting facility server version ${version}.`);
+
   const context = await initDatabase();
 
   if (config.db.sqlitePath || config.db.migrateOnStartup) {

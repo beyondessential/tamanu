@@ -38,8 +38,9 @@ export async function migrateUp(log, sequelize) {
   const pending = await migrations.pending();
   if(pending.length > 0) {
     const files = pending.map(x => x.file);
-    log.info(`Performing ${pending.length} migration${pending.length > 1 ? 's' : ''} (${files.join(', ')})`);
+    log.info(`Applying ${pending.length} migration${pending.length > 1 ? 's' : ''} (${files.join(', ')})`);
     await migrations.up();
+    log.info(`Applied migrations successfully.`);
   } else {
     log.info('Migrations already up-to-date.');
   }
