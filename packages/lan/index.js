@@ -49,10 +49,23 @@ async function migrate(options) {
   process.exit(0);
 }
 
+async function report(options) {
+  const context = await initDatabase();
+  // going via inline import rather than top-level just to keep diff footprint small during a hotfix
+  // should be fine to pull to the top level 
+  const { getReportModule } = await import('shared/reports');
+  const module = getReportModule(options.name);
+  log.info(`Running report ${options.name} (with empty parameters)`);
+  const result = await module.dataGenerator(context.models, {});
+  console.log(result);
+  process.exit(0);
+}
+
 async function run(command, options) {
   const subcommand = {
     serve,
     migrate,
+    report,
   }[command];
 
   if (!subcommand) {
