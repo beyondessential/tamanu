@@ -1,33 +1,6 @@
-import { Sequelize, Op } from 'sequelize';
+import { Sequelize } from 'sequelize';
+import moment from 'moment';
 import { generateReportFromQueryData } from './utilities';
-
-const parametersToSqlWhere = parameters => {
-  if (!parameters || !Object.keys(parameters).length) {
-    return undefined;
-  }
-
-  const whereClause = Object.entries(parameters)
-    .filter(([, val]) => val)
-    .reduce(
-      (where, [key, value]) => {
-        const newWhere = { ...where };
-        switch (key) {
-          case 'fromDate':
-            newWhere.createdAt[Op.gte] = value;
-            break;
-          case 'toDate':
-            newWhere.createdAt[Op.lte] = value;
-            break;
-          default:
-            break;
-        }
-        return newWhere;
-      },
-      { createdAt: {} },
-    );
-
-  return whereClause;
-};
 
 export const permission = 'Patient';
 
@@ -59,11 +32,10 @@ export const dataGenerator = async (models, parameters = {}) => {
     { title: 'Patient type', accessor: data => data.patientBillingTypeName },
   ];
 
-  const whereClause = parametersToSqlWhere(parameters);
   const patientsData = await models.Patient.findAll({
     attributes: [
       [Sequelize.literal(`DATE("Patient".created_at)`), 'dateCreated'],
-      [Sequelize.literal(`DATE("Patient".date_of_birth)`), 'dateOfBirth'],
+      'date_of_birth',
       'first_name',
       'middle_name',
       'last_name',
@@ -118,11 +90,26 @@ export const dataGenerator = async (models, parameters = {}) => {
         ],
       },
     ],
-    where: whereClause,
     order: [[Sequelize.literal(`"dateCreated"`), 'ASC']],
   });
 
-  const reportData = patientsData.map(({ dataValues }) => {
+  const filteredData = patientsData.filter(({ dataValues }) => {
+    const { fromDate, toDate } = parameters;
+
+    // Filter results for given parameters
+    const registeredDate = moment(dataValues.dateCreated);
+    if (fromDate && !toDate && registeredDate.isBefore(fromDate, 'day')) return false;
+    if (!fromDate && toDate && registeredDate.isAfter(toDate, 'day')) return false;
+    if (fromDate && toDate && !registeredDate.isBetween(fromDate, toDate, 'day', '[]')) return false;
+
+    return true;
+  });
+
+  const reportData = filteredData.map(({ dataValues }) => {
+    const dateOfBirth = dataValues.date_of_birth
+      ? moment(dataValues.date_of_birth).format('DD-MM-YYYY')
+      : '';
+
     const villageName = dataValues.village?.dataValues?.name ?? null;
 
     const additionalData = dataValues.PatientAdditionalData[0]?.dataValues ?? null;
@@ -136,6 +123,7 @@ export const dataGenerator = async (models, parameters = {}) => {
 
     return {
       ...dataValues,
+      dateOfBirth,
       villageName,
       countryName,
       nationalityName,
