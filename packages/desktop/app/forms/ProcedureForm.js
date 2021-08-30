@@ -73,15 +73,17 @@ export class ProcedureForm extends React.PureComponent {
                 suggester={procedureSuggester}
               />
             </div>
-            <Field
-              name="locationId"
-              label="Procedure location"
-              required
-              component={AutocompleteField}
-              suggester={locationSuggester}
-            />
-            <FormGrid columns={3}>
+            <FormGrid style={{ gridColumn: 'span 2' }}>
+              <Field
+                name="locationId"
+                label="Procedure location"
+                required
+                component={AutocompleteField}
+                suggester={locationSuggester}
+              />
               <Field name="date" label="Procedure date" required component={DateField} />
+            </FormGrid>
+            <FormGrid style={{ gridColumn: 'span 2' }}>
               <Field name="startTime" label="Time started" component={TimeField} />
               <Field name="endTime" label="Time ended" component={TimeField} />
             </FormGrid>
