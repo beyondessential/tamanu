@@ -1,9 +1,5 @@
 import { LAB_TEST_STATUSES, LAB_REQUEST_STATUSES } from 'shared/constants';
-import {
-  createDummyPatient,
-  createDummyEncounter,
-  randomReferenceId,
-} from 'shared/demoData/patients';
+import { createDummyPatient, randomReferenceId } from 'shared/demoData/patients';
 import { createTestContext } from '../utilities';
 
 const randomLabTests = (models, labTestCategoryId, amount) =>
@@ -150,6 +146,17 @@ describe('Labs', () => {
 
     const labRequest = await models.LabRequest.findByPk(requestId);
     expect(labRequest).toHaveProperty('status', status);
+  });
+
+  it('should delete a lab request', async () => {
+    const { id: requestId } = await models.LabRequest.createWithTests(
+      await randomLabRequest(models, { patientId }),
+    );
+    const deleteRequest = await app.delete(`/v1/labRequest/${requestId}`);
+    expect(deleteRequest).toHaveSucceeded();
+
+    const getRequest = await app.get(`/v1/labRequest/${requestId}`);
+    expect(getRequest.statusCode).toEqual(404);
   });
 
   describe('Options', () => {
