@@ -137,9 +137,9 @@ A survey response answer represents an answer to a single question (program data
 
 Represents metadata for a question on a survey (for eg, position within the survey, any survey-specific overrides). The actual contents of the question (question type, text, etc) is stored in ProgramDataElement.
 
-### SyncMetadata
+### ChannelSyncPullCursor
 
-Utility table to help manage the sync process. Not directly related to any patient or medical information.
+Utility table to track the sync cursor for a channel. Not directly related to any patient or medical information, other than UUID.
 
 ### Triage
 
