@@ -39,7 +39,7 @@ export async function run() {
 
   // only execute tasks on the first worker process
   if (isFirstProcess) {
-    startScheduledTasks(context);
+    await startScheduledTasks(context);
   }
 
   if (config.notifications && config.notifications.referralCreated) {
