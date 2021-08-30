@@ -3,7 +3,9 @@ import {
   TupaiaApiClient,
   BasicAuthHandler,
   LOCALHOST_ENDPOINT_BASE_URLS,
-} from '@beyondessential/tupaia-api-client';
+  DEV_BASE_URLS,
+  ENDPOINT_BASE_URLS,
+} from '@tupaia/api-client';
 
 export const createTupaiaApiClient = () => {
   if (!config.tupaiaApiClient?.auth) {
@@ -14,9 +16,43 @@ export const createTupaiaApiClient = () => {
 
   const auth = new BasicAuthHandler(username, password);
 
-  // Can set config option { baseUrls: local } to use local host tupaia. Otherwise uses production.
-  const endpointBaseUrls =
-    config.tupaiaApiClient.baseUrls === 'local' ? LOCALHOST_ENDPOINT_BASE_URLS : undefined;
+  let baseUrls = null;
 
-  return new TupaiaApiClient(auth, endpointBaseUrls);
+  const { environment } = config.tupaiaApiClient;
+  switch (environment) {
+    case 'dev':
+      baseUrls = DEV_BASE_URLS;
+      break;
+    case 'local':
+      baseUrls = LOCALHOST_ENDPOINT_BASE_URLS;
+      break;
+    case 'production':
+      baseUrls = ENDPOINT_BASE_URLS;
+      break;
+    default:
+      throw new Error('Must specify a valid tupaiaApiClient.environment');
+  }
+
+  return new TupaiaApiClient(auth, baseUrls);
+};
+
+export const translateReportDataToSurveyResponses = (surveyId, reportData) => {
+  const [headerRow, ...dataRows] = reportData;
+  const translated = [];
+  for (const dataRow of dataRows) {
+    const translatedRow = {
+      survey_id: surveyId,
+      answers: {},
+    };
+    for (let i = 0; i < headerRow.length; i++) {
+      const columnTitle = headerRow[i];
+      if (['entity_code', 'timestamp'].includes(columnTitle)) {
+        translatedRow[columnTitle] = dataRow[i];
+      } else {
+        translatedRow.answers[columnTitle] = dataRow[i];
+      }
+    }
+    translated.push(translatedRow);
+  }
+  return translated;
 };

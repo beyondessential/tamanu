@@ -4,7 +4,7 @@ import { COMMUNICATION_STATUSES, REPORT_REQUEST_STATUSES } from 'shared/constant
 import { getReportModule } from 'shared/reports';
 import { ScheduledTask } from 'shared/tasks';
 import { log } from 'shared/services/logging';
-import { createTupaiaApiClient } from 'shared/utils';
+import { createTupaiaApiClient, translateReportDataToSurveyResponses } from 'shared/utils';
 
 import { sendEmail } from '../services/EmailService';
 import { writeExcelFile } from '../utils/excel';
@@ -134,6 +134,16 @@ export class ReportRequestProcessor extends ScheduledTask {
    * @returns {Promise<void>}
    */
   async sendReportToTupaia(request, reportData) {
-    // TODO: implement
+    const reportConfig = config.reports?.[request.reportType];
+
+    if (!reportConfig) {
+      throw new Error('Report not configured');
+    }
+
+    const { surveyId } = reportConfig;
+
+    const translated = translateReportDataToSurveyResponses(surveyId, reportData);
+
+    await this.tupaiaApiClient.meditrak.createSurveyResponses(translated);
   }
 }

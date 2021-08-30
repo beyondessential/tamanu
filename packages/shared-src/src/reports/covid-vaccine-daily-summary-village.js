@@ -7,12 +7,8 @@ import { DATA_TIME_FORMAT } from '@beyondessential/tupaia-api-client';
 import { generateReportFromQueryData } from './utilities';
 
 const reportColumnTemplate = [
-  {
-    title: 'village',
-    accessor: data => data.village,
-  },
-  { title: 'tupaiaEntityCode', accessor: data => data.tupaiaEntityCode },
-  { title: 'data_time', accessor: data => data.data_time },
+  { title: 'entity_code', accessor: data => data.tupaiaEntityCode },
+  { title: 'timestamp', accessor: data => data.data_time },
   { title: 'COVIDVac1', accessor: data => data.COVIDVac1 },
   { title: 'COVIDVac2', accessor: data => data.COVIDVac2 },
   { title: 'COVIDVac3', accessor: data => data.COVIDVac3 },

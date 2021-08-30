@@ -251,9 +251,12 @@
     }
   },
   "reports": {
+    // Configure this COVID report with custom properties needed for mapping entities, and the surveyId to sync with tupaia.
+    // Note: it only syncs if configured to in the scheduled reports config.
     "covid-vaccine-daily-summary-village": {
       "countryCode": "WS",
-      "hierarchyName": "covid_samoa"
+      "hierarchyName": "covid_samoa",
+      "surveyId": "605b114261f76a3684009d5a"
     }
   }
 }
