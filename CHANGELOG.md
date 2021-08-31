@@ -9,6 +9,7 @@
 ### Features ⭐
 
 - Add registered patients line-list report
+- Generic Vaccine line list report
 
 ## Tweaks ⚖️
 
