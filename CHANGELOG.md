@@ -20,4 +20,4 @@
 
 ## Infrastructure and maintenance 🛠
 
-- (left blank)
+- Removed Tonga from meta-server
