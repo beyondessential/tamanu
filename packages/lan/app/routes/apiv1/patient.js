@@ -285,7 +285,11 @@ patientRoute.get(
       });
 
     const filters = [
-      makeFilter(filterParams.displayId, `patients.display_id = :displayId`),
+      makeFilter(
+        filterParams.displayId,
+        `UPPER(patients.display_id) LIKE UPPER(:displayId)`,
+        ({ displayId }) => ({ displayId: `%${displayId}%` }),
+      ),
       makeFilter(
         filterParams.firstName,
         `UPPER(patients.first_name) LIKE UPPER(:firstName)`,
