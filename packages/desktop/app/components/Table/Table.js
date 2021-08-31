@@ -3,7 +3,9 @@
  * Copyright (c) 2018 Beyond Essential Systems Pty Ltd
  */
 
-import React from 'react';
+import React, { isValidElement } from 'react';
+import ReactDOMServer from 'react-dom/server';
+import cheerio from 'cheerio';
 import PropTypes from 'prop-types';
 import styled from 'styled-components';
 import MaterialTable from '@material-ui/core/Table';
@@ -302,43 +304,60 @@ class TableComponent extends React.Component {
   }
 }
 
+function getHeaderValue(column) {
+  if (!column.title) {
+    return column.key;
+  }
+  if (typeof column.title === 'string') {
+    return column.title;
+  }
+  if (typeof column.title === 'object') {
+    if (isValidElement(column.title)) {
+      return cheerio.load(ReactDOMServer.renderToString(column.title)).text();
+    }
+  }
+  return column.key;
+}
 export const Table = ({ columns: allColumns, data, exportName, ...props }) => {
   const { getLocalisation } = useLocalisation();
   const columns = allColumns.filter(({ key }) => getLocalisation(`fields.${key}.hidden`) !== true);
 
   const { showSaveDialog, openPath } = useElectron();
   const onDownloadData = async () => {
-    const headers = columns.map(c => c.key);
+    const header = columns.map(getHeaderValue);
     const rows = await Promise.all(
       data.map(async d => {
         const dx = {};
         await Promise.all(
           columns.map(async c => {
+            const headerValue = getHeaderValue(c);
             if (c.asyncExportAccessor) {
               const value = await c.asyncExportAccessor(d);
-              dx[c.key] = value;
+              dx[headerValue] = value;
               return;
             }
 
             if (c.accessor) {
               const value = c.accessor(d);
-              // True if accessor returns a React element,
-              // which we can't export to a excel sheet, so just use the raw value.
-              // (e.g. dates)
+              // render react element and get the text value with cheerio
               if (typeof value === 'object') {
-                dx[c.key] = d[c.key];
+                if (isValidElement(value)) {
+                  dx[headerValue] = cheerio.load(ReactDOMServer.renderToString(value)).text();
+                } else {
+                  dx[headerValue] = d[c.key];
+                }
                 return;
               }
 
               if (typeof value === 'string') {
-                dx[c.key] = value;
+                dx[headerValue] = value;
                 return;
               }
 
-              dx[c.key] = 'Error: Could not parse accessor';
+              dx[headerValue] = 'Error: Could not parse accessor';
             } else {
               // Some columns have no accessor at all.
-              dx[c.key] = d[c.key];
+              dx[headerValue] = d[c.key];
             }
           }),
         );
@@ -347,7 +366,7 @@ export const Table = ({ columns: allColumns, data, exportName, ...props }) => {
     );
 
     const ws = XLSX.utils.json_to_sheet(rows, {
-      header: headers,
+      header,
     });
     const wb = XLSX.utils.book_new();
     XLSX.utils.book_append_sheet(wb, ws, exportName);

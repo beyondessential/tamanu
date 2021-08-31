@@ -1,5 +1,4 @@
 import React from 'react';
-import { connect } from 'react-redux';
 
 import { Table } from './Table';
 import { DateDisplay } from './DateDisplay';
@@ -19,22 +18,18 @@ const vitalsRows = [
   { key: 'avpu', title: 'AVPU', unit: '/min' },
 ];
 
-const UnitDisplay = React.memo(({ amount, unit, rounding }) => {
+function unitDisplay({ amount, unit, rounding }) {
   if (typeof amount === 'string') return capitaliseFirstLetter(amount);
   if (typeof amount !== 'number') return '-';
 
-  return (
-    <span>
-      {amount.toFixed(rounding)}
-      <span>{unit}</span>
-    </span>
-  );
-});
+  return `${amount.toFixed(rounding)}${unit}`;
+}
 
 export const VitalsTable = React.memo(() => {
   const {
     encounter: { vitals: readings },
   } = useEncounter();
+
   // create a column for each reading
   const dataColumns = [
     { key: 'title', title: 'Measure' },
@@ -43,6 +38,8 @@ export const VitalsTable = React.memo(() => {
       .map(r => ({
         title: <DateDisplay date={r.dateRecorded} />,
         key: r.dateRecorded,
+        // use by table
+        accessor: data => data[r.dateRecorded],
       })),
   ];
   // function to create an object containing a single metric's value for each reading
@@ -50,9 +47,11 @@ export const VitalsTable = React.memo(() => {
     readings.reduce(
       (state, current) => ({
         ...state,
-        [current.dateRecorded]: (
-          <UnitDisplay amount={current[key]} rounding={rounding} unit={unit} />
-        ),
+        [current.dateRecorded]: unitDisplay({
+          amount: current[key],
+          rounding,
+          unit,
+        }),
       }),
       {},
     );
