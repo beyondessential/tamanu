@@ -12,7 +12,7 @@
 
 ## Tweaks ⚖️
 
-- (left blank)
+- Renamed SyncMetadata to ChannelSyncPullCursor
 
 ## Bug fixes 🐛
 
