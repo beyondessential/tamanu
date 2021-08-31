@@ -1,4 +1,4 @@
-import { keyBy } from 'lodash';
+import { keyBy, groupBy } from 'lodash';
 import moment from 'moment';
 import { generateReportFromQueryData } from './utilities';
 import { LAB_REQUEST_STATUS_LABELS } from '../constants';
@@ -11,6 +11,8 @@ const MODEL_COLUMN_TO_ANSWER_DISPLAY_VALUE = {
 };
 
 const FIJI_SAMP_SURVEY_ID = 'program-fijicovid19-fijicovidsampcollection';
+
+const RDT_RESULT_CODE = 'pde-FijCOVSamp43';
 
 const SURVEY_QUESTION_CODES = {
   healthFacility: 'pde-FijCOVSamp4',
@@ -40,190 +42,18 @@ const SURVEY_QUESTION_CODES = {
   dateOf1stDose: 'pde-FijCOVSamp39',
   dateOf2ndDose: 'pde-FijCOVSamp40',
   rdtConducted: 'pde-FijCOVSamp42',
-  rdtResult: 'pde-FijCOVSamp43',
+  rdtResult: RDT_RESULT_CODE,
   rdtDate: 'pde-FijCOVSamp52',
   highRisk: 'pde-FijCOVSamp59',
   primaryContactHighRisk: 'pde-FijCOVSamp60',
   highRiskDetails: 'pde-FijCOVSamp61',
 };
 
-const parametersToLabTestSqlWhere = parameters => {
-  const defaultWhereClause = {
-    '$labRequest.lab_test_category_id$': 'labTestCategory-COVID',
-  };
-
-  if (!parameters || !Object.keys(parameters).length) {
-    return defaultWhereClause;
-  }
-
-  const whereClause = Object.entries(parameters)
-    .filter(([, val]) => val)
-    .reduce((where, [key, value]) => {
-      const newWhere = { ...where };
-      switch (key) {
-        case 'village':
-          newWhere['$labRequest->encounter->patient.village_id$'] = value;
-          break;
-        case 'labTestLaboratory':
-          newWhere['$labRequest.lab_test_laboratory_id$'] = value;
-          break;
-        default:
-          break;
-      }
-      return newWhere;
-    }, defaultWhereClause);
-
-  return whereClause;
-};
-
-const parametersToSurveyResponseSqlWhere = parameters => {
-  const defaultWhereClause = {
-    '$surveyResponse.survey_id$': FIJI_SAMP_SURVEY_ID,
-  };
-
-  if (!parameters || !Object.keys(parameters).length) {
-    return defaultWhereClause;
-  }
-
-  const whereClause = Object.entries(parameters)
-    .filter(([, val]) => val)
-    .reduce((where, [key, value]) => {
-      const newWhere = { ...where };
-      switch (key) {
-        case 'village':
-          newWhere['$surveyResponse->encounter->patient.village_id$'] = value;
-          break;
-        default:
-          break;
-      }
-      return newWhere;
-    }, defaultWhereClause);
-
-  return whereClause;
-};
-
-const getTransformedAnswers = async (models, surveyResponseAnswers) => {
-  const components = await models.SurveyScreenComponent.getComponentsForSurvey(FIJI_SAMP_SURVEY_ID);
-
-  const autocompleteComponents = components
-    .filter(c => c.dataElement.dataValues.type === 'Autocomplete')
-    .map(({ dataElementId, config: componentConfig }) => [
-      dataElementId,
-      JSON.parse(componentConfig),
-    ]);
-  const autocompleteComponentMap = new Map(autocompleteComponents);
-
-  // Transform Autocomplete answers from: ReferenceData.id to ReferenceData.name
-  const transformedAnswers = await Promise.all(
-    surveyResponseAnswers.map(async answer => {
-      const surveyResponseId = answer.surveyResponse?.id;
-      const patientId = answer.surveyResponse?.encounter?.patientId;
-      const responseEndTime = answer.surveyResponse?.endTime;
-      const dataElementId = answer.dataElementId;
-      const body = answer.body;
-      const componentConfig = autocompleteComponentMap.get(dataElementId);
-      if (
-        !componentConfig ||
-        body === null || // Nothing to transform, so returning raw answer
-        body === undefined ||
-        body === ''
-      ) {
-        return {
-          surveyResponseId,
-          patientId,
-          responseEndTime,
-          dataElementId,
-          body,
-        };
-      }
-
-      const result = await models[componentConfig.source].findByPk(body);
-      if (!result) {
-        return {
-          surveyResponseId,
-          patientId,
-          responseEndTime,
-          dataElementId,
-          body,
-        };
-      }
-
-      const answerDisplayValue =
-        result[MODEL_COLUMN_TO_ANSWER_DISPLAY_VALUE[componentConfig.source]];
-      const transformedAnswer = {
-        surveyResponseId,
-        patientId,
-        responseEndTime,
-        dataElementId,
-        body: answerDisplayValue,
-      };
-      return transformedAnswer;
-    }),
-  );
-
-  return transformedAnswers;
-};
-
-const getLabTests = async (models, parameters) => {
-  return models.LabTest.findAll({
-    include: [
-      {
-        model: models.LabRequest,
-        as: 'labRequest',
-        include: [
-          {
-            model: models.Encounter,
-            as: 'encounter',
-            include: [
-              {
-                model: models.Patient,
-                as: 'patient',
-                include: [{ model: models.ReferenceData, as: 'village' }],
-              },
-            ],
-          },
-          { model: models.ReferenceData, as: 'category' },
-          { model: models.ReferenceData, as: 'priority' },
-          { model: models.ReferenceData, as: 'laboratory' },
-          { model: models.User, as: 'requestedBy' },
-        ],
-      },
-      {
-        model: models.LabTestType,
-        as: 'labTestType',
-      },
-    ],
-    where: parametersToLabTestSqlWhere(parameters),
-    order: [['date', 'ASC']],
-  });
-};
-
-const getFijiCovidAnswers = async (models, parameters) => {
-  // Use the latest survey responses per patient above to get the corresponding answers
-  const answers = await models.SurveyResponseAnswer.findAll({
-    where: parametersToSurveyResponseSqlWhere(parameters),
-    include: [
-      {
-        model: models.SurveyResponse,
-        as: 'surveyResponse',
-        include: [
-          {
-            model: models.Encounter,
-            as: 'encounter',
-            include: [
-              {
-                model: models.Patient,
-                as: 'patient',
-              },
-            ],
-          },
-        ],
-        order: [['end_time', 'ASC']],
-      },
-    ],
-  });
-
-  return answers;
+const SURVEY_DATE_QUESTION_CODES = {
+  admissionDate: 'pde-FijCOVSamp19',
+  dateOf1stDose: 'pde-FijCOVSamp39',
+  dateOf2ndDose: 'pde-FijCOVSamp40',
+  rdtDate: 'pde-FijCOVSamp52',
 };
 
 const reportColumnTemplate = [
@@ -299,73 +129,245 @@ const reportColumnTemplate = [
   { title: 'Details of high risk primary contact', accessor: data => data.highRiskDetails },
 ];
 
-export const dataGenerator = async (models, parameters = {}) => {
-  const labTests = await getLabTests(models, parameters);
-
-  const answers = await getFijiCovidAnswers(models, parameters);
-
-  const transformedAnswers = await getTransformedAnswers(models, answers);
-
-  // Find latest survey response within date range using the answers.
-  const getLatestPatientSurveyResponseIdInDateRange = (
-    currentlabTestDate,
-    nextLabTestDate,
-    patientId,
-  ) => {
-    const answersInRange = transformedAnswers
-      .filter(
-        a =>
-          moment(a.responseEndTime).isBetween(
-            currentlabTestDate,
-            nextLabTestDate,
-            undefined,
-            '[)', // '[)' means currentLabTestDate <= surveyResponse.endTime < nextLabTestDate
-          ) && a.patientId === patientId,
-      )
-      .sort((a1, a2) => moment(a1.responseEndTime).diff(moment(a2.responseEndTime)));
-    return answersInRange[answersInRange.length - 1]?.surveyResponseId;
+const parametersToLabTestSqlWhere = parameters => {
+  const defaultWhereClause = {
+    '$labRequest.lab_test_category_id$': 'labTestCategory-COVID',
   };
 
-  const answersByPatientSurveyResponseDataElement = keyBy(
-    transformedAnswers,
-    a => `${a.patientId}|${a.surveyResponseId}|${a.dataElementId}`, // should be unique
+  if (!parameters || !Object.keys(parameters).length) {
+    return defaultWhereClause;
+  }
+
+  const whereClause = Object.entries(parameters)
+    .filter(([, val]) => val)
+    .reduce((where, [key, value]) => {
+      const newWhere = { ...where };
+      switch (key) {
+        case 'village':
+          newWhere['$labRequest->encounter->patient.village_id$'] = value;
+          break;
+        case 'labTestLaboratory':
+          newWhere['$labRequest.lab_test_laboratory_id$'] = value;
+          break;
+        default:
+          break;
+      }
+      return newWhere;
+    }, defaultWhereClause);
+
+  return whereClause;
+};
+
+const parametersToSurveyResponseSqlWhere = parameters => {
+  const defaultWhereClause = {
+    '$surveyResponse.survey_id$': FIJI_SAMP_SURVEY_ID,
+  };
+
+  if (!parameters || !Object.keys(parameters).length) {
+    return defaultWhereClause;
+  }
+
+  const whereClause = Object.entries(parameters)
+    .filter(([, val]) => val)
+    .reduce((where, [key, value]) => {
+      const newWhere = { ...where };
+      switch (key) {
+        case 'village':
+          newWhere['$surveyResponse->encounter->patient.village_id$'] = value;
+          break;
+        default:
+          break;
+      }
+      return newWhere;
+    }, defaultWhereClause);
+
+  return whereClause;
+};
+
+const getTransformedAnswers = async (models, surveyResponseAnswers) => {
+  const components = await models.SurveyScreenComponent.getComponentsForSurvey(FIJI_SAMP_SURVEY_ID);
+
+  const autocompleteComponents = components
+    .filter(c => c.dataElement.dataValues.type === 'Autocomplete')
+    .map(({ dataElementId, config: componentConfig }) => [
+      dataElementId,
+      JSON.parse(componentConfig),
+    ]);
+  const autocompleteComponentMap = new Map(autocompleteComponents);
+
+  // Transform Autocomplete answers from: ReferenceData.id to ReferenceData.name
+  const transformedAnswers = await Promise.all(
+    surveyResponseAnswers.map(async answer => {
+      const surveyResponseId = answer.surveyResponse?.id;
+      const patientId = answer.surveyResponse?.encounter?.patientId;
+      const responseEndTime = answer.surveyResponse?.endTime;
+      const dataElementId = answer.dataElementId;
+      const body =
+        Object.values(SURVEY_DATE_QUESTION_CODES).includes(dataElementId) && answer.body
+          ? moment(answer.body).format('DD-MM-YYYY')
+          : '';
+      const componentConfig = autocompleteComponentMap.get(dataElementId);
+      if (
+        !componentConfig ||
+        body === null || // Nothing to transform, so returning raw answer
+        body === undefined ||
+        body === ''
+      ) {
+        return {
+          surveyResponseId,
+          patientId,
+          responseEndTime,
+          dataElementId,
+          body,
+        };
+      }
+
+      const result = await models[componentConfig.source].findByPk(body);
+      if (!result) {
+        return {
+          surveyResponseId,
+          patientId,
+          responseEndTime,
+          dataElementId,
+          body,
+        };
+      }
+
+      const answerDisplayValue =
+        result[MODEL_COLUMN_TO_ANSWER_DISPLAY_VALUE[componentConfig.source]];
+      return {
+        surveyResponseId,
+        patientId,
+        responseEndTime,
+        dataElementId,
+        body: answerDisplayValue,
+      };
+    }),
   );
 
-  const getAnswer = (patientId, surveyResponseId, dataElementId) => {
-    if (!surveyResponseId) {
-      // survey response id can be empty if there are no responses in the range.
-      return undefined;
-    }
-    const answer =
-      answersByPatientSurveyResponseDataElement[
-        `${patientId}|${surveyResponseId}|${dataElementId}`
-      ];
+  return transformedAnswers;
+};
 
-    return answer?.body;
-  };
+const getLabTests = async (models, parameters) => {
+  return models.LabTest.findAll({
+    include: [
+      {
+        model: models.LabRequest,
+        as: 'labRequest',
+        include: [
+          {
+            model: models.Encounter,
+            as: 'encounter',
+            include: [
+              {
+                model: models.Patient,
+                as: 'patient',
+                include: [{ model: models.ReferenceData, as: 'village' }],
+              },
+            ],
+          },
+          { model: models.ReferenceData, as: 'category' },
+          { model: models.ReferenceData, as: 'priority' },
+          { model: models.ReferenceData, as: 'laboratory' },
+          { model: models.User, as: 'requestedBy' },
+        ],
+      },
+      {
+        model: models.LabTestType,
+        as: 'labTestType',
+      },
+    ],
+    where: parametersToLabTestSqlWhere(parameters),
+    order: [['date', 'ASC']],
+  });
+};
 
-  const reportData = [];
+const getFijiCovidAnswers = async (models, parameters) => {
+  // Use the latest survey responses per patient above to get the corresponding answers
+  const answers = await models.SurveyResponseAnswer.findAll({
+    where: parametersToSurveyResponseSqlWhere(parameters),
+    include: [
+      {
+        model: models.SurveyResponse,
+        as: 'surveyResponse',
+        include: [
+          {
+            model: models.Encounter,
+            as: 'encounter',
+            include: [
+              {
+                model: models.Patient,
+                as: 'patient',
+              },
+            ],
+          },
+        ],
+        order: [['end_time', 'ASC']],
+      },
+    ],
+  });
 
-  // No lab tests, just include answers from latest survey
-  if (labTests.length === 0) {
-    const patientData = answers[0]?.surveyResponse?.encounter.patient;
-    const surveyAnswers = {};
-    transformedAnswers.forEach(({ dataElementId, body }) => {
-      surveyAnswers[dataElementId] = body;
-    });
-    const dataValues = {
-      firstName: patientData?.firstName,
-      lastName: patientData?.lastName,
-      dob: patientData?.dateOfBirth ? moment(patientData?.dateOfBirth).format('DD-MM-YYYY') : '',
-      sex: patientData?.sex,
-      patientId: patientData?.displayId,
-    };
+  return answers;
+};
 
-    Object.entries(SURVEY_QUESTION_CODES).forEach(([key, code]) => {
-      dataValues[key] = surveyAnswers[code];
-    });
-    reportData.push(dataValues);
+const getSurveyResponses = async models => {
+  return models.SurveyResponse.findAll({
+    include: [
+      {
+        model: models.Encounter,
+        as: 'encounter',
+        include: [
+          {
+            model: models.Patient,
+            as: 'patient',
+          },
+        ],
+      },
+    ],
+    order: [['end_time', 'ASC']],
+    where: {
+      survey_id: FIJI_SAMP_SURVEY_ID,
+    },
+  });
+};
+
+// Find latest survey response within date range using the answers.
+const getLatestPatientAnswerInDateRange = (
+  transformedAnswersByPatientAndDataElement,
+  currentlabTestDate,
+  nextLabTestDate,
+  patientId,
+  dataElementId,
+) => {
+  const patientTransformedAnswers =
+    transformedAnswersByPatientAndDataElement[`${patientId}|${dataElementId}`];
+
+  if (!patientTransformedAnswers) {
+    return undefined;
   }
+
+  const sortedLatestToOldestAnswers = patientTransformedAnswers.sort((a1, a2) =>
+    moment(a2.responseEndTime).diff(moment(a1.responseEndTime)),
+  );
+  const latestAnswer = sortedLatestToOldestAnswers.find(a =>
+    moment(a.responseEndTime).isBetween(
+      currentlabTestDate,
+      nextLabTestDate,
+      undefined,
+      '[)', // '[)' means currentLabTestDate <= surveyResponse.endTime < nextLabTestDate
+    ),
+  );
+
+  return latestAnswer?.body;
+};
+
+const getLabTestRecords = async (labTests, transformedAnswers, parameters) => {
+  const transformedAnswersByPatientAndDataElement = groupBy(
+    transformedAnswers,
+    a => `${a.patientId}|${a.dataElementId}`,
+  );
+
+  const results = [];
 
   // lab tests were already sorted by 'date' ASC in the sql.
   for (let i = 0; i < labTests.length; i++) {
@@ -405,13 +407,6 @@ export const dataGenerator = async (models, parameters = {}) => {
 
     const patientId = labTest.labRequest?.encounter?.patientId;
 
-    // Get the latest Fiji covid survey response id for a patient within date range,
-    // then use that survey response id to find the answers.
-    const latestPatientSurveyResponseId = getLatestPatientSurveyResponseIdInDateRange(
-      currentLabTestDate,
-      nextLabTestDate,
-      patientId,
-    );
     const labTestRecord = {
       firstName: labTest.labRequest?.encounter?.patient?.firstName,
       lastName: labTest.labRequest?.encounter?.patient?.lastName,
@@ -430,14 +425,82 @@ export const dataGenerator = async (models, parameters = {}) => {
       priority: labTest.labRequest?.priority?.name,
       testingLaboratory: labTest.labRequest?.laboratory?.name,
     };
-    Object.entries(SURVEY_QUESTION_CODES).forEach(([key, code]) => {
-      labTestRecord[key] = getAnswer(patientId, latestPatientSurveyResponseId, code);
+    Object.entries(SURVEY_QUESTION_CODES).forEach(([key, dataElement]) => {
+      labTestRecord[key] = getLatestPatientAnswerInDateRange(
+        transformedAnswersByPatientAndDataElement,
+        currentLabTestDate,
+        nextLabTestDate,
+        patientId,
+        dataElement,
+      );
     });
 
-    reportData.push(labTestRecord);
+    results.push(labTestRecord);
     await yieldControl();
   }
 
+  return results;
+};
+
+const getRdtPositiveSurveyResponseRecords = async (surveyResponses, transformedAnswers) => {
+  const answersByPatientSurveyResponseDataElement = keyBy(
+    transformedAnswers,
+    a => `${a.patientId}|${a.surveyResponseId}|${a.dataElementId}`, // should be unique
+  );
+
+  const getAnswer = (patientId, surveyResponseId, dataElementId) => {
+    const answer =
+      answersByPatientSurveyResponseDataElement[
+        `${patientId}|${surveyResponseId}|${dataElementId}`
+      ];
+
+    return answer?.body;
+  };
+
+  const results = [];
+
+  // surveyResponses were already sorted by 'date' ASC in the sql.
+  for (let i = 0; i < surveyResponses.length; i++) {
+    const surveyResponse = surveyResponses[i];
+    const patientId = surveyResponse?.encounter?.patientId;
+    const rdtResult = getAnswer(patientId, surveyResponse.id, RDT_RESULT_CODE);
+    if (rdtResult !== 'Positive') {
+      continue;
+    }
+
+    const patientFirstName = surveyResponse?.encounter?.patient?.firstName;
+    const patientLastName = surveyResponse?.encounter?.patient?.lastName;
+    const dob = surveyResponse?.encounter?.patient?.dateOfBirth;
+    const sex = surveyResponse?.encounter?.patient?.sex;
+    const surveyResponseRecord = {
+      firstName: patientFirstName,
+      lastName: patientLastName,
+      dob: dob ? moment(dob).format('DD-MM-YYYY') : '',
+      sex,
+    };
+    Object.entries(SURVEY_QUESTION_CODES).forEach(([key, dataElement]) => {
+      surveyResponseRecord[key] = getAnswer(patientId, surveyResponse.id, dataElement);
+    });
+
+    results.push(surveyResponseRecord);
+    await yieldControl();
+  }
+
+  return results;
+};
+
+export const dataGenerator = async (models, parameters = {}) => {
+  const labTests = await getLabTests(models, parameters);
+  const surveyResponses = await getSurveyResponses(models);
+  const answers = await getFijiCovidAnswers(models, parameters);
+  const transformedAnswers = await getTransformedAnswers(models, answers);
+
+  const labTestRecords = await getLabTestRecords(labTests, transformedAnswers, parameters);
+  const rdtSurveyResponseRecords = await getRdtPositiveSurveyResponseRecords(
+    surveyResponses,
+    transformedAnswers,
+  );
+  const reportData = [...labTestRecords, ...rdtSurveyResponseRecords];
   return generateReportFromQueryData(reportData, reportColumnTemplate);
 };
 
