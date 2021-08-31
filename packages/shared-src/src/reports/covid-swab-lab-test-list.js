@@ -3,6 +3,8 @@ import moment from 'moment';
 import { generateReportFromQueryData } from './utilities';
 import { LAB_REQUEST_STATUS_LABELS } from '../constants';
 
+const yieldControl = () => new Promise(resolve => setTimeout(resolve, 20));
+
 const MODEL_COLUMN_TO_ANSWER_DISPLAY_VALUE = {
   User: 'displayName',
   ReferenceData: 'name',
@@ -344,10 +346,10 @@ const getLatestPatientAnswerInDateRange = (
     return undefined;
   }
 
-  const sortedTransformedAnswers = patientTransformedAnswers.sort((a1, a2) =>
-    moment(a1.responseEndTime).diff(moment(a2.responseEndTime)),
+  const sortedLatestToOldestAnswers = patientTransformedAnswers.sort((a1, a2) =>
+    moment(a2.responseEndTime).diff(moment(a1.responseEndTime)),
   );
-  const latestAnswer = sortedTransformedAnswers.find(a =>
+  const latestAnswer = sortedLatestToOldestAnswers.find(a =>
     moment(a.responseEndTime).isBetween(
       currentlabTestDate,
       nextLabTestDate,
@@ -359,7 +361,7 @@ const getLatestPatientAnswerInDateRange = (
   return latestAnswer?.body;
 };
 
-const getLabTestRecords = (labTests, transformedAnswers, parameters) => {
+const getLabTestRecords = async (labTests, transformedAnswers, parameters) => {
   const transformedAnswersByPatientAndDataElement = groupBy(
     transformedAnswers,
     a => `${a.patientId}|${a.dataElementId}`,
@@ -434,12 +436,13 @@ const getLabTestRecords = (labTests, transformedAnswers, parameters) => {
     });
 
     results.push(labTestRecord);
+    await yieldControl();
   }
 
   return results;
 };
 
-const getRdtPositiveSurveyResponseRecords = (surveyResponses, transformedAnswers) => {
+const getRdtPositiveSurveyResponseRecords = async (surveyResponses, transformedAnswers) => {
   const answersByPatientSurveyResponseDataElement = keyBy(
     transformedAnswers,
     a => `${a.patientId}|${a.surveyResponseId}|${a.dataElementId}`, // should be unique
@@ -480,6 +483,7 @@ const getRdtPositiveSurveyResponseRecords = (surveyResponses, transformedAnswers
     });
 
     results.push(surveyResponseRecord);
+    await yieldControl();
   }
 
   return results;
@@ -491,8 +495,8 @@ export const dataGenerator = async (models, parameters = {}) => {
   const answers = await getFijiCovidAnswers(models, parameters);
   const transformedAnswers = await getTransformedAnswers(models, answers);
 
-  const labTestRecords = getLabTestRecords(labTests, transformedAnswers, parameters);
-  const rdtSurveyResponseRecords = getRdtPositiveSurveyResponseRecords(
+  const labTestRecords = await getLabTestRecords(labTests, transformedAnswers, parameters);
+  const rdtSurveyResponseRecords = await getRdtPositiveSurveyResponseRecords(
     surveyResponses,
     transformedAnswers,
   );
