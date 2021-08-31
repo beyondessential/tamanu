@@ -1,4 +1,5 @@
 import { keyBy, groupBy } from 'lodash';
+import { Op } from 'sequelize';
 import moment from 'moment';
 import { generateReportFromQueryData } from './utilities';
 import { LAB_REQUEST_STATUS_LABELS } from '../constants';
@@ -158,6 +159,44 @@ const parametersToLabTestSqlWhere = parameters => {
   return whereClause;
 };
 
+const parametersToRdtPositiveSqlWhere = parameters => {
+  const defaultWhereClause = {
+    survey_id: FIJI_SAMP_SURVEY_ID,
+  };
+
+  if (!parameters || !Object.keys(parameters).length) {
+    return defaultWhereClause;
+  }
+
+  const whereClause = Object.entries(parameters)
+    .filter(([, val]) => val)
+    .reduce((where, [key, value]) => {
+      const newWhere = { ...where };
+      switch (key) {
+        case 'village':
+          newWhere['$encounter->patient.village_id$'] = value;
+          break;
+        case 'fromDate':
+          if (!newWhere.endTime) {
+            newWhere.endTime = {};
+          }
+          newWhere.endTime[Op.gte] = value;
+          break;
+        case 'toDate':
+          if (!newWhere.endTime) {
+            newWhere.endTime = {};
+          }
+          newWhere.endTime[Op.lte] = value;
+          break;
+        default:
+          break;
+      }
+      return newWhere;
+    }, defaultWhereClause);
+
+  return whereClause;
+};
+
 const parametersToSurveyResponseSqlWhere = parameters => {
   const defaultWhereClause = {
     '$surveyResponse.survey_id$': FIJI_SAMP_SURVEY_ID,
@@ -205,7 +244,7 @@ const getTransformedAnswers = async (models, surveyResponseAnswers) => {
       const body =
         Object.values(SURVEY_DATE_QUESTION_CODES).includes(dataElementId) && answer.body
           ? moment(answer.body).format('DD-MM-YYYY')
-          : '';
+          : answer.body;
       const componentConfig = autocompleteComponentMap.get(dataElementId);
       if (
         !componentConfig ||
@@ -310,7 +349,7 @@ const getFijiCovidAnswers = async (models, parameters) => {
   return answers;
 };
 
-const getSurveyResponses = async models => {
+const getSurveyResponses = async (models, parameters) => {
   return models.SurveyResponse.findAll({
     include: [
       {
@@ -325,9 +364,7 @@ const getSurveyResponses = async models => {
       },
     ],
     order: [['end_time', 'ASC']],
-    where: {
-      survey_id: FIJI_SAMP_SURVEY_ID,
-    },
+    where: parametersToRdtPositiveSqlWhere(parameters),
   });
 };
 
@@ -491,7 +528,7 @@ const getRdtPositiveSurveyResponseRecords = async (surveyResponses, transformedA
 
 export const dataGenerator = async (models, parameters = {}) => {
   const labTests = await getLabTests(models, parameters);
-  const surveyResponses = await getSurveyResponses(models);
+  const surveyResponses = await getSurveyResponses(models, parameters);
   const answers = await getFijiCovidAnswers(models, parameters);
   const transformedAnswers = await getTransformedAnswers(models, answers);
 
