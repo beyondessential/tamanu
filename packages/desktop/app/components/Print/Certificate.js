@@ -74,7 +74,12 @@ export const Certificate = ({ patient, header, footer = null, primaryDetailsFiel
           const accessor = PRIMARY_DETAILS_FIELDS[field];
           const label = getLocalisation(`fields.${field}.shortLabel`) || field;
           const value = (accessor ? accessor(patient) : patient[field]) || '';
-          return <p key={field}>{`${label}: ${value}`}</p>;
+          return (
+            <p key={field}>
+              <span>{`${label}: `}</span>
+              <span>{value}</span>
+            </p>
+          );
         })}
       </TwoColumnContainer>
       <Spacer />
