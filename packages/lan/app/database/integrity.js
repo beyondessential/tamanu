@@ -1,6 +1,6 @@
 import config from 'config';
 
-export async function performIntegrityChecks(context) {
+export async function performDatabaseIntegrityChecks(context) {
   await ensureHostMatches(context);
 }
 
