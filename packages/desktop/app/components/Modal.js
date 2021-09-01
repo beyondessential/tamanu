@@ -9,11 +9,11 @@ import DialogTitle from '@material-ui/core/DialogTitle';
 import DialogActions from '@material-ui/core/DialogActions';
 import PrintIcon from '@material-ui/icons/Print';
 import CloseIcon from '@material-ui/icons/Close';
+import { IconButton } from '@material-ui/core';
 import { getCurrentRoute } from '../store/router';
 import { Colors } from '../constants';
+import { useElectron } from '../contexts/Electron';
 import { Button } from './Button';
-import { printPage } from '../print';
-import { IconButton } from '@material-ui/core';
 
 const MODAL_PADDING = 32;
 
@@ -79,34 +79,36 @@ export const Modal = memo(
     onClose,
     printable = false,
     ...props
-  }) => (
-    <Dialog fullWidth maxWidth={width} classes={classes} open={open} onClose={onClose} {...props}>
-      <ModalTitle>
-        <VerticalCenteredText>{title}</VerticalCenteredText>
-        <div>
-          {printable ? (
-            <Button
-              color="primary"
-              variant="outlined"
-              onClick={printPage}
-              startIcon={<PrintIcon />}
-              size="small"
-            >
-              Print
-            </Button>
-          ) : null}
-          <IconButton onClick={onClose}>
-            <CloseIcon />
-          </IconButton>
-        </div>
-      </ModalTitle>
-      <ModalContainer>
-        <ModalContent>{children}</ModalContent>
-        <DialogActions>{actions}</DialogActions>
-      </ModalContainer>
-    </Dialog>
-  ),
-);
+  }) => {
+    const { printPage } = useElectron();
+    return (
+      <Dialog fullWidth maxWidth={width} classes={classes} open={open} onClose={onClose} {...props}>
+        <ModalTitle>
+          <VerticalCenteredText>{title}</VerticalCenteredText>
+          <div>
+            {printable ? (
+              <Button
+                color="primary"
+                variant="outlined"
+                onClick={() => printPage()}
+                startIcon={<PrintIcon />}
+                size="small"
+              >
+                Print
+              </Button>
+            ) : null}
+            <IconButton onClick={onClose}>
+              <CloseIcon />
+            </IconButton>
+          </div>
+        </ModalTitle>
+        <ModalContainer>
+          <ModalContent>{children}</ModalContent>
+          <DialogActions>{actions}</DialogActions>
+        </ModalContainer>
+      </Dialog>
+    );
+  });
 
 export const connectRoutedModal = (baseRoute, suffix) =>
   connect(

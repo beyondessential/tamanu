@@ -11,6 +11,7 @@ import { ProgramSurveySelector } from 'desktop/app/views/programs/ProgramSurveyS
 import { LoadingIndicator } from 'desktop/app/components/LoadingIndicator';
 import { DumbPatientListingView } from 'desktop/app/views/patients/PatientListingView';
 import { SURVEY_TYPES } from 'shared/constants';
+import { getAnswersFromData, getActionsFromData } from '../../utils';
 
 const DumbSurveyFlow = React.memo(
   ({ onFetchSurvey, onSubmitSurvey, onFetchProgramsList, onFetchSurveysList, patient, currentUser }) => {
@@ -41,7 +42,8 @@ const DumbSurveyFlow = React.memo(
         startTime: startTime,
         patientId: patient.id,
         endTime: new Date(),
-        answers: data,
+        answers: getAnswersFromData(data, survey),
+        actions: getActionsFromData(data, survey),
       }),
       [startTime, survey, patient],
     );

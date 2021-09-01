@@ -8,15 +8,19 @@ import { MuiThemeProvider, StylesProvider } from '@material-ui/core/styles';
 import { RoutingApp } from './RoutingApp';
 import { theme } from './theme';
 import { EncounterProvider } from './contexts/Encounter';
+import { LabRequestProvider } from './contexts/LabRequest';
 import { LocalisationProvider } from './contexts/Localisation';
 import { ReferralProvider } from './contexts/Referral';
+import { ElectronProvider } from './contexts/ElectronProvider';
 
 const StateContextProviders = ({ children, store }) => (
   <EncounterProvider store={store}>
     <ReferralProvider>
-      <LocalisationProvider store={store}>
-        {children}
-      </LocalisationProvider>
+      <LabRequestProvider store={store}>
+        <LocalisationProvider store={store}>
+          {children}
+        </LocalisationProvider>
+      </LabRequestProvider>
     </ReferralProvider>
   </EncounterProvider>
 );
@@ -29,8 +33,10 @@ export default function Root({ store, history }) {
           <StylesProvider injectFirst>
             <MuiThemeProvider theme={theme}>
               <ThemeProvider theme={theme}>
-                <CssBaseline />
-                <RoutingApp />
+                <ElectronProvider>
+                  <CssBaseline />
+                  <RoutingApp />
+                </ElectronProvider>
               </ThemeProvider>
             </MuiThemeProvider>
           </StylesProvider>

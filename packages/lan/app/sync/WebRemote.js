@@ -1,17 +1,16 @@
 import fetch from 'node-fetch';
-import AbortController from 'abort-controller';
 import config from 'config';
-import { chunk } from 'lodash';
 
 import { BadAuthenticationError, InvalidOperationError, RemoteTimeoutError } from 'shared/errors';
 import { VERSION_COMPATIBILITY_ERRORS } from 'shared/constants';
 import { getResponseJsonSafely } from 'shared/utils';
 import { log } from 'shared/services/logging';
+import { fetchWithTimeout } from 'shared/utils/fetchWithTimeout';
 
 import { version } from '~/../package.json';
+import { callWithBackoff } from './callWithBackoff';
 
 const API_VERSION = 'v1';
-const DEFAULT_TIMEOUT = 10000;
 
 const getVersionIncompatibleMessage = (error, response) => {
   if (error.message === VERSION_COMPATIBILITY_ERRORS.LOW) {
@@ -27,6 +26,11 @@ const getVersionIncompatibleMessage = (error, response) => {
   return null;
 };
 
+const objectToQueryString = obj =>
+  Object.entries(obj)
+    .map(kv => kv.map(str => encodeURIComponent(str)).join('='))
+    .join('&');
+
 export class WebRemote {
   connectionPromise = null;
 
@@ -34,8 +38,9 @@ export class WebRemote {
   fetchImplementation = fetch;
 
   constructor() {
-    this.host = config.sync.host;
-    this.timeout = config.sync.timeout || DEFAULT_TIMEOUT;
+    this.host = config.sync.host.trim().replace(/\/*$/, '');
+    this.timeout = config.sync.timeout;
+    this.batchSize = config.sync.channelBatchSize;
   }
 
   async fetch(endpoint, params = {}) {
@@ -66,35 +71,41 @@ export class WebRemote {
     const url = `${this.host}/${API_VERSION}/${endpoint}`;
     log.debug(`[sync] ${method} ${url}`);
 
-    const controller = new AbortController();
-    const timeoutHandle = setTimeout(() => {
-      controller.abort();
-    }, this.timeout);
     let response;
-    try {
-      response = await this.fetchImplementation(url, {
-        method,
-        headers: {
-          Accept: 'application/json',
-          'X-Runtime': 'Tamanu LAN Server',
-          'X-Version': version,
-          Authorization: this.token ? `Bearer ${this.token}` : undefined,
-          'Content-Type': body ? 'application/json' : undefined,
-          ...headers,
-        },
-        body: body && JSON.stringify(body),
-        ...otherParams,
-        signal: controller.signal,
-      });
-    } catch (e) {
-      // TODO: import AbortError from node-fetch once we're on v3.0
-      if (e.name === 'AbortError') {
-        throw new RemoteTimeoutError(`Server failed to respond within ${this.timeout}ms - ${url}`);
+    response = await callWithBackoff(async () => {
+      if (config.debugging.requestFailureRate) {
+        if (Math.random() < config.debugging.requestFailureRate) {
+          // intended to cause some % of requests to fail, to simulate a flaky connection
+          throw new Error('Chaos: made your request fail');
+        }
       }
-      throw e;
-    } finally {
-      clearTimeout(timeoutHandle);
-    }
+      try {
+        return await fetchWithTimeout(
+          url,
+          {
+            method,
+            headers: {
+              Accept: 'application/json',
+              'X-Runtime': 'Tamanu LAN Server',
+              'X-Version': version,
+              Authorization: this.token ? `Bearer ${this.token}` : undefined,
+              'Content-Type': body ? 'application/json' : undefined,
+              ...headers,
+            },
+            body: body && JSON.stringify(body),
+            timeout: this.timeout,
+            ...otherParams,
+          },
+          this.fetchImplementation,
+        );
+      } catch (e) {
+        // TODO: import AbortError from node-fetch once we're on v3.0
+        if (e.name === 'AbortError') {
+          throw new RemoteTimeoutError(`Server failed to respond within ${this.timeout}ms - ${url}`);
+        }
+        throw e;
+      };
+    });
 
     const checkForInvalidToken = ({ status }) => status === 401;
     if (checkForInvalidToken(response)) {
@@ -107,14 +118,25 @@ export class WebRemote {
     }
 
     if (!response.ok) {
-      const { error } = await getResponseJsonSafely(response);
+      const responseBody = await getResponseJsonSafely(response);
+      const { error } = responseBody;
 
       // handle version incompatibility
       if (response.status === 400 && error) {
         const versionIncompatibleMessage = getVersionIncompatibleMessage(error, response);
         if (versionIncompatibleMessage) throw new InvalidOperationError(versionIncompatibleMessage);
       }
-      throw new InvalidOperationError(`Server responded with status code ${response.status}`);
+
+      const errorMessage = error ? error.message : 'no error message given';
+      const err = new InvalidOperationError(
+        `Server responded with status code ${response.status} (${errorMessage})`,
+      );
+      // attach status and body from response
+      err.remoteResponse = {
+        status: response.status,
+        body: responseBody,
+      };
+      throw err;
     }
 
     return response.json();
@@ -160,27 +182,74 @@ export class WebRemote {
   }
 
   async fetchChannelsWithChanges(channelsToCheck) {
-    const batchSize = 1000; // pretty arbitrary, avoid overwhelming the server with e.g. 100k channels
-    const channelsWithPendingChanges = [];
-    for (const batchOfChannels of chunk(channelsToCheck, batchSize)) {
-      const body = batchOfChannels.reduce(
-        (acc, { channel, cursor }) => ({
-          ...acc,
-          [channel]: cursor,
-        }),
-        {},
+    const algorithmConfig = {
+      initialBatchSize: 1000,
+      maxErrors: 100,
+      maxBatchSize: 5000,
+      minBatchSize: 50,
+      throttleFactorUp: 1.2,
+      throttleFactorDown: 0.5,
+    };
+
+    let batchSize = algorithmConfig.initialBatchSize;
+
+    const throttle = factor => {
+      batchSize = Math.min(
+        algorithmConfig.maxBatchSize,
+        Math.max(algorithmConfig.minBatchSize, Math.ceil(batchSize * factor)),
       );
-      const { channelsWithChanges } = await this.fetch(`sync/channels`, {
-        method: 'POST',
-        body,
-      });
-      channelsWithPendingChanges.push(...channelsWithChanges);
+    };
+
+    log.info(
+      `WebRemote.fetchChannelsWithChanges: Beginning channel check for ${channelsToCheck.length} total patients`,
+    );
+    const channelsWithPendingChanges = [];
+    const channelsLeftToCheck = [...channelsToCheck];
+    const errors = [];
+    while (channelsLeftToCheck.length > 0) {
+      const batchOfChannels = channelsLeftToCheck.splice(0, batchSize);
+      try {
+        log.debug(
+          `WebRemote.fetchChannelsWithChanges: Checking channels for ${batchOfChannels.length} patients`,
+        );
+        const body = batchOfChannels.reduce(
+          (acc, { channel, cursor }) => ({
+            ...acc,
+            [channel]: cursor,
+          }),
+          {},
+        );
+        const { channelsWithChanges } = await this.fetch(`sync/channels`, {
+          method: 'POST',
+          body,
+        });
+        log.debug(`WebRemote.fetchChannelsWithChanges: OK! ${channelsLeftToCheck.length} left.`);
+        channelsWithPendingChanges.push(...channelsWithChanges);
+        throttle(algorithmConfig.throttleFactorUp);
+      } catch (e) {
+        // errored - put those channels back into the queue
+        errors.push(e);
+        if (errors.length > algorithmConfig.maxErrors) {
+          log.error(errors);
+          throw new Error('Too many errors encountered, aborting sync entirely');
+        }
+        channelsLeftToCheck.push(...batchOfChannels);
+        throttle(algorithmConfig.throttleFactorDown);
+        log.debug(
+          `WebRemote.fetchChannelsWithChanges: Failed! Returning records to the back of the queue and slowing to batches of ${batchSize}; ${channelsLeftToCheck.length} left.`,
+        );
+      }
     }
+
+    log.debug(
+      `WebRemote.fetchChannelsWithChanges: Channel check finished. Found ${channelsWithPendingChanges.length} channels with pending changes.`,
+    );
     return channelsWithPendingChanges;
   }
 
-  async pull(channel, { since = 0, limit = 100, page = 0 } = {}) {
-    const path = `sync/${encodeURIComponent(channel)}?since=${since}&limit=${limit}&page=${page}`;
+  async pull(channel, { since = 0, limit = 100, page = 0, noCount = 'false' } = {}) {
+    const query = { since, limit, page, noCount };
+    const path = `sync/${encodeURIComponent(channel)}?${objectToQueryString(query)}`;
     return this.fetch(path);
   }
 
@@ -191,5 +260,27 @@ export class WebRemote {
 
   async whoami() {
     return this.fetch('whoami');
+  }
+
+  async forwardRequest(req, endpoint) {
+    try {
+      const response = await this.fetch(endpoint, {
+        method: req.method,
+        body: req.body,
+      });
+
+      return response;
+    } catch (err) {
+      if (err.remoteResponse) {
+        // pass sync server response back
+        const remoteErrorMsg = err.remoteResponse.body.error?.message;
+        const passThroughError = new Error(remoteErrorMsg ?? err);
+        passThroughError.status = err.remoteResponse.status;
+        throw passThroughError;
+      } else {
+        // fallback
+        throw new Error(`Sync server error: ${err}`);
+      }
+    }
   }
 }

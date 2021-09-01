@@ -35,6 +35,14 @@ export const LAB_REQUEST_STATUSES = {
   PUBLISHED: 'published',
 };
 
+export const LAB_REQUEST_STATUS_LABELS = {
+  [LAB_REQUEST_STATUSES.RECEPTION_PENDING]: 'Reception pending',
+  [LAB_REQUEST_STATUSES.RESULTS_PENDING]: 'Results pending',
+  [LAB_REQUEST_STATUSES.TO_BE_VERIFIED]: 'To be verified',
+  [LAB_REQUEST_STATUSES.VERIFIED]: 'Verified',
+  [LAB_REQUEST_STATUSES.PUBLISHED]: 'Published',
+};
+
 export const LAB_TEST_STATUSES = LAB_REQUEST_STATUSES;
 
 export const NOTE_TYPES = {
@@ -60,24 +68,10 @@ export const ENCOUNTER_TYPES = {
 
 export const ENCOUNTER_TYPE_VALUES = Object.values(ENCOUNTER_TYPES);
 
-export const ENCOUNTER_STATUSES = {
-  ADMITTED: 'Admitted',
-  DISCHARGED: 'Discharged',
-  CHECKED_IN: 'CheckedIn',
-  CHECKED_OUT: 'CheckedOut',
-};
-
 export const MEDICATION_STATUSES = {
   COMPLETED: 'Completed',
   FULFILLED: 'Fulfilled',
   REQUESTED: 'Requested',
-};
-
-export const APPOINTMENT_STATUSES = {
-  ATTENDED: 'Attended',
-  SCHEDULED: 'Scheduled',
-  CANCELED: 'Canceled',
-  MISSED: 'Missed',
 };
 
 export const OPERATION_PLAN_STATUSES = {
@@ -108,6 +102,9 @@ export const REFERENCE_TYPES = {
   IMAGING_TYPE: 'imagingType',
   LAB_TEST_CATEGORY: 'labTestCategory',
   LAB_TEST_TYPE: 'labTestType',
+  LAB_TEST_PRIORITY: 'labTestPriority',
+  LAB_TEST_LABORATORY: 'labTestLaboratory',
+  LAB_TEST_METHOD: 'labTestMethod',
   VACCINE: 'vaccine',
   VILLAGE: 'village',
   CARE_PLAN: 'carePlan',
@@ -157,6 +154,7 @@ export const PROGRAM_DATA_ELEMENT_TYPES = {
   PHOTO: 'Photo',
   PATIENT_DATA: 'PatientData',
   USER_DATA: 'UserData',
+  PATIENT_ISSUE: 'PatientIssue',
 };
 export const PROGRAM_DATA_ELEMENT_TYPE_VALUES = Object.values(PROGRAM_DATA_ELEMENT_TYPES);
 
@@ -171,6 +169,9 @@ export const REPORT_REQUEST_STATUS_VALUES = Object.values(REPORT_REQUEST_STATUSE
 export const DIAGNOSIS_CERTAINTY = {
   SUSPECTED: 'suspected',
   CONFIRMED: 'confirmed',
+  EMERGENCY: 'emergency',
+  DISPROVEN: 'disproven',
+  ERROR: 'error',
 };
 
 export const DIAGNOSIS_CERTAINTY_VALUES = Object.values(DIAGNOSIS_CERTAINTY);
@@ -213,6 +214,8 @@ export const SYNC_DIRECTIONS = {
   BIDIRECTIONAL: 'bidirectional',
 };
 
+export const SYNC_DIRECTIONS_VALUES = Object.values(SYNC_DIRECTIONS);
+
 // these are arbitrary, the only thing that matters is they are shared between desktop and lan
 export const DISCOVERY_PORT = 53391;
 export const DISCOVERY_MAGIC_STRING = 'ee671721-9d4d-4e0e-b231-81872206a735';
@@ -237,4 +240,18 @@ export const INJECTION_SITE_OPTIONS = {
   RIGHT_THIGH: 'Right thigh',
   ORAL: 'Oral',
   OTHER: 'Other',
+};
+
+export const APPOINTMENT_TYPES = {
+  STANDARD: 'Standard',
+  EMERGENCY: 'Emergency',
+  SPECIALIST: 'Specialist',
+  OTHER: 'Other',
+};
+
+export const APPOINTMENT_STATUSES = {
+  CONFIRMED: 'Confirmed',
+  ARRIVED: 'Arrived',
+  NO_SHOW: 'No-show',
+  CANCELLED: 'Cancelled',
 };

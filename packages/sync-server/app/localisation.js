@@ -32,8 +32,11 @@ const UNHIDEABLE_FIELDS = [
   'firstName',
   'lastName',
   'dateOfBirth',
+  'age',
+  'ageRange',
   'dateOfBirthFrom',
   'dateOfBirthTo',
+  'dateOfBirthExact',
 ];
 
 const HIDEABLE_FIELDS = [
@@ -104,6 +107,9 @@ const rootLocalisationSchema = yup
     templates: templatesSchema,
     features: {
       hideOtherSex: yup.boolean().required(),
+    },
+    sync: {
+      syncAllEncountersForTheseScheduledVaccines: yup.array(yup.string().required()).defined(),
     },
   })
   .required()

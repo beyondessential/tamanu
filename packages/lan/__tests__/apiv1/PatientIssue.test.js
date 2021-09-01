@@ -1,6 +1,4 @@
-import {
-  createDummyPatient,
-} from 'shared/demoData/patients';
+import { createDummyPatient } from 'shared/demoData/patients';
 import { createTestContext } from '../utilities';
 
 describe('PatientIssue', () => {

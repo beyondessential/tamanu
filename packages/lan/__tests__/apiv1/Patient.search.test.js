@@ -42,16 +42,16 @@ const searchTestPatients = [
   { firstName: 'search-by-age-YOUNG', dateOfBirth: yearsAgo(15) },
   { firstName: 'search-by-age-YOUNG', dateOfBirth: yearsAgo(1) },
   { firstName: 'search-by-village', villageIndex: 0 },
-  { firstName: 'search-outpatient', encounter: { encounterType: 'clinic', current: true } },
-  { firstName: 'search-outpatient', encounter: { encounterType: 'clinic', current: true } },
-  { firstName: 'search-outpatient', encounter: { encounterType: 'clinic', current: true } },
-  { firstName: 'search-inpatient', encounter: { encounterType: 'admission', current: true } },
-  { firstName: 'search-inpatient', encounter: { encounterType: 'admission', current: true } },
-  { firstName: 'search-encounter-OUT', encounter: { encounterType: 'clinic' } },
-  { firstName: 'search-encounter-OUT', encounter: { encounterType: 'emergency' } },
-  { firstName: 'search-encounter-OUT', encounter: { encounterType: 'admission' } },
-  { firstName: 'search-by-location', encounter: { locationIndex: 0 } },
-  { firstName: 'search-by-department', encounter: { departmentIndex: 0 } },
+  { firstName: 'search-outpatient', encounters: [{ encounterType: 'clinic', current: true }] },
+  { firstName: 'search-outpatient', encounters: [{ encounterType: 'clinic', current: true }] },
+  { firstName: 'search-outpatient', encounters: [{ encounterType: 'clinic', current: true }] },
+  { firstName: 'search-inpatient', encounters: [{ encounterType: 'admission', current: true }] },
+  { firstName: 'search-inpatient', encounters: [{ encounterType: 'admission', current: true }] },
+  { firstName: 'search-encounter-OUT', encounters: [{ encounterType: 'clinic' }] },
+  { firstName: 'search-encounter-OUT', encounters: [{ encounterType: 'emergency' }] },
+  { firstName: 'search-encounter-OUT', encounters: [{ encounterType: 'admission' }] },
+  { firstName: 'search-by-location', encounters: [{ locationIndex: 0 }] },
+  { firstName: 'search-by-department', encounters: [{ departmentIndex: 0 }] },
   { firstName: 'pagination', lastName: 'A' },
   { firstName: 'pagination', lastName: 'B' },
   { firstName: 'pagination', lastName: 'C' },
@@ -61,6 +61,12 @@ const searchTestPatients = [
   { firstName: 'pagination', lastName: 'G' },
   { firstName: 'pagination', lastName: 'H' },
   { firstName: 'pagination', lastName: 'I' },
+  {
+    firstName: 'more-than-one-open-encounter', encounters: [
+      { id: 'should-be-ignored-1', encounterType: 'clinic', current: false, startDate: moment.utc([2015, 0, 1, 8]).toISOString() },
+      { id: 'should-be-chosen', encounterType: 'admission', current: true, startDate: moment.utc([2014, 0, 1, 8]).toISOString() },
+      { id: 'should-be-ignored-2', encounterType: 'clinic', current: true, startDate: moment.utc([2013, 0, 1, 8]).toISOString() }]
+  },
 ];
 
 const ageInCount = searchTestPatients.filter(withFirstName('search-by-age-IN')).length;
@@ -87,21 +93,23 @@ describe('Patient search', () => {
     departments = await models.Department.findAll();
 
     await Promise.all(
-      searchTestPatients.map(async ({ encounter: encounterData, ...data }, i) => {
+      searchTestPatients.map(async ({ encounters: encountersData, ...data }, i) => {
         const patientData = await createDummyPatient(models, {
           ...data,
           villageId: villages[data.villageIndex || i % villages.length].id, // even distribution of villages
         });
         const patient = await models.Patient.create(patientData);
-        if (encounterData) {
-          await models.Encounter.create(
-            await createDummyEncounter(models, {
-              ...encounterData,
-              patientId: patient.id,
-              departmentId: departments[encounterData.departmentIndex || i % departments.length].id,
-              locationId: locations[encounterData.locationIndex || i % locations.length].id,
-            }),
-          );
+        if (encountersData) {
+          for (const encounterData of encountersData) {
+            await models.Encounter.create(
+              await createDummyEncounter(models, {
+                ...encounterData,
+                patientId: patient.id,
+                departmentId: departments[encounterData.departmentIndex || i % departments.length].id,
+                locationId: locations[encounterData.locationIndex || i % locations.length].id,
+              }),
+            );
+          }
         }
       }),
     );
@@ -285,6 +293,19 @@ describe('Patient search', () => {
         expect(responsePatient).toHaveProperty('departmentName', departments[0].name);
       });
     });
+
+    it('should return only 1 result for patients with multiple open encounters', async () => {
+      const response = await app.get('/v1/patient').query({
+        firstName: 'more-than-one-open-encounter',
+      });
+      expect(response).toHaveSucceeded();
+      expect(response.body.count).toEqual(1);
+
+      // Make sure it chooses the correct encounter
+      expect(response.body.data[0].encounterId).toEqual('should-be-chosen');
+      expect(response.body.data[0].encounterType).toEqual('admission');
+
+    });
   });
 
   describe('Sorting', () => {
@@ -399,16 +420,6 @@ describe('Patient search', () => {
       expect(response).toHaveSucceeded();
 
       expectSorted(response.body.data, x => x.departmentName);
-    });
-
-    it('should sort by village', async () => {
-      const response = await app.get('/v1/patient').query({
-        orderBy: 'villageName',
-      });
-
-      expect(response).toHaveSucceeded();
-
-      expectSorted(response.body.data, x => x.villageName);
     });
 
     it('should sort by village', async () => {

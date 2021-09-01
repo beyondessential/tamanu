@@ -30,6 +30,7 @@ export function getCodeForErrorName(name) {
     case 'SequelizeForeignKeyConstraintError':
     case 'InvalidOperationError':
     case 'InvalidParameterError':
+    case 'ValidationError':
       // unprocessable entity - syntax is correct but data is bad
       return 422;
     case 'RemoteTimeoutError':

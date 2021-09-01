@@ -6,21 +6,37 @@ import { SurveyResultBadge } from './SurveyResultBadge';
 import { ViewPhotoLink } from './ViewPhotoLink';
 import { connectApi } from '../api/connectApi';
 
+const convertBinaryToYesNo = value => {
+  switch (value) {
+    case 'true':
+    case '1':
+      return 'Yes';
+    case 'false':
+    case '0':
+      return 'No';
+    default:
+      return value;
+  }
+};
+
 const COLUMNS = [
   { key: 'text', title: 'Indicator', accessor: ({ name }) => name },
   {
     key: 'value',
     title: 'Value',
     accessor: ({ answer, type }) => {
-      if (type === 'Result') {
-        const value = parseFloat(answer);
-        return <SurveyResultBadge result={value} />;
-      } else if (type === 'Calculated') {
-        return parseFloat(answer).toFixed(2);
-      } else if (type === 'Photo') {
-        return <ViewPhotoLink imageId={answer} />;
+      switch (type) {
+        case 'Result':
+          return <SurveyResultBadge result={parseFloat(answer)} />;
+        case 'Calculated':
+          return parseFloat(answer).toFixed(2);
+        case 'Photo':
+          return <ViewPhotoLink imageId={answer} />;
+        case 'Checkbox':
+          return convertBinaryToYesNo(answer);
+        default:
+          return answer;
       }
-      return answer;
     },
   },
 ];
@@ -53,7 +69,7 @@ export const SurveyResponseDetailsModal = connectApi(api => ({
 
   if (loading || !surveyDetails) {
     return (
-      <Modal title="Survey response" open={surveyResponseId} onClose={onClose}>
+      <Modal title="Survey response" open={!!surveyResponseId} onClose={onClose}>
         Loading...
       </Modal>
     );
@@ -77,7 +93,7 @@ export const SurveyResponseDetailsModal = connectApi(api => ({
     .filter(r => r.answer !== undefined);
 
   return (
-    <Modal title="Survey response" open={surveyResponseId} onClose={onClose}>
+    <Modal title="Survey response" open={!!surveyResponseId} onClose={onClose}>
       <Table data={answerRows} columns={COLUMNS} />
     </Modal>
   );

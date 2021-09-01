@@ -20,7 +20,7 @@ import {
 
 // TODO: generic
 
-export const buildEncounter = async (ctx, patientId) => {
+export const buildEncounter = async (ctx, patientId, optionalEncounterId) => {
   const patient = fakePatient();
   if (patientId) {
     patient.id = patientId;
@@ -31,6 +31,9 @@ export const buildEncounter = async (ctx, patientId) => {
   await ctx.models.User.upsert(examiner);
 
   const encounter = fakeEncounter();
+  if (optionalEncounterId !== undefined) {
+    encounter.id = optionalEncounterId;
+  }
   encounter.patientId = patient.id;
   encounter.examinerId = examiner.id;
   encounter.locationId = await findOrCreateId(ctx, ctx.models.Location);
@@ -39,21 +42,21 @@ export const buildEncounter = async (ctx, patientId) => {
   return encounter;
 };
 
-export const buildNestedEncounter = async (ctx, patientId) => {
-  const encounter = await buildEncounter(ctx, patientId);
+export const buildNestedEncounter = async (ctx, patientId, optionalEncounterId) => {
+  const encounter = await buildEncounter(ctx, patientId, optionalEncounterId);
 
   const scheduledVaccine = await fakeScheduledVaccine();
   await ctx.models.ScheduledVaccine.upsert(scheduledVaccine);
 
   const administeredVaccine = fakeAdministeredVaccine('test-', scheduledVaccine.id);
-  delete administeredVaccine.encounterId;
+  administeredVaccine.encounterId = encounter.id;
   encounter.administeredVaccines = [administeredVaccine];
 
   const survey = fakeSurvey();
   await ctx.models.Survey.upsert(survey);
 
   const surveyResponse = fakeSurveyResponse();
-  delete surveyResponse.encounterId;
+  surveyResponse.encounterId = encounter.id;
   surveyResponse.surveyId = survey.id;
   encounter.surveyResponses = [surveyResponse];
 
@@ -61,7 +64,7 @@ export const buildNestedEncounter = async (ctx, patientId) => {
   await ctx.models.ProgramDataElement.upsert(programDataElement);
 
   const surveyResponseAnswer = fakeSurveyResponseAnswer();
-  delete surveyResponseAnswer.responseId;
+  surveyResponseAnswer.responseId = surveyResponse.id;
   surveyResponseAnswer.dataElementId = programDataElement.id;
   surveyResponse.answers = [surveyResponseAnswer];
 
@@ -69,7 +72,7 @@ export const buildNestedEncounter = async (ctx, patientId) => {
   await ctx.models.ReferenceData.create(diagnosis);
 
   const encounterDiagnosis = fakeEncounterDiagnosis();
-  delete encounterDiagnosis.encounterId;
+  encounterDiagnosis.encounterId = encounter.id;
   encounterDiagnosis.diagnosisId = diagnosis.id;
   encounter.diagnoses = [encounterDiagnosis];
 
@@ -77,17 +80,17 @@ export const buildNestedEncounter = async (ctx, patientId) => {
   await ctx.models.ReferenceData.create(medication);
 
   const encounterMedication = fakeEncounterMedication();
-  delete encounterMedication.encounterId;
+  encounterMedication.encounterId = encounter.id;
   encounterMedication.medicationId = medication.id;
   encounterMedication.prescriberId = encounter.examinerId;
   encounter.medications = [encounterMedication];
 
   const labRequest = fake(ctx.models.LabRequest);
-  delete labRequest.encounterId;
+  labRequest.encounterId = encounter.id;
   encounter.labRequests = [labRequest];
 
   const labTest = fake(ctx.models.LabTest);
-  delete labTest.labRequestId;
+  labTest.labRequestId = labRequest.id;
   labRequest.tests = [labTest];
 
   const imagingType = { ...fake(ctx.models.ReferenceData), type: REFERENCE_TYPES.IMAGING_TYPE };
@@ -99,7 +102,7 @@ export const buildNestedEncounter = async (ctx, patientId) => {
     requestedById: encounter.examinerId,
     imagingTypeId: imagingType.id,
   };
-  delete imagingRequest.encounterId;
+  imagingRequest.encounterId = encounter.id;
   encounter.imagingRequests = [imagingRequest];
 
   return encounter;

@@ -19,7 +19,9 @@ import { getAgeFromDate } from 'shared-src/src/utils/date';
 import { joinNames } from './user';
 
 const InstructionField = ({ label, helperText }) => (
-  <p>{label} {helperText}</p>
+  <p>
+    {label} {helperText}
+  </p>
 );
 
 const QUESTION_COMPONENTS = {
@@ -43,11 +45,12 @@ const QUESTION_COMPONENTS = {
   [PROGRAM_DATA_ELEMENT_TYPES.INSTRUCTION]: InstructionField,
   [PROGRAM_DATA_ELEMENT_TYPES.PHOTO]: UnsupportedPhotoField,
   [PROGRAM_DATA_ELEMENT_TYPES.RESULT]: null,
+  [PROGRAM_DATA_ELEMENT_TYPES.PATIENT_ISSUE]: InstructionField,
 };
 
 export function getComponentForQuestionType(type) {
   const component = QUESTION_COMPONENTS[type];
-  if(component === undefined) {
+  if (component === undefined) {
     return LimitedTextField;
   }
   return component;
@@ -63,11 +66,7 @@ export function mapOptionsToValues(options) {
   return options.map(x => ({ label: x, value: x }));
 }
 
-export function checkVisibility(
-  component,
-  values,
-  allComponents,
-) {
+export function checkVisibility(component, values, allComponents) {
   const { visibilityCriteria, dataElement } = component;
   // nothing set - show by default
   if (!visibilityCriteria) return true;
@@ -94,17 +93,16 @@ export function checkVisibility(
         if (!end) return value >= start;
         if (inRange(parseFloat(value), parseFloat(start), parseFloat(end))) {
           return true;
-        }
-        else return false;
+        } else return false;
       }
 
       return answersEnablingFollowUp.includes(values[questionId]);
-    }
+    };
 
     return conjunction === 'and'
       ? Object.entries(restOfCriteria).every(checkIfQuestionMeetsCriteria)
       : Object.entries(restOfCriteria).some(checkIfQuestionMeetsCriteria);
-  } catch(error) {
+  } catch (error) {
     console.warn(`Error parsing visilbity criteria as JSON, using fallback.
                   \nError message: ${error}
                   \nJSON: ${visibilityCriteria}`);
@@ -116,24 +114,21 @@ export function checkVisibility(
 // set up math context
 const math = create(allMath);
 
-export function runCalculations(
-  components,
-  values,
-) {
+export function runCalculations(components, values) {
   const inputValues = { ...values };
   const calculatedValues = {};
 
-  for(const c of components) {
-    if(!c.calculation) continue;
+  for (const c of components) {
+    if (!c.calculation) continue;
 
     try {
       const value = math.evaluate(c.calculation, inputValues);
-      if(Number.isNaN(value)) {
+      if (Number.isNaN(value)) {
         throw new Error('Value is NaN');
       }
       inputValues[c.dataElement.code] = value;
       calculatedValues[c.dataElement.code] = value.toFixed(2);
-    } catch(e) {
+    } catch (e) {
       calculatedValues[c.dataElement.code] = null;
     }
   }
@@ -141,9 +136,12 @@ export function runCalculations(
   return calculatedValues;
 }
 
-
 function fallbackParseVisibilityCriteria({ visibilityCriteria, dataElement }, values, components) {
-  if ([PROGRAM_DATA_ELEMENT_TYPES.RESULT, PROGRAM_DATA_ELEMENT_TYPES.CALCULATED].includes(dataElement.type)) {
+  if (
+    [PROGRAM_DATA_ELEMENT_TYPES.RESULT, PROGRAM_DATA_ELEMENT_TYPES.CALCULATED].includes(
+      dataElement.type,
+    )
+  ) {
     return false;
   }
   if (!visibilityCriteria) return true;
@@ -172,6 +170,7 @@ function getInitialValue(dataElement) {
     case PROGRAM_DATA_ELEMENT_TYPES.TEXT:
     case PROGRAM_DATA_ELEMENT_TYPES.MULTILINE:
     case PROGRAM_DATA_ELEMENT_TYPES.NUMBER:
+    case PROGRAM_DATA_ELEMENT_TYPES.PATIENT_ISSUE: // This is important (doesn't make sense that it is important though...)
       return '';
     case PROGRAM_DATA_ELEMENT_TYPES.DATE:
     default:
@@ -237,3 +236,25 @@ export function getFormInitialValues(components, patient, currentUser = {}) {
 
   return initialValues;
 }
+
+export const getAnswersFromData = (data, survey) =>
+  Object.entries(data).reduce((acc, [key, val]) => {
+    if (
+      survey.components.find(({ dataElement }) => dataElement.id === key)?.dataElement?.type !==
+      'PatientIssue'
+    ) {
+      acc[key] = val;
+    }
+    return acc;
+  }, {});
+
+export const getActionsFromData = (data, survey) =>
+  Object.entries(data).reduce((acc, [key, val]) => {
+    const component = survey.components.find(({ dataElement }) => dataElement.id === key);
+    if (component?.dataElement?.type === 'PatientIssue') {
+      if (checkVisibility(component, data, survey.components)) {
+        acc[key] = true;
+      }
+    }
+    return acc;
+  }, {});

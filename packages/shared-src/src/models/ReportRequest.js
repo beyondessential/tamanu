@@ -3,8 +3,6 @@ import { REPORT_REQUEST_STATUS_VALUES, SYNC_DIRECTIONS } from 'shared/constants'
 import { Model } from './Model';
 
 export class ReportRequest extends Model {
-  static syncDirection = SYNC_DIRECTIONS.PUSH_ONLY;
-
   static init({ primaryKey, ...options }) {
     super.init(
       {
@@ -16,6 +14,7 @@ export class ReportRequest extends Model {
       },
       {
         ...options,
+        syncConfig: { syncDirection: SYNC_DIRECTIONS.PUSH_ONLY },
       },
     );
   }
@@ -23,7 +22,7 @@ export class ReportRequest extends Model {
   static initRelations(models) {
     this.belongsTo(models.User, {
       foreignKey: { name: 'requestedByUserId', allowNull: false },
-      onDelete: "CASCADE",
+      onDelete: 'CASCADE',
     });
   }
 }

@@ -1,5 +1,5 @@
 export * from './User';
-export * from './SyncMetadata';
+export * from './ChannelSyncPullCursor';
 
 export * from './Patient';
 export * from './PatientFamilyHistory';
@@ -21,6 +21,7 @@ export * from './EncounterDiagnosis';
 export * from './EncounterMedication';
 export * from './LabRequest';
 export * from './LabTest';
+export * from './LabRequestLog';
 export * from './LabTestType';
 export * from './ImagingRequest';
 
@@ -48,3 +49,5 @@ export * from './UserFacility';
 export * from './Attachment';
 export * from './UserLocalisationCache';
 export * from './Asset';
+
+export * from './OneTimeLogin';

@@ -55,6 +55,33 @@ function riskCalculation(patient, getf, getb) {
   return risk;
 }
 
+const handleSurveyResponseActions = async (models, actions, questions, patientId) => {
+  const actionQuestions = questions
+    .filter(q => q.dataElement.type === 'PatientIssue')
+    .filter(({ dataElement }) => Object.keys(actions).includes(dataElement.id));
+
+  for (const question of actionQuestions) {
+    const { dataElement, config: configString } = question;
+    switch (dataElement.type) {
+      case 'PatientIssue': {
+        const config = JSON.parse(configString) || {};
+        if (!config.issueNote || !config.issueType)
+          throw new InvalidOperationError(
+            `Ill-configured PatientIssue with config: ${configString}`,
+          );
+        await models.PatientIssue.create({
+          patientId,
+          type: config.issueType,
+          note: config.issueNote,
+        });
+        break;
+      }
+      default:
+      // pass
+    }
+  }
+};
+
 export class SurveyResponse extends Model {
   static init({ primaryKey, ...options }) {
     super.init(
@@ -128,9 +155,8 @@ export class SurveyResponse extends Model {
     });
   }
 
-  static async runCalculations(patientId, surveyId, models, answersObject) {
+  static async runCalculations(patientId, questions, models, answersObject) {
     const patient = await models.Patient.findByPk(patientId);
-    const questions = await models.SurveyScreenComponent.getComponentsForSurvey(surveyId);
 
     const calculatedAnswers = {};
     let result = null;
@@ -160,7 +186,7 @@ export class SurveyResponse extends Model {
 
     questions
       .filter(q => calculatedFieldTypes.includes(q.dataElement.type))
-      .map(({ dataElement }) => {
+      .forEach(({ dataElement }) => {
         const answer = runCalculation(dataElement, answersObject);
         calculatedAnswers[dataElement.id] = answer;
         if (dataElement.type === 'Result') {
@@ -193,7 +219,7 @@ export class SurveyResponse extends Model {
 
   static async createWithAnswers(data) {
     const models = this.sequelize.models;
-    const { answers, surveyId, patientId, ...responseData } = data;
+    const { answers, actions, surveyId, patientId, ...responseData } = data;
 
     // ensure survey exists
     const survey = await models.Survey.findByPk(surveyId);
@@ -201,9 +227,13 @@ export class SurveyResponse extends Model {
       throw new InvalidOperationError(`Invalid survey ID: ${surveyId}`);
     }
 
+    const questions = await models.SurveyScreenComponent.getComponentsForSurvey(surveyId);
+
+    await handleSurveyResponseActions(models, actions, questions, patientId);
+
     const { answers: calculatedAnswers, result } = await this.runCalculations(
       patientId,
-      surveyId,
+      questions,
       models,
       answers,
     );

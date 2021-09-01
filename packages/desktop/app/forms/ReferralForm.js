@@ -2,9 +2,7 @@ import React, { useState } from 'react';
 import styled from 'styled-components';
 import { object, string } from 'yup';
 
-import { nonEmergencyDiagnosisCertaintyOptions } from '../constants';
-
-
+import { DIAGNOSIS_CERTAINTY } from 'shared/constants';
 import { ConfirmCancelRow } from '../components/ButtonRow';
 import { FormGrid } from '../components/FormGrid';
 import { FormSeparatorLine } from '../components/FormSeparatorLine';
@@ -12,7 +10,6 @@ import { FormSectionSeparator } from '../components/FormSectionSeparator';
 import {
   Form,
   Field,
-  SelectField,
   CheckField,
   TextField,
   AutocompleteField,
@@ -20,7 +17,6 @@ import {
   RadioField,
 } from '../components/Field';
 import { Button } from '../components';
-import { DIAGNOSIS_CERTAINTY } from 'shared/constants';
 
 const DiagnosisFields = props => {
   return (

@@ -1,5 +1,6 @@
 import { importData } from '~/admin/importDataDefinition';
 import { preprocessRecordSet } from '~/admin/preprocessRecordSet';
+import { createTestContext } from './utilities';
 
 const TEST_DATA_PATH = './__tests__/importers/test_definitions.xlsx';
 
@@ -95,5 +96,15 @@ describe('Data definition import', () => {
 
   it('should report an error if an FK is of the wrong type', () => {
     expectError('patient', 'linked referenceData for');
+  });
+
+  describe('Importer permissions', () => {
+    it('Should forbid an import by a non-admin', async () => {
+      const { baseApp } = await createTestContext();
+      const nonAdminApp = await baseApp.asRole('practitioner');
+
+      const response = await nonAdminApp.post('/v1/admin/importData');
+      expect(response).toBeForbidden();
+    });
   });
 });

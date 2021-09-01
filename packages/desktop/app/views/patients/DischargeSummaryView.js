@@ -4,14 +4,15 @@ import { connect } from 'react-redux';
 import styled from 'styled-components';
 import PrintIcon from '@material-ui/icons/Print';
 
-import { printPage, PrintPortal } from '../../print';
+import { PrintPortal } from '../../components/Print';
 import { LocalisedText } from '../../components/LocalisedText';
 import { connectApi } from '../../api';
 import { BackButton, Button } from '../../components/Button';
 import { DateDisplay } from '../../components/DateDisplay';
 import { TopBar } from '../../components';
 import { useEncounter } from '../../contexts/Encounter';
-import { PrintLetterhead } from '../../components/PrintLetterhead';
+import { useElectron } from '../../contexts/Electron';
+import { PrintLetterhead } from '../../components/Print/Letterhead';
 import { Colors } from '../../constants';
 
 const SummaryPageContainer = styled.div`
@@ -138,7 +139,7 @@ const DumbSummaryPage = React.memo(({ patient, encounter, onFetchEncounterDischa
         </h4>
         <h4>
           <Label>
-            <LocalisedText path="fields.displayId.shortLabel"/>
+            <LocalisedText path="fields.displayId.shortLabel" />
           </Label>
           <span>{patient.displayId}</span>
         </h4>
@@ -234,10 +235,11 @@ const NavContainer = styled.div`
 
 const DumbDischargeSummaryView = React.memo(({ patient }) => {
   const { encounter } = useEncounter();
+  const { printPage } = useElectron();
 
   return (
     <>
-      <TopBar title="Patient Discharge Summary"></TopBar>
+      <TopBar title="Patient Discharge Summary" />
       <NavContainer>
         <StyledBackButton to="/patients/encounter" />
         <Button

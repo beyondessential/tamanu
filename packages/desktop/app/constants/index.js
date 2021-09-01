@@ -13,8 +13,6 @@ import {
 
 export const MUI_SPACING_UNIT = 8;
 
-export const REMEMBER_EMAIL_KEY = 'remember-email';
-
 export const DISPLAY_ID_PLACEHOLDER = '-TMP-';
 
 export const PREGNANCY_PROGRAM_ID = 'program-pregnancy';
@@ -108,8 +106,6 @@ export const headerStyle = {
   backgroundColor: Colors.searchTintColor,
 };
 
-const headerSortingStyle = { backgroundColor: '#c8e6c9' };
-
 export const dateFormat = 'L'; // 06/09/2014, swap mm and dd based on locale
 export const dateTimeFormat = 'YYYY-MM-DD hh:mm A';
 
@@ -158,13 +154,6 @@ for (let i = 0; i <= 59; i += 1) {
 export const getDifferenceDate = (today, target) => {
   const difference = moment.duration(moment(today).diff(moment(target)));
   return difference.humanize();
-};
-
-export const encounterStatuses = {
-  ADMITTED: 'Admitted',
-  DISCHARGED: 'Discharged',
-  CHECKED_IN: 'CheckedIn',
-  CHECKED_OUT: 'CheckedOut',
 };
 
 export const medicationStatuses = {
@@ -369,6 +358,9 @@ export const REPORT_TYPES = {
 
 export const LOCAL_STORAGE_KEYS = {
   HOST: 'host',
+  TOKEN: 'apiToken',
+  LOCALISATION: 'localisation',
+  REMEMBER_EMAIL: 'remember-email',
 };
 
 export const VACCINE_STATUS = {
@@ -380,4 +372,5 @@ export const VACCINE_STATUS = {
   DUE: 'DUE',
   UPCOMING: 'UPCOMING',
   OVERDUE: 'OVERDUE',
+  RECORDED_IN_ERROR: 'RECORDED_IN_ERROR',
 };

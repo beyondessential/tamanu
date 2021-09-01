@@ -1,7 +1,20 @@
 import faye from 'faye';
+import { promises } from 'fs';
+
 import { VERSION_COMPATIBILITY_ERRORS } from 'shared/constants';
-import { getResponseJsonSafely } from 'shared/utils';
 import { LOCAL_STORAGE_KEYS } from '../constants';
+
+const { HOST, TOKEN, LOCALISATION } = LOCAL_STORAGE_KEYS;
+
+const getResponseJsonSafely = async response => {
+  try {
+    return await response.json();
+  } catch (e) {
+    // log json parsing errors, but still return a valid object
+    console.warn(`getResponseJsonSafely: Error parsing JSON: ${e}`);
+    return {};
+  }
+};
 
 const encodeQueryString = query =>
   Object.entries(query)
@@ -41,6 +54,30 @@ const fetchOrThrowIfUnavailable = async (url, config) => {
   }
 };
 
+function getLocalToken() {
+  return localStorage.getItem(TOKEN);
+}
+
+function saveLocalToken(token) {
+  localStorage.setItem(TOKEN, token);
+}
+
+function clearLocalToken() {
+  localStorage.removeItem(TOKEN);
+}
+
+function getLocalLocalisation() {
+  return JSON.parse(localStorage.getItem(LOCALISATION));
+}
+
+function saveLocalLocalisation(localisation) {
+  localStorage.setItem(LOCALISATION, JSON.stringify(localisation));
+}
+
+function clearLocalLocalisation() {
+  localStorage.removeItem(LOCALISATION);
+}
+
 export class TamanuApi {
   constructor(appVersion) {
     this.appVersion = appVersion;
@@ -48,7 +85,8 @@ export class TamanuApi {
     this.authHeader = null;
     this.onVersionIncompatible = null;
     this.pendingSubscriptions = [];
-    const host = window.localStorage.getItem(LOCAL_STORAGE_KEYS.HOST);
+    this.user = null;
+    const host = window.localStorage.getItem(HOST);
     if (host) {
       this.setHost(host);
     }
@@ -64,7 +102,7 @@ export class TamanuApi {
     this.pendingSubscriptions = [];
 
     // save host in local storage
-    window.localStorage.setItem(LOCAL_STORAGE_KEYS.HOST, host);
+    window.localStorage.setItem(HOST, host);
   }
 
   setAuthFailureHandler(handler) {
@@ -75,21 +113,49 @@ export class TamanuApi {
     this.onVersionIncompatible = handler;
   }
 
-  async login(host, email, password) {
-    this.setHost(host);
-    const response = await this.post('login', { email, password });
-    const { token, localisation } = response;
+  async checkAuth() {
+    const token = getLocalToken();
+    if (!token) {
+      throw new Error('Not authenticated');
+    }
     this.setToken(token);
-    this.lastRefreshed = Date.now();
-
+    const localisation = getLocalLocalisation();
     const user = await this.get('user/me');
     return { user, token, localisation };
   }
 
-  async refreshToken() {
-    const response = await this.post('refresh');
-    const { token } = response;
+  async login(host, email, password) {
+    this.setHost(host);
+    const response = await this.post('login', { email, password });
+    const { token, localisation } = response;
+    saveLocalToken(token);
+    saveLocalLocalisation(localisation);
     this.setToken(token);
+    this.lastRefreshed = Date.now();
+
+    const user = await this.get('user/me');
+    this.user = user;
+    return { user, token, localisation };
+  }
+
+  async requestPasswordReset(host, email) {
+    this.setHost(host);
+    return this.post('resetPassword', { email });
+  }
+
+  async changePassword(host, data) {
+    this.setHost(host);
+    return this.post('changePassword', data);
+  }
+
+  async refreshToken() {
+    try {
+      const response = await this.post('refresh');
+      const { token } = response;
+      this.setToken(token);
+    } catch (e) {
+      console.error(e);
+    }
   }
 
   setToken(token) {
@@ -122,12 +188,12 @@ export class TamanuApi {
       return response.json();
     }
 
-    console.error(response);
-
     const { error } = await getResponseJsonSafely(response);
 
     // handle auth expiring
     if ([401, 403].includes(response.status) && this.onAuthFailure) {
+      clearLocalToken();
+      clearLocalLocalisation();
       this.onAuthFailure('Your session has expired. Please log in again.');
     }
 
@@ -148,11 +214,18 @@ export class TamanuApi {
     return this.fetch(endpoint, query, { method: 'GET' });
   }
 
-  async multipart(endpoint, body) {
+  async postWithFileUpload(endpoint, filePath, body) {
+    const fileData = await promises.readFile(filePath);
+    const blob = new Blob([fileData]);
+
+    // We have to use multipart/formdata to support sending the file data,
+    // but sending the other fields in that format loses type information
+    // (for eg, sending a value of false will arrive as the string "false")
+    // So, we just piggyback a json string over the multipart format, and 
+    // parse that on the backend.
     const formData = new FormData();
-    Object.entries(body).map(([key, value]) => {
-      formData.append(key, value);
-    });
+    formData.append('jsonData', JSON.stringify(body));
+    formData.append('file', blob);
 
     return this.fetch(endpoint, null, {
       method: 'POST',

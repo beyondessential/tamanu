@@ -11,9 +11,13 @@ export class ScheduledVaccine extends Model {
         label: Sequelize.STRING,
         schedule: Sequelize.STRING,
         weeksFromBirthDue: Sequelize.INTEGER,
+        weeksFromLastVaccinationDue: Sequelize.INTEGER,
         index: Sequelize.INTEGER,
       },
-      options,
+      {
+        ...options,
+        syncConfig: { syncDirection: SYNC_DIRECTIONS.PULL_ONLY },
+      },
     );
   }
 
@@ -28,6 +32,4 @@ export class ScheduledVaccine extends Model {
       as: 'vaccine',
     });
   }
-
-  static syncDirection = SYNC_DIRECTIONS.PULL_ONLY;
 }

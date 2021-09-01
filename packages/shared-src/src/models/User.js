@@ -74,6 +74,7 @@ export class User extends Model {
           },
         },
         indexes: [{ fields: ['email'] }],
+        syncConfig: { syncDirection: SYNC_DIRECTIONS.PULL_ONLY },
       },
     );
 
@@ -90,6 +91,4 @@ export class User extends Model {
       through: 'UserFacility',
     });
   }
-
-  static syncDirection = SYNC_DIRECTIONS.PULL_ONLY;
 }

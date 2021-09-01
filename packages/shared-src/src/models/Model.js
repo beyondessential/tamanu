@@ -1,6 +1,5 @@
 import * as sequelize from 'sequelize';
-import { lowerFirst } from 'lodash';
-import { SYNC_DIRECTIONS } from 'shared/constants';
+import { SyncConfig } from './sync';
 
 const { Sequelize, Op, Utils } = sequelize;
 
@@ -18,10 +17,11 @@ const MARKED_FOR_PUSH_MODELS = [
   'PatientAdditionalData',
   'ReportRequest',
   'UserFacility',
+  'LabRequestLog',
 ];
 
 export class Model extends sequelize.Model {
-  static init(originalAttributes, { syncClientMode, ...options }) {
+  static init(originalAttributes, { syncClientMode, syncConfig, ...options }) {
     const attributes = { ...originalAttributes };
     if (syncClientMode && MARKED_FOR_PUSH_MODELS.includes(this.name)) {
       attributes.markedForPush = {
@@ -35,6 +35,7 @@ export class Model extends sequelize.Model {
     super.init(attributes, options);
     this.syncClientMode = syncClientMode;
     this.defaultIdValue = attributes.id.defaultValue;
+    this.syncConfig = new SyncConfig(this, syncConfig);
   }
 
   static generateId() {
@@ -108,30 +109,20 @@ export class Model extends sequelize.Model {
     return this.getListReferenceAssociations();
   }
 
-  static includedSyncRelations = [];
-
-  static excludedSyncColumns = ['createdAt', 'updatedAt', 'markedForPush', 'markedForSync'];
-
-  // determines whether a mdoel will be pushed, pulled, both, or neither
-  static syncDirection = SYNC_DIRECTIONS.DO_NOT_SYNC;
-
-  // returns one or more channels to push to
-  static getChannels() {
-    return [lowerFirst(this.name)];
-  }
-
-  // extracts and returns a parentId from a channel, if applicable
-  // only called if syncParentIdKey is set
-  static syncParentIdFromChannel() {
-    throw new Error('Models with syncParentIdKey must implement syncParentIdFromChannel');
-  }
-
-  // if set to a string representing a field, extracts an id from the channel and sets it on the model
-  static syncParentIdKey = null;
-
   static async findByIds(ids) {
     return this.findAll({
       where: { id: { [Op.in]: ids } },
     });
   }
+
+  // list of callbacks to call after model is initialised
+  static afterInitCallbacks = [];
+
+  // adds a function to be called once model is initialised
+  // (useful for hooks and anything else that needs an initialised model)
+  static afterInit(fn) {
+    this.afterInitCallbacks.push(fn);
+  }
+
+  static syncConfig = {};
 }

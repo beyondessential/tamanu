@@ -1,55 +1,54 @@
 import React, { useCallback } from 'react';
-import styled from 'styled-components';
 import { connect } from 'react-redux';
 
 import { DataFetchingTable } from './Table';
-import { DateDisplay } from './DateDisplay';
 
-import { LAB_REQUEST_STATUS_LABELS, LAB_REQUEST_COLORS } from '../constants';
-import { viewLab } from '../store/labRequest';
-import { PatientNameDisplay } from './PatientNameDisplay';
 import { viewPatientEncounter } from '../store/patient';
 import { useEncounter } from '../contexts/Encounter';
+import { useLabRequest } from '../contexts/LabRequest';
 
-const StatusLabel = styled.div`
-  background: ${p => p.color};
-  border-radius: 0.3rem;
-  padding: 0.3rem;
-`;
-
-const StatusDisplay = React.memo(({ status }) => (
-  <StatusLabel color={LAB_REQUEST_COLORS[status] || LAB_REQUEST_COLORS.unknown}>
-    {LAB_REQUEST_STATUS_LABELS[status] || 'Unknown'}
-  </StatusLabel>
-));
-
-const getDisplayName = ({ requestedBy }) => (requestedBy || {}).displayName || 'Unknown';
-const getPatientName = ({ encounter }) => <PatientNameDisplay patient={encounter.patient} />;
-const getStatus = ({ status }) => <StatusDisplay status={status} />;
-const getRequestType = ({ category }) => (category || {}).name || 'Unknown';
-const getDate = ({ requestedDate }) => <DateDisplay date={requestedDate} />;
+import {
+  getRequestedBy,
+  getPatientName,
+  getPatientDisplayId,
+  getStatus,
+  getRequestType,
+  getPriority,
+  getDate,
+  getRequestId,
+  getLaboratory,
+} from '../utils/lab';
 
 const encounterColumns = [
-  { key: 'id', title: 'Request ID' },
+  { key: 'requestId', title: 'Request ID', sortable: false, accessor: getRequestId },
   { key: 'labRequestType', title: 'Type', accessor: getRequestType, sortable: false },
-  { key: 'status', title: 'Status', accessor: getStatus },
-  { key: 'displayName', title: 'Requested by', accessor: getDisplayName, sortable: false },
-  { key: 'requestedDate', title: 'Date', accessor: getDate },
+  { key: 'status', title: 'Status', accessor: getStatus, sortable: false },
+  { key: 'displayName', title: 'Requested by', accessor: getRequestedBy, sortable: false },
+  { key: 'requestedDate', title: 'Date', accessor: getDate, sortable: false },
+  { key: 'priority', title: 'Priority', accessor: getPriority },
+  { key: 'laboratory', title: 'Laboratory', accessor: getLaboratory },
 ];
 
 const globalColumns = [
   { key: 'patient', title: 'Patient', accessor: getPatientName, sortable: false },
+  {
+    key: 'displayId',
+    accessor: getPatientDisplayId,
+    sortable: false,
+  },
   ...encounterColumns,
 ];
 
-const DumbLabRequestsTable = React.memo(({ encounterId, onLabSelect }) => {
-  const { loadEncounter, encounter } = useEncounter();
+const DumbLabRequestsTable = React.memo(({ encounterId, viewPatient, fetchOptions }) => {
+  const { loadEncounter } = useEncounter();
+  const { loadLabRequest } = useLabRequest();
   const selectLab = useCallback(async lab => {
-    if (!encounter) {
+    if (!encounterId) {
       // no encounter, likely on the labs page
       await loadEncounter(lab.encounterId);
     }
-    onLabSelect(lab);
+    if (lab.patientId) viewPatient(lab);
+    loadLabRequest(lab.id);
   }, []);
 
   return (
@@ -58,15 +57,11 @@ const DumbLabRequestsTable = React.memo(({ encounterId, onLabSelect }) => {
       columns={encounterId ? encounterColumns : globalColumns}
       noDataMessage="No lab requests found"
       onRowClick={selectLab}
+      fetchOptions={fetchOptions}
     />
   );
 });
 
 export const LabRequestsTable = connect(null, dispatch => ({
-  onLabSelect: lab => {
-    const { encounter, id } = lab;
-    if (encounter) dispatch(viewPatientEncounter(encounter.patient.id, encounter.id));
-
-    dispatch(viewLab(id));
-  },
+  viewPatient: lab => dispatch(viewPatientEncounter(lab.patientId, lab.encounterId)),
 }))(DumbLabRequestsTable);

@@ -14,7 +14,8 @@ const port = process.env.PORT || 1212;
 const publicPath = `http://localhost:${port}/dist`;
 
 export default merge.smart(baseConfig, {
-  devtool: 'inline-source-map',
+  // https://webpack.js.org/configuration/devtool/
+  devtool: 'eval-cheap-module-source-map',
 
   mode: 'development',
 

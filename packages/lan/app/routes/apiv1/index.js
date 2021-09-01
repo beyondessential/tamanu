@@ -20,6 +20,7 @@ import { note } from './note';
 import { familyHistory } from './familyHistory';
 import { additionalData } from './additionalData';
 import { labRequest, labTest } from './labs';
+import { labRequestLog } from './labRequestLog';
 import { program } from './program';
 import { survey } from './survey';
 import { surveyResponse } from './surveyResponse';
@@ -29,6 +30,8 @@ import { immunisation } from './immunisation';
 import { reports } from './reports';
 import { reportRequest } from './reportRequest';
 import { patientCarePlan } from './patientCarePlan';
+import { resetPassword } from './resetPassword';
+import { changePassword } from './changePassword';
 
 import { admin } from './admin';
 import { setting } from './setting';
@@ -42,6 +45,8 @@ import { syncHealth } from './syncHealth';
 export const apiv1 = express.Router();
 
 apiv1.post('/login', loginHandler);
+apiv1.use('/resetPassword', resetPassword);
+apiv1.use('/changePassword', changePassword);
 
 apiv1.use(authMiddleware);
 apiv1.use(constructPermission);
@@ -64,6 +69,7 @@ apiv1.use('/medication', medication);
 apiv1.use('/note', note);
 apiv1.use('/labRequest', labRequest);
 apiv1.use('/labTest', labTest);
+apiv1.use('/labRequestLog', labRequestLog);
 apiv1.use('/referral', referral);
 apiv1.use('/imagingRequest', imagingRequest);
 apiv1.use('/immunisation', immunisation);

@@ -14,7 +14,7 @@
 
 ##--------------------------------------------
 ### Import a survey definition
-POST {{lanserver}}/v1/admin/importSurvey
+POST {{lanserver}}/v1/admin/importProgram
 Content-Type: multipart/form-data; boundary={{boundary}}
 
 --{{boundary}}
@@ -22,18 +22,18 @@ Content-Type: application/json
 Content-Disposition: form-data; name="jsonData"
 
 {
-  "surveyName": "SNAP Intervention Form",
-  "surveyCode": "snap-fiji-2",
-  "programName": "SNAP Fiji",
-  "programCode": "snap-fiji-2",
-  "dryRun": false
+  "whitelist": [
+
+  ],
+  "showRecords": false,
+  "dryRun": true
 }
 
 --{{boundary}}
 Content-Disposition: form-data; name="file"; filename="import.xlsx"
 Content-Type: application/vnd.ms-excel
 
-< M:\beyond\documents\SNAP.Intervention.Form.xlsx
+< M:\beyond\documents\imports\(PNG) Assistive Technology Project.xlsx
 --{{boundary}}--
 
 ##--------------------------------------------
@@ -47,8 +47,9 @@ Content-Type: application/json
 
 {
   "dryRun": true,
+  "allowErrors": false,
   "whitelist": [
-    "labTestTypes"
+    "labTestMethods"
   ]
 }
 
@@ -56,5 +57,5 @@ Content-Type: application/json
 Content-Disposition: form-data; name="file"; filename="import.xlsx"
 Content-Type: application/vnd.ms-excel
 
-< M:\beyond\tamanu\packages\lan\data\test_definitions.xlsx
+< /Users/basgo/Downloads/Untitled spreadsheet.xlsx
 --{{boundary}}--

@@ -1,10 +1,10 @@
 {
-  "initialDataPath": "data/demo_definitions.xlsx",
   "admin": {
     "allowAdminRoutes": false
   },
   "discovery": {
     "overrideAddress": "",
+    "overridePort": null,
     "protocol": "https"
   },
   "log": {
@@ -12,11 +12,18 @@
     "consoleLevel": "info"
   },
   "sync": {
-    "schedule": "*/10 * * * *",
+    "schedule": "*/1 * * * *",
     "host": "https://sync-dev.tamanu.io",
     "email": "",
     "password": "",
-    "timeout": 10000
+    "timeout": 10000,
+    "readOnly": false,
+    "syncAllLabRequests": false,
+    "backoff": {
+      "multiplierMs": 300,
+      "maxRetries": 15,
+      "maxWaitMs": 10000
+    }
   },
   "port": 4000,
   "db": {
@@ -24,7 +31,8 @@
     "sqlitePath": "data/tamanu.db",
     "username": "test",
     "password": "abc123",
-    "verbose": false
+    "verbose": false,
+    "migrateOnStartup": false
   },
   "senaite": {
     "enabled": false,
@@ -42,5 +50,8 @@
       "location": "SHORTSTAY"
     }
   },
-  "currentFacilityId": ""
+  "currentFacilityId": "",
+  "debugging": {
+    "requestFailureRate": 0
+  }
 }

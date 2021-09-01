@@ -1,13 +1,11 @@
-import wayfarer from 'wayfarer';
+import { Sequelize, Op } from 'sequelize';
 import { initDatabase } from 'shared/services/database';
-import { BasicHandler } from './handlers';
+import { syncCursorToWhereCondition } from 'shared/models/sync';
 
 export class SqlWrapper {
   models = null;
 
   sequelize = null;
-
-  builtRoutes = [];
 
   constructor(dbOptions) {
     // init database
@@ -21,7 +19,6 @@ export class SqlWrapper {
     const { sequelize, models } = await this._dbPromise;
     this.sequelize = sequelize;
     this.models = models;
-    this.channelRouter = this.buildChannelRouter();
     return this;
   }
 
@@ -67,42 +64,35 @@ export class SqlWrapper {
         return f(handler, params, model);
       });
     });
-    return channelRouter;
-  }
-
-  // ONLY FOR TESTS, ignores "paranoid"'s soft deletion
-  async unsafeRemoveAllOfChannel(channel) {
-    if (process.env.NODE_ENV !== 'test') {
-      throw new Error('DO NOT use unsafeRemoveAllOfChannel outside tests!');
-    }
-    return this.channelRouter(channel, handler => handler.unsafeRemoveAll());
-  }
-
-  async upsert(channel, record) {
-    return this.channelRouter(channel, (handler, params) =>
-      handler.upsert(record, params, channel),
-    );
-  }
-
-  // TODO: this is a hack to enable sharing import/export across sync and lan
-  async withModel(channel, f) {
-    return this.channelRouter(channel, (handler, params, model) => f(model));
-  }
+  } 
 
   async countSince(channel, since) {
-    return this.channelRouter(channel, (handler, params) =>
-      handler.countSince({ ...params, since }, channel),
-    );
-  }
-
-  async findSince(channel, since, { limit, offset } = {}) {
-    return this.channelRouter(channel, (handler, params) =>
-      handler.findSince({ ...params, since, limit, offset }, channel),
-    );
+    return this.sequelize.channelRouter(channel, (model, params, channelRoute) => {
+      const { where, include } = channelRoute.queryFromParams(params);
+      return model.count({
+        paranoid: false,
+        where: {
+          [Op.and]: [syncCursorToWhereCondition(since), where],
+        },
+        include,
+      });
+    });
   }
 
   async markRecordDeleted(channel, id) {
-    return this.channelRouter(channel, handler => handler.markRecordDeleted(id));
+    return this.sequelize.channelRouter(channel, async model => {
+      // use update instead of destroy so we can change both fields
+      const [num] = await model.update(
+        {
+          deletedAt: Sequelize.literal('CURRENT_TIMESTAMP'),
+          updatedAt: Sequelize.literal('CURRENT_TIMESTAMP'),
+        },
+        {
+          where: { id },
+        },
+      );
+      return num;
+    });
   }
   //------------------------------------
   // required for auth middleware

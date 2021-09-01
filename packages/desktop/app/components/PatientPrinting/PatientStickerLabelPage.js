@@ -1,12 +1,13 @@
-import React from 'react';
+import React, { useEffect } from 'react';
 import styled from 'styled-components';
 
 import { SEX_VALUE_INDEX } from '../../constants';
-import { DateDisplay } from '../DateDisplay';
-import { Button } from '../Button';
-import { PatientBarcode } from './PatientBarcode';
+import { useElectron } from '../../contexts/Electron';
 
-import { printPage, PrintPortal } from '../../print';
+import { PrintPortal, LetterPage } from '../Print';
+import { DateDisplay } from '../DateDisplay';
+
+import { PatientBarcode } from './PatientBarcode';
 
 const Sticker = styled.div`
   font-family: monospace;
@@ -18,7 +19,7 @@ const Sticker = styled.div`
 export const PatientStickerLabel = ({ patient }) => (
   <Sticker>
     <div>
-      <PatientBarcode patient={patient} width={'128px'} height={'35px'} />
+      <PatientBarcode patient={patient} width="128px" height="35px" />
       <div>
         <strong>{patient.displayId}</strong>
       </div>
@@ -34,12 +35,6 @@ export const PatientStickerLabel = ({ patient }) => (
   </Sticker>
 );
 
-const LetterPage = styled.div`
-  background: white;
-  width: 8.5in;
-  height: 11in;
-`;
-
 const LabelPage = styled.div`
   display: grid;
   grid-template-columns: repeat(3, 2.5935in);
@@ -50,7 +45,8 @@ const LabelPage = styled.div`
 `;
 
 export const PatientStickerLabelPage = ({ patient }) => {
-  React.useEffect(() => {
+  const { printPage } = useElectron();
+  useEffect(() => {
     printPage();
   });
 
@@ -58,8 +54,8 @@ export const PatientStickerLabelPage = ({ patient }) => {
     <PrintPortal>
       <LetterPage>
         <LabelPage>
-          {new Array(30).fill(0).map((x, i) => (
-            <PatientStickerLabel key={i} patient={patient} />
+          {[...Array(30).keys()].map(x => (
+            <PatientStickerLabel key={`label-${x}`} patient={patient} />
           ))}
         </LabelPage>
       </LetterPage>

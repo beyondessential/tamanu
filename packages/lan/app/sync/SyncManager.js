@@ -7,6 +7,9 @@ import {
   executeExportPlan,
 } from 'shared/models/sync';
 import { log } from 'shared/services/logging';
+import config from 'config';
+
+const { readOnly } = config.sync;
 
 const EXPORT_LIMIT = 100;
 const INITIAL_PULL_LIMIT = 100;
@@ -51,7 +54,7 @@ export class SyncManager {
   }
 
   async pullAndImport(model, patientId) {
-    const channels = await model.getChannels(patientId);
+    const channels = await model.syncConfig.getChannels(patientId);
     const channelsWithCursors = await Promise.all(
       channels.map(async channel => {
         const cursor = await this.getChannelPullCursor(channel);
@@ -71,9 +74,9 @@ export class SyncManager {
   }
 
   async pullAndImportChannel(model, channel, initialCursor = '0') {
-    const plan = createImportPlan(model);
+    const plan = createImportPlan(model.sequelize, channel);
     const importRecords = async syncRecords => {
-      await executeImportPlan(plan, channel, syncRecords);
+      await executeImportPlan(plan, syncRecords);
     };
 
     let cursor = initialCursor;
@@ -85,7 +88,11 @@ export class SyncManager {
         `SyncManager.pullAndImport: pulling ${limit} records since ${cursor} for ${channel}`,
       );
       const startTime = Date.now();
-      const result = await this.context.remote.pull(channel, { since: cursor, limit });
+      const result = await this.context.remote.pull(channel, {
+        since: cursor,
+        limit,
+        noCount: 'true',
+      });
       cursor = result.cursor;
       const syncRecords = result.records;
       if (syncRecords.length === 0) {
@@ -103,7 +110,7 @@ export class SyncManager {
   }
 
   async exportAndPush(model, patientId) {
-    for (const channel of await model.getChannels(patientId)) {
+    for (const channel of await model.syncConfig.getChannels(patientId)) {
       await this.exportAndPushChannel(model, channel);
     }
   }
@@ -112,10 +119,10 @@ export class SyncManager {
     log.debug(`SyncManager.exportAndPush: syncing ${channel}`);
 
     // export
-    const plan = createExportPlan(model);
+    const plan = createExportPlan(model.sequelize, channel);
     const exportRecords = (cursor = null, limit = EXPORT_LIMIT) => {
       log.debug(`SyncManager.exportAndPush: exporting up to ${limit} records since ${cursor}`);
-      return executeExportPlan(plan, channel, { since: cursor, limit });
+      return executeExportPlan(plan, { since: cursor, limit });
     };
 
     // unmark
@@ -151,16 +158,20 @@ export class SyncManager {
   }
 
   async getChannelPullCursor(channel) {
-    const metadata = await this.context.models.SyncMetadata.findOne({ where: { channel } });
-    return metadata?.pullCursor || '0';
+    const cursor = await this.context.models.ChannelSyncPullCursor.findOne({
+      where: { channel },
+    });
+    return cursor?.pullCursor || '0';
   }
 
   async setChannelPullCursor(channel, pullCursor) {
-    await this.context.models.SyncMetadata.upsert({ channel, pullCursor });
+    await this.context.models.ChannelSyncPullCursor.upsert({ channel, pullCursor });
   }
 
   async runSync(patientId = null) {
     const run = async () => {
+      const startTimestampMs = Date.now();
+      log.info(`SyncManager.runSync.run: began sync run`);
       const { models } = this.context;
 
       // ordered array because some models depend on others
@@ -192,16 +203,20 @@ export class SyncManager {
         models.ReportRequest,
         models.Location,
         models.UserFacility,
+
+        // models.LabRequestLog,
       ];
 
       for (const model of modelsToSync) {
-        if (shouldPush(model)) {
+        if (!readOnly && shouldPush(model)) {
           await this.exportAndPush(model, patientId);
         }
         if (shouldPull(model)) {
           await this.pullAndImport(model, patientId);
         }
       }
+      const elapsedTimeMs = Date.now() - startTimestampMs;
+      log.info(`SyncManager.runSync.run: finished sync run in ${elapsedTimeMs}ms`);
     };
 
     // queue up new job

@@ -1,5 +1,9 @@
 import { LAB_TEST_STATUSES, LAB_REQUEST_STATUSES } from 'shared/constants';
-import { createDummyPatient, createDummyEncounter, randomReferenceId } from 'shared/demoData/patients';
+import {
+  createDummyPatient,
+  createDummyEncounter,
+  randomReferenceId,
+} from 'shared/demoData/patients';
 import { createTestContext } from '../utilities';
 
 const randomLabTests = (models, labTestCategoryId, amount) =>
@@ -16,6 +20,7 @@ const randomLabRequest = async (models, overrides) => {
   return {
     categoryId,
     labTestTypeIds,
+    displayId: 'TESTID',
     ...overrides,
   };
 };
@@ -63,8 +68,10 @@ describe('Labs', () => {
     expect(createdRequest).toBeFalsy();
   });
 
-  test.todo("should not record a lab request with zero tests");
-  test.todo("should not record a lab request with a test whose category does not match the request's category");
+  test.todo('should not record a lab request with zero tests');
+  test.todo(
+    "should not record a lab request with a test whose category does not match the request's category",
+  );
   /*
   it("should not record a lab request with a test whose category does not match the request's category", async () => {
     const [categoryA, categoryB] = await models.ReferenceData.findAll({
@@ -120,7 +127,10 @@ describe('Labs', () => {
       await randomLabRequest(models, { patientId }),
     );
     const status = LAB_REQUEST_STATUSES.TO_BE_VERIFIED;
-    const response = await app.put(`/v1/labRequest/${requestId}`).send({ status });
+    const user = await app.get('/v1/user/me');
+    const response = await app
+      .put(`/v1/labRequest/${requestId}`)
+      .send({ status, userId: user.body.id });
     expect(response).toHaveSucceeded();
 
     const labRequest = await models.LabRequest.findByPk(requestId);
@@ -132,16 +142,18 @@ describe('Labs', () => {
       await randomLabRequest(models, { patientId }),
     );
     const status = LAB_REQUEST_STATUSES.PUBLISHED;
-    const response = await app.put(`/v1/labRequest/${requestId}`).send({ status });
+    const user = await app.get('/v1/user/me');
+    const response = await app
+      .put(`/v1/labRequest/${requestId}`)
+      .send({ status, userId: user.body.id });
     expect(response).toHaveSucceeded();
 
     const labRequest = await models.LabRequest.findByPk(requestId);
     expect(labRequest).toHaveProperty('status', status);
   });
 
-  describe("Options", () => {
-    
-    it("should fetch lab test type options", async () => {
+  describe('Options', () => {
+    it('should fetch lab test type options', async () => {
       const response = await app.get(`/v1/labTest/options`);
       expect(response).toHaveSucceeded();
 
@@ -164,8 +176,8 @@ describe('Labs', () => {
       expect(withOptions.length).toBeGreaterThan(0);
       expect(withOptions.every(x => Array.isArray(x.options))).toEqual(true);
     });
-    
-    it("should fetch lab test categories", async () => {
+
+    it('should fetch lab test categories', async () => {
       const response = await app.get(`/v1/labTest/categories`);
       expect(response).toHaveSucceeded();
 
@@ -174,6 +186,5 @@ describe('Labs', () => {
       expect(data[0]).toHaveProperty('name');
       expect(data[0]).toHaveProperty('code');
     });
-
   });
 });

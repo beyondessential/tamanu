@@ -17,6 +17,7 @@ const DumbDataFetchingTable = memo(
     customSort,
     className,
     exportName = 'TamanuExport',
+    refreshCount = 0,
   }) => {
     const [page, setPage] = useState(0);
     const [rowsPerPage, setRowsPerPage] = useState(ROWS_PER_PAGE_OPTIONS[0]);
@@ -55,9 +56,11 @@ const DumbDataFetchingTable = memo(
       })();
 
       return () => {
-        updateFetchState = () => {}; // discard the fetch state update if this request is stale
+        updateFetchState = () => { }; // discard the fetch state update if this request is stale
       };
-    }, [page, rowsPerPage, sorting, fetchOptions]);
+    }, [page, rowsPerPage, sorting, fetchOptions, refreshCount]);
+
+    useEffect(() => setPage(0), [fetchOptions]);
 
     const { data, count, isLoading, errorMessage } = fetchState;
     const { order, orderBy } = sorting;

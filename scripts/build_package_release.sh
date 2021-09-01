@@ -9,6 +9,8 @@ set -euxo pipefail
 RELEASE_DIR="${RELEASE_DIR:-release}"
 WORKSPACE="${1?must specify a workspace}"
 
+shopt -s extglob
+
 # build sync bundle
 yarn workspace "$WORKSPACE" build
 
@@ -16,10 +18,11 @@ yarn workspace "$WORKSPACE" build
 pushd "./packages/$WORKSPACE"
 rm -rf "./$RELEASE_DIR"
 mkdir -p "./$RELEASE_DIR"
-cp -R ./[!"$RELEASE_DIR"][!__tests__]* "./$RELEASE_DIR"
+cp -R !("$RELEASE_DIR"|__tests__|coverage|index.js|pm2.json|README.md|data) "./$RELEASE_DIR"
+rm -rf "${RELEASE_DIR}/config/"{development,test,local}".json"
 
-# run yarn install now that we're not in a known workspace
 pushd "$RELEASE_DIR"
+# run yarn install now that we're not in a known workspace
 yarn install --non-interactive --production
 popd
 
