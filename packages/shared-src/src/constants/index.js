@@ -33,6 +33,7 @@ export const LAB_REQUEST_STATUSES = {
   TO_BE_VERIFIED: 'to_be_verified',
   VERIFIED: 'verified',
   PUBLISHED: 'published',
+  DELETED: 'deleted',
 };
 
 export const LAB_REQUEST_STATUS_LABELS = {
@@ -72,13 +73,6 @@ export const MEDICATION_STATUSES = {
   COMPLETED: 'Completed',
   FULFILLED: 'Fulfilled',
   REQUESTED: 'Requested',
-};
-
-export const APPOINTMENT_STATUSES = {
-  ATTENDED: 'Attended',
-  SCHEDULED: 'Scheduled',
-  CANCELED: 'Canceled',
-  MISSED: 'Missed',
 };
 
 export const OPERATION_PLAN_STATUSES = {
@@ -250,4 +244,18 @@ export const INJECTION_SITE_OPTIONS = {
   RIGHT_THIGH: 'Right thigh',
   ORAL: 'Oral',
   OTHER: 'Other',
+};
+
+export const APPOINTMENT_TYPES = {
+  STANDARD: 'Standard',
+  EMERGENCY: 'Emergency',
+  SPECIALIST: 'Specialist',
+  OTHER: 'Other',
+};
+
+export const APPOINTMENT_STATUSES = {
+  CONFIRMED: 'Confirmed',
+  ARRIVED: 'Arrived',
+  NO_SHOW: 'No-show',
+  CANCELLED: 'Cancelled',
 };

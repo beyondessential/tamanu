@@ -6,6 +6,10 @@ import { LOCAL_STORAGE_KEYS } from '../../constants';
 import { TextField } from './TextField';
 import { RefreshIconButton } from '../Button';
 
+export function getSavedServer() {
+  return window.localStorage.getItem(LOCAL_STORAGE_KEYS.HOST);
+}
+
 export const ServerDetectingField = memo(({ setFieldValue, ...props }) => {
   const [statusMessage, setStatusMessage] = useState('');
 
@@ -35,7 +39,7 @@ export const ServerDetectingField = memo(({ setFieldValue, ...props }) => {
 
   // attempt to detect on first mount
   useEffect(() => {
-    const savedHost = window.localStorage.getItem(LOCAL_STORAGE_KEYS.HOST);
+    const savedHost = getSavedServer();
     if (savedHost) {
       setHost(savedHost);
     } else {

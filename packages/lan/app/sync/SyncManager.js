@@ -158,12 +158,14 @@ export class SyncManager {
   }
 
   async getChannelPullCursor(channel) {
-    const metadata = await this.context.models.SyncMetadata.findOne({ where: { channel } });
-    return metadata?.pullCursor || '0';
+    const cursor = await this.context.models.ChannelSyncPullCursor.findOne({
+      where: { channel },
+    });
+    return cursor?.pullCursor || '0';
   }
 
   async setChannelPullCursor(channel, pullCursor) {
-    await this.context.models.SyncMetadata.upsert({ channel, pullCursor });
+    await this.context.models.ChannelSyncPullCursor.upsert({ channel, pullCursor });
   }
 
   async runSync(patientId = null) {
@@ -198,6 +200,8 @@ export class SyncManager {
         models.ReportRequest,
         models.Location,
         models.UserFacility,
+
+        // models.LabRequestLog,
       ];
 
       for (const model of modelsToSync) {

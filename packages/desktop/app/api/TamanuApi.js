@@ -1,4 +1,6 @@
 import faye from 'faye';
+import { promises } from 'fs';
+
 import { VERSION_COMPATIBILITY_ERRORS } from 'shared/constants';
 import { LOCAL_STORAGE_KEYS } from '../constants';
 
@@ -136,6 +138,16 @@ export class TamanuApi {
     return { user, token, localisation };
   }
 
+  async requestPasswordReset(host, email) {
+    this.setHost(host);
+    return this.post('resetPassword', { email });
+  }
+
+  async changePassword(host, data) {
+    this.setHost(host);
+    return this.post('changePassword', data);
+  }
+
   async refreshToken() {
     try {
       const response = await this.post('refresh');
@@ -202,11 +214,18 @@ export class TamanuApi {
     return this.fetch(endpoint, query, { method: 'GET' });
   }
 
-  async multipart(endpoint, body) {
+  async postWithFileUpload(endpoint, filePath, body) {
+    const fileData = await promises.readFile(filePath);
+    const blob = new Blob([fileData]);
+
+    // We have to use multipart/formdata to support sending the file data,
+    // but sending the other fields in that format loses type information
+    // (for eg, sending a value of false will arrive as the string "false")
+    // So, we just piggyback a json string over the multipart format, and 
+    // parse that on the backend.
     const formData = new FormData();
-    Object.entries(body).map(([key, value]) => {
-      formData.append(key, value);
-    });
+    formData.append('jsonData', JSON.stringify(body));
+    formData.append('file', blob);
 
     return this.fetch(endpoint, null, {
       method: 'POST',

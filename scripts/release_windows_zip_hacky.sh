@@ -19,7 +19,7 @@ WORKSPACE="${1?must specify a workspace}"
 # get rid of extraneous junk
 pushd "./packages/$WORKSPACE/release"
 mv ./node_modules/shared .
-rm -rf node_modules coverage index.js pm2.json README.md config/development.json config/test.json data
+rm -rf node_modules
 popd
 
 # zip and rename
