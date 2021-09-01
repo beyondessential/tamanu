@@ -13,6 +13,7 @@
 ## Tweaks ⚖️
 
 - Renamed SyncMetadata to ChannelSyncPullCursor
+- Facility server now throws an error when connecting to a sync server if it had previously connected to a different one
 
 ## Bug fixes 🐛
 
