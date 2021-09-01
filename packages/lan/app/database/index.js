@@ -10,7 +10,7 @@ import { performIntegrityChecks } from './integrity';
 // created by the tests with just "DELETE FROM table WHERE id LIKE 'test-%'"
 const createTestUUID = () => `test-${uuid().slice(5)}`;
 
-export async function initDatabase() {
+export async function initDatabase({ skipMigrationCheck } = {}) {
   const testMode = process.env.NODE_ENV === 'test';
   // connect to database
   const context = await sharedInitDatabase({
@@ -19,6 +19,16 @@ export async function initDatabase() {
     primaryKeyDefault: testMode ? createTestUUID : undefined,
     syncClientMode: true,
   });
+
+  // handle migrations and/or syncing
+  if (config.db.sqlitePath || config.db.migrateOnStartup) {
+    await context.sequelize.migrate({ migrateDirection: 'up' });
+  } else {
+    await context.sequelize.assertUpToDate({ skipMigrationCheck });
+  }
+
+  // validate
   await performIntegrityChecks(context);
+
   return context;
 }

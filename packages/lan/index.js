@@ -13,17 +13,10 @@ import { listenForServerQueries } from './app/discovery';
 
 import { version } from './package.json';
 
-async function serve(options) {
+async function serve({ skipMigrationCheck } = {}) {
   log.info(`Starting facility server version ${version}.`);
 
-  const context = await initDatabase();
-
-  if (config.db.sqlitePath || config.db.migrateOnStartup) {
-    await context.sequelize.migrate({ migrateDirection: 'up' });
-  } else {
-    await context.sequelize.assertUpToDate(options);
-  }
-
+  const context = await initDatabase({ skipMigrationCheck });
   context.remote = new WebRemote(context);
   context.remote.connect(); // preemptively connect remote to speed up sync
   context.syncManager = new SyncManager(context);
