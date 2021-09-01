@@ -16,7 +16,7 @@ const FIJI_SAMP_SURVEY_ID = 'program-fijicovid19-fijicovidsampcollection';
 const RDT_RESULT_CODE = 'pde-FijCOVSamp43';
 
 const SURVEY_QUESTION_CODES = {
-  healthFacility: 'pde-FijCOVSamp4',
+  publicHealthFacility: 'pde-FijCOVSamp4',
   division: 'pde-FijCOVSamp6',
   subDivision: 'pde-FijCOVSamp7',
   ethnicity: 'pde-FijCOVSamp10',
@@ -45,6 +45,7 @@ const SURVEY_QUESTION_CODES = {
   rdtConducted: 'pde-FijCOVSamp42',
   rdtResult: RDT_RESULT_CODE,
   rdtDate: 'pde-FijCOVSamp52',
+  privateHealthFacility: 'pde-FijCOVSamp54',
   highRisk: 'pde-FijCOVSamp59',
   primaryContactHighRisk: 'pde-FijCOVSamp60',
   highRiskDetails: 'pde-FijCOVSamp61',
@@ -92,7 +93,8 @@ const reportColumnTemplate = [
   { title: 'Priority', accessor: data => data.priority },
   { title: 'Testing laboratory', accessor: data => data.testingLaboratory },
   { title: 'Testing date', accessor: data => data.testingDate },
-  { title: 'Health facility', accessor: data => data.healthFacility },
+  { title: 'Public health facility', accessor: data => data.publicHealthFacility },
+  { title: 'Private health facility', accessor: data => data.privateHealthFacility },
   { title: 'Division', accessor: data => data.division },
   { title: 'Sub-division', accessor: data => data.subDivision },
   { title: 'Ethnicity', accessor: data => data.ethnicity },
@@ -508,11 +510,13 @@ const getRdtPositiveSurveyResponseRecords = async (surveyResponses, transformedA
     const patientLastName = surveyResponse?.encounter?.patient?.lastName;
     const dob = surveyResponse?.encounter?.patient?.dateOfBirth;
     const sex = surveyResponse?.encounter?.patient?.sex;
+    const patientDisplayId = surveyResponse?.encounter?.patient?.displayId;
     const surveyResponseRecord = {
       firstName: patientFirstName,
       lastName: patientLastName,
       dob: dob ? moment(dob).format('DD-MM-YYYY') : '',
       sex,
+      patientId: patientDisplayId,
     };
     Object.entries(SURVEY_QUESTION_CODES).forEach(([key, dataElement]) => {
       surveyResponseRecord[key] = getAnswer(patientId, surveyResponse.id, dataElement);
