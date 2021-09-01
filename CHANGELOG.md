@@ -21,3 +21,4 @@
 ## Infrastructure and maintenance 🛠
 
 - Removed Tonga from meta-server
+- Made ./scripts/version.sh safer
