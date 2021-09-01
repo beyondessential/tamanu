@@ -148,17 +148,6 @@ describe('Labs', () => {
     expect(labRequest).toHaveProperty('status', status);
   });
 
-  it('should delete a lab request', async () => {
-    const { id: requestId } = await models.LabRequest.createWithTests(
-      await randomLabRequest(models, { patientId }),
-    );
-    const deleteRequest = await app.delete(`/v1/labRequest/${requestId}`);
-    expect(deleteRequest).toHaveSucceeded();
-
-    const getRequest = await app.get(`/v1/labRequest/${requestId}`);
-    expect(getRequest.statusCode).toEqual(404);
-  });
-
   describe('Options', () => {
     it('should fetch lab test type options', async () => {
       const response = await app.get(`/v1/labTest/options`);

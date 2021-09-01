@@ -38,23 +38,6 @@ labRequest.put(
   }),
 );
 
-labRequest.delete(
-  '/:id',
-  asyncHandler(async (req, res) => {
-    const { models, params } = req;
-    req.checkPermission('read', 'LabRequest');
-    const object = await models.LabRequest.findByPk(params.id);
-    if (!object) throw new NotFoundError();
-    req.checkPermission('write', object);
-    await models.LabRequest.destroy({
-      where: {
-        id: params.id,
-      },
-    });
-    res.send({});
-  }),
-);
-
 labRequest.post(
   '/$',
   asyncHandler(async (req, res) => {
