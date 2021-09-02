@@ -5,7 +5,7 @@
     "verbose": false,
     "username": "",
     "password": "",
-    "syncOnStartup": true
+    "migrateOnStartup": false
   },
   "log": {
     "path": "",
@@ -21,6 +21,10 @@
       "displayName": "Initial Admin",
       "role": "admin",
       "password": "admin"
+    },
+    "resetPassword": {
+      "tokenLength": 6,
+      "tokenExpiry": 20
     }
   },
   "mailgun": {
@@ -237,6 +241,7 @@
         }
       },
       "features": {
+        "registerNewPatient": true,
         "hideOtherSex": true
       },
       "templates": {

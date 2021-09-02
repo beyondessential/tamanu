@@ -1,0 +1,26 @@
+version: "3.8"
+services:
+  lan:
+    build:
+      context: .
+      dockerfile: packages/lan/docker/Dockerfile
+    ports:
+      - "4000:4000"
+    restart: on-failure
+  sync-server:
+    build:
+      context: .
+      dockerfile: packages/sync-server/docker/Dockerfile
+    ports:
+      - "3000:3000"
+    restart: on-failure
+  db:
+    build:
+      context: .
+      dockerfile: packages/shared-src/docker/postgres/Dockerfile
+    volumes:
+      - ./docker-volumes/db:/var/lib/postgresql/data
+    environment:
+      - POSTGRES_DB=postgres
+      - POSTGRES_USER=postgres
+      - POSTGRES_PASSWORD=postgres

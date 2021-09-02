@@ -1,7 +1,7 @@
 import { Sequelize } from 'sequelize';
 import { Model } from './Model';
 
-export class SyncMetadata extends Model {
+export class ChannelSyncPullCursor extends Model {
   static init({ primaryKey, ...options }) {
     super.init(
       {

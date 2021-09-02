@@ -4,8 +4,6 @@ import { InvalidOperationError } from 'shared/errors';
 import { LAB_REQUEST_STATUSES, NOTE_TYPES } from 'shared/constants';
 import { Model } from './Model';
 
-const LAB_REQUEST_STATUS_VALUES = Object.values(LAB_REQUEST_STATUSES);
-
 export class LabRequest extends Model {
   static init({ primaryKey, ...options }) {
     super.init(

@@ -8,9 +8,17 @@ const port = config.port;
 
 export async function run() {
   const app = createApp();
-  const server = app.listen(port, () => {
+  app.listen(port, () => {
     log.info(`Server is running on port ${port}!`);
   });
 }
 
-run();
+// catch and exit if run() throws an error
+(async () => {
+  try {
+    await run();
+  } catch (e) {
+    log.error('run(): fatal error:', e.stack);
+    process.exit(1);
+  }
+})();

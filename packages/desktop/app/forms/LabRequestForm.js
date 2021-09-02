@@ -15,7 +15,6 @@ import {
 import {
   Form,
   Field,
-  DateField,
   SelectField,
   AutocompleteField,
   TextField,
@@ -78,7 +77,7 @@ export class LabRequestForm extends React.PureComponent {
     return (
       <FormGrid>
         <Field name="displayId" label="Lab request number" disabled component={TextField} />
-        <Field name="requestedDate" label="Order date" required component={DateField} />
+        <Field name="requestedDate" label="Order date" required component={DateTimeField} />
         <TextInput label="Supervising doctor" disabled value={examinerLabel} />
         <Field
           name="requestedById"
