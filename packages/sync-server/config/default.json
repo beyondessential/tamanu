@@ -258,5 +258,6 @@
       "hierarchyName": "covid_samoa",
       "surveyId": "605b114261f76a3684009d5a"
     }
-  }
+  },
+  "tupaiaApiClient": {}
 }
