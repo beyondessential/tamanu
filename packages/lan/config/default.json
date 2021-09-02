@@ -27,7 +27,8 @@
     "channelsWithChanges": {
       "algorithm": {
         "initialBatchSize": 1000,
-        "maxErrors": 100,
+        "maxErrorRate": 0.01,
+        "maxErrorsFloor": 100,
         "maxBatchSize": 5000,
         "minBatchSize": 50,
         "throttleFactorUp": 1.2,

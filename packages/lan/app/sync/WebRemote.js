@@ -183,6 +183,7 @@ export class WebRemote {
 
   async fetchChannelsWithChanges(channelsToCheck) {
     const algorithmConfig = config.sync.channelsWithChanges.algorithm;
+    const maxErrors = Math.max(algorithmConfig.maxErrorRate * channelsToCheck.length, algorithmConfig.maxErrorsFloor)
 
     let batchSize = algorithmConfig.initialBatchSize;
 
@@ -223,7 +224,7 @@ export class WebRemote {
       } catch (e) {
         // errored - put those channels back into the queue
         errors.push(e);
-        if (errors.length > algorithmConfig.maxErrors) {
+        if (errors.length > maxErrors) {
           log.error(errors);
           throw new Error('Too many errors encountered, aborting sync entirely');
         }
