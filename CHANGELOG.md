@@ -4,7 +4,27 @@
 
 ### Manual steps required after upgrade ⚙
 
-- (left blank)
+- Add to samoa config.json:
+
+```
+"tupaiaApiClient": {
+    "auth": {
+        "username": "tamanu-server@tupaia.org",
+        "password": "" // find in lastpass, search for tamanu-server@tupaia.org
+    },
+    "environment": "production"
+},
+"scheduledReports": [
+    {
+        "reportType": "covid-vaccine-daily-summary-village",
+            "schedule": "0 12,17 * * *",
+            "parameters": {},
+            "recipients": {
+            "tupaia": true
+        }
+    }
+]
+```
 
 ### Features ⭐
 
