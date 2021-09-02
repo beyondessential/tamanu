@@ -15,7 +15,6 @@ export class ReportRequestProcessor extends ScheduledTask {
   constructor(context) {
     super('*/30 * * * * *', log);
     this.context = context;
-    this.tupaiaApiClient = createTupaiaApiClient();
   }
 
   async run() {
@@ -50,6 +49,9 @@ export class ReportRequestProcessor extends ScheduledTask {
 
       let reportData = null;
       try {
+        if (!this.tupaiaApiClient) {
+          this.tupaiaApiClient = createTupaiaApiClient();
+        }
         reportData = await reportDataGenerator(this.context.store.models, request.getParameters(), this.tupaiaApiClient);
       } catch (e) {
         log.error(`ReportRequestProcessorError - Failed to generate report, ${e.message}`);
