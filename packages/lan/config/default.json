@@ -23,6 +23,13 @@
       "multiplierMs": 300,
       "maxRetries": 15,
       "maxWaitMs": 10000
+    },
+    "channelsWithChanges": {
+      "backoff": {
+        "multiplierMs": 300,
+        "maxRetries": 3,
+        "maxWaitMs": 1000
+      }
     }
   },
   "port": 4000,
