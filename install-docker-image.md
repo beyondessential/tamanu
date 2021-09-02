@@ -1,5 +1,5 @@
 # Intro
-This is a quick guide on how to use the Dockerfile included in this repo. It requires you to install `yarn`, `git` and `node` and pre-supposes a fully operational dev environment running. For how to do this please consult the [README.md](./README.md) file in the root but read on for more details on just getting the Docker containers working.
+This is a quick guide on how to use the Dockerfile included in this repo. It requires you to install `docker`, `yarn`, `git` and `node` and pre-supposes a fully operational dev environment running. For how to do this please consult the [README.md](./README.md) file in the root but read on for more details on just getting the Docker containers working.
 
 # Pre-install
 ## Download Docker
