@@ -25,6 +25,14 @@
       "maxWaitMs": 10000
     },
     "channelsWithChanges": {
+      "algorithm": {
+        "initialBatchSize": 1000,
+        "maxErrors": 100,
+        "maxBatchSize": 5000,
+        "minBatchSize": 50,
+        "throttleFactorUp": 1.2,
+        "throttleFactorDown": 0.5
+      },
       "backoff": {
         "multiplierMs": 300,
         "maxRetries": 3,
