@@ -1002,14 +1002,6 @@
     eslint-plugin-jsx-a11y "^6.1.2"
     eslint-plugin-react "^7.11.1"
 
-"@beyondessential/tupaia-api-client@1.0.12":
-  version "1.0.12"
-  resolved "https://registry.yarnpkg.com/@beyondessential/tupaia-api-client/-/tupaia-api-client-1.0.12.tgz#780ab267ba0614acde94fd570a4b983758749c42"
-  integrity sha512-TQ7RN8Iy167su4B/e2jQ7A/zLWZAn6Dt1z+CxvkjpTWTczA6sdeUguxAg1Vwn56hbyO5ej+lYOmttm/oHr8cyQ==
-  dependencies:
-    node-fetch "^1.7.3"
-    qs "^6.10.1"
-
 "@casl/ability@^3.0.0":
   version "3.4.0"
   resolved "https://registry.yarnpkg.com/@casl/ability/-/ability-3.4.0.tgz#06c9f2df0bbb257b3deecb05885e731420cca780"
