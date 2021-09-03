@@ -47,7 +47,7 @@ export class ForeignKey {
     this.name = this.buildName();
   }
 
-  buildName = () => [this.table, `${this.referencedEntity}_id`, 'fkey'].join('_');
+  buildName = () => [this.table, this.referencedEntity, 'id', 'fkey'].join('_');
 
   add = async () => {
     await this.query.addConstraint(this.table, [this.column], {
