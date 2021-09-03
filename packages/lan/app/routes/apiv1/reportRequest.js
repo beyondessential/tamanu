@@ -20,7 +20,7 @@ reportRequest.post(
       return;
     }
     const reportModule = getReportModule(body.reportType);
-    if(!reportModule) {
+    if (!reportModule) {
       res.status(400).send({ message: 'invalid reportType' });
       return;
     }
