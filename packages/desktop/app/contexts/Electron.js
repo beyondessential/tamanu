@@ -1,4 +1,4 @@
-import React, { useState, useContext } from 'react';
+import React, { useContext } from 'react';
 
 export const ElectronContext = React.createContext();
 export const useElectron = () => useContext(ElectronContext);
@@ -8,30 +8,30 @@ export const useElectron = () => useContext(ElectronContext);
 // on electron, which breaks storybook)
 export const DummyElectronProvider = ({ children }) => {
   return (
-    <ElectronContext.Provider 
+    <ElectronContext.Provider
       value={{
         // filesystem
         showOpenDialog: async (...args) => {
-          console.log("Show open dialog", ...args);
+          console.log('Show open dialog', ...args);
           return {
             canceled: false,
             filePaths: ['dummyFile.txt'],
           };
         },
         showSaveDialog: async (...args) => {
-          console.log("Show save dialog", ...args);
+          console.log('Show save dialog', ...args);
           return {
             canceled: false,
             filePath: 'dummyFile.txt',
           };
         },
-        openPath: (path) => console.log("Opening path", path),
+        openPath: path => console.log('Opening path', path),
 
         // print
-        printPage: (options = {}) => console.log("Printing page", options),
+        printPage: (options = {}) => console.log('Printing page', options),
       }}
     >
       {children}
     </ElectronContext.Provider>
   );
-}
+};

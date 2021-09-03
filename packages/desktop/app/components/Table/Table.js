@@ -14,13 +14,9 @@ import TableSortLabel from '@material-ui/core/TableSortLabel';
 import TableRow from '@material-ui/core/TableRow';
 import TableFooter from '@material-ui/core/TableFooter';
 import TablePagination from '@material-ui/core/TablePagination';
-import { Button } from '@material-ui/core';
-import SaveAltIcon from '@material-ui/icons/SaveAlt';
 
-import XLSX from 'xlsx';
-
+import { DownloadDataButton } from './DownloadDataButton';
 import { useLocalisation } from '../../contexts/Localisation';
-import { useElectron } from '../../contexts/Electron';
 import { ErrorBoundary } from '../ErrorBoundary';
 import { Colors } from '../../constants';
 
@@ -45,11 +41,6 @@ const CellError = React.memo(({ error }) => {
 
   return <CellErrorMessage onClick={showMessage}>ERROR</CellErrorMessage>;
 });
-
-const PaddedDownloadIcon = styled(SaveAltIcon)`
-  padding: 5px;
-  font-size: 42px;
-`;
 
 const DEFAULT_ROWS_PER_PAGE_OPTIONS = [10, 25, 50];
 
@@ -184,6 +175,7 @@ class TableComponent extends React.Component {
     rowsPerPageOptions: PropTypes.arrayOf(PropTypes.number),
     rowIdKey: PropTypes.string,
     className: PropTypes.string,
+    exportName: PropTypes.string,
   };
 
   static defaultProps = {
@@ -202,6 +194,7 @@ class TableComponent extends React.Component {
     rowsPerPageOptions: DEFAULT_ROWS_PER_PAGE_OPTIONS,
     rowIdKey: 'id', // specific to data expected for tamanu REST api fetches
     className: null,
+    exportName: 'TamanuExport',
   };
 
   getErrorMessage() {
@@ -278,7 +271,7 @@ class TableComponent extends React.Component {
   }
 
   render() {
-    const { page, className, onDownloadData } = this.props;
+    const { page, className, exportName, columns, data } = this.props;
     return (
       <StyledTableContainer className={className}>
         <StyledTable>
@@ -289,9 +282,7 @@ class TableComponent extends React.Component {
           <StyledTableFooter>
             <TableRow>
               <TableCell>
-                <Button onClick={onDownloadData}>
-                  <PaddedDownloadIcon />
-                </Button>
+                <DownloadDataButton exportName={exportName} columns={columns} data={data} />
               </TableCell>
               {page !== null && this.renderPaginator()}
             </TableRow>
@@ -306,64 +297,11 @@ export const Table = ({ columns: allColumns, data, exportName, ...props }) => {
   const { getLocalisation } = useLocalisation();
   const columns = allColumns.filter(({ key }) => getLocalisation(`fields.${key}.hidden`) !== true);
 
-  const { showSaveDialog, openPath } = useElectron();
-  const onDownloadData = async () => {
-    const headers = columns.map(c => c.key);
-    const rows = await Promise.all(
-      data.map(async d => {
-        const dx = {};
-        await Promise.all(
-          columns.map(async c => {
-            if (c.asyncExportAccessor) {
-              const value = await c.asyncExportAccessor(d);
-              dx[c.key] = value;
-              return;
-            }
-
-            if (c.accessor) {
-              const value = c.accessor(d);
-              // True if accessor returns a React element,
-              // which we can't export to a excel sheet, so just use the raw value.
-              // (e.g. dates)
-              if (typeof value === 'object') {
-                dx[c.key] = d[c.key];
-                return;
-              }
-
-              if (typeof value === 'string') {
-                dx[c.key] = value;
-                return;
-              }
-
-              dx[c.key] = 'Error: Could not parse accessor';
-            } else {
-              // Some columns have no accessor at all.
-              dx[c.key] = d[c.key];
-            }
-          }),
-        );
-        return dx;
-      }),
-    );
-
-    const ws = XLSX.utils.json_to_sheet(rows, {
-      header: headers,
-    });
-    const wb = XLSX.utils.book_new();
-    XLSX.utils.book_append_sheet(wb, ws, exportName);
-
-    // show a file-save dialog and write the workbook
-    const path = await showSaveDialog();
-    if (path.canceled) return; // Dialog was cancelled - don't write file.
-    XLSX.writeFile(wb, `${path.filePath}.xlsx`);
-    openPath(`${path.filePath}.xlsx`);
-  };
-
   return (
     <TableComponent
       columns={columns}
       data={data}
-      onDownloadData={onDownloadData}
+      exportname={exportName}
       getLocalisation={getLocalisation}
       {...props}
     />
