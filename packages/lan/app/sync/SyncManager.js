@@ -1,3 +1,5 @@
+import config from 'config';
+
 import {
   shouldPush,
   shouldPull,
@@ -7,7 +9,6 @@ import {
   executeExportPlan,
 } from 'shared/models/sync';
 import { log } from 'shared/services/logging';
-import config from 'config';
 
 const { readOnly } = config.sync;
 
@@ -55,12 +56,7 @@ export class SyncManager {
 
   async pullAndImport(model, patientId) {
     const channels = await model.syncConfig.getChannels(patientId);
-    const channelsWithCursors = await Promise.all(
-      channels.map(async channel => {
-        const cursor = await this.getChannelPullCursor(channel);
-        return { channel, cursor };
-      }),
-    );
+    const channelsWithCursors = await this.getChannelPullCursors(channels);
     const channelsToPull =
       channels.length === 1
         ? channels // waste of effort to check which need pulling if there's only 1, just pull
@@ -157,11 +153,8 @@ export class SyncManager {
     log.debug(`SyncManager.exportAndPush: reached end of ${channel}`);
   }
 
-  async getChannelPullCursor(channel) {
-    const cursor = await this.context.models.ChannelSyncPullCursor.findOne({
-      where: { channel },
-    });
-    return cursor?.pullCursor || '0';
+  getChannelPullCursors(channels) {
+    return this.context.models.ChannelSyncPullCursor.getCursors(channels);
   }
 
   async setChannelPullCursor(channel, pullCursor) {
