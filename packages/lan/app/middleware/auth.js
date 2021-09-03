@@ -61,6 +61,9 @@ export async function remoteLogin(models, email, password) {
       email,
       password,
     },
+    backoff: {
+      maxAttempts: 1,
+    },
   });
 
   // we've logged in as a valid remote user - update local database to match
