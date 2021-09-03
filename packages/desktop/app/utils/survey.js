@@ -94,10 +94,11 @@ export function checkVisibility(component, values, allComponents) {
         if (inRange(parseFloat(value), parseFloat(start), parseFloat(end))) {
           return true;
         }
+        return false;
       }
 
-      const matchingComponent = allComponents.find(x => x.dataElement?.code === questionId);
-      if (matchingComponent?.dataElement?.type === 'Select') {
+      const matchingComponent = allComponents.find(x => x.dataElement.code === questionId);
+      if (matchingComponent.dataElement.type === 'Select') {
         return values[matchingComponent.dataElement.id] === answersEnablingFollowUp;
       }
 
