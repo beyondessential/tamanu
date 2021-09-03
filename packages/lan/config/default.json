@@ -21,7 +21,7 @@
     "syncAllLabRequests": false,
     "backoff": {
       "multiplierMs": 300,
-      "maxRetries": 15,
+      "maxAttempts": 15,
       "maxWaitMs": 10000
     },
     "channelsWithChanges": {
@@ -36,7 +36,7 @@
       },
       "backoff": {
         "multiplierMs": 300,
-        "maxRetries": 3,
+        "maxAttempts": 3,
         "maxWaitMs": 1000
       }
     }
