@@ -38,8 +38,6 @@ export const VitalsTable = React.memo(() => {
       .map(r => ({
         title: <DateDisplay date={r.dateRecorded} />,
         key: r.dateRecorded,
-        // use by table
-        accessor: data => data[r.dateRecorded],
       })),
   ];
   // function to create an object containing a single metric's value for each reading
