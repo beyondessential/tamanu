@@ -20,6 +20,7 @@ export class Facility extends Model {
       },
       {
         ...options,
+        syncConfig: { syncDirection: SYNC_DIRECTIONS.PULL_ONLY },
         indexes: [{ unique: true, fields: ['code'] }],
       },
     );
@@ -41,5 +42,4 @@ export class Facility extends Model {
     });
   }
 
-  static syncDirection = SYNC_DIRECTIONS.PULL_ONLY;
 }
