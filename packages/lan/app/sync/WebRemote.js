@@ -50,6 +50,7 @@ export class WebRemote {
       method = 'GET',
       retryAuth = true,
       awaitConnection = true,
+      backoff,
       ...otherParams
     } = params;
 
@@ -71,8 +72,7 @@ export class WebRemote {
     const url = `${this.host}/${API_VERSION}/${endpoint}`;
     log.debug(`[sync] ${method} ${url}`);
 
-    let response;
-    response = await callWithBackoff(async () => {
+    const response = await callWithBackoff(async () => {
       if (config.debugging.requestFailureRate) {
         if (Math.random() < config.debugging.requestFailureRate) {
           // intended to cause some % of requests to fail, to simulate a flaky connection
@@ -105,7 +105,7 @@ export class WebRemote {
         }
         throw e;
       };
-    });
+    }, backoff);
 
     const checkForInvalidToken = ({ status }) => status === 401;
     if (checkForInvalidToken(response)) {
@@ -182,14 +182,7 @@ export class WebRemote {
   }
 
   async fetchChannelsWithChanges(channelsToCheck) {
-    const algorithmConfig = {
-      initialBatchSize: 1000,
-      maxErrors: 100,
-      maxBatchSize: 5000,
-      minBatchSize: 50,
-      throttleFactorUp: 1.2,
-      throttleFactorDown: 0.5,
-    };
+    const algorithmConfig = config.sync.channelsWithChanges.algorithm;
 
     let batchSize = algorithmConfig.initialBatchSize;
 
@@ -222,6 +215,7 @@ export class WebRemote {
         const { channelsWithChanges } = await this.fetch(`sync/channels`, {
           method: 'POST',
           body,
+          backoff: config.sync.channelsWithChanges.backoff,
         });
         log.debug(`WebRemote.fetchChannelsWithChanges: OK! ${channelsLeftToCheck.length} left.`);
         channelsWithPendingChanges.push(...channelsWithChanges);
