@@ -22,4 +22,4 @@ COPY packages/sync-server/dist/app.bundle.js dist/
 
 # run config
 EXPOSE 3000
-CMD ["node", "dist/app.bundle.js"]
+CMD ["sh", "-c" , "node dist/app.bundle.js setup && node dist/app.bundle.js serve"]
