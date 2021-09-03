@@ -1,5 +1,5 @@
 import React, { useState, useCallback, useMemo } from 'react';
-import { connect } from 'react-redux';
+import { connect, useDispatch } from 'react-redux';
 import { push } from 'connected-react-router';
 
 import { Button } from '../../components/Button';
@@ -89,17 +89,25 @@ const ResultsPane = React.memo(({ labRequest, patient }) => {
   );
 });
 
-const BackLink = connect(null, dispatch => ({
-  onClick: () => dispatch(push('/patients/encounter')),
-}))(({ onClick }) => <Button onClick={onClick}>&lt; Back to encounter information</Button>);
-
+const BackLink = () => {
+  const dispatch = useDispatch();
+  return (
+    <Button
+      onClick={() => {
+        dispatch(push('/patients/encounter'));
+      }}
+    >
+      &lt; Back to encounter information
+    </Button>
+  );
+};
 const ChangeLabStatusButton = ({ status: currentStatus, updateLabReq }) => {
   const [status, setStatus] = useState(currentStatus);
   const [isModalOpen, setModalOpen] = useState(false);
   const openModal = useCallback(() => setModalOpen(true), [setModalOpen]);
   const closeModal = useCallback(() => setModalOpen(false), [setModalOpen]);
-  const updateLabStatus = useCallback(() => {
-    updateLabReq({ status });
+  const updateLabStatus = useCallback(async () => {
+    await updateLabReq({ status });
     closeModal();
   }, [updateLabReq, status]);
   const labStatuses = useMemo(() => [
@@ -139,8 +147,8 @@ const ChangeLaboratoryButton = ({ laboratory, updateLabReq }) => {
   const openModal = useCallback(() => setModalOpen(true), [setModalOpen]);
   const closeModal = useCallback(() => setModalOpen(false), [setModalOpen]);
   const laboratorySuggester = useSuggester('labTestLaboratory');
-  const updateLab = useCallback(() => {
-    updateLabReq({
+  const updateLab = useCallback(async () => {
+    await updateLabReq({
       labTestLaboratoryId: lab,
     });
     closeModal();
@@ -169,14 +177,16 @@ const ChangeLaboratoryButton = ({ laboratory, updateLabReq }) => {
 };
 
 const DeleteButton = ({ updateLabReq }) => {
+  const dispatch = useDispatch();
   const [isModalOpen, setModalOpen] = useState(false);
   const openModal = useCallback(() => setModalOpen(true), [setModalOpen]);
   const closeModal = useCallback(() => setModalOpen(false), [setModalOpen]);
-  const deleteLabRequest = useCallback(() => {
-    updateLabReq({
+  const deleteLabRequest = useCallback(async () => {
+    await updateLabReq({
       status: 'deleted',
     });
     closeModal();
+    dispatch(push('/patients/encounter'));
   }, [updateLabReq]);
   return (
     <>
@@ -207,8 +217,8 @@ const LabRequestInfoPane = ({ labRequest }) => (
 export const DumbLabRequestView = React.memo(({ patient }) => {
   const { isLoading, labRequest, updateLabRequest } = useLabRequest();
   const updateLabReq = useCallback(
-    data => {
-      updateLabRequest(labRequest.id, data);
+    async data => {
+      await updateLabRequest(labRequest.id, data);
     },
     [labRequest],
   );
