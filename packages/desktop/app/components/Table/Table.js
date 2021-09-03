@@ -15,7 +15,7 @@ import TableRow from '@material-ui/core/TableRow';
 import TableFooter from '@material-ui/core/TableFooter';
 import TablePagination from '@material-ui/core/TablePagination';
 
-import { DownloadData } from './DownloadData';
+import { DownloadDataButton } from './DownloadDataButton';
 import { useLocalisation } from '../../contexts/Localisation';
 import { ErrorBoundary } from '../ErrorBoundary';
 import { Colors } from '../../constants';
@@ -282,7 +282,7 @@ class TableComponent extends React.Component {
           <StyledTableFooter>
             <TableRow>
               <TableCell>
-                <DownloadData exportName={exportName} columns={columns} data={data} />
+                <DownloadDataButton exportName={exportName} columns={columns} data={data} />
               </TableCell>
               {page !== null && this.renderPaginator()}
             </TableRow>

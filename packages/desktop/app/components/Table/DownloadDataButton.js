@@ -28,7 +28,7 @@ function getHeaderValue(column) {
   return column.key;
 }
 
-export function DownloadData({ exportName, columns, data }) {
+export function DownloadDataButton({ exportName, columns, data }) {
   const { showSaveDialog, openPath } = useElectron();
   const onDownloadData = async () => {
     const header = columns.map(getHeaderValue);
