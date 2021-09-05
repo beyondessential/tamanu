@@ -37,6 +37,18 @@ const REPORT_TYPE_OPTIONS = [
   { label: 'Registered patients - Line list', value: 'registered-patients' },
   { label: 'COVID-19 Tests - Line list', value: 'covid-swab-lab-test-list' },
   { label: 'COVID-19 Tests - Summary', value: 'covid-swab-lab-tests-summary' },
+  {
+    label: 'India assistive technology device line list',
+    value: 'india-assistive-technology-device-line-list',
+  },
+  {
+    label: 'Iraq assistive technology device line list',
+    value: 'iraq-assistive-technology-device-line-list',
+  },
+  {
+    label: 'PNG assistive technology device line list',
+    value: 'png-assistive-technology-device-line-list',
+  },
 ];
 
 const Spacer = styled.div`
@@ -130,6 +142,9 @@ const ParametersByReportType = {
     { ParameterField: VillageField },
     { ParameterField: LabTestLaboratoryField },
   ],
+  'india-assistive-technology-device-line-list': [],
+  'iraq-assistive-technology-device-line-list': [],
+  'png-assistive-technology-device-line-list': [],
 };
 
 const DefaultDataSource = {

@@ -22,9 +22,8 @@ const reportColumnTemplate = [
           .map(d => {
             if (d.Diagnosis && d.Diagnosis.name) {
               return d.Diagnosis.name;
-            } else {
-              return '';
             }
+            return '';
           })
           .join(', ');
       }

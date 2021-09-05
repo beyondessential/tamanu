@@ -3,13 +3,9 @@ import { Op } from 'sequelize';
 import moment from 'moment';
 import { generateReportFromQueryData } from './utilities';
 import { LAB_REQUEST_STATUS_LABELS } from '../constants';
+import { transformAnswers } from './utilities/transformAnswers';
 
 const yieldControl = () => new Promise(resolve => setTimeout(resolve, 20));
-
-const MODEL_COLUMN_TO_ANSWER_DISPLAY_VALUE = {
-  User: 'displayName',
-  ReferenceData: 'name',
-};
 
 const FIJI_SAMP_SURVEY_ID = 'program-fijicovid19-fijicovidsampcollection';
 
@@ -223,69 +219,6 @@ const parametersToSurveyResponseSqlWhere = parameters => {
     }, defaultWhereClause);
 
   return whereClause;
-};
-
-const getTransformedAnswers = async (models, surveyResponseAnswers) => {
-  const components = await models.SurveyScreenComponent.getComponentsForSurvey(FIJI_SAMP_SURVEY_ID);
-
-  const autocompleteComponents = components
-    .filter(c => c.dataElement.dataValues.type === 'Autocomplete')
-    .map(({ dataElementId, config: componentConfig }) => [
-      dataElementId,
-      JSON.parse(componentConfig),
-    ]);
-  const autocompleteComponentMap = new Map(autocompleteComponents);
-
-  // Transform Autocomplete answers from: ReferenceData.id to ReferenceData.name
-  const transformedAnswers = await Promise.all(
-    surveyResponseAnswers
-      // Some questions in the front end are not answered but still record the answer as empty string in the database
-      // So we should filter any answers thare are empty.
-      .filter(answer => answer.body !== null && answer.body !== undefined && answer.body !== '')
-      .map(async answer => {
-        const surveyResponseId = answer.surveyResponse?.id;
-        const patientId = answer.surveyResponse?.encounter?.patientId;
-        const responseEndTime = answer.surveyResponse?.endTime;
-        const dataElementId = answer.dataElementId;
-        const body =
-          Object.values(SURVEY_DATE_QUESTION_CODES).includes(dataElementId) && answer.body
-            ? moment(answer.body).format('DD-MM-YYYY')
-            : answer.body;
-        const componentConfig = autocompleteComponentMap.get(dataElementId);
-        if (!componentConfig) {
-          return {
-            surveyResponseId,
-            patientId,
-            responseEndTime,
-            dataElementId,
-            body,
-          };
-        }
-
-        const result = await models[componentConfig.source].findByPk(body);
-        if (!result) {
-          return {
-            surveyResponseId,
-            patientId,
-            responseEndTime,
-            dataElementId,
-            body,
-          };
-        }
-
-        const answerDisplayValue =
-          result[MODEL_COLUMN_TO_ANSWER_DISPLAY_VALUE[componentConfig.source]];
-        return {
-          surveyResponseId,
-          patientId,
-          responseEndTime,
-          dataElementId,
-          body: answerDisplayValue,
-        };
-      }),
-  );
-
-  return transformedAnswers;
 };
 
 const getLabTests = async (models, parameters) => {
@@ -533,7 +466,8 @@ export const dataGenerator = async (models, parameters = {}) => {
   const labTests = await getLabTests(models, parameters);
   const surveyResponses = await getSurveyResponses(models, parameters);
   const answers = await getFijiCovidAnswers(models, parameters);
-  const transformedAnswers = await getTransformedAnswers(models, answers);
+  const components = await models.SurveyScreenComponent.getComponentsForSurvey(FIJI_SAMP_SURVEY_ID);
+  const transformedAnswers = await transformAnswers(models, answers, components);
 
   const labTestRecords = await getLabTestRecords(labTests, transformedAnswers, parameters);
   const rdtSurveyResponseRecords = await getRdtPositiveSurveyResponseRecords(
