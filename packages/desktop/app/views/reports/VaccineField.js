@@ -1,8 +1,9 @@
 import React, { useState, useEffect } from 'react';
-import { connectApi } from '../../api';
+import { useApi } from '../../api';
 import { SelectField, Field, Dialog } from '../../components';
 
-const DumbVaccineField = ({ required, getScheduledVaccines, parameterValues }) => {
+export const VaccineField = ({ required, parameterValues }) => {
+  const api = useApi();
   const { category } = parameterValues;
   const [vaccineOptions, setVaccineOptions] = useState([]);
   const [error, setError] = useState(null);
@@ -14,7 +15,7 @@ const DumbVaccineField = ({ required, getScheduledVaccines, parameterValues }) =
     }
     const scheduledVaccinesToOptions = async () => {
       try {
-        const scheduledVaccines = await getScheduledVaccines({ category });
+        const scheduledVaccines = await api.get(`scheduledVaccine`, { category });
         const vaccineNames = [...new Set(scheduledVaccines.map(vaccine => vaccine.label))];
         const options = vaccineNames.map(vaccineName => ({
           label: vaccineName,
@@ -51,10 +52,3 @@ const DumbVaccineField = ({ required, getScheduledVaccines, parameterValues }) =
     </>
   );
 };
-
-export const VaccineField = connectApi((api, dispatch, { category }) => {
-  return {
-    getScheduledVaccines: async query => api.get(`scheduledVaccine`, query),
-    category,
-  };
-})(DumbVaccineField);
