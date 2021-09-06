@@ -137,6 +137,7 @@ const DefaultDataSource = {
   'covid-vaccine-summary-dose2': 'allFacilities',
   'number-patients-registered-by-date': 'allFacilities',
   'covid-swab-lab-test-list': 'allFacilities',
+  'registered-patients': 'allFacilities',
 };
 
 // adding an onValueChange hook to the report type field
