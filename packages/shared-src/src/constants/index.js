@@ -33,6 +33,7 @@ export const LAB_REQUEST_STATUSES = {
   TO_BE_VERIFIED: 'to_be_verified',
   VERIFIED: 'verified',
   PUBLISHED: 'published',
+  DELETED: 'deleted',
 };
 
 export const LAB_REQUEST_STATUS_LABELS = {

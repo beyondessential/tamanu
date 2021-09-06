@@ -12,7 +12,7 @@ describe('callWithBackoff', () => {
       .mockImplementationOnce(() => Promise.resolve(2));
 
     // act
-    const result = await callWithBackoff(fn, { maxRetries: 3 });
+    const result = await callWithBackoff(fn, { maxAttempts: 3 });
 
     // assert
     expect(fn.mock.calls).toHaveLength(3);
@@ -29,7 +29,7 @@ describe('callWithBackoff', () => {
       .mockImplementationOnce(() => Promise.reject(errs[2]));
 
     // act
-    const result = callWithBackoff(fn, { maxRetries: 3 });
+    const result = callWithBackoff(fn, { maxAttempts: 3 });
 
     // assert
     await expect(result).rejects.toEqual(errs[2]);
@@ -38,7 +38,7 @@ describe('callWithBackoff', () => {
 
   it('waits an increasing amount of time', async () => {
     // arrange
-    const config = { maxRetries: 5, maxWaitMs: 10000, multiplierMs: 50 };
+    const config = { maxAttempts: 5, maxWaitMs: 10000, multiplierMs: 50 };
     let n = 0;
     const fn = jest.fn(() => Promise.reject(new Error(`${n++}`)));
     const startMs = Date.now();
@@ -47,7 +47,7 @@ describe('callWithBackoff', () => {
     const promise = callWithBackoff(fn, config);
 
     // assert
-    await expect(promise).rejects.toHaveProperty('message', (config.maxRetries - 1).toString());
+    await expect(promise).rejects.toHaveProperty('message', (config.maxAttempts - 1).toString());
     const elapsedMs = Date.now() - startMs;
     expect(elapsedMs).toBeGreaterThanOrEqual((1 + 1 + 2 + 3) * config.multiplierMs);
     expect(elapsedMs).toBeLessThan((1 + 1 + 2 + 3 + 5) * config.multiplierMs);
@@ -55,7 +55,7 @@ describe('callWithBackoff', () => {
 
   it('obeys the upper bound on wait time', async () => {
     // arrange
-    const config = { maxRetries: 5, maxWaitMs: 100, multiplierMs: 100 };
+    const config = { maxAttempts: 5, maxWaitMs: 100, multiplierMs: 100 };
     let n = 0;
     const fn = jest.fn(() => Promise.reject(new Error(`${n++}`)));
     const startMs = Date.now();
@@ -64,9 +64,9 @@ describe('callWithBackoff', () => {
     const promise = callWithBackoff(fn, config);
 
     // assert
-    await expect(promise).rejects.toHaveProperty('message', (config.maxRetries - 1).toString());
+    await expect(promise).rejects.toHaveProperty('message', (config.maxAttempts - 1).toString());
     const elapsedMs = Date.now() - startMs;
-    expect(elapsedMs).toBeGreaterThanOrEqual((config.maxRetries - 1) * config.maxWaitMs);
-    expect(elapsedMs).toBeLessThan(config.maxRetries * config.maxWaitMs);
+    expect(elapsedMs).toBeGreaterThanOrEqual((config.maxAttempts - 1) * config.maxWaitMs);
+    expect(elapsedMs).toBeLessThan(config.maxAttempts * config.maxWaitMs);
   });
 });

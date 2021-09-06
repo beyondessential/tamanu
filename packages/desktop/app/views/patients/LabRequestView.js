@@ -25,10 +25,10 @@ import { LabRequestAuditPane } from '../../components/LabRequestAuditPane';
 import { useLabRequest } from '../../contexts/LabRequest';
 
 const makeRangeStringAccessor = sex => ({ labTestType }) => {
-  const max = (sex === 'male') ? labTestType.maleMax : labTestType.femaleMax;
-  const min = (sex === 'male') ? labTestType.maleMin : labTestType.femaleMin;
-  const hasMax = max || (max === 0);
-  const hasMin = min || (min === 0);
+  const max = sex === 'male' ? labTestType.maleMax : labTestType.femaleMax;
+  const min = sex === 'male' ? labTestType.maleMin : labTestType.femaleMin;
+  const hasMax = max || max === 0;
+  const hasMin = min || min === 0;
 
   if (hasMin && hasMax) return `${min} - ${max}`;
   if (hasMin) return `>${min}`;
