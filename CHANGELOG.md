@@ -9,6 +9,9 @@
 ### Features ⭐
 
 - Add registered patients line-list report
+- Add India assistive technology device line list report
+- Add Iraq assistive technology device line list report
+- Add PNG assistive technology device line list report
 
 ## Tweaks ⚖️
 
