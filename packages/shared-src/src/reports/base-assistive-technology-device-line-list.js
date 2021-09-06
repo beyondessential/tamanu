@@ -19,16 +19,16 @@ const parametersToSurveyResponseSqlWhere = (parameters, surveyIds) => {
       const newWhere = { ...where };
       switch (key) {
         case 'fromDate':
-          if (!newWhere.endTime) {
-            newWhere.endTime = {};
+          if (!newWhere['$surveyResponse.end_time$']) {
+            newWhere['$surveyResponse.end_time$'] = {};
           }
-          newWhere.endTime[Op.gte] = value;
+          newWhere['$surveyResponse.end_time$'][Op.gte] = value;
           break;
         case 'toDate':
-          if (!newWhere.endTime) {
-            newWhere.endTime = {};
+          if (!newWhere['$surveyResponse.end_time$']) {
+            newWhere['$surveyResponse.end_time$'] = {};
           }
-          newWhere.endTime[Op.lte] = value;
+          newWhere['$surveyResponse.end_time$'][Op.lte] = value;
           break;
         default:
           break;

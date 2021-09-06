@@ -131,17 +131,19 @@ describe('Assistive technology device line list', () => {
     });
   });
 
-  it('should reject creating an assistive technology device line list report with insufficient permissions', async () => {
-    const noPermsApp = await baseApp.asRole('base');
-    const result = await noPermsApp.post(
-      `/v1/reports/iraq-assistive-technology-device-line-list`,
-      {},
-    );
-    expect(result).toBeForbidden();
+  describe('checks permissions', () => {
+    it('should reject creating an assistive technology device line list report with insufficient permissions', async () => {
+      const noPermsApp = await baseApp.asRole('base');
+      const result = await noPermsApp.post(
+        `/v1/reports/iraq-assistive-technology-device-line-list`,
+        {},
+      );
+      expect(result).toBeForbidden();
+    });
   });
 
   describe('returns the correct data', () => {
-    it('should return data for patients per date', async () => {
+    it('should return latest data per patient and latest data per patient per date', async () => {
       const result = await app
         .post('/v1/reports/iraq-assistive-technology-device-line-list')
         .send({});
@@ -182,6 +184,25 @@ describe('Assistive technology device line list', () => {
       expect(result.body[2][8]).toBe('pde-IrqPreMob-7-on-2021-03-20T11:53:15.708Z');
       expect(result.body[2][9]).toBe('pde-IrqPreMob-8-on-2021-03-20T11:53:15.708Z');
       expect(result.body[2][10]).toBe('pde-IrqPreMob-9-on-2021-03-20T11:53:15.708Z');
+    });
+
+    it('should return data within date range', async () => {
+      const result = await app
+        .post('/v1/reports/iraq-assistive-technology-device-line-list')
+        .send({ parameters: { fromDate: '2021-03-18T00:00:00Z', toDate: '2021-03-21T00:00:00Z' } });
+
+      expect(result).toHaveSucceeded();
+      expect(result.body).toHaveLength(2);
+
+      expect(result.body[1][0]).toBe(expectedPatient.displayId);
+      expect(result.body[1][1]).toBe(expectedPatient.sex);
+      expect(result.body[1][2]).toBe(moment(expectedPatient.dateOfBirth).format('DD-MM-YYYY'));
+      expect(result.body[1][5]).toBe('pde-IrqPreMob-2-on-2021-03-20T10:53:15.708Z');
+      expect(result.body[1][6]).toBe('pde-IrqPreMob-1-on-2021-03-20T10:53:15.708Z');
+      expect(result.body[1][7]).toBe('pde-IrqPreMob-6-on-2021-03-20T10:53:15.708Z');
+      expect(result.body[1][8]).toBe('pde-IrqPreMob-7-on-2021-03-20T11:53:15.708Z');
+      expect(result.body[1][9]).toBe('pde-IrqPreMob-8-on-2021-03-20T11:53:15.708Z');
+      expect(result.body[1][10]).toBe('pde-IrqPreMob-9-on-2021-03-20T11:53:15.708Z');
     });
   });
 });
