@@ -25,18 +25,90 @@ import { DiagnosisField } from './DiagnosisField';
 import { saveExcelFile } from '../../utils/saveExcelFile';
 
 const REPORT_TYPE_OPTIONS = [
-  { label: 'Incomplete referrals', value: 'incomplete-referrals' },
-  { label: 'Recent Diagnoses', value: 'recent-diagnoses' },
-  { label: 'Admissions Report', value: 'admissions' },
-  { label: 'COVID vaccine campaign line list', value: 'covid-vaccine-list' },
-  { label: 'COVID vaccine campaign - First dose summary', value: 'covid-vaccine-summary-dose1' },
-  { label: 'COVID vaccine campaign - Second dose summary', value: 'covid-vaccine-summary-dose2' },
-  { label: 'Adverse Event Following Immunization', value: 'aefi' },
-  { label: 'Samoa Adverse Event Following Immunisation', value: 'samoa-aefi' },
-  { label: 'Number of patients registered by date', value: 'number-patients-registered-by-date' },
-  { label: 'Registered patients - Line list', value: 'registered-patients' },
-  { label: 'COVID-19 Tests - Line list', value: 'covid-swab-lab-test-list' },
-  { label: 'COVID-19 Tests - Summary', value: 'covid-swab-lab-tests-summary' },
+  {
+    name: 'Incomplete referrals',
+    id: 'incomplete-referrals',
+    parameters: [
+      { ParameterField: VillageField }, 
+      { ParameterField: PractitionerField },
+    ],
+  },
+  {
+    name: 'Recent Diagnoses',
+    id: 'recent-diagnoses',
+    parameters: [
+      {
+        ParameterField: DiagnosisField,
+        required: true,
+        name: 'diagnosis',
+        label: 'Diagnosis',
+        validation: Yup.string().required('Diagnosis is required'),
+      },
+      { ParameterField: DiagnosisField, name: 'diagnosis2', label: 'Diagnosis 2' },
+      { ParameterField: DiagnosisField, name: 'diagnosis3', label: 'Diagnosis 3' },
+      { ParameterField: DiagnosisField, name: 'diagnosis4', label: 'Diagnosis 4' },
+      { ParameterField: DiagnosisField, name: 'diagnosis5', label: 'Diagnosis 5' },
+      { ParameterField: EmptyField },
+      { ParameterField: VillageField },
+      { ParameterField: PractitionerField },
+    ],
+  },
+  {
+    name: 'Admissions Report',
+    id: 'admissions',
+    parameters: [{ ParameterField: PractitionerField }],
+  },
+  {
+    name: 'COVID vaccine campaign line list',
+    id: 'covid-vaccine-list',
+    parameters: [{ ParameterField: VillageField }],
+  },
+  {
+    name: 'COVID vaccine campaign - First dose summary',
+    id: 'covid-vaccine-summary-dose1',
+    allFacilities: true,
+  },
+  {
+    name: 'COVID vaccine campaign - Second dose summary',
+    id: 'covid-vaccine-summary-dose2',
+    allFacilities: true,
+  },
+  {
+    name: 'Adverse Event Following Immunization',
+    id: 'aefi',
+    parameters: [{ ParameterField: VillageField }],
+  },
+  {
+    name: 'Samoa Adverse Event Following Immunisation',
+    id: 'samoa-aefi',
+    parameters: [{ ParameterField: VillageField }],
+  },
+  {
+    name: 'Number of patients registered by date',
+    id: 'number-patients-registered-by-date',
+    allFacilities: true,
+  },
+  {
+    name: 'Registered patients - Line list',
+    id: 'registered-patients',
+  },
+  {
+    name: 'COVID-19 Tests - Line list',
+    id: 'covid-swab-lab-test-list',
+    allFacilities: true,
+    parameters: [
+      { ParameterField: VillageField },
+      { ParameterField: LabTestLaboratoryField },
+    ],
+  },
+  {
+    name: 'COVID-19 Tests - Summary',
+    id: 'covid-swab-lab-tests-summary',
+    parameters: [
+      { ParameterField: VillageField },
+      { ParameterField: LabTestLaboratoryField },
+    ],
+  },
 ];
 
 const Spacer = styled.div`
@@ -96,49 +168,6 @@ const SubmitErrorMessage = () => {
 
 const EmptyField = styled.div``;
 
-const ParametersByReportType = {
-  'incomplete-referrals': [{ ParameterField: VillageField }, { ParameterField: PractitionerField }],
-  'recent-diagnoses': [
-    {
-      ParameterField: DiagnosisField,
-      required: true,
-      name: 'diagnosis',
-      label: 'Diagnosis',
-      validation: Yup.string().required('Diagnosis is required'),
-    },
-    { ParameterField: DiagnosisField, name: 'diagnosis2', label: 'Diagnosis 2' },
-    { ParameterField: DiagnosisField, name: 'diagnosis3', label: 'Diagnosis 3' },
-    { ParameterField: DiagnosisField, name: 'diagnosis4', label: 'Diagnosis 4' },
-    { ParameterField: DiagnosisField, name: 'diagnosis5', label: 'Diagnosis 5' },
-    { ParameterField: EmptyField },
-    { ParameterField: VillageField },
-    { ParameterField: PractitionerField },
-  ],
-  admissions: [{ ParameterField: PractitionerField }],
-  'covid-vaccine-list': [{ ParameterField: VillageField }],
-  'covid-vaccine-summary-dose1': [],
-  'covid-vaccine-summary-dose2': [],
-  aefi: [{ ParameterField: VillageField }],
-  'samoa-aefi': [{ ParameterField: VillageField }],
-  'number-patients-registered-by-date': [],
-  'registered-patients': [],
-  'covid-swab-lab-test-list': [
-    { ParameterField: VillageField },
-    { ParameterField: LabTestLaboratoryField },
-  ],
-  'covid-swab-lab-tests-summary': [
-    { ParameterField: VillageField },
-    { ParameterField: LabTestLaboratoryField },
-  ],
-};
-
-const DefaultDataSource = {
-  'covid-vaccine-summary-dose1': 'allFacilities',
-  'covid-vaccine-summary-dose2': 'allFacilities',
-  'number-patients-registered-by-date': 'allFacilities',
-  'covid-swab-lab-test-list': 'allFacilities',
-};
-
 // adding an onValueChange hook to the report type field
 // so we can keep internal state of the report type
 const ReportTypeField = ({ onValueChange, ...props }) => {
@@ -159,6 +188,25 @@ const DumbReportGeneratorForm = ({
   const [parameters, setParameters] = useState([]);
   const [dataSource, setDataSource] = useState('thisFacility');
   const [isDataSourceFieldDisabled, setIsDataSourceFieldDisabled] = useState(false);
+  const [availableReports, setAvailableReports] = useState([]);
+  const [reportsById, setReportsById] = useState({});
+
+  useEffect(() => {
+    let cancel = false;
+    (async () => {
+      // TODO: query from server instead
+      const reports = await REPORT_TYPE_OPTIONS;
+      if (cancel) return;
+      const byId = reports.reduce((state, current) => ({
+        ...state,
+        [current.id]: current,
+      }), {});
+      const asOptions = reports.map(r => ({ value: r.id, label: r.name }));
+      setReportsById(byId);
+      setAvailableReports(asOptions);
+    })();
+    return () => { cancel = true; }
+  }, []);
 
   async function submitRequestReport(formValues) {
     const { reportType, emails, ...restValues } = formValues;
@@ -212,13 +260,14 @@ const DumbReportGeneratorForm = ({
                 name="reportType"
                 label="Report Type"
                 component={ReportTypeField}
-                options={REPORT_TYPE_OPTIONS}
+                options={availableReports}
                 required
-                onValueChange={type => {
-                  setParameters(ParametersByReportType[type] || []);
-                  if (DefaultDataSource[type]) {
+                onValueChange={id => {
+                  const reportDefinition = reportsById[type];
+                  setParameters(reportDefinition.parameters || []);
+                  if (reportDefinition.allFacilities) {
                     setIsDataSourceFieldDisabled(true);
-                    setDataSource(DefaultDataSource[type]);
+                    setDataSource('allFacilities');
                   } else {
                     setIsDataSourceFieldDisabled(false);
                     setDataSource('thisFacility');
