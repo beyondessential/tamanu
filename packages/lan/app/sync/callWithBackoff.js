@@ -6,14 +6,14 @@ import { sleepAsync } from 'shared/utils';
 export const callWithBackoff = async (
   fn,
   {
-    maxRetries = config.sync.backoff.maxRetries,
+    maxAttempts = config.sync.backoff.maxAttempts,
     maxWaitMs = config.sync.backoff.maxWaitMs,
     multiplierMs = config.sync.backoff.multiplierMs,
   } = {},
 ) => {
-  if (!Number.isFinite(maxRetries) || maxRetries < 1) {
+  if (!Number.isFinite(maxAttempts) || maxAttempts < 1) {
     throw new Error(
-      `callWithBackoff: maxRetries must be a finite integer, instead got ${maxRetries}`,
+      `callWithBackoff: maxAttempts must be a finite integer, instead got ${maxAttempts}`,
     );
   }
 
@@ -24,15 +24,15 @@ export const callWithBackoff = async (
   while (true) {
     attempt += 1;
     try {
-      log.debug(`callWithBackoff: attempt ${attempt}/${maxRetries}: started`);
+      log.debug(`callWithBackoff: attempt ${attempt}/${maxAttempts}: started`);
       const result = await fn();
-      log.debug(`callWithBackoff: attempt ${attempt}/${maxRetries}: succeeded`);
+      log.debug(`callWithBackoff: attempt ${attempt}/${maxAttempts}: succeeded`);
       return result;
     } catch (e) {
       // throw if we've exceeded our maximum retries
-      if (attempt >= maxRetries) {
+      if (attempt >= maxAttempts) {
         log.error(
-          `callWithBackoff: attempt ${attempt}/${maxRetries} failed, max retries exceeded: ${e.stack}`,
+          `callWithBackoff: attempt ${attempt}/${maxAttempts} failed, max retries exceeded: ${e.stack}`,
         );
         throw e;
       }
@@ -41,7 +41,7 @@ export const callWithBackoff = async (
       [secondLastN, lastN] = [lastN, Math.max(lastN + secondLastN, 1)];
       const delay = Math.min(lastN * multiplierMs, maxWaitMs);
       log.warn(
-        `callWithBackoff: attempt ${attempt}/${maxRetries} failed, retrying in ${delay}ms: ${e.stack}`,
+        `callWithBackoff: attempt ${attempt}/${maxAttempts} failed, retrying in ${delay}ms: ${e.stack}`,
       );
       await sleepAsync(delay);
     }

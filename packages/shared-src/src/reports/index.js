@@ -1,7 +1,7 @@
 import * as admissions from './admissions';
 import * as incompleteReferrals from './incomplete-referrals';
 import * as recentDiagnoses from './recent-diagnoses';
-import * as covidVaccineList from './covid-vaccine-list';
+import * as vaccineList from './vaccine-list';
 import * as covidVaccineDailySummaryByVillage from './covid-vaccine-daily-summary-village';
 import {
   generateCovidVaccineSummaryDose1Report,
@@ -25,8 +25,8 @@ export function getReportModule(reportType) {
       return incompleteReferrals;
     case 'recent-diagnoses':
       return recentDiagnoses;
-    case 'covid-vaccine-list':
-      return covidVaccineList;
+    case 'vaccine-list':
+      return vaccineList;
     case 'covid-vaccine-daily-summary-village':
       return covidVaccineDailySummaryByVillage;
     case 'covid-vaccine-summary-dose1':
