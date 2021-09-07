@@ -1,6 +1,7 @@
 import express from 'express';
 import asyncHandler from 'express-async-handler';
 import asyncPool from 'tiny-async-pool';
+import config from 'config';
 
 import { /* InvalidOperationError, */ InvalidParameterError, NotFoundError } from 'shared/errors';
 import {
@@ -15,8 +16,6 @@ import {
 import { log } from 'shared/services/logging';
 
 export const syncRoutes = express.Router();
-
-const CONCURRENT_CHANNEL_CHECKS = 16;
 
 // check for pending changes across a batch of channels
 syncRoutes.post(
@@ -34,8 +33,9 @@ syncRoutes.post(
       );
     }
 
+    // sequelize uses connection pooling, so limit concurrent queries to avoid blocking the event loop
     const channelChangeChecks = await asyncPool(
-      CONCURRENT_CHANNEL_CHECKS,
+      config.sync.concurrentChannelChecks,
       channels.map(channel => [channel, body[channel]]),
       async ([channel, cursor]) => {
         const count = await store.countSince(channel, cursor, { limit: 1 });
