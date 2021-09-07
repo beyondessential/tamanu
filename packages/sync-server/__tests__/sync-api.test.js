@@ -107,7 +107,7 @@ describe('Sync API', () => {
       expect(body.channelsWithChanges).toEqual(['patient']);
     });
 
-    const NUM_CHANNELS_TO_TEST = 5000;
+    const NUM_CHANNELS_TO_TEST = 1000;
     const ALLOWABLE_TIME = 1000;
     it(`handles ${NUM_CHANNELS_TO_TEST} channels in under ${ALLOWABLE_TIME}ms`, async () => {
       // arrange
