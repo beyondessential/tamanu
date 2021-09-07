@@ -87,13 +87,14 @@ async function queryCovidVaccineListData(models, parameters) {
     where: parametersToSqlWhere(parameters),
   });
   const administeredVaccines = result.map(r => r.get({ plain: true }));
-  const patients = administeredVaccines.reduce((acc, vaccine) => {
+
+  const reportData = [];
+  for (const vaccine of administeredVaccines) {
     if (!vaccine.encounter?.patientId) {
-      return acc;
+      continue;
     }
     const {
       encounter: {
-        patientId,
         patient: { displayId, firstName, lastName, dateOfBirth, village, sex },
         examiner: { displayName: examinerName },
       },
@@ -102,24 +103,25 @@ async function queryCovidVaccineListData(models, parameters) {
       batch,
       scheduledVaccine: { schedule, label: vaccineName },
     } = vaccine;
-    if (!acc[patientId]) {
-      acc[patientId] = {
-        patientName: `${firstName} ${lastName}`,
-        uid: displayId,
-        dob: moment(dateOfBirth).format('DD-MM-YYYY'),
-        sex,
-        village: village?.name,
-        vaccineName,
-        schedule,
-        vaccineStatus: status === 'GIVEN' ? 'Yes' : 'No',
-        vaccineDate: moment(date).format('DD-MM-YYYY'),
-        batch: status === 'GIVEN' ? batch : '',
-        vaccinator: status === 'GIVEN' ? examinerName : '',
-      };
-    }
-    return acc;
-  }, {});
-  return Object.values(patients);
+
+    const record = {
+      patientName: `${firstName} ${lastName}`,
+      uid: displayId,
+      dob: moment(dateOfBirth).format('DD-MM-YYYY'),
+      sex,
+      village: village?.name,
+      vaccineName,
+      schedule,
+      vaccineStatus: status === 'GIVEN' ? 'Yes' : 'No',
+      vaccineDate: moment(date).format('DD-MM-YYYY'),
+      batch: status === 'GIVEN' ? batch : '',
+      vaccinator: status === 'GIVEN' ? examinerName : '',
+    };
+
+    reportData.push(record);
+  }
+
+  return reportData;
 }
 
 export async function dataGenerator(models, parameters) {
