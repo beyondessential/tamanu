@@ -1,5 +1,7 @@
 import express from 'express';
 import asyncHandler from 'express-async-handler';
+import asyncPool from 'tiny-async-pool';
+
 import { /* InvalidOperationError, */ InvalidParameterError, NotFoundError } from 'shared/errors';
 import {
   // shouldPush,
@@ -13,6 +15,8 @@ import {
 import { log } from 'shared/services/logging';
 
 export const syncRoutes = express.Router();
+
+const CONCURRENT_CHANNEL_CHECKS = 16;
 
 // check for pending changes across a batch of channels
 syncRoutes.post(
@@ -30,11 +34,13 @@ syncRoutes.post(
       );
     }
 
-    const channelChangeChecks = await Promise.all(
-      channels.map(async channel => {
-        const count = await store.countSince(channel, body[channel]);
+    const channelChangeChecks = await asyncPool(
+      CONCURRENT_CHANNEL_CHECKS,
+      channels.map(channel => [channel, body[channel]]),
+      async ([channel, cursor]) => {
+        const count = await store.countSince(channel, cursor);
         return count > 0;
-      }),
+      },
     );
 
     const channelsWithChanges = channels.filter((c, i) => !!channelChangeChecks[i]);
