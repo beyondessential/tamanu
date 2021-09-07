@@ -106,7 +106,7 @@ export class ReportRequestProcessor extends ScheduledTask {
     try {
       await writeExcelFile(reportData, fileName);
 
-      const result = await sendEmail({
+      const result = await this.context.emailService({
         from: config.mailgun.from,
         to: emailAddresses.join(','),
         subject: 'Report delivery',
