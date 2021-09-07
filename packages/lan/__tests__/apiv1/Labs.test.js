@@ -1,9 +1,5 @@
 import { LAB_TEST_STATUSES, LAB_REQUEST_STATUSES } from 'shared/constants';
-import {
-  createDummyPatient,
-  createDummyEncounter,
-  randomReferenceId,
-} from 'shared/demoData/patients';
+import { createDummyPatient, randomReferenceId } from 'shared/demoData/patients';
 import { createTestContext } from '../utilities';
 
 const randomLabTests = (models, labTestCategoryId, amount) =>

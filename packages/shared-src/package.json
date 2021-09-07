@@ -1,6 +1,6 @@
 {
   "name": "shared-src",
-  "version": "1.5.0",
+  "version": "1.7.5",
   "description": "Common code across Tamanu packages",
   "main": "index.js",
   "homepage": "https://github.com/beyondessential/tamanu.git#readme",
@@ -30,7 +30,6 @@
     "date-fns": "^2.19.0",
     "eslint": "^5.15.2",
     "jest": "^24.5.0",
-    "json-prune": "^1.1.0",
     "jsonwebtoken": "^8.4.0",
     "lodash": "^4.17.11",
     "node-schedule": "^2.0.0",

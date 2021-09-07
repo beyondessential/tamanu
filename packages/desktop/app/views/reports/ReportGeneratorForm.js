@@ -15,26 +15,29 @@ import {
   TextField,
 } from '../../components';
 import { FormGrid } from '../../components/FormGrid';
-import { Colors } from '../../constants';
+import { Colors, MUI_SPACING_UNIT } from '../../constants';
 import { getCurrentUser } from '../../store/auth';
-import { MUI_SPACING_UNIT } from '../../constants';
+
 import { VillageField } from './VillageField';
 import { LabTestLaboratoryField } from './LabTestLaboratoryField';
 import { PractitionerField } from './PractitionerField';
 import { DiagnosisField } from './DiagnosisField';
 import { saveExcelFile } from '../../utils/saveExcelFile';
+import { VaccineCategoryField } from './VaccineCategoryField';
+import { VaccineField } from './VaccineField';
 
 const REPORT_TYPE_OPTIONS = [
   { label: 'Incomplete referrals', value: 'incomplete-referrals' },
   { label: 'Recent Diagnoses', value: 'recent-diagnoses' },
   { label: 'Admissions Report', value: 'admissions' },
-  { label: 'COVID vaccine campaign line list', value: 'covid-vaccine-list' },
+  { label: 'Vaccine line list', value: 'vaccine-list' },
   { label: 'COVID vaccine campaign daily summary by village', value: 'covid-vaccine-daily-summary-village' },
   { label: 'COVID vaccine campaign - First dose summary', value: 'covid-vaccine-summary-dose1' },
   { label: 'COVID vaccine campaign - Second dose summary', value: 'covid-vaccine-summary-dose2' },
   { label: 'Adverse Event Following Immunization', value: 'aefi' },
   { label: 'Samoa Adverse Event Following Immunisation', value: 'samoa-aefi' },
   { label: 'Number of patients registered by date', value: 'number-patients-registered-by-date' },
+  { label: 'Registered patients - Line list', value: 'registered-patients' },
   { label: 'COVID-19 Tests - Line list', value: 'covid-swab-lab-test-list' },
   { label: 'COVID-19 Tests - Summary', value: 'covid-swab-lab-tests-summary' },
 ];
@@ -72,7 +75,7 @@ async function validateCommaSeparatedEmails(emails) {
     return `${emails} is invalid.`;
   }
 
-  for (var i = 0; i < emailList.length; i++) {
+  for (let i = 0; i < emailList.length; i++) {
     const isEmailValid = await emailSchema.isValid(emailList[i]);
     if (!isEmailValid) {
       return `${emailList[i]} is invalid.`;
@@ -115,13 +118,18 @@ const ParametersByReportType = {
     { ParameterField: PractitionerField },
   ],
   admissions: [{ ParameterField: PractitionerField }],
-  'covid-vaccine-list': [{ ParameterField: VillageField }],
+  'vaccine-list': [
+    { ParameterField: VillageField },
+    { ParameterField: VaccineCategoryField },
+    { ParameterField: VaccineField },
+  ],
   'covid-vaccine-daily-summary-village': [],
   'covid-vaccine-summary-dose1': [],
   'covid-vaccine-summary-dose2': [],
   aefi: [{ ParameterField: VillageField }],
   'samoa-aefi': [{ ParameterField: VillageField }],
   'number-patients-registered-by-date': [],
+  'registered-patients': [],
   'covid-swab-lab-test-list': [
     { ParameterField: VillageField },
     { ParameterField: LabTestLaboratoryField },
@@ -136,6 +144,7 @@ const DefaultDataSource = {
   'covid-vaccine-summary-dose1': 'allFacilities',
   'covid-vaccine-summary-dose2': 'allFacilities',
   'number-patients-registered-by-date': 'allFacilities',
+  'covid-swab-lab-test-list': 'allFacilities',
   'covid-vaccine-daily-summary-village': 'allFacilities',
 };
 
@@ -204,7 +213,7 @@ const DumbReportGeneratorForm = ({
             return schema;
           }, {}),
       })}
-      render={() => {
+      render={({ values }) => {
         return (
           <>
             <FormGrid columns={3}>
@@ -246,7 +255,13 @@ const DumbReportGeneratorForm = ({
                 <Spacer />
                 <FormGrid columns={3}>
                   {parameters.map(({ ParameterField, required, name, label }, index) => (
-                    <ParameterField key={index} required={required} name={name} label={label} />
+                    <ParameterField
+                      key={index}
+                      required={required}
+                      name={name}
+                      label={label}
+                      parameterValues={values}
+                    />
                   ))}
                 </FormGrid>
               </>
@@ -282,16 +297,16 @@ const DumbReportGeneratorForm = ({
           </>
         );
       }}
-    ></Form>
+    />
   );
 };
 
 const IntermediateReportGeneratorForm = connectApi(api => ({
   generateReport: async (reportType, body) => {
-    return await api.post(`reports/${reportType}`, body);
+    return api.post(`reports/${reportType}`, body);
   },
   createReportRequest: async request => {
-    return await api.post(`reportRequest`, request);
+    return api.post(`reportRequest`, request);
   },
 }))(DumbReportGeneratorForm);
 

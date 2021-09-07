@@ -24,12 +24,17 @@ export const SyncHealthNotificationComponent = () => {
   const [message, setMessage] = useState();
 
   useEffect(() => {
+    let isMounted = true;
     (async () => {
       const res = await api.get('syncHealth');
+      if (!isMounted) return;
       if (!res.healthy) {
         setMessage(res.error);
       }
     })();
+    return () => {
+      isMounted = false;
+    };
   }, []);
 
   // We only set a message if the server is unhealthy, so as long as message is undefined,

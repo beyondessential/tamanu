@@ -8,8 +8,10 @@ import { useApi } from '../../api';
 
 import { PatientIDCardPage } from './PatientIDCardPage';
 import { PatientStickerLabelPage } from './PatientStickerLabelPage';
+import { PatientCovidTestCert } from './PatientCovidTestCert';
 import { StickerIcon } from './StickerIcon';
 import { IDCardIcon } from './IDCardIcon';
+import { CertificateIcon } from './CertificateIcon';
 
 const PRINT_OPTIONS = {
   barcode: {
@@ -22,16 +24,21 @@ const PRINT_OPTIONS = {
     component: PatientIDCardPage,
     icon: IDCardIcon,
   },
+  covidTestCert: {
+    label: 'Print COVID-19 Test Certificate',
+    component: PatientCovidTestCert,
+    icon: CertificateIcon,
+  },
 };
 
 const PrintOptionList = ({ setCurrentlyPrinting }) => {
   return (
     <div style={{ display: 'flex', flexDirection: 'row' }}>
-      {Object.entries(PRINT_OPTIONS).map(([key, { label, icon }]) => (
+      {Object.entries(PRINT_OPTIONS).map(([type, { label, icon }]) => (
         <PrintOption
-          key={key}
+          key={type}
           label={label}
-          onPress={() => setCurrentlyPrinting(key)}
+          onPress={() => setCurrentlyPrinting(type)}
           icon={icon}
         />
       ))}

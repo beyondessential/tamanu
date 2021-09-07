@@ -34,6 +34,11 @@ export class PatientAdditionalData extends Model {
       as: 'patient',
     });
 
+    this.belongsTo(models.User, {
+      foreignKey: 'registeredById',
+      as: 'registeredBy',
+    });
+
     const referenceRelation = name =>
       this.belongsTo(models.ReferenceData, {
         foreignKey: `${name}Id`,

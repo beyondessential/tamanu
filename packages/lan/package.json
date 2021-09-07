@@ -1,6 +1,6 @@
 {
   "name": "lan",
-  "version": "1.5.0",
+  "version": "1.7.5",
   "description": "Lan server for Tamanu desktop app",
   "homepage": "https://github.com/beyondessential/tamanu.git#readme",
   "repository": "git@github.com:beyondessential/tamanu.git",
@@ -57,9 +57,10 @@
     "webpack-node-externals": "^1.7.2"
   },
   "dependencies": {
-    "@casl/ability": "^4.1.0",
     "@babel/polyfill": "^7.2.5",
+    "@casl/ability": "^4.1.0",
     "abort-controller": "^3.0.0",
+    "argparse": "1.0.10",
     "await-to-js": "^2.0.1",
     "basic-auth": "^2.0.1",
     "bcrypt": "^4.0.1",
@@ -76,7 +77,6 @@
     "express-validator": "^6.5.0",
     "faye": "^1.2.4",
     "follow": "^1.1.0",
-    "json-prune": "^1.1.0",
     "jsonwebtoken": "^8.4.0",
     "lodash": "^4.17.5",
     "mkdirp": "^1.0.4",
