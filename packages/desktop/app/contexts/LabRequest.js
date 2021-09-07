@@ -30,7 +30,7 @@ export const LabRequestProvider = ({ store, children }) => {
   };
 
   const updateLabRequest = async (labRequestId, data) => {
-    const update = data;
+    const update = { ...data };
     if (data.status) {
       update.userId = api.user.id;
     }
