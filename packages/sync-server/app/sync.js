@@ -38,7 +38,7 @@ syncRoutes.post(
       CONCURRENT_CHANNEL_CHECKS,
       channels.map(channel => [channel, body[channel]]),
       async ([channel, cursor]) => {
-        const count = await store.countSince(channel, cursor);
+        const count = await store.countSince(channel, cursor, { limit: 1 });
         return count > 0;
       },
     );
