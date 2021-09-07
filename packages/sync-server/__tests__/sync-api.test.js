@@ -108,7 +108,7 @@ describe('Sync API', () => {
     });
 
     const NUM_CHANNELS_TO_TEST = 1000;
-    const ALLOWABLE_TIME = 1000;
+    const ALLOWABLE_TIME = 2000;
     it(`handles ${NUM_CHANNELS_TO_TEST} channels in under ${ALLOWABLE_TIME}ms`, async () => {
       // arrange
       jest.setTimeout(120 * 1000);
