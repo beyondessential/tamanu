@@ -3,7 +3,7 @@ import { differenceInYears, subDays } from 'date-fns';
 import config from 'config';
 import moment from 'moment';
 import { keyBy } from 'lodash';
-import { DATA_TIME_FORMAT, TupaiaApi } from './TupaiaApiStub';
+import { DATA_TIME_FORMAT } from '@tupaia/api-client';
 import { generateReportFromQueryData } from './utilities';
 
 const reportColumnTemplate = [
