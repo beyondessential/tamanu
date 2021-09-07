@@ -17,9 +17,9 @@
 "scheduledReports": [
     {
         "reportType": "covid-vaccine-daily-summary-village",
-            "schedule": "0 12,17 * * *",
-            "parameters": {},
-            "recipients": {
+        "schedule": "0 12,17 * * *",
+        "parameters": {},
+        "recipients": {
             "tupaia": true
         }
     }
