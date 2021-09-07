@@ -11,7 +11,7 @@
   "tupaiaApiClient": {
     "auth": {
       "username": "tamanu-server@tupaia.org",
-      "password": "Pu3YRkK70L697d39vWE9"
+      "password": ""
     },
     "environment": "dev"
   }
