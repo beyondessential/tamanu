@@ -1,5 +1,6 @@
 export * from './User';
-export * from './SyncMetadata';
+export * from './ChannelSyncPullCursor';
+export * from './LocalSystemFact';
 
 export * from './Patient';
 export * from './PatientFamilyHistory';
@@ -47,3 +48,5 @@ export * from './UserFacility';
 export * from './Attachment';
 export * from './UserLocalisationCache';
 export * from './Asset';
+
+export * from './OneTimeLogin';

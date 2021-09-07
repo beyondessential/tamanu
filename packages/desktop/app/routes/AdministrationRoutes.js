@@ -6,6 +6,7 @@ import {
   LocationAdminView,
   ProgramsAdminView,
   UserAdminView,
+  ReferenceDataAdminView,
 } from '../views';
 
 export const AdministrationRoutes = React.memo(({ match }) => (
@@ -13,10 +14,11 @@ export const AdministrationRoutes = React.memo(({ match }) => (
     <Switch>
       <Route exact path={match.path} component={NotActiveView} />
       <Route path={`${match.path}/settings`} component={NotActiveView} />
-      <Route path={`${match.path}/users`} component={UserAdminView} />
+      <Route path={`${match.path}/users`} component={NotActiveView} />
       <Route path={`${match.path}/locations`} component={NotActiveView} />
       <Route path={`${match.path}/permissions`} component={NotActiveView} />
       <Route path={`${match.path}/programs`} component={ProgramsAdminView} />
+      <Route path={`${match.path}/refdata`} component={ReferenceDataAdminView} />
     </Switch>
   </div>
 ));

@@ -3,8 +3,6 @@ import { PATIENT_COMMUNICATION_CHANNELS, COMMUNICATION_STATUSES } from 'shared/c
 import { ScheduledTask } from 'shared/tasks';
 import { log } from 'shared/services/logging';
 
-import { sendEmail } from '../services/EmailService';
-
 export class PatientEmailCommunicationProcessor extends ScheduledTask {
   constructor(context) {
     super('*/30 * * * * *', log);
@@ -13,7 +11,7 @@ export class PatientEmailCommunicationProcessor extends ScheduledTask {
 
   async run() {
     const { Patient, PatientCommunication } = this.context.store.models;
-    let emailsToBeSent = await PatientCommunication.findAll({
+    const emailsToBeSent = await PatientCommunication.findAll({
       where: {
         status: COMMUNICATION_STATUSES.QUEUED,
         channel: PATIENT_COMMUNICATION_CHANNELS.EMAIL,
@@ -36,7 +34,7 @@ export class PatientEmailCommunicationProcessor extends ScheduledTask {
       log.info(`Email type       : ${emailPlain.type}`);
       log.info(`Email to patient : ${emailPlain.patient?.id}`);
       try {
-        const result = await sendEmail({
+        const result = await this.context.emailService.sendEmail({
           to: emailPlain.patient?.email,
           from: config.mailgun.from,
           subject: emailPlain.subject,

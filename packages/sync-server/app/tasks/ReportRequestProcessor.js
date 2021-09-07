@@ -6,7 +6,6 @@ import { ScheduledTask } from 'shared/tasks';
 import { log } from 'shared/services/logging';
 import { createTupaiaApiClient, translateReportDataToSurveyResponses } from 'shared/utils';
 
-import { sendEmail } from '../services/EmailService';
 import { writeExcelFile } from '../utils/excel';
 import { createFilePathForEmailAttachment, removeFile } from '../utils/files';
 
@@ -52,7 +51,7 @@ export class ReportRequestProcessor extends ScheduledTask {
         if (!this.tupaiaApiClient) {
           this.tupaiaApiClient = createTupaiaApiClient();
         }
-        reportData = await reportDataGenerator(this.context.store.models, request.getParameters(), this.tupaiaApiClient);
+        reportData = await reportDataGenerator(this.context.store.models, request.getParameters(), this.tupaiaApiClient));
       } catch (e) {
         log.error(`ReportRequestProcessorError - Failed to generate report, ${e.message}`);
         log.error(e.stack);
@@ -111,7 +110,7 @@ export class ReportRequestProcessor extends ScheduledTask {
     try {
       await writeExcelFile(reportData, fileName);
 
-      const result = await sendEmail({
+      const result = await this.context.emailService({
         from: config.mailgun.from,
         to: emailAddresses.join(','),
         subject: 'Report delivery',

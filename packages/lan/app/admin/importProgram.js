@@ -7,9 +7,11 @@ const yesOrNo = value => !!(value && value.toLowerCase() === 'yes');
 
 const idify = name => name.toLowerCase().replace(/\W/g, '');
 
-const makeRecord = (recordType, data) => ({
+const makeRecord = (recordType, data, sheet, row) => ({
   recordType,
   data,
+  sheet,
+  row,
 });
 
 function newlinesToArray(data) {
@@ -37,18 +39,22 @@ function makeScreen(questions, componentData) {
         detail = '',
         config = '',
         calculation = '',
+        row,
         ...elementData
       } = component;
+
+      const { surveyId, sheet, ...otherComponentData } = componentData;
 
       const dataElement = makeRecord('programDataElement', {
         id: `pde-${elementData.code}`,
         defaultOptions: '',
         ...elementData,
-      });
+      }, sheet, row);
 
       const surveyScreenComponent = makeRecord('surveyScreenComponent', {
-        id: `${componentData.surveyId}-${elementData.code}`,
+        id: `${surveyId}-${elementData.code}`,
         dataElementId: dataElement.data.id,
+        surveyId,
         text: '',
         options: '',
         componentIndex: i,
@@ -57,8 +63,8 @@ function makeScreen(questions, componentData) {
         detail,
         config,
         calculation,
-        ...componentData,
-      });
+        ...otherComponentData,
+      }, sheet, row);
 
       return [dataElement, surveyScreenComponent];
     })
@@ -73,6 +79,7 @@ function importDataElement(row) {
     defaultOptions: options,
     optionLabels: newlinesToArray(optionLabels),
     defaultText: text,
+    row: row.__rowNum__ + 1,
     ...rest,
   };
 }
@@ -93,14 +100,15 @@ function splitIntoScreens(questions) {
   });
 }
 
-function importSurveySheet(data, surveyId) {
+function importSurveySheet(data, survey) {
   const questions = data.map(importDataElement).filter(q => q.code);
   const screens = splitIntoScreens(questions);
 
   return screens
     .map((x, i) => 
       makeScreen(x, {
-        surveyId,
+        surveyId: survey.id,
+        sheet: survey.name,
         screenIndex: i,
       }),
     )
@@ -177,7 +185,7 @@ export function importProgram({ file, whitelist }) {
   const programRecord = makeRecord('program', {
     id: `program-${idify(programMetadata.programCode)}`,
     name: `${prefix}${programMetadata.programName}`,
-  });
+  }, 'Document', 0);
   
   // read metadata table starting at header row
   const surveyMetadata = utils.sheet_to_json(metadataSheet, { range: headerRow });
@@ -213,7 +221,7 @@ export function importProgram({ file, whitelist }) {
         name: `${prefix}${md.name}`,
         programId: programRecord.data.id,
         surveyType: md.surveyType,
-      });
+      }, 'Metadata', md.__rownum__ + 1);
 
       // don't import questions for obsoleted surveys
       // (or even read their worksheet, or check if it exists)
@@ -230,7 +238,7 @@ export function importProgram({ file, whitelist }) {
       }
       const data = utils.sheet_to_json(worksheet);
       
-      const records = importSurveySheet(data, surveyRecord.data.id);
+      const records = importSurveySheet(data, surveyRecord.data);
 
       return [
         surveyRecord,

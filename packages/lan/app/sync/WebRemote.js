@@ -1,13 +1,14 @@
 import fetch from 'node-fetch';
-import AbortController from 'abort-controller';
 import config from 'config';
 
 import { BadAuthenticationError, InvalidOperationError, RemoteTimeoutError } from 'shared/errors';
 import { VERSION_COMPATIBILITY_ERRORS } from 'shared/constants';
 import { getResponseJsonSafely } from 'shared/utils';
 import { log } from 'shared/services/logging';
+import { fetchWithTimeout } from 'shared/utils/fetchWithTimeout';
 
 import { version } from '~/../package.json';
+import { callWithBackoff } from './callWithBackoff';
 
 const API_VERSION = 'v1';
 
@@ -37,7 +38,7 @@ export class WebRemote {
   fetchImplementation = fetch;
 
   constructor() {
-    this.host = config.sync.host.trim().replace(/\/*$/, "");
+    this.host = config.sync.host.trim().replace(/\/*$/, '');
     this.timeout = config.sync.timeout;
     this.batchSize = config.sync.channelBatchSize;
   }
@@ -49,6 +50,7 @@ export class WebRemote {
       method = 'GET',
       retryAuth = true,
       awaitConnection = true,
+      backoff,
       ...otherParams
     } = params;
 
@@ -70,35 +72,40 @@ export class WebRemote {
     const url = `${this.host}/${API_VERSION}/${endpoint}`;
     log.debug(`[sync] ${method} ${url}`);
 
-    const controller = new AbortController();
-    const timeoutHandle = setTimeout(() => {
-      controller.abort();
-    }, this.timeout);
-    let response;
-    try {
-      response = await this.fetchImplementation(url, {
-        method,
-        headers: {
-          Accept: 'application/json',
-          'X-Runtime': 'Tamanu LAN Server',
-          'X-Version': version,
-          Authorization: this.token ? `Bearer ${this.token}` : undefined,
-          'Content-Type': body ? 'application/json' : undefined,
-          ...headers,
-        },
-        body: body && JSON.stringify(body),
-        ...otherParams,
-        signal: controller.signal,
-      });
-    } catch (e) {
-      // TODO: import AbortError from node-fetch once we're on v3.0
-      if (e.name === 'AbortError') {
-        throw new RemoteTimeoutError(`Server failed to respond within ${this.timeout}ms - ${url}`);
+    const response = await callWithBackoff(async () => {
+      if (config.debugging.requestFailureRate) {
+        if (Math.random() < config.debugging.requestFailureRate) {
+          // intended to cause some % of requests to fail, to simulate a flaky connection
+          throw new Error('Chaos: made your request fail');
+        }
       }
-      throw e;
-    } finally {
-      clearTimeout(timeoutHandle);
-    }
+      try {
+        return await fetchWithTimeout(
+          url,
+          {
+            method,
+            headers: {
+              Accept: 'application/json',
+              'X-Runtime': 'Tamanu LAN Server',
+              'X-Version': version,
+              Authorization: this.token ? `Bearer ${this.token}` : undefined,
+              'Content-Type': body ? 'application/json' : undefined,
+              ...headers,
+            },
+            body: body && JSON.stringify(body),
+            timeout: this.timeout,
+            ...otherParams,
+          },
+          this.fetchImplementation,
+        );
+      } catch (e) {
+        // TODO: import AbortError from node-fetch once we're on v3.0
+        if (e.name === 'AbortError') {
+          throw new RemoteTimeoutError(`Server failed to respond within ${this.timeout}ms - ${url}`);
+        }
+        throw e;
+      };
+    }, backoff);
 
     const checkForInvalidToken = ({ status }) => status === 401;
     if (checkForInvalidToken(response)) {
@@ -111,7 +118,8 @@ export class WebRemote {
     }
 
     if (!response.ok) {
-      const { error } = await getResponseJsonSafely(response);
+      const responseBody = await getResponseJsonSafely(response);
+      const { error } = responseBody;
 
       // handle version incompatibility
       if (response.status === 400 && error) {
@@ -120,9 +128,15 @@ export class WebRemote {
       }
 
       const errorMessage = error ? error.message : 'no error message given';
-      throw new InvalidOperationError(
+      const err = new InvalidOperationError(
         `Server responded with status code ${response.status} (${errorMessage})`,
       );
+      // attach status and body from response
+      err.remoteResponse = {
+        status: response.status,
+        body: responseBody,
+      };
+      throw err;
     }
 
     return response.json();
@@ -168,14 +182,8 @@ export class WebRemote {
   }
 
   async fetchChannelsWithChanges(channelsToCheck) {
-    const algorithmConfig = {
-      initialBatchSize: 1000,
-      maxErrors: 100,
-      maxBatchSize: 5000,
-      minBatchSize: 50,
-      throttleFactorUp: 1.2,
-      throttleFactorDown: 0.5,
-    };
+    const algorithmConfig = config.sync.channelsWithChanges.algorithm;
+    const maxErrors = Math.max(algorithmConfig.maxErrorRate * channelsToCheck.length, algorithmConfig.maxErrorsFloor)
 
     let batchSize = algorithmConfig.initialBatchSize;
 
@@ -208,6 +216,7 @@ export class WebRemote {
         const { channelsWithChanges } = await this.fetch(`sync/channels`, {
           method: 'POST',
           body,
+          backoff: config.sync.channelsWithChanges.backoff,
         });
         log.debug(`WebRemote.fetchChannelsWithChanges: OK! ${channelsLeftToCheck.length} left.`);
         channelsWithPendingChanges.push(...channelsWithChanges);
@@ -215,7 +224,7 @@ export class WebRemote {
       } catch (e) {
         // errored - put those channels back into the queue
         errors.push(e);
-        if (errors.length > algorithmConfig.maxErrors) {
+        if (errors.length > maxErrors) {
           log.error(errors);
           throw new Error('Too many errors encountered, aborting sync entirely');
         }
@@ -246,5 +255,27 @@ export class WebRemote {
 
   async whoami() {
     return this.fetch('whoami');
+  }
+
+  async forwardRequest(req, endpoint) {
+    try {
+      const response = await this.fetch(endpoint, {
+        method: req.method,
+        body: req.body,
+      });
+
+      return response;
+    } catch (err) {
+      if (err.remoteResponse) {
+        // pass sync server response back
+        const remoteErrorMsg = err.remoteResponse.body.error?.message;
+        const passThroughError = new Error(remoteErrorMsg ?? err);
+        passThroughError.status = err.remoteResponse.status;
+        throw passThroughError;
+      } else {
+        // fallback
+        throw new Error(`Sync server error: ${err}`);
+      }
+    }
   }
 }
