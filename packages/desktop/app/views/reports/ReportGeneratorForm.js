@@ -29,6 +29,7 @@ const REPORT_TYPE_OPTIONS = [
   { label: 'Recent Diagnoses', value: 'recent-diagnoses' },
   { label: 'Admissions Report', value: 'admissions' },
   { label: 'COVID vaccine campaign line list', value: 'covid-vaccine-list' },
+  { label: 'COVID vaccine campaign daily summary by village', value: 'covid-vaccine-daily-summary-village' },
   { label: 'COVID vaccine campaign - First dose summary', value: 'covid-vaccine-summary-dose1' },
   { label: 'COVID vaccine campaign - Second dose summary', value: 'covid-vaccine-summary-dose2' },
   { label: 'Adverse Event Following Immunization', value: 'aefi' },
@@ -116,6 +117,7 @@ const ParametersByReportType = {
   ],
   admissions: [{ ParameterField: PractitionerField }],
   'covid-vaccine-list': [{ ParameterField: VillageField }],
+  'covid-vaccine-daily-summary-village': [],
   'covid-vaccine-summary-dose1': [],
   'covid-vaccine-summary-dose2': [],
   aefi: [{ ParameterField: VillageField }],
@@ -137,6 +139,7 @@ const DefaultDataSource = {
   'covid-vaccine-summary-dose2': 'allFacilities',
   'number-patients-registered-by-date': 'allFacilities',
   'covid-swab-lab-test-list': 'allFacilities',
+  'covid-vaccine-daily-summary-village': 'allFacilities',
 };
 
 // adding an onValueChange hook to the report type field

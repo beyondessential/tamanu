@@ -26,7 +26,6 @@ export class ReportRequestProcessor extends ScheduledTask {
 
     for (let i = 0; i < requests.length; i++) {
       const request = requests[i];
-      const requestObject = request.get({ plain: true });
       if (!config.mailgun.from) {
         log.error(`ReportRequestProcessorError - Email config missing`);
         request.update({
@@ -35,10 +34,10 @@ export class ReportRequestProcessor extends ScheduledTask {
         return;
       }
 
-      const reportDataGenerator = getReportModule(requestObject.reportType)?.dataGenerator;
+      const reportDataGenerator = getReportModule(request.reportType)?.dataGenerator;
       if (!reportDataGenerator) {
         log.error(
-          `ReportRequestProcessorError - Unable to find report generator for report ${requestObject.id} of type ${requestObject.reportType}`,
+          `ReportRequestProcessorError - Unable to find report generator for report ${request.id} of type ${request.reportType}`,
         );
         request.update({
           status: REPORT_REQUEST_STATUSES.ERROR,
@@ -48,8 +47,7 @@ export class ReportRequestProcessor extends ScheduledTask {
 
       let reportData = null;
       try {
-        const parameters = requestObject.parameters ? JSON.parse(requestObject.parameters) : {};
-        reportData = await reportDataGenerator(this.context.store.models, parameters);
+        reportData = await reportDataGenerator(this.context.store.models, request.getParameters());
       } catch (e) {
         log.error(`ReportRequestProcessorError - Failed to generate report, ${e.message}`);
         log.error(e.stack);
@@ -59,7 +57,7 @@ export class ReportRequestProcessor extends ScheduledTask {
       }
 
       try {
-        await this.sendReport(requestObject, reportData);
+        await this.sendReport(request, reportData);
         await request.update({
           status: REPORT_REQUEST_STATUSES.PROCESSED,
         });
@@ -74,19 +72,32 @@ export class ReportRequestProcessor extends ScheduledTask {
   }
 
   /**
-   * @param request {}
+   * @param request ReportRequest
    * @param reportData []
    * @returns {Promise<void>}
    */
   async sendReport(request, reportData) {
-    if (request.recipients.email) {
-      await this.sendReportToEmail(request, reportData, request.recipients.email);
+    let sent = false;
+    const recipients = request.getRecipients();
+    if (recipients.email) {
+      await this.sendReportToEmail(request, reportData, recipients.email);
+      sent = true;
     }
-    if (request.recipients.tupaia){
+    if (recipients.tupaia) {
       await this.sendReportToTupaia(request, reportData);
+      sent = true;
+    }
+    if (!sent) {
+      throw new Error('No recipients');
     }
   }
 
+  /**
+   * @param request ReportRequest
+   * @param reportData []
+   * @param emailAddresses string[]
+   * @returns {Promise<void>}
+   */
   async sendReportToEmail(request, reportData, emailAddresses) {
     const fileName = await createFilePathForEmailAttachment(
       `${request.reportType}-report-${new Date().getTime()}.xlsx`,
@@ -114,6 +125,11 @@ export class ReportRequestProcessor extends ScheduledTask {
     }
   }
 
+  /**
+   * @param request ReportRequest
+   * @param reportData []
+   * @returns {Promise<void>}
+   */
   async sendReportToTupaia(request, reportData) {
     // TODO: implement
   }

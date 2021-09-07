@@ -254,5 +254,8 @@
         "syncAllEncountersForTheseScheduledVaccines": []
       }
     }
+  },
+  "country": {
+    "name": "DemoLand"
   }
 }
