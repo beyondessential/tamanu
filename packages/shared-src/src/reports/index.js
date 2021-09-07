@@ -50,3 +50,5 @@ export function getReportModule(reportType) {
       return covidSwabLabTestsSummary;
   }
 }
+
+export { REPORT_OPTION_TYPES } from './reportOptionTypes';

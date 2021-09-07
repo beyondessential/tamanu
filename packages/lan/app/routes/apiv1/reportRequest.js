@@ -2,6 +2,7 @@ import express from 'express';
 import asyncHandler from 'express-async-handler';
 import { REPORT_REQUEST_STATUSES } from 'shared/constants';
 import { getReportModule } from 'shared/reports';
+import { ForbiddenError } from 'shared/errors';
 
 export const reportRequest = express.Router();
 
@@ -9,7 +10,7 @@ reportRequest.post(
   '/$',
   asyncHandler(async (req, res) => {
     const {
-      models: { ReportRequest },
+      models: { ReportRequest, UserLocalisationCache },
       body,
       user,
     } = req;
@@ -19,8 +20,19 @@ reportRequest.post(
       res.status(400).send({ message: 'reportType missing' });
       return;
     }
+    const localisation = await UserLocalisationCache.getLocalisation({
+      where: { userId: user.id },
+      order: [['createdAt', 'DESC']],
+    });
+
+    const disabledReports = localisation?.disabledReports || [];
+
+    if (disabledReports.includes(body.reportType)) {
+      throw new ForbiddenError(`Report "${body.reportType}" is disabled`);
+    }
+
     const reportModule = getReportModule(body.reportType);
-    if(!reportModule) {
+    if (!reportModule) {
       res.status(400).send({ message: 'invalid reportType' });
       return;
     }
