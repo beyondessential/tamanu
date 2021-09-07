@@ -1,3 +1,5 @@
+import config from 'config';
+
 import {
   shouldPush,
   shouldPull,
@@ -7,7 +9,6 @@ import {
   executeExportPlan,
 } from 'shared/models/sync';
 import { log } from 'shared/services/logging';
-import config from 'config';
 
 const { readOnly } = config.sync;
 
@@ -39,8 +40,6 @@ const calculateDynamicLimit = (currentLimit, pullTime) => {
 };
 
 export class SyncManager {
-  host = '';
-
   token = '';
 
   context = null;
@@ -55,12 +54,7 @@ export class SyncManager {
 
   async pullAndImport(model, patientId) {
     const channels = await model.syncConfig.getChannels(patientId);
-    const channelsWithCursors = await Promise.all(
-      channels.map(async channel => {
-        const cursor = await this.getChannelPullCursor(channel);
-        return { channel, cursor };
-      }),
-    );
+    const channelsWithCursors = await this.getChannelPullCursors(channels);
     const channelsToPull =
       channels.length === 1
         ? channels // waste of effort to check which need pulling if there's only 1, just pull
@@ -157,11 +151,8 @@ export class SyncManager {
     log.debug(`SyncManager.exportAndPush: reached end of ${channel}`);
   }
 
-  async getChannelPullCursor(channel) {
-    const cursor = await this.context.models.ChannelSyncPullCursor.findOne({
-      where: { channel },
-    });
-    return cursor?.pullCursor || '0';
+  getChannelPullCursors(channels) {
+    return this.context.models.ChannelSyncPullCursor.getCursors(channels);
   }
 
   async setChannelPullCursor(channel, pullCursor) {
@@ -169,10 +160,19 @@ export class SyncManager {
   }
 
   async runSync(patientId = null) {
+    if (!config.sync.enabled) {
+      log.warn('SyncManager.runSync: sync is disabled');
+      return;
+    }
+
     const run = async () => {
       const startTimestampMs = Date.now();
       log.info(`SyncManager.runSync.run: began sync run`);
       const { models } = this.context;
+
+      // set host when sync is run
+      // this is checked on startup to prevent LAN mixing data sets
+      await models.LocalSystemFact.set('syncHost', config.sync.host);
 
       // ordered array because some models depend on others
       const modelsToSync = [
