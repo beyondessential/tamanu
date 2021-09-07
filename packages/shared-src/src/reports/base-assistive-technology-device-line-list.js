@@ -1,4 +1,4 @@
-import { keyBy, groupBy } from 'lodash';
+import { keyBy, groupBy, uniqWith, isEqual } from 'lodash';
 import { Op } from 'sequelize';
 import moment from 'moment';
 import { generateReportFromQueryData } from './utilities';
@@ -100,6 +100,52 @@ const getLatestAnswerPerPatientPerDate = answers => {
   return getLatestAnswerPerGroup(groupedAnswers);
 };
 
+/**
+ * Get patient ids that have answers grouped by the survey response dates.
+ * Eg:
+ * {
+ *    '12-08-2021': [
+ *      'PatientID123',
+ *      'PatientID456'
+ *    ]
+ * }
+ * @param {*} transformedAnswers
+ * @returns
+ */
+const getPatientIdsByResponseDates = transformedAnswers => {
+  // get the unique combo of patientId and responseDate
+  const patientIdAndResponseDateHavingAnswers = uniqWith(
+    transformedAnswers.map(({ patientId, responseEndTime }) => ({
+      patientId,
+      responseDate: moment(responseEndTime).format('DD-MM-YYYY'),
+    })),
+    isEqual,
+  );
+
+  // Group the combo objects above by response date
+  const groupedPatientIdAndResponseDate = groupBy(
+    patientIdAndResponseDateHavingAnswers,
+    'responseDate',
+  );
+
+  // Manipulate the grouped object into so we can iterate through to generate report data
+  // {
+  //    '12-08-2021': [
+  //      'PatientID123',
+  //      'PatientID456'
+  //    ]
+  // }
+  const patientIdsHavingAnswersByResponseDates = {};
+  for (const [responseDate, patientIdAndResponseDateObjects] of Object.entries(
+    groupedPatientIdAndResponseDate,
+  )) {
+    patientIdsHavingAnswersByResponseDates[responseDate] = patientIdAndResponseDateObjects.map(
+      ({ patientId }) => patientId,
+    );
+  }
+  return patientIdsHavingAnswersByResponseDates;
+};
+
 export const dataGenerator = async (
   models,
   parameters = {},
@@ -123,19 +169,20 @@ export const dataGenerator = async (
   );
   const patients = answers.map(a => a.surveyResponse?.encounter?.patient);
   const patientById = keyBy(patients, 'id');
-  const surveyResponseDates = [
-    ...new Set(
-      answersForPerPatientPerDate.map(a => moment(a.responseEndTime).format('DD-MM-YYYY')),
-    ),
-  ];
+  const patientIdsByResponseDates = getPatientIdsByResponseDates(answersForPerPatientPerDate);
+
   const reportData = [];
 
-  for (const surveyResponseDate of surveyResponseDates) {
-    for (const [patientId, patient] of Object.entries(patientById)) {
-      const dateOfBirth = patient.dateOfBirth
-        ? moment(patient.dateOfBirth).format('DD-MM-YYYY')
-        : '';
-      const age = dateOfBirth ? moment().diff(dateOfBirth, 'years') : '';
+  for (const [surveyResponseDate, patientIds] of Object.entries(patientIdsByResponseDates)) {
+    for (const patientId of patientIds) {
+      const patient = patientById[patientId];
+      if (!patient) {
+        continue;
+      }
+
+      const dateOfBirthMoment = patient.dateOfBirth ?? moment(patient.dateOfBirth);
+      const dateOfBirth = dateOfBirthMoment ? moment(dateOfBirthMoment).format('DD-MM-YYYY') : '';
+      const age = dateOfBirthMoment ? moment().diff(dateOfBirthMoment, 'years') : '';
       const recordData = {
         clientId: patient.displayId,
         gender: patient.sex,

@@ -47,13 +47,6 @@ const SURVEY_QUESTION_CODES = {
   highRiskDetails: 'pde-FijCOVSamp61',
 };
 
-const SURVEY_DATE_QUESTION_CODES = {
-  admissionDate: 'pde-FijCOVSamp19',
-  dateOf1stDose: 'pde-FijCOVSamp39',
-  dateOf2ndDose: 'pde-FijCOVSamp40',
-  rdtDate: 'pde-FijCOVSamp52',
-};
-
 const reportColumnTemplate = [
   {
     title: 'Patient first name',
