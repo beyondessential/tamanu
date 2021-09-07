@@ -9,25 +9,14 @@ const parametersToSqlWhere = parameters => {
     return undefined;
   }
 
-  const whereClause = Object.entries(parameters)
-    .filter(([, val]) => val)
-    .reduce(
-      (where, [key, value]) => {
-        const newWhere = { ...where };
-        switch (key) {
-          case 'fromDate':
-            newWhere.createdAt[Op.gte] = value;
-            break;
-          case 'toDate':
-            newWhere.createdAt[Op.lte] = value;
-            break;
-          default:
-            break;
-        }
-        return newWhere;
-      },
-      { createdAt: {} },
-    );
+  const whereClause = { createdAt: {} };
+
+  if (parameters.fromDate) {
+    whereClause.createdAt[Op.gte] = parameters.fromDate;
+  }
+  if (parameters.toDate) {
+    whereClause.createdAt[Op.lte] = parameters.toDate;
+  }
 
   return whereClause;
 };
