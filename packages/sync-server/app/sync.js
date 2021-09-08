@@ -33,7 +33,15 @@ syncRoutes.post(
       );
     }
 
-    // sequelize uses connection pooling, so limit concurrent queries to avoid blocking the event loop
+    /*
+       The problem here is that sequelize has a connection pool with (by default)
+       5 slots. It's okay to launch more queries than that, because they just get
+       queued up for a while until the pool is free. The issue with that is if
+       you launch 5000 queries at once, and those queries are going to take a
+       combined 3 seconds to run, you block the entire connection pool for the
+       next 3 seconds. If you have multiple clients hitting different endpoints
+       at the same time, this does weird things to your latency.
+    */
     const channelChangeChecks = await asyncPool(
       config.sync.concurrentChannelChecks,
       channels.map(channel => [channel, body[channel]]),
