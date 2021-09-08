@@ -103,6 +103,7 @@ const generateFacilityReport = async (api, reportType, parameters) =>
   api.post(`reports/${reportType}`, {
     parameters,
   });
+
 const submitReportRequest = async (api, reportType, parameters, emails) =>
   api.post('reportRequest', {
     reportType,
