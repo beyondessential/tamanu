@@ -35,8 +35,9 @@ export class ReportRequestProcessor extends ScheduledTask {
         return;
       }
 
-      const reportDataGenerator = getReportModule(request.reportType)?.dataGenerator;
-      if (!reportDataGenerator) {
+      const reportModule = getReportModule(request.reportType);
+      const reportDataGenerator = reportModule?.dataGenerator;
+      if (!reportModule || !reportDataGenerator) {
         log.error(
           `ReportRequestProcessorError - Unable to find report generator for report ${request.id} of type ${request.reportType}`,
         );
@@ -48,8 +49,10 @@ export class ReportRequestProcessor extends ScheduledTask {
 
       let reportData = null;
       try {
-        if (!this.tupaiaApiClient) {
-          this.tupaiaApiClient = createTupaiaApiClient();
+        if (reportModule.needsTupaiaApiClient) {
+          if (!this.tupaiaApiClient) {
+            this.tupaiaApiClient = createTupaiaApiClient();
+          }
         }
         reportData = await reportDataGenerator(this.context.store.models, request.getParameters(), this.tupaiaApiClient));
       } catch (e) {
@@ -144,6 +147,10 @@ export class ReportRequestProcessor extends ScheduledTask {
     const { surveyId } = reportConfig;
 
     const translated = translateReportDataToSurveyResponses(surveyId, reportData);
+
+    if (!this.tupaiaApiClient) {
+      this.tupaiaApiClient = createTupaiaApiClient();
+    }
 
     await this.tupaiaApiClient.meditrak.createSurveyResponses(translated);
   }

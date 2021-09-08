@@ -227,3 +227,5 @@ export async function dataGenerator(models, parameters, tupaiaApi) {
 }
 
 export const permission = 'PatientVaccine';
+
+export const needsTupaiaApiClient = true;
