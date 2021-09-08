@@ -24,14 +24,18 @@ import { LabTestLaboratoryField } from './LabTestLaboratoryField';
 import { PractitionerField } from './PractitionerField';
 import { DiagnosisField } from './DiagnosisField';
 import { saveExcelFile } from '../../utils/saveExcelFile';
+import { VaccineCategoryField } from './VaccineCategoryField';
+import { VaccineField } from './VaccineField';
 
 const EmptyField = styled.div``;
 
-const PARAMETER_FIELDS = {
+const PARAMETER_FIELD_COMPONENTS = {
   VillageField: VillageField,
   LabTestLaboratoryField: LabTestLaboratoryField,
   PractitionerField: PractitionerField,
   DiagnosisField: DiagnosisField,
+  VaccineCategoryField: VaccineCategoryField,
+  VaccineField: VaccineField,
   EmptyField: EmptyField,
 };
 
@@ -194,7 +198,7 @@ const DumbReportGeneratorForm = ({
             return schema;
           }, {}),
       })}
-      render={() => (
+      render={({ values }) => (
         <>
           <FormGrid columns={3}>
             <Field
@@ -226,13 +230,14 @@ const DumbReportGeneratorForm = ({
               <Spacer />
               <FormGrid columns={3}>
                 {parameters.map(({ parameterField, required, name, label }, index) => {
-                  const ParameterFieldComponent = PARAMETER_FIELDS[parameterField];
+                  const ParameterFieldComponent = PARAMETER_FIELD_COMPONENTS[parameterField];
                   return (
                     <ParameterFieldComponent
                       key={index}
                       required={required}
                       name={name}
                       label={label}
+                      parameterValues={values}
                     />
                   );
                 })}
@@ -273,10 +278,10 @@ const DumbReportGeneratorForm = ({
 
 const IntermediateReportGeneratorForm = connectApi(api => ({
   generateReport: async (reportType, body) => {
-    return await api.post(`reports/${reportType}`, body);
+    return api.post(`reports/${reportType}`, body);
   },
   createReportRequest: async request => {
-    return await api.post(`reportRequest`, request);
+    return api.post(`reportRequest`, request);
   },
   getReports: async request => {
     return await api.get(`reports`, request);

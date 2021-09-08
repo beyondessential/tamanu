@@ -38,6 +38,7 @@ import { setting } from './setting';
 import { asset } from './asset';
 import { location } from './location';
 import { attachment } from './attachment';
+import { scheduledVaccine } from './scheduledVaccine';
 import { sync } from './sync';
 import { syncHealth } from './syncHealth';
 
@@ -72,7 +73,7 @@ apiv1.use('/labRequestLog', labRequestLog);
 apiv1.use('/referral', referral);
 apiv1.use('/imagingRequest', imagingRequest);
 apiv1.use('/immunisation', immunisation);
-
+apiv1.use('/scheduledVaccine', scheduledVaccine);
 apiv1.use('/program', program);
 apiv1.use('/survey', survey);
 apiv1.use('/surveyResponse', surveyResponse);
