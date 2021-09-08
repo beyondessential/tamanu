@@ -77,4 +77,16 @@ export const REPORT_DEFINITIONS = [
     id: 'covid-swab-lab-tests-summary',
     parameters: [{ parameterField: 'VillageField' }, { parameterField: 'LabTestLaboratoryField' }],
   },
+  {
+    name: 'India assistive technology device line list',
+    id: 'india-assistive-technology-device-line-list',
+  },
+  {
+    name: 'Iraq assistive technology device line list',
+    id: 'iraq-assistive-technology-device-line-list',
+  },
+  {
+    name: 'PNG assistive technology device line list',
+    id: 'png-assistive-technology-device-line-list',
+  },
 ];
