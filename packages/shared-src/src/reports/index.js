@@ -59,3 +59,5 @@ export function getReportModule(reportType) {
       return pngAssistiveTechnologyDeviceLineList;
   }
 }
+
+export { REPORT_DEFINITIONS } from './reportDefinitions';
