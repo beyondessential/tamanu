@@ -51,4 +51,4 @@ export function getReportModule(reportType) {
   }
 }
 
-export { REPORT_OPTION_TYPES } from './reportOptionTypes';
+export { REPORT_DEFINITIONS } from './reportDefinitions';

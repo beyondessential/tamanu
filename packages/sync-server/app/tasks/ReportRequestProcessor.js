@@ -3,7 +3,6 @@ import config from 'config';
 import { COMMUNICATION_STATUSES, REPORT_REQUEST_STATUSES } from 'shared/constants';
 import { getReportModule } from 'shared/reports';
 import { ScheduledTask } from 'shared/tasks';
-import { ForbiddenError } from 'shared/errors';
 import { log } from 'shared/services/logging';
 
 import { writeExcelFile } from '../utils/excel';
@@ -36,8 +35,8 @@ export class ReportRequestProcessor extends ScheduledTask {
         return;
       }
 
-      const disabledReports = config.localisation.disabledReports || [];
-      if (disabledReports.include(requestObject.reportType)) {
+      const disabledReports = config.localisation?.disabledReports || [];
+      if (disabledReports.includes(requestObject.reportType)) {
         log.error(`Report "${requestObject.reportType}" is disabled`);
         request.update({
           status: REPORT_REQUEST_STATUSES.ERROR,

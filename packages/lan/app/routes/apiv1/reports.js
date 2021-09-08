@@ -1,7 +1,7 @@
 import express from 'express';
-import { getReportModule, REPORT_OPTION_TYPES } from 'shared/reports';
-import { ForbiddenError } from 'shared/errors';
 import asyncHandler from 'express-async-handler';
+import { getReportModule, REPORT_DEFINITIONS } from 'shared/reports';
+import { assertIfReportEnabled } from '../../utils/assertIfReportEnabled';
 
 export const reports = express.Router();
 
@@ -16,7 +16,7 @@ reports.get(
     });
 
     const disabledReports = localisation?.disabledReports || [];
-    const availableReports = REPORT_OPTION_TYPES.filter(r => !disabledReports.includes(r.id));
+    const availableReports = REPORT_DEFINITIONS.filter(r => !disabledReports.includes(r.id));
     res.send(availableReports);
   }),
 );
@@ -30,16 +30,8 @@ reports.post(
       body: { parameters },
     } = req;
     const { reportType } = req.params;
-    const localisation = await models.UserLocalisationCache.getLocalisation({
-      where: { userId: user.id },
-      order: [['createdAt', 'DESC']],
-    });
 
-    const disabledReports = localisation?.disabledReports || [];
-
-    if (disabledReports.includes(reportType)) {
-      throw new ForbiddenError(`Report "${reportType}" is disabled`);
-    }
+    await assertIfReportEnabled(models.UserLocalisationCache, user.id, reportType);
 
     const reportModule = getReportModule(req.params.reportType);
     if (!reportModule) {
