@@ -3,7 +3,8 @@
     "host": "db",
     "name": "tamanu-sync",
     "username": "tamanu-sync",
-    "password": "tamanu-sync"
+    "password": "tamanu-sync",
+    "migrateOnStartup": true
   },
   "initialUser": {
     "email": "admin@tamanu.io",

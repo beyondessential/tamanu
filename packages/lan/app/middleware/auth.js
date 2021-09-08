@@ -175,6 +175,11 @@ async function getUserFromToken(request) {
 export const authMiddleware = async (req, res, next) => {
   try {
     req.user = await getUserFromToken(req);
+    req.getLocalisation = async () =>
+      req.models.UserLocalisationCache.getLocalisation({
+        where: { userId: req.user.id },
+        order: [['createdAt', 'DESC']],
+      });
     next();
   } catch (e) {
     next(e);
