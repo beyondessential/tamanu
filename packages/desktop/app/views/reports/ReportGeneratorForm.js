@@ -6,7 +6,7 @@ import { connect } from 'react-redux';
 import styled from 'styled-components';
 import * as Yup from 'yup';
 import { LoadingIndicator } from '../../components/LoadingIndicator';
-import { connectApi } from '../../api';
+import { useApi } from '../../api';
 import {
   AutocompleteField,
   Button,
@@ -17,7 +17,7 @@ import {
   TextField,
 } from '../../components';
 import { FormGrid } from '../../components/FormGrid';
-import { Colors, MUI_SPACING_UNIT } from '../../constants';
+import { Colors, MUI_SPACING_UNIT, REPORT_DATA_SOURCES } from '../../constants';
 import { getCurrentUser } from '../../store/auth';
 
 import { VillageField } from './VillageField';
@@ -69,7 +69,7 @@ async function validateCommaSeparatedEmails(emails) {
   }
   const emailList = parseEmails(emails);
 
-  if (emailList.length == 0) {
+  if (emailList.length === 0) {
     return `${emails} is invalid.`;
   }
 
@@ -79,6 +79,8 @@ async function validateCommaSeparatedEmails(emails) {
       return `${emailList[i]} is invalid.`;
     }
   }
+
+  return '';
 }
 
 const ErrorMessageContainer = styled(Grid)`
@@ -95,6 +97,20 @@ const RequestErrorMessage = ({ errorMessage }) => {
   );
 };
 
+const getAvailableReports = async api => api.get('reports');
+
+const generateFacilityReport = async (api, reportType, parameters) =>
+  api.post(`reports/${reportType}`, {
+    parameters,
+  });
+
+const submitReportRequest = async (api, reportType, parameters, emails) =>
+  api.post('reportRequest', {
+    reportType,
+    parameters,
+    emailList: parseEmails(emails),
+  });
+
 // adding an onValueChange hook to the report type field
 // so we can keep internal state of the report type
 const ReportTypeField = ({ onValueChange, ...props }) => {
@@ -105,16 +121,11 @@ const ReportTypeField = ({ onValueChange, ...props }) => {
   return <AutocompleteField {...props} onChange={changeCallback} />;
 };
 
-const DumbReportGeneratorForm = ({
-  currentUser,
-  generateReport,
-  onSuccessfulSubmit,
-  createReportRequest,
-  getReports,
-}) => {
+const DumbReportGeneratorForm = ({ currentUser, onSuccessfulSubmit }) => {
+  const api = useApi();
   const [requestError, setRequestError] = useState();
   const [parameters, setParameters] = useState([]);
-  const [dataSource, setDataSource] = useState('thisFacility');
+  const [dataSource, setDataSource] = useState(REPORT_DATA_SOURCES.THIS_FACILITY);
   const [isDataSourceFieldDisabled, setIsDataSourceFieldDisabled] = useState(false);
   const [availableReports, setAvailableReports] = useState([]);
   const [reportsById, setReportsById] = useState({});
@@ -123,7 +134,7 @@ const DumbReportGeneratorForm = ({
   useEffect(() => {
     (async () => {
       try {
-        const reports = await getReports();
+        const reports = await getAvailableReports(api);
         setReportsById(keyBy(reports, 'id'));
         setReportOptions(reports.map(r => ({ value: r.id, label: r.name })));
         setAvailableReports(reports);
@@ -144,10 +155,10 @@ const DumbReportGeneratorForm = ({
       setParameters(reportDefinition.parameters || []);
       if (reportDefinition.allFacilities) {
         setIsDataSourceFieldDisabled(true);
-        setDataSource('allFacilities');
+        setDataSource(REPORT_DATA_SOURCES.ALL_FACILITIES);
       } else {
         setIsDataSourceFieldDisabled(false);
-        setDataSource('thisFacility');
+        setDataSource(REPORT_DATA_SOURCES.THIS_FACILITY);
       }
     },
     [reportsById],
@@ -156,10 +167,8 @@ const DumbReportGeneratorForm = ({
   async function submitRequestReport(formValues) {
     const { reportType, emails, ...restValues } = formValues;
     try {
-      if (dataSource === 'thisFacility') {
-        const excelData = await generateReport(reportType, {
-          parameters: restValues,
-        });
+      if (dataSource === REPORT_DATA_SOURCES.THIS_FACILITY) {
+        const excelData = await generateFacilityReport(api, reportType, restValues);
 
         const filePath = await saveExcelFile(excelData, {
           promptForFilePath: true,
@@ -167,14 +176,12 @@ const DumbReportGeneratorForm = ({
         });
         console.log('file saved at ', filePath);
       } else {
-        await createReportRequest({
-          reportType,
-          parameters: restValues,
-          emailList: parseEmails(formValues.emails),
-        });
+        await submitReportRequest(api, reportType, restValues, formValues.emails);
       }
 
-      onSuccessfulSubmit && onSuccessfulSubmit();
+      if (onSuccessfulSubmit) {
+        onSuccessfulSubmit();
+      }
     } catch (e) {
       console.error('Unable to submit report request', e);
       setRequestError(`Unable to submit report request - ${e.message}`);
@@ -185,7 +192,7 @@ const DumbReportGeneratorForm = ({
   // This is a workaround because of an issue that the onChange callback (when selecting a report)
   // inside render method of Formik doesn't update its dependency when the available reports list is already loaded
   if (!availableReports.length && !requestError) {
-    return <LoadingIndicator />;
+    return <LoadingIndicator backgroundColor="#f7f9fb" />;
   }
 
   return (
@@ -224,8 +231,8 @@ const DumbReportGeneratorForm = ({
               }}
               inline
               options={[
-                { label: 'This facility', value: 'thisFacility' },
-                { label: 'All facilities', value: 'allFacilities' },
+                { label: 'This facility', value: REPORT_DATA_SOURCES.THIS_FACILITY },
+                { label: 'All facilities', value: REPORT_DATA_SOURCES.ALL_FACILITIES },
               ]}
               component={RadioField}
               disabled={isDataSourceFieldDisabled}
@@ -258,7 +265,7 @@ const DumbReportGeneratorForm = ({
           </FormGrid>
           <Spacer />
           <EmailInputContainer>
-            {dataSource === 'allFacilities' ? (
+            {dataSource === REPORT_DATA_SOURCES.ALL_FACILITIES ? (
               <Field
                 name="emails"
                 label="Email to (separate emails with a comma)"
@@ -267,11 +274,11 @@ const DumbReportGeneratorForm = ({
                 multiline
                 rows={3}
                 validate={validateCommaSeparatedEmails}
-                required={dataSource === 'allFacilities'}
+                required={dataSource === REPORT_DATA_SOURCES.ALL_FACILITIES}
               />
             ) : null}
           </EmailInputContainer>
-          {requestError && <RequestErrorMessage errorMessage={requestError}/>}
+          {requestError && <RequestErrorMessage errorMessage={requestError} />}
           <Spacer />
           <Button variant="contained" color="primary" type="submit">
             Generate
@@ -282,18 +289,6 @@ const DumbReportGeneratorForm = ({
   );
 };
 
-const IntermediateReportGeneratorForm = connectApi(api => ({
-  generateReport: async (reportType, body) => {
-    return api.post(`reports/${reportType}`, body);
-  },
-  createReportRequest: async request => {
-    return api.post(`reportRequest`, request);
-  },
-  getReports: async request => {
-    return await api.get(`reports`, request);
-  },
-}))(DumbReportGeneratorForm);
-
 export const ReportGeneratorForm = connect(state => ({
   currentUser: getCurrentUser(state),
-}))(IntermediateReportGeneratorForm);
+}))(DumbReportGeneratorForm);

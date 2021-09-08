@@ -1,7 +1,7 @@
 import express from 'express';
 import asyncHandler from 'express-async-handler';
 import { getReportModule, REPORT_DEFINITIONS } from 'shared/reports';
-import { assertIfReportEnabled } from '../../utils/assertIfReportEnabled';
+import { assertReportEnabled } from '../../utils/assertReportEnabled';
 
 export const reports = express.Router();
 
@@ -26,12 +26,13 @@ reports.post(
   asyncHandler(async (req, res) => {
     const {
       models,
-      user,
       body: { parameters },
+      getLocalisation,
     } = req;
     const { reportType } = req.params;
 
-    await assertIfReportEnabled(models.UserLocalisationCache, user.id, reportType);
+    const localisation = await getLocalisation();
+    assertReportEnabled(localisation, reportType);
 
     const reportModule = getReportModule(req.params.reportType);
     if (!reportModule) {

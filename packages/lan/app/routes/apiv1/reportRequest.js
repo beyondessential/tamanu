@@ -2,16 +2,17 @@ import express from 'express';
 import asyncHandler from 'express-async-handler';
 import { REPORT_REQUEST_STATUSES } from 'shared/constants';
 import { getReportModule } from 'shared/reports';
-import { assertIfReportEnabled } from '../../utils/assertIfReportEnabled';
+import { assertReportEnabled } from '../../utils/assertReportEnabled';
 export const reportRequest = express.Router();
 
 reportRequest.post(
   '/$',
   asyncHandler(async (req, res) => {
     const {
-      models: { ReportRequest, UserLocalisationCache },
+      models: { ReportRequest },
       body,
       user,
+      getLocalisation,
     } = req;
 
     req.checkPermission('create', 'ReportRequest');
@@ -20,7 +21,8 @@ reportRequest.post(
       return;
     }
 
-    await assertIfReportEnabled(UserLocalisationCache, user.id, body.reportType);
+    const localisation = await getLocalisation();
+    assertReportEnabled(localisation, body.reportType);
 
     const reportModule = getReportModule(body.reportType);
     if (!reportModule) {
