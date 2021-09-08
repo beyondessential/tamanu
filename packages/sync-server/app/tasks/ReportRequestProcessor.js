@@ -1,12 +1,12 @@
 import config from 'config';
+import path from 'path';
 
 import { COMMUNICATION_STATUSES, REPORT_REQUEST_STATUSES } from 'shared/constants';
 import { getReportModule } from 'shared/reports';
 import { ScheduledTask } from 'shared/tasks';
 import { log } from 'shared/services/logging';
 
-import { writeExcelFile } from '../utils/excel';
-import { createFilePathForEmailAttachment, removeFile } from '../utils/files';
+import { createZipFromFile, tmpdir, removeFile, writeExcelFile } from '../utils/files';
 
 // run at 30 seconds interval, process 10 report requests each time
 export class ReportRequestProcessor extends ScheduledTask {
@@ -45,19 +45,21 @@ export class ReportRequestProcessor extends ScheduledTask {
         });
         return;
       }
-      const fileName = await createFilePathForEmailAttachment(
-        `${requestObject.reportType}-report-${new Date().getTime()}.xlsx`,
-      );
+      const fileName = `${requestObject.reportType}-report-${new Date().getTime()}`;
+      const folder = await tmpdir();
+      const excelFilePath = path.join(folder, `${fileName}.xlsx`);
+      const zipFilePath = path.join(folder, `${fileName}.zip`);
       try {
         const parameters = requestObject.parameters ? JSON.parse(requestObject.parameters) : {};
         const excelData = await reportDataGenerator(this.context.store.models, parameters);
-        await writeExcelFile(excelData, fileName);
+        await writeExcelFile(excelData, path.join(folder, excelFilePath));
+        await createZipFromFile(excelFilePath, zipFilePath);
         const result = await this.context.emailService.sendEmail({
           from: config.mailgun.from,
           to: request.recipients,
           subject: 'Report delivery',
           text: `Report requested: ${requestObject.reportType}`,
-          attachment: fileName,
+          attachment: zipFilePath,
         });
         if (result.status === COMMUNICATION_STATUSES.SENT) {
           log.info(
@@ -79,7 +81,8 @@ export class ReportRequestProcessor extends ScheduledTask {
           status: REPORT_REQUEST_STATUSES.ERROR,
         });
       } finally {
-        await removeFile(fileName);
+        await removeFile(excelFilePath);
+        await removeFile(zipFilePath);
       }
     }
   }
