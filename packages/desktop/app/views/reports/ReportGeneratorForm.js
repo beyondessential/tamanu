@@ -1,10 +1,11 @@
 import { keyBy } from 'lodash';
-import { Grid, Typography, CircularProgress } from '@material-ui/core';
+import { Grid, Typography } from '@material-ui/core';
 import { red } from '@material-ui/core/colors';
 import React, { useCallback, useState, useEffect } from 'react';
 import { connect } from 'react-redux';
 import styled from 'styled-components';
 import * as Yup from 'yup';
+import { LoadingIndicator } from '../../components/LoadingIndicator';
 import { connectApi } from '../../api';
 import {
   AutocompleteField,
@@ -86,10 +87,10 @@ const ErrorMessageContainer = styled(Grid)`
   margin-top: 20px;
 `;
 
-const SubmitErrorMessage = () => {
+const RequestErrorMessage = ({ errorMessage }) => {
   return (
     <ErrorMessageContainer>
-      <Typography color="error">An error occurred. Please try again.</Typography>
+      <Typography color="error">{`Error: ${errorMessage}`}</Typography>
     </ErrorMessageContainer>
   );
 };
@@ -111,7 +112,7 @@ const DumbReportGeneratorForm = ({
   createReportRequest,
   getReports,
 }) => {
-  const [submitError, setSubmitError] = useState();
+  const [requestError, setRequestError] = useState();
   const [parameters, setParameters] = useState([]);
   const [dataSource, setDataSource] = useState('thisFacility');
   const [isDataSourceFieldDisabled, setIsDataSourceFieldDisabled] = useState(false);
@@ -121,10 +122,15 @@ const DumbReportGeneratorForm = ({
 
   useEffect(() => {
     (async () => {
-      const reports = await getReports();
-      setReportsById(keyBy(reports, 'id'));
-      setReportOptions(reports.map(r => ({ value: r.id, label: r.name })));
-      setAvailableReports(reports);
+      try {
+        const reports = await getReports();
+        setReportsById(keyBy(reports, 'id'));
+        setReportOptions(reports.map(r => ({ value: r.id, label: r.name })));
+        setAvailableReports(reports);
+      } catch (error) {
+        console.error(`Unable to load available reports`, error);
+        setRequestError(`Unable to load available reports - ${error.message}`);
+      }
     })();
   }, []);
 
@@ -170,16 +176,16 @@ const DumbReportGeneratorForm = ({
 
       onSuccessfulSubmit && onSuccessfulSubmit();
     } catch (e) {
-      console.error('Error submitting report request', e);
-      setSubmitError(e);
+      console.error('Unable to submit report request', e);
+      setRequestError(`Unable to submit report request - ${e.message}`);
     }
   }
 
   // Wait until available reports are loaded to render.
   // This is a workaround because of an issue that the onChange callback (when selecting a report)
   // inside render method of Formik doesn't update its dependency when the available reports list is already loaded
-  if (!availableReports.length) {
-    return <CircularProgress />;
+  if (!availableReports.length && !requestError) {
+    return <LoadingIndicator />;
   }
 
   return (
@@ -265,7 +271,7 @@ const DumbReportGeneratorForm = ({
               />
             ) : null}
           </EmailInputContainer>
-          {submitError && <SubmitErrorMessage />}
+          {requestError && <RequestErrorMessage errorMessage={requestError}/>}
           <Spacer />
           <Button variant="contained" color="primary" type="submit">
             Generate
