@@ -84,7 +84,8 @@ export function checkVisibility(component, values, allComponents) {
     }
 
     const checkIfQuestionMeetsCriteria = ([questionCode, answersEnablingFollowUp]) => {
-      const value = values[questionCode];
+      const matchingComponent = allComponents.find(x => x.dataElement.code === questionCode);
+      const value = values[matchingComponent.dataElement.id];
       if (answersEnablingFollowUp.type === 'range') {
         if (!value) return false;
         const { start, end } = answersEnablingFollowUp;
@@ -97,9 +98,8 @@ export function checkVisibility(component, values, allComponents) {
         return false;
       }
 
-      const matchingComponent = allComponents.find(x => x.dataElement.code === questionCode);
       if (matchingComponent.dataElement.type === 'Select') {
-        return values[matchingComponent.dataElement.id] === answersEnablingFollowUp;
+        return value === answersEnablingFollowUp;
       }
 
       return answersEnablingFollowUp.includes(values[questionCode]);
