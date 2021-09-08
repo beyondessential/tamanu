@@ -79,7 +79,7 @@ export class ReportRequestProcessor extends ScheduledTask {
           status: REPORT_REQUEST_STATUSES.ERROR,
         });
       } finally {
-        // await removeFile(fileName);
+        await removeFile(fileName);
       }
     }
   }
