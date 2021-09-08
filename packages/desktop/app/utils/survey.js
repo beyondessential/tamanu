@@ -83,8 +83,8 @@ export function checkVisibility(component, values, allComponents) {
       return true;
     }
 
-    const checkIfQuestionMeetsCriteria = ([questionId, answersEnablingFollowUp]) => {
-      const value = values[questionId];
+    const checkIfQuestionMeetsCriteria = ([questionCode, answersEnablingFollowUp]) => {
+      const value = values[questionCode];
       if (answersEnablingFollowUp.type === 'range') {
         if (!value) return false;
         const { start, end } = answersEnablingFollowUp;
@@ -97,12 +97,12 @@ export function checkVisibility(component, values, allComponents) {
         return false;
       }
 
-      const matchingComponent = allComponents.find(x => x.dataElement.code === questionId);
+      const matchingComponent = allComponents.find(x => x.dataElement.code === questionCode);
       if (matchingComponent.dataElement.type === 'Select') {
         return values[matchingComponent.dataElement.id] === answersEnablingFollowUp;
       }
 
-      return answersEnablingFollowUp.includes(values[questionId]);
+      return answersEnablingFollowUp.includes(values[questionCode]);
     };
 
     return conjunction === 'and'
