@@ -2,6 +2,7 @@ import React from 'react';
 import { create, all as allMath } from 'mathjs';
 import { inRange } from 'lodash';
 
+import { getAgeFromDate } from 'shared-src/src/utils/date';
 import {
   LimitedTextField,
   MultilineTextField,
@@ -15,7 +16,6 @@ import {
   UnsupportedPhotoField,
 } from 'desktop/app/components/Field';
 import { PROGRAM_DATA_ELEMENT_TYPES } from '../../../shared-src/src/constants';
-import { getAgeFromDate } from 'shared-src/src/utils/date';
 import { joinNames } from './user';
 
 const InstructionField = ({ label, helperText }) => (
@@ -67,7 +67,7 @@ export function mapOptionsToValues(options) {
 }
 
 export function checkVisibility(component, values, allComponents) {
-  const { visibilityCriteria, dataElement } = component;
+  const { visibilityCriteria } = component;
   // nothing set - show by default
   if (!visibilityCriteria) return true;
 
@@ -83,8 +83,9 @@ export function checkVisibility(component, values, allComponents) {
       return true;
     }
 
-    const checkIfQuestionMeetsCriteria = ([questionId, answersEnablingFollowUp]) => {
-      const value = values[questionId];
+    const checkIfQuestionMeetsCriteria = ([dataElementCode, answersEnablingFollowUp]) => {
+      const matchingComponent = allComponents.find(x => x.dataElement.code === dataElementCode);
+      const value = values[matchingComponent.dataElement.id];
       if (answersEnablingFollowUp.type === 'range') {
         if (!value) return false;
         const { start, end } = answersEnablingFollowUp;
@@ -93,10 +94,15 @@ export function checkVisibility(component, values, allComponents) {
         if (!end) return value >= start;
         if (inRange(parseFloat(value), parseFloat(start), parseFloat(end))) {
           return true;
-        } else return false;
+        }
+        return false;
       }
 
-      return answersEnablingFollowUp.includes(values[questionId]);
+      if (matchingComponent.dataElement.type === 'Select') {
+        return value === answersEnablingFollowUp;
+      }
+
+      return answersEnablingFollowUp.includes(value);
     };
 
     return conjunction === 'and'
@@ -249,7 +255,7 @@ export const getAnswersFromData = (data, survey) =>
   }, {});
 
 export const getActionsFromData = (data, survey) =>
-  Object.entries(data).reduce((acc, [key, val]) => {
+  Object.entries(data).reduce((acc, [key]) => {
     const component = survey.components.find(({ dataElement }) => dataElement.id === key);
     if (component?.dataElement?.type === 'PatientIssue') {
       if (checkVisibility(component, data, survey.components)) {
