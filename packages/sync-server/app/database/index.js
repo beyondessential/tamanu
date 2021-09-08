@@ -22,7 +22,7 @@ export async function initDatabase({ testMode = false }) {
   // drop and recreate db
   if (testMode) {
     await store.sequelize.drop();
-    await store.sequelize.migrate({ migrateDirection: 'up' });
+    await store.sequelize.sync();
   }
 
   existingConnection = { store };
