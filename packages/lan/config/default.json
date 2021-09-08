@@ -30,7 +30,7 @@
         "initialBatchSize": 1000,
         "maxErrorRate": 0.01,
         "maxErrorsFloor": 100,
-        "maxBatchSize": 5000,
+        "maxBatchSize": 1000,
         "minBatchSize": 50,
         "throttleFactorUp": 1.2,
         "throttleFactorDown": 0.5

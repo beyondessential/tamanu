@@ -11,6 +11,9 @@
     "path": "",
     "consoleLevel": "info"
   },
+  "sync": {
+    "concurrentChannelChecks": 8
+  },
   "auth": {
     "saltRounds": 12,
     "tokenDuration": "1h",

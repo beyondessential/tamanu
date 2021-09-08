@@ -19,6 +19,7 @@
 
 - Renamed SyncMetadata to ChannelSyncPullCursor
 - Facility server now throws an error when connecting to a sync server if it had previously connected to a different one
+- Limit /sync/channels concurrency to 8 (by default) concurrent queries to reduce connection pool contention
 
 ## Bug fixes 🐛
 
