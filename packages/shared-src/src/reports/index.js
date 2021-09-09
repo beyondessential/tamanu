@@ -1,7 +1,7 @@
 import * as admissions from './admissions';
 import * as incompleteReferrals from './incomplete-referrals';
 import * as recentDiagnoses from './recent-diagnoses';
-import * as covidVaccineList from './covid-vaccine-list';
+import * as vaccineList from './vaccine-list';
 import {
   generateCovidVaccineSummaryDose1Report,
   generateCovidVaccineSummaryDose2Report,
@@ -13,6 +13,9 @@ import * as numberPatientsRegisteredByDate from './number-patients-registered-by
 import * as registeredPatients from './registered-patients';
 import * as covidSwabLabTestList from './covid-swab-lab-test-list';
 import * as covidSwabLabTestsSummary from './covid-swab-lab-tests-summary';
+import * as indiaAssistiveTechnologyDeviceLineList from './india-assistive-technology-device-line-list';
+import * as iraqAssistiveTechnologyDeviceLineList from './iraq-assistive-technology-device-line-list';
+import * as pngAssistiveTechnologyDeviceLineList from './png-assistive-technology-device-line-list';
 
 export function getReportModule(reportType) {
   switch (reportType) {
@@ -24,8 +27,8 @@ export function getReportModule(reportType) {
       return incompleteReferrals;
     case 'recent-diagnoses':
       return recentDiagnoses;
-    case 'covid-vaccine-list':
-      return covidVaccineList;
+    case 'vaccine-list':
+      return vaccineList;
     case 'covid-vaccine-summary-dose1':
       return {
         permission: covidVaccineSummaryPermission,
@@ -48,5 +51,13 @@ export function getReportModule(reportType) {
       return covidSwabLabTestList;
     case 'covid-swab-lab-tests-summary':
       return covidSwabLabTestsSummary;
+    case 'india-assistive-technology-device-line-list':
+      return indiaAssistiveTechnologyDeviceLineList;
+    case 'iraq-assistive-technology-device-line-list':
+      return iraqAssistiveTechnologyDeviceLineList;
+    case 'png-assistive-technology-device-line-list':
+      return pngAssistiveTechnologyDeviceLineList;
   }
 }
+
+export { REPORT_DEFINITIONS } from './reportDefinitions';

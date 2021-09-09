@@ -89,8 +89,10 @@ describe('SyncManager', () => {
       await context.syncManager.pullAndImport(context.models.ReferenceData);
 
       // assert
-      const metadata = await context.models.SyncMetadata.findOne({ where: { channel } });
-      expect(metadata.pullCursor).toEqual(`${now};${data.id}`);
+      const { pullCursor } = await context.models.ChannelSyncPullCursor.findOne({
+        where: { channel },
+      });
+      expect(pullCursor).toEqual(`${now};${data.id}`);
 
       await context.syncManager.pullAndImport(context.models.ReferenceData);
       const calls = context.remote.pull.mock.calls;

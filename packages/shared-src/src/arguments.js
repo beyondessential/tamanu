@@ -21,11 +21,18 @@ function createParser() {
       'serve',
       'setup',
       'migrate', 
+      'report',
     ],
     nargs: '?', // allow empty
     defaultValue: 'serve',
   });
 
+  parser.addArgument('--name', {
+    action: 'store',
+    dest: 'name',
+  });
+
+  // migrate subcommand
   const migrateDir = parser.addMutuallyExclusiveGroup();
   migrateDir.addArgument('--up', {
     help: "Run database migrations",

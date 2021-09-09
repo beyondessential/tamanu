@@ -15,7 +15,7 @@
   "sync": {
     "syncAllLabRequests": true,
     "backoff": {
-      "maxRetries": 1,
+      "maxAttempts": 1,
       "multiplierMs": 0,
       "maxWaitMs": 0
     }

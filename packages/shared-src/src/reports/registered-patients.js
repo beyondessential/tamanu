@@ -1,35 +1,25 @@
 import { Sequelize, Op } from 'sequelize';
+import moment from 'moment';
 import { generateReportFromQueryData } from './utilities';
+
+export const permission = 'Patient';
 
 const parametersToSqlWhere = parameters => {
   if (!parameters || !Object.keys(parameters).length) {
     return undefined;
   }
 
-  const whereClause = Object.entries(parameters)
-    .filter(([, val]) => val)
-    .reduce(
-      (where, [key, value]) => {
-        const newWhere = { ...where };
-        switch (key) {
-          case 'fromDate':
-            newWhere.createdAt[Op.gte] = value;
-            break;
-          case 'toDate':
-            newWhere.createdAt[Op.lte] = value;
-            break;
-          default:
-            break;
-        }
-        return newWhere;
-      },
-      { createdAt: {} },
-    );
+  const whereClause = { createdAt: {} };
+
+  if (parameters.fromDate) {
+    whereClause.createdAt[Op.gte] = parameters.fromDate;
+  }
+  if (parameters.toDate) {
+    whereClause.createdAt[Op.lte] = parameters.toDate;
+  }
 
   return whereClause;
 };
-
-export const permission = 'Patient';
 
 export const dataGenerator = async (models, parameters = {}) => {
   const reportColumnTemplate = [
@@ -51,7 +41,7 @@ export const dataGenerator = async (models, parameters = {}) => {
     { title: 'Marital Status', accessor: data => data.maritalStatus },
     { title: 'Primary contact number', accessor: data => data.primaryContactNumber },
     { title: 'Secondary contact number', accessor: data => data.secondaryContactNumber },
-    { title: 'Country', accessor: data => data.countryName },
+    { title: 'Country of birth', accessor: data => data.countryOfBirth },
     { title: 'Nationality', accessor: data => data.nationalityName },
     { title: 'Tribe', accessor: data => data.ethnicityName },
     { title: 'Occupation', accessor: data => data.occupationName },
@@ -59,11 +49,10 @@ export const dataGenerator = async (models, parameters = {}) => {
     { title: 'Patient type', accessor: data => data.patientBillingTypeName },
   ];
 
-  const whereClause = parametersToSqlWhere(parameters);
   const patientsData = await models.Patient.findAll({
     attributes: [
       [Sequelize.literal(`DATE("Patient".created_at)`), 'dateCreated'],
-      [Sequelize.literal(`DATE("Patient".date_of_birth)`), 'dateOfBirth'],
+      'date_of_birth',
       'first_name',
       'middle_name',
       'last_name',
@@ -83,7 +72,7 @@ export const dataGenerator = async (models, parameters = {}) => {
           {
             model: models.ReferenceData,
             attributes: ['name'],
-            as: 'country',
+            as: 'countryOfBirth',
           },
           {
             model: models.ReferenceData,
@@ -118,15 +107,19 @@ export const dataGenerator = async (models, parameters = {}) => {
         ],
       },
     ],
-    where: whereClause,
     order: [[Sequelize.literal(`"dateCreated"`), 'ASC']],
+    where: parametersToSqlWhere(parameters),
   });
 
   const reportData = patientsData.map(({ dataValues }) => {
+    const dateOfBirth = dataValues.date_of_birth
+      ? moment(dataValues.date_of_birth).format('DD-MM-YYYY')
+      : '';
+
     const villageName = dataValues.village?.dataValues?.name ?? null;
 
     const additionalData = dataValues.PatientAdditionalData[0]?.dataValues ?? null;
-    const countryName = additionalData?.country?.dataValues?.name ?? null;
+    const countryOfBirth = additionalData?.countryOfBirth?.dataValues?.name ?? null;
     const nationalityName = additionalData?.nationality?.dataValues?.name ?? null;
     const ethnicityName = additionalData?.ethnicity?.dataValues?.name ?? null;
     const occupationName = additionalData?.occupation?.dataValues?.name ?? null;
@@ -136,8 +129,9 @@ export const dataGenerator = async (models, parameters = {}) => {
 
     return {
       ...dataValues,
+      dateOfBirth,
       villageName,
-      countryName,
+      countryOfBirth,
       nationalityName,
       ethnicityName,
       occupationName,

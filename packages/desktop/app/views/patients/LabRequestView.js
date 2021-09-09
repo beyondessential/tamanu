@@ -1,8 +1,8 @@
-import React from 'react';
-import { connect } from 'react-redux';
+import React, { useState, useCallback, useMemo } from 'react';
+import { connect, useDispatch } from 'react-redux';
 import { push } from 'connected-react-router';
 
-import { AddButton, Button } from '../../components/Button';
+import { Button } from '../../components/Button';
 import { ContentPane } from '../../components/ContentPane';
 import { LoadingIndicator } from '../../components/LoadingIndicator';
 import { PatientInfoPane } from '../../components/PatientInfoPane';
@@ -12,23 +12,30 @@ import { ManualLabResultModal } from '../../components/ManualLabResultModal';
 
 import { TopBar } from '../../components/TopBar';
 import { FormGrid } from '../../components/FormGrid';
-import { DateInput, TextInput, DateTimeInput } from '../../components/Field';
+import {
+  SelectField,
+  DateInput,
+  TextInput,
+  DateTimeInput,
+  AutocompleteField,
+} from '../../components/Field';
+import { ConfirmCancelRow } from '../../components/ButtonRow';
 
-import { ChangeLabStatusModal } from '../../components/ChangeLabStatusModal';
 import { LAB_REQUEST_STATUS_LABELS } from '../../constants';
 
 import { capitaliseFirstLetter } from '../../utils/capitalise';
 import { getCompletedDate, getMethod } from '../../utils/lab';
-import { ChangeLaboratoryModal } from '../../components/ChangeLaboratoryModal';
+import { Modal } from '../../components/Modal';
 import { LabRequestNoteForm } from '../../forms/LabRequestNoteForm';
 import { LabRequestAuditPane } from '../../components/LabRequestAuditPane';
 import { useLabRequest } from '../../contexts/LabRequest';
+import { useSuggester } from '../../api/singletons';
 
 const makeRangeStringAccessor = sex => ({ labTestType }) => {
-  const max = (sex === 'male') ? labTestType.maleMax : labTestType.femaleMax;
-  const min = (sex === 'male') ? labTestType.maleMin : labTestType.femaleMin;
-  const hasMax = max || (max === 0);
-  const hasMin = min || (min === 0);
+  const max = sex === 'male' ? labTestType.maleMax : labTestType.femaleMax;
+  const min = sex === 'male' ? labTestType.maleMin : labTestType.femaleMin;
+  const hasMax = max || max === 0;
+  const hasMin = min || min === 0;
 
   if (hasMin && hasMax) return `${min} - ${max}`;
   if (hasMin) return `>${min}`;
@@ -51,11 +58,11 @@ const columns = sex => [
 ];
 
 const ResultsPane = React.memo(({ labRequest, patient }) => {
-  const [activeTest, setActiveTest] = React.useState(null);
-  const [isModalOpen, setModalOpen] = React.useState(false);
+  const [activeTest, setActiveTest] = useState(null);
+  const [isModalOpen, setModalOpen] = useState(false);
 
-  const closeModal = React.useCallback(() => setModalOpen(false), [setModalOpen]);
-  const openModal = React.useCallback(
+  const closeModal = useCallback(() => setModalOpen(false), [setModalOpen]);
+  const openModal = useCallback(
     test => {
       setActiveTest(test);
       setModalOpen(true);
@@ -82,39 +89,118 @@ const ResultsPane = React.memo(({ labRequest, patient }) => {
   );
 });
 
-const BackLink = connect(null, dispatch => ({
-  onClick: () => dispatch(push('/patients/encounter')),
-}))(({ onClick }) => <Button onClick={onClick}>&lt; Back to encounter information</Button>);
-
-const ChangeLabStatusButton = React.memo(({ labRequest }) => {
-  const [isModalOpen, setModalOpen] = React.useState(false);
-  const openModal = React.useCallback(() => setModalOpen(true), [setModalOpen]);
-  const closeModal = React.useCallback(() => setModalOpen(false), [setModalOpen]);
+const BackLink = () => {
+  const dispatch = useDispatch();
   return (
-    <React.Fragment>
-      <Button variant="outlined" onClick={openModal}>
+    <Button
+      onClick={() => {
+        dispatch(push('/patients/encounter'));
+      }}
+    >
+      &lt; Back to encounter information
+    </Button>
+  );
+};
+const ChangeLabStatusButton = ({ status: currentStatus, updateLabReq }) => {
+  const [status, setStatus] = useState(currentStatus);
+  const [isModalOpen, setModalOpen] = useState(false);
+  const openModal = useCallback(() => setModalOpen(true), [setModalOpen]);
+  const closeModal = useCallback(() => setModalOpen(false), [setModalOpen]);
+  const updateLabStatus = useCallback(async () => {
+    await updateLabReq({ status });
+    closeModal();
+  }, [updateLabReq, status]);
+  const labStatuses = useMemo(() => [
+    { value: 'reception_pending', label: 'Reception pending' },
+    { value: 'results_pending', label: 'Results pending' },
+    { value: 'to_be_verified', label: 'To be verified' },
+    { value: 'verified', label: 'Verified' },
+    { value: 'published', label: 'Published' },
+  ]);
+  return (
+    <>
+      <Button variant="outlined" onClick={openModal} style={{ marginRight: '0.5rem' }}>
         Change status
       </Button>
-      <ChangeLabStatusModal labRequest={labRequest} open={isModalOpen} onClose={closeModal} />
-    </React.Fragment>
+      <Modal open={isModalOpen} onClose={closeModal} title="Change lab request status">
+        <FormGrid columns={1}>
+          <SelectField
+            label="Status"
+            field={{ name: 'status' }}
+            options={labStatuses}
+            value={status}
+            form={{ initialValues: { status } }}
+            onChange={({ target: { value } }) => {
+              setStatus(value);
+            }}
+          />
+          <ConfirmCancelRow onConfirm={updateLabStatus} confirmText="Save" onCancel={closeModal} />
+        </FormGrid>
+      </Modal>
+    </>
   );
-});
+};
 
-const ChangeLaboratoryButton = React.memo(({ labRequest }) => {
-  const [isModalOpen, setModalOpen] = React.useState(false);
-  const openModal = React.useCallback(() => setModalOpen(true), [setModalOpen]);
-  const closeModal = React.useCallback(() => setModalOpen(false), [setModalOpen]);
+const ChangeLaboratoryButton = ({ laboratory, updateLabReq }) => {
+  const [isModalOpen, setModalOpen] = useState(false);
+  const [lab, setLab] = useState(laboratory);
+  const openModal = useCallback(() => setModalOpen(true), [setModalOpen]);
+  const closeModal = useCallback(() => setModalOpen(false), [setModalOpen]);
+  const laboratorySuggester = useSuggester('labTestLaboratory');
+  const updateLab = useCallback(async () => {
+    await updateLabReq({
+      labTestLaboratoryId: lab,
+    });
+    closeModal();
+  }, [updateLabReq, lab]);
   return (
-    <React.Fragment>
+    <>
       <Button variant="outlined" onClick={openModal}>
         Change laboratory
       </Button>
-      <ChangeLaboratoryModal labRequest={labRequest} open={isModalOpen} onClose={closeModal} />
-    </React.Fragment>
+      <Modal open={isModalOpen} onClose={closeModal} title="Change lab request laboratory">
+        <FormGrid columns={1}>
+          <AutocompleteField
+            label="Laboratory"
+            field={{ name: 'labTestLaboratoryId' }}
+            suggester={laboratorySuggester}
+            value={lab}
+            onChange={({ target: { value } }) => {
+              setLab(value);
+            }}
+          />
+          <ConfirmCancelRow onConfirm={updateLab} confirmText="Save" onCancel={closeModal} />
+        </FormGrid>
+      </Modal>
+    </>
   );
-});
+};
 
-const LabRequestInfoPane = React.memo(({ labRequest }) => (
+const DeleteButton = ({ updateLabReq }) => {
+  const dispatch = useDispatch();
+  const [isModalOpen, setModalOpen] = useState(false);
+  const openModal = useCallback(() => setModalOpen(true), [setModalOpen]);
+  const closeModal = useCallback(() => setModalOpen(false), [setModalOpen]);
+  const deleteLabRequest = useCallback(async () => {
+    await updateLabReq({
+      status: 'deleted',
+    });
+    closeModal();
+    dispatch(push('/patients/encounter'));
+  }, [updateLabReq]);
+  return (
+    <>
+      <Button variant="outlined" onClick={openModal} style={{ marginRight: '0.5rem' }}>
+        Delete
+      </Button>
+      <Modal open={isModalOpen} onClose={closeModal} title="Delete lab request">
+        <ConfirmCancelRow onConfirm={deleteLabRequest} confirmText="Delete" onCancel={closeModal} />
+      </Modal>
+    </>
+  );
+};
+
+const LabRequestInfoPane = ({ labRequest }) => (
   <FormGrid columns={3}>
     <TextInput value={labRequest.displayId} label="Request ID" />
     <TextInput value={(labRequest.category || {}).name} label="Request type" />
@@ -126,10 +212,16 @@ const LabRequestInfoPane = React.memo(({ labRequest }) => (
     <DateTimeInput value={labRequest.sampleTime} label="Sample date" />
     <LabRequestNoteForm labRequest={labRequest} />
   </FormGrid>
-));
+);
 
 export const DumbLabRequestView = React.memo(({ patient }) => {
-  const { isLoading, labRequest } = useLabRequest();
+  const { isLoading, labRequest, updateLabRequest } = useLabRequest();
+  const updateLabReq = useCallback(
+    async data => {
+      await updateLabRequest(labRequest.id, data);
+    },
+    [labRequest],
+  );
   if (isLoading) return <LoadingIndicator />;
   return (
     <TwoColumnDisplay>
@@ -137,8 +229,12 @@ export const DumbLabRequestView = React.memo(({ patient }) => {
       <div>
         <TopBar title="Lab request">
           <div>
-            <ChangeLabStatusButton labRequest={labRequest} />{' '}
-            <ChangeLaboratoryButton labRequest={labRequest} />
+            <DeleteButton updateLabReq={updateLabReq} />
+            <ChangeLabStatusButton status={labRequest.status} updateLabReq={updateLabReq} />
+            <ChangeLaboratoryButton
+              laboratory={labRequest.laboratory}
+              updateLabReq={updateLabReq}
+            />
           </div>
         </TopBar>
         <BackLink />

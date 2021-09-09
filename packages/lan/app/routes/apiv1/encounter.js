@@ -1,7 +1,8 @@
 import express from 'express';
 import asyncHandler from 'express-async-handler';
+import { Op } from 'sequelize';
 import { NotFoundError } from 'shared/errors';
-
+import { LAB_REQUEST_STATUSES } from 'shared/constants';
 import { NOTE_RECORD_TYPES } from 'shared/models/Note';
 
 import {
@@ -73,7 +74,16 @@ encounterRelations.get('/:id/vitals', simpleGetList('Vitals', 'encounterId'));
 encounterRelations.get('/:id/diagnoses', simpleGetList('EncounterDiagnosis', 'encounterId'));
 encounterRelations.get('/:id/medications', simpleGetList('EncounterMedication', 'encounterId'));
 encounterRelations.get('/:id/procedures', simpleGetList('Procedure', 'encounterId'));
-encounterRelations.get('/:id/labRequests', simpleGetList('LabRequest', 'encounterId'));
+encounterRelations.get(
+  '/:id/labRequests',
+  simpleGetList('LabRequest', 'encounterId', {
+    additionalFilters: {
+      status: {
+        [Op.ne]: LAB_REQUEST_STATUSES.DELETED,
+      },
+    },
+  }),
+);
 encounterRelations.get('/:id/referral', simpleGetList('Referral', 'encounterId'));
 encounterRelations.get('/:id/imagingRequests', simpleGetList('ImagingRequest', 'encounterId'));
 encounterRelations.get(

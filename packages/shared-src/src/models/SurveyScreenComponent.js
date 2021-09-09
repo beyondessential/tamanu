@@ -1,4 +1,4 @@
-import { Sequelize } from 'sequelize';
+import { Sequelize, Op } from 'sequelize';
 import { SYNC_DIRECTIONS } from 'shared/constants';
 import { parseOrNull } from 'shared/utils/parse-or-null';
 import { Model } from './Model';
@@ -39,11 +39,19 @@ export class SurveyScreenComponent extends Model {
     });
   }
 
-  static getComponentsForSurvey(surveyId) {
+  static getComponentsForSurveys(surveyIds) {
     return this.findAll({
-      where: { surveyId },
+      where: {
+        surveyId: {
+          [Op.in]: surveyIds,
+        },
+      },
       include: this.getListReferenceAssociations(),
     }).map(c => c.forResponse());
+  }
+
+  static getComponentsForSurvey(surveyId) {
+    return this.getComponentsForSurveys([surveyId]);
   }
 
   getOptions() {

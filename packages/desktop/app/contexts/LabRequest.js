@@ -30,7 +30,11 @@ export const LabRequestProvider = ({ store, children }) => {
   };
 
   const updateLabRequest = async (labRequestId, data) => {
-    await api.put(`labRequest/${labRequestId}`, data);
+    const update = { ...data };
+    if (data.status) {
+      update.userId = api.user.id;
+    }
+    await api.put(`labRequest/${labRequestId}`, update);
     await loadLabRequest(labRequestId);
   };
 
