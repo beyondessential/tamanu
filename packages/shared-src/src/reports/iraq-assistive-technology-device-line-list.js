@@ -12,6 +12,7 @@ const SURVEY_IDS = [
 ];
 
 const SURVEY_DATA_ELEMENT_IDS_LATEST_PER_PATIENT = {
+  phccProvider: 'pde-IrqMAReg-3',
   difficultyWithMobility: 'pde-IrqMAReg-13',
 };
 
@@ -27,6 +28,7 @@ const SURVEY_DATA_ELEMENT_IDS_LATEST_PER_PATIENT_PER_DATE = {
   dateOfReferral: 'pde-IrqRef-5',
   healthCareReferrals: 'pde-IrqRef-1',
   otherHealthCareReferrals: 'pde-IrqRef-2',
+  otherServiceReferrals: 'pde-IrqRef-3',
   otherService: 'pde-IrqRef-4',
 };
 
@@ -44,6 +46,7 @@ const REPORT_COLUMN_TEMPLATE = [
     accessor: data => data.dateOfBirth,
   },
   { title: 'Age', accessor: data => data.age },
+  { title: 'PHCC provider (مزود الرعاية الصحية الأولية)', accessor: data => data.phccProvider },
   {
     title: 'Difficulty with mobility/seeing/hearing etc (هل لديك صعوبة مع)',
     accessor: data => data.difficultyWithMobility,
@@ -89,8 +92,8 @@ const REPORT_COLUMN_TEMPLATE = [
   },
 ];
 
-export const dataGenerator = async (models, parameters = {}) => {
-  return baseDataGenerator(
+export const dataGenerator = async (models, parameters = {}) =>
+  baseDataGenerator(
     models,
     parameters,
     SURVEY_IDS,
@@ -98,6 +101,5 @@ export const dataGenerator = async (models, parameters = {}) => {
     SURVEY_DATA_ELEMENT_IDS_LATEST_PER_PATIENT_PER_DATE,
     REPORT_COLUMN_TEMPLATE,
   );
-};
 
 export const permission = 'SurveyResponse';

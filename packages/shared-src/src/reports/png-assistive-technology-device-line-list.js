@@ -84,7 +84,8 @@ const REPORT_COLUMN_TEMPLATE = [
   },
   { title: 'Age', accessor: data => data.age },
   { title: 'Location (Urban/Rural)', accessor: data => data.location },
-
+  { title: 'Service provider (organization)', accessor: data => data.serviceProvider },
+  { title: 'Date of registration', accessor: data => data.dateOfRegistration },
   {
     title: 'Difficulty with mobility/seeing/hearing etc',
     accessor: data => data.difficultyWithMobility,
@@ -153,12 +154,6 @@ const REPORT_COLUMN_TEMPLATE = [
     title: 'Vision product service provider (organization)',
     accessor: data => data.visionProductServiceProvider,
   },
-  { title: 'Boosters 300ml', accessor: data => data.boosters300Ml },
-  { title: 'Boosters 300ml quantity', accessor: data => data.boosters300MlQuantity },
-  {
-    title: 'Vision product service provider (organization)',
-    accessor: data => data.visionProductServiceProvider,
-  },
   { title: 'Date of provision', accessor: data => data.dateOfProvision3 },
   { title: 'Reading glasses (strength)', accessor: data => data.readingGlasses },
   { title: 'Frame type', accessor: data => data.frameType },
@@ -184,8 +179,8 @@ const REPORT_COLUMN_TEMPLATE = [
   { title: 'Other, other service referrals', accessor: data => data.otherService },
 ];
 
-export const dataGenerator = async (models, parameters = {}) => {
-  return baseDataGenerator(
+export const dataGenerator = async (models, parameters = {}) =>
+  baseDataGenerator(
     models,
     parameters,
     SURVEY_IDS,
@@ -193,6 +188,5 @@ export const dataGenerator = async (models, parameters = {}) => {
     SURVEY_DATA_ELEMENT_IDS_LATEST_PER_PATIENT_PER_DATE,
     REPORT_COLUMN_TEMPLATE,
   );
-};
 
 export const permission = 'SurveyResponse';
