@@ -1,6 +1,6 @@
 # CHANGELOG
 
-## vNEXT
+## v1.9.0
 
 ### Manual steps required after upgrade ⚙
 
@@ -8,18 +8,11 @@
 
 ### Features ⭐
 
-- Add registered patients line-list report
-- Add India assistive technology device line list report
-- Add Iraq assistive technology device line list report
-- Add PNG assistive technology device line list report
-- Add Generic Vaccine line list report
-- Allow disabling reports through server config
+- (left blank)
 
 ## Tweaks ⚖️
 
-- Renamed SyncMetadata to ChannelSyncPullCursor
-- Facility server now throws an error when connecting to a sync server if it had previously connected to a different one
-- Limit /sync/channels concurrency to 8 (by default) concurrent queries to reduce connection pool contention
+- (left blank)
 
 ## Bug fixes 🐛
 
@@ -27,5 +20,4 @@
 
 ## Infrastructure and maintenance 🛠
 
-- Removed Tonga from meta-server
-- Made ./scripts/version.sh safer
+- (left blank)
