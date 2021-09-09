@@ -23,7 +23,7 @@
 
 ## Bug fixes 🐛
 
-- (left blank)
+- Changed Country to Country of birth and only allow ALL FACILITIES in registered patients line-list report
 
 ## Infrastructure and maintenance 🛠
 

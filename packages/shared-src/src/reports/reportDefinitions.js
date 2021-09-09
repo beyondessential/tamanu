@@ -65,6 +65,7 @@ export const REPORT_DEFINITIONS = [
   {
     name: 'Registered patients - Line list',
     id: 'registered-patients',
+    allFacilities: true,
   },
   {
     name: 'COVID-19 Tests - Line list',
