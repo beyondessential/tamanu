@@ -85,6 +85,15 @@ async function queryCovidVaccineListData(models, parameters) {
       },
     ],
     where: parametersToSqlWhere(parameters),
+    order: [
+      [
+        { model: models.Encounter, as: 'encounter' },
+        { model: models.Patient, as: 'patient' },
+        'id',
+        'ASC',
+      ],
+      ['date', 'ASC'],
+    ],
   });
   const administeredVaccines = result.map(r => r.get({ plain: true }));
 

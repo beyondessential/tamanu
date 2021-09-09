@@ -1,4 +1,4 @@
-export function generateReportFromQueryData(queryData, columnTemplate) {
+export const generateReportFromQueryData = (queryData, columnTemplate) => {
   return [
     columnTemplate.map(c => c.title),
     ...queryData.map(r =>
@@ -11,4 +11,4 @@ export function generateReportFromQueryData(queryData, columnTemplate) {
       }),
     ),
   ];
-}
+};

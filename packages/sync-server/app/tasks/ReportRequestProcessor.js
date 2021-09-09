@@ -5,8 +5,7 @@ import { getReportModule } from 'shared/reports';
 import { ScheduledTask } from 'shared/tasks';
 import { log } from 'shared/services/logging';
 
-import { writeExcelFile } from '../utils/excel';
-import { createFilePathForEmailAttachment, removeFile } from '../utils/files';
+import { removeFile, createZippedExcelFile } from '../utils/files';
 
 // run at 30 seconds interval, process 10 report requests each time
 export class ReportRequestProcessor extends ScheduledTask {
@@ -35,6 +34,15 @@ export class ReportRequestProcessor extends ScheduledTask {
         return;
       }
 
+      const disabledReports = config.localisation.data.disabledReports;
+      if (disabledReports.includes(requestObject.reportType)) {
+        log.error(`Report "${requestObject.reportType}" is disabled`);
+        request.update({
+          status: REPORT_REQUEST_STATUSES.ERROR,
+        });
+        return;
+      }
+
       const reportDataGenerator = getReportModule(requestObject.reportType)?.dataGenerator;
       if (!reportDataGenerator) {
         log.error(
@@ -45,23 +53,22 @@ export class ReportRequestProcessor extends ScheduledTask {
         });
         return;
       }
-      const fileName = await createFilePathForEmailAttachment(
-        `${requestObject.reportType}-report-${new Date().getTime()}.xlsx`,
-      );
+      const reportName = `${requestObject.reportType}-report-${new Date().getTime()}`;
+      let zipFile;
       try {
         const parameters = requestObject.parameters ? JSON.parse(requestObject.parameters) : {};
         const excelData = await reportDataGenerator(this.context.store.models, parameters);
-        await writeExcelFile(excelData, fileName);
+        zipFile = createZippedExcelFile(reportName, excelData);
         const result = await this.context.emailService.sendEmail({
           from: config.mailgun.from,
           to: request.recipients,
           subject: 'Report delivery',
           text: `Report requested: ${requestObject.reportType}`,
-          attachment: fileName,
+          attachment: zipFile,
         });
         if (result.status === COMMUNICATION_STATUSES.SENT) {
           log.info(
-            `ReportRequestProcessorError - Sent report ${fileName} to ${request.recipients.length}`,
+            `ReportRequestProcessorError - Sent report ${reportName} to ${request.recipients.length}`,
           );
           await request.update({
             status: REPORT_REQUEST_STATUSES.PROCESSED,
@@ -79,7 +86,9 @@ export class ReportRequestProcessor extends ScheduledTask {
           status: REPORT_REQUEST_STATUSES.ERROR,
         });
       } finally {
-        await removeFile(fileName);
+        if (zipFile) {
+          await removeFile(zipFile);
+        }
       }
     }
   }

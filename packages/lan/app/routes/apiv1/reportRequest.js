@@ -2,7 +2,7 @@ import express from 'express';
 import asyncHandler from 'express-async-handler';
 import { REPORT_REQUEST_STATUSES } from 'shared/constants';
 import { getReportModule } from 'shared/reports';
-
+import { assertReportEnabled } from '../../utils/assertReportEnabled';
 export const reportRequest = express.Router();
 
 reportRequest.post(
@@ -12,6 +12,7 @@ reportRequest.post(
       models: { ReportRequest },
       body,
       user,
+      getLocalisation,
     } = req;
 
     req.checkPermission('create', 'ReportRequest');
@@ -19,6 +20,10 @@ reportRequest.post(
       res.status(400).send({ message: 'reportType missing' });
       return;
     }
+
+    const localisation = await getLocalisation();
+    assertReportEnabled(localisation, body.reportType);
+
     const reportModule = getReportModule(body.reportType);
     if (!reportModule) {
       res.status(400).send({ message: 'invalid reportType' });
