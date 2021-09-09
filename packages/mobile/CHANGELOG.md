@@ -12,7 +12,7 @@
 
 ## Tweaks ⚖️
 
-- (left blank)
+- Display AutoComplete field answer for Surveys
 
 ## Bug fixes 🐛
 
