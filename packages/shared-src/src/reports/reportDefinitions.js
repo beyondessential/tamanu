@@ -29,7 +29,7 @@ export const REPORT_DEFINITIONS = [
     parameters: [{ parameterField: 'PractitionerField' }],
   },
   {
-    name: 'Vaccine line list',
+    name: 'Vaccine - Line list',
     id: 'vaccine-list',
     parameters: [
       { parameterField: 'VillageField' },
@@ -78,15 +78,15 @@ export const REPORT_DEFINITIONS = [
     parameters: [{ parameterField: 'VillageField' }, { parameterField: 'LabTestLaboratoryField' }],
   },
   {
-    name: 'India assistive technology device line list',
+    name: 'India assistive technology device - Line list',
     id: 'india-assistive-technology-device-line-list',
   },
   {
-    name: 'Iraq assistive technology device line list',
+    name: 'Iraq assistive technology device - Line list',
     id: 'iraq-assistive-technology-device-line-list',
   },
   {
-    name: 'PNG assistive technology device line list',
+    name: 'PNG assistive technology device - Line list',
     id: 'png-assistive-technology-device-line-list',
   },
 ];
