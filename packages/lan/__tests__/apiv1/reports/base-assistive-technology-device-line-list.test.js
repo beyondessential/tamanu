@@ -182,43 +182,43 @@ describe('Assistive technology device line list', () => {
       expect(result).toHaveSucceeded();
       expect(result.body).toHaveLength(4);
 
+      /*******PATIENT 1*********/
       //-----Row on 2021-03-17-----//, on this date, there are answers submitted for 2 patients: patient1 and patient2
-      //**PATIENT 1**
       //patient details
       expect(result.body[1][0]).toBe(expectedPatient1.displayId);
       expect(result.body[1][1]).toBe(expectedPatient1.sex);
       expect(result.body[1][2]).toBe(moment(expectedPatient1.dateOfBirth).format('DD-MM-YYYY'));
 
       //always grab the latest answer for a data element for that patient.
-      expect(result.body[1][4]).toBe('pde-IrqMAReg-13-on-2021-03-15T10:53:15.708Z-Patient1');
+      expect(result.body[1][5]).toBe('pde-IrqMAReg-13-on-2021-03-15T10:53:15.708Z-Patient1');
 
       //always grab the latest answer for a data element within that date, regardless of survey response,
-      expect(result.body[1][5]).toBe('pde-IrqPreMob-2-on-2021-03-17T10:53:15.708Z-Patient1');
-      expect(result.body[1][6]).toBe('pde-IrqPreMob-1-on-2021-03-17T10:53:15.708Z-Patient1');
-      expect(result.body[1][7]).toBe('pde-IrqPreMob-6-on-2021-03-17T10:53:15.708Z-Patient1');
-      expect(result.body[1][8]).toBe('pde-IrqPreMob-7-on-2021-03-17T11:53:15.708Z-Patient1');
-      expect(result.body[1][9]).toBe('pde-IrqPreMob-8-on-2021-03-17T11:53:15.708Z-Patient1');
-      expect(result.body[1][10]).toBe('pde-IrqPreMob-9-on-2021-03-17T11:53:15.708Z-Patient1');
+      expect(result.body[1][6]).toBe('pde-IrqPreMob-2-on-2021-03-17T10:53:15.708Z-Patient1');
+      expect(result.body[1][7]).toBe('pde-IrqPreMob-1-on-2021-03-17T10:53:15.708Z-Patient1');
+      expect(result.body[1][8]).toBe('pde-IrqPreMob-6-on-2021-03-17T10:53:15.708Z-Patient1');
+      expect(result.body[1][9]).toBe('pde-IrqPreMob-7-on-2021-03-17T11:53:15.708Z-Patient1');
+      expect(result.body[1][10]).toBe('pde-IrqPreMob-8-on-2021-03-17T11:53:15.708Z-Patient1');
+      expect(result.body[1][11]).toBe('pde-IrqPreMob-9-on-2021-03-17T11:53:15.708Z-Patient1');
 
       //-----Row on 2021-03-20-----//, on this date, there are answers submitted for only 1 patient
-      //**PATIENT 1**
       //patient details
       expect(result.body[2][0]).toBe(expectedPatient1.displayId);
       expect(result.body[2][1]).toBe(expectedPatient1.sex);
       expect(result.body[2][2]).toBe(moment(expectedPatient1.dateOfBirth).format('DD-MM-YYYY'));
 
       //always grab the latest answer for a data element for that patient.
-      expect(result.body[2][4]).toBe('pde-IrqMAReg-13-on-2021-03-15T10:53:15.708Z-Patient1');
+      expect(result.body[2][5]).toBe('pde-IrqMAReg-13-on-2021-03-15T10:53:15.708Z-Patient1');
 
       //always grab the latest answer for a data element within that date, regardless of survey response
-      expect(result.body[2][5]).toBe('pde-IrqPreMob-2-on-2021-03-20T10:53:15.708Z-Patient1');
-      expect(result.body[2][6]).toBe('pde-IrqPreMob-1-on-2021-03-20T10:53:15.708Z-Patient1');
-      expect(result.body[2][7]).toBe('pde-IrqPreMob-6-on-2021-03-20T10:53:15.708Z-Patient1');
-      expect(result.body[2][8]).toBe('pde-IrqPreMob-7-on-2021-03-20T11:53:15.708Z-Patient1');
-      expect(result.body[2][9]).toBe('pde-IrqPreMob-8-on-2021-03-20T11:53:15.708Z-Patient1');
-      expect(result.body[2][10]).toBe('pde-IrqPreMob-9-on-2021-03-20T11:53:15.708Z-Patient1');
+      expect(result.body[2][6]).toBe('pde-IrqPreMob-2-on-2021-03-20T10:53:15.708Z-Patient1');
+      expect(result.body[2][7]).toBe('pde-IrqPreMob-1-on-2021-03-20T10:53:15.708Z-Patient1');
+      expect(result.body[2][8]).toBe('pde-IrqPreMob-6-on-2021-03-20T10:53:15.708Z-Patient1');
+      expect(result.body[2][9]).toBe('pde-IrqPreMob-7-on-2021-03-20T11:53:15.708Z-Patient1');
+      expect(result.body[2][10]).toBe('pde-IrqPreMob-8-on-2021-03-20T11:53:15.708Z-Patient1');
+      expect(result.body[2][11]).toBe('pde-IrqPreMob-9-on-2021-03-20T11:53:15.708Z-Patient1');
+      /******************************/
 
-      //**PATIENT 2**
+      /*******PATIENT 2*********/
       //-----Row on 2021-03-17-----//, on this date, there are answers submitted for 2 patients: patient1 and patient2
       //patient details
       expect(result.body[3][0]).toBe(expectedPatient2.displayId);
@@ -226,15 +226,16 @@ describe('Assistive technology device line list', () => {
       expect(result.body[3][2]).toBe(moment(expectedPatient2.dateOfBirth).format('DD-MM-YYYY'));
 
       //always grab the latest answer for a data element for that patient.
-      expect(result.body[3][4]).toBe('pde-IrqMAReg-13-on-2021-03-12T10:53:15.708Z-Patient2');
+      expect(result.body[3][5]).toBe('pde-IrqMAReg-13-on-2021-03-12T10:53:15.708Z-Patient2');
 
       //always grab the latest answer for a data element within that date, regardless of survey response,
-      expect(result.body[3][5]).toBe('pde-IrqPreMob-2-on-2021-03-17T10:53:15.708Z-Patient2');
-      expect(result.body[3][6]).toBe('pde-IrqPreMob-1-on-2021-03-17T10:53:15.708Z-Patient2');
-      expect(result.body[3][7]).toBe('pde-IrqPreMob-6-on-2021-03-17T10:53:15.708Z-Patient2');
-      expect(result.body[3][8]).toBe(null);
+      expect(result.body[3][6]).toBe('pde-IrqPreMob-2-on-2021-03-17T10:53:15.708Z-Patient2');
+      expect(result.body[3][7]).toBe('pde-IrqPreMob-1-on-2021-03-17T10:53:15.708Z-Patient2');
+      expect(result.body[3][8]).toBe('pde-IrqPreMob-6-on-2021-03-17T10:53:15.708Z-Patient2');
       expect(result.body[3][9]).toBe(null);
       expect(result.body[3][10]).toBe(null);
+      expect(result.body[3][11]).toBe(null);
+      /******************************/
     });
 
     it('should return data within date range', async () => {
@@ -248,12 +249,12 @@ describe('Assistive technology device line list', () => {
       expect(result.body[1][0]).toBe(expectedPatient1.displayId);
       expect(result.body[1][1]).toBe(expectedPatient1.sex);
       expect(result.body[1][2]).toBe(moment(expectedPatient1.dateOfBirth).format('DD-MM-YYYY'));
-      expect(result.body[1][5]).toBe('pde-IrqPreMob-2-on-2021-03-20T10:53:15.708Z-Patient1');
-      expect(result.body[1][6]).toBe('pde-IrqPreMob-1-on-2021-03-20T10:53:15.708Z-Patient1');
-      expect(result.body[1][7]).toBe('pde-IrqPreMob-6-on-2021-03-20T10:53:15.708Z-Patient1');
-      expect(result.body[1][8]).toBe('pde-IrqPreMob-7-on-2021-03-20T11:53:15.708Z-Patient1');
-      expect(result.body[1][9]).toBe('pde-IrqPreMob-8-on-2021-03-20T11:53:15.708Z-Patient1');
-      expect(result.body[1][10]).toBe('pde-IrqPreMob-9-on-2021-03-20T11:53:15.708Z-Patient1');
+      expect(result.body[1][6]).toBe('pde-IrqPreMob-2-on-2021-03-20T10:53:15.708Z-Patient1');
+      expect(result.body[1][7]).toBe('pde-IrqPreMob-1-on-2021-03-20T10:53:15.708Z-Patient1');
+      expect(result.body[1][8]).toBe('pde-IrqPreMob-6-on-2021-03-20T10:53:15.708Z-Patient1');
+      expect(result.body[1][9]).toBe('pde-IrqPreMob-7-on-2021-03-20T11:53:15.708Z-Patient1');
+      expect(result.body[1][10]).toBe('pde-IrqPreMob-8-on-2021-03-20T11:53:15.708Z-Patient1');
+      expect(result.body[1][11]).toBe('pde-IrqPreMob-9-on-2021-03-20T11:53:15.708Z-Patient1');
     });
   });
 });
