@@ -67,9 +67,7 @@ export class ReportRequestProcessor extends ScheduledTask {
           attachment: zipFile,
         });
         if (result.status === COMMUNICATION_STATUSES.SENT) {
-          log.info(
-            `ReportRequestProcessorError - Sent report ${reportName} to ${request.recipients.length}`,
-          );
+          log.info(`ReportRequestProcessor - Sent report "${zipFile}" to "${request.recipients}"`);
           await request.update({
             status: REPORT_REQUEST_STATUSES.PROCESSED,
           });
