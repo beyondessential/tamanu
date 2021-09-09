@@ -6,7 +6,7 @@ import XLSX from 'xlsx';
 import JSZip from 'jszip';
 
 // on windows, os.tmpdir() can return a non-existent folder
-export async function tmpdir() {
+async function tmpdir() {
   const dir = path.resolve(os.tmpdir());
   await mkdirp(dir);
   return dir;
@@ -24,7 +24,7 @@ export function removeFile(filePath) {
   });
 }
 
-export async function writeExcelFile(data, filePath) {
+async function writeExcelFile(data, filePath) {
   const book = XLSX.utils.book_new();
   const sheet = XLSX.utils.aoa_to_sheet(data);
   XLSX.utils.book_append_sheet(book, sheet, 'values');
@@ -47,4 +47,14 @@ export async function createZipFromFile(fileName, zipFileName) {
   const zipContent = await zip.generateAsync({ type: encoding });
 
   await fs.promises.writeFile(zipFileName, zipContent, { encoding });
+}
+
+export async function createZippedExcelFile(reportName, data) {
+  const folder = await tmpdir();
+  const excelFilePath = path.join(folder, `${reportName}.xlsx`);
+  const zipFilePath = path.join(folder, `${reportName}.zip`);
+  await writeExcelFile(data, excelFilePath);
+  await createZipFromFile(excelFilePath, zipFilePath);
+  await removeFile(excelFilePath);
+  return zipFilePath;
 }
