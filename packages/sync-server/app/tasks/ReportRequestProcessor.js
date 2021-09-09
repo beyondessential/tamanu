@@ -58,7 +58,7 @@ export class ReportRequestProcessor extends ScheduledTask {
       try {
         const parameters = requestObject.parameters ? JSON.parse(requestObject.parameters) : {};
         const excelData = await reportDataGenerator(this.context.store.models, parameters);
-        zipFile = createZippedExcelFile(reportName, excelData);
+        zipFile = await createZippedExcelFile(reportName, excelData);
         const result = await this.context.emailService.sendEmail({
           from: config.mailgun.from,
           to: request.recipients,
