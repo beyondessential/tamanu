@@ -36,7 +36,7 @@ reports.post(
 
     const reportModule = getReportModule(req.params.reportType);
     if (!reportModule) {
-      res.status(500).send({});
+      res.status(400).send({ message: 'invalid reportType' });
       return;
     }
     req.checkPermission('read', reportModule.permission);
