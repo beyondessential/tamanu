@@ -25,6 +25,9 @@ const AutocompleteAnswer = ({ question, answer }): JSX.Element => {
     ({ models }) => models[config.source].getRepository().findOne(answer),
     [question],
   );
+  if (!refData) {
+    return null;
+  }
   if (error) {
     console.error(error);
     return <StyledText>{error.message}</StyledText>;
