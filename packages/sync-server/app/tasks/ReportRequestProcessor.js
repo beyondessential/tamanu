@@ -34,6 +34,15 @@ export class ReportRequestProcessor extends ScheduledTask {
         return;
       }
 
+      const disabledReports = config.localisation.data.disabledReports;
+      if (disabledReports.includes(requestObject.reportType)) {
+        log.error(`Report "${requestObject.reportType}" is disabled`);
+        request.update({
+          status: REPORT_REQUEST_STATUSES.ERROR,
+        });
+        return;
+      }
+
       const reportDataGenerator = getReportModule(requestObject.reportType)?.dataGenerator;
       if (!reportDataGenerator) {
         log.error(
