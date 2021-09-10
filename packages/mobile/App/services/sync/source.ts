@@ -210,7 +210,7 @@ export class WebSyncSource implements SyncSource {
           ...acc,
           [channel]: cursor,
         }), {});
-        const { channelsWithChanges } = await this.post('sync/channels', {}, body);
+        const { channelsWithChanges } = await this.post('sync/channels', {}, body, { backoff: { maxAttempts: 3 } }); // TODO: load from localisation?
         channelsWithPendingChanges.push(...channelsWithChanges);
       }
       return channelsWithPendingChanges;
