@@ -9,7 +9,6 @@ import { Form, Field, DateField, NumberField, SelectField } from '../components/
 import { FormGrid } from '../components/FormGrid';
 import { ConfirmCancelRow } from '../components/ButtonRow';
 
-
 const BloodPressureFieldsContainer = styled.div`
   display: grid;
   grid-template-columns: auto auto;

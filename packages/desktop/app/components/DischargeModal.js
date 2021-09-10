@@ -1,5 +1,4 @@
 import React, { useCallback } from 'react';
-
 import { Modal } from './Modal';
 import { Suggester } from '../utils/suggester';
 
