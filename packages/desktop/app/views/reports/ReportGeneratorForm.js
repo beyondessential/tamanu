@@ -1,10 +1,12 @@
+import { keyBy } from 'lodash';
 import { Grid, Typography } from '@material-ui/core';
 import { red } from '@material-ui/core/colors';
-import React, { useCallback, useState } from 'react';
+import React, { useCallback, useState, useEffect } from 'react';
 import { connect } from 'react-redux';
 import styled from 'styled-components';
 import * as Yup from 'yup';
-import { connectApi } from '../../api';
+import { LoadingIndicator } from '../../components/LoadingIndicator';
+import { useApi } from '../../api';
 import {
   AutocompleteField,
   Button,
@@ -15,7 +17,7 @@ import {
   TextField,
 } from '../../components';
 import { FormGrid } from '../../components/FormGrid';
-import { Colors, MUI_SPACING_UNIT } from '../../constants';
+import { Colors, MUI_SPACING_UNIT, REPORT_DATA_SOURCES } from '../../constants';
 import { getCurrentUser } from '../../store/auth';
 
 import { VillageField } from './VillageField';
@@ -26,21 +28,17 @@ import { saveExcelFile } from '../../utils/saveExcelFile';
 import { VaccineCategoryField } from './VaccineCategoryField';
 import { VaccineField } from './VaccineField';
 
-const REPORT_TYPE_OPTIONS = [
-  { label: 'Incomplete referrals', value: 'incomplete-referrals' },
-  { label: 'Recent Diagnoses', value: 'recent-diagnoses' },
-  { label: 'Admissions Report', value: 'admissions' },
-  { label: 'Vaccine line list', value: 'vaccine-list' },
-  { label: 'COVID vaccine campaign daily summary by village', value: 'covid-vaccine-daily-summary-village' },
-  { label: 'COVID vaccine campaign - First dose summary', value: 'covid-vaccine-summary-dose1' },
-  { label: 'COVID vaccine campaign - Second dose summary', value: 'covid-vaccine-summary-dose2' },
-  { label: 'Adverse Event Following Immunization', value: 'aefi' },
-  { label: 'Samoa Adverse Event Following Immunisation', value: 'samoa-aefi' },
-  { label: 'Number of patients registered by date', value: 'number-patients-registered-by-date' },
-  { label: 'Registered patients - Line list', value: 'registered-patients' },
-  { label: 'COVID-19 Tests - Line list', value: 'covid-swab-lab-test-list' },
-  { label: 'COVID-19 Tests - Summary', value: 'covid-swab-lab-tests-summary' },
-];
+const EmptyField = styled.div``;
+
+const PARAMETER_FIELD_COMPONENTS = {
+  VillageField: VillageField,
+  LabTestLaboratoryField: LabTestLaboratoryField,
+  PractitionerField: PractitionerField,
+  DiagnosisField: DiagnosisField,
+  VaccineCategoryField: VaccineCategoryField,
+  VaccineField: VaccineField,
+  EmptyField: EmptyField,
+};
 
 const Spacer = styled.div`
   padding-top: 30px;
@@ -71,7 +69,7 @@ async function validateCommaSeparatedEmails(emails) {
   }
   const emailList = parseEmails(emails);
 
-  if (emailList.length == 0) {
+  if (emailList.length === 0) {
     return `${emails} is invalid.`;
   }
 
@@ -81,6 +79,8 @@ async function validateCommaSeparatedEmails(emails) {
       return `${emailList[i]} is invalid.`;
     }
   }
+
+  return '';
 }
 
 const ErrorMessageContainer = styled(Grid)`
@@ -89,64 +89,27 @@ const ErrorMessageContainer = styled(Grid)`
   margin-top: 20px;
 `;
 
-const SubmitErrorMessage = () => {
+const RequestErrorMessage = ({ errorMessage }) => {
   return (
     <ErrorMessageContainer>
-      <Typography color="error">An error occurred. Please try again.</Typography>
+      <Typography color="error">{`Error: ${errorMessage}`}</Typography>
     </ErrorMessageContainer>
   );
 };
 
-const EmptyField = styled.div``;
+const getAvailableReports = async api => api.get('reports');
 
-const ParametersByReportType = {
-  'incomplete-referrals': [{ ParameterField: VillageField }, { ParameterField: PractitionerField }],
-  'recent-diagnoses': [
-    {
-      ParameterField: DiagnosisField,
-      required: true,
-      name: 'diagnosis',
-      label: 'Diagnosis',
-      validation: Yup.string().required('Diagnosis is required'),
-    },
-    { ParameterField: DiagnosisField, name: 'diagnosis2', label: 'Diagnosis 2' },
-    { ParameterField: DiagnosisField, name: 'diagnosis3', label: 'Diagnosis 3' },
-    { ParameterField: DiagnosisField, name: 'diagnosis4', label: 'Diagnosis 4' },
-    { ParameterField: DiagnosisField, name: 'diagnosis5', label: 'Diagnosis 5' },
-    { ParameterField: EmptyField },
-    { ParameterField: VillageField },
-    { ParameterField: PractitionerField },
-  ],
-  admissions: [{ ParameterField: PractitionerField }],
-  'vaccine-list': [
-    { ParameterField: VillageField },
-    { ParameterField: VaccineCategoryField },
-    { ParameterField: VaccineField },
-  ],
-  'covid-vaccine-daily-summary-village': [],
-  'covid-vaccine-summary-dose1': [],
-  'covid-vaccine-summary-dose2': [],
-  aefi: [{ ParameterField: VillageField }],
-  'samoa-aefi': [{ ParameterField: VillageField }],
-  'number-patients-registered-by-date': [],
-  'registered-patients': [],
-  'covid-swab-lab-test-list': [
-    { ParameterField: VillageField },
-    { ParameterField: LabTestLaboratoryField },
-  ],
-  'covid-swab-lab-tests-summary': [
-    { ParameterField: VillageField },
-    { ParameterField: LabTestLaboratoryField },
-  ],
-};
+const generateFacilityReport = async (api, reportType, parameters) =>
+  api.post(`reports/${reportType}`, {
+    parameters,
+  });
 
-const DefaultDataSource = {
-  'covid-vaccine-summary-dose1': 'allFacilities',
-  'covid-vaccine-summary-dose2': 'allFacilities',
-  'number-patients-registered-by-date': 'allFacilities',
-  'covid-swab-lab-test-list': 'allFacilities',
-  'covid-vaccine-daily-summary-village': 'allFacilities',
-};
+const submitReportRequest = async (api, reportType, parameters, emails) =>
+  api.post('reportRequest', {
+    reportType,
+    parameters,
+    emailList: parseEmails(emails),
+  });
 
 // adding an onValueChange hook to the report type field
 // so we can keep internal state of the report type
@@ -158,24 +121,54 @@ const ReportTypeField = ({ onValueChange, ...props }) => {
   return <AutocompleteField {...props} onChange={changeCallback} />;
 };
 
-const DumbReportGeneratorForm = ({
-  currentUser,
-  generateReport,
-  onSuccessfulSubmit,
-  createReportRequest,
-}) => {
-  const [submitError, setSubmitError] = useState();
+const DumbReportGeneratorForm = ({ currentUser, onSuccessfulSubmit }) => {
+  const api = useApi();
+  const [requestError, setRequestError] = useState();
   const [parameters, setParameters] = useState([]);
-  const [dataSource, setDataSource] = useState('thisFacility');
+  const [dataSource, setDataSource] = useState(REPORT_DATA_SOURCES.THIS_FACILITY);
   const [isDataSourceFieldDisabled, setIsDataSourceFieldDisabled] = useState(false);
+  const [availableReports, setAvailableReports] = useState([]);
+  const [reportsById, setReportsById] = useState({});
+  const [reportOptions, setReportOptions] = useState([]);
+
+  useEffect(() => {
+    (async () => {
+      try {
+        const reports = await getAvailableReports(api);
+        setReportsById(keyBy(reports, 'id'));
+        setReportOptions(reports.map(r => ({ value: r.id, label: r.name })));
+        setAvailableReports(reports);
+      } catch (error) {
+        console.error(`Unable to load available reports`, error);
+        setRequestError(`Unable to load available reports - ${error.message}`);
+      }
+    })();
+  }, []);
+
+  const selectReportHandle = useCallback(
+    id => {
+      const reportDefinition = reportsById[id];
+      if (!reportDefinition) {
+        return;
+      }
+
+      setParameters(reportDefinition.parameters || []);
+      if (reportDefinition.allFacilities) {
+        setIsDataSourceFieldDisabled(true);
+        setDataSource(REPORT_DATA_SOURCES.ALL_FACILITIES);
+      } else {
+        setIsDataSourceFieldDisabled(false);
+        setDataSource(REPORT_DATA_SOURCES.THIS_FACILITY);
+      }
+    },
+    [reportsById],
+  );
 
   async function submitRequestReport(formValues) {
     const { reportType, emails, ...restValues } = formValues;
     try {
-      if (dataSource === 'thisFacility') {
-        const excelData = await generateReport(reportType, {
-          parameters: restValues,
-        });
+      if (dataSource === REPORT_DATA_SOURCES.THIS_FACILITY) {
+        const excelData = await generateFacilityReport(api, reportType, restValues);
 
         const filePath = await saveExcelFile(excelData, {
           promptForFilePath: true,
@@ -183,18 +176,23 @@ const DumbReportGeneratorForm = ({
         });
         console.log('file saved at ', filePath);
       } else {
-        await createReportRequest({
-          reportType,
-          parameters: restValues,
-          emailList: parseEmails(formValues.emails),
-        });
+        await submitReportRequest(api, reportType, restValues, formValues.emails);
       }
 
-      onSuccessfulSubmit && onSuccessfulSubmit();
+      if (onSuccessfulSubmit) {
+        onSuccessfulSubmit();
+      }
     } catch (e) {
-      console.error('Error submitting report request', e);
-      setSubmitError(e);
+      console.error('Unable to submit report request', e);
+      setRequestError(`Unable to submit report request - ${e.message}`);
     }
+  }
+
+  // Wait until available reports are loaded to render.
+  // This is a workaround because of an issue that the onChange callback (when selecting a report)
+  // inside render method of Formik doesn't update its dependency when the available reports list is already loaded
+  if (!availableReports.length && !requestError) {
+    return <LoadingIndicator backgroundColor="#f7f9fb" />;
   }
 
   return (
@@ -213,103 +211,84 @@ const DumbReportGeneratorForm = ({
             return schema;
           }, {}),
       })}
-      render={({ values }) => {
-        return (
-          <>
-            <FormGrid columns={3}>
-              <Field
-                name="reportType"
-                label="Report Type"
-                component={ReportTypeField}
-                options={REPORT_TYPE_OPTIONS}
-                required
-                onValueChange={type => {
-                  setParameters(ParametersByReportType[type] || []);
-                  if (DefaultDataSource[type]) {
-                    setIsDataSourceFieldDisabled(true);
-                    setDataSource(DefaultDataSource[type]);
-                  } else {
-                    setIsDataSourceFieldDisabled(false);
-                    setDataSource('thisFacility');
-                  }
-                }}
-              />
-              <Field
-                name="dataSource"
-                label="For"
-                value={dataSource}
-                onChange={e => {
-                  setDataSource(e.target.value);
-                }}
-                inline
-                options={[
-                  { label: 'This facility', value: 'thisFacility' },
-                  { label: 'All facilities', value: 'allFacilities' },
-                ]}
-                component={RadioField}
-                disabled={isDataSourceFieldDisabled}
-              />
-            </FormGrid>
-            {parameters.length > 0 ? (
-              <>
-                <Spacer />
-                <FormGrid columns={3}>
-                  {parameters.map(({ ParameterField, required, name, label }, index) => (
-                    <ParameterField
+      render={({ values }) => (
+        <>
+          <FormGrid columns={3}>
+            <Field
+              name="reportType"
+              label="Report Type"
+              component={ReportTypeField}
+              options={reportOptions}
+              required
+              onValueChange={selectReportHandle}
+            />
+            <Field
+              name="dataSource"
+              label="For"
+              value={dataSource}
+              onChange={e => {
+                setDataSource(e.target.value);
+              }}
+              inline
+              options={[
+                { label: 'This facility', value: REPORT_DATA_SOURCES.THIS_FACILITY },
+                { label: 'All facilities', value: REPORT_DATA_SOURCES.ALL_FACILITIES },
+              ]}
+              component={RadioField}
+              disabled={isDataSourceFieldDisabled}
+            />
+          </FormGrid>
+          {parameters.length > 0 ? (
+            <>
+              <Spacer />
+              <FormGrid columns={3}>
+                {parameters.map(({ parameterField, required, name, label }, index) => {
+                  const ParameterFieldComponent = PARAMETER_FIELD_COMPONENTS[parameterField];
+                  return (
+                    <ParameterFieldComponent
                       key={index}
                       required={required}
                       name={name}
                       label={label}
                       parameterValues={values}
                     />
-                  ))}
-                </FormGrid>
-              </>
+                  );
+                })}
+              </FormGrid>
+            </>
+          ) : null}
+          <Spacer />
+          <DateRangeLabel variant="body1">Date range (or leave blank for all data)</DateRangeLabel>
+          <FormGrid columns={2}>
+            <Field name="fromDate" label="From date" component={DateField} />
+            <Field name="toDate" label="To date" component={DateField} />
+          </FormGrid>
+          <Spacer />
+          <EmailInputContainer>
+            {dataSource === REPORT_DATA_SOURCES.ALL_FACILITIES ? (
+              <Field
+                name="emails"
+                label="Email to (separate emails with a comma)"
+                component={TextField}
+                placeholder="example@example.com"
+                multiline
+                rows={3}
+                validate={validateCommaSeparatedEmails}
+                required={dataSource === REPORT_DATA_SOURCES.ALL_FACILITIES}
+              />
             ) : null}
-            <Spacer />
-            <DateRangeLabel variant="body1">
-              Date range (or leave blank for all data)
-            </DateRangeLabel>
-            <FormGrid columns={2}>
-              <Field name="fromDate" label="From date" component={DateField} />
-              <Field name="toDate" label="To date" component={DateField} />
-            </FormGrid>
-            <Spacer />
-            <EmailInputContainer>
-              {dataSource === 'allFacilities' ? (
-                <Field
-                  name="emails"
-                  label="Email to (separate emails with a comma)"
-                  component={TextField}
-                  placeholder="example@example.com"
-                  multiline
-                  rows={3}
-                  validate={validateCommaSeparatedEmails}
-                  required={dataSource === 'allFacilities'}
-                />
-              ) : null}
-            </EmailInputContainer>
-            {submitError && <SubmitErrorMessage />}
-            <Spacer />
-            <Button variant="contained" color="primary" type="submit">
-              Generate
-            </Button>
-          </>
-        );
-      }}
+          </EmailInputContainer>
+          {requestError && <RequestErrorMessage errorMessage={requestError} />}
+          <Spacer />
+          <Button variant="contained" color="primary" type="submit">
+            Generate
+          </Button>
+        </>
+      )}
     />
   );
 };
 
-const IntermediateReportGeneratorForm = connectApi(api => ({
-  generateReport: async (reportType, body) => {
-    return api.post(`reports/${reportType}`, body);
-  },
-  createReportRequest: async request => {
-    return api.post(`reportRequest`, request);
-  },
-}))(DumbReportGeneratorForm);
-
 export const ReportGeneratorForm = connect(state => ({
   currentUser: getCurrentUser(state),
-}))(IntermediateReportGeneratorForm);
+}))(DumbReportGeneratorForm);

@@ -6,8 +6,7 @@ import { ScheduledTask } from 'shared/tasks';
 import { log } from 'shared/services/logging';
 import { createTupaiaApiClient, translateReportDataToSurveyResponses } from 'shared/utils';
 
-import { writeExcelFile } from '../utils/excel';
-import { createFilePathForEmailAttachment, removeFile } from '../utils/files';
+import { removeFile, createZippedExcelFile } from '../utils/files';
 
 // run at 30 seconds interval, process 10 report requests each time
 export class ReportRequestProcessor extends ScheduledTask {
@@ -35,6 +34,15 @@ export class ReportRequestProcessor extends ScheduledTask {
         return;
       }
 
+      const disabledReports = config.localisation.data.disabledReports;
+      if (disabledReports.includes(request.reportType)) {
+        log.error(`Report "${request.reportType}" is disabled`);
+        request.update({
+          status: REPORT_REQUEST_STATUSES.ERROR,
+        });
+        return;
+      }
+
       const reportModule = getReportModule(request.reportType);
       const reportDataGenerator = reportModule?.dataGenerator;
       if (!reportModule || !reportDataGenerator) {
@@ -54,7 +62,11 @@ export class ReportRequestProcessor extends ScheduledTask {
             this.tupaiaApiClient = createTupaiaApiClient();
           }
         }
-        reportData = await reportDataGenerator(this.context.store.models, request.getParameters(), this.tupaiaApiClient));
+        reportData = await reportDataGenerator(
+          this.context.store.models,
+          request.getParameters(),
+          this.tupaiaApiClient,
+        );
       } catch (e) {
         log.error(`ReportRequestProcessorError - Failed to generate report, ${e.message}`);
         log.error(e.stack);
@@ -106,29 +118,28 @@ export class ReportRequestProcessor extends ScheduledTask {
    * @returns {Promise<void>}
    */
   async sendReportToEmail(request, reportData, emailAddresses) {
-    const fileName = await createFilePathForEmailAttachment(
-      `${request.reportType}-report-${new Date().getTime()}.xlsx`,
-    );
+    const reportName = `${request.reportType}-report-${new Date().getTime()}`;
 
+    let zipFile = null;
     try {
-      await writeExcelFile(reportData, fileName);
+      zipFile = await createZippedExcelFile(reportName, reportData);
 
       const result = await this.context.emailService({
         from: config.mailgun.from,
         to: emailAddresses.join(','),
         subject: 'Report delivery',
         text: `Report requested: ${request.reportType}`,
-        attachment: fileName,
+        attachment: zipFile,
       });
       if (result.status === COMMUNICATION_STATUSES.SENT) {
         log.info(
-          `ReportRequestProcessorError - Sent report ${fileName} to ${emailAddresses.join(',')}`,
+          `ReportRequestProcessorError - Sent report ${zipFile} to ${emailAddresses.join(',')}`,
         );
       } else {
         throw new Error(`Mailgun error: ${result.error}`);
       }
     } finally {
-      await removeFile(fileName);
+      await removeFile(zipFile);
     }
   }
 
