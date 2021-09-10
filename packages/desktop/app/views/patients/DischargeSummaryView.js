@@ -213,7 +213,7 @@ const DumbSummaryPage = React.memo(({ patient, encounter, onFetchEncounterDischa
 
         <div>
           <Label>Discharge planning notes:</Label>
-          <div>{discharge?.note}</div>
+          <div style={{ whiteSpace: 'pre-wrap' }}>{discharge?.note}</div>
         </div>
         <div />
       </Content>
