@@ -125,7 +125,7 @@ export class ReportRequestProcessor extends ScheduledTask {
     try {
       zipFile = await createZippedExcelFile(reportName, reportData);
 
-      const result = await this.context.emailService({
+      const result = await this.context.emailService.sendEmail({
         from: config.mailgun.from,
         to: emailAddresses.join(','),
         subject: 'Report delivery',
