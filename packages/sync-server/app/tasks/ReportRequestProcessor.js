@@ -73,6 +73,7 @@ export class ReportRequestProcessor extends ScheduledTask {
         await request.update({
           status: REPORT_REQUEST_STATUSES.ERROR,
         });
+        return;
       }
 
       try {
