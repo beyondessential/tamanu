@@ -39,22 +39,23 @@ async function writeExcelFile(data, filePath) {
   });
 }
 
-export async function createZipFromFile(fileName, zipFileName) {
+export async function createZipFromFile(fileName, filePath, zipFilePath) {
   const encoding = 'base64';
-  const fileContent = await fs.promises.readFile(fileName);
+  const fileContent = await fs.promises.readFile(filePath);
   const zip = new JSZip();
+  //write the file into zip
   zip.file(fileName, fileContent);
   const zipContent = await zip.generateAsync({ type: encoding });
-
-  await fs.promises.writeFile(zipFileName, zipContent, { encoding });
+  await fs.promises.writeFile(zipFilePath, zipContent, { encoding });
 }
 
 export async function createZippedExcelFile(reportName, data) {
   const folder = await tmpdir();
+  const excelFileName = `${reportName}.xlsx`;
   const excelFilePath = path.join(folder, `${reportName}.xlsx`);
   const zipFilePath = path.join(folder, `${reportName}.zip`);
   await writeExcelFile(data, excelFilePath);
-  await createZipFromFile(excelFilePath, zipFilePath);
+  await createZipFromFile(excelFileName, excelFilePath, zipFilePath);
   await removeFile(excelFilePath);
   return zipFilePath;
 }

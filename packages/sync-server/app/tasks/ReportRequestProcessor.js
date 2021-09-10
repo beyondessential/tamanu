@@ -58,7 +58,7 @@ export class ReportRequestProcessor extends ScheduledTask {
       try {
         const parameters = requestObject.parameters ? JSON.parse(requestObject.parameters) : {};
         const excelData = await reportDataGenerator(this.context.store.models, parameters);
-        zipFile = createZippedExcelFile(reportName, excelData);
+        zipFile = await createZippedExcelFile(reportName, excelData);
         const result = await this.context.emailService.sendEmail({
           from: config.mailgun.from,
           to: request.recipients,
@@ -67,9 +67,7 @@ export class ReportRequestProcessor extends ScheduledTask {
           attachment: zipFile,
         });
         if (result.status === COMMUNICATION_STATUSES.SENT) {
-          log.info(
-            `ReportRequestProcessorError - Sent report ${reportName} to ${request.recipients.length}`,
-          );
+          log.info(`ReportRequestProcessor - Sent report "${zipFile}" to "${request.recipients}"`);
           await request.update({
             status: REPORT_REQUEST_STATUSES.PROCESSED,
           });

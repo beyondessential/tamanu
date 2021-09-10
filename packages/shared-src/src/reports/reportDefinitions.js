@@ -38,6 +38,11 @@ export const REPORT_DEFINITIONS = [
     ],
   },
   {
+    name: 'COVID vaccine campaign - Line list',
+    id: 'covid-vaccine-list',
+    parameters: [{ parameterField: 'VillageField' }],
+  },
+  {
     name: 'COVID vaccine campaign - First dose summary',
     id: 'covid-vaccine-summary-dose1',
     allFacilities: true,
