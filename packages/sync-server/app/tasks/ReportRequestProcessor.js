@@ -4,6 +4,7 @@ import { COMMUNICATION_STATUSES, REPORT_REQUEST_STATUSES } from 'shared/constant
 import { getReportModule } from 'shared/reports';
 import { ScheduledTask } from 'shared/tasks';
 import { log } from 'shared/services/logging';
+import { createTupaiaApiClient, translateReportDataToSurveyResponses } from 'shared/utils';
 
 import { writeExcelFile } from '../utils/excel';
 import { createFilePathForEmailAttachment, removeFile } from '../utils/files';
@@ -34,8 +35,9 @@ export class ReportRequestProcessor extends ScheduledTask {
         return;
       }
 
-      const reportDataGenerator = getReportModule(request.reportType)?.dataGenerator;
-      if (!reportDataGenerator) {
+      const reportModule = getReportModule(request.reportType);
+      const reportDataGenerator = reportModule?.dataGenerator;
+      if (!reportModule || !reportDataGenerator) {
         log.error(
           `ReportRequestProcessorError - Unable to find report generator for report ${request.id} of type ${request.reportType}`,
         );
@@ -47,7 +49,12 @@ export class ReportRequestProcessor extends ScheduledTask {
 
       let reportData = null;
       try {
-        reportData = await reportDataGenerator(this.context.store.models, request.getParameters());
+        if (reportModule.needsTupaiaApiClient) {
+          if (!this.tupaiaApiClient) {
+            this.tupaiaApiClient = createTupaiaApiClient();
+          }
+        }
+        reportData = await reportDataGenerator(this.context.store.models, request.getParameters(), this.tupaiaApiClient));
       } catch (e) {
         log.error(`ReportRequestProcessorError - Failed to generate report, ${e.message}`);
         log.error(e.stack);
@@ -131,6 +138,20 @@ export class ReportRequestProcessor extends ScheduledTask {
    * @returns {Promise<void>}
    */
   async sendReportToTupaia(request, reportData) {
-    // TODO: implement
+    const reportConfig = config.reports?.[request.reportType];
+
+    if (!reportConfig) {
+      throw new Error('Report not configured');
+    }
+
+    const { surveyId } = reportConfig;
+
+    const translated = translateReportDataToSurveyResponses(surveyId, reportData);
+
+    if (!this.tupaiaApiClient) {
+      this.tupaiaApiClient = createTupaiaApiClient();
+    }
+
+    await this.tupaiaApiClient.meditrak.createSurveyResponses(translated);
   }
 }

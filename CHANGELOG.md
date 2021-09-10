@@ -4,7 +4,9 @@
 
 ### Manual steps required after upgrade ⚙
 
-- Add to samoa config.json:
+- Add to samoa `packages/sync-server/local.json`:
+- Add to test environment `packages/sync-server/local.json`:
+- Add to dev environment `packages/sync-server/local.json`:
 
 ```
 "tupaiaApiClient": {
