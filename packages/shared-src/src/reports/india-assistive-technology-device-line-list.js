@@ -4,7 +4,8 @@ const ADD_MOBILITY_PRODUCT_SURVEY_ID =
   'program-indiaassistivetechnologyproject-indiaaddmobilityproduct';
 const SELF_CARE_PRODUCT_SURVEY_ID =
   'program-indiaassistivetechnologyproject-indiaaddselfcareproduct';
-const ADD_VISION_PRODUCT_SURVEY_ID = 'program-indiaassistivetechnologyproject-indiaaddvisionproduct';
+const ADD_VISION_PRODUCT_SURVEY_ID =
+  'program-indiaassistivetechnologyproject-indiaaddvisionproduct';
 const REFER_TO_ANOTHER_SERVICE_SURVEY_ID =
   'program-indiaassistivetechnologyproject-indiarefertoanotherservice';
 const REGISTRATION_FORM_SURVEY_ID = 'program-indiaassistivetechnologyproject-indiaregistrationform';
@@ -37,13 +38,13 @@ const SURVEY_DATA_ELEMENT_IDS_LATEST_PER_PATIENT_PER_DATE = {
   otherAssistiveProduct: 'pde-IndPreMob-15',
   selfCareProductServiceProvider: 'pde-IndPreSC-2',
   dateOfProvision2: 'pde-IndPreSC-1',
-  toiletChair: 'pde-IndPreSC-7',
-  showerChair: 'pde-IndPreSC-8',
-  washableContinenceProducts: 'pde-IndPreSC-9',
-  allIn600Ml: 'pde-IndPreSC-10',
-  allIn600MlQuantity: 'pde-IndPreSC-11',
-  allIn1000Ml: 'pde-IndPreSC-12',
-  allIn1000MlQuantity: 'pde-IndPreSC-13',
+  toiletChair: 'pde-IndPreSC-6',
+  showerChair: 'pde-IndPreSC-7',
+  washableContinenceProducts: 'pde-IndPreSC-8',
+  allIn600Ml: 'pde-IndPreSC-9',
+  allIn600MlQuantity: 'pde-IndPreSC-10',
+  allIn1000Ml: 'pde-IndPreSC-11',
+  allIn1000MlQuantity: 'pde-IndPreSC-12',
   shapedTerryTowellingPant: 'pde-IndPreSC-14',
   shapedTerryTowellingPantQuantity: 'pde-IndPreSC-15',
   terryTowellingSquare: 'pde-IndPreSC-16',
@@ -86,8 +87,9 @@ const REPORT_COLUMN_TEMPLATE = [
     accessor: data => data.dateOfBirth,
   },
   { title: 'Age', accessor: data => data.age },
+  { title: 'Service provider (organization)', accessor: data => data.serviceProvider },
+  { title: 'Date of registration', accessor: data => data.dateOfRegistration },
   { title: 'Location (Urban/Rural)', accessor: data => data.location },
-
   {
     title: 'Difficulty with mobility/seeing/hearing etc',
     accessor: data => data.difficultyWithMobility,
@@ -167,8 +169,8 @@ const REPORT_COLUMN_TEMPLATE = [
   { title: 'Other, other service referrals', accessor: data => data.otherService },
 ];
 
-export const dataGenerator = async (models, parameters = {}) => {
-  return baseDataGenerator(
+export const dataGenerator = async (models, parameters = {}) =>
+  baseDataGenerator(
     models,
     parameters,
     SURVEY_IDS,
@@ -176,6 +178,5 @@ export const dataGenerator = async (models, parameters = {}) => {
     SURVEY_DATA_ELEMENT_IDS_LATEST_PER_PATIENT_PER_DATE,
     REPORT_COLUMN_TEMPLATE,
   );
-};
 
 export const permission = 'SurveyResponse';

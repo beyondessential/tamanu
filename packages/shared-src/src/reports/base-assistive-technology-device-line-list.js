@@ -125,7 +125,7 @@ const getPatientIdsByResponseDates = transformedAnswers => {
   // Group the combo objects above by response date
   const groupedPatientIdAndResponseDate = groupBy(
     patientIdAndResponseDateHavingAnswers,
-    'responseDate',
+    'patientId',
   );
 
   // Manipulate the grouped object into so we can iterate through to generate report data
@@ -136,11 +136,11 @@ const getPatientIdsByResponseDates = transformedAnswers => {
   //    ]
   // }
   const patientIdsHavingAnswersByResponseDates = {};
-  for (const [responseDate, patientIdAndResponseDateObjects] of Object.entries(
+  for (const [patientId, patientIdAndResponseDateObjects] of Object.entries(
     groupedPatientIdAndResponseDate,
   )) {
-    patientIdsHavingAnswersByResponseDates[responseDate] = patientIdAndResponseDateObjects.map(
-      ({ patientId }) => patientId,
+    patientIdsHavingAnswersByResponseDates[patientId] = patientIdAndResponseDateObjects.map(
+      ({ responseDate }) => responseDate,
     );
   }
   return patientIdsHavingAnswersByResponseDates;
@@ -173,9 +173,9 @@ export const dataGenerator = async (
 
   const reportData = [];
 
-  for (const [surveyResponseDate, patientIds] of Object.entries(patientIdsByResponseDates)) {
-    for (const patientId of patientIds) {
-      const patient = patientById[patientId];
+  for (const [patientId, surveyResponseDates] of Object.entries(patientIdsByResponseDates)) {
+    const patient = patientById[patientId];
+    for (const surveyResponseDate of surveyResponseDates) {
       if (!patient) {
         continue;
       }
