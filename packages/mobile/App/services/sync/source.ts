@@ -175,8 +175,9 @@ export class WebSyncSource implements SyncSource {
     return this.fetch(path, query, { method: 'GET' });
   }
 
-  async post(path: string, query: Record<string, string>, body) {
+  async post(path: string, query: Record<string, string>, body, options?: FetchOptions) {
     return this.fetch(path, query, {
+      ...options,
       method: 'POST',
       headers: {
         'Content-Type': 'application/json',
@@ -256,7 +257,7 @@ export class WebSyncSource implements SyncSource {
 
   async login(email: string, password: string): Promise<LoginResponse> {
     try {
-      const data = await this.post('login', {}, { email, password });
+      const data = await this.post('login', {}, { email, password }, { backoff: { maxAttempts: 1 } });
 
       if (!data.token || !data.user) {
         // auth failed in some other regard
