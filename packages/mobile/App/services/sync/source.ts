@@ -10,6 +10,8 @@ import {
 } from '~/services/auth/error';
 import { version } from '/root/package.json';
 
+import { callWithBackoff, callWithBackoffOptions } from './callWithBackoff';
+
 export type DownloadRecordsResponse = {
   count: number;
   cursor: string;
@@ -84,17 +86,18 @@ const createTimeoutPromise = (): TimeoutPromiseResponse => {
   return { promise, cleanup };
 };
 
-const fetchWithTimeout = async (url, config): Promise<Response> => {
+const fetchWithTimeout = async (url: string, config?: object): Promise<Response> => {
   const { cleanup, promise: timeoutPromise } = createTimeoutPromise();
   try {
     const response = await Promise.race([fetch(url, config), timeoutPromise]);
-    return response;
+    // assert type because timeoutPromise is guaranteed not to resolve unless cleaned up
+    return (response as Response);
   } finally {
     cleanup();
   }
 };
 
-const getResponseJsonSafely = async (response): Promise<Record<string, any>> => {
+const getResponseJsonSafely = async (response: Response): Promise<Record<string, any>> => {
   try {
     return response.json();
   } catch (e) {
@@ -102,6 +105,11 @@ const getResponseJsonSafely = async (response): Promise<Record<string, any>> => 
     console.error(e);
     return {};
   }
+};
+
+type FetchOptions = {
+  backoff?: callWithBackoffOptions;
+  [key: string]: any;
 };
 
 export class WebSyncSource implements SyncSource {
@@ -115,7 +123,11 @@ export class WebSyncSource implements SyncSource {
     this.host = host;
   }
 
-  async fetch(path: string, query: Record<string, string>, config) {
+  async fetch(
+    path: string,
+    query: Record<string, string>,
+    { backoff, ...config }: FetchOptions = {},
+  ) {
     if (!this.host) {
       throw new AuthenticationError('WebSyncSource.fetch: not connected to a host yet');
     }
@@ -129,10 +141,13 @@ export class WebSyncSource implements SyncSource {
       'X-Version': version,
       ...extraHeaders,
     };
-    const response = await fetchWithTimeout(url, {
-      ...config,
-      headers,
-    });
+    const response = await callWithBackoff(
+      () => fetchWithTimeout(url, {
+        ...config,
+        headers,
+      }),
+      backoff,
+    );
 
     if (response.status === 401) {
       throw new AuthenticationError(path.includes('/login') ? invalidUserCredentialsMessage : invalidTokenMessage);
