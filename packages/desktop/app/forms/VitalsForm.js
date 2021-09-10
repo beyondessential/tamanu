@@ -5,10 +5,9 @@ import * as yup from 'yup';
 import styled from 'styled-components';
 
 import { AVPU_OPTIONS } from 'shared/constants';
-import { Form, Field, DateField, NumberField, SelectField } from '../components/Field';
+import { Form, Field, DateTimeField, NumberField, SelectField } from '../components/Field';
 import { FormGrid } from '../components/FormGrid';
 import { ConfirmCancelRow } from '../components/ButtonRow';
-
 
 const BloodPressureFieldsContainer = styled.div`
   display: grid;
@@ -25,8 +24,9 @@ export class VitalsForm extends React.PureComponent {
     const { onCancel } = this.props;
     return (
       <FormGrid columns={2}>
-        <Field name="dateRecorded" label="Date recorded" component={DateField} />
-        <div />
+        <div style={{ gridColumn: 'span 2' }}>
+          <Field name="dateRecorded" label="Date recorded" component={DateTimeField} />
+        </div>
         <Field name="height" label="Height (cm)" component={NumberField} />
         <Field name="weight" label="Weight (kg)" component={NumberField} />
         <BloodPressureFieldsContainer>
