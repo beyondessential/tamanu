@@ -30,4 +30,11 @@ export class ReportRequestScheduler extends ScheduledTask {
 
     await ReportRequest.create(newReportRequest);
   }
+
+  /**
+   * @override
+   */
+  getName() {
+    return `${this.constructor.name} for ${this.options.reportType}`;
+  }
 }
