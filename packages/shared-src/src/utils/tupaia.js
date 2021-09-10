@@ -14,6 +14,8 @@ export const createTupaiaApiClient = () => {
 
   const { username, password } = config.tupaiaApiClient.auth;
 
+  if (!username || !password) throw new Error('Username and password required');
+
   const auth = new BasicAuthHandler(username, password);
 
   let baseUrls = null;
