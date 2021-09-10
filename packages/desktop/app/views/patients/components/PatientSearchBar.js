@@ -2,6 +2,7 @@ import React, { memo, useMemo, useCallback } from 'react';
 import styled from 'styled-components';
 import FingerprintIcon from '@material-ui/icons/Fingerprint';
 import SearchIcon from '@material-ui/icons/Search';
+import moment from 'moment';
 
 import { useLocalisation } from '../../../contexts/Localisation';
 import { Button, Form, Field, TextField, DateField, AutocompleteField } from '../../../components';
@@ -104,6 +105,11 @@ export const CustomisablePatientSearchBar = ({ title, onSearch, fields, ...props
         // enforce dotted text identifier instead of a nested object
         'village.id': village.id,
       };
+      // if filtering by date of birth exact, send the formatted date
+      // to the server instead of the date object
+      if (other.dateOfBirthExact) {
+        params.dateOfBirthExact = moment(other.dateOfBirthExact).format('YYYY-MM-DD');
+      }
       onSearch(params);
     },
     [onSearch],

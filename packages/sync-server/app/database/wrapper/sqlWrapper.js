@@ -26,47 +26,7 @@ export class SqlWrapper {
     await this.sequelize.close();
   }
 
-  buildChannelRouter() {
-    const channelRouter = wayfarer();
-    [
-      ['labTestType', this.models.LabTestType],
-      ['patient', this.models.Patient],
-      ['patient/:patientId/allergy', this.models.PatientAllergy],
-      ['patient/:patientId/carePlan', this.models.PatientCarePlan],
-      ['patient/:patientId/condition', this.models.PatientCondition],
-      ['patient/:patientId/encounter', this.models.Encounter],
-      ['patient/:patientId/familyHistory', this.models.PatientFamilyHistory],
-      ['patient/:patientId/issue', this.models.PatientIssue],
-      ['patient/:patientId/additionalData', this.models.PatientAdditionalData],
-      ['program', this.models.Program],
-      ['programDataElement', this.models.ProgramDataElement],
-      ['reference', this.models.ReferenceData],
-      ['scheduledVaccine', this.models.ScheduledVaccine],
-      ['survey', this.models.Survey],
-      ['surveyScreenComponent', this.models.SurveyScreenComponent],
-      ['user', this.models.User],
-      ['reportRequest', this.models.ReportRequest],
-      ['facility', this.models.Facility],
-      ['department', this.models.Department],
-      ['location', this.models.Location],
-      ['userFacility', this.models.UserFacility],
-      ['attachment', this.models.Attachment],
-      ['asset', this.models.Asset],
-    ].forEach(([route, model]) => {
-      this.builtRoutes.push(route);
-      // TODO: deprecate handlers
-      if (!model) {
-        throw new Error(`SqlWrapper: no model for route ${route}`);
-      }
-      const handler = new BasicHandler(model);
-      channelRouter.on(route, async (urlParams, f) => {
-        const params = { ...urlParams, route };
-        return f(handler, params, model);
-      });
-    });
-  } 
-
-  async countSince(channel, since) {
+  async countSince(channel, since, { limit } = {}) {
     return this.sequelize.channelRouter(channel, (model, params, channelRoute) => {
       const { where, include } = channelRoute.queryFromParams(params);
       return model.count({
@@ -75,6 +35,7 @@ export class SqlWrapper {
           [Op.and]: [syncCursorToWhereCondition(since), where],
         },
         include,
+        limit,
       });
     });
   }

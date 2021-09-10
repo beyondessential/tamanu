@@ -111,6 +111,7 @@ const rootLocalisationSchema = yup
     sync: {
       syncAllEncountersForTheseScheduledVaccines: yup.array(yup.string().required()).defined(),
     },
+    disabledReports: yup.array(yup.string().required()).defined(),
   })
   .required()
   .noUnknown();

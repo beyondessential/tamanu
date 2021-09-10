@@ -3,20 +3,16 @@ import { Op } from 'sequelize';
 import moment from 'moment';
 import { generateReportFromQueryData } from './utilities';
 import { LAB_REQUEST_STATUS_LABELS } from '../constants';
+import { transformAnswers } from './utilities/transformAnswers';
 
 const yieldControl = () => new Promise(resolve => setTimeout(resolve, 20));
-
-const MODEL_COLUMN_TO_ANSWER_DISPLAY_VALUE = {
-  User: 'displayName',
-  ReferenceData: 'name',
-};
 
 const FIJI_SAMP_SURVEY_ID = 'program-fijicovid19-fijicovidsampcollection';
 
 const RDT_RESULT_CODE = 'pde-FijCOVSamp43';
 
 const SURVEY_QUESTION_CODES = {
-  healthFacility: 'pde-FijCOVSamp4',
+  publicHealthFacility: 'pde-FijCOVSamp4',
   division: 'pde-FijCOVSamp6',
   subDivision: 'pde-FijCOVSamp7',
   ethnicity: 'pde-FijCOVSamp10',
@@ -45,16 +41,10 @@ const SURVEY_QUESTION_CODES = {
   rdtConducted: 'pde-FijCOVSamp42',
   rdtResult: RDT_RESULT_CODE,
   rdtDate: 'pde-FijCOVSamp52',
+  privateHealthFacility: 'pde-FijCOVSamp54',
   highRisk: 'pde-FijCOVSamp59',
   primaryContactHighRisk: 'pde-FijCOVSamp60',
   highRiskDetails: 'pde-FijCOVSamp61',
-};
-
-const SURVEY_DATE_QUESTION_CODES = {
-  admissionDate: 'pde-FijCOVSamp19',
-  dateOf1stDose: 'pde-FijCOVSamp39',
-  dateOf2ndDose: 'pde-FijCOVSamp40',
-  rdtDate: 'pde-FijCOVSamp52',
 };
 
 const reportColumnTemplate = [
@@ -92,7 +82,8 @@ const reportColumnTemplate = [
   { title: 'Priority', accessor: data => data.priority },
   { title: 'Testing laboratory', accessor: data => data.testingLaboratory },
   { title: 'Testing date', accessor: data => data.testingDate },
-  { title: 'Health facility', accessor: data => data.healthFacility },
+  { title: 'Public health facility', accessor: data => data.publicHealthFacility },
+  { title: 'Private health facility', accessor: data => data.privateHealthFacility },
   { title: 'Division', accessor: data => data.division },
   { title: 'Sub-division', accessor: data => data.subDivision },
   { title: 'Ethnicity', accessor: data => data.ethnicity },
@@ -221,69 +212,6 @@ const parametersToSurveyResponseSqlWhere = parameters => {
     }, defaultWhereClause);
 
   return whereClause;
-};
-
-const getTransformedAnswers = async (models, surveyResponseAnswers) => {
-  const components = await models.SurveyScreenComponent.getComponentsForSurvey(FIJI_SAMP_SURVEY_ID);
-
-  const autocompleteComponents = components
-    .filter(c => c.dataElement.dataValues.type === 'Autocomplete')
-    .map(({ dataElementId, config: componentConfig }) => [
-      dataElementId,
-      JSON.parse(componentConfig),
-    ]);
-  const autocompleteComponentMap = new Map(autocompleteComponents);
-
-  // Transform Autocomplete answers from: ReferenceData.id to ReferenceData.name
-  const transformedAnswers = await Promise.all(
-    surveyResponseAnswers
-      // Some questions in the front end are not answered but still record the answer as empty string in the database
-      // So we should filter any answers thare are empty.
-      .filter(answer => answer.body !== null && answer.body !== undefined && answer.body !== '')
-      .map(async answer => {
-        const surveyResponseId = answer.surveyResponse?.id;
-        const patientId = answer.surveyResponse?.encounter?.patientId;
-        const responseEndTime = answer.surveyResponse?.endTime;
-        const dataElementId = answer.dataElementId;
-        const body =
-          Object.values(SURVEY_DATE_QUESTION_CODES).includes(dataElementId) && answer.body
-            ? moment(answer.body).format('DD-MM-YYYY')
-            : answer.body;
-        const componentConfig = autocompleteComponentMap.get(dataElementId);
-        if (!componentConfig) {
-          return {
-            surveyResponseId,
-            patientId,
-            responseEndTime,
-            dataElementId,
-            body,
-          };
-        }
-
-        const result = await models[componentConfig.source].findByPk(body);
-        if (!result) {
-          return {
-            surveyResponseId,
-            patientId,
-            responseEndTime,
-            dataElementId,
-            body,
-          };
-        }
-
-        const answerDisplayValue =
-          result[MODEL_COLUMN_TO_ANSWER_DISPLAY_VALUE[componentConfig.source]];
-        return {
-          surveyResponseId,
-          patientId,
-          responseEndTime,
-          dataElementId,
-          body: answerDisplayValue,
-        };
-      }),
-  );
-
-  return transformedAnswers;
 };
 
 const getLabTests = async (models, parameters) => {
@@ -508,11 +436,13 @@ const getRdtPositiveSurveyResponseRecords = async (surveyResponses, transformedA
     const patientLastName = surveyResponse?.encounter?.patient?.lastName;
     const dob = surveyResponse?.encounter?.patient?.dateOfBirth;
     const sex = surveyResponse?.encounter?.patient?.sex;
+    const patientDisplayId = surveyResponse?.encounter?.patient?.displayId;
     const surveyResponseRecord = {
       firstName: patientFirstName,
       lastName: patientLastName,
       dob: dob ? moment(dob).format('DD-MM-YYYY') : '',
       sex,
+      patientId: patientDisplayId,
     };
     Object.entries(SURVEY_QUESTION_CODES).forEach(([key, dataElement]) => {
       surveyResponseRecord[key] = getAnswer(patientId, surveyResponse.id, dataElement);
@@ -529,7 +459,8 @@ export const dataGenerator = async (models, parameters = {}) => {
   const labTests = await getLabTests(models, parameters);
   const surveyResponses = await getSurveyResponses(models, parameters);
   const answers = await getFijiCovidAnswers(models, parameters);
-  const transformedAnswers = await getTransformedAnswers(models, answers);
+  const components = await models.SurveyScreenComponent.getComponentsForSurvey(FIJI_SAMP_SURVEY_ID);
+  const transformedAnswers = await transformAnswers(models, answers, components);
 
   const labTestRecords = await getLabTestRecords(labTests, transformedAnswers, parameters);
   const rdtSurveyResponseRecords = await getRdtPositiveSurveyResponseRecords(

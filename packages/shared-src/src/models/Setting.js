@@ -2,6 +2,7 @@ import { Sequelize } from 'sequelize';
 
 import { Model } from './Model';
 
+// originally added to support the same use case as localisation, will eventually be merged with it
 export class Setting extends Model {
   static init({ primaryKey, ...options }) {
     super.init(

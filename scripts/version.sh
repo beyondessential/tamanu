@@ -1,4 +1,5 @@
 #!/usr/bin/env bash
+set -euo pipefail
 
 VERSION=$1
 
@@ -29,6 +30,11 @@ version packages/shared-src/package.json
 version packages/shared/package.json
 version packages/meta-server/package.json
 version packages/scripts/package.json
+
+echo "Updating changelog"
+template=scripts/changelog_template.md
+sed -e "/## vNEXT/{r $template" -e "d}" CHANGELOG.md -i
+sed -e "s/## vJUSTNOW/## v$VERSION/g" CHANGELOG.md -i
 
 cat << EOF
 Don't forget to manually update the checks in:

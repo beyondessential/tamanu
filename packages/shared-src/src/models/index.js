@@ -1,5 +1,6 @@
 export * from './User';
 export * from './ChannelSyncPullCursor';
+export * from './LocalSystemFact';
 
 export * from './Patient';
 export * from './PatientFamilyHistory';

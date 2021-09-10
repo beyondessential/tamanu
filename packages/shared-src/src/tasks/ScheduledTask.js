@@ -21,7 +21,7 @@ export class ScheduledTask {
   async runImmediately() {
     const name = this.getName();
 
-    if(this.currentlyRunningTask) {
+    if (this.currentlyRunningTask) {
       this.log.info(`Not running ${name} (previous task still running)`);
       return;
     }
