@@ -13,6 +13,7 @@
 ## Tweaks ⚖️
 
 - Display AutoComplete field answer for Surveys
+- Added backoff algorithm
 
 ## Bug fixes 🐛
 
