@@ -107,7 +107,6 @@ export const DischargeForm = ({ practitionerSuggester, onCancel, onSubmit }) => 
     })();
   }, []);
 
-  console.log(dischargeNotes);
   const renderForm = ({ submitForm }) => {
     return (
       <div>
