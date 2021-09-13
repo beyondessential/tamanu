@@ -229,7 +229,7 @@ export const DumbLabRequestView = React.memo(({ patient }) => {
       <div>
         <TopBar title="Lab request">
           <div>
-            { false && <DeleteButton updateLabReq={updateLabReq} />}
+            { /* <DeleteButton updateLabReq={updateLabReq} /> */ }
             <ChangeLabStatusButton status={labRequest.status} updateLabReq={updateLabReq} />
             <ChangeLaboratoryButton
               laboratory={labRequest.laboratory}
