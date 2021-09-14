@@ -15,7 +15,14 @@
     "concurrentChannelChecks": 8
   },
   "loadshedder": {
-    // queues are matched sequentially
+    // paths are checked sequentially until a path matches a prefix
+    // (e.g. the path `/v1/sync/patient` would match the prefix `/v1/sync/`)
+    //
+    // if the path of a request matches a prefix it is added to that queue and
+    // may be dropped under heavy load
+    //
+    // if the path of a request matches nothing, the server never drops the
+    // request
     "queues": [
       // sync queue
       // (defaults to shedding requests for sync or attachments earlier than other requests)
