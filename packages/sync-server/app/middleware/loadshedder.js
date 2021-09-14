@@ -92,7 +92,10 @@ const normalisePath = path => (path.endsWith('/') ? path : `${path}/`);
 export const loadshedder = (options = config.loadshedder) => {
   const requestQueues = [];
   for (const queueOptions of options.queues) {
-    requestQueues.push([queueOptions.prefix, new RequestQueue(queueOptions)]);
+    const requestQueue = new RequestQueue(queueOptions);
+    for (const prefix of queueOptions.prefixes) {
+      requestQueues.push([prefix, requestQueue]);
+    }
   }
 
   return asyncHandler(async (req, res, next) => {

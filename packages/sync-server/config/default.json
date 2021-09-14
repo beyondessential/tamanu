@@ -15,18 +15,23 @@
     "concurrentChannelChecks": 8
   },
   "loadshedder": {
+    // queues are matched sequentially
     "queues": [
+      // sync queue
+      // (defaults to shedding requests for sync or attachments earlier than other requests)
       {
-        "prefix": "/v1/sync/",
+        "prefixes": ["/v1/sync/", "/v1/attachment/"],
         "maxActiveRequests": 4,
         "maxQueuedRequests": 8,
         "queueTimeout": 500
       },
+      // global queue for non-sync non-attachment requests
+      // (defaults to queueing more requests than sync/attachments and them shedding much later)
       {
-        "prefix": "/",
+        "prefixes": ["/"],
         "maxActiveRequests": 8,
-        "maxQueuedRequests": 16,
-        "queueTimeout": 1000
+        "maxQueuedRequests": 32,
+        "queueTimeout": 2000
       }
     ]
   },
