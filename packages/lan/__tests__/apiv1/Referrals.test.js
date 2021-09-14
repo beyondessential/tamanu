@@ -116,7 +116,7 @@ describe('Referrals', () => {
       locationId,
     });
 
-    const result = await app.get(`/v1/patient/${patient.id}/referrals`);
+    result = await app.get(`/v1/patient/${patient.id}/referrals`);
     expect(result).toHaveSucceeded();
     expect(result.body.count).toEqual(2);
   });
