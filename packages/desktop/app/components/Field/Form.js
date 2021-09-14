@@ -1,16 +1,16 @@
 import React from 'react';
-import { Formik, Field as FormikField, connect as formikConnect } from 'formik';
+import { Formik } from 'formik';
 import PropTypes from 'prop-types';
 import { Typography } from '@material-ui/core';
 
 import { Dialog } from '../Dialog';
 
-const ErrorMessage = ({ errors, name }) => `${errors[name]}`;
+const ErrorMessage = ({ error }) => `${JSON.stringify(error)}`;
 
 const FormErrors = ({ errors }) =>
-  Object.keys(errors).map(name => (
+  Object.entries(errors).map(([name, error]) => (
     <Typography key={name} variant="subtitle2">
-      <ErrorMessage errors={errors} name={name} />
+      <ErrorMessage error={error} />
     </Typography>
   ));
 
@@ -124,7 +124,7 @@ export class Form extends React.PureComponent {
     }
 
     return (
-      <React.Fragment>
+      <>
         <Formik
           onSubmit={onSubmit}
           validateOnChange={false}
@@ -142,7 +142,7 @@ export class Form extends React.PureComponent {
           headerTitle="Please fix below errors to continue"
           contentText={<FormErrors errors={validationErrors} />}
         />
-      </React.Fragment>
+      </>
     );
   }
 }
