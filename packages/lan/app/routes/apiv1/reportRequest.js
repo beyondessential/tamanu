@@ -33,9 +33,7 @@ reportRequest.post(
 
     const newReportRequest = {
       reportType: body.reportType,
-      recipients: JSON.stringify({
-        email: body.emailList,
-      }),
+      recipients: body.emailList.join(','),
       status: REPORT_REQUEST_STATUSES.RECEIVED,
       requestedByUserId: user.id,
       parameters: JSON.stringify(body.parameters),

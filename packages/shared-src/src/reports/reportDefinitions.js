@@ -53,11 +53,6 @@ export const REPORT_DEFINITIONS = [
     allFacilities: true,
   },
   {
-    name: 'COVID vaccine campaign daily summary by village',
-    id: 'covid-vaccine-daily-summary-village',
-    allFacilities: true,
-  },
-  {
     name: 'Adverse Event Following Immunization',
     id: 'aefi',
     parameters: [{ parameterField: 'VillageField' }],
