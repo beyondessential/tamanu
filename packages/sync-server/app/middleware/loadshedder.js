@@ -36,12 +36,15 @@ class RequestQueue {
   // if this function completes successfully, the caller MUST call the returned
   // `release` function, otherwise the queue will be blocked!
   async acquire() {
-    log.debug(
-      `RequestQueue.acquire(): queued=${this.queuedRequests.length}/${this.maxQueuedRequests} active=${this.activeRequestCount}/${this.maxActiveRequests} timeout=${this.queueTimeout}ms`,
-    );
+    const logEvent = name => {
+      log.debug(
+        `RequestQueue.acquire(): ${name}: queued=${this.queuedRequests.length}/${this.maxQueuedRequests} active=${this.activeRequestCount}/${this.maxActiveRequests} timeout=${this.queueTimeout}ms`,
+      );
+    };
 
     // reject requests once the request queue is full
     if (this.queuedRequests.length >= this.maxQueuedRequests) {
+      logEvent('rejected (queue exceeded)');
       throw new RequestQueueExceededError(
         'RequestQueue.acquire(): max queued requests exceeded (system may be under heavy load)',
       );
@@ -62,6 +65,7 @@ class RequestQueue {
           cancel: () => {
             clearTimeout(timeoutHandle);
             this.queuedRequests = this.queuedRequests.filter(j => j === request);
+            logEvent('rejected (timeout)');
             reject(
               new RequestQueueTimeoutError(
                 'RequestQueue.acquire(): timed out (system may be under heavy load)',
@@ -71,11 +75,13 @@ class RequestQueue {
         };
         timeoutHandle = setTimeout(request.cancel, this.queueTimeout);
         this.queuedRequests.push(request);
+        logEvent('queued');
       });
     }
 
     // acquire lock and return `release` function
     this.activeRequestCount += 1;
+    logEvent('activated');
     return () => {
       this.activeRequestCount -= 1;
       const request = this.queuedRequests.pop();
@@ -83,6 +89,7 @@ class RequestQueue {
       if (request) {
         request.start();
       }
+      logEvent('released');
     };
   }
 }
