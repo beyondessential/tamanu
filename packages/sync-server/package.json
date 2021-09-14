@@ -59,7 +59,7 @@
   "dependencies": {
     "@babel/polyfill": "^7.2.5",
     "@casl/ability": "^4.1.0",
-    "@tupaia/api-client": "2.0.2",
+    "@tupaia/api-client": "1.1.4",
     "argparse": "1.0.10",
     "await-to-js": "^2.0.1",
     "basic-auth": "^2.0.1",
