@@ -112,7 +112,7 @@ export const loadshedder = (options = config.loadshedder) => {
           }
         });
         release = await queue.acquire();
-        break;
+        break; // only match one queue, break out of the loop once it's done
       }
     }
     next();
