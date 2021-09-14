@@ -90,18 +90,18 @@ class RequestQueue {
 const normalisePath = path => (path.endsWith('/') ? path : `${path}/`);
 
 export const loadshedder = (options = config.loadshedder) => {
-  const requestQueues = [];
+  const prefixQueueTuples = [];
   for (const queueOptions of options.queues) {
-    const requestQueue = new RequestQueue(queueOptions);
+    const queue = new RequestQueue(queueOptions);
     for (const prefix of queueOptions.prefixes) {
-      requestQueues.push([prefix, requestQueue]);
+      prefixQueueTuples.push([prefix, queue]);
     }
   }
 
   return asyncHandler(async (req, res, next) => {
     const path = normalisePath(req.path);
     // iterate over request queues until we find a matching one
-    for (const [prefix, requestQueue] of requestQueues) {
+    for (const [prefix, queue] of prefixQueueTuples) {
       if (path.startsWith(prefix)) {
         // acquire a lock from the queue and release it when the request is disposed of
         let release = null;
@@ -111,7 +111,7 @@ export const loadshedder = (options = config.loadshedder) => {
             release();
           }
         });
-        release = await requestQueue.acquire();
+        release = await queue.acquire();
         break;
       }
     }
