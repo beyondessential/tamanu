@@ -2,9 +2,9 @@ import config from 'config';
 import {
   TupaiaApiClient,
   BasicAuthHandler,
-  LOCALHOST_BASE_URLS,
+  LOCALHOST_ENDPOINT_BASE_URLS,
   DEV_BASE_URLS,
-  PRODUCTION_BASE_URLS,
+  ENDPOINT_BASE_URLS,
 } from '@tupaia/api-client';
 
 export const createTupaiaApiClient = () => {
@@ -26,10 +26,10 @@ export const createTupaiaApiClient = () => {
       baseUrls = DEV_BASE_URLS;
       break;
     case 'local':
-      baseUrls = LOCALHOST_BASE_URLS;
+      baseUrls = LOCALHOST_ENDPOINT_BASE_URLS;
       break;
     case 'production':
-      baseUrls = PRODUCTION_BASE_URLS;
+      baseUrls = ENDPOINT_BASE_URLS;
       break;
     default:
       throw new Error('Must specify a valid tupaiaApiClient.environment');
