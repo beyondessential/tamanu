@@ -26,6 +26,7 @@ const SURVEY_DATA_ELEMENT_IDS_LATEST_PER_PATIENT = {
 const SURVEY_DATA_ELEMENT_IDS_LATEST_PER_PATIENT_PER_DATE = {
   mobilityProductServiceProvider: 'pde-PNGPreMob-3',
   dateOfProvision1: 'pde-PNGPreMob-1',
+  walkingStick: 'pde-PNGPreMob-5',
   underarmCrutches: 'pde-PNGPreMob-6',
   forearmCrutches: 'pde-PNGPreMob-7',
   walkingFrameSize: 'pde-PNGPreMob-8',
@@ -118,15 +119,15 @@ const REPORT_COLUMN_TEMPLATE = [
     accessor: data => data.showerChair,
   },
   { title: 'Washable Continence Products', accessor: data => data.washableContinenceProducts },
-  { title: 'All in one (Medium volume, 600ml)', accessor: data => data.allIn600Ml },
+  { title: 'All in one (Medium volume, 600ml)', accessor: data => data.allInOneMediumVolume600ml },
   {
     title: 'All in one (Medium volume, 600ml) quantity',
-    accessor: data => data.allIn600MlQuantity,
+    accessor: data => data.allInOneMediumVolume600mlQuantity,
   },
-  { title: 'All in one (Heavy volume, 1,000ml)', accessor: data => data.allIn1000Ml },
+  { title: 'All in one (Heavy volume, 1,000ml)', accessor: data => data.allInOneHeavyVolume1000ml },
   {
     title: 'All in one (Heavy volume, 1,000ml) quantity',
-    accessor: data => data.allIn1000MlQuantity,
+    accessor: data => data.allInOneHeavyVolume1000mlQuantity,
   },
   { title: 'Shaped terry towelling pant', accessor: data => data.shapedTerryTowellingPant },
   {
