@@ -5,9 +5,9 @@ import { log } from 'shared/services/logging';
 export default function errorHandler(error, req, res, _) {
   const code = getCodeForErrorName(error.name);
   if (code >= 500) {
-    log.error(`Error ${code}`, error);
+    log.error(`Error ${code}: `, error);
   } else {
-    log.info(`Error ${code}`, error);
+    log.info(`Error ${code}: `, error);
   }
 
   // we're past the point of permission checking; this just
