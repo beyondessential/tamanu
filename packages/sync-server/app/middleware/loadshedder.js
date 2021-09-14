@@ -42,16 +42,17 @@ class RequestQueue {
       );
     };
 
-    // reject requests once the request queue is full
-    if (this.queuedRequests.length >= this.maxQueuedRequests) {
-      logEvent('rejected (queue exceeded)');
-      throw new RequestQueueExceededError(
-        'RequestQueue.acquire(): max queued requests exceeded (system may be under heavy load)',
-      );
-    }
-
-    // queue requests once active request pool is full
+    // attempt to queue requests once active request pool is full
     if (this.activeRequestCount >= this.maxActiveRequests) {
+      // reject requests once the request queue is full
+      if (this.queuedRequests.length >= this.maxQueuedRequests) {
+        logEvent('rejected (queue exceeded)');
+        throw new RequestQueueExceededError(
+          'RequestQueue.acquire(): max queued requests exceeded (system may be under heavy load)',
+        );
+      }
+
+      // otherwise, block until an active request completes
       await new Promise((resolve, reject) => {
         let timeoutHandle = null;
         const request = {
