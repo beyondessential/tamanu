@@ -11,7 +11,9 @@ export class ForbiddenError extends BaseError {}
 export class InvalidOperationError extends BaseError {}
 export class InvalidParameterError extends BaseError {}
 export class InappropriateEndpointError extends BaseError {}
-export class RemoteTimeoutError extends BaseError {};
+export class RemoteTimeoutError extends BaseError {}
+export class RequestQueueTimeoutError extends Error {}
+export class RequestQueueExceededError extends Error {}
 
 export function getCodeForErrorName(name) {
   switch (name) {
@@ -36,9 +38,12 @@ export function getCodeForErrorName(name) {
     case 'RemoteTimeoutError':
       // remote server timed out
       return 504;
+    case 'RequestQueueTimeoutError':
+    case 'RequestQueueExceededError':
+      // load shedder kicked in
+      return 503;
     default:
       // error isn't otherwise caught - this is a problem with the server
       return 500;
   }
 }
-

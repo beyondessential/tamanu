@@ -14,6 +14,22 @@
   "sync": {
     "concurrentChannelChecks": 8
   },
+  "loadshedder": {
+    "queues": [
+      {
+        "prefix": "/v1/sync/",
+        "maxActiveRequests": 4,
+        "maxQueuedRequests": 8,
+        "queueTimeout": 500
+      },
+      {
+        "prefix": "/",
+        "maxActiveRequests": 8,
+        "maxQueuedRequests": 16,
+        "queueTimeout": 1000
+      }
+    ]
+  },
   "auth": {
     "saltRounds": 12,
     "tokenDuration": "1h",
