@@ -6,7 +6,7 @@ import { RequestQueueTimeoutError, RequestQueueExceededError } from 'shared/erro
 
 // helper class which defines a queue of requests and can shed load if the queue
 // grows too large
-class RequestQueue {
+export class RequestQueue {
   activeRequestCount = 0;
 
   // filtering an array is faster than deleting an item from a hash for small
