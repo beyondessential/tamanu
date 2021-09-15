@@ -30,6 +30,9 @@ describe('Appointments', () => {
   it('should list appointments', async () => {
     const result = await userApp.get('/v1/appointments');
     expect(result).toHaveSucceeded();
-    expect(result.body).toEqual([{foo: 'bar'}]);
+    expect(result.body.count).toEqual(1);
+    // verify that the appointment returned is the one created above
+    expect(result.body.data[0].patientId).toEqual(patient.id);
+    expect(result.body.data[0].clinicianId).toEqual(userApp.user.dataValues.id);
   });
 });
