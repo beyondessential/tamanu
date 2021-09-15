@@ -7,6 +7,7 @@ describe('Appointments', () => {
   let models;
   let userApp;
   let patient;
+  let appointment;
 
   beforeAll(async () => {
     const ctx = await createTestContext();
@@ -21,6 +22,7 @@ describe('Appointments', () => {
       startTime: randomDate(),
       clinicianId: userApp.user.dataValues.id,
     });
+    appointment = result.body;
     expect(result).toHaveSucceeded();
     expect(result.body.patientId).toEqual(patient.id);
     expect(result.body.status).toEqual(APPOINTMENT_STATUSES.CONFIRMED);
@@ -32,7 +34,11 @@ describe('Appointments', () => {
     expect(result).toHaveSucceeded();
     expect(result.body.count).toEqual(1);
     // verify that the appointment returned is the one created above
-    expect(result.body.data[0].patientId).toEqual(patient.id);
-    expect(result.body.data[0].clinicianId).toEqual(userApp.user.dataValues.id);
+    expect(result.body.data[0].id).toEqual(appointment.id);
+  });
+  it('should delete an appointment', async () => {
+    const result = await userApp.delete(`/v1/appointments/${appointment.id}`);
+    expect(result).toHaveSucceeded();
+    expect(result.body).toEqual({});
   });
 });
