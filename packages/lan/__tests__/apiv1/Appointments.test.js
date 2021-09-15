@@ -1,6 +1,6 @@
 import { createDummyPatient, randomDate } from 'shared/demoData/patients';
-import { createTestContext } from '../utilities';
 import { APPOINTMENT_TYPES, APPOINTMENT_STATUSES } from 'shared/constants';
+import { createTestContext } from '../utilities';
 
 describe('Appointments', () => {
   let baseApp;
@@ -26,5 +26,10 @@ describe('Appointments', () => {
     expect(result.body.status).toEqual(APPOINTMENT_STATUSES.CONFIRMED);
     expect(result.body.type).toEqual(APPOINTMENT_TYPES.STANDARD);
     expect(result.body.clinicianId).toEqual(userApp.user.dataValues.id);
+  });
+  it('should list appointments', async () => {
+    const result = await userApp.get('/v1/appointments');
+    expect(result).toHaveSucceeded();
+    expect(result.body).toEqual([{foo: 'bar'}]);
   });
 });
