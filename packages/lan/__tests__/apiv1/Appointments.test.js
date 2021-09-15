@@ -1,5 +1,6 @@
 import { createDummyPatient, randomDate } from 'shared/demoData/patients';
 import { createTestContext } from '../utilities';
+import { APPOINTMENT_TYPES, APPOINTMENT_STATUSES } from 'shared/constants';
 
 describe('Appointments', () => {
   let baseApp;
@@ -18,13 +19,12 @@ describe('Appointments', () => {
     const result = await userApp.post('/v1/appointments').send({
       patientId: patient.id,
       startTime: randomDate(),
+      clinicianId: userApp.user.dataValues.id,
     });
     expect(result).toHaveSucceeded();
-    expect(result.body).toEqual({
-      id: 'testId',
-      startTime: 'starttime',
-      type: 'standard',
-      status: 'confirmed,'
-    });
+    expect(result.body.patientId).toEqual(patient.id);
+    expect(result.body.status).toEqual(APPOINTMENT_STATUSES.CONFIRMED);
+    expect(result.body.type).toEqual(APPOINTMENT_TYPES.STANDARD);
+    expect(result.body.clinicianId).toEqual(userApp.user.dataValues.id);
   });
 });
