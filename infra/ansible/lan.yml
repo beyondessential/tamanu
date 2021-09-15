@@ -1,0 +1,15 @@
+---
+- name: Lan Server
+  hosts: ec2
+  tasks:
+  # Install nodejs
+  - name: Ensure Nodejs is installed via Chocolatey
+    win_chocolatey:
+      name: nodejs
+      version: 12.22.6
+      state: present
+  - name: Ensure PostgreSQL is installed via Chocolatey
+    win_chocolatey:
+      name: postgresql
+      version: 12.8.1
+      state: present
