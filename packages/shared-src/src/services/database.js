@@ -103,7 +103,7 @@ export async function initDatabase(dbOptions) {
   } = dbOptions;
 
   const sequelize = await connectToDatabase(dbOptions);
-  
+
   // set configuration variables for individual models
   models.User.SALT_ROUNDS = saltRounds;
 
@@ -112,12 +112,12 @@ export async function initDatabase(dbOptions) {
   // in favour of calling sequelize.sync() during test mode)
   sequelize.migrate = async options => {
     if (sqlitePath) {
-      log.info("Syncing sqlite schema...");
+      log.info('Syncing sqlite schema...');
       await sequelize.sync();
       return;
     }
 
-    return migrate(log, sequelize, options);
+    await Promise.resolve(migrate(log, sequelize, options));
   };
 
   sequelize.assertUpToDate = async options => {
