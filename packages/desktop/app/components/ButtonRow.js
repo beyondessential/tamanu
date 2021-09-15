@@ -2,7 +2,6 @@ import React from 'react';
 import styled from 'styled-components';
 
 import { Button } from './Button';
-import { Colors } from '../constants';
 
 const Row = styled.div`
   display: grid;
