@@ -117,7 +117,7 @@ export async function initDatabase(dbOptions) {
       return;
     }
 
-    await Promise.resolve(migrate(log, sequelize, options));
+    await migrate(log, sequelize, options);
   };
 
   sequelize.assertUpToDate = async options => {
