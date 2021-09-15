@@ -40,5 +40,8 @@ describe('Appointments', () => {
     const result = await userApp.delete(`/v1/appointments/${appointment.id}`);
     expect(result).toHaveSucceeded();
     expect(result.body).toEqual({});
+    const getResult = await userApp.get('/v1/appointments');
+    expect(getResult).toHaveSucceeded();
+    expect(getResult.body.count).toEqual(0);
   });
 });
