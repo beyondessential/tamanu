@@ -1,4 +1,4 @@
-import { createDummyPatient } from 'shared/demoData/patients';
+import { createDummyPatient, randomDate } from 'shared/demoData/patients';
 import { createTestContext } from '../utilities';
 
 describe('Appointments', () => {
@@ -17,8 +17,14 @@ describe('Appointments', () => {
   it('should create a new appointment', async () => {
     const result = await userApp.post('/v1/appointments').send({
       patientId: patient.id,
+      startTime: randomDate(),
     });
     expect(result).toHaveSucceeded();
-    // expect(result.body.)
+    expect(result.body).toEqual({
+      id: 'testId',
+      startTime: 'starttime',
+      type: 'standard',
+      status: 'confirmed,'
+    });
   });
 });
