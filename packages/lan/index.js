@@ -1,14 +1,13 @@
 import config from 'config';
+
 import { log } from 'shared/services/logging';
 import { parseArguments } from 'shared/arguments';
-import { initDatabase } from './app/database';
+
+import { initDatabase, performDatabaseIntegrityChecks } from './app/database';
 import { addPatientMarkForSyncHook, SyncManager, WebRemote } from './app/sync';
-
 import { createApp } from './app/createApp';
-
 import { startScheduledTasks } from './app/tasks';
 import { startDataChangePublisher } from './app/DataChangePublisher';
-
 import { listenForServerQueries } from './app/discovery';
 
 import { version } from './package.json';
@@ -16,13 +15,13 @@ import { version } from './package.json';
 async function serve(options) {
   log.info(`Starting facility server version ${version}.`);
 
-  const context = await initDatabase();
-
+  const context = await initDatabase(options);
   if (config.db.sqlitePath || config.db.migrateOnStartup) {
     await context.sequelize.migrate({ migrateDirection: 'up' });
   } else {
     await context.sequelize.assertUpToDate(options);
   }
+  await performDatabaseIntegrityChecks(context);
 
   context.remote = new WebRemote(context);
   context.remote.connect(); // preemptively connect remote to speed up sync
@@ -56,7 +55,7 @@ async function migrate(options) {
 async function report(options) {
   const context = await initDatabase();
   // going via inline import rather than top-level just to keep diff footprint small during a hotfix
-  // should be fine to pull to the top level 
+  // should be fine to pull to the top level
   const { getReportModule } = await import('shared/reports');
   const module = getReportModule(options.name);
   log.info(`Running report ${options.name} (with empty parameters)`);

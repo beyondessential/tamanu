@@ -61,6 +61,9 @@ export async function remoteLogin(models, email, password) {
       email,
       password,
     },
+    backoff: {
+      maxAttempts: 1,
+    },
   });
 
   // we've logged in as a valid remote user - update local database to match
@@ -172,6 +175,11 @@ async function getUserFromToken(request) {
 export const authMiddleware = async (req, res, next) => {
   try {
     req.user = await getUserFromToken(req);
+    req.getLocalisation = async () =>
+      req.models.UserLocalisationCache.getLocalisation({
+        where: { userId: req.user.id },
+        order: [['createdAt', 'DESC']],
+      });
     next();
   } catch (e) {
     next(e);

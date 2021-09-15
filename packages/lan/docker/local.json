@@ -4,7 +4,8 @@
     "name": "tamanu-lan",
     "username": "tamanu-lan",
     "password": "tamanu-lan",
-    "sqlitePath": null
+    "sqlitePath": null,
+    "migrateOnStartup": true
   },
   "sync": {
     "host": "http://sync-server:3000",

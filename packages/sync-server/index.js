@@ -35,7 +35,7 @@ async function serve(store, options) {
   log.info(`Starting sync server version ${version}.`);
 
   if (config.db.migrateOnStartup) {
-    await store.sequelize.migrate({ migrateDirection: "up" });
+    await store.sequelize.migrate({ migrateDirection: 'up' });
   } else {
     await store.sequelize.assertUpToDate(options);
   }

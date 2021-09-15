@@ -1,6 +1,7 @@
 import React, { useEffect } from 'react';
 
 import { Certificate, Spacer, Table } from './Print/Certificate';
+import { DateDisplay } from './DateDisplay';
 
 export const ImmunisationCertificate = ({ patient, immunisations }) => {
   const [hasEditedRecord, setHasEditedRecord] = React.useState(false);
@@ -42,7 +43,7 @@ export const ImmunisationCertificate = ({ patient, immunisations }) => {
               <td>{immunisation.scheduledVaccine?.schedule}</td>
               <td>{immunisation.encounter?.location?.name || ''}</td>
               <td>{immunisation.encounter?.examiner?.displayName || ''}</td>
-              <td>{new Date(immunisation.date).toLocaleDateString()}</td>
+              <td><DateDisplay date={immunisation.date} /></td>
             </tr>
           ))}
         </tbody>

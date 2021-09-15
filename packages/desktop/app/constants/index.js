@@ -374,3 +374,8 @@ export const VACCINE_STATUS = {
   OVERDUE: 'OVERDUE',
   RECORDED_IN_ERROR: 'RECORDED_IN_ERROR',
 };
+
+export const REPORT_DATA_SOURCES = {
+  THIS_FACILITY: 'thisFacility',
+  ALL_FACILITIES: 'allFacilities',
+};

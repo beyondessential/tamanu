@@ -14,7 +14,14 @@ import { SURVEY_TYPES } from 'shared/constants';
 import { getAnswersFromData, getActionsFromData } from '../../utils';
 
 const DumbSurveyFlow = React.memo(
-  ({ onFetchSurvey, onSubmitSurvey, onFetchProgramsList, onFetchSurveysList, patient, currentUser }) => {
+  ({
+    onFetchSurvey,
+    onSubmitSurvey,
+    onFetchProgramsList,
+    onFetchSurveysList,
+    patient,
+    currentUser,
+  }) => {
     const [survey, setSurvey] = React.useState(null);
     const [programsList, setProgramsList] = React.useState(null);
     const [startTime, setStartTime] = React.useState(null);
@@ -37,14 +44,15 @@ const DumbSurveyFlow = React.memo(
     });
 
     const onSubmit = useCallback(
-      data => onSubmitSurvey({
-        surveyId: survey.id,
-        startTime: startTime,
-        patientId: patient.id,
-        endTime: new Date(),
-        answers: getAnswersFromData(data, survey),
-        actions: getActionsFromData(data, survey),
-      }),
+      data =>
+        onSubmitSurvey({
+          surveyId: survey.id,
+          startTime: startTime,
+          patientId: patient.id,
+          endTime: new Date(),
+          answers: getAnswersFromData(data, survey),
+          actions: getActionsFromData(data, survey),
+        }),
       [startTime, survey, patient],
     );
 
@@ -62,7 +70,15 @@ const DumbSurveyFlow = React.memo(
       );
     }
 
-    return <SurveyView onSubmit={onSubmit} survey={survey} onCancel={onCancelSurvey} patient={patient} currentUser={currentUser} />;
+    return (
+      <SurveyView
+        onSubmit={onSubmit}
+        survey={survey}
+        onCancel={onCancelSurvey}
+        patient={patient}
+        currentUser={currentUser}
+      />
+    );
   },
 );
 

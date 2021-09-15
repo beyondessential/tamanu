@@ -1,6 +1,7 @@
 import express from 'express';
 import asyncHandler from 'express-async-handler';
 import { QueryTypes } from 'sequelize';
+import { isEqual } from 'lodash';
 import moment from 'moment';
 
 import { NotFoundError } from 'shared/errors';
@@ -63,10 +64,14 @@ patientRoute.put(
     });
 
     if (!patientAdditionalData) {
-      await PatientAdditionalData.create({
-        ...requestBodyToRecord(req.body),
-        patientId: patient.id,
-      });
+      // Do not try to create patient additional data if all we're trying to update is markedForSync = true to 
+      // sync down patient because PatientAdditionalData will be automatically synced down along with Patient
+      if (!isEqual(req.body, { markedForSync: true })) {
+        await PatientAdditionalData.create({
+          ...requestBodyToRecord(req.body),
+          patientId: patient.id,
+        });
+      }
     } else {
       await patientAdditionalData.update(requestBodyToRecord(req.body));
     }
@@ -285,7 +290,11 @@ patientRoute.get(
       });
 
     const filters = [
-      makeFilter(filterParams.displayId, `patients.display_id = :displayId`),
+      makeFilter(
+        filterParams.displayId,
+        `UPPER(patients.display_id) LIKE UPPER(:displayId)`,
+        ({ displayId }) => ({ displayId: `%${displayId}%` }),
+      ),
       makeFilter(
         filterParams.firstName,
         `UPPER(patients.first_name) LIKE UPPER(:firstName)`,
@@ -338,7 +347,7 @@ patientRoute.get(
         filterParams.dateOfBirthExact,
         `DATE(patients.date_of_birth) = :dateOfBirthExact`,
         ({ dateOfBirthExact }) => ({
-          dateOfBirthExact: moment(new Date(dateOfBirthExact)).format('YYYY-MM-DD'),
+          dateOfBirthExact,
         }),
       ),
       makeFilter(filterParams.villageId, `patients.village_id = :villageId`),

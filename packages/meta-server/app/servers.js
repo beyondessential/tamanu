@@ -16,7 +16,6 @@ const servers = [
   { name: 'Demo (Nauru)', type: 'live', host: 'https://sync-demo-nauru.tamanu.io' },
   { name: 'Stress testing', type: 'dev', host: 'https://sync-stress-test.tamanu.io' },
   { name: 'Fiji', type: 'live', host: 'https://sync.tamanu-fiji.org' },
-  { name: 'Tonga', type: 'live', host: 'https://tonga.tamanu.io' },
   { name: 'Samoa', type: 'live', host: 'https://tamanu-sync.health.gov.ws' },
   {
     name: 'Motivation Australia - Iraq',
