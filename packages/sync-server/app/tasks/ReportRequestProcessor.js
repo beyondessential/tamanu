@@ -16,7 +16,7 @@ export class ReportRequestProcessor extends ScheduledTask {
 
   constructor(context) {
     // run at 30 seconds interval, process 10 report requests each time
-    super('*/30 * * * * *', log);
+    super(config.schedules.reportRequestProcessor, log);
     this.context = context;
   }
 

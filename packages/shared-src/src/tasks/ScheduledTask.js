@@ -3,7 +3,9 @@ import { scheduleJob } from 'node-schedule';
 export class ScheduledTask {
 
   getName() {
-    return 'Unnamed scheduled task (override getName)';
+    // Note that this.constructor.name will only work in dev,
+    // but this error should only be encountered in dev
+    throw new Error(`ScheduledTask::getName not overridden for ${this.constructor.name}`);
   }
 
   constructor(schedule, log) {
