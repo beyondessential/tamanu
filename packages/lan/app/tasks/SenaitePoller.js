@@ -18,6 +18,11 @@ function formatForSenaite(datetime) {
 }
 
 export class SenaitePoller extends ScheduledTask {
+
+  getName() {
+    return 'SenaitePoller';
+  }
+
   constructor(database) {
     super('*/1 * * * *', log); // run every 1 minute
     this.jar = jar(); // separate cookie store

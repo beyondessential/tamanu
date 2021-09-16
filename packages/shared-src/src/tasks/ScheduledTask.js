@@ -1,9 +1,9 @@
 import { scheduleJob } from 'node-schedule';
 
 export class ScheduledTask {
+
   getName() {
-    // get class name from reflection
-    return this.constructor.name;
+    return 'Unnamed scheduled task (override getName)';
   }
 
   constructor(schedule, log) {
