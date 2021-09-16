@@ -52,6 +52,28 @@
 
 ### Features ⭐
 
+- (left blank)
+
+### Tweaks ⚖️
+
+- (left blank)
+
+### Bug fixes 🐛
+
+- (left blank)
+
+### Infrastructure and maintenance 🛠
+
+- (left blank)
+
+## v1.8.0
+
+### Manual steps required after upgrade ⚙
+
+- (left blank)
+
+### Features ⭐
+
 - Add registered patients line-list report
 - Add India assistive technology device line list report
 - Add Iraq assistive technology device line list report
