@@ -5,5 +5,22 @@
   },
   "log": {
     "consoleLevel": "debug"
-  }
+  },
+  "tupaiaApiClient": {
+    "auth": {
+      "username": "tamanu-server@tupaia.org",
+      "password": ""
+    },
+    "environment": "dev"
+  },
+  "scheduledReports": [
+    {
+      "reportType": "covid-vaccine-daily-summary-village",
+      "schedule": "0 12,17 * * *",
+      "parameters": {},
+      "recipients": {
+        "tupaia": true
+      }
+    }
+  ]
 }
