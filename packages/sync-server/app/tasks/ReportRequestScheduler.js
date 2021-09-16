@@ -10,6 +10,11 @@ import { ReportRequest } from 'shared/models';
  * Runs on a schedule
  */
 export class ReportRequestScheduler extends ScheduledTask {
+
+  getName() {
+    return `ReportRequestScheduler for ${this.options.reportType}`;
+  }
+
   constructor(context, options) {
     const { schedule } = options;
     super(schedule, log);
@@ -31,10 +36,4 @@ export class ReportRequestScheduler extends ScheduledTask {
     await ReportRequest.create(newReportRequest);
   }
 
-  /**
-   * @override
-   */
-  getName() {
-    return `${this.constructor.name} for ${this.options.reportType}`;
-  }
 }

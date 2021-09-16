@@ -8,10 +8,15 @@ import { createTupaiaApiClient, translateReportDataToSurveyResponses } from 'sha
 
 import { removeFile, createZippedExcelFile } from '../utils/files';
 
-// run at 30 seconds interval, process 10 report requests each time
 export class ReportRequestProcessor extends ScheduledTask {
+
+  getName() {
+    return 'ReportRequestProcessor';
+  }
+
   constructor(context) {
-    super('*/30 * * * * *', log);
+    // run at 30 seconds interval, process 10 report requests each time
+    super(config.schedules.reportRequestProcessor, log);
     this.context = context;
   }
 
