@@ -7,7 +7,7 @@ import moment from 'moment';
 import { useLocalisation } from '../../../contexts/Localisation';
 import { Button, Form, Field, TextField, DateField, AutocompleteField } from '../../../components';
 import { Colors } from '../../../constants';
-import { connectApi } from '../../../api';
+import { useApi } from '../../../api';
 import { Suggester } from '../../../utils/suggester';
 
 const Container = styled.div`
@@ -96,7 +96,13 @@ const RightSection = styled(Section)`
   border-left: 1px solid ${Colors.outline};
 `;
 
-export const CustomisablePatientSearchBar = ({ title, onSearch, fields, ...props }) => {
+export const CustomisablePatientSearchBar = ({
+  title,
+  onSearch,
+  fields,
+  initialValues = {},
+  ...props
+}) => {
   // We can't use onSearch directly as formik will call it with an unwanted second param
   const handleSearch = useCallback(
     ({ village = {}, ...other }) => {
@@ -140,8 +146,8 @@ export const CustomisablePatientSearchBar = ({ title, onSearch, fields, ...props
     [getLocalisation, fields, props],
   );
 
-  const renderSearchBar = React.useCallback(
-    ({ submitForm }) => (
+  const renderSearchBar = useCallback(
+    ({ submitForm, resetForm }) => (
       <div>
         <SearchInputContainer>{fieldElements}</SearchInputContainer>
         <Button
@@ -154,6 +160,13 @@ export const CustomisablePatientSearchBar = ({ title, onSearch, fields, ...props
           <PaddedSearchIcon />
           Search
         </Button>
+        <Button
+          style={{ marginTop: 10, marginLeft: '1rem' }}
+          onClick={resetForm}
+          variant="outlined"
+        >
+          Clear Search
+        </Button>
       </div>
     ),
     [fields],
@@ -163,7 +176,7 @@ export const CustomisablePatientSearchBar = ({ title, onSearch, fields, ...props
     <Container>
       <Section>
         <SectionLabel>{title}</SectionLabel>
-        <Form onSubmit={handleSearch} render={renderSearchBar} />
+        <Form onSubmit={handleSearch} render={renderSearchBar} initialValues={initialValues} />
       </Section>
       <RightSection>
         <ScanFingerprintButton />
@@ -173,26 +186,27 @@ export const CustomisablePatientSearchBar = ({ title, onSearch, fields, ...props
   );
 };
 
-const DumbPatientSearchBar = props => (
-  <CustomisablePatientSearchBar
-    title="Search for patients"
-    fields={[
-      ['firstName'],
-      ['lastName'],
-      ['culturalName'],
-      ['villageId', { suggesterKey: 'villageSuggester', component: AutocompleteField }],
-      ['displayId'],
-      ['dateOfBirthFrom', { localisationLabel: 'shortLabel', component: DateField }],
-      ['dateOfBirthTo', { localisationLabel: 'shortLabel', component: DateField }],
-      [
-        'dateOfBirthExact',
-        { localisationLabel: 'shortLabel', placeholder: 'DOB exact', component: DateField },
-      ],
-    ]}
-    {...props}
-  />
-);
-
-export const PatientSearchBar = connectApi(api => ({
-  villageSuggester: new Suggester(api, 'village'),
-}))(DumbPatientSearchBar);
+export const PatientSearchBar = props => {
+  const api = useApi();
+  const villageSuggester = new Suggester(api, 'village');
+  return (
+    <CustomisablePatientSearchBar
+      title="Search for patients"
+      fields={[
+        ['firstName'],
+        ['lastName'],
+        ['culturalName'],
+        ['villageId', { suggesterKey: 'villageSuggester', component: AutocompleteField }],
+        ['displayId'],
+        ['dateOfBirthFrom', { localisationLabel: 'shortLabel', component: DateField }],
+        ['dateOfBirthTo', { localisationLabel: 'shortLabel', component: DateField }],
+        [
+          'dateOfBirthExact',
+          { localisationLabel: 'shortLabel', placeholder: 'DOB exact', component: DateField },
+        ],
+      ]}
+      villageSuggester={villageSuggester}
+      {...props}
+    />
+  );
+};
