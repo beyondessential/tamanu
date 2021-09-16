@@ -72,7 +72,7 @@ export async function assertUpToDate(log, sequelize, options) {
   }
 }
 
-export function migrate(log, sequelize, options) {
+export async function migrate(log, sequelize, options) {
   const {
     migrateDirection = "up",
   } = options;
@@ -82,6 +82,9 @@ export function migrate(log, sequelize, options) {
       return migrateUp(log, sequelize);
     case "down":
       return migrateDown(log, sequelize);
+    case "redoLatest":
+      await migrateDown(log, sequelize);
+      return migrateUp(log, sequelize);
     default:
       throw new Error(`Unrecognised migrate direction: ${options.migrateDirection}`);
   }
