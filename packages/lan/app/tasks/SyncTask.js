@@ -6,6 +6,10 @@ import { log } from 'shared/services/logging';
 export class SyncTask extends ScheduledTask {
   context = null;
 
+  getName() { 
+    return 'SyncTask';
+  }
+
   constructor(context) {
     super(config.sync.schedule, log);
     this.context = context;
