@@ -9,7 +9,7 @@ const DAY = HOUR * 24;
 
 const chance = new Chance();
 
-function randomDate(minDaysAgo = 1, maxDaysAgo = 365) {
+export function randomDate(minDaysAgo = 1, maxDaysAgo = 365) {
   const ago = chance.natural({ min: DAY * minDaysAgo, max: DAY * maxDaysAgo });
   return new Date(Date.now() - ago);
 }

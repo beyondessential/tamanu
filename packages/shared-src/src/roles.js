@@ -152,6 +152,11 @@ export const practitioner = (user, allow, forbid) => {
 
   allow('list', 'Attachment');
   allow('read', 'Attachment');
+
+  allow('list', 'Appointment');
+  allow('read', 'Appointment');
+  allow('write', 'Appointment');
+  allow('create', 'Appointment');
 };
 
 export const admin = (user, allow, forbid) => {
