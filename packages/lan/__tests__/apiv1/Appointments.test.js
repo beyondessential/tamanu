@@ -41,7 +41,7 @@ describe('Appointments', () => {
       status: APPOINTMENT_STATUSES.CANCELLED,
     });
     expect(result).toHaveSucceeded();
-    // expect(result.body.status).toEqual(APPOINTMENT_STATUSES.CANCELLED);
+    expect(result.body.status).toEqual(APPOINTMENT_STATUSES.CANCELLED);
     const getResult = await userApp.get('/v1/appointments');
     expect(getResult).toHaveSucceeded();
     expect(getResult.body.count).toEqual(1);
