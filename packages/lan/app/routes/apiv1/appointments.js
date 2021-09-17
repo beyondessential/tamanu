@@ -15,19 +15,18 @@ appointments.get(
   }),
 );
 
-appointments.delete(
+appointments.put(
   '/:id',
   asyncHandler(async (req, res) => {
-    req.checkPermission('write', 'Appointment');
-    const appointmentToBeDeleted = await req.models.Appointment.findByPk(req.params.id);
-    if (!appointmentToBeDeleted) {
+    req.checkPermission('read', 'Appointment');
+    const appointment = await req.models.Appointment.findByPk(req.params.id);
+    if (!appointment) {
       throw new NotFoundError();
     }
-    await req.models.Appointment.destroy({
-      where: {
-        id: req.params.id,
-      },
+    req.checkPermission('write', 'Appointment');
+    await appointment.update({
+      ...req.body,
     });
-    res.send({});
+    res.send(appointment);
   }),
 );

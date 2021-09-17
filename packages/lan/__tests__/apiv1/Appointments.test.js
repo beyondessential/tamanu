@@ -36,12 +36,15 @@ describe('Appointments', () => {
     // verify that the appointment returned is the one created above
     expect(result.body.data[0].id).toEqual(appointment.id);
   });
-  it('should delete an appointment', async () => {
-    const result = await userApp.delete(`/v1/appointments/${appointment.id}`);
+  it('should cancel an appointment', async () => {
+    const result = await userApp.put(`/v1/appointments/${appointment.id}`, {
+      status: APPOINTMENT_STATUSES.CANCELLED,
+    });
     expect(result).toHaveSucceeded();
-    expect(result.body).toEqual({});
+    // expect(result.body.status).toEqual(APPOINTMENT_STATUSES.CANCELLED);
     const getResult = await userApp.get('/v1/appointments');
     expect(getResult).toHaveSucceeded();
-    expect(getResult.body.count).toEqual(0);
+    expect(getResult.body.count).toEqual(1);
+    expect(getResult.body.data[0].status).toEqual(APPOINTMENT_STATUSES.CANCELLED);
   });
 });
