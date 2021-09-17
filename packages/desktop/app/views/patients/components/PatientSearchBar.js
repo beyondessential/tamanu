@@ -103,24 +103,6 @@ export const CustomisablePatientSearchBar = ({
   initialValues = {},
   ...props
 }) => {
-  // We can't use onSearch directly as formik will call it with an unwanted second param
-  const handleSearch = useCallback(
-    ({ village = {}, ...other }) => {
-      const params = {
-        ...other,
-        // enforce dotted text identifier instead of a nested object
-        'village.id': village.id,
-      };
-      // if filtering by date of birth exact, send the formatted date
-      // to the server instead of the date object
-      if (other.dateOfBirthExact) {
-        params.dateOfBirthExact = moment(other.dateOfBirthExact).format('YYYY-MM-DD');
-      }
-      onSearch(params);
-    },
-    [onSearch],
-  );
-
   const { getLocalisation } = useLocalisation();
 
   const fieldElements = useMemo(
@@ -176,7 +158,11 @@ export const CustomisablePatientSearchBar = ({
     <Container>
       <Section>
         <SectionLabel>{title}</SectionLabel>
-        <Form onSubmit={handleSearch} render={renderSearchBar} initialValues={initialValues} />
+        <Form
+          onSubmit={values => onSearch(values)}
+          render={renderSearchBar}
+          initialValues={initialValues}
+        />
       </Section>
       <RightSection>
         <ScanFingerprintButton />
@@ -186,9 +172,22 @@ export const CustomisablePatientSearchBar = ({
   );
 };
 
-export const PatientSearchBar = props => {
+export const PatientSearchBar = ({ onSearch, ...props }) => {
   const api = useApi();
   const villageSuggester = new Suggester(api, 'village');
+  const handleSearch = values => {
+    const params = {
+      ...values,
+    };
+    // if filtering by date of birth exact, send the formatted date
+    // to the server instead of the date object
+    if (params.dateOfBirthExact) {
+      params.dateOfBirthExact = moment(values.dateOfBirthExact)
+        .utc()
+        .format('YYYY-MM-DD');
+    }
+    onSearch(params);
+  };
   return (
     <CustomisablePatientSearchBar
       title="Search for patients"
@@ -206,6 +205,7 @@ export const PatientSearchBar = props => {
         ],
       ]}
       villageSuggester={villageSuggester}
+      onSearch={handleSearch}
       {...props}
     />
   );
