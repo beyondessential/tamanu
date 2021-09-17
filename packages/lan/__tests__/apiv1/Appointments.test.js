@@ -37,7 +37,7 @@ describe('Appointments', () => {
     expect(result.body.data[0].id).toEqual(appointment.id);
   });
   it('should cancel an appointment', async () => {
-    const result = await userApp.put(`/v1/appointments/${appointment.id}`, {
+    const result = await userApp.put(`/v1/appointments/${appointment.id}`).send({
       status: APPOINTMENT_STATUSES.CANCELLED,
     });
     expect(result).toHaveSucceeded();
