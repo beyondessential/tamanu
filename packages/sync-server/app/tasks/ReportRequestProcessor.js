@@ -1,12 +1,12 @@
 import config from 'config';
-
-import { COMMUNICATION_STATUSES, REPORT_REQUEST_STATUSES } from 'shared/constants';
+import { spawn } from 'child_process';
+import { REPORT_REQUEST_STATUSES } from 'shared/constants';
 import { getReportModule } from 'shared/reports';
 import { ScheduledTask } from 'shared/tasks';
 import { log } from 'shared/services/logging';
-import { createTupaiaApiClient, translateReportDataToSurveyResponses } from 'shared/utils';
 
-import { removeFile, createZippedExcelFile } from '../utils/files';
+// time out if the report takes more than 1 hour to run
+const REPORT_TIME_OUT_DURATION = 60 * 60 * 1000;
 
 export class ReportRequestProcessor extends ScheduledTask {
 
@@ -20,7 +20,48 @@ export class ReportRequestProcessor extends ScheduledTask {
     this.context = context;
   }
 
-  async run() {
+  spawnReportProcess = request => {
+    log.info(`Spawning child process for report request "${request.id}"`);
+    const childProcess = spawn(
+      'node',
+      [
+        './dist/app.bundle.js',
+        'report',
+        '--reportName',
+        request.reportType,
+        '--reportParameters',
+        request.parameters,
+        '--reportRecipients',
+        request.recipients,
+      ],
+      { timeout: REPORT_TIME_OUT_DURATION },
+    );
+
+    // Comment out to see info about the child processes
+    // childProcess.stdout.setEncoding('utf8');
+    // childProcess.stdout.on('data', data => {
+    //   console.log('stdout: ', data.toString());
+    // });
+
+    childProcess.on('exit', code => {
+      if (code === 0) {
+        log.info(`Child process running report request "${request.id}" has finished.`);
+        request.update({
+          status: REPORT_REQUEST_STATUSES.PROCESSED,
+        });
+      } else {
+        log.error(
+          `Child process running report "${request.reportType}" has exited due to an error.`,
+        );
+        request.update({
+          status: REPORT_REQUEST_STATUSES.ERROR,
+          error: `ReportRequestProcessorError - Failed to generate report for report request "${request.id}"`,
+        });
+      }
+    });
+  };
+
+  async runReports() {
     const requests = await this.context.store.models.ReportRequest.findAll({
       where: {
         status: REPORT_REQUEST_STATUSES.RECEIVED,
@@ -29,12 +70,12 @@ export class ReportRequestProcessor extends ScheduledTask {
       limit: 10,
     });
 
-    for (let i = 0; i < requests.length; i++) {
-      const request = requests[i];
+    for (const request of requests) {
       if (!config.mailgun.from) {
         log.error(`ReportRequestProcessorError - Email config missing`);
-        request.update({
+        await request.update({
           status: REPORT_REQUEST_STATUSES.ERROR,
+          error: 'Email config missing',
         });
         return;
       }
@@ -42,8 +83,9 @@ export class ReportRequestProcessor extends ScheduledTask {
       const disabledReports = config.localisation.data.disabledReports;
       if (disabledReports.includes(request.reportType)) {
         log.error(`Report "${request.reportType}" is disabled`);
-        request.update({
+        await request.update({
           status: REPORT_REQUEST_STATUSES.ERROR,
+          error: `Report "${request.reportType}" is disabled`,
         });
         return;
       }
@@ -54,121 +96,62 @@ export class ReportRequestProcessor extends ScheduledTask {
         log.error(
           `ReportRequestProcessorError - Unable to find report generator for report ${request.id} of type ${request.reportType}`,
         );
-        request.update({
+        await request.update({
           status: REPORT_REQUEST_STATUSES.ERROR,
+          error: `Unable to find report generator for report ${request.id} of type ${request.reportType}`,
         });
         return;
       }
 
-      let reportData = null;
       try {
-        if (reportModule.needsTupaiaApiClient) {
-          if (!this.tupaiaApiClient) {
-            this.tupaiaApiClient = createTupaiaApiClient();
-          }
-        }
-        reportData = await reportDataGenerator(
-          this.context.store.models,
-          request.getParameters(),
-          this.tupaiaApiClient,
-        );
+        await request.update({
+          status: REPORT_REQUEST_STATUSES.PROCESSING,
+          processStartedTime: new Date(),
+        });
+
+        this.spawnReportProcess(request);
       } catch (e) {
         log.error(`ReportRequestProcessorError - Failed to generate report, ${e.message}`);
         log.error(e.stack);
         await request.update({
           status: REPORT_REQUEST_STATUSES.ERROR,
-        });
-        return;
-      }
-
-      try {
-        await this.sendReport(request, reportData);
-        await request.update({
-          status: REPORT_REQUEST_STATUSES.PROCESSED,
-        });
-      } catch (e) {
-        log.error(`ReportRequestProcessorError - Failed to send, ${e.message}`);
-        log.error(e.stack);
-        await request.update({
-          status: REPORT_REQUEST_STATUSES.ERROR,
+          error: `Failed to generate report, ${e.message}`,
         });
       }
     }
   }
 
-  /**
-   * @param request ReportRequest
-   * @param reportData []
-   * @returns {Promise<void>}
-   */
-  async sendReport(request, reportData) {
-    let sent = false;
-    const recipients = request.getRecipients();
-    if (recipients.email) {
-      await this.sendReportToEmail(request, reportData, recipients.email);
-      sent = true;
-    }
-    if (recipients.tupaia) {
-      await this.sendReportToTupaia(request, reportData);
-      sent = true;
-    }
-    if (!sent) {
-      throw new Error('No recipients');
-    }
-  }
-
-  /**
-   * @param request ReportRequest
-   * @param reportData []
-   * @param emailAddresses string[]
-   * @returns {Promise<void>}
-   */
-  async sendReportToEmail(request, reportData, emailAddresses) {
-    const reportName = `${request.reportType}-report-${new Date().getTime()}`;
-
-    let zipFile = null;
+  async checkProcessingReports() {
     try {
-      zipFile = await createZippedExcelFile(reportName, reportData);
-
-      const result = await this.context.emailService.sendEmail({
-        from: config.mailgun.from,
-        to: emailAddresses.join(','),
-        subject: 'Report delivery',
-        text: `Report requested: ${request.reportType}`,
-        attachment: zipFile,
+      const requests = await this.context.store.models.ReportRequest.findAll({
+        where: {
+          status: REPORT_REQUEST_STATUSES.PROCESSING,
+        },
+        order: [['createdAt', 'ASC']], // process in order received
+        limit: 10,
       });
-      if (result.status === COMMUNICATION_STATUSES.SENT) {
-        log.info(
-          `ReportRequestProcessorError - Sent report ${zipFile} to ${emailAddresses.join(',')}`,
-        );
-      } else {
-        throw new Error(`Mailgun error: ${result.error}`);
+
+      const now = new Date().getTime();
+      for (const request of requests) {
+        const processingDuration = now - request.processStartedTime;
+
+        if (processingDuration > REPORT_TIME_OUT_DURATION) {
+          log.info(
+            `ReportRequestProcessorError - Marking report request "${request.id}" as timed out`,
+          );
+          await request.update({
+            status: REPORT_REQUEST_STATUSES.ERROR,
+            error: 'Report timed out',
+          });
+        }
       }
-    } finally {
-      await removeFile(zipFile);
+    } catch (error) {
+      log.error('ReportRequestProcessorError - Error checking processing reports');
     }
   }
 
-  /**
-   * @param request ReportRequest
-   * @param reportData []
-   * @returns {Promise<void>}
-   */
-  async sendReportToTupaia(request, reportData) {
-    const reportConfig = config.reports?.[request.reportType];
-
-    if (!reportConfig) {
-      throw new Error('Report not configured');
-    }
-
-    const { surveyId } = reportConfig;
-
-    const translated = translateReportDataToSurveyResponses(surveyId, reportData);
-
-    if (!this.tupaiaApiClient) {
-      this.tupaiaApiClient = createTupaiaApiClient();
-    }
-
-    await this.tupaiaApiClient.meditrak.createSurveyResponses(translated);
+  async run() {
+    await this.checkProcessingReports();
+    await this.runReports();
   }
 }

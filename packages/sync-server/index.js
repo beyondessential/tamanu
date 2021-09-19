@@ -8,7 +8,7 @@ import { createApp } from './app/createApp';
 import { initDatabase } from './app/database';
 import { startScheduledTasks } from './app/tasks';
 import { EmailService } from './app/services/EmailService';
-
+import { ReportRunner } from './app/report/ReportRunner';
 import { version } from './package.json';
 
 const port = config.port;
@@ -73,11 +73,27 @@ async function migrate(store, options) {
   process.exit(0);
 }
 
+async function report(store, options) {
+  const { reportName, reportParameters, reportRecipients } = options;
+  const emailService = new EmailService();
+  const reportRunner = new ReportRunner(
+    reportName,
+    JSON.parse(reportParameters),
+    JSON.parse(reportRecipients),
+    store.models,
+    emailService,
+  );
+  log.info(`Running report "${reportName}" with parameters "${reportParameters}"`);
+  await reportRunner.run();
+  process.exit(0);
+}
+
 async function run(command, options) {
   const subcommand = {
     serve,
     migrate,
     setup,
+    report,
   }[command];
 
   if (!subcommand) {

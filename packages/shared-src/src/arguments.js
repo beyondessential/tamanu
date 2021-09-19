@@ -17,32 +17,37 @@ function createParser() {
   });
 
   parser.addArgument('command', {
-    choices: [
-      'serve',
-      'setup',
-      'migrate', 
-      'report',
-    ],
+    choices: ['serve', 'setup', 'migrate', 'report'],
     nargs: '?', // allow empty
     defaultValue: 'serve',
   });
 
-  parser.addArgument('--name', {
+  parser.addArgument('--reportName', {
     action: 'store',
-    dest: 'name',
+    dest: 'reportName',
+  });
+
+  parser.addArgument('--reportParameters', {
+    action: 'store',
+    dest: 'reportParameters',
+  });
+
+  parser.addArgument('--reportRecipients', {
+    action: 'store',
+    dest: 'reportRecipients',
   });
 
   // migrate subcommand
   const migrateDir = parser.addMutuallyExclusiveGroup();
   migrateDir.addArgument('--up', {
-    help: "Run database migrations",
+    help: 'Run database migrations',
     action: 'storeConst',
     defaultValue: 'up',
     dest: 'migrateDirection',
     constant: 'up',
   });
   migrateDir.addArgument('--down', {
-    help: "Run database migrations",
+    help: 'Run database migrations',
     action: 'storeConst',
     dest: 'migrateDirection',
     constant: 'down',
@@ -61,7 +66,6 @@ export function parseArguments() {
   if (ARGS && ARGS.length > 0) {
     log.info(`Running app with TAMANU_ARGS of ${ARGS}`);
     return parser.parseArgs(ARGS);
-  } else {
-    return parser.parseArgs();
   }
+  return parser.parseArgs();
 }
