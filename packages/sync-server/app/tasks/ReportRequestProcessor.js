@@ -5,14 +5,13 @@ import { getReportModule } from 'shared/reports';
 import { ScheduledTask } from 'shared/tasks';
 import { log } from 'shared/services/logging';
 
-// time out if the report takes more than 1 hour to run
-const REPORT_TIME_OUT_DURATION = 60 * 60 * 1000;
+// time out and kill the report process if it takes more than 2 hours to run
+const REPORT_TIME_OUT_DURATION = 2 * 60 * 60 * 1000;
 
 export class ReportRequestProcessor extends ScheduledTask {
-
-  getName() {
+  getName = () => {
     return 'ReportRequestProcessor';
-  }
+  };
 
   constructor(context) {
     // run at 30 seconds interval, process 10 report requests each time
