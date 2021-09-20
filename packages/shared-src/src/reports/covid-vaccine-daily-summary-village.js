@@ -19,6 +19,11 @@ const reportColumnTemplate = [
   { title: 'COVIDVac8', accessor: data => data.COVIDVac8 },
 ];
 
+// tamanu name -> tupaia code
+const MANUAL_VILLAGE_MAPPING = {
+  'Vailoa Savaii': 'WS_012_Vailoa_Satupaitea',
+};
+
 function parametersToSqlWhere(parameters) {
   if (!parameters.fromDate) {
     parameters.fromDate = subDays(new Date(), 30).toISOString();
@@ -189,9 +194,21 @@ function groupByDateAndVillage(data) {
 
 function addTupaiaEntityCodes(data, villages) {
   const villagesByName = keyBy(villages, 'name');
+
+  const getTupaiaEntityCode = villageName => {
+    if (MANUAL_VILLAGE_MAPPING[villageName]) {
+      return MANUAL_VILLAGE_MAPPING[villageName];
+    }
+    if (villagesByName[villageName]) {
+      return villagesByName[villageName].code;
+    }
+    // Some villages are expected to be ignored
+    return null;
+  };
+
   return data.map(item => ({
     ...item,
-    tupaiaEntityCode: villagesByName[item.village] ? villagesByName[item.village].code : null,
+    tupaiaEntityCode: getTupaiaEntityCode(item.village),
   }));
 }
 
