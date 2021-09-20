@@ -1,15 +1,6 @@
 
 module.exports = {
   up: async query => {
-    // TODO notes:
-    // - are facilites.type and .division ok to leave null?
-    //    - configurable values?
-    // - problematic to carry over set updated_at and created_at?
-    //    - should set to NOW() instead?
-    // - should pulled_at really be omitted from the facility table?
-    // - select default facility better?
-    //    - these records almost certainly require a reimport but still
-
     // populate facilities   
     await query.sequelize.query(`
       INSERT INTO facilities
@@ -18,15 +9,27 @@ module.exports = {
           FROM reference_data
           WHERE reference_data.type = 'facility';
     `, {
+      // leaving type and division as empty strings as they will require
+      // a reimport anyway
       replacements: {
         type: '',
         division: '',
       }
     });
 
+    // departments and locations need a facility attached, but we won't know
+    // which until we do a reimport. so, just use whichever facility for now
     const [records] = await query.sequelize.query(`
       SELECT id FROM facilities LIMIT 1
     `);
+
+    if (records.length === 0) {
+      // No facilities -- this will only happen on a fresh server, so it's safe
+      // to assume there are no departments or locations either. Our work here
+      // is done.
+      return;
+    }
+
     const facilityId = records[0].id;
 
     // populate departments   
