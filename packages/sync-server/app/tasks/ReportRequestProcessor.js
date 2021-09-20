@@ -1,4 +1,5 @@
 import config from 'config';
+import sequelize from 'sequelize';
 import { spawn } from 'child_process';
 import { REPORT_REQUEST_STATUSES } from 'shared/constants';
 import { getReportModule } from 'shared/reports';
@@ -6,7 +7,8 @@ import { ScheduledTask } from 'shared/tasks';
 import { log } from 'shared/services/logging';
 
 // time out and kill the report process if it takes more than 2 hours to run
-const REPORT_TIME_OUT_DURATION = 2 * 60 * 60 * 1000;
+const REPORT_TIME_OUT_DURATION_SECONDS = 2 * 60 * 60;
+const REPORT_TIME_OUT_DURATION_MILLISECONDS = REPORT_TIME_OUT_DURATION_SECONDS * 1000;
 
 export class ReportRequestProcessor extends ScheduledTask {
   getName = () => {
@@ -33,7 +35,7 @@ export class ReportRequestProcessor extends ScheduledTask {
         '--reportRecipients',
         request.recipients,
       ],
-      { timeout: REPORT_TIME_OUT_DURATION },
+      { timeout: REPORT_TIME_OUT_DURATION_MILLISECONDS },
     );
 
     // Comment out to see info about the child processes
@@ -120,37 +122,33 @@ export class ReportRequestProcessor extends ScheduledTask {
     }
   }
 
-  async checkProcessingReports() {
+  async validateTimeoutReports() {
     try {
       const requests = await this.context.store.models.ReportRequest.findAll({
-        where: {
-          status: REPORT_REQUEST_STATUSES.PROCESSING,
-        },
+        where: sequelize.literal(
+          `status = '${REPORT_REQUEST_STATUSES.PROCESSING}' AND 
+          EXTRACT(EPOCH FROM CURRENT_TIMESTAMP - process_started_time) > ${REPORT_TIME_OUT_DURATION_SECONDS}`,
+        ), // find processing report requests that have been running more than the timeout limit
         order: [['createdAt', 'ASC']], // process in order received
         limit: 10,
       });
 
-      const now = new Date().getTime();
       for (const request of requests) {
-        const processingDuration = now - request.processStartedTime;
-
-        if (processingDuration > REPORT_TIME_OUT_DURATION) {
-          log.info(
-            `ReportRequestProcessorError - Marking report request "${request.id}" as timed out`,
-          );
-          await request.update({
-            status: REPORT_REQUEST_STATUSES.ERROR,
-            error: 'Report timed out',
-          });
-        }
+        log.info(
+          `ReportRequestProcessorError - Marking report request "${request.id}" as timed out`,
+        );
+        await request.update({
+          status: REPORT_REQUEST_STATUSES.ERROR,
+          error: 'Report timed out',
+        });
       }
     } catch (error) {
-      log.error('ReportRequestProcessorError - Error checking processing reports');
+      log.error('ReportRequestProcessorError - Error checking processing reports', error);
     }
   }
 
   async run() {
-    await this.checkProcessingReports();
+    await this.validateTimeoutReports();
     await this.runReports();
   }
 }
