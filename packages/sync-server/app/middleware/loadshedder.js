@@ -14,6 +14,9 @@ export class RequestQueue {
   queuedRequests = [];
 
   constructor({
+    // friendly name for the queue to make logging output more readable
+    name,
+
     // maximum concurrent requests active at the one time
     maxActiveRequests,
 
@@ -26,6 +29,7 @@ export class RequestQueue {
     // same as total request timeout
     queueTimeout,
   }) {
+    this.queueName = name;
     this.queueTimeout = queueTimeout;
     this.maxActiveRequests = maxActiveRequests;
     this.maxQueuedRequests = maxQueuedRequests;
@@ -36,9 +40,9 @@ export class RequestQueue {
   // if this function completes successfully, the caller MUST call the returned
   // `release` function, otherwise the queue will be blocked!
   async acquire() {
-    const logEvent = name => {
+    const logEvent = eventName => {
       log.debug(
-        `RequestQueue.acquire(): ${name}: queued=${this.queuedRequests.length}/${this.maxQueuedRequests} active=${this.activeRequestCount}/${this.maxActiveRequests} timeout=${this.queueTimeout}ms`,
+        `RequestQueue.acquire(): ${eventName}: queue=${this.queueName} queued=${this.queuedRequests.length}/${this.maxQueuedRequests} active=${this.activeRequestCount}/${this.maxActiveRequests} timeout=${this.queueTimeout}ms`,
       );
     };
 
@@ -97,27 +101,41 @@ export class RequestQueue {
 
 const normalisePath = path => (path.endsWith('/') ? path : `${path}/`);
 
-export const loadshedder = (options = config.loadshedder) => {
-  const prefixQueueTuples = [];
-  for (const queueOptions of options.queues) {
-    const queue = new RequestQueue(queueOptions);
-    for (const prefix of queueOptions.prefixes) {
-      prefixQueueTuples.push([prefix, queue]);
+export class QueueManager {
+  prefixQueueTuples = [];
+
+  constructor(queueDefinitions) {
+    for (const queueDefinition of queueDefinitions) {
+      const queue = new RequestQueue(queueDefinition);
+      for (const prefix of queueDefinition.prefixes) {
+        this.prefixQueueTuples.push([prefix, queue]);
+      }
     }
   }
 
-  return asyncHandler(async (req, res, next) => {
-    const path = normalisePath(req.path);
+  getQueue(path) {
+    const normalisedPath = normalisePath(path);
     // iterate over request queues until we find a matching one
-    for (const [prefix, queue] of prefixQueueTuples) {
-      if (path.startsWith(prefix)) {
-        // acquire a lock from the queue and release it when the request is disposed of
-        const release = await queue.acquire();
-        res.once('finish', () => {
-          release();
-        });
-        break; // only match one queue, break out of the loop once it's done
+    for (const [prefix, queue] of this.prefixQueueTuples) {
+      if (normalisedPath.startsWith(prefix)) {
+        return queue;
       }
+    }
+    return null; // no queue found
+  }
+}
+
+export const loadshedder = (options = config.loadshedder) => {
+  const manager = new QueueManager(options.queues);
+
+  return asyncHandler(async (req, res, next) => {
+    const queue = manager.getQueue(req.path);
+    if (queue) {
+      // acquire a lock from the queue and release it when the request is disposed of
+      const release = await queue.acquire();
+      res.once('finish', () => {
+        release();
+      });
     }
     next();
   });

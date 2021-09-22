@@ -27,6 +27,7 @@
       // sync queue
       // (defaults to shedding requests for sync or attachments earlier than other requests)
       {
+        "name": "low_priority",
         "prefixes": ["/v1/sync/", "/v1/attachment/"],
         "maxActiveRequests": 4,
         "maxQueuedRequests": 8,
@@ -35,6 +36,7 @@
       // global queue for non-sync non-attachment requests
       // (defaults to queueing more requests than sync/attachments and them shedding much later)
       {
+        "name": "high_priority",
         "prefixes": ["/"],
         "maxActiveRequests": 8,
         "maxQueuedRequests": 32,

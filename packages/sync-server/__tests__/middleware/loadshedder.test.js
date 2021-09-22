@@ -1,6 +1,6 @@
 import { RequestQueueTimeoutError, RequestQueueExceededError } from 'shared/errors';
 
-import { RequestQueue } from 'sync-server/app/middleware/loadshedder';
+import { RequestQueue, QueueManager } from 'sync-server/app/middleware/loadshedder';
 
 describe('RequestQueue', () => {
   it('allows multiple parallel requests through under the threshold', async () => {
@@ -78,5 +78,41 @@ describe('RequestQueue', () => {
     await expect(queue.acquire()).rejects.toEqual(expect.any(RequestQueueTimeoutError));
     const elapsedMs = Date.now() - startMs;
     expect(elapsedMs).toBeLessThan(150);
+  });
+});
+
+describe('QueueManager', () => {
+  const manager = new QueueManager([
+    {
+      name: 'a',
+      prefixes: ['/1', '/2/'],
+    },
+    {
+      name: 'b',
+      prefixes: ['/3'],
+    },
+    {
+      name: 'c',
+      prefixes: ['/4/4', '/4/5/'],
+    },
+    {
+      name: 'd',
+      prefixes: ['/4/'],
+    },
+  ]);
+
+  it('routes requests to the first matching queue', () => {
+    const queue = manager.getQueue('/4/5/foobar');
+    expect(queue).toHaveProperty('queueName', 'c');
+  });
+
+  it('returns null if no queue matches the path', () => {
+    const queue = manager.getQueue('/5');
+    expect(queue).toEqual(null);
+  });
+
+  it('normalises trailing slashes on paths', () => {
+    const queue = manager.getQueue('/4/5/foobar/');
+    expect(queue).toHaveProperty('queueName', 'c');
   });
 });
