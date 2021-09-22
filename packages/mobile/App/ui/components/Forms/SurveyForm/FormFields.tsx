@@ -1,7 +1,8 @@
 import React, { ReactElement, useCallback, useState } from 'react';
-import { ISurveyScreenComponent, DataElementType } from '~/types';
+import { TouchableWithoutFeedback } from 'react-native-gesture-handler';
+import { ISurveyScreenComponent } from '~/types';
 import { theme } from '~/ui/styled/theme';
-import { checkVisibilityCriteria, isCalculated } from '/helpers/fields';
+import { checkVisibilityCriteria } from '/helpers/fields';
 import { SurveyQuestion } from './SurveyQuestion';
 import { SectionHeader } from '../../SectionHeader';
 import { Button } from '../../Button';
@@ -9,11 +10,10 @@ import { FullView, RowView, StyledText, StyledView } from '~/ui/styled/common';
 import { FormScreenView } from '../FormScreenView';
 
 import { ErrorBoundary } from '~/ui/components/ErrorBoundary';
-import { TouchableWithoutFeedback } from 'react-native-gesture-handler';
 import { Orientation, screenPercentageToDP } from '~/ui/helpers/screen';
 
 const SurveyQuestionErrorView = ({ error }) => (
-  <TouchableWithoutFeedback onPress={() => console.warn(error)}>
+  <TouchableWithoutFeedback onPress={(): void => console.warn(error)}>
     <StyledText color="red">
       Error displaying component
     </StyledText>
@@ -33,7 +33,7 @@ export const FormFields = ({
   values,
   onSubmit,
   note,
-  patient
+  patient,
 }: AddDetailsFormFieldsProps): ReactElement => {
   const [currentScreenIndex, setCurrentScreenIndex] = useState(0);
 
@@ -53,7 +53,7 @@ export const FormFields = ({
     (component: ISurveyScreenComponent) => (
       checkVisibilityCriteria(component, components, values)
     ),
-    [values]
+    [values],
   );
 
   const screenComponents = components
@@ -62,26 +62,26 @@ export const FormFields = ({
     .filter(shouldShow)
     .map((component, index) => (
       <React.Fragment key={component.id}>
-          <SectionHeader marginTop={index === 0 ? 0 : 20} h3>
-            {component.text || component.dataElement.defaultText || ''}
-          </SectionHeader>
-          { 
-            component.detail
-              ? <StyledText marginTop={4} fontSize={screenPercentageToDP('2.2', Orientation.Height)}>{component.detail}</StyledText>
-              : null
-          }
-          <ErrorBoundary errorComponent={SurveyQuestionErrorView}>
-            <SurveyQuestion
-              key={component.id}
-              component={component}
-              patient={patient}
-            />
-          </ErrorBoundary>
+        <SectionHeader marginTop={index === 0 ? 0 : 20} h3>
+          {component.text || component.dataElement.defaultText || ''}
+        </SectionHeader>
+        {
+          component.detail
+            ? <StyledText marginTop={4} fontSize={screenPercentageToDP('2.2', Orientation.Height)}>{component.detail}</StyledText>
+            : null
+        }
+        <ErrorBoundary errorComponent={SurveyQuestionErrorView}>
+          <SurveyQuestion
+            key={component.id}
+            component={component}
+            patient={patient}
+          />
+        </ErrorBoundary>
       </React.Fragment>
     ));
-  
+
   // Note: we set the key on FullView so that React registers it as a whole
-  // new component, rather than a component whose contents happen to have 
+  // new component, rather than a component whose contents happen to have
   // changed. This means that each new page will start at the top, rather than
   // the scroll position continuing across pages.
 
@@ -90,13 +90,13 @@ export const FormFields = ({
       <FormScreenView>
         {screenComponents}
         <RowView width="68%" marginTop={25}>
-          <Button 
+          <Button
             margin={5}
             disabled={currentScreenIndex === 0}
             buttonText="Previous Page"
-            onPress={onNavigatePrevious} 
+            onPress={onNavigatePrevious}
           />
-          {(currentScreenIndex !== maxIndex) 
+          {(currentScreenIndex !== maxIndex)
             ? <Button margin={5} buttonText="Next Page" onPress={onNavigateNext} />
             : (
               <Button
