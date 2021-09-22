@@ -82,42 +82,63 @@ describe('RequestQueue', () => {
 });
 
 describe('QueueManager', () => {
-  const manager = new QueueManager([
-    {
-      name: 'a',
-      prefixes: ['/1', '/2/'],
-    },
-    {
-      name: 'b',
-      prefixes: ['/3'],
-    },
-    {
-      name: 'c',
-      prefixes: ['/4/4', '/4/5/'],
-    },
-    {
-      name: 'd',
-      prefixes: ['/4/'],
-    },
-  ]);
+  {
+    const manager = new QueueManager([
+      {
+        name: 'a',
+        prefixes: ['/1', '/2/'],
+      },
+      {
+        name: 'b',
+        prefixes: ['/3'],
+      },
+      {
+        name: 'c',
+        prefixes: ['/4/4', '/4/5/'],
+      },
+      {
+        name: 'd',
+        prefixes: ['/4/'],
+      },
+    ]);
 
-  it('routes requests to the first matching queue', () => {
-    const queue = manager.getQueue('/4/5/foobar');
-    expect(queue).toHaveProperty('queueName', 'c');
-  });
+    it('routes requests to the first matching queue', () => {
+      expect(manager.getQueue('/4/5/foobar')).toHaveProperty('queueName', 'c');
+    });
 
-  it('returns null if no queue matches the path', () => {
-    const queue = manager.getQueue('/5');
-    expect(queue).toEqual(null);
-  });
+    it('returns null if no queue matches the path', () => {
+      expect(manager.getQueue('/5')).toEqual(null);
+    });
 
-  it('normalises trailing slashes on prefixes', () => {
-    const queue = manager.getQueue('/1234');
-    expect(queue).toEqual(null);
-  });
+    it('normalises trailing slashes on prefixes', () => {
+      expect(manager.getQueue('/1234')).toEqual(null);
+    });
 
-  it('normalises trailing slashes on paths', () => {
-    const queue = manager.getQueue('/4/5/foobar/');
-    expect(queue).toHaveProperty('queueName', 'c');
+    it('normalises trailing slashes on paths', () => {
+      expect(manager.getQueue('/4/5/foobar/')).toHaveProperty('queueName', 'c');
+    });
+  }
+
+  it('allows a route to match everything', () => {
+    const manager = new QueueManager([
+      {
+        name: 'a',
+        prefixes: ['/1'],
+      },
+      {
+        name: 'b',
+        prefixes: ['/'],
+      },
+      {
+        name: 'c',
+        prefixes: ['/2'],
+      },
+    ]);
+    expect(manager.getQueue('/1')).toHaveProperty('queueName', 'a');
+    expect(manager.getQueue('/1/')).toHaveProperty('queueName', 'a');
+    expect(manager.getQueue('/2')).toHaveProperty('queueName', 'b');
+    expect(manager.getQueue('/')).toHaveProperty('queueName', 'b');
+    expect(manager.getQueue('/foo')).toHaveProperty('queueName', 'b');
+    expect(manager.getQueue('/foo/')).toHaveProperty('queueName', 'b');
   });
 });
