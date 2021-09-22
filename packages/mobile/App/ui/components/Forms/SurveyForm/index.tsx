@@ -25,7 +25,10 @@ export const SurveyForm = ({
   patient,
 }: SurveyFormProps): ReactElement => {
   const currentUser = useSelector(authUserSelector);
-  const initialValues = useMemo(() => getFormInitialValues(components, currentUser, patient), [components]);
+  const initialValues = useMemo(
+    () => getFormInitialValues(components, currentUser, patient),
+    [components],
+  );
   const formValidationSchema = useMemo(() => getFormSchema(components), [components]);
 
   return (
