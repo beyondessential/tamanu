@@ -12,8 +12,8 @@ export class InvalidOperationError extends BaseError {}
 export class InvalidParameterError extends BaseError {}
 export class InappropriateEndpointError extends BaseError {}
 export class RemoteTimeoutError extends BaseError {}
-export class RequestQueueTimeoutError extends Error {}
-export class RequestQueueExceededError extends Error {}
+export class RequestQueueTimeoutError extends BaseError {}
+export class RequestQueueExceededError extends BaseError {}
 
 export function getCodeForErrorName(name) {
   switch (name) {
