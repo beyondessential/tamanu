@@ -112,14 +112,10 @@ export const loadshedder = (options = config.loadshedder) => {
     for (const [prefix, queue] of prefixQueueTuples) {
       if (path.startsWith(prefix)) {
         // acquire a lock from the queue and release it when the request is disposed of
-        let release = null;
+        const release = await queue.acquire();
         res.once('finish', () => {
-          // `release` can be null if `requestQueue.acquire()` throws an error
-          if (release) {
-            release();
-          }
+          release();
         });
-        release = await queue.acquire();
         break; // only match one queue, break out of the loop once it's done
       }
     }
