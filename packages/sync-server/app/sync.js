@@ -1,5 +1,8 @@
 import express from 'express';
 import asyncHandler from 'express-async-handler';
+import asyncPool from 'tiny-async-pool';
+import config from 'config';
+
 import { /* InvalidOperationError, */ InvalidParameterError, NotFoundError } from 'shared/errors';
 import {
   // shouldPush,
@@ -30,11 +33,22 @@ syncRoutes.post(
       );
     }
 
-    const channelChangeChecks = await Promise.all(
-      channels.map(async channel => {
-        const count = await store.countSince(channel, body[channel]);
+    /*
+       The problem here is that sequelize has a connection pool with (by default)
+       5 slots. It's okay to launch more queries than that, because they just get
+       queued up for a while until the pool is free. The issue with that is if
+       you launch 5000 queries at once, and those queries are going to take a
+       combined 3 seconds to run, you block the entire connection pool for the
+       next 3 seconds. If you have multiple clients hitting different endpoints
+       at the same time, this does weird things to your latency.
+    */
+    const channelChangeChecks = await asyncPool(
+      config.sync.concurrentChannelChecks,
+      channels.map(channel => [channel, body[channel]]),
+      async ([channel, cursor]) => {
+        const count = await store.countSince(channel, cursor, { limit: 1 });
         return count > 0;
-      }),
+      },
     );
 
     const channelsWithChanges = channels.filter((c, i) => !!channelChangeChecks[i]);

@@ -18,7 +18,7 @@ yarn workspace "$WORKSPACE" build
 pushd "./packages/$WORKSPACE"
 rm -rf "./$RELEASE_DIR"
 mkdir -p "./$RELEASE_DIR"
-cp -R !("$RELEASE_DIR"|__tests__|coverage|index.js|pm2.json|README.md|data) "./$RELEASE_DIR"
+cp -R dist config package.json ../../yarn.lock "./$RELEASE_DIR"
 rm -rf "${RELEASE_DIR}/config/"{development,test,local}".json"
 
 pushd "$RELEASE_DIR"

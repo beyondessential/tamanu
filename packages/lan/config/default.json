@@ -18,11 +18,28 @@
     "password": "",
     "timeout": 10000,
     "readOnly": false,
+    "enabled": true,
     "syncAllLabRequests": false,
     "backoff": {
       "multiplierMs": 300,
-      "maxRetries": 15,
+      "maxAttempts": 15,
       "maxWaitMs": 10000
+    },
+    "channelsWithChanges": {
+      "algorithm": {
+        "initialBatchSize": 1000,
+        "maxErrorRate": 0.01,
+        "maxErrorsFloor": 100,
+        "maxBatchSize": 1000,
+        "minBatchSize": 50,
+        "throttleFactorUp": 1.2,
+        "throttleFactorDown": 0.5
+      },
+      "backoff": {
+        "multiplierMs": 300,
+        "maxAttempts": 3,
+        "maxWaitMs": 1000
+      }
     }
   },
   "port": 4000,

@@ -6,6 +6,7 @@ import {
   expectDeepSyncRecordsMatch,
   fakePatient,
   fakeReferenceData,
+  fake,
   unsafeSetUpdatedAt,
   upsertAssociations,
 } from 'shared/test-helpers';
@@ -104,6 +105,37 @@ describe('Sync API', () => {
       expect(result).toHaveSucceeded();
       const { body } = result;
       expect(body.channelsWithChanges).toEqual(['patient']);
+    });
+
+    const NUM_CHANNELS_TO_TEST = 1000;
+    const ALLOWABLE_TIME = 2000;
+    it(`handles ${NUM_CHANNELS_TO_TEST} channels in under ${ALLOWABLE_TIME}ms`, async () => {
+      // arrange
+      jest.setTimeout(120 * 1000);
+      const { Patient, PatientIssue } = ctx.store.models;
+
+      const patients = [];
+      const patientIssues = [];
+      for (let i = 0; i < NUM_CHANNELS_TO_TEST; i++) {
+        const p = fake(Patient);
+        patients.push(p);
+        patientIssues.push({ ...fake(PatientIssue), patientId: p.id });
+      }
+      await Patient.bulkCreate(patients);
+      await PatientIssue.bulkCreate(patientIssues);
+
+      const patientChannels = patients.map(({ id }) => `patient/${id}/issue`);
+      const idsObj = patientChannels.reduce((memo, channel) => ({ ...memo, [channel]: '0' }), {});
+
+      // act
+      const startMs = Date.now();
+      const result = await app.post('/v1/sync/channels').send(idsObj);
+      const elapsedMs = Date.now() - startMs;
+
+      // assert
+      expect(result).toHaveSucceeded();
+      expect(result.body.channelsWithChanges).toEqual(patientChannels);
+      expect(elapsedMs).toBeLessThan(ALLOWABLE_TIME);
     });
   });
 

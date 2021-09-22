@@ -7,7 +7,7 @@ const LoadingIconContainer = styled.div`
   position: absolute;
   width: 100vw;
   height: 100vh;
-  background: #cecece;
+  background: ${props => props.backgroundColor || '#cecece'};
   opacity: 0.5;
   overflow: hidden;
   z-index: 9999;
@@ -22,8 +22,8 @@ const LoadingIconContainer = styled.div`
   }
 `;
 
-export const LoadingIndicator = React.memo(() => (
-  <LoadingIconContainer>
+export const LoadingIndicator = React.memo(({ backgroundColor }) => (
+  <LoadingIconContainer backgroundColor={backgroundColor}>
     <CircularProgress size="5rem" />
   </LoadingIconContainer>
 ));

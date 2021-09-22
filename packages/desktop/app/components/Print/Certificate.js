@@ -6,6 +6,7 @@ import { getCurrentUser } from '../../store/auth';
 import { useLocalisation } from '../../contexts/Localisation';
 import { Colors } from '../../constants';
 import { PrintLetterhead } from './Letterhead';
+import { DateDisplay } from '../DateDisplay';
 
 export const Spacer = styled.div`
   margin-top: 3rem;
@@ -36,7 +37,7 @@ const TwoColumnContainer = styled.div`
 const PRIMARY_DETAILS_FIELDS = {
   firstName: null,
   lastName: null,
-  dateOfBirth: ({ dateOfBirth }) => new Date(dateOfBirth).toLocaleDateString(),
+  dateOfBirth: ({ dateOfBirth }) => <DateDisplay date={dateOfBirth} />,
   placeOfBirth: ({ additionalData }) => additionalData?.placeOfBirth,
   countryOfBirthId: ({ additionalData }) => additionalData?.countryOfBirth?.name,
   sex: null,
@@ -73,7 +74,12 @@ export const Certificate = ({ patient, header, footer = null, primaryDetailsFiel
           const accessor = PRIMARY_DETAILS_FIELDS[field];
           const label = getLocalisation(`fields.${field}.shortLabel`) || field;
           const value = (accessor ? accessor(patient) : patient[field]) || '';
-          return <p key={field}>{`${label}: ${value}`}</p>;
+          return (
+            <p key={field}>
+              <span>{`${label}: `}</span>
+              <span>{value}</span>
+            </p>
+          );
         })}
       </TwoColumnContainer>
       <Spacer />
@@ -81,7 +87,10 @@ export const Certificate = ({ patient, header, footer = null, primaryDetailsFiel
       <Spacer />
       <TwoColumnContainer>
         <p>{`Printed by: ${currentUser ? currentUser.displayName : ''}`}</p>
-        <p>{`Printing date: ${new Date().toLocaleDateString()}`}</p>
+        <p>
+          <span>Printing date: </span>
+          <DateDisplay date={new Date()} />
+        </p>
       </TwoColumnContainer>
       <Spacer />
       <UserEntrySection>
