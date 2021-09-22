@@ -4,6 +4,40 @@
 
 ### Manual steps required after upgrade ⚙
 
+- (left blank)
+
+### Features ⭐
+
+- (left blank)
+
+### Tweaks ⚖️
+
+- (left blank)
+
+### Bug fixes 🐛
+
+- (left blank)
+
+### Infrastructure and maintenance 🛠
+
+- (left blank)
+
+## v1.8.2
+
+### Tweaks ⚖️
+
+- Added loadshedder middleware to keep system more operational under load
+
+## v1.8.1
+
+### Bug fixes 🐛
+
+- Disabled potentially unstable outpatient discharger task
+
+## v1.8.0
+
+### Manual steps required after upgrade ⚙
+
 - Add to samoa `packages/sync-server/local.json`:
 - Add to test environment `packages/sync-server/local.json`:
 - Add to dev environment `packages/sync-server/local.json`:
@@ -27,50 +61,6 @@
     }
 ]
 ```
-
-### Features ⭐
-
-- (left blank)
-
-### Tweaks ⚖️
-
-- (left blank)
-
-### Bug fixes 🐛
-
-- (left blank)
-
-### Infrastructure and maintenance 🛠
-
-- (left blank)
-
-## v1.8.0
-
-### Manual steps required after upgrade ⚙
-
-- (left blank)
-
-### Features ⭐
-
-- (left blank)
-
-### Tweaks ⚖️
-
-- (left blank)
-
-### Bug fixes 🐛
-
-- (left blank)
-
-### Infrastructure and maintenance 🛠
-
-- (left blank)
-
-## v1.8.0
-
-### Manual steps required after upgrade ⚙
-
-- (left blank)
 
 ### Features ⭐
 
