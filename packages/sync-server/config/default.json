@@ -28,7 +28,7 @@
       // (defaults to shedding requests for sync or attachments earlier than other requests)
       {
         "name": "low_priority",
-        "prefixes": ["/v1/sync/", "/v1/attachment/"],
+        "prefixes": ["/v1/sync", "/v1/attachment"],
         "maxActiveRequests": 4,
         "maxQueuedRequests": 8,
         "queueTimeout": 500

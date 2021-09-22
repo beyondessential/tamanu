@@ -108,7 +108,7 @@ export class QueueManager {
     for (const queueDefinition of queueDefinitions) {
       const queue = new RequestQueue(queueDefinition);
       for (const prefix of queueDefinition.prefixes) {
-        this.prefixQueueTuples.push([prefix, queue]);
+        this.prefixQueueTuples.push([normalisePath(prefix), queue]);
       }
     }
   }

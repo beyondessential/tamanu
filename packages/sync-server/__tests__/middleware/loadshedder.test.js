@@ -111,6 +111,11 @@ describe('QueueManager', () => {
     expect(queue).toEqual(null);
   });
 
+  it('normalises trailing slashes on prefixes', () => {
+    const queue = manager.getQueue('/1234');
+    expect(queue).toEqual(null);
+  });
+
   it('normalises trailing slashes on paths', () => {
     const queue = manager.getQueue('/4/5/foobar/');
     expect(queue).toHaveProperty('queueName', 'c');
