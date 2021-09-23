@@ -61,6 +61,8 @@ const searchTestPatients = [
   { firstName: 'pagination', lastName: 'G' },
   { firstName: 'pagination', lastName: 'H' },
   { firstName: 'pagination', lastName: 'I' },
+  { firstName: 'locale-test', lastName: 'Böhm' },
+  { firstName: 'locale-test', lastName: 'Brunet' },
   {
     firstName: 'more-than-one-open-encounter',
     encounters: [
@@ -326,14 +328,22 @@ describe('Patient search', () => {
   });
 
   describe('Sorting', () => {
-    const expectSorted = (array, mapper, reverse = false) => {
+    const compareStrings = (a, b) => {
+      // nulls last, case-insensitive, compared by codepoint not locale
+      if (!a && b) return 1;
+      if (a && !b) return -1;
+      if (!a && !b) return 0;
+
+      const aUpper = a.toUpperCase();
+      const bUpper = b.toUpperCase();
+      if (aUpper > bUpper) return 1;
+      if (aUpper < bUpper) return -1;
+      return 0;
+    };
+    const expectSorted = (array, mapper, reverse = false, cmp = compareStrings) => {
       const base = array.map(mapper);
       const sorted = array.map(mapper).sort((a, b) => {
-        // nulls last, case-insensitive
-        if (!a && b) return 1;
-        if (a && !b) return -1;
-        if (!a && !b) return 0;
-        return (reverse ? -1 : 1) * a.toUpperCase().localeCompare(b.toUpperCase());
+        return (reverse ? -1 : 1) * cmp(a, b);
       });
       expect(sorted).toEqual(base);
     };
