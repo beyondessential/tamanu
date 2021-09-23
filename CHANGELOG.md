@@ -5,8 +5,6 @@
 ### Manual steps required after upgrade ⚙
 
 - Add to samoa `packages/sync-server/local.json`:
-- Add to test environment `packages/sync-server/local.json`:
-- Add to dev environment `packages/sync-server/local.json`:
 
 ```
 "tupaiaApiClient": {
@@ -16,16 +14,6 @@
     },
     "environment": "production"
 },
-"scheduledReports": [
-    {
-        "reportType": "covid-vaccine-daily-summary-village",
-        "schedule": "0 12,17 * * *",
-        "parameters": {},
-        "recipients": {
-            "tupaia": true
-        }
-    }
-]
 ```
 
 ### Features ⭐

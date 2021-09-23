@@ -10,6 +10,7 @@ import { authModule } from './auth';
 import { publicRoutes } from './publicRoutes';
 
 import errorHandler from './middleware/errorHandler';
+import { loadshedder } from './middleware/loadshedder';
 import { versionCompatibility } from './middleware/versionCompatibility';
 
 import { version } from '../package.json';
@@ -19,6 +20,7 @@ const isDevelopment = process.env.NODE_ENV === 'development';
 export function createApp({ store, emailService }) {
   // Init our app
   const app = express();
+  app.use(loadshedder());
   app.use(compression());
   app.use(bodyParser.json({ limit: '50mb' }));
   app.use(bodyParser.urlencoded({ extended: true }));
