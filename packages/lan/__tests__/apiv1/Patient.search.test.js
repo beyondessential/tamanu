@@ -62,10 +62,27 @@ const searchTestPatients = [
   { firstName: 'pagination', lastName: 'H' },
   { firstName: 'pagination', lastName: 'I' },
   {
-    firstName: 'more-than-one-open-encounter', encounters: [
-      { id: 'should-be-ignored-1', encounterType: 'clinic', current: false, startDate: moment.utc([2015, 0, 1, 8]).toISOString() },
-      { id: 'should-be-chosen', encounterType: 'admission', current: true, startDate: moment.utc([2014, 0, 1, 8]).toISOString() },
-      { id: 'should-be-ignored-2', encounterType: 'clinic', current: true, startDate: moment.utc([2013, 0, 1, 8]).toISOString() }]
+    firstName: 'more-than-one-open-encounter',
+    encounters: [
+      {
+        id: 'should-be-ignored-1',
+        encounterType: 'clinic',
+        current: false,
+        startDate: moment.utc([2015, 0, 1, 8]).toISOString(),
+      },
+      {
+        id: 'should-be-chosen',
+        encounterType: 'admission',
+        current: true,
+        startDate: moment.utc([2014, 0, 1, 8]).toISOString(),
+      },
+      {
+        id: 'should-be-ignored-2',
+        encounterType: 'clinic',
+        current: true,
+        startDate: moment.utc([2013, 0, 1, 8]).toISOString(),
+      },
+    ],
   },
 ];
 
@@ -105,7 +122,8 @@ describe('Patient search', () => {
               await createDummyEncounter(models, {
                 ...encounterData,
                 patientId: patient.id,
-                departmentId: departments[encounterData.departmentIndex || i % departments.length].id,
+                departmentId:
+                  departments[encounterData.departmentIndex || i % departments.length].id,
                 locationId: locations[encounterData.locationIndex || i % locations.length].id,
               }),
             );
@@ -149,7 +167,7 @@ describe('Patient search', () => {
     expect(response).toHaveSucceeded();
     expect(response.body.count).toEqual(3);
 
-    response.body.data.map(responsePatient => {
+    response.body.data.forEach(responsePatient => {
       expect(responsePatient).toHaveProperty('firstName', 'search-by-name');
     });
   });
@@ -161,7 +179,7 @@ describe('Patient search', () => {
     expect(response).toHaveSucceeded();
     expect(response.body.count).toEqual(3);
 
-    response.body.data.map(responsePatient => {
+    response.body.data.forEach(responsePatient => {
       expect(responsePatient).toHaveProperty('firstName', 'search-by-name');
     });
   });
@@ -229,7 +247,7 @@ describe('Patient search', () => {
 
     const { data } = response.body;
     expect(data.length).toBeGreaterThan(0);
-    data.map(responsePatient => {
+    data.forEach(responsePatient => {
       expect(responsePatient).toHaveProperty('villageId', villageId);
       expect(responsePatient).toHaveProperty('villageName', villageName);
     });
@@ -249,7 +267,7 @@ describe('Patient search', () => {
       expect(testOutpatients.length).toEqual(3);
 
       // ensure all of the response objects match the filter
-      response.body.data.map(responsePatient => {
+      response.body.data.forEach(responsePatient => {
         expect(responsePatient).toHaveProperty('encounterType', 'clinic');
       });
     });
@@ -265,7 +283,7 @@ describe('Patient search', () => {
       expect(testInpatients.length).toEqual(2);
 
       // ensure all of the response objects match the filter
-      response.body.data.map(responsePatient => {
+      response.body.data.forEach(responsePatient => {
         expect(responsePatient).toHaveProperty('encounterType', 'admission');
       });
     });
@@ -277,7 +295,7 @@ describe('Patient search', () => {
       expect(response).toHaveSucceeded();
 
       expect(response.body.data.some(withFirstName('search-by-location')));
-      response.body.data.map(responsePatient => {
+      response.body.data.forEach(responsePatient => {
         expect(responsePatient).toHaveProperty('locationName', locations[0].name);
       });
     });
@@ -289,7 +307,7 @@ describe('Patient search', () => {
       expect(response).toHaveSucceeded();
 
       expect(response.body.data.some(withFirstName('search-by-department')));
-      response.body.data.map(responsePatient => {
+      response.body.data.forEach(responsePatient => {
         expect(responsePatient).toHaveProperty('departmentName', departments[0].name);
       });
     });
@@ -304,7 +322,6 @@ describe('Patient search', () => {
       // Make sure it chooses the correct encounter
       expect(response.body.data[0].encounterId).toEqual('should-be-chosen');
       expect(response.body.data[0].encounterType).toEqual('admission');
-
     });
   });
 
