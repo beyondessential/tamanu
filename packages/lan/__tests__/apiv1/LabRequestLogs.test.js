@@ -1,21 +1,18 @@
 import { LAB_REQUEST_STATUSES } from 'shared/constants';
 import { createDummyPatient, randomReferenceId } from 'shared/demoData/patients';
+import { fake } from 'shared/test-helpers/fake';
+
 import { createTestContext } from '../utilities';
 
-const randomLabTests = (models, labTestCategoryId, amount) =>
-  models.LabTestType.findAll({
-    where: {
-      labTestCategoryId,
-    },
-    limit: amount,
-  });
-
 const randomLabRequest = async (models, overrides) => {
+  const { LabTestType } = models;
+  const labTestTypes = Array(2).map(() => fake(LabTestType));
+  await Promise.all(labTestTypes.map(t => LabTestType.create(t)));
   const categoryId = await randomReferenceId(models, 'labTestCategory');
-  const labTestTypeIds = (await randomLabTests(models, categoryId, 2)).map(({ id }) => id);
+
   return {
     categoryId,
-    labTestTypeIds,
+    labTestTypeIds: labTestTypes.map(t => t.id),
     displayId: 'TESTID',
     ...overrides,
   };
