@@ -22,6 +22,18 @@
 
 - (left blank)
 
+## v1.8.2
+
+### Tweaks ⚖️
+
+- Added loadshedder middleware to keep system more operational under load
+
+## v1.8.1
+
+### Bug fixes 🐛
+
+- Disabled potentially unstable outpatient discharger task
+
 ## v1.8.0
 
 ### Manual steps required after upgrade ⚙
