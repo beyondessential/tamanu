@@ -4,50 +4,6 @@
 
 ### Manual steps required after upgrade ⚙
 
-- Add to samoa `packages/sync-server/local.json`:
-- Add to test environment `packages/sync-server/local.json`:
-- Add to dev environment `packages/sync-server/local.json`:
-
-```
-"tupaiaApiClient": {
-    "auth": {
-        "username": "tamanu-server@tupaia.org",
-        "password": "" // find in lastpass, search for tamanu-server@tupaia.org
-    },
-    "environment": "production"
-},
-"scheduledReports": [
-    {
-        "reportType": "covid-vaccine-daily-summary-village",
-        "schedule": "0 12,17 * * *",
-        "parameters": {},
-        "recipients": {
-            "tupaia": true
-        }
-    }
-]
-```
-
-### Features ⭐
-
-- (left blank)
-
-### Tweaks ⚖️
-
-- (left blank)
-
-### Bug fixes 🐛
-
-- (left blank)
-
-### Infrastructure and maintenance 🛠
-
-- (left blank)
-
-## v1.8.0
-
-### Manual steps required after upgrade ⚙
-
 - (left blank)
 
 ### Features ⭐
@@ -66,11 +22,19 @@
 
 - (left blank)
 
+## v1.8.2
+
+### Tweaks ⚖️
+
+- Added loadshedder middleware to keep system more operational under load
+
+## v1.8.1
+
+### Bug fixes 🐛
+
+- Disabled potentially unstable outpatient discharger task
+
 ## v1.8.0
-
-### Manual steps required after upgrade ⚙
-
-- (left blank)
 
 ### Features ⭐
 
