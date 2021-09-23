@@ -328,6 +328,9 @@ describe('Patient search', () => {
   });
 
   describe('Sorting', () => {
+    // TODO: use locale sort (e.g. unicode collation algorithm or similar) in the database
+    // https://linear.app/bes/issue/TAN-755/tamanu-should-localise-sort-order-for-names
+    // const compareStrings = (a, b) => (reverse ? -1 : 1) * a.toUpperCase().localeCompare(b.toUpperCase());
     const compareStrings = (a, b) => {
       // nulls last, case-insensitive, compared by codepoint not locale
       if (!a && b) return 1;
