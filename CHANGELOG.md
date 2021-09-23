@@ -22,6 +22,12 @@
 
 - (left blank)
 
+## v1.8.3
+
+### Bug fixes 🐛
+
+- Prevent sequelize nesting encounter queries on export
+
 ## v1.8.2
 
 ### Tweaks ⚖️
