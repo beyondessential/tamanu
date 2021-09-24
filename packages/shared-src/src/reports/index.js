@@ -23,6 +23,7 @@ import * as fijiRecentAttendanceList from './fiji-recent-attendance-list';
 import * as fijiNcdPrimaryScreeningLineList from './fiji-ncd-primary-screening/fiji-ncd-primary-screening-line-list';
 import * as fijiNcdPrimaryScreeningPendingReferralsLineList from './fiji-ncd-primary-screening/fiji-ncd-primary-screening-pending-referrals-line-list';
 import * as fijiNcdPrimaryScreeningSummary from './fiji-ncd-primary-screening/fiji-ncd-primary-screening-summary';
+import * as covidSwabLabTestListPostgres from './covid-swab-lab-test-list-postgres';
 
 export function getReportModule(reportType) {
   switch (reportType) {
@@ -62,6 +63,8 @@ export function getReportModule(reportType) {
       return fijiCovidSwabLabTestList;
     case 'palau-covid-swab-lab-test-list':
       return palauCovidSwabLabTestList;
+    case 'covid-swab-lab-test-list-postgres':
+      return covidSwabLabTestListPostgres;
     case 'covid-swab-lab-tests-summary':
       return covidSwabLabTestsSummary;
     case 'india-assistive-technology-device-line-list':

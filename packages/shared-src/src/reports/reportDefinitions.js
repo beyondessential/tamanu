@@ -84,6 +84,12 @@ export const REPORT_DEFINITIONS = [
     parameters: [{ parameterField: 'VillageField' }, { parameterField: 'LabTestLaboratoryField' }],
   },
   {
+    name: '[alpha] COVID-19 Tests - Line list (Postgres)',
+    id: 'covid-swab-lab-test-list-postgres',
+    allFacilities: true,
+    parameters: [{ parameterField: 'VillageField' }, { parameterField: 'LabTestLaboratoryField' }],
+  },
+  {
     name: 'Palau COVID-19 Test - Line list',
     id: 'palau-covid-swab-lab-test-list',
     allFacilities: true,
