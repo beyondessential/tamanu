@@ -13,6 +13,7 @@ export const useLabRequest = () => useContext(LabRequestContext);
 export const LabRequestProvider = ({ store, children }) => {
   const [labRequest, setLabRequest] = useState({});
   const [isLoading, setIsLoading] = useState(false);
+  const [searchParameters, setSearchParameters] = useState({});
 
   const api = useContext(ApiContext);
 
@@ -52,6 +53,8 @@ export const LabRequestProvider = ({ store, children }) => {
         viewLabRequest,
         updateLabRequest,
         updateLabTest,
+        searchParameters,
+        setSearchParameters,
       }}
     >
       {children}
