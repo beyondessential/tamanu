@@ -22,19 +22,19 @@ function createParser() {
     defaultValue: 'serve',
   });
 
-  parser.addArgument('--reportName', {
+  parser.addArgument('--name', {
     action: 'store',
-    dest: 'reportName',
+    dest: 'name',
   });
 
-  parser.addArgument('--reportParameters', {
+  parser.addArgument('--parameters', {
     action: 'store',
-    dest: 'reportParameters',
+    dest: 'parameters',
   });
 
-  parser.addArgument('--reportRecipients', {
+  parser.addArgument('--recipients', {
     action: 'store',
-    dest: 'reportRecipients',
+    dest: 'recipients',
   });
 
   // migrate subcommand

@@ -47,7 +47,11 @@ export class ReportRunner {
         }
       }
 
+      log.info(`ReportRunner - Running report "${this.reportName}"`);
+
       reportData = await reportDataGenerator(this.models, this.parameters, this.tupaiaApiClient);
+
+      log.info(`ReportRunner - Running report "${this.reportName}" finished`);
     } catch (e) {
       throw new Error(`Failed to generate report, ${e.message}`);
     }
@@ -92,6 +96,10 @@ export class ReportRunner {
     try {
       zipFile = await createZippedExcelFile(reportName, reportData);
 
+      log.info(
+        `ReportRunner - Sending report "${zipFile}" to "${this.recipients.email.join(',')}"`,
+      );
+
       const result = await this.emailService.sendEmail({
         from: config.mailgun.from,
         to: this.recipients.email.join(','),
@@ -100,7 +108,7 @@ export class ReportRunner {
         attachment: zipFile,
       });
       if (result.status === COMMUNICATION_STATUSES.SENT) {
-        log.info(`ReportRunner - Sent report ${zipFile} to ${this.recipients.email.join(',')}`);
+        log.info(`ReportRunner - Sent report "${zipFile}" to "${this.recipients.email.join(',')}"`);
       } else {
         throw new Error(`ReportRunner - Mailgun error: ${result.error}`);
       }

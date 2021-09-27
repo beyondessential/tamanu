@@ -74,17 +74,40 @@ async function migrate(store, options) {
 }
 
 async function report(store, options) {
-  const { reportName, reportParameters, reportRecipients } = options;
-  const emailService = new EmailService();
-  const reportRunner = new ReportRunner(
-    reportName,
-    JSON.parse(reportParameters),
-    JSON.parse(reportRecipients),
-    store.models,
-    emailService,
-  );
-  log.info(`Running report "${reportName}" with parameters "${reportParameters}"`);
-  await reportRunner.run();
+  try {
+    const { name, parameters, recipients } = options;
+    let reportParameters = {};
+    let reportRecipients = {};
+    try {
+      reportParameters = JSON.parse(parameters);
+    } catch (error) {
+      log.warn(`Failed to parse parameters ${error}`);
+    }
+
+    try {
+      reportRecipients = JSON.parse(recipients);
+    } catch (error) {
+      // Backwards compatibility: support previous syntax of plain string
+      reportRecipients = {
+        email: recipients.split(','),
+      };
+    }
+
+    const emailService = new EmailService();
+    const reportRunner = new ReportRunner(
+      name,
+      reportParameters,
+      reportRecipients,
+      store.models,
+      emailService,
+    );
+    log.info(`Running report "${name}" with parameters "${parameters}"`);
+    await reportRunner.run();
+  } catch (error) {
+    // Send error message back to parent process
+    process.stderr.write(error.message);
+    throw error;
+  }
   process.exit(0);
 }
 

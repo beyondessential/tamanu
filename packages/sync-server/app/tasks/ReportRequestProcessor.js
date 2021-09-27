@@ -5,10 +5,10 @@ import { REPORT_REQUEST_STATUSES } from 'shared/constants';
 import { getReportModule } from 'shared/reports';
 import { ScheduledTask } from 'shared/tasks';
 import { log } from 'shared/services/logging';
+import { ReportRunner } from '../report/ReportRunner';
 
 // time out and kill the report process if it takes more than 2 hours to run
-const REPORT_TIME_OUT_DURATION_SECONDS = 2 * 60 * 60;
-const REPORT_TIME_OUT_DURATION_MILLISECONDS = REPORT_TIME_OUT_DURATION_SECONDS * 1000;
+const REPORT_TIME_OUT_DURATION_MILLISECONDS = config.reportProcess.timeOutDurationSeconds * 1000;
 
 export class ReportRequestProcessor extends ScheduledTask {
   getName = () => {
@@ -21,46 +21,83 @@ export class ReportRequestProcessor extends ScheduledTask {
     this.context = context;
   }
 
-  spawnReportProcess = request => {
-    log.info(`Spawning child process for report request "${request.id}"`);
+  spawnReportProcess = async request => {
+    const [node, scriptPath] = process.argv;
+    log.info(
+      `Spawning child process for report request "${request.id}" for report "${request.reportType}" with command [${node}, ${scriptPath}].`,
+    );
+
     const childProcess = spawn(
-      'node',
+      node,
       [
-        './dist/app.bundle.js',
+        scriptPath,
         'report',
-        '--reportName',
+        '--name',
         request.reportType,
-        '--reportParameters',
+        '--parameters',
         request.parameters,
-        '--reportRecipients',
+        '--recipients',
         request.recipients,
       ],
       { timeout: REPORT_TIME_OUT_DURATION_MILLISECONDS },
     );
 
-    // Comment out to see info about the child processes
-    // childProcess.stdout.setEncoding('utf8');
-    // childProcess.stdout.on('data', data => {
-    //   console.log('stdout: ', data.toString());
-    // });
+    if (config.reportProcess.showChildProcessLogs) {
+      childProcess.stdout.setEncoding('utf8');
+      childProcess.stdout.on('data', data => {
+        console.log('stdout: ', data.toString());
+      });
+    }
 
-    childProcess.on('exit', code => {
-      if (code === 0) {
-        log.info(`Child process running report request "${request.id}" has finished.`);
-        request.update({
-          status: REPORT_REQUEST_STATUSES.PROCESSED,
-        });
-      } else {
-        log.error(
-          `Child process running report "${request.reportType}" has exited due to an error.`,
+    return new Promise((resolve, reject) => {
+      childProcess.on('exit', code => {
+        if (code === 0) {
+          log.info(
+            `Child process running report request "${request.id}" for report "${request.reportType}" has finished.`,
+          );
+          resolve();
+        } else {
+          log.error(
+            `Child process running report request "${request.id}" for report "${request.reportType}" has exited due to an error.`,
+          );
+          reject(
+            new Error(
+              `Failed to generate report for report request "${request.id}" for report "${request.reportType}"`,
+            ),
+          );
+        }
+      });
+
+      childProcess.on('error', err => {
+        log.error(`Child process failed to start, using commands [${node}, ${scriptPath}].`);
+        reject(
+          new Error(`Child process failed to start, using commands [${node}, ${scriptPath}].`),
         );
-        request.update({
-          status: REPORT_REQUEST_STATUSES.ERROR,
-          error: `ReportRequestProcessorError - Failed to generate report for report request "${request.id}"`,
-        });
-      }
+      });
+
+      // Catch error from child process
+      childProcess.stderr.setEncoding('utf8');
+      childProcess.stderr.on('data', data => {
+        log.error(data.toString());
+        reject(new Error(data.toString()));
+      });
     });
   };
+
+  async runReportInTheSameProcess(request) {
+    log.info(
+      `Running report request "${request.id}" for report "${request.reportType}" in main process.`,
+    );
+    const reportRunner = new ReportRunner(
+      request.reportType,
+      request.getParameters(),
+      request.getRecipients(),
+      this.context.store.models,
+      this.context.emailService,
+    );
+
+    await reportRunner.run();
+  }
 
   async runReports() {
     const requests = await this.context.store.models.ReportRequest.findAll({
@@ -110,13 +147,21 @@ export class ReportRequestProcessor extends ScheduledTask {
           processStartedTime: new Date(),
         });
 
-        this.spawnReportProcess(request);
+        if (config.reportProcess.runInChildProcess) {
+          await this.spawnReportProcess(request);
+        } else {
+          await this.runReportInTheSameProcess(request);
+        }
+
+        await request.update({
+          status: REPORT_REQUEST_STATUSES.PROCESSED,
+        });
       } catch (e) {
         log.error(`ReportRequestProcessorError - Failed to generate report, ${e.message}`);
         log.error(e.stack);
         await request.update({
           status: REPORT_REQUEST_STATUSES.ERROR,
-          error: `Failed to generate report, ${e.message}`,
+          error: e.message,
         });
       }
     }
@@ -127,7 +172,7 @@ export class ReportRequestProcessor extends ScheduledTask {
       const requests = await this.context.store.models.ReportRequest.findAll({
         where: sequelize.literal(
           `status = '${REPORT_REQUEST_STATUSES.PROCESSING}' AND 
-          EXTRACT(EPOCH FROM CURRENT_TIMESTAMP - process_started_time) > ${REPORT_TIME_OUT_DURATION_SECONDS}`,
+          EXTRACT(EPOCH FROM CURRENT_TIMESTAMP - process_started_time) > ${config.reportProcess.timeOutDurationSeconds}`,
         ), // find processing report requests that have been running more than the timeout limit
         order: [['createdAt', 'ASC']], // process in order received
         limit: 10,

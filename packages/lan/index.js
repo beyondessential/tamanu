@@ -57,8 +57,8 @@ async function report(options) {
   // going via inline import rather than top-level just to keep diff footprint small during a hotfix
   // should be fine to pull to the top level
   const { getReportModule } = await import('shared/reports');
-  const module = getReportModule(options.reportName);
-  log.info(`Running report ${options.reportName} (with empty parameters)`);
+  const module = getReportModule(options.name);
+  log.info(`Running report ${options.name} (with empty parameters)`);
   const result = await module.dataGenerator(context.models, {});
   console.log(result);
   process.exit(0);
