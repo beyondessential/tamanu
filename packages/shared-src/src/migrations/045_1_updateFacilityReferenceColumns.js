@@ -1,7 +1,8 @@
 
-async function switchConstraint(query, table, type, up) {
-  const column = `${target}_id`;
-  const constraint = `${table}_${column}_fkey`;
+// helper function to move a FK constraint to point at a different column/table
+async function switchConstraint(query, table, target, up) {
+  const column = `${target}_id`;                // eg location_id
+  const constraint = `${table}_${column}_fkey`; // eg encounter_location_id_fkey
 
   // remove existing constraint
   await query.sequelize.query(`
