@@ -2,8 +2,8 @@ import React, { useState, useEffect } from 'react';
 import { useNetInfo } from "@react-native-community/netinfo";
 import { useField } from 'formik';
 
-import { Field } from '../FormField';
-import { Dropdown, SelectOption } from '../../Dropdown';
+import { Field } from '../Forms/FormField';
+import { Dropdown, SelectOption } from '../Dropdown';
 import { readConfig } from '~/services/config';
 import { StyledText } from '/styled/common';
 import { theme } from '~/ui/styled/theme';

@@ -34,6 +34,7 @@ export const SignIn: FunctionComponent<any> = ({ navigation }: SignInProps) => {
 
   const onNavigateToForgotPassword = useCallback(() => {
     console.log('onNavigateToForgotPassword...');
+    navigation.navigate(Routes.SignUpStack.ResetPassword);
   }, []);
 
   const onChangeModalVisibility = useCallback((isVisible: boolean) => {

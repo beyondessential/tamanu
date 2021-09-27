@@ -7,43 +7,45 @@ import { screenPercentageToDP, Orientation } from '/helpers/screen';
 import { TextField } from '../../TextField/TextField';
 import { ServerSelector } from '../../ServerSelectorField/ServerSelector';
 
-type SignInFieldsProps = {
+type ResetPasswordFieldsProps = {
   handleSubmit: (value: any) => void;
   isSubmitting: boolean;
 };
 
-export const SignInFields = ({
+export const ResetPasswordFields = ({
   handleSubmit,
   isSubmitting,
-}: SignInFieldsProps): ReactElement => (
+}: ResetPasswordFieldsProps): ReactElement => (
   <StyledView
     marginTop={screenPercentageToDP(14.7, Orientation.Height)}
     marginRight={screenPercentageToDP(2.43, Orientation.Width)}
     marginLeft={screenPercentageToDP(2.43, Orientation.Width)}
   >
-    <StyledText
-      fontSize={13}
-      marginBottom={5}
-      color={theme.colors.SECONDARY_MAIN}
-    >
-      ACCOUNT DETAILS
-    </StyledText>
     <StyledView
       justifyContent="space-around"
     >
-      <ServerSelector />
+      <StyledText
+        fontSize={13}
+        marginBottom={5}
+        color={theme.colors.SECONDARY_MAIN}
+      >
+        Enter your account email
+      </StyledText>
       <Field
         name="email"
         keyboardType="email-address"
         component={TextField}
         label="Email"
       />
-      <Field
-        name="password"
-        component={TextField} 
-        label="Password" 
-        secure 
-      />
+      <StyledText
+        fontSize={13}
+        marginTop={15}
+        marginBottom={5}
+        color={theme.colors.SECONDARY_MAIN}
+      >
+        Country
+      </StyledText>
+      <ServerSelector />
     </StyledView>
     <Button
       marginTop={20}
@@ -53,7 +55,7 @@ export const SignInFields = ({
       textColor={theme.colors.TEXT_SUPER_DARK}
       fontSize={screenPercentageToDP('1.94', Orientation.Height)}
       fontWeight={500}
-      buttonText="Sign in"
+      buttonText="Reset Password"
     />
   </StyledView>
 );

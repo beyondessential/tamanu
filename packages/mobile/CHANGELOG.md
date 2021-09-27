@@ -8,7 +8,7 @@
 
 ### Features ⭐
 
-- (left blank)
+- Password reset
 
 ### Tweaks ⚖️
 

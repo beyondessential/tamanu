@@ -7,6 +7,9 @@ import { WithAuthStoreProps } from '~/ui/store/ducks/auth';
 import { Routes } from '~/ui/helpers/routes';
 import { BackendContext } from '~/ui/contexts/BackendContext';
 import { IUser, SyncConnectionParameters } from '~/types';
+import { useLocalisation } from '~/ui/contexts/LocalisationContext';
+import { ResetPasswordFormModel } from '/interfaces/forms/ResetPasswordFormProps';
+import {ChangePasswordFormModel} from "/interfaces/forms/ChangePasswordFormProps";
 
 type AuthProviderProps = WithAuthStoreProps & {
   navRef: RefObject<NavigationContainerRef>;
@@ -19,6 +22,9 @@ interface AuthContextData {
   isUserAuthenticated: () => boolean;
   setUserFirstSignIn: () => void;
   checkFirstSession: () => boolean;
+  requestResetPassword: (params: ResetPasswordFormModel) => void;
+  resetPasswordLastEmailUsed: string;
+  changePassword: (params: ChangePasswordFormModel) => void;
 }
 
 const AuthContext = createContext<AuthContextData>({} as AuthContextData);
@@ -34,6 +40,8 @@ const Provider = ({
 }: PropsWithChildren<AuthProviderProps>): ReactElement => {
   const checkFirstSession = (): boolean => props.isFirstTime;
   const [user, setUserData] = useState();
+  const [resetPasswordLastEmailUsed, setResetPasswordLastEmailUsed] = useState('');
+  const { setLocalisation } = useLocalisation();
 
   const setUserFirstSignIn = (): void => {
     props.setFirstSignIn(false);
@@ -87,6 +95,15 @@ const Provider = ({
     }
   };
 
+  const requestResetPassword = async (params: ResetPasswordFormModel): Promise<void> => {
+    await backend.auth.requestResetPassword(params);
+    setResetPasswordLastEmailUsed(params.email);
+  };
+
+  const changePassword = async (params: ChangePasswordFormModel): Promise<void> => {
+    await backend.auth.changePassword(params);
+  };
+
   // start a session if there's a stored token
   useEffect(() => {
     if (props.token && props.user) {
@@ -117,6 +134,9 @@ const Provider = ({
         isUserAuthenticated,
         checkFirstSession,
         user,
+        requestResetPassword,
+        resetPasswordLastEmailUsed,
+        changePassword,
       }}
     >
       {children}
