@@ -1,7 +1,9 @@
 import React, { ReactElement } from 'react';
 import { useNavigation } from '@react-navigation/core';
-import { FormGroup } from '../FormGroup';
-import { Field } from '../../FormField';
+
+import { useLocalisation } from '~/ui/contexts/LocalisationContext';
+import { FormGroup } from '~/ui/components/Forms/NewPatientForm/FormGroup';
+import { LocalisedField } from '~/ui/components/Forms/LocalisedField';
 import { AutocompleteModalField } from '~/ui/components/AutocompleteModal/AutocompleteModalField';
 import { Routes } from '~/ui/helpers/routes';
 import { ReferenceDataType } from '~/types';
@@ -11,6 +13,7 @@ import { useBackend } from '~/ui/hooks';
 export const LocationDetailsSection = (): ReactElement => {
   const navigation = useNavigation();
   const { models } = useBackend();
+  const { getString } = useLocalisation();
 
   const villageSuggester = new Suggester(
     models.ReferenceData,
@@ -23,10 +26,9 @@ export const LocationDetailsSection = (): ReactElement => {
 
   return (
     <FormGroup sectionName="LOCATION DETAILS" marginTop>
-      <Field
-        label="Village"
+      <LocalisedField
         component={AutocompleteModalField}
-        placeholder="Search villages"
+        placeholder={`Search for ${getString('fields.villageId.longLabel', 'Village')}`}
         navigation={navigation}
         suggester={villageSuggester}
         modalRoute={Routes.Autocomplete.Modal}

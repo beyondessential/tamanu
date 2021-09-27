@@ -3,7 +3,7 @@ import { BaseModel } from './BaseModel';
 import { Program } from './Program';
 import { Database } from '~/infra/db';
 
-import { ISurvey, ISurveyResponse, SurveyTypes } from '~/types';
+import { ISurvey, ISurveyResponse, ISurveyScreenComponent, SurveyTypes } from '~/types';
 
 @Entity('survey')
 export class Survey extends BaseModel implements ISurvey {
@@ -23,7 +23,7 @@ export class Survey extends BaseModel implements ISurvey {
 
   components: any;
 
-  getComponents(): Promise<BaseModel[]> {
+  getComponents(): Promise<ISurveyScreenComponent[]> {
     const repo = Database.models.SurveyScreenComponent.getRepository();
     return repo.find({
       where: { survey: { id: this.id } },

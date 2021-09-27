@@ -89,6 +89,13 @@ export const Routes = {
       Index: '',
       AddDeceasedDetails: '',
     },
+    LabRequestStack: {
+      Index: '',
+      LabRequestTabs: {
+        ViewHistory: '',
+        NewRequest: '',
+      },
+    },
     HistoryVitalsStack: {
       Index: '',
       HistoryVitalsTabs: {

@@ -8,6 +8,7 @@ import { CheckboxMarkIcon } from '../Icons';
 
 interface CheckboxProps extends BaseInputProps {
   onChange: Function;
+  id: string;
   text: string;
   value: boolean;
   background?: string;
@@ -17,13 +18,14 @@ interface CheckboxProps extends BaseInputProps {
 export const Checkbox = ({
   value,
   onChange,
+  id,
   text,
   error,
   required,
   background,
   color,
 }: CheckboxProps): JSX.Element => {
-  const ChangeCallback = useCallback(() => onChange(!value), [onChange, value]);
+  const ChangeCallback = useCallback(() => onChange(!value, id), [onChange, value]);
 
   const getColor = useCallback(() => {
     if (error) return theme.colors.ERROR;

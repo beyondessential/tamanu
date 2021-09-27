@@ -9,14 +9,12 @@ export const GeneralInfo = (
   data: PatientGeneralInformationDataProps,
 ): ReactElement => {
   const fields = [
-    ['First name', data.generalInfo.firstName],
-    ['Middle name', data.generalInfo.middleName || 'None'],
-
-    ['Last name', data.generalInfo.lastName],
-    ['Cultural/tradition name', data.generalInfo.culturalName || 'None'],
-
-    ['Date of Birth', formatDate(new Date(data.generalInfo.dateOfBirth), DateFormats.DDMMYY)],
-    ['Village', data.generalInfo.village?.name ?? ''],
+    ['firstName', data.generalInfo.firstName],
+    ['middleName', data.generalInfo.middleName || 'None'],
+    ['lastName', data.generalInfo.lastName],
+    ['culturalName', data.generalInfo.culturalName || 'None'],
+    ['dateOfBirth', formatDate(new Date(data.generalInfo.dateOfBirth), DateFormats.DDMMYY)],
+    ['villageId', data.generalInfo.village?.name ?? ''],
   ];
 
   return <FieldRowDisplay fields={fields} header="General Information" fieldsPerRow={2} />;

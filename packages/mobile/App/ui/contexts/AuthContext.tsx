@@ -61,8 +61,7 @@ const Provider = ({
   };
 
   const remoteSignIn = async (params: SyncConnectionParameters): Promise<void> => {
-    const { user, token, localisation } = await backend.auth.remoteSignIn(params);
-    setLocalisation(localisation);
+    const { user, token } = await backend.auth.remoteSignIn(params);
     setUser({ facility: dummyFacility, ...user });
     setUserData({ facility: dummyFacility, ...user });
     setToken(token);
@@ -94,7 +93,6 @@ const Provider = ({
         routes: [{ name: Routes.SignUpStack.Index }],
       });
     }
-    setLocalisation({});
   };
 
   const requestResetPassword = async (params: ResetPasswordFormModel): Promise<void> => {
@@ -118,7 +116,7 @@ const Provider = ({
   // sign user out if an auth error was thrown
   useEffect(() => {
     const handler = (err: Error) => {
-      console.log(`signing out user with token ${props.token}: recieved auth error:`, err);
+      console.log(`signing out user with token ${props.token}: received auth error:`, err);
       signOut();
     };
     backend.auth.emitter.on('authError', handler);

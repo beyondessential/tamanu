@@ -4,6 +4,8 @@ import { Database } from '~/infra/db';
 import { readConfig, writeConfig } from '~/services/config';
 import { Patient } from '~/models/Patient';
 import { BaseModel } from '~/models/BaseModel';
+import { LocalisationService } from '~/services/localisation';
+
 import { DownloadRecordsResponse, UploadRecordsResponse, SyncRecord, SyncSource } from './source';
 import { createImportPlan, executeImportPlan } from './import';
 import { createExportPlan, executeExportPlan } from './export';
@@ -28,7 +30,7 @@ const OPTIMAL_DOWNLOAD_TIME_PER_PAGE = 2000; // aim for 2 seconds per page
 const MAX_LIMIT_CHANGE_PER_PAGE = 0.2; // max 20% increase from batch to batch, or it is too jumpy
 
 // Set the current page size based on how long the previous page took to complete.
-const calculateDynamicLimit = (currentLimit, downloadTime): number => {
+const calculateDynamicLimit = (currentLimit: number, downloadTime: number): number => {
   const durationPerRecord = downloadTime / currentLimit;
   const optimalPageSize = OPTIMAL_DOWNLOAD_TIME_PER_PAGE / durationPerRecord;
   let newLimit = optimalPageSize;
@@ -46,6 +48,7 @@ const calculateDynamicLimit = (currentLimit, downloadTime): number => {
   );
   return newLimit;
 };
+
 export class SyncManager {
   isSyncing = false;
 
@@ -57,13 +60,17 @@ export class SyncManager {
 
   syncSource: SyncSource = null;
 
+  localisation: LocalisationService;
+
   verbose = true;
 
   constructor(
     syncSource: SyncSource,
+    localisation: LocalisationService,
     { verbose }: SyncManagerOptions = {},
   ) {
     this.syncSource = syncSource;
+    this.localisation = localisation;
 
     if (verbose !== undefined) {
       this.verbose = verbose;
@@ -88,6 +95,11 @@ export class SyncManager {
         console.log(`[sync] ${String(action)} ${args[0] || ''}`);
       }
     });
+  }
+
+  setProgress(progress: number): void {
+    this.progress = progress;
+    this.emitter.emit('progress', this.progress);
   }
 
   async waitForEnd(): Promise<void> {
@@ -121,6 +133,7 @@ export class SyncManager {
       return;
     }
 
+    let startTimeMs = Date.now();
     try {
       this.isSyncing = true;
       this.errors = [];
@@ -128,12 +141,16 @@ export class SyncManager {
 
       const { models } = Database;
       const syncablePatients = await models.Patient.getSyncable();
+      const syncableScheduledVaccineIds =
+        this.localisation.getArrayOfStrings('sync.syncAllEncountersForTheseScheduledVaccines');
 
       // channels in order of sync, so that foreign keys exist before referencing records use them
       const channelInfos: ChannelInfo[] = [
         { channel: 'reference', model: models.ReferenceData },
         { channel: 'user', model: models.User },
-        
+
+        { channel: 'labTestType', model: models.LabTestType },
+
         { channel: 'attachment', model: models.Attachment },
 
         { channel: 'scheduledVaccine', model: models.ScheduledVaccine },
@@ -146,13 +163,20 @@ export class SyncManager {
         { channel: 'patient', model: models.Patient },
         ...syncablePatients.map(p => ({
           channel: `patient/${p.id}/encounter`,
-          model: models.Encounter })),
+          model: models.Encounter
+        })),
+        ...syncableScheduledVaccineIds.map((svid: string) => ({
+          channel: `scheduledVaccine/${svid}/encounter`,
+          model: models.Encounter
+        })),
         ...syncablePatients.map(p => ({
           channel: `patient/${p.id}/issue`,
-          model: models.PatientIssue })),
+          model: models.PatientIssue
+        })),
         ...syncablePatients.map(p => ({
           channel: `patient/${p.id}/additionalData`,
-          model: models.PatientAdditionalData })),
+          model: models.PatientAdditionalData
+        })),
       ];
 
       // add current cursor to each channel info
@@ -174,7 +198,7 @@ export class SyncManager {
       }
     } finally {
       this.isSyncing = false;
-      this.emitter.emit('syncEnded');
+      this.emitter.emit('syncEnded', `time=${Date.now() - startTimeMs}ms`);
     }
   }
 
@@ -191,22 +215,22 @@ export class SyncManager {
     channel: string,
     initialCursor: string,
   ): Promise<void> {
-    const downloadPage = (since: string, limit: number): Promise<DownloadRecordsResponse> => {
+    const downloadPage = (since: string, limit: number, options: { noCount: boolean }): Promise<DownloadRecordsResponse> => {
       this.emitter.emit('downloadingPage', `${channel}-since-${since}-limit-${limit}`);
-      return this.syncSource.downloadRecords(channel, since, limit);
+      return this.syncSource.downloadRecords(channel, since, limit, options);
     };
 
     let numDownloaded = 0;
-    const setProgress = (progress: number): void => {
-      this.progress = progress;
-      this.emitter.emit('progress', this.progress);
-    };
-    const updateProgress = (stepSize: number, remaining: number): void => {
-      const total = numDownloaded + remaining;
+    const updateProgress = (stepSize: number): void => {
       numDownloaded += stepSize;
-      setProgress(Math.ceil((numDownloaded / total) * 100));
+      this.setProgress(
+        Math.min(
+          Math.ceil((numDownloaded / total) * 100),
+          100,
+        ),
+      );
     };
-    setProgress(0);
+    this.setProgress(0);
 
     const importPlan = createImportPlan(model);
     const importRecords = async (records: SyncRecord[], pullCursor: string): Promise<void> => {
@@ -228,6 +252,7 @@ export class SyncManager {
     let cursor = initialCursor;
     let importTask: Promise<void>;
     let limit = INITIAL_DOWNLOAD_LIMIT;
+    let total: number | null;
     this.emitter.emit('importStarted', channel);
     while (true) {
       // We want to download each page of records while the current page
@@ -235,14 +260,18 @@ export class SyncManager {
       // and network IO are running in parallel rather than running in
       // alternating sequence.
       const startTime = Date.now();
-      const downloadTask = downloadPage(cursor, limit);
+      let downloadTime: number;
+      const downloadTask = downloadPage(cursor, limit, { noCount: !!total }).then(r => {
+        // set downloadTime as soon as downloadTask completes so it isn't depedent on import
+        downloadTime = Date.now() - startTime;
+        return r;
+      });
 
       // wait for import task to complete before progressing in loop
       await importTask;
 
       // wait for the current page download to complete
       const response = await downloadTask;
-      const downloadTime = Date.now() - startTime;
 
       if (response === null) {
         // ran into an error
@@ -256,7 +285,11 @@ export class SyncManager {
         break;
       }
 
-      updateProgress(response.records.length, response.count);
+      if (!total) {
+        // set total items once, at the start of the channel sync
+        total = response.count;
+      }
+      updateProgress(response.records.length);
 
       cursor = response.cursor;
 
@@ -326,7 +359,7 @@ export class SyncManager {
 
       const recordIdsToExport = await model.filterExportRecords(recordsChunk.map(r => r.data.id));
       const recordsToExport = recordsChunk.filter(r => recordIdsToExport.includes(r.data.id));
-  
+
       if (recordsToExport.length === 0) {
         continue;
       }

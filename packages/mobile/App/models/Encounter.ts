@@ -23,6 +23,7 @@ import { Vitals } from './Vitals';
 import { formatDateForQuery } from '~/infra/db/helpers';
 import { SummaryInfo } from '~/ui/navigation/screens/home/Tabs/PatientHome/ReportScreen/SummaryBoard';
 import { Referral } from './Referral';
+import { LabRequest } from './LabRequest';
 
 const TIME_OFFSET = 3;
 
@@ -53,10 +54,6 @@ export class Encounter extends BaseModel implements IEncounter {
   @RelationId(({ examiner }) => examiner)
   examinerId: string;
 
-  // TODO: Add model, automatically attach all lab requests to the encounter
-  @Column({ nullable: true })
-  labRequest?: string;
-
   // TODO: Is this a model, referenceData or just string?
   @Column({ nullable: true })
   medication?: string;
@@ -73,6 +70,9 @@ export class Encounter extends BaseModel implements IEncounter {
   location: ReferenceData;
   @RelationId(({ location }) => location)
   locationId?: string;
+
+  @OneToMany(() => LabRequest, (labRequest) => labRequest.encounter)
+  labRequests: LabRequest[];
 
   @OneToMany(() => Diagnosis, (diagnosis) => diagnosis.encounter, {
     eager: true,
@@ -187,16 +187,27 @@ export class Encounter extends BaseModel implements IEncounter {
   static async findMarkedForUpload(
     opts: FindMarkedForUploadOptions,
   ): Promise<BaseModel[]> {
-    const patientId = opts.channel.match(/^patient\/(.*)\/encounter$/)[1];
-    if (!patientId) {
-      throw new Error(`Could not extract patientId from ${opts.channel}`);
+    const patientId = (opts.channel.match(/^patient\/(.*)\/encounter$/) || [])[1];
+    const scheduledVaccineId = (opts.channel.match(/^scheduledVaccine\/(.*)\/encounter/) || [])[1];
+    if (patientId) {
+      const records = await this.findMarkedForUploadQuery(opts)
+        .andWhere('patientId = :patientId', { patientId })
+        .getMany();
+      return records as BaseModel[];
+    }
+    if (scheduledVaccineId) {
+      const records = await this.findMarkedForUploadQuery(opts)
+        .innerJoinAndSelect('Encounter.administeredVaccines', 'AdministeredVaccine')
+        .andWhere(
+          'AdministeredVaccine.scheduledVaccineId = :scheduledVaccineId',
+          { scheduledVaccineId },
+        )
+        .getMany();
+      return records as BaseModel[];
+
     }
 
-    const records = await this.findMarkedForUploadQuery(opts)
-      .andWhere('patientId = :patientId', { patientId })
-      .getMany();
-
-    return records as BaseModel[];
+    throw new Error(`Could not extract marked for upload from ${opts.channel}`);
   }
 
   static includedSyncRelations = [
@@ -208,5 +219,7 @@ export class Encounter extends BaseModel implements IEncounter {
     'vitals',
     'initiatedReferrals',
     'completedReferrals',
+    'labRequests',
+    'labRequests.tests',
   ];
 }

@@ -18,6 +18,9 @@ import { Referral } from './Referral';
 import { Medication } from './Medication';
 import { Attachment } from './Attachment';
 import { BaseModel } from './BaseModel';
+import { LabRequest } from './LabRequest';
+import { LabTest } from './LabTest';
+import { LabTestType } from './LabTestType';
 
 export const MODELS_ARRAY: typeof BaseModel[] = [
   ReferenceData,
@@ -39,8 +42,10 @@ export const MODELS_ARRAY: typeof BaseModel[] = [
   Medication,
   Referral,
   Attachment,
+  LabRequest,
+  LabTest,
+  LabTestType,
 ];
-
 export const MODELS_MAP = {
   ReferenceData,
   Patient,
@@ -61,4 +66,7 @@ export const MODELS_MAP = {
   Medication,
   Referral,
   Attachment,
+  LabRequest,
+  LabTest,
+  LabTestType,
 };

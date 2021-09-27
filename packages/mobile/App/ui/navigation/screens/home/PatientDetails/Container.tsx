@@ -75,6 +75,10 @@ const Container = ({
     navigation.navigate(Routes.HomeStack.PatientDetailsStack.AddPatientIssue);
   }, [navigation]);
 
+  const onRecordDeath = useCallback(() => {
+    navigation.navigate(Routes.HomeStack.DeceasedStack.Index)
+  }, [navigation]);
+
   if (issuesError) return <ErrorScreen error={issuesError} />;
   if (additionalDataError) return <ErrorScreen error={additionalDataError} />;
   if (!patientIssues || !additionalData) return <LoadingScreen />;
@@ -87,6 +91,7 @@ const Container = ({
       onEditPatientIssues={onEditPatientIssues}
       reminders={reminders}
       changeReminder={changeReminder}
+      onRecordDeath={onRecordDeath}
     />
   );
 };

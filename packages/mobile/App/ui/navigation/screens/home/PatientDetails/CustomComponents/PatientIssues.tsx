@@ -14,7 +14,7 @@ export const PatientIssues = ({
   patientIssues,
 }: PatientIssuesProps): ReactElement => {
   return (
-    <StyledView marginBottom={40 + patientIssues.length * 40}>
+    <StyledView marginBottom={40}>
       <PatientSection hasSeparator title="Other patient issues" onEdit={onEdit}>
         {patientIssues.map(({ id, note }) => (
           <RowView key={id} alignItems="center" marginTop={10}>
