@@ -8,9 +8,7 @@ import { readConfig } from '~/services/config';
 import { StyledText } from '/styled/common';
 import { theme } from '~/ui/styled/theme';
 
-const META_SERVER = 'https://meta-dev.tamanu.io';
-// TODO: change once prod meta server is deployed
-// const META_SERVER = __DEV__ ? 'https://meta-dev.tamanu.io' : 'https://meta.tamanu.io';
+const META_SERVER = __DEV__ ? 'https://meta-dev.tamanu.io' : 'https://meta.tamanu.io';
 
 type Server = {
   name: string;
