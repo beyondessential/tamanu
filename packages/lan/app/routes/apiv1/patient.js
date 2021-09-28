@@ -11,6 +11,7 @@ import { renameObjectKeys } from '~/utils/renameObjectKeys';
 import { makeFilter } from '~/utils/query';
 import { patientVaccineRoutes } from './patient/patientVaccine';
 import { patientProfilePicture } from './patient/patientProfilePicture';
+import { activeCovid19PatientsHandler } from '../../routeHandlers';
 
 const patientRoute = express.Router();
 export { patientRoute as patient };
@@ -440,5 +441,7 @@ patientRoute.get(
     });
   }),
 );
+
+patientRoute.get('/program/activeCovid19Patients', asyncHandler(activeCovid19PatientsHandler));
 
 patientRoute.use(patientVaccineRoutes);

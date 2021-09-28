@@ -18,7 +18,7 @@
 
 ### Features ⭐
 
-- (left blank)
+- Active COVID-19 Patients table
 
 ### Tweaks ⚖️
 
