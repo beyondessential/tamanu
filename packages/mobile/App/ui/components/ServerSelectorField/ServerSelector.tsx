@@ -12,6 +12,12 @@ const META_SERVER = 'https://meta-dev.tamanu.io';
 // TODO: change once prod meta server is deployed
 // const META_SERVER = __DEV__ ? 'https://meta-dev.tamanu.io' : 'https://meta.tamanu.io';
 
+type Server = {
+  name: string;
+  type: string;
+  host: string;
+}
+
 const fetchServers = async (): Promise<SelectOption[]> => {
   // To use a local server, just edit this and select it.
   // The sync server config is sticky, so you can safely revert it after
@@ -19,7 +25,7 @@ const fetchServers = async (): Promise<SelectOption[]> => {
   // return [{ label: 'Local', value: 'http://192.168.0.1:3000' }];
 
   const response = await fetch(`${META_SERVER}/servers`);
-  const servers = await response.json();
+  const servers: Server[] = await response.json();
 
   return servers.map(s => ({ label: s.name, value: s.host }));
 }
@@ -36,7 +42,7 @@ export const ServerSelector = () => {
       const existing = await readConfig('syncServerLocation');
       setExistingHost(existing);
       fieldHelpers.setValue(existing);
-      if(!existing && netInfo.isInternetReachable) {
+      if (!existing && netInfo.isInternetReachable) {
         const servers = await fetchServers();
         setOptions(servers);
       }
@@ -47,7 +53,7 @@ export const ServerSelector = () => {
     return <StyledText color={theme.colors.ALERT}>No internet connection available.</StyledText>;
   }
 
-  if(existingHost) {
+  if (existingHost) {
     if (__DEV__) {
       return <StyledText>{existingHost}</StyledText>;
     }
