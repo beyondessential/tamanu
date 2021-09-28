@@ -133,7 +133,7 @@ export const loadshedder = (options = config.loadshedder) => {
     if (queue) {
       // acquire a lock from the queue and release it when the request is disposed of
       const release = await queue.acquire();
-      res.once('done', () => {
+      res.once('close', () => {
         release();
       });
     }

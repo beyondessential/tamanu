@@ -7,16 +7,5 @@
   },
   "log": {
     "consoleLevel": "warn"
-  },
-  "loadshedder": {
-    "queues": [
-      {
-        "name": "test_queue",
-        "prefixes": ["/"],
-        "maxActiveRequests": 10000,
-        "maxQueuedRequests": 10000,
-        "queueTimeout": 10000
-      }
-    ]
   }
 }
