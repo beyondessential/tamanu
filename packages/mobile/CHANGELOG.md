@@ -20,7 +20,7 @@
 
 ### Infrastructure and maintenance 🛠
 
-- (left blank)
+- Point production mobile builds to meta instead of meta-dev
 
 ## v1.7.21
 
