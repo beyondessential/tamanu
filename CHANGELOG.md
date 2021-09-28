@@ -54,6 +54,12 @@
 
 - (left blank)
 
+## v1.8.4
+
+### Bug fixes 🐛
+
+- Fix bug where loadshedder might fail to release lock
+
 ## v1.8.3
 
 ### Bug fixes 🐛
