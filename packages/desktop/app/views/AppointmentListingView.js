@@ -31,7 +31,7 @@ const AppointmentTable = connect(null, () => ({ onViewAppointment: () => null })
       endpoint="appointments"
       columns={COLUMNS}
       noDataMessage="No appointments found"
-      initialSort={{ order: 'asc', orderBy: 'start_time' }}
+      initialSort={{ order: 'asc', orderBy: 'startTime' }}
       onRowClick={onViewAppointment}
       {...props}
     />
