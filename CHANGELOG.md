@@ -26,7 +26,7 @@
 
 ### Bug fixes 🐛
 
-- (left blank)
+- Fix OutpatientDischarger performance and schedule not working.
 
 ### Infrastructure and maintenance 🛠
 
