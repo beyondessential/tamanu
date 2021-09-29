@@ -69,8 +69,8 @@
     "allowedOrigin": ""
   },
   "schedules": {
-    // every day at 1 AM
-    "outpatientDischarger": "0 1 * * *",
+    // every day at 11 PM
+    "outpatientDischarger": "0 11 * * *",
     // every 30 seconds
     "reportRequestProcessor": "*/30 * * * * *"
   },
