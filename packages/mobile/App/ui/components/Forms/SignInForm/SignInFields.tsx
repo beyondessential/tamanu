@@ -1,4 +1,4 @@
-import React, { ReactElement, useState, useEffect } from 'react';
+import React, { ReactElement } from 'react';
 import { StyledView, StyledText } from '/styled/common';
 import { theme } from '/styled/theme';
 import { Field } from '../FormField';
@@ -40,9 +40,10 @@ export const SignInFields = ({
       />
       <Field
         name="password"
-        component={TextField} 
-        label="Password" 
-        secure 
+        autoCapitalize="none"
+        component={TextField}
+        label="Password"
+        secure
       />
     </StyledView>
     <Button

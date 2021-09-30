@@ -6,7 +6,7 @@ export type ResultArray<T> = [T | null, Error | null];
 
 export const useCancelableEffect = <T>(
   fetcher: () => Promise<T> | T,
-  dependencies = []
+  dependencies = [],
 ): ResultArray<T> => {
   const [data, setData] = useState(null);
   const [error, setError] = useState(null);
@@ -33,7 +33,7 @@ export const useCancelableEffect = <T>(
 
 export const useBackendEffect = <T>(
   call: (backend: Backend) => Promise<T> | T,
-  dependencies = []
+  dependencies = [],
 ): ResultArray<T> => {
   const backend = useContext(BackendContext);
 
