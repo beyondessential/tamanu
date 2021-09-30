@@ -14,12 +14,14 @@
     - name: build_shared
       service: app
       command: ./scripts/build_shared.sh
-    - name: test
-      service: app
-      command: ./scripts/test.sh
-    - name: build
+    # the build_and_test step runs builds in parallel with tests to speed up codeship
+    # don't release anything inside build_and_test! put it in push_and_deploy!
+    - name: build_and_test
       type: parallel
       steps:
+        - name: test
+          service: app
+          command: ./scripts/test.sh
         - name: build_and_pack_lan_installer
           service: app
           tag: ^(master$|dev$|staging$|ci-)
@@ -28,10 +30,6 @@
           service: app
           tag: ^(master$|dev$|staging$|ci-)
           command: ./scripts/build_desktop.sh build-only
-        - name: build_and_release_desktop_installer
-          service: app
-          tag: ^(release-desktop-)
-          command: ./scripts/build_desktop.sh build-and-release
         - name: build_sync_release
           tag: ^(master$|dev$|staging$|ci-)
           service: app
@@ -43,27 +41,39 @@
     - name: push_and_deploy
       type: parallel
       steps:
+        - name: build_and_release_desktop_installer
+          service: app
+          tag: ^(release-desktop-)
+          command: ./scripts/build_desktop.sh build-and-release
         - name: push_artefacts_to_s3
           service: awsdeployment
           tag: ^(master$|dev$|staging$|ci-)
           command: ./scripts/push.sh
-        - name: deploy_sync_dev_environment
-          tag: ^(dev$|ci-)
-          service: awsdeployment
-          command: ./scripts/deploy_sync_dev.sh
-        - name: deploy_sync_staging_environment
-          tag: ^(staging$)
-          service: awsdeployment
-          command: ./scripts/deploy_sync_staging.sh
-        - name: deploy_sync_demo_environment
-          tag: ^(master$)
-          service: awsdeployment
-          command: ./scripts/deploy_sync_demo.sh
-        - name: deploy_sync_demo_nauru_environment
-          tag: ^(master$)
-          service: awsdeployment
-          command: ./scripts/deploy_sync_demo_nauru.sh
-        - name: deploy_meta_dev_environment
-          tag: ^(dev$|ci-)
-          service: awsdeployment
-          command: ./scripts/deploy_meta_dev.sh
+        # fix for a bug where version names can collide if an application is deployed in parallel
+        # see https://github.com/codeship-library/aws-utilities/issues/115
+        - name: awscli_name_collision_workaround_sync
+          type: serial
+          steps:
+            - name: deploy_sync_dev_environment
+              tag: ^(dev$|ci-)
+              service: awsdeployment
+              command: ./scripts/deploy_sync_dev.sh
+            - name: deploy_sync_staging_environment
+              tag: ^(staging$)
+              service: awsdeployment
+              command: ./scripts/deploy_sync_staging.sh
+            - name: deploy_sync_demo_environment
+              tag: ^(master$)
+              service: awsdeployment
+              command: ./scripts/deploy_sync_demo.sh
+            - name: deploy_sync_demo_nauru_environment
+              tag: ^(master$)
+              service: awsdeployment
+              command: ./scripts/deploy_sync_demo_nauru.sh
+        - name: awscli_name_collision_workaround_meta
+          type: serial
+          steps:
+            - name: deploy_meta_dev_environment
+              tag: ^(dev$|ci-)
+              service: awsdeployment
+              command: ./scripts/deploy_meta_dev.sh

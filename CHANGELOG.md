@@ -30,7 +30,7 @@
 
 ### Infrastructure and maintenance 🛠
 
-- (left blank)
+- Mitigate codeship awscli tools EB version name collision, in our deployment steps
 
 ## v1.8.0
 
