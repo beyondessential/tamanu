@@ -94,3 +94,10 @@ createSuggester(
     name: displayName,
   }),
 );
+
+createSuggester(
+  'patient',
+  'Patient',
+  'LOWER(first_name) LIKE LOWER(:search) OR LOWER(first_name) LIKE LOWER(:search) OR LOWER(last_name) LIKE LOWER(:search) OR LOWER(cultural_name) LIKE LOWER(:search)',
+  patient => patient,
+);

@@ -3,8 +3,8 @@ import React from 'react';
 import { connect } from 'react-redux';
 
 import { TopBar, PageContainer, DataFetchingTable } from '../components';
-
 import { DateDisplay } from '../components/DateDisplay';
+import NewAppointmentButton from '../components/Appointments/NewAppointmentButton';
 
 const COLUMNS = [
   {
@@ -40,7 +40,9 @@ const AppointmentTable = connect(null, () => ({ onViewAppointment: () => null })
 
 export const AppointmentListingView = React.memo(() => (
   <PageContainer>
-    <TopBar title="Appointments" />
+    <TopBar title="Appointments">
+      <NewAppointmentButton />
+    </TopBar>
     <AppointmentTable />
   </PageContainer>
 ));
