@@ -14,14 +14,12 @@
     - name: build_shared
       service: app
       command: ./scripts/build_shared.sh
-    # the build_and_test step runs builds in parallel with tests to speed up codeship
-    # don't release anything inside build_and_test! put it in push_and_deploy!
-    - name: build_and_test
+    - name: test
+      service: app
+      command: ./scripts/test.sh
+    - name: build
       type: parallel
       steps:
-        - name: test
-          service: app
-          command: ./scripts/test.sh
         - name: build_and_pack_lan_installer
           service: app
           tag: ^(master$|dev$|staging$|ci-)
