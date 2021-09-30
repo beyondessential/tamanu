@@ -77,3 +77,9 @@
               tag: ^(dev$|ci-)
               service: awsdeployment
               command: ./scripts/deploy_meta_dev.sh
+            # meta production environment is deployed from dev so we can quickly add/remove features
+            # TODO: revist whether this is a good idea at some later date
+            - name: deploy_meta_prod_environment
+              tag: ^(dev$)
+              service: awsdeployment
+              command: ./scripts/deploy_meta_prod.sh

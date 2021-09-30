@@ -31,6 +31,7 @@
 ### Infrastructure and maintenance 🛠
 
 - Mitigate codeship awscli tools EB version name collision, in our deployment steps
+- Deploy production meta-server from dev branch
 
 ## v1.8.0
 
