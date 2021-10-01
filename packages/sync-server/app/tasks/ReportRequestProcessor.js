@@ -57,9 +57,6 @@ export class ReportRequestProcessor extends ScheduledTask {
           );
           resolve();
         } else {
-          log.error(
-            `Child process running report request "${request.id}" for report "${request.reportType}" has exited due to an error.`,
-          );
           reject(
             new Error(
               `Failed to generate report for report request "${request.id}" for report "${request.reportType}"`,
@@ -69,7 +66,6 @@ export class ReportRequestProcessor extends ScheduledTask {
       });
 
       childProcess.on('error', err => {
-        log.error(`Child process failed to start, using commands [${node}, ${scriptPath}].`);
         reject(
           new Error(`Child process failed to start, using commands [${node}, ${scriptPath}].`),
         );
