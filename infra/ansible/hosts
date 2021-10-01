@@ -1,5 +1,5 @@
 [ec2]
-13.238.11.30 # tri-ansible-test
+tri-ansible-host ansible_host=13.238.11.30
 [ec2:vars]
 ansible_user=Administrator
 ansible_shell_type=cmd
