@@ -264,7 +264,6 @@ the API url and login credentials as well (see config/default.json for how this 
 - you can ssh into your instances by setting up the eb cli and then running `eb ssh`; this is useful for setting up a database, or for in-depth debugging
 </details>
 
-
 ## Infrastructure
 
 ### Ansible
@@ -273,3 +272,48 @@ the API url and login credentials as well (see config/default.json for how this 
 # Set up a lan server
 ansible-playbook -i infra/ansible/hosts infra/ansible/lan.yml
 ```
+
+### Terraform
+
+Terraform can be used to create a Windows Server on AWS EC2 for LAN server deployment.
+
+#### Prerequisites
+
+- Install terraform on your local machine <https://www.terraform.io/downloads.html>
+- Set up AWS authentication. This can be done with environment variables (by setting `AWS_ACCESS_KEY_ID` and `AWS_SECRET_ACCESS_KEY`) or with a credential file. See <https://docs.aws.amazon.com/cli/latest/userguide/cli-chap-configure.html> for more information.
+
+#### Create / manage a Windows server
+
+Terraform path: `infra/terraform/lan`
+
+- Create a `terraform.tfvars` file with the following info:
+
+    ```hcl
+    key_name = "your-aws-key-pair-name"  # this is the name of the key pair to decrypt password with
+    public_ip = "eip-address"  # IP address of the Elastic IP to be attached to the instance
+    ssh_authorized_keys = "your-ssh-public-key"  # public key used to SSH into the instance from your local machine
+    ```
+
+- Create a `private_key.pem` file, whose content is the private key part of the key pair declared above (as `key_name`)
+- Run terraform
+
+    ```shell
+    terraform init
+    terraform workspace new <ec2-instance-name>  # pass in the name of the EC2 instance to be created
+    terraform apply
+    ```
+
+- Once the instance is created, you can SSH into the instance
+    
+    ```
+    ssh Administrator@<eip-address>
+    ```
+
+- If the instance needs to be re-created, do
+
+    ```shell
+    terraform destroy
+    terraform apply
+    ```
+
+Terraform state is stored on S3 on the [`tamanu-terraform` bucket](https://s3.console.aws.amazon.com/s3/buckets/tamanu-terraform?region=ap-southeast-2&tab=objects).
