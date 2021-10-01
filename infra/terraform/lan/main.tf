@@ -8,32 +8,32 @@ terraform {
 }
 
 provider "aws" {
-  region = "ap-southeast-2"
+  region = var.region
 }
 
 data "aws_vpc" "tamanu" {
-  id = "vpc-03938bc0217ce4d3b" # tamanu-vpc
+  id = var.vpc_id
 }
 
 data "aws_ami" "windows_server" {
   most_recent = true
   filter {
     name   = "name"
-    values = ["Windows_Server-2022-English-Full-Base-2021.09.15"]
+    values = [var.ami_name]
   }
-  owners = ["801119661308"]
+  owners = [var.ami_owner]
 }
 
 data "aws_subnet" "default" {
   filter {
     name   = "tag:Name"
-    values = ["tamanu-dev-subnet"]
+    values = [var.subnet_name]
   }
 }
 
 data "aws_security_group" "default" {
   vpc_id = data.aws_vpc.tamanu.id
-  name   = "Tamanu Cloud Server - Demo"
+  name   = var.security_group_name
 }
 
 data "template_file" "userdata" {
@@ -45,7 +45,7 @@ data "template_file" "userdata" {
 
 resource "aws_instance" "lan" {
   ami           = data.aws_ami.windows_server.id
-  instance_type = "t2.micro"
+  instance_type = var.instance_type
   key_name = var.key_name
   subnet_id = data.aws_subnet.default.id
 
