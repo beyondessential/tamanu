@@ -15,8 +15,8 @@ async function switchConstraint(query, table, target, up) {
   await query.sequelize.query(`
     ALTER TABLE ${table}
       ADD CONSTRAINT ${constraint}
-        FOREIGN KEY 
-        REFERENCES ${reference}(id);
+        FOREIGN KEY (${column})
+        REFERENCES ${reference} (id);
   `);
 }
 
