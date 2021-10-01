@@ -16,7 +16,9 @@ async function switchConstraint(query, table, target, up) {
     ALTER TABLE ${table}
       ADD CONSTRAINT ${constraint}
         FOREIGN KEY (${column})
-        REFERENCES ${reference} (id);
+        REFERENCES ${reference} (id)
+        ON UPDATE CASCADE 
+        ON DELETE SET NULL;
   `);
 }
 
