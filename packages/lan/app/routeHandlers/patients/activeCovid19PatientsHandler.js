@@ -2,7 +2,8 @@ import { QueryTypes } from 'sequelize';
 import { arrayToDbString } from 'shared/utils';
 import { ENCOUNTER_TYPES } from 'shared/constants';
 import { renameObjectKeys } from '~/utils/renameObjectKeys';
-
+import { makeFilter } from '~/utils/query';
+import { createPatientFilters } from '../../utils/patientFilters';
 const sortKeys = {
   displayId: 'patients.display_id',
   lastName: 'UPPER(patients.last_name)',
@@ -26,9 +27,27 @@ export const activeCovid19PatientsHandler = async (req, res) => {
   req.checkPermission('list', 'Patient');
 
   const { Patient } = models;
-  const { orderBy = 'lastName', order = 'asc' } = query;
+  const { orderBy = 'lastName', order = 'asc', ...filterParams } = query;
   const sortKey = sortKeys[orderBy] || sortKeys.displayId;
   const sortDirection = order.toLowerCase() === 'asc' ? 'ASC' : 'DESC';
+  const filters = createPatientFilters(filterParams);
+  const clinicalStatusFilter = makeFilter(
+    filterParams.clinicalStatus,
+    `latest_clinical_status_survey.clinical_status = :clinicalStatus`,
+  );
+  if (clinicalStatusFilter) {
+    filters.push(clinicalStatusFilter);
+  }
+  const patientFilterWhereClauses = filters.map(f => f.sql).join(' AND ');
+  const filterReplacements = filters
+    .filter(f => f.transform)
+    .reduce(
+      (current, { transform }) => ({
+        ...current,
+        ...transform(current),
+      }),
+      filterParams,
+    );
 
   const result = await db.query(
     `
@@ -36,6 +55,7 @@ export const activeCovid19PatientsHandler = async (req, res) => {
       patients.*,
       village.name AS village_name,
       location.name AS location_name,
+      encounters.start_date AS admission_start_date,
       latest_clinical_status_survey.last_survey_date AS last_survey_date,
       latest_clinical_status_survey.clinical_status AS clinical_status
     FROM patients
@@ -43,7 +63,7 @@ export const activeCovid19PatientsHandler = async (req, res) => {
 
     --- Selecting current encounter and patients info
     LEFT JOIN (
-      SELECT patient_id, max(start_date) AS most_recent_open_encounter
+      SELECT patient_id, max(start_date) AS most_recent_open_encounter_start_date
       FROM encounters
       WHERE end_date IS NULL
       GROUP BY patient_id
@@ -51,7 +71,7 @@ export const activeCovid19PatientsHandler = async (req, res) => {
       ON patients.id = recent_encounter_by_patient.patient_id
     LEFT JOIN encounters
       ON (patients.id = encounters.patient_id 
-        AND recent_encounter_by_patient.most_recent_open_encounter = encounters.start_date
+        AND recent_encounter_by_patient.most_recent_open_encounter_start_date = encounters.start_date
         AND encounters.end_date IS NULL)
     LEFT JOIN reference_data AS village
       ON patients.village_id = village.id
@@ -92,12 +112,16 @@ export const activeCovid19PatientsHandler = async (req, res) => {
                   WHERE encounter_id = encounters.id
                   AND diagnosis_id IN (${arrayToDbString(COVID_19_DIAGNOSES)}))
       AND encounters.encounter_type = '${ENCOUNTER_TYPES.ADMISSION}'
+      ${patientFilterWhereClauses && `AND ${patientFilterWhereClauses}`}
+
+
     ORDER BY ${sortKey} ${sortDirection}
       `,
     {
       model: Patient,
       type: QueryTypes.SELECT,
       mapToModel: true,
+      replacements: filterReplacements,
     },
   );
 

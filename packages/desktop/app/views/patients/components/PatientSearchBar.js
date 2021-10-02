@@ -96,6 +96,20 @@ const RightSection = styled(Section)`
   border-left: 1px solid ${Colors.outline};
 `;
 
+const GENERAL_FIELDS = {
+  firstName: ['firstName'],
+  lastName: ['lastName'],
+  culturalName: ['culturalName'],
+  villageId: ['villageId', { suggesterKey: 'villageSuggester', component: AutocompleteField }],
+  displayId: ['displayId'],
+  dateOfBirthFrom: ['dateOfBirthFrom', { localisationLabel: 'shortLabel', component: DateField }],
+  dateOfBirthTo: ['dateOfBirthTo', { localisationLabel: 'shortLabel', component: DateField }],
+  dateOfBirthExact: [
+    'dateOfBirthExact',
+    { localisationLabel: 'shortLabel', placeholder: 'DOB exact', component: DateField },
+  ],
+};
+
 export const CustomisablePatientSearchBar = ({
   title,
   onSearch,
@@ -172,9 +186,12 @@ export const CustomisablePatientSearchBar = ({
   );
 };
 
-export const PatientSearchBar = ({ onSearch, ...props }) => {
+export const PatientSearchBar = ({ onSearch, fields = [], ...props }) => {
   const api = useApi();
-  const villageSuggester = new Suggester(api, 'village');
+  const searchFields = fields.map(field =>
+    typeof field === 'string' ? GENERAL_FIELDS[field] : field,
+  );
+
   const handleSearch = values => {
     const params = {
       ...values,
@@ -191,21 +208,9 @@ export const PatientSearchBar = ({ onSearch, ...props }) => {
   return (
     <CustomisablePatientSearchBar
       title="Search for patients"
-      fields={[
-        ['firstName'],
-        ['lastName'],
-        ['culturalName'],
-        ['villageId', { suggesterKey: 'villageSuggester', component: AutocompleteField }],
-        ['displayId'],
-        ['dateOfBirthFrom', { localisationLabel: 'shortLabel', component: DateField }],
-        ['dateOfBirthTo', { localisationLabel: 'shortLabel', component: DateField }],
-        [
-          'dateOfBirthExact',
-          { localisationLabel: 'shortLabel', placeholder: 'DOB exact', component: DateField },
-        ],
-      ]}
-      villageSuggester={villageSuggester}
+      fields={searchFields}
       onSearch={handleSearch}
+      villageSuggester={fields.includes('villageId') ? new Suggester(api, 'village') : null}
       {...props}
     />
   );

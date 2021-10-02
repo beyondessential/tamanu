@@ -7,9 +7,11 @@ import Paper from '@material-ui/core/Paper';
 
 import { useApi } from '../../api';
 import { capitaliseFirstLetter } from '../../utils/capitalise';
+import { Suggester } from '../../utils/suggester';
 import { TopBar, PageContainer, DataFetchingTable } from '../../components';
 import { DateDisplay } from '../../components/DateDisplay';
 import { CLINICAL_STATUSES, CLINICAL_COLORS_BY_STATUS, Colors } from '../../constants';
+import { PatientSearchBar } from './components';
 
 const getClinicalStatusCellColor = ({ clinicalStatus }) =>
   CLINICAL_COLORS_BY_STATUS[clinicalStatus];
@@ -35,9 +37,15 @@ const COLUMNS = [
   },
   { key: 'dateOfBirth', accessor: row => <DateDisplay date={row.dateOfBirth} /> },
   {
+    key: 'admissionStartDate',
+    title: 'Admission start date',
+    accessor: row =>
+      row.admissionStartDate ? moment(row.admissionStartDate).format('DD/MM/YYYY') : '',
+  },
+  {
     key: 'lastSurveyDate',
     title: 'Last survey',
-    accessor: row => (row.lastSurveyDate ? moment(row.lastSurveyDate).format('DD-MM-YYYY') : ''),
+    accessor: row => (row.lastSurveyDate ? moment(row.lastSurveyDate).format('DD/MM/YYYY') : ''),
   },
 ];
 
@@ -164,6 +172,7 @@ const ActiveCovid19PatientsTable = React.memo(({ data, ...props }) => {
 export const ActiveCovid19PatientsView = React.memo(() => {
   const api = useApi();
   const [data, setData] = useState([]);
+  const [searchParameters, setSearchParameters] = useState({});
   const [patientsByClinicalStatus, setPatientsByClinicalStatus] = useState({});
   useEffect(() => {
     (async () => {
@@ -173,9 +182,21 @@ export const ActiveCovid19PatientsView = React.memo(() => {
     })();
   }, []);
 
+  const fields = [
+    'firstName',
+    'lastName',
+    'villageId',
+    'displayId',
+    'dateOfBirthFrom',
+    'dateOfBirthTo',
+    'dateOfBirthExact',
+    ['clinicalStatus', { placeholder: 'Clinical status' }],
+  ];
+
   return (
     <PageContainer>
       <TopBar title="Active COVID-19 patients" />
+      <PatientSearchBar onSearch={setSearchParameters} fields={fields} />
       <StatisticsRow>
         <PatientsSummaryCard
           title={CLINICAL_STATUSES.CRITICAL}
@@ -193,7 +214,7 @@ export const ActiveCovid19PatientsView = React.memo(() => {
           numberOfPatients={patientsByClinicalStatus[CLINICAL_STATUSES.NEEDS_REVIEW]?.length || 0}
         />
       </StatisticsRow>
-      <ActiveCovid19PatientsTable data={data} />
+      <ActiveCovid19PatientsTable data={data} fetchOptions={searchParameters} />
     </PageContainer>
   );
 });
