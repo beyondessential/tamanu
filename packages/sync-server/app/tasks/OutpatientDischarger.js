@@ -5,8 +5,6 @@ import { Op } from 'sequelize';
 import { ScheduledTask } from 'shared/tasks';
 import { log } from 'shared/services/logging';
 
-const ENCOUNTERS_BATCH_SIZE = 1000;
-
 // As well as the sync import auto-discharging old encounters on the way in, we also need a daily
 // task to clean up any that synced in on the same day as they were created
 export class OutpatientDischarger extends ScheduledTask {
@@ -15,7 +13,7 @@ export class OutpatientDischarger extends ScheduledTask {
   }
 
   constructor(context) {
-    super(config.schedules.outpatientDischarger, log);
+    super(config.schedules.outpatientDischarger.schedule, log);
     this.models = context.store.models;
 
     // run once on startup (in case the server was down when it was scheduled)
@@ -23,13 +21,15 @@ export class OutpatientDischarger extends ScheduledTask {
   }
 
   async run() {
+    const startOfToday = moment()
+      .startOf('day')
+      .toDate();
+
     const where = {
       encounterType: 'clinic',
       endDate: null,
       startDate: {
-        [Op.lt]: moment()
-          .startOf('day')
-          .toDate(),
+        [Op.lt]: startOfToday,
       },
     };
 
@@ -40,28 +40,31 @@ export class OutpatientDischarger extends ScheduledTask {
       return;
     }
 
-    const batchCount = Math.ceil(oldEncountersCount / ENCOUNTERS_BATCH_SIZE);
+    const batchSize = config.schedules.outpatientDischarger.batchSize;
+    const batchCount = Math.ceil(oldEncountersCount / batchSize);
+    const batchYieldTimeoutDuration =
+      config.schedules.outpatientDischarger.batchYieldTimeoutDuration;
 
     log.info(
-      `Auto-closing ${oldEncountersCount} clinic encounters in ${batchCount} batches (${ENCOUNTERS_BATCH_SIZE} records per batch)`,
+      `Auto-closing ${oldEncountersCount} clinic encounters in ${batchCount} batches (${batchSize} records per batch)`,
     );
 
     for (let i = 0; i < batchCount; i++) {
       const oldEncounters = await this.models.Encounter.findAll({
         where,
-        limit: ENCOUNTERS_BATCH_SIZE,
+        limit: batchSize,
       });
       const tasks = oldEncounters.map(async encounter => {
         await encounter.update({
-          endDate: moment()
-            .startOf('day')
-            .toDate(),
+          endDate: startOfToday,
           dischargeNote: 'Automatically discharged',
         });
         log.info(`Auto-closed encounter with id ${encounter.id}`);
       });
 
       await Promise.all(tasks);
+
+      await new Promise(resolve => setTimeout(resolve, batchYieldTimeoutDuration));
     }
 
     log.info('OutpatientDischarger finished running');
