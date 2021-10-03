@@ -7,7 +7,6 @@ import Paper from '@material-ui/core/Paper';
 
 import { useApi } from '../../api';
 import { capitaliseFirstLetter } from '../../utils/capitalise';
-import { Suggester } from '../../utils/suggester';
 import { TopBar, PageContainer, DataFetchingTable } from '../../components';
 import { DateDisplay } from '../../components/DateDisplay';
 import { CLINICAL_STATUSES, CLINICAL_COLORS_BY_STATUS, Colors } from '../../constants';
@@ -26,7 +25,6 @@ const COLUMNS = [
   { key: 'displayId' },
   { key: 'firstName', title: 'First name' },
   { key: 'lastName', title: 'Last name' },
-  { key: 'locationName', title: 'Location' },
   { key: 'villageName', title: 'Village' },
   {
     key: 'sex',

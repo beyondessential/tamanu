@@ -11,7 +11,6 @@ const sortKeys = {
   age: 'patients.date_of_birth',
   dateOfBirth: 'patients.date_of_birth',
   villageName: 'village_name',
-  locationName: 'location_name',
   sex: 'patients.sex',
 };
 
@@ -54,7 +53,6 @@ export const activeCovid19PatientsHandler = async (req, res) => {
     SELECT
       patients.*,
       village.name AS village_name,
-      location.name AS location_name,
       encounters.start_date AS admission_start_date,
       latest_clinical_status_survey.last_survey_date AS last_survey_date,
       latest_clinical_status_survey.clinical_status AS clinical_status
@@ -75,8 +73,6 @@ export const activeCovid19PatientsHandler = async (req, res) => {
         AND encounters.end_date IS NULL)
     LEFT JOIN reference_data AS village
       ON patients.village_id = village.id
-    LEFT JOIN reference_data AS location
-      ON encounters.location_id = location.id
 
 
 
