@@ -73,7 +73,7 @@
       // every day at 11 PM
       "schedule": "0 11 * * *",
       "batchSize": 1000,
-      "batchYieldTimeoutDuration": 50
+      "batchSleepAsyncDurationInMilliseconds": 50
     },
     "reportRequestProcessor": {
        // every 30 seconds

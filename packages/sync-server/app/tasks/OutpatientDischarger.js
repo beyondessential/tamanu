@@ -4,6 +4,7 @@ import { Op } from 'sequelize';
 
 import { ScheduledTask } from 'shared/tasks';
 import { log } from 'shared/services/logging';
+import { sleepAsync } from 'shared/utils';
 
 // As well as the sync import auto-discharging old encounters on the way in, we also need a daily
 // task to clean up any that synced in on the same day as they were created
@@ -42,8 +43,8 @@ export class OutpatientDischarger extends ScheduledTask {
 
     const batchSize = config.schedules.outpatientDischarger.batchSize;
     const batchCount = Math.ceil(oldEncountersCount / batchSize);
-    const batchYieldTimeoutDuration =
-      config.schedules.outpatientDischarger.batchYieldTimeoutDuration;
+    const batchSleepAsyncDurationInMilliseconds =
+      config.schedules.outpatientDischarger.batchSleepAsyncDurationInMilliseconds;
 
     log.info(
       `Auto-closing ${oldEncountersCount} clinic encounters in ${batchCount} batches (${batchSize} records per batch)`,
@@ -54,17 +55,16 @@ export class OutpatientDischarger extends ScheduledTask {
         where,
         limit: batchSize,
       });
-      const tasks = oldEncounters.map(async encounter => {
-        await encounter.update({
+
+      for (const oldEncounter of oldEncounters) {
+        await oldEncounter.update({
           endDate: startOfToday,
           dischargeNote: 'Automatically discharged',
         });
-        log.info(`Auto-closed encounter with id ${encounter.id}`);
-      });
+        log.info(`Auto-closed encounter with id ${oldEncounter.id}`);
+      }
 
-      await Promise.all(tasks);
-
-      await new Promise(resolve => setTimeout(resolve, batchYieldTimeoutDuration));
+      await sleepAsync(batchSleepAsyncDurationInMilliseconds);
     }
 
     log.info('OutpatientDischarger finished running');
