@@ -4,17 +4,15 @@ import { ProgramsView } from 'desktop/app/views/programs/ProgramsView';
 
 import { ActiveCovid19PatientsView, NotActiveView } from '../views';
 
-export const ProgramsRoutes = React.memo(({ match }) => {
-  return (
-    <div>
-      <Switch>
-        <Route exact path={match.path} component={ProgramsView} />
-        <Route
-          path="/programs/active-covid-19-program/patients"
-          component={ActiveCovid19PatientsView}
-        />
-        <NotActiveView />
-      </Switch>
-    </div>
-  );
-});
+export const ProgramsRoutes = React.memo(({ match }) => (
+  <div>
+    <Switch>
+      <Route path={`${match.path}/all-programs/patients`} component={ProgramsView} />
+      <Route
+        path={`${match.path}/active-covid-19-program/patients`}
+        component={ActiveCovid19PatientsView}
+      />
+      <NotActiveView />
+    </Switch>
+  </div>
+));
