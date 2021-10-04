@@ -86,10 +86,12 @@ describe('covid-vaccine-daily-summary-village', () => {
   it('builds', async () => {
     const models = mockModels([mockRow(1), mockRow(2)]);
 
-    const report = await dataGenerator(models, {}, mockTupaiaApi());
+    const report = await dataGenerator(models, { fromDate: '2021-01-01', toDate: '2021-01-01'}, mockTupaiaApi());
 
     expect(report).toEqual(
-      getExpectedDataArray([['VIL_A', '2021-01-01 23:59:59', 0, 2, 0, 2, 0, 0, 0, 0]]),
+      expect.objectContaining(
+        getExpectedDataArray([['VIL_A', '2021-01-01 23:59:59', 0, 2, 0, 2, 0, 0, 0, 0]]),
+      ),
     );
   });
 
@@ -101,14 +103,16 @@ describe('covid-vaccine-daily-summary-village', () => {
       mockRow(4, '2021-01-01T01:02:03.000Z', undefined, 'Village_B'),
     ]);
 
-    const report = await dataGenerator(models, {}, mockTupaiaApi());
+    const report = await dataGenerator(models, { fromDate: '2000-01-01', toDate: '2000-01-02'}, mockTupaiaApi());
 
     expect(report).toEqual(
-      getExpectedDataArray([
-        ['VIL_A', '2021-01-01 23:59:59', 0, 2, 0, 2, 0, 0, 0, 0],
-        ['VIL_A', '2021-01-02 23:59:59', 0, 1, 0, 1, 0, 0, 0, 0],
-        ['VIL_B', '2021-01-01 23:59:59', 0, 1, 0, 1, 0, 0, 0, 0],
-      ]),
+      expect.objectContaining(
+        getExpectedDataArray([
+          ['VIL_A', '2021-01-01 23:59:59', 0, 2, 0, 2, 0, 0, 0, 0],
+          ['VIL_A', '2021-01-02 23:59:59', 0, 1, 0, 1, 0, 0, 0, 0],
+          ['VIL_B', '2021-01-01 23:59:59', 0, 1, 0, 1, 0, 0, 0, 0],
+        ]),
+      ),
     );
   });
 
@@ -120,12 +124,29 @@ describe('covid-vaccine-daily-summary-village', () => {
       mockRow(4, '2000-01-01T01:02:03.000Z', '1936-01-01T01:02:03.000Z', 'Village_B', undefined, 'Dose 2'), // 64 years old at second dose
     ]);
 
-    const report = await dataGenerator(models, {}, mockTupaiaApi());
+    const report = await dataGenerator(models, { fromDate: '2000-01-01', toDate: '2000-01-01'}, mockTupaiaApi());
 
     expect(report).toEqual(
       getExpectedDataArray([
         ['VIL_A', '2000-01-01 23:59:59', 0, 2, 1, 2, 0, 0, 0, 0],
         ['VIL_B', '2000-01-01 23:59:59', 0, 0, 0, 0, 0, 2, 1, 2],
+      ]),
+    );
+  });
+
+  it('has empty rows for no data', async () => {
+    const models = mockModels([
+      mockRow(1, '2000-01-01T01:02:03.000Z', '1990-01-01T01:02:03.000Z', 'Village_A'), // village B missing
+    ]);
+
+    const report = await dataGenerator(models, { fromDate: '2000-01-01', toDate: '2000-01-02'}, mockTupaiaApi());
+
+    expect(report).toEqual(
+      getExpectedDataArray([
+        ['VIL_A', '2000-01-01 23:59:59', 0, 1, 0, 1, 0, 0, 0, 0],
+        ['VIL_A', '2000-01-02 23:59:59', '', '', '', '', '', '', '', ''],
+        ['VIL_B', '2000-01-01 23:59:59', '', '', '', '', '', '', '', ''],
+        ['VIL_B', '2000-01-02 23:59:59', '', '', '', '', '', '', '', ''],
       ]),
     );
   });
