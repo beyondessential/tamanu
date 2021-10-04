@@ -63,7 +63,7 @@ function parametersToSqlWhere(parameters) {
       },
       {
         '$scheduledVaccine.label$': {
-          [Op.in]: ['COVAX', 'COVID-19'],
+          [Op.in]: ['COVAX', 'COVID-19 AZ'],
         },
       },
     );
