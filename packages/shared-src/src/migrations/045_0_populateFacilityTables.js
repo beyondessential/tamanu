@@ -5,7 +5,7 @@ module.exports = {
     await query.sequelize.query(`
       INSERT INTO facilities
         (id, name, code, updated_at, created_at, type, division)
-        SELECT id, name, code, now()::timestamptz(0), now()::timestamptz(0), :type, :division
+        SELECT id, name, code, now()::timestamptz(3), now()::timestamptz(3), :type, :division
           FROM reference_data
           WHERE reference_data.type = 'facility';
     `, {
@@ -36,7 +36,7 @@ module.exports = {
     await query.sequelize.query(`
       INSERT INTO departments
         (id, name, code, updated_at, created_at, facility_id)
-        SELECT id, name, code, now()::timestamptz(0), now()::timestamptz(0), :facilityId
+        SELECT id, name, code, now()::timestamptz(3), now()::timestamptz(3), :facilityId
           FROM reference_data
           WHERE reference_data.type = 'department';
     `, {
@@ -49,7 +49,7 @@ module.exports = {
     await query.sequelize.query(`
       INSERT INTO locations
         (id, name, code, updated_at, created_at, facility_id)
-        SELECT id, name, code, now()::timestamptz(0), now()::timestamptz(0), :facilityId
+        SELECT id, name, code, now()::timestamptz(3), now()::timestamptz(3), :facilityId
           FROM reference_data
           WHERE reference_data.type = 'location';
     `, {
