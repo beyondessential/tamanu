@@ -69,8 +69,16 @@
     "allowedOrigin": ""
   },
   "schedules": {
-    "outpatientDischarger": "0 0 2 ? * * *",
-    "reportRequestProcessor": "*/30 * * * * *"
+    "outpatientDischarger": {
+      // every day at 11 PM
+      "schedule": "0 11 * * *",
+      "batchSize": 1000,
+      "batchSleepAsyncDurationInMilliseconds": 50
+    },
+    "reportRequestProcessor": {
+       // every 30 seconds
+      "schedule": "*/30 * * * * *"
+    } 
   },
   "localisation": {
     "labResultWidget": {
