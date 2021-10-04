@@ -2,6 +2,7 @@ import config from 'config';
 
 import { log } from 'shared/services/logging';
 import { parseArguments } from 'shared/arguments';
+import { checkConfig } from './app/checkConfig';
 
 import { initDatabase, performDatabaseIntegrityChecks } from './app/database';
 import { addPatientMarkForSyncHook, SyncManager, WebRemote } from './app/sync';
@@ -22,6 +23,8 @@ async function serve(options) {
     await context.sequelize.assertUpToDate(options);
   }
   await performDatabaseIntegrityChecks(context);
+
+  await checkConfig(config, context);
 
   context.remote = new WebRemote(context);
   context.remote.connect(); // preemptively connect remote to speed up sync

@@ -1,4 +1,4 @@
-import { splitIds } from './splitIds';
+import { splitIds } from './utilities';
 
 const buildDiagnosis = ({ _id, name: nameAndCode }) => {
   const [name, code] = nameAndCode.split(/\t/);

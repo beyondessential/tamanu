@@ -3,12 +3,12 @@ import { SYNC_DIRECTIONS } from 'shared/constants';
 import { InvalidOperationError } from 'shared/errors';
 import { Model } from './Model';
 
-export class Location extends Model {
+export class Department extends Model {
   static init({ primaryKey, ...options }) {
     const validate = {
       mustHaveFacility() {
         if (!this.deletedAt && !this.facilityId) {
-          throw new InvalidOperationError('A location must have a facility.');
+          throw new InvalidOperationError('A department must have a facility.');
         }
       },
     };
@@ -28,21 +28,22 @@ export class Location extends Model {
         ...options,
         validate,
         syncConfig: { syncDirection: SYNC_DIRECTIONS.PULL_ONLY },
-        indexes: [{ unique: true, fields: ['code'] }],
+        indexes: [
+          { unique: true, fields: ['code'] },
+          { unique: true, fields: ['name'] },
+        ],
       },
     );
   }
 
   static initRelations(models) {
     this.hasMany(models.Encounter, {
-      foreignKey: 'locationId',
-    });
-    this.hasMany(models.Procedure, {
-      foreignKey: 'locationId',
+      foreignKey: 'departmentId',
     });
 
     this.belongsTo(models.Facility, {
       foreignKey: 'facilityId',
     });
   }
+
 }

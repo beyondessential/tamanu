@@ -1,17 +1,9 @@
 import { Sequelize } from 'sequelize';
 import { SYNC_DIRECTIONS } from 'shared/constants';
-import { InvalidOperationError } from 'shared/errors';
 import { Model } from './Model';
 
-export class Location extends Model {
+export class Facility extends Model {
   static init({ primaryKey, ...options }) {
-    const validate = {
-      mustHaveFacility() {
-        if (!this.deletedAt && !this.facilityId) {
-          throw new InvalidOperationError('A location must have a facility.');
-        }
-      },
-    };
     super.init(
       {
         id: primaryKey,
@@ -23,26 +15,34 @@ export class Location extends Model {
           type: Sequelize.STRING,
           allowNull: false,
         },
+        division: Sequelize.STRING,
+        type: Sequelize.STRING,
       },
       {
         ...options,
-        validate,
         syncConfig: { syncDirection: SYNC_DIRECTIONS.PULL_ONLY },
-        indexes: [{ unique: true, fields: ['code'] }],
+        indexes: [
+          { unique: true, fields: ['code'] },
+          { unique: true, fields: ['name'] },
+        ],
       },
     );
   }
 
   static initRelations(models) {
-    this.hasMany(models.Encounter, {
-      foreignKey: 'locationId',
-    });
-    this.hasMany(models.Procedure, {
-      foreignKey: 'locationId',
-    });
-
-    this.belongsTo(models.Facility, {
+    this.hasMany(models.Department, {
       foreignKey: 'facilityId',
     });
+    this.hasMany(models.Location, {
+      foreignKey: 'facilityId',
+    });
+    this.hasMany(models.UserFacility, {
+      foreignKey: 'facilityId',
+    });
+
+    this.belongsToMany(models.User, {
+      through: 'UserFacility',
+    });
   }
+
 }

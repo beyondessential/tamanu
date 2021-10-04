@@ -179,6 +179,9 @@ export class SyncManager {
         models.ReferenceData,
         models.User,
         models.Asset,
+        models.Facility,
+        models.Department,
+        models.Location,
 
         models.ScheduledVaccine,
 

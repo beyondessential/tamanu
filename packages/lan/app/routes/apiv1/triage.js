@@ -77,7 +77,7 @@ triage.get(
            ON (encounters.id = triages.encounter_id)
           LEFT JOIN patients
            ON (encounters.patient_id = patients.id)
-          LEFT JOIN reference_data AS location
+          LEFT JOIN locations AS location
            ON (encounters.location_id = location.id)
           LEFT JOIN reference_data AS complaint
            ON (triages.chief_complaint_id = complaint.id)

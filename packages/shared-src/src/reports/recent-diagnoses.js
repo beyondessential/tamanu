@@ -81,7 +81,7 @@ async function queryDiagnosesData(models, parameters) {
             include: [{ model: models.ReferenceData, as: 'village' }],
           },
           { model: models.User, as: 'examiner' },
-          { model: models.ReferenceData, as: 'department' },
+          { model: models.Department, as: 'department' },
         ],
       },
       { model: models.ReferenceData, as: 'Diagnosis' },

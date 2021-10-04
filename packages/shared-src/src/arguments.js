@@ -52,6 +52,12 @@ function createParser() {
     dest: 'migrateDirection',
     constant: 'down',
   });
+  migrateDir.addArgument('--redoLatest', {
+    help: "Run database migrations down 1 and then up 1",
+    action: 'storeConst',
+    dest: 'migrateDirection',
+    constant: 'redoLatest',
+  });
   parser.addArgument('--skipMigrationCheck', {
     dest: 'skipMigrationCheck',
     action: 'storeTrue',

@@ -86,5 +86,9 @@ export class User extends Model {
       foreignKey: 'dischargerId',
       as: 'discharges',
     });
+
+    this.belongsToMany(models.Facility, {
+      through: 'UserFacility',
+    });
   }
 }

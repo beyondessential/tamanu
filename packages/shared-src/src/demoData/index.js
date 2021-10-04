@@ -14,3 +14,7 @@ export * from './patients';
 export * from './procedureTypes';
 export * from './users';
 export * from './villages';
+export * from './carePlan';
+export * from './patients';
+export * from './aefiSurvey';
+export * from './utilities';
