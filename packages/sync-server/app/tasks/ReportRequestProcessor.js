@@ -42,12 +42,12 @@ export class ReportRequestProcessor extends ScheduledTask {
       { timeout: REPORT_TIME_OUT_DURATION_MILLISECONDS },
     );
 
-    if (config.reportProcess.showChildProcessLogs) {
-      childProcess.stdout.setEncoding('utf8');
-      childProcess.stdout.on('data', data => {
-        console.log('stdout: ', data.toString());
-      });
-    }
+    let errorMessage = '';
+    const captureErrorOutput = message => {
+      if (message.startsWith('Report failed:')) {
+        errorMessage = message;
+      }
+    };
 
     return new Promise((resolve, reject) => {
       childProcess.on('exit', code => {
@@ -56,13 +56,14 @@ export class ReportRequestProcessor extends ScheduledTask {
             `Child process running report request "${request.id}" for report "${request.reportType}" has finished.`,
           );
           resolve();
-        } else {
-          reject(
-            new Error(
-              `Failed to generate report for report request "${request.id}" for report "${request.reportType}"`,
-            ),
-          );
+          return;
         }
+        reject(
+          new Error(
+            errorMessage ||
+              `Failed to generate report for report request "${request.id}" for report "${request.reportType}"`,
+          ),
+        );
       });
 
       childProcess.on('error', err => {
@@ -72,10 +73,13 @@ export class ReportRequestProcessor extends ScheduledTask {
       });
 
       // Catch error from child process
-      childProcess.stderr.setEncoding('utf8');
+      childProcess.stdout.on('data', data => {
+        captureErrorOutput(data.toString());
+        process.stdout.write(data);
+      });
       childProcess.stderr.on('data', data => {
-        log.error(data.toString());
-        reject(new Error(data.toString()));
+        captureErrorOutput(data.toString());
+        process.stderr.write(data);
       });
     });
   };

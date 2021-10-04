@@ -302,8 +302,7 @@
   "reportProcess" : {
     // Report process timeout in 2 hours.
     "timeOutDurationSeconds": 7200,
-    "runInChildProcess": true,
-    "showChildProcessLogs": false
+    "runInChildProcess": true
   },
   "tupaiaApiClient": {},
   "scheduledReports": []

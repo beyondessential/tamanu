@@ -105,8 +105,8 @@ async function report(store, options) {
     await reportRunner.run();
   } catch (error) {
     // Send error message back to parent process
-    process.stderr.write(error.message);
-    throw error;
+    process.stderr.write(`Report failed: ${error.message}`);
+    process.exit(1);
   }
   process.exit(0);
 }
