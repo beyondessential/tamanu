@@ -9,15 +9,6 @@ const { HOUR } = TIME_INTERVALS;
 
 const chance = new Chance();
 
-export function randomDate(minDaysAgo = 1, maxDaysAgo = 365) {
-  const ago = chance.natural({ min: DAY * minDaysAgo, max: DAY * maxDaysAgo });
-  return new Date(Date.now() - ago);
-}
-
-function randomDateBetween(start, end) {
-  return new Date(chance.natural({ min: start.getTime(), max: end.getTime() }));
-}
-
 export async function randomUser(models) {
   return randomRecordId(models, 'User');
 }
