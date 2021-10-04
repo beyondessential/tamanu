@@ -379,3 +379,15 @@ export const REPORT_DATA_SOURCES = {
   THIS_FACILITY: 'thisFacility',
   ALL_FACILITIES: 'allFacilities',
 };
+
+export const CLINICAL_STATUSES = {
+  CRITICAL: 'Critical',
+  NEEDS_REVIEW: 'Needs review',
+  LOW_RISK: 'Low risk',
+};
+
+export const CLINICAL_COLORS_BY_STATUS = {
+  [CLINICAL_STATUSES.CRITICAL]: Colors.alert,
+  [CLINICAL_STATUSES.NEEDS_REVIEW]: Colors.secondary,
+  [CLINICAL_STATUSES.LOW_RISK]: Colors.safe,
+};

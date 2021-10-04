@@ -6,6 +6,9 @@ import { viewPatient } from '../../store/patient';
 import { TopBar, PageContainer, DataFetchingTable } from '../../components';
 import { DropdownButton } from '../../components/DropdownButton';
 import { PatientSearchBar, NewPatientModal } from './components';
+import { Suggester } from '../../utils/suggester';
+import { useApi } from '../../api';
+
 import {
   markedForSync,
   displayId,
@@ -103,13 +106,23 @@ const selectPatientConnector = connect(null, dispatch => ({
 
 export const DumbPatientListingView = ({ onViewPatient }) => {
   const [searchParameters, setSearchParameters] = useState({});
+  const fields = [
+    'firstName',
+    'lastName',
+    'culturalName',
+    'villageId',
+    'displayId',
+    'dateOfBirthFrom',
+    'dateOfBirthTo',
+    'dateOfBirthExact',
+  ];
 
   return (
     <PageContainer>
       <TopBar title="Patient listing">
         <NewPatientButton onCreateNewPatient={onViewPatient} />
       </TopBar>
-      <PatientSearchBar onSearch={setSearchParameters} />
+      <PatientSearchBar onSearch={setSearchParameters} fields={fields} />
       <PatientTable
         endpoint={PATIENT_SEARCH_ENDPOINT}
         fetchOptions={searchParameters}
