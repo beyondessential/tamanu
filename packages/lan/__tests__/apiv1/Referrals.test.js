@@ -70,8 +70,7 @@ describe('Referrals', () => {
   let encounter = null;
   let testProgram = null;
   let testSurvey = null;
-  let answers = {};
-  let result = null;
+  const answers = {};
 
   beforeAll(async () => {
     ctx = await createTestContext();
@@ -89,9 +88,11 @@ describe('Referrals', () => {
     testSurvey.dataElements.forEach(q => {
       answers[q.id] = getRandomAnswer(q);
     });
+  });
 
+  it('should record a referral request', async () => {
     const { departmentId, locationId } = encounter;
-    result = await app.post('/v1/referral').send({
+    const result = await app.post('/v1/referral').send({
       answers,
       startTime: Date.now(),
       endTime: Date.now(),
@@ -100,9 +101,6 @@ describe('Referrals', () => {
       departmentId,
       locationId,
     });
-  });
-
-  it('should record a referral request', async () => {
     expect(result).toHaveSucceeded();
   });
 

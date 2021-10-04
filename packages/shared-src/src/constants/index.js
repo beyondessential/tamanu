@@ -161,6 +161,7 @@ export const PROGRAM_DATA_ELEMENT_TYPE_VALUES = Object.values(PROGRAM_DATA_ELEME
 
 export const REPORT_REQUEST_STATUSES = {
   RECEIVED: 'Received',
+  PROCESSING: 'Processing',
   PROCESSED: 'Processed',
   ERROR: 'Error',
 };

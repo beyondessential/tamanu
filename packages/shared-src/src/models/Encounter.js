@@ -66,7 +66,14 @@ export class Encounter extends Model {
           mustMatchRecord: false,
           queryFromParams: () => ({
             where: {},
-            include: [{ association: 'labRequests', required: true }],
+            include: [
+              {
+                association: 'labRequests',
+                required: true,
+                duplicating: false,
+                attributes: [],
+              },
+            ],
           }),
         },
         {
@@ -83,6 +90,8 @@ export class Encounter extends Model {
               include: {
                 association: 'administeredVaccines',
                 required: true,
+                duplicating: false,
+                attributes: [],
                 where: { scheduledVaccineId },
               },
             };

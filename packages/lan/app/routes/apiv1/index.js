@@ -30,6 +30,7 @@ import { immunisation } from './immunisation';
 import { reports } from './reports';
 import { reportRequest } from './reportRequest';
 import { patientCarePlan } from './patientCarePlan';
+import { appointments } from './appointments';
 import { resetPassword } from './resetPassword';
 import { changePassword } from './changePassword';
 
@@ -82,6 +83,7 @@ apiv1.use('/surveyResponse', surveyResponse);
 apiv1.use('/reports', reports);
 apiv1.use('/reportRequest', reportRequest);
 apiv1.use('/patientCarePlan', patientCarePlan);
+apiv1.use('/appointments', appointments);
 
 apiv1.use('/admin', admin);
 

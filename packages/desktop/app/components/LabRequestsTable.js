@@ -39,9 +39,9 @@ const globalColumns = [
   ...encounterColumns,
 ];
 
-const DumbLabRequestsTable = React.memo(({ encounterId, viewPatient, fetchOptions }) => {
+const DumbLabRequestsTable = React.memo(({ encounterId, viewPatient }) => {
   const { loadEncounter } = useEncounter();
-  const { loadLabRequest } = useLabRequest();
+  const { loadLabRequest, searchParameters } = useLabRequest();
   const selectLab = useCallback(async lab => {
     if (!encounterId) {
       // no encounter, likely on the labs page
@@ -57,7 +57,7 @@ const DumbLabRequestsTable = React.memo(({ encounterId, viewPatient, fetchOption
       columns={encounterId ? encounterColumns : globalColumns}
       noDataMessage="No lab requests found"
       onRowClick={selectLab}
-      fetchOptions={fetchOptions}
+      fetchOptions={searchParameters}
     />
   );
 });

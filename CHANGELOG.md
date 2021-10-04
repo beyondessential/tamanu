@@ -5,8 +5,6 @@
 ### Manual steps required after upgrade ⚙
 
 - Add to samoa `packages/sync-server/local.json`:
-- Add to test environment `packages/sync-server/local.json`:
-- Add to dev environment `packages/sync-server/local.json`:
 
 ```
 "tupaiaApiClient": {
@@ -16,16 +14,6 @@
     },
     "environment": "production"
 },
-"scheduledReports": [
-    {
-        "reportType": "covid-vaccine-daily-summary-village",
-        "schedule": "0 12,17 * * *",
-        "parameters": {},
-        "recipients": {
-            "tupaia": true
-        }
-    }
-]
 ```
 
 ### Features ⭐
@@ -42,7 +30,8 @@
 
 ### Infrastructure and maintenance 🛠
 
-- (left blank)
+- Mitigate codeship awscli tools EB version name collision, in our deployment steps
+- Deploy production meta-server from dev branch
 
 ## v1.8.0
 
@@ -65,6 +54,30 @@
 ### Infrastructure and maintenance 🛠
 
 - (left blank)
+
+## v1.8.4
+
+### Bug fixes 🐛
+
+- Fix bug where loadshedder might fail to release lock
+
+## v1.8.3
+
+### Bug fixes 🐛
+
+- Prevent sequelize nesting encounter queries on export
+
+## v1.8.2
+
+### Tweaks ⚖️
+
+- Added loadshedder middleware to keep system more operational under load
+
+## v1.8.1
+
+### Bug fixes 🐛
+
+- Disabled potentially unstable outpatient discharger task
 
 ## v1.8.0
 
@@ -80,6 +93,7 @@
 - Add PNG assistive technology device line list report
 - Add Generic Vaccine line list report
 - Allow disabling reports through server config
+- Allow running reports in child process
 
 ### Tweaks ⚖️
 

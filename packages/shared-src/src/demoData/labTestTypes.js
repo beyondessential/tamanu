@@ -102,7 +102,7 @@ const generateTestObject = t => {
     femaleMin,
     femaleMax,
     code: t.name,
-    options: t.options && t.options.join(", "),
+    options: t.options && t.options.join(', '),
   };
 };
 

@@ -25,16 +25,13 @@ const COLUMNS = [
   { key: 'location', title: 'Location', accessor: row => row.location.name },
 ];
 
-const AppointmentTable = connect(
-  null,
-  dispatch => ({ onViewAppointment: appointment => null }),
-)(
+const AppointmentTable = connect(null, () => ({ onViewAppointment: () => null }))(
   React.memo(({ onViewAppointment, ...props }) => (
     <DataFetchingTable
-      endpoint="appointment"
+      endpoint="appointments"
       columns={COLUMNS}
       noDataMessage="No appointments found"
-      initialSort={{ order: 'asc', orderBy: 'date' }}
+      initialSort={{ order: 'asc', orderBy: 'startTime' }}
       onRowClick={onViewAppointment}
       {...props}
     />

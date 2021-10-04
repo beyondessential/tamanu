@@ -61,11 +61,30 @@ const searchTestPatients = [
   { firstName: 'pagination', lastName: 'G' },
   { firstName: 'pagination', lastName: 'H' },
   { firstName: 'pagination', lastName: 'I' },
+  { firstName: 'locale-test', lastName: 'Böhm' },
+  { firstName: 'locale-test', lastName: 'Brunet' },
   {
-    firstName: 'more-than-one-open-encounter', encounters: [
-      { id: 'should-be-ignored-1', encounterType: 'clinic', current: false, startDate: moment.utc([2015, 0, 1, 8]).toISOString() },
-      { id: 'should-be-chosen', encounterType: 'admission', current: true, startDate: moment.utc([2014, 0, 1, 8]).toISOString() },
-      { id: 'should-be-ignored-2', encounterType: 'clinic', current: true, startDate: moment.utc([2013, 0, 1, 8]).toISOString() }]
+    firstName: 'more-than-one-open-encounter',
+    encounters: [
+      {
+        id: 'should-be-ignored-1',
+        encounterType: 'clinic',
+        current: false,
+        startDate: moment.utc([2015, 0, 1, 8]).toISOString(),
+      },
+      {
+        id: 'should-be-chosen',
+        encounterType: 'admission',
+        current: true,
+        startDate: moment.utc([2014, 0, 1, 8]).toISOString(),
+      },
+      {
+        id: 'should-be-ignored-2',
+        encounterType: 'clinic',
+        current: true,
+        startDate: moment.utc([2013, 0, 1, 8]).toISOString(),
+      },
+    ],
   },
 ];
 
@@ -105,7 +124,8 @@ describe('Patient search', () => {
               await createDummyEncounter(models, {
                 ...encounterData,
                 patientId: patient.id,
-                departmentId: departments[encounterData.departmentIndex || i % departments.length].id,
+                departmentId:
+                  departments[encounterData.departmentIndex || i % departments.length].id,
                 locationId: locations[encounterData.locationIndex || i % locations.length].id,
               }),
             );
@@ -149,7 +169,7 @@ describe('Patient search', () => {
     expect(response).toHaveSucceeded();
     expect(response.body.count).toEqual(3);
 
-    response.body.data.map(responsePatient => {
+    response.body.data.forEach(responsePatient => {
       expect(responsePatient).toHaveProperty('firstName', 'search-by-name');
     });
   });
@@ -161,7 +181,7 @@ describe('Patient search', () => {
     expect(response).toHaveSucceeded();
     expect(response.body.count).toEqual(3);
 
-    response.body.data.map(responsePatient => {
+    response.body.data.forEach(responsePatient => {
       expect(responsePatient).toHaveProperty('firstName', 'search-by-name');
     });
   });
@@ -229,7 +249,7 @@ describe('Patient search', () => {
 
     const { data } = response.body;
     expect(data.length).toBeGreaterThan(0);
-    data.map(responsePatient => {
+    data.forEach(responsePatient => {
       expect(responsePatient).toHaveProperty('villageId', villageId);
       expect(responsePatient).toHaveProperty('villageName', villageName);
     });
@@ -249,7 +269,7 @@ describe('Patient search', () => {
       expect(testOutpatients.length).toEqual(3);
 
       // ensure all of the response objects match the filter
-      response.body.data.map(responsePatient => {
+      response.body.data.forEach(responsePatient => {
         expect(responsePatient).toHaveProperty('encounterType', 'clinic');
       });
     });
@@ -265,7 +285,7 @@ describe('Patient search', () => {
       expect(testInpatients.length).toEqual(2);
 
       // ensure all of the response objects match the filter
-      response.body.data.map(responsePatient => {
+      response.body.data.forEach(responsePatient => {
         expect(responsePatient).toHaveProperty('encounterType', 'admission');
       });
     });
@@ -277,7 +297,7 @@ describe('Patient search', () => {
       expect(response).toHaveSucceeded();
 
       expect(response.body.data.some(withFirstName('search-by-location')));
-      response.body.data.map(responsePatient => {
+      response.body.data.forEach(responsePatient => {
         expect(responsePatient).toHaveProperty('locationName', locations[0].name);
       });
     });
@@ -289,7 +309,7 @@ describe('Patient search', () => {
       expect(response).toHaveSucceeded();
 
       expect(response.body.data.some(withFirstName('search-by-department')));
-      response.body.data.map(responsePatient => {
+      response.body.data.forEach(responsePatient => {
         expect(responsePatient).toHaveProperty('departmentName', departments[0].name);
       });
     });
@@ -304,19 +324,29 @@ describe('Patient search', () => {
       // Make sure it chooses the correct encounter
       expect(response.body.data[0].encounterId).toEqual('should-be-chosen');
       expect(response.body.data[0].encounterType).toEqual('admission');
-
     });
   });
 
   describe('Sorting', () => {
-    const expectSorted = (array, mapper, reverse = false) => {
+    // TODO: use locale sort (e.g. unicode collation algorithm or similar) in the database
+    // https://linear.app/bes/issue/TAN-755/tamanu-should-localise-sort-order-for-names
+    // const compareStrings = (a, b) => (reverse ? -1 : 1) * a.toUpperCase().localeCompare(b.toUpperCase());
+    const compareStrings = (a, b) => {
+      // nulls last, case-insensitive, compared by codepoint not locale
+      if (!a && b) return 1;
+      if (a && !b) return -1;
+      if (!a && !b) return 0;
+
+      const aUpper = a.toUpperCase();
+      const bUpper = b.toUpperCase();
+      if (aUpper > bUpper) return 1;
+      if (aUpper < bUpper) return -1;
+      return 0;
+    };
+    const expectSorted = (array, mapper, reverse = false, cmp = compareStrings) => {
       const base = array.map(mapper);
       const sorted = array.map(mapper).sort((a, b) => {
-        // nulls last, case-insensitive
-        if (!a && b) return 1;
-        if (a && !b) return -1;
-        if (!a && !b) return 0;
-        return (reverse ? -1 : 1) * a.toUpperCase().localeCompare(b.toUpperCase());
+        return (reverse ? -1 : 1) * cmp(a, b);
       });
       expect(sorted).toEqual(base);
     };

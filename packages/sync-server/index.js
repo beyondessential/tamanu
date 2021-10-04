@@ -8,7 +8,7 @@ import { createApp } from './app/createApp';
 import { initDatabase } from './app/database';
 import { startScheduledTasks } from './app/tasks';
 import { EmailService } from './app/services/EmailService';
-
+import { ReportRunner } from './app/report/ReportRunner';
 import { version } from './package.json';
 
 const port = config.port;
@@ -73,11 +73,50 @@ async function migrate(store, options) {
   process.exit(0);
 }
 
+async function report(store, options) {
+  try {
+    const { name, parameters, recipients } = options;
+    let reportParameters = {};
+    let reportRecipients = {};
+    try {
+      reportParameters = JSON.parse(parameters);
+    } catch (error) {
+      log.warn(`Failed to parse parameters ${error}`);
+    }
+
+    try {
+      reportRecipients = JSON.parse(recipients);
+    } catch (error) {
+      // Backwards compatibility: support previous syntax of plain string
+      reportRecipients = {
+        email: recipients.split(','),
+      };
+    }
+
+    const emailService = new EmailService();
+    const reportRunner = new ReportRunner(
+      name,
+      reportParameters,
+      reportRecipients,
+      store.models,
+      emailService,
+    );
+    log.info(`Running report "${name}" with parameters "${parameters}"`);
+    await reportRunner.run();
+  } catch (error) {
+    // Send error message back to parent process
+    process.stderr.write(`Report failed: ${error.message}`);
+    process.exit(1);
+  }
+  process.exit(0);
+}
+
 async function run(command, options) {
   const subcommand = {
     serve,
     migrate,
     setup,
+    report,
   }[command];
 
   if (!subcommand) {
