@@ -127,7 +127,7 @@ describe('Referrals', () => {
     const department = await findOneOrCreate(ctx, ctx.models.Department, { code: departmentCode });
 
     const { locationId } = encounter;
-    result = await app.post('/v1/referral').send({
+    const result = await app.post('/v1/referral').send({
       answers,
       startTime: Date.now(),
       endTime: Date.now(),
@@ -148,7 +148,7 @@ describe('Referrals', () => {
     const location = await findOneOrCreate(ctx, ctx.models.Location, { code: locationCode });
 
     const { departmentId } = encounter;
-    result = await app.post('/v1/referral').send({
+    const result = await app.post('/v1/referral').send({
       answers,
       startTime: Date.now(),
       endTime: Date.now(),
