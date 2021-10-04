@@ -4,6 +4,17 @@
 
 ### Manual steps required after upgrade ⚙
 
+- Add appropriate codes for default department and location for surveys to `packages/lan-server/local.json`:
+
+```
+"survey": {
+  "defaultCodes": {
+    "department": "xxxxxx",
+    "location": "xxxxxx",
+  },
+},
+```
+
 - Add to samoa `packages/sync-server/local.json`:
 
 ```
@@ -30,6 +41,7 @@
 
 ### Infrastructure and maintenance 🛠
 
+- Separate Facilities, Departments and Locations into distinct models
 - Mitigate codeship awscli tools EB version name collision, in our deployment steps
 - Deploy production meta-server from dev branch
 
