@@ -5,11 +5,7 @@ import { PatientEmailCommunicationProcessor } from './PatientEmailCommunicationP
 import { ReportRequestProcessor } from './ReportRequestProcessor';
 import { ReportRequestScheduler } from './ReportRequestScheduler';
 
-const TASKS = [
-  // OutpatientDischarger,
-  ReportRequestProcessor,
-  PatientEmailCommunicationProcessor,
-];
+const TASKS = [OutpatientDischarger, ReportRequestProcessor, PatientEmailCommunicationProcessor];
 
 export async function startScheduledTasks(context) {
   const reportSchedulers = await getReportSchedulers(context);

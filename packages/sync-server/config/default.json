@@ -69,8 +69,16 @@
     "allowedOrigin": ""
   },
   "schedules": {
-    "outpatientDischarger": "0 0 2 ? * * *",
-    "reportRequestProcessor": "*/30 * * * * *"
+    "outpatientDischarger": {
+      // every day at 11 PM
+      "schedule": "0 11 * * *",
+      "batchSize": 1000,
+      "batchSleepAsyncDurationInMilliseconds": 50
+    },
+    "reportRequestProcessor": {
+       // every 30 seconds
+      "schedule": "*/30 * * * * *"
+    } 
   },
   "localisation": {
     "labResultWidget": {
@@ -298,6 +306,11 @@
       "hierarchyName": "covid_samoa",
       "surveyId": "605b114261f76a3684009d5a"
     }
+  },
+  "reportProcess" : {
+    // Report process timeout in 2 hours.
+    "timeOutDurationSeconds": 7200,
+    "runInChildProcess": true
   },
   "tupaiaApiClient": {},
   "scheduledReports": []

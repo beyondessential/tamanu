@@ -12,6 +12,8 @@ export class ReportRequest extends Model {
         recipients: { type: Sequelize.TEXT, allowNull: false },
         parameters: Sequelize.TEXT,
         status: { type: Sequelize.ENUM(REPORT_REQUEST_STATUS_VALUES), allowNull: false },
+        error: Sequelize.TEXT,
+        processStartedTime: Sequelize.DATE,
       },
       {
         ...options,

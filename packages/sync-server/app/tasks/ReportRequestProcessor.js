@@ -1,26 +1,105 @@
 import config from 'config';
-
-import { COMMUNICATION_STATUSES, REPORT_REQUEST_STATUSES } from 'shared/constants';
+import sequelize from 'sequelize';
+import { spawn } from 'child_process';
+import { REPORT_REQUEST_STATUSES } from 'shared/constants';
 import { getReportModule } from 'shared/reports';
 import { ScheduledTask } from 'shared/tasks';
 import { log } from 'shared/services/logging';
-import { createTupaiaApiClient, translateReportDataToSurveyResponses } from 'shared/utils';
+import { ReportRunner } from '../report/ReportRunner';
 
-import { removeFile, createZippedExcelFile } from '../utils/files';
+// time out and kill the report process if it takes more than 2 hours to run
+const REPORT_TIME_OUT_DURATION_MILLISECONDS = config.reportProcess.timeOutDurationSeconds * 1000;
 
 export class ReportRequestProcessor extends ScheduledTask {
-
-  getName() {
+  getName = () => {
     return 'ReportRequestProcessor';
-  }
+  };
 
   constructor(context) {
     // run at 30 seconds interval, process 10 report requests each time
-    super(config.schedules.reportRequestProcessor, log);
+    super(config.schedules.reportRequestProcessor.schedule, log);
     this.context = context;
   }
 
-  async run() {
+  spawnReportProcess = async request => {
+    const [node, scriptPath] = process.argv;
+    log.info(
+      `Spawning child process for report request "${request.id}" for report "${request.reportType}" with command [${node}, ${scriptPath}].`,
+    );
+
+    const childProcess = spawn(
+      node,
+      [
+        scriptPath,
+        'report',
+        '--name',
+        request.reportType,
+        '--parameters',
+        request.parameters,
+        '--recipients',
+        request.recipients,
+      ],
+      { timeout: REPORT_TIME_OUT_DURATION_MILLISECONDS },
+    );
+
+    let errorMessage = '';
+    const captureErrorOutput = message => {
+      if (message.startsWith('Report failed:')) {
+        errorMessage = message;
+      }
+    };
+
+    return new Promise((resolve, reject) => {
+      childProcess.on('exit', code => {
+        if (code === 0) {
+          log.info(
+            `Child process running report request "${request.id}" for report "${request.reportType}" has finished.`,
+          );
+          resolve();
+          return;
+        }
+        reject(
+          new Error(
+            errorMessage ||
+              `Failed to generate report for report request "${request.id}" for report "${request.reportType}"`,
+          ),
+        );
+      });
+
+      childProcess.on('error', err => {
+        reject(
+          new Error(`Child process failed to start, using commands [${node}, ${scriptPath}].`),
+        );
+      });
+
+      // Catch error from child process
+      childProcess.stdout.on('data', data => {
+        captureErrorOutput(data.toString());
+        process.stdout.write(data);
+      });
+      childProcess.stderr.on('data', data => {
+        captureErrorOutput(data.toString());
+        process.stderr.write(data);
+      });
+    });
+  };
+
+  async runReportInTheSameProcess(request) {
+    log.info(
+      `Running report request "${request.id}" for report "${request.reportType}" in main process.`,
+    );
+    const reportRunner = new ReportRunner(
+      request.reportType,
+      request.getParameters(),
+      request.getRecipients(),
+      this.context.store.models,
+      this.context.emailService,
+    );
+
+    await reportRunner.run();
+  }
+
+  async runReports() {
     const requests = await this.context.store.models.ReportRequest.findAll({
       where: {
         status: REPORT_REQUEST_STATUSES.RECEIVED,
@@ -29,12 +108,12 @@ export class ReportRequestProcessor extends ScheduledTask {
       limit: 10,
     });
 
-    for (let i = 0; i < requests.length; i++) {
-      const request = requests[i];
+    for (const request of requests) {
       if (!config.mailgun.from) {
         log.error(`ReportRequestProcessorError - Email config missing`);
-        request.update({
+        await request.update({
           status: REPORT_REQUEST_STATUSES.ERROR,
+          error: 'Email config missing',
         });
         return;
       }
@@ -42,8 +121,9 @@ export class ReportRequestProcessor extends ScheduledTask {
       const disabledReports = config.localisation.data.disabledReports;
       if (disabledReports.includes(request.reportType)) {
         log.error(`Report "${request.reportType}" is disabled`);
-        request.update({
+        await request.update({
           status: REPORT_REQUEST_STATUSES.ERROR,
+          error: `Report "${request.reportType}" is disabled`,
         });
         return;
       }
@@ -54,121 +134,66 @@ export class ReportRequestProcessor extends ScheduledTask {
         log.error(
           `ReportRequestProcessorError - Unable to find report generator for report ${request.id} of type ${request.reportType}`,
         );
-        request.update({
+        await request.update({
           status: REPORT_REQUEST_STATUSES.ERROR,
+          error: `Unable to find report generator for report ${request.id} of type ${request.reportType}`,
         });
         return;
       }
 
-      let reportData = null;
       try {
-        if (reportModule.needsTupaiaApiClient) {
-          if (!this.tupaiaApiClient) {
-            this.tupaiaApiClient = createTupaiaApiClient();
-          }
+        await request.update({
+          status: REPORT_REQUEST_STATUSES.PROCESSING,
+          processStartedTime: new Date(),
+        });
+
+        if (config.reportProcess.runInChildProcess) {
+          await this.spawnReportProcess(request);
+        } else {
+          await this.runReportInTheSameProcess(request);
         }
-        reportData = await reportDataGenerator(
-          this.context.store.models,
-          request.getParameters(),
-          this.tupaiaApiClient,
-        );
+
+        await request.update({
+          status: REPORT_REQUEST_STATUSES.PROCESSED,
+        });
       } catch (e) {
         log.error(`ReportRequestProcessorError - Failed to generate report, ${e.message}`);
         log.error(e.stack);
         await request.update({
           status: REPORT_REQUEST_STATUSES.ERROR,
+          error: e.message,
         });
-        return;
       }
+    }
+  }
 
-      try {
-        await this.sendReport(request, reportData);
-        await request.update({
-          status: REPORT_REQUEST_STATUSES.PROCESSED,
-        });
-      } catch (e) {
-        log.error(`ReportRequestProcessorError - Failed to send, ${e.message}`);
-        log.error(e.stack);
+  async validateTimeoutReports() {
+    try {
+      const requests = await this.context.store.models.ReportRequest.findAll({
+        where: sequelize.literal(
+          `status = '${REPORT_REQUEST_STATUSES.PROCESSING}' AND 
+          EXTRACT(EPOCH FROM CURRENT_TIMESTAMP - process_started_time) > ${config.reportProcess.timeOutDurationSeconds}`,
+        ), // find processing report requests that have been running more than the timeout limit
+        order: [['createdAt', 'ASC']], // process in order received
+        limit: 10,
+      });
+
+      for (const request of requests) {
+        log.info(
+          `ReportRequestProcessorError - Marking report request "${request.id}" as timed out`,
+        );
         await request.update({
           status: REPORT_REQUEST_STATUSES.ERROR,
+          error: 'Report timed out',
         });
       }
+    } catch (error) {
+      log.error('ReportRequestProcessorError - Error checking processing reports', error);
     }
   }
 
-  /**
-   * @param request ReportRequest
-   * @param reportData []
-   * @returns {Promise<void>}
-   */
-  async sendReport(request, reportData) {
-    let sent = false;
-    const recipients = request.getRecipients();
-    if (recipients.email) {
-      await this.sendReportToEmail(request, reportData, recipients.email);
-      sent = true;
-    }
-    if (recipients.tupaia) {
-      await this.sendReportToTupaia(request, reportData);
-      sent = true;
-    }
-    if (!sent) {
-      throw new Error('No recipients');
-    }
-  }
-
-  /**
-   * @param request ReportRequest
-   * @param reportData []
-   * @param emailAddresses string[]
-   * @returns {Promise<void>}
-   */
-  async sendReportToEmail(request, reportData, emailAddresses) {
-    const reportName = `${request.reportType}-report-${new Date().getTime()}`;
-
-    let zipFile = null;
-    try {
-      zipFile = await createZippedExcelFile(reportName, reportData);
-
-      const result = await this.context.emailService.sendEmail({
-        from: config.mailgun.from,
-        to: emailAddresses.join(','),
-        subject: 'Report delivery',
-        text: `Report requested: ${request.reportType}`,
-        attachment: zipFile,
-      });
-      if (result.status === COMMUNICATION_STATUSES.SENT) {
-        log.info(
-          `ReportRequestProcessorError - Sent report ${zipFile} to ${emailAddresses.join(',')}`,
-        );
-      } else {
-        throw new Error(`Mailgun error: ${result.error}`);
-      }
-    } finally {
-      await removeFile(zipFile);
-    }
-  }
-
-  /**
-   * @param request ReportRequest
-   * @param reportData []
-   * @returns {Promise<void>}
-   */
-  async sendReportToTupaia(request, reportData) {
-    const reportConfig = config.reports?.[request.reportType];
-
-    if (!reportConfig) {
-      throw new Error('Report not configured');
-    }
-
-    const { surveyId } = reportConfig;
-
-    const translated = translateReportDataToSurveyResponses(surveyId, reportData);
-
-    if (!this.tupaiaApiClient) {
-      this.tupaiaApiClient = createTupaiaApiClient();
-    }
-
-    await this.tupaiaApiClient.meditrak.createSurveyResponses(translated);
+  async run() {
+    await this.validateTimeoutReports();
+    await this.runReports();
   }
 }

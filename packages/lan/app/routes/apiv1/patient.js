@@ -303,10 +303,10 @@ patientRoute.get(
           ON patients.id = recent_encounter_by_patient.patient_id
         LEFT JOIN encounters
           ON (patients.id = encounters.patient_id AND recent_encounter_by_patient.most_recent_open_encounter = encounters.start_date)
-        LEFT JOIN reference_data AS department
-          ON (department.type = 'department' AND department.id = encounters.department_id)
-        LEFT JOIN reference_data AS location
-          ON (location.type = 'location' AND location.id = encounters.location_id)
+        LEFT JOIN departments AS department
+          ON (department.id = encounters.department_id)
+        LEFT JOIN locations AS location
+          ON (location.id = encounters.location_id)
         LEFT JOIN reference_data AS village
           ON (village.type = 'village' AND village.id = patients.village_id)
       ${whereClauses && `WHERE ${whereClauses}`}

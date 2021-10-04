@@ -17,12 +17,7 @@ function createParser() {
   });
 
   parser.addArgument('command', {
-    choices: [
-      'serve',
-      'setup',
-      'migrate', 
-      'report',
-    ],
+    choices: ['serve', 'setup', 'migrate', 'report'],
     nargs: '?', // allow empty
     defaultValue: 'serve',
   });
@@ -32,20 +27,36 @@ function createParser() {
     dest: 'name',
   });
 
+  parser.addArgument('--parameters', {
+    action: 'store',
+    dest: 'parameters',
+  });
+
+  parser.addArgument('--recipients', {
+    action: 'store',
+    dest: 'recipients',
+  });
+
   // migrate subcommand
   const migrateDir = parser.addMutuallyExclusiveGroup();
   migrateDir.addArgument('--up', {
-    help: "Run database migrations",
+    help: 'Run database migrations',
     action: 'storeConst',
     defaultValue: 'up',
     dest: 'migrateDirection',
     constant: 'up',
   });
   migrateDir.addArgument('--down', {
-    help: "Run database migrations",
+    help: 'Run database migrations',
     action: 'storeConst',
     dest: 'migrateDirection',
     constant: 'down',
+  });
+  migrateDir.addArgument('--redoLatest', {
+    help: "Run database migrations down 1 and then up 1",
+    action: 'storeConst',
+    dest: 'migrateDirection',
+    constant: 'redoLatest',
   });
   parser.addArgument('--skipMigrationCheck', {
     dest: 'skipMigrationCheck',
@@ -61,7 +72,6 @@ export function parseArguments() {
   if (ARGS && ARGS.length > 0) {
     log.info(`Running app with TAMANU_ARGS of ${ARGS}`);
     return parser.parseArgs(ARGS);
-  } else {
-    return parser.parseArgs();
   }
+  return parser.parseArgs();
 }

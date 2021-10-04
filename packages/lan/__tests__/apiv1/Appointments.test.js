@@ -1,4 +1,5 @@
-import { createDummyPatient, randomDate } from 'shared/demoData/patients';
+import { createDummyPatient } from 'shared/demoData/patients';
+import { randomDate } from 'shared/demoData/utilities';
 import { APPOINTMENT_TYPES, APPOINTMENT_STATUSES } from 'shared/constants';
 import { createTestContext } from '../utilities';
 
