@@ -93,6 +93,7 @@
 - Add PNG assistive technology device line list report
 - Add Generic Vaccine line list report
 - Allow disabling reports through server config
+- Allow running reports in child process
 
 ### Tweaks ⚖️
 

@@ -299,6 +299,11 @@
       "surveyId": "605b114261f76a3684009d5a"
     }
   },
+  "reportProcess" : {
+    // Report process timeout in 2 hours.
+    "timeOutDurationSeconds": 7200,
+    "runInChildProcess": true
+  },
   "tupaiaApiClient": {},
   "scheduledReports": []
 }
