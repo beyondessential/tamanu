@@ -1,10 +1,12 @@
 import { Op } from 'sequelize';
-import { differenceInYears, subDays } from 'date-fns';
+import { addDays, differenceInYears, format, isBefore, isSameDay, subDays } from 'date-fns';
 import config from 'config';
 import moment from 'moment';
 import { keyBy } from 'lodash';
 import { DATA_TIME_FORMAT } from '@tupaia/api-client';
 import { generateReportFromQueryData } from './utilities';
+
+const DATE_FNS_DATE_FORMAT = 'YYYY-MM-dd';
 
 const reportColumnTemplate = [
   { title: 'entity_code', accessor: data => data.tupaiaEntityCode },
@@ -24,10 +26,18 @@ const MANUAL_VILLAGE_MAPPING = {
   'Vailoa Savaii': 'WS_012_Vailoa_Satupaitea',
 };
 
+function getDateRange(parameters) {
+  return {
+    fromDate: parameters.fromDate ? new Date(parameters.fromDate) : subDays(new Date(), 30),
+    toDate: parameters.toDate ? new Date(parameters.toDate) : new Date(),
+  };
+}
+
 function parametersToSqlWhere(parameters) {
-  if (!parameters.fromDate) {
-    parameters.fromDate = subDays(new Date(), 30).toISOString();
-  }
+  const dateRange = getDateRange(parameters);
+
+  parameters.fromDate = dateRange.fromDate;
+  parameters.toDate = dateRange.toDate;
 
   const whereClause = Object.entries(parameters)
     .filter(([, val]) => val)
@@ -38,13 +48,13 @@ function parametersToSqlWhere(parameters) {
             if (!where.date) {
               where.date = {};
             }
-            where.date[Op.gte] = value;
+            where.date[Op.gte] = value.toISOString();
             break;
           case 'toDate':
             if (!where.date) {
               where.date = {};
             }
-            where.date[Op.lte] = value;
+            where.date[Op.lte] = value.toISOString();
             break;
           default:
             break;
@@ -231,6 +241,46 @@ async function getVillages(tupaiaApi) {
   return entities;
 }
 
+function withEmptyRows(groupedData, parameters, villages) {
+  const dateRange = getDateRange(parameters);
+
+  const padded = groupedData;
+
+  for (const village of villages) {
+    let d = dateRange.fromDate;
+    while (isBefore(d, dateRange.toDate) || isSameDay(d, dateRange.toDate)) {
+      const dataTime = moment(d)
+        .set({ hour: 23, minute: 59, second: 59 })
+        .format(DATA_TIME_FORMAT);
+
+      const exists =
+        groupedData.find(
+          row => row.data_time === dataTime && row.tupaiaEntityCode === village.code,
+        ) !== undefined;
+
+      if (!exists) {
+        padded.push({
+          village: village.name,
+          tupaiaEntityCode: village.code,
+          data_time: dataTime,
+          COVIDVac1: '',
+          COVIDVac2: '',
+          COVIDVac3: '',
+          COVIDVac4: '',
+          COVIDVac5: '',
+          COVIDVac6: '',
+          COVIDVac7: '',
+          COVIDVac8: '',
+        });
+      }
+
+      d = addDays(d, 1);
+    }
+  }
+
+  return padded;
+}
+
 export async function dataGenerator(models, parameters, tupaiaApi) {
   const listData = await queryCovidVaccineListData(models, parameters);
 
@@ -240,7 +290,9 @@ export async function dataGenerator(models, parameters, tupaiaApi) {
 
   const groupedData = groupByDateAndVillage(tupaiaListData);
 
-  return generateReportFromQueryData(groupedData, reportColumnTemplate);
+  const padded = withEmptyRows(groupedData, parameters, villages);
+
+  return generateReportFromQueryData(padded, reportColumnTemplate);
 }
 
 export const permission = 'PatientVaccine';
