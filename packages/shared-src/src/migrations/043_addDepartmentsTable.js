@@ -40,7 +40,10 @@ module.exports = {
         },
       },
       {
-        indexes: [{ fields: ['name'] }],
+        indexes: [
+          { unique: true, fields: ['code'] },
+          { unique: true, fields: ['name'] },
+        ],
       },
     );
   },
