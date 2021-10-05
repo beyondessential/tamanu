@@ -27,6 +27,10 @@ export class Appointment extends Model {
     );
   }
 
+  static getListReferenceAssociations() {
+    return ['patient', 'clinician', 'location'];
+  }
+
   static initRelations(models) {
     this.belongsTo(models.Patient, {
       as: 'patient',
