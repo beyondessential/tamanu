@@ -1,13 +1,11 @@
 import React, { useCallback } from 'react';
-import ReactDOMServer from 'react-dom/server';
-import cheerio from 'cheerio';
 import * as yup from 'yup';
 
 import { FormGrid } from '../FormGrid';
 import { Field, Form, AutocompleteField, SelectField, DateTimeField } from '../Field';
 import { ConfirmCancelRow } from '../ButtonRow';
 import { FormSeparatorLine } from '../FormSeparatorLine';
-import { PatientNameDisplay } from '../PatientNameDisplay';
+import { getPatientNameAsString } from '../PatientNameDisplay';
 
 import { useApi } from '../../api';
 import { Suggester } from '../../utils/suggester';
@@ -19,9 +17,7 @@ export const NewAppointmentForm = props => {
   const clinicianSuggester = new Suggester(api, 'practitioner');
   const locationSuggester = new Suggester(api, 'location');
   const patientSuggester = new Suggester(api, 'patient', ({ id, ...patient }) => ({
-    label: cheerio
-      .load(ReactDOMServer.renderToString(<PatientNameDisplay patient={patient} />))
-      .text(),
+    label: getPatientNameAsString(patient),
     value: id,
   }));
   const createAppointment = useCallback(async (values, actions) => {
