@@ -150,7 +150,7 @@ export class WebSyncSource implements SyncSource {
     );
 
     if (response.status === 401) {
-      throw new AuthenticationError(path.includes('/login') ? invalidUserCredentialsMessage : invalidTokenMessage);
+      throw new AuthenticationError(path.includes('/login') ? invalidTokenMessage : invalidUserCredentialsMessage);
     }
 
     if (response.status === 400) {
