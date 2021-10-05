@@ -24,7 +24,7 @@ const SyncWarning = styled.p`
 `;
 
 const RefreshButton = styled(OutlinedButton)`
-  margin-left: .5rem;
+  margin-left: 0.5rem;
 `;
 
 export const PatientHistory = ({ patient, onItemClick }) => {

@@ -29,14 +29,17 @@ export class Appointment extends Model {
 
   static initRelations(models) {
     this.belongsTo(models.Patient, {
+      as: 'patient',
       foreignKey: 'patientId',
     });
 
     this.belongsTo(models.User, {
+      as: 'clinician',
       foreignKey: 'clinicianId',
     });
 
     this.belongsTo(models.Location, {
+      as: 'location',
       foreignKey: 'locationId',
     });
   }

@@ -14,7 +14,7 @@ import { Suggester } from '../../utils/suggester';
 import { appointmentTypeOptions } from '../../constants';
 
 export default function NewAppointmentForm(props) {
-  const { done = () => {} } = props;
+  const { onSuccess = () => {}, onCancel = () => {} } = props;
   const api = useApi();
   const clinicianSuggester = new Suggester(api, 'practitioner');
   const locationSuggester = new Suggester(api, 'location');
@@ -24,13 +24,13 @@ export default function NewAppointmentForm(props) {
       .text(),
     value: id,
   }));
-  const createAppointment = useCallback(async values => {
+  const createAppointment = useCallback(async (values, actions) => {
     try {
-      console.log(values);
       await api.post('appointments', {
         ...values,
       });
-      done();
+      actions.resetForm();
+      onSuccess();
     } catch (e) {
       console.error(e);
     }
@@ -81,7 +81,7 @@ export default function NewAppointmentForm(props) {
               />
               <FormSeparatorLine />
               <ConfirmCancelRow
-                onCancel={done}
+                onCancel={onCancel}
                 onConfirm={submitForm}
                 confirmText="Schedule Appointment"
               />
