@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import NewAppointmentModal from './NewAppointmentModal';
+import { NewAppointmentModal } from './NewAppointmentModal';
 import { Button } from '..';
 
 export default function NewAppointmentButton(props) {

@@ -1,10 +1,9 @@
 import React from 'react';
 
 import { Modal } from '../Modal';
-import NewAppointmentForm from './NewAppointmentForm';
+import { NewAppointmentForm } from './NewAppointmentForm';
 
-export default function NewAppointmentModal(props) {
-  const { open, onClose, onSuccess } = props;
+export const NewAppointmentModal = ({ open, onClose, onSuccess }) => {
   return (
     <Modal width="md" title="Create new appointment" open={open} onClose={onClose}>
       <NewAppointmentForm
@@ -16,4 +15,4 @@ export default function NewAppointmentModal(props) {
       />
     </Modal>
   );
-}
+};

@@ -13,7 +13,7 @@ import { useApi } from '../../api';
 import { Suggester } from '../../utils/suggester';
 import { appointmentTypeOptions } from '../../constants';
 
-export default function NewAppointmentForm(props) {
+export const NewAppointmentForm = props => {
   const { onSuccess = () => {}, onCancel = () => {} } = props;
   const api = useApi();
   const clinicianSuggester = new Suggester(api, 'practitioner');
@@ -91,4 +91,4 @@ export default function NewAppointmentForm(props) {
       )}
     />
   );
-}
+};
