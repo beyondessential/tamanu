@@ -23,10 +23,13 @@ export class ReportRequestProcessor extends ScheduledTask {
 
   spawnReportProcess = async request => {
     const [node, scriptPath] = process.argv;
-    const parameters = process.execArgv;
+    const processOptions = config.reportProcess.processOptions;
+    const parameters = processOptions || process.execArgv;
 
     log.info(
-      `Spawning child process for report request "${request.id}" for report "${request.reportType}" with command [${node}, ${scriptPath}].`,
+      `Spawning child process for report request "${request.id}" for report "${
+        request.reportType
+      }" with command [${node}, ${parameters.toString()}, ${scriptPath}].`,
     );
 
     const childProcess = spawn(
