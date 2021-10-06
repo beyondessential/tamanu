@@ -262,7 +262,7 @@ export class SurveyResponseAnswer extends Model {
       {
         id: primaryKey,
         name: Sequelize.STRING,
-        body: Sequelize.STRING,
+        body: Sequelize.TEXT,
       },
       options,
     );
