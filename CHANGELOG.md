@@ -33,7 +33,7 @@
 
 ### Tweaks ⚖️
 
-- (left blank)
+- Remove character limit on SurveyResponseAnswer.body
 
 ### Bug fixes 🐛
 
