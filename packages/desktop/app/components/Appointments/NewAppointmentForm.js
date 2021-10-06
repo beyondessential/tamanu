@@ -21,15 +21,10 @@ export const NewAppointmentForm = props => {
     value: id,
   }));
   const createAppointment = useCallback(async (values, actions) => {
-    try {
-      await api.post('appointments', {
-        ...values,
-      });
-      actions.resetForm();
-      onSuccess();
-    } catch (e) {
-      console.error(e);
-    }
+    await api.post('appointments', {
+      ...values,
+    });
+    onSuccess();
   });
   return (
     <Form
