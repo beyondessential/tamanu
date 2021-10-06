@@ -1,5 +1,5 @@
 import React, { useEffect, useState } from 'react';
-import { API } from '../../api';
+import { API } from '../../api/singletons';
 
 import { TopBar, PageContainer, DataFetchingTable } from '../../components';
 import { displayId, firstName, lastName, village } from './columns';
