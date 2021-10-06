@@ -6,4 +6,7 @@ import { Suggester } from '../utils/suggester';
 export const API = new TamanuApi(version);
 export const ApiContext = createContext(API);
 export const useApi = () => useContext(ApiContext);
-export const useSuggester = type => new Suggester(API, type);
+export const useSuggester = type => { 
+  const api = useApi()
+  return new Suggester(api, type);
+};
