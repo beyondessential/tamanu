@@ -20,7 +20,7 @@ export const NewAppointmentForm = props => {
     label: getPatientNameAsString(patient),
     value: id,
   }));
-  const createAppointment = useCallback(async (values, actions) => {
+  const createAppointment = useCallback(async values => {
     await api.post('appointments', {
       ...values,
     });
