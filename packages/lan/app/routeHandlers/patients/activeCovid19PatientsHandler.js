@@ -32,7 +32,8 @@ export const activeCovid19PatientsHandler = async (req, res) => {
   const filters = createPatientFilters(filterParams);
   const clinicalStatusFilter = makeFilter(
     filterParams.clinicalStatus,
-    `latest_clinical_status_survey.clinical_status = :clinicalStatus`,
+    `UPPER(latest_clinical_status_survey.clinical_status) LIKE UPPER(:clinicalStatus)`,
+    ({ clinicalStatus }) => ({ clinicalStatus: `${clinicalStatus}%` }),
   );
   if (clinicalStatusFilter) {
     filters.push(clinicalStatusFilter);
