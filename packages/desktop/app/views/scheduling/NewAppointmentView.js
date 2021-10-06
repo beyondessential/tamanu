@@ -15,23 +15,26 @@ const ButtonRow = styled.div`
   justify-content: flex-end;
 `;
 
+const SubmissionSuccess = ({ onReset }) => (
+  <>
+    <Notification message="Appointment created successfully." />
+    <ButtonRow>
+      <Button variant="contained" color="primary" onClick={onReset}>
+        Add another appointment
+      </Button>
+    </ButtonRow>
+  </>
+);
+
 export const NewAppointmentView = () => {
   const [success, setSuccess] = useState(false);
   return (
     <PageContainer>
       <TopBar title="New Appointment" />
       <Container>
-        {success && (
-          <>
-            <Notification message="Appointment created successfully." />
-            <ButtonRow>
-              <Button variant="contained" color="primary" onClick={() => setSuccess(false)}>
-                Add another appointment
-              </Button>
-            </ButtonRow>
-          </>
-        )}
-        {!success && (
+        {success ? (
+          <SubmissionSuccess onReset={() => setSuccess(false)} />
+        ) : (
           <NewAppointmentForm
             onSuccess={() => {
               setSuccess(true);
