@@ -2,7 +2,7 @@ import React, { useState } from 'react';
 
 import { TopBar, PageContainer, DataFetchingTable } from '../../components';
 import { DateDisplay } from '../../components/DateDisplay';
-import NewAppointmentButton from '../../components/Appointments/NewAppointmentButton';
+import { NewAppointmentButton } from '../../components/Appointments/NewAppointmentButton';
 
 const COLUMNS = [
   {

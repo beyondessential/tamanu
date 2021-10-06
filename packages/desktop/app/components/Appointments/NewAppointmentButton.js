@@ -2,8 +2,7 @@ import React, { useState } from 'react';
 import { NewAppointmentModal } from './NewAppointmentModal';
 import { Button } from '..';
 
-export default function NewAppointmentButton(props) {
-  const { onSuccess } = props;
+export const NewAppointmentButton = ({ onSuccess }) => {
   const [openModal, setOpenModal] = useState(false);
   return (
     <>
@@ -23,4 +22,4 @@ export default function NewAppointmentButton(props) {
       />
     </>
   );
-}
+};
