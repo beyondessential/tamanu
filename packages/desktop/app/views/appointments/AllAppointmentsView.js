@@ -1,5 +1,4 @@
 import React from 'react';
-import styled from 'styled-components';
 
 import { Button, PageContainer, TopBar } from '../../components';
 import { TwoColumnDisplay } from '../../components/TwoColumnDisplay';
@@ -26,4 +25,3 @@ export const AllAppointmentsView = () => {
     </AppointmentsContextProvider>
   );
 };
-

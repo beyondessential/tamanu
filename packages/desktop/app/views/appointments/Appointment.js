@@ -9,8 +9,6 @@ export const Appointment = props => {
     appointment: { startTime, user },
   } = props;
 
-  console.log(hashStr)
-  console.log(hashStr(user.id));
   const patientColorIndex = hashStr(user.id) % PatientColors.length;
 
   return (
