@@ -1,11 +1,12 @@
 import React, { useEffect, useState } from 'react';
+import { useDispatch } from 'react-redux';
 import { groupBy } from 'lodash';
 import moment from 'moment';
 import styled from 'styled-components';
 import People from '@material-ui/icons/People';
 import Paper from '@material-ui/core/Paper';
 
-import { useApi, connectApi } from '../../api';
+import { useApi } from '../../api';
 import { viewPatient } from '../../store/patient';
 import { capitaliseFirstLetter } from '../../utils/capitalise';
 import { TopBar, PageContainer, DataFetchingTable } from '../../components';
@@ -169,8 +170,9 @@ const ActiveCovid19PatientsTable = React.memo(({ data, onViewPatient, ...props }
   );
 });
 
-export const DumbActiveCovid19PatientsView = React.memo(({ onViewPatient }) => {
+export const ActiveCovid19PatientsView = React.memo(() => {
   const api = useApi();
+  const dispatch = useDispatch();
   const [data, setData] = useState([]);
   const [searchParameters, setSearchParameters] = useState({});
   const [patientsByClinicalStatus, setPatientsByClinicalStatus] = useState({});
@@ -181,6 +183,8 @@ export const DumbActiveCovid19PatientsView = React.memo(({ onViewPatient }) => {
       setPatientsByClinicalStatus(groupBy(activeCovid19PatientsData.data, 'clinicalStatus'));
     })();
   }, []);
+
+  const handleViewPatient = id => dispatch(viewPatient(id));
 
   const fields = [
     'firstName',
@@ -216,15 +220,9 @@ export const DumbActiveCovid19PatientsView = React.memo(({ onViewPatient }) => {
       </StatisticsRow>
       <ActiveCovid19PatientsTable
         data={data}
-        onViewPatient={onViewPatient}
+        onViewPatient={handleViewPatient}
         fetchOptions={searchParameters}
       />
     </PageContainer>
   );
 });
-
-export const ActiveCovid19PatientsView = connectApi((api, dispatch) => ({
-  onViewPatient: id => {
-    dispatch(viewPatient(id));
-  },
-}))(DumbActiveCovid19PatientsView);
