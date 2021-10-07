@@ -20,7 +20,7 @@ describe('Appointments', () => {
   it('should create a new appointment', async () => {
     const result = await userApp.post('/v1/appointments').send({
       patientId: patient.id,
-      startTime: randomDate(),
+      startTime: randomDate(-2, -10),
       clinicianId: userApp.user.dataValues.id,
     });
     appointment = result.body;
