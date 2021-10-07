@@ -71,18 +71,6 @@ export const items = [
         ability: { action: 'read' },
       },
       {
-        label: 'Appointments this week',
-        path: '/appointments/week',
-        icon: submenuIcons.table,
-        ability: { action: 'read' },
-      },
-      {
-        label: "Today's appointments",
-        path: '/appointments/today',
-        icon: submenuIcons.table,
-        ability: { action: 'read' },
-      },
-      {
         label: 'Appointments calendar',
         path: '/appointments/calendar',
         icon: submenuIcons.calendar,

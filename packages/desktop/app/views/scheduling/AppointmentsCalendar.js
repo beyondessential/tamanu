@@ -5,7 +5,7 @@ import { TwoColumnDisplay } from '../../components/TwoColumnDisplay';
 import { DailySchedule } from './DailySchedule';
 import { FilterPane } from './FilterPane';
 
-export const AllAppointmentsView = () => {
+export const AppointmentsCalendar = () => {
   return (
     <PageContainer>
       <TwoColumnDisplay>
