@@ -1,4 +1,4 @@
-import React, { ReactElement } from 'react';
+import React, { ReactElement, useRef } from 'react';
 import { StyledView, StyledText } from '/styled/common';
 import { theme } from '/styled/theme';
 import { Field } from '../FormField';
@@ -15,46 +15,54 @@ type SignInFieldsProps = {
 export const SignInFields = ({
   handleSubmit,
   isSubmitting,
-}: SignInFieldsProps): ReactElement => (
-  <StyledView
-    marginTop={screenPercentageToDP(14.7, Orientation.Height)}
-    marginRight={screenPercentageToDP(2.43, Orientation.Width)}
-    marginLeft={screenPercentageToDP(2.43, Orientation.Width)}
-  >
-    <StyledText
-      fontSize={13}
-      marginBottom={5}
-      color={theme.colors.SECONDARY_MAIN}
-    >
-      ACCOUNT DETAILS
-    </StyledText>
+}: SignInFieldsProps): ReactElement => {
+  const passwordRef = useRef(null);
+  return (
     <StyledView
-      justifyContent="space-around"
+      marginTop={screenPercentageToDP(14.7, Orientation.Height)}
+      marginRight={screenPercentageToDP(2.43, Orientation.Width)}
+      marginLeft={screenPercentageToDP(2.43, Orientation.Width)}
     >
-      <ServerSelector />
-      <Field
-        name="email"
-        keyboardType="email-address"
-        component={TextField}
-        label="Email"
-      />
-      <Field
-        name="password"
-        autoCapitalize="none"
-        component={TextField}
-        label="Password"
-        secure
+      <StyledText
+        fontSize={13}
+        marginBottom={5}
+        color={theme.colors.SECONDARY_MAIN}
+      >
+        ACCOUNT DETAILS
+      </StyledText>
+      <StyledView justifyContent="space-around">
+        <ServerSelector />
+        <Field
+          name="email"
+          keyboardType="email-address"
+          component={TextField}
+          label="Email"
+          blurOnSubmit={false}
+          returnKeyType="next"
+          onSubmitEditing={(): void => {
+            passwordRef.current.focus();
+          }}
+        />
+        <Field
+          name="password"
+          inputRef={passwordRef}
+          autoCapitalize="none"
+          component={TextField}
+          label="Password"
+          secure
+          onSubmitEditing={handleSubmit}
+        />
+      </StyledView>
+      <Button
+        marginTop={20}
+        backgroundColor={theme.colors.SECONDARY_MAIN}
+        onPress={handleSubmit}
+        loadingAction={isSubmitting}
+        textColor={theme.colors.TEXT_SUPER_DARK}
+        fontSize={screenPercentageToDP('1.94', Orientation.Height)}
+        fontWeight={500}
+        buttonText="Sign in"
       />
     </StyledView>
-    <Button
-      marginTop={20}
-      backgroundColor={theme.colors.SECONDARY_MAIN}
-      onPress={handleSubmit}
-      loadingAction={isSubmitting}
-      textColor={theme.colors.TEXT_SUPER_DARK}
-      fontSize={screenPercentageToDP('1.94', Orientation.Height)}
-      fontWeight={500}
-      buttonText="Sign in"
-    />
-  </StyledView>
-);
+  );
+};

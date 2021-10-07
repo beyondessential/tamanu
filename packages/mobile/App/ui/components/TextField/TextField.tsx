@@ -30,7 +30,10 @@ export interface TextFieldProps extends BaseInputProps {
   autoCapitalize?: 'none' | 'words' | 'sentences' | 'characters' | undefined;
   onFocus?: () => void;
   onBlur?: () => void;
-  charLimit?: number
+  charLimit?: number;
+  blurOnSubmit?: boolean;
+  inputRef?: RefObject<any>;
+  onSubmitEditing?: () => void;
 }
 
 const styles = StyleSheet.create({
@@ -58,14 +61,18 @@ export const TextField = React.memo(
     onBlur,
     hideValue = false,
     charLimit,
+    blurOnSubmit,
+    inputRef,
+    onSubmitEditing,
   }: TextFieldProps): JSX.Element => {
     const [focused, setFocus] = useState(false);
-    const inputRef: Ref<any> = useRef(null);
-    const onFocusLabel = React.useCallback((): void => {
-      if (!focused && inputRef.current) {
-        inputRef.current.focus();
-      } else if (focused && inputRef.current) {
-        inputRef.current.blur();
+    const defaultRef: RefObject<any> = useRef(null);
+    const ref = inputRef || defaultRef;
+    const onFocusLabel = useCallback((): void => {
+      if (!focused && ref.current) {
+        ref.current.focus();
+      } else if (focused && ref.current) {
+        ref.current.blur();
       }
     }, [focused, inputRef]);
     const onFocusInput = useCallback((): void => {
@@ -116,7 +123,7 @@ export const TextField = React.memo(
             testID={label}
             value={!hideValue && value}
             marginTop={inputMarginTop}
-            ref={inputRef}
+            ref={ref}
             autoCapitalize={
               keyboardType === 'email-address' ? 'none' : autoCapitalize
             }
@@ -133,8 +140,9 @@ export const TextField = React.memo(
             style={multiline ? styles.textinput : null}
             secureTextEntry={secure}
             placeholder={placeholder}
-            blurOnSubmit={!multiline}
+            blurOnSubmit={blurOnSubmit !== undefined ? blurOnSubmit : !multiline}
             maxLength={charLimit}
+            onSubmitEditing={onSubmitEditing}
           />
         </InputContainer>
       </StyledView>
@@ -142,7 +150,7 @@ export const TextField = React.memo(
   },
 );
 
-export const LimitedTextField = (props: TextFieldProps) => {
+export const LimitedTextField = (props: TextFieldProps): JSX.Element => {
   const { charLimit = 255 } = props;
-  return <TextField {...props} charLimit={charLimit} />
+  return <TextField {...props} charLimit={charLimit} />;
 };
