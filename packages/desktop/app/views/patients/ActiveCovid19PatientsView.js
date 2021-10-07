@@ -158,11 +158,14 @@ const PriorityDisplay = React.memo(({ clinicalStatus }) => (
   <PriorityText>{clinicalStatus}</PriorityText>
 ));
 
-const ActiveCovid19PatientsTable = React.memo(({ data, onViewPatient, ...props }) => {
+const ActiveCovid19PatientsTable = React.memo(({ data, ...props }) => {
+  const dispatch = useDispatch();
+  const handleViewPatient = id => dispatch(viewPatient(id));
+
   return (
     <DataFetchingTable
       endpoint={ENDPOINT}
-      onRowClick={row => onViewPatient(row.id)}
+      onRowClick={row => handleViewPatient(row.id)}
       columns={COLUMNS}
       noDataMessage="No patients found"
       {...props}
@@ -172,7 +175,6 @@ const ActiveCovid19PatientsTable = React.memo(({ data, onViewPatient, ...props }
 
 export const ActiveCovid19PatientsView = React.memo(() => {
   const api = useApi();
-  const dispatch = useDispatch();
   const [data, setData] = useState([]);
   const [searchParameters, setSearchParameters] = useState({});
   const [patientsByClinicalStatus, setPatientsByClinicalStatus] = useState({});
@@ -183,8 +185,6 @@ export const ActiveCovid19PatientsView = React.memo(() => {
       setPatientsByClinicalStatus(groupBy(activeCovid19PatientsData.data, 'clinicalStatus'));
     })();
   }, []);
-
-  const handleViewPatient = id => dispatch(viewPatient(id));
 
   const fields = [
     'firstName',
@@ -218,11 +218,7 @@ export const ActiveCovid19PatientsView = React.memo(() => {
           numberOfPatients={patientsByClinicalStatus[CLINICAL_STATUSES.NEEDS_REVIEW]?.length || 0}
         />
       </StatisticsRow>
-      <ActiveCovid19PatientsTable
-        data={data}
-        onViewPatient={handleViewPatient}
-        fetchOptions={searchParameters}
-      />
+      <ActiveCovid19PatientsTable data={data} fetchOptions={searchParameters} />
     </PageContainer>
   );
 });
