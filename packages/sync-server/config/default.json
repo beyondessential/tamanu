@@ -310,7 +310,9 @@
   "reportProcess" : {
     // Report process timeout in 2 hours.
     "timeOutDurationSeconds": 7200,
-    "runInChildProcess": true
+    "runInChildProcess": true,
+    // provide an array [] if you want to override the options, eg: ['--max-old-space-size=4096']
+    "processOptions": null
   },
   "tupaiaApiClient": {},
   "scheduledReports": []
