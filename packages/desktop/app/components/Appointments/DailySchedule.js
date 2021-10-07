@@ -31,7 +31,7 @@ export const DailySchedule = ({ date }) => {
       );
       setAppointments(data);
     })();
-  }, []);
+  }, [date]);
   const byLocation = appointments.reduce(
     (locations, appointment) => ({
       ...locations,
