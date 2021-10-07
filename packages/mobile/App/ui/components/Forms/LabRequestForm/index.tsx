@@ -13,6 +13,7 @@ import { MultiCheckbox } from '~/ui/components/MultiCheckbox';
 import { DateField } from '~/ui/components/DateField/DateField';
 import { CurrentUserField } from '~/ui/components/CurrentUserField/CurrentUserField';
 import { AutocompleteModalField } from '../../AutocompleteModal/AutocompleteModalField';
+import { SubmitButton } from '../SubmitButton';
 import { Routes } from '~/ui/helpers/routes';
 import { Checkbox } from '../../Checkbox';
 import { Suggester } from '~/ui/helpers/suggester';
@@ -139,11 +140,9 @@ const DumbLabRequestForm = ({
           />
         </StyledView>
         <FormValidationMessage message={errors.form} />
-        <Button
+        <SubmitButton
           marginTop={20}
-          backgroundColor={theme.colors.PRIMARY_MAIN}
-          buttonText="Submit"
-          onPress={handleSubmit}
+          onSubmit={handleSubmit}
         />
       </StyledView>
     </FormScreenView>

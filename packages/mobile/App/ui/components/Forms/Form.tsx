@@ -1,7 +1,6 @@
 import React, { ReactElement } from 'react';
 import { Formik, FormikProps } from 'formik';
 import * as Yup from 'yup';
-import { formikSubmitFormAdapter } from '/helpers/form';
 
 type InitialValuesProps = {
   [key: string]: any;
@@ -27,7 +26,7 @@ export function Form<T>({
     <Formik
       initialValues={initialValues}
       validationSchema={validationSchema}
-      onSubmit={formikSubmitFormAdapter(onSubmit)}
+      onSubmit={onSubmit}
     >
       {children}
     </Formik>

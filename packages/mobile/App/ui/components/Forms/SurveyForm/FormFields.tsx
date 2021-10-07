@@ -1,4 +1,4 @@
-import React, { ReactElement, useCallback, useState } from 'react';
+import React, { ReactElement, useCallback, useState, useRef } from 'react';
 import { TouchableWithoutFeedback } from 'react-native-gesture-handler';
 import { ISurveyScreenComponent } from '~/types';
 import { theme } from '~/ui/styled/theme';
@@ -8,15 +8,14 @@ import { SectionHeader } from '../../SectionHeader';
 import { Button } from '../../Button';
 import { FullView, RowView, StyledText, StyledView } from '~/ui/styled/common';
 import { FormScreenView } from '../FormScreenView';
+import { SubmitButton } from '../SubmitButton';
 
 import { ErrorBoundary } from '~/ui/components/ErrorBoundary';
 import { Orientation, screenPercentageToDP } from '~/ui/helpers/screen';
 
-const SurveyQuestionErrorView = ({ error }) => (
+const SurveyQuestionErrorView = ({ error }): ReactElement => (
   <TouchableWithoutFeedback onPress={(): void => console.warn(error)}>
-    <StyledText color="red">
-      Error displaying component
-    </StyledText>
+    <StyledText color="red">Error displaying component</StyledText>
   </TouchableWithoutFeedback>
 );
 
@@ -36,9 +35,10 @@ export const FormFields = ({
   patient,
 }: AddDetailsFormFieldsProps): ReactElement => {
   const [currentScreenIndex, setCurrentScreenIndex] = useState(0);
+  const scrollViewRef = useRef(null);
 
   const maxIndex = components
-    .map(x => x.screenIndex)
+    .map((x) => x.screenIndex)
     .reduce((max, current) => Math.max(max, current), 0);
 
   const onNavigateNext = useCallback(() => {
@@ -50,14 +50,12 @@ export const FormFields = ({
   }, [currentScreenIndex]);
 
   const shouldShow = useCallback(
-    (component: ISurveyScreenComponent) => (
-      checkVisibilityCriteria(component, components, values)
-    ),
+    (component: ISurveyScreenComponent) => checkVisibilityCriteria(component, components, values),
     [values],
   );
 
   const screenComponents = components
-    .filter(x => x.screenIndex === currentScreenIndex)
+    .filter((x) => x.screenIndex === currentScreenIndex)
     .sort((a, b) => a.componentIndex - b.componentIndex)
     .filter(shouldShow)
     .map((component, index) => (
@@ -65,11 +63,14 @@ export const FormFields = ({
         <SectionHeader marginTop={index === 0 ? 0 : 20} h3>
           {component.text || component.dataElement.defaultText || ''}
         </SectionHeader>
-        {
-          component.detail
-            ? <StyledText marginTop={4} fontSize={screenPercentageToDP('2.2', Orientation.Height)}>{component.detail}</StyledText>
-            : null
-        }
+        {component.detail ? (
+          <StyledText
+            marginTop={4}
+            fontSize={screenPercentageToDP('2.2', Orientation.Height)}
+          >
+            {component.detail}
+          </StyledText>
+        ) : null}
         <ErrorBoundary errorComponent={SurveyQuestionErrorView}>
           <SurveyQuestion
             key={component.id}
@@ -87,7 +88,7 @@ export const FormFields = ({
 
   return (
     <FullView key={currentScreenIndex}>
-      <FormScreenView>
+      <FormScreenView scrollViewRef={scrollViewRef}>
         {screenComponents}
         <RowView width="68%" marginTop={25}>
           <Button
@@ -96,17 +97,18 @@ export const FormFields = ({
             buttonText="Previous Page"
             onPress={onNavigatePrevious}
           />
-          {(currentScreenIndex !== maxIndex)
-            ? <Button margin={5} buttonText="Next Page" onPress={onNavigateNext} />
-            : (
-              <Button
-                margin={5}
-                backgroundColor={theme.colors.PRIMARY_MAIN}
-                buttonText="Submit"
-                onPress={onSubmit}
-              />
-            )
-          }
+          {currentScreenIndex !== maxIndex ? (
+            <Button
+              margin={5}
+              buttonText="Next Page"
+              onPress={onNavigateNext}
+            />
+          ) : (
+            <SubmitButton
+              margin={5}
+              onSubmit={onSubmit}
+            />
+          )}
         </RowView>
         {currentScreenIndex === maxIndex && (
           <StyledView margin={10}>
