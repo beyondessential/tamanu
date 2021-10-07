@@ -1,4 +1,5 @@
 import React, { useEffect, useState } from 'react';
+import { useDispatch } from 'react-redux';
 import { groupBy } from 'lodash';
 import moment from 'moment';
 import styled from 'styled-components';
@@ -6,6 +7,7 @@ import People from '@material-ui/icons/People';
 import Paper from '@material-ui/core/Paper';
 
 import { useApi } from '../../api';
+import { viewPatient } from '../../store/patient';
 import { capitaliseFirstLetter } from '../../utils/capitalise';
 import { TopBar, PageContainer, DataFetchingTable } from '../../components';
 import { DateDisplay } from '../../components/DateDisplay';
@@ -157,9 +159,13 @@ const PriorityDisplay = React.memo(({ clinicalStatus }) => (
 ));
 
 const ActiveCovid19PatientsTable = React.memo(({ data, ...props }) => {
+  const dispatch = useDispatch();
+  const handleViewPatient = id => dispatch(viewPatient(id));
+
   return (
     <DataFetchingTable
       endpoint={ENDPOINT}
+      onRowClick={row => handleViewPatient(row.id)}
       columns={COLUMNS}
       noDataMessage="No patients found"
       {...props}
