@@ -1,5 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import styled from 'styled-components';
+import { startOfDay, endOfDay } from 'date-fns';
 import { Colors } from '../../constants';
 import { Appointment } from './Appointment';
 import { useApi } from '../../api';
@@ -18,12 +19,16 @@ const Column = ({ header, appointments }) => {
   );
 };
 
-export const DailySchedule = () => {
+export const DailySchedule = ({ date }) => {
   const api = useApi();
   const [appointments, setAppointments] = useState([]);
   useEffect(() => {
     (async () => {
-      const { data } = await api.get('/appointments');
+      const { data } = await api.get(
+        `/appointments?after=${encodeURIComponent(
+          startOfDay(date).toISOString(),
+        )}&before=${encodeURIComponent(endOfDay(date).toISOString())}`,
+      );
       setAppointments(data);
     })();
   }, []);

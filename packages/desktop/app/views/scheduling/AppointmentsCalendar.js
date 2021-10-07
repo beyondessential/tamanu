@@ -27,7 +27,7 @@ export const AppointmentsCalendar = () => {
           <TopBar title={format(date, 'EEEE dd MMMM yyyy')}>
             <NewAppointmentButton />
           </TopBar>
-          <DailySchedule />
+          <DailySchedule date={date} />
         </div>
       </TwoColumnDisplay>
     </PageContainer>
