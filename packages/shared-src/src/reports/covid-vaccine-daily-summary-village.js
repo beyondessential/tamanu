@@ -1,5 +1,4 @@
 import { Op } from 'sequelize';
-import { addDays, differenceInYears, format, isBefore, isSameDay, subDays } from 'date-fns';
 import config from 'config';
 import moment from 'moment';
 import { keyBy } from 'lodash';
@@ -27,9 +26,16 @@ const MANUAL_VILLAGE_MAPPING = {
 };
 
 function getDateRange(parameters) {
+  const fromDate = parameters.fromDate ? moment.utc(parameters.fromDate) : moment.utc();
+  const toDate = parameters.toDate ? moment.utc(parameters.toDate) : moment.utc();
+  fromDate.set({ hour: 0, minute: 0, second: 0 });
+  toDate.set({ hour: 23, minute: 59, second: 59 });
+  if (fromDate.isAfter(toDate)) {
+    throw new Error('fromDate must be before toDate');
+  }
   return {
-    fromDate: parameters.fromDate ? new Date(parameters.fromDate) : subDays(new Date(), 30),
-    toDate: parameters.toDate ? new Date(parameters.toDate) : new Date(),
+    fromDate,
+    toDate,
   };
 }
 
@@ -120,17 +126,24 @@ async function queryCovidVaccineListData(models, parameters) {
       };
     }
 
+    const doseDate = moment.utc(date).format('YYYY-MM-DD');
+    const patientAgeAtThisDate = moment.utc(date).diff(dateOfBirth, 'years');
+
     if (schedule === 'Dose 1') {
-      acc[patientId].dose1 = 'Yes';
-      acc[patientId].dose1Date = moment(date).format('YYYY-MM-DD');
-      const patientAgeAtThisDate = differenceInYears(date, dateOfBirth);
-      acc[patientId].dose1PatientOver65 = patientAgeAtThisDate > 65;
+      // if multiple doses use earliest
+      if (!acc[patientId].dose1Date || doseDate < acc[patientId].dose1Date) {
+        acc[patientId].dose1 = 'Yes';
+        acc[patientId].dose1Date = doseDate;
+        acc[patientId].dose1PatientOver65 = patientAgeAtThisDate > 65;
+      }
     }
     if (schedule === 'Dose 2') {
-      acc[patientId].dose2 = 'Yes';
-      acc[patientId].dose2Date = moment(date).format('YYYY-MM-DD');
-      const patientAgeAtThisDate = differenceInYears(date, dateOfBirth);
-      acc[patientId].dose2PatientOver65 = patientAgeAtThisDate > 65;
+      // if multiple doses use earliest
+      if (!acc[patientId].dose2Date || doseDate < acc[patientId].dose2Date) {
+        acc[patientId].dose2 = 'Yes';
+        acc[patientId].dose2Date = doseDate;
+        acc[patientId].dose2PatientOver65 = patientAgeAtThisDate > 65;
+      }
     }
     return acc;
   }, {});
@@ -247,9 +260,10 @@ function withEmptyRows(groupedData, parameters, villages) {
   const padded = groupedData;
 
   for (const village of villages) {
-    let d = dateRange.fromDate;
-    while (isBefore(d, dateRange.toDate) || isSameDay(d, dateRange.toDate)) {
-      const dataTime = moment(d)
+    let d = dateRange.fromDate.clone();
+    while (d.isBefore(dateRange.toDate) || d.isSame(dateRange.toDate, 'day')) {
+      const dataTime = moment
+        .utc(d)
         .set({ hour: 23, minute: 59, second: 59 })
         .format(DATA_TIME_FORMAT);
 
@@ -274,7 +288,7 @@ function withEmptyRows(groupedData, parameters, villages) {
         });
       }
 
-      d = addDays(d, 1);
+      d = d.add(1, 'day');
     }
   }
 

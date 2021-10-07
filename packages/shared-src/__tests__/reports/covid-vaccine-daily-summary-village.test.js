@@ -83,10 +83,29 @@ describe('covid-vaccine-daily-summary-village', () => {
     ];
   };
 
+  it('throws if fromDate is after toDate', async () => {
+    const models = mockModels([mockRow(1), mockRow(2)]);
+
+    const runReport = async () => {
+      return dataGenerator(
+        models,
+        { fromDate: '2021-05-01T00:00:00Z', toDate: '2021-01-01T00:00:00Z' },
+        mockTupaiaApi(),
+      );
+    };
+
+    await expect(runReport()).rejects.toThrow('fromDate must be before toDate');
+  });
+
   it('builds', async () => {
     const models = mockModels([mockRow(1), mockRow(2)]);
 
-    const report = await dataGenerator(models, { fromDate: '2021-01-01', toDate: '2021-01-01'}, mockTupaiaApi());
+    const report = await dataGenerator(
+      models,
+      // note: it looks up until the end of the day of toDate, so we can pass 00:00:00Z and still have the data returned
+      { fromDate: '2021-01-01T00:00:00Z', toDate: '2021-01-01T00:00:00Z' },
+      mockTupaiaApi(),
+    );
 
     expect(report).toEqual(
       expect.objectContaining(
@@ -103,7 +122,11 @@ describe('covid-vaccine-daily-summary-village', () => {
       mockRow(4, '2021-01-01T01:02:03.000Z', undefined, 'Village_B'),
     ]);
 
-    const report = await dataGenerator(models, { fromDate: '2000-01-01', toDate: '2000-01-02'}, mockTupaiaApi());
+    const report = await dataGenerator(
+      models,
+      { fromDate: '2021-01-01T00:00:00Z', toDate: '2021-01-02T00:00:00Z' },
+      mockTupaiaApi(),
+    );
 
     expect(report).toEqual(
       expect.objectContaining(
@@ -124,7 +147,11 @@ describe('covid-vaccine-daily-summary-village', () => {
       mockRow(4, '2000-01-01T01:02:03.000Z', '1936-01-01T01:02:03.000Z', 'Village_B', undefined, 'Dose 2'), // 64 years old at second dose
     ]);
 
-    const report = await dataGenerator(models, { fromDate: '2000-01-01', toDate: '2000-01-01'}, mockTupaiaApi());
+    const report = await dataGenerator(
+      models,
+      { fromDate: '2000-01-01T00:00:00Z', toDate: '2000-01-01T00:00:00Z' },
+      mockTupaiaApi(),
+    );
 
     expect(report).toEqual(
       getExpectedDataArray([
@@ -136,18 +163,45 @@ describe('covid-vaccine-daily-summary-village', () => {
 
   it('has empty rows for no data', async () => {
     const models = mockModels([
-      mockRow(1, '2000-01-01T01:02:03.000Z', '1990-01-01T01:02:03.000Z', 'Village_A'), // village B missing
+      mockRow(1, '2021-01-01T01:02:03.000Z'), // village B missing
     ]);
 
-    const report = await dataGenerator(models, { fromDate: '2000-01-01', toDate: '2000-01-02'}, mockTupaiaApi());
+    const report = await dataGenerator(
+      models,
+      { fromDate: '2021-01-01T00:00:00Z', toDate: '2021-01-02T00:00:00Z' },
+      mockTupaiaApi(),
+    );
 
     expect(report).toEqual(
       getExpectedDataArray([
-        ['VIL_A', '2000-01-01 23:59:59', 0, 1, 0, 1, 0, 0, 0, 0],
-        ['VIL_A', '2000-01-02 23:59:59', '', '', '', '', '', '', '', ''],
-        ['VIL_B', '2000-01-01 23:59:59', '', '', '', '', '', '', '', ''],
-        ['VIL_B', '2000-01-02 23:59:59', '', '', '', '', '', '', '', ''],
+        ['VIL_A', '2021-01-01 23:59:59', 0, 1, 0, 1, 0, 0, 0, 0],
+        ['VIL_A', '2021-01-02 23:59:59', '', '', '', '', '', '', '', ''],
+        ['VIL_B', '2021-01-01 23:59:59', '', '', '', '', '', '', '', ''],
+        ['VIL_B', '2021-01-02 23:59:59', '', '', '', '', '', '', '', ''],
       ]),
+    );
+  });
+
+  it.only('uses earliest dose if multiple per patient', async () => {
+    const models = mockModels([
+      // Same patient, same Dose 1, different days
+      mockRow(1, '2021-01-02T01:02:03.000Z'),
+      mockRow(1, '2021-01-01T01:02:03.000Z'),
+    ]);
+
+    const report = await dataGenerator(
+      models,
+      { fromDate: '2021-01-01T00:00:00Z', toDate: '2021-01-02T00:00:00Z' },
+      mockTupaiaApi(),
+    );
+
+    expect(report).toEqual(
+      expect.objectContaining(
+        getExpectedDataArray([
+          ['VIL_A', '2021-01-01 23:59:59', 0, 1, 0, 1, 0, 0, 0, 0],
+          ['VIL_A', '2021-01-02 23:59:59', '', '', '', '', '', '', '', ''],
+        ]),
+      ),
     );
   });
 });
