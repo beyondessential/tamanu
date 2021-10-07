@@ -2,13 +2,12 @@ import React from 'react';
 import styled from 'styled-components';
 import { ButtonGroup, Typography } from '@material-ui/core';
 
-import { Button, TopBar } from '../../components';
+import { Button } from '../../components';
 import { Colors } from '../../constants';
 
 export const FilterPane = () => {
   return (
-    <Container>
-      <TopBar title="Appointments" />
+    <>
       <ViewCalendarBy>
         <Typography variant="subtitle2">View calendar by:</Typography>
         <ButtonGroup>
@@ -21,14 +20,9 @@ export const FilterPane = () => {
       <ViewBySelection>
         <Typography variant="subtitle2">Locations</Typography>
       </ViewBySelection>
-    </Container>
+    </>
   );
 };
-
-const Container = styled.div`
-  min-height: 100vh;
-  border-right: 1px solid ${Colors.outline};
-`;
 
 const ViewCalendarBy = styled.div`
   padding: 20px;
