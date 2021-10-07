@@ -10,8 +10,10 @@ import { createHashHistory } from 'history';
 import Root from './Root';
 import './fonts.scss';
 
+import { version } from './package.json';
+
 import { createReducers } from './createReducers';
-import { TamanuApi } from './api';
+import { TamanuApi } from './api/TamanuApi';
 import { startDataChangeResponder } from './DataChangeResponder';
 
 import { registerYup } from './utils/errorMessages';

@@ -1,4 +1,6 @@
 import { createContext, useContext } from 'react';
+import { Suggester } from '../utils/suggester';
+
 export { connectApi } from './connectApi';
 
 export const ApiContext = createContext();
