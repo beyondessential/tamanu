@@ -1,10 +1,11 @@
 import React from 'react';
 import styled from 'styled-components';
 
-import { Button, PageContainer, TopBar } from '../../components';
+import { PageContainer, TopBar } from '../../components';
 import { TwoColumnDisplay } from '../../components/TwoColumnDisplay';
 import { DailySchedule } from '../../components/Appointments/DailySchedule';
 import { FilterPane } from '../../components/Appointments/FilterPane';
+import { NewAppointmentButton } from '../../components/Appointments/NewAppointmentButton';
 import { Colors } from '../../constants';
 
 const Container = styled.div`
@@ -22,9 +23,7 @@ export const AppointmentsCalendar = () => {
         </Container>
         <div>
           <TopBar>
-            <Button color="primary" variant="outlined">
-              New Appointment
-            </Button>
+            <NewAppointmentButton />
           </TopBar>
           <DailySchedule />
         </div>
