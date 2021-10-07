@@ -15,9 +15,23 @@ const Container = styled.div`
   border-right: 1px solid ${Colors.outline};
 `;
 
+const DateHeader = styled.div`
+  display: flex;
+  align-items: center;
+`;
+
 const DateDisplay = styled.span`
   margin-left: 1rem;
   font-size: 1.2em;
+`;
+
+const DateNav = styled.div`
+  width: 3.5rem;
+`;
+
+const CalendarContainer = styled.div`
+  margin-left: calc(25px + 3.5rem);
+  margin-right: 25px;
 `;
 
 export const AppointmentsCalendar = () => {
@@ -31,18 +45,20 @@ export const AppointmentsCalendar = () => {
         </Container>
         <div>
           <TopBar>
-            <div>
-              <BackButton
-                text={false}
-                onClick={() => {
-                  setDate(add(date, { days: -1 }));
-                }}
-              />
-              <ForwardButton
-                onClick={() => {
-                  setDate(add(date, { days: 1 }));
-                }}
-              />
+            <DateHeader>
+              <DateNav>
+                <BackButton
+                  text={false}
+                  onClick={() => {
+                    setDate(add(date, { days: -1 }));
+                  }}
+                />
+                <ForwardButton
+                  onClick={() => {
+                    setDate(add(date, { days: 1 }));
+                  }}
+                />
+              </DateNav>
               <Button
                 variant="contained"
                 onClick={() => {
@@ -52,10 +68,17 @@ export const AppointmentsCalendar = () => {
                 Today
               </Button>
               <DateDisplay>{format(date, 'EEEE dd MMMM yyyy')}</DateDisplay>
-            </div>
-            <NewAppointmentButton />
+            </DateHeader>
+            <NewAppointmentButton
+              onSuccess={() => {
+                // set date to trigger a refresh
+                setDate(new Date());
+              }}
+            />
           </TopBar>
-          <DailySchedule date={date} />
+          <CalendarContainer>
+            <DailySchedule date={date} />
+          </CalendarContainer>
         </div>
       </TwoColumnDisplay>
     </PageContainer>

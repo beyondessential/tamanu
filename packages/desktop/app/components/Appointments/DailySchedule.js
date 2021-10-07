@@ -52,7 +52,6 @@ export const DailySchedule = ({ date }) => {
 };
 
 const Container = styled.div`
-  margin: 0 1.5em;
   display: flex;
   flex-direction: row;
   border: 1px solid ${Colors.outline};
