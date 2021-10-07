@@ -3,17 +3,20 @@ import styled from 'styled-components';
 import moment from 'moment';
 import { Colors, PatientColors } from '../../constants';
 import { hashStr } from '../../utils';
+import { PatientNameDisplay } from '../../components/PatientNameDisplay';
 
 export const Appointment = props => {
   const {
-    appointment: { startTime, user },
+    appointment: { startTime, patient },
   } = props;
 
-  const patientColorIndex = hashStr(user.id) % PatientColors.length;
+  const patientColorIndex = hashStr(patient.id) % PatientColors.length;
 
   return (
     <StyledAppointment style={{ 'background-color': PatientColors[patientColorIndex] }}>
-      <div>{user.displayName}</div>
+      <div>
+        <PatientNameDisplay patient={patient} />
+      </div>
       <div>{moment(startTime).format('h:mm a')}</div>
     </StyledAppointment>
   );

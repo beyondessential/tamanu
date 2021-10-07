@@ -1,12 +1,11 @@
-import React, { useMemo, useContext } from 'react';
+import React, { useState, useEffect } from 'react';
 import styled from 'styled-components';
 import { Colors } from '../../constants';
-import { AppointmentsContext } from './AppointmentsContext';
 import { Appointment } from './Appointment';
+import { useApi } from '../../api';
 
 const Column = ({ header, appointments }) => {
-  const appointmentsByStartTime = appointments.slice().sort((a, b) => a.startTime - b.startTime);
-  console.log(appointmentsByStartTime)
+  const appointmentsByStartTime = [...appointments].sort((a, b) => a.startTime - b.startTime);
   return (
     <StyledColumn>
       <ColumnHeader>{header}</ColumnHeader>
@@ -20,32 +19,29 @@ const Column = ({ header, appointments }) => {
 };
 
 export const DailySchedule = () => {
-  const { locations, filteredLocations, appointments } = useContext(AppointmentsContext);
-  const appointmentsByLocationId = useMemo(
-    () =>
-      appointments.reduce((acc, appointment) => {
-        if (!acc[appointment.locationId]) {
-          acc[appointment.locationId] = [];
-        }
-        acc[appointment.locationId].push(appointment);
-        return acc;
-      }, {}),
-    [appointments],
+  const api = useApi();
+  const [appointments, setAppointments] = useState([]);
+  useEffect(() => {
+    (async () => {
+      const { data } = await api.get('/appointments');
+      setAppointments(data);
+    })();
+  }, []);
+  const byLocation = appointments.reduce(
+    (locations, appointment) => ({
+      ...locations,
+      [appointment.locationId]: [...(locations[appointment.locationId] || []), appointment],
+    }),
+    {},
   );
   return (
     <Container>
-      {Object.entries(filteredLocations)
-        .filter(([, value]) => !!value)
-        .map(([locationId]) => {
-          const location = locations.find(l => l.id === locationId);
-          return (
-            <Column
-              key={locationId}
-              header={location?.name}
-              appointments={appointmentsByLocationId[locationId]}
-            />
-          );
-        })}
+      {Object.entries(byLocation).map(([locationId]) => {
+        const location = byLocation[locationId][0].location;
+        return (
+          <Column key={locationId} header={location?.name} appointments={byLocation[locationId]} />
+        );
+      })}
     </Container>
   );
 };
@@ -68,7 +64,7 @@ const StyledColumn = styled.div`
 
 const ColumnHeader = styled.div`
   font-weight: bold;
-  padding: .75em 1.5em;
+  padding: 0.75em 1.5em;
   text-align: center;
   background-color: ${Colors.background};
 `;
