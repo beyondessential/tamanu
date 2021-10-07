@@ -29,8 +29,7 @@ import { Modal } from '../../components/Modal';
 import { LabRequestNoteForm } from '../../forms/LabRequestNoteForm';
 import { LabRequestAuditPane } from '../../components/LabRequestAuditPane';
 import { useLabRequest } from '../../contexts/LabRequest';
-import { useApi } from '../../api';
-import { useSuggester } from '../../api/singletons';
+import { useApi, useSuggester } from '../../api';
 
 const makeRangeStringAccessor = sex => ({ labTestType }) => {
   const max = sex === 'male' ? labTestType.maleMax : labTestType.femaleMax;
