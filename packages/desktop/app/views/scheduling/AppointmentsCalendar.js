@@ -1,5 +1,6 @@
-import React from 'react';
+import React, { useState } from 'react';
 import styled from 'styled-components';
+import { format } from 'date-fns';
 
 import { PageContainer, TopBar } from '../../components';
 import { TwoColumnDisplay } from '../../components/TwoColumnDisplay';
@@ -14,6 +15,7 @@ const Container = styled.div`
 `;
 
 export const AppointmentsCalendar = () => {
+  const [date, setDate] = useState(new Date());
   return (
     <PageContainer>
       <TwoColumnDisplay>
@@ -22,7 +24,7 @@ export const AppointmentsCalendar = () => {
           <FilterPane />
         </Container>
         <div>
-          <TopBar>
+          <TopBar title={format(date, 'EEEE dd MMMM yyyy')}>
             <NewAppointmentButton />
           </TopBar>
           <DailySchedule />
