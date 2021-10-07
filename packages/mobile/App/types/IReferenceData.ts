@@ -8,9 +8,6 @@ export enum ReferenceDataType {
   ImagingType = 'imagingType',
   LabTestCategory = 'labTestCategory',
   LabTestType = 'labTestType',
-  Facility = 'facility',
-  Location = 'location',
-  Department = 'department',
   Village = 'village',
   Vaccine = 'vaccine',
 }
