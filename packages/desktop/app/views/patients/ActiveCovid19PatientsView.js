@@ -5,7 +5,8 @@ import styled from 'styled-components';
 import People from '@material-ui/icons/People';
 import Paper from '@material-ui/core/Paper';
 
-import { useApi } from '../../api';
+import { useApi, connectApi } from '../../api';
+import { viewPatient } from '../../store/patient';
 import { capitaliseFirstLetter } from '../../utils/capitalise';
 import { TopBar, PageContainer, DataFetchingTable } from '../../components';
 import { DateDisplay } from '../../components/DateDisplay';
@@ -156,10 +157,11 @@ const PriorityDisplay = React.memo(({ clinicalStatus }) => (
   <PriorityText>{clinicalStatus}</PriorityText>
 ));
 
-const ActiveCovid19PatientsTable = React.memo(({ data, ...props }) => {
+const ActiveCovid19PatientsTable = React.memo(({ data, onViewPatient, ...props }) => {
   return (
     <DataFetchingTable
       endpoint={ENDPOINT}
+      onRowClick={row => onViewPatient(row.id)}
       columns={COLUMNS}
       noDataMessage="No patients found"
       {...props}
@@ -167,7 +169,7 @@ const ActiveCovid19PatientsTable = React.memo(({ data, ...props }) => {
   );
 });
 
-export const ActiveCovid19PatientsView = React.memo(() => {
+export const DumbActiveCovid19PatientsView = React.memo(({ onViewPatient }) => {
   const api = useApi();
   const [data, setData] = useState([]);
   const [searchParameters, setSearchParameters] = useState({});
@@ -212,7 +214,17 @@ export const ActiveCovid19PatientsView = React.memo(() => {
           numberOfPatients={patientsByClinicalStatus[CLINICAL_STATUSES.NEEDS_REVIEW]?.length || 0}
         />
       </StatisticsRow>
-      <ActiveCovid19PatientsTable data={data} fetchOptions={searchParameters} />
+      <ActiveCovid19PatientsTable
+        data={data}
+        onViewPatient={onViewPatient}
+        fetchOptions={searchParameters}
+      />
     </PageContainer>
   );
 });
+
+export const ActiveCovid19PatientsView = connectApi((api, dispatch) => ({
+  onViewPatient: id => {
+    dispatch(viewPatient(id));
+  },
+}))(DumbActiveCovid19PatientsView);
