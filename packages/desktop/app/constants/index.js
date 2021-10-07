@@ -49,8 +49,6 @@ export const Colors = {
   searchTintColor: '#d2dae3',
 };
 
-export const PatientColors = ['#fffae8', '#ebfff4', '#ffebe8'];
-
 export const MAX_AUTO_COMPLETE_ITEMS = {
   DIAGNOSES: 10,
 };

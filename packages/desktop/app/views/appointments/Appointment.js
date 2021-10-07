@@ -1,19 +1,16 @@
 import React from 'react';
 import styled from 'styled-components';
 import moment from 'moment';
-import { Colors, PatientColors } from '../../constants';
-import { hashStr } from '../../utils';
+import { Colors } from '../../constants';
 import { PatientNameDisplay } from '../../components/PatientNameDisplay';
 
 export const Appointment = props => {
   const {
-    appointment: { startTime, patient },
+    appointment: { startTime, patient, status },
   } = props;
 
-  const patientColorIndex = hashStr(patient.id) % PatientColors.length;
-
   return (
-    <StyledAppointment style={{ 'background-color': PatientColors[patientColorIndex] }}>
+    <StyledAppointment className={`status-${status}`}>
       <div>
         <PatientNameDisplay patient={patient} />
       </div>
@@ -27,5 +24,14 @@ const StyledAppointment = styled.div`
   border-bottom: 1px solid ${Colors.outline};
   &:last-child {
     border-bottom: none;
+  }
+  &.status-Confirmed {
+    background-color: #fffae8;
+  }
+  &.status-Arrived {
+    background-color: #ebfff4;
+  }
+  &.status-No-show {
+    background-color: #ffebe8;
   }
 `;

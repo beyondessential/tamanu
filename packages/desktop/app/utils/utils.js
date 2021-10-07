@@ -92,11 +92,3 @@ export const hexToRgba = (hex, opacity) => {
   const b = parseInt(hx.substring(4, 6), 16);
   return `rgba(${r},${g},${b},${opacity})`;
 };
-
-export function hashStr(str) {
-  let hash = 0;
-  for (let i = 0; i < str.length; i++) {
-    hash += str.charCodeAt(i);
-  }
-  return hash;
-}
