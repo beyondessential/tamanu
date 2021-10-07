@@ -27,12 +27,16 @@ export interface IEncounter {
 
   location?: ILocation;
   department?: IDepartment;
+  locationId?: string;
+  departmentId?: string;
 
   diagnoses?: IDiagnosis[];
 
-  patient?: IPatient;
+  patient?: IPatient | string;
+  patientId?: string;
 
-  examiner?: IUser;
+  examiner?: IUser | string;
+  examinerId?: string;
 
   markedForUpload?: boolean;
 

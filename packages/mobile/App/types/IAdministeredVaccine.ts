@@ -1,13 +1,15 @@
 import { ID } from './ID';
 import { IScheduledVaccine } from './IScheduledVaccine';
+import { IEncounter } from './IEncounter';
 
 export interface IAdministeredVaccine {
   id: ID;
   location?: string;
   injectionSite?: InjectionSiteType;
   reason?: string;
-  scheduledVaccine?: IScheduledVaccine;
-  scheduledVaccineId?: string,
+  scheduledVaccine?: IScheduledVaccine | string;
+  scheduledVaccineId?: string;
+  encounter?: IEncounter | string;
   batch?: string;
   status: string;
   date: Date;

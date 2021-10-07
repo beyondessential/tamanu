@@ -8,6 +8,8 @@ import { Routes } from '~/ui/helpers/routes';
 import { BackendContext } from '~/ui/contexts/BackendContext';
 import { IUser, SyncConnectionParameters } from '~/types';
 import { useLocalisation } from '~/ui/contexts/LocalisationContext';
+import { ResetPasswordFormModel } from '/interfaces/forms/ResetPasswordFormProps';
+import {ChangePasswordFormModel} from "/interfaces/forms/ChangePasswordFormProps";
 
 type AuthProviderProps = WithAuthStoreProps & {
   navRef: RefObject<NavigationContainerRef>;
@@ -20,6 +22,9 @@ interface AuthContextData {
   isUserAuthenticated: () => boolean;
   setUserFirstSignIn: () => void;
   checkFirstSession: () => boolean;
+  requestResetPassword: (params: ResetPasswordFormModel) => void;
+  resetPasswordLastEmailUsed: string;
+  changePassword: (params: ChangePasswordFormModel) => void;
 }
 
 const AuthContext = createContext<AuthContextData>({} as AuthContextData);
@@ -35,6 +40,7 @@ const Provider = ({
 }: PropsWithChildren<AuthProviderProps>): ReactElement => {
   const checkFirstSession = (): boolean => props.isFirstTime;
   const [user, setUserData] = useState();
+  const [resetPasswordLastEmailUsed, setResetPasswordLastEmailUsed] = useState('');
   const { setLocalisation } = useLocalisation();
 
   const setUserFirstSignIn = (): void => {
@@ -55,8 +61,7 @@ const Provider = ({
   };
 
   const remoteSignIn = async (params: SyncConnectionParameters): Promise<void> => {
-    const { user, token, localisation } = await backend.auth.remoteSignIn(params);
-    setLocalisation(localisation);
+    const { user, token } = await backend.auth.remoteSignIn(params);
     setUser({ facility: dummyFacility, ...user });
     setUserData({ facility: dummyFacility, ...user });
     setToken(token);
@@ -88,7 +93,15 @@ const Provider = ({
         routes: [{ name: Routes.SignUpStack.Index }],
       });
     }
-    setLocalisation({});
+  };
+
+  const requestResetPassword = async (params: ResetPasswordFormModel): Promise<void> => {
+    await backend.auth.requestResetPassword(params);
+    setResetPasswordLastEmailUsed(params.email);
+  };
+
+  const changePassword = async (params: ChangePasswordFormModel): Promise<void> => {
+    await backend.auth.changePassword(params);
   };
 
   // start a session if there's a stored token
@@ -103,7 +116,7 @@ const Provider = ({
   // sign user out if an auth error was thrown
   useEffect(() => {
     const handler = (err: Error) => {
-      console.log(`signing out user with token ${props.token}: recieved auth error:`, err);
+      console.log(`signing out user with token ${props.token}: received auth error:`, err);
       signOut();
     };
     backend.auth.emitter.on('authError', handler);
@@ -121,6 +134,9 @@ const Provider = ({
         isUserAuthenticated,
         checkFirstSession,
         user,
+        requestResetPassword,
+        resetPasswordLastEmailUsed,
+        changePassword,
       }}
     >
       {children}

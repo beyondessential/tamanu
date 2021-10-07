@@ -21,6 +21,9 @@ import { Facility } from './Facility';
 import { Department } from './Department';
 import { Location } from './Location';
 import { BaseModel } from './BaseModel';
+import { LabRequest } from './LabRequest';
+import { LabTest } from './LabTest';
+import { LabTestType } from './LabTestType';
 
 export const MODELS_ARRAY: typeof BaseModel[] = [
   ReferenceData,
@@ -45,8 +48,10 @@ export const MODELS_ARRAY: typeof BaseModel[] = [
   Facility,
   Department,
   Location,
+  LabRequest,
+  LabTest,
+  LabTestType,
 ];
-
 export const MODELS_MAP = {
   ReferenceData,
   Patient,
@@ -70,4 +75,7 @@ export const MODELS_MAP = {
   Facility,
   Department,
   Location,
+  LabRequest,
+  LabTest,
+  LabTestType,
 };

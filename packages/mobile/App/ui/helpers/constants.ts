@@ -147,7 +147,7 @@ export const VaccineStatusCells: VaccineStatusCellsType = {
     Icon: Icons.GivenOnTimeIcon,
     background: theme.colors.SAFE,
     color: theme.colors.SAFE,
-    text: 'GIVEN ON TIME',
+    text: 'GIVEN',
   },
   [VaccineStatus.NOT_GIVEN]: {
     Icon: Icons.NotGivenIcon,
@@ -228,4 +228,12 @@ export const EncounterTypeNames = {
   observation: 'Observation',
   triage: 'Triage',
   surveyResponse: 'Survey response',
+};
+
+export const LabRequestStatus = {
+  reception_pending: 'Reception pending',
+  results_pending: 'Results pending',
+  to_be_verified: 'To be verified',
+  verified: 'Verified',
+  published: 'published',
 };

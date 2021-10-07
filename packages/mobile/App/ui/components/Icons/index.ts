@@ -59,6 +59,7 @@ export * from './Pregnancy';
 export * from './SickOrInjured';
 export * from './History';
 export * from './PatientDetails';
+export * from './LabRequest';
 
 // Home Tab Icons
 export * from './SyncData';

@@ -1,6 +1,8 @@
-import React, { ReactElement, useMemo, useCallback, useState } from 'react';
+import React, { ReactElement, useMemo, useCallback, useState, useEffect } from 'react';
 import { compose } from 'redux';
 import { setStatusBar } from '/helpers/screen';
+import { Popup } from 'popup-ui';
+import { IPatientIssue, PatientIssueType } from '/types/IPatientIssue';
 // Components
 import * as Icons from '/components/Icons';
 import { PatientHomeScreenProps } from '/interfaces/screens/HomeStack';
@@ -10,13 +12,53 @@ import { Routes } from '/helpers/routes';
 import { theme } from '/styled/theme';
 // Containers
 import { withPatient } from '/containers/Patient';
-import { useBackend } from '~/ui/hooks';
+import { useBackend, useBackendEffect } from '~/ui/hooks';
 import { ErrorScreen } from '~/ui/components/ErrorScreen';
+import { useIsFocused } from '@react-navigation/core';
+
+interface IPopup {
+  title: string,
+  textBody: string,
+}
+
+const showPopupChain = (popups : IPopup[]) => {
+  if(popups.length === 0) return;
+  const [currentPopup, ...restOfChain] = popups;
+  const { title, textBody } = currentPopup;
+
+  Popup.show({
+    type: 'Warning',
+    title,
+    textBody,
+    callback: () => {
+      restOfChain.length > 0 ? showPopupChain(restOfChain) : Popup.hide();
+    }
+  });
+}
+
+const formatNoteToPopup = (note: string): IPopup => {
+  const [firstPart, secondPart] = note.split(/:(.+)/);
+  return secondPart ? {
+    title: firstPart,
+    textBody: secondPart,
+  } : {
+    title: '',
+    textBody: firstPart,
+  }
+}
+
+const showPatientWarningPopups = (issues: IPatientIssue[]) =>
+    showPopupChain(
+      issues
+        .filter(({type}) => type === PatientIssueType.Warning)
+        .map(({ note }) => formatNoteToPopup(note))
+);
 
 const PatientHomeContainer = ({
   navigation,
   selectedPatient,
 }: PatientHomeScreenProps): ReactElement => {
+  const isFocused = useIsFocused(); // reload issues whenever the page is focused
   const [errorMessage, setErrorMessage] = useState();
   const visitTypeButtons = useMemo(
     () => [
@@ -46,9 +88,9 @@ const PatientHomeContainer = ({
         onPress: (): void => navigation.navigate(Routes.HomeStack.VaccineStack.Index),
       },
       {
-        title: 'Deceased',
-        Icon: Icons.DeceasedIcon,
-        onPress: (): void => navigation.navigate(Routes.HomeStack.DeceasedStack.Index),
+        title: 'Lab Request',
+        Icon: Icons.LabRequestIcon,
+        onPress: (): void => navigation.navigate(Routes.HomeStack.LabRequestStack.Index),
       },
     ],
     [],
@@ -87,9 +129,25 @@ const PatientHomeContainer = ({
     }, [selectedPatient],
   );
 
+  const [patientIssues, issuesError] = useBackendEffect(
+    ({ models }) => {
+      if (isFocused) {
+        return models.PatientIssue.find({
+          order: { recordedDate: 'ASC' },
+          where: { patient: { id: selectedPatient.id } },
+        });
+      }
+    },
+    [isFocused, selectedPatient.id],
+  );
+
   setStatusBar('light-content', theme.colors.PRIMARY_MAIN);
 
   if (errorMessage) return <ErrorScreen error={errorMessage} />;
+
+  useEffect(() => {
+    showPatientWarningPopups(patientIssues || []);
+  }, [patientIssues?.length ?? 0, selectedPatient.id]);
 
   return (
     <Screen

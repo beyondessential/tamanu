@@ -19,6 +19,8 @@ export const Routes = {
     RegisterAccountStep2: '',
     RegisterAccountStep3: '',
     SignIn: '',
+    ResetPassword: '',
+    ChangePassword: '',
   },
   HomeStack: {
     Index: '',
@@ -86,6 +88,13 @@ export const Routes = {
     DeceasedStack: {
       Index: '',
       AddDeceasedDetails: '',
+    },
+    LabRequestStack: {
+      Index: '',
+      LabRequestTabs: {
+        ViewHistory: '',
+        NewRequest: '',
+      },
     },
     HistoryVitalsStack: {
       Index: '',

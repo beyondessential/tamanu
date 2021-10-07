@@ -1,10 +1,11 @@
 import { Database } from '~/infra/db';
 import { SyncManager, WebSyncSource } from '~/services/sync';
 import { AuthService } from '~/services/auth';
+import { LocalisationService } from '~/services/localisation';
 import { AuthenticationError } from '~/services/auth/error';
 import { MODELS_MAP } from '~/models/modelsMap';
 
-const SYNC_PERIOD_MINUTES = 5;
+const SYNC_PERIOD_MINUTES = 30;
 
 export class Backend {
   randomId: any;
@@ -21,14 +22,17 @@ export class Backend {
 
   auth: AuthService;
 
+  localisation: LocalisationService;
+
   interval: number;
 
   constructor() {
     const { models } = Database;
     this.models = models;
     this.syncSource = new WebSyncSource();
-    this.syncManager = new SyncManager(this.syncSource);
     this.auth = new AuthService(models, this.syncSource);
+    this.localisation = new LocalisationService(this.auth);
+    this.syncManager = new SyncManager(this.syncSource, this.localisation);
   }
 
   async initialise(): Promise<void> {

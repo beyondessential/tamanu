@@ -1,4 +1,4 @@
-import React, { ReactElement, useCallback, FC } from 'react';
+import React, { ReactElement, useCallback, FC, useState } from 'react';
 import { useNavigation } from '@react-navigation/native';
 import { ScrollView } from 'react-native';
 import { Route } from 'react-native-tab-view';
@@ -10,50 +10,17 @@ import {
   FullView,
   StyledView,
   StyledSafeAreaView,
-  RowView,
 } from '/styled/common';
 import {
   VaccineForm,
   VaccineFormValues,
-  SubmitButtonsProps,
 } from '/components/Forms/VaccineForms';
-import { theme } from '/styled/theme';
 import { SectionHeader } from '/components/SectionHeader';
-import { Button } from '/components/Button';
 import { VaccineDataProps } from '/components/VaccineCard';
-import { Orientation, screenPercentageToDP } from '/helpers/screen';
 import { useBackend } from '~/ui/hooks';
 import { IPatient } from '~/types';
 import { authUserSelector } from '~/ui/helpers/selectors';
 import { VaccineStatus } from '~/ui/helpers/patient';
-
-const SubmitButtons = ({
-  onSubmit,
-  onCancel,
-}: SubmitButtonsProps): ReactElement => (
-  <RowView
-    paddingTop={screenPercentageToDP(2.43, Orientation.Height)}
-    flex={1}
-    alignItems="flex-end"
-    justifyContent="center"
-    paddingBottom={screenPercentageToDP(2.43, Orientation.Height)}
-  >
-    <Button
-      width={screenPercentageToDP(43.79, Orientation.Width)}
-      marginRight={screenPercentageToDP(1.21, Orientation.Width)}
-      onPress={onCancel}
-      outline
-      borderColor={theme.colors.PRIMARY_MAIN}
-      buttonText="Cancel"
-    />
-    <Button
-      width={screenPercentageToDP(43.79, Orientation.Width)}
-      onPress={onSubmit}
-      backgroundColor={theme.colors.PRIMARY_MAIN}
-      buttonText="Submit"
-    />
-  </RowView>
-);
 
 type NewVaccineTabProps = {
   route: Route & {
@@ -70,6 +37,7 @@ export const NewVaccineTabComponent = ({
   const { vaccine } = route;
   const { administeredVaccine } = vaccine;
   const navigation = useNavigation();
+  const [isSubmitting, setSubmitting] = useState(false);
 
   const onPressCancel = useCallback(() => {
     navigation.goBack();
@@ -80,6 +48,8 @@ export const NewVaccineTabComponent = ({
   const { models } = useBackend();
   const recordVaccination = useCallback(
     async (values: VaccineFormValues): Promise<void> => {
+      if (isSubmitting) return;
+      setSubmitting(true);
       const { scheduledVaccineId, ...otherValues } = values;
       const encounter = await models.Encounter.getOrCreateCurrentEncounter(
         selectedPatient.id,
@@ -93,7 +63,7 @@ export const NewVaccineTabComponent = ({
       });
 
       navigation.goBack();
-    }, [],
+    }, [isSubmitting],
   );
 
   return (
@@ -115,7 +85,6 @@ export const NewVaccineTabComponent = ({
           <VaccineForm
             onSubmit={recordVaccination}
             onCancel={onPressCancel}
-            SubmitButtons={SubmitButtons}
             initialValues={{ ...vaccine, ...administeredVaccine }}
             status={route.key as VaccineStatus}
           />

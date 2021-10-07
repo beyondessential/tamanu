@@ -1,5 +1,5 @@
 import React, { ReactElement, useCallback, useContext, useEffect, useState } from 'react';
-import { activateKeepAwake, deactivateKeepAwake} from '@sayem314/react-native-keep-awake';
+import { activateKeepAwake, deactivateKeepAwake } from '@sayem314/react-native-keep-awake';
 import { CenterView, StyledText, StyledView } from '/styled/common';
 import { theme } from '/styled/theme';
 import { Button } from '/components/Button';
@@ -15,11 +15,11 @@ export const SyncDataScreen = (props): ReactElement => {
   const backend = useContext(BackendContext);
   const syncManager: SyncManager = backend.syncManager;
 
-  const formatLastSyncTime = (lastSyncTime) => (lastSyncTime ? moment(lastSyncTime).fromNow() : '');
+  const formatLastSyncTime = (lastSyncTime): string => (lastSyncTime ? moment(lastSyncTime).fromNow() : '');
 
   const [isSyncing, setIsSyncing] = useState(syncManager.isSyncing);
   const [progress, setProgress] = useState(syncManager.progress);
-  const [channelName, setChannelName] = useState();
+  const [channelName, setChannelName] = useState('');
   const [formattedLastSyncTime, setFormattedLastSyncTime] = useState(formatLastSyncTime(syncManager.lastSyncTime));
 
   setStatusBar('light-content', theme.colors.MAIN_SUPER_DARK);

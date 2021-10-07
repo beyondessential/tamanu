@@ -1,18 +1,18 @@
 import React, { ReactElement, useMemo, useEffect } from 'react';
-import { Formik } from 'formik';
 
 import { useSelector } from 'react-redux';
 import {
   getFormInitialValues,
   getFormSchema,
 } from './helpers';
+import { Form } from '../Form';
 import { FormFields } from './FormFields';
 
 import { runCalculations } from '~/ui/helpers/calculations';
 import { authUserSelector } from '/helpers/selectors';
 
 export type SurveyFormProps = {
-  onSubmit: (values: any) => void;
+  onSubmit: (values: any) => Promise<void>;
   components: any;
   patient: any;
   note: string;
@@ -25,16 +25,19 @@ export const SurveyForm = ({
   patient,
 }: SurveyFormProps): ReactElement => {
   const currentUser = useSelector(authUserSelector);
-  const initialValues = useMemo(() => getFormInitialValues(components, currentUser, patient), [components]);
+  const initialValues = useMemo(
+    () => getFormInitialValues(components, currentUser, patient),
+    [components],
+  );
   const formValidationSchema = useMemo(() => getFormSchema(components), [components]);
 
   return (
-    <Formik
+    <Form
       validationSchema={formValidationSchema}
       initialValues={initialValues}
       onSubmit={onSubmit}
     >
-      {({ handleSubmit, values, setFieldValue }): ReactElement => {
+      {({ handleSubmit, values, setFieldValue, isSubmitting }): ReactElement => {
         useEffect(() => {
           // recalculate dynamic fields
           const calculatedValues = runCalculations(components, values);
@@ -51,9 +54,10 @@ export const SurveyForm = ({
             note={note}
             patient={patient}
             onSubmit={handleSubmit}
+            isSubmitting={isSubmitting}
           />
         );
       }}
-    </Formik>
+    </Form>
   );
 };
