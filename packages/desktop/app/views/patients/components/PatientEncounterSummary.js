@@ -68,8 +68,11 @@ const Title = styled.p`
   margin: ${props => (props.notAdmitted ? 'auto 20px' : '0 0 10px 0')};
   font-weight: 600;
   color: ${props => ENCOUNTER_TYPE_COLORS[props.encounterType]};
-  text-transform: capitalize;
   font-size: 1.2rem;
+
+  &::first-letter {
+    text-transform: uppercase;
+  }
 `;
 
 const Icon = styled.i`

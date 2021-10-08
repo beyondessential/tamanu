@@ -65,49 +65,49 @@ export const items = [
     ability: { subject: 'appointment' },
     children: [
       {
-        label: 'Upcoming Appointments',
+        label: 'Upcoming appointments',
         path: '/appointments',
         icon: submenuIcons.table,
         ability: { action: 'read' },
       },
       {
-        label: 'Appointments This Week',
+        label: 'Appointments this week',
         path: '/appointments/week',
         icon: submenuIcons.table,
         ability: { action: 'read' },
       },
       {
-        label: "Today's Appointments",
+        label: "Today's appointments",
         path: '/appointments/today',
         icon: submenuIcons.table,
         ability: { action: 'read' },
       },
       {
-        label: 'Search Appointments',
+        label: 'Search appointments',
         path: '/appointments/search',
         icon: submenuIcons.search,
         ability: { action: 'read' },
       },
       {
-        label: 'Appointments Calendar',
+        label: 'Appointments calendar',
         path: '/appointments/calendar',
         icon: submenuIcons.calendar,
         ability: { action: 'read' },
       },
       {
-        label: 'Add Appointment',
+        label: 'Add appointment',
         path: '/appointments/appointment/new',
         icon: submenuIcons.new,
         ability: { action: 'create' },
       },
       {
-        label: 'Theater Schedule',
+        label: 'Theater schedule',
         path: '/appointments/theater',
         icon: submenuIcons.calendar,
         ability: { action: 'read' },
       },
       {
-        label: 'Schedule Surgery',
+        label: 'Schedule surgery',
         path: '/appointments/surgery/new',
         icon: submenuIcons.new,
         ability: { action: 'create' },
@@ -134,7 +134,7 @@ export const items = [
         ability: { action: 'read' },
       },
       {
-        label: 'New Request',
+        label: 'New request',
         path: '/medication/request',
         icon: submenuIcons.new,
         ability: { action: 'create' },
@@ -167,7 +167,7 @@ export const items = [
         ability: { action: 'read' },
       },
       {
-        label: 'New Request',
+        label: 'New request',
         path: '/imaging/request',
         icon: submenuIcons.new,
         ability: { action: 'create' },
@@ -194,7 +194,7 @@ export const items = [
         ability: { action: 'read' },
       },
       {
-        label: 'New Request',
+        label: 'New request',
         path: '/labs/edit/new',
         icon: submenuIcons.new,
         ability: { action: 'create' },
@@ -273,12 +273,12 @@ export const items = [
     ability: { action: 'read' },
     children: [
       {
-        label: 'Immunisation Register',
+        label: 'Immunisation register',
         path: `/immunisations/`,
         icon: submenuIcons.immunisations,
       },
       {
-        label: 'COVID Campaign',
+        label: 'COVID campaign',
         path: `/immunisations/covid`,
         icon: submenuIcons.immunisations,
       },
