@@ -1,8 +1,8 @@
-import React, { useState, useCallback, useMemo } from 'react';
+import React, { useState, useCallback, useMemo, useEffect } from 'react';
 import { connect, useDispatch } from 'react-redux';
 import { push } from 'connected-react-router';
 
-import { Button } from '../../components/Button';
+import { Button, DeleteButton } from '../../components/Button';
 import { ContentPane } from '../../components/ContentPane';
 import { LoadingIndicator } from '../../components/LoadingIndicator';
 import { PatientInfoPane } from '../../components/PatientInfoPane';
@@ -19,7 +19,7 @@ import {
   DateTimeInput,
   AutocompleteField,
 } from '../../components/Field';
-import { ConfirmCancelRow } from '../../components/ButtonRow';
+import { ConfirmCancelRow, ButtonRow } from '../../components/ButtonRow';
 
 import { LAB_REQUEST_STATUS_LABELS } from '../../constants';
 
@@ -29,7 +29,7 @@ import { Modal } from '../../components/Modal';
 import { LabRequestNoteForm } from '../../forms/LabRequestNoteForm';
 import { LabRequestAuditPane } from '../../components/LabRequestAuditPane';
 import { useLabRequest } from '../../contexts/LabRequest';
-import { useSuggester } from '../../api/singletons';
+import { useApi, useSuggester } from '../../api';
 
 const makeRangeStringAccessor = sex => ({ labTestType }) => {
   const max = sex === 'male' ? labTestType.maleMax : labTestType.femaleMax;
@@ -176,11 +176,13 @@ const ChangeLaboratoryButton = ({ laboratory, updateLabReq }) => {
   );
 };
 
-const DeleteButton = ({ updateLabReq }) => {
+const DeleteRequestButton = ({ labRequestId, updateLabReq }) => {
   const dispatch = useDispatch();
   const [isModalOpen, setModalOpen] = useState(false);
   const openModal = useCallback(() => setModalOpen(true), [setModalOpen]);
   const closeModal = useCallback(() => setModalOpen(false), [setModalOpen]);
+  const api = useApi();
+  const [hasTests, setHasTests] = useState(true); // default to true to hide delete button at first
   const deleteLabRequest = useCallback(async () => {
     await updateLabReq({
       status: 'deleted',
@@ -188,13 +190,34 @@ const DeleteButton = ({ updateLabReq }) => {
     closeModal();
     dispatch(push('/patients/encounter'));
   }, [updateLabReq]);
+
+  // show delete button if no test has results
+  useEffect(() => {
+    (async () => {
+      const { data: tests } = await api.get(`/labRequest/${labRequestId}/tests`);
+      const testsWithResults = tests.filter(t => t.result);
+      if (!testsWithResults.length) {
+        setHasTests(false);
+      }
+    })();
+  }, []);
+  if (hasTests) {
+    return null;
+  }
   return (
     <>
-      <Button variant="outlined" onClick={openModal} style={{ marginRight: '0.5rem' }}>
+      <DeleteButton variant="outlined" onClick={openModal} style={{ marginRight: '0.5rem' }}>
         Delete
-      </Button>
+      </DeleteButton>
       <Modal open={isModalOpen} onClose={closeModal} title="Delete lab request">
-        <ConfirmCancelRow onConfirm={deleteLabRequest} confirmText="Delete" onCancel={closeModal} />
+        <h3>WARNING: This action is irreversible!</h3>
+        <p>Are you sure you want to delete this lab request?</p>
+        <ButtonRow>
+          <Button variant="contained" onClick={closeModal}>
+            Cancel
+          </Button>
+          <DeleteButton onClick={deleteLabRequest}>Delete</DeleteButton>
+        </ButtonRow>
       </Modal>
     </>
   );
@@ -229,7 +252,7 @@ export const DumbLabRequestView = React.memo(({ patient }) => {
       <div>
         <TopBar title="Lab request">
           <div>
-            { /* <DeleteButton updateLabReq={updateLabReq} /> */ }
+            { /* <DeleteButton labRequestId={labRequest.id} updateLabReq={updateLabReq} /> */ }
             <ChangeLabStatusButton status={labRequest.status} updateLabReq={updateLabReq} />
             <ChangeLaboratoryButton
               laboratory={labRequest.laboratory}

@@ -56,7 +56,7 @@ const DumbDataFetchingTable = memo(
       })();
 
       return () => {
-        updateFetchState = () => { }; // discard the fetch state update if this request is stale
+        updateFetchState = () => {}; // discard the fetch state update if this request is stale
       };
     }, [page, rowsPerPage, sorting, fetchOptions, refreshCount]);
 

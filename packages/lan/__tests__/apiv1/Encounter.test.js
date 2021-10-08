@@ -208,10 +208,7 @@ describe('Encounter', () => {
       });
 
       it('should change encounter department and add a note', async () => {
-        const departments = await models.ReferenceData.findAll({
-          where: { type: 'department' },
-          limit: 2,
-        });
+        const departments = await models.Department.findAll({ limit: 2 });
 
         const v = await models.Encounter.create({
           ...(await createDummyEncounter(models)),
@@ -231,10 +228,7 @@ describe('Encounter', () => {
       });
 
       it('should change encounter location and add a note', async () => {
-        const [fromLocation, toLocation] = await models.ReferenceData.findAll({
-          where: { type: 'location' },
-          limit: 2,
-        });
+        const [fromLocation, toLocation] = await models.Location.findAll({ limit: 2 });
 
         const v = await models.Encounter.create({
           ...(await createDummyEncounter(models)),
@@ -308,10 +302,7 @@ describe('Encounter', () => {
       it('should roll back a whole modification if part of it is invalid', async () => {
         // to test this, we're going to do a valid location change and an invalid encounter type update
 
-        const [fromLocation, toLocation] = await models.ReferenceData.findAll({
-          where: { type: 'location' },
-          limit: 2,
-        });
+        const [fromLocation, toLocation] = await models.Location.findAll({ limit: 2 });
 
         const v = await models.Encounter.create({
           ...(await createDummyEncounter(models)),

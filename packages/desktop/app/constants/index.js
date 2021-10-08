@@ -2,7 +2,12 @@ import moment from 'moment';
 import { padStart, capitalize } from 'lodash';
 
 import { createValueIndex } from 'shared/utils/valueIndex';
-import { ENCOUNTER_TYPES, IMAGING_REQUEST_STATUS_TYPES, NOTE_TYPES } from 'shared/constants';
+import {
+  ENCOUNTER_TYPES,
+  IMAGING_REQUEST_STATUS_TYPES,
+  NOTE_TYPES,
+  APPOINTMENT_TYPES,
+} from 'shared/constants';
 import {
   medicationIcon,
   administrationIcon,
@@ -379,3 +384,20 @@ export const REPORT_DATA_SOURCES = {
   THIS_FACILITY: 'thisFacility',
   ALL_FACILITIES: 'allFacilities',
 };
+
+export const CLINICAL_STATUSES = {
+  CRITICAL: 'Critical',
+  NEEDS_REVIEW: 'Needs review',
+  LOW_RISK: 'Low risk',
+};
+
+export const CLINICAL_COLORS_BY_STATUS = {
+  [CLINICAL_STATUSES.CRITICAL]: Colors.alert,
+  [CLINICAL_STATUSES.NEEDS_REVIEW]: Colors.secondary,
+  [CLINICAL_STATUSES.LOW_RISK]: Colors.safe,
+};
+
+export const appointmentTypeOptions = Object.values(APPOINTMENT_TYPES).map(type => ({
+  label: type,
+  value: type,
+}));

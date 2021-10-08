@@ -7,7 +7,7 @@ import moment from 'moment';
 import { useLocalisation } from '../../../contexts/Localisation';
 import { Button, Form, Field, TextField, DateField, AutocompleteField } from '../../../components';
 import { Colors } from '../../../constants';
-import { connectApi } from '../../../api';
+import { useApi } from '../../../api';
 import { Suggester } from '../../../utils/suggester';
 
 const Container = styled.div`
@@ -96,25 +96,27 @@ const RightSection = styled(Section)`
   border-left: 1px solid ${Colors.outline};
 `;
 
-export const CustomisablePatientSearchBar = ({ title, onSearch, fields, ...props }) => {
-  // We can't use onSearch directly as formik will call it with an unwanted second param
-  const handleSearch = useCallback(
-    ({ village = {}, ...other }) => {
-      const params = {
-        ...other,
-        // enforce dotted text identifier instead of a nested object
-        'village.id': village.id,
-      };
-      // if filtering by date of birth exact, send the formatted date
-      // to the server instead of the date object
-      if (other.dateOfBirthExact) {
-        params.dateOfBirthExact = moment(other.dateOfBirthExact).format('YYYY-MM-DD');
-      }
-      onSearch(params);
-    },
-    [onSearch],
-  );
+const GENERAL_FIELDS = {
+  firstName: ['firstName'],
+  lastName: ['lastName'],
+  culturalName: ['culturalName'],
+  villageId: ['villageId', { suggesterKey: 'villageSuggester', component: AutocompleteField }],
+  displayId: ['displayId'],
+  dateOfBirthFrom: ['dateOfBirthFrom', { localisationLabel: 'shortLabel', component: DateField }],
+  dateOfBirthTo: ['dateOfBirthTo', { localisationLabel: 'shortLabel', component: DateField }],
+  dateOfBirthExact: [
+    'dateOfBirthExact',
+    { localisationLabel: 'shortLabel', placeholder: 'DOB exact', component: DateField },
+  ],
+};
 
+export const CustomisablePatientSearchBar = ({
+  title,
+  onSearch,
+  fields,
+  initialValues = {},
+  ...props
+}) => {
   const { getLocalisation } = useLocalisation();
 
   const fieldElements = useMemo(
@@ -140,8 +142,8 @@ export const CustomisablePatientSearchBar = ({ title, onSearch, fields, ...props
     [getLocalisation, fields, props],
   );
 
-  const renderSearchBar = React.useCallback(
-    ({ submitForm }) => (
+  const renderSearchBar = useCallback(
+    ({ submitForm, resetForm }) => (
       <div>
         <SearchInputContainer>{fieldElements}</SearchInputContainer>
         <Button
@@ -154,6 +156,13 @@ export const CustomisablePatientSearchBar = ({ title, onSearch, fields, ...props
           <PaddedSearchIcon />
           Search
         </Button>
+        <Button
+          style={{ marginTop: 10, marginLeft: '1rem' }}
+          onClick={resetForm}
+          variant="outlined"
+        >
+          Clear Search
+        </Button>
       </div>
     ),
     [fields],
@@ -163,7 +172,11 @@ export const CustomisablePatientSearchBar = ({ title, onSearch, fields, ...props
     <Container>
       <Section>
         <SectionLabel>{title}</SectionLabel>
-        <Form onSubmit={handleSearch} render={renderSearchBar} />
+        <Form
+          onSubmit={values => onSearch(values)}
+          render={renderSearchBar}
+          initialValues={initialValues}
+        />
       </Section>
       <RightSection>
         <ScanFingerprintButton />
@@ -173,26 +186,32 @@ export const CustomisablePatientSearchBar = ({ title, onSearch, fields, ...props
   );
 };
 
-const DumbPatientSearchBar = props => (
-  <CustomisablePatientSearchBar
-    title="Search for patients"
-    fields={[
-      ['firstName'],
-      ['lastName'],
-      ['culturalName'],
-      ['villageId', { suggesterKey: 'villageSuggester', component: AutocompleteField }],
-      ['displayId'],
-      ['dateOfBirthFrom', { localisationLabel: 'shortLabel', component: DateField }],
-      ['dateOfBirthTo', { localisationLabel: 'shortLabel', component: DateField }],
-      [
-        'dateOfBirthExact',
-        { localisationLabel: 'shortLabel', placeholder: 'DOB exact', component: DateField },
-      ],
-    ]}
-    {...props}
-  />
-);
+export const PatientSearchBar = ({ onSearch, fields = [], ...props }) => {
+  const api = useApi();
+  const searchFields = fields.map(field =>
+    typeof field === 'string' ? GENERAL_FIELDS[field] : field,
+  );
 
-export const PatientSearchBar = connectApi(api => ({
-  villageSuggester: new Suggester(api, 'village'),
-}))(DumbPatientSearchBar);
+  const handleSearch = values => {
+    const params = {
+      ...values,
+    };
+    // if filtering by date of birth exact, send the formatted date
+    // to the server instead of the date object
+    if (params.dateOfBirthExact) {
+      params.dateOfBirthExact = moment(values.dateOfBirthExact)
+        .utc()
+        .format('YYYY-MM-DD');
+    }
+    onSearch(params);
+  };
+  return (
+    <CustomisablePatientSearchBar
+      title="Search for patients"
+      fields={searchFields}
+      onSearch={handleSearch}
+      villageSuggester={fields.includes('villageId') ? new Suggester(api, 'village') : null}
+      {...props}
+    />
+  );
+};

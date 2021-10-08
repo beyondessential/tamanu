@@ -1,6 +1,6 @@
 {
   "name": "sync-server",
-  "version": "1.8.4",
+  "version": "1.9.0",
   "description": "Sync server for Tamanu desktop app",
   "homepage": "https://github.com/beyondessential/tamanu.git#readme",
   "repository": "git@github.com:beyondessential/tamanu.git",
@@ -59,6 +59,7 @@
   "dependencies": {
     "@babel/polyfill": "^7.2.5",
     "@casl/ability": "^4.1.0",
+    "@tupaia/api-client": "^2.0.6",
     "argparse": "1.0.10",
     "await-to-js": "^2.0.1",
     "basic-auth": "^2.0.1",

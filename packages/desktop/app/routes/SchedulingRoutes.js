@@ -3,7 +3,8 @@ import { Route, Switch } from 'react-router-dom';
 
 import { NotActiveView } from '../views';
 
-import { AppointmentListingView } from '../views/AppointmentListingView';
+import { AppointmentListingView } from '../views/scheduling/AppointmentListingView';
+import { NewAppointmentView } from '../views/scheduling/NewAppointmentView';
 
 export const SchedulingRoutes = React.memo(({ match }) => (
   <Switch>
@@ -13,7 +14,7 @@ export const SchedulingRoutes = React.memo(({ match }) => (
     <Route path={`${match.path}/search`} component={NotActiveView} />
     <Route path={`${match.path}/calendar`} component={NotActiveView} />
     <Route path={`${match.path}/appointmentByPatient/:patientId`} component={NotActiveView} />
-    <Route path={`${match.path}/appointment/new`} component={NotActiveView} />
+    <Route path={`${match.path}/appointment/new`} component={NewAppointmentView} />
     <Route path={`${match.path}/appointment/:id`} component={NotActiveView} />
     <Route path={`${match.path}/theater`} component={NotActiveView} />
     <Route path={`${match.path}/surgery/new`} component={NotActiveView} />

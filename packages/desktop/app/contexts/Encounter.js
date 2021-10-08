@@ -1,6 +1,6 @@
 import React, { useState, useContext } from 'react';
 import { push } from 'connected-react-router';
-import { ApiContext } from '../api/singletons';
+import { useApi } from '../api';
 
 const EncounterContext = React.createContext({
   encounter: null,
@@ -19,7 +19,7 @@ export const EncounterProvider = ({ store, children }) => {
   const [isLoadingEncounter, setIsLoadingEncounter] = useState(false);
   const [encounter, setEncounterData] = useState(null);
 
-  const api = useContext(ApiContext);
+  const api = useApi();
 
   // write encounter data to the sync server.
   const saveEncounter = async (encounterId, data) => {

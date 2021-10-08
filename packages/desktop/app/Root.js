@@ -1,6 +1,7 @@
 import React from 'react';
 import { Provider } from 'react-redux';
 import { ConnectedRouter } from 'connected-react-router';
+import { ApiContext } from './api';
 import PropTypes from 'prop-types';
 import { CssBaseline } from '@material-ui/core';
 import { ThemeProvider } from 'styled-components';
@@ -25,23 +26,25 @@ const StateContextProviders = ({ children, store }) => (
   </EncounterProvider>
 );
 
-export default function Root({ store, history }) {
+export default function Root({ api, store, history }) {
   return (
     <Provider store={store}>
-      <ConnectedRouter history={history}>
-        <StateContextProviders store={store}>
-          <StylesProvider injectFirst>
-            <MuiThemeProvider theme={theme}>
-              <ThemeProvider theme={theme}>
-                <ElectronProvider>
-                  <CssBaseline />
-                  <RoutingApp />
-                </ElectronProvider>
-              </ThemeProvider>
-            </MuiThemeProvider>
-          </StylesProvider>
-        </StateContextProviders>
-      </ConnectedRouter>
+      <ApiContext.Provider value={api}>
+        <ConnectedRouter history={history}>
+          <StateContextProviders store={store}>
+            <StylesProvider injectFirst>
+              <MuiThemeProvider theme={theme}>
+                <ThemeProvider theme={theme}>
+                  <ElectronProvider>
+                    <CssBaseline />
+                    <RoutingApp />
+                  </ElectronProvider>
+                </ThemeProvider>
+              </MuiThemeProvider>
+            </StylesProvider>
+          </StateContextProviders>
+        </ConnectedRouter>
+      </ApiContext.Provider>
     </Provider>
   );
 }
