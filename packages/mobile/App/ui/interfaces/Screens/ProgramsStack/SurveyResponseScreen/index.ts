@@ -7,14 +7,14 @@ type SurveyResponseScreenParams = {
     surveyId: string;
     latestResponseId: string;
     selectedPatient: { id: string };
-    encounterType: string,
-    surveyType: string,
+    encounterType: string;
+    surveyType: string;
   };
 };
 
 type SurveyResponseScreenRouteProps = RouteProp<
-  SurveyResponseScreenParams,
-  'SurveyResponseScreen'
+SurveyResponseScreenParams,
+'SurveyResponseScreen'
 >;
 
 export type SurveyResponseScreenProps = {

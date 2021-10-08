@@ -150,7 +150,7 @@ export class WebSyncSource implements SyncSource {
     );
 
     if (response.status === 401) {
-      throw new AuthenticationError(path.includes('/login') ? invalidUserCredentialsMessage : invalidTokenMessage);
+      throw new AuthenticationError(path.includes('/login') ? invalidTokenMessage : invalidUserCredentialsMessage);
     }
 
     if (response.status === 400) {
@@ -162,6 +162,11 @@ export class WebSyncSource implements SyncSource {
           `Your version of Tamanu Mobile is not supported. Please download and install a version between v${minAppVersion} and v${maxAppVersion}`,
         );
       }
+    }
+
+    if (response.status === 422) {
+      const { error } = await getResponseJsonSafely(response);
+      throw new Error(error.message);
     }
 
     if (!response.ok) {

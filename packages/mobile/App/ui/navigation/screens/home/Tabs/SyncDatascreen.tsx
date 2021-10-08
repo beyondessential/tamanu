@@ -1,5 +1,5 @@
 import React, { ReactElement, useCallback, useContext, useEffect, useState } from 'react';
-import { activateKeepAwake, deactivateKeepAwake} from '@sayem314/react-native-keep-awake';
+import { activateKeepAwake, deactivateKeepAwake } from '@sayem314/react-native-keep-awake';
 import { CenterView, StyledText, StyledView } from '/styled/common';
 import { theme } from '/styled/theme';
 import { Button } from '/components/Button';
