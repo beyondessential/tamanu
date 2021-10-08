@@ -5,8 +5,6 @@ import { keyBy } from 'lodash';
 import { DATA_TIME_FORMAT } from '@tupaia/api-client';
 import { generateReportFromQueryData } from './utilities';
 
-const DATE_FNS_DATE_FORMAT = 'YYYY-MM-dd';
-
 const reportColumnTemplate = [
   { title: 'entity_code', accessor: data => data.tupaiaEntityCode },
   { title: 'timestamp', accessor: data => data.data_time },
@@ -26,7 +24,7 @@ const MANUAL_VILLAGE_MAPPING = {
 };
 
 function getDateRange(parameters) {
-  const fromDate = parameters.fromDate ? moment.utc(parameters.fromDate) : moment.utc();
+  const fromDate = parameters.fromDate ? moment.utc(parameters.fromDate) : moment.utc().subtract(3, 'months');
   const toDate = parameters.toDate ? moment.utc(parameters.toDate) : moment.utc();
   fromDate.set({ hour: 0, minute: 0, second: 0 });
   toDate.set({ hour: 23, minute: 59, second: 59 });
