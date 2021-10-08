@@ -61,7 +61,7 @@ export function createApp({ store, emailService }) {
   app.use('/v1', routes);
 
   // Dis-allow all other routes
-  app.get('*', (req, res) => {
+  app.use('*', (req, res) => {
     res.status(404).end();
   });
 
