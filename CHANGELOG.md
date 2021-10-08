@@ -4,6 +4,28 @@
 
 ### Manual steps required after upgrade ⚙
 
+- (left blank)
+
+### Features ⭐
+
+- (left blank)
+
+### Tweaks ⚖️
+
+- (left blank)
+
+### Bug fixes 🐛
+
+- (left blank)
+
+### Infrastructure and maintenance 🛠
+
+- (left blank)
+
+## v1.9.0
+
+### Manual steps required after upgrade ⚙
+
 - Add appropriate codes for default department and location for surveys to `packages/lan-server/local.json`:
 
 ```
