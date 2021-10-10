@@ -10,6 +10,7 @@ import { startScheduledTasks } from './app/tasks';
 import { EmailService } from './app/services/EmailService';
 import { ReportRunner } from './app/report/ReportRunner';
 import { version } from './package.json';
+import { initIntegrationServices } from './app/integrations';
 
 const port = config.port;
 
@@ -42,6 +43,7 @@ async function serve(store, options) {
 
   const emailService = new EmailService();
   const context = { store, emailService };
+  context.integrations = initIntegrationServices(context);
   const app = createApp(context);
 
   if (process.env.PRINT_ROUTES === 'true') {

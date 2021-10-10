@@ -84,7 +84,7 @@
     "fiji": {
       "vrs": {
         "enabled": false,
-        "host": "http://uat-vra.digitalfiji.gov.fj:8786/token",
+        "host": "http://uat-vra.digitalfiji.gov.fj:8786",
         "username": null,
         "password": null,
         // refresh the token if it's within tokenExpiryMarginMs milliseconds of expiry
