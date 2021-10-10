@@ -1,4 +1,3 @@
-
 import * as schema from './schema';
 
 const encodeParams = params =>
@@ -78,8 +77,8 @@ export class VRSRemote {
     return validateSchema.validate(body);
   }
 
-  async getPatient(fetchId) {
-    const vrsPatient = await this.fetchWithAuth(`/api/Applicants/TamanuFetch/${fetchId}`, {
+  async getPatientByFetchId(fetchId) {
+    const vrsPatient = await this.fetchWithAuth(`/api/Applicants/Tamanu/Fetch/${fetchId}`, {
       validateSchema: schema.remoteResponse.fetchPatient,
     });
     return this.convertVRSPatientToInternal(vrsPatient);

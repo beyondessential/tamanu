@@ -17,7 +17,9 @@ import { version } from '../package.json';
 
 const isDevelopment = process.env.NODE_ENV === 'development';
 
-export function createApp({ store, emailService }) {
+export function createApp(ctx) {
+  const { store, emailService } = ctx;
+
   // Init our app
   const app = express();
   app.use(loadshedder());
@@ -44,6 +46,7 @@ export function createApp({ store, emailService }) {
   app.use((req, res, next) => {
     req.store = store;
     req.emailService = emailService;
+    req.ctx = ctx;
 
     next();
   });

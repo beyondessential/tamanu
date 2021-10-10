@@ -8,7 +8,7 @@ export const remoteRequest = {
       operation: yup
         .string()
         .required()
-        .equals('INSERT'),
+        .oneOf(['INSERT']),
       created_datetime: yup.string().required(),
     })
     .required(),
@@ -17,35 +17,51 @@ export const remoteRequest = {
 export const remoteResponse = {
   token: yup
     .object({
-      access_token: yup.string().required(),
-      expires_in: yup
-        .number()
-        .required()
-        .integer(),
-      token_type: yup
+      response: yup
         .string()
         .required()
-        .equals('bearer'),
+        .oneOf(['success']),
+      data: yup
+        .object({
+          access_token: yup.string().required(),
+          expires_in: yup
+            .number()
+            .required()
+            .integer(),
+          token_type: yup
+            .string()
+            .required()
+            .oneOf(['bearer']),
+        })
+        .required(),
     })
     .required(),
   fetchPatient: yup.object({
-    individual_refno: yup.number(),
-    id_type: yup.string(),
-
-    identifier: yup.string().required(),
-    fname: yup.string().required(),
-    lname: yup.string().required(),
-    dob: yup
-      .date()
-      .required()
-      .transform(d => parseISO(d)),
-    sex: yup
+    response: yup
       .string()
       .required()
-      .oneOf(['male', 'female', 'other'])
-      .transform(g => g.toLowerCase()),
-    sub_division: yup.string().required(),
-    phone: yup.string().required(),
-    email: yup.string().required(), // TODO: what does that "NULL" in the card mean?
+      .oneOf(['success']),
+    data: yup
+      .object({
+        individual_refno: yup.number(),
+        id_type: yup.string(),
+
+        identifier: yup.string().required(),
+        fname: yup.string().required(),
+        lname: yup.string().required(),
+        dob: yup
+          .date()
+          .required()
+          .transform(d => parseISO(d)),
+        sex: yup
+          .string()
+          .required()
+          .oneOf(['male', 'female', 'other'])
+          .transform(g => g.toLowerCase()),
+        sub_division: yup.string().required(),
+        phone: yup.string().required(),
+        email: yup.string().required(), // TODO: what does that "NULL" in the card mean?
+      })
+      .required(),
   }),
 };

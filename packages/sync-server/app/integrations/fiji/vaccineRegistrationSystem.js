@@ -1,10 +1,8 @@
-import config from 'config';
 import express from 'express';
 import asyncHandler from 'express-async-handler';
 import { v4 as uuidv4 } from 'uuid';
 
 import * as schema from './schema';
-import { VRSRemote } from './VRSRemote';
 
 export const vrsRoutes = express.Router();
 
@@ -18,37 +16,40 @@ const matchRole = () => {
 vrsRoutes.post(
   '/hooks/patientCreated',
   asyncHandler(async (req, res) => {
-    try {
-      const { body, store } = req;
-      const { sequelize, models } = store;
-      const { Patient, PatientAdditionalData } = models;
+    // TODO: how do they handle auth with our system?
 
-      // TODO: wire this up to the store in middleware (probably going to be a fairly involved process)
-      const remote = new VRSRemote(store, config.integrations.fiji.vrs);
+    const { body, store, ctx } = req;
+    const { vrsRemote } = ctx.integrations.fiji;
+    const { sequelize, models } = store;
+    const { Patient, PatientAdditionalData } = models;
 
-      // validation
-      await matchRole('create', store.models.Patient); // TODO: RBAC on sync
-      const { fetch_id: displayId } = await schema.remoteRequest.patientCreated.validate(body);
+    // validation
+    // TODO: RBAC on sync
+    // await matchRole('create', store.models.Patient);
+    const { fetch_id: fetchId } = await schema.remoteRequest.patientCreated.validate(body);
 
-      // fetch patient
-      const { patient, patientAdditionalData } = await remote.getPatient(displayId);
+    // fetch patient
+    const { patient, patientAdditionalData } = await vrsRemote.getPatientByFetchId(fetchId);
 
-      // assign uuid
-      patient.id = uuidv4();
-      patientAdditionalData.patientId = patient.id;
+    // assign uuid
+    patient.id = uuidv4();
+    patientAdditionalData.patientId = patient.id;
 
-      // TODO: further validation required?
+    // TODO: further validation required?
 
-      // persist
-      await sequelize.transaction(async () => {
-        await Patient.create(patient);
-        await PatientAdditionalData.create(patientAdditionalData);
-      });
+    // persist
+    // TODO: upsert?
+    await sequelize.transaction(async () => {
+      await Patient.create(patient);
+      await PatientAdditionalData.create(patientAdditionalData);
+    });
 
-      res.send({ todo: true, success: true });
-    } catch (e) {
-      // TODO: custom error handling?
-      res.status(400).send({ todo: true, success: false });
-    }
+    // TODO: ack
+    // TODO: do we need to persist and retry acks? or will the system handle it?
+    // await vrsRemote.acknowledge(displayId);
+
+    res.send({ response: true });
+    // TODO: custom error handling?
+    //res.status(400).send({ success: false, response: false, error: 'TODO' });
   }),
 );
