@@ -2,6 +2,7 @@ import express from 'express';
 import bodyParser from 'body-parser';
 import morgan from 'morgan';
 import compression from 'compression';
+import ip from 'ip';
 
 import { log } from 'shared/services/logging';
 
@@ -28,7 +29,7 @@ export function createApp() {
   app.use(
     morgan(isDevelopment ? 'dev' : 'tiny', {
       stream: {
-        write: message => log.info(message),
+        write: message => log.info(`${ip.address()} ${message}`),
       },
     }),
   );

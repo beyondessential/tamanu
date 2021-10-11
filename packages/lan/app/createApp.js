@@ -3,6 +3,7 @@ import bodyParser from 'body-parser';
 import morgan from 'morgan';
 import compression from 'compression';
 import { log } from 'shared/services/logging';
+import ip from 'ip';
 
 import routes from './routes';
 import errorHandler from './middleware/errorHandler';
@@ -28,7 +29,7 @@ export function createApp({ sequelize, models, syncManager }) {
   app.use(
     morgan(isDevelopment ? 'dev' : 'tiny', {
       stream: {
-        write: message => log.info(message),
+        write: message => log.info(`${ip.address()} ${message}`),
       },
     }),
   );
