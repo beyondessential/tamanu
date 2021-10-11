@@ -144,7 +144,8 @@ async function queryCovidVaccineListData(models, parameters) {
       .set({ hour: 23, minute: 59, second: 59 })
       .format(DATA_TIME_FORMAT);
 
-    const patientAgeAtThisDate = moment(date).diff(dateOfBirth, 'years');
+    const date65yearsBeforeDose = moment(date).subtract(65, 'years');
+    const patientOver65AtDoseDate = moment(dateOfBirth).isBefore(date65yearsBeforeDose);
 
     if (schedule === 'Dose 1') {
       // if multiple doses use earliest
@@ -152,7 +153,7 @@ async function queryCovidVaccineListData(models, parameters) {
         acc[patientId].dose1 = 'Yes';
         acc[patientId].dose1Date = doseDate;
         acc[patientId].dose1DateTime = doseDateTime;
-        acc[patientId].dose1PatientOver65 = patientAgeAtThisDate > 65;
+        acc[patientId].dose1PatientOver65 = patientOver65AtDoseDate;
       }
     }
     if (schedule === 'Dose 2') {
@@ -161,7 +162,7 @@ async function queryCovidVaccineListData(models, parameters) {
         acc[patientId].dose2 = 'Yes';
         acc[patientId].dose2Date = doseDate;
         acc[patientId].dose2DateTime = doseDateTime;
-        acc[patientId].dose2PatientOver65 = patientAgeAtThisDate > 65;
+        acc[patientId].dose2PatientOver65 = patientOver65AtDoseDate;
       }
     }
     return acc;
