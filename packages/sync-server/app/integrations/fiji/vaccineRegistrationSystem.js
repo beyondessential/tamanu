@@ -31,7 +31,8 @@ publicVrsRoutes.post(
     patientAdditionalData.patientId = patient.id;
 
     // persist
-    // TODO: upsert?
+    // TODO: upsert
+    // TODO: add an origin='vrs' field to records to track where they came from
     await sequelize.transaction(async () => {
       await Patient.create(patient);
       await PatientAdditionalData.create(patientAdditionalData);
@@ -43,7 +44,7 @@ publicVrsRoutes.post(
 
     res.send({ success: true, response: false });
 
-    // TODO: custom error handling?
+    // TODO: custom error handling
     //res.status(400).send({ success: false, response: false, error: 'TODO' });
   }),
 );
