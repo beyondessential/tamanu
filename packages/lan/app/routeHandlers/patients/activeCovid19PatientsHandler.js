@@ -89,6 +89,7 @@ export const activeCovid19PatientsHandler = async (req, res) => {
         FROM survey_responses
         LEFT JOIN encounters 
   		    ON encounters.id = survey_responses.encounter_id
+        WHERE survey_id = '${SURVEY_ID}'
         GROUP BY patient_id
       ) AS recent_survey_response_by_patient
         ON patients.id = recent_survey_response_by_patient.patient_id
