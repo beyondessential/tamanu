@@ -22,6 +22,12 @@ function formatTime(date) {
   return moment(date).format('hh:mm a');
 }
 
+function formatShortExplicit(date) {
+  if (!date) return 'Unknown';
+
+  return moment(date).format('Do MMM YYYY'); // "4th Mar 2019" unambiguous short format
+}
+
 const StyledAbbr = styled.abbr`
   text-decoration: none;
 `;
@@ -31,6 +37,7 @@ export const DateDisplay = ({
   showDate = true,
   showTime = false,
   showDuration = false,
+  showExplicit = false,
   ...props
 }) => {
   const parts = [];
@@ -42,6 +49,9 @@ export const DateDisplay = ({
   }
   if (showTime) {
     parts.push(formatTime(date));
+  }
+  if (showExplicit) {
+    parts.push(formatShortExplicit(date));
   }
   return (
     <StyledAbbr {...props} title={formatLong(date)}>
