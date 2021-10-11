@@ -29,8 +29,10 @@ describe('covid-vaccine-daily-summary-village', () => {
     villageName = 'Village_A',
     sex = 'female',
     schedule = 'Dose 1',
+    status = 'GIVEN',
   ) => ({
     date: new Date(dateStr),
+    status,
     encounter: {
       patientId: `patientId_${num}`,
       patient: {
@@ -182,7 +184,7 @@ describe('covid-vaccine-daily-summary-village', () => {
     );
   });
 
-  it.only('uses earliest dose if multiple per patient', async () => {
+  it('uses earliest dose if multiple per patient', async () => {
     const models = mockModels([
       // Same patient, same Dose 1, different days
       mockRow(1, '2021-01-02T01:02:03.000Z'),
@@ -200,6 +202,28 @@ describe('covid-vaccine-daily-summary-village', () => {
         getExpectedDataArray([
           ['VIL_A', '2021-01-01 23:59:59', 0, 1, 0, 1, 0, 0, 0, 0],
           ['VIL_A', '2021-01-02 23:59:59', '', '', '', '', '', '', '', ''],
+        ]),
+      ),
+    );
+  });
+
+  it.only('only considers given vaccines', async () => {
+    const models = mockModels([
+      // Same patient, same Dose 1, different days
+      mockRow(1, '2021-01-01T01:02:03.000Z', undefined, undefined, undefined, undefined, 'GIVEN'),
+      mockRow(2, '2021-01-01T01:02:03.000Z', undefined, undefined, undefined, undefined, 'NOT_GIVEN'),
+    ]);
+
+    const report = await dataGenerator(
+      models,
+      { fromDate: '2021-01-01T00:00:00Z', toDate: '2021-01-01T00:00:00Z' },
+      mockTupaiaApi(),
+    );
+
+    expect(report).toEqual(
+      expect.objectContaining(
+        getExpectedDataArray([
+          ['VIL_A', '2021-01-01 23:59:59', 0, 1, 0, 1, 0, 0, 0, 0],
         ]),
       ),
     );
