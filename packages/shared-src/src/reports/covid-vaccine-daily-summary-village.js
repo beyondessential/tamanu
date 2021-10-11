@@ -23,14 +23,26 @@ const MANUAL_VILLAGE_MAPPING = {
   'Vailoa Savaii': 'WS_012_Vailoa_Satupaitea',
 };
 
+// Samoa has an offset of UTC+13, no DST
+const UTC_OFFSET = 13;
+
 function getDateRange(parameters) {
-  const fromDate = parameters.fromDate ? moment.utc(parameters.fromDate) : moment.utc().subtract(3, 'months');
-  const toDate = parameters.toDate ? moment.utc(parameters.toDate) : moment.utc();
+  const fromDate = parameters.fromDate
+    ? moment(parameters.fromDate).utcOffset(UTC_OFFSET)
+    : moment()
+        .utcOffset(UTC_OFFSET)
+        .subtract(3, 'months');
+  const toDate = parameters.toDate
+    ? moment(parameters.toDate).utcOffset(UTC_OFFSET)
+    : moment().utcOffset(UTC_OFFSET);
+
   fromDate.set({ hour: 0, minute: 0, second: 0 });
   toDate.set({ hour: 23, minute: 59, second: 59 });
+
   if (fromDate.isAfter(toDate)) {
     throw new Error('fromDate must be before toDate');
   }
+
   return {
     fromDate,
     toDate,
@@ -124,14 +136,22 @@ async function queryCovidVaccineListData(models, parameters) {
       };
     }
 
-    const doseDate = moment.utc(date).format('YYYY-MM-DD');
-    const patientAgeAtThisDate = moment.utc(date).diff(dateOfBirth, 'years');
+    const doseDate = moment(date)
+      .utcOffset(UTC_OFFSET)
+      .format('YYYY-MM-DD');
+    const doseDateTime = moment(date)
+      .utcOffset(UTC_OFFSET)
+      .set({ hour: 23, minute: 59, second: 59 })
+      .format(DATA_TIME_FORMAT);
+
+    const patientAgeAtThisDate = moment(date).diff(dateOfBirth, 'years');
 
     if (schedule === 'Dose 1') {
       // if multiple doses use earliest
       if (!acc[patientId].dose1Date || doseDate < acc[patientId].dose1Date) {
         acc[patientId].dose1 = 'Yes';
         acc[patientId].dose1Date = doseDate;
+        acc[patientId].dose1DateTime = doseDateTime;
         acc[patientId].dose1PatientOver65 = patientAgeAtThisDate > 65;
       }
     }
@@ -140,6 +160,7 @@ async function queryCovidVaccineListData(models, parameters) {
       if (!acc[patientId].dose2Date || doseDate < acc[patientId].dose2Date) {
         acc[patientId].dose2 = 'Yes';
         acc[patientId].dose2Date = doseDate;
+        acc[patientId].dose2DateTime = doseDateTime;
         acc[patientId].dose2PatientOver65 = patientAgeAtThisDate > 65;
       }
     }
@@ -159,6 +180,7 @@ function groupByDateAndVillage(data) {
       if (!doseGiven) continue;
 
       const doseDate = item[`${doseKey}Date`];
+      const doseDateTime = item[`${doseKey}DateTime`];
 
       const key = `${item.tupaiaEntityCode}|${doseDate}`;
 
@@ -166,9 +188,7 @@ function groupByDateAndVillage(data) {
         groupedByKey[key] = {
           village: item.village,
           tupaiaEntityCode: item.tupaiaEntityCode,
-          data_time: moment(doseDate)
-            .set({ hour: 23, minute: 59, second: 59 })
-            .format(DATA_TIME_FORMAT),
+          data_time: doseDateTime,
           COVIDVac1: 0, // Number of 1st doses given to males on this day
           COVIDVac2: 0, // Number of 1st doses given to females on this day
           COVIDVac3: 0, // Number of 1st doses give to > 65 year old on this day
@@ -260,10 +280,7 @@ function withEmptyRows(groupedData, parameters, villages) {
   for (const village of villages) {
     let d = dateRange.fromDate.clone();
     while (d.isBefore(dateRange.toDate) || d.isSame(dateRange.toDate, 'day')) {
-      const dataTime = moment
-        .utc(d)
-        .set({ hour: 23, minute: 59, second: 59 })
-        .format(DATA_TIME_FORMAT);
+      const dataTime = d.set({ hour: 23, minute: 59, second: 59 }).format(DATA_TIME_FORMAT);
 
       const exists =
         groupedData.find(
