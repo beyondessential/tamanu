@@ -207,7 +207,7 @@ describe('covid-vaccine-daily-summary-village', () => {
     );
   });
 
-  it.only('only considers given vaccines', async () => {
+  it('only considers given vaccines', async () => {
     const models = mockModels([
       // Same patient, same Dose 1, different days
       mockRow(1, '2021-01-01T01:02:03.000Z', undefined, undefined, undefined, undefined, 'GIVEN'),
