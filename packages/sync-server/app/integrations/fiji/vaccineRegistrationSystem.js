@@ -7,25 +7,20 @@ import * as schema from './schema';
 export const publicVrsRoutes = express.Router();
 
 // TODO: test coverage
-// TODO: find or build sandbox
-
-const matchRole = () => {
-  throw new Error('TODO: copy the RBAC implementation from lan, or something');
-};
 
 publicVrsRoutes.post(
   '/hooks/patientCreated',
   asyncHandler(async (req, res) => {
-    // TODO: how do they handle auth with our system?
-
     const { body, store, ctx } = req;
     const { vrsRemote } = ctx.integrations.fiji;
     const { sequelize, models } = store;
     const { Patient, PatientAdditionalData } = models;
 
-    // validation
+    // TODO: how do they handle auth with our system?
     // TODO: RBAC on sync? is this route authenticated?
     // await matchRole('create', store.models.Patient);
+
+    // validate request
     const { fetch_id: fetchId } = await schema.remoteRequest.patientCreated.validate(body);
 
     // fetch patient
@@ -35,8 +30,6 @@ publicVrsRoutes.post(
     patient.id = uuidv4();
     patientAdditionalData.patientId = patient.id;
 
-    // TODO: further validation required?
-
     // persist
     // TODO: upsert?
     await sequelize.transaction(async () => {
@@ -44,11 +37,12 @@ publicVrsRoutes.post(
       await PatientAdditionalData.create(patientAdditionalData);
     });
 
-    // TODO: ack
+    // acknowledge request
     // TODO: do we need to persist and retry acks? or will the system handle it?
-    // await vrsRemote.acknowledge(displayId);
+    await vrsRemote.acknowledge(fetchId);
 
-    res.send({ response: true });
+    res.send({ success: true, response: false });
+
     // TODO: custom error handling?
     //res.status(400).send({ success: false, response: false, error: 'TODO' });
   }),

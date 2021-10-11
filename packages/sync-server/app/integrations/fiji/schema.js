@@ -9,7 +9,10 @@ export const remoteRequest = {
         .string()
         .required()
         .oneOf(['INSERT']),
-      created_datetime: yup.string().required(),
+      created_datetime: yup
+        .date()
+        .required()
+        .transform((_, d) => parseISO(d)),
     })
     .required(),
 };
@@ -17,23 +20,15 @@ export const remoteRequest = {
 export const remoteResponse = {
   token: yup
     .object({
-      response: yup
+      access_token: yup.string().required(),
+      expires_in: yup
+        .number()
+        .required()
+        .integer(),
+      token_type: yup
         .string()
         .required()
-        .oneOf(['success']),
-      data: yup
-        .object({
-          access_token: yup.string().required(),
-          expires_in: yup
-            .number()
-            .required()
-            .integer(),
-          token_type: yup
-            .string()
-            .required()
-            .oneOf(['bearer']),
-        })
-        .required(),
+        .oneOf(['bearer']),
     })
     .required(),
   fetchPatient: yup.object({
@@ -52,7 +47,7 @@ export const remoteResponse = {
         dob: yup
           .date()
           .required()
-          .transform(d => parseISO(d)),
+          .transform((_, d) => parseISO(d)),
         sex: yup
           .string()
           .required()
@@ -63,5 +58,8 @@ export const remoteResponse = {
         email: yup.string().required(), // TODO: what does that "NULL" in the card mean?
       })
       .required(),
+  }),
+  acknowledge: yup.object({
+    response: yup.bool().required(),
   }),
 };
