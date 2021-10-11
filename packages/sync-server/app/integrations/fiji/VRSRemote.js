@@ -1,3 +1,5 @@
+import fetch from 'node-fetch';
+
 import * as schema from './schema';
 
 const encodeParams = params =>
@@ -26,45 +28,60 @@ export class VRSRemote {
     this.tokenExpiry = 0;
   }
 
-  async refreshToken() {
+  async refreshTokenIfInvalid() {
     // calculate whether we need to fetch a new token
-    const willExpireSoon = Date.now() < this.tokenExpiry + this.tokenExpiryMarginMs;
+    const remainingTime = this.tokenExpiry - Date.now() - this.tokenExpiryMarginMs;
+    const willExpireSoon = remainingTime <= 0;
     const hasToken = !!this.token;
     if (!willExpireSoon && hasToken) {
       return; // no reason to refresh the token
     }
 
-    const { access_token: accessToken, expires_in: tokenExpiry } = await this.fetchWithAuth(
-      `${this.host}/token`,
-      {
-        validateSchema: schema.remoteResponse.token,
-        retryAuth: false,
-        method: 'GET',
-        body: encodeParams({
-          grant_type: 'password',
-          username: this.username,
-          password: this.password,
-        }),
-      },
-    );
+    // make token request
+    const body = encodeParams({
+      grant_type: 'password',
+      username: this.username,
+      password: this.password,
+    });
+    const { access_token: accessToken, expires_in: tokenLifetime } = await this.fetch('/token', {
+      validateSchema: schema.remoteResponse.token,
+      shouldRefreshToken: false,
+      method: 'POST',
+      headers: {},
+      body,
+    });
+
+    // update token info
     this.accessToken = accessToken;
-    this.tokenExpiry = tokenExpiry;
+    this.tokenExpiry = Date.now() + tokenLifetime;
   }
 
-  async fetchWithAuth(path, options = {}) {
-    const { retryAuth = true, validateSchema = null, ...fetchOptions } = options;
+  async fetch(path, options = {}) {
+    const { shouldRefreshToken = true, validateSchema = null, ...fetchOptions } = options;
     if (!validateSchema) {
-      throw new Error(`fetchWithAuth: must supply a schema to validate against for path ${path}`);
+      throw new Error(`VRSRemote.fetch: must supply a schema to validate against for path ${path}`);
+    }
+
+    // refresh token if we think it's expired
+    if (shouldRefreshToken) {
+      await this.refreshTokenIfInvalid();
     }
 
     // attempt fetch
-    const response = await fetch(`${this.host}/${path}`, fetchOptions);
+    const response = await fetch(`${this.host}${path}`, {
+      headers: fetchOptions.headers || {
+        'Content-Type': 'application/json',
+        Accepts: 'application/json',
+        Authorization: `Bearer ${this.accessToken}`,
+      },
+      ...fetchOptions,
+    });
 
     // handle auth failure by clearing and refreshing token then retrying
-    if (retryAuth && response.status === AUTH_FAILED_STATUS) {
+    if (shouldRefreshToken && response.status === AUTH_FAILED_STATUS) {
       this.clearToken();
-      await this.refreshToken({ force: true });
-      return this.fetchWithAuth(path, { retryAuth: false, fetchOptions });
+      await this.refreshTokenIfInvalid();
+      return this.fetch(path, { ...fetchOptions, validateSchema, shouldRefreshToken: false });
     }
 
     // throw on other errors
@@ -78,10 +95,16 @@ export class VRSRemote {
   }
 
   async getPatientByFetchId(fetchId) {
-    const vrsPatient = await this.fetchWithAuth(`/api/Applicants/Tamanu/Fetch/${fetchId}`, {
+    const { data: vrsPatient } = await this.fetch(`/api/Tamanu/Fetch/${fetchId}`, {
       validateSchema: schema.remoteResponse.fetchPatient,
     });
     return this.convertVRSPatientToInternal(vrsPatient);
+  }
+
+  async acknowledge(fetchId) {
+    await this.fetch(`/api/Tamanu/Acknowledge?${encodeParams({ fetch_id: fetchId })}`, {
+      validateSchema: schema.remoteResponse.acknowledge,
+    });
   }
 
   async convertVRSPatientToInternal({
@@ -130,4 +153,3 @@ export class VRSRemote {
     };
   }
 }
-
