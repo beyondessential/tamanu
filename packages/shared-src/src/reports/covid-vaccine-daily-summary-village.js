@@ -4,7 +4,6 @@ import moment from 'moment';
 import { keyBy } from 'lodash';
 import { DATA_TIME_FORMAT } from '@tupaia/api-client';
 import { generateReportFromQueryData } from './utilities';
-import { AdministeredVaccine } from '../models';
 
 const reportColumnTemplate = [
   { title: 'entity_code', accessor: data => data.tupaiaEntityCode },
