@@ -40,7 +40,7 @@ const PRIMARY_DETAILS_FIELDS = {
   dateOfBirth: ({ dateOfBirth }) => <DateDisplay 
                                       date={dateOfBirth}
                                       showDate={false} 
-                                      showExplicit 
+                                      showExplicitDate
                                     />,
   placeOfBirth: ({ additionalData }) => additionalData?.placeOfBirth,
   countryOfBirthId: ({ additionalData }) => additionalData?.countryOfBirth?.name,

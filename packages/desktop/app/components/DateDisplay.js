@@ -37,25 +37,21 @@ export const DateDisplay = ({
   showDate = true,
   showTime = false,
   showDuration = false,
-  showExplicit = false,
+  showExplicitDate = false,
   ...props
 }) => {
   const parts = [];
   if (showDate) {
     parts.push(formatShort(date));
   }
+  else if (showExplicitDate) {
+    parts.push(formatShortExplicit(date));
+  }
   if (showDuration) {
     parts.push(`(${formatDuration(date)})`);
   }
   if (showTime) {
     parts.push(formatTime(date));
-  }
-  if (showExplicit) {
-    parts.push(formatShortExplicit(date));
-  if (showDate) {
-    parts.push(formatShort(date));
-  } else if (showExplicitDate) {
-    parts.push(formatShortExplicit(date));
   }
   return (
     <StyledAbbr {...props} title={formatLong(date)}>
