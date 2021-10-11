@@ -4,6 +4,7 @@ import moment from 'moment';
 import { keyBy } from 'lodash';
 import { DATA_TIME_FORMAT } from '@tupaia/api-client';
 import { generateReportFromQueryData } from './utilities';
+import { AdministeredVaccine } from '../models';
 
 const reportColumnTemplate = [
   { title: 'entity_code', accessor: data => data.tupaiaEntityCode },
@@ -120,8 +121,13 @@ async function queryCovidVaccineListData(models, parameters) {
         patient: { displayId, firstName, lastName, dateOfBirth, village, sex },
       },
       date,
+      status,
       scheduledVaccine: { schedule, label },
     } = vaccine;
+
+    if (status !== 'GIVEN') {
+      return acc;
+    }
 
     if (!acc[patientId]) {
       acc[patientId] = {
