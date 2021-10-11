@@ -52,6 +52,10 @@ export const DateDisplay = ({
   }
   if (showExplicit) {
     parts.push(formatShortExplicit(date));
+  if (showDate) {
+    parts.push(formatShort(date));
+  } else if (showExplicitDate) {
+    parts.push(formatShortExplicit(date));
   }
   return (
     <StyledAbbr {...props} title={formatLong(date)}>
