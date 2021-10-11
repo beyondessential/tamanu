@@ -80,7 +80,7 @@ app.listen(port, async () => {
   const fetchPromise = new Promise(resolve => {
     didFetch = resolve;
   });
-  await fetchAndLog(`${tamanuHost}/v1/integration/fiji/vrs/hooks/patientCreated`, {
+  await fetchAndLog(`${tamanuHost}/v1/public/integration/fiji/vrs/hooks/patientCreated`, {
     method: 'POST',
     body: {
       fetch_id: fetchId,

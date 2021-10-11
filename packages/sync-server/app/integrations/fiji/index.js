@@ -1,12 +1,15 @@
 import express from 'express';
 import config from 'config';
 
-import { vrsRoutes } from './vaccineRegistrationSystem';
+import { vrsRoutes, publicVrsRoutes } from './vaccineRegistrationSystem';
 import { VRSRemote } from './VRSRemote';
 
 export const fijiRoutes = express.Router();
+export const publicFijiRoutes = express.Router();
+
 if (config.integrations.fiji.vrs.enabled) {
   fijiRoutes.use('/vrs', vrsRoutes);
+  publicFijiRoutes.use('/vrs', publicVrsRoutes);
 }
 
 export const initFijiServices = ctx => {
