@@ -3,6 +3,7 @@ import config from 'config';
 import { log } from 'shared/services/logging';
 
 import { labResultWidgetRoutes } from './labResultWidget';
+import { publicIntegrationRoutes } from '../integrations';
 
 export const publicRoutes = express.Router();
 
@@ -20,3 +21,4 @@ if (cors.allowedOrigin) {
 }
 
 publicRoutes.use('/labResultWidget', labResultWidgetRoutes);
+publicRoutes.use('/integration', publicIntegrationRoutes);

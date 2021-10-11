@@ -4,7 +4,7 @@ import { v4 as uuidv4 } from 'uuid';
 
 import * as schema from './schema';
 
-export const vrsRoutes = express.Router();
+export const publicVrsRoutes = express.Router();
 
 // TODO: test coverage
 // TODO: find or build sandbox
@@ -13,7 +13,7 @@ const matchRole = () => {
   throw new Error('TODO: copy the RBAC implementation from lan, or something');
 };
 
-vrsRoutes.post(
+publicVrsRoutes.post(
   '/hooks/patientCreated',
   asyncHandler(async (req, res) => {
     // TODO: how do they handle auth with our system?
@@ -24,7 +24,7 @@ vrsRoutes.post(
     const { Patient, PatientAdditionalData } = models;
 
     // validation
-    // TODO: RBAC on sync
+    // TODO: RBAC on sync? is this route authenticated?
     // await matchRole('create', store.models.Patient);
     const { fetch_id: fetchId } = await schema.remoteRequest.patientCreated.validate(body);
 
@@ -53,3 +53,6 @@ vrsRoutes.post(
     //res.status(400).send({ success: false, response: false, error: 'TODO' });
   }),
 );
+
+// empty router, to make it easier to move routes from private to public
+export const vrsRoutes = express.Router();
