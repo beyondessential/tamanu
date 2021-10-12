@@ -28,7 +28,10 @@ const patient = {
   identifier: chance.guid(),
   fname: chance.first(),
   lname: chance.last(),
-  dob: chance.date({ year: 1980 }).toISOString(),
+  dob: chance
+    .date({ year: 1980 })
+    .toISOString()
+    .slice(0, 10),
   sex: chance.pickone(['MALE', 'FEMALE', 'OTHER']),
   sub_division: chance.pickone(['Matautu', 'Aasufou', 'Aele']),
   phone: chance.phone(),
