@@ -106,23 +106,13 @@ const selectPatientConnector = connect(null, dispatch => ({
 
 export const DumbPatientListingView = ({ onViewPatient }) => {
   const [searchParameters, setSearchParameters] = useState({});
-  const fields = [
-    'firstName',
-    'lastName',
-    'culturalName',
-    'villageId',
-    'displayId',
-    'dateOfBirthFrom',
-    'dateOfBirthTo',
-    'dateOfBirthExact',
-  ];
 
   return (
     <PageContainer>
       <TopBar title="Patient listing">
         <NewPatientButton onCreateNewPatient={onViewPatient} />
       </TopBar>
-      <PatientSearchBar onSearch={setSearchParameters} fields={fields} />
+      <PatientSearchBar onSearch={setSearchParameters} />
       <PatientTable
         endpoint={PATIENT_SEARCH_ENDPOINT}
         fetchOptions={searchParameters}

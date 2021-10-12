@@ -1,5 +1,6 @@
 import React, { useEffect, useState } from 'react';
 import { API } from '../../api/singletons';
+import { useApi } from '../../api';
 
 import { TopBar, PageContainer, DataFetchingTable } from '../../components';
 import { displayId, firstName, lastName, village } from './columns';
@@ -7,10 +8,11 @@ import { ImmunisationSearchBar, PatientImmunisationsModal } from './components';
 
 const CovidVaccinationStatusComponent = ({ row }) => {
   const [covidVaccinationStatus, setCovidVaccinationStatus] = useState('No dose');
+  const api = useApi();
 
   useEffect(() => {
     const getVaccinations = async () => {
-      const { data: patientVaccinations } = await API.get(`patient/${row.id}/administeredVaccines`);
+      const { data: patientVaccinations } = await api.get(`patient/${row.id}/administeredVaccines`);
       const covidVaccinations = patientVaccinations.filter(
         v => v.scheduledVaccine?.label === 'COVAX',
       );

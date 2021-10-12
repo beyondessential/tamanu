@@ -1,5 +1,4 @@
 import { Op } from 'sequelize';
-import { differenceInYears, subDays } from 'date-fns';
 import config from 'config';
 import moment from 'moment';
 import { keyBy } from 'lodash';
@@ -24,10 +23,37 @@ const MANUAL_VILLAGE_MAPPING = {
   'Vailoa Savaii': 'WS_012_Vailoa_Satupaitea',
 };
 
-function parametersToSqlWhere(parameters) {
-  if (!parameters.fromDate) {
-    parameters.fromDate = subDays(new Date(), 30).toISOString();
+// Samoa has an offset of UTC+13, no DST
+const UTC_OFFSET = 13;
+
+function getDateRange(parameters) {
+  const fromDate = parameters.fromDate
+    ? moment(parameters.fromDate).utcOffset(UTC_OFFSET)
+    : moment()
+        .utcOffset(UTC_OFFSET)
+        .subtract(3, 'months');
+  const toDate = parameters.toDate
+    ? moment(parameters.toDate).utcOffset(UTC_OFFSET)
+    : moment().utcOffset(UTC_OFFSET);
+
+  fromDate.set({ hour: 0, minute: 0, second: 0 });
+  toDate.set({ hour: 23, minute: 59, second: 59 });
+
+  if (fromDate.isAfter(toDate)) {
+    throw new Error('fromDate must be before toDate');
   }
+
+  return {
+    fromDate,
+    toDate,
+  };
+}
+
+function parametersToSqlWhere(parameters) {
+  const dateRange = getDateRange(parameters);
+
+  parameters.fromDate = dateRange.fromDate;
+  parameters.toDate = dateRange.toDate;
 
   const whereClause = Object.entries(parameters)
     .filter(([, val]) => val)
@@ -38,13 +64,13 @@ function parametersToSqlWhere(parameters) {
             if (!where.date) {
               where.date = {};
             }
-            where.date[Op.gte] = value;
+            where.date[Op.gte] = value.toISOString();
             break;
           case 'toDate':
             if (!where.date) {
               where.date = {};
             }
-            where.date[Op.lte] = value;
+            where.date[Op.lte] = value.toISOString();
             break;
           default:
             break;
@@ -53,7 +79,7 @@ function parametersToSqlWhere(parameters) {
       },
       {
         '$scheduledVaccine.label$': {
-          [Op.in]: ['COVAX', 'COVID-19'],
+          [Op.in]: ['COVAX', 'COVID-19 AZ'],
         },
       },
     );
@@ -94,8 +120,13 @@ async function queryCovidVaccineListData(models, parameters) {
         patient: { displayId, firstName, lastName, dateOfBirth, village, sex },
       },
       date,
+      status,
       scheduledVaccine: { schedule, label },
     } = vaccine;
+
+    if (status !== 'GIVEN') {
+      return acc;
+    }
 
     if (!acc[patientId]) {
       acc[patientId] = {
@@ -110,17 +141,34 @@ async function queryCovidVaccineListData(models, parameters) {
       };
     }
 
+    const doseDate = moment(date)
+      .utcOffset(UTC_OFFSET)
+      .format('YYYY-MM-DD');
+    const doseDateTime = moment(date)
+      .utcOffset(UTC_OFFSET)
+      .set({ hour: 23, minute: 59, second: 59 })
+      .format(DATA_TIME_FORMAT);
+
+    const date65yearsBeforeDose = moment(date).subtract(65, 'years');
+    const patientOver65AtDoseDate = moment(dateOfBirth).isBefore(date65yearsBeforeDose);
+
     if (schedule === 'Dose 1') {
-      acc[patientId].dose1 = 'Yes';
-      acc[patientId].dose1Date = moment(date).format('YYYY-MM-DD');
-      const patientAgeAtThisDate = differenceInYears(date, dateOfBirth);
-      acc[patientId].dose1PatientOver65 = patientAgeAtThisDate > 65;
+      // if multiple doses use earliest
+      if (!acc[patientId].dose1Date || doseDate < acc[patientId].dose1Date) {
+        acc[patientId].dose1 = 'Yes';
+        acc[patientId].dose1Date = doseDate;
+        acc[patientId].dose1DateTime = doseDateTime;
+        acc[patientId].dose1PatientOver65 = patientOver65AtDoseDate;
+      }
     }
     if (schedule === 'Dose 2') {
-      acc[patientId].dose2 = 'Yes';
-      acc[patientId].dose2Date = moment(date).format('YYYY-MM-DD');
-      const patientAgeAtThisDate = differenceInYears(date, dateOfBirth);
-      acc[patientId].dose2PatientOver65 = patientAgeAtThisDate > 65;
+      // if multiple doses use earliest
+      if (!acc[patientId].dose2Date || doseDate < acc[patientId].dose2Date) {
+        acc[patientId].dose2 = 'Yes';
+        acc[patientId].dose2Date = doseDate;
+        acc[patientId].dose2DateTime = doseDateTime;
+        acc[patientId].dose2PatientOver65 = patientOver65AtDoseDate;
+      }
     }
     return acc;
   }, {});
@@ -138,6 +186,7 @@ function groupByDateAndVillage(data) {
       if (!doseGiven) continue;
 
       const doseDate = item[`${doseKey}Date`];
+      const doseDateTime = item[`${doseKey}DateTime`];
 
       const key = `${item.tupaiaEntityCode}|${doseDate}`;
 
@@ -145,9 +194,7 @@ function groupByDateAndVillage(data) {
         groupedByKey[key] = {
           village: item.village,
           tupaiaEntityCode: item.tupaiaEntityCode,
-          data_time: moment(doseDate)
-            .set({ hour: 23, minute: 59, second: 59 })
-            .format(DATA_TIME_FORMAT),
+          data_time: doseDateTime,
           COVIDVac1: 0, // Number of 1st doses given to males on this day
           COVIDVac2: 0, // Number of 1st doses given to females on this day
           COVIDVac3: 0, // Number of 1st doses give to > 65 year old on this day
@@ -231,6 +278,44 @@ async function getVillages(tupaiaApi) {
   return entities;
 }
 
+function withEmptyRows(groupedData, parameters, villages) {
+  const dateRange = getDateRange(parameters);
+
+  const padded = groupedData;
+
+  for (const village of villages) {
+    let d = dateRange.fromDate.clone();
+    while (d.isBefore(dateRange.toDate) || d.isSame(dateRange.toDate, 'day')) {
+      const dataTime = d.set({ hour: 23, minute: 59, second: 59 }).format(DATA_TIME_FORMAT);
+
+      const exists =
+        groupedData.find(
+          row => row.data_time === dataTime && row.tupaiaEntityCode === village.code,
+        ) !== undefined;
+
+      if (!exists) {
+        padded.push({
+          village: village.name,
+          tupaiaEntityCode: village.code,
+          data_time: dataTime,
+          COVIDVac1: '',
+          COVIDVac2: '',
+          COVIDVac3: '',
+          COVIDVac4: '',
+          COVIDVac5: '',
+          COVIDVac6: '',
+          COVIDVac7: '',
+          COVIDVac8: '',
+        });
+      }
+
+      d = d.add(1, 'day');
+    }
+  }
+
+  return padded;
+}
+
 export async function dataGenerator(models, parameters, tupaiaApi) {
   const listData = await queryCovidVaccineListData(models, parameters);
 
@@ -240,7 +325,9 @@ export async function dataGenerator(models, parameters, tupaiaApi) {
 
   const groupedData = groupByDateAndVillage(tupaiaListData);
 
-  return generateReportFromQueryData(groupedData, reportColumnTemplate);
+  const padded = withEmptyRows(groupedData, parameters, villages);
+
+  return generateReportFromQueryData(padded, reportColumnTemplate);
 }
 
 export const permission = 'PatientVaccine';

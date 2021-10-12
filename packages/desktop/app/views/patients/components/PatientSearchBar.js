@@ -186,7 +186,18 @@ export const CustomisablePatientSearchBar = ({
   );
 };
 
-export const PatientSearchBar = ({ onSearch, fields = [], ...props }) => {
+const DEFAULT_FIELDS = [
+  'firstName',
+  'lastName',
+  'culturalName',
+  'villageId',
+  'displayId',
+  'dateOfBirthFrom',
+  'dateOfBirthTo',
+  'dateOfBirthExact',
+];
+
+export const PatientSearchBar = ({ onSearch, fields = DEFAULT_FIELDS, ...props }) => {
   const api = useApi();
   const searchFields = fields.map(field =>
     typeof field === 'string' ? GENERAL_FIELDS[field] : field,
