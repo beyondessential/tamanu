@@ -1,4 +1,5 @@
 import fetch from 'node-fetch';
+yimport { REFERENCE_TYPES } from 'shared/constants';
 
 import * as schema from './schema';
 
@@ -128,7 +129,7 @@ export class VRSRemote {
       const village = await ReferenceData.findOne({
         where: {
           name: villageName,
-          type: 'village', // TODO: verify and point to constants
+          type: REFERENCE_TYPES.VILLAGE,
         },
       });
       if (!village) {
