@@ -10,10 +10,8 @@ import { createHashHistory } from 'history';
 import Root from './Root';
 import './fonts.scss';
 
-import { version } from './package.json';
-
 import { createReducers } from './createReducers';
-import { TamanuApi } from './api/TamanuApi';
+import { API } from './api/singletons';
 import { startDataChangeResponder } from './DataChangeResponder';
 
 import { registerYup } from './utils/errorMessages';
@@ -56,26 +54,27 @@ function initPersistor(api, store) {
 function start() {
   registerYup();
 
-  const api = new TamanuApi(version);
-  const { store, history } = initStore(api);
+  //TODO: Switch to use api when we get rid of API singleton
+  //const api = new TamanuApi(version);
+  const { store, history } = initStore(API);
 
   // set up data change responder to trigger reloads when relevant data changes server-side
-  startDataChangeResponder(api, store);
+  startDataChangeResponder(API, store);
 
   store.dispatch(checkAuth());
 
-  api.setAuthFailureHandler(() => {
+  API.setAuthFailureHandler(() => {
     store.dispatch(authFailure());
   });
 
-  api.setVersionIncompatibleHandler((isTooLow, minVersion, maxVersion) => {
+  API.setVersionIncompatibleHandler((isTooLow, minVersion, maxVersion) => {
     store.dispatch(versionIncompatible(isTooLow, minVersion, maxVersion));
   });
 
-  const persistor = initPersistor(api, store);
+  const persistor = initPersistor(API, store);
 
   render(
-    <Root api={api} persistor={persistor} store={store} history={history} />,
+    <Root api={API} persistor={persistor} store={store} history={history} />,
     document.getElementById('root'),
   );
 }
