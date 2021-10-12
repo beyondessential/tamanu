@@ -1,5 +1,5 @@
 import fetch from 'node-fetch';
-yimport { REFERENCE_TYPES } from 'shared/constants';
+import { REFERENCE_TYPES } from 'shared/constants';
 
 import * as schema from './schema';
 
