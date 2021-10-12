@@ -429,8 +429,7 @@ function getHeaderText({ encounterType }) {
   }
 }
 
-export const DumbEncounterView = ({ patient, encounter }) => {
-  const [currentTab, setCurrentTab] = React.useState('vitals');
+export const DumbEncounterView = ({ patient, encounter, currentTab, onTabSelect }) => {
   const disabled = encounter.endDate || patient.death;
 
   return (
@@ -466,7 +465,7 @@ export const DumbEncounterView = ({ patient, encounter }) => {
         <TabDisplay
           tabs={TABS}
           currentTab={currentTab}
-          onTabSelect={setCurrentTab}
+          onTabSelect={onTabSelect}
           encounter={encounter}
           disabled={disabled}
         />
@@ -479,8 +478,9 @@ export const EncounterView = connect(state => ({
   patient: state.patient,
 }))(({ patient }) => {
   const { encounter, isLoadingEncounter } = useEncounter();
+  const [currentTab, setCurrentTab] = React.useState('vitals');
 
   if (!encounter || isLoadingEncounter || patient.loading) return <LoadingIndicator />;
 
-  return <DumbEncounterView encounter={encounter} patient={patient} />;
+  return <DumbEncounterView encounter={encounter} patient={patient} currentTab={currentTab} onTabSelect={setCurrentTab} />;
 });
