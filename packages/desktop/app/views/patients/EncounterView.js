@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { useState } from 'react';
 import { connect } from 'react-redux';
 import { push } from 'connected-react-router';
 import styled from 'styled-components';
@@ -64,11 +64,20 @@ const VitalsPane = React.memo(({ encounter, readonly }) => {
 });
 
 const NotesPane = React.memo(({ encounter, readonly }) => {
-  const [modalOpen, setModalOpen] = React.useState(false);
+  const [modalOpen, setModalOpen] = useState(false);
+  const { loadEncounter } = useEncounter();
 
   return (
     <div>
-      <NoteModal open={modalOpen} encounterId={encounter.id} onClose={() => setModalOpen(false)} />
+      <NoteModal
+        open={modalOpen}
+        encounterId={encounter.id}
+        onClose={() => setModalOpen(false)}
+        onSaved={async () => {
+          setModalOpen(false);
+          await loadEncounter(encounter.id);
+        }}
+      />
       <NoteTable encounterId={encounter.id} />
       <ContentPane>
         <Button
