@@ -39,13 +39,12 @@ const COLUMNS = [
   {
     key: 'admissionStartDate',
     title: 'Admission start date',
-    accessor: row =>
-      row.admissionStartDate ? moment(row.admissionStartDate).format('DD/MM/YYYY') : '',
+    accessor: row => <DateDisplay date={row.admissionStartDate} />,
   },
   {
     key: 'lastSurveyDate',
     title: 'Last survey',
-    accessor: row => (row.lastSurveyDate ? moment(row.lastSurveyDate).format('DD/MM/YYYY') : ''),
+    accessor: row => <DateDisplay date={row.lastSurveyDate} />,
   },
 ];
 
