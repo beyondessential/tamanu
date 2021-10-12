@@ -13,7 +13,7 @@ const COLUMNS = [
   { key: 'content', title: 'Content', maxWidth: 300 },
 ];
 
-export const NoteTable = React.memo(({ encounterId }) => {
+export const NoteTable = ({ encounterId }) => {
   const [isNoteModalOpen, setIsNoteModalOpen] = useState(false);
   const [refreshCount, setRefreshCount] = useState(0);
   const [noteId, setNoteId] = useState(null);
@@ -68,4 +68,4 @@ export const NoteTable = React.memo(({ encounterId }) => {
       />
     </div>
   );
-});
+};
