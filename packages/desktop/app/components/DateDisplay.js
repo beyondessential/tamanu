@@ -5,7 +5,7 @@ import styled from 'styled-components';
 function formatShort(date) {
   if (!date) return '--/--/----';
 
-  return moment(date).format('D/MM/YYYY'); // "04/03/2019" dd/mm in locale order
+  return moment(date).format('DD/MM/YYYY'); // "04/03/2019" dd/mm in locale order
 }
 
 function formatLong(date) {
