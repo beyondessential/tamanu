@@ -75,7 +75,7 @@ const NotesPane = React.memo(({ encounter, readonly }) => {
         onClose={() => setModalOpen(false)}
         onSaved={async () => {
           setModalOpen(false);
-          await loadEncounter();
+          await loadEncounter(encounter.id);
         }}
       />
       <NoteTable encounterId={encounter.id} />
