@@ -53,6 +53,7 @@ export const NoteTable = React.memo(({ encounterId }) => {
         noteId={noteId}
         editedObject={editedObject}
         onClose={() => setIsNoteModalOpen(false)}
+        onSaved={() => setIsNoteModalOpen(false)}
       />
       <DataFetchingTable
         columns={COLUMNS}
