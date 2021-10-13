@@ -68,22 +68,6 @@ const ConnectedDepartmentDisplay = connectApi(api => ({
   fetchData: id => api.get(`department/${id}`),
 }))(DepartmentDisplay);
 
-const ExaminerDisplay = React.memo(({ id, fetchData }) => {
-  const [name, setName] = useState('Unknown');
-
-  useEffect(() => {
-    (async () => {
-      const result = await fetchData(encodeURIComponent(id));
-      if (result) setName(result.displayName);
-    })();
-  }, [id]);
-
-  return name;
-});
-const ConnectedExaminerDisplay = connectApi(api => ({
-  fetchReferenceData: id => api.get(`user/${id}`),
-}))(ExaminerDisplay);
-
 const ReferringDoctorDisplay = React.memo(
   ({ surveyResponse: { surveyId, answers }, fetchUser, fetchSurvey }) => {
     const [name, setName] = useState('Unknown');
