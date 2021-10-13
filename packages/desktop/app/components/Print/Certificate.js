@@ -42,6 +42,7 @@ const PRIMARY_DETAILS_FIELDS = {
   countryOfBirthId: ({ additionalData }) => additionalData?.countryOfBirth?.name,
   sex: null,
   Mother: () => null, // TODO: not populated
+  displayId: null,
 };
 
 const UserEntrySection = styled.div`
