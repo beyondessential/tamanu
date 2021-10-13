@@ -6,9 +6,7 @@ import { DropdownButton } from './DropdownButton';
 
 import { EncounterModal } from './EncounterModal';
 import { useEncounter } from '../contexts/Encounter';
-import { useReferral } from '../contexts/Referral';
-import { ReferralDetailsModal } from './ReferralDetailsModal';
-import { connectApi, useApi } from '../api';
+import { useApi } from '../api';
 import { SurveyResponseDetailsModal } from './SurveyResponseDetailsModal';
 
 const ActionDropdown = React.memo(({ row }) => {
@@ -52,22 +50,6 @@ const ActionDropdown = React.memo(({ row }) => {
   );
 });
 
-const DepartmentDisplay = React.memo(({ id, fetchData }) => {
-  const [name, setName] = useState('Unknown');
-
-  useEffect(() => {
-    (async () => {
-      const result = await fetchData(encodeURIComponent(id));
-      if (result) setName(result.name);
-    })();
-  }, [id]);
-
-  return name;
-});
-const ConnectedDepartmentDisplay = connectApi(api => ({
-  fetchData: id => api.get(`department/${id}`),
-}))(DepartmentDisplay);
-
 const ReferringDoctorDisplay = ({ surveyResponse: { survey, answers } }) => {
   const api = useApi();
   const [name, setName] = useState('Unknown');
@@ -95,9 +77,8 @@ const ReferringDoctorDisplay = ({ surveyResponse: { survey, answers } }) => {
 };
 
 const getDate = ({ initiatingEncounter }) => <DateDisplay date={initiatingEncounter.startDate} />;
-const getDepartment = ({ initiatingEncounter }) => (
-  <ConnectedDepartmentDisplay id={initiatingEncounter.departmentId} />
-);
+
+const getReferralType = ({ surveyResponse: { survey } }) => survey.name;
 const getReferringDoctor = ({ surveyResponse }) => (
   <ReferringDoctorDisplay surveyResponse={surveyResponse} />
 );
@@ -107,7 +88,7 @@ const getActions = row => <ActionDropdown row={row} />;
 
 const columns = [
   { key: 'date', title: 'Referral date', accessor: getDate },
-  { key: 'department', title: 'Department', accessor: getDepartment },
+  { key: 'department', title: 'Referral type', accessor: getReferralType },
   { key: 'referredBy', title: 'Referring doctor', accessor: getReferringDoctor },
   { key: 'status', title: 'Status', accessor: getStatus },
   { key: 'actions', title: 'Actions', accessor: getActions, dontCallRowInput: true },
