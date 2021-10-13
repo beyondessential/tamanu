@@ -2,7 +2,7 @@ import React from 'react';
 import styled from 'styled-components';
 import moment from 'moment';
 import { Colors } from '../../constants';
-import { PatientNameDisplay } from '../../components/PatientNameDisplay';
+import { PatientNameDisplay } from '../PatientNameDisplay';
 
 export const Appointment = props => {
   const {
