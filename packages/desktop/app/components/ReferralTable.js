@@ -68,23 +68,28 @@ const ConnectedDepartmentDisplay = connectApi(api => ({
   fetchData: id => api.get(`department/${id}`),
 }))(DepartmentDisplay);
 
-const ReferringDoctorDisplay = ({ surveyResponse: { surveyId, answers } }) => {
+const ReferringDoctorDisplay = ({ surveyResponse: { survey, answers } }) => {
   const api = useApi();
   const [name, setName] = useState('Unknown');
 
   useEffect(() => {
     (async () => {
-      const survey = await api.get(`survey/${encodeURIComponent(surveyId)}`);
       const referringDoctorComponent = survey.components.find(
         ({ dataElement }) => dataElement.name === 'Referring doctor',
       );
+      if (!referringDoctorComponent) {
+        return;
+      }
       const referringDoctorAnswer = answers.find(
         ({ dataElementId }) => dataElementId === referringDoctorComponent.dataElementId,
       );
-      const result = await api.get(`user/${encodeURIComponent(referringDoctorAnswer.body)}`);
-      if (result) setName(result.displayName);
+      if (!referringDoctorAnswer) {
+        return;
+      }
+      const doctor = await api.get(`user/${encodeURIComponent(referringDoctorAnswer.body)}`);
+      if (doctor) setName(doctor.displayName);
     })();
-  }, [surveyId]);
+  }, [survey]);
 
   return name;
 };

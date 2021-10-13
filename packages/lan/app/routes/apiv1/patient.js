@@ -157,6 +157,19 @@ patientRelations.get(
             {
               association: 'answers',
             },
+            {
+              association: 'survey',
+              include: [
+                {
+                  association: 'components',
+                  include: [
+                    {
+                      association: 'dataElement',
+                    },
+                  ],
+                },
+              ],
+            },
           ],
         },
       ],
