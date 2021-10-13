@@ -8,7 +8,7 @@ import { EncounterModal } from './EncounterModal';
 import { useEncounter } from '../contexts/Encounter';
 import { useReferral } from '../contexts/Referral';
 import { ReferralDetailsModal } from './ReferralDetailsModal';
-import { connectApi } from '../api';
+import { connectApi, useApi } from '../api';
 import { SurveyResponseDetailsModal } from './SurveyResponseDetailsModal';
 
 const ActionDropdown = React.memo(({ row }) => {
@@ -68,38 +68,33 @@ const ConnectedDepartmentDisplay = connectApi(api => ({
   fetchData: id => api.get(`department/${id}`),
 }))(DepartmentDisplay);
 
-const ReferringDoctorDisplay = React.memo(
-  ({ surveyResponse: { surveyId, answers }, fetchUser, fetchSurvey }) => {
-    const [name, setName] = useState('Unknown');
+const ReferringDoctorDisplay = ({ surveyResponse: { surveyId, answers } }) => {
+  const api = useApi();
+  const [name, setName] = useState('Unknown');
 
-    useEffect(() => {
-      (async () => {
-        const survey = await fetchSurvey(encodeURIComponent(surveyId));
-        const referringDoctorComponent = survey.components.find(
-          ({ dataElement }) => dataElement.name === 'Referring doctor',
-        );
-        const referringDoctorAnswer = answers.find(
-          ({ dataElementId }) => dataElementId === referringDoctorComponent.dataElementId,
-        );
-        const result = await fetchUser(encodeURIComponent(referringDoctorAnswer.body));
-        if (result) setName(result.displayName);
-      })();
-    }, [surveyId]);
+  useEffect(() => {
+    (async () => {
+      const survey = await api.get(`survey/${encodeURIComponent(surveyId)}`);
+      const referringDoctorComponent = survey.components.find(
+        ({ dataElement }) => dataElement.name === 'Referring doctor',
+      );
+      const referringDoctorAnswer = answers.find(
+        ({ dataElementId }) => dataElementId === referringDoctorComponent.dataElementId,
+      );
+      const result = await api.get(`user/${encodeURIComponent(referringDoctorAnswer.body)}`);
+      if (result) setName(result.displayName);
+    })();
+  }, [surveyId]);
 
-    return name;
-  },
-);
-const ConnectedReferringDoctorDisplay = connectApi(api => ({
-  fetchUser: id => api.get(`user/${id}`),
-  fetchSurvey: id => api.get(`survey/${id}`),
-}))(ReferringDoctorDisplay);
+  return name;
+};
 
 const getDate = ({ initiatingEncounter }) => <DateDisplay date={initiatingEncounter.startDate} />;
 const getDepartment = ({ initiatingEncounter }) => (
   <ConnectedDepartmentDisplay id={initiatingEncounter.departmentId} />
 );
-const getDisplayName = ({ surveyResponse }) => (
-  <ConnectedReferringDoctorDisplay surveyResponse={surveyResponse} />
+const getReferringDoctor = ({ surveyResponse }) => (
+  <ReferringDoctorDisplay surveyResponse={surveyResponse} />
 );
 const getStatus = ({ completingEncounter }) => (completingEncounter ? 'Complete' : 'Pending');
 
@@ -108,7 +103,7 @@ const getActions = row => <ActionDropdown row={row} />;
 const columns = [
   { key: 'date', title: 'Referral date', accessor: getDate },
   { key: 'department', title: 'Department', accessor: getDepartment },
-  { key: 'referredBy', title: 'Referring doctor', accessor: getDisplayName },
+  { key: 'referredBy', title: 'Referring doctor', accessor: getReferringDoctor },
   { key: 'status', title: 'Status', accessor: getStatus },
   { key: 'actions', title: 'Actions', accessor: getActions, dontCallRowInput: true },
 ];
