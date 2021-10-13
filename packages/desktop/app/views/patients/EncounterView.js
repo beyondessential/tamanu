@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { connect } from 'react-redux';
+import { connect, useSelector } from 'react-redux';
 import { push } from 'connected-react-router';
 import styled from 'styled-components';
 import CalendarIcon from '@material-ui/icons/CalendarToday';
@@ -429,9 +429,13 @@ function getHeaderText({ encounterType }) {
   }
 }
 
-export const DumbEncounterView = ({ patient, encounter }) => {
+export const EncounterView = () => {
+  const patient = useSelector(state => state.patient);
+  const { encounter, isLoadingEncounter } = useEncounter();
   const [currentTab, setCurrentTab] = React.useState('vitals');
-  const disabled = encounter.endDate || patient.death;
+  const disabled = encounter?.endDate || patient.death;
+
+  if (!encounter || isLoadingEncounter || patient.loading) return <LoadingIndicator />;
 
   return (
     <TwoColumnDisplay>
@@ -474,13 +478,3 @@ export const DumbEncounterView = ({ patient, encounter }) => {
     </TwoColumnDisplay>
   );
 };
-
-export const EncounterView = connect(state => ({
-  patient: state.patient,
-}))(({ patient }) => {
-  const { encounter, isLoadingEncounter } = useEncounter();
-
-  if (!encounter || isLoadingEncounter || patient.loading) return <LoadingIndicator />;
-
-  return <DumbEncounterView encounter={encounter} patient={patient} />;
-});
