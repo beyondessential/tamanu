@@ -14,15 +14,15 @@ appointments.get(
     req.checkPermission('list', 'Appointment');
     const {
       models,
-      query: { before, after },
+      query: { after, before },
     } = req;
     const { Appointment } = models;
 
     const associations = Appointment.getListReferenceAssociations(models);
 
-    const start = after || startOfDay(new Date());
+    const afterTime = after || startOfDay(new Date());
     const startTimeQuery = {
-      [Op.gte]: start,
+      [Op.gte]: afterTime,
     };
 
     if (before) {
