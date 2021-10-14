@@ -4,6 +4,9 @@ import { ButtonGroup, Typography } from '@material-ui/core';
 
 import { Button } from '../Button';
 import { Colors } from '../../constants';
+import { Field, Form, AutocompleteField } from '../Field';
+import { Suggester } from '../../utils/suggester';
+import { useApi } from '../../api';
 
 const ViewCalendarBy = styled.div`
   padding: 20px;
@@ -21,8 +24,19 @@ const FilterSwitch = styled(ButtonGroup)`
   margin-top: 0.5rem;
 `;
 
-export const FilterPane = ({ filters, activeFilter, setActiveFilter }) => {
+export const FilterPane = ({
+  filters,
+  activeFilter,
+  setActiveFilter,
+  filterValue,
+  setFilterValue,
+}) => {
   const active = filters.find(filter => filter.name === activeFilter);
+  const api = useApi();
+  const suggesters = {
+    location: new Suggester(api, 'location'),
+    clinician: new Suggester(api, 'practitioner'),
+  };
   return (
     <>
       <ViewCalendarBy>
@@ -43,6 +57,19 @@ export const FilterPane = ({ filters, activeFilter, setActiveFilter }) => {
       </ViewCalendarBy>
       <ViewBySelection>
         <Typography variant="subtitle2">{active.text}</Typography>
+        <Form
+          render={() => (
+            <Field
+              name="filter"
+              component={AutocompleteField}
+              suggester={suggesters[active.name]}
+              value={filterValue}
+              onChange={e => {
+                setFilterValue(e.target.value);
+              }}
+            />
+          )}
+        />
       </ViewBySelection>
     </>
   );

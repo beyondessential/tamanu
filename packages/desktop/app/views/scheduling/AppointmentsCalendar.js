@@ -38,6 +38,7 @@ const CalendarContainer = styled.div`
 export const AppointmentsCalendar = () => {
   const [date, setDate] = useState(new Date());
   const [activeFilter, setActiveFilter] = useState('location');
+  const [filterValue, setFilterValue] = useState('');
   const filters = [
     {
       name: 'location',
@@ -78,6 +79,8 @@ export const AppointmentsCalendar = () => {
             filters={filters}
             activeFilter={activeFilter}
             setActiveFilter={setActiveFilter}
+            filterValue={filterValue}
+            setFilterValue={setFilterValue}
           />
         </Container>
         <div>
@@ -114,7 +117,11 @@ export const AppointmentsCalendar = () => {
             />
           </TopBar>
           <CalendarContainer>
-            <DailySchedule appointments={appointmentGroups} activeFilter={activeFilter} />
+            <DailySchedule
+              appointmentGroups={appointmentGroups}
+              activeFilter={activeFilter}
+              filterValue={filterValue}
+            />
           </CalendarContainer>
         </div>
       </TwoColumnDisplay>

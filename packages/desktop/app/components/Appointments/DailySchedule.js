@@ -17,15 +17,22 @@ const Column = ({ header, appointments }) => {
   );
 };
 
-export const DailySchedule = ({ appointments, activeFilter }) => (
+export const DailySchedule = ({ appointmentGroups, activeFilter, filterValue }) => (
   <Container>
-    {Object.entries(appointments).map(([filterValue, filteredAppointments]) => {
-      const firstAppointment = filteredAppointments[0];
-      const filterObject = firstAppointment[activeFilter];
-      // location has name, while clinician has displayName;
-      const title = filterObject.name || filterObject.displayName;
-      return <Column key={filterValue} header={title} appointments={filteredAppointments} />;
-    })}
+    {Object.entries(appointmentGroups)
+      .filter(([value]) => {
+        if (!filterValue) {
+          return true;
+        }
+        return value === filterValue;
+      })
+      .map(([value, appointments]) => {
+        const firstAppointment = appointments[0];
+        const filterObject = firstAppointment[activeFilter];
+        // location has name, while clinician has displayName;
+        const title = filterObject.name || filterObject.displayName;
+        return <Column key={value} header={title} appointments={appointments} />;
+      })}
   </Container>
 );
 
