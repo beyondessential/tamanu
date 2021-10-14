@@ -3,21 +3,19 @@ import styled from 'styled-components';
 import { ButtonGroup, Typography } from '@material-ui/core';
 
 import { Button } from '../Button';
-import { Colors } from '../../constants';
-import { Field, Form, AutocompleteField } from '../Field';
+import { Colors, appointmentTypeOptions } from '../../constants';
+import { Field, Form, AutocompleteField, MultiselectField } from '../Field';
 import { Suggester } from '../../utils/suggester';
 import { useApi } from '../../api';
 
-const ViewCalendarBy = styled.div`
-  padding: 20px;
-  border-bottom: 1px solid ${Colors.outline};
-`;
-
-const ViewBySelection = styled.div`
+const Section = styled.div`
   padding: 20px;
   border-bottom: 1px solid ${Colors.outline};
   display: flex;
   flex-direction: column;
+  form {
+    margin-top: 1rem;
+  }
 `;
 
 const FilterSwitch = styled(ButtonGroup)`
@@ -30,6 +28,7 @@ export const FilterPane = ({
   setActiveFilter,
   filterValue,
   setFilterValue,
+  setAppointmentType,
 }) => {
   const active = filters.find(filter => filter.name === activeFilter);
   const api = useApi();
@@ -39,7 +38,7 @@ export const FilterPane = ({
   };
   return (
     <>
-      <ViewCalendarBy>
+      <Section>
         <Typography variant="subtitle2">View calendar by:</Typography>
         <FilterSwitch>
           {filters.map(filter => (
@@ -54,8 +53,8 @@ export const FilterPane = ({
             </Button>
           ))}
         </FilterSwitch>
-      </ViewCalendarBy>
-      <ViewBySelection>
+      </Section>
+      <Section>
         <Typography variant="subtitle2">{active.text}</Typography>
         <Form
           render={() => (
@@ -70,7 +69,26 @@ export const FilterPane = ({
             />
           )}
         />
-      </ViewBySelection>
+      </Section>
+      <Section>
+        <Typography variant="subtitle2">Appointment Type</Typography>
+        <Form
+          render={() => (
+            <Field
+              name="appointment-type"
+              component={MultiselectField}
+              options={appointmentTypeOptions}
+              onChange={e => {
+                if (!e.target.value) {
+                  setAppointmentType([]);
+                  return;
+                }
+                setAppointmentType(e.target.value.split(','));
+              }}
+            />
+          )}
+        />
+      </Section>
     </>
   );
 };

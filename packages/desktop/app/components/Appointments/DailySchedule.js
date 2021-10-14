@@ -17,7 +17,12 @@ const Column = ({ header, appointments }) => {
   );
 };
 
-export const DailySchedule = ({ appointmentGroups, activeFilter, filterValue }) => (
+export const DailySchedule = ({
+  appointmentGroups,
+  activeFilter,
+  filterValue,
+  appointmentType,
+}) => (
   <Container>
     {Object.entries(appointmentGroups)
       .filter(([value]) => {
@@ -29,9 +34,15 @@ export const DailySchedule = ({ appointmentGroups, activeFilter, filterValue }) 
       .map(([value, appointments]) => {
         const firstAppointment = appointments[0];
         const filterObject = firstAppointment[activeFilter];
+        const displayAppointments = appointments.filter(appointment => {
+          if (!appointmentType.length) {
+            return true;
+          }
+          return appointmentType.includes(appointment.type);
+        });
         // location has name, while clinician has displayName;
         const title = filterObject.name || filterObject.displayName;
-        return <Column key={value} header={title} appointments={appointments} />;
+        return <Column key={value} header={title} appointments={displayAppointments} />;
       })}
   </Container>
 );

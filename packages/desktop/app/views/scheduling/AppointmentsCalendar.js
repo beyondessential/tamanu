@@ -39,6 +39,7 @@ export const AppointmentsCalendar = () => {
   const [date, setDate] = useState(new Date());
   const [activeFilter, setActiveFilter] = useState('location');
   const [filterValue, setFilterValue] = useState('');
+  const [appointmentType, setAppointmentType] = useState([]);
   const filters = [
     {
       name: 'location',
@@ -81,6 +82,7 @@ export const AppointmentsCalendar = () => {
             setActiveFilter={setActiveFilter}
             filterValue={filterValue}
             setFilterValue={setFilterValue}
+            setAppointmentType={setAppointmentType}
           />
         </Container>
         <div>
@@ -121,6 +123,7 @@ export const AppointmentsCalendar = () => {
               appointmentGroups={appointmentGroups}
               activeFilter={activeFilter}
               filterValue={filterValue}
+              appointmentType={appointmentType}
             />
           </CalendarContainer>
         </div>
