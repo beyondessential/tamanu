@@ -159,17 +159,17 @@ const StyledNavButton = styled(TextButton)`
 
 export const ForwardButton = ({ children, ...props }) => (
   <StyledNavButton {...props}>
-    {children} <ChevronRight />
+    {children}
+    <ChevronRight />
   </StyledNavButton>
 );
 
-export const BackButton = ({ to, onClick, ...props }) => {
-  return (
-    <StyledNavButton to={to} onClick={onClick} {...props}>
-      <ChevronLeft /> Back
-    </StyledNavButton>
-  );
-};
+export const BackButton = ({ to, text = true, ...props }) => (
+  <StyledNavButton to={to} {...props}>
+    <ChevronLeft />
+    {text && ' Back'}
+  </StyledNavButton>
+);
 
 const StyledImageButton = styled(Button)`
   background: ${Colors.white};

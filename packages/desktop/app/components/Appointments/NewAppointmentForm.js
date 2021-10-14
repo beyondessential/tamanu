@@ -45,6 +45,7 @@ export const NewAppointmentForm = props => {
               name="patientId"
               component={AutocompleteField}
               suggester={patientSuggester}
+              required
             />
             <FormSeparatorLine />
             <Field
@@ -52,23 +53,26 @@ export const NewAppointmentForm = props => {
               name="appointmentType"
               component={SelectField}
               options={appointmentTypeOptions}
+              required
             />
           </FormGrid>
           <div style={{ marginTop: '1rem' }}>
             <FormGrid>
-              <Field label="Start Time" name="startTime" component={DateTimeField} />
+              <Field label="Start Time" name="startTime" component={DateTimeField} required />
               <Field label="End Time" name="endTime" component={DateTimeField} />
               <Field
                 label="Clinician"
                 name="clinicianId"
                 component={AutocompleteField}
                 suggester={clinicianSuggester}
+                required
               />
               <Field
                 label="Location"
                 name="locationId"
                 component={AutocompleteField}
                 suggester={locationSuggester}
+                required
               />
               <FormSeparatorLine />
               <ConfirmCancelRow
