@@ -71,7 +71,7 @@ export const FilterPane = ({
         />
       </Section>
       <Section>
-        <Typography variant="subtitle2">Appointment Type</Typography>
+        <Typography variant="subtitle2">Appointment type</Typography>
         <Form
           render={() => (
             <Field
