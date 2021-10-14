@@ -2272,10 +2272,10 @@
   dependencies:
     defer-to-connect "^1.0.1"
 
-"@tupaia/api-client@2.1.0":
-  version "2.1.0"
-  resolved "https://registry.yarnpkg.com/@tupaia/api-client/-/api-client-2.1.0.tgz#618369fd2f72fc3e482c1d0202062dd6d0a535de"
-  integrity sha512-sODHHxKCITACT/EXgfaoP75n2+0QTFiWJc911Mxv5zgbRWo6//kCaa+zn+Du1lJi93apyDEX1Yqsb7Czm1hG+A==
+"@tupaia/api-client@2.1.1":
+  version "2.1.1"
+  resolved "https://registry.yarnpkg.com/@tupaia/api-client/-/api-client-2.1.1.tgz#652b3d9d92a5bb63905a3d03472c2f942b436baa"
+  integrity sha512-LpBy1Xe1/MKpO78BLlwvOLJSpnlU3/lGWhB+QOrB53pgkmlwzQCdt9N1KLHwB1bZqVcGFGr26BQfR2ZjP9V4ZA==
   dependencies:
     node-fetch "^1.7.3"
     qs "^6.10.1"
