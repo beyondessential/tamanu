@@ -21,7 +21,7 @@ const DumbImagingRequestModal = React.memo(
       onClose();
     }, []);
 
-    const nanoid = configureCustomRequestId();
+    const generateDisplayId = configureCustomRequestId();
 
     return (
       <Modal width="md" title="New imaging request" open={open} onClose={onClose}>
@@ -31,7 +31,7 @@ const DumbImagingRequestModal = React.memo(
           encounter={encounter}
           practitionerSuggester={practitionerSuggester}
           imagingTypeSuggester={imagingTypeSuggester}
-          generateId={nanoid}
+          generateId={generateDisplayId}
         />
       </Modal>
     );
