@@ -7,7 +7,7 @@ import { ActiveCovid19PatientsView, NotActiveView } from '../views';
 export const ProgramsRoutes = React.memo(({ match }) => (
   <div>
     <Switch>
-      <Route path={`${match.path}/all-programs/patients`} component={ProgramsView} />
+      <Route exact path={match.path} component={ProgramsView} />
       <Route
         path={`${match.path}/active-covid-19-program/patients`}
         component={ActiveCovid19PatientsView}

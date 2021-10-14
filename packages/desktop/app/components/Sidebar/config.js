@@ -71,24 +71,6 @@ export const items = [
         ability: { action: 'read' },
       },
       {
-        label: 'Appointments this week',
-        path: '/appointments/week',
-        icon: submenuIcons.table,
-        ability: { action: 'read' },
-      },
-      {
-        label: "Today's appointments",
-        path: '/appointments/today',
-        icon: submenuIcons.table,
-        ability: { action: 'read' },
-      },
-      {
-        label: 'Search appointments',
-        path: '/appointments/search',
-        icon: submenuIcons.search,
-        ability: { action: 'read' },
-      },
-      {
         label: 'Appointments calendar',
         path: '/appointments/calendar',
         icon: submenuIcons.calendar,
@@ -97,18 +79,6 @@ export const items = [
       {
         label: 'Add appointment',
         path: '/appointments/appointment/new',
-        icon: submenuIcons.new,
-        ability: { action: 'create' },
-      },
-      {
-        label: 'Theater schedule',
-        path: '/appointments/theater',
-        icon: submenuIcons.calendar,
-        ability: { action: 'read' },
-      },
-      {
-        label: 'Schedule surgery',
-        path: '/appointments/surgery/new',
         icon: submenuIcons.new,
         ability: { action: 'create' },
       },

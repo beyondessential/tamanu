@@ -7,6 +7,7 @@ import { ContentPane } from '../../components/ContentPane';
 import { LoadingIndicator } from '../../components/LoadingIndicator';
 import { PatientInfoPane } from '../../components/PatientInfoPane';
 import { TwoColumnDisplay } from '../../components/TwoColumnDisplay';
+import { TopBar } from '../../components/TopBar';
 
 import { FormGrid } from '../../components/FormGrid';
 import { DateInput, TextInput, DateTimeInput } from '../../components/Field';
@@ -43,6 +44,7 @@ export const DumbImagingRequestView = React.memo(({ imagingRequest, patient }) =
     <TwoColumnDisplay>
       <PatientInfoPane patient={patient} />
       <div>
+        <TopBar title="Imaging request" />
         <BackLink />
         <ContentPane>
           <ImagingRequestInfoPane imagingRequest={imagingRequest} />

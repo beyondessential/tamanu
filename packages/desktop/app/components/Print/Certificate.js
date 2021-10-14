@@ -37,11 +37,16 @@ const TwoColumnContainer = styled.div`
 const PRIMARY_DETAILS_FIELDS = {
   firstName: null,
   lastName: null,
-  dateOfBirth: ({ dateOfBirth }) => <DateDisplay date={dateOfBirth} />,
+  dateOfBirth: ({ dateOfBirth }) => <DateDisplay 
+                                      date={dateOfBirth}
+                                      showDate={false} 
+                                      showExplicitDate
+                                    />,
   placeOfBirth: ({ additionalData }) => additionalData?.placeOfBirth,
   countryOfBirthId: ({ additionalData }) => additionalData?.countryOfBirth?.name,
   sex: null,
   Mother: () => null, // TODO: not populated
+  displayId: null,
 };
 
 const UserEntrySection = styled.div`

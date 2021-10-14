@@ -4,7 +4,7 @@ import { submenuIcons } from './config';
 import { Sidebar } from './Sidebar';
 
 // TODO fetch programs from api
-const DUMMY_PROGRAM = { name: 'All programs', id: 'all-programs' };
+const DUMMY_PROGRAM = { name: 'All programs', id: 'all-programs', isDefault: true };
 const ACTIVE_COVID_19_PROGRAM = {
   name: 'Active COVID-19 patients',
   id: 'active-covid-19-program',
@@ -25,9 +25,9 @@ export const SidebarWithPrograms = memo(({ items, ...restOfProps }) => {
   const programsNav = find(itemsWithPrograms, { key: 'programs' });
   if (programs.length > 0) {
     programsNav.hidden = false;
-    programsNav.children = programs.map(({ name, id }) => ({
+    programsNav.children = programs.map(({ name, id, isDefault }) => ({
       label: name,
-      path: `/programs/${id}/patients`,
+      path: isDefault ? '/programs' : `/programs/${id}/patients`,
       icon: submenuIcons.action,
     }));
   }

@@ -29,8 +29,7 @@ import { Modal } from '../../components/Modal';
 import { LabRequestNoteForm } from '../../forms/LabRequestNoteForm';
 import { LabRequestAuditPane } from '../../components/LabRequestAuditPane';
 import { useLabRequest } from '../../contexts/LabRequest';
-import { useApi } from '../../api';
-import { useSuggester } from '../../api/singletons';
+import { useApi, useSuggester } from '../../api';
 
 const makeRangeStringAccessor = sex => ({ labTestType }) => {
   const max = sex === 'male' ? labTestType.maleMax : labTestType.femaleMax;
@@ -253,7 +252,7 @@ export const DumbLabRequestView = React.memo(({ patient }) => {
       <div>
         <TopBar title="Lab request">
           <div>
-            { /* <DeleteButton labRequestId={labRequest.id} updateLabReq={updateLabReq} /> */ }
+            <DeleteRequestButton labRequestId={labRequest.id} updateLabReq={updateLabReq} />
             <ChangeLabStatusButton status={labRequest.status} updateLabReq={updateLabReq} />
             <ChangeLaboratoryButton
               laboratory={labRequest.laboratory}
