@@ -43,12 +43,10 @@ export const AppointmentsCalendar = () => {
   const filters = [
     {
       name: 'location',
-      property: 'locationId',
       text: 'Locations',
     },
     {
       name: 'clinician',
-      property: 'clinicianId',
       text: 'Clinicians',
     },
   ];
