@@ -1,7 +1,7 @@
 import React, { useState, useCallback, useEffect } from 'react';
-import { connect } from 'react-redux';
+import { useSelector, useDispatch } from 'react-redux';
 
-import { connectApi } from 'desktop/app/api';
+import { useApi } from 'desktop/app/api';
 import { reloadPatient } from 'desktop/app/store/patient';
 import { SurveyView } from 'desktop/app/views/programs/SurveyView';
 import { DumbPatientListingView } from 'desktop/app/views/patients/PatientListingView';
@@ -14,97 +14,87 @@ import { ProgramsPane, ProgramsPaneHeader, ProgramsPaneHeading } from '../progra
 import { getCurrentUser } from '../../store';
 import { getAnswersFromData, getActionsFromData } from '../../utils';
 
-const DumbReferralFlow = React.memo(
-  ({ onFetchReferralSurvey, onSubmitReferral, fetchReferralSurveys, patient, currentUser }) => {
-    const [referralSurvey, setReferralSurvey] = useState(null);
-    const [referralSurveys, setReferralSurveys] = useState(null);
-    const [startTime, setStartTime] = useState(null);
+const ReferralFlow = ({ patient, currentUser }) => {
+  const api = useApi();
+  const [referralSurvey, setReferralSurvey] = useState(null);
+  const [referralSurveys, setReferralSurveys] = useState(null);
+  const [startTime, setStartTime] = useState(null);
 
-    useEffect(() => {
-      (async () => {
-        const response = await fetchReferralSurveys();
+  useEffect(() => {
+    (async () => {
+      const response = await api.get(`survey`, { type: SURVEY_TYPES.REFERRAL });
+      setReferralSurveys(response.surveys.map(x => ({ value: x.id, label: x.name })));
+    })();
+  }, []);
 
-        setReferralSurveys(response.surveys.map(x => ({ value: x.id, label: x.name })));
-      })();
-    }, []);
+  const onSelectReferralSurvey = useCallback(async id => {
+    const response = await api.get(`survey/${encodeURIComponent(id)}`);
+    setReferralSurvey(response);
+    setStartTime(new Date());
+  });
 
-    const onSelectReferralSurvey = useCallback(async id => {
-      const response = await onFetchReferralSurvey(encodeURIComponent(id));
-      setReferralSurvey(response);
-      setStartTime(new Date());
-    });
+  const onCancelReferral = useCallback(() => {
+    setReferralSurvey(null);
+  });
 
-    const onCancelReferral = useCallback(() => {
-      setReferralSurvey(null);
-    });
+  const onSubmit = useCallback(
+    data => {
+      api.post('referral', {
+        surveyId: referralSurvey.id,
+        startTime: startTime,
+        patientId: patient.id,
+        endTime: new Date(),
+        answers: getAnswersFromData(data, referralSurvey),
+        actions: getActionsFromData(data, referralSurvey),
+      });
+    },
+    [startTime, referralSurvey],
+  );
 
-    const onSubmit = useCallback(
-      data => {
-        onSubmitReferral({
-          surveyId: referralSurvey.id,
-          startTime: startTime,
-          patientId: patient.id,
-          endTime: new Date(),
-          answers: getAnswersFromData(data, referralSurvey),
-          actions: getActionsFromData(data, referralSurvey),
-        });
-      },
-      [startTime, referralSurvey],
-    );
-
-    if (!referralSurvey) {
-      return (
-        <>
-          <PatientDisplay />
-          <ProgramsPane>
-            <ProgramsPaneHeader>
-              <ProgramsPaneHeading variant="h6">Select a referral</ProgramsPaneHeading>
-            </ProgramsPaneHeader>
-            <FormGrid columns={1}>
-              <SurveySelector
-                onSelectSurvey={onSelectReferralSurvey}
-                surveys={referralSurveys}
-                buttonText="Begin Referral"
-              />
-            </FormGrid>
-          </ProgramsPane>
-        </>
-      );
-    }
-
+  if (!referralSurvey) {
     return (
-      <SurveyView
-        onSubmit={onSubmit}
-        survey={referralSurvey}
-        onCancel={onCancelReferral}
-        patient={patient}
-        currentUser={currentUser}
+      <>
+        <PatientDisplay />
+        <ProgramsPane>
+          <ProgramsPaneHeader>
+            <ProgramsPaneHeading variant="h6">Select a referral</ProgramsPaneHeading>
+          </ProgramsPaneHeader>
+          <FormGrid columns={1}>
+            <SurveySelector
+              onSelectSurvey={onSelectReferralSurvey}
+              surveys={referralSurveys}
+              buttonText="Begin Referral"
+            />
+          </FormGrid>
+        </ProgramsPane>
+      </>
+    );
+  }
+
+  return (
+    <SurveyView
+      onSubmit={onSubmit}
+      survey={referralSurvey}
+      onCancel={onCancelReferral}
+      patient={patient}
+      currentUser={currentUser}
+    />
+  );
+};
+
+export const ReferralsView = () => {
+  const patient = useSelector(state => state.patient);
+  const currentUser = useSelector(getCurrentUser);
+  const dispatch = useDispatch();
+  if (!patient.id) {
+    return (
+      <DumbPatientListingView
+        onViewPatient={id => {
+          dispatch(reloadPatient(id));
+        }}
       />
     );
-  },
-);
-
-const ReferralFlow = connectApi(api => ({
-  onFetchReferralSurvey: id => api.get(`survey/${id}`),
-  onSubmitReferral: async data => api.post('referral', data),
-  fetchReferralSurveys: () => api.get(`survey`, { type: SURVEY_TYPES.REFERRAL }),
-}))(DumbReferralFlow);
-
-const DumbPatientLinker = React.memo(({ patient, patientId, onViewPatient, currentUser }) => {
-  if (!patientId) {
-    return <DumbPatientListingView onViewPatient={onViewPatient} />;
   }
 
   return <ReferralFlow patient={patient} currentUser={currentUser} />;
-});
-
-export const ReferralsView = connect(
-  state => ({
-    patientId: state.patient.id,
-    patient: state.patient,
-    currentUser: getCurrentUser(state),
-  }),
-  dispatch => ({
-    onViewPatient: id => dispatch(reloadPatient(id)),
-  }),
-)(DumbPatientLinker);
+};
