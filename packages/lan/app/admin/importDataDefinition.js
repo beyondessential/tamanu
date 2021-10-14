@@ -18,30 +18,50 @@ const referenceDataTransformer = type => item => {
     recordType: 'referenceData',
     data: {
       ...item,
-      code: (typeof code === 'number') ? `${code}` : code,
+      code: typeof code === 'number' ? `${code}` : code,
       type,
     },
   };
 };
 
 const patientDataTransformer = item => {
-  const {
-    dateOfBirth,
-    ...otherFields
-  } = item;
-  return {
-    recordType: 'patient',
-    data: {
-      dateOfBirth: dateOfBirth && getJsDateFromExcel(dateOfBirth),
-      ...otherFields,
+  const { dateOfBirth, id: patientId, patientAdditionalDataId, ...otherFields } = item;
+  const transformers = [
+    {
+      recordType: 'patient',
+      data: {
+        id: patientId,
+        dateOfBirth: dateOfBirth && getJsDateFromExcel(dateOfBirth),
+        ...otherFields,
+      },
     },
-  };
+  ];
+
+  if (patientAdditionalDataId) {
+    transformers.push({
+      recordType: `patientAdditionalData`,
+      channel: 'import/patientAdditionalData',
+      data: {
+        id: patientAdditionalDataId,
+        patientId,
+        ...otherFields,
+      },
+    });
+  }
+
+  return transformers;
 };
 
-const makeTransformer = (sheetName, transformer) => ({
-  sheetName,
-  transformer,
-});
+const makeTransformer = (sheetName, transformer) => {
+  if (Array.isArray(transformer)) {
+    return transformer.map(t => ({ sheetName, transformer: t }));
+  }
+
+  return {
+    sheetName,
+    transformer,
+  };
+};
 
 // define as an array so that we can make guarantees about order
 const transformers = [
@@ -83,11 +103,13 @@ export async function importData({ file, whitelist = [] }) {
 
   // parse xlsx
   const workbook = readFile(file);
-  const sheets = Object.entries(workbook.Sheets)
-    .reduce((group, [sheetName, sheet]) => ({
+  const sheets = Object.entries(workbook.Sheets).reduce(
+    (group, [sheetName, sheet]) => ({
       ...group,
       [sanitise(sheetName).toLowerCase()]: sheet,
-    }), {});
+    }),
+    {},
+  );
 
   // set up the importer
   const importSheet = (sheetName, transformer) => {
@@ -98,24 +120,34 @@ export async function importData({ file, whitelist = [] }) {
       .filter(item => Object.values(item).some(x => x))
       .map(item => {
         const transformed = transformer(item);
-        if(!transformed) return null;
+        if (!transformed) return null;
+
+        // transformer can return an object or an array of object
+        if (Array.isArray(transformed)) {
+          return transformed.map(t => ({
+            sheet: sheetName,
+            row: item.__rowNum__ + 1, // account for 0-based js vs 1-based excel
+            ...t,
+          }));
+        }
         return {
           sheet: sheetName,
-          row: (item.__rowNum__ + 1), // account for 0-based js vs 1-based excel
+          row: item.__rowNum__ + 1, // account for 0-based js vs 1-based excel
           ...transformed,
         };
-      });
+      })
+      .flat();
   };
 
   // figure out which transformers we're actually using
   const lowercaseWhitelist = whitelist.map(x => x.toLowerCase());
   const activeTransformers = transformers.filter(({ sheetName, transformer }) => {
-    if(!transformer) return false;
-    if(whitelist.length > 0 && !lowercaseWhitelist.includes(sheetName.toLowerCase())) {
+    if (!transformer) return false;
+    if (whitelist.length > 0 && !lowercaseWhitelist.includes(sheetName.toLowerCase())) {
       return false;
     }
     const sheet = sheets[sheetName.toLowerCase()];
-    if(!sheet) return false;
+    if (!sheet) return false;
 
     return true;
   });
