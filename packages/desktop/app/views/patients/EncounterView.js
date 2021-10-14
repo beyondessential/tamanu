@@ -43,11 +43,20 @@ import { useEncounter } from '../../contexts/Encounter';
 const getIsTriage = encounter => ENCOUNTER_OPTIONS_BY_VALUE[encounter.encounterType].triageFlowOnly;
 
 const VitalsPane = React.memo(({ encounter, readonly }) => {
-  const [modalOpen, setModalOpen] = React.useState(false);
+  const [modalOpen, setModalOpen] = useState(false);
+  const { loadEncounter } = useEncounter();
 
   return (
     <div>
-      {modalOpen && <VitalsModal encounterId={encounter.id} onClose={() => setModalOpen(false)} />}
+      <VitalsModal
+        open={modalOpen}
+        encounterId={encounter.id}
+        onClose={() => setModalOpen(false)}
+        onSaved={async () => {
+          setModalOpen(false);
+          await loadEncounter(encounter.id);
+        }}
+      />
       <VitalsTable />
       <ContentPane>
         <Button
