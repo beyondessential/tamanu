@@ -140,7 +140,8 @@ const ImagingPane = React.memo(({ encounter, readonly }) => {
 });
 
 const MedicationPane = React.memo(({ encounter, readonly }) => {
-  const [modalOpen, setModalOpen] = React.useState(false);
+  const [modalOpen, setModalOpen] = useState(false);
+  const { loadEncounter } = useEncounter();
 
   return (
     <div>
@@ -148,6 +149,10 @@ const MedicationPane = React.memo(({ encounter, readonly }) => {
         open={modalOpen}
         encounterId={encounter.id}
         onClose={() => setModalOpen(false)}
+        onSaved={async () => {
+          setModalOpen(false);
+          await loadEncounter(encounter.id);
+        }}
       />
       <EncounterMedicationTable encounterId={encounter.id} />
       <ContentPane>
