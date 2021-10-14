@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React from 'react';
 import styled from 'styled-components';
 import { ButtonGroup, Typography } from '@material-ui/core';
 
@@ -21,31 +21,28 @@ const FilterSwitch = styled(ButtonGroup)`
   margin-top: 0.5rem;
 `;
 
-export const FilterPane = () => {
-  const filters = ['Locations', 'Clinicians'];
-
-  const [activeFilter, setActiveFilter] = useState(0);
-
+export const FilterPane = ({ filters, activeFilter, setActiveFilter }) => {
+  const active = filters.find(filter => filter.name === activeFilter);
   return (
     <>
       <ViewCalendarBy>
         <Typography variant="subtitle2">View calendar by:</Typography>
         <FilterSwitch>
-          {filters.map((filter, index) => (
+          {filters.map(filter => (
             <Button
-              color={index === activeFilter ? 'primary' : null}
-              variant={index === activeFilter ? 'contained' : null}
+              color={filter.name === activeFilter ? 'primary' : null}
+              variant={filter.name === activeFilter ? 'contained' : null}
               onClick={() => {
-                setActiveFilter(index);
+                setActiveFilter(filter.name);
               }}
             >
-              {filter}
+              {filter.text}
             </Button>
           ))}
         </FilterSwitch>
       </ViewCalendarBy>
       <ViewBySelection>
-        <Typography variant="subtitle2">{filters[activeFilter]}</Typography>
+        <Typography variant="subtitle2">{active.text}</Typography>
       </ViewBySelection>
     </>
   );

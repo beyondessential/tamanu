@@ -1,9 +1,7 @@
-import React, { useState, useEffect } from 'react';
+import React from 'react';
 import styled from 'styled-components';
-import { startOfDay, endOfDay } from 'date-fns';
 import { Colors } from '../../constants';
 import { Appointment } from './Appointment';
-import { useApi } from '../../api';
 
 const Column = ({ header, appointments }) => {
   const appointmentsByStartTime = [...appointments].sort((a, b) => a.startTime - b.startTime);
@@ -19,37 +17,17 @@ const Column = ({ header, appointments }) => {
   );
 };
 
-export const DailySchedule = ({ date }) => {
-  const api = useApi();
-  const [appointments, setAppointments] = useState([]);
-  useEffect(() => {
-    (async () => {
-      const { data } = await api.get(
-        `/appointments?after=${encodeURIComponent(
-          startOfDay(date).toISOString(),
-        )}&before=${encodeURIComponent(endOfDay(date).toISOString())}`,
-      );
-      setAppointments(data);
-    })();
-  }, [date]);
-  const byLocation = appointments.reduce(
-    (locations, appointment) => ({
-      ...locations,
-      [appointment.locationId]: [...(locations[appointment.locationId] || []), appointment],
-    }),
-    {},
-  );
-  return (
-    <Container>
-      {Object.entries(byLocation).map(([locationId]) => {
-        const location = byLocation[locationId][0].location;
-        return (
-          <Column key={locationId} header={location?.name} appointments={byLocation[locationId]} />
-        );
-      })}
-    </Container>
-  );
-};
+export const DailySchedule = ({ appointments, activeFilter }) => (
+  <Container>
+    {Object.entries(appointments).map(([filterValue, filteredAppointments]) => {
+      const firstAppointment = filteredAppointments[0];
+      const filterObject = firstAppointment[activeFilter];
+      // location has name, while clinician has displayName;
+      const title = filterObject.name || filterObject.displayName;
+      return <Column key={filterValue} header={title} appointments={filteredAppointments} />;
+    })}
+  </Container>
+);
 
 const Container = styled.div`
   display: flex;

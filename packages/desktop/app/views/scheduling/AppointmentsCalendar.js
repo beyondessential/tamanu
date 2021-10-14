@@ -1,6 +1,6 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import styled from 'styled-components';
-import { format, add } from 'date-fns';
+import { format, add, startOfDay, endOfDay } from 'date-fns';
 
 import { PageContainer, TopBar } from '../../components';
 import { TwoColumnDisplay } from '../../components/TwoColumnDisplay';
@@ -9,6 +9,7 @@ import { FilterPane } from '../../components/Appointments/FilterPane';
 import { NewAppointmentButton } from '../../components/Appointments/NewAppointmentButton';
 import { BackButton, ForwardButton, Button } from '../../components/Button';
 import { Colors } from '../../constants';
+import { useApi } from '../../api';
 
 const Container = styled.div`
   min-height: 100vh;
@@ -36,12 +37,48 @@ const CalendarContainer = styled.div`
 
 export const AppointmentsCalendar = () => {
   const [date, setDate] = useState(new Date());
+  const [activeFilter, setActiveFilter] = useState('location');
+  const filters = [
+    {
+      name: 'location',
+      property: 'locationId',
+      text: 'Locations',
+    },
+    {
+      name: 'clinician',
+      property: 'clinicianId',
+      text: 'Clinicians',
+    },
+  ];
+  const api = useApi();
+  const [appointments, setAppointments] = useState([]);
+  useEffect(() => {
+    (async () => {
+      const { data } = await api.get(
+        `/appointments?after=${encodeURIComponent(
+          startOfDay(date).toISOString(),
+        )}&before=${encodeURIComponent(endOfDay(date).toISOString())}`,
+      );
+      setAppointments(data);
+    })();
+  }, [date]);
+  const appointmentGroups = appointments.reduce(
+    (acc, appointment) => ({
+      ...acc,
+      [appointment[activeFilter].id]: [...(acc[appointment[activeFilter].id] || []), appointment],
+    }),
+    {},
+  );
   return (
     <PageContainer>
       <TwoColumnDisplay>
         <Container>
           <TopBar title="Calendar" />
-          <FilterPane />
+          <FilterPane
+            filters={filters}
+            activeFilter={activeFilter}
+            setActiveFilter={setActiveFilter}
+          />
         </Container>
         <div>
           <TopBar>
@@ -77,7 +114,7 @@ export const AppointmentsCalendar = () => {
             />
           </TopBar>
           <CalendarContainer>
-            <DailySchedule date={date} />
+            <DailySchedule appointments={appointmentGroups} activeFilter={activeFilter} />
           </CalendarContainer>
         </div>
       </TwoColumnDisplay>
