@@ -48,7 +48,7 @@ export const NewAppointmentForm = props => {
             />
             <FormSeparatorLine />
             <Field
-              label="Appointment Type"
+              label="Appointment type"
               name="appointmentType"
               component={SelectField}
               options={appointmentTypeOptions}
@@ -56,8 +56,8 @@ export const NewAppointmentForm = props => {
           </FormGrid>
           <div style={{ marginTop: '1rem' }}>
             <FormGrid>
-              <Field label="Start Time" name="startTime" component={DateTimeField} />
-              <Field label="End Time" name="endTime" component={DateTimeField} />
+              <Field label="Start time" name="startTime" component={DateTimeField} />
+              <Field label="End time" name="endTime" component={DateTimeField} />
               <Field
                 label="Clinician"
                 name="clinicianId"
@@ -74,7 +74,7 @@ export const NewAppointmentForm = props => {
               <ConfirmCancelRow
                 onCancel={onCancel}
                 onConfirm={submitForm}
-                confirmText="Schedule Appointment"
+                confirmText="Schedule appointment"
               />
             </FormGrid>
           </div>

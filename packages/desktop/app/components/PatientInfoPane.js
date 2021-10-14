@@ -105,9 +105,9 @@ const CarePlanDisplay = memo(({ patient, readonly }) => (
     Form={PatientCarePlanForm}
     getName={({ carePlan }) => carePlan.name}
     behavior="modal"
-    itemTitle="Care Plan"
+    itemTitle="Care plan"
     CustomEditForm={PatientCarePlanDetails}
-    getEditFormName={({ carePlan }) => `Care Plan: ${carePlan.name}`}
+    getEditFormName={({ carePlan }) => `Care plan: ${carePlan.name}`}
   />
 ));
 

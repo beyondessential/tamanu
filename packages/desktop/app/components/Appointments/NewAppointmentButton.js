@@ -13,7 +13,7 @@ export const NewAppointmentButton = ({ onSuccess }) => {
           setOpenModal(true);
         }}
       >
-        New Appointment
+        New appointment
       </Button>
       <NewAppointmentModal
         open={openModal}

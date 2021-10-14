@@ -65,7 +65,7 @@ const DumbTriageModal = React.memo(({ open, patient, onClose, ...rest }) => {
     <Modal title="New Emergency Triage" open={open} width="md" onClose={onClose}>
       <PatientDetails>
         <Header>
-          <span>Patient Details</span>
+          <span>Patient details</span>
           <DisplayIdLabel>{displayId}</DisplayIdLabel>
         </Header>
         <div>
