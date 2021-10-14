@@ -22,7 +22,7 @@
   "dependencies": {
     "@beyondessential/eslint-config-beyondessential": "2.3.0",
     "@casl/ability": "^3.0.0",
-    "@tupaia/api-client": "^2.0.6",
+    "@tupaia/api-client": "2.1.0",
     "await-to-js": "^2.0.1",
     "babel-jest": "^24.5.0",
     "bcrypt": "^3.0.1",
