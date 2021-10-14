@@ -128,7 +128,7 @@ export const PatientEncounterSummary = ({ viewEncounter, openCheckin, openTriage
     <Grid encounterType={encounterType} onClick={() => viewEncounter(id)}>
       <Header>
         <HeaderInfo>
-          <SubTitle>Current Admission</SubTitle>
+          <SubTitle>Current admission</SubTitle>
           <div>
             <Icon className="fas fa-map-marker-alt" /> <Label>Location: </Label>
             <Text>{location ? location.name : '-'}</Text>
@@ -146,14 +146,14 @@ export const PatientEncounterSummary = ({ viewEncounter, openCheckin, openTriage
           <Label>Reason for encounter: </Label> <Text>{reasonForEncounter}</Text>
         </div>
         <ContentColumn>
-          <Label>Arrival Date</Label>
+          <Label>Arrival date</Label>
           <Text>
             <DateDisplay date={startDate} />
           </Text>
         </ContentColumn>
 
         <ContentColumn>
-          <Label>Supervising Doctor/Nurse</Label>
+          <Label>Supervising doctor/nurse</Label>
           <Text>{examiner ? examiner.displayName : '-'}</Text>
         </ContentColumn>
       </Content>

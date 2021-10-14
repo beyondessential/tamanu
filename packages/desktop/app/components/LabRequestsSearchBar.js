@@ -39,7 +39,7 @@ export const LabRequestsSearchBar = props => {
   const { searchParameters, setSearchParameters } = useLabRequest();
   return (
     <CustomisablePatientSearchBar
-      title="Search Lab Requests"
+      title="Search lab requests"
       fields={[
         ['firstName'],
         ['lastName'],

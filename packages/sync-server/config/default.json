@@ -194,8 +194,8 @@
           "hidden": false
         },
         "subdivisionId": {
-          "shortLabel": "Sub Division",
-          "longLabel": "Sub Division",
+          "shortLabel": "Sub division",
+          "longLabel": "Sub division",
           "hidden": false
         },
         "divisionId": {

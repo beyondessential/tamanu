@@ -216,7 +216,7 @@ const DumbReportGeneratorForm = ({ currentUser, onSuccessfulSubmit }) => {
           <FormGrid columns={3}>
             <Field
               name="reportType"
-              label="Report Type"
+              label="Report type"
               component={ReportTypeField}
               options={reportOptions}
               required

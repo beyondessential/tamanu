@@ -20,7 +20,7 @@ const getClinicalStatusCellColor = ({ clinicalStatus }) =>
 const COLUMNS = [
   {
     key: 'clinicalStatus',
-    title: 'Clinical Status',
+    title: 'Clinical status',
     cellColor: getClinicalStatusCellColor,
     accessor: row => <PriorityDisplay clinicalStatus={row.clinicalStatus} />,
   },
