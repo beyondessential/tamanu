@@ -46,7 +46,7 @@ const createManager = (): ({
   // instantiate SyncManager
   const syncManager = new SyncManager(mockedSource, mockedLocalisation, { verbose: false });
   expect(MockedWebSyncSource).toHaveBeenCalledTimes(1);
-  expect(MockedWebSyncSource).toHaveBeenCalledTimes(1);
+  expect(MockedLocalisationService).toHaveBeenCalledTimes(1);
 
   // mock commonly called methods
   mockedLocalisation.getArrayOfStrings.mockReturnValue([]);
@@ -216,6 +216,57 @@ describe('SyncManager', () => {
   });
 
   describe('exportAndUpload', () => {
+    it("doesn't let models set markedForUpload midway through an upload", async () => {
+      const { Patient } = Database.models;
+
+      // arrange
+      const oldPatient = await Patient.createAndSaveOne<Patient>(fake(Patient));
+      const { syncManager, mockedSource } = createManager();
+
+      let startFetch: () => void | null = null;
+      const startFetchPromise = new Promise(resolve => {
+        startFetch = resolve;
+      });
+      let finishFetch: () => void | null = null;
+      mockedSource
+        .uploadRecords
+        .mockImplementationOnce(async () => {
+          const finishFetchPromise = new Promise(resolve => {
+            finishFetch = resolve;
+          });
+          startFetch();
+          await finishFetchPromise;
+          return { data: { requestedAt: new Date().toISOString() } };
+        })
+        .mockImplementation(() => ({
+          data: {
+            requestedAt: new Date().toISOString()
+          }
+        }));
+
+      // act
+      // 1. start export
+      const managerPromise = syncManager.exportAndUpload(Patient, 'patient');
+
+      // 2. wait until syncManager calls uploadRecords, e.g. the network request is sent
+      await startFetchPromise;
+
+      // 3. mark patient for save
+      oldPatient.firstName = 'Bob';
+      const savePromise = oldPatient.save();
+
+      // 4. finish the network request
+      finishFetch();
+
+      // 5. wait for both to complete
+      await Promise.all([managerPromise, savePromise]);
+
+      // assert
+      const newPatient = await Patient.findOne({ id: oldPatient.id });
+      expect(newPatient).toHaveProperty('firstName', 'Bob');
+      expect(newPatient).toHaveProperty('markedForUpload', true);
+    });
+
     describe('encounters', () => {
       let patient: IPatient;
       let scheduledVaccine: IScheduledVaccine;
