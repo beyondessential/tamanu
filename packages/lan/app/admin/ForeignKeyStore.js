@@ -1,21 +1,11 @@
 import { ValidationError } from 'yup';
-
+import { keyBy } from 'lodash';
 export class ForeignKeyStore {
-
   // Records should be an array of sync records, ie:
   // { recordType: 'foo', data: { id: 'bar', ...otherData }, ...otherMetadata }
   constructor(records) {
     this.records = records;
-    this.recordsById = records.reduce(
-      (all, current) => { 
-        const { id } = current.data;
-        return {
-          ...all,
-          [id]: all[id] || current,
-        };
-      },
-      {}
-    );
+    this.recordsById = keyBy(records, r => r.data.id);
   }
 
   getRecord(recordId) {

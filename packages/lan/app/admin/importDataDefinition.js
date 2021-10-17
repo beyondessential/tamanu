@@ -123,18 +123,11 @@ export async function importData({ file, whitelist = [] }) {
         if (!transformed) return null;
 
         // transformer can return an object or an array of object
-        if (Array.isArray(transformed)) {
-          return transformed.map(t => ({
-            sheet: sheetName,
-            row: item.__rowNum__ + 1, // account for 0-based js vs 1-based excel
-            ...t,
-          }));
-        }
-        return {
+        return [transformed].flat().map(t => ({
           sheet: sheetName,
           row: item.__rowNum__ + 1, // account for 0-based js vs 1-based excel
-          ...transformed,
-        };
+          ...t,
+        }));
       })
       .flat();
   };
