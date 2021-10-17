@@ -1,3 +1,4 @@
+import { pascal } from 'case';
 import express from 'express';
 import asyncHandler from 'express-async-handler';
 import { QueryTypes } from 'sequelize';
@@ -66,6 +67,12 @@ function createSuggester(endpoint, modelName, whereSql, mapper = defaultMapper) 
   );
 }
 
+const createNameSuggester = (endpoint, modelName = pascal(endpoint)) =>
+  createSuggester(endpoint, modelName, 'LOWER(name) LIKE LOWER(:search)', ({ id, name }) => ({
+    id,
+    name,
+  }));
+
 REFERENCE_TYPE_VALUES.map(typeName =>
   createSuggester(
     typeName,
@@ -73,6 +80,10 @@ REFERENCE_TYPE_VALUES.map(typeName =>
     `LOWER(name) LIKE LOWER(:search) AND type = '${typeName}'`,
   ),
 );
+
+createNameSuggester('department');
+createNameSuggester('location');
+createNameSuggester('facility');
 
 createSuggester(
   'practitioner',
@@ -82,4 +93,11 @@ createSuggester(
     id,
     name: displayName,
   }),
+);
+
+createSuggester(
+  'patient',
+  'Patient',
+  'LOWER(first_name) LIKE LOWER(:search) OR LOWER(first_name) LIKE LOWER(:search) OR LOWER(last_name) LIKE LOWER(:search) OR LOWER(cultural_name) LIKE LOWER(:search)',
+  patient => patient,
 );

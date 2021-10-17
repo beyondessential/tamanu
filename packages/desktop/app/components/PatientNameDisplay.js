@@ -1,5 +1,5 @@
 import React from 'react';
 
-export const PatientNameDisplay = ({ patient }) => (
-  <span>{`${patient.firstName} ${patient.lastName}`}</span>
-);
+export const getPatientNameAsString = ({ firstName, lastName }) => `${firstName} ${lastName}`;
+
+export const PatientNameDisplay = ({ patient }) => <span>{getPatientNameAsString(patient)}</span>;

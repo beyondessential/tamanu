@@ -30,12 +30,14 @@ import { immunisation } from './immunisation';
 import { reports } from './reports';
 import { reportRequest } from './reportRequest';
 import { patientCarePlan } from './patientCarePlan';
+import { appointments } from './appointments';
 import { resetPassword } from './resetPassword';
 import { changePassword } from './changePassword';
 
 import { admin } from './admin';
 import { setting } from './setting';
 import { asset } from './asset';
+import { department } from './department';
 import { location } from './location';
 import { attachment } from './attachment';
 import { scheduledVaccine } from './scheduledVaccine';
@@ -81,6 +83,7 @@ apiv1.use('/surveyResponse', surveyResponse);
 apiv1.use('/reports', reports);
 apiv1.use('/reportRequest', reportRequest);
 apiv1.use('/patientCarePlan', patientCarePlan);
+apiv1.use('/appointments', appointments);
 
 apiv1.use('/admin', admin);
 
@@ -88,6 +91,7 @@ apiv1.use('/setting', setting);
 
 apiv1.use('/asset', asset);
 
+apiv1.use('/department', department);
 apiv1.use('/location', location);
 
 apiv1.use('/attachment', attachment);

@@ -1,9 +1,17 @@
-import { Sequelize, ValidationError } from 'sequelize';
+import { Sequelize } from 'sequelize';
 import { SYNC_DIRECTIONS } from 'shared/constants';
+import { InvalidOperationError } from 'shared/errors';
 import { Model } from './Model';
 
 export class Location extends Model {
   static init({ primaryKey, ...options }) {
+    const validate = {
+      mustHaveFacility() {
+        if (!this.deletedAt && !this.facilityId) {
+          throw new InvalidOperationError('A location must have a facility.');
+        }
+      },
+    };
     super.init(
       {
         id: primaryKey,
@@ -18,6 +26,7 @@ export class Location extends Model {
       },
       {
         ...options,
+        validate,
         syncConfig: { syncDirection: SYNC_DIRECTIONS.PULL_ONLY },
         indexes: [{ unique: true, fields: ['code'] }],
       },
@@ -25,23 +34,15 @@ export class Location extends Model {
   }
 
   static initRelations(models) {
-    this.belongsTo(models.ReferenceData, {
-      foreignKey: 'facilityId',
-      as: 'facility',
+    this.hasMany(models.Encounter, {
+      foreignKey: 'locationId',
     });
-  }
+    this.hasMany(models.Procedure, {
+      foreignKey: 'locationId',
+    });
 
-  static async create(values) {
-    const { facilityId } = values;
-    const existingFacility = await this.sequelize.models.ReferenceData.findOne({
-      where: {
-        id: facilityId,
-        type: 'facility',
-      },
+    this.belongsTo(models.Facility, {
+      foreignKey: 'facilityId',
     });
-    if (!existingFacility) {
-      throw new ValidationError(`Invalid facilityId: ${facilityId}`);
-    }
-    return super.create(values);
   }
 }

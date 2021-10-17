@@ -1,4 +1,4 @@
-import { splitIds } from './splitIds';
+import { splitIds } from './utilities';
 
 export const ALLERGIES = splitIds(`
   Penicillin

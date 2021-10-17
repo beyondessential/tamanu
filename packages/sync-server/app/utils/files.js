@@ -45,7 +45,11 @@ export async function createZipFromFile(fileName, filePath, zipFilePath) {
   const zip = new JSZip();
   //write the file into zip
   zip.file(fileName, fileContent);
-  const zipContent = await zip.generateAsync({ type: encoding });
+  const zipContent = await zip.generateAsync({
+    type: encoding,
+    compression: 'DEFLATE',
+    compressionOptions: { level: 9 },
+  });
   await fs.promises.writeFile(zipFilePath, zipContent, { encoding });
 }
 

@@ -1,6 +1,6 @@
 import React from 'react';
 import { connect } from 'react-redux';
-import { ApiContext } from './singletons';
+import { ApiContext } from './index';
 
 export const connectApi = mapApiToProps => WrappedComponent =>
   connect(dispatch => ({ dispatch }))(({ dispatch, ...ownProps }) => (

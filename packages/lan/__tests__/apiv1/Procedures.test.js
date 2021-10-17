@@ -1,8 +1,8 @@
-import { createDummyPatient, createDummyEncounter, randomReferenceId } from 'shared/demoData/patients';
+import { createDummyPatient, createDummyEncounter, randomRecordId } from 'shared/demoData';
 import { createTestContext } from '../utilities';
 
 async function createDummyProcedure(models) {
-  const locationId = await randomReferenceId(models, 'location');
+  const locationId = await randomRecordId(models, 'Location');
   return {
     note: '',
     date: new Date(),

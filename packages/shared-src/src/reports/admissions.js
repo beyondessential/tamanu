@@ -56,8 +56,8 @@ async function queryAdmissionsData(models, parameters) {
         include: [{ model: models.ReferenceData, as: 'village' }],
       },
       { model: models.User, as: 'examiner' },
-      { model: models.ReferenceData, as: 'location' },
-      { model: models.ReferenceData, as: 'department' },
+      { model: models.Location, as: 'location' },
+      { model: models.Department, as: 'department' },
     ],
     where: parametersToSqlWhere(parameters),
   });

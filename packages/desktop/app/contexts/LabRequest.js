@@ -1,7 +1,7 @@
 import React, { useContext, createContext, useState } from 'react';
 import { push } from 'connected-react-router';
 
-import { ApiContext } from '../api/singletons';
+import { useApi } from '../api';
 
 const LabRequestContext = createContext({
   labRequest: {},
@@ -13,8 +13,9 @@ export const useLabRequest = () => useContext(LabRequestContext);
 export const LabRequestProvider = ({ store, children }) => {
   const [labRequest, setLabRequest] = useState({});
   const [isLoading, setIsLoading] = useState(false);
+  const [searchParameters, setSearchParameters] = useState({});
 
-  const api = useContext(ApiContext);
+  const api = useApi();
 
   const viewLabRequest = () => {
     store.dispatch(push('/patients/encounter/labRequest'));
@@ -52,6 +53,8 @@ export const LabRequestProvider = ({ store, children }) => {
         viewLabRequest,
         updateLabRequest,
         updateLabTest,
+        searchParameters,
+        setSearchParameters,
       }}
     >
       {children}
