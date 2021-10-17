@@ -11,6 +11,7 @@ import { serversRouter } from './servers';
 import { version } from '../package.json';
 
 const isDevelopment = process.env.NODE_ENV === 'development';
+const tinyPlusIp = `:remote-addr :method :url :status :res[content-length] - :response-time ms`
 
 export function createApp() {
   // Init our app
@@ -26,7 +27,7 @@ export function createApp() {
   });
 
   app.use(
-    morgan(isDevelopment ? 'dev' : 'tiny', {
+    morgan(isDevelopment ? 'dev' : tinyPlusIp, {
       stream: {
         write: message => log.info(message),
       },
