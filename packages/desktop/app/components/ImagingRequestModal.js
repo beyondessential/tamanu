@@ -1,6 +1,5 @@
 import React, { useCallback } from 'react';
-import { push } from 'connected-react-router';
-import shortid from 'shortid';
+import { customAlphabet } from 'nanoid'
 
 import { Modal } from './Modal';
 import { Suggester } from '../utils/suggester';
@@ -9,6 +8,9 @@ import { useEncounter } from '../contexts/Encounter';
 import { connectApi } from '../api/connectApi';
 
 import { ImagingRequestForm } from '../forms/ImagingRequestForm';
+
+// generates 8 character id (while excluding 0, O, I, 1 and L)
+const configureCustomRequestId = () => customAlphabet('ABCDEFGHIJKMNPQRSTUVWXYZ23456789', 8);
 
 const DumbImagingRequestModal = React.memo(
   ({ open, encounter, practitionerSuggester, imagingTypeSuggester, onClose, onSubmit }) => {
@@ -19,6 +21,8 @@ const DumbImagingRequestModal = React.memo(
       onClose();
     }, []);
 
+    const generateDisplayId = configureCustomRequestId();
+
     return (
       <Modal width="md" title="New imaging request" open={open} onClose={onClose}>
         <ImagingRequestForm
@@ -27,7 +31,7 @@ const DumbImagingRequestModal = React.memo(
           encounter={encounter}
           practitionerSuggester={practitionerSuggester}
           imagingTypeSuggester={imagingTypeSuggester}
-          generateId={shortid.generate}
+          generateId={generateDisplayId}
         />
       </Modal>
     );
