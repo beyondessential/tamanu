@@ -1,21 +1,16 @@
 import React, {
-  useMemo,
-  useRef,
   useCallback,
   ReactElement,
   useState,
 } from 'react';
 import { useSelector } from 'react-redux';
 import { useNavigation } from '@react-navigation/native';
-import { SurveyScreen } from '../SurveyScreen';
-import { StyledText, StyledView, FullView } from '~/ui/styled/common';
+import { FullView } from '~/ui/styled/common';
 import { LoadingScreen } from '~/ui/components/LoadingScreen';
 import { ErrorScreen } from '~/ui/components/ErrorScreen';
 import { SurveyResponseScreenProps } from '/interfaces/screens/ProgramsStack/SurveyResponseScreen';
 import { Routes } from '/helpers/routes';
 import { SurveyForm } from '~/ui/components/Forms/SurveyForm';
-
-import { ISurveyScreenComponent } from '~/types/ISurvey';
 
 import { useBackend, useBackendEffect } from '~/ui/hooks';
 import { SurveyTypes } from '~/types';
@@ -30,7 +25,7 @@ export const SurveyResponseScreen = ({
   const selectedPatientId = selectedPatient.id;
   const navigation = useNavigation();
 
-  const [note, setNote] = useState("Waiting for submission attempt.");
+  const [note, setNote] = useState('Waiting for submission attempt.');
 
   const [survey, surveyError] = useBackendEffect(
     ({ models }) => models.Survey.getRepository().findOne(surveyId),
@@ -38,7 +33,7 @@ export const SurveyResponseScreen = ({
 
   const [components, componentsError] = useBackendEffect(
     () => survey && survey.getComponents(),
-    [survey]
+    [survey],
   );
 
   const user = useSelector(authUserSelector);
@@ -60,8 +55,8 @@ export const SurveyResponseScreen = ({
         setNote,
       );
 
-      if(!response) return;
-      if(isReferral) {
+      if (!response) return;
+      if (isReferral) {
         navigation.navigate(
           Routes.HomeStack.ProgramStack.ReferralTabs.ViewHistory,
           {
@@ -70,7 +65,7 @@ export const SurveyResponseScreen = ({
           },
         );
         return;
-      };
+      }
 
       navigation.navigate(
         Routes.HomeStack.ProgramStack.ProgramTabs.ViewHistory,
@@ -99,7 +94,6 @@ export const SurveyResponseScreen = ({
     <ErrorBoundary resetRoute={Routes.HomeStack.ProgramStack.ProgramListScreen}>
       <FullView>
         <SurveyForm
-          survey={survey}
           patient={selectedPatient}
           note={note}
           components={components}
@@ -108,5 +102,4 @@ export const SurveyResponseScreen = ({
       </FullView>
     </ErrorBoundary>
   );
-
 };

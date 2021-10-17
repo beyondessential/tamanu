@@ -19,6 +19,8 @@ export const Routes = {
     RegisterAccountStep2: '',
     RegisterAccountStep3: '',
     SignIn: '',
+    ResetPassword: '',
+    ChangePassword: '',
   },
   HomeStack: {
     Index: '',

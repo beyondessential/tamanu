@@ -11,17 +11,18 @@ import {
 import { startOfDay, addHours, subDays } from 'date-fns';
 import { getUniqueId } from 'react-native-device-info';
 import { BaseModel, FindMarkedForUploadOptions } from './BaseModel';
-import { IEncounter, EncounterType, ReferenceDataType } from '~/types';
+import { IEncounter, EncounterType } from '~/types';
 import { Patient } from './Patient';
 import { Diagnosis } from './Diagnosis';
 import { Medication } from './Medication';
-import { ReferenceData, ReferenceDataRelation } from './ReferenceData';
 import { User } from './User';
 import { AdministeredVaccine } from './AdministeredVaccine';
 import { SurveyResponse } from './SurveyResponse';
 import { Vitals } from './Vitals';
 import { formatDateForQuery } from '~/infra/db/helpers';
 import { SummaryInfo } from '~/ui/navigation/screens/home/Tabs/PatientHome/ReportScreen/SummaryBoard';
+import { Department } from './Department';
+import { Location } from './Location';
 import { Referral } from './Referral';
 import { LabRequest } from './LabRequest';
 
@@ -42,7 +43,7 @@ export class Encounter extends BaseModel implements IEncounter {
   reasonForEncounter?: string;
 
   @Index()
-  @ManyToOne(() => Patient, (patient) => patient.encounters, { eager: true })
+  @ManyToOne(() => Patient, patient => patient.encounters, { eager: true })
   patient: Patient;
 
   @RelationId(({ patient }) => patient)
@@ -61,15 +62,17 @@ export class Encounter extends BaseModel implements IEncounter {
   @Column({ nullable: true })
   deviceId?: string;
 
-  @ReferenceDataRelation()
-  department: ReferenceData;
-  @RelationId(({ department }) => department)
-  departmentId?: string;
+  @ManyToOne(() => Department)
+  department: Department;
 
-  @ReferenceDataRelation()
-  location: ReferenceData;
+  @RelationId(({ department }) => department)
+  departmentId: string;
+
+  @ManyToOne(() => Location)
+  location: Location;
+
   @RelationId(({ location }) => location)
-  locationId?: string;
+  locationId: string;
 
   @OneToMany(() => LabRequest, (labRequest) => labRequest.encounter)
   labRequests: LabRequest[];
@@ -83,15 +86,15 @@ export class Encounter extends BaseModel implements IEncounter {
   medications: Medication[];
 
   @OneToMany(() => Referral, referral => referral.initiatingEncounter)
-  initiatedReferrals: Referral[]
+  initiatedReferrals: Referral[];
 
   @OneToMany(() => Referral, referral => referral.completingEncounter)
-  completedReferrals: Referral[]
+  completedReferrals: Referral[];
 
   @OneToMany(() => AdministeredVaccine, administeredVaccine => administeredVaccine.encounter)
-  administeredVaccines: AdministeredVaccine[]
+  administeredVaccines: AdministeredVaccine[];
 
-  @OneToMany(() => SurveyResponse, (surveyResponse) => surveyResponse.encounter)
+  @OneToMany(() => SurveyResponse, surveyResponse => surveyResponse.encounter)
   surveyResponses: SurveyResponse[];
 
   @OneToMany(() => Vitals, ({ encounter }) => encounter)
@@ -125,11 +128,8 @@ export class Encounter extends BaseModel implements IEncounter {
       endDate: null,
       encounterType: EncounterType.Clinic,
       reasonForEncounter: '',
-      department: (
-        await ReferenceData.getAnyOfType(ReferenceDataType.Department)
-      ).id,
-      location: (await ReferenceData.getAnyOfType(ReferenceDataType.Location))
-        .id,
+      department: (await Department.findOne()).id,
+      location: (await Location.findOne()).id,
       deviceId: getUniqueId(),
       ...createdEncounterOptions,
     });
@@ -154,13 +154,12 @@ export class Encounter extends BaseModel implements IEncounter {
       .addSelect('count(distinct encounter.patientId)', 'totalEncounters')
       .addSelect('count(sr.id)', 'totalSurveys')
       .leftJoin(
-        (subQuery) => subQuery
-          .select('surveyResponse.id', 'id')
-          .addSelect('surveyResponse.encounterId', 'encounterId')
-          .from('survey_response', 'surveyResponse')
-          .where(
-            'surveyResponse.surveyId = :surveyId',
-            { surveyId }),
+        subQuery =>
+          subQuery
+            .select('surveyResponse.id', 'id')
+            .addSelect('surveyResponse.encounterId', 'encounterId')
+            .from('survey_response', 'surveyResponse')
+            .where('surveyResponse.surveyId = :surveyId', { surveyId }),
         'sr',
         '"sr"."encounterId" = encounter.id',
       )

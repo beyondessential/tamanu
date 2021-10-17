@@ -1,11 +1,15 @@
 import React, { FC, useMemo } from 'react';
-import { Formik } from 'formik';
+import * as Yup from 'yup';
 import { VaccineFormNotGiven } from './VaccineFormNotGiven';
 import { VaccineFormGiven } from './VaccineFormGiven';
-import { FullView } from '/styled/common';
+import { SubmitButton } from '../SubmitButton';
+import { FullView, RowView } from '/styled/common';
+import { theme } from '/styled/theme';
 import { VaccineStatus } from '~/ui/helpers/patient';
+import { Orientation, screenPercentageToDP } from '/helpers/screen';
 import { InjectionSiteType } from '~/types';
-import * as Yup from 'yup';
+import { Form } from '../Form';
+import { Button } from '/components/Button';
 
 const getFormType = (status: VaccineStatus): { Form: FC<any> } => {
   switch (status) {
@@ -18,23 +22,18 @@ const getFormType = (status: VaccineStatus): { Form: FC<any> } => {
   }
 };
 
-export type SubmitButtonsProps = {
-  onSubmit: (values: any) => void;
-  onCancel: () => void;
-};
 export type VaccineFormValues = {
   date: Date;
   reason?: string;
   batch?: string;
   injectionSite?: InjectionSiteType;
-  scheduledVaccineId?: string,  
+  scheduledVaccineId?: string;
   status: VaccineStatus;
 };
 interface VaccineForm {
   status: VaccineStatus;
   initialValues: VaccineFormValues;
-  onSubmit: (values: VaccineFormValues) => void;
-  SubmitButtons?: FC<SubmitButtonsProps>;
+  onSubmit: (values: VaccineFormValues) => Promise<void>;
   onCancel: () => void;
 }
 
@@ -54,31 +53,43 @@ export const VaccineForm = ({
   status,
   onSubmit,
   onCancel,
-  SubmitButtons,
 }: VaccineForm): JSX.Element => {
-  const { Form } = useMemo(() => getFormType(status), [status]);
+  const { Form: StatusForm } = useMemo(() => getFormType(status), [status]);
   return (
     <FullView>
-      <Formik
+      <Form
         onSubmit={onSubmit}
         validationSchema={Yup.object().shape({
-            date: Yup.date().required(),
+          date: Yup.date().required(),
         })}
         initialValues={createInitialValues({ ...initialValues, status })}
       >
         {({ handleSubmit }): JSX.Element => (
           <FullView>
-            <Form />
-            {SubmitButtons && (
-              <SubmitButtons onCancel={onCancel} onSubmit={handleSubmit} />
-            )}
+            <StatusForm />
+            <RowView
+              paddingTop={screenPercentageToDP(2.43, Orientation.Height)}
+              flex={1}
+              alignItems="flex-end"
+              justifyContent="center"
+              paddingBottom={screenPercentageToDP(2.43, Orientation.Height)}
+            >
+              <Button
+                width={screenPercentageToDP(43.79, Orientation.Width)}
+                marginRight={screenPercentageToDP(1.21, Orientation.Width)}
+                onPress={onCancel}
+                outline
+                borderColor={theme.colors.PRIMARY_MAIN}
+                buttonText="Cancel"
+              />
+              <SubmitButton
+                width={screenPercentageToDP(43.79, Orientation.Width)}
+                onSubmit={handleSubmit}
+              />
+            </RowView>
           </FullView>
         )}
-      </Formik>
+      </Form>
     </FullView>
   );
-};
-
-VaccineForm.defaultProps = {
-  SubmitButtons: undefined,
 };

@@ -147,10 +147,11 @@ export class SyncManager {
       // channels in order of sync, so that foreign keys exist before referencing records use them
       const channelInfos: ChannelInfo[] = [
         { channel: 'reference', model: models.ReferenceData },
+        { channel: 'facility', model: models.Facility },
+        { channel: 'location', model: models.Location },
+        { channel: 'department', model: models.Department },
         { channel: 'user', model: models.User },
-
         { channel: 'labTestType', model: models.LabTestType },
-
         { channel: 'attachment', model: models.Attachment },
 
         { channel: 'scheduledVaccine', model: models.ScheduledVaccine },
