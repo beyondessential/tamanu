@@ -1,4 +1,5 @@
 import { dataGenerator } from '../../src/reports/covid-vaccine-daily-summary-village';
+import sinon from 'sinon';
 jest.mock('config', () => ({
   reports: {
     'covid-vaccine-daily-summary-village': {
@@ -72,6 +73,8 @@ describe('covid-vaccine-daily-summary-village', () => {
       [
         'entity_code',
         'timestamp',
+        'start_time',
+        'end_time',
         'COVIDVac1',
         'COVIDVac2',
         'COVIDVac3',
@@ -81,9 +84,28 @@ describe('covid-vaccine-daily-summary-village', () => {
         'COVIDVac7',
         'COVIDVac8',
       ],
-      ...shorthandExpectedDataArray,
+      ...shorthandExpectedDataArray.map(shorthandRow => {
+        const [entity_code, timestamp, ...rest] = shorthandRow;
+        return [
+          entity_code,
+          timestamp,
+          '2021-10-10T00:00:00+11:00', // mocked now
+          '2021-10-10T00:00:00+11:00', // mocked now
+          ...rest,
+        ];
+      }),
     ];
   };
+
+  beforeAll(() => {
+    sinon.useFakeTimers({
+      now: 1633784400000, // 2021-10-10T00:00:00+11:00
+    });
+  });
+
+  afterAll(() => {
+    sinon.clearAllMocks();
+  });
 
   it('throws if fromDate is after toDate', async () => {
     const models = mockModels([mockRow(1), mockRow(2)]);
