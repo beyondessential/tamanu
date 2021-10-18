@@ -177,9 +177,9 @@ describe('covid-vaccine-daily-summary-village', () => {
     expect(report).toEqual(
       getExpectedDataArray([
         ['VIL_A', '2021-01-01 23:59:59', 0, 1, 0, 1, 0, 0, 0, 0],
-        ['VIL_A', '2021-01-02 23:59:59', '', '', '', '', '', '', '', ''],
-        ['VIL_B', '2021-01-01 23:59:59', '', '', '', '', '', '', '', ''],
-        ['VIL_B', '2021-01-02 23:59:59', '', '', '', '', '', '', '', ''],
+        ['VIL_A', '2021-01-02 23:59:59', null, null, null, null, null, null, null, null],
+        ['VIL_B', '2021-01-01 23:59:59', null, null, null, null, null, null, null, null],
+        ['VIL_B', '2021-01-02 23:59:59', null, null, null, null, null, null, null, null],
       ]),
     );
   });
@@ -201,7 +201,7 @@ describe('covid-vaccine-daily-summary-village', () => {
       expect.objectContaining(
         getExpectedDataArray([
           ['VIL_A', '2021-01-01 23:59:59', 0, 1, 0, 1, 0, 0, 0, 0],
-          ['VIL_A', '2021-01-02 23:59:59', '', '', '', '', '', '', '', ''],
+          ['VIL_A', '2021-01-02 23:59:59', null, null, null, null, null, null, null, null],
         ]),
       ),
     );

@@ -298,14 +298,14 @@ function withEmptyRows(groupedData, parameters, villages) {
           village: village.name,
           tupaiaEntityCode: village.code,
           data_time: dataTime,
-          COVIDVac1: '',
-          COVIDVac2: '',
-          COVIDVac3: '',
-          COVIDVac4: '',
-          COVIDVac5: '',
-          COVIDVac6: '',
-          COVIDVac7: '',
-          COVIDVac8: '',
+          COVIDVac1: null,
+          COVIDVac2: null,
+          COVIDVac3: null,
+          COVIDVac4: null,
+          COVIDVac5: null,
+          COVIDVac6: null,
+          COVIDVac7: null,
+          COVIDVac8: null,
         });
       }
 
