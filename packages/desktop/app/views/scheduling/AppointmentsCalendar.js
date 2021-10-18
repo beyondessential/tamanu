@@ -54,11 +54,10 @@ export const AppointmentsCalendar = () => {
   const [appointments, setAppointments] = useState([]);
   useEffect(() => {
     (async () => {
-      const { data } = await api.get(
-        `/appointments?after=${encodeURIComponent(
-          startOfDay(date).toISOString(),
-        )}&before=${encodeURIComponent(endOfDay(date).toISOString())}`,
-      );
+      const { data } = await api.get('appointments', {
+        after: startOfDay(date).toISOString(),
+        before: endOfDay(date).toISOString(),
+      });
       setAppointments(data);
     })();
   }, [date]);
