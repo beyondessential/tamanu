@@ -143,7 +143,7 @@ const LabsPane = React.memo(({ encounter, readonly }) => {
         encounter={encounter}
         onClose={() => setModalOpen(false)}
         onSaved={async () => {
-          setModalOpen(false)
+          setModalOpen(false);
           await loadEncounter(encounter.id);
         }}
       />
