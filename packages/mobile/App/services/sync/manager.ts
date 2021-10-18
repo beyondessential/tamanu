@@ -308,7 +308,7 @@ export class SyncManager {
   async exportAndUpload(model: typeof BaseModel, channel: string): Promise<void> {
     // function definitions
     const exportPlan = createExportPlan(model);
-    const exportRecords = async (page: number, afterId?: string): Promise<SyncRecord[]> => {
+    const exportRecords = async (afterId?: string): Promise<SyncRecord[]> => {
       this.emitter.emit('exportingPage', `${channel}-${page}`);
       return (await model.findMarkedForUpload({
         channel,
@@ -318,7 +318,6 @@ export class SyncManager {
     };
 
     const uploadRecords = async (
-      page: number,
       syncRecords: SyncRecord[],
     ): Promise<UploadRecordsResponse> => {
       // TODO: detect and retry failures (need to pass back from server)
@@ -327,7 +326,6 @@ export class SyncManager {
     };
 
     const markRecordsUploaded = async (
-      page: number,
       records: SyncRecord[],
       requestedAt: Timestamp,
     ): Promise<void> => {
@@ -339,20 +337,11 @@ export class SyncManager {
 
     // export and upload loop
     let lastSeenId: string;
-    let uploadPromise: Promise<UploadRecordsResponse>;
     this.emitter.emit('exportStarted', channel);
     let page = 0;
     while (true) {
-      const knownPage = page;
-
-      // begin exporting records
-      const exportPromise = exportRecords(knownPage, lastSeenId);
-
-      // finish uploading previous batch
-      await uploadPromise;
-
-      // finish exporting records
-      const recordsChunk = await exportPromise;
+      // export records
+      const recordsChunk = await exportRecords(lastSeenId);
       if (recordsChunk.length === 0) {
         break;
       }
@@ -365,13 +354,11 @@ export class SyncManager {
         continue;
       }
 
-      // begin uploading current batch
-      uploadPromise = uploadRecords(knownPage, recordsToExport).then(async (data) => {
-        // mark previous batch as synced after uploading
-        // done using promises so these two steps can be interleaved with exporting
-        await markRecordsUploaded(knownPage, recordsChunk, data.requestedAt);
-        return data;
-      });
+      // upload records
+      const { requestedAt } = await uploadRecords(recordsToExport);
+
+      // mark records as synced after uploading
+      await markRecordsUploaded(recordsChunk, requestedAt);
 
       page++;
     }
