@@ -1,14 +1,16 @@
 import React, { useState, useEffect } from 'react';
 import styled from 'styled-components';
 import { format, add, startOfDay, endOfDay } from 'date-fns';
+import { ButtonGroup, Typography } from '@material-ui/core';
 
 import { PageContainer, TopBar } from '../../components';
 import { TwoColumnDisplay } from '../../components/TwoColumnDisplay';
 import { DailySchedule } from '../../components/Appointments/DailySchedule';
-import { FilterPane } from '../../components/Appointments/FilterPane';
 import { NewAppointmentButton } from '../../components/Appointments/NewAppointmentButton';
 import { BackButton, ForwardButton, Button } from '../../components/Button';
-import { Colors } from '../../constants';
+import { Field, Form, AutocompleteField, MultiselectField } from '../../components/Field';
+import { Suggester } from '../../utils/suggester';
+import { Colors, appointmentTypeOptions } from '../../constants';
 import { useApi } from '../../api';
 
 const Container = styled.div`
@@ -35,22 +37,38 @@ const CalendarContainer = styled.div`
   margin-right: 25px;
 `;
 
+const Section = styled.div`
+  padding: 20px;
+  border-bottom: 1px solid ${Colors.outline};
+  display: flex;
+  flex-direction: column;
+  form {
+    margin-top: 1rem;
+  }
+`;
+
+const FilterSwitch = styled(ButtonGroup)`
+  margin-top: 0.5rem;
+`;
+
 export const AppointmentsCalendar = () => {
-  const [date, setDate] = useState(new Date());
-  const [activeFilter, setActiveFilter] = useState('location');
-  const [filterValue, setFilterValue] = useState('');
-  const [appointmentType, setAppointmentType] = useState([]);
+  const api = useApi();
   const filters = [
     {
       name: 'location',
       text: 'Locations',
+      suggester: new Suggester(api, 'location'),
     },
     {
       name: 'clinician',
       text: 'Clinicians',
+      suggester: new Suggester(api, 'practitioner'),
     },
   ];
-  const api = useApi();
+  const [date, setDate] = useState(new Date());
+  const [activeFilter, setActiveFilter] = useState(filters[0]);
+  const [filterValue, setFilterValue] = useState('');
+  const [appointmentType, setAppointmentType] = useState([]);
   const [appointments, setAppointments] = useState([]);
   useEffect(() => {
     (async () => {
@@ -64,7 +82,10 @@ export const AppointmentsCalendar = () => {
   const appointmentGroups = appointments.reduce(
     (acc, appointment) => ({
       ...acc,
-      [appointment[activeFilter].id]: [...(acc[appointment[activeFilter].id] || []), appointment],
+      [appointment[activeFilter.name].id]: [
+        ...(acc[appointment[activeFilter.name].id] || []),
+        appointment,
+      ],
     }),
     {},
   );
@@ -73,14 +94,57 @@ export const AppointmentsCalendar = () => {
       <TwoColumnDisplay>
         <Container>
           <TopBar title="Calendar" />
-          <FilterPane
-            filters={filters}
-            activeFilter={activeFilter}
-            setActiveFilter={setActiveFilter}
-            filterValue={filterValue}
-            setFilterValue={setFilterValue}
-            setAppointmentType={setAppointmentType}
-          />
+          <Section>
+            <Typography variant="subtitle2">View calendar by:</Typography>
+            <FilterSwitch>
+              {filters.map(filter => (
+                <Button
+                  color={filter.name === activeFilter.name ? 'primary' : null}
+                  variant={filter.name === activeFilter.name ? 'contained' : null}
+                  onClick={() => {
+                    setActiveFilter(filter);
+                  }}
+                >
+                  {filter.text}
+                </Button>
+              ))}
+            </FilterSwitch>
+          </Section>
+          <Section>
+            <Typography variant="subtitle2">{activeFilter.text}</Typography>
+            <Form
+              render={() => (
+                <Field
+                  name="filter"
+                  component={AutocompleteField}
+                  suggester={activeFilter.suggester}
+                  value={filterValue}
+                  onChange={e => {
+                    setFilterValue(e.target.value);
+                  }}
+                />
+              )}
+            />
+          </Section>
+          <Section>
+            <Typography variant="subtitle2">Appointment type</Typography>
+            <Form
+              render={() => (
+                <Field
+                  name="appointment-type"
+                  component={MultiselectField}
+                  options={appointmentTypeOptions}
+                  onChange={e => {
+                    if (!e.target.value) {
+                      setAppointmentType([]);
+                      return;
+                    }
+                    setAppointmentType(e.target.value.split(','));
+                  }}
+                />
+              )}
+            />
+          </Section>
         </Container>
         <div>
           <TopBar>

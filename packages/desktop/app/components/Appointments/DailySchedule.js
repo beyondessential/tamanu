@@ -32,7 +32,7 @@ export const DailySchedule = ({
     })
     .map(([value, appointments]) => {
       const firstAppointment = appointments[0];
-      const filterObject = firstAppointment[activeFilter];
+      const filterObject = firstAppointment[activeFilter.name];
       const displayAppointments = appointments.filter(appointment => {
         if (!appointmentType.length) {
           return true;
