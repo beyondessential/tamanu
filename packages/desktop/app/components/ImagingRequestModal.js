@@ -1,5 +1,5 @@
 import React from 'react';
-import shortid from 'shortid';
+import { customAlphabet } from 'nanoid'
 
 import { useApi } from '../api';
 import { Suggester } from '../utils/suggester';
@@ -7,10 +7,14 @@ import { Suggester } from '../utils/suggester';
 import { Modal } from './Modal';
 import { ImagingRequestForm } from '../forms/ImagingRequestForm';
 
+// generates 8 character id (while excluding 0, O, I, 1 and L)
+const configureCustomRequestId = () => customAlphabet('ABCDEFGHIJKMNPQRSTUVWXYZ23456789', 8);
+
 export const ImagingRequestModal = ({ open, onClose, onSaved, encounter }) => {
   const api = useApi();
   const practitionerSuggester = new Suggester(api, 'practitioner');
   const imagingTypeSuggester = new Suggester(api, 'imagingType');
+  const generateDisplayId = configureCustomRequestId();
 
   return (
     <Modal width="md" title="New imaging request" open={open} onClose={onClose}>
@@ -26,7 +30,7 @@ export const ImagingRequestModal = ({ open, onClose, onSaved, encounter }) => {
         encounter={encounter}
         practitionerSuggester={practitionerSuggester}
         imagingTypeSuggester={imagingTypeSuggester}
-        generateId={shortid.generate}
+        generateId={generateDisplayId}
       />
     </Modal>
   );

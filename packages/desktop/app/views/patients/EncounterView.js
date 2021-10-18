@@ -43,11 +43,20 @@ import { useEncounter } from '../../contexts/Encounter';
 const getIsTriage = encounter => ENCOUNTER_OPTIONS_BY_VALUE[encounter.encounterType].triageFlowOnly;
 
 const VitalsPane = React.memo(({ encounter, readonly }) => {
-  const [modalOpen, setModalOpen] = React.useState(false);
+  const [modalOpen, setModalOpen] = useState(false);
+  const { loadEncounter } = useEncounter();
 
   return (
     <div>
-      {modalOpen && <VitalsModal encounterId={encounter.id} onClose={() => setModalOpen(false)} />}
+      <VitalsModal
+        open={modalOpen}
+        encounterId={encounter.id}
+        onClose={() => setModalOpen(false)}
+        onSaved={async () => {
+          setModalOpen(false);
+          await loadEncounter(encounter.id);
+        }}
+      />
       <VitalsTable />
       <ContentPane>
         <Button
@@ -93,12 +102,51 @@ const NotesPane = React.memo(({ encounter, readonly }) => {
   );
 });
 
-const LabsPane = React.memo(({ encounter, readonly }) => {
-  const [modalOpen, setModalOpen] = React.useState(false);
+const ProcedurePane = React.memo(({ encounter, readonly }) => {
+  const [editedProcedure, setEditedProcedure] = useState(null);
+  const { loadEncounter } = useEncounter();
 
   return (
     <div>
-      <LabRequestModal open={modalOpen} encounter={encounter} onClose={() => setModalOpen(false)} />
+      <ProcedureModal
+        editedProcedure={editedProcedure}
+        encounterId={encounter.id}
+        onClose={() => setEditedProcedure(null)}
+        onSaved={async () => {
+          setEditedProcedure(null);
+          await loadEncounter(encounter.id);
+        }}
+      />
+      <ProcedureTable encounterId={encounter.id} onItemClick={item => setEditedProcedure(item)} />
+      <ContentPane>
+        <Button
+          onClick={() => setEditedProcedure({})}
+          variant="contained"
+          color="primary"
+          disabled={readonly}
+        >
+          New procedure
+        </Button>
+      </ContentPane>
+    </div>
+  );
+});
+
+const LabsPane = React.memo(({ encounter, readonly }) => {
+  const [modalOpen, setModalOpen] = useState(false);
+  const { loadEncounter } = useEncounter();
+
+  return (
+    <div>
+      <LabRequestModal
+        open={modalOpen}
+        encounter={encounter}
+        onClose={() => setModalOpen(false)}
+        onSaved={async () => {
+          setModalOpen(false);
+          await loadEncounter(encounter.id);
+        }}
+      />
       <LabRequestsTable encounterId={encounter.id} />
       <ContentPane>
         <Button
@@ -115,8 +163,7 @@ const LabsPane = React.memo(({ encounter, readonly }) => {
 });
 
 const ImagingPane = React.memo(({ encounter, readonly }) => {
-  const [modalOpen, setModalOpen] = useState(false);
-  const { loadEncounter } = useEncounter();
+  const [modalOpen, setModalOpen] = React.useState(false);
 
   return (
     <div>
@@ -124,10 +171,6 @@ const ImagingPane = React.memo(({ encounter, readonly }) => {
         open={modalOpen}
         encounter={encounter}
         onClose={() => setModalOpen(false)}
-        onSaved={async () => {
-          setModalOpen(false);
-          await loadEncounter(encounter.id);
-        }}
       />
       <ImagingRequestsTable encounterId={encounter.id} />
       <ContentPane>
@@ -145,7 +188,8 @@ const ImagingPane = React.memo(({ encounter, readonly }) => {
 });
 
 const MedicationPane = React.memo(({ encounter, readonly }) => {
-  const [modalOpen, setModalOpen] = React.useState(false);
+  const [modalOpen, setModalOpen] = useState(false);
+  const { loadEncounter } = useEncounter();
 
   return (
     <div>
@@ -153,6 +197,10 @@ const MedicationPane = React.memo(({ encounter, readonly }) => {
         open={modalOpen}
         encounterId={encounter.id}
         onClose={() => setModalOpen(false)}
+        onSaved={async () => {
+          setModalOpen(false);
+          await loadEncounter(encounter.id);
+        }}
       />
       <EncounterMedicationTable encounterId={encounter.id} />
       <ContentPane>
@@ -163,31 +211,6 @@ const MedicationPane = React.memo(({ encounter, readonly }) => {
           disabled={readonly}
         >
           New prescription
-        </Button>
-      </ContentPane>
-    </div>
-  );
-});
-
-const ProcedurePane = React.memo(({ encounter, readonly }) => {
-  const [editedProcedure, setEditedProcedure] = React.useState(null);
-
-  return (
-    <div>
-      <ProcedureModal
-        editedProcedure={editedProcedure}
-        encounterId={encounter.id}
-        onClose={() => setEditedProcedure(null)}
-      />
-      <ProcedureTable encounterId={encounter.id} onItemClick={item => setEditedProcedure(item)} />
-      <ContentPane>
-        <Button
-          onClick={() => setEditedProcedure({})}
-          variant="contained"
-          color="primary"
-          disabled={readonly}
-        >
-          New procedure
         </Button>
       </ContentPane>
     </div>
