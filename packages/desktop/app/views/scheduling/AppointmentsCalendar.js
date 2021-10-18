@@ -2,6 +2,7 @@ import React, { useState, useEffect } from 'react';
 import styled from 'styled-components';
 import { format, add, startOfDay, endOfDay } from 'date-fns';
 import { ButtonGroup, Typography } from '@material-ui/core';
+import { groupBy } from 'lodash';
 
 import { PageContainer, TopBar } from '../../components';
 import { TwoColumnDisplay } from '../../components/TwoColumnDisplay';
@@ -79,16 +80,7 @@ export const AppointmentsCalendar = () => {
       setAppointments(data);
     })();
   }, [date]);
-  const appointmentGroups = appointments.reduce(
-    (acc, appointment) => ({
-      ...acc,
-      [appointment[activeFilter.name].id]: [
-        ...(acc[appointment[activeFilter.name].id] || []),
-        appointment,
-      ],
-    }),
-    {},
-  );
+  const appointmentGroups = groupBy(appointments, appt => appt[activeFilter.name].id);
   return (
     <PageContainer>
       <TwoColumnDisplay>
