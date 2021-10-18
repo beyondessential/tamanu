@@ -1,22 +1,21 @@
 import { ValidationError } from 'yup';
-
 export class ForeignKeyStore {
-
   // Records should be an array of sync records, ie:
   // { recordType: 'foo', data: { id: 'bar', ...otherData }, ...otherMetadata }
   constructor(records) {
     this.records = records;
-    this.recordsById = records.reduce(
-      (all, current) => { 
-        const { id } = current.data;
-        return {
-          ...all,
-          [id]: all[id] || current,
-        };
-      },
-      {}
-    );
+    this.recordsById = this.getRecordsById(records);
   }
+
+  getRecordsById = records => {
+    const recordsById = {};
+    records.forEach(record => {
+      const { id } = record.data;
+      recordsById[id] = recordsById[id] || record;
+    });
+
+    return recordsById;
+  };
 
   getRecord(recordId) {
     return this.recordsById[recordId];
