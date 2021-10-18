@@ -22,30 +22,39 @@ export const DailySchedule = ({
   activeFilter,
   filterValue,
   appointmentType,
-}) => (
-  <Container>
-    {Object.entries(appointmentGroups)
-      .filter(([value]) => {
-        if (!filterValue) {
+}) => {
+  const columns = Object.entries(appointmentGroups)
+    .filter(([value]) => {
+      if (!filterValue) {
+        return true;
+      }
+      return value === filterValue;
+    })
+    .map(([value, appointments]) => {
+      const firstAppointment = appointments[0];
+      const filterObject = firstAppointment[activeFilter];
+      const displayAppointments = appointments.filter(appointment => {
+        if (!appointmentType.length) {
           return true;
         }
-        return value === filterValue;
-      })
-      .map(([value, appointments]) => {
-        const firstAppointment = appointments[0];
-        const filterObject = firstAppointment[activeFilter];
-        const displayAppointments = appointments.filter(appointment => {
-          if (!appointmentType.length) {
-            return true;
-          }
-          return appointmentType.includes(appointment.type);
-        });
-        // location has name, while clinician has displayName;
-        const title = filterObject.name || filterObject.displayName;
-        return <Column key={value} header={title} appointments={displayAppointments} />;
-      })}
-  </Container>
-);
+        return appointmentType.includes(appointment.type);
+      });
+      // location has name, while clinician has displayName;
+      const header = filterObject.name || filterObject.displayName;
+      return {
+        header,
+        appointments: displayAppointments,
+        key: value,
+      };
+    });
+  return (
+    <Container>
+      {columns.map(props => (
+        <Column {...props} />
+      ))}
+    </Container>
+  );
+};
 
 const Container = styled.div`
   display: flex;
