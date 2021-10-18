@@ -103,11 +103,20 @@ const NotesPane = React.memo(({ encounter, readonly }) => {
 });
 
 const LabsPane = React.memo(({ encounter, readonly }) => {
-  const [modalOpen, setModalOpen] = React.useState(false);
+  const [modalOpen, setModalOpen] = useState(false);
+  const { loadEncounter } = useEncounter();
 
   return (
     <div>
-      <LabRequestModal open={modalOpen} encounter={encounter} onClose={() => setModalOpen(false)} />
+      <LabRequestModal
+        open={modalOpen}
+        encounter={encounter}
+        onClose={() => setModalOpen(false)}
+        onSaved={async () => {
+          setModalOpen(false)
+          await loadEncounter(encounter.id);
+        }}
+      />
       <LabRequestsTable encounterId={encounter.id} />
       <ContentPane>
         <Button
