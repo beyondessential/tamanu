@@ -51,13 +51,14 @@ const ActionDropdown = React.memo(({ row }) => {
 });
 
 const ReferringDoctorDisplay = ({ surveyResponse: { survey, answers } }) => {
+  const fieldNames = ['Referring doctor', 'Referral completed by'];
   const api = useApi();
   const [name, setName] = useState('Unknown');
 
   useEffect(() => {
     (async () => {
-      const referringDoctorComponent = survey.components.find(
-        ({ dataElement }) => dataElement.name === 'Referring doctor',
+      const referringDoctorComponent = survey.components.find(({ dataElement }) =>
+        fieldNames.includes(dataElement.name),
       );
       if (!referringDoctorComponent) {
         return;
