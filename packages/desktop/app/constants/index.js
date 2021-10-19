@@ -59,7 +59,6 @@ export const LAB_REQUEST_STATUSES = {
   TO_BE_VERIFIED: 'to_be_verified',
   VERIFIED: 'verified',
   PUBLISHED: 'published',
-  DELETED: 'deleted',
 };
 
 export const LAB_REQUEST_STATUS_LABELS = {
@@ -68,7 +67,6 @@ export const LAB_REQUEST_STATUS_LABELS = {
   [LAB_REQUEST_STATUSES.TO_BE_VERIFIED]: 'To be verified',
   [LAB_REQUEST_STATUSES.VERIFIED]: 'Verified',
   [LAB_REQUEST_STATUSES.PUBLISHED]: 'Published',
-  [LAB_REQUEST_STATUSES.DELETED]: 'Deleted',
 };
 
 export const LAB_REQUEST_COLORS = {
@@ -77,7 +75,6 @@ export const LAB_REQUEST_COLORS = {
   [LAB_REQUEST_STATUSES.TO_BE_VERIFIED]: '#caf',
   [LAB_REQUEST_STATUSES.VERIFIED]: '#5af',
   [LAB_REQUEST_STATUSES.PUBLISHED]: '#afa',
-  [LAB_REQUEST_STATUSES.DELETED]: '#aaa',
   unknown: '#333',
 };
 
