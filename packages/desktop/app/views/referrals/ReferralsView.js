@@ -63,7 +63,7 @@ const ReferralFlow = ({ patient, currentUser }) => {
             <SurveySelector
               onSelectSurvey={onSelectReferralSurvey}
               surveys={referralSurveys}
-              buttonText="Begin Referral"
+              buttonText="Begin referral"
             />
           </FormGrid>
         </ProgramsPane>
