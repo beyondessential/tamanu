@@ -7,7 +7,7 @@ const DumbPractitionerField = ({ practitionerSuggester, required }) => {
   return (
     <Field
       name="practitioner"
-      label="Doctor/Nurse"
+      label="Doctor/nurse"
       component={AutocompleteField}
       suggester={practitionerSuggester}
       required={required}

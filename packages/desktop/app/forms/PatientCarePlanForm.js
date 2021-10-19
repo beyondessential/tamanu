@@ -31,7 +31,7 @@ export class PatientCarePlanForm extends React.PureComponent {
           <Field name="date" label="Date recorded" component={DateTimeField} />
           <Field
             name="examinerId"
-            label="Doctor/Nurse"
+            label="Doctor/nurse"
             component={AutocompleteField}
             suggester={practitionerSuggester}
           />
