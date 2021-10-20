@@ -106,13 +106,10 @@ export const AppointmentsCalendar = () => {
           </Section>
           <Section>
             <SectionTitle variant="subtitle2">{activeFilter.text}</SectionTitle>
-            <AutocompleteField
-              field={{
-                name: 'filter',
-                value: filterValue,
-                onChange: e => {
-                  setFilterValue(e.target.value);
-                },
+            <AutocompleteInput
+              value={filterValue}
+              onChange={e => {
+                setFilterValue(e.target.value);
               }}
               suggester={activeFilter.suggester}
             />
