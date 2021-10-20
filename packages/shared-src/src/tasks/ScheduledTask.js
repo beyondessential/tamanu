@@ -1,7 +1,7 @@
+import { v4 as uuid } from 'uuid';
 import { scheduleJob } from 'node-schedule';
 
 export class ScheduledTask {
-
   getName() {
     // Note that this.constructor.name will only work in dev,
     // but this error should only be encountered in dev
@@ -24,15 +24,18 @@ export class ScheduledTask {
     const name = this.getName();
 
     if (this.currentlyRunningTask) {
-      this.log.info(`Not running ${name} (previous task still running)`);
+      this.log.info(`ScheduledTask: ${name}: Not running (previous task still running)`);
       return;
     }
 
-    this.log.info(`Running ${name}`);
+    const runId = uuid();
+    this.log.info(`ScheduledTask: ${name}: Running (id=${runId})`);
     try {
       this.currentlyRunningTask = this.run();
       await this.currentlyRunningTask;
+      this.log.info(`ScheduledTask: ${name}: Succeeded (id=${runId})`);
     } catch (e) {
+      this.log.error(`ScheduledTask: ${name}: Failed (id=${runId})`);
       this.log.error(e.stack);
     } finally {
       this.currentlyRunningTask = null;
@@ -42,7 +45,7 @@ export class ScheduledTask {
   beginPolling() {
     if (!this.job) {
       const name = this.getName();
-      this.log.info(`Scheduled ${name} for ${this.schedule}`);
+      this.log.info(`ScheduledTask: ${name}: Scheduled for ${this.schedule}`);
       this.job = scheduleJob(this.schedule, async () => {
         await this.runImmediately();
       });
@@ -53,7 +56,7 @@ export class ScheduledTask {
     if (this.job) {
       this.job.cancel();
       this.job = null;
-      this.log.info(`Cancelled ${this.getName}`);
+      this.log.info(`ScheduledTask: ${this.getName()}: Cancelled`);
     }
   }
 }
