@@ -236,11 +236,11 @@ describe('SyncManager', () => {
           });
           startFetch();
           await finishFetchPromise;
-          return { data: { requestedAt: new Date().toISOString() } };
+          return { data: { requestedAt: Date.now() } };
         })
         .mockImplementation(() => ({
           data: {
-            requestedAt: new Date().toISOString()
+            requestedAt: Date.now()
           }
         }));
 
