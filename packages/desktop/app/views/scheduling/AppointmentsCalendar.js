@@ -43,10 +43,11 @@ const Section = styled.div`
   border-bottom: 1px solid ${Colors.outline};
   display: flex;
   flex-direction: column;
-  form {
-    margin-top: 1rem;
-  }
 `;
+
+const SectionTitle = styled(Typography)`
+  margin-bottom: 1rem;
+`
 
 const FilterSwitch = styled(ButtonGroup)`
   margin-top: 0.5rem;
@@ -87,10 +88,11 @@ export const AppointmentsCalendar = () => {
         <Container>
           <TopBar title="Calendar" />
           <Section>
-            <Typography variant="subtitle2">View calendar by:</Typography>
+            <SectionTitle variant="subtitle2">View calendar by:</SectionTitle>
             <FilterSwitch>
               {filters.map(filter => (
                 <Button
+                  key={filter.name}
                   color={filter.name === activeFilter.name ? 'primary' : null}
                   variant={filter.name === activeFilter.name ? 'contained' : null}
                   onClick={() => {
@@ -103,38 +105,32 @@ export const AppointmentsCalendar = () => {
             </FilterSwitch>
           </Section>
           <Section>
-            <Typography variant="subtitle2">{activeFilter.text}</Typography>
-            <Form
-              render={() => (
-                <Field
-                  name="filter"
-                  component={AutocompleteField}
-                  suggester={activeFilter.suggester}
-                  value={filterValue}
-                  onChange={e => {
-                    setFilterValue(e.target.value);
-                  }}
-                />
-              )}
+            <SectionTitle variant="subtitle2">{activeFilter.text}</SectionTitle>
+            <AutocompleteField
+              field={{
+                name: 'filter',
+                value: filterValue,
+                onChange: e => {
+                  setFilterValue(e.target.value);
+                },
+              }}
+              suggester={activeFilter.suggester}
             />
           </Section>
           <Section>
-            <Typography variant="subtitle2">Appointment type</Typography>
-            <Form
-              render={() => (
-                <Field
-                  name="appointment-type"
-                  component={MultiselectField}
-                  options={appointmentTypeOptions}
-                  onChange={e => {
-                    if (!e.target.value) {
-                      setAppointmentType([]);
-                      return;
-                    }
-                    setAppointmentType(e.target.value.split(','));
-                  }}
-                />
-              )}
+            <SectionTitle variant="subtitle2">Appointment type</SectionTitle>
+            <MultiselectField
+              field={{
+                name: 'appointment-type',
+                onChange: e => {
+                  if (!e.target.value) {
+                    setAppointmentType([]);
+                    return;
+                  }
+                  setAppointmentType(e.target.value.split(','));
+                },
+              }}
+              options={appointmentTypeOptions}
             />
           </Section>
         </Container>
