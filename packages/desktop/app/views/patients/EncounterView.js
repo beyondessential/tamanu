@@ -163,7 +163,8 @@ const LabsPane = React.memo(({ encounter, readonly }) => {
 });
 
 const ImagingPane = React.memo(({ encounter, readonly }) => {
-  const [modalOpen, setModalOpen] = React.useState(false);
+  const [modalOpen, setModalOpen] = useState(false);
+  const { loadEncounter } = useEncounter();
 
   return (
     <div>
