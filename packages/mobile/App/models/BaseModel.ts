@@ -65,8 +65,9 @@ export abstract class BaseModel extends BaseEntity {
   uploadedAt: Date;
 
   @BeforeUpdate()
-  markForUpload() {
-    this.markedForUpload = true;
+  async markForUpload() {
+    const thisModel = this.constructor as typeof BaseModel;
+    await thisModel.getRepository().update({ id: this.id }, { markedForUpload: true });
   }
 
   async markParent(
