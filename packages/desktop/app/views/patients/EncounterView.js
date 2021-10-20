@@ -163,7 +163,8 @@ const LabsPane = React.memo(({ encounter, readonly }) => {
 });
 
 const ImagingPane = React.memo(({ encounter, readonly }) => {
-  const [modalOpen, setModalOpen] = React.useState(false);
+  const [modalOpen, setModalOpen] = useState(false);
+  const { loadEncounter } = useEncounter();
 
   return (
     <div>
@@ -171,6 +172,10 @@ const ImagingPane = React.memo(({ encounter, readonly }) => {
         open={modalOpen}
         encounter={encounter}
         onClose={() => setModalOpen(false)}
+        onSaved={async () => {
+          setModalOpen(false);
+          await loadEncounter(encounter.id);
+        }}
       />
       <ImagingRequestsTable encounterId={encounter.id} />
       <ContentPane>
