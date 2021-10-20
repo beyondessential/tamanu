@@ -96,8 +96,12 @@ export abstract class BaseModel extends BaseEntity {
     await entity.save();
   }
 
-  static async markUploaded(ids: string | string[], uploadedAt: Date): Promise<void> {
-    await this.getRepository().update(ids, { uploadedAt, markedForUpload: false });
+  static async markUploaded(
+    ids: string | string[],
+    uploadedAt: Date,
+    repository: Repository<BaseModel>,
+  ): Promise<void> {
+    await repository.update(ids, { uploadedAt, markedForUpload: false });
   }
 
   static createAndSaveOne<T extends BaseModel>(data?: object): Promise<T> {
@@ -107,17 +111,19 @@ export abstract class BaseModel extends BaseEntity {
 
   static async findMarkedForUpload(
     opts: FindMarkedForUploadOptions,
+    repository: Repository<BaseModel> = this.getRepository(),
   ): Promise<BaseModel[]> {
     // query is built separately so it can be modified in child classes
-    return this.findMarkedForUploadQuery(opts).getMany();
+    return this.findMarkedForUploadQuery(opts, repository).getMany() as Promise<BaseModel[]>;
   }
 
   static findMarkedForUploadQuery(
     { limit, after }: FindMarkedForUploadOptions,
+    repository: Repository<BaseModel>,
   ) {
     const whereAfter = (typeof after === 'string') ? { id: MoreThan(after) } : {};
 
-    const qb = this.getRepository().createQueryBuilder();
+    const qb = repository.createQueryBuilder();
     return FindOptionsUtils.applyOptionsToQueryBuilder(qb, {
       where: {
         markedForUpload: true,
@@ -135,7 +141,7 @@ export abstract class BaseModel extends BaseEntity {
     return ids;
   }
 
-  static async postExportCleanUp() {}
+  static async postExportCleanUp() { }
 
   static shouldImport = true;
 

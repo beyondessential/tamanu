@@ -1,5 +1,7 @@
 import mitt from 'mitt';
 
+import { In } from 'typeorm/browser';
+
 import { Database } from '~/infra/db';
 import { readConfig, writeConfig } from '~/services/config';
 import { Patient } from '~/models/Patient';
@@ -308,14 +310,6 @@ export class SyncManager {
   async exportAndUpload(model: typeof BaseModel, channel: string): Promise<void> {
     // function definitions
     const exportPlan = createExportPlan(model);
-    const exportRecords = async (afterId?: string): Promise<SyncRecord[]> => {
-      this.emitter.emit('exportingPage', `${channel}-${page}`);
-      return (await model.findMarkedForUpload({
-        channel,
-        after: afterId,
-        limit: model.uploadLimit,
-      })).map(r => executeExportPlan(exportPlan, r));
-    };
 
     const uploadRecords = async (
       syncRecords: SyncRecord[],
@@ -325,42 +319,65 @@ export class SyncManager {
       return this.syncSource.uploadRecords(channel, syncRecords);
     };
 
-    const markRecordsUploaded = async (
-      records: SyncRecord[],
-      requestedAt: Timestamp,
-    ): Promise<void> => {
-      this.emitter.emit('markingPageUploaded', `${channel}-${page}`);
-      return model.markUploaded(records.map(r => r.data.id), new Date(requestedAt));
-    };
-
     // TODO: progress handling
 
     // export and upload loop
     let lastSeenId: string;
     this.emitter.emit('exportStarted', channel);
     let page = 0;
-    while (true) {
-      // export records
-      const recordsChunk = await exportRecords(lastSeenId);
-      if (recordsChunk.length === 0) {
-        break;
-      }
-      lastSeenId = recordsChunk[recordsChunk.length - 1].data.id;
+    let shouldLoop = true;
+    while (shouldLoop) {
+      await model.getRepository().manager.transaction(async transactionalEntityManager => {
+        const repository = transactionalEntityManager.getRepository(model);
 
-      const recordIdsToExport = await model.filterExportRecords(recordsChunk.map(r => r.data.id));
-      const recordsToExport = recordsChunk.filter(r => recordIdsToExport.includes(r.data.id));
+        // helper functions
+        const exportRecords = async (afterId?: string): Promise<SyncRecord[]> => {
+          this.emitter.emit('exportingPage', `${channel}-${page}`);
+          const records = await model.findMarkedForUpload(
+            { channel, after: afterId, limit: model.uploadLimit },
+            repository,
+          );
+          if (records.length === 0) {
+            return [];
+          }
+          return records.map(r => executeExportPlan(exportPlan, r));
+        };
 
-      if (recordsToExport.length === 0) {
-        continue;
-      }
+        const markRecordsUploaded = async (
+          records: SyncRecord[],
+          requestedAt: Timestamp,
+        ): Promise<void> => {
+          this.emitter.emit('markingPageUploaded', `${channel}-${page}`);
+          return model.markUploaded(
+            records.map(r => r.data.id),
+            new Date(requestedAt),
+            repository,
+          );
+        };
 
-      // upload records
-      const { requestedAt } = await uploadRecords(recordsToExport);
+        // export records
+        const recordsChunk = await exportRecords(lastSeenId);
+        if (recordsChunk.length === 0) {
+          shouldLoop = false;
+          return;
+        }
+        lastSeenId = recordsChunk[recordsChunk.length - 1].data.id;
 
-      // mark records as synced after uploading
-      await markRecordsUploaded(recordsChunk, requestedAt);
+        const recordIdsToExport = await model.filterExportRecords(recordsChunk.map(r => r.data.id));
+        const recordsToExport = recordsChunk.filter(r => recordIdsToExport.includes(r.data.id));
 
-      page++;
+        if (recordsToExport.length === 0) {
+          return;
+        }
+
+        // upload records
+        const { requestedAt } = await uploadRecords(recordsToExport);
+
+        // mark records as synced after uploading
+        await markRecordsUploaded(recordsChunk, requestedAt);
+
+        page++;
+      });
     }
 
     // When reach here, export is successful, perform any clean up.
