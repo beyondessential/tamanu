@@ -60,7 +60,7 @@ const UnderlineP = styled.p`
 const CertificateWrapper = styled.div`
   ${props =>
     props.watermark && props.watermarkType
-      ? `background: linear-gradient(rgb(243, 245, 247,.7), rgb(243, 245, 247,.9)), url("data:${props.watermarkType};base64,${props.watermark}");
+      ? `background: linear-gradient(rgb(243, 245, 247,.9), rgb(243, 245, 247,.9)), url("data:${props.watermarkType};base64,${props.watermark}");
       background-repeat: no-repeat;
       background-attachment: scroll;
       background-position: center;
