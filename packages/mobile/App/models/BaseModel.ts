@@ -101,7 +101,7 @@ export abstract class BaseModel extends BaseEntity {
   static async markUploaded(
     ids: string | string[],
     uploadedAt: Date,
-    repository: Repository<BaseModel>,
+    repository: Repository<BaseModel>, // passing a repository enables transaction support
   ): Promise<void> {
     await repository.update(ids, { uploadedAt, markedForUpload: false });
   }
@@ -113,7 +113,7 @@ export abstract class BaseModel extends BaseEntity {
 
   static async findMarkedForUpload(
     opts: FindMarkedForUploadOptions,
-    repository: Repository<BaseModel> = this.getRepository(),
+    repository: Repository<BaseModel> = this.getRepository(), // passing a repository enables transaction support
   ): Promise<BaseModel[]> {
     // query is built separately so it can be modified in child classes
     return this.findMarkedForUploadQuery(opts, repository).getMany() as Promise<BaseModel[]>;
@@ -121,7 +121,7 @@ export abstract class BaseModel extends BaseEntity {
 
   static findMarkedForUploadQuery(
     { limit, after }: FindMarkedForUploadOptions,
-    repository: Repository<BaseModel>,
+    repository: Repository<BaseModel>, // passing a repository enables transaction support
   ) {
     const whereAfter = (typeof after === 'string') ? { id: MoreThan(after) } : {};
 
