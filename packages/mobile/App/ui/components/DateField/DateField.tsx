@@ -4,7 +4,7 @@ import DateTimePicker from '@react-native-community/datetimepicker';
 import { StyledView, StyledText } from '/styled/common';
 import { formatDate } from '/helpers/date';
 import { theme } from '/styled/theme';
-import { DateFormats, TimeFormats } from '/helpers/constants';
+import { DateFormats } from '/helpers/constants';
 import { screenPercentageToDP, Orientation } from '/helpers/screen';
 import * as Icons from '../Icons';
 import { TextFieldLabel } from '../TextField/TextFieldLabel';
@@ -77,7 +77,7 @@ export const DateField = React.memo(
     const formatValue = useCallback(() => {
       if (value) {
         if (mode === 'date') return formatDate(value, DateFormats.DDMMYY);
-        return formatDate(value, TimeFormats.HHMMSS);
+        return formatDate(value, DateFormats.TIME_HHMMSS);
       }
       return null;
     }, [mode, value]);

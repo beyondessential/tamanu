@@ -20,8 +20,8 @@ type NewProgramEntryTabsParams = {
 };
 
 type NewProgramEntryTabsRouteProps = RouteProp<
-  NewProgramEntryTabsParams,
-  'NewProgramEntryTabs'
+NewProgramEntryTabsParams,
+'NewProgramEntryTabs'
 >;
 
 type NewProgramEntryTabsProps = {
@@ -64,7 +64,7 @@ const TabNavigator = ({
             selectedPatient,
           }}
           options={{
-            title: 'VIEW HISTORY',
+            title: 'View History',
           }}
           name={Routes.HomeStack.ProgramStack.ProgramTabs.ViewHistory}
           component={ProgramViewHistoryScreen}
