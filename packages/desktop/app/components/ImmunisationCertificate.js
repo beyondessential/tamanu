@@ -3,8 +3,26 @@ import React, { useState, useEffect } from 'react';
 import { Certificate, Spacer, Table } from './Print/Certificate';
 import { DateDisplay } from './DateDisplay';
 import { useApi } from '../api';
+import { useLocalisation } from '../contexts/Localisation';
 
 const ASSET_NAME = 'vaccine-certificate-watermark';
+
+const renderFooter = () => {
+  const { getLocalisation } = useLocalisation();
+
+  return (
+    <div>
+      <p>
+        <span>Email address: </span>
+        <span>{getLocalisation('templates.vaccineCertificateFooter.emailAddress')}</span>
+      </p>
+      <p>
+        <span>Contact number: </span>
+        <span>{getLocalisation('templates.vaccineCertificateFooter.contactNumber')}</span>
+      </p>
+    </div>
+  );
+};
 
 export const ImmunisationCertificate = ({ patient, immunisations }) => {
   const [hasEditedRecord, setHasEditedRecord] = useState(false);
@@ -40,6 +58,7 @@ export const ImmunisationCertificate = ({ patient, immunisations }) => {
       header="Personal vaccination certificate"
       watermark={watermark}
       watermarkType={watermarkType}
+      footer={renderFooter()}
     >
       <Table>
         <thead>
