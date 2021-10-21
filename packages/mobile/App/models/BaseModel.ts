@@ -67,6 +67,8 @@ export abstract class BaseModel extends BaseEntity {
   @BeforeUpdate()
   async markForUpload() {
     // TAN-884: make sure records always have markedForUpload set to true when sync is ongoing
+    // This may sometimes cause records to be uploaded even when an update failed!
+    // We take that risk, since it's better than not uploading a record.
     const thisModel = this.constructor as typeof BaseModel;
     await thisModel.getRepository().update({ id: this.id }, { markedForUpload: true });
   }
