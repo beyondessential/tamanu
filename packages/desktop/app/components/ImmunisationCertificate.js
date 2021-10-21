@@ -1,10 +1,16 @@
-import React, { useEffect } from 'react';
+import React, { useState, useEffect } from 'react';
 
 import { Certificate, Spacer, Table } from './Print/Certificate';
 import { DateDisplay } from './DateDisplay';
+import { useApi } from '../api';
+
+const ASSET_NAME = 'vaccine-certificate-watermark';
 
 export const ImmunisationCertificate = ({ patient, immunisations }) => {
-  const [hasEditedRecord, setHasEditedRecord] = React.useState(false);
+  const [hasEditedRecord, setHasEditedRecord] = useState(false);
+  const [watermark, setWatermark] = useState('');
+  const [watermarkType, setWatermarkType] = useState('');
+  const api = useApi();
 
   useEffect(() => {
     if (!immunisations) {
@@ -16,11 +22,25 @@ export const ImmunisationCertificate = ({ patient, immunisations }) => {
     );
   }, [immunisations]);
 
+  useEffect(() => {
+    (async () => {
+      const response = await api.get(`asset/${ASSET_NAME}`);
+      setWatermark(Buffer.from(response.data).toString('base64'));
+      setWatermarkType(response.type);
+    })();
+  }, []);
+
   if (!immunisations) {
     return null;
   }
+
   return (
-    <Certificate patient={patient} header="Personal vaccination certificate">
+    <Certificate
+      patient={patient}
+      header="Personal vaccination certificate"
+      watermark={watermark}
+      watermarkType={watermarkType}
+    >
       <Table>
         <thead>
           <tr>
@@ -43,7 +63,9 @@ export const ImmunisationCertificate = ({ patient, immunisations }) => {
               <td>{immunisation.scheduledVaccine?.schedule}</td>
               <td>{immunisation.encounter?.location?.name || ''}</td>
               <td>{immunisation.encounter?.examiner?.displayName || ''}</td>
-              <td><DateDisplay date={immunisation.date} /></td>
+              <td>
+                <DateDisplay date={immunisation.date} />
+              </td>
             </tr>
           ))}
         </tbody>
