@@ -33,6 +33,8 @@ export const DailySchedule = ({
     .map(([key, appointments]) => {
       const firstAppointment = appointments[0];
       const filterObject = firstAppointment[activeFilter.name];
+      const header = filterObject.name || filterObject.displayName;
+
       const displayAppointments = appointments.filter(appointment => {
         if (!appointmentType.length) {
           return true;
@@ -40,7 +42,6 @@ export const DailySchedule = ({
         return appointmentType.includes(appointment.type);
       });
       // location has name, while clinician has displayName;
-      const header = filterObject.name || filterObject.displayName;
       return {
         header,
         appointments: displayAppointments,
