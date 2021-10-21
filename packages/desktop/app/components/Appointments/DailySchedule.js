@@ -24,13 +24,13 @@ export const DailySchedule = ({
   appointmentType,
 }) => {
   const columns = Object.entries(appointmentGroups)
-    .filter(([value]) => {
+    .filter(([key]) => {
       if (!filterValue) {
         return true;
       }
-      return value === filterValue;
+      return key === filterValue;
     })
-    .map(([value, appointments]) => {
+    .map(([key, appointments]) => {
       const firstAppointment = appointments[0];
       const filterObject = firstAppointment[activeFilter.name];
       const displayAppointments = appointments.filter(appointment => {
@@ -44,7 +44,7 @@ export const DailySchedule = ({
       return {
         header,
         appointments: displayAppointments,
-        key: value,
+        key,
       };
     });
   return (
