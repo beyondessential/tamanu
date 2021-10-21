@@ -22,6 +22,8 @@ export const DailySchedule = ({ appointments, activeFilter, filterValue, appoint
   const appointmentGroups = groupBy(appointments, appt => appt[activeFilter.name].id);
   const columns = Object.entries(appointmentGroups)
     .filter(([key]) => {
+      // currently this just selects a single element from the appointmentGroups object,
+      // but we're keeping it as an array filter to allow for easier expansion in future
       if (!filterValue) {
         return true;
       }
