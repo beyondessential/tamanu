@@ -116,7 +116,7 @@ export abstract class BaseModel extends BaseEntity {
     repository: Repository<BaseModel> = this.getRepository(), // passing a repository enables transaction support
   ): Promise<BaseModel[]> {
     // query is built separately so it can be modified in child classes
-    return this.findMarkedForUploadQuery(opts, repository).getMany() as Promise<BaseModel[]>;
+    return this.findMarkedForUploadQuery(opts, repository).getMany();
   }
 
   static findMarkedForUploadQuery(
