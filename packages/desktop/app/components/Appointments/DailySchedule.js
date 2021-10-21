@@ -1,9 +1,8 @@
-import React, { useState, useEffect } from 'react';
+import React from 'react';
 import styled from 'styled-components';
-import { startOfDay, endOfDay } from 'date-fns';
+import { groupBy } from 'lodash';
 import { Colors } from '../../constants';
 import { Appointment } from './Appointment';
-import { useApi } from '../../api';
 
 const Column = ({ header, appointments }) => {
   const appointmentsByStartTime = [...appointments].sort((a, b) => a.startTime - b.startTime);
@@ -19,34 +18,40 @@ const Column = ({ header, appointments }) => {
   );
 };
 
-export const DailySchedule = ({ date }) => {
-  const api = useApi();
-  const [appointments, setAppointments] = useState([]);
-  useEffect(() => {
-    (async () => {
-      const { data } = await api.get(
-        `/appointments?after=${encodeURIComponent(
-          startOfDay(date).toISOString(),
-        )}&before=${encodeURIComponent(endOfDay(date).toISOString())}`,
-      );
-      setAppointments(data);
-    })();
-  }, [date]);
-  const byLocation = appointments.reduce(
-    (locations, appointment) => ({
-      ...locations,
-      [appointment.locationId]: [...(locations[appointment.locationId] || []), appointment],
-    }),
-    {},
-  );
+export const DailySchedule = ({ appointments, activeFilter, filterValue, appointmentType }) => {
+  const appointmentGroups = groupBy(appointments, appt => appt[activeFilter.name].id);
+  const columns = Object.entries(appointmentGroups)
+    .filter(([key]) => {
+      // currently this just selects a single element from the appointmentGroups object,
+      // but we're keeping it as an array filter to allow for easier expansion in future
+      if (!filterValue) {
+        return true;
+      }
+      return key === filterValue;
+    })
+    .map(([key, appts]) => {
+      const firstAppointment = appts[0];
+      const filterObject = firstAppointment[activeFilter.name];
+      // location has name, while clinician has displayName;
+      const header = filterObject.name || filterObject.displayName;
+
+      const displayAppointments = appts.filter(appointment => {
+        if (!appointmentType.length) {
+          return true;
+        }
+        return appointmentType.includes(appointment.type);
+      });
+      return {
+        header,
+        appointments: displayAppointments,
+        key,
+      };
+    });
   return (
     <Container>
-      {Object.entries(byLocation).map(([locationId]) => {
-        const location = byLocation[locationId][0].location;
-        return (
-          <Column key={locationId} header={location?.name} appointments={byLocation[locationId]} />
-        );
-      })}
+      {columns.map(props => (
+        <Column {...props} />
+      ))}
     </Container>
   );
 };
