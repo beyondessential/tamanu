@@ -1,5 +1,6 @@
 import React from 'react';
 import styled from 'styled-components';
+import { groupBy } from 'lodash';
 import { Colors } from '../../constants';
 import { Appointment } from './Appointment';
 
@@ -17,12 +18,8 @@ const Column = ({ header, appointments }) => {
   );
 };
 
-export const DailySchedule = ({
-  appointmentGroups,
-  activeFilter,
-  filterValue,
-  appointmentType,
-}) => {
+export const DailySchedule = ({ appointments, activeFilter, filterValue, appointmentType }) => {
+  const appointmentGroups = groupBy(appointments, appt => appt[activeFilter.name].id);
   const columns = Object.entries(appointmentGroups)
     .filter(([key]) => {
       if (!filterValue) {
@@ -30,18 +27,18 @@ export const DailySchedule = ({
       }
       return key === filterValue;
     })
-    .map(([key, appointments]) => {
-      const firstAppointment = appointments[0];
+    .map(([key, appts]) => {
+      const firstAppointment = appts[0];
       const filterObject = firstAppointment[activeFilter.name];
+      // location has name, while clinician has displayName;
       const header = filterObject.name || filterObject.displayName;
 
-      const displayAppointments = appointments.filter(appointment => {
+      const displayAppointments = appts.filter(appointment => {
         if (!appointmentType.length) {
           return true;
         }
         return appointmentType.includes(appointment.type);
       });
-      // location has name, while clinician has displayName;
       return {
         header,
         appointments: displayAppointments,
