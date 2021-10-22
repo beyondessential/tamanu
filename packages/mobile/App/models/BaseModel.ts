@@ -86,8 +86,8 @@ export abstract class BaseModel extends BaseEntity {
     });
   }
 
-  async markParentForUpload(
-    parentModel: typeof BaseModel,
+  async markParentForUpload<T extends typeof BaseModel>(
+    parentModel: T,
     parentProperty: string,
   ) {
     const parent = await this.findParent(parentModel, parentProperty);
