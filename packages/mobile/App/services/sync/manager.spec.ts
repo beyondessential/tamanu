@@ -253,13 +253,13 @@ describe('SyncManager', () => {
 
       // 3. mark patient for save
       oldPatient.firstName = 'Bob';
-      const savePromise = oldPatient.save();
+      await oldPatient.save();
 
       // 4. finish the network request
       finishFetch();
 
-      // 5. wait for both to complete
-      await Promise.all([managerPromise, savePromise]);
+      // 5. wait for the manager promise to complete
+      await managerPromise;
 
       // assert
       const newPatient = await Patient.findOne({ id: oldPatient.id });
