@@ -337,9 +337,6 @@ export class SyncManager {
             { channel, after: afterId, limit: model.uploadLimit },
             repository,
           );
-          if (records.length === 0) {
-            return [];
-          }
           return records.map(r => executeExportPlan(exportPlan, r));
         };
 
