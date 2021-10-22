@@ -38,12 +38,19 @@ const createManager = (): ({
   // mock WebSyncSource and MockedLocalisationServoce
   MockedWebSyncSource.mockClear();
   MockedLocalisationService.mockClear();
-  const mockedSource = new MockedWebSyncSource('');
-  const mockedLocalisation = new MockedLocalisationService() as any; // TODO: ts isn't recognising this is a mock
+
+  // TODO: ts isn't recognising these are mocks, so we cast to any
+  const mockedSource = new MockedWebSyncSource('') as any;
+  const mockedLocalisation = new MockedLocalisationService() as any;
+
+  // instantiate SyncManager
   const syncManager = new SyncManager(mockedSource, mockedLocalisation, { verbose: false });
   expect(MockedWebSyncSource).toHaveBeenCalledTimes(1);
   expect(MockedWebSyncSource).toHaveBeenCalledTimes(1);
+
+  // mock commonly called methods
   mockedLocalisation.getArrayOfStrings.mockReturnValue([]);
+  mockedSource.uploadRecords.mockResolvedValue({ count: 0, requestedAt: Date.now() });
 
   // detect emitted events
   const emittedEvents = [];
