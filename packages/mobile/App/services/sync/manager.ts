@@ -1,7 +1,5 @@
 import mitt from 'mitt';
 
-import { In } from 'typeorm/browser';
-
 import { Database } from '~/infra/db';
 import { readConfig, writeConfig } from '~/services/config';
 import { Patient } from '~/models/Patient';

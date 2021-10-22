@@ -1,12 +1,4 @@
-import {
-  Entity,
-  Column,
-  ManyToOne,
-  RelationId,
-  BeforeUpdate,
-  BeforeInsert,
-  Repository,
-} from 'typeorm/browser';
+import { Entity, Column, ManyToOne, RelationId, BeforeUpdate, BeforeInsert } from 'typeorm/browser';
 import { BaseModel, FindMarkedForUploadOptions } from './BaseModel';
 import { Patient } from './Patient';
 import { IPatientIssue, PatientIssueType } from '~/types';
@@ -44,14 +36,15 @@ export class PatientIssue extends BaseModel implements IPatientIssue {
     }
   }
 
-  static async findMarkedForUpload(opts: FindMarkedForUploadOptions): Promise<BaseModel[]> {
+  static async findMarkedForUpload(
+    opts: FindMarkedForUploadOptions,
+  ): Promise<BaseModel[]> {
     const patientId = opts.channel.match(/^patient\/(.*)\/issue$/)[1];
     if (!patientId) {
       throw new Error(`Could not extract patientId from ${opts.channel}`);
     }
 
-    const records = await this
-      .findMarkedForUploadQuery(opts)
+    const records = await this.findMarkedForUploadQuery(opts)
       .andWhere('patientId = :patientId', { patientId })
       .getMany();
 

@@ -135,12 +135,16 @@ export abstract class BaseModel extends BaseEntity {
     return repo.create(sanitiseForImport<T>(repo, data)).save();
   }
 
-  static async findMarkedForUpload(opts: FindMarkedForUploadOptions): Promise<BaseModel[]> {
+  static async findMarkedForUpload(
+    opts: FindMarkedForUploadOptions,
+  ): Promise<BaseModel[]> {
     // query is built separately so it can be modified in child classes
     return this.findMarkedForUploadQuery(opts).getMany();
   }
 
-  static findMarkedForUploadQuery({ limit, after }: FindMarkedForUploadOptions) {
+  static findMarkedForUploadQuery(
+    { limit, after }: FindMarkedForUploadOptions,
+  ) {
     const whereAfter = (typeof after === 'string') ? { id: MoreThan(after) } : {};
 
     const qb = this.getRepository().createQueryBuilder();

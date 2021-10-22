@@ -7,7 +7,6 @@ import {
   BeforeUpdate,
   BeforeInsert,
   RelationId,
-  Repository,
 } from 'typeorm/browser';
 import { startOfDay, addHours, subDays } from 'date-fns';
 import { getUniqueId } from 'react-native-device-info';
@@ -188,19 +187,19 @@ export class Encounter extends BaseModel implements IEncounter {
     }
   }
 
-  static async findMarkedForUpload(opts: FindMarkedForUploadOptions): Promise<BaseModel[]> {
+  static async findMarkedForUpload(
+    opts: FindMarkedForUploadOptions,
+  ): Promise<BaseModel[]> {
     const patientId = (opts.channel.match(/^patient\/(.*)\/encounter$/) || [])[1];
     const scheduledVaccineId = (opts.channel.match(/^scheduledVaccine\/(.*)\/encounter/) || [])[1];
     if (patientId) {
-      const records = await this
-        .findMarkedForUploadQuery(opts)
+      const records = await this.findMarkedForUploadQuery(opts)
         .andWhere('patientId = :patientId', { patientId })
         .getMany();
       return records as BaseModel[];
     }
     if (scheduledVaccineId) {
-      const records = await this
-        .findMarkedForUploadQuery(opts)
+      const records = await this.findMarkedForUploadQuery(opts)
         .innerJoinAndSelect('Encounter.administeredVaccines', 'AdministeredVaccine')
         .andWhere(
           'AdministeredVaccine.scheduledVaccineId = :scheduledVaccineId',
