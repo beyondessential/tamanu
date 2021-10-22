@@ -1,4 +1,5 @@
 import { pick } from 'lodash';
+import { Mutex } from 'async-mutex';
 import {
   BaseEntity,
   PrimaryColumn,
@@ -22,6 +23,10 @@ export type FindMarkedForUploadOptions = {
   limit?: number;
   after?: string;
 };
+
+// https://stackoverflow.com/questions/54281631/is-it-possible-to-get-instancetypet-to-work-on-an-abstract-class
+type AbstractInstanceType<T> = T extends { prototype: infer U } ?
+  U : never;
 
 function sanitiseForImport<T>(repo: Repository<T>, data: { [key: string]: any }) {
   // TypeORM will complain when importing an object that has fields that don't
@@ -47,6 +52,9 @@ function sanitiseForImport<T>(repo: Repository<T>, data: { [key: string]: any })
 export const IdRelation = (options = {}): any => Column({ nullable: true, ...options });
 
 export abstract class BaseModel extends BaseEntity {
+  // TAN-884: lock entire model class while updating markedForUpload or syncing
+  static markedForUploadMutex = new Mutex();
+
   @PrimaryColumn()
   @Generated('uuid')
   id: string;
@@ -69,21 +77,43 @@ export abstract class BaseModel extends BaseEntity {
     // TAN-884: make sure records always have markedForUpload set to true when sync is ongoing
     // This may sometimes cause records to be uploaded even when an update failed!
     // We take that risk, since it's better than not uploading a record.
+
     const thisModel = this.constructor as typeof BaseModel;
-    await thisModel.getRepository().update({ id: this.id }, { markedForUpload: true });
+
+    // acquire an exclusive lock before running the update
+    await thisModel.markedForUploadMutex.runExclusive(async () => {
+      await thisModel.getRepository().update({ id: this.id }, { markedForUpload: true });
+    });
   }
 
-  async markParent(
+  async markParentForUpload(
     parentModel: typeof BaseModel,
     parentProperty: string,
-    flag: 'markedForUpload' | 'markedForSync',
   ) {
-    let entity: BaseModel;
+    const parent = await this.findParent(parentModel, parentProperty);
+    if (!parent) {
+      return;
+    }
+    await parent.markForUpload()
+  }
+
+  async findParent<T extends typeof BaseModel>(
+    parentModel: T,
+    parentProperty: string,
+  ): Promise<AbstractInstanceType<T>> {
+    let entity: AbstractInstanceType<T>;
     const parentValue = this[parentProperty];
+
     if (typeof parentValue === 'string') {
-      entity = await parentModel.findOne({ where: { id: parentValue } })
+      entity = await parentModel.findOne({
+        where: { id: parentValue }
+      }) as AbstractInstanceType<T>;
+
     } else if (typeof parentValue === 'object') {
-      entity = await parentModel.findOne({ where: { id: parentValue.id } })
+      entity = await parentModel.findOne({
+        where: { id: parentValue.id },
+      }) as AbstractInstanceType<T>;
+
     } else {
       const thisModel = this.constructor as typeof BaseModel;
       entity = await thisModel
@@ -93,19 +123,11 @@ export abstract class BaseModel extends BaseEntity {
         .of(this)
         .loadOne();
     }
-    if (!entity) {
-      return;
-    }
-    entity[flag] = true;
-    await entity.save();
+    return entity;
   }
 
-  static async markUploaded(
-    ids: string | string[],
-    uploadedAt: Date,
-    repository: Repository<BaseModel>, // passing a repository enables transaction support
-  ): Promise<void> {
-    await repository.update(ids, { uploadedAt, markedForUpload: false });
+  static async markUploaded(ids: string | string[], uploadedAt: Date): Promise<void> {
+    await this.getRepository().update(ids, { uploadedAt, markedForUpload: false });
   }
 
   static createAndSaveOne<T extends BaseModel>(data?: object): Promise<T> {
@@ -113,21 +135,15 @@ export abstract class BaseModel extends BaseEntity {
     return repo.create(sanitiseForImport<T>(repo, data)).save();
   }
 
-  static async findMarkedForUpload(
-    opts: FindMarkedForUploadOptions,
-    repository: Repository<BaseModel> = this.getRepository(), // passing a repository enables transaction support
-  ): Promise<BaseModel[]> {
+  static async findMarkedForUpload(opts: FindMarkedForUploadOptions): Promise<BaseModel[]> {
     // query is built separately so it can be modified in child classes
-    return this.findMarkedForUploadQuery(opts, repository).getMany();
+    return this.findMarkedForUploadQuery(opts).getMany();
   }
 
-  static findMarkedForUploadQuery(
-    { limit, after }: FindMarkedForUploadOptions,
-    repository: Repository<BaseModel>, // passing a repository enables transaction support
-  ) {
+  static findMarkedForUploadQuery({ limit, after }: FindMarkedForUploadOptions) {
     const whereAfter = (typeof after === 'string') ? { id: MoreThan(after) } : {};
 
-    const qb = repository.createQueryBuilder();
+    const qb = this.getRepository().createQueryBuilder();
     return FindOptionsUtils.applyOptionsToQueryBuilder(qb, {
       where: {
         markedForUpload: true,

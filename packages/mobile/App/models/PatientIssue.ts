@@ -37,20 +37,21 @@ export class PatientIssue extends BaseModel implements IPatientIssue {
   async markPatient() {
     // adding an issue to a patient should mark them for syncing in future
     // we don't need to upload the patient, so we only set markedForSync
-    await this.markParent(Patient, 'patient', 'markedForSync');
+    const parent = await this.findParent(Patient, 'patient');
+    if (parent) {
+      parent.markedForSync = true;
+      await parent.save();
+    }
   }
 
-  static async findMarkedForUpload(
-    opts: FindMarkedForUploadOptions,
-    repository: Repository<PatientIssue> = this.getRepository(),
-  ): Promise<BaseModel[]> {
+  static async findMarkedForUpload(opts: FindMarkedForUploadOptions): Promise<BaseModel[]> {
     const patientId = opts.channel.match(/^patient\/(.*)\/issue$/)[1];
     if (!patientId) {
       throw new Error(`Could not extract patientId from ${opts.channel}`);
     }
 
     const records = await this
-      .findMarkedForUploadQuery(opts, repository)
+      .findMarkedForUploadQuery(opts)
       .andWhere('patientId = :patientId', { patientId })
       .getMany();
 

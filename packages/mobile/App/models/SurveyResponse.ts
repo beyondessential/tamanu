@@ -64,7 +64,7 @@ export class SurveyResponse extends BaseModel implements ISurveyResponse {
   @BeforeInsert()
   @BeforeUpdate()
   async markEncounterForUpload() {
-    await this.markParent(Encounter, 'encounter', 'markedForUpload');
+    await this.markParentForUpload(Encounter, 'encounter');
   }
 
   static async getFullResponse(surveyId: string) {

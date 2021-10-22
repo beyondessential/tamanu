@@ -181,25 +181,26 @@ export class Encounter extends BaseModel implements IEncounter {
   async markPatient() {
     // adding an encounter to a patient should mark them for syncing in future
     // we don't need to upload the patient, so we only set markedForSync
-    await this.markParent(Patient, 'patient', 'markedForSync');
+    const parent = await this.findParent(Patient, 'patient');
+    if (parent) {
+      parent.markedForSync = true;
+      await parent.save();
+    }
   }
 
-  static async findMarkedForUpload(
-    opts: FindMarkedForUploadOptions,
-    repository: Repository<Encounter> = this.getRepository(),
-  ): Promise<BaseModel[]> {
+  static async findMarkedForUpload(opts: FindMarkedForUploadOptions): Promise<BaseModel[]> {
     const patientId = (opts.channel.match(/^patient\/(.*)\/encounter$/) || [])[1];
     const scheduledVaccineId = (opts.channel.match(/^scheduledVaccine\/(.*)\/encounter/) || [])[1];
     if (patientId) {
       const records = await this
-        .findMarkedForUploadQuery(opts, repository)
+        .findMarkedForUploadQuery(opts)
         .andWhere('patientId = :patientId', { patientId })
         .getMany();
       return records as BaseModel[];
     }
     if (scheduledVaccineId) {
       const records = await this
-        .findMarkedForUploadQuery(opts, repository)
+        .findMarkedForUploadQuery(opts)
         .innerJoinAndSelect('Encounter.administeredVaccines', 'AdministeredVaccine')
         .andWhere(
           'AdministeredVaccine.scheduledVaccineId = :scheduledVaccineId',

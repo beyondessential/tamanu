@@ -253,13 +253,18 @@ describe('SyncManager', () => {
 
       // 3. mark patient for save
       oldPatient.firstName = 'Bob';
-      await oldPatient.save();
+      const patientPromise = oldPatient.save();
 
-      // 4. finish the network request
+      // 4. wait a little while to allow patient to save (if it's going to)
+      jest.useRealTimers();
+      await new Promise(resolve => setTimeout(resolve, 100));
+      jest.useFakeTimers();
+
+      // 5. finish the network request
       finishFetch();
 
-      // 5. wait for the manager promise to complete
-      await managerPromise;
+      // 6. wait for the manager promise to complete
+      await Promise.all([managerPromise, patientPromise]);
 
       // assert
       const newPatient = await Patient.findOne({ id: oldPatient.id });

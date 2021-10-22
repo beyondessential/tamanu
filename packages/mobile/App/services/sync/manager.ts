@@ -310,6 +310,13 @@ export class SyncManager {
   async exportAndUpload(model: typeof BaseModel, channel: string): Promise<void> {
     // function definitions
     const exportPlan = createExportPlan(model);
+    const exportRecords = async (afterId?: string): Promise<SyncRecord[]> => {
+      this.emitter.emit('exportingPage', `${channel}-${page}`);
+      const records = await model.findMarkedForUpload(
+        { channel, after: afterId, limit: model.uploadLimit },
+      );
+      return records.map(r => executeExportPlan(exportPlan, r));
+    };
 
     const uploadRecords = async (
       syncRecords: SyncRecord[],
@@ -317,6 +324,14 @@ export class SyncManager {
       // TODO: detect and retry failures (need to pass back from server)
       this.emitter.emit('uploadingPage', `${channel}-${page}`);
       return this.syncSource.uploadRecords(channel, syncRecords);
+    };
+
+    const markRecordsUploaded = async (
+      records: SyncRecord[],
+      requestedAt: Timestamp,
+    ): Promise<void> => {
+      this.emitter.emit('markingPageUploaded', `${channel}-${page}`);
+      return model.markUploaded(records.map(r => r.data.id), new Date(requestedAt));
     };
 
     // TODO: progress handling
@@ -327,31 +342,7 @@ export class SyncManager {
     let page = 0;
     let shouldLoop = true;
     while (shouldLoop) {
-      await model.getRepository().manager.transaction(async transactionalEntityManager => {
-        const repository = transactionalEntityManager.getRepository(model);
-
-        // helper functions
-        const exportRecords = async (afterId?: string): Promise<SyncRecord[]> => {
-          this.emitter.emit('exportingPage', `${channel}-${page}`);
-          const records = await model.findMarkedForUpload(
-            { channel, after: afterId, limit: model.uploadLimit },
-            repository,
-          );
-          return records.map(r => executeExportPlan(exportPlan, r));
-        };
-
-        const markRecordsUploaded = async (
-          records: SyncRecord[],
-          requestedAt: Timestamp,
-        ): Promise<void> => {
-          this.emitter.emit('markingPageUploaded', `${channel}-${page}`);
-          return model.markUploaded(
-            records.map(r => r.data.id),
-            new Date(requestedAt),
-            repository,
-          );
-        };
-
+      await model.markedForUploadMutex.runExclusive(async () => {
         // export records
         const recordsChunk = await exportRecords(lastSeenId);
         if (recordsChunk.length === 0) {
