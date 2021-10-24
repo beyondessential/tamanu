@@ -312,7 +312,9 @@
     "timeOutDurationSeconds": 7200,
     "runInChildProcess": true,
     // provide an array [] if you want to override the options, eg: ['--max-old-space-size=4096']
-    "processOptions": null
+    "processOptions": null,
+    // Provide an object {} for the env of child process
+    "childProcessEnv": null
   },
   "tupaiaApiClient": {},
   "scheduledReports": []

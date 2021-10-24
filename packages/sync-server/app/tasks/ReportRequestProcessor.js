@@ -32,6 +32,10 @@ export class ReportRequestProcessor extends ScheduledTask {
       }" with command [${node}, ${parameters.toString()}, ${scriptPath}].`,
     );
 
+    const childProcessEnv = config.reportProcess.childProcessEnv || {
+      ...process.env,
+      pm2_env: JSON.stringify(process.env),
+    };
     const childProcess = spawn(
       node,
       [
@@ -45,7 +49,10 @@ export class ReportRequestProcessor extends ScheduledTask {
         '--recipients',
         request.recipients,
       ],
-      { timeout: REPORT_TIME_OUT_DURATION_MILLISECONDS },
+      {
+        timeout: REPORT_TIME_OUT_DURATION_MILLISECONDS,
+        env: childProcessEnv,
+      },
     );
 
     let errorMessage = '';
