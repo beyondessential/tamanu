@@ -2,7 +2,7 @@ import React, { ReactElement, useCallback, useContext, useEffect } from 'react';
 import { StatusBar } from 'react-native';
 import { compose } from 'redux';
 import { RecentlyViewedPatientTiles } from './RecentlyViewedPatientTiles';
-import { LogoV2Icon, ProfileIcon, SearchIcon } from '/components/Icons';
+import { LogoV2Icon, SearchIcon } from '/components/Icons';
 import { UserAvatar } from '/components/UserAvatar';
 import { withAuth } from '/containers/Auth';
 import AuthContext from '~/ui/contexts/AuthContext';
@@ -24,38 +24,7 @@ import {
 } from '/styled/common';
 import { theme } from '/styled/theme';
 
-const HomeMenuButton = ({
-  text,
-  onPress,
-}: {
-  text: string;
-  onPress: () => void;
-}): ReactElement => (
-  <StyledTouchableOpacity onPress={onPress}>
-    <StyledView
-      height={screenPercentageToDP(23.08, Orientation.Height)}
-      width={screenPercentageToDP(43.79, Orientation.Width)}
-      background={theme.colors.WHITE}
-      borderRadius={5}
-      paddingLeft={15}
-      paddingTop={screenPercentageToDP(3.03, Orientation.Height)}
-    >
-      <ProfileIcon
-        height={screenPercentageToDP(6.92, Orientation.Height)}
-        width={screenPercentageToDP(6.92, Orientation.Height)}
-      />
-      <StyledText
-        lineHeight={screenPercentageToDP(2.67, Orientation.Height)}
-        marginTop={screenPercentageToDP(4.86, Orientation.Width)}
-        fontSize={screenPercentageToDP(2.18, Orientation.Height)}
-        fontWeight="bold"
-        color={theme.colors.TEXT_DARK}
-      >
-        {text}
-      </StyledText>
-    </StyledView>
-  </StyledTouchableOpacity>
-);
+import { ConditionalRegisterPatientButton } from './RegisterPatientButton';
 
 const SearchPatientsButton = ({
   onPress,
@@ -93,10 +62,6 @@ const BaseHomeScreen = ({ navigation, user }: BaseAppProps): ReactElement => {
 
   const onNavigateToSearchPatient = useCallback(() => {
     navigation.navigate(Routes.HomeStack.SearchPatientStack.Index);
-  }, []);
-
-  const onNavigateToRegisterPatient = useCallback(() => {
-    navigation.navigate(Routes.HomeStack.RegisterPatientStack.Index);
   }, []);
 
   setStatusBar('light-content', theme.colors.PRIMARY_MAIN);
@@ -151,20 +116,7 @@ const BaseHomeScreen = ({ navigation, user }: BaseAppProps): ReactElement => {
         >
           <SearchPatientsButton onPress={onNavigateToSearchPatient} />
         </StyledView>
-        <StyledView
-          background={theme.colors.BACKGROUND_GREY}
-          paddingTop={screenPercentageToDP(4.86, Orientation.Height)}
-          paddingBottom={screenPercentageToDP(3.03, Orientation.Height)}
-          paddingLeft={screenPercentageToDP(4.86, Orientation.Width)}
-          paddingRight={screenPercentageToDP(4.86, Orientation.Width)}
-        >
-          <RowView width="100%" justifyContent="space-between">
-            <HomeMenuButton
-              onPress={onNavigateToRegisterPatient}
-              text={'Register\nNew Patient'}
-            />
-          </RowView>
-        </StyledView>
+        <ConditionalRegisterPatientButton />
         <RecentlyViewedPatientTiles />
       </FullView>
     </StyledSafeAreaView>

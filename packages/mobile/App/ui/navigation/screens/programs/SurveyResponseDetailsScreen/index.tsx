@@ -1,5 +1,4 @@
 import React, { useCallback } from 'react';
-import { Modal, Dimensions } from 'react-native';
 import { StyledView, StyledText, FullView } from '/styled/common';
 import { theme } from '/styled/theme';
 
@@ -13,6 +12,28 @@ import { SurveyResultBadge } from '/components/SurveyResultBadge';
 import { ViewPhotoLink } from '/components/ViewPhotoLink';
 import { LoadingScreen } from '~/ui/components/LoadingScreen';
 import { useBackendEffect } from '~/ui/hooks';
+
+const SOURCE_TO_COLUMN_MAP = {
+  ReferenceData: 'name',
+  User: 'displayName',
+};
+
+const AutocompleteAnswer = ({ question, answer }): JSX.Element => {
+  const config = JSON.parse(question.config);
+  const columnName = SOURCE_TO_COLUMN_MAP[config.source];
+  const [refData, error] = useBackendEffect(
+    ({ models }) => models[config.source].getRepository().findOne(answer),
+    [question],
+  );
+  if (!refData) {
+    return null;
+  }
+  if (error) {
+    console.error(error);
+    return <StyledText>{error.message}</StyledText>;
+  }
+  return <StyledText textAlign="right">{refData[columnName]}</StyledText>;
+};
 
 function getAnswerText(question, answer): string | number {
   if (answer === null || answer === undefined) return 'N/A';
@@ -34,7 +55,7 @@ function getAnswerText(question, answer): string | number {
       return answer || 'N/A';
     case FieldTypes.BINARY:
     case FieldTypes.CHECKBOX:
-      return (answer.toLowerCase() === 'yes') ? 'Yes' : 'No';
+      return answer.toLowerCase() === 'yes' ? 'Yes' : 'No';
     case FieldTypes.DATE:
     case FieldTypes.SUBMISSION_DATE:
       return formatStringDate(answer, DateFormats.DDMMYY);
@@ -46,25 +67,20 @@ function getAnswerText(question, answer): string | number {
   }
 }
 
-const isCalculated = (question): JSX.Element => {
-  const questionType = question.dataElement.type;
-  switch (question.dataElement.type) {
-    case FieldTypes.CALCULATED:
-    case FieldTypes.RESULT:
-      return true;
-    default:
-      return false;
-  }
-};
-
-const renderAnswer = (question, answer) => {
+const renderAnswer = (question, answer): JSX.Element => {
   switch (question.dataElement.type) {
     case FieldTypes.RESULT:
-      return (<SurveyResultBadge result={answer} />)
+      return <SurveyResultBadge result={answer} />;
     case FieldTypes.PHOTO:
-      return (<ViewPhotoLink imageId={answer}/>)
+      return <ViewPhotoLink imageId={answer} />;
+    case FieldTypes.AUTOCOMPLETE:
+      return <AutocompleteAnswer question={question} answer={answer} />;
     default:
-      return (<StyledText textAlign="right">{getAnswerText(question, answer)}</StyledText>)
+      return (
+        <StyledText textAlign="right">
+          {getAnswerText(question, answer)}
+        </StyledText>
+      );
   }
 };
 
@@ -80,15 +96,13 @@ const AnswerItem = ({ question, answer, index }): JSX.Element => (
     paddingRight={16}
     background={index % 2 ? theme.colors.WHITE : theme.colors.BACKGROUND_GREY}
   >
-    <StyledView maxWidth="80%">
+    <StyledView maxWidth="40%">
       <StyledText fontWeight="bold" color={theme.colors.LIGHT_BLUE}>
         {question.dataElement.name}
       </StyledText>
     </StyledView>
-    <StyledView alignItems="flex-end" justifyContent="center" maxWidth="60%" > 
-      {
-        renderAnswer(question, answer)
-      }
+    <StyledView alignItems="flex-end" justifyContent="center" maxWidth="60%">
+      {renderAnswer(question, answer)}
     </StyledView>
   </StyledView>
 );
@@ -115,11 +129,13 @@ export const SurveyResponseDetailsScreen = ({ route }): JSX.Element => {
     return <LoadingScreen />;
   }
 
-  const { encounter, survey, questions, answers, ...rest } = surveyResponse;
+  const { encounter, survey, questions, answers } = surveyResponse;
   const { patient } = encounter;
 
-  const attachAnswer = (q): string | null => {
-    const answerObject = answers.find(a => a.dataElement.id === q.dataElement.id);
+  const attachAnswer = (q): { answer: string; question: any } | null => {
+    const answerObject = answers.find(
+      (a) => a.dataElement.id === q.dataElement.id,
+    );
     return {
       question: q,
       answer: (answerObject || null) && answerObject.body,
@@ -136,11 +152,11 @@ export const SurveyResponseDetailsScreen = ({ route }): JSX.Element => {
   );
 
   const answerItems = questions
-    .filter(q => q.dataElement.name)
+    .filter((q) => q.dataElement.name)
     .map(attachAnswer)
-    .filter(q => q.answer !== null && q.answer !== '')
+    .filter((q) => q.answer !== null && q.answer !== '')
     .map(questionToAnswerItem);
-  
+
   return (
     <FullView>
       <StackHeader
@@ -148,9 +164,7 @@ export const SurveyResponseDetailsScreen = ({ route }): JSX.Element => {
         title={`${patient.firstName} ${patient.lastName}`}
         onGoBack={goBack}
       />
-      <ScrollView>
-        {answerItems}
-      </ScrollView>
+      <ScrollView>{answerItems}</ScrollView>
     </FullView>
   );
 };

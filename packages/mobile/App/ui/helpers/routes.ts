@@ -19,6 +19,8 @@ export const Routes = {
     RegisterAccountStep2: '',
     RegisterAccountStep3: '',
     SignIn: '',
+    ResetPassword: '',
+    ChangePassword: '',
   },
   HomeStack: {
     Index: '',
@@ -90,8 +92,8 @@ export const Routes = {
     LabRequestStack: {
       Index: '',
       LabRequestTabs: {
-        NewRequest: '',
         ViewHistory: '',
+        NewRequest: '',
       },
     },
     HistoryVitalsStack: {

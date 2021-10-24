@@ -42,4 +42,3 @@ export class Survey extends BaseModel implements ISurvey {
     return responses;
   }
 }
-

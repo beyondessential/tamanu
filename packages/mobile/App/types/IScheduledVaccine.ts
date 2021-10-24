@@ -10,4 +10,5 @@ export interface IScheduledVaccine {
   weeksFromLastVaccinationDue?: number;
   category?: string;
   vaccine: IReferenceData;
+  vaccineId: string;
 }

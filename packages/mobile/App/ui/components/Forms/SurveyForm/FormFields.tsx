@@ -1,22 +1,21 @@
-import React, { ReactElement, useCallback, useState } from 'react';
-import { ISurveyScreenComponent, DataElementType } from '~/types';
+import React, { ReactElement, useCallback, useState, useRef } from 'react';
+import { TouchableWithoutFeedback } from 'react-native-gesture-handler';
+import { ISurveyScreenComponent } from '~/types';
 import { theme } from '~/ui/styled/theme';
-import { checkVisibilityCriteria, isCalculated } from '/helpers/fields';
+import { checkVisibilityCriteria } from '/helpers/fields';
 import { SurveyQuestion } from './SurveyQuestion';
 import { SectionHeader } from '../../SectionHeader';
 import { Button } from '../../Button';
 import { FullView, RowView, StyledText, StyledView } from '~/ui/styled/common';
 import { FormScreenView } from '../FormScreenView';
+import { SubmitButton } from '../SubmitButton';
 
 import { ErrorBoundary } from '~/ui/components/ErrorBoundary';
-import { TouchableWithoutFeedback } from 'react-native-gesture-handler';
 import { Orientation, screenPercentageToDP } from '~/ui/helpers/screen';
 
-const SurveyQuestionErrorView = ({ error }) => (
-  <TouchableWithoutFeedback onPress={() => console.warn(error)}>
-    <StyledText color="red">
-      Error displaying component
-    </StyledText>
+const SurveyQuestionErrorView = ({ error }): ReactElement => (
+  <TouchableWithoutFeedback onPress={(): void => console.warn(error)}>
+    <StyledText color="red">Error displaying component</StyledText>
   </TouchableWithoutFeedback>
 );
 
@@ -33,12 +32,13 @@ export const FormFields = ({
   values,
   onSubmit,
   note,
-  patient
+  patient,
 }: AddDetailsFormFieldsProps): ReactElement => {
   const [currentScreenIndex, setCurrentScreenIndex] = useState(0);
+  const scrollViewRef = useRef(null);
 
   const maxIndex = components
-    .map(x => x.screenIndex)
+    .map((x) => x.screenIndex)
     .reduce((max, current) => Math.max(max, current), 0);
 
   const onNavigateNext = useCallback(() => {
@@ -50,63 +50,65 @@ export const FormFields = ({
   }, [currentScreenIndex]);
 
   const shouldShow = useCallback(
-    (component: ISurveyScreenComponent) => (
-      checkVisibilityCriteria(component, components, values)
-    ),
-    [values]
+    (component: ISurveyScreenComponent) => checkVisibilityCriteria(component, components, values),
+    [values],
   );
 
   const screenComponents = components
-    .filter(x => x.screenIndex === currentScreenIndex)
+    .filter((x) => x.screenIndex === currentScreenIndex)
     .sort((a, b) => a.componentIndex - b.componentIndex)
     .filter(shouldShow)
     .map((component, index) => (
       <React.Fragment key={component.id}>
-          <SectionHeader marginTop={index === 0 ? 0 : 20} h3>
-            {component.text || component.dataElement.defaultText || ''}
-          </SectionHeader>
-          { 
-            component.detail
-              ? <StyledText marginTop={4} fontSize={screenPercentageToDP('2.2', Orientation.Height)}>{component.detail}</StyledText>
-              : null
-          }
-          <ErrorBoundary errorComponent={SurveyQuestionErrorView}>
-            <SurveyQuestion
-              key={component.id}
-              component={component}
-              patient={patient}
-            />
-          </ErrorBoundary>
+        <SectionHeader marginTop={index === 0 ? 0 : 20} h3>
+          {component.text || component.dataElement.defaultText || ''}
+        </SectionHeader>
+        {component.detail ? (
+          <StyledText
+            marginTop={4}
+            fontSize={screenPercentageToDP('2.2', Orientation.Height)}
+          >
+            {component.detail}
+          </StyledText>
+        ) : null}
+        <ErrorBoundary errorComponent={SurveyQuestionErrorView}>
+          <SurveyQuestion
+            key={component.id}
+            component={component}
+            patient={patient}
+          />
+        </ErrorBoundary>
       </React.Fragment>
     ));
-  
+
   // Note: we set the key on FullView so that React registers it as a whole
-  // new component, rather than a component whose contents happen to have 
+  // new component, rather than a component whose contents happen to have
   // changed. This means that each new page will start at the top, rather than
   // the scroll position continuing across pages.
 
   return (
     <FullView key={currentScreenIndex}>
-      <FormScreenView>
+      <FormScreenView scrollViewRef={scrollViewRef}>
         {screenComponents}
         <RowView width="68%" marginTop={25}>
-          <Button 
+          <Button
             margin={5}
             disabled={currentScreenIndex === 0}
             buttonText="Previous Page"
-            onPress={onNavigatePrevious} 
+            onPress={onNavigatePrevious}
           />
-          {(currentScreenIndex !== maxIndex) 
-            ? <Button margin={5} buttonText="Next Page" onPress={onNavigateNext} />
-            : (
-              <Button
-                margin={5}
-                backgroundColor={theme.colors.PRIMARY_MAIN}
-                buttonText="Submit"
-                onPress={onSubmit}
-              />
-            )
-          }
+          {currentScreenIndex !== maxIndex ? (
+            <Button
+              margin={5}
+              buttonText="Next Page"
+              onPress={onNavigateNext}
+            />
+          ) : (
+            <SubmitButton
+              margin={5}
+              onSubmit={onSubmit}
+            />
+          )}
         </RowView>
         {currentScreenIndex === maxIndex && (
           <StyledView margin={10}>

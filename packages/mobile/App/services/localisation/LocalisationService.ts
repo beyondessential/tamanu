@@ -7,6 +7,8 @@ import { readConfig, writeConfig } from '~/services/config';
 const TEST_LOCALISATION_OVERRIDES = {}; // add values to this to test localisation in development
 const CONFIG_KEY = 'localisation';
 
+const isArrayOfStrings = (value: unknown) => Array.isArray(value) && value.every(item => typeof item === 'string');
+
 export class LocalisationService {
   auth: AuthService;
 
@@ -64,5 +66,16 @@ export class LocalisationService {
       return defaultValue;
     }
     return false;
+  }
+
+  getArrayOfStrings(path: string, defaultValue?: string[]): string[] {
+    const value = this.getLocalisation(path);
+    if (isArrayOfStrings(value)) {
+      return value;
+    }
+    if (isArrayOfStrings(defaultValue)) {
+      return defaultValue;
+    }
+    return [];
   }
 }
