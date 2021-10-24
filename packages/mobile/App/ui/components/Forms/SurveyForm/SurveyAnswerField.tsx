@@ -29,6 +29,9 @@ export const SurveyAnswerField = ({
         config.source || config.Source,
       );
 
+      // Set the actual answer
+      setFieldValue(name, answer?.body);
+
       if (answer) {
         const dataElement = await models.ProgramDataElement.findOne({
           where: { id: answer.dataElementId },
@@ -45,9 +48,6 @@ export const SurveyAnswerField = ({
 
       // Set readable display answer
       setSurveyResponseAnswer(displayAnswer || answer?.body || '');
-
-      // Set the actual answer
-      setFieldValue(name, answer?.body);
     })();
   }, [patient.id, surveyResponseAnswer]);
 
