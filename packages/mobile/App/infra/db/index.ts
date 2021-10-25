@@ -9,8 +9,8 @@ import { MODELS_ARRAY, MODELS_MAP } from '~/models/modelsMap';
 import { clear } from '~/services/config';
 
 const LOG_LEVELS = __DEV__ ? [
-  'error',
-  // 'query', 
+  'error' as const,
+  // 'query' as const,
   'schema' as const,
 ] : [];
 
