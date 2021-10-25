@@ -10,7 +10,7 @@ import { clear } from '~/services/config';
 
 const LOG_LEVELS = __DEV__ ? [
   'error',
-  'query', 
+  // 'query', 
   'schema' as const,
 ] : [];
 
