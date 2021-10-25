@@ -53,10 +53,18 @@ class DatabaseHelper {
       if (this.syncError) {
         console.log("Last seen error from schema sync was:", this.syncError);
       }
+
+      // Turn FK constraints off to allow schema changes during migration
+      // (sqlite has to fully delete and recreate a table to alter a column;
+      // it preserves data fine but if any other tables have a FK constraint 
+      // pointed to the table being altered, the query will fail)
       await this.client.query(`PRAGMA foreign_keys = OFF;`);
+
       await this.client.synchronize();
       console.log("Synchronising database schema: OK");
       this.syncError = null;
+
+      // Turn FK constraints back on once the schema migration is done 
       await this.client.query(`PRAGMA foreign_keys = ON;`);
     } catch(e) {
       this.syncError = e;
