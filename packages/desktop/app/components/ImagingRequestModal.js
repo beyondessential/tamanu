@@ -6,9 +6,10 @@ import { Suggester } from '../utils/suggester';
 
 import { Modal } from './Modal';
 import { ImagingRequestForm } from '../forms/ImagingRequestForm';
+import { ALPHABET_FOR_ID } from '../constants'
 
 // generates 8 character id (while excluding 0, O, I, 1 and L)
-const configureCustomRequestId = () => customAlphabet('ABCDEFGHIJKMNPQRSTUVWXYZ23456789', 8);
+const configureCustomRequestId = () => customAlphabet(ALPHABET_FOR_ID, 8);
 
 export const ImagingRequestModal = ({ open, onClose, onSaved, encounter }) => {
   const api = useApi();

@@ -6,9 +6,7 @@ import { Suggester } from '../utils/suggester';
 
 import { Modal } from './Modal';
 import { ConnectedLabRequestForm } from '../forms/LabRequestForm';
-
-const ALPHABET_FOR_ID =
-  'ABCDEFGH' + /*I*/ 'JK' + /*L*/ 'MN' + /*O*/ 'PQRSTUVWXYZ' + /*01*/ '23456789';
+import { ALPHABET_FOR_ID } from '../constants'
 
 export const LabRequestModal = ({ open, onClose, onSaved, encounter }) => {
   const api = useApi();
