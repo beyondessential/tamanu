@@ -65,8 +65,5 @@ export const getCaseInsensitiveFilter = fields => {
   to be transformed to true, other strings will default to false.
 */
 export const getTextToBooleanFilter = trueString => {
-  return (fieldName, operator, value) => {
-    const booleanValue = value === trueString ? true : false;
-    return {[fieldName]: {[operator]: booleanValue}};
-  };
+  return (fieldName, operator, value) => ({[fieldName]: {[operator]: value === trueString}});
 };
