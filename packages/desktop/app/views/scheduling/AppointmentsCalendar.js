@@ -95,6 +95,7 @@ export const AppointmentsCalendar = () => {
                   variant={filter.name === activeFilter.name ? 'contained' : null}
                   onClick={() => {
                     setActiveFilter(filter);
+                    setFilterValue('');
                   }}
                 >
                   {filter.text}
