@@ -42,26 +42,33 @@ const globalColumns = [
   ...encounterColumns,
 ];
 
-const DumbImagingRequestsTable = React.memo(({ encounterId, onImagingRequestSelect }) => {
-  const { loadEncounter } = useEncounter();
+const DumbImagingRequestsTable = React.memo(
+  ({
+    encounterId,
+    onImagingRequestSelect,
+    searchParameters 
+  }) => {
+    const { loadEncounter } = useEncounter();
 
-  const selectImagingRequest = useCallback(async imagingRequest => {
-    const { encounter } = imagingRequest;
-    if (encounter) {
-      await loadEncounter(encounter.id);
-    }
-    onImagingRequestSelect(imagingRequest);
-  }, []);
+    const selectImagingRequest = useCallback(async imagingRequest => {
+      const { encounter } = imagingRequest;
+      if (encounter) {
+        await loadEncounter(encounter.id);
+      }
+      onImagingRequestSelect(imagingRequest);
+    }, []);
 
-  return (
-    <DataFetchingTable
-      endpoint={encounterId ? `encounter/${encounterId}/imagingRequests` : 'imagingRequest'}
-      columns={encounterId ? encounterColumns : globalColumns}
-      noDataMessage="No imaging requests found"
-      onRowClick={selectImagingRequest}
-    />
-  );
-});
+    return (
+      <DataFetchingTable
+        endpoint={encounterId ? `encounter/${encounterId}/imagingRequests` : 'imagingRequest'}
+        columns={encounterId ? encounterColumns : globalColumns}
+        noDataMessage="No imaging requests found"
+        onRowClick={selectImagingRequest}
+        fetchOptions={searchParameters}
+      />
+    );
+  }
+);
 
 export const ImagingRequestsTable = connect(null, dispatch => ({
   onImagingRequestSelect: imagingRequest => {
