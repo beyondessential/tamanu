@@ -102,7 +102,7 @@ globalImagingRequests.get(
     };
 
     // Query database
-    const objects = await models['ImagingRequest'].findAll({
+    const objects = await models.ImagingRequest.findAll({
       where: imagingRequestFilters,
       order: orderBy ? [[orderBy, order.toUpperCase()]] : undefined,
       include: [requestedBy, imagingType, encounter],
