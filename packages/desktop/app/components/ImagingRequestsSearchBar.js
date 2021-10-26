@@ -1,9 +1,9 @@
 import React from 'react';
 
+import { IMAGING_REQUEST_STATUS_TYPES } from 'shared/constants';
 import { DateField, StyledSelectField } from './Field';
 import { CustomisablePatientSearchBar } from '../views/patients/components/PatientSearchBar';
 import { IMAGING_REQUEST_STATUS_LABELS } from '../constants';
-import { IMAGING_REQUEST_STATUS_TYPES } from 'shared/constants';
 
 const STATUS_OPTIONS = Object.values(IMAGING_REQUEST_STATUS_TYPES).map(s => ({
   label: IMAGING_REQUEST_STATUS_LABELS[s],
