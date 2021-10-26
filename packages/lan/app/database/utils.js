@@ -35,10 +35,10 @@ export const mapQueryFilters = (params, options) => {
     }
   });
 
-  if (queryFilters.length > 0)
+  if (queryFilters.length > 0) {
     return {[Op.and]: queryFilters};
-  else
-    return {};
+  }
+  return {};
 };
 
 /*
