@@ -1,4 +1,5 @@
 import { pick } from 'lodash';
+import { Mutex } from 'async-mutex';
 import {
   BaseEntity,
   PrimaryColumn,
@@ -22,6 +23,10 @@ export type FindMarkedForUploadOptions = {
   limit?: number;
   after?: string;
 };
+
+// https://stackoverflow.com/questions/54281631/is-it-possible-to-get-instancetypet-to-work-on-an-abstract-class
+type AbstractInstanceType<T> = T extends { prototype: infer U } ?
+  U : never;
 
 function sanitiseForImport<T>(repo: Repository<T>, data: { [key: string]: any }) {
   // TypeORM will complain when importing an object that has fields that don't
@@ -47,6 +52,9 @@ function sanitiseForImport<T>(repo: Repository<T>, data: { [key: string]: any })
 export const IdRelation = (options = {}): any => Column({ nullable: true, ...options });
 
 export abstract class BaseModel extends BaseEntity {
+  // TAN-884: lock entire model class while updating markedForUpload or syncing
+  static markedForUploadMutex = new Mutex();
+
   @PrimaryColumn()
   @Generated('uuid')
   id: string;
@@ -65,21 +73,47 @@ export abstract class BaseModel extends BaseEntity {
   uploadedAt: Date;
 
   @BeforeUpdate()
-  markForUpload() {
-    this.markedForUpload = true;
+  async markForUpload() {
+    // TAN-884: make sure records always have markedForUpload set to true when sync is ongoing
+    // This may sometimes cause records to be uploaded even when an update failed!
+    // We take that risk, since it's better than not uploading a record.
+
+    const thisModel = this.constructor as typeof BaseModel;
+
+    // acquire an exclusive lock before running the update
+    await thisModel.markedForUploadMutex.runExclusive(async () => {
+      await thisModel.getRepository().update({ id: this.id }, { markedForUpload: true });
+    });
   }
 
-  async markParent(
-    parentModel: typeof BaseModel,
+  async markParentForUpload<T extends typeof BaseModel>(
+    parentModel: T,
     parentProperty: string,
-    flag: 'markedForUpload' | 'markedForSync',
   ) {
-    let entity: BaseModel;
+    const parent = await this.findParent(parentModel, parentProperty);
+    if (!parent) {
+      return;
+    }
+    await parent.markForUpload()
+  }
+
+  async findParent<T extends typeof BaseModel>(
+    parentModel: T,
+    parentProperty: string,
+  ): Promise<AbstractInstanceType<T>> {
+    let entity: AbstractInstanceType<T>;
     const parentValue = this[parentProperty];
+
     if (typeof parentValue === 'string') {
-      entity = await parentModel.findOne({ where: { id: parentValue } })
+      entity = await parentModel.findOne({
+        where: { id: parentValue }
+      }) as AbstractInstanceType<T>;
+
     } else if (typeof parentValue === 'object') {
-      entity = await parentModel.findOne({ where: { id: parentValue.id } })
+      entity = await parentModel.findOne({
+        where: { id: parentValue.id },
+      }) as AbstractInstanceType<T>;
+
     } else {
       const thisModel = this.constructor as typeof BaseModel;
       entity = await thisModel
@@ -89,11 +123,7 @@ export abstract class BaseModel extends BaseEntity {
         .of(this)
         .loadOne();
     }
-    if (!entity) {
-      return;
-    }
-    entity[flag] = true;
-    await entity.save();
+    return entity;
   }
 
   static async markUploaded(ids: string | string[], uploadedAt: Date): Promise<void> {
@@ -135,7 +165,7 @@ export abstract class BaseModel extends BaseEntity {
     return ids;
   }
 
-  static async postExportCleanUp() {}
+  static async postExportCleanUp() { }
 
   static shouldImport = true;
 

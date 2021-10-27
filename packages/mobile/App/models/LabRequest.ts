@@ -78,7 +78,7 @@ export class LabRequest extends BaseModel implements ILabRequest {
   @BeforeInsert()
   @BeforeUpdate()
   async markEncounterForUpload() {
-    await this.markParent(Encounter, 'encounter', 'markedForUpload');
+    await this.markParentForUpload(Encounter, 'encounter');
   }
 
   static async getForPatient(patientId: string): Promise<LabRequest[]> {

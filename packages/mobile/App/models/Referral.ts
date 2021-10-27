@@ -27,8 +27,8 @@ export class Referral extends BaseModel implements IReferral {
   @BeforeInsert()
   @BeforeUpdate()
   async markEncounterForUpload() {
-    await this.markParent(Encounter, 'initiatingEncounter', 'markedForUpload');
-    await this.markParent(Encounter, 'completingEncounter', 'markedForUpload');
+    await this.markParentForUpload(Encounter, 'initiatingEncounter');
+    await this.markParentForUpload(Encounter, 'completingEncounter');
   }
 
   static async submit(
@@ -48,7 +48,7 @@ export class Referral extends BaseModel implements IReferral {
         initiatingEncounter: response.encounter,
         surveyResponse: response.id,
       });
-  
+
       return referralRecord;
     });
   }

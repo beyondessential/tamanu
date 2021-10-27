@@ -306,19 +306,19 @@ export class SyncManager {
   }
 
   async exportAndUpload(model: typeof BaseModel, channel: string): Promise<void> {
+    let page = 0;
+
     // function definitions
     const exportPlan = createExportPlan(model);
-    const exportRecords = async (page: number, afterId?: string): Promise<SyncRecord[]> => {
+    const exportRecords = async (afterId?: string): Promise<SyncRecord[]> => {
       this.emitter.emit('exportingPage', `${channel}-${page}`);
-      return (await model.findMarkedForUpload({
-        channel,
-        after: afterId,
-        limit: model.uploadLimit,
-      })).map(r => executeExportPlan(exportPlan, r));
+      const records = await model.findMarkedForUpload(
+        { channel, after: afterId, limit: model.uploadLimit },
+      );
+      return records.map(r => executeExportPlan(exportPlan, r));
     };
 
     const uploadRecords = async (
-      page: number,
       syncRecords: SyncRecord[],
     ): Promise<UploadRecordsResponse> => {
       // TODO: detect and retry failures (need to pass back from server)
@@ -327,7 +327,6 @@ export class SyncManager {
     };
 
     const markRecordsUploaded = async (
-      page: number,
       records: SyncRecord[],
       requestedAt: Timestamp,
     ): Promise<void> => {
@@ -339,41 +338,33 @@ export class SyncManager {
 
     // export and upload loop
     let lastSeenId: string;
-    let uploadPromise: Promise<UploadRecordsResponse>;
     this.emitter.emit('exportStarted', channel);
-    let page = 0;
-    while (true) {
-      const knownPage = page;
+    let shouldLoop = true;
+    while (shouldLoop) {
+      await model.markedForUploadMutex.runExclusive(async () => {
+        // export records
+        const recordsChunk = await exportRecords(lastSeenId);
+        if (recordsChunk.length === 0) {
+          shouldLoop = false;
+          return;
+        }
+        lastSeenId = recordsChunk[recordsChunk.length - 1].data.id;
 
-      // begin exporting records
-      const exportPromise = exportRecords(knownPage, lastSeenId);
+        const recordIdsToExport = await model.filterExportRecords(recordsChunk.map(r => r.data.id));
+        const recordsToExport = recordsChunk.filter(r => recordIdsToExport.includes(r.data.id));
 
-      // finish uploading previous batch
-      await uploadPromise;
+        if (recordsToExport.length === 0) {
+          return;
+        }
 
-      // finish exporting records
-      const recordsChunk = await exportPromise;
-      if (recordsChunk.length === 0) {
-        break;
-      }
-      lastSeenId = recordsChunk[recordsChunk.length - 1].data.id;
+        // upload records
+        const { requestedAt } = await uploadRecords(recordsToExport);
 
-      const recordIdsToExport = await model.filterExportRecords(recordsChunk.map(r => r.data.id));
-      const recordsToExport = recordsChunk.filter(r => recordIdsToExport.includes(r.data.id));
+        // mark records as synced after uploading
+        await markRecordsUploaded(recordsChunk, requestedAt);
 
-      if (recordsToExport.length === 0) {
-        continue;
-      }
-
-      // begin uploading current batch
-      uploadPromise = uploadRecords(knownPage, recordsToExport).then(async (data) => {
-        // mark previous batch as synced after uploading
-        // done using promises so these two steps can be interleaved with exporting
-        await markRecordsUploaded(knownPage, recordsChunk, data.requestedAt);
-        return data;
+        page++;
       });
-
-      page++;
     }
 
     // When reach here, export is successful, perform any clean up.
