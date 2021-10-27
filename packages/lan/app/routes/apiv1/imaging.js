@@ -87,17 +87,21 @@ globalImagingRequests.get(
     };
 
     // Query database
-    const objects = await models.ImagingRequest.findAll({
+    const databaseResponse = await models.ImagingRequest.findAndCountAll({
       where: imagingRequestFilters,
       order: orderBy ? [[orderBy, order.toUpperCase()]] : undefined,
       include: [requestedBy, imagingType, encounter],
+      limit: rowsPerPage,
+      offset: page * rowsPerPage,
     });
 
-    // Normalize data calling a base model method
-    const data = objects.map(x => x.forResponse());
+    // Extract and normalize data calling a base model method
+    const count = databaseResponse.count;
+    const rows = databaseResponse.rows;
+    const data = rows.map(x => x.forResponse());
 
     res.send({
-      count: objects.length,
+      count: count,
       data: data,
     });
   }),
