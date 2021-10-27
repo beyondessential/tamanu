@@ -24,14 +24,17 @@ export const mapQueryFilters = (params, options) => {
   // Go through each filter option
   options.forEach(({ key, alias, operator, mapFn = defaultFilter }) => {
 
+    // Extract search parameter value
+    const value = params[key];
+
     // Extract specified keys without undefined or null values
-    if (params[key]) {
+    if (value !== null && value !== undefined) {
 
       // Map key to specified alias
       const newKey = alias ? alias : key;
 
       // Add new filter
-      queryFilters.push(mapFn(newKey, operator, params[key]));
+      queryFilters.push(mapFn(newKey, operator, value));
     }
   });
 
