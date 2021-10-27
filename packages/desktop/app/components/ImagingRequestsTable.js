@@ -56,7 +56,7 @@ const DumbImagingRequestsTable = React.memo(
         await loadEncounter(encounter.id);
       }
       onImagingRequestSelect(imagingRequest);
-    }, []);
+    }, [loadEncounter, onImagingRequestSelect]);
 
     return (
       <DataFetchingTable
