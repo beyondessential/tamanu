@@ -83,6 +83,7 @@ export const OPERATION_PLAN_STATUSES = {
 
 export const IMAGING_REQUEST_STATUS_TYPES = {
   PENDING: 'pending',
+  IN_PROGRESS: 'in_progress',
   COMPLETED: 'completed',
 };
 

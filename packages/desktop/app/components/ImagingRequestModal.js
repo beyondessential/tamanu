@@ -35,7 +35,7 @@ const DumbImagingRequestModal = React.memo(
 );
 
 export const ImagingRequestModal = connectApi((api, dispatch, { encounter }) => ({
-  onSubmit: async data => api.post(`imagingRequest`, { ...data, encounterId: encounter.id }),
+  onSubmit: async data => api.post(`imagingRequest`, { ...data, id: encounter.id }),
   practitionerSuggester: new Suggester(api, 'practitioner'),
   imagingTypeSuggester: new Suggester(api, 'imagingType'),
 }))(DumbImagingRequestModal);
