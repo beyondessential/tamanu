@@ -1,11 +1,16 @@
-import React from 'react';
+import React, { useEffect } from 'react';
 import styled from 'styled-components';
 import { groupBy } from 'lodash';
+import Tooltip from 'react-tooltip';
 import { Colors } from '../../constants';
 import { Appointment } from './Appointment';
+import { AppointmentDetail } from './AppointmentDetail';
 
 const Column = ({ header, appointments }) => {
   const appointmentsByStartTime = [...appointments].sort((a, b) => a.startTime - b.startTime);
+  useEffect(() => {
+    Tooltip.rebuild();
+  }, []);
   return (
     <StyledColumn>
       <ColumnHeader>{header}</ColumnHeader>
@@ -52,6 +57,20 @@ export const DailySchedule = ({ appointments, activeFilter, filterValue, appoint
       {columns.map(props => (
         <Column {...props} />
       ))}
+      <Tooltip
+        id="appointment-details"
+        event="click"
+        clickable
+        place="right"
+        type="light"
+        getContent={appointmentId => {
+          if (!appointmentId) {
+            return null;
+          }
+          const appointment = appointments.find(appt => appt.id === appointmentId);
+          return <AppointmentDetail appointment={appointment} />;
+        }}
+      />
     </Container>
   );
 };

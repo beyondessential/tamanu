@@ -6,11 +6,11 @@ import { PatientNameDisplay } from '../PatientNameDisplay';
 
 export const Appointment = props => {
   const {
-    appointment: { startTime, patient, status },
+    appointment: { id, startTime, patient, status },
   } = props;
 
   return (
-    <StyledAppointment className={`status-${status}`}>
+    <StyledAppointment className={`status-${status}`} data-tip={id} data-for="appointment-details">
       <div>
         <PatientNameDisplay patient={patient} />
       </div>
@@ -20,6 +20,7 @@ export const Appointment = props => {
 };
 
 const StyledAppointment = styled.div`
+  cursor: pointer;
   padding: 0.5em 0.75em;
   border-bottom: 1px solid ${Colors.outline};
   &:last-child {
