@@ -43,7 +43,7 @@ const ActionDropdown = React.memo(({ row }) => {
       <EncounterModal
         open={open}
         onClose={() => setOpen(false)}
-        patientId={row.patientId}
+        patientId={row.initiatingEncounter.patientId}
         referral={row}
       />
     </>

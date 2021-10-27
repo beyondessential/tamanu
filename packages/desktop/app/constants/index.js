@@ -403,3 +403,5 @@ export const appointmentTypeOptions = Object.values(APPOINTMENT_TYPES).map(type 
   label: type,
   value: type,
 }));
+
+export const ALPHABET_FOR_ID = 'ABCDEFGH' + /*I*/ 'JK' + /*L*/ 'MN' + /*O*/ 'PQRSTUVWXYZ' + /*01*/ '23456789';

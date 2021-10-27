@@ -1,7 +1,7 @@
-import React, { useEffect, useCallback } from 'react';
+import React, { useState, useEffect, useCallback } from 'react';
 
-import { connect } from 'react-redux';
-import { connectApi } from 'desktop/app/api';
+import { useSelector, useDispatch } from 'react-redux';
+import { useApi } from 'desktop/app/api';
 
 import { reloadPatient } from 'desktop/app/store/patient';
 import { getCurrentUser } from 'desktop/app/store/auth';
@@ -13,100 +13,77 @@ import { DumbPatientListingView } from 'desktop/app/views/patients/PatientListin
 import { SURVEY_TYPES } from 'shared/constants';
 import { getAnswersFromData, getActionsFromData } from '../../utils';
 
-const DumbSurveyFlow = React.memo(
-  ({
-    onFetchSurvey,
-    onSubmitSurvey,
-    onFetchProgramsList,
-    onFetchSurveysList,
-    patient,
-    currentUser,
-  }) => {
-    const [survey, setSurvey] = React.useState(null);
-    const [programsList, setProgramsList] = React.useState(null);
-    const [startTime, setStartTime] = React.useState(null);
+const SurveyFlow = ({ patient, currentUser }) => {
+  const api = useApi();
+  const [survey, setSurvey] = useState(null);
+  const [programsList, setProgramsList] = useState(null);
+  const [startTime, setStartTime] = useState(null);
 
-    useEffect(() => {
-      (async () => {
-        const { data } = await onFetchProgramsList();
-        setProgramsList(data);
-      })();
-    }, []);
+  useEffect(() => {
+    (async () => {
+      const { data } = await api.get('program');
+      setProgramsList(data);
+    })();
+  }, []);
 
-    const onSelectSurvey = useCallback(async id => {
-      const response = await onFetchSurvey(encodeURIComponent(id));
-      setSurvey(response);
-      setStartTime(new Date());
-    });
+  const onSelectSurvey = useCallback(async id => {
+    const response = await api.get(`survey/${encodeURIComponent(id)}`);
+    setSurvey(response);
+    setStartTime(new Date());
+  });
 
-    const onCancelSurvey = useCallback(() => {
-      setSurvey(null);
-    });
+  const onCancelSurvey = useCallback(() => {
+    setSurvey(null);
+  });
 
-    const onSubmit = useCallback(
-      data =>
-        onSubmitSurvey({
-          surveyId: survey.id,
-          startTime: startTime,
-          patientId: patient.id,
-          endTime: new Date(),
-          answers: getAnswersFromData(data, survey),
-          actions: getActionsFromData(data, survey),
-        }),
-      [startTime, survey, patient],
-    );
+  const onSubmit = useCallback(
+    data =>
+      api.post('surveyResponse', {
+        surveyId: survey.id,
+        startTime: startTime,
+        patientId: patient.id,
+        endTime: new Date(),
+        answers: getAnswersFromData(data, survey),
+        actions: getActionsFromData(data, survey),
+      }),
+    [startTime, survey, patient],
+  );
 
-    if (!programsList) {
-      return <LoadingIndicator />;
-    }
+  if (!programsList) {
+    return <LoadingIndicator />;
+  }
 
-    if (!survey) {
-      return (
-        <ProgramSurveySelector
-          programs={programsList}
-          onSelectSurvey={onSelectSurvey}
-          onFetchSurveysList={onFetchSurveysList}
-        />
-      );
-    }
-
+  if (!survey) {
     return (
-      <SurveyView
-        onSubmit={onSubmit}
-        survey={survey}
-        onCancel={onCancelSurvey}
-        patient={patient}
-        currentUser={currentUser}
+      <ProgramSurveySelector
+        programs={programsList}
+        onSelectSurvey={onSelectSurvey}
+        onFetchSurveysList={async programId => {
+          const surveys = await api.get(`program/${programId}/surveys`);
+          return surveys.data.filter(x => x.surveyType === SURVEY_TYPES.PROGRAMS);
+        }}
       />
     );
-  },
-);
+  }
 
-const SurveyFlow = connectApi(api => ({
-  onFetchSurvey: id => api.get(`survey/${id}`),
-  onFetchProgramsList: () => api.get('program'),
-  onFetchSurveysList: async programId => {
-    const surveys = await api.get(`program/${programId}/surveys`);
-    return surveys.data.filter(x => x.surveyType === SURVEY_TYPES.PROGRAMS);
-  },
-  onSubmitSurvey: data => api.post(`surveyResponse`, data),
-}))(DumbSurveyFlow);
+  return (
+    <SurveyView
+      onSubmit={onSubmit}
+      survey={survey}
+      onCancel={onCancelSurvey}
+      patient={patient}
+      currentUser={currentUser}
+    />
+  );
+};
 
-const DumbPatientLinker = React.memo(({ patient, patientId, onViewPatient, currentUser }) => {
-  if (!patientId) {
-    return <DumbPatientListingView onViewPatient={onViewPatient} />;
+export const ProgramsView = () => {
+  const dispatch = useDispatch();
+  const patient = useSelector(state => state.patient);
+  const currentUser = useSelector(getCurrentUser);
+  if (!patient.id) {
+    return <DumbPatientListingView onViewPatient={id => dispatch(reloadPatient(id))} />;
   }
 
   return <SurveyFlow patient={patient} currentUser={currentUser} />;
-});
-
-export const ProgramsView = connect(
-  state => ({
-    patientId: state.patient.id,
-    patient: state.patient,
-    currentUser: getCurrentUser(state),
-  }),
-  dispatch => ({
-    onViewPatient: id => dispatch(reloadPatient(id)),
-  }),
-)(DumbPatientLinker);
+};

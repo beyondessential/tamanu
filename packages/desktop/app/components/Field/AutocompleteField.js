@@ -102,16 +102,31 @@ class BaseAutocomplete extends Component {
   };
 
   async componentDidMount() {
-    const { value, suggester } = this.props;
-    if (value && suggester) {
-      const currentOption = await suggester.fetchCurrentOption(value);
-      if (currentOption) {
-        this.setState({ displayedValue: currentOption.label });
-      } else {
-        this.handleSuggestionChange({ value: null, label: '' });
-      }
+    await this.updateValue();
+  }
+
+  async componentDidUpdate(prevProps) {
+    if (this.props.value !== prevProps.value) {
+      await this.updateValue();
     }
   }
+
+  updateValue = async () => {
+    const { value, suggester } = this.props;
+    if (!suggester || value === undefined) {
+      return;
+    }
+    if (value === '') {
+      this.setState({ displayedValue: '' });
+      return;
+    }
+    const currentOption = await suggester.fetchCurrentOption(value);
+    if (currentOption) {
+      this.setState({ displayedValue: currentOption.label });
+    } else {
+      this.handleSuggestionChange({ value: null, label: '' });
+    }
+  };
 
   handleSuggestionChange = option => {
     const { onChange, name } = this.props;

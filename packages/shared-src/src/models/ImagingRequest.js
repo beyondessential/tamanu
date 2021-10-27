@@ -29,9 +29,16 @@ export class ImagingRequest extends Model {
           type: Sequelize.STRING,
           allowNull: true,
         },
+        
         results: {
           type: Sequelize.STRING,
           defaultValue: '',
+
+        },
+
+        urgent: {
+          type: Sequelize.BOOLEAN,
+          defaultValue: false,
         },
       },
       {

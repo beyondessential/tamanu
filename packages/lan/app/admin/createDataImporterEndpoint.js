@@ -62,9 +62,18 @@ export function createDataImporterEndpoint(importer) {
 
     // send to sync server in batches
     const remote = new WebRemote();
-    for(const [recordType, record] of recordGroups) {
-      const endpoint = (recordType === 'referenceData') ? 'reference' : recordType;
-      await sendSyncRequest(remote, endpoint, record);
+    for (const [recordType, records] of recordGroups) {
+      let endpoint;
+      if (records[0].channel) {
+        // Only allow fixed channel for now
+        if (records.some(r => r.channel !== records[0].channel)) {
+          throw new Error('Channel does not match between records');
+        }
+        endpoint = records[0].channel;
+      } else {
+        endpoint = recordType === 'referenceData' ? 'reference' : recordType;
+      }
+      await sendSyncRequest(remote, endpoint, records);
     }
 
     sendResult({ sentData: true });
