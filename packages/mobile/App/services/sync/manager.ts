@@ -306,6 +306,8 @@ export class SyncManager {
   }
 
   async exportAndUpload(model: typeof BaseModel, channel: string): Promise<void> {
+    let page = 0;
+
     // function definitions
     const exportPlan = createExportPlan(model);
     const exportRecords = async (afterId?: string): Promise<SyncRecord[]> => {
@@ -337,7 +339,6 @@ export class SyncManager {
     // export and upload loop
     let lastSeenId: string;
     this.emitter.emit('exportStarted', channel);
-    let page = 0;
     let shouldLoop = true;
     while (shouldLoop) {
       await model.markedForUploadMutex.runExclusive(async () => {
