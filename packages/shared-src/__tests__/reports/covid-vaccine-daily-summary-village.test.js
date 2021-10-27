@@ -1,5 +1,7 @@
-import { dataGenerator } from '../../src/reports/covid-vaccine-daily-summary-village';
 import sinon from 'sinon';
+import moment from 'moment';
+import { dataGenerator } from '../../src/reports/covid-vaccine-daily-summary-village';
+
 jest.mock('config', () => ({
   reports: {
     'covid-vaccine-daily-summary-village': {
@@ -101,6 +103,7 @@ describe('covid-vaccine-daily-summary-village', () => {
     sinon.useFakeTimers({
       now: 1633784400000, // 2021-10-10T00:00:00+11:00
     });
+    moment.tz.setDefault('Australia/Melbourne');
   });
 
   afterAll(() => {
