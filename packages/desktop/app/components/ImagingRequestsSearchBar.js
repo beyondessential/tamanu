@@ -20,8 +20,8 @@ const StatusField = props => (
 );
 
 const URGENCY_OPTIONS = [
-  {label: 'Urgent', value: 'urgent'},
-  {label: 'Non-urgent', value: 'non-urgent'}
+  { label: 'Urgent', value: 'urgent' },
+  { label: 'Non-urgent', value: 'non-urgent' },
 ];
 
 const UrgencyField = props => (

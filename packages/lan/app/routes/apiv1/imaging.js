@@ -4,15 +4,9 @@ import { Op } from 'sequelize';
 import {
   mapQueryFilters,
   getCaseInsensitiveFilter,
-  getTextToBooleanFilter
+  getTextToBooleanFilter,
 } from '../../database/utils';
-
-import {
-  simpleGet,
-  simplePut,
-  simplePost,
-  permissionCheckingRouter,
-} from './crudHelpers';
+import { simpleGet, simplePut, simplePost, permissionCheckingRouter } from './crudHelpers';
 
 // Object used to map field names to database column names
 const SNAKE_CASE_COLUMN_NAMES = {
@@ -20,7 +14,7 @@ const SNAKE_CASE_COLUMN_NAMES = {
   lastName: 'last_name',
   displayId: 'display_id',
   id: 'ImagingRequest.id',
-  name: 'name'
+  name: 'name',
 };
 
 // Filtering functions for sequelize queries
@@ -43,62 +37,53 @@ globalImagingRequests.get(
     const { order = 'ASC', orderBy, rowsPerPage = 10, page = 0, ...filterParams } = query;
 
     // Model filters for Sequelize 'where' clauses
-    const imagingTypeFilters = mapQueryFilters(
-      filterParams,
-      [
-        {
-          key: 'imagingType',
-          alias: 'name',
-          operator: Op.startsWith,
-          mapFn: caseInsensitiveFilter
-        }
-      ]
-    );
-    const patientFilters = mapQueryFilters(
-      filterParams,
-      [
-        {key: 'firstName', operator: Op.startsWith, mapFn: caseInsensitiveFilter},
-        {key: 'lastName', operator: Op.startsWith, mapFn: caseInsensitiveFilter},
-        {key: 'displayId', operator: Op.startsWith, mapFn: caseInsensitiveFilter}
-      ]
-    );
-    const imagingRequestFilters = mapQueryFilters(
-      filterParams,
-      [
-        {
-          key: 'requestId',
-          alias: 'id',
-          operator: Op.startsWith,
-          mapFn: caseInsensitiveFilter
-        },
-        {key: 'status', operator: Op.eq},
-        {
-          key: 'urgency',
-          alias: 'urgent',
-          operator: Op.eq,
-          mapFn: urgencyTextToBooleanFilter
-        },
-        {key: 'requestedDateFrom', alias: 'requestedDate', operator: Op.gte},
-        {key: 'requestedDateTo', alias: 'requestedDate', operator: Op.lte}
-      ]
-    );
+    const imagingTypeFilters = mapQueryFilters(filterParams, [
+      {
+        key: 'imagingType',
+        alias: 'name',
+        operator: Op.startsWith,
+        mapFn: caseInsensitiveFilter,
+      },
+    ]);
+    const patientFilters = mapQueryFilters(filterParams, [
+      { key: 'firstName', operator: Op.startsWith, mapFn: caseInsensitiveFilter },
+      { key: 'lastName', operator: Op.startsWith, mapFn: caseInsensitiveFilter },
+      { key: 'displayId', operator: Op.startsWith, mapFn: caseInsensitiveFilter },
+    ]);
+    const imagingRequestFilters = mapQueryFilters(filterParams, [
+      {
+        key: 'requestId',
+        alias: 'id',
+        operator: Op.startsWith,
+        mapFn: caseInsensitiveFilter,
+      },
+      { key: 'status', operator: Op.eq },
+      {
+        key: 'urgency',
+        alias: 'urgent',
+        operator: Op.eq,
+        mapFn: urgencyTextToBooleanFilter,
+      },
+      { key: 'requestedDateFrom', alias: 'requestedDate', operator: Op.gte },
+      { key: 'requestedDateTo', alias: 'requestedDate', operator: Op.lte },
+    ]);
 
     // Associations to include on query
     const requestedBy = {
-      association: 'requestedBy'
+      association: 'requestedBy',
     };
     const imagingType = {
       association: 'imagingType',
-      where: imagingTypeFilters
+      where: imagingTypeFilters,
     };
     const patient = {
       association: 'patient',
-      where: patientFilters
+      where: patientFilters,
     };
-    const encounter = { 
+    const encounter = {
       association: 'encounter',
       include: [patient],
-      required: true
+      required: true,
     };
 
     // Query database
@@ -115,6 +100,6 @@ globalImagingRequests.get(
       count: objects.length,
       data: data,
     });
-  })
+  }),
 );
 imagingRequest.use(globalImagingRequests);

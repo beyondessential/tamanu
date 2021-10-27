@@ -13,25 +13,22 @@ option: {
 }
 */
 export const mapQueryFilters = (params, options) => {
-
   // Helper function used as the default mapFn
   const defaultFilter = (fieldName, operator, value) => {
-    return {[fieldName]: {[operator]: value}};
+    return { [fieldName]: { [operator]: value } };
   };
 
   const queryFilters = [];
 
   // Go through each filter option
   options.forEach(({ key, alias, operator, mapFn = defaultFilter }) => {
-
     // Extract search parameter value
     const value = params[key];
 
     // Extract specified keys without undefined or null values
     if (value !== null && value !== undefined) {
-
-      // Map key to specified alias
-      const newKey = alias ? alias : key;
+      // Map key to specified alias or default to key
+      const newKey = alias || key;
 
       // Add new filter
       queryFilters.push(mapFn(newKey, operator, value));
@@ -39,7 +36,7 @@ export const mapQueryFilters = (params, options) => {
   });
 
   if (queryFilters.length > 0) {
-    return {[Op.and]: queryFilters};
+    return { [Op.and]: queryFilters };
   }
   return {};
 };
@@ -54,13 +51,13 @@ export const getCaseInsensitiveFilter = fields => {
   return (fieldName, operator, value) => {
     const columnName = fields[fieldName];
     const filterValue = Sequelize.where(Sequelize.fn('upper', Sequelize.col(columnName)), {
-      [operator]: value.toUpperCase()
+      [operator]: value.toUpperCase(),
     });
-  
-    return {[fieldName]: filterValue};
+
+    return { [fieldName]: filterValue };
   };
 };
-  
+
 /*
   Returns a function that creates an equal comparison filter that maps 
   a text value to a boolean value. Useful for displaying dropdowns
@@ -68,5 +65,5 @@ export const getCaseInsensitiveFilter = fields => {
   to be transformed to true, other strings will default to false.
 */
 export const getTextToBooleanFilter = trueString => {
-  return (fieldName, operator, value) => ({[fieldName]: {[operator]: value === trueString}});
+  return (fieldName, operator, value) => ({ [fieldName]: { [operator]: value === trueString } });
 };

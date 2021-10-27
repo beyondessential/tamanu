@@ -8,13 +8,13 @@ export const ImagingRequestListingView = React.memo(() => {
   const [searchParameters, setSearchParameters] = useState({});
 
   return (
-  <PageContainer>
-    <TopBar title="Imaging requests" />
-    <ImagingRequestsSearchBar
-      searchParameters={searchParameters}
-      setSearchParameters={setSearchParameters}
-    />
-    <ImagingRequestsTable searchParameters={searchParameters} />
-  </PageContainer>
+    <PageContainer>
+      <TopBar title="Imaging requests" />
+      <ImagingRequestsSearchBar
+        searchParameters={searchParameters}
+        setSearchParameters={setSearchParameters}
+      />
+      <ImagingRequestsTable searchParameters={searchParameters} />
+    </PageContainer>
   );
 });

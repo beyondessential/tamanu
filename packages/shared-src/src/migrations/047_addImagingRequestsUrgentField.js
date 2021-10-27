@@ -4,7 +4,7 @@ module.exports = {
   up: async query => {
     await query.addColumn('imaging_requests', 'urgent', {
       type: Sequelize.BOOLEAN,
-      defaultValue: false
+      defaultValue: false,
     });
   },
   down: async query => {
