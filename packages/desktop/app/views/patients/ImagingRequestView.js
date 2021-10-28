@@ -23,7 +23,7 @@ const BackLink = connect(
 
 const statusOptions = [
   { value: "pending", label: "Pending" },
-  { value: "in_progress", label: "In Progress" },
+  { value: "in_progress", label: "In progress" },
   { value: "completed", label: "Completed" },
 ]
   

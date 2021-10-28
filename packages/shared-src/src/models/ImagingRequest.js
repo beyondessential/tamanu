@@ -33,7 +33,6 @@ export class ImagingRequest extends Model {
         results: {
           type: Sequelize.STRING,
           defaultValue: '',
-
         },
 
         urgent: {
