@@ -139,6 +139,61 @@ describe('SyncManager', () => {
   describe('exportAndPush', () => {
     const getRecord = ({ id }) => context.models.Patient.findByPk(id);
 
+    it("doesn't let models set markedForPush midway through an push", async () => {
+      const { syncManager, remote, models } = context;
+      const { Patient } = models;
+
+      // arrange
+      const oldPatient = await Patient.create(fakePatient());
+
+      let startFetch = null;
+      const startFetchPromise = new Promise(resolve => {
+        startFetch = resolve;
+      });
+      let finishFetch = null;
+      remote.push
+        .mockImplementationOnce(async () => {
+          const finishFetchPromise = new Promise(resolve => {
+            finishFetch = resolve;
+          });
+          startFetch();
+          await finishFetchPromise;
+          return { data: { requestedAt: Date.now() } };
+        })
+        .mockImplementation(() => ({
+          data: {
+            requestedAt: Date.now(),
+          },
+        }));
+
+      // act
+      // 1. start export
+      const managerPromise = syncManager.exportAndPushChannel(Patient, 'patient');
+
+      // 2. wait until syncManager calls pushRecords, e.g. the network request is sent
+      await startFetchPromise;
+
+      // 3. mark patient for save
+      oldPatient.firstName = 'Bob';
+      const patientPromise = oldPatient.save();
+
+      // 4. wait a little while to allow patient to save (if it's going to)
+      jest.useRealTimers();
+      await new Promise(resolve => setTimeout(resolve, 100));
+      jest.useFakeTimers();
+
+      // 5. finish the network request
+      finishFetch();
+
+      // 6. wait for the manager promise to complete
+      await Promise.all([managerPromise, patientPromise]);
+
+      // assert
+      const newPatient = await Patient.findByPk(oldPatient.id);
+      expect(newPatient).toHaveProperty('firstName', 'Bob');
+      expect(newPatient).toHaveProperty('markedForPush', true);
+    });
+
     it('exports pages of records and pushes them', async () => {
       // arrange
       const record = fakePatient();
