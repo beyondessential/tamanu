@@ -12,7 +12,7 @@ async function ensureFacilityMatches(context) {
   const lastFacility = await LocalSystemFact.get('facilityId');
   if (lastFacility && lastFacility !== configuredFacility) {
     throw new Error(
-      `integrity check failed: currentFacilityId mismatch: read ${configuredFacility} from config, but already connected to ${lastHost} (you may need to drop and recreate the database, change the config back, or if you're 100% sure, remove the "facilityId" key from the "local_metadata" table)`,
+      `integrity check failed: currentFacilityId mismatch: read ${configuredFacility} from config, but already registered as ${lastFacility} (you may need to drop and recreate the database, change the config back, or if you're 100% sure, remove the "facilityId" key from the "local_metadata" table)`,
     );
   }
 }
