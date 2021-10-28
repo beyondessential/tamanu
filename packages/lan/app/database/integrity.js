@@ -2,6 +2,19 @@ import config from 'config';
 
 export async function performDatabaseIntegrityChecks(context) {
   await ensureHostMatches(context);
+  await ensureFacilityMatches(context);
+}
+
+async function ensureFacilityMatches(context) {
+  const { LocalSystemFact } = context.models;
+
+  const configuredFacility = config.currentFacilityId;
+  const lastFacility = await LocalSystemFact.get('facilityId');
+  if (lastFacility && lastFacility !== configuredFacility) {
+    throw new Error(
+      `integrity check failed: currentFacilityId mismatch: read ${configuredFacility} from config, but already connected to ${lastHost} (you may need to drop and recreate the database, change the config back, or if you're 100% sure, remove the "facilityId" key from the "local_metadata" table)`,
+    );
+  }
 }
 
 async function ensureHostMatches(context) {

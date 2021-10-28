@@ -173,6 +173,7 @@ export class SyncManager {
       // set host when sync is run
       // this is checked on startup to prevent LAN mixing data sets
       await models.LocalSystemFact.set('syncHost', config.sync.host);
+      await models.LocalSystemFact.set('facilityId', config.currentFacilityId);
 
       // ordered array because some models depend on others
       const modelsToSync = [
