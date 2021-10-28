@@ -63,13 +63,13 @@ class DatabaseHelper {
       await this.client.synchronize();
       console.log("Synchronising database schema: OK");
       this.syncError = null;
-
-      // Turn FK constraints back on once the schema migration is done 
-      await this.client.query(`PRAGMA foreign_keys = ON;`);
     } catch(e) {
       this.syncError = e;
       console.log("Error encountered during schema sync:", this.syncError);
       throw e;
+    } finally {
+      // Restore FK constraint checks once everything is done
+      await this.client.query(`PRAGMA foreign_keys = ON;`);
     }
   }
 
@@ -109,7 +109,7 @@ if (__DEV__) {
 }
 
 if (__DEV__) {
-  DevSettings.addMenuItem('Attempt sync', async () => {
+  DevSettings.addMenuItem('DB schema sync', async () => {
     try {
       await Database.forceSync();
     } catch(e) {
