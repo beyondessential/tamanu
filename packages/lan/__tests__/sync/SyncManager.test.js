@@ -139,6 +139,8 @@ describe('SyncManager', () => {
   describe('exportAndPush', () => {
     const getRecord = ({ id }) => context.models.Patient.findByPk(id);
 
+    beforeEach(() => context.models.Patient.destroy({ truncate: true }));
+
     it("doesn't let models set markedForPush midway through an push", async () => {
       const { syncManager, remote, models } = context;
       const { Patient } = models;
