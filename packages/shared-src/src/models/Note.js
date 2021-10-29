@@ -8,6 +8,7 @@ export const NOTE_RECORD_TYPES = {
   TRIAGE: 'Triage',
   PATIENT_CARE_PLAN: 'PatientCarePlan',
   LAB_REQUEST: 'LabRequest',
+  IMAGING_REQUEST: 'ImagingRequest',
 };
 
 const NOTE_RECORD_TYPE_VALUES = Object.values(NOTE_RECORD_TYPES);
@@ -26,7 +27,7 @@ export class Note extends Model {
           allowNull: false,
         },
         recordType: {
-          type: Sequelize.ENUM(NOTE_RECORD_TYPE_VALUES),
+          type: Sequelize.STRING,
           allowNull: false,
         },
 
