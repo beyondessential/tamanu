@@ -95,6 +95,7 @@ const transformers = [
   makeTransformer('patients', patientDataTransformer),
   makeTransformer('labTestTypes', recordTransformer('labTestType')),
   makeTransformer('vaccineSchedules', recordTransformer('scheduledVaccine')),
+  makeTransformer('invoiceLineTypes', recordTransformer('invoiceLineType')),
   makeTransformer('roles', null),
 ];
 

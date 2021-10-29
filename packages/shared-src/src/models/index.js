@@ -53,3 +53,8 @@ export * from './Asset';
 export * from './Appointment';
 
 export * from './OneTimeLogin';
+
+export * from './Invoice';
+export * from './InvoiceLineType';
+export * from './InvoiceLineItem';
+export * from './InvoiceDiscountLine';
