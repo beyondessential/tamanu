@@ -1,5 +1,4 @@
 import { Sequelize } from 'sequelize';
-import { NOTE_TYPES } from 'shared/constants';
 import { Model } from './Model';
 
 export const NOTE_RECORD_TYPES = {
@@ -12,7 +11,6 @@ export const NOTE_RECORD_TYPES = {
 };
 
 const NOTE_RECORD_TYPE_VALUES = Object.values(NOTE_RECORD_TYPES);
-const NOTE_TYPE_VALUES = Object.values(NOTE_TYPES);
 
 export class Note extends Model {
   static init({ primaryKey, ...options }) {
