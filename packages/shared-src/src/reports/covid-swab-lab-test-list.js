@@ -62,6 +62,7 @@ const reportColumnTemplate = [
   },
   { title: 'Sex', accessor: data => data.sex },
   { title: 'Patient ID', accessor: data => data.patientId },
+  { title: 'Home sub-division', accessor: data => data.homeSubDivision },
 
   { title: 'Rapid diagnostic test (RDT) conducted', accessor: data => data.rdtConducted },
   { title: 'RDT result', accessor: data => data.rdtResult },
@@ -286,6 +287,7 @@ const getSurveyResponses = async (models, parameters) => {
           {
             model: models.Patient,
             as: 'patient',
+            include: [{ model: models.ReferenceData, as: 'village' }],
           },
         ],
       },
@@ -370,6 +372,7 @@ const getLabTestRecords = async (labTests, transformedAnswers, parameters) => {
     }
 
     const patientId = labTest.labRequest?.encounter?.patientId;
+    const homeSubDivision = labTest.labRequest?.encounter?.patient?.village?.name;
 
     const labTestRecord = {
       firstName: labTest.labRequest?.encounter?.patient?.firstName,
@@ -379,6 +382,7 @@ const getLabTestRecords = async (labTests, transformedAnswers, parameters) => {
         : '',
       sex: labTest.labRequest?.encounter?.patient?.sex,
       patientId: labTest.labRequest?.encounter?.patient?.displayId,
+      homeSubDivision,
       labRequestId: labTest.labRequest?.displayId,
       labRequestType: labTest.labRequest.category.name,
       status: LAB_REQUEST_STATUS_LABELS[labTest.labRequest?.status] || labTest.labRequest?.status,
@@ -434,6 +438,7 @@ const getRdtPositiveSurveyResponseRecords = async (surveyResponses, transformedA
 
     const patientFirstName = surveyResponse?.encounter?.patient?.firstName;
     const patientLastName = surveyResponse?.encounter?.patient?.lastName;
+    const homeSubDivision = surveyResponse?.encounter?.patient?.village?.name;
     const dob = surveyResponse?.encounter?.patient?.dateOfBirth;
     const sex = surveyResponse?.encounter?.patient?.sex;
     const patientDisplayId = surveyResponse?.encounter?.patient?.displayId;
@@ -443,6 +448,7 @@ const getRdtPositiveSurveyResponseRecords = async (surveyResponses, transformedA
       dob: dob ? moment(dob).format('DD-MM-YYYY') : '',
       sex,
       patientId: patientDisplayId,
+      homeSubDivision,
     };
     Object.entries(SURVEY_QUESTION_CODES).forEach(([key, dataElement]) => {
       surveyResponseRecord[key] = getAnswer(patientId, surveyResponse.id, dataElement);
