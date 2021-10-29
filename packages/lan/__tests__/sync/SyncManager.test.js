@@ -174,8 +174,9 @@ describe('SyncManager', () => {
       await startFetchPromise;
 
       // 3. mark patient for save
-      oldPatient.firstName = 'Bob';
-      const patientPromise = oldPatient.save();
+      const interleavedPatient = await Patient.findByPk(oldPatient.id);
+      interleavedPatient.firstName = 'Bob';
+      await interleavedPatient.save();
 
       // 4. wait a little while to allow patient to save (if it's going to)
       jest.useRealTimers();
@@ -186,11 +187,12 @@ describe('SyncManager', () => {
       finishFetch();
 
       // 6. wait for the manager promise to complete
-      await Promise.all([managerPromise, patientPromise]);
+      await managerPromise;
 
       // assert
       const newPatient = await Patient.findByPk(oldPatient.id);
       expect(newPatient).toHaveProperty('firstName', 'Bob');
+      expect(newPatient).toHaveProperty('isPushing', false);
       expect(newPatient).toHaveProperty('markedForPush', true);
     });
 
