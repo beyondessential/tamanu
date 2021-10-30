@@ -29,6 +29,11 @@ module.exports = {
           key: 'id',
         },
       },
+      status: {
+        type: Sequelize.STRING,
+        allowNull: false,
+        defaultValue: 'UNPAID',
+      },
       total: {
         type: Sequelize.DECIMAL,
         allowNull: false,
