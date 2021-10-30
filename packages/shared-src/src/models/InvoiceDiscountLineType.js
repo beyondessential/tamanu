@@ -2,12 +2,13 @@ import { Sequelize } from 'sequelize';
 import { SYNC_DIRECTIONS } from 'shared/constants';
 import { Model } from './Model';
 
-export class InvoiceDiscountLine extends Model {
+export class InvoiceDiscountLineType extends Model {
   static init({ primaryKey, ...options }) {
     super.init(
       {
         id: primaryKey,
-        description: Sequelize.STRING,
+        item_id: Sequelize.STRING,
+        item_type: Sequelize.STRING,
         discount: Sequelize.STRING,
       },
       {
@@ -15,12 +16,5 @@ export class InvoiceDiscountLine extends Model {
         syncConfig: { syncDirection: SYNC_DIRECTIONS.BIDIRECTIONAL },
       },
     );
-  }
-
-  static initRelations(models) {
-    this.belongsTo(models.Invoice, {
-      foreignKey: 'invoiceId',
-      as: 'invoice',
-    });
   }
 }
