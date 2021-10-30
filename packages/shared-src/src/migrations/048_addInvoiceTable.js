@@ -23,7 +23,7 @@ module.exports = {
       },
       facility_id: {
         type: Sequelize.STRING,
-        allowNull: false,
+        allowNull: true,
         references: {
           model: 'facilities',
           key: 'id',
