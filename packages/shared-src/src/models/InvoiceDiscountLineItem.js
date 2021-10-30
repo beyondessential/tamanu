@@ -7,8 +7,6 @@ export class InvoiceDiscountLineItem extends Model {
     super.init(
       {
         id: primaryKey,
-        item_id: Sequelize.STRING,
-        item_type: Sequelize.STRING,
         description: Sequelize.STRING,
         discount: Sequelize.STRING,
       },
