@@ -37,6 +37,7 @@ module.exports = {
       total: {
         type: Sequelize.DECIMAL,
         allowNull: false,
+        defaultValue: 0.0,
       },
       marked_for_push: {
         type: Sequelize.BOOLEAN,
