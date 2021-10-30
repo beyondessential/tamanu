@@ -29,6 +29,10 @@ module.exports = {
           key: 'id',
         },
       },
+      date: {
+        type: Sequelize.DATEONLY,
+        allowNull: false,
+      },
       discount: {
         type: Sequelize.DECIMAL,
         allowNull: true,

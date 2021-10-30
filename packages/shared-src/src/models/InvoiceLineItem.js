@@ -9,6 +9,7 @@ export class InvoiceLineItem extends Model {
         id: primaryKey,
         displayId: Sequelize.STRING,
         discount: Sequelize.STRING,
+        date: Sequelize.DATEONLY,
       },
       {
         ...options,
