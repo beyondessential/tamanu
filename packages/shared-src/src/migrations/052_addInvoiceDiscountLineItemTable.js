@@ -21,7 +21,7 @@ module.exports = {
         type: Sequelize.STRING,
         allowNull: false,
         references: {
-          model: 'invoiceDiscountLineTypes',
+          model: 'invoice_discount_line_types',
           key: 'id',
         },
       },
