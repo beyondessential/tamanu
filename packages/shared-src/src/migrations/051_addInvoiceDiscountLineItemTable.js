@@ -17,6 +17,14 @@ module.exports = {
           key: 'id',
         },
       },
+      invoice_discount_line_type_id: {
+        type: Sequelize.STRING,
+        allowNull: false,
+        references: {
+          model: 'invoiceDiscountLineTypes',
+          key: 'id',
+        },
+      },
       description: {
         type: Sequelize.STRING,
         allowNull: false,

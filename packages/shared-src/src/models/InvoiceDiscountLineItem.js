@@ -7,6 +7,8 @@ export class InvoiceDiscountLineItem extends Model {
     super.init(
       {
         id: primaryKey,
+        item_id: Sequelize.STRING,
+        item_type: Sequelize.STRING,
         description: Sequelize.STRING,
         discount: Sequelize.STRING,
       },
@@ -21,6 +23,11 @@ export class InvoiceDiscountLineItem extends Model {
     this.belongsTo(models.Invoice, {
       foreignKey: 'invoiceId',
       as: 'invoice',
+    });
+
+    this.belongsTo(models.InvoiceDiscountLineType, {
+      foreignKey: 'invoiceDiscountLineTypeId',
+      as: 'invoiceDiscountLineType',
     });
   }
 }
