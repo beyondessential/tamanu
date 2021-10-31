@@ -28,5 +28,10 @@ export class InvoiceLineItem extends Model {
       foreignKey: 'invoiceId',
       as: 'invoice',
     });
+
+    this.belongsTo(models.User, {
+      foreignKey: 'orderedBy',
+      as: 'orderedBy',
+    });
   }
 }

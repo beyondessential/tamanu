@@ -25,6 +25,14 @@ module.exports = {
           key: 'id',
         },
       },
+      ordered_by: {
+        type: Sequelize.STRING,
+        allowNull: false,
+        references: {
+          model: 'users',
+          key: 'id',
+        },
+      },
       date: {
         type: Sequelize.DATEONLY,
         allowNull: false,
