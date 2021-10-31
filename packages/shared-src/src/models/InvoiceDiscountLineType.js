@@ -9,6 +9,7 @@ export class InvoiceDiscountLineType extends Model {
         id: primaryKey,
         itemId: Sequelize.STRING,
         itemType: Sequelize.STRING,
+        name: Sequelize.TEXT,
         discount: Sequelize.STRING,
       },
       {

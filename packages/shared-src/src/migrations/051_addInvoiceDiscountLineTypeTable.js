@@ -17,6 +17,10 @@ module.exports = {
         type: Sequelize.STRING,
         allowNull: false,
       },
+      name: {
+        type: Sequelize.TEXT,
+        allowNull: false,
+      },
       discount: {
         type: Sequelize.DECIMAL,
         allowNull: false,
