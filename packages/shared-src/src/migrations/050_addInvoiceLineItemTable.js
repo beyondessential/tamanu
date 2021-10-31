@@ -37,7 +37,7 @@ module.exports = {
         type: Sequelize.DECIMAL,
         allowNull: true,
       },
-      orderedBy: {
+      ordered_by: {
         type: Sequelize.STRING,
         allowNull: false,
         references: {

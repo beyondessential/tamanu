@@ -28,5 +28,10 @@ export class InvoiceDiscountLineItem extends Model {
       foreignKey: 'invoiceDiscountLineTypeId',
       as: 'invoiceDiscountLineType',
     });
+
+    this.belongsTo(models.User, {
+      foreignKey: 'orderedBy',
+      as: 'orderedBy',
+    });
   }
 }
