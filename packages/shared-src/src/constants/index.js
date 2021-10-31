@@ -50,6 +50,8 @@ export const NOTE_TYPES = {
   SYSTEM: 'system',
   OTHER: 'other',
   TREATMENT_PLAN: 'treatmentPlan',
+  AREA_TO_BE_IMAGED: 'areaToBeImaged',
+  RESULT_DESCRIPTION: 'resultDescription',
 };
 
 export const PATIENT_ISSUE_TYPES = {
