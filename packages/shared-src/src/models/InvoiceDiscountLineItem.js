@@ -30,7 +30,7 @@ export class InvoiceDiscountLineItem extends Model {
     });
 
     this.belongsTo(models.User, {
-      foreignKey: 'orderedBy',
+      foreignKey: 'orderedById',
       as: 'orderedBy',
     });
   }
