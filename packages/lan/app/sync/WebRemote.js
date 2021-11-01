@@ -158,6 +158,7 @@ export class WebRemote {
         body: {
           email,
           password,
+          facilityId: config.currentFacilityId,
         },
         awaitConnection: false,
         retryAuth: false,
@@ -169,6 +170,8 @@ export class WebRemote {
 
       log.info(`Received token for user ${body.user.displayName} (${body.user.email})`);
       this.token = body.token;
+
+      return body;
     })();
 
     // await connection attempt, throwing an error if applicable, but always removing connectionPromise
