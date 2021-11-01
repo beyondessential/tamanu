@@ -123,7 +123,7 @@ export async function loginHandler(req, res, next) {
 
   try {
     const responseData = await remoteLoginWithLocalFallback(models, email, password);
-    const facility = await models.Facility.findByPk(config.currentFacilityId);
+    const facility = await models.Facility.findByPk(config.serverFacilityId);
     res.send({
       ...responseData,
       server: {

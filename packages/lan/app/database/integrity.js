@@ -23,24 +23,25 @@ async function performInitialIntegritySetup(context) {
   }
 
   if (!facility) {
-    throw new Error(`Configured serverFacilityId ${config.currentFacilityId} not recognised by sync server`);
+    throw new Error(`Configured serverFacilityId ${config.serverFacilityId} not recognised by sync server`);
   }
 
   // We've ensured that our immutable config stuff is valid -- save it!
   const { LocalSystemFact } = context.models;
   await LocalSystemFact.set('facilityId', facility.id);
   await LocalSystemFact.set('syncHost', remote.host);
+
   log.info(`Verified with sync server as ${facility.name}`);
 }
 
 async function ensureFacilityMatches(context) {
   const { LocalSystemFact } = context.models;
 
-  const configuredFacility = config.currentFacilityId;
+  const configuredFacility = config.serverFacilityId;
   const lastFacility = await LocalSystemFact.get('facilityId');
   if (lastFacility && lastFacility !== configuredFacility) {
     throw new Error(
-      `integrity check failed: currentFacilityId mismatch: read ${configuredFacility} from config, but already registered as ${lastFacility} (you may need to drop and recreate the database, change the config back, or if you're 100% sure, remove the "facilityId" key from the "local_metadata" table)`,
+      `integrity check failed: serverFacilityId mismatch: read ${configuredFacility} from config, but already registered as ${lastFacility} (you may need to drop and recreate the database, change the config back, or if you're 100% sure, remove the "facilityId" key from the "local_metadata" table)`,
     );
   }
 }

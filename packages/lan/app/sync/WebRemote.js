@@ -158,7 +158,7 @@ export class WebRemote {
         body: {
           email,
           password,
-          facilityId: config.currentFacilityId,
+          facilityId: config.serverFacilityId,
         },
         awaitConnection: false,
         retryAuth: false,
