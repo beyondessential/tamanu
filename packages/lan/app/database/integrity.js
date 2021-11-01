@@ -4,7 +4,7 @@ import { log } from 'shared/services/logging';
 
 export async function performDatabaseIntegrityChecks(context) {
   const existingFact = await context.models.LocalSystemFact.get('syncHost');
-  if(false && existingFact) {
+  if(existingFact) {
     await ensureHostMatches(context);
     await ensureFacilityMatches(context);
   } else {
