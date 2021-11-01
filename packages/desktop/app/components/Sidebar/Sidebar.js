@@ -4,9 +4,12 @@ import Divider from '@material-ui/core/Divider';
 import MuiList from '@material-ui/core/List';
 
 import { version } from '../../../package.json';
+
 import { LogoutItem } from './LogoutItem';
 import { SecondarySidebarItem } from './SecondarySidebarItem';
 import { PrimarySidebarItem } from './PrimarySidebarItem';
+import { FacilityNameDisplay } from './FacilityNameDisplay';
+
 import { Colors } from '../../constants';
 
 const SidebarContainer = styled.div`
@@ -36,15 +39,15 @@ const SidebarMenuContainer = styled.div`
   grid-template-rows: auto 1fr;
 `;
 
-const List = styled(MuiList)`
-  padding-top: 0;
+const AdditionalInfo = styled.div`
+  flex-grow: 0;
+  display: flex;
+  flex-direction: column;
+  color: ${Colors.softText};
 `;
 
-const VersionContainer = styled.div`
-  color: ${Colors.softText};
-  position: absolute;
-  bottom: 8px;
-  left: 16px;
+const List = styled(MuiList)`
+  padding-top: 0;
 `;
 
 export class Sidebar extends Component {
@@ -101,8 +104,11 @@ export class Sidebar extends Component {
             <Divider />
             <LogoutItem onClick={this.onLogout} />
           </div>
-          <VersionContainer>Version {version}</VersionContainer>
         </SidebarMenuContainer>
+        <AdditionalInfo>
+          <div>Version {version}</div>
+          <FacilityNameDisplay />
+        </AdditionalInfo>
       </SidebarContainer>
     );
   }
