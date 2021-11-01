@@ -5,27 +5,14 @@ import { getLocalisation } from '../localisation';
 import { convertFromDbRecord } from '../convertDbRecord';
 
 import { BadAuthenticationError } from 'shared/errors';
-import { FAKE_TOKEN, getToken, stripUser } from './utils';
+import { getToken, stripUser } from './utils';
 
 export const login = asyncHandler(async (req, res) => {
   const { store, body } = req;
-  const { email, password } = body;
+  const { email, password, facilityId } = body;
 
-  if (!email && !password) {
-    if (!config.auth.allowDummyToken) {
-      throw new BadAuthenticationError('Missing credentials');
-    }
-
-    // send a token for the initial user
-    const initialUser = await store.findUser(config.auth.initialUser.email);
-    if (!initialUser) {
-      throw new BadAuthenticationError('No such user');
-    }
-    res.send({
-      token: FAKE_TOKEN,
-      user: convertFromDbRecord(stripUser(initialUser)).data,
-    });
-    return;
+  if (!email || !password) {
+    throw new BadAuthenticationError('Missing credentials');
   }
 
   const user = await store.findUser(email);
@@ -43,12 +30,17 @@ export const login = asyncHandler(async (req, res) => {
     throw new BadAuthenticationError('Invalid credentials');
   }
 
-  const token = await getToken(user);
+  const token = await getToken(user, config.auth.tokenDuration);
+
+  // Send some additional data with login to tell the user about
+  // the context they've just logged in to.
+  const facility = await store.models.Facility.findByPk(facilityId);
   const localisation = await getLocalisation();
 
   res.send({
     token,
-    localisation,
     user: convertFromDbRecord(stripUser(user)).data,
+    facility,
+    localisation,
   });
 });
