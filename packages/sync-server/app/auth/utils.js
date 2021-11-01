@@ -12,11 +12,13 @@ export const stripUser = user => {
 };
 
 export const getToken = async (user, expiry) => {
-  return jwt.sign({
-    userId: user.id,
-  }, JWT_SECRET, {
-    expiresIn: expiry,
-  });
+  return jwt.sign(
+    {
+      userId: user.id,
+    }, 
+    JWT_SECRET,
+     { expiresIn: expiry }
+  );
 };
 
 export const verifyToken = (token) => {
