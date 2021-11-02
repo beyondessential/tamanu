@@ -67,7 +67,7 @@
       "location": "SHORTSTAY"
     }
   },
-  "currentFacilityId": "",
+  "serverFacilityId": "",
   "debugging": {
     "requestFailureRate": 0
   }
