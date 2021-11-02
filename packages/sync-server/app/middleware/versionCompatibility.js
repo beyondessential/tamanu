@@ -7,7 +7,7 @@ import { buildVersionCompatibilityCheck } from 'shared/utils';
 export const SUPPORTED_CLIENT_VERSIONS = {
   'Tamanu LAN Server': {
     min: '1.9.0',
-    max: '1.9.1', // note that higher patch versions will be allowed to connect
+    max: '1.9.2', // note that higher patch versions will be allowed to connect
   },
   'Tamanu Mobile': {
     min: '1.9.0',
