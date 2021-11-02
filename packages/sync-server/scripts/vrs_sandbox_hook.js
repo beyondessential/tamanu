@@ -19,7 +19,7 @@ const password = process.env.PASSWORD || 'password';
 // randomly generate some data
 const seed = Math.floor(Math.random() * Number.MAX_SAFE_INTEGER);
 const chance = new Chance(seed);
-console.log(`seed=${seed}`);
+console.log(`seed: ${seed}`);
 
 const patient = {
   individual_refno: chance.integer({ min: 0, max: 10000000 }),
@@ -37,10 +37,11 @@ const patient = {
   phone: chance.phone(),
   email: chance.email(),
 };
-
 const token = chance.hash();
-
 const fetchId = chance.integer({ min: 1, max: 2000000 });
+console.log('patient:', patient);
+console.log('token:', token);
+console.log('fetchId:', fetchId);
 
 // set up express app and shared middleware
 const app = express();
