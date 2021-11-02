@@ -19,7 +19,7 @@ module.exports = {
       },
       invoice_discount_line_type_id: {
         type: Sequelize.STRING,
-        allowNull: false,
+        allowNull: true,
         references: {
           model: 'invoice_discount_line_types',
           key: 'id',
