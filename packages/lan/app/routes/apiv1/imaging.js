@@ -2,6 +2,7 @@ import express from 'express';
 import asyncHandler from 'express-async-handler';
 import { Op } from 'sequelize';
 import { NOTE_TYPES } from 'shared/constants';
+import { NotFoundError } from 'shared/errors';
 import { NOTE_RECORD_TYPES } from 'shared/models/Note';
 import {
   mapQueryFilters,
@@ -25,7 +26,41 @@ const urgencyTextToBooleanFilter = getTextToBooleanFilter('urgent');
 
 export const imagingRequest = express.Router();
 
-imagingRequest.get('/:id', simpleGet('ImagingRequest'));
+imagingRequest.get(
+  '/:id',
+  asyncHandler(async (req, res) => {
+    const {
+      models: { ImagingRequest, Note },
+      params: { id },
+    } = req;
+
+    req.checkPermission('read', 'ImagingRequest');
+
+    const imagingRequestObject = await ImagingRequest.findByPk(id, {
+      include: ImagingRequest.getFullReferenceAssociations(),
+    });
+
+    if (!imagingRequestObject) throw new NotFoundError();
+
+    // Get related note
+    const noteObject = await Note.findOne({
+      where: {
+        recordType: NOTE_RECORD_TYPES.IMAGING_REQUEST,
+        recordId: id,
+      },
+    });
+
+    // Convert Sequelize model to use a custom object as response
+    const responseObject = { ...imagingRequestObject.forResponse() };
+
+    // Add note content if it exists
+    if (noteObject) {
+      responseObject.note = noteObject.content;
+    }
+
+    res.send(responseObject);
+  }),
+);
 imagingRequest.put('/:id', simplePut('ImagingRequest'));
 imagingRequest.post(
   '/$',
