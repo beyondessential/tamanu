@@ -1,6 +1,8 @@
 import express from 'express';
 import asyncHandler from 'express-async-handler';
 import { Op } from 'sequelize';
+import { NOTE_TYPES } from 'shared/constants';
+import { NOTE_RECORD_TYPES } from 'shared/models/Note';
 import {
   mapQueryFilters,
   getCaseInsensitiveFilter,
@@ -25,7 +27,24 @@ export const imagingRequest = express.Router();
 
 imagingRequest.get('/:id', simpleGet('ImagingRequest'));
 imagingRequest.put('/:id', simplePut('ImagingRequest'));
-imagingRequest.post('/$', simplePost('ImagingRequest'));
+imagingRequest.post(
+  '/$',
+  asyncHandler(async (req, res) => {
+    const {
+      models: { ImagingRequest, Note },
+    } = req;
+    req.checkPermission('create', 'ImagingRequest');
+    const newImagingRequest = await ImagingRequest.create(req.body);
+    await Note.create({
+      recordId: newImagingRequest.get('id'),
+      recordType: NOTE_RECORD_TYPES.IMAGING_REQUEST,
+      content: req.body.note,
+      noteType: NOTE_TYPES.OTHER,
+      authorId: req.user.id,
+    });
+    res.send(newImagingRequest);
+  }),
+);
 
 const globalImagingRequests = permissionCheckingRouter('list', 'ImagingRequest');
 
