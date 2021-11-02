@@ -1,8 +1,7 @@
 import express from 'express';
 import config from 'config';
 
-import { vrsRoutes, publicVrsRoutes } from './vaccineRegistrationSystem';
-import { VRSRemote } from './VRSRemote';
+import { vrsRoutes, publicVrsRoutes, VRSRemote } from './vrs';
 
 export const fijiRoutes = express.Router();
 export const publicFijiRoutes = express.Router();
