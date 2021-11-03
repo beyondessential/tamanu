@@ -47,7 +47,7 @@ export const PatientDisplay = () => {
     <Header>
       <FlexRow>
         <Heading variant="h3">
-          <div onClick={() => {
+          <div role="button" onClick={() => {
             dispatch(viewPatient(patient.id))
           }}>
             <PatientNameDisplay patient={patient} />
