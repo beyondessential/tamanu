@@ -8,7 +8,7 @@ import { version } from '../../../package.json';
 import { LogoutItem } from './LogoutItem';
 import { SecondarySidebarItem } from './SecondarySidebarItem';
 import { PrimarySidebarItem } from './PrimarySidebarItem';
-import { FacilityNameDisplay } from './FacilityNameDisplay';
+import { FacilityNameDisplay } from '../FacilityNameDisplay';
 
 import { Colors } from '../../constants';
 
@@ -44,6 +44,8 @@ const AdditionalInfo = styled.div`
   display: flex;
   flex-direction: column;
   color: ${Colors.softText};
+  margin: 0.7rem;
+  font-size: 0.8rem;
 `;
 
 const List = styled(MuiList)`

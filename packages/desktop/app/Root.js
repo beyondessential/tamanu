@@ -10,19 +10,22 @@ import { RoutingApp } from './RoutingApp';
 import { theme } from './theme';
 import { EncounterProvider } from './contexts/Encounter';
 import { LabRequestProvider } from './contexts/LabRequest';
+import { FacilityProvider } from './contexts/Facility';
 import { LocalisationProvider } from './contexts/Localisation';
 import { ReferralProvider } from './contexts/Referral';
 import { ElectronProvider } from './contexts/ElectronProvider';
 
 const StateContextProviders = ({ children, store }) => (
   <EncounterProvider store={store}>
-    <ReferralProvider>
-      <LabRequestProvider store={store}>
-        <LocalisationProvider store={store}>
-          {children}
-        </LocalisationProvider>
-      </LabRequestProvider>
-    </ReferralProvider>
+    <FacilityProvider>
+      <ReferralProvider>
+        <LabRequestProvider store={store}>
+          <LocalisationProvider store={store}>
+            {children}
+          </LocalisationProvider>
+        </LabRequestProvider>
+      </ReferralProvider>
+    </FacilityProvider>
   </EncounterProvider>
 );
 

@@ -1,6 +1,8 @@
-import React, { useContext } from 'react';
+import React from 'react';
+import { useFacility } from '../contexts/Facility';
 
 export const FacilityNameDisplay = () => {
-  const name = "Test facility";
+  const facilityInfo = useFacility();
+  const name = facilityInfo.name;
   return <div>{name}</div>;
 };
