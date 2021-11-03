@@ -1,4 +1,6 @@
 import fetch from 'node-fetch';
+
+import { log } from 'shared/services/logging';
 import { REFERENCE_TYPES } from 'shared/constants';
 
 import * as schema from './schema';
@@ -38,29 +40,41 @@ export class VRSRemote {
       return; // no reason to refresh the token
     }
 
+    log.debug('VRSRemote.refreshTokenIfInvalid(): refreshing token...');
+
     // make token request
     const body = encodeParams({
       grant_type: 'password',
       username: this.username,
       password: this.password,
     });
-    const { access_token: accessToken, expires_in: tokenLifetime } = await this.fetch('/token', {
-      validateSchema: schema.remoteResponse.token,
-      shouldRefreshToken: false,
-      method: 'POST',
-      headers: {},
-      body,
-    });
+    const { access_token: accessToken, expires_in: tokenLifetimeSecs } = await this.fetch(
+      '/token',
+      {
+        validateSchema: schema.remoteResponse.token,
+        shouldRefreshToken: false,
+        method: 'POST',
+        headers: {},
+        body,
+      },
+    );
+    const tokenLifetimeMs = tokenLifetimeSecs * 1000;
 
     // update token info
-    this.accessToken = accessToken;
-    this.tokenExpiry = Date.now() + tokenLifetime;
+    this.token = accessToken;
+    this.tokenExpiry = Date.now() + tokenLifetimeMs;
+
+    log.debug(
+      `VRSRemote.refreshTokenIfInvalid(): refreshed token (expires in ${tokenLifetimeMs}ms)`,
+    );
   }
 
   async fetch(path, options = {}) {
     const { shouldRefreshToken = true, validateSchema = null, ...fetchOptions } = options;
     if (!validateSchema) {
-      throw new Error(`VRSRemote.fetch: must supply a schema to validate against for path ${path}`);
+      throw new Error(
+        `VRSRemote.fetch(): must supply a schema to validate against for path ${path}`,
+      );
     }
 
     // refresh token if we think it's expired
@@ -69,11 +83,12 @@ export class VRSRemote {
     }
 
     // attempt fetch
-    const response = await fetch(`${this.host}${path}`, {
+    log.debug(`VRSRemote.fetch(): fetching ${path}...`);
+    const response = await this.fetchImplementation(`${this.host}${path}`, {
       headers: fetchOptions.headers || {
         'Content-Type': 'application/json',
         Accepts: 'application/json',
-        Authorization: `Bearer ${this.accessToken}`,
+        Authorization: `Bearer ${this.token}`,
       },
       ...fetchOptions,
     });
@@ -92,7 +107,9 @@ export class VRSRemote {
 
     // parse, validate, and return body on success
     const body = await response.json();
-    return validateSchema.validate(body);
+    const data = await validateSchema.validate(body);
+    log.debug(`VRSRemote.fetch(): fetched ${path}`);
+    return data;
   }
 
   async getPatientByFetchId(fetchId) {
@@ -134,7 +151,7 @@ export class VRSRemote {
       });
       if (!village) {
         // TODO: how do we handle missing villages?
-        throw new Error('TODO: unknown village name');
+        throw new Error(`TODO: unknown village name ${villageName}`);
       }
       villageId = village.id;
     }
