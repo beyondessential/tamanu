@@ -109,7 +109,7 @@ export class VRSRemote {
   }
 
   async convertVRSPatientToInternal({
-    // TODO: what do we do with these? probably log them, right?
+    // TODO: capture these and put them somewhere
     individual_refno: refNo,
     id_type: idType,
 
