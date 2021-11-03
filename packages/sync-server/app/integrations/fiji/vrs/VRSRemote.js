@@ -136,7 +136,7 @@ export class VRSRemote {
     dob: dateOfBirth,
     sex,
     sub_division: villageName,
-    phone,
+    phone: primaryContactNumber,
     email, // TODO: what does that "NULL" in the card mean?
   }) {
     // look up village by name
@@ -163,10 +163,10 @@ export class VRSRemote {
         dateOfBirth,
         sex,
         villageId,
+        email,
       },
       patientAdditionalData: {
-        phone,
-        email,
+        primaryContactNumber,
       },
     };
   }
