@@ -70,7 +70,7 @@ imagingRequest.put(
     req.checkPermission('read', 'ImagingRequest');
     const imagingRequestObject = await ImagingRequest.findByPk(id);
     if (!imagingRequestObject) throw new NotFoundError();
-    req.checkPermission('write', 'imagingRequestObject');
+    req.checkPermission('write', 'ImagingRequest');
     await imagingRequestObject.update(req.body);
 
     // Get related note
