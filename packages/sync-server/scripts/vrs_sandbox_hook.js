@@ -69,6 +69,7 @@ const callHook = async body => {
   console.log('fetch (calling tamanu):', url, opts);
   const response = await fetch(url, opts);
   const responseBody = await response.json();
+  console.log('received callHook response:', responseBody);
   if (!response.ok) {
     throw new Error(`fetch failed (${response.status}):\n${JSON.stringify(responseBody, null, 2)}`);
   }
