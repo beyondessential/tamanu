@@ -14,5 +14,14 @@
       "password": ""
     },
     "environment": "dev"
+  },
+  "integrations": {
+    "fiji": {
+      "vrs": {
+        "enabled": true,
+        "host": "http://localhost:8080",
+        "expectAccessToken": "test-access-token"
+      }
+    }
   }
 }
