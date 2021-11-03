@@ -16,9 +16,7 @@ publicVrsRoutes.post(
     const { sequelize, models } = store;
     const { Patient, PatientAdditionalData } = models;
 
-    // TODO: how do they handle auth with our system?
-    // TODO: RBAC on sync? is this route authenticated?
-    // await matchRole('create', store.models.Patient);
+    // TODO: validate expectAccessToken against auth header
 
     // validate request
     const { fetch_id: fetchId } = await schema.remoteRequest.patientCreated.validate(body);
