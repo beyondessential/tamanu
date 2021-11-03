@@ -40,8 +40,10 @@ const RegisterPatientButton = (): ReactElement => {
             paddingTop={screenPercentageToDP(3.03, Orientation.Height)}
           >
             <ProfileIcon
-              height={screenPercentageToDP(6.92, Orientation.Height)}
-              width={screenPercentageToDP(6.92, Orientation.Height)}
+              style={{
+                height:screenPercentageToDP(6.92, Orientation.Height),
+                width:screenPercentageToDP(6.92, Orientation.Height),
+              }}
             />
             <StyledText
               lineHeight={screenPercentageToDP(2.67, Orientation.Height)}
