@@ -1,6 +1,6 @@
 import { sign, verify } from 'jsonwebtoken';
 import { compare } from 'bcrypt';
-import { auth } from 'config';
+import config from 'config';
 import { v4 as uuid } from 'uuid';
 
 import { BadAuthenticationError } from 'shared/errors';
@@ -8,7 +8,7 @@ import { log } from 'shared/services/logging';
 
 import { WebRemote } from '~/sync';
 
-const { tokenDuration, secret } = auth;
+const { tokenDuration, secret } = config.auth;
 
 // regenerate the secret key whenever the server restarts.
 // this will invalidate all current tokens, but they're meant to expire fairly quickly anyway.
@@ -122,8 +122,14 @@ export async function loginHandler(req, res, next) {
   req.flagPermissionChecked();
 
   try {
-    const response = await remoteLoginWithLocalFallback(models, email, password);
-    res.send(response);
+    const responseData = await remoteLoginWithLocalFallback(models, email, password);
+    const facility = await models.Facility.findByPk(config.serverFacilityId);
+    res.send({
+      ...responseData,
+      server: {
+        facility: facility && facility.forResponse(),
+      },
+    });
   } catch (e) {
     next(e);
   }
