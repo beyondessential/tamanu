@@ -17,6 +17,8 @@ export class VRSRemote {
 
   tokenExpiry = 0; // timestamp of token expiry in milliseconds
 
+  fetchImplementation = fetch; // overriden in tests
+
   constructor(store, { host, username, password, tokenExpiryMarginMs }) {
     this.store = store;
 

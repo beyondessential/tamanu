@@ -79,7 +79,7 @@ export function extendExpect(expect) {
 }
 
 async function createContext() {
-  const { store } = await initDatabase({ testMode: true });
+  const { store } = await initDatabase({ testMode: true, syncClientMode: false });
   const emailService = {
     sendEmail: jest.fn().mockImplementation(() =>
       Promise.resolve({
