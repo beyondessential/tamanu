@@ -7,6 +7,7 @@ import { COMMUNICATION_STATUSES } from 'shared/constants';
 import { createApp } from 'sync-server/app/createApp';
 import { initDatabase, closeDatabase } from 'sync-server/app/database';
 import { getToken } from 'sync-server/app/auth/utils';
+import { initIntegrationServices } from 'sync-server/app/integrations';
 
 const chance = new Chance();
 
@@ -77,7 +78,7 @@ export function extendExpect(expect) {
   });
 }
 
-export async function createTestContext() {
+async function createContext() {
   const { store } = await initDatabase({ testMode: true });
   const emailService = {
     sendEmail: jest.fn().mockImplementation(() =>
@@ -87,8 +88,14 @@ export async function createTestContext() {
       }),
     ),
   };
+  const ctx = { store, emailService };
+  ctx.integrations = initIntegrationServices(ctx);
+  return ctx;
+}
 
-  const expressApp = createApp({ store, emailService });
+export async function createTestContext() {
+  const ctx = await createContext();
+  const expressApp = createApp(ctx);
   const appServer = http.createServer(expressApp);
   const baseApp = supertest(appServer);
 
@@ -101,7 +108,7 @@ export async function createTestContext() {
   };
 
   baseApp.asRole = async role => {
-    const newUser = await store.models.User.create({
+    const newUser = await ctx.store.models.User.create({
       email: chance.email(),
       displayName: chance.name(),
       password: chance.string(),
@@ -116,7 +123,7 @@ export async function createTestContext() {
     await closeDatabase();
   };
 
-  return { baseApp, store, close, emailService };
+  return { ...ctx, baseApp, close };
 }
 
 export async function withDate(fakeDate, fn) {

@@ -6,8 +6,6 @@ import * as schema from './schema';
 
 export const publicVrsRoutes = express.Router();
 
-// TODO: test coverage
-
 publicVrsRoutes.post(
   '/hooks/patientCreated',
   asyncHandler(async (req, res) => {
