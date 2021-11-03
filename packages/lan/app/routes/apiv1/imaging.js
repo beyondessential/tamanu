@@ -9,7 +9,7 @@ import {
   getCaseInsensitiveFilter,
   getTextToBooleanFilter,
 } from '../../database/utils';
-import { simpleGet, simplePut, simplePost, permissionCheckingRouter } from './crudHelpers';
+import { permissionCheckingRouter } from './crudHelpers';
 
 // Object used to map field names to database column names
 const SNAKE_CASE_COLUMN_NAMES = {
@@ -48,12 +48,10 @@ imagingRequest.get(
     });
 
     // Convert Sequelize model to use a custom object as response
-    const responseObject = { ...imagingRequestObject.forResponse() };
-
-    // Add note content if it exists
-    if (noteObject) {
-      responseObject.note = noteObject.content;
-    }
+    const responseObject = {
+      ...imagingRequestObject.forResponse(),
+      note: noteObject.content,
+    };
 
     res.send(responseObject);
   }),
@@ -67,11 +65,9 @@ imagingRequest.put(
       params: { id },
     } = req;
     req.checkPermission('read', 'ImagingRequest');
-    req.checkPermission('read', 'Note');
     const imagingRequestObject = await ImagingRequest.findByPk(id);
     if (!imagingRequestObject) throw new NotFoundError();
     req.checkPermission('write', 'imagingRequestObject');
-    req.checkPermission('write', 'Note');
     await imagingRequestObject.update(req.body);
 
     // Get related note
