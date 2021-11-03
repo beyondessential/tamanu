@@ -121,18 +121,30 @@ imagingRequest.post(
     req.checkPermission('create', 'ImagingRequest');
     const newImagingRequest = await ImagingRequest.create(req.body);
 
+    // Return note content or empty string with the response for consistency
+    let noteContent = '';
+
     // Only create a note if it has content
     if (req.body.note) {
-      await Note.create({
+      const newNote = await Note.create({
         recordId: newImagingRequest.get('id'),
         recordType: NOTE_RECORD_TYPES.IMAGING_REQUEST,
         content: req.body.note,
         noteType: NOTE_TYPES.OTHER,
         authorId: req.user.id,
       });
+
+      // Update note content for response with saved data
+      noteContent = newNote.content;
     }
 
-    res.send(newImagingRequest);
+    // Convert Sequelize model to use a custom object as response
+    const responseObject = {
+      ...newImagingRequest.forResponse(),
+      note: noteContent,
+    };
+
+    res.send(responseObject);
   }),
 );
 
