@@ -47,10 +47,13 @@ imagingRequest.get(
       },
     });
 
+    // If note doesn't exist, default content to empty string
+    const noteContent = noteObject ? noteObject.content : '';
+
     // Convert Sequelize model to use a custom object as response
     const responseObject = {
       ...imagingRequestObject.forResponse(),
-      note: noteObject.content,
+      note: noteContent,
     };
 
     res.send(responseObject);
@@ -78,13 +81,31 @@ imagingRequest.put(
       },
     });
 
-    // Only the content of the note would be updatable
-    await noteObject.update({ content: req.body.note });
+    // The returned note content will read its value depending if
+    // note exists or gets created, else it should be an empty string
+    let noteContent = '';
+
+    // Update the content of the note object if it exists
+    if (noteObject) {
+      await noteObject.update({ content: req.body.note });
+      noteContent = noteObject.content;
+    }
+    // Else, create a new one only if it has content
+    else if (req.body.note) {
+      const newNoteObject = await Note.create({
+        recordId: imagingRequestObject.get('id'),
+        recordType: NOTE_RECORD_TYPES.IMAGING_REQUEST,
+        content: req.body.note,
+        noteType: NOTE_TYPES.OTHER,
+        authorId: req.user.id,
+      });
+      noteContent = newNoteObject.content;
+    }
 
     // Convert Sequelize model to use a custom object as response
     const responseObject = {
       ...imagingRequestObject.forResponse(),
-      note: noteObject.content,
+      note: noteContent,
     };
 
     res.send(responseObject);
@@ -99,13 +120,18 @@ imagingRequest.post(
     } = req;
     req.checkPermission('create', 'ImagingRequest');
     const newImagingRequest = await ImagingRequest.create(req.body);
-    await Note.create({
-      recordId: newImagingRequest.get('id'),
-      recordType: NOTE_RECORD_TYPES.IMAGING_REQUEST,
-      content: req.body.note,
-      noteType: NOTE_TYPES.OTHER,
-      authorId: req.user.id,
-    });
+
+    // Only create a note if it has content
+    if (req.body.note) {
+      await Note.create({
+        recordId: newImagingRequest.get('id'),
+        recordType: NOTE_RECORD_TYPES.IMAGING_REQUEST,
+        content: req.body.note,
+        noteType: NOTE_TYPES.OTHER,
+        authorId: req.user.id,
+      });
+    }
+
     res.send(newImagingRequest);
   }),
 );
