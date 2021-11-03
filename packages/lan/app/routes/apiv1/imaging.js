@@ -33,13 +33,10 @@ imagingRequest.get(
       models: { ImagingRequest, Note },
       params: { id },
     } = req;
-
     req.checkPermission('read', 'ImagingRequest');
-
     const imagingRequestObject = await ImagingRequest.findByPk(id, {
       include: ImagingRequest.getFullReferenceAssociations(),
     });
-
     if (!imagingRequestObject) throw new NotFoundError();
 
     // Get related note
@@ -61,7 +58,43 @@ imagingRequest.get(
     res.send(responseObject);
   }),
 );
-imagingRequest.put('/:id', simplePut('ImagingRequest'));
+
+imagingRequest.put(
+  '/:id',
+  asyncHandler(async (req, res) => {
+    const {
+      models: { ImagingRequest, Note },
+      params: { id },
+    } = req;
+    req.checkPermission('read', 'ImagingRequest');
+    req.checkPermission('read', 'Note');
+    const imagingRequestObject = await ImagingRequest.findByPk(id);
+    if (!imagingRequestObject) throw new NotFoundError();
+    req.checkPermission('write', 'imagingRequestObject');
+    req.checkPermission('write', 'Note');
+    await imagingRequestObject.update(req.body);
+
+    // Get related note
+    const noteObject = await Note.findOne({
+      where: {
+        recordType: NOTE_RECORD_TYPES.IMAGING_REQUEST,
+        recordId: id,
+      },
+    });
+
+    // Only the content of the note would be updatable
+    await noteObject.update({ content: req.body.note });
+
+    // Convert Sequelize model to use a custom object as response
+    const responseObject = {
+      ...imagingRequestObject.forResponse(),
+      note: noteObject.content,
+    };
+
+    res.send(responseObject);
+  }),
+);
+
 imagingRequest.post(
   '/$',
   asyncHandler(async (req, res) => {
