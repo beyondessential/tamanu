@@ -39,7 +39,6 @@ publicVrsRoutes.post(
     });
 
     // acknowledge request
-    // TODO: do we need to persist and retry acks? or will the system handle it?
     await vrsRemote.acknowledge(fetchId);
 
     res.send({ response: false });
