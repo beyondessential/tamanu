@@ -15,9 +15,9 @@ const CHANGE_PASSWORD_START = 'CHANGE_PASSWORD_START';
 const CHANGE_PASSWORD_SUCCESS = 'CHANGE_PASSWORD_SUCCESS';
 const CHANGE_PASSWORD_FAILURE = 'CHANGE_PASSWORD_FAILURE';
 
-export const checkAuth = () => async (dispatch, getState, { api }) => {
+export const restoreSession = () => async (dispatch, getState, { api }) => {
   try {
-    const { user, token, localisation } = await api.checkAuth();
+    const { user, token, localisation } = await api.restoreSession();
     dispatch({ type: LOGIN_SUCCESS, user, token, localisation });
   } catch (e) {
     dispatch({ type: LOGIN_FAILURE, error: 'Not authenticated' });

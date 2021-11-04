@@ -6,7 +6,10 @@ const FacilityContext = React.createContext({});
 
 export const useFacility = () => useContext(FacilityContext);
 export const FacilityProvider = ({ children }) => {
-  const [facilityInfo, setFacilityInfo] = useState({});
+  const [facilityInfo, setFacilityInfo] = useState({
+    id: '',
+    name: '',
+  });
 
   return (
     <FacilityContext.Provider
