@@ -7,20 +7,22 @@ export class VRSPatientAdapter {
     this.store = store;
   }
 
-  async toTamanu({
-    // TODO: capture these and put them somewhere
-    individual_refno: refNo,
-    id_type: idType,
+  async toTamanu(vrsPatient) {
+    const {
+      // TODO: capture these and put them somewhere
+      individual_refno: refNo,
+      id_type: idType,
 
-    identifier: displayId,
-    fname: firstName,
-    lname: lastName,
-    dob: dateOfBirth,
-    sex,
-    sub_division: villageName,
-    phone: primaryContactNumber,
-    email, // TODO: what does that "NULL" in the card mean?
-  }) {
+      identifier: displayId,
+      fname: firstName,
+      lname: lastName,
+      dob: dateOfBirth,
+      sex,
+      sub_division: villageName,
+      phone: primaryContactNumber,
+      email,
+    } = vrsPatient;
+
     // look up village by name
     const { ReferenceData } = this.store.models;
     let villageId;
