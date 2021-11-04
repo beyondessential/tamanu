@@ -1,7 +1,8 @@
 import fetch from 'node-fetch';
 
 import { log } from 'shared/services/logging';
-import { REFERENCE_TYPES } from 'shared/constants';
+
+import { VRSPatientAdapter } from './VRSPatientAdapter';
 
 import * as schema from './schema';
 
@@ -20,6 +21,7 @@ export class VRSRemote {
   fetchImplementation = fetch; // overriden in tests
 
   constructor(store, { host, username, password, tokenExpiryMarginMs }) {
+    this.patientAdapter = new VRSPatientAdapter(store);
     this.store = store;
 
     this.host = host;
@@ -118,58 +120,12 @@ export class VRSRemote {
     const { data: vrsPatient } = await this.fetch(`/api/Tamanu/Fetch/${fetchId}`, {
       validateSchema: schema.remoteResponse.fetchPatient,
     });
-    return this.convertVRSPatientToInternal(vrsPatient);
+    return this.patientAdapter.toTamanu(vrsPatient);
   }
 
   async acknowledge(fetchId) {
     await this.fetch(`/api/Tamanu/Acknowledge?${encodeParams({ fetch_id: fetchId })}`, {
       validateSchema: schema.remoteResponse.acknowledge,
     });
-  }
-
-  async convertVRSPatientToInternal({
-    // TODO: capture these and put them somewhere
-    individual_refno: refNo,
-    id_type: idType,
-
-    identifier: displayId,
-    fname: firstName,
-    lname: lastName,
-    dob: dateOfBirth,
-    sex,
-    sub_division: villageName,
-    phone: primaryContactNumber,
-    email, // TODO: what does that "NULL" in the card mean?
-  }) {
-    // look up village by name
-    const { ReferenceData } = this.store.models;
-    let villageId;
-    if (villageName) {
-      const village = await ReferenceData.findOne({
-        where: {
-          name: villageName,
-          type: REFERENCE_TYPES.VILLAGE,
-        },
-      });
-      if (!village) {
-        // TODO: how do we handle missing villages?
-        throw new Error(`TODO: unknown village name ${villageName}`);
-      }
-      villageId = village.id;
-    }
-    return {
-      patient: {
-        displayId,
-        firstName,
-        lastName,
-        dateOfBirth,
-        sex,
-        villageId,
-        email,
-      },
-      patientAdditionalData: {
-        primaryContactNumber,
-      },
-    };
   }
 }
