@@ -42,20 +42,17 @@ export const remoteResponse = {
         id_type: yup.string(),
 
         identifier: yup.string().required(),
-        fname: yup.string().required(),
-        lname: yup.string().required(),
-        dob: yup
-          .date()
-          .required()
-          .transform((_, d) => parseISO(d)),
+        fname: yup.string(),
+        lname: yup.string(),
+        dob: yup.date().transform((_, d) => parseISO(d)),
         sex: yup
           .string()
           .required()
           .oneOf(['male', 'female', 'other'])
           .transform(g => g.toLowerCase()),
-        sub_division: yup.string().required(),
-        phone: yup.string().required(),
-        email: yup.string().required(), // TODO: what does that "NULL" in the card mean?
+        sub_division: yup.string(),
+        phone: yup.string(),
+        email: yup.string(),
       })
       .required(),
   }),
