@@ -91,6 +91,16 @@
     },
     "data": {
       "fields": {
+        "emergencyContactName": {
+          "shortLabel": "Emergency Contact Name",
+          "longLabel": "Emergency Contact Name",
+          "hidden": false
+        },
+        "emergencyContactNumber": {
+          "shortLabel": "Emergency Contact Number",
+          "longLabel": "Emergency Contact Number",
+          "hidden": false
+        },
         "markedForSync": {
           "shortLabel": "Sync",
           "longLabel": "Marked for sync"

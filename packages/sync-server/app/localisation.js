@@ -37,6 +37,8 @@ const UNHIDEABLE_FIELDS = [
   'dateOfBirthFrom',
   'dateOfBirthTo',
   'dateOfBirthExact',
+  'emergencyContactName',
+  'emergencyContactNumber',
 ];
 
 const HIDEABLE_FIELDS = [
