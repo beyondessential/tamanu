@@ -32,7 +32,6 @@ publicVrsRoutes.post(
     // persist
     // TODO: determine the difference between UPDATE and INSERT - can we do an idempotent upsert?
     // TODO: DELETE support
-    // TODO: add an origin='vrs' field to records to track where they came from
     await sequelize.transaction(async () => {
       await Patient.create(patient);
       await PatientAdditionalData.create(patientAdditionalData);
