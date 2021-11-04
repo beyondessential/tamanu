@@ -4,7 +4,6 @@ import {
   authReducer,
   patientReducer,
   optionsReducer,
-  labRequestReducer,
   imagingRequestReducer,
   decisionSupportReducer,
 } from './store';
@@ -14,7 +13,6 @@ export const createReducers = history => ({
   auth: authReducer,
   patient: patientReducer,
   options: optionsReducer,
-  labRequest: labRequestReducer,
   imagingRequest: imagingRequestReducer,
   decisionSupport: decisionSupportReducer,
 });
