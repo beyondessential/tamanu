@@ -8,6 +8,7 @@ export * from './PatientCondition';
 export * from './PatientAllergy';
 export * from './PatientIssue';
 export * from './PatientAdditionalData';
+export * from './PatientVRSData';
 
 export * from './Encounter';
 export * from './Discharge';
