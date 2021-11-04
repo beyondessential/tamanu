@@ -3,7 +3,7 @@ import React from 'react';
 import { useSelector, useDispatch } from 'react-redux';
 import { Typography } from '@material-ui/core';
 
-import { clearPatient } from 'desktop/app/store/patient';
+import { clearPatient, viewPatient } from 'desktop/app/store/patient';
 import { OutlinedButton, Button } from 'desktop/app/components/Button';
 import { PatientNameDisplay } from 'desktop/app/components/PatientNameDisplay';
 import { history } from 'desktop/app/utils/utils';
@@ -47,7 +47,11 @@ export const PatientDisplay = () => {
     <Header>
       <FlexRow>
         <Heading variant="h3">
-          <PatientNameDisplay patient={patient} />
+          <div role="button" onClick={() => {
+            dispatch(viewPatient(patient.id))
+          }}>
+            <PatientNameDisplay patient={patient} />
+          </div>
         </Heading>
         <LightText>({patient.displayId})</LightText>
       </FlexRow>
