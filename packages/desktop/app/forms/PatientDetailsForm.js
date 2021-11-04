@@ -161,8 +161,6 @@ function sanitiseRecordForValues(data) {
     updatedAt,
     pushedAt,
     pulledAt,
-    emergencyContactName,
-    emergencyContactNumber,
 
     // state fields
     loading,
