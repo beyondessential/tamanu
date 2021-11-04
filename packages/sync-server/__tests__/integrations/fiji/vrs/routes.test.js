@@ -104,7 +104,7 @@ describe('VRS integration', () => {
   describe('INSERT', () => {
     it('completes successfully', async () => {
       // arrange
-      const { Patient, PatientAdditionalData, ReferenceData } = ctx.store.models;
+      const { Patient, PatientAdditionalData, PatientVRSData, ReferenceData } = ctx.store.models;
       const { fetchId, vrsPatient } = await prepareVRSHook();
 
       // act
@@ -154,13 +154,23 @@ describe('VRS integration', () => {
         primaryContactNumber: vrsPatient.phone,
         deletedAt: null,
       });
+      const foundVRSData = await PatientVRSData.findOne({
+        where: { patientId: foundPatient.id },
+        raw: true,
+      });
+      expect(foundVRSData).toMatchObject({
+        idType: vrsPatient.id_type,
+        identifier: vrsPatient.identifier,
+        unmatchedVillageName: null,
+        deletedAt: null,
+      });
     });
 
     it('throws an error if a required field is missing', async () => {
       // arrange
       const { fetchId } = await prepareVRSHook({
         vrsPatient: {
-          ...fakeVRSPatient(ctx.store.models),
+          ...(await fakeVRSPatient(ctx.store.models)),
           individual_refno: null, // missing required field
         },
       });
@@ -182,7 +192,7 @@ describe('VRS integration', () => {
       // arrange
       const { fetchId } = await prepareVRSHook({
         vrsPatient: {
-          ...fakeVRSPatient(ctx.store.models),
+          ...(await fakeVRSPatient(ctx.store.models)),
           dob: 'this is not a valid ISO date',
         },
       });
@@ -198,6 +208,39 @@ describe('VRS integration', () => {
 
       // assert
       expect(response).toHaveRequestError();
+    });
+
+    it('saves unmatched village names so they can be fixed later', async () => {
+      // arrange
+      const { models } = ctx.store;
+      const { fetchId, vrsPatient } = await prepareVRSHook({
+        vrsPatient: {
+          ...(await fakeVRSPatient(models)),
+          sub_division: 'this string does not match a village name',
+        },
+      });
+
+      // act
+      const response = await ctx.baseApp
+        .post(`/v1/public/integration/fiji/vrs/hooks/patientCreated`)
+        .send({
+          fetch_id: fetchId,
+          operation: 'INSERT',
+          created_datetime: new Date().toISOString(),
+        });
+
+      // assert
+      expect(response).toHaveSucceeded();
+      const foundVRSData = await models.PatientVRSData.findOne({
+        include: {
+          association: 'patient',
+          where: { displayId: vrsPatient.individual_refno },
+        },
+        raw: true,
+      });
+      expect(foundVRSData).toMatchObject({
+        unmatchedVillageName: vrsPatient.sub_division,
+      });
     });
 
     it.todo('rejects invalid credentials');

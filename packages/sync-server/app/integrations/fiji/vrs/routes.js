@@ -12,7 +12,7 @@ publicVrsRoutes.post(
     const { body, store, ctx } = req;
     const { vrsRemote } = ctx.integrations.fiji;
     const { sequelize, models } = store;
-    const { Patient, PatientAdditionalData } = models;
+    const { Patient, PatientAdditionalData, PatientVRSData } = models;
 
     // TODO: validate expectAccessToken against auth header
 
@@ -20,11 +20,14 @@ publicVrsRoutes.post(
     const { fetch_id: fetchId } = await schema.remoteRequest.patientCreated.validate(body);
 
     // fetch patient
-    const { patient, patientAdditionalData } = await vrsRemote.getPatientByFetchId(fetchId);
+    const { patient, patientAdditionalData, patientVRSData } = await vrsRemote.getPatientByFetchId(
+      fetchId,
+    );
 
     // assign uuid
     patient.id = uuidv4();
     patientAdditionalData.patientId = patient.id;
+    patientVRSData.patientId = patient.id;
 
     // persist
     // TODO: determine the difference between UPDATE and INSERT - can we do an idempotent upsert?
@@ -33,6 +36,7 @@ publicVrsRoutes.post(
     await sequelize.transaction(async () => {
       await Patient.create(patient);
       await PatientAdditionalData.create(patientAdditionalData);
+      await PatientVRSData.create(patientVRSData);
     });
 
     // acknowledge request

@@ -1,4 +1,5 @@
 import { REFERENCE_TYPES } from 'shared/constants';
+import { log } from 'shared/services/logging';
 
 export class VRSPatientAdapter {
   store = null;
@@ -9,7 +10,6 @@ export class VRSPatientAdapter {
 
   async toTamanu(vrsPatient) {
     const {
-      // TODO: capture these and put them somewhere
       id_type: idType,
       identifier,
 
@@ -33,11 +33,14 @@ export class VRSPatientAdapter {
           type: REFERENCE_TYPES.VILLAGE,
         },
       });
-      if (!village) {
-        // TODO: how do we handle missing villages?
-        throw new Error(`TODO: unknown village name ${villageName}`);
+      if (village) {
+        villageId = village.id;
+      } else {
+        // villageName will be persisted in a PatientVRSData record
+        log.warn(
+          `VRSPatientAdapter.toTamanu: received sub_division with no village mapping (${villageName})`,
+        );
       }
-      villageId = village.id;
     }
     return {
       patient: {
@@ -51,6 +54,11 @@ export class VRSPatientAdapter {
       },
       patientAdditionalData: {
         primaryContactNumber,
+      },
+      patientVRSData: {
+        idType,
+        identifier,
+        unmatchedVillageName: villageId ? null : villageName,
       },
     };
   }
