@@ -10,10 +10,10 @@ export class VRSPatientAdapter {
   async toTamanu(vrsPatient) {
     const {
       // TODO: capture these and put them somewhere
-      individual_refno: refNo,
       id_type: idType,
+      identifier,
 
-      identifier: displayId,
+      individual_refno: displayId,
       fname: firstName,
       lname: lastName,
       dob: dateOfBirth,

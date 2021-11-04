@@ -19,10 +19,10 @@ const fakeVillage = () => {
 const fakeVRSPatient = async ({ ReferenceData }) => {
   const village = await ReferenceData.create(fakeVillage());
   return {
-    individual_refno: chance.integer({ min: 0, max: 10000000 }),
     id_type: 'TAMANU_TESTBED_ID',
-
     identifier: chance.guid(),
+
+    individual_refno: chance.integer({ min: 0, max: 10000000 }).toString(),
     fname: chance.first(),
     lname: chance.last(),
     dob: chance
@@ -38,72 +38,77 @@ const fakeVRSPatient = async ({ ReferenceData }) => {
 
 describe('VRS integration', () => {
   let ctx;
-  beforeAll(async () => {
+  beforeEach(async () => {
     ctx = await createTestContext();
   });
-  afterAll(async () => ctx.close());
+  afterEach(async () => ctx.close());
+
+  const prepareVRSHook = async (opts = {}) => {
+    const fetchId = chance.integer({ min: 1, max: 100000000 }).toString();
+    const token = chance.hash();
+
+    const {
+      vrsPatient = await fakeVRSPatient(ctx.store.models),
+      tokenImpl = url => {
+        expect(url).toEqual(expect.stringContaining('/token'));
+        return {
+          ok: true,
+          status: 200,
+          json: async () => ({
+            access_token: token,
+            expires_in: chance.integer({ min: 100000, max: 1000000 }),
+            token_type: 'bearer',
+          }),
+        };
+      },
+      fetchImpl = url => {
+        expect(url).toEqual(expect.stringContaining(`/api/Tamanu/Fetch/${fetchId}`));
+        return {
+          ok: true,
+          status: 200,
+          json: async () => ({
+            response: 'success',
+            data: vrsPatient,
+          }),
+        };
+      },
+      ackImpl = url => {
+        expect(url).toEqual(expect.stringContaining(`/api/Tamanu/Acknowledge?fetch_id=${fetchId}`));
+        return {
+          ok: true,
+          status: 200,
+          json: async () => ({ response: true }),
+        };
+      },
+    } = opts;
+
+    const fetch = jest
+      // error on unexpected calls
+      .fn((...args) => {
+        throw new Error('unexpected call to fetch', ...args);
+      })
+
+      // expect the remote to request a token
+      .mockImplementationOnce(tokenImpl)
+
+      // expect the remote to request a patient
+      .mockImplementationOnce(fetchImpl)
+
+      // expect the remote to ack
+      .mockImplementationOnce(ackImpl);
+
+    ctx.integrations.fiji.vrsRemote.fetchImplementation = fetch;
+    return { fetchId, vrsPatient };
+  };
 
   describe('INSERT', () => {
     it('completes successfully', async () => {
       // arrange
-      const { store, baseApp } = ctx;
-      const { models } = store;
-      const { Patient, PatientAdditionalData, ReferenceData } = models;
-
-      const vrsPatient = await fakeVRSPatient(models);
-      const fetchId = chance.integer({ min: 1, max: 100000000 }).toString();
-      const token = chance.hash();
-
-      ctx.integrations.fiji.vrsRemote.fetchImplementation = jest
-        // error on unexpected calls
-        .fn((...args) => {
-          throw new Error('unexpected call to fetch', ...args);
-        })
-
-        // expect the remote to request a token
-        .mockImplementationOnce(url => {
-          expect(url).toEqual(expect.stringContaining('/token'));
-          console.log(url);
-          return {
-            ok: true,
-            status: 200,
-            json: async () => ({
-              access_token: token,
-              expires_in: chance.integer({ min: 100000, max: 1000000 }),
-              token_type: 'bearer',
-            }),
-          };
-        })
-
-        // expect the remote to request a patient
-        .mockImplementationOnce(url => {
-          expect(url).toEqual(expect.stringContaining(`/api/Tamanu/Fetch/${fetchId}`));
-          console.log(url);
-          return {
-            ok: true,
-            status: 200,
-            json: async () => ({
-              response: 'success',
-              data: vrsPatient,
-            }),
-          };
-        })
-
-        // expect the remote to ack
-        .mockImplementationOnce(url => {
-          expect(url).toEqual(
-            expect.stringContaining(`/api/Tamanu/Acknowledge?fetch_id=${fetchId}`),
-          );
-          console.log(url);
-          return {
-            ok: true,
-            status: 200,
-            json: async () => ({ response: true }),
-          };
-        });
+      const { Patient, PatientAdditionalData, ReferenceData } = ctx.store.models;
+      const { fetchId, vrsPatient } = await prepareVRSHook();
 
       // act
-      const response = await baseApp
+      const response = await ctx.baseApp
         .post(`/v1/public/integration/fiji/vrs/hooks/patientCreated`)
         .send({
           fetch_id: fetchId,
@@ -117,7 +122,7 @@ describe('VRS integration', () => {
         response: false,
       });
       const foundPatient = await Patient.findOne({
-        where: { displayId: vrsPatient.identifier },
+        where: { displayId: vrsPatient.individual_refno },
         raw: true,
       });
       const expectedVillage = await ReferenceData.findOne({
@@ -125,7 +130,7 @@ describe('VRS integration', () => {
       });
       expect(foundPatient).toEqual({
         id: expect.any(String),
-        displayId: vrsPatient.identifier,
+        displayId: vrsPatient.individual_refno,
         firstName: vrsPatient.fname,
         middleName: null,
         lastName: vrsPatient.lname,
@@ -147,10 +152,54 @@ describe('VRS integration', () => {
       });
       expect(foundAdditionalData).toMatchObject({
         primaryContactNumber: vrsPatient.phone,
+        deletedAt: null,
       });
     });
 
+    it('throws an error if a required field is missing', async () => {
+      // arrange
+      const { fetchId } = await prepareVRSHook({
+        vrsPatient: {
+          ...fakeVRSPatient(ctx.store.models),
+          individual_refno: null, // missing required field
+        },
+      });
+
+      // act
+      const response = await ctx.baseApp
+        .post(`/v1/public/integration/fiji/vrs/hooks/patientCreated`)
+        .send({
+          fetch_id: fetchId,
+          operation: 'INSERT',
+          created_datetime: new Date().toISOString(),
+        });
+
+      // assert
+      expect(response).toHaveRequestError();
+    });
+
+    it('throws an error if a field is of the wrong type', async () => {
+      // arrange
+      const { fetchId } = await prepareVRSHook({
+        vrsPatient: {
+          ...fakeVRSPatient(ctx.store.models),
+          dob: 'this is not a valid ISO date',
+        },
+      });
+
+      // act
+      const response = await ctx.baseApp
+        .post(`/v1/public/integration/fiji/vrs/hooks/patientCreated`)
+        .send({
+          fetch_id: fetchId,
+          operation: 'INSERT',
+          created_datetime: new Date().toISOString(),
+        });
+
+      // assert
+      expect(response).toHaveRequestError();
+    });
+
     it.todo('rejects invalid credentials');
-    it.todo("throws an error if the schema doesn't match");
   });
 });
