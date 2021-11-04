@@ -244,5 +244,14 @@ describe('VRS integration', () => {
     });
 
     it.todo('rejects invalid credentials');
+    it.todo('resurrects deleted records');
+  });
+
+  describe('UPDATE', () => {
+    it.todo('completes successfully');
+  });
+
+  describe('DELETE', () => {
+    it.todo('completes successfully');
   });
 });
