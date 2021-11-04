@@ -1,23 +1,9 @@
-import React, { useState, useContext } from 'react';
-import { push } from 'connected-react-router';
-import { useApi } from '../api';
+import { useSelector } from 'react-redux';
 
-const FacilityContext = React.createContext({});
+// This is just a redux selector for now.
+// This should become its own proper context once the auth stuff
+// is refactored out of redux.
 
-export const useFacility = () => useContext(FacilityContext);
-export const FacilityProvider = ({ children }) => {
-  const [facilityInfo, setFacilityInfo] = useState({
-    id: '',
-    name: '',
-  });
+const facilitySelector = state => state.auth.server?.facility || {};
 
-  return (
-    <FacilityContext.Provider
-      value={{
-        ...facilityInfo,
-        setFacilityInfo,
-      }}
-      children={children}
-    />
-  );
-};
+export const useFacility = () => useSelector(facilitySelector);

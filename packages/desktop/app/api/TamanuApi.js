@@ -4,7 +4,7 @@ import { promises } from 'fs';
 import { VERSION_COMPATIBILITY_ERRORS } from 'shared/constants';
 import { LOCAL_STORAGE_KEYS } from '../constants';
 
-const { HOST, TOKEN, LOCALISATION } = LOCAL_STORAGE_KEYS;
+const { HOST, TOKEN, LOCALISATION, SERVER } = LOCAL_STORAGE_KEYS;
 
 const getResponseJsonSafely = async response => {
   try {
@@ -65,18 +65,21 @@ function safeGetStoredJSON(key) {
 function restoreFromLocalStorage() {
   const token = localStorage.getItem(TOKEN);
   const localisation = safeGetStoredJSON(LOCALISATION);
+  const server = safeGetStoredJSON(SERVER);
 
-  return { token, localisation };
+  return { token, localisation, server };
 }
 
 function saveToLocalStorage({ token, localisation, server }) {
   localStorage.setItem(TOKEN, token);
   localStorage.setItem(LOCALISATION, JSON.stringify(localisation));
+  localStorage.setItem(SERVER, JSON.stringify(server));
 }
 
 function clearLocalStorage() {
   localStorage.removeItem(TOKEN);
   localStorage.removeItem(LOCALISATION);
+  localStorage.removeItem(SERVER);
 }
 
 export class TamanuApi {
@@ -116,26 +119,26 @@ export class TamanuApi {
   }
 
   async restoreSession() {
-    const { token, localisation } = restoreFromLocalStorage();
+    const { token, localisation, server } = restoreFromLocalStorage();
     if (!token) {
-      throw new Error('Not authenticated');
+      throw new Error('No stored session found.');
     }
     this.setToken(token);
     const user = await this.get('user/me');
-    return { user, token, localisation };
+    return { user, token, localisation, server };
   }
 
   async login(host, email, password) {
     this.setHost(host);
     const response = await this.post('login', { email, password });
-    const { token, localisation } = response;
-    saveToLocalStorage({ token, localisation });
+    const { token, localisation, server } = response;
+    saveToLocalStorage({ token, localisation, server });
     this.setToken(token);
     this.lastRefreshed = Date.now();
 
     const user = await this.get('user/me');
     this.user = user;
-    return { user, token, localisation };
+    return { user, token, localisation, server };
   }
 
   async requestPasswordReset(host, email) {
