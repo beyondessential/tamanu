@@ -38,10 +38,8 @@ export const remoteResponse = {
       .oneOf(['success']),
     data: yup
       .object({
-        individual_refno: yup.number(),
-        id_type: yup.string(),
-
-        identifier: yup.string().required(),
+        // Patient fields
+        individual_refno: yup.string().required(),
         fname: yup.string(),
         lname: yup.string(),
         dob: yup.date().transform((_, d) => parseISO(d)),
@@ -51,8 +49,14 @@ export const remoteResponse = {
           .oneOf(['male', 'female', 'other'])
           .transform(g => g.toLowerCase()),
         sub_division: yup.string(),
-        phone: yup.string(),
         email: yup.string(),
+
+        // PatientAdditionalData fields
+        phone: yup.string(),
+
+        // PatientVRSData fields
+        id_type: yup.string(),
+        identifier: yup.string(),
       })
       .required(),
   }),
