@@ -16,17 +16,16 @@ import { DateInput, TextInput, SelectField, Field } from '../../components/Field
 import { useApi } from '../../api';
 import { IMAGING_REQUEST_STATUS_LABELS } from '../../constants';
 
-const BackLink = connect(
-  null,
-  dispatch => ({ onClick: () => dispatch(push('/patients/encounter')) }),
-)(({ onClick }) => <Button onClick={onClick}>&lt; Back to encounter information</Button>);
+const BackLink = connect(null, dispatch => ({
+  onClick: () => dispatch(push('/patients/encounter')),
+}))(({ onClick }) => <Button onClick={onClick}>&lt; Back to encounter information</Button>);
 
 const statusOptions = [
-  { value: "pending", label: "Pending" },
-  { value: "in_progress", label: "In progress" },
-  { value: "completed", label: "Completed" },
-]
-  
+  { value: 'pending', label: 'Pending' },
+  { value: 'in_progress', label: 'In progress' },
+  { value: 'completed', label: 'Completed' },
+];
+
 const DumbImagingRequestInfoPane = React.memo(({ imagingRequest, onSubmit }) => (
   <Formik
     onSubmit={({ status, results }) => {
@@ -34,7 +33,7 @@ const DumbImagingRequestInfoPane = React.memo(({ imagingRequest, onSubmit }) => 
         status,
         results,
       };
-      onSubmit(updatedImagingRequest)
+      onSubmit(updatedImagingRequest);
     }}
     initialValues={{
       status: imagingRequest.status,
@@ -66,7 +65,16 @@ const DumbImagingRequestInfoPane = React.memo(({ imagingRequest, onSubmit }) => 
             />
           )}
           {dirty && (
-            <ButtonRow>
+            // Needs custom styling to properly display view image button to the left
+            <ButtonRow style={{ gridTemplateColumns: '8rem auto 8rem' }}>
+              <Button
+                variant="contained"
+                color="secondary"
+                style={{ gridColumn: '1 / span 1' }}
+                disabled
+              >
+                Add image link
+              </Button>
               <Button variant="outlined" color="primary" type="submit">
                 Save
               </Button>
@@ -82,9 +90,9 @@ export const DumbImagingRequestView = React.memo(({ imagingRequest, patient }) =
   const api = useApi();
   const dispatch = useDispatch();
 
-  const onSubmit = (data) => {
-    api.put(`imagingRequest/${imagingRequest.id}`, { ...data })
-    dispatch(push('/patients/encounter'))
+  const onSubmit = data => {
+    api.put(`imagingRequest/${imagingRequest.id}`, { ...data });
+    dispatch(push('/patients/encounter'));
   };
 
   if (patient.loading) return <LoadingIndicator />;
