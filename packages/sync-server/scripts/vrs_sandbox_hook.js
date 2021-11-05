@@ -126,7 +126,6 @@ app.get('/api/Tamanu/Acknowledge', (req, res) => {
     throw new Error(`Wrong fetch_id: expected ${fetchId}, got ${req.query.fetch_id}`);
   }
   didAck();
-  // TODO: test ack failure
   const payload = { response: true };
   console.log('returned ack payload:', payload);
   res.send(payload);
