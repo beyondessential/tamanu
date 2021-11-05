@@ -1,6 +1,12 @@
 import * as yup from 'yup';
 import { parseISO } from 'date-fns';
 
+export const OPERATIONS = {
+  INSERT: 'INSERT',
+  UPDATE: 'UPDATE',
+  DELETE: 'DELETE',
+};
+
 export const remoteRequest = {
   patientCreated: yup
     .object({
@@ -8,7 +14,7 @@ export const remoteRequest = {
       operation: yup
         .string()
         .required()
-        .oneOf(['INSERT']),
+        .oneOf([OPERATIONS.INSERT, OPERATIONS.UPDATE]),
       created_datetime: yup
         .date()
         .required()
