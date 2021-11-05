@@ -4,6 +4,28 @@
 
 ### Manual steps required after upgrade ⚙
 
+- (left blank)
+
+### Features ⭐
+
+- (left blank)
+
+### Tweaks ⚖️
+
+- (left blank)
+
+### Bug fixes 🐛
+
+- (left blank)
+
+### Infrastructure and maintenance 🛠
+
+- (left blank)
+
+## v1.10.0
+
+### Manual steps required after upgrade ⚙
+
 - Set `serverFacilityId` in LAN local.json to a valid facilityId
   - Valid facilities will need to have been imported to sync server previously
 
