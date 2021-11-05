@@ -70,7 +70,7 @@ describe('VRS integration - hook - INSERT and UPDATE', () => {
           raw: true,
         });
         const expectedVillage = await ReferenceData.findOne({
-          name: vrsPatient.sub_division,
+          where: { name: vrsPatient.sub_division },
         });
         expect(foundPatient).toMatchObject({
           id: expect.any(String),
