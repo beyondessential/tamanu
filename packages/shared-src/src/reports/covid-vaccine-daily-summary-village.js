@@ -8,6 +8,8 @@ import { generateReportFromQueryData } from './utilities';
 const reportColumnTemplate = [
   { title: 'entity_code', accessor: data => data.tupaiaEntityCode },
   { title: 'timestamp', accessor: data => data.data_time },
+  { title: 'start_time', accessor: data => data.start_time },
+  { title: 'end_time', accessor: data => data.end_time },
   { title: 'COVIDVac1', accessor: data => data.COVIDVac1 },
   { title: 'COVIDVac2', accessor: data => data.COVIDVac2 },
   { title: 'COVIDVac3', accessor: data => data.COVIDVac3 },
@@ -175,8 +177,10 @@ async function queryCovidVaccineListData(models, parameters) {
   return Object.values(patients);
 }
 
-function groupByDateAndVillage(data) {
+function groupByDateAndVillage(data, now) {
   const groupedByKey = {};
+
+  const nowStr = now.format();
 
   for (const item of data) {
     if (!item.tupaiaEntityCode) continue;
@@ -195,6 +199,8 @@ function groupByDateAndVillage(data) {
           village: item.village,
           tupaiaEntityCode: item.tupaiaEntityCode,
           data_time: doseDateTime,
+          start_time: nowStr,
+          end_time: nowStr,
           COVIDVac1: 0, // Number of 1st doses given to males on this day
           COVIDVac2: 0, // Number of 1st doses given to females on this day
           COVIDVac3: 0, // Number of 1st doses give to > 65 year old on this day
@@ -278,10 +284,12 @@ async function getVillages(tupaiaApi) {
   return entities;
 }
 
-function withEmptyRows(groupedData, parameters, villages) {
+function withEmptyRows(groupedData, parameters, villages, now) {
   const dateRange = getDateRange(parameters);
 
   const padded = groupedData;
+
+  const nowStr = now.format();
 
   for (const village of villages) {
     let d = dateRange.fromDate.clone();
@@ -298,14 +306,16 @@ function withEmptyRows(groupedData, parameters, villages) {
           village: village.name,
           tupaiaEntityCode: village.code,
           data_time: dataTime,
-          COVIDVac1: '',
-          COVIDVac2: '',
-          COVIDVac3: '',
-          COVIDVac4: '',
-          COVIDVac5: '',
-          COVIDVac6: '',
-          COVIDVac7: '',
-          COVIDVac8: '',
+          start_time: nowStr,
+          end_time: nowStr,
+          COVIDVac1: null,
+          COVIDVac2: null,
+          COVIDVac3: null,
+          COVIDVac4: null,
+          COVIDVac5: null,
+          COVIDVac6: null,
+          COVIDVac7: null,
+          COVIDVac8: null,
         });
       }
 
@@ -323,9 +333,11 @@ export async function dataGenerator(models, parameters, tupaiaApi) {
 
   const tupaiaListData = addTupaiaEntityCodes(listData, villages);
 
-  const groupedData = groupByDateAndVillage(tupaiaListData);
+  const now = moment();
 
-  const padded = withEmptyRows(groupedData, parameters, villages);
+  const groupedData = groupByDateAndVillage(tupaiaListData, now);
+
+  const padded = withEmptyRows(groupedData, parameters, villages, now);
 
   return generateReportFromQueryData(padded, reportColumnTemplate);
 }

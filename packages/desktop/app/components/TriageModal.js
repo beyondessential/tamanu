@@ -10,6 +10,7 @@ import { Colors } from '../constants';
 import { connectApi } from '../api/connectApi';
 import { TriageForm } from '../forms/TriageForm';
 import { DisplayIdLabel } from './DisplayIdLabel';
+import { DateDisplay } from './DateDisplay';
 
 const PatientDetails = styled.div`
   padding: 15px;
@@ -46,7 +47,7 @@ const DETAILS_FIELD_DEFINITIONS = [
   ['firstName'],
   ['lastName'],
   ['sex'],
-  ['dateOfBirth', ({ dateOfBirth }) => moment(dateOfBirth).format('MM/DD/YYYY')],
+  ['dateOfBirth', ({ dateOfBirth }) => <DateDisplay date={dateOfBirth} />],
 ];
 
 const DumbTriageModal = React.memo(({ open, patient, onClose, ...rest }) => {
@@ -65,7 +66,7 @@ const DumbTriageModal = React.memo(({ open, patient, onClose, ...rest }) => {
     <Modal title="New Emergency Triage" open={open} width="md" onClose={onClose}>
       <PatientDetails>
         <Header>
-          <span>Patient Details</span>
+          <span>Patient details</span>
           <DisplayIdLabel>{displayId}</DisplayIdLabel>
         </Header>
         <div>

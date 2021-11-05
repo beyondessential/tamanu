@@ -17,7 +17,7 @@ export class ReferenceData extends Model {
           allowNull: false,
         },
         name: {
-          type: Sequelize.STRING,
+          type: Sequelize.TEXT,
           allowNull: false,
         },
       },

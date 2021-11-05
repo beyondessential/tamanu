@@ -68,8 +68,11 @@ const Title = styled.p`
   margin: ${props => (props.notAdmitted ? 'auto 20px' : '0 0 10px 0')};
   font-weight: 600;
   color: ${props => ENCOUNTER_TYPE_COLORS[props.encounterType]};
-  text-transform: capitalize;
   font-size: 1.2rem;
+
+  &::first-letter {
+    text-transform: uppercase;
+  }
 `;
 
 const Icon = styled.i`
@@ -125,7 +128,7 @@ export const PatientEncounterSummary = ({ viewEncounter, openCheckin, openTriage
     <Grid encounterType={encounterType} onClick={() => viewEncounter(id)}>
       <Header>
         <HeaderInfo>
-          <SubTitle>Current Admission</SubTitle>
+          <SubTitle>Current admission</SubTitle>
           <div>
             <Icon className="fas fa-map-marker-alt" /> <Label>Location: </Label>
             <Text>{location ? location.name : '-'}</Text>
@@ -143,14 +146,14 @@ export const PatientEncounterSummary = ({ viewEncounter, openCheckin, openTriage
           <Label>Reason for encounter: </Label> <Text>{reasonForEncounter}</Text>
         </div>
         <ContentColumn>
-          <Label>Arrival Date</Label>
+          <Label>Arrival date</Label>
           <Text>
             <DateDisplay date={startDate} />
           </Text>
         </ContentColumn>
 
         <ContentColumn>
-          <Label>Supervising Doctor/Nurse</Label>
+          <Label>Supervising doctor/nurse</Label>
           <Text>{examiner ? examiner.displayName : '-'}</Text>
         </ContentColumn>
       </Content>

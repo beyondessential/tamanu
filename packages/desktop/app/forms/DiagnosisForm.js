@@ -52,7 +52,7 @@ export const DiagnosisForm = React.memo(
             <div style={{ gridColumn: '1 / -1' }}>
               <Field
                 name="diagnosisId"
-                label="ICD10 Code"
+                label="ICD10 code"
                 component={AutocompleteField}
                 suggester={icd10Suggester}
                 required

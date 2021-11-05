@@ -117,7 +117,7 @@ const HealthIdDisplay = memo(({ patient }) => (
 export const CoreInfoDisplay = memo(({ patient }) => (
   <React.Fragment>
     <NameSection>
-      <NameHeader>Patient Details</NameHeader>
+      <NameHeader>Patient details</NameHeader>
       <NameContainer>
         <FirstNameRow>
           <NameText>{patient.firstName}</NameText>

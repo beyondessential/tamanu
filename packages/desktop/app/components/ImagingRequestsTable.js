@@ -2,7 +2,7 @@ import React, { useCallback } from 'react';
 import styled from 'styled-components';
 import { connect } from 'react-redux';
 
-import { Table, DataFetchingTable } from './Table';
+import { DataFetchingTable } from './Table';
 import { DateDisplay } from './DateDisplay';
 
 import { IMAGING_REQUEST_STATUS_LABELS, IMAGING_REQUEST_COLORS } from '../constants';
@@ -42,26 +42,32 @@ const globalColumns = [
   ...encounterColumns,
 ];
 
-const DumbImagingRequestsTable = React.memo(({ encounterId, onImagingRequestSelect }) => {
-  const { loadEncounter } = useEncounter();
+const DumbImagingRequestsTable = React.memo(
+  ({ encounterId, onImagingRequestSelect, searchParameters }) => {
+    const { loadEncounter } = useEncounter();
 
-  const selectImagingRequest = useCallback(async imagingRequest => {
-    const { encounter } = imagingRequest;
-    if (encounter) {
-      await loadEncounter(encounter.id);
-    }
-    onImagingRequestSelect(imagingRequest);
-  }, []);
+    const selectImagingRequest = useCallback(
+      async imagingRequest => {
+        const { encounter } = imagingRequest;
+        if (encounter) {
+          await loadEncounter(encounter.id);
+        }
+        onImagingRequestSelect(imagingRequest);
+      },
+      [loadEncounter, onImagingRequestSelect],
+    );
 
-  return (
-    <DataFetchingTable
-      endpoint={encounterId ? `encounter/${encounterId}/imagingRequests` : 'imagingRequest'}
-      columns={encounterId ? encounterColumns : globalColumns}
-      noDataMessage="No imaging requests found"
-      onRowClick={selectImagingRequest}
-    />
-  );
-});
+    return (
+      <DataFetchingTable
+        endpoint={encounterId ? `encounter/${encounterId}/imagingRequests` : 'imagingRequest'}
+        columns={encounterId ? encounterColumns : globalColumns}
+        noDataMessage="No imaging requests found"
+        onRowClick={selectImagingRequest}
+        fetchOptions={searchParameters}
+      />
+    );
+  },
+);
 
 export const ImagingRequestsTable = connect(null, dispatch => ({
   onImagingRequestSelect: imagingRequest => {

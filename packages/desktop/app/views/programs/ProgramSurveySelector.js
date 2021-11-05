@@ -47,7 +47,7 @@ export const ProgramSurveySelector = React.memo(
             <SurveySelector
               onSelectSurvey={onSelectSurvey}
               surveys={surveyOptions}
-              buttonText="Begin Survey"
+              buttonText="Begin survey"
             />
           </FormGrid>
         </ProgramsPane>
