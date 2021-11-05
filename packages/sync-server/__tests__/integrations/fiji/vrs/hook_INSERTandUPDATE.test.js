@@ -1,8 +1,11 @@
 import { parseISO } from 'date-fns';
+import config from 'config';
 
 import { fake } from 'shared/test-helpers/fake';
 import { createTestContext } from 'sync-server/__tests__/utilities';
 import { fakeVRSPatient, prepareVRSMocks } from './sharedHookHelpers';
+
+const host = config.integrations.fiji.vrs.host;
 
 describe('VRS integration - hook - INSERT and UPDATE', () => {
   let ctx;
@@ -103,6 +106,17 @@ describe('VRS integration - hook - INSERT and UPDATE', () => {
           unmatchedVillageName: null,
           deletedAt: null,
         });
+        const fetchMock = ctx.integrations.fiji.vrsRemote.fetchImplementation;
+        expect(fetchMock).toHaveBeenCalledWith(`${host}/token`, expect.anything());
+        expect(fetchMock).toHaveBeenCalledWith(
+          `${host}/api/Tamanu/Fetch/${fetchId}`,
+          expect.anything(),
+        );
+        expect(fetchMock).toHaveBeenCalledWith(
+          `${host}/api/Tamanu/Acknowledge?fetch_id=${fetchId}`,
+          expect.anything(),
+        );
+        expect(fetchMock).toHaveBeenCalledTimes(3);
       });
     });
   });
@@ -127,6 +141,17 @@ describe('VRS integration - hook - INSERT and UPDATE', () => {
 
     // assert
     expect(response).toHaveRequestError();
+    const fetchMock = ctx.integrations.fiji.vrsRemote.fetchImplementation;
+    expect(fetchMock).toHaveBeenCalledWith(`${host}/token`, expect.anything());
+    expect(fetchMock).toHaveBeenCalledWith(
+      `${host}/api/Tamanu/Fetch/${fetchId}`,
+      expect.anything(),
+    );
+    expect(fetchMock).not.toHaveBeenCalledWith(
+      `${host}/api/Tamanu/Acknowledge?fetch_id=${fetchId}`,
+      expect.anything(),
+    );
+    expect(fetchMock).toHaveBeenCalledTimes(2);
   });
 
   it('throws an error if a field is of the wrong type', async () => {
@@ -149,6 +174,17 @@ describe('VRS integration - hook - INSERT and UPDATE', () => {
 
     // assert
     expect(response).toHaveRequestError();
+    const fetchMock = ctx.integrations.fiji.vrsRemote.fetchImplementation;
+    expect(fetchMock).toHaveBeenCalledWith(`${host}/token`, expect.anything());
+    expect(fetchMock).toHaveBeenCalledWith(
+      `${host}/api/Tamanu/Fetch/${fetchId}`,
+      expect.anything(),
+    );
+    expect(fetchMock).not.toHaveBeenCalledWith(
+      `${host}/api/Tamanu/Acknowledge?fetch_id=${fetchId}`,
+      expect.anything(),
+    );
+    expect(fetchMock).toHaveBeenCalledTimes(2);
   });
 
   it('saves unmatched village names so they can be fixed later', async () => {
