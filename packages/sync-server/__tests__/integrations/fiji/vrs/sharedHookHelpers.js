@@ -39,53 +39,43 @@ export const prepareVRSMocks = async (ctx, opts = {}) => {
 
   const {
     vrsPatient = await fakeVRSPatient(ctx.store.models),
-    tokenImpl = url => {
-      expect(url).toEqual(expect.stringContaining('/token'));
-      return {
-        ok: true,
-        status: 200,
-        json: async () => ({
-          access_token: token,
-          expires_in: chance.integer({ min: 100000, max: 1000000 }),
-          token_type: 'bearer',
-        }),
-      };
-    },
-    fetchImpl = url => {
-      expect(url).toEqual(expect.stringContaining(`/api/Tamanu/Fetch/${fetchId}`));
-      return {
-        ok: true,
-        status: 200,
-        json: async () => ({
-          response: 'success',
-          data: vrsPatient,
-        }),
-      };
-    },
-    ackImpl = url => {
-      expect(url).toEqual(expect.stringContaining(`/api/Tamanu/Acknowledge?fetch_id=${fetchId}`));
-      return {
-        ok: true,
-        status: 200,
-        json: async () => ({ response: true }),
-      };
-    },
+    tokenImpl = () => ({
+      ok: true,
+      status: 200,
+      json: async () => ({
+        access_token: token,
+        expires_in: chance.integer({ min: 100000, max: 1000000 }),
+        token_type: 'bearer',
+      }),
+    }),
+    fetchImpl = () => ({
+      ok: true,
+      status: 200,
+      json: async () => ({
+        response: 'success',
+        data: vrsPatient,
+      }),
+    }),
+    ackImpl = () => ({
+      ok: true,
+      status: 200,
+      json: async () => ({ response: true }),
+    }),
   } = opts;
 
-  const fetch = jest
+  const fetch = jest.fn((url, ...args) => {
+    if (url.includes('/token')) {
+      return tokenImpl(url, ...args);
+    }
+    if (url.includes(`/api/Tamanu/Fetch/${fetchId}`)) {
+      return fetchImpl(url, ...args);
+    }
+    if (url.includes(`/api/Tamanu/Acknowledge?fetch_id=${fetchId}`)) {
+      return ackImpl(url, ...args);
+    }
     // error on unexpected calls
-    .fn((...args) => {
-      throw new Error('unexpected call to fetch', ...args);
-    })
-
-    // expect the remote to request a token
-    .mockImplementationOnce(tokenImpl)
-
-    // expect the remote to request a patient
-    .mockImplementationOnce(fetchImpl)
-
-    // expect the remote to ack
-    .mockImplementationOnce(ackImpl);
+    throw new Error('unexpected call to fetch', url, ...args);
+  });
 
   ctx.integrations.fiji.vrsRemote.fetchImplementation = fetch;
   return { fetchId, vrsPatient };
