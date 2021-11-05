@@ -17,7 +17,9 @@ publicVrsRoutes.post(
     // TODO: validate expectAccessToken against auth header
 
     // validate request
-    const { fetch_id: fetchId } = await schema.remoteRequest.patientCreated.validate(body);
+    const { fetch_id: fetchId } = await schema.remoteRequest.patientCreated.validate(body, {
+      stripUnknown: true,
+    });
 
     // fetch patient
     const { patient, patientAdditionalData, patientVRSData } = await vrsRemote.getPatientByFetchId(
