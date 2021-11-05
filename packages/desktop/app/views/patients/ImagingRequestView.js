@@ -66,7 +66,16 @@ const DumbImagingRequestInfoPane = React.memo(({ imagingRequest, onSubmit }) => 
             />
           )}
           {dirty && (
-            <ButtonRow>
+            // Needs custom styling to properly display view image button to the left
+            <ButtonRow style={{ gridTemplateColumns: '8rem auto 8rem' }}>
+              <Button
+                variant="contained"
+                color="secondary"
+                style={{ gridColumn: '1 / span 1' }}
+                disabled
+              >
+                Add image link
+              </Button>
               <Button variant="outlined" color="primary" type="submit">
                 Save
               </Button>
