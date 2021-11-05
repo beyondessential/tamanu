@@ -26,18 +26,18 @@ publicVrsRoutes.post(
       fetchId,
     );
 
-    // assign uuid
-    patient.id = uuidv4();
-    patientAdditionalData.patientId = patient.id;
-    patientVRSData.patientId = patient.id;
-
     // persist
-    // TODO: determine the difference between UPDATE and INSERT - can we do an idempotent upsert?
     // TODO: DELETE support
     await sequelize.transaction(async () => {
-      await Patient.create(patient);
-      await PatientAdditionalData.create(patientAdditionalData);
-      await PatientVRSData.create(patientVRSData);
+      // allow inserts and updates to resurrect deleted records
+      const [{ id: upsertedPatientId }] = await Patient.upsert(
+        { ...patient, deletedAt: null },
+        { returning: true, paranoid: false },
+      );
+      patientAdditionalData.patientId = upsertedPatientId;
+      patientVRSData.patientId = upsertedPatientId;
+      await PatientAdditionalData.upsert(patientAdditionalData);
+      await PatientVRSData.upsert(patientVRSData);
     });
 
     // acknowledge request
