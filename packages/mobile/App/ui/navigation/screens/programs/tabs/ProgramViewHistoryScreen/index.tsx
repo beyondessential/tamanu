@@ -13,24 +13,19 @@ import { SurveyResultBadge } from '/components/SurveyResultBadge';
 import { TouchableOpacity } from 'react-native-gesture-handler';
 
 import { useBackendEffect } from '~/ui/hooks';
+import { formatDate } from '/helpers/date';
+import { DateFormats } from '~/ui/helpers/constants';
 
-const SurveyResponseItem = ({
-  surveyResponse,
-  responseIndex,
-}): ReactElement => {
+const SurveyResponseItem = ({ surveyResponse, responseIndex }): ReactElement => {
   const navigation = useNavigation();
   const onPress = useCallback(
-    () => navigation.navigate(
-      Routes.HomeStack.ProgramStack.SurveyResponseDetailsScreen,
-      {
-        surveyResponseId: surveyResponse.id,
-      },
-    ),
+    () => navigation.navigate(Routes.HomeStack.ProgramStack.SurveyResponseDetailsScreen, {
+      surveyResponseId: surveyResponse.id,
+    }),
     [],
   );
 
-  const { encounter, survey, date = '', result, resultText } = surveyResponse;
-  const { patient } = encounter;
+  const { survey, endTime = '', result, resultText } = surveyResponse;
 
   return (
     <TouchableOpacity onPress={onPress}>
@@ -41,35 +36,30 @@ const SurveyResponseItem = ({
         padding={8}
         background={responseIndex % 2 ? theme.colors.BACKGROUND_GREY : theme.colors.WHITE}
       >
-        <StyledView justifyContent="space-between" flexDirection="row">
-          <StyledText 
-            fontWeight="bold"
-            color={theme.colors.BLACK}
-          >
-            {`${patient.firstName} ${patient.lastName}`}
-          </StyledText>
-          <StyledText fontSize={10}>
-            {`${date.toString().slice(0, 24)}`}
-          </StyledText>
-        </StyledView>
-        <StyledView justifyContent="space-between" flexDirection="row">
-          <StyledText fontWeight="bold" color={theme.colors.LIGHT_BLUE}>
-            {survey.name}
-          </StyledText>
-          {
-            resultText 
-            ? <SurveyResultBadge result={result} resultText={resultText} />
-            : null
-          }
+        <StyledView
+          minHeight={40}
+          paddingLeft={16}
+          paddingRight={16}
+          justifyContent="space-between"
+          alignItems="center"
+          flexDirection="row"
+        >
+          <StyledView>
+            <StyledText marginBottom="5" fontWeight="bold" color={theme.colors.LIGHT_BLUE}>
+              {survey.name}
+            </StyledText>
+            <StyledText color={theme.colors.TEXT_DARK} fontSize={13} fontWeight="bold">
+              {formatDate(endTime, DateFormats.DATE_AND_TIME)}
+            </StyledText>
+          </StyledView>
+          {resultText ? <SurveyResultBadge result={result} resultText={resultText} /> : null}
         </StyledView>
       </StyledView>
     </TouchableOpacity>
   );
 };
 
-export const ProgramViewHistoryScreen = ({
-  route,
-}: SurveyResponseScreenProps): ReactElement => {
+export const ProgramViewHistoryScreen = ({ route }: SurveyResponseScreenProps): ReactElement => {
   const { surveyId, selectedPatient, latestResponseId } = route.params;
 
   // use latestResponseId to ensure that we refresh when
@@ -88,7 +78,7 @@ export const ProgramViewHistoryScreen = ({
     return <LoadingScreen />;
   }
 
-  const responsesToShow = selectedPatient 
+  const responsesToShow = selectedPatient
     ? responses.filter(({ encounter }) => encounter.patient.id === selectedPatient.id)
     : responses;
 
@@ -104,10 +94,7 @@ export const ProgramViewHistoryScreen = ({
       data={responsesToShow}
       keyExtractor={(item): string => item.name}
       renderItem={({ item, index }): ReactElement => (
-        <SurveyResponseItem 
-          responseIndex={index}  
-          surveyResponse={item} 
-        />
+        <SurveyResponseItem responseIndex={index} surveyResponse={item} />
       )}
       ItemSeparatorComponent={Separator}
     />

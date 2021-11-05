@@ -55,7 +55,7 @@ function getAnswerText(question, answer): string | number {
       return answer || 'N/A';
     case FieldTypes.BINARY:
     case FieldTypes.CHECKBOX:
-      return (answer.toLowerCase() === 'yes') ? 'Yes' : 'No';
+      return answer.toLowerCase() === 'yes' ? 'Yes' : 'No';
     case FieldTypes.DATE:
     case FieldTypes.SUBMISSION_DATE:
       return formatStringDate(answer, DateFormats.DDMMYY);
@@ -70,13 +70,17 @@ function getAnswerText(question, answer): string | number {
 const renderAnswer = (question, answer): JSX.Element => {
   switch (question.dataElement.type) {
     case FieldTypes.RESULT:
-      return (<SurveyResultBadge result={answer} />);
+      return <SurveyResultBadge result={answer} />;
     case FieldTypes.PHOTO:
-      return (<ViewPhotoLink imageId={answer} />);
+      return <ViewPhotoLink imageId={answer} />;
     case FieldTypes.AUTOCOMPLETE:
-      return (<AutocompleteAnswer question={question} answer={answer} />);
+      return <AutocompleteAnswer question={question} answer={answer} />;
     default:
-      return (<StyledText textAlign="right">{getAnswerText(question, answer)}</StyledText>);
+      return (
+        <StyledText textAlign="right">
+          {getAnswerText(question, answer)}
+        </StyledText>
+      );
   }
 };
 
@@ -92,15 +96,13 @@ const AnswerItem = ({ question, answer, index }): JSX.Element => (
     paddingRight={16}
     background={index % 2 ? theme.colors.WHITE : theme.colors.BACKGROUND_GREY}
   >
-    <StyledView maxWidth="80%">
+    <StyledView maxWidth="40%">
       <StyledText fontWeight="bold" color={theme.colors.LIGHT_BLUE}>
         {question.dataElement.name}
       </StyledText>
     </StyledView>
     <StyledView alignItems="flex-end" justifyContent="center" maxWidth="60%">
-      {
-        renderAnswer(question, answer)
-      }
+      {renderAnswer(question, answer)}
     </StyledView>
   </StyledView>
 );
@@ -131,7 +133,9 @@ export const SurveyResponseDetailsScreen = ({ route }): JSX.Element => {
   const { patient } = encounter;
 
   const attachAnswer = (q): { answer: string; question: any } | null => {
-    const answerObject = answers.find(a => a.dataElement.id === q.dataElement.id);
+    const answerObject = answers.find(
+      (a) => a.dataElement.id === q.dataElement.id,
+    );
     return {
       question: q,
       answer: (answerObject || null) && answerObject.body,
@@ -148,9 +152,9 @@ export const SurveyResponseDetailsScreen = ({ route }): JSX.Element => {
   );
 
   const answerItems = questions
-    .filter(q => q.dataElement.name)
+    .filter((q) => q.dataElement.name)
     .map(attachAnswer)
-    .filter(q => q.answer !== null && q.answer !== '')
+    .filter((q) => q.answer !== null && q.answer !== '')
     .map(questionToAnswerItem);
 
   return (
@@ -160,9 +164,7 @@ export const SurveyResponseDetailsScreen = ({ route }): JSX.Element => {
         title={`${patient.firstName} ${patient.lastName}`}
         onGoBack={goBack}
       />
-      <ScrollView>
-        {answerItems}
-      </ScrollView>
+      <ScrollView>{answerItems}</ScrollView>
     </FullView>
   );
 };

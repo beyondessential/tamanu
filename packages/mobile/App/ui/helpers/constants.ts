@@ -10,6 +10,8 @@ export const DateFormats = {
   DAY_MONTH: 'dd MMM',
   DDMMYY: 'dd/MM/yyyy',
   SHORT_MONTH: 'MMM',
+  DATE_AND_TIME: 'dd MMM yyyy pp',
+  TIME_HHMMSS: 'pp',
 };
 
 export const BloodTypes = [
@@ -38,10 +40,6 @@ export const BloodTypes = [
     label: 'AB-',
   },
 ];
-
-export const TimeFormats = {
-  HHMMSS: 'pp',
-};
 
 export const FilterTypeAll = 'All';
 
