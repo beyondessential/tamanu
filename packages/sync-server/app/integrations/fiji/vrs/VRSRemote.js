@@ -1,6 +1,8 @@
 import fetch from 'node-fetch';
 
 import { log } from 'shared/services/logging';
+import { RemoteCallFailedError } from 'shared/errors';
+import { getResponseJsonSafely } from 'shared/utils';
 
 import { VRSPatientAdapter } from './VRSPatientAdapter';
 
@@ -87,8 +89,9 @@ export class VRSRemote {
     }
 
     // attempt fetch
-    log.debug(`VRSRemote.fetch(): fetching ${path}...`);
-    const response = await this.fetchImplementation(`${this.host}${path}`, {
+    const url = `${this.host}${path}`;
+    log.debug(`VRSRemote.fetch(): fetching ${url}...`);
+    const response = await this.fetchImplementation(url, {
       headers: fetchOptions.headers || {
         'Content-Type': 'application/json',
         Accepts: 'application/json',
@@ -106,7 +109,10 @@ export class VRSRemote {
 
     // throw on other errors
     if (!response.ok) {
-      throw new Error('TODO: interpret error');
+      const errPayload = JSON.stringify(await getResponseJsonSafely(response));
+      throw new RemoteCallFailedError(
+        `VRSRemote.fetch(): Received ${response.status} while calling ${url} (payload=${errPayload})`,
+      );
     }
 
     // parse, validate, and return body on success
@@ -114,7 +120,7 @@ export class VRSRemote {
     const data = await validateSchema.validate(body, {
       stripUnknown: true,
     });
-    log.debug(`VRSRemote.fetch(): fetched ${path}`);
+    log.debug(`VRSRemote.fetch(): fetched ${url}`);
     return data;
   }
 
