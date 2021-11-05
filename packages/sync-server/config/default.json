@@ -93,13 +93,11 @@
       "fields": {
         "emergencyContactName": {
           "shortLabel": "Emergency Contact Name",
-          "longLabel": "Emergency Contact Name",
-          "hidden": false
+          "longLabel": "Emergency Contact Name"
         },
         "emergencyContactNumber": {
           "shortLabel": "Emergency Contact Number",
-          "longLabel": "Emergency Contact Number",
-          "hidden": false
+          "longLabel": "Emergency Contact Number"
         },
         "markedForSync": {
           "shortLabel": "Sync",

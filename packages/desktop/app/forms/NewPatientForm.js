@@ -111,8 +111,6 @@ export const NewPatientForm = memo(({ editedObject, onSubmit, onCancel, generate
         occupation: yup.string(),
         externalId: yup.string(),
         patientType: yup.string(),
-        emergencyContactName: yup.string(),
-        emergencyContactNumber: yup.string(),
       })}
     />
   );
