@@ -1,6 +1,7 @@
 import React from 'react';
 import { connect, useDispatch } from 'react-redux';
 import { push } from 'connected-react-router';
+import { IMAGING_REQUEST_STATUS_TYPES } from 'shared/constants';
 
 import { Form, Formik } from 'formik';
 
@@ -70,7 +71,13 @@ const DumbImagingRequestInfoPane = React.memo(({ imagingRequest, onSubmit }) => 
               <Button
                 variant="contained"
                 color="secondary"
-                style={{ gridColumn: '1 / span 1' }}
+                style={{
+                  gridColumn: '1 / span 1',
+                  // Only show button when status is completed and keep it on the
+                  // document layout to preserve correct row button display
+                  visibility:
+                    values.status === IMAGING_REQUEST_STATUS_TYPES.COMPLETED ? 'visible' : 'hidden',
+                }}
                 disabled
               >
                 Add image link
