@@ -71,6 +71,10 @@ export const AppointmentsCalendar = () => {
   const [filterValue, setFilterValue] = useState('');
   const [appointmentType, setAppointmentType] = useState([]);
   const [appointments, setAppointments] = useState([]);
+  const [refreshCount, setRefreshCount] = useState(0);
+  const updateCalendar = () => {
+    setRefreshCount(refreshCount + 1);
+  };
   useEffect(() => {
     (async () => {
       const { data } = await api.get('appointments', {
@@ -79,7 +83,7 @@ export const AppointmentsCalendar = () => {
       });
       setAppointments(data);
     })();
-  }, [date]);
+  }, [date, refreshCount]);
   return (
     <PageContainer>
       <TwoColumnDisplay>
@@ -154,12 +158,7 @@ export const AppointmentsCalendar = () => {
               </Button>
               <DateDisplay>{format(date, 'EEEE dd MMMM yyyy')}</DateDisplay>
             </DateHeader>
-            <NewAppointmentButton
-              onSuccess={() => {
-                // set date to trigger a refresh
-                setDate(new Date());
-              }}
-            />
+            <NewAppointmentButton onSuccess={updateCalendar} />
           </TopBar>
           <CalendarContainer>
             <DailySchedule
@@ -167,6 +166,7 @@ export const AppointmentsCalendar = () => {
               activeFilter={activeFilter}
               filterValue={filterValue}
               appointmentType={appointmentType}
+              appointmentUpdated={updateCalendar}
             />
           </CalendarContainer>
         </div>

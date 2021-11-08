@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import styled from 'styled-components';
 import { format } from 'date-fns';
 import { SelectInput } from '../Field';
@@ -6,6 +6,7 @@ import { PatientNameDisplay } from '../PatientNameDisplay';
 import { InvertedDisplayIdLabel } from '../DisplayIdLabel';
 import { DateDisplay } from '../DateDisplay';
 import { Colors, appointmentStatusOptions } from '../../constants';
+import { useApi } from '../../api';
 
 const Container = styled.div`
   display: flex;
@@ -27,7 +28,7 @@ const FirstRow = styled.div`
 const Heading = styled.div`
   font-weight: 700;
   font-size: 1.1;
-  margin-bottom: .35rem;
+  margin-bottom: 0.35rem;
 `;
 
 const PatientInfoContainer = styled.div`
@@ -79,10 +80,18 @@ const PatientInfo = ({ patient }) => {
   );
 };
 
-export const AppointmentDetail = ({ appointment }) => {
-  console.log(appointment);
-  const { type, status, clinician, startTime, endTime, patient, location } = appointment;
+export const AppointmentDetail = ({ appointment, updated }) => {
+  const api = useApi();
+  const { id, type, status, clinician, startTime, endTime, patient, location } = appointment;
   const [newStatus, setNewStatus] = useState(status);
+  useEffect(() => {
+    (async () => {
+      await api.put(`appointments/${id}`, {
+        status: newStatus,
+      });
+      updated();
+    })();
+  }, [newStatus]);
   return (
     <Container>
       <FirstRow>

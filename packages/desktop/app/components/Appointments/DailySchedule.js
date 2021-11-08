@@ -23,7 +23,13 @@ const Column = ({ header, appointments }) => {
   );
 };
 
-export const DailySchedule = ({ appointments, activeFilter, filterValue, appointmentType }) => {
+export const DailySchedule = ({
+  appointments,
+  activeFilter,
+  filterValue,
+  appointmentType,
+  appointmentUpdated,
+}) => {
   const appointmentGroups = groupBy(appointments, appt => appt[activeFilter.name].id);
   const columns = Object.entries(appointmentGroups)
     .filter(([key]) => {
@@ -73,7 +79,7 @@ export const DailySchedule = ({ appointments, activeFilter, filterValue, appoint
             return null;
           }
           const appointment = appointments.find(appt => appt.id === appointmentId);
-          return <AppointmentDetail appointment={appointment} />;
+          return <AppointmentDetail appointment={appointment} updated={appointmentUpdated} />;
         }}
       />
     </Container>
