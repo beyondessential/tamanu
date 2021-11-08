@@ -390,7 +390,7 @@ const getLabTestRecords = async (labTests, transformedAnswers, parameters) => {
         patientId: labTest.labRequest?.encounter?.patient?.displayId,
         homeSubDivision,
         labRequestId: labTest.labRequest?.displayId,
-        labRequestType: labTest.labRequest.category.name,
+        labRequestType: labTest.labRequest?.category?.name,
         status: LAB_REQUEST_STATUS_LABELS[labTest.labRequest?.status] || labTest.labRequest?.status,
         result: labTest.result,
         requestedBy: labTest.labRequest?.requestedBy?.displayName,
