@@ -14,7 +14,7 @@ publicVrsRoutes.post(
     const { sequelize, models } = store;
     const { Patient, PatientAdditionalData, PatientVRSData } = models;
 
-    // TODO: validate expectAccessToken against auth header
+    // TODO (TAN-951): validate expectAccessToken against auth header
 
     // validate request
     const { fetch_id: fetchId } = await schema.remoteRequest.patientCreated.validate(body, {
@@ -27,7 +27,7 @@ publicVrsRoutes.post(
     );
 
     // persist
-    // TODO: DELETE support
+    // TODO (TAN-950): DELETE support
     await sequelize.transaction(async () => {
       // allow inserts and updates to resurrect deleted records
       const [{ id: upsertedPatientId }] = await Patient.upsert(
