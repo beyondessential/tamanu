@@ -39,6 +39,11 @@ module.exports = {
         allowNull: false,
         defaultValue: 0.0,
       },
+      finalised: {
+        type: Sequelize.BOOLEAN,
+        allowNull: false,
+        defaultValue: false,
+      },
       marked_for_push: {
         type: Sequelize.BOOLEAN,
         allowNull: false,
