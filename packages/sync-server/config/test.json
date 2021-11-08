@@ -20,7 +20,7 @@
       "vrs": {
         "enabled": true,
         "host": "http://localhost:8080",
-        "expectAccessToken": "test-access-token"
+        "expectAccessToken": ["test-access-token"]
       }
     }
   }
