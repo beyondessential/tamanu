@@ -2,6 +2,8 @@ import React, { useState, useEffect } from 'react';
 import styled from 'styled-components';
 import { format } from 'date-fns';
 import Select from 'react-select';
+import Tooltip from 'react-tooltip';
+import { APPOINTMENT_STATUSES } from 'shared/constants';
 import { PatientNameDisplay } from '../PatientNameDisplay';
 import { InvertedDisplayIdLabel } from '../DisplayIdLabel';
 import { DateDisplay } from '../DateDisplay';
@@ -107,11 +109,14 @@ export const AppointmentDetail = ({ appointment, updated }) => {
           value={newStatus}
           name="status"
           onChange={async selectedOption => {
-            console.log(selectedOption);
             setNewStatus(selectedOption);
             await api.put(`appointments/${id}`, {
               status: selectedOption.value,
             });
+            // hide the tooltip if cancelling appointment
+            if (selectedOption.value === APPOINTMENT_STATUSES.CANCELLED) {
+              Tooltip.hide();
+            }
             updated();
           }}
         />
