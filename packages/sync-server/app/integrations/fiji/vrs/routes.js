@@ -42,8 +42,10 @@ publicVrsRoutes.post(
 
     // acknowledge request
     await vrsRemote.acknowledge(fetchId);
+    // TODO (TAN-952): custom error handling that sets response to false
+    // TODO: in existing middleware, check whether an error code is already sent, as per express docs
 
-    res.send({ response: false });
+    res.send({ response: true });
   }),
 );
 

@@ -69,7 +69,7 @@ describe('VRS integration hook: INSERT and UPDATE operations', () => {
         // assert
         expect(response).toHaveSucceeded();
         expect(response.body).toEqual({
-          response: false,
+          response: true,
         });
         const foundPatient = await Patient.findOne({
           where: { displayId: vrsPatient.individual_refno },
@@ -270,5 +270,6 @@ describe('VRS integration hook: INSERT and UPDATE operations', () => {
     });
 
     it.todo('rejects invalid credentials');
+    it.todo('sets response to false on error');
   });
 });
