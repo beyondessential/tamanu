@@ -44,10 +44,6 @@ publicVrsRoutes.post(
     await vrsRemote.acknowledge(fetchId);
 
     res.send({ response: false });
-
-    // TODO: custom error handling
-    // TODO: in existing middleware, check whether an error code is already sent, as per express docs
-    //res.status(400).send({ success: false, response: false, error: 'TODO' });
   }),
 );
 
