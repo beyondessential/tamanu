@@ -63,6 +63,11 @@ export const DailySchedule = ({ appointments, activeFilter, filterValue, appoint
         clickable
         place="right"
         type="light"
+        backgroundColor="#fff"
+        arrowColor="#fff"
+        className="appointment-details"
+        border
+        borderColor={Colors.outline}
         getContent={appointmentId => {
           if (!appointmentId) {
             return null;
@@ -80,6 +85,12 @@ const Container = styled.div`
   flex-direction: row;
   border: 1px solid ${Colors.outline};
   width: fit-content;
+  .appointment-details {
+    z-index: 1101; /* exceed MuiAppBar-root */
+  }
+  .appointment-details.show {
+    opacity: 1;
+  }
 `;
 
 const StyledColumn = styled.div`
