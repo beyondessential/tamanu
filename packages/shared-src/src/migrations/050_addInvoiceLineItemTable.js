@@ -30,7 +30,7 @@ module.exports = {
         },
       },
       date: {
-        type: Sequelize.DATEONLY,
+        type: Sequelize.DATE,
         allowNull: false,
       },
       discount: {
