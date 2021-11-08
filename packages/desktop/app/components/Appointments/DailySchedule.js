@@ -2,6 +2,7 @@ import React, { useEffect } from 'react';
 import styled from 'styled-components';
 import { groupBy } from 'lodash';
 import Tooltip from 'react-tooltip';
+import { APPOINTMENT_STATUSES } from 'shared/constants';
 import { Colors } from '../../constants';
 import { Appointment } from './Appointment';
 import { AppointmentDetail } from './AppointmentDetail';
@@ -30,7 +31,16 @@ export const DailySchedule = ({
   appointmentType,
   appointmentUpdated,
 }) => {
-  const appointmentGroups = groupBy(appointments, appt => appt[activeFilter.name].id);
+  const appointmentGroups = groupBy(
+    appointments.filter(appointment => {
+      // don't show canceled appointment
+      if (appointment.status === APPOINTMENT_STATUSES.CANCELLED) {
+        return false;
+      }
+      return true;
+    }),
+    appt => appt[activeFilter.name].id,
+  );
   const columns = Object.entries(appointmentGroups)
     .filter(([key]) => {
       // currently this just selects a single element from the appointmentGroups object,
@@ -47,6 +57,7 @@ export const DailySchedule = ({
       const header = filterObject.name || filterObject.displayName;
 
       const displayAppointments = appts.filter(appointment => {
+        // if no appointmentType selected, show all
         if (!appointmentType.length) {
           return true;
         }
