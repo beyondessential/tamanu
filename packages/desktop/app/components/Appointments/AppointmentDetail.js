@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import styled from 'styled-components';
 import { format } from 'date-fns';
-import { SelectInput } from '../Field';
+import Select from 'react-select';
 import { PatientNameDisplay } from '../PatientNameDisplay';
 import { InvertedDisplayIdLabel } from '../DisplayIdLabel';
 import { DateDisplay } from '../DateDisplay';
@@ -83,15 +83,12 @@ const PatientInfo = ({ patient }) => {
 export const AppointmentDetail = ({ appointment, updated }) => {
   const api = useApi();
   const { id, type, status, clinician, startTime, endTime, patient, location } = appointment;
-  const [newStatus, setNewStatus] = useState(status);
+  const [newStatus, setNewStatus] = useState(
+    appointmentStatusOptions.find(option => option.value === status),
+  );
   useEffect(() => {
-    (async () => {
-      await api.put(`appointments/${id}`, {
-        status: newStatus,
-      });
-      updated();
-    })();
-  }, [newStatus]);
+    setNewStatus(appointmentStatusOptions.find(option => option.value === status));
+  }, [status]);
   return (
     <Container>
       <FirstRow>
@@ -104,12 +101,18 @@ export const AppointmentDetail = ({ appointment, updated }) => {
             {endTime && ` - ${format(new Date(endTime), 'h:mm aaa')}`}
           </div>
         </div>
-        <SelectInput
+        <Select
           placeholder="Select Status"
           options={appointmentStatusOptions}
           value={newStatus}
-          onChange={e => {
-            setNewStatus(e.target.value);
+          name="status"
+          onChange={async selectedOption => {
+            console.log(selectedOption);
+            setNewStatus(selectedOption);
+            await api.put(`appointments/${id}`, {
+              status: selectedOption.value,
+            });
+            updated();
           }}
         />
       </FirstRow>
