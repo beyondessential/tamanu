@@ -70,7 +70,12 @@ const DumbImagingRequestInfoPane = React.memo(({ imagingRequest, onSubmit }) => 
               <Button
                 variant="contained"
                 color="secondary"
-                style={{ gridColumn: '1 / span 1' }}
+                style={{
+                  gridColumn: '1 / span 1',
+                  // Only show button when status is completed and keep it on the
+                  // document layout to preserve correct row button display
+                  visibility: values.status === 'completed' ? 'visible' : 'hidden',
+                }}
                 disabled
               >
                 Add image link
