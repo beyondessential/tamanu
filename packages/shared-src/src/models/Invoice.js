@@ -10,6 +10,7 @@ export class Invoice extends Model {
         displayId: Sequelize.STRING,
         total: Sequelize.STRING,
         status: Sequelize.STRING,
+        finalised: Sequelize.BOOLEAN,
       },
       {
         ...options,
