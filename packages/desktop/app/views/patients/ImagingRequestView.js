@@ -53,7 +53,7 @@ const DumbImagingRequestInfoPane = React.memo(({ imagingRequest, onSubmit }) => 
             multiline
             value={imagingRequest.note}
             label="Notes"
-            style={{ gridColumn: '1 / -1' }}
+            style={{ gridColumn: '1 / -1', minHeight: '60px', padding: '0' }}
           />
           {imagingRequest?.status === 'completed' && (
             <TextInput
@@ -62,7 +62,7 @@ const DumbImagingRequestInfoPane = React.memo(({ imagingRequest, onSubmit }) => 
               multiline
               value={values.results || imagingRequest.results}
               onChange={handleChange}
-              style={{ gridColumn: '1 / -1' }}
+              style={{ gridColumn: '1 / -1', minHeight: '60px', padding: '0' }}
             />
           )}
           {dirty && (
