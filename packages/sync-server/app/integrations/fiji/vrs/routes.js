@@ -1,6 +1,8 @@
 import express from 'express';
 import asyncHandler from 'express-async-handler';
-import { v4 as uuidv4 } from 'uuid';
+import util from 'util';
+
+import { log } from 'shared/services/logging';
 
 import * as schema from './schema';
 
@@ -41,7 +43,16 @@ publicVrsRoutes.post(
     });
 
     // acknowledge request
-    await vrsRemote.acknowledge(fetchId);
+    try {
+      await vrsRemote.acknowledge(fetchId);
+    } catch (e) {
+      log.error(
+        `vrs: Patient import succeded, but received an error while acknowledging: (displayId=${
+          patient.displayId
+        }, error=${util.inspect(e)}`,
+      );
+    }
+
     // TODO (TAN-952): custom error handling that sets response to false
     // TODO: in existing middleware, check whether an error code is already sent, as per express docs
 
