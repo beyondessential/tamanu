@@ -22,7 +22,7 @@ const baseSchema = yup.object().shape({
 const referenceDataSchema = baseSchema.shape({
   type: yup.string().required(),
   code: fieldTypes.code.required(),
-  name: fieldTypes.name.required(),
+  name: yup.string().required(),
 });
 
 const patientSchema = baseSchema
