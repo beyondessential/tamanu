@@ -13,6 +13,7 @@ import {
   DateTimeInput,
   NumberInput,
   SelectInput,
+  MultiselectInput,
   AutocompleteInput,
   NullableBooleanInput,
 } from '../app/components';
@@ -76,7 +77,7 @@ function addStories(name, Component, note) {
     .add('Required', () => <Component required />)
     .add('Disabled', () => <Component disabled />)
     .add('With help text', () => <Component helperText="Here is some help text" />)
-    .add('With error', () => <Component error helperText="Here is an error message" />);
+    .add('With error', () => <Component error helperText="Here is an error message" />)
 }
 
 addStories(
@@ -154,6 +155,20 @@ addStories(
 
 addStories('SelectInput', props => (
   <StoryControlWrapper Component={SelectInput} label="Fruit" options={FRUITS} {...props} />
+)).add('Prefilled by initialValues', () => (
+  <StoryControlWrapper
+    name="frut"
+    Component={SelectInput}
+    label="Fruit"
+    options={FRUITS}
+    form={{ initialValues: { frut: "apples" } }} />
+)).add('Prefilled by value', () => (
+  <StoryControlWrapper
+    name="frut"
+    Component={SelectInput}
+    label="Fruit"
+    options={FRUITS}
+    value="apples" />
 ));
 
 const dummySuggester = {
