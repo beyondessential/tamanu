@@ -46,7 +46,7 @@ export class Patient extends Model {
     // "there is another table referencing this one by id"
     this.hasMany(models.PatientAdditionalData, {
       foreignKey: 'patientId',
-      as: 'additional',
+      as: 'additionalData',
     });
 
     this.belongsTo(models.ReferenceData, {

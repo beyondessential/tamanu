@@ -1,14 +1,12 @@
-import { Validator } from 'jsonschema';
+import Ajv from 'ajv';
 import hl7schema from './fhir.schema.json';
 
-import { createDummyPatient, randomReferenceId } from 'shared/demoData/patients';
+import { createDummyPatient, createDummyPatientAdditionalData } from 'shared/demoData/patients';
 import { createTestContext } from '../utilities';
 
 import { patientToHL7Patient } from '../../app/hl7fhir';
 
-const validator = new Validator();
-
-const validate = data => validator.validate(data, hl7schema);
+import { validate } from './hl7utilities';
 
 describe('HL7 Patient', () => {
 
@@ -18,18 +16,20 @@ describe('HL7 Patient', () => {
   beforeAll(async () => {
     const ctx = await createTestContext();
     models = ctx.store.models;
-    patient = await models.Patient.create(await createDummyPatient(models));
+    const patientData = await createDummyPatient(models);
+    patient = await models.Patient.create(patientData);
+    const additional = await models.PatientAdditionalData.create({
+      patientId: patient.id,
+      ...await createDummyPatientAdditionalData(),
+    });
   });
   
   it('Should validate a patient', async () => {
-    const additional = await patient.additional;
-    console.log(additional);
-    const hl7 = patientToHL7Patient(patient, {});
-    const result = validate({
-      resourceType: "Patient"
-    });
-    console.log(hl7);
-    expect(result.errors).toHaveLength(0);
+    const [additional] = await patient.getAdditionalData();
+    const hl7 = patientToHL7Patient(patient, additional || {});
+    const { result, errors } = validate(hl7);
+    expect(errors).toHaveLength(0);
+    expect(result).toEqual(true);
   });
   
 });
