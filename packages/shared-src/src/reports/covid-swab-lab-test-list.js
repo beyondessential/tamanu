@@ -369,7 +369,7 @@ const getLabTestRecords = async (labTests, transformedAnswers, parameters) => {
       let nextLabTestDate;
 
       if (nextLabTest) {
-        const { date: nextLabTestTimestamp } = patientLabTests[i + 1];
+        const { date: nextLabTestTimestamp } = nextLabTest;
         // if next lab test not on the same date (next one on a different date,
         // startOf('day') to exclude the next date when comparing range later
         if (!currentLabTestDate.isSame(nextLabTestTimestamp, 'day')) {
