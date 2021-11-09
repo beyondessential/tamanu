@@ -10,13 +10,9 @@ import { getUrl, getBool, getMilliseconds } from './render/cell';
 export const serversRouter = express.Router();
 
 const servers = [
-  { name: 'Dev', type: 'dev', host: 'https://sync-dev.tamanu.io' },
-  { name: 'Demo', type: 'live', host: 'https://sync-demo.tamanu.io' },
-  { name: 'Staging', type: 'dev', host: 'https://sync-staging.tamanu.io' },
-  { name: 'Demo (Nauru)', type: 'live', host: 'https://sync-demo-nauru.tamanu.io' },
-  { name: 'Stress testing', type: 'dev', host: 'https://sync-stress-test.tamanu.io' },
+  // live servers
   { name: 'Fiji', type: 'live', host: 'https://sync.tamanu-fiji.org' },
-  { name: 'Samoa', type: 'live', host: 'https://tamanu-sync.health.gov.ws' },
+  { name: 'Fiji NCD', type: 'live', host: 'https://sync-ncd-pilot.tamanu-fiji.org' },
   {
     name: 'Motivation Australia - Iraq',
     type: 'live',
@@ -33,8 +29,17 @@ const servers = [
     host: 'https://motivation-sync-india.tamanu.io',
   },
   { name: 'Nauru', type: 'live', host: 'https://sync.tamanu-nauru.org' },
-  { name: 'Fiji NCD', type: 'live', host: 'https://sync-ncd-pilot.tamanu-fiji.org' },
-  { name: 'Demo (Fiji NCD Pilot)', type: 'live', host: 'https://testsync.tamanu-fiji.org' },
+  { name: 'Samoa', type: 'live', host: 'https://tamanu-sync.health.gov.ws' },
+
+  // demo servers
+  { name: 'Demo', type: 'demo', host: 'https://sync-demo.tamanu.io' },
+  { name: 'Demo (Fiji NCD Pilot)', type: 'demo', host: 'https://testsync.tamanu-fiji.org' },
+  { name: 'Demo (Nauru)', type: 'demo', host: 'https://sync-demo-nauru.tamanu.io' },
+
+  // development servers
+  { name: 'Dev', type: 'dev', host: 'https://sync-dev.tamanu.io' },
+  { name: 'Staging', type: 'dev', host: 'https://sync-staging.tamanu.io' },
+  { name: 'Stress testing', type: 'dev', host: 'https://sync-stress-test.tamanu.io' },
 ];
 
 serversRouter.get('/', (req, res) => {
