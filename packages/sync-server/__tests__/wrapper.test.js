@@ -26,9 +26,9 @@ const withoutArrays = record =>
   }, {});
 
 describe('sqlWrapper', () => {
-  let ctx = null;
+  let store = null;
   beforeAll(async () => {
-    ctx = (await initDatabase({ testMode: true })).store;
+    store = await initDatabase({ testMode: true });
   });
 
   afterAll(closeDatabase);
@@ -39,19 +39,19 @@ describe('sqlWrapper', () => {
     ['program', fakeProgram],
     ['programDataElement', fakeProgramDataElement],
     ['reference', fakeReferenceData],
-    ['scheduledVaccine', () => buildScheduledVaccine(ctx)],
+    ['scheduledVaccine', () => buildScheduledVaccine(store)],
     ['survey', fakeSurvey],
     ['surveyScreenComponent', fakeSurveyScreenComponent],
     ['user', fakeUser],
     [
       'labTestType',
       async () => {
-        const category = await ctx.models.ReferenceData.create({
-          ...fake(ctx.models.ReferenceData),
+        const category = await store.models.ReferenceData.create({
+          ...fake(store.models.ReferenceData),
           type: REFERENCE_TYPES.LAB_TEST_CATEGORY,
         });
         return {
-          ...fake(ctx.models.LabTestType),
+          ...fake(store.models.LabTestType),
           labTestCategoryId: category.id,
         };
       },
@@ -59,33 +59,36 @@ describe('sqlWrapper', () => {
     [
       'reportRequest',
       async () => {
-        const existingUser = await ctx.models.User.findByPk(userId);
+        const existingUser = await store.models.User.findByPk(userId);
         if (!existingUser) {
-          await ctx.models.User.create({ ...fakeUser(), id: userId });
+          await store.models.User.create({ ...fakeUser(), id: userId });
         }
-        return { ...fake(ctx.models.ReportRequest), requestedByUserId: userId };
+        return { ...fake(store.models.ReportRequest), requestedByUserId: userId };
       },
     ],
   ];
 
   const patientId = uuidv4();
   beforeAll(async () => {
-    await ctx.models.Patient.create({ ...fakePatient(), id: patientId });
+    await store.models.Patient.create({ ...fakePatient(), id: patientId });
   });
 
   const nestedPatientTestCases = [
     [
       `patient/${patientId}/encounter`,
-      async () => withoutArrays(await buildEncounter(ctx, patientId)),
+      async () => withoutArrays(await buildEncounter(store, patientId)),
     ],
-    [`patient/${patientId}/allergy`, () => ({ ...fake(ctx.models.PatientAllergy), patientId })],
-    [`patient/${patientId}/carePlan`, () => ({ ...fake(ctx.models.PatientCarePlan), patientId })],
-    [`patient/${patientId}/condition`, () => ({ ...fake(ctx.models.PatientCondition), patientId })],
+    [`patient/${patientId}/allergy`, () => ({ ...fake(store.models.PatientAllergy), patientId })],
+    [`patient/${patientId}/carePlan`, () => ({ ...fake(store.models.PatientCarePlan), patientId })],
+    [
+      `patient/${patientId}/condition`,
+      () => ({ ...fake(store.models.PatientCondition), patientId }),
+    ],
     [
       `patient/${patientId}/familyHistory`,
-      () => ({ ...fake(ctx.models.PatientFamilyHistory), patientId }),
+      () => ({ ...fake(store.models.PatientFamilyHistory), patientId }),
     ],
-    [`patient/${patientId}/issue`, () => ({ ...fake(ctx.models.PatientIssue), patientId })],
+    [`patient/${patientId}/issue`, () => ({ ...fake(store.models.PatientIssue), patientId })],
   ];
 
   const allTestCases = [...rootTestCases, ...nestedPatientTestCases];
@@ -93,38 +96,38 @@ describe('sqlWrapper', () => {
     allTestCases.forEach(([channel, fakeInstance]) => {
       describe(channel, () => {
         beforeAll(async () => {
-          await ctx.sequelize.channelRouter(channel, model =>
+          await store.sequelize.channelRouter(channel, model =>
             model.destroy({ where: {}, force: true }),
           );
         });
 
         it('counts no records when empty', async () => {
-          expect(await ctx.countSince(channel, '0')).toEqual(0);
+          expect(await store.countSince(channel, '0')).toEqual(0);
         });
 
         it('counts records after an insertion', async () => {
           const instance1 = await fakeInstance();
           await withDate(new Date(1980, 5, 1), async () => {
-            await ctx.sequelize.channelRouter(channel, model => model.upsert(instance1));
+            await store.sequelize.channelRouter(channel, model => model.upsert(instance1));
           });
 
           const instance2 = await fakeInstance();
           await withDate(new Date(1990, 5, 1), async () => {
-            await ctx.sequelize.channelRouter(channel, model => model.upsert(instance2));
+            await store.sequelize.channelRouter(channel, model => model.upsert(instance2));
           });
 
           const since = new Date(1985, 5, 1).valueOf().toString();
-          expect(await ctx.countSince(channel, since)).toEqual(1);
+          expect(await store.countSince(channel, since)).toEqual(1);
         });
 
         it('marks records as deleted', async () => {
           const instance = await fakeInstance();
           instance.id = uuidv4();
-          await ctx.sequelize.channelRouter(channel, model => model.upsert(instance));
+          await store.sequelize.channelRouter(channel, model => model.upsert(instance));
 
-          await ctx.markRecordDeleted(channel, instance.id);
+          await store.markRecordDeleted(channel, instance.id);
 
-          const instances = await ctx.sequelize.channelRouter(channel, model =>
+          const instances = await store.sequelize.channelRouter(channel, model =>
             model.findAll({ paranoid: false }),
           );
           expect(

@@ -78,23 +78,24 @@ export function extendExpect(expect) {
   });
 }
 
-async function createContext() {
-  const { store } = await initDatabase({ testMode: true, syncClientMode: false });
-  const emailService = {
-    sendEmail: jest.fn().mockImplementation(() =>
-      Promise.resolve({
-        status: COMMUNICATION_STATUSES.SENT,
-        result: { '//': 'mailgun result not mocked' },
-      }),
-    ),
-  };
-  const ctx = { store, emailService };
-  ctx.integrations = initIntegrationServices(ctx);
-  return ctx;
+class MockApplicationContext {
+  async init() {
+    this.store = await initDatabase({ testMode: true, syncClientMode: false });
+    this.emailService = {
+      sendEmail: jest.fn().mockImplementation(() =>
+        Promise.resolve({
+          status: COMMUNICATION_STATUSES.SENT,
+          result: { '//': 'mailgun result not mocked' },
+        }),
+      ),
+    };
+    this.integrations = initIntegrationServices(this);
+    return this;
+  }
 }
 
 export async function createTestContext() {
-  const ctx = await createContext();
+  const ctx = await new MockApplicationContext().init();
   const expressApp = createApp(ctx);
   const appServer = http.createServer(expressApp);
   const baseApp = supertest(appServer);
