@@ -27,7 +27,7 @@ module.exports = {
       },
       ordered_by_id: {
         type: Sequelize.STRING,
-        allowNull: false,
+        allowNull: true,
         references: {
           model: 'users',
           key: 'id',
@@ -36,6 +36,7 @@ module.exports = {
       date: {
         type: Sequelize.DATE,
         allowNull: false,
+        defaultValue: Sequelize.NOW,
       },
       description: {
         type: Sequelize.STRING,

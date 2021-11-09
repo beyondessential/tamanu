@@ -32,6 +32,7 @@ module.exports = {
       date: {
         type: Sequelize.DATE,
         allowNull: false,
+        defaultValue: Sequelize.NOW,
       },
       discount: {
         type: Sequelize.DECIMAL,
