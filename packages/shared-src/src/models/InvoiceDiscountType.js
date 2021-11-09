@@ -10,7 +10,7 @@ export class InvoiceDiscountType extends Model {
         itemId: Sequelize.STRING,
         itemType: Sequelize.STRING,
         name: Sequelize.TEXT,
-        discount: Sequelize.STRING,
+        percentageChange: Sequelize.STRING,
       },
       {
         ...options,

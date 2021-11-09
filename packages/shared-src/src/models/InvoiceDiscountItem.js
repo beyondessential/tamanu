@@ -8,7 +8,7 @@ export class InvoiceDiscountItem extends Model {
       {
         id: primaryKey,
         description: Sequelize.STRING,
-        discount: Sequelize.STRING,
+        percentageChange: Sequelize.STRING,
         date: Sequelize.DATE,
       },
       {

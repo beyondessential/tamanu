@@ -30,7 +30,7 @@ module.exports = {
         allowNull: false,
         defaultValue: Sequelize.NOW,
       },
-      discount: {
+      percentage_change: {
         type: Sequelize.DECIMAL,
         allowNull: true,
       },
