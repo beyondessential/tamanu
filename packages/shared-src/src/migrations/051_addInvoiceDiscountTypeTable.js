@@ -21,7 +21,7 @@ module.exports = {
         type: Sequelize.TEXT,
         allowNull: false,
       },
-      discount: {
+      percentage_change: {
         type: Sequelize.DECIMAL,
         allowNull: false,
       },

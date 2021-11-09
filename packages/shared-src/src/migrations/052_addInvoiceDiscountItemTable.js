@@ -42,7 +42,7 @@ module.exports = {
         type: Sequelize.STRING,
         allowNull: false,
       },
-      discount: {
+      percentage_change: {
         type: Sequelize.DECIMAL,
         allowNull: true,
       },
