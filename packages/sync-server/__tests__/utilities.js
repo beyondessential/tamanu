@@ -9,6 +9,8 @@ import { initDatabase, closeDatabase } from 'sync-server/app/database';
 import { getToken } from 'sync-server/app/auth/utils';
 import { initIntegrations } from 'sync-server/app/integrations';
 
+jest.setTimeout(30 * 1000); // more generous than the default 5s but not crazy
+
 const chance = new Chance();
 
 const formatError = response => {
