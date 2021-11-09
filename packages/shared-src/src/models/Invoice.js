@@ -11,6 +11,7 @@ export class Invoice extends Model {
         total: Sequelize.STRING,
         status: Sequelize.STRING,
         finalised: Sequelize.BOOLEAN,
+        date: Sequelize.DATE,
       },
       {
         ...options,

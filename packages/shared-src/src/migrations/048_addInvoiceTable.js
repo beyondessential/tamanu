@@ -44,6 +44,10 @@ module.exports = {
         allowNull: false,
         defaultValue: false,
       },
+      date: {
+        type: Sequelize.DATE,
+        allowNull: true,
+      },
       marked_for_push: {
         type: Sequelize.BOOLEAN,
         allowNull: false,
