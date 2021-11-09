@@ -31,7 +31,7 @@ export class SurveyResponseAnswer extends BaseModel
   @BeforeInsert()
   @BeforeUpdate()
   async markResponseForUpload() {
-    await this.markParent(SurveyResponse, 'response', 'markedForUpload');
+    await this.markParentForUpload(SurveyResponse, 'response');
   }
 
   static async getLatestAnswerForPatient(patientId: string, dataElementId: string): Promise<ISurveyResponseAnswer> {

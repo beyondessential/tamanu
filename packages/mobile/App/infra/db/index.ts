@@ -9,8 +9,8 @@ import { MODELS_ARRAY, MODELS_MAP } from '~/models/modelsMap';
 import { clear } from '~/services/config';
 
 const LOG_LEVELS = __DEV__ ? [
-  // 'error',
-  // 'query', 
+  'error' as const,
+  // 'query' as const,
   'schema' as const,
 ] : [];
 
@@ -45,8 +45,32 @@ class DatabaseHelper {
 
   models = MODELS_MAP;
 
+  syncError = null;
+
   async forceSync(): Promise<any> {
-    await this.client.synchronize();
+    try {
+      console.log("Synchronising database schema to model definitions");
+      if (this.syncError) {
+        console.log("Last seen error from schema sync was:", this.syncError);
+      }
+
+      // Turn FK constraints off to allow schema changes during migration
+      // (sqlite has to fully delete and recreate a table to alter a column;
+      // it preserves data fine but if any other tables have a FK constraint 
+      // pointed to the table being altered, the query will fail)
+      await this.client.query(`PRAGMA foreign_keys = OFF;`);
+
+      await this.client.synchronize();
+      console.log("Synchronising database schema: OK");
+      this.syncError = null;
+    } catch(e) {
+      this.syncError = e;
+      console.log("Error encountered during schema sync:", this.syncError);
+      throw e;
+    } finally {
+      // Restore FK constraint checks once everything is done
+      await this.client.query(`PRAGMA foreign_keys = ON;`);
+    }
   }
 
   async connect(): Promise<Connection> {
@@ -81,5 +105,15 @@ if (__DEV__) {
   DevSettings.addMenuItem('Clear database', async () => {
     await clear();
     DevSettings.reload();
+  });
+}
+
+if (__DEV__) {
+  DevSettings.addMenuItem('DB schema sync', async () => {
+    try {
+      await Database.forceSync();
+    } catch(e) {
+      console.error(e);
+    }
   });
 }
