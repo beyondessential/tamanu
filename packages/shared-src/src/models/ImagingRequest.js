@@ -59,7 +59,7 @@ export class ImagingRequest extends Model {
   }
 
   static getListReferenceAssociations() {
-    return ['imagingType', 'requestedBy'];
+    return ['imagingType', 'requestedBy', 'completedBy', 'location'];
   }
 
   static initRelations(models) {
@@ -76,6 +76,16 @@ export class ImagingRequest extends Model {
     this.belongsTo(models.ReferenceData, {
       foreignKey: 'imagingTypeId',
       as: 'imagingType',
+    });
+
+    this.belongsTo(models.User, {
+      foreignKey: 'completedById',
+      as: 'completedBy',
+    });
+
+    this.belongsTo(models.Location, {
+      foreignKey: 'locationId',
+      as: 'location',
     });
   }
 }
