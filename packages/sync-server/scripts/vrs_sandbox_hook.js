@@ -58,7 +58,7 @@ app.use('/api', (req, res, next) => {
 
 // step 1. - call the hook
 const callHook = async body => {
-  const url = `${tamanuHost}/v1/public/integration/fiji/vrs/hooks/patientCreated`;
+  const url = `${tamanuHost}/v1/public/integration/fijiVrs/hooks/patientCreated`;
   const opts = {
     method: 'POST',
     body: JSON.stringify(body),

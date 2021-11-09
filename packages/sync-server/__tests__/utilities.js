@@ -7,7 +7,7 @@ import { COMMUNICATION_STATUSES } from 'shared/constants';
 import { createApp } from 'sync-server/app/createApp';
 import { initDatabase, closeDatabase } from 'sync-server/app/database';
 import { getToken } from 'sync-server/app/auth/utils';
-import { initIntegrationServices } from 'sync-server/app/integrations';
+import { initIntegrations } from 'sync-server/app/integrations';
 
 const chance = new Chance();
 
@@ -89,7 +89,7 @@ class MockApplicationContext {
         }),
       ),
     };
-    this.integrations = initIntegrationServices(this);
+    await initIntegrations(this);
     return this;
   }
 }

@@ -77,6 +77,6 @@ export const prepareVRSMocks = async (ctx, opts = {}) => {
     throw new Error('unexpected call to fetch', url, ...args);
   });
 
-  ctx.integrations.fiji.vrsRemote.fetchImplementation = fetch;
+  ctx.integrations.fijiVrs.remote.fetchImplementation = fetch;
   return { fetchId, vrsPatient };
 };

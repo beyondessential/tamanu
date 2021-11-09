@@ -5,7 +5,7 @@ import { fake } from 'shared/test-helpers/fake';
 import { createTestContext } from 'sync-server/__tests__/utilities';
 import { fakeVRSPatient, prepareVRSMocks } from './sharedHookHelpers';
 
-const host = config.integrations.fiji.vrs.host;
+const host = config.integrations.fijiVrs.host;
 
 describe('VRS integration hook: INSERT and UPDATE operations', () => {
   let ctx;
@@ -16,8 +16,8 @@ describe('VRS integration hook: INSERT and UPDATE operations', () => {
 
   beforeEach(() => {
     // clear token before each test case
-    ctx.integrations.fiji.vrsRemote.fetchImplementation = null;
-    ctx.integrations.fiji.vrsRemote.token = null;
+    ctx.integrations.fijiVrs.remote.fetchImplementation = null;
+    ctx.integrations.fijiVrs.remote.token = null;
   });
 
   describe('success', () => {
@@ -59,7 +59,7 @@ describe('VRS integration hook: INSERT and UPDATE operations', () => {
 
         // act
         const response = await ctx.baseApp
-          .post(`/v1/public/integration/fiji/vrs/hooks/patientCreated`)
+          .post(`/v1/public/integration/fijiVrs/hooks/patientCreated`)
           .send({
             fetch_id: fetchId,
             operation,
@@ -112,7 +112,7 @@ describe('VRS integration hook: INSERT and UPDATE operations', () => {
           unmatchedVillageName: null,
           deletedAt: null,
         });
-        const fetchMock = ctx.integrations.fiji.vrsRemote.fetchImplementation;
+        const fetchMock = ctx.integrations.fijiVrs.remote.fetchImplementation;
         expect(fetchMock).toHaveBeenCalledWith(`${host}/token`, expect.anything());
         expect(fetchMock).toHaveBeenCalledWith(
           `${host}/api/Tamanu/Fetch/${fetchId}`,
@@ -138,7 +138,7 @@ describe('VRS integration hook: INSERT and UPDATE operations', () => {
 
       // act
       const response = await ctx.baseApp
-        .post(`/v1/public/integration/fiji/vrs/hooks/patientCreated`)
+        .post(`/v1/public/integration/fijiVrs/hooks/patientCreated`)
         .send({
           fetch_id: fetchId,
           operation: 'INSERT',
@@ -172,7 +172,7 @@ describe('VRS integration hook: INSERT and UPDATE operations', () => {
 
       // act
       const response = await ctx.baseApp
-        .post(`/v1/public/integration/fiji/vrs/hooks/patientCreated`)
+        .post(`/v1/public/integration/fijiVrs/hooks/patientCreated`)
         .send({
           fetch_id: fetchId,
           operation: 'INSERT',
@@ -181,7 +181,7 @@ describe('VRS integration hook: INSERT and UPDATE operations', () => {
 
       // assert
       expect(response).toHaveRequestError(422);
-      const fetchMock = ctx.integrations.fiji.vrsRemote.fetchImplementation;
+      const fetchMock = ctx.integrations.fijiVrs.remote.fetchImplementation;
       expect(fetchMock).toHaveBeenCalledWith(`${host}/token`, expect.anything());
       expect(fetchMock).toHaveBeenCalledWith(
         `${host}/api/Tamanu/Fetch/${fetchId}`,
@@ -205,7 +205,7 @@ describe('VRS integration hook: INSERT and UPDATE operations', () => {
 
       // act
       const response = await ctx.baseApp
-        .post(`/v1/public/integration/fiji/vrs/hooks/patientCreated`)
+        .post(`/v1/public/integration/fijiVrs/hooks/patientCreated`)
         .send({
           fetch_id: fetchId,
           operation: 'INSERT',
@@ -214,7 +214,7 @@ describe('VRS integration hook: INSERT and UPDATE operations', () => {
 
       // assert
       expect(response).toHaveRequestError(422);
-      const fetchMock = ctx.integrations.fiji.vrsRemote.fetchImplementation;
+      const fetchMock = ctx.integrations.fijiVrs.remote.fetchImplementation;
       expect(fetchMock).toHaveBeenCalledWith(`${host}/token`, expect.anything());
       expect(fetchMock).toHaveBeenCalledWith(
         `${host}/api/Tamanu/Fetch/${fetchId}`,
@@ -241,7 +241,7 @@ describe('VRS integration hook: INSERT and UPDATE operations', () => {
 
       // act
       const response = await ctx.baseApp
-        .post(`/v1/public/integration/fiji/vrs/hooks/patientCreated`)
+        .post(`/v1/public/integration/fijiVrs/hooks/patientCreated`)
         .send({
           fetch_id: fetchId,
           operation: 'INSERT',
@@ -256,7 +256,7 @@ describe('VRS integration hook: INSERT and UPDATE operations', () => {
           name: 'RemoteCallFailedError',
         },
       });
-      const fetchMock = ctx.integrations.fiji.vrsRemote.fetchImplementation;
+      const fetchMock = ctx.integrations.fijiVrs.remote.fetchImplementation;
       expect(fetchMock).toHaveBeenCalledWith(`${host}/token`, expect.anything());
       expect(fetchMock).not.toHaveBeenCalledWith(
         `${host}/api/Tamanu/Fetch/${fetchId}`,

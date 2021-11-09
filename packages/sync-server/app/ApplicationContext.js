@@ -1,6 +1,6 @@
 import { EmailService } from './services/EmailService';
-import { initIntegrationServices } from './integrations';
 import { initDatabase } from './database';
+import { initIntegrations } from './integrations';
 
 export class ApplicationContext {
   store = null;
@@ -12,7 +12,7 @@ export class ApplicationContext {
   async init({ testMode } = {}) {
     this.emailService = new EmailService();
     this.store = await initDatabase({ testMode });
-    this.integrations = initIntegrationServices(this);
+    await initIntegrations(this);
     return this;
   }
 }
