@@ -5,6 +5,7 @@ import { NOTE_TYPES } from 'shared/constants';
 import { NotFoundError } from 'shared/errors';
 import { NOTE_RECORD_TYPES } from 'shared/models/Note';
 import {
+  getNoteWithType,
   mapQueryFilters,
   getCaseInsensitiveFilter,
   getTextToBooleanFilter,
@@ -30,7 +31,7 @@ imagingRequest.get(
   '/:id',
   asyncHandler(async (req, res) => {
     const {
-      models: { ImagingRequest, Note },
+      models: { ImagingRequest },
       params: { id },
     } = req;
     req.checkPermission('read', 'ImagingRequest');
@@ -40,25 +41,12 @@ imagingRequest.get(
     if (!imagingRequestObject) throw new NotFoundError();
 
     // Get related notes (general, area to be imaged)
-    const noteObject = await Note.findOne({
-      where: {
-        recordId: id,
-        recordType: NOTE_RECORD_TYPES.IMAGING_REQUEST,
-        noteType: NOTE_TYPES.OTHER,
-      },
-    });
+    const relatedNotes = await imagingRequestObject.getNotes();
 
-    const areaNoteObject = await Note.findOne({
-      where: {
-        recordId: id,
-        recordType: NOTE_RECORD_TYPES.IMAGING_REQUEST,
-        noteType: NOTE_TYPES.AREA_TO_BE_IMAGED,
-      },
-    });
-
-    // If notes doesn't exist, default content to empty string
-    const noteContent = noteObject ? noteObject.content : '';
-    const areaNoteContent = areaNoteObject ? areaNoteObject.content : '';
+    // Extract note content if note exists, else default content to empty string
+    const noteContent = getNoteWithType(relatedNotes, NOTE_TYPES.OTHER)?.content || '';
+    const areaNoteContent =
+      getNoteWithType(relatedNotes, NOTE_TYPES.AREA_TO_BE_IMAGED)?.content || '';
 
     // Convert Sequelize model to use a custom object as response
     const responseObject = {
@@ -83,23 +71,14 @@ imagingRequest.put(
     if (!imagingRequestObject) throw new NotFoundError();
     req.checkPermission('write', 'ImagingRequest');
     await imagingRequestObject.update(req.body);
+    console.log(JSON.stringify(req.body));
 
     // Get related notes (general, area to be imaged)
-    const noteObject = await Note.findOne({
-      where: {
-        recordId: id,
-        recordType: NOTE_RECORD_TYPES.IMAGING_REQUEST,
-        noteType: NOTE_TYPES.OTHER,
-      },
-    });
+    const relatedNotes = await imagingRequestObject.getNotes();
 
-    const areaNoteObject = await Note.findOne({
-      where: {
-        recordId: id,
-        recordType: NOTE_RECORD_TYPES.IMAGING_REQUEST,
-        noteType: NOTE_TYPES.AREA_TO_BE_IMAGED,
-      },
-    });
+    // Get separate note objects
+    const noteObject = getNoteWithType(relatedNotes, NOTE_TYPES.OTHER);
+    const areaNoteObject = getNoteWithType(relatedNotes, NOTE_TYPES.AREA_TO_BE_IMAGED);
 
     // The returned note content will read its value depending if
     // note exists or gets created, else it should be an empty string
