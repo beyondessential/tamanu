@@ -2,7 +2,7 @@ const Sequelize = require('sequelize');
 
 module.exports = {
   up: async query => {
-    await query.createTable('invoice_discount_types', {
+    await query.createTable('invoice_price_change_types', {
       id: {
         type: Sequelize.STRING,
         defaultValue: Sequelize.UUIDV4,
@@ -40,6 +40,6 @@ module.exports = {
     });
   },
   down: async query => {
-    await query.dropTable('invoice_discount_types');
+    await query.dropTable('invoice_price_change_types');
   },
 };

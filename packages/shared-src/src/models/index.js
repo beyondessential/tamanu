@@ -59,5 +59,5 @@ export * from './OneTimeLogin';
 export * from './Invoice';
 export * from './InvoiceLineType';
 export * from './InvoiceLineItem';
-export * from './InvoiceDiscountItem';
-export * from './InvoiceDiscountType';
+export * from './InvoicePriceChangeItem';
+export * from './InvoicePriceChangeType';
