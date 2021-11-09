@@ -9,8 +9,10 @@ const host = config.integrations.fijiVrs.host;
 
 describe('VRS integration hook: INSERT and UPDATE operations', () => {
   let ctx;
+  let app;
   beforeAll(async () => {
     ctx = await createTestContext();
+    app = await ctx.baseApp.asRole('practitioner');
   });
   afterAll(async () => ctx.close());
 
@@ -58,13 +60,11 @@ describe('VRS integration hook: INSERT and UPDATE operations', () => {
         }
 
         // act
-        const response = await ctx.baseApp
-          .post(`/v1/public/integration/fijiVrs/hooks/patientCreated`)
-          .send({
-            fetch_id: fetchId,
-            operation,
-            created_datetime: new Date().toISOString(),
-          });
+        const response = await app.post(`/v1/integration/fijiVrs/hooks/patientCreated`).send({
+          fetch_id: fetchId,
+          operation,
+          created_datetime: new Date().toISOString(),
+        });
 
         // assert
         expect(response).toHaveSucceeded();
@@ -137,13 +137,11 @@ describe('VRS integration hook: INSERT and UPDATE operations', () => {
       });
 
       // act
-      const response = await ctx.baseApp
-        .post(`/v1/public/integration/fijiVrs/hooks/patientCreated`)
-        .send({
-          fetch_id: fetchId,
-          operation: 'INSERT',
-          created_datetime: new Date().toISOString(),
-        });
+      const response = await app.post(`/v1/integration/fijiVrs/hooks/patientCreated`).send({
+        fetch_id: fetchId,
+        operation: 'INSERT',
+        created_datetime: new Date().toISOString(),
+      });
 
       // assert
       expect(response).toHaveSucceeded();
@@ -171,13 +169,11 @@ describe('VRS integration hook: INSERT and UPDATE operations', () => {
       });
 
       // act
-      const response = await ctx.baseApp
-        .post(`/v1/public/integration/fijiVrs/hooks/patientCreated`)
-        .send({
-          fetch_id: fetchId,
-          operation: 'INSERT',
-          created_datetime: new Date().toISOString(),
-        });
+      const response = await app.post(`/v1/integration/fijiVrs/hooks/patientCreated`).send({
+        fetch_id: fetchId,
+        operation: 'INSERT',
+        created_datetime: new Date().toISOString(),
+      });
 
       // assert
       expect(response).toHaveRequestError(422);
@@ -204,13 +200,11 @@ describe('VRS integration hook: INSERT and UPDATE operations', () => {
       });
 
       // act
-      const response = await ctx.baseApp
-        .post(`/v1/public/integration/fijiVrs/hooks/patientCreated`)
-        .send({
-          fetch_id: fetchId,
-          operation: 'INSERT',
-          created_datetime: new Date().toISOString(),
-        });
+      const response = await app.post(`/v1/integration/fijiVrs/hooks/patientCreated`).send({
+        fetch_id: fetchId,
+        operation: 'INSERT',
+        created_datetime: new Date().toISOString(),
+      });
 
       // assert
       expect(response).toHaveRequestError(422);
@@ -240,13 +234,11 @@ describe('VRS integration hook: INSERT and UPDATE operations', () => {
       });
 
       // act
-      const response = await ctx.baseApp
-        .post(`/v1/public/integration/fijiVrs/hooks/patientCreated`)
-        .send({
-          fetch_id: fetchId,
-          operation: 'INSERT',
-          created_datetime: new Date().toISOString(),
-        });
+      const response = await app.post(`/v1/integration/fijiVrs/hooks/patientCreated`).send({
+        fetch_id: fetchId,
+        operation: 'INSERT',
+        created_datetime: new Date().toISOString(),
+      });
 
       // assert
       expect(response).toHaveRequestError(502);

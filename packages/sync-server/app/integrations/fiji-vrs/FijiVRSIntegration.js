@@ -11,9 +11,9 @@ import * as schema from './schema';
 import { VRSRemote } from './VRSRemote';
 
 export class FijiVRSIntegration extends Integration {
-  static publicRoutes() {
-    const publicRoutes = express.Router();
-    publicRoutes.post(
+  static routes() {
+    const routes = express.Router();
+    routes.post(
       '/hooks/patientCreated',
       asyncHandler(async (req, res) => {
         const { body, store, ctx } = req;
@@ -65,7 +65,7 @@ export class FijiVRSIntegration extends Integration {
         res.send({ response: true });
       }),
     );
-    return publicRoutes;
+    return routes;
   }
 
   static async initContext(ctx) {
