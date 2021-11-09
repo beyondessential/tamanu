@@ -9,10 +9,6 @@ module.exports = {
         allowNull: false,
         primaryKey: true,
       },
-      display_id: {
-        type: Sequelize.STRING,
-        allowNull: false,
-      },
       invoice_id: {
         type: Sequelize.STRING,
         allowNull: false,
