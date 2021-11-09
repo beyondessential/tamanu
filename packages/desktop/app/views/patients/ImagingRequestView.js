@@ -75,7 +75,7 @@ const DumbImagingRequestInfoPane = React.memo(
               multiline
               value={imagingRequest.note}
               label="Notes"
-              style={{ gridColumn: '1 / -1' }}
+              style={{ gridColumn: '1 / -1', minHeight: '60px', padding: '0' }}
             />
             {(values.status === IMAGING_REQUEST_STATUS_TYPES.IN_PROGRESS ||
               values.status === IMAGING_REQUEST_STATUS_TYPES.COMPLETED) && (
@@ -103,7 +103,7 @@ const DumbImagingRequestInfoPane = React.memo(
                 multiline
                 value={values.results || imagingRequest.results}
                 onChange={handleChange}
-                style={{ gridColumn: '1 / -1' }}
+                style={{ gridColumn: '1 / -1', minHeight: '60px', padding: '0' }}
               />
             )}
             {dirty && (
