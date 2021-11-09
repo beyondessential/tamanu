@@ -24,7 +24,7 @@ export class InvoiceDiscountItem extends Model {
       as: 'invoice',
     });
 
-    this.belongsTo(models.InvoiceDiscountLineType, {
+    this.belongsTo(models.InvoiceDiscountType, {
       foreignKey: 'invoiceDiscountTypeId',
       as: 'invoiceDiscountType',
     });
