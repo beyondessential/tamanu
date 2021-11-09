@@ -62,8 +62,8 @@ const getStatuses = () => {
   const EXPECTED_RUNTIME = 'Tamanu Sync Server';
 
   return Promise.all(
-    servers.map(async ({ name, host }) => {
-      const status = { name, host };
+    servers.map(async ({ name, host, type }) => {
+      const status = { name, host, type };
       try {
         // collect results
         const startTime = Date.now();
@@ -114,6 +114,7 @@ serversRouter.get(
           { key: 'name' },
           { key: 'success', getter: getBool },
           { key: 'version' },
+          { key: 'type' },
           { key: 'host', getter: getUrl },
           { key: 'latency', getter: getMilliseconds },
           { key: 'error' },
