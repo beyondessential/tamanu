@@ -37,6 +37,7 @@ const statusOptions = [
 const DumbImagingRequestInfoPane = React.memo(
   ({ imagingRequest, onSubmit, practitionerSuggester, locationSuggester }) => (
     <Formik
+      // Only submit specific fields for update
       onSubmit={({ status, completedById, locationId, results }) => {
         const updatedImagingRequest = {
           status,
