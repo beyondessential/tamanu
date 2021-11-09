@@ -2,7 +2,7 @@ import { Sequelize } from 'sequelize';
 import { SYNC_DIRECTIONS } from 'shared/constants';
 import { Model } from './Model';
 
-export class InvoiceDiscountType extends Model {
+export class InvoicePriceChangeType extends Model {
   static init({ primaryKey, ...options }) {
     super.init(
       {
