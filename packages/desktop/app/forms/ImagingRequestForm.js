@@ -12,10 +12,8 @@ import {
   Form,
   Field,
   DateField,
-  SelectField,
   AutocompleteField,
   TextField,
-  DateTimeField,
   CheckField,
   TextInput,
 } from '../components/Field';
@@ -51,13 +49,7 @@ class DumbImagingRequestForm extends React.PureComponent {
   }
 
   renderForm = ({ submitForm }) => {
-    const {
-      practitionerSuggester,
-      imagingTypeSuggester,
-      onCancel,
-      imagingTypes,
-      encounter = {},
-    } = this.props;
+    const { practitionerSuggester, imagingTypeSuggester, onCancel, encounter = {} } = this.props;
     const { examiner = {} } = encounter;
     const examinerLabel = examiner.displayName;
     const encounterLabel = getEncounterLabel(encounter);

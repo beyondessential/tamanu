@@ -11,7 +11,7 @@ import { LoadingIndicator } from '../../components/LoadingIndicator';
 import { PatientInfoPane } from '../../components/PatientInfoPane';
 import { TwoColumnDisplay } from '../../components/TwoColumnDisplay';
 import { TopBar } from '../../components/TopBar';
-import { ButtonRow } from '../../components/ButtonRow'
+import { ButtonRow } from '../../components/ButtonRow';
 import { FormGrid } from '../../components/FormGrid';
 import {
   DateInput,
@@ -19,7 +19,6 @@ import {
   SelectField,
   Field,
   AutocompleteField,
-  TextField,
 } from '../../components/Field';
 import { useApi } from '../../api';
 import { Suggester } from '../../utils/suggester';
