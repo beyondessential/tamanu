@@ -20,7 +20,7 @@ import { Colors } from '../constants';
 
 const VaccineScheduleOptions = [
   { value: 'Routine', label: 'Routine' },
-  { value: 'Catchup', label: 'Catch-Up' },
+  { value: 'Catchup', label: 'Catch-up' },
   { value: 'Campaign', label: 'Campaign' },
 ];
 
@@ -155,7 +155,7 @@ export const ImmunisationForm = React.memo(
             </div>
 
             <div>
-              <OuterLabelFieldWrapper label="Administered Schedule" />
+              <OuterLabelFieldWrapper label="Administered schedule" />
               {administeredOptions.map(option => (
                 <AdministeredVaccineSchedule option={option} />
               ))}
@@ -164,7 +164,7 @@ export const ImmunisationForm = React.memo(
             <div style={{ gridColumn: '1/-1' }}>
               <Field
                 name="scheduledVaccineId"
-                label="Available Schedule"
+                label="Available schedule"
                 inline
                 component={RadioField}
                 options={scheduleOptions}
@@ -188,7 +188,7 @@ export const ImmunisationForm = React.memo(
             />
             <Field
               name="injectionSite"
-              label="Injection Site"
+              label="Injection site"
               component={SelectField}
               options={Object.values(INJECTION_SITE_OPTIONS).map(site => ({ label: site, value: site }))}
             />

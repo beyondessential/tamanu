@@ -10,6 +10,16 @@ import Popper from '@material-ui/core/Popper';
 import MenuItem from '@material-ui/core/MenuItem';
 import MenuList from '@material-ui/core/MenuList';
 
+// Button has 'text-transform: uppercase' by default, 
+// override and uppercase only the first one
+const TextTransformedButton = styled(Button)`
+  text-transform: none;
+
+  &::first-letter {
+    text-transform: uppercase;
+  }
+`;
+
 // mostly cribbed from the mui example at https://material-ui.com/components/buttons/#split-button
 
 export const DropdownButton = React.memo(({ actions, color, dropdownColor, ...props }) => {
@@ -37,25 +47,25 @@ export const DropdownButton = React.memo(({ actions, color, dropdownColor, ...pr
 
   if (!mainAction) {
     return (
-      <Button {...props} variant="outlined" color={color} disabled>
+      <TextTransformedButton {...props} variant="outlined" color={color} disabled>
         No action
-      </Button>
+      </TextTransformedButton>
     );
   }
 
   if (otherActions.length === 0) {
     return (
-      <Button {...props} variant="outlined" color={color} onClick={event => handleClick(event, 0)}>
+      <TextTransformedButton {...props} variant="outlined" color={color} onClick={event => handleClick(event, 0)}>
         {mainAction.label}
-      </Button>
+      </TextTransformedButton>
     );
   }
 
   return (
     <span {...props}>
       <ButtonGroup variant="outlined" color={color} ref={anchorRef} aria-label="split button">
-        <Button onClick={event => handleClick(event, 0)}>{mainAction.label}</Button>
-        <Button
+        <TextTransformedButton onClick={event => handleClick(event, 0)}>{mainAction.label}</TextTransformedButton>
+        <TextTransformedButton
           color={dropdownColor || color}
           size="small"
           aria-owns={open ? 'menu-list-grow' : undefined}
@@ -63,7 +73,7 @@ export const DropdownButton = React.memo(({ actions, color, dropdownColor, ...pr
           onClick={handleToggle}
         >
           <ArrowDropDownIcon />
-        </Button>
+        </TextTransformedButton>
       </ButtonGroup>
       <Popper
         open={open}

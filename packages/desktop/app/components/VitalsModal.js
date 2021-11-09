@@ -1,36 +1,22 @@
-import React, { useCallback } from 'react';
+import React from 'react';
 
-import { connectApi } from '../api/connectApi';
-
-import { VitalsForm } from '../forms/VitalsForm';
-import { useEncounter } from '../contexts/Encounter';
+import { useApi } from '../api';
 
 import { Modal } from './Modal';
+import { VitalsForm } from '../forms/VitalsForm';
 
-const DumbVitalsModal = React.memo(({ onClose, onSubmit }) => {
-  const { loadEncounter, encounter } = useEncounter();
-
-  const recordVitals = useCallback(
-    async data => {
-      await onSubmit(data, encounter.id);
-      await loadEncounter(encounter.id);
-      onClose();
-    },
-    [encounter],
-  );
+export const VitalsModal = ({ open, onClose, onSaved, encounterId }) => {
+  const api = useApi();
 
   return (
-    <Modal title="Record vitals" open onClose={onClose}>
-      <VitalsForm form={VitalsForm} onSubmit={recordVitals} onCancel={onClose} />
+    <Modal title="Record vitals" open={open} onClose={onClose}>
+      <VitalsForm
+        onSubmit={async data => {
+          await api.post(`vitals`, {...data, encounterId});
+          onSaved();
+        }}
+        onCancel={onClose}
+      />
     </Modal>
   );
-});
-
-export const VitalsModal = connectApi(api => ({
-  onSubmit: async (data, encounterId) => {
-    await api.post(`vitals`, {
-      ...data,
-      encounterId,
-    });
-  },
-}))(DumbVitalsModal);
+};

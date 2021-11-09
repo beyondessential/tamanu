@@ -50,6 +50,8 @@ export const NOTE_TYPES = {
   SYSTEM: 'system',
   OTHER: 'other',
   TREATMENT_PLAN: 'treatmentPlan',
+  AREA_TO_BE_IMAGED: 'areaToBeImaged',
+  RESULT_DESCRIPTION: 'resultDescription',
 };
 
 export const PATIENT_ISSUE_TYPES = {
@@ -83,6 +85,7 @@ export const OPERATION_PLAN_STATUSES = {
 
 export const IMAGING_REQUEST_STATUS_TYPES = {
   PENDING: 'pending',
+  IN_PROGRESS: 'in_progress',
   COMPLETED: 'completed',
 };
 

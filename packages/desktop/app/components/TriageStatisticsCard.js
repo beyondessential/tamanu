@@ -132,7 +132,7 @@ export const DumbTriageStatisticsCard = ({
   priorityLevel,
 }) => {
   const colorTheme = TRIAGE_COLORS_BY_LEVEL[priorityLevel];
-  const title = `Level ${priorityLevel} Patient`;
+  const title = `Level ${priorityLevel} patient`;
   const hours = Math.floor(averageWaitTime / HOUR);
   const minutes = Math.floor((averageWaitTime - hours * HOUR) / MINUTE);
   const pluralise = (amount, suffix) => `${amount}${suffix}${amount === 1 ? '' : 's'}`;

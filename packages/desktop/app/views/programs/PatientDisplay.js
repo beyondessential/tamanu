@@ -1,10 +1,12 @@
-import React, { memo } from 'react';
+import React from 'react';
 
-import { connect } from 'react-redux';
+import { useSelector, useDispatch } from 'react-redux';
 import { Typography } from '@material-ui/core';
 
-import { clearPatient } from 'desktop/app/store/patient';
-import { OutlinedButton } from 'desktop/app/components/Button';
+import { clearPatient, viewPatient } from 'desktop/app/store/patient';
+import { OutlinedButton, Button } from 'desktop/app/components/Button';
+import { PatientNameDisplay } from 'desktop/app/components/PatientNameDisplay';
+import { history } from 'desktop/app/utils/utils';
 import styled from 'styled-components';
 import { Colors } from '../../constants';
 
@@ -21,6 +23,7 @@ const FlexRow = styled.div`
   display: flex;
   align-items: baseline;
   justify-content: flex-start;
+  column-gap: 0.5rem;
 `;
 
 const Heading = styled(Typography)`
@@ -34,25 +37,34 @@ const LightText = styled(Typography)`
   font-size: 13px;
   line-height: 15px;
   color: ${props => props.theme.palette.text.tertiary};
-  margin-left: 8px;
   top: -2px;
 `;
 
-export const PatientDisplay = connect(
-  state => ({ patient: state.patient }),
-  dispatch => ({ onClearPatient: () => dispatch(clearPatient()) }),
-)(
-  memo(({ patient, onClearPatient }) => {
-    const patientInfo = `${patient.firstName} ${patient.lastName} (${patient.displayId})`;
-
-    return (
-      <Header>
-        <FlexRow>
-          <Heading variant="h3">{`${patient.firstName} ${patient.lastName}`}</Heading>
-          <LightText>({patient.displayId})</LightText>
-        </FlexRow>
-        <OutlinedButton onClick={onClearPatient}>Change patient</OutlinedButton>
-      </Header>
-    );
-  }),
-);
+export const PatientDisplay = () => {
+  const patient = useSelector(state => state.patient);
+  const dispatch = useDispatch();
+  return (
+    <Header>
+      <FlexRow>
+        <Heading variant="h3">
+          <div role="button" onClick={() => {
+            dispatch(viewPatient(patient.id))
+          }}>
+            <PatientNameDisplay patient={patient} />
+          </div>
+        </Heading>
+        <LightText>({patient.displayId})</LightText>
+      </FlexRow>
+      <FlexRow>
+        <Button onClick={history.goBack}>Cancel</Button>
+        <OutlinedButton
+          onClick={() => {
+            dispatch(clearPatient());
+          }}
+        >
+          Change patient
+        </OutlinedButton>
+      </FlexRow>
+    </Header>
+  );
+};
