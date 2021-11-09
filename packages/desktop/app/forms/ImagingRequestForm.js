@@ -87,6 +87,14 @@ class DumbImagingRequestForm extends React.PureComponent {
           suggester={imagingTypeSuggester}
         />
         <Field
+          name="areaToBeImaged"
+          label="Area to be imaged"
+          component={TextField}
+          multiline
+          style={{ gridColumn: '1 / -1' }}
+          rows={3}
+        />
+        <Field
           name="note"
           label="Notes"
           component={TextField}
