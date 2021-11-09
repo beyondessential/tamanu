@@ -29,7 +29,7 @@ export async function initDatabase({ testMode = false }) {
 
 export async function closeDatabase() {
   if (existingConnection) {
-    const { store } = existingConnection;
+    const store = existingConnection;
     existingConnection = null;
     await store.close();
   }
