@@ -70,7 +70,6 @@ imagingRequest.put(
     if (!imagingRequestObject) throw new NotFoundError();
     req.checkPermission('write', 'ImagingRequest');
     await imagingRequestObject.update(req.body);
-    console.log(JSON.stringify(req.body));
 
     // Get related notes (general, area to be imaged)
     const relatedNotes = await imagingRequestObject.getNotes();
