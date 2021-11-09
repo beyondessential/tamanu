@@ -33,6 +33,7 @@ const servers = [
 
   // demo servers
   { name: 'Demo', type: 'demo', host: 'https://sync-demo.tamanu.io' },
+  { name: 'Demo (Fiji)', type: 'live', host: 'https://sync-demo.tamanu-fiji.org' },
   { name: 'Demo (Fiji NCD Pilot)', type: 'demo', host: 'https://testsync.tamanu-fiji.org' },
   { name: 'Demo (Nauru)', type: 'demo', host: 'https://sync-demo-nauru.tamanu.io' },
 
