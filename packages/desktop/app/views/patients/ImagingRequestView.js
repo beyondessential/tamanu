@@ -69,7 +69,7 @@ const DumbImagingRequestInfoPane = React.memo(
               multiline
               value={imagingRequest.areaToBeImaged}
               label="Area to be imaged"
-              style={{ gridColumn: '1 / -1' }}
+              style={{ gridColumn: '1 / -1', minHeight: '60px', padding: '0' }}
             />
             <TextInput
               multiline
