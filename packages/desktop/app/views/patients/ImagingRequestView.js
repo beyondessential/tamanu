@@ -96,7 +96,7 @@ const DumbImagingRequestInfoPane = React.memo(
                 />
               </React.Fragment>
             )}
-            {imagingRequest?.status === 'completed' && (
+            {imagingRequest?.status === IMAGING_REQUEST_STATUS_TYPES.COMPLETED && (
               <TextInput
                 name="results"
                 label="Results Description"
