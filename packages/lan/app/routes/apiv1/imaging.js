@@ -1,12 +1,15 @@
 import express from 'express';
 import asyncHandler from 'express-async-handler';
 import { Op } from 'sequelize';
+import { NOTE_TYPES } from 'shared/constants';
+import { NotFoundError } from 'shared/errors';
+import { NOTE_RECORD_TYPES } from 'shared/models/Note';
 import {
   mapQueryFilters,
   getCaseInsensitiveFilter,
   getTextToBooleanFilter,
 } from '../../database/utils';
-import { simpleGet, simplePut, simplePost, permissionCheckingRouter } from './crudHelpers';
+import { permissionCheckingRouter } from './crudHelpers';
 
 // Object used to map field names to database column names
 const SNAKE_CASE_COLUMN_NAMES = {
@@ -23,9 +26,127 @@ const urgencyTextToBooleanFilter = getTextToBooleanFilter('urgent');
 
 export const imagingRequest = express.Router();
 
-imagingRequest.get('/:id', simpleGet('ImagingRequest'));
-imagingRequest.put('/:id', simplePut('ImagingRequest'));
-imagingRequest.post('/$', simplePost('ImagingRequest'));
+imagingRequest.get(
+  '/:id',
+  asyncHandler(async (req, res) => {
+    const {
+      models: { ImagingRequest, Note },
+      params: { id },
+    } = req;
+    req.checkPermission('read', 'ImagingRequest');
+    const imagingRequestObject = await ImagingRequest.findByPk(id, {
+      include: ImagingRequest.getFullReferenceAssociations(),
+    });
+    if (!imagingRequestObject) throw new NotFoundError();
+
+    // Get related note
+    const noteObject = await Note.findOne({
+      where: {
+        recordType: NOTE_RECORD_TYPES.IMAGING_REQUEST,
+        recordId: id,
+      },
+    });
+
+    // If note doesn't exist, default content to empty string
+    const noteContent = noteObject ? noteObject.content : '';
+
+    // Convert Sequelize model to use a custom object as response
+    const responseObject = {
+      ...imagingRequestObject.forResponse(),
+      note: noteContent,
+    };
+
+    res.send(responseObject);
+  }),
+);
+
+imagingRequest.put(
+  '/:id',
+  asyncHandler(async (req, res) => {
+    const {
+      models: { ImagingRequest, Note },
+      params: { id },
+    } = req;
+    req.checkPermission('read', 'ImagingRequest');
+    const imagingRequestObject = await ImagingRequest.findByPk(id);
+    if (!imagingRequestObject) throw new NotFoundError();
+    req.checkPermission('write', 'ImagingRequest');
+    await imagingRequestObject.update(req.body);
+
+    // Get related note
+    const noteObject = await Note.findOne({
+      where: {
+        recordType: NOTE_RECORD_TYPES.IMAGING_REQUEST,
+        recordId: id,
+      },
+    });
+
+    // The returned note content will read its value depending if
+    // note exists or gets created, else it should be an empty string
+    let noteContent = '';
+
+    // Update the content of the note object if it exists
+    if (noteObject) {
+      await noteObject.update({ content: req.body.note });
+      noteContent = noteObject.content;
+    }
+    // Else, create a new one only if it has content
+    else if (req.body.note) {
+      const newNoteObject = await Note.create({
+        recordId: imagingRequestObject.get('id'),
+        recordType: NOTE_RECORD_TYPES.IMAGING_REQUEST,
+        content: req.body.note,
+        noteType: NOTE_TYPES.OTHER,
+        authorId: req.user.id,
+      });
+      noteContent = newNoteObject.content;
+    }
+
+    // Convert Sequelize model to use a custom object as response
+    const responseObject = {
+      ...imagingRequestObject.forResponse(),
+      note: noteContent,
+    };
+
+    res.send(responseObject);
+  }),
+);
+
+imagingRequest.post(
+  '/$',
+  asyncHandler(async (req, res) => {
+    const {
+      models: { ImagingRequest, Note },
+    } = req;
+    req.checkPermission('create', 'ImagingRequest');
+    const newImagingRequest = await ImagingRequest.create(req.body);
+
+    // Return note content or empty string with the response for consistency
+    let noteContent = '';
+
+    // Only create a note if it has content
+    if (req.body.note) {
+      const newNote = await Note.create({
+        recordId: newImagingRequest.get('id'),
+        recordType: NOTE_RECORD_TYPES.IMAGING_REQUEST,
+        content: req.body.note,
+        noteType: NOTE_TYPES.OTHER,
+        authorId: req.user.id,
+      });
+
+      // Update note content for response with saved data
+      noteContent = newNote.content;
+    }
+
+    // Convert Sequelize model to use a custom object as response
+    const responseObject = {
+      ...newImagingRequest.forResponse(),
+      note: noteContent,
+    };
+
+    res.send(responseObject);
+  }),
+);
 
 const globalImagingRequests = permissionCheckingRouter('list', 'ImagingRequest');
 

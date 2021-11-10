@@ -108,7 +108,7 @@ const DeceasedIndicator = memo(({ death }) => (
 const HealthIdDisplay = memo(({ patient }) => (
   <HealthIdContainer>
     <HealthIdLabelText>
-      <LocalisedText path="fields.displayId.longLabel"/>
+      <LocalisedText path="fields.displayId.longLabel" />
     </HealthIdLabelText>
     <InvertedDisplayIdLabel>{patient.displayId}</InvertedDisplayIdLabel>
   </HealthIdContainer>

@@ -25,9 +25,9 @@ export class ImagingRequest extends Model {
           defaultValue: Sequelize.NOW,
         },
 
-        note: {
+        results: {
           type: Sequelize.STRING,
-          allowNull: true,
+          defaultValue: '',
         },
 
         urgent: {

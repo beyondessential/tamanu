@@ -7,6 +7,7 @@ import {
   IMAGING_REQUEST_STATUS_TYPES,
   NOTE_TYPES,
   APPOINTMENT_TYPES,
+  APPOINTMENT_STATUSES,
 } from 'shared/constants';
 import {
   medicationIcon,
@@ -81,11 +82,13 @@ export const LAB_REQUEST_COLORS = {
 export const IMAGING_REQUEST_STATUS_LABELS = {
   [IMAGING_REQUEST_STATUS_TYPES.PENDING]: 'Pending',
   [IMAGING_REQUEST_STATUS_TYPES.COMPLETED]: 'Completed',
+  [IMAGING_REQUEST_STATUS_TYPES.IN_PROGRESS]: 'In progress',
 };
 
 export const IMAGING_REQUEST_COLORS = {
-  [IMAGING_REQUEST_STATUS_TYPES.PENDING]: '#aaf',
+  [IMAGING_REQUEST_STATUS_TYPES.PENDING]: '#faa',
   [IMAGING_REQUEST_STATUS_TYPES.COMPLETED]: '#afa',
+  [IMAGING_REQUEST_STATUS_TYPES.IN_PROGRESS]: '#aaf',
   unknown: '#333',
 };
 
@@ -281,13 +284,6 @@ export const operativePlanStatusList = Object.values(operativePlanStatuses).map(
   label: capitalize(status),
 }));
 
-export const appointmentStatusList = [
-  { value: 'attended', label: 'Attended' },
-  { value: 'scheduled', label: 'Scheduled' },
-  { value: 'canceled', label: 'Canceled' },
-  { value: 'missed', label: 'Missed' },
-];
-
 export const bloodOptions = [
   { value: 'A+', label: 'A+' },
   { value: 'A-', label: 'A-' },
@@ -400,6 +396,11 @@ export const CLINICAL_COLORS_BY_STATUS = {
 export const appointmentTypeOptions = Object.values(APPOINTMENT_TYPES).map(type => ({
   label: type,
   value: type,
+}));
+
+export const appointmentStatusOptions = Object.values(APPOINTMENT_STATUSES).map(status => ({
+  label: status,
+  value: status,
 }));
 
 export const ALPHABET_FOR_ID = 'ABCDEFGH' + /*I*/ 'JK' + /*L*/ 'MN' + /*O*/ 'PQRSTUVWXYZ' + /*01*/ '23456789';

@@ -32,7 +32,7 @@ export const NewAppointmentForm = props => {
       onSubmit={createAppointment}
       validationSchema={yup.object().shape({
         patientId: yup.string().required('Please select a patient'),
-        appointmentType: yup.string().required('Please choose an appointment type'),
+        type: yup.string().required('Please choose an appointment type'),
         startTime: yup.string().required(),
         clinicianId: yup.string().required('Please select a clinician'),
         locationId: yup.string().required('Please choose a location'),
@@ -50,7 +50,7 @@ export const NewAppointmentForm = props => {
             <FormSeparatorLine />
             <Field
               label="Appointment type"
-              name="appointmentType"
+              name="type"
               component={SelectField}
               options={appointmentTypeOptions}
               required
