@@ -11,7 +11,7 @@ const Column = ({ header, appointments }) => {
   const appointmentsByStartTime = [...appointments].sort((a, b) => a.startTime - b.startTime);
   useEffect(() => {
     Tooltip.rebuild();
-  }, []);
+  }, [appointmentsByStartTime]);
   return (
     <StyledColumn>
       <ColumnHeader>{header}</ColumnHeader>
