@@ -11,7 +11,7 @@ import { useApi } from '../../api';
 import { Suggester } from '../../utils/suggester';
 import { appointmentTypeOptions } from '../../constants';
 
-export const NewAppointmentForm = props => {
+export const AppointmentForm = props => {
   const { onSuccess = () => {}, onCancel } = props;
   const api = useApi();
   const clinicianSuggester = new Suggester(api, 'practitioner');

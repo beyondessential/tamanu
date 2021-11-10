@@ -1,12 +1,12 @@
 import React from 'react';
 
 import { Modal } from '../Modal';
-import { NewAppointmentForm } from './NewAppointmentForm';
+import { AppointmentForm } from './AppointmentForm';
 
-export const NewAppointmentModal = ({ open, onClose, onSuccess }) => {
+export const AppointmentModal = ({ open, onClose, onSuccess }) => {
   return (
     <Modal width="md" title="Create new appointment" open={open} onClose={onClose}>
-      <NewAppointmentForm
+      <AppointmentForm
         onCancel={onClose}
         onSuccess={() => {
           onClose();

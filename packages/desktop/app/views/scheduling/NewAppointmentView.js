@@ -4,7 +4,7 @@ import styled from 'styled-components';
 import { PageContainer, TopBar } from '../../components';
 import { Notification } from '../../components/Notification';
 import { Button } from '../../components/Button';
-import { NewAppointmentForm } from '../../components/Appointments/NewAppointmentForm';
+import { AppointmentForm } from '../../components/Appointments/AppointmentForm';
 
 const Container = styled.div`
   margin: 1rem;
@@ -35,7 +35,7 @@ export const NewAppointmentView = () => {
         {success ? (
           <SubmissionSuccess onReset={() => setSuccess(false)} />
         ) : (
-          <NewAppointmentForm
+          <AppointmentForm
             onSuccess={() => {
               setSuccess(true);
             }}
