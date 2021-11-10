@@ -1,16 +1,13 @@
 export class Integration {
-  // override these methods in subclasses
+  routes;
 
-  static routes() {
-    return null;
-  }
+  publicRoutes;
 
-  static publicRoutes() {
-    return null;
-  }
+  initContext;
 
-  // eslint-disable-next-line no-unused-vars
-  static async initContext(context) {
-    // left blank
+  constructor({ routes = null, publicRoutes = null, initContext = () => {} }) {
+    this.routes = routes;
+    this.publicRoutes = publicRoutes;
+    this.initContext = initContext;
   }
 }
