@@ -1,7 +1,8 @@
+import { inspect } from 'util';
 
 function setupValidator() {
   return data => {
-    console.log(data);
+    console.log(inspect(data, { depth: 8 }));
     return { errors: [], result: true };
   }
   /*

@@ -1,8 +1,8 @@
 
+const HL7_TERMINOLOGY_URL = "http://terminology.hl7.org/CodeSystem/v3-ObservationInterpretation";
+
 // TODO: namespace TBD (@kurt)
 const NAMESPACE_FOR_LAB_REQUEST = "-- lab request namespace --";
-
-const HL7_TERMINOLOGY_URL = "http://terminology.hl7.org/CodeSystem/v3-ObservationInterpretation";
 
 // TODO: real urls
 const TAMANU_COVID_URL = "http://tamanu.io/data-dictionary/covid-test-methods";
@@ -29,13 +29,13 @@ function userToHL7Reference(user) {
   };
 }
 
-export function labTestToHL7DiagnosticReport(labTest) {
-  // TODO: relations
-  const labRequest = {};
-  const labTestType = {};
-  const patient = {};
-  const examiner = {};
-  const labTestMethod = {};
+export async function labTestToHL7DiagnosticReport(labTest) {
+  const labTestType = await labTest.getLabTestType();
+  const labTestMethod = await labTest.getLabTestMethod();
+  const labRequest = await labTest.getLabRequest();
+  const encounter = await labRequest.getEncounter();
+  const patient = await encounter.getPatient();
+  const examiner = await encounter.getExaminer();
 
   return {
     resourceType: "DiagnosticReport",
@@ -95,10 +95,8 @@ function getResultCoding(labTest) {
   }
 }
 
-export function labTestToHL7Observation(labTest) {
-  // TODO: relations
-  const patient = {};
-
+export function labTestToHL7Observation(labTest, patient) {
+  // TODO: return null when status is reception_pending ?
   return {
     resourceType: "Observation",
     id: labTest.id, // TODO: OK to be the same as diagnostic report?
