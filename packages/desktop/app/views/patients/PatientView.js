@@ -9,6 +9,7 @@ import { PatientInfoPane } from '../../components/PatientInfoPane';
 import { EncounterModal } from '../../components/EncounterModal';
 import { TriageModal } from '../../components/TriageModal';
 import { connectRoutedModal } from '../../components/Modal';
+import { useLocalisation } from '../../contexts/Localisation';
 
 import {
   ConnectedPatientDetailsForm,
@@ -18,6 +19,7 @@ import {
   DocumentsPane,
   ProgramsPane,
   ReferralPane,
+  InvoicesPane,
 } from './panes';
 
 const RoutedEncounterModal = connectRoutedModal('/patients/view', 'checkin')(EncounterModal);
@@ -72,20 +74,31 @@ const TABS = [
     icon: 'fa fa-medkit',
     render: props => <MedicationsPane {...props} />,
   },
+  {
+    label: 'Invoices',
+    key: 'invoices',
+    icon: 'fa fa-syringe',
+    render: props => <InvoicesPane {...props} />,
+    condition: getLocalisation => getLocalisation('features.enableInvoicing'),
+  },
 ];
 
 export const DumbPatientView = React.memo(({ patient, loading }) => {
+  const { getLocalisation } = useLocalisation();
   const [currentTab, setCurrentTab] = React.useState('history');
   const disabled = !!patient.death;
 
   if (loading) return <LoadingIndicator />;
+
+  const visibleTabs = TABS.filter(tab => !tab.condition || tab.condition(getLocalisation));
+
   return (
     <>
       <PatientAlert alerts={patient.alerts} />
       <TwoColumnDisplay>
         <PatientInfoPane patient={patient} disabled={disabled} />
         <TabDisplay
-          tabs={TABS}
+          tabs={visibleTabs}
           currentTab={currentTab}
           onTabSelect={setCurrentTab}
           patient={patient}

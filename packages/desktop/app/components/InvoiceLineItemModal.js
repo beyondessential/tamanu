@@ -73,7 +73,7 @@ export const InvoiceLineItemModal = ({
               component={AutocompleteField}
               suggester={practitionerSuggester}
             />
-            <Field name="price" label="Price" required disabled component={NumberField} />
+            <Field name="price" label="Price ($)" required disabled component={NumberField} />
             <Field
               name="percentageChange"
               label="Percentage change (-/+)"

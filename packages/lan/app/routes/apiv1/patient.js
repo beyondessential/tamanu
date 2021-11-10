@@ -10,6 +10,8 @@ import { renameObjectKeys } from '~/utils/renameObjectKeys';
 import { createPatientFilters } from '../../utils/patientFilters';
 import { patientVaccineRoutes } from './patient/patientVaccine';
 import { patientDocumentMetadataRoutes } from './patient/patientDocumentMetadata';
+import { patientInvoiceRoutes } from './patient/patientInvoice';
+
 import { patientDeath } from './patient/patientDeath';
 import { patientProfilePicture } from './patient/patientProfilePicture';
 import { activeCovid19PatientsHandler } from '../../routeHandlers';
@@ -464,6 +466,7 @@ patientRoute.get('/program/activeCovid19Patients', asyncHandler(activeCovid19Pat
 
 patientRoute.use(patientVaccineRoutes);
 patientRoute.use(patientDocumentMetadataRoutes);
+patientRoute.use(patientInvoiceRoutes);
 
 patientRoute.get(
   '/:id/passportNumber',
