@@ -48,14 +48,7 @@ const DumbImagingRequestInfoPane = React.memo(
         onSubmit(updatedImagingRequest);
       }}
       enableReinitialize // Updates form to reflect changes in initialValues
-      initialValues={{
-        status: imagingRequest.status,
-        results: imagingRequest.results,
-        note: imagingRequest.note,
-        areaToBeImaged: imagingRequest.areaToBeImaged,
-        completedById: imagingRequest.completedById,
-        locationId: imagingRequest.locationId,
-      }}
+      initialValues={ ...imagingRequest }
     >
       {({ values, dirty, handleChange }) => (
         <Form>
