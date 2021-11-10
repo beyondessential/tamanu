@@ -90,6 +90,9 @@ export const DailySchedule = ({
             return null;
           }
           const appointment = appointments.find(appt => appt.id === appointmentId);
+          if (!appointment) {
+            return null;
+          }
           return <AppointmentDetail appointment={appointment} updated={appointmentUpdated} />;
         }}
       />
