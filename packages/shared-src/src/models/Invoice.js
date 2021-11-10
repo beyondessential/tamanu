@@ -21,11 +21,6 @@ export class Invoice extends Model {
   }
 
   static initRelations(models) {
-    this.belongsTo(models.Facility, {
-      foreignKey: 'facilityId',
-      as: 'facility',
-    });
-
     this.belongsTo(models.Encounter, {
       foreignKey: 'encounterId',
       as: 'encounter',
