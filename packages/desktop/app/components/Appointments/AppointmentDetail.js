@@ -13,7 +13,7 @@ import { useApi } from '../../api';
 const Container = styled.div`
   display: flex;
   flex-direction: column;
-  row-gap: 1rem;
+  row-gap: 0.5rem;
   padding: 1rem 0;
 `;
 
@@ -21,7 +21,7 @@ const FirstRow = styled.div`
   display: grid;
   grid-template-columns: 1fr 8rem;
   justify-content: space-between;
-  align-items: center;
+  align-items: flex-start;
   padding-bottom: 1rem;
   border-bottom: 1px solid ${Colors.outline};
   column-gap: 2rem;
@@ -30,6 +30,7 @@ const FirstRow = styled.div`
 const Heading = styled.div`
   font-weight: 700;
   font-size: 1.1;
+  margin-top: 0.5rem;
   margin-bottom: 0.35rem;
 `;
 
@@ -58,25 +59,46 @@ const PatientInfoValue = styled.td`
 `;
 
 const PatientInfo = ({ patient }) => {
+  const api = useApi();
+  const { id, displayId, sex, dateOfBirth, village } = patient;
+  const [additionalData, setAdditionalData] = useState();
+  useEffect(() => {
+    (async () => {
+      const data = await api.get(`/patient/${id}/additionalData`);
+      setAdditionalData(data);
+    })();
+  }, [id]);
   return (
     <PatientInfoContainer>
       <PatientNameRow>
         <PatientName>
           <PatientNameDisplay patient={patient} />
         </PatientName>
-        <InvertedDisplayIdLabel>{patient.displayId}</InvertedDisplayIdLabel>
+        <InvertedDisplayIdLabel>{displayId}</InvertedDisplayIdLabel>
       </PatientNameRow>
       <table>
         <tr>
           <PatientInfoLabel>Sex</PatientInfoLabel>
-          <PatientInfoValue>{patient.sex}</PatientInfoValue>
+          <PatientInfoValue>{sex}</PatientInfoValue>
         </tr>
         <tr>
           <PatientInfoLabel>Date of Birth</PatientInfoLabel>
           <PatientInfoValue>
-            <DateDisplay date={patient.dateOfBirth} />
+            <DateDisplay date={dateOfBirth} />
           </PatientInfoValue>
         </tr>
+        {additionalData && additionalData.primaryContactNumber && (
+          <tr>
+            <PatientInfoLabel>Contact Number</PatientInfoLabel>
+            <PatientInfoValue>{additionalData.primaryContactNumber}</PatientInfoValue>
+          </tr>
+        )}
+        {village && (
+          <tr>
+            <PatientInfoLabel>Village</PatientInfoLabel>
+            <PatientInfoValue>{village.name}</PatientInfoValue>
+          </tr>
+        )}
       </table>
     </PatientInfoContainer>
   );
@@ -95,7 +117,9 @@ export const AppointmentDetail = ({ appointment, updated }) => {
     <Container>
       <FirstRow>
         <div>
-          <Heading>{type}</Heading>
+          <Heading>Type</Heading>
+          {type}
+          <Heading>Time</Heading>
           <div>
             {format(new Date(startTime), 'ccc dd LLL')}
             {' - '}
