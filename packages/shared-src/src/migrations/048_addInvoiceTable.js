@@ -21,14 +21,6 @@ module.exports = {
           key: 'id',
         },
       },
-      facility_id: {
-        type: Sequelize.STRING,
-        allowNull: true,
-        references: {
-          model: 'facilities',
-          key: 'id',
-        },
-      },
       status: {
         type: Sequelize.STRING,
         allowNull: false,
