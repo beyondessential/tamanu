@@ -50,7 +50,7 @@ async function prepopulate(models) {
     facilityId: facility.id,
   });
 
-  return { category, labTestType, facility, location, department, user };
+  return { category, method, labTestType, facility, location, department, user };
 }
 
 describe('HL7 Labs', () => {
@@ -63,7 +63,7 @@ describe('HL7 Labs', () => {
     const ctx = await createTestContext();
     models = ctx.store.models;
 
-    await prepopulate(models);
+    const { method } = await prepopulate(models);
 
     const patientData = await createDummyPatient(models);
     patient = await models.Patient.create(patientData);
@@ -81,7 +81,11 @@ describe('HL7 Labs', () => {
     });
     const tests = await request.getTests();
     labTest = tests[0];
-    console.log('LABTEST', labTest);
+
+    // method currently needs to be set manually after creation
+    // (the workflow is, it would be set when entering the results)
+    labTest.labTestMethodId = method.id;
+    await labTest.save();
   });
   
   it('Should validate an observation', async () => {

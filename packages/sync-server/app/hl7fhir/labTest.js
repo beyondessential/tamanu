@@ -60,7 +60,7 @@ export async function labTestToHL7DiagnosticReport(labTest) {
     },
     subject: patientToHL7Reference(patient),
     performer: userToHL7Reference(examiner), // TODO: laboratory to take precedence over examiner
-    issued: labRequest.date,
+    issued: labRequest.requestedDate,
     result: [
       {
         reference: `Observation/${labTest.id}`,
