@@ -5,7 +5,7 @@ import { QueryTypes } from 'sequelize';
 
 import { NotFoundError } from 'shared/errors';
 
-import { REFERENCE_TYPE_VALUES } from 'shared/constants';
+import { REFERENCE_TYPE_VALUES, INVOICE_LINE_TYPES } from 'shared/constants';
 
 export const suggestions = express.Router();
 
@@ -84,6 +84,11 @@ REFERENCE_TYPE_VALUES.map(typeName =>
 createNameSuggester('department');
 createNameSuggester('location');
 createNameSuggester('facility');
+createSuggester(
+  'invoiceLineTypes',
+  'InvoiceLineType',
+  `LOWER(name) LIKE LOWER(:search) AND item_type = '${INVOICE_LINE_TYPES.ADDITIONAL}'`,
+);
 
 createSuggester(
   'practitioner',

@@ -89,6 +89,16 @@ const StyledTableHead = styled(TableHead)`
   background: ${Colors.background};
 `;
 
+const SectionTitleTableRow = styled(TableRow)`
+  background: ${Colors.background};
+`;
+
+const SectionTitleTableCell = styled(TableCell)`
+  padding: 16px;
+  background: ${props => props.background};
+  font-weight: 500;
+`;
+
 const StyledTableFooter = styled(TableFooter)`
   background: ${Colors.background};
   border-bottom: 1px solid black;
@@ -100,10 +110,20 @@ const RowContainer = React.memo(({ children, onClick }) => (
   </StyledTableRow>
 ));
 
-const Row = React.memo(({ columns, data, onClick }) => {
+const Row = React.memo(({ columns, data, sections, allData, onClick }) => {
   const cells = columns.map(
-    ({ key, accessor, CellComponent, numeric, maxWidth, cellColor, dontCallRowInput }) => {
-      const value = accessor ? React.createElement(accessor, data) : data[key];
+    ({
+      key,
+      accessor,
+      CellComponent,
+      numeric,
+      maxWidth,
+      cellColor,
+      dontCallRowInput,
+      passAllData = false,
+    }) => {
+      const props = passAllData ? { row: data, sections, allData } : data;
+      const value = accessor ? React.createElement(accessor, props) : data[key];
       const displayValue = value === 0 ? '0' : value;
       const backgroundColor = typeof cellColor === 'function' ? cellColor(data) : cellColor;
       return (
@@ -149,6 +169,13 @@ const ErrorRow = React.memo(({ colSpan, children }) => (
   </RowContainer>
 ));
 
+const requiredPropsCheck = (props, propName, componentName) => {
+  if (!props.data && !props.sections) {
+    return new Error(`One of 'data' or 'sections' is required by '${componentName}' component.`);
+  }
+
+  return true;
+};
 class TableComponent extends React.Component {
   static propTypes = {
     columns: PropTypes.arrayOf(
@@ -159,7 +186,14 @@ class TableComponent extends React.Component {
         sortable: PropTypes.bool,
       }),
     ).isRequired,
-    data: PropTypes.arrayOf(PropTypes.shape({})).isRequired,
+    data: PropTypes.oneOfType([
+      requiredPropsCheck,
+      PropTypes.arrayOf(PropTypes.shape({})).isRequired,
+    ]),
+    sections: PropTypes.oneOfType([
+      requiredPropsCheck,
+      PropTypes.arrayOf(PropTypes.shape({})).isRequired,
+    ]),
     errorMessage: PropTypes.string,
     noDataMessage: PropTypes.string,
     isLoading: PropTypes.bool,
@@ -182,6 +216,8 @@ class TableComponent extends React.Component {
     errorMessage: '',
     noDataMessage: 'No data found',
     count: 0,
+    data: null,
+    sections: null,
     isLoading: false,
     onChangePage: null,
     onChangeRowsPerPage: null,
@@ -198,10 +234,10 @@ class TableComponent extends React.Component {
   };
 
   getErrorMessage() {
-    const { isLoading, errorMessage, data, noDataMessage } = this.props;
+    const { isLoading, errorMessage, data, sections, noDataMessage } = this.props;
     if (isLoading) return 'Loading...';
     if (errorMessage) return errorMessage;
-    if (data.length === 0) return noDataMessage;
+    if (!data?.length && !sections?.length) return noDataMessage;
     return null;
   }
 
@@ -238,8 +274,55 @@ class TableComponent extends React.Component {
     ));
   }
 
+  renderBodySections = (sections, rowIdKey, onRowClick) =>
+    sections.map(
+      ({
+        name: sectionName,
+        data: sectionData,
+        noDataMessage,
+        columns: sectionColumns,
+        footerAccessor: sectionFooterAccessor,
+      }) => {
+        const sectionFooter = sectionFooterAccessor ? sectionFooterAccessor(sectionData) : null;
+        return (
+          <TableBody>
+            {sectionName ? (
+              <SectionTitleTableRow>
+                <SectionTitleTableCell colSpan={sectionColumns.length}>
+                  <StyledTableCellContent>{sectionName}</StyledTableCellContent>
+                </SectionTitleTableCell>
+              </SectionTitleTableRow>
+            ) : null}
+            {!sectionData?.length ? (
+              <ErrorRow colSpan={sectionColumns.length}>
+                <span>{noDataMessage}</span>
+              </ErrorRow>
+            ) : (
+              sectionData.map(rowData => {
+                const key = rowData[rowIdKey] || rowData[sectionColumns[0].key];
+                return (
+                  <Row
+                    sections={sections}
+                    data={rowData}
+                    key={key}
+                    columns={sectionColumns}
+                    onClick={onRowClick}
+                  />
+                );
+              })
+            )}
+            {sectionFooter ? (
+              <StyledTableRow>
+                <StyledTableCell colSpan={sectionColumns.length}>{sectionFooter}</StyledTableCell>
+              </StyledTableRow>
+            ) : null}
+          </TableBody>
+        );
+      },
+    );
+
   renderBodyContent() {
-    const { data, customSort, columns, onRowClick, errorMessage, rowIdKey } = this.props;
+    const { data, sections, customSort, columns, onRowClick, errorMessage, rowIdKey } = this.props;
     const error = this.getErrorMessage();
     if (error) {
       return (
@@ -248,11 +331,28 @@ class TableComponent extends React.Component {
         </ErrorRow>
       );
     }
+
+    if (sections) {
+      return this.renderBodySections(sections, rowIdKey, onRowClick);
+    }
+
     const sortedData = customSort ? customSort(data) : data;
-    return sortedData.map(rowData => {
-      const key = rowData[rowIdKey] || rowData[columns[0].key];
-      return <Row data={rowData} key={key} columns={columns} onClick={onRowClick} />;
-    });
+    return (
+      <TableBody>
+        {sortedData.map(rowData => {
+          const key = rowData[rowIdKey] || rowData[columns[0].key];
+          return (
+            <Row
+              data={rowData}
+              allData={sortedData}
+              key={key}
+              columns={columns}
+              onClick={onRowClick}
+            />
+          );
+        })}
+      </TableBody>
+    );
   }
 
   renderPaginator() {
@@ -271,19 +371,42 @@ class TableComponent extends React.Component {
   }
 
   render() {
-    const { page, className, exportName, columns, data } = this.props;
+    const {
+      page,
+      className,
+      exportName,
+      columns,
+      tableFooter,
+      sections,
+      data,
+      allowExport = true,
+    } = this.props;
     return (
       <StyledTableContainer className={className}>
         <StyledTable>
           <StyledTableHead>
             <TableRow>{this.renderHeaders()}</TableRow>
           </StyledTableHead>
-          <TableBody>{this.renderBodyContent()}</TableBody>
+          {this.renderBodyContent()}
+          {tableFooter ? (
+            <StyledTableRow>
+              <StyledTableCell colSpan={columns.length}>
+                {tableFooter({ sections, data })}
+              </StyledTableCell>
+            </StyledTableRow>
+          ) : null}
           <StyledTableFooter>
             <TableRow>
-              <TableCell>
-                <DownloadDataButton exportName={exportName} columns={columns} data={data} />
-              </TableCell>
+              {allowExport ? (
+                <TableCell>
+                  <DownloadDataButton
+                    exportName={exportName}
+                    columns={columns}
+                    data={data}
+                    sections={sections}
+                  />
+                </TableCell>
+              ) : null}
               {page !== null && this.renderPaginator()}
             </TableRow>
           </StyledTableFooter>
@@ -293,7 +416,7 @@ class TableComponent extends React.Component {
   }
 }
 
-export const Table = ({ columns: allColumns, data, exportName, ...props }) => {
+export const Table = ({ columns: allColumns, sections, data, exportName, ...props }) => {
   const { getLocalisation } = useLocalisation();
   const columns = allColumns.filter(({ key }) => getLocalisation(`fields.${key}.hidden`) !== true);
 
@@ -301,6 +424,7 @@ export const Table = ({ columns: allColumns, data, exportName, ...props }) => {
     <TableComponent
       columns={columns}
       data={data}
+      sections={sections}
       exportname={exportName}
       getLocalisation={getLocalisation}
       {...props}

@@ -8,16 +8,15 @@ import { NOTE_RECORD_TYPES } from 'shared/models/Note';
 import {
   simpleGet,
   simpleGetHasOne,
-  simplePost,
   simpleGetList,
   permissionCheckingRouter,
   runPaginatedQuery,
 } from './crudHelpers';
-
+import { postEncounterHandler } from '../../routeHandlers';
 export const encounter = express.Router();
 
 encounter.get('/:id', simpleGet('Encounter'));
-encounter.post('/$', simplePost('Encounter'));
+encounter.post('/$', asyncHandler(postEncounterHandler));
 
 encounter.put(
   '/:id',
@@ -137,6 +136,16 @@ encounterRelations.get(
       count: parseInt(count, 10),
       data,
     });
+  }),
+);
+
+encounterRelations.get(
+  '/:id/invoice',
+  asyncHandler(async (req, res) => {
+    const { models, params } = req;
+    req.checkPermission('read', 'Invoice');
+    const invoice = await models.Invoice.findOne({ where: { encounterId: params.id } });
+    res.send(invoice);
   }),
 );
 

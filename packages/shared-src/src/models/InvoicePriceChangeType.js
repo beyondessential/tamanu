@@ -18,4 +18,33 @@ export class InvoicePriceChangeType extends Model {
       },
     );
   }
+
+  static initRelations(models) {
+    this.belongsTo(models.ReferenceData, {
+      foreignKey: 'item_id',
+      as: 'patientBillingType',
+      constraint: false,
+    });
+  }
+
+  static getFullLinkedItemsInclude(models) {
+    return [
+      {
+        model: models.ReferenceData,
+        on: {
+          itemId: Sequelize.where(
+            Sequelize.col('invoicePriceChangeType->patientBillingType.id'),
+            '=',
+            Sequelize.col('invoicePriceChangeType.item_id'),
+          ),
+          itemType: Sequelize.where(
+            Sequelize.col('invoicePriceChangeType->patientBillingType.type'),
+            '=',
+            'patientBillingType',
+          ),
+        },
+        as: 'patientBillingType',
+      },
+    ];
+  }
 }

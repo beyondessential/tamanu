@@ -1,0 +1,175 @@
+import React, { useState } from 'react';
+import styled from 'styled-components';
+import * as yup from 'yup';
+import Collapse from '@material-ui/core/Collapse';
+import PrintIcon from '@material-ui/icons/Print';
+
+import { INVOICE_STATUS_TYPES } from 'shared/constants';
+
+import { foreignKey } from '../utils/validation';
+import { INVOICE_PAYMENT_STATUS_OPTIONS, Colors } from '../constants';
+import { getAdmissionType, isInvoiceEditable } from '../utils';
+
+import { Form, Field, RadioField, DateField, TextField, NumberField } from '../components/Field';
+import { FormGrid } from '../components/FormGrid';
+import { Button, TextButton } from '../components/Button';
+import { ButtonRow } from '../components/ButtonRow';
+import { ConfirmModal } from '../components/ConfirmModal';
+import { Modal } from '../components/Modal';
+import { InvoiceDetailTable } from '../components/InvoiceDetailTable';
+import { PlusIconButton, MinusIconButton } from '../components';
+
+const InvoiceDetailExpandRow = styled.div`
+  margin-top: 20px;
+  grid-column: 1 / -1;
+  border-top: 1px solid ${Colors.outline};
+  padding: 10px 0;
+  display: flex;
+  flex-direction: row;
+  justify-content: space-between;
+
+  div {
+    font-weight: 500;
+    font-size: 17px;
+    color: ${Colors.darkestText};
+  }
+
+  button {
+    padding: 0;
+    color: ${Colors.primary};
+  }
+
+  div span {
+    font-weight: 200;
+    font-size: 14px;
+    color: #999999;
+  }
+`;
+
+const PrintableInvoiceDetailModal = ({ open, onClose, invoice }) => (
+  <Modal width="md" title="Invoice detail" open={open} onClose={onClose} printable>
+    <h3>
+      <span>Invoice number: </span>
+      <span>{invoice.displayId}</span>
+    </h3>
+    <InvoiceDetailTable
+      invoice={invoice}
+      overrideColumns={['date', 'code', 'category', 'orderedBy', 'price']}
+      allowExport={false}
+    />
+  </Modal>
+);
+
+export const InvoiceDetailForm = ({
+  onSubmit,
+  onFinaliseInvoice,
+  onCancelInvoice,
+  onCancel,
+  invoice,
+}) => {
+  const [detailExpanded, setDetailExpanded] = useState(false);
+  const [finaliseInvoiceModalOpen, setFinaliseInvoiceModalOpen] = useState(false);
+  const [cancelInvoiceModalOpen, setCancelInvoiceModalOpen] = useState(false);
+  const [printableInvoiceDetailModalOpen, setPrintableInvoiceDetailModalOpen] = useState(false);
+  return (
+    <>
+      <ConfirmModal
+        title={`Finalise invoice number: ${invoice.displayId}`}
+        text="Are you sure you want to finalise this invoice?"
+        subText="You will not be able to edit the invoice once it is finalised."
+        confirmButtonColor="primary"
+        confirmButtonText="Finalise"
+        open={finaliseInvoiceModalOpen}
+        onClose={() => setFinaliseInvoiceModalOpen(false)}
+        onConfirm={onFinaliseInvoice}
+      />
+      <ConfirmModal
+        title={`Cancel invoice number: ${invoice.displayId}`}
+        text="Are you sure you want to cancel this invoice?"
+        subText="You will not be able to edit the invoice once it is cancelled."
+        confirmButtonColor="primary"
+        confirmButtonText="Cancel Invoice"
+        open={cancelInvoiceModalOpen}
+        onClose={() => setCancelInvoiceModalOpen(false)}
+        onConfirm={onCancelInvoice}
+      />
+      <PrintableInvoiceDetailModal
+        open={printableInvoiceDetailModalOpen}
+        onClose={() => setPrintableInvoiceDetailModalOpen(false)}
+        invoice={invoice}
+      />
+      <Form
+        onSubmit={onSubmit}
+        render={({ submitForm }) => (
+          <FormGrid>
+            <Field
+              name="paymentStatus"
+              label="Payment status"
+              required
+              component={RadioField}
+              options={INVOICE_PAYMENT_STATUS_OPTIONS}
+            />
+            <Field name="total" label="Total" required disabled component={TextField} />
+            <Field name="date" label="Date" disabled required component={DateField} />
+            <Field
+              name="admissionType"
+              label="Admission type"
+              required
+              disabled
+              component={TextField}
+            />
+            <Field name="receiptNumber" label="Receipt number" component={TextField} />
+            <ButtonRow>
+              {isInvoiceEditable(invoice.status) ? (
+                <Button variant="contained" onClick={onCancel}>
+                  Cancel Invoice
+                </Button>
+              ) : null}
+              {isInvoiceEditable(invoice.status) ? (
+                <Button
+                  variant="contained"
+                  onClick={() => setFinaliseInvoiceModalOpen(true)}
+                  color="primary"
+                >
+                  Finalise Invoice
+                </Button>
+              ) : null}
+              <Button variant="contained" onClick={submitForm} color="primary">
+                Save
+              </Button>
+            </ButtonRow>
+          </FormGrid>
+        )}
+        initialValues={{
+          date: new Date(),
+          ...invoice,
+          admissionType: getAdmissionType(invoice.admissionType),
+        }}
+        validationSchema={yup.object().shape({
+          status: foreignKey('Status is required'),
+        })}
+      />
+      <InvoiceDetailExpandRow>
+        <div>View invoice details</div>
+        <TextButton onClick={() => setPrintableInvoiceDetailModalOpen(true)}>
+          <span>
+            <PrintIcon />
+          </span>
+          <span> Print Invoice</span>
+        </TextButton>
+        {detailExpanded ? (
+          <MinusIconButton onClick={() => setDetailExpanded(false)} />
+        ) : (
+          <PlusIconButton onClick={() => setDetailExpanded(true)} />
+        )}
+      </InvoiceDetailExpandRow>
+      <Collapse in={detailExpanded}>
+        <InvoiceDetailTable
+          invoice={invoice}
+          overrideColumns={['date', 'code', 'category', 'orderedBy', 'price']}
+          allowExport={false}
+        />
+      </Collapse>
+    </>
+  );
+};

@@ -31,6 +31,7 @@ import { reports } from './reports';
 import { reportRequest } from './reportRequest';
 import { patientCarePlan } from './patientCarePlan';
 import { appointments } from './appointments';
+import { invoices, invoiceLineTypes } from './invoice';
 import { resetPassword } from './resetPassword';
 import { changePassword } from './changePassword';
 
@@ -84,6 +85,9 @@ apiv1.use('/reports', reports);
 apiv1.use('/reportRequest', reportRequest);
 apiv1.use('/patientCarePlan', patientCarePlan);
 apiv1.use('/appointments', appointments);
+
+apiv1.use('/invoices', invoices);
+apiv1.use('/invoiceLineTypes', invoiceLineTypes);
 
 apiv1.use('/admin', admin);
 

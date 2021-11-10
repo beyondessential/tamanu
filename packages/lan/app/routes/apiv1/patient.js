@@ -9,6 +9,7 @@ import { simpleGetList, permissionCheckingRouter, runPaginatedQuery } from './cr
 import { renameObjectKeys } from '~/utils/renameObjectKeys';
 import { createPatientFilters } from '../../utils/patientFilters';
 import { patientVaccineRoutes } from './patient/patientVaccine';
+import { patientInvoiceRoutes } from './patient/patientInvoice';
 import { patientProfilePicture } from './patient/patientProfilePicture';
 import { activeCovid19PatientsHandler } from '../../routeHandlers';
 
@@ -390,3 +391,5 @@ patientRoute.get(
 patientRoute.get('/program/activeCovid19Patients', asyncHandler(activeCovid19PatientsHandler));
 
 patientRoute.use(patientVaccineRoutes);
+
+patientRoute.use(patientInvoiceRoutes);

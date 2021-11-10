@@ -299,7 +299,8 @@
       "sync": {
         "syncAllEncountersForTheseScheduledVaccines": []
       },
-      "disabledReports": []
+      "disabledReports": [],
+      "enableInvoicing": true
     }
   },
   "reports": {

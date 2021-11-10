@@ -167,6 +167,31 @@ export const practitioner = (user, allow, forbid) => {
   allow('read', 'Appointment');
   allow('write', 'Appointment');
   allow('create', 'Appointment');
+
+  allow('list', 'Invoice');
+  allow('read', 'Invoice');
+  allow('write', 'Invoice');
+  allow('create', 'Invoice');
+
+  allow('list', 'InvoiceLineItem');
+  allow('read', 'InvoiceLineItem');
+  allow('write', 'InvoiceLineItem');
+  allow('create', 'InvoiceLineItem');
+
+  allow('list', 'InvoiceLineType');
+  allow('read', 'InvoiceLineType');
+  allow('write', 'InvoiceLineType');
+  allow('create', 'InvoiceLineType');
+
+  allow('list', 'InvoicePriceChangeItem');
+  allow('read', 'InvoicePriceChangeItem');
+  allow('write', 'InvoicePriceChangeItem');
+  allow('create', 'InvoicePriceChangeItem');
+
+  allow('list', 'InvoicePriceChangeType');
+  allow('read', 'InvoicePriceChangeType');
+  allow('write', 'InvoicePriceChangeType');
+  allow('create', 'InvoicePriceChangeType');
 };
 
 export const admin = (user, allow, forbid) => {

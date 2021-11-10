@@ -8,7 +8,10 @@ import {
   NOTE_TYPES,
   APPOINTMENT_TYPES,
   APPOINTMENT_STATUSES,
+  INVOICE_STATUS_TYPES,
+  INVOICE_PAYMENT_STATUS_TYPES,
 } from 'shared/constants';
+
 import {
   medicationIcon,
   administrationIcon,
@@ -403,4 +406,33 @@ export const appointmentStatusOptions = Object.values(APPOINTMENT_STATUSES).map(
   value: status,
 }));
 
-export const ALPHABET_FOR_ID = 'ABCDEFGH' + /*I*/ 'JK' + /*L*/ 'MN' + /*O*/ 'PQRSTUVWXYZ' + /*01*/ '23456789';
+export const INVOICE_STATUS_OPTIONS = [
+  { label: 'Cancelled', value: INVOICE_STATUS_TYPES.CANCELLED },
+  { label: 'In progress', value: INVOICE_STATUS_TYPES.IN_PROGRESS },
+  { label: 'Finalised', value: INVOICE_STATUS_TYPES.FINALISED },
+];
+
+export const INVOICE_STATUS_LABELS = {
+  [INVOICE_STATUS_TYPES.CANCELLED]: 'Cancelled',
+  [INVOICE_STATUS_TYPES.IN_PROGRESS]: 'In progress',
+  [INVOICE_STATUS_TYPES.FINALISED]: 'Finalised',
+};
+
+export const INVOICE_STATUS_COLORS = {
+  [INVOICE_STATUS_TYPES.CANCELLED]: '#FFCC24',
+  [INVOICE_STATUS_TYPES.IN_PROGRESS]: '#F76853',
+  [INVOICE_STATUS_TYPES.FINALISED]: '#47CA80',
+};
+
+export const INVOICE_PAYMENT_STATUS_LABELS = {
+  [INVOICE_PAYMENT_STATUS_TYPES.UNPAID]: 'Unpaid',
+  [INVOICE_PAYMENT_STATUS_TYPES.PAID]: 'Paid',
+};
+
+export const INVOICE_PAYMENT_STATUS_OPTIONS = [
+  { label: 'Unpaid', value: INVOICE_PAYMENT_STATUS_TYPES.UNPAID },
+  { label: 'Paid', value: INVOICE_PAYMENT_STATUS_TYPES.PAID },
+];
+
+export const ALPHABET_FOR_ID =
+  'ABCDEFGH' + /*I*/ 'JK' + /*L*/ 'MN' + /*O*/ 'PQRSTUVWXYZ' + /*01*/ '23456789';

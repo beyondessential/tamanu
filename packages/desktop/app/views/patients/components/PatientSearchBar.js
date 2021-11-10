@@ -51,7 +51,7 @@ const SectionLabel = styled.div`
 
 const SearchInputContainer = styled.div`
   display: grid;
-  grid-template-columns: repeat(4, 2fr);
+  grid-template-columns: ${props => `repeat(${props.columnCount || 4}, 2fr);`}
   grid-row-gap: 10px;
 
   .MuiInputBase-input {
@@ -65,13 +65,13 @@ const SearchInputContainer = styled.div`
   }
 
   > :first-child,
-  > :nth-child(5n) {
+  > :nth-child(${props => `${props.columnCount || 4}n`}) {
     fieldset {
       border-radius: 4px 0 0 4px;
     }
   }
 
-  > :nth-child(4n),
+  > :nth-child(${props => `${props.columnCount || 4}n`}),
   > :last-child {
     fieldset {
       border-right: 1px solid ${Colors.outline};
@@ -115,6 +115,8 @@ export const CustomisablePatientSearchBar = ({
   onSearch,
   fields,
   initialValues = {},
+  columnCount,
+  shouldRenderScanFingerprint = true,
   ...props
 }) => {
   const { getLocalisation } = useLocalisation();
@@ -145,7 +147,7 @@ export const CustomisablePatientSearchBar = ({
   const renderSearchBar = useCallback(
     ({ submitForm, resetForm }) => (
       <div>
-        <SearchInputContainer>{fieldElements}</SearchInputContainer>
+        <SearchInputContainer columnCount={columnCount}>{fieldElements}</SearchInputContainer>
         <Button
           style={{ marginTop: 10 }}
           color="primary"
@@ -178,10 +180,12 @@ export const CustomisablePatientSearchBar = ({
           initialValues={initialValues}
         />
       </Section>
-      <RightSection>
-        <ScanFingerprintButton />
-        <ScanFingerprintLabel>Scan fingerprint</ScanFingerprintLabel>
-      </RightSection>
+      {shouldRenderScanFingerprint ? (
+        <RightSection>
+          <ScanFingerprintButton />
+          <ScanFingerprintLabel>Scan fingerprint</ScanFingerprintLabel>
+        </RightSection>
+      ) : null}
     </Container>
   );
 };

@@ -1,4 +1,4 @@
-import React, { useCallback } from 'react';
+import React, { useCallback, useState } from 'react';
 import { connect } from 'react-redux';
 import { push } from 'connected-react-router';
 import styled from 'styled-components';
@@ -18,6 +18,8 @@ import { ReferralTable } from '../../components/ReferralTable';
 import { AppointmentModal } from '../../components/AppointmentModal';
 import { AppointmentTable } from '../../components/AppointmentTable';
 import { ImmunisationsTable } from '../../components/ImmunisationsTable';
+import { InvoicesTable } from '../../components/InvoicesTable';
+import { InvoicesSearchBar } from '../../components/InvoicesSearchBar';
 import { ImmunisationModal } from '../../components/ImmunisationModal';
 import { EditAdministeredVaccineModal } from '../../components/EditAdministeredVaccineModal';
 import { ImmunisationCertificateModal } from '../../components/ImmunisationCertificateModal';
@@ -30,6 +32,7 @@ import { PatientDetailsForm } from '../../forms/PatientDetailsForm';
 import { reloadPatient } from '../../store/patient';
 
 import { useEncounter } from '../../contexts/Encounter';
+import { useLocalisation } from '../../contexts/Localisation';
 
 const AppointmentPane = React.memo(({ patient, readonly }) => {
   const [modalOpen, setModalOpen] = React.useState(false);
@@ -123,6 +126,19 @@ const ImmunisationsPane = React.memo(({ patient, readonly }) => {
         </Button>
       </ContentPane>
     </div>
+  );
+});
+
+const InvoicesPane = React.memo(({ patient }) => {
+  const [searchParameters, setSearchParameters] = useState({});
+  return (
+    <>
+      <InvoicesSearchBar
+        searchParameters={searchParameters}
+        setSearchParameters={setSearchParameters}
+      />
+      <InvoicesTable patient={patient} searchParameters={searchParameters} />
+    </>
   );
 });
 
@@ -232,20 +248,31 @@ const TABS = [
     icon: 'fa fa-syringe',
     render: props => <ImmunisationsPane {...props} />,
   },
+  {
+    label: 'Invoices',
+    key: 'invoices',
+    icon: 'fa fa-syringe',
+    render: props => <InvoicesPane {...props} />,
+    condition: getLocalisation => getLocalisation('enableInvoicing'),
+  },
 ];
 
 export const DumbPatientView = React.memo(({ patient, loading }) => {
+  const { getLocalisation } = useLocalisation();
   const [currentTab, setCurrentTab] = React.useState('history');
   const disabled = !!patient.death;
 
   if (loading) return <LoadingIndicator />;
+
+  const tabs = TABS.filter(tab => !tab.condition || tab.condition(getLocalisation));
+
   return (
     <React.Fragment>
       <PatientAlert alerts={patient.alerts} />
       <TwoColumnDisplay>
         <PatientInfoPane patient={patient} disabled={disabled} />
         <TabDisplay
-          tabs={TABS}
+          tabs={tabs}
           currentTab={currentTab}
           onTabSelect={setCurrentTab}
           patient={patient}
