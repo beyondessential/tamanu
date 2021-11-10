@@ -37,6 +37,8 @@ const UNHIDEABLE_FIELDS = [
   'dateOfBirthFrom',
   'dateOfBirthTo',
   'dateOfBirthExact',
+  'emergencyContactName',
+  'emergencyContactNumber'
 ];
 
 const HIDEABLE_FIELDS = [
@@ -70,8 +72,6 @@ const HIDEABLE_FIELDS = [
   'passport',
   'religionId',
   'patientBillingTypeId',
-  'emergencyContactName',
-  'emergencyContactNumber'
 ];
 
 const templatesSchema = yup.object({
