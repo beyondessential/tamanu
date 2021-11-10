@@ -8,9 +8,9 @@ export class Invoice extends Model {
       {
         id: primaryKey,
         displayId: Sequelize.STRING,
-        total: Sequelize.STRING,
         status: Sequelize.STRING,
-        finalised: Sequelize.BOOLEAN,
+        paymentStatus: Sequelize.STRING,
+        receiptNumber: Sequelize.STRING,
         date: Sequelize.DATE,
       },
       {
