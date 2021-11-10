@@ -32,17 +32,14 @@ module.exports = {
       status: {
         type: Sequelize.STRING,
         allowNull: false,
-        defaultValue: 'UNPAID',
       },
-      total: {
-        type: Sequelize.DECIMAL,
+      payment_status: {
+        type: Sequelize.STRING,
         allowNull: false,
-        defaultValue: 0.0,
       },
-      finalised: {
-        type: Sequelize.BOOLEAN,
-        allowNull: false,
-        defaultValue: false,
+      receipt_number: {
+        type: Sequelize.STRING,
+        allowNull: true,
       },
       date: {
         type: Sequelize.DATE,
