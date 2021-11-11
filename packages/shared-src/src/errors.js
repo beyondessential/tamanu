@@ -12,6 +12,7 @@ export class InvalidOperationError extends BaseError {}
 export class InvalidParameterError extends BaseError {}
 export class InappropriateEndpointError extends BaseError {}
 export class RemoteTimeoutError extends BaseError {}
+export class RemoteCallFailedError extends BaseError {}
 export class RequestQueueTimeoutError extends BaseError {}
 export class RequestQueueExceededError extends BaseError {}
 
@@ -35,6 +36,9 @@ export function getCodeForErrorName(name) {
     case 'ValidationError':
       // unprocessable entity - syntax is correct but data is bad
       return 422;
+    case 'RemoteCallFailedError':
+      // remote server returned an error
+      return 502;
     case 'RemoteTimeoutError':
       // remote server timed out
       return 504;
