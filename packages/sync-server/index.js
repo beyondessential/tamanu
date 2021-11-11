@@ -43,6 +43,13 @@ async function serve(store, options) {
   const emailService = new EmailService();
   const context = { store, emailService };
   const app = createApp(context);
+
+  if (process.env.PRINT_ROUTES === 'true') {
+    // console instead of log.info is fine here because the aim is to output the
+    // routes without wrapping, supressing, or transporting the output
+    console.log(getRoutes(app._router).join('\n'));
+  }
+
   app.listen(port, () => {
     log.info(`Server is running on port ${port}!`);
   });
@@ -66,6 +73,24 @@ async function serve(store, options) {
       },
     );
   }
+}
+
+function getRoutes(router, prefix = '') {
+  const getRouteName = ({ regexp }) =>
+    regexp
+      .toString()
+      .replace(/\\\//g, '/')
+      .replace(/^\/\^(.*)\/i$/, '$1')
+      .replace('/?(?=/|$)', '');
+  let routes = [];
+  router.stack.forEach(middleware => {
+    if (middleware.route) {
+      routes.push(`${prefix}${middleware.route.path.replace(/(\$|\/)$/, '')}`);
+    } else if (middleware.name === 'router') {
+      routes = [...routes, ...getRoutes(middleware.handle, `${prefix}${getRouteName(middleware)}`)];
+    }
+  });
+  return routes;
 }
 
 async function migrate(store, options) {

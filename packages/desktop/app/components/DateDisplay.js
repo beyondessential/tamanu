@@ -5,7 +5,7 @@ import styled from 'styled-components';
 function formatShort(date) {
   if (!date) return '--/--/----';
 
-  return moment(date).format('D/MM/YYYY'); // "04/03/2019" dd/mm in locale order
+  return moment(date).format('DD/MM/YYYY'); // "04/03/2019" dd/mm in locale order
 }
 
 function formatLong(date) {
@@ -22,6 +22,12 @@ function formatTime(date) {
   return moment(date).format('hh:mm a');
 }
 
+function formatShortExplicit(date) {
+  if (!date) return 'Unknown';
+
+  return moment(date).format('Do MMM YYYY'); // "4th Mar 2019" unambiguous short format
+}
+
 const StyledAbbr = styled.abbr`
   text-decoration: none;
 `;
@@ -31,11 +37,15 @@ export const DateDisplay = ({
   showDate = true,
   showTime = false,
   showDuration = false,
+  showExplicitDate = false,
   ...props
 }) => {
   const parts = [];
   if (showDate) {
     parts.push(formatShort(date));
+  }
+  else if (showExplicitDate) {
+    parts.push(formatShortExplicit(date));
   }
   if (showDuration) {
     parts.push(`(${formatDuration(date)})`);

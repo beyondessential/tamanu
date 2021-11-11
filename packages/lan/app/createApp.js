@@ -11,6 +11,7 @@ import { versionCompatibility } from './middleware/versionCompatibility';
 import { version } from '../package.json';
 
 const isDevelopment = process.env.NODE_ENV === 'development';
+const tinyPlusIp = `:remote-addr :method :url :status :res[content-length] - :response-time ms`
 
 export function createApp({ sequelize, models, syncManager }) {
   // Init our app
@@ -26,7 +27,7 @@ export function createApp({ sequelize, models, syncManager }) {
   });
 
   app.use(
-    morgan(isDevelopment ? 'dev' : 'tiny', {
+    morgan(isDevelopment ? 'dev' : tinyPlusIp, {
       stream: {
         write: message => log.info(message),
       },

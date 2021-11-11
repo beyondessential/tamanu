@@ -170,10 +170,6 @@ export class SyncManager {
       log.info(`SyncManager.runSync.run: began sync run`);
       const { models } = this.context;
 
-      // set host when sync is run
-      // this is checked on startup to prevent LAN mixing data sets
-      await models.LocalSystemFact.set('syncHost', config.sync.host);
-
       // ordered array because some models depend on others
       const modelsToSync = [
         models.ReferenceData,

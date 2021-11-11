@@ -1,5 +1,4 @@
 import { Sequelize } from 'sequelize';
-import { NOTE_TYPES } from 'shared/constants';
 import { Model } from './Model';
 
 export const NOTE_RECORD_TYPES = {
@@ -8,10 +7,10 @@ export const NOTE_RECORD_TYPES = {
   TRIAGE: 'Triage',
   PATIENT_CARE_PLAN: 'PatientCarePlan',
   LAB_REQUEST: 'LabRequest',
+  IMAGING_REQUEST: 'ImagingRequest',
 };
 
 const NOTE_RECORD_TYPE_VALUES = Object.values(NOTE_RECORD_TYPES);
-const NOTE_TYPE_VALUES = Object.values(NOTE_TYPES);
 
 export class Note extends Model {
   static init({ primaryKey, ...options }) {
@@ -26,7 +25,7 @@ export class Note extends Model {
           allowNull: false,
         },
         recordType: {
-          type: Sequelize.ENUM(NOTE_RECORD_TYPE_VALUES),
+          type: Sequelize.STRING,
           allowNull: false,
         },
 

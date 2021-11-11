@@ -1,6 +1,7 @@
 import React, { useState, useCallback, useEffect } from 'react';
 import PropTypes from 'prop-types';
 import Select from 'react-select';
+import styled from 'styled-components';
 
 import { OuterLabelFieldWrapper } from './OuterLabelFieldWrapper';
 import { StyledTextField } from './TextField';
@@ -89,6 +90,32 @@ export const MultiselectField = ({ field, ...props }) => (
     {...props}
   />
 );
+
+/* 
+  To be able to actually apply the styles, the component
+  that uses StyledSelectField needs to add the following
+  attributes:
+
+  className="styled-select-container"
+  classNamePrefix="styled-select"
+
+  The reason is because it's inheriting from the Select
+  component from react-select.
+*/
+export const StyledSelectField = styled(SelectField)`
+  .styled-select-container {
+    padding: 8px 8px 2px 8px;
+    border: 1px solid #dedede;
+    border-right: none;
+  }
+
+  .styled-select__control,
+  .styled-select__control--is-focused,
+  .styled-select__control--menu-is-open {
+    border: none;
+    box-shadow: none;
+  }
+`;
 
 SelectInput.propTypes = {
   name: PropTypes.string,

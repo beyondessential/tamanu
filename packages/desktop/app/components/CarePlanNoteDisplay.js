@@ -65,7 +65,7 @@ const DumbCarePlanNoteDisplay = props => {
             </NoteOnBehalfOf>
           ) : null}
           {props.isMainCarePlan ? (
-            <MainCarePlanIndicator>Main Care Plan</MainCarePlanIndicator>
+            <MainCarePlanIndicator>Main care plan</MainCarePlanIndicator>
           ) : null}
         </VerticalCenter>
         <VerticalCenter>

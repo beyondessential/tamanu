@@ -15,7 +15,7 @@ Will respond with a payload containing an authentication token to be attached to
 ```json
 {
   "token": "abcd",
-  "featureFlags": {
+  "localisation": {
     ...
   },
   "user": {

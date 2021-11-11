@@ -94,7 +94,7 @@ export const MedicationForm = React.memo(
             <Field name="qtyNight" label="Night" component={NumberField} />
           </FormGrid>
           <Field name="indication" label="Indication" component={TextField} />
-          <Field name="quantity" label="Discharge Quantity" component={NumberField} />
+          <Field name="quantity" label="Discharge quantity" component={NumberField} />
           <ConfirmCancelRow onConfirm={submitForm} onCancel={onCancel} />
         </FormGrid>
       )}

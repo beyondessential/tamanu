@@ -30,7 +30,7 @@ export const ReportGenerator = () => {
 
   return (
     <PageContainer>
-      <TopBar title="Report Generator" />
+      <TopBar title="Report generator" />
       <PageContent>
         {formState === 'initial' && (
           <ReportGeneratorForm

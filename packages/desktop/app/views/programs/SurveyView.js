@@ -82,7 +82,7 @@ const COMPLETE_MESSAGE = `
 const SurveySummaryScreen = ({ onStepBack, onSurveyComplete }) => (
   <div>
     <Typography variant="h6" gutterBottom>
-      Survey Complete
+      Survey complete
     </Typography>
     <Text>{COMPLETE_MESSAGE}</Text>
     <div>

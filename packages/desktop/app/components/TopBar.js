@@ -35,9 +35,11 @@ const Toolbar = styled(MuiToolbar)`
 export const TopBar = React.memo(({ title, children, className }) => (
   <AppBar position="relative" color="inherit">
     <Toolbar className={className}>
-      <Typography variant="h3" color="inherit">
-        {title}
-      </Typography>
+      {title && (
+        <Typography variant="h3" color="inherit">
+          {title}
+        </Typography>
+      )}
       {children}
     </Toolbar>
   </AppBar>

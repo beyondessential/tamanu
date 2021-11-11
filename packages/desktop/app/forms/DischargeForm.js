@@ -65,7 +65,7 @@ const EncounterOverview = ({
   <ReadonlyFields>
     <DateInput label="Admission date" value={startDate} disabled />
     <TextInput
-      label="Supervising Physician"
+      label="Supervising physician"
       value={examiner ? examiner.displayName : '-'}
       disabled
     />

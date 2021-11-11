@@ -108,7 +108,7 @@ export class ProcedureForm extends React.PureComponent {
             />
             <Field
               name="anaestheticTypeId"
-              label="Anaesthetic Type"
+              label="Anaesthetic type"
               component={AutocompleteField}
               suggester={anaestheticSuggester}
               rows={4}

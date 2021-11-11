@@ -145,7 +145,7 @@ const TriageTable = connect(null, dispatch => ({
 
 export const TriageListingView = React.memo(() => (
   <PageContainer>
-    <TopBar title="Emergency Department" />
+    <TopBar title="Emergency department" />
     <StatisticsRow>
       <TriageStatisticsCard priorityLevel={1} />
       <TriageStatisticsCard priorityLevel={2} />

@@ -48,9 +48,10 @@ export const translateReportDataToSurveyResponses = (surveyId, reportData) => {
     };
     for (let i = 0; i < headerRow.length; i++) {
       const columnTitle = headerRow[i];
-      if (['entity_code', 'timestamp'].includes(columnTitle)) {
+      if (['entity_code', 'timestamp', 'start_time', 'end_time'].includes(columnTitle)) {
         translatedRow[columnTitle] = dataRow[i];
-      } else {
+      } else if (dataRow[i] !== null) {
+        // non-null signifies an answer
         translatedRow.answers[columnTitle] = dataRow[i];
       }
     }

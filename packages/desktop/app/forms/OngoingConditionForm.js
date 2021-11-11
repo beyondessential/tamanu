@@ -44,7 +44,7 @@ export class OngoingConditionForm extends React.PureComponent {
         <Field name="date" label="Date recorded" component={DateField} disabled={resolving} />
         <Field
           name="practitioner"
-          label="Doctor/Nurse"
+          label="Doctor/nurse"
           disabled={resolving}
           component={AutocompleteField}
           suggester={practitionerSuggester}
@@ -56,7 +56,7 @@ export class OngoingConditionForm extends React.PureComponent {
             <Field name="resolutionDate" label="Date resolved" component={DateField} />
             <Field
               name="resolutionPractitioner"
-              label="Doctor/Nurse confirming resolution"
+              label="Doctor/nurse confirming resolution"
               component={AutocompleteField}
               suggester={practitionerSuggester}
             />

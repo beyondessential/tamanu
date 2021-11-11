@@ -9,7 +9,7 @@ export logoutIcon from '../assets/images/logout.svg';
 export medicationIcon from '../assets/images/medication.svg';
 export patientIcon from '../assets/images/patient.svg';
 export pregnancyIcon from '../assets/images/pregnancy.svg';
-export profileIcon from '../assets/images/profile.svg';
+export profileIcon from '../assets/images/profile.png';
 export programsIcon from '../assets/images/programs.svg';
 export radiologyIcon from '../assets/images/radiology.png';
 export scheduleIcon from '../assets/images/schedule.svg';

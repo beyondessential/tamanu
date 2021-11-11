@@ -1,5 +1,5 @@
 import { createDummyPatient } from 'shared/demoData/patients';
-import { randomDate } from 'shared/demoData/utilities';
+import { add } from 'date-fns';
 import { APPOINTMENT_TYPES, APPOINTMENT_STATUSES } from 'shared/constants';
 import { createTestContext } from '../utilities';
 
@@ -20,7 +20,7 @@ describe('Appointments', () => {
   it('should create a new appointment', async () => {
     const result = await userApp.post('/v1/appointments').send({
       patientId: patient.id,
-      startTime: randomDate(),
+      startTime: add(new Date(), { days: 1 }), // create a date in the future
       clinicianId: userApp.user.dataValues.id,
     });
     appointment = result.body;

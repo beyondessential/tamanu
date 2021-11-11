@@ -6,7 +6,7 @@ import { InvalidParameterError } from 'shared/errors';
 
 import { renameObjectKeys } from '~/utils/renameObjectKeys';
 
-import { simpleGet, simplePut, simplePost } from './crudHelpers';
+import { simpleGet, simplePut } from './crudHelpers';
 
 export const triage = express.Router();
 

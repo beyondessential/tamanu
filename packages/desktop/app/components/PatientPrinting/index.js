@@ -25,7 +25,7 @@ const PRINT_OPTIONS = {
     icon: IDCardIcon,
   },
   covidTestCert: {
-    label: 'Print COVID-19 Test Certificate',
+    label: 'Print COVID-19 test certificate',
     component: PatientCovidTestCert,
     icon: CertificateIcon,
   },

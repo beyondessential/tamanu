@@ -30,7 +30,7 @@ export const NewAppointmentView = () => {
   const [success, setSuccess] = useState(false);
   return (
     <PageContainer>
-      <TopBar title="New Appointment" />
+      <TopBar title="New appointment" />
       <Container>
         {success ? (
           <SubmissionSuccess onReset={() => setSuccess(false)} />

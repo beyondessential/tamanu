@@ -194,8 +194,8 @@
           "hidden": false
         },
         "subdivisionId": {
-          "shortLabel": "Sub Division",
-          "longLabel": "Sub Division",
+          "shortLabel": "Sub division",
+          "longLabel": "Sub division",
           "hidden": false
         },
         "divisionId": {
@@ -290,6 +290,10 @@
         "letterhead": {
           "title": "TAMANU MINISTRY OF HEALTH & MEDICAL SERVICES",
           "subTitle": "PO Box 12345, Melbourne, Australia"
+        },
+        "vaccineCertificateFooter": {
+          "emailAddress": "tamanu@health.gov",
+          "contactNumber": 12345
         }
       },
       "sync": {
@@ -312,7 +316,9 @@
     "timeOutDurationSeconds": 7200,
     "runInChildProcess": true,
     // provide an array [] if you want to override the options, eg: ['--max-old-space-size=4096']
-    "processOptions": null
+    "processOptions": null,
+    // Provide an object {} for the env of child process
+    "childProcessEnv": null
   },
   "tupaiaApiClient": {},
   "scheduledReports": []

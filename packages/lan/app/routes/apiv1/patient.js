@@ -64,7 +64,7 @@ patientRoute.put(
     });
 
     if (!patientAdditionalData) {
-      // Do not try to create patient additional data if all we're trying to update is markedForSync = true to 
+      // Do not try to create patient additional data if all we're trying to update is markedForSync = true to
       // sync down patient because PatientAdditionalData will be automatically synced down along with Patient
       if (!isEqual(req.body, { markedForSync: true })) {
         await PatientAdditionalData.create({
@@ -156,6 +156,19 @@ patientRelations.get(
           include: [
             {
               association: 'answers',
+            },
+            {
+              association: 'survey',
+              include: [
+                {
+                  association: 'components',
+                  include: [
+                    {
+                      association: 'dataElement',
+                    },
+                  ],
+                },
+              ],
             },
           ],
         },

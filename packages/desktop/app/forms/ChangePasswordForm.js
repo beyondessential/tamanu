@@ -74,7 +74,7 @@ export const ChangePasswordForm = React.memo(
           <Collapse in={isAdvancedExpanded}>
             <Field
               name="host"
-              label="LAN Server Address"
+              label="LAN server address"
               required
               component={ServerDetectingField}
               setFieldValue={setFieldValue}

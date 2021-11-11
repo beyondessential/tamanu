@@ -1,6 +1,6 @@
 import { sign, verify } from 'jsonwebtoken';
 import { compare } from 'bcrypt';
-import { auth } from 'config';
+import config from 'config';
 import { v4 as uuid } from 'uuid';
 
 import { BadAuthenticationError } from 'shared/errors';
@@ -8,18 +8,7 @@ import { log } from 'shared/services/logging';
 
 import { WebRemote } from '~/sync';
 
-const { tokenDuration, secret } = auth;
-
-// TODO: supports versions desktop-1.2.0/mobile-1.2.14 and older, remove once we no longer support these
-const featureFlags = {
-  patientFieldOverrides: {
-    displayId: {
-      shortLabel: 'NHN',
-      longLabel: 'National Health Number',
-      hidden: false,
-    },
-  },
-};
+const { tokenDuration, secret } = config.auth;
 
 // regenerate the secret key whenever the server restarts.
 // this will invalidate all current tokens, but they're meant to expire fairly quickly anyway.
@@ -86,7 +75,7 @@ export async function remoteLogin(models, email, password) {
   });
 
   const token = getToken(user);
-  return { token, remote: true, localisation, featureFlags };
+  return { token, remote: true, localisation };
 }
 
 async function localLogin(models, email, password) {
@@ -103,7 +92,7 @@ async function localLogin(models, email, password) {
   });
 
   const token = getToken(user);
-  return { token, remote: false, localisation, featureFlags };
+  return { token, remote: false, localisation };
 }
 
 async function remoteLoginWithLocalFallback(models, email, password) {
@@ -133,8 +122,14 @@ export async function loginHandler(req, res, next) {
   req.flagPermissionChecked();
 
   try {
-    const response = await remoteLoginWithLocalFallback(models, email, password);
-    res.send(response);
+    const responseData = await remoteLoginWithLocalFallback(models, email, password);
+    const facility = await models.Facility.findByPk(config.serverFacilityId);
+    res.send({
+      ...responseData,
+      server: {
+        facility: facility && facility.forResponse(),
+      },
+    });
   } catch (e) {
     next(e);
   }

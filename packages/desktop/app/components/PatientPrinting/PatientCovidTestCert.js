@@ -36,7 +36,7 @@ const DumbPatientCovidTestCert = ({ patient, getLabRequests, getLabTests }) => {
     },
     {
       key: 'laboratoryOfficer',
-      title: 'Lab Officer',
+      title: 'Lab officer',
     },
     {
       key: 'method',
@@ -76,7 +76,7 @@ const DumbPatientCovidTestCert = ({ patient, getLabRequests, getLabTests }) => {
     <Modal open={open} onClose={() => setOpen(false)} width="md" printable>
       <Certificate
         patient={patient}
-        header="COVID-19 Test History"
+        header="COVID-19 test history"
         primaryDetailsFields={[
           'firstName',
           'lastName',

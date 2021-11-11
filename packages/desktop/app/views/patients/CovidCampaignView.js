@@ -32,7 +32,7 @@ const CovidVaccinationStatusComponent = ({ row }) => {
 
 export const covidVaccinationStatus = {
   key: 'vaccinationStatus',
-  title: 'Vaccination Status',
+  title: 'Vaccination status',
   minWidth: 100,
   accessor: row => <CovidVaccinationStatusComponent row={row} />,
   asyncExportAccessor: async row => {
@@ -77,7 +77,7 @@ export const CovidCampaignView = ({ getPatientVaccinations }) => {
         patient={patient}
         onClose={() => setModalOpen(false)}
       />
-      <TopBar title="COVID Campaign" />
+      <TopBar title="COVID campaign" />
       <ImmunisationSearchBar onSearch={setSearchParameters} />
       <PatientCovidCampaignTable
         getVaccines={getPatientVaccinations}

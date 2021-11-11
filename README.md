@@ -263,3 +263,13 @@ the API url and login credentials as well (see config/default.json for how this 
 - if your service imports dependencies it should list them as `dependencies` (not `devDependencies`) in its own `package.json`; it can find unlisted dependencies in the monorepo's root `node_modules` folder during local development, but won't be able to import them once deployed
 - you can ssh into your instances by setting up the eb cli and then running `eb ssh`; this is useful for setting up a database, or for in-depth debugging
 </details>
+
+
+## Infrastructure
+
+### Ansible
+
+```shell
+# Set up a lan server
+ansible-playbook -i infra/ansible/hosts infra/ansible/lan.yml
+```

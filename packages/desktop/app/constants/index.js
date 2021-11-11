@@ -81,11 +81,13 @@ export const LAB_REQUEST_COLORS = {
 export const IMAGING_REQUEST_STATUS_LABELS = {
   [IMAGING_REQUEST_STATUS_TYPES.PENDING]: 'Pending',
   [IMAGING_REQUEST_STATUS_TYPES.COMPLETED]: 'Completed',
+  [IMAGING_REQUEST_STATUS_TYPES.IN_PROGRESS]: 'In progress',
 };
 
 export const IMAGING_REQUEST_COLORS = {
-  [IMAGING_REQUEST_STATUS_TYPES.PENDING]: '#aaf',
+  [IMAGING_REQUEST_STATUS_TYPES.PENDING]: '#faa',
   [IMAGING_REQUEST_STATUS_TYPES.COMPLETED]: '#afa',
+  [IMAGING_REQUEST_STATUS_TYPES.IN_PROGRESS]: '#aaf',
   unknown: '#333',
 };
 
@@ -401,3 +403,5 @@ export const appointmentTypeOptions = Object.values(APPOINTMENT_TYPES).map(type 
   label: type,
   value: type,
 }));
+
+export const ALPHABET_FOR_ID = 'ABCDEFGH' + /*I*/ 'JK' + /*L*/ 'MN' + /*O*/ 'PQRSTUVWXYZ' + /*01*/ '23456789';

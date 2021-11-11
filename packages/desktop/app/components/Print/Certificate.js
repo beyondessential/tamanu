@@ -37,11 +37,14 @@ const TwoColumnContainer = styled.div`
 const PRIMARY_DETAILS_FIELDS = {
   firstName: null,
   lastName: null,
-  dateOfBirth: ({ dateOfBirth }) => <DateDisplay date={dateOfBirth} />,
+  dateOfBirth: ({ dateOfBirth }) => (
+    <DateDisplay date={dateOfBirth} showDate={false} showExplicitDate />
+  ),
   placeOfBirth: ({ additionalData }) => additionalData?.placeOfBirth,
   countryOfBirthId: ({ additionalData }) => additionalData?.countryOfBirth?.name,
   sex: null,
   Mother: () => null, // TODO: not populated
+  displayId: null,
 };
 
 const UserEntrySection = styled.div`
@@ -54,9 +57,28 @@ const UnderlineP = styled.p`
   text-decoration: underline;
 `;
 
+const CertificateWrapper = styled.div`
+  ${props =>
+    props.watermark && props.watermarkType
+      ? `background: linear-gradient(rgb(243, 245, 247,.9), rgb(243, 245, 247,.9)), url("data:${props.watermarkType};base64,${props.watermark}");
+      background-repeat: no-repeat;
+      background-attachment: scroll;
+      background-position: center;
+      background-size: 70%;`
+      : ''}
+`;
+
 const UnderlineEmptySpace = () => <UnderlineP>{new Array(100).fill('\u00A0')}</UnderlineP>;
 
-export const Certificate = ({ patient, header, footer = null, primaryDetailsFields, children }) => {
+export const Certificate = ({
+  patient,
+  header,
+  footer = null,
+  watermark,
+  watermarkType,
+  primaryDetailsFields,
+  children,
+}) => {
   const currentUser = useSelector(getCurrentUser);
   const { getLocalisation } = useLocalisation();
   const detailsFieldsToDisplay =
@@ -65,7 +87,7 @@ export const Certificate = ({ patient, header, footer = null, primaryDetailsFiel
       ([name]) => getLocalisation(`fields.${name}.hidden`) !== true,
     );
   return (
-    <div>
+    <CertificateWrapper watermark={watermark} watermarkType={watermarkType}>
       <PrintLetterhead />
       <Spacer />
       <PatientDetailsHeader>{header}</PatientDetailsHeader>
@@ -108,6 +130,6 @@ export const Certificate = ({ patient, header, footer = null, primaryDetailsFiel
       <Spacer />
       {footer}
       <Spacer />
-    </div>
+    </CertificateWrapper>
   );
 };

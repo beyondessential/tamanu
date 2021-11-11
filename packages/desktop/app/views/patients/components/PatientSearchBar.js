@@ -161,7 +161,7 @@ export const CustomisablePatientSearchBar = ({
           onClick={resetForm}
           variant="outlined"
         >
-          Clear Search
+          Clear search
         </Button>
       </div>
     ),

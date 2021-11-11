@@ -22,9 +22,9 @@ async function serve(options) {
   } else {
     await context.sequelize.assertUpToDate(options);
   }
-  await performDatabaseIntegrityChecks(context);
 
   await checkConfig(config, context);
+  await performDatabaseIntegrityChecks(context);
 
   context.remote = new WebRemote(context);
   context.remote.connect(); // preemptively connect remote to speed up sync
