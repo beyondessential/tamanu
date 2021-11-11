@@ -14,7 +14,7 @@ export const remoteRequest = {
       operation: yup
         .string()
         .required()
-        .oneOf([OPERATIONS.INSERT, OPERATIONS.UPDATE]),
+        .oneOf(Object.keys(OPERATIONS)),
       created_datetime: yup
         .date()
         .required()

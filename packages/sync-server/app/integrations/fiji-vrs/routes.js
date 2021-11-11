@@ -22,9 +22,10 @@ routes.post(
     // TODO (TAN-951): validate expectAccessToken against auth header
 
     // validate request
-    const { fetch_id: fetchId } = await schema.remoteRequest.patientCreated.validate(body, {
-      stripUnknown: true,
-    });
+    const {
+      operation,
+      fetch_id: fetchId,
+    } = await schema.remoteRequest.patientCreated.validate(body, { stripUnknown: true });
 
     // fetch patient
     const { patient, patientAdditionalData, patientVRSData } = await remote.getPatientByFetchId(
@@ -32,18 +33,28 @@ routes.post(
     );
 
     // persist
-    // TODO (TAN-950): DELETE support
-    await sequelize.transaction(async () => {
-      // allow inserts and updates to resurrect deleted records
-      const [{ id: upsertedPatientId }] = await Patient.upsert(
-        { ...patient, deletedAt: null },
-        { returning: true, paranoid: false },
+    if (operation === schema.OPERATIONS.DELETE) {
+      await Patient.update(
+        { deletedAt: new Date() },
+        {
+          where: { displayId: patient.displayId },
+        },
       );
-      patientAdditionalData.patientId = upsertedPatientId;
-      patientVRSData.patientId = upsertedPatientId;
-      await PatientAdditionalData.upsert(patientAdditionalData);
-      await PatientVRSData.upsert(patientVRSData);
-    });
+    } else if ([schema.OPERATIONS.INSERT, schema.OPERATIONS.UPDATE].includes(operation)) {
+      await sequelize.transaction(async () => {
+        // allow inserts and updates to resurrect deleted records
+        const [{ id: upsertedPatientId }] = await Patient.upsert(
+          { ...patient, deletedAt: null },
+          { returning: true, paranoid: false },
+        );
+        patientAdditionalData.patientId = upsertedPatientId;
+        patientVRSData.patientId = upsertedPatientId;
+        await PatientAdditionalData.upsert(patientAdditionalData);
+        await PatientVRSData.upsert(patientVRSData);
+      });
+    } else {
+      throw new Error(`vrs: Operation not supported: ${operation}`);
+    }
 
     // acknowledge request
     try {
