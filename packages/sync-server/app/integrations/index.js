@@ -1,9 +1,9 @@
 import express from 'express';
 import config from 'config';
-import { fijiVrsIntegration } from './fiji-vrs';
+import * as fijiVrs from './fiji-vrs';
 
 const integrations = {
-  fijiVrs: fijiVrsIntegration,
+  fijiVrs,
 };
 
 export const integrationRoutes = express.Router();

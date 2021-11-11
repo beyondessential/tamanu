@@ -5,12 +5,11 @@ import util from 'util';
 import { set } from 'lodash';
 
 import { log } from 'shared/services/logging';
-import { Integration } from '../Integration';
 
 import * as schema from './schema';
 import { VRSRemote } from './VRSRemote';
 
-const routes = express.Router();
+export const routes = express.Router();
 routes.post(
   '/hooks/patientCreated',
   asyncHandler(async (req, res) => {
@@ -64,9 +63,7 @@ routes.post(
   }),
 );
 
-const initContext = async ctx => {
+export const initContext = async ctx => {
   const remote = new VRSRemote(ctx.store, config.integrations.fijiVrs);
   set(ctx, 'integrations.fijiVrs.remote', remote);
 };
-
-export const fijiVrsIntegration = new Integration({ routes, initContext });

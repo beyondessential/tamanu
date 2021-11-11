@@ -1,1 +1,1 @@
-export * from './fijiVrsIntegration';
+export * from './routes';
