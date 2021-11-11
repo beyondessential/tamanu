@@ -1,7 +1,4 @@
-import React, { useCallback } from 'react';
-import { push } from 'connected-react-router';
-import { connect } from 'react-redux';
-
+import React, { useCallback, useEffect } from 'react';
 import { DataFetchingTable } from './Table';
 import { DateDisplay } from './DateDisplay';
 import { useEncounter } from '../contexts/Encounter';
@@ -12,6 +9,11 @@ const MEDICATION_COLUMNS = [
   { key: 'date', title: 'Date', accessor: ({ date }) => <DateDisplay date={date} /> },
   { key: 'medication.name', title: 'Drug', accessor: getMedicationName },
   { key: 'prescription', title: 'Prescription' },
+  { key: 'route', title: 'Route' },
+  {
+    key: 'endDate', title: 'End Date', accessor: data => <DateDisplay date={data?.endDate ?? ''} />,
+  },
+  { key: 'prescriber', title: 'Prescriber', accessor: data => data?.prescriber?.displayName ?? '' }
 ];
 
 const FULL_LISTING_COLUMNS = [
