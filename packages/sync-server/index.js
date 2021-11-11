@@ -5,6 +5,7 @@ import { createReferralNotification } from 'shared/tasks/CreateReferralNotificat
 import { parseArguments } from 'shared/arguments';
 
 import { createApp } from './app/createApp';
+import { initDatabase } from './app/database';
 import { startScheduledTasks } from './app/tasks';
 import { EmailService } from './app/services/EmailService';
 import { ReportRunner } from './app/report/ReportRunner';
@@ -13,8 +14,8 @@ import { version } from './package.json';
 
 const port = config.port;
 
-async function setup(context) {
-  const { store } = context;
+async function setup() {
+  const store = await initDatabase({ testMode: false });
   const userCount = await store.models.User.count();
   if (userCount > 0) {
     throw new Error(`Found ${userCount} users already in the database, aborting setup.`);
@@ -32,7 +33,8 @@ async function setup(context) {
   process.exit(0);
 }
 
-async function serve(context, options) {
+async function serve(options) {
+  const context = await new ApplicationContext().init();
   const { store } = context;
   log.info(`Starting sync server version ${version}.`);
 
@@ -93,14 +95,14 @@ function getRoutes(router, prefix = '') {
   return routes;
 }
 
-async function migrate(context, options) {
-  const { store } = context;
+async function migrate(options) {
+  const store = await initDatabase({ testMode: false });
   await store.sequelize.migrate(options);
   process.exit(0);
 }
 
-async function report(context, options) {
-  const { store } = context;
+async function report(options) {
+  const store = await initDatabase({ testMode: false });
   try {
     const { name, parameters, recipients } = options;
     let reportParameters = {};
@@ -150,8 +152,7 @@ async function run(command, options) {
     throw new Error(`Unrecognised subcommand: ${command}`);
   }
 
-  const context = await new ApplicationContext().init();
-  return subcommand(context, options);
+  return subcommand(options);
 }
 
 // catch and exit if run() throws an error
