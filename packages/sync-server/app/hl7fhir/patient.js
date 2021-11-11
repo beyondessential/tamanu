@@ -5,7 +5,7 @@ const NAMESPACE_FOR_APPLICATION_PERMIT_ID = "PLACEHOLDER_NAMESPACE";
 function patientName(patient, additional) {
   const official = {
     use: "official",
-    prefix: [additional.title],
+    prefix: additional.title ? [additional.title] : [],
     family: patient.lastName,
     given: [patient.firstName, patient.middleName].filter(x => x),
   };
