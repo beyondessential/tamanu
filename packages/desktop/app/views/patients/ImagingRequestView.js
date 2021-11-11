@@ -107,6 +107,9 @@ const DumbImagingRequestInfoPane = React.memo(
                   color="secondary"
                   style={{
                     gridColumn: '1 / span 1',
+                    // Change horizontal padding to fit text properly
+                    paddingLeft: '10px',
+                    paddingRight: '10px',
                     // Only show button when status is completed and keep it on the
                     // document layout to preserve correct row button display
                     visibility:
@@ -116,7 +119,9 @@ const DumbImagingRequestInfoPane = React.memo(
                   }}
                   disabled
                 >
-                  Add image link
+                  View image
+                  <br />
+                  (external link)
                 </Button>
                 <Button variant="outlined" color="primary" type="submit">
                   Save
