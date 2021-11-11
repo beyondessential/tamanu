@@ -12,8 +12,8 @@ export const publicIntegrationRoutes = express.Router();
 export const initIntegrations = async ctx => {
   for (const [key, integration] of Object.entries(integrations)) {
     if (config.integrations[key].enabled) {
-      const { routes, publicRoutes, initContext } = integration;
-      await initContext(ctx);
+      const { routes, publicRoutes, initAppContext } = integration;
+      await initAppContext(ctx);
       if (routes) {
         integrationRoutes.use(`/${key}`, routes);
       }

@@ -63,7 +63,7 @@ routes.post(
   }),
 );
 
-export const initContext = async ctx => {
+export const initAppContext = async ctx => {
   const remote = new VRSRemote(ctx.store, config.integrations.fijiVrs);
   set(ctx, 'integrations.fijiVrs.remote', remote);
 };
