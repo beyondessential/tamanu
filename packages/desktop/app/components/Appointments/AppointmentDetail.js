@@ -9,6 +9,8 @@ import { InvertedDisplayIdLabel } from '../DisplayIdLabel';
 import { DateDisplay } from '../DateDisplay';
 import { Colors, appointmentStatusOptions } from '../../constants';
 import { useApi } from '../../api';
+import { AppointmentModal } from './AppointmentModal';
+import { Button } from '..';
 
 const Container = styled.div`
   display: flex;
@@ -110,6 +112,7 @@ export const AppointmentDetail = ({ appointment, updated }) => {
   const [newStatus, setNewStatus] = useState(
     appointmentStatusOptions.find(option => option.value === status),
   );
+  const [openModal, setOpenModal] = useState(false);
   useEffect(() => {
     setNewStatus(appointmentStatusOptions.find(option => option.value === status));
   }, [status]);
@@ -154,6 +157,26 @@ export const AppointmentDetail = ({ appointment, updated }) => {
         <Heading>Location</Heading>
         {location.name}
       </div>
+      <Button
+        variant="outlined"
+        color="primary"
+        onClick={() => {
+          setOpenModal(true);
+        }}
+      >
+        Reschedule
+      </Button>
+      <AppointmentModal
+        open={openModal}
+        onClose={() => {
+          setOpenModal(false);
+        }}
+        appointment={appointment}
+        onSuccess={() => {
+          Tooltip.hide();
+          updated();
+        }}
+      />
     </Container>
   );
 };
