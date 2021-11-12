@@ -37,7 +37,12 @@ export class Location extends Model {
     this.hasMany(models.Encounter, {
       foreignKey: 'locationId',
     });
+
     this.hasMany(models.Procedure, {
+      foreignKey: 'locationId',
+    });
+
+    this.hasMany(models.ImagingRequest, {
       foreignKey: 'locationId',
     });
 

@@ -21,6 +21,7 @@ const COLUMNS = [
     accessor: row => `${row.clinician && row.clinician.displayName}`,
   },
   { key: 'location', title: 'Location', accessor: row => row.location.name },
+  { key: 'status', title: 'Status' },
 ];
 
 export const AppointmentListingView = () => {

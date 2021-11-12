@@ -13,9 +13,13 @@ import { Suggester } from '../../utils/suggester';
 import { Colors, appointmentTypeOptions } from '../../constants';
 import { useApi } from '../../api';
 
-const Container = styled.div`
+const LeftContainer = styled.div`
   min-height: 100vh;
   border-right: 1px solid ${Colors.outline};
+`;
+
+const RightContainer = styled.div`
+  overflow: hidden;
 `;
 
 const DateHeader = styled.div`
@@ -35,6 +39,7 @@ const DateNav = styled.div`
 const CalendarContainer = styled.div`
   margin-left: calc(25px + 3.5rem);
   margin-right: 25px;
+  overflow: scroll;
 `;
 
 const Section = styled.div`
@@ -71,6 +76,10 @@ export const AppointmentsCalendar = () => {
   const [filterValue, setFilterValue] = useState('');
   const [appointmentType, setAppointmentType] = useState([]);
   const [appointments, setAppointments] = useState([]);
+  const [refreshCount, setRefreshCount] = useState(0);
+  const updateCalendar = () => {
+    setRefreshCount(refreshCount + 1);
+  };
   useEffect(() => {
     (async () => {
       const { data } = await api.get('appointments', {
@@ -79,11 +88,11 @@ export const AppointmentsCalendar = () => {
       });
       setAppointments(data);
     })();
-  }, [date]);
+  }, [date, refreshCount]);
   return (
     <PageContainer>
       <TwoColumnDisplay>
-        <Container>
+        <LeftContainer>
           <TopBar title="Calendar" />
           <Section>
             <SectionTitle variant="subtitle2">View calendar by:</SectionTitle>
@@ -127,8 +136,8 @@ export const AppointmentsCalendar = () => {
               options={appointmentTypeOptions}
             />
           </Section>
-        </Container>
-        <div>
+        </LeftContainer>
+        <RightContainer>
           <TopBar>
             <DateHeader>
               <DateNav>
@@ -154,12 +163,7 @@ export const AppointmentsCalendar = () => {
               </Button>
               <DateDisplay>{format(date, 'EEEE dd MMMM yyyy')}</DateDisplay>
             </DateHeader>
-            <NewAppointmentButton
-              onSuccess={() => {
-                // set date to trigger a refresh
-                setDate(new Date());
-              }}
-            />
+            <NewAppointmentButton onSuccess={updateCalendar} />
           </TopBar>
           <CalendarContainer>
             <DailySchedule
@@ -167,9 +171,10 @@ export const AppointmentsCalendar = () => {
               activeFilter={activeFilter}
               filterValue={filterValue}
               appointmentType={appointmentType}
+              appointmentUpdated={updateCalendar}
             />
           </CalendarContainer>
-        </div>
+        </RightContainer>
       </TwoColumnDisplay>
     </PageContainer>
   );
