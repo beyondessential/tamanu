@@ -21,6 +21,9 @@ function uptime() {
 // quick utility to recurse through an object
 // (to use with sanitising the config object)
 function recurse(object, cb, prefix = '') {
+  if (!object) {
+    return object;
+  }
   return Object.entries(object)
     .reduce((state, [k, v]) => {
       if (typeof v === 'object') {
