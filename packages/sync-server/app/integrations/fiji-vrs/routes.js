@@ -6,8 +6,17 @@ import { set } from 'lodash';
 
 import { log } from 'shared/services/logging';
 
+import { buildErrorHandler } from 'sync-server/app/middleware/errorHandler';
 import * as schema from './schema';
 import { VRSRemote } from './VRSRemote';
+
+const vrsErrorHandler = buildErrorHandler(error => ({
+  response: false,
+  error: {
+    message: error.message,
+    ...error,
+  },
+}));
 
 export const routes = express.Router();
 routes.post(
@@ -67,12 +76,11 @@ routes.post(
       );
     }
 
-    // TODO (TAN-952): custom error handling that sets response to false
-    // TODO: in existing middleware, check whether an error code is already sent, as per express docs
-
     res.send({ response: true });
   }),
 );
+
+routes.use(vrsErrorHandler);
 
 export const initAppContext = async ctx => {
   const remote = new VRSRemote(ctx.store, config.integrations.fijiVrs);
