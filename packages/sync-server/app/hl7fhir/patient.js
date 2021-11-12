@@ -31,7 +31,7 @@ function patientIds(patient, additional) {
       use: "official",
       value: patient.displayId,
       assigner: "VRS",
-      system: config.namespaces.patientDisplayId,
+      system: config.hl7.dataDictionaries.patientDisplayId,
     },
     {
       use: "secondary",

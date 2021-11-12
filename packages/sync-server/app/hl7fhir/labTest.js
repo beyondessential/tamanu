@@ -4,11 +4,6 @@ import { LAB_REQUEST_STATUSES, LAB_TEST_STATUSES } from 'shared/constants';
 // fine to hardcode this one -- HL7 guarantees it will always be available at this url
 const HL7_OBSERVATION_TERMINOLOGY_URL = "http://terminology.hl7.org/CodeSystem/v3-ObservationInterpretation";
 
-// TODO: real urls
-const TAMANU_DATADICT_URL = "http://tamanu.io/data-dictionary";
-const TAMANU_COVID_URL = `${TAMANU_DATADICT_URL}/covid-test-methods`;
-const TAMANU_COVID_CODE_URL = `${TAMANU_COVID_URL}/rdt`;
-
 function shouldProduceObservation(status) {
   switch (status) {
     case LAB_TEST_STATUSES.PUBLISHED:
@@ -51,13 +46,16 @@ function laboratoryToHL7Reference(laboratory) {
 function labTestMethodToHL7Extension(labTestMethod) {
   if (!labTestMethod) { return []; }
 
+  const groupNamespace = `${config.hl7.dataDictionaries.testMethod}/covid-test-methods`;
+  const testsNamespace = `${groupNamespace}/rdt`;
+
   return [
     {
-      url: TAMANU_COVID_URL,
+      url: groupNamespace,
       valueCodeableConcept: {
         coding: [
           {
-            system: TAMANU_COVID_CODE_URL,
+            system: testsNamespace,
             code: labTestMethod.code,
             display: labTestMethod.name,
           },
@@ -82,7 +80,7 @@ export async function labTestToHL7DiagnosticReport(labTest) {
     identifier: [
       {
         use: "official",
-        system: config.namespaces.labRequestDisplayId,
+        system: config.hl7.dataDictionaries.labRequestDisplayId,
         value: labRequest.displayId,
       },
     ],

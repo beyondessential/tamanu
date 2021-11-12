@@ -329,9 +329,12 @@
     // Provide an object {} for the env of child process
     "childProcessEnv": null
   },
-  "namespaces": {
-    "patientDisplayId": "http://data-dictionary.tamanu-fiji.org/application-reference-number.html",
-    "labRequestDisplayId": "http://data-dictionary.tamanu-fiji.org/labrequest-reference-number.html"
+  "hl7": {
+    "dataDictionaries": {
+      "testMethod": "http://tamanu.io/data-dictionary/covid-test-methods",
+      "patientDisplayId": "http://tamanu.io/data-dictionary/application-reference-number.html",
+      "labRequestDisplayId": "http://tamanu.io/data-dictionary/labrequest-reference-number.html"
+    }
   },
   "tupaiaApiClient": {},
   "scheduledReports": []

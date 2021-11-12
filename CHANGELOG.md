@@ -4,7 +4,15 @@
 
 ### Manual steps required after upgrade ⚙
 
-- (left blank)
+- Fiji only:
+  - override patientDisplayId and labRequestDisplayId namespaces in local.json:
+```
+  "namespaces": {
+    "patientDisplayId": "http://data-dictionary.tamanu-fiji.org/application-reference-number.html",
+    "labRequestDisplayId": "http://data-dictionary.tamanu-fiji.org/labrequest-reference-number.html"
+  },
+```
+
 
 ### Features ⭐
 
