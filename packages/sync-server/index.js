@@ -5,12 +5,13 @@ import { createReferralNotification } from 'shared/tasks/CreateReferralNotificat
 import { parseArguments } from 'shared/arguments';
 
 import { createApp } from './app/createApp';
-import { initDatabase } from './app/database';
+import { initDatabase, closeDatabase } from './app/database';
 import { startScheduledTasks } from './app/tasks';
 import { EmailService } from './app/services/EmailService';
 import { ReportRunner } from './app/report/ReportRunner';
 import { ApplicationContext } from './app/ApplicationContext';
 import { version } from './package.json';
+import { TOKEN_TYPES, getToken } from './app/auth/utils';
 
 const port = config.port;
 
@@ -140,12 +141,43 @@ async function report(options) {
   process.exit(0);
 }
 
+async function createUser(options) {
+  const { displayName, email, password, role } = options;
+
+  const store = await initDatabase({ testMode: false });
+  const { User } = store.sequelize.models;
+  const user = User.create({ displayName, email, password, role });
+
+  console.log(user);
+}
+
+async function createAPIToken(options) {
+  const { type = TOKEN_TYPES.DEFAULT_JWT_SECRET, expiresIn = undefined, userId } = options;
+  const validTypes = Object.values(TOKEN_TYPES);
+  if (!validTypes.includes(type)) {
+    throw new Error(`Unrecognised token type: ${type} (must be one of ${validTypes.join(', ')})`);
+  }
+
+  const store = await initDatabase({ testMode: false });
+  const { User } = store.sequelize.models;
+  const user = await User.findByPk(userId);
+  await closeDatabase();
+  if (!user) {
+    throw new Error(`User not found: ${userId}`);
+  }
+
+  const token = await getToken(user, expiresIn, type);
+  console.log(token);
+}
+
 async function run(command, options) {
   const subcommand = {
     serve,
     migrate,
     setup,
     report,
+    'create-user': createUser,
+    'create-api-token': createAPIToken,
   }[command];
 
   if (!subcommand) {

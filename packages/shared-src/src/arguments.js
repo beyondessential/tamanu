@@ -16,8 +16,9 @@ function createParser() {
     description: '',
   });
 
+  // TODO: actual subcommands
   parser.addArgument('command', {
-    choices: ['serve', 'setup', 'migrate', 'report'],
+    choices: ['serve', 'setup', 'migrate', 'report', 'create-user', 'create-api-token'],
     nargs: '?', // allow empty
     defaultValue: 'serve',
   });
@@ -37,6 +38,41 @@ function createParser() {
     dest: 'recipients',
   });
 
+  parser.addArgument('--displayName', {
+    action: 'store',
+    dest: 'displayName',
+  });
+
+  parser.addArgument('--email', {
+    action: 'store',
+    dest: 'email',
+  });
+
+  parser.addArgument('--password', {
+    action: 'store',
+    dest: 'password',
+  });
+
+  parser.addArgument('--role', {
+    action: 'store',
+    dest: 'role',
+  });
+
+  parser.addArgument('--type', {
+    action: 'store',
+    dest: 'type',
+  });
+
+  parser.addArgument('--userId', {
+    action: 'store',
+    dest: 'userId',
+  });
+
+  parser.addArgument('--expiresIn', {
+    action: 'store',
+    dest: 'expiresIn',
+  });
+
   // migrate subcommand
   const migrateDir = parser.addMutuallyExclusiveGroup();
   migrateDir.addArgument('--up', {
@@ -53,7 +89,7 @@ function createParser() {
     constant: 'down',
   });
   migrateDir.addArgument('--redoLatest', {
-    help: "Run database migrations down 1 and then up 1",
+    help: 'Run database migrations down 1 and then up 1',
     action: 'storeConst',
     dest: 'migrateDirection',
     constant: 'redoLatest',
