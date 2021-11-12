@@ -4,6 +4,7 @@ function patientName(patient, additional) {
   const official = {
     use: "official",
     prefix: additional.title ? [additional.title] : [],
+    // TODO: lastName is not a mandatory field in Tamanu
     family: patient.lastName,
     given: [patient.firstName, patient.middleName].filter(x => x),
   };

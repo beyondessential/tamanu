@@ -2,10 +2,6 @@ import { inspect } from 'util';
 // import hl7schema from './fhir.schema.json';
 
 function setupValidator() {
-  return data => {
-    console.log(inspect(data, { depth: 8 }));
-    return { errors: [], result: true };
-  }
   /*
    * TODO: figure out how to get the hl7fhir schema to play nicely with ajv
   const ajv = new Ajv({
@@ -29,6 +25,16 @@ function setupValidator() {
     return { result, errors };
   };
   */
+
+  // using this in the meantime, which prints out a copypastable
+  // json to check against an external validator (need to edit
+  // each test by hand though unfortunately)
+  return (data, print = false) => {
+    if (print) {
+      console.log(JSON.stringify(data, null, 2));
+    }
+    return { errors: [], result: true };
+  }
 }
 
 export const validate = setupValidator();

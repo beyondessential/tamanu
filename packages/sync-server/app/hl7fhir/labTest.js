@@ -17,6 +17,8 @@ function labTestStatusToHL7Status(status) {
   switch (status) {
     case LAB_TEST_STATUSES.PUBLISHED:
       return "final";
+    case LAB_TEST_STATUSES.RESULTS_PENDING:
+      return "registered";
     default:
       return status;
   }
@@ -109,7 +111,7 @@ export async function labTestToHL7DiagnosticReport(labTest) {
 
 // The result field is freetext, these values are defined in the LabTestType
 // reference data spreadsheet.
-const TEST_RESULTS = {
+const TEST_RESULT_VALUES = {
   POSITIVE: "Positive",
   NEGATIVE: "Negative",
   INCONCLUSIVE: "Inconclusive",
@@ -122,14 +124,24 @@ function getResultCoding(labTest) {
     case TEST_RESULT_VALUES.NEGATIVE:
       return { code: "NEG", name: "Negative" };
     case TEST_RESULT_VALUES.INCONCLUSIVE:
-    default: // TODO: is there an errored / N/A value we can return?
       return { code: "INC", name: "Inconclusive" };
+    default: 
+      // The only way we can reach this point is if the actual testing data
+      // is misconfigured (ie an error within Tamanu, we want to know ASAP)
+      const values = Object.values(TEST_RESULT_VALUES).join(", ");
+      throw new Error(`Test coding was not one of [${values}]`);
   }
 }
 
-export function labTestToHL7Observation(labTest, patient) {
+export async function labTestToHL7Observation(labTest, patient) {
   if (!shouldProduceObservation(labTest.status)) {
     return null;
+  }
+
+  if (!patient) {
+    const labRequest = await labTest.getLabRequest();
+    const encounter = await labRequest.getEncounter();
+    patient = await encounter.getPatient();
   }
 
   return {

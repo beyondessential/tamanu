@@ -8,25 +8,31 @@ import { validate } from './hl7utilities';
 describe('HL7 Patient', () => {
 
   let models;
-  let patient;
 
   beforeAll(async () => {
     const ctx = await createTestContext();
     models = ctx.store.models;
+  });
+
+  it('Should produce a valid HL7 patient', async () => {
     const patientData = await createDummyPatient(models);
-    patient = await models.Patient.create(patientData);
+    const patient = await models.Patient.create(patientData);
     const additional = await models.PatientAdditionalData.create({
       patientId: patient.id,
       ...await createDummyPatientAdditionalData(),
     });
-  });
-  
-  it('Should validate a patient', async () => {
-    const [additional] = await patient.getAdditionalData();
+
     const hl7 = patientToHL7Patient(patient, additional || {});
     const { result, errors } = validate(hl7);
     expect(errors).toHaveLength(0);
     expect(result).toEqual(true);
   });
-  
+
+  it('Should produce a valid HL7 patient from minimal data', async () => {
+    const hl7 = patientToHL7Patient({}, {});
+    const { result, errors } = validate(hl7);
+    expect(errors).toHaveLength(0);
+    expect(result).toEqual(true);
+  });
+
 });
