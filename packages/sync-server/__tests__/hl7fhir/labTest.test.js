@@ -1,5 +1,3 @@
-import Ajv from 'ajv';
-
 import { createDummyPatient, createDummyEncounter } from 'shared/demoData/patients';
 import { randomLabRequest } from 'shared/demoData/labRequests';
 import { createTestContext } from '../utilities';

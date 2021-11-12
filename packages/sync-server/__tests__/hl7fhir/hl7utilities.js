@@ -1,4 +1,5 @@
 import { inspect } from 'util';
+// import hl7schema from './fhir.schema.json';
 
 function setupValidator() {
   return data => {

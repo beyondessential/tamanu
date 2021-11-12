@@ -1,6 +1,3 @@
-import Ajv from 'ajv';
-import hl7schema from './fhir.schema.json';
-
 import { createDummyPatient, createDummyPatientAdditionalData } from 'shared/demoData/patients';
 import { createTestContext } from '../utilities';
 
