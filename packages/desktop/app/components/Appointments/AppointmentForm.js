@@ -19,7 +19,7 @@ export const AppointmentForm = props => {
   const clinicianSuggester = new Suggester(api, 'practitioner');
   const locationSuggester = new Suggester(api, 'location');
   const patientSuggester = new Suggester(api, 'patient', ({ id, ...patient }) => ({
-    label: getPatientNameAsString(patient),
+    label: `${getPatientNameAsString(patient)} (${patient.displayId})`,
     value: id,
   }));
   let initialValues = {};
