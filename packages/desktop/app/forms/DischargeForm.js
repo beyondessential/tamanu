@@ -13,45 +13,19 @@ import {
   CheckField,
   DateField,
 } from '../components/Field';
+import { OuterLabelFieldWrapper } from '../components/Field/OuterLabelFieldWrapper';
 import { DateInput } from '../components/Field/DateField';
 import { TextInput } from '../components/Field/TextField';
+import { FormGrid } from '../components/FormGrid';
 
 import { ConfirmCancelRow } from '../components/ButtonRow';
 import { DiagnosisList } from '../components/DiagnosisList';
 import { useEncounter } from '../contexts/Encounter';
 
-const ReadonlyFields = styled.div`
-  display: grid;
-  grid-template-columns: 1fr 1fr;
-  grid-gap: 8px;
-  margin-bottom: 1.2rem;
-
-  ul {
-    margin: 5px 0;
-    padding-left: 25px;
-  }
+const StyledUnorderedList = styled.ul`
+  margin: 5px 0;
+  padding-left: 25px;
 `;
-
-const Label = styled.span`
-  color: #666666;
-  font-weight: 500;
-`;
-
-const EditFields = styled.div`
-  display: grid;
-  grid-template-columns: 100%;
-  grid-row-gap: 1.2rem;
-`;
-
-const FullWidthFields = styled.div`
-  grid-column: 1 / -1;
-
-  > div:first-child {
-    margin-bottom: 4px;
-  }
-`;
-
-const ProcedureRow = ({ cpt }) => <li>{cpt}</li>;
 
 const MedicineRow = ({ medication }) => (
   <li>
@@ -62,37 +36,30 @@ const MedicineRow = ({ medication }) => (
 const EncounterOverview = ({
   encounter: { medications, procedures, diagnoses, startDate, examiner, reasonForEncounter },
 }) => (
-  <ReadonlyFields>
+  <React.Fragment>
     <DateInput label="Admission date" value={startDate} disabled />
     <TextInput
       label="Supervising physician"
       value={examiner ? examiner.displayName : '-'}
       disabled
     />
-    <div>
-      <Label>Discharge medicines</Label>
-      <ul>
-        {medications.length > 0
-          ? medications.map(m => <MedicineRow key={m} medication={m} />)
-          : 'N/a'}
-      </ul>
-    </div>
-    <div>
-      <Label>Procedures</Label>
-      <ul>
+    <TextInput
+      label="Reason for encounter"
+      value={reasonForEncounter}
+      disabled
+      style={{ gridColumn: '1 / -1' }}
+    />
+    <OuterLabelFieldWrapper label="Diagnoses" style={{ gridColumn: '1 / -1' }}>
+      <DiagnosisList diagnoses={diagnoses} />
+    </OuterLabelFieldWrapper>
+    <OuterLabelFieldWrapper label="Procedures" style={{ gridColumn: '1 / -1' }}>
+      <StyledUnorderedList>
         {procedures.length > 0
-          ? procedures.map(({ cptCode }) => <ProcedureRow key={cptCode} cpt={cptCode} />)
+          ? procedures.map(({ cptCode }) => <li key={cptCode}>{cptCode}</li>)
           : 'N/a'}
-      </ul>
-    </div>
-    <FullWidthFields>
-      <TextInput label="Reason for encounter" value={reasonForEncounter} disabled />
-      <div>
-        <Label>Diagnoses</Label>
-        <DiagnosisList diagnoses={diagnoses} />
-      </div>
-    </FullWidthFields>
-  </ReadonlyFields>
+      </StyledUnorderedList>
+    </OuterLabelFieldWrapper>
+  </React.Fragment>
 );
 
 export const DischargeForm = ({ practitionerSuggester, onCancel, onSubmit }) => {
@@ -109,16 +76,10 @@ export const DischargeForm = ({ practitionerSuggester, onCancel, onSubmit }) => 
 
   const renderForm = ({ submitForm }) => {
     return (
-      <div>
-        <EncounterOverview encounter={encounter} />
-        <EditFields>
+      <React.Fragment>
+        <FormGrid>
+          <EncounterOverview encounter={encounter} />
           <Field name="endDate" label="Discharge date" component={DateField} required />
-          <Field
-            name="sendToPharmacy"
-            label="Send discharge prescription to pharmacy"
-            component={CheckField}
-            helperText="Requires mSupply"
-          />
           <Field
             name="discharge.dischargerId"
             label="Discharging physician"
@@ -126,41 +87,54 @@ export const DischargeForm = ({ practitionerSuggester, onCancel, onSubmit }) => 
             suggester={practitionerSuggester}
             required
           />
+          <OuterLabelFieldWrapper label="Discharge medicines" style={{ gridColumn: '1 / -1' }}>
+            <StyledUnorderedList>
+              {encounter.medications.length > 0
+                ? encounter.medications.map(m => <MedicineRow key={m} medication={m} />)
+                : 'N/a'}
+            </StyledUnorderedList>
+          </OuterLabelFieldWrapper>
+          <Field
+            name="sendToPharmacy"
+            label="Send prescription to pharmacy"
+            component={CheckField}
+            helperText="Requires mSupply"
+            style={{ gridColumn: '1 / -1' }}
+          />
           <Field
             name="discharge.note"
             label="Discharge treatment plan and follow-up notes"
             component={TextField}
             multiline
             rows={4}
+            style={{ gridColumn: '1 / -1' }}
           />
           <ConfirmCancelRow onCancel={onCancel} onConfirm={submitForm} confirmText="Finalise" />
-        </EditFields>
-      </div>
+        </FormGrid>
+      </React.Fragment>
     );
   };
 
   return (
-    <div>
-      <Form
-        onSubmit={onSubmit}
-        render={renderForm}
-        enableReinitialize
-        initialValues={{
-          endDate: new Date(),
-          discharge: {
-            note: dischargeNotes.map(n => n.content).join('\n'),
-          },
-        }}
-        validationSchema={yup.object().shape({
-          endDate: yup.date().required(),
-          discharge: yup
-            .object()
-            .shape({
-              dischargerId: foreignKey('Discharging physician is a required field'),
-            })
-            .required(),
-        })}
-      />
-    </div>
+    <Form
+      onSubmit={onSubmit}
+      render={renderForm}
+      enableReinitialize
+      initialValues={{
+        endDate: new Date(),
+        discharge: {
+          note: dischargeNotes.map(n => n.content).join('\n'),
+        },
+      }}
+      validationSchema={yup.object().shape({
+        endDate: yup.date().required(),
+        discharge: yup
+          .object()
+          .shape({
+            dischargerId: foreignKey('Discharging physician is a required field'),
+          })
+          .required(),
+      })}
+    />
   );
 };
