@@ -1,6 +1,4 @@
-
-// TODO: namespace TBD (@kurt)
-const NAMESPACE_FOR_APPLICATION_PERMIT_ID = "PLACEHOLDER_NAMESPACE";
+import config from 'config';
 
 function patientName(patient, additional) {
   const official = {
@@ -33,7 +31,7 @@ function patientIds(patient, additional) {
       use: "official",
       value: patient.displayId,
       assigner: "VRS",
-      system: NAMESPACE_FOR_APPLICATION_PERMIT_ID,
+      system: config.namespaces.patientDisplayId,
     },
     {
       use: "secondary",

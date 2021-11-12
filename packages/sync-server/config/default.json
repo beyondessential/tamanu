@@ -320,6 +320,10 @@
     // Provide an object {} for the env of child process
     "childProcessEnv": null
   },
+  "namespaces": {
+    "patientDisplayId": "http://data-dictionary.tamanu-fiji.org/application-reference-number.html",
+    "labRequestDisplayId": "http://data-dictionary.tamanu-fiji.org/labrequest-reference-number.html"
+  },
   "tupaiaApiClient": {},
   "scheduledReports": []
 }

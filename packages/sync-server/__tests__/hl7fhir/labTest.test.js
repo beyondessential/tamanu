@@ -75,31 +75,51 @@ describe('HL7 Labs', () => {
     });
 
     const requestData = await randomLabRequest(models);
-    const request = await models.LabRequest.createWithTests({
+    const labRequest = await models.LabRequest.createWithTests({
       ...requestData,
       encounterId: encounter.id,
     });
-    const tests = await request.getTests();
+    const tests = await labRequest.getTests();
     labTest = tests[0];
+
+    labRequest.status = 'published';
+    await labRequest.save();
 
     // method currently needs to be set manually after creation
     // (the workflow is, it would be set when entering the results)
+    labTest.status = 'published';
     labTest.labTestMethodId = method.id;
     await labTest.save();
   });
   
-  it('Should validate an observation', async () => {
+  it('Should produce valid hl7 data for an Observation', async () => {
     const hl7 = labTestToHL7Observation(labTest, patient);
     const { result, errors } = validate(hl7);
     expect(errors).toHaveLength(0);
     expect(result).toEqual(true);
   });
   
-  it('Should validate a diagnostic report', async () => {
+  it('Should produce valid hl7 data for a DiagnosticReport', async () => {
     const hl7 = await labTestToHL7DiagnosticReport(labTest);
     const { result, errors } = validate(hl7);
     expect(errors).toHaveLength(0);
     expect(result).toEqual(true);
+  });
+
+  describe('Incomplete statuses', () => {
+    it('Should produce a null Observation', async () => {
+      const hl7 = await labTestToHL7Observation(labTest);
+      expect(hl7).toEqual(null);
+    });
+
+    it('Should produce a DiagnosticReport with an empty result', async () => {
+      const hl7 = await labTestToHL7DiagnosticReport(labTest);
+      expect(hl7.result).toHaveLength(0);
+    });
+  });
+
+  it('Should prefer laboratory info over examiner when available', async () => {
+    
   });
   
 });

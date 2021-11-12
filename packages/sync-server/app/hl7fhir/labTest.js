@@ -1,17 +1,29 @@
+import config from 'config';
+import { LAB_REQUEST_STATUSES, LAB_TEST_STATUSES } from 'shared/constants';
 
-const HL7_TERMINOLOGY_URL = "http://terminology.hl7.org/CodeSystem/v3-ObservationInterpretation";
-
-// TODO: namespace TBD (@kurt)
-const NAMESPACE_FOR_LAB_REQUEST = "-- lab request namespace --";
+// fine to hardcode this one -- HL7 guarantees it will always be available at this url
+const HL7_OBSERVATION_TERMINOLOGY_URL = "http://terminology.hl7.org/CodeSystem/v3-ObservationInterpretation";
 
 // TODO: real urls
-const TAMANU_COVID_URL = "http://tamanu.io/data-dictionary/covid-test-methods";
+const TAMANU_DATADICT_URL = "http://tamanu.io/data-dictionary";
+const TAMANU_COVID_URL = `${TAMANU_DATADICT_URL}/covid-test-methods`;
 const TAMANU_COVID_CODE_URL = `${TAMANU_COVID_URL}/rdt`;
+
+function shouldProduceObservation(status) {
+  switch (status) {
+    case LAB_TEST_STATUSES.PUBLISHED:
+      return true;
+    default: 
+      return false;
+  }
+}
 
 function labTestStatusToHL7Status(status) {
   switch (status) {
-    case "published": return final;
-    default: return status;
+    case LAB_TEST_STATUSES.PUBLISHED:
+      return "final";
+    default:
+      return status;
   }
 }
 
@@ -29,6 +41,32 @@ function userToHL7Reference(user) {
   };
 }
 
+function laboratoryToHL7Reference(laboratory) {
+  return {
+    reference: `Organization/${laboratory.id}`,
+    name: laboratory.name,
+  };
+}
+
+function labTestMethodToHL7Extension(labTestMethod) {
+  if (!labTestMethod) { return []; }
+
+  return [
+    {
+      url: TAMANU_COVID_URL,
+      valueCodeableConcept: {
+        coding: [
+          {
+            system: TAMANU_COVID_CODE_URL,
+            code: labTestMethod.code,
+            display: labTestMethod.name,
+          },
+        ],
+      },
+    },
+  ];
+}
+
 export async function labTestToHL7DiagnosticReport(labTest) {
   const labTestType = await labTest.getLabTestType();
   const labTestMethod = await labTest.getLabTestMethod();
@@ -36,6 +74,7 @@ export async function labTestToHL7DiagnosticReport(labTest) {
   const encounter = await labRequest.getEncounter();
   const patient = await encounter.getPatient();
   const examiner = await encounter.getExaminer();
+  const laboratory = await labRequest.getLaboratory();
 
   return {
     resourceType: "DiagnosticReport",
@@ -43,12 +82,14 @@ export async function labTestToHL7DiagnosticReport(labTest) {
     identifier: [
       {
         use: "official",
-        system: NAMESPACE_FOR_LAB_REQUEST,
+        system: config.namespaces.labRequestDisplayId,
         value: labRequest.displayId,
       },
     ],
+    subject: patientToHL7Reference(patient),
     status: labTestStatusToHL7Status(labTest.status),
     effectiveDateTime: labRequest.sampleTime,
+    issued: labRequest.requestedDate,
     code: {
       text: labTestType.name,
       coding: [
@@ -58,54 +99,50 @@ export async function labTestToHL7DiagnosticReport(labTest) {
         },
       ],
     },
-    subject: patientToHL7Reference(patient),
-    performer: userToHL7Reference(examiner), // TODO: laboratory to take precedence over examiner
-    issued: labRequest.requestedDate,
-    result: [
-      {
-        reference: `Observation/${labTest.id}`,
-      },
-    ],
-    extension: [
-      {
-        url: TAMANU_COVID_URL,
-        valueCodeableConcept: {
-          coding: [
-            {
-              system: TAMANU_COVID_CODE_URL,
-              code: labTestMethod.code,
-              display: labTestMethod.name,
-            },
-          ],
-        },
-      },
-    ],
+    performer: laboratory 
+      ? laboratoryToHL7Reference(laboratory)
+      : userToHL7Reference(examiner), 
+    result: shouldProduceObservation(labTest.status)
+      ? [ { reference: `Observation/${labTest.id}` } ]
+      : [],
+    extension: labTestMethodToHL7Extension(labTestMethod),
   };
 }
 
+// The result field is freetext, these values are defined in the LabTestType
+// reference data spreadsheet.
+const TEST_RESULTS = {
+  POSITIVE: "Positive",
+  NEGATIVE: "Negative",
+  INCONCLUSIVE: "Inconclusive",
+};
+
 function getResultCoding(labTest) {
-  // TODO: smarter mapping?
   switch (labTest.result) {
-    case "positive":
+    case TEST_RESULT_VALUES.POSITIVE:
       return { code: "POS", name: "Positive" };
-    case "negative": 
+    case TEST_RESULT_VALUES.NEGATIVE:
       return { code: "NEG", name: "Negative" };
-    default: 
+    case TEST_RESULT_VALUES.INCONCLUSIVE:
+    default: // TODO: is there an errored / N/A value we can return?
       return { code: "INC", name: "Inconclusive" };
   }
 }
 
 export function labTestToHL7Observation(labTest, patient) {
-  // TODO: return null when status is reception_pending ?
+  if (!shouldProduceObservation(labTest.status)) {
+    return null;
+  }
+
   return {
     resourceType: "Observation",
-    id: labTest.id, // TODO: OK to be the same as diagnostic report?
+    id: labTest.id,
     status: labTestStatusToHL7Status(labTest.status),
     subject: patientToHL7Reference(patient),
     valueCodeableConcept: {
       coding: [
         {
-          system: HL7_TERMINOLOGY_URL,
+          system: HL7_OBSERVATION_TERMINOLOGY_URL,
           ...getResultCoding(labTest),
         },
       ],
