@@ -18,8 +18,8 @@
   "integrations": {
     "fijiVrs": {
       "enabled": true,
-      "host": "http://localhost:8080",
-      "expectAccessToken": ["test-access-token"]
+      "secret": "Insecure test secret, do not use this",
+      "host": "http://localhost:8080"
     }
   }
 }

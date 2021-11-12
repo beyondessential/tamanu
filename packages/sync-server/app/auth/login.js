@@ -30,7 +30,7 @@ export const login = asyncHandler(async (req, res) => {
     throw new BadAuthenticationError('Invalid credentials');
   }
 
-  const token = await getToken(user, config.auth.tokenDuration);
+  const token = getToken(user, config.auth.tokenDuration);
 
   // Send some additional data with login to tell the user about
   // the context they've just logged in to.
