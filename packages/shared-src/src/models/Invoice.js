@@ -9,6 +9,7 @@ export class Invoice extends Model {
         id: primaryKey,
         displayId: Sequelize.STRING,
         status: Sequelize.STRING,
+        total: Sequelize.DECIMAL,
         paymentStatus: Sequelize.STRING,
         receiptNumber: Sequelize.STRING,
         date: Sequelize.DATE,

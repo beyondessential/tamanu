@@ -21,6 +21,10 @@ module.exports = {
           key: 'id',
         },
       },
+      total: {
+        type: Sequelize.DECIMAL,
+        allowNull: true,
+      },
       status: {
         type: Sequelize.STRING,
         allowNull: false,
