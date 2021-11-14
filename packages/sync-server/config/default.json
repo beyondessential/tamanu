@@ -80,6 +80,15 @@
       "schedule": "*/30 * * * * *"
     } 
   },
+  "integrations": {
+    "fijiVrs": {
+      "enabled": false,
+      "host": "http://uat-vra.digitalfiji.gov.fj:8786",
+      "expectAccessToken": ["set this value in local.json"],
+      // refresh the token if it's within tokenExpiryMarginMs milliseconds of expiry
+      "tokenExpiryMarginMs": 60000
+    }
+  },
   "localisation": {
     "labResultWidget": {
       "categoryWhitelist": [
@@ -91,6 +100,14 @@
     },
     "data": {
       "fields": {
+        "emergencyContactName": {
+          "shortLabel": "Emergency Contact Name",
+          "longLabel": "Emergency Contact Name"
+        },
+        "emergencyContactNumber": {
+          "shortLabel": "Emergency Contact Number",
+          "longLabel": "Emergency Contact Number"
+        },
         "markedForSync": {
           "shortLabel": "Sync",
           "longLabel": "Marked for sync"

@@ -1,11 +1,11 @@
 import React from 'react';
 import { Provider } from 'react-redux';
 import { ConnectedRouter } from 'connected-react-router';
-import { ApiContext } from './api';
 import PropTypes from 'prop-types';
 import { CssBaseline } from '@material-ui/core';
 import { ThemeProvider } from 'styled-components';
 import { MuiThemeProvider, StylesProvider } from '@material-ui/core/styles';
+import { ApiContext } from './api';
 import { RoutingApp } from './RoutingApp';
 import { theme } from './theme';
 import { EncounterProvider } from './contexts/Encounter';
@@ -18,9 +18,7 @@ const StateContextProviders = ({ children, store }) => (
   <EncounterProvider store={store}>
     <ReferralProvider>
       <LabRequestProvider store={store}>
-        <LocalisationProvider store={store}>
-          {children}
-        </LocalisationProvider>
+        <LocalisationProvider store={store}>{children}</LocalisationProvider>
       </LabRequestProvider>
     </ReferralProvider>
   </EncounterProvider>

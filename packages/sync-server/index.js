@@ -9,11 +9,13 @@ import { initDatabase } from './app/database';
 import { startScheduledTasks } from './app/tasks';
 import { EmailService } from './app/services/EmailService';
 import { ReportRunner } from './app/report/ReportRunner';
+import { ApplicationContext } from './app/ApplicationContext';
 import { version } from './package.json';
 
 const port = config.port;
 
-async function setup(store, options) {
+async function setup() {
+  const store = await initDatabase({ testMode: false });
   const userCount = await store.models.User.count();
   if (userCount > 0) {
     throw new Error(`Found ${userCount} users already in the database, aborting setup.`);
@@ -31,7 +33,9 @@ async function setup(store, options) {
   process.exit(0);
 }
 
-async function serve(store, options) {
+async function serve(options) {
+  const context = await new ApplicationContext().init();
+  const { store } = context;
   log.info(`Starting sync server version ${version}.`);
 
   if (config.db.migrateOnStartup) {
@@ -40,8 +44,6 @@ async function serve(store, options) {
     await store.sequelize.assertUpToDate(options);
   }
 
-  const emailService = new EmailService();
-  const context = { store, emailService };
   const app = createApp(context);
 
   if (process.env.PRINT_ROUTES === 'true') {
@@ -93,12 +95,14 @@ function getRoutes(router, prefix = '') {
   return routes;
 }
 
-async function migrate(store, options) {
+async function migrate(options) {
+  const store = await initDatabase({ testMode: false });
   await store.sequelize.migrate(options);
   process.exit(0);
 }
 
-async function report(store, options) {
+async function report(options) {
+  const store = await initDatabase({ testMode: false });
   try {
     const { name, parameters, recipients } = options;
     let reportParameters = {};
@@ -148,8 +152,7 @@ async function run(command, options) {
     throw new Error(`Unrecognised subcommand: ${command}`);
   }
 
-  const { store } = await initDatabase({ testMode: false });
-  return subcommand(store, options);
+  return subcommand(options);
 }
 
 // catch and exit if run() throws an error
