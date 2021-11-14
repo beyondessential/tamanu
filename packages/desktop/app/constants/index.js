@@ -8,7 +8,7 @@ import {
   NOTE_TYPES,
   APPOINTMENT_TYPES,
   APPOINTMENT_STATUSES,
-} from 'shared/constants';
+} from '../../../shared/constants';
 import {
   medicationIcon,
   administrationIcon,
