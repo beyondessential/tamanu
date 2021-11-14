@@ -1,13 +1,13 @@
 import moment from 'moment';
 import { padStart, capitalize } from 'lodash';
 
-import { createValueIndex } from 'shared/utils/valueIndex';
+import { createValueIndex } from '../../../shared/utils/valueIndex';
 import {
   ENCOUNTER_TYPES,
   IMAGING_REQUEST_STATUS_TYPES,
   NOTE_TYPES,
   APPOINTMENT_TYPES,
-} from 'shared/constants';
+} from '../../../shared/constants';
 import {
   medicationIcon,
   administrationIcon,

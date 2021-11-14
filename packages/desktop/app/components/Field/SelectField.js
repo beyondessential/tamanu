@@ -38,6 +38,14 @@ export const SelectField = ({
   const initialSelectedOption = options.find(option => value === option.value);
 
   const [selected, setSelected] = useState(initialSelectedOption);
+  console.log(value, selected)
+  useEffect(() => {
+    if (!value) {
+      setSelected(null);
+    }
+    console.log(value)
+  }, [value]);
+
   const handleChange = useCallback(selectedOption => {
     setSelected(selectedOption);
     onChange({ target: { value: selectedOptions.value, name } });

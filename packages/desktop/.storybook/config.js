@@ -71,7 +71,3 @@ addDecorator(story => (
     </MuiThemeProvider>
   </StylesProvider>
 ));
-
-module.exports = {
-  stories: []
-};
