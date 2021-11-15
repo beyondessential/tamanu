@@ -36,7 +36,6 @@ export const SelectInput = ({
   }
 
   const initialSelectedOption = options.find(option => value === option.value) ?? '';
-  console.log(value, initialSelectedOption)
 
   const handleChange = useCallback(selectedOption => {
     onChange({ target: { value: selectedOption.value, name } });
@@ -46,7 +45,6 @@ export const SelectInput = ({
     <OuterLabelFieldWrapper label={label} {...props}>
       <Select
         value={initialSelectedOption}
-        isMulti={false}
         onChange={handleChange}
         options={options}
         menuPlacement="auto"

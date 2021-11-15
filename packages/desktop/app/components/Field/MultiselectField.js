@@ -14,7 +14,6 @@ export const MultiselectInput = ({
   disabled,
   readonly,
   onChange,
-  multiselect,
   name,
   form: { initialValues },
   ...props
@@ -43,29 +42,22 @@ export const MultiselectInput = ({
   const [selected, setSelected] = useState(initialSelectedOptions);
   const handleChange = useCallback(selectedOptions => {
     setSelected(selectedOptions);
-    const newValue = multiselect
-      ? selectedOptions.map(x => x.value).join(', ')
-      : selectedOptions.value;
+    const newValue = selectedOptions.map(x => x.value).join(', ')
     onChange({ target: { value: newValue, name } });
   }, []);
 
   // support initial values
   useEffect(() => {
-    if (multiselect) {
-      const initialOptionValues = initialValues[name]?.split(', ') || [];
-      const initialOptions = options.filter(o => initialOptionValues.includes(o.value));
-      setSelected(initialOptions);
-    } else {
-      const initialOption = options.find(o => o.value === initialValues[name]);
-      setSelected(initialOption);
-    }
+    const initialOptionValues = initialValues[name]?.split(', ') || [];
+    const initialOptions = options.filter(o => initialOptionValues.includes(o.value));
+    setSelected(initialOptions);
   }, []);
 
   return (
     <OuterLabelFieldWrapper label={label} {...props}>
       <Select
         value={selected}
-        isMulti={multiselect}
+        isMulti
         onChange={handleChange}
         options={options}
         menuPlacement="auto"
@@ -79,7 +71,6 @@ export const MultiselectInput = ({
 
 export const MultiselectField = ({ field, ...props }) => (
   <MultiselectInput
-    multiselect
     name={field.name}
     onChange={field.onChange}
     value={field.value}
@@ -94,7 +85,6 @@ MultiselectInput.propTypes = {
   onChange: PropTypes.func,
   options: PropTypes.arrayOf(PropTypes.instanceOf(Object)),
   fullWidth: PropTypes.bool,
-  multiselect: PropTypes.bool,
   form: PropTypes.shape({
     initialValues: PropTypes.shape({}),
   }),
@@ -104,7 +94,6 @@ MultiselectInput.defaultProps = {
   value: '',
   options: [],
   fullWidth: true,
-  multiselect: false,
   form: {
     initialValues: {},
   },

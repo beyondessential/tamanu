@@ -124,15 +124,12 @@ const ChangeLabStatusButton = ({ status: currentStatus, updateLabReq }) => {
       </Button>
       <Modal open={isModalOpen} onClose={closeModal} title="Change lab request status">
         <FormGrid columns={1}>
-          <SelectField
+          <SelectInput
             label="Status"
-            field={{ name: 'status' }}
-            options={labStatuses}
+            name="status"
             value={status}
-            form={{ initialValues: { status } }}
-            onChange={({ target: { value } }) => {
-              setStatus(value);
-            }}
+            onChange={({ target: { value } }) => setStatus(value)}
+            options={labStatuses}
           />
           <ConfirmCancelRow onConfirm={updateLabStatus} confirmText="Save" onCancel={closeModal} />
         </FormGrid>
