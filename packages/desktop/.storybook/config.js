@@ -19,7 +19,7 @@ function loadStories() {
     .forEach(filename => {
       try {
         req(filename)
-      } catch (e) {
+      } catch(e) {
         storiesOf('ERROR DURING IMPORT', module).add(filename, () => (
           <div>
             <div><strong>{e.toString()}</strong></div>

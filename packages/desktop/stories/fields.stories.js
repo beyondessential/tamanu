@@ -19,7 +19,6 @@ import {
 } from '../app/components';
 import { IdInput } from '../app/components/Field/IdField';
 import styled from 'styled-components';
-import { Colors } from '../app/constants';
 import { Button } from '@material-ui/core';
 
 const FRUITS = [
@@ -30,7 +29,6 @@ const FRUITS = [
   { value: 'durian', label: 'Durian' },
   { value: 'dragonfruit', label: 'Dragonfruit' },
   { value: 'tomatoes', label: 'Tomatoes' },
-  { value: 'cherries2', label: 'Cherries 2' },
   { value: 'cherries', label: 'Cherries' },
 ];
 
@@ -159,29 +157,11 @@ addStories(
 
 addStories('SelectInput', props => (
   <StoryControlWrapper Component={SelectInput} label="Fruit" options={FRUITS} {...props} />
-)).add('Prefilled by initialValues', () => (
-  <StoryControlWrapper
-    name="fruti"
-    Component={SelectInput}
-    label="Fruit"
-    options={FRUITS}
-    form={{ initialValues: { fruti: "apples" } }} />
 ))
-const hi = [
-  { "name": "Fiji", "type": "live", "host": "https://sync.tamanu-fiji.org" },
-  { "name": "Fiji NCD", "type": "live", "host": "https://sync-ncd-pilot.tamanu-fiji.org" },
-  { "name": "Motivation Australia - Iraq", "type": "live", "host": "https://motivation-sync-iraq.tamanu.io" },
-  { "name": "Motivation Australia - Papua New Guinea", "type": "live", "host": "https://motivation-sync-png.tamanu.io" },
-  { "name": "Motivation Australia - India", "type": "live", "host": "https://motivation-sync-india.tamanu.io" },
-  { "name": "Nauru", "type": "live", "host": "https://sync.tamanu-nauru.org" },
-  { "name": "Samoa", "type": "live", "host": "https://tamanu-sync.health.gov.ws" },
-  { "name": "Demo", "type": "demo", "host": "https://sync-demo.tamanu.io" },
-  { "name": "Demo (Fiji)", "type": "demo", "host": "https://sync-demo.tamanu-fiji.org" },
-  { "name": "Demo (Nauru)", "type": "demo", "host": "https://sync-demo-nauru.tamanu.io" },
-  { "name": "Dev", "type": "dev", "host": "https://sync-dev.tamanu.io" },
-  { "name": "Staging", "type": "dev", "host": "https://sync-staging.tamanu.io" },
-  { "name": "Stress testing", "type": "dev", "host": "https://sync-stress-test.tamanu.io" }
-];
+
+addStories('MultiselectInput', props => (
+  <StoryControlWrapper Component={MultiselectInput} label="Fruit" options={FRUITS} {...props} />
+))
 
 const dummySuggester = {
   fetchSuggestions: async search => {

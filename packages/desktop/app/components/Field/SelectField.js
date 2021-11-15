@@ -35,7 +35,7 @@ export const SelectInput = ({
     );
   }
 
-  const initialSelectedOption = options.find(option => value === option.value) ?? '';
+  const selectedOption = options.find(option => value === option.value) ?? '';
 
   const handleChange = useCallback(selectedOption => {
     onChange({ target: { value: selectedOption.value, name } });
@@ -44,7 +44,7 @@ export const SelectInput = ({
   return (
     <OuterLabelFieldWrapper label={label} {...props}>
       <Select
-        value={initialSelectedOption}
+        value={selectedOption}
         onChange={handleChange}
         options={options}
         menuPlacement="auto"
@@ -53,7 +53,7 @@ export const SelectInput = ({
         {...props}
       />
     </OuterLabelFieldWrapper>
-  )
+  );
 };
 
 export const SelectField = ({ field, ...props }) => (
@@ -62,7 +62,8 @@ export const SelectField = ({ field, ...props }) => (
     onChange={field.onChange}
     value={field.value}
     {...props}
-  />);
+  />
+);
 
 /* 
   To be able to actually apply the styles, the component

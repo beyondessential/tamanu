@@ -127,9 +127,9 @@ const ChangeLabStatusButton = ({ status: currentStatus, updateLabReq }) => {
           <SelectInput
             label="Status"
             name="status"
+            options={labStatuses}
             value={status}
             onChange={({ target: { value } }) => setStatus(value)}
-            options={labStatuses}
           />
           <ConfirmCancelRow onConfirm={updateLabStatus} confirmText="Save" onCancel={closeModal} />
         </FormGrid>
