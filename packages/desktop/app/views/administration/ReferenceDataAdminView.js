@@ -53,6 +53,8 @@ export const ReferenceDataAdminView = memo(() => {
         { value: 'patients', label: 'patient' },
         { value: 'labTestTypes', label: 'labTestType' },
         { value: 'vaccineSchedules', label: 'scheduledVaccine' },
+        { value: 'invoiceLineTypes', label: 'invoiceLineType' },
+        { value: 'invoicePriceChangeTypes', label: 'invoicePriceChangeType' },
       ]}
     />
   );
