@@ -6,7 +6,7 @@ import styled from 'styled-components';
 import { OuterLabelFieldWrapper } from './OuterLabelFieldWrapper';
 import { StyledTextField } from './TextField';
 
-export const SelectInput = ({
+export const MultiselectInput = ({
   options,
   value,
   label,
@@ -78,7 +78,7 @@ export const SelectInput = ({
 };
 
 export const MultiselectField = ({ field, ...props }) => (
-  <SelectInput
+  <MultiselectInput
     multiselect
     name={field.name}
     onChange={field.onChange}
@@ -88,7 +88,7 @@ export const MultiselectField = ({ field, ...props }) => (
 );
 
 
-SelectInput.propTypes = {
+MultiselectInput.propTypes = {
   name: PropTypes.string,
   value: PropTypes.string,
   onChange: PropTypes.func,
@@ -100,7 +100,7 @@ SelectInput.propTypes = {
   }),
 };
 
-SelectInput.defaultProps = {
+MultiselectInput.defaultProps = {
   value: '',
   options: [],
   fullWidth: true,

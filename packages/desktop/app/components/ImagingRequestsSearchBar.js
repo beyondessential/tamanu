@@ -33,7 +33,7 @@ const UrgencyField = props => (
   />
 );
 
-export const ImagingRequestsSearchBar = ({ searchParameters, setSearchParameters }) => {
+export const ImagingRequestsSearchBar = ({ setSearchParameters }) => {
   return (
     <CustomisablePatientSearchBar
       title="Search imaging requests"
@@ -48,7 +48,7 @@ export const ImagingRequestsSearchBar = ({ searchParameters, setSearchParameters
         ['requestedDateFrom', { placeholder: 'Requested from', component: DateField }],
         ['requestedDateTo', { placeholder: 'Requested to', component: DateField }],
       ]}
-      initialValues={searchParameters}
+      initialValues={{}}
       onSearch={setSearchParameters}
     />
   );

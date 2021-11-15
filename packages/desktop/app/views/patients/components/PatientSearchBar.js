@@ -158,12 +158,12 @@ export const CustomisablePatientSearchBar = ({
         </Button>
         <Button
           style={{ marginTop: 10, marginLeft: '1rem' }}
-          onClick={resetForm}
+          onClick={() => resetForm()}
           variant="outlined"
         >
           Clear search
         </Button>
-      </div>
+      </div >
     ),
     [fields],
   );

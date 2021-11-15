@@ -20,6 +20,7 @@ import {
 import { IdInput } from '../app/components/Field/IdField';
 import styled from 'styled-components';
 import { Colors } from '../app/constants';
+import { Button } from '@material-ui/core';
 
 const FRUITS = [
   { value: 'apples', label: 'Apples' },
@@ -29,6 +30,7 @@ const FRUITS = [
   { value: 'durian', label: 'Durian' },
   { value: 'dragonfruit', label: 'Dragonfruit' },
   { value: 'tomatoes', label: 'Tomatoes' },
+  { value: 'cherries2', label: 'Cherries 2' },
   { value: 'cherries', label: 'Cherries' },
 ];
 
@@ -58,11 +60,12 @@ class StoryControlWrapper extends React.PureComponent {
   };
 
   render() {
-    const { Component, ...props } = this.props;
+    const { Component, clearButton, ...props } = this.props;
     const { value } = this.state;
     return (
       <Container>
         <Component {...props} value={value} onChange={this.onChange} />
+        {clearButton && <Button onClick={() => this.setState({ value: '' })}> Clear Field (value = "") </Button>}
       </Container>
     );
   }
@@ -78,6 +81,7 @@ function addStories(name, Component, note) {
     .add('Disabled', () => <Component disabled />)
     .add('With help text', () => <Component helperText="Here is some help text" />)
     .add('With error', () => <Component error helperText="Here is an error message" />)
+    .add('Clearable', () => <Component clearButton />);
 }
 
 addStories(
@@ -157,19 +161,27 @@ addStories('SelectInput', props => (
   <StoryControlWrapper Component={SelectInput} label="Fruit" options={FRUITS} {...props} />
 )).add('Prefilled by initialValues', () => (
   <StoryControlWrapper
-    name="frut"
+    name="fruti"
     Component={SelectInput}
     label="Fruit"
     options={FRUITS}
-    form={{ initialValues: { frut: "apples" } }} />
-)).add('Prefilled by value', () => (
-  <StoryControlWrapper
-    name="frut"
-    Component={SelectInput}
-    label="Fruit"
-    options={FRUITS}
-    value="apples" />
-));
+    form={{ initialValues: { fruti: "apples" } }} />
+))
+const hi = [
+  { "name": "Fiji", "type": "live", "host": "https://sync.tamanu-fiji.org" },
+  { "name": "Fiji NCD", "type": "live", "host": "https://sync-ncd-pilot.tamanu-fiji.org" },
+  { "name": "Motivation Australia - Iraq", "type": "live", "host": "https://motivation-sync-iraq.tamanu.io" },
+  { "name": "Motivation Australia - Papua New Guinea", "type": "live", "host": "https://motivation-sync-png.tamanu.io" },
+  { "name": "Motivation Australia - India", "type": "live", "host": "https://motivation-sync-india.tamanu.io" },
+  { "name": "Nauru", "type": "live", "host": "https://sync.tamanu-nauru.org" },
+  { "name": "Samoa", "type": "live", "host": "https://tamanu-sync.health.gov.ws" },
+  { "name": "Demo", "type": "demo", "host": "https://sync-demo.tamanu.io" },
+  { "name": "Demo (Fiji)", "type": "demo", "host": "https://sync-demo.tamanu-fiji.org" },
+  { "name": "Demo (Nauru)", "type": "demo", "host": "https://sync-demo-nauru.tamanu.io" },
+  { "name": "Dev", "type": "dev", "host": "https://sync-dev.tamanu.io" },
+  { "name": "Staging", "type": "dev", "host": "https://sync-staging.tamanu.io" },
+  { "name": "Stress testing", "type": "dev", "host": "https://sync-stress-test.tamanu.io" }
+];
 
 const dummySuggester = {
   fetchSuggestions: async search => {

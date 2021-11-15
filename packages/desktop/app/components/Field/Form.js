@@ -98,6 +98,8 @@ export class Form extends React.PureComponent {
       isSubmitting,
       ...formProps,
     });
+    console.log(formProps)
+    const { resetForm } = formProps;
 
     const { render } = this.props;
 
@@ -108,6 +110,10 @@ export class Form extends React.PureComponent {
           isValid,
           isSubmitting,
           submitForm,
+          resetForm: abc => {
+            console.log("resetting!!", abc)
+            resetForm(abc)
+          }
         })}
       </form>
     );

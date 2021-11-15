@@ -6,7 +6,7 @@ import styled from 'styled-components';
 import { OuterLabelFieldWrapper } from './OuterLabelFieldWrapper';
 import { StyledTextField } from './TextField';
 
-export const SelectField = ({
+export const SelectInput = ({
   options,
   value,
   label,
@@ -15,7 +15,6 @@ export const SelectField = ({
   readonly,
   onChange,
   name,
-  form: { initialValues },
   ...props
 }) => {
 
@@ -36,34 +35,18 @@ export const SelectField = ({
     );
   }
 
-  const initialSelectedOption = options.find(option => value === option.value);
-
-  const [selected, setSelected] = useState(initialSelectedOption);
-  console.log(value, selected)
-  useEffect(() => {
-    if (!value) {
-      setSelected(null);
-    }
-    console.log(value)
-  }, [value]);
+  const initialSelectedOption = options.find(option => value === option.value) ?? '';
+  console.log(value, initialSelectedOption)
 
   const handleChange = useCallback(selectedOption => {
-    setSelected(selectedOption);
-    onChange({ target: { value: selectedOptions.value, name } });
-  }, []);
-
-
-  // support initial values
-  useEffect(() => {
-    const initialOption = options.find(o => o.value === initialValues[name]);
-    setSelected(initialOption);
+    onChange({ target: { value: selectedOption.value, name } });
   }, []);
 
   return (
     <OuterLabelFieldWrapper label={label} {...props}>
       <Select
-        value={selected}
-        isMulti={multiselect}
+        value={initialSelectedOption}
+        isMulti={false}
         onChange={handleChange}
         options={options}
         menuPlacement="auto"
@@ -72,8 +55,16 @@ export const SelectField = ({
         {...props}
       />
     </OuterLabelFieldWrapper>
-  );
+  )
 };
+
+export const SelectField = ({ field, ...props }) => (
+  <SelectInput
+    name={field.name}
+    onChange={field.onChange}
+    value={field.value}
+    {...props}
+  />);
 
 /* 
   To be able to actually apply the styles, the component
@@ -101,24 +92,16 @@ export const StyledSelectField = styled(SelectField)`
   }
 `;
 
-SelectField.propTypes = {
+SelectInput.propTypes = {
   name: PropTypes.string,
   value: PropTypes.string,
   onChange: PropTypes.func,
   options: PropTypes.arrayOf(PropTypes.instanceOf(Object)),
   fullWidth: PropTypes.bool,
-  multiselect: PropTypes.bool,
-  form: PropTypes.shape({
-    initialValues: PropTypes.shape({}),
-  }),
 };
 
-SelectField.defaultProps = {
+SelectInput.defaultProps = {
   value: '',
   options: [],
   fullWidth: true,
-  multiselect: false,
-  form: {
-    initialValues: {},
-  },
 };
