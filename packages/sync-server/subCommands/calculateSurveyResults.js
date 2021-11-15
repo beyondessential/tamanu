@@ -161,7 +161,7 @@ export async function calculateSurveyResults(store, options) {
         INNER JOIN program_data_elements
           ON program_data_elements.id = survey_screen_components.data_element_id
         WHERE survey_id = '${surveyId}'
-        ORDER BY survey_screen_components.component_index;
+        ORDER BY survey_screen_components.screen_index, survey_screen_components.component_index;
     `);
 
     const [surveyResponseCountRows] = await store.sequelize.query(`
