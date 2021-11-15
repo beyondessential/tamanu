@@ -6,13 +6,13 @@ import { patientToHL7Patient } from '../../app/hl7fhir';
 import { validate } from './hl7utilities';
 
 xdescribe('HL7 Patient', () => {
-
   let models;
-
+  let ctx;
   beforeAll(async () => {
-    const ctx = await createTestContext();
+    ctx = await createTestContext();
     models = ctx.store.models;
   });
+  afterAll(() => ctx.close());
 
   it('Should produce a valid HL7 patient', async () => {
     const patientData = await createDummyPatient(models);
