@@ -1,4 +1,5 @@
 import config from 'config';
+import { format } from 'date-fns';
 
 function patientName(patient, additional) {
   const official = {
@@ -76,7 +77,7 @@ export function patientToHL7Patient(patient, additional) {
     active: true,  // currently unused in Tamanu, always true
     identifier: patientIds(patient, additional),
     name: patientName(patient, additional),
-    birthDate: patient.dateOfBirth,
+    birthDate: patient.dateOfBirth && format(patient.dateOfBirth, 'yyyy-MM-dd'),
     gender: patient.sex,
     address: patientAddress(patient, additional),
     telecom: patientTelecom(patient, additional),
