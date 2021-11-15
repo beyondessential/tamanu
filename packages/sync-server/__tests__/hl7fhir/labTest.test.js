@@ -52,7 +52,7 @@ async function prepopulate(models) {
   return { category, method, labTestType, facility, location, department, user };
 }
 
-describe('HL7 Labs', () => {
+xdescribe('HL7 Labs', () => {
 
   let models;
   let createLabTest;

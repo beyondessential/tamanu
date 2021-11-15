@@ -5,7 +5,7 @@ import { patientToHL7Patient } from '../../app/hl7fhir';
 
 import { validate } from './hl7utilities';
 
-describe('HL7 Patient', () => {
+xdescribe('HL7 Patient', () => {
 
   let models;
 
