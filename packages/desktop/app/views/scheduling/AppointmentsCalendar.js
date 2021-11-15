@@ -8,7 +8,7 @@ import { TwoColumnDisplay } from '../../components/TwoColumnDisplay';
 import { DailySchedule } from '../../components/Appointments/DailySchedule';
 import { NewAppointmentButton } from '../../components/Appointments/NewAppointmentButton';
 import { BackButton, ForwardButton, Button } from '../../components/Button';
-import { AutocompleteInput, SelectInput } from '../../components/Field';
+import { AutocompleteInput, MultiselectInput } from '../../components/Field';
 import { Suggester } from '../../utils/suggester';
 import { Colors, appointmentTypeOptions } from '../../constants';
 import { useApi } from '../../api';
@@ -124,14 +124,13 @@ export const AppointmentsCalendar = () => {
           </Section>
           <Section>
             <SectionTitle variant="subtitle2">Appointment type</SectionTitle>
-            <SelectInput
-              multiselect
+            <MultiselectInput
               onChange={e => {
                 if (!e.target.value) {
                   setAppointmentType([]);
                   return;
                 }
-                setAppointmentType(e.target.value.split(','));
+                setAppointmentType(e.target.value.split(', '));
               }}
               options={appointmentTypeOptions}
             />
