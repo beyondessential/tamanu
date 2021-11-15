@@ -48,5 +48,5 @@
           "url": "./packages/sync-server/__tests__/hl7fhir/fhir.schema.json",
       }
     ]
-  },
+  }
 }
