@@ -11,6 +11,7 @@ export const ImagingRequestListingView = React.memo(() => {
     <PageContainer>
       <TopBar title="Imaging requests" />
       <ImagingRequestsSearchBar
+        searchParameters={searchParameters}
         setSearchParameters={setSearchParameters}
       />
       <ImagingRequestsTable searchParameters={searchParameters} />
