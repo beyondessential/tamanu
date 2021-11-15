@@ -1,5 +1,7 @@
 import { inspect } from 'util';
 // import hl7schema from './fhir.schema.json';
+//
+import { writeFileSync } from 'fs';
 
 function setupValidator() {
   /*
@@ -26,12 +28,13 @@ function setupValidator() {
   };
   */
 
-  // using this in the meantime, which prints out a copypastable
-  // json to check against an external validator (need to edit
-  // each test by hand though unfortunately)
+  // using this in the meantime, which writes out json files
+  // to check against an external validator (for eg in vscode)
   return (data, print = false) => {
     if (print) {
-      console.log(JSON.stringify(data, null, 2));
+      const json = JSON.stringify(data, null, 2);
+      const path = `../../test.${expect.getState().currentTestName}.hl7.json`;
+      writeFileSync(path, json);
     }
     return { errors: [], result: true };
   }

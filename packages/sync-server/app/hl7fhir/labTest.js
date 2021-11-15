@@ -27,21 +27,21 @@ function labTestStatusToHL7Status(status) {
 function patientToHL7Reference(patient) {
   return {
     reference: `Patient/${patient.id}`,
-    name: [patient.firstName, patient.lastName].filter(x => x).join(' '),
+    display: [patient.firstName, patient.lastName].filter(x => x).join(' '),
   };
 }
 
 function userToHL7Reference(user) {
   return {
     reference: `Practitioner/${user.id}`,
-    name: user.displayName,
+    display: user.displayName,
   };
 }
 
 function laboratoryToHL7Reference(laboratory) {
   return {
     reference: `Organization/${laboratory.id}`,
-    name: laboratory.name,
+    display: laboratory.name,
   };
 }
 
@@ -95,13 +95,15 @@ export async function labTestToHL7DiagnosticReport(labTest) {
       coding: [
         { 
           code: labTestType.code, 
-          name: labTestType.name,
+          display: labTestType.name,
         },
       ],
     },
-    performer: laboratory 
-      ? laboratoryToHL7Reference(laboratory)
-      : userToHL7Reference(examiner), 
+    performer: [
+        laboratory 
+          ? laboratoryToHL7Reference(laboratory)
+          : userToHL7Reference(examiner), 
+    ],
     result: shouldProduceObservation(labTest.status)
       ? [ { reference: `Observation/${labTest.id}` } ]
       : [],
@@ -120,11 +122,11 @@ const TEST_RESULT_VALUES = {
 function getResultCoding(labTest) {
   switch (labTest.result) {
     case TEST_RESULT_VALUES.POSITIVE:
-      return { code: "POS", name: "Positive" };
+      return { code: "POS", display: "Positive" };
     case TEST_RESULT_VALUES.NEGATIVE:
-      return { code: "NEG", name: "Negative" };
+      return { code: "NEG", display: "Negative" };
     case TEST_RESULT_VALUES.INCONCLUSIVE:
-      return { code: "INC", name: "Inconclusive" };
+      return { code: "INC", display: "Inconclusive" };
     default: 
       // The only way we can reach this point is if the actual testing data
       // is misconfigured (ie an error within Tamanu, we want to know ASAP)

@@ -136,7 +136,7 @@ describe('HL7 Labs', () => {
     });
 
     const hl7 = await labTestToHL7DiagnosticReport(labTest);
-    expect(hl7).toHaveProperty("performer.name", "Test Laboratory");
+    expect(hl7.performer[0]).toHaveProperty("display", "Test Laboratory");
   });
 
   it('Should throw if an invalid result type is given', async () => {

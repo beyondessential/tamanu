@@ -55,7 +55,7 @@ function patientAddress(patient, additional) {
       type: "physical",
       use: "home",
       city: additional.cityTown,
-      line: additional.streetVillage,
+      line: additional.streetVillage ? [additional.streetVillage] : [],
     }
   ];
 }
