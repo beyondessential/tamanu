@@ -200,6 +200,11 @@ export class SyncManager {
         models.Location,
         models.UserFacility,
 
+        models.InvoiceLineType,
+        models.InvoiceLineItem,
+        models.InvoicePriceChangeType,
+        models.InvoicePriceChangeItem,
+
         // models.LabRequestLog,
       ];
 

@@ -1,5 +1,4 @@
 import { Sequelize } from 'sequelize';
-import { SYNC_DIRECTIONS } from 'shared/constants';
 import { Model } from './Model';
 
 export class InvoicePriceChangeItem extends Model {
@@ -11,10 +10,7 @@ export class InvoicePriceChangeItem extends Model {
         percentageChange: Sequelize.STRING,
         date: Sequelize.DATE,
       },
-      {
-        ...options,
-        syncConfig: { syncDirection: SYNC_DIRECTIONS.BIDIRECTIONAL },
-      },
+      options,
     );
   }
 
