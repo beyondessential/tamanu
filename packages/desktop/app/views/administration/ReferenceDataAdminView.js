@@ -49,6 +49,7 @@ export const ReferenceDataAdminView = memo(() => {
         { value: 'labTestPriorities', label: 'labTestPriority' },
         { value: 'labTestLaboratory', label: 'labTestLaboratory' },
         { value: 'labTestMethods', label: 'labTestMethod' },
+        { value: 'additionalInvoiceLines', label: 'additionalInvoiceLine' },
         { value: 'users', label: 'user' },
         { value: 'patients', label: 'patient' },
         { value: 'labTestTypes', label: 'labTestType' },
