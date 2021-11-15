@@ -6,7 +6,7 @@ import styled from 'styled-components';
 import { OuterLabelFieldWrapper } from './OuterLabelFieldWrapper';
 import { StyledTextField } from './TextField';
 
-export const SelectInput = ({
+export const MultiselectInput = ({
   options,
   value,
   label,
@@ -15,9 +15,9 @@ export const SelectInput = ({
   readonly,
   onChange,
   name,
+  form: { initialValues },
   ...props
 }) => {
-
   const isReadonly = (readonly && !disabled) || (value && !onChange);
   if (disabled || isReadonly || !options || options.length === 0) {
     const valueText = ((options || []).find(o => o.value === value) || {}).label || '';
@@ -35,16 +35,29 @@ export const SelectInput = ({
     );
   }
 
-  const selectedOption = options.find(option => value === option.value) ?? '';
+  const values = value ? value.split(', ') : [];
 
-  const handleChange = useCallback(selectedOption => {
-    onChange({ target: { value: selectedOption.value, name } });
+  const initialSelectedOptions = options.filter(option => values.includes(option.value));
+
+  const [selected, setSelected] = useState(initialSelectedOptions);
+  const handleChange = useCallback(selectedOptions => {
+    setSelected(selectedOptions);
+    const newValue = selectedOptions.map(x => x.value).join(', ')
+    onChange({ target: { value: newValue, name } });
+  }, []);
+
+  // support initial values
+  useEffect(() => {
+    const initialOptionValues = initialValues[name]?.split(', ') || [];
+    const initialOptions = options.filter(o => initialOptionValues.includes(o.value));
+    setSelected(initialOptions);
   }, []);
 
   return (
     <OuterLabelFieldWrapper label={label} {...props}>
       <Select
-        value={selectedOption}
+        value={selected}
+        isMulti
         onChange={handleChange}
         options={options}
         menuPlacement="auto"
@@ -56,8 +69,8 @@ export const SelectInput = ({
   );
 };
 
-export const SelectField = ({ field, ...props }) => (
-  <SelectInput
+export const MultiselectField = ({ field, ...props }) => (
+  <MultiselectInput
     name={field.name}
     onChange={field.onChange}
     value={field.value}
@@ -65,42 +78,23 @@ export const SelectField = ({ field, ...props }) => (
   />
 );
 
-/* 
-  To be able to actually apply the styles, the component
-  that uses StyledSelectField needs to add the following
-  attributes:
 
-  className="styled-select-container"
-  classNamePrefix="styled-select"
-
-  The reason is because it's inheriting from the Select
-  component from react-select.
-*/
-export const StyledSelectField = styled(SelectField)`
-  .styled-select-container {
-    padding: 8px 8px 2px 8px;
-    border: 1px solid #dedede;
-    border-right: none;
-  }
-
-  .styled-select__control,
-  .styled-select__control--is-focused,
-  .styled-select__control--menu-is-open {
-    border: none;
-    box-shadow: none;
-  }
-`;
-
-SelectInput.propTypes = {
+MultiselectInput.propTypes = {
   name: PropTypes.string,
   value: PropTypes.string,
   onChange: PropTypes.func,
   options: PropTypes.arrayOf(PropTypes.instanceOf(Object)),
   fullWidth: PropTypes.bool,
+  form: PropTypes.shape({
+    initialValues: PropTypes.shape({}),
+  }),
 };
 
-SelectInput.defaultProps = {
+MultiselectInput.defaultProps = {
   value: '',
   options: [],
   fullWidth: true,
+  form: {
+    initialValues: {},
+  },
 };

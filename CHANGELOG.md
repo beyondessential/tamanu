@@ -12,7 +12,8 @@
 
 ### Tweaks ⚖️
 
-- (left blank)
+- Split SelectField and MultiselectField into distinct components
+- SelectField no longer internally tracks its value
 
 ### Bug fixes 🐛
 
