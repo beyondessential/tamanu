@@ -14,10 +14,7 @@ export class Invoice extends Model {
         receiptNumber: Sequelize.STRING,
         date: Sequelize.DATE,
       },
-      {
-        ...options,
-        syncConfig: { syncDirection: SYNC_DIRECTIONS.BIDIRECTIONAL },
-      },
+      options,
     );
   }
 
