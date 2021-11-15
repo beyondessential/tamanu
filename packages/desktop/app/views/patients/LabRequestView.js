@@ -13,7 +13,7 @@ import { ManualLabResultModal } from '../../components/ManualLabResultModal';
 import { TopBar } from '../../components/TopBar';
 import { FormGrid } from '../../components/FormGrid';
 import {
-  SelectField,
+  SelectInput,
   DateInput,
   TextInput,
   DateTimeInput,
