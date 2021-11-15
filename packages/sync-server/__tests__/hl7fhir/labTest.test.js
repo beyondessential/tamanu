@@ -54,11 +54,12 @@ async function prepopulate(models) {
 
 describe('HL7 Labs', () => {
 
+  let ctx;
   let models;
   let createLabTest;
 
   beforeAll(async () => {
-    const ctx = await createTestContext();
+    ctx = await createTestContext();
     models = ctx.store.models;
 
     const { method, labTestType } = await prepopulate(models);
@@ -89,6 +90,8 @@ describe('HL7 Labs', () => {
       });
     };
   });
+
+  afterAll(() => ctx.close());
   
   it('Should produce valid hl7 data for an Observation', async () => {
     const labTest = await createLabTest({});

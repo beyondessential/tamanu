@@ -8,11 +8,14 @@ import { validate } from './hl7utilities';
 describe('HL7 Patient', () => {
 
   let models;
+  let ctx;
 
   beforeAll(async () => {
-    const ctx = await createTestContext();
+    ctx = await createTestContext();
     models = ctx.store.models;
   });
+
+  afterAll(() => ctx.close());
 
   it('Should produce a valid HL7 patient', async () => {
     const patientData = await createDummyPatient(models);
