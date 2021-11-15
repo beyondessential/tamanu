@@ -6,7 +6,7 @@ import { set } from 'lodash';
 
 import { log } from 'shared/services/logging';
 
-import { buildErrorHandler } from 'sync-server/app/middleware/errorHandler';
+import { buildErrorHandler } from '../../middleware/errorHandler';
 import * as schema from './schema';
 import { VRSRemote } from './VRSRemote';
 
