@@ -8,11 +8,13 @@
 
 ### Features ⭐
 
-- (left blank)
+- Discharge modal now displays a list of active medicines that can be selected.
 
 ### Tweaks ⚖️
 
-- (left blank)
+- EncounterMedication model now has two new fields: isDischarge and repeats.
+- New migration for encounter_medications table to account for the new fields.
+- Encounter api route now manages selected discharge medications.
 
 ### Bug fixes 🐛
 
