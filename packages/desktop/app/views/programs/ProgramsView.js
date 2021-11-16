@@ -10,7 +10,6 @@ import { SurveyView } from 'desktop/app/views/programs/SurveyView';
 import { ProgramSurveySelector } from 'desktop/app/views/programs/ProgramSurveySelector';
 import { LoadingIndicator } from 'desktop/app/components/LoadingIndicator';
 import { DumbPatientListingView } from 'desktop/app/views/patients/PatientListingView';
-import { SURVEY_TYPES } from 'shared/constants';
 import { getAnswersFromData, getActionsFromData } from '../../utils';
 
 const SurveyFlow = ({ patient, currentUser }) => {
@@ -54,16 +53,7 @@ const SurveyFlow = ({ patient, currentUser }) => {
   }
 
   if (!survey) {
-    return (
-      <ProgramSurveySelector
-        programs={programsList}
-        onSelectSurvey={onSelectSurvey}
-        onFetchSurveysList={async programId => {
-          const surveys = await api.get(`program/${programId}/surveys`);
-          return surveys.data.filter(x => x.surveyType === SURVEY_TYPES.PROGRAMS);
-        }}
-      />
-    );
+    return <ProgramSurveySelector programs={programsList} onSelectSurvey={onSelectSurvey} />;
   }
 
   return (
