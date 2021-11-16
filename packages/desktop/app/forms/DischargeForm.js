@@ -1,6 +1,10 @@
 import React, { useState, useEffect } from 'react';
 import * as yup from 'yup';
+import Select from 'react-select';
 import styled from 'styled-components';
+import Checkbox from '@material-ui/core/Checkbox';
+import { range } from 'lodash';
+import { Colors } from '../constants';
 import { useApi } from '../api';
 
 import { foreignKey } from '../utils/validation';
@@ -12,29 +16,129 @@ import {
   TextField,
   CheckField,
   DateField,
+  StyledTextField,
 } from '../components/Field';
 import { OuterLabelFieldWrapper } from '../components/Field/OuterLabelFieldWrapper';
 import { DateInput } from '../components/Field/DateField';
 import { TextInput } from '../components/Field/TextField';
 import { FormGrid } from '../components/FormGrid';
+import { TableFormFields } from '../components/Table';
 
 import { ConfirmCancelRow } from '../components/ButtonRow';
 import { DiagnosisList } from '../components/DiagnosisList';
 import { useEncounter } from '../contexts/Encounter';
+
+const MAX_REPEATS_RANGE = 12;
+const REPEATS_OPTIONS = range(MAX_REPEATS_RANGE + 1).map(value => ({ label: value, value: value }));
 
 const StyledUnorderedList = styled.ul`
   margin: 5px 0;
   padding-left: 25px;
 `;
 
-const MedicineRow = ({ medication }) => (
-  <li>
-    {medication.medication.name} ({medication.prescription})
-  </li>
+const ProcedureList = procedures => (
+  <StyledUnorderedList>
+    {procedures.length > 0
+      ? procedures.map(({ procedureType }) => {
+          return <li key={procedureType.id}>{procedureType.name}</li>;
+        })
+      : 'N/a'}
+  </StyledUnorderedList>
 );
 
+const SelectFieldWithoutLabel = ({ field, form, options, ...props }) => {
+  const handleChange = option => form.setFieldValue(field.name, option.value);
+
+  return (
+    <Select
+      name={field.name}
+      value={options.find(option => option.value === field.value)}
+      onChange={handleChange}
+      options={options}
+      menuPlacement="auto"
+      menuPosition="fixed"
+      menuShouldBlockScroll="true"
+      {...props}
+    />
+  );
+};
+
+const NumberFieldWithoutLabel = ({ field, ...props }) => (
+  <StyledTextField
+    name={field.name}
+    value={field.value || 0}
+    onChange={field.onChange}
+    variant="outlined"
+    type="number"
+    {...props}
+  />
+);
+
+const StyledFlexDiv = styled.div`
+  display: flex;
+`;
+const StyledCheckbox = styled(Checkbox)`
+  font-size: 16px;
+`;
+const StyledTextSpan = styled.span`
+  color: ${props => (props.color ? props.color : Colors.darkText)};
+`;
+
+/* 
+A custom check field was needed because the label resides on
+the table headers and there is a need to display two text descriptions
+alongside the checkbox with different stylings.
+*/
+const CustomCheckField = ({ field, lineOne, lineTwo }) => (
+  <StyledFlexDiv>
+    <StyledCheckbox
+      icon={<i className="far fa-square" />}
+      checkedIcon={<i className="far fa-check-square" />}
+      color="primary"
+      value="checked"
+      checked={field.value || false}
+      name={field.name}
+      onChange={field.onChange}
+    />
+    <div>
+      <StyledTextSpan>{lineOne}</StyledTextSpan>
+      <br />
+      <StyledTextSpan color={Colors.midText}>{lineTwo}</StyledTextSpan>
+    </div>
+  </StyledFlexDiv>
+);
+
+const MedicationAccessor = ({ id, medication, prescription }) => (
+  <Field
+    name={`medications.${id}.isDischarge`}
+    lineOne={medication.name}
+    lineTwo={prescription}
+    component={CustomCheckField}
+  />
+);
+const QuantityAccessor = ({ id }) => (
+  <Field name={`medications.${id}.quantity`} component={NumberFieldWithoutLabel} />
+);
+const RepeatsAccessor = ({ id }) => (
+  <Field
+    name={`medications.${id}.repeats`}
+    component={SelectFieldWithoutLabel}
+    options={REPEATS_OPTIONS}
+  />
+);
+
+const medicationColumns = [
+  {
+    key: 'drug/prescription',
+    title: 'Drug / Prescription',
+    accessor: MedicationAccessor,
+  },
+  { key: 'quantity', title: 'Discharge Quantity', accessor: QuantityAccessor, width: '20%' },
+  { key: 'repeats', title: 'Repeats', accessor: RepeatsAccessor, width: '20%' },
+];
+
 const EncounterOverview = ({
-  encounter: { medications, procedures, diagnoses, startDate, examiner, reasonForEncounter },
+  encounter: { procedures, diagnoses, startDate, examiner, reasonForEncounter },
 }) => (
   <React.Fragment>
     <DateInput label="Admission date" value={startDate} disabled />
@@ -53,11 +157,7 @@ const EncounterOverview = ({
       <DiagnosisList diagnoses={diagnoses} />
     </OuterLabelFieldWrapper>
     <OuterLabelFieldWrapper label="Procedures" style={{ gridColumn: '1 / -1' }}>
-      <StyledUnorderedList>
-        {procedures.length > 0
-          ? procedures.map(({ cptCode }) => <li key={cptCode}>{cptCode}</li>)
-          : 'N/a'}
-      </StyledUnorderedList>
+      <ProcedureList procedures={procedures} />
     </OuterLabelFieldWrapper>
   </React.Fragment>
 );
@@ -87,12 +187,8 @@ export const DischargeForm = ({ practitionerSuggester, onCancel, onSubmit }) => 
             suggester={practitionerSuggester}
             required
           />
-          <OuterLabelFieldWrapper label="Discharge medicines" style={{ gridColumn: '1 / -1' }}>
-            <StyledUnorderedList>
-              {encounter.medications.length > 0
-                ? encounter.medications.map(m => <MedicineRow key={m} medication={m} />)
-                : 'N/a'}
-            </StyledUnorderedList>
+          <OuterLabelFieldWrapper label="Discharge medications" style={{ gridColumn: '1 / -1' }}>
+            <TableFormFields columns={medicationColumns} data={encounter.medications} />
           </OuterLabelFieldWrapper>
           <Field
             name="sendToPharmacy"
