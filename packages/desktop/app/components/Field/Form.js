@@ -108,6 +108,7 @@ export class Form extends React.PureComponent {
           isValid,
           isSubmitting,
           submitForm,
+          clearForm: () => formProps.resetForm({}),
         })}
       </form>
     );

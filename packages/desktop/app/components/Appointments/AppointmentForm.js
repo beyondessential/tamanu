@@ -1,6 +1,7 @@
 import React, { useCallback } from 'react';
 import * as yup from 'yup';
 
+import { APPOINTMENT_STATUSES } from 'shared/constants';
 import { FormGrid } from '../FormGrid';
 import { Field, Form, AutocompleteField, SelectField, DateTimeField } from '../Field';
 import { ConfirmCancelRow } from '../ButtonRow';
@@ -11,24 +12,47 @@ import { useApi } from '../../api';
 import { Suggester } from '../../utils/suggester';
 import { appointmentTypeOptions } from '../../constants';
 
-export const NewAppointmentForm = props => {
-  const { onSuccess = () => {}, onCancel } = props;
+export const AppointmentForm = props => {
+  const { onSuccess = () => {}, onCancel, appointment } = props;
   const api = useApi();
+  const isUpdating = !!appointment;
   const clinicianSuggester = new Suggester(api, 'practitioner');
   const locationSuggester = new Suggester(api, 'location');
   const patientSuggester = new Suggester(api, 'patient', ({ id, ...patient }) => ({
     label: getPatientNameAsString(patient),
     value: id,
   }));
+  let initialValues = {};
+  if (isUpdating) {
+    initialValues = {
+      patientId: appointment.patientId,
+      type: appointment.type,
+      startTime: appointment.startTime,
+      endTime: appointment.endTime,
+      clinicianId: appointment.clinicianId,
+      locationId: appointment.locationId,
+    };
+  }
   const createAppointment = useCallback(async values => {
-    await api.post('appointments', {
-      ...values,
-    });
+    if (isUpdating) {
+      const updated = {
+        ...values,
+      };
+      // if rescheduling, change status to confirmed
+      if (values.startTime !== initialValues.startTime) {
+        updated.status = APPOINTMENT_STATUSES.CONFIRMED;
+      }
+      await api.put(`appointments/${appointment.id}`, updated);
+    } else {
+      await api.post('appointments', {
+        ...values,
+      });
+    }
     onSuccess();
   });
   return (
     <Form
-      initialValues={{}}
+      initialValues={initialValues}
       onSubmit={createAppointment}
       validationSchema={yup.object().shape({
         patientId: yup.string().required('Please select a patient'),
@@ -78,7 +102,7 @@ export const NewAppointmentForm = props => {
               <ConfirmCancelRow
                 onCancel={onCancel}
                 onConfirm={submitForm}
-                confirmText="Schedule appointment"
+                confirmText={isUpdating ? 'Update appointment' : 'Schedule appointment'}
               />
             </FormGrid>
           </div>

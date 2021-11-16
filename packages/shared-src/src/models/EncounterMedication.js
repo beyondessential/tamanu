@@ -61,7 +61,9 @@ export class EncounterMedication extends Model {
   static initRelations(models) {
     this.belongsTo(models.User, {
       foreignKey: 'prescriberId',
+      as: 'prescriber',
     });
+
     this.belongsTo(models.Encounter, {
       foreignKey: 'encounterId',
       as: 'encounter',
@@ -73,6 +75,6 @@ export class EncounterMedication extends Model {
   }
 
   static getListReferenceAssociations() {
-    return ['Medication', 'encounter'];
+    return ['Medication', 'encounter', 'prescriber'];
   }
 }

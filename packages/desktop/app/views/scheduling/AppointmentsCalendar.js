@@ -8,14 +8,18 @@ import { TwoColumnDisplay } from '../../components/TwoColumnDisplay';
 import { DailySchedule } from '../../components/Appointments/DailySchedule';
 import { NewAppointmentButton } from '../../components/Appointments/NewAppointmentButton';
 import { BackButton, ForwardButton, Button } from '../../components/Button';
-import { AutocompleteInput, SelectInput } from '../../components/Field';
+import { AutocompleteInput, MultiselectInput } from '../../components/Field';
 import { Suggester } from '../../utils/suggester';
 import { Colors, appointmentTypeOptions } from '../../constants';
 import { useApi } from '../../api';
 
-const Container = styled.div`
+const LeftContainer = styled.div`
   min-height: 100vh;
   border-right: 1px solid ${Colors.outline};
+`;
+
+const RightContainer = styled.div`
+  overflow: hidden;
 `;
 
 const DateHeader = styled.div`
@@ -35,6 +39,7 @@ const DateNav = styled.div`
 const CalendarContainer = styled.div`
   margin-left: calc(25px + 3.5rem);
   margin-right: 25px;
+  overflow: scroll;
 `;
 
 const Section = styled.div`
@@ -87,7 +92,7 @@ export const AppointmentsCalendar = () => {
   return (
     <PageContainer>
       <TwoColumnDisplay>
-        <Container>
+        <LeftContainer>
           <TopBar title="Calendar" />
           <Section>
             <SectionTitle variant="subtitle2">View calendar by:</SectionTitle>
@@ -119,20 +124,19 @@ export const AppointmentsCalendar = () => {
           </Section>
           <Section>
             <SectionTitle variant="subtitle2">Appointment type</SectionTitle>
-            <SelectInput
-              multiselect
+            <MultiselectInput
               onChange={e => {
                 if (!e.target.value) {
                   setAppointmentType([]);
                   return;
                 }
-                setAppointmentType(e.target.value.split(','));
+                setAppointmentType(e.target.value.split(', '));
               }}
               options={appointmentTypeOptions}
             />
           </Section>
-        </Container>
-        <div>
+        </LeftContainer>
+        <RightContainer>
           <TopBar>
             <DateHeader>
               <DateNav>
@@ -169,7 +173,7 @@ export const AppointmentsCalendar = () => {
               appointmentUpdated={updateCalendar}
             />
           </CalendarContainer>
-        </div>
+        </RightContainer>
       </TwoColumnDisplay>
     </PageContainer>
   );
