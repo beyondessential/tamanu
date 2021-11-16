@@ -14,6 +14,7 @@
 
 - Split SelectField and MultiselectField into distinct components
 - SelectField no longer internally tracks its value
+- Remove 'required' attribute for Completed by and Location fields in ImagingRequestView
 
 ### Bug fixes 🐛
 
