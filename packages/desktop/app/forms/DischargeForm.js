@@ -42,7 +42,7 @@ const getMedicationsInitialValues = medications => {
     const key = medication.id;
     medicationsInitialValues[key] = {
       isDischarge: true,
-      quantity: medications.quantity || 0,
+      quantity: medication.quantity || 0,
       repeats: 0,
     };
   });
