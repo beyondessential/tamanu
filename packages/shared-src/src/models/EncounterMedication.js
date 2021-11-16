@@ -64,7 +64,7 @@ export class EncounterMedication extends Model {
     });
     this.belongsTo(models.Encounter, {
       foreignKey: 'encounterId',
-      as: 'encounter'
+      as: 'encounter',
     });
     this.belongsTo(models.ReferenceData, {
       foreignKey: 'medicationId',
