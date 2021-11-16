@@ -31,6 +31,25 @@ import { useEncounter } from '../contexts/Encounter';
 const MAX_REPEATS_RANGE = 12;
 const REPEATS_OPTIONS = range(MAX_REPEATS_RANGE + 1).map(value => ({ label: value, value: value }));
 
+/*
+Creates an object to add initialValues to Formik that matches
+the table-like form fields.
+*/
+const getMedicationsInitialValues = medications => {
+  const medicationsInitialValues = {};
+
+  medications.forEach(medication => {
+    const key = medication.id;
+    medicationsInitialValues[key] = {
+      isDischarge: true,
+      quantity: medications.quantity || 0,
+      repeats: 0,
+    };
+  });
+
+  return medicationsInitialValues;
+};
+
 const StyledUnorderedList = styled.ul`
   margin: 5px 0;
   padding-left: 25px;
@@ -166,6 +185,7 @@ export const DischargeForm = ({ practitionerSuggester, onCancel, onSubmit }) => 
   const { encounter } = useEncounter();
   const [dischargeNotes, setDischargeNotes] = useState([]);
   const api = useApi();
+  const medicationInitialValues = getMedicationsInitialValues(encounter.medications);
 
   useEffect(() => {
     (async () => {
@@ -221,6 +241,7 @@ export const DischargeForm = ({ practitionerSuggester, onCancel, onSubmit }) => 
         discharge: {
           note: dischargeNotes.map(n => n.content).join('\n'),
         },
+        medications: medicationInitialValues,
       }}
       validationSchema={yup.object().shape({
         endDate: yup.date().required(),
