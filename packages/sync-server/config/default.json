@@ -338,6 +338,10 @@
     "childProcessEnv": null
   },
   "hl7": {
+    "nullLastNameValue": "NoLastName",
+    "assigners": {
+      "patientDisplayId": "Tamanu"
+    },
     "dataDictionaries": {
       "testMethod": "http://tamanu.io/data-dictionary/covid-test-methods",
       "patientDisplayId": "http://tamanu.io/data-dictionary/application-reference-number.html",

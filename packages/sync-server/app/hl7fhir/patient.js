@@ -5,8 +5,10 @@ function patientName(patient, additional) {
   const official = {
     use: "official",
     prefix: additional.title ? [additional.title] : [],
-    // TODO: lastName is not a mandatory field in Tamanu
-    family: patient.lastName,
+    // lastName is not a mandatory field in Tamanu, but is in HL7
+    // Some patients genuinely do not have last names, so, just send
+    // a preconfigured string in this circumstance.
+    family: patient.lastName || config.hl7.nullLastNameValue,
     given: [patient.firstName, patient.middleName].filter(x => x),
   };
 
@@ -32,7 +34,7 @@ function patientIds(patient, additional) {
     {
       use: "official",
       value: patient.displayId,
-      assigner: "VRS",
+      assigner: config.hl7.assigners.patientDisplayId,
       system: config.hl7.dataDictionaries.patientDisplayId,
     },
     {
