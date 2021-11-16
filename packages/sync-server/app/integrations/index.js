@@ -4,9 +4,11 @@ import config from 'config';
 import { log } from 'shared/services/logging';
 
 import * as fijiVrs from './fiji-vrs';
+import * as fijiVps from './fiji-vps';
 
 const integrations = {
   fijiVrs,
+  fijiVps,
 };
 
 export const integrationRoutes = express.Router();
