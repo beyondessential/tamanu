@@ -55,7 +55,7 @@ const StyledUnorderedList = styled.ul`
   padding-left: 25px;
 `;
 
-const ProcedureList = procedures => (
+const ProcedureList = React.memo(procedures => (
   <StyledUnorderedList>
     {procedures.length > 0
       ? procedures.map(({ procedureType }) => {
@@ -63,7 +63,7 @@ const ProcedureList = procedures => (
         })
       : 'N/a'}
   </StyledUnorderedList>
-);
+));
 
 const SelectFieldWithoutLabel = ({ field, form, options, ...props }) => {
   const handleChange = option => form.setFieldValue(field.name, option.value);
