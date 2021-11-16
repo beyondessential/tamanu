@@ -72,23 +72,21 @@ const DumbImagingRequestInfoPane = React.memo(
             />
             {(values.status === IMAGING_REQUEST_STATUS_TYPES.IN_PROGRESS ||
               values.status === IMAGING_REQUEST_STATUS_TYPES.COMPLETED) && (
-                <React.Fragment>
-                  <Field
-                    name="completedById"
-                    label="Completed by"
-                    required
-                    component={AutocompleteField}
-                    suggester={practitionerSuggester}
-                  />
-                  <Field
-                    name="locationId"
-                    label="Location"
-                    required
-                    component={AutocompleteField}
-                    suggester={locationSuggester}
-                  />
-                </React.Fragment>
-              )}
+              <React.Fragment>
+                <Field
+                  name="completedById"
+                  label="Completed by"
+                  component={AutocompleteField}
+                  suggester={practitionerSuggester}
+                />
+                <Field
+                  name="locationId"
+                  label="Location"
+                  component={AutocompleteField}
+                  suggester={locationSuggester}
+                />
+              </React.Fragment>
+            )}
             {imagingRequest?.status === IMAGING_REQUEST_STATUS_TYPES.COMPLETED && (
               <TextInput
                 name="results"
