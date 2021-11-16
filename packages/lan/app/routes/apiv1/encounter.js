@@ -38,7 +38,7 @@ encounter.put(
 
       // Update medications that were marked for discharge and ensure
       // only isDischarge, quantity and repeats fields are edited
-      const medications = req.body.medications;
+      const medications = req.body.medications || {};
       Object.keys(medications).forEach(async medicationId => {
         const { isDischarge, quantity, repeats } = medications[medicationId];
         if (isDischarge) {
