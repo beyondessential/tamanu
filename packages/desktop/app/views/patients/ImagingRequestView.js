@@ -76,14 +76,12 @@ const DumbImagingRequestInfoPane = React.memo(
                   <Field
                     name="completedById"
                     label="Completed by"
-                    required
                     component={AutocompleteField}
                     suggester={practitionerSuggester}
                   />
                   <Field
                     name="locationId"
                     label="Location"
-                    required
                     component={AutocompleteField}
                     suggester={locationSuggester}
                   />
