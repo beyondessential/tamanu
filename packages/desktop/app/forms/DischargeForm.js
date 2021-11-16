@@ -54,9 +54,7 @@ const FullWidthFields = styled.div`
 const ProcedureRow = ({ cpt }) => <li>{cpt}</li>;
 
 const MedicineRow = ({ medication }) => (
-  <li>
-    {medication.medication.name} ({medication.prescription})
-  </li>
+  <li>{`${medication.medication.name} (${medication.prescription})`}</li>
 );
 
 const EncounterOverview = ({

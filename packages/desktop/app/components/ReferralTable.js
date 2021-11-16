@@ -53,8 +53,9 @@ const ActionDropdown = React.memo(({ row }) => {
 const ReferringDoctorDisplay = ({ surveyResponse: { survey, answers } }) => {
   const fieldNames = ['Referring doctor', 'Referral completed by'];
   const api = useApi();
-  const [name, setName] = useState('Unknown');
+  const [name, setName] = useState('');
 
+  console.log(survey.components.map(({ dataElement }) => dataElement.name))
   useEffect(() => {
     (async () => {
       const referringDoctorComponent = survey.components.find(({ dataElement }) =>
@@ -67,10 +68,15 @@ const ReferringDoctorDisplay = ({ surveyResponse: { survey, answers } }) => {
         ({ dataElementId }) => dataElementId === referringDoctorComponent.dataElementId,
       );
       if (!referringDoctorAnswer) {
+        setName('Not provided');
         return;
       }
       const doctor = await api.get(`user/${encodeURIComponent(referringDoctorAnswer.body)}`);
-      if (doctor) setName(doctor.displayName);
+      if (doctor) {
+        setName(doctor.displayName);
+      } else {
+        setName('Unknown');
+      }
     })();
   }, [survey]);
 
