@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+import React, { useCallback, useState, useEffect } from 'react';
 import * as yup from 'yup';
 import Select from 'react-select';
 import styled from 'styled-components';
@@ -186,6 +186,19 @@ export const DischargeForm = ({ practitionerSuggester, onCancel, onSubmit }) => 
   const [dischargeNotes, setDischargeNotes] = useState([]);
   const api = useApi();
   const medicationInitialValues = getMedicationsInitialValues(encounter.medications);
+  const handleSubmit = useCallback(
+    ({ medications, ...data }) => {
+      // Filter out medications that weren't marked
+      const filteredMedications = {};
+      Object.keys(medications).forEach(id => {
+        const medication = medications[id];
+        if (medication.isDischarge) filteredMedications[id] = medication;
+      });
+
+      onSubmit({ ...data, medications: filteredMedications });
+    },
+    [onSubmit],
+  );
 
   useEffect(() => {
     (async () => {
@@ -233,7 +246,7 @@ export const DischargeForm = ({ practitionerSuggester, onCancel, onSubmit }) => 
 
   return (
     <Form
-      onSubmit={onSubmit}
+      onSubmit={handleSubmit}
       render={renderForm}
       enableReinitialize
       initialValues={{
