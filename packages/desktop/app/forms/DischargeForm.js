@@ -229,6 +229,7 @@ export const DischargeForm = ({ practitionerSuggester, onCancel, onSubmit }) => 
             component={CheckField}
             helperText="Requires mSupply"
             style={{ gridColumn: '1 / -1' }}
+            disabled
           />
           <Field
             name="discharge.note"
