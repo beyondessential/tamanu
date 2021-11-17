@@ -6,7 +6,6 @@ import { patientToHL7Patient, labTestToHL7DiagnosticReport } from '../../hl7fhir
 import * as schema from './schema';
 import { toSearchId, fromSearchId, hl7SortToTamanu, addPaginationToWhere } from './conversion';
 
-// TODO: enforce 2 most recent tests somehow
 // TODO: fix auth to yell at them if X-Tamanu-Client and X-Tamanu-Version aren't set
 
 export const routes = express.Router();

@@ -71,7 +71,6 @@ function labTestMethodToHL7Extension(labTestMethod) {
 }
 
 export async function labTestToHL7DiagnosticReport(labTest) {
-  // TODO: what's up with the getters that were here before?
   const labTestType = labTest.labTestType;
   const labTestMethod = labTest.labTestMethod;
   const labRequest = labTest.labRequest;
