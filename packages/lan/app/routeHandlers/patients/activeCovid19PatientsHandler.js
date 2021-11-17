@@ -1,6 +1,6 @@
 import { QueryTypes } from 'sequelize';
 import { arrayToDbString } from 'shared/utils';
-import { ENCOUNTER_TYPES } from 'shared/constants';
+import { DIAGNOSIS_CERTAINTY, ENCOUNTER_TYPES } from 'shared/constants';
 import { renameObjectKeys } from '~/utils/renameObjectKeys';
 import { makeFilter } from '~/utils/query';
 import { createPatientFilters } from '../../utils/patientFilters';
@@ -17,6 +17,11 @@ const sortKeys = {
 const COVID_19_VIRUS_IDENTIFIED = 'icd10-U07-1';
 const COVID_19_VIRUS_NOT_IDENTIFIED = 'icd10-U07-2';
 const COVID_19_DIAGNOSES = [COVID_19_VIRUS_IDENTIFIED, COVID_19_VIRUS_NOT_IDENTIFIED];
+const DIAGNOSIS_CERTAINTIES_TO_DISPLAY = [
+  DIAGNOSIS_CERTAINTY.CONFIRMED,
+  DIAGNOSIS_CERTAINTY.EMERGENCY,
+  DIAGNOSIS_CERTAINTY.SUSPECTED,
+]
 const SURVEY_ID = 'program-fijicovid19-fijicovidpatientsurvey';
 const CLINICAL_STATUS_DATA_ELEMENT_ID = 'pde-COVClinicalStatus';
 
@@ -108,7 +113,8 @@ export const activeCovid19PatientsHandler = async (req, res) => {
     --- Selecting inpatients and correct COVID-19 diagnoses
     WHERE EXISTS(SELECT id FROM encounter_diagnoses
                   WHERE encounter_id = encounters.id
-                  AND diagnosis_id IN (${arrayToDbString(COVID_19_DIAGNOSES)}))
+                  AND diagnosis_id IN (${arrayToDbString(COVID_19_DIAGNOSES)})
+                  AND certainty IN (${arrayToDbString(DIAGNOSIS_CERTAINTIES_TO_DISPLAY)}))
       AND encounters.encounter_type = '${ENCOUNTER_TYPES.ADMISSION}'
       ${patientFilterWhereClauses && `AND ${patientFilterWhereClauses}`}
 
