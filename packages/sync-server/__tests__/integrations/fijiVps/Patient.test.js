@@ -1,5 +1,4 @@
 import { fake } from 'shared/test-helpers/fake';
-
 import { createTestContext } from 'sync-server/__tests__/utilities';
 
 describe('VPS integration - Patient', () => {
