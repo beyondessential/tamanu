@@ -46,18 +46,24 @@ function parseQuery(unsafeQuery, querySchema) {
 async function getRecords({ query, model, where, include }) {
   const { _count, _page, _sort } = query;
 
-  return model.findAll({
-    where,
-    include,
-    limit: _count,
-    offset: _count * _page,
-    order: hl7SortToTamanu(_sort),
-    nest: true,
-    raw: true,
-  });
+  return Promise.all([
+    model.findAll({
+      where,
+      include,
+      limit: _count,
+      offset: _count * _page,
+      order: hl7SortToTamanu(_sort),
+      nest: true,
+      raw: true,
+    }),
+    model.count({
+      where,
+      include,
+    }),
+  ]);
 }
 
-async function getHL7PayloadFromRecords({ query, records, bundleId, toHL7, baseUrl }) {
+async function getHL7PayloadFromRecords({ query, records, total, bundleId, toHL7, baseUrl }) {
   // run in a loop instead of using `.map()` so embedded queries run in serial
   const hl7FhirRecords = [];
   for (const r of records) {
@@ -98,7 +104,7 @@ async function getHL7PayloadFromRecords({ query, records, bundleId, toHL7, baseU
       lastUpdated: lastUpdated ? lastUpdated.toISOString() : null,
     },
     type: 'searchset',
-    total: 1, // TODO: see https://www.hl7.org/fhir/search.html#total
+    total,
     link,
     entry: hl7FhirRecords,
   };
@@ -111,7 +117,7 @@ routes.get(
     const query = await parseQuery(req.query, schema.patient.query);
     const displayId = query['subject:identifier'].match(schema.IDENTIFIER_REGEXP)[1];
 
-    const records = await getRecords({
+    const [records, total] = await getRecords({
       query,
       model: Patient,
       where: { displayId },
@@ -120,6 +126,7 @@ routes.get(
     const payload = await getHL7PayloadFromRecords({
       query,
       records,
+      total,
       bundleId: 'patients',
       toHL7: ({ additionalData, ...patient }) => patientToHL7Patient(patient, additionalData),
       baseUrl: getBaseUrl(req),
@@ -133,7 +140,7 @@ routes.get(
   asyncHandler(async (req, res) => {
     const query = await schema.diagnosticReport.query.validate(req.query);
     const displayId = query['subject:identifier'].match(schema.IDENTIFIER_REGEXP)[1];
-    const records = await getRecords({
+    const [records, total] = await getRecords({
       query,
       model: req.store.models.LabTest,
       where: {}, // deliberately empty, join with a patient instead
@@ -163,6 +170,7 @@ routes.get(
     const payload = await getHL7PayloadFromRecords({
       query,
       records,
+      total,
       bundleId: 'diagnostic-reports',
       toHL7: labTestToHL7DiagnosticReport,
       baseUrl: getBaseUrl(req),
