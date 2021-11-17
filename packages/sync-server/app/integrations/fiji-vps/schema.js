@@ -1,7 +1,7 @@
 import * as yup from 'yup';
 
-const IDENTIFIER_NAMESPACE = 'VPS'; // TODO: what's namespace_for_application_permit_id?
-export const IDENTIFIER_REGEXP = new RegExp(`^${IDENTIFIER_NAMESPACE}|([a-zA-Z0-9]*)$`);
+const IDENTIFIER_NAMESPACE = 'VRS'; // TODO: what's namespace_for_application_permit_id?
+export const IDENTIFIER_REGEXP = new RegExp(`^${IDENTIFIER_NAMESPACE}\\|(.*)$`);
 const MAX_RECORDS = 100;
 
 const sharedQuery = yup.object({

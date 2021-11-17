@@ -90,6 +90,7 @@
     },
     "fijiVps": {
       "enabled": false,
+      "self": "http://localhost:3000"
     },
   },
   "localisation": {

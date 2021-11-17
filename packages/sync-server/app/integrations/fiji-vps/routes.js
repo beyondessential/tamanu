@@ -1,5 +1,7 @@
+import config from 'config';
 import express from 'express';
 import asyncHandler from 'express-async-handler';
+
 import * as schema from './schema';
 
 export const routes = express.Router();
@@ -18,7 +20,7 @@ function hl7SortToTamanu(hl7Sort) {
 }
 
 function getHl7Link(req, params) {
-  const base = `${req.protocol}://${req.host}${req.path}`;
+  const base = `${config.integrations.fijiVps.self}${req.baseUrl}${req.path}`;
   const query = Object.entries(params)
     .map(p => p.map(str => encodeURIComponent(str)).join('='))
     .join('&');
@@ -90,8 +92,6 @@ routes.get(
       (acc, p) => (acc > p.updatedAt.getTime() ? acc : p.updatedAt),
       null,
     );
-
-    console.log(lastUpdated);
 
     res.send({
       resourceType: 'Bundle',

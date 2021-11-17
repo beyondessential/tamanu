@@ -17,7 +17,7 @@ describe('VPS integration - Patient', () => {
       const { Patient } = ctx.store.models;
       const patient = await Patient.create(fake(Patient));
       const id = encodeURIComponent(patient.displayId);
-      const path = `/v1/integration/fijiVps/Patient?subject%3Aidentifier=${id}&_count=2&_page=0&_sort=-issued&status=final`;
+      const path = `/v1/integration/fijiVps/Patient?_sort=-issued&_page=0&_count=2&status=final&subject%3Aidentifier=VRS%7C${id}`;
 
       // act
       const response = await app.get(path);
@@ -28,7 +28,7 @@ describe('VPS integration - Patient', () => {
         resourceType: 'Bundle',
         id: 'patients',
         meta: {
-          lastUpdated: expect.any(Date),
+          lastUpdated: patient.updatedAt.toISOString(),
         },
         type: 'searchset',
         total: 1,
