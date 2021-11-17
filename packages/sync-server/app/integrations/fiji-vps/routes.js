@@ -2,7 +2,7 @@ import config from 'config';
 import express from 'express';
 import asyncHandler from 'express-async-handler';
 
-import { patientToHL7Patient } from '../../hl7fhir';
+import { patientToHL7Patient, labTestToHL7DiagnosticReport } from '../../hl7fhir';
 import * as schema from './schema';
 
 export const routes = express.Router();
@@ -15,12 +15,15 @@ function hl7SortToTamanu(hl7Sort) {
   throw new Error(`Unrecognised sort order: ${hl7Sort}`);
 }
 
-function getHl7Link(req, params) {
-  const base = `${config.integrations.fijiVps.self}${req.baseUrl}${req.path}`;
+function getHl7Link(baseUrl, params) {
   const query = Object.entries(params)
     .map(p => p.map(str => encodeURIComponent(str)).join('='))
     .join('&');
-  return [base, query].filter(c => c).join('?');
+  return [baseUrl, query].filter(c => c).join('?');
+}
+
+function getBaseUrl(req) {
+  return `${config.integrations.fijiVps.self}${req.baseUrl}${req.path}`;
 }
 
 function toSearchId(obj) {
@@ -40,73 +43,109 @@ function parseQuery(unsafeQuery, querySchema) {
   return querySchema.validate(values);
 }
 
+async function getRecords({ query, model, where, include }) {
+  const { _count, _page, _sort } = query;
+
+  return model.findAll({
+    where,
+    include,
+    limit: _count,
+    offset: _count * _page,
+    order: hl7SortToTamanu(_sort),
+    nest: true,
+    raw: true,
+  });
+}
+
+async function getHL7PayloadFromRecords({ query, records, bundleId, toHL7, baseUrl }) {
+  // run in a loop instead of using `.map()` so embedded queries run in serial
+  const hl7FhirRecords = [];
+  for (const r of records) {
+    hl7FhirRecords.push(await toHL7(r));
+  }
+
+  const link = [
+    {
+      relation: 'self',
+      link: getHl7Link(baseUrl, query),
+    },
+  ];
+  const lastRecord = records[records.length - 1];
+  if (lastRecord) {
+    // TODO: implement cursors (not necessary for patients)
+    // link.push({
+    //   relation: 'next',
+    //   link: getHl7Link(req, {
+    //     searchId: toSearchId({
+    //       _count,
+    //       _page,
+    //       _sort,
+    //       cursor: getCursorFromRecord(lastRecord),
+    //     }),
+    //   }),
+    // });
+  }
+
+  const lastUpdated = records.reduce(
+    (acc, p) => (acc > p.updatedAt.getTime() ? acc : p.updatedAt),
+    null,
+  );
+
+  return {
+    resourceType: 'Bundle',
+    id: bundleId,
+    meta: {
+      lastUpdated: lastUpdated ? lastUpdated.toISOString() : null,
+    },
+    type: 'searchset',
+    total: hl7FhirRecords.length,
+    link,
+    entry: hl7FhirRecords,
+  };
+}
+
 routes.get(
   '/Patient',
   asyncHandler(async (req, res) => {
     const { Patient } = req.store.models;
     const query = await parseQuery(req.query, schema.patient.query);
     const displayId = query['subject:identifier'].match(schema.IDENTIFIER_REGEXP)[1];
-    const { _count, _page, _sort } = query;
 
-    // there should only be one record returned, but we treat it as an array to make future expansion easier
-    const tamanuPatients = await Patient.findAll({
+    const records = await getRecords({
+      query,
+      model: Patient,
       where: { displayId },
-      limit: _count,
-      offset: _count * _page,
-      order: hl7SortToTamanu(_sort),
       include: [{ association: 'additionalData' }],
-      nest: true,
-      raw: true,
     });
-    const hl7FhirPatients = tamanuPatients.map(({ additionalData, ...patient }) =>
-      patientToHL7Patient(patient, additionalData),
-    );
-
-    const link = [
-      {
-        relation: 'self',
-        link: getHl7Link(req, query),
-      },
-    ];
-    const lastRecord = tamanuPatients[tamanuPatients.length - 1];
-    if (lastRecord) {
-      // TODO: implement cursors (not necessary for patients)
-      // link.push({
-      //   relation: 'next',
-      //   link: getHl7Link(req, {
-      //     searchId: toSearchId({
-      //       _count,
-      //       _page,
-      //       _sort,
-      //       cursor: getCursorFromRecord(lastRecord),
-      //     }),
-      //   }),
-      // });
-    }
-
-    const lastUpdated = tamanuPatients.reduce(
-      (acc, p) => (acc > p.updatedAt.getTime() ? acc : p.updatedAt),
-      null,
-    );
-
-    res.send({
-      resourceType: 'Bundle',
-      id: 'patients',
-      meta: {
-        lastUpdated: lastUpdated ? lastUpdated.toISOString() : null,
-      },
-      type: 'searchset',
-      total: hl7FhirPatients.length,
-      link,
-      entry: hl7FhirPatients,
+    const payload = await getHL7PayloadFromRecords({
+      query,
+      records,
+      bundleId: 'patients',
+      toHL7: ({ additionalData, ...patient }) => patientToHL7Patient(patient, additionalData),
+      baseUrl: getBaseUrl(req),
     });
+    res.send(payload);
   }),
 );
 
 routes.get(
   '/DiagnosticReport',
   asyncHandler(async (req, res) => {
-    // TODO
+    const query = await schema.diagnosticReport.query.validate(req.query);
+    const records = await getRecords({
+      query,
+      model: req.store.models.LabTest,
+      where: {}, // TODO
+      include: [], // TODO
+    });
+    const payload = await getHL7PayloadFromRecords({
+      query,
+      records,
+      bundleId: 'diagnostic-reports',
+      toHL7: labTestToHL7DiagnosticReport,
+      baseUrl: getBaseUrl(req),
+    });
+    res.send(payload);
   }),
 );
 
