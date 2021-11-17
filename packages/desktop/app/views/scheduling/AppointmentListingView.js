@@ -3,6 +3,7 @@ import React, { useState } from 'react';
 import { TopBar, PageContainer, DataFetchingTable } from '../../components';
 import { DateDisplay } from '../../components/DateDisplay';
 import { NewAppointmentButton } from '../../components/Appointments/NewAppointmentButton';
+import { AppointmentsSearchBar } from '../../components/Appointments/AppointmentsSearchBar';
 
 const COLUMNS = [
   {
@@ -31,6 +32,7 @@ export const AppointmentListingView = () => {
       <TopBar title="Appointments">
         <NewAppointmentButton onSuccess={() => setRefreshCount(refreshCount + 1)} />
       </TopBar>
+      <AppointmentsSearchBar />
       <DataFetchingTable
         endpoint="appointments"
         columns={COLUMNS}
