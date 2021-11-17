@@ -180,7 +180,7 @@ patientRelations.get(
 );
 
 patientRelations.get(
-  '/:id/surveyResponses',
+  '/:id/programResponses',
   asyncHandler(async (req, res) => {
     const { db, models, params, query } = req;
     const patientId = params.id;
@@ -195,6 +195,8 @@ patientRelations.get(
             ON (survey_responses.encounter_id = encounters.id)
         WHERE
           encounters.patient_id = :patientId
+        AND
+          surveys.survey_type = 'programs'
       `,
       `
         SELECT
@@ -215,6 +217,8 @@ patientRelations.get(
             ON (programs.id = surveys.program_id)
         WHERE
           encounters.patient_id = :patientId
+        AND
+          surveys.survey_type = 'programs'
       `,
       { patientId },
       query,

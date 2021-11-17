@@ -93,8 +93,9 @@ encounterRelations.get(
   }),
 );
 
+
 encounterRelations.get(
-  '/:id/surveyResponses',
+  '/:id/programResponses',
   asyncHandler(async (req, res) => {
     const { db, models, params, query } = req;
     const encounterId = params.id;
@@ -109,6 +110,8 @@ encounterRelations.get(
             ON (survey_responses.encounter_id = encounters.id)
         WHERE
           survey_responses.encounter_id = :encounterId
+        AND
+          surveys.survey_type = 'programs'
       `,
       `
         SELECT
@@ -128,6 +131,8 @@ encounterRelations.get(
             ON (users.id = encounters.examiner_id)
         WHERE
           survey_responses.encounter_id = :encounterId
+        AND
+          surveys.survey_type = 'programs'
       `,
       { encounterId },
       query,

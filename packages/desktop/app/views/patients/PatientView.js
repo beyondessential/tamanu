@@ -24,7 +24,7 @@ import { ImmunisationCertificateModal } from '../../components/ImmunisationCerti
 import { Button } from '../../components/Button';
 import { connectRoutedModal } from '../../components/Modal';
 import { PatientEncounterSummary } from './components/PatientEncounterSummary';
-import { DataFetchingSurveyResponsesTable } from '../../components/SurveyResponsesTable';
+import { DataFetchingProgramsTable } from '../../components/ProgramResponsesTable';
 
 import { PatientDetailsForm } from '../../forms/PatientDetailsForm';
 import { reloadPatient } from '../../store/patient';
@@ -180,7 +180,7 @@ const ProgramsPane = connect(null, dispatch => ({
 }))(
   React.memo(({ onNavigateToPrograms, patient }) => (
     <div>
-      <DataFetchingSurveyResponsesTable patientId={patient.id} />
+      <DataFetchingProgramsTable patientId={patient.id} />
       <ContentPane>
         <Button onClick={onNavigateToPrograms} variant="contained" color="primary">
           New survey

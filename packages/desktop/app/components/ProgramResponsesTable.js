@@ -21,15 +21,14 @@ const columns = [
 
 function getEndpoint({ encounterId, patientId }) {
   if (encounterId) {
-    return `encounter/${encounterId}/surveyResponses`;
+    return `encounter/${encounterId}/programResponses`;
   }
   if (patientId) {
-    return `patient/${patientId}/surveyResponses`;
+    return `patient/${patientId}/programResponses`;
   }
-  return 'surveyResponse';
 }
 
-export const DataFetchingSurveyResponsesTable = ({ encounterId, patientId }) => {
+export const DataFetchingProgramsTable = ({ encounterId, patientId }) => {
   const [selectedResponseId, setSelectedResponseId] = useState(null);
   const onSelectResponse = useCallback(surveyResponse => {
     setSelectedResponseId(surveyResponse.id);
@@ -42,7 +41,7 @@ export const DataFetchingSurveyResponsesTable = ({ encounterId, patientId }) => 
       <DataFetchingTable
         endpoint={getEndpoint({ encounterId, patientId })}
         columns={columns}
-        noDataMessage="No survey responses found"
+        noDataMessage="No programs found"
         onRowClick={onSelectResponse}
       />
     </>
