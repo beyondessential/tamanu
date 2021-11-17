@@ -19,7 +19,9 @@ export const initIntegrations = async ctx => {
     if (config.integrations[key].enabled) {
       log.info(`initIntegrations: ${key}: initialising`);
       const { routes, publicRoutes, initAppContext } = integration;
-      await initAppContext(ctx);
+      if (initAppContext) {
+        await initAppContext(ctx);
+      }
       if (routes) {
         integrationRoutes.use(`/${key}`, routes);
       }
