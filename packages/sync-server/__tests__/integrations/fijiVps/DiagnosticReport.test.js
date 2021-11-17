@@ -190,13 +190,7 @@ describe('VPS integration - DiagnosticReport', () => {
       expect(response2).toHaveSucceeded();
       expect(response2.body).toMatchObject({
         total: 3,
-        link: [
-          { relation: 'self', link: nextUrl },
-          {
-            relation: 'next',
-            link: expect.stringContaining('/v1/integration/fijiVps/DiagnosticReport?searchId='),
-          },
-        ],
+        link: [{ relation: 'self', link: nextUrl }],
         entry: [{ id: labTest1.id }],
       });
     });

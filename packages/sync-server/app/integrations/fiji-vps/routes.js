@@ -47,21 +47,27 @@ async function getHL7Payload({
   const { _count, _page, _sort, after } = query;
   const offset = _count * _page;
   const baseWhere = getWhere(displayId);
+  const afterWhere = addPaginationToWhere(baseWhere, after);
   const include = getInclude(displayId);
 
-  const [records, total] = await Promise.all([
+  const [records, total, remaining] = await Promise.all([
     model.findAll({
-      where: addPaginationToWhere(baseWhere, after),
+      where: afterWhere,
       include,
       limit: _count,
       offset,
       order: hl7SortToTamanu(_sort),
-      nest: true,
       raw: true,
+      nest: true,
     }),
     model.count({
       where: baseWhere,
       include,
+    }),
+    model.count({
+      where: afterWhere,
+      include,
+      limit: _count + 1, // we can stop once we've found n+1 remaining records
     }),
   ]);
 
@@ -77,7 +83,9 @@ async function getHL7Payload({
       relation: 'self',
       link: getHl7Link(baseUrl, req.query), // use original query
     },
-    {
+  ];
+  if (remaining > records.length) {
+    link.push({
       relation: 'next',
       link: getHl7Link(baseUrl, {
         searchId: toSearchId({
@@ -85,8 +93,8 @@ async function getHL7Payload({
           after: lastRecord,
         }),
       }),
-    },
-  ];
+    });
+  }
 
   const lastUpdated = records.reduce(
     (acc, p) => (acc > p.updatedAt.getTime() ? acc : p.updatedAt),
