@@ -13,26 +13,8 @@ import { AppointmentModal } from './AppointmentModal';
 import { Button, DeleteButton } from '../Button';
 import { Modal } from '../Modal';
 
-const Container = styled.div`
-  display: flex;
-  flex-direction: column;
-  row-gap: 0.5rem;
-  padding: 1rem 0;
-`;
-
-const FirstRow = styled.div`
-  display: grid;
-  grid-template-columns: 1fr 8rem;
-  justify-content: space-between;
-  align-items: flex-start;
-  padding-bottom: 1rem;
-  border-bottom: 1px solid ${Colors.outline};
-  column-gap: 2rem;
-`;
-
 const Heading = styled.div`
   font-weight: 700;
-  font-size: 1.1;
   margin-top: 0.5rem;
   margin-bottom: 0.35rem;
 `;
@@ -147,6 +129,27 @@ const CancelAppointmentModal = ({ open, onClose, onConfirm, appointment }) => {
   );
 };
 
+const Container = styled.div`
+  display: flex;
+  flex-direction: column;
+  row-gap: 0.5rem;
+  padding: 1rem 0;
+`;
+
+const Section = styled.div`
+  margin-bottom: 0.5rem;
+`;
+
+const FirstRow = styled(Section)`
+  display: grid;
+  grid-template-columns: 1fr 8rem;
+  justify-content: space-between;
+  align-items: flex-start;
+  padding-bottom: 1rem;
+  border-bottom: 1px solid ${Colors.outline};
+  column-gap: 2rem;
+`;
+
 export const AppointmentDetail = ({ appointment, updated }) => {
   const api = useApi();
   const { id, type, status, clinician, patient, location } = appointment;
@@ -156,6 +159,8 @@ export const AppointmentDetail = ({ appointment, updated }) => {
   const [appointmentModal, setAppointmentModal] = useState(false);
   const [cancelModal, setCancelModal] = useState(false);
   const [cancelConfirmed, setCancelConfirmed] = useState(false);
+  const [errorMessage, setErrorMessage] = useState('');
+
   useEffect(() => {
     setStatusOption(appointmentStatusOptions.find(option => option.value === status));
   }, [status]);
@@ -168,6 +173,7 @@ export const AppointmentDetail = ({ appointment, updated }) => {
   };
   return (
     <Container>
+      {errorMessage && <Section>{errorMessage}</Section>}
       <FirstRow>
         <div>
           <Heading>Type</Heading>
@@ -192,15 +198,15 @@ export const AppointmentDetail = ({ appointment, updated }) => {
           }}
         />
       </FirstRow>
-      <div>
+      <Section>
         <Heading>Clinician</Heading>
         {clinician.displayName}
-      </div>
+      </Section>
       <PatientInfo patient={patient} />
-      <div>
+      <Section>
         <Heading>Location</Heading>
         {location.name}
-      </div>
+      </Section>
       <Button
         variant="outlined"
         color="primary"
@@ -231,12 +237,13 @@ export const AppointmentDetail = ({ appointment, updated }) => {
           setCancelConfirmed(true);
           try {
             await updateAppointmentStatus(APPOINTMENT_STATUSES.CANCELLED);
-            setCancelConfirmed(false);
             // hide the tooltip if cancelling appointment
             Tooltip.hide();
           } catch (e) {
             console.error(e);
+            setErrorMessage('Unable to cancel appointment. Please try again.');
           }
+          setCancelConfirmed(false);
           setCancelModal(false);
         }}
       />
