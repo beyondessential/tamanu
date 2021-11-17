@@ -29,6 +29,13 @@ const sharedQuery = yup.object({
     .string()
     .oneOf(['-issued'])
     .required(),
+  after: yup
+    .object({
+      id: yup.string().required(),
+      createdAt: yup.date().required(),
+    })
+    .nullable()
+    .default(null),
 });
 
 export const patient = {

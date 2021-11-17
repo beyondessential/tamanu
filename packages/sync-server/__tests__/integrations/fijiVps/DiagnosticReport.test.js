@@ -11,15 +11,7 @@ describe('VPS integration - DiagnosticReport', () => {
   afterAll(() => ctx.close());
 
   async function createLabTestHierarchy(patient) {
-    const {
-      LabTest,
-      LabRequest,
-      ReferenceData,
-      LabTestType,
-      Encounter,
-      Patient,
-      User,
-    } = ctx.store.models;
+    const { LabTest, LabRequest, ReferenceData, LabTestType, Encounter, User } = ctx.store.models;
 
     const examiner = await User.create(fake(User));
     const encounter = await Encounter.create({
@@ -178,12 +170,11 @@ describe('VPS integration - DiagnosticReport', () => {
 
       // act
       const response1 = await app.get(path);
-      const nextUrl = response1.body.link.find(l => l.relation === 'self')?.link;
-      const [, nextPath, nextQuery] = nextUrl.match(/^.*(\/v1\/integration\/fijiVps\/.*)(\?.*)$/);
-      const response2 = await app.get(`${nextPath}${nextQuery}`);
+      const nextUrl = response1.body.link.find(l => l.relation === 'next')?.link;
+      const [, nextPath] = nextUrl.match(/^.*(\/v1\/integration\/fijiVps\/.*)$/);
+      const response2 = await app.get(nextPath);
 
       // assert
-      const expectedSearchId = 'TODO';
       expect(response1).toHaveSucceeded();
       expect(response1.body).toMatchObject({
         total: 3,
@@ -191,17 +182,21 @@ describe('VPS integration - DiagnosticReport', () => {
           { relation: 'self', link: expect.stringContaining(path) },
           {
             relation: 'next',
-            link: expect.stringContaining(
-              `/v1/integration/fijiVps/DiagnosticReport?searchId=${expectedSearchId}`,
-            ),
+            link: expect.stringContaining('/v1/integration/fijiVps/DiagnosticReport?searchId='),
           },
         ],
         entry: [{ id: labTest3.id }, { id: labTest2.id }],
       });
       expect(response2).toHaveSucceeded();
-      expect(response2.body).toMatch({
+      expect(response2.body).toMatchObject({
         total: 3,
-        link: [{ relation: 'self', link: nextUrl }],
+        link: [
+          { relation: 'self', link: nextUrl },
+          {
+            relation: 'next',
+            link: expect.stringContaining('/v1/integration/fijiVps/DiagnosticReport?searchId='),
+          },
+        ],
         entry: [{ id: labTest1.id }],
       });
     });
