@@ -39,8 +39,8 @@ encounter.put(
       // Update medications that were marked for discharge and ensure
       // only isDischarge, quantity and repeats fields are edited
       const medications = req.body.medications || {};
-      Object.keys(medications).forEach(async medicationId => {
-        const { isDischarge, quantity, repeats } = medications[medicationId];
+      Object.entries(medications).forEach(async ([medicationId, medicationValues]) => {
+        const { isDischarge, quantity, repeats } = medicationValues;
         if (isDischarge) {
           const medication = await models.EncounterMedication.findByPk(medicationId);
 
