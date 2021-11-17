@@ -50,30 +50,31 @@ const ActionDropdown = React.memo(({ row }) => {
   );
 });
 
-const ReferringDoctorDisplay = ({ surveyResponse: { survey, answers } }) => {
+const ReferralBy = ({ surveyResponse: { survey, answers } }) => {
   const fieldNames = ['Referring doctor', 'Referral completed by'];
   const api = useApi();
-  const [name, setName] = useState('');
+  const [name, setName] = useState('N/A');
 
-  console.log(survey.components.map(({ dataElement }) => dataElement.name))
   useEffect(() => {
     (async () => {
-      const referringDoctorComponent = survey.components.find(({ dataElement }) =>
+      const referralByComponent = survey.components.find(({ dataElement }) =>
         fieldNames.includes(dataElement.name),
       );
-      if (!referringDoctorComponent) {
+      if (!referralByComponent) {
         return;
       }
-      const referringDoctorAnswer = answers.find(
-        ({ dataElementId }) => dataElementId === referringDoctorComponent.dataElementId,
+      const referralByAnswer = answers.find(
+        ({ dataElementId }) => dataElementId === referralByComponent.dataElementId,
       );
-      if (!referringDoctorAnswer) {
-        setName('Not provided');
+      if (!referralByAnswer) {
+        setName('');
         return;
       }
-      const doctor = await api.get(`user/${encodeURIComponent(referringDoctorAnswer.body)}`);
-      if (doctor) {
-        setName(doctor.displayName);
+      const user = await api.get(`user/${encodeURIComponent(referralByAnswer.body)}`);
+      if (user) {
+        setName(user.displayName);
+      } else if (referralByAnswer.body) {
+        setName(referralByAnswer.body);
       } else {
         setName('Unknown');
       }
@@ -86,17 +87,14 @@ const ReferringDoctorDisplay = ({ surveyResponse: { survey, answers } }) => {
 const getDate = ({ initiatingEncounter }) => <DateDisplay date={initiatingEncounter.startDate} />;
 
 const getReferralType = ({ surveyResponse: { survey } }) => survey.name;
-const getReferringDoctor = ({ surveyResponse }) => (
-  <ReferringDoctorDisplay surveyResponse={surveyResponse} />
-);
+const getReferralBy = ({ surveyResponse }) => <ReferralBy surveyResponse={surveyResponse} />;
 const getStatus = ({ completingEncounter }) => (completingEncounter ? 'Complete' : 'Pending');
-
 const getActions = row => <ActionDropdown row={row} />;
 
 const columns = [
   { key: 'date', title: 'Referral date', accessor: getDate },
   { key: 'department', title: 'Referral type', accessor: getReferralType },
-  { key: 'referredBy', title: 'Referring doctor', accessor: getReferringDoctor },
+  { key: 'referredBy', title: 'Referral completed by', accessor: getReferralBy },
   { key: 'status', title: 'Status', accessor: getStatus },
   { key: 'actions', title: 'Actions', accessor: getActions, dontCallRowInput: true },
 ];
