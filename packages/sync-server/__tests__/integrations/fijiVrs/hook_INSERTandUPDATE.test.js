@@ -177,6 +177,13 @@ describe('VRS integration hook: INSERT and UPDATE operations', () => {
 
       // assert
       expect(response).toHaveRequestError(422);
+      expect(response.body).toMatchObject({
+        response: false,
+        error: {
+          message: expect.stringContaining('must be a `string` type'),
+          name: 'ValidationError',
+        },
+      });
       const fetchMock = ctx.integrations.fijiVrs.remote.fetchImplementation;
       expect(fetchMock).toHaveBeenCalledWith(`${host}/token`, expect.anything());
       expect(fetchMock).toHaveBeenCalledWith(
@@ -208,6 +215,13 @@ describe('VRS integration hook: INSERT and UPDATE operations', () => {
 
       // assert
       expect(response).toHaveRequestError(422);
+      expect(response.body).toMatchObject({
+        response: false,
+        error: {
+          message: expect.stringContaining('must be a `date` type'),
+          name: 'ValidationError',
+        },
+      });
       const fetchMock = ctx.integrations.fijiVrs.remote.fetchImplementation;
       expect(fetchMock).toHaveBeenCalledWith(`${host}/token`, expect.anything());
       expect(fetchMock).toHaveBeenCalledWith(
@@ -243,6 +257,7 @@ describe('VRS integration hook: INSERT and UPDATE operations', () => {
       // assert
       expect(response).toHaveRequestError(502);
       expect(response.body).toEqual({
+        response: false,
         error: {
           message: expect.stringContaining('500'),
           name: 'RemoteCallFailedError',
