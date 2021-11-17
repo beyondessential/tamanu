@@ -38,12 +38,45 @@ describe('VPS integration - Patient', () => {
             link: expect.stringContaining(path),
           },
         ],
-        entry: [{}], // TODO
+        entry: [
+          {
+            active: true,
+            address: [], // TODO
+            birthDate: patient.dateOfBirth.toISOString().slice(0, 10),
+            gender: patient.sex,
+            identifier: [
+              {
+                use: 'usual',
+                value: patient.id,
+              },
+              {
+                assigner: 'Tamanu',
+                system: 'http://tamanu.io/data-dictionary/application-reference-number.html',
+                use: 'official',
+                value: patient.displayId,
+              },
+            ],
+            name: [
+              {
+                family: patient.lastName,
+                given: [patient.firstName, patient.middleName],
+                prefix: [], // TODO
+                use: 'official',
+              },
+              {
+                text: patient.culturalName,
+                use: 'nickname',
+              },
+            ],
+            resourceType: 'Patient',
+            telecom: [], // TODO
+          },
+        ],
       });
     });
   });
 
   describe('failure', () => {
-    it.todo('returns a hl7 fhir comliant error when passed the wrong query params');
+    it.todo('returns an error when passed the wrong query params');
   });
 });

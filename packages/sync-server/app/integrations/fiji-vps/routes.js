@@ -2,14 +2,10 @@ import config from 'config';
 import express from 'express';
 import asyncHandler from 'express-async-handler';
 
+import { patientToHL7Patient } from '../../hl7fhir';
 import * as schema from './schema';
 
 export const routes = express.Router();
-
-function patientToHL7Patient(patient, additional) {
-  // TODO: import from TAN-941
-  return {};
-}
 
 function hl7SortToTamanu(hl7Sort) {
   // hl7Sort can be quite complicated, we only support a single field `issued` in `-` order
