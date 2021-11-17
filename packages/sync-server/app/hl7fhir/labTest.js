@@ -71,13 +71,14 @@ function labTestMethodToHL7Extension(labTestMethod) {
 }
 
 export async function labTestToHL7DiagnosticReport(labTest) {
-  const labTestType = await labTest.getLabTestType();
-  const labTestMethod = await labTest.getLabTestMethod();
-  const labRequest = await labTest.getLabRequest();
-  const encounter = await labRequest.getEncounter();
-  const patient = await encounter.getPatient();
-  const examiner = await encounter.getExaminer();
-  const laboratory = await labRequest.getLaboratory();
+  // TODO: what's up with the getters that were here before?
+  const labTestType = labTest.labTestType;
+  const labTestMethod = labTest.labTestMethod;
+  const labRequest = labTest.labRequest;
+  const encounter = labRequest.encounter;
+  const patient = encounter.patient;
+  const examiner = encounter.examiner;
+  const laboratory = labRequest.laboratory;
 
   return {
     resourceType: 'DiagnosticReport',

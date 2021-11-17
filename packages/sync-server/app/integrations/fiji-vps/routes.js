@@ -132,11 +132,33 @@ routes.get(
   '/DiagnosticReport',
   asyncHandler(async (req, res) => {
     const query = await schema.diagnosticReport.query.validate(req.query);
+    const displayId = query['subject:identifier'].match(schema.IDENTIFIER_REGEXP)[1];
     const records = await getRecords({
       query,
       model: req.store.models.LabTest,
-      where: {}, // TODO
-      include: [], // TODO
+      where: {}, // deliberately empty, join with a patient instead
+      include: [
+        { association: 'labTestType' },
+        { association: 'labTestMethod' },
+        {
+          association: 'labRequest',
+          required: true,
+          include: [
+            { association: 'laboratory' },
+            {
+              association: 'encounter',
+              required: true,
+              include: [
+                { association: 'examiner' },
+                {
+                  association: 'patient',
+                  where: { displayId },
+                },
+              ],
+            },
+          ],
+        },
+      ],
     });
     const payload = await getHL7PayloadFromRecords({
       query,

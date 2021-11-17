@@ -41,8 +41,8 @@ describe('VPS integration - DiagnosticReport', () => {
       const labRequest = await LabRequest.create({
         ...fake(LabRequest),
         encounterId: encounter.id,
-        laboratoryId: laboratory.id,
-        categoryId: labTestCategory.id,
+        labTestLaboratoryId: laboratory.id,
+        labTestCategoryId: labTestCategory.id,
       });
       const labTestType = await LabTestType.create({
         ...fake(LabTestType),
@@ -84,20 +84,60 @@ describe('VPS integration - DiagnosticReport', () => {
         ],
         entry: [
           {
-            active: true,
+            resourceType: 'DiagnosticReport',
+            id: labTest.id,
+            effectiveDateTime: labRequest.sampleTime.toISOString(),
+            issued: labRequest.requestedDate.toISOString(),
+            code: {
+              coding: [
+                {
+                  code: labTestType.code,
+                  display: labTestType.name,
+                },
+              ],
+              text: labTestType.name,
+            },
             identifier: [
               {
-                use: 'usual',
-                value: labTest.id,
-              },
-              {
-                assigner: 'Tamanu',
-                system: 'http://tamanu.io/data-dictionary/application-reference-number.html',
+                system: 'http://tamanu.io/data-dictionary/labrequest-reference-number.html',
                 use: 'official',
                 value: labRequest.displayId,
               },
             ],
-            resourceType: 'DiagnosticReport',
+            performer: [
+              {
+                display: laboratory.name,
+                reference: `Organization/${laboratory.id}`,
+              },
+            ],
+            status: (() => {
+              if (labTest.status === 'published') return 'final';
+              if (labTest.status === 'results_pending') return 'registered';
+              return labTest.status;
+            })(),
+            result: (() => {
+              if (labTest.status !== 'published') return [];
+              return [{ reference: `Observation/${labTest.id}` }];
+            })(),
+            subject: {
+              display: `${patient.firstName} ${patient.lastName}`,
+              reference: `Patient/${patient.id}`,
+            },
+            extension: [
+              {
+                url: 'http://tamanu.io/data-dictionary/covid-test-methods/covid-test-methods',
+                valueCodeableConcept: {
+                  coding: [
+                    {
+                      code: labTestMethod.code,
+                      display: labTestMethod.name,
+                      system:
+                        'http://tamanu.io/data-dictionary/covid-test-methods/covid-test-methods/rdt',
+                    },
+                  ],
+                },
+              },
+            ],
           },
         ],
       });
