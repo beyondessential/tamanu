@@ -98,7 +98,7 @@ async function getHL7PayloadFromRecords({ query, records, bundleId, toHL7, baseU
       lastUpdated: lastUpdated ? lastUpdated.toISOString() : null,
     },
     type: 'searchset',
-    total: hl7FhirRecords.length,
+    total: 1, // TODO: see https://www.hl7.org/fhir/search.html#total
     link,
     entry: hl7FhirRecords,
   };

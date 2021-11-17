@@ -10,55 +10,77 @@ describe('VPS integration - DiagnosticReport', () => {
   });
   afterAll(() => ctx.close());
 
+  async function createLabTestHierarchy(patient) {
+    const {
+      LabTest,
+      LabRequest,
+      ReferenceData,
+      LabTestType,
+      Encounter,
+      Patient,
+      User,
+    } = ctx.store.models;
+
+    const examiner = await User.create(fake(User));
+    const encounter = await Encounter.create({
+      ...fake(Encounter),
+      patientId: patient.id,
+      examinerId: examiner.id,
+    });
+    const laboratory = await ReferenceData.create({
+      ...fake(ReferenceData),
+      type: 'labTestLaboratory',
+    });
+    const labTestCategory = await ReferenceData.create({
+      ...fake(ReferenceData),
+      type: 'labTestCategory',
+    });
+    const labRequest = await LabRequest.create({
+      ...fake(LabRequest),
+      encounterId: encounter.id,
+      labTestLaboratoryId: laboratory.id,
+      labTestCategoryId: labTestCategory.id,
+    });
+    const labTestType = await LabTestType.create({
+      ...fake(LabTestType),
+      labTestCategoryId: labTestCategory.id,
+    });
+    const labTestMethod = await ReferenceData.create({
+      ...fake(ReferenceData),
+      type: 'labTestMethod',
+    });
+    const labTest = await LabTest.create({
+      ...fake(LabTest),
+      labTestTypeId: labTestType.id,
+      labRequestId: labRequest.id,
+      labTestMethodId: labTestMethod.id,
+      categoryId: labTestCategory.id,
+    });
+
+    return {
+      labTest,
+      labTestMethod,
+      labTestType,
+      labRequest,
+      labTestCategory,
+      laboratory,
+      encounter,
+      examiner,
+    };
+  }
+
   describe('success', () => {
     it('fetches a diagnostic report', async () => {
       // arrange
-      const {
-        LabTest,
-        LabRequest,
-        ReferenceData,
-        LabTestType,
-        Encounter,
-        Patient,
-        User,
-      } = ctx.store.models;
-
+      const { Patient } = ctx.store.models;
       const patient = await Patient.create(fake(Patient));
-      const examiner = await User.create(fake(User));
-      const encounter = await Encounter.create({
-        ...fake(Encounter),
-        patientId: patient.id,
-        examinerId: examiner.id,
-      });
-      const laboratory = await ReferenceData.create({
-        ...fake(ReferenceData),
-        type: 'labTestLaboratory',
-      });
-      const labTestCategory = await ReferenceData.create({
-        ...fake(ReferenceData),
-        type: 'labTestCategory',
-      });
-      const labRequest = await LabRequest.create({
-        ...fake(LabRequest),
-        encounterId: encounter.id,
-        labTestLaboratoryId: laboratory.id,
-        labTestCategoryId: labTestCategory.id,
-      });
-      const labTestType = await LabTestType.create({
-        ...fake(LabTestType),
-        labTestCategoryId: labTestCategory.id,
-      });
-      const labTestMethod = await ReferenceData.create({
-        ...fake(ReferenceData),
-        type: 'labTestMethod',
-      });
-      const labTest = await LabTest.create({
-        ...fake(LabTest),
-        labTestTypeId: labTestType.id,
-        labRequestId: labRequest.id,
-        labTestMethodId: labTestMethod.id,
-        categoryId: labTestCategory.id,
-      });
+      const {
+        labTest,
+        labRequest,
+        labTestType,
+        labTestMethod,
+        laboratory,
+      } = await createLabTestHierarchy(patient);
 
       const id = encodeURIComponent(patient.displayId);
       const path = `/v1/integration/fijiVps/DiagnosticReport?_sort=-issued&_page=0&_count=2&status=final&subject%3Aidentifier=VRS%7C${id}`;
@@ -140,6 +162,47 @@ describe('VPS integration - DiagnosticReport', () => {
             ],
           },
         ],
+      });
+    });
+
+    it('fetches multiple pages', async () => {
+      // arrange
+      const { Patient } = ctx.store.models;
+      const patient = await Patient.create(fake(Patient));
+      const { labTest: labTest1 } = await createLabTestHierarchy(patient);
+      const { labTest: labTest2 } = await createLabTestHierarchy(patient);
+      const { labTest: labTest3 } = await createLabTestHierarchy(patient);
+
+      const id = encodeURIComponent(patient.displayId);
+      const path = `/v1/integration/fijiVps/DiagnosticReport?_sort=-issued&_page=0&_count=2&status=final&subject%3Aidentifier=VRS%7C${id}`;
+
+      // act
+      const response1 = await app.get(path);
+      const nextUrl = response1.body.link.find(l => l.relation === 'self')?.link;
+      const [, nextPath, nextQuery] = nextUrl.match(/^.*(\/v1\/integration\/fijiVps\/.*)(\?.*)$/);
+      const response2 = await app.get(`${nextPath}${nextQuery}`);
+
+      // assert
+      const expectedSearchId = 'TODO';
+      expect(response1).toHaveSucceeded();
+      expect(response1.body).toMatchObject({
+        total: 3,
+        link: [
+          { relation: 'self', link: expect.stringContaining(path) },
+          {
+            relation: 'next',
+            link: expect.stringContaining(
+              `/v1/integration/fijiVps/DiagnosticReport?searchId=${expectedSearchId}`,
+            ),
+          },
+        ],
+        entry: [{ id: labTest3.id }, { id: labTest2.id }],
+      });
+      expect(response2).toHaveSucceeded();
+      expect(response2.body).toMatch({
+        total: 3,
+        link: [{ relation: 'self', link: nextUrl }],
+        entry: [{ id: labTest1.id }],
       });
     });
   });
