@@ -1,3 +1,5 @@
+import { format } from 'date-fns';
+
 import { fake } from 'shared/test-helpers/fake';
 import { createTestContext } from 'sync-server/__tests__/utilities';
 
@@ -41,7 +43,7 @@ describe('VPS integration - Patient', () => {
           {
             active: true,
             address: [], // TODO
-            birthDate: patient.dateOfBirth.toISOString().slice(0, 10),
+            birthDate: format(patient.dateOfBirth, 'yyyy-MM-dd'),
             gender: patient.sex,
             identifier: [
               {
