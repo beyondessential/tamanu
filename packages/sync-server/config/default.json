@@ -87,7 +87,10 @@
       "expectAccessToken": ["set this value in local.json"],
       // refresh the token if it's within tokenExpiryMarginMs milliseconds of expiry
       "tokenExpiryMarginMs": 60000
-    }
+    },
+    "fijiVps": {
+      "enabled": false,
+    },
   },
   "localisation": {
     "labResultWidget": {
