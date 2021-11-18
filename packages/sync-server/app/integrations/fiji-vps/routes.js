@@ -16,7 +16,7 @@ import {
 
 export const routes = express.Router();
 
-function getHl7Link(baseUrl, params) {
+function getHL7Link(baseUrl, params) {
   const query = Object.entries(params)
     .filter(([, v]) => v !== null && v !== undefined)
     .map(p => p.map(str => encodeURIComponent(str)).join('='))
@@ -77,14 +77,14 @@ async function getHL7Payload({ req, querySchema, model, getWhere, getInclude, bu
   const link = [
     {
       relation: 'self',
-      link: getHl7Link(baseUrl, req.query), // use original query
+      link: getHL7Link(baseUrl, req.query), // use original query
     },
   ];
   const lastRecord = records[records.length - 1];
   if (remaining > records.length) {
     link.push({
       relation: 'next',
-      link: getHl7Link(baseUrl, {
+      link: getHL7Link(baseUrl, {
         searchId: toSearchId({
           ...query, // use parsed query
           after: lastRecord,
