@@ -37,7 +37,7 @@ export function addPaginationToWhere(where, after) {
   if (!after) {
     return where;
   }
-  // TODO: once we add more than a single order this will be more complicated
+  // once we add more than a single order this will be more complicated
   return {
     [Op.and]: [
       where,
