@@ -182,6 +182,7 @@ const calculateSurveyResultsInBatch = async (
  * this sub command can be used to rerun all the survey result calculations in sync-server.
  * Most of the code is copied pasted from tamanu-mobile
  * https://github.com/beyondessential/tamanu-mobile/blob/e81c87df3acb4518c808fbad399eec031a05e4c3/App/ui/helpers/fields.ts#L90
+ * TODO: When we're sure that resultText are all syncing correctly, we can remove this sub command
  * @param {*} store
  * @param {*} options
  */
