@@ -272,7 +272,7 @@ describe('Programs', () => {
       const patient = await models.Patient.create(await createDummyPatient(models));
 
       // populate responses
-      await submitMultipleSurveyResponses(
+      const responses = await submitMultipleSurveyResponses(
         testSurvey,
         {
           patientId: patient.id,
