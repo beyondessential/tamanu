@@ -282,12 +282,9 @@ describe('Programs', () => {
         },
       );
 
-      const referrals = await app.get(`/v1/patient/${patient.id}/referrals?rowsPerPage=100`);
       const programResponses = await app.get(`/v1/patient/${patient.id}/programResponses?rowsPerPage=100`);
-      expect(referrals).toHaveSucceeded();
-      expect(programResponses).toHaveSucceeded();
 
-      expect(referrals.body.count).toEqual(responses.length);
+      expect(programResponses).toHaveSucceeded();
       expect(programResponses.body.count).toEqual(0);
     });
 
