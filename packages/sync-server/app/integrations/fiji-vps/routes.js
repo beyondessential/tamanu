@@ -37,16 +37,7 @@ function parseQuery(unsafeQuery, querySchema) {
   return querySchema.validate(values, { stripUnknown: true, abortEarly: false });
 }
 
-async function getHL7Payload({
-  req,
-  querySchema,
-  model,
-  getWhere,
-  getInclude,
-  bundleId,
-  toHL7,
-  baseUrl,
-}) {
+async function getHL7Payload({ req, querySchema, model, getWhere, getInclude, bundleId, toHL7 }) {
   const query = await parseQuery(req.query, querySchema);
   const [, displayId] = decodeIdentifier(query['subject:identifier']);
   const { _count, _page, _sort, after } = query;
@@ -82,13 +73,14 @@ async function getHL7Payload({
     hl7FhirRecords.push(await toHL7(r, query));
   }
 
-  const lastRecord = records[records.length - 1];
+  const baseUrl = getBaseUrl(req);
   const link = [
     {
       relation: 'self',
       link: getHl7Link(baseUrl, req.query), // use original query
     },
   ];
+  const lastRecord = records[records.length - 1];
   if (remaining > records.length) {
     link.push({
       relation: 'next',
@@ -131,7 +123,6 @@ routes.get(
       getInclude: () => [{ association: 'additionalData' }],
       bundleId: 'patients',
       toHL7: ({ additionalData, ...patient }) => patientToHL7Patient(patient, additionalData),
-      baseUrl: getBaseUrl(req),
     });
 
     res.send(payload);
@@ -173,7 +164,6 @@ routes.get(
         const shouldEmbedResult = _include === schema.DIAGNOSTIC_REPORT_INCLUDES.RESULT;
         return labTestToHL7DiagnosticReport(labTest, { shouldEmbedResult });
       },
-      baseUrl: getBaseUrl(req),
     });
 
     res.send(payload);
