@@ -75,27 +75,32 @@ export const ImmunisationForm = React.memo(
     getScheduledVaccines,
     locationSuggester,
   }) => {
+    const [loadingVaccineOptions, setLoadingVaccineOptions] = useState(false);
     const [vaccineOptions, setVaccineOptions] = useState([]);
     const [category, setCategory] = useState();
     const [vaccineLabel, setVaccineLabel] = useState();
     const [administeredOptions, setAdministeredOptions] = useState([]);
     const [scheduleOptions, setScheduleOptions] = useState([]);
-    const scheduledVaccinesToOptions = async scheduledCategory => {
-      try {
-        setAdministeredOptions([]);
-        setScheduleOptions([]);
-        const availableScheduledVaccines = await getScheduledVaccines({ category: scheduledCategory });
-        setVaccineOptions(
-          availableScheduledVaccines.map(vaccine => ({
-            label: vaccine.label,
-            value: vaccine.label,
-            schedules: vaccine.schedules,
-          })),
-        );
-      } catch (e) {
-        setVaccineOptions([]);
-      }
-    }
+    React.useEffect(() => {
+      (async () => {
+        try {
+          setAdministeredOptions([]);
+          setScheduleOptions([]);
+          const availableScheduledVaccines = await getScheduledVaccines({ category: scheduledCategory });
+          setVaccineOptions(
+            availableScheduledVaccines.map(vaccine => ({
+              label: vaccine.label,
+              value: vaccine.label,
+              schedules: vaccine.schedules,
+            })),
+          );
+          setLoadingVaccineOptions(false);
+        } catch (e) {
+          setVaccineOptions([]);
+          setLoadingVaccineOptions(false);
+        }
+      })()
+    }, [category]);
     return (
       <Form
         onSubmit={onSubmit}
@@ -113,61 +118,64 @@ export const ImmunisationForm = React.memo(
               options={VaccineScheduleOptions}
               onChange={e => {
                 setCategory(e.target.value);
-                scheduledVaccinesToOptions(e.target.value);
+                setLoadingVaccineOptions(true)
+                // scheduledVaccinesToOptions(e.target.value);
               }}
               required
             />
-            <div style={{ gridColumn: '1/-1' }}>
-              <Field
-                name="vaccineLabel"
-                label="Vaccine"
-                value={vaccineLabel}
-                component={SelectField}
-                options={vaccineOptions}
-                onChange={e => {
-                  const label = e.target.value;
-                  setVaccineLabel(label);
-                  const vaccine = vaccineOptions.find(v => v.label === label);
-                  if (vaccine) {
-                    setAdministeredOptions(
-                      vaccine.schedules
-                        .filter(s => s.administered)
-                        .map(s => ({
-                          value: s.scheduledVaccineId,
-                          label: s.schedule,
-                        })),
-                    );
-                    setScheduleOptions(
-                      vaccine.schedules
-                        .filter(s => !s.administered)
-                        .map(s => ({
-                          value: s.scheduledVaccineId,
-                          label: s.schedule,
-                        })),
-                    );
-                  }
-                }}
-                required
-              />
-            </div>
+            {loadingVaccineOptions ? null : (<>
+              <div style={{ gridColumn: '1/-1' }}>
+                <Field
+                  name="vaccineLabel"
+                  label="Vaccine"
+                  value={vaccineLabel}
+                  component={SelectField}
+                  options={vaccineOptions}
+                  onChange={e => {
+                    const label = e.target.value;
+                    setVaccineLabel(label);
+                    const vaccine = vaccineOptions.find(v => v.label === label);
+                    if (vaccine) {
+                      setAdministeredOptions(
+                        vaccine.schedules
+                          .filter(s => s.administered)
+                          .map(s => ({
+                            value: s.scheduledVaccineId,
+                            label: s.schedule,
+                          })),
+                      );
+                      setScheduleOptions(
+                        vaccine.schedules
+                          .filter(s => !s.administered)
+                          .map(s => ({
+                            value: s.scheduledVaccineId,
+                            label: s.schedule,
+                          })),
+                      );
+                    }
+                  }}
+                  required
+                />
+              </div>
 
-            <div>
-              <OuterLabelFieldWrapper label="Administered schedule" />
-              {administeredOptions.map(option => (
-                <AdministeredVaccineSchedule option={option} />
-              ))}
-            </div>
+              <div>
+                <OuterLabelFieldWrapper label="Administered schedule" />
+                {administeredOptions.map(option => (
+                  <AdministeredVaccineSchedule option={option} />
+                ))}
+              </div>
 
-            <div style={{ gridColumn: '1/-1' }}>
-              <Field
-                name="scheduledVaccineId"
-                label="Available schedule"
-                inline
-                component={RadioField}
-                options={scheduleOptions}
-                required
-              />
-            </div>
+              <div style={{ gridColumn: '1/-1' }}>
+                <Field
+                  name="scheduledVaccineId"
+                  label="Available schedule"
+                  inline
+                  component={RadioField}
+                  options={scheduleOptions}
+                  required
+                />
+              </div>
+            </>)}
             <Field name="date" label="Date" component={DateField} required />
             <Field
               name="examinerId"
