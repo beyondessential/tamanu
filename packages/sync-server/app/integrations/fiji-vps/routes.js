@@ -25,7 +25,7 @@ function getHl7Link(baseUrl, params) {
 }
 
 function getBaseUrl(req) {
-  return `${config.integrations.fijiVps.self}${req.baseUrl}${req.path}`;
+  return `${config.canonicalHostName}${req.baseUrl}${req.path}`;
 }
 
 function parseQuery(unsafeQuery, querySchema) {

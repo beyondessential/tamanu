@@ -19,6 +19,14 @@
   },
 ```
 
+- Everywhere:
+  - set a `canonicalHostName` in `local.json`:
+```
+{
+   "canonicalHostName": "https://example.com"
+}
+```
+
 
 ### Features ⭐
 
