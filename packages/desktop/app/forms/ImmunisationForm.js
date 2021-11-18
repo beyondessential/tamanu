@@ -3,7 +3,7 @@ import styled from 'styled-components';
 import FormControlLabel from '@material-ui/core/FormControlLabel';
 import Checkbox from '@material-ui/core/Checkbox';
 
-import { INJECTION_SITE_OPTIONS } from 'shared/constants'
+import { INJECTION_SITE_OPTIONS } from 'shared/constants';
 import { OuterLabelFieldWrapper } from '../components/Field/OuterLabelFieldWrapper';
 import { ConfirmCancelRow } from '../components/ButtonRow';
 import { FormGrid } from '../components/FormGrid';
@@ -67,13 +67,14 @@ function AdministeredVaccineSchedule(props) {
 }
 
 const findVaccinesByAdministeredStatus = (vaccine, administered) =>
-  vaccine ?
-    vaccine.schedules
+  vaccine
+    ? vaccine.schedules
       .filter(s => s.administered === administered)
       .map(s => ({
         value: s.scheduledVaccineId,
         label: s.schedule,
-      })) : [];
+      }))
+    : [];
 
 export const ImmunisationForm = React.memo(
   ({
@@ -88,10 +89,19 @@ export const ImmunisationForm = React.memo(
     const [category, setCategory] = useState();
     const [vaccineLabel, setVaccineLabel] = useState();
 
-    const selectedVaccine = useMemo(() => vaccineOptions.find(v => v.label === vaccineLabel), [vaccineLabel, vaccineOptions])
+    const selectedVaccine = useMemo(() => vaccineOptions.find(v => v.label === vaccineLabel), [
+      vaccineLabel,
+      vaccineOptions,
+    ]);
 
-    const administeredOptions = useMemo(() => findVaccinesByAdministeredStatus(selectedVaccine, true), [selectedVaccine])
-    const scheduleOptions = useMemo(() => findVaccinesByAdministeredStatus(selectedVaccine, false), [selectedVaccine])
+    const administeredOptions = useMemo(
+      () => findVaccinesByAdministeredStatus(selectedVaccine, true),
+      [selectedVaccine],
+    );
+    const scheduleOptions = useMemo(
+      () => findVaccinesByAdministeredStatus(selectedVaccine, false),
+      [selectedVaccine],
+    );
 
     useEffect(() => {
       const fetchScheduledVaccines = async () => {
@@ -103,9 +113,9 @@ export const ImmunisationForm = React.memo(
             schedules: vaccine.schedules,
           })),
         );
-      }
+      };
 
-      fetchScheduledVaccines()
+      fetchScheduledVaccines();
     }, [category]);
 
     return (
@@ -177,7 +187,10 @@ export const ImmunisationForm = React.memo(
               name="injectionSite"
               label="Injection site"
               component={SelectField}
-              options={Object.values(INJECTION_SITE_OPTIONS).map(site => ({ label: site, value: site }))}
+              options={Object.values(INJECTION_SITE_OPTIONS).map(site => ({
+                label: site,
+                value: site,
+              }))}
             />
             <Field
               name="departmentId"
