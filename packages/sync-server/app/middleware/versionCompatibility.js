@@ -16,6 +16,7 @@ export const SUPPORTED_CLIENT_VERSIONS = {
 };
 
 export const versionCompatibility = (req, res, next) => {
+  // TODO: X-Runtime is deprecated
   const clientType = req.header('X-Tamanu-Client') || req.header('X-Runtime');
 
   if (!clientType) {
