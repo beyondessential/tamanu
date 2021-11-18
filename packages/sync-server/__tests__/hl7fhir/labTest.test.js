@@ -77,13 +77,36 @@ describe('HL7 Labs', () => {
         encounterId: encounter.id,
         ...requestOverrides,
       });
-      return models.LabTest.create({
+      const labTest = await models.LabTest.create({
         status: LAB_TEST_STATUSES.PUBLISHED,
         result: 'Positive',
         labTestTypeId: labTestType.id,
         labRequestId: labRequest.id,
         labTestMethodId: method.id,
         ...data,
+      });
+      return models.LabTest.findByPk(labTest.id, {
+        include: [
+          { association: 'labTestType' },
+          { association: 'labTestMethod' },
+          {
+            association: 'labRequest',
+            required: true,
+            include: [
+              { association: 'laboratory' },
+              {
+                association: 'encounter',
+                required: true,
+                include: [
+                  { association: 'examiner' },
+                  {
+                    association: 'patient',
+                  },
+                ],
+              },
+            ],
+          },
+        ],
       });
     };
   });
