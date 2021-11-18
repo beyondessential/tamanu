@@ -85,6 +85,7 @@ export const AppointmentsCalendar = () => {
       const { data } = await api.get('appointments', {
         after: startOfDay(date).toISOString(),
         before: endOfDay(date).toISOString(),
+        all: true,
       });
       setAppointments(data);
     })();
