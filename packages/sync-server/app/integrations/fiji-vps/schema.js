@@ -1,13 +1,21 @@
 import * as yup from 'yup';
+import config from 'config';
+import { decodeIdentifier } from './conversion';
 
-const IDENTIFIER_NAMESPACE = 'VRS'; // TODO: what's namespace_for_application_permit_id?
-export const IDENTIFIER_REGEXP = new RegExp(`^${IDENTIFIER_NAMESPACE}\\|(.*)$`);
+export const IDENTIFIER_NAMESPACE = config.hl7.dataDictionaries.patientDisplayId;
 const MAX_RECORDS = 100;
 
 const sharedQuery = yup.object({
   'subject:identifier': yup
     .string()
-    .matches(IDENTIFIER_REGEXP)
+    .test(
+      'is-correct-format-and-namespace',
+      'subject:identifier must be in the format "<namespace>|<id>"',
+      value => {
+        const [namespace, displayId] = decodeIdentifier(value);
+        return namespace === IDENTIFIER_NAMESPACE && !!displayId;
+      },
+    )
     .required(),
   status: yup
     .string()

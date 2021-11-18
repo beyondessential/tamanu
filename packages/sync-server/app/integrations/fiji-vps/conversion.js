@@ -12,6 +12,11 @@ export function hl7SortToTamanu(hl7Sort) {
   throw new Error(`Unrecognised sort order: ${hl7Sort}`);
 }
 
+export function decodeIdentifier(identifier) {
+  const [namespace, ...idPieces] = identifier.split('|');
+  return [namespace, idPieces.join('|')];
+}
+
 export function toSearchId({ after, ...params }) {
   const result = { ...params };
   if (after) {

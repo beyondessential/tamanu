@@ -4,7 +4,13 @@ import asyncHandler from 'express-async-handler';
 
 import { patientToHL7Patient, labTestToHL7DiagnosticReport } from '../../hl7fhir';
 import * as schema from './schema';
-import { toSearchId, fromSearchId, hl7SortToTamanu, addPaginationToWhere } from './conversion';
+import {
+  toSearchId,
+  fromSearchId,
+  hl7SortToTamanu,
+  addPaginationToWhere,
+  decodeIdentifier,
+} from './conversion';
 
 // TODO: fix auth to yell at them if X-Tamanu-Client and X-Tamanu-Version aren't set
 
@@ -42,7 +48,7 @@ async function getHL7Payload({
   baseUrl,
 }) {
   const query = await parseQuery(req.query, querySchema);
-  const displayId = query['subject:identifier'].match(schema.IDENTIFIER_REGEXP)[1];
+  const [, displayId] = decodeIdentifier(query['subject:identifier']);
   const { _count, _page, _sort, after } = query;
   const offset = _count * _page;
   const baseWhere = getWhere(displayId);

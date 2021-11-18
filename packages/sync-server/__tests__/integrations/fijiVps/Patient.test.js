@@ -2,6 +2,7 @@ import { format } from 'date-fns';
 
 import { fake } from 'shared/test-helpers/fake';
 import { createTestContext } from 'sync-server/__tests__/utilities';
+import { IDENTIFIER_NAMESPACE } from '../../../app/integrations/fiji-vps/schema';
 
 describe('VPS integration - Patient', () => {
   let ctx;
@@ -17,8 +18,8 @@ describe('VPS integration - Patient', () => {
       // arrange
       const { Patient } = ctx.store.models;
       const patient = await Patient.create(fake(Patient));
-      const id = encodeURIComponent(patient.displayId);
-      const path = `/v1/integration/fijiVps/Patient?_sort=-issued&_page=0&_count=2&status=final&subject%3Aidentifier=VRS%7C${id}`;
+      const id = encodeURIComponent(`${IDENTIFIER_NAMESPACE}|${patient.displayId}`);
+      const path = `/v1/integration/fijiVps/Patient?_sort=-issued&_page=0&_count=2&status=final&subject%3Aidentifier=${id}`;
 
       // act
       const response = await app.get(path);

@@ -1,5 +1,6 @@
 import { fake } from 'shared/test-helpers/fake';
 import { createTestContext } from 'sync-server/__tests__/utilities';
+import { IDENTIFIER_NAMESPACE } from '../../../app/integrations/fiji-vps/schema';
 
 describe('VPS integration - DiagnosticReport', () => {
   let ctx;
@@ -76,8 +77,8 @@ describe('VPS integration - DiagnosticReport', () => {
         laboratory,
       } = await createLabTestHierarchy(patient);
 
-      const id = encodeURIComponent(patient.displayId);
-      const path = `/v1/integration/fijiVps/DiagnosticReport?_sort=-issued&_page=0&_count=2&status=final&subject%3Aidentifier=VRS%7C${id}&_include=DiagnosticReport%3Aresult`;
+      const id = encodeURIComponent(`${IDENTIFIER_NAMESPACE}|${patient.displayId}`);
+      const path = `/v1/integration/fijiVps/DiagnosticReport?_sort=-issued&_page=0&_count=2&status=final&subject%3Aidentifier=${id}&_include=DiagnosticReport%3Aresult`;
 
       // act
       const response = await app.get(path);
@@ -180,8 +181,8 @@ describe('VPS integration - DiagnosticReport', () => {
       const { labTest: labTest2 } = await createLabTestHierarchy(patient);
       const { labTest: labTest3 } = await createLabTestHierarchy(patient);
 
-      const id = encodeURIComponent(patient.displayId);
-      const path = `/v1/integration/fijiVps/DiagnosticReport?_sort=-issued&_page=0&_count=2&status=final&subject%3Aidentifier=VRS%7C${id}`;
+      const id = encodeURIComponent(`${IDENTIFIER_NAMESPACE}|${patient.displayId}`);
+      const path = `/v1/integration/fijiVps/DiagnosticReport?_sort=-issued&_page=0&_count=2&status=final&subject%3Aidentifier=${id}`;
 
       // act
       const response1 = await app.get(path);
