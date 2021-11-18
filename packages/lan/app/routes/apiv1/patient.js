@@ -193,6 +193,8 @@ patientRelations.get(
           survey_responses
           LEFT JOIN encounters
             ON (survey_responses.encounter_id = encounters.id)
+          LEFT JOIN surveys
+            ON (survey_responses.survey_id = surveys.id)
         WHERE
           encounters.patient_id = :patientId
         AND

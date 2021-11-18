@@ -108,6 +108,8 @@ encounterRelations.get(
           survey_responses
           LEFT JOIN encounters
             ON (survey_responses.encounter_id = encounters.id)
+          LEFT JOIN surveys
+            ON (survey_responses.survey_id = surveys.id)
         WHERE
           survey_responses.encounter_id = :encounterId
         AND
