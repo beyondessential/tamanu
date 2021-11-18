@@ -1,4 +1,4 @@
-import React, { useMemo, useEffect, useCallback, useState } from 'react';
+import React, { useMemo, useEffect, useState } from 'react';
 import styled from 'styled-components';
 import FormControlLabel from '@material-ui/core/FormControlLabel';
 import Checkbox from '@material-ui/core/Checkbox';
@@ -129,37 +129,35 @@ export const ImmunisationForm = React.memo(
               }}
               required
             />
-            <>
-              <div style={{ gridColumn: '1/-1' }}>
-                <Field
-                  name="vaccineLabel"
-                  label="Vaccine"
-                  value={vaccineLabel}
-                  component={SelectField}
-                  options={vaccineOptions}
-                  onChange={e => setVaccineLabel(e.target.value)}
-                  required
-                />
-              </div>
+            <div style={{ gridColumn: '1/-1' }}>
+              <Field
+                name="vaccineLabel"
+                label="Vaccine"
+                value={vaccineLabel}
+                component={SelectField}
+                options={vaccineOptions}
+                onChange={e => setVaccineLabel(e.target.value)}
+                required
+              />
+            </div>
 
-              <div>
-                <OuterLabelFieldWrapper label="Administered schedule" />
-                {administeredOptions.map(option => (
-                  <AdministeredVaccineSchedule option={option} />
-                ))}
-              </div>
+            <div>
+              <OuterLabelFieldWrapper label="Administered schedule" />
+              {administeredOptions.map(option => (
+                <AdministeredVaccineSchedule option={option} />
+              ))}
+            </div>
 
-              <div style={{ gridColumn: '1/-1' }}>
-                <Field
-                  name="scheduledVaccineId"
-                  label="Available schedule"
-                  inline
-                  component={RadioField}
-                  options={scheduleOptions}
-                  required
-                />
-              </div>
-            </>
+            <div style={{ gridColumn: '1/-1' }}>
+              <Field
+                name="scheduledVaccineId"
+                label="Available schedule"
+                inline
+                component={RadioField}
+                options={scheduleOptions}
+                required
+              />
+            </div>
             <Field name="date" label="Date" component={DateField} required />
             <Field
               name="examinerId"
