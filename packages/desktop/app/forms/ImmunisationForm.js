@@ -80,25 +80,22 @@ export const ImmunisationForm = React.memo(
     const [vaccineLabel, setVaccineLabel] = useState();
     const [administeredOptions, setAdministeredOptions] = useState([]);
     const [scheduleOptions, setScheduleOptions] = useState([]);
-    const scheduledVaccinesToOptions = useCallback(
-      async scheduledCategory => {
-        try {
-          setAdministeredOptions([]);
-          setScheduleOptions([]);
-          const availableScheduledVaccines = await getScheduledVaccines({ category });
-          setVaccineOptions(
-            availableScheduledVaccines.map(vaccine => ({
-              label: vaccine.label,
-              value: vaccine.label,
-              schedules: vaccine.schedules,
-            })),
-          );
-        } catch (e) {
-          setVaccineOptions([]);
-        }
-      },
-      [setVaccineOptions, setScheduleOptions, setAdministeredOptions],
-    );
+    const scheduledVaccinesToOptions = async scheduledCategory => {
+      try {
+        setAdministeredOptions([]);
+        setScheduleOptions([]);
+        const availableScheduledVaccines = await getScheduledVaccines({ category: scheduledCategory });
+        setVaccineOptions(
+          availableScheduledVaccines.map(vaccine => ({
+            label: vaccine.label,
+            value: vaccine.label,
+            schedules: vaccine.schedules,
+          })),
+        );
+      } catch (e) {
+        setVaccineOptions([]);
+      }
+    }
     return (
       <Form
         onSubmit={onSubmit}
