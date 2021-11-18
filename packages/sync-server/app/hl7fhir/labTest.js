@@ -70,7 +70,7 @@ function labTestMethodToHL7Extension(labTestMethod) {
   ];
 }
 
-export async function labTestToHL7DiagnosticReport(labTest, { shouldEmbedResult = false } = {}) {
+export function labTestToHL7DiagnosticReport(labTest, { shouldEmbedResult = false } = {}) {
   const labTestType = labTest.labTestType;
   const labTestMethod = labTest.labTestMethod;
   const labRequest = labTest.labRequest;
@@ -105,12 +105,12 @@ export async function labTestToHL7DiagnosticReport(labTest, { shouldEmbedResult 
     performer: laboratory
       ? [laboratoryToHL7Reference(laboratory), userToHL7Reference(examiner)]
       : [userToHL7Reference(examiner)],
-    result: await (async () => {
+    result: (() => {
       if (!shouldProduceObservation(labTest.status)) {
         return [];
       }
       if (shouldEmbedResult) {
-        return [await labTestToHL7Observation(labTest, patient)];
+        return [labTestToHL7Observation(labTest, patient)];
       }
       return [{ reference: `Observation/${labTest.id}` }];
     })(),
@@ -143,7 +143,7 @@ function getResultCoding(labTest) {
   }
 }
 
-export async function labTestToHL7Observation(labTest, maybePatient) {
+export function labTestToHL7Observation(labTest, maybePatient) {
   if (!shouldProduceObservation(labTest.status)) {
     return null;
   }

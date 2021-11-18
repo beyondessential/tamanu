@@ -115,7 +115,7 @@ describe('HL7 Labs', () => {
 
   it('Should produce valid hl7 data for an Observation', async () => {
     const labTest = await createLabTest({});
-    const hl7 = await labTestToHL7Observation(labTest);
+    const hl7 = labTestToHL7Observation(labTest);
     const { result, errors } = validate(hl7);
     expect(errors).toHaveLength(0);
     expect(result).toEqual(true);
@@ -123,7 +123,7 @@ describe('HL7 Labs', () => {
 
   it('Should produce valid hl7 data for a DiagnosticReport', async () => {
     const labTest = await createLabTest({});
-    const hl7 = await labTestToHL7DiagnosticReport(labTest);
+    const hl7 = labTestToHL7DiagnosticReport(labTest);
     const { result, errors } = validate(hl7);
     expect(errors).toHaveLength(0);
     expect(result).toEqual(true);
@@ -134,7 +134,7 @@ describe('HL7 Labs', () => {
       const labTest = await createLabTest({
         status: LAB_TEST_STATUSES.RECEPTION_PENDING,
       });
-      const hl7 = await labTestToHL7Observation(labTest);
+      const hl7 = labTestToHL7Observation(labTest);
       expect(hl7).toEqual(null);
     });
 
@@ -142,7 +142,7 @@ describe('HL7 Labs', () => {
       const labTest = await createLabTest({
         status: LAB_TEST_STATUSES.RECEPTION_PENDING,
       });
-      const hl7 = await labTestToHL7DiagnosticReport(labTest);
+      const hl7 = labTestToHL7DiagnosticReport(labTest);
       expect(hl7.result).toHaveLength(0);
     });
   });
@@ -161,7 +161,7 @@ describe('HL7 Labs', () => {
       },
     );
 
-    const hl7 = await labTestToHL7DiagnosticReport(labTest);
+    const hl7 = labTestToHL7DiagnosticReport(labTest);
     expect(hl7.performer[0]).toHaveProperty('display', 'Test Laboratory');
   });
 
@@ -171,7 +171,7 @@ describe('HL7 Labs', () => {
     });
 
     try {
-      await labTestToHL7Observation(labTest);
+      labTestToHL7Observation(labTest);
       throw new Error("Didn't throw!");
     } catch (e) {
       expect(e.message).toMatch('Test coding was not one of');
