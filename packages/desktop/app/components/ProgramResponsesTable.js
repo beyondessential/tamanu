@@ -41,7 +41,7 @@ export const DataFetchingProgramsTable = ({ encounterId, patientId }) => {
       <DataFetchingTable
         endpoint={getEndpoint({ encounterId, patientId })}
         columns={columns}
-        noDataMessage="No programs found"
+        noDataMessage="No program responses found"
         onRowClick={onSelectResponse}
       />
     </>
