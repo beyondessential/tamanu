@@ -9,7 +9,7 @@ import { routes } from './routes';
 import { authModule } from './auth';
 import { publicRoutes } from './publicRoutes';
 
-import errorHandler from './middleware/errorHandler';
+import { defaultErrorHandler } from './middleware/errorHandler';
 import { loadshedder } from './middleware/loadshedder';
 import { versionCompatibility } from './middleware/versionCompatibility';
 
@@ -68,7 +68,7 @@ export function createApp(ctx) {
     res.status(404).end();
   });
 
-  app.use(errorHandler);
+  app.use(defaultErrorHandler);
 
   return app;
 }

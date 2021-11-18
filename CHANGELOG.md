@@ -4,7 +4,21 @@
 
 ### Manual steps required after upgrade ⚙
 
-- (left blank)
+- Fiji only:
+  - set appropriate HL7 settings in local.json
+    - specifically:
+```
+  "hl7": {
+    "assigners": {
+      "patientDisplayId": "VRS"
+    },
+    "dataDictionaries": {
+      "patientDisplayId": "http://data-dictionary.tamanu-fiji.org/application-reference-number.html",
+      "labRequestDisplayId": "http://data-dictionary.tamanu-fiji.org/labrequest-reference-number.html"
+    },
+  },
+```
+
 
 ### Features ⭐
 
@@ -17,6 +31,7 @@
 - Encounter api route now manages selected discharge medications.
 - Split SelectField and MultiselectField into distinct components
 - SelectField no longer internally tracks its value
+- Remove 'required' attribute for Completed by and Location fields in ImagingRequestView
 
 ### Bug fixes 🐛
 

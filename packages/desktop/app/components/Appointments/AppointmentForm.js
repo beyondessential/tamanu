@@ -7,6 +7,7 @@ import { Field, Form, AutocompleteField, SelectField, DateTimeField } from '../F
 import { ConfirmCancelRow } from '../ButtonRow';
 import { FormSeparatorLine } from '../FormSeparatorLine';
 import { getPatientNameAsString } from '../PatientNameDisplay';
+import { formatShort } from '../DateDisplay';
 
 import { useApi } from '../../api';
 import { Suggester } from '../../utils/suggester';
@@ -19,7 +20,9 @@ export const AppointmentForm = props => {
   const clinicianSuggester = new Suggester(api, 'practitioner');
   const locationSuggester = new Suggester(api, 'location');
   const patientSuggester = new Suggester(api, 'patient', ({ id, ...patient }) => ({
-    label: getPatientNameAsString(patient),
+    label: `${getPatientNameAsString(patient)} (${patient.displayId}) - ${
+      patient.sex
+    } - ${formatShort(patient.dateOfBirth)}`,
     value: id,
   }));
   let initialValues = {};

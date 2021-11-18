@@ -32,6 +32,7 @@ export * from './Survey';
 export * from './SurveyScreenComponent';
 export * from './ProgramDataElement';
 export * from './SurveyResponse';
+export * from './SurveyResponseAnswer';
 
 export * from './Referral';
 export * from './Immunisation';

@@ -120,6 +120,26 @@ export async function createDummyPatient(models, overrides = {}) {
   };
 }
 
+const randomDigits = length => chance.string({ length, pool: '0123456789' });
+
+function randomPhoneNumber() {
+  return `04${randomDigits(2)} ${randomDigits(3)} ${randomDigits(3)}`;
+}
+
+export async function createDummyPatientAdditionalData() {
+  return {
+    placeOfBirth: chance.city(),
+    bloodType: chance.pick(['A+', 'B+', 'A-', 'B-', 'AB+', 'AB-', 'O+', 'O-']),
+    primaryContactNumber: randomPhoneNumber(),
+    secondaryContactNumber: randomPhoneNumber(),
+    maritalStatus: chance.pick(['Single', 'Married', 'Defacto']),
+    cityTown: chance.city(),
+    streetVillage: `${Math.floor(Math.random() * 200)} ${chance.street({ short_suffix: true })}`,
+    drivingLicense: randomDigits(10),
+    passport: randomDigits(10),
+  };
+}
+
 export async function createDummyEncounterDiagnosis(models, overrides = {}) {
   const duration = chance.natural({
     min: HOUR,

@@ -39,7 +39,7 @@ const DateNav = styled.div`
 const CalendarContainer = styled.div`
   margin-left: calc(25px + 3.5rem);
   margin-right: 25px;
-  overflow: scroll;
+  overflow: auto;
 `;
 
 const Section = styled.div`
@@ -85,6 +85,7 @@ export const AppointmentsCalendar = () => {
       const { data } = await api.get('appointments', {
         after: startOfDay(date).toISOString(),
         before: endOfDay(date).toISOString(),
+        all: true,
       });
       setAppointments(data);
     })();
