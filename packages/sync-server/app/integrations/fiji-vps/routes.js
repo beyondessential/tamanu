@@ -12,7 +12,7 @@ import {
   decodeIdentifier,
 } from './conversion';
 
-// TODO: fix auth to yell at them if X-Tamanu-Client and X-Tamanu-Version aren't set
+// TODO (TAN-943): fix auth to yell at them if X-Tamanu-Client and X-Tamanu-Version aren't set
 
 export const routes = express.Router();
 
