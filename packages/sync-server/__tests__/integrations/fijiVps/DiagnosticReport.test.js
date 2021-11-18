@@ -186,6 +186,10 @@ describe('VPS integration - DiagnosticReport', () => {
       const { labTest: labTest2 } = await createLabTestHierarchy(patient);
       const { labTest: labTest3 } = await createLabTestHierarchy(patient);
 
+      const someOtherPatient = await Patient.create(fake(Patient)); // test no other records are retrieved
+      await createLabTestHierarchy(someOtherPatient);
+      await createLabTestHierarchy(someOtherPatient);
+
       const id = encodeURIComponent(`${IDENTIFIER_NAMESPACE}|${patient.displayId}`);
       const path = `/v1/integration/fijiVps/DiagnosticReport?_sort=-issued&_page=0&_count=2&status=final&subject%3Aidentifier=${id}`;
 
