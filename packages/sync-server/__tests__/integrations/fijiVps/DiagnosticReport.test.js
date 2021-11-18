@@ -70,10 +70,11 @@ describe('VPS integration - DiagnosticReport', () => {
       const { Patient } = ctx.store.models;
       const patient = await Patient.create(fake(Patient));
       const {
-        labTest,
+        examiner,
         labRequest,
-        labTestType,
+        labTest,
         labTestMethod,
+        labTestType,
         laboratory,
       } = await createLabTestHierarchy(patient);
 
@@ -125,6 +126,10 @@ describe('VPS integration - DiagnosticReport', () => {
               {
                 display: laboratory.name,
                 reference: `Organization/${laboratory.id}`,
+              },
+              {
+                display: examiner.displayName,
+                reference: `Practitioner/${examiner.id}`,
               },
             ],
             status: 'final',

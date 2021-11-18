@@ -102,7 +102,9 @@ export async function labTestToHL7DiagnosticReport(labTest, { shouldEmbedResult 
         },
       ],
     },
-    performer: [laboratory ? laboratoryToHL7Reference(laboratory) : userToHL7Reference(examiner)],
+    performer: laboratory
+      ? [laboratoryToHL7Reference(laboratory), userToHL7Reference(examiner)]
+      : [userToHL7Reference(examiner)],
     result: await (async () => {
       if (!shouldProduceObservation(labTest.status)) {
         return [];
