@@ -130,10 +130,11 @@ describe('Programs', () => {
     const result = await app.get(`/v1/program/${testProgram.id}/surveys`);
     expect(result).toHaveSucceeded();
 
-    expect(result.body.count).toEqual(3);
+    expect(result.body.count).toEqual(4);
     expect(result.body.data[0]).toHaveProperty('name', testSurvey.name);
     expect(result.body.data[1]).toHaveProperty('name', testSurvey2.name);
     expect(result.body.data[2]).toHaveProperty('name', testSurvey3.name);
+    expect(result.body.data[3]).toHaveProperty('name', testReferralSurvey.name);
   });
 
   it('should fetch a survey', async () => {
@@ -182,12 +183,9 @@ describe('Programs', () => {
         encounterId: encounter.id,
       });
 
-      const referrals = await app.get(`/v1/encounter/${encounter.id}/referral?rowsPerPage=100`);
       const programResponses = await app.get(`/v1/encounter/${encounter.id}/programResponses?rowsPerPage=100`);
-      expect(referrals).toHaveSucceeded();
       expect(programResponses).toHaveSucceeded();
 
-      expect(referrals.body.count).toEqual(0);
       expect(programResponses.body.count).toEqual(responses.length);
       programResponses.body.data.map(response => {
         expect(response.encounterId).toEqual(encounter.id);
@@ -204,12 +202,9 @@ describe('Programs', () => {
         encounterId: encounter.id,
       });
 
-      const referrals = await app.get(`/v1/encounter/${encounter.id}/referral?rowsPerPage=100`);
       const programResponses = await app.get(`/v1/encounter/${encounter.id}/programResponses?rowsPerPage=100`);
-      expect(referrals).toHaveSucceeded();
       expect(programResponses).toHaveSucceeded();
 
-      expect(referrals.body.count).toEqual(responses.length);
       expect(programResponses.body.count).toEqual(0);
     });
   });
@@ -287,7 +282,7 @@ describe('Programs', () => {
         },
       );
 
-      const referrals = await app.get(`/v1/patient/${patient.id}/referral?rowsPerPage=100`);
+      const referrals = await app.get(`/v1/patient/${patient.id}/referrals?rowsPerPage=100`);
       const programResponses = await app.get(`/v1/patient/${patient.id}/programResponses?rowsPerPage=100`);
       expect(referrals).toHaveSucceeded();
       expect(programResponses).toHaveSucceeded();
