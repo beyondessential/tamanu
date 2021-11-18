@@ -47,6 +47,8 @@ describe('VPS integration - DiagnosticReport', () => {
       labRequestId: labRequest.id,
       labTestMethodId: labTestMethod.id,
       categoryId: labTestCategory.id,
+      result: 'Inconclusive',
+      status: 'published',
     });
 
     return {
@@ -75,7 +77,7 @@ describe('VPS integration - DiagnosticReport', () => {
       } = await createLabTestHierarchy(patient);
 
       const id = encodeURIComponent(patient.displayId);
-      const path = `/v1/integration/fijiVps/DiagnosticReport?_sort=-issued&_page=0&_count=2&status=final&subject%3Aidentifier=VRS%7C${id}`;
+      const path = `/v1/integration/fijiVps/DiagnosticReport?_sort=-issued&_page=0&_count=2&status=final&subject%3Aidentifier=VRS%7C${id}&_include=DiagnosticReport%3Aresult`;
 
       // act
       const response = await app.get(path);
@@ -124,15 +126,28 @@ describe('VPS integration - DiagnosticReport', () => {
                 reference: `Organization/${laboratory.id}`,
               },
             ],
-            status: (() => {
-              if (labTest.status === 'published') return 'final';
-              if (labTest.status === 'results_pending') return 'registered';
-              return labTest.status;
-            })(),
-            result: (() => {
-              if (labTest.status !== 'published') return [];
-              return [{ reference: `Observation/${labTest.id}` }];
-            })(),
+            status: 'final',
+            result: [
+              {
+                resourceType: 'Observation',
+                id: labTest.id,
+                status: 'final',
+                code: {},
+                subject: {
+                  display: `${patient.firstName} ${patient.lastName}`,
+                  reference: `Patient/${patient.id}`,
+                },
+                valueCodeableConcept: {
+                  coding: [
+                    {
+                      code: 'INC',
+                      display: 'Inconclusive',
+                      system: 'http://terminology.hl7.org/CodeSystem/v3-ObservationInterpretation',
+                    },
+                  ],
+                },
+              },
+            ],
             subject: {
               display: `${patient.firstName} ${patient.lastName}`,
               reference: `Patient/${patient.id}`,

@@ -42,12 +42,12 @@ export const patient = {
   query: sharedQuery,
 };
 
-export const diagnosticReport = {
-  query: sharedQuery,
+export const DIAGNOSTIC_REPORT_INCLUDES = {
+  RESULT: 'DiagnosticReport:result',
 };
 
-export const observation = {
+export const diagnosticReport = {
   query: sharedQuery.shape({
-    _include: yup.string().oneOf(['DiagnosticReport:result']),
+    _include: yup.string().oneOf(Object.values(DIAGNOSTIC_REPORT_INCLUDES)),
   }),
 };

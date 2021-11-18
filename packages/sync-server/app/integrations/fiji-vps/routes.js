@@ -73,7 +73,7 @@ async function getHL7Payload({
   // run in a loop instead of using `.map()` so embedded queries run in serial
   const hl7FhirRecords = [];
   for (const r of records) {
-    hl7FhirRecords.push(await toHL7(r));
+    hl7FhirRecords.push(await toHL7(r, query));
   }
 
   const lastRecord = records[records.length - 1];
@@ -163,11 +163,12 @@ routes.get(
         },
       ],
       bundleId: 'diagnostic-reports',
-      toHL7: labTestToHL7DiagnosticReport,
+      toHL7: (labTest, { _include }) => {
+        const shouldEmbedResult = _include === schema.DIAGNOSTIC_REPORT_INCLUDES.RESULT;
+        return labTestToHL7DiagnosticReport(labTest, { shouldEmbedResult });
+      },
       baseUrl: getBaseUrl(req),
     });
-
-    // TODO: add observation
 
     res.send(payload);
   }),

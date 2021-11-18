@@ -70,7 +70,7 @@ function labTestMethodToHL7Extension(labTestMethod) {
   ];
 }
 
-export async function labTestToHL7DiagnosticReport(labTest) {
+export async function labTestToHL7DiagnosticReport(labTest, { shouldEmbedResult = false } = {}) {
   const labTestType = labTest.labTestType;
   const labTestMethod = labTest.labTestMethod;
   const labRequest = labTest.labRequest;
@@ -103,9 +103,15 @@ export async function labTestToHL7DiagnosticReport(labTest) {
       ],
     },
     performer: [laboratory ? laboratoryToHL7Reference(laboratory) : userToHL7Reference(examiner)],
-    result: shouldProduceObservation(labTest.status)
-      ? [{ reference: `Observation/${labTest.id}` }]
-      : [],
+    result: await (async () => {
+      if (!shouldProduceObservation(labTest.status)) {
+        return [];
+      }
+      if (shouldEmbedResult) {
+        return [await labTestToHL7Observation(labTest, patient)];
+      }
+      return [{ reference: `Observation/${labTest.id}` }];
+    })(),
     extension: labTestMethodToHL7Extension(labTestMethod),
   };
 }
@@ -130,7 +136,7 @@ function getResultCoding(labTest) {
       // The only way we can reach this point is if the actual testing data
       // is misconfigured (ie an error within Tamanu, we want to know ASAP)
       const values = Object.values(TEST_RESULT_VALUES).join(', ');
-      throw new Error(`Test coding was not one of [${values}]`);
+      throw new Error(`Test coding was not one of [${values}]: ${labTest.result}`);
     }
   }
 }
@@ -142,9 +148,7 @@ export async function labTestToHL7Observation(labTest, maybePatient) {
 
   let patient = maybePatient;
   if (!patient) {
-    const labRequest = await labTest.getLabRequest();
-    const encounter = await labRequest.getEncounter();
-    patient = await encounter.getPatient();
+    patient = labTest.labRequest.encounter.patient;
   }
 
   return {
