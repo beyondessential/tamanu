@@ -16,7 +16,7 @@ export const SUPPORTED_CLIENT_VERSIONS = {
 };
 
 export const versionCompatibility = (req, res, next) => {
-  const clientType = req.header('X-Runtime');
+  const clientType = req.header('X-Tamanu-Client') || req.header('X-Runtime');
 
   if (!clientType) {
     // a thirdparty tool (or internal test suite) is using the API; ignore version checking
