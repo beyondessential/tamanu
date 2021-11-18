@@ -58,7 +58,9 @@
     "resetPassword": {
       "tokenLength": 6,
       "tokenExpiry": 20
-    }
+    },
+    // allows requests with no X-Tamanu-Client header set to succeed
+    "allowEmptyTamanuClient": false
   },
   "mailgun": {
     "domain": "",

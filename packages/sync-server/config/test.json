@@ -3,7 +3,8 @@
     "name": "tamanu-sync-test"
   },
   "auth": {
-    "reportNoUserError": true
+    "reportNoUserError": true,
+    "allowEmptyTamanuClient": true
   },
   "log": {
     "consoleLevel": "warn"

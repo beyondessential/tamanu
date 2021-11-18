@@ -1,6 +1,6 @@
 import path from 'path';
 import fs from 'fs';
-import { MAX_CLIENT_VERSION } from '../app/middleware/versionCompatibility';
+import { SUPPORTED_CLIENT_VERSIONS } from '../app/middleware/versionCompatibility';
 
 describe('Other packages', () => {
   let versions;
@@ -18,6 +18,8 @@ describe('Other packages', () => {
 
   it('Should support the current version of desktop', async () => {
     const desktopVersions = versions.map(([, v]) => v);
-    desktopVersions.forEach(v => expect(MAX_CLIENT_VERSION).toEqual(v));
+    desktopVersions.forEach(v =>
+      expect(SUPPORTED_CLIENT_VERSIONS['Tamanu Desktop'].max).toEqual(v),
+    );
   });
 });

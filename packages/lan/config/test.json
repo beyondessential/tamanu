@@ -19,5 +19,8 @@
       "multiplierMs": 0,
       "maxWaitMs": 0
     }
+  },
+  "auth": {
+    "allowEmptyTamanuClient": true
   }
 }

@@ -13,32 +13,10 @@ export const SUPPORTED_CLIENT_VERSIONS = {
     min: '1.10.0',
     max: '1.10.99', // note that higher patch versions will be allowed to connect
   },
+  'Fiji VPS': {
+    min: null,
+    max: null,
+  },
 };
 
-export const versionCompatibility = (req, res, next) => {
-  // TODO: X-Runtime is deprecated
-  const clientType = req.header('X-Tamanu-Client') || req.header('X-Runtime');
-
-  if (!clientType) {
-    // a thirdparty tool (or internal test suite) is using the API; ignore version checking
-    next();
-    return;
-  }
-
-  const clientTypes = Object.keys(SUPPORTED_CLIENT_VERSIONS);
-  if (!clientTypes.includes(clientType)) {
-    res.status(400).json({
-      error: {
-        message: `The only supported client types are ${clientTypes.join(', ')}`,
-        name: 'InvalidClientType',
-      },
-    });
-    return;
-  }
-
-  const clientInfo = SUPPORTED_CLIENT_VERSIONS[clientType];
-  const { min, max } = clientInfo;
-
-  const runCheck = buildVersionCompatibilityCheck(min, max);
-  runCheck(req, res, next);
-};
+export const versionCompatibility = buildVersionCompatibilityCheck(SUPPORTED_CLIENT_VERSIONS);
