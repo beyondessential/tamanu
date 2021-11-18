@@ -102,7 +102,7 @@ async function getHL7Payload({
   }
 
   const lastUpdated = records.reduce(
-    (acc, p) => (acc > p.updatedAt.getTime() ? acc : p.updatedAt),
+    (acc, r) => (acc > r.updatedAt.getTime() ? acc : r.updatedAt),
     null,
   );
 

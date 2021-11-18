@@ -16,8 +16,13 @@ describe('VPS integration - Patient', () => {
   describe('success', () => {
     it('fetches a patient', async () => {
       // arrange
-      const { Patient } = ctx.store.models;
+      const { Patient, PatientAdditionalData } = ctx.store.models;
       const patient = await Patient.create(fake(Patient));
+      const additionalData = await PatientAdditionalData.create({
+        ...fake(PatientAdditionalData),
+        patientId: patient.id,
+      });
+      await patient.reload(); // saving PatientAdditionalData updates the patient too
       const id = encodeURIComponent(`${IDENTIFIER_NAMESPACE}|${patient.displayId}`);
       const path = `/v1/integration/fijiVps/Patient?_sort=-issued&_page=0&_count=2&status=final&subject%3Aidentifier=${id}`;
 
@@ -43,7 +48,14 @@ describe('VPS integration - Patient', () => {
         entry: [
           {
             active: true,
-            address: [], // TODO
+            address: [
+              {
+                city: additionalData.cityTown,
+                line: [additionalData.streetVillage],
+                type: 'physical',
+                use: 'home',
+              },
+            ],
             birthDate: format(patient.dateOfBirth, 'yyyy-MM-dd'),
             gender: patient.sex,
             identifier: [
@@ -57,12 +69,17 @@ describe('VPS integration - Patient', () => {
                 use: 'official',
                 value: patient.displayId,
               },
+              {
+                assigner: 'RTA',
+                use: 'secondary',
+                value: additionalData.drivingLicense,
+              },
             ],
             name: [
               {
                 family: patient.lastName,
                 given: [patient.firstName, patient.middleName],
-                prefix: [], // TODO
+                prefix: [additionalData.title],
                 use: 'official',
               },
               {
@@ -71,7 +88,16 @@ describe('VPS integration - Patient', () => {
               },
             ],
             resourceType: 'Patient',
-            telecom: [], // TODO
+            telecom: [
+              {
+                rank: 1,
+                value: additionalData.primaryContactNumber,
+              },
+              {
+                rank: 2,
+                value: additionalData.secondaryContactNumber,
+              },
+            ],
           },
         ],
       });
