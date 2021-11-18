@@ -273,7 +273,7 @@ describe('Programs', () => {
 
       // populate responses
       const responses = await submitMultipleSurveyResponses(
-        testSurvey,
+        testReferralSurvey,
         {
           patientId: patient.id,
           examinerId,
