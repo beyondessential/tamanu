@@ -1,13 +1,11 @@
 import { createDummyPatient, createDummyEncounter } from 'shared/demoData/patients';
 import { randomLabRequest } from 'shared/demoData/labRequests';
-import { createTestContext } from '../utilities';
-import { validate } from './hl7utilities';
 import { LAB_TEST_STATUSES, REFERENCE_TYPES } from 'shared/constants';
 
-import { 
-  labTestToHL7Observation, 
-  labTestToHL7DiagnosticReport,
-} from '../../app/hl7fhir';
+import { createTestContext } from '../utilities';
+import { validate } from './hl7utilities';
+
+import { labTestToHL7Observation, labTestToHL7DiagnosticReport } from '../../app/hl7fhir';
 
 async function prepopulate(models) {
   // test category
@@ -53,7 +51,6 @@ async function prepopulate(models) {
 }
 
 describe('HL7 Labs', () => {
-
   let ctx;
   let models;
   let createLabTest;
@@ -92,7 +89,7 @@ describe('HL7 Labs', () => {
   });
 
   afterAll(() => ctx.close());
-  
+
   it('Should produce valid hl7 data for an Observation', async () => {
     const labTest = await createLabTest({});
     const hl7 = await labTestToHL7Observation(labTest);
@@ -100,7 +97,7 @@ describe('HL7 Labs', () => {
     expect(errors).toHaveLength(0);
     expect(result).toEqual(true);
   });
-  
+
   it('Should produce valid hl7 data for a DiagnosticReport', async () => {
     const labTest = await createLabTest({});
     const hl7 = await labTestToHL7DiagnosticReport(labTest);
@@ -134,12 +131,15 @@ describe('HL7 Labs', () => {
       code: 'TESTLABORATORY',
     });
 
-    const labTest = await createLabTest({}, {
-      labTestLaboratoryId: lab.id,
-    });
+    const labTest = await createLabTest(
+      {},
+      {
+        labTestLaboratoryId: lab.id,
+      },
+    );
 
     const hl7 = await labTestToHL7DiagnosticReport(labTest);
-    expect(hl7.performer[0]).toHaveProperty("display", "Test Laboratory");
+    expect(hl7.performer[0]).toHaveProperty('display', 'Test Laboratory');
   });
 
   it('Should throw if an invalid result type is given', async () => {
@@ -150,9 +150,8 @@ describe('HL7 Labs', () => {
     try {
       await labTestToHL7Observation(labTest);
       throw new Error("Didn't throw!");
-    } catch(e) {
+    } catch (e) {
       expect(e.message).toMatch('Test coding was not one of');
     }
   });
- 
 });
