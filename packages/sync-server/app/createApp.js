@@ -42,8 +42,6 @@ export function createApp(ctx) {
     next();
   });
 
-  app.use(versionCompatibility);
-
   app.use((req, res, next) => {
     req.store = store;
     req.emailService = emailService;
@@ -61,6 +59,8 @@ export function createApp(ctx) {
 
   // API v1
   app.use('/v1/public', publicRoutes);
+
+  app.use('/v1', versionCompatibility);
   app.use('/v1', authModule);
   app.use('/v1', routes);
 

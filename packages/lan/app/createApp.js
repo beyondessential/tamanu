@@ -43,14 +43,14 @@ export function createApp({ sequelize, models, syncManager }) {
     next();
   });
 
-  app.use(versionCompatibility);
-
   // index route for debugging connectivity
   app.get('/$', (req, res) => {
     res.send({
       index: true,
     });
   });
+
+  app.use(versionCompatibility);
 
   app.use('/', routes);
 
