@@ -14,7 +14,7 @@ appointments.get(
     req.checkPermission('list', 'Appointment');
     const {
       models,
-      query: { after, before, rowsPerPage = 10, page = 0 },
+      query: { after, before, rowsPerPage = 10, page = 0, all = false },
     } = req;
     const { Appointment } = models;
 
@@ -29,8 +29,8 @@ appointments.get(
       startTimeQuery[Op.lte] = before;
     }
     const { rows, count } = await Appointment.findAndCountAll({
-      limit: rowsPerPage,
-      offset: page * rowsPerPage,
+      limit: all ? undefined : rowsPerPage,
+      offset: all ? undefined : page * rowsPerPage,
       order: [['startTime', 'ASC']],
       where: {
         startTime: startTimeQuery,

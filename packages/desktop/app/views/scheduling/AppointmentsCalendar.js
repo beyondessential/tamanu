@@ -85,7 +85,7 @@ export const AppointmentsCalendar = () => {
       const { data } = await api.get('appointments', {
         after: startOfDay(date).toISOString(),
         before: endOfDay(date).toISOString(),
-        rowsPerPage: 100, // arbitrarily big number to get all appointments for the day
+        all: true,
       });
       setAppointments(data);
     })();
