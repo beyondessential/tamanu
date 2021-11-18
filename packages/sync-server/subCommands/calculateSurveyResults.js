@@ -1,5 +1,4 @@
 import { inRange } from 'lodash';
-import { QueryTypes } from 'sequelize';
 
 import { log } from 'shared/services/logging';
 
@@ -49,8 +48,7 @@ const checkVisibilityCriteria = (component, allComponents, answerByCode) => {
       ? Object.entries(restOfCriteria).every(checkIfQuestionMeetsCriteria)
       : Object.entries(restOfCriteria).some(checkIfQuestionMeetsCriteria);
   } catch (error) {
-    console.log(`Error parsing JSON visilbity criteria, using fallback.
-                    \nError message: ${error}`);
+    log.error(`Error message: ${error}`);
 
     return false;
   }
@@ -69,14 +67,21 @@ const getAnswerByCode = answerRows => {
 };
 
 const calculateSurveyResult = async (store, surveyResponseId, surveyComponents) => {
-  const [answerRows] = await store.sequelize.query(`
+  const [answerRows] = await store.sequelize.query(
+    `
     SELECT program_data_elements.code AS "code",
     survey_response_answers.body AS "answer"
     FROM survey_response_answers
     INNER JOIN program_data_elements
       ON program_data_elements.id = survey_response_answers.data_element_id
-    WHERE survey_response_answers.response_id = '${surveyResponseId}'
-  `);
+    WHERE survey_response_answers.response_id = :surveyResponseId
+  `,
+    {
+      replacements: {
+        surveyResponseId,
+      },
+    },
+  );
 
   const answerByCode = getAnswerByCode(answerRows);
   const visibleResultComponents = surveyComponents
@@ -118,28 +123,68 @@ const calculateSurveyResultsInBatch = async (
 ) => {
   const [surveyResponseRows] = await store.sequelize.query(
     `
-      SELECT survey_responses.id
+      SELECT survey_responses.id,
+      survey_responses.encounter_id AS "encounterId"
       FROM survey_responses
-      WHERE survey_id = '${surveyId}'
-      LIMIT ${batchSize}
-      OFFSET ${offset * batchSize}
+      WHERE survey_id = :surveyId
+      ORDER BY survey_responses.id ASC
+      LIMIT :batchSize
+      OFFSET :offset
     `,
+    {
+      replacements: {
+        surveyId,
+        batchSize,
+        offset: offset * batchSize,
+      },
+    },
   );
 
-  for (const { id: surveyResponseId } of surveyResponseRows) {
+  for (const { id: surveyResponseId, encounterId } of surveyResponseRows) {
     const { resultText } = await calculateSurveyResult(store, surveyResponseId, surveyComponents);
 
-    // Update the result text and updated_at to trigger sync
-    await store.sequelize.query(`
-        UPDATE survey_responses
-        SET result_text = '${resultText}',
-        updated_at = CURRENT_TIMESTAMP(3)
-        WHERE id = '${surveyResponseId}'
-      `);
+    // Update the result text and updated_at
+    await store.sequelize.query(
+      `
+      UPDATE survey_responses
+      SET result_text = :resultText,
+      updated_at = CURRENT_TIMESTAMP(3)
+      WHERE id = :surveyResponseId
+    `,
+      {
+        replacements: {
+          resultText,
+          surveyResponseId,
+        },
+      },
+    );
+
+    // Also update encounters.updated_at to trigger syncing down
+    // inner survey responses to mobile / lan
+    await store.sequelize.query(
+      `
+      UPDATE encounters
+      SET updated_at = CURRENT_TIMESTAMP(3)
+      WHERE id = :encounterId
+    `,
+      {
+        replacements: {
+          encounterId,
+        },
+      },
+    );
     log.info(`Result generated for survey response with id ${surveyResponseId}`);
   }
 };
 
+/**
+ * Due to an issue that none of the surveyResponse resultText was synced from mobile to sync-server,
+ * this sub command can be used to rerun all the survey result calculations in sync-server.
+ * Most of the code is copied pasted from tamanu-mobile
+ * https://github.com/beyondessential/tamanu-mobile/blob/e81c87df3acb4518c808fbad399eec031a05e4c3/App/ui/helpers/fields.ts#L90
+ * @param {*} store
+ * @param {*} options
+ */
 export async function calculateSurveyResults(store, options) {
   const [surveyRows] = await store.sequelize.query(`
     SELECT DISTINCT surveys.id
@@ -152,7 +197,8 @@ export async function calculateSurveyResults(store, options) {
   `);
 
   for (const { id: surveyId } of surveyRows) {
-    const [surveyComponents] = await store.sequelize.query(`
+    const [surveyComponents] = await store.sequelize.query(
+      `
         SELECT program_data_elements.code AS "code",
           program_data_elements.type AS "type",
           survey_screen_components.visibility_criteria AS "visibilityCriteria",
@@ -160,15 +206,28 @@ export async function calculateSurveyResults(store, options) {
         FROM survey_screen_components
         INNER JOIN program_data_elements
           ON program_data_elements.id = survey_screen_components.data_element_id
-        WHERE survey_id = '${surveyId}'
-        ORDER BY survey_screen_components.screen_index, survey_screen_components.component_index;
-    `);
+        WHERE survey_id = :surveyId
+        ORDER BY survey_screen_components.screen_index, survey_screen_components.component_index ASC;
+    `,
+      {
+        replacements: {
+          surveyId,
+        },
+      },
+    );
 
-    const [surveyResponseCountRows] = await store.sequelize.query(`
+    const [surveyResponseCountRows] = await store.sequelize.query(
+      `
         SELECT COUNT(*)
         FROM survey_responses
-        WHERE survey_id = '${surveyId}';
-    `);
+        WHERE survey_id = :surveyId;
+    `,
+      {
+        replacements: {
+          surveyId,
+        },
+      },
+    );
     const surveyResponseCount = surveyResponseCountRows[0].count;
     const batchCount = Math.ceil(surveyResponseCount / SURVEY_RESPONSE_BATCH_SIZE);
 
@@ -183,5 +242,7 @@ export async function calculateSurveyResults(store, options) {
       );
     }
   }
+
+  log.info('Finished calculating survey results');
   process.exit(0);
 }
