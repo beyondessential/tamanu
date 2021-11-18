@@ -1,6 +1,7 @@
 import { createDummyPatient, createDummyEncounter } from 'shared/demoData/patients';
 import Chance from 'chance';
 import { createTestContext } from '../utilities';
+import { SURVEY_TYPES } from 'shared/constants';
 
 const chance = new Chance();
 
@@ -32,10 +33,11 @@ async function createDummyDataElement(survey, index) {
   return dataElement;
 }
 
-async function createDummySurvey(program, dataElementCount = -1) {
+async function createDummySurvey(program, dataElementCount = -1, overrides = {}) {
   const survey = await models.Survey.create({
     programId: program.id,
     name: `SURVEY-${chance.string()}`,
+    ...overrides,
   });
 
   const amount = dataElementCount >= 0 ? dataElementCount : chance.integer({ min: 5, max: 10 });
@@ -93,6 +95,7 @@ describe('Programs', () => {
   let testSurvey;
   let testSurvey2;
   let testSurvey3;
+  let testReferralSurvey;
 
   beforeAll(async () => {
     const ctx = await createTestContext();
@@ -110,6 +113,7 @@ describe('Programs', () => {
     testSurvey = await createDummySurvey(testProgram, 6);
     testSurvey2 = await createDummySurvey(testProgram, 10);
     testSurvey3 = await createDummySurvey(testProgram, 10);
+    testReferralSurvey = await createDummySurvey(testProgram, 10, { surveyType: SURVEY_TYPES.REFERRAL });
   });
 
   it('should list available programs', async () => {
@@ -169,41 +173,49 @@ describe('Programs', () => {
       });
     });
 
-    it('should list all responses to a survey', async () => {
-      const responses = await submitMultipleSurveyResponses(testSurvey3, {
-        encounterId: testEncounter.id,
-      });
-      const result = await app.get(`/v1/survey/${testSurvey3.id}/surveyResponses`);
-      expect(result).toHaveSucceeded();
-
-      expect(result.body.count).toEqual(responses.length);
-      result.body.data.map(response => {
-        expect(response.encounterId).toEqual(testEncounter.id);
-        expect(response.surveyId).toEqual(testSurvey3.id);
-      });
-    });
-
-    it('should list survey responses from one encounter', async () => {
+    it('should list program responses from one encounter', async () => {
       const encounter = await models.Encounter.create({
         patientId: testPatient.id,
         ...(await createDummyEncounter(models)),
       });
-      const responses = await submitMultipleSurveyResponses(testSurvey, {
+      const responses = await submitMultipleSurveyResponses(testSurvey3, {
         encounterId: encounter.id,
       });
-      const result = await app.get(`/v1/encounter/${encounter.id}/surveyResponses?rowsPerPage=100`);
-      expect(result).toHaveSucceeded();
 
-      expect(result.body.count).toEqual(responses.length);
-      result.body.data.map(response => {
+      const referrals = await app.get(`/v1/encounter/${encounter.id}/referral?rowsPerPage=100`);
+      const programResponses = await app.get(`/v1/encounter/${encounter.id}/programResponses?rowsPerPage=100`);
+      expect(referrals).toHaveSucceeded();
+      expect(programResponses).toHaveSucceeded();
+
+      expect(referrals.body.count).toEqual(0);
+      expect(programResponses.body.count).toEqual(responses.length);
+      programResponses.body.data.map(response => {
         expect(response.encounterId).toEqual(encounter.id);
-        expect(response.surveyId).toEqual(testSurvey.id);
+        expect(response.surveyId).toEqual(testSurvey3.id);
       });
+    });
+
+    it('should NOT list referral responses when fetching programResponses', async () => {
+      const encounter = await models.Encounter.create({
+        patientId: testPatient.id,
+        ...(await createDummyEncounter(models)),
+      });
+      const responses = await submitMultipleSurveyResponses(testReferralSurvey, {
+        encounterId: encounter.id,
+      });
+
+      const referrals = await app.get(`/v1/encounter/${encounter.id}/referral?rowsPerPage=100`);
+      const programResponses = await app.get(`/v1/encounter/${encounter.id}/programResponses?rowsPerPage=100`);
+      expect(referrals).toHaveSucceeded();
+      expect(programResponses).toHaveSucceeded();
+
+      expect(referrals.body.count).toEqual(responses.length);
+      expect(programResponses.body.count).toEqual(0);
     });
   });
 
   describe('Submitting surveys directly against a patient', () => {
-    it('should list responses to all surveys from a patient', async () => {
+    it('should list responses to all surveys of type program from a patient', async () => {
       const { examinerId, departmentId, locationId } = await createDummyEncounter(models);
       const patient = await models.Patient.create(await createDummyPatient(models));
 
@@ -232,7 +244,7 @@ describe('Programs', () => {
         5,
       );
 
-      const result = await app.get(`/v1/patient/${patient.id}/surveyResponses?rowsPerPage=10`);
+      const result = await app.get(`/v1/patient/${patient.id}/programResponses?rowsPerPage=10`);
       expect(result).toHaveSucceeded();
 
       // check pagination is coming through ok
@@ -253,11 +265,35 @@ describe('Programs', () => {
 
       // check page 2
       const result2 = await app.get(
-        `/v1/patient/${patient.id}/surveyResponses?rowsPerPage=10&page=1`,
+        `/v1/patient/${patient.id}/programResponses?rowsPerPage=10&page=1`,
       );
       expect(result2).toHaveSucceeded();
       expect(result2.body.data.length).toEqual(5);
       result2.body.data.map(checkResult);
+    });
+
+    it('should NOT list referral responses when fetching programResponses', async () => {
+      const { examinerId, departmentId, locationId } = await createDummyEncounter(models);
+      const patient = await models.Patient.create(await createDummyPatient(models));
+
+      // populate responses
+      await submitMultipleSurveyResponses(
+        testSurvey,
+        {
+          patientId: patient.id,
+          examinerId,
+          departmentId,
+          locationId,
+        },
+      );
+
+      const referrals = await app.get(`/v1/patient/${patient.id}/referral?rowsPerPage=100`);
+      const programResponses = await app.get(`/v1/patient/${patient.id}/programResponses?rowsPerPage=100`);
+      expect(referrals).toHaveSucceeded();
+      expect(programResponses).toHaveSucceeded();
+
+      expect(referrals.body.count).toEqual(responses.length);
+      expect(programResponses.body.count).toEqual(0);
     });
 
     it('should use an already-open encounter if one exists', async () => {
