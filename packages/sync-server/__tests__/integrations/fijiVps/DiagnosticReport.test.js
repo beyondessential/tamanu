@@ -222,6 +222,31 @@ describe('VPS integration - DiagnosticReport', () => {
   });
 
   describe('failure', () => {
-    it.todo('returns an error when passed the wrong query params');
+    it('returns an error when passed the wrong query params', async () => {
+      const { Patient } = ctx.store.models;
+      const patient = await Patient.create(fake(Patient));
+      await createLabTestHierarchy(patient);
+
+      const id = encodeURIComponent(`https://wrong.com/this-is-wrong|${patient.displayId}`);
+      const path = `/v1/integration/fijiVps/DiagnosticReport?_sort=issued&_page=-1&_count=101&status=invalid-status&subject%3Aidentifier=${id}&_include=DiagnosticReport%3Asomething-invalid`;
+
+      // act
+      const response = await app.get(path);
+
+      // assert
+      expect(response).toHaveRequestError(422);
+      expect(response.body).toMatchObject({
+        error: {
+          errors: [
+            'subject:identifier must be in the format "<namespace>|<id>"',
+            'status must be one of the following values: final',
+            '_count must be less than or equal to 20',
+            '_page must be greater than or equal to 0',
+            '_sort must be one of the following values: -issued',
+            '_include must be one of the following values: DiagnosticReport:result',
+          ],
+        },
+      });
+    });
   });
 });

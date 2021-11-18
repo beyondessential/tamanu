@@ -3,7 +3,7 @@ import config from 'config';
 import { decodeIdentifier } from './conversion';
 
 export const IDENTIFIER_NAMESPACE = config.hl7.dataDictionaries.patientDisplayId;
-const MAX_RECORDS = 100;
+const MAX_RECORDS = 20;
 
 const sharedQuery = yup.object({
   'subject:identifier': yup

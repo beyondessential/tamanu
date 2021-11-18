@@ -105,6 +105,33 @@ describe('VPS integration - Patient', () => {
   });
 
   describe('failure', () => {
-    it.todo('returns an error when passed the wrong query params');
+    it('returns an error when passed the wrong query params', async () => {
+      // arrange
+      const { Patient, PatientAdditionalData } = ctx.store.models;
+      const patient = await Patient.create(fake(Patient));
+      await PatientAdditionalData.create({
+        ...fake(PatientAdditionalData),
+        patientId: patient.id,
+      });
+      const id = encodeURIComponent(`not-the-right-identifier|${patient.displayId}`);
+      const path = `/v1/integration/fijiVps/Patient?_sort=id&_page=z&_count=x&status=initial&subject%3Aidentifier=${id}`;
+
+      // act
+      const response = await app.get(path);
+
+      // assert
+      expect(response).toHaveRequestError(422);
+      expect(response.body).toMatchObject({
+        error: {
+          errors: [
+            'subject:identifier must be in the format "<namespace>|<id>"',
+            'status must be one of the following values: final',
+            '_count must be a `number` type, but the final value was: `NaN` (cast from the value `"x"`).',
+            '_page must be a `number` type, but the final value was: `NaN` (cast from the value `"z"`).',
+            '_sort must be one of the following values: -issued',
+          ],
+        },
+      });
+    });
   });
 });

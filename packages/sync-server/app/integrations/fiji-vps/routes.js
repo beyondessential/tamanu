@@ -34,7 +34,7 @@ function parseQuery(unsafeQuery, querySchema) {
   if (searchId) {
     values = fromSearchId(searchId);
   }
-  return querySchema.validate(values, { stripUnknown: true });
+  return querySchema.validate(values, { stripUnknown: true, abortEarly: false });
 }
 
 async function getHL7Payload({
