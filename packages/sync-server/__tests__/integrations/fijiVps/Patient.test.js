@@ -102,10 +102,38 @@ describe('VPS integration - Patient', () => {
         ],
       });
     });
+
+    it("returns no error but no results when subject:identifier doesn't match a patient", async () => {
+      // arrange
+      const id = encodeURIComponent(`${IDENTIFIER_NAMESPACE}|abc123-not-real`);
+      const path = `/v1/integration/fijiVps/Patient?_sort=-issued&_page=0&_count=2&status=final&subject%3Aidentifier=${id}`;
+
+      // act
+      const response = await app.get(path);
+
+      // assert
+      expect(response).toHaveSucceeded();
+      expect(response.body).toEqual({
+        resourceType: 'Bundle',
+        id: 'patients',
+        meta: {
+          lastUpdated: null,
+        },
+        type: 'searchset',
+        total: 0,
+        link: [
+          {
+            relation: 'self',
+            link: expect.stringContaining(path),
+          },
+        ],
+        entry: [],
+      });
+    });
   });
 
   describe('failure', () => {
-    it('returns an error when passed the wrong query params', async () => {
+    it('returns a 422 error when passed the wrong query params', async () => {
       // arrange
       const { Patient, PatientAdditionalData } = ctx.store.models;
       const patient = await Patient.create(fake(Patient));
