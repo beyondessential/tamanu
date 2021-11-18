@@ -1,4 +1,4 @@
-import React, { useCallback, useState } from 'react';
+import React, { useMemo, useEffect, useCallback, useState } from 'react';
 import styled from 'styled-components';
 import FormControlLabel from '@material-ui/core/FormControlLabel';
 import Checkbox from '@material-ui/core/Checkbox';
@@ -66,6 +66,15 @@ function AdministeredVaccineSchedule(props) {
   );
 }
 
+const findVaccinesByAdministeredStatus = (vaccine, administered) =>
+  vaccine ?
+    vaccine.schedules
+      .filter(s => s.administered === administered)
+      .map(s => ({
+        value: s.scheduledVaccineId,
+        label: s.schedule,
+      })) : [];
+
 export const ImmunisationForm = React.memo(
   ({
     onCancel,
@@ -75,21 +84,18 @@ export const ImmunisationForm = React.memo(
     getScheduledVaccines,
     locationSuggester,
   }) => {
-    const [loadingVaccineOptions, setLoadingVaccineOptions] = useState(false);
     const [vaccineOptions, setVaccineOptions] = useState([]);
     const [category, setCategory] = useState();
     const [vaccineLabel, setVaccineLabel] = useState();
-    const [administeredOptions, setAdministeredOptions] = useState([]);
-    const [scheduleOptions, setScheduleOptions] = useState([]);
-    const clearVaccineOptions = () => {
-      setVaccineLabel(null)
-      setAdministeredOptions([]);
-      setScheduleOptions([]);
-      setVaccineOptions([]);
-    }
-    const loadVaccineOptions = async abc => {
-      try {
-        const availableScheduledVaccines = await getScheduledVaccines({ category: abc });
+
+    const selectedVaccine = useMemo(() => vaccineOptions.find(v => v.label === vaccineLabel), [vaccineLabel, vaccineOptions])
+
+    const administeredOptions = useMemo(() => findVaccinesByAdministeredStatus(selectedVaccine, true), [selectedVaccine])
+    const scheduleOptions = useMemo(() => findVaccinesByAdministeredStatus(selectedVaccine, false), [selectedVaccine])
+
+    useEffect(() => {
+      const fetchScheduledVaccines = async () => {
+        const availableScheduledVaccines = await getScheduledVaccines({ category });
         setVaccineOptions(
           availableScheduledVaccines.map(vaccine => ({
             label: vaccine.label,
@@ -97,11 +103,11 @@ export const ImmunisationForm = React.memo(
             schedules: vaccine.schedules,
           })),
         );
-        setLoadingVaccineOptions(false);
-      } catch (e) {
-        setLoadingVaccineOptions(false);
       }
-    }
+
+      fetchScheduledVaccines()
+    }, [category]);
+
     return (
       <Form
         onSubmit={onSubmit}
@@ -119,9 +125,7 @@ export const ImmunisationForm = React.memo(
               options={VaccineScheduleOptions}
               onChange={e => {
                 setCategory(e.target.value);
-                setLoadingVaccineOptions(true)
-                clearVaccineOptions()
-                loadVaccineOptions(e.target.value);
+                setVaccineLabel(null);
               }}
               required
             />
@@ -130,33 +134,10 @@ export const ImmunisationForm = React.memo(
                 <Field
                   name="vaccineLabel"
                   label="Vaccine"
-                  disabled={loadingVaccineOptions}
                   value={vaccineLabel}
                   component={SelectField}
                   options={vaccineOptions}
-                  onChange={e => {
-                    const label = e.target.value;
-                    setVaccineLabel(label);
-                    const vaccine = vaccineOptions.find(v => v.label === label);
-                    if (vaccine) {
-                      setAdministeredOptions(
-                        vaccine.schedules
-                          .filter(s => s.administered)
-                          .map(s => ({
-                            value: s.scheduledVaccineId,
-                            label: s.schedule,
-                          })),
-                      );
-                      setScheduleOptions(
-                        vaccine.schedules
-                          .filter(s => !s.administered)
-                          .map(s => ({
-                            value: s.scheduledVaccineId,
-                            label: s.schedule,
-                          })),
-                      );
-                    }
-                  }}
+                  onChange={e => setVaccineLabel(e.target.value)}
                   required
                 />
               </div>
