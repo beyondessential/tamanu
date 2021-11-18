@@ -81,26 +81,27 @@ export const ImmunisationForm = React.memo(
     const [vaccineLabel, setVaccineLabel] = useState();
     const [administeredOptions, setAdministeredOptions] = useState([]);
     const [scheduleOptions, setScheduleOptions] = useState([]);
-    React.useEffect(() => {
-      (async () => {
-        try {
-          setAdministeredOptions([]);
-          setScheduleOptions([]);
-          const availableScheduledVaccines = await getScheduledVaccines({ category: scheduledCategory });
-          setVaccineOptions(
-            availableScheduledVaccines.map(vaccine => ({
-              label: vaccine.label,
-              value: vaccine.label,
-              schedules: vaccine.schedules,
-            })),
-          );
-          setLoadingVaccineOptions(false);
-        } catch (e) {
-          setVaccineOptions([]);
-          setLoadingVaccineOptions(false);
-        }
-      })()
-    }, [category]);
+    const clearVaccineOptions = () => {
+      setVaccineLabel(null)
+      setAdministeredOptions([]);
+      setScheduleOptions([]);
+      setVaccineOptions([]);
+    }
+    const loadVaccineOptions = async abc => {
+      try {
+        const availableScheduledVaccines = await getScheduledVaccines({ category: abc });
+        setVaccineOptions(
+          availableScheduledVaccines.map(vaccine => ({
+            label: vaccine.label,
+            value: vaccine.label,
+            schedules: vaccine.schedules,
+          })),
+        );
+        setLoadingVaccineOptions(false);
+      } catch (e) {
+        setLoadingVaccineOptions(false);
+      }
+    }
     return (
       <Form
         onSubmit={onSubmit}
@@ -119,15 +120,17 @@ export const ImmunisationForm = React.memo(
               onChange={e => {
                 setCategory(e.target.value);
                 setLoadingVaccineOptions(true)
-                // scheduledVaccinesToOptions(e.target.value);
+                clearVaccineOptions()
+                loadVaccineOptions(e.target.value);
               }}
               required
             />
-            {loadingVaccineOptions ? null : (<>
+            <>
               <div style={{ gridColumn: '1/-1' }}>
                 <Field
                   name="vaccineLabel"
                   label="Vaccine"
+                  disabled={loadingVaccineOptions}
                   value={vaccineLabel}
                   component={SelectField}
                   options={vaccineOptions}
@@ -175,7 +178,7 @@ export const ImmunisationForm = React.memo(
                   required
                 />
               </div>
-            </>)}
+            </>
             <Field name="date" label="Date" component={DateField} required />
             <Field
               name="examinerId"
