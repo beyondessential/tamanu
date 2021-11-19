@@ -4,9 +4,11 @@ import config from 'config';
 import { log } from 'shared/services/logging';
 
 import * as fijiVrs from './fiji-vrs';
+import * as fijiVps from './fiji-vps';
 
 const integrations = {
   fijiVrs,
+  fijiVps,
 };
 
 export const integrationRoutes = express.Router();
@@ -17,7 +19,9 @@ export const initIntegrations = async ctx => {
     if (config.integrations[key].enabled) {
       log.info(`initIntegrations: ${key}: initialising`);
       const { routes, publicRoutes, initAppContext } = integration;
-      await initAppContext(ctx);
+      if (initAppContext) {
+        await initAppContext(ctx);
+      }
       if (routes) {
         integrationRoutes.use(`/${key}`, routes);
       }
