@@ -13,8 +13,11 @@ export function hl7SortToTamanu(hl7Sort) {
 }
 
 export function decodeIdentifier(identifier) {
+  if (typeof identifier !== 'string') {
+    return [null, null];
+  }
   const [namespace, ...idPieces] = identifier.split('|');
-  return [namespace, idPieces.join('|')];
+  return [namespace || null, idPieces.join('|') || null];
 }
 
 export function toSearchId({ after, ...params }) {

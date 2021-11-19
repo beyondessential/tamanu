@@ -161,5 +161,33 @@ describe('VPS integration - Patient', () => {
         },
       });
     });
+
+    it('returns a 422 error when passed no query params', async () => {
+      // arrange
+      const { Patient, PatientAdditionalData } = ctx.store.models;
+      const patient = await Patient.create(fake(Patient));
+      await PatientAdditionalData.create({
+        ...fake(PatientAdditionalData),
+        patientId: patient.id,
+      });
+      const path = `/v1/integration/fijiVps/Patient`;
+
+      // act
+      const response = await app.get(path);
+
+      // assert
+      expect(response).toHaveRequestError(422);
+      expect(response.body).toMatchObject({
+        error: {
+          errors: [
+            'subject:identifier must be in the format "<namespace>|<id>"',
+            'subject:identifier is a required field',
+            'status is a required field',
+            '_page is a required field',
+            '_sort is a required field',
+          ],
+        },
+      });
+    });
   });
 });
