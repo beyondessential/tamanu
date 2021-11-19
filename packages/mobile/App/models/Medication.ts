@@ -54,6 +54,6 @@ export class Medication extends BaseModel implements IMedication {
   @BeforeInsert()
   @BeforeUpdate()
   async markEncounterForUpload() {
-    await this.markParent(Encounter, 'encounter', 'markedForUpload');
+    await this.markParentForUpload(Encounter, 'encounter');
   }
 }

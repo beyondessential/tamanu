@@ -18,7 +18,7 @@ export class AdministeredVaccine extends BaseModel implements IAdministeredVacci
 
   @Column({ type: 'varchar', nullable: true })
   injectionSite?: InjectionSiteType;
-  
+
   @Column({ nullable: true })
   location?: string;
 
@@ -40,7 +40,7 @@ export class AdministeredVaccine extends BaseModel implements IAdministeredVacci
   @BeforeInsert()
   @BeforeUpdate()
   async markEncounterForUpload() {
-    await this.markParent(Encounter, 'encounter', 'markedForUpload');
+    await this.markParentForUpload(Encounter, 'encounter');
   }
 
   static async getForPatient(patientId: string): Promise<IAdministeredVaccine[]> {

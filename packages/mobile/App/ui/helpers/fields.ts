@@ -87,6 +87,14 @@ function formatResultText(value: number, { options }: ISurveyScreenComponent): s
   return `${value.toFixed(0)}%`;
 }
 
+/**
+ * IMPORTANT: We also have another version of this method in sync-server
+ * sub commands 'calculateSurveyResults'.
+ * The sub command is for recalculate survey results due to an issue that
+ * resultText was not synced properly to sync-server before.
+ * So if there is an update to this method, please make the same update
+ * in the other version in sync-server
+ */
 export function getResultValue(allComponents: ISurveyScreenComponent[], values: {}): ResultValue {
   // find a component with a Result data type and use its value as the overall result
   const resultComponents = allComponents
@@ -145,6 +153,14 @@ function compareData(dataType: string, expected: string, given: any): boolean {
   return false;
 }
 
+/**
+ * IMPORTANT: We also have another version of this method in sync-server
+ * sub commands 'calculateSurveyResults'.
+ * The sub command is for recalculate survey results due to an issue that
+ * resultText was not synced properly to sync-server before.
+ * So if there is an update to this method, please make the same update
+ * in the other version in sync-server
+ */
 export function checkVisibilityCriteria(
   component: ISurveyScreenComponent,
   allComponents: ISurveyScreenComponent[],

@@ -28,7 +28,7 @@ export class Diagnosis extends BaseModel implements IDiagnosis {
   @BeforeInsert()
   @BeforeUpdate()
   async markEncounterForUpload() {
-    await this.markParent(Encounter, 'encounter', 'markedForUpload');
+    await this.markParentForUpload(Encounter, 'encounter');
   }
 
   static async getForPatient(patientId: string): Promise<Diagnosis[]> {

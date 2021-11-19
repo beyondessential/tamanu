@@ -43,7 +43,7 @@ export class Vitals extends BaseModel implements IVitals {
   @BeforeInsert()
   @BeforeUpdate()
   async markEncounterForUpload() {
-    await this.markParent(Encounter, 'encounter', 'markedForUpload');
+    await this.markParentForUpload(Encounter, 'encounter');
   }
 
   static async getForPatient(patientId: string): Promise<Vitals[]> {
