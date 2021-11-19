@@ -24,6 +24,7 @@ describe('Fiji NCD Primary Screening line list', () => {
     const ctx = await createTestContext();
     const models = ctx.models;
 
+    await models.Referral.truncate({ cascade: true });
     await models.SurveyResponseAnswer.truncate({ cascade: true });
     await models.SurveyResponse.truncate({ cascade: true });
     await models.ProgramDataElement.truncate({ cascade: true });
