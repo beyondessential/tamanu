@@ -4,8 +4,8 @@ module.exports = {
   up: async query => {
     await query.addColumn('encounter_medications', 'repeats', {
       type: Sequelize.INTEGER,
-      allowNull: false,
-      defaultValue: 0,
+      allowNull: true,
+      defaultValue: null,
       validate: {
         min: 0,
         max: 12,

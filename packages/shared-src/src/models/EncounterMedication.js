@@ -27,8 +27,8 @@ export class EncounterMedication extends Model {
 
         repeats: {
           type: Sequelize.INTEGER,
-          allowNull: false,
-          defaultValue: 0,
+          allowNull: true,
+          defaultValue: null,
           validate: {
             min: 0,
             max: 12,
