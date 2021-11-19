@@ -27,9 +27,12 @@ describe('Fiji NCD Primary Screening line list', () => {
     await models.Referral.truncate({ cascade: true });
     await models.SurveyResponseAnswer.truncate({ cascade: true });
     await models.SurveyResponse.truncate({ cascade: true });
+    await models.SurveyScreenComponent.truncate({ cascade: true });
     await models.ProgramDataElement.truncate({ cascade: true });
     await models.Survey.truncate({ cascade: true });
     await models.Program.truncate({ cascade: true });
+    await models.PatientAdditionalData.truncate({ cascade: true });
+    await models.Patient.truncate({ cascade: true });
 
     baseApp = ctx.baseApp;
     village1 = await randomReferenceId(models, 'village');
