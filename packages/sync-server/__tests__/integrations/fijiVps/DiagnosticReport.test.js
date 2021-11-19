@@ -265,7 +265,7 @@ describe('VPS integration - DiagnosticReport', () => {
 
       // assert
       expect(response).toHaveSucceeded();
-      expect(response.body).toEqual({
+      expect(response.body).toMatchObject({
         entry: [
           {
             performer: [
