@@ -23,7 +23,7 @@ describe('Version compatibility', () => {
   describe('LAN server client version checking', () => {
     it('Should allow a supported client', async () => {
       const response = await app.get('/').set({
-        'X-Runtime': 'Tamanu LAN Server',
+        'X-Tamanu-Client': 'Tamanu LAN Server',
         'X-Version': MIN_LAN_VERSION,
       });
       expect(response).toHaveSucceeded();
@@ -32,7 +32,7 @@ describe('Version compatibility', () => {
 
     it('Should deny a client under the minimum', async () => {
       const response = await app.get('/').set({
-        'X-Runtime': 'Tamanu LAN Server',
+        'X-Tamanu-Client': 'Tamanu LAN Server',
         'X-Version': '0.0.1',
       });
 
@@ -44,7 +44,7 @@ describe('Version compatibility', () => {
 
     it('Should deny a client over the maximum', async () => {
       const response = await app.get('/').set({
-        'X-Runtime': 'Tamanu LAN Server',
+        'X-Tamanu-Client': 'Tamanu LAN Server',
         'X-Version': '10.2.1',
       });
 
@@ -58,7 +58,7 @@ describe('Version compatibility', () => {
   describe('Mobile client version checking', () => {
     it('Should allow a supported client', async () => {
       const response = await app.get('/').set({
-        'X-Runtime': 'Tamanu Mobile',
+        'X-Tamanu-Client': 'Tamanu Mobile',
         'X-Version': MIN_MOBILE_VERSION,
       });
       expect(response).toHaveSucceeded();
@@ -67,7 +67,7 @@ describe('Version compatibility', () => {
 
     it('Should deny a client under the minimum', async () => {
       const response = await app.get('/').set({
-        'X-Runtime': 'Tamanu Mobile',
+        'X-Tamanu-Client': 'Tamanu Mobile',
         'X-Version': '0.0.1',
       });
 
@@ -79,7 +79,7 @@ describe('Version compatibility', () => {
 
     it('Should deny a client over the maximum', async () => {
       const response = await app.get('/').set({
-        'X-Runtime': 'Tamanu Mobile',
+        'X-Tamanu-Client': 'Tamanu Mobile',
         'X-Version': '10.2.1',
       });
 
@@ -107,7 +107,7 @@ describe('Version compatibility', () => {
       await Promise.all(
         ['0.0.1', '1.0.0', '1.0.9', '999.999.999'].map(async version => {
           const response = await app.get('/').set({
-            'X-Runtime': 'Unknown Client',
+            'X-Tamanu-Client': 'Unknown Client',
             'X-Version': version,
           });
           expect(response).not.toHaveSucceeded();
@@ -150,7 +150,7 @@ describe('Version compatibility', () => {
     it('Should support the current version of the lan server', async () => {
       const lanVersion = versions.find(([filePath]) => filePath === 'packages/lan/package.json')[1];
       const response = await app.get('/').set({
-        'X-Runtime': 'Tamanu LAN Server',
+        'X-Tamanu-Client': 'Tamanu LAN Server',
         'X-Version': lanVersion,
       });
       expect(response).toHaveSucceeded();
