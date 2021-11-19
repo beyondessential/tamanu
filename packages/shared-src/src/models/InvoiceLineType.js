@@ -10,7 +10,7 @@ export class InvoiceLineType extends Model {
         item_id: Sequelize.STRING,
         item_type: Sequelize.STRING,
         name: Sequelize.TEXT,
-        price: Sequelize.STRING,
+        price: Sequelize.DECIMAL,
       },
       {
         ...options,
