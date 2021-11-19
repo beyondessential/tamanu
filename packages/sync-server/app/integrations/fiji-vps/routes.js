@@ -53,8 +53,6 @@ async function getHL7Payload({ req, querySchema, model, getWhere, getInclude, bu
       limit: _count,
       offset,
       order: hl7SortToTamanu(_sort),
-      raw: true,
-      nest: true,
     }),
     model.count({
       where: baseWhere,
