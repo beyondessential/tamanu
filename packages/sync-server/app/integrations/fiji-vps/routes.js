@@ -120,7 +120,7 @@ routes.get(
       getWhere: displayId => ({ displayId }),
       getInclude: () => [{ association: 'additionalData' }],
       bundleId: 'patients',
-      toHL7: ({ additionalData, ...patient }) => patientToHL7Patient(patient, additionalData),
+      toHL7: patient => patientToHL7Patient(patient, patient.additionalData[0]),
     });
 
     res.send(payload);
