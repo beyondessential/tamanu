@@ -4,12 +4,6 @@ module.exports = {
   up: async query => {
     await query.addColumn('encounter_medications', 'repeats', {
       type: Sequelize.INTEGER,
-      allowNull: true,
-      defaultValue: null,
-      validate: {
-        min: 0,
-        max: 12,
-      },
     });
     await query.addColumn('encounter_medications', 'is_discharge', {
       type: Sequelize.BOOLEAN,

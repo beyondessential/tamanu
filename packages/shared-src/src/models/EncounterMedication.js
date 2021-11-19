@@ -25,15 +25,7 @@ export class EncounterMedication extends Model {
         qtyNight: Sequelize.INTEGER,
         quantity: Sequelize.INTEGER,
 
-        repeats: {
-          type: Sequelize.INTEGER,
-          allowNull: true,
-          defaultValue: null,
-          validate: {
-            min: 0,
-            max: 12,
-          },
-        },
+        repeats: Sequelize.INTEGER,
         isDischarge: {
           type: Sequelize.BOOLEAN,
           allowNull: false,
