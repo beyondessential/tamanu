@@ -154,3 +154,25 @@ export async function createDummyEncounterDiagnosis(models, overrides = {}) {
     ...overrides,
   };
 }
+
+// Needs a manually created encounter to be linked with
+export async function createDummyEncounterMedication(models, overrides = {}) {
+  return {
+    date: new Date(),
+    endDate: new Date(Date.now() + HOUR),
+    prescription: chance.sentence({ words: chance.integer({ min: 4, max: 8 }) }),
+    note: chance.sentence({ words: chance.integer({ min: 4, max: 8 }) }),
+    indication: chance.sentence({ words: chance.integer({ min: 4, max: 8 }) }),
+    route: chance.word(),
+    qtyMorning: chance.integer({ min: 0, max: 3 }),
+    qtyLunch: chance.integer({ min: 0, max: 3 }),
+    qtyEvening: chance.integer({ min: 0, max: 3 }),
+    qtyNight: chance.integer({ min: 0, max: 3 }),
+    quantity: chance.integer({ min: 0, max: 3 }),
+    repeats: 0,
+    isDischarge: false,
+    prescriberId: await randomUser(models),
+    medicationId: await randomReferenceId(models, 'drug'),
+    ...overrides,
+  };
+}
