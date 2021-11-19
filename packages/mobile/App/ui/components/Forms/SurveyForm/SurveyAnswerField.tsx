@@ -14,10 +14,7 @@ export const SurveyAnswerField = ({
   config,
   defaultText,
 }): JSX.Element => {
-  const [surveyResponseAnswer, setSurveyResponseAnswer]: [
-    string,
-    (newAnswer: string) => void
-  ] = useState();
+  const [surveyResponseAnswer, setSurveyResponseAnswer] = useState<string>();
   const { setFieldValue } = useFormikContext();
   const { models } = useBackend();
 
@@ -49,7 +46,7 @@ export const SurveyAnswerField = ({
       // Set readable display answer
       setSurveyResponseAnswer(displayAnswer || answer?.body || '');
     })();
-  }, [patient.id, surveyResponseAnswer]);
+  }, [patient.id, surveyResponseAnswer, name, config.source, config.Source]);
 
   return (
     <StyledView marginTop={10}>
