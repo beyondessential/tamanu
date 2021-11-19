@@ -300,6 +300,7 @@
         }
       },
       "features": {
+        "editPatientDetailsOnMobile": true,
         "registerNewPatient": true,
         "hideOtherSex": true
       },
