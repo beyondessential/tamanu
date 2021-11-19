@@ -1,0 +1,208 @@
+import { groupBy, keyBy } from 'lodash';
+import { Op } from 'sequelize';
+import moment from 'moment';
+
+import { transformAnswers } from '../utilities/transformAnswers';
+
+import {
+  CVD_SURVEY_IDS,
+  BREAST_CANCER_SURVEY_IDS,
+  CERVICAL_CANCER_SURVEY_IDS,
+  CVD_SURVEY_GROUP_KEY,
+  BREAST_CANCER_SURVEY_GROUP_KEY,
+  CERVICAL_CANCER_SURVEY_GROUP_KEY,
+  CVD_PRIMARY_SCREENING_FORM_DATA_ELEMENT_IDS,
+  BREAST_CANCER_PRIMARY_SCREENING_FORM_DATA_ELEMENT_IDS,
+  CERVICAL_CANCER_PRIMARY_SCREENING_FORM_DATA_ELEMENT_IDS,
+  CVD_PRIMARY_SCREENING_REFERRAL_DATA_ELEMENT_IDS,
+  BREAST_CANCER_PRIMARY_SCREENING_REFERRAL_DATA_ELEMENT_IDS,
+  CERVICAL_CANCER_PRIMARY_SCREENING_REFERRAL_DATA_ELEMENT_IDS,
+  ALL_SURVEY_IDS,
+} from './constants';
+
+export const parametersToAnswerSqlWhere = parameters => {
+  const where = {
+    '$surveyResponse.survey_id$': {
+      [Op.in]: ALL_SURVEY_IDS,
+    },
+  };
+
+  if (!parameters || !Object.keys(parameters).length) {
+    return where;
+  }
+
+  if (parameters.fromDate || parameters.toDate) {
+    where['$surveyResponse.end_time$'] = {};
+  }
+  if (parameters.fromDate) {
+    where['$surveyResponse.end_time$'][Op.gte] = parameters.fromDate;
+  }
+  if (parameters.toDate) {
+    where['$surveyResponse.end_time$'][Op.lte] = parameters.toDate;
+  }
+  if (parameters.surveyId) {
+    delete where['$surveyResponse.survey_id$'][Op.in];
+    const surveyGroupKey = getSurveyGroupKey(parameters.surveyId);
+    where['$surveyResponse.survey_id$'][Op.in] = getSurveyIdsByGroupKey(surveyGroupKey);
+  }
+
+  return where;
+};
+
+const getPatients = async (models, patientIds) =>
+  models.Patient.findAll({
+    include: [
+      {
+        model: models.PatientAdditionalData,
+        as: 'patientAdditionalData',
+        include: ['ethnicity'],
+      },
+    ],
+    where: {
+      id: {
+        [Op.in]: patientIds,
+      },
+    },
+    order: [['firstName', 'ASC']],
+  });
+
+export const getPerPatientPerSurveyPerDatePerElementKey = (
+  patientId,
+  surveyGroupKey,
+  responseDate,
+  dataElementId,
+) => `${patientId}|${surveyGroupKey}|${responseDate}|${dataElementId}`;
+
+export const getCachedAnswer = (
+  answersByPatientSurveyDataElement,
+  patientId,
+  surveyGroupKey,
+  responseDate,
+  dataElementId,
+) =>
+  answersByPatientSurveyDataElement[
+    getPerPatientPerSurveyPerDatePerElementKey(patientId, surveyGroupKey, responseDate, dataElementId)
+  ]?.body;
+
+export const getSurveyGroupKey = surveyId => {
+  if (CVD_SURVEY_IDS.includes(surveyId)) {
+    return CVD_SURVEY_GROUP_KEY;
+  } else if (BREAST_CANCER_SURVEY_IDS.includes(surveyId)) {
+    return BREAST_CANCER_SURVEY_GROUP_KEY;
+  } else if (CERVICAL_CANCER_SURVEY_IDS.includes(surveyId)) {
+    return CERVICAL_CANCER_SURVEY_GROUP_KEY;
+  }
+  // should never happen
+  return null;
+};
+
+export const getSurveyIdsByGroupKey = surveyGroupKey => {
+  switch (surveyGroupKey) {
+    case BREAST_CANCER_SURVEY_GROUP_KEY:
+      return BREAST_CANCER_SURVEY_IDS;
+    case CVD_SURVEY_GROUP_KEY:
+      return CVD_SURVEY_IDS;
+    case CERVICAL_CANCER_SURVEY_GROUP_KEY:
+    default:
+      return CERVICAL_CANCER_SURVEY_IDS;
+  }
+};
+
+export const getFormDataElements = surveyGroupKey => {
+  switch (surveyGroupKey) {
+    case CVD_SURVEY_GROUP_KEY:
+      return CVD_PRIMARY_SCREENING_FORM_DATA_ELEMENT_IDS;
+    case BREAST_CANCER_SURVEY_GROUP_KEY:
+      return BREAST_CANCER_PRIMARY_SCREENING_FORM_DATA_ELEMENT_IDS;
+    case CERVICAL_CANCER_SURVEY_GROUP_KEY:
+    default:
+      return CERVICAL_CANCER_PRIMARY_SCREENING_FORM_DATA_ELEMENT_IDS;
+  }
+};
+
+export const getReferralDataElements = surveyGroupKey => {
+  switch (surveyGroupKey) {
+    case CVD_SURVEY_GROUP_KEY:
+      return CVD_PRIMARY_SCREENING_REFERRAL_DATA_ELEMENT_IDS;
+    case BREAST_CANCER_SURVEY_GROUP_KEY:
+      return BREAST_CANCER_PRIMARY_SCREENING_REFERRAL_DATA_ELEMENT_IDS;
+    case CERVICAL_CANCER_SURVEY_GROUP_KEY:
+    default:
+      return CERVICAL_CANCER_PRIMARY_SCREENING_REFERRAL_DATA_ELEMENT_IDS;
+  }
+};
+
+export const getAnswers = async (models, where) =>
+  models.SurveyResponseAnswer.findAll({
+    where: {
+      ...where,
+      body: {
+        [Op.not]: '',
+      },
+    },
+    include: [
+      {
+        model: models.SurveyResponse,
+        as: 'surveyResponse',
+        include: [
+          {
+            model: models.Encounter,
+            as: 'encounter',
+          },
+        ],
+      },
+    ],
+    order: [[{ model: models.SurveyResponse, as: 'surveyResponse' }, 'end_time', 'ASC']],
+  });
+
+/**
+ * Have to query patients separately instead of joining with encounters because
+ * there's a weird bug in sequelize that if you have too many nested levels of include,
+ * it will truncate the property names in the records.
+ * https://github.com/sequelize/sequelize/issues/4158
+ */
+export const getPatientById = async (models, rawAnswers) => {
+  const patientIds = rawAnswers.map(a => a.surveyResponse?.encounter?.patientId);
+  const patients = await getPatients(models, patientIds);
+  return keyBy(patients, 'id');
+};
+
+export const removeDuplicatedReferralsPerDate = referrals => {
+  const referralByPatientAndDate = groupBy(referrals, r => {
+    const referralDate = moment(r.surveyResponse.endTime).format('DD-MM-YYYY');
+    return `${r.initiatingEncounter.patientId}|${r.surveyResponse.surveyId}|${referralDate}`;
+  });
+
+  const results = [];
+  for (const [_, groupedAnswers] of Object.entries(referralByPatientAndDate)) {
+    const sortedLatestToOldestReferrals = groupedAnswers.sort((r1, r2) =>
+      moment(r2.initiatingEncounter.startDate).diff(moment(r1.initiatingEncounter.startDate)),
+    );
+    results.push(sortedLatestToOldestReferrals[0]);
+  }
+
+  return results;
+};
+
+export const removeDuplicatedAnswersPerDate = answers => {
+  const answersPerElement = groupBy(answers, a => {
+    const responseDate = moment(a.responseEndTime).format('DD-MM-YYYY');
+    return `${a.patientId}|${a.surveyId}|${responseDate}|${a.dataElementId}`;
+  });
+
+  const results = [];
+  for (const [_, groupedAnswers] of Object.entries(answersPerElement)) {
+    const sortedLatestToOldestAnswers = groupedAnswers.sort((a1, a2) =>
+      moment(a2.responseEndTime).diff(moment(a1.responseEndTime)),
+    );
+    results.push(sortedLatestToOldestAnswers[0]);
+  }
+
+  return results;
+};
+
+export const transformAndRemoveDuplicatedAnswersPerDate = async (models, rawAnswers, surveyIds) => {
+  const components = await models.SurveyScreenComponent.getComponentsForSurveys(surveyIds);
+  const transformedAnswers = await transformAnswers(models, rawAnswers, components);
+  return removeDuplicatedAnswersPerDate(transformedAnswers);
+};

@@ -100,4 +100,51 @@ export const REPORT_DEFINITIONS = [
     name: 'PNG assistive technology device - Line list',
     id: 'png-assistive-technology-device-line-list',
   },
+  {
+    name: 'Fiji NCD primary screening  - Line list',
+    id: 'fiji-ncd-primary-screening-line-list',
+    parameters: [
+      {
+        parameterField: 'ParameterSelectField',
+        name: 'surveyId',
+        label: 'Screening type',
+        options: [
+          { label: 'CVD Primary Screening Form', value: 'program-fijincd-fijicvdprimaryscreen2' },
+          {
+            label: 'Breast Cancer Primary Screening Form',
+            value: 'program-fijincd-fijibreastprimaryscreen',
+          },
+          {
+            label: 'Cervical Cancer Primary Screening Form',
+            value: 'program-fijincd-fijicervicalprimaryscreen',
+          },
+        ],
+      },
+    ],
+  },
+  {
+    name: 'Fiji NCD primary screening pending referrals - Line list',
+    id: 'fiji-ncd-primary-screening-pending-referrals-line-list',
+    parameters: [
+      {
+        parameterField: 'ParameterSelectField',
+        name: 'surveyId',
+        label: 'Referral type',
+        options: [
+          {
+            label: 'CVD Primary Screening Referral',
+            value: 'program-fijincd-fijicvdprimaryscreenref',
+          },
+          {
+            label: 'Breast Cancer Primary Screening Referral',
+            value: 'program-fijincd-fijibreastscreenref',
+          },
+          {
+            label: 'Cervical Cancer Primary Screening Referral',
+            value: 'program-fijincd-fijicervicalscreenref',
+          },
+        ],
+      },
+    ],
+  },
 ];
