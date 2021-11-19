@@ -1,14 +1,15 @@
 import config from 'config';
-import { LAB_REQUEST_STATUSES, LAB_TEST_STATUSES } from 'shared/constants';
+import { LAB_TEST_STATUSES } from 'shared/constants';
 
 // fine to hardcode this one -- HL7 guarantees it will always be available at this url
-const HL7_OBSERVATION_TERMINOLOGY_URL = "http://terminology.hl7.org/CodeSystem/v3-ObservationInterpretation";
+const HL7_OBSERVATION_TERMINOLOGY_URL =
+  'http://terminology.hl7.org/CodeSystem/v3-ObservationInterpretation';
 
 function shouldProduceObservation(status) {
   switch (status) {
     case LAB_TEST_STATUSES.PUBLISHED:
       return true;
-    default: 
+    default:
       return false;
   }
 }
@@ -16,9 +17,9 @@ function shouldProduceObservation(status) {
 function labTestStatusToHL7Status(status) {
   switch (status) {
     case LAB_TEST_STATUSES.PUBLISHED:
-      return "final";
+      return 'final';
     case LAB_TEST_STATUSES.RESULTS_PENDING:
-      return "registered";
+      return 'registered';
     default:
       return status;
   }
@@ -46,7 +47,9 @@ function laboratoryToHL7Reference(laboratory) {
 }
 
 function labTestMethodToHL7Extension(labTestMethod) {
-  if (!labTestMethod) { return []; }
+  if (!labTestMethod) {
+    return [];
+  }
 
   const groupNamespace = `${config.hl7.dataDictionaries.testMethod}/covid-test-methods`;
   const testsNamespace = `${groupNamespace}/rdt`;
@@ -67,21 +70,21 @@ function labTestMethodToHL7Extension(labTestMethod) {
   ];
 }
 
-export async function labTestToHL7DiagnosticReport(labTest) {
-  const labTestType = await labTest.getLabTestType();
-  const labTestMethod = await labTest.getLabTestMethod();
-  const labRequest = await labTest.getLabRequest();
-  const encounter = await labRequest.getEncounter();
-  const patient = await encounter.getPatient();
-  const examiner = await encounter.getExaminer();
-  const laboratory = await labRequest.getLaboratory();
+export function labTestToHL7DiagnosticReport(labTest, { shouldEmbedResult = false } = {}) {
+  const labTestType = labTest.labTestType;
+  const labTestMethod = labTest.labTestMethod;
+  const labRequest = labTest.labRequest;
+  const encounter = labRequest.encounter;
+  const patient = encounter.patient;
+  const examiner = encounter.examiner;
+  const laboratory = labRequest.laboratory;
 
   return {
-    resourceType: "DiagnosticReport",
+    resourceType: 'DiagnosticReport',
     id: labTest.id,
     identifier: [
       {
-        use: "official",
+        use: 'official',
         system: config.hl7.dataDictionaries.labRequestDisplayId,
         value: labRequest.displayId,
       },
@@ -93,20 +96,24 @@ export async function labTestToHL7DiagnosticReport(labTest) {
     code: {
       text: labTestType.name,
       coding: [
-        { 
-          code: labTestType.code, 
+        {
+          code: labTestType.code,
           display: labTestType.name,
         },
       ],
     },
-    performer: [
-        laboratory 
-          ? laboratoryToHL7Reference(laboratory)
-          : userToHL7Reference(examiner), 
-    ],
-    result: shouldProduceObservation(labTest.status)
-      ? [ { reference: `Observation/${labTest.id}` } ]
-      : [],
+    performer: laboratory
+      ? [laboratoryToHL7Reference(laboratory), userToHL7Reference(examiner)]
+      : [userToHL7Reference(examiner)],
+    result: (() => {
+      if (!shouldProduceObservation(labTest.status)) {
+        return [];
+      }
+      if (shouldEmbedResult) {
+        return [labTestToHL7Observation(labTest, patient)];
+      }
+      return [{ reference: `Observation/${labTest.id}` }];
+    })(),
     extension: labTestMethodToHL7Extension(labTestMethod),
   };
 }
@@ -114,40 +121,40 @@ export async function labTestToHL7DiagnosticReport(labTest) {
 // The result field is freetext, these values are defined in the LabTestType
 // reference data spreadsheet.
 const TEST_RESULT_VALUES = {
-  POSITIVE: "Positive",
-  NEGATIVE: "Negative",
-  INCONCLUSIVE: "Inconclusive",
+  POSITIVE: 'Positive',
+  NEGATIVE: 'Negative',
+  INCONCLUSIVE: 'Inconclusive',
 };
 
 function getResultCoding(labTest) {
   switch (labTest.result) {
     case TEST_RESULT_VALUES.POSITIVE:
-      return { code: "POS", display: "Positive" };
+      return { code: 'POS', display: 'Positive' };
     case TEST_RESULT_VALUES.NEGATIVE:
-      return { code: "NEG", display: "Negative" };
+      return { code: 'NEG', display: 'Negative' };
     case TEST_RESULT_VALUES.INCONCLUSIVE:
-      return { code: "INC", display: "Inconclusive" };
-    default: 
+      return { code: 'INC', display: 'Inconclusive' };
+    default: {
       // The only way we can reach this point is if the actual testing data
       // is misconfigured (ie an error within Tamanu, we want to know ASAP)
-      const values = Object.values(TEST_RESULT_VALUES).join(", ");
-      throw new Error(`Test coding was not one of [${values}]`);
+      const values = Object.values(TEST_RESULT_VALUES).join(', ');
+      throw new Error(`Test coding was not one of [${values}]: ${labTest.result}`);
+    }
   }
 }
 
-export async function labTestToHL7Observation(labTest, patient) {
+export function labTestToHL7Observation(labTest, maybePatient) {
   if (!shouldProduceObservation(labTest.status)) {
     return null;
   }
 
+  let patient = maybePatient;
   if (!patient) {
-    const labRequest = await labTest.getLabRequest();
-    const encounter = await labRequest.getEncounter();
-    patient = await encounter.getPatient();
+    patient = labTest.labRequest.encounter.patient;
   }
 
   return {
-    resourceType: "Observation",
+    resourceType: 'Observation',
     id: labTest.id,
     status: labTestStatusToHL7Status(labTest.status),
     subject: patientToHL7Reference(patient),
@@ -162,4 +169,3 @@ export async function labTestToHL7Observation(labTest, patient) {
     },
   };
 }
-

@@ -19,10 +19,20 @@
   },
 ```
 
+- Everywhere:
+  - set a `canonicalHostName` in `local.json`:
+```
+{
+   "canonicalHostName": "https://example.com"
+}
+```
+
 
 ### Features ⭐
 
 - Discharge modal now displays a list of active medicines that can be selected.
+- Added integration with Fiji's VPS
+- Added integration with Fiji's VRS
 
 ### Tweaks ⚖️
 

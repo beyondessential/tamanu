@@ -8,8 +8,12 @@ const respondWithError = (res, error) => {
 
 export const buildVersionCompatibilityCheck = (min, max) => (req, res, next) => {
   // include the min/max supported clients with any response
-  res.setHeader('X-Min-Client-Version', min);
-  res.setHeader('X-Max-Client-Version', max);
+  if (min) {
+    res.setHeader('X-Min-Client-Version', min);
+  }
+  if (max) {
+    res.setHeader('X-Max-Client-Version', max);
+  }
 
   // check the connecting client is supported, and respond with an error if not
   const clientVersion = req.header('X-Version');
@@ -19,14 +23,14 @@ export const buildVersionCompatibilityCheck = (min, max) => (req, res, next) => 
     return;
   }
 
-  if (compareVersions(clientVersion, min) < 0) {
+  if (min && compareVersions(clientVersion, min) < 0) {
     respondWithError(res, {
       message: VERSION_COMPATIBILITY_ERRORS.LOW,
       name: 'InvalidClientVersion',
     });
     return;
   }
-  if (compareVersions(clientVersion, max) > 0) {
+  if (max && compareVersions(clientVersion, max) > 0) {
     if (semverDiff(max, clientVersion) === 'patch') {
       console.error(
         `Allowing client v${clientVersion} with higher patch than max supported v${max} to connect`,
