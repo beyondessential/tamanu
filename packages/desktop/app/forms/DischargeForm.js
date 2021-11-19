@@ -28,8 +28,8 @@ import { ConfirmCancelRow } from '../components/ButtonRow';
 import { DiagnosisList } from '../components/DiagnosisList';
 import { useEncounter } from '../contexts/Encounter';
 
-const MAX_REPEATS_RANGE = 12;
-const REPEATS_OPTIONS = range(MAX_REPEATS_RANGE + 1).map(value => ({ label: value, value: value }));
+const MAX_REPEATS = 12;
+const REPEATS_OPTIONS = range(MAX_REPEATS + 1).map(value => ({ label: value, value: value }));
 
 /*
 Creates an object to add initialValues to Formik that matches
