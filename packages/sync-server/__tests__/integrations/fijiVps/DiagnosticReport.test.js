@@ -247,6 +247,37 @@ describe('VPS integration - DiagnosticReport', () => {
         entry: [],
       });
     });
+
+    it('handles a lab request with no laboratory correctly', async () => {
+      // arrange
+      const { Patient } = ctx.store.models;
+      const patient = await Patient.create(fake(Patient));
+      const { examiner, labRequest } = await createLabTestHierarchy(patient);
+      labRequest.reload();
+      labRequest.labTestLaboratoryId = null; // remove the id
+      await labRequest.save();
+
+      const id = encodeURIComponent(`${IDENTIFIER_NAMESPACE}|${patient.displayId}`);
+      const path = `/v1/integration/fijiVps/DiagnosticReport?_sort=-issued&_page=0&_count=2&status=final&subject%3Aidentifier=${id}&_include=DiagnosticReport%3Aresult`;
+
+      // act
+      const response = await app.get(path);
+
+      // assert
+      expect(response).toHaveSucceeded();
+      expect(response.body).toMatchObject({
+        entry: [
+          {
+            performer: [
+              {
+                display: examiner.displayName,
+                reference: `Practitioner/${examiner.id}`,
+              },
+            ],
+          },
+        ],
+      });
+    });
   });
 
   describe('failure', () => {

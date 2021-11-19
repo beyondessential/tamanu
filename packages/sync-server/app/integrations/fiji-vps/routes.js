@@ -53,8 +53,6 @@ async function getHL7Payload({ req, querySchema, model, getWhere, getInclude, bu
       limit: _count,
       offset,
       order: hl7SortToTamanu(_sort),
-      raw: true,
-      nest: true,
     }),
     model.count({
       where: baseWhere,
@@ -122,7 +120,7 @@ routes.get(
       getWhere: displayId => ({ displayId }),
       getInclude: () => [{ association: 'additionalData' }],
       bundleId: 'patients',
-      toHL7: ({ additionalData, ...patient }) => patientToHL7Patient(patient, additionalData),
+      toHL7: patient => patientToHL7Patient(patient, patient.additionalData[0]),
     });
 
     res.send(payload);
