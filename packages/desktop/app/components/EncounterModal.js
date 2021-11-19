@@ -27,7 +27,7 @@ const DumbEncounterModal = React.memo(
     );
 
     return (
-      <Modal title="Check in" open={open} onClose={onClose}>
+      <Modal title="Check-in" open={open} onClose={onClose}>
         <EncounterForm onSubmit={onCreateEncounter} onCancel={onClose} {...rest} />
       </Modal>
     );

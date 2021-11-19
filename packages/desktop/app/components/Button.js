@@ -92,7 +92,7 @@ export const SearchButton = props => (
 
 export const CheckInButton = props => (
   <Button variant="contained" color="secondary" {...props}>
-    Check In
+    Check-In
   </Button>
 );
 
