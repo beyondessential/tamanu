@@ -25,6 +25,7 @@ import { Button } from '../../components/Button';
 import { connectRoutedModal } from '../../components/Modal';
 import { PatientEncounterSummary } from './components/PatientEncounterSummary';
 import { DataFetchingSurveyResponsesTable } from '../../components/SurveyResponsesTable';
+import { PatientDocumentsPane } from './PatientDocumentsPane';
 
 import { PatientDetailsForm } from '../../forms/PatientDetailsForm';
 import { reloadPatient } from '../../store/patient';
@@ -225,6 +226,7 @@ const TABS = [
     label: 'Documents',
     key: 'documents',
     icon: 'fa fa-file-medical-alt',
+    render: props => <PatientDocumentsPane {...props} />,
   },
   {
     label: 'Immunisation',
