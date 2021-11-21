@@ -30,11 +30,15 @@
 
 ### Features ⭐
 
+- Discharge modal now displays a list of active medicines that can be selected.
 - Added integration with Fiji's VPS
 - Added integration with Fiji's VRS
 
 ### Tweaks ⚖️
 
+- EncounterMedication model now has two new fields: isDischarge and repeats.
+- New migration for encounter_medications table to account for the new fields.
+- Encounter api route now manages selected discharge medications.
 - Split SelectField and MultiselectField into distinct components
 - SelectField no longer internally tracks its value
 - Remove 'required' attribute for Completed by and Location fields in ImagingRequestView

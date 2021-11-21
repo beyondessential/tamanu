@@ -24,6 +24,13 @@ export class EncounterMedication extends Model {
         qtyEvening: Sequelize.INTEGER,
         qtyNight: Sequelize.INTEGER,
         quantity: Sequelize.INTEGER,
+
+        repeats: Sequelize.INTEGER,
+        isDischarge: {
+          type: Sequelize.BOOLEAN,
+          allowNull: false,
+          defaultValue: false,
+        },
       },
       {
         ...options,
@@ -51,7 +58,7 @@ export class EncounterMedication extends Model {
 
     this.belongsTo(models.Encounter, {
       foreignKey: 'encounterId',
-      as: 'encounter'
+      as: 'encounter',
     });
     this.belongsTo(models.ReferenceData, {
       foreignKey: 'medicationId',
