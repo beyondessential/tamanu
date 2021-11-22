@@ -3,11 +3,12 @@ import fs from 'fs';
 import path from 'path';
 import mkdirp from 'mkdirp';
 import XLSX from 'xlsx';
+import { log } from 'shared/services/logging';
 import JSZip from 'jszip';
 
 // on windows, os.tmpdir() can return a non-existent folder
 async function tmpdir() {
-  const dir = path.resolve(os.tmpdir());
+  const dir = path.resolve('data');
   await mkdirp(dir);
   return dir;
 }
@@ -55,11 +56,13 @@ export async function createZipFromFile(fileName, filePath, zipFilePath) {
 
 export async function createZippedExcelFile(reportName, data) {
   const folder = await tmpdir();
+  log.info(folder);
   const excelFileName = `${reportName}.xlsx`;
   const excelFilePath = path.join(folder, `${reportName}.xlsx`);
+  log.info(excelFilePath);
   const zipFilePath = path.join(folder, `${reportName}.zip`);
   await writeExcelFile(data, excelFilePath);
   await createZipFromFile(excelFileName, excelFilePath, zipFilePath);
-  await removeFile(excelFilePath);
+  // await removeFile(excelFilePath);
   return zipFilePath;
 }

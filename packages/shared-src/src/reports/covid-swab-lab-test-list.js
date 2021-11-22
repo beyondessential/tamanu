@@ -1,6 +1,7 @@
 import { keyBy, groupBy } from 'lodash';
 import { Op } from 'sequelize';
 import moment from 'moment';
+import { log } from 'shared/services/logging';
 import { generateReportFromQueryData } from './utilities';
 import { LAB_REQUEST_STATUS_LABELS } from '../constants';
 import { transformAnswers } from './utilities/transformAnswers';
@@ -137,7 +138,7 @@ const parametersToLabTestSqlWhere = parameters => {
       const newWhere = { ...where };
       switch (key) {
         case 'village':
-          newWhere['$labRequest->encounter->patient.village_id$'] = value;
+          newWhere['$labRequest->encounter->patient.village_id$'] = value === 'NULL' ? null : value;
           break;
         case 'labTestLaboratory':
           newWhere['$labRequest.lab_test_laboratory_id$'] = value;
@@ -166,7 +167,7 @@ const parametersToRdtPositiveSqlWhere = parameters => {
       const newWhere = { ...where };
       switch (key) {
         case 'village':
-          newWhere['$encounter->patient.village_id$'] = value;
+          newWhere['$encounter->patient.village_id$'] = value === 'NULL' ? null : value;
           break;
         case 'fromDate':
           if (!newWhere.endTime) {
@@ -204,7 +205,8 @@ const parametersToSurveyResponseSqlWhere = parameters => {
       const newWhere = { ...where };
       switch (key) {
         case 'village':
-          newWhere['$surveyResponse->encounter->patient.village_id$'] = value;
+          newWhere['$surveyResponse->encounter->patient.village_id$'] =
+            value === 'NULL' ? null : value;
           break;
         default:
           break;
@@ -212,6 +214,7 @@ const parametersToSurveyResponseSqlWhere = parameters => {
       return newWhere;
     }, defaultWhereClause);
 
+  log.error(whereClause);
   return whereClause;
 };
 
@@ -251,8 +254,11 @@ const getLabTests = async (models, parameters) => {
 
 const getFijiCovidAnswers = async (models, parameters) => {
   // Use the latest survey responses per patient above to get the corresponding answers
+  log.error('getting answers');
+  const where = parametersToSurveyResponseSqlWhere(parameters);
+
   const answers = await models.SurveyResponseAnswer.findAll({
-    where: parametersToSurveyResponseSqlWhere(parameters),
+    where,
     include: [
       {
         model: models.SurveyResponse,
@@ -461,19 +467,62 @@ const getRdtPositiveSurveyResponseRecords = async (surveyResponses, transformedA
   return results;
 };
 
-export const dataGenerator = async (models, parameters = {}) => {
-  const labTests = await getLabTests(models, parameters);
-  const surveyResponses = await getSurveyResponses(models, parameters);
-  const answers = await getFijiCovidAnswers(models, parameters);
-  const components = await models.SurveyScreenComponent.getComponentsForSurvey(FIJI_SAMP_SURVEY_ID);
-  const transformedAnswers = await transformAnswers(models, answers, components);
+const VILLAGES = [
+  // 'village-ba',
+  // 'village-bua',
+  // 'village-cakaudrove',
+  // 'village-kadavu',
+  // 'village-lakeba',
+  // 'village-lautokayasawa',
+  // 'village-lomaiviti',
+  // 'village-lomaloma',
+  // 'village-macuata',
+  // 'village-nadi',
+  // 'village-nadroga',
+  // 'village-nadroganavosa',
+  // 'village-naitasiri',
+  // 'village-nasinu',
+  // 'village-nausori',
+  // 'village-navosa',
+  // 'village-ra',
+  // 'village-seruanamosi',
+  // 'village-suva',
+  // 'village-tailevu',
+  // 'village-taveuni',
+  // 'village-tavua',
+  'NULL',
+];
 
-  const labTestRecords = await getLabTestRecords(labTests, transformedAnswers, parameters);
-  const rdtSurveyResponseRecords = await getRdtPositiveSurveyResponseRecords(
-    surveyResponses,
-    transformedAnswers,
-  );
-  const reportData = [...labTestRecords, ...rdtSurveyResponseRecords];
+export const dataGenerator = async (models, parameters2 = {}) => {
+  let reportData = [];
+  for (const villageId of VILLAGES) {
+    const parameters = {
+      // labTestLaboratory: 'labTestLaboratory-NadiHospital',
+      village: villageId,
+    };
+    const labTests = await getLabTests(models, parameters);
+    log.error('labTests');
+    const surveyResponses = await getSurveyResponses(models, parameters);
+    log.error('surveyResponses');
+    log.error('about to get answers');
+    const answers = await getFijiCovidAnswers(models, parameters);
+    log.error('answers');
+    const components = await models.SurveyScreenComponent.getComponentsForSurvey(
+      FIJI_SAMP_SURVEY_ID,
+    );
+    log.error('components');
+    const transformedAnswers = await transformAnswers(models, answers, components);
+    log.error('transformedAnswers');
+
+    const labTestRecords = await getLabTestRecords(labTests, transformedAnswers, parameters);
+    log.error('labTestRecords');
+    const rdtSurveyResponseRecords = await getRdtPositiveSurveyResponseRecords(
+      surveyResponses,
+      transformedAnswers,
+    );
+    log.error('rdtSurveyResponseRecords');
+    reportData = [...reportData, ...labTestRecords, ...rdtSurveyResponseRecords];
+  }
   return generateReportFromQueryData(reportData, reportColumnTemplate);
 };
 
