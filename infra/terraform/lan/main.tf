@@ -37,7 +37,7 @@ data "aws_security_group" "default" {
 }
 
 data "template_file" "userdata" {
-  template = "${file("${path.module}/userdata.tpl")}"
+  template = file("${path.module}/userdata.tpl")
   vars = {
     authorized_keys = var.ssh_authorized_keys
   }
@@ -46,8 +46,8 @@ data "template_file" "userdata" {
 resource "aws_instance" "lan" {
   ami           = data.aws_ami.windows_server.id
   instance_type = var.instance_type
-  key_name = var.key_name
-  subnet_id = data.aws_subnet.default.id
+  key_name      = var.key_name
+  subnet_id     = data.aws_subnet.default.id
 
   vpc_security_group_ids = [data.aws_security_group.default.id]
 
@@ -55,7 +55,7 @@ resource "aws_instance" "lan" {
     Name = terraform.workspace
   }
 
-  user_data = data.template_file.userdata.rendered
+  user_data         = data.template_file.userdata.rendered
   get_password_data = true
 }
 
@@ -64,7 +64,7 @@ data "aws_eip" "public_ip" {
 }
 
 resource "aws_eip_association" "public_ip" {
-  instance_id = aws_instance.lan.id
+  instance_id   = aws_instance.lan.id
   allocation_id = data.aws_eip.public_ip.id
 }
 
