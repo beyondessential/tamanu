@@ -17,6 +17,7 @@ export class ReportRunner {
   }
 
   validate(reportModule, reportDataGenerator) {
+    return;
     if (!config.mailgun.from) {
       throw new Error('ReportRunner - Email config missing');
     }

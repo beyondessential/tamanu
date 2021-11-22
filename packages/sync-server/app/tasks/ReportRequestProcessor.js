@@ -32,7 +32,7 @@ export class ReportRequestProcessor extends ScheduledTask {
       }" with command [${node}, ${parameters.toString()}, ${scriptPath}].`,
     );
 
-    // For some reasons, when running a child process under pm2, pm2_env was not set and caused a problem. 
+    // For some reasons, when running a child process under pm2, pm2_env was not set and caused a problem.
     // So this is a work around
     const childProcessEnv = config.reportProcess.childProcessEnv || {
       ...process.env,
@@ -124,14 +124,14 @@ export class ReportRequestProcessor extends ScheduledTask {
     });
 
     for (const request of requests) {
-      if (!config.mailgun.from) {
-        log.error(`ReportRequestProcessorError - Email config missing`);
-        await request.update({
-          status: REPORT_REQUEST_STATUSES.ERROR,
-          error: 'Email config missing',
-        });
-        return;
-      }
+      // if (!config.mailgun.from) {
+      //   log.error(`ReportRequestProcessorError - Email config missing`);
+      //   await request.update({
+      //     status: REPORT_REQUEST_STATUSES.ERROR,
+      //     error: 'Email config missing',
+      //   });
+      //   return;
+      // }
 
       const disabledReports = config.localisation.data.disabledReports;
       if (disabledReports.includes(request.reportType)) {
@@ -162,7 +162,7 @@ export class ReportRequestProcessor extends ScheduledTask {
           processStartedTime: new Date(),
         });
 
-        if (config.reportProcess.runInChildProcess) {
+        if (false) {
           await this.spawnReportProcess(request);
         } else {
           await this.runReportInTheSameProcess(request);
