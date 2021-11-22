@@ -55,7 +55,7 @@ const StyledUnorderedList = styled.ul`
   padding-left: 25px;
 `;
 
-const ProcedureList = React.memo(procedures => (
+const ProcedureList = React.memo(({ procedures }) => (
   <StyledUnorderedList>
     {procedures.length > 0
       ? procedures.map(({ procedureType }) => {
