@@ -1,3 +1,13 @@
+/**
+ * NOTE:
+ *
+ * This is not the recommended way to generate reports, and will be removed in the future:
+ *
+ * https://linear.app/bes/issue/TAN-1029/remove-generate-report-script-and-allow-sync-server-report-subcommand
+ *
+ * Please use the sync server report subcommand if you don't need to download to excel locally.
+ */
+
 const reportName = 'covid-swab-lab-test-list';
 
 const path = require('path');
