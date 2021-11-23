@@ -33,6 +33,7 @@ describe('VPS integration - DiagnosticReport', () => {
       encounterId: encounter.id,
       labTestLaboratoryId: laboratory.id,
       labTestCategoryId: labTestCategory.id,
+      status: 'published',
     });
     const labTestType = await LabTestType.create({
       ...fake(LabTestType),
@@ -49,7 +50,6 @@ describe('VPS integration - DiagnosticReport', () => {
       labTestMethodId: labTestMethod.id,
       categoryId: labTestCategory.id,
       result: 'Inconclusive',
-      status: 'published',
     });
 
     return {
