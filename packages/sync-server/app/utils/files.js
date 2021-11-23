@@ -3,7 +3,6 @@ import fs from 'fs';
 import path from 'path';
 import mkdirp from 'mkdirp';
 import XLSX from 'xlsx';
-import { log } from 'shared/services/logging';
 import JSZip from 'jszip';
 
 // on windows, os.tmpdir() can return a non-existent folder
