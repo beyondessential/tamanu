@@ -101,7 +101,7 @@ export const dataGenerator = async (models, parameters = {}) => {
       return `${getSurveyGroupKey(a.surveyId)}|${responseDate}`;
     });
     const patient = patientById[patientId];
-    const patientAdditionalData = patient.patientAdditionalData;
+    const patientAdditionalData = patient.additionalData?.[0];
 
     // Group the answers by survey and date. So for per patient per date, we should 1 row per survey (maximum 3 surveys)
     for (const [key] of Object.entries(patientAnswersBySurveyGroupAndDate)) {

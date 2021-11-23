@@ -123,7 +123,7 @@ export const dataGenerator = async (models, parameters = {}) => {
     const referralSurveyResponse = referral.surveyResponse;
     const patientId = referral.initiatingEncounter.patientId;
     const patient = patientById[patientId];
-    const patientAdditionalData = patient.patientAdditionalData;
+    const patientAdditionalData = patient.additionalData?.[0];
     const referralDate = moment(referralSurveyResponse.endTime).format('DD-MM-YYYY');
     const surveyId = referralSurveyResponse.surveyId;
     const surveyGroupKey = getSurveyGroupKey(surveyId);
