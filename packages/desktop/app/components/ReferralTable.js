@@ -70,13 +70,16 @@ const ReferralBy = ({ surveyResponse: { survey, answers } }) => {
         setName('');
         return;
       }
-      const user = await api.get(`user/${encodeURIComponent(referralByAnswer.body)}`);
-      if (user) {
+
+      try {
+        const user = await api.get(`user/${encodeURIComponent(referralByAnswer.body)}`);
         setName(user.displayName);
-      } else if (referralByAnswer.body) {
-        setName(referralByAnswer.body);
-      } else {
-        setName('Unknown');
+      } catch (e) {
+        if (e.message === '404') {
+          setName(referralByAnswer.body);
+        } else {
+          setName('Unknown');
+        }
       }
     })();
   }, [survey]);
