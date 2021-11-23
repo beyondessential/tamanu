@@ -11,13 +11,13 @@ variable "ami_owner" {
   default = "801119661308"
 }
 variable "vpc_id" {
-  default = "vpc-03938bc0217ce4d3b" # tamanu-vpc
+  default = "vpc-4cb80b28" # meditrak-vpc
 }
 variable "subnet_name" {
-  default = "tamanu-dev-subnet"
+  default = "meditrak-subnet-1"
 }
 variable "security_group_name" {
-  default = "Tamanu Cloud Server - Demo"
+  default = "tamanu-lan-server-staging"
 }
 variable "key_name" {}
 variable "public_ip" {}
