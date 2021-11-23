@@ -25,6 +25,10 @@ import { Button } from '../../components/Button';
 import { connectRoutedModal } from '../../components/Modal';
 import { PatientEncounterSummary } from './components/PatientEncounterSummary';
 import { DataFetchingSurveyResponsesTable } from '../../components/SurveyResponsesTable';
+import { DataFetchingTable, Table } from '../../components/Table';
+import { OuterLabelFieldWrapper } from '../../components/Field/OuterLabelFieldWrapper';
+import { DateDisplay } from '../../components/DateDisplay';
+import { Colors } from '../../constants';
 
 import { PatientDetailsForm } from '../../forms/PatientDetailsForm';
 import { reloadPatient } from '../../store/patient';
@@ -190,6 +194,79 @@ const ProgramsPane = connect(null, dispatch => ({
   )),
 );
 
+const StyledTextSpan = styled.span`
+  color: ${props => (props.color ? props.color : Colors.darkText)};
+`;
+const getMedicationNameAndPrescription = ({ medication, prescription }) => (
+  <React.Fragment>
+    <StyledTextSpan>{medication.name}</StyledTextSpan>
+    <br />
+    <StyledTextSpan color={Colors.midText}>{prescription}</StyledTextSpan>
+  </React.Fragment>
+);
+
+const DISCHARGED_MEDICATION_COLUMNS = [
+  {
+    key: 'Medication.name',
+    title: 'Item/Prescription',
+    accessor: getMedicationNameAndPrescription,
+    sortable: true,
+  },
+  { key: 'quantity', title: 'Qty', sortable: false },
+  {
+    key: 'prescriber',
+    title: 'Clinician',
+    accessor: data => data?.prescriber?.displayName ?? '',
+    sortable: false,
+  },
+  {
+    key: 'location.name',
+    title: 'Facility',
+    accessor: data => data?.encounter?.location?.name ?? '',
+    sortable: false,
+  },
+  {
+    key: 'endDate',
+    title: 'Discharge date',
+    accessor: data => <DateDisplay date={data?.encounter?.endDate ?? ''} />,
+    sortable: true,
+  },
+];
+
+// Presumably it will need different keys and accessors 
+// and also date column title is different
+const DISPENSED_MEDICATION_COLUMNS = [
+  { key: 'a', title: 'Item/Prescription' },
+  { key: 'b', title: 'Qty' },
+  { key: 'c', title: 'Clinician' },
+  { key: 'd', title: 'Facility' },
+  {
+    key: 'e',
+    title: 'Dispensed date',
+    sortable: true,
+  },
+];
+
+const MedicationsPane = React.memo(({ patient }) => (
+  <ContentPane>
+    <OuterLabelFieldWrapper label="Most recent discharge medications">
+      <DataFetchingTable
+        endpoint={`patient/${patient.id}/lastdischargedEncounterMedications`}
+        columns={DISCHARGED_MEDICATION_COLUMNS}
+        noDataMessage="No discharge medications found"
+        initialSort={{ order: 'desc', orderBy: 'endDate' }}
+      />
+    </OuterLabelFieldWrapper>
+    <OuterLabelFieldWrapper label="Dispensed medications">
+      <Table
+        columns={DISPENSED_MEDICATION_COLUMNS}
+        data={[]}
+        noDataMessage="No dispensed medications found"
+      />
+    </OuterLabelFieldWrapper>
+  </ContentPane>
+));
+
 const TABS = [
   {
     label: 'History',
@@ -231,6 +308,12 @@ const TABS = [
     key: 'a',
     icon: 'fa fa-syringe',
     render: props => <ImmunisationsPane {...props} />,
+  },
+  {
+    label: 'Medication',
+    key: 'medication',
+    icon: 'fa fa-medkit',
+    render: props => <MedicationsPane {...props} />,
   },
 ];
 
