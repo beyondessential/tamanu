@@ -2,7 +2,7 @@ import React from 'react';
 import { Formik } from 'formik';
 import PropTypes from 'prop-types';
 import { Typography } from '@material-ui/core';
-import { flattenObject } from '../../utils/utils';
+import { flattenObject } from '../../utils';
 
 import { Dialog } from '../Dialog';
 
