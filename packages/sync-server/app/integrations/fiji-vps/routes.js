@@ -66,9 +66,9 @@ async function getHL7Payload({ req, querySchema, model, getWhere, getInclude, bu
   ]);
 
   // run in a loop instead of using `.map()` so embedded queries run in serial
-  const hl7FhirRecords = [];
+  const hl7FhirResources = [];
   for (const r of records) {
-    hl7FhirRecords.push(await toHL7(r, query));
+    hl7FhirResources.push(await toHL7(r, query));
   }
 
   const baseUrl = getBaseUrl(req);
@@ -105,7 +105,7 @@ async function getHL7Payload({ req, querySchema, model, getWhere, getInclude, bu
     type: 'searchset',
     total,
     link,
-    entry: hl7FhirRecords,
+    entry: hl7FhirResources,
   };
 }
 
@@ -160,7 +160,9 @@ routes.get(
       bundleId: 'diagnostic-reports',
       toHL7: (labTest, { _include }) => {
         const shouldEmbedResult = _include === schema.DIAGNOSTIC_REPORT_INCLUDES.RESULT;
-        return labTestToHL7DiagnosticReport(labTest, { shouldEmbedResult });
+        return {
+          resource: labTestToHL7DiagnosticReport(labTest, { shouldEmbedResult }),
+        };
       },
     });
 
