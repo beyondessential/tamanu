@@ -42,7 +42,7 @@ describe('VPS integration - Patient', () => {
         link: [
           {
             relation: 'self',
-            link: expect.stringContaining(path),
+            url: expect.stringContaining(path),
           },
         ],
         entry: [
@@ -124,7 +124,7 @@ describe('VPS integration - Patient', () => {
         link: [
           {
             relation: 'self',
-            link: expect.stringContaining(path),
+            url: expect.stringContaining(path),
           },
         ],
         entry: [],

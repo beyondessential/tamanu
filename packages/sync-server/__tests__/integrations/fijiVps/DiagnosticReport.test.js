@@ -97,7 +97,7 @@ describe('VPS integration - DiagnosticReport', () => {
         link: [
           {
             relation: 'self',
-            link: expect.stringContaining(path),
+            url: expect.stringContaining(path),
           },
         ],
         entry: [
@@ -198,7 +198,7 @@ describe('VPS integration - DiagnosticReport', () => {
 
       // act
       const response1 = await app.get(path);
-      const nextUrl = response1.body.link.find(l => l.relation === 'next')?.link;
+      const nextUrl = response1.body.link.find(l => l.relation === 'next')?.url;
       const [, nextPath] = nextUrl.match(/^.*(\/v1\/integration\/fijiVps\/.*)$/);
       const response2 = await app.get(nextPath);
 
@@ -207,10 +207,10 @@ describe('VPS integration - DiagnosticReport', () => {
       expect(response1.body).toMatchObject({
         total: 3,
         link: [
-          { relation: 'self', link: expect.stringContaining(path) },
+          { relation: 'self', url: expect.stringContaining(path) },
           {
             relation: 'next',
-            link: expect.stringContaining('/v1/integration/fijiVps/DiagnosticReport?searchId='),
+            url: expect.stringContaining('/v1/integration/fijiVps/DiagnosticReport?searchId='),
           },
         ],
         entry: [
@@ -225,7 +225,7 @@ describe('VPS integration - DiagnosticReport', () => {
       expect(response2).toHaveSucceeded();
       expect(response2.body).toMatchObject({
         total: 3,
-        link: [{ relation: 'self', link: nextUrl }],
+        link: [{ relation: 'self', url: nextUrl }],
         entry: [
           {
             resource: { id: labTest1.id },
@@ -255,7 +255,7 @@ describe('VPS integration - DiagnosticReport', () => {
         link: [
           {
             relation: 'self',
-            link: expect.stringContaining(path),
+            url: expect.stringContaining(path),
           },
         ],
         entry: [],
