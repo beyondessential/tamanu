@@ -75,14 +75,14 @@ async function getHL7Payload({ req, querySchema, model, getWhere, getInclude, bu
   const link = [
     {
       relation: 'self',
-      link: getHL7Link(baseUrl, req.query), // use original query
+      url: getHL7Link(baseUrl, req.query), // use original query
     },
   ];
   const lastRecord = records[records.length - 1];
   if (remaining > records.length) {
     link.push({
       relation: 'next',
-      link: getHL7Link(baseUrl, {
+      url: getHL7Link(baseUrl, {
         searchId: toSearchId({
           ...query, // use parsed query
           after: lastRecord,
