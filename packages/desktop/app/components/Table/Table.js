@@ -55,7 +55,13 @@ const StyledTableRow = styled(TableRow)`
         background: rgba(255,255,255,0.6);
       }
     `
-      : ''}
+    : ''}
+      
+  
+  ${p => p.striked ? `
+    color: red;
+    text-decoration: line-through;
+  ` : ''}
 `;
 
 const StyledTableContainer = styled.div`
@@ -94,13 +100,13 @@ const StyledTableFooter = styled(TableFooter)`
   border-bottom: 1px solid black;
 `;
 
-const RowContainer = React.memo(({ children, onClick }) => (
-  <StyledTableRow onClick={onClick} style={{ marginTop: '1rem' }}>
+const RowContainer = React.memo(({ children, striked, onClick }) => (
+  <StyledTableRow onClick={onClick} style={{ marginTop: '1rem' }} striked={striked ? striked.toString() : ''}>
     {children}
   </StyledTableRow>
 ));
 
-const Row = React.memo(({ columns, data, onClick }) => {
+const Row = React.memo(({ columns, data, onClick, striked }) => {
   const cells = columns.map(
     ({ key, accessor, CellComponent, numeric, maxWidth, cellColor, dontCallRowInput }) => {
       const value = accessor ? React.createElement(accessor, data) : data[key];
@@ -124,7 +130,7 @@ const Row = React.memo(({ columns, data, onClick }) => {
       );
     },
   );
-  return <RowContainer onClick={onClick && (() => onClick(data))}>{cells}</RowContainer>;
+  return <RowContainer onClick={onClick && (() => onClick(data))} striked={striked}>{cells}</RowContainer>;
 });
 
 const ErrorSpan = styled.span`
@@ -239,7 +245,7 @@ class TableComponent extends React.Component {
   }
 
   renderBodyContent() {
-    const { data, customSort, columns, onRowClick, errorMessage, rowIdKey } = this.props;
+    const { data, customSort, columns, onRowClick, errorMessage, rowIdKey, ...rest } = this.props;
     const error = this.getErrorMessage();
     if (error) {
       return (
@@ -251,7 +257,8 @@ class TableComponent extends React.Component {
     const sortedData = customSort ? customSort(data) : data;
     return sortedData.map(rowData => {
       const key = rowData[rowIdKey] || rowData[columns[0].key];
-      return <Row data={rowData} key={key} columns={columns} onClick={onRowClick} />;
+      const striked = rowData?.discontinued;
+      return <Row data={rowData} key={key} columns={columns} onClick={onRowClick} striked={striked} />;
     });
   }
 

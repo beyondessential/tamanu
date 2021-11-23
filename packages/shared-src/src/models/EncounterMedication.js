@@ -24,6 +24,10 @@ export class EncounterMedication extends Model {
         qtyEvening: Sequelize.INTEGER,
         qtyNight: Sequelize.INTEGER,
         quantity: Sequelize.INTEGER,
+
+        discontinued: Sequelize.BOOLEAN,
+        discontinuingClinician: Sequelize.STRING,
+        discontinuingReason: Sequelize.STRING,
       },
       {
         ...options,
