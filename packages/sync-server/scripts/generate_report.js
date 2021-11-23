@@ -40,7 +40,7 @@ const generateReport = async () => {
   console.log(data);
   // 3. convert to excel and write
   const folder = path.resolve('data');
-  const excelFileName = `${reportName}.xlsx`;
+  const excelFileName = `${reportName}-${new Date().toString()}.xlsx`;
   const excelFilePath = path.join(folder, excelFileName);
   await writeExcelFile(data, excelFilePath);
 };
