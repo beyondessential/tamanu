@@ -31,7 +31,7 @@
     "meta-start-dev": "yarn run watch-shared-and meta-server start-dev",
     "meta-test-watch": "yarn run watch-shared-and meta-server test-watch",
     "meta-start": "yarn run meta-start-dev",
-    "generate-report": "yarn run build-shared && yarn workspace sync-server run generate-report"
+    "generate-report": "yarn run build-shared && yarn workspace scripts run generate-report"
   },
   "engines": {
     "node": "^12"

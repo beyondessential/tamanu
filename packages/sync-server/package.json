@@ -23,8 +23,7 @@
     "test-watch": "yarn test --watch",
     "build": "rm -rf ./dist/ && webpack --config webpack.config.prod.js",
     "lint": "eslint app",
-    "lint-stats": "eslint app --format ../scripts/eslint-stats.js",
-    "generate-report": "node ./scripts/generate_report.js"
+    "lint-stats": "eslint app --format ../scripts/eslint-stats.js"
   },
   "devDependencies": {
     "@babel/core": "^7.3.4",

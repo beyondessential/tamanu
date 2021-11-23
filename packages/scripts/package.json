@@ -5,7 +5,8 @@
   "license": "SEE LICENSE IN license",
   "scripts": {
     "test": "echo 'No tests on scripts'",
-    "download-translations": "node src/downloadTranslations.js ../desktop/resources/strings"
+    "download-translations": "node src/downloadTranslations.js ../desktop/resources/strings",
+    "generate-report": "node src/generate_report.js"
   },
   "dependencies": {
     "google-spreadsheet": "^2.0.7"
