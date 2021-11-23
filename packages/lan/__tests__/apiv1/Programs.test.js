@@ -1,7 +1,7 @@
 import { createDummyPatient, createDummyEncounter } from 'shared/demoData/patients';
 import Chance from 'chance';
-import { createTestContext } from '../utilities';
 import { SURVEY_TYPES } from 'shared/constants';
+import { createTestContext } from '../utilities';
 
 const chance = new Chance();
 
@@ -113,7 +113,9 @@ describe('Programs', () => {
     testSurvey = await createDummySurvey(testProgram, 6);
     testSurvey2 = await createDummySurvey(testProgram, 10);
     testSurvey3 = await createDummySurvey(testProgram, 10);
-    testReferralSurvey = await createDummySurvey(testProgram, 10, { surveyType: SURVEY_TYPES.REFERRAL });
+    testReferralSurvey = await createDummySurvey(testProgram, 10, {
+      surveyType: SURVEY_TYPES.REFERRAL,
+    });
   });
 
   it('should list available programs', async () => {
@@ -174,38 +176,38 @@ describe('Programs', () => {
       });
     });
 
-    it('should list program responses from one encounter', async () => {
+    it('should only list program responses from an encounter, not referrals', async () => {
+      const NUMBER_PROGRAM_RESPONSES = 7;
+      const NUMBER_REFERRAL_RESPONSES = 19;
       const encounter = await models.Encounter.create({
         patientId: testPatient.id,
         ...(await createDummyEncounter(models)),
       });
-      const responses = await submitMultipleSurveyResponses(testSurvey3, {
-        encounterId: encounter.id,
-      });
+      await submitMultipleSurveyResponses(
+        testSurvey3,
+        {
+          encounterId: encounter.id,
+        },
+        NUMBER_PROGRAM_RESPONSES,
+      );
+      await submitMultipleSurveyResponses(
+        testReferralSurvey,
+        {
+          encounterId: encounter.id,
+        },
+        NUMBER_REFERRAL_RESPONSES,
+      );
 
-      const programResponses = await app.get(`/v1/encounter/${encounter.id}/programResponses?rowsPerPage=100`);
+      const programResponses = await app.get(
+        `/v1/encounter/${encounter.id}/programResponses?rowsPerPage=100`,
+      );
       expect(programResponses).toHaveSucceeded();
 
-      expect(programResponses.body.count).toEqual(responses.length);
-      programResponses.body.data.map(response => {
+      expect(programResponses.body.count).toEqual(NUMBER_PROGRAM_RESPONSES);
+      programResponses.body.data.forEach(response => {
         expect(response.encounterId).toEqual(encounter.id);
         expect(response.surveyId).toEqual(testSurvey3.id);
       });
-    });
-
-    it('should NOT list referral responses when fetching programResponses', async () => {
-      const encounter = await models.Encounter.create({
-        patientId: testPatient.id,
-        ...(await createDummyEncounter(models)),
-      });
-      const responses = await submitMultipleSurveyResponses(testReferralSurvey, {
-        encounterId: encounter.id,
-      });
-
-      const programResponses = await app.get(`/v1/encounter/${encounter.id}/programResponses?rowsPerPage=100`);
-      expect(programResponses).toHaveSucceeded();
-
-      expect(programResponses.body.count).toEqual(0);
     });
   });
 
@@ -256,7 +258,7 @@ describe('Programs', () => {
       };
 
       // ensure data is correct
-      result.body.data.map(checkResult);
+      result.body.data.forEach(checkResult);
 
       // check page 2
       const result2 = await app.get(
@@ -264,7 +266,7 @@ describe('Programs', () => {
       );
       expect(result2).toHaveSucceeded();
       expect(result2.body.data.length).toEqual(5);
-      result2.body.data.map(checkResult);
+      result2.body.data.forEach(checkResult);
     });
 
     it('should NOT list referral responses when fetching programResponses', async () => {
@@ -272,17 +274,16 @@ describe('Programs', () => {
       const patient = await models.Patient.create(await createDummyPatient(models));
 
       // populate responses
-      const responses = await submitMultipleSurveyResponses(
-        testReferralSurvey,
-        {
-          patientId: patient.id,
-          examinerId,
-          departmentId,
-          locationId,
-        },
-      );
+      const responses = await submitMultipleSurveyResponses(testReferralSurvey, {
+        patientId: patient.id,
+        examinerId,
+        departmentId,
+        locationId,
+      });
 
-      const programResponses = await app.get(`/v1/patient/${patient.id}/programResponses?rowsPerPage=100`);
+      const programResponses = await app.get(
+        `/v1/patient/${patient.id}/programResponses?rowsPerPage=100`,
+      );
 
       expect(programResponses).toHaveSucceeded();
       expect(programResponses.body.count).toEqual(0);
