@@ -81,7 +81,12 @@ export const getCachedAnswer = (
   dataElementId,
 ) =>
   answersByPatientSurveyDataElement[
-    getPerPatientPerSurveyPerDatePerElementKey(patientId, surveyGroupKey, responseDate, dataElementId)
+    getPerPatientPerSurveyPerDatePerElementKey(
+      patientId,
+      surveyGroupKey,
+      responseDate,
+      dataElementId,
+    )
   ]?.body;
 
 export const getSurveyGroupKey = surveyId => {
@@ -93,7 +98,7 @@ export const getSurveyGroupKey = surveyId => {
     return CERVICAL_CANCER_SURVEY_GROUP_KEY;
   }
   // should never happen
-  return null;
+  throw new Error(`Unknown survey id: ${surveyId}`);
 };
 
 export const getSurveyIdsByGroupKey = surveyGroupKey => {
