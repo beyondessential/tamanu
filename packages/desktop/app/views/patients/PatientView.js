@@ -194,15 +194,18 @@ const ProgramsPane = connect(null, dispatch => ({
   )),
 );
 
+const StyledDiv = styled.div`
+  max-width: 20vw;
+`;
 const StyledTextSpan = styled.span`
   color: ${props => (props.color ? props.color : Colors.darkText)};
 `;
 const getMedicationNameAndPrescription = ({ medication, prescription }) => (
-  <React.Fragment>
+  <StyledDiv>
     <StyledTextSpan>{medication.name}</StyledTextSpan>
     <br />
     <StyledTextSpan color={Colors.midText}>{prescription}</StyledTextSpan>
-  </React.Fragment>
+  </StyledDiv>
 );
 
 const DISCHARGED_MEDICATION_COLUMNS = [
@@ -236,10 +239,10 @@ const DISCHARGED_MEDICATION_COLUMNS = [
 // Presumably it will need different keys and accessors 
 // and also date column title is different
 const DISPENSED_MEDICATION_COLUMNS = [
-  { key: 'a', title: 'Item/Prescription' },
-  { key: 'b', title: 'Qty' },
-  { key: 'c', title: 'Clinician' },
-  { key: 'd', title: 'Facility' },
+  { key: 'a', title: 'Item/Prescription', sortable: true },
+  { key: 'b', title: 'Qty', sortable: false },
+  { key: 'c', title: 'Clinician', sortable: false },
+  { key: 'd', title: 'Facility', sortable: false },
   {
     key: 'e',
     title: 'Dispensed date',
