@@ -69,11 +69,11 @@ function AdministeredVaccineSchedule(props) {
 const findVaccinesByAdministeredStatus = (vaccine, administered) =>
   vaccine
     ? vaccine.schedules
-      .filter(s => s.administered === administered)
-      .map(s => ({
-        value: s.scheduledVaccineId,
-        label: s.schedule,
-      }))
+        .filter(s => s.administered === administered)
+        .map(s => ({
+          value: s.scheduledVaccineId,
+          label: s.schedule,
+        }))
     : [];
 
 export const ImmunisationForm = React.memo(
@@ -105,6 +105,10 @@ export const ImmunisationForm = React.memo(
 
     useEffect(() => {
       const fetchScheduledVaccines = async () => {
+        if (!category) {
+          setVaccineOptions([]);
+          return;
+        }
         const availableScheduledVaccines = await getScheduledVaccines({ category });
         setVaccineOptions(
           availableScheduledVaccines.map(vaccine => ({
@@ -115,7 +119,7 @@ export const ImmunisationForm = React.memo(
         );
       };
 
-      fetchScheduledVaccines();
+      fetchScheduledVaccines().catch(err => console.log(err));
     }, [category]);
 
     return (
