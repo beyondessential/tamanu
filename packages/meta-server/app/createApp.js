@@ -11,7 +11,7 @@ import { serversRouter } from './servers';
 import { version } from '../package.json';
 
 const isDevelopment = process.env.NODE_ENV === 'development';
-const tinyPlusIp = `:remote-addr :method :url :status :res[content-length] - :response-time ms`
+const tinyPlusIp = `:remote-addr :method :url :status :res[content-length] - :response-time ms`;
 
 export function createApp() {
   // Init our app
@@ -21,7 +21,8 @@ export function createApp() {
   app.use(bodyParser.urlencoded({ extended: true }));
 
   app.use((req, res, next) => {
-    res.setHeader('X-Runtime', 'Tamanu Metadata Server');
+    res.setHeader('X-Runtime', 'Tamanu Metadata Server'); // TODO: deprecated
+    res.setHeader('X-Tamanu-Server', 'Tamanu Metadata Server');
     res.setHeader('X-Version', version);
     next();
   });

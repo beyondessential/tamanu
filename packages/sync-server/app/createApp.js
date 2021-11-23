@@ -36,7 +36,8 @@ export function createApp(ctx) {
   );
 
   app.use((req, res, next) => {
-    res.setHeader('X-Runtime', 'Tamanu Sync Server');
+    res.setHeader('X-Runtime', 'Tamanu Sync Server'); // TODO: deprecated
+    res.setHeader('X-Tamanu-Server', 'Tamanu Sync Server');
     res.setHeader('X-Version', version);
     next();
   });
