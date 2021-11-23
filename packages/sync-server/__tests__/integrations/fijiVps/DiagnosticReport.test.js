@@ -213,13 +213,24 @@ describe('VPS integration - DiagnosticReport', () => {
             link: expect.stringContaining('/v1/integration/fijiVps/DiagnosticReport?searchId='),
           },
         ],
-        entry: [{ id: labTest3.id }, { id: labTest2.id }],
+        entry: [
+          {
+            resource: { id: labTest3.id },
+          },
+          {
+            resource: { id: labTest2.id },
+          },
+        ],
       });
       expect(response2).toHaveSucceeded();
       expect(response2.body).toMatchObject({
         total: 3,
         link: [{ relation: 'self', link: nextUrl }],
-        entry: [{ id: labTest1.id }],
+        entry: [
+          {
+            resource: { id: labTest1.id },
+          },
+        ],
       });
     });
 
@@ -271,12 +282,14 @@ describe('VPS integration - DiagnosticReport', () => {
       expect(response.body).toMatchObject({
         entry: [
           {
-            performer: [
-              {
-                display: examiner.displayName,
-                reference: `Practitioner/${examiner.id}`,
-              },
-            ],
+            resource: {
+              performer: [
+                {
+                  display: examiner.displayName,
+                  reference: `Practitioner/${examiner.id}`,
+                },
+              ],
+            },
           },
         ],
       });
