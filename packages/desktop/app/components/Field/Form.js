@@ -2,17 +2,21 @@ import React from 'react';
 import { Formik } from 'formik';
 import PropTypes from 'prop-types';
 import { Typography } from '@material-ui/core';
+import { flattenObject } from '../../utils';
 
 import { Dialog } from '../Dialog';
 
 const ErrorMessage = ({ error }) => `${JSON.stringify(error)}`;
 
-const FormErrors = ({ errors }) =>
-  Object.entries(errors).map(([name, error]) => (
+const FormErrors = ({ errors }) => {
+  const allErrors = flattenObject(errors);
+
+  return Object.entries(allErrors).map(([name, error]) => (
     <Typography key={name} variant="subtitle2">
       <ErrorMessage error={error} />
     </Typography>
   ));
+};
 
 export class Form extends React.PureComponent {
   static propTypes = {
