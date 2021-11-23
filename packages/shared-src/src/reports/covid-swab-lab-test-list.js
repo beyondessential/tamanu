@@ -321,6 +321,7 @@ const getLatestPatientAnswerInDateRange = (
   const sortedLatestToOldestAnswers = patientTransformedAnswers.sort((a1, a2) =>
     moment(a2.responseEndTime).diff(moment(a1.responseEndTime)),
   );
+
   const latestAnswer = sortedLatestToOldestAnswers.find(a =>
     moment(a.responseEndTime).isBetween(
       currentlabTestDate,
@@ -339,78 +340,92 @@ const getLabTestRecords = async (labTests, transformedAnswers, parameters) => {
     a => `${a.patientId}|${a.dataElementId}`,
   );
 
+  // Group the lab tests by patient so that we can determine the correct sample collection form for each lab request
+  // For example, If a patient have 3 lab requests (1st on July 1st, 2nd on July 10th and 3rd on July 15th).
+  // For the first request, it should pick the latest sample collection form from July 1st - 9th
+  // For the second request, it should pick the latest sample collection forms from July 10th - 14th
+  // For the third request, it should pick the latest sample collection form from July 15th onwards.
+  const labTestsByPatientId = groupBy(
+    labTests,
+    labTest => labTest?.labRequest?.encounter?.patientId,
+  );
+
   const results = [];
 
-  // lab tests were already sorted by 'date' ASC in the sql.
-  for (let i = 0; i < labTests.length; i++) {
-    const labTest = labTests[i];
-    const currentLabTestDate = moment(labTest.date).startOf('day');
+  for (const [patientId, patientLabTests] of Object.entries(labTestsByPatientId)) {
+    // lab tests were already sorted by 'date' ASC in the sql.
+    for (let i = 0; i < patientLabTests.length; i++) {
+      const labTest = patientLabTests[i];
+      const currentLabTestDate = moment(labTest.date).startOf('day');
 
-    //Get all lab tests regardless and filter fromDate and toDate in memory
-    // to ensure that we have the date range from current lab test to the next lab test correctly.
-    if (
-      parameters.fromDate &&
-      currentLabTestDate.isBefore(moment(parameters.fromDate).startOf('day'))
-    ) {
-      continue;
-    }
-
-    if (parameters.toDate && currentLabTestDate.isAfter(moment(parameters.toDate).endOf('day'))) {
-      continue;
-    }
-
-    const nextLabTest = labTests[i + 1];
-    let nextLabTestDate;
-
-    if (nextLabTest) {
-      const nextLabTestTimestamp = labTests[i + 1].date;
-      // if next lab test not on the same date (next one on a different date,
-      // startOf('day') to exclude the next date when comparing range later
-      if (!currentLabTestDate.isSame(nextLabTestTimestamp, 'day')) {
-        nextLabTestDate = moment(nextLabTestTimestamp).startOf('day');
-      } else {
-        // if next lab test on the same date, just use its raw timestamp
-        nextLabTestDate = moment(nextLabTestTimestamp);
+      //Get all lab tests regardless and filter fromDate and toDate in memory
+      // to ensure that we have the date range from current lab test to the next lab test correctly.
+      if (
+        parameters.fromDate &&
+        currentLabTestDate.isBefore(moment(parameters.fromDate).startOf('day'))
+      ) {
+        continue;
       }
-    } else {
-      // use current time if there's no next lab test
-      nextLabTestDate = moment();
+
+      if (parameters.toDate && currentLabTestDate.isAfter(moment(parameters.toDate).endOf('day'))) {
+        continue;
+      }
+
+      const nextLabTest = patientLabTests[i + 1];
+      let nextLabTestDate;
+
+      if (nextLabTest) {
+        const { date: nextLabTestTimestamp } = nextLabTest;
+        // if next lab test not on the same date (next one on a different date,
+        // startOf('day') to exclude the next date when comparing range later
+        if (!currentLabTestDate.isSame(nextLabTestTimestamp, 'day')) {
+          nextLabTestDate = moment(nextLabTestTimestamp).startOf('day');
+        } else {
+          // if next lab test on the same date, just use its raw timestamp
+          nextLabTestDate = moment(nextLabTestTimestamp);
+        }
+      } else {
+        // use current time if there's no next lab test
+        nextLabTestDate = moment();
+      }
+
+      const labRequest = labTest.labRequest;
+      const encounter = labRequest?.encounter;
+      const patient = encounter?.patient;
+      const homeSubDivision = patient?.village?.name;
+
+      const labTestRecord = {
+        firstName: patient?.firstName,
+        lastName: patient?.lastName,
+        dob: patient?.dateOfBirth ? moment(patient?.dateOfBirth).format('DD-MM-YYYY') : '',
+        sex: patient?.sex,
+        patientId: patient?.displayId,
+        homeSubDivision,
+        labRequestId: labRequest?.displayId,
+        labRequestType: labRequest?.category?.name,
+        status: LAB_REQUEST_STATUS_LABELS[labRequest?.status] || labRequest?.status,
+        result: labTest.result,
+        requestedBy: labRequest?.requestedBy?.displayName,
+        requestedDate: labTest.date ? moment(labTest.date).format('DD-MM-YYYY') : '',
+        testingDate: labTest.completedDate
+          ? moment(labTest.completedDate).format('DD-MM-YYYY')
+          : '',
+        priority: labRequest?.priority?.name,
+        testingLaboratory: labRequest?.laboratory?.name,
+      };
+      Object.entries(SURVEY_QUESTION_CODES).forEach(([key, dataElement]) => {
+        labTestRecord[key] = getLatestPatientAnswerInDateRange(
+          transformedAnswersByPatientAndDataElement,
+          currentLabTestDate,
+          nextLabTestDate,
+          patientId,
+          dataElement,
+        );
+      });
+
+      results.push(labTestRecord);
+      await yieldControl();
     }
-
-    const patientId = labTest.labRequest?.encounter?.patientId;
-    const homeSubDivision = labTest.labRequest?.encounter?.patient?.village?.name;
-
-    const labTestRecord = {
-      firstName: labTest.labRequest?.encounter?.patient?.firstName,
-      lastName: labTest.labRequest?.encounter?.patient?.lastName,
-      dob: labTest.labRequest?.encounter?.patient?.dateOfBirth
-        ? moment(labTest.labRequest?.encounter?.patient?.dateOfBirth).format('DD-MM-YYYY')
-        : '',
-      sex: labTest.labRequest?.encounter?.patient?.sex,
-      patientId: labTest.labRequest?.encounter?.patient?.displayId,
-      homeSubDivision,
-      labRequestId: labTest.labRequest?.displayId,
-      labRequestType: labTest.labRequest.category.name,
-      status: LAB_REQUEST_STATUS_LABELS[labTest.labRequest?.status] || labTest.labRequest?.status,
-      result: labTest.result,
-      requestedBy: labTest.labRequest?.requestedBy?.displayName,
-      requestedDate: labTest.date ? moment(labTest.date).format('DD-MM-YYYY') : '',
-      testingDate: labTest.completedDate ? moment(labTest.completedDate).format('DD-MM-YYYY') : '',
-      priority: labTest.labRequest?.priority?.name,
-      testingLaboratory: labTest.labRequest?.laboratory?.name,
-    };
-    Object.entries(SURVEY_QUESTION_CODES).forEach(([key, dataElement]) => {
-      labTestRecord[key] = getLatestPatientAnswerInDateRange(
-        transformedAnswersByPatientAndDataElement,
-        currentLabTestDate,
-        nextLabTestDate,
-        patientId,
-        dataElement,
-      );
-    });
-
-    results.push(labTestRecord);
-    await yieldControl();
   }
 
   return results;
