@@ -1,4 +1,4 @@
-import os from 'os';
+// import os from 'os';
 import fs from 'fs';
 import path from 'path';
 import mkdirp from 'mkdirp';
@@ -58,7 +58,7 @@ export async function createZippedExcelFile(reportName, data) {
   const folder = await tmpdir();
   log.info(folder);
   const excelFileName = `${reportName}.xlsx`;
-  const excelFilePath = path.join(folder, `${reportName}.xlsx`);
+  const excelFilePath = path.join(folder, excelFileName);
   log.info(excelFilePath);
   const zipFilePath = path.join(folder, `${reportName}.zip`);
   await writeExcelFile(data, excelFilePath);

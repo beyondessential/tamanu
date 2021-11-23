@@ -475,7 +475,7 @@ const VILLAGES = [
   // 'village-lakeba',
   // 'village-lautokayasawa',
   // 'village-lomaiviti',
-  // 'village-lomaloma',
+  'village-lomaloma',
   // 'village-macuata',
   // 'village-nadi',
   // 'village-nadroga',
@@ -490,7 +490,7 @@ const VILLAGES = [
   // 'village-tailevu',
   // 'village-taveuni',
   // 'village-tavua',
-  'NULL',
+  // 'NULL',
 ];
 
 export const dataGenerator = async (models, parameters2 = {}) => {
