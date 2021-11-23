@@ -92,13 +92,13 @@ export const SearchButton = props => (
 
 export const CheckInButton = props => (
   <Button variant="contained" color="secondary" {...props}>
-    Check-In
+    Check-in
   </Button>
 );
 
 export const CheckOutButton = props => (
   <Button variant="contained" color="secondary" {...props}>
-    Check Out
+    Check-out
   </Button>
 );
 

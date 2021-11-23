@@ -112,7 +112,7 @@ export const PatientEncounterSummary = ({ viewEncounter, openCheckin, openTriage
           <Title notAdmitted>No current visit</Title>
           <Actions>
             <FirstButton src={medicationIcon} title="Admit" onClick={openCheckin}>
-              Admit or Check-in
+              Admit or check-in
             </FirstButton>
             <StyledImageButton src={profileIcon} title="Triage" onClick={openTriage}>
               Triage
