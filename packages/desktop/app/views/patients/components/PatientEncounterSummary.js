@@ -109,10 +109,10 @@ export const PatientEncounterSummary = ({ viewEncounter, openCheckin, openTriage
     return (
       <Grid notAdmitted>
         <Content notAdmitted>
-          <Title notAdmitted>Not currently admitted</Title>
+          <Title notAdmitted>No current visit</Title>
           <Actions>
             <FirstButton src={medicationIcon} title="Admit" onClick={openCheckin}>
-              Admit
+              Admit or check-in
             </FirstButton>
             <StyledImageButton src={profileIcon} title="Triage" onClick={openTriage}>
               Triage
