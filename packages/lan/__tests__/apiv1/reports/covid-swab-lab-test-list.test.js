@@ -5,7 +5,6 @@ import {
   randomReferenceId,
 } from 'shared/demoData/patients';
 import { randomLabRequest } from 'shared/demoData';
-import { LabTest } from 'shared/models/LabTest';
 import { createTestContext } from '../../utilities';
 
 const PROGRAM_ID = 'program-fijicovid19';
