@@ -1,6 +1,6 @@
 import express from 'express';
 import asyncHandler from 'express-async-handler';
-import { QueryTypes } from 'sequelize';
+import { QueryTypes, Op } from 'sequelize';
 import { isEqual } from 'lodash';
 
 import { NotFoundError } from 'shared/errors';
@@ -11,6 +11,8 @@ import { createPatientFilters } from '../../utils/patientFilters';
 import { patientVaccineRoutes } from './patient/patientVaccine';
 import { patientProfilePicture } from './patient/patientProfilePicture';
 import { activeCovid19PatientsHandler } from '../../routeHandlers';
+
+import { getOrderClause } from '../../database/utils';
 
 const patientRoute = express.Router();
 export { patientRoute as patient };
@@ -250,6 +252,56 @@ patientRoute.get(
 
     // explicitly send as json (as it might be null)
     res.json(currentEncounter);
+  }),
+);
+
+patientRoute.get(
+  '/:id/lastDischargedEncounterMedications',
+  asyncHandler(async (req, res) => {
+    const {
+      models: { Encounter, EncounterMedication },
+      params,
+      query,
+    } = req;
+
+    const { order = 'ASC', orderBy, rowsPerPage = 10, page = 0 } = query;
+
+    req.checkPermission('read', 'Patient');
+    req.checkPermission('read', 'Encounter');
+    req.checkPermission('list', 'EncounterMedication');
+
+    const lastDischargedEncounter = await Encounter.findOne({
+      where: {
+        patientId: params.id,
+        endDate: { [Op.not]: null },
+      },
+      order: [['endDate', 'DESC']],
+    });
+
+    // Default values in case there is not discharged encounter
+    let count = 0;
+    let data = [];
+
+    if (lastDischargedEncounter) {
+      const lastEncounterMedications = await EncounterMedication.findAndCountAll({
+        where: { encounterId: lastDischargedEncounter.id, isDischarge: true },
+        include: [
+          ...EncounterMedication.getFullReferenceAssociations(),
+          { association: 'encounter', include: [{ association: 'location' }] },
+        ],
+        order: orderBy ? getOrderClause(order, orderBy) : undefined,
+        limit: rowsPerPage,
+        offset: page * rowsPerPage,
+      });
+
+      count = lastEncounterMedications.count;
+      data = lastEncounterMedications.rows.map(x => x.forResponse());
+    }
+
+    res.send({
+      count,
+      data,
+    });
   }),
 );
 
