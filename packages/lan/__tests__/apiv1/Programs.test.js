@@ -178,7 +178,7 @@ describe('Programs', () => {
 
     it('should only list program responses from an encounter, not referrals', async () => {
       const NUMBER_PROGRAM_RESPONSES = 7;
-      const NUMBER_REFERRAL_RESPONSES = 19;
+      const NUMBER_REFERRAL_SURVEY_RESPONSES = 19;
       const encounter = await models.Encounter.create({
         patientId: testPatient.id,
         ...(await createDummyEncounter(models)),
@@ -195,7 +195,7 @@ describe('Programs', () => {
         {
           encounterId: encounter.id,
         },
-        NUMBER_REFERRAL_RESPONSES,
+        NUMBER_REFERRAL_SURVEY_RESPONSES,
       );
 
       const programResponses = await app.get(
@@ -269,7 +269,7 @@ describe('Programs', () => {
       result2.body.data.forEach(checkResult);
     });
 
-    it('should NOT list referral responses when fetching programResponses', async () => {
+    it('should NOT list survey responses of type referral when fetching programResponses', async () => {
       const { examinerId, departmentId, locationId } = await createDummyEncounter(models);
       const patient = await models.Patient.create(await createDummyPatient(models));
 
