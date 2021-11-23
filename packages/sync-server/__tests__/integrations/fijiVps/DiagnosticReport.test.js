@@ -102,77 +102,80 @@ describe('VPS integration - DiagnosticReport', () => {
         ],
         entry: [
           {
-            resourceType: 'DiagnosticReport',
-            id: labTest.id,
-            effectiveDateTime: labRequest.sampleTime.toISOString(),
-            issued: labRequest.requestedDate.toISOString(),
-            code: {
-              coding: [
+            resource: {
+              resourceType: 'DiagnosticReport',
+              id: labTest.id,
+              effectiveDateTime: labRequest.sampleTime.toISOString(),
+              issued: labRequest.requestedDate.toISOString(),
+              code: {
+                coding: [
+                  {
+                    code: labTestType.code,
+                    display: labTestType.name,
+                  },
+                ],
+                text: labTestType.name,
+              },
+              identifier: [
                 {
-                  code: labTestType.code,
-                  display: labTestType.name,
+                  system: 'http://tamanu.io/data-dictionary/labrequest-reference-number.html',
+                  use: 'official',
+                  value: labRequest.displayId,
                 },
               ],
-              text: labTestType.name,
+              performer: [
+                {
+                  display: laboratory.name,
+                  reference: `Organization/${laboratory.id}`,
+                },
+                {
+                  display: examiner.displayName,
+                  reference: `Practitioner/${examiner.id}`,
+                },
+              ],
+              status: 'final',
+              result: [
+                {
+                  resourceType: 'Observation',
+                  id: labTest.id,
+                  status: 'final',
+                  code: {},
+                  subject: {
+                    display: `${patient.firstName} ${patient.lastName}`,
+                    reference: `Patient/${patient.id}`,
+                  },
+                  valueCodeableConcept: {
+                    coding: [
+                      {
+                        code: 'INC',
+                        display: 'Inconclusive',
+                        system:
+                          'http://terminology.hl7.org/CodeSystem/v3-ObservationInterpretation',
+                      },
+                    ],
+                  },
+                },
+              ],
+              subject: {
+                display: `${patient.firstName} ${patient.lastName}`,
+                reference: `Patient/${patient.id}`,
+              },
+              extension: [
+                {
+                  url: 'http://tamanu.io/data-dictionary/covid-test-methods/covid-test-methods',
+                  valueCodeableConcept: {
+                    coding: [
+                      {
+                        code: labTestMethod.code,
+                        display: labTestMethod.name,
+                        system:
+                          'http://tamanu.io/data-dictionary/covid-test-methods/covid-test-methods/rdt',
+                      },
+                    ],
+                  },
+                },
+              ],
             },
-            identifier: [
-              {
-                system: 'http://tamanu.io/data-dictionary/labrequest-reference-number.html',
-                use: 'official',
-                value: labRequest.displayId,
-              },
-            ],
-            performer: [
-              {
-                display: laboratory.name,
-                reference: `Organization/${laboratory.id}`,
-              },
-              {
-                display: examiner.displayName,
-                reference: `Practitioner/${examiner.id}`,
-              },
-            ],
-            status: 'final',
-            result: [
-              {
-                resourceType: 'Observation',
-                id: labTest.id,
-                status: 'final',
-                code: {},
-                subject: {
-                  display: `${patient.firstName} ${patient.lastName}`,
-                  reference: `Patient/${patient.id}`,
-                },
-                valueCodeableConcept: {
-                  coding: [
-                    {
-                      code: 'INC',
-                      display: 'Inconclusive',
-                      system: 'http://terminology.hl7.org/CodeSystem/v3-ObservationInterpretation',
-                    },
-                  ],
-                },
-              },
-            ],
-            subject: {
-              display: `${patient.firstName} ${patient.lastName}`,
-              reference: `Patient/${patient.id}`,
-            },
-            extension: [
-              {
-                url: 'http://tamanu.io/data-dictionary/covid-test-methods/covid-test-methods',
-                valueCodeableConcept: {
-                  coding: [
-                    {
-                      code: labTestMethod.code,
-                      display: labTestMethod.name,
-                      system:
-                        'http://tamanu.io/data-dictionary/covid-test-methods/covid-test-methods/rdt',
-                    },
-                  ],
-                },
-              },
-            ],
           },
         ],
       });
@@ -210,13 +213,24 @@ describe('VPS integration - DiagnosticReport', () => {
             link: expect.stringContaining('/v1/integration/fijiVps/DiagnosticReport?searchId='),
           },
         ],
-        entry: [{ id: labTest3.id }, { id: labTest2.id }],
+        entry: [
+          {
+            resource: { id: labTest3.id },
+          },
+          {
+            resource: { id: labTest2.id },
+          },
+        ],
       });
       expect(response2).toHaveSucceeded();
       expect(response2.body).toMatchObject({
         total: 3,
         link: [{ relation: 'self', link: nextUrl }],
-        entry: [{ id: labTest1.id }],
+        entry: [
+          {
+            resource: { id: labTest1.id },
+          },
+        ],
       });
     });
 
@@ -268,12 +282,14 @@ describe('VPS integration - DiagnosticReport', () => {
       expect(response.body).toMatchObject({
         entry: [
           {
-            performer: [
-              {
-                display: examiner.displayName,
-                reference: `Practitioner/${examiner.id}`,
-              },
-            ],
+            resource: {
+              performer: [
+                {
+                  display: examiner.displayName,
+                  reference: `Practitioner/${examiner.id}`,
+                },
+              ],
+            },
           },
         ],
       });
