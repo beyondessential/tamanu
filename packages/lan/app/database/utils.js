@@ -1,6 +1,19 @@
 import { Sequelize, Op } from 'sequelize';
 
 /*
+Returns an array with the correct structure to support regular
+ordering and also on nested columns as expected with a string path.
+
+The string path should be the association name, followed by
+the desired column name to be ordered by. The string path should
+be separated by a dot (.) and it can also have nested associations.
+*/
+export const getOrderClause = (order, orderBy) => {
+  const nestedAttributes = orderBy.split('.');
+  return [[...nestedAttributes, order.toUpperCase()]];
+};
+
+/*
 Returns the first note (Sequelize Model) with the specified
 noteType or undefined.
 
