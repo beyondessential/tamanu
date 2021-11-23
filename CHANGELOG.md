@@ -7,6 +7,7 @@
 - Fiji only:
   - set appropriate HL7 settings in local.json
     - specifically:
+
 ```
   "hl7": {
     "assigners": {
@@ -21,12 +22,12 @@
 
 - Everywhere:
   - set a `canonicalHostName` in `local.json`:
+
 ```
 {
    "canonicalHostName": "https://example.com"
 }
 ```
-
 
 ### Features ⭐
 
@@ -45,7 +46,7 @@
 
 ### Bug fixes 🐛
 
-- (left blank)
+- Referrals now no longer display in the Programs tab
 
 ### Infrastructure and maintenance 🛠
 
@@ -60,7 +61,7 @@
 
 ### Features ⭐
 
-- LAN server is aware of which facility it represents 
+- LAN server is aware of which facility it represents
 
 ### Tweaks ⚖️
 
