@@ -38,13 +38,13 @@ describe('Fiji NCD Primary Screening line list', () => {
     village1 = await randomReferenceId(models, 'village');
     village2 = await randomReferenceId(models, 'village');
     ethnicity1 = await models.ReferenceData.create({
-      id: 'ethnicity-abc',
+      id: `ethnicity-abc-${new Date().toString()}`,
       name: 'abc',
       code: 'abc',
       type: 'ethnicity',
     });
     ethnicity2 = await models.ReferenceData.create({
-      id: 'ethnicity-def',
+      id: `ethnicity-def-${new Date().toString()}`,
       name: 'def',
       code: 'def',
       type: 'ethnicity',
