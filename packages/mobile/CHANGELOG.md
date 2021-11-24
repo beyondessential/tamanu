@@ -43,8 +43,6 @@
 - Fix issue where migration would not run if the local database contained
 clinical information associated with encounters (ie any encounter data).
 
-- (left blank)
-
 ### Infrastructure and maintenance 🛠
 
 - (left blank)
