@@ -284,6 +284,7 @@ patientRoute.get(
         count: 0,
         data: [],
       });
+      return;
     }
 
     // Find and return all associated encounter medications
