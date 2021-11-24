@@ -36,9 +36,9 @@ const parametersToEncounterSqlWhere = parameters => {
           case 'village':
             newWhere['$patient.village_id$'] = value;
             break;
-          // case 'diagnosis':
-          //   newWhere['$diagnoses.diagnosis_id$'] = value;
-          //   break;
+          case 'diagnosis':
+            newWhere['$diagnoses.diagnosis_id$'] = value;
+            break;
           case 'fromDate':
             newWhere.startDate[Op.gte] = value;
             break;
@@ -69,7 +69,7 @@ const getEncounters = async (models, parameters) => {
             as: 'additionalData',
             include: ['ethnicity'],
           },
-          'village',
+          { model: models.ReferenceData, as: 'village' },
         ],
       },
       {
@@ -77,13 +77,12 @@ const getEncounters = async (models, parameters) => {
         as: 'diagnoses',
         include: ['Diagnosis'],
       },
-      'examiner',
-      'department',
-      'location',
+      { model: models.User, as: 'examiner' },
+      { model: models.Department, as: 'department' },
+      { model: models.Location, as: 'location' },
     ],
     where: parametersToEncounterSqlWhere(rest),
     order: [['startDate', 'ASC']],
-    limit: 200,
   });
 };
 
