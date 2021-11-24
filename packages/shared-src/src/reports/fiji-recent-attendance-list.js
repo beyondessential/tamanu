@@ -4,7 +4,7 @@ import { DIAGNOSIS_CERTAINTY } from 'shared/constants';
 import { getAgeFromDate } from 'shared/utils/date';
 import { generateReportFromQueryData } from './utilities';
 
-const FIELD_TO_NAME = {
+const FIELD_TO_TITLE = {
   firstName: 'First name',
   lastName: 'Last name',
   displayId: 'NHN',
@@ -22,7 +22,7 @@ const FIELD_TO_NAME = {
   otherDiagnoses: 'Other diagnoses',
 };
 
-const reportColumnTemplate = Object.entries(FIELD_TO_NAME).map(([key, title]) => ({
+const reportColumnTemplate = Object.entries(FIELD_TO_TITLE).map(([key, title]) => ({
   title,
   accessor: data => data[key],
 }));
