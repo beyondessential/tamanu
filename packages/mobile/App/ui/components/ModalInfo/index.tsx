@@ -8,6 +8,8 @@ import { screenPercentageToDP, Orientation } from '/helpers/screen';
 type ModalInfoProps = {
   isVisible: boolean;
   message: string;
+  buttonPrompt?: string;
+  buttonUrl?: string;
   onVisibilityChange: (value: boolean) => void;
   screenPosition?: string | number;
 };
@@ -15,13 +17,43 @@ type ModalInfoProps = {
 export const ModalInfo = ({
   isVisible,
   message,
+  buttonPrompt,
+  onFollowPrompt,
   onVisibilityChange,
   screenPosition,
 }: ModalInfoProps): ReactElement | null => {
   const dismissModal = useCallback(() => {
     onVisibilityChange(false);
   }, []);
-  return isVisible ? (
+
+  if (!isVisible) return null;
+
+  const action = (buttonPrompt && onFollowPrompt) ? (
+      <React.Fragment>
+        <Button
+          backgroundColor="green"
+          onPress={onFollowPrompt}
+          textColor={theme.colors.TEXT_LIGHT}
+          buttonText={buttonPrompt}
+          marginTop={5}
+        />
+        <Button
+          backgroundColor="transparent"
+          onPress={dismissModal}
+          textColor={theme.colors.TEXT_DARK}
+          buttonText="Dismiss"
+        />
+      </React.Fragment>
+    ) : (
+      <Button
+        backgroundColor="transparent"
+        onPress={dismissModal}
+        textColor={theme.colors.TEXT_DARK}
+        buttonText="OK"
+      />
+    );
+
+  return (
     <StyledSafeAreaView
       position="absolute"
       zIndex={3}
@@ -46,15 +78,10 @@ export const ModalInfo = ({
         >
           {message}
         </StyledText>
-        <Button
-          backgroundColor="transparent"
-          onPress={dismissModal}
-          textColor={theme.colors.TEXT_DARK}
-          buttonText="OK"
-        />
+        { action }
       </StyledView>
     </StyledSafeAreaView>
-  ) : null;
+  );
 };
 
 ModalInfo.defaultProps = {

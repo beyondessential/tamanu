@@ -5,7 +5,12 @@ import React, {
   useState,
 } from 'react';
 import { useSelector } from 'react-redux';
-import { Platform, KeyboardAvoidingView, StatusBar } from 'react-native';
+import {
+  Platform,
+  KeyboardAvoidingView,
+  StatusBar,
+  Linking,
+} from 'react-native';
 import {
   StyledView,
   StyledSafeAreaView,
@@ -24,13 +29,20 @@ import { ModalInfo } from '/components/ModalInfo';
 import { authSelector } from '/helpers/selectors';
 import { SignInFormModel } from '~/ui/interfaces/forms/SignInFormProps';
 import AuthContext from '~/ui/contexts/AuthContext';
+import { OutdatedVersionError } from '~/services/auth/error';
+
+interface ModalContent {
+  message: string;
+  buttonPrompt?: string;
+  buttonUrl?: string;
+}
 
 export const SignIn: FunctionComponent<any> = ({ navigation }: SignInProps) => {
   const authCtx = useContext(AuthContext);
   const authState = useSelector(authSelector);
 
   const [modalVisible, setModalVisible] = useState(false);
-  const [errorMessage, setErrorMessage] = useState('');
+  const [modalContent, setModalContent] = useState({ message: '' });
 
   const onNavigateToForgotPassword = useCallback(() => {
     console.log('onNavigateToForgotPassword...');
@@ -41,16 +53,20 @@ export const SignIn: FunctionComponent<any> = ({ navigation }: SignInProps) => {
     setModalVisible(isVisible);
   }, []);
 
-  const setModalError = useCallback((message: string) => {
-    setErrorMessage(message);
+  const showErrorModal = useCallback((content: ModalContent) => {
+    setModalContent(content);
     onChangeModalVisibility(true);
   }, []);
+
+  const onFollowPrompt = useCallback(() => {
+    Linking.openURL(modalContent.buttonUrl);
+  }, [modalContent.buttonUrl]);
 
   const onSubmitForm = useCallback(async (values: SignInFormModel) => {
     try {
       if (!values.server) {
         // TODO it would be better to properly respond to form validation and show the error
-        setModalError('Please select a server to connect to');
+        showErrorModal({ message: 'Please select a server to connect to' });
         return;
       }
       await authCtx.signIn(values);
@@ -63,7 +79,15 @@ export const SignIn: FunctionComponent<any> = ({ navigation }: SignInProps) => {
         });
       }
     } catch (error) {
-      setModalError(error.message);
+      if (error instanceof OutdatedVersionError) {
+        showErrorModal({
+          message: error.message,
+          buttonPrompt: "Update",
+          buttonUrl: error.updateUrl,
+        });
+      } else {
+        showErrorModal({ message: error.message });
+      }
     }
   }, []);
 
@@ -72,8 +96,10 @@ export const SignIn: FunctionComponent<any> = ({ navigation }: SignInProps) => {
       <StatusBar barStyle="light-content" />
       <ModalInfo
         onVisibilityChange={onChangeModalVisibility}
+        message={modalContent.message}
+        buttonPrompt={modalContent.buttonPrompt}
+        onFollowPrompt={onFollowPrompt}
         isVisible={modalVisible}
-        message={errorMessage}
       />
       <StyledSafeAreaView>
         <KeyboardAvoidingView behavior="position">
