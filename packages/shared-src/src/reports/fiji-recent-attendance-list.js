@@ -1,5 +1,6 @@
 import { Op } from 'sequelize';
 import moment from 'moment';
+import { DIAGNOSIS_CERTAINTY } from 'shared/constants';
 import { generateReportFromQueryData, getAgeFromDOB } from './utilities';
 
 const FIELD_TO_NAME = {
@@ -93,8 +94,11 @@ const transformDataPoint = encounter => {
 
   const patientAdditionalData = patient.additionalData?.[0];
 
-  const primaryDiagnoses = diagnoses.filter(({ isPrimary }) => isPrimary);
-  const otherDiagnoses = diagnoses.filter(({ isPrimary }) => !isPrimary);
+  const currentDiagnoses = diagnoses.filter(
+    ({ certainty }) => !(certainty in [DIAGNOSIS_CERTAINTY.DISPROVEN, DIAGNOSIS_CERTAINTY.ERROR]),
+  );
+  const primaryDiagnoses = currentDiagnoses.filter(({ isPrimary }) => isPrimary);
+  const otherDiagnoses = currentDiagnoses.filter(({ isPrimary }) => !isPrimary);
 
   return {
     firstName: patient.firstName,
