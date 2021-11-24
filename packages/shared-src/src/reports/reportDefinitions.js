@@ -103,7 +103,10 @@ export const REPORT_DEFINITIONS = [
   {
     name: 'Fiji Recent Attendance - Line list',
     id: 'fiji-recent-attendance-list',
-    parameters: [{ parameterField: 'VillageField' }, { parameterField: 'DiagnosisField' }],
+    parameters: [
+      { parameterField: 'VillageField' },
+      { parameterField: 'DiagnosisField', name: 'diagnosis', label: 'Diagnosis' },
+    ],
   },
   {
     name: 'Fiji NCD primary screening  - Line list',
