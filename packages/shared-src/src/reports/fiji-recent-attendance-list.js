@@ -114,7 +114,7 @@ const transformDataPoint = encounter => {
     department: encounter.department?.name,
     location: encounter.location?.name,
     reasonForAttendance: encounter.reasonForEncounter,
-    primaryDiagnosis: stringifyDiagnoses(primaryDiagnoses), // TODO
+    primaryDiagnosis: stringifyDiagnoses(primaryDiagnoses),
     otherDiagnoses: stringifyDiagnoses(otherDiagnoses),
   };
 };
