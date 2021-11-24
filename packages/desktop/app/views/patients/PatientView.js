@@ -254,7 +254,7 @@ const MedicationsPane = React.memo(({ patient }) => (
   <ContentPane>
     <OuterLabelFieldWrapper label="Most recent discharge medications">
       <DataFetchingTable
-        endpoint={`patient/${patient.id}/lastdischargedEncounterMedications`}
+        endpoint={`patient/${patient.id}/lastDischargedEncounterMedications`}
         columns={DISCHARGED_MEDICATION_COLUMNS}
         noDataMessage="No discharge medications found"
         initialSort={{ order: 'desc', orderBy: 'endDate' }}
