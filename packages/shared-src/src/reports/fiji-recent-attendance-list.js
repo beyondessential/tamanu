@@ -77,6 +77,12 @@ const getEncounters = async (models, parameters) => {
         model: models.EncounterDiagnosis,
         as: 'diagnoses',
         include: ['Diagnosis'],
+        where: {
+          certainty: {
+            [Op.notIn]: [DIAGNOSIS_CERTAINTY.DISPROVEN, DIAGNOSIS_CERTAINTY.ERROR],
+          },
+        },
+        required: false,
       },
       'examiner',
       'department',
@@ -95,11 +101,8 @@ const transformDataPoint = encounter => {
 
   const patientAdditionalData = patient.additionalData?.[0];
 
-  const currentDiagnoses = diagnoses.filter(
-    ({ certainty }) => !(certainty in [DIAGNOSIS_CERTAINTY.DISPROVEN, DIAGNOSIS_CERTAINTY.ERROR]),
-  );
-  const primaryDiagnoses = currentDiagnoses.filter(({ isPrimary }) => isPrimary);
-  const otherDiagnoses = currentDiagnoses.filter(({ isPrimary }) => !isPrimary);
+  const primaryDiagnoses = diagnoses.filter(({ isPrimary }) => isPrimary);
+  const otherDiagnoses = diagnoses.filter(({ isPrimary }) => !isPrimary);
 
   return {
     firstName: patient.firstName,
