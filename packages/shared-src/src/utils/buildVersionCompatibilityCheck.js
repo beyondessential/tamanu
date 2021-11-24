@@ -2,9 +2,22 @@ import compareVersions from 'semver-compare';
 import semverDiff from 'semver-diff';
 import { VERSION_COMPATIBILITY_ERRORS } from '../constants';
 
+import config from 'config';
+
 const respondWithError = (res, error) => {
   res.status(400).json({ error });
 };
+
+function getUpdateInformation(req) {
+  const clientType = req.header('X-Runtime') || '';
+  if (clientType.includes('Tamanu Mobile')) {
+    return {
+      updateUrl: config.updateUrls.mobile,
+    };
+  }
+
+  return {};
+}
 
 export const buildVersionCompatibilityCheck = (min, max) => (req, res, next) => {
   // include the min/max supported clients with any response
@@ -23,6 +36,7 @@ export const buildVersionCompatibilityCheck = (min, max) => (req, res, next) => 
     respondWithError(res, {
       message: VERSION_COMPATIBILITY_ERRORS.LOW,
       name: 'InvalidClientVersion',
+      ...getUpdateInformation(req),
     });
     return;
   }

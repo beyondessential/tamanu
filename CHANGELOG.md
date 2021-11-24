@@ -28,6 +28,8 @@
 
 - Set `serverFacilityId` in LAN local.json to a valid facilityId
   - Valid facilities will need to have been imported to sync server previously
+- Set `updateUrls.mobile` to an appropriate appcenter download link
+  - for eg `https://install.appcenter.ms/orgs/beyond-essential/apps/tamanu-mobile/distribution_groups/samoa`
 
 ### Features ⭐
 
