@@ -108,6 +108,7 @@ describe('Fiji NCD Primary Screening line list', () => {
       const row1 = result.body.find(
         r => r[0] === expectedPatient1.firstName && r[8].includes('FijBS02-on-2021-03-12'),
       );
+
       expect(row1[0]).toBe(expectedPatient1.firstName);
       expect(row1[1]).toBe(expectedPatient1.lastName);
       expect(row1[2]).toBe(expectedPatient1.displayId);
