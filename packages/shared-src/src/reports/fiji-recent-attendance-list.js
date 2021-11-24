@@ -17,7 +17,6 @@ const FIELD_TO_NAME = {
   location: 'Location',
   reasonForAttendance: 'Reason for attendance',
   primaryDiagnosis: 'Primary diagnosis',
-  primaryDiagnosisCertainty: 'Primary diagnosis certainty',
   otherDiagnoses: 'Other diagnoses',
 };
 
@@ -29,35 +28,35 @@ const reportColumnTemplate = Object.entries(FIELD_TO_NAME).map(([key, title]) =>
 const parametersToEncounterSqlWhere = parameters => {
   return Object.entries(parameters)
     .filter(([, val]) => val)
-    .reduce(
-      (where, [key, value]) => {
-        const newWhere = { ...where };
-        switch (key) {
-          case 'village':
-            newWhere['$patient.village_id$'] = value;
-            break;
-          case 'diagnosis':
-            newWhere['$diagnoses.diagnosis_id$'] = value;
-            break;
-          case 'fromDate':
-            newWhere.startDate[Op.gte] = value;
-            break;
-          case 'toDate':
-            newWhere.startDate[Op.lte] = value;
-            break;
-          default:
-            break;
-        }
-        return newWhere;
-      },
-      {
-        startDate: {},
-      },
-    );
+    .reduce((where, [key, value]) => {
+      const newWhere = { ...where };
+      switch (key) {
+        case 'village':
+          newWhere['$patient.village_id$'] = value;
+          break;
+        case 'diagnosis':
+          newWhere['$diagnoses.diagnosis_id$'] = value;
+          break;
+        case 'fromDate':
+          if (!newWhere.startDate) {
+            newWhere.startDate = {};
+          }
+          newWhere.startDate[Op.gte] = value;
+          break;
+        case 'toDate':
+          if (!newWhere.startDate) {
+            newWhere.startDate = {};
+          }
+          newWhere.startDate[Op.lte] = value;
+          break;
+        default:
+          break;
+      }
+      return newWhere;
+    }, {});
 };
 
 const getEncounters = async (models, parameters) => {
-  const { diagnosis, ...rest } = parameters;
   return models.Encounter.findAll({
     include: [
       {
@@ -69,7 +68,7 @@ const getEncounters = async (models, parameters) => {
             as: 'additionalData',
             include: ['ethnicity'],
           },
-          { model: models.ReferenceData, as: 'village' },
+          'village',
         ],
       },
       {
@@ -77,21 +76,15 @@ const getEncounters = async (models, parameters) => {
         as: 'diagnoses',
         include: ['Diagnosis'],
       },
-      { model: models.User, as: 'examiner' },
-      { model: models.Department, as: 'department' },
-      { model: models.Location, as: 'location' },
+      'examiner',
+      'department',
+      'location',
     ],
-    where: parametersToEncounterSqlWhere(rest),
+    where: parametersToEncounterSqlWhere(parameters),
     order: [['startDate', 'ASC']],
   });
 };
 
-const hasDiagnosis = parameters => encounter => {
-  const { diagnosis } = parameters;
-  const { diagnoses } = encounter;
-  if (!diagnosis) return true;
-  return diagnosis in diagnoses.map(({ id }) => id);
-};
 const stringifyDiagnoses = (diagnoses = []) =>
   diagnoses.map(({ Diagnosis, certainty }) => `${Diagnosis.name}: ${certainty}`).join(', ');
 
@@ -100,7 +93,6 @@ const transformDataPoint = encounter => {
 
   const patientAdditionalData = patient.additionalData?.[0];
 
-  console.log(patient);
   const primaryDiagnoses = diagnoses.filter(({ isPrimary }) => isPrimary);
   const otherDiagnoses = diagnoses.filter(({ isPrimary }) => !isPrimary);
 
@@ -123,14 +115,10 @@ const transformDataPoint = encounter => {
   };
 };
 
-const transformData = (encounters, parameters) => {
-  return encounters.filter(hasDiagnosis(parameters)).map(transformDataPoint);
-};
-
 export const dataGenerator = async (models, parameters = {}) => {
   const encounters = await getEncounters(models, parameters);
 
-  const reportData = transformData(encounters, parameters);
+  const reportData = encounters.map(transformDataPoint);
   return generateReportFromQueryData(reportData, reportColumnTemplate);
 };
 
