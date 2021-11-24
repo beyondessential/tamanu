@@ -3,15 +3,18 @@ import moment from 'moment';
 import { generateReportFromQueryData, getAgeFromDOB } from '../utilities';
 
 const SCREENING_TYPES = {
-  fijicvdprimaryscreen: 'CVD Primary Screening Form',
-  fijibreastprimaryscreen: 'Breast Cancer Primary Screening Form',
-  fijicervicalprimaryscreen: 'Cervical Cancer Primary Screening Form',
+  // fijicvdprimaryscreen: 'CVD Primary Screening Form',
+  // fijibreastprimaryscreen: 'Breast Cancer Primary Screening Form',
+  // fijicervicalprimaryscreen: 'Cervical Cancer Primary Screening Form',
+  fijicvdprimary: 'CVD Primary Screening Form',
+  fijibreastprimary: 'Breast Cancer Primary Screening Form',
+  fijicervicalprimary: 'Cervical Cancer Primary Screening Form',
 };
 
 const REFERRAL_FORMS = {
-  fijicvdprimaryscreenref: 'CVD Primary Screening Referral',
-  fijicervicalscreenref: 'Breast Cancer Primary Screening Referral',
-  fijibreastscreenref: 'Cervical Cancer Primary Screening Referral',
+  fijicvdprimaryreferral: 'CVD Primary Screening Referral',
+  fijicervicalprimaryreferral: 'Breast Cancer Primary Screening Referral',
+  fijibreastprimaryreferral: 'Cervical Cancer Primary Screening Referral',
 };
 
 const FIELD_TO_NAME = {

@@ -18,6 +18,8 @@ import {
   BREAST_CANCER_PRIMARY_SCREENING_REFERRAL_DATA_ELEMENT_IDS,
   CERVICAL_CANCER_PRIMARY_SCREENING_REFERRAL_DATA_ELEMENT_IDS,
   ALL_SURVEY_IDS,
+  CVD_RISK_LEVEL_START_DATA_ELEMENT_ID,
+  CVD_RISK_LEVEL_END_DATA_ELEMENT_ID,
 } from './constants';
 
 export const parametersToAnswerSqlWhere = parameters => {
@@ -211,3 +213,24 @@ export const transformAndRemoveDuplicatedAnswersPerDate = async (models, rawAnsw
   const transformedAnswers = await transformAnswers(models, rawAnswers, components);
   return removeDuplicatedAnswersPerDate(transformedAnswers);
 };
+
+export const getCvdRiskLevel = (
+  answersByPatientSurveyDataElement,
+  patientId,
+  surveyGroupKey,
+  responseDate,
+) =>
+  getCachedAnswer(
+    answersByPatientSurveyDataElement,
+    patientId,
+    surveyGroupKey,
+    responseDate,
+    CVD_RISK_LEVEL_START_DATA_ELEMENT_ID,
+  ) ||
+  getCachedAnswer(
+    answersByPatientSurveyDataElement,
+    patientId,
+    surveyGroupKey,
+    responseDate,
+    CVD_RISK_LEVEL_END_DATA_ELEMENT_ID,
+  );
