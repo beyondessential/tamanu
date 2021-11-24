@@ -55,10 +55,16 @@ const validationSchema = (readOnly) => {
 export const MedicationForm = React.memo(
   ({ onCancel, onSubmit, drugSuggester, practitionerSuggester, medication, shouldDiscontinue, onDiscontinue, readOnly }) => {
     const shouldShowDiscontinuationButton = readOnly && !medication?.discontinued;
+    const shouldShowSubmitButton = !readOnly || shouldDiscontinue;
+    
+    console.log({ shouldShowSubmitButton })
     return (
       <Form
         onSubmit={onSubmit}
         initialValues={{
+          note: medication?.note ?? '',
+          route: medication?.route ?? '',
+          prescription: medication?.prescription ?? '',
           date: medication?.createdAt ?? new Date(),
           qtyMorning: medication?.qtyMorning ?? 0,
           qtyLunch: medication?.qtyMorning ?? 0,
@@ -80,7 +86,13 @@ export const MedicationForm = React.memo(
                 disabled={readOnly}
               />
             </div>
-            <Field name="prescription" label="Prescription" component={TextField} disabled={readOnly} value={medication?.prescription} />
+            <Field
+              name="prescription"
+              label="Prescription"
+              component={TextField}
+              required={!readOnly}
+              disabled={readOnly}
+            />
             <Field
               name="route"
               label="Route of administration"
@@ -88,7 +100,6 @@ export const MedicationForm = React.memo(
               options={drugRouteOptions}
               disabled={readOnly}
               required={!readOnly}
-              value={medication?.route}
             />
             <Field name="date" label="Prescription date" component={DateField} required={!readOnly} disabled={readOnly} value={medication?.createdAt} />
             <Field name="endDate" label="End date" component={DateField} disabled={readOnly} value={medication?.endDate} />
@@ -101,7 +112,7 @@ export const MedicationForm = React.memo(
               disabled={readOnly}
               value={medication?.prescriberId}
             />
-            <Field name="note" label="Notes" component={TextField} style={{ gridColumn: '1/-1' }} disabled={readOnly} value={medication?.note} />
+            <Field name="note" label="Notes" component={TextField} style={{ gridColumn: '1/-1' }} disabled={readOnly} />
             <FormGrid nested>
               <h3 style={{ gridColumn: '1/-1' }}>Quantity</h3>
               <Field name="qtyMorning" label="Morning" component={NumberField} disabled={readOnly} />
@@ -138,7 +149,7 @@ export const MedicationForm = React.memo(
                 </p>
               )}
             </div>
-            {!readOnly || shouldDiscontinue && <ConfirmCancelRow onConfirm={submitForm} onCancel={onCancel} />}
+            {shouldShowSubmitButton && <ConfirmCancelRow onConfirm={submitForm} onCancel={onCancel} />}
           </FormGrid>
         )}
       />
