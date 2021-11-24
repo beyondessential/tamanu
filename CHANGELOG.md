@@ -36,6 +36,7 @@
 
 ### Tweaks ⚖️
 
+- Forms can now display custom error messages.
 - EncounterMedication model now has two new fields: isDischarge and repeats.
 - New migration for encounter_medications table to account for the new fields.
 - Encounter api route now manages selected discharge medications.
