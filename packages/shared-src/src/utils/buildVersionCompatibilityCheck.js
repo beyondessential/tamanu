@@ -9,6 +9,8 @@ const respondWithError = (res, error) => {
 };
 
 function getUpdateInformation(req) {
+  if (!config.updateUrls) return {};
+
   const clientType = req.header('X-Runtime') || '';
   if (clientType.includes('Tamanu Mobile')) {
     return {
