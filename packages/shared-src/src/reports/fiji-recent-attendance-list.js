@@ -76,11 +76,6 @@ const getEncounters = async (models, parameters) => {
         model: models.EncounterDiagnosis,
         as: 'diagnoses',
         include: ['Diagnosis'],
-        where: diagnosis
-          ? {
-              diagnosisId: diagnosis,
-            }
-          : undefined,
       },
       'examiner',
       'department',

@@ -244,7 +244,6 @@ const DumbReportGeneratorForm = ({ currentUser, onSuccessfulSubmit }) => {
               <FormGrid columns={3}>
                 {parameters.map(({ parameterField, required, name, label }, index) => {
                   const ParameterFieldComponent = PARAMETER_FIELD_COMPONENTS[parameterField];
-                  console.log(parameterField, ParameterFieldComponent);
                   return (
                     <ParameterFieldComponent
                       key={index}
