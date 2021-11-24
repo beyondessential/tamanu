@@ -75,7 +75,7 @@ clinical information associated with encounters (ie any encounter data).
 ## v1.8.x
 
 _This version number was skipped as the relevant updates were all on the 
-servers. Mobile version jumps directly to v1.9.x.
+servers. Mobile version jumps directly to v1.9.x._
 
 ## v1.7.21
 
