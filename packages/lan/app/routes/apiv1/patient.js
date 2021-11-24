@@ -278,25 +278,28 @@ patientRoute.get(
       order: [['endDate', 'DESC']],
     });
 
-    // Default values in case there is not discharged encounter
-    let count = 0;
-    let data = [];
-
-    if (lastDischargedEncounter) {
-      const lastEncounterMedications = await EncounterMedication.findAndCountAll({
-        where: { encounterId: lastDischargedEncounter.id, isDischarge: true },
-        include: [
-          ...EncounterMedication.getFullReferenceAssociations(),
-          { association: 'encounter', include: [{ association: 'location' }] },
-        ],
-        order: orderBy ? getOrderClause(order, orderBy) : undefined,
-        limit: rowsPerPage,
-        offset: page * rowsPerPage,
+    // Return empty values if there isn't a discharged encounter
+    if (!lastDischargedEncounter) {
+      res.send({
+        count: 0,
+        data: [],
       });
-
-      count = lastEncounterMedications.count;
-      data = lastEncounterMedications.rows.map(x => x.forResponse());
     }
+
+    // Find and return all associated encounter medications
+    const lastEncounterMedications = await EncounterMedication.findAndCountAll({
+      where: { encounterId: lastDischargedEncounter.id, isDischarge: true },
+      include: [
+        ...EncounterMedication.getFullReferenceAssociations(),
+        { association: 'encounter', include: [{ association: 'location' }] },
+      ],
+      order: orderBy ? getOrderClause(order, orderBy) : undefined,
+      limit: rowsPerPage,
+      offset: page * rowsPerPage,
+    });
+
+    const count = lastEncounterMedications.count;
+    const data = lastEncounterMedications.rows.map(x => x.forResponse());
 
     res.send({
       count,
