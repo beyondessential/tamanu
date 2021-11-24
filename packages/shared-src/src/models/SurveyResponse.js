@@ -109,6 +109,11 @@ export class SurveyResponse extends Model {
       foreignKey: 'responseId',
       as: 'answers',
     });
+
+    this.hasOne(models.Referral, {
+      foreignKey: 'surveyResponseId',
+      as: 'referral',
+    });
   }
 
   static async getSurveyEncounter(models, survey, data) {

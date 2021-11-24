@@ -15,6 +15,7 @@ import {
   Form,
   RadioField,
   TextField,
+  SelectField,
 } from '../../components';
 import { FormGrid } from '../../components/FormGrid';
 import { Colors, MUI_SPACING_UNIT, REPORT_DATA_SOURCES } from '../../constants';
@@ -30,6 +31,8 @@ import { VaccineField } from './VaccineField';
 
 const EmptyField = styled.div``;
 
+const ParameterSelectField = props => <Field component={SelectField} {...props} />;
+
 const PARAMETER_FIELD_COMPONENTS = {
   VillageField: VillageField,
   LabTestLaboratoryField: LabTestLaboratoryField,
@@ -38,6 +41,7 @@ const PARAMETER_FIELD_COMPONENTS = {
   VaccineCategoryField: VaccineCategoryField,
   VaccineField: VaccineField,
   EmptyField: EmptyField,
+  ParameterSelectField: ParameterSelectField,
 };
 
 const Spacer = styled.div`
@@ -89,13 +93,11 @@ const ErrorMessageContainer = styled(Grid)`
   margin-top: 20px;
 `;
 
-const RequestErrorMessage = ({ errorMessage }) => {
-  return (
-    <ErrorMessageContainer>
-      <Typography color="error">{`Error: ${errorMessage}`}</Typography>
-    </ErrorMessageContainer>
-  );
-};
+const RequestErrorMessage = ({ errorMessage }) => (
+  <ErrorMessageContainer>
+    <Typography color="error">{`Error: ${errorMessage}`}</Typography>
+  </ErrorMessageContainer>
+);
 
 const getAvailableReports = async api => api.get('reports');
 
@@ -242,18 +244,21 @@ const DumbReportGeneratorForm = ({ currentUser, onSuccessfulSubmit }) => {
             <>
               <Spacer />
               <FormGrid columns={3}>
-                {parameters.map(({ parameterField, required, name, label }, index) => {
-                  const ParameterFieldComponent = PARAMETER_FIELD_COMPONENTS[parameterField];
-                  return (
-                    <ParameterFieldComponent
-                      key={index}
-                      required={required}
-                      name={name}
-                      label={label}
-                      parameterValues={values}
-                    />
-                  );
-                })}
+                {parameters.map(
+                  ({ parameterField, required, name, label, ...restOfProps }, index) => {
+                    const ParameterFieldComponent = PARAMETER_FIELD_COMPONENTS[parameterField];
+                    return (
+                      <ParameterFieldComponent
+                        key={index}
+                        required={required}
+                        name={name}
+                        label={label}
+                        parameterValues={values}
+                        {...restOfProps}
+                      />
+                    );
+                  },
+                )}
               </FormGrid>
             </>
           ) : null}
