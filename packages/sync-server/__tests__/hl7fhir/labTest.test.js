@@ -1,6 +1,6 @@
 import { createDummyPatient, createDummyEncounter } from 'shared/demoData/patients';
 import { randomLabRequest } from 'shared/demoData/labRequests';
-import { LAB_TEST_STATUSES, REFERENCE_TYPES } from 'shared/constants';
+import { LAB_REQUEST_STATUSES, REFERENCE_TYPES } from 'shared/constants';
 
 import { createTestContext } from '../utilities';
 import { validate } from './hl7utilities';
@@ -75,10 +75,10 @@ describe('HL7 Labs', () => {
       const labRequest = await models.LabRequest.create({
         ...requestData,
         encounterId: encounter.id,
+        status: LAB_REQUEST_STATUSES.PUBLISHED,
         ...requestOverrides,
       });
       const labTest = await models.LabTest.create({
-        status: LAB_TEST_STATUSES.PUBLISHED,
         result: 'Positive',
         labTestTypeId: labTestType.id,
         labRequestId: labRequest.id,
@@ -131,17 +131,13 @@ describe('HL7 Labs', () => {
 
   describe('Incomplete statuses', () => {
     it('Should produce a null Observation', async () => {
-      const labTest = await createLabTest({
-        status: LAB_TEST_STATUSES.RECEPTION_PENDING,
-      });
+      const labTest = await createLabTest({}, { status: LAB_REQUEST_STATUSES.RECEPTION_PENDING });
       const hl7 = labTestToHL7Observation(labTest);
       expect(hl7).toEqual(null);
     });
 
     it('Should produce a DiagnosticReport with an empty result', async () => {
-      const labTest = await createLabTest({
-        status: LAB_TEST_STATUSES.RECEPTION_PENDING,
-      });
+      const labTest = await createLabTest({}, { status: LAB_REQUEST_STATUSES.RECEPTION_PENDING });
       const hl7 = labTestToHL7DiagnosticReport(labTest);
       expect(hl7.result).toHaveLength(0);
     });
@@ -166,15 +162,11 @@ describe('HL7 Labs', () => {
   });
 
   it('Should throw if an invalid result type is given', async () => {
-    const labTest = await createLabTest({
-      result: 'Not real',
-    });
+    const labTest = await createLabTest(
+      { result: 'Not real' },
+      { status: LAB_REQUEST_STATUSES.PUBLISHED },
+    );
 
-    try {
-      labTestToHL7Observation(labTest);
-      throw new Error("Didn't throw!");
-    } catch (e) {
-      expect(e.message).toMatch('Test coding was not one of');
-    }
+    expect(() => labTestToHL7Observation(labTest)).toThrowError(/^Test coding was not one of/);
   });
 });

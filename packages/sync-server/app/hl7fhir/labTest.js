@@ -1,5 +1,5 @@
 import config from 'config';
-import { LAB_TEST_STATUSES } from 'shared/constants';
+import { LAB_REQUEST_STATUSES } from 'shared/constants';
 
 // fine to hardcode this one -- HL7 guarantees it will always be available at this url
 const HL7_OBSERVATION_TERMINOLOGY_URL =
@@ -7,18 +7,18 @@ const HL7_OBSERVATION_TERMINOLOGY_URL =
 
 function shouldProduceObservation(status) {
   switch (status) {
-    case LAB_TEST_STATUSES.PUBLISHED:
+    case LAB_REQUEST_STATUSES.PUBLISHED:
       return true;
     default:
       return false;
   }
 }
 
-function labTestStatusToHL7Status(status) {
+function labRequestStatusToHL7Status(status) {
   switch (status) {
-    case LAB_TEST_STATUSES.PUBLISHED:
+    case LAB_REQUEST_STATUSES.PUBLISHED:
       return 'final';
-    case LAB_TEST_STATUSES.RESULTS_PENDING:
+    case LAB_REQUEST_STATUSES.RESULTS_PENDING:
       return 'registered';
     default:
       return status;
@@ -90,7 +90,7 @@ export function labTestToHL7DiagnosticReport(labTest, { shouldEmbedResult = fals
       },
     ],
     subject: patientToHL7Reference(patient),
-    status: labTestStatusToHL7Status(labTest.status),
+    status: labRequestStatusToHL7Status(labRequest.status),
     effectiveDateTime: labRequest.sampleTime,
     issued: labRequest.requestedDate,
     code: {
@@ -106,7 +106,7 @@ export function labTestToHL7DiagnosticReport(labTest, { shouldEmbedResult = fals
       ? [laboratoryToHL7Reference(laboratory), userToHL7Reference(examiner)]
       : [userToHL7Reference(examiner)],
     result: (() => {
-      if (!shouldProduceObservation(labTest.status)) {
+      if (!shouldProduceObservation(labRequest.status)) {
         return [];
       }
       if (shouldEmbedResult) {
@@ -144,7 +144,9 @@ function getResultCoding(labTest) {
 }
 
 export function labTestToHL7Observation(labTest, maybePatient) {
-  if (!shouldProduceObservation(labTest.status)) {
+  const labRequest = labTest.labRequest;
+
+  if (!shouldProduceObservation(labRequest.status)) {
     return null;
   }
 
@@ -156,7 +158,7 @@ export function labTestToHL7Observation(labTest, maybePatient) {
   return {
     resourceType: 'Observation',
     id: labTest.id,
-    status: labTestStatusToHL7Status(labTest.status),
+    status: labRequestStatusToHL7Status(labRequest.status),
     subject: patientToHL7Reference(patient),
     code: {}, // TODO: mapping tbd (empty object included so that it validates)
     valueCodeableConcept: {
