@@ -1,35 +1,30 @@
 import { keyBy, groupBy } from 'lodash';
 import { Op } from 'sequelize';
 import moment from 'moment';
-import { generateReportFromQueryData } from './utilities';
+import { generateReportFromQueryData, getAgeFromDOB } from './utilities';
 import { LAB_REQUEST_STATUS_LABELS } from '../constants';
-import { transformAnswers } from './utilities/transformAnswers';
 
-const reportColumnTemplate = [
-  {
-    title: 'First name',
-    accessor: data => data.firstName,
-  },
-  {
-    title: 'Last name',
-    accessor: data => data.lastName,
-  },
-  {
-    title: 'NHN',
-    accessor: data => data.displayId,
-  },
-  { title: 'Age', accessor: data => data.age },
-  { title: 'Gender', accessor: data => data.sex },
-  { title: 'Ethnicity', accessor: data => data.ethnicity },
-  { title: 'Contact number', accessor: data => data.contactPhone },
-  { title: 'Clinician', accessor: data => data.clinician },
-  { title: 'Date of attendance', accessor: data => data.dateOfAttendance },
-  { title: 'Department', accessor: data => data.department },
-  { title: 'Location', accessor: data => data.location },
-  { title: 'Reason for attendance', accessor: data => data.reasonForAttendance },
-  { title: 'Diagnosis', accessor: data => data.diagnosis },
-  { title: 'Diagnosis certainty', accessor: data => data.diagnosisCertainty },
-];
+const FIELD_TO_NAME = {
+  firstName: 'First name',
+  lastName: 'Last name',
+  displayId: 'NHN',
+  age: 'Age',
+  sex: 'Gender',
+  ethnicity: 'Ethnicity',
+  contactPhone: 'Contact number',
+  clinician: 'Clinician',
+  dateOfAttendance: 'Date of attendance',
+  department: 'Department',
+  location: 'Location',
+  reasonForAttendance: 'Reason for attendance',
+  diagnosis: 'Diagnosis',
+  diagnosisCertainty: 'Diagnosis certainty',
+};
+
+const reportColumnTemplate = Object.entries(FIELD_TO_NAME).map(([key, title]) => ({
+  title,
+  accessor: data => data[key],
+}));
 
 const parametersToEncounterSqlWhere = parameters => {
   return Object.entries(parameters)
@@ -38,19 +33,19 @@ const parametersToEncounterSqlWhere = parameters => {
       const newWhere = { ...where };
       switch (key) {
         case 'diagnosis':
-          newWhere['$encounter.diagnosisId$'] = value;
+          // TODO: add to sql where
           break;
         case 'fromDate':
-          if (!where.date) {
-            where.date = {};
+          if (!newWhere.startDate) {
+            newWhere.startDate = {};
           }
-          where.date[Op.gte] = value;
+          newWhere.startDate[Op.gte] = value;
           break;
         case 'toDate':
-          if (!where.date) {
-            where.date = {};
+          if (!newWhere.startDate) {
+            newWhere.startDate = {};
           }
-          where.date[Op.lte] = value;
+          newWhere.startDate[Op.lte] = value;
           break;
         default:
           break;
@@ -63,40 +58,74 @@ const getEncounters = async (models, parameters) => {
   return models.Encounter.findAll({
     include: [
       {
-        model: models.LabRequest,
-        as: 'labRequest',
+        model: models.Patient,
+        as: 'patient',
         include: [
           {
-            model: models.Encounter,
-            as: 'encounter',
-            include: [
-              {
-                model: models.Patient,
-                as: 'patient',
-                include: [{ model: models.ReferenceData, as: 'village' }],
-              },
-            ],
+            model: models.PatientAdditionalData,
+            as: 'additionalData',
+            include: ['ethnicity'],
           },
-          { model: models.ReferenceData, as: 'category' },
-          { model: models.ReferenceData, as: 'priority' },
-          { model: models.ReferenceData, as: 'laboratory' },
-          { model: models.User, as: 'requestedBy' },
         ],
       },
       {
-        model: models.LabTestType,
-        as: 'labTestType',
+        model: models.User,
+        as: 'examiner',
       },
+      {
+        model: models.EncounterDiagnosis,
+        as: 'diagnoses',
+        include: [{ model: models.ReferenceData, as: 'Diagnosis' }],
+      },
+      'department',
+      'location',
     ],
     where: parametersToEncounterSqlWhere(parameters),
-    order: [['date', 'ASC']],
+    order: [['startDate', 'ASC']],
+    limit: 200,
   });
+};
+
+const hasDiagnosis = parameters => encounter => {
+  const { diagnosis } = parameters;
+  const { diagnoses } = encounter;
+  if (!diagnosis) return true;
+  return diagnosis in diagnoses.map(({ id }) => id);
+};
+
+const transformDataPoint = encounter => {
+  const { patient, examiner, diagnoses } = encounter;
+
+  const patientAdditionalData = patient.additionalData?.[0];
+
+  console.log(patient);
+
+  return {
+    firstName: patient.firstName,
+    lastName: patient.lastName,
+    displayId: patient.displayId,
+    age: getAgeFromDOB(patient.dateOfBirth),
+    sex: patient.sex,
+    ethnicity: patientAdditionalData?.ethnicity?.name,
+    contactPhone: patientAdditionalData?.primaryContactNumber,
+    clinician: examiner.displayName,
+    dateOfAttendance: moment(encounter.startDate).format('DD-MM-YYYY'),
+    department: encounter.department?.name,
+    location: encounter.location?.name,
+    reasonForAttendance: encounter.reasonForEncounter,
+    diagnosis: diagnoses[0]?.Diagnosis?.name, // TODO
+    diagnosisCertainty: diagnoses[0]?.certainty,
+  };
+};
+
+const transformData = (encounters, parameters) => {
+  return encounters.filter(hasDiagnosis(parameters)).map(transformDataPoint);
 };
 
 export const dataGenerator = async (models, parameters = {}) => {
   const encounters = await getEncounters(models, parameters);
 
-  const reportData = [...encounters];
+  const reportData = transformData(encounters, parameters);
   return generateReportFromQueryData(reportData, reportColumnTemplate);
 };
 
