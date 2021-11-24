@@ -1,8 +1,6 @@
-import { keyBy, groupBy } from 'lodash';
 import { Op } from 'sequelize';
 import moment from 'moment';
 import { generateReportFromQueryData, getAgeFromDOB } from './utilities';
-import { LAB_REQUEST_STATUS_LABELS } from '../constants';
 
 const FIELD_TO_NAME = {
   firstName: 'First name',
@@ -38,9 +36,9 @@ const parametersToEncounterSqlWhere = parameters => {
           case 'village':
             newWhere['$patient.village_id$'] = value;
             break;
-          case 'diagnosis':
-            newWhere['$diagnoses.diagnosis_id$'] = value;
-            break;
+          // case 'diagnosis':
+          //   newWhere['$diagnoses.diagnosis_id$'] = value;
+          //   break;
           case 'fromDate':
             newWhere.startDate[Op.gte] = value;
             break;
@@ -59,6 +57,7 @@ const parametersToEncounterSqlWhere = parameters => {
 };
 
 const getEncounters = async (models, parameters) => {
+  const { diagnosis, ...rest } = parameters;
   return models.Encounter.findAll({
     include: [
       {
@@ -77,12 +76,17 @@ const getEncounters = async (models, parameters) => {
         model: models.EncounterDiagnosis,
         as: 'diagnoses',
         include: ['Diagnosis'],
+        where: diagnosis
+          ? {
+              diagnosisId: diagnosis,
+            }
+          : undefined,
       },
       'examiner',
       'department',
       'location',
     ],
-    where: parametersToEncounterSqlWhere(parameters),
+    where: parametersToEncounterSqlWhere(rest),
     order: [['startDate', 'ASC']],
     limit: 200,
   });
