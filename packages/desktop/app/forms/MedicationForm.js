@@ -57,7 +57,6 @@ export const MedicationForm = React.memo(
     const shouldShowDiscontinuationButton = readOnly && !medication?.discontinued;
     const shouldShowSubmitButton = !readOnly || shouldDiscontinue;
     
-    console.log({ shouldShowSubmitButton })
     return (
       <Form
         onSubmit={onSubmit}
@@ -74,7 +73,6 @@ export const MedicationForm = React.memo(
         validationSchema={validationSchema(readOnly)}
         render={({ submitForm }) => (
           <FormGrid>
-            {console.log(medication)}
             <div style={{ gridColumn: '1 / -1' }}>
               <Field
                 name="medicationId"

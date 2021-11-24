@@ -42,11 +42,11 @@ const FULL_LISTING_COLUMNS = [
 export const EncounterMedicationTable = React.memo(({ encounterId }) => {
   const [isOpen, setModalOpen] = useState(false);
   const [encounterMedication, setEncounterMedication] = useState(null);
+  const { loadEncounter } = useEncounter();
   const onMedicationSelect = useCallback(
     async medication => {
       setModalOpen(true);
       setEncounterMedication(medication);
-      console.log(medication);
     },
     [],
   );
@@ -56,7 +56,12 @@ export const EncounterMedicationTable = React.memo(({ encounterId }) => {
       <MedicationModal
         open={isOpen}
         encounterId={encounterId}
-        onClose={() => setModalOpen(false)}
+        onClose={() => {
+          setModalOpen(false)       
+        }}
+        onSaved={async () => {
+          await loadEncounter(encounterId);
+        }}
         medication={encounterMedication}
         readOnly
       />
