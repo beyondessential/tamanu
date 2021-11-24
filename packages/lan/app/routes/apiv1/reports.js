@@ -30,16 +30,20 @@ reports.post(
       getLocalisation,
     } = req;
     const { reportType } = req.params;
+    console.log(reportType);
 
     const localisation = await getLocalisation();
     assertReportEnabled(localisation, reportType);
 
     const reportModule = getReportModule(req.params.reportType);
+    console.log('hi', reportModule);
     if (!reportModule) {
       res.status(400).send({ message: 'invalid reportType' });
       return;
     }
+    console.log(parameters);
     req.checkPermission('read', reportModule.permission);
+    console.log(reportType);
 
     const excelData = await reportModule.dataGenerator(models, parameters);
     res.send(excelData);

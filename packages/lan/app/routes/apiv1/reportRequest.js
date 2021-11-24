@@ -16,6 +16,7 @@ reportRequest.post(
     } = req;
 
     req.checkPermission('create', 'ReportRequest');
+    console.log(body);
     if (!body.reportType) {
       res.status(400).send({ message: 'reportType missing' });
       return;
@@ -40,7 +41,8 @@ reportRequest.post(
       requestedByUserId: user.id,
       parameters: JSON.stringify(body.parameters),
     };
-    const createdRequest = await ReportRequest.create(newReportRequest);
-    res.send(createdRequest);
+    console.log(newReportRequest);
+    // const createdRequest = await ReportRequest.create(newReportRequest);
+    res.send(newReportRequest);
   }),
 );

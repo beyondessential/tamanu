@@ -12,13 +12,15 @@ const FIELD_TO_NAME = {
   sex: 'Gender',
   ethnicity: 'Ethnicity',
   contactPhone: 'Contact number',
+  subdivision: 'Subdivision',
   clinician: 'Clinician',
   dateOfAttendance: 'Date of attendance',
   department: 'Department',
   location: 'Location',
   reasonForAttendance: 'Reason for attendance',
-  diagnosis: 'Diagnosis',
-  diagnosisCertainty: 'Diagnosis certainty',
+  primaryDiagnosis: 'Primary diagnosis',
+  primaryDiagnosisCertainty: 'Primary diagnosis certainty',
+  otherDiagnoses: 'Other diagnoses',
 };
 
 const reportColumnTemplate = Object.entries(FIELD_TO_NAME).map(([key, title]) => ({
@@ -29,29 +31,31 @@ const reportColumnTemplate = Object.entries(FIELD_TO_NAME).map(([key, title]) =>
 const parametersToEncounterSqlWhere = parameters => {
   return Object.entries(parameters)
     .filter(([, val]) => val)
-    .reduce((where, [key, value]) => {
-      const newWhere = { ...where };
-      switch (key) {
-        case 'diagnosis':
-          // TODO: add to sql where
-          break;
-        case 'fromDate':
-          if (!newWhere.startDate) {
-            newWhere.startDate = {};
-          }
-          newWhere.startDate[Op.gte] = value;
-          break;
-        case 'toDate':
-          if (!newWhere.startDate) {
-            newWhere.startDate = {};
-          }
-          newWhere.startDate[Op.lte] = value;
-          break;
-        default:
-          break;
-      }
-      return newWhere;
-    }, {});
+    .reduce(
+      (where, [key, value]) => {
+        const newWhere = { ...where };
+        switch (key) {
+          case 'village':
+            newWhere['$patient.village_id$'] = value;
+            break;
+          case 'diagnosis':
+            newWhere['$diagnoses.diagnosis_id$'] = value;
+            break;
+          case 'fromDate':
+            newWhere.startDate[Op.gte] = value;
+            break;
+          case 'toDate':
+            newWhere.startDate[Op.lte] = value;
+            break;
+          default:
+            break;
+        }
+        return newWhere;
+      },
+      {
+        startDate: {},
+      },
+    );
 };
 
 const getEncounters = async (models, parameters) => {
@@ -66,17 +70,15 @@ const getEncounters = async (models, parameters) => {
             as: 'additionalData',
             include: ['ethnicity'],
           },
+          'village',
         ],
-      },
-      {
-        model: models.User,
-        as: 'examiner',
       },
       {
         model: models.EncounterDiagnosis,
         as: 'diagnoses',
-        include: [{ model: models.ReferenceData, as: 'Diagnosis' }],
+        include: ['Diagnosis'],
       },
+      'examiner',
       'department',
       'location',
     ],
@@ -92,6 +94,8 @@ const hasDiagnosis = parameters => encounter => {
   if (!diagnosis) return true;
   return diagnosis in diagnoses.map(({ id }) => id);
 };
+const stringifyDiagnoses = (diagnoses = []) =>
+  diagnoses.map(({ Diagnosis, certainty }) => `${Diagnosis.name}: ${certainty}`).join(', ');
 
 const transformDataPoint = encounter => {
   const { patient, examiner, diagnoses } = encounter;
@@ -99,6 +103,8 @@ const transformDataPoint = encounter => {
   const patientAdditionalData = patient.additionalData?.[0];
 
   console.log(patient);
+  const primaryDiagnoses = diagnoses.filter(({ isPrimary }) => isPrimary);
+  const otherDiagnoses = diagnoses.filter(({ isPrimary }) => !isPrimary);
 
   return {
     firstName: patient.firstName,
@@ -108,13 +114,14 @@ const transformDataPoint = encounter => {
     sex: patient.sex,
     ethnicity: patientAdditionalData?.ethnicity?.name,
     contactPhone: patientAdditionalData?.primaryContactNumber,
+    subdivision: patient.village?.name,
     clinician: examiner.displayName,
     dateOfAttendance: moment(encounter.startDate).format('DD-MM-YYYY'),
     department: encounter.department?.name,
     location: encounter.location?.name,
     reasonForAttendance: encounter.reasonForEncounter,
-    diagnosis: diagnoses[0]?.Diagnosis?.name, // TODO
-    diagnosisCertainty: diagnoses[0]?.certainty,
+    primaryDiagnosis: stringifyDiagnoses(primaryDiagnoses), // TODO
+    otherDiagnoses: stringifyDiagnoses(otherDiagnoses),
   };
 };
 
@@ -129,4 +136,4 @@ export const dataGenerator = async (models, parameters = {}) => {
   return generateReportFromQueryData(reportData, reportColumnTemplate);
 };
 
-export const permission = 'LabTest';
+export const permission = 'Encounter';

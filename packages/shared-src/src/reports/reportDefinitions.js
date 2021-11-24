@@ -100,4 +100,9 @@ export const REPORT_DEFINITIONS = [
     name: 'PNG assistive technology device - Line list',
     id: 'png-assistive-technology-device-line-list',
   },
+  {
+    name: 'Fiji Recent Attendance - Line list',
+    id: 'fiji-recent-attendance-list',
+    parameters: [{ parameterField: 'VillageField' }, { parameterField: 'DiagnosisField' }],
+  },
 ];
