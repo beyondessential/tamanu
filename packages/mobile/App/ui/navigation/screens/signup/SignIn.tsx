@@ -53,7 +53,7 @@ export const SignIn: FunctionComponent<any> = ({ navigation }: SignInProps) => {
     setModalVisible(isVisible);
   }, []);
 
-  const showErrorModal = useCallback((content: IErrorModalContent) => {
+  const showErrorModal = useCallback((content: ModalContent) => {
     setModalContent(content);
     onChangeModalVisibility(true);
   }, []);
