@@ -256,7 +256,7 @@ patientRoute.get(
 );
 
 patientRoute.get(
-  '/:id/lastDischargedEncounterMedications',
+  '/:id/lastDischargedEncounter/medications',
   asyncHandler(async (req, res) => {
     const {
       models: { Encounter, EncounterMedication },

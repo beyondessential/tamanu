@@ -69,7 +69,7 @@ export const MedicationsPane = React.memo(({ patient }) => (
   <ContentPane>
     <OuterLabelFieldWrapper label="Most recent discharge medications">
       <DataFetchingTable
-        endpoint={`patient/${patient.id}/lastDischargedEncounterMedications`}
+        endpoint={`patient/${patient.id}/lastDischargedEncounter/medications`}
         columns={DISCHARGED_MEDICATION_COLUMNS}
         noDataMessage="No discharge medications found"
         initialSort={{ order: 'desc', orderBy: 'endDate' }}
