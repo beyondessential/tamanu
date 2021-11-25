@@ -1,6 +1,6 @@
-import { Op } from 'sequelize';
+import { Sequelize, Op } from 'sequelize';
 import moment from 'moment';
-import { generateReportFromQueryData, getAgeFromDOB } from '../utilities';
+import { generateReportFromQueryData } from '../utilities';
 
 const SCREENING_TYPES = {
   // fijicvdprimaryscreen: 'CVD Primary Screening Form',
@@ -16,7 +16,13 @@ const REFERRAL_FORMS = {
   fijicervicalprimaryreferral: 'Breast Cancer Primary Screening Referral',
   fijibreastprimaryreferral: 'Cervical Cancer Primary Screening Referral',
 };
-
+const DATA_ELEMENT_IDS = [
+  'pde-FijCVD003',
+  'pde-FijCVD004',
+  'pde-FijCVD005',
+  'pde-FijCVD006',
+  'pde-FijCVD007',
+];
 const FIELD_TO_NAME = {
   date: 'Date',
   screened: 'Total screened',
@@ -79,69 +85,60 @@ const parametersToEncounterSqlWhere = parameters => {
 };
 
 const getSurveyResponses = async (models, parameters) => {
-  return models.Encounter.findAll({
+  return models.SurveyResponse.findAll({
+    // includeIgnoreAttributes: false,
+    attributes: [
+      // 'result',
+      [Sequelize.literal(`DATE("end_time")`), 'testDate'],
+      [Sequelize.literal(`COUNT(id)`), 'count'],
+    ],
     include: [
       {
-        model: models.Patient,
-        as: 'patient',
+        model: models.Encounter,
+        as: 'encounter',
+        attributes: [],
         include: [
           {
-            model: models.PatientAdditionalData,
-            as: 'additionalData',
-            include: ['ethnicity'],
+            model: models.Patient,
+            as: 'patient',
+            // separate: true, // https://github.com/sequelize/sequelize/issues/4158#issuecomment-123061643
+            attributes: [],
+            include: [
+              {
+                model: models.PatientAdditionalData,
+                as: 'additionalData',
+                attributes: [],
+                separate: true, // So that we can limit
+                limit: 1,
+                // include: ['ethnicity'],
+              },
+            ],
           },
-          'village',
         ],
       },
       {
-        model: models.EncounterDiagnosis,
-        as: 'diagnoses',
-        include: ['Diagnosis'],
+        model: models.SurveyResponseAnswer,
+        as: 'answers',
+        required: true, // This is implied because of the where clause, but better to be explicit
+        attributes: [],
+        where: {
+          dataElementId: DATA_ELEMENT_IDS,
+        },
       },
-      'examiner',
-      'department',
-      'location',
     ],
     where: parametersToEncounterSqlWhere(parameters),
-    order: [['startDate', 'ASC']],
+    // order: [['endTime', 'ASC']],
+    group: [Sequelize.literal(`DATE("end_time")`)],
+    // '$encounter->patient->additionalData.ethnicity_id$'
   });
 };
 
-const stringifyDiagnoses = (diagnoses = []) =>
-  diagnoses.map(({ Diagnosis, certainty }) => `${Diagnosis.name}: ${certainty}`).join(', ');
-
-const transformDataPoint = encounter => {
-  const { patient, examiner, diagnoses } = encounter;
-
-  const patientAdditionalData = patient.additionalData?.[0];
-
-  const primaryDiagnoses = diagnoses.filter(({ isPrimary }) => isPrimary);
-  const otherDiagnoses = diagnoses.filter(({ isPrimary }) => !isPrimary);
-
-  return {
-    firstName: patient.firstName,
-    lastName: patient.lastName,
-    displayId: patient.displayId,
-    age: getAgeFromDOB(patient.dateOfBirth),
-    sex: patient.sex,
-    ethnicity: patientAdditionalData?.ethnicity?.name,
-    contactPhone: patientAdditionalData?.primaryContactNumber,
-    subdivision: patient.village?.name,
-    clinician: examiner.displayName,
-    dateOfAttendance: moment(encounter.startDate).format('DD-MM-YYYY'),
-    department: encounter.department?.name,
-    location: encounter.location?.name,
-    reasonForAttendance: encounter.reasonForEncounter,
-    primaryDiagnosis: stringifyDiagnoses(primaryDiagnoses), // TODO
-    otherDiagnoses: stringifyDiagnoses(otherDiagnoses),
-  };
-};
-
 export const dataGenerator = async (models, parameters = {}) => {
-  const encounters = await getEncounters(models, parameters);
+  const encounters = await getSurveyResponses(models, parameters);
 
-  const reportData = encounters.map(transformDataPoint);
-  return generateReportFromQueryData(reportData, reportColumnTemplate);
+  console.log(encounters);
+  // const reportData = encounters.map(transformDataPoint);
+  // return generateReportFromQueryData(reportData, reportColumnTemplate);
 };
 
 export const permission = 'Encounter';
