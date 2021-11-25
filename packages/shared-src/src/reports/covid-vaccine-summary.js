@@ -78,26 +78,26 @@ async function queryCovidVaccineSummaryData(models, parameters) {
 
       const villageName = village?.name ?? 'Unknown';
       acc.uniqueVillages[villageName] = true;
-      if (acc['male'][villageName] === undefined) {
-        acc['male'][villageName] = 0;
+      if (acc.male[villageName] === undefined) {
+        acc.male[villageName] = 0;
       }
-      if (acc['female'][villageName] === undefined) {
-        acc['female'][villageName] = 0;
+      if (acc.female[villageName] === undefined) {
+        acc.female[villageName] = 0;
       }
       acc[sex][villageName] = acc[sex][villageName] + 1;
 
       const patientAge = differenceInYears(today, dateOfBirth);
-      if (acc['over65'][villageName] === undefined) {
-        acc['over65'][villageName] = 0;
+      if (acc.over65[villageName] === undefined) {
+        acc.over65[villageName] = 0;
       }
       if (patientAge > 65) {
-        acc['over65'][villageName] = acc['over65'][villageName] + 1;
+        acc.over65[villageName] = acc.over65[villageName] + 1;
       }
 
-      if (acc['total'][villageName] === undefined) {
-        acc['total'][villageName] = 0;
+      if (acc.total[villageName] === undefined) {
+        acc.total[villageName] = 0;
       }
-      acc['total'][villageName] = acc['total'][villageName] + 1;
+      acc.total[villageName] = acc.total[villageName] + 1;
 
       return acc;
     },
@@ -115,10 +115,10 @@ async function queryCovidVaccineSummaryData(models, parameters) {
   return [
     // first row, labels, first column is empty
     ['', ...allVillages],
-    ['Male', ...allVillages.map(v => countBySheet['male'][v])],
-    ['Female', ...allVillages.map(v => countBySheet['female'][v])],
-    ['> 65 y.o', ...allVillages.map(v => countBySheet['over65'][v])],
-    ['Total', ...allVillages.map(v => countBySheet['total'][v])],
+    ['Male', ...allVillages.map(v => countBySheet.male[v])],
+    ['Female', ...allVillages.map(v => countBySheet.female[v])],
+    ['> 65 y.o', ...allVillages.map(v => countBySheet.over65[v])],
+    ['Total', ...allVillages.map(v => countBySheet.total[v])],
   ];
 }
 
