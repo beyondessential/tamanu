@@ -80,6 +80,9 @@ export const MedicationsPane = React.memo(({ patient }) => (
         columns={DISPENSED_MEDICATION_COLUMNS}
         data={[]}
         noDataMessage="No dispensed medications found"
+        // Next two props are used only to avoid a display error and an execution error
+        page={0}
+        onChangeOrderBy={() => {}}
       />
     </OuterLabelFieldWrapper>
   </ContentPane>
