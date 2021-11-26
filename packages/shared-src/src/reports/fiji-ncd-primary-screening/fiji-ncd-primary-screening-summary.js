@@ -85,27 +85,28 @@ const parametersToEncounterSqlWhere = parameters => {
 };
 
 const getSurveyResponses = async (models, parameters) => {
-  return models.SurveyResponse.findAll({
+  return models.SurveyResponse.count({
     // includeIgnoreAttributes: false,
-    attributes: ['endTime'],
+    // attributes: ['endTime'],
+    logging: console.log,
     include: [
       {
         model: models.Encounter,
         as: 'encounter',
-        attributes: [],
         include: [
           {
             model: models.Patient,
             as: 'patient',
             // separate: true, // https://github.com/sequelize/sequelize/issues/4158#issuecomment-123061643
-            attributes: ['id', 'dateOfBirth'],
             include: [
               {
                 model: models.PatientAdditionalData,
                 as: 'additionalData',
-                attributes: ['ethnicity'],
                 separate: true, // So that we can limit
                 limit: 1,
+                where: {
+                  ethnicity: '',
+                },
                 // include: ['ethnicity'],
               },
             ],
@@ -123,25 +124,21 @@ const getSurveyResponses = async (models, parameters) => {
       },
     ],
     // where: parametersToEncounterSqlWhere(parameters),
-    order: [['endTime', 'ASC']],
+    // order: [['endTime', 'ASC']],
     // group: [Sequelize.literal(`DATE("end_time")`)],
     // '$encounter->patient->additionalData.ethnicity_id$'
   });
-};
-
-const countWhere = responses => {
-  responses.
 };
 
 export const dataGenerator = async (models, parameters = {}) => {
   const responses = await getSurveyResponses(models, parameters);
 
   console.log(responses);
-  const hi = responses[0];
-  console.log(hi.answers);
-  console.log(hi.encounter);
-  console.log(hi.encounter.patient);
-  console.log(hi.encounter.patient.additionalData?.[0]);
+  // const hi = responses[0];
+  // console.log(hi.answers);
+  // console.log(hi.encounter);
+  // console.log(hi.encounter.patient);
+  // console.log(hi.encounter.patient.additionalData?.[0]);
 
   // const reportData = encounters.map(transformDataPoint);
   // return generateReportFromQueryData(reportData, reportColumnTemplate);
