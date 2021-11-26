@@ -1,5 +1,7 @@
 import React, { useState, useCallback, useEffect } from 'react';
 
+import { REFERRAL_STATUSES } from 'shared/constants';
+import { REFERRAL_STATUS_LABELS } from '../constants';
 import { DataFetchingTable } from './Table';
 import { DateDisplay } from './DateDisplay';
 import { DropdownButton } from './DropdownButton';
@@ -15,9 +17,13 @@ const ActionDropdown = React.memo(({ row }) => {
   const onViewEncounter = useCallback(async () => {
     loadEncounter(row.encounterId, true);
   }, [row]);
+  const onCompleteReferral = useCallback(() => {
+    console.log('TODO: Mark referral as complete');
+  }, [row]);
   const onCancelReferral = useCallback(async () => {
     console.log('TODO: Delete referral object');
   }, [row]);
+  const isDisabled = row?.status !== REFERRAL_STATUSES.PENDING;
 
   const actions = [
     {
@@ -31,6 +37,11 @@ const ActionDropdown = React.memo(({ row }) => {
       onClick: onViewEncounter,
     },
     {
+      label: 'Complete',
+      condition: () => row.status === REFERRAL_STATUSES.PENDING,
+      onClick: onCompleteReferral,
+    },
+    {
       label: 'Cancel referral',
       condition: () => !row.encounterId && !row.cancelled,
       onClick: onCancelReferral,
@@ -39,7 +50,7 @@ const ActionDropdown = React.memo(({ row }) => {
 
   return (
     <>
-      <DropdownButton color="primary" actions={actions} />
+      <DropdownButton color="primary" actions={actions} disabled={isDisabled} />
       <EncounterModal
         open={open}
         onClose={() => setOpen(false)}
@@ -88,10 +99,9 @@ const ReferralBy = ({ surveyResponse: { survey, answers } }) => {
 };
 
 const getDate = ({ initiatingEncounter }) => <DateDisplay date={initiatingEncounter.startDate} />;
-
 const getReferralType = ({ surveyResponse: { survey } }) => survey.name;
 const getReferralBy = ({ surveyResponse }) => <ReferralBy surveyResponse={surveyResponse} />;
-const getStatus = ({ completingEncounter }) => (completingEncounter ? 'Complete' : 'Pending');
+const getStatus = ({ status }) => REFERRAL_STATUS_LABELS[status] || 'Unknown';
 const getActions = row => <ActionDropdown row={row} />;
 
 const columns = [
