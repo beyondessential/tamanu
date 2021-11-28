@@ -290,7 +290,6 @@ Terraform path: `infra/terraform/lan`
 
     ```hcl
     key_name = "your-aws-key-pair-name"  # this is the name of the key pair to decrypt password with
-    public_ip = "eip-address"  # IP address of the Elastic IP to be attached to the instance
     ssh_authorized_keys = "your-ssh-public-key"  # public key used to SSH into the instance from your local machine
     ```
 

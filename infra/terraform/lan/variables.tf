@@ -20,7 +20,6 @@ variable "security_group_name" {
   default = "tamanu-lan-server-staging"
 }
 variable "key_name" {}
-variable "public_ip" {}
 variable "private_key_path" {
   default = "private_key.pem"
 }

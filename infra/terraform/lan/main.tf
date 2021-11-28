@@ -59,12 +59,7 @@ resource "aws_instance" "lan" {
   get_password_data = true
 }
 
-data "aws_eip" "public_ip" {
-  public_ip = var.public_ip
+resource "aws_eip" "lan" {
+  instance = aws_instance.lan.id
+  vpc      = true
 }
-
-resource "aws_eip_association" "public_ip" {
-  instance_id   = aws_instance.lan.id
-  allocation_id = data.aws_eip.public_ip.id
-}
-
