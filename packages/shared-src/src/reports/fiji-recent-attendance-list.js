@@ -43,13 +43,13 @@ const parametersToEncounterSqlWhere = parameters => {
           if (!newWhere.startDate) {
             newWhere.startDate = {};
           }
-          newWhere.startDate[Op.gte] = value;
+          newWhere.startDate[Op.gte] = moment(value).startOf('day');
           break;
         case 'toDate':
           if (!newWhere.startDate) {
             newWhere.startDate = {};
           }
-          newWhere.startDate[Op.lte] = value;
+          newWhere.startDate[Op.lte] = moment(value).endOf('day');
           break;
         default:
           break;
@@ -93,6 +93,23 @@ const getEncounters = async (models, parameters) => {
   });
 };
 
+const getAllDiagnoses = async (models, encounters) => {
+  return Promise.all(
+    encounters.map(async encounter => ({
+      ...encounter,
+      diagnoses: await models.EncounterDiagnosis.findAll({
+        include: ['Diagnosis'],
+        where: {
+          certainty: {
+            [Op.notIn]: [DIAGNOSIS_CERTAINTY.DISPROVEN, DIAGNOSIS_CERTAINTY.ERROR],
+          },
+          encounterId: encounter.id,
+        },
+      }),
+    })),
+  );
+};
+
 const stringifyDiagnoses = (diagnoses = []) =>
   diagnoses.map(({ Diagnosis, certainty }) => `${Diagnosis.name}: ${certainty}`).join(', ');
 
@@ -124,7 +141,10 @@ const transformDataPoint = encounter => {
 };
 
 export const dataGenerator = async (models, parameters = {}) => {
-  const encounters = await getEncounters(models, parameters);
+  let encounters = await getEncounters(models, parameters);
+  if (parameters.diagnosis) {
+    encounters = await getAllDiagnoses(models, encounters);
+  }
 
   const reportData = encounters.map(transformDataPoint);
   return generateReportFromQueryData(reportData, reportColumnTemplate);
