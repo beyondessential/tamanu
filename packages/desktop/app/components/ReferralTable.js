@@ -1,4 +1,4 @@
-import React, { useState, useCallback, useEffect } from 'react';
+import React, { createContext, useContext, useState, useCallback, useEffect } from 'react';
 
 import { REFERRAL_STATUSES } from 'shared/constants';
 import { REFERRAL_STATUS_LABELS } from '../constants';
@@ -11,14 +11,43 @@ import { useEncounter } from '../contexts/Encounter';
 import { useApi } from '../api';
 import { SurveyResponseDetailsModal } from './SurveyResponseDetailsModal';
 
+/*
+This context is being used to cover one specific case only: being able
+to refresh the ReferralTable whenever some actions occur inside
+one of the column accessors.
+*/
+const ReferralTableContext = createContext({
+  refreshCount: 0,
+  setRefreshCount: () => {},
+});
+
+const ReferralTableContextProvider = ({ children }) => {
+  const [refreshCount, setRefreshCount] = useState(0);
+
+  return (
+    <ReferralTableContext.Provider
+      value={{
+        refreshCount,
+        setRefreshCount,
+      }}
+    >
+      {children}
+    </ReferralTableContext.Provider>
+  );
+};
+
 const ActionDropdown = React.memo(({ row }) => {
   const [open, setOpen] = useState(false);
   const { loadEncounter } = useEncounter();
+  const { setRefreshCount } = useContext(ReferralTableContext);
+  const api = useApi(``, { status: true });
+
   const onViewEncounter = useCallback(async () => {
     loadEncounter(row.encounterId, true);
   }, [row]);
-  const onCompleteReferral = useCallback(() => {
-    console.log('TODO: Mark referral as complete');
+  const onCompleteReferral = useCallback(async () => {
+    await api.put(`referral/${row.id}`, { status: REFERRAL_STATUSES.COMPLETED });
+    setRefreshCount(prevRefreshCount => prevRefreshCount + 1);
   }, [row]);
   const onCancelReferral = useCallback(async () => {
     console.log('TODO: Delete referral object');
@@ -28,12 +57,12 @@ const ActionDropdown = React.memo(({ row }) => {
   const actions = [
     {
       label: 'Admit',
-      condition: () => !row.encounterId && !row.cancelled,
+      condition: () => !row.encounterId && !row.cancelled, // encounterId and cancelled are always undefined, fields doesn't exist anymore
       onClick: () => setOpen(true),
     },
     {
       label: 'View',
-      condition: () => !!row.encounterId,
+      condition: () => !!row.encounterId, // always false. see above
       onClick: onViewEncounter,
     },
     {
@@ -43,7 +72,7 @@ const ActionDropdown = React.memo(({ row }) => {
     },
     {
       label: 'Cancel referral',
-      condition: () => !row.encounterId && !row.cancelled,
+      condition: () => !row.encounterId && !row.cancelled, // always true. see above
       onClick: onCancelReferral,
     },
   ].filter(action => !action.condition || action.condition());
@@ -112,6 +141,12 @@ const columns = [
   { key: 'actions', title: 'Actions', accessor: getActions, dontCallRowInput: true },
 ];
 
+// Special table HOC used to read from a context value, allowing a refresh callback
+const RefreshableReferralTable = props => {
+  const { refreshCount } = useContext(ReferralTableContext);
+  return <DataFetchingTable {...props} refreshCount={refreshCount} />;
+};
+
 export const ReferralTable = React.memo(({ patientId }) => {
   const [selectedReferralId, setSelectedReferralId] = useState(null);
   const onSelectReferral = useCallback(referral => {
@@ -122,12 +157,14 @@ export const ReferralTable = React.memo(({ patientId }) => {
   return (
     <>
       <SurveyResponseDetailsModal surveyResponseId={selectedReferralId} onClose={onCloseReferral} />
-      <DataFetchingTable
-        columns={columns}
-        endpoint={`patient/${patientId}/referrals`}
-        noDataMessage="No referrals found"
-        onRowClick={onSelectReferral}
-      />
+      <ReferralTableContextProvider>
+        <RefreshableReferralTable
+          columns={columns}
+          endpoint={`patient/${patientId}/referrals`}
+          noDataMessage="No referrals found"
+          onRowClick={onSelectReferral}
+        />
+      </ReferralTableContextProvider>
     </>
   );
 });
