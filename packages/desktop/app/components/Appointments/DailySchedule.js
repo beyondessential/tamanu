@@ -13,14 +13,14 @@ const Column = ({ header, appointments }) => {
     Tooltip.rebuild();
   }, [appointmentsByStartTime]);
   return (
-    <StyledColumn>
-      <ColumnHeader>{header}</ColumnHeader>
-      <ColumnBody>
+    <>
+      <ColumnHeader className="location">{header}</ColumnHeader>
+      <ColumnBody className="appointments">
         {appointmentsByStartTime.map(appt => (
           <Appointment key={appt.id} appointment={appt} />
         ))}
       </ColumnBody>
-    </StyledColumn>
+    </>
   );
 };
 
@@ -70,38 +70,41 @@ export const DailySchedule = ({
       };
     });
   return (
-    <Container>
-      {columns.map(props => (
-        <Column {...props} />
-      ))}
-      <Tooltip
-        id="appointment-details"
-        event="click"
-        clickable
-        place="right"
-        type="light"
-        backgroundColor="#fff"
-        arrowColor="#fff"
-        className="appointment-details"
-        border
-        borderColor={Colors.outline}
-        getContent={appointmentId => {
-          if (!appointmentId) {
-            return null;
-          }
-          const appointment = appointments.find(appt => appt.id === appointmentId);
-          return <AppointmentDetail appointment={appointment} updated={appointmentUpdated} />;
-        }}
-      />
-    </Container>
+    <>
+      <Container>
+        {columns.map(props => (
+          <Column {...props} />
+        ))}
+      </Container>
+      <TooltipContainer>
+        <Tooltip
+          id="appointment-details"
+          className="appointment-details"
+          event="click"
+          clickable
+          place="right"
+          type="light"
+          backgroundColor="#fff"
+          arrowColor="#fff"
+          border
+          borderColor={Colors.outline}
+          getContent={appointmentId => {
+            if (!appointmentId) {
+              return null;
+            }
+            const appointment = appointments.find(appt => appt.id === appointmentId);
+            if (!appointment) {
+              return null;
+            }
+            return <AppointmentDetail appointment={appointment} updated={appointmentUpdated} />;
+          }}
+        />
+      </TooltipContainer>
+    </>
   );
 };
 
-const Container = styled.div`
-  display: flex;
-  flex-direction: row;
-  border: 1px solid ${Colors.outline};
-  width: fit-content;
+const TooltipContainer = styled.div`
   .appointment-details {
     z-index: 1101; /* exceed MuiAppBar-root */
   }
@@ -109,22 +112,32 @@ const Container = styled.div`
     opacity: 1;
   }
 `;
-
-const StyledColumn = styled.div`
-  background-color: ${Colors.white};
-  border-right: 1px solid ${Colors.outline};
-  &:last-child {
-    border-right: none;
-  }
+const Container = styled.div`
+  display: grid;
+  grid-template-rows: max-content 1fr;
+  grid-auto-flow: column;
+  justify-content: start;
 `;
 
 const ColumnHeader = styled.div`
+  border: 1px solid ${Colors.outline};
+  border-bottom: none;
+  border-right: none;
   font-weight: bold;
   padding: 0.75em 1.5em;
   text-align: center;
   background-color: ${Colors.background};
+  :nth-last-of-type(2) {
+    border-right: 1px solid ${Colors.outline};
+  }
 `;
 
 const ColumnBody = styled.div`
+  background-color: ${Colors.white};
+  border: 1px solid ${Colors.outline};
+  border-right: none;
   padding: 0;
+  :last-of-type {
+    border-right: 1px solid ${Colors.outline};
+  }
 `;

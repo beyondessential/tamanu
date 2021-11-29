@@ -34,7 +34,6 @@ const servers = [
   // demo servers
   { name: 'Demo', type: 'demo', host: 'https://sync-demo.tamanu.io' },
   { name: 'Demo (Fiji)', type: 'demo', host: 'https://sync-demo.tamanu-fiji.org' },
-  { name: 'Demo (Fiji NCD Pilot)', type: 'demo', host: 'https://testsync.tamanu-fiji.org' },
   { name: 'Demo (Nauru)', type: 'demo', host: 'https://sync-demo-nauru.tamanu.io' },
 
   // development servers
@@ -59,7 +58,7 @@ serversRouter.get('/readable', (req, res) => {
 
 const getStatuses = () => {
   const STATUS_CHECK_TIMEOUT_MS = 10 * 1000;
-  const EXPECTED_RUNTIME = 'Tamanu Sync Server';
+  const EXPECTED_SERVER_TYPE = 'Tamanu Sync Server';
 
   return Promise.all(
     servers.map(async ({ name, host, type }) => {
@@ -77,10 +76,11 @@ const getStatuses = () => {
             `Expected body to include '{"index":true}' but got ${await result.blob()}`,
           );
         }
-        const runtime = result.headers.get('X-Runtime');
-        if (runtime !== EXPECTED_RUNTIME) {
+        // TODO: deprecate X-Runtime
+        const serverType = result.headers.get('X-Tamanu-Server') || result.headers.get('X-Runtime');
+        if (serverType !== EXPECTED_SERVER_TYPE) {
           throw new Error(
-            `Expected X-Runtime header to be '${EXPECTED_RUNTIME}' but got ${runtime}`,
+            `Expected X-Tamanu-Server header to be '${EXPECTED_SERVER_TYPE}' but got ${serverType}`,
           );
         }
 

@@ -8,6 +8,7 @@ export * from './PatientCondition';
 export * from './PatientAllergy';
 export * from './PatientIssue';
 export * from './PatientAdditionalData';
+export * from './PatientVRSData';
 
 export * from './Encounter';
 export * from './Discharge';
@@ -31,6 +32,7 @@ export * from './Survey';
 export * from './SurveyScreenComponent';
 export * from './ProgramDataElement';
 export * from './SurveyResponse';
+export * from './SurveyResponseAnswer';
 
 export * from './Referral';
 export * from './Immunisation';

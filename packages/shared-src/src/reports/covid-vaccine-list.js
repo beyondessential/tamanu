@@ -50,7 +50,7 @@ function parametersToSqlWhere(parameters) {
       },
       {
         '$scheduledVaccine.label$': {
-          [Op.in]: ['COVAX', 'COVID-19'],
+          [Op.in]: ['COVID-19 AZ', 'COVID-19 Pfizer'],
         },
       },
     );
@@ -80,7 +80,7 @@ async function queryCovidVaccineListData(models, parameters) {
     where: parametersToSqlWhere(parameters),
   });
   const administeredVaccines = result.map(r => r.get({ plain: true }));
-  const patients = administeredVaccines.reduce(function(acc, vaccine) {
+  const patients = administeredVaccines.reduce(function (acc, vaccine) {
     if (!vaccine.encounter?.patientId) {
       return acc;
     }
