@@ -19,7 +19,9 @@ variable "subnet_name" {
 variable "security_group_name" {
   default = "tamanu-lan-server-staging"
 }
-variable "key_name" {}
+variable "key_name" {
+  default = "tamanu-lan-server"
+}
 variable "private_key_path" {
   default = "private_key.pem"
 }

@@ -289,7 +289,6 @@ Terraform path: `infra/terraform/lan`
 - Create a `terraform.tfvars` file with the following info:
 
     ```hcl
-    key_name = "your-aws-key-pair-name"  # this is the name of the key pair to decrypt password with
     ssh_authorized_keys = "your-ssh-public-key"  # public key used to SSH into the instance from your local machine
     ```
 
