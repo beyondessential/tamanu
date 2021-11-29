@@ -1,6 +1,5 @@
-import React, { useState, useEffect, useCallback } from 'react';
+import React, { useState, useCallback } from 'react';
 import { useDispatch } from 'react-redux';
-import styled from 'styled-components';
 
 import { PatientDocumentsTable } from '../../../components/PatientDocumentsTable';
 import { Button } from '../../../components/Button';
