@@ -16,6 +16,7 @@ import {
   RadioField,
   TextField,
   SelectField,
+  MultiselectField,
 } from '../../components';
 import { FormGrid } from '../../components/FormGrid';
 import { Colors, MUI_SPACING_UNIT, REPORT_DATA_SOURCES } from '../../constants';
@@ -32,6 +33,7 @@ import { VaccineField } from './VaccineField';
 const EmptyField = styled.div``;
 
 const ParameterSelectField = props => <Field component={SelectField} {...props} />;
+const ParameterMultiselectField = props => <Field component={MultiselectField} {...props} />;
 
 const PARAMETER_FIELD_COMPONENTS = {
   VillageField: VillageField,
@@ -42,6 +44,7 @@ const PARAMETER_FIELD_COMPONENTS = {
   VaccineField: VaccineField,
   EmptyField: EmptyField,
   ParameterSelectField: ParameterSelectField,
+  ParameterMultiselectField: ParameterMultiselectField,
 };
 
 const Spacer = styled.div`
