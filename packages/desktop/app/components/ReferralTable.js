@@ -52,17 +52,17 @@ const ActionDropdown = React.memo(({ row }) => {
   const onCancelReferral = useCallback(async () => {
     console.log('TODO: Delete referral object');
   }, [row]);
-  const isDisabled = row?.status !== REFERRAL_STATUSES.PENDING;
 
   const actions = [
     {
       label: 'Admit',
-      condition: () => !row.encounterId && !row.cancelled, // encounterId and cancelled are always undefined, fields doesn't exist anymore
+      condition: () => row.status === REFERRAL_STATUSES.PENDING,
       onClick: () => setOpen(true),
     },
+    // Worth keeping around to address in proper linear card
     {
       label: 'View',
-      condition: () => !!row.encounterId, // always false. see above
+      condition: () => !!row.encounterId, // always false, field no longer exists.
       onClick: onViewEncounter,
     },
     {
@@ -72,14 +72,14 @@ const ActionDropdown = React.memo(({ row }) => {
     },
     {
       label: 'Cancel referral',
-      condition: () => !row.encounterId && !row.cancelled, // always true. see above
+      condition: () => row.status === REFERRAL_STATUSES.PENDING,
       onClick: onCancelReferral,
     },
   ].filter(action => !action.condition || action.condition());
 
   return (
     <>
-      <DropdownButton color="primary" actions={actions} disabled={isDisabled} />
+      <DropdownButton color="primary" actions={actions} />
       <EncounterModal
         open={open}
         onClose={() => setOpen(false)}
