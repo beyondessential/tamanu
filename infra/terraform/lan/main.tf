@@ -52,7 +52,7 @@ resource "aws_instance" "lan" {
   vpc_security_group_ids = [data.aws_security_group.default.id]
 
   tags = {
-    Name = terraform.workspace
+    Name = var.instance_name
   }
 
   user_data         = data.template_file.userdata.rendered
