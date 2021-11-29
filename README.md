@@ -284,20 +284,15 @@ Terraform can be used to create a Windows Server on AWS EC2 for LAN server deplo
 
 #### Create / manage a Windows server
 
-Terraform path: `infra/terraform/lan`
+- Create a new folder path `terraform/deploy/lan/<instance-name>` and file `main.tf`. See `terraform/deploy/lan/example/main.tf` for an example file to copy.
+- Update the `key` attribute for s3 backend to point to the new instance name.
+- Update the `instance_name` attribute of the module `lan` to use the new instance name.
 
-- Create a `terraform.tfvars` file with the following info:
-
-    ```hcl
-    ssh_authorized_keys = "your-ssh-public-key"  # public key used to SSH into the instance from your local machine
-    ```
-
-- Create a `private_key.pem` file, whose content is the private key part of the key pair declared above (as `key_name`)
-- Run terraform
+- Run terraform from within that folder
 
     ```shell
     terraform init
-    terraform workspace new <ec2-instance-name>  # pass in the name of the EC2 instance to be created
+    terraform plan
     terraform apply
     ```
 

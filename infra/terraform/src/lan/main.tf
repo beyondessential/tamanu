@@ -1,12 +1,3 @@
-terraform {
-  backend "s3" {
-    bucket         = "tamanu-terraform"
-    key            = "state/lan"
-    region         = "ap-southeast-2"
-    dynamodb_table = "tamanu-terraform"
-  }
-}
-
 provider "aws" {
   region = var.region
 }
