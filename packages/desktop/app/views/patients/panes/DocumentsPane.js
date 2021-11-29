@@ -2,15 +2,15 @@ import React, { useState, useEffect, useCallback } from 'react';
 import { useDispatch } from 'react-redux';
 import styled from 'styled-components';
 
-import { PatientDocumentsTable } from '../../components/PatientDocumentsTable';
-import { Button } from '../../components/Button';
-import { ContentPane } from '../../components/ContentPane';
-import { DocumentModal } from '../../components/DocumentModal';
+import { PatientDocumentsTable } from '../../../components/PatientDocumentsTable';
+import { Button } from '../../../components/Button';
+import { ContentPane } from '../../../components/ContentPane';
+import { DocumentModal } from '../../../components/DocumentModal';
 
-import { reloadPatient } from '../../store/patient';
-import { useApi } from '../../api';
+import { reloadPatient } from '../../../store/patient';
+import { useApi } from '../../../api';
 
-export const PatientDocumentsPane = React.memo(({ encounter, patient }) => {
+export const DocumentsPane = React.memo(({ encounter, patient }) => {
   console.log('patient', patient);
   const [documentModalOpen, setDocumentModalOpen] = useState(false);
   const api = useApi();

@@ -9,11 +9,11 @@ import { PatientInfoPane } from '../../components/PatientInfoPane';
 import { EncounterModal } from '../../components/EncounterModal';
 import { TriageModal } from '../../components/TriageModal';
 import { connectRoutedModal } from '../../components/Modal';
-import { PatientDocumentsPane } from './PatientDocumentsPane';
 
 import {
   AppointmentPane,
   ConnectedPatientDetailsForm,
+  DocumentsPane,
   HistoryPane,
   ImmunisationsPane,
   MedicationsPane,
@@ -59,7 +59,7 @@ const TABS = [
     label: 'Documents',
     key: 'documents',
     icon: 'fa fa-file-medical-alt',
-    render: props => <PatientDocumentsPane {...props} />,
+    render: props => <DocumentsPane {...props} />,
   },
   {
     label: 'Immunisation',
