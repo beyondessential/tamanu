@@ -92,7 +92,7 @@ const REPORT_COLUMN_TEMPLATE = [
   },
 ];
 
-export const dataGenerator = async (models, parameters = {}) =>
+export const dataGenerator = async ({ models }, parameters = {}) =>
   baseDataGenerator(
     models,
     parameters,

@@ -63,7 +63,7 @@ const getReferralByPatientSurveyAndDate = async (models, transformedAnswers) => 
 const getPerPatientPerSurveyPerDateKey = (patientId, surveyGroupKey, date) =>
   `${patientId}|${surveyGroupKey}|${date}`;
 
-export const dataGenerator = async (models, parameters = {}) => {
+export const dataGenerator = async ({ models }, parameters = {}) => {
   const answerWhereClause = parametersToAnswerSqlWhere(parameters);
   const rawAnswers = await getAnswers(models, answerWhereClause);
   const filteredAnswers = await transformAndRemoveDuplicatedAnswersPerDate(

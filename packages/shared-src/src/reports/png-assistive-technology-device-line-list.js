@@ -180,7 +180,7 @@ const REPORT_COLUMN_TEMPLATE = [
   { title: 'Other, other service referrals', accessor: data => data.otherService },
 ];
 
-export const dataGenerator = async (models, parameters = {}) =>
+export const dataGenerator = async ({ models }, parameters = {}) =>
   baseDataGenerator(
     models,
     parameters,

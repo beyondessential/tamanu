@@ -127,7 +127,7 @@ async function report(options) {
       name,
       reportParameters,
       reportRecipients,
-      store.models,
+      store,
       emailService,
     );
     log.info(`Running report "${name}" with parameters "${parameters}"`);

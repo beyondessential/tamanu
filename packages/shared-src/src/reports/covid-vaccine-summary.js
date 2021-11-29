@@ -122,18 +122,18 @@ async function queryCovidVaccineSummaryData(models, parameters) {
   ];
 }
 
-async function generateCovidVaccineSummaryReport(models, parameters) {
+async function generateCovidVaccineSummaryReport({ models }, parameters) {
   return await queryCovidVaccineSummaryData(models, parameters);
 }
 
-export async function generateCovidVaccineSummaryDose1Report(models, parameters) {
+export async function generateCovidVaccineSummaryDose1Report(context, parameters) {
   parameters.schedule = 'Dose 1';
-  return await generateCovidVaccineSummaryReport(models, parameters);
+  return await generateCovidVaccineSummaryReport(context, parameters);
 }
 
-export async function generateCovidVaccineSummaryDose2Report(models, parameters) {
+export async function generateCovidVaccineSummaryDose2Report(context, parameters) {
   parameters.schedule = 'Dose 2';
-  return await generateCovidVaccineSummaryReport(models, parameters);
+  return await generateCovidVaccineSummaryReport(context, parameters);
 }
 
 export const permission = 'PatientVaccine';

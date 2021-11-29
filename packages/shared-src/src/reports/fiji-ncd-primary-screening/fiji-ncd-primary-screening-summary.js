@@ -84,7 +84,7 @@ const parametersToEncounterSqlWhere = parameters => {
     }, {});
 };
 
-const getSurveyResponses = async (models, parameters) => {
+const getSurveyResponses = async (sequelize, parameters) => {
   return models.SurveyResponse.count({
     // includeIgnoreAttributes: false,
     // attributes: ['endTime'],
@@ -130,10 +130,10 @@ const getSurveyResponses = async (models, parameters) => {
   });
 };
 
-export const dataGenerator = async (models, parameters = {}) => {
-  const responses = await getSurveyResponses(models, parameters);
+export const dataGenerator = async ({ models }, parameters = {}) => {
+  // const responses = await getSurveyResponses(models, parameters);
 
-  console.log(responses);
+  console.log(models);
   // const hi = responses[0];
   // console.log(hi.answers);
   // console.log(hi.encounter);

@@ -87,7 +87,7 @@ const sortReferrals = (r1, r2) => {
   );
 };
 
-export const dataGenerator = async (models, parameters = {}) => {
+export const dataGenerator = async ({ models }, parameters = {}) => {
   const referrals = await getPendingReferrals(models, REFERRAL_SURVEY_IDS, parameters);
   const filteredReferrals = await removeDuplicatedReferralsPerDate(referrals);
   const sortedReferrals = filteredReferrals.sort(sortReferrals);

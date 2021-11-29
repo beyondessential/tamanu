@@ -464,7 +464,7 @@ const getRdtPositiveSurveyResponseRecords = async (surveyResponses, transformedA
   return results;
 };
 
-export const dataGenerator = async (models, parameters = {}) => {
+export const dataGenerator = async ({ models }, parameters = {}) => {
   const labTests = await getLabTests(models, parameters);
   const surveyResponses = await getSurveyResponses(models, parameters);
   const answers = await getFijiCovidAnswers(models, parameters);
