@@ -2,6 +2,8 @@ import { inRange } from 'lodash';
 
 import { log } from 'shared/services/logging';
 
+import { initDatabase } from '../app/database';
+
 const SURVEY_RESPONSE_BATCH_SIZE = 1000;
 
 const checkVisibilityCriteria = (component, allComponents, answerByCode) => {
@@ -186,7 +188,9 @@ const calculateSurveyResultsInBatch = async (
  * @param {*} store
  * @param {*} options
  */
-export async function calculateSurveyResults(store, options) {
+export async function calculateSurveyResults() {
+  const store = await initDatabase({ testMode: false });
+
   const [surveyRows] = await store.sequelize.query(`
     SELECT DISTINCT surveys.id
     FROM surveys

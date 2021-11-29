@@ -4,6 +4,7 @@ export * from './LocalisedField';
 export * from './TextField';
 export * from './NumberField';
 export * from './DateField';
+export * from './MultiselectField';
 export * from './SelectField';
 export * from './CheckField';
 export * from './RadioField';
