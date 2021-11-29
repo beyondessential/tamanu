@@ -28,6 +28,12 @@ export class EncounterMedication extends Model {
         discontinued: Sequelize.BOOLEAN,
         discontinuingClinician: Sequelize.STRING,
         discontinuingReason: Sequelize.STRING,
+        repeats: Sequelize.INTEGER,
+        isDischarge: {
+          type: Sequelize.BOOLEAN,
+          allowNull: false,
+          defaultValue: false,
+        },
       },
       {
         ...options,
@@ -55,7 +61,7 @@ export class EncounterMedication extends Model {
 
     this.belongsTo(models.Encounter, {
       foreignKey: 'encounterId',
-      as: 'encounter'
+      as: 'encounter',
     });
     this.belongsTo(models.ReferenceData, {
       foreignKey: 'medicationId',
