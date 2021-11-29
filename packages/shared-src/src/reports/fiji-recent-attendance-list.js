@@ -94,8 +94,9 @@ const getEncounters = async (models, parameters) => {
 };
 
 const getAllDiagnoses = async (models, encounters) => {
-  return Promise.all(
-    encounters.map(async encounter => ({
+  const newEncounters = [];
+  for (const encounter of encounters) {
+    newEncounters.push({
       ...encounter,
       diagnoses: await models.EncounterDiagnosis.findAll({
         include: ['Diagnosis'],
@@ -106,8 +107,9 @@ const getAllDiagnoses = async (models, encounters) => {
           encounterId: encounter.id,
         },
       }),
-    })),
-  );
+    });
+  }
+  return newEncounters;
 };
 
 const stringifyDiagnoses = (diagnoses = []) =>
