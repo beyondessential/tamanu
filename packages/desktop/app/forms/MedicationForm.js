@@ -81,7 +81,7 @@ export const MedicationForm = React.memo(
                 suggester={drugSuggester}
                 disabled={readOnly}
                 value={medication?.medication?.id}
-                disabled={readOnly}
+                required={!readOnly}
               />
             </div>
             <Field
@@ -99,7 +99,7 @@ export const MedicationForm = React.memo(
               disabled={readOnly}
               required={!readOnly}
             />
-            <Field name="date" label="Prescription date" component={DateField} required={!readOnly} disabled={readOnly} value={medication?.createdAt} />
+            <Field name="date" label="Prescription date" component={DateField} required={!readOnly} disabled={readOnly} />
             <Field name="endDate" label="End date" component={DateField} disabled={readOnly} value={medication?.endDate} />
             <Field
               name="prescriberId"

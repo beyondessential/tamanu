@@ -9,9 +9,9 @@ export const MedicationModal = ({ open, onClose, onSaved, encounterId, medicatio
   const api = useApi();
   const practitionerSuggester = new Suggester(api, 'practitioner');
   const drugSuggester = new Suggester(api, 'drug');
-  const [shouldDiscontinue, shouldSetDiscontinue] = useState(readOnly ? false : null);
+  const [shouldDiscontinue, setShouldDiscontinue] = useState(false);
   const onDiscontinue = () => {
-    shouldSetDiscontinue(true);
+    setShouldDiscontinue(true);
   };
   
   const onDiscontinueSubmit = async data => {
@@ -22,7 +22,7 @@ export const MedicationModal = ({ open, onClose, onSaved, encounterId, medicatio
     };
     api.put(`medication/${medication.id}`, payload);
 
-    shouldSetDiscontinue(false);
+    setShouldDiscontinue(false);
     onClose();
 
     if (onSaved) {
@@ -47,7 +47,7 @@ export const MedicationModal = ({ open, onClose, onSaved, encounterId, medicatio
         onSubmit={readOnly ? onDiscontinueSubmit : onSaveSubmit}
         medication={medication}
         onCancel={() => {
-          shouldSetDiscontinue(false);
+          setShouldDiscontinue(false);
           onClose();
         }}
         readOnly={readOnly}
