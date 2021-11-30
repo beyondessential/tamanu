@@ -9,8 +9,7 @@ import { DocumentModal } from '../../../components/DocumentModal';
 import { reloadPatient } from '../../../store/patient';
 import { useApi } from '../../../api';
 
-export const DocumentsPane = React.memo(({ encounter, patient }) => {
-  console.log('patient', patient);
+export const PatientDocumentsPane = React.memo(({ encounter, patient }) => {
   const [documentModalOpen, setDocumentModalOpen] = useState(false);
   const api = useApi();
   const dispatch = useDispatch();

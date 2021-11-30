@@ -13,10 +13,10 @@ import { connectRoutedModal } from '../../components/Modal';
 import {
   AppointmentPane,
   ConnectedPatientDetailsForm,
-  DocumentsPane,
   HistoryPane,
   ImmunisationsPane,
   MedicationsPane,
+  PatientDocumentsPane,
   ProgramsPane,
   ReferralPane,
 } from './panes';
