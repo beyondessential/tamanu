@@ -16,7 +16,7 @@ import {
   HistoryPane,
   ImmunisationsPane,
   MedicationsPane,
-  PatientDocumentsPane,
+  DocumentsPane,
   ProgramsPane,
   ReferralPane,
 } from './panes';
@@ -59,7 +59,7 @@ const TABS = [
     label: 'Documents',
     key: 'documents',
     icon: 'fa fa-file-medical-alt',
-    render: props => <PatientDocumentsPane {...props} />,
+    render: props => <DocumentsPane {...props} />,
   },
   {
     label: 'Immunisation',

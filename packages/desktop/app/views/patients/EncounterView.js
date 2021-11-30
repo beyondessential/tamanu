@@ -32,7 +32,7 @@ import { connectRoutedModal } from '../../components/Modal';
 import { NoteModal } from '../../components/NoteModal';
 import { NoteTable } from '../../components/NoteTable';
 import { TopBar, DateDisplay } from '../../components';
-import { DocumentsPane } from './DocumentsPane';
+import { DocumentsPane } from './panes';
 
 import { DropdownButton } from '../../components/DropdownButton';
 

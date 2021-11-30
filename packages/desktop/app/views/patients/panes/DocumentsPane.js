@@ -9,7 +9,7 @@ import { DocumentModal } from '../../../components/DocumentModal';
 import { reloadPatient } from '../../../store/patient';
 import { useApi } from '../../../api';
 
-export const PatientDocumentsPane = React.memo(({ encounter, patient }) => {
+export const DocumentsPane = React.memo(({ encounter, patient }) => {
   const [documentModalOpen, setDocumentModalOpen] = useState(false);
   const api = useApi();
   const dispatch = useDispatch();
@@ -37,7 +37,7 @@ export const PatientDocumentsPane = React.memo(({ encounter, patient }) => {
         title="Add document"
         actionText="Create"
       />
-      <DocumentsTable encounter={encounter} patientId={patient.id} />
+      <DocumentsTable encounterId={encounter?.id} patientId={patient?.id} />
       <ContentPane>
         <Button onClick={() => setDocumentModalOpen(true)} variant="contained" color="primary">
           Add document
