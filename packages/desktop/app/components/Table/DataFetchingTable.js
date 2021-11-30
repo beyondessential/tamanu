@@ -24,6 +24,10 @@ const DumbDataFetchingTable = memo(
     const [sorting, setSorting] = useState(initialSort);
     const defaultFetchState = { data: [], count: 0, errorMessage: '', isLoading: true };
     const [fetchState, setFetchState] = useState(defaultFetchState);
+    const [forcedRefreshCount, setForcedRefreshCount] = useState(0);
+    const handleTableRefresh = useCallback(() => {
+      setForcedRefreshCount(prevCount => prevCount + 1);
+    }, []);
 
     const handleChangeOrderBy = useCallback(
       columnKey => {
@@ -58,10 +62,11 @@ const DumbDataFetchingTable = memo(
       return () => {
         updateFetchState = () => {}; // discard the fetch state update if this request is stale
       };
-    }, [page, rowsPerPage, sorting, fetchOptions, refreshCount]);
+    }, [page, rowsPerPage, sorting, fetchOptions, refreshCount, forcedRefreshCount]);
 
     useEffect(() => setPage(0), [fetchOptions]);
 
+    console.log('re-rendered table');
     const { data, count, isLoading, errorMessage } = fetchState;
     const { order, orderBy } = sorting;
     return (
@@ -84,6 +89,7 @@ const DumbDataFetchingTable = memo(
         className={className}
         exportName={exportName}
         customSort={customSort}
+        onTableRefresh={handleTableRefresh}
       />
     );
   },

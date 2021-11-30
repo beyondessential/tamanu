@@ -100,10 +100,12 @@ const RowContainer = React.memo(({ children, onClick }) => (
   </StyledTableRow>
 ));
 
-const Row = React.memo(({ columns, data, onClick }) => {
+const Row = React.memo(({ columns, data, onClick, onTableRefresh }) => {
   const cells = columns.map(
     ({ key, accessor, CellComponent, numeric, maxWidth, cellColor, dontCallRowInput }) => {
-      const value = accessor ? React.createElement(accessor, data) : data[key];
+      const value = accessor
+        ? React.createElement(accessor, { onTableRefresh, ...data })
+        : data[key];
       const displayValue = value === 0 ? '0' : value;
       const backgroundColor = typeof cellColor === 'function' ? cellColor(data) : cellColor;
       return (
@@ -239,7 +241,15 @@ class TableComponent extends React.Component {
   }
 
   renderBodyContent() {
-    const { data, customSort, columns, onRowClick, errorMessage, rowIdKey } = this.props;
+    const {
+      data,
+      customSort,
+      columns,
+      onRowClick,
+      errorMessage,
+      rowIdKey,
+      onTableRefresh,
+    } = this.props;
     const error = this.getErrorMessage();
     if (error) {
       return (
@@ -251,7 +261,15 @@ class TableComponent extends React.Component {
     const sortedData = customSort ? customSort(data) : data;
     return sortedData.map(rowData => {
       const key = rowData[rowIdKey] || rowData[columns[0].key];
-      return <Row data={rowData} key={key} columns={columns} onClick={onRowClick} />;
+      return (
+        <Row
+          data={rowData}
+          key={key}
+          columns={columns}
+          onClick={onRowClick}
+          onTableRefresh={onTableRefresh}
+        />
+      );
     });
   }
 
