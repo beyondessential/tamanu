@@ -1,4 +1,4 @@
-import React, { useState, useEffect, useCallback } from 'react';
+import React from 'react';
 
 import { DataFetchingTable } from './Table';
 import { DateDisplay } from './DateDisplay';
@@ -16,10 +16,14 @@ const COLUMNS = [
   { key: 'actions', title: 'Actions', accessor: '' },
 ];
 
-export const DocumentsTable = React.memo(({ encounter, searchParameters }) => {
+export const DocumentsTable = React.memo(({ encounterId, patientId, searchParameters }) => {
+  const endpoint = encounterId
+    ? `encounter/${encounterId}/documentMetadata`
+    : `patient/${patientId}/documentMetadata`;
+
   return (
     <DataFetchingTable
-      endpoint={`encounter/${encounter.id}/documentMetadata`}
+      endpoint={endpoint}
       columns={COLUMNS}
       noDataMessage="No documents found"
       fetchOptions={searchParameters}

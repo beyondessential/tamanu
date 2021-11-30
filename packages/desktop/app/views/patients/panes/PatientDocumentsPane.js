@@ -1,7 +1,7 @@
 import React, { useState, useCallback } from 'react';
 import { useDispatch } from 'react-redux';
 
-import { PatientDocumentsTable } from '../../../components/PatientDocumentsTable';
+import { DocumentsTable } from '../../../components/DocumentsTable';
 import { Button } from '../../../components/Button';
 import { ContentPane } from '../../../components/ContentPane';
 import { DocumentModal } from '../../../components/DocumentModal';
@@ -37,7 +37,7 @@ export const PatientDocumentsPane = React.memo(({ encounter, patient }) => {
         title="Add document"
         actionText="Create"
       />
-      <PatientDocumentsTable encounter={encounter} patientId={patient.id} />
+      <DocumentsTable encounter={encounter} patientId={patient.id} />
       <ContentPane>
         <Button onClick={() => setDocumentModalOpen(true)} variant="contained" color="primary">
           Add document
