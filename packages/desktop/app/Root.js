@@ -13,12 +13,15 @@ import { LabRequestProvider } from './contexts/LabRequest';
 import { LocalisationProvider } from './contexts/Localisation';
 import { ReferralProvider } from './contexts/Referral';
 import { ElectronProvider } from './contexts/ElectronProvider';
+import { DataFetchingTableProvider } from './contexts/DataFetchingTable';
 
 const StateContextProviders = ({ children, store }) => (
   <EncounterProvider store={store}>
     <ReferralProvider>
       <LabRequestProvider store={store}>
-        <LocalisationProvider store={store}>{children}</LocalisationProvider>
+        <LocalisationProvider store={store}>
+          <DataFetchingTableProvider>{children}</DataFetchingTableProvider>
+        </LocalisationProvider>
       </LabRequestProvider>
     </ReferralProvider>
   </EncounterProvider>

@@ -1,6 +1,7 @@
 import React, { useState, useCallback, useEffect, memo } from 'react';
 import { Table } from './Table';
 import { connectApi } from '../../api';
+import { useFetchingTableRefresh } from '../../contexts/DataFetchingTable';
 
 const ROWS_PER_PAGE_OPTIONS = [10, 25, 50];
 const DEFAULT_SORT = { order: 'asc', orderBy: undefined };
@@ -18,6 +19,7 @@ const DumbDataFetchingTable = memo(
     className,
     exportName = 'TamanuExport',
     refreshCount = 0,
+    forcedRefreshCount = 0,
   }) => {
     const [page, setPage] = useState(0);
     const [rowsPerPage, setRowsPerPage] = useState(ROWS_PER_PAGE_OPTIONS[0]);
@@ -58,10 +60,11 @@ const DumbDataFetchingTable = memo(
       return () => {
         updateFetchState = () => {}; // discard the fetch state update if this request is stale
       };
-    }, [page, rowsPerPage, sorting, fetchOptions, refreshCount]);
+    }, [page, rowsPerPage, sorting, fetchOptions, refreshCount, forcedRefreshCount]);
 
     useEffect(() => setPage(0), [fetchOptions]);
 
+    console.log('re-rendered table');
     const { data, count, isLoading, errorMessage } = fetchState;
     const { order, orderBy } = sorting;
     return (
@@ -95,4 +98,11 @@ function mapApiToProps(api, dispatch, { endpoint, fetchOptions }) {
   };
 }
 
-export const DataFetchingTable = connectApi(mapApiToProps)(DumbDataFetchingTable);
+const ConnectedDataFetchingTable = connectApi(mapApiToProps)(DumbDataFetchingTable);
+
+// Special table HOC used to read from a context value, allowing a refresh callback
+export const DataFetchingTable = ({ tableContextId, ...props }) => {
+  const { tables } = useFetchingTableRefresh();
+  const forcedRefreshCount = tables[tableContextId];
+  return <ConnectedDataFetchingTable {...props} forcedRefreshCount={forcedRefreshCount} />;
+};

@@ -1,4 +1,4 @@
-import React, { createContext, useContext, useState, useCallback, useEffect } from 'react';
+import React, { useState, useCallback, useEffect } from 'react';
 
 import { REFERRAL_STATUSES } from 'shared/constants';
 import { REFERRAL_STATUS_LABELS } from '../constants';
@@ -10,36 +10,12 @@ import { EncounterModal } from './EncounterModal';
 import { useEncounter } from '../contexts/Encounter';
 import { useApi } from '../api';
 import { SurveyResponseDetailsModal } from './SurveyResponseDetailsModal';
-
-/*
-This context is being used to cover one specific case only: being able
-to refresh the ReferralTable whenever some actions occur inside
-one of the column accessors.
-*/
-const ReferralTableContext = createContext({
-  refreshCount: 0,
-  setRefreshCount: () => {},
-});
-
-const ReferralTableContextProvider = ({ children }) => {
-  const [refreshCount, setRefreshCount] = useState(0);
-
-  return (
-    <ReferralTableContext.Provider
-      value={{
-        refreshCount,
-        setRefreshCount,
-      }}
-    >
-      {children}
-    </ReferralTableContext.Provider>
-  );
-};
+import { useFetchingTableRefresh } from '../contexts/DataFetchingTable';
 
 const ActionDropdown = React.memo(({ row }) => {
   const [open, setOpen] = useState(false);
   const { loadEncounter } = useEncounter();
-  const { setRefreshCount } = useContext(ReferralTableContext);
+  const { refresh } = useFetchingTableRefresh();
   const api = useApi(``, { status: true });
 
   const onViewEncounter = useCallback(async () => {
@@ -47,10 +23,11 @@ const ActionDropdown = React.memo(({ row }) => {
   }, [row]);
   const onCompleteReferral = useCallback(async () => {
     await api.put(`referral/${row.id}`, { status: REFERRAL_STATUSES.COMPLETED });
-    setRefreshCount(prevRefreshCount => prevRefreshCount + 1);
+    refresh('patient/:id/referrals');
   }, [row]);
   const onCancelReferral = useCallback(async () => {
     console.log('TODO: Delete referral object');
+    refresh('patient/:id/referrals');
   }, [row]);
 
   const actions = [
@@ -141,12 +118,6 @@ const columns = [
   { key: 'actions', title: 'Actions', accessor: getActions, dontCallRowInput: true },
 ];
 
-// Special table HOC used to read from a context value, allowing a refresh callback
-const RefreshableReferralTable = props => {
-  const { refreshCount } = useContext(ReferralTableContext);
-  return <DataFetchingTable {...props} refreshCount={refreshCount} />;
-};
-
 export const ReferralTable = React.memo(({ patientId }) => {
   const [selectedReferralId, setSelectedReferralId] = useState(null);
   const onSelectReferral = useCallback(referral => {
@@ -157,14 +128,13 @@ export const ReferralTable = React.memo(({ patientId }) => {
   return (
     <>
       <SurveyResponseDetailsModal surveyResponseId={selectedReferralId} onClose={onCloseReferral} />
-      <ReferralTableContextProvider>
-        <RefreshableReferralTable
-          columns={columns}
-          endpoint={`patient/${patientId}/referrals`}
-          noDataMessage="No referrals found"
-          onRowClick={onSelectReferral}
-        />
-      </ReferralTableContextProvider>
+      <DataFetchingTable
+        columns={columns}
+        endpoint={`patient/${patientId}/referrals`}
+        noDataMessage="No referrals found"
+        onRowClick={onSelectReferral}
+        tableContextId="patient/:id/referrals"
+      />
     </>
   );
 });
