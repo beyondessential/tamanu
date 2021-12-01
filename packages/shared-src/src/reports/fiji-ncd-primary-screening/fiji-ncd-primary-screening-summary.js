@@ -4,9 +4,9 @@ import { groupBy } from 'lodash';
 import { generateReportFromQueryData } from '../utilities';
 
 const REFERRAL_SCREENING_FORM_MAPPING = {
-  fijicvdprimary: 'fijicvdprimaryreferral',
-  fijibreastprimary: 'fijibreastprimaryreferral',
-  fijicervicalprimary: 'fijicervicalprimaryreferral',
+  'program-fijincd-fijicvdprimaryscreen2': 'program-fijincd-fijicvdprimaryscreenref',
+  'program-fijincd-fijibreastprimaryscreen': 'program-fijincd-fijibreastscreenref',
+  'program-fijincd-fijicervicalprimaryscreen': 'program-fijincd-fijicervicalscreenref',
 };
 
 const ETHNICITY_IDS = {
