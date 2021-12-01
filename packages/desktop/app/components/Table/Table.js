@@ -178,6 +178,7 @@ class TableComponent extends React.Component {
     rowIdKey: PropTypes.string,
     className: PropTypes.string,
     exportName: PropTypes.string,
+    onTableRefresh: PropTypes.func,
   };
 
   static defaultProps = {
@@ -197,6 +198,7 @@ class TableComponent extends React.Component {
     rowIdKey: 'id', // specific to data expected for tamanu REST api fetches
     className: null,
     exportName: 'TamanuExport',
+    onTableRefresh: null,
   };
 
   getErrorMessage() {

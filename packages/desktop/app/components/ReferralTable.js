@@ -25,7 +25,6 @@ const ActionDropdown = React.memo(({ row, refreshTable }) => {
   }, [row]);
   const onCancelReferral = useCallback(async () => {
     console.log('TODO: Delete referral object');
-    refreshTable();
   }, [row]);
 
   const actions = [
@@ -106,8 +105,8 @@ const getDate = ({ initiatingEncounter }) => <DateDisplay date={initiatingEncoun
 const getReferralType = ({ surveyResponse: { survey } }) => survey.name;
 const getReferralBy = ({ surveyResponse }) => <ReferralBy surveyResponse={surveyResponse} />;
 const getStatus = ({ status }) => REFERRAL_STATUS_LABELS[status] || 'Unknown';
-const getActions = ({ onTableRefresh, ...props }) => (
-  <ActionDropdown refreshTable={onTableRefresh} row={props} />
+const getActions = ({ onTableRefresh, ...row }) => (
+  <ActionDropdown refreshTable={onTableRefresh} row={row} />
 );
 
 const columns = [

@@ -25,6 +25,8 @@ const DumbDataFetchingTable = memo(
     const defaultFetchState = { data: [], count: 0, errorMessage: '', isLoading: true };
     const [fetchState, setFetchState] = useState(defaultFetchState);
     const [forcedRefreshCount, setForcedRefreshCount] = useState(0);
+
+    // This callback will be passed to table cell accessors so they can force a table refresh
     const handleTableRefresh = useCallback(() => {
       setForcedRefreshCount(prevCount => prevCount + 1);
     }, []);
@@ -66,7 +68,6 @@ const DumbDataFetchingTable = memo(
 
     useEffect(() => setPage(0), [fetchOptions]);
 
-    console.log('re-rendered table');
     const { data, count, isLoading, errorMessage } = fetchState;
     const { order, orderBy } = sorting;
     return (
