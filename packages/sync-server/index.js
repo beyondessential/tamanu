@@ -8,7 +8,7 @@ async function run(command, options) {
     serve,
     migrate,
     setup,
-    report, // TODO: pass through whole store in subcommand
+    report,
     calculateSurveyResults,
   }[command];
 
