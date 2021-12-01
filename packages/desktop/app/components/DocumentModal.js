@@ -1,19 +1,9 @@
-import React, { useState, useEffect, useCallback } from 'react';
-
-import { useApi } from '../api';
+import React from 'react';
 
 import { Modal } from './Modal';
 import { DocumentForm } from '../forms/DocumentForm';
 
-export const DocumentModal = ({ title, actionText, open, onClose, onSubmit, documentId }) => {
-  const [document, setDocument] = useState({});
-  const api = useApi();
-
-  useEffect(() => {
-    if (documentId) {
-      (async () => {})();
-    }
-  }, []);
+export const DocumentModal = ({ title, actionText, open, onClose, onSubmit }) => {
   return (
     <Modal width="md" title={title} open={open} onClose={onClose}>
       <DocumentForm
