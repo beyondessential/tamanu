@@ -40,7 +40,6 @@ patientDocumentMetadataRoutes.post(
       data: fileData,
     });
 
-    console.log('documentMetadata', documentMetadata);
     const documentMetadataObject = await models.DocumentMetadata.create({
       ...documentMetadata,
       type: fileType,
