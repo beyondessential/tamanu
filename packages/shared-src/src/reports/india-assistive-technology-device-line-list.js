@@ -169,9 +169,9 @@ const REPORT_COLUMN_TEMPLATE = [
   { title: 'Other, other service referrals', accessor: data => data.otherService },
 ];
 
-export const dataGenerator = async ({ models }, parameters = {}) =>
+export const dataGenerator = async (context, parameters = {}) =>
   baseDataGenerator(
-    models,
+    context,
     parameters,
     SURVEY_IDS,
     SURVEY_DATE_ELEMENT_IDS_LATEST_PER_PATIENT,
