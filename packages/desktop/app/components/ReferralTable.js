@@ -14,7 +14,7 @@ import { SurveyResponseDetailsModal } from './SurveyResponseDetailsModal';
 const ActionDropdown = React.memo(({ row, refreshTable }) => {
   const [open, setOpen] = useState(false);
   const { loadEncounter } = useEncounter();
-  const api = useApi(``, { status: true });
+  const api = useApi();
 
   const onViewEncounter = useCallback(async () => {
     loadEncounter(row.encounterId, true);
