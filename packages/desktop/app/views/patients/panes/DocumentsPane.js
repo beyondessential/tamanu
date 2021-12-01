@@ -16,7 +16,7 @@ export const DocumentsPane = React.memo(({ encounter, patient }) => {
 
   const handleSubmit = useCallback(
     async data => {
-      api.post(`patient/${patient.id}/documentMetadata`, data);
+      await api.post(`patient/${patient.id}/documentMetadata`, data);
       setDocumentModalOpen(false);
       dispatch(reloadPatient(patient.id));
     },
