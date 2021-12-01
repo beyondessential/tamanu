@@ -7,7 +7,7 @@ export class InvoiceLineItem extends Model {
       {
         id: primaryKey,
         percentageChange: Sequelize.DECIMAL,
-        date: Sequelize.DATE,
+        dateGenerated: Sequelize.DATE,
       },
       options,
     );

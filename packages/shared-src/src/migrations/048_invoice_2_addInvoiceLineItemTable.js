@@ -25,7 +25,7 @@ module.exports = {
           key: 'id',
         },
       },
-      date: {
+      date_generated: {
         type: Sequelize.DATE,
         allowNull: false,
         defaultValue: Sequelize.NOW,
