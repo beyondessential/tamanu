@@ -55,7 +55,7 @@ const StyledUnorderedList = styled.ul`
   padding-left: 25px;
 `;
 
-const ProcedureList = React.memo(procedures => (
+const ProcedureList = React.memo(({ procedures }) => (
   <StyledUnorderedList>
     {procedures.length > 0
       ? procedures.map(({ procedureType }) => {
@@ -158,28 +158,33 @@ const medicationColumns = [
 
 const EncounterOverview = ({
   encounter: { procedures, diagnoses, startDate, examiner, reasonForEncounter },
-}) => (
-  <React.Fragment>
-    <DateInput label="Admission date" value={startDate} disabled />
-    <TextInput
-      label="Supervising physician"
-      value={examiner ? examiner.displayName : '-'}
-      disabled
-    />
-    <TextInput
-      label="Reason for encounter"
-      value={reasonForEncounter}
-      disabled
-      style={{ gridColumn: '1 / -1' }}
-    />
-    <OuterLabelFieldWrapper label="Diagnoses" style={{ gridColumn: '1 / -1' }}>
-      <DiagnosisList diagnoses={diagnoses} />
-    </OuterLabelFieldWrapper>
-    <OuterLabelFieldWrapper label="Procedures" style={{ gridColumn: '1 / -1' }}>
-      <ProcedureList procedures={procedures} />
-    </OuterLabelFieldWrapper>
-  </React.Fragment>
-);
+}) => {
+  // Only display diagnoses that don't have a certainty of 'error' or 'disproven'
+  const currentDiagnoses = diagnoses.filter(d => !['error', 'disproven'].includes(d.certainty));
+
+  return (
+    <React.Fragment>
+      <DateInput label="Admission date" value={startDate} disabled />
+      <TextInput
+        label="Supervising physician"
+        value={examiner ? examiner.displayName : '-'}
+        disabled
+      />
+      <TextInput
+        label="Reason for encounter"
+        value={reasonForEncounter}
+        disabled
+        style={{ gridColumn: '1 / -1' }}
+      />
+      <OuterLabelFieldWrapper label="Diagnoses" style={{ gridColumn: '1 / -1' }}>
+        <DiagnosisList diagnoses={currentDiagnoses} />
+      </OuterLabelFieldWrapper>
+      <OuterLabelFieldWrapper label="Procedures" style={{ gridColumn: '1 / -1' }}>
+        <ProcedureList procedures={procedures} />
+      </OuterLabelFieldWrapper>
+    </React.Fragment>
+  );
+};
 
 export const DischargeForm = ({ practitionerSuggester, onCancel, onSubmit }) => {
   const { encounter } = useEncounter();

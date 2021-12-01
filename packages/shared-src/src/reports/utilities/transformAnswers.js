@@ -68,6 +68,7 @@ export const transformAnswers = async (models, surveyResponseAnswers, surveyComp
 
   // Transform Autocomplete answers from: ReferenceData.id to ReferenceData.name
   for (const answer of nonEmptyAnswers) {
+    const surveyId = answer.surveyResponse?.surveyId;
     const surveyResponseId = answer.surveyResponse?.id;
     const patientId = answer.surveyResponse?.encounter?.patientId;
     const responseEndTime = answer.surveyResponse?.endTime;
@@ -77,6 +78,7 @@ export const transformAnswers = async (models, surveyResponseAnswers, surveyComp
     const componentConfig = autocompleteComponentMap.get(dataElementId);
     const body = await getAnswerBody(models, componentConfig, type, answer.body);
     const answerObject = {
+      surveyId,
       surveyResponseId,
       patientId,
       responseEndTime,

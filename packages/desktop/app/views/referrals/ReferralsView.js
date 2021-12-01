@@ -27,17 +27,17 @@ const ReferralFlow = ({ patient, currentUser }) => {
     })();
   }, []);
 
-  const onSelectReferralSurvey = useCallback(async id => {
+  const setSelectedReferral = useCallback(async id => {
     const response = await api.get(`survey/${encodeURIComponent(id)}`);
     setReferralSurvey(response);
     setStartTime(new Date());
   });
 
-  const onCancelReferral = useCallback(() => {
+  const unsetReferral = useCallback(() => {
     setReferralSurvey(null);
   });
 
-  const onSubmit = useCallback(
+  const submitReferral = useCallback(
     data => {
       api.post('referral', {
         surveyId: referralSurvey.id,
@@ -61,7 +61,7 @@ const ReferralFlow = ({ patient, currentUser }) => {
           </ProgramsPaneHeader>
           <FormGrid columns={1}>
             <SurveySelector
-              onSelectSurvey={onSelectReferralSurvey}
+              onSelectSurvey={setSelectedReferral}
               surveys={referralSurveys}
               buttonText="Begin referral"
             />
@@ -73,9 +73,9 @@ const ReferralFlow = ({ patient, currentUser }) => {
 
   return (
     <SurveyView
-      onSubmit={onSubmit}
+      onSubmit={submitReferral}
       survey={referralSurvey}
-      onCancel={onCancelReferral}
+      onCancel={unsetReferral}
       patient={patient}
       currentUser={currentUser}
     />
