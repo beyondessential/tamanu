@@ -14,6 +14,8 @@ export const DocumentsPane = React.memo(({ encounter, patient }) => {
   const api = useApi();
   const dispatch = useDispatch();
 
+  const handleClose = useCallback(() => setDocumentModalOpen(false), []);
+
   const handleSubmit = useCallback(
     async data => {
       await api.post(`patient/${patient.id}/documentMetadata`, data);
@@ -27,7 +29,7 @@ export const DocumentsPane = React.memo(({ encounter, patient }) => {
     <div>
       <DocumentModal
         open={documentModalOpen}
-        onClose={() => setDocumentModalOpen(false)}
+        onClose={handleClose}
         onSubmit={handleSubmit}
         title="Add document"
         actionText="Create"
