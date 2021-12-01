@@ -1,4 +1,6 @@
+import config from 'config';
 import { createDummyPatient, createDummyEncounter } from 'shared/demoData';
+import { findOneOrCreate } from 'shared/test-helpers';
 import Chance from 'chance';
 import { createTestContext } from '../utilities';
 
@@ -62,16 +64,16 @@ function getRandomAnswer(dataElement) {
 }
 
 describe('Referrals', () => {
+  let ctx = null;
   let app = null;
   let patient = null;
   let encounter = null;
   let testProgram = null;
   let testSurvey = null;
-  let answers = {};
-  let result = null;
+  const answers = {};
 
   beforeAll(async () => {
-    const ctx = await createTestContext();
+    ctx = await createTestContext();
     baseApp = ctx.baseApp;
     models = ctx.models;
     app = await baseApp.asRole('practitioner');
@@ -86,9 +88,11 @@ describe('Referrals', () => {
     testSurvey.dataElements.forEach(q => {
       answers[q.id] = getRandomAnswer(q);
     });
+  });
 
+  it('should record a referral request', async () => {
     const { departmentId, locationId } = encounter;
-    result = await app.post('/v1/referral').send({
+    const result = await app.post('/v1/referral').send({
       answers,
       startTime: Date.now(),
       endTime: Date.now(),
@@ -97,9 +101,6 @@ describe('Referrals', () => {
       departmentId,
       locationId,
     });
-  });
-
-  it('should record a referral request', async () => {
     expect(result).toHaveSucceeded();
   });
 
@@ -119,5 +120,47 @@ describe('Referrals', () => {
     const result = await app.get(`/v1/patient/${patient.id}/referrals`);
     expect(result).toHaveSucceeded();
     expect(result.body.count).toEqual(2);
+  });
+
+  it('should use the default department if one is not provided', async () => {
+    const { department: departmentCode } = config.survey.defaultCodes;
+    const department = await findOneOrCreate(ctx, ctx.models.Department, { code: departmentCode });
+
+    const { locationId } = encounter;
+    const result = await app.post('/v1/referral').send({
+      answers,
+      startTime: Date.now(),
+      endTime: Date.now(),
+      patientId: patient.id,
+      surveyId: testSurvey.id,
+      locationId,
+    });
+
+    expect(result).toHaveSucceeded();
+    const initiatingEncounter = await ctx.models.Encounter.findOne({
+      where: { id: result.body.initiatingEncounterId },
+    });
+    expect(initiatingEncounter).toHaveProperty('departmentId', department.id);
+  });
+
+  it('should use the default location if one is not provided', async () => {
+    const { location: locationCode } = config.survey.defaultCodes;
+    const location = await findOneOrCreate(ctx, ctx.models.Location, { code: locationCode });
+
+    const { departmentId } = encounter;
+    const result = await app.post('/v1/referral').send({
+      answers,
+      startTime: Date.now(),
+      endTime: Date.now(),
+      patientId: patient.id,
+      surveyId: testSurvey.id,
+      departmentId: departmentId,
+    });
+
+    expect(result).toHaveSucceeded();
+    const initiatingEncounter = await ctx.models.Encounter.findOne({
+      where: { id: result.body.initiatingEncounterId },
+    });
+    expect(initiatingEncounter).toHaveProperty('locationId', location.id);
   });
 });

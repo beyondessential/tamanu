@@ -50,6 +50,8 @@ export const NOTE_TYPES = {
   SYSTEM: 'system',
   OTHER: 'other',
   TREATMENT_PLAN: 'treatmentPlan',
+  AREA_TO_BE_IMAGED: 'areaToBeImaged',
+  RESULT_DESCRIPTION: 'resultDescription',
 };
 
 export const PATIENT_ISSUE_TYPES = {
@@ -83,6 +85,7 @@ export const OPERATION_PLAN_STATUSES = {
 
 export const IMAGING_REQUEST_STATUS_TYPES = {
   PENDING: 'pending',
+  IN_PROGRESS: 'in_progress',
   COMPLETED: 'completed',
 };
 
@@ -106,9 +109,6 @@ export const REFERENCE_TYPES = {
   LAB_TEST_PRIORITY: 'labTestPriority',
   LAB_TEST_LABORATORY: 'labTestLaboratory',
   LAB_TEST_METHOD: 'labTestMethod',
-  FACILITY: 'facility',
-  LOCATION: 'location',
-  DEPARTMENT: 'department',
   VACCINE: 'vaccine',
   VILLAGE: 'village',
   CARE_PLAN: 'carePlan',
@@ -164,6 +164,7 @@ export const PROGRAM_DATA_ELEMENT_TYPE_VALUES = Object.values(PROGRAM_DATA_ELEME
 
 export const REPORT_REQUEST_STATUSES = {
   RECEIVED: 'Received',
+  PROCESSING: 'Processing',
   PROCESSED: 'Processed',
   ERROR: 'Error',
 };

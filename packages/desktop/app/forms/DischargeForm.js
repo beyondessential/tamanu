@@ -1,6 +1,7 @@
-import React from 'react';
+import React, { useState, useEffect } from 'react';
 import * as yup from 'yup';
 import styled from 'styled-components';
+import { useApi } from '../api';
 
 import { foreignKey } from '../utils/validation';
 
@@ -53,11 +54,9 @@ const FullWidthFields = styled.div`
 const ProcedureRow = ({ cpt }) => <li>{cpt}</li>;
 
 const MedicineRow = ({ medication }) => (
-  <React.Fragment>
-    <li>
-      {medication.medication.name} ({medication.prescription})
-    </li>
-  </React.Fragment>
+  <li>
+    {medication.medication.name} ({medication.prescription})
+  </li>
 );
 
 const EncounterOverview = ({
@@ -66,7 +65,7 @@ const EncounterOverview = ({
   <ReadonlyFields>
     <DateInput label="Admission date" value={startDate} disabled />
     <TextInput
-      label="Supervising Physician"
+      label="Supervising physician"
       value={examiner ? examiner.displayName : '-'}
       disabled
     />
@@ -98,6 +97,15 @@ const EncounterOverview = ({
 
 export const DischargeForm = ({ practitionerSuggester, onCancel, onSubmit }) => {
   const { encounter } = useEncounter();
+  const [dischargeNotes, setDischargeNotes] = useState([]);
+  const api = useApi();
+
+  useEffect(() => {
+    (async () => {
+      const { data: notes } = await api.get(`encounter/${encounter.id}/notes`);
+      setDischargeNotes(notes.filter(n => n.noteType === 'discharge'));
+    })();
+  }, []);
 
   const renderForm = ({ submitForm }) => {
     return (
@@ -136,8 +144,12 @@ export const DischargeForm = ({ practitionerSuggester, onCancel, onSubmit }) => 
       <Form
         onSubmit={onSubmit}
         render={renderForm}
+        enableReinitialize
         initialValues={{
           endDate: new Date(),
+          discharge: {
+            note: dischargeNotes.map(n => n.content).join('\n'),
+          },
         }}
         validationSchema={yup.object().shape({
           endDate: yup.date().required(),

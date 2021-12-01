@@ -6,7 +6,7 @@ import { InvalidParameterError } from 'shared/errors';
 
 import { renameObjectKeys } from '~/utils/renameObjectKeys';
 
-import { simpleGet, simplePut, simplePost } from './crudHelpers';
+import { simpleGet, simplePut } from './crudHelpers';
 
 export const triage = express.Router();
 
@@ -77,7 +77,7 @@ triage.get(
            ON (encounters.id = triages.encounter_id)
           LEFT JOIN patients
            ON (encounters.patient_id = patients.id)
-          LEFT JOIN reference_data AS location
+          LEFT JOIN locations AS location
            ON (encounters.location_id = location.id)
           LEFT JOIN reference_data AS complaint
            ON (triages.chief_complaint_id = complaint.id)

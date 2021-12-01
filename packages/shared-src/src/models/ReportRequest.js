@@ -1,6 +1,7 @@
 import { Sequelize } from 'sequelize';
 import { REPORT_REQUEST_STATUS_VALUES, SYNC_DIRECTIONS } from 'shared/constants';
 import { Model } from './Model';
+import { log } from 'shared/services/logging';
 
 export class ReportRequest extends Model {
   static init({ primaryKey, ...options }) {
@@ -11,6 +12,8 @@ export class ReportRequest extends Model {
         recipients: { type: Sequelize.TEXT, allowNull: false },
         parameters: Sequelize.TEXT,
         status: { type: Sequelize.ENUM(REPORT_REQUEST_STATUS_VALUES), allowNull: false },
+        error: Sequelize.TEXT,
+        processStartedTime: Sequelize.DATE,
       },
       {
         ...options,
@@ -24,5 +27,25 @@ export class ReportRequest extends Model {
       foreignKey: { name: 'requestedByUserId', allowNull: false },
       onDelete: 'CASCADE',
     });
+  }
+
+  getParameters() {
+    try {
+      return JSON.parse(this.parameters);
+    } catch (e) {
+      log.warn(`Failed to parse ReportRequest parameters ${e}`);
+      return {};
+    }
+  }
+
+  getRecipients() {
+    try {
+      return JSON.parse(this.recipients);
+    } catch (e) {
+      // Backwards compatibility: support previous syntax of plain string
+      return {
+        email: this.recipients.split(','),
+      };
+    }
   }
 }

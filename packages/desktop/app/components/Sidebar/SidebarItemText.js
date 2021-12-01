@@ -6,4 +6,8 @@ export const SidebarItemText = styled(ListItemText)`
   color: ${grey[100]};
   padding-left: 15px;
   font-size: 1.05rem;
+
+  &::first-letter {
+    text-transform: uppercase;
+  }
 `;

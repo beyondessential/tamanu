@@ -398,7 +398,8 @@ describe('Sync API', () => {
     });
 
     it('should add multiple records to reference data', async () => {
-      const precheck = await ctx.store.models.Patient.findAll();
+      const order = [['createdAt', 'ASC']];
+      const precheck = await ctx.store.models.Patient.findAll({ order });
       expect(precheck.length).toEqual(1);
 
       const record1 = fakeSyncRecordPatient();
@@ -406,7 +407,7 @@ describe('Sync API', () => {
       const result = await app.post('/v1/sync/patient').send([record1, record2]);
       expect(result).toHaveSucceeded();
 
-      const postcheck = await ctx.store.models.Patient.findAll();
+      const postcheck = await ctx.store.models.Patient.findAll({ order });
       expect(postcheck.length).toEqual(3);
       const postcheckIds = postcheck
         .slice(1)

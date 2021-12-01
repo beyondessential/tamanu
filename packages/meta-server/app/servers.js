@@ -33,6 +33,8 @@ const servers = [
     host: 'https://motivation-sync-india.tamanu.io',
   },
   { name: 'Nauru', type: 'live', host: 'https://sync.tamanu-nauru.org' },
+  { name: 'Fiji NCD', type: 'live', host: 'https://sync-ncd-pilot.tamanu-fiji.org' },
+  { name: 'Demo (Fiji NCD Pilot)', type: 'live', host: 'https://testsync.tamanu-fiji.org' },
 ];
 
 serversRouter.get('/', (req, res) => {

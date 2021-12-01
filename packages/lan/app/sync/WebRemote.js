@@ -72,7 +72,7 @@ export class WebRemote {
     const url = `${this.host}/${API_VERSION}/${endpoint}`;
     log.debug(`[sync] ${method} ${url}`);
 
-    const response = await callWithBackoff(async () => {
+    return await callWithBackoff(async () => {
       if (config.debugging.requestFailureRate) {
         if (Math.random() < config.debugging.requestFailureRate) {
           // intended to cause some % of requests to fail, to simulate a flaky connection
@@ -80,7 +80,7 @@ export class WebRemote {
         }
       }
       try {
-        return await fetchWithTimeout(
+        const response = await fetchWithTimeout(
           url,
           {
             method,
@@ -98,6 +98,39 @@ export class WebRemote {
           },
           this.fetchImplementation,
         );
+        const checkForInvalidToken = ({ status }) => status === 401;
+        if (checkForInvalidToken(response)) {
+          if (retryAuth) {
+            log.warn('Token was invalid - reconnecting to sync server');
+            await this.connect();
+            return this.fetch(endpoint, { ...params, retryAuth: false });
+          }
+          throw new BadAuthenticationError(`Invalid credentials`);
+        }
+
+        if (!response.ok) {
+          const responseBody = await getResponseJsonSafely(response);
+          const { error } = responseBody;
+
+          // handle version incompatibility
+          if (response.status === 400 && error) {
+            const versionIncompatibleMessage = getVersionIncompatibleMessage(error, response);
+            if (versionIncompatibleMessage) throw new InvalidOperationError(versionIncompatibleMessage);
+          }
+
+          const errorMessage = error ? error.message : 'no error message given';
+          const err = new InvalidOperationError(
+            `Server responded with status code ${response.status} (${errorMessage})`,
+          );
+          // attach status and body from response
+          err.remoteResponse = {
+            status: response.status,
+            body: responseBody,
+          };
+          throw err;
+        }
+
+        return await response.json();
       } catch (e) {
         // TODO: import AbortError from node-fetch once we're on v3.0
         if (e.name === 'AbortError') {
@@ -106,40 +139,6 @@ export class WebRemote {
         throw e;
       };
     }, backoff);
-
-    const checkForInvalidToken = ({ status }) => status === 401;
-    if (checkForInvalidToken(response)) {
-      if (retryAuth) {
-        log.warn('Token was invalid - reconnecting to sync server');
-        await this.connect();
-        return this.fetch(endpoint, { ...params, retryAuth: false });
-      }
-      throw new BadAuthenticationError(`Invalid credentials`);
-    }
-
-    if (!response.ok) {
-      const responseBody = await getResponseJsonSafely(response);
-      const { error } = responseBody;
-
-      // handle version incompatibility
-      if (response.status === 400 && error) {
-        const versionIncompatibleMessage = getVersionIncompatibleMessage(error, response);
-        if (versionIncompatibleMessage) throw new InvalidOperationError(versionIncompatibleMessage);
-      }
-
-      const errorMessage = error ? error.message : 'no error message given';
-      const err = new InvalidOperationError(
-        `Server responded with status code ${response.status} (${errorMessage})`,
-      );
-      // attach status and body from response
-      err.remoteResponse = {
-        status: response.status,
-        body: responseBody,
-      };
-      throw err;
-    }
-
-    return response.json();
   }
 
   async connect() {
@@ -159,6 +158,7 @@ export class WebRemote {
         body: {
           email,
           password,
+          facilityId: config.serverFacilityId,
         },
         awaitConnection: false,
         retryAuth: false,
@@ -170,6 +170,8 @@ export class WebRemote {
 
       log.info(`Received token for user ${body.user.displayName} (${body.user.email})`);
       this.token = body.token;
+
+      return body;
     })();
 
     // await connection attempt, throwing an error if applicable, but always removing connectionPromise

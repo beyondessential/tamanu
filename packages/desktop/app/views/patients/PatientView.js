@@ -115,11 +115,11 @@ const ImmunisationsPane = React.memo(({ patient, readonly }) => {
           color="primary"
           disabled={readonly}
         >
-          Give Vaccine
+          Give vaccine
         </Button>
         <ButtonSpacer />
         <Button onClick={() => setIsCertificateModalOpen(true)} variant="outlined" color="primary">
-          View Certificate
+          View certificate
         </Button>
       </ContentPane>
     </div>

@@ -21,13 +21,16 @@ export function createMigrationInterface(log, sequelize) {
       params: [
         sequelize.getQueryInterface(),
       ],
-      wrap: updown => (...args) => sequelize.transaction(() => updown(...args)),  
+      wrap: updown => (...args) => sequelize.transaction(() => updown(...args)),
     },
     storage: 'sequelize',
     storageOptions: {
       sequelize,
     },
   });
+
+  umzug.on('migrating', (name) => log.info(`Applying migration: ${name}`));
+  umzug.on('reverting', (name) => log.info(`Reverting migration: ${name}`));
 
   return umzug;
 }
@@ -38,7 +41,7 @@ export async function migrateUp(log, sequelize) {
   const pending = await migrations.pending();
   if(pending.length > 0) {
     const files = pending.map(x => x.file);
-    log.info(`Applying ${pending.length} migration${pending.length > 1 ? 's' : ''} (${files.join(', ')})`);
+    log.info(`Applying ${pending.length} migration${pending.length > 1 ? 's' : ''}...`);
     await migrations.up();
     log.info(`Applied migrations successfully.`);
   } else {
@@ -55,7 +58,7 @@ export async function migrateDown(log, sequelize) {
       log.warn(`No migrations to revert.`);
     } else {
       const files = reverted.map(x => x.file);
-      log.info(`Reverted ${reverted.length} migrations: ${files.join(', ')}`);
+      log.info(`Reverted migrations successfully.`);
     }
   } else {
     log.info(`Reverted migration ${reverted.file}.`);
@@ -72,7 +75,7 @@ export async function assertUpToDate(log, sequelize, options) {
   }
 }
 
-export function migrate(log, sequelize, options) {
+export async function migrate(log, sequelize, options) {
   const {
     migrateDirection = "up",
   } = options;
@@ -82,6 +85,9 @@ export function migrate(log, sequelize, options) {
       return migrateUp(log, sequelize);
     case "down":
       return migrateDown(log, sequelize);
+    case "redoLatest":
+      await migrateDown(log, sequelize);
+      return migrateUp(log, sequelize);
     default:
       throw new Error(`Unrecognised migrate direction: ${options.migrateDirection}`);
   }

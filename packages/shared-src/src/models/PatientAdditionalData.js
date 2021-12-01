@@ -4,6 +4,7 @@ import { initSyncForModelNestedUnderPatient } from './sync';
 
 export class PatientAdditionalData extends Model {
   static init({ primaryKey, ...options }) {
+    const nestedSyncConfig = initSyncForModelNestedUnderPatient(this, 'additionalData');
     super.init(
       {
         id: primaryKey,
@@ -23,7 +24,15 @@ export class PatientAdditionalData extends Model {
       },
       {
         ...options,
-        syncConfig: initSyncForModelNestedUnderPatient(this, 'additionalData'),
+        syncConfig: {
+          ...nestedSyncConfig,
+          channelRoutes: [
+            ...nestedSyncConfig.channelRoutes,
+            {
+              route: 'import/patientAdditionalData',
+            },
+          ],
+        },
       },
     );
   }

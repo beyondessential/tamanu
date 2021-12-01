@@ -145,6 +145,16 @@ export const practitioner = (user, allow, forbid) => {
   allow('create', 'PatientVaccine');
   allow('write', 'PatientVaccine');
 
+  allow('list', 'Facility');
+  allow('read', 'Facility');
+  allow('create', 'Facility');
+  allow('write', 'Facility');
+
+  allow('list', 'Department');
+  allow('read', 'Department');
+  allow('create', 'Department');
+  allow('write', 'Department');
+
   allow('list', 'Location');
   allow('read', 'Location');
   allow('create', 'Location');
@@ -152,6 +162,11 @@ export const practitioner = (user, allow, forbid) => {
 
   allow('list', 'Attachment');
   allow('read', 'Attachment');
+
+  allow('list', 'Appointment');
+  allow('read', 'Appointment');
+  allow('write', 'Appointment');
+  allow('create', 'Appointment');
 };
 
 export const admin = (user, allow, forbid) => {

@@ -16,7 +16,6 @@ const MARKED_FOR_PUSH_MODELS = [
   'PatientIssue',
   'PatientAdditionalData',
   'ReportRequest',
-  'Location',
   'UserFacility',
   'LabRequestLog',
 ];

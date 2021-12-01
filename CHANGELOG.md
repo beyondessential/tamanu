@@ -22,6 +22,128 @@
 
 - (left blank)
 
+## v1.10.0
+
+### Manual steps required after upgrade ⚙
+
+- Set `serverFacilityId` in LAN local.json to a valid facilityId
+  - Valid facilities will need to have been imported to sync server previously
+- Set `updateUrls.mobile` to an appropriate appcenter download link
+  - for eg `https://install.appcenter.ms/orgs/beyond-essential/apps/tamanu-mobile/distribution_groups/samoa`
+
+### Features ⭐
+
+- LAN server is aware of which facility it represents 
+
+### Tweaks ⚖️
+
+- (left blank)
+
+### Bug fixes 🐛
+
+- (left blank)
+
+### Infrastructure and maintenance 🛠
+
+- (left blank)
+
+## v1.9.0
+
+### Manual steps required after upgrade ⚙
+
+- Add appropriate codes for default department and location for surveys to `packages/lan-server/local.json`:
+
+```
+"survey": {
+  "defaultCodes": {
+    "department": "xxxxxx",
+    "location": "xxxxxx",
+  },
+},
+```
+
+- Add to samoa `packages/sync-server/local.json`:
+
+```
+"tupaiaApiClient": {
+    "auth": {
+        "username": "tamanu-server@tupaia.org",
+        "password": "" // find in lastpass, search for tamanu-server@tupaia.org
+    },
+    "environment": "production"
+},
+```
+
+- For Samoa sync-server (1.10.0), enable running report in child process on again by switching in `packages/sync-server/local.json`:
+```
+"reportProcess": {
+    "runInChildProcess": true
+},
+```
+### Features ⭐
+
+- Active COVID-19 Patients table
+
+### Tweaks ⚖️
+
+- Remove character limit on SurveyResponseAnswer.body
+
+### Bug fixes 🐛
+
+- Fix OutpatientDischarger performance and schedule not working.
+
+### Infrastructure and maintenance 🛠
+
+- Separate Facilities, Departments and Locations into distinct models
+- Mitigate codeship awscli tools EB version name collision, in our deployment steps
+- Deploy production meta-server from dev branch
+
+## v1.8.0
+
+### Manual steps required after upgrade ⚙
+
+- (left blank)
+
+### Features ⭐
+
+- (left blank)
+
+### Tweaks ⚖️
+
+- (left blank)
+
+### Bug fixes 🐛
+
+- (left blank)
+
+### Infrastructure and maintenance 🛠
+
+- (left blank)
+
+## v1.8.4
+
+### Bug fixes 🐛
+
+- Fix bug where loadshedder might fail to release lock
+
+## v1.8.3
+
+### Bug fixes 🐛
+
+- Prevent sequelize nesting encounter queries on export
+
+## v1.8.2
+
+### Tweaks ⚖️
+
+- Added loadshedder middleware to keep system more operational under load
+
+## v1.8.1
+
+### Bug fixes 🐛
+
+- Disabled potentially unstable outpatient discharger task
+
 ## v1.8.0
 
 ### Manual steps required after upgrade ⚙
@@ -36,6 +158,7 @@
 - Add PNG assistive technology device line list report
 - Add Generic Vaccine line list report
 - Allow disabling reports through server config
+- Allow running reports in child process
 
 ### Tweaks ⚖️
 

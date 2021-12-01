@@ -216,7 +216,7 @@ const DumbReportGeneratorForm = ({ currentUser, onSuccessfulSubmit }) => {
           <FormGrid columns={3}>
             <Field
               name="reportType"
-              label="Report Type"
+              label="Report type"
               component={ReportTypeField}
               options={reportOptions}
               required
@@ -258,7 +258,7 @@ const DumbReportGeneratorForm = ({ currentUser, onSuccessfulSubmit }) => {
             </>
           ) : null}
           <Spacer />
-          <DateRangeLabel variant="body1">Date range (or leave blank for all data)</DateRangeLabel>
+          <DateRangeLabel variant="body1">Date range (or leave blank for the past 30 days of data)</DateRangeLabel>
           <FormGrid columns={2}>
             <Field name="fromDate" label="From date" component={DateField} />
             <Field name="toDate" label="To date" component={DateField} />

@@ -49,7 +49,7 @@ describe('Immunisations', () => {
   });
 
   it('should get immunisation info when listing immunisations', async () => {
-    const createdImmunisation = await models.Immunisation.create({
+    await models.Immunisation.create({
       patientId: patient.id,
       givenById: app.user.id,
       date: Date.now(),

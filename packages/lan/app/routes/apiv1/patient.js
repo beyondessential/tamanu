@@ -2,15 +2,15 @@ import express from 'express';
 import asyncHandler from 'express-async-handler';
 import { QueryTypes } from 'sequelize';
 import { isEqual } from 'lodash';
-import moment from 'moment';
 
 import { NotFoundError } from 'shared/errors';
 import { simpleGetList, permissionCheckingRouter, runPaginatedQuery } from './crudHelpers';
 
 import { renameObjectKeys } from '~/utils/renameObjectKeys';
-import { makeFilter } from '~/utils/query';
+import { createPatientFilters } from '../../utils/patientFilters';
 import { patientVaccineRoutes } from './patient/patientVaccine';
 import { patientProfilePicture } from './patient/patientProfilePicture';
+import { activeCovid19PatientsHandler } from '../../routeHandlers';
 
 const patientRoute = express.Router();
 export { patientRoute as patient };
@@ -64,7 +64,7 @@ patientRoute.put(
     });
 
     if (!patientAdditionalData) {
-      // Do not try to create patient additional data if all we're trying to update is markedForSync = true to 
+      // Do not try to create patient additional data if all we're trying to update is markedForSync = true to
       // sync down patient because PatientAdditionalData will be automatically synced down along with Patient
       if (!isEqual(req.body, { markedForSync: true })) {
         await PatientAdditionalData.create({
@@ -156,6 +156,19 @@ patientRelations.get(
           include: [
             {
               association: 'answers',
+            },
+            {
+              association: 'survey',
+              include: [
+                {
+                  association: 'components',
+                  include: [
+                    {
+                      association: 'dataElement',
+                    },
+                  ],
+                },
+              ],
             },
           ],
         },
@@ -289,74 +302,7 @@ patientRoute.get(
         filterParams[k] = parseFloat(filterParams[k]);
       });
 
-    const filters = [
-      makeFilter(
-        filterParams.displayId,
-        `UPPER(patients.display_id) LIKE UPPER(:displayId)`,
-        ({ displayId }) => ({ displayId: `%${displayId}%` }),
-      ),
-      makeFilter(
-        filterParams.firstName,
-        `UPPER(patients.first_name) LIKE UPPER(:firstName)`,
-        ({ firstName }) => ({ firstName: `${firstName}%` }),
-      ),
-      makeFilter(
-        filterParams.lastName,
-        `UPPER(patients.last_name) LIKE UPPER(:lastName)`,
-        ({ lastName }) => ({ lastName: `${lastName}%` }),
-      ),
-      makeFilter(
-        filterParams.culturalName,
-        `UPPER(patients.cultural_name) LIKE UPPER(:culturalName)`,
-        ({ culturalName }) => ({ culturalName: `${culturalName}%` }),
-      ),
-      // For age filter
-      makeFilter(filterParams.ageMax, `patients.date_of_birth >= :dobMin`, ({ ageMax }) => ({
-        dobMin: moment()
-          .startOf('day')
-          .subtract(ageMax + 1, 'years')
-          .add(1, 'day')
-          .toDate(),
-      })),
-      makeFilter(filterParams.ageMin, `patients.date_of_birth <= :dobMax`, ({ ageMin }) => ({
-        dobMax: moment()
-          .subtract(ageMin, 'years')
-          .endOf('day')
-          .toDate(),
-      })),
-      // For DOB filter
-      makeFilter(
-        filterParams.dateOfBirthFrom,
-        `DATE(patients.date_of_birth) >= :dateOfBirthFrom`,
-        ({ dateOfBirthFrom }) => ({
-          dateOfBirthFrom: moment(dateOfBirthFrom)
-            .startOf('day')
-            .toISOString(),
-        }),
-      ),
-      makeFilter(
-        filterParams.dateOfBirthTo,
-        `DATE(patients.date_of_birth) <= :dateOfBirthTo`,
-        ({ dateOfBirthTo }) => ({
-          dateOfBirthTo: moment(dateOfBirthTo)
-            .endOf('day')
-            .toISOString(),
-        }),
-      ),
-      makeFilter(
-        filterParams.dateOfBirthExact,
-        `DATE(patients.date_of_birth) = :dateOfBirthExact`,
-        ({ dateOfBirthExact }) => ({
-          dateOfBirthExact,
-        }),
-      ),
-      makeFilter(filterParams.villageId, `patients.village_id = :villageId`),
-      makeFilter(filterParams.locationId, `location.id = :locationId`),
-      makeFilter(filterParams.departmentId, `department.id = :departmentId`),
-      makeFilter(filterParams.inpatient, `encounters.encounter_type = 'admission'`),
-      makeFilter(filterParams.outpatient, `encounters.encounter_type = 'clinic'`),
-    ].filter(f => f);
-
+    const filters = createPatientFilters(filterParams);
     const whereClauses = filters.map(f => f.sql).join(' AND ');
 
     const from = `
@@ -370,10 +316,10 @@ patientRoute.get(
           ON patients.id = recent_encounter_by_patient.patient_id
         LEFT JOIN encounters
           ON (patients.id = encounters.patient_id AND recent_encounter_by_patient.most_recent_open_encounter = encounters.start_date)
-        LEFT JOIN reference_data AS department
-          ON (department.type = 'department' AND department.id = encounters.department_id)
-        LEFT JOIN reference_data AS location
-          ON (location.type = 'location' AND location.id = encounters.location_id)
+        LEFT JOIN departments AS department
+          ON (department.id = encounters.department_id)
+        LEFT JOIN locations AS location
+          ON (location.id = encounters.location_id)
         LEFT JOIN reference_data AS village
           ON (village.type = 'village' AND village.id = patients.village_id)
       ${whereClauses && `WHERE ${whereClauses}`}
@@ -440,5 +386,7 @@ patientRoute.get(
     });
   }),
 );
+
+patientRoute.get('/program/activeCovid19Patients', asyncHandler(activeCovid19PatientsHandler));
 
 patientRoute.use(patientVaccineRoutes);

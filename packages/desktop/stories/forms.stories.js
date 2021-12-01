@@ -6,11 +6,11 @@ import { action } from '@storybook/addon-actions';
 
 import {
   createDummyVisit,
+  createDummyPatient,
   DIAGNOSES,
   DRUGS,
   FACILITIES,
   LOCATIONS,
-  PATIENTS,
   USERS,
 } from 'Shared/demoData';
 // import { LoginView } from '../app/views/LoginView';
@@ -33,6 +33,8 @@ import { NoteForm } from '../app/forms/NoteForm';
 
 import { createDummySuggester, mapToSuggestions } from './utils';
 import { TestSelectorInput } from '../app/components/TestSelector';
+
+const PATIENTS = (new Array(20)).fill(0).map(x => createDummyPatient());
 
 const practitionerSuggester = createDummySuggester(mapToSuggestions(USERS));
 const locationSuggester = createDummySuggester(mapToSuggestions(LOCATIONS));

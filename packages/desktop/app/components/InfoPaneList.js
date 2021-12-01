@@ -127,7 +127,7 @@ export const InfoPaneList = memo(
       ) : (
         <Modal
           width="md"
-          title={`Add ${itemTitle}`}
+          title={itemTitle}
           open={adding}
           onClose={handleCloseForm}
           {...props}

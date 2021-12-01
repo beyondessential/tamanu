@@ -1,4 +1,3 @@
-import { Sequelize } from 'sequelize';
 import { random, sample } from 'lodash';
 import { v4 as uuidv4 } from 'uuid';
 import {
@@ -224,12 +223,17 @@ const IGNORED_FIELDS = [
   'markedForSync',
 ];
 
-export const fake = model => {
+export const fake = (model, overrides = {}) => {
   const id = uuidv4();
   const record = {};
+  const overrideFields = Object.keys(overrides);
+
   for (const [name, attribute] of Object.entries(model.tableAttributes)) {
     const type = attribute.type;
-    if (attribute.references) {
+
+    if (overrideFields.includes(attribute.fieldName)) {
+      record[name] = overrides[attribute.fieldName];
+    } else if (attribute.references) {
       // null out id fields
       record[name] = null;
     } else if (IGNORED_FIELDS.includes(attribute.fieldName)) {

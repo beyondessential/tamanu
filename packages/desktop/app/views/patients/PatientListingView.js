@@ -6,6 +6,7 @@ import { viewPatient } from '../../store/patient';
 import { TopBar, PageContainer, DataFetchingTable } from '../../components';
 import { DropdownButton } from '../../components/DropdownButton';
 import { PatientSearchBar, NewPatientModal } from './components';
+
 import {
   markedForSync,
   displayId,

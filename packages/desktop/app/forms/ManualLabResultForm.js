@@ -13,7 +13,7 @@ import {
 import { FormGrid } from '../components/FormGrid';
 import { ConfirmCancelRow } from '../components/ButtonRow';
 import { capitaliseFirstLetter } from '../utils/capitalise';
-import { useSuggester } from '../api/singletons';
+import { useSuggester } from '../api';
 
 function getComponentForTest(questionType, options) {
   if (options && options.length) return SelectField;

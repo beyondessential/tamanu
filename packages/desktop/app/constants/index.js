@@ -2,7 +2,12 @@ import moment from 'moment';
 import { padStart, capitalize } from 'lodash';
 
 import { createValueIndex } from 'shared/utils/valueIndex';
-import { ENCOUNTER_TYPES, IMAGING_REQUEST_STATUS_TYPES, NOTE_TYPES } from 'shared/constants';
+import {
+  ENCOUNTER_TYPES,
+  IMAGING_REQUEST_STATUS_TYPES,
+  NOTE_TYPES,
+  APPOINTMENT_TYPES,
+} from 'shared/constants';
 import {
   medicationIcon,
   administrationIcon,
@@ -76,11 +81,13 @@ export const LAB_REQUEST_COLORS = {
 export const IMAGING_REQUEST_STATUS_LABELS = {
   [IMAGING_REQUEST_STATUS_TYPES.PENDING]: 'Pending',
   [IMAGING_REQUEST_STATUS_TYPES.COMPLETED]: 'Completed',
+  [IMAGING_REQUEST_STATUS_TYPES.IN_PROGRESS]: 'In progress',
 };
 
 export const IMAGING_REQUEST_COLORS = {
-  [IMAGING_REQUEST_STATUS_TYPES.PENDING]: '#aaf',
+  [IMAGING_REQUEST_STATUS_TYPES.PENDING]: '#faa',
   [IMAGING_REQUEST_STATUS_TYPES.COMPLETED]: '#afa',
+  [IMAGING_REQUEST_STATUS_TYPES.IN_PROGRESS]: '#aaf',
   unknown: '#333',
 };
 
@@ -379,3 +386,22 @@ export const REPORT_DATA_SOURCES = {
   THIS_FACILITY: 'thisFacility',
   ALL_FACILITIES: 'allFacilities',
 };
+
+export const CLINICAL_STATUSES = {
+  CRITICAL: 'Critical',
+  NEEDS_REVIEW: 'Needs review',
+  LOW_RISK: 'Low risk',
+};
+
+export const CLINICAL_COLORS_BY_STATUS = {
+  [CLINICAL_STATUSES.CRITICAL]: Colors.alert,
+  [CLINICAL_STATUSES.NEEDS_REVIEW]: Colors.secondary,
+  [CLINICAL_STATUSES.LOW_RISK]: Colors.safe,
+};
+
+export const appointmentTypeOptions = Object.values(APPOINTMENT_TYPES).map(type => ({
+  label: type,
+  value: type,
+}));
+
+export const ALPHABET_FOR_ID = 'ABCDEFGH' + /*I*/ 'JK' + /*L*/ 'MN' + /*O*/ 'PQRSTUVWXYZ' + /*01*/ '23456789';
