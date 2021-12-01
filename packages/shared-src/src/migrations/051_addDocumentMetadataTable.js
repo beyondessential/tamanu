@@ -49,7 +49,7 @@ module.exports = {
         },
         allowNull: true,
       },
-      document_id: {
+      attachment_id: {
         type: Sequelize.STRING,
         references: {
           model: 'attachments',
