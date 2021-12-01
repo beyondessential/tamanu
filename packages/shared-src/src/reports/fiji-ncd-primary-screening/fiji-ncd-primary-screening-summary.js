@@ -195,7 +195,7 @@ const getData = async (sequelize, parameters) => {
     toDate,
     village,
     division,
-    surveyIds = Object.keys(REFERRAL_SCREENING_FORM_MAPPING),
+    surveyIds = Object.keys(REFERRAL_SCREENING_FORM_MAPPING).join(', '),
   } = parameters;
   console.log(surveyIds);
   let results = [];
