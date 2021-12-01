@@ -13,7 +13,6 @@ import {
   getPerPatientPerSurveyPerDatePerElementKey,
   getCachedAnswer,
   parametersToAnswerSqlWhere,
-  getCvdRiskLevel,
 } from './utils';
 
 import {
@@ -111,12 +110,21 @@ export const dataGenerator = async ({ models }, parameters = {}) => {
       const age = dateOfBirthMoment ? moment().diff(dateOfBirthMoment, 'years') : '';
 
       //cvdRiskLevel is either pde-FijCVD267 or pde-FijCVD1806
-      const cvdRiskLevel = getCvdRiskLevel(
-        answersByPatientSurveyDataElement,
-        patientId,
-        surveyGroupKey,
-        responseDate,
-      );
+      const cvdRiskLevel =
+        getCachedAnswer(
+          answersByPatientSurveyDataElement,
+          patientId,
+          surveyGroupKey,
+          responseDate,
+          CVD_RISK_LEVEL_START_DATA_ELEMENT_ID,
+        ) ||
+        getCachedAnswer(
+          answersByPatientSurveyDataElement,
+          patientId,
+          surveyGroupKey,
+          responseDate,
+          CVD_RISK_LEVEL_END_DATA_ELEMENT_ID,
+        );
       const recordData = {
         firstName: patient.firstName,
         lastName: patient.lastName,

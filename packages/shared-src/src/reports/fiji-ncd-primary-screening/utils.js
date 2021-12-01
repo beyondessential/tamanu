@@ -213,24 +213,3 @@ export const transformAndRemoveDuplicatedAnswersPerDate = async (models, rawAnsw
   const transformedAnswers = await transformAnswers(models, rawAnswers, components);
   return removeDuplicatedAnswersPerDate(transformedAnswers);
 };
-
-export const getCvdRiskLevel = (
-  answersByPatientSurveyDataElement,
-  patientId,
-  surveyGroupKey,
-  responseDate,
-) =>
-  getCachedAnswer(
-    answersByPatientSurveyDataElement,
-    patientId,
-    surveyGroupKey,
-    responseDate,
-    CVD_RISK_LEVEL_START_DATA_ELEMENT_ID,
-  ) ||
-  getCachedAnswer(
-    answersByPatientSurveyDataElement,
-    patientId,
-    surveyGroupKey,
-    responseDate,
-    CVD_RISK_LEVEL_END_DATA_ELEMENT_ID,
-  );
