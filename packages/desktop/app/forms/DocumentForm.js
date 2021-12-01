@@ -19,7 +19,6 @@ export const FILE_FILTERS = [
 ];
 
 export const DocumentForm = ({ actionText, onSubmit, onCancel, editedObject }) => {
-  console.log('onSubmit', onSubmit);
   const api = useApi();
   const practitionerSuggester = new Suggester(api, 'practitioner');
 
