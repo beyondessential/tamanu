@@ -200,9 +200,6 @@ const getData = async (sequelize, parameters) => {
   console.log(surveyIds);
   let results = [];
   for (const surveyId of surveyIds.split(', ')) {
-    if (!REFERRAL_SCREENING_FORM_MAPPING[surveyId]) {
-      throw new Error(`Can't fetch ${surveyId}`);
-    }
     const resultsForSurvey = await sequelize.query(
       `
         SELECT 
