@@ -8,6 +8,9 @@
     "password": "",
     "migrateOnStartup": false
   },
+  "updateUrls": {
+    "mobile": ""
+  },
   "log": {
     "path": "",
     "consoleLevel": "info"
