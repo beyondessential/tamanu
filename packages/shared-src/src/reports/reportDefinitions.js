@@ -164,16 +164,25 @@ export const REPORT_DEFINITIONS = [
         name: 'surveyIds',
         label: 'Screening type',
         options: [
-          { label: 'CVD Primary Screening Form', value: 'program-fijincd-fijicvdprimaryscreen2' },
+          {
+            label: 'CVD Primary Screening Form',
+            value: 'program-fijincdprimaryscreening-fijicvdprimaryscreen2',
+          },
           {
             label: 'Breast Cancer Primary Screening Form',
-            value: 'program-fijincd-fijibreastprimaryscreen',
+            value: 'program-fijincdprimaryscreening-fijibreastprimaryscreen',
           },
           {
             label: 'Cervical Cancer Primary Screening Form',
-            value: 'program-fijincd-fijicervicalprimaryscreen',
+            value: 'program-fijincdprimaryscreening-fijicervicalprimaryscreen',
           },
         ],
+      },
+      {
+        parameterField: 'ParameterAutocompleteField',
+        label: 'Division',
+        name: 'division',
+        suggesterEndpoint: 'division',
       },
       { parameterField: 'VillageField' },
     ],

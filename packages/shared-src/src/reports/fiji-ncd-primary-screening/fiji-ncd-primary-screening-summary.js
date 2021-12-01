@@ -4,9 +4,12 @@ import { groupBy } from 'lodash';
 import { generateReportFromQueryData } from '../utilities';
 
 const REFERRAL_SCREENING_FORM_MAPPING = {
-  'program-fijincd-fijicvdprimaryscreen2': 'program-fijincd-fijicvdprimaryscreenref',
-  'program-fijincd-fijibreastprimaryscreen': 'program-fijincd-fijibreastscreenref',
-  'program-fijincd-fijicervicalprimaryscreen': 'program-fijincd-fijicervicalscreenref',
+  'program-fijincdprimaryscreening-fijicvdprimaryscreen2':
+    'program-fijincdprimaryscreening-fijicvdprimaryscreenref',
+  'program-fijincdprimaryscreening-fijibreastprimaryscreen':
+    'program-fijincdprimaryscreening-fijibreastscreenref',
+  'program-fijincdprimaryscreening-fijicervicalprimaryscreen':
+    'program-fijincdprimaryscreening-fijicervicalscreenref',
 };
 
 const ETHNICITY_IDS = {
@@ -194,8 +197,12 @@ const getData = async (sequelize, parameters) => {
     division,
     surveyIds = Object.keys(REFERRAL_SCREENING_FORM_MAPPING),
   } = parameters;
+  console.log(surveyIds);
   let results = [];
-  for (const surveyId of surveyIds) {
+  for (const surveyId of surveyIds.split(', ')) {
+    if (!REFERRAL_SCREENING_FORM_MAPPING[surveyId]) {
+      throw new Error(`Can't fetch ${surveyId}`);
+    }
     const resultsForSurvey = await sequelize.query(
       `
         SELECT 
