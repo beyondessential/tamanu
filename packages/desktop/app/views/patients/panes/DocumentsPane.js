@@ -14,15 +14,11 @@ export const DocumentsPane = React.memo(({ encounter, patient }) => {
   const api = useApi();
   const dispatch = useDispatch();
 
-  const handleSave = useCallback(async () => {
-    setDocumentModalOpen(false);
-    dispatch(reloadPatient(patient.id));
-  }, [patient]);
-
   const handleSubmit = useCallback(
     async data => {
       api.post(`patient/${patient.id}/documentMetadata`, data);
-      handleSave();
+      setDocumentModalOpen(false);
+      dispatch(reloadPatient(patient.id));
     },
     [patient],
   );
@@ -32,7 +28,6 @@ export const DocumentsPane = React.memo(({ encounter, patient }) => {
       <DocumentModal
         open={documentModalOpen}
         onClose={() => setDocumentModalOpen(false)}
-        onSaved={handleSave}
         onSubmit={handleSubmit}
         title="Add document"
         actionText="Create"
