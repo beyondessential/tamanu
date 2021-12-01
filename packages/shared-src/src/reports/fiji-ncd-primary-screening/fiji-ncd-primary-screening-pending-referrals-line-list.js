@@ -87,7 +87,7 @@ const sortReferrals = (r1, r2) => {
   );
 };
 
-export const dataGenerator = async (models, parameters = {}) => {
+export const dataGenerator = async ({ models }, parameters = {}) => {
   const referrals = await getPendingReferrals(models, REFERRAL_SURVEY_IDS, parameters);
   const filteredReferrals = await removeDuplicatedReferralsPerDate(referrals);
   const sortedReferrals = filteredReferrals.sort(sortReferrals);
@@ -131,21 +131,7 @@ export const dataGenerator = async (models, parameters = {}) => {
     const age = dateOfBirthMoment ? moment().diff(dateOfBirthMoment, 'years') : '';
 
     //cvdRiskLevel is either pde-FijCVD267 or pde-FijCVD1806
-    const cvdRiskLevel =
-      getCachedAnswer(
-        answersByPatientSurveyDataElement,
-        patientId,
-        surveyGroupKey,
-        referralDate,
-        CVD_RISK_LEVEL_START_DATA_ELEMENT_ID,
-      ) ||
-      getCachedAnswer(
-        answersByPatientSurveyDataElement,
-        patientId,
-        surveyGroupKey,
-        referralDate,
-        CVD_RISK_LEVEL_END_DATA_ELEMENT_ID,
-      );
+    const cvdRiskLevel = 'get';
     const recordData = {
       firstName: patient.firstName,
       lastName: patient.lastName,
@@ -180,6 +166,7 @@ export const dataGenerator = async (models, parameters = {}) => {
       );
     });
 
+    console.log(recordData, answersByPatientSurveyDataElement, surveyGroupKey, formDataElements);
     reportData.push(recordData);
   }
 

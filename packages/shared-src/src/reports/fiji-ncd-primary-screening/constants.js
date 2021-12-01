@@ -1,10 +1,10 @@
-const CVD_PRIMARY_FORM_SURVEY_ID = 'program-fijincd-fijicvdprimaryscreen2';
-const CVD_PRIMARY_REFERRAL_SURVEY_ID = 'program-fijincd-fijicvdprimaryscreenref';
-const BREAST_CANCER_FORM_SURVEY_ID = 'program-fijincd-fijibreastprimaryscreen';
-const BREAST_CANCER_REFERRAL_SURVEY_ID = 'program-fijincd-fijibreastscreenref';
-const CERVICAL_CANCER_FORM_SURVEY_ID = 'program-fijincd-fijicervicalprimaryscreen';
-const CERVICAL_CANCER_REFERRAL_SURVEY_ID = 'program-fijincd-fijicervicalscreenref';
-
+const CVD_PRIMARY_FORM_SURVEY_ID = 'program-fijincdprimaryscreening-fijicvdprimaryscreen2';
+const CVD_PRIMARY_REFERRAL_SURVEY_ID = 'program-fijincdprimaryscreening-fijicvdprimaryscreenref';
+const BREAST_CANCER_FORM_SURVEY_ID = 'program-fijincdprimaryscreening-fijibreastprimaryscreen';
+const BREAST_CANCER_REFERRAL_SURVEY_ID = 'program-fijincdprimaryscreening-fijibreastscreenref';
+const CERVICAL_CANCER_FORM_SURVEY_ID = 'program-fijincdprimaryscreening-fijicervicalprimaryscreen';
+const CERVICAL_CANCER_REFERRAL_SURVEY_ID = 'program-fijincdprimaryscreening-fijicervicalscreenref';
+// program-fijincdprimaryscreening-fijicvdprimaryscreenref
 export const PRIMARY_SCREENING_REPORT_COLUMN_TEMPLATE = [
   {
     title: 'First name',
@@ -124,6 +124,7 @@ export const CVD_PRIMARY_SCREENING_REFERRAL_DATA_ELEMENT_IDS = {
   dateOfReferral: 'pde-FijCVDRef4', // from Referral survey
   referredToHealthFacility: 'pde-FijCVDRef6', // from Referral survey
   expectedAttendanceDate: 'pde-FijCVDRef7', // from Referral survey
+  nameOfCso: 'pde-FijBCDRef2a', // from Referral survey
   reasonForReferral: 'pde-FijCVDRef11', // from Referral survey
 };
 
@@ -139,6 +140,7 @@ export const BREAST_CANCER_PRIMARY_SCREENING_REFERRAL_DATA_ELEMENT_IDS = {
   dateOfReferral: 'pde-FijBCRef04', // from Referral survey
   referredToHealthFacility: 'pde-FijBCRef06', // from Referral survey
   expectedAttendanceDate: 'pde-FijBCRef07', // from Referral survey
+  nameOfCso: 'pde-FijBCRef2a', // from Referral survey
   reasonForReferral: 'pde-FijBCRef10', // from Referral survey
 };
 
@@ -154,6 +156,7 @@ export const CERVICAL_CANCER_PRIMARY_SCREENING_REFERRAL_DATA_ELEMENT_IDS = {
   dateOfReferral: 'pde-FijCCRef04', // from Referral survey
   referredToHealthFacility: 'pde-FijCCRef06', // from Referral survey
   expectedAttendanceDate: 'pde-FijCCRef07', // from Referral survey
+  nameOfCso: 'pde-FijCCCRef2a', // from Referral survey
   reasonForReferral: 'pde-FijCCRef10', // from Referral survey
 };
 

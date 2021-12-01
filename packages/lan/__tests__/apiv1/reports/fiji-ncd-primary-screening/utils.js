@@ -1,10 +1,10 @@
-const PROGRAM_ID = 'program-fijincd';
-const CVD_PRIMARY_FORM_SURVEY_ID = 'program-fijincd-fijicvdprimaryscreen2';
-const CVD_PRIMARY_REFERRAL_SURVEY_ID = 'program-fijincd-fijicvdprimaryscreenref';
-const BREAST_CANCER_FORM_SURVEY_ID = 'program-fijincd-fijibreastprimaryscreen';
-const BREAST_CANCER_REFERRAL_SURVEY_ID = 'program-fijincd-fijibreastscreenref';
-const CERVICAL_CANCER_FORM_SURVEY_ID = 'program-fijincd-fijicervicalprimaryscreen';
-const CERVICAL_CANCER_REFERRAL_SURVEY_ID = 'program-fijincd-fijicervicalscreenref';
+const PROGRAM_ID = 'program-fijincdprimaryscreening';
+const CVD_PRIMARY_FORM_SURVEY_ID = 'program-fijincdprimaryscreening-fijicvdprimaryscreen2';
+const CVD_PRIMARY_REFERRAL_SURVEY_ID = 'program-fijincdprimaryscreening-fijicvdprimaryscreenref';
+const BREAST_CANCER_FORM_SURVEY_ID = 'program-fijincdprimaryscreening-fijibreastprimaryscreen';
+const BREAST_CANCER_REFERRAL_SURVEY_ID = 'program-fijincdprimaryscreening-fijibreastscreenref';
+const CERVICAL_CANCER_FORM_SURVEY_ID = 'program-fijincdprimaryscreening-fijicervicalprimaryscreen';
+const CERVICAL_CANCER_REFERRAL_SURVEY_ID = 'program-fijincdprimaryscreening-fijicervicalscreenref';
 
 export const createCVDFormSurveyResponse = async (app, patient, surveyDate) => {
   await app.post('/v1/surveyResponse').send({

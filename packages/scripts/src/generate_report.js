@@ -8,14 +8,17 @@
  * Please use the sync server report subcommand if you don't need to download to excel locally.
  */
 
-const reportName = 'covid-swab-lab-test-list';
+// const reportName = 'covid-swab-lab-test-list';
+// const reportName = 'fiji-recent-attendance-list';
+const reportName = 'fiji-ncd-primary-screening-pending-referrals-line-list';
 
 const path = require('path');
 const XLSX = require('xlsx');
 
 const { initDatabase } = require('shared/services/database');
 // eslint-disable-next-line import/no-dynamic-require
-const { dataGenerator } = require(`shared/reports/${reportName}`);
+const { dataGenerator } = require(`shared/reports/fiji-ncd-primary-screening/${reportName}`);
+// const { dataGenerator } = require(`shared/reports/${reportName}`);
 
 async function writeExcelFile(data, filePath) {
   const book = XLSX.utils.book_new();
@@ -32,27 +35,33 @@ async function writeExcelFile(data, filePath) {
   });
 }
 
+const parameters = {
+  // fromDate: '2021-10-20',
+  // toDate: '2021-11-11',
+  // division: 'division-Eastern',
+  // diagnosis: 'ref/icd10/B40.9',
+};
+
 const generateReport = async () => {
   // 1. get models
-
   console.log('Initialising database');
-  const { models } = await initDatabase({
+  const context = await initDatabase({
     port: 5431,
-    name: 'tamanu-sync',
+    name: 'tamanu-lan-db',
     verbose: false,
-    username: 'tamanu_sync',
-    password: 'tamanu_sync_pass',
+    username: 'alastair',
+    password: 'password',
   });
   console.log('Initialising database: Success!');
 
   // 2. generate report data
   console.log('Generating report data');
-  const data = await dataGenerator(models, {});
+  const data = await dataGenerator(context, parameters);
   console.log('Generating report data: Success!');
 
   // 3. convert to excel and write
   console.log('Writing to excel file');
-  const folder = path.resolve('data');
+  const folder = path.resolve('packages/sync-server/data');
   const excelFileName = `${reportName}-${new Date().toString()}.xlsx`;
   const excelFilePath = path.join(folder, excelFileName);
   await writeExcelFile(data, excelFilePath);
