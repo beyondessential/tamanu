@@ -153,7 +153,7 @@ const getSelectClause = () => {
 };
 
 const getJoinClauses = () => {
-  // interval '24 hours' is a postgres specific construct. (question for pr: do we still want to support other dbs?)
+  // NOTE: interval '24 hours' is a postgres specific construct.
   /**
    * Referral must be:
    *  - 0-24 hours after the survey_response
