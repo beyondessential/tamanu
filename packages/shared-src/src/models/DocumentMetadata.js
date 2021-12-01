@@ -25,7 +25,7 @@ export class DocumentMetadata extends Model {
       as: 'owner',
     });
 
-    this.belongsTo(models.User, {
+    this.belongsTo(models.Attachment, {
       foreignKey: 'documentId',
       as: 'document',
     });
