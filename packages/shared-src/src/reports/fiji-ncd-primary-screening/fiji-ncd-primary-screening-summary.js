@@ -197,7 +197,7 @@ const getData = async (sequelize, parameters) => {
     division,
     surveyIds = Object.keys(REFERRAL_SCREENING_FORM_MAPPING).join(', '),
   } = parameters;
-  console.log(surveyIds);
+
   let results = [];
   for (const surveyId of surveyIds.split(', ')) {
     const resultsForSurvey = await sequelize.query(
@@ -238,7 +238,6 @@ export const dataGenerator = async ({ sequelize }, parameters = {}) => {
     }))
     .sort(({ date: date1 }, { date: date2 }) => moment(date2) - moment(date1));
 
-  console.log(reportData);
   return generateReportFromQueryData(reportData, reportColumnTemplate);
 };
 
