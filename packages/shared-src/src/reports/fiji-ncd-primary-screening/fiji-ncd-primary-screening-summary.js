@@ -1,5 +1,6 @@
 import { Sequelize, Op } from 'sequelize';
 import moment from 'moment';
+import { groupBy } from 'lodash';
 import { generateReportFromQueryData } from '../utilities';
 
 const REFERRAL_SCREENING_FORM_MAPPING = {
@@ -107,22 +108,33 @@ const reportColumnTemplate = Object.entries(FIELDS).map(([key, { title }]) => ({
   accessor: data => data[key],
 }));
 
+function sumObjectsByKey(objs) {
+  return objs.reduce((a, b) => {
+    for (const k of Object.keys(b)) {
+      a[k] = (parseInt(a[k], 10) || 0) + parseInt(b[k], 10);
+    }
+    return a;
+  }, {});
+}
+
 const parametersToSqlWhereClause = parameterKeys => {
   return parameterKeys
     .map(key => {
       switch (key) {
         case 'village':
-          return 'patient.village_id = :village_id';
-        // Note! The date filtering only works because the format is yyyy-mm-dd
+          return 'AND patient.village_id = :village_id';
+        case 'division':
+          return 'AND additional_data.division_id = :division_id';
         case 'fromDate':
-          return "date > to_char(:from_date, 'yyyy-mm-dd')";
+          return 'AND sr.end_time > :from_date';
         case 'toDate':
-          return "date < to_char(:to_date, 'yyyy-mm-dd')";
+          // Cast to date (no time) so we select any surveys on or before the calendar day provided
+          return 'AND sr.end_time::date <= :to_date::date';
         default:
           break;
       }
     })
-    .join('\n AND');
+    .join('\n');
 };
 
 const buildCase = (name, condition) => `count(case when ${condition} then 1 end) as "${name}"`;
@@ -182,16 +194,15 @@ const getData = async (sequelize, parameters) => {
     division,
     surveyIds = Object.keys(REFERRAL_SCREENING_FORM_MAPPING),
   } = parameters;
-
+  let results = [];
   for (const surveyId of surveyIds) {
-    return sequelize.query(
+    const resultsForSurvey = await sequelize.query(
       `
         SELECT 
           ${getSelectClause()}
         FROM survey_responses AS sr 
           ${getJoinClauses()}
         WHERE sr.survey_id = :screening_survey_id
-        AND
           ${parametersToSqlWhereClause(nonEmptyParameterKeys)}
         GROUP BY date
         ORDER BY date desc;
@@ -204,14 +215,24 @@ const getData = async (sequelize, parameters) => {
           from_date: fromDate,
           to_date: toDate,
           village_id: village,
+          division_id: division,
         },
       },
     );
+    results = results.concat(resultsForSurvey);
   }
+  return results;
 };
 
 export const dataGenerator = async ({ sequelize }, parameters = {}) => {
-  const reportData = await getData(sequelize, parameters);
+  const results = await getData(sequelize, parameters);
+
+  const reportData = Object.entries(groupBy(results, 'date'))
+    .map(([date, resultsForDate]) => ({
+      date,
+      ...sumObjectsByKey(resultsForDate.map(({ date: _, ...summableKeys }) => summableKeys)),
+    }))
+    .sort(({ date: date1 }, { date: date2 }) => moment(date2) - moment(date1));
 
   console.log(reportData);
   return generateReportFromQueryData(reportData, reportColumnTemplate);
