@@ -40,7 +40,7 @@ function getResultValue(components, values) {
     return { result: 0, resultText: '' };
   }
 
-  const rawValue = values[component.dataElement.code];
+  const rawValue = values[component.dataElement.id];
 
   if (rawValue === undefined || rawValue === null || Number.isNaN(rawValue)) {
     return { result: 0, resultText: component.detail || '' };
@@ -179,16 +179,16 @@ export class SurveyResponse extends Model {
       resultText,
     });
 
-    const findDataElement = code => {
-      const component = questions.find(c => c.dataElement.code === code);
+    const findDataElement = id => {
+      const component = questions.find(c => c.dataElement.id === id);
       if (!component) return null;
       return component.dataElement;
     };
     for (const a of Object.entries(finalAnswers)) {
-      const [dataElementCode, value] = a;
-      const dataElement = findDataElement(dataElementCode);
+      const [dataElementId, value] = a;
+      const dataElement = findDataElement(dataElementId);
       if (!dataElement) {
-        throw new Error(`no data element for code: ${dataElementCode}`);
+        throw new Error(`no data element for question: ${dataElementId}`);
       }
       const body = getStringValue(dataElement.type, value);
       await models.SurveyResponseAnswer.create({
