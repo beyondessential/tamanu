@@ -192,7 +192,7 @@ export class SurveyResponse extends Model {
       }
       const body = getStringValue(dataElement.type, value);
       await models.SurveyResponseAnswer.create({
-        dataElement: dataElement.id,
+        dataElementId: dataElement.id,
         body,
         responseId: record.id,
       });
