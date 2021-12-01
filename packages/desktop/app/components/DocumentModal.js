@@ -5,15 +5,7 @@ import { useApi } from '../api';
 import { Modal } from './Modal';
 import { DocumentForm } from '../forms/DocumentForm';
 
-export const DocumentModal = ({
-  title,
-  actionText,
-  open,
-  onClose,
-  onSubmit,
-  onSaved,
-  documentId,
-}) => {
+export const DocumentModal = ({ title, actionText, open, onClose, onSubmit, documentId }) => {
   const [document, setDocument] = useState({});
   const api = useApi();
 
