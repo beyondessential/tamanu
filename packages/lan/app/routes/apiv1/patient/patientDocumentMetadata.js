@@ -30,6 +30,10 @@ patientDocumentMetadataRoutes.post(
     req.checkPermission('write', 'DocumentMetadata');
     const patientId = params.id;
     const { file: fileName, ...documentMetadata } = req.body;
+
+    // This will only work if the lan server is running on the same machine as
+    // the desktop app, which is possibly very unusual. A proper solution needs
+    // to be addressed when working through this functionality
     const fileData = await asyncFs.readFile(fileName);
     const { size } = fs.statSync(fileName);
     const fileType = fileName.split('.').pop();
