@@ -97,35 +97,33 @@ const DumbImagingRequestInfoPane = React.memo(
                 style={{ gridColumn: '1 / -1', minHeight: '60px', padding: '0' }}
               />
             )}
-            {dirty && (
-              // Needs custom styling to properly display view image button to the left
-              <ButtonRow style={{ gridTemplateColumns: '8rem auto 8rem' }}>
-                <Button
-                  variant="contained"
-                  color="secondary"
-                  style={{
-                    gridColumn: '1 / span 1',
-                    // Change horizontal padding to fit text properly
-                    paddingLeft: '10px',
-                    paddingRight: '10px',
-                    // Only show button when status is completed and keep it on the
-                    // document layout to preserve correct row button display
-                    visibility:
-                      values.status === IMAGING_REQUEST_STATUS_TYPES.COMPLETED
-                        ? 'visible'
-                        : 'hidden',
-                  }}
-                  disabled
-                >
-                  View image
-                  <br />
-                  (external link)
-                </Button>
+            {/* Needs custom styling to properly display view image button to the left*/}
+            <ButtonRow style={{ gridTemplateColumns: '8rem auto 8rem' }}>
+              <Button
+                variant="contained"
+                color="secondary"
+                style={{
+                  gridColumn: '1 / span 1',
+                  // Change horizontal padding to fit text properly
+                  paddingLeft: '10px',
+                  paddingRight: '10px',
+                  // Only show button when status is completed and keep it on the
+                  // document layout to preserve correct row button display
+                  visibility:
+                    values.status === IMAGING_REQUEST_STATUS_TYPES.COMPLETED ? 'visible' : 'hidden',
+                }}
+                disabled
+              >
+                View image
+                <br />
+                (external link)
+              </Button>
+              {dirty && (
                 <Button variant="outlined" color="primary" type="submit">
                   Save
                 </Button>
-              </ButtonRow>
-            )}
+              )}
+            </ButtonRow>
           </FormGrid>
         </Form>
       )}
