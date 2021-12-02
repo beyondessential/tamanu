@@ -10,6 +10,53 @@ import { createTestContext } from '../../utilities';
 const PROGRAM_ID = 'program-fijicovid19';
 const FIJI_SAMP_SURVEY_ID = 'program-fijicovid19-fijicovidsampcollection';
 
+const PROPERTY_LIST = [
+  'firstName',
+  'lastName',
+  'dob',
+  'sex',
+  'patientId',
+  'homeSubDivision',
+  'labRequestId',
+  'labRequestType',
+  'labTestType',
+  'status',
+  'result',
+  'requestedBy',
+  'requestedDate',
+  'priority',
+  'testingLaboratory',
+  'testingDate',
+  'publicHealthFacility',
+  'privateHealthFacility',
+  'subDivision',
+  'ethnicity',
+  'contactPhone',
+  'residentialAddress',
+  'purposeOfSample',
+  'recentAdmission',
+  'placeOfAdmission',
+  'medicalProblems',
+  'healthcareWorker',
+  'occupation',
+  'placeOfWork',
+  'linkToCluster',
+  'nameOfCluster',
+  'pregnant',
+  'experiencingSymptoms',
+  'dateOfFirstSymptom',
+  'symptoms',
+  'vaccinated',
+  'dateOf1stDose',
+  'dateOf2ndDose',
+  'highRisk',
+  'primaryContactHighRisk',
+  'highRiskDetails',
+];
+const PROPERTY_TO_EXCEL_INDEX = PROPERTY_LIST.reduce((acc, prop, i) => ({ ...acc, [prop]: i }), {});
+
+const getProperty = (result, row, prop) => result.body[row][PROPERTY_TO_EXCEL_INDEX[prop]];
+
 const createLabTests = async (models, app, expectedPatient1, expectedPatient2) => {
   await models.ReferenceData.create({
     type: 'labTestCategory',
@@ -317,83 +364,98 @@ describe('Covid swab lab test list', () => {
 
       /*******Lab request 1*********/
       //patient details
-      expect(result.body[1][0]).toBe(expectedPatient1.firstName);
-      expect(result.body[1][1]).toBe(expectedPatient1.lastName);
-      expect(result.body[1][2]).toBe(moment(expectedPatient1.dateOfBirth).format('DD-MM-YYYY'));
-      expect(result.body[1][3]).toBe(expectedPatient1.sex);
-      expect(result.body[1][4]).toBe(expectedPatient1.displayId);
-      expect(result.body[1][9]).toBe(labRequest1.displayId);
-
-      //Fiji Samp collection form
-      //always grab the latest answer between the current lab request and the next lab request, regardless of survey response,
-      expect(result.body[1][10]).toBe('COVID-19');
-      expect(result.body[1][11]).toBe('Reception pending');
-      expect(result.body[1][14]).toBe('10-03-2021');
-      expect(result.body[1][18]).toBe('pde-FijCOVSamp4-on-2021-03-14T10:53:15.708Z-Patient1');
-      expect(result.body[1][20]).toBe('pde-FijCOVSamp6-on-2021-03-14T10:53:15.708Z-Patient1');
-      expect(result.body[1][21]).toBe('pde-FijCOVSamp7-on-2021-03-14T10:53:15.708Z-Patient1');
-      expect(result.body[1][22]).toBe('pde-FijCOVSamp10-on-2021-03-14T10:53:15.708Z-Patient1');
-      expect(result.body[1][23]).toBe('pde-FijCOVSamp11-on-2021-03-14T10:53:15.708Z-Patient1');
+      const expectedDetails1 = {
+        firstName: expectedPatient1.firstName,
+        lastName: expectedPatient1.lastName,
+        dob: moment(expectedPatient1.dateOfBirth).format('DD-MM-YYYY'),
+        sex: expectedPatient1.sex,
+        patientId: expectedPatient1.displayId,
+        labRequestId: labRequest1.displayId,
+        //Fiji Samp collection form
+        //always grab the latest answer between the current lab request and the next lab request, regardless of survey response,
+        labRequestType: 'COVID-19',
+        status: 'Reception pending',
+        requestedDate: '10-03-2021',
+        publicHealthFacility: 'pde-FijCOVSamp4-on-2021-03-14T10:53:15.708Z-Patient1',
+        subDivision: 'pde-FijCOVSamp7-on-2021-03-14T10:53:15.708Z-Patient1',
+        ethnicity: 'pde-FijCOVSamp10-on-2021-03-14T10:53:15.708Z-Patient1',
+        contactPhone: 'pde-FijCOVSamp11-on-2021-03-14T10:53:15.708Z-Patient1',
+      };
+      for (const entry of Object.entries(expectedDetails1)) {
+        const [key, expectedValue] = entry;
+        expect(getProperty(result, 1, key)).toBe(expectedValue);
+      }
 
       /*******Lab request 2*********/
       //patient details
-      expect(result.body[2][0]).toBe(expectedPatient1.firstName);
-      expect(result.body[2][1]).toBe(expectedPatient1.lastName);
-      expect(result.body[2][2]).toBe(moment(expectedPatient1.dateOfBirth).format('DD-MM-YYYY'));
-      expect(result.body[2][3]).toBe(expectedPatient1.sex);
-      expect(result.body[2][4]).toBe(expectedPatient1.displayId);
-      expect(result.body[2][9]).toBe(labRequest2.displayId);
-
-      //Fiji Samp collection form
-      //always grab the latest answer between the current lab request and the next lab request, regardless of survey response,
-      expect(result.body[2][10]).toBe('COVID-19');
-      expect(result.body[2][11]).toBe('Reception pending');
-      expect(result.body[2][14]).toBe('16-03-2021');
-      expect(result.body[2][18]).toBe('pde-FijCOVSamp4-on-2021-03-18T10:53:15.708Z-Patient1');
-      expect(result.body[2][20]).toBe('pde-FijCOVSamp6-on-2021-03-18T10:53:15.708Z-Patient1');
-      expect(result.body[2][21]).toBe('pde-FijCOVSamp7-on-2021-03-18T10:53:15.708Z-Patient1');
-      expect(result.body[2][22]).toBe('pde-FijCOVSamp10-on-2021-03-18T10:53:15.708Z-Patient1');
-      expect(result.body[2][23]).toBe('pde-FijCOVSamp11-on-2021-03-18T10:53:15.708Z-Patient1');
+      const expectedDetails2 = {
+        firstName: expectedPatient1.firstName,
+        lastName: expectedPatient1.lastName,
+        dob: moment(expectedPatient1.dateOfBirth).format('DD-MM-YYYY'),
+        sex: expectedPatient1.sex,
+        patientId: expectedPatient1.displayId,
+        labRequestId: labRequest2.displayId,
+        //Fiji Samp collection form
+        //always grab the latest answer between the current lab request and the next lab request, regardless of survey response,
+        labRequestType: 'COVID-19',
+        status: 'Reception pending',
+        requestedDate: '16-03-2021',
+        publicHealthFacility: 'pde-FijCOVSamp4-on-2021-03-18T10:53:15.708Z-Patient1',
+        subDivision: 'pde-FijCOVSamp7-on-2021-03-18T10:53:15.708Z-Patient1',
+        ethnicity: 'pde-FijCOVSamp10-on-2021-03-18T10:53:15.708Z-Patient1',
+        contactPhone: 'pde-FijCOVSamp11-on-2021-03-18T10:53:15.708Z-Patient1',
+      };
+      for (const entry of Object.entries(expectedDetails2)) {
+        const [key, expectedValue] = entry;
+        expect(getProperty(result, 2, key)).toBe(expectedValue);
+      }
 
       /*******Lab request 3*********/
       //patient details
-      expect(result.body[3][0]).toBe(expectedPatient2.firstName);
-      expect(result.body[3][1]).toBe(expectedPatient2.lastName);
-      expect(result.body[3][2]).toBe(moment(expectedPatient2.dateOfBirth).format('DD-MM-YYYY'));
-      expect(result.body[3][3]).toBe(expectedPatient2.sex);
-      expect(result.body[3][4]).toBe(expectedPatient2.displayId);
-      expect(result.body[3][9]).toBe(labRequest3.displayId);
-
-      //Fiji Samp collection form
-      //always grab the latest answer between the current lab request and the next lab request, regardless of survey response,
-      expect(result.body[3][10]).toBe('COVID-19');
-      expect(result.body[3][11]).toBe('Reception pending');
-      expect(result.body[3][14]).toBe('17-03-2021');
-      expect(result.body[3][18]).toBe('pde-FijCOVSamp4-on-2021-03-19T10:53:15.708Z-Patient2');
-      expect(result.body[3][20]).toBe('pde-FijCOVSamp6-on-2021-03-19T10:53:15.708Z-Patient2');
-      expect(result.body[3][21]).toBe('pde-FijCOVSamp7-on-2021-03-19T10:53:15.708Z-Patient2');
-      expect(result.body[3][22]).toBe('pde-FijCOVSamp10-on-2021-03-19T10:53:15.708Z-Patient2');
-      expect(result.body[3][23]).toBe('pde-FijCOVSamp11-on-2021-03-19T10:53:15.708Z-Patient2');
+      const expectedDetails3 = {
+        firstName: expectedPatient2.firstName,
+        lastName: expectedPatient2.lastName,
+        dob: moment(expectedPatient2.dateOfBirth).format('DD-MM-YYYY'),
+        sex: expectedPatient2.sex,
+        patientId: expectedPatient2.displayId,
+        labRequestId: labRequest3.displayId,
+        //Fiji Samp collection form
+        //always grab the latest answer between the current lab request and the next lab request, regardless of survey response,
+        labRequestType: 'COVID-19',
+        status: 'Reception pending',
+        requestedDate: '17-03-2021',
+        publicHealthFacility: 'pde-FijCOVSamp4-on-2021-03-19T10:53:15.708Z-Patient2',
+        subDivision: 'pde-FijCOVSamp7-on-2021-03-19T10:53:15.708Z-Patient2',
+        ethnicity: 'pde-FijCOVSamp10-on-2021-03-19T10:53:15.708Z-Patient2',
+        contactPhone: 'pde-FijCOVSamp11-on-2021-03-19T10:53:15.708Z-Patient2',
+      };
+      for (const entry of Object.entries(expectedDetails3)) {
+        const [key, expectedValue] = entry;
+        expect(getProperty(result, 3, key)).toBe(expectedValue);
+      }
 
       /*******Lab request 4*********/
-      //patient details
-      expect(result.body[4][0]).toBe(expectedPatient2.firstName);
-      expect(result.body[4][1]).toBe(expectedPatient2.lastName);
-      expect(result.body[4][2]).toBe(moment(expectedPatient2.dateOfBirth).format('DD-MM-YYYY'));
-      expect(result.body[4][3]).toBe(expectedPatient2.sex);
-      expect(result.body[4][4]).toBe(expectedPatient2.displayId);
-      expect(result.body[4][9]).toBe(labRequest4.displayId);
-
-      //Fiji Samp collection form
-      //always grab the latest answer between the current lab request and the next lab request, regardless of survey response,
-      expect(result.body[4][10]).toBe('COVID-19');
-      expect(result.body[4][11]).toBe('Reception pending');
-      expect(result.body[4][14]).toBe('20-03-2021');
-      expect(result.body[4][18]).toBe('pde-FijCOVSamp4-on-2021-03-23T10:53:15.708Z-Patient2');
-      expect(result.body[4][20]).toBe('pde-FijCOVSamp6-on-2021-03-23T10:53:15.708Z-Patient2');
-      expect(result.body[4][21]).toBe('pde-FijCOVSamp7-on-2021-03-23T10:53:15.708Z-Patient2');
-      expect(result.body[4][22]).toBe('pde-FijCOVSamp10-on-2021-03-23T10:53:15.708Z-Patient2');
-      expect(result.body[4][23]).toBe('pde-FijCOVSamp11-on-2021-03-23T10:53:15.708Z-Patient2');
+      const expectedDetails4 = {
+        firstName: expectedPatient2.firstName,
+        lastName: expectedPatient2.lastName,
+        dob: moment(expectedPatient2.dateOfBirth).format('DD-MM-YYYY'),
+        sex: expectedPatient2.sex,
+        patientId: expectedPatient2.displayId,
+        labRequestId: labRequest4.displayId,
+        //Fiji Samp collection form
+        //always grab the latest answer between the current lab request and the next lab request, regardless of survey response,
+        labRequestType: 'COVID-19',
+        status: 'Reception pending',
+        requestedDate: '20-03-2021',
+        publicHealthFacility: 'pde-FijCOVSamp4-on-2021-03-23T10:53:15.708Z-Patient2',
+        subDivision: 'pde-FijCOVSamp7-on-2021-03-23T10:53:15.708Z-Patient2',
+        ethnicity: 'pde-FijCOVSamp10-on-2021-03-23T10:53:15.708Z-Patient2',
+        contactPhone: 'pde-FijCOVSamp11-on-2021-03-23T10:53:15.708Z-Patient2',
+      };
+      for (const entry of Object.entries(expectedDetails4)) {
+        const [key, expectedValue] = entry;
+        expect(getProperty(result, 4, key)).toBe(expectedValue);
+      }
     });
   });
 });
