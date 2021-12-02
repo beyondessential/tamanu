@@ -17,10 +17,6 @@ const sharedQuery = yup.object({
       },
     )
     .required(),
-  status: yup
-    .string()
-    .oneOf(['final'])
-    .required(),
   _count: yup
     .number()
     .integer()
@@ -57,5 +53,6 @@ export const DIAGNOSTIC_REPORT_INCLUDES = {
 export const diagnosticReport = {
   query: sharedQuery.shape({
     _include: yup.string().oneOf(Object.values(DIAGNOSTIC_REPORT_INCLUDES)),
+    status: yup.string().oneOf(['final']),
   }),
 };
