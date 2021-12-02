@@ -8,13 +8,17 @@ module.exports = {
     await query.renameColumn('document_metadata', 'owner_id', 'document_owner');
 
     // Apply column changes (with new naming scheme)
+    await query.changeColumn('document_metadata', 'name', {
+      type: Sequelize.TEXT,
+      allowNull: false,
+    });
     await query.changeColumn('document_metadata', 'document_uploaded_at', {
       type: Sequelize.DATE,
       allowNull: true,
       defaultValue: Sequelize.NOW,
     });
     await query.changeColumn('document_metadata', 'document_owner', {
-      type: Sequelize.STRING,
+      type: Sequelize.TEXT,
       allowNull: true,
     });
 
@@ -39,6 +43,10 @@ module.exports = {
     await query.renameColumn('document_metadata', 'document_owner', 'owner_id');
 
     // Revert column changes (with old naming scheme)
+    await query.changeColumn('document_metadata', 'name', {
+      type: Sequelize.STRING,
+      allowNull: false,
+    });
     await query.changeColumn('document_metadata', 'uploaded_date', {
       type: Sequelize.STRING,
       allowNull: true,

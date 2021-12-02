@@ -7,11 +7,11 @@ export class DocumentMetadata extends Model {
     super.init(
       {
         id: primaryKey,
-        name: Sequelize.STRING,
+        name: Sequelize.TEXT,
         type: Sequelize.STRING(31),
         documentCreatedAt: Sequelize.DATE,
         documentUploadedAt: Sequelize.DATE,
-        documentOwner: Sequelize.STRING,
+        documentOwner: Sequelize.TEXT,
       },
       {
         ...options,
