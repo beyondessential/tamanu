@@ -1,3 +1,5 @@
+import { getSurveyResultDataElement } from './utils';
+
 const CVD_PRIMARY_FORM_SURVEY_ID = 'program-fijincdprimaryscreening-fijicvdprimaryscreen2';
 const CVD_PRIMARY_REFERRAL_SURVEY_ID = 'program-fijincdprimaryscreening-fijicvdprimaryscreenref';
 const BREAST_CANCER_FORM_SURVEY_ID = 'program-fijincdprimaryscreening-fijibreastprimaryscreen';
@@ -118,13 +120,14 @@ export const CVD_PRIMARY_SCREENING_FORM_DATA_ELEMENT_IDS = {
   screeningHealthFacility: 'pde-FijCVD007', // from Form survey
   nameOfCso: 'pde-FijCVD010', // from Form survey
   screeningEligibility: 'pde-FijCVD021', // from Form survey
+  cvdRiskLevel: getSurveyResultDataElement(CVD_PRIMARY_FORM_SURVEY_ID), // from Form survey
 };
 
 export const CVD_PRIMARY_SCREENING_REFERRAL_DATA_ELEMENT_IDS = {
   dateOfReferral: 'pde-FijCVDRef4', // from Referral survey
   referredToHealthFacility: 'pde-FijCVDRef6', // from Referral survey
   expectedAttendanceDate: 'pde-FijCVDRef7', // from Referral survey
-  nameOfCso: 'pde-FijBCDRef2a', // from Referral survey
+  referringCso: 'pde-FijBCDRef2a', // from Referral survey
   reasonForReferral: 'pde-FijCVDRef11', // from Referral survey
 };
 
@@ -140,7 +143,7 @@ export const BREAST_CANCER_PRIMARY_SCREENING_REFERRAL_DATA_ELEMENT_IDS = {
   dateOfReferral: 'pde-FijBCRef04', // from Referral survey
   referredToHealthFacility: 'pde-FijBCRef06', // from Referral survey
   expectedAttendanceDate: 'pde-FijBCRef07', // from Referral survey
-  nameOfCso: 'pde-FijBCRef2a', // from Referral survey
+  referringCso: 'pde-FijBCRef2a', // from Referral survey
   reasonForReferral: 'pde-FijBCRef10', // from Referral survey
 };
 
@@ -156,7 +159,7 @@ export const CERVICAL_CANCER_PRIMARY_SCREENING_REFERRAL_DATA_ELEMENT_IDS = {
   dateOfReferral: 'pde-FijCCRef04', // from Referral survey
   referredToHealthFacility: 'pde-FijCCRef06', // from Referral survey
   expectedAttendanceDate: 'pde-FijCCRef07', // from Referral survey
-  nameOfCso: 'pde-FijCCCRef2a', // from Referral survey
+  referringCso: 'pde-FijCCCRef2a', // from Referral survey
   reasonForReferral: 'pde-FijCCRef10', // from Referral survey
 };
 
