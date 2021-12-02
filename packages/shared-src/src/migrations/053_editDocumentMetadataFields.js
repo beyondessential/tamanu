@@ -9,7 +9,7 @@ module.exports = {
 
     // Apply column changes (with new naming scheme)
     await query.changeColumn('document_metadata', 'document_uploaded_at', {
-      type: Sequelize.STRING,
+      type: Sequelize.DATE,
       allowNull: true,
       defaultValue: Sequelize.NOW,
     });
