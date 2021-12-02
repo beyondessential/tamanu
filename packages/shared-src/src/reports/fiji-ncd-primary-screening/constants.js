@@ -1,4 +1,3 @@
-
 const CVD_PRIMARY_FORM_SURVEY_ID = 'program-fijincdprimaryscreening-fijicvdprimaryscreen2';
 const CVD_PRIMARY_REFERRAL_SURVEY_ID = 'program-fijincdprimaryscreening-fijicvdprimaryscreenref';
 const BREAST_CANCER_FORM_SURVEY_ID = 'program-fijincdprimaryscreening-fijibreastprimaryscreen';
@@ -62,6 +61,8 @@ export const PRIMARY_SCREENING_PENDING_REFERRALS_REPORT_COLUMN_TEMPLATE = [
   { title: 'Ethnicity', accessor: data => data.ethnicity },
   { title: 'Contact number', accessor: data => data.contactNumber },
   { title: 'Referral created', accessor: data => data.referralCreated },
+  { title: 'Referring health facility', accessor: data => data.referringHealthFacility },
+  { title: 'Referring CSO', accessor: data => data.nameOfCso },
   { title: 'Date of referral', accessor: data => data.dateOfReferral },
   { title: 'Expected attendance date', accessor: data => data.expectedAttendanceDate },
   { title: 'Reason for referral', accessor: data => data.reasonForReferral },
@@ -93,6 +94,12 @@ export const ALL_SURVEY_IDS = [
   BREAST_CANCER_REFERRAL_SURVEY_ID,
   CERVICAL_CANCER_FORM_SURVEY_ID,
   CERVICAL_CANCER_REFERRAL_SURVEY_ID,
+];
+
+export const FORM_SURVEY_IDS = [
+  CVD_PRIMARY_FORM_SURVEY_ID,
+  BREAST_CANCER_FORM_SURVEY_ID,
+  CERVICAL_CANCER_FORM_SURVEY_ID,
 ];
 
 export const REFERRAL_SURVEY_IDS = [
@@ -130,6 +137,7 @@ export const CVD_PRIMARY_SCREENING_REFERRAL_DATA_ELEMENT_IDS = {
   expectedAttendanceDate: 'pde-FijCVDRef7', // from Referral survey
   referringCso: 'pde-FijBCDRef2a', // from Referral survey
   reasonForReferral: 'pde-FijCVDRef11', // from Referral survey
+  referringHealthFacility: 'pde-FijCVDRef2', // from Referral survey
 };
 
 export const BREAST_CANCER_PRIMARY_SCREENING_FORM_DATA_ELEMENT_IDS = {
@@ -146,6 +154,7 @@ export const BREAST_CANCER_PRIMARY_SCREENING_REFERRAL_DATA_ELEMENT_IDS = {
   expectedAttendanceDate: 'pde-FijBCRef07', // from Referral survey
   referringCso: 'pde-FijBCRef2a', // from Referral survey
   reasonForReferral: 'pde-FijBCRef10', // from Referral survey
+  referringHealthFacility: 'pde-FijBCRef02', // from Referral survey
 };
 
 export const CERVICAL_CANCER_PRIMARY_SCREENING_FORM_DATA_ELEMENT_IDS = {
@@ -162,6 +171,7 @@ export const CERVICAL_CANCER_PRIMARY_SCREENING_REFERRAL_DATA_ELEMENT_IDS = {
   expectedAttendanceDate: 'pde-FijCCRef07', // from Referral survey
   referringCso: 'pde-FijCCCRef2a', // from Referral survey
   reasonForReferral: 'pde-FijCCRef10', // from Referral survey
+  referringHealthFacility: 'pde-FijCCRef02', // from Referral survey
 };
 
 export const CVD_RISK_LEVEL_START_DATA_ELEMENT_ID = 'pde-FijCVDRisk008';
