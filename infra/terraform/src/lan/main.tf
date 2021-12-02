@@ -40,6 +40,8 @@ resource "aws_instance" "lan" {
   key_name      = var.key_name
   subnet_id     = data.aws_subnet.default.id
 
+  iam_instance_profile = "Tamanu-Instance-Role"
+
   vpc_security_group_ids = [data.aws_security_group.default.id]
 
   tags = {
