@@ -14,7 +14,7 @@ module.exports = {
     });
     await query.changeColumn('document_metadata', 'document_uploaded_at', {
       type: Sequelize.DATE,
-      allowNull: true,
+      allowNull: false,
       defaultValue: Sequelize.NOW,
     });
     await query.changeColumn('document_metadata', 'document_owner', {
@@ -48,8 +48,8 @@ module.exports = {
       allowNull: false,
     });
     await query.changeColumn('document_metadata', 'uploaded_date', {
-      type: Sequelize.STRING,
-      allowNull: true,
+      type: Sequelize.DATE,
+      allowNull: false,
     });
     await query.changeColumn('document_metadata', 'owner_id', {
       type: Sequelize.STRING,
