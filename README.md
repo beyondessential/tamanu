@@ -296,11 +296,7 @@ Terraform can be used to create a Windows Server on AWS EC2 for LAN server deplo
     terraform apply
     ```
 
-- Once the instance is created, you can SSH into the instance
-    
-    ```
-    ssh Administrator@<eip-address>
-    ```
+- Once the instance is created, you can [log into the instance using SSM](https://docs.aws.amazon.com/systems-manager/latest/userguide/session-manager-working-with-sessions-start.html), either via the Console or the CLI.
 
 - If the instance needs to be re-created, do
 
