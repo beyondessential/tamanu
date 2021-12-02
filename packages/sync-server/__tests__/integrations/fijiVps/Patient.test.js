@@ -153,7 +153,6 @@ describe('VPS integration - Patient', () => {
         error: {
           errors: [
             'subject:identifier must be in the format "<namespace>|<id>"',
-            'status must be one of the following values: final',
             '_count must be a `number` type, but the final value was: `NaN` (cast from the value `"x"`).',
             '_page must be a `number` type, but the final value was: `NaN` (cast from the value `"z"`).',
             '_sort must be one of the following values: -issued',
@@ -182,7 +181,6 @@ describe('VPS integration - Patient', () => {
           errors: [
             'subject:identifier must be in the format "<namespace>|<id>"',
             'subject:identifier is a required field',
-            'status is a required field',
             '_page is a required field',
             '_sort is a required field',
           ],
