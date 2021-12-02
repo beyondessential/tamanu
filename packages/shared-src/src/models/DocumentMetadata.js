@@ -12,6 +12,7 @@ export class DocumentMetadata extends Model {
         documentCreatedAt: Sequelize.DATE,
         documentUploadedAt: Sequelize.DATE,
         documentOwner: Sequelize.TEXT,
+        note: Sequelize.STRING,
       },
       {
         ...options,
@@ -34,6 +35,11 @@ export class DocumentMetadata extends Model {
     this.belongsTo(models.Patient, {
       foreignKey: 'patientId',
       as: 'patient',
+    });
+
+    this.belongsTo(models.ReferenceData, {
+      foreignKey: 'departmentId',
+      as: 'department',
     });
   }
 }
