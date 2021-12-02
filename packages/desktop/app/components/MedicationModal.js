@@ -16,9 +16,9 @@ export const MedicationModal = ({ open, onClose, onSaved, encounterId, medicatio
   
   const onDiscontinueSubmit = async data => {
     const payload = {
-      discontinuingClinician: data?.discontinuingClinician,
+      discontinuingClinicianId: data?.discontinuingClinicianId,
       discontinuingReason: data?.discontinuingReason,
-      discontinued: !!data?.discontinuingClinician,
+      discontinued: !!data?.discontinuingClinicianId,
     };
     api.put(`medication/${medication.id}`, payload);
 

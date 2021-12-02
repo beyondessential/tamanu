@@ -5,7 +5,7 @@ module.exports = {
     await query.addColumn('encounter_medications', 'discontinued', {
       type: Sequelize.BOOLEAN,
     });
-    await query.addColumn('encounter_medications', 'discontinuing_clinician', {
+    await query.addColumn('encounter_medications', 'discontinuing_clinician_id', {
       type: Sequelize.STRING,
     });
     await query.addColumn('encounter_medications', 'discontinuing_reason', {
@@ -14,7 +14,7 @@ module.exports = {
   },
   down: async query => {
     await query.removeColumn('encounter_medications', 'discontinued');
-    await query.removeColumn('encounter_medications', 'discontinuing_clinician');
+    await query.removeColumn('encounter_medications', 'discontinuing_clinician_id');
     await query.removeColumn('encounter_medications', 'discontinuing_reason');
   },
 };

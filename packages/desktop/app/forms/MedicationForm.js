@@ -48,7 +48,7 @@ const validationSchema = (readOnly) => {
       .positive(),
   }) : yup.object().shape({
     discontinuingReason: yup.string(),
-    discontinuingClinician: foreignKey('Clinician must be selected'),
+    discontinuingClinicianId: foreignKey('Clinician must be selected'),
   });
 };
 
@@ -127,11 +127,11 @@ export const MedicationForm = React.memo(
               {shouldDiscontinue && (
                 <>
                   <Field
-                    name="discontinuingClinician"
+                    name="discontinuingClinicianId"
                     label="Discontinuation clinician"
                     component={AutocompleteField}
                     suggester={practitionerSuggester}
-                    value={medication?.discontinuingClinician}
+                    value={medication?.discontinuingClinicianId}
                   />
                   <Field
                     name="discontinuingReason"
