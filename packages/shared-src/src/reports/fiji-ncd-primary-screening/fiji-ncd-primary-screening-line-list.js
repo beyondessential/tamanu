@@ -110,21 +110,6 @@ export const dataGenerator = async (models, parameters = {}) => {
       const age = dateOfBirthMoment ? moment().diff(dateOfBirthMoment, 'years') : '';
 
       //cvdRiskLevel is either pde-FijCVD267 or pde-FijCVD1806
-      const cvdRiskLevel =
-        getCachedAnswer(
-          answersByPatientSurveyDataElement,
-          patientId,
-          surveyGroupKey,
-          responseDate,
-          CVD_RISK_LEVEL_START_DATA_ELEMENT_ID,
-        ) ||
-        getCachedAnswer(
-          answersByPatientSurveyDataElement,
-          patientId,
-          surveyGroupKey,
-          responseDate,
-          CVD_RISK_LEVEL_END_DATA_ELEMENT_ID,
-        );
       const recordData = {
         firstName: patient.firstName,
         lastName: patient.lastName,
@@ -134,7 +119,6 @@ export const dataGenerator = async (models, parameters = {}) => {
         ethnicity: patientAdditionalData?.ethnicity?.name,
         contactNumber: patientAdditionalData?.primaryContactNumber,
         screeningCompleted: FORM_NAME_BY_SURVEY_GROUP_KEY[surveyGroupKey],
-        cvdRiskLevel,
       };
 
       const formDataElements = getFormDataElements(surveyGroupKey);
@@ -169,6 +153,7 @@ export const dataGenerator = async (models, parameters = {}) => {
           );
         });
       }
+      console.log(recordData);
       reportData.push(recordData);
     }
   }

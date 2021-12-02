@@ -1,4 +1,3 @@
-import { getSurveyResultDataElement } from './utils';
 
 const CVD_PRIMARY_FORM_SURVEY_ID = 'program-fijincdprimaryscreening-fijicvdprimaryscreen2';
 const CVD_PRIMARY_REFERRAL_SURVEY_ID = 'program-fijincdprimaryscreening-fijicvdprimaryscreenref';
@@ -113,6 +112,8 @@ export const REFERRAL_NAME_BY_SURVEY_GROUP_KEY = {
   [BREAST_CANCER_SURVEY_GROUP_KEY]: 'Breast Cancer Primary Screening Referral',
   [CERVICAL_CANCER_SURVEY_GROUP_KEY]: 'Cervial Cancer Primary Screening Referral',
 };
+
+export const getSurveyResultDataElement = surveyId => `${surveyId}|$result`;
 
 export const CVD_PRIMARY_SCREENING_FORM_DATA_ELEMENT_IDS = {
   dateOfScreening: 'pde-FijCVD002', // from Form survey

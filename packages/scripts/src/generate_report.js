@@ -10,7 +10,8 @@
 
 // const reportName = 'covid-swab-lab-test-list';
 // const reportName = 'fiji-recent-attendance-list';
-const reportName = 'fiji-ncd-primary-screening-pending-referrals-line-list';
+// const reportName = 'fiji-ncd-primary-screening-pending-referrals-line-list';
+const reportName = 'fiji-ncd-primary-screening-line-list';
 
 const path = require('path');
 const XLSX = require('xlsx');
@@ -56,7 +57,7 @@ const generateReport = async () => {
 
   // 2. generate report data
   console.log('Generating report data');
-  const data = await dataGenerator(context, parameters);
+  const data = await dataGenerator(context.models, parameters);
   console.log('Generating report data: Success!');
 
   // 3. convert to excel and write
