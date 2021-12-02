@@ -17,6 +17,7 @@ import {
 
 import {
   ALL_SURVEY_IDS,
+  FORM_SURVEY_IDS,
   FORM_NAME_BY_SURVEY_GROUP_KEY,
   PRIMARY_SCREENING_REPORT_COLUMN_TEMPLATE,
   CVD_RISK_LEVEL_START_DATA_ELEMENT_ID,
@@ -96,7 +97,8 @@ export const dataGenerator = async (models, parameters = {}) => {
   // Referral details should be pulled into the report if they are submitted on the same day as the corresponding screening survey
   // Group the records by patient
   for (const [patientId, patientAnswers] of Object.entries(answersByPatientId)) {
-    const patientAnswersBySurveyGroupAndDate = groupBy(patientAnswers, a => {
+    const screeningFormAnswers = patientAnswers.filter(a => FORM_SURVEY_IDS.includes(a.surveyId));
+    const groupedScreeningFormAnswers = groupBy(screeningFormAnswers, a => {
       const responseDate = moment(a.responseEndTime).format('DD-MM-YYYY');
       return `${getSurveyGroupKey(a.surveyId)}|${responseDate}`;
     });
@@ -104,12 +106,11 @@ export const dataGenerator = async (models, parameters = {}) => {
     const patientAdditionalData = patient.additionalData?.[0];
 
     // Group the answers by survey and date. So for per patient per date, we should 1 row per survey (maximum 3 surveys)
-    for (const [key] of Object.entries(patientAnswersBySurveyGroupAndDate)) {
+    for (const [key] of Object.entries(groupedScreeningFormAnswers)) {
       const [surveyGroupKey, responseDate] = key.split('|');
       const dateOfBirthMoment = patient.dateOfBirth ?? moment(patient.dateOfBirth);
       const age = dateOfBirthMoment ? moment().diff(dateOfBirthMoment, 'years') : '';
 
-      //cvdRiskLevel is either pde-FijCVD267 or pde-FijCVD1806
       const recordData = {
         firstName: patient.firstName,
         lastName: patient.lastName,
