@@ -62,13 +62,13 @@ const DumbImagingRequestInfoPane = React.memo(
               multiline
               value={imagingRequest.areaToBeImaged}
               label="Area to be imaged"
-              style={{ gridColumn: '1 / -1', minHeight: '60px', padding: '0' }}
+              style={{ gridColumn: '1 / -1', minHeight: '60px' }}
             />
             <TextInput
               multiline
               value={imagingRequest.note}
               label="Notes"
-              style={{ gridColumn: '1 / -1', minHeight: '60px', padding: '0' }}
+              style={{ gridColumn: '1 / -1', minHeight: '60px' }}
             />
             {(values.status === IMAGING_REQUEST_STATUS_TYPES.IN_PROGRESS ||
               values.status === IMAGING_REQUEST_STATUS_TYPES.COMPLETED) && (
@@ -94,38 +94,36 @@ const DumbImagingRequestInfoPane = React.memo(
                 multiline
                 value={values.results || imagingRequest.results}
                 onChange={handleChange}
-                style={{ gridColumn: '1 / -1', minHeight: '60px', padding: '0' }}
+                style={{ gridColumn: '1 / -1', minHeight: '60px' }}
               />
             )}
-            {dirty && (
-              // Needs custom styling to properly display view image button to the left
-              <ButtonRow style={{ gridTemplateColumns: '8rem auto 8rem' }}>
-                <Button
-                  variant="contained"
-                  color="secondary"
-                  style={{
-                    gridColumn: '1 / span 1',
-                    // Change horizontal padding to fit text properly
-                    paddingLeft: '10px',
-                    paddingRight: '10px',
-                    // Only show button when status is completed and keep it on the
-                    // document layout to preserve correct row button display
-                    visibility:
-                      values.status === IMAGING_REQUEST_STATUS_TYPES.COMPLETED
-                        ? 'visible'
-                        : 'hidden',
-                  }}
-                  disabled
-                >
-                  View image
-                  <br />
-                  (external link)
-                </Button>
+            {/* Needs custom styling to properly display view image button to the left*/}
+            <ButtonRow style={{ gridTemplateColumns: '8rem auto 8rem' }}>
+              <Button
+                variant="contained"
+                color="secondary"
+                style={{
+                  gridColumn: '1 / span 1',
+                  // Change horizontal padding to fit text properly
+                  paddingLeft: '10px',
+                  paddingRight: '10px',
+                  // Only show button when status is completed and keep it on the
+                  // document layout to preserve correct row button display
+                  visibility:
+                    values.status === IMAGING_REQUEST_STATUS_TYPES.COMPLETED ? 'visible' : 'hidden',
+                }}
+                disabled
+              >
+                View image
+                <br />
+                (external link)
+              </Button>
+              {dirty && (
                 <Button variant="outlined" color="primary" type="submit">
                   Save
                 </Button>
-              </ButtonRow>
-            )}
+              )}
+            </ButtonRow>
           </FormGrid>
         </Form>
       )}
