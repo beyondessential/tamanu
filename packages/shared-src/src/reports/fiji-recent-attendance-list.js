@@ -132,7 +132,7 @@ const transformDataPoint = encounter => {
     ethnicity: patientAdditionalData?.ethnicity?.name,
     contactPhone: patientAdditionalData?.primaryContactNumber,
     subdivision: patient.village?.name,
-    clinician: examiner.displayName,
+    clinician: examiner?.displayName,
     dateOfAttendance: moment(encounter.startDate).format('DD-MM-YYYY'),
     department: encounter.department?.name,
     location: encounter.location?.name,
