@@ -1,4 +1,4 @@
-import React, { createContext, useContext, useState, useCallback, useEffect } from 'react';
+import React, { useState, useCallback, useEffect } from 'react';
 
 import { REFERRAL_STATUSES } from 'shared/constants';
 import { REFERRAL_STATUS_LABELS } from '../constants';
