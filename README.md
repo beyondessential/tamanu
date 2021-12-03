@@ -264,7 +264,6 @@ the API url and login credentials as well (see config/default.json for how this 
 - you can ssh into your instances by setting up the eb cli and then running `eb ssh`; this is useful for setting up a database, or for in-depth debugging
 </details>
 
-
 ## Infrastructure
 
 ### Ansible
@@ -273,3 +272,37 @@ the API url and login credentials as well (see config/default.json for how this 
 # Set up a lan server
 ansible-playbook -i infra/ansible/hosts infra/ansible/lan.yml
 ```
+
+### Terraform
+
+Terraform can be used to create a Windows Server on AWS EC2 for LAN server deployment.
+
+#### Prerequisites
+
+- Install terraform on your local machine <https://www.terraform.io/downloads.html>
+- Set up AWS authentication. This can be done with environment variables (by setting `AWS_ACCESS_KEY_ID` and `AWS_SECRET_ACCESS_KEY`) or with a credential file. See <https://docs.aws.amazon.com/cli/latest/userguide/cli-chap-configure.html> for more information.
+
+#### Create / manage a Windows server
+
+- Create a new folder path `terraform/deploy/lan/<instance-name>` and file `main.tf`. See `terraform/deploy/lan/example/main.tf` for an example file to copy.
+- Update the `key` attribute for s3 backend to point to the new instance name.
+- Update the `instance_name` attribute of the module `lan` to use the new instance name.
+
+- Run terraform from within that folder
+
+    ```shell
+    terraform init
+    terraform plan
+    terraform apply
+    ```
+
+- Once the instance is created, you can [log into the instance using SSM](https://docs.aws.amazon.com/systems-manager/latest/userguide/session-manager-working-with-sessions-start.html), either via the Console or the CLI.
+
+- If the instance needs to be re-created, do
+
+    ```shell
+    terraform destroy
+    terraform apply
+    ```
+
+Terraform state is stored on S3 on the [`tamanu-terraform` bucket](https://s3.console.aws.amazon.com/s3/buckets/tamanu-terraform?region=ap-southeast-2&tab=objects).
