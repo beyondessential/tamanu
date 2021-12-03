@@ -128,8 +128,6 @@ export const dataGenerator = async (models, parameters = {}) => {
     const dateOfBirthMoment = patient.dateOfBirth ?? moment(patient.dateOfBirth);
     const age = dateOfBirthMoment ? moment().diff(dateOfBirthMoment, 'years') : '';
 
-    //cvdRiskLevel is either pde-FijCVD267 or pde-FijCVD1806
-    const cvdRiskLevel = 'get';
     const recordData = {
       firstName: patient.firstName,
       lastName: patient.lastName,
@@ -139,7 +137,6 @@ export const dataGenerator = async (models, parameters = {}) => {
       ethnicity: patientAdditionalData?.ethnicity?.name,
       contactNumber: patientAdditionalData?.primaryContactNumber,
       referralCreated: REFERRAL_NAME_BY_SURVEY_GROUP_KEY[surveyGroupKey],
-      cvdRiskLevel,
     };
 
     const referralDataElements = getReferralDataElements(surveyGroupKey);
