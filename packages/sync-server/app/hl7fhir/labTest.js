@@ -25,6 +25,17 @@ function labRequestStatusToHL7Status(status) {
   }
 }
 
+export function hl7StatusToLabRequestStatus(status) {
+  switch (status) {
+    case 'final':
+      return LAB_REQUEST_STATUSES.PUBLISHED;
+    case 'registered':
+      return LAB_REQUEST_STATUSES.RESULTS_PENDING;
+    default:
+      return status;
+  }
+}
+
 function patientToHL7Reference(patient) {
   return {
     reference: `Patient/${patient.id}`,

@@ -1,5 +1,7 @@
-import React, { useState, useCallback, useEffect } from 'react';
+import React, { createContext, useContext, useState, useCallback, useEffect } from 'react';
 
+import { REFERRAL_STATUSES } from 'shared/constants';
+import { REFERRAL_STATUS_LABELS } from '../constants';
 import { DataFetchingTable } from './Table';
 import { DateDisplay } from './DateDisplay';
 import { DropdownButton } from './DropdownButton';
@@ -9,11 +11,17 @@ import { useEncounter } from '../contexts/Encounter';
 import { useApi } from '../api';
 import { SurveyResponseDetailsModal } from './SurveyResponseDetailsModal';
 
-const ActionDropdown = React.memo(({ row }) => {
+const ActionDropdown = React.memo(({ row, refreshTable }) => {
   const [open, setOpen] = useState(false);
   const { loadEncounter } = useEncounter();
+  const api = useApi();
+
   const onViewEncounter = useCallback(async () => {
     loadEncounter(row.encounterId, true);
+  }, [row]);
+  const onCompleteReferral = useCallback(async () => {
+    await api.put(`referral/${row.id}`, { status: REFERRAL_STATUSES.COMPLETED });
+    refreshTable();
   }, [row]);
   const onCancelReferral = useCallback(async () => {
     console.log('TODO: Delete referral object');
@@ -22,17 +30,23 @@ const ActionDropdown = React.memo(({ row }) => {
   const actions = [
     {
       label: 'Admit',
-      condition: () => !row.encounterId && !row.cancelled,
+      condition: () => row.status === REFERRAL_STATUSES.PENDING,
       onClick: () => setOpen(true),
     },
+    // Worth keeping around to address in proper linear card
     {
       label: 'View',
-      condition: () => !!row.encounterId,
+      condition: () => !!row.encounterId, // always false, field no longer exists.
       onClick: onViewEncounter,
     },
     {
+      label: 'Complete',
+      condition: () => row.status === REFERRAL_STATUSES.PENDING,
+      onClick: onCompleteReferral,
+    },
+    {
       label: 'Cancel referral',
-      condition: () => !row.encounterId && !row.cancelled,
+      condition: () => row.status === REFERRAL_STATUSES.PENDING,
       onClick: onCancelReferral,
     },
   ].filter(action => !action.condition || action.condition());
@@ -88,11 +102,12 @@ const ReferralBy = ({ surveyResponse: { survey, answers } }) => {
 };
 
 const getDate = ({ initiatingEncounter }) => <DateDisplay date={initiatingEncounter.startDate} />;
-
 const getReferralType = ({ surveyResponse: { survey } }) => survey.name;
 const getReferralBy = ({ surveyResponse }) => <ReferralBy surveyResponse={surveyResponse} />;
-const getStatus = ({ completingEncounter }) => (completingEncounter ? 'Complete' : 'Pending');
-const getActions = row => <ActionDropdown row={row} />;
+const getStatus = ({ status }) => REFERRAL_STATUS_LABELS[status] || 'Unknown';
+const getActions = ({ onTableRefresh, ...row }) => (
+  <ActionDropdown refreshTable={onTableRefresh} row={row} />
+);
 
 const columns = [
   { key: 'date', title: 'Referral date', accessor: getDate },

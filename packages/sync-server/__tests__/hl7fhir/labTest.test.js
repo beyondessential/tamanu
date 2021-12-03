@@ -5,7 +5,11 @@ import { LAB_REQUEST_STATUSES, REFERENCE_TYPES } from 'shared/constants';
 import { createTestContext } from '../utilities';
 import { validate } from './hl7utilities';
 
-import { labTestToHL7Observation, labTestToHL7DiagnosticReport } from '../../app/hl7fhir';
+import {
+  labTestToHL7Observation,
+  labTestToHL7DiagnosticReport,
+  hl7StatusToLabRequestStatus,
+} from '../../app/hl7fhir';
 
 async function prepopulate(models) {
   // test category
@@ -140,6 +144,25 @@ describe('HL7 Labs', () => {
       const labTest = await createLabTest({}, { status: LAB_REQUEST_STATUSES.RECEPTION_PENDING });
       const hl7 = labTestToHL7DiagnosticReport(labTest);
       expect(hl7.result).toHaveLength(0);
+    });
+  });
+
+  describe('hl7StatusToLabRequestStatus', () => {
+    const testCases = {
+      ...Object.values(LAB_REQUEST_STATUSES).reduce(
+        (acc, v) => ({
+          ...acc,
+          [v]: v,
+        }),
+        {},
+      ),
+      final: LAB_REQUEST_STATUSES.PUBLISHED,
+      registered: LAB_REQUEST_STATUSES.RESULTS_PENDING,
+    };
+    Object.entries(testCases).forEach(([input, output]) => {
+      it(`maps ${input} to ${output}`, () => {
+        expect(hl7StatusToLabRequestStatus(input)).toEqual(output);
+      });
     });
   });
 
