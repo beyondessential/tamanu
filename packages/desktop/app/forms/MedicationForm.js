@@ -143,7 +143,9 @@ export const MedicationForm = React.memo(
               {medication?.discontinued && (
                 <p style={{ color: 'red' }}>
                   <span style={{ fontWeight: 'bold' }}>Discontinued</span><br />
-                  Reason: {medication?.discontinuingReason}
+                  Discontinued at: {medication?.updatedAt.substr(0,10).split('-').reverse().join('/')}<br />
+                  by: {medication?.discontinuingClinician?.displayName}<br />
+                  Reason: {medication?.discontinuingReason}<br />
                 </p>
               )}
             </div>
