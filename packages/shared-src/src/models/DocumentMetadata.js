@@ -7,10 +7,12 @@ export class DocumentMetadata extends Model {
     super.init(
       {
         id: primaryKey,
-        name: Sequelize.STRING(31),
+        name: Sequelize.TEXT,
         type: Sequelize.STRING(31),
-        createdDate: Sequelize.DATE,
-        uploadedDate: Sequelize.DATE,
+        documentCreatedAt: Sequelize.DATE,
+        documentUploadedAt: Sequelize.DATE,
+        documentOwner: Sequelize.TEXT,
+        note: Sequelize.STRING,
       },
       {
         ...options,
@@ -20,11 +22,6 @@ export class DocumentMetadata extends Model {
   }
 
   static initRelations(models) {
-    this.belongsTo(models.User, {
-      foreignKey: 'ownerId',
-      as: 'owner',
-    });
-
     this.belongsTo(models.Attachment, {
       foreignKey: 'attachmentId',
       as: 'document',
@@ -38,6 +35,11 @@ export class DocumentMetadata extends Model {
     this.belongsTo(models.Patient, {
       foreignKey: 'patientId',
       as: 'patient',
+    });
+
+    this.belongsTo(models.ReferenceData, {
+      foreignKey: 'departmentId',
+      as: 'department',
     });
   }
 }
