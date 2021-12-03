@@ -110,7 +110,7 @@ export const CVD_PRIMARY_SCREENING_REFERRAL_DATA_ELEMENT_IDS = {
   dateOfReferral: 'pde-FijCVDRef4', // from Referral survey
   referredToHealthFacility: 'pde-FijCVDRef6', // from Referral survey
   expectedAttendanceDate: 'pde-FijCVDRef7', // from Referral survey
-  referringCso: 'pde-FijBCDRef2a', // from Referral survey
+  referringCso: 'pde-FijCVDRef2a', // from Referral survey
   reasonForReferral: 'pde-FijCVDRef11', // from Referral survey
   referringHealthFacility: 'pde-FijCVDRef2', // from Referral survey
 };
