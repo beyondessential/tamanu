@@ -12,13 +12,13 @@ export const createCVDFormSurveyResponse = async (app, patient, surveyDate) => {
     startTime: surveyDate,
     patientId: patient.id,
     endTime: surveyDate,
+    resultText: '3% GREEN',
     answers: {
       'pde-FijCVD002': `pde-FijCVD002-on-${surveyDate}-${patient.firstName}`,
       'pde-FijCVD004': `pde-FijCVD004-on-${surveyDate}-${patient.firstName}`,
       'pde-FijCVD007': `pde-FijCVD007-on-${surveyDate}-${patient.firstName}`,
       'pde-FijCVD010': `pde-FijCVD010-on-${surveyDate}-${patient.firstName}`,
       'pde-FijCVD021': `pde-FijCVD021-on-${surveyDate}-${patient.firstName}`,
-      'pde-FijCVDRisk334': `pde-FijCVDRisk334-on-${surveyDate}-${patient.firstName}`,
     },
   });
 };
