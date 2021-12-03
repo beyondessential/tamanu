@@ -19,8 +19,6 @@ import {
   REFERRAL_SURVEY_IDS,
   PRIMARY_SCREENING_PENDING_REFERRALS_REPORT_COLUMN_TEMPLATE,
   REFERRAL_NAME_BY_SURVEY_GROUP_KEY,
-  CVD_RISK_LEVEL_START_DATA_ELEMENT_ID,
-  CVD_RISK_LEVEL_END_DATA_ELEMENT_ID,
   ALL_SURVEY_IDS,
 } from './constants';
 
@@ -130,22 +128,6 @@ export const dataGenerator = async (models, parameters = {}) => {
     const dateOfBirthMoment = patient.dateOfBirth ?? moment(patient.dateOfBirth);
     const age = dateOfBirthMoment ? moment().diff(dateOfBirthMoment, 'years') : '';
 
-    //cvdRiskLevel is either pde-FijCVD267 or pde-FijCVD1806
-    const cvdRiskLevel =
-      getCachedAnswer(
-        answersByPatientSurveyDataElement,
-        patientId,
-        surveyGroupKey,
-        referralDate,
-        CVD_RISK_LEVEL_START_DATA_ELEMENT_ID,
-      ) ||
-      getCachedAnswer(
-        answersByPatientSurveyDataElement,
-        patientId,
-        surveyGroupKey,
-        referralDate,
-        CVD_RISK_LEVEL_END_DATA_ELEMENT_ID,
-      );
     const recordData = {
       firstName: patient.firstName,
       lastName: patient.lastName,
@@ -155,7 +137,6 @@ export const dataGenerator = async (models, parameters = {}) => {
       ethnicity: patientAdditionalData?.ethnicity?.name,
       contactNumber: patientAdditionalData?.primaryContactNumber,
       referralCreated: REFERRAL_NAME_BY_SURVEY_GROUP_KEY[surveyGroupKey],
-      cvdRiskLevel,
     };
 
     const referralDataElements = getReferralDataElements(surveyGroupKey);

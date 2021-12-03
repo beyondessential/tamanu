@@ -18,6 +18,7 @@ import {
   BREAST_CANCER_PRIMARY_SCREENING_REFERRAL_DATA_ELEMENT_IDS,
   CERVICAL_CANCER_PRIMARY_SCREENING_REFERRAL_DATA_ELEMENT_IDS,
   ALL_SURVEY_IDS,
+  getSurveyResultDataElement,
 } from './constants';
 
 export const parametersToAnswerSqlWhere = parameters => {
@@ -208,6 +209,28 @@ export const removeDuplicatedAnswersPerDate = answers => {
 
 export const transformAndRemoveDuplicatedAnswersPerDate = async (models, rawAnswers, surveyIds) => {
   const components = await models.SurveyScreenComponent.getComponentsForSurveys(surveyIds);
-  const transformedAnswers = await transformAnswers(models, rawAnswers, components);
+  const answersIncludingResults = [...rawAnswers, ...getSurveyResultsFromAnswers(rawAnswers)];
+  const transformedAnswers = await transformAnswers(models, answersIncludingResults, components);
   return removeDuplicatedAnswersPerDate(transformedAnswers);
+};
+
+const getSurveyResultsFromAnswers = answers => {
+  const surveyResponses = answers.map(a => a.surveyResponse);
+
+  const seenSurveyResponseIds = new Set();
+  const uniqueSurveyResponses = surveyResponses.filter(({ id }) => {
+    if (seenSurveyResponseIds.has(id)) {
+      return false;
+    }
+    seenSurveyResponseIds.add(id);
+    return true;
+  });
+
+  const surveyResults = uniqueSurveyResponses.map(sr => ({
+    dataElementId: getSurveyResultDataElement(sr.surveyId),
+    surveyResponse: sr,
+    body: sr.resultText || sr.result,
+  }));
+
+  return surveyResults;
 };
