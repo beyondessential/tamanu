@@ -55,7 +55,13 @@ const StyledTableRow = styled(TableRow)`
         background: rgba(255,255,255,0.6);
       }
     `
-      : ''}
+    : ''}
+      
+  
+  ${p => p.striked ? `
+    color: red;
+    text-decoration: line-through;
+  ` : ''}
 `;
 
 const StyledTableContainer = styled.div`
@@ -94,13 +100,13 @@ const StyledTableFooter = styled(TableFooter)`
   border-bottom: 1px solid black;
 `;
 
-const RowContainer = React.memo(({ children, onClick }) => (
-  <StyledTableRow onClick={onClick} style={{ marginTop: '1rem' }}>
+const RowContainer = React.memo(({ children, striked, onClick }) => (
+  <StyledTableRow onClick={onClick} style={{ marginTop: '1rem' }} striked={striked ? striked.toString() : ''}>
     {children}
   </StyledTableRow>
 ));
 
-const Row = React.memo(({ columns, data, onClick, onTableRefresh }) => {
+const Row = React.memo(({ columns, data, onClick, striked, onTableRefresh }) => {
   const cells = columns.map(
     ({ key, accessor, CellComponent, numeric, maxWidth, cellColor, dontCallRowInput }) => {
       const value = accessor
@@ -126,7 +132,7 @@ const Row = React.memo(({ columns, data, onClick, onTableRefresh }) => {
       );
     },
   );
-  return <RowContainer onClick={onClick && (() => onClick(data))}>{cells}</RowContainer>;
+  return <RowContainer onClick={onClick && (() => onClick(data))} striked={striked}>{cells}</RowContainer>;
 });
 
 const ErrorSpan = styled.span`
@@ -263,6 +269,7 @@ class TableComponent extends React.Component {
     const sortedData = customSort ? customSort(data) : data;
     return sortedData.map(rowData => {
       const key = rowData[rowIdKey] || rowData[columns[0].key];
+      const striked = rowData?.discontinued;
       return (
         <Row
           data={rowData}
@@ -270,6 +277,7 @@ class TableComponent extends React.Component {
           columns={columns}
           onClick={onRowClick}
           onTableRefresh={onTableRefresh}
+          striked={striked}
         />
       );
     });
