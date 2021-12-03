@@ -8,7 +8,31 @@ import {
   createBreastCancerReferral,
 } from './utils';
 
-describe.skip('Fiji NCD Primary Screening Pending Referrals line list', () => {
+const PROPERTY_LIST = [
+  'firstName',
+  'lastName',
+  'displayId',
+  'age',
+  'gender',
+  'ethnicity',
+  'contactNumber',
+  'referralCreated',
+  'referringHealthFacility',
+  'nameOfCso',
+  'dateOfReferral',
+  'expectedAttendanceDate',
+  'reasonForReferral',
+  'dateOfScreening',
+  'screeningLocation',
+  'screeningHealthFacility',
+  'nameOfCso',
+  'cvdRiskLevel',
+];
+const PROPERTY_TO_EXCEL_INDEX = PROPERTY_LIST.reduce((acc, prop, i) => ({ ...acc, [prop]: i }), {});
+
+const getProperty = (row, prop) => row[PROPERTY_TO_EXCEL_INDEX[prop]];
+
+describe('Fiji NCD Primary Screening Pending Referrals line list', () => {
   let baseApp = null;
   let app = null;
   let expectedPatient1 = null;
@@ -116,12 +140,30 @@ describe.skip('Fiji NCD Primary Screening Pending Referrals line list', () => {
       const row1 = result.body.find(
         r => r[0] === expectedPatient2.firstName && r[8].includes('FijBCRef04-on-2021-03-13'),
       );
-      expect(row1[0]).toBe(expectedPatient2.firstName);
-      expect(row1[1]).toBe(expectedPatient2.lastName);
-      expect(row1[2]).toBe(expectedPatient2.displayId);
-      expect(row1[4]).toBe(expectedPatient2.sex);
-      expect(row1[5]).toBe(ethnicity2.name);
-      expect(row1[6]).toBe(patientAdditionalData2.primaryContactNumber);
+      const expectedDetails1 = {
+        firstName: expectedPatient2.firstName,
+        lastName: expectedPatient2.lastName,
+        displayId: expectedPatient2.displayId,
+        // age: ,
+        gender: expectedPatient2.sex,
+        ethnicity: ethnicity2.name,
+        contactNumber: patientAdditionalData2.primaryContactNumber,
+        referralCreated: 'Breast Cancer Primary Screening Referral',
+        dateOfReferral: `pde-FijBS02-on-2021-03-12T03:00:00.133Z-${expectedPatient2.firstName}`,
+        screeningLocation: `pde-FijBS04-on-2021-03-12T03:00:00.133Z-${expectedPatient2.firstName}`,
+        screeningHealthFacility: `pde-FijBS07-on-2021-03-12T03:00:00.133Z-${expectedPatient2.firstName}`,
+        nameOfCso: `pde-FijBS10-on-2021-03-12T03:00:00.133Z-${expectedPatient2.firstName}`,
+        screeningEligibility: `pde-FijBS14-on-2021-03-12T03:00:00.133Z-${expectedPatient2.firstName}`,
+        cvdRiskLevel: null,
+        referredToHealthFacility: `pde-FijBCRef06-on-2021-03-12T04:00:00.133Z-${expectedPatient2.firstName}`,
+        expectedAttendanceDate: `pde-FijBCRef07-on-2021-03-12T04:00:00.133Z-${expectedPatient2.firstName}`,
+        referralStatus: 'Pending',
+      };
+      for (const entry of Object.entries(expectedDetails1)) {
+        const [key, expectedValue] = entry;
+        expect(getProperty(row1, key)).toBe(expectedValue);
+      }
+
       expect(row1[7]).toBe('Breast Cancer Primary Screening Referral');
       expect(row1[8]).toBe(
         `pde-FijBCRef04-on-2021-03-13T02:00:00.133Z-${expectedPatient2.firstName}`,

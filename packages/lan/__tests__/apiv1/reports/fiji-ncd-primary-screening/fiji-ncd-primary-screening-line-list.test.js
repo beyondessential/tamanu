@@ -31,16 +31,8 @@ const PROPERTY_LIST = [
 ];
 const PROPERTY_TO_EXCEL_INDEX = PROPERTY_LIST.reduce((acc, prop, i) => ({ ...acc, [prop]: i }), {});
 
-const getProperty = (row, prop) => {
-  // console.log(
-  //   row,
-  //   prop,
-  //   PROPERTY_TO_EXCEL_INDEX,
-  //   PROPERTY_TO_EXCEL_INDEX[prop],
-  //   row[PROPERTY_TO_EXCEL_INDEX[prop]],
-  // );
-  return row[PROPERTY_TO_EXCEL_INDEX[prop]];
-};
+const getProperty = (row, prop) => row[PROPERTY_TO_EXCEL_INDEX[prop]];
+
 describe('Fiji NCD Primary Screening line list', () => {
   let baseApp = null;
   let app = null;
