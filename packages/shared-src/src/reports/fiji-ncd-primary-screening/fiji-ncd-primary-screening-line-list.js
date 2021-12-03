@@ -152,7 +152,6 @@ export const dataGenerator = async (models, parameters = {}) => {
           );
         });
       }
-      console.log(recordData);
       reportData.push(recordData);
     }
   }

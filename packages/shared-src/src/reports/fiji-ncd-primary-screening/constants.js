@@ -4,7 +4,7 @@ const BREAST_CANCER_FORM_SURVEY_ID = 'program-fijincdprimaryscreening-fijibreast
 const BREAST_CANCER_REFERRAL_SURVEY_ID = 'program-fijincdprimaryscreening-fijibreastscreenref';
 const CERVICAL_CANCER_FORM_SURVEY_ID = 'program-fijincdprimaryscreening-fijicervicalprimaryscreen';
 const CERVICAL_CANCER_REFERRAL_SURVEY_ID = 'program-fijincdprimaryscreening-fijicervicalscreenref';
-// program-fijincdprimaryscreening-fijicvdprimaryscreenref
+
 export const PRIMARY_SCREENING_REPORT_COLUMN_TEMPLATE = [
   { title: 'First name', accessor: data => data.firstName },
   { title: 'Last name', accessor: data => data.lastName },
