@@ -10,12 +10,22 @@ import { EncounterModal } from './EncounterModal';
 import { useEncounter } from '../contexts/Encounter';
 import { useApi } from '../api';
 import { SurveyResponseDetailsModal } from './SurveyResponseDetailsModal';
+import { WarningModal } from './WarningModal';
 
 const ActionDropdown = React.memo(({ row, refreshTable }) => {
-  const [open, setOpen] = useState(false);
+  const [openModal, setOpenModal] = useState('');
   const { loadEncounter } = useEncounter();
   const api = useApi();
 
+  // Modal callbacks
+  const onCloseModal = useCallback(() => setOpenModal(''), []);
+  const onCancelReferral = useCallback(async () => {
+    await api.put(`referral/${row.id}`, { status: REFERRAL_STATUSES.CANCELLED });
+    onCloseModal();
+    refreshTable();
+  }, [row]);
+
+  // Actions callbacks
   const onViewEncounter = useCallback(async () => {
     loadEncounter(row.encounterId, true);
   }, [row]);
@@ -23,15 +33,12 @@ const ActionDropdown = React.memo(({ row, refreshTable }) => {
     await api.put(`referral/${row.id}`, { status: REFERRAL_STATUSES.COMPLETED });
     refreshTable();
   }, [row]);
-  const onCancelReferral = useCallback(async () => {
-    console.log('TODO: Delete referral object');
-  }, [row]);
 
   const actions = [
     {
       label: 'Admit',
       condition: () => row.status === REFERRAL_STATUSES.PENDING,
-      onClick: () => setOpen(true),
+      onClick: () => setOpenModal('encounter'),
     },
     // Worth keeping around to address in proper linear card
     {
@@ -47,7 +54,7 @@ const ActionDropdown = React.memo(({ row, refreshTable }) => {
     {
       label: 'Cancel',
       condition: () => row.status === REFERRAL_STATUSES.PENDING,
-      onClick: onCancelReferral,
+      onClick: () => setOpenModal('warning'),
     },
   ].filter(action => !action.condition || action.condition());
 
@@ -55,10 +62,17 @@ const ActionDropdown = React.memo(({ row, refreshTable }) => {
     <>
       <DropdownButton color="primary" actions={actions} />
       <EncounterModal
-        open={open}
-        onClose={() => setOpen(false)}
+        open={openModal === 'encounter'}
+        onClose={onCloseModal}
         patientId={row.initiatingEncounter.patientId}
         referral={row}
+      />
+      <WarningModal
+        open={openModal === 'warning'}
+        title="Cancel referral"
+        text="Are you sure you want to cancel this referral?"
+        onConfirm={onCancelReferral}
+        onClose={onCloseModal}
       />
     </>
   );
