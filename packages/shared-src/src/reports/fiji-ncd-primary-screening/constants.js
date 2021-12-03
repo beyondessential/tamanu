@@ -6,26 +6,13 @@ const CERVICAL_CANCER_FORM_SURVEY_ID = 'program-fijincdprimaryscreening-fijicerv
 const CERVICAL_CANCER_REFERRAL_SURVEY_ID = 'program-fijincdprimaryscreening-fijicervicalscreenref';
 // program-fijincdprimaryscreening-fijicvdprimaryscreenref
 export const PRIMARY_SCREENING_REPORT_COLUMN_TEMPLATE = [
-  {
-    title: 'First name',
-    accessor: data => data.firstName,
-  },
-  {
-    title: 'Last name',
-    accessor: data => data.lastName,
-  },
-  {
-    title: 'NHN',
-    accessor: data => data.displayId,
-  },
-  {
-    title: 'Age',
-    accessor: data => data.age,
-  },
+  { title: 'First name', accessor: data => data.firstName },
+  { title: 'Last name', accessor: data => data.lastName },
+  { title: 'NHN', accessor: data => data.displayId },
+  { title: 'Age', accessor: data => data.age },
   { title: 'Gender', accessor: data => data.gender },
   { title: 'Ethnicity', accessor: data => data.ethnicity },
   { title: 'Contact number', accessor: data => data.contactNumber },
-
   { title: 'Screening completed', accessor: data => data.screeningCompleted },
   { title: 'Date of screening', accessor: data => data.dateOfScreening },
   { title: 'Screening location', accessor: data => data.screeningLocation },
@@ -41,22 +28,10 @@ export const PRIMARY_SCREENING_REPORT_COLUMN_TEMPLATE = [
 ];
 
 export const PRIMARY_SCREENING_PENDING_REFERRALS_REPORT_COLUMN_TEMPLATE = [
-  {
-    title: 'First name',
-    accessor: data => data.firstName,
-  },
-  {
-    title: 'Last name',
-    accessor: data => data.lastName,
-  },
-  {
-    title: 'NHN',
-    accessor: data => data.displayId,
-  },
-  {
-    title: 'Age',
-    accessor: data => data.age,
-  },
+  { title: 'First name', accessor: data => data.firstName },
+  { title: 'Last name', accessor: data => data.lastName },
+  { title: 'NHN', accessor: data => data.displayId },
+  { title: 'Age', accessor: data => data.age },
   { title: 'Gender', accessor: data => data.gender },
   { title: 'Ethnicity', accessor: data => data.ethnicity },
   { title: 'Contact number', accessor: data => data.contactNumber },
