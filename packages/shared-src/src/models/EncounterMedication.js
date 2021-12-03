@@ -26,7 +26,6 @@ export class EncounterMedication extends Model {
         quantity: Sequelize.INTEGER,
 
         discontinued: Sequelize.BOOLEAN,
-        discontinuingClinicianId: Sequelize.STRING,
         discontinuingReason: Sequelize.STRING,
         repeats: Sequelize.INTEGER,
         isDischarge: {

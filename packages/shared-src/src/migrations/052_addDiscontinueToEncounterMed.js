@@ -7,6 +7,10 @@ module.exports = {
     });
     await query.addColumn('encounter_medications', 'discontinuing_clinician_id', {
       type: Sequelize.STRING,
+      references: {
+        model: 'users',
+        key: 'id',
+      },
     });
     await query.addColumn('encounter_medications', 'discontinuing_reason', {
       type: Sequelize.STRING,
