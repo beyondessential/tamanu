@@ -148,6 +148,3 @@ export const CERVICAL_CANCER_PRIMARY_SCREENING_REFERRAL_DATA_ELEMENT_IDS = {
   reasonForReferral: 'pde-FijCCRef10', // from Referral survey
   referringHealthFacility: 'pde-FijCCRef02', // from Referral survey
 };
-
-export const CVD_RISK_LEVEL_START_DATA_ELEMENT_ID = 'pde-FijCVDRisk008';
-export const CVD_RISK_LEVEL_END_DATA_ELEMENT_ID = 'pde-FijCVDRisk334';

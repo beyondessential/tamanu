@@ -20,8 +20,6 @@ import {
   FORM_SURVEY_IDS,
   FORM_NAME_BY_SURVEY_GROUP_KEY,
   PRIMARY_SCREENING_REPORT_COLUMN_TEMPLATE,
-  CVD_RISK_LEVEL_START_DATA_ELEMENT_ID,
-  CVD_RISK_LEVEL_END_DATA_ELEMENT_ID,
 } from './constants';
 
 const getReferralByResponseIds = async (models, surveyResponseIds) =>
