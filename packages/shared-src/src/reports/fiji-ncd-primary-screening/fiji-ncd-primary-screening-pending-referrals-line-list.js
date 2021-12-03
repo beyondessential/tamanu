@@ -166,7 +166,7 @@ export const dataGenerator = async (models, parameters = {}) => {
       );
     });
 
-    console.log(answersByPatientSurveyDataElement, surveyGroupKey, formDataElements, recordData);
+    console.log(recordData);
     reportData.push(recordData);
   }
 

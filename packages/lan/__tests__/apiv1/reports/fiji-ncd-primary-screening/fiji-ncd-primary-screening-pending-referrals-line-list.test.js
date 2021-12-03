@@ -138,7 +138,9 @@ describe('Fiji NCD Primary Screening Pending Referrals line list', () => {
       // Patient 2 - Breast Cancer Referral
       // NOTE: Have to find row like this because the report can return records in random order.
       const row1 = result.body.find(
-        r => r[0] === expectedPatient2.firstName && r[8].includes('FijBCRef04-on-2021-03-13'),
+        r =>
+          r[0] === expectedPatient2.firstName &&
+          getProperty(r, 'dateOfReferral').includes('FijBCRef04-on-2021-03-13'),
       );
       const expectedDetails1 = {
         firstName: expectedPatient2.firstName,
@@ -149,14 +151,13 @@ describe('Fiji NCD Primary Screening Pending Referrals line list', () => {
         ethnicity: ethnicity2.name,
         contactNumber: patientAdditionalData2.primaryContactNumber,
         referralCreated: 'Breast Cancer Primary Screening Referral',
-        dateOfReferral: `pde-FijBS02-on-2021-03-12T03:00:00.133Z-${expectedPatient2.firstName}`,
-        screeningLocation: `pde-FijBS04-on-2021-03-12T03:00:00.133Z-${expectedPatient2.firstName}`,
-        screeningHealthFacility: `pde-FijBS07-on-2021-03-12T03:00:00.133Z-${expectedPatient2.firstName}`,
-        nameOfCso: `pde-FijBS10-on-2021-03-12T03:00:00.133Z-${expectedPatient2.firstName}`,
+        dateOfReferral: `pde-FijBCRef04-on-2021-03-13T02:00:00.133Z-${expectedPatient2.firstName}`,
+        // referredToHealthFacility: `pde-FijBCRef06-on-2021-03-13T02:00:00.133Z-${expectedPatient2.firstName}`,
+        expectedAttendanceDate: `pde-FijBCRef07-on-2021-03-13T02:00:00.133Z-${expectedPatient2.firstName}`,
+        nameOfCso: `pde-FijBS10-on-2021-03-13T01:00:00.133Z-${expectedPatient2.firstName}`,
+        referringCso: `pde-FijBCRef2a-on-2021-03-12T03:00:00.133Z-${expectedPatient2.firstName}`,
         screeningEligibility: `pde-FijBS14-on-2021-03-12T03:00:00.133Z-${expectedPatient2.firstName}`,
         cvdRiskLevel: null,
-        referredToHealthFacility: `pde-FijBCRef06-on-2021-03-12T04:00:00.133Z-${expectedPatient2.firstName}`,
-        expectedAttendanceDate: `pde-FijBCRef07-on-2021-03-12T04:00:00.133Z-${expectedPatient2.firstName}`,
         referralStatus: 'Pending',
       };
       for (const entry of Object.entries(expectedDetails1)) {
@@ -164,10 +165,6 @@ describe('Fiji NCD Primary Screening Pending Referrals line list', () => {
         expect(getProperty(row1, key)).toBe(expectedValue);
       }
 
-      expect(row1[7]).toBe('Breast Cancer Primary Screening Referral');
-      expect(row1[8]).toBe(
-        `pde-FijBCRef04-on-2021-03-13T02:00:00.133Z-${expectedPatient2.firstName}`,
-      );
       expect(row1[9]).toBe(
         `pde-FijBCRef07-on-2021-03-13T02:00:00.133Z-${expectedPatient2.firstName}`,
       );

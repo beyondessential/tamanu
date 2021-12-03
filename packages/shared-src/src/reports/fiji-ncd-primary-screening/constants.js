@@ -37,7 +37,7 @@ export const PRIMARY_SCREENING_PENDING_REFERRALS_REPORT_COLUMN_TEMPLATE = [
   { title: 'Contact number', accessor: data => data.contactNumber },
   { title: 'Referral created', accessor: data => data.referralCreated },
   { title: 'Referring health facility', accessor: data => data.referringHealthFacility },
-  { title: 'Referring CSO', accessor: data => data.nameOfCso },
+  { title: 'Referring CSO', accessor: data => data.referringCso },
   { title: 'Date of referral', accessor: data => data.dateOfReferral },
   { title: 'Expected attendance date', accessor: data => data.expectedAttendanceDate },
   { title: 'Reason for referral', accessor: data => data.reasonForReferral },
@@ -144,7 +144,7 @@ export const CERVICAL_CANCER_PRIMARY_SCREENING_REFERRAL_DATA_ELEMENT_IDS = {
   dateOfReferral: 'pde-FijCCRef04', // from Referral survey
   referredToHealthFacility: 'pde-FijCCRef06', // from Referral survey
   expectedAttendanceDate: 'pde-FijCCRef07', // from Referral survey
-  referringCso: 'pde-FijCCCRef2a', // from Referral survey
+  referringCso: 'pde-FijCCRef2a', // from Referral survey
   reasonForReferral: 'pde-FijCCRef10', // from Referral survey
   referringHealthFacility: 'pde-FijCCRef02', // from Referral survey
 };
