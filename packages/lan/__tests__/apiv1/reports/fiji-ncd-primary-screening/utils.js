@@ -31,6 +31,7 @@ export const createCVDReferral = async (app, patient, referralDate) => {
     endTime: referralDate,
     answers: {
       'pde-FijCVDRef4': `pde-FijCVDRef4-on-${referralDate}-${patient.firstName}`,
+      'pde-FijCVDRef2a': `pde-FijCVDRef2a-on-${referralDate}-${patient.firstName}`,
       'pde-FijCVDRef6': `pde-FijCVDRef6-on-${referralDate}-${patient.firstName}`,
       'pde-FijCVDRef7': `pde-FijCVDRef7-on-${referralDate}-${patient.firstName}`,
       'pde-FijCVDRef11': `pde-FijCVDRef11-on-${referralDate}-${patient.firstName}`,
@@ -62,6 +63,7 @@ export const createBreastCancerReferral = async (app, patient, referralDate) => 
     endTime: referralDate,
     answers: {
       'pde-FijBCRef04': `pde-FijBCRef04-on-${referralDate}-${patient.firstName}`,
+      'pde-FijBCRef2a': `pde-FijBCRef2a-on-${referralDate}-${patient.firstName}`,
       'pde-FijBCRef06': `pde-FijBCRef06-on-${referralDate}-${patient.firstName}`,
       'pde-FijBCRef07': `pde-FijBCRef07-on-${referralDate}-${patient.firstName}`,
       'pde-FijBCRef10': `pde-FijBCRef10-on-${referralDate}-${patient.firstName}`,
@@ -83,6 +85,7 @@ export const setupProgramAndSurvey = async models => {
     { id: 'pde-FijCVD021', code: 'FijCVD021', name: 'FijCVD021' },
     { id: 'pde-FijCVDRisk334', code: 'FijCVDRisk334', name: 'FijCVDRisk334' },
 
+    { id: 'pde-FijCVDRef2a', code: 'FijCVDRef2a', name: 'FijCVDRef2a' },
     { id: 'pde-FijCVDRef4', code: 'FijCVDRef4', name: 'FijCVDRef4' },
     { id: 'pde-FijCVDRef6', code: 'FijCVDRef6', name: 'FijCVDRef6' },
     { id: 'pde-FijCVDRef7', code: 'FijCVDRef7', name: 'FijCVDRef7' },
@@ -94,6 +97,7 @@ export const setupProgramAndSurvey = async models => {
     { id: 'pde-FijBS10', code: 'FijBS10', name: 'FijBS10' },
     { id: 'pde-FijBS14', code: 'FijBS14', name: 'FijBS14' },
 
+    { id: 'pde-FijBCRef2a', code: 'FijBCRef2a', name: 'FijBCRef2a' },
     { id: 'pde-FijBCRef04', code: 'FijBCRef04', name: 'FijBCRef04' },
     { id: 'pde-FijBCRef06', code: 'FijBCRef06', name: 'FijBCRef06' },
     { id: 'pde-FijBCRef07', code: 'FijBCRef07', name: 'FijBCRef07' },
@@ -151,6 +155,7 @@ export const setupProgramAndSurvey = async models => {
     { dataElementId: 'pde-FijCVD021', surveyId: CVD_PRIMARY_FORM_SURVEY_ID },
     { dataElementId: 'pde-FijCVDRisk334', surveyId: CVD_PRIMARY_FORM_SURVEY_ID },
 
+    { dataElementId: 'pde-FijCVDRef2a', surveyId: CVD_PRIMARY_REFERRAL_SURVEY_ID },
     { dataElementId: 'pde-FijCVDRef4', surveyId: CVD_PRIMARY_REFERRAL_SURVEY_ID },
     { dataElementId: 'pde-FijCVDRef6', surveyId: CVD_PRIMARY_REFERRAL_SURVEY_ID },
     { dataElementId: 'pde-FijCVDRef7', surveyId: CVD_PRIMARY_REFERRAL_SURVEY_ID },
@@ -162,6 +167,7 @@ export const setupProgramAndSurvey = async models => {
     { dataElementId: 'pde-FijBS10', surveyId: BREAST_CANCER_FORM_SURVEY_ID },
     { dataElementId: 'pde-FijBS14', surveyId: BREAST_CANCER_FORM_SURVEY_ID },
 
+    { dataElementId: 'pde-FijBCRef2a', surveyId: BREAST_CANCER_REFERRAL_SURVEY_ID },
     { dataElementId: 'pde-FijBCRef04', surveyId: BREAST_CANCER_REFERRAL_SURVEY_ID },
     { dataElementId: 'pde-FijBCRef06', surveyId: BREAST_CANCER_REFERRAL_SURVEY_ID },
     { dataElementId: 'pde-FijBCRef07', surveyId: BREAST_CANCER_REFERRAL_SURVEY_ID },
