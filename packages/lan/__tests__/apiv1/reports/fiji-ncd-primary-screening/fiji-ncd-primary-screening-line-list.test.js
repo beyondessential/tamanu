@@ -8,6 +8,39 @@ import {
   createBreastCancerReferral,
 } from './utils';
 
+const PROPERTY_LIST = [
+  'firstName',
+  'lastName',
+  'displayId',
+  'age',
+  'gender',
+  'ethnicity',
+  'contactNumber',
+  'screeningCompleted',
+  'dateOfScreening',
+  'screeningLocation',
+  'screeningHealthFacility',
+  'nameOfCso',
+  'screeningEligibility',
+  'cvdRiskLevel',
+  'referralCreated',
+  'dateOfReferral',
+  'referredToHealthFacility',
+  'expectedAttendanceDate',
+  'referralStatus',
+];
+const PROPERTY_TO_EXCEL_INDEX = PROPERTY_LIST.reduce((acc, prop, i) => ({ ...acc, [prop]: i }), {});
+
+const getProperty = (row, prop) => {
+  // console.log(
+  //   row,
+  //   prop,
+  //   PROPERTY_TO_EXCEL_INDEX,
+  //   PROPERTY_TO_EXCEL_INDEX[prop],
+  //   row[PROPERTY_TO_EXCEL_INDEX[prop]],
+  // );
+  return row[PROPERTY_TO_EXCEL_INDEX[prop]];
+};
 describe('Fiji NCD Primary Screening line list', () => {
   let baseApp = null;
   let app = null;
@@ -108,70 +141,66 @@ describe('Fiji NCD Primary Screening line list', () => {
       const row1 = result.body.find(
         r => r[0] === expectedPatient1.firstName && r[8].includes('FijBS02-on-2021-03-12'),
       );
-      expect(row1[0]).toBe(expectedPatient1.firstName);
-      expect(row1[1]).toBe(expectedPatient1.lastName);
-      expect(row1[2]).toBe(expectedPatient1.displayId);
-      expect(row1[4]).toBe(expectedPatient1.sex);
-      expect(row1[5]).toBe(ethnicity1.name);
-      expect(row1[6]).toBe(patientAdditionalData1.primaryContactNumber);
-      expect(row1[7]).toBe('Breast Cancer Primary Screening');
-      expect(row1[8]).toBe(`pde-FijBS02-on-2021-03-12T03:00:00.133Z-${expectedPatient1.firstName}`);
-      expect(row1[9]).toBe(`pde-FijBS04-on-2021-03-12T03:00:00.133Z-${expectedPatient1.firstName}`);
-      expect(row1[10]).toBe(
-        `pde-FijBS07-on-2021-03-12T03:00:00.133Z-${expectedPatient1.firstName}`,
-      );
-      expect(row1[11]).toBe(
-        `pde-FijBS10-on-2021-03-12T03:00:00.133Z-${expectedPatient1.firstName}`,
-      );
-      expect(row1[12]).toBe(
-        `pde-FijBS14-on-2021-03-12T03:00:00.133Z-${expectedPatient1.firstName}`,
-      );
-      expect(row1[13]).toBe(null);
-
-      // Referral details
-      expect(row1[14]).toBe(`Yes`);
-      expect(row1[15]).toBe(
-        `pde-FijBCRef04-on-2021-03-12T04:00:00.133Z-${expectedPatient1.firstName}`,
-      );
-      expect(row1[16]).toBe(
-        `pde-FijBCRef06-on-2021-03-12T04:00:00.133Z-${expectedPatient1.firstName}`,
-      );
-      expect(row1[17]).toBe(
-        `pde-FijBCRef07-on-2021-03-12T04:00:00.133Z-${expectedPatient1.firstName}`,
-      );
+      const expectedDetails1 = {
+        firstName: expectedPatient1.firstName,
+        lastName: expectedPatient1.lastName,
+        displayId: expectedPatient1.displayId,
+        // age: ,
+        gender: expectedPatient1.sex,
+        ethnicity: ethnicity1.name,
+        contactNumber: patientAdditionalData1.primaryContactNumber,
+        screeningCompleted: 'Breast Cancer Primary Screening',
+        dateOfScreening: `pde-FijBS02-on-2021-03-12T03:00:00.133Z-${expectedPatient1.firstName}`,
+        screeningLocation: `pde-FijBS04-on-2021-03-12T03:00:00.133Z-${expectedPatient1.firstName}`,
+        screeningHealthFacility: `pde-FijBS07-on-2021-03-12T03:00:00.133Z-${expectedPatient1.firstName}`,
+        nameOfCso: `pde-FijBS10-on-2021-03-12T03:00:00.133Z-${expectedPatient1.firstName}`,
+        screeningEligibility: `pde-FijBS14-on-2021-03-12T03:00:00.133Z-${expectedPatient1.firstName}`,
+        cvdRiskLevel: null,
+        referralCreated: `Yes`,
+        dateOfReferral: `pde-FijBCRef04-on-2021-03-12T04:00:00.133Z-${expectedPatient1.firstName}`,
+        referredToHealthFacility: `pde-FijBCRef06-on-2021-03-12T04:00:00.133Z-${expectedPatient1.firstName}`,
+        expectedAttendanceDate: `pde-FijBCRef07-on-2021-03-12T04:00:00.133Z-${expectedPatient1.firstName}`,
+        referralStatus: 'Pending',
+      };
+      for (const entry of Object.entries(expectedDetails1)) {
+        const [key, expectedValue] = entry;
+        expect(getProperty(row1, key)).toBe(expectedValue);
+      }
 
       // Patient 1 on 2021-03-12 with single CVD submission and single referral on the same date
       const row2 = result.body.find(
         r => r[0] === expectedPatient1.firstName && r[8].includes('FijCVD002-on-2021-03-12'),
       );
-      expect(row2[0]).toBe(expectedPatient1.firstName);
-      expect(row2[1]).toBe(expectedPatient1.lastName);
-      expect(row2[2]).toBe(expectedPatient1.displayId);
-      expect(row2[4]).toBe(expectedPatient1.sex);
-      expect(row2[5]).toBe(ethnicity1.name);
-      expect(row2[6]).toBe(patientAdditionalData1.primaryContactNumber);
-      expect(row2[7]).toBe('CVD Primary Screening');
-      expect(row2[8]).toBe(
-        `pde-FijCVD002-on-2021-03-12T01:00:00.133Z-${expectedPatient1.firstName}`,
-      );
-      expect(row2[9]).toBe(
-        `pde-FijCVD004-on-2021-03-12T01:00:00.133Z-${expectedPatient1.firstName}`,
-      );
-      expect(row2[10]).toBe(
-        `pde-FijCVD007-on-2021-03-12T01:00:00.133Z-${expectedPatient1.firstName}`,
-      );
-      expect(row2[11]).toBe(
-        `pde-FijCVD010-on-2021-03-12T01:00:00.133Z-${expectedPatient1.firstName}`,
-      );
-      expect(row2[12]).toBe(
-        `pde-FijCVD021-on-2021-03-12T01:00:00.133Z-${expectedPatient1.firstName}`,
-      );
-      expect(row2[13]).toBe(
-        `pde-FijCVDRisk334-on-2021-03-12T01:00:00.133Z-${expectedPatient1.firstName}`,
+      const expectedDetails2 = {
+        firstName: expectedPatient1.firstName,
+        lastName: expectedPatient1.lastName,
+        displayId: expectedPatient1.displayId,
+        // age: ,
+        gender: expectedPatient1.sex,
+        ethnicity: ethnicity1.name,
+        contactNumber: patientAdditionalData1.primaryContactNumber,
+        screeningCompleted: 'CVD Primary Screening',
+        dateOfScreening: `pde-FijCVD002-on-2021-03-12T01:00:00.133Z-${expectedPatient1.firstName}`,
+        screeningLocation: `pde-FijCVD004-on-2021-03-12T01:00:00.133Z-${expectedPatient1.firstName}`,
+        screeningHealthFacility: `pde-FijCVD007-on-2021-03-12T01:00:00.133Z-${expectedPatient1.firstName}`,
+        nameOfCso: `pde-FijCVD010-on-2021-03-12T01:00:00.133Z-${expectedPatient1.firstName}`,
+        screeningEligibility: `pde-FijCVD021-on-2021-03-12T01:00:00.133Z-${expectedPatient1.firstName}`,
+        cvdRiskLevel: `pde-FijCVDRisk334-on-2021-03-12T01:00:00.133Z-${expectedPatient1.firstName}`,
+        referralCreated: 'Yes',
+        dateOfReferral: `pde-FijBCRef04-on-2021-03-12T04:00:00.133Z-${expectedPatient1.firstName}`,
+        referredToHealthFacility: `pde-FijBCRef06-on-2021-03-12T04:00:00.133Z-${expectedPatient1.firstName}`,
+        expectedAttendanceDate: `pde-FijBCRef07-on-2021-03-12T04:00:00.133Z-${expectedPatient1.firstName}`,
+        referralStatus: 'Pending',
+      };
+      test.each(
+        Object.entries(expectedDetails1),
+        'Checks that property %p is valid',
+        (key, expectedValue) => {
+          // const [key, expectedValue] = entry;
+          expect(getProperty(row2, key)).toBe(expectedValue);
+        },
       );
 
-      // Referral details
-      expect(row2[14]).toBe(`Yes`);
       expect(row2[15]).toBe(
         `pde-FijCVDRef4-on-2021-03-12T02:00:00.133Z-${expectedPatient1.firstName}`,
       );

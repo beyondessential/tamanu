@@ -8,7 +8,7 @@ import {
   createBreastCancerReferral,
 } from './utils';
 
-describe('Fiji NCD Primary Screening Pending Referrals line list', () => {
+describe.skip('Fiji NCD Primary Screening Pending Referrals line list', () => {
   let baseApp = null;
   let app = null;
   let expectedPatient1 = null;
