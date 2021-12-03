@@ -45,7 +45,7 @@ const ActionDropdown = React.memo(({ row, refreshTable }) => {
       onClick: onCompleteReferral,
     },
     {
-      label: 'Cancel referral',
+      label: 'Cancel',
       condition: () => row.status === REFERRAL_STATUSES.PENDING,
       onClick: onCancelReferral,
     },
