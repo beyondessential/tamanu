@@ -18,7 +18,7 @@ const PROPERTY_LIST = [
   'contactNumber',
   'referralCreated',
   'referringHealthFacility',
-  'nameOfCso',
+  'referringCso',
   'dateOfReferral',
   'expectedAttendanceDate',
   'reasonForReferral',
@@ -152,13 +152,15 @@ describe('Fiji NCD Primary Screening Pending Referrals line list', () => {
         contactNumber: patientAdditionalData2.primaryContactNumber,
         referralCreated: 'Breast Cancer Primary Screening Referral',
         dateOfReferral: `pde-FijBCRef04-on-2021-03-13T02:00:00.133Z-${expectedPatient2.firstName}`,
-        // referredToHealthFacility: `pde-FijBCRef06-on-2021-03-13T02:00:00.133Z-${expectedPatient2.firstName}`,
+        // referringHealthFacility: `pde-FijBCRef06-on-2021-03-13T02:00:00.133Z-${expectedPatient2.firstName}`,
         expectedAttendanceDate: `pde-FijBCRef07-on-2021-03-13T02:00:00.133Z-${expectedPatient2.firstName}`,
         nameOfCso: `pde-FijBS10-on-2021-03-13T01:00:00.133Z-${expectedPatient2.firstName}`,
-        referringCso: `pde-FijBCRef2a-on-2021-03-12T03:00:00.133Z-${expectedPatient2.firstName}`,
-        screeningEligibility: `pde-FijBS14-on-2021-03-12T03:00:00.133Z-${expectedPatient2.firstName}`,
+        referringCso: `pde-FijBCRef2a-on-2021-03-13T02:00:00.133Z-${expectedPatient2.firstName}`,
         cvdRiskLevel: null,
-        referralStatus: 'Pending',
+        reasonForReferral: `pde-FijBCRef10-on-2021-03-13T02:00:00.133Z-${expectedPatient2.firstName}`,
+        dateOfScreening: `pde-FijBS02-on-2021-03-13T01:00:00.133Z-${expectedPatient2.firstName}`,
+        screeningLocation: `pde-FijBS04-on-2021-03-13T01:00:00.133Z-${expectedPatient2.firstName}`,
+        screeningHealthFacility: `pde-FijBS07-on-2021-03-13T01:00:00.133Z-${expectedPatient2.firstName}`,
       };
       for (const entry of Object.entries(expectedDetails1)) {
         const [key, expectedValue] = entry;
