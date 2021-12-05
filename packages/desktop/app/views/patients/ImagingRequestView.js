@@ -48,7 +48,9 @@ const DumbImagingRequestInfoPane = React.memo(
         onSubmit(updatedImagingRequest);
       }}
       enableReinitialize // Updates form to reflect changes in initialValues
-      initialValues={{ ...imagingRequest }}
+      initialValues={{
+        ...imagingRequest,
+      }}
     >
       {({ values, dirty, handleChange }) => (
         <Form>
@@ -92,7 +94,7 @@ const DumbImagingRequestInfoPane = React.memo(
                 name="results"
                 label="Results Description"
                 multiline
-                value={values.results || imagingRequest.results}
+                value={values.results}
                 onChange={handleChange}
                 style={{ gridColumn: '1 / -1', minHeight: '60px' }}
               />
