@@ -1,4 +1,4 @@
-import { keyBy, groupBy, uniqWith, isEqual } from 'lodash';
+import { keyBy, groupBy, uniqWith, isEqual, upperFirst } from 'lodash';
 import { Op } from 'sequelize';
 import moment from 'moment';
 import { generateReportFromQueryData } from '../utilities';
@@ -136,7 +136,7 @@ export const dataGenerator = async (models, parameters = {}) => {
 
       // If referral has been created on the same date, populate the referral details
       if (referral) {
-        recordData.referralStatus = referral.status;
+        recordData.referralStatus = upperFirst(referral.status);
         const referralDataElements = getReferralDataElements(surveyGroupKey);
         Object.entries(referralDataElements).forEach(([dataKey, dataElementId]) => {
           recordData[dataKey] = getCachedAnswer(
