@@ -13,12 +13,13 @@ import {
   DateTimeInput,
   NumberInput,
   SelectInput,
+  MultiselectInput,
   AutocompleteInput,
   NullableBooleanInput,
 } from '../app/components';
 import { IdInput } from '../app/components/Field/IdField';
 import styled from 'styled-components';
-import { Colors } from '../app/constants';
+import { Button } from '@material-ui/core';
 
 const FRUITS = [
   { value: 'apples', label: 'Apples' },
@@ -57,11 +58,12 @@ class StoryControlWrapper extends React.PureComponent {
   };
 
   render() {
-    const { Component, ...props } = this.props;
+    const { Component, clearButton, ...props } = this.props;
     const { value } = this.state;
     return (
       <Container>
         <Component {...props} value={value} onChange={this.onChange} />
+        {clearButton && <Button onClick={() => this.setState({ value: '' })}> Clear Field (value = "") </Button>}
       </Container>
     );
   }
@@ -76,7 +78,8 @@ function addStories(name, Component, note) {
     .add('Required', () => <Component required />)
     .add('Disabled', () => <Component disabled />)
     .add('With help text', () => <Component helperText="Here is some help text" />)
-    .add('With error', () => <Component error helperText="Here is an error message" />);
+    .add('With error', () => <Component error helperText="Here is an error message" />)
+    .add('Clearable', () => <Component clearButton />);
 }
 
 addStories(
@@ -154,7 +157,11 @@ addStories(
 
 addStories('SelectInput', props => (
   <StoryControlWrapper Component={SelectInput} label="Fruit" options={FRUITS} {...props} />
-));
+))
+
+addStories('MultiselectInput', props => (
+  <StoryControlWrapper Component={MultiselectInput} label="Fruit" options={FRUITS} {...props} />
+))
 
 const dummySuggester = {
   fetchSuggestions: async search => {

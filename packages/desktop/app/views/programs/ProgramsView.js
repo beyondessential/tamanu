@@ -3,40 +3,66 @@ import React, { useState, useEffect, useCallback } from 'react';
 import { useSelector, useDispatch } from 'react-redux';
 import { useApi } from 'desktop/app/api';
 
+import { SURVEY_TYPES } from 'shared/constants';
+
 import { reloadPatient } from 'desktop/app/store/patient';
 import { getCurrentUser } from 'desktop/app/store/auth';
 
 import { SurveyView } from 'desktop/app/views/programs/SurveyView';
-import { ProgramSurveySelector } from 'desktop/app/views/programs/ProgramSurveySelector';
+import { PatientDisplay } from 'desktop/app/views/programs/PatientDisplay';
+import { SurveySelector } from 'desktop/app/views/programs/SurveySelector';
+import { FormGrid } from 'desktop/app/components/FormGrid';
+import { SelectInput } from 'desktop/app/components/Field/SelectField';
+import {
+  ProgramsPane,
+  ProgramsPaneHeader,
+  ProgramsPaneHeading,
+} from 'desktop/app/views/programs/ProgramsPane';
 import { LoadingIndicator } from 'desktop/app/components/LoadingIndicator';
 import { DumbPatientListingView } from 'desktop/app/views/patients/PatientListingView';
-import { SURVEY_TYPES } from 'shared/constants';
 import { getAnswersFromData, getActionsFromData } from '../../utils';
 
 const SurveyFlow = ({ patient, currentUser }) => {
   const api = useApi();
   const [survey, setSurvey] = useState(null);
-  const [programsList, setProgramsList] = useState(null);
+  const [programs, setPrograms] = useState(null);
+  const [selectedProgramId, setSelectedProgramId] = useState(null);
   const [startTime, setStartTime] = useState(null);
+  const [surveys, setSurveys] = useState(null);
 
   useEffect(() => {
     (async () => {
       const { data } = await api.get('program');
-      setProgramsList(data);
+      setPrograms(data);
     })();
   }, []);
 
-  const onSelectSurvey = useCallback(async id => {
+  const setSelectedSurvey = useCallback(async id => {
     const response = await api.get(`survey/${encodeURIComponent(id)}`);
     setSurvey(response);
     setStartTime(new Date());
   });
 
-  const onCancelSurvey = useCallback(() => {
+  const unsetSurvey = useCallback(() => {
     setSurvey(null);
   });
 
-  const onSubmit = useCallback(
+  const selectProgram = useCallback(async event => {
+    const programId = event.target.value;
+    if (programId === selectedProgramId) {
+      return;
+    }
+
+    setSelectedProgramId(programId);
+    const { data } = await api.get(`program/${programId}/surveys`);
+    setSurveys(
+      data
+        .filter(s => s.surveyType === SURVEY_TYPES.PROGRAMS)
+        .map(x => ({ value: x.id, label: x.name })),
+    );
+  });
+
+  const submitSurveyResponse = useCallback(
     data =>
       api.post('surveyResponse', {
         surveyId: survey.id,
@@ -49,28 +75,41 @@ const SurveyFlow = ({ patient, currentUser }) => {
     [startTime, survey, patient],
   );
 
-  if (!programsList) {
+  if (!programs) {
     return <LoadingIndicator />;
   }
 
   if (!survey) {
     return (
-      <ProgramSurveySelector
-        programs={programsList}
-        onSelectSurvey={onSelectSurvey}
-        onFetchSurveysList={async programId => {
-          const surveys = await api.get(`program/${programId}/surveys`);
-          return surveys.data.filter(x => x.surveyType === SURVEY_TYPES.PROGRAMS);
-        }}
-      />
+      <>
+        <PatientDisplay />
+        <ProgramsPane>
+          <ProgramsPaneHeader>
+            <ProgramsPaneHeading variant="h6">Select a survey</ProgramsPaneHeading>
+          </ProgramsPaneHeader>
+          <FormGrid columns={1}>
+            <SelectInput
+              options={programs.map(p => ({ value: p.id, label: p.name }))}
+              value={selectedProgramId}
+              onChange={selectProgram}
+              label="Select program"
+            />
+            <SurveySelector
+              onSelectSurvey={setSelectedSurvey}
+              surveys={surveys}
+              buttonText="Begin survey"
+            />
+          </FormGrid>
+        </ProgramsPane>
+      </>
     );
   }
 
   return (
     <SurveyView
-      onSubmit={onSubmit}
+      onSubmit={submitSurveyResponse}
       survey={survey}
-      onCancel={onCancelSurvey}
+      onCancel={unsetSurvey}
       patient={patient}
       currentUser={currentUser}
     />

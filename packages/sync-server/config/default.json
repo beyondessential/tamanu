@@ -1,5 +1,6 @@
 {
   "port": 3000,
+  "canonicalHostName": "http://localhost:3000",
   "db": {
     "name": "tamanu-sync",
     "verbose": false,
@@ -83,6 +84,18 @@
       "schedule": "*/30 * * * * *"
     } 
   },
+  "integrations": {
+    "fijiVrs": {
+      "enabled": false,
+      "host": "http://uat-vra.digitalfiji.gov.fj:8786",
+      "expectAccessToken": ["set this value in local.json"],
+      // refresh the token if it's within tokenExpiryMarginMs milliseconds of expiry
+      "tokenExpiryMarginMs": 60000
+    },
+    "fijiVps": {
+      "enabled": false
+    },
+  },
   "localisation": {
     "labResultWidget": {
       "categoryWhitelist": [
@@ -94,6 +107,14 @@
     },
     "data": {
       "fields": {
+        "emergencyContactName": {
+          "shortLabel": "Emergency Contact Name",
+          "longLabel": "Emergency Contact Name"
+        },
+        "emergencyContactNumber": {
+          "shortLabel": "Emergency Contact Number",
+          "longLabel": "Emergency Contact Number"
+        },
         "markedForSync": {
           "shortLabel": "Sync",
           "longLabel": "Marked for sync"
@@ -322,6 +343,17 @@
     "processOptions": null,
     // Provide an object {} for the env of child process
     "childProcessEnv": null
+  },
+  "hl7": {
+    "nullLastNameValue": "NoLastName",
+    "assigners": {
+      "patientDisplayId": "Tamanu"
+    },
+    "dataDictionaries": {
+      "testMethod": "http://tamanu.io/data-dictionary/covid-test-methods",
+      "patientDisplayId": "http://tamanu.io/data-dictionary/application-reference-number.html",
+      "labRequestDisplayId": "http://tamanu.io/data-dictionary/labrequest-reference-number.html"
+    }
   },
   "tupaiaApiClient": {},
   "scheduledReports": []

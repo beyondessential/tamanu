@@ -16,6 +16,8 @@ export const StyledTextField = styled(MuiTextField)`
     padding: 12px 12px;
     font-size: 15px;
     line-height: 18px;
+    ${props => props.style?.minHeight ? `min-height: ${props.style.minHeight}` : ''};
+    ${props => props.style?.padding ? `padding: ${props.style.padding}` : ''};
   }
 
   // helper text

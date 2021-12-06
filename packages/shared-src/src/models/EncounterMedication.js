@@ -24,6 +24,15 @@ export class EncounterMedication extends Model {
         qtyEvening: Sequelize.INTEGER,
         qtyNight: Sequelize.INTEGER,
         quantity: Sequelize.INTEGER,
+
+        discontinued: Sequelize.BOOLEAN,
+        discontinuingReason: Sequelize.STRING,
+        repeats: Sequelize.INTEGER,
+        isDischarge: {
+          type: Sequelize.BOOLEAN,
+          allowNull: false,
+          defaultValue: false,
+        },
       },
       {
         ...options,
@@ -46,10 +55,16 @@ export class EncounterMedication extends Model {
   static initRelations(models) {
     this.belongsTo(models.User, {
       foreignKey: 'prescriberId',
+      as: 'prescriber',
     });
+    this.belongsTo(models.User, {
+      foreignKey: 'discontinuingClinicianId',
+      as: 'discontinuingClinician',
+    });
+
     this.belongsTo(models.Encounter, {
       foreignKey: 'encounterId',
-      as: 'encounter'
+      as: 'encounter',
     });
     this.belongsTo(models.ReferenceData, {
       foreignKey: 'medicationId',
@@ -58,6 +73,6 @@ export class EncounterMedication extends Model {
   }
 
   static getListReferenceAssociations() {
-    return ['Medication', 'encounter'];
+    return ['Medication', 'encounter', 'prescriber', 'discontinuingClinician'];
   }
 }
