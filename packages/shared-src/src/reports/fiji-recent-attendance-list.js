@@ -59,7 +59,7 @@ const parametersToEncounterSqlWhere = parameters => {
 };
 
 const getEncounters = async (models, parameters) => {
-  return models.Encounter.findAll({
+  const encounters = await models.Encounter.findAll({
     attributes: ['startDate', 'reasonForEncounter', 'id'],
     include: [
       {
@@ -94,6 +94,8 @@ const getEncounters = async (models, parameters) => {
     where: parametersToEncounterSqlWhere(parameters),
     order: [['startDate', 'ASC']],
   });
+
+  return encounters.map(convertModelToPlainObject);
 };
 
 const convertModelToPlainObject = model => model.get({ plain: true });
@@ -103,7 +105,7 @@ const getAllDiagnoses = async (models, encounters) => {
 
   for (const encounter of encounters) {
     newEncounters.push({
-      ...convertModelToPlainObject(encounter),
+      ...encounter,
       diagnoses: await models.EncounterDiagnosis.findAll({
         include: ['Diagnosis'],
         attributes: ['certainty', 'isPrimary'],
