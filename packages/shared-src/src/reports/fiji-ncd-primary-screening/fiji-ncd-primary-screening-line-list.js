@@ -33,10 +33,6 @@ const getReferralByResponseIds = async (models, surveyResponseIds) =>
         as: 'initiatingEncounter',
       },
       {
-        model: models.Encounter,
-        as: 'completingEncounter',
-      },
-      {
         model: models.SurveyResponse,
         as: 'surveyResponse',
       },
@@ -140,7 +136,7 @@ export const dataGenerator = async (models, parameters = {}) => {
 
       // If referral has been created on the same date, populate the referral details
       if (referral) {
-        recordData.referralStatus = referral.completingEncounter ? 'Complete' : 'Pending';
+        recordData.referralStatus = referral.status;
         const referralDataElements = getReferralDataElements(surveyGroupKey);
         Object.entries(referralDataElements).forEach(([dataKey, dataElementId]) => {
           recordData[dataKey] = getCachedAnswer(
