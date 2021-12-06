@@ -130,14 +130,14 @@ export const MedicationForm = React.memo(
                 <>
                   <Field
                     name="discontinuingClinicianId"
-                    label="Discontinuation clinician"
+                    label="Discontinued by"
                     component={AutocompleteField}
                     suggester={practitionerSuggester}
                     value={medication?.discontinuingClinicianId}
                   />
                   <Field
                     name="discontinuingReason"
-                    label="Reason for discontinuation"
+                    label="Discontinued reason"
                     component={TextField}
                   />
                 </>
