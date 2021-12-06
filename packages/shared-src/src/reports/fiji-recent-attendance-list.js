@@ -43,13 +43,13 @@ const parametersToEncounterSqlWhere = parameters => {
           if (!newWhere.startDate) {
             newWhere.startDate = {};
           }
-          newWhere.startDate[Op.gte] = value;
+          newWhere.startDate[Op.gte] = moment(value).startOf('day');
           break;
         case 'toDate':
           if (!newWhere.startDate) {
             newWhere.startDate = {};
           }
-          newWhere.startDate[Op.lte] = value;
+          newWhere.startDate[Op.lte] = moment(value).endOf('day');
           break;
         default:
           break;
@@ -93,6 +93,25 @@ const getEncounters = async (models, parameters) => {
   });
 };
 
+const getAllDiagnoses = async (models, encounters) => {
+  const newEncounters = [];
+  for (const encounter of encounters) {
+    newEncounters.push({
+      ...encounter,
+      diagnoses: await models.EncounterDiagnosis.findAll({
+        include: ['Diagnosis'],
+        where: {
+          certainty: {
+            [Op.notIn]: [DIAGNOSIS_CERTAINTY.DISPROVEN, DIAGNOSIS_CERTAINTY.ERROR],
+          },
+          encounterId: encounter.id,
+        },
+      }),
+    });
+  }
+  return newEncounters;
+};
+
 const stringifyDiagnoses = (diagnoses = []) =>
   diagnoses.map(({ Diagnosis, certainty }) => `${Diagnosis.name}: ${certainty}`).join(', ');
 
@@ -113,7 +132,7 @@ const transformDataPoint = encounter => {
     ethnicity: patientAdditionalData?.ethnicity?.name,
     contactPhone: patientAdditionalData?.primaryContactNumber,
     subdivision: patient.village?.name,
-    clinician: examiner.displayName,
+    clinician: examiner?.displayName,
     dateOfAttendance: moment(encounter.startDate).format('DD-MM-YYYY'),
     department: encounter.department?.name,
     location: encounter.location?.name,
@@ -124,7 +143,10 @@ const transformDataPoint = encounter => {
 };
 
 export const dataGenerator = async (models, parameters = {}) => {
-  const encounters = await getEncounters(models, parameters);
+  let encounters = await getEncounters(models, parameters);
+  if (parameters.diagnosis) {
+    encounters = await getAllDiagnoses(models, encounters);
+  }
 
   const reportData = encounters.map(transformDataPoint);
   return generateReportFromQueryData(reportData, reportColumnTemplate);
