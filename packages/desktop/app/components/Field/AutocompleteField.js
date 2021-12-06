@@ -52,7 +52,6 @@ const renderInputComponent = inputProps => {
           ),
           style: {
             paddingRight: 0,
-            background: Colors.white,
           },
         }}
         fullWidth
