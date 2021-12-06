@@ -60,10 +60,12 @@ const parametersToEncounterSqlWhere = parameters => {
 
 const getEncounters = async (models, parameters) => {
   return models.Encounter.findAll({
+    attributes: ['startDate', 'reasonForEncounter', 'id'],
     include: [
       {
         model: models.Patient,
         as: 'patient',
+        attributes: ['firstName', 'lastName', 'displayId', 'dateOfBirth', 'sex', 'id'],
         include: [
           {
             model: models.PatientAdditionalData,
@@ -77,6 +79,7 @@ const getEncounters = async (models, parameters) => {
         model: models.EncounterDiagnosis,
         as: 'diagnoses',
         include: ['Diagnosis'],
+        attributes: ['certainty', 'isPrimary'],
         where: {
           certainty: {
             [Op.notIn]: [DIAGNOSIS_CERTAINTY.DISPROVEN, DIAGNOSIS_CERTAINTY.ERROR],
