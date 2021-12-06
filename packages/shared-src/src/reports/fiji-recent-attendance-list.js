@@ -93,19 +93,25 @@ const getEncounters = async (models, parameters) => {
   });
 };
 
+const convertModelToPlainObject = model => model.get({ plain: true });
+
 const getAllDiagnoses = async (models, encounters) => {
   const newEncounters = [];
+
   for (const encounter of encounters) {
     newEncounters.push({
-      ...encounter,
+      ...convertModelToPlainObject(encounter),
       diagnoses: await models.EncounterDiagnosis.findAll({
         include: ['Diagnosis'],
+        attributes: ['certainty', 'isPrimary'],
         where: {
           certainty: {
             [Op.notIn]: [DIAGNOSIS_CERTAINTY.DISPROVEN, DIAGNOSIS_CERTAINTY.ERROR],
           },
           encounterId: encounter.id,
         },
+        raw: true,
+        nest: true,
       }),
     });
   }
