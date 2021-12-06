@@ -1,4 +1,5 @@
 import { createDummyPatient, randomReferenceId } from 'shared/demoData/patients';
+import { REFERRAL_STATUSES } from 'shared/constants';
 import { createTestContext } from '../../../utilities';
 import {
   setupProgramAndSurvey,
@@ -107,6 +108,25 @@ describe('Fiji NCD Primary Screening line list', () => {
     await createBreastCancerFormSurveyResponse(app, expectedPatient1, '2021-03-12T03:00:00.133Z');
     await createBreastCancerReferral(app, expectedPatient1, '2021-03-12T04:00:00.133Z');
 
+    const mostRecentBreastCancerReferral = await models.Referral.findOne({
+      include: [
+        {
+          model: models.Encounter,
+          as: 'initiatingEncounter',
+          where: { patientId: expectedPatient1.id },
+        },
+        {
+          model: models.SurveyResponse,
+          as: 'surveyResponse',
+          where: { endTime: '2021-03-12T04:00:00.133Z' },
+        },
+      ],
+    });
+    await models.Referral.update(
+      { status: REFERRAL_STATUSES.COMPLETED },
+      { where: { id: mostRecentBreastCancerReferral.id } },
+    );
+
     // No referral submitted for this
     await createBreastCancerFormSurveyResponse(app, expectedPatient2, '2021-03-14T01:00:00.133Z');
   });
@@ -152,7 +172,7 @@ describe('Fiji NCD Primary Screening line list', () => {
         dateOfReferral: `pde-FijBCRef04-on-2021-03-12T04:00:00.133Z-${expectedPatient1.firstName}`,
         referredToHealthFacility: `pde-FijBCRef06-on-2021-03-12T04:00:00.133Z-${expectedPatient1.firstName}`,
         expectedAttendanceDate: `pde-FijBCRef07-on-2021-03-12T04:00:00.133Z-${expectedPatient1.firstName}`,
-        referralStatus: 'Pending',
+        referralStatus: 'Completed',
       };
       for (const entry of Object.entries(expectedDetails1)) {
         const [key, expectedValue] = entry;
