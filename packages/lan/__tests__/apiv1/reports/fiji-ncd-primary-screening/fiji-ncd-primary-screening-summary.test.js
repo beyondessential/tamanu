@@ -47,7 +47,7 @@ const getProperty = (row, prop) => row[PROPERTY_TO_EXCEL_INDEX[prop]];
 
 // TODO: Unskip test once tests run against a postgresql database:
 // https://linear.app/bes/issue/TAN-409/get-rid-of-sqlite
-describe('Fiji NCD Primary Screening Summary', () => {
+describe.skip('Fiji NCD Primary Screening Summary', () => {
   let baseApp = null;
   let app = null;
   let expectedPatient1 = null;
