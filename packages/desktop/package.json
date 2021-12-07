@@ -1,7 +1,7 @@
 {
   "name": "desktop",
   "productName": "Tamanu",
-  "version": "1.10.0",
+  "version": "1.11.0",
   "description": "Tamanu Desktop application",
   "private": true,
   "homepage": "https://github.com/beyondessential/tamanu.git#readme",
@@ -126,7 +126,7 @@
     "cross-spawn": "^6.0.5",
     "css-loader": "^1.0.0",
     "detect-port": "^1.2.3",
-    "electron": "^11.3.0",
+    "electron": "^13.6.1",
     "electron-builder": "^22.10.5",
     "electron-devtools-installer": "^3.1.1",
     "electron-rebuild": "^1.8.2",

@@ -18,7 +18,7 @@ describe('Suggestions', () => {
   });
 
   describe('General functionality (via diagnoses)', () => {
-    const limit = 10;
+    const limit = 25;
 
     it('should get 0 suggestions with an empty query', async () => {
       const result = await userApp.get('/v1/suggestions/icd10');

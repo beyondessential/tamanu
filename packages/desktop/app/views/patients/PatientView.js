@@ -1,27 +1,13 @@
-import React, { useCallback } from 'react';
+import React from 'react';
 import { connect } from 'react-redux';
-import { push } from 'connected-react-router';
-import styled from 'styled-components';
-
-import { connectApi } from '../../api';
 
 import { TabDisplay } from '../../components/TabDisplay';
 import { TwoColumnDisplay } from '../../components/TwoColumnDisplay';
 import { LoadingIndicator } from '../../components/LoadingIndicator';
 import { PatientAlert } from '../../components/PatientAlert';
-import { PatientHistory } from '../../components/PatientHistory';
 import { PatientInfoPane } from '../../components/PatientInfoPane';
-import { ContentPane } from '../../components/ContentPane';
 import { EncounterModal } from '../../components/EncounterModal';
 import { TriageModal } from '../../components/TriageModal';
-import { ReferralTable } from '../../components/ReferralTable';
-import { AppointmentModal } from '../../components/AppointmentModal';
-import { AppointmentTable } from '../../components/AppointmentTable';
-import { ImmunisationsTable } from '../../components/ImmunisationsTable';
-import { ImmunisationModal } from '../../components/ImmunisationModal';
-import { EditAdministeredVaccineModal } from '../../components/EditAdministeredVaccineModal';
-import { ImmunisationCertificateModal } from '../../components/ImmunisationCertificateModal';
-import { Button } from '../../components/Button';
 import { connectRoutedModal } from '../../components/Modal';
 import { PatientEncounterSummary } from './components/PatientEncounterSummary';
 import { DataFetchingProgramsTable } from '../../components/ProgramResponsesTable';
@@ -71,65 +57,20 @@ const ReferralPane = connect(null, dispatch => ({
   )),
 );
 
-const ButtonSpacer = styled.div`
-  display: inline;
-  margin-right: 10px;
-`;
-
-const ImmunisationsPane = React.memo(({ patient, readonly }) => {
-  const [isAdministerModalOpen, setIsAdministerModalOpen] = React.useState(false);
-  const [isCertificateModalOpen, setIsCertificateModalOpen] = React.useState(false);
-  const [isEditAdministeredModalOpen, setIsEditAdministeredModalOpen] = React.useState(false);
-  const [vaccineData, setVaccineData] = React.useState();
-  const onOpenEditModal = useCallback(
-    async row => {
-      setIsEditAdministeredModalOpen(true);
-      setVaccineData(row);
-    },
-    [patient],
-  );
-
-  return (
-    <div>
-      <ImmunisationModal
-        open={isAdministerModalOpen}
-        patientId={patient.id}
-        onClose={() => setIsAdministerModalOpen(false)}
-      />
-      <EditAdministeredVaccineModal
-        open={isEditAdministeredModalOpen}
-        patientId={patient.id}
-        vaccineRecord={vaccineData}
-        onClose={() => setIsEditAdministeredModalOpen(false)}
-      />
-      <ImmunisationsTable patient={patient} onItemClick={id => onOpenEditModal(id)} />
-      <ImmunisationCertificateModal
-        open={isCertificateModalOpen}
-        patient={patient}
-        onClose={() => setIsCertificateModalOpen(false)}
-      />
-      <ContentPane>
-        <Button
-          onClick={() => setIsAdministerModalOpen(true)}
-          variant="contained"
-          color="primary"
-          disabled={readonly}
-        >
-          Give vaccine
-        </Button>
-        <ButtonSpacer />
-        <Button onClick={() => setIsCertificateModalOpen(true)} variant="outlined" color="primary">
-          View certificate
-        </Button>
-      </ContentPane>
-    </div>
-  );
-});
+import {
+  AppointmentPane,
+  ConnectedPatientDetailsForm,
+  HistoryPane,
+  ImmunisationsPane,
+  MedicationsPane,
+  DocumentsPane,
+  ProgramsPane,
+  ReferralPane,
+} from './panes';
 
 const RoutedEncounterModal = connectRoutedModal('/patients/view', 'checkin')(EncounterModal);
 const RoutedTriageModal = connectRoutedModal('/patients/view', 'triage')(TriageModal);
 
-const HistoryPane = connect(
   state => ({
     currentEncounter: state.patient.currentEncounter,
     patient: state.patient,
@@ -191,8 +132,6 @@ const ProgramsPane = connect(null, dispatch => ({
 );
 
 const TABS = [
-  {
-    label: 'History',
     key: 'history',
     icon: 'fa fa-calendar-day',
     render: () => <HistoryPane />,
@@ -225,12 +164,19 @@ const TABS = [
     label: 'Documents',
     key: 'documents',
     icon: 'fa fa-file-medical-alt',
+    render: props => <DocumentsPane {...props} />,
   },
   {
     label: 'Immunisation',
     key: 'a',
     icon: 'fa fa-syringe',
     render: props => <ImmunisationsPane {...props} />,
+  },
+  {
+    label: 'Medication',
+    key: 'medication',
+    icon: 'fa fa-medkit',
+    render: props => <MedicationsPane {...props} />,
   },
 ];
 

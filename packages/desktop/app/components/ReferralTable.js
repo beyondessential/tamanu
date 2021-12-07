@@ -1,5 +1,7 @@
 import React, { useState, useCallback, useEffect } from 'react';
 
+import { REFERRAL_STATUSES } from 'shared/constants';
+import { REFERRAL_STATUS_LABELS } from '../constants';
 import { DataFetchingTable } from './Table';
 import { DateDisplay } from './DateDisplay';
 import { DropdownButton } from './DropdownButton';
@@ -8,32 +10,57 @@ import { EncounterModal } from './EncounterModal';
 import { useEncounter } from '../contexts/Encounter';
 import { useApi } from '../api';
 import { SurveyResponseDetailsModal } from './SurveyResponseDetailsModal';
+import { WarningModal } from './WarningModal';
 
-const ActionDropdown = React.memo(({ row }) => {
-  const [open, setOpen] = useState(false);
+const ACTION_MODAL_STATES = {
+  CLOSED: 'closed',
+  WARNING_OPEN: 'warning',
+  ENCOUNTER_OPEN: 'encounter',
+};
+
+const ActionDropdown = React.memo(({ row, refreshTable }) => {
+  const [openModal, setOpenModal] = useState(ACTION_MODAL_STATES.CLOSED);
   const { loadEncounter } = useEncounter();
+  const api = useApi();
+
+  // Modal callbacks
+  const onCloseModal = useCallback(() => setOpenModal(ACTION_MODAL_STATES.CLOSED), []);
+  const onCancelReferral = useCallback(async () => {
+    await api.put(`referral/${row.id}`, { status: REFERRAL_STATUSES.CANCELLED });
+    onCloseModal();
+    refreshTable();
+  }, [row]);
+
+  // Actions callbacks
   const onViewEncounter = useCallback(async () => {
     loadEncounter(row.encounterId, true);
   }, [row]);
-  const onCancelReferral = useCallback(async () => {
-    console.log('TODO: Delete referral object');
+  const onCompleteReferral = useCallback(async () => {
+    await api.put(`referral/${row.id}`, { status: REFERRAL_STATUSES.COMPLETED });
+    refreshTable();
   }, [row]);
 
   const actions = [
     {
       label: 'Admit',
-      condition: () => !row.encounterId && !row.cancelled,
-      onClick: () => setOpen(true),
+      condition: () => row.status === REFERRAL_STATUSES.PENDING,
+      onClick: () => setOpenModal(ACTION_MODAL_STATES.ENCOUNTER_OPEN),
     },
+    // Worth keeping around to address in proper linear card
     {
       label: 'View',
-      condition: () => !!row.encounterId,
+      condition: () => !!row.encounterId, // always false, field no longer exists.
       onClick: onViewEncounter,
     },
     {
-      label: 'Cancel referral',
-      condition: () => !row.encounterId && !row.cancelled,
-      onClick: onCancelReferral,
+      label: 'Complete',
+      condition: () => row.status === REFERRAL_STATUSES.PENDING,
+      onClick: onCompleteReferral,
+    },
+    {
+      label: 'Cancel',
+      condition: () => row.status === REFERRAL_STATUSES.PENDING,
+      onClick: () => setOpenModal(ACTION_MODAL_STATES.WARNING_OPEN),
     },
   ].filter(action => !action.condition || action.condition());
 
@@ -41,10 +68,17 @@ const ActionDropdown = React.memo(({ row }) => {
     <>
       <DropdownButton color="primary" actions={actions} />
       <EncounterModal
-        open={open}
-        onClose={() => setOpen(false)}
+        open={openModal === ACTION_MODAL_STATES.ENCOUNTER_OPEN}
+        onClose={onCloseModal}
         patientId={row.initiatingEncounter.patientId}
         referral={row}
+      />
+      <WarningModal
+        open={openModal === ACTION_MODAL_STATES.WARNING_OPEN}
+        title="Cancel referral"
+        text="Are you sure you want to cancel this referral?"
+        onConfirm={onCancelReferral}
+        onClose={onCloseModal}
       />
     </>
   );
@@ -88,11 +122,12 @@ const ReferralBy = ({ surveyResponse: { survey, answers } }) => {
 };
 
 const getDate = ({ initiatingEncounter }) => <DateDisplay date={initiatingEncounter.startDate} />;
-
 const getReferralType = ({ surveyResponse: { survey } }) => survey.name;
 const getReferralBy = ({ surveyResponse }) => <ReferralBy surveyResponse={surveyResponse} />;
-const getStatus = ({ completingEncounter }) => (completingEncounter ? 'Complete' : 'Pending');
-const getActions = row => <ActionDropdown row={row} />;
+const getStatus = ({ status }) => REFERRAL_STATUS_LABELS[status] || 'Unknown';
+const getActions = ({ onTableRefresh, ...row }) => (
+  <ActionDropdown refreshTable={onTableRefresh} row={row} />
+);
 
 const columns = [
   { key: 'date', title: 'Referral date', accessor: getDate },

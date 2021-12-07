@@ -1,7 +1,8 @@
-import React, { useCallback, useEffect } from 'react';
+import React, { useCallback, useState } from 'react';
 import { DataFetchingTable } from './Table';
 import { DateDisplay } from './DateDisplay';
 import { useEncounter } from '../contexts/Encounter';
+import { MedicationModal } from './MedicationModal';
 
 const getMedicationName = ({ medication }) => medication.name;
 
@@ -38,12 +39,40 @@ const FULL_LISTING_COLUMNS = [
   ...MEDICATION_COLUMNS,
 ];
 
-export const EncounterMedicationTable = React.memo(({ encounterId }) => (
-  <DataFetchingTable
-    columns={MEDICATION_COLUMNS}
-    endpoint={`encounter/${encounterId}/medications`}
-  />
-));
+export const EncounterMedicationTable = React.memo(({ encounterId }) => {
+  const [isOpen, setModalOpen] = useState(false);
+  const [encounterMedication, setEncounterMedication] = useState(null);
+  const { loadEncounter } = useEncounter();
+  const onMedicationSelect = useCallback(
+    async medication => {
+      setModalOpen(true);
+      setEncounterMedication(medication);
+    },
+    [],
+  );
+
+  return (
+    <div>
+      <MedicationModal
+        open={isOpen}
+        encounterId={encounterId}
+        onClose={() => {
+          setModalOpen(false)       
+        }}
+        onSaved={async () => {
+          await loadEncounter(encounterId);
+        }}
+        medication={encounterMedication}
+        readOnly
+      />
+      <DataFetchingTable
+        columns={MEDICATION_COLUMNS}
+        endpoint={`encounter/${encounterId}/medications`}
+        onRowClick={onMedicationSelect}
+      />
+    </div>
+  );
+});
 
 export const DataFetchingMedicationTable = () => {
   const { loadEncounter } = useEncounter();

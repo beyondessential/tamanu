@@ -100,4 +100,62 @@ export const REPORT_DEFINITIONS = [
     name: 'PNG assistive technology device - Line list',
     id: 'png-assistive-technology-device-line-list',
   },
+  {
+    name: 'Fiji Recent Attendance - Line list',
+    id: 'fiji-recent-attendance-list',
+    parameters: [
+      { parameterField: 'VillageField' },
+      { parameterField: 'DiagnosisField', name: 'diagnosis', label: 'Diagnosis' },
+    ],
+  },
+  {
+    name: 'Fiji NCD primary screening  - Line list',
+    id: 'fiji-ncd-primary-screening-line-list',
+    parameters: [
+      {
+        parameterField: 'ParameterSelectField',
+        name: 'surveyId',
+        label: 'Screening type',
+        options: [
+          {
+            label: 'CVD Primary Screening Form',
+            value: 'program-fijincdprimaryscreening-fijicvdprimaryscreen2',
+          },
+          {
+            label: 'Breast Cancer Primary Screening Form',
+            value: 'program-fijincdprimaryscreening-fijibreastprimaryscreen',
+          },
+          {
+            label: 'Cervical Cancer Primary Screening Form',
+            value: 'program-fijincdprimaryscreening-fijicervicalprimaryscreen',
+          },
+        ],
+      },
+    ],
+  },
+  {
+    name: 'Fiji NCD primary screening pending referrals - Line list',
+    id: 'fiji-ncd-primary-screening-pending-referrals-line-list',
+    parameters: [
+      {
+        parameterField: 'ParameterSelectField',
+        name: 'surveyId',
+        label: 'Referral type',
+        options: [
+          {
+            label: 'CVD Primary Screening Referral',
+            value: 'program-fijincdprimaryscreening-fijicvdprimaryscreenref',
+          },
+          {
+            label: 'Breast Cancer Primary Screening Referral',
+            value: 'program-fijincdprimaryscreening-fijibreastscreenref',
+          },
+          {
+            label: 'Cervical Cancer Primary Screening Referral',
+            value: 'program-fijincdprimaryscreening-fijicervicalscreenref',
+          },
+        ],
+      },
+    ],
+  },
 ];

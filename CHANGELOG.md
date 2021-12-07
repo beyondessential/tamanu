@@ -4,6 +4,28 @@
 
 ### Manual steps required after upgrade ⚙
 
+- (left blank)
+
+### Features ⭐
+
+- (left blank)
+
+### Tweaks ⚖️
+
+- (left blank)
+
+### Bug fixes 🐛
+
+- (left blank)
+
+### Infrastructure and maintenance 🛠
+
+- (left blank)
+
+## v1.11.0
+
+### Manual steps required after upgrade ⚙
+
 - Fiji only:
   - set appropriate HL7 settings in local.json
     - specifically:
@@ -31,12 +53,14 @@
 
 ### Features ⭐
 
+- New 'medications' section in patient summary view.
 - Discharge modal now displays a list of active medicines that can be selected.
 - Added integration with Fiji's VPS
 - Added integration with Fiji's VRS
 
 ### Tweaks ⚖️
 
+- Forms can now display custom error messages.
 - EncounterMedication model now has two new fields: isDischarge and repeats.
 - New migration for encounter_medications table to account for the new fields.
 - Encounter api route now manages selected discharge medications.
@@ -58,6 +82,8 @@
 
 - Set `serverFacilityId` in LAN local.json to a valid facilityId
   - Valid facilities will need to have been imported to sync server previously
+- Set `updateUrls.mobile` to an appropriate appcenter download link
+  - for eg `https://install.appcenter.ms/orgs/beyond-essential/apps/tamanu-mobile/distribution_groups/samoa`
 
 ### Features ⭐
 
@@ -102,6 +128,12 @@
 },
 ```
 
+- For Samoa sync-server (1.10.0), enable running report in child process on again by switching in `packages/sync-server/local.json`:
+```
+"reportProcess": {
+    "runInChildProcess": true
+},
+```
 ### Features ⭐
 
 - Active COVID-19 Patients table

@@ -8,6 +8,7 @@ import {
   NOTE_TYPES,
   APPOINTMENT_TYPES,
   APPOINTMENT_STATUSES,
+  REFERRAL_STATUSES,
 } from 'shared/constants';
 import {
   medicationIcon,
@@ -90,6 +91,12 @@ export const IMAGING_REQUEST_COLORS = {
   [IMAGING_REQUEST_STATUS_TYPES.COMPLETED]: '#afa',
   [IMAGING_REQUEST_STATUS_TYPES.IN_PROGRESS]: '#aaf',
   unknown: '#333',
+};
+
+export const REFERRAL_STATUS_LABELS = {
+  [REFERRAL_STATUSES.PENDING]: 'Pending',
+  [REFERRAL_STATUSES.CANCELLED]: 'Cancelled',
+  [REFERRAL_STATUSES.COMPLETED]: 'Completed',
 };
 
 export const columnStyle = {

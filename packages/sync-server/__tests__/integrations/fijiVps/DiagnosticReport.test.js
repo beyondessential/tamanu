@@ -267,7 +267,7 @@ describe('VPS integration - DiagnosticReport', () => {
       const { Patient } = ctx.store.models;
       const patient = await Patient.create(fake(Patient));
       const { examiner, labRequest } = await createLabTestHierarchy(patient);
-      labRequest.reload();
+      await labRequest.reload();
       labRequest.labTestLaboratoryId = null; // remove the id
       await labRequest.save();
 
@@ -294,6 +294,34 @@ describe('VPS integration - DiagnosticReport', () => {
         ],
       });
     });
+
+    it('filters results by status=final', async () => {
+      // arrange
+      const { Patient } = ctx.store.models;
+      const patient = await Patient.create(fake(Patient));
+      const { labTest: labTest1 } = await createLabTestHierarchy(patient);
+      const { labRequest: labRequest2 } = await createLabTestHierarchy(patient);
+      await labRequest2.reload();
+      labRequest2.status = 'results_pending'; // set the status to something else
+      await labRequest2.save();
+
+      const id = encodeURIComponent(`${IDENTIFIER_NAMESPACE}|${patient.displayId}`);
+      const path = `/v1/integration/fijiVps/DiagnosticReport?_sort=-issued&_page=0&_count=2&status=final&subject%3Aidentifier=${id}`;
+
+      // act
+      const response = await app.get(path);
+
+      // assert
+      expect(response).toHaveSucceeded();
+      expect(response.body).toMatchObject({
+        total: 1,
+        entry: [
+          {
+            resource: { id: labTest1.id },
+          },
+        ],
+      });
+    });
   });
 
   describe('failure', () => {
@@ -314,11 +342,11 @@ describe('VPS integration - DiagnosticReport', () => {
         error: {
           errors: [
             'subject:identifier must be in the format "<namespace>|<id>"',
-            'status must be one of the following values: final',
             '_count must be less than or equal to 20',
             '_page must be greater than or equal to 0',
             '_sort must be one of the following values: -issued',
             '_include must be one of the following values: DiagnosticReport:result',
+            'status must be one of the following values: final',
           ],
         },
       });
@@ -341,7 +369,6 @@ describe('VPS integration - DiagnosticReport', () => {
           errors: [
             'subject:identifier must be in the format "<namespace>|<id>"',
             'subject:identifier is a required field',
-            'status is a required field',
             '_page is a required field',
             '_sort is a required field',
           ],
