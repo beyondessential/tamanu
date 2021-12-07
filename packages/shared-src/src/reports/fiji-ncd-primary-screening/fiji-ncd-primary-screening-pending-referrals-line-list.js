@@ -1,6 +1,7 @@
 import { keyBy } from 'lodash';
 import { Op } from 'sequelize';
 import moment from 'moment';
+import { REFERRAL_STATUSES } from '../../constants';
 import { generateReportFromQueryData } from '../utilities';
 import {
   transformAndRemoveDuplicatedAnswersPerDate,
@@ -27,7 +28,7 @@ const parametersToReferralSqlWhere = parameters => {
     '$surveyResponse.survey_id$': {
       [Op.in]: REFERRAL_SURVEY_IDS,
     },
-    completingEncounterId: { [Op.eq]: null }, // PENDING referrals
+    status: [REFERRAL_STATUSES.PENDING], // PENDING referrals
   };
 
   if (!parameters || !Object.keys(parameters).length) {
