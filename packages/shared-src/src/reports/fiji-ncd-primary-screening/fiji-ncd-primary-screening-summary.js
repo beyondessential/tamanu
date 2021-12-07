@@ -225,11 +225,13 @@ const getData = async (sequelize, parameters) => {
     );
     results = results.concat(resultsForSurvey);
   }
+  console.log(results, parameters);
   return results;
 };
 
 export const dataGenerator = async ({ sequelize }, parameters = {}) => {
   const results = await getData(sequelize, parameters);
+  console.log(results, parameters);
 
   const reportData = Object.entries(groupBy(results, 'date'))
     .map(([date, resultsForDate]) => ({

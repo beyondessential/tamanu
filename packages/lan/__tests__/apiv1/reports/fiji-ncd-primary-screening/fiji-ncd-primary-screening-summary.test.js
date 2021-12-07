@@ -5,22 +5,29 @@ import {
   createCVDFormSurveyResponse,
   createCVDReferral,
   createBreastCancerFormSurveyResponse,
-  // createBreastCancerReferral,
+  createDummyPatients,
+  createBreastCancerReferral,
 } from './utils';
+
+const ETHNICITY_IDS = {
+  ITAUKEI: 'ethnicity-ITaukei',
+  INDIAN: 'ethnicity-FID',
+  OTHERS: 'ethnicity-others',
+};
 
 // TODO: Unskip test once tests run against a postgresql database:
 // https://linear.app/bes/issue/TAN-409/get-rid-of-sqlite
-describe.skip('Fiji NCD Primary Screening Summary', () => {
+describe('Fiji NCD Primary Screening Summary', () => {
   let baseApp = null;
   let app = null;
-  let expectedPatient1 = null;
-  let patientAdditionalData1 = null;
-  let patientAdditionalData2 = null;
-  let expectedPatient2 = null;
-  let village1 = null;
-  let village2 = null;
-  let ethnicity1 = null;
-  let ethnicity2 = null;
+  const expectedPatient1 = null;
+  const patientAdditionalData1 = null;
+  const patientAdditionalData2 = null;
+  const expectedPatient2 = null;
+  const village1 = null;
+  const village2 = null;
+  const ethnicity1 = null;
+  const ethnicity2 = null;
 
   beforeAll(async () => {
     const ctx = await createTestContext();
@@ -37,47 +44,56 @@ describe.skip('Fiji NCD Primary Screening Summary', () => {
     await models.Patient.truncate({ cascade: true });
 
     baseApp = ctx.baseApp;
-    village1 = await randomReferenceId(models, 'village');
-    village2 = await randomReferenceId(models, 'village');
-    ethnicity1 = await models.ReferenceData.create({
-      id: `ethnicity-abc-${new Date().toString()}`,
-      name: 'abc',
-      code: 'abc',
-      type: 'ethnicity',
-    });
-    ethnicity2 = await models.ReferenceData.create({
-      id: `ethnicity-def-${new Date().toString()}`,
-      name: 'def',
-      code: 'def',
-      type: 'ethnicity',
-    });
-
-    expectedPatient1 = await models.Patient.create(
-      await createDummyPatient(models, { villageId: village1, sex: 'male' }),
-    );
-    patientAdditionalData1 = await models.PatientAdditionalData.create({
-      patientId: expectedPatient1.id,
-      ethnicityId: ethnicity1.id,
-      primaryContactNumber: '123',
-    });
-    expectedPatient2 = await models.Patient.create(
-      await createDummyPatient(models, { villageId: village2, sex: 'female' }),
-    );
-    patientAdditionalData2 = await models.PatientAdditionalData.create({
-      patientId: expectedPatient2.id,
-      ethnicityId: ethnicity2.id,
-      primaryContactNumber: '456',
-    });
-
     app = await baseApp.asRole('practitioner');
 
     await setupProgramAndSurvey(models);
 
-    const surveySubmissionTime = '2021-03-12T01:00:00.133Z';
-    await createCVDFormSurveyResponse(app, expectedPatient1, surveySubmissionTime);
-    await createCVDReferral(app, expectedPatient1, surveySubmissionTime);
+    await models.ReferenceData.create({
+      id: ETHNICITY_IDS.ITAUKEI,
+      name: 'abc',
+      code: 'abc',
+      type: 'ethnicity',
+    });
+    await models.ReferenceData.create({
+      id: ETHNICITY_IDS.OTHERS,
+      name: 'abc',
+      code: 'abc',
+      type: 'ethnicity',
+    });
 
-    await createBreastCancerFormSurveyResponse(app, expectedPatient1, '2021-03-13T01:00:00.133Z');
+    const [patient1, patient2, patient3] = await createDummyPatients(models, [
+      {
+        sex: 'male',
+        ethnicityId: ETHNICITY_IDS.ITAUKEI,
+      },
+      {
+        sex: 'female',
+        ethnicityId: ETHNICITY_IDS.ITAUKEI,
+      },
+      {
+        sex: 'female',
+        ethnicityId: ETHNICITY_IDS.OTHERS,
+      },
+    ]);
+
+    // Day 1:
+    const day1Time1 = '2021-03-12T01:00:00.133Z';
+    const day1Time2 = '2021-03-12T03:00:00.133Z';
+
+    await createCVDFormSurveyResponse(app, patient1, day1Time1);
+    await createCVDReferral(app, patient1, day1Time2);
+
+    // Should be counted twice for everything except the 'patients screened' column
+    await createCVDFormSurveyResponse(app, patient2, day1Time1);
+    await createBreastCancerFormSurveyResponse(app, patient2, day1Time2);
+
+    // Should not be counted as referred as the referral is a different type
+    await createCVDFormSurveyResponse(app, patient3, day1Time1);
+    await createBreastCancerReferral(app, patient3, day1Time2);
+
+    // Day 2:
+    const day2 = '2021-03-13T01:00:00.133Z';
+    await createBreastCancerFormSurveyResponse(app, patient1, day2);
   });
 
   describe('checks permissions', () => {
@@ -93,7 +109,12 @@ describe.skip('Fiji NCD Primary Screening Summary', () => {
       const result = await app.post('/v1/reports/fiji-ncd-primary-screening-summary').send({});
 
       expect(result).toHaveSucceeded();
-      expect(result.body).toHaveLength(2);
+      // 1 for the header plus 2 content rows
+      expect(result.body).toHaveLength(3);
+    });
+
+    it('should populate correct data', async () => {
+      const result = await app.post('/v1/reports/fiji-ncd-primary-screening-summary').send({});
     });
   });
 });
