@@ -17,6 +17,7 @@
 ### Bug fixes 🐛
 
 - Referrals now no longer display in the Programs tab
+- Allow lan server to start with serverFacilityId blank if sync.enabled is false, to allow an initial data import of facilities
 
 ### Infrastructure and maintenance 🛠
 
