@@ -1,4 +1,4 @@
-import React, { createContext, useContext, useState, useCallback, useEffect } from 'react';
+import React, { useState, useCallback, useEffect } from 'react';
 
 import { REFERRAL_STATUSES } from 'shared/constants';
 import { REFERRAL_STATUS_LABELS } from '../constants';
@@ -10,12 +10,28 @@ import { EncounterModal } from './EncounterModal';
 import { useEncounter } from '../contexts/Encounter';
 import { useApi } from '../api';
 import { SurveyResponseDetailsModal } from './SurveyResponseDetailsModal';
+import { WarningModal } from './WarningModal';
+
+const ACTION_MODAL_STATES = {
+  CLOSED: 'closed',
+  WARNING_OPEN: 'warning',
+  ENCOUNTER_OPEN: 'encounter',
+};
 
 const ActionDropdown = React.memo(({ row, refreshTable }) => {
-  const [open, setOpen] = useState(false);
+  const [openModal, setOpenModal] = useState(ACTION_MODAL_STATES.CLOSED);
   const { loadEncounter } = useEncounter();
   const api = useApi();
 
+  // Modal callbacks
+  const onCloseModal = useCallback(() => setOpenModal(ACTION_MODAL_STATES.CLOSED), []);
+  const onCancelReferral = useCallback(async () => {
+    await api.put(`referral/${row.id}`, { status: REFERRAL_STATUSES.CANCELLED });
+    onCloseModal();
+    refreshTable();
+  }, [row]);
+
+  // Actions callbacks
   const onViewEncounter = useCallback(async () => {
     loadEncounter(row.encounterId, true);
   }, [row]);
@@ -23,15 +39,12 @@ const ActionDropdown = React.memo(({ row, refreshTable }) => {
     await api.put(`referral/${row.id}`, { status: REFERRAL_STATUSES.COMPLETED });
     refreshTable();
   }, [row]);
-  const onCancelReferral = useCallback(async () => {
-    console.log('TODO: Delete referral object');
-  }, [row]);
 
   const actions = [
     {
       label: 'Admit',
       condition: () => row.status === REFERRAL_STATUSES.PENDING,
-      onClick: () => setOpen(true),
+      onClick: () => setOpenModal(ACTION_MODAL_STATES.ENCOUNTER_OPEN),
     },
     // Worth keeping around to address in proper linear card
     {
@@ -45,9 +58,9 @@ const ActionDropdown = React.memo(({ row, refreshTable }) => {
       onClick: onCompleteReferral,
     },
     {
-      label: 'Cancel referral',
+      label: 'Cancel',
       condition: () => row.status === REFERRAL_STATUSES.PENDING,
-      onClick: onCancelReferral,
+      onClick: () => setOpenModal(ACTION_MODAL_STATES.WARNING_OPEN),
     },
   ].filter(action => !action.condition || action.condition());
 
@@ -55,10 +68,17 @@ const ActionDropdown = React.memo(({ row, refreshTable }) => {
     <>
       <DropdownButton color="primary" actions={actions} />
       <EncounterModal
-        open={open}
-        onClose={() => setOpen(false)}
+        open={openModal === ACTION_MODAL_STATES.ENCOUNTER_OPEN}
+        onClose={onCloseModal}
         patientId={row.initiatingEncounter.patientId}
         referral={row}
+      />
+      <WarningModal
+        open={openModal === ACTION_MODAL_STATES.WARNING_OPEN}
+        title="Cancel referral"
+        text="Are you sure you want to cancel this referral?"
+        onConfirm={onCancelReferral}
+        onClose={onCloseModal}
       />
     </>
   );
