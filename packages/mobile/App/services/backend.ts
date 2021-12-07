@@ -5,7 +5,7 @@ import { LocalisationService } from '~/services/localisation';
 import { AuthenticationError } from '~/services/auth/error';
 import { MODELS_MAP } from '~/models/modelsMap';
 
-const SYNC_PERIOD_MINUTES = 30;
+const SYNC_PERIOD_MINUTES = 5;
 
 export class Backend {
   randomId: any;
