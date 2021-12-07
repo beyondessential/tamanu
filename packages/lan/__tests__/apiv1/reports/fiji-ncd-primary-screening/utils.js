@@ -1,4 +1,3 @@
-import { createDummyPatient, randomReferenceId } from 'shared/demoData/patients';
 const PROGRAM_ID = 'program-fijincdprimaryscreening';
 const CVD_PRIMARY_FORM_SURVEY_ID = 'program-fijincdprimaryscreening-fijicvdprimaryscreen2';
 const CVD_PRIMARY_REFERRAL_SURVEY_ID = 'program-fijincdprimaryscreening-fijicvdprimaryscreenref';
@@ -184,28 +183,4 @@ export const setupProgramAndSurvey = async models => {
     { dataElementId: 'pde-FijCCRef06', surveyId: CERVICAL_CANCER_REFERRAL_SURVEY_ID },
     { dataElementId: 'pde-FijCCRef07', surveyId: CERVICAL_CANCER_REFERRAL_SURVEY_ID },
   ]);
-};
-
-const createDummyPatientWithData = async (models, { ethnicityId, ...patientOverrides }) => {
-  const patient = await models.Patient.create(await createDummyPatient(models, patientOverrides));
-  // console.log(
-  //   models,
-  //   patientOverrides,
-  //   await createDummyPatient(models, patientOverrides),
-  //   patient,
-  // );
-  const patientAdditionalData = await models.PatientAdditionalData.create({
-    patientId: patient.id,
-    ethnicityId: ethnicityId,
-    primaryContactNumber: '123',
-  });
-  return { patient, additionalData: patientAdditionalData };
-};
-
-export const createDummyPatients = async (models, patientsConfig) => {
-  const patients = [];
-  for (const overrides of patientsConfig) {
-    patients.push(await createDummyPatientWithData(models, overrides));
-  }
-  return patients;
 };
