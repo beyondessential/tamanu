@@ -25,6 +25,8 @@ export class EncounterMedication extends Model {
         qtyNight: Sequelize.INTEGER,
         quantity: Sequelize.INTEGER,
 
+        discontinued: Sequelize.BOOLEAN,
+        discontinuingReason: Sequelize.STRING,
         repeats: Sequelize.INTEGER,
         isDischarge: {
           type: Sequelize.BOOLEAN,
@@ -55,6 +57,10 @@ export class EncounterMedication extends Model {
       foreignKey: 'prescriberId',
       as: 'prescriber',
     });
+    this.belongsTo(models.User, {
+      foreignKey: 'discontinuingClinicianId',
+      as: 'discontinuingClinician',
+    });
 
     this.belongsTo(models.Encounter, {
       foreignKey: 'encounterId',
@@ -67,6 +73,6 @@ export class EncounterMedication extends Model {
   }
 
   static getListReferenceAssociations() {
-    return ['Medication', 'encounter', 'prescriber'];
+    return ['Medication', 'encounter', 'prescriber', 'discontinuingClinician'];
   }
 }

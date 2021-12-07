@@ -117,14 +117,17 @@ export const REPORT_DEFINITIONS = [
         name: 'surveyId',
         label: 'Screening type',
         options: [
-          { label: 'CVD Primary Screening Form', value: 'program-fijincd-fijicvdprimaryscreen2' },
+          {
+            label: 'CVD Primary Screening Form',
+            value: 'program-fijincdprimaryscreening-fijicvdprimaryscreen2',
+          },
           {
             label: 'Breast Cancer Primary Screening Form',
-            value: 'program-fijincd-fijibreastprimaryscreen',
+            value: 'program-fijincdprimaryscreening-fijibreastprimaryscreen',
           },
           {
             label: 'Cervical Cancer Primary Screening Form',
-            value: 'program-fijincd-fijicervicalprimaryscreen',
+            value: 'program-fijincdprimaryscreening-fijicervicalprimaryscreen',
           },
         ],
       },
@@ -141,15 +144,15 @@ export const REPORT_DEFINITIONS = [
         options: [
           {
             label: 'CVD Primary Screening Referral',
-            value: 'program-fijincd-fijicvdprimaryscreenref',
+            value: 'program-fijincdprimaryscreening-fijicvdprimaryscreenref',
           },
           {
             label: 'Breast Cancer Primary Screening Referral',
-            value: 'program-fijincd-fijibreastscreenref',
+            value: 'program-fijincdprimaryscreening-fijibreastscreenref',
           },
           {
             label: 'Cervical Cancer Primary Screening Referral',
-            value: 'program-fijincd-fijicervicalscreenref',
+            value: 'program-fijincdprimaryscreening-fijicervicalscreenref',
           },
         ],
       },

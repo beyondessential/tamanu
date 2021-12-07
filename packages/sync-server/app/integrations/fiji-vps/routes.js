@@ -2,7 +2,11 @@ import config from 'config';
 import express from 'express';
 import asyncHandler from 'express-async-handler';
 
-import { patientToHL7Patient, labTestToHL7DiagnosticReport } from '../../hl7fhir';
+import {
+  patientToHL7Patient,
+  labTestToHL7DiagnosticReport,
+  hl7StatusToLabRequestStatus,
+} from '../../hl7fhir';
 import * as schema from './schema';
 import {
   toSearchId,
@@ -44,7 +48,7 @@ async function getHL7Payload({ req, querySchema, model, getWhere, getInclude, bu
   const offset = _count * _page;
   const baseWhere = getWhere(displayId);
   const afterWhere = addPaginationToWhere(baseWhere, after);
-  const include = getInclude(displayId);
+  const include = getInclude(displayId, query);
 
   const [records, total, remaining] = await Promise.all([
     model.findAll({
@@ -135,12 +139,13 @@ routes.get(
       querySchema: schema.diagnosticReport.query,
       model: req.store.models.LabTest,
       getWhere: () => ({}), // deliberately empty, join with a patient instead
-      getInclude: displayId => [
+      getInclude: (displayId, { status }) => [
         { association: 'labTestType' },
         { association: 'labTestMethod' },
         {
           association: 'labRequest',
           required: true,
+          where: status ? { status: hl7StatusToLabRequestStatus(status) } : null,
           include: [
             { association: 'laboratory' },
             {
