@@ -22,6 +22,28 @@
 
 - (left blank)
 
+## v1.11.26
+
+### Manual steps required after upgrade ⚙
+
+- (left blank)
+
+### Features ⭐
+
+- (left blank)
+
+### Tweaks ⚖️
+
+- (left blank)
+
+### Bug fixes 🐛
+
+- Remove country selection from change & reset password forms
+
+### Infrastructure and maintenance 🛠
+
+- Change `X-Runtime` header to `X-Tamanu-Client`
+
 ## v1.10.25
 
 ### Manual steps required after upgrade ⚙

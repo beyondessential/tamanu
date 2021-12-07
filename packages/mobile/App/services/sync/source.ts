@@ -138,7 +138,7 @@ export class WebSyncSource implements SyncSource {
     const headers = {
       Authorization: `Bearer ${this.token}`,
       Accept: 'application/json',
-      'X-Runtime': 'Tamanu Mobile',
+      'X-Tamanu-Client': 'Tamanu Mobile',
       'X-Version': version,
       ...extraHeaders,
     };
