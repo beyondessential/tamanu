@@ -69,6 +69,8 @@ export const MedicationForm = React.memo(
           qtyLunch: medication?.qtyMorning ?? 0,
           qtyEvening: medication?.qtyEvening ?? 0,
           qtyNight: medication?.qtyNight ?? 0,
+          quantity: medication?.quantity ?? 0,
+          indication: medication?.indication ?? '',
         }}
         validationSchema={validationSchema(readOnly)}
         render={({ submitForm }) => (
@@ -128,14 +130,14 @@ export const MedicationForm = React.memo(
                 <>
                   <Field
                     name="discontinuingClinicianId"
-                    label="Discontinuation clinician"
+                    label="Discontinued by"
                     component={AutocompleteField}
                     suggester={practitionerSuggester}
                     value={medication?.discontinuingClinicianId}
                   />
                   <Field
                     name="discontinuingReason"
-                    label="Reason for discontinuation"
+                    label="Discontinued reason"
                     component={TextField}
                   />
                 </>
