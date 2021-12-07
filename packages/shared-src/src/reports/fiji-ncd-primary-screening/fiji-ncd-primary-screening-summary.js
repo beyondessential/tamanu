@@ -1,6 +1,6 @@
 import { Sequelize, Op } from 'sequelize';
 import moment from 'moment';
-import { groupBy } from 'lodash';
+import { groupBy, keyBy } from 'lodash';
 import { generateReportFromQueryData } from '../utilities';
 
 const REFERRAL_SCREENING_FORM_MAPPING = {
@@ -20,6 +20,9 @@ const ETHNICITY_IDS = {
 
 const FIELDS = {
   date: { title: 'Date' },
+  patientsScreened: {
+    title: 'Total patients screened',
+  },
   screened: {
     title: 'Total screened',
     selectSql: 'true',
@@ -72,9 +75,12 @@ const FIELDS = {
     title: 'Total screened by CVD risk ≥30% (%)',
     selectSql: "(sr.result_text like '%PURPLE%')",
   },
+  referredNumber: {
+    title: 'Total referred',
+    selectSql: 'referral_sr.id is not null',
+  },
   referredPercent: {
     title: 'Total referred (%)',
-    selectSql: 'referral_sr.id is not null',
   },
   referredMale: {
     title: 'Total referred by male',
@@ -225,19 +231,65 @@ const getData = async (sequelize, parameters) => {
     );
     results = results.concat(resultsForSurvey);
   }
-  console.log(results, parameters);
   return results;
 };
 
+const getTotalPatientsScreened = async (sequelize, parameters) => {
+  const nonEmptyParameterKeys = Object.entries(parameters)
+    .filter(([key, val]) => !!val)
+    .map(([key, val]) => key);
+
+  const {
+    fromDate,
+    toDate,
+    village,
+    division,
+    surveyIds = Object.keys(REFERRAL_SCREENING_FORM_MAPPING).join(', '),
+  } = parameters;
+
+  return sequelize.query(
+    `
+      SELECT 
+        to_char(sr.end_time, 'yyyy-mm-dd') as date,
+        count(DISTINCT patient.id) as "patientsScreened"
+      FROM survey_responses AS sr 
+        ${getJoinClauses()}
+      WHERE sr.survey_id IN (:screening_survey_ids)
+        ${parametersToSqlWhereClause(nonEmptyParameterKeys)}
+      GROUP BY date
+      ORDER BY date desc;
+    `,
+    {
+      type: sequelize.QueryTypes.SELECT,
+      replacements: {
+        screening_survey_ids: surveyIds.split(', '),
+        referral_survey_id: null,
+        from_date: fromDate,
+        to_date: toDate,
+        village_id: village,
+        division_id: division,
+      },
+    },
+  );
+};
+
+const addReferredPercent = dataForDate => {
+  const { screened, referredNumber } = dataForDate;
+  return { ...dataForDate, referredPercent: `${Math.round((referredNumber / screened) * 100)}%` };
+};
+
 export const dataGenerator = async ({ sequelize }, parameters = {}) => {
+  const patientsScreenedData = await getTotalPatientsScreened(sequelize, parameters);
+  const patientsScreenedByDate = keyBy(patientsScreenedData, 'date');
   const results = await getData(sequelize, parameters);
-  console.log(results, parameters);
 
   const reportData = Object.entries(groupBy(results, 'date'))
     .map(([date, resultsForDate]) => ({
       date,
+      patientsScreened: parseInt(patientsScreenedByDate[date].patientsScreened, 10),
       ...sumObjectsByKey(resultsForDate.map(({ date: _, ...summableKeys }) => summableKeys)),
     }))
+    .map(addReferredPercent)
     .sort(({ date: date1 }, { date: date2 }) => moment(date2) - moment(date1));
 
   return generateReportFromQueryData(reportData, reportColumnTemplate);
