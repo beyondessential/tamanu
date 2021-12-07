@@ -190,7 +190,10 @@ export const DischargeForm = ({ practitionerSuggester, onCancel, onSubmit }) => 
   const { encounter } = useEncounter();
   const [dischargeNotes, setDischargeNotes] = useState([]);
   const api = useApi();
-  const medicationInitialValues = getMedicationsInitialValues(encounter.medications);
+  // Only display medications that are not discontinued
+  // Might need to update condition to compare by end date (decision pending)
+  const activeMedications = encounter.medications?.filter(medication => !medication.discontinued);
+  const medicationInitialValues = getMedicationsInitialValues(activeMedications);
   const handleSubmit = useCallback(
     ({ medications, ...data }) => {
       // Filter out medications that weren't marked
@@ -226,7 +229,7 @@ export const DischargeForm = ({ practitionerSuggester, onCancel, onSubmit }) => 
             required
           />
           <OuterLabelFieldWrapper label="Discharge medications" style={{ gridColumn: '1 / -1' }}>
-            <TableFormFields columns={medicationColumns} data={encounter.medications} />
+            <TableFormFields columns={medicationColumns} data={activeMedications} />
           </OuterLabelFieldWrapper>
           <Field
             name="sendToPharmacy"
