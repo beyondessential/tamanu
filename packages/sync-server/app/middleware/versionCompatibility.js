@@ -10,8 +10,8 @@ export const SUPPORTED_CLIENT_VERSIONS = {
     max: '1.11.0', // note that higher patch versions will be allowed to connect
   },
   'Tamanu Mobile': {
-    min: '1.10.0',
-    max: '1.10.99', // note that higher patch versions will be allowed to connect
+    min: '1.11.0',
+    max: '1.11.99', // note that higher patch versions will be allowed to connect
   },
   'Fiji VPS': {
     min: null,
