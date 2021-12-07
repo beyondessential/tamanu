@@ -8,7 +8,9 @@ import {
   // createBreastCancerReferral,
 } from './utils';
 
-describe('Fiji NCD Primary Screening Summary', () => {
+// TODO: Unskip test once tests run against a postgresql database:
+// https://linear.app/bes/issue/TAN-409/get-rid-of-sqlite
+describe.skip('Fiji NCD Primary Screening Summary', () => {
   let baseApp = null;
   let app = null;
   let expectedPatient1 = null;
@@ -75,8 +77,7 @@ describe('Fiji NCD Primary Screening Summary', () => {
     await createCVDFormSurveyResponse(app, expectedPatient1, surveySubmissionTime);
     await createCVDReferral(app, expectedPatient1, surveySubmissionTime);
 
-    await createBreastCancerFormSurveyResponse(app, expectedPatient1, '2021-03-12T01:00:00.133Z');
-    // await createBreastCancerReferral(app, expectedPatient1, '2021-03-12T02:00:00.133Z');
+    await createBreastCancerFormSurveyResponse(app, expectedPatient1, '2021-03-13T01:00:00.133Z');
   });
 
   describe('checks permissions', () => {
@@ -92,7 +93,7 @@ describe('Fiji NCD Primary Screening Summary', () => {
       const result = await app.post('/v1/reports/fiji-ncd-primary-screening-summary').send({});
 
       expect(result).toHaveSucceeded();
-      expect(result.body).toHaveLength(1);
+      expect(result.body).toHaveLength(2);
     });
   });
 });
