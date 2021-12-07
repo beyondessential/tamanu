@@ -17,7 +17,7 @@ const ETHNICITY_IDS = {
 
 const PROPERTY_LIST = [
   'date',
-  //'patientsScreened',
+  'patientsScreened',
   'screened',
   'screenedMale',
   'screenedFemale',
@@ -31,6 +31,7 @@ const PROPERTY_LIST = [
   'screenedRisk10-20',
   'screenedRisk20-30',
   'screenedRisk>30',
+  'referredNumber',
   'referredPercent',
   'referredMale',
   'referredFemale',
@@ -149,6 +150,7 @@ describe.skip('Fiji NCD Primary Screening Summary', () => {
       const row1 = result.body[1];
       const expectedDetails1 = {
         date: '2021-03-13',
+        patientsScreened: 1,
         screened: 1,
         screenedMale: 1,
         screenedFemale: 0,
@@ -162,7 +164,8 @@ describe.skip('Fiji NCD Primary Screening Summary', () => {
         'screenedRisk10-20': 0,
         'screenedRisk20-30': 0,
         'screenedRisk>30': 0,
-        referredPercent: 0,
+        referredNumber: 0,
+        referredPercent: '0%',
         referredMale: 0,
         referredFemale: 0,
         'referred<30': 0,
@@ -179,6 +182,7 @@ describe.skip('Fiji NCD Primary Screening Summary', () => {
       const row2 = result.body[2];
       const expectedDetails2 = {
         date: '2021-03-12',
+        patientsScreened: 3,
         screened: 4,
         screenedMale: 1,
         screenedFemale: 3,
@@ -192,7 +196,8 @@ describe.skip('Fiji NCD Primary Screening Summary', () => {
         'screenedRisk10-20': 0,
         'screenedRisk20-30': 0,
         'screenedRisk>30': 0,
-        referredPercent: 1,
+        referredNumber: 1,
+        referredPercent: '25%',
         referredMale: 1,
         referredFemale: 0,
         'referred<30': 1,
