@@ -148,7 +148,7 @@ describe('Fiji NCD Primary Screening Summary', () => {
     await createBreastCancerFormSurveyResponse(app, expectedPatient1, day2);
 
     // This survey response should not be counted (but the patient still should be)
-    await createBreastCancerFormSurveyResponse(app, expectedPatient2, day2, {
+    await createBreastCancerFormSurveyResponse(app, expectedPatient1, day2, {
       answerOverrides: {
         'pde-FijBS14': 'No',
       },
