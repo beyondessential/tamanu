@@ -36,11 +36,11 @@ appointments.get(
       startTimeQuery[Op.lte] = before;
     }
     const filters = Object.entries(queries).reduce((_filters, [query, queryValue]) => {
-      // simple query
       if (!(typeof queryValue === 'string')) {
         return _filters;
       }
       let column = query;
+      // querying on a joined table (associations)
       if (query.includes('.')) {
         column = `$${query}$`;
       }
