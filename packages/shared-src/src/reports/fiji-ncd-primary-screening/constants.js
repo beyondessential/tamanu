@@ -1,6 +1,6 @@
 const CVD_PRIMARY_FORM_SURVEY_ID = 'program-fijincdprimaryscreening-fijicvdprimaryscreen2';
 const CVD_PRIMARY_REFERRAL_SURVEY_ID = 'program-fijincdprimaryscreening-fijicvdprimaryscreenref';
-const BREAST_CANCER_FORM_SURVEY_ID = 'program-fijincdprimaryscreening-fijibreastprimaryscreen';
+export const BREAST_CANCER_FORM_SURVEY_ID = 'program-fijincdprimaryscreening-fijibreastprimaryscreen';
 const BREAST_CANCER_REFERRAL_SURVEY_ID = 'program-fijincdprimaryscreening-fijibreastscreenref';
 const CERVICAL_CANCER_FORM_SURVEY_ID = 'program-fijincdprimaryscreening-fijicervicalprimaryscreen';
 const CERVICAL_CANCER_REFERRAL_SURVEY_ID = 'program-fijincdprimaryscreening-fijicervicalscreenref';
