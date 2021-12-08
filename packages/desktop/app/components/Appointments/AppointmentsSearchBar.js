@@ -1,4 +1,5 @@
 import React from 'react';
+import { startOfDay } from 'date-fns';
 import { CustomisablePatientSearchBar } from '../../views/patients/components/PatientSearchBar';
 import { StyledSelectField, DateTimeField, AutocompleteField } from '../Field';
 import { Suggester } from '../../utils/suggester';
@@ -56,8 +57,12 @@ export const AppointmentsSearchBar = ({ onSearch }) => {
             options: appointmentStatusOptions,
           },
         ],
-        ['startTime', { component: DateTimeField, placeholder: 'Start from' }],
+        ['after', { component: DateTimeField, placeholder: 'Start from' }],
+        ['before', { component: DateTimeField, placeholder: 'Until' }],
       ]}
+      initialValues={{
+        after: startOfDay(new Date()),
+      }}
     />
   );
 };
