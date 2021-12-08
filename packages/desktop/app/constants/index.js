@@ -137,15 +137,6 @@ export const momentSimpleCalender = {
 
 export const timeFormat = 'hh:mm a';
 
-export const pageSizes = {
-  patients: 10,
-  pregnancies: 5,
-  surveyResponses: 5,
-  medicationRequests: 10,
-  appointments: 10,
-  patientLabRequests: 5,
-};
-
 // Generate time picker select options
 export const timeSelectOptions = {
   hours: [],

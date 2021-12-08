@@ -16,7 +16,7 @@
 
 ### Bug fixes 🐛
 
-- (left blank)
+- Referrals now no longer display in the Programs tab
 
 ### Infrastructure and maintenance 🛠
 
@@ -29,6 +29,7 @@
 - Fiji only:
   - set appropriate HL7 settings in local.json
     - specifically:
+
 ```
   "hl7": {
     "assigners": {
@@ -43,12 +44,12 @@
 
 - Everywhere:
   - set a `canonicalHostName` in `local.json`:
+
 ```
 {
    "canonicalHostName": "https://example.com"
 }
 ```
-
 
 ### Features ⭐
 
@@ -86,7 +87,7 @@
 
 ### Features ⭐
 
-- LAN server is aware of which facility it represents 
+- LAN server is aware of which facility it represents
 
 ### Tweaks ⚖️
 
@@ -128,11 +129,13 @@
 ```
 
 - For Samoa sync-server (1.10.0), enable running report in child process on again by switching in `packages/sync-server/local.json`:
+
 ```
 "reportProcess": {
     "runInChildProcess": true
 },
 ```
+
 ### Features ⭐
 
 - Active COVID-19 Patients table
