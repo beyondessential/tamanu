@@ -64,7 +64,7 @@ async function queryAdmissionsData(models, parameters) {
   return result;
 }
 
-export async function dataGenerator({ models }, parameters) {
+export async function dataGenerator(models, parameters) {
   const queryResults = await queryAdmissionsData(models, parameters);
   return generateReportFromQueryData(queryResults, reportColumnTemplate);
 }

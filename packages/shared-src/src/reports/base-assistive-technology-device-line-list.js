@@ -147,7 +147,7 @@ const getPatientIdsByResponseDates = transformedAnswers => {
 };
 
 export const dataGenerator = async (
-  { models },
+  models,
   parameters = {},
   surveyIds,
   surveyDataElementIdsLatestPerPatient,

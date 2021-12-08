@@ -32,7 +32,7 @@ const parametersToSqlWhere = parameters => {
 
 export const permission = 'Patient';
 
-export const dataGenerator = async ({ models }, parameters = {}) => {
+export const dataGenerator = async (models, parameters = {}) => {
   const reportColumnTemplate = [
     { title: 'Date', accessor: data => data.dateCreated },
     { title: 'Males Created', accessor: data => data.malesCreated },

@@ -29,7 +29,7 @@ export async function report(options) {
       name,
       reportParameters,
       reportRecipients,
-      store,
+      store.models,
       emailService,
     );
     log.info(`Running report "${name}" with parameters "${parameters}"`);

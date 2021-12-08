@@ -115,7 +115,7 @@ describe('covid-vaccine-daily-summary-village', () => {
 
     const runReport = async () => {
       return dataGenerator(
-        { models },
+        models,
         { fromDate: '2021-05-01T00:00:00Z', toDate: '2021-01-01T00:00:00Z' },
         mockTupaiaApi(),
       );
@@ -128,7 +128,7 @@ describe('covid-vaccine-daily-summary-village', () => {
     const models = mockModels([mockRow(1), mockRow(2)]);
 
     const report = await dataGenerator(
-      { models },
+      models,
       // note: it looks up until the end of the day of toDate, so we can pass 00:00:00Z and still have the data returned
       { fromDate: '2021-01-01T00:00:00Z', toDate: '2021-01-01T00:00:00Z' },
       mockTupaiaApi(),
@@ -150,7 +150,7 @@ describe('covid-vaccine-daily-summary-village', () => {
     ]);
 
     const report = await dataGenerator(
-      { models },
+      models,
       { fromDate: '2021-01-01T00:00:00Z', toDate: '2021-01-02T00:00:00Z' },
       mockTupaiaApi(),
     );
@@ -170,26 +170,12 @@ describe('covid-vaccine-daily-summary-village', () => {
     const models = mockModels([
       mockRow(1, '2000-01-01T01:02:03.000Z', '1934-01-01T01:02:03.000Z', 'Village_A'), // 66 years old at first dose
       mockRow(2, '2000-01-01T01:02:03.000Z', '1936-01-01T01:02:03.000Z', 'Village_A'), // 64 years old at first dose
-      mockRow(
-        3,
-        '2000-01-01T01:02:03.000Z',
-        '1934-01-01T01:02:03.000Z',
-        'Village_B',
-        undefined,
-        'Dose 2',
-      ), // 66 years old at second dose
-      mockRow(
-        4,
-        '2000-01-01T01:02:03.000Z',
-        '1936-01-01T01:02:03.000Z',
-        'Village_B',
-        undefined,
-        'Dose 2',
-      ), // 64 years old at second dose
+      mockRow(3, '2000-01-01T01:02:03.000Z', '1934-01-01T01:02:03.000Z', 'Village_B', undefined, 'Dose 2'), // 66 years old at second dose
+      mockRow(4, '2000-01-01T01:02:03.000Z', '1936-01-01T01:02:03.000Z', 'Village_B', undefined, 'Dose 2'), // 64 years old at second dose
     ]);
 
     const report = await dataGenerator(
-      { models },
+      models,
       { fromDate: '2000-01-01T00:00:00Z', toDate: '2000-01-01T00:00:00Z' },
       mockTupaiaApi(),
     );
@@ -208,7 +194,7 @@ describe('covid-vaccine-daily-summary-village', () => {
     ]);
 
     const report = await dataGenerator(
-      { models },
+      models,
       { fromDate: '2021-01-01T00:00:00Z', toDate: '2021-01-02T00:00:00Z' },
       mockTupaiaApi(),
     );
@@ -231,7 +217,7 @@ describe('covid-vaccine-daily-summary-village', () => {
     ]);
 
     const report = await dataGenerator(
-      { models },
+      models,
       { fromDate: '2021-01-01T00:00:00Z', toDate: '2021-01-02T00:00:00Z' },
       mockTupaiaApi(),
     );
@@ -250,26 +236,20 @@ describe('covid-vaccine-daily-summary-village', () => {
     const models = mockModels([
       // Same patient, same Dose 1, different days
       mockRow(1, '2021-01-01T01:02:03.000Z', undefined, undefined, undefined, undefined, 'GIVEN'),
-      mockRow(
-        2,
-        '2021-01-01T01:02:03.000Z',
-        undefined,
-        undefined,
-        undefined,
-        undefined,
-        'NOT_GIVEN',
-      ),
+      mockRow(2, '2021-01-01T01:02:03.000Z', undefined, undefined, undefined, undefined, 'NOT_GIVEN'),
     ]);
 
     const report = await dataGenerator(
-      { models },
+      models,
       { fromDate: '2021-01-01T00:00:00Z', toDate: '2021-01-01T00:00:00Z' },
       mockTupaiaApi(),
     );
 
     expect(report).toEqual(
       expect.objectContaining(
-        getExpectedDataArray([['VIL_A', '2021-01-01 23:59:59', 0, 1, 0, 1, 0, 0, 0, 0]]),
+        getExpectedDataArray([
+          ['VIL_A', '2021-01-01 23:59:59', 0, 1, 0, 1, 0, 0, 0, 0],
+        ]),
       ),
     );
   });

@@ -36,7 +36,7 @@ const generateReport = async () => {
   // 1. get models
 
   console.log('Initialising database');
-  const store = await initDatabase({
+  const { models } = await initDatabase({
     port: 5431,
     name: 'tamanu-sync',
     verbose: false,
@@ -47,7 +47,7 @@ const generateReport = async () => {
 
   // 2. generate report data
   console.log('Generating report data');
-  const data = await dataGenerator(store, {});
+  const data = await dataGenerator(models, {});
   console.log('Generating report data: Success!');
 
   // 3. convert to excel and write

@@ -21,7 +21,7 @@ const parametersToSqlWhere = parameters => {
   return whereClause;
 };
 
-export const dataGenerator = async ({ models }, parameters = {}) => {
+export const dataGenerator = async (models, parameters = {}) => {
   const reportColumnTemplate = [
     { title: 'Date registered', accessor: data => data.dateCreated },
     { title: 'Registered by', accessor: data => data.registeredByName },
