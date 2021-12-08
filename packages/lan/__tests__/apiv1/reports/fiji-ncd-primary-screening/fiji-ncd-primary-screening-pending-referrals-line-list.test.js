@@ -1,4 +1,5 @@
 import { createDummyPatient, randomReferenceId } from 'shared/demoData/patients';
+import { REFERENCE_TYPES } from 'shared/constants';
 import { createTestContext } from '../../../utilities';
 import {
   setupProgramAndSurvey,
@@ -16,6 +17,9 @@ const PROPERTY_LIST = [
   'gender',
   'ethnicity',
   'contactNumber',
+  'subdivision',
+  'medicalArea',
+  'nursingZone',
   'referralCreated',
   'referringHealthFacility',
   'referringCso',
@@ -27,6 +31,7 @@ const PROPERTY_LIST = [
   'screeningHealthFacility',
   'nameOfCso',
   'cvdRiskLevel',
+  'breastCancerRiskLevel',
 ];
 const PROPERTY_TO_EXCEL_INDEX = PROPERTY_LIST.reduce((acc, prop, i) => ({ ...acc, [prop]: i }), {});
 
@@ -43,6 +48,9 @@ describe('Fiji NCD Primary Screening Pending Referrals line list', () => {
   let village2 = null;
   let ethnicity1 = null;
   let ethnicity2 = null;
+  let subdivision = null;
+  let medicalArea = null;
+  let nursingZone = null;
 
   beforeAll(async () => {
     const ctx = await createTestContext();
@@ -74,6 +82,25 @@ describe('Fiji NCD Primary Screening Pending Referrals line list', () => {
       type: 'ethnicity',
     });
 
+    subdivision = await models.ReferenceData.create({
+      id: `subdivision-abc-${new Date().toString()}`,
+      name: 'abc1',
+      code: 'abc',
+      type: REFERENCE_TYPES.SUBDIVISION,
+    });
+    medicalArea = await models.ReferenceData.create({
+      id: `medicalArea-abc-${new Date().toString()}`,
+      name: 'abc2',
+      code: 'abc',
+      type: REFERENCE_TYPES.MEDICAL_AREA,
+    });
+    nursingZone = await models.ReferenceData.create({
+      id: `nursingZone-abc-${new Date().toString()}`,
+      name: 'abc3',
+      code: 'abc',
+      type: REFERENCE_TYPES.NURSING_ZONE,
+    });
+
     expectedPatient1 = await models.Patient.create(
       await createDummyPatient(models, { villageId: village1, sex: 'male' }),
     );
@@ -81,6 +108,9 @@ describe('Fiji NCD Primary Screening Pending Referrals line list', () => {
       patientId: expectedPatient1.id,
       ethnicityId: ethnicity1.id,
       primaryContactNumber: '123',
+      subdivisionId: subdivision.id,
+      medicalAreaId: medicalArea.id,
+      nursingZoneId: nursingZone.id,
     });
     expectedPatient2 = await models.Patient.create(
       await createDummyPatient(models, { villageId: village2, sex: 'female' }),
@@ -89,6 +119,9 @@ describe('Fiji NCD Primary Screening Pending Referrals line list', () => {
       patientId: expectedPatient2.id,
       ethnicityId: ethnicity2.id,
       primaryContactNumber: '456',
+      subdivisionId: subdivision.id,
+      medicalAreaId: medicalArea.id,
+      nursingZoneId: nursingZone.id,
     });
 
     app = await baseApp.asRole('practitioner');
@@ -150,6 +183,9 @@ describe('Fiji NCD Primary Screening Pending Referrals line list', () => {
         gender: expectedPatient2.sex,
         ethnicity: ethnicity2.name,
         contactNumber: patientAdditionalData2.primaryContactNumber,
+        subdivision: subdivision.name,
+        medicalArea: medicalArea.name,
+        nursingZone: nursingZone.name,
         referralCreated: 'Breast Cancer Primary Screening Referral',
         dateOfReferral: `pde-FijBCRef04-on-2021-03-13T02:00:00.133Z-${expectedPatient2.firstName}`,
         // referringHealthFacility: `pde-FijBCRef06-on-2021-03-13T02:00:00.133Z-${expectedPatient2.firstName}`,
@@ -157,6 +193,7 @@ describe('Fiji NCD Primary Screening Pending Referrals line list', () => {
         nameOfCso: `pde-FijBS10-on-2021-03-13T01:00:00.133Z-${expectedPatient2.firstName}`,
         referringCso: `pde-FijBCRef2a-on-2021-03-13T02:00:00.133Z-${expectedPatient2.firstName}`,
         cvdRiskLevel: null,
+        breastCancerRiskLevel: 'High risk',
         reasonForReferral: `pde-FijBCRef10-on-2021-03-13T02:00:00.133Z-${expectedPatient2.firstName}`,
         dateOfScreening: `pde-FijBS02-on-2021-03-13T01:00:00.133Z-${expectedPatient2.firstName}`,
         screeningLocation: `pde-FijBS04-on-2021-03-13T01:00:00.133Z-${expectedPatient2.firstName}`,
@@ -181,6 +218,9 @@ describe('Fiji NCD Primary Screening Pending Referrals line list', () => {
         gender: expectedPatient1.sex,
         ethnicity: ethnicity1.name,
         contactNumber: patientAdditionalData1.primaryContactNumber,
+        subdivision: subdivision.name,
+        medicalArea: medicalArea.name,
+        nursingZone: nursingZone.name,
         referralCreated: 'Breast Cancer Primary Screening Referral',
         dateOfReferral: `pde-FijBCRef04-on-2021-03-12T04:00:00.133Z-${expectedPatient1.firstName}`,
         // referringHealthFacility: `pde-FijBCRef06-on-2021-03-12T04:00:00.133Z-${expectedPatient1.firstName}`,
@@ -188,6 +228,7 @@ describe('Fiji NCD Primary Screening Pending Referrals line list', () => {
         nameOfCso: `pde-FijBS10-on-2021-03-12T03:00:00.133Z-${expectedPatient1.firstName}`,
         referringCso: `pde-FijBCRef2a-on-2021-03-12T04:00:00.133Z-${expectedPatient1.firstName}`,
         cvdRiskLevel: null,
+        breastCancerRiskLevel: 'High risk',
         reasonForReferral: `pde-FijBCRef10-on-2021-03-12T04:00:00.133Z-${expectedPatient1.firstName}`,
         dateOfScreening: `pde-FijBS02-on-2021-03-12T03:00:00.133Z-${expectedPatient1.firstName}`,
         screeningLocation: `pde-FijBS04-on-2021-03-12T03:00:00.133Z-${expectedPatient1.firstName}`,
@@ -212,6 +253,9 @@ describe('Fiji NCD Primary Screening Pending Referrals line list', () => {
         gender: expectedPatient1.sex,
         ethnicity: ethnicity1.name,
         contactNumber: patientAdditionalData1.primaryContactNumber,
+        subdivision: subdivision.name,
+        medicalArea: medicalArea.name,
+        nursingZone: nursingZone.name,
         referralCreated: 'CVD Primary Screening Referral',
         dateOfReferral: `pde-FijCVDRef4-on-2021-03-12T02:00:00.133Z-${expectedPatient1.firstName}`,
         // referringHealthFacility: `pde-FijCVDRef6-on-2021-03-12T02:00:00.133Z-${expectedPatient1.firstName}`,
@@ -219,6 +263,7 @@ describe('Fiji NCD Primary Screening Pending Referrals line list', () => {
         nameOfCso: `pde-FijCVD010-on-2021-03-12T01:00:00.133Z-${expectedPatient1.firstName}`,
         referringCso: `pde-FijCVDRef2a-on-2021-03-12T02:00:00.133Z-${expectedPatient1.firstName}`,
         cvdRiskLevel: '3% GREEN',
+        breastCancerRiskLevel: null,
         reasonForReferral: `pde-FijCVDRef11-on-2021-03-12T02:00:00.133Z-${expectedPatient1.firstName}`,
         dateOfScreening: `pde-FijCVD002-on-2021-03-12T01:00:00.133Z-${expectedPatient1.firstName}`,
         screeningLocation: `pde-FijCVD004-on-2021-03-12T01:00:00.133Z-${expectedPatient1.firstName}`,
