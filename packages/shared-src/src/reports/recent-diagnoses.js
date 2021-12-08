@@ -91,7 +91,7 @@ async function queryDiagnosesData(models, parameters) {
   return result;
 }
 
-export async function dataGenerator(models, parameters) {
+export async function dataGenerator({ models }, parameters) {
   const queryResults = await queryDiagnosesData(models, parameters);
   return generateReportFromQueryData(queryResults, reportColumnTemplate);
 }

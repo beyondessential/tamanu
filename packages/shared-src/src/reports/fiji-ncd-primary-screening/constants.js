@@ -13,6 +13,9 @@ export const PRIMARY_SCREENING_REPORT_COLUMN_TEMPLATE = [
   { title: 'Gender', accessor: data => data.gender },
   { title: 'Ethnicity', accessor: data => data.ethnicity },
   { title: 'Contact number', accessor: data => data.contactNumber },
+  { title: 'Subdivison', accessor: data => data.subdivision },
+  { title: 'Medical area', accessor: data => data.medicalArea },
+  { title: 'Nursing zone', accessor: data => data.nursingZone },
   { title: 'Screening completed', accessor: data => data.screeningCompleted },
   { title: 'Date of screening', accessor: data => data.dateOfScreening },
   { title: 'Screening location', accessor: data => data.screeningLocation },
@@ -20,6 +23,7 @@ export const PRIMARY_SCREENING_REPORT_COLUMN_TEMPLATE = [
   { title: 'Name of CSO', accessor: data => data.nameOfCso },
   { title: 'Screening eligibility', accessor: data => data.screeningEligibility },
   { title: 'CVD risk level', accessor: data => data.cvdRiskLevel },
+  { title: 'Breast cancer risk level', accessor: data => data.breastCancerRiskLevel },
   { title: 'Referral created', accessor: data => data.referralCreated },
   { title: 'Date of referral', accessor: data => data.dateOfReferral },
   { title: 'Referred to health facility', accessor: data => data.referredToHealthFacility },
@@ -35,6 +39,9 @@ export const PRIMARY_SCREENING_PENDING_REFERRALS_REPORT_COLUMN_TEMPLATE = [
   { title: 'Gender', accessor: data => data.gender },
   { title: 'Ethnicity', accessor: data => data.ethnicity },
   { title: 'Contact number', accessor: data => data.contactNumber },
+  { title: 'Subdivison', accessor: data => data.subdivision },
+  { title: 'Medical area', accessor: data => data.medicalArea },
+  { title: 'Nursing zone', accessor: data => data.nursingZone },
   { title: 'Referral created', accessor: data => data.referralCreated },
   { title: 'Referring health facility', accessor: data => data.referringHealthFacility },
   { title: 'Referring CSO', accessor: data => data.referringCso },
@@ -46,6 +53,7 @@ export const PRIMARY_SCREENING_PENDING_REFERRALS_REPORT_COLUMN_TEMPLATE = [
   { title: 'Screening health facility', accessor: data => data.screeningHealthFacility },
   { title: 'Name of CSO', accessor: data => data.nameOfCso },
   { title: 'CVD risk level', accessor: data => data.cvdRiskLevel },
+  { title: 'Breast cancer risk level', accessor: data => data.breastCancerRiskLevel },
 ];
 
 export const CVD_SURVEY_IDS = [CVD_PRIMARY_FORM_SURVEY_ID, CVD_PRIMARY_REFERRAL_SURVEY_ID];
@@ -121,6 +129,7 @@ export const BREAST_CANCER_PRIMARY_SCREENING_FORM_DATA_ELEMENT_IDS = {
   screeningHealthFacility: 'pde-FijBS07', // from Form survey
   nameOfCso: 'pde-FijBS10', // from Form survey
   screeningEligibility: 'pde-FijBS14', // from Form survey
+  breastCancerRiskLevel: getSurveyResultDataElement(BREAST_CANCER_FORM_SURVEY_ID), // from Form survey
 };
 
 export const BREAST_CANCER_PRIMARY_SCREENING_REFERRAL_DATA_ELEMENT_IDS = {
