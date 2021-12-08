@@ -2,7 +2,7 @@ import React from 'react';
 import { CustomisablePatientSearchBar } from '../../views/patients/components/PatientSearchBar';
 import { StyledSelectField, DateTimeField, AutocompleteField } from '../Field';
 import { Suggester } from '../../utils/suggester';
-import { appointmentTypeOptions } from '../../constants';
+import { appointmentTypeOptions, appointmentStatusOptions } from '../../constants';
 import { useApi } from '../../api';
 
 export const AppointmentsSearchBar = ({ onSearch }) => {
@@ -46,6 +46,14 @@ export const AppointmentsSearchBar = ({ onSearch }) => {
             placeholder: 'Appointment Type',
             component: StyledSelectField,
             options: appointmentTypeOptions,
+          },
+        ],
+        [
+          'status',
+          {
+            placeholder: 'Appointment Status',
+            component: StyledSelectField,
+            options: appointmentStatusOptions,
           },
         ],
         ['startTime', { component: DateTimeField, placeholder: 'Start from' }],
