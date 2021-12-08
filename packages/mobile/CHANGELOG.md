@@ -34,7 +34,7 @@
 
 ### Tweaks ⚖️
 
-- (left blank)
+- Drop the sync interval from 30 minutes to 5 minutes
 
 ### Bug fixes 🐛
 
