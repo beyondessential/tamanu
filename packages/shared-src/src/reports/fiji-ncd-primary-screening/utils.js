@@ -56,7 +56,7 @@ const getPatients = async (models, patientIds) =>
       {
         model: models.PatientAdditionalData,
         as: 'additionalData',
-        include: ['ethnicity'],
+        include: ['ethnicity', 'subdivision', 'medicalArea', 'nursingZone'],
       },
     ],
     where: {
