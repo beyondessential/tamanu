@@ -158,4 +158,36 @@ export const REPORT_DEFINITIONS = [
       },
     ],
   },
+  {
+    name: 'Fiji NCD primary screening - Summary',
+    id: 'fiji-ncd-primary-screening-summary',
+    parameters: [
+      {
+        parameterField: 'ParameterMultiselectField',
+        name: 'surveyIds',
+        label: 'Screening type',
+        options: [
+          {
+            label: 'CVD Primary Screening Form',
+            value: 'program-fijincdprimaryscreening-fijicvdprimaryscreen2',
+          },
+          {
+            label: 'Breast Cancer Primary Screening Form',
+            value: 'program-fijincdprimaryscreening-fijibreastprimaryscreen',
+          },
+          {
+            label: 'Cervical Cancer Primary Screening Form',
+            value: 'program-fijincdprimaryscreening-fijicervicalprimaryscreen',
+          },
+        ],
+      },
+      {
+        parameterField: 'ParameterAutocompleteField',
+        label: 'Division',
+        name: 'division',
+        suggesterEndpoint: 'division',
+      },
+      { parameterField: 'VillageField' },
+    ],
+  },
 ];

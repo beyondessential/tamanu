@@ -80,7 +80,7 @@ async function queryCovidVaccineListData(models, parameters) {
     where: parametersToSqlWhere(parameters),
   });
   const administeredVaccines = result.map(r => r.get({ plain: true }));
-  const patients = administeredVaccines.reduce(function (acc, vaccine) {
+  const patients = administeredVaccines.reduce(function(acc, vaccine) {
     if (!vaccine.encounter?.patientId) {
       return acc;
     }
@@ -117,7 +117,7 @@ async function queryCovidVaccineListData(models, parameters) {
   return Object.values(patients);
 }
 
-export async function dataGenerator(models, parameters) {
+export async function dataGenerator({ models }, parameters) {
   const queryResults = await queryCovidVaccineListData(models, parameters);
   return generateReportFromQueryData(queryResults, reportColumnTemplate);
 }

@@ -6,7 +6,7 @@ import { connect } from 'react-redux';
 import styled from 'styled-components';
 import * as Yup from 'yup';
 import { LoadingIndicator } from '../../components/LoadingIndicator';
-import { useApi } from '../../api';
+import { connectApi, useApi } from '../../api';
 import {
   AutocompleteField,
   Button,
@@ -16,6 +16,7 @@ import {
   RadioField,
   TextField,
   SelectField,
+  MultiselectField,
 } from '../../components';
 import { FormGrid } from '../../components/FormGrid';
 import { Colors, MUI_SPACING_UNIT, REPORT_DATA_SOURCES } from '../../constants';
@@ -28,10 +29,16 @@ import { DiagnosisField } from './DiagnosisField';
 import { saveExcelFile } from '../../utils/saveExcelFile';
 import { VaccineCategoryField } from './VaccineCategoryField';
 import { VaccineField } from './VaccineField';
+import { Suggester } from '../../utils/suggester';
 
 const EmptyField = styled.div``;
 
+const ParameterAutocompleteField = connectApi((api, _, props) => ({
+  suggester: new Suggester(api, props.suggesterEndpoint),
+}))(props => <Field component={AutocompleteField} suggester={props.suggester} {...props} />);
+
 const ParameterSelectField = props => <Field component={SelectField} {...props} />;
+const ParameterMultiselectField = props => <Field component={MultiselectField} {...props} />;
 
 const PARAMETER_FIELD_COMPONENTS = {
   VillageField: VillageField,
@@ -41,7 +48,9 @@ const PARAMETER_FIELD_COMPONENTS = {
   VaccineCategoryField: VaccineCategoryField,
   VaccineField: VaccineField,
   EmptyField: EmptyField,
+  ParameterAutocompleteField: ParameterAutocompleteField,
   ParameterSelectField: ParameterSelectField,
+  ParameterMultiselectField: ParameterMultiselectField,
 };
 
 const Spacer = styled.div`
