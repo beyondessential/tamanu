@@ -16,13 +16,14 @@ export async function performDatabaseIntegrityChecks(context) {
 async function ensureHostMatches(context) {
   const { LocalSystemFact } = context.models;
   const remote = new WebRemote(context);
-
   const configuredHost = remote.host;
   const lastHost = await LocalSystemFact.get('syncHost');
+
   if (!lastHost) {
     await LocalSystemFact.set('syncHost', remote.host);
     return;
   }
+
   if (lastHost !== configuredHost) {
     throw new Error(
       `integrity check failed: sync.host mismatch: read ${configuredHost} from config, but already connected to ${lastHost} (you may need to drop and recreate the database, change the config back, or if you're 100% sure, remove the "syncHost" key from the "local_system_fact" table)`,
@@ -40,12 +41,15 @@ async function ensureFacilityMatches(context) {
 
   if (!lastFacility) {
     if (config.sync.enabled) {
-      // if there's no existing facility AND if sync is enabled, set it
-      // this allows a newly-created lan server with sync disabled to import data for the first time
+      // if sync is enabled and there's no facility set, perform the initial check
       await performInitialIntegritySetup(context);
+    } else {
+      // if sync is disabled and there's no facility set, don't do anything
+      // this allows a newly-created lan server with sync disabled to import data for the first time
     }
     return;
   }
+
   if (lastFacility !== configuredFacility) {
     // if the facility doesn't match, error
     throw new Error(
