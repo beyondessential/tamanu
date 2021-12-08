@@ -137,7 +137,9 @@ describe('Fiji NCD Primary Screening Pending Referrals line list', () => {
     await createBreastCancerReferral(app, expectedPatient1, '2021-03-12T02:00:00.133Z');
 
     // Another Breast Cancer referral on 2021-03-12 => should generate 1 row because this is the latest Breast Cancer referral
-    await createBreastCancerFormSurveyResponse(app, expectedPatient1, '2021-03-12T03:00:00.133Z');
+    await createBreastCancerFormSurveyResponse(app, expectedPatient1, '2021-03-12T03:00:00.133Z', {
+      resultText: undefined,
+    });
     await createBreastCancerReferral(app, expectedPatient1, '2021-03-12T04:00:00.133Z');
 
     // Breast Cancer referral on 2021-03-13 => should generate 1 row
@@ -228,7 +230,7 @@ describe('Fiji NCD Primary Screening Pending Referrals line list', () => {
         nameOfCso: `pde-FijBS10-on-2021-03-12T03:00:00.133Z-${expectedPatient1.firstName}`,
         referringCso: `pde-FijBCRef2a-on-2021-03-12T04:00:00.133Z-${expectedPatient1.firstName}`,
         cvdRiskLevel: null,
-        breastCancerRiskLevel: 'High risk',
+        breastCancerRiskLevel: 'Not high risk',
         reasonForReferral: `pde-FijBCRef10-on-2021-03-12T04:00:00.133Z-${expectedPatient1.firstName}`,
         dateOfScreening: `pde-FijBS02-on-2021-03-12T03:00:00.133Z-${expectedPatient1.firstName}`,
         screeningLocation: `pde-FijBS04-on-2021-03-12T03:00:00.133Z-${expectedPatient1.firstName}`,

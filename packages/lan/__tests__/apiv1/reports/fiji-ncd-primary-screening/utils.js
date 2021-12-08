@@ -39,7 +39,7 @@ export const createCVDReferral = async (app, patient, referralDate) => {
   });
 };
 
-export const createBreastCancerFormSurveyResponse = async (app, patient, surveyDate) => {
+export const createBreastCancerFormSurveyResponse = async (app, patient, surveyDate, overrides = {}) => {
   await app.post('/v1/surveyResponse').send({
     surveyId: BREAST_CANCER_FORM_SURVEY_ID,
     startTime: surveyDate,
@@ -53,6 +53,7 @@ export const createBreastCancerFormSurveyResponse = async (app, patient, surveyD
       'pde-FijBS10': `pde-FijBS10-on-${surveyDate}-${patient.firstName}`,
       'pde-FijBS14': `pde-FijBS14-on-${surveyDate}-${patient.firstName}`,
     },
+    ...overrides,
   });
 };
 

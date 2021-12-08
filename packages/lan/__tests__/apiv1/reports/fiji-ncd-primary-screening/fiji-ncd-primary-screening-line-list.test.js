@@ -160,7 +160,9 @@ describe('Fiji NCD Primary Screening line list', () => {
     );
 
     // No referral submitted for this
-    await createBreastCancerFormSurveyResponse(app, expectedPatient2, '2021-03-14T01:00:00.133Z');
+    await createBreastCancerFormSurveyResponse(app, expectedPatient2, '2021-03-14T01:00:00.133Z', {
+      resultText: undefined,
+    });
   });
 
   describe('checks permissions', () => {
@@ -278,7 +280,7 @@ describe('Fiji NCD Primary Screening line list', () => {
         nameOfCso: `pde-FijBS10-on-2021-03-14T01:00:00.133Z-${expectedPatient2.firstName}`,
         screeningEligibility: `pde-FijBS14-on-2021-03-14T01:00:00.133Z-${expectedPatient2.firstName}`,
         cvdRiskLevel: null,
-        breastCancerRiskLevel: 'High risk',
+        breastCancerRiskLevel: 'Not high risk',
         referralCreated: 'No',
         dateOfReferral: null,
         referredToHealthFacility: null,
