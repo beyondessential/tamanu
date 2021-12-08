@@ -48,7 +48,7 @@ const getProperty = (row, prop) => row[PROPERTY_TO_EXCEL_INDEX[prop]];
 
 // TODO: Unskip test once tests run against a postgresql database:
 // https://linear.app/bes/issue/TAN-409/get-rid-of-sqlite
-describe.skip('Fiji NCD Primary Screening Summary', () => {
+describe('Fiji NCD Primary Screening Summary', () => {
   let baseApp = null;
   let app = null;
   let expectedPatient1 = null;
@@ -109,6 +109,16 @@ describe.skip('Fiji NCD Primary Screening Summary', () => {
       ethnicityId: ETHNICITY_IDS.OTHERS,
     });
 
+    // This patient should NOT be counted in any data as they will have answered 'No' to
+    // "is this individual elligable for screening"
+    const unusedPatient = await models.Patient.create(
+      await createDummyPatient(models, { sex: 'female', dateOfBirth: '2021-03-01T01:00:00.133Z' }),
+    );
+    await models.PatientAdditionalData.create({
+      patientId: expectedPatient3.id,
+      ethnicityId: ETHNICITY_IDS.OTHERS,
+    });
+
     app = await baseApp.asRole('practitioner');
 
     // Day 1:
@@ -126,9 +136,23 @@ describe.skip('Fiji NCD Primary Screening Summary', () => {
     await createCVDFormSurveyResponse(app, expectedPatient3, day1Time1);
     await createBreastCancerReferral(app, expectedPatient3, day1Time2);
 
+    // this should not be counted, and neither should the patient
+    await createCVDFormSurveyResponse(app, unusedPatient, day1Time1, {
+      answerOverrides: {
+        'pde-FijCVD021': 'No',
+      },
+    });
+
     // Day 2:
     const day2 = '2021-03-13T01:00:00.133Z';
     await createBreastCancerFormSurveyResponse(app, expectedPatient1, day2);
+
+    // This survey response should not be counted (but the patient still should be)
+    await createBreastCancerFormSurveyResponse(app, expectedPatient2, day2, {
+      answerOverrides: {
+        'pde-FijBS14': 'No',
+      },
+    });
   });
 
   describe('checks permissions', () => {
