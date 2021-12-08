@@ -59,11 +59,13 @@ const parametersToEncounterSqlWhere = parameters => {
 };
 
 const getEncounters = async (models, parameters) => {
-  return models.Encounter.findAll({
+  const encounters = await models.Encounter.findAll({
+    attributes: ['startDate', 'reasonForEncounter', 'id'],
     include: [
       {
         model: models.Patient,
         as: 'patient',
+        attributes: ['firstName', 'lastName', 'displayId', 'dateOfBirth', 'sex', 'id'],
         include: [
           {
             model: models.PatientAdditionalData,
@@ -77,6 +79,7 @@ const getEncounters = async (models, parameters) => {
         model: models.EncounterDiagnosis,
         as: 'diagnoses',
         include: ['Diagnosis'],
+        attributes: ['certainty', 'isPrimary'],
         where: {
           certainty: {
             [Op.notIn]: [DIAGNOSIS_CERTAINTY.DISPROVEN, DIAGNOSIS_CERTAINTY.ERROR],
@@ -91,21 +94,29 @@ const getEncounters = async (models, parameters) => {
     where: parametersToEncounterSqlWhere(parameters),
     order: [['startDate', 'ASC']],
   });
+
+  return encounters.map(convertModelToPlainObject);
 };
+
+const convertModelToPlainObject = model => model.get({ plain: true });
 
 const getAllDiagnoses = async (models, encounters) => {
   const newEncounters = [];
+
   for (const encounter of encounters) {
     newEncounters.push({
       ...encounter,
       diagnoses: await models.EncounterDiagnosis.findAll({
         include: ['Diagnosis'],
+        attributes: ['certainty', 'isPrimary'],
         where: {
           certainty: {
             [Op.notIn]: [DIAGNOSIS_CERTAINTY.DISPROVEN, DIAGNOSIS_CERTAINTY.ERROR],
           },
           encounterId: encounter.id,
         },
+        raw: true,
+        nest: true,
       }),
     });
   }
