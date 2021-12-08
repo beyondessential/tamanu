@@ -45,6 +45,7 @@ export const createBreastCancerFormSurveyResponse = async (app, patient, surveyD
     startTime: surveyDate,
     patientId: patient.id,
     endTime: surveyDate,
+    resultText: 'High risk',
     answers: {
       'pde-FijBS02': `pde-FijBS02-on-${surveyDate}-${patient.firstName}`,
       'pde-FijBS04': `pde-FijBS04-on-${surveyDate}-${patient.firstName}`,
