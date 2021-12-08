@@ -111,7 +111,7 @@ describe.skip('Fiji NCD Primary Screening Summary', () => {
     });
 
     // This patient should NOT be counted in any data as they will have answered 'No' to
-    // "is this individual elligable for screening"
+    // "is this individual eligible for screening"
     const unusedPatient = await models.Patient.create(
       await createDummyPatient(models, { sex: 'female', dateOfBirth: '2021-03-01T01:00:00.133Z' }),
     );
