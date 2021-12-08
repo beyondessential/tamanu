@@ -1,7 +1,6 @@
 import React, { ReactElement, useCallback, useState, useRef } from 'react';
 import { TouchableWithoutFeedback } from 'react-native-gesture-handler';
 import { ISurveyScreenComponent } from '~/types';
-import { theme } from '~/ui/styled/theme';
 import { checkVisibilityCriteria } from '/helpers/fields';
 import { SurveyQuestion } from './SurveyQuestion';
 import { SectionHeader } from '../../SectionHeader';
@@ -22,7 +21,6 @@ const SurveyQuestionErrorView = ({ error }): ReactElement => (
 interface AddDetailsFormFieldsProps {
   components: ISurveyScreenComponent[];
   values: any;
-  onSubmit: any;
   patient: any;
   note: string;
 }
@@ -30,7 +28,6 @@ interface AddDetailsFormFieldsProps {
 export const FormFields = ({
   components,
   values,
-  onSubmit,
   note,
   patient,
 }: AddDetailsFormFieldsProps): ReactElement => {
@@ -106,7 +103,6 @@ export const FormFields = ({
           ) : (
             <SubmitButton
               margin={5}
-              onSubmit={onSubmit}
             />
           )}
         </RowView>
