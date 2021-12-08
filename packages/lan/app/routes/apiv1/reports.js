@@ -25,7 +25,6 @@ reports.post(
   '/:reportType',
   asyncHandler(async (req, res) => {
     const {
-      db,
       models,
       body: { parameters },
       getLocalisation,
@@ -42,7 +41,7 @@ reports.post(
     }
     req.checkPermission('read', reportModule.permission);
 
-    const excelData = await reportModule.dataGenerator({ sequelize: db, models }, parameters);
+    const excelData = await reportModule.dataGenerator(models, parameters);
     res.send(excelData);
   }),
 );

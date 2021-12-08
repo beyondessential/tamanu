@@ -326,7 +326,7 @@ function withEmptyRows(groupedData, parameters, villages, now) {
   return padded;
 }
 
-export async function dataGenerator({ models }, parameters, tupaiaApi) {
+export async function dataGenerator(models, parameters, tupaiaApi) {
   const listData = await queryCovidVaccineListData(models, parameters);
 
   const villages = await getVillages(tupaiaApi);

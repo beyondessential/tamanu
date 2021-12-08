@@ -45,7 +45,7 @@ const parametersToSqlWhere = parameters => {
 
 export const permission = 'LabTest';
 
-export const dataGenerator = async ({ models }, parameters = {}) => {
+export const dataGenerator = async (models, parameters = {}) => {
   const reportColumnTemplate = [
     {
       title: 'Date',
