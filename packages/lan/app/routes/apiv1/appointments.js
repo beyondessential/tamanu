@@ -27,8 +27,6 @@ appointments.get(
     } = req;
     const { Appointment } = models;
 
-    const associations = Appointment.getListReferenceAssociations(models);
-
     const afterTime = after || startOfDay(new Date());
     const startTimeQuery = {
       [Op.gte]: afterTime,
@@ -37,15 +35,22 @@ appointments.get(
     if (before) {
       startTimeQuery[Op.lte] = before;
     }
-    const filters = Object.entries(queries).reduce(
-      (_filters, [query, queryValue]) => ({
+    const filters = Object.entries(queries).reduce((_filters, [query, queryValue]) => {
+      // simple query
+      if (!(typeof queryValue === 'string')) {
+        return _filters;
+      }
+      let column = query;
+      if (query.includes('.')) {
+        column = `$${query}$`;
+      }
+      return {
         ..._filters,
-        [query]: {
-          [Op.like]: `%${queryValue}%`,
+        [column]: {
+          [Op.iLike]: `%${queryValue}%`,
         },
-      }),
-      {},
-    );
+      };
+    }, {});
     const { rows, count } = await Appointment.findAndCountAll({
       limit: all ? undefined : rowsPerPage,
       offset: all ? undefined : page * rowsPerPage,
@@ -54,7 +59,7 @@ appointments.get(
         startTime: startTimeQuery,
         ...filters,
       },
-      include: [...associations],
+      include: [...Appointment.getListReferenceAssociations()],
     });
 
     res.send({
