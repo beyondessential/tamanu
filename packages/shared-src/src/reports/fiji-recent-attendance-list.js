@@ -142,7 +142,7 @@ const transformDataPoint = encounter => {
   };
 };
 
-export const dataGenerator = async (models, parameters = {}) => {
+export const dataGenerator = async ({ models }, parameters = {}) => {
   let encounters = await getEncounters(models, parameters);
   if (parameters.diagnosis) {
     encounters = await getAllDiagnoses(models, encounters);
