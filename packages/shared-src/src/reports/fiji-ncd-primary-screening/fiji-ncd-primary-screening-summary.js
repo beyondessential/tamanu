@@ -75,6 +75,11 @@ const FIELDS = {
     title: 'Total screened by CVD risk ≥30% (%)',
     selectSql: "(sr.result_text like '%PURPLE%')",
   },
+  // Use % on both sides to strip off potential whitespace
+  screenedHighBreastCancerRisk: {
+    title: 'Total screened by high risk of breast cancer',
+    selectSql: "(sr.result_text like '%High risk%')",
+  },
   referredNumber: {
     title: 'Total referred',
     selectSql: 'referral_sr.id is not null',
