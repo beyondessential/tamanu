@@ -47,7 +47,7 @@ export const createBreastCancerFormSurveyResponse = async (
   surveyDate,
   overrides = {},
 ) => {
-  const { answerOverrides = {} } = overrides;
+  const { answerOverrides = {}, ...otherOverrides } = overrides;
   await app.post('/v1/surveyResponse').send({
     surveyId: BREAST_CANCER_FORM_SURVEY_ID,
     startTime: surveyDate,
@@ -62,7 +62,7 @@ export const createBreastCancerFormSurveyResponse = async (
       'pde-FijBS14': `pde-FijBS14-on-${surveyDate}-${patient.firstName}`,
       ...answerOverrides,
     },
-    ...overrides,
+    ...otherOverrides,
   });
 };
 
