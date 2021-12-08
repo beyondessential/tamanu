@@ -20,7 +20,7 @@
 
 ### Infrastructure and maintenance 🛠
 
-- (left blank)
+- Add Demo (Tuvalu) to meta-server
 
 ## v1.11.0
 
