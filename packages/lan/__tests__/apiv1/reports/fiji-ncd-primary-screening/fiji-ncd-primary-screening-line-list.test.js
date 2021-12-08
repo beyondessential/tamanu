@@ -17,7 +17,7 @@ const PROPERTY_LIST = [
   'gender',
   'ethnicity',
   'contactNumber',
-  'subdivision',
+  'subdivision', // Internally: village
   'medicalArea',
   'nursingZone',
   'screeningCompleted',
@@ -49,7 +49,7 @@ describe('Fiji NCD Primary Screening line list', () => {
   let village2 = null;
   let ethnicity1 = null;
   let ethnicity2 = null;
-  let subdivision = null;
+  const subdivision = null;
   let medicalArea = null;
   let nursingZone = null;
 
@@ -83,12 +83,6 @@ describe('Fiji NCD Primary Screening line list', () => {
       type: REFERENCE_TYPES.ETHNICITY,
     });
 
-    subdivision = await models.ReferenceData.create({
-      id: `subdivision-abc-${new Date().toString()}`,
-      name: 'abc1',
-      code: 'abc',
-      type: REFERENCE_TYPES.SUBDIVISION,
-    });
     medicalArea = await models.ReferenceData.create({
       id: `medicalArea-abc-${new Date().toString()}`,
       name: 'abc2',
@@ -109,7 +103,6 @@ describe('Fiji NCD Primary Screening line list', () => {
       patientId: expectedPatient1.id,
       ethnicityId: ethnicity1.id,
       primaryContactNumber: '123',
-      subdivisionId: subdivision.id,
       medicalAreaId: medicalArea.id,
       nursingZoneId: nursingZone.id,
     });
@@ -120,7 +113,6 @@ describe('Fiji NCD Primary Screening line list', () => {
       patientId: expectedPatient2.id,
       ethnicityId: ethnicity2.id,
       primaryContactNumber: '456',
-      subdivisionId: subdivision.id,
       medicalAreaId: medicalArea.id,
       nursingZoneId: nursingZone.id,
     });
@@ -196,7 +188,7 @@ describe('Fiji NCD Primary Screening line list', () => {
         // age: ,
         gender: expectedPatient1.sex,
         ethnicity: ethnicity1.name,
-        subdivision: subdivision.name,
+        subdivision: village1,
         medicalArea: medicalArea.name,
         nursingZone: nursingZone.name,
         contactNumber: patientAdditionalData1.primaryContactNumber,
@@ -232,7 +224,7 @@ describe('Fiji NCD Primary Screening line list', () => {
         // age: ,
         gender: expectedPatient1.sex,
         ethnicity: ethnicity1.name,
-        subdivision: subdivision.name,
+        subdivision: village2,
         medicalArea: medicalArea.name,
         nursingZone: nursingZone.name,
         contactNumber: patientAdditionalData1.primaryContactNumber,
@@ -269,7 +261,7 @@ describe('Fiji NCD Primary Screening line list', () => {
         // age: ,
         gender: expectedPatient2.sex,
         ethnicity: ethnicity2.name,
-        subdivision: subdivision.name,
+        subdivision: village2,
         medicalArea: medicalArea.name,
         nursingZone: nursingZone.name,
         contactNumber: patientAdditionalData2.primaryContactNumber,
