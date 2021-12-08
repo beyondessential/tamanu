@@ -1,6 +1,6 @@
 import React from 'react';
 import { CustomisablePatientSearchBar } from '../../views/patients/components/PatientSearchBar';
-import { SelectField } from '../Field';
+import { StyledSelectField, DateTimeField } from '../Field';
 import { appointmentTypeOptions } from '../../constants';
 
 export const AppointmentsSearchBar = ({ onSearch }) => (
@@ -20,14 +20,20 @@ export const AppointmentsSearchBar = ({ onSearch }) => (
       ['firstName'],
       ['lastName'],
       ['displayId'],
+      ['clinician', { placeholder: 'Clinician' }],
+      ['location', { placeholder: 'Location' }],
       [
         'type',
         {
           placeholder: 'Appointment Type',
-          component: SelectField,
+          component: StyledSelectField,
           options: appointmentTypeOptions,
         },
       ],
+      [
+        'startTime',
+        { component: DateTimeField, placeholder: 'Start from' },
+      ]
     ]}
   />
 );

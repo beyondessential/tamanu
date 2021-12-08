@@ -73,7 +73,7 @@ export const SelectField = ({ field, ...props }) => (
   The reason is because it's inheriting from the Select
   component from react-select.
 */
-export const StyledSelectField = styled(SelectField)`
+const StyledField = styled(SelectField)`
   .styled-select-container {
     padding: 8px 8px 2px 8px;
     border: 1px solid #dedede;
@@ -87,6 +87,10 @@ export const StyledSelectField = styled(SelectField)`
     box-shadow: none;
   }
 `;
+
+export const StyledSelectField = props => (
+  <StyledField {...props} className="styled-select-container" classNamePrefix="styled-select" />
+);
 
 SelectInput.propTypes = {
   name: PropTypes.string,
