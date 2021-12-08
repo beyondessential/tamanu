@@ -55,24 +55,24 @@ const FIELDS = {
     title: 'Total screened by other ethnicity',
     selectSql: `additional_data.ethnicity_id = '${ETHNICITY_IDS.OTHERS}'`,
   },
-  'screenedRisk<5': {
-    title: 'Total screened by CVD risk <5% (%)',
+  'screenedRisk<10': {
+    title: 'Total screened by CVD risk <10% (%)',
     selectSql: "(sr.result_text like '%GREEN%')",
-  },
-  'screenedRisk5-10': {
-    title: 'Total screened by CVD risk 5% to <10% (%)',
-    selectSql: "(sr.result_text like '%YELLOW%')",
   },
   'screenedRisk10-20': {
     title: 'Total screened by CVD risk 10% to <20% (%)',
-    selectSql: "(sr.result_text like '%ORANGE%')",
+    selectSql: "(sr.result_text like '%YELLOW%')",
   },
   'screenedRisk20-30': {
     title: 'Total screened by CVD risk 20% to <30% (%)',
+    selectSql: "(sr.result_text like '%ORANGE%')",
+  },
+  'screenedRisk30-40': {
+    title: 'Total screened by CVD risk 30% to <40% (%)',
     selectSql: "(sr.result_text like '%RED%')",
   },
-  'screenedRisk>30': {
-    title: 'Total screened by CVD risk ≥30% (%)',
+  'screenedRisk>40': {
+    title: 'Total screened by CVD risk ≥40% (%)',
     selectSql: "(sr.result_text like '%PURPLE%')",
   },
   // Use % on both sides to strip off potential whitespace
