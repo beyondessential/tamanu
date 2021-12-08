@@ -1,4 +1,4 @@
-import { createDummyPatient, randomReferenceId } from 'shared/demoData/patients';
+import { createDummyPatient, randomReferenceDataObjects } from 'shared/demoData/patients';
 import { REFERENCE_TYPES } from 'shared/constants';
 import { createTestContext } from '../../../utilities';
 import {
@@ -48,7 +48,6 @@ describe('Fiji NCD Primary Screening Pending Referrals line list', () => {
   let village2 = null;
   let ethnicity1 = null;
   let ethnicity2 = null;
-  const subdivision = null;
   let medicalArea = null;
   let nursingZone = null;
 
@@ -67,8 +66,9 @@ describe('Fiji NCD Primary Screening Pending Referrals line list', () => {
     await models.Patient.truncate({ cascade: true });
 
     baseApp = ctx.baseApp;
-    village1 = await randomReferenceId(models, 'village');
-    village2 = await randomReferenceId(models, 'village');
+
+    [village1, village2] = await randomReferenceDataObjects(models, 'village', 2);
+
     ethnicity1 = await models.ReferenceData.create({
       id: 'ethnicity-abc',
       name: 'abc',
@@ -96,7 +96,7 @@ describe('Fiji NCD Primary Screening Pending Referrals line list', () => {
     });
 
     expectedPatient1 = await models.Patient.create(
-      await createDummyPatient(models, { villageId: village1, sex: 'male' }),
+      await createDummyPatient(models, { villageId: village1.id, sex: 'male' }),
     );
     patientAdditionalData1 = await models.PatientAdditionalData.create({
       patientId: expectedPatient1.id,
@@ -106,7 +106,7 @@ describe('Fiji NCD Primary Screening Pending Referrals line list', () => {
       nursingZoneId: nursingZone.id,
     });
     expectedPatient2 = await models.Patient.create(
-      await createDummyPatient(models, { villageId: village2, sex: 'female' }),
+      await createDummyPatient(models, { villageId: village2.id, sex: 'female' }),
     );
     patientAdditionalData2 = await models.PatientAdditionalData.create({
       patientId: expectedPatient2.id,
@@ -177,7 +177,7 @@ describe('Fiji NCD Primary Screening Pending Referrals line list', () => {
         gender: expectedPatient2.sex,
         ethnicity: ethnicity2.name,
         contactNumber: patientAdditionalData2.primaryContactNumber,
-        subdivision: village2,
+        subdivision: village2.name,
         medicalArea: medicalArea.name,
         nursingZone: nursingZone.name,
         referralCreated: 'Breast Cancer Primary Screening Referral',
@@ -212,7 +212,7 @@ describe('Fiji NCD Primary Screening Pending Referrals line list', () => {
         gender: expectedPatient1.sex,
         ethnicity: ethnicity1.name,
         contactNumber: patientAdditionalData1.primaryContactNumber,
-        subdivision: village1,
+        subdivision: village1.name,
         medicalArea: medicalArea.name,
         nursingZone: nursingZone.name,
         referralCreated: 'Breast Cancer Primary Screening Referral',
@@ -247,7 +247,7 @@ describe('Fiji NCD Primary Screening Pending Referrals line list', () => {
         gender: expectedPatient1.sex,
         ethnicity: ethnicity1.name,
         contactNumber: patientAdditionalData1.primaryContactNumber,
-        subdivision: village1,
+        subdivision: village1.name,
         medicalArea: medicalArea.name,
         nursingZone: nursingZone.name,
         referralCreated: 'CVD Primary Screening Referral',

@@ -1,4 +1,4 @@
-import { createDummyPatient, randomReferenceId } from 'shared/demoData/patients';
+import { createDummyPatient, randomReferenceDataObjects } from 'shared/demoData/patients';
 import { REFERRAL_STATUSES, REFERENCE_TYPES } from 'shared/constants';
 import { createTestContext } from '../../../utilities';
 import {
@@ -68,8 +68,9 @@ describe('Fiji NCD Primary Screening line list', () => {
     await models.Patient.truncate({ cascade: true });
 
     baseApp = ctx.baseApp;
-    village1 = await randomReferenceId(models, 'village');
-    village2 = await randomReferenceId(models, 'village');
+
+    [village1, village2] = await randomReferenceDataObjects(models, 'village', 2);
+
     ethnicity1 = await models.ReferenceData.create({
       id: `ethnicity-abc-${new Date().toString()}`,
       name: 'abc',
@@ -97,7 +98,7 @@ describe('Fiji NCD Primary Screening line list', () => {
     });
 
     expectedPatient1 = await models.Patient.create(
-      await createDummyPatient(models, { villageId: village1, sex: 'male' }),
+      await createDummyPatient(models, { villageId: village1.id, sex: 'male' }),
     );
     patientAdditionalData1 = await models.PatientAdditionalData.create({
       patientId: expectedPatient1.id,
@@ -107,7 +108,7 @@ describe('Fiji NCD Primary Screening line list', () => {
       nursingZoneId: nursingZone.id,
     });
     expectedPatient2 = await models.Patient.create(
-      await createDummyPatient(models, { villageId: village2, sex: 'female' }),
+      await createDummyPatient(models, { villageId: village2.id, sex: 'female' }),
     );
     patientAdditionalData2 = await models.PatientAdditionalData.create({
       patientId: expectedPatient2.id,
@@ -188,7 +189,7 @@ describe('Fiji NCD Primary Screening line list', () => {
         // age: ,
         gender: expectedPatient1.sex,
         ethnicity: ethnicity1.name,
-        subdivision: village1,
+        subdivision: village1.name,
         medicalArea: medicalArea.name,
         nursingZone: nursingZone.name,
         contactNumber: patientAdditionalData1.primaryContactNumber,
@@ -224,7 +225,7 @@ describe('Fiji NCD Primary Screening line list', () => {
         // age: ,
         gender: expectedPatient1.sex,
         ethnicity: ethnicity1.name,
-        subdivision: village2,
+        subdivision: village2.name,
         medicalArea: medicalArea.name,
         nursingZone: nursingZone.name,
         contactNumber: patientAdditionalData1.primaryContactNumber,
@@ -261,7 +262,7 @@ describe('Fiji NCD Primary Screening line list', () => {
         // age: ,
         gender: expectedPatient2.sex,
         ethnicity: ethnicity2.name,
-        subdivision: village2,
+        subdivision: village2.name,
         medicalArea: medicalArea.name,
         nursingZone: nursingZone.name,
         contactNumber: patientAdditionalData2.primaryContactNumber,
