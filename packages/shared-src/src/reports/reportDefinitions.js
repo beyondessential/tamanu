@@ -111,6 +111,7 @@ export const REPORT_DEFINITIONS = [
   {
     name: 'Fiji NCD primary screening  - Line list',
     id: 'fiji-ncd-primary-screening-line-list',
+    allFacilities: true,
     parameters: [
       {
         parameterField: 'ParameterSelectField',
@@ -136,6 +137,7 @@ export const REPORT_DEFINITIONS = [
   {
     name: 'Fiji NCD primary screening pending referrals - Line list',
     id: 'fiji-ncd-primary-screening-pending-referrals-line-list',
+    allFacilities: true,
     parameters: [
       {
         parameterField: 'ParameterSelectField',
