@@ -132,6 +132,10 @@ const parametersToSqlWhereClause = parameterKeys => {
       switch (key) {
         case 'village':
           return 'AND patient.village_id = :village_id';
+        case 'medicalArea':
+          return 'AND additional_data.medical_area_id = :medical_area_id';
+        case 'nursingZone':
+          return 'AND patient.nursing_zone_id = :nursing_zone_id';
         case 'division':
           return 'AND additional_data.division_id = :division_id';
         case 'fromDate':
@@ -200,6 +204,8 @@ const getData = async (sequelize, parameters) => {
     fromDate,
     toDate,
     village,
+    medicalArea,
+    nursingZone,
     division,
     surveyIds = Object.keys(REFERRAL_SCREENING_FORM_MAPPING).join(', '),
   } = parameters;
@@ -225,6 +231,8 @@ const getData = async (sequelize, parameters) => {
           from_date: fromDate,
           to_date: toDate,
           village_id: village,
+          medical_area_id: medicalArea,
+          nursing_zone_id: nursingZone,
           division_id: division,
         },
       },
@@ -243,6 +251,8 @@ const getTotalPatientsScreened = async (sequelize, parameters) => {
     fromDate,
     toDate,
     village,
+    medicalArea,
+    nursingZone,
     division,
     surveyIds = Object.keys(REFERRAL_SCREENING_FORM_MAPPING).join(', '),
   } = parameters;
@@ -267,6 +277,8 @@ const getTotalPatientsScreened = async (sequelize, parameters) => {
         from_date: fromDate,
         to_date: toDate,
         village_id: village,
+        medical_area_id: medicalArea,
+        nursing_zone_id: nursingZone,
         division_id: division,
       },
     },
