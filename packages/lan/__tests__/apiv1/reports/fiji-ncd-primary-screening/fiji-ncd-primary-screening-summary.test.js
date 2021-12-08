@@ -31,6 +31,7 @@ const PROPERTY_LIST = [
   'screenedRisk10-20',
   'screenedRisk20-30',
   'screenedRisk>30',
+  'screenedHighBreastCancerRisk',
   'referredNumber',
   'referredPercent',
   'referredMale',
@@ -145,7 +146,9 @@ describe('Fiji NCD Primary Screening Summary', () => {
 
     // Day 2:
     const day2 = '2021-03-13T01:00:00.133Z';
-    await createBreastCancerFormSurveyResponse(app, expectedPatient1, day2);
+    await createBreastCancerFormSurveyResponse(app, expectedPatient1, day2, {
+      resultText: undefined,
+    });
 
     // This survey response should not be counted (but the patient still should be)
     await createBreastCancerFormSurveyResponse(app, expectedPatient1, day2, {
@@ -188,6 +191,7 @@ describe('Fiji NCD Primary Screening Summary', () => {
         'screenedRisk10-20': 0,
         'screenedRisk20-30': 0,
         'screenedRisk>30': 0,
+        screenedHighBreastCancerRisk: 0,
         referredNumber: 0,
         referredPercent: '0%',
         referredMale: 0,
@@ -220,6 +224,7 @@ describe('Fiji NCD Primary Screening Summary', () => {
         'screenedRisk10-20': 0,
         'screenedRisk20-30': 0,
         'screenedRisk>30': 0,
+        screenedHighBreastCancerRisk: 1,
         referredNumber: 1,
         referredPercent: '25%',
         referredMale: 1,
