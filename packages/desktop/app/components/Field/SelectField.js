@@ -62,7 +62,7 @@ export const SelectField = ({ field, ...props }) => (
   <SelectInput name={field.name} onChange={field.onChange} value={field.value} {...props} />
 );
 
-/* 
+/*
   To be able to actually apply the styles, the component
   that uses StyledSelectField needs to add the following
   attributes:
