@@ -53,6 +53,7 @@ export const createBreastCancerFormSurveyResponse = async (
     startTime: surveyDate,
     patientId: patient.id,
     endTime: surveyDate,
+    resultText: 'High risk',
     answers: {
       'pde-FijBS02': `pde-FijBS02-on-${surveyDate}-${patient.firstName}`,
       'pde-FijBS04': `pde-FijBS04-on-${surveyDate}-${patient.firstName}`,
@@ -61,6 +62,7 @@ export const createBreastCancerFormSurveyResponse = async (
       'pde-FijBS14': `pde-FijBS14-on-${surveyDate}-${patient.firstName}`,
       ...answerOverrides,
     },
+    ...overrides,
   });
 };
 

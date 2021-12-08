@@ -113,6 +113,9 @@ export const dataGenerator = async ({ models }, parameters = {}) => {
         gender: patient.sex,
         ethnicity: patientAdditionalData?.ethnicity?.name,
         contactNumber: patientAdditionalData?.primaryContactNumber,
+        village: patient.village?.name,
+        medicalArea: patientAdditionalData?.medicalArea?.name,
+        nursingZone: patientAdditionalData?.nursingZone?.name,
         screeningCompleted: FORM_NAME_BY_SURVEY_GROUP_KEY[surveyGroupKey],
       };
 

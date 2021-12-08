@@ -1,5 +1,5 @@
-import { createDummyPatient, randomReferenceId } from 'shared/demoData/patients';
-import { REFERRAL_STATUSES } from 'shared/constants';
+import { createDummyPatient, randomReferenceDataObjects } from 'shared/demoData/patients';
+import { REFERRAL_STATUSES, REFERENCE_TYPES } from 'shared/constants';
 import { createTestContext } from '../../../utilities';
 import {
   setupProgramAndSurvey,
@@ -17,6 +17,9 @@ const PROPERTY_LIST = [
   'gender',
   'ethnicity',
   'contactNumber',
+  'subdivision', // Internally: village
+  'medicalArea',
+  'nursingZone',
   'screeningCompleted',
   'dateOfScreening',
   'screeningLocation',
@@ -24,6 +27,7 @@ const PROPERTY_LIST = [
   'nameOfCso',
   'screeningEligibility',
   'cvdRiskLevel',
+  'breastCancerRiskLevel',
   'referralCreated',
   'dateOfReferral',
   'referredToHealthFacility',
@@ -45,6 +49,9 @@ describe('Fiji NCD Primary Screening line list', () => {
   let village2 = null;
   let ethnicity1 = null;
   let ethnicity2 = null;
+  const subdivision = null;
+  let medicalArea = null;
+  let nursingZone = null;
 
   beforeAll(async () => {
     const ctx = await createTestContext();
@@ -61,36 +68,54 @@ describe('Fiji NCD Primary Screening line list', () => {
     await models.Patient.truncate({ cascade: true });
 
     baseApp = ctx.baseApp;
-    village1 = await randomReferenceId(models, 'village');
-    village2 = await randomReferenceId(models, 'village');
+
+    [village1, village2] = await randomReferenceDataObjects(models, 'village', 2);
+
     ethnicity1 = await models.ReferenceData.create({
       id: `ethnicity-abc-${new Date().toString()}`,
       name: 'abc',
       code: 'abc',
-      type: 'ethnicity',
+      type: REFERENCE_TYPES.ETHNICITY,
     });
     ethnicity2 = await models.ReferenceData.create({
       id: `ethnicity-def-${new Date().toString()}`,
       name: 'def',
       code: 'def',
-      type: 'ethnicity',
+      type: REFERENCE_TYPES.ETHNICITY,
+    });
+
+    medicalArea = await models.ReferenceData.create({
+      id: `medicalArea-abc-${new Date().toString()}`,
+      name: 'abc2',
+      code: 'abc',
+      type: REFERENCE_TYPES.MEDICAL_AREA,
+    });
+    nursingZone = await models.ReferenceData.create({
+      id: `nursingZone-abc-${new Date().toString()}`,
+      name: 'abc3',
+      code: 'abc',
+      type: REFERENCE_TYPES.NURSING_ZONE,
     });
 
     expectedPatient1 = await models.Patient.create(
-      await createDummyPatient(models, { villageId: village1, sex: 'male' }),
+      await createDummyPatient(models, { villageId: village1.id, sex: 'male' }),
     );
     patientAdditionalData1 = await models.PatientAdditionalData.create({
       patientId: expectedPatient1.id,
       ethnicityId: ethnicity1.id,
       primaryContactNumber: '123',
+      medicalAreaId: medicalArea.id,
+      nursingZoneId: nursingZone.id,
     });
     expectedPatient2 = await models.Patient.create(
-      await createDummyPatient(models, { villageId: village2, sex: 'female' }),
+      await createDummyPatient(models, { villageId: village2.id, sex: 'female' }),
     );
     patientAdditionalData2 = await models.PatientAdditionalData.create({
       patientId: expectedPatient2.id,
       ethnicityId: ethnicity2.id,
       primaryContactNumber: '456',
+      medicalAreaId: medicalArea.id,
+      nursingZoneId: nursingZone.id,
     });
 
     app = await baseApp.asRole('practitioner');
@@ -128,7 +153,9 @@ describe('Fiji NCD Primary Screening line list', () => {
     );
 
     // No referral submitted for this
-    await createBreastCancerFormSurveyResponse(app, expectedPatient2, '2021-03-14T01:00:00.133Z');
+    await createBreastCancerFormSurveyResponse(app, expectedPatient2, '2021-03-14T01:00:00.133Z', {
+      resultText: undefined,
+    });
   });
 
   describe('checks permissions', () => {
@@ -151,7 +178,9 @@ describe('Fiji NCD Primary Screening line list', () => {
       // Should take the latest results
       // NOTE: Have to find row like this because the report can return records in random order.
       const row1 = result.body.find(
-        r => r[0] === expectedPatient1.firstName && r[8].includes('FijBS02-on-2021-03-12'),
+        r =>
+          getProperty(r, 'firstName') === expectedPatient1.firstName &&
+          getProperty(r, 'dateOfScreening').includes('FijBS02-on-2021-03-12'),
       );
       const expectedDetails1 = {
         firstName: expectedPatient1.firstName,
@@ -160,6 +189,9 @@ describe('Fiji NCD Primary Screening line list', () => {
         // age: ,
         gender: expectedPatient1.sex,
         ethnicity: ethnicity1.name,
+        subdivision: village1.name,
+        medicalArea: medicalArea.name,
+        nursingZone: nursingZone.name,
         contactNumber: patientAdditionalData1.primaryContactNumber,
         screeningCompleted: 'Breast Cancer Primary Screening',
         dateOfScreening: `pde-FijBS02-on-2021-03-12T03:00:00.133Z-${expectedPatient1.firstName}`,
@@ -168,6 +200,7 @@ describe('Fiji NCD Primary Screening line list', () => {
         nameOfCso: `pde-FijBS10-on-2021-03-12T03:00:00.133Z-${expectedPatient1.firstName}`,
         screeningEligibility: `pde-FijBS14-on-2021-03-12T03:00:00.133Z-${expectedPatient1.firstName}`,
         cvdRiskLevel: null,
+        breastCancerRiskLevel: 'High risk',
         referralCreated: `Yes`,
         dateOfReferral: `pde-FijBCRef04-on-2021-03-12T04:00:00.133Z-${expectedPatient1.firstName}`,
         referredToHealthFacility: `pde-FijBCRef06-on-2021-03-12T04:00:00.133Z-${expectedPatient1.firstName}`,
@@ -181,7 +214,9 @@ describe('Fiji NCD Primary Screening line list', () => {
 
       // Patient 1 on 2021-03-12 with single CVD submission and single referral on the same date
       const row2 = result.body.find(
-        r => r[0] === expectedPatient1.firstName && r[8].includes('FijCVD002-on-2021-03-12'),
+        r =>
+          getProperty(r, 'firstName') === expectedPatient1.firstName &&
+          getProperty(r, 'dateOfScreening').includes('FijCVD002-on-2021-03-12'),
       );
       const expectedDetails2 = {
         firstName: expectedPatient1.firstName,
@@ -190,6 +225,9 @@ describe('Fiji NCD Primary Screening line list', () => {
         // age: ,
         gender: expectedPatient1.sex,
         ethnicity: ethnicity1.name,
+        subdivision: village1.name,
+        medicalArea: medicalArea.name,
+        nursingZone: nursingZone.name,
         contactNumber: patientAdditionalData1.primaryContactNumber,
         screeningCompleted: 'CVD Primary Screening',
         dateOfScreening: `pde-FijCVD002-on-2021-03-12T01:00:00.133Z-${expectedPatient1.firstName}`,
@@ -198,6 +236,7 @@ describe('Fiji NCD Primary Screening line list', () => {
         nameOfCso: `pde-FijCVD010-on-2021-03-12T01:00:00.133Z-${expectedPatient1.firstName}`,
         screeningEligibility: `pde-FijCVD021-on-2021-03-12T01:00:00.133Z-${expectedPatient1.firstName}`,
         cvdRiskLevel: '3% GREEN',
+        breastCancerRiskLevel: null,
         referralCreated: 'Yes',
         dateOfReferral: `pde-FijCVDRef4-on-2021-03-12T02:00:00.133Z-${expectedPatient1.firstName}`,
         referredToHealthFacility: `pde-FijCVDRef6-on-2021-03-12T02:00:00.133Z-${expectedPatient1.firstName}`,
@@ -212,7 +251,9 @@ describe('Fiji NCD Primary Screening line list', () => {
       /*******PATIENT 2*********/
       // Patient 2 on 2021-03-14 with Breast Cancer form submission but not referral on the same date
       const row3 = result.body.find(
-        r => r[0] === expectedPatient2.firstName && r[8].includes('FijBS02-on-2021-03-14'),
+        r =>
+          getProperty(r, 'firstName') === expectedPatient2.firstName &&
+          getProperty(r, 'dateOfScreening').includes('FijBS02-on-2021-03-14'),
       );
       const expectedDetails3 = {
         firstName: expectedPatient2.firstName,
@@ -221,6 +262,9 @@ describe('Fiji NCD Primary Screening line list', () => {
         // age: ,
         gender: expectedPatient2.sex,
         ethnicity: ethnicity2.name,
+        subdivision: village2.name,
+        medicalArea: medicalArea.name,
+        nursingZone: nursingZone.name,
         contactNumber: patientAdditionalData2.primaryContactNumber,
         screeningCompleted: 'Breast Cancer Primary Screening',
         dateOfScreening: `pde-FijBS02-on-2021-03-14T01:00:00.133Z-${expectedPatient2.firstName}`,
@@ -229,6 +273,7 @@ describe('Fiji NCD Primary Screening line list', () => {
         nameOfCso: `pde-FijBS10-on-2021-03-14T01:00:00.133Z-${expectedPatient2.firstName}`,
         screeningEligibility: `pde-FijBS14-on-2021-03-14T01:00:00.133Z-${expectedPatient2.firstName}`,
         cvdRiskLevel: null,
+        breastCancerRiskLevel: 'Not high risk',
         referralCreated: 'No',
         dateOfReferral: null,
         referredToHealthFacility: null,
