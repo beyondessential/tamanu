@@ -190,11 +190,11 @@ const getJoinClauses = () => {
   return `
     JOIN encounters AS sr_encounter ON sr.encounter_id = sr_encounter.id 
     JOIN patients AS patient ON sr_encounter.patient_id = patient.id
-    LEFT JOIN survey_response_answers eligabilityAnswer on 
-      eligabilityAnswer.id = (
-        select id from survey_response_answers sra 
-        where sra.response_id = sr.id
-        and sra.data_element_id IN ('pde-FijCVD021', 'pde-FijBS14', 'pde-FijCC16')
+    LEFT JOIN survey_response_answers eligibilityAnswer on 
+      eligibilityAnswer.id = (
+        SELECT id FROM survey_response_answers sra 
+        WHERE sra.response_id = sr.id
+        AND sra.data_element_id IN ('pde-FijCVD021', 'pde-FijBS14', 'pde-FijCC16')
       )
     LEFT JOIN patient_additional_data AS additional_data
     ON additional_data.id = (
@@ -230,7 +230,7 @@ const getData = async (sequelize, parameters) => {
         FROM survey_responses AS sr 
           ${getJoinClauses()}
         WHERE sr.survey_id = :screening_survey_id
-        AND (eligabilityAnswer.body != 'No' or eligabilityAnswer.body is null)
+        AND (eligibilityAnswer.body != 'No' or eligibilityAnswer.body is null)
           ${parametersToSqlWhereClause(nonEmptyParameterKeys)}
         GROUP BY date
         ORDER BY date desc;
@@ -277,7 +277,7 @@ const getTotalPatientsScreened = async (sequelize, parameters) => {
       FROM survey_responses AS sr 
         ${getJoinClauses()}
       WHERE sr.survey_id IN (:screening_survey_ids)
-      AND (eligabilityAnswer.body != 'No' or eligabilityAnswer.body is null)
+      AND (eligibilityAnswer.body != 'No' or eligibilityAnswer.body is null)
         ${parametersToSqlWhereClause(nonEmptyParameterKeys)}
       GROUP BY date
       ORDER BY date desc;
