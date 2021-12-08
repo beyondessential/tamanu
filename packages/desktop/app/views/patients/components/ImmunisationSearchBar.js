@@ -1,24 +1,23 @@
 import React from 'react';
 
 import { CustomisablePatientSearchBar } from './PatientSearchBar';
-import { connectApi } from '../../../api';
+import { useApi } from '../../../api';
 import { Suggester } from '../../../utils/suggester';
 import { AutocompleteField } from '../../../components';
 
-const DumbImmunisationSearchBar = props => (
-  <CustomisablePatientSearchBar
-    title="Search for patients"
-    fields={[
-      ['displayId'],
-      ['firstName'],
-      ['lastName'],
-      ['villageId', { suggesterKey: 'villageSuggester', component: AutocompleteField }],
-      ['vaccinationStatus'],
-    ]}
-    {...props}
-  />
-);
-
-export const ImmunisationSearchBar = connectApi(api => ({
-  villageSuggester: new Suggester(api, 'village'),
-}))(DumbImmunisationSearchBar);
+export const ImmunisationSearchBar = props => {
+  const api = useApi();
+  return (
+    <CustomisablePatientSearchBar
+      title="Search for patients"
+      fields={[
+        ['displayId'],
+        ['firstName'],
+        ['lastName'],
+        ['villageId', { suggester: new Suggester(api, 'village'), component: AutocompleteField }],
+        ['vaccinationStatus'],
+      ]}
+      {...props}
+    />
+  );
+};
