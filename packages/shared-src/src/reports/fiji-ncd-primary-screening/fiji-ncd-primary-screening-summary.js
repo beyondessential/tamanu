@@ -140,7 +140,7 @@ const parametersToSqlWhereClause = parameterKeys => {
         case 'medicalArea':
           return 'AND additional_data.medical_area_id = :medical_area_id';
         case 'nursingZone':
-          return 'AND patient.nursing_zone_id = :nursing_zone_id';
+          return 'AND additional_data.nursing_zone_id = :nursing_zone_id';
         case 'division':
           return 'AND additional_data.division_id = :division_id';
         case 'fromDate':
