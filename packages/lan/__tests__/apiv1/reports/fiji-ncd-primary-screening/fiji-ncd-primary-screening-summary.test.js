@@ -31,6 +31,7 @@ const PROPERTY_LIST = [
   'screenedRisk10-20',
   'screenedRisk20-30',
   'screenedRisk>30',
+  'screenedHighBreastCancerRisk',
   'referredNumber',
   'referredPercent',
   'referredMale',
@@ -109,6 +110,16 @@ describe.skip('Fiji NCD Primary Screening Summary', () => {
       ethnicityId: ETHNICITY_IDS.OTHERS,
     });
 
+    // This patient should NOT be counted in any data as they will have answered 'No' to
+    // "is this individual eligible for screening"
+    const unusedPatient = await models.Patient.create(
+      await createDummyPatient(models, { sex: 'female', dateOfBirth: '2021-03-01T01:00:00.133Z' }),
+    );
+    await models.PatientAdditionalData.create({
+      patientId: expectedPatient3.id,
+      ethnicityId: ETHNICITY_IDS.OTHERS,
+    });
+
     app = await baseApp.asRole('practitioner');
 
     // Day 1:
@@ -126,9 +137,25 @@ describe.skip('Fiji NCD Primary Screening Summary', () => {
     await createCVDFormSurveyResponse(app, expectedPatient3, day1Time1);
     await createBreastCancerReferral(app, expectedPatient3, day1Time2);
 
+    // this should not be counted, and neither should the patient
+    await createCVDFormSurveyResponse(app, unusedPatient, day1Time1, {
+      answerOverrides: {
+        'pde-FijCVD021': 'No',
+      },
+    });
+
     // Day 2:
     const day2 = '2021-03-13T01:00:00.133Z';
-    await createBreastCancerFormSurveyResponse(app, expectedPatient1, day2);
+    await createBreastCancerFormSurveyResponse(app, expectedPatient1, day2, {
+      resultText: undefined,
+    });
+
+    // This survey response should not be counted (but the patient still should be)
+    await createBreastCancerFormSurveyResponse(app, expectedPatient1, day2, {
+      answerOverrides: {
+        'pde-FijBS14': 'No',
+      },
+    });
   });
 
   describe('checks permissions', () => {
@@ -164,6 +191,7 @@ describe.skip('Fiji NCD Primary Screening Summary', () => {
         'screenedRisk10-20': 0,
         'screenedRisk20-30': 0,
         'screenedRisk>30': 0,
+        screenedHighBreastCancerRisk: 0,
         referredNumber: 0,
         referredPercent: '0%',
         referredMale: 0,
@@ -196,6 +224,7 @@ describe.skip('Fiji NCD Primary Screening Summary', () => {
         'screenedRisk10-20': 0,
         'screenedRisk20-30': 0,
         'screenedRisk>30': 0,
+        screenedHighBreastCancerRisk: 1,
         referredNumber: 1,
         referredPercent: '25%',
         referredMale: 1,

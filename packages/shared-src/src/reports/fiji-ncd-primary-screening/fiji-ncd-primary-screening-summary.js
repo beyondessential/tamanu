@@ -75,6 +75,11 @@ const FIELDS = {
     title: 'Total screened by CVD risk ≥30% (%)',
     selectSql: "(sr.result_text like '%PURPLE%')",
   },
+  // Use % on both sides to strip off potential whitespace
+  screenedHighBreastCancerRisk: {
+    title: 'Total screened by high risk of breast cancer',
+    selectSql: "(sr.result_text like '%High risk%')",
+  },
   referredNumber: {
     title: 'Total referred',
     selectSql: 'referral_sr.id is not null',
@@ -132,6 +137,10 @@ const parametersToSqlWhereClause = parameterKeys => {
       switch (key) {
         case 'village':
           return 'AND patient.village_id = :village_id';
+        case 'medicalArea':
+          return 'AND additional_data.medical_area_id = :medical_area_id';
+        case 'nursingZone':
+          return 'AND additional_data.nursing_zone_id = :nursing_zone_id';
         case 'division':
           return 'AND additional_data.division_id = :division_id';
         case 'fromDate':
@@ -181,6 +190,12 @@ const getJoinClauses = () => {
   return `
     JOIN encounters AS sr_encounter ON sr.encounter_id = sr_encounter.id 
     JOIN patients AS patient ON sr_encounter.patient_id = patient.id
+    LEFT JOIN survey_response_answers eligibilityAnswer on 
+      eligibilityAnswer.id = (
+        SELECT id FROM survey_response_answers sra 
+        WHERE sra.response_id = sr.id
+        AND sra.data_element_id IN ('pde-FijCVD021', 'pde-FijBS14', 'pde-FijCC16')
+      )
     LEFT JOIN patient_additional_data AS additional_data
     ON additional_data.id = (
         SELECT id FROM patient_additional_data 
@@ -200,6 +215,8 @@ const getData = async (sequelize, parameters) => {
     fromDate,
     toDate,
     village,
+    medicalArea,
+    nursingZone,
     division,
     surveyIds = Object.keys(REFERRAL_SCREENING_FORM_MAPPING).join(', '),
   } = parameters;
@@ -213,6 +230,7 @@ const getData = async (sequelize, parameters) => {
         FROM survey_responses AS sr 
           ${getJoinClauses()}
         WHERE sr.survey_id = :screening_survey_id
+        AND (eligibilityAnswer.body != 'No' or eligibilityAnswer.body is null)
           ${parametersToSqlWhereClause(nonEmptyParameterKeys)}
         GROUP BY date
         ORDER BY date desc;
@@ -225,6 +243,8 @@ const getData = async (sequelize, parameters) => {
           from_date: fromDate,
           to_date: toDate,
           village_id: village,
+          medical_area_id: medicalArea,
+          nursing_zone_id: nursingZone,
           division_id: division,
         },
       },
@@ -243,6 +263,8 @@ const getTotalPatientsScreened = async (sequelize, parameters) => {
     fromDate,
     toDate,
     village,
+    medicalArea,
+    nursingZone,
     division,
     surveyIds = Object.keys(REFERRAL_SCREENING_FORM_MAPPING).join(', '),
   } = parameters;
@@ -255,6 +277,7 @@ const getTotalPatientsScreened = async (sequelize, parameters) => {
       FROM survey_responses AS sr 
         ${getJoinClauses()}
       WHERE sr.survey_id IN (:screening_survey_ids)
+      AND (eligibilityAnswer.body != 'No' or eligibilityAnswer.body is null)
         ${parametersToSqlWhereClause(nonEmptyParameterKeys)}
       GROUP BY date
       ORDER BY date desc;
@@ -267,6 +290,8 @@ const getTotalPatientsScreened = async (sequelize, parameters) => {
         from_date: fromDate,
         to_date: toDate,
         village_id: village,
+        medical_area_id: medicalArea,
+        nursing_zone_id: nursingZone,
         division_id: division,
       },
     },
@@ -291,7 +316,6 @@ export const dataGenerator = async ({ sequelize }, parameters = {}) => {
     }))
     .map(addReferredPercent)
     .sort(({ date: date1 }, { date: date2 }) => moment(date2) - moment(date1));
-
   return generateReportFromQueryData(reportData, reportColumnTemplate);
 };
 

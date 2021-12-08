@@ -189,6 +189,18 @@ export const REPORT_DEFINITIONS = [
         name: 'division',
         suggesterEndpoint: 'division',
       },
+      {
+        parameterField: 'ParameterAutocompleteField',
+        label: 'Medical Area',
+        name: 'medicalArea',
+        suggesterEndpoint: 'medicalArea',
+      },
+      {
+        parameterField: 'ParameterAutocompleteField',
+        label: 'Nursing Zone',
+        name: 'nursingZone',
+        suggesterEndpoint: 'nursingZone',
+      },
       { parameterField: 'VillageField' },
     ],
   },

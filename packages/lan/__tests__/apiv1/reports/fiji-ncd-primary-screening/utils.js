@@ -6,7 +6,8 @@ const BREAST_CANCER_REFERRAL_SURVEY_ID = 'program-fijincdprimaryscreening-fijibr
 const CERVICAL_CANCER_FORM_SURVEY_ID = 'program-fijincdprimaryscreening-fijicervicalprimaryscreen';
 const CERVICAL_CANCER_REFERRAL_SURVEY_ID = 'program-fijincdprimaryscreening-fijicervicalscreenref';
 
-export const createCVDFormSurveyResponse = async (app, patient, surveyDate) => {
+export const createCVDFormSurveyResponse = async (app, patient, surveyDate, overrides = {}) => {
+  const { answerOverrides = {} } = overrides;
   await app.post('/v1/surveyResponse').send({
     surveyId: CVD_PRIMARY_FORM_SURVEY_ID,
     startTime: surveyDate,
@@ -19,6 +20,7 @@ export const createCVDFormSurveyResponse = async (app, patient, surveyDate) => {
       'pde-FijCVD007': `pde-FijCVD007-on-${surveyDate}-${patient.firstName}`,
       'pde-FijCVD010': `pde-FijCVD010-on-${surveyDate}-${patient.firstName}`,
       'pde-FijCVD021': `pde-FijCVD021-on-${surveyDate}-${patient.firstName}`,
+      ...answerOverrides,
     },
   });
 };
@@ -39,7 +41,13 @@ export const createCVDReferral = async (app, patient, referralDate) => {
   });
 };
 
-export const createBreastCancerFormSurveyResponse = async (app, patient, surveyDate, overrides = {}) => {
+export const createBreastCancerFormSurveyResponse = async (
+  app,
+  patient,
+  surveyDate,
+  overrides = {},
+) => {
+  const { answerOverrides = {}, ...otherOverrides } = overrides;
   await app.post('/v1/surveyResponse').send({
     surveyId: BREAST_CANCER_FORM_SURVEY_ID,
     startTime: surveyDate,
@@ -52,8 +60,9 @@ export const createBreastCancerFormSurveyResponse = async (app, patient, surveyD
       'pde-FijBS07': `pde-FijBS07-on-${surveyDate}-${patient.firstName}`,
       'pde-FijBS10': `pde-FijBS10-on-${surveyDate}-${patient.firstName}`,
       'pde-FijBS14': `pde-FijBS14-on-${surveyDate}-${patient.firstName}`,
+      ...answerOverrides,
     },
-    ...overrides,
+    ...otherOverrides,
   });
 };
 
