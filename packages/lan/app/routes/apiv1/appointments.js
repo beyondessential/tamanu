@@ -14,7 +14,16 @@ appointments.get(
     req.checkPermission('list', 'Appointment');
     const {
       models,
-      query: { after, before, rowsPerPage = 10, page = 0, all = false },
+      query: {
+        after,
+        before,
+        rowsPerPage = 10,
+        page = 0,
+        all = false,
+        order = 'ASC',
+        orderBy = 'startTime',
+        ...queries
+      },
     } = req;
     const { Appointment } = models;
 
@@ -28,12 +37,22 @@ appointments.get(
     if (before) {
       startTimeQuery[Op.lte] = before;
     }
+    const filters = Object.entries(queries).reduce(
+      (_filters, [query, queryValue]) => ({
+        ..._filters,
+        [query]: {
+          [Op.like]: `%${queryValue}%`,
+        },
+      }),
+      {},
+    );
     const { rows, count } = await Appointment.findAndCountAll({
       limit: all ? undefined : rowsPerPage,
       offset: all ? undefined : page * rowsPerPage,
-      order: [['startTime', 'ASC']],
+      order: [[orderBy, order]],
       where: {
         startTime: startTimeQuery,
+        ...filters,
       },
       include: [...associations],
     });
