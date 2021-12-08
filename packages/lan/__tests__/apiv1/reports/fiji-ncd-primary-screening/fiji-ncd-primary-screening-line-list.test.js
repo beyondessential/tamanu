@@ -225,7 +225,7 @@ describe('Fiji NCD Primary Screening line list', () => {
         // age: ,
         gender: expectedPatient1.sex,
         ethnicity: ethnicity1.name,
-        subdivision: village2.name,
+        subdivision: village1.name,
         medicalArea: medicalArea.name,
         nursingZone: nursingZone.name,
         contactNumber: patientAdditionalData1.primaryContactNumber,
