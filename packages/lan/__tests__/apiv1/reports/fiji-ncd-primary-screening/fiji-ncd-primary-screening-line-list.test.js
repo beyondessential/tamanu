@@ -109,9 +109,9 @@ describe('Fiji NCD Primary Screening line list', () => {
       patientId: expectedPatient1.id,
       ethnicityId: ethnicity1.id,
       primaryContactNumber: '123',
-      subdivisionId: subdivision.id,
-      medicalAreaId: medicalArea.id,
-      nursingZoneId: nursingZone.id,
+      subdivision,
+      medicalArea,
+      nursingZone,
     });
     expectedPatient2 = await models.Patient.create(
       await createDummyPatient(models, { villageId: village2, sex: 'female' }),
@@ -120,9 +120,9 @@ describe('Fiji NCD Primary Screening line list', () => {
       patientId: expectedPatient2.id,
       ethnicityId: ethnicity2.id,
       primaryContactNumber: '456',
-      subdivisionId: subdivision.id,
-      medicalAreaId: medicalArea.id,
-      nursingZoneId: nursingZone.id,
+      subdivision,
+      medicalArea,
+      nursingZone,
     });
 
     app = await baseApp.asRole('practitioner');
@@ -183,9 +183,7 @@ describe('Fiji NCD Primary Screening line list', () => {
       // Should take the latest results
       // NOTE: Have to find row like this because the report can return records in random order.
       const row1 = result.body.find(
-        r =>
-          getProperty(r, 'firstName') === expectedPatient1.firstName &&
-          getProperty(r, 'dateOfScreening').includes('FijBS02-on-2021-03-12'),
+        r => r[0] === expectedPatient1.firstName && r[8].includes('FijBS02-on-2021-03-12'),
       );
       const expectedDetails1 = {
         firstName: expectedPatient1.firstName,
@@ -219,9 +217,7 @@ describe('Fiji NCD Primary Screening line list', () => {
 
       // Patient 1 on 2021-03-12 with single CVD submission and single referral on the same date
       const row2 = result.body.find(
-        r =>
-          getProperty(r, 'firstName') === expectedPatient1.firstName &&
-          getProperty(r, 'dateOfScreening').includes('FijCVD002-on-2021-03-12'),
+        r => r[0] === expectedPatient1.firstName && r[8].includes('FijCVD002-on-2021-03-12'),
       );
       const expectedDetails2 = {
         firstName: expectedPatient1.firstName,
@@ -256,9 +252,7 @@ describe('Fiji NCD Primary Screening line list', () => {
       /*******PATIENT 2*********/
       // Patient 2 on 2021-03-14 with Breast Cancer form submission but not referral on the same date
       const row3 = result.body.find(
-        r =>
-          getProperty(r, 'firstName') === expectedPatient2.firstName &&
-          getProperty(r, 'dateOfScreening').includes('FijBS02-on-2021-03-14'),
+        r => r[0] === expectedPatient2.firstName && r[8].includes('FijBS02-on-2021-03-14'),
       );
       const expectedDetails3 = {
         firstName: expectedPatient2.firstName,
