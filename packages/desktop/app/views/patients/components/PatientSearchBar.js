@@ -125,14 +125,20 @@ export const CustomisablePatientSearchBar = ({
         .map(
           ([
             key,
-            { suggesterKey, placeholder, localisationLabel = 'longLabel', ...fieldProps } = {},
+            {
+              suggesterKey,
+              placeholder,
+              localisationLabel = 'longLabel',
+              component = TextField,
+              ...fieldProps
+            } = {},
           ]) =>
             getLocalisation(`fields.${key}.hidden`) === true ? null : (
               <Field
                 name={key}
                 key={key}
                 placeholder={getLocalisation(`fields.${key}.${localisationLabel}`) || placeholder}
-                component={TextField}
+                component={component}
                 suggester={props[suggesterKey]}
                 {...fieldProps}
               />
