@@ -24,7 +24,6 @@ export const AppointmentsSearchBar = ({ onSearch }) => {
       fields={[
         ['firstName'],
         ['lastName'],
-        ['displayId'],
         [
           'clinicianId',
           {
@@ -59,6 +58,7 @@ export const AppointmentsSearchBar = ({ onSearch }) => {
         ],
         ['after', { component: DateTimeField, placeholder: 'Start from' }],
         ['before', { component: DateTimeField, placeholder: 'Until' }],
+        ['displayId'],
       ]}
       initialValues={{
         after: startOfDay(new Date()),
