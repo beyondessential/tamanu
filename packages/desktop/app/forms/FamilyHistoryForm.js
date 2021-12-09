@@ -15,6 +15,10 @@ export class FamilyHistoryForm extends React.PureComponent {
     editedObject: PropTypes.shape({}),
   };
 
+  static defaultProps = {
+    editedObject: null,
+  };
+
   renderForm = ({ submitForm }) => {
     const { onCancel, icd10Suggester, practitionerSuggester, editedObject } = this.props;
     const buttonText = editedObject ? 'Save' : 'Add';

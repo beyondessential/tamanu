@@ -1,7 +1,6 @@
 import React, { useState, useCallback, useEffect } from 'react';
 import PropTypes from 'prop-types';
 import Select from 'react-select';
-import styled from 'styled-components';
 
 import { OuterLabelFieldWrapper } from './OuterLabelFieldWrapper';
 import { StyledTextField } from './TextField';
@@ -74,9 +73,9 @@ export const MultiselectField = ({ field, ...props }) => (
 );
 
 MultiselectInput.propTypes = {
-  name: PropTypes.string,
+  name: PropTypes.string.isRequired,
   value: PropTypes.string,
-  onChange: PropTypes.func,
+  onChange: PropTypes.func.isRequired,
   options: PropTypes.arrayOf(PropTypes.instanceOf(Object)),
   fullWidth: PropTypes.bool,
   form: PropTypes.shape({

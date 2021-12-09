@@ -253,21 +253,19 @@ const DumbReportGeneratorForm = ({ currentUser, onSuccessfulSubmit }) => {
             <>
               <Spacer />
               <FormGrid columns={3}>
-                {parameters.map(
-                  ({ parameterField, required, name, label, ...restOfProps }, index) => {
-                    const ParameterFieldComponent = PARAMETER_FIELD_COMPONENTS[parameterField];
-                    return (
-                      <ParameterFieldComponent
-                        key={index}
-                        required={required}
-                        name={name}
-                        label={label}
-                        parameterValues={values}
-                        {...restOfProps}
-                      />
-                    );
-                  },
-                )}
+                {parameters.map(({ parameterField, required, name, label, ...restOfProps }) => {
+                  const ParameterFieldComponent = PARAMETER_FIELD_COMPONENTS[parameterField];
+                  return (
+                    <ParameterFieldComponent
+                      key={name}
+                      required={required}
+                      name={name}
+                      label={label}
+                      parameterValues={values}
+                      {...restOfProps}
+                    />
+                  );
+                })}
               </FormGrid>
             </>
           ) : null}

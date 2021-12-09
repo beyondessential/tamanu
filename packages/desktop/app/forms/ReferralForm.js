@@ -116,8 +116,9 @@ export const ReferralForm = React.memo(
             <DiagnosesContainer>
               {Array(diagnosisCount)
                 .fill()
-                .map((_, index) => (
-                  <DiagnosisFields key={index} count={index} icd10Suggester={icd10Suggester} />
+                .map((_, index) => index)
+                .map(n => (
+                  <DiagnosisFields key={n} count={n} icd10Suggester={icd10Suggester} />
                 ))}
               <AddDiagnosisButton
                 variant="outlined"

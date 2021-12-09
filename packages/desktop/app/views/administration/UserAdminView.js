@@ -1,5 +1,5 @@
 import React, { useState, useCallback } from 'react';
-import { TopBar, PageContainer, Button, DataFetchingTable, SearchBar } from '../../components';
+import { TopBar, PageContainer, Button, DataFetchingTable } from '../../components';
 import { NewUserForm } from '../../forms';
 import { NewRecordModal } from './components';
 import { USER_SEARCH_ENDPOINT } from './constants';
@@ -32,7 +32,6 @@ const UserTable = React.memo(({ ...props }) => (
 ));
 
 export const UserAdminView = React.memo(() => {
-  const [searchParameters, setSearchParameters] = useState({});
   const [creatingUser, setCreatingUser] = useState(false);
 
   const showCreatingUserModal = useCallback(() => {
@@ -50,7 +49,7 @@ export const UserAdminView = React.memo(() => {
           Add new user
         </Button>
       </TopBar>
-      <UserTable fetchOptions={searchParameters} />
+      <UserTable fetchOptions={{}} />
       <NewRecordModal
         title="Create new user"
         endpoint="user"

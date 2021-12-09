@@ -1,4 +1,4 @@
-import React, { useCallback } from 'react';
+import React from 'react';
 import styled from 'styled-components';
 
 const Group = styled.div`
@@ -27,7 +27,7 @@ export const CheckArrayInput = ({ options, field, ...props }) => {
   const toggle = React.useCallback(item => {
     if (currentList.includes(item)) {
       // set
-      const newList = currentList.filter(v => v != item);
+      const newList = currentList.filter(v => v !== item);
       onChange({ target: { value: newList, name } });
     } else {
       // unset

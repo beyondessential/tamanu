@@ -11,7 +11,6 @@ import { TriageModal } from '../../components/TriageModal';
 import { connectRoutedModal } from '../../components/Modal';
 
 import {
-  AppointmentPane,
   ConnectedPatientDetailsForm,
   HistoryPane,
   ImmunisationsPane,

@@ -24,7 +24,7 @@ export class Form extends React.PureComponent {
     onSubmit: PropTypes.func.isRequired,
     render: PropTypes.func.isRequired,
     showInlineErrorsOnly: PropTypes.bool,
-    initialValues: PropTypes.object,
+    initialValues: PropTypes.shape({}),
   };
 
   static defaultProps = {

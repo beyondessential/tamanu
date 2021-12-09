@@ -1,5 +1,4 @@
 import React, { useCallback } from 'react';
-import { push } from 'connected-react-router';
 import { useEncounter } from '../contexts/Encounter';
 
 import { Modal } from './Modal';

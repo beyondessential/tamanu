@@ -77,10 +77,10 @@ export function DumbCarePlanNoteForm(props) {
 
 export const CarePlanNoteForm = connectApi(api => ({
   submitNote: async (patientCarePlanId, body) => {
-    return await api.post(`patientCarePlan/${patientCarePlanId}/notes`, body);
+    return api.post(`patientCarePlan/${patientCarePlanId}/notes`, body);
   },
   updateNote: async note => {
-    return await api.put(`note/${note.id}`, note);
+    return api.put(`note/${note.id}`, note);
   },
   practitionerSuggester: new Suggester(api, 'practitioner'),
 }))(DumbCarePlanNoteForm);

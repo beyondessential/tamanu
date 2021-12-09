@@ -11,6 +11,7 @@ const getResponseJsonSafely = async response => {
     return await response.json();
   } catch (e) {
     // log json parsing errors, but still return a valid object
+    // eslint-disable-next-line no-console
     console.warn(`getResponseJsonSafely: Error parsing JSON: ${e}`);
     return {};
   }

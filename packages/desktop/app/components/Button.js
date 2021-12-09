@@ -181,9 +181,9 @@ const StyledImageButton = styled(Button)`
   }
 `;
 
-export const ImageButton = ({ children, ...props }) => (
+export const ImageButton = ({ children, alt, ...props }) => (
   <StyledImageButton variant="contained" {...props}>
-    <img src={props.src} />
+    <img alt={alt ?? 'Button with an unspecified image'} src={props.src} />
     {children}
   </StyledImageButton>
 );

@@ -1,4 +1,4 @@
-import React, { useState, useCallback, useEffect } from 'react';
+import React, { useCallback } from 'react';
 import PropTypes from 'prop-types';
 import Select from 'react-select';
 import styled from 'styled-components';
@@ -36,8 +36,8 @@ export const SelectInput = ({
 
   const selectedOption = options.find(option => value === option.value) ?? '';
 
-  const handleChange = useCallback(selectedOption => {
-    onChange({ target: { value: selectedOption.value, name } });
+  const handleChange = useCallback(changedOption => {
+    onChange({ target: { value: changedOption.value, name } });
   }, []);
 
   return (
@@ -86,9 +86,9 @@ export const StyledSelectField = styled(SelectField)`
 `;
 
 SelectInput.propTypes = {
-  name: PropTypes.string,
+  name: PropTypes.string.isRequired,
   value: PropTypes.string,
-  onChange: PropTypes.func,
+  onChange: PropTypes.func.isRequired,
   options: PropTypes.arrayOf(PropTypes.instanceOf(Object)),
   fullWidth: PropTypes.bool,
 };

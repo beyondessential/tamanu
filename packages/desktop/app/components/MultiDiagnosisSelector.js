@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { useCallback } from 'react';
 import styled from 'styled-components';
 
 import { Button } from './Button';
@@ -11,12 +11,21 @@ const AdderContainer = styled.div`
   align-items: end;
 `;
 
-const DiagnosisItem = React.memo(({ diagnosis, onRemove }) => (
-  <li>
-    (<a onClick={() => onRemove(diagnosis.id)}>x</a>)
-    <span> {diagnosis.name}</span>
-  </li>
-));
+const DiagnosisItem = React.memo(({ diagnosis, onRemove }) => {
+  const onSelectDiagnosis = useCallback(() => onRemove(diagnosis.id));
+  return (
+    <li>
+      <>
+        (
+        <span role="button" tabIndex="0" onClick={onSelectDiagnosis} onKeyUp={onSelectDiagnosis}>
+          x
+        </span>
+        )
+      </>
+      <span>{` ${diagnosis.name}`}</span>
+    </li>
+  );
+});
 
 const DiagnosisList = ({ diagnoses, onRemove }) => {
   const listContents =

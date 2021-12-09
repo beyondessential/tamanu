@@ -1,5 +1,3 @@
-import { React } from 'react';
-
 import { useLocalisation } from '../contexts/Localisation';
 
 export const LocalisedText = ({ path }) => {

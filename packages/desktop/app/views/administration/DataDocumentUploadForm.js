@@ -1,7 +1,7 @@
 import React, { memo, useState, useCallback } from 'react';
 import * as yup from 'yup';
 
-import { Form, Field, TextField, CheckField } from 'desktop/app/components/Field';
+import { Form, Field, CheckField } from 'desktop/app/components/Field';
 import { FileChooserField, FILTER_EXCEL } from 'desktop/app/components/Field/FileChooserField';
 import { FormGrid } from 'desktop/app/components/FormGrid';
 import { ButtonRow } from 'desktop/app/components/ButtonRow';
@@ -14,7 +14,7 @@ import { useCurrentUser } from 'desktop/app/store/auth';
 import { ImportStatsDisplay } from './components/ImportStatsDisplay';
 import { ImportErrorsTable } from './components/ImportErrorsTable';
 
-const ProgramUploadForm = ({ submitForm, isSubmitting, additionalFields, ...rest }) => (
+const ProgramUploadForm = ({ submitForm, isSubmitting, additionalFields }) => (
   <FormGrid columns={1}>
     <Field component={CheckField} label="Test run" name="dryRun" required />
     <Field component={CheckField} label="Skip invalid records" name="allowErrors" required />
@@ -75,16 +75,16 @@ export const DataDocumentUploadForm = memo(({ onSubmit, onReceiveResult, additio
 
   const onSubmitUpload = useCallback(
     async data => {
-      const result = await onSubmit(data);
+      const intermediateResult = await onSubmit(data);
 
-      if (result.sentData) {
+      if (intermediateResult.sentData) {
         // reset the form
         setResetKey(Math.random());
       }
 
-      setResult(result);
+      setResult(intermediateResult);
       if (onReceiveResult) {
-        onReceiveResult(result);
+        onReceiveResult(intermediateResult);
       }
       return true;
     },

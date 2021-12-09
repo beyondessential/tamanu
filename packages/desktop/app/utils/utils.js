@@ -5,7 +5,7 @@ import deepEqual from 'deep-equal';
 import shortid from 'shortid';
 
 export const concatSelf = (array, ...items) => {
-  items.map(item => {
+  items.forEach(item => {
     if (isArray(item)) {
       item.forEach(variable => array.push(variable));
     } else {
@@ -18,8 +18,8 @@ export const prepareToastMessage = msg => {
   const messages = isArray(msg) ? msg : [msg];
   return (
     <Fragment>
-      {messages.map((text, key) => (
-        <div key={`err-msg-${key}`}>{toString(text)}</div>
+      {messages.map(text => (
+        <div key={`err-msg-${text}`}>{toString(text)}</div>
       ))}
     </Fragment>
   );

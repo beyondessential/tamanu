@@ -196,8 +196,7 @@ export const MedicationForm = React.memo(
                 <p style={{ color: 'red' }}>
                   <span style={{ fontWeight: 'bold' }}>Discontinued</span>
                   <br />
-                  Discontinued at:
-{' '}
+                  Discontinued at:{' '}
                   {medication?.updatedAt
                     .substr(0, 10)
                     .split('-')

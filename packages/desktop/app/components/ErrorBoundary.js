@@ -39,16 +39,20 @@ const DumbErrorView = React.memo(({ error, state }) => {
 const ErrorView = connect(state => ({ state }))(DumbErrorView);
 
 export class ErrorBoundary extends React.PureComponent {
-  state = { error: null };
+  state = { error: null, lastErrorKey: null };
+
+  static getDerivedStateFromProps(props, state) {
+    const { errorKey } = props;
+    const { lastErrorKey, error } = state;
+    const didErrorKeyChange = !lastErrorKey || lastErrorKey === errorKey;
+    return {
+      lastErrorKey: errorKey,
+      error: didErrorKeyChange ? null : error,
+    };
+  }
 
   componentDidCatch(error) {
     this.setState({ error });
-  }
-
-  componentDidUpdate(prevProps) {
-    if (prevProps.errorKey !== this.props.errorKey) {
-      this.setState({ error: null });
-    }
   }
 
   render() {

@@ -1,7 +1,7 @@
 import React from 'react';
 import styled from 'styled-components';
 
-import { ENCOUNTER_TYPES } from 'Shared/constants';
+import { ENCOUNTER_TYPES } from 'shared/constants';
 import { Colors } from '../../../constants';
 import { ImageButton, Button } from '../../../components/Button';
 import { DateDisplay } from '../../../components/DateDisplay';

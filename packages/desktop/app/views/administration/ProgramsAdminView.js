@@ -1,4 +1,4 @@
-import React, { memo, useState, useCallback } from 'react';
+import React, { memo, useCallback } from 'react';
 import styled from 'styled-components';
 
 import { useApi } from '../../api';

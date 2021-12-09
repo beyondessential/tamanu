@@ -6,4 +6,4 @@ import * as yup from 'yup';
 // (note that an invalid FK will still be rejected by the server,
 // so there's no safety issue here)
 export const foreignKey = message => yup.string().required(message);
-export const optionalForeignKey = message => yup.string();
+export const optionalForeignKey = () => yup.string();

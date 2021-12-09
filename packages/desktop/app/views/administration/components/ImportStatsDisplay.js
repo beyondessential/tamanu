@@ -1,7 +1,4 @@
 import React from 'react';
-import styled from 'styled-components';
-
-import { Table } from '../../../components/Table';
 
 export const ImportStatsDisplay = ({ stats = {} }) => {
   const { total, ...records } = stats.records;

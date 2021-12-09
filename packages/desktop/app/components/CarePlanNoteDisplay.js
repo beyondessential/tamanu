@@ -61,7 +61,8 @@ const DumbCarePlanNoteDisplay = props => {
           <NoteAuthorName>{props.note.author.displayName}</NoteAuthorName>
           {props.note.onBehalfOf && props.note.onBehalfOf.displayName ? (
             <NoteOnBehalfOf>
-              &nbsp;&nbsp;|&nbsp;&nbsp;On behalf of {props.note.onBehalfOf.displayName}
+              &nbsp;&nbsp;|&nbsp;&nbsp;
+              {`On behalf of ${props.note.onBehalfOf.displayName}`}
             </NoteOnBehalfOf>
           ) : null}
           {props.isMainCarePlan ? (
@@ -99,6 +100,6 @@ const DumbCarePlanNoteDisplay = props => {
 
 export const CarePlanNoteDisplay = connectApi(api => ({
   deleteNote: async noteId => {
-    return await api.delete(`note/${noteId}`);
+    return api.delete(`note/${noteId}`);
   },
 }))(DumbCarePlanNoteDisplay);

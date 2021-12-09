@@ -170,7 +170,7 @@ function sanitiseRecordForValues(data) {
   } = data;
 
   return Object.entries(remaining)
-    .filter(([k, v]) => {
+    .filter(([, v]) => {
       if (Array.isArray(v)) return false;
       if (typeof v === 'object') return false;
       return true;

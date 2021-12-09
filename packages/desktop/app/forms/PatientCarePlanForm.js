@@ -15,6 +15,10 @@ export class PatientCarePlanForm extends React.PureComponent {
     editedObject: PropTypes.shape({}),
   };
 
+  static defaultProps = {
+    editedObject: null,
+  };
+
   renderForm = ({ submitForm }) => {
     const { editedObject, onCancel, practitionerSuggester, carePlanSuggester } = this.props;
     const buttonText = editedObject ? 'Save' : 'Add';

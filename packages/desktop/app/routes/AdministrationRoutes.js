@@ -1,13 +1,7 @@
 import React from 'react';
 import { Route, Switch } from 'react-router-dom';
 
-import {
-  NotActiveView,
-  LocationAdminView,
-  ProgramsAdminView,
-  UserAdminView,
-  ReferenceDataAdminView,
-} from '../views';
+import { NotActiveView, ProgramsAdminView, ReferenceDataAdminView } from '../views';
 
 export const AdministrationRoutes = React.memo(({ match }) => (
   <div>

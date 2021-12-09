@@ -1,6 +1,5 @@
 import React from 'react';
 import styled from 'styled-components';
-import moment from 'moment';
 import { push } from 'connected-react-router';
 
 import { useLocalisation } from '../contexts/Localisation';
@@ -51,7 +50,7 @@ const DETAILS_FIELD_DEFINITIONS = [
 ];
 
 const DumbTriageModal = React.memo(({ open, patient, onClose, ...rest }) => {
-  const { displayId, firstName, lastName, sex, dateOfBirth } = patient;
+  const { displayId } = patient;
   const { getLocalisation } = useLocalisation();
   const detailsFields = DETAILS_FIELD_DEFINITIONS.filter(
     ([name]) => getLocalisation(`fields.${name}.hidden`) !== true,

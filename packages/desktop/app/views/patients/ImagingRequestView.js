@@ -22,7 +22,6 @@ import {
 } from '../../components/Field';
 import { useApi } from '../../api';
 import { Suggester } from '../../utils/suggester';
-import { IMAGING_REQUEST_STATUS_LABELS } from '../../constants';
 
 const BackLink = connect(null, dispatch => ({
   onClick: () => dispatch(push('/patients/encounter')),
