@@ -88,12 +88,13 @@ export const DataDocumentUploadForm = memo(({ onSubmit, onReceiveResult, additio
       }
       return true;
     },
-    [onSubmit],
+    [onSubmit, setResetKey, setResult, onReceiveResult],
   );
 
-  const renderForm = useCallback(props => (
-    <ProgramUploadForm {...props} additionalFields={additionalFields} />
-  ));
+  const renderForm = useCallback(
+    props => <ProgramUploadForm {...props} additionalFields={additionalFields} />,
+    [additionalFields],
+  );
 
   const user = useCurrentUser();
   const isAdmin = user?.role === 'admin';

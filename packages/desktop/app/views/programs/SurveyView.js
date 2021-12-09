@@ -107,7 +107,7 @@ const SurveyScreenPaginator = ({ survey, values, onSurveyComplete, onCancel, set
     Object.entries(calculatedValues)
       .filter(([k, v]) => values[k] !== v)
       .map(([k, v]) => setFieldValue(k, v));
-  }, [values]);
+  }, [components, values, setFieldValue]);
 
   const onStepBack = useCallback(() => {
     setScreenIndex(screenIndex - 1);
@@ -160,10 +160,13 @@ export const SurveyView = ({ survey, onSubmit, onCancel, patient, currentUser })
 
   const [surveyCompleted, setSurveyCompleted] = useState(false);
 
-  const onSubmitSurvey = useCallback(async data => {
-    await onSubmit(data);
-    setSurveyCompleted(true);
-  });
+  const onSubmitSurvey = useCallback(
+    async data => {
+      await onSubmit(data);
+      setSurveyCompleted(true);
+    },
+    [onSubmit, setSurveyCompleted],
+  );
 
   const renderSurvey = props => {
     const { submitForm, values, setFieldValue } = props;

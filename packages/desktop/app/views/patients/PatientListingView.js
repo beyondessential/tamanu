@@ -73,10 +73,13 @@ const NewPatientButton = React.memo(({ onCreateNewPatient }) => {
     setIsBirth(true);
   }, [setCreatingPatient, setIsBirth]);
 
-  const onCreate = useCallback(newPatient => {
-    setCreatingPatient(false);
-    onCreateNewPatient(newPatient.id);
-  });
+  const onCreate = useCallback(
+    newPatient => {
+      setCreatingPatient(false);
+      onCreateNewPatient(newPatient.id);
+    },
+    [setCreatingPatient, onCreateNewPatient],
+  );
 
   return (
     <React.Fragment>

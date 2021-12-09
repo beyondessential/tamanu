@@ -41,7 +41,7 @@ export const LabRequestNoteForm = ({ labRequest }) => {
       const res = await api.get(`labRequest/${labRequest.id}/notes`);
       setNotes(res.data);
     })();
-  }, []);
+  }, [api, setNotes, labRequest.id]);
 
   const saveNote = useCallback(
     async ({ content }) => {
@@ -52,7 +52,7 @@ export const LabRequestNoteForm = ({ labRequest }) => {
       });
       setNotes([newNote, ...notes]);
     },
-    [notes],
+    [notes, labRequest.id, api],
   );
 
   const renderForm = React.useCallback(

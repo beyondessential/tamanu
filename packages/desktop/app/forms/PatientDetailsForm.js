@@ -191,17 +191,21 @@ function stripPatientData(patient) {
 }
 
 export const PatientDetailsForm = ({ patient, onSubmit }) => {
-  const render = React.useCallback(({ submitForm }) => (
-    <FormGrid>
-      <PrimaryDetailsGroup />
-      <SecondaryDetailsGroup />
-      <ButtonRow>
-        <Button variant="contained" color="primary" onClick={submitForm}>
-          Save
-        </Button>
-      </ButtonRow>
-    </FormGrid>
-  ));
-
-  return <Form render={render} initialValues={stripPatientData(patient)} onSubmit={onSubmit} />;
+  return (
+    <Form
+      render={({ submitForm }) => (
+        <FormGrid>
+          <PrimaryDetailsGroup />
+          <SecondaryDetailsGroup />
+          <ButtonRow>
+            <Button variant="contained" color="primary" onClick={submitForm}>
+              Save
+            </Button>
+          </ButtonRow>
+        </FormGrid>
+      )}
+      initialValues={stripPatientData(patient)}
+      onSubmit={onSubmit}
+    />
+  );
 };

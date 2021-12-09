@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { useCallback, useMemo } from 'react';
 import styled from 'styled-components';
 
 const Group = styled.div`
@@ -21,20 +21,26 @@ const SelectableField = styled.div`
 
 export const CheckArrayInput = ({ options, field, ...props }) => {
   const name = field.name;
-  const currentList = (field ? field.value : props.value) || [];
+  const currentList = useMemo(() => (field ? field.value : props.value) || [], [
+    field,
+    props.value,
+  ]);
   const onChange = field ? field.onChange : props.onChange;
 
-  const toggle = React.useCallback(item => {
-    if (currentList.includes(item)) {
-      // set
-      const newList = currentList.filter(v => v !== item);
-      onChange({ target: { value: newList, name } });
-    } else {
-      // unset
-      const newList = currentList.concat(item);
-      onChange({ target: { value: newList, name } });
-    }
-  });
+  const toggle = useCallback(
+    item => {
+      if (currentList.includes(item)) {
+        // set
+        const newList = currentList.filter(v => v !== item);
+        onChange({ target: { value: newList, name } });
+      } else {
+        // unset
+        const newList = currentList.concat(item);
+        onChange({ target: { value: newList, name } });
+      }
+    },
+    [currentList, onChange, name],
+  );
 
   return (
     <Group>

@@ -95,7 +95,7 @@ const DataFetchingTriageStatisticsCard = memo(({ priorityLevel, fetchData }) => 
     // update data every 30 seconds
     const interval = setInterval(() => fetchTriageData(), MINUTE * 0.5);
     return () => clearInterval(interval);
-  }, []);
+  }, [setData, fetchData]);
 
   if (data.length === 0) {
     return (

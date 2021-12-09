@@ -3,7 +3,7 @@
  * Copyright (c) 2018 Beyond Essential Systems Pty Ltd
  */
 
-import React from 'react';
+import React, { useCallback } from 'react';
 import PropTypes from 'prop-types';
 import styled from 'styled-components';
 import MaterialTable from '@material-ui/core/Table';
@@ -35,9 +35,9 @@ const CellErrorMessage = styled.div`
 `;
 
 const CellError = React.memo(({ error }) => {
-  const showMessage = React.useCallback(() => {
+  const showMessage = useCallback(() => {
     console.log(error);
-  });
+  }, [error]);
 
   return <CellErrorMessage onClick={showMessage}>ERROR</CellErrorMessage>;
 });

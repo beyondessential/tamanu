@@ -75,9 +75,12 @@ export const EncounterMedicationTable = React.memo(({ encounterId }) => {
 
 export const DataFetchingMedicationTable = () => {
   const { loadEncounter } = useEncounter();
-  const onMedicationSelect = useCallback(async medication => {
-    await loadEncounter(medication.encounter.id);
-  }, []);
+  const onMedicationSelect = useCallback(
+    async medication => {
+      await loadEncounter(medication.encounter.id);
+    },
+    [loadEncounter],
+  );
 
   return (
     <DataFetchingTable

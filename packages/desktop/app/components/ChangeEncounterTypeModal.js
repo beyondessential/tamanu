@@ -13,7 +13,7 @@ export const ChangeEncounterTypeModal = React.memo(
         await writeAndViewEncounter(encounter.id, data);
         onClose();
       },
-      [encounter],
+      [encounter, onClose, writeAndViewEncounter],
     );
 
     return (

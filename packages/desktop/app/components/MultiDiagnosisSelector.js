@@ -1,4 +1,4 @@
-import React, { useCallback } from 'react';
+import React, { useCallback, useMemo } from 'react';
 import styled from 'styled-components';
 
 import { Button } from './Button';
@@ -12,7 +12,7 @@ const AdderContainer = styled.div`
 `;
 
 const DiagnosisItem = React.memo(({ diagnosis, onRemove }) => {
-  const onSelectDiagnosis = useCallback(() => onRemove(diagnosis.id));
+  const onSelectDiagnosis = useCallback(() => onRemove(diagnosis.id), [onRemove, diagnosis.id]);
   return (
     <li>
       <>
@@ -39,14 +39,14 @@ const DiagnosisList = ({ diagnoses, onRemove }) => {
 
 export const MultiDiagnosisSelector = React.memo(
   ({ value, limit = 5, onChange, icd10Suggester, name }) => {
-    const selectedDiagnoses = value || [];
+    const selectedDiagnoses = useMemo(() => value || [], [value]);
     const [selectedDiagnosisId, setSelectedDiagnosisId] = React.useState(null);
 
     const updateValue = React.useCallback(
       newValue => {
         onChange({ target: { value: newValue, name } });
       },
-      [name],
+      [onChange, name],
     );
 
     const onDiagnosisChange = React.useCallback(
@@ -68,7 +68,13 @@ export const MultiDiagnosisSelector = React.memo(
           updateValue([...selectedDiagnoses, diagnosis]);
         })();
       }
-    }, [selectedDiagnoses, selectedDiagnosisId, setSelectedDiagnosisId, updateValue]);
+    }, [
+      selectedDiagnoses,
+      selectedDiagnosisId,
+      setSelectedDiagnosisId,
+      updateValue,
+      icd10Suggester,
+    ]);
 
     const onRemove = React.useCallback(
       id => {

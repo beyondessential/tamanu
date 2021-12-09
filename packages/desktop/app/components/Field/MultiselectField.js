@@ -17,6 +17,23 @@ export const MultiselectInput = ({
   form: { initialValues },
   ...props
 }) => {
+  const [selected, setSelected] = useState(initialSelectedOptions);
+  const handleChange = useCallback(
+    selectedOptions => {
+      setSelected(selectedOptions);
+      const newValue = selectedOptions.map(x => x.value).join(', ');
+      onChange({ target: { value: newValue, name } });
+    },
+    [setSelected, onChange, name],
+  );
+
+  // support initial values
+  useEffect(() => {
+    const initialOptionValues = initialValues[name]?.split(', ') || [];
+    const initialOptions = options.filter(o => initialOptionValues.includes(o.value));
+    setSelected(initialOptions);
+  }, [initialValues, name, value, options]);
+
   const isReadonly = (readonly && !disabled) || (value && !onChange);
   if (disabled || isReadonly || !options || options.length === 0) {
     const valueText = ((options || []).find(o => o.value === value) || {}).label || '';
@@ -37,20 +54,6 @@ export const MultiselectInput = ({
   const values = value ? value.split(', ') : [];
 
   const initialSelectedOptions = options.filter(option => values.includes(option.value));
-
-  const [selected, setSelected] = useState(initialSelectedOptions);
-  const handleChange = useCallback(selectedOptions => {
-    setSelected(selectedOptions);
-    const newValue = selectedOptions.map(x => x.value).join(', ');
-    onChange({ target: { value: newValue, name } });
-  }, []);
-
-  // support initial values
-  useEffect(() => {
-    const initialOptionValues = initialValues[name]?.split(', ') || [];
-    const initialOptions = options.filter(o => initialOptionValues.includes(o.value));
-    setSelected(initialOptions);
-  }, []);
 
   return (
     <OuterLabelFieldWrapper label={label} {...props}>

@@ -1,4 +1,4 @@
-import React, { useCallback } from 'react';
+import React, { useEffect } from 'react';
 import { connect } from 'react-redux';
 import { push } from 'connected-react-router';
 
@@ -19,11 +19,13 @@ export const HistoryPane = connect(
 )(
   React.memo(({ patient, currentEncounter, onOpenCheckin, onOpenTriage, disabled }) => {
     const { encounter, loadEncounter } = useEncounter();
-    const onViewEncounter = useCallback(
-      async id => {
-        await loadEncounter(id, true);
+    const onViewEncounter = useEffect(
+      id => {
+        (async () => {
+          await loadEncounter(id, true);
+        })();
       },
-      [encounter],
+      [encounter, loadEncounter],
     );
     return (
       <div>

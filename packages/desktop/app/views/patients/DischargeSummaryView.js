@@ -127,7 +127,7 @@ const DumbSummaryPage = React.memo(({ patient, encounter, onFetchEncounterDischa
       const data = await onFetchEncounterDischarge(encounter.id);
       setDischarge(data);
     })();
-  }, []);
+  }, [onFetchEncounterDischarge, setDischarge, encounter.id]);
 
   return (
     <SummaryPageContainer>

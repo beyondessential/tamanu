@@ -120,7 +120,7 @@ export const ImmunisationForm = React.memo(
       };
 
       fetchScheduledVaccines().catch(err => console.log(err));
-    }, [category]);
+    }, [category, getScheduledVaccines]);
 
     return (
       <Form

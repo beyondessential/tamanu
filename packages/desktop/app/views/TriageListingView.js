@@ -123,10 +123,13 @@ const COLUMNS = [
 
 const DumbTriageTable = React.memo(({ onViewEncounter, ...props }) => {
   const { loadEncounter } = useEncounter();
-  const viewEncounter = useCallback(async triage => {
-    await loadEncounter(triage.encounterId);
-    onViewEncounter(triage);
-  }, []);
+  const viewEncounter = useCallback(
+    async triage => {
+      await loadEncounter(triage.encounterId);
+      onViewEncounter(triage);
+    },
+    [loadEncounter, onViewEncounter],
+  );
 
   return (
     <DataFetchingTable

@@ -12,19 +12,17 @@ const ISSUE_TYPES = [
 ];
 
 export const PatientIssueForm = ({ onSubmit, editedObject, onCancel }) => {
-  const renderForm = React.useCallback(({ submitForm }) => (
-    <FormGrid columns={1}>
-      <Field name="type" label="Type" component={SelectField} options={ISSUE_TYPES} />
-      <Field name="note" label="Notes" component={TextField} multiline rows={2} />
-      <Field name="date" label="Date recorded" component={DateField} required />
-      <ConfirmCancelRow onCancel={onCancel} onConfirm={submitForm} />
-    </FormGrid>
-  ));
-
   return (
     <Form
       onSubmit={onSubmit}
-      render={renderForm}
+      render={({ submitForm }) => (
+        <FormGrid columns={1}>
+          <Field name="type" label="Type" component={SelectField} options={ISSUE_TYPES} />
+          <Field name="note" label="Notes" component={TextField} multiline rows={2} />
+          <Field name="date" label="Date recorded" component={DateField} required />
+          <ConfirmCancelRow onCancel={onCancel} onConfirm={submitForm} />
+        </FormGrid>
+      )}
       initialValues={{
         date: new Date(),
         type: 'issue',

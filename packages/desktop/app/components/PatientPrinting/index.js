@@ -91,7 +91,7 @@ export const PatientPrintDetailsModal = ({ patient }) => {
   const openModal = useCallback(() => {
     setModalOpen(true);
     setCurrentlyPrinting(null);
-  }, [setModalOpen]);
+  }, [setModalOpen, setCurrentlyPrinting]);
   const closeModal = useCallback(() => {
     setModalOpen(false);
   }, [setModalOpen]);
@@ -105,7 +105,7 @@ export const PatientPrintDetailsModal = ({ patient }) => {
         setImageData(data);
       }
     },
-    [setPrintType],
+    [setPrintType, setImageData, api, patient.id],
   );
 
   // The print system & the modals both use React's portal functionality,

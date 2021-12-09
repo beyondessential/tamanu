@@ -24,7 +24,7 @@ export const ReferralDetailsModal = React.memo(({ open, onClose, referral }) => 
 
   const onViewEncounter = useCallback(() => {
     loadEncounter(encounterId, true);
-  }, [encounterId]);
+  }, [loadEncounter, encounterId]);
 
   return (
     <Modal title="Referral Details" open={open} onClose={onClose}>

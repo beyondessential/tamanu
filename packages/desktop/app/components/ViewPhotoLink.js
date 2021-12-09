@@ -34,7 +34,7 @@ export const ViewPhotoLinkComponent = React.memo(({ imageId, fetchImage }) => {
     }
 
     setShowModal(true);
-  }, []);
+  }, [fetchImage, imageId]);
 
   return (
     <>

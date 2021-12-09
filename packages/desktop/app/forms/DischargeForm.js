@@ -213,7 +213,7 @@ export const DischargeForm = ({ practitionerSuggester, onCancel, onSubmit }) => 
       const { data: notes } = await api.get(`encounter/${encounter.id}/notes`);
       setDischargeNotes(notes.filter(n => n.noteType === 'discharge'));
     })();
-  }, []);
+  }, [api, setDischargeNotes, encounter.id]);
 
   const renderForm = ({ submitForm }) => {
     return (

@@ -5,6 +5,7 @@ import { connectApi } from '../../api';
 const ROWS_PER_PAGE_OPTIONS = [10, 25, 50];
 const DEFAULT_SORT = { order: 'asc', orderBy: undefined };
 
+const defaultFetchState = { data: [], count: 0, errorMessage: '', isLoading: true };
 const DumbDataFetchingTable = memo(
   ({
     columns,
@@ -22,7 +23,6 @@ const DumbDataFetchingTable = memo(
     const [page, setPage] = useState(0);
     const [rowsPerPage, setRowsPerPage] = useState(ROWS_PER_PAGE_OPTIONS[0]);
     const [sorting, setSorting] = useState(initialSort);
-    const defaultFetchState = { data: [], count: 0, errorMessage: '', isLoading: true };
     const [fetchState, setFetchState] = useState(defaultFetchState);
     const [forcedRefreshCount, setForcedRefreshCount] = useState(0);
 
@@ -64,7 +64,17 @@ const DumbDataFetchingTable = memo(
       return () => {
         updateFetchState = () => {}; // discard the fetch state update if this request is stale
       };
-    }, [page, rowsPerPage, sorting, fetchOptions, refreshCount, forcedRefreshCount]);
+    }, [
+      page,
+      rowsPerPage,
+      sorting,
+      fetchOptions,
+      refreshCount,
+      forcedRefreshCount,
+      fetchData,
+      fetchState,
+      transformRow,
+    ]);
 
     useEffect(() => setPage(0), [fetchOptions]);
 

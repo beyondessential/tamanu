@@ -13,8 +13,9 @@ const Container = styled.div`
 
 export const ReferenceDataAdminView = memo(() => {
   const api = useApi();
-  const onSubmit = useCallback(({ file, ...data }) =>
-    api.postWithFileUpload('admin/importData', file, data),
+  const onSubmit = useCallback(
+    ({ file, ...data }) => api.postWithFileUpload('admin/importData', file, data),
+    [api],
   );
 
   const whitelist = (

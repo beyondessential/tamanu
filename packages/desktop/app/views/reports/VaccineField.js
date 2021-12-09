@@ -32,7 +32,7 @@ export const VaccineField = ({ required, parameterValues }) => {
     };
 
     scheduledVaccinesToOptions();
-  }, [category]);
+  }, [api, category]);
 
   return (
     <>

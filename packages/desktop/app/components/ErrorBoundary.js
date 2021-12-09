@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { useCallback } from 'react';
 import styled from 'styled-components';
 import { connect } from 'react-redux';
 
@@ -15,12 +15,12 @@ const DebugInfo = styled.pre`
 `;
 
 const DumbErrorView = React.memo(({ error, state }) => {
-  const logError = React.useCallback(() => {
+  const logError = useCallback(() => {
     console.log(error);
-  });
-  const logState = React.useCallback(() => {
+  }, [error]);
+  const logState = useCallback(() => {
     console.log(state);
-  });
+  }, [state]);
 
   return (
     <ContentPane>

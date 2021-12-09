@@ -22,7 +22,7 @@ const ModalContent = React.memo(({ open, onClose, onMarkRecordedInError, vaccine
   const closeWithoutDeletingRecord = useCallback(() => {
     setConfirmDelete(false);
     onClose();
-  }, []);
+  }, [setConfirmDelete, onClose]);
 
   if (!vaccineRecord) return null;
 

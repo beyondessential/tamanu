@@ -35,32 +35,38 @@ const SurveyFlow = ({ patient, currentUser }) => {
       const { data } = await api.get('program');
       setPrograms(data);
     })();
-  }, []);
+  }, [api, setPrograms]);
 
-  const setSelectedSurvey = useCallback(async id => {
-    const response = await api.get(`survey/${encodeURIComponent(id)}`);
-    setSurvey(response);
-    setStartTime(new Date());
-  });
+  const setSelectedSurvey = useCallback(
+    async id => {
+      const response = await api.get(`survey/${encodeURIComponent(id)}`);
+      setSurvey(response);
+      setStartTime(new Date());
+    },
+    [api, setSurvey, setStartTime],
+  );
 
   const unsetSurvey = useCallback(() => {
     setSurvey(null);
-  });
+  }, [setSurvey]);
 
-  const selectProgram = useCallback(async event => {
-    const programId = event.target.value;
-    if (programId === selectedProgramId) {
-      return;
-    }
+  const selectProgram = useCallback(
+    async event => {
+      const programId = event.target.value;
+      if (programId === selectedProgramId) {
+        return;
+      }
 
-    setSelectedProgramId(programId);
-    const { data } = await api.get(`program/${programId}/surveys`);
-    setSurveys(
-      data
-        .filter(s => s.surveyType === SURVEY_TYPES.PROGRAMS)
-        .map(x => ({ value: x.id, label: x.name })),
-    );
-  });
+      setSelectedProgramId(programId);
+      const { data } = await api.get(`program/${programId}/surveys`);
+      setSurveys(
+        data
+          .filter(s => s.surveyType === SURVEY_TYPES.PROGRAMS)
+          .map(x => ({ value: x.id, label: x.name })),
+      );
+    },
+    [api, selectedProgramId],
+  );
 
   const submitSurveyResponse = useCallback(
     data =>
@@ -72,7 +78,7 @@ const SurveyFlow = ({ patient, currentUser }) => {
         answers: getAnswersFromData(data, survey),
         actions: getActionsFromData(data, survey),
       }),
-    [startTime, survey, patient],
+    [api, startTime, survey, patient],
   );
 
   if (!programs) {

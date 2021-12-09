@@ -36,23 +36,26 @@ export const AppointmentForm = props => {
       locationId: appointment.locationId,
     };
   }
-  const createAppointment = useCallback(async values => {
-    if (isUpdating) {
-      const updated = {
-        ...values,
-      };
-      // if rescheduling, change status to confirmed
-      if (values.startTime !== initialValues.startTime) {
-        updated.status = APPOINTMENT_STATUSES.CONFIRMED;
+  const createAppointment = useCallback(
+    async values => {
+      if (isUpdating) {
+        const updated = {
+          ...values,
+        };
+        // if rescheduling, change status to confirmed
+        if (values.startTime !== initialValues.startTime) {
+          updated.status = APPOINTMENT_STATUSES.CONFIRMED;
+        }
+        await api.put(`appointments/${appointment.id}`, updated);
+      } else {
+        await api.post('appointments', {
+          ...values,
+        });
       }
-      await api.put(`appointments/${appointment.id}`, updated);
-    } else {
-      await api.post('appointments', {
-        ...values,
-      });
-    }
-    onSuccess();
-  });
+      onSuccess();
+    },
+    [api, appointment.id, initialValues.startTime, isUpdating, onSuccess],
+  );
   return (
     <Form
       initialValues={initialValues}

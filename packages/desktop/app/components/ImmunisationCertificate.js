@@ -7,9 +7,7 @@ import { useLocalisation } from '../contexts/Localisation';
 
 const ASSET_NAME = 'vaccine-certificate-watermark';
 
-const renderFooter = () => {
-  const { getLocalisation } = useLocalisation();
-
+const renderFooter = getLocalisation => {
   return (
     <div>
       <p>
@@ -46,7 +44,9 @@ export const ImmunisationCertificate = ({ patient, immunisations }) => {
       setWatermark(Buffer.from(response.data).toString('base64'));
       setWatermarkType(response.type);
     })();
-  }, []);
+  }, [api, setWatermark, setWatermarkType]);
+
+  const { getLocalisation } = useLocalisation();
 
   if (!immunisations) {
     return null;
@@ -58,7 +58,7 @@ export const ImmunisationCertificate = ({ patient, immunisations }) => {
       header="Personal vaccination certificate"
       watermark={watermark}
       watermarkType={watermarkType}
-      footer={renderFooter()}
+      footer={renderFooter(getLocalisation)}
     >
       <Table>
         <thead>

@@ -63,7 +63,7 @@ function DumbPatientCarePlanDetails(props) {
         }
       }
     });
-  }, [props.item.id, reloadNotes]);
+  }, [props.item.id, reloadNotes, props]);
 
   return (
     <Container>

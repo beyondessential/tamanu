@@ -1,4 +1,4 @@
-import React, { useEffect, useState, memo } from 'react';
+import React, { useEffect, useState, memo, useMemo } from 'react';
 import InputAdornment from '@material-ui/core/InputAdornment';
 
 import { discoverServer } from '../../api/discovery';
@@ -13,9 +13,12 @@ export function getSavedServer() {
 export const ServerDetectingField = memo(({ setFieldValue, ...props }) => {
   const [statusMessage, setStatusMessage] = useState('');
 
-  const setHost = host => setFieldValue(props.field.name, host);
+  const setHost = useMemo(host => setFieldValue(props.field.name, host), [
+    setFieldValue,
+    props.field.name,
+  ]);
 
-  const attemptServerDetection = async () => {
+  const attemptServerDetection = useMemo(async () => {
     setStatusMessage('Detecting server, please wait...');
     try {
       const serverDetails = await discoverServer();
@@ -35,7 +38,7 @@ export const ServerDetectingField = memo(({ setFieldValue, ...props }) => {
     } catch (error) {
       setStatusMessage(error.message);
     }
-  };
+  }, [setHost]);
 
   // attempt to detect on first mount
   useEffect(() => {
@@ -45,7 +48,7 @@ export const ServerDetectingField = memo(({ setFieldValue, ...props }) => {
     } else {
       attemptServerDetection();
     }
-  }, []);
+  }, [setHost, attemptServerDetection]);
 
   return (
     <div>

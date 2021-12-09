@@ -109,14 +109,17 @@ const ChangeLabStatusButton = ({ status: currentStatus, updateLabReq }) => {
   const updateLabStatus = useCallback(async () => {
     await updateLabReq({ status });
     closeModal();
-  }, [updateLabReq, status]);
-  const labStatuses = useMemo(() => [
-    { value: 'reception_pending', label: 'Reception pending' },
-    { value: 'results_pending', label: 'Results pending' },
-    { value: 'to_be_verified', label: 'To be verified' },
-    { value: 'verified', label: 'Verified' },
-    { value: 'published', label: 'Published' },
-  ]);
+  }, [updateLabReq, status, closeModal]);
+  const labStatuses = useMemo(
+    () => [
+      { value: 'reception_pending', label: 'Reception pending' },
+      { value: 'results_pending', label: 'Results pending' },
+      { value: 'to_be_verified', label: 'To be verified' },
+      { value: 'verified', label: 'Verified' },
+      { value: 'published', label: 'Published' },
+    ],
+    [],
+  );
   return (
     <>
       <Button variant="outlined" onClick={openModal} style={{ marginRight: '0.5rem' }}>
@@ -149,7 +152,7 @@ const ChangeLaboratoryButton = ({ laboratory, updateLabReq }) => {
       labTestLaboratoryId: lab,
     });
     closeModal();
-  }, [updateLabReq, lab]);
+  }, [updateLabReq, lab, closeModal]);
   return (
     <>
       <Button variant="outlined" onClick={openModal}>
@@ -186,7 +189,7 @@ const DeleteRequestButton = ({ labRequestId, updateLabReq }) => {
     });
     closeModal();
     dispatch(push('/patients/encounter'));
-  }, [updateLabReq]);
+  }, [updateLabReq, closeModal, dispatch]);
 
   // show delete button if no test has results
   useEffect(() => {
@@ -197,7 +200,7 @@ const DeleteRequestButton = ({ labRequestId, updateLabReq }) => {
         setHasTests(false);
       }
     })();
-  }, []);
+  }, [api, labRequestId, setHasTests]);
   if (hasTests) {
     return null;
   }
@@ -240,7 +243,7 @@ export const DumbLabRequestView = React.memo(({ patient }) => {
     async data => {
       await updateLabRequest(labRequest.id, data);
     },
-    [labRequest],
+    [labRequest, updateLabRequest],
   );
   if (isLoading) return <LoadingIndicator />;
   return (

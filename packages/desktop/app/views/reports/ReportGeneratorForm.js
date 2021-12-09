@@ -125,10 +125,13 @@ const submitReportRequest = async (api, reportType, parameters, emails) =>
 // adding an onValueChange hook to the report type field
 // so we can keep internal state of the report type
 const ReportTypeField = ({ onValueChange, ...props }) => {
-  const changeCallback = useCallback(event => {
-    onValueChange(event.target.value);
-    props.field.onChange(event);
-  }, []);
+  const changeCallback = useCallback(
+    event => {
+      onValueChange(event.target.value);
+      props.field.onChange(event);
+    },
+    [onValueChange, props.field],
+  );
   return <AutocompleteField {...props} onChange={changeCallback} />;
 };
 
@@ -154,7 +157,7 @@ const DumbReportGeneratorForm = ({ currentUser, onSuccessfulSubmit }) => {
         setRequestError(`Unable to load available reports - ${error.message}`);
       }
     })();
-  }, []);
+  }, [api]);
 
   const selectReportHandle = useCallback(
     id => {

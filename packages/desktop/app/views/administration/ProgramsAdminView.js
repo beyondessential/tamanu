@@ -10,8 +10,9 @@ const Container = styled.div`
 
 export const ProgramsAdminView = memo(() => {
   const api = useApi();
-  const onSubmit = useCallback(({ file, ...data }) =>
-    api.postWithFileUpload('admin/importProgram', file, data),
+  const onSubmit = useCallback(
+    ({ file, ...data }) => api.postWithFileUpload('admin/importProgram', file, data),
+    [api],
   );
 
   return (

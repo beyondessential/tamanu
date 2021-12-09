@@ -17,6 +17,13 @@ export const SelectInput = ({
   name,
   ...props
 }) => {
+  const handleChange = useCallback(
+    changedOption => {
+      onChange({ target: { value: changedOption.value, name } });
+    },
+    [onChange, name],
+  );
+
   const isReadonly = (readonly && !disabled) || (value && !onChange);
   if (disabled || isReadonly || !options || options.length === 0) {
     const valueText = ((options || []).find(o => o.value === value) || {}).label || '';
@@ -35,10 +42,6 @@ export const SelectInput = ({
   }
 
   const selectedOption = options.find(option => value === option.value) ?? '';
-
-  const handleChange = useCallback(changedOption => {
-    onChange({ target: { value: changedOption.value, name } });
-  }, []);
 
   return (
     <OuterLabelFieldWrapper label={label} {...props}>

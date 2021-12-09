@@ -46,7 +46,7 @@ export const PatientDisplay = ({ surveyCompleted = false }) => {
   const dispatch = useDispatch();
   const onViewPatient = useCallback(() => {
     dispatch(viewPatient(patient.id));
-  }, [patient.id]);
+  }, [patient.id, dispatch]);
   return (
     <Header>
       <FlexRow>

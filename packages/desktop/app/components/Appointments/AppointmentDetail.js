@@ -52,7 +52,7 @@ const PatientInfo = ({ patient }) => {
       const data = await api.get(`/patient/${id}/additionalData`);
       setAdditionalData(data);
     })();
-  }, [id]);
+  }, [id, api]);
   return (
     <PatientInfoContainer>
       <PatientNameRow>

@@ -1,5 +1,5 @@
 import XLSX from 'xlsx';
-import React from 'react';
+import React, { useCallback, useEffect } from 'react';
 import moment from 'moment';
 
 import { ContentPane } from 'desktop/app/components/ContentPane';
@@ -46,12 +46,12 @@ const DumbReportScreen = React.memo(({ fetchAvailableReports, fetchReportData })
   const [availableReports, setAvailableReports] = React.useState([]);
   const [error, setError] = React.useState(null);
 
-  React.useEffect(() => {
+  useEffect(() => {
     (async () => {
       const reports = await fetchAvailableReports();
       setAvailableReports(reports);
     })();
-  }, []);
+  }, [fetchAvailableReports, setAvailableReports]);
 
   const onReportSelected = React.useCallback(
     event => {
@@ -63,46 +63,57 @@ const DumbReportScreen = React.memo(({ fetchAvailableReports, fetchReportData })
     [availableReports],
   );
 
-  const onWrite = React.useCallback(async params => {
-    try {
-      const path = await showFileDialog(xlsxFilters, '');
-      if (!path) return;
-      const minWait = new Promise(resolve => setTimeout(resolve, 1000));
-      setIsDownloading(true);
-      setError(null);
-      const data = await fetchReportData(currentReport.id, params);
+  const onWrite = useCallback(
+    async params => {
+      try {
+        const path = await showFileDialog(xlsxFilters, '');
+        if (!path) return;
+        const minWait = new Promise(resolve => setTimeout(resolve, 1000));
+        setIsDownloading(true);
+        setError(null);
+        const data = await fetchReportData(currentReport.id, params);
 
-      await writeToExcel(path, data);
-      await minWait;
-      setIsDownloading(false);
-    } catch (e) {
-      console.error(e);
-      setError(e);
-      setIsDownloading(false);
-    }
-  });
+        await writeToExcel(path, data);
+        await minWait;
+        setIsDownloading(false);
+      } catch (e) {
+        console.error(e);
+        setError(e);
+        setIsDownloading(false);
+      }
+    },
+    [currentReport.id, fetchReportData],
+  );
 
-  const renderParamsForm = React.useCallback(({ submitForm }) => {
-    const fields = currentReport.parameters.map(({ name, label, type }) => (
-      <Field
-        key={name}
-        name={name}
-        label={label}
-        component={type === 'date' ? DateField : TextField}
-        required
-      />
-    ));
-    return (
-      <FormGrid>
-        {fields}
-        <ButtonRow>
-          <Button onClick={submitForm} variant="contained" color="primary" disabled={isDownloading}>
-            {isDownloading ? 'Downloading...' : 'Download'}
-          </Button>
-        </ButtonRow>
-      </FormGrid>
-    );
-  });
+  const renderParamsForm = useCallback(
+    ({ submitForm }) => {
+      const fields = currentReport.parameters.map(({ name, label, type }) => (
+        <Field
+          key={name}
+          name={name}
+          label={label}
+          component={type === 'date' ? DateField : TextField}
+          required
+        />
+      ));
+      return (
+        <FormGrid>
+          {fields}
+          <ButtonRow>
+            <Button
+              onClick={submitForm}
+              variant="contained"
+              color="primary"
+              disabled={isDownloading}
+            >
+              {isDownloading ? 'Downloading...' : 'Download'}
+            </Button>
+          </ButtonRow>
+        </FormGrid>
+      );
+    },
+    [currentReport.parameters, isDownloading],
+  );
 
   return (
     <ContentPane>

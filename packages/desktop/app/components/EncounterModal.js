@@ -29,7 +29,7 @@ const DumbEncounterModal = React.memo(
         loadAndViewPatientEncounter();
         onClose();
       },
-      [patientId],
+      [patientId, api, createEncounter, loadAndViewPatientEncounter, onClose, referral],
     );
 
     return (

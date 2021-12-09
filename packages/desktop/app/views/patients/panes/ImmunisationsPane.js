@@ -23,7 +23,7 @@ export const ImmunisationsPane = React.memo(({ patient, readonly }) => {
       setIsEditAdministeredModalOpen(true);
       setVaccineData(row);
     },
-    [patient],
+    [setIsEditAdministeredModalOpen, setVaccineData],
   );
 
   return (
