@@ -134,7 +134,6 @@ export function runCalculations(components, values) {
       if (Number.isNaN(value)) {
         throw new Error('Value is NaN');
       }
-      inputValues[c.dataElement.id] = value;
       calculatedValues[c.dataElement.id] = value.toFixed(2);
     } catch (e) {
       calculatedValues[c.dataElement.id] = null;
