@@ -90,9 +90,9 @@ function DumbPatientCarePlanDetails(props) {
             }}
           />
           {subsequentNotes.length
-            ? subsequentNotes.map((note, index) => (
+            ? subsequentNotes.map(note => (
                 <EditableNoteDisplay
-                  key={index}
+                  key={note.id}
                   note={note}
                   onNoteDeleted={() => {
                     setReloadNotes(reloadNotes + 1);
@@ -114,6 +114,6 @@ function DumbPatientCarePlanDetails(props) {
 
 export const PatientCarePlanDetails = connectApi(api => ({
   getNotes: async patientCarePlanId => {
-    return await api.get(`patientCarePlan/${patientCarePlanId}/notes`);
+    return api.get(`patientCarePlan/${patientCarePlanId}/notes`);
   },
 }))(DumbPatientCarePlanDetails);
