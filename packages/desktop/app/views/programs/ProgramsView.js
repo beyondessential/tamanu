@@ -35,7 +35,7 @@ const SurveyFlow = ({ patient, currentUser }) => {
       const { data } = await api.get('program');
       setPrograms(data);
     })();
-  }, [api, setPrograms]);
+  }, [api]);
 
   const setSelectedSurvey = useCallback(
     async id => {
@@ -43,12 +43,12 @@ const SurveyFlow = ({ patient, currentUser }) => {
       setSurvey(response);
       setStartTime(new Date());
     },
-    [api, setSurvey, setStartTime],
+    [api],
   );
 
   const unsetSurvey = useCallback(() => {
     setSurvey(null);
-  }, [setSurvey]);
+  }, []);
 
   const selectProgram = useCallback(
     async event => {

@@ -24,7 +24,7 @@ export const MultiselectInput = ({
       const newValue = selectedOptions.map(x => x.value).join(', ');
       onChange({ target: { value: newValue, name } });
     },
-    [setSelected, onChange, name],
+    [onChange, name],
   );
 
   // support initial values

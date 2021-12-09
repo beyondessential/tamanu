@@ -182,7 +182,7 @@ export const ActiveCovid19PatientsView = React.memo(() => {
       setData(activeCovid19PatientsData);
       setPatientsByClinicalStatus(groupBy(activeCovid19PatientsData.data, 'clinicalStatus'));
     })();
-  }, [api, setData, setPatientsByClinicalStatus]);
+  }, [api]);
 
   const fields = [
     'firstName',

@@ -66,19 +66,19 @@ const NewPatientButton = React.memo(({ onCreateNewPatient }) => {
   const showNewPatient = useCallback(() => {
     setCreatingPatient(true);
     setIsBirth(false);
-  }, [setCreatingPatient, setIsBirth]);
+  }, []);
 
   const showNewBirth = useCallback(() => {
     setCreatingPatient(true);
     setIsBirth(true);
-  }, [setCreatingPatient, setIsBirth]);
+  }, []);
 
   const onCreate = useCallback(
     newPatient => {
       setCreatingPatient(false);
       onCreateNewPatient(newPatient.id);
     },
-    [setCreatingPatient, onCreateNewPatient],
+    [onCreateNewPatient],
   );
 
   return (

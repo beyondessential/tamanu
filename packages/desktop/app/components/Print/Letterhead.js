@@ -28,7 +28,7 @@ const DumbPrintLetterhead = ({ getLetterheadSettings }) => {
       setLetterheadLogo(Buffer.from(response.data).toString('base64'));
       setLogoType(response.type);
     });
-  }, [getLetterheadSettings, setLetterheadLogo, setLogoType]);
+  }, [getLetterheadSettings]);
   return (
     <Header>
       {letterheadLogo && <LogoImage src={`data:${logoType};base64,${letterheadLogo}`} />}

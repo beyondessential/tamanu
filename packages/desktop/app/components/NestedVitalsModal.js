@@ -13,7 +13,7 @@ export const NestedVitalsModal = ({ field }) => {
       field.onChange({ target: { name: field.name, value: data } });
       setModalOpen(false);
     },
-    [setModalOpen, field],
+    [field],
   );
 
   return (

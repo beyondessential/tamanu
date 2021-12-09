@@ -88,7 +88,7 @@ export const DataDocumentUploadForm = memo(({ onSubmit, onReceiveResult, additio
       }
       return true;
     },
-    [onSubmit, setResetKey, setResult, onReceiveResult],
+    [onSubmit, onReceiveResult],
   );
 
   const renderForm = useCallback(

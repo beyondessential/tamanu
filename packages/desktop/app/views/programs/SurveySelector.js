@@ -14,13 +14,10 @@ const StyledButtonRow = styled(ButtonRow)`
 export const SurveySelector = React.memo(({ onSelectSurvey, surveys, buttonText }) => {
   const [selectedSurveyId, setSelectedSurveyId] = useState(null);
 
-  const onChangeSurvey = useCallback(
-    event => {
-      const surveyId = event.target.value;
-      setSelectedSurveyId(surveyId);
-    },
-    [setSelectedSurveyId],
-  );
+  const onChangeSurvey = useCallback(event => {
+    const surveyId = event.target.value;
+    setSelectedSurveyId(surveyId);
+  }, []);
 
   const onSubmit = useCallback(() => {
     onSelectSurvey(selectedSurveyId);
@@ -37,3 +34,4 @@ export const SurveySelector = React.memo(({ onSelectSurvey, surveys, buttonText 
     </>
   );
 });
+

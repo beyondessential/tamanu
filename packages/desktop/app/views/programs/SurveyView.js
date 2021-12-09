@@ -165,7 +165,7 @@ export const SurveyView = ({ survey, onSubmit, onCancel, patient, currentUser })
       await onSubmit(data);
       setSurveyCompleted(true);
     },
-    [onSubmit, setSurveyCompleted],
+    [onSubmit],
   );
 
   const renderSurvey = props => {

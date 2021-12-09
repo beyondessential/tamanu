@@ -68,13 +68,7 @@ export const MultiDiagnosisSelector = React.memo(
           updateValue([...selectedDiagnoses, diagnosis]);
         })();
       }
-    }, [
-      selectedDiagnoses,
-      selectedDiagnosisId,
-      setSelectedDiagnosisId,
-      updateValue,
-      icd10Suggester,
-    ]);
+    }, [selectedDiagnoses, selectedDiagnosisId, updateValue, icd10Suggester]);
 
     const onRemove = React.useCallback(
       id => {

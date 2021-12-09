@@ -144,8 +144,8 @@ const ChangeLabStatusButton = ({ status: currentStatus, updateLabReq }) => {
 const ChangeLaboratoryButton = ({ laboratory, updateLabReq }) => {
   const [isModalOpen, setModalOpen] = useState(false);
   const [lab, setLab] = useState(laboratory);
-  const openModal = useCallback(() => setModalOpen(true), [setModalOpen]);
-  const closeModal = useCallback(() => setModalOpen(false), [setModalOpen]);
+  const openModal = useCallback(() => setModalOpen(true), []);
+  const closeModal = useCallback(() => setModalOpen(false), []);
   const laboratorySuggester = useSuggester('labTestLaboratory');
   const updateLab = useCallback(async () => {
     await updateLabReq({

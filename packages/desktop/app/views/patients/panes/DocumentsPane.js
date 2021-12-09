@@ -22,7 +22,7 @@ export const DocumentsPane = React.memo(({ encounter, patient }) => {
       setDocumentModalOpen(false);
       dispatch(reloadPatient(patient.id));
     },
-    [api, patient, setDocumentModalOpen, dispatch],
+    [api, patient, dispatch],
   );
 
   return (

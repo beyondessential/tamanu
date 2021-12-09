@@ -44,7 +44,7 @@ export const ImmunisationCertificate = ({ patient, immunisations }) => {
       setWatermark(Buffer.from(response.data).toString('base64'));
       setWatermarkType(response.type);
     })();
-  }, [api, setWatermark, setWatermarkType]);
+  }, [api]);
 
   const { getLocalisation } = useLocalisation();
 

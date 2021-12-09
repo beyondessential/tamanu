@@ -7,7 +7,7 @@ const DumbImmunisationCertificateModal = ({ getImmunisations, open, onClose, pat
   const [immunisations, setImmunisations] = React.useState();
   React.useEffect(() => {
     getImmunisations().then(setImmunisations);
-  }, [getImmunisations, setImmunisations]);
+  }, [getImmunisations]);
 
   const certificate = <ImmunisationCertificate patient={patient} immunisations={immunisations} />;
   return (

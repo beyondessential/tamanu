@@ -51,7 +51,7 @@ const DumbReportScreen = React.memo(({ fetchAvailableReports, fetchReportData })
       const reports = await fetchAvailableReports();
       setAvailableReports(reports);
     })();
-  }, [fetchAvailableReports, setAvailableReports]);
+  }, [fetchAvailableReports]);
 
   const onReportSelected = React.useCallback(
     event => {

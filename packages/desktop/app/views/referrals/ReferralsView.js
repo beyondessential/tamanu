@@ -25,7 +25,7 @@ const ReferralFlow = ({ patient, currentUser }) => {
       const response = await api.get(`survey`, { type: SURVEY_TYPES.REFERRAL });
       setReferralSurveys(response.surveys.map(x => ({ value: x.id, label: x.name })));
     })();
-  }, [api, setReferralSurveys]);
+  }, [api]);
 
   const setSelectedReferral = useCallback(
     async id => {
@@ -33,12 +33,12 @@ const ReferralFlow = ({ patient, currentUser }) => {
       setReferralSurvey(response);
       setStartTime(new Date());
     },
-    [api, setReferralSurvey, setStartTime],
+    [api],
   );
 
   const unsetReferral = useCallback(() => {
     setReferralSurvey(null);
-  }, [setReferralSurvey]);
+  }, []);
 
   const submitReferral = useCallback(
     data => {
