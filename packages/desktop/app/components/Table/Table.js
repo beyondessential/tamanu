@@ -50,18 +50,20 @@ const StyledTableRow = styled(TableRow)`
   ${p =>
     p.onClick
       ? `
-      cursor: pointer;
-      &:hover {
-        background: rgba(255,255,255,0.6);
-      }
-    `
-    : ''}
-      
-  
-  ${p => p.striked ? `
-    color: red;
-    text-decoration: line-through;
-  ` : ''}
+          cursor: pointer;
+          &:hover {
+            background: rgba(255,255,255,0.6);
+          }
+        `
+      : ''}
+
+  ${p =>
+    p.striked
+      ? `
+          color: red;
+          text-decoration: line-through;
+        `
+      : ''}
 `;
 
 const StyledTableContainer = styled.div`
@@ -102,7 +104,11 @@ const StyledTableFooter = styled(TableFooter)`
 `;
 
 const RowContainer = React.memo(({ children, striked, onClick }) => (
-  <StyledTableRow onClick={onClick} style={{ marginTop: '1rem' }} striked={striked ? striked.toString() : ''}>
+  <StyledTableRow
+    onClick={onClick}
+    style={{ marginTop: '1rem' }}
+    striked={striked ? striked.toString() : ''}
+  >
     {children}
   </StyledTableRow>
 ));
@@ -133,7 +139,11 @@ const Row = React.memo(({ columns, data, onClick, striked, onTableRefresh }) => 
       );
     },
   );
-  return <RowContainer onClick={onClick && (() => onClick(data))} striked={striked}>{cells}</RowContainer>;
+  return (
+    <RowContainer onClick={onClick && (() => onClick(data))} striked={striked}>
+      {cells}
+    </RowContainer>
+  );
 });
 
 const ErrorSpan = styled.span`
