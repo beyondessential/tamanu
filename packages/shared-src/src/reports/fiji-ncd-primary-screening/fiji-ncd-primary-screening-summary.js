@@ -230,7 +230,7 @@ const getData = async (sequelize, parameters) => {
         FROM survey_responses AS sr 
           ${getJoinClauses()}
         WHERE sr.survey_id = :screening_survey_id
-        AND (eligibilityAnswer.body != 'No' or eligibilityAnswer.body is null)
+        AND (eligibilityAnswer.body != 'Ineligible' or eligibilityAnswer.body is null)
           ${parametersToSqlWhereClause(nonEmptyParameterKeys)}
         GROUP BY date
         ORDER BY date desc;
@@ -277,7 +277,7 @@ const getTotalPatientsScreened = async (sequelize, parameters) => {
       FROM survey_responses AS sr 
         ${getJoinClauses()}
       WHERE sr.survey_id IN (:screening_survey_ids)
-      AND (eligibilityAnswer.body != 'No' or eligibilityAnswer.body is null)
+      AND (eligibilityAnswer.body != 'Ineligible' or eligibilityAnswer.body is null)
         ${parametersToSqlWhereClause(nonEmptyParameterKeys)}
       GROUP BY date
       ORDER BY date desc;
