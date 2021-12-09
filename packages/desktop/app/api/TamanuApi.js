@@ -221,7 +221,7 @@ export class TamanuApi {
     // We have to use multipart/formdata to support sending the file data,
     // but sending the other fields in that format loses type information
     // (for eg, sending a value of false will arrive as the string "false")
-    // So, we just piggyback a json string over the multipart format, and 
+    // So, we just piggyback a json string over the multipart format, and
     // parse that on the backend.
     const formData = new FormData();
     formData.append('jsonData', JSON.stringify(body));

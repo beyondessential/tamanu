@@ -5,16 +5,16 @@ import { useApi } from '../../api';
 import { CheckArrayInput } from '../../components/Field/CheckArrayInput';
 import { DataDocumentUploadForm } from './DataDocumentUploadForm';
 
+import { Field } from '../../components/Field';
+
 const Container = styled.div`
   padding: 32px;
 `;
 
-import { Field } from '../../components/Field';
-
 export const ReferenceDataAdminView = memo(() => {
   const api = useApi();
-  const onSubmit = useCallback(
-    ({ file, ...data }) => api.postWithFileUpload('admin/importData', file, data)
+  const onSubmit = useCallback(({ file, ...data }) =>
+    api.postWithFileUpload('admin/importData', file, data),
   );
 
   const whitelist = (
@@ -60,10 +60,7 @@ export const ReferenceDataAdminView = memo(() => {
   return (
     <Container>
       <h1>Data admin</h1>
-      <DataDocumentUploadForm
-        onSubmit={onSubmit}
-        additionalFields={whitelist}
-      />
+      <DataDocumentUploadForm onSubmit={onSubmit} additionalFields={whitelist} />
     </Container>
   );
 });

@@ -125,13 +125,7 @@ export const InfoPaneList = memo(
       behavior === 'collapse' ? (
         <Collapse in={adding} {...props} />
       ) : (
-        <Modal
-          width="md"
-          title={itemTitle}
-          open={adding}
-          onClose={handleCloseForm}
-          {...props}
-        />
+        <Modal width="md" title={itemTitle} open={adding} onClose={handleCloseForm} {...props} />
       );
 
     const addForm = (

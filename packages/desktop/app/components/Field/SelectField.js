@@ -17,7 +17,6 @@ export const SelectInput = ({
   name,
   ...props
 }) => {
-
   const isReadonly = (readonly && !disabled) || (value && !onChange);
   if (disabled || isReadonly || !options || options.length === 0) {
     const valueText = ((options || []).find(o => o.value === value) || {}).label || '';
@@ -57,12 +56,7 @@ export const SelectInput = ({
 };
 
 export const SelectField = ({ field, ...props }) => (
-  <SelectInput
-    name={field.name}
-    onChange={field.onChange}
-    value={field.value}
-    {...props}
-  />
+  <SelectInput name={field.name} onChange={field.onChange} value={field.value} {...props} />
 );
 
 /* 

@@ -83,7 +83,7 @@ export const ReferralDetailsModal = React.memo(({ open, onClose, referral }) => 
           >
             View encounter
           </Button>
-        )}  
+        )}
       </FormGrid>
     </Modal>
   );

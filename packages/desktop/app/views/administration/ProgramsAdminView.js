@@ -10,16 +10,14 @@ const Container = styled.div`
 
 export const ProgramsAdminView = memo(() => {
   const api = useApi();
-  const onSubmit = useCallback(
-    ({ file, ...data }) => api.postWithFileUpload('admin/importProgram', file, data)
+  const onSubmit = useCallback(({ file, ...data }) =>
+    api.postWithFileUpload('admin/importProgram', file, data),
   );
 
   return (
     <Container>
       <h1>Programs admin</h1>
-      <DataDocumentUploadForm
-        onSubmit={onSubmit}
-      />
+      <DataDocumentUploadForm onSubmit={onSubmit} />
     </Container>
   );
 });

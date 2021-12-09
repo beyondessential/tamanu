@@ -42,7 +42,7 @@ export const MultiselectInput = ({
   const [selected, setSelected] = useState(initialSelectedOptions);
   const handleChange = useCallback(selectedOptions => {
     setSelected(selectedOptions);
-    const newValue = selectedOptions.map(x => x.value).join(', ')
+    const newValue = selectedOptions.map(x => x.value).join(', ');
     onChange({ target: { value: newValue, name } });
   }, []);
 
@@ -70,14 +70,8 @@ export const MultiselectInput = ({
 };
 
 export const MultiselectField = ({ field, ...props }) => (
-  <MultiselectInput
-    name={field.name}
-    onChange={field.onChange}
-    value={field.value}
-    {...props}
-  />
+  <MultiselectInput name={field.name} onChange={field.onChange} value={field.value} {...props} />
 );
-
 
 MultiselectInput.propTypes = {
   name: PropTypes.string,

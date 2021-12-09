@@ -401,4 +401,5 @@ export const appointmentStatusOptions = Object.values(APPOINTMENT_STATUSES).map(
   value: status,
 }));
 
-export const ALPHABET_FOR_ID = 'ABCDEFGH' + /*I*/ 'JK' + /*L*/ 'MN' + /*O*/ 'PQRSTUVWXYZ' + /*01*/ '23456789';
+export const ALPHABET_FOR_ID =
+  'ABCDEFGH' + /*I*/ 'JK' + /*L*/ 'MN' + /*O*/ 'PQRSTUVWXYZ' + /*01*/ '23456789';

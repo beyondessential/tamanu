@@ -53,14 +53,14 @@ const DETAILS_FIELD_DEFINITIONS = [
 const DumbTriageModal = React.memo(({ open, patient, onClose, ...rest }) => {
   const { displayId, firstName, lastName, sex, dateOfBirth } = patient;
   const { getLocalisation } = useLocalisation();
-  const detailsFields = DETAILS_FIELD_DEFINITIONS
-    .filter(([name]) => getLocalisation(`fields.${name}.hidden`) !== true)
-    .map(([name, accessor]) => (
-      <React.Fragment key={name}>
-        <DetailLabel>{getLocalisation(`fields.${name}.longLabel`)}:</DetailLabel>
-        <DetailValue>{accessor ? accessor(patient) : patient[name]}</DetailValue>
-      </React.Fragment>
-    ));
+  const detailsFields = DETAILS_FIELD_DEFINITIONS.filter(
+    ([name]) => getLocalisation(`fields.${name}.hidden`) !== true,
+  ).map(([name, accessor]) => (
+    <React.Fragment key={name}>
+      <DetailLabel>{getLocalisation(`fields.${name}.longLabel`)}:</DetailLabel>
+      <DetailValue>{accessor ? accessor(patient) : patient[name]}</DetailValue>
+    </React.Fragment>
+  ));
 
   return (
     <Modal title="New Emergency Triage" open={open} width="md" onClose={onClose}>
@@ -69,9 +69,7 @@ const DumbTriageModal = React.memo(({ open, patient, onClose, ...rest }) => {
           <span>Patient details</span>
           <DisplayIdLabel>{displayId}</DisplayIdLabel>
         </Header>
-        <div>
-          {detailsFields}
-        </div>
+        <div>{detailsFields}</div>
       </PatientDetails>
       <TriageForm onCancel={onClose} {...rest} />
     </Modal>
