@@ -49,23 +49,22 @@ const Provider = ({
 
   const isUserAuthenticated = (): boolean => props.token !== null && props.user !== null;
 
-  // TODO: use server-provided facility
-  const dummyFacility = { name: 'BES Clinic', id: '123' };
+  const signInAs = user => {
+    setUser(user);
+    setUserData(user);
+    setSignedInStatus(true);
+  };
 
   const backend = useContext(BackendContext);
   const localSignIn = async (params: SyncConnectionParameters): Promise<void> => {
     const user = await backend.auth.localSignIn(params);
-    setUser({ facility: dummyFacility, ...user });
-    setUserData({ facility: dummyFacility, ...user });
-    setSignedInStatus(true);
+    signInAs(user);
   };
 
   const remoteSignIn = async (params: SyncConnectionParameters): Promise<void> => {
     const { user, token } = await backend.auth.remoteSignIn(params);
-    setUser({ facility: dummyFacility, ...user });
-    setUserData({ facility: dummyFacility, ...user });
+    signInAs(user);
     setToken(token);
-    setSignedInStatus(true);
   };
 
   const signIn = async (params: SyncConnectionParameters): Promise<void> => {

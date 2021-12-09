@@ -6,6 +6,7 @@ import { LogoV2Icon, SearchIcon } from '/components/Icons';
 import { UserAvatar } from '/components/UserAvatar';
 import { withAuth } from '/containers/Auth';
 import AuthContext from '~/ui/contexts/AuthContext';
+import { useFacility } from '~/ui/contexts/FacilityContext';
 import { disableAndroidBackButton } from '/helpers/android';
 import { Routes } from '/helpers/routes';
 import {
@@ -53,10 +54,17 @@ const SearchPatientsButton = ({
 
 const BaseHomeScreen = ({ navigation, user }: BaseAppProps): ReactElement => {
   disableAndroidBackButton();
-  const authCtx = useContext(AuthContext);
+  const {
+    checkFirstSession,
+    setUserFirstSignIn,
+  } = useContext(AuthContext);
+  const {
+    facilityName
+  } = useFacility();
+
   useEffect(() => {
-    if (authCtx.checkFirstSession()) {
-      authCtx.setUserFirstSignIn();
+    if (checkFirstSession()) {
+      setUserFirstSignIn();
     }
   }, []);
 
@@ -65,6 +73,12 @@ const BaseHomeScreen = ({ navigation, user }: BaseAppProps): ReactElement => {
   }, []);
 
   setStatusBar('light-content', theme.colors.PRIMARY_MAIN);
+
+  if (!user) {
+    // This is only encountered in situations where it's about to immediately
+    // get redirected away -- fine to show a blank screen.
+    return null;
+  }
 
   return (
     <StyledSafeAreaView flex={1} background={theme.colors.PRIMARY_MAIN}>
@@ -86,8 +100,8 @@ const BaseHomeScreen = ({ navigation, user }: BaseAppProps): ReactElement => {
               <LogoV2Icon height={23} width={95} fill={theme.colors.WHITE} />
               <UserAvatar
                 size={screenPercentageToDP(5.46, Orientation.Height)}
-                displayName={user && user.displayName}
-                sex={user && user.gender}
+                displayName={user.displayName}
+                sex={user.gender}
               />
             </RowView>
             <StyledText
@@ -96,13 +110,13 @@ const BaseHomeScreen = ({ navigation, user }: BaseAppProps): ReactElement => {
               fontWeight="bold"
               color={theme.colors.WHITE}
             >
-              Hi {user && user.displayName}
+              Hi {user.displayName}
             </StyledText>
             <StyledText
               fontSize={screenPercentageToDP(2.18, Orientation.Height)}
               color={theme.colors.WHITE}
             >
-              {user.facility.name}
+              {facilityName}
             </StyledText>
           </StyledView>
         </StyledView>

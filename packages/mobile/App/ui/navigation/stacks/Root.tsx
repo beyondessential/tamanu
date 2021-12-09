@@ -9,6 +9,7 @@ import { Provider } from 'react-redux';
 import { themeSystem } from '/styled/common';
 import { store, persistor } from '/store/index';
 import { AuthProvider } from '~/ui/contexts/AuthContext';
+import { FacilityProvider } from '~/ui/contexts/FacilityContext';
 import { LocalisationProvider } from '~/ui/contexts/LocalisationContext';
 import { Core } from './Core';
 import { theme } from '../../styled/theme';
@@ -34,7 +35,9 @@ export const RootStack = (): ReactElement => {
                 <NavigationContainer ref={navigationRef}>
                   <LocalisationProvider>
                     <AuthProvider navRef={navigationRef}>
-                      <Core />
+                      <FacilityProvider>
+                        <Core />
+                      </FacilityProvider>
                     </AuthProvider>
                   </LocalisationProvider>
                 </NavigationContainer>

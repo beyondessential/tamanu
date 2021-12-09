@@ -33,6 +33,7 @@ import { version as AppVersion } from '/root/package.json';
 import { StatusBar, StatusBarStyle, Linking} from 'react-native';
 import { useFocusEffect } from '@react-navigation/native';
 import AuthContext from '~/ui/contexts/AuthContext';
+import { useFacility } from '~/ui/contexts/FacilityContext';
 import { BaseAppProps } from '~/ui/interfaces/BaseAppProps';
 import { authUserSelector } from '/helpers/selectors';
 
@@ -73,6 +74,7 @@ const TamanuAppVersion = ({ version }: TamanuAppVersionProps): ReactElement => (
 export const MoreScreen = ({ navigation }: BaseAppProps): ReactElement => {
   const authCtx = useContext(AuthContext);
   const user = useSelector(authUserSelector);
+  const { facilityName } = useFacility();
   const settings = useMemo(
     () => [
       {
@@ -109,7 +111,7 @@ export const MoreScreen = ({ navigation }: BaseAppProps): ReactElement => {
       >
         <UserAvatar
           size={screenPercentageToDP(9.72, Orientation.Height)}
-          displayName={user && user.displayName}
+          displayName={user.displayName}
           Icon={CameraInCircle}
         />
         <StyledText
@@ -117,14 +119,14 @@ export const MoreScreen = ({ navigation }: BaseAppProps): ReactElement => {
           color={theme.colors.TEXT_SUPER_DARK}
           fontWeight="bold"
         >
-          {user && user.displayName}
+          {user.displayName}
         </StyledText>
         <RowView alignItems="center">
           <StyledText
             fontSize={screenPercentageToDP(1.7, Orientation.Height)}
             color={theme.colors.TEXT_SUPER_DARK}
           >
-            {user && user.role}
+            {user.role}
           </StyledText>
           <StyledView
             height={screenPercentageToDP(0.486, Orientation.Height)}
@@ -138,7 +140,7 @@ export const MoreScreen = ({ navigation }: BaseAppProps): ReactElement => {
             fontSize={screenPercentageToDP(1.7, Orientation.Height)}
             color={theme.colors.TEXT_SUPER_DARK}
           >
-            {user.facility.name}
+            {facilityName}
           </StyledText>
         </RowView>
         <Button
