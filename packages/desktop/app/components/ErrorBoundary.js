@@ -44,7 +44,7 @@ export class ErrorBoundary extends React.PureComponent {
   static getDerivedStateFromProps(props, state) {
     const { errorKey } = props;
     const { lastErrorKey, error } = state;
-    const didErrorKeyChange = !lastErrorKey || lastErrorKey === errorKey;
+    const didErrorKeyChange = !lastErrorKey || lastErrorKey !== errorKey;
     return {
       lastErrorKey: errorKey,
       error: didErrorKeyChange ? null : error,
