@@ -30,6 +30,7 @@ import { authSelector } from '/helpers/selectors';
 import { SignInFormModel } from '~/ui/interfaces/forms/SignInFormProps';
 import AuthContext from '~/ui/contexts/AuthContext';
 import { OutdatedVersionError } from '~/services/auth/error';
+import { useFacility } from '~/ui/contexts/FacilityContext';
 
 interface ModalContent {
   message: string;
@@ -62,6 +63,8 @@ export const SignIn: FunctionComponent<any> = ({ navigation }: SignInProps) => {
     Linking.openURL(modalContent.buttonUrl);
   }, [modalContent.buttonUrl]);
 
+  const { facilityId } = useFacility();
+
   const onSubmitForm = useCallback(async (values: SignInFormModel) => {
     try {
       if (!values.server) {
@@ -71,7 +74,10 @@ export const SignIn: FunctionComponent<any> = ({ navigation }: SignInProps) => {
       }
       await authCtx.signIn(values);
 
-      if (authState.isFirstTime) {
+      // TODO: should consolidate this logic with that in Core.tsx
+      if (!facilityId) {
+        navigation.navigate(Routes.SignUpStack.SelectFacility);
+      } else if (authState.isFirstTime) {
         navigation.navigate(Routes.HomeStack.Index);
       } else {
         navigation.navigate(Routes.HomeStack.Index, {

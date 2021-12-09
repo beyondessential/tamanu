@@ -41,7 +41,6 @@ const Provider = ({
   const checkFirstSession = (): boolean => props.isFirstTime;
   const [user, setUserData] = useState();
   const [resetPasswordLastEmailUsed, setResetPasswordLastEmailUsed] = useState('');
-  const { setLocalisation } = useLocalisation();
 
   const setUserFirstSignIn = (): void => {
     props.setFirstSignIn(false);
