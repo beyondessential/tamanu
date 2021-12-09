@@ -4,6 +4,7 @@ import { chunk } from 'lodash';
 import { IUser } from '~/types';
 import {
   AuthenticationError,
+  OutdatedVersionError,
   invalidUserCredentialsMessage,
   invalidTokenMessage,
   generalErrorMessage,
@@ -156,11 +157,7 @@ export class WebSyncSource implements SyncSource {
     if (response.status === 400) {
       const { error } = await getResponseJsonSafely(response);
       if (error?.name === 'InvalidClientVersion') {
-        const minAppVersion = response.headers.get('X-Min-Client-Version');
-        const maxAppVersion = response.headers.get('X-Max-Client-Version');
-        throw new AuthenticationError(
-          `Your version of Tamanu Mobile is not supported. Please download and install a version between v${minAppVersion} and v${maxAppVersion}`,
-        );
+        throw new OutdatedVersionError(error.updateUrl);
       }
     }
 

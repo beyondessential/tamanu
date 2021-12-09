@@ -37,7 +37,7 @@ export const SurveyForm = ({
       initialValues={initialValues}
       onSubmit={onSubmit}
     >
-      {({ handleSubmit, values, setFieldValue, isSubmitting }): ReactElement => {
+      {({ values, setFieldValue }): ReactElement => {
         useEffect(() => {
           // recalculate dynamic fields
           const calculatedValues = runCalculations(components, values);
@@ -53,8 +53,6 @@ export const SurveyForm = ({
             values={values}
             note={note}
             patient={patient}
-            onSubmit={handleSubmit}
-            isSubmitting={isSubmitting}
           />
         );
       }}
