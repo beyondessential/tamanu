@@ -16,6 +16,8 @@
     "import/no-extraneous-dependencies": false,
     "no-underscore-dangle": "off",
     "react/prop-types": false,
+    // prettier enforces this, and sometimes the two indent styles conflict
+    "react/jsx-indent": false,
     "no-restricted-syntax": [
       "error",
       {
