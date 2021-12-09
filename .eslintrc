@@ -14,10 +14,19 @@
     // (missing deps should break CI anyway so it's not a big deal)
     // https://github.com/benmosher/eslint-plugin-import/issues/479
     "import/no-extraneous-dependencies": false,
+
     "no-underscore-dangle": "off",
     "react/prop-types": false,
-    // prettier enforces this, and sometimes the two indent styles conflict
+    "react-hooks/exhaustive-deps": "error",
+    "react-hooks/rules-of-hooks": "error",
+
+    // prettier enforces the following jsx rules, and sometimes the styles conflict
     "react/jsx-indent": false,
+    "react/jsx-wrap-multilines": false,
+    "react/jsx-one-expression-per-line": false,
+
+    "no-continue": 0,
+
     "no-restricted-syntax": [
       "error",
       {
