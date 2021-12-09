@@ -5,6 +5,9 @@
     "browser": true,
     "node": true
   },
+  "plugins": [
+    "react-hooks"
+  ],
   "rules": {
     // get around an issue in how electron sets up its packages
     // where it can't detect certain dependencies even if they're installed
