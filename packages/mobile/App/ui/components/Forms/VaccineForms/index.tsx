@@ -64,7 +64,7 @@ export const VaccineForm = ({
         })}
         initialValues={createInitialValues({ ...initialValues, status })}
       >
-        {({ handleSubmit }): JSX.Element => (
+        {(): JSX.Element => (
           <FullView>
             <StatusForm />
             <RowView
@@ -84,7 +84,6 @@ export const VaccineForm = ({
               />
               <SubmitButton
                 width={screenPercentageToDP(43.79, Orientation.Width)}
-                onSubmit={handleSubmit}
               />
             </RowView>
           </FullView>

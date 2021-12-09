@@ -37,14 +37,6 @@ export const ResetPasswordFields = ({
         component={TextField}
         label="Email"
       />
-      <StyledText
-        fontSize={13}
-        marginTop={15}
-        marginBottom={5}
-        color={theme.colors.SECONDARY_MAIN}
-      >
-        Country
-      </StyledText>
       <ServerSelector />
     </StyledView>
     <Button
