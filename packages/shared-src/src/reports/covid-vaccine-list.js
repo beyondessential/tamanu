@@ -117,7 +117,7 @@ async function queryCovidVaccineListData(models, parameters) {
   return Object.values(patients);
 }
 
-export async function dataGenerator(models, parameters) {
+export async function dataGenerator({ models }, parameters) {
   const queryResults = await queryCovidVaccineListData(models, parameters);
   return generateReportFromQueryData(queryResults, reportColumnTemplate);
 }
