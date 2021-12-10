@@ -12,10 +12,10 @@ import { Button } from '../components/Button';
 import { ButtonRow } from '../components/ButtonRow';
 
 export const FILE_FILTERS = [
-  { name: 'Microsoft Excel files (.xlsx)', extensions: ['xlsx'] },
+  { name: 'Microsoft Excel files (.xls - .xlsx)', extensions: ['xls', 'xlsx'] },
   { name: 'PDF (.pdf)', extensions: ['pdf'] },
-  { name: 'Word (.doc)', extensions: ['doc'] },
-  { name: 'JPEG (.jpeg)', extensions: ['jpeg'] },
+  { name: 'Word (.doc - .docx)', extensions: ['doc', 'docx'] },
+  { name: 'JPEG (.jpeg - .jpg)', extensions: ['jpeg', 'jpg'] },
 ];
 
 export const DocumentForm = ({ actionText, onSubmit, onCancel, editedObject }) => {
@@ -26,7 +26,7 @@ export const DocumentForm = ({ actionText, onSubmit, onCancel, editedObject }) =
     <FormGrid>
       <Field
         component={FileChooserField}
-        filters={[FILE_FILTERS]}
+        filters={FILE_FILTERS}
         label="Select file"
         name="file"
         required
