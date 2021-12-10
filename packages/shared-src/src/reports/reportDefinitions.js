@@ -101,7 +101,7 @@ export const REPORT_DEFINITIONS = [
     id: 'png-assistive-technology-device-line-list',
   },
   {
-    name: 'Fiji Recent Attendance - Line list',
+    name: 'Fiji recent attendance - Line list',
     id: 'fiji-recent-attendance-list',
     parameters: [
       { parameterField: 'VillageField' },
