@@ -240,6 +240,7 @@ export const AppointmentDetail = ({ appointment, updated }) => {
             // hide the tooltip if cancelling appointment
             Tooltip.hide();
           } catch (e) {
+            // eslint-disable-next-line no-console
             console.error(e);
             setErrorMessage('Unable to cancel appointment. Please try again.');
           }

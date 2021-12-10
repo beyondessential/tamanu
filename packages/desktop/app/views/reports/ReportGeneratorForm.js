@@ -125,12 +125,13 @@ const submitReportRequest = async (api, reportType, parameters, emails) =>
 // adding an onValueChange hook to the report type field
 // so we can keep internal state of the report type
 const ReportTypeField = ({ onValueChange, ...props }) => {
+  const { field } = props;
   const changeCallback = useCallback(
     event => {
       onValueChange(event.target.value);
-      props.field.onChange(event);
+      field.onChange(event);
     },
-    [onValueChange, props.field],
+    [onValueChange, field],
   );
   return <AutocompleteField {...props} onChange={changeCallback} />;
 };
@@ -153,6 +154,7 @@ const DumbReportGeneratorForm = ({ currentUser, onSuccessfulSubmit }) => {
         setReportOptions(reports.map(r => ({ value: r.id, label: r.name })));
         setAvailableReports(reports);
       } catch (error) {
+        // eslint-disable-next-line no-console
         console.error(`Unable to load available reports`, error);
         setRequestError(`Unable to load available reports - ${error.message}`);
       }
@@ -188,6 +190,7 @@ const DumbReportGeneratorForm = ({ currentUser, onSuccessfulSubmit }) => {
           promptForFilePath: true,
           defaultFileName: reportType,
         });
+        // eslint-disable-next-line no-console
         console.log('file saved at ', filePath);
       } else {
         await submitReportRequest(api, reportType, restValues, formValues.emails);
@@ -197,6 +200,7 @@ const DumbReportGeneratorForm = ({ currentUser, onSuccessfulSubmit }) => {
         onSuccessfulSubmit();
       }
     } catch (e) {
+      // eslint-disable-next-line no-console
       console.error('Unable to submit report request', e);
       setRequestError(`Unable to submit report request - ${e.message}`);
     }
@@ -220,10 +224,7 @@ const DumbReportGeneratorForm = ({ currentUser, onSuccessfulSubmit }) => {
         reportType: Yup.string().required('Report type is required'),
         ...parameters
           .filter(field => field.validation)
-          .reduce((schema, field) => {
-            schema[field.name] = field.validation;
-            return schema;
-          }, {}),
+          .reduce((schema, field) => ({ ...schema, [field.name]: field.validation }), {}),
       })}
       render={({ values }) => (
         <>

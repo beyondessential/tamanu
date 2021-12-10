@@ -41,14 +41,14 @@ function EditableNoteDisplay({ onSuccessfulSubmit, onNoteDeleted, ...rest }) {
   );
 }
 
-function DumbPatientCarePlanDetails(props) {
+function DumbPatientCarePlanDetails({ getNotes, item }) {
   const [firstNote, setFirstNote] = useState();
   const [subsequentNotes, setSubsequentNotes] = useState([]);
   const [resetForm, setResetForm] = useState(0);
   const [reloadNotes, setReloadNotes] = useState(0);
 
   useEffect(() => {
-    props.getNotes(props.item.id).then(notes => {
+    getNotes(item.id).then(notes => {
       if (notes.length) {
         // first note is the main care plan
         setFirstNote(notes[0]);
@@ -63,13 +63,13 @@ function DumbPatientCarePlanDetails(props) {
         }
       }
     });
-  }, [props.item.id, reloadNotes, props]);
+  }, [item.id, getNotes, reloadNotes]);
 
   return (
     <Container>
       <CarePlanNoteForm
         key={resetForm}
-        carePlanId={props.item.id}
+        carePlanId={item.id}
         onReloadNotes={() => {
           setReloadNotes(reloadNotes + 1);
         }}

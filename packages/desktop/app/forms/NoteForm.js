@@ -20,11 +20,11 @@ import { noteTypes } from '../constants';
 
 const selectableNoteTypes = noteTypes.filter(x => !x.hideFromDropdown);
 
-export class NoteForm extends React.PureComponent {
-  static propTypes = {
-    onSubmit: PropTypes.func.isRequired,
-  };
+NoteForm.propTypes = {
+  onSubmit: PropTypes.func.isRequired,
+};
 
+export class NoteForm extends React.PureComponent {
   renderForm = ({ submitForm }) => {
     const { practitionerSuggester, onCancel } = this.props;
     return (

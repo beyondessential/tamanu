@@ -29,11 +29,11 @@ const InfoPopupLabel = React.memo(() => (
   </span>
 ));
 
-export class TriageForm extends React.PureComponent {
-  static propTypes = {
-    onSubmit: PropTypes.func.isRequired,
-  };
+TriageForm.propTypes = {
+  onSubmit: PropTypes.func.isRequired,
+};
 
+export class TriageForm extends React.PureComponent {
   renderForm = ({ submitForm }) => {
     const {
       locationSuggester,

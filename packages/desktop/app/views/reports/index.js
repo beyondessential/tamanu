@@ -77,6 +77,7 @@ const DumbReportScreen = React.memo(({ fetchAvailableReports, fetchReportData })
         await minWait;
         setIsDownloading(false);
       } catch (e) {
+        // eslint-disable-next-line no-console
         console.error(e);
         setError(e);
         setIsDownloading(false);

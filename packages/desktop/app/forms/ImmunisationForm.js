@@ -60,10 +60,8 @@ const AdministeredCheckbox = styled(Checkbox)`
   }
 `;
 
-function AdministeredVaccineSchedule(props) {
-  return (
-    <ControlLabel control={<AdministeredCheckbox checked disabled />} label={props.option.label} />
-  );
+function AdministeredVaccineSchedule({ option }) {
+  return <ControlLabel control={<AdministeredCheckbox checked disabled />} label={option.label} />;
 }
 
 const findVaccinesByAdministeredStatus = (vaccine, administered) =>
@@ -119,7 +117,8 @@ export const ImmunisationForm = React.memo(
         );
       };
 
-      fetchScheduledVaccines().catch(err => console.log(err));
+      // eslint-disable-next-line no-console
+      fetchScheduledVaccines().catch(err => console.error(err));
     }, [category, getScheduledVaccines]);
 
     return (

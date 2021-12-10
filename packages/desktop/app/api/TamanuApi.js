@@ -44,6 +44,7 @@ const fetchOrThrowIfUnavailable = async (url, config) => {
     const response = await fetch(url, config);
     return response;
   } catch (e) {
+    // eslint-disable-next-line no-console
     console.log(e.message);
     // apply more helpful message if the server is not available
     if (e.message === 'Failed to fetch') {
@@ -155,6 +156,7 @@ export class TamanuApi {
       const { token } = response;
       this.setToken(token);
     } catch (e) {
+      // eslint-disable-next-line no-console
       console.error(e);
     }
   }

@@ -56,6 +56,7 @@ const DumbDataFetchingTable = memo(
             isLoading: false,
           });
         } catch (error) {
+          // eslint-disable-next-line no-console
           console.error(error);
           updateFetchState({ errorMessage: error.message, isLoading: false });
         }

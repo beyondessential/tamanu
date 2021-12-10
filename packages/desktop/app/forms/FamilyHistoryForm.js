@@ -8,17 +8,17 @@ import { ConfirmCancelRow } from '../components/ButtonRow';
 
 import { foreignKey } from '../utils/validation';
 
+FamilyHistoryForm.propTypes = {
+  onSubmit: PropTypes.func.isRequired,
+  onCancel: PropTypes.func.isRequired,
+  editedObject: PropTypes.shape({}),
+};
+
+FamilyHistoryForm.defaultProps = {
+  editedObject: null,
+};
+
 export class FamilyHistoryForm extends React.PureComponent {
-  static propTypes = {
-    onSubmit: PropTypes.func.isRequired,
-    onCancel: PropTypes.func.isRequired,
-    editedObject: PropTypes.shape({}),
-  };
-
-  static defaultProps = {
-    editedObject: null,
-  };
-
   renderForm = ({ submitForm }) => {
     const { onCancel, icd10Suggester, practitionerSuggester, editedObject } = this.props;
     const buttonText = editedObject ? 'Save' : 'Add';

@@ -18,17 +18,17 @@ import {
 } from '../components/Field';
 import { Button } from '../components';
 
-const DiagnosisFields = props => {
+const DiagnosisFields = ({ count, icd10Suggester }) => {
   return (
     <FormGrid columns={2}>
       <Field
-        name={`diagnosisId${props.count}`}
+        name={`diagnosisId${count}`}
         label="Diagnosis"
         component={AutocompleteField}
-        suggester={props.icd10Suggester}
+        suggester={icd10Suggester}
       />
       <Field
-        name={`diagnosisCertainty${props.count}`}
+        name={`diagnosisCertainty${count}`}
         label="Certainty"
         inline
         component={RadioField}

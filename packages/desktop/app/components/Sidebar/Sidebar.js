@@ -48,9 +48,12 @@ const VersionContainer = styled.div`
 `;
 
 export class Sidebar extends Component {
-  state = {
-    selectedParentItem: '',
-  };
+  constructor() {
+    super();
+    this.state = {
+      selectedParentItem: '',
+    };
+  }
 
   onLogout = () => {
     const { onLogout } = this.props;

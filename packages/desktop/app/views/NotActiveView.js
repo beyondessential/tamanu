@@ -11,11 +11,14 @@ const InvisibleButton = styled.div`
 `;
 const InvisibleSyncButton = connectApi(api => ({
   onClick: async () => {
+    // eslint-disable-next-line no-console
     console.log('Triggering manual sync on LAN server');
     try {
       await api.post(`sync/run`);
+      // eslint-disable-next-line no-console
       console.log('Manual sync complete');
     } catch (e) {
+      // eslint-disable-next-line no-console
       console.log('Manual sync failed');
     }
   },

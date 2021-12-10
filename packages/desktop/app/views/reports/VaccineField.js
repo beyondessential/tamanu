@@ -24,6 +24,7 @@ export const VaccineField = ({ required, parameterValues }) => {
         setError(null);
         setVaccineOptions(options);
       } catch (e) {
+        // eslint-disable-next-line no-console
         console.error(e);
         setError(e.message);
         setIsErrorDialogVisible(true);

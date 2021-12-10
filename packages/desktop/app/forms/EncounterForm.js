@@ -96,11 +96,11 @@ const StartPage = ({ setValue }) => {
   return <SelectorGrid>{items}</SelectorGrid>;
 };
 
-export class EncounterForm extends React.PureComponent {
-  static propTypes = {
-    onSubmit: PropTypes.func.isRequired,
-  };
+EncounterForm.propTypes = {
+  onSubmit: PropTypes.func.isRequired,
+};
 
+export class EncounterForm extends React.PureComponent {
   renderForm = ({ values, setFieldValue, submitForm }) => {
     if (!values.encounterType) {
       return <StartPage setValue={setFieldValue} />;

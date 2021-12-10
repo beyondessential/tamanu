@@ -14,26 +14,35 @@ const SubmitError = styled.div`
   padding: 0.25rem;
 `;
 
-export function DumbCarePlanNoteForm(props) {
+export function DumbCarePlanNoteForm({
+  note,
+  updateNote,
+  submitNote,
+  carePlanId,
+  onReloadNotes,
+  practitionerSuggester,
+  onSuccessfulSubmit,
+  onCancel,
+}) {
   const [submitError, setSubmitError] = useState('');
   return (
     <Form
       onSubmit={async values => {
         try {
-          if (props.note) {
-            await props.updateNote({ ...props.note, ...values });
+          if (note) {
+            await updateNote({ ...note, ...values });
           } else {
-            await props.submitNote(props.carePlanId, values);
+            await submitNote(carePlanId, values);
           }
           setSubmitError('');
-          props.onSuccessfulSubmit();
+          onSuccessfulSubmit();
         } catch (e) {
           setSubmitError('An error occurred. Please try again.');
         }
         // reload notes on failure just in case it was recorded
-        props.onReloadNotes();
+        onReloadNotes();
       }}
-      initialValues={props.note || { date: new Date() }}
+      initialValues={note || { date: new Date() }}
       render={() => {
         return (
           <>
@@ -42,7 +51,7 @@ export function DumbCarePlanNoteForm(props) {
                 name="onBehalfOfId"
                 label="On Behalf Of"
                 component={AutocompleteField}
-                suggester={props.practitionerSuggester}
+                suggester={practitionerSuggester}
               />
               <Field name="date" label="Date recorded" component={DateTimeField} />
             </FormGrid>
@@ -57,15 +66,15 @@ export function DumbCarePlanNoteForm(props) {
             </FormGrid>
             <SubmitError>{submitError}</SubmitError>
             <ButtonRow>
-              {props.note ? (
-                <Button variant="contained" onClick={props.onCancel}>
+              {note ? (
+                <Button variant="contained" onClick={onCancel}>
                   Cancel
                 </Button>
               ) : (
                 <div />
               )}
               <Button variant="outlined" color="primary" type="submit">
-                {props.note ? 'Save' : 'Add Note'}
+                {note ? 'Save' : 'Add Note'}
               </Button>
             </ButtonRow>
           </>

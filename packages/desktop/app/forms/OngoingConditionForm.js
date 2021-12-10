@@ -16,17 +16,17 @@ import { ConfirmCancelRow } from '../components/ButtonRow';
 
 import { foreignKey } from '../utils/validation';
 
+OngoingConditionForm.propTypes = {
+  onSubmit: PropTypes.func.isRequired,
+  onCancel: PropTypes.func.isRequired,
+  editedObject: PropTypes.shape({}),
+};
+
+OngoingConditionForm.defaultProps = {
+  editedObject: null,
+};
+
 export class OngoingConditionForm extends React.PureComponent {
-  static propTypes = {
-    onSubmit: PropTypes.func.isRequired,
-    onCancel: PropTypes.func.isRequired,
-    editedObject: PropTypes.shape({}),
-  };
-
-  static defaultProps = {
-    editedObject: null,
-  };
-
   renderForm = ({ submitForm, values }) => {
     const { editedObject, onCancel, practitionerSuggester, icd10Suggester } = this.props;
     const resolving = values.resolved;

@@ -18,29 +18,33 @@ const FormErrors = ({ errors }) => {
   ));
 };
 
+Form.propTypes = {
+  onError: PropTypes.func,
+  onSubmit: PropTypes.func.isRequired,
+  render: PropTypes.func.isRequired,
+  showInlineErrorsOnly: PropTypes.bool,
+  initialValues: PropTypes.shape({}),
+};
+
+Form.defaultProps = {
+  showInlineErrorsOnly: false,
+  onError: null,
+  initialValues: {},
+};
+
 export class Form extends React.PureComponent {
-  static propTypes = {
-    onError: PropTypes.func,
-    onSubmit: PropTypes.func.isRequired,
-    render: PropTypes.func.isRequired,
-    showInlineErrorsOnly: PropTypes.bool,
-    initialValues: PropTypes.shape({}),
-  };
-
-  static defaultProps = {
-    showInlineErrorsOnly: false,
-    onError: null,
-    initialValues: {},
-  };
-
-  state = {
-    validationErrors: {},
-    isErrorDialogVisible: false,
-  };
+  constructor() {
+    super();
+    this.state = {
+      validationErrors: {},
+      isErrorDialogVisible: false,
+    };
+  }
 
   setErrors = validationErrors => {
-    if (this.props.onError) {
-      this.props.onError(validationErrors);
+    const { onError } = this.props;
+    if (onError) {
+      onError(validationErrors);
     }
     this.setState({ validationErrors, isErrorDialogVisible: true });
   };
@@ -83,6 +87,7 @@ export class Form extends React.PureComponent {
         setErrors: this.setErrors,
       });
     } catch (e) {
+      // eslint-disable-next-line no-console
       console.error('Error submitting form: ', e);
       this.setErrors([e.message]);
     }

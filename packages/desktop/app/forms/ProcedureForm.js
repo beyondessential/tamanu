@@ -23,22 +23,22 @@ const suggesterType = PropTypes.shape({
   fetchCurrentOption: PropTypes.func,
 });
 
+ProcedureForm.propTypes = {
+  onSubmit: PropTypes.func.isRequired,
+  onCancel: PropTypes.func.isRequired,
+  editedObject: PropTypes.shape({}),
+
+  anaestheticSuggester: suggesterType.isRequired,
+  procedureSuggester: suggesterType.isRequired,
+  locationSuggester: suggesterType.isRequired,
+  practitionerSuggester: suggesterType.isRequired,
+};
+
+ProcedureForm.defaultProps = {
+  editedObject: null,
+};
+
 export class ProcedureForm extends React.PureComponent {
-  static propTypes = {
-    onSubmit: PropTypes.func.isRequired,
-    onCancel: PropTypes.func.isRequired,
-    editedObject: PropTypes.shape({}),
-
-    anaestheticSuggester: suggesterType.isRequired,
-    procedureSuggester: suggesterType.isRequired,
-    locationSuggester: suggesterType.isRequired,
-    practitionerSuggester: suggesterType.isRequired,
-  };
-
-  static defaultProps = {
-    editedObject: null,
-  };
-
   onCancel = () => {
     const { onCancel } = this.props;
     if (onCancel) onCancel();

@@ -19,13 +19,10 @@ const SelectableField = styled.div`
   }};
 `;
 
-export const CheckArrayInput = ({ options, field, ...props }) => {
+export const CheckArrayInput = ({ options, field, value: propsValue, onChange: propsOnChange }) => {
   const { name } = field;
-  const currentList = useMemo(() => (field ? field.value : props.value) || [], [
-    field,
-    props.value,
-  ]);
-  const onChange = field ? field.onChange : props.onChange;
+  const currentList = useMemo(() => (field ? field.value : propsValue) || [], [field, propsValue]);
+  const onChange = field ? field.onChange : propsOnChange;
 
   const toggle = useCallback(
     item => {

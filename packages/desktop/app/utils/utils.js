@@ -1,4 +1,4 @@
-import React, { Fragment } from 'react';
+import React from 'react';
 import { isArray, toString, each } from 'lodash';
 import { toast } from 'react-toastify';
 import deepEqual from 'deep-equal';
