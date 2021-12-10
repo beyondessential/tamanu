@@ -174,7 +174,7 @@ describe.skip('Fiji NCD Primary Screening Summary', () => {
 
       const row1 = result.body[1];
       const expectedDetails1 = {
-        date: '2021-03-13',
+        date: '13-03-2021',
         patientsScreened: 1,
         screened: 1,
         screenedMale: 1,
@@ -206,7 +206,7 @@ describe.skip('Fiji NCD Primary Screening Summary', () => {
 
       const row2 = result.body[2];
       const expectedDetails2 = {
-        date: '2021-03-12',
+        date: '12-03-2021',
         patientsScreened: 3,
         screened: 4,
         screenedMale: 1,
