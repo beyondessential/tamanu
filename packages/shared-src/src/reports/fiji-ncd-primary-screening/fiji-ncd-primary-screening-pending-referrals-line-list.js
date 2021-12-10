@@ -168,8 +168,19 @@ export const dataGenerator = async ({ models }, parameters = {}) => {
     reportData.push(recordData);
   }
 
+  const sortedReportData = reportData.sort(
+    ({ dateOfReferral: date1 }, { dateOfReferral: date2 }) => {
+      if (date2 && !date1) return 1;
+      if (date1 && !date2) return -1;
+      if (!date1 && !date2) return 0;
+
+      // Sort oldest to most recent
+      return moment(date1, 'DD-MM-YYYY') - moment(date2, 'DD-MM-YYYY');
+    },
+  );
+
   return generateReportFromQueryData(
-    reportData,
+    sortedReportData,
     PRIMARY_SCREENING_PENDING_REFERRALS_REPORT_COLUMN_TEMPLATE,
   );
 };
