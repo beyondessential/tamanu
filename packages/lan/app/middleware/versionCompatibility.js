@@ -3,7 +3,7 @@ import { buildVersionCompatibilityCheck } from 'shared/utils';
 // If a new version of the desktop app is being released in conjunction with an update to the LAN
 // server, set MIN_CLIENT_VERSION to reflect that, and desktop users will be logged out until they
 // have updated.
-export const MIN_CLIENT_VERSION = '1.10.2';
+export const MIN_CLIENT_VERSION = '1.10.0';
 export const MAX_CLIENT_VERSION = '1.10.1'; // note that higher patch versions will be allowed to connect
 
 export const versionCompatibility = (req, res, next) =>
