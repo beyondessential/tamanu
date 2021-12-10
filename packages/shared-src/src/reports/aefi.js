@@ -32,7 +32,7 @@ function parametersToSqlWhere(parameters) {
 
 export const permission = 'Survey';
 
-export async function dataGenerator(models, parameters = {}) {
+export async function dataGenerator({ models }, parameters = {}) {
   const aefiSurvey = await models.Survey.findOne({
     where: {
       name: 'Immunisation',
@@ -49,10 +49,10 @@ export async function dataGenerator(models, parameters = {}) {
   const aefiSurveyColumns = await models.SurveyScreenComponent.findAll({
     where: {
       surveyId: aefiSurvey.get('id'),
-      ['$dataElement.name$']: {
+      '$dataElement.name$': {
         [Op.not]: null,
       },
-      ['$dataElement.type$']: {
+      '$dataElement.type$': {
         [Op.not]: 'Instruction',
       },
     },
@@ -129,7 +129,7 @@ async function getMostRecentVaccineForPatientBeforeSurveyDate(models, patientId,
       },
     ],
     where: {
-      ['$encounter.patient_id$']: patientId,
+      '$encounter.patient_id$': patientId,
       date: { [Op.lte]: surveyDate },
     },
     order: [['date', 'DESC']],

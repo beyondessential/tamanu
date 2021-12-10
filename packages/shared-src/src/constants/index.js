@@ -260,3 +260,9 @@ export const APPOINTMENT_STATUSES = {
   NO_SHOW: 'No-show',
   CANCELLED: 'Cancelled',
 };
+
+export const REFERRAL_STATUSES = {
+  PENDING: 'pending',
+  CANCELLED: 'cancelled',
+  COMPLETED: 'completed',
+};
