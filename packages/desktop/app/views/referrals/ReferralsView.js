@@ -44,7 +44,7 @@ const ReferralFlow = ({ patient, currentUser }) => {
     data => {
       api.post('referral', {
         surveyId: referralSurvey.id,
-        startTime: startTime,
+        startTime,
         patientId: patient.id,
         endTime: new Date(),
         answers: getAnswersFromData(data, referralSurvey),

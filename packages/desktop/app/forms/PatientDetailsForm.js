@@ -36,7 +36,7 @@ export const PrimaryDetailsGroup = () => {
   }
 
   return (
-    <React.Fragment>
+    <>
       <LocalisedField name="firstName" component={TextField} required />
       <LocalisedField name="middleName" component={TextField} />
       <LocalisedField name="lastName" component={TextField} required />
@@ -50,7 +50,7 @@ export const PrimaryDetailsGroup = () => {
         inline
         required
       />
-    </React.Fragment>
+    </>
   );
 };
 

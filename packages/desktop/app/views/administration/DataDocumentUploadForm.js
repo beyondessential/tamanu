@@ -43,9 +43,11 @@ const OutcomeHeader = ({ result }) => {
         } records in ${result.duration.toFixed(2)}s`}
       </h3>
     );
-  } else if (result.didntSendReason === 'validationFailed') {
+  }
+  if (result.didntSendReason === 'validationFailed') {
     return <h3>Please correct these validation issues and try again</h3>;
-  } else if (result.didntSendReason === 'dryRun') {
+  }
+  if (result.didntSendReason === 'dryRun') {
     return <h3>Test import finished</h3>;
   }
   return <h3>{`Import failed - server reports "${result.didntSendReason}"`}</h3>;
@@ -104,7 +106,7 @@ export const DataDocumentUploadForm = memo(({ onSubmit, onReceiveResult, additio
   }
 
   return (
-    <React.Fragment>
+    <>
       <Form
         key={resetKey}
         onSubmit={onSubmitUpload}
@@ -120,6 +122,6 @@ export const DataDocumentUploadForm = memo(({ onSubmit, onReceiveResult, additio
         pingu="1231231"
       />
       <OutcomeDisplay result={result} />
-    </React.Fragment>
+    </>
   );
 });

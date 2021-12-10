@@ -82,7 +82,7 @@ const NewPatientButton = React.memo(({ onCreateNewPatient }) => {
   );
 
   return (
-    <React.Fragment>
+    <>
       <DropdownButton
         color="primary"
         actions={[
@@ -97,7 +97,7 @@ const NewPatientButton = React.memo(({ onCreateNewPatient }) => {
         onCancel={hideModal}
         onCreateNewPatient={onCreate}
       />
-    </React.Fragment>
+    </>
   );
 });
 

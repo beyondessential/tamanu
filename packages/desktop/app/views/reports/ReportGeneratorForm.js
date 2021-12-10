@@ -41,16 +41,16 @@ const ParameterSelectField = props => <Field component={SelectField} {...props} 
 const ParameterMultiselectField = props => <Field component={MultiselectField} {...props} />;
 
 const PARAMETER_FIELD_COMPONENTS = {
-  VillageField: VillageField,
-  LabTestLaboratoryField: LabTestLaboratoryField,
-  PractitionerField: PractitionerField,
-  DiagnosisField: DiagnosisField,
-  VaccineCategoryField: VaccineCategoryField,
-  VaccineField: VaccineField,
-  EmptyField: EmptyField,
-  ParameterAutocompleteField: ParameterAutocompleteField,
-  ParameterSelectField: ParameterSelectField,
-  ParameterMultiselectField: ParameterMultiselectField,
+  VillageField,
+  LabTestLaboratoryField,
+  PractitionerField,
+  DiagnosisField,
+  VaccineCategoryField,
+  VaccineField,
+  EmptyField,
+  ParameterAutocompleteField,
+  ParameterSelectField,
+  ParameterMultiselectField,
 };
 
 const Spacer = styled.div`

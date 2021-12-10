@@ -142,7 +142,7 @@ export const InfoPaneList = memo(
 
     const EditForm = CustomEditForm || AddEditForm;
     return (
-      <React.Fragment>
+      <>
         <TitleContainer>
           <TitleText>{title}</TitleText>
           {readonly ? null : <AddButton onClick={handleAddButtonClick} />}
@@ -150,7 +150,7 @@ export const InfoPaneList = memo(
         <DataList>
           {addForm}
           {items.map(item => {
-            const id = item.id;
+            const { id } = item;
             const name = getName(item);
             if (behavior === 'collapse') {
               return (
@@ -194,7 +194,7 @@ export const InfoPaneList = memo(
             );
           })}
         </DataList>
-      </React.Fragment>
+      </>
     );
   },
 );

@@ -4,6 +4,7 @@ import { connectApi } from '../api';
 import { getImageSourceFromData } from '../utils';
 import { Modal } from './Modal';
 import { TextButton } from './Button';
+
 const Image = styled.img`
   display: block;
   margin: 0 auto;

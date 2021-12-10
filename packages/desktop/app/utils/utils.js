@@ -17,11 +17,11 @@ export const concatSelf = (array, ...items) => {
 export const prepareToastMessage = msg => {
   const messages = isArray(msg) ? msg : [msg];
   return (
-    <Fragment>
+    <>
       {messages.map(text => (
         <div key={`err-msg-${text}`}>{toString(text)}</div>
       ))}
-    </Fragment>
+    </>
   );
 };
 

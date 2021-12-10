@@ -66,10 +66,10 @@ const StatusDisplay = React.memo(({ encounterType, startTime }) => {
   switch (encounterType) {
     case 'triage':
       return (
-        <React.Fragment>
+        <>
           <LiveDurationDisplay startTime={startTime} />
           <small>{`Triage at ${moment(startTime).format('h:mma')}`}</small>
-        </React.Fragment>
+        </>
       );
     case 'observation':
       return 'Seen';

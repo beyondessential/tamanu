@@ -23,10 +23,10 @@ const InvisibleSyncButton = connectApi(api => ({
 
 export const NotActiveView = React.memo(() => {
   return (
-    <React.Fragment>
+    <>
       <TopBar title="Not active yet" />
       <Notification message="This section is not activated yet." />
       <InvisibleSyncButton />
-    </React.Fragment>
+    </>
   );
 });

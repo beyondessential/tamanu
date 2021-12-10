@@ -142,11 +142,11 @@ export const PatientPrintDetailsModal = ({ patient }) => {
   })();
 
   return (
-    <React.Fragment>
+    <>
       <Button variant="contained" color="primary" onClick={openModal}>
         Print ID
       </Button>
       {mainComponent}
-    </React.Fragment>
+    </>
   );
 };

@@ -1,7 +1,7 @@
 /**
  * Helper function that returns a reducer based on an object that contains an entry for each action
  * type, with a function that describes what changes to state that action would cause. Assumes action
- **/
+ * */
 export const createStatePreservingReducer = (defaultState = {}, actionHandlers = {}) => (
   state = defaultState,
   action,

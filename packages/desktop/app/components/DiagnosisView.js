@@ -37,7 +37,7 @@ export const DiagnosisView = React.memo(({ encounter, isTriage, readonly }) => {
   const displayedDiagnoses = diagnoses.filter(d => !['error', 'disproven'].includes(d.certainty));
 
   return (
-    <React.Fragment>
+    <>
       <DiagnosisModal
         diagnosis={diagnosis}
         isTriage={isTriage}
@@ -59,6 +59,6 @@ export const DiagnosisView = React.memo(({ encounter, isTriage, readonly }) => {
           Add diagnosis
         </AddDiagnosisButton>
       </DiagnosisGrid>
-    </React.Fragment>
+    </>
   );
 });

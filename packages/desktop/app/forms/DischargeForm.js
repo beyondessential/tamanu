@@ -29,7 +29,7 @@ import { DiagnosisList } from '../components/DiagnosisList';
 import { useEncounter } from '../contexts/Encounter';
 
 const MAX_REPEATS = 12;
-const REPEATS_OPTIONS = range(MAX_REPEATS + 1).map(value => ({ label: value, value: value }));
+const REPEATS_OPTIONS = range(MAX_REPEATS + 1).map(value => ({ label: value, value }));
 
 /*
 Creates an object to add initialValues to Formik that matches
@@ -163,7 +163,7 @@ const EncounterOverview = ({
   const currentDiagnoses = diagnoses.filter(d => !['error', 'disproven'].includes(d.certainty));
 
   return (
-    <React.Fragment>
+    <>
       <DateInput label="Admission date" value={startDate} disabled />
       <TextInput
         label="Supervising physician"
@@ -182,7 +182,7 @@ const EncounterOverview = ({
       <OuterLabelFieldWrapper label="Procedures" style={{ gridColumn: '1 / -1' }}>
         <ProcedureList procedures={procedures} />
       </OuterLabelFieldWrapper>
-    </React.Fragment>
+    </>
   );
 };
 
@@ -217,7 +217,7 @@ export const DischargeForm = ({ practitionerSuggester, onCancel, onSubmit }) => 
 
   const renderForm = ({ submitForm }) => {
     return (
-      <React.Fragment>
+      <>
         <FormGrid>
           <EncounterOverview encounter={encounter} />
           <Field name="endDate" label="Discharge date" component={DateField} required />
@@ -249,7 +249,7 @@ export const DischargeForm = ({ practitionerSuggester, onCancel, onSubmit }) => 
           />
           <ConfirmCancelRow onCancel={onCancel} onConfirm={submitForm} confirmText="Finalise" />
         </FormGrid>
-      </React.Fragment>
+      </>
     );
   };
 

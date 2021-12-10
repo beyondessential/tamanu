@@ -72,7 +72,7 @@ const SurveyFlow = ({ patient, currentUser }) => {
     data =>
       api.post('surveyResponse', {
         surveyId: survey.id,
-        startTime: startTime,
+        startTime,
         patientId: patient.id,
         endTime: new Date(),
         answers: getAnswersFromData(data, survey),

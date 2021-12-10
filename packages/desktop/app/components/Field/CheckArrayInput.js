@@ -20,7 +20,7 @@ const SelectableField = styled.div`
 `;
 
 export const CheckArrayInput = ({ options, field, ...props }) => {
-  const name = field.name;
+  const { name } = field;
   const currentList = useMemo(() => (field ? field.value : props.value) || [], [
     field,
     props.value,
