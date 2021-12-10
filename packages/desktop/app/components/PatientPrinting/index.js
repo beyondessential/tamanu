@@ -88,10 +88,11 @@ export const PatientPrintDetailsModal = ({ patient }) => {
   const [imageData, setImageData] = useState('');
   const api = useApi();
 
-  const openModal = () => {
+  const openModal = useCallback(() => {
     setModalOpen(true);
     setCurrentlyPrinting(null);
-  };
+  }, [setCurrentlyPrinting]);
+
   const closeModal = useCallback(() => {
     setModalOpen(false);
   }, [setModalOpen]);
