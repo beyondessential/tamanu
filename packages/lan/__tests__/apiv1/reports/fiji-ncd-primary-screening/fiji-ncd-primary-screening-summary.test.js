@@ -174,38 +174,6 @@ describe.skip('Fiji NCD Primary Screening Summary', () => {
 
       const row1 = result.body[1];
       const expectedDetails1 = {
-        date: '13-03-2021',
-        patientsScreened: 1,
-        screened: 1,
-        screenedMale: 1,
-        screenedFemale: 0,
-        'screened<30': 1,
-        'screened>30': 0,
-        screenedItaukei: 1,
-        screenedIndian: 0,
-        screenedOther: 0,
-        'screenedRisk<10': 0,
-        'screenedRisk10-20': 0,
-        'screenedRisk20-30': 0,
-        'screenedRisk30-40': 0,
-        'screenedRisk>40': 0,
-        screenedHighBreastCancerRisk: 0,
-        referredNumber: 0,
-        referredMale: 0,
-        referredFemale: 0,
-        'referred<30': 0,
-        'referred>30': 0,
-        referredItaukei: 0,
-        referredIndian: 0,
-        referredOther: 0,
-      };
-      for (const entry of Object.entries(expectedDetails1)) {
-        const [key, expectedValue] = entry;
-        expect(getProperty(row1, key)).toBe(expectedValue);
-      }
-
-      const row2 = result.body[2];
-      const expectedDetails2 = {
         date: '12-03-2021',
         patientsScreened: 3,
         screened: 4,
@@ -228,6 +196,38 @@ describe.skip('Fiji NCD Primary Screening Summary', () => {
         'referred<30': 1,
         'referred>30': 0,
         referredItaukei: 1,
+        referredIndian: 0,
+        referredOther: 0,
+      };
+      for (const entry of Object.entries(expectedDetails1)) {
+        const [key, expectedValue] = entry;
+        expect(getProperty(row1, key)).toBe(expectedValue);
+      }
+
+      const row2 = result.body[2];
+      const expectedDetails2 = {
+        date: '13-03-2021',
+        patientsScreened: 1,
+        screened: 1,
+        screenedMale: 1,
+        screenedFemale: 0,
+        'screened<30': 1,
+        'screened>30': 0,
+        screenedItaukei: 1,
+        screenedIndian: 0,
+        screenedOther: 0,
+        'screenedRisk<10': 0,
+        'screenedRisk10-20': 0,
+        'screenedRisk20-30': 0,
+        'screenedRisk30-40': 0,
+        'screenedRisk>40': 0,
+        screenedHighBreastCancerRisk: 0,
+        referredNumber: 0,
+        referredMale: 0,
+        referredFemale: 0,
+        'referred<30': 0,
+        'referred>30': 0,
+        referredItaukei: 0,
         referredIndian: 0,
         referredOther: 0,
       };
