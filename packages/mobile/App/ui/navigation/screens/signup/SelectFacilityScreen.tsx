@@ -7,39 +7,81 @@ import React, {
   useEffect,
 } from 'react';
 import * as Yup from 'yup';
-import { useSelector } from 'react-redux';
-import { Platform, KeyboardAvoidingView, StatusBar } from 'react-native';
+import { KeyboardAvoidingView, StatusBar } from 'react-native';
 import {
   StyledView,
   StyledSafeAreaView,
   FullView,
-  RowView,
   StyledTouchableOpacity,
   StyledText,
 } from '/styled/common';
-import { CrossIcon, UserIcon } from '/components/Icons';
+import { HomeBottomLogoIcon } from '/components/Icons';
 import { Orientation, screenPercentageToDP } from '/helpers/screen';
 import { theme } from '/styled/theme';
 
 import { Routes } from '/helpers/routes';
-import { ModalInfo } from '/components/ModalInfo';
 import { Button } from '/components/Button';
-import { authSelector } from '/helpers/selectors';
 import { SignInProps } from '/interfaces/Screens/SignUp/SignInProps';
 import AuthContext from '~/ui/contexts/AuthContext';
 
 import { Form } from '~/ui/components/Forms/Form';
 import { Field } from '~/ui/components/Forms/FormField';
-import { AutocompleteModalField } from '~/ui/components/AutocompleteModal/AutocompleteModalField';
-import { TextField } from '~/ui/components/TextField/TextField';
 import { useFacility } from '~/ui/contexts/FacilityContext';
-import { useNavigation } from '@react-navigation/native';
+import { useBackend } from '~/ui/hooks';
+import { Dropdown } from '~/ui/components/Dropdown';
 
 const selectFacilitySchema = Yup.object().shape({
   facilityId: Yup.string().required(),
 });
 
+async function fetchFacilityOptions({ syncSource }) {
+  // download all facility options from the server
+  // (this only shows up on first login so we can't guarantee 
+  // that the facilities will be available locally yet)
+  let cursor = 0;
+  const facilities = [];
+  while (true) {
+    const response = await syncSource.get(`sync/facility`, {
+      since: cursor,
+      limit: 1,
+    });
+    if (response.records.length === 0) break;
+    facilities.push(...response.records);
+    cursor = response.cursor;
+  }
+
+  // TODO: remove this (helper to debug large lists)
+  while (facilities.length < 150) {
+    facilities.push({
+      data: {
+        id: facilities.length, name: `dummy-${facilities.length}`
+      }
+    });
+  }
+
+  // map them to select option format
+  return facilities.map(f => ({
+    label: f.data.name,
+    value: f.data.id,
+  }));
+}
+
 export const SelectFacilityForm = ({ onSubmitForm }) => {
+  const backend = useBackend();
+  const [facilityOptions, setFacilityOptions] = useState(null);
+
+  useEffect(() => {
+    let canceled = false;
+    (async () => {
+      const facilities = await fetchFacilityOptions(backend);
+      if (canceled) return;
+      setFacilityOptions(facilities);
+    })();
+    return () => {
+      canceled = true;
+    };
+  }, []);
+
   return (
     <Form
       initialValues={{}}
@@ -55,8 +97,9 @@ export const SelectFacilityForm = ({ onSubmitForm }) => {
           <StyledView justifyContent="space-around">
             <Field
               name="facilityId"
-              component={TextField}
+              component={Dropdown}
               label="Facility"
+              options={facilityOptions || []}
               placeholder="Select facility"
             />
           </StyledView>
@@ -76,21 +119,16 @@ export const SelectFacilityForm = ({ onSubmitForm }) => {
   );
 }
 
-
 export const SelectFacilityScreen: FunctionComponent<any> = ({ navigation }: SignInProps) => {
   const { facilityId, assignFacility } = useFacility();
+  const { signOut } = useContext(AuthContext);
 
   const onSubmitForm = useCallback(async (values) => {
-    console.log("preassign");
     await assignFacility(values.facilityId);
-    console.log("postassign");
-  }, []);
-
-  const signOut = useCallback(() => {
-    navigation.replace(Routes.SignUpStack.Index);
   }, []);
 
   useEffect(() => {
+    // if we already have a facility id, immediately navigate onward to the home screen
     if (facilityId) {
       navigation.replace(Routes.HomeStack.Index);
     }
@@ -104,16 +142,14 @@ export const SelectFacilityScreen: FunctionComponent<any> = ({ navigation }: Sig
     <FullView background={theme.colors.PRIMARY_MAIN}>
       <StatusBar barStyle="light-content" />
       <StyledSafeAreaView>
-        <KeyboardAvoidingView behavior="position">
           <StyledView
             width="100%"
             alignItems="center"
             marginTop={screenPercentageToDP(7.29, Orientation.Height)}
             marginBottom={screenPercentageToDP(14.7, Orientation.Height)}
           >
-            <UserIcon
-              height={screenPercentageToDP(7.29, Orientation.Height)}
-              width={screenPercentageToDP(7.29, Orientation.Height)}
+          <HomeBottomLogoIcon
+            size={screenPercentageToDP(7.29, Orientation.Height)}
               fill={theme.colors.SECONDARY_MAIN}
             />
             <StyledText
@@ -122,22 +158,24 @@ export const SelectFacilityScreen: FunctionComponent<any> = ({ navigation }: Sig
               color={theme.colors.WHITE}
               fontWeight="bold"
             >
-              Select facility
+            Please link this device to a facility.
             </StyledText>
             <SelectFacilityForm
               onSubmitForm={onSubmitForm}
             />
-            <Button
-              marginTop={20}
-              backgroundColor={theme.colors.SECONDARY_MAIN}
-              onPress={signOut}
-              textColor={theme.colors.TEXT_SUPER_DARK}
-              fontSize={screenPercentageToDP('1.94', Orientation.Height)}
-              fontWeight={500}
-              buttonText="Sign out"
-            />
-          </StyledView>
-        </KeyboardAvoidingView>
+          <StyledTouchableOpacity onPress={signOut}>
+            <StyledText
+              width="100%"
+              textAlign="center"
+              marginTop={screenPercentageToDP('2.43', Orientation.Height)}
+              marginBottom={screenPercentageToDP('4.86', Orientation.Height)}
+              fontSize={screenPercentageToDP('1.57', Orientation.Height)}
+              color={theme.colors.SECONDARY_MAIN}
+            >
+              Return to sign-in screen
+            </StyledText>
+          </StyledTouchableOpacity>
+        </StyledView>
       </StyledSafeAreaView>
     </FullView>
   );
