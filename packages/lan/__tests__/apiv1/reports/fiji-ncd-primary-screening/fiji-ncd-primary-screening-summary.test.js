@@ -1,11 +1,10 @@
-import { createDummyPatient, randomReferenceId } from 'shared/demoData/patients';
+import { createDummyPatient } from 'shared/demoData/patients';
 import { createTestContext } from '../../../utilities';
 import {
   setupProgramAndSurvey,
   createCVDFormSurveyResponse,
   createCVDReferral,
   createBreastCancerFormSurveyResponse,
-  createDummyPatients,
   createBreastCancerReferral,
 } from './utils';
 
@@ -33,7 +32,6 @@ const PROPERTY_LIST = [
   'screenedRisk>40',
   'screenedHighBreastCancerRisk',
   'referredNumber',
-  'referredPercent',
   'referredMale',
   'referredFemale',
   'referred<30',
@@ -110,7 +108,7 @@ describe.skip('Fiji NCD Primary Screening Summary', () => {
       ethnicityId: ETHNICITY_IDS.OTHERS,
     });
 
-    // This patient should NOT be counted in any data as they will have answered 'No' to
+    // This patient should NOT be counted in any data as they will have answered 'Ineligible' to
     // "is this individual eligible for screening"
     const unusedPatient = await models.Patient.create(
       await createDummyPatient(models, { sex: 'female', dateOfBirth: '2021-03-01T01:00:00.133Z' }),
@@ -140,7 +138,7 @@ describe.skip('Fiji NCD Primary Screening Summary', () => {
     // this should not be counted, and neither should the patient
     await createCVDFormSurveyResponse(app, unusedPatient, day1Time1, {
       answerOverrides: {
-        'pde-FijCVD021': 'No',
+        'pde-FijCVD021': 'Ineligible',
       },
     });
 
@@ -153,7 +151,7 @@ describe.skip('Fiji NCD Primary Screening Summary', () => {
     // This survey response should not be counted (but the patient still should be)
     await createBreastCancerFormSurveyResponse(app, expectedPatient1, day2, {
       answerOverrides: {
-        'pde-FijBS14': 'No',
+        'pde-FijBS14': 'Ineligible',
       },
     });
   });
@@ -176,7 +174,7 @@ describe.skip('Fiji NCD Primary Screening Summary', () => {
 
       const row1 = result.body[1];
       const expectedDetails1 = {
-        date: '2021-03-13',
+        date: '13-03-2021',
         patientsScreened: 1,
         screened: 1,
         screenedMale: 1,
@@ -193,7 +191,6 @@ describe.skip('Fiji NCD Primary Screening Summary', () => {
         'screenedRisk>40': 0,
         screenedHighBreastCancerRisk: 0,
         referredNumber: 0,
-        referredPercent: '0%',
         referredMale: 0,
         referredFemale: 0,
         'referred<30': 0,
@@ -209,7 +206,7 @@ describe.skip('Fiji NCD Primary Screening Summary', () => {
 
       const row2 = result.body[2];
       const expectedDetails2 = {
-        date: '2021-03-12',
+        date: '12-03-2021',
         patientsScreened: 3,
         screened: 4,
         screenedMale: 1,
@@ -226,7 +223,6 @@ describe.skip('Fiji NCD Primary Screening Summary', () => {
         'screenedRisk>40': 0,
         screenedHighBreastCancerRisk: 1,
         referredNumber: 1,
-        referredPercent: '25%',
         referredMale: 1,
         referredFemale: 0,
         'referred<30': 1,
