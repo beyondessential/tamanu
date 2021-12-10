@@ -40,18 +40,13 @@ export const DocumentForm = ({ actionText, onSubmit, onCancel, editedObject }) =
         style={{ gridColumn: '1 / -1' }}
       />
       <Field
-        name="ownerId"
+        name="documentOwner"
         label="Document owner"
         component={AutocompleteField}
         suggester={practitionerSuggester}
       />
       <Field name="department" label="Department" component={TextField} />
-      <Field
-        name="comment"
-        label="Comment"
-        component={TextField}
-        style={{ gridColumn: '1 / -1' }}
-      />
+      <Field name="note" label="Note" component={TextField} style={{ gridColumn: '1 / -1' }} />
       <ButtonRow>
         <Button variant="contained" onClick={onCancel}>
           Cancel
