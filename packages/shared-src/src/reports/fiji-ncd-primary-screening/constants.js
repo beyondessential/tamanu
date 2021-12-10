@@ -1,6 +1,7 @@
 const CVD_PRIMARY_FORM_SURVEY_ID = 'program-fijincdprimaryscreening-fijicvdprimaryscreen2';
 const CVD_PRIMARY_REFERRAL_SURVEY_ID = 'program-fijincdprimaryscreening-fijicvdprimaryscreenref';
-export const BREAST_CANCER_FORM_SURVEY_ID = 'program-fijincdprimaryscreening-fijibreastprimaryscreen';
+export const BREAST_CANCER_FORM_SURVEY_ID =
+  'program-fijincdprimaryscreening-fijibreastprimaryscreen';
 const BREAST_CANCER_REFERRAL_SURVEY_ID = 'program-fijincdprimaryscreening-fijibreastscreenref';
 const CERVICAL_CANCER_FORM_SURVEY_ID = 'program-fijincdprimaryscreening-fijicervicalprimaryscreen';
 const CERVICAL_CANCER_REFERRAL_SURVEY_ID = 'program-fijincdprimaryscreening-fijicervicalscreenref';
@@ -20,7 +21,7 @@ export const PRIMARY_SCREENING_REPORT_COLUMN_TEMPLATE = [
   { title: 'Date of screening', accessor: data => data.dateOfScreening },
   { title: 'Screening location', accessor: data => data.screeningLocation },
   { title: 'Screening health facility', accessor: data => data.screeningHealthFacility },
-  { title: 'Name of CSO', accessor: data => data.nameOfCso },
+  { title: 'Screening CSO', accessor: data => data.nameOfCso },
   { title: 'Screening eligibility', accessor: data => data.screeningEligibility },
   { title: 'CVD risk level', accessor: data => data.cvdRiskLevel },
   { title: 'Breast cancer risk level', accessor: data => data.breastCancerRiskLevel },
@@ -51,7 +52,7 @@ export const PRIMARY_SCREENING_PENDING_REFERRALS_REPORT_COLUMN_TEMPLATE = [
   { title: 'Date of screening', accessor: data => data.dateOfScreening },
   { title: 'Screening location', accessor: data => data.screeningLocation },
   { title: 'Screening health facility', accessor: data => data.screeningHealthFacility },
-  { title: 'Name of CSO', accessor: data => data.nameOfCso },
+  { title: 'Screening CSO', accessor: data => data.nameOfCso },
   { title: 'CVD risk level', accessor: data => data.cvdRiskLevel },
   { title: 'Breast cancer risk level', accessor: data => data.breastCancerRiskLevel },
 ];
