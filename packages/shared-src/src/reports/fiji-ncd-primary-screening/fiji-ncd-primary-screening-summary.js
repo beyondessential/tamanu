@@ -306,7 +306,11 @@ export const dataGenerator = async ({ sequelize }, parameters = {}) => {
       patientsScreened: parseInt(patientsScreenedByDate[date].patientsScreened, 10),
       ...sumObjectsByKey(resultsForDate.map(({ date: _, ...summableKeys }) => summableKeys)),
     }))
-    .sort(({ date: date1 }, { date: date2 }) => moment(date2) - moment(date1));
+    .sort(({ date: date1 }, { date: date2 }) => moment(date2) - moment(date1))
+    .map(({ date, ...otherFields }) => ({
+      date: moment(date).format('DD-MM-YYYY'),
+      ...otherFields,
+    }));
   return generateReportFromQueryData(reportData, reportColumnTemplate);
 };
 
