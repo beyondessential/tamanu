@@ -26,6 +26,7 @@ function getEndpoint({ encounterId, patientId }) {
   if (patientId) {
     return `patient/${patientId}/programResponses`;
   }
+  throw new Error('DataFetchingProgramsTable: must pass either patientId or encounterId');
 }
 
 export const DataFetchingProgramsTable = ({ encounterId, patientId }) => {

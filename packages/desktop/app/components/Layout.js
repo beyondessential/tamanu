@@ -59,27 +59,6 @@ BottomBar.propTypes = {
   children: PropTypes.node.isRequired,
 };
 
-export function FormRow({ children, ...props }) {
-  return (
-    <Grid container item spacing={32} {...props}>
-      {React.Children.map(children, (child, key) => {
-        if (React.isValidElement(child)) {
-          return (
-            <Grid item xs key={key}>
-              {child}
-            </Grid>
-          );
-        }
-        return null;
-      })}
-    </Grid>
-  );
-}
-
-FormRow.propTypes = {
-  children: PropTypes.node.isRequired,
-};
-
 export const SubHeader = ({ title, children }) => (
   <Grid
     container

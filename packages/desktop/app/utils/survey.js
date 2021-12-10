@@ -109,6 +109,7 @@ export function checkVisibility(component, values, allComponents) {
       ? Object.entries(restOfCriteria).every(checkIfQuestionMeetsCriteria)
       : Object.entries(restOfCriteria).some(checkIfQuestionMeetsCriteria);
   } catch (error) {
+    // eslint-disable-next-line no-console
     console.warn(`Error parsing visilbity criteria as JSON, using fallback.
                   \nError message: ${error}
                   \nJSON: ${visibilityCriteria}`);

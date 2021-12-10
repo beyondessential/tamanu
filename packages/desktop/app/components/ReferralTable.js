@@ -29,16 +29,16 @@ const ActionDropdown = React.memo(({ row, refreshTable }) => {
     await api.put(`referral/${row.id}`, { status: REFERRAL_STATUSES.CANCELLED });
     onCloseModal();
     refreshTable();
-  }, [row]);
+  }, [row, api, onCloseModal, refreshTable]);
 
   // Actions callbacks
   const onViewEncounter = useCallback(async () => {
     loadEncounter(row.encounterId, true);
-  }, [row]);
+  }, [row, loadEncounter]);
   const onCompleteReferral = useCallback(async () => {
     await api.put(`referral/${row.id}`, { status: REFERRAL_STATUSES.COMPLETED });
     refreshTable();
-  }, [row]);
+  }, [row, api, refreshTable]);
 
   const actions = [
     {
@@ -84,8 +84,8 @@ const ActionDropdown = React.memo(({ row, refreshTable }) => {
   );
 });
 
+const fieldNames = ['Referring doctor', 'Referral completed by'];
 const ReferralBy = ({ surveyResponse: { survey, answers } }) => {
-  const fieldNames = ['Referring doctor', 'Referral completed by'];
   const api = useApi();
   const [name, setName] = useState('N/A');
 
@@ -116,7 +116,7 @@ const ReferralBy = ({ surveyResponse: { survey, answers } }) => {
         }
       }
     })();
-  }, [survey]);
+  }, [survey, answers, api]);
 
   return name;
 };

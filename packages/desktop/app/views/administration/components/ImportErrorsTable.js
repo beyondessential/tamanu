@@ -20,18 +20,13 @@ const ErrorText = styled.span`
 const COLUMNS = [
   { key: 'sheet', title: 'Sheet', width: 1 },
   { key: 'row', title: 'Row' },
-  { key: 'error', title: 'Error', accessor: data => (
-    <ErrorText>{data.errors.join(', ')}</ErrorText>
-  )},
+  {
+    key: 'error',
+    title: 'Error',
+    accessor: data => <ErrorText>{data.errors.join(', ')}</ErrorText>,
+  },
 ];
 
 export const ImportErrorsTable = ({ errors }) => {
-  return (
-    <Table
-      rowIdKey="row"
-      columns={COLUMNS}
-      noDataMessage="All good!"
-      data={errors}
-    />
-  );
+  return <Table rowIdKey="row" columns={COLUMNS} noDataMessage="All good!" data={errors} />;
 };

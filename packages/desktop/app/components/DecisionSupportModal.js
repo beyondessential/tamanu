@@ -8,7 +8,7 @@ import { DateDisplay } from './DateDisplay';
 import { ModalActionRow } from './ModalActionRow';
 
 const RepeatDiagnosisMessage = React.memo(({ previousDiagnoses }) => (
-  <React.Fragment>
+  <>
     <p>
       {`Attention: 
       This patient has been previously diagnosed with ${previousDiagnoses[0].diagnosis.name} on:
@@ -21,7 +21,7 @@ const RepeatDiagnosisMessage = React.memo(({ previousDiagnoses }) => (
         </li>
       ))}
     </ul>
-  </React.Fragment>
+  </>
 ));
 
 const DumbDecisionSupportModal = React.memo(({ message, onClose }) => {

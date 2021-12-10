@@ -66,10 +66,10 @@ const StatusDisplay = React.memo(({ encounterType, startTime }) => {
   switch (encounterType) {
     case 'triage':
       return (
-        <React.Fragment>
+        <>
           <LiveDurationDisplay startTime={startTime} />
           <small>{`Triage at ${moment(startTime).format('h:mma')}`}</small>
-        </React.Fragment>
+        </>
       );
     case 'observation':
       return 'Seen';
@@ -123,10 +123,13 @@ const COLUMNS = [
 
 const DumbTriageTable = React.memo(({ onViewEncounter, ...props }) => {
   const { loadEncounter } = useEncounter();
-  const viewEncounter = useCallback(async triage => {
-    await loadEncounter(triage.encounterId);
-    onViewEncounter(triage);
-  }, []);
+  const viewEncounter = useCallback(
+    async triage => {
+      await loadEncounter(triage.encounterId);
+      onViewEncounter(triage);
+    },
+    [loadEncounter, onViewEncounter],
+  );
 
   return (
     <DataFetchingTable

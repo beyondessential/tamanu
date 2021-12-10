@@ -13,17 +13,17 @@ export const NestedVitalsModal = ({ field }) => {
       field.onChange({ target: { name: field.name, value: data } });
       setModalOpen(false);
     },
-    [setModalOpen, field.name, field.onChange],
+    [field],
   );
 
   return (
-    <React.Fragment>
+    <>
       <Button onClick={openModal} variant="contained" color="primary">
         Record vitals
       </Button>
       <Modal open={isOpen} onClose={closeModal}>
         <VitalsForm editedObject={field.value || {}} onSubmit={onSubmit} onCancel={closeModal} />
       </Modal>
-    </React.Fragment>
+    </>
   );
 };

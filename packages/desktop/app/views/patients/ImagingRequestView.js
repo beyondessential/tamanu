@@ -22,7 +22,6 @@ import {
 } from '../../components/Field';
 import { useApi } from '../../api';
 import { Suggester } from '../../utils/suggester';
-import { IMAGING_REQUEST_STATUS_LABELS } from '../../constants';
 
 const BackLink = connect(null, dispatch => ({
   onClick: () => dispatch(push('/patients/encounter')),
@@ -74,7 +73,7 @@ const DumbImagingRequestInfoPane = React.memo(
             />
             {(values.status === IMAGING_REQUEST_STATUS_TYPES.IN_PROGRESS ||
               values.status === IMAGING_REQUEST_STATUS_TYPES.COMPLETED) && (
-              <React.Fragment>
+              <>
                 <Field
                   name="completedById"
                   label="Completed by"
@@ -87,7 +86,7 @@ const DumbImagingRequestInfoPane = React.memo(
                   component={AutocompleteField}
                   suggester={locationSuggester}
                 />
-              </React.Fragment>
+              </>
             )}
             {values?.status === IMAGING_REQUEST_STATUS_TYPES.COMPLETED && (
               <TextInput
@@ -99,7 +98,7 @@ const DumbImagingRequestInfoPane = React.memo(
                 style={{ gridColumn: '1 / -1', minHeight: '60px' }}
               />
             )}
-            {/* Needs custom styling to properly display view image button to the left*/}
+            {/* Needs custom styling to properly display view image button to the left */}
             <ButtonRow style={{ gridTemplateColumns: '8rem auto 8rem' }}>
               <Button
                 variant="contained"
