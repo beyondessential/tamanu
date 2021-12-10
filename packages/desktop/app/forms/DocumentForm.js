@@ -41,7 +41,7 @@ export const DocumentForm = ({ actionText, onSubmit, onCancel, editedObject }) =
       />
       <Field name="documentOwner" label="Document owner" component={TextField} />
       <Field
-        name="department"
+        name="departmentId"
         label="Department"
         component={AutocompleteField}
         suggester={departmentSuggester}
