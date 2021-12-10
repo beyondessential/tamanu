@@ -20,7 +20,7 @@ export const FILE_FILTERS = [
 
 export const DocumentForm = ({ actionText, onSubmit, onCancel, editedObject }) => {
   const api = useApi();
-  const practitionerSuggester = new Suggester(api, 'practitioner');
+  const departmentSuggester = new Suggester(api, 'department');
 
   const renderForm = ({ submitForm }) => (
     <FormGrid>
@@ -39,13 +39,13 @@ export const DocumentForm = ({ actionText, onSubmit, onCancel, editedObject }) =
         component={TextField}
         style={{ gridColumn: '1 / -1' }}
       />
+      <Field name="documentOwner" label="Document owner" component={TextField} />
       <Field
-        name="documentOwner"
-        label="Document owner"
+        name="department"
+        label="Department"
         component={AutocompleteField}
-        suggester={practitionerSuggester}
+        suggester={departmentSuggester}
       />
-      <Field name="department" label="Department" component={TextField} />
       <Field name="note" label="Note" component={TextField} style={{ gridColumn: '1 / -1' }} />
       <ButtonRow>
         <Button variant="contained" onClick={onCancel}>
