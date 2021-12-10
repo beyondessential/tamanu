@@ -44,14 +44,25 @@ export const PatientDisplay = ({ surveyCompleted = false }) => {
   const patient = useSelector(state => state.patient);
   const shouldShowCancel = !surveyCompleted;
   const dispatch = useDispatch();
+
   const onViewPatient = useCallback(() => {
     dispatch(viewPatient(patient.id));
   }, [patient.id, dispatch]);
+
+  const onViewPatientKeyUp = useCallback(
+    e => {
+      if (e.code === 'Enter') {
+        onViewPatient();
+      }
+    },
+    [onViewPatient],
+  );
+
   return (
     <Header>
       <FlexRow>
         <Heading variant="h3">
-          <div tabIndex="0" role="button" onClick={onViewPatient} onKeyUp={onViewPatient}>
+          <div tabIndex="0" role="button" onClick={onViewPatient} onKeyUp={onViewPatientKeyUp}>
             <PatientNameDisplay patient={patient} />
           </div>
         </Heading>

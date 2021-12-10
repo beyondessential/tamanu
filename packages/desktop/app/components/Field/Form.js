@@ -18,20 +18,6 @@ const FormErrors = ({ errors }) => {
   ));
 };
 
-Form.propTypes = {
-  onError: PropTypes.func,
-  onSubmit: PropTypes.func.isRequired,
-  render: PropTypes.func.isRequired,
-  showInlineErrorsOnly: PropTypes.bool,
-  initialValues: PropTypes.shape({}),
-};
-
-Form.defaultProps = {
-  showInlineErrorsOnly: false,
-  onError: null,
-  initialValues: {},
-};
-
 export class Form extends React.PureComponent {
   constructor() {
     super();
@@ -156,3 +142,17 @@ export class Form extends React.PureComponent {
     );
   }
 }
+
+Form.propTypes = {
+  onError: PropTypes.func,
+  onSubmit: PropTypes.func.isRequired,
+  render: PropTypes.func.isRequired,
+  showInlineErrorsOnly: PropTypes.bool,
+  initialValues: PropTypes.shape({}),
+};
+
+Form.defaultProps = {
+  showInlineErrorsOnly: false,
+  onError: null,
+  initialValues: {},
+};

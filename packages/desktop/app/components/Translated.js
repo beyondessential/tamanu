@@ -16,23 +16,6 @@ polyglot.extend(en);
 const SHOW_TRANSLATE_ID =
   process.env.NODE_ENV === 'development' || process.env.DEBUG_PROD === 'true';
 
-Translated.propTypes = {
-  /** ID of string */
-  id: PropTypes.string.isRequired,
-  /**
-   * Values to interpolate, for eg:
-   *  en.json: "greeting": "Hello, %{name}!"
-   *  greeting.js: <Translated id="greeting" values={ { name: "Joe" } } />
-   *  renders: Hello, Joe!
-   * See polyglot docs for more info.
-   */
-  values: PropTypes.shape({}),
-};
-
-Translated.defaultProps = {
-  values: {},
-};
-
 export class Translated extends React.PureComponent {
   // Function to fetch a translated string. Implemented as a static method to
   // increase friction in using this function instead of the component.
@@ -50,3 +33,20 @@ export class Translated extends React.PureComponent {
     return text;
   }
 }
+
+Translated.propTypes = {
+  /** ID of string */
+  id: PropTypes.string.isRequired,
+  /**
+   * Values to interpolate, for eg:
+   *  en.json: "greeting": "Hello, %{name}!"
+   *  greeting.js: <Translated id="greeting" values={ { name: "Joe" } } />
+   *  renders: Hello, Joe!
+   * See polyglot docs for more info.
+   */
+  values: PropTypes.shape({}),
+};
+
+Translated.defaultProps = {
+  values: {},
+};

@@ -54,7 +54,7 @@ export const AppointmentForm = props => {
       }
       onSuccess();
     },
-    [api, appointment.id, initialValues.startTime, isUpdating, onSuccess],
+    [api, appointment, initialValues.startTime, isUpdating, onSuccess],
   );
   return (
     <Form

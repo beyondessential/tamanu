@@ -21,8 +21,7 @@ import {
 import { checkAbility } from '../utils/ability';
 import { Colors } from '../constants';
 
-export const ButtonBase = props => {
-  const { disabled } = props;
+export const ButtonBase = ({ disabled, ...props }) => {
   const allowed = isAllowed(props);
   const locationsProps = getLocationProps(props);
   return <MuiButtonBase {...props} {...locationsProps} disabled={!allowed || disabled} />;

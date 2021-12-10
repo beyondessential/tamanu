@@ -20,10 +20,6 @@ import { noteTypes } from '../constants';
 
 const selectableNoteTypes = noteTypes.filter(x => !x.hideFromDropdown);
 
-NoteForm.propTypes = {
-  onSubmit: PropTypes.func.isRequired,
-};
-
 export class NoteForm extends React.PureComponent {
   renderForm = ({ submitForm }) => {
     const { practitionerSuggester, onCancel } = this.props;
@@ -68,3 +64,7 @@ export class NoteForm extends React.PureComponent {
     );
   }
 }
+
+NoteForm.propTypes = {
+  onSubmit: PropTypes.func.isRequired,
+};

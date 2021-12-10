@@ -8,16 +8,6 @@ import { ConfirmCancelRow } from '../components/ButtonRow';
 
 import { foreignKey } from '../utils/validation';
 
-PatientCarePlanForm.propTypes = {
-  onSubmit: PropTypes.func.isRequired,
-  onCancel: PropTypes.func.isRequired,
-  editedObject: PropTypes.shape({}),
-};
-
-PatientCarePlanForm.defaultProps = {
-  editedObject: null,
-};
-
 export class PatientCarePlanForm extends React.PureComponent {
   renderForm = ({ submitForm }) => {
     const { editedObject, onCancel, practitionerSuggester, carePlanSuggester } = this.props;
@@ -74,3 +64,13 @@ export class PatientCarePlanForm extends React.PureComponent {
     );
   }
 }
+
+PatientCarePlanForm.propTypes = {
+  onSubmit: PropTypes.func.isRequired,
+  onCancel: PropTypes.func.isRequired,
+  editedObject: PropTypes.shape({}),
+};
+
+PatientCarePlanForm.defaultProps = {
+  editedObject: null,
+};

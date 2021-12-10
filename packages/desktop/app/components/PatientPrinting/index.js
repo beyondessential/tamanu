@@ -88,15 +88,6 @@ export const PatientPrintDetailsModal = ({ patient }) => {
   const [imageData, setImageData] = useState('');
   const api = useApi();
 
-  const openModal = useCallback(() => {
-    setModalOpen(true);
-    setCurrentlyPrinting(null);
-  }, [setCurrentlyPrinting]);
-
-  const closeModal = useCallback(() => {
-    setModalOpen(false);
-  }, [setModalOpen]);
-
   const setCurrentlyPrinting = useCallback(
     async type => {
       setPrintType(type);
@@ -108,6 +99,15 @@ export const PatientPrintDetailsModal = ({ patient }) => {
     },
     [api, patient.id],
   );
+
+  const openModal = useCallback(() => {
+    setModalOpen(true);
+    setCurrentlyPrinting(null);
+  }, [setCurrentlyPrinting]);
+
+  const closeModal = useCallback(() => {
+    setModalOpen(false);
+  }, [setModalOpen]);
 
   // The print system & the modals both use React's portal functionality,
   // which unfortunately means a printed page will show up blank if any

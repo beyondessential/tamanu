@@ -1,4 +1,4 @@
-import React, { useEffect, useState, memo, useMemo } from 'react';
+import React, { useEffect, useState, useCallback, memo } from 'react';
 import InputAdornment from '@material-ui/core/InputAdornment';
 
 import { discoverServer } from '../../api/discovery';
@@ -13,12 +13,12 @@ export function getSavedServer() {
 export const ServerDetectingField = memo(({ setFieldValue, ...props }) => {
   const [statusMessage, setStatusMessage] = useState('');
 
-  const setHost = useMemo(host => setFieldValue(props.field.name, host), [
+  const setHost = useCallback(host => setFieldValue(props.field.name, host), [
     setFieldValue,
     props.field.name,
   ]);
 
-  const attemptServerDetection = useMemo(async () => {
+  const attemptServerDetection = useCallback(async () => {
     setStatusMessage('Detecting server, please wait...');
     try {
       const serverDetails = await discoverServer();

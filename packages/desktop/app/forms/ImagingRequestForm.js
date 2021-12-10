@@ -33,15 +33,6 @@ function getEncounterLabel(encounter) {
   return `${encounterDate} (${encounterTypeLabel})`;
 }
 
-DumbImagingRequestForm.propTypes = {
-  onSubmit: PropTypes.func.isRequired,
-  onMount: PropTypes.func,
-};
-
-DumbImagingRequestForm.defaultProps = {
-  onMount: null,
-};
-
 class DumbImagingRequestForm extends React.PureComponent {
   componentDidMount() {
     const { onMount } = this.props;
@@ -129,6 +120,15 @@ class DumbImagingRequestForm extends React.PureComponent {
     );
   }
 }
+
+DumbImagingRequestForm.propTypes = {
+  onSubmit: PropTypes.func.isRequired,
+  onMount: PropTypes.func,
+};
+
+DumbImagingRequestForm.defaultProps = {
+  onMount: null,
+};
 
 export const ImagingRequestForm = connect(
   state => ({

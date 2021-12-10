@@ -16,16 +16,6 @@ import { ConfirmCancelRow } from '../components/ButtonRow';
 
 import { foreignKey } from '../utils/validation';
 
-OngoingConditionForm.propTypes = {
-  onSubmit: PropTypes.func.isRequired,
-  onCancel: PropTypes.func.isRequired,
-  editedObject: PropTypes.shape({}),
-};
-
-OngoingConditionForm.defaultProps = {
-  editedObject: null,
-};
-
 export class OngoingConditionForm extends React.PureComponent {
   renderForm = ({ submitForm, values }) => {
     const { editedObject, onCancel, practitionerSuggester, icd10Suggester } = this.props;
@@ -107,3 +97,13 @@ export class OngoingConditionForm extends React.PureComponent {
     );
   }
 }
+
+OngoingConditionForm.propTypes = {
+  onSubmit: PropTypes.func.isRequired,
+  onCancel: PropTypes.func.isRequired,
+  editedObject: PropTypes.shape({}),
+};
+
+OngoingConditionForm.defaultProps = {
+  editedObject: null,
+};

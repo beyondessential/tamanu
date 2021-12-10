@@ -29,10 +29,6 @@ const InfoPopupLabel = React.memo(() => (
   </span>
 ));
 
-TriageForm.propTypes = {
-  onSubmit: PropTypes.func.isRequired,
-};
-
 export class TriageForm extends React.PureComponent {
   renderForm = ({ submitForm }) => {
     const {
@@ -176,3 +172,7 @@ export class TriageForm extends React.PureComponent {
     );
   }
 }
+
+TriageForm.propTypes = {
+  onSubmit: PropTypes.func.isRequired,
+};

@@ -96,10 +96,6 @@ const StartPage = ({ setValue }) => {
   return <SelectorGrid>{items}</SelectorGrid>;
 };
 
-EncounterForm.propTypes = {
-  onSubmit: PropTypes.func.isRequired,
-};
-
 export class EncounterForm extends React.PureComponent {
   renderForm = ({ values, setFieldValue, submitForm }) => {
     if (!values.encounterType) {
@@ -194,3 +190,7 @@ export class EncounterForm extends React.PureComponent {
     );
   }
 }
+
+EncounterForm.propTypes = {
+  onSubmit: PropTypes.func.isRequired,
+};

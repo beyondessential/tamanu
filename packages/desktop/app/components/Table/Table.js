@@ -168,55 +168,6 @@ const ErrorRow = React.memo(({ colSpan, children }) => (
   </RowContainer>
 ));
 
-TableComponent.propTypes = {
-  columns: PropTypes.arrayOf(
-    PropTypes.shape({
-      key: PropTypes.string.isRequired,
-      title: PropTypes.node,
-      accessor: PropTypes.func,
-      sortable: PropTypes.bool,
-    }),
-  ).isRequired,
-  data: PropTypes.arrayOf(PropTypes.shape({})).isRequired,
-  errorMessage: PropTypes.string,
-  noDataMessage: PropTypes.string,
-  isLoading: PropTypes.bool,
-  count: PropTypes.number,
-  onChangePage: PropTypes.func,
-  onChangeRowsPerPage: PropTypes.func,
-  onChangeOrderBy: PropTypes.func,
-  orderBy: PropTypes.string,
-  order: PropTypes.string,
-  page: PropTypes.number,
-  rowsPerPage: PropTypes.number,
-  onRowClick: PropTypes.func,
-  rowsPerPageOptions: PropTypes.arrayOf(PropTypes.number),
-  rowIdKey: PropTypes.string,
-  className: PropTypes.string,
-  exportName: PropTypes.string,
-  onTableRefresh: PropTypes.func,
-};
-
-TableComponent.defaultProps = {
-  errorMessage: '',
-  noDataMessage: 'No data found',
-  count: 0,
-  isLoading: false,
-  onChangePage: null,
-  onChangeRowsPerPage: null,
-  onChangeOrderBy: null,
-  orderBy: null,
-  order: 'asc',
-  page: null,
-  onRowClick: null,
-  rowsPerPage: DEFAULT_ROWS_PER_PAGE_OPTIONS[0],
-  rowsPerPageOptions: DEFAULT_ROWS_PER_PAGE_OPTIONS,
-  rowIdKey: 'id', // specific to data expected for tamanu REST api fetches
-  className: null,
-  exportName: 'TamanuExport',
-  onTableRefresh: null,
-};
-
 class TableComponent extends React.Component {
   getErrorMessage() {
     const { isLoading, errorMessage, data, noDataMessage } = this.props;
@@ -331,6 +282,55 @@ class TableComponent extends React.Component {
     );
   }
 }
+
+TableComponent.propTypes = {
+  columns: PropTypes.arrayOf(
+    PropTypes.shape({
+      key: PropTypes.string.isRequired,
+      title: PropTypes.node,
+      accessor: PropTypes.func,
+      sortable: PropTypes.bool,
+    }),
+  ).isRequired,
+  data: PropTypes.arrayOf(PropTypes.shape({})).isRequired,
+  errorMessage: PropTypes.string,
+  noDataMessage: PropTypes.string,
+  isLoading: PropTypes.bool,
+  count: PropTypes.number,
+  onChangePage: PropTypes.func,
+  onChangeRowsPerPage: PropTypes.func,
+  onChangeOrderBy: PropTypes.func,
+  orderBy: PropTypes.string,
+  order: PropTypes.string,
+  page: PropTypes.number,
+  rowsPerPage: PropTypes.number,
+  onRowClick: PropTypes.func,
+  rowsPerPageOptions: PropTypes.arrayOf(PropTypes.number),
+  rowIdKey: PropTypes.string,
+  className: PropTypes.string,
+  exportName: PropTypes.string,
+  onTableRefresh: PropTypes.func,
+};
+
+TableComponent.defaultProps = {
+  errorMessage: '',
+  noDataMessage: 'No data found',
+  count: 0,
+  isLoading: false,
+  onChangePage: null,
+  onChangeRowsPerPage: null,
+  onChangeOrderBy: null,
+  orderBy: null,
+  order: 'asc',
+  page: null,
+  onRowClick: null,
+  rowsPerPage: DEFAULT_ROWS_PER_PAGE_OPTIONS[0],
+  rowsPerPageOptions: DEFAULT_ROWS_PER_PAGE_OPTIONS,
+  rowIdKey: 'id', // specific to data expected for tamanu REST api fetches
+  className: null,
+  exportName: 'TamanuExport',
+  onTableRefresh: null,
+};
 
 export const Table = ({ columns: allColumns, data, exportName, ...props }) => {
   const { getLocalisation } = useLocalisation();

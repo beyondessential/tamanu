@@ -15,10 +15,6 @@ const BloodPressureFieldsContainer = styled.div`
   grid-gap: 0.5rem;
 `;
 
-VitalsForm.propTypes = {
-  onSubmit: PropTypes.func.isRequired,
-};
-
 export class VitalsForm extends React.PureComponent {
   renderForm = ({ submitForm }) => {
     const { onCancel } = this.props;
@@ -78,3 +74,7 @@ export class VitalsForm extends React.PureComponent {
     );
   }
 }
+
+VitalsForm.propTypes = {
+  onSubmit: PropTypes.func.isRequired,
+};

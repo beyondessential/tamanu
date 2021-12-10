@@ -17,6 +17,9 @@ export const MultiselectInput = ({
   form: { initialValues },
   ...props
 }) => {
+  const values = value ? value.split(', ') : [];
+  const initialSelectedOptions = options.filter(option => values.includes(option.value));
+
   const [selected, setSelected] = useState(initialSelectedOptions);
   const handleChange = useCallback(
     selectedOptions => {
@@ -50,10 +53,6 @@ export const MultiselectInput = ({
       </OuterLabelFieldWrapper>
     );
   }
-
-  const values = value ? value.split(', ') : [];
-
-  const initialSelectedOptions = options.filter(option => values.includes(option.value));
 
   return (
     <OuterLabelFieldWrapper label={label} {...props}>
