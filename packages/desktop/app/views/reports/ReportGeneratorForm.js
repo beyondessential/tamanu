@@ -180,31 +180,34 @@ const DumbReportGeneratorForm = ({ currentUser, onSuccessfulSubmit }) => {
     [reportsById],
   );
 
-  async function submitRequestReport(formValues) {
-    const { reportType, emails, ...restValues } = formValues;
-    try {
-      if (dataSource === REPORT_DATA_SOURCES.THIS_FACILITY) {
-        const excelData = await generateFacilityReport(api, reportType, restValues);
+  const submitRequestReport = useCallback(
+    async formValues => {
+      const { reportType, emails, ...restValues } = formValues;
+      try {
+        if (dataSource === REPORT_DATA_SOURCES.THIS_FACILITY) {
+          const excelData = await generateFacilityReport(api, reportType, restValues);
 
-        const filePath = await saveExcelFile(excelData, {
-          promptForFilePath: true,
-          defaultFileName: reportType,
-        });
+          const filePath = await saveExcelFile(excelData, {
+            promptForFilePath: true,
+            defaultFileName: reportType,
+          });
+          // eslint-disable-next-line no-console
+          console.log('file saved at ', filePath);
+        } else {
+          await submitReportRequest(api, reportType, restValues, formValues.emails);
+        }
+
+        if (onSuccessfulSubmit) {
+          onSuccessfulSubmit();
+        }
+      } catch (e) {
         // eslint-disable-next-line no-console
-        console.log('file saved at ', filePath);
-      } else {
-        await submitReportRequest(api, reportType, restValues, formValues.emails);
+        console.error('Unable to submit report request', e);
+        setRequestError(`Unable to submit report request - ${e.message}`);
       }
-
-      if (onSuccessfulSubmit) {
-        onSuccessfulSubmit();
-      }
-    } catch (e) {
-      // eslint-disable-next-line no-console
-      console.error('Unable to submit report request', e);
-      setRequestError(`Unable to submit report request - ${e.message}`);
-    }
-  }
+    },
+    [api, dataSource, onSuccessfulSubmit],
+  );
 
   // Wait until available reports are loaded to render.
   // This is a workaround because of an issue that the onChange callback (when selecting a report)

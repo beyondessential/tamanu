@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { useCallback } from 'react';
 import styled from 'styled-components';
 import Button from '@material-ui/core/Button';
 import ButtonGroup from '@material-ui/core/ButtonGroup';
@@ -31,17 +31,17 @@ export const DropdownButton = React.memo(({ actions, color, dropdownColor, ...pr
     actions[index].onClick(event);
   }
 
-  function handleToggle() {
+  const handleToggle = useCallback(() => {
     setOpen(prevOpen => !prevOpen);
-  }
+  }, []);
 
-  function handleClose(event) {
+  const handleClose = useCallback(event => {
     if (anchorRef.current && anchorRef.current.contains(event.target)) {
       return;
     }
 
     setOpen(false);
-  }
+  }, []);
 
   const [mainAction, ...otherActions] = actions;
 

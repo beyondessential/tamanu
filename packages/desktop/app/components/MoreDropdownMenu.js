@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { useCallback } from 'react';
 import ClickAwayListener from '@material-ui/core/ClickAwayListener';
 import MoreVertIcon from '@material-ui/icons/MoreVert';
 import MoreHorizIcon from '@material-ui/icons/MoreHoriz';
@@ -15,17 +15,17 @@ export const MoreDropdownMenu = ({ actions, className, iconDirection = 'vertical
     actions[index].onClick(event);
   }
 
-  function handleToggle() {
+  const handleToggle = useCallback(() => {
     setOpen(prevOpen => !prevOpen);
-  }
+  }, []);
 
-  function handleClose(event) {
+  const handleClose = useCallback(event => {
     if (anchorRef.current && anchorRef.current.contains(event.target)) {
       return;
     }
 
     setOpen(false);
-  }
+  }, []);
 
   if (!actions.length) {
     return null;
