@@ -22,37 +22,39 @@ export const DocumentForm = ({ actionText, onSubmit, onCancel, editedObject }) =
   const api = useApi();
   const practitionerSuggester = new Suggester(api, 'practitioner');
 
+  const renderForm = ({ submitForm }) => (
+    <FormGrid>
+      <Field
+        component={FileChooserField}
+        filters={[FILE_FILTERS]}
+        label="Select file"
+        name="file"
+        required
+      />
+      <Field name="name" label="File name" required component={TextField} />
+      <Field
+        name="ownerId"
+        label="Document owner"
+        component={AutocompleteField}
+        suggester={practitionerSuggester}
+      />
+      <Field name="department" label="Department" component={TextField} />
+      <Field name="comment" label="Comment" component={TextField} />
+      <ButtonRow>
+        <Button variant="contained" onClick={onCancel}>
+          Cancel
+        </Button>
+        <Button variant="contained" onClick={submitForm} color="primary">
+          {actionText}
+        </Button>
+      </ButtonRow>
+    </FormGrid>
+  );
+
   return (
     <Form
       onSubmit={onSubmit}
-      render={({ submitForm }) => (
-        <FormGrid>
-          <Field
-            component={FileChooserField}
-            filters={[FILE_FILTERS]}
-            label="Select file"
-            name="file"
-            required
-          />
-          <Field name="name" label="File name" required component={TextField} />
-          <Field
-            name="ownerId"
-            label="Document owner"
-            component={AutocompleteField}
-            suggester={practitionerSuggester}
-          />
-          <Field name="department" label="Department" component={TextField} />
-          <Field name="comment" label="Comment" component={TextField} />
-          <ButtonRow>
-            <Button variant="contained" onClick={onCancel}>
-              Cancel
-            </Button>
-            <Button variant="contained" onClick={submitForm} color="primary">
-              {actionText}
-            </Button>
-          </ButtonRow>
-        </FormGrid>
-      )}
+      render={renderForm}
       initialValues={{
         date: new Date(),
         ...editedObject,
