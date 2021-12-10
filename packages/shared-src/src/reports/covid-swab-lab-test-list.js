@@ -355,11 +355,7 @@ const getLabTestRecords = async (labTests, transformedAnswers, parameters) => {
   return results;
 };
 
-<<<<<<< HEAD
-export const dataGenerator = async (models, parameters = {}) => {
-=======
 export const dataGenerator = async ({ models }, parameters = {}) => {
->>>>>>> dev
   const labTests = await getLabTests(models, parameters);
   const answers = await getFijiCovidAnswers(models, parameters);
   const components = await models.SurveyScreenComponent.getComponentsForSurvey(FIJI_SAMP_SURVEY_ID);
