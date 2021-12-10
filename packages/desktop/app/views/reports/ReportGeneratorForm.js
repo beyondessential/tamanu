@@ -6,7 +6,7 @@ import { connect } from 'react-redux';
 import styled from 'styled-components';
 import * as Yup from 'yup';
 import { LoadingIndicator } from '../../components/LoadingIndicator';
-import { useApi } from '../../api';
+import { connectApi, useApi } from '../../api';
 import {
   AutocompleteField,
   Button,
@@ -15,6 +15,8 @@ import {
   Form,
   RadioField,
   TextField,
+  SelectField,
+  MultiselectField,
 } from '../../components';
 import { FormGrid } from '../../components/FormGrid';
 import { Colors, MUI_SPACING_UNIT, REPORT_DATA_SOURCES } from '../../constants';
@@ -27,8 +29,16 @@ import { DiagnosisField } from './DiagnosisField';
 import { saveExcelFile } from '../../utils/saveExcelFile';
 import { VaccineCategoryField } from './VaccineCategoryField';
 import { VaccineField } from './VaccineField';
+import { Suggester } from '../../utils/suggester';
 
 const EmptyField = styled.div``;
+
+const ParameterAutocompleteField = connectApi((api, _, props) => ({
+  suggester: new Suggester(api, props.suggesterEndpoint),
+}))(props => <Field component={AutocompleteField} suggester={props.suggester} {...props} />);
+
+const ParameterSelectField = props => <Field component={SelectField} {...props} />;
+const ParameterMultiselectField = props => <Field component={MultiselectField} {...props} />;
 
 const PARAMETER_FIELD_COMPONENTS = {
   VillageField: VillageField,
@@ -38,6 +48,9 @@ const PARAMETER_FIELD_COMPONENTS = {
   VaccineCategoryField: VaccineCategoryField,
   VaccineField: VaccineField,
   EmptyField: EmptyField,
+  ParameterAutocompleteField: ParameterAutocompleteField,
+  ParameterSelectField: ParameterSelectField,
+  ParameterMultiselectField: ParameterMultiselectField,
 };
 
 const Spacer = styled.div`
@@ -89,13 +102,11 @@ const ErrorMessageContainer = styled(Grid)`
   margin-top: 20px;
 `;
 
-const RequestErrorMessage = ({ errorMessage }) => {
-  return (
-    <ErrorMessageContainer>
-      <Typography color="error">{`Error: ${errorMessage}`}</Typography>
-    </ErrorMessageContainer>
-  );
-};
+const RequestErrorMessage = ({ errorMessage }) => (
+  <ErrorMessageContainer>
+    <Typography color="error">{`Error: ${errorMessage}`}</Typography>
+  </ErrorMessageContainer>
+);
 
 const getAvailableReports = async api => api.get('reports');
 
@@ -242,23 +253,28 @@ const DumbReportGeneratorForm = ({ currentUser, onSuccessfulSubmit }) => {
             <>
               <Spacer />
               <FormGrid columns={3}>
-                {parameters.map(({ parameterField, required, name, label }, index) => {
-                  const ParameterFieldComponent = PARAMETER_FIELD_COMPONENTS[parameterField];
-                  return (
-                    <ParameterFieldComponent
-                      key={index}
-                      required={required}
-                      name={name}
-                      label={label}
-                      parameterValues={values}
-                    />
-                  );
-                })}
+                {parameters.map(
+                  ({ parameterField, required, name, label, ...restOfProps }, index) => {
+                    const ParameterFieldComponent = PARAMETER_FIELD_COMPONENTS[parameterField];
+                    return (
+                      <ParameterFieldComponent
+                        key={index}
+                        required={required}
+                        name={name}
+                        label={label}
+                        parameterValues={values}
+                        {...restOfProps}
+                      />
+                    );
+                  },
+                )}
               </FormGrid>
             </>
           ) : null}
           <Spacer />
-          <DateRangeLabel variant="body1">Date range (or leave blank for the past 30 days of data)</DateRangeLabel>
+          <DateRangeLabel variant="body1">
+            Date range (or leave blank for the past 30 days of data)
+          </DateRangeLabel>
           <FormGrid columns={2}>
             <Field name="fromDate" label="From date" component={DateField} />
             <Field name="toDate" label="To date" component={DateField} />
