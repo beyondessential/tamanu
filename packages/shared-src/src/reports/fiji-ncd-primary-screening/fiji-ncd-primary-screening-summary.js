@@ -21,71 +21,68 @@ const ETHNICITY_IDS = {
 const FIELDS = {
   date: { title: 'Date' },
   patientsScreened: {
-    title: 'Total patients screened',
+    title: 'Total individuals screened',
   },
   screened: {
-    title: 'Total screened',
+    title: 'Total screening events',
     selectSql: 'true',
   },
   screenedMale: {
-    title: 'Total screened by male',
+    title: 'Total screening events by male',
     selectSql: "patient.sex = 'male'",
   },
   screenedFemale: {
-    title: 'Total screened by female',
+    title: 'Total screening events by female',
     selectSql: "patient.sex = 'female'",
   },
   'screened<30': {
-    title: 'Total screened by <30 years',
+    title: 'Total screening events by <30 years',
     selectSql: 'extract(year from age(patient.date_of_birth)) < 30',
   },
   'screened>30': {
-    title: 'Total screened by >30 years',
+    title: 'Total screening events by >30 years',
     selectSql: 'extract(year from age(patient.date_of_birth)) >= 30',
   },
   screenedItaukei: {
-    title: 'Total screened by Itaukei',
+    title: 'Total screening events by Itaukei',
     selectSql: `additional_data.ethnicity_id = '${ETHNICITY_IDS.ITAUKEI}'`,
   },
   screenedIndian: {
-    title: 'Total screened by Fijian of Indian descent',
+    title: 'Total screening events by Fijian of Indian descent',
     selectSql: `additional_data.ethnicity_id = '${ETHNICITY_IDS.INDIAN}'`,
   },
   screenedOther: {
-    title: 'Total screened by other ethnicity',
+    title: 'Total screening events by other ethnicity',
     selectSql: `additional_data.ethnicity_id = '${ETHNICITY_IDS.OTHERS}'`,
   },
   'screenedRisk<10': {
-    title: 'Total screened by CVD risk <10% (%)',
+    title: 'Total screening events by CVD risk <10%',
     selectSql: "(sr.result_text like '%GREEN%')",
   },
   'screenedRisk10-20': {
-    title: 'Total screened by CVD risk 10% to <20% (%)',
+    title: 'Total screening events by CVD risk 10% to <20%',
     selectSql: "(sr.result_text like '%YELLOW%')",
   },
   'screenedRisk20-30': {
-    title: 'Total screened by CVD risk 20% to <30% (%)',
+    title: 'Total screening events by CVD risk 20% to <30%',
     selectSql: "(sr.result_text like '%ORANGE%')",
   },
   'screenedRisk30-40': {
-    title: 'Total screened by CVD risk 30% to <40% (%)',
+    title: 'Total screening events by CVD risk 30% to <40%',
     selectSql: "(sr.result_text like '%RED%')",
   },
   'screenedRisk>40': {
-    title: 'Total screened by CVD risk ≥40% (%)',
+    title: 'Total screening events by CVD risk ≥40%',
     selectSql: "(sr.result_text like '%PURPLE%')",
   },
   // Use % on both sides to strip off potential whitespace
   screenedHighBreastCancerRisk: {
-    title: 'Total screened by high risk of breast cancer',
+    title: 'Total screening events by high risk of breast cancer',
     selectSql: "(sr.result_text like '%High risk%')",
   },
   referredNumber: {
     title: 'Total referred',
     selectSql: 'referral_sr.id is not null',
-  },
-  referredPercent: {
-    title: 'Total referred (%)',
   },
   referredMale: {
     title: 'Total referred by male',
@@ -298,11 +295,6 @@ const getTotalPatientsScreened = async (sequelize, parameters) => {
   );
 };
 
-const addReferredPercent = dataForDate => {
-  const { screened, referredNumber } = dataForDate;
-  return { ...dataForDate, referredPercent: `${Math.round((referredNumber / screened) * 100)}%` };
-};
-
 export const dataGenerator = async ({ sequelize }, parameters = {}) => {
   const patientsScreenedData = await getTotalPatientsScreened(sequelize, parameters);
   const patientsScreenedByDate = keyBy(patientsScreenedData, 'date');
@@ -314,9 +306,12 @@ export const dataGenerator = async ({ sequelize }, parameters = {}) => {
       patientsScreened: parseInt(patientsScreenedByDate[date].patientsScreened, 10),
       ...sumObjectsByKey(resultsForDate.map(({ date: _, ...summableKeys }) => summableKeys)),
     }))
-    .map(addReferredPercent)
     // Sort oldest to most recent
-    .sort(({ date: date1 }, { date: date2 }) => moment(date1) - moment(date2));
+    .sort(({ date: date1 }, { date: date2 }) => moment(date1) - moment(date2))
+    .map(({ date, ...otherFields }) => ({
+      date: moment(date).format('DD-MM-YYYY'),
+      ...otherFields,
+    }));
 
   return generateReportFromQueryData(reportData, reportColumnTemplate);
 };

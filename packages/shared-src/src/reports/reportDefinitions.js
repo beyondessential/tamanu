@@ -163,6 +163,7 @@ export const REPORT_DEFINITIONS = [
   {
     name: 'Fiji NCD primary screening - Summary',
     id: 'fiji-ncd-primary-screening-summary',
+    allFacilities: true,
     parameters: [
       {
         parameterField: 'ParameterMultiselectField',
