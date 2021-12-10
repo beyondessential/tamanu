@@ -27,7 +27,7 @@ export async function report(store, options) {
       name,
       reportParameters,
       reportRecipients,
-      store.models,
+      store,
       emailService,
     );
     log.info(`Running report "${name}" with parameters "${parameters}"`);
