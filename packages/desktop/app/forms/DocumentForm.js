@@ -30,8 +30,15 @@ export const DocumentForm = ({ actionText, onSubmit, onCancel, editedObject }) =
         label="Select file"
         name="file"
         required
+        style={{ gridColumn: '1 / -1' }}
       />
-      <Field name="name" label="File name" required component={TextField} />
+      <Field
+        name="name"
+        label="File name"
+        required
+        component={TextField}
+        style={{ gridColumn: '1 / -1' }}
+      />
       <Field
         name="ownerId"
         label="Document owner"
@@ -39,7 +46,12 @@ export const DocumentForm = ({ actionText, onSubmit, onCancel, editedObject }) =
         suggester={practitionerSuggester}
       />
       <Field name="department" label="Department" component={TextField} />
-      <Field name="comment" label="Comment" component={TextField} />
+      <Field
+        name="comment"
+        label="Comment"
+        component={TextField}
+        style={{ gridColumn: '1 / -1' }}
+      />
       <ButtonRow>
         <Button variant="contained" onClick={onCancel}>
           Cancel
