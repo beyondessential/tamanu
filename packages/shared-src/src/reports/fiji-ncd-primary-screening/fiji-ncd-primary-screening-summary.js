@@ -315,7 +315,9 @@ export const dataGenerator = async ({ sequelize }, parameters = {}) => {
       ...sumObjectsByKey(resultsForDate.map(({ date: _, ...summableKeys }) => summableKeys)),
     }))
     .map(addReferredPercent)
-    .sort(({ date: date1 }, { date: date2 }) => moment(date2) - moment(date1));
+    // Sort oldest to most recent
+    .sort(({ date: date1 }, { date: date2 }) => moment(date1) - moment(date2));
+
   return generateReportFromQueryData(reportData, reportColumnTemplate);
 };
 
