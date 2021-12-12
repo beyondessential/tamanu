@@ -12,10 +12,10 @@ import { Button } from '../components/Button';
 import { ButtonRow } from '../components/ButtonRow';
 
 export const FILE_FILTERS = [
-  { name: 'Microsoft Excel files (.xls - .xlsx)', extensions: ['xls', 'xlsx'] },
   { name: 'PDF (.pdf)', extensions: ['pdf'] },
-  { name: 'Word (.doc - .docx)', extensions: ['doc', 'docx'] },
   { name: 'JPEG (.jpeg - .jpg)', extensions: ['jpeg', 'jpg'] },
+  { name: 'Word (.doc - .docx)', extensions: ['doc', 'docx'] },
+  { name: 'Excel', extensions: ['xls', 'xlsx', 'xlsm'] },
 ];
 
 export const DocumentForm = ({ actionText, onSubmit, onCancel, editedObject }) => {
