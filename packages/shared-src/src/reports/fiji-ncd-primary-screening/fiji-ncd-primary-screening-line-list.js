@@ -155,7 +155,18 @@ export const dataGenerator = async ({ models }, parameters = {}) => {
     }
   }
 
-  return generateReportFromQueryData(reportData, PRIMARY_SCREENING_REPORT_COLUMN_TEMPLATE);
+  const sortedReportData = reportData.sort(
+    ({ dateOfScreening: date1 }, { dateOfScreening: date2 }) => {
+      if (date2 && !date1) return 1;
+      if (date1 && !date2) return -1;
+      if (!date1 && !date2) return 0;
+
+      // Sort oldest to most recent
+      return moment(date1, 'DD-MM-YYYY') - moment(date2, 'DD-MM-YYYY');
+    },
+  );
+
+  return generateReportFromQueryData(sortedReportData, PRIMARY_SCREENING_REPORT_COLUMN_TEMPLATE);
 };
 
 export const permission = 'SurveyResponse';

@@ -65,7 +65,7 @@ export const SurveyResponseDetailsModal = connectApi(api => ({
         setLoading(false);
       })();
     }
-  }, [surveyResponseId]);
+  }, [surveyResponseId, fetchResponseDetails]);
 
   if (loading || !surveyDetails) {
     return (

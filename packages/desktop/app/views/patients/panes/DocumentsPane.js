@@ -24,7 +24,7 @@ export const DocumentsPane = React.memo(({ encounter, patient, showSearchBar = f
       setDocumentModalOpen(false);
       dispatch(reloadPatient(patient.id));
     },
-    [patient],
+    [api, patient, dispatch],
   );
 
   return (

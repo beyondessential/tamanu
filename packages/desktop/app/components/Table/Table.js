@@ -3,7 +3,7 @@
  * Copyright (c) 2018 Beyond Essential Systems Pty Ltd
  */
 
-import React from 'react';
+import React, { useCallback } from 'react';
 import PropTypes from 'prop-types';
 import styled from 'styled-components';
 import MaterialTable from '@material-ui/core/Table';
@@ -35,9 +35,10 @@ const CellErrorMessage = styled.div`
 `;
 
 const CellError = React.memo(({ error }) => {
-  const showMessage = React.useCallback(() => {
+  const showMessage = useCallback(() => {
+    // eslint-disable-next-line no-console
     console.log(error);
-  });
+  }, [error]);
 
   return <CellErrorMessage onClick={showMessage}>ERROR</CellErrorMessage>;
 });
@@ -50,19 +51,19 @@ const StyledTableRow = styled(TableRow)`
   ${p =>
     p.onClick
       ? `
-          cursor: pointer;
-          &:hover {
-            background: rgba(255,255,255,0.6);
-          }
-        `
+      cursor: pointer;
+      &:hover {
+        background: rgba(255,255,255,0.6);
+      }
+    `
       : ''}
 
   ${p =>
     p.striked
       ? `
-          color: red;
-          text-decoration: line-through;
-        `
+    color: red;
+    text-decoration: line-through;
+  `
       : ''}
 `;
 
@@ -169,55 +170,6 @@ const ErrorRow = React.memo(({ colSpan, children }) => (
 ));
 
 class TableComponent extends React.Component {
-  static propTypes = {
-    columns: PropTypes.arrayOf(
-      PropTypes.shape({
-        key: PropTypes.string.isRequired,
-        title: PropTypes.node,
-        accessor: PropTypes.func,
-        sortable: PropTypes.bool,
-      }),
-    ).isRequired,
-    data: PropTypes.arrayOf(PropTypes.shape({})).isRequired,
-    errorMessage: PropTypes.string,
-    noDataMessage: PropTypes.string,
-    isLoading: PropTypes.bool,
-    count: PropTypes.number,
-    onChangePage: PropTypes.func,
-    onChangeRowsPerPage: PropTypes.func,
-    onChangeOrderBy: PropTypes.func,
-    orderBy: PropTypes.string,
-    order: PropTypes.string,
-    page: PropTypes.number,
-    rowsPerPage: PropTypes.number,
-    onRowClick: PropTypes.func,
-    rowsPerPageOptions: PropTypes.arrayOf(PropTypes.number),
-    rowIdKey: PropTypes.string,
-    className: PropTypes.string,
-    exportName: PropTypes.string,
-    onTableRefresh: PropTypes.func,
-  };
-
-  static defaultProps = {
-    errorMessage: '',
-    noDataMessage: 'No data found',
-    count: 0,
-    isLoading: false,
-    onChangePage: null,
-    onChangeRowsPerPage: null,
-    onChangeOrderBy: null,
-    orderBy: null,
-    order: 'asc',
-    page: null,
-    onRowClick: null,
-    rowsPerPage: DEFAULT_ROWS_PER_PAGE_OPTIONS[0],
-    rowsPerPageOptions: DEFAULT_ROWS_PER_PAGE_OPTIONS,
-    rowIdKey: 'id', // specific to data expected for tamanu REST api fetches
-    className: null,
-    exportName: 'TamanuExport',
-    onTableRefresh: null,
-  };
-
   getErrorMessage() {
     const { isLoading, errorMessage, data, noDataMessage } = this.props;
     if (isLoading) return 'Loading...';
@@ -331,6 +283,55 @@ class TableComponent extends React.Component {
     );
   }
 }
+
+TableComponent.propTypes = {
+  columns: PropTypes.arrayOf(
+    PropTypes.shape({
+      key: PropTypes.string.isRequired,
+      title: PropTypes.node,
+      accessor: PropTypes.func,
+      sortable: PropTypes.bool,
+    }),
+  ).isRequired,
+  data: PropTypes.arrayOf(PropTypes.shape({})).isRequired,
+  errorMessage: PropTypes.string,
+  noDataMessage: PropTypes.string,
+  isLoading: PropTypes.bool,
+  count: PropTypes.number,
+  onChangePage: PropTypes.func,
+  onChangeRowsPerPage: PropTypes.func,
+  onChangeOrderBy: PropTypes.func,
+  orderBy: PropTypes.string,
+  order: PropTypes.string,
+  page: PropTypes.number,
+  rowsPerPage: PropTypes.number,
+  onRowClick: PropTypes.func,
+  rowsPerPageOptions: PropTypes.arrayOf(PropTypes.number),
+  rowIdKey: PropTypes.string,
+  className: PropTypes.string,
+  exportName: PropTypes.string,
+  onTableRefresh: PropTypes.func,
+};
+
+TableComponent.defaultProps = {
+  errorMessage: '',
+  noDataMessage: 'No data found',
+  count: 0,
+  isLoading: false,
+  onChangePage: null,
+  onChangeRowsPerPage: null,
+  onChangeOrderBy: null,
+  orderBy: null,
+  order: 'asc',
+  page: null,
+  onRowClick: null,
+  rowsPerPage: DEFAULT_ROWS_PER_PAGE_OPTIONS[0],
+  rowsPerPageOptions: DEFAULT_ROWS_PER_PAGE_OPTIONS,
+  rowIdKey: 'id', // specific to data expected for tamanu REST api fetches
+  className: null,
+  exportName: 'TamanuExport',
+  onTableRefresh: null,
+};
 
 export const Table = ({ columns: allColumns, data, exportName, ...props }) => {
   const { getLocalisation } = useLocalisation();

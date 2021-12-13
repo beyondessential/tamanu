@@ -16,6 +16,8 @@ const Container = styled.div`
   justify-content: center;
 `;
 
-export const PatientInitialsIcon = memo(({ patient }) => (
-  <Container>{`${patient.firstName ? patient.firstName.substring(0, 1) : ''}${patient.lastName ? patient.lastName.substring(0, 1) : ''}`}</Container>
-)); // TODO add sync status symbol
+export const PatientInitialsIcon = memo(({ patient }) => {
+  const first = patient.firstName ? patient.firstName.substring(0, 1) : '';
+  const last = patient.lastName ? patient.lastName.substring(0, 1) : '';
+  return <Container>{`${first}${last}`}</Container>;
+}); // TODO add sync status symbol

@@ -165,7 +165,7 @@ export const CustomisablePatientSearchBar = ({
         </Button>
       </div>
     ),
-    [fields],
+    [fieldElements],
   );
 
   return (

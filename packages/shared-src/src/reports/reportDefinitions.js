@@ -101,7 +101,7 @@ export const REPORT_DEFINITIONS = [
     id: 'png-assistive-technology-device-line-list',
   },
   {
-    name: 'Fiji Recent Attendance - Line list',
+    name: 'Fiji recent attendance - Line list',
     id: 'fiji-recent-attendance-list',
     parameters: [
       { parameterField: 'VillageField' },
@@ -163,6 +163,7 @@ export const REPORT_DEFINITIONS = [
   {
     name: 'Fiji NCD primary screening - Summary',
     id: 'fiji-ncd-primary-screening-summary',
+    allFacilities: true,
     parameters: [
       {
         parameterField: 'ParameterMultiselectField',
