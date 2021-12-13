@@ -67,6 +67,7 @@ export const DocumentForm = ({ actionText, onSubmit, onCancel, editedObject }) =
         ...editedObject,
       }}
       validationSchema={yup.object().shape({
+        file: yup.string().required('Please select a file to complete this request'),
         name: foreignKey('File name is required'),
       })}
     />
