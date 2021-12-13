@@ -142,6 +142,8 @@ export const SecondaryDetailsGroup = () => {
         component={AutocompleteField}
         suggester={patientBillingTypeSuggester}
       />
+      <LocalisedField name="emergencyContactName" component={TextField} />
+      <LocalisedField name="emergencyContactNumber" component={TextField} type="tel" />
     </>
   );
 };

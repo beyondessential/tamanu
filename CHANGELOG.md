@@ -22,6 +22,59 @@
 
 - (left blank)
 
+## v1.11.0
+
+### Manual steps required after upgrade ⚙
+
+- Fiji only:
+  - set appropriate HL7 settings in local.json
+    - specifically:
+```
+  "hl7": {
+    "assigners": {
+      "patientDisplayId": "VRS"
+    },
+    "dataDictionaries": {
+      "patientDisplayId": "http://data-dictionary.tamanu-fiji.org/application-reference-number.html",
+      "labRequestDisplayId": "http://data-dictionary.tamanu-fiji.org/labrequest-reference-number.html"
+    },
+  },
+```
+
+- Everywhere:
+  - set a `canonicalHostName` in `local.json`:
+```
+{
+   "canonicalHostName": "https://example.com"
+}
+```
+
+
+### Features ⭐
+
+- New 'medications' section in patient summary view.
+- Discharge modal now displays a list of active medicines that can be selected.
+- Added integration with Fiji's VPS
+- Added integration with Fiji's VRS
+
+### Tweaks ⚖️
+
+- Forms can now display custom error messages.
+- EncounterMedication model now has two new fields: isDischarge and repeats.
+- New migration for encounter_medications table to account for the new fields.
+- Encounter api route now manages selected discharge medications.
+- Split SelectField and MultiselectField into distinct components
+- SelectField no longer internally tracks its value
+- Remove 'required' attribute for Completed by and Location fields in ImagingRequestView
+
+### Bug fixes 🐛
+
+- (left blank)
+
+### Infrastructure and maintenance 🛠
+
+- (left blank)
+
 ## v1.10.0
 
 ### Manual steps required after upgrade ⚙

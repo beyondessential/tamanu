@@ -1,8 +1,10 @@
 import { log } from 'shared/services/logging';
 import { EmailService } from '../app/services/EmailService';
 import { ReportRunner } from '../app/report/ReportRunner';
+import { initDatabase } from '../app/database';
 
-export async function report(store, options) {
+export async function report(options) {
+  const store = await initDatabase({ testMode: false });
   try {
     const { name, parameters, recipients } = options;
     let reportParameters = {};
@@ -38,22 +40,4 @@ export async function report(store, options) {
     process.exit(1);
   }
   process.exit(0);
-}
-
-function getRoutes(router, prefix = '') {
-  const getRouteName = ({ regexp }) =>
-    regexp
-      .toString()
-      .replace(/\\\//g, '/')
-      .replace(/^\/\^(.*)\/i$/, '$1')
-      .replace('/?(?=/|$)', '');
-  let routes = [];
-  router.stack.forEach(middleware => {
-    if (middleware.route) {
-      routes.push(`${prefix}${middleware.route.path.replace(/(\$|\/)$/, '')}`);
-    } else if (middleware.name === 'router') {
-      routes = [...routes, ...getRoutes(middleware.handle, `${prefix}${getRouteName(middleware)}`)];
-    }
-  });
-  return routes;
 }

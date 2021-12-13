@@ -120,6 +120,26 @@ export async function createDummyPatient(models, overrides = {}) {
   };
 }
 
+const randomDigits = length => chance.string({ length, pool: '0123456789' });
+
+function randomPhoneNumber() {
+  return `04${randomDigits(2)} ${randomDigits(3)} ${randomDigits(3)}`;
+}
+
+export async function createDummyPatientAdditionalData() {
+  return {
+    placeOfBirth: chance.city(),
+    bloodType: chance.pick(['A+', 'B+', 'A-', 'B-', 'AB+', 'AB-', 'O+', 'O-']),
+    primaryContactNumber: randomPhoneNumber(),
+    secondaryContactNumber: randomPhoneNumber(),
+    maritalStatus: chance.pick(['Single', 'Married', 'Defacto']),
+    cityTown: chance.city(),
+    streetVillage: `${Math.floor(Math.random() * 200)} ${chance.street({ short_suffix: true })}`,
+    drivingLicense: randomDigits(10),
+    passport: randomDigits(10),
+  };
+}
+
 export async function createDummyEncounterDiagnosis(models, overrides = {}) {
   const duration = chance.natural({
     min: HOUR,
@@ -131,6 +151,28 @@ export async function createDummyEncounterDiagnosis(models, overrides = {}) {
     certainty: chance.bool() ? 'suspected' : 'confirmed',
     isPrimary: chance.bool(),
     diagnosisId: await randomReferenceId(models, 'icd10'),
+    ...overrides,
+  };
+}
+
+// Needs a manually created encounter to be linked with
+export async function createDummyEncounterMedication(models, overrides = {}) {
+  return {
+    date: new Date(),
+    endDate: new Date(Date.now() + HOUR),
+    prescription: chance.sentence({ words: chance.integer({ min: 4, max: 8 }) }),
+    note: chance.sentence({ words: chance.integer({ min: 4, max: 8 }) }),
+    indication: chance.sentence({ words: chance.integer({ min: 4, max: 8 }) }),
+    route: chance.word(),
+    qtyMorning: chance.integer({ min: 0, max: 3 }),
+    qtyLunch: chance.integer({ min: 0, max: 3 }),
+    qtyEvening: chance.integer({ min: 0, max: 3 }),
+    qtyNight: chance.integer({ min: 0, max: 3 }),
+    quantity: chance.integer({ min: 0, max: 3 }),
+    repeats: 0,
+    isDischarge: false,
+    prescriberId: await randomUser(models),
+    medicationId: await randomReferenceId(models, 'drug'),
     ...overrides,
   };
 }

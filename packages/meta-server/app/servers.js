@@ -10,13 +10,9 @@ import { getUrl, getBool, getMilliseconds } from './render/cell';
 export const serversRouter = express.Router();
 
 const servers = [
-  { name: 'Dev', type: 'dev', host: 'https://sync-dev.tamanu.io' },
-  { name: 'Demo', type: 'live', host: 'https://sync-demo.tamanu.io' },
-  { name: 'Staging', type: 'dev', host: 'https://sync-staging.tamanu.io' },
-  { name: 'Demo (Nauru)', type: 'live', host: 'https://sync-demo-nauru.tamanu.io' },
-  { name: 'Stress testing', type: 'dev', host: 'https://sync-stress-test.tamanu.io' },
+  // live servers
   { name: 'Fiji', type: 'live', host: 'https://sync.tamanu-fiji.org' },
-  { name: 'Samoa', type: 'live', host: 'https://tamanu-sync.health.gov.ws' },
+  { name: 'Fiji NCD', type: 'live', host: 'https://sync-ncd-pilot.tamanu-fiji.org' },
   {
     name: 'Motivation Australia - Iraq',
     type: 'live',
@@ -33,8 +29,17 @@ const servers = [
     host: 'https://motivation-sync-india.tamanu.io',
   },
   { name: 'Nauru', type: 'live', host: 'https://sync.tamanu-nauru.org' },
-  { name: 'Fiji NCD', type: 'live', host: 'https://sync-ncd-pilot.tamanu-fiji.org' },
-  { name: 'Demo (Fiji NCD Pilot)', type: 'live', host: 'https://testsync.tamanu-fiji.org' },
+  { name: 'Samoa', type: 'live', host: 'https://tamanu-sync.health.gov.ws' },
+
+  // demo servers
+  { name: 'Demo', type: 'demo', host: 'https://sync-demo.tamanu.io' },
+  { name: 'Demo (Fiji)', type: 'demo', host: 'https://sync-demo.tamanu-fiji.org' },
+  { name: 'Demo (Nauru)', type: 'demo', host: 'https://sync-demo-nauru.tamanu.io' },
+
+  // development servers
+  { name: 'Dev', type: 'dev', host: 'https://sync-dev.tamanu.io' },
+  { name: 'Staging', type: 'dev', host: 'https://sync-staging.tamanu.io' },
+  { name: 'Stress testing', type: 'dev', host: 'https://sync-stress-test.tamanu.io' },
 ];
 
 serversRouter.get('/', (req, res) => {
@@ -53,11 +58,11 @@ serversRouter.get('/readable', (req, res) => {
 
 const getStatuses = () => {
   const STATUS_CHECK_TIMEOUT_MS = 10 * 1000;
-  const EXPECTED_RUNTIME = 'Tamanu Sync Server';
+  const EXPECTED_SERVER_TYPE = 'Tamanu Sync Server';
 
   return Promise.all(
-    servers.map(async ({ name, host }) => {
-      const status = { name, host };
+    servers.map(async ({ name, host, type }) => {
+      const status = { name, host, type };
       try {
         // collect results
         const startTime = Date.now();
@@ -71,10 +76,11 @@ const getStatuses = () => {
             `Expected body to include '{"index":true}' but got ${await result.blob()}`,
           );
         }
-        const runtime = result.headers.get('X-Runtime');
-        if (runtime !== EXPECTED_RUNTIME) {
+        // TODO: deprecate X-Runtime
+        const serverType = result.headers.get('X-Tamanu-Server') || result.headers.get('X-Runtime');
+        if (serverType !== EXPECTED_SERVER_TYPE) {
           throw new Error(
-            `Expected X-Runtime header to be '${EXPECTED_RUNTIME}' but got ${runtime}`,
+            `Expected X-Tamanu-Server header to be '${EXPECTED_SERVER_TYPE}' but got ${serverType}`,
           );
         }
 
@@ -108,6 +114,7 @@ serversRouter.get(
           { key: 'name' },
           { key: 'success', getter: getBool },
           { key: 'version' },
+          { key: 'type' },
           { key: 'host', getter: getUrl },
           { key: 'latency', getter: getMilliseconds },
           { key: 'error' },

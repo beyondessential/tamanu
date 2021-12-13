@@ -187,7 +187,7 @@ export const SurveyView = ({ survey, onSubmit, onCancel, patient, currentUser })
 
   return (
     <>
-      <PatientDisplay />
+      <PatientDisplay surveyCompleted={surveyCompleted} />
       <ProgramsPane>
         <ProgramsPaneHeader>
           <ProgramsPaneHeading variant="h6">{survey.name}</ProgramsPaneHeading>

@@ -40,8 +40,9 @@ const LightText = styled(Typography)`
   top: -2px;
 `;
 
-export const PatientDisplay = () => {
+export const PatientDisplay = ({ surveyCompleted = false }) => {
   const patient = useSelector(state => state.patient);
+  const shouldShowCancel = !surveyCompleted;
   const dispatch = useDispatch();
   return (
     <Header>
@@ -56,7 +57,7 @@ export const PatientDisplay = () => {
         <LightText>({patient.displayId})</LightText>
       </FlexRow>
       <FlexRow>
-        <Button onClick={history.goBack}>Cancel</Button>
+        {shouldShowCancel && <Button onClick={history.goBack}>Cancel</Button>}
         <OutlinedButton
           onClick={() => {
             dispatch(clearPatient());

@@ -174,7 +174,7 @@ export class TamanuApi {
         ...this.authHeader,
         ...headers,
         'X-Version': this.appVersion,
-        'X-Runtime': 'Tamanu Desktop',
+        'X-Tamanu-Client': 'Tamanu Desktop',
       },
       ...otherConfig,
     });

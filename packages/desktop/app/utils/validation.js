@@ -5,5 +5,5 @@ import * as yup from 'yup';
 // but there's a benefit to having these field types explicitly treated differently
 // (note that an invalid FK will still be rejected by the server, 
 // so there's no safety issue here)
-export const foreignKey = message => yup.string().required();
+export const foreignKey = message => yup.string().required(message);
 export const optionalForeignKey = message => yup.string();

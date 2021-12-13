@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { useState, useCallback, useEffect } from 'react';
 import styled from 'styled-components';
 import moment from 'moment';
 import PropTypes from 'prop-types';
@@ -26,11 +26,11 @@ import { TextInput } from './TextField';
 function fromRFC3339(rfc3339Date, format) {
   if (!rfc3339Date) return '';
 
-  return moment.utc(rfc3339Date).format(format);
+  return moment(rfc3339Date).format(format);
 }
 
 function toRFC3339(date, format) {
-  return moment.utc(date, format).format();
+  return moment(date, format).toISOString();
 }
 
 const CalendarIcon = styled(CalendarToday)`
@@ -51,9 +51,9 @@ export const DateInput = ({
   placeholder,
   ...props
 }) => {
-  const [currentText, setCurrentText] = React.useState(fromRFC3339(value, format));
+  const [currentText, setCurrentText] = useState(fromRFC3339(value, format));
 
-  const onValueChange = React.useCallback(
+  const onValueChange = useCallback(
     event => {
       const formattedValue = event.target.value;
       const rfcValue = toRFC3339(formattedValue, format);
@@ -69,7 +69,7 @@ export const DateInput = ({
     [onChange, format],
   );
 
-  React.useEffect(() => {
+  useEffect(() => {
     const formattedValue = fromRFC3339(value, format);
     if (value && formattedValue) {
       setCurrentText(formattedValue);

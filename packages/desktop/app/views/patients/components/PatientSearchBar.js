@@ -143,7 +143,7 @@ export const CustomisablePatientSearchBar = ({
   );
 
   const renderSearchBar = useCallback(
-    ({ submitForm, resetForm }) => (
+    ({ submitForm, clearForm }) => (
       <div>
         <SearchInputContainer>{fieldElements}</SearchInputContainer>
         <Button
@@ -158,7 +158,7 @@ export const CustomisablePatientSearchBar = ({
         </Button>
         <Button
           style={{ marginTop: 10, marginLeft: '1rem' }}
-          onClick={resetForm}
+          onClick={clearForm}
           variant="outlined"
         >
           Clear search

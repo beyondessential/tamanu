@@ -27,6 +27,10 @@ const AutocompleteContainer = styled.div`
   .react-autosuggest__container {
     position: relative;
   }
+  .react-autosuggest__suggestions-container {
+    max-height: 300px;
+    overflow-y: auto;
+  }
 `;
 
 const renderInputComponent = inputProps => {
