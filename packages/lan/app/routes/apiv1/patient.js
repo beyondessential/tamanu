@@ -1,6 +1,6 @@
 import express from 'express';
 import asyncHandler from 'express-async-handler';
-import { QueryTypes } from 'sequelize';
+import { QueryTypes, Op } from 'sequelize';
 import { isEqual } from 'lodash';
 
 import { NotFoundError } from 'shared/errors';
@@ -9,8 +9,12 @@ import { simpleGetList, permissionCheckingRouter, runPaginatedQuery } from './cr
 import { renameObjectKeys } from '~/utils/renameObjectKeys';
 import { createPatientFilters } from '../../utils/patientFilters';
 import { patientVaccineRoutes } from './patient/patientVaccine';
+import { patientDocumentMetadataRoutes } from './patient/patientDocumentMetadata';
+
 import { patientProfilePicture } from './patient/patientProfilePicture';
 import { activeCovid19PatientsHandler } from '../../routeHandlers';
+
+import { getOrderClause } from '../../database/utils';
 
 const patientRoute = express.Router();
 export { patientRoute as patient };
@@ -180,7 +184,7 @@ patientRelations.get(
 );
 
 patientRelations.get(
-  '/:id/surveyResponses',
+  '/:id/programResponses',
   asyncHandler(async (req, res) => {
     const { db, models, params, query } = req;
     const patientId = params.id;
@@ -193,8 +197,12 @@ patientRelations.get(
           survey_responses
           LEFT JOIN encounters
             ON (survey_responses.encounter_id = encounters.id)
+          LEFT JOIN surveys
+            ON (survey_responses.survey_id = surveys.id)
         WHERE
           encounters.patient_id = :patientId
+        AND
+          surveys.survey_type = 'programs'
       `,
       `
         SELECT
@@ -215,6 +223,8 @@ patientRelations.get(
             ON (programs.id = surveys.program_id)
         WHERE
           encounters.patient_id = :patientId
+        AND
+          surveys.survey_type = 'programs'
       `,
       { patientId },
       query,
@@ -250,6 +260,60 @@ patientRoute.get(
 
     // explicitly send as json (as it might be null)
     res.json(currentEncounter);
+  }),
+);
+
+patientRoute.get(
+  '/:id/lastDischargedEncounter/medications',
+  asyncHandler(async (req, res) => {
+    const {
+      models: { Encounter, EncounterMedication },
+      params,
+      query,
+    } = req;
+
+    const { order = 'ASC', orderBy, rowsPerPage = 10, page = 0 } = query;
+
+    req.checkPermission('read', 'Patient');
+    req.checkPermission('read', 'Encounter');
+    req.checkPermission('list', 'EncounterMedication');
+
+    const lastDischargedEncounter = await Encounter.findOne({
+      where: {
+        patientId: params.id,
+        endDate: { [Op.not]: null },
+      },
+      order: [['endDate', 'DESC']],
+    });
+
+    // Return empty values if there isn't a discharged encounter
+    if (!lastDischargedEncounter) {
+      res.send({
+        count: 0,
+        data: [],
+      });
+      return;
+    }
+
+    // Find and return all associated encounter medications
+    const lastEncounterMedications = await EncounterMedication.findAndCountAll({
+      where: { encounterId: lastDischargedEncounter.id, isDischarge: true },
+      include: [
+        ...EncounterMedication.getFullReferenceAssociations(),
+        { association: 'encounter', include: [{ association: 'location' }] },
+      ],
+      order: orderBy ? getOrderClause(order, orderBy) : undefined,
+      limit: rowsPerPage,
+      offset: page * rowsPerPage,
+    });
+
+    const count = lastEncounterMedications.count;
+    const data = lastEncounterMedications.rows.map(x => x.forResponse());
+
+    res.send({
+      count,
+      data,
+    });
   }),
 );
 
@@ -390,3 +454,4 @@ patientRoute.get(
 patientRoute.get('/program/activeCovid19Patients', asyncHandler(activeCovid19PatientsHandler));
 
 patientRoute.use(patientVaccineRoutes);
+patientRoute.use(patientDocumentMetadataRoutes);

@@ -5,12 +5,32 @@ import { createReferralNotification } from 'shared/tasks/CreateReferralNotificat
 
 import { createApp } from '../app/createApp';
 import { startScheduledTasks } from '../app/tasks';
-import { EmailService } from '../app/services/EmailService';
+import { ApplicationContext } from '../app/ApplicationContext';
 import { version } from '../package.json';
 
 const port = config.port;
 
-export async function serve(store, options) {
+function getRoutes(router, prefix = '') {
+  const getRouteName = ({ regexp }) =>
+    regexp
+      .toString()
+      .replace(/\\\//g, '/')
+      .replace(/^\/\^(.*)\/i$/, '$1')
+      .replace('/?(?=/|$)', '');
+  let routes = [];
+  router.stack.forEach(middleware => {
+    if (middleware.route) {
+      routes.push(`${prefix}${middleware.route.path.replace(/(\$|\/)$/, '')}`);
+    } else if (middleware.name === 'router') {
+      routes = [...routes, ...getRoutes(middleware.handle, `${prefix}${getRouteName(middleware)}`)];
+    }
+  });
+  return routes;
+}
+
+export async function serve(options) {
+  const context = await new ApplicationContext().init();
+  const { store } = context;
   log.info(`Starting sync server version ${version}.`);
 
   if (config.db.migrateOnStartup) {
@@ -19,8 +39,6 @@ export async function serve(store, options) {
     await store.sequelize.assertUpToDate(options);
   }
 
-  const emailService = new EmailService();
-  const context = { store, emailService };
   const app = createApp(context);
 
   if (process.env.PRINT_ROUTES === 'true') {

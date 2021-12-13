@@ -66,20 +66,23 @@ const NewPatientButton = React.memo(({ onCreateNewPatient }) => {
   const showNewPatient = useCallback(() => {
     setCreatingPatient(true);
     setIsBirth(false);
-  }, [setCreatingPatient, setIsBirth]);
+  }, []);
 
   const showNewBirth = useCallback(() => {
     setCreatingPatient(true);
     setIsBirth(true);
-  }, [setCreatingPatient, setIsBirth]);
+  }, []);
 
-  const onCreate = useCallback(newPatient => {
-    setCreatingPatient(false);
-    onCreateNewPatient(newPatient.id);
-  });
+  const onCreate = useCallback(
+    newPatient => {
+      setCreatingPatient(false);
+      onCreateNewPatient(newPatient.id);
+    },
+    [onCreateNewPatient],
+  );
 
   return (
-    <React.Fragment>
+    <>
       <DropdownButton
         color="primary"
         actions={[
@@ -94,7 +97,7 @@ const NewPatientButton = React.memo(({ onCreateNewPatient }) => {
         onCancel={hideModal}
         onCreateNewPatient={onCreate}
       />
-    </React.Fragment>
+    </>
   );
 });
 

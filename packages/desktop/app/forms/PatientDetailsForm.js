@@ -36,7 +36,7 @@ export const PrimaryDetailsGroup = () => {
   }
 
   return (
-    <React.Fragment>
+    <>
       <LocalisedField name="firstName" component={TextField} required />
       <LocalisedField name="middleName" component={TextField} />
       <LocalisedField name="lastName" component={TextField} required />
@@ -50,7 +50,7 @@ export const PrimaryDetailsGroup = () => {
         inline
         required
       />
-    </React.Fragment>
+    </>
   );
 };
 
@@ -142,6 +142,8 @@ export const SecondaryDetailsGroup = () => {
         component={AutocompleteField}
         suggester={patientBillingTypeSuggester}
       />
+      <LocalisedField name="emergencyContactName" component={TextField} />
+      <LocalisedField name="emergencyContactNumber" component={TextField} type="tel" />
     </>
   );
 };
@@ -168,7 +170,7 @@ function sanitiseRecordForValues(data) {
   } = data;
 
   return Object.entries(remaining)
-    .filter(([k, v]) => {
+    .filter(([, v]) => {
       if (Array.isArray(v)) return false;
       if (typeof v === 'object') return false;
       return true;
@@ -189,17 +191,21 @@ function stripPatientData(patient) {
 }
 
 export const PatientDetailsForm = ({ patient, onSubmit }) => {
-  const render = React.useCallback(({ submitForm }) => (
-    <FormGrid>
-      <PrimaryDetailsGroup />
-      <SecondaryDetailsGroup />
-      <ButtonRow>
-        <Button variant="contained" color="primary" onClick={submitForm}>
-          Save
-        </Button>
-      </ButtonRow>
-    </FormGrid>
-  ));
-
-  return <Form render={render} initialValues={stripPatientData(patient)} onSubmit={onSubmit} />;
+  return (
+    <Form
+      render={({ submitForm }) => (
+        <FormGrid>
+          <PrimaryDetailsGroup />
+          <SecondaryDetailsGroup />
+          <ButtonRow>
+            <Button variant="contained" color="primary" onClick={submitForm}>
+              Save
+            </Button>
+          </ButtonRow>
+        </FormGrid>
+      )}
+      initialValues={stripPatientData(patient)}
+      onSubmit={onSubmit}
+    />
+  );
 };

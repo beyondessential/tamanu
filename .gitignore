@@ -29,6 +29,9 @@ dev
 deploy
 build
 
+# Test artefacts
+test.*.hl7.json
+
 # Local config files
 **/config/local.*
 
@@ -45,3 +48,4 @@ build
 /dockercfg
 
 /docker-volumes/
+

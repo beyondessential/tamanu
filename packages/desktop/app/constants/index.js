@@ -7,6 +7,8 @@ import {
   IMAGING_REQUEST_STATUS_TYPES,
   NOTE_TYPES,
   APPOINTMENT_TYPES,
+  APPOINTMENT_STATUSES,
+  REFERRAL_STATUSES,
 } from 'shared/constants';
 import {
   medicationIcon,
@@ -91,6 +93,12 @@ export const IMAGING_REQUEST_COLORS = {
   unknown: '#333',
 };
 
+export const REFERRAL_STATUS_LABELS = {
+  [REFERRAL_STATUSES.PENDING]: 'Pending',
+  [REFERRAL_STATUSES.CANCELLED]: 'Cancelled',
+  [REFERRAL_STATUSES.COMPLETED]: 'Completed',
+};
+
 export const columnStyle = {
   backgroundColor: Colors.white,
   height: '60px',
@@ -128,15 +136,6 @@ export const momentSimpleCalender = {
 };
 
 export const timeFormat = 'hh:mm a';
-
-export const pageSizes = {
-  patients: 10,
-  pregnancies: 5,
-  surveyResponses: 5,
-  medicationRequests: 10,
-  appointments: 10,
-  patientLabRequests: 5,
-};
 
 // Generate time picker select options
 export const timeSelectOptions = {
@@ -283,13 +282,6 @@ export const operativePlanStatusList = Object.values(operativePlanStatuses).map(
   label: capitalize(status),
 }));
 
-export const appointmentStatusList = [
-  { value: 'attended', label: 'Attended' },
-  { value: 'scheduled', label: 'Scheduled' },
-  { value: 'canceled', label: 'Canceled' },
-  { value: 'missed', label: 'Missed' },
-];
-
 export const bloodOptions = [
   { value: 'A+', label: 'A+' },
   { value: 'A-', label: 'A-' },
@@ -404,4 +396,12 @@ export const appointmentTypeOptions = Object.values(APPOINTMENT_TYPES).map(type 
   value: type,
 }));
 
-export const ALPHABET_FOR_ID = 'ABCDEFGH' + /*I*/ 'JK' + /*L*/ 'MN' + /*O*/ 'PQRSTUVWXYZ' + /*01*/ '23456789';
+export const appointmentStatusOptions = Object.values(APPOINTMENT_STATUSES).map(status => ({
+  label: status,
+  value: status,
+}));
+
+export const ALPHABET_FOR_ID =
+  // this is absolutely fine and the concat isn't useless
+  // eslint-disable-next-line no-useless-concat
+  'ABCDEFGH' + /* I */ 'JK' + /* L */ 'MN' + /* O */ 'PQRSTUVWXYZ' + /* 01 */ '23456789';

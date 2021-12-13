@@ -1,7 +1,7 @@
 import React from 'react';
 import styled from 'styled-components';
 
-import { ENCOUNTER_TYPES } from 'Shared/constants';
+import { ENCOUNTER_TYPES } from 'shared/constants';
 import { Colors } from '../../../constants';
 import { ImageButton, Button } from '../../../components/Button';
 import { DateDisplay } from '../../../components/DateDisplay';
@@ -109,10 +109,10 @@ export const PatientEncounterSummary = ({ viewEncounter, openCheckin, openTriage
     return (
       <Grid notAdmitted>
         <Content notAdmitted>
-          <Title notAdmitted>Not currently admitted</Title>
+          <Title notAdmitted>No current visit</Title>
           <Actions>
             <FirstButton src={medicationIcon} title="Admit" onClick={openCheckin}>
-              Admit
+              Admit or check-in
             </FirstButton>
             <StyledImageButton src={profileIcon} title="Triage" onClick={openTriage}>
               Triage

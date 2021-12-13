@@ -12,7 +12,7 @@ export const VitalsModal = ({ open, onClose, onSaved, encounterId }) => {
     <Modal title="Record vitals" open={open} onClose={onClose}>
       <VitalsForm
         onSubmit={async data => {
-          await api.post(`vitals`, {...data, encounterId});
+          await api.post(`vitals`, { ...data, encounterId });
           onSaved();
         }}
         onCancel={onClose}

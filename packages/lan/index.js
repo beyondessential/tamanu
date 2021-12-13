@@ -62,7 +62,7 @@ async function report(options) {
   const { getReportModule } = await import('shared/reports');
   const module = getReportModule(options.name);
   log.info(`Running report ${options.name} (with empty parameters)`);
-  const result = await module.dataGenerator(context.models, {});
+  const result = await module.dataGenerator(context, {});
   console.log(result);
   process.exit(0);
 }

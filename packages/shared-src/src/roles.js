@@ -163,6 +163,11 @@ export const practitioner = (user, allow, forbid) => {
   allow('list', 'Attachment');
   allow('read', 'Attachment');
 
+  allow('list', 'DocumentMetadata');
+  allow('read', 'DocumentMetadata');
+  allow('write', 'DocumentMetadata');
+  allow('create', 'DocumentMetadata');
+
   allow('list', 'Appointment');
   allow('read', 'Appointment');
   allow('write', 'Appointment');

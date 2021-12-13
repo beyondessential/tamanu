@@ -33,8 +33,10 @@ version packages/scripts/package.json
 
 echo "Updating changelog"
 template=scripts/changelog_template.md
-sed -e "/## vNEXT/{r $template" -e "d}" CHANGELOG.md -i
-sed -e "s/## vJUSTNOW/## v$VERSION/g" CHANGELOG.md -i
+sed -e "/## vNEXT/{" -e "r $template" -e "d" -e "}" CHANGELOG.md > CHANGELOG.md.2
+sed -e "s/## vJUSTNOW/## v$VERSION/g" CHANGELOG.md.2 > CHANGELOG.md.3
+rm CHANGELOG.md CHANGELOG.md.2
+mv CHANGELOG.md.3 CHANGELOG.md
 
 cat << EOF
 Don't forget to manually update the checks in:

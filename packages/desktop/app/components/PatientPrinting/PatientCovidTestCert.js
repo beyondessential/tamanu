@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useMemo } from 'react';
 
 import { Modal } from '../Modal';
 import { Certificate, Table } from '../Print/Certificate';
@@ -13,41 +13,44 @@ const DumbPatientCovidTestCert = ({ patient, getLabRequests, getLabTests }) => {
   const [rows, setRows] = useState([]);
   const { getLocalisation } = useLocalisation();
 
-  const columns = [
-    {
-      key: 'date-of-swab',
-      title: 'Date of swab',
-      accessor: ({ sampleTime }) => <DateDisplay date={sampleTime} />,
-    },
-    {
-      key: 'date-of-test',
-      title: 'Date of test',
-      accessor: getCompletedDate,
-    },
-    {
-      key: 'laboratory',
-      title: 'Laboratory',
-      accessor: getLaboratory,
-    },
-    {
-      key: 'requestId',
-      title: 'Request ID',
-      accessor: getRequestId,
-    },
-    {
-      key: 'laboratoryOfficer',
-      title: 'Lab officer',
-    },
-    {
-      key: 'method',
-      title: 'Method',
-      accessor: getMethod,
-    },
-    {
-      key: 'result',
-      title: 'Result',
-    },
-  ];
+  const columns = useMemo(
+    () => [
+      {
+        key: 'date-of-swab',
+        title: 'Date of swab',
+        accessor: ({ sampleTime }) => <DateDisplay date={sampleTime} />,
+      },
+      {
+        key: 'date-of-test',
+        title: 'Date of test',
+        accessor: getCompletedDate,
+      },
+      {
+        key: 'laboratory',
+        title: 'Laboratory',
+        accessor: getLaboratory,
+      },
+      {
+        key: 'requestId',
+        title: 'Request ID',
+        accessor: getRequestId,
+      },
+      {
+        key: 'laboratoryOfficer',
+        title: 'Lab officer',
+      },
+      {
+        key: 'method',
+        title: 'Method',
+        accessor: getMethod,
+      },
+      {
+        key: 'result',
+        title: 'Result',
+      },
+    ],
+    [],
+  );
 
   useEffect(() => {
     (async () => {
@@ -71,7 +74,7 @@ const DumbPatientCovidTestCert = ({ patient, getLabRequests, getLabTests }) => {
         })),
       );
     })();
-  }, []);
+  }, [columns, getLabRequests, getLabTests]);
   return (
     <Modal open={open} onClose={() => setOpen(false)} width="md" printable>
       <Certificate

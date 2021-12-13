@@ -1,7 +1,6 @@
 import { log } from 'shared/services/logging';
 import { parseArguments } from 'shared/arguments';
 
-import { initDatabase } from './app/database';
 import { migrate, report, serve, setup, calculateSurveyResults } from './subCommands';
 
 async function run(command, options) {
@@ -17,8 +16,7 @@ async function run(command, options) {
     throw new Error(`Unrecognised subcommand: ${command}`);
   }
 
-  const { store } = await initDatabase({ testMode: false });
-  return subcommand(store, options);
+  return subcommand(options);
 }
 
 // catch and exit if run() throws an error
