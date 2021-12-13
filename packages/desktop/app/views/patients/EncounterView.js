@@ -15,7 +15,7 @@ import { ChangeEncounterTypeModal } from '../../components/ChangeEncounterTypeMo
 import { ChangeDepartmentModal } from '../../components/ChangeDepartmentModal';
 import { LabRequestModal } from '../../components/LabRequestModal';
 import { LabRequestsTable } from '../../components/LabRequestsTable';
-import { DataFetchingSurveyResponsesTable } from '../../components/SurveyResponsesTable';
+import { DataFetchingProgramsTable } from '../../components/ProgramResponsesTable';
 import { ImagingRequestModal } from '../../components/ImagingRequestModal';
 import { ImagingRequestsTable } from '../../components/ImagingRequestsTable';
 import { LoadingIndicator } from '../../components/LoadingIndicator';
@@ -228,7 +228,7 @@ const ProgramsPane = connect(null, dispatch => ({
 }))(
   React.memo(({ onNavigateToPrograms, encounter }) => (
     <div>
-      <DataFetchingSurveyResponsesTable encounterId={encounter.id} />
+      <DataFetchingProgramsTable encounterId={encounter.id} />
       <ContentPane>
         <Button onClick={onNavigateToPrograms} variant="contained" color="primary">
           New survey
@@ -412,13 +412,13 @@ const EncounterActionDropdown = connect(null, dispatch => ({
 );
 
 const EncounterActions = ({ encounter }) => (
-  <React.Fragment>
+  <>
     <EncounterActionDropdown encounter={encounter} />
     <RoutedDischargeModal encounter={encounter} />
     <RoutedChangeEncounterTypeModal encounter={encounter} />
     <RoutedChangeDepartmentModal encounter={encounter} />
     <RoutedMoveModal encounter={encounter} />
-  </React.Fragment>
+  </>
 );
 
 const AdmissionInfoRow = styled.div`

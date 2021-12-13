@@ -64,53 +64,21 @@ const renderInputComponent = inputProps => {
 };
 
 class BaseAutocomplete extends Component {
-  static propTypes = {
-    label: PropTypes.string,
-    required: PropTypes.bool,
-    disabled: PropTypes.bool,
-    error: PropTypes.bool,
-    helperText: PropTypes.string,
-    name: PropTypes.string,
-    className: PropTypes.string,
-    onChange: PropTypes.func.isRequired,
-    value: PropTypes.string,
-
-    suggester: PropTypes.shape({
-      fetchCurrentOption: PropTypes.func.isRequired,
-      fetchSuggestions: PropTypes.func.isRequired,
-    }),
-    options: PropTypes.arrayOf(
-      PropTypes.shape({
-        label: PropTypes.string,
-        value: PropTypes.oneOfType([PropTypes.string, PropTypes.number]),
-      }),
-    ),
-  };
-
-  static defaultProps = {
-    label: '',
-    required: false,
-    error: false,
-    disabled: false,
-    name: undefined,
-    helperText: '',
-    className: '',
-    value: '',
-    options: [],
-    suggester: null,
-  };
-
-  state = {
-    suggestions: [],
-    displayedValue: '',
-  };
+  constructor() {
+    super();
+    this.state = {
+      suggestions: [],
+      displayedValue: '',
+    };
+  }
 
   async componentDidMount() {
     await this.updateValue();
   }
 
   async componentDidUpdate(prevProps) {
-    if (this.props.value !== prevProps.value) {
+    const { value } = this.props;
+    if (value !== prevProps.value) {
       await this.updateValue();
     }
   }
@@ -222,6 +190,42 @@ class BaseAutocomplete extends Component {
     );
   }
 }
+
+BaseAutocomplete.propTypes = {
+  label: PropTypes.string,
+  required: PropTypes.bool,
+  disabled: PropTypes.bool,
+  error: PropTypes.bool,
+  helperText: PropTypes.string,
+  name: PropTypes.string,
+  className: PropTypes.string,
+  onChange: PropTypes.func.isRequired,
+  value: PropTypes.string,
+
+  suggester: PropTypes.shape({
+    fetchCurrentOption: PropTypes.func.isRequired,
+    fetchSuggestions: PropTypes.func.isRequired,
+  }),
+  options: PropTypes.arrayOf(
+    PropTypes.shape({
+      label: PropTypes.string,
+      value: PropTypes.oneOfType([PropTypes.string, PropTypes.number]),
+    }),
+  ),
+};
+
+BaseAutocomplete.defaultProps = {
+  label: '',
+  required: false,
+  error: false,
+  disabled: false,
+  name: undefined,
+  helperText: '',
+  className: '',
+  value: '',
+  options: [],
+  suggester: null,
+};
 
 export const AutocompleteInput = styled(BaseAutocomplete)`
   height: 250px;

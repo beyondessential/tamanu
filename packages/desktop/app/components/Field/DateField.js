@@ -66,7 +66,7 @@ export const DateInput = ({
 
       onChange({ target: { value: rfcValue, name } });
     },
-    [onChange, format],
+    [onChange, format, name],
   );
 
   useEffect(() => {

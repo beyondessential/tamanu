@@ -11,7 +11,6 @@ import { TriageModal } from '../../components/TriageModal';
 import { connectRoutedModal } from '../../components/Modal';
 
 import {
-  AppointmentPane,
   ConnectedPatientDetailsForm,
   HistoryPane,
   ImmunisationsPane,
@@ -81,7 +80,7 @@ export const DumbPatientView = React.memo(({ patient, loading }) => {
 
   if (loading) return <LoadingIndicator />;
   return (
-    <React.Fragment>
+    <>
       <PatientAlert alerts={patient.alerts} />
       <TwoColumnDisplay>
         <PatientInfoPane patient={patient} disabled={disabled} />
@@ -95,7 +94,7 @@ export const DumbPatientView = React.memo(({ patient, loading }) => {
       </TwoColumnDisplay>
       <RoutedEncounterModal patientId={patient.id} referrals={patient.referrals} />
       <RoutedTriageModal patient={patient} />
-    </React.Fragment>
+    </>
   );
 });
 

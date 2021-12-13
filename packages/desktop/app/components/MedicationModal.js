@@ -13,7 +13,7 @@ export const MedicationModal = ({ open, onClose, onSaved, encounterId, medicatio
   const onDiscontinue = () => {
     setShouldDiscontinue(true);
   };
-  
+
   const onDiscontinueSubmit = async data => {
     const payload = {
       discontinuingClinicianId: data?.discontinuingClinicianId,
@@ -35,14 +35,18 @@ export const MedicationModal = ({ open, onClose, onSaved, encounterId, medicatio
       ...data,
       encounterId,
     });
-   
+
     if (onSaved) {
       onSaved();
     }
   };
 
   return (
-    <Modal title={!readOnly ? "Prescribe medication" : 'Medication details'} open={open} onClose={onClose}>
+    <Modal
+      title={!readOnly ? 'Prescribe medication' : 'Medication details'}
+      open={open}
+      onClose={onClose}
+    >
       <MedicationForm
         onSubmit={readOnly ? onDiscontinueSubmit : onSaveSubmit}
         medication={medication}

@@ -6,7 +6,7 @@ import { connect } from 'react-redux';
 import styled from 'styled-components';
 import * as Yup from 'yup';
 import { LoadingIndicator } from '../../components/LoadingIndicator';
-import { useApi } from '../../api';
+import { connectApi, useApi } from '../../api';
 import {
   AutocompleteField,
   Button,
@@ -16,6 +16,7 @@ import {
   RadioField,
   TextField,
   SelectField,
+  MultiselectField,
 } from '../../components';
 import { FormGrid } from '../../components/FormGrid';
 import { Colors, MUI_SPACING_UNIT, REPORT_DATA_SOURCES } from '../../constants';
@@ -28,20 +29,28 @@ import { DiagnosisField } from './DiagnosisField';
 import { saveExcelFile } from '../../utils/saveExcelFile';
 import { VaccineCategoryField } from './VaccineCategoryField';
 import { VaccineField } from './VaccineField';
+import { Suggester } from '../../utils/suggester';
 
 const EmptyField = styled.div``;
 
+const ParameterAutocompleteField = connectApi((api, _, props) => ({
+  suggester: new Suggester(api, props.suggesterEndpoint),
+}))(props => <Field component={AutocompleteField} suggester={props.suggester} {...props} />);
+
 const ParameterSelectField = props => <Field component={SelectField} {...props} />;
+const ParameterMultiselectField = props => <Field component={MultiselectField} {...props} />;
 
 const PARAMETER_FIELD_COMPONENTS = {
-  VillageField: VillageField,
-  LabTestLaboratoryField: LabTestLaboratoryField,
-  PractitionerField: PractitionerField,
-  DiagnosisField: DiagnosisField,
-  VaccineCategoryField: VaccineCategoryField,
-  VaccineField: VaccineField,
-  EmptyField: EmptyField,
-  ParameterSelectField: ParameterSelectField,
+  VillageField,
+  LabTestLaboratoryField,
+  PractitionerField,
+  DiagnosisField,
+  VaccineCategoryField,
+  VaccineField,
+  EmptyField,
+  ParameterAutocompleteField,
+  ParameterSelectField,
+  ParameterMultiselectField,
 };
 
 const Spacer = styled.div`
@@ -116,10 +125,14 @@ const submitReportRequest = async (api, reportType, parameters, emails) =>
 // adding an onValueChange hook to the report type field
 // so we can keep internal state of the report type
 const ReportTypeField = ({ onValueChange, ...props }) => {
-  const changeCallback = useCallback(event => {
-    onValueChange(event.target.value);
-    props.field.onChange(event);
-  }, []);
+  const { field } = props;
+  const changeCallback = useCallback(
+    event => {
+      onValueChange(event.target.value);
+      field.onChange(event);
+    },
+    [onValueChange, field],
+  );
   return <AutocompleteField {...props} onChange={changeCallback} />;
 };
 
@@ -141,11 +154,12 @@ const DumbReportGeneratorForm = ({ currentUser, onSuccessfulSubmit }) => {
         setReportOptions(reports.map(r => ({ value: r.id, label: r.name })));
         setAvailableReports(reports);
       } catch (error) {
+        // eslint-disable-next-line no-console
         console.error(`Unable to load available reports`, error);
         setRequestError(`Unable to load available reports - ${error.message}`);
       }
     })();
-  }, []);
+  }, [api]);
 
   const selectReportHandle = useCallback(
     id => {
@@ -166,29 +180,34 @@ const DumbReportGeneratorForm = ({ currentUser, onSuccessfulSubmit }) => {
     [reportsById],
   );
 
-  async function submitRequestReport(formValues) {
-    const { reportType, emails, ...restValues } = formValues;
-    try {
-      if (dataSource === REPORT_DATA_SOURCES.THIS_FACILITY) {
-        const excelData = await generateFacilityReport(api, reportType, restValues);
+  const submitRequestReport = useCallback(
+    async formValues => {
+      const { reportType, emails, ...restValues } = formValues;
+      try {
+        if (dataSource === REPORT_DATA_SOURCES.THIS_FACILITY) {
+          const excelData = await generateFacilityReport(api, reportType, restValues);
 
-        const filePath = await saveExcelFile(excelData, {
-          promptForFilePath: true,
-          defaultFileName: reportType,
-        });
-        console.log('file saved at ', filePath);
-      } else {
-        await submitReportRequest(api, reportType, restValues, formValues.emails);
-      }
+          const filePath = await saveExcelFile(excelData, {
+            promptForFilePath: true,
+            defaultFileName: reportType,
+          });
+          // eslint-disable-next-line no-console
+          console.log('file saved at ', filePath);
+        } else {
+          await submitReportRequest(api, reportType, restValues, formValues.emails);
+        }
 
-      if (onSuccessfulSubmit) {
-        onSuccessfulSubmit();
+        if (onSuccessfulSubmit) {
+          onSuccessfulSubmit();
+        }
+      } catch (e) {
+        // eslint-disable-next-line no-console
+        console.error('Unable to submit report request', e);
+        setRequestError(`Unable to submit report request - ${e.message}`);
       }
-    } catch (e) {
-      console.error('Unable to submit report request', e);
-      setRequestError(`Unable to submit report request - ${e.message}`);
-    }
-  }
+    },
+    [api, dataSource, onSuccessfulSubmit],
+  );
 
   // Wait until available reports are loaded to render.
   // This is a workaround because of an issue that the onChange callback (when selecting a report)
@@ -208,10 +227,7 @@ const DumbReportGeneratorForm = ({ currentUser, onSuccessfulSubmit }) => {
         reportType: Yup.string().required('Report type is required'),
         ...parameters
           .filter(field => field.validation)
-          .reduce((schema, field) => {
-            schema[field.name] = field.validation;
-            return schema;
-          }, {}),
+          .reduce((schema, field) => ({ ...schema, [field.name]: field.validation }), {}),
       })}
       render={({ values }) => (
         <>
@@ -244,21 +260,19 @@ const DumbReportGeneratorForm = ({ currentUser, onSuccessfulSubmit }) => {
             <>
               <Spacer />
               <FormGrid columns={3}>
-                {parameters.map(
-                  ({ parameterField, required, name, label, ...restOfProps }, index) => {
-                    const ParameterFieldComponent = PARAMETER_FIELD_COMPONENTS[parameterField];
-                    return (
-                      <ParameterFieldComponent
-                        key={index}
-                        required={required}
-                        name={name}
-                        label={label}
-                        parameterValues={values}
-                        {...restOfProps}
-                      />
-                    );
-                  },
-                )}
+                {parameters.map(({ parameterField, required, name, label, ...restOfProps }) => {
+                  const ParameterFieldComponent = PARAMETER_FIELD_COMPONENTS[parameterField];
+                  return (
+                    <ParameterFieldComponent
+                      key={name}
+                      required={required}
+                      name={name}
+                      label={label}
+                      parameterValues={values}
+                      {...restOfProps}
+                    />
+                  );
+                })}
               </FormGrid>
             </>
           ) : null}

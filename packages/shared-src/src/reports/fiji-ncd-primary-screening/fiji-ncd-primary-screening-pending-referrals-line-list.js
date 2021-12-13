@@ -86,7 +86,7 @@ const sortReferrals = (r1, r2) => {
   );
 };
 
-export const dataGenerator = async (models, parameters = {}) => {
+export const dataGenerator = async ({ models }, parameters = {}) => {
   const referrals = await getPendingReferrals(models, REFERRAL_SURVEY_IDS, parameters);
   const filteredReferrals = await removeDuplicatedReferralsPerDate(referrals);
   const sortedReferrals = filteredReferrals.sort(sortReferrals);
@@ -137,6 +137,9 @@ export const dataGenerator = async (models, parameters = {}) => {
       gender: patient.sex,
       ethnicity: patientAdditionalData?.ethnicity?.name,
       contactNumber: patientAdditionalData?.primaryContactNumber,
+      village: patient.village?.name,
+      medicalArea: patientAdditionalData?.medicalArea?.name,
+      nursingZone: patientAdditionalData?.nursingZone?.name,
       referralCreated: REFERRAL_NAME_BY_SURVEY_GROUP_KEY[surveyGroupKey],
     };
 
@@ -165,8 +168,19 @@ export const dataGenerator = async (models, parameters = {}) => {
     reportData.push(recordData);
   }
 
+  const sortedReportData = reportData.sort(
+    ({ dateOfReferral: date1 }, { dateOfReferral: date2 }) => {
+      if (date2 && !date1) return 1;
+      if (date1 && !date2) return -1;
+      if (!date1 && !date2) return 0;
+
+      // Sort oldest to most recent
+      return moment(date1, 'DD-MM-YYYY') - moment(date2, 'DD-MM-YYYY');
+    },
+  );
+
   return generateReportFromQueryData(
-    reportData,
+    sortedReportData,
     PRIMARY_SCREENING_PENDING_REFERRALS_REPORT_COLUMN_TEMPLATE,
   );
 };

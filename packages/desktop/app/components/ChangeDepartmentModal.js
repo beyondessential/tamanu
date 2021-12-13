@@ -15,7 +15,7 @@ const DumbChangeDepartmentModal = React.memo(({ open, onClose, ...rest }) => {
       const { encounter, writeAndViewEncounter } = encounterCtx;
       writeAndViewEncounter(encounter.id, data);
     },
-    [encounterCtx.encounter],
+    [encounterCtx],
   );
 
   return (

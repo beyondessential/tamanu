@@ -137,15 +137,6 @@ export const momentSimpleCalender = {
 
 export const timeFormat = 'hh:mm a';
 
-export const pageSizes = {
-  patients: 10,
-  pregnancies: 5,
-  surveyResponses: 5,
-  medicationRequests: 10,
-  appointments: 10,
-  patientLabRequests: 5,
-};
-
 // Generate time picker select options
 export const timeSelectOptions = {
   hours: [],
@@ -410,4 +401,7 @@ export const appointmentStatusOptions = Object.values(APPOINTMENT_STATUSES).map(
   value: status,
 }));
 
-export const ALPHABET_FOR_ID = 'ABCDEFGH' + /*I*/ 'JK' + /*L*/ 'MN' + /*O*/ 'PQRSTUVWXYZ' + /*01*/ '23456789';
+export const ALPHABET_FOR_ID =
+  // this is absolutely fine and the concat isn't useless
+  // eslint-disable-next-line no-useless-concat
+  'ABCDEFGH' + /* I */ 'JK' + /* L */ 'MN' + /* O */ 'PQRSTUVWXYZ' + /* 01 */ '23456789';

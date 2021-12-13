@@ -18,6 +18,7 @@ import {
   BREAST_CANCER_PRIMARY_SCREENING_REFERRAL_DATA_ELEMENT_IDS,
   CERVICAL_CANCER_PRIMARY_SCREENING_REFERRAL_DATA_ELEMENT_IDS,
   ALL_SURVEY_IDS,
+  BREAST_CANCER_FORM_SURVEY_ID,
   getSurveyResultDataElement,
 } from './constants';
 
@@ -56,8 +57,9 @@ const getPatients = async (models, patientIds) =>
       {
         model: models.PatientAdditionalData,
         as: 'additionalData',
-        include: ['ethnicity'],
+        include: ['ethnicity', 'medicalArea', 'nursingZone'],
       },
+      'village',
     ],
     where: {
       id: {
@@ -214,6 +216,17 @@ export const transformAndRemoveDuplicatedAnswersPerDate = async (models, rawAnsw
   return removeDuplicatedAnswersPerDate(transformedAnswers);
 };
 
+const getSurveyResultBody = surveyResponse => {
+  // There is also a `result` in surveyResponse, but since
+  // it is not used for fiji-ncd and this is a local util,
+  // we just use resultText.
+  const { surveyId, resultText } = surveyResponse;
+  if (surveyId === BREAST_CANCER_FORM_SURVEY_ID) {
+    return resultText ?? 'Not high risk';
+  }
+  return resultText;
+};
+
 const getSurveyResultsFromAnswers = answers => {
   const surveyResponses = answers.map(a => a.surveyResponse);
 
@@ -229,7 +242,7 @@ const getSurveyResultsFromAnswers = answers => {
   const surveyResults = uniqueSurveyResponses.map(sr => ({
     dataElementId: getSurveyResultDataElement(sr.surveyId),
     surveyResponse: sr,
-    body: sr.resultText || sr.result,
+    body: getSurveyResultBody(sr),
   }));
 
   return surveyResults;

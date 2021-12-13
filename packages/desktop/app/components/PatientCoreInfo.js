@@ -115,7 +115,7 @@ const HealthIdDisplay = memo(({ patient }) => (
 ));
 
 export const CoreInfoDisplay = memo(({ patient }) => (
-  <React.Fragment>
+  <>
     <NameSection>
       <NameHeader>Patient details</NameHeader>
       <NameContainer>
@@ -134,5 +134,5 @@ export const CoreInfoDisplay = memo(({ patient }) => (
       </CoreInfoCell>
     </CoreInfoSection>
     <HealthIdDisplay patient={patient} />
-  </React.Fragment>
+  </>
 ));

@@ -7,12 +7,14 @@ import { generateReportFromQueryData } from './utilities';
 const FIELD_TO_TITLE = {
   firstName: 'First name',
   lastName: 'Last name',
-  displayId: 'NHN',
+  displayId: 'Patient ID',
   age: 'Age',
   sex: 'Gender',
   ethnicity: 'Ethnicity',
   contactPhone: 'Contact number',
   subdivision: 'Subdivision',
+  medicalArea: 'Medical Area',
+  nursingZone: 'Nursing Zone',
   clinician: 'Clinician',
   dateOfAttendance: 'Date of attendance',
   department: 'Department',
@@ -59,16 +61,18 @@ const parametersToEncounterSqlWhere = parameters => {
 };
 
 const getEncounters = async (models, parameters) => {
-  return models.Encounter.findAll({
+  const encounters = await models.Encounter.findAll({
+    attributes: ['startDate', 'reasonForEncounter', 'id'],
     include: [
       {
         model: models.Patient,
         as: 'patient',
+        attributes: ['firstName', 'lastName', 'displayId', 'dateOfBirth', 'sex', 'id'],
         include: [
           {
             model: models.PatientAdditionalData,
             as: 'additionalData',
-            include: ['ethnicity'],
+            include: ['ethnicity', 'medicalArea', 'nursingZone'],
           },
           'village',
         ],
@@ -77,6 +81,7 @@ const getEncounters = async (models, parameters) => {
         model: models.EncounterDiagnosis,
         as: 'diagnoses',
         include: ['Diagnosis'],
+        attributes: ['certainty', 'isPrimary'],
         where: {
           certainty: {
             [Op.notIn]: [DIAGNOSIS_CERTAINTY.DISPROVEN, DIAGNOSIS_CERTAINTY.ERROR],
@@ -91,21 +96,29 @@ const getEncounters = async (models, parameters) => {
     where: parametersToEncounterSqlWhere(parameters),
     order: [['startDate', 'ASC']],
   });
+
+  return encounters.map(convertModelToPlainObject);
 };
+
+const convertModelToPlainObject = model => model.get({ plain: true });
 
 const getAllDiagnoses = async (models, encounters) => {
   const newEncounters = [];
+
   for (const encounter of encounters) {
     newEncounters.push({
       ...encounter,
       diagnoses: await models.EncounterDiagnosis.findAll({
         include: ['Diagnosis'],
+        attributes: ['certainty', 'isPrimary'],
         where: {
           certainty: {
             [Op.notIn]: [DIAGNOSIS_CERTAINTY.DISPROVEN, DIAGNOSIS_CERTAINTY.ERROR],
           },
           encounterId: encounter.id,
         },
+        raw: true,
+        nest: true,
       }),
     });
   }
@@ -132,6 +145,8 @@ const transformDataPoint = encounter => {
     ethnicity: patientAdditionalData?.ethnicity?.name,
     contactPhone: patientAdditionalData?.primaryContactNumber,
     subdivision: patient.village?.name,
+    medicalArea: patientAdditionalData?.medicalArea?.name,
+    nursingZone: patientAdditionalData?.nursingZone?.name,
     clinician: examiner?.displayName,
     dateOfAttendance: moment(encounter.startDate).format('DD-MM-YYYY'),
     department: encounter.department?.name,
@@ -142,7 +157,7 @@ const transformDataPoint = encounter => {
   };
 };
 
-export const dataGenerator = async (models, parameters = {}) => {
+export const dataGenerator = async ({ models }, parameters = {}) => {
   let encounters = await getEncounters(models, parameters);
   if (parameters.diagnosis) {
     encounters = await getAllDiagnoses(models, encounters);

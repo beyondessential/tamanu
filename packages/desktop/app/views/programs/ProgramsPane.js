@@ -1,6 +1,6 @@
 import styled from 'styled-components';
-import { Colors } from '../../constants';
 import { Typography } from '@material-ui/core';
+import { Colors } from '../../constants';
 
 export const ProgramsPane = styled.div`
   background: white;

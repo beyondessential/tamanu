@@ -12,9 +12,11 @@ const MEDICATION_COLUMNS = [
   { key: 'prescription', title: 'Prescription' },
   { key: 'route', title: 'Route' },
   {
-    key: 'endDate', title: 'End Date', accessor: data => <DateDisplay date={data?.endDate ?? ''} />,
+    key: 'endDate',
+    title: 'End Date',
+    accessor: data => <DateDisplay date={data?.endDate ?? ''} />,
   },
-  { key: 'prescriber', title: 'Prescriber', accessor: data => data?.prescriber?.displayName ?? '' }
+  { key: 'prescriber', title: 'Prescriber', accessor: data => data?.prescriber?.displayName ?? '' },
 ];
 
 const FULL_LISTING_COLUMNS = [
@@ -43,13 +45,10 @@ export const EncounterMedicationTable = React.memo(({ encounterId }) => {
   const [isOpen, setModalOpen] = useState(false);
   const [encounterMedication, setEncounterMedication] = useState(null);
   const { loadEncounter } = useEncounter();
-  const onMedicationSelect = useCallback(
-    async medication => {
-      setModalOpen(true);
-      setEncounterMedication(medication);
-    },
-    [],
-  );
+  const onMedicationSelect = useCallback(async medication => {
+    setModalOpen(true);
+    setEncounterMedication(medication);
+  }, []);
 
   return (
     <div>
@@ -57,7 +56,7 @@ export const EncounterMedicationTable = React.memo(({ encounterId }) => {
         open={isOpen}
         encounterId={encounterId}
         onClose={() => {
-          setModalOpen(false)       
+          setModalOpen(false);
         }}
         onSaved={async () => {
           await loadEncounter(encounterId);
@@ -76,9 +75,12 @@ export const EncounterMedicationTable = React.memo(({ encounterId }) => {
 
 export const DataFetchingMedicationTable = () => {
   const { loadEncounter } = useEncounter();
-  const onMedicationSelect = useCallback(async medication => {
-    await loadEncounter(medication.encounter.id);
-  }, []);
+  const onMedicationSelect = useCallback(
+    async medication => {
+      await loadEncounter(medication.encounter.id);
+    },
+    [loadEncounter],
+  );
 
   return (
     <DataFetchingTable

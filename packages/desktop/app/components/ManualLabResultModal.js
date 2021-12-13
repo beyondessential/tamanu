@@ -17,7 +17,7 @@ export const ManualLabResultModal = ({ labTest, onClose, open }) => {
       });
       onClose();
     },
-    [labRequest, labTest],
+    [labRequest, labTest, onClose, updateLabTest],
   );
 
   return (

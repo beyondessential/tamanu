@@ -57,7 +57,7 @@ const getReferralByPatientSurveyAndDate = async (models, transformedAnswers) => 
 const getPerPatientPerSurveyPerDateKey = (patientId, surveyGroupKey, date) =>
   `${patientId}|${surveyGroupKey}|${date}`;
 
-export const dataGenerator = async (models, parameters = {}) => {
+export const dataGenerator = async ({ models }, parameters = {}) => {
   const answerWhereClause = parametersToAnswerSqlWhere(parameters);
   const rawAnswers = await getAnswers(models, answerWhereClause);
   const filteredAnswers = await transformAndRemoveDuplicatedAnswersPerDate(
@@ -113,6 +113,9 @@ export const dataGenerator = async (models, parameters = {}) => {
         gender: patient.sex,
         ethnicity: patientAdditionalData?.ethnicity?.name,
         contactNumber: patientAdditionalData?.primaryContactNumber,
+        village: patient.village?.name,
+        medicalArea: patientAdditionalData?.medicalArea?.name,
+        nursingZone: patientAdditionalData?.nursingZone?.name,
         screeningCompleted: FORM_NAME_BY_SURVEY_GROUP_KEY[surveyGroupKey],
       };
 
@@ -152,7 +155,18 @@ export const dataGenerator = async (models, parameters = {}) => {
     }
   }
 
-  return generateReportFromQueryData(reportData, PRIMARY_SCREENING_REPORT_COLUMN_TEMPLATE);
+  const sortedReportData = reportData.sort(
+    ({ dateOfScreening: date1 }, { dateOfScreening: date2 }) => {
+      if (date2 && !date1) return 1;
+      if (date1 && !date2) return -1;
+      if (!date1 && !date2) return 0;
+
+      // Sort oldest to most recent
+      return moment(date1, 'DD-MM-YYYY') - moment(date2, 'DD-MM-YYYY');
+    },
+  );
+
+  return generateReportFromQueryData(sortedReportData, PRIMARY_SCREENING_REPORT_COLUMN_TEMPLATE);
 };
 
 export const permission = 'SurveyResponse';
