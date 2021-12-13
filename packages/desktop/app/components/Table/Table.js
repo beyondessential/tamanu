@@ -69,6 +69,7 @@ const StyledTableRow = styled(TableRow)`
 
 const StyledTableContainer = styled.div`
   margin: 1rem;
+  overflow: auto;
 `;
 
 const StyledTableCellContent = styled.div`
