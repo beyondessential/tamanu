@@ -1,6 +1,8 @@
 import config from 'config';
 import { LAB_REQUEST_STATUSES } from 'shared/constants';
 
+import { labTestTypeToLOINCCode } from './loinc';
+
 // fine to hardcode this one -- HL7 guarantees it will always be available at this url
 const HL7_OBSERVATION_TERMINOLOGY_URL =
   'http://terminology.hl7.org/CodeSystem/v3-ObservationInterpretation';
@@ -156,6 +158,7 @@ function getResultCoding(labTest) {
 
 export function labTestToHL7Observation(labTest, maybePatient) {
   const labRequest = labTest.labRequest;
+  const labTestType = labTest.labTestType;
 
   if (!shouldProduceObservation(labRequest.status)) {
     return null;
@@ -171,7 +174,7 @@ export function labTestToHL7Observation(labTest, maybePatient) {
     id: labTest.id,
     status: labRequestStatusToHL7Status(labRequest.status),
     subject: patientToHL7Reference(patient),
-    code: {}, // TODO: mapping tbd (empty object included so that it validates)
+    code: labTestTypeToLOINCCode(labTestType),
     valueCodeableConcept: {
       coding: [
         {
