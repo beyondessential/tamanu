@@ -1,13 +1,8 @@
 import React, { useEffect, useState } from 'react';
 import { SelectInput } from './SelectField';
 import { connectApi } from '../../api/connectApi';
-import { useEncounter } from '../../contexts/Encounter';
 
-//
-const id = 'e0f2557f-254f-4d52-8376-39f2fcacfe52';
-
-const DumbSurveySelect = ({ api, promiseData, field, props, patient }) => {
-  console.log('SelectInput', promiseData, field, props, patient);
+const DumbSurveySelect = ({ api, field, props, patient }) => {
   const [options, setOptions] = useState([]);
   useEffect(() => {
     api
