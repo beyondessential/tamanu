@@ -32,7 +32,7 @@ export const DocumentsPane = React.memo(({ encounter, patient }) => {
         onClose={handleClose}
         onSubmit={handleSubmit}
         title="Add document"
-        actionText="Create"
+        actionText="Add"
       />
       <DocumentsTable encounterId={encounter?.id} patientId={patient?.id} />
       <ContentPane>
