@@ -19,7 +19,7 @@ const StyledDiv = styled.div`
 const Label = styled.div`
   font-size: 16px;
   font-weight: 500;
-  color: ${Colors.primary};
+    color: ${props => props.theme.palette.primary.main};
   margin-bottom: 5px;
 `;
 
