@@ -4,7 +4,6 @@ import SearchIcon from '@material-ui/icons/Search';
 
 import { Button } from './Button';
 import { ButtonRow } from './ButtonRow';
-import { Colors } from '../constants';
 import { Form, Field, TextField } from './Field';
 import { FormGrid } from './FormGrid';
 
@@ -19,7 +18,7 @@ const StyledDiv = styled.div`
 const Label = styled.div`
   font-size: 16px;
   font-weight: 500;
-    color: ${props => props.theme.palette.primary.main};
+  color: ${props => props.theme.palette.primary.main};
   margin-bottom: 5px;
 `;
 
