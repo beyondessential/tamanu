@@ -31,6 +31,9 @@ patientDocumentMetadataRoutes.post(
     const patientId = params.id;
     const { file: fileName, ...documentMetadata } = req.body;
 
+    /* 
+    Comment out unfinished logic to avoid unwanted issues
+
     // This will only work if the lan server is running on the same machine as
     // the desktop app, which is possibly very unusual. A proper solution needs
     // to be addressed when working through this functionality
@@ -53,6 +56,10 @@ patientDocumentMetadataRoutes.post(
       patientId,
     });
 
-    res.send(documentMetadataObject);
+    res.send(documentMetadataObject
+
+    */
+    res.send({});
+   );
   }),
 );
