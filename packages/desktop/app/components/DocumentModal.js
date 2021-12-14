@@ -12,18 +12,19 @@ const StyledDiv = styled.div`
 export const DocumentModal = ({ title, actionText, open, onClose, onSubmit, isSubmitting }) => {
   return (
     <Modal width="md" title={title} open={open} onClose={onClose}>
-      {isSubmitting
-        ? (<StyledDiv>
-            <CircularProgress size="5rem" />
-            <p>Your file is being uploaded, please wait.</p>
-          </StyledDiv>)
-        : (<DocumentForm
-            actionText={actionText}
-            onSubmit={onSubmit}
-            onCancel={onClose}
-            editedObject={document}
-          />)
-      }
+      {isSubmitting ? (
+        <StyledDiv>
+          <CircularProgress size="5rem" />
+          <p>Your file is being uploaded, please wait.</p>
+        </StyledDiv>
+      ) : (
+        <DocumentForm
+          actionText={actionText}
+          onSubmit={onSubmit}
+          onCancel={onClose}
+          editedObject={document}
+        />
+      )}
     </Modal>
   );
 };
