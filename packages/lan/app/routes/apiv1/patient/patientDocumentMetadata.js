@@ -56,10 +56,9 @@ patientDocumentMetadataRoutes.post(
       patientId,
     });
 
-    res.send(documentMetadataObject
+    res.send(documentMetadataObject);
 
     */
     res.send({});
-   );
   }),
 );
