@@ -2,6 +2,7 @@ import { Sequelize } from 'sequelize';
 import { InvalidOperationError } from 'shared/errors';
 import { Model } from './Model';
 import { runCalculations } from '../utils/calculations';
+import { getStringValue, getResultValue } from '../utils/fields';
 
 const handleSurveyResponseActions = async (models, actions, questions, patientId) => {
   const actionQuestions = questions
@@ -29,41 +30,6 @@ const handleSurveyResponseActions = async (models, actions, questions, patientId
     }
   }
 };
-
-function getResultValue(components, values) {
-  const resultComponents = components.filter(c => c.dataElement.type === 'Result');
-  // @TODO perform checkVisiblityCriteria
-
-  const component = resultComponents.pop();
-
-  if (!component) {
-    return { result: 0, resultText: '' };
-  }
-
-  const rawValue = values[component.dataElement.id];
-
-  if (rawValue === undefined || rawValue === null || Number.isNaN(rawValue)) {
-    return { result: 0, resultText: component.detail || '' };
-  }
-
-  if (typeof rawValue === 'string') {
-    return { result: 0, resultText: rawValue };
-  }
-
-  return {
-    result: rawValue,
-    resultText: `${rawValue.toFixed(0)}%`,
-  };
-}
-
-function getStringValue(type, value) {
-  switch (type) {
-    case 'Calculated':
-      return value.toFixed(1);
-    default:
-      return `${value}`;
-  }
-}
 
 export class SurveyResponse extends Model {
   static init({ primaryKey, ...options }) {
@@ -143,7 +109,7 @@ export class SurveyResponse extends Model {
   }
 
   static async createWithAnswers(data) {
-    const models = this.sequelize.models;
+    const { models } = this.sequelize;
     const { answers, actions, surveyId, patientId, encounterId, ...responseData } = data;
 
     // ensure survey exists
