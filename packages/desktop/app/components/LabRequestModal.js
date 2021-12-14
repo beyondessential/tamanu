@@ -6,7 +6,7 @@ import { Suggester } from '../utils/suggester';
 
 import { Modal } from './Modal';
 import { ConnectedLabRequestForm } from '../forms/LabRequestForm';
-import { ALPHABET_FOR_ID } from '../constants'
+import { ALPHABET_FOR_ID } from '../constants';
 
 export const LabRequestModal = ({ open, onClose, onSaved, encounter }) => {
   const api = useApi();

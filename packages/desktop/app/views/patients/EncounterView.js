@@ -412,13 +412,13 @@ const EncounterActionDropdown = connect(null, dispatch => ({
 );
 
 const EncounterActions = ({ encounter }) => (
-  <React.Fragment>
+  <>
     <EncounterActionDropdown encounter={encounter} />
     <RoutedDischargeModal encounter={encounter} />
     <RoutedChangeEncounterTypeModal encounter={encounter} />
     <RoutedChangeDepartmentModal encounter={encounter} />
     <RoutedMoveModal encounter={encounter} />
-  </React.Fragment>
+  </>
 );
 
 const AdmissionInfoRow = styled.div`

@@ -9,16 +9,6 @@ import { ConfirmCancelRow } from '../components/ButtonRow';
 import { foreignKey } from '../utils/validation';
 
 export class AllergyForm extends React.PureComponent {
-  static propTypes = {
-    onSubmit: PropTypes.func.isRequired,
-    onCancel: PropTypes.func.isRequired,
-    editedObject: PropTypes.shape({}),
-  };
-
-  static defaultProps = {
-    editedObject: null,
-  };
-
   renderForm = ({ submitForm }) => {
     const { editedObject, onCancel, practitionerSuggester, allergySuggester } = this.props;
     const buttonText = editedObject ? 'Save' : 'Add';
@@ -62,3 +52,13 @@ export class AllergyForm extends React.PureComponent {
     );
   }
 }
+
+AllergyForm.propTypes = {
+  onSubmit: PropTypes.func.isRequired,
+  onCancel: PropTypes.func.isRequired,
+  editedObject: PropTypes.shape({}),
+};
+
+AllergyForm.defaultProps = {
+  editedObject: null,
+};

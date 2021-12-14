@@ -13,12 +13,12 @@ export const InfoModal = React.memo(({ children, width }) => {
   const [isOpen, setOpen] = React.useState();
 
   return (
-    <React.Fragment>
+    <>
       <InfoButton onClick={() => setOpen(true)} />
       <Modal open={isOpen} width={width} onClose={() => setOpen(false)}>
         {children}
       </Modal>
-    </React.Fragment>
+    </>
   );
 });
 

@@ -5,13 +5,15 @@ import { DocumentsTable } from '../../../components/DocumentsTable';
 import { Button } from '../../../components/Button';
 import { ContentPane } from '../../../components/ContentPane';
 import { DocumentModal } from '../../../components/DocumentModal';
+import { DocumentsSearchBar } from '../../../components/DocumentsSearchBar';
 
 import { reloadPatient } from '../../../store/patient';
 import { useApi } from '../../../api';
 
-export const DocumentsPane = React.memo(({ encounter, patient }) => {
+export const DocumentsPane = React.memo(({ encounter, patient, showSearchBar = false }) => {
   const [documentModalOpen, setDocumentModalOpen] = useState(false);
   const [isSubmitting, setIsSubmitting] = useState(false);
+  const [searchParameters, setSearchParameters] = useState({});
   const api = useApi();
   const dispatch = useDispatch();
 
@@ -25,7 +27,7 @@ export const DocumentsPane = React.memo(({ encounter, patient }) => {
       setIsSubmitting(false);
       dispatch(reloadPatient(patient.id));
     },
-    [patient],
+    [api, patient, dispatch],
   );
 
   return (
@@ -38,7 +40,12 @@ export const DocumentsPane = React.memo(({ encounter, patient }) => {
         title="Add document"
         actionText="Add"
       />
-      <DocumentsTable encounterId={encounter?.id} patientId={patient?.id} />
+      {showSearchBar && <DocumentsSearchBar setSearchParameters={setSearchParameters} />}
+      <DocumentsTable
+        encounterId={encounter?.id}
+        patientId={patient?.id}
+        searchParameters={searchParameters}
+      />
       <ContentPane>
         <Button onClick={() => setDocumentModalOpen(true)} variant="contained" color="primary">
           Add document

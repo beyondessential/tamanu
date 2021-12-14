@@ -5,7 +5,7 @@ import { connectApi } from '../../../api';
 import { Suggester } from '../../../utils/suggester';
 import { AutocompleteField } from '../../../components';
 
-const DumbImmunisationSearchBar = (props) => (
+const DumbImmunisationSearchBar = props => (
   <CustomisablePatientSearchBar
     title="Search for patients"
     fields={[

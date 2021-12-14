@@ -18,12 +18,14 @@ export const HistoryPane = connect(
   }),
 )(
   React.memo(({ patient, currentEncounter, onOpenCheckin, onOpenTriage, disabled }) => {
-    const { encounter, loadEncounter } = useEncounter();
+    const { loadEncounter } = useEncounter();
     const onViewEncounter = useCallback(
-      async id => {
-        await loadEncounter(id, true);
+      id => {
+        (async () => {
+          await loadEncounter(id, true);
+        })();
       },
-      [encounter],
+      [loadEncounter],
     );
     return (
       <div>

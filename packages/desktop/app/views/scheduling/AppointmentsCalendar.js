@@ -89,7 +89,7 @@ export const AppointmentsCalendar = () => {
       });
       setAppointments(data);
     })();
-  }, [date, refreshCount]);
+  }, [api, date, refreshCount]);
   return (
     <PageContainer>
       <TwoColumnDisplay>

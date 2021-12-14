@@ -12,7 +12,7 @@
 
 ### Tweaks ⚖️
 
-- (left blank)
+- Add `react-hooks/exhaustive-deps` and `react-hooks/rules-of-hooks` linter rules
 
 ### Bug fixes 🐛
 

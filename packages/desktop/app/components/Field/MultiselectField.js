@@ -1,7 +1,6 @@
 import React, { useState, useCallback, useEffect } from 'react';
 import PropTypes from 'prop-types';
 import Select from 'react-select';
-import styled from 'styled-components';
 
 import { OuterLabelFieldWrapper } from './OuterLabelFieldWrapper';
 import { StyledTextField } from './TextField';
@@ -18,6 +17,26 @@ export const MultiselectInput = ({
   form: { initialValues },
   ...props
 }) => {
+  const values = value ? value.split(', ') : [];
+  const initialSelectedOptions = options.filter(option => values.includes(option.value));
+
+  const [selected, setSelected] = useState(initialSelectedOptions);
+  const handleChange = useCallback(
+    selectedOptions => {
+      setSelected(selectedOptions);
+      const newValue = selectedOptions.map(x => x.value).join(', ');
+      onChange({ target: { value: newValue, name } });
+    },
+    [onChange, name],
+  );
+
+  // support initial values
+  useEffect(() => {
+    const initialOptionValues = initialValues[name]?.split(', ') || [];
+    const initialOptions = options.filter(o => initialOptionValues.includes(o.value));
+    setSelected(initialOptions);
+  }, [initialValues, name, value, options]);
+
   const isReadonly = (readonly && !disabled) || (value && !onChange);
   if (disabled || isReadonly || !options || options.length === 0) {
     const valueText = ((options || []).find(o => o.value === value) || {}).label || '';
@@ -34,24 +53,6 @@ export const MultiselectInput = ({
       </OuterLabelFieldWrapper>
     );
   }
-
-  const values = value ? value.split(', ') : [];
-
-  const initialSelectedOptions = options.filter(option => values.includes(option.value));
-
-  const [selected, setSelected] = useState(initialSelectedOptions);
-  const handleChange = useCallback(selectedOptions => {
-    setSelected(selectedOptions);
-    const newValue = selectedOptions.map(x => x.value).join(', ')
-    onChange({ target: { value: newValue, name } });
-  }, []);
-
-  // support initial values
-  useEffect(() => {
-    const initialOptionValues = initialValues[name]?.split(', ') || [];
-    const initialOptions = options.filter(o => initialOptionValues.includes(o.value));
-    setSelected(initialOptions);
-  }, []);
 
   return (
     <OuterLabelFieldWrapper label={label} {...props}>
@@ -70,19 +71,13 @@ export const MultiselectInput = ({
 };
 
 export const MultiselectField = ({ field, ...props }) => (
-  <MultiselectInput
-    name={field.name}
-    onChange={field.onChange}
-    value={field.value}
-    {...props}
-  />
+  <MultiselectInput name={field.name} onChange={field.onChange} value={field.value} {...props} />
 );
 
-
 MultiselectInput.propTypes = {
-  name: PropTypes.string,
+  name: PropTypes.string.isRequired,
   value: PropTypes.string,
-  onChange: PropTypes.func,
+  onChange: PropTypes.func.isRequired,
   options: PropTypes.arrayOf(PropTypes.instanceOf(Object)),
   fullWidth: PropTypes.bool,
   form: PropTypes.shape({

@@ -1,4 +1,4 @@
-import React, { useState, useCallback, useEffect } from 'react';
+import React, { useCallback } from 'react';
 import PropTypes from 'prop-types';
 import Select from 'react-select';
 import styled from 'styled-components';
@@ -17,6 +17,12 @@ export const SelectInput = ({
   name,
   ...props
 }) => {
+  const handleChange = useCallback(
+    changedOption => {
+      onChange({ target: { value: changedOption.value, name } });
+    },
+    [onChange, name],
+  );
 
   const isReadonly = (readonly && !disabled) || (value && !onChange);
   if (disabled || isReadonly || !options || options.length === 0) {
@@ -37,10 +43,6 @@ export const SelectInput = ({
 
   const selectedOption = options.find(option => value === option.value) ?? '';
 
-  const handleChange = useCallback(selectedOption => {
-    onChange({ target: { value: selectedOption.value, name } });
-  }, []);
-
   return (
     <OuterLabelFieldWrapper label={label} {...props}>
       <Select
@@ -57,12 +59,7 @@ export const SelectInput = ({
 };
 
 export const SelectField = ({ field, ...props }) => (
-  <SelectInput
-    name={field.name}
-    onChange={field.onChange}
-    value={field.value}
-    {...props}
-  />
+  <SelectInput name={field.name} onChange={field.onChange} value={field.value} {...props} />
 );
 
 /* 
@@ -103,4 +100,6 @@ SelectInput.defaultProps = {
   value: '',
   options: [],
   fullWidth: true,
+  name: null,
+  onChange: null,
 };

@@ -60,7 +60,7 @@ const FamilyHistoryDisplay = memo(({ patient, readonly }) => (
     items={patient.familyHistory}
     Form={FamilyHistoryForm}
     getName={historyItem => {
-      const name = historyItem.diagnosis.name;
+      const { name } = historyItem.diagnosis;
       const relation = historyItem.relationship;
       if (!relation) return name;
       return `${name} (${relation})`;
@@ -79,7 +79,7 @@ const PatientIssuesDisplay = memo(({ patient, readonly }) => {
   ];
 
   return (
-    <React.Fragment>
+    <>
       <PatientAlert alerts={warnings} />
       <InfoPaneList
         patient={patient}
@@ -90,7 +90,7 @@ const PatientIssuesDisplay = memo(({ patient, readonly }) => {
         Form={PatientIssueForm}
         getName={issue => issue.note}
       />
-    </React.Fragment>
+    </>
   );
 });
 
@@ -128,12 +128,12 @@ const RecordDeathSection = memo(({ patient, readonly }) => {
   const closeModal = useCallback(() => setModalOpen(false), [setModalOpen]);
 
   return (
-    <React.Fragment>
+    <>
       <Button variant="contained" color="primary" disabled={patient.death} onClick={openModal}>
         Record death
       </Button>
       <DeathModal disabled={readonly} open={isModalOpen} onClose={closeModal} patient={patient} />
-    </React.Fragment>
+    </>
   );
 });
 
