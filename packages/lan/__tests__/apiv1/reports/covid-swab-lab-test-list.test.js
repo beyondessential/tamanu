@@ -27,6 +27,7 @@ const PROPERTY_LIST = [
   'priority',
   'testingLaboratory',
   'testingDate',
+  'labTestMethod',
   'publicHealthFacility',
   'privateHealthFacility',
   'subDivision',
