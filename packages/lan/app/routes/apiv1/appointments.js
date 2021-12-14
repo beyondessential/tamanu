@@ -8,6 +8,18 @@ export const appointments = express.Router();
 
 appointments.post('/$', simplePost('Appointment'));
 
+const searchableFields = [
+  'startTime',
+  'endTime',
+  'type',
+  'status',
+  'clinicianId',
+  'locationId',
+  'patient.first_name',
+  'patient.last_name',
+  'patient.display_id',
+];
+
 appointments.get(
   '/$',
   asyncHandler(async (req, res) => {
@@ -35,14 +47,17 @@ appointments.get(
     if (before) {
       startTimeQuery[Op.lte] = before;
     }
-    const filters = Object.entries(queries).reduce((_filters, [query, queryValue]) => {
+    const filters = Object.entries(queries).reduce((_filters, [queryField, queryValue]) => {
+      if (!searchableFields.includes(queryField)) {
+        return _filters;
+      }
       if (!(typeof queryValue === 'string')) {
         return _filters;
       }
-      let column = query;
+      let column = queryField;
       // querying on a joined table (associations)
-      if (query.includes('.')) {
-        column = `$${query}$`;
+      if (queryField.includes('.')) {
+        column = `$${queryField}$`;
       }
       return {
         ..._filters,
