@@ -11,6 +11,7 @@ import { useApi } from '../../../api';
 
 export const DocumentsPane = React.memo(({ encounter, patient }) => {
   const [documentModalOpen, setDocumentModalOpen] = useState(false);
+  const [isSubmitting, setIsSubmitting] = useState(false);
   const api = useApi();
   const dispatch = useDispatch();
 
@@ -18,8 +19,10 @@ export const DocumentsPane = React.memo(({ encounter, patient }) => {
 
   const handleSubmit = useCallback(
     async data => {
+      setIsSubmitting(true);
       await api.post(`patient/${patient.id}/documentMetadata`, data);
       setDocumentModalOpen(false);
+      setIsSubmitting(false);
       dispatch(reloadPatient(patient.id));
     },
     [patient],
@@ -31,6 +34,7 @@ export const DocumentsPane = React.memo(({ encounter, patient }) => {
         open={documentModalOpen}
         onClose={handleClose}
         onSubmit={handleSubmit}
+        isSubmitting={isSubmitting}
         title="Add document"
         actionText="Add"
       />
