@@ -75,6 +75,10 @@ const reportColumnTemplate = [
   { title: 'Priority', accessor: data => data.priority },
   { title: 'Testing laboratory', accessor: data => data.testingLaboratory },
   { title: 'Testing date', accessor: data => data.testingDate },
+  {
+    title: 'Lab test method',
+    accessor: data => data.labTestMethod,
+  },
   { title: 'Public health facility', accessor: data => data.publicHealthFacility },
   { title: 'Private health facility', accessor: data => data.privateHealthFacility },
   { title: 'Sub-division', accessor: data => data.subDivision },
@@ -191,6 +195,10 @@ const getLabTests = async (models, parameters) => {
       {
         model: models.LabTestType,
         as: 'labTestType',
+      },
+      {
+        model: models.ReferenceData,
+        as: 'labTestMethod',
       },
     ],
     where: parametersToLabTestSqlWhere(parameters),
@@ -327,6 +335,7 @@ const getLabTestRecords = async (labTests, transformedAnswers, parameters) => {
         labRequestId: labRequest?.displayId,
         labRequestType: labRequest?.category?.name,
         labTestType: labTest?.labTestType?.name,
+        labTestMethod: labTest?.labTestMethod?.name,
         status: LAB_REQUEST_STATUS_LABELS[labRequest?.status] || labRequest?.status,
         result: labTest.result,
         requestedBy: labRequest?.requestedBy?.displayName,
