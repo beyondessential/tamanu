@@ -28,7 +28,7 @@ import { Form } from '~/ui/components/Forms/Form';
 import { Field } from '~/ui/components/Forms/FormField';
 import { useFacility } from '~/ui/contexts/FacilityContext';
 import { useBackend } from '~/ui/hooks';
-import { Dropdown } from '~/ui/components/Dropdown';
+import { FacilitySelectField } from './FacilitySelectField';
 
 const selectFacilitySchema = Yup.object().shape({
   facilityId: Yup.string().required(),
@@ -91,13 +91,11 @@ export const SelectFacilityForm = ({ onSubmitForm }) => {
       {({ handleSubmit, isSubmitting }): ReactElement => (
         <StyledView
           marginTop={screenPercentageToDP(14.7, Orientation.Height)}
-          marginRight={screenPercentageToDP(2.43, Orientation.Width)}
-          marginLeft={screenPercentageToDP(2.43, Orientation.Width)}
         >
           <StyledView justifyContent="space-around">
             <Field
               name="facilityId"
-              component={Dropdown}
+              component={FacilitySelectField}
               label="Facility"
               options={facilityOptions || []}
               placeholder="Select facility"
