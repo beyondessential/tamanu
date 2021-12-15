@@ -22,9 +22,12 @@ export const DocumentsPane = React.memo(({ encounter, patient, showSearchBar = f
   const handleSubmit = useCallback(
     async data => {
       setIsSubmitting(true);
-      await api.post(`patient/${patient.id}/documentMetadata`, data);
-      setDocumentModalOpen(false);
-      setIsSubmitting(false);
+      try {
+        await api.post(`patient/${patient.id}/documentMetadata`, data);
+        setDocumentModalOpen(false);
+      } finally {
+        setIsSubmitting(false);
+      }
       dispatch(reloadPatient(patient.id));
     },
     [api, patient, dispatch],
