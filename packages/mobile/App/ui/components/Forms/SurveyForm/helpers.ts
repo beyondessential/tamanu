@@ -1,10 +1,13 @@
 import { FieldTypes } from '/helpers/fields';
 import { IPatient, ISurveyScreenComponent, IUser } from '~/types';
 import * as Yup from 'yup';
-import { screenPercentageToDP, Orientation } from '/helpers/screen';
-import { VerticalPosition } from '/interfaces/VerticalPosition';
 import { getAgeFromDate } from '/helpers/date';
 import { joinNames } from '/helpers/user';
+
+const SOURCE_TO_COLUMN_MAP = {
+  ReferenceData: 'name',
+  User: 'displayName',
+};
 
 function getInitialValue(dataElement): JSX.Element {
   switch (dataElement.type) {
@@ -111,4 +114,27 @@ export function getFormSchema(
     {},
   );
   return Yup.object().shape(objectShapeSchema);
+}
+
+export async function getAutocompleteDisplayAnswer(
+  models,
+  dataElementId,
+  sourceId,
+): Promise<string | null> {
+  const autocompleteComponent = await models.SurveyScreenComponent.findOne({
+    where: {
+      dataElement: dataElementId,
+    },
+  });
+  const autocompleteConfig = autocompleteComponent?.getConfigObject();
+
+  if (autocompleteConfig) {
+    const fullLinkedAnswer = await models[autocompleteConfig.source]
+      .getRepository()
+      .findOne(sourceId);
+    const columnToDisplay = SOURCE_TO_COLUMN_MAP[autocompleteConfig.source];
+    return fullLinkedAnswer[columnToDisplay];
+  }
+
+  return null;
 }
