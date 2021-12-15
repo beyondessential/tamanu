@@ -14,8 +14,8 @@ import { ButtonRow } from '../components/ButtonRow';
 export const FILE_FILTERS = [
   { name: 'PDF (.pdf)', extensions: ['pdf'] },
   { name: 'JPEG (.jpeg - .jpg)', extensions: ['jpeg', 'jpg'] },
-  //{ name: 'Word (.doc - .docx)', extensions: ['doc', 'docx'] },
-  //{ name: 'Excel', extensions: ['xls', 'xlsx', 'xlsm'] },
+  // { name: 'Word (.doc - .docx)', extensions: ['doc', 'docx'] },
+  // { name: 'Excel', extensions: ['xls', 'xlsx', 'xlsm'] },
 ];
 
 export const DocumentForm = ({ actionText, onSubmit, onCancel, editedObject }) => {
