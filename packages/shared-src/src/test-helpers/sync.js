@@ -1,7 +1,15 @@
 import { QueryTypes } from 'sequelize';
 
 export const expectDeepSyncRecordMatch = (dbRecord, syncRecord) => {
-  const { updatedAt, createdAt, deletedAt, markedForSync, password, ...syncableData } = dbRecord;
+  const {
+    updatedAt,
+    createdAt,
+    deletedAt,
+    markedForSync,
+    isPushing,
+    password,
+    ...syncableData
+  } = dbRecord;
   Object.keys(syncableData).forEach(field => {
     if (Array.isArray(dbRecord[field])) {
       // iterate over relation fields

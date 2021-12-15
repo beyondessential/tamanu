@@ -119,24 +119,34 @@ export class SyncManager {
       return executeExportPlan(plan, { since: cursor, limit });
     };
 
-    // unmark
-    const unmarkRecords = async records => {
-      // TODO use bulk update after https://github.com/beyondessential/tamanu-backlog/issues/463
-      const modelInstances = await model.findAll({
-        where: {
-          id: records.map(r => r.data.id),
+    // mark + unmark
+    const markRecords = async () => {
+      await model.update(
+        { isPushing: true, markedForPush: false },
+        {
+          where: {
+            markedForPush: true,
+          },
+          // skip validation - no sync fields should be used in model validation
+          validate: false,
         },
-      });
-      await Promise.all(
-        modelInstances.map(m => {
-          m.markedForPush = false;
-          m.pushedAt = new Date();
-          return m.save();
-        }),
+      );
+    };
+    const unmarkRecords = async records => {
+      await model.update(
+        { isPushing: false, pushedAt: new Date() },
+        {
+          where: {
+            id: records.map(r => r.data.id),
+          },
+          // skip validation - no sync fields should be used in model validation
+          validate: false,
+        },
       );
     };
 
     let cursor = null;
+    await markRecords();
     do {
       const exportResponse = await exportRecords(cursor);
       const { records } = exportResponse;
