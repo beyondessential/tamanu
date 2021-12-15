@@ -95,7 +95,7 @@ describe('SyncManager', () => {
       expect(pullCursor).toEqual(`${now};${data.id}`);
 
       await context.syncManager.pullAndImport(context.models.ReferenceData);
-      const calls = context.remote.pull.mock.calls;
+      const { calls } = context.remote.pull.mock;
       expect(calls[calls.length - 1][1]).toHaveProperty('since', `${now};${data.id}`);
     });
 
@@ -141,7 +141,7 @@ describe('SyncManager', () => {
 
     beforeEach(() => context.models.Patient.destroy({ truncate: true }));
 
-    it("doesn't let models set markedForPush midway through an push", async () => {
+    it("doesn't unset markedForPush when models set it midway through an push", async () => {
       const { syncManager, remote, models } = context;
       const { Patient } = models;
 
