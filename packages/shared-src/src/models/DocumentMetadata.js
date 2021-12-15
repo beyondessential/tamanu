@@ -11,7 +11,10 @@ export class DocumentMetadata extends Model {
           type: Sequelize.TEXT,
           allowNull: false,
         },
-        type: Sequelize.TEXT,
+        type: {
+          type: Sequelize.TEXT,
+          allowNull: false,
+        },
         documentCreatedAt: Sequelize.DATE,
         documentUploadedAt: {
           type: Sequelize.DATE,
