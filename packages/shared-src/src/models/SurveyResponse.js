@@ -137,12 +137,12 @@ export class SurveyResponse extends Model {
       ...responseData,
     });
     const record = await SurveyResponse.create({
-      ...responseData,
       patientId,
       surveyId,
       encounterId: encounter.id,
       result,
       resultText,
+      ...responseData,
     });
 
     const findDataElement = id => {
