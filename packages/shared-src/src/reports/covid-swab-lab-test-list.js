@@ -66,6 +66,10 @@ const reportColumnTemplate = [
     accessor: data => data.labTestType,
   },
   {
+    title: 'Lab test method',
+    accessor: data => data.labTestMethod,
+  },
+  {
     title: 'Status',
     accessor: data => data.status,
   },
@@ -187,6 +191,10 @@ const getLabTests = async (models, parameters) => {
           { model: models.ReferenceData, as: 'laboratory' },
           { model: models.User, as: 'requestedBy' },
         ],
+      },
+      {
+        model: models.ReferenceData,
+        as: 'labTestMethod',
       },
       {
         model: models.LabTestType,
@@ -336,6 +344,7 @@ const getLabTestRecords = async (labTests, transformedAnswers, parameters) => {
           : '',
         priority: labRequest?.priority?.name,
         testingLaboratory: labRequest?.laboratory?.name,
+        labTestMethod: labTest?.labTestMethod?.name,
       };
       Object.entries(SURVEY_QUESTION_CODES).forEach(([key, dataElement]) => {
         labTestRecord[key] = getLatestPatientAnswerInDateRange(
