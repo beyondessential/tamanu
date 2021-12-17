@@ -25,3 +25,21 @@ attachmentRoutes.get(
     }
   }),
 );
+
+attachmentRoutes.post(
+  '/$',
+  asyncHandler(async (req, res) => {
+    const Attachment = req.store.models.Attachment;
+    const { type, size, data } = Attachment.sanitizeForSyncServer(req.body);
+    const attachment = await Attachment.create({
+      type,
+      size,
+      data,
+    });
+
+    // Send only the ID to be able to link it to metadata
+    res.send({
+      attachmentId: attachment.id,
+    });
+  }),
+);
