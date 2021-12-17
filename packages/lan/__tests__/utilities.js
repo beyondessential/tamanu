@@ -13,6 +13,7 @@ import { deleteAllTestIds } from './setupUtilities';
 import { SyncManager } from '~/sync';
 import { WebRemote } from '~/sync/WebRemote';
 jest.mock('~/sync/WebRemote');
+jest.mock('../app/utils/uploadAttachment');
 
 const chance = new Chance();
 
