@@ -3,6 +3,7 @@ import asyncHandler from 'express-async-handler';
 import { startOfDay } from 'date-fns';
 import { Op } from 'sequelize';
 import { simplePost, simplePut } from './crudHelpers';
+import { escapePatternWildcard } from '~/utils/query';
 
 export const appointments = express.Router();
 
@@ -62,7 +63,7 @@ appointments.get(
       return {
         ..._filters,
         [column]: {
-          [Op.iLike]: `%${queryValue}%`,
+          [Op.iLike]: `%${escapePatternWildcard(queryValue)}%`,
         },
       };
     }, {});
