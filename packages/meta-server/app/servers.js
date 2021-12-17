@@ -13,6 +13,7 @@ const servers = [
   // live servers
   { name: 'Fiji', type: 'live', host: 'https://sync.tamanu-fiji.org' },
   { name: 'Fiji NCD', type: 'live', host: 'https://sync-ncd-pilot.tamanu-fiji.org' },
+  { name: 'Fiji Tourism', type: 'live', host: 'https://sync-tourism.tamanu-fiji.org' },
   {
     name: 'Motivation Australia - Iraq',
     type: 'live',
