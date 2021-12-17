@@ -18,7 +18,8 @@ export function runCalculations(components, values) {
         if (Number.isNaN(value)) {
           throw new Error('Value is NaN');
         }
-        calculatedValues[c.dataElement.id] = value.toFixed(2);
+        inputValues[c.dataElement.code] = value;
+        calculatedValues[c.dataElement.id] = value;
       } catch (e) {
         calculatedValues[c.dataElement.id] = null;
       }

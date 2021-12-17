@@ -50,6 +50,8 @@ describe('Survey calculations', () => {
 
     it('should use substitutions', () => {
       const survey = makeDummySurvey([
+        { code: 'TEST_1' },
+        { code: 'TEST_2' },
         { code: 'TEST', type: 'Calculated', calculation: 'TEST_1 + TEST_2' },
       ]);
       const calculations = runCalculations(survey, {
@@ -61,6 +63,8 @@ describe('Survey calculations', () => {
 
     it('should use second-order substitutions', () => {
       const survey = makeDummySurvey([
+        { code: 'TEST_1' },
+        { code: 'TEST_2' },
         { code: 'TEST_BEFORE', type: 'Calculated', calculation: 'TEST_1 + TEST_2' },
         { code: 'TEST_AFTER', type: 'Calculated', calculation: 'TEST_BEFORE + 2000' },
       ]);
@@ -73,6 +77,7 @@ describe('Survey calculations', () => {
 
     it('should register errored calculations as undefined', () => {
       const survey = makeDummySurvey([
+        { code: 'TEST_1' },
         { code: 'TEST_WORKS', type: 'Calculated', calculation: 'TEST_1 * 3' },
         { code: 'TEST_BROKEN', type: 'Calculated', calculation: 'TEST_NONEXISTENT' },
         { code: 'TEST_BROKEN_2', type: 'Calculated', calculation: '1 + + / * 4' },
