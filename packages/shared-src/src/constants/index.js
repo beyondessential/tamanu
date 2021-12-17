@@ -266,3 +266,5 @@ export const REFERRAL_STATUSES = {
   CANCELLED: 'cancelled',
   COMPLETED: 'completed',
 };
+
+export const DOCUMENT_SIZE_LIMIT = 10000000;
