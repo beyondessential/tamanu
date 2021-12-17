@@ -162,7 +162,7 @@ const createSurveys = async (models, app, expectedPatient1, expectedPatient2) =>
 
   await models.Survey.create({
     id: FIJI_SAMP_SURVEY_ID,
-    name: 'Assistive Technology Project',
+    name: 'Fiji covid sample collection',
     programId: PROGRAM_ID,
   });
 
@@ -357,7 +357,7 @@ describe('Covid swab lab test list', () => {
   });
 
   describe('checks permissions', () => {
-    it('should reject creating an assistive technology device line list report with insufficient permissions', async () => {
+    it('should reject creating a report with insufficient permissions', async () => {
       const noPermsApp = await baseApp.asRole('base');
       const result = await noPermsApp.post(`/v1/reports/covid-swab-lab-test-list`, {});
       expect(result).toBeForbidden();
