@@ -20,6 +20,7 @@ const PROPERTY_LIST = [
   'labRequestId',
   'labRequestType',
   'labTestType',
+  'labTestMethod',
   'status',
   'result',
   'requestedBy',
@@ -64,6 +65,12 @@ const createLabTests = async (models, app, expectedPatient1, expectedPatient2) =
     code: 'COVID-19',
     name: 'COVID-19',
   });
+  await models.ReferenceData.create({
+    type: 'labTestMethod',
+    id: 'labTestMethod-SWAB',
+    code: 'METHOD-SWAB',
+    name: 'Swab',
+  });
 
   const encounter1 = await models.Encounter.create(
     await createDummyEncounter(models, { patientId: expectedPatient1.id }),
@@ -80,7 +87,7 @@ const createLabTests = async (models, app, expectedPatient1, expectedPatient2) =
     labTestTypeId: labRequest1Data.labTestTypeIds[0],
     labRequestId: labRequest1.id,
     date: '2021-03-10T10:50:28.133Z',
-    method: 'testing',
+    labTestMethodId: 'labTestMethod-SWAB',
   });
 
   const encounter2 = await models.Encounter.create(
@@ -372,10 +379,10 @@ describe('Covid swab lab test list', () => {
         sex: expectedPatient1.sex,
         patientId: expectedPatient1.displayId,
         labRequestId: labRequest1.displayId,
-        labTestMethod: 'testing',
         //Fiji Samp collection form
         //always grab the latest answer between the current lab request and the next lab request, regardless of survey response,
         labRequestType: 'COVID-19',
+        labTestMethod: 'Swab',
         status: 'Reception pending',
         requestedDate: '10-03-2021',
         publicHealthFacility: 'pde-FijCOVSamp4-on-2021-03-14T10:53:15.708Z-Patient1',
