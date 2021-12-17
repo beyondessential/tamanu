@@ -142,6 +142,10 @@ export class SurveyResponse extends Model {
       encounterId: encounter.id,
       result,
       resultText,
+      // put responseData last to allow for user to override
+      // resultText by including it in the data
+      // this is used by reports test where the resultText
+      // is included in the payload
       ...responseData,
     });
 
