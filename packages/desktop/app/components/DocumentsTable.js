@@ -66,17 +66,11 @@ const COLUMNS = [
   },
 ];
 
-export const DocumentsTable = React.memo(({ encounterId, patientId, searchParameters }) => {
-  const endpoint = encounterId
-    ? `encounter/${encounterId}/documentMetadata`
-    : `patient/${patientId}/documentMetadata`;
-
-  return (
-    <DataFetchingTable
-      endpoint={endpoint}
-      columns={COLUMNS}
-      noDataMessage="No documents found"
-      fetchOptions={searchParameters}
-    />
-  );
-});
+export const DocumentsTable = React.memo(({ endpoint, searchParameters }) => (
+  <DataFetchingTable
+    endpoint={endpoint}
+    columns={COLUMNS}
+    noDataMessage="No documents found"
+    fetchOptions={searchParameters}
+  />
+));

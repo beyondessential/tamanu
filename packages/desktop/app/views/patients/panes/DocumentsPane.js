@@ -16,6 +16,9 @@ export const DocumentsPane = React.memo(({ encounter, patient, showSearchBar = f
   const [searchParameters, setSearchParameters] = useState({});
   const api = useApi();
   const dispatch = useDispatch();
+  const endpoint = encounter
+    ? `encounter/${encounter.id}/documentMetadata`
+    : `patient/${patient.id}/documentMetadata`;
 
   const handleClose = useCallback(() => setDocumentModalOpen(false), []);
 
@@ -23,7 +26,7 @@ export const DocumentsPane = React.memo(({ encounter, patient, showSearchBar = f
     async data => {
       setIsSubmitting(true);
       try {
-        await api.post(`patient/${patient.id}/documentMetadata`, data);
+        await api.post(endpoint, data);
         setDocumentModalOpen(false);
       } finally {
         setIsSubmitting(false);
@@ -45,8 +48,7 @@ export const DocumentsPane = React.memo(({ encounter, patient, showSearchBar = f
       />
       {showSearchBar && <DocumentsSearchBar setSearchParameters={setSearchParameters} />}
       <DocumentsTable
-        encounterId={encounter?.id}
-        patientId={patient?.id}
+        endpoint={endpoint}
         searchParameters={searchParameters}
       />
       <ContentPane>
