@@ -11,6 +11,9 @@ patientDocumentMetadataRoutes.get(
     const { models, params } = req;
     req.checkPermission('read', 'DocumentMetadata');
     const patientId = params.id;
+
+    // TODO: Update query to also get document metadata with an encounterId
+    // that belongs to the current patient
     const documentMetadataItems = await models.DocumentMetadata.findAll({
       where: {
         patientId,

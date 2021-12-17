@@ -87,6 +87,8 @@ encounter.post(
 encounter.post(
   '/:id/documentMetadata',
   asyncHandler(async (req, res) => {
+    // TODO: After the endpoint logic on patientDocumentMetadata gets
+    // finalized, reutilize same logic and create tests for this route
     const { models, params } = req;
     req.checkPermission('write', 'DocumentMetadata');
     const patientId = params.id;
