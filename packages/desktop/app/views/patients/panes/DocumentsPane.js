@@ -31,6 +31,9 @@ export const DocumentsPane = React.memo(({ encounter, patient, showSearchBar = f
       } finally {
         setIsSubmitting(false);
       }
+      // TODO: Investigate if the sole use case of reloadPatient is to reload
+      // the table data. Also the table data inside encounter view will need to
+      // be refreshed as well.
       dispatch(reloadPatient(patient.id));
     },
     [api, patient, dispatch],
