@@ -1,6 +1,7 @@
 import express from 'express';
 import asyncHandler from 'express-async-handler';
-import fs, { promises as asyncFs } from 'fs';
+import { uploadAttachment } from '../../../utils/uploadAttachment';
+import { DOCUMENT_SIZE_LIMIT } from 'shared/constants';
 
 export const patientDocumentMetadataRoutes = express.Router();
 
@@ -27,38 +28,20 @@ patientDocumentMetadataRoutes.post(
   '/:id/documentMetadata',
   asyncHandler(async (req, res) => {
     const { models, params } = req;
+
+    // TODO: Figure out permissions with Attachment and DocumentMetadata.
+    // Presumably, they should be the same as they depend on each other.
     req.checkPermission('write', 'DocumentMetadata');
-    const patientId = params.id;
-    const { file: fileName, ...documentMetadata } = req.body;
 
-    /* 
-    Comment out unfinished logic to avoid unwanted issues
-
-    // This will only work if the lan server is running on the same machine as
-    // the desktop app, which is possibly very unusual. A proper solution needs
-    // to be addressed when working through this functionality
-    const fileData = await asyncFs.readFile(fileName);
-    const { size } = fs.statSync(fileName);
-    const fileType = fileName.split('.').pop();
-
-    const { id: documentId } = await models.Attachment.create({
-      type: fileType,
-      size,
-      data: fileData,
-    });
+    // Create file on the sync server
+    const { attachmentId, metadata } = await uploadAttachment(req, DOCUMENT_SIZE_LIMIT);
 
     const documentMetadataObject = await models.DocumentMetadata.create({
-      ...documentMetadata,
-      type: fileType,
-      uploadedDate: new Date(),
-      createdDate: new Date(),
-      documentId,
-      patientId,
+      ...metadata,
+      attachmentId,
+      patientId: params.id,
     });
 
     res.send(documentMetadataObject);
-
-    */
-    res.send({});
   }),
 );
