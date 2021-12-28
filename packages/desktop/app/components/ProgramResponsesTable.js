@@ -9,7 +9,7 @@ const getDate = ({ endTime }) => <DateDisplay date={endTime} />;
 const getAssessorName = ({ assessorName }) => assessorName;
 const getProgramName = ({ programName }) => programName;
 const getSurveyName = ({ surveyName }) => surveyName;
-const getResults = ({ result }) => <SurveyResultBadge result={result} />;
+const getResults = ({ resultText }) => <SurveyResultBadge resultText={resultText} />;
 
 const columns = [
   { key: 'endTime', title: 'Date submitted', accessor: getDate },
