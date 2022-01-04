@@ -1,13 +1,6 @@
 import { inRange } from 'lodash';
-import RNFS from 'react-native-fs';
 
 import { ISurveyScreenComponent, DataElementType } from '~/types/ISurvey';
-import { resizeImage } from './image';
-
-const IMAGE_RESIZE_OPTIONS = {
-  maxWidth: 1920,
-  maxHeight: 1920,
-};
 
 export const FieldTypes = {
   TEXT: 'FreeText',
@@ -34,7 +27,7 @@ export const FieldTypes = {
   PATIENT_ISSUE_GENERATOR: 'PatientIssueGenerator',
 };
 
-export const getStringValue = async (type: string, value: any): Promise<string> => {
+export const getStringValue = (type: string, value: any): string => {
   switch (type) {
     case FieldTypes.TEXT:
     case FieldTypes.MULTILINE:
@@ -77,57 +70,6 @@ export function createDropdownOptionsFromObject(o): DropdownOption[] {
   return Object.entries(o).map(([key, value]) => ({ label: key, value }));
 }
 
-interface ResultValue {
-  result: number;
-  resultText: string;
-}
-
-function formatResultText(value: number, { options }: ISurveyScreenComponent): string {
-  // as percentage
-  return `${value.toFixed(0)}%`;
-}
-
-/**
- * IMPORTANT: We also have another version of this method in sync-server
- * sub commands 'calculateSurveyResults'.
- * The sub command is for recalculate survey results due to an issue that
- * resultText was not synced properly to sync-server before.
- * So if there is an update to this method, please make the same update
- * in the other version in sync-server
- */
-export function getResultValue(allComponents: ISurveyScreenComponent[], values: {}): ResultValue {
-  // find a component with a Result data type and use its value as the overall result
-  const resultComponents = allComponents
-    .filter(c => c.dataElement.type === DataElementType.Result)
-    .filter(c => checkVisibilityCriteria(c, allComponents, values));
-
-  // use the last visible component in the array
-  const component = resultComponents[resultComponents.length - 1];
-
-  if (!component) {
-    // this survey does not have a result field
-    return { result: 0, resultText: '' };
-  }
-
-  const rawValue = values[component.dataElement.code];
-
-  // invalid values just get empty results
-  if (rawValue === undefined || rawValue === null || Number.isNaN(rawValue)) {
-    return { result: 0, resultText: component.detail || '' };
-  }
-
-  // string values just get passed on directly
-  if (typeof rawValue === 'string') {
-    return { result: 0, resultText: rawValue };
-  }
-
-  // numeric data gets formatted
-  return {
-    result: rawValue,
-    resultText: formatResultText(rawValue, component),
-  };
-}
-
 function compareData(dataType: string, expected: string, given: any): boolean {
   switch (dataType) {
     case FieldTypes.BINARY:
@@ -135,7 +77,7 @@ function compareData(dataType: string, expected: string, given: any): boolean {
       if (expected === 'no' && given === false) return true;
       break;
     case FieldTypes.NUMBER:
-    case FieldTypes.CALCULATED:
+    case FieldTypes.CALCULATED: {
       // we check within a threshold because strict equality is actually pretty rare
       const parsed = parseFloat(expected);
       const diff = Math.abs(parsed - given);
@@ -143,6 +85,7 @@ function compareData(dataType: string, expected: string, given: any): boolean {
       const threshold = 0.05; // TODO: configurable
       if (diff < threshold) return true;
       break;
+    }
     case FieldTypes.MULTI_SELECT:
       return given.split(', ').includes(expected);
     default:
@@ -151,6 +94,36 @@ function compareData(dataType: string, expected: string, given: any): boolean {
   }
 
   return false;
+}
+
+/**
+ * Meditrak uses JSON for these fields now, whereas we have been using colon separated values.
+ * Our goal is to have the same syntax as Meditrak for surveys, but since we already have some
+ * test surveys out there using our old system, we fall back to it if we can't parse the JSON.
+ * TODO: Remove the fallback once we can guarantee that there's no surveys using it.
+ */
+function fallbackParseVisibilityCriteria(visibilityCriteria, values, allComponents): boolean {
+  const [
+    elementCode = '',
+    expectedAnswer = '',
+  ] = visibilityCriteria.split(/\s*:\s*/);
+
+  let givenAnswer = values[elementCode] || '';
+  if (givenAnswer.toLowerCase) {
+    givenAnswer = givenAnswer.toLowerCase().trim();
+  }
+  const expectedTrimmed = expectedAnswer.toLowerCase().trim();
+
+  const comparisonComponent = allComponents.find(x => x.dataElement.code === elementCode);
+
+  if (!comparisonComponent) {
+    console.warn(`Comparison component ${elementCode} not found!`);
+    return false;
+  }
+
+  const comparisonDataType = comparisonComponent.dataElement.type;
+
+  return compareData(comparisonDataType, expectedTrimmed, givenAnswer);
 }
 
 /**
@@ -166,7 +139,7 @@ export function checkVisibilityCriteria(
   allComponents: ISurveyScreenComponent[],
   values: any,
 ): boolean {
-  const { visibilityCriteria, dataElement } = component;
+  const { visibilityCriteria } = component;
   // nothing set - show by default
   if (!visibilityCriteria) return true;
 
@@ -177,12 +150,12 @@ export function checkVisibilityCriteria(
       return true;
     }
 
-    const { _conjunction: conjunction, hidden, ...restOfCriteria } = criteriaObject;
+    const { _conjunction: conjunction, ...restOfCriteria } = criteriaObject;
     if (Object.keys(restOfCriteria).length === 0) {
       return true;
     }
 
-    const checkIfQuestionMeetsCriteria = ([questionId, answersEnablingFollowUp]) => {
+    const checkIfQuestionMeetsCriteria = ([questionId, answersEnablingFollowUp]): boolean => {
       const value = values[questionId];
       if (answersEnablingFollowUp.type === 'range') {
         if (!value) return false;
@@ -215,32 +188,48 @@ export function checkVisibilityCriteria(
   }
 }
 
+interface ResultValue {
+  result: number;
+  resultText: string;
+}
+
 /**
- * Meditrak uses JSON for these fields now, whereas we have been using colon separated values.
- * Our goal is to have the same syntax as Meditrak for surveys, but since we already have some
- * test surveys out there using our old system, we fall back to it if we can't parse the JSON.
- * TODO: Remove the fallback once we can guarantee that there's no surveys using it.
+ * IMPORTANT: We also have another version of this method in sync-server
+ * sub commands 'calculateSurveyResults'.
+ * The sub command is for recalculate survey results due to an issue that
+ * resultText was not synced properly to sync-server before.
+ * So if there is an update to this method, please make the same update
+ * in the other version in sync-server
  */
-const fallbackParseVisibilityCriteria = (visibilityCriteria, values, allComponents) => {
-  const [
-    elementCode = '',
-    expectedAnswer = '',
-  ] = visibilityCriteria.split(/\s*:\s*/);
+export function getResultValue(allComponents: ISurveyScreenComponent[], values: {}): ResultValue {
+  // find a component with a Result data type and use its value as the overall result
+  const resultComponents = allComponents
+    .filter(c => c.dataElement.type === DataElementType.Result)
+    .filter(c => checkVisibilityCriteria(c, allComponents, values));
 
-  let givenAnswer = values[elementCode] || '';
-  if (givenAnswer.toLowerCase) {
-    givenAnswer = givenAnswer.toLowerCase().trim();
-  }
-  const expectedTrimmed = expectedAnswer.toLowerCase().trim();
+  // use the last visible component in the array
+  const component = resultComponents.pop();
 
-  const comparisonComponent = allComponents.find(x => x.dataElement.code === elementCode);
-
-  if (!comparisonComponent) {
-    console.warn(`Comparison component ${elementCode} not found!`);
-    return false;
+  if (!component) {
+    // this survey does not have a result field
+    return { result: 0, resultText: '' };
   }
 
-  const comparisonDataType = comparisonComponent.dataElement.type;
+  const rawValue = values[component.dataElement.code];
 
-  return compareData(comparisonDataType, expectedTrimmed, givenAnswer);
-};
+  // invalid values just get empty results
+  if (rawValue === undefined || rawValue === null || Number.isNaN(rawValue)) {
+    return { result: 0, resultText: component.detail || '' };
+  }
+
+  // string values just get passed on directly
+  if (typeof rawValue === 'string') {
+    return { result: 0, resultText: rawValue };
+  }
+
+  // numeric data gets formatted
+  return {
+    result: rawValue,
+    resultText: `${rawValue.toFixed(0)}%`,
+  };
+}
