@@ -1,6 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { Modal } from './Modal';
 
+import { DateDisplay } from './DateDisplay';
 import { Table } from './Table';
 import { SurveyResultBadge } from './SurveyResultBadge';
 import { ViewPhotoLink } from './ViewPhotoLink';
@@ -34,6 +35,10 @@ const COLUMNS = [
           return <ViewPhotoLink imageId={answer} />;
         case 'Checkbox':
           return convertBinaryToYesNo(answer);
+        case 'SubmissionDate':
+          return <DateDisplay date={answer} />;
+        case 'Date':
+          return <DateDisplay date={answer} />;
         default:
           return answer;
       }
