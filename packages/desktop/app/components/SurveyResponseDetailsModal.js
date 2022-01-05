@@ -27,9 +27,9 @@ const COLUMNS = [
     accessor: ({ answer, type }) => {
       switch (type) {
         case 'Result':
-          return <SurveyResultBadge result={parseFloat(answer)} />;
+          return <SurveyResultBadge resultText={answer} />;
         case 'Calculated':
-          return parseFloat(answer).toFixed(2);
+          return parseFloat(answer).toFixed(1);
         case 'Photo':
           return <ViewPhotoLink imageId={answer} />;
         case 'Checkbox':
