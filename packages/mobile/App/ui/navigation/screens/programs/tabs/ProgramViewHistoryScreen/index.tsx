@@ -18,17 +18,17 @@ import { DateFormats } from '~/ui/helpers/constants';
 
 const SurveyResponseItem = ({ surveyResponse, responseIndex }): ReactElement => {
   const navigation = useNavigation();
-  const onPress = useCallback(
+  const showResponseDetails = useCallback(
     () => navigation.navigate(Routes.HomeStack.ProgramStack.SurveyResponseDetailsScreen, {
       surveyResponseId: surveyResponse.id,
     }),
     [],
   );
 
-  const { survey, endTime = '', result, resultText } = surveyResponse;
+  const { survey, endTime = '', resultText } = surveyResponse;
 
   return (
-    <TouchableOpacity onPress={onPress}>
+    <TouchableOpacity onPress={showResponseDetails}>
       <StyledView
         height={60}
         justifyContent="space-between"
@@ -52,7 +52,7 @@ const SurveyResponseItem = ({ surveyResponse, responseIndex }): ReactElement => 
               {formatDate(endTime, DateFormats.DATE_AND_TIME)}
             </StyledText>
           </StyledView>
-          {resultText ? <SurveyResultBadge result={result} resultText={resultText} /> : null}
+          {resultText ? <SurveyResultBadge resultText={resultText} /> : null}
         </StyledView>
       </StyledView>
     </TouchableOpacity>
