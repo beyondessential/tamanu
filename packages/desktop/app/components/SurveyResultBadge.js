@@ -18,7 +18,11 @@ const ColoredBadge = styled.div`
 
 function separateColorText(resultText) {
   for (const [key, color] of Object.entries(COLORS)) {
-    const re = RegExp(key, 'i');
+    // only match colors at the end that follow a result
+    // "90% GREEN" -> "90%"
+    // "blue ribbon" -> "blue ribbon"
+    // "reduced risk" -> "reduced risk"
+    const re = RegExp(` ${key}$`, 'i');
     if (resultText.match(re)) {
       const strippedResultText = resultText.replace(re, '').trim();
       return { color, strippedResultText };
