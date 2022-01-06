@@ -54,8 +54,8 @@ function initPersistor(api, store) {
 function start() {
   registerYup();
 
-  //TODO: Switch to use api when we get rid of API singleton
-  //const api = new TamanuApi(version);
+  // TODO: Switch to use api when we get rid of API singleton
+  // const api = new TamanuApi(version);
   const { store, history } = initStore(API);
 
   // set up data change responder to trigger reloads when relevant data changes server-side

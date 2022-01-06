@@ -7,11 +7,11 @@ import { createTupaiaApiClient, translateReportDataToSurveyResponses } from 'sha
 import { removeFile, createZippedExcelFile } from '../utils/files';
 
 export class ReportRunner {
-  constructor(reportName, parameters, recipients, models, emailService) {
+  constructor(reportName, parameters, recipients, store, emailService) {
     this.reportName = reportName;
     this.parameters = parameters;
     this.recipients = recipients;
-    this.models = models;
+    this.store = store;
     this.emailService = emailService;
     this.tupaiaApiClient = null;
   }
@@ -49,7 +49,7 @@ export class ReportRunner {
 
       log.info(`ReportRunner - Running report "${this.reportName}"`);
 
-      reportData = await reportDataGenerator(this.models, this.parameters, this.tupaiaApiClient);
+      reportData = await reportDataGenerator(this.store, this.parameters, this.tupaiaApiClient);
 
       log.info(`ReportRunner - Running report "${this.reportName}" finished`);
     } catch (e) {

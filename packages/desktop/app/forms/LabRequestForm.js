@@ -46,15 +46,6 @@ function filterTestTypes(testTypes, { labTestCategoryId }) {
 }
 
 export class LabRequestForm extends React.PureComponent {
-  static propTypes = {
-    onSubmit: PropTypes.func.isRequired,
-    onMount: PropTypes.func,
-  };
-
-  static defaultProps = {
-    onMount: null,
-  };
-
   componentDidMount() {
     const { onMount } = this.props;
     if (onMount) onMount();
@@ -170,6 +161,15 @@ export class LabRequestForm extends React.PureComponent {
     );
   }
 }
+
+LabRequestForm.propTypes = {
+  onSubmit: PropTypes.func.isRequired,
+  onMount: PropTypes.func,
+};
+
+LabRequestForm.defaultProps = {
+  onMount: null,
+};
 
 export const ConnectedLabRequestForm = connect(
   state => ({

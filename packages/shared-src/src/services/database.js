@@ -30,6 +30,9 @@ const unsafeRecreatePgDb = async ({ name, username, password, host, port }) => {
     await client.connect();
     await client.query(`DROP DATABASE IF EXISTS "${name}"`);
     await client.query(`CREATE DATABASE "${name}"`);
+  } catch(e) {
+    log.error("Failed to drop database. Note that every createTestContext() must have a corresponding ctx.close()!");
+    throw e;
   } finally {
     await client.end();
   }

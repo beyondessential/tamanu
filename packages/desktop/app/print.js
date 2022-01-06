@@ -10,6 +10,7 @@ export function registerPrintListener() {
 
     win.webContents.print(options, (success, failureReason) => {
       if (!success) {
+        // eslint-disable-next-line no-console
         console.error(failureReason);
       }
     });

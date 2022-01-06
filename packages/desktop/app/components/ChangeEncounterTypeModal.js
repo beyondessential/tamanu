@@ -1,5 +1,4 @@
 import React, { useCallback } from 'react';
-import { push } from 'connected-react-router';
 import { useEncounter } from '../contexts/Encounter';
 
 import { Modal } from './Modal';
@@ -14,7 +13,7 @@ export const ChangeEncounterTypeModal = React.memo(
         await writeAndViewEncounter(encounter.id, data);
         onClose();
       },
-      [encounter],
+      [encounter, onClose, writeAndViewEncounter],
     );
 
     return (

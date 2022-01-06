@@ -1,12 +1,7 @@
 import React, { memo, useState, useCallback } from 'react';
 import * as yup from 'yup';
 
-import { 
-  Form,
-  Field,
-  TextField,
-  CheckField,
-} from 'desktop/app/components/Field';
+import { Form, Field, CheckField } from 'desktop/app/components/Field';
 import { FileChooserField, FILTER_EXCEL } from 'desktop/app/components/Field/FileChooserField';
 import { FormGrid } from 'desktop/app/components/FormGrid';
 import { ButtonRow } from 'desktop/app/components/ButtonRow';
@@ -19,20 +14,10 @@ import { useCurrentUser } from 'desktop/app/store/auth';
 import { ImportStatsDisplay } from './components/ImportStatsDisplay';
 import { ImportErrorsTable } from './components/ImportErrorsTable';
 
-const ProgramUploadForm = ({ submitForm, isSubmitting, additionalFields, ...rest }) => (
+const ProgramUploadForm = ({ submitForm, isSubmitting, additionalFields }) => (
   <FormGrid columns={1}>
-    <Field
-      component={CheckField}
-      label="Test run"
-      name="dryRun"
-      required
-    />
-    <Field
-      component={CheckField}
-      label="Skip invalid records"
-      name="allowErrors"
-      required
-    />
+    <Field component={CheckField} label="Test run" name="dryRun" required />
+    <Field component={CheckField} label="Skip invalid records" name="allowErrors" required />
     <Field
       component={FileChooserField}
       filters={[FILTER_EXCEL]}
@@ -42,12 +27,7 @@ const ProgramUploadForm = ({ submitForm, isSubmitting, additionalFields, ...rest
     />
     {additionalFields || null}
     <ButtonRow>
-      <Button
-        disabled={isSubmitting}
-        onClick={submitForm}
-        variant="contained"
-        color="primary"
-      >
+      <Button disabled={isSubmitting} onClick={submitForm} variant="contained" color="primary">
         Upload
       </Button>
     </ButtonRow>
@@ -57,21 +37,20 @@ const ProgramUploadForm = ({ submitForm, isSubmitting, additionalFields, ...rest
 const OutcomeHeader = ({ result }) => {
   if (result.sentData) {
     return (
-      <h3>{`Import successful! Sent ${result.stats.records.total} records in ${result.duration.toFixed(2)}s`}</h3>
-    );
-  } else if (result.didntSendReason === 'validationFailed') {
-    return (
-      <h3>Please correct these validation issues and try again</h3>
-    );
-  } else if (result.didntSendReason === 'dryRun') {
-    return (
-      <h3>Test import finished</h3>
-    );
-  } else {
-    return (
-      <h3>{`Import failed - server reports "${result.didntSendReason}"`}</h3>
+      <h3>
+        {`Import successful! Sent ${
+          result.stats.records.total
+        } records in ${result.duration.toFixed(2)}s`}
+      </h3>
     );
   }
+  if (result.didntSendReason === 'validationFailed') {
+    return <h3>Please correct these validation issues and try again</h3>;
+  }
+  if (result.didntSendReason === 'dryRun') {
+    return <h3>Test import finished</h3>;
+  }
+  return <h3>{`Import failed - server reports "${result.didntSendReason}"`}</h3>;
 };
 
 const OutcomeDisplay = ({ result }) => {
@@ -97,43 +76,37 @@ export const DataDocumentUploadForm = memo(({ onSubmit, onReceiveResult, additio
   const [result, setResult] = useState(null);
 
   const onSubmitUpload = useCallback(
-    async (data) => {
-      const result = await onSubmit(data);
+    async data => {
+      const intermediateResult = await onSubmit(data);
 
-      if(result.sentData) {
+      if (intermediateResult.sentData) {
         // reset the form
         setResetKey(Math.random());
       }
 
-      setResult(result);
-      if(onReceiveResult) {
-        onReceiveResult(result);
+      setResult(intermediateResult);
+      if (onReceiveResult) {
+        onReceiveResult(intermediateResult);
       }
       return true;
     },
-    [onSubmit],
+    [onSubmit, onReceiveResult],
   );
 
-  const renderForm = useCallback(props => (
-    <ProgramUploadForm
-      {...props}
-      additionalFields={additionalFields}
-    />
-  ));
+  const renderForm = useCallback(
+    props => <ProgramUploadForm {...props} additionalFields={additionalFields} />,
+    [additionalFields],
+  );
 
   const user = useCurrentUser();
   const isAdmin = user?.role === 'admin';
 
   if (!isAdmin) {
-    return (
-      <Notification
-        message="Data uploads are available to admin users only."
-      />
-    );
+    return <Notification message="Data uploads are available to admin users only." />;
   }
 
   return (
-    <React.Fragment>
+    <>
       <Form
         key={resetKey}
         onSubmit={onSubmitUpload}
@@ -149,6 +122,6 @@ export const DataDocumentUploadForm = memo(({ onSubmit, onReceiveResult, additio
         pingu="1231231"
       />
       <OutcomeDisplay result={result} />
-    </React.Fragment>
+    </>
   );
 });

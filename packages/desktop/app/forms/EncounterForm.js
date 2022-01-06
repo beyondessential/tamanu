@@ -97,10 +97,6 @@ const StartPage = ({ setValue }) => {
 };
 
 export class EncounterForm extends React.PureComponent {
-  static propTypes = {
-    onSubmit: PropTypes.func.isRequired,
-  };
-
   renderForm = ({ values, setFieldValue, submitForm }) => {
     if (!values.encounterType) {
       return <StartPage setValue={setFieldValue} />;
@@ -194,3 +190,7 @@ export class EncounterForm extends React.PureComponent {
     );
   }
 }
+
+EncounterForm.propTypes = {
+  onSubmit: PropTypes.func.isRequired,
+};

@@ -35,6 +35,22 @@ encounter.put(
         ...req.body.discharge,
         encounterId: id,
       });
+
+      // Update medications that were marked for discharge and ensure
+      // only isDischarge, quantity and repeats fields are edited
+      const medications = req.body.medications || {};
+      Object.entries(medications).forEach(async ([medicationId, medicationValues]) => {
+        const { isDischarge, quantity, repeats } = medicationValues;
+        if (isDischarge) {
+          const medication = await models.EncounterMedication.findByPk(medicationId);
+
+          try {
+            await medication.update({ isDischarge, quantity, repeats });
+          } catch (e) {
+            console.error(`Couldn't update medication with id ${medicationId} when discharging. ${e.name} : ${e.message}`);
+          }
+        }
+      });
     }
 
     if (referralId) {
@@ -85,6 +101,7 @@ encounterRelations.get(
   }),
 );
 encounterRelations.get('/:id/referral', simpleGetList('Referral', 'encounterId'));
+encounterRelations.get('/:id/documentMetadata', simpleGetList('DocumentMetadata', 'encounterId'));
 encounterRelations.get('/:id/imagingRequests', simpleGetList('ImagingRequest', 'encounterId'));
 encounterRelations.get(
   '/:id/notes',
@@ -93,8 +110,9 @@ encounterRelations.get(
   }),
 );
 
+
 encounterRelations.get(
-  '/:id/surveyResponses',
+  '/:id/programResponses',
   asyncHandler(async (req, res) => {
     const { db, models, params, query } = req;
     const encounterId = params.id;
@@ -107,8 +125,12 @@ encounterRelations.get(
           survey_responses
           LEFT JOIN encounters
             ON (survey_responses.encounter_id = encounters.id)
+          LEFT JOIN surveys
+            ON (survey_responses.survey_id = surveys.id)
         WHERE
           survey_responses.encounter_id = :encounterId
+        AND
+          surveys.survey_type = 'programs'
       `,
       `
         SELECT
@@ -128,6 +150,8 @@ encounterRelations.get(
             ON (users.id = encounters.examiner_id)
         WHERE
           survey_responses.encounter_id = :encounterId
+        AND
+          surveys.survey_type = 'programs'
       `,
       { encounterId },
       query,

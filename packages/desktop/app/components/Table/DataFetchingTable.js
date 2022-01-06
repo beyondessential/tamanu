@@ -1,16 +1,17 @@
 import React, { useState, useCallback, useEffect, memo } from 'react';
 import { Table } from './Table';
-import { connectApi } from '../../api';
+import { useApi } from '../../api';
 
 const ROWS_PER_PAGE_OPTIONS = [10, 25, 50];
 const DEFAULT_SORT = { order: 'asc', orderBy: undefined };
 
-const DumbDataFetchingTable = memo(
+const defaultFetchState = { data: [], count: 0, errorMessage: '', isLoading: true };
+export const DataFetchingTable = memo(
   ({
     columns,
-    fetchData,
     noDataMessage,
     fetchOptions,
+    endpoint,
     onRowClick,
     transformRow,
     initialSort = DEFAULT_SORT,
@@ -22,8 +23,14 @@ const DumbDataFetchingTable = memo(
     const [page, setPage] = useState(0);
     const [rowsPerPage, setRowsPerPage] = useState(ROWS_PER_PAGE_OPTIONS[0]);
     const [sorting, setSorting] = useState(initialSort);
-    const defaultFetchState = { data: [], count: 0, errorMessage: '', isLoading: true };
     const [fetchState, setFetchState] = useState(defaultFetchState);
+    const [forcedRefreshCount, setForcedRefreshCount] = useState(0);
+    const api = useApi();
+
+    // This callback will be passed to table cell accessors so they can force a table refresh
+    const handleTableRefresh = useCallback(() => {
+      setForcedRefreshCount(prevCount => prevCount + 1);
+    }, []);
 
     const handleChangeOrderBy = useCallback(
       columnKey => {
@@ -35,8 +42,14 @@ const DumbDataFetchingTable = memo(
       [sorting],
     );
 
+    const fetchData = useCallback(
+      queryParameters => api.get(endpoint, { ...fetchOptions, ...queryParameters }),
+      [api, endpoint, fetchOptions],
+    );
+
     useEffect(() => {
-      let updateFetchState = newFetchState => setFetchState({ ...fetchState, ...newFetchState });
+      let updateFetchState = newFetchState =>
+        setFetchState(oldFetchState => ({ ...oldFetchState, ...newFetchState }));
 
       updateFetchState({ isLoading: true });
       (async () => {
@@ -50,6 +63,7 @@ const DumbDataFetchingTable = memo(
             isLoading: false,
           });
         } catch (error) {
+          // eslint-disable-next-line no-console
           console.error(error);
           updateFetchState({ errorMessage: error.message, isLoading: false });
         }
@@ -58,7 +72,16 @@ const DumbDataFetchingTable = memo(
       return () => {
         updateFetchState = () => {}; // discard the fetch state update if this request is stale
       };
-    }, [page, rowsPerPage, sorting, fetchOptions, refreshCount]);
+    }, [
+      page,
+      rowsPerPage,
+      sorting,
+      fetchOptions,
+      refreshCount,
+      forcedRefreshCount,
+      fetchData,
+      transformRow,
+    ]);
 
     useEffect(() => setPage(0), [fetchOptions]);
 
@@ -84,15 +107,8 @@ const DumbDataFetchingTable = memo(
         className={className}
         exportName={exportName}
         customSort={customSort}
+        onTableRefresh={handleTableRefresh}
       />
     );
   },
 );
-
-function mapApiToProps(api, dispatch, { endpoint, fetchOptions }) {
-  return {
-    fetchData: queryParameters => api.get(endpoint, { ...fetchOptions, ...queryParameters }),
-  };
-}
-
-export const DataFetchingTable = connectApi(mapApiToProps)(DumbDataFetchingTable);

@@ -17,11 +17,11 @@ export const SurveySelector = React.memo(({ onSelectSurvey, surveys, buttonText 
   const onChangeSurvey = useCallback(event => {
     const surveyId = event.target.value;
     setSelectedSurveyId(surveyId);
-  });
+  }, []);
 
   const onSubmit = useCallback(() => {
     onSelectSurvey(selectedSurveyId);
-  }, [selectedSurveyId]);
+  }, [onSelectSurvey, selectedSurveyId]);
 
   return (
     <>

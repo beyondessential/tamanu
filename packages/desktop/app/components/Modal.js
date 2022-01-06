@@ -108,7 +108,8 @@ export const Modal = memo(
         </ModalContainer>
       </Dialog>
     );
-  });
+  },
+);
 
 export const connectRoutedModal = (baseRoute, suffix) =>
   connect(

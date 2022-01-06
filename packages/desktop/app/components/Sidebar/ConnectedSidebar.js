@@ -25,7 +25,4 @@ const mapDispatchToProps = dispatch => ({
   onLogout: () => dispatch(logout()),
 });
 
-export const ConnectedSidebar = connect(
-  mapStateToProps,
-  mapDispatchToProps,
-)(SidebarWithPrograms);
+export const ConnectedSidebar = connect(mapStateToProps, mapDispatchToProps)(SidebarWithPrograms);

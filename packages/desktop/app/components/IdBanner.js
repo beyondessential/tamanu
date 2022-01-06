@@ -40,7 +40,7 @@ export const IdBanner = ({ children }) => {
   return (
     <IdFieldContainer>
       <IdFieldTitle>
-        <LocalisedText path="fields.displayId.longLabel"/>
+        <LocalisedText path="fields.displayId.longLabel" />
       </IdFieldTitle>
 
       {children}
@@ -51,4 +51,3 @@ export const IdBanner = ({ children }) => {
     </IdFieldContainer>
   );
 };
-

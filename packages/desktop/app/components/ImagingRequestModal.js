@@ -1,12 +1,12 @@
 import React from 'react';
-import { customAlphabet } from 'nanoid'
+import { customAlphabet } from 'nanoid';
 
 import { useApi } from '../api';
 import { Suggester } from '../utils/suggester';
 
 import { Modal } from './Modal';
 import { ImagingRequestForm } from '../forms/ImagingRequestForm';
-import { ALPHABET_FOR_ID } from '../constants'
+import { ALPHABET_FOR_ID } from '../constants';
 
 // generates 8 character id (while excluding 0, O, I, 1 and L)
 const configureCustomRequestId = () => customAlphabet(ALPHABET_FOR_ID, 8);
@@ -23,7 +23,7 @@ export const ImagingRequestModal = ({ open, onClose, onSaved, encounter }) => {
         onSubmit={async data => {
           api.post(`imagingRequest`, {
             ...data,
-            encounterId: encounter.id 
+            encounterId: encounter.id,
           });
           onSaved();
         }}

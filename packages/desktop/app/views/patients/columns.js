@@ -71,8 +71,8 @@ export const status = {
   minWidth: 100,
   accessor: ({ encounterType }) => {
     if (!encounterType) return '';
-    else if (encounterType === 'emergency') return 'Emergency';
-    else if (encounterType === 'clinic') return 'Outpatient';
+    if (encounterType === 'emergency') return 'Emergency';
+    if (encounterType === 'clinic') return 'Outpatient';
     return 'Inpatient';
   },
 };

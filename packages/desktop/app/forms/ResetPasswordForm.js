@@ -3,15 +3,7 @@ import * as yup from 'yup';
 import styled from 'styled-components';
 import Collapse from '@material-ui/core/Collapse';
 import { FormGrid } from '../components/FormGrid';
-import {
-  Button,
-  CheckField,
-  Field,
-  Form,
-  MinusIconButton,
-  PlusIconButton,
-  TextField,
-} from '../components';
+import { Button, Field, Form, MinusIconButton, PlusIconButton, TextField } from '../components';
 import { ServerDetectingField, getSavedServer } from '../components/Field/ServerDetectingField';
 
 const PrimaryButton = styled(Button)`

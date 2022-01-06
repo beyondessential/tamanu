@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { useCallback } from 'react';
 
 import { useSelector, useDispatch } from 'react-redux';
 import { Typography } from '@material-ui/core';
@@ -40,23 +40,36 @@ const LightText = styled(Typography)`
   top: -2px;
 `;
 
-export const PatientDisplay = () => {
+export const PatientDisplay = ({ surveyCompleted = false }) => {
   const patient = useSelector(state => state.patient);
+  const shouldShowCancel = !surveyCompleted;
   const dispatch = useDispatch();
+
+  const onViewPatient = useCallback(() => {
+    dispatch(viewPatient(patient.id));
+  }, [patient.id, dispatch]);
+
+  const onViewPatientKeyUp = useCallback(
+    e => {
+      if (e.code === 'Enter') {
+        onViewPatient();
+      }
+    },
+    [onViewPatient],
+  );
+
   return (
     <Header>
       <FlexRow>
         <Heading variant="h3">
-          <div role="button" onClick={() => {
-            dispatch(viewPatient(patient.id))
-          }}>
+          <div tabIndex="0" role="button" onClick={onViewPatient} onKeyUp={onViewPatientKeyUp}>
             <PatientNameDisplay patient={patient} />
           </div>
         </Heading>
-        <LightText>({patient.displayId})</LightText>
+        <LightText>{`(${patient.displayId})`}</LightText>
       </FlexRow>
       <FlexRow>
-        <Button onClick={history.goBack}>Cancel</Button>
+        {shouldShowCancel && <Button onClick={history.goBack}>Cancel</Button>}
         <OutlinedButton
           onClick={() => {
             dispatch(clearPatient());

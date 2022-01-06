@@ -14,7 +14,7 @@ const DumbDischargeModal = React.memo(({ open, practitionerSuggester, onClose })
       await writeAndViewEncounter(encounter.id, data);
       onClose();
     },
-    [encounter],
+    [encounter, writeAndViewEncounter, onClose],
   );
 
   return (

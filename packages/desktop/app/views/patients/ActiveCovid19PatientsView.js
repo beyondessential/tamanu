@@ -1,7 +1,6 @@
 import React, { useEffect, useState } from 'react';
 import { useDispatch } from 'react-redux';
 import { groupBy } from 'lodash';
-import moment from 'moment';
 import styled from 'styled-components';
 import People from '@material-ui/icons/People';
 import Paper from '@material-ui/core/Paper';
@@ -183,7 +182,7 @@ export const ActiveCovid19PatientsView = React.memo(() => {
       setData(activeCovid19PatientsData);
       setPatientsByClinicalStatus(groupBy(activeCovid19PatientsData.data, 'clinicalStatus'));
     })();
-  }, []);
+  }, [api]);
 
   const fields = [
     'firstName',

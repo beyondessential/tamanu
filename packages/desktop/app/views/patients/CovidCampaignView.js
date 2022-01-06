@@ -25,7 +25,7 @@ const CovidVaccinationStatusComponent = ({ row }) => {
       }
     };
     getVaccinations();
-  }, []);
+  }, [api, row.id]);
 
   return covidVaccinationStatus;
 };

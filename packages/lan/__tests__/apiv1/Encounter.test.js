@@ -1,4 +1,8 @@
-import { createDummyPatient, createDummyEncounter } from 'shared/demoData/patients';
+import {
+  createDummyPatient,
+  createDummyEncounter,
+  createDummyEncounterMedication,
+} from 'shared/demoData/patients';
 import moment from 'moment';
 import { createTestContext } from '../utilities';
 
@@ -284,6 +288,61 @@ describe('Encounter', () => {
         const notes = await v.getNotes();
         const check = x => x.content.includes('Discharged');
         expect(notes.some(check)).toEqual(true);
+      });
+
+      it('should only update medications marked for discharge', async () => {
+        // Create encounter to be discharged
+        const encounter = await models.Encounter.create({
+          ...(await createDummyEncounter(models, { current: true })),
+          patientId: patient.id,
+        });
+
+        // Create two encounter medications with specific quantities to compare
+        const medicationOne = await models.EncounterMedication.create({
+          ...(await createDummyEncounterMedication(models, { quantity: 1 })),
+          encounterId: encounter.id,
+        });
+        const medicationTwo = await models.EncounterMedication.create({
+          ...(await createDummyEncounterMedication(models, { quantity: 2 })),
+          encounterId: encounter.id,
+        });
+
+        // Mark only one medication for discharge
+        const result = await app.put(`/v1/encounter/${encounter.id}`).send({
+          endDate: new Date(),
+          discharge: {
+            encounterId: encounter.id,
+            dischargerId: app.user.id,
+          },
+          medications: {
+            [medicationOne.id]: {
+              isDischarge: true,
+              quantity: 3,
+              repeats: 0,
+            },
+            [medicationTwo.id]: {
+              isDischarge: false,
+              quantity: 0,
+              repeats: 1,
+            },
+          },
+        });
+        expect(result).toHaveSucceeded();
+
+        // Reload medications and make sure only the first one got edited
+        await Promise.all([medicationOne.reload(), medicationTwo.reload()]);
+
+        // Only compare explicitly set values
+        expect(medicationOne.dataValues).toMatchObject({
+          id: medicationOne.id,
+          isDischarge: true,
+          quantity: 3,
+          repeats: 0,
+        });
+        expect(medicationTwo.dataValues).toMatchObject({
+          id: medicationTwo.id,
+          quantity: 2,
+        });
       });
 
       it('should not update encounter to an invalid location or add a note', async () => {

@@ -3,8 +3,8 @@ import asyncHandler from 'express-async-handler';
 import { Op } from 'sequelize';
 import { NOTE_TYPES } from 'shared/constants';
 import { NotFoundError } from 'shared/errors';
-import { NOTE_RECORD_TYPES } from 'shared/models/Note';
 import {
+  getNoteWithType,
   mapQueryFilters,
   getCaseInsensitiveFilter,
   getTextToBooleanFilter,
@@ -30,7 +30,7 @@ imagingRequest.get(
   '/:id',
   asyncHandler(async (req, res) => {
     const {
-      models: { ImagingRequest, Note },
+      models: { ImagingRequest },
       params: { id },
     } = req;
     req.checkPermission('read', 'ImagingRequest');
@@ -39,21 +39,19 @@ imagingRequest.get(
     });
     if (!imagingRequestObject) throw new NotFoundError();
 
-    // Get related note
-    const noteObject = await Note.findOne({
-      where: {
-        recordType: NOTE_RECORD_TYPES.IMAGING_REQUEST,
-        recordId: id,
-      },
-    });
+    // Get related notes (general, area to be imaged)
+    const relatedNotes = await imagingRequestObject.getNotes();
 
-    // If note doesn't exist, default content to empty string
-    const noteContent = noteObject ? noteObject.content : '';
+    // Extract note content if note exists, else default content to empty string
+    const noteContent = getNoteWithType(relatedNotes, NOTE_TYPES.OTHER)?.content || '';
+    const areaNoteContent =
+      getNoteWithType(relatedNotes, NOTE_TYPES.AREA_TO_BE_IMAGED)?.content || '';
 
     // Convert Sequelize model to use a custom object as response
     const responseObject = {
       ...imagingRequestObject.forResponse(),
       note: noteContent,
+      areaToBeImaged: areaNoteContent,
     };
 
     res.send(responseObject);
@@ -64,7 +62,7 @@ imagingRequest.put(
   '/:id',
   asyncHandler(async (req, res) => {
     const {
-      models: { ImagingRequest, Note },
+      models: { ImagingRequest },
       params: { id },
     } = req;
     req.checkPermission('read', 'ImagingRequest');
@@ -73,17 +71,17 @@ imagingRequest.put(
     req.checkPermission('write', 'ImagingRequest');
     await imagingRequestObject.update(req.body);
 
-    // Get related note
-    const noteObject = await Note.findOne({
-      where: {
-        recordType: NOTE_RECORD_TYPES.IMAGING_REQUEST,
-        recordId: id,
-      },
-    });
+    // Get related notes (general, area to be imaged)
+    const relatedNotes = await imagingRequestObject.getNotes();
+
+    // Get separate note objects
+    const noteObject = getNoteWithType(relatedNotes, NOTE_TYPES.OTHER);
+    const areaNoteObject = getNoteWithType(relatedNotes, NOTE_TYPES.AREA_TO_BE_IMAGED);
 
     // The returned note content will read its value depending if
     // note exists or gets created, else it should be an empty string
     let noteContent = '';
+    let areaNoteContent = '';
 
     // Update the content of the note object if it exists
     if (noteObject) {
@@ -92,20 +90,34 @@ imagingRequest.put(
     }
     // Else, create a new one only if it has content
     else if (req.body.note) {
-      const newNoteObject = await Note.create({
-        recordId: imagingRequestObject.get('id'),
-        recordType: NOTE_RECORD_TYPES.IMAGING_REQUEST,
-        content: req.body.note,
-        noteType: NOTE_TYPES.OTHER,
-        authorId: req.user.id,
-      });
+      const newNoteObject = await await imagingRequestObject.addRelatedNote(
+        NOTE_TYPES.OTHER,
+        req.body.note,
+        req.user.id,
+      );
       noteContent = newNoteObject.content;
+    }
+
+    // Update the content of the area to be imaged note object if it exists
+    if (areaNoteObject) {
+      await areaNoteObject.update({ content: req.body.areaToBeImaged });
+      areaNoteContent = areaNoteObject.content;
+    }
+    // Else, create a new one only if it has content
+    else if (req.body.areaToBeImaged) {
+      const newAreaNoteObject = await imagingRequestObject.addRelatedNote(
+        NOTE_TYPES.AREA_TO_BE_IMAGED,
+        req.body.areaToBeImaged,
+        req.user.id,
+      );
+      areaNoteContent = newAreaNoteObject.content;
     }
 
     // Convert Sequelize model to use a custom object as response
     const responseObject = {
       ...imagingRequestObject.forResponse(),
       note: noteContent,
+      areaToBeImaged: areaNoteContent,
     };
 
     res.send(responseObject);
@@ -116,32 +128,44 @@ imagingRequest.post(
   '/$',
   asyncHandler(async (req, res) => {
     const {
-      models: { ImagingRequest, Note },
+      models: { ImagingRequest },
     } = req;
     req.checkPermission('create', 'ImagingRequest');
     const newImagingRequest = await ImagingRequest.create(req.body);
 
-    // Return note content or empty string with the response for consistency
+    // Return notes content or empty string with the response for consistency
     let noteContent = '';
+    let areaNoteContent = '';
 
     // Only create a note if it has content
     if (req.body.note) {
-      const newNote = await Note.create({
-        recordId: newImagingRequest.get('id'),
-        recordType: NOTE_RECORD_TYPES.IMAGING_REQUEST,
-        content: req.body.note,
-        noteType: NOTE_TYPES.OTHER,
-        authorId: req.user.id,
-      });
+      const newNote = await newImagingRequest.addRelatedNote(
+        NOTE_TYPES.OTHER,
+        req.body.note,
+        req.user.id,
+      );
 
       // Update note content for response with saved data
       noteContent = newNote.content;
+    }
+
+    // Only create an area to be imaged note if it has content
+    if (req.body.areaToBeImaged) {
+      const newAreaNote = await newImagingRequest.addRelatedNote(
+        NOTE_TYPES.AREA_TO_BE_IMAGED,
+        req.body.areaToBeImaged,
+        req.user.id,
+      );
+
+      // Update area to be imaged content for response with saved data
+      areaNoteContent = newAreaNote.content;
     }
 
     // Convert Sequelize model to use a custom object as response
     const responseObject = {
       ...newImagingRequest.forResponse(),
       note: noteContent,
+      areaToBeImaged: areaNoteContent,
     };
 
     res.send(responseObject);

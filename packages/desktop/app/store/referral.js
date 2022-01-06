@@ -1,5 +1,3 @@
-import { push } from 'connected-react-router';
-
 import { createStatePreservingReducer } from '../utils/createStatePreservingReducer';
 
 // actions

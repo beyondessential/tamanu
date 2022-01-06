@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { NewAppointmentModal } from './NewAppointmentModal';
+import { AppointmentModal } from './AppointmentModal';
 import { Button } from '..';
 
 export const NewAppointmentButton = ({ onSuccess }) => {
@@ -15,7 +15,7 @@ export const NewAppointmentButton = ({ onSuccess }) => {
       >
         New appointment
       </Button>
-      <NewAppointmentModal
+      <AppointmentModal
         open={openModal}
         onClose={() => setOpenModal(false)}
         onSuccess={onSuccess}

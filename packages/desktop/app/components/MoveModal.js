@@ -18,7 +18,7 @@ export const MoveModal = connectApi(api => ({
       await writeAndViewEncounter(encounter.id, data);
       onClose();
     },
-    [encounter],
+    [encounter, writeAndViewEncounter, onClose],
   );
 
   return (
@@ -29,18 +29,21 @@ export const MoveModal = connectApi(api => ({
 });
 
 const MoveForm = ({ onSubmit, onClose, encounter, locationSuggester }) => {
-  const renderForm = React.useCallback(({ submitForm }) => (
-    <FormGrid columns={1}>
-      <Field
-        name="locationId"
-        component={AutocompleteField}
-        suggester={locationSuggester}
-        label="New location"
-        required
-      />
-      <ConfirmCancelRow onConfirm={submitForm} onCancel={onClose} />
-    </FormGrid>
-  ));
+  const renderForm = useCallback(
+    ({ submitForm }) => (
+      <FormGrid columns={1}>
+        <Field
+          name="locationId"
+          component={AutocompleteField}
+          suggester={locationSuggester}
+          label="New location"
+          required
+        />
+        <ConfirmCancelRow onConfirm={submitForm} onCancel={onClose} />
+      </FormGrid>
+    ),
+    [locationSuggester, onClose],
+  );
 
   return (
     <Form

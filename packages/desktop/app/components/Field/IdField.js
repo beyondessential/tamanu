@@ -50,12 +50,12 @@ export const IdInput = ({ value, name, onChange, regenerateId }) => {
   );
 };
 
-export const IdField = props => (
+export const IdField = ({ field, regenerateId }) => (
   <IdInput
-    name={props.field.name}
-    value={props.field.value}
-    onChange={props.field.onChange}
-    {...props}
+    name={field.name}
+    value={field.value}
+    onChange={field.onChange}
+    regenerateId={regenerateId}
   />
 );
 

@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { useCallback } from 'react';
 import styled from 'styled-components';
 import Button from '@material-ui/core/Button';
 import ButtonGroup from '@material-ui/core/ButtonGroup';
@@ -10,7 +10,7 @@ import Popper from '@material-ui/core/Popper';
 import MenuItem from '@material-ui/core/MenuItem';
 import MenuList from '@material-ui/core/MenuList';
 
-// Button has 'text-transform: uppercase' by default, 
+// Button has 'text-transform: uppercase' by default,
 // override and uppercase only the first one
 const TextTransformedButton = styled(Button)`
   text-transform: none;
@@ -31,17 +31,17 @@ export const DropdownButton = React.memo(({ actions, color, dropdownColor, ...pr
     actions[index].onClick(event);
   }
 
-  function handleToggle() {
+  const handleToggle = useCallback(() => {
     setOpen(prevOpen => !prevOpen);
-  }
+  }, []);
 
-  function handleClose(event) {
+  const handleClose = useCallback(event => {
     if (anchorRef.current && anchorRef.current.contains(event.target)) {
       return;
     }
 
     setOpen(false);
-  }
+  }, []);
 
   const [mainAction, ...otherActions] = actions;
 
@@ -55,7 +55,12 @@ export const DropdownButton = React.memo(({ actions, color, dropdownColor, ...pr
 
   if (otherActions.length === 0) {
     return (
-      <TextTransformedButton {...props} variant="outlined" color={color} onClick={event => handleClick(event, 0)}>
+      <TextTransformedButton
+        {...props}
+        variant="outlined"
+        color={color}
+        onClick={event => handleClick(event, 0)}
+      >
         {mainAction.label}
       </TextTransformedButton>
     );
@@ -64,7 +69,9 @@ export const DropdownButton = React.memo(({ actions, color, dropdownColor, ...pr
   return (
     <span {...props}>
       <ButtonGroup variant="outlined" color={color} ref={anchorRef} aria-label="split button">
-        <TextTransformedButton onClick={event => handleClick(event, 0)}>{mainAction.label}</TextTransformedButton>
+        <TextTransformedButton onClick={event => handleClick(event, 0)}>
+          {mainAction.label}
+        </TextTransformedButton>
         <TextTransformedButton
           color={dropdownColor || color}
           size="small"

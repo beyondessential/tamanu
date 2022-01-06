@@ -11,7 +11,7 @@ export const suggestions = express.Router();
 
 const defaultMapper = ({ name, code, id }) => ({ name, code, id });
 
-const defaultLimit = 10;
+const defaultLimit = 25;
 
 // Add a new suggester for a particular model at the given endpoint.
 // Records will be filtered based on the whereSql parameter. The user's search term

@@ -1,4 +1,4 @@
-import { Grid, Typography } from '@material-ui/core';
+import { Grid } from '@material-ui/core';
 import { green } from '@material-ui/core/colors';
 import React, { useState } from 'react';
 import styled from 'styled-components';

@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { useCallback } from 'react';
 import styled from 'styled-components';
 import { connect } from 'react-redux';
 
@@ -15,12 +15,14 @@ const DebugInfo = styled.pre`
 `;
 
 const DumbErrorView = React.memo(({ error, state }) => {
-  const logError = React.useCallback(() => {
+  const logError = useCallback(() => {
+    // eslint-disable-next-line no-console
     console.log(error);
-  });
-  const logState = React.useCallback(() => {
+  }, [error]);
+  const logState = useCallback(() => {
+    // eslint-disable-next-line no-console
     console.log(state);
-  });
+  }, [state]);
 
   return (
     <ContentPane>
@@ -39,25 +41,32 @@ const DumbErrorView = React.memo(({ error, state }) => {
 const ErrorView = connect(state => ({ state }))(DumbErrorView);
 
 export class ErrorBoundary extends React.PureComponent {
-  state = { error: null };
+  static getDerivedStateFromProps(props, state) {
+    const { errorKey } = props;
+    const { lastErrorKey, error } = state;
+    const didErrorKeyChange = !lastErrorKey || lastErrorKey !== errorKey;
+    return {
+      lastErrorKey: errorKey,
+      error: didErrorKeyChange ? null : error,
+    };
+  }
+
+  constructor() {
+    super();
+    this.state = { error: null, lastErrorKey: null };
+  }
 
   componentDidCatch(error) {
     this.setState({ error });
   }
 
-  componentDidUpdate(prevProps) {
-    if (prevProps.errorKey !== this.props.errorKey) {
-      this.setState({ error: null });
-    }
-  }
-
   render() {
-    const { ErrorComponent = ErrorView } = this.props;
+    const { ErrorComponent = ErrorView, children } = this.props;
     const { error } = this.state;
     if (error) {
       return <ErrorComponent error={error} />;
     }
 
-    return this.props.children || null;
+    return children || null;
   }
 }

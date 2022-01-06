@@ -24,14 +24,14 @@ export const FileChooserInput = ({ value = '', label, name, filters, onChange, .
     });
     if (canceled) return;
 
-    // showOpenDialog gives an array of files, but for this component we only want one, 
+    // showOpenDialog gives an array of files, but for this component we only want one,
     // so just take the first element.
     // (if support for multiple files is needed in future it should be in a separate component)
     const [result] = filePaths;
     if (!result) return;
 
     onChange({ target: { name, value: result } });
-  });
+  }, [showOpenDialog, filters, name, onChange]);
 
   return (
     <OuterLabelFieldWrapper label={label} {...props}>

@@ -8,7 +8,7 @@ import { SidebarItemText } from './SidebarItemText';
 import { administrationIcon } from '../../constants/images';
 
 export const PrimarySidebarItem = React.memo(({ icon, label, children, selected, onClick }) => (
-  <React.Fragment>
+  <>
     <ListItem button onClick={onClick} selected={selected}>
       <SidebarPrimaryIcon src={icon || administrationIcon} />
       <SidebarItemText disableTypography primary={label} />
@@ -18,5 +18,5 @@ export const PrimarySidebarItem = React.memo(({ icon, label, children, selected,
         {children}
       </List>
     </Collapse>
-  </React.Fragment>
+  </>
 ));

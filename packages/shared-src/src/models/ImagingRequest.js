@@ -58,6 +58,17 @@ export class ImagingRequest extends Model {
     );
   }
 
+  async addRelatedNote(noteType, content, authorId) {
+    const { Note } = this.sequelize.models;
+    return Note.create({
+      recordId: this.id,
+      recordType: this.getModelName(),
+      noteType,
+      content,
+      authorId,
+    });
+  }
+
   static getListReferenceAssociations() {
     return ['imagingType', 'requestedBy'];
   }
@@ -76,6 +87,16 @@ export class ImagingRequest extends Model {
     this.belongsTo(models.ReferenceData, {
       foreignKey: 'imagingTypeId',
       as: 'imagingType',
+    });
+
+    this.belongsTo(models.User, {
+      foreignKey: 'completedById',
+      as: 'completedBy',
+    });
+
+    this.belongsTo(models.Location, {
+      foreignKey: 'locationId',
+      as: 'location',
     });
   }
 }

@@ -1,4 +1,4 @@
-import React, { useState, useCallback, useEffect } from 'react';
+import React, { useCallback } from 'react';
 import PropTypes from 'prop-types';
 import Select from 'react-select';
 import styled from 'styled-components';
@@ -14,11 +14,16 @@ export const SelectInput = ({
   disabled,
   readonly,
   onChange,
-  multiselect,
   name,
-  form: { initialValues },
   ...props
 }) => {
+  const handleChange = useCallback(
+    changedOption => {
+      onChange({ target: { value: changedOption.value, name } });
+    },
+    [onChange, name],
+  );
+
   const isReadonly = (readonly && !disabled) || (value && !onChange);
   if (disabled || isReadonly || !options || options.length === 0) {
     const valueText = ((options || []).find(o => o.value === value) || {}).label || '';
@@ -36,36 +41,12 @@ export const SelectInput = ({
     );
   }
 
-  const values = value ? value.split(', ') : [];
-
-  const initialSelectedOptions = options.filter(option => values.includes(option.value));
-
-  const [selected, setSelected] = useState(initialSelectedOptions);
-  const handleChange = useCallback(selectedOptions => {
-    setSelected(selectedOptions);
-    const newValue = multiselect
-      ? selectedOptions.map(x => x.value).join(', ')
-      : selectedOptions.value;
-    onChange({ target: { value: newValue, name } });
-  }, []);
-
-  // support initial values
-  useEffect(() => {
-    if (multiselect) {
-      const initialOptionValues = initialValues[name]?.split(', ') || [];
-      const initialOptions = options.filter(o => initialOptionValues.includes(o.value));
-      setSelected(initialOptions);
-    } else {
-      const initialOption = options.find(o => o.value === initialValues[name]);
-      setSelected(initialOption);
-    }
-  }, []);
+  const selectedOption = options.find(option => value === option.value) ?? '';
 
   return (
     <OuterLabelFieldWrapper label={label} {...props}>
       <Select
-        value={selected}
-        isMulti={multiselect}
+        value={selectedOption}
         onChange={handleChange}
         options={options}
         menuPlacement="auto"
@@ -79,16 +60,6 @@ export const SelectInput = ({
 
 export const SelectField = ({ field, ...props }) => (
   <SelectInput name={field.name} onChange={field.onChange} value={field.value} {...props} />
-);
-
-export const MultiselectField = ({ field, ...props }) => (
-  <SelectInput
-    multiselect
-    name={field.name}
-    onChange={field.onChange}
-    value={field.value}
-    {...props}
-  />
 );
 
 /* 
@@ -123,18 +94,12 @@ SelectInput.propTypes = {
   onChange: PropTypes.func,
   options: PropTypes.arrayOf(PropTypes.instanceOf(Object)),
   fullWidth: PropTypes.bool,
-  multiselect: PropTypes.bool,
-  form: PropTypes.shape({
-    initialValues: PropTypes.shape({}),
-  }),
 };
 
 SelectInput.defaultProps = {
   value: '',
   options: [],
   fullWidth: true,
-  multiselect: false,
-  form: {
-    initialValues: {},
-  },
+  name: null,
+  onChange: null,
 };

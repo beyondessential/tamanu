@@ -53,52 +53,55 @@ const NoteContent = styled.p`
   white-space: pre-line;
 `;
 
-const DumbCarePlanNoteDisplay = props => {
-  return (
-    <NoteContainer>
-      <NoteHeaderContainer>
-        <VerticalCenter>
-          <NoteAuthorName>{props.note.author.displayName}</NoteAuthorName>
-          {props.note.onBehalfOf && props.note.onBehalfOf.displayName ? (
-            <NoteOnBehalfOf>
-              &nbsp;&nbsp;|&nbsp;&nbsp;On behalf of {props.note.onBehalfOf.displayName}
-            </NoteOnBehalfOf>
-          ) : null}
-          {props.isMainCarePlan ? (
-            <MainCarePlanIndicator>Main care plan</MainCarePlanIndicator>
-          ) : null}
-        </VerticalCenter>
-        <VerticalCenter>
-          <Timestamp>{moment(props.note.date).format('LLLL')}</Timestamp>
-          <MoreDropdownMenu
-            iconColor={Colors.midText}
-            actions={[
-              {
-                label: 'Edit',
-                onClick() {
-                  props.onEditClicked();
-                },
+const DumbCarePlanNoteDisplay = ({
+  note,
+  isMainCarePlan,
+  onEditClicked,
+  deleteNote,
+  onNoteDeleted,
+}) => (
+  <NoteContainer>
+    <NoteHeaderContainer>
+      <VerticalCenter>
+        <NoteAuthorName>{note.author.displayName}</NoteAuthorName>
+        {note.onBehalfOf && note.onBehalfOf.displayName ? (
+          <NoteOnBehalfOf>
+            &nbsp;&nbsp;|&nbsp;&nbsp;
+            {`On behalf of ${note.onBehalfOf.displayName}`}
+          </NoteOnBehalfOf>
+        ) : null}
+        {isMainCarePlan ? <MainCarePlanIndicator>Main care plan</MainCarePlanIndicator> : null}
+      </VerticalCenter>
+      <VerticalCenter>
+        <Timestamp>{moment(note.date).format('LLLL')}</Timestamp>
+        <MoreDropdownMenu
+          iconColor={Colors.midText}
+          actions={[
+            {
+              label: 'Edit',
+              onClick() {
+                onEditClicked();
               },
-              !props.isMainCarePlan && {
-                label: 'Delete',
-                async onClick() {
-                  await props.deleteNote(props.note.id);
-                  props.onNoteDeleted();
-                },
+            },
+            !isMainCarePlan && {
+              label: 'Delete',
+              async onClick() {
+                await deleteNote(note.id);
+                onNoteDeleted();
               },
-            ]}
-          />
-        </VerticalCenter>
-      </NoteHeaderContainer>
-      <NoteContentContainer>
-        <NoteContent>{props.note.content}</NoteContent>
-      </NoteContentContainer>
-    </NoteContainer>
-  );
-};
+            },
+          ]}
+        />
+      </VerticalCenter>
+    </NoteHeaderContainer>
+    <NoteContentContainer>
+      <NoteContent>{note.content}</NoteContent>
+    </NoteContentContainer>
+  </NoteContainer>
+);
 
 export const CarePlanNoteDisplay = connectApi(api => ({
   deleteNote: async noteId => {
-    return await api.delete(`note/${noteId}`);
+    return api.delete(`note/${noteId}`);
   },
 }))(DumbCarePlanNoteDisplay);

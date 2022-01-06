@@ -1,4 +1,5 @@
 import { Sequelize } from 'sequelize';
+import { REFERRAL_STATUSES } from 'shared/constants';
 import { Model } from './Model';
 
 export class Referral extends Model {
@@ -7,6 +8,11 @@ export class Referral extends Model {
       {
         id: primaryKey,
         referredFacility: Sequelize.STRING,
+        status: {
+          type: Sequelize.STRING,
+          allowNull: false,
+          defaultValue: REFERRAL_STATUSES.PENDING,
+        },
       },
       options,
     );

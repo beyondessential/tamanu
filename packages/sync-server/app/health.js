@@ -1,13 +1,11 @@
 import express from 'express';
 import asyncHandler from 'express-async-handler';
-
 import config from 'config';
+
 import { log } from 'shared/services/logging';
 import { createMigrationInterface } from 'shared/services/migrations';
 
 import { version } from '../package.json';
-import { syncRoutes } from './sync';
-import { attachmentRoutes } from './attachment';
 
 export const healthRoutes = express.Router();
 
