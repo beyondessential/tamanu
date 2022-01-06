@@ -33,7 +33,7 @@ const NoFacilitiesIndicator = () => (
   </StyledView>
 );
 
-export const FacilitySelectField = ({ options, onChange, value, name }) => {
+export const FacilitySelectField = ({ options, onChange, value }) => {
   const [currentFilter, setCurrentFilter] = useState('');
 
   const items = options
