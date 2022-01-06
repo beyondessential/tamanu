@@ -6,8 +6,10 @@ import { Location } from './Location';
 
 @Entity('facility')
 export class Facility extends BaseModel implements IFacility {
+  @Column({ nullable: true })
   code: string;
 
+  @Column({ nullable: true })
   name: string;
 
   @Column({ nullable: true })

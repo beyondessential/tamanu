@@ -40,6 +40,7 @@ async function fetchFacilityOptions({ syncSource }) {
   // that the facilities will be available locally yet)
   let cursor = 0;
   const facilities = [];
+  // loop until we get an empty result (like the sync process)
   while (true) {
     const response = await syncSource.get(`sync/facility`, {
       since: cursor,
@@ -48,15 +49,6 @@ async function fetchFacilityOptions({ syncSource }) {
     if (response.records.length === 0) break;
     facilities.push(...response.records);
     cursor = response.cursor;
-  }
-
-  // TODO: remove this (helper to debug large lists)
-  while (facilities.length < 150) {
-    facilities.push({
-      data: {
-        id: facilities.length, name: `dummy-${facilities.length}`
-      }
-    });
   }
 
   // map them to select option format
@@ -82,11 +74,20 @@ export const SelectFacilityForm = ({ onSubmitForm }) => {
     };
   }, []);
 
+  const onSubmit = useCallback(async ({ facilityId, ...extras }) => {
+    const selected = facilityOptions.find(x => x.value === facilityId);
+    if (selected) {
+      onSubmitForm({ facilityId, facilityName: selected.label });
+    } else {
+      throw new Error("Submitted a facility that does not exist");
+    }
+  }, [facilityOptions]);
+
   return (
     <Form
       initialValues={{}}
       validationSchema={selectFacilitySchema}
-      onSubmit={onSubmitForm}
+      onSubmit={onSubmit}
     >
       {({ handleSubmit, isSubmitting }): ReactElement => (
         <StyledView
@@ -122,7 +123,7 @@ export const SelectFacilityScreen: FunctionComponent<any> = ({ navigation }: Sig
   const { signOut } = useContext(AuthContext);
 
   const onSubmitForm = useCallback(async (values) => {
-    await assignFacility(values.facilityId);
+    await assignFacility(values.facilityId, values.facilityName);
   }, []);
 
   useEffect(() => {
