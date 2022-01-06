@@ -28,7 +28,7 @@ const OngoingConditionDisplay = memo(({ patient, readonly }) => (
     readonly={readonly}
     title="Ongoing conditions"
     endpoint="ongoingCondition"
-    suggesterEndpoints={['practitioner', 'icd10']}
+    suggesters={{practitioner: {}, icd10: {}}}
     items={patient.conditions}
     Form={OngoingConditionForm}
     getName={({ condition, resolved }) =>
@@ -43,7 +43,7 @@ const AllergyDisplay = memo(({ patient, readonly }) => (
     readonly={readonly}
     title="Allergies"
     endpoint="allergy"
-    suggesterEndpoints={['practitioner', 'allergy']}
+    suggesters={{practitioner: {}, allergy: {}}}
     items={patient.allergies}
     Form={AllergyForm}
     getName={allergy => allergy.allergy.name}
@@ -56,7 +56,7 @@ const FamilyHistoryDisplay = memo(({ patient, readonly }) => (
     readonly={readonly}
     title="Family history"
     endpoint="familyHistory"
-    suggesterEndpoints={['practitioner', 'icd10']}
+    suggesters={{practitioner: {}, icd10: {}}}
     items={patient.familyHistory}
     Form={FamilyHistoryForm}
     getName={historyItem => {
@@ -100,7 +100,7 @@ const CarePlanDisplay = memo(({ patient, readonly }) => (
     readonly={readonly}
     title="Care plans"
     endpoint="patientCarePlan"
-    suggesterEndpoints={['practitioner', 'carePlan']}
+    suggesters={{practitioner: {}, carePlan: {}}}
     items={patient.carePlans}
     Form={PatientCarePlanForm}
     getName={({ carePlan }) => carePlan.name}
