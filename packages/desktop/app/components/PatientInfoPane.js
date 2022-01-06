@@ -100,7 +100,9 @@ const CarePlanDisplay = memo(({ patient, readonly }) => (
     readonly={readonly}
     title="Care plans"
     endpoint="patientCarePlan"
-    suggesters={{practitioner: {}, carePlan: {}}}
+    suggesters={{practitioner: {}, carePlan: {
+      filterer: ({ code }) => !patient.carePlans.some(c => c.carePlan.code === code),
+    }}}
     items={patient.carePlans}
     Form={PatientCarePlanForm}
     getName={({ carePlan }) => carePlan.name}
