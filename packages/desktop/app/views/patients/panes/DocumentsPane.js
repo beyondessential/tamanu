@@ -34,6 +34,12 @@ export const DocumentsPane = React.memo(({ encounter, patient, showSearchBar = f
     [api, patient, dispatch, handleClose],
   );
 
+  const handleDownload = useCallback(() => {
+    // TODO: Get document and download, if it fails, open alert
+    // try { } catch (error) { setModalOpen(MODAL_STATES.ALERT_OPEN) }
+    setModalOpen(MODAL_STATES.ALERT_OPEN);
+  }, []);
+
   return (
     <div>
       <DocumentModal
@@ -69,7 +75,7 @@ export const DocumentsPane = React.memo(({ encounter, patient, showSearchBar = f
           variant="contained"
           color="primary"
           style={{ marginLeft: '10px' }}
-          onClick={() => setModalOpen(MODAL_STATES.ALERT_OPEN)}
+          onClick={handleDownload}
         >
           Test internet alert
         </Button>
