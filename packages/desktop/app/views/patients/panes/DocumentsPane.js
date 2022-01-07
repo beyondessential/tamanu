@@ -6,35 +6,49 @@ import { Button } from '../../../components/Button';
 import { ContentPane } from '../../../components/ContentPane';
 import { DocumentModal } from '../../../components/DocumentModal';
 import { DocumentsSearchBar } from '../../../components/DocumentsSearchBar';
+import { AlertModal } from '../../../components/AlertModal';
 
 import { reloadPatient } from '../../../store/patient';
 import { useApi } from '../../../api';
 
+const MODAL_STATES = {
+  CLOSED: 'closed',
+  DOCUMENT_OPEN: 'document',
+  ALERT_OPEN: 'alert',
+};
+
 export const DocumentsPane = React.memo(({ encounter, patient, showSearchBar = false }) => {
-  const [documentModalOpen, setDocumentModalOpen] = useState(false);
+  const [modalOpen, setModalOpen] = useState(MODAL_STATES.CLOSED);
   const [searchParameters, setSearchParameters] = useState({});
   const api = useApi();
   const dispatch = useDispatch();
 
-  const handleClose = useCallback(() => setDocumentModalOpen(false), []);
+  const handleClose = useCallback(() => setModalOpen(MODAL_STATES.CLOSED), []);
 
   const handleSubmit = useCallback(
     async data => {
       await api.post(`patient/${patient.id}/documentMetadata`, data);
-      setDocumentModalOpen(false);
+      handleClose();
       dispatch(reloadPatient(patient.id));
     },
-    [api, patient, dispatch],
+    [api, patient, dispatch, handleClose],
   );
 
   return (
     <div>
       <DocumentModal
-        open={documentModalOpen}
+        open={modalOpen === MODAL_STATES.DOCUMENT_OPEN}
         onClose={handleClose}
         onSubmit={handleSubmit}
         title="Add document"
         actionText="Create"
+      />
+      <AlertModal
+        open={modalOpen === MODAL_STATES.ALERT_OPEN}
+        onClose={handleClose}
+        title="No internet connection detected"
+        subtitle="Viewing and downloading documents in Tamanu requires a live connection to the central server."
+        text="To save on hard drive space and improve performance, documents in Tamanu are stored on the central server. Please check your network connection and/or try again in a few minutes."
       />
       {showSearchBar && <DocumentsSearchBar setSearchParameters={setSearchParameters} />}
       <DocumentsTable
@@ -43,8 +57,21 @@ export const DocumentsPane = React.memo(({ encounter, patient, showSearchBar = f
         searchParameters={searchParameters}
       />
       <ContentPane>
-        <Button onClick={() => setDocumentModalOpen(true)} variant="contained" color="primary">
+        <Button
+          onClick={() => setModalOpen(MODAL_STATES.DOCUMENT_OPEN)}
+          variant="contained"
+          color="primary"
+        >
           Add document
+        </Button>
+        {/* Button just for testing purposes */}
+        <Button
+          variant="contained"
+          color="primary"
+          style={{ marginLeft: '10px' }}
+          onClick={() => setModalOpen(MODAL_STATES.ALERT_OPEN)}
+        >
+          Test internet alert
         </Button>
       </ContentPane>
     </div>
