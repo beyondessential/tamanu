@@ -84,6 +84,19 @@ encounter.post(
   }),
 );
 
+encounter.post(
+  '/:id/documentMetadata',
+  asyncHandler(async (req, res) => {
+    const { models, params } = req;
+    req.checkPermission('write', 'DocumentMetadata');
+    const patientId = params.id;
+    const { file: fileName, ...documentMetadata } = req.body;
+
+    // Do nothing at the moment, logic will be created in another card
+    res.send({});
+  }),
+);
+
 const encounterRelations = permissionCheckingRouter('read', 'Encounter');
 encounterRelations.get('/:id/discharge', simpleGetHasOne('Discharge', 'encounterId'));
 encounterRelations.get('/:id/vitals', simpleGetList('Vitals', 'encounterId'));
