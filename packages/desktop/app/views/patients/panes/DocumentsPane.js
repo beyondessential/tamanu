@@ -1,5 +1,4 @@
 import React, { useState, useCallback } from 'react';
-import { useDispatch } from 'react-redux';
 
 import { DocumentsTable } from '../../../components/DocumentsTable';
 import { Button } from '../../../components/Button';
@@ -7,15 +6,14 @@ import { ContentPane } from '../../../components/ContentPane';
 import { DocumentModal } from '../../../components/DocumentModal';
 import { DocumentsSearchBar } from '../../../components/DocumentsSearchBar';
 
-import { reloadPatient } from '../../../store/patient';
 import { useApi } from '../../../api';
 
 export const DocumentsPane = React.memo(({ encounter, patient, showSearchBar = false }) => {
   const [documentModalOpen, setDocumentModalOpen] = useState(false);
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [searchParameters, setSearchParameters] = useState({});
+  const [refreshCount, setRefreshCount] = useState(0);
   const api = useApi();
-  const dispatch = useDispatch();
   const endpoint = encounter
     ? `encounter/${encounter.id}/documentMetadata`
     : `patient/${patient.id}/documentMetadata`;
@@ -28,15 +26,12 @@ export const DocumentsPane = React.memo(({ encounter, patient, showSearchBar = f
       try {
         await api.post(endpoint, data);
         setDocumentModalOpen(false);
+        setRefreshCount(refreshCount + 1);
       } finally {
         setIsSubmitting(false);
       }
-      // TODO: Investigate if the sole use case of reloadPatient is to reload
-      // the table data. Also the table data inside encounter view will need to
-      // be refreshed as well.
-      dispatch(reloadPatient(patient.id));
     },
-    [api, patient, dispatch],
+    [refreshCount, api, endpoint],
   );
 
   return (
@@ -53,6 +48,7 @@ export const DocumentsPane = React.memo(({ encounter, patient, showSearchBar = f
       <DocumentsTable
         endpoint={endpoint}
         searchParameters={searchParameters}
+        refreshCount={refreshCount}
       />
       <ContentPane>
         <Button onClick={() => setDocumentModalOpen(true)} variant="contained" color="primary">
