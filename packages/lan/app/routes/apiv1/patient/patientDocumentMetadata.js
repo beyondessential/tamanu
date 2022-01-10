@@ -10,8 +10,8 @@ patientDocumentMetadataRoutes.get(
   '/:id/documentMetadata',
   asyncHandler(async (req, res) => {
     const { models, params } = req;
-    req.checkPermission('read', 'DocumentMetadata');
-    req.checkPermission('read', 'Encounter');
+    req.checkPermission('list', 'DocumentMetadata');
+    req.checkPermission('list', 'Encounter');
     const patientId = params.id;
 
     // Get all encounter IDs for this patient
