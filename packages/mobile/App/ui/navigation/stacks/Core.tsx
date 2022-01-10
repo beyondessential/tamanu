@@ -13,7 +13,6 @@ import { SelectFacilityScreen } from '~/ui/navigation/screens/signup/SelectFacil
 
 const Stack = createStackNavigator();
 
-// TODO: should consolidate this w/ the logic in SignIn.tsx
 function getSignInFlowRoute() {
   const authCtx = useContext(AuthContext);
   const { facilityId } = useFacility();

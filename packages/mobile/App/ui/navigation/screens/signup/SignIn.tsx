@@ -74,7 +74,6 @@ export const SignIn: FunctionComponent<any> = ({ navigation }: SignInProps) => {
       }
       await authCtx.signIn(values);
 
-      // TODO: should consolidate this logic with that in Core.tsx
       if (!facilityId) {
         navigation.navigate(Routes.SignUpStack.SelectFacility);
       } else if (authState.isFirstTime) {
