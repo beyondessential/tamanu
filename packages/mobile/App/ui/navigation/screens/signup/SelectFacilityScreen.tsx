@@ -44,7 +44,6 @@ async function fetchFacilityOptions({ syncSource }) {
   while (true) {
     const response = await syncSource.get(`sync/facility`, {
       since: cursor,
-      limit: 1,
     });
     if (response.records.length === 0) break;
     facilities.push(...response.records);
