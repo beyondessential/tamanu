@@ -71,7 +71,7 @@ describe('PatientDocumentMetadata', () => {
     });
   });
 
-  it('should fail creating a document if the patient ID does not exist', async () => {
+  it('should fail creating a document metadata if the patient ID does not exist', async () => {
     const result = await app.post('/v1/patient/123456789/documentMetadata').send({
       name: 'test document',
       type: 'application/pdf',
@@ -81,7 +81,7 @@ describe('PatientDocumentMetadata', () => {
     expect(result).toHaveRequestError();
   });
 
-  it('should create a document', async () => {
+  it('should create a document metadata', async () => {
     // Mock function gets called inside api route
     uploadAttachment.mockImplementationOnce(req => {
       return { metadata: { ...req.body }, attachmentId: '123456789' };
