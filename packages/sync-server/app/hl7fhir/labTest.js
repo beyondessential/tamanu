@@ -84,13 +84,9 @@ function labTestMethodToHL7Extension(labTestMethod) {
 }
 
 export function labTestToHL7DiagnosticReport(labTest, { shouldEmbedResult = false } = {}) {
-  const labTestType = labTest.labTestType;
-  const labTestMethod = labTest.labTestMethod;
-  const labRequest = labTest.labRequest;
-  const encounter = labRequest.encounter;
-  const patient = encounter.patient;
-  const examiner = encounter.examiner;
-  const laboratory = labRequest.laboratory;
+  const { labTestType, labTestMethod, labRequest } = labTest;
+  const { encounter, laboratory } = labRequest;
+  const { patient, examiner } = encounter;
 
   return {
     resourceType: 'DiagnosticReport',
@@ -157,8 +153,7 @@ function getResultCoding(labTest) {
 }
 
 export function labTestToHL7Observation(labTest, maybePatient) {
-  const labRequest = labTest.labRequest;
-  const labTestType = labTest.labTestType;
+  const { labRequest, labTestType } = labTest;
 
   if (!shouldProduceObservation(labRequest.status)) {
     return null;
