@@ -1,4 +1,3 @@
-
 const COVID_TEST_NORMAL = {
   code: '96119-3',
   display: 'SARS-CoV-2 (COVID-19) Ag [Presence] in Upper respiratory system by Immunoassay',
@@ -18,7 +17,7 @@ const labTestTypeNameToLOINC = {
   'AgRDT Positve, no further testing needed': COVID_TEST_RAPID,
 };
 
-function labTestTypeToLOINCCode(labTestType) {
+export function labTestTypeToLOINCCode(labTestType) {
   const coding = labTestTypeNameToLOINC[labTestType.name];
 
   if (!coding) return {};
