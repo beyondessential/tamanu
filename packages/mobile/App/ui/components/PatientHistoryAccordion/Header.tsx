@@ -90,7 +90,7 @@ const HeaderDescription = ({
       <StyledText
         color={isActive ? theme.colors.SECONDARY_MAIN : theme.colors.TEXT_MID}
       >
-        {location ? location.name : ''}
+        {location?.facility?.name ?? location?.name ?? ''}
       </StyledText>
     </StyledView>
   </ColumnView>
