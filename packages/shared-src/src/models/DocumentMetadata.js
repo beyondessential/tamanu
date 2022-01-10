@@ -29,7 +29,7 @@ export class DocumentMetadata extends Model {
         attachmentId: {
           type: Sequelize.STRING,
           allowNull: false,
-        }
+        },
       },
       {
         ...options,

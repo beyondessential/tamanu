@@ -1,6 +1,6 @@
-import { WebRemote } from '~/sync';
 import { lookup } from 'mime-types';
 import fs, { promises as asyncFs } from 'fs';
+import { WebRemote } from '~/sync';
 import { getUploadedData } from '~/admin/getUploadedData';
 
 // Helper function for uploading one file to the sync server
@@ -17,8 +17,7 @@ export const uploadAttachment = async (req, maxFileSize) => {
   const fileData = await asyncFs.readFile(file, { encoding: 'base64' });
 
   // Parsed file needs to be deleted from memory
-  if (deleteFileAfterImport)
-    fs.unlink(file, () => null);
+  if (deleteFileAfterImport) fs.unlink(file, () => null);
 
   // Check file size constraint
   if (maxFileSize && size > maxFileSize) {

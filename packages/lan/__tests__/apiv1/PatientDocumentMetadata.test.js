@@ -33,13 +33,13 @@ describe('PatientDocumentMetadata', () => {
       name: 'one',
       type: 'application/pdf',
       attachmentId: 'fake-id-1',
-      patientId: patient.id
+      patientId: patient.id,
     };
     const metadataTwo = {
       name: 'two',
       type: 'application/pdf',
       attachmentId: 'fake-id-2',
-      patientId: patient.id
+      patientId: patient.id,
     };
     const metadataThree = {
       name: 'three',
@@ -73,9 +73,7 @@ describe('PatientDocumentMetadata', () => {
 
   it('should create a document', async () => {
     // Mock function gets called inside api route
-    uploadAttachment.mockImplementationOnce((req, maxFileSize) => {
-      // TODO: only mock remote.fetch, will need to actually send a multipart/form-data
-      // request to the api point to work or also mock the getUploadedData function.
+    uploadAttachment.mockImplementationOnce(req => {
       return { metadata: { ...req.body }, attachmentId: '123456789' };
     });
 
