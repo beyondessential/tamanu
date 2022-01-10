@@ -1,5 +1,4 @@
 import React, { useState, useCallback } from 'react';
-import { useDispatch } from 'react-redux';
 
 import { DocumentsTable } from '../../../components/DocumentsTable';
 import { Button } from '../../../components/Button';
@@ -8,7 +7,6 @@ import { DocumentModal } from '../../../components/DocumentModal';
 import { DocumentsSearchBar } from '../../../components/DocumentsSearchBar';
 import { AlertModal } from '../../../components/AlertModal';
 
-import { reloadPatient } from '../../../store/patient';
 import { useApi } from '../../../api';
 
 const MODAL_STATES = {
@@ -19,19 +17,28 @@ const MODAL_STATES = {
 
 export const DocumentsPane = React.memo(({ encounter, patient, showSearchBar = false }) => {
   const [modalOpen, setModalOpen] = useState(MODAL_STATES.CLOSED);
+  const [isSubmitting, setIsSubmitting] = useState(false);
   const [searchParameters, setSearchParameters] = useState({});
+  const [refreshCount, setRefreshCount] = useState(0);
   const api = useApi();
-  const dispatch = useDispatch();
+  const endpoint = encounter
+    ? `encounter/${encounter.id}/documentMetadata`
+    : `patient/${patient.id}/documentMetadata`;
 
   const handleClose = useCallback(() => setModalOpen(MODAL_STATES.CLOSED), []);
 
   const handleSubmit = useCallback(
     async data => {
-      await api.post(`patient/${patient.id}/documentMetadata`, data);
-      handleClose();
-      dispatch(reloadPatient(patient.id));
+      setIsSubmitting(true);
+      try {
+        await api.post(endpoint, data);
+        handleClose();
+        setRefreshCount(refreshCount + 1);
+      } finally {
+        setIsSubmitting(false);
+      }
     },
-    [api, patient, dispatch, handleClose],
+    [refreshCount, api, endpoint, handleClose],
   );
 
   const handleDownload = useCallback(() => {
@@ -46,8 +53,9 @@ export const DocumentsPane = React.memo(({ encounter, patient, showSearchBar = f
         open={modalOpen === MODAL_STATES.DOCUMENT_OPEN}
         onClose={handleClose}
         onSubmit={handleSubmit}
+        isSubmitting={isSubmitting}
         title="Add document"
-        actionText="Create"
+        actionText="Add"
       />
       <AlertModal
         open={modalOpen === MODAL_STATES.ALERT_OPEN}
@@ -58,9 +66,9 @@ export const DocumentsPane = React.memo(({ encounter, patient, showSearchBar = f
       />
       {showSearchBar && <DocumentsSearchBar setSearchParameters={setSearchParameters} />}
       <DocumentsTable
-        encounterId={encounter?.id}
-        patientId={patient?.id}
+        endpoint={endpoint}
         searchParameters={searchParameters}
+        refreshCount={refreshCount}
       />
       <ContentPane>
         <Button

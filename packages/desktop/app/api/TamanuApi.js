@@ -1,5 +1,6 @@
 import faye from 'faye';
 import { promises } from 'fs';
+import qs from 'qs';
 
 import { VERSION_COMPATIBILITY_ERRORS } from 'shared/constants';
 import { LOCAL_STORAGE_KEYS } from '../constants';
@@ -16,12 +17,6 @@ const getResponseJsonSafely = async response => {
     return {};
   }
 };
-
-const encodeQueryString = query =>
-  Object.entries(query)
-    .filter(([, value]) => value !== undefined)
-    .map(([key, value]) => `${encodeURIComponent(key)}=${encodeURIComponent(value)}`)
-    .join('&');
 
 const REFRESH_DURATION = 2.5 * 60 * 1000; // refresh if token is more than 2.5 minutes old
 
@@ -170,7 +165,7 @@ export class TamanuApi {
       throw new Error("TamanuApi can't be used until the host is set");
     }
     const { headers, ...otherConfig } = config;
-    const queryString = encodeQueryString(query || {});
+    const queryString = qs.stringify(query || {});
     const url = `${this.prefix}/${endpoint}${query ? `?${queryString}` : ''}`;
     const response = await fetchOrThrowIfUnavailable(url, {
       headers: {
