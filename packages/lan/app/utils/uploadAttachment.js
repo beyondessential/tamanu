@@ -1,5 +1,6 @@
 import { lookup } from 'mime-types';
 import fs, { promises as asyncFs } from 'fs';
+import { InvalidParameterError, RemoteCallFailedError } from 'shared/errors';
 import { WebRemote } from '~/sync';
 import { getUploadedData } from '~/admin/getUploadedData';
 
@@ -21,7 +22,7 @@ export const uploadAttachment = async (req, maxFileSize) => {
 
   // Check file size constraint
   if (maxFileSize && size > maxFileSize) {
-    throw new Error(`Uploaded file exceeds limit of ${maxFileSize} bytes.`);
+    throw new InvalidParameterError(`Uploaded file exceeds limit of ${maxFileSize} bytes.`);
   }
 
   // Upload file to sync server
@@ -37,7 +38,7 @@ export const uploadAttachment = async (req, maxFileSize) => {
   });
 
   if (syncResponse.error) {
-    throw new Error(syncResponse.error.message);
+    throw new RemoteCallFailedError(syncResponse.error.message);
   }
 
   // Send parsed metadata along with the new created attachment id
