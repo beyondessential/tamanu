@@ -1,4 +1,4 @@
-import { createDummyPatient } from 'shared/demoData/patients';
+import { createDummyEncounter, createDummyPatient } from 'shared/demoData/patients';
 import { createTestContext } from '../utilities';
 import { uploadAttachment } from '../../app/utils/uploadAttachment';
 
@@ -7,6 +7,8 @@ describe('PatientDocumentMetadata', () => {
   let models;
   let app;
   let patient;
+  let encounterOne;
+  let encounterTwo;
 
   beforeAll(async () => {
     const ctx = await createTestContext();
@@ -14,13 +16,19 @@ describe('PatientDocumentMetadata', () => {
     models = ctx.models;
     app = await baseApp.asRole('practitioner');
     patient = await models.Patient.create(await createDummyPatient(models));
+    encounterOne = await models.Encounter.create({
+      ...(await createDummyEncounter(models)),
+      patientId: patient.id,
+    });
+    encounterTwo = await models.Encounter.create({
+      ...(await createDummyEncounter(models)),
+      patientId: patient.id,
+    });
   });
 
   it('should get a list of all documents from a patient', async () => {
-    // TODO: create two document metadata objects linked to an encounter, one for this
-    // patient, one for another patient. This will make the expected count be 3
-
-    // Create three document metadata objects, two for this patient and one without patient
+    // Create five document metadata objects: two associated with the patient, two associated with
+    // two different encounters for that patient and one without patient nor encounter.
     const metadataOne = {
       name: 'one',
       type: 'application/pdf',
@@ -33,18 +41,32 @@ describe('PatientDocumentMetadata', () => {
       attachmentId: 'fake-id-2',
       patientId: patient.id
     };
-    const metadataThree = { name: 'three', type: 'application/pdf', attachmentId: 'fake-id-3' };
+    const metadataThree = {
+      name: 'three',
+      type: 'application/pdf',
+      attachmentId: 'fake-id-3',
+      encounterId: encounterOne.id,
+    };
+    const metadataFour = {
+      name: 'four',
+      type: 'application/pdf',
+      attachmentId: 'fake-id-4',
+      encounterId: encounterTwo.id,
+    };
+    const metadataFive = { name: 'five', type: 'application/pdf', attachmentId: 'fake-id-5' };
 
     await Promise.all([
       models.DocumentMetadata.create(metadataOne),
       models.DocumentMetadata.create(metadataTwo),
       models.DocumentMetadata.create(metadataThree),
+      models.DocumentMetadata.create(metadataFour),
+      models.DocumentMetadata.create(metadataFive),
     ]);
 
     const result = await app.get(`/v1/patient/${patient.id}/documentMetadata`);
     expect(result).toHaveSucceeded();
     expect(result.body).toMatchObject({
-      count: 2,
+      count: 4,
       data: expect.any(Array),
     });
   });
