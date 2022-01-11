@@ -48,7 +48,9 @@ encounter.put(
           try {
             await medication.update({ isDischarge, quantity, repeats });
           } catch (e) {
-            console.error(`Couldn't update medication with id ${medicationId} when discharging. ${e.name} : ${e.message}`);
+            console.error(
+              `Couldn't update medication with id ${medicationId} when discharging. ${e.name} : ${e.message}`,
+            );
           }
         }
       });
@@ -136,7 +138,6 @@ encounterRelations.get(
     additionalFilters: { recordType: NOTE_RECORD_TYPES.ENCOUNTER },
   }),
 );
-
 
 encounterRelations.get(
   '/:id/programResponses',
