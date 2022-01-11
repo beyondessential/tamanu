@@ -5,6 +5,7 @@ import {
 } from 'shared/demoData/patients';
 import moment from 'moment';
 import { createTestContext } from '../utilities';
+import { uploadAttachment } from '../../app/utils/uploadAttachment';
 
 describe('Encounter', () => {
   let patient = null;
@@ -109,6 +110,57 @@ describe('Encounter', () => {
   test.todo('should get a list of lab requests');
   test.todo('should get a list of imaging requests');
   test.todo('should get a list of prescriptions');
+
+  it('should get a list of all documents from an encounter', async () => {
+    const encounter = await models.Encounter.create({
+      ...(await createDummyEncounter(models)),
+      patientId: patient.id,
+    });
+    const otherEncounter = await models.Encounter.create({
+      ...(await createDummyEncounter(models)),
+      patientId: patient.id,
+    });
+    // Create four document metadata objects: two from requested encounter,
+    // one from a different encounter, one from the same patient.
+    const metadataOne = {
+      name: 'one',
+      type: 'application/pdf',
+      attachmentId: 'fake-id-1',
+      encounterId: encounter.id,
+    };
+    const metadataTwo = {
+      name: 'two',
+      type: 'application/pdf',
+      attachmentId: 'fake-id-2',
+      encounterId: encounter.id,
+    };
+    const metadataThree = {
+      name: 'three',
+      type: 'application/pdf',
+      attachmentId: 'fake-id-3',
+      encounterId: otherEncounter.id,
+    };
+    const metadataFour = {
+      name: 'four',
+      type: 'application/pdf',
+      attachmentId: 'fake-id-4',
+      patientId: patient.id,
+    };
+
+    await Promise.all([
+      models.DocumentMetadata.create(metadataOne),
+      models.DocumentMetadata.create(metadataTwo),
+      models.DocumentMetadata.create(metadataThree),
+      models.DocumentMetadata.create(metadataFour),
+    ]);
+
+    const result = await app.get(`/v1/encounter/${encounter.id}/documentMetadata`);
+    expect(result).toHaveSucceeded();
+    expect(result.body).toMatchObject({
+      count: 2,
+      data: expect.any(Array),
+    });
+  });
 
   describe('write', () => {
     it('should reject updating an encounter with insufficient permissions', async () => {
@@ -519,6 +571,41 @@ describe('Encounter', () => {
         expect(result).toHaveSucceeded();
         const { body } = result;
         expect(body.count).toBeGreaterThan(0);
+      });
+    });
+
+    describe('document metadata', () => {
+      it('should fail creating a document metadata if the encounter ID does not exist', async () => {
+        const result = await app.post('/v1/encounter/123456789/documentMetadata').send({
+          name: 'test document',
+          type: 'application/pdf',
+          documentOwner: 'someone',
+          note: 'some note',
+        });
+        expect(result).toHaveRequestError();
+      });
+
+      it('should create a document metadata', async () => {
+        const encounter = await models.Encounter.create({
+          ...(await createDummyEncounter(models)),
+          patientId: patient.id,
+        });
+
+        // Mock function gets called inside api route
+        uploadAttachment.mockImplementationOnce(req => {
+          return { metadata: { ...req.body }, attachmentId: '123456789' };
+        });
+
+        const result = await app.post(`/v1/encounter/${encounter.id}/documentMetadata`).send({
+          name: 'test document',
+          type: 'application/pdf',
+          documentOwner: 'someone',
+          note: 'some note',
+        });
+        expect(result).toHaveSucceeded();
+        expect(result.body.id).toBeTruthy();
+        const metadata = await models.DocumentMetadata.findByPk(result.body.id);
+        expect(metadata).toBeDefined();
       });
     });
 
