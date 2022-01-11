@@ -82,7 +82,7 @@
     "reportRequestProcessor": {
        // every 30 seconds
       "schedule": "*/30 * * * * *"
-    } 
+    }
   },
   "integrations": {
     "fijiVrs": {
@@ -308,6 +308,7 @@
       },
       "features": {
         "editPatientDetailsOnMobile": true,
+        "enableInvoicing": true,
         "registerNewPatient": true,
         "hideOtherSex": true
       },

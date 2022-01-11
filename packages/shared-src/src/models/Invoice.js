@@ -1,5 +1,4 @@
 import { Sequelize } from 'sequelize';
-import { SYNC_DIRECTIONS } from 'shared/constants';
 import { Model } from './Model';
 
 export class Invoice extends Model {
@@ -27,6 +26,11 @@ export class Invoice extends Model {
     this.hasMany(models.InvoiceLineItem, {
       foreignKey: 'invoiceId',
       as: 'invoiceLineItems',
+    });
+
+    this.hasMany(models.InvoicePriceChangeItem, {
+      foreignKey: 'invoiceId',
+      as: 'invoicePriceChangeItems',
     });
   }
 }
