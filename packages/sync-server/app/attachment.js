@@ -29,7 +29,7 @@ attachmentRoutes.get(
 attachmentRoutes.post(
   '/$',
   asyncHandler(async (req, res) => {
-    const Attachment = req.store.models.Attachment;
+    const { Attachment } = req.store.models;
     const { type, size, data } = Attachment.sanitizeForSyncServer(req.body);
     const attachment = await Attachment.create({
       type,
