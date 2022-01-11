@@ -18,7 +18,7 @@ const MODAL_STATES = {
 };
 
 export const DocumentsPane = React.memo(({ encounter, patient, showSearchBar = false }) => {
-  const [modalOpen, setModalOpen] = useState(MODAL_STATES.CLOSED);
+  const [modalStatus, setModalStatus] = useState(MODAL_STATES.CLOSED);
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [searchParameters, setSearchParameters] = useState({});
   const [refreshCount, setRefreshCount] = useState(0);
@@ -27,7 +27,7 @@ export const DocumentsPane = React.memo(({ encounter, patient, showSearchBar = f
     ? `encounter/${encounter.id}/documentMetadata`
     : `patient/${patient.id}/documentMetadata`;
 
-  const handleClose = useCallback(() => setModalOpen(MODAL_STATES.CLOSED), []);
+  const handleClose = useCallback(() => setModalStatus(MODAL_STATES.CLOSED), []);
 
   const handleSubmit = useCallback(
     async data => {
@@ -45,14 +45,14 @@ export const DocumentsPane = React.memo(({ encounter, patient, showSearchBar = f
 
   const handleDownload = useCallback(() => {
     // TODO: Get document and download, if it fails, open alert
-    // try { } catch (error) { setModalOpen(MODAL_STATES.ALERT_OPEN) }
-    setModalOpen(MODAL_STATES.ALERT_OPEN);
+    // try { } catch (error) { setModalStatus(MODAL_STATES.ALERT_OPEN) }
+    setModalStatus(MODAL_STATES.ALERT_OPEN);
   }, []);
 
   return (
     <div>
       <DocumentModal
-        open={modalOpen === MODAL_STATES.DOCUMENT_OPEN}
+        open={modalStatus === MODAL_STATES.DOCUMENT_OPEN}
         onClose={handleClose}
         onSubmit={handleSubmit}
         isSubmitting={isSubmitting}
@@ -61,7 +61,7 @@ export const DocumentsPane = React.memo(({ encounter, patient, showSearchBar = f
       />
       <Modal
         title="No internet connection detected"
-        open={modalOpen === MODAL_STATES.ALERT_OPEN}
+        open={modalStatus === MODAL_STATES.ALERT_OPEN}
         onClose={handleClose}
       >
         <Typography>
@@ -88,7 +88,7 @@ export const DocumentsPane = React.memo(({ encounter, patient, showSearchBar = f
       />
       <ContentPane>
         <Button
-          onClick={() => setModalOpen(MODAL_STATES.DOCUMENT_OPEN)}
+          onClick={() => setModalStatus(MODAL_STATES.DOCUMENT_OPEN)}
           variant="contained"
           color="primary"
         >
