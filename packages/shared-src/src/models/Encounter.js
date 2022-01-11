@@ -57,6 +57,9 @@ export class Encounter extends Model {
         'vitals',
         'discharge',
         'triages',
+        'invoice',
+        'invoice.invoiceLineItems',
+        'invoice.invoicePriceChangeItems',
       ],
       ...nestedSyncConfig,
       channelRoutes: [
@@ -162,6 +165,11 @@ export class Encounter extends Model {
     this.hasOne(models.Discharge, {
       foreignKey: 'encounterId',
       as: 'discharge',
+    });
+
+    this.hasOne(models.Invoice, {
+      foreignKey: 'encounterId',
+      as: 'invoice',
     });
 
     this.belongsTo(models.Patient, {
