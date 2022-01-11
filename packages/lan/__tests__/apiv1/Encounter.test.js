@@ -606,6 +606,7 @@ describe('Encounter', () => {
         expect(result.body.id).toBeTruthy();
         const metadata = await models.DocumentMetadata.findByPk(result.body.id);
         expect(metadata).toBeDefined();
+        expect(uploadAttachment.mock.calls.length).toBe(1);
       });
     });
 
