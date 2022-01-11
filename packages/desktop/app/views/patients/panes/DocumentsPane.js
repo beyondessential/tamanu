@@ -1,4 +1,5 @@
 import React, { useState, useCallback } from 'react';
+import { Typography } from '@material-ui/core';
 
 import { DocumentsTable } from '../../../components/DocumentsTable';
 import { Button } from '../../../components/Button';
@@ -63,16 +64,16 @@ export const DocumentsPane = React.memo(({ encounter, patient, showSearchBar = f
         open={modalOpen === MODAL_STATES.ALERT_OPEN}
         onClose={handleClose}
       >
-        <p>
+        <Typography>
           <strong>
             Viewing and downloading documents in Tamanu requires a live connection to the central
             server.
           </strong>
-        </p>
-        <p>
+        </Typography>
+        <Typography>
           To save on hard drive space and improve performance, documents in Tamanu are stored on the
           central server. Please check your network connection and/or try again in a few minutes.
-        </p>
+        </Typography>
         <ButtonRow>
           <Button variant="contained" color="primary" onClick={handleClose}>
             OK
