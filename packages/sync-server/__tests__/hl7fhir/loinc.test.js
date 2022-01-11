@@ -52,6 +52,15 @@ describe('HL7 LOINC', () => {
     const result = labTestTypeToLOINCCode({
       name: chance.sentence({ words: 8 }),
     });
-    expect(result).toEqual({});
+    expect(result).toEqual({
+      text: 'Unknown',
+      coding: [
+        {
+          system: 'http://loinc.org',
+          code: 'Unknown',
+          display: 'Unknown',
+        },
+      ],
+    });
   });
 });

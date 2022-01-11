@@ -8,6 +8,11 @@ const COVID_TEST_RAPID = {
   display: 'SARS-CoV-2 (COVID-19) Ag [Presence] in Upper respiratory specimen by Rapid immunoassay',
 };
 
+const UNKNOWN = {
+  code: 'Unknown',
+  display: 'Unknown',
+};
+
 const labTestTypeNameToLOINC = {
   'COVID-19 Nasopharyngeal Swab': COVID_TEST_NORMAL,
   'COVID-19 Nasal Swab': COVID_TEST_NORMAL,
@@ -18,9 +23,7 @@ const labTestTypeNameToLOINC = {
 };
 
 export function labTestTypeToLOINCCode(labTestType) {
-  const coding = labTestTypeNameToLOINC[labTestType.name];
-
-  if (!coding) return {};
+  const coding = labTestTypeNameToLOINC[labTestType.name] || UNKNOWN;
 
   return {
     text: coding.display,
