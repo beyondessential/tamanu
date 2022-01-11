@@ -43,6 +43,8 @@ export const DocumentsPane = React.memo(({ encounter, patient, showSearchBar = f
     [refreshCount, api, endpoint, handleClose],
   );
 
+  // Placeholder action callback, remove eslint disable when hooking up
+  // eslint-disable-next-line no-unused-vars
   const handleDownload = useCallback(() => {
     // TODO: Get document and download, if it fails, open alert
     // try { } catch (error) { setModalStatus(MODAL_STATES.ALERT_OPEN) }
@@ -93,15 +95,6 @@ export const DocumentsPane = React.memo(({ encounter, patient, showSearchBar = f
           color="primary"
         >
           Add document
-        </Button>
-        {/* Button just for testing purposes */}
-        <Button
-          variant="contained"
-          color="primary"
-          style={{ marginLeft: '10px' }}
-          onClick={handleDownload}
-        >
-          Test internet alert
         </Button>
       </ContentPane>
     </div>
