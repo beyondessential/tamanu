@@ -1,11 +1,11 @@
 const COVID_TEST_NORMAL = {
   code: '96119-3',
-  display: 'SARS-CoV-2 (COVID-19) Ag [Presence] in Upper respiratory system by Immunoassay',
+  display: 'SARS-CoV-2 (COVID-19) Ag [Presence] in Upper respiratory specimen by Immunoassay',
 };
 
 const COVID_TEST_RAPID = {
-  code: '94564-2',
-  display: 'SARS-CoV-2 (COVID-19) Ag [Presence] in Upper respiratory system by Rapid immunoassay',
+  code: '97097-0',
+  display: 'SARS-CoV-2 (COVID-19) Ag [Presence] in Upper respiratory specimen by Rapid immunoassay',
 };
 
 const labTestTypeNameToLOINC = {

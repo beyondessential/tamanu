@@ -158,13 +158,13 @@ describe('VPS integration - DiagnosticReport', () => {
                   status: 'final',
                   code: {
                     text:
-                      'SARS-CoV-2 (COVID-19) Ag [Presence] in Upper respiratory system by Immunoassay',
+                      'SARS-CoV-2 (COVID-19) Ag [Presence] in Upper respiratory specimen by Immunoassay',
                     coding: [
                       {
                         system: 'http://loinc.org',
                         code: '96119-3',
                         display:
-                          'SARS-CoV-2 (COVID-19) Ag [Presence] in Upper respiratory system by Immunoassay',
+                          'SARS-CoV-2 (COVID-19) Ag [Presence] in Upper respiratory specimen by Immunoassay',
                       },
                     ],
                   },
@@ -348,13 +348,13 @@ describe('VPS integration - DiagnosticReport', () => {
                   status: 'final',
                   code: {
                     text:
-                      'SARS-CoV-2 (COVID-19) Ag [Presence] in Upper respiratory system by Rapid immunoassay',
+                      'SARS-CoV-2 (COVID-19) Ag [Presence] in Upper respiratory specimen by Rapid immunoassay',
                     coding: [
                       {
                         system: 'http://loinc.org',
-                        code: '94564-2',
+                        code: '97097-0',
                         display:
-                          'SARS-CoV-2 (COVID-19) Ag [Presence] in Upper respiratory system by Rapid immunoassay',
+                          'SARS-CoV-2 (COVID-19) Ag [Presence] in Upper respiratory specimen by Rapid immunoassay',
                       },
                     ],
                   },
