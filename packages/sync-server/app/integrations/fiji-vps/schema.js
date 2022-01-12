@@ -1,5 +1,7 @@
 import * as yup from 'yup';
 import config from 'config';
+import { isArray } from 'lodash';
+
 import { decodeIdentifier } from './conversion';
 
 export const IDENTIFIER_NAMESPACE = config.hl7.dataDictionaries.patientDisplayId;
@@ -52,7 +54,15 @@ export const DIAGNOSTIC_REPORT_INCLUDES = {
 
 export const diagnosticReport = {
   query: sharedQuery.shape({
-    _include: yup.string().oneOf(Object.values(DIAGNOSTIC_REPORT_INCLUDES)),
+    _include: yup
+      .array()
+      .of(yup.string().oneOf(Object.values(DIAGNOSTIC_REPORT_INCLUDES)))
+      .transform((value, originalValue) => {
+        if (isArray(originalValue)) {
+          return originalValue;
+        }
+        return [originalValue];
+      }),
     status: yup.string().oneOf(['final']),
   }),
 };

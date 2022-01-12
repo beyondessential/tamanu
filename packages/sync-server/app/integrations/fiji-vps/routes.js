@@ -169,10 +169,9 @@ routes.get(
         },
       ],
       bundleId: 'diagnostic-reports',
-      toHL7: (labTest, query) => {
-        const _include = [query._include].flat(Infinity);
+      toHL7: (labTest, { _include }) => {
         const includedResources = [];
-        if (_include.includes(schema.DIAGNOSTIC_REPORT_INCLUDES.RESULT)) {
+        if (_include && _include.includes(schema.DIAGNOSTIC_REPORT_INCLUDES.RESULT)) {
           includedResources.push(labTestToHL7Observation(labTest));
         }
         return {
