@@ -8,6 +8,7 @@ import { Location } from './Location';
 export class Facility extends BaseModel implements IFacility {
   code: string;
 
+  @Column({ nullable: true })
   name: string;
 
   @Column({ nullable: true })

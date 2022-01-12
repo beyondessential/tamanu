@@ -140,6 +140,7 @@ export class Encounter extends BaseModel implements IEncounter {
 
     return repo.find({
       where: { patient: { id: patientId } },
+      relations: ['location', 'location.facility'],
       order: { startDate: 'DESC' },
     });
   }
