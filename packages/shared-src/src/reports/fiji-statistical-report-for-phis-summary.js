@@ -88,11 +88,21 @@ from patients AS patient
   ) diagnosis_table
   on diagnosis_table.patient_id = patient.id
   full outer join (
-  	select patient_id, response_id, body as snap_counselling, snap_response.end_time::date as snap_date from survey_response_answers sra
-  	join survey_responses snap_response
-  	on snap_response.id = sra.response_id 
-  	join encounters snap_encounter
-  	on snap_encounter.id = snap_response.encounter_id 
+  	select patient_id, sr.id, body as snap_counselling, sr.end_time::date as snap_date from (
+      SELECT
+          snap_encounter.patient_id, snap_response.end_time::date as date_group, max(snap_response.end_time) AS max_end_time , count(*) as count_for_testing 
+       FROM
+          survey_response_answers sra
+        join survey_responses snap_response
+      on snap_response.id = sra.response_id 
+      join encounters snap_encounter
+      on snap_encounter.id = snap_response.encounter_id 
+      where sra.data_element_id in ('pde-FijCVD038', 'pde-FijSNAP13')
+        GROUP by snap_encounter.patient_id, snap_response.end_time::date
+    ) max_time_per_group_table
+    JOIN survey_responses AS sr 
+    ON sr.end_time = max_time_per_group_table.max_end_time
+    join survey_response_answers sra on sr.id  = sra.response_id
     where sra.data_element_id in ('pde-FijCVD038', 'pde-FijSNAP13')
   ) snap_counselling_table
   on snap_counselling_table.patient_id = patient.id
