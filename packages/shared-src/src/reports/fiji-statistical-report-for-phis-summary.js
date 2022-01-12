@@ -80,11 +80,15 @@ select *, case when "Date1" is null then "Date2" else "Date1" end as date from (
     join encounters e on e.patient_id = p.id
     left join (
       select encounter_id, ed.id from encounter_diagnoses ed
-      WHERE diagnosis_id IN ('ref/icd10/E23.2', 'icd10-U07-1') -- note ref/icd10/Z01.1 is for testing only
+      join reference_data rd 
+      on rd."type" = 'icd10' and rd.id = ed.diagnosis_id 
+      WHERE rd.code IN ('icd10-E11')
     ) diabetes_temp on e.id = diabetes_temp.encounter_id
     left join (
       select encounter_id, ed.id from encounter_diagnoses ed
-      WHERE diagnosis_id IN ('ref/icd10/E23.2', 'ref/icd10/G51.0') -- note ref/icd10/G51.0 is for testing only
+      join reference_data rd 
+      on rd."type" = 'icd10' and rd.id = ed.diagnosis_id 
+      WHERE rd.code IN ('icd10-I10')
     ) hypertension_temp on e.id = hypertension_temp.encounter_id
     group by "Date2" 
     having count(diabetes_temp.id) > 0 or count(hypertension_temp.id) > 0
