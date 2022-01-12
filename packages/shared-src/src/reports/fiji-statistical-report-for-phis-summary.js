@@ -107,7 +107,7 @@ from patients AS patient
     where sra.data_element_id in ('pde-FijCVD038', 'pde-FijSNAP13')
   ) snap_counselling_table
   on snap_counselling_table.patient_id = patient.id
-  group by date;
+  group by date order by date desc;
   `;
 
 const FIELD_TO_TITLE = {
