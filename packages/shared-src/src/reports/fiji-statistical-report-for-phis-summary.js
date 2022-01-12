@@ -1,16 +1,18 @@
-`
+import { generateReportFromQueryData } from './utilities';
+
+const query = `
 select * from (
   SELECT 
     sr.end_time::date as "Date",
     count(distinct(patient.id)) as patients_screened, -- testing
     count(*) as number_of_cvd_screenings,
-    count(case when snap_counciling_table.snap_counciling = 'Yes' then 1 end) as "Number of individuals that have received SNAP counselling",
+    count(case when snap_counselling_table.snap_counselling = 'Yes' then 1 end) as received_snap_counselling,
     count(case when additional_data.ethnicity_id = 'ethnicity-ITaukei' then 1 end) as screened_itaukei,
-    count(case when snap_counciling_table.snap_counciling = 'Yes' and additional_data.ethnicity_id = 'ethnicity-ITaukei' then 1 end) as "Number of ITaukei that have received SNAP counselling",
-    count(case when additional_data.ethnicity_id = 'ethnicity-FID' then 1 end) as screened_indian,
-    count(case when snap_counciling_table.snap_counciling = 'Yes' and additional_data.ethnicity_id = 'ethnicity-FID' then 1 end) as "Number of FID that have received SNAP counselling",
-    count(case when additional_data.ethnicity_id = 'ethnicity-others' then 1 end) as "screened_others",
-    count(case when snap_counciling_table.snap_counciling = 'Yes' and additional_data.ethnicity_id = 'ethnicity-others' then 1 end) as "Number of others that have received SNAP counselling"
+    count(case when snap_counselling_table.snap_counselling = 'Yes' and additional_data.ethnicity_id = 'ethnicity-ITaukei' then 1 end) as received_snap_counselling_itaukei,
+    count(case when additional_data.ethnicity_id = 'ethnicity-FID' then 1 end) as screened_fid,
+    count(case when snap_counselling_table.snap_counselling = 'Yes' and additional_data.ethnicity_id = 'ethnicity-FID' then 1 end) as received_snap_counselling_fid,
+    count(case when additional_data.ethnicity_id = 'ethnicity-others' then 1 end) as screened_others,
+    count(case when snap_counselling_table.snap_counselling = 'Yes' and additional_data.ethnicity_id = 'ethnicity-others' then 1 end) as received_snap_counselling_itaukei_others
   FROM patients AS patient
   join (
       SELECT
@@ -32,9 +34,9 @@ select * from (
       limit 1
     )
   left join (
-    select response_id, body as snap_counciling from survey_response_answers sra
+    select response_id, body as snap_counselling from survey_response_answers sra
     where sra.data_element_id in ('pde-FijCVD038', 'pde-FijSNAP13')
-  ) snap_counciling_table on sr.id = snap_counciling_table.response_id
+  ) snap_counselling_table on sr.id = snap_counselling_table.response_id
   group by "Date" order by "Date" desc) table1
   join (
     SELECT 
@@ -55,12 +57,12 @@ select * from (
       count(case when hypertension_temp.id is not null and diabetes_temp.id is not null and (date_of_birth + interval '30 year') > current_date and additional_data.ethnicity_id = 'ethnicity-ITaukei' then 1 end) as itaukei_dual_u30,
       count(case when hypertension_temp.id is not null and diabetes_temp.id is not null and (date_of_birth + interval '30 year') <= current_date and additional_data.ethnicity_id = 'ethnicity-ITaukei' then 1 end) as itaukei_dual_o30,
       'buffer' as buffer,
-      count(case when diabetes_temp.id is not null and (date_of_birth + interval '30 year') > current_date and additional_data.ethnicity_id = 'ethnicity-FID' then 1 end) as FID_diabetes_u30,
-      count(case when diabetes_temp.id is not null and (date_of_birth + interval '30 year') <= current_date and additional_data.ethnicity_id = 'ethnicity-FID' then 1 end) as FID_diabetes_o30,
-      count(case when hypertension_temp.id is not null and (date_of_birth + interval '30 year') > current_date and additional_data.ethnicity_id = 'ethnicity-FID' then 1 end) as FID_hypertension_u30,
-      count(case when hypertension_temp.id is not null and (date_of_birth + interval '30 year') <= current_date and additional_data.ethnicity_id = 'ethnicity-FID' then 1 end) as FID_hypertension_o30,
-      count(case when hypertension_temp.id is not null and diabetes_temp.id is not null and (date_of_birth + interval '30 year') > current_date and additional_data.ethnicity_id = 'ethnicity-FID' then 1 end) as FID_dual_u30,
-      count(case when hypertension_temp.id is not null and diabetes_temp.id is not null and (date_of_birth + interval '30 year') <= current_date and additional_data.ethnicity_id = 'ethnicity-FID' then 1 end) as FID_dual_o30,
+      count(case when diabetes_temp.id is not null and (date_of_birth + interval '30 year') > current_date and additional_data.ethnicity_id = 'ethnicity-FID' then 1 end) as fid_diabetes_u30,
+      count(case when diabetes_temp.id is not null and (date_of_birth + interval '30 year') <= current_date and additional_data.ethnicity_id = 'ethnicity-FID' then 1 end) as fid_diabetes_o30,
+      count(case when hypertension_temp.id is not null and (date_of_birth + interval '30 year') > current_date and additional_data.ethnicity_id = 'ethnicity-FID' then 1 end) as fid_hypertension_u30,
+      count(case when hypertension_temp.id is not null and (date_of_birth + interval '30 year') <= current_date and additional_data.ethnicity_id = 'ethnicity-FID' then 1 end) as fid_hypertension_o30,
+      count(case when hypertension_temp.id is not null and diabetes_temp.id is not null and (date_of_birth + interval '30 year') > current_date and additional_data.ethnicity_id = 'ethnicity-FID' then 1 end) as fid_dual_u30,
+      count(case when hypertension_temp.id is not null and diabetes_temp.id is not null and (date_of_birth + interval '30 year') <= current_date and additional_data.ethnicity_id = 'ethnicity-FID' then 1 end) as fid_dual_o30,
       'buffer' as buffer,
       count(case when diabetes_temp.id is not null and (date_of_birth + interval '30 year') > current_date and additional_data.ethnicity_id = 'ethnicity-others' then 1 end) as others_diabetes_u30,
       count(case when diabetes_temp.id is not null and (date_of_birth + interval '30 year') <= current_date and additional_data.ethnicity_id = 'ethnicity-others' then 1 end) as others_diabetes_o30,
@@ -89,3 +91,69 @@ select * from (
   ) table2
   on table1."Date" = table2."Date";
   `;
+
+const FIELD_TO_TITLE = {
+  date: 'Date',
+  number_of_cvd_screenings: 'Number of CVD screenings',
+  received_snap_counselling: 'Number of individuals that have received SNAP counselling',
+  diabetes_u30: 'Number of new diabetes cases for individuals under 30',
+  diabetes_o30: 'Number of new diabetes cases for individuals above 30',
+  hypertension_u30: 'Number of new hypertension cases for individuals under 30',
+  hypertension_o30: 'Number of new hypertension cases for individuals above 30',
+  dual_u30: 'Number of new dual diabetes and hypertension cases for individuals under 30',
+  dual_o30: 'Number of new dual diabetes and hypertension cases for individuals above 30',
+  screened_itaukei: 'Number of CVD screenings by Itaukei',
+  received_snap_counselling_itaukei:
+    'Number of individuals that have received SNAP counselling by Itaukei',
+  itaukei_diabetes_u30: 'Number of new diabetes cases for individuals under 30 by Itaukei',
+  itaukei_diabetes_o30: 'Number of new diabetes cases for individuals above 30 by Itaukei',
+  itaukei_hypertension_u30: 'Number of new hypertension cases for individuals under 30 by Itaukei',
+  itaukei_hypertension_o30: 'Number of new hypertension cases for individuals above 30 by Itaukei',
+  itaukei_dual_u30:
+    'Number of new dual diabetes and hypertension cases for individuals under 30 by Itaukei',
+  itaukei_dual_o30:
+    'Number of new dual diabetes and hypertension cases for individuals above 30 by Itaukei',
+  screened_fid: 'Number of CVD screenings by Fijian of Indian descent',
+  received_snap_counselling_fid:
+    'Number of individuals that have received SNAP counselling by Fijian of Indian descent',
+  fid_diabetes_u30:
+    'Number of new diabetes cases for individuals under 30 by Fijian of Indian descent',
+  fid_diabetes_o30:
+    'Number of new diabetes cases for individuals above 30 by Fijian of Indian descent',
+  fid_hypertension_u30:
+    'Number of new hypertension cases for individuals under 30 by Fijian of Indian descent',
+  fid_hypertension_o30:
+    'Number of new hypertension cases for individuals above 30 by Fijian of Indian descent',
+  fid_dual_u30:
+    'Number of new dual diabetes and hypertension cases for individuals under 30 by Fijian of Indian descent',
+  fid_dual_o30:
+    'Number of new dual diabetes and hypertension cases for individuals above 30 by Fijian of Indian descent',
+  screened_others: 'Number of CVD screenings by ethnicity Other',
+  received_snap_counselling_itaukei_others:
+    'Number of individuals that have received SNAP counselling by ethnicity Other',
+  others_diabetes_u30: 'Number of new diabetes cases for individuals under 30 by ethnicity Other',
+  others_diabetes_o30: 'Number of new diabetes cases for individuals above 30 by ethnicity Other',
+  others_hypertension_u30:
+    'Number of new hypertension cases for individuals under 30 by ethnicity Other',
+  others_hypertension_o30:
+    'Number of new hypertension cases for individuals above 30 by ethnicity Other',
+  others_dual_u30:
+    'Number of new dual diabetes and hypertension cases for individuals under 30 by ethnicity Other',
+  others_dual_o30:
+    'Number of new dual diabetes and hypertension cases for individuals above 30 by ethnicity Other',
+};
+
+const reportColumnTemplate = Object.entries(FIELD_TO_TITLE).map(([key, title]) => ({
+  title,
+  accessor: data => data[key],
+}));
+
+export const dataGenerator = async ({ sequelize }, parameters = {}) => {
+  const rawData = await sequelize.query(query, { type: sequelize.QueryTypes.SELECT });
+
+  console.log(rawData);
+
+  return generateReportFromQueryData(rawData, reportColumnTemplate);
+};
+
+export const permission = 'Encounter';

@@ -22,6 +22,7 @@ import * as fijiRecentAttendanceList from './fiji-recent-attendance-list';
 import * as fijiNcdPrimaryScreeningLineList from './fiji-ncd-primary-screening/fiji-ncd-primary-screening-line-list';
 import * as fijiNcdPrimaryScreeningPendingReferralsLineList from './fiji-ncd-primary-screening/fiji-ncd-primary-screening-pending-referrals-line-list';
 import * as fijiNcdPrimaryScreeningSummary from './fiji-ncd-primary-screening/fiji-ncd-primary-screening-summary';
+import * as fijiStatisticalReportForPhisSummary from './fiji-statistical-report-for-phis-summary';
 
 export function getReportModule(reportType) {
   switch (reportType) {
@@ -75,6 +76,8 @@ export function getReportModule(reportType) {
       return fijiNcdPrimaryScreeningPendingReferralsLineList;
     case 'fiji-ncd-primary-screening-summary':
       return fijiNcdPrimaryScreeningSummary;
+    case 'fiji-statistical-report-for-phis-summary':
+      return fijiStatisticalReportForPhisSummary;
   }
 }
 

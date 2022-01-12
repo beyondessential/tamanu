@@ -205,4 +205,9 @@ export const REPORT_DEFINITIONS = [
       { parameterField: 'VillageField' },
     ],
   },
+  {
+    name: 'asdfasd',
+    id: 'fiji-statistical-report-for-phis-summary',
+    parameters: [],
+  },
 ];
