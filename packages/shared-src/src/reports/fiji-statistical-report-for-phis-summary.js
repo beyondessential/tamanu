@@ -98,6 +98,7 @@ from patients AS patient
       join encounters snap_encounter
       on snap_encounter.id = snap_response.encounter_id 
       where sra.data_element_id in ('pde-FijCVD038', 'pde-FijSNAP13')
+      and sra.body = 'Yes'
         GROUP by snap_encounter.patient_id, snap_response.end_time::date
     ) max_time_per_group_table
     JOIN survey_responses AS sr 
