@@ -11,7 +11,7 @@ import { Modal } from '../../../components/Modal';
 
 import { useApi } from '../../../api';
 
-const AlertModal = React.memo(({ open, onClose }) => (
+const AlertNoInternetModal = React.memo(({ open, onClose }) => (
   <Modal title="No internet connection detected" open={open} onClose={onClose}>
     <Typography>
       <strong>
@@ -31,10 +31,26 @@ const AlertModal = React.memo(({ open, onClose }) => (
   </Modal>
 ));
 
+const AlertNoSpaceModal = React.memo(({ open, onClose }) => (
+  <Modal title="Not enough storage space to upload file" open={open} onClose={onClose}>
+    <Typography>
+      The server has limited storage space remaining. To protect performance, you are currently
+      unable to upload documents or images. Please speak to your system administrator to increase
+      your central server&apos;s hard drive space.
+    </Typography>
+    <ButtonRow>
+      <Button variant="contained" color="primary" onClick={onClose}>
+        OK
+      </Button>
+    </ButtonRow>
+  </Modal>
+));
+
 const MODAL_STATES = {
   CLOSED: 'closed',
   DOCUMENT_OPEN: 'document',
-  ALERT_OPEN: 'alert',
+  ALERT_NO_INTERNET_OPEN: 'alert_no_internet',
+  ALERT_NO_SPACE_OPEN: 'alert_no_space',
 };
 
 export const DocumentsPane = React.memo(({ encounter, patient, showSearchBar = false }) => {
@@ -81,7 +97,14 @@ export const DocumentsPane = React.memo(({ encounter, patient, showSearchBar = f
         title="Add document"
         actionText="Add"
       />
-      <AlertModal open={modalStatus === MODAL_STATES.ALERT_OPEN} onClose={handleClose} />
+      <AlertNoInternetModal
+        open={modalStatus === MODAL_STATES.ALERT_NO_INTERNET_OPEN}
+        onClose={handleClose}
+      />
+      <AlertNoSpaceModal
+        open={modalStatus === MODAL_STATES.ALERT_NO_SPACE_OPEN}
+        onClose={handleClose}
+      />
       {showSearchBar && <DocumentsSearchBar setSearchParameters={setSearchParameters} />}
       <DocumentsTable
         endpoint={endpoint}
