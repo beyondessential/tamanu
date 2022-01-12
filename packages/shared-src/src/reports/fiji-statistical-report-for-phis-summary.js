@@ -1,9 +1,9 @@
 import { generateReportFromQueryData } from './utilities';
 
 const query = `
-select * from (
+select *, case when "Date1" is null then "Date2" else "Date1" end as date from (
   SELECT 
-    sr.end_time::date as "Date",
+    sr.end_time::date as "Date1",
     count(distinct(patient.id)) as patients_screened, -- testing
     count(*) as number_of_cvd_screenings,
     count(case when snap_counselling_table.snap_counselling = 'Yes' then 1 end) as received_snap_counselling,
@@ -37,10 +37,10 @@ select * from (
     select response_id, body as snap_counselling from survey_response_answers sra
     where sra.data_element_id in ('pde-FijCVD038', 'pde-FijSNAP13')
   ) snap_counselling_table on sr.id = snap_counselling_table.response_id
-  group by "Date" order by "Date" desc) table1
-  join (
+  group by "Date1" order by "Date1" desc) table1
+  full outer join (
     SELECT 
-      e.start_date::date as "Date",
+      e.start_date::date as "Date2",
       count(distinct(p.id)) as unique_patients_with_encounters,
       count(*) as encounters_that_day,
       count(case when diabetes_temp.id is not null and (date_of_birth + interval '30 year') > current_date then 1 end) as diabetes_u30,
@@ -86,10 +86,10 @@ select * from (
       select encounter_id, ed.id from encounter_diagnoses ed
       WHERE diagnosis_id IN ('ref/icd10/E23.2', 'ref/icd10/G51.0') -- note ref/icd10/G51.0 is for testing only
     ) hypertension_temp on e.id = hypertension_temp.encounter_id
-    group by "Date" 
+    group by "Date2" 
     having count(diabetes_temp.id) > 0 or count(hypertension_temp.id) > 0
   ) table2
-  on table1."Date" = table2."Date";
+  on table1."Date1" = table2."Date2";
   `;
 
 const FIELD_TO_TITLE = {
