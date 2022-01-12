@@ -11,6 +11,26 @@ import { Modal } from '../../../components/Modal';
 
 import { useApi } from '../../../api';
 
+const AlertModal = React.memo(({ open, onClose }) => (
+  <Modal title="No internet connection detected" open={open} onClose={onClose}>
+    <Typography>
+      <strong>
+        Viewing and downloading documents in Tamanu requires a live connection to the central
+        server.
+      </strong>
+    </Typography>
+    <Typography>
+      To save on hard drive space and improve performance, documents in Tamanu are stored on the
+      central server. Please check your network connection and/or try again in a few minutes.
+    </Typography>
+    <ButtonRow>
+      <Button variant="contained" color="primary" onClick={onClose}>
+        OK
+      </Button>
+    </ButtonRow>
+  </Modal>
+));
+
 const MODAL_STATES = {
   CLOSED: 'closed',
   DOCUMENT_OPEN: 'document',
@@ -61,27 +81,7 @@ export const DocumentsPane = React.memo(({ encounter, patient, showSearchBar = f
         title="Add document"
         actionText="Add"
       />
-      <Modal
-        title="No internet connection detected"
-        open={modalStatus === MODAL_STATES.ALERT_OPEN}
-        onClose={handleClose}
-      >
-        <Typography>
-          <strong>
-            Viewing and downloading documents in Tamanu requires a live connection to the central
-            server.
-          </strong>
-        </Typography>
-        <Typography>
-          To save on hard drive space and improve performance, documents in Tamanu are stored on the
-          central server. Please check your network connection and/or try again in a few minutes.
-        </Typography>
-        <ButtonRow>
-          <Button variant="contained" color="primary" onClick={handleClose}>
-            OK
-          </Button>
-        </ButtonRow>
-      </Modal>
+      <AlertModal open={modalStatus === MODAL_STATES.ALERT_OPEN} onClose={handleClose} />
       {showSearchBar && <DocumentsSearchBar setSearchParameters={setSearchParameters} />}
       <DocumentsTable
         endpoint={endpoint}
