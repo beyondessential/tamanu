@@ -5,8 +5,28 @@ import { Certificate, Table } from '../Print/Certificate';
 import { DateDisplay } from '../DateDisplay';
 import { getCompletedDate, getMethod, getRequestId, getLaboratory } from '../../utils/lab';
 
-import { connectApi } from '../../api';
+import { connectApi, useApi } from '../../api';
 import { useLocalisation } from '../../contexts/Localisation';
+
+// The passport number is taken from the COVID Tourism survey
+const usePassportNumber = patientId => {
+  const SURVEY_ID = 'program-fijicovid19-fijicovidrdt';
+  const QUESTION_ID = 'pde-FijCOVRDT002';
+  const api = useApi();
+  const [value, setValue] = useState(null);
+
+  useEffect(() => {
+    (async () => {
+      const surveyResponses = await api.get(`patient/${patientId}/programResponses`);
+      const surveyResponseId = surveyResponses.data.find(sr => sr.surveyId === SURVEY_ID).id;
+      const response = await api.get(`/surveyResponse/${surveyResponseId}`);
+      const passportNumber = response.answers.find(a => a.dataElementId === QUESTION_ID);
+      setValue(passportNumber.body);
+    })();
+  }, [api, patientId]);
+
+  return () => value;
+};
 
 const DumbPatientCovidTestCert = ({ patient, getLabRequests, getLabTests }) => {
   const [open, setOpen] = useState(true);
@@ -36,10 +56,6 @@ const DumbPatientCovidTestCert = ({ patient, getLabRequests, getLabTests }) => {
         accessor: getRequestId,
       },
       {
-        key: 'laboratoryOfficer',
-        title: 'Lab officer',
-      },
-      {
         key: 'method',
         title: 'Method',
         accessor: getMethod,
@@ -48,6 +64,7 @@ const DumbPatientCovidTestCert = ({ patient, getLabRequests, getLabTests }) => {
         key: 'result',
         title: 'Result',
       },
+      { key: 'specimenType', title: 'Specimen type' },
     ],
     [],
   );
@@ -75,11 +92,15 @@ const DumbPatientCovidTestCert = ({ patient, getLabRequests, getLabTests }) => {
       );
     })();
   }, [columns, getLabRequests, getLabTests]);
+
+  const getPassportNumber = usePassportNumber(patient.id);
+
   return (
     <Modal open={open} onClose={() => setOpen(false)} width="md" printable>
       <Certificate
         patient={patient}
         header="COVID-19 test history"
+        customAccessors={{ passport: getPassportNumber }}
         primaryDetailsFields={[
           'firstName',
           'lastName',
@@ -87,6 +108,8 @@ const DumbPatientCovidTestCert = ({ patient, getLabRequests, getLabTests }) => {
           'placeOfBirth',
           'countryOfBirthId',
           'sex',
+          'displayId',
+          'passport',
         ]}
       >
         <Table>

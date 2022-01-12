@@ -77,6 +77,7 @@ export const Certificate = ({
   watermark,
   watermarkType,
   primaryDetailsFields,
+  customAccessors = {},
   children,
 }) => {
   const currentUser = useSelector(getCurrentUser);
@@ -93,7 +94,7 @@ export const Certificate = ({
       <PatientDetailsHeader>{header}</PatientDetailsHeader>
       <TwoColumnContainer>
         {detailsFieldsToDisplay.map(field => {
-          const accessor = PRIMARY_DETAILS_FIELDS[field];
+          const accessor = PRIMARY_DETAILS_FIELDS[field] || customAccessors[field];
           const label = getLocalisation(`fields.${field}.shortLabel`) || field;
           const value = (accessor ? accessor(patient) : patient[field]) || '';
           return (
