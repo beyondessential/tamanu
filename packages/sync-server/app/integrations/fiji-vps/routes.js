@@ -76,7 +76,9 @@ async function getHL7Payload({ req, querySchema, model, getWhere, getInclude, bu
   for (const r of records) {
     const { mainResource, includedResources } = await toHL7(r, query);
     hl7FhirResources.push(mainResource);
-    hl7FhirIncludedResources.push(...includedResources);
+    if (includedResources) {
+      hl7FhirIncludedResources.push(...includedResources);
+    }
   }
 
   const baseUrl = getBaseUrl(req);
@@ -128,7 +130,7 @@ routes.get(
       getWhere: displayId => ({ displayId }),
       getInclude: () => [{ association: 'additionalData' }],
       bundleId: 'patients',
-      toHL7: patient => ({ main: patientToHL7Patient(patient, patient.additionalData[0]) }),
+      toHL7: patient => ({ mainResource: patientToHL7Patient(patient, patient.additionalData[0]) }),
     });
 
     res.send(payload);
