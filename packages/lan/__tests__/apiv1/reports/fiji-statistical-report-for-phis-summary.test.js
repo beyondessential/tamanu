@@ -100,6 +100,10 @@ describe('Covid swab lab test list', () => {
      *
      * 2020-05-03: Had SNAP councilling - no CVD screening
      *
+     * Patient 2
+     *
+     * 2020-05-02: Diagnosed with diabetes and hypertension
+     * 2020-05-02: Had a CVD screening - SNAP councilling
      **/
 
     // 2019-05-02: Had a non-CVD survey response submitted
@@ -177,9 +181,6 @@ describe('Covid swab lab test list', () => {
     await createCVDFormSurveyResponse(app, expectedPatient2, moment.utc('2020-05-02'), {
       'pde-FijCVD038': 'Yes',
     });
-    const manualDiagnoses = await models.EncounterDiagnosis.findAll();
-
-    console.log(manualDiagnoses);
   });
 
   describe('checks permissions', () => {
@@ -201,7 +202,7 @@ describe('Covid swab lab test list', () => {
       expect(result).toHaveSucceeded();
       // 2nd row, 1st column (2A) should have the most recent date in it.
       console.log(result.body);
-      expect(result.body[1][0]).toBe('2');
+      expect(result.body[1][0]).toBe('2020-05-03');
     });
 
     it('should return latest data per patient and latest data per patient per date', async () => {
