@@ -32,6 +32,31 @@ describe('UploadAttachment', () => {
     expect(WebRemote.mock.calls.length).toBe(0);
   });
 
+  it('abort creating document metadata if the sync server fails to create attachment', async () => {
+    WebRemote.mockImplementationOnce(() => {
+      return {
+        __esModule: true,
+        fetch: jest.fn(async (path, body) => {
+          // Make sure the parameters match what the sync server expects
+          expect(path).toBe('attachment');
+          expect(body).toMatchObject({
+            method: 'POST',
+            body: {
+              type: 'image/jpeg',
+              size: 1002,
+              data: FILEDATA,
+            },
+          });
+          return {
+            error: 'Some error',
+          };
+        }),
+      };
+    });
+    await expect(uploadAttachment(mockReq)).rejects.toThrow(RemoteCallFailedError);
+    expect(WebRemote.mock.calls.length).toBe(1);
+  });
+
   it('successfully uploads attachment', async () => {
     WebRemote.mockImplementationOnce(() => {
       return {
@@ -60,31 +85,6 @@ describe('UploadAttachment', () => {
       attachmentId: '111',
       metadata: { name: 'hello world image', type: 'image/jpeg' },
     });
-    expect(WebRemote.mock.calls.length).toBe(1);
-  });
-
-  it('abort creating document metadata if the sync server fails to create attachment', async () => {
-    WebRemote.mockImplementationOnce(() => {
-      return {
-        __esModule: true,
-        fetch: jest.fn(async (path, body) => {
-          // Make sure the parameters match what the sync server expects
-          expect(path).toBe('attachment');
-          expect(body).toMatchObject({
-            method: 'POST',
-            body: {
-              type: 'image/jpeg',
-              size: 1002,
-              data: FILEDATA,
-            },
-          });
-          return {
-            error: 'Some error',
-          };
-        }),
-      };
-    });
-    await expect(uploadAttachment(mockReq)).rejects.toThrow(RemoteCallFailedError);
     expect(WebRemote.mock.calls.length).toBe(2);
   });
 });
