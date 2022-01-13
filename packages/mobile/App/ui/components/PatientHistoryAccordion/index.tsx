@@ -3,11 +3,13 @@ import Accordion from 'react-native-collapsible/Accordion';
 import { StyledScrollView } from '/styled/common';
 import Header from './Header';
 import { HistoryTable } from '../HistoryTable';
+import { HistoryTableRows } from '~/ui/interfaces/HistoryTable';
 import { Spacer } from '../Spacer';
+import { Encounter } from '~/models/Encounter';
 
 interface AccordionListProps {
-  dataArray: VisitOverviewProps[];
-  rows: object;
+  dataArray: Encounter[];
+  rows: HistoryTableRows;
 }
 
 export const PatientHistoryAccordion = ({

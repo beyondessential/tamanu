@@ -6,7 +6,7 @@ import { formatDate } from '/helpers/date';
 import { DateFormats, HeaderIcons, EncounterTypeNames } from '/helpers/constants';
 import * as Icons from '../Icons';
 import { Separator } from '../Separator';
-import { EncounterType, IEncounter, IUser } from '~/types';
+import { EncounterType, IEncounter, ILocation, IUser } from '~/types';
 
 interface IconProps {
   IconComponent: FunctionComponent<SvgProps>;
@@ -69,7 +69,7 @@ interface HeaderDescriptionProps {
   referredDepartment: string;
   isActive: boolean;
   formTitle: string;
-  location: { name: string };
+  location: ILocation;
 }
 
 const HeaderDescription = ({
@@ -90,7 +90,7 @@ const HeaderDescription = ({
       <StyledText
         color={isActive ? theme.colors.SECONDARY_MAIN : theme.colors.TEXT_MID}
       >
-        {location ? location.name : ''}
+        {location?.facility?.name ?? location?.name ?? ''}
       </StyledText>
     </StyledView>
   </ColumnView>
