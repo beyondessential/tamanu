@@ -267,4 +267,5 @@ export const REFERRAL_STATUSES = {
   COMPLETED: 'completed',
 };
 
+// Size in bytes
 export const DOCUMENT_SIZE_LIMIT = 10000000;
