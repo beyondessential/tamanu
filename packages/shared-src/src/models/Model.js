@@ -18,6 +18,7 @@ const MARKED_FOR_PUSH_MODELS = [
   'ReportRequest',
   'UserFacility',
   'LabRequestLog',
+  'DocumentMetadata',
 ];
 
 export class Model extends sequelize.Model {

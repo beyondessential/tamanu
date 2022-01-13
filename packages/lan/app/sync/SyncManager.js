@@ -201,7 +201,7 @@ export class SyncManager {
         models.UserFacility,
 
         // models.LabRequestLog,
-        // models.DocumentMetadata,
+        models.DocumentMetadata,
       ];
 
       for (const model of modelsToSync) {
