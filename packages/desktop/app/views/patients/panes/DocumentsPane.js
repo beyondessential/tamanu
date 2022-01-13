@@ -34,11 +34,7 @@ const AlertNoSpaceModal = React.memo(({ open, onClose }) => (
       unable to upload documents or images. Please speak to your system administrator to increase
       your central server&apos;s hard drive space.
     </Typography>
-    <ButtonRow>
-      <Button variant="contained" color="primary" onClick={onClose}>
-        OK
-      </Button>
-    </ButtonRow>
+    <ConfirmCancelRow onConfirm={onClose} confirmText="OK" />
   </Modal>
 ));
 
