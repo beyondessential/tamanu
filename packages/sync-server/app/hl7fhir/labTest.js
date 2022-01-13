@@ -83,7 +83,7 @@ function labTestMethodToHL7Extension(labTestMethod) {
   ];
 }
 
-export function labTestToHL7DiagnosticReport(labTest, { shouldEmbedResult = false } = {}) {
+export function labTestToHL7DiagnosticReport(labTest) {
   const { labTestType, labTestMethod, labRequest } = labTest;
   const { encounter, laboratory } = labRequest;
   const { patient, examiner } = encounter;
@@ -118,9 +118,6 @@ export function labTestToHL7DiagnosticReport(labTest, { shouldEmbedResult = fals
       if (!shouldProduceObservation(labRequest.status)) {
         return [];
       }
-      if (shouldEmbedResult) {
-        return [labTestToHL7Observation(labTest, patient)];
-      }
       return [{ reference: `Observation/${labTest.id}` }];
     })(),
     extension: labTestMethodToHL7Extension(labTestMethod),
@@ -152,16 +149,12 @@ function getResultCoding(labTest) {
   }
 }
 
-export function labTestToHL7Observation(labTest, maybePatient) {
+export function labTestToHL7Observation(labTest) {
   const { labRequest, labTestType } = labTest;
+  const { patient } = labRequest.encounter;
 
   if (!shouldProduceObservation(labRequest.status)) {
     return null;
-  }
-
-  let patient = maybePatient;
-  if (!patient) {
-    patient = labTest.labRequest.encounter.patient;
   }
 
   return {

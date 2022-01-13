@@ -151,39 +151,7 @@ describe('VPS integration - DiagnosticReport', () => {
                 },
               ],
               status: 'final',
-              result: [
-                {
-                  resourceType: 'Observation',
-                  id: labTest.id,
-                  status: 'final',
-                  code: {
-                    text:
-                      'SARS-CoV-2 (COVID-19) Ag [Presence] in Upper respiratory specimen by Immunoassay',
-                    coding: [
-                      {
-                        system: 'http://loinc.org',
-                        code: '96119-3',
-                        display:
-                          'SARS-CoV-2 (COVID-19) Ag [Presence] in Upper respiratory specimen by Immunoassay',
-                      },
-                    ],
-                  },
-                  subject: {
-                    display: `${patient.firstName} ${patient.lastName}`,
-                    reference: `Patient/${patient.id}`,
-                  },
-                  valueCodeableConcept: {
-                    coding: [
-                      {
-                        code: 'INC',
-                        display: 'Inconclusive',
-                        system:
-                          'http://terminology.hl7.org/CodeSystem/v3-ObservationInterpretation',
-                      },
-                    ],
-                  },
-                },
-              ],
+              result: [{ reference: `Observation/${labTest.id}` }],
               subject: {
                 display: `${patient.firstName} ${patient.lastName}`,
                 reference: `Patient/${patient.id}`,
@@ -203,6 +171,38 @@ describe('VPS integration - DiagnosticReport', () => {
                   },
                 },
               ],
+            },
+          },
+          {
+            resource: {
+              resourceType: 'Observation',
+              id: labTest.id,
+              status: 'final',
+              code: {
+                text:
+                  'SARS-CoV-2 (COVID-19) Ag [Presence] in Upper respiratory specimen by Immunoassay',
+                coding: [
+                  {
+                    system: 'http://loinc.org',
+                    code: '96119-3',
+                    display:
+                      'SARS-CoV-2 (COVID-19) Ag [Presence] in Upper respiratory specimen by Immunoassay',
+                  },
+                ],
+              },
+              subject: {
+                display: `${patient.firstName} ${patient.lastName}`,
+                reference: `Patient/${patient.id}`,
+              },
+              valueCodeableConcept: {
+                coding: [
+                  {
+                    code: 'INC',
+                    display: 'Inconclusive',
+                    system: 'http://terminology.hl7.org/CodeSystem/v3-ObservationInterpretation',
+                  },
+                ],
+              },
             },
           },
         ],
@@ -311,12 +311,18 @@ describe('VPS integration - DiagnosticReport', () => {
         entry: [
           {
             resource: {
+              resourceType: 'DiagnosticReport',
               performer: [
                 {
                   display: examiner.displayName,
                   reference: `Practitioner/${examiner.id}`,
                 },
               ],
+            },
+          },
+          {
+            resource: {
+              resourceType: 'Observation',
             },
           },
         ],
@@ -341,25 +347,26 @@ describe('VPS integration - DiagnosticReport', () => {
         entry: [
           {
             resource: {
-              result: [
-                {
-                  resourceType: 'Observation',
-                  id: labTest.id,
-                  status: 'final',
-                  code: {
-                    text:
+              result: [{ reference: `Observation/${labTest.id}` }],
+            },
+          },
+          {
+            resource: {
+              resourceType: 'Observation',
+              id: labTest.id,
+              status: 'final',
+              code: {
+                text:
+                  'SARS-CoV-2 (COVID-19) Ag [Presence] in Upper respiratory specimen by Rapid immunoassay',
+                coding: [
+                  {
+                    system: 'http://loinc.org',
+                    code: '97097-0',
+                    display:
                       'SARS-CoV-2 (COVID-19) Ag [Presence] in Upper respiratory specimen by Rapid immunoassay',
-                    coding: [
-                      {
-                        system: 'http://loinc.org',
-                        code: '97097-0',
-                        display:
-                          'SARS-CoV-2 (COVID-19) Ag [Presence] in Upper respiratory specimen by Rapid immunoassay',
-                      },
-                    ],
                   },
-                },
-              ],
+                ],
+              },
             },
           },
         ],
@@ -416,7 +423,7 @@ describe('VPS integration - DiagnosticReport', () => {
             '_count must be less than or equal to 20',
             '_page must be greater than or equal to 0',
             '_sort must be one of the following values: -issued',
-            '_include must be one of the following values: DiagnosticReport:result',
+            '_include[0] must be one of the following values: DiagnosticReport:result',
             'status must be one of the following values: final',
           ],
         },
