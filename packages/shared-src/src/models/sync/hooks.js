@@ -36,7 +36,7 @@ const addHooksToNested = model => {
   }
 };
 
-const syncSpecificColumns = ['markedForPush', 'markedForSync', 'pushedAt', 'pulledAt'];
+const syncSpecificColumns = ['markedForPush', 'isPushing', 'markedForSync', 'pushedAt', 'pulledAt'];
 
 export const initSyncClientModeHooks = models => {
   Object.values(models)

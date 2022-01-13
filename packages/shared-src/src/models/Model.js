@@ -8,16 +8,16 @@ const firstLetterLowercase = s => (s[0] || '').toLowerCase() + s.slice(1);
 // write a migration when adding to this list (e.g. 005_markedForPush.js and 007_pushedAt.js)
 const MARKED_FOR_PUSH_MODELS = [
   'Encounter',
+  'LabRequestLog',
   'Patient',
+  'PatientAdditionalData',
   'PatientAllergy',
   'PatientCarePlan',
   'PatientCondition',
   'PatientFamilyHistory',
   'PatientIssue',
-  'PatientAdditionalData',
   'ReportRequest',
   'UserFacility',
-  'LabRequestLog',
   'DocumentMetadata',
 ];
 
@@ -29,6 +29,11 @@ export class Model extends sequelize.Model {
         type: Sequelize.BOOLEAN,
         allowNull: false,
         defaultValue: true,
+      };
+      attributes.isPushing = {
+        type: Sequelize.BOOLEAN,
+        allowNull: false,
+        defaultValue: false,
       };
       attributes.pushedAt = Sequelize.DATE;
       attributes.pulledAt = Sequelize.DATE;

@@ -66,11 +66,12 @@ const COLUMNS = [
   },
 ];
 
-export const DocumentsTable = React.memo(({ endpoint, searchParameters }) => (
+export const DocumentsTable = React.memo(({ endpoint, searchParameters, refreshCount }) => (
   <DataFetchingTable
     endpoint={endpoint}
     columns={COLUMNS}
     noDataMessage="No documents found"
     fetchOptions={searchParameters}
+    refreshCount={refreshCount}
   />
 ));

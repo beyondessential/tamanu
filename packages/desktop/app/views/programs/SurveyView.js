@@ -9,12 +9,12 @@ import { Button, OutlinedButton } from 'desktop/app/components/Button';
 import { ButtonRow } from 'desktop/app/components/ButtonRow';
 import {
   checkVisibility,
-  runCalculations,
   getComponentForQuestionType,
   mapOptionsToValues,
   getFormInitialValues,
   getConfigObject,
 } from 'desktop/app/utils';
+import { runCalculations } from 'shared-src/src/utils/calculations';
 
 import { ProgramsPane, ProgramsPaneHeader, ProgramsPaneHeading } from './ProgramsPane';
 import { PatientDisplay } from './PatientDisplay';
