@@ -17,6 +17,7 @@ export const MultiselectInput = ({
   form: { initialValues },
   ...props
 }) => {
+  // If value is already set, keep that value, otherwise attempt to load any initial values
   const values = value ? value.split(', ') : initialValues[name]?.split(', ') || [];
   const initialSelectedOptions = options.filter(option => values.includes(option.value));
 
