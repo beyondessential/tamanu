@@ -1,16 +1,11 @@
 import express from 'express';
 import asyncHandler from 'express-async-handler';
 import { Op } from 'sequelize';
-import { customAlphabet } from 'nanoid';
 import { NotFoundError } from 'shared/errors';
-import {
-  LAB_REQUEST_STATUSES,
-  DOCUMENT_SIZE_LIMIT,
-  INVOICE_STATUS_TYPES,
-  INVOICE_PAYMENT_STATUS_TYPES,
-} from 'shared/constants';
+import { LAB_REQUEST_STATUSES, DOCUMENT_SIZE_LIMIT } from 'shared/constants';
 import { NOTE_RECORD_TYPES } from 'shared/models/Note';
 import { uploadAttachment } from '../../utils/uploadAttachment';
+import { createInvoiceForEncouter } from './invoice';
 
 import {
   simpleGet,
@@ -33,40 +28,9 @@ encounter.post(
     const newEncounter = await models.Encounter.create(encounterData);
     const localisation = await getLocalisation();
 
-    if (!localisation.features?.enableInvoicing) {
-      res.send(newEncounter);
-      return;
+    if (localisation?.features?.enableInvoicing) {
+      await createInvoiceForEncouter(models, newEncounter);
     }
-
-    const { patientId } = encounterData;
-    const displayId =
-      customAlphabet('0123456789', 8)() + customAlphabet('ABCDEFGHIJKLMNOPQRSTUVWXYZ', 2)();
-    // Create a corresponding invoice with the encounter when admitting patient
-    const invoice = await models.Invoice.create({
-      encounterId: newEncounter.id,
-      displayId,
-      status: INVOICE_STATUS_TYPES.IN_PROGRESS,
-      paymentStatus: INVOICE_PAYMENT_STATUS_TYPES.UNPAID,
-    });
-
-    // Expect to always have a patient additional data corresponding to a patient
-    const { patientBillingTypeId } = await models.PatientAdditionalData.findOne({
-      where: { patientId },
-    });
-    const invoicePriceChangeType = await models.InvoicePriceChangeType.findOne({
-      where: { itemId: patientBillingTypeId },
-    });
-
-    // automatically apply price change (discount) based on patientBillingType
-    if (invoicePriceChangeType) {
-      await models.InvoicePriceChangeItem.create({
-        description: invoicePriceChangeType.name,
-        percentageChange: invoicePriceChangeType.percentageChange,
-        invoicePriceChangeTypeId: invoicePriceChangeType.id,
-        invoiceId: invoice.id,
-      });
-    }
-
     res.send(newEncounter);
   }),
 );
@@ -189,6 +153,7 @@ encounterRelations.get(
     additionalFilters: { recordType: NOTE_RECORD_TYPES.ENCOUNTER },
   }),
 );
+encounterRelations.get('/:id/invoice', simpleGetHasOne('Invoice', 'encounterId'));
 
 encounterRelations.get(
   '/:id/programResponses',
@@ -242,7 +207,5 @@ encounterRelations.get(
     });
   }),
 );
-
-encounterRelations.get('/:id/invoice', simpleGetHasOne('Invoice', 'encounterId'));
 
 encounter.use(encounterRelations);
