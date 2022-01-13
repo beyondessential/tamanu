@@ -18,6 +18,7 @@ export class Facility extends Model {
         email: Sequelize.STRING,
         contactNumber: Sequelize.STRING,
         streetAddress: Sequelize.STRING,
+        cityTown: Sequelize.STRING,
         division: Sequelize.STRING,
         type: Sequelize.STRING,
       },
