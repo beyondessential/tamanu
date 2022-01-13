@@ -3,7 +3,7 @@ import { Typography } from '@material-ui/core';
 
 import { DocumentsTable } from '../../../components/DocumentsTable';
 import { Button } from '../../../components/Button';
-import { ButtonRow } from '../../../components/ButtonRow';
+import { ConfirmCancelRow } from '../../../components/ButtonRow';
 import { ContentPane } from '../../../components/ContentPane';
 import { DocumentModal } from '../../../components/DocumentModal';
 import { DocumentsSearchBar } from '../../../components/DocumentsSearchBar';
