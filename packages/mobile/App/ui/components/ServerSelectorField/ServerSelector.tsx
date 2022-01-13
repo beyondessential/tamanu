@@ -5,8 +5,9 @@ import { useField } from 'formik';
 import { Field } from '../Forms/FormField';
 import { Dropdown, SelectOption } from '../Dropdown';
 import { readConfig } from '~/services/config';
-import { StyledText } from '/styled/common';
+import { StyledText, StyledView } from '/styled/common';
 import { theme } from '~/ui/styled/theme';
+import { useFacility } from '~/ui/contexts/FacilityContext';
 
 const META_SERVER = __DEV__ ? 'https://meta-dev.tamanu.io' : 'https://meta.tamanu.io';
 
@@ -32,6 +33,7 @@ export const ServerSelector = () => {
   const [existingHost, setExistingHost] = useState("");
   const [options, setOptions] = useState([]);
   const netInfo = useNetInfo();
+  const { facilityName } = useFacility();
 
   const fieldHelpers = useField('server')[2];
 
@@ -53,7 +55,12 @@ export const ServerSelector = () => {
 
   if (existingHost) {
     if (__DEV__) {
-      return <StyledText>{existingHost}</StyledText>;
+      return (
+        <StyledView marginBottom={10}>
+          <StyledText color={theme.colors.WHITE}>Server: {existingHost}</StyledText>
+          <StyledText color={theme.colors.WHITE}>Facility: {facilityName}</StyledText>
+        </StyledView>
+      );
     }
     return null;
   }

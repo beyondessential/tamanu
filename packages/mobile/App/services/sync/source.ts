@@ -167,6 +167,9 @@ export class WebSyncSource implements SyncSource {
     }
 
     if (!response.ok) {
+      // User will be shown a generic error message;
+      // log it out here to help with debugging
+      console.error(response);
       throw new Error(generalErrorMessage);
     }
 

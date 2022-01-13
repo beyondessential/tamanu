@@ -6,24 +6,36 @@ import { noSwipeGestureOnNavigator } from '/helpers/navigators';
 import { createStackNavigator } from '@react-navigation/stack';
 import { SignUpStack } from './SignUp';
 import { HomeStack } from './Home';
+import { useFacility } from '~/ui/contexts/FacilityContext';
 import AuthContext from '~/ui/contexts/AuthContext';
 import { AutocompleteModalScreen } from '~/ui/components/AutocompleteModal';
+import { SelectFacilityScreen } from '~/ui/navigation/screens/signup/SelectFacilityScreen';
 
 const Stack = createStackNavigator();
 
-export const Core: FunctionComponent<any> = () => {
+function getSignInFlowRoute() {
   const authCtx = useContext(AuthContext);
+  const { facilityId } = useFacility();
+  if (!authCtx.isUserAuthenticated()) {
+    return Routes.SignUpStack.Index;
+  } else if (!facilityId) {
+    return Routes.SignUpStack.SelectFacility;
+  } else {
+    return Routes.HomeStack.Index;
+  }
+}
+
+export const Core: FunctionComponent<any> = () => {
+  const initialRouteName = getSignInFlowRoute();
+
   return (
     <Stack.Navigator
       headerMode="none"
-      initialRouteName={
-        authCtx.isUserAuthenticated()
-          ? Routes.HomeStack.Index
-          : Routes.SignUpStack.Index
-      }
+      initialRouteName={initialRouteName}
     >
       <Stack.Screen name={Routes.Autocomplete.Modal} component={AutocompleteModalScreen} />
       <Stack.Screen name={Routes.SignUpStack.Index} component={SignUpStack} />
+      <Stack.Screen name={Routes.SignUpStack.SelectFacility} component={SelectFacilityScreen} />
       <Stack.Screen
         options={noSwipeGestureOnNavigator}
         name={Routes.HomeStack.Index}

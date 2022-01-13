@@ -19,6 +19,7 @@ export const Routes = {
     RegisterAccountStep2: '',
     RegisterAccountStep3: '',
     SignIn: '',
+    SelectFacility: '',
     ResetPassword: '',
     ChangePassword: '',
   },
