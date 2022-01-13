@@ -22,6 +22,9 @@ export class Facility extends BaseModel implements IFacility {
   streetAddress?: string;
 
   @Column({ nullable: true })
+  cityTown?: string;
+
+  @Column({ nullable: true })
   division?: string;
 
   @Column({ nullable: true })
