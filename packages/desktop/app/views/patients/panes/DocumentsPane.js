@@ -23,11 +23,7 @@ const AlertNoInternetModal = React.memo(({ open, onClose }) => (
       To save on hard drive space and improve performance, documents in Tamanu are stored on the
       central server. Please check your network connection and/or try again in a few minutes.
     </Typography>
-    <ButtonRow>
-      <Button variant="contained" color="primary" onClick={onClose}>
-        OK
-      </Button>
-    </ButtonRow>
+    <ConfirmCancelRow onConfirm={onClose} confirmText="OK" />
   </Modal>
 ));
 
