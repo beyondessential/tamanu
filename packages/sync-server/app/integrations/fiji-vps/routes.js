@@ -5,6 +5,7 @@ import asyncHandler from 'express-async-handler';
 import {
   patientToHL7Patient,
   labTestToHL7DiagnosticReport,
+  labTestToHL7Observation,
   hl7StatusToLabRequestStatus,
 } from '../../hl7fhir';
 import * as schema from './schema';
@@ -71,8 +72,13 @@ async function getHL7Payload({ req, querySchema, model, getWhere, getInclude, bu
 
   // run in a loop instead of using `.map()` so embedded queries run in serial
   const hl7FhirResources = [];
+  const hl7FhirIncludedResources = [];
   for (const r of records) {
-    hl7FhirResources.push(await toHL7(r, query));
+    const { mainResource, includedResources } = await toHL7(r, query);
+    hl7FhirResources.push(mainResource);
+    if (includedResources) {
+      hl7FhirIncludedResources.push(...includedResources);
+    }
   }
 
   const baseUrl = getBaseUrl(req);
@@ -109,7 +115,7 @@ async function getHL7Payload({ req, querySchema, model, getWhere, getInclude, bu
     type: 'searchset',
     total,
     link,
-    entry: hl7FhirResources,
+    entry: [...hl7FhirResources, ...hl7FhirIncludedResources],
   };
 }
 
@@ -124,7 +130,7 @@ routes.get(
       getWhere: displayId => ({ displayId }),
       getInclude: () => [{ association: 'additionalData' }],
       bundleId: 'patients',
-      toHL7: patient => patientToHL7Patient(patient, patient.additionalData[0]),
+      toHL7: patient => ({ mainResource: patientToHL7Patient(patient, patient.additionalData[0]) }),
     });
 
     res.send(payload);
@@ -164,9 +170,15 @@ routes.get(
       ],
       bundleId: 'diagnostic-reports',
       toHL7: (labTest, { _include }) => {
-        const shouldEmbedResult = _include === schema.DIAGNOSTIC_REPORT_INCLUDES.RESULT;
+        const includedResources = [];
+        if (_include && _include.includes(schema.DIAGNOSTIC_REPORT_INCLUDES.RESULT)) {
+          includedResources.push(labTestToHL7Observation(labTest));
+        }
         return {
-          resource: labTestToHL7DiagnosticReport(labTest, { shouldEmbedResult }),
+          mainResource: {
+            resource: labTestToHL7DiagnosticReport(labTest),
+          },
+          includedResources: includedResources.map(resource => ({ resource })),
         };
       },
     });
