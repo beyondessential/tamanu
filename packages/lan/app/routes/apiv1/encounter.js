@@ -33,7 +33,7 @@ encounter.post(
     const newEncounter = await models.Encounter.create(encounterData);
     const localisation = await getLocalisation();
 
-    if (!localisation?.features?.enableInvoicing) {
+    if (!localisation.features?.enableInvoicing) {
       res.send(newEncounter);
       return;
     }
