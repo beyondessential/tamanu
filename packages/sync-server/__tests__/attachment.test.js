@@ -9,15 +9,44 @@ describe('Attachment (sync-server)', () => {
   let baseApp;
   let models;
   let app;
+  let attachment;
 
   beforeAll(async () => {
     ctx = await createTestContext();
     baseApp = ctx.baseApp;
     models = ctx.store.models;
     app = await baseApp.asRole('practitioner');
+    attachment = await models.Attachment.create({
+      type: 'image/jpeg',
+      size: 1002,
+      data: FILEDATA,
+    });
   });
 
   afterAll(async () => ctx.close());
+
+  it('should send an error if attachment does not exist', async () => {
+    const result = await app.get('/v1/attachment/1');
+    expect(result).toBeForbidden();
+  });
+
+  it('should read an attachment as a buffer', async () => {
+    const result = await app.get(`/v1/attachment/${attachment.id}`);
+    expect(result).toHaveSucceeded();
+    expect(Buffer.isBuffer(result.body)).toBeTruthy();
+  });
+
+  it('should read an attachment as a base64 string', async () => {
+    const result = await app.get(`/v1/attachment/${attachment.id}?base64=true`);
+    expect(result).toHaveSucceeded();
+    const receivedStr = result.body.data;
+    expect(typeof receivedStr).toBe('string');
+    // Buffer.from will ignore non-base64 characters
+    // so if the string remains the same after re-encoding
+    // we could assume it is a valid base64 string
+    const reEncodedStr = Buffer.from(receivedStr, 'base64').toString('base64');
+    expect(receivedStr).toBe(reEncodedStr);
+  });
 
   it('should create an attachment and receive its ID back', async () => {
     const result = await app.post('/v1/attachment').send({
@@ -27,7 +56,7 @@ describe('Attachment (sync-server)', () => {
     });
     expect(result).toHaveSucceeded();
     expect(result.body.attachmentId).toBeTruthy();
-    const attachment = await models.Attachment.findByPk(result.body.id);
-    expect(attachment).toBeDefined();
+    const createdAttachment = await models.Attachment.findByPk(result.body.id);
+    expect(createdAttachment).toBeDefined();
   });
 });
