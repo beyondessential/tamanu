@@ -1,4 +1,4 @@
-import React, { useState, useCallback, useEffect } from 'react';
+import React, { useState, useCallback } from 'react';
 import PropTypes from 'prop-types';
 import Select from 'react-select';
 
@@ -17,7 +17,7 @@ export const MultiselectInput = ({
   form: { initialValues },
   ...props
 }) => {
-  const values = value ? value.split(', ') : [];
+  const values = value ? value.split(', ') : initialValues[name]?.split(', ') || [];
   const initialSelectedOptions = options.filter(option => values.includes(option.value));
 
   const [selected, setSelected] = useState(initialSelectedOptions);
@@ -29,13 +29,6 @@ export const MultiselectInput = ({
     },
     [onChange, name],
   );
-
-  // support initial values
-  useEffect(() => {
-    const initialOptionValues = initialValues[name]?.split(', ') || [];
-    const initialOptions = options.filter(o => initialOptionValues.includes(o.value));
-    setSelected(initialOptions);
-  }, [initialValues, name, value, options]);
 
   const isReadonly = (readonly && !disabled) || (value && !onChange);
   if (disabled || isReadonly || !options || options.length === 0) {
