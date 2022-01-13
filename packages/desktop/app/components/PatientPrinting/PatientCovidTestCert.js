@@ -64,7 +64,11 @@ const DumbPatientCovidTestCert = ({ patient, getLabRequests, getLabTests }) => {
         key: 'result',
         title: 'Result',
       },
-      { key: 'specimenType', title: 'Specimen type' },
+      {
+        key: 'specimenType',
+        title: 'Specimen type',
+        accessor: ({ labTestType }) => labTestType.name,
+      },
     ],
     [],
   );
