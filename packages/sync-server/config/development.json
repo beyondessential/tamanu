@@ -12,5 +12,14 @@
       "password": ""
     },
     "environment": "dev"
+  },
+  "icao": {
+    "keySecret": "dTk8mJ0t+xszGxohhMq1Y7UEE9h1Pzvb+1r+YHVf+Y4=",
+    "csr": {
+      "countryCode": "UTO",
+      "email": {
+        "recipient": "admin@tamanu.io"
+      }
+    }
   }
 }
