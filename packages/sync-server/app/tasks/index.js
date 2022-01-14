@@ -1,11 +1,21 @@
 import config from 'config';
 
-import { OutpatientDischarger } from './OutpatientDischarger';
 import { PatientEmailCommunicationProcessor } from './PatientEmailCommunicationProcessor';
+import { OutpatientDischarger } from './OutpatientDischarger';
 import { ReportRequestProcessor } from './ReportRequestProcessor';
 import { ReportRequestScheduler } from './ReportRequestScheduler';
+import { VdsNcSignerExpiryChecker } from './VdsNcSignerExpiryChecker';
+import { VdsNcSignerRenewalChecker } from './VdsNcSignerRenewalChecker';
+import { VdsNcDocumentSigningProcessor } from './VdsNcDocumentSigningProcessor';
 
-const TASKS = [OutpatientDischarger, ReportRequestProcessor, PatientEmailCommunicationProcessor];
+const TASKS = [
+  OutpatientDischarger,
+  PatientEmailCommunicationProcessor,
+  ReportRequestProcessor,
+  VdsNcDocumentSigningProcessor,
+  VdsNcSignerExpiryChecker,
+  VdsNcSignerRenewalChecker,
+];
 
 export async function startScheduledTasks(context) {
   const reportSchedulers = await getReportSchedulers(context);

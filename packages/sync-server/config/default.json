@@ -369,6 +369,27 @@
       "labRequestDisplayId": "http://tamanu.io/data-dictionary/labrequest-reference-number.html"
     }
   },
+  "icao": {
+    // Encryption key for ICAO DSC key material (stored in DB).
+    // This must be unique per country/installation.
+    // It must be at least 32 bytes of random data in Base64.
+    // $ openssl rand -base64 32
+    "keySecret": null,
+    "csr": {
+      "commonName": "Tamanu VDS-NC Signer",
+      "countryCode": null, // ICAO 3-letter country code
+      "email": {
+        "recipient": null, // email address of CSCA signing contact
+        "subject": "Tamanu ICAO Certificate Signing Request",
+        "body": "Please sign the following certificate signing request (CSR) with the Country Signing Certificate Authority (CSCA), and return it to the Tamanu team or Tamanu deployment administration team."
+      }
+    },
+    "renew": {
+      "daysBeforeExpiry": 14,
+      "maxSignatures": null, // null means no limit
+      "softMaxSignatures": null // defaults to 90% of maxSignatures
+    }
+  },
   "tupaiaApiClient": {},
   "s3": {},
   "scheduledReports": [],
