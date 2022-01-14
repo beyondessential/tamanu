@@ -13,13 +13,13 @@ import { useApi } from '../../../api';
 
 const AlertNoInternetModal = React.memo(({ open, onClose }) => (
   <Modal title="No internet connection detected" open={open} onClose={onClose}>
-    <Typography>
+    <Typography gutterBottom>
       <strong>
         Viewing and downloading documents in Tamanu requires a live connection to the central
         server.
       </strong>
     </Typography>
-    <Typography>
+    <Typography gutterBottom>
       To save on hard drive space and improve performance, documents in Tamanu are stored on the
       central server. Please check your network connection and/or try again in a few minutes.
     </Typography>
@@ -29,7 +29,7 @@ const AlertNoInternetModal = React.memo(({ open, onClose }) => (
 
 const AlertNoSpaceModal = React.memo(({ open, onClose }) => (
   <Modal title="Not enough storage space to upload file" open={open} onClose={onClose}>
-    <Typography>
+    <Typography gutterBottom>
       The server has limited storage space remaining. To protect performance, you are currently
       unable to upload documents or images. Please speak to your system administrator to increase
       your central server&apos;s hard drive space.
