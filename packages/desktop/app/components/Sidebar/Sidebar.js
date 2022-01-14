@@ -12,7 +12,8 @@ import { Colors } from '../../constants';
 
 const Container = styled.div`
   background: ${Colors.primaryDark};
-  min-width: 275px;
+  min-width: 260px;
+  padding-left: 8px;
   box-shadow: 1px 0 4px rgba(0, 0, 0, 0.15);
   color: ${Colors.white};
 
@@ -22,7 +23,7 @@ const Container = styled.div`
 `;
 
 const Logo = styled(TamanuLogoWhite)`
-  margin: 24px 0 10px 24px;
+  margin: 24px 0 10px 20px;
 `;
 
 const VersionContainer = styled.div`
