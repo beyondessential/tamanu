@@ -113,21 +113,10 @@ with
 	cte_dates as (
 		select generate_series('2021-11-01 00:00'::timestamp, '2022-01-13 00:00'::timestamp, '1 day')::date date
 	),
-	cte_all_options as (
-		select distinct 
-			ethnicity_id,
-			(date_of_birth + interval '30 year') <= CURRENT_DATE as under_30
-		from patients p
-		JOIN patient_additional_data AS additional_data ON additional_data.id =
-		  (SELECT id
-		   FROM patient_additional_data
-		   WHERE patient_id = p.id
-		   LIMIT 1)
-	),
 	cte_patient as (
 		select
 			p.id,
-			ethnicity_id,
+			coalesce(ethnicity_id, '-') as ethnicity_id, -- join on NULL = NULL returns no rows
 			(date_of_birth + interval '30 year') > CURRENT_DATE as under_30
 		from patients p
 		JOIN patient_additional_data AS additional_data ON additional_data.id =
@@ -136,16 +125,36 @@ with
 		   WHERE patient_id = p.id
 		   LIMIT 1)
 	),
-	cte_encounters as (
+	cte_all_options as (
+		select distinct 
+			ethnicity_id,
+			under_30
+		from cte_patient
+	),
+	cte_cvd_responses as (
 		select
 			1 as exist,
 			ethnicity_id,
 			under_30,
 			sr.end_time::date as date,
 			count(*) as enc_n
-		from survey_responses sr
-		join encounters e on e.id = sr.encounter_id
-		join cte_patient cp on cp.id = e.patient_id
+		from -- Only selects the last cvd survey response per patient/date_group
+			(SELECT
+		      e.patient_id, sr4.end_time::date as date_group, max(sr4.end_time) AS max_end_time , count(*) as count_for_testing 
+		   FROM
+		      survey_responses sr4
+		  join encounters e on e.id = sr4.encounter_id
+		  where survey_id = 'program-fijincdprimaryscreening-fijicvdprimaryscreen2'
+		  GROUP by e.patient_id, sr4.end_time::date
+		) max_time_per_group_table
+		JOIN survey_responses AS sr 
+		ON sr.end_time = max_time_per_group_table.max_end_time
+		left join survey_response_answers sra 
+		on sra.response_id = sr.id and sra.data_element_id = 'pde-FijCVD021'
+		join encounters sr_encounter
+		on sr_encounter.id = sr.encounter_id and sr_encounter.patient_id = max_time_per_group_table.patient_id
+		join cte_patient cp on cp.id = sr_encounter.patient_id
+		where sra.body is null or sra.body <> 'Ineligible'
 		group by ethnicity_id, under_30, sr.end_time::date
 	),
 	cte_snaps as (
@@ -155,9 +164,19 @@ with
 			under_30,
 			sr.end_time::date as date,
 			count(*) as snap_n
-		from survey_response_answers sra
-      	join survey_responses sr ON sr.id = sra.response_id
-		join encounters e on e.id = sr.encounter_id
+		FROM
+		      survey_response_answers sra
+		join survey_responses snap_response
+		on snap_response.id = sra.response_id
+		join encounters snap_encounter
+		on snap_encounter.id = snap_response.encounter_id
+		where sra.data_element_id in ('pde-FijCVD038', 'pde-FijSNAP13')
+		    GROUP by snap_encounter.patient_id, snap_response.end_time::date
+		) max_time_per_group_table
+		JOIN survey_responses AS sr
+		ON sr.end_time = max_time_per_group_table.max_end_time
+		join survey_response_answers sra on sr.id  = sra.response_id
+		where sra.data_element_id in ('pde-FijCVD038', 'pde-FijSNAP13')
 		join cte_patient cp on cp.id = e.patient_id
 		group by ethnicity_id, under_30, sr.end_time::date
 	)
@@ -165,13 +184,12 @@ select
 	cd.date,
 	cao.ethnicity_id,
 	cao.under_30,
-	sum(coalesce(ce.exist,0) + coalesce(cs.exist,0)) entries,
-	sum(coalesce(ce.enc_n,0)) encounters,
+	sum(coalesce(ce.enc_n,0)) cvd_responses,
 	sum(coalesce(cs.snap_n,0)) snaps
 from cte_dates cd
 full outer join cte_all_options as cao
 on true
-left join cte_encounters ce on 
+left join cte_cvd_responses ce on 
 	ce.date = cd.date
 and ce.ethnicity_id = cao.ethnicity_id
 and ce.under_30 = cao.under_30
@@ -180,8 +198,7 @@ left join cte_snaps cs on
 and cs.ethnicity_id = cao.ethnicity_id
 and cs.under_30 = ce.under_30
 group by cao.ethnicity_id, cao.under_30, cd.date
-having sum(coalesce(ce.exist,0) + coalesce(cs.exist,0)) > 0 or sum(coalesce(ce.enc_n,0)) > 0 or sum(coalesce(cs.snap_n,0)) > 0;
-
+having sum(coalesce(ce.enc_n,0)) > 0 or sum(coalesce(cs.snap_n,0)) > 0;
 `;
 
 const FIELD_TO_TITLE = {
