@@ -10,6 +10,13 @@ export async function setup() {
     throw new Error(`Found ${userCount} users already in the database, aborting setup.`);
   }
 
+  // check ICAO key secret
+  if (!config.icao.keySecret) {
+    log.error('ICAO key secret is not set');
+    const key = crypto.randomBytes(32).toString('base64');
+    log.info(`Sample secret (random): '${key}'`);
+  }
+
   // create initial admin user
   const { initialUser } = config.auth;
   if (!initialUser.email) {

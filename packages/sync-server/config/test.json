@@ -24,5 +24,8 @@
     "fijiVps": {
       "enabled": true
     }
+  },
+  "icao": {
+    "keySecret": "2hcp3wizGFFnGgsgZZDqFZDmUjaFCIppN8HnyBABqck="
   }
 }
