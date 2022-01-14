@@ -9,7 +9,7 @@ const getDate = ({ endTime }) => <DateDisplay date={endTime} />;
 const getAssessorName = ({ assessorName }) => assessorName;
 const getProgramName = ({ programName }) => programName;
 const getSurveyName = ({ surveyName }) => surveyName;
-const getResults = ({ result }) => <SurveyResultBadge result={result} />;
+const getResults = ({ resultText }) => <SurveyResultBadge resultText={resultText} />;
 
 const columns = [
   { key: 'endTime', title: 'Date submitted', accessor: getDate },
@@ -21,15 +21,15 @@ const columns = [
 
 function getEndpoint({ encounterId, patientId }) {
   if (encounterId) {
-    return `encounter/${encounterId}/surveyResponses`;
+    return `encounter/${encounterId}/programResponses`;
   }
   if (patientId) {
-    return `patient/${patientId}/surveyResponses`;
+    return `patient/${patientId}/programResponses`;
   }
-  return 'surveyResponse';
+  throw new Error('DataFetchingProgramsTable: must pass either patientId or encounterId');
 }
 
-export const DataFetchingSurveyResponsesTable = ({ encounterId, patientId }) => {
+export const DataFetchingProgramsTable = ({ encounterId, patientId }) => {
   const [selectedResponseId, setSelectedResponseId] = useState(null);
   const onSelectResponse = useCallback(surveyResponse => {
     setSelectedResponseId(surveyResponse.id);
@@ -42,7 +42,7 @@ export const DataFetchingSurveyResponsesTable = ({ encounterId, patientId }) => 
       <DataFetchingTable
         endpoint={getEndpoint({ encounterId, patientId })}
         columns={columns}
-        noDataMessage="No survey responses found"
+        noDataMessage="No program responses found"
         onRowClick={onSelectResponse}
       />
     </>

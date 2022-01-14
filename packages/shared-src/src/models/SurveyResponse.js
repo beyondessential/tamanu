@@ -1,59 +1,8 @@
-import config from 'config';
-import { upperFirst } from 'lodash';
 import { Sequelize } from 'sequelize';
 import { InvalidOperationError } from 'shared/errors';
 import { Model } from './Model';
-
-function riskCalculation(patient, getf, getb) {
-  const male = patient.sex === 'male';
-  const age = getf('NCDScreen5');
-
-  const hdl = 1.55;
-  const cholesterol = getf('NCDScreen12');
-  const sbp = getf('NCDScreen6');
-  const treatedHbp = false;
-  const smoker = getb('NCDScreen9');
-  const diabetes = getb('NCDScreen10');
-
-  // from excel doc
-  const M = male
-    ? [44.88, 203.72, 44.75, 136.76, 0.1176, 0.63, 0.19, 0.916]
-    : [45.16, 193.97, 43.99, 132.98, 0.1013, 0.47, 0.25, 0.931];
-  const getM = idx => M[idx - 8];
-
-  const COEFFS = male
-    ? [3.06117, 1.1237, 0.93263, 1.93303, 1.99881, 0.65451, 0.57367]
-    : [2.32888, 1.20904, 0.70833, 2.76157, 2.82263, 0.52873, 0.69154];
-  const getCoeff = idx => COEFFS[idx - 8];
-
-  /*
-  =1-IF(C7=1,G15,H15)^EXP(
-    IF(C7=1,J8,K8)*(LN(C8)-LN(IF(C7=1,G8,H8)))
-    +IF(C7=1,J9,K9)*(LN(C9*38.67)-LN(IF(C7=1,G9,H9)))
-    -IF(C7=1,J10,K10)*(LN(C10*38.67)-LN(IF(C7=1,G10,H10)))
-    +IF(C12=1, IF(C7=1,J12,K12),IF(C7=1,J11,K11))*LN(C11)
-    -IF(C7=1,J11,K11)*LN(IF(C7=1,G11,H11))*(1-IF(C7=1,G12,H12))
-    -IF(C7=1,J12,K12)*LN(IF(C7=1,G11,H11))*IF(C7=1,G12,H12)
-    +IF(C7=1,J13,K13)*(C13-IF(C7=1,G13,H13))
-    +IF(C7=1,J14,K14)*(C14-IF(C7=1,G14,H14))
-  )
-  */
-
-  const exp =
-    getCoeff(8) * (Math.log(age) - Math.log(getM(8))) +
-    getCoeff(9) * (Math.log(cholesterol * 38.67) - Math.log(getM(9))) -
-    getCoeff(10) * (Math.log(hdl * 38.67) - Math.log(getM(10))) +
-    (treatedHbp ? getCoeff(12) : getCoeff(11)) * Math.log(sbp) -
-    getCoeff(11) * Math.log(getM(11)) * (1 - getM(12)) -
-    getCoeff(12) * Math.log(getM(11)) * getM(12) +
-    getCoeff(13) * ((smoker ? 1 : 0) - getM(13)) +
-    getCoeff(14) * ((diabetes ? 1 : 0) - getM(14));
-
-  const base = getM(15);
-  const risk = 1 - base ** Math.exp(exp);
-
-  return risk;
-}
+import { runCalculations } from '../utils/calculations';
+import { getStringValue, getResultValue } from '../utils/fields';
 
 const handleSurveyResponseActions = async (models, actions, questions, patientId) => {
   const actionQuestions = questions
@@ -91,6 +40,7 @@ export class SurveyResponse extends Model {
         startTime: { type: Sequelize.DATE, allowNull: true },
         endTime: { type: Sequelize.DATE, allowNull: true },
         result: { type: Sequelize.FLOAT, allowNull: true },
+        resultText: { type: Sequelize.TEXT, allowNull: true },
       },
       options,
     );
@@ -111,13 +61,18 @@ export class SurveyResponse extends Model {
       foreignKey: 'responseId',
       as: 'answers',
     });
+
+    this.hasOne(models.Referral, {
+      foreignKey: 'surveyResponseId',
+      as: 'referral',
+    });
   }
 
-  static async getSurveyEncounter(models, survey, data) {
-    const { encounterId, patientId } = data;
+  static async getSurveyEncounter({ encounterId, patientId, reasonForEncounter, ...responseData }) {
+    const { Encounter } = this.sequelize.models;
 
     if (encounterId) {
-      return models.Encounter.findByPk(encounterId);
+      return Encounter.findByPk(encounterId);
     }
 
     if (!patientId) {
@@ -125,8 +80,6 @@ export class SurveyResponse extends Model {
         'A survey response must have an encounter or patient ID attached',
       );
     }
-
-    const { Encounter } = models;
 
     // find open encounter
     const openEncounter = await Encounter.findOne({
@@ -140,13 +93,13 @@ export class SurveyResponse extends Model {
       return openEncounter;
     }
 
-    const { departmentId, examinerId, locationId } = data;
+    const { departmentId, examinerId, locationId } = responseData;
 
     // need to create a new encounter
     return Encounter.create({
       patientId,
       encounterType: 'surveyResponse',
-      reasonForEncounter: `Survey response: ${survey.name}`,
+      reasonForEncounter,
       departmentId,
       examinerId,
       locationId,
@@ -155,71 +108,9 @@ export class SurveyResponse extends Model {
     });
   }
 
-  static async runCalculations(patientId, questions, models, answersObject) {
-    const patient = await models.Patient.findByPk(patientId);
-
-    const calculatedAnswers = {};
-    let result = null;
-
-    const calculatedFieldTypes = ['Calculated', 'Result'];
-    const runCalculation = (dataElement, answers) => {
-      // TODO: parse calculation arithmetic from fields & use arithmetic module
-      const getf = key => {
-        const component = questions.find(x => x.dataElement.code === key);
-        if (!component) return NaN;
-        return parseFloat(answers[component.dataElement.id]);
-      };
-
-      const getb = key => {
-        const component = questions.find(x => x.dataElement.code === key);
-        if (!component) return false;
-        return !!answers[component.dataElement.id];
-      };
-
-      if (dataElement.type === 'Calculated') {
-        // hardcoded BMI calculation
-        return getf('NCDScreen13') / (getf('NCDScreen14') * getf('NCDScreen14'));
-      }
-      // hardcoded risk factor calculation
-      return 100 * riskCalculation(patient, getf, getb);
-    };
-
-    questions
-      .filter(q => calculatedFieldTypes.includes(q.dataElement.type))
-      .forEach(({ dataElement }) => {
-        const answer = runCalculation(dataElement, answersObject);
-        calculatedAnswers[dataElement.id] = answer;
-        if (dataElement.type === 'Result') {
-          result = answer;
-        }
-      });
-
-    return {
-      result,
-      answers: calculatedAnswers,
-    };
-  }
-
-  async createAnswers(answersObject) {
-    const answerKeys = Object.keys(answersObject);
-    if (answerKeys.length === 0) {
-      throw new InvalidOperationError('At least one answer must be provided');
-    }
-
-    await Promise.all(
-      answerKeys.map(ak =>
-        this.sequelize.models.SurveyResponseAnswer.create({
-          dataElementId: ak,
-          responseId: this.id,
-          body: answersObject[ak],
-        }),
-      ),
-    );
-  }
-
   static async createWithAnswers(data) {
-    const models = this.sequelize.models;
-    const { answers, actions, surveyId, patientId, ...responseData } = data;
+    const { models } = this.sequelize;
+    const { answers, actions, surveyId, patientId, encounterId, ...responseData } = data;
 
     // ensure survey exists
     const survey = await models.Survey.findByPk(surveyId);
@@ -231,68 +122,52 @@ export class SurveyResponse extends Model {
 
     await handleSurveyResponseActions(models, actions, questions, patientId);
 
-    const { answers: calculatedAnswers, result } = await this.runCalculations(
-      patientId,
-      questions,
-      models,
-      answers,
-    );
+    const calculatedAnswers = runCalculations(questions, answers);
+    const finalAnswers = {
+      ...answers,
+      ...calculatedAnswers,
+    };
 
-    const encounter = await this.getSurveyEncounter(models, survey, data);
-    const record = await SurveyResponse.create({
+    const { result, resultText } = getResultValue(questions, answers);
+
+    const encounter = await this.getSurveyEncounter({
+      encounterId,
+      patientId,
+      reasonForEncounter: `Survey response for ${survey.name}`,
       ...responseData,
+    });
+    const record = await SurveyResponse.create({
       patientId,
       surveyId,
       encounterId: encounter.id,
       result,
+      resultText,
+      // put responseData last to allow for user to override
+      // resultText by including it in the data
+      // this is used by reports test where the resultText
+      // is included in the payload
+      ...responseData,
     });
 
-    await record.createAnswers({
-      ...answers,
-      ...calculatedAnswers,
-    });
+    const findDataElement = id => {
+      const component = questions.find(c => c.dataElement.id === id);
+      if (!component) return null;
+      return component.dataElement;
+    };
+    for (const a of Object.entries(finalAnswers)) {
+      const [dataElementId, value] = a;
+      const dataElement = findDataElement(dataElementId);
+      if (!dataElement) {
+        throw new Error(`no data element for question: ${dataElementId}`);
+      }
+      const body = getStringValue(dataElement.type, value);
+      await models.SurveyResponseAnswer.create({
+        dataElementId: dataElement.id,
+        body,
+        responseId: record.id,
+      });
+    }
 
     return record;
   }
-}
-
-export class SurveyResponseAnswer extends Model {
-  static init({ primaryKey, ...options }) {
-    super.init(
-      {
-        id: primaryKey,
-        name: Sequelize.STRING,
-        body: Sequelize.TEXT,
-      },
-      options,
-    );
-  }
-
-  static initRelations(models) {
-    this.belongsTo(models.ProgramDataElement, {
-      foreignKey: 'dataElementId',
-    });
-
-    this.belongsTo(models.SurveyResponse, {
-      foreignKey: 'responseId',
-      as: 'surveyResponse',
-    });
-  }
-
-  static getDefaultId = async resource => {
-    const code = config.survey.defaultCodes[resource];
-    const modelName = upperFirst(resource);
-    const model = this.sequelize.models[modelName];
-    if (!model) {
-      throw new Error(`Model not found: ${modelName}`);
-    }
-
-    const record = await model.findOne({ where: { code } });
-    if (!record) {
-      throw new Error(
-        `Could not find default answer for '${resource}': code '${code}' not found (check survey.defaultCodes.${resource} in the config)`,
-      );
-    }
-    return record.id;
-  };
 }

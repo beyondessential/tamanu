@@ -96,20 +96,6 @@ const RightSection = styled(Section)`
   border-left: 1px solid ${Colors.outline};
 `;
 
-const GENERAL_FIELDS = {
-  firstName: ['firstName'],
-  lastName: ['lastName'],
-  culturalName: ['culturalName'],
-  villageId: ['villageId', { suggesterKey: 'villageSuggester', component: AutocompleteField }],
-  displayId: ['displayId'],
-  dateOfBirthFrom: ['dateOfBirthFrom', { localisationLabel: 'shortLabel', component: DateField }],
-  dateOfBirthTo: ['dateOfBirthTo', { localisationLabel: 'shortLabel', component: DateField }],
-  dateOfBirthExact: [
-    'dateOfBirthExact',
-    { localisationLabel: 'shortLabel', placeholder: 'DOB exact', component: DateField },
-  ],
-};
-
 export const CustomisablePatientSearchBar = ({
   title,
   onSearch,
@@ -125,15 +111,19 @@ export const CustomisablePatientSearchBar = ({
         .map(
           ([
             key,
-            { suggesterKey, placeholder, localisationLabel = 'longLabel', ...fieldProps } = {},
+            {
+              placeholder,
+              localisationLabel = 'longLabel',
+              component = TextField,
+              ...fieldProps
+            } = {},
           ]) =>
             getLocalisation(`fields.${key}.hidden`) === true ? null : (
               <Field
                 name={key}
                 key={key}
                 placeholder={getLocalisation(`fields.${key}.${localisationLabel}`) || placeholder}
-                component={TextField}
-                suggester={props[suggesterKey]}
+                component={component}
                 {...fieldProps}
               />
             ),
@@ -143,7 +133,7 @@ export const CustomisablePatientSearchBar = ({
   );
 
   const renderSearchBar = useCallback(
-    ({ submitForm, resetForm }) => (
+    ({ submitForm, clearForm }) => (
       <div>
         <SearchInputContainer>{fieldElements}</SearchInputContainer>
         <Button
@@ -158,14 +148,14 @@ export const CustomisablePatientSearchBar = ({
         </Button>
         <Button
           style={{ marginTop: 10, marginLeft: '1rem' }}
-          onClick={resetForm}
+          onClick={clearForm}
           variant="outlined"
         >
           Clear search
         </Button>
       </div>
     ),
-    [fields],
+    [fieldElements],
   );
 
   return (
@@ -199,8 +189,31 @@ const DEFAULT_FIELDS = [
 
 export const PatientSearchBar = ({ onSearch, fields = DEFAULT_FIELDS, ...props }) => {
   const api = useApi();
+  const commonFields = useMemo(
+    () => ({
+      firstName: ['firstName'],
+      lastName: ['lastName'],
+      culturalName: ['culturalName'],
+      villageId: [
+        'villageId',
+        { suggester: new Suggester(api, 'village'), component: AutocompleteField },
+      ],
+      displayId: ['displayId'],
+      dateOfBirthFrom: [
+        'dateOfBirthFrom',
+        { localisationLabel: 'shortLabel', component: DateField },
+      ],
+      dateOfBirthTo: ['dateOfBirthTo', { localisationLabel: 'shortLabel', component: DateField }],
+      dateOfBirthExact: [
+        'dateOfBirthExact',
+        { localisationLabel: 'shortLabel', placeholder: 'DOB exact', component: DateField },
+      ],
+    }),
+    [api],
+  );
+
   const searchFields = fields.map(field =>
-    typeof field === 'string' ? GENERAL_FIELDS[field] : field,
+    typeof field === 'string' ? commonFields[field] : field,
   );
 
   const handleSearch = values => {
@@ -221,7 +234,6 @@ export const PatientSearchBar = ({ onSearch, fields = DEFAULT_FIELDS, ...props }
       title="Search for patients"
       fields={searchFields}
       onSearch={handleSearch}
-      villageSuggester={fields.includes('villageId') ? new Suggester(api, 'village') : null}
       {...props}
     />
   );

@@ -1,24 +1,25 @@
-import React from 'react';
+import React, { useMemo } from 'react';
 
 import { CustomisablePatientSearchBar } from './PatientSearchBar';
-import { connectApi } from '../../../api';
+import { useApi } from '../../../api';
 import { Suggester } from '../../../utils/suggester';
 import { AutocompleteField } from '../../../components';
 
-const DumbImmunisationSearchBar = (props) => (
-  <CustomisablePatientSearchBar
-    title="Search for patients"
-    fields={[
-      ['displayId'],
-      ['firstName'],
-      ['lastName'],
-      ['villageId', { suggesterKey: 'villageSuggester', component: AutocompleteField }],
-      ['vaccinationStatus'],
-    ]}
-    {...props}
-  />
-);
+export const ImmunisationSearchBar = props => {
+  const api = useApi();
+  const villageSuggester = useMemo(() => new Suggester(api, 'village'), [api]);
 
-export const ImmunisationSearchBar = connectApi(api => ({
-  villageSuggester: new Suggester(api, 'village'),
-}))(DumbImmunisationSearchBar);
+  return (
+    <CustomisablePatientSearchBar
+      title="Search for patients"
+      fields={[
+        ['displayId'],
+        ['firstName'],
+        ['lastName'],
+        ['villageId', { suggester: villageSuggester, component: AutocompleteField }],
+        ['vaccinationStatus'],
+      ]}
+      {...props}
+    />
+  );
+};

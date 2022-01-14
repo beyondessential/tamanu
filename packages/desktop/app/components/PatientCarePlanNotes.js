@@ -41,14 +41,14 @@ function EditableNoteDisplay({ onSuccessfulSubmit, onNoteDeleted, ...rest }) {
   );
 }
 
-function DumbPatientCarePlanDetails(props) {
+function DumbPatientCarePlanDetails({ getNotes, item }) {
   const [firstNote, setFirstNote] = useState();
   const [subsequentNotes, setSubsequentNotes] = useState([]);
   const [resetForm, setResetForm] = useState(0);
   const [reloadNotes, setReloadNotes] = useState(0);
 
   useEffect(() => {
-    props.getNotes(props.item.id).then(notes => {
+    getNotes(item.id).then(notes => {
       if (notes.length) {
         // first note is the main care plan
         setFirstNote(notes[0]);
@@ -63,13 +63,13 @@ function DumbPatientCarePlanDetails(props) {
         }
       }
     });
-  }, [props.item.id, reloadNotes]);
+  }, [item.id, getNotes, reloadNotes]);
 
   return (
     <Container>
       <CarePlanNoteForm
         key={resetForm}
-        carePlanId={props.item.id}
+        carePlanId={item.id}
         onReloadNotes={() => {
           setReloadNotes(reloadNotes + 1);
         }}
@@ -90,9 +90,9 @@ function DumbPatientCarePlanDetails(props) {
             }}
           />
           {subsequentNotes.length
-            ? subsequentNotes.map((note, index) => (
+            ? subsequentNotes.map(note => (
                 <EditableNoteDisplay
-                  key={index}
+                  key={note.id}
                   note={note}
                   onNoteDeleted={() => {
                     setReloadNotes(reloadNotes + 1);
@@ -114,6 +114,6 @@ function DumbPatientCarePlanDetails(props) {
 
 export const PatientCarePlanDetails = connectApi(api => ({
   getNotes: async patientCarePlanId => {
-    return await api.get(`patientCarePlan/${patientCarePlanId}/notes`);
+    return api.get(`patientCarePlan/${patientCarePlanId}/notes`);
   },
 }))(DumbPatientCarePlanDetails);

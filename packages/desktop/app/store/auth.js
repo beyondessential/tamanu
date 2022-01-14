@@ -124,9 +124,9 @@ const actionHandlers = {
     loading: false,
     error: action.error,
   }),
-  [LOGOUT_WITH_ERROR]: action => ({
+  [LOGOUT_WITH_ERROR]: ({ error }) => ({
     user: defaultState.user,
-    error: action.error,
+    error,
     token: null,
   }),
   [LOGOUT]: () => ({

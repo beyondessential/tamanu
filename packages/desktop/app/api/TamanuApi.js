@@ -1,5 +1,6 @@
 import faye from 'faye';
 import { promises } from 'fs';
+import qs from 'qs';
 
 import { VERSION_COMPATIBILITY_ERRORS } from 'shared/constants';
 import { LOCAL_STORAGE_KEYS } from '../constants';
@@ -11,16 +12,11 @@ const getResponseJsonSafely = async response => {
     return await response.json();
   } catch (e) {
     // log json parsing errors, but still return a valid object
+    // eslint-disable-next-line no-console
     console.warn(`getResponseJsonSafely: Error parsing JSON: ${e}`);
     return {};
   }
 };
-
-const encodeQueryString = query =>
-  Object.entries(query)
-    .filter(([, value]) => value !== undefined)
-    .map(([key, value]) => `${encodeURIComponent(key)}=${encodeURIComponent(value)}`)
-    .join('&');
 
 const REFRESH_DURATION = 2.5 * 60 * 1000; // refresh if token is more than 2.5 minutes old
 
@@ -43,6 +39,7 @@ const fetchOrThrowIfUnavailable = async (url, config) => {
     const response = await fetch(url, config);
     return response;
   } catch (e) {
+    // eslint-disable-next-line no-console
     console.log(e.message);
     // apply more helpful message if the server is not available
     if (e.message === 'Failed to fetch') {
@@ -157,6 +154,7 @@ export class TamanuApi {
       const { token } = response;
       this.setToken(token);
     } catch (e) {
+      // eslint-disable-next-line no-console
       console.error(e);
     }
   }
@@ -170,14 +168,14 @@ export class TamanuApi {
       throw new Error("TamanuApi can't be used until the host is set");
     }
     const { headers, ...otherConfig } = config;
-    const queryString = encodeQueryString(query || {});
+    const queryString = qs.stringify(query || {});
     const url = `${this.prefix}/${endpoint}${query ? `?${queryString}` : ''}`;
     const response = await fetchOrThrowIfUnavailable(url, {
       headers: {
         ...this.authHeader,
         ...headers,
         'X-Version': this.appVersion,
-        'X-Runtime': 'Tamanu Desktop',
+        'X-Tamanu-Client': 'Tamanu Desktop',
       },
       ...otherConfig,
     });
@@ -223,7 +221,7 @@ export class TamanuApi {
     // We have to use multipart/formdata to support sending the file data,
     // but sending the other fields in that format loses type information
     // (for eg, sending a value of false will arrive as the string "false")
-    // So, we just piggyback a json string over the multipart format, and 
+    // So, we just piggyback a json string over the multipart format, and
     // parse that on the backend.
     const formData = new FormData();
     formData.append('jsonData', JSON.stringify(body));

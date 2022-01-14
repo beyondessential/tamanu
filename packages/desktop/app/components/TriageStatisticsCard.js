@@ -88,14 +88,14 @@ const DataFetchingTriageStatisticsCard = memo(({ priorityLevel, fetchData }) => 
 
   useEffect(() => {
     async function fetchTriageData() {
-      const { data } = await fetchData();
-      setData(data);
+      const result = await fetchData();
+      setData(result.data);
     }
     fetchTriageData();
     // update data every 30 seconds
     const interval = setInterval(() => fetchTriageData(), MINUTE * 0.5);
     return () => clearInterval(interval);
-  }, []);
+  }, [fetchData]);
 
   if (data.length === 0) {
     return (
@@ -108,7 +108,7 @@ const DataFetchingTriageStatisticsCard = memo(({ priorityLevel, fetchData }) => 
   }
 
   const priorityLevelData = data.filter(
-    p => parseInt(p.score) === priorityLevel && p.encounterType === 'triage',
+    p => parseInt(p.score, 10) === priorityLevel && p.encounterType === 'triage',
   );
   const timeSinceTriage = triageTime => Math.round(new Date() - new Date(triageTime));
   const summedWaitTime = priorityLevelData.reduce((prev, curr) => {
@@ -175,7 +175,7 @@ DumbTriageStatisticsCard.propTypes = {
   priorityLevel: PropTypes.number.isRequired,
 };
 
-function mapApiToProps(api, dispatch) {
+function mapApiToProps(api) {
   return {
     fetchData: () => api.get('triage'),
   };

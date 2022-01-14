@@ -10,15 +10,6 @@ const STATUS_OPTIONS = Object.values(LAB_REQUEST_STATUSES).map(s => ({
   value: s,
 }));
 
-const StatusField = props => (
-  <StyledSelectField
-    {...props}
-    className="styled-select-container"
-    classNamePrefix="styled-select"
-    options={STATUS_OPTIONS}
-  />
-);
-
 export const LabRequestsSearchBar = props => {
   const { searchParameters, setSearchParameters } = useLabRequest();
   return (
@@ -30,7 +21,10 @@ export const LabRequestsSearchBar = props => {
         ['displayId'],
         ['requestId', { placeholder: 'Request ID' }],
         ['category', { placeholder: 'Type' }],
-        ['status', { placeholder: 'Status', component: StatusField }],
+        [
+          'status',
+          { placeholder: 'Status', component: StyledSelectField, options: STATUS_OPTIONS },
+        ],
         ['priority', { placeholder: 'Priority' }],
         ['laboratory', { placeholder: 'Laboratory' }],
         ['requestedDateFrom', { placeholder: 'Requested from', component: DateField }],

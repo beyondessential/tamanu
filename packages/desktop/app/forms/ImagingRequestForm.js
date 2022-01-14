@@ -12,10 +12,8 @@ import {
   Form,
   Field,
   DateField,
-  SelectField,
   AutocompleteField,
   TextField,
-  DateTimeField,
   CheckField,
   TextInput,
 } from '../components/Field';
@@ -36,28 +34,13 @@ function getEncounterLabel(encounter) {
 }
 
 class DumbImagingRequestForm extends React.PureComponent {
-  static propTypes = {
-    onSubmit: PropTypes.func.isRequired,
-    onMount: PropTypes.func,
-  };
-
-  static defaultProps = {
-    onMount: null,
-  };
-
   componentDidMount() {
     const { onMount } = this.props;
     if (onMount) onMount();
   }
 
   renderForm = ({ submitForm }) => {
-    const {
-      practitionerSuggester,
-      imagingTypeSuggester,
-      onCancel,
-      imagingTypes,
-      encounter = {},
-    } = this.props;
+    const { practitionerSuggester, imagingTypeSuggester, onCancel, encounter = {} } = this.props;
     const { examiner = {} } = encounter;
     const examinerLabel = examiner.displayName;
     const encounterLabel = getEncounterLabel(encounter);
@@ -85,6 +68,14 @@ class DumbImagingRequestForm extends React.PureComponent {
           required
           component={AutocompleteField}
           suggester={imagingTypeSuggester}
+        />
+        <Field
+          name="areaToBeImaged"
+          label="Area to be imaged"
+          component={TextField}
+          multiline
+          style={{ gridColumn: '1 / -1' }}
+          rows={3}
         />
         <Field
           name="note"
@@ -129,6 +120,15 @@ class DumbImagingRequestForm extends React.PureComponent {
     );
   }
 }
+
+DumbImagingRequestForm.propTypes = {
+  onSubmit: PropTypes.func.isRequired,
+  onMount: PropTypes.func,
+};
+
+DumbImagingRequestForm.defaultProps = {
+  onMount: null,
+};
 
 export const ImagingRequestForm = connect(
   state => ({

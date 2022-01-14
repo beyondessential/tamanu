@@ -85,6 +85,7 @@ export const OPERATION_PLAN_STATUSES = {
 
 export const IMAGING_REQUEST_STATUS_TYPES = {
   PENDING: 'pending',
+  IN_PROGRESS: 'in_progress',
   COMPLETED: 'completed',
 };
 
@@ -258,4 +259,10 @@ export const APPOINTMENT_STATUSES = {
   ARRIVED: 'Arrived',
   NO_SHOW: 'No-show',
   CANCELLED: 'Cancelled',
+};
+
+export const REFERRAL_STATUSES = {
+  PENDING: 'pending',
+  CANCELLED: 'cancelled',
+  COMPLETED: 'completed',
 };

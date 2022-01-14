@@ -37,6 +37,8 @@ const UNHIDEABLE_FIELDS = [
   'dateOfBirthFrom',
   'dateOfBirthTo',
   'dateOfBirthExact',
+  'emergencyContactName',
+  'emergencyContactNumber'
 ];
 
 const HIDEABLE_FIELDS = [
@@ -106,6 +108,8 @@ const rootLocalisationSchema = yup
     fields: fieldsSchema,
     templates: templatesSchema,
     features: {
+      editPatientDetailsOnMobile: yup.boolean().required(),
+      enableInvoicing: yup.boolean().required(),
       hideOtherSex: yup.boolean().required(),
     },
     sync: {

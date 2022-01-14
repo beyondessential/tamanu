@@ -17,7 +17,7 @@ function createParser() {
   });
 
   parser.addArgument('command', {
-    choices: ['serve', 'setup', 'migrate', 'report'],
+    choices: ['serve', 'setup', 'migrate', 'report', 'calculateSurveyResults'],
     nargs: '?', // allow empty
     defaultValue: 'serve',
   });
@@ -53,7 +53,7 @@ function createParser() {
     constant: 'down',
   });
   migrateDir.addArgument('--redoLatest', {
-    help: "Run database migrations down 1 and then up 1",
+    help: 'Run database migrations down 1 and then up 1',
     action: 'storeConst',
     dest: 'migrateDirection',
     constant: 'redoLatest',

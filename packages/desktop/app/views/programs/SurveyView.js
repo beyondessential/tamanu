@@ -9,12 +9,12 @@ import { Button, OutlinedButton } from 'desktop/app/components/Button';
 import { ButtonRow } from 'desktop/app/components/ButtonRow';
 import {
   checkVisibility,
-  runCalculations,
   getComponentForQuestionType,
   mapOptionsToValues,
   getFormInitialValues,
   getConfigObject,
 } from 'desktop/app/utils';
+import { runCalculations } from 'shared-src/src/utils/calculations';
 
 import { ProgramsPane, ProgramsPaneHeader, ProgramsPaneHeading } from './ProgramsPane';
 import { PatientDisplay } from './PatientDisplay';
@@ -107,7 +107,7 @@ const SurveyScreenPaginator = ({ survey, values, onSurveyComplete, onCancel, set
     Object.entries(calculatedValues)
       .filter(([k, v]) => values[k] !== v)
       .map(([k, v]) => setFieldValue(k, v));
-  }, [values]);
+  }, [components, values, setFieldValue]);
 
   const onStepBack = useCallback(() => {
     setScreenIndex(screenIndex - 1);
@@ -160,10 +160,13 @@ export const SurveyView = ({ survey, onSubmit, onCancel, patient, currentUser })
 
   const [surveyCompleted, setSurveyCompleted] = useState(false);
 
-  const onSubmitSurvey = useCallback(async data => {
-    await onSubmit(data);
-    setSurveyCompleted(true);
-  });
+  const onSubmitSurvey = useCallback(
+    async data => {
+      await onSubmit(data);
+      setSurveyCompleted(true);
+    },
+    [onSubmit],
+  );
 
   const renderSurvey = props => {
     const { submitForm, values, setFieldValue } = props;
@@ -187,7 +190,7 @@ export const SurveyView = ({ survey, onSubmit, onCancel, patient, currentUser })
 
   return (
     <>
-      <PatientDisplay />
+      <PatientDisplay surveyCompleted={surveyCompleted} />
       <ProgramsPane>
         <ProgramsPaneHeader>
           <ProgramsPaneHeading variant="h6">{survey.name}</ProgramsPaneHeading>

@@ -1,5 +1,6 @@
 import moment from 'moment';
 import { createDummyPatient, randomReferenceId } from 'shared/demoData/patients';
+import { randomReferenceIds } from '../../../../shared-src/src/demoData/patients';
 import { createTestContext } from '../../utilities';
 
 const PROGRAM_ID = 'program-assistivetechnologyproject';
@@ -17,9 +18,18 @@ describe('Assistive technology device line list', () => {
   beforeAll(async () => {
     const ctx = await createTestContext();
     const models = ctx.models;
+
+    await models.SurveyResponseAnswer.truncate({ cascade: true });
+    await models.SurveyResponse.truncate({ cascade: true });
+    await models.SurveyScreenComponent.truncate({ cascade: true });
+    await models.ProgramDataElement.truncate({ cascade: true });
+    await models.Survey.truncate({ cascade: true });
+    await models.Program.truncate({ cascade: true });
+    await models.PatientAdditionalData.truncate({ cascade: true });
+    await models.Patient.truncate({ cascade: true });
+
     baseApp = ctx.baseApp;
-    village1 = await randomReferenceId(models, 'village');
-    village2 = await randomReferenceId(models, 'village');
+    [village1, village2] = await randomReferenceIds(models, 'village', 2);
 
     expectedPatient1 = await models.Patient.create(
       await createDummyPatient(models, { villageId: village1 }),

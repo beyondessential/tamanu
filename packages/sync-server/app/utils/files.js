@@ -56,7 +56,7 @@ export async function createZipFromFile(fileName, filePath, zipFilePath) {
 export async function createZippedExcelFile(reportName, data) {
   const folder = await tmpdir();
   const excelFileName = `${reportName}.xlsx`;
-  const excelFilePath = path.join(folder, `${reportName}.xlsx`);
+  const excelFilePath = path.join(folder, excelFileName);
   const zipFilePath = path.join(folder, `${reportName}.zip`);
   await writeExcelFile(data, excelFilePath);
   await createZipFromFile(excelFileName, excelFilePath, zipFilePath);

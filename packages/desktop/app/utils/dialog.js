@@ -7,13 +7,13 @@ export async function showFileDialog(filters, filename) {
   });
 
   // mac just returns a string
-  if(typeof result === "string") {
+  if (typeof result === 'string') {
     return result;
   }
 
   // windows returns an object
   const { canceled, filePath } = result;
-  if(canceled) {
+  if (canceled) {
     return '';
   }
 

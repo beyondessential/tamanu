@@ -53,9 +53,12 @@ const List = styled(MuiList)`
 `;
 
 export class Sidebar extends Component {
-  state = {
-    selectedParentItem: '',
-  };
+  constructor() {
+    super();
+    this.state = {
+      selectedParentItem: '',
+    };
+  }
 
   onLogout = () => {
     const { onLogout } = this.props;

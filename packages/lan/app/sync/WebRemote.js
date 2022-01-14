@@ -86,7 +86,7 @@ export class WebRemote {
             method,
             headers: {
               Accept: 'application/json',
-              'X-Runtime': 'Tamanu LAN Server',
+              'X-Tamanu-Client': 'Tamanu LAN Server',
               'X-Version': version,
               Authorization: this.token ? `Bearer ${this.token}` : undefined,
               'Content-Type': body ? 'application/json' : undefined,

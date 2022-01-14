@@ -1,6 +1,7 @@
 import splash1 from '../assets/images/splashscreens/screen_1.jpg';
 import splash2 from '../assets/images/splashscreens/screen_2.jpg';
 import splash3 from '../assets/images/splashscreens/screen_3.jpg';
+
 export const splashImages = [splash1, splash2, splash3];
 
 export administrationIcon from '../assets/images/administration.svg';
