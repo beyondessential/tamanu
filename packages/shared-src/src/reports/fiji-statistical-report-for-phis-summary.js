@@ -109,10 +109,145 @@ group by date order by date desc;
   `;
 
 const attempt_2 = `
+
+select * 
+	from crosstab($$
+		SELECT date::text, concat(ethnicity_id, '__', under_30::text), diabetes::int from (
+			with
+				cte_oldest_date as (
+					SELECT CASE
+					    WHEN col1 <= col2 THEN col1
+					    ELSE              col2
+					END AS oldest_date FROM (
+					select
+						(select min(sr.end_time) as sr_oldest from survey_responses sr) as col1,
+						(select min(e.start_date) as sr_oldest from encounters e) as col2
+					) aliased_table
+				),
+				cte_dates as (
+					select generate_series(cte_oldest_date.oldest_date, '2022-01-13 00:00'::timestamp, '1 day')::date date from cte_oldest_date
+				),
+				cte_patient as (
+					select
+						p.id,
+						coalesce(ethnicity_id, '-') as ethnicity_id, -- join on NULL = NULL returns no rows
+						(date_of_birth + interval '30 year') > CURRENT_DATE as under_30
+					from patients p
+					JOIN patient_additional_data AS additional_data ON additional_data.id =
+					  (SELECT id
+					   FROM patient_additional_data
+					   WHERE patient_id = p.id
+					   LIMIT 1)
+				),
+				cte_all_options as (
+					select distinct 
+						ethnicity_id,
+						under_30
+					from cte_patient
+				),
+				cte_cvd_responses as (
+					select
+						1 as exist,
+						ethnicity_id,
+						under_30,
+						sr.end_time::date as date,
+						count(*) as enc_n
+					from -- Only selects the last cvd survey response per patient/date_group
+						(SELECT
+					      e.patient_id, sr4.end_time::date as date_group, max(sr4.end_time) AS max_end_time , count(*) as count_for_testing 
+					   FROM
+					      survey_responses sr4
+					  join encounters e on e.id = sr4.encounter_id
+					  where survey_id = 'program-fijincdprimaryscreening-fijicvdprimaryscreen2'
+					  GROUP by e.patient_id, sr4.end_time::date
+					) max_time_per_group_table
+					JOIN survey_responses AS sr 
+					ON sr.end_time = max_time_per_group_table.max_end_time
+					left join survey_response_answers sra 
+					on sra.response_id = sr.id and sra.data_element_id = 'pde-FijCVD021'
+					join encounters sr_encounter
+					on sr_encounter.id = sr.encounter_id and sr_encounter.patient_id = max_time_per_group_table.patient_id
+					join cte_patient cp on cp.id = sr_encounter.patient_id
+					where sra.body is null or sra.body <> 'Ineligible'
+					group by ethnicity_id, under_30, sr.end_time::date
+				),
+				cte_snaps as (
+					select
+						1 as exist,
+						ethnicity_id,
+						under_30,
+						snap_response.end_time::date as date,
+						count(*) as snap_n
+					FROM
+					      survey_responses snap_response
+					join survey_response_answers sra on snap_response.id  = sra.response_id
+					join encounters sr_encounter
+					on sr_encounter.id = snap_response.encounter_id
+					join cte_patient cp on cp.id = sr_encounter.patient_id
+					where sra.data_element_id in ('pde-FijCVD038', 'pde-FijSNAP13')
+					group by ethnicity_id, under_30, date
+				),
+				cte_diagnoses as (
+					select
+						1 as exist,
+						ethnicity_id,
+						under_30,
+						diagnosis_encounter.start_date::date as date,
+						count(case when diabetes_temp.id is not null and hypertension_temp.id is null then 1 end) as diabetes_n,
+						count(case when diabetes_temp.id is null and hypertension_temp.id is not null then 1 end) as hypertension_n,
+						count(case when diabetes_temp.id is not null and hypertension_temp.id is not null then 1 end) as dual_n
+					FROM encounters diagnosis_encounter
+					left join 
+						(select encounter_id, ed.id from encounter_diagnoses ed
+						join reference_data rd 
+						on rd."type" = 'icd10' and rd.id = ed.diagnosis_id 
+						WHERE rd.code IN ('icd10-E11')
+						or rd.code like '%%'
+						) diabetes_temp
+					on diagnosis_encounter.id = diabetes_temp.encounter_id
+					left join 
+						(select encounter_id, ed.id from encounter_diagnoses ed
+						join reference_data rd 
+						on rd."type" = 'icd10' and rd.id = ed.diagnosis_id 
+						WHERE rd.code in ('icd10-I10')
+						) hypertension_temp
+					on diagnosis_encounter.id = hypertension_temp.encounter_id
+					join cte_patient cp on cp.id = diagnosis_encounter.patient_id
+					group by ethnicity_id, under_30, date
+				),
+				all_results as (
+					select
+						cd.date,
+						cao.ethnicity_id,
+						cao.under_30,
+						sum(coalesce(ce.enc_n,0)) cvd_responses,
+						sum(coalesce(cs.snap_n,0)) snaps,
+						sum(coalesce(cdg.diabetes_n,0)) diabetes,
+						sum(coalesce(cdg.hypertension_n,0)) hypertension,
+						sum(coalesce(cdg.dual_n,0)) dual
+					from cte_dates cd
+					full outer join cte_all_options as cao
+					on true
+					left join cte_cvd_responses ce on 
+						ce.date = cd.date
+					and ce.ethnicity_id = cao.ethnicity_id
+					and ce.under_30 = cao.under_30
+					left join cte_snaps cs on 
+						cs.date = cd.date
+					and cs.ethnicity_id = cao.ethnicity_id
+					and cs.under_30 = cao.under_30
+					left join cte_diagnoses cdg on 
+						cdg.date = cd.date
+					and cdg.ethnicity_id = cao.ethnicity_id
+					and cdg.under_30 = cao.under_30
+					group by cao.ethnicity_id, cao.under_30, cd.date
+--todo add hyp + dual
+				) 
+	select * from all_results
+	) x
+$$,
+$$
 with
-	cte_dates as (
-		select generate_series('2021-11-01 00:00'::timestamp, '2022-01-13 00:00'::timestamp, '1 day')::date date
-	),
 	cte_patient as (
 		select
 			p.id,
@@ -122,83 +257,34 @@ with
 		JOIN patient_additional_data AS additional_data ON additional_data.id =
 		  (SELECT id
 		   FROM patient_additional_data
-		   WHERE patient_id = p.id
+	   WHERE patient_id = p.id
 		   LIMIT 1)
 	),
 	cte_all_options as (
 		select distinct 
 			ethnicity_id,
 			under_30
-		from cte_patient
-	),
-	cte_cvd_responses as (
-		select
-			1 as exist,
-			ethnicity_id,
-			under_30,
-			sr.end_time::date as date,
-			count(*) as enc_n
-		from -- Only selects the last cvd survey response per patient/date_group
-			(SELECT
-		      e.patient_id, sr4.end_time::date as date_group, max(sr4.end_time) AS max_end_time , count(*) as count_for_testing 
-		   FROM
-		      survey_responses sr4
-		  join encounters e on e.id = sr4.encounter_id
-		  where survey_id = 'program-fijincdprimaryscreening-fijicvdprimaryscreen2'
-		  GROUP by e.patient_id, sr4.end_time::date
-		) max_time_per_group_table
-		JOIN survey_responses AS sr 
-		ON sr.end_time = max_time_per_group_table.max_end_time
-		left join survey_response_answers sra 
-		on sra.response_id = sr.id and sra.data_element_id = 'pde-FijCVD021'
-		join encounters sr_encounter
-		on sr_encounter.id = sr.encounter_id and sr_encounter.patient_id = max_time_per_group_table.patient_id
-		join cte_patient cp on cp.id = sr_encounter.patient_id
-		where sra.body is null or sra.body <> 'Ineligible'
-		group by ethnicity_id, under_30, sr.end_time::date
-	),
-	cte_snaps as (
-		select
-			1 as exist,
-			ethnicity_id,
-			under_30,
-			sr.end_time::date as date,
-			count(*) as snap_n
-		FROM
-		      survey_response_answers sra
-		join survey_responses snap_response
-		on snap_response.id = sra.response_id
-		join encounters snap_encounter
-		on snap_encounter.id = snap_response.encounter_id
-		where sra.data_element_id in ('pde-FijCVD038', 'pde-FijSNAP13')
-		    GROUP by snap_encounter.patient_id, snap_response.end_time::date
-		) max_time_per_group_table
-		JOIN survey_responses AS sr
-		ON sr.end_time = max_time_per_group_table.max_end_time
-		join survey_response_answers sra on sr.id  = sra.response_id
-		where sra.data_element_id in ('pde-FijCVD038', 'pde-FijSNAP13')
-		join cte_patient cp on cp.id = e.patient_id
-		group by ethnicity_id, under_30, sr.end_time::date
+			from cte_patient
 	)
-select
-	cd.date,
-	cao.ethnicity_id,
-	cao.under_30,
-	sum(coalesce(ce.enc_n,0)) cvd_responses,
-	sum(coalesce(cs.snap_n,0)) snaps
-from cte_dates cd
-full outer join cte_all_options as cao
-on true
-left join cte_cvd_responses ce on 
-	ce.date = cd.date
-and ce.ethnicity_id = cao.ethnicity_id
-and ce.under_30 = cao.under_30
-left join cte_snaps cs on 
-	cs.date = cd.date
-and cs.ethnicity_id = cao.ethnicity_id
-and cs.under_30 = ce.under_30
-group by cao.ethnicity_id, cao.under_30, cd.date
-having sum(coalesce(ce.enc_n,0)) > 0 or sum(coalesce(cs.snap_n,0)) > 0;
+select distinct concat(ethnicity_id, '__', under_30::text) from cte_all_options
+$$)
+as ct(a text, 
+"-__false" int,
+"-__true" int,
+"ethnicity-AmericanSamoa__false" int,
+"ethnicity-Australia__false" int,
+"ethnicity-Australia__true" int,
+"ethnicity-Fiji__false" int,
+"ethnicity-Fiji__true" int,
+"ethnicity-FrenchPolynesia__false" int,
+"ethnicity-Kiribati__true" int,
+"ethnicity-Nauru__true" int,
+"ethnicity-NewZealand__true" int,
+"ethnicity-Tonga__false" int,
+"ethnicity-Tonga__true" int,
+"ethnicity-Vanuatu__false" int,
+"ethnicity-Vanuatu__true" int
+);
 `;
 
 const FIELD_TO_TITLE = {
