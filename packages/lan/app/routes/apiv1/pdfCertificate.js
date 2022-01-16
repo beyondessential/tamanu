@@ -6,10 +6,20 @@ import pdfTemplate from '../../assets/certificateTemplate';
 export const pdfCertificate = express.Router();
 
 pdfCertificate.post(
-  '/',
+  '/:patientId',
   asyncHandler(async (req, res) => {
+    const { models, params } = req;
+    const { patientId } = params;
+
     req.checkPermission('read', 'Patient');
-    pdf.create(pdfTemplate(req.body), {}).toFile('covid-certificate.pdf', error => {
+
+    const patient = await models.Patient.findByPk(patientId);
+
+    console.log('patient', patient.firstName);
+
+    const data = patient;
+
+    pdf.create(pdfTemplate(data), {}).toFile('covid-certificate.pdf', error => {
       if (error) {
         console.log('error!!!', error);
       }

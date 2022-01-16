@@ -13,7 +13,8 @@ const usePDF = patientId => {
 
   useEffect(() => {
     (async () => {
-      await api.post(`pdfCertificate`);
+      console.log('patientId', patientId);
+      await api.post(`pdfCertificate/${patientId}`);
       // const res = await api.get(`pdfCertificate/${patientId}`);
       // const pdfBlob = new Blob([res.data], { type: 'application/pdf' });
       // console.log('pdf', pdfBlob);
