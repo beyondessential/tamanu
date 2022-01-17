@@ -88,6 +88,7 @@ with
     on sr_encounter.id = snap_response.encounter_id
     join cte_patient cp on cp.id = sr_encounter.patient_id
     where sra.data_element_id in ('pde-FijCVD038', 'pde-FijSNAP13')
+    and sra.body = 'Yes'
     group by ethnicity_id, under_30, date
   ),
   cte_diagnoses as (
