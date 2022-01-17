@@ -22,9 +22,7 @@ export const createCVDFormSurveyResponse = async (app, patient, surveyDate, over
       'pde-FijCVD007': `pde-FijCVD007-on-${surveyDate}-${patient.firstName}`,
       'pde-FijCVD010': `pde-FijCVD010-on-${surveyDate}-${patient.firstName}`,
       'pde-FijCVD021': `pde-FijCVD021-on-${surveyDate}-${patient.firstName}`,
-      ...{
-        'pde-FijCVD038': 'Yes',
-      },
+      ...answerOverrides,
     },
   });
 };

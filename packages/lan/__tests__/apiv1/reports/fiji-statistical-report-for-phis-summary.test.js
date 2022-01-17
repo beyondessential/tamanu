@@ -295,7 +295,11 @@ describe('Covid swab lab test list', () => {
     );
 
     // 2020-05-02: Had a CVD screening - yes SNAP councilling
-    await createCVDFormSurveyResponse(app, expectedPatient3, moment.utc('2020-05-02'));
+    await createCVDFormSurveyResponse(app, expectedPatient3, moment.utc('2020-05-02'), {
+      answerOverrides: {
+        'pde-FijCVD038': 'Yes',
+      },
+    });
 
     // 2020-05-03: Diagnosed with hypertension
     const diagnosisEncounter5 = await models.Encounter.create(
