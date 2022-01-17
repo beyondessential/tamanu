@@ -201,7 +201,7 @@ const FIELD_TO_TITLE = {
 
 const reportColumnTemplate = Object.entries(FIELD_TO_TITLE).map(([key, title]) => ({
   title,
-  accessor: data => data[key],
+  accessor: data => data[key] || 0,
 }));
 
 function sumObjectsByKey(objs) {
