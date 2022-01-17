@@ -197,14 +197,14 @@ describe('Covid swab lab test list', () => {
   });
 
   describe('returns the correct data', () => {
-    it('should sort the dates from most recent to oldest', async () => {
+    it('should sort the dates from oldest to most recent ', async () => {
       const result = await app
         .post('/v1/reports/fiji-statistical-report-for-phis-summary')
         .send({});
       expect(result).toHaveSucceeded();
       // 2nd row, 1st column (2A) should have the most recent date in it.
       console.log(result.body);
-      expect(result.body[1][0]).toBe('03-05-2020');
+      expect(result.body[1][0]).toBe('02-05-2020');
     });
 
     it('should return latest data per patient and latest data per patient per date', async () => {
@@ -216,7 +216,7 @@ describe('Covid swab lab test list', () => {
 
       /*******2020-05-03*********/
       const expectedDetails1 = {
-        date: '03-05-2020',
+        date: '02-05-2020',
         number_of_cvd_screenings: '0',
         received_snap_counselling: '0',
         diabetes_u30: '0',
