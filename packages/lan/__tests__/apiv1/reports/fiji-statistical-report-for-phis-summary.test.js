@@ -17,6 +17,12 @@ import {
 const PROGRAM_ID = 'program-fijicovid19';
 const FIJI_SAMP_SURVEY_ID = 'program-fijicovid19-fijicovidsampcollection';
 
+const ETHNICITY_IDS = {
+  ITAUKEI: 'ethnicity-ITaukei',
+  INDIAN: 'ethnicity-FID',
+  OTHERS: 'ethnicity-others',
+};
+
 const PROPERTY_LIST = [
   'date',
   'total_cvd_responses',
@@ -80,6 +86,19 @@ describe('Covid swab lab test list', () => {
     village1 = await randomReferenceId(models, 'village');
     village2 = await randomReferenceId(models, 'village');
 
+    await models.ReferenceData.create({
+      id: ETHNICITY_IDS.ITAUKEI,
+      name: 'abc',
+      code: 'abc',
+      type: 'ethnicity',
+    });
+    await models.ReferenceData.create({
+      id: ETHNICITY_IDS.OTHERS,
+      name: 'def',
+      code: 'def',
+      type: 'ethnicity',
+    });
+
     const expectedPatient1 = await models.Patient.create(
       await createDummyPatient(models, {
         villageId: village1,
@@ -92,6 +111,17 @@ describe('Covid swab lab test list', () => {
         dateOfBirth: moment.utc().subtract(20, 'years'),
       }),
     );
+    await models.PatientAdditionalData.create({
+      patientId: expectedPatient2.id,
+      ethnicityId: ETHNICITY_IDS.OTHERS,
+    });
+    const expectedPatient3 = await models.Patient.create(
+      await createDummyPatient(models, { dateOfBirth: '2021-03-01T01:00:00.133Z' }),
+    );
+    await models.PatientAdditionalData.create({
+      patientId: expectedPatient3.id,
+      ethnicityId: ETHNICITY_IDS.ITAUKEI,
+    });
 
     app = await baseApp.asRole('practitioner');
 
@@ -121,10 +151,15 @@ describe('Covid swab lab test list', () => {
      *
      * 2020-05-03: Had SNAP councilling - no CVD screening
      *
-     * Patient 2 - Under 30, // TODO - test ethnicity grouping, (inc no ethnicity)
+     * Patient 2 - Under 30, ethnicity: OTHERS
      *
      * 2020-05-02: Diagnosed with diabetes and hypertension
      * 2020-05-02: Had a CVD screening - SNAP councilling
+     *
+     * Patient 3 - Under 30, ethnicity: ITAUKEI
+     *
+    //  * 2020-05-02: Diagnosed with diabetes and hypertension
+    //  * 2020-05-02: Had a CVD screening - SNAP councilling
      *
      *
      **/
@@ -262,13 +297,13 @@ describe('Covid swab lab test list', () => {
         fid_o30_hypertension: 0,
         fid_u30_dual: 0,
         fid_o30_dual: 0,
-        others_cvd_responses: 0,
+        others_cvd_responses: 1,
         others_snaps: 0,
         others_u30_diabetes: 0,
         others_o30_diabetes: 0,
         others_u30_hypertension: 0,
         others_o30_hypertension: 0,
-        others_u30_dual: 0,
+        others_u30_dual: 1,
         others_o30_dual: 0,
       };
       for (const entry of Object.entries(expectedDetails1)) {
