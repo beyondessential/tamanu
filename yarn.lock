@@ -5692,6 +5692,11 @@ charm@~0.1.1:
   resolved "https://registry.yarnpkg.com/charm/-/charm-0.1.2.tgz#06c21eed1a1b06aeb67553cdc53e23274bac2296"
   integrity sha1-BsIe7RobBq62dVPNxT4jJ0usIpY=
 
+check-disk-space@^3.1.0:
+  version "3.1.0"
+  resolved "https://registry.yarnpkg.com/check-disk-space/-/check-disk-space-3.1.0.tgz#3a90e0b27533e06ddcfafd93b749f2514fc12d90"
+  integrity sha512-4L3WVw4uPaBJocwnxTCWTTHc8mNu080pjCVBhZeWFdnaQBAremLHpJ1H90G+uEA0rJcW43fghYMsLBXID9X4Zg==
+
 check-error@^1.0.2:
   version "1.0.2"
   resolved "https://registry.yarnpkg.com/check-error/-/check-error-1.0.2.tgz#574d312edd88bb5dd8912e9286dd6c0aed4aac82"

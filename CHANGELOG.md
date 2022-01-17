@@ -4,11 +4,11 @@
 
 ### Manual steps required after upgrade ⚙
 
-- (left blank)
+- Run `yarn` to install new dependency (check-disk-usage)
 
 ### Features ⭐
 
-- (left blank)
+- Central server has the ability to check available disk space based on current config.
 
 ### Tweaks ⚖️
 
