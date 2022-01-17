@@ -153,52 +153,50 @@ or  sum(coalesce(cdg.dual_n,0)) > 0;
 
 const FIELD_TO_TITLE = {
   date: 'Date',
-  cvd_responses: 'Number of CVD screenings',
-  snaps: 'Number of individuals that have received SNAP counselling',
-  diabetes_u30: 'Number of new diabetes cases for individuals under 30',
-  diabetes_o30: 'Number of new diabetes cases for individuals above 30',
-  hypertension_u30: 'Number of new hypertension cases for individuals under 30',
-  hypertension_o30: 'Number of new hypertension cases for individuals above 30',
-  dual_u30: 'Number of new dual diabetes and hypertension cases for individuals under 30',
-  dual_o30: 'Number of new dual diabetes and hypertension cases for individuals above 30',
-  screened_itaukei: 'Number of CVD screenings by Itaukei',
-  received_snap_counselling_itaukei:
-    'Number of individuals that have received SNAP counselling by Itaukei',
-  itaukei_diabetes_u30: 'Number of new diabetes cases for individuals under 30 by Itaukei',
-  itaukei_diabetes_o30: 'Number of new diabetes cases for individuals above 30 by Itaukei',
-  itaukei_hypertension_u30: 'Number of new hypertension cases for individuals under 30 by Itaukei',
-  itaukei_hypertension_o30: 'Number of new hypertension cases for individuals above 30 by Itaukei',
-  itaukei_dual_u30:
+  total_cvd_responses: 'Number of CVD screenings',
+  total_snaps: 'Number of individuals that have received SNAP counselling',
+  u30_diabetes: 'Number of new diabetes cases for individuals under 30',
+  o30_diabetes: 'Number of new diabetes cases for individuals above 30',
+  u30_hypertension: 'Number of new hypertension cases for individuals under 30',
+  o30_hypertension: 'Number of new hypertension cases for individuals above 30',
+  u30_dual: 'Number of new dual diabetes and hypertension cases for individuals under 30',
+  o30_dual: 'Number of new dual diabetes and hypertension cases for individuals above 30',
+  itaukei_cvd_responses: 'Number of CVD screenings by Itaukei',
+  itaukei_snaps: 'Number of individuals that have received SNAP counselling by Itaukei',
+  itaukei_u30_diabetes: 'Number of new diabetes cases for individuals under 30 by Itaukei',
+  itaukei_o30_diabetes: 'Number of new diabetes cases for individuals above 30 by Itaukei',
+  itaukei_u30_hypertension: 'Number of new hypertension cases for individuals under 30 by Itaukei',
+  itaukei_o30_hypertension: 'Number of new hypertension cases for individuals above 30 by Itaukei',
+  itaukei_u30_dual:
     'Number of new dual diabetes and hypertension cases for individuals under 30 by Itaukei',
-  itaukei_dual_o30:
+  itaukei_o30_dual:
     'Number of new dual diabetes and hypertension cases for individuals above 30 by Itaukei',
-  screened_fid: 'Number of CVD screenings by Fijian of Indian descent',
-  received_snap_counselling_fid:
+  fid_cvd_responses: 'Number of CVD screenings by Fijian of Indian descent',
+  fid_snaps:
     'Number of individuals that have received SNAP counselling by Fijian of Indian descent',
-  fid_diabetes_u30:
+  fid_u30_diabetes:
     'Number of new diabetes cases for individuals under 30 by Fijian of Indian descent',
-  fid_diabetes_o30:
+  fid_o30_diabetes:
     'Number of new diabetes cases for individuals above 30 by Fijian of Indian descent',
-  fid_hypertension_u30:
+  fid_u30_hypertension:
     'Number of new hypertension cases for individuals under 30 by Fijian of Indian descent',
-  fid_hypertension_o30:
+  fid_o30_hypertension:
     'Number of new hypertension cases for individuals above 30 by Fijian of Indian descent',
-  fid_dual_u30:
+  fid_u30_dual:
     'Number of new dual diabetes and hypertension cases for individuals under 30 by Fijian of Indian descent',
-  fid_dual_o30:
+  fid_o30_dual:
     'Number of new dual diabetes and hypertension cases for individuals above 30 by Fijian of Indian descent',
-  screened_others: 'Number of CVD screenings by ethnicity Other',
-  received_snap_counselling_itaukei_others:
-    'Number of individuals that have received SNAP counselling by ethnicity Other',
-  others_diabetes_u30: 'Number of new diabetes cases for individuals under 30 by ethnicity Other',
-  others_diabetes_o30: 'Number of new diabetes cases for individuals above 30 by ethnicity Other',
-  others_hypertension_u30:
+  others_cvd_responses: 'Number of CVD screenings by ethnicity Other',
+  others_snaps: 'Number of individuals that have received SNAP counselling by ethnicity Other',
+  others_u30_diabetes: 'Number of new diabetes cases for individuals under 30 by ethnicity Other',
+  others_o30_diabetes: 'Number of new diabetes cases for individuals above 30 by ethnicity Other',
+  others_u30_hypertension:
     'Number of new hypertension cases for individuals under 30 by ethnicity Other',
-  others_hypertension_o30:
+  others_o30_hypertension:
     'Number of new hypertension cases for individuals above 30 by ethnicity Other',
-  others_dual_u30:
+  others_u30_dual:
     'Number of new dual diabetes and hypertension cases for individuals under 30 by ethnicity Other',
-  others_dual_o30:
+  others_o30_dual:
     'Number of new dual diabetes and hypertension cases for individuals above 30 by ethnicity Other',
 };
 
@@ -222,10 +220,12 @@ const makeDemographicsKey = (ethnicity, under30) =>
 const transformResultsForDate = (date, resultsForDate) => {
   // console.log('resultsForDate', resultsForDate);
 
-  const groupableResults = resultsForDate.map(({ ethnicity, under_30, ...otherKeys }) => ({
-    groupingKey: makeDemographicsKey(ethnicity, under_30),
-    ...otherKeys,
-  }));
+  const groupableResults = resultsForDate.map(
+    ({ ethnicity_id, under_30, date, ...summableKeys }) => ({
+      groupingKey: makeDemographicsKey(ethnicity_id, under_30),
+      ...summableKeys,
+    }),
+  );
 
   const resultsByDemographic = keyBy(groupableResults, 'groupingKey');
 
@@ -241,7 +241,9 @@ const transformResultsForDate = (date, resultsForDate) => {
   const dataAbc = Object.entries(reportableCategoriesAndData).reduce(
     (prev, [key, data]) => ({
       ...prev,
-      [key]: sumObjectsByKey(data),
+      [key]: sumObjectsByKey(
+        data.map(({ ethnicity_id, under_30, date, ...summableKeys }) => summableKeys),
+      ),
     }),
     resultsByDemographic,
   );
@@ -250,6 +252,19 @@ const transformResultsForDate = (date, resultsForDate) => {
 
   return {
     date: date,
+    ...Object.entries(dataAbc).reduce(
+      (acc, [key, data]) => ({
+        ...acc,
+        ...Object.entries(data).reduce(
+          (acc2, [key2, value]) => ({
+            ...acc2,
+            [`${key}_${key2}`]: parseInt(value),
+          }),
+          {},
+        ),
+      }),
+      {},
+    ),
   };
 };
 
