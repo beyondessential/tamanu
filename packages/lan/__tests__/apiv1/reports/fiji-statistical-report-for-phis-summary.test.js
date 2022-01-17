@@ -104,6 +104,8 @@ describe('Covid swab lab test list', () => {
      *
      * 2020-05-02: Diagnosed with diabetes and hypertension
      * 2020-05-02: Had a CVD screening - SNAP councilling
+     *
+     * // TODO - test ethnicity grouping, (inc no ethnicity)
      **/
 
     // 2019-05-02: Had a non-CVD survey response submitted
@@ -141,7 +143,7 @@ describe('Covid swab lab test list', () => {
     // 2020-05-03: Had SNAP councilling - no CVD screening
     await createSNAPFormSurveyResponse(app, expectedPatient1, moment.utc('2020-05-03'), {
       answerOverrides: {
-        'pde-FijCVD038': 'Yes',
+        'pde-FijSNAP13': 'Yes',
       },
     });
 
@@ -202,7 +204,7 @@ describe('Covid swab lab test list', () => {
       expect(result).toHaveSucceeded();
       // 2nd row, 1st column (2A) should have the most recent date in it.
       console.log(result.body);
-      expect(result.body[1][0]).toBe('2020-05-03');
+      expect(result.body[1][0]).toBe('03-05-2020');
     });
 
     it('should return latest data per patient and latest data per patient per date', async () => {
@@ -210,26 +212,28 @@ describe('Covid swab lab test list', () => {
         .post('/v1/reports/fiji-statistical-report-for-phis-summary')
         .send({});
       expect(result).toHaveSucceeded();
-      expect(result.body).toHaveLength(5);
+      expect(result.body).toHaveLength(3);
 
-      /*******Lab request 1*********/
-      //patient details
+      /*******2020-05-03*********/
       const expectedDetails1 = {
-        firstName: expectedPatient1.firstName,
-        lastName: expectedPatient1.lastName,
-        dob: moment.utc(expectedPatient1.dateOfBirth).format('DD-MM-YYYY'),
-        sex: expectedPatient1.sex,
-        patientId: expectedPatient1.displayId,
-        labRequestId: labRequest1.displayId,
-        //Fiji Samp collection form
-        //always grab the latest answer between the current lab request and the next lab request, regardless of survey response,
-        labRequestType: 'COVID-19',
-        status: 'Reception pending',
-        requestedDate: '10-03-2021',
-        publicHealthFacility: 'pde-FijCOVSamp4-on-2021-03-14T10:53:15.708Z-Patient1',
-        subDivision: 'pde-FijCOVSamp7-on-2021-03-14T10:53:15.708Z-Patient1',
-        ethnicity: 'pde-FijCOVSamp10-on-2021-03-14T10:53:15.708Z-Patient1',
-        contactPhone: 'pde-FijCOVSamp11-on-2021-03-14T10:53:15.708Z-Patient1',
+        date: '03-05-2020',
+        number_of_cvd_screenings: '0',
+        received_snap_counselling: '0',
+        diabetes_u30: '0',
+        diabetes_o30: '0',
+        hypertension_u30: '0',
+        hypertension_o30: '0',
+        dual_u30: '0',
+        dual_o30: '0',
+        screened_itaukei: '0',
+        itaukei_diabetes_u30: '0',
+        itaukei_diabetes_o30: '0',
+        itaukei_hypertension_u30: '0',
+        itaukei_hypertension_o30: '0',
+        screened_fid: '0',
+        screened_others: '0',
+        others_diabetes_u30: '0',
+        others_diabetes_o30: '0',
       };
       for (const entry of Object.entries(expectedDetails1)) {
         const [key, expectedValue] = entry;
