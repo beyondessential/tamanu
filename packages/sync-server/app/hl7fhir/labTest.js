@@ -59,6 +59,13 @@ function laboratoryToHL7Reference(laboratory) {
   };
 }
 
+function labTestMethodToHL7Reference(labTestMethod) {
+  return {
+    reference: `Device/${labTestMethod.id}`,
+    display: labTestMethodCodeToHL7DeviceText(labTestMethod?.code),
+  };
+}
+
 function labTestMethodToHL7Extension(labTestMethod) {
   if (!labTestMethod) {
     return [];
@@ -150,7 +157,7 @@ function getResultCoding(labTest) {
 }
 
 export function labTestToHL7Observation(labTest) {
-  const { labRequest, labTestType } = labTest;
+  const { labRequest, labTestType, labTestMethod } = labTest;
   const { patient } = labRequest.encounter;
 
   if (!shouldProduceObservation(labRequest.status)) {
@@ -163,6 +170,7 @@ export function labTestToHL7Observation(labTest) {
     status: labRequestStatusToHL7Status(labRequest.status),
     subject: patientToHL7Reference(patient),
     code: labTestTypeToLOINCCode(labTestType),
+    device: labTestMethodToHL7Reference(labTestMethod),
     valueCodeableConcept: {
       coding: [
         {
@@ -171,5 +179,42 @@ export function labTestToHL7Observation(labTest) {
         },
       ],
     },
+  };
+}
+
+const KNOWN_LAB_TEST_METHOD_CODES = {
+  GENE_XPERT: 'GeneXpert',
+  RTPCR: 'RTPCR',
+};
+
+function labTestMethodCodeToHL7DeviceText(code) {
+  switch (code) {
+    case KNOWN_LAB_TEST_METHOD_CODES.GENE_XPERT:
+      return 'COVID Gene-Xpert Testing Device';
+    case KNOWN_LAB_TEST_METHOD_CODES.RTPCR:
+      return 'COVID RT-PCR Testing Device';
+    default:
+      return 'Unknown';
+  }
+}
+
+function labTestMethodCodeToHL7DeviceManufacturer(code) {
+  switch (code) {
+    case KNOWN_LAB_TEST_METHOD_CODES.GENE_XPERT:
+      return 'Cepheid';
+    case KNOWN_LAB_TEST_METHOD_CODES.RTPCR:
+      return 'TIB MOLBIOL';
+    default:
+      return 'Unknown';
+  }
+}
+
+export function labTestToHL7Device(labTest) {
+  const code = labTest?.labTestMethod?.code;
+  return {
+    resourceType: 'Device',
+    id: labTest.labTestMethod.id,
+    text: labTestMethodCodeToHL7DeviceText(code),
+    manufacturer: labTestMethodCodeToHL7DeviceManufacturer(code),
   };
 }
