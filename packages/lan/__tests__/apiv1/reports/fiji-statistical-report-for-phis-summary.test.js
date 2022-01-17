@@ -288,11 +288,7 @@ describe('Covid swab lab test list', () => {
     );
 
     // 2020-05-02: Had a CVD screening - yes SNAP councilling
-    await createCVDFormSurveyResponse(app, expectedPatient3, moment.utc('2020-05-02'), {
-      answerOverrides: {
-        'pde-FijCVD038': 'Yes',
-      },
-    });
+    await createCVDFormSurveyResponse(app, expectedPatient3, moment.utc('2020-05-02'));
 
     // 2020-05-03: Diagnosed with hypertension
     const diagnosisEncounter5 = await models.Encounter.create(
@@ -309,6 +305,17 @@ describe('Covid swab lab test list', () => {
         date: moment.utc('2020-05-03'),
       }),
     );
+
+    const hi = await ctx.sequelize.query(
+      `SELECT
+      e.patient_id, sr4.end_time::date as date_group, max(sr4.end_time) AS max_end_time , count(*) as count_for_testing 
+    FROM
+      survey_responses sr4
+  join encounters e on e.id = sr4.encounter_id
+  GROUP by e.patient_id, sr4.end_time::date;`,
+      { type: ctx.sequelize.QueryTypes.SELECT },
+    );
+    console.log(hi);
   });
 
   describe('checks permissions', () => {

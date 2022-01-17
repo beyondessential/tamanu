@@ -22,7 +22,9 @@ export const createCVDFormSurveyResponse = async (app, patient, surveyDate, over
       'pde-FijCVD007': `pde-FijCVD007-on-${surveyDate}-${patient.firstName}`,
       'pde-FijCVD010': `pde-FijCVD010-on-${surveyDate}-${patient.firstName}`,
       'pde-FijCVD021': `pde-FijCVD021-on-${surveyDate}-${patient.firstName}`,
-      ...answerOverrides,
+      ...{
+        'pde-FijCVD038': 'Yes',
+      },
     },
   });
 };
@@ -108,6 +110,7 @@ export const setupProgramAndSurvey = async models => {
     { id: 'pde-FijCVD007', code: 'FijCVD007', name: 'FijCVD007' },
     { id: 'pde-FijCVD010', code: 'FijCVD010', name: 'FijCVD010' },
     { id: 'pde-FijCVD021', code: 'FijCVD021', name: 'FijCVD021' },
+    { id: 'pde-FijCVD038', code: 'FijCVD038', name: 'FijCVD038' },
     { id: 'pde-FijCVDRisk334', code: 'FijCVDRisk334', name: 'FijCVDRisk334' },
 
     { id: 'pde-FijCVDRef2a', code: 'FijCVDRef2a', name: 'FijCVDRef2a' },
@@ -185,6 +188,7 @@ export const setupProgramAndSurvey = async models => {
     { dataElementId: 'pde-FijCVD007', surveyId: CVD_PRIMARY_FORM_SURVEY_ID },
     { dataElementId: 'pde-FijCVD010', surveyId: CVD_PRIMARY_FORM_SURVEY_ID },
     { dataElementId: 'pde-FijCVD021', surveyId: CVD_PRIMARY_FORM_SURVEY_ID },
+    { dataElementId: 'pde-FijCVD038', surveyId: CVD_PRIMARY_FORM_SURVEY_ID },
     { dataElementId: 'pde-FijCVDRisk334', surveyId: CVD_PRIMARY_FORM_SURVEY_ID },
 
     { dataElementId: 'pde-FijCVDRef2a', surveyId: CVD_PRIMARY_REFERRAL_SURVEY_ID },
