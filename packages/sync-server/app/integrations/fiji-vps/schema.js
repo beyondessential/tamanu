@@ -50,6 +50,7 @@ export const patient = {
 
 export const DIAGNOSTIC_REPORT_INCLUDES = {
   RESULT: 'DiagnosticReport:result',
+  DEVICE: 'DiagnosticReport:result.device:Device',
 };
 
 export const diagnosticReport = {

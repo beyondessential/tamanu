@@ -46,6 +46,7 @@
     "grunt-notify": "^0.4.5",
     "grunt-sass": "^2.1.0",
     "jest": "^24.5.0",
+    "jest-extended": "^1.2.0",
     "mocha": "^5.2.0",
     "nodemon": "^1.17.3",
     "nodemon-webpack-plugin": "^4.0.8",
