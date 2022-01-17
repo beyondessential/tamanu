@@ -16,7 +16,7 @@
       command: ./scripts/build_shared.sh
     - name: migrate_sync_server
       service: app
-      command: yarn workspace sync-server run start migrate --up
+      command: ./scripts/migrate_sync_server.sh
     - name: test
       service: app
       command: ./scripts/test.sh
