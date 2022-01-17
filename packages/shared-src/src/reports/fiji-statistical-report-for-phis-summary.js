@@ -1,5 +1,19 @@
+import moment from 'moment';
 import { groupBy, keyBy } from 'lodash';
+
 import { generateReportFromQueryData } from './utilities';
+
+const ETHNICITY_IDS = {
+  ITAUKEI: 'ethnicity-ITaukei',
+  INDIAN: 'ethnicity-FID',
+  OTHERS: 'ethnicity-others',
+};
+
+const ETHNICITY_IDS_BACKWARDS = {
+  'ethnicity-ITaukei': 'itaukei',
+  'ethnicity-FID': 'fid',
+  'ethnicity-others': 'others',
+};
 
 const query = `
 with
@@ -139,8 +153,8 @@ or  sum(coalesce(cdg.dual_n,0)) > 0;
 
 const FIELD_TO_TITLE = {
   date: 'Date',
-  number_of_cvd_screenings: 'Number of CVD screenings',
-  received_snap_counselling: 'Number of individuals that have received SNAP counselling',
+  cvd_responses: 'Number of CVD screenings',
+  snaps: 'Number of individuals that have received SNAP counselling',
   diabetes_u30: 'Number of new diabetes cases for individuals under 30',
   diabetes_o30: 'Number of new diabetes cases for individuals above 30',
   hypertension_u30: 'Number of new hypertension cases for individuals under 30',
@@ -193,54 +207,50 @@ const reportColumnTemplate = Object.entries(FIELD_TO_TITLE).map(([key, title]) =
   accessor: data => data[key],
 }));
 
-const makeKey = (a, b) => `${a}__&&__${b}`;
+function sumObjectsByKey(objs) {
+  return objs.reduce((a, b) => {
+    for (const k of Object.keys(b)) {
+      a[k] = (parseInt(a[k], 10) || 0) + parseInt(b[k], 10);
+    }
+    return a;
+  }, {});
+}
+
+const makeDemographicsKey = (ethnicity, under30) =>
+  `${ETHNICITY_IDS_BACKWARDS[ethnicity]}_${under30 ? 'u30' : 'o30'}`;
 
 const transformResultsForDate = (date, resultsForDate) => {
-  console.log('resultsForDate', resultsForDate);
+  // console.log('resultsForDate', resultsForDate);
 
   const groupableResults = resultsForDate.map(({ ethnicity, under_30, ...otherKeys }) => ({
-    groupingKey: makeKey(ethnicity, under_30),
+    groupingKey: makeDemographicsKey(ethnicity, under_30),
     ...otherKeys,
   }));
 
   const resultsByDemographic = keyBy(groupableResults, 'groupingKey');
-  console.log('resultsByDemographic', resultsByDemographic);
 
-  // const FIELD_TO_TITLE = {
-  //   date,
-  //   number_of_cvd_screenings: 'Number of CVD screenings',
-  //   received_snap_counselling: 'Number of individuals that have received SNAP counselling',
-  //   diabetes_u30: 'Number of new diabetes cases for individuals under 30',
-  //   diabetes_o30: 'Number of new diabetes cases for individuals above 30',
-  //   hypertension_u30: 'Number of new hypertension cases for individuals under 30',
-  //   hypertension_o30: 'Number of new hypertension cases for individuals above 30',
-  //   dual_u30: 'Number of new dual diabetes and hypertension cases for individuals under 30',
-  //   dual_o30: 'Number of new dual diabetes and hypertension cases for individuals above 30',
-  //   screened_itaukei: 'Number of CVD screenings by Itaukei',
-  //   received_snap_counselling_itaukei:
-  //   itaukei_diabetes_u30: 'Number of new diabetes cases for individuals under 30 by Itaukei',
-  //   itaukei_diabetes_o30: 'Number of new diabetes cases for individuals above 30 by Itaukei',
-  //   itaukei_hypertension_u30: 'Number of new hypertension cases for individuals under 30 by Itaukei',
-  //   itaukei_hypertension_o30: 'Number of new hypertension cases for individuals above 30 by Itaukei',
-  //   itaukei_dual_u30:
-  //   itaukei_dual_o30:
-  //   screened_fid: 'Number of CVD screenings by Fijian of Indian descent',
-  //   received_snap_counselling_fid:
-  //   fid_diabetes_u30:
-  //   fid_diabetes_o30:
-  //   fid_hypertension_u30:
-  //   fid_hypertension_o30:
-  //   fid_dual_u30:
-  //   fid_dual_o30:
-  //   screened_others: 'Number of CVD screenings by ethnicity Other',
-  //   received_snap_counselling_itaukei_others:
-  //   others_diabetes_u30: 'Number of new diabetes cases for individuals under 30 by ethnicity Other',
-  //   others_diabetes_o30: 'Number of new diabetes cases for individuals above 30 by ethnicity Other',
-  //   others_hypertension_u30:
-  //   others_hypertension_o30:
-  //   others_dual_u30:
-  //   others_dual_o30:
-  // };
+  const reportableCategoriesAndData = {
+    total: resultsForDate,
+    u30: resultsForDate.filter(({ under_30 }) => under_30 === true),
+    o30: resultsForDate.filter(({ under_30 }) => under_30 === false),
+    itaukei: resultsForDate.filter(({ ethnicity_id }) => ethnicity_id === ETHNICITY_IDS.ITAUKEI),
+    fid: resultsForDate.filter(({ ethnicity_id }) => ethnicity_id === ETHNICITY_IDS.INDIAN),
+    others: resultsForDate.filter(({ ethnicity_id }) => ethnicity_id === ETHNICITY_IDS.OTHERS),
+  };
+
+  const dataAbc = Object.entries(reportableCategoriesAndData).reduce(
+    (prev, [key, data]) => ({
+      ...prev,
+      [key]: sumObjectsByKey(data),
+    }),
+    resultsByDemographic,
+  );
+  // ...resultsByDemographic,
+  console.log(dataAbc);
+
+  return {
+    date: date,
+  };
 };
 
 export const dataGenerator = async ({ sequelize }, parameters = {}) => {
@@ -257,6 +267,7 @@ export const dataGenerator = async ({ sequelize }, parameters = {}) => {
       ...otherFields,
     }));
 
+  console.log(reportData);
   return generateReportFromQueryData(reportData, reportColumnTemplate);
 };
 
