@@ -1,4 +1,4 @@
-import React, { useState, useCallback } from 'react';
+import React, { useState, useCallback, useEffect } from 'react';
 import PropTypes from 'prop-types';
 import Select from 'react-select';
 
@@ -30,6 +30,12 @@ export const MultiselectInput = ({
     },
     [onChange, name],
   );
+
+  useEffect(() => {
+    const newValues = value ? value.split(', ') : [];
+    const newOptions = options.filter(option => newValues.includes(option.value));
+    setSelected(newOptions);
+  }, [value, options]);
 
   const isReadonly = (readonly && !disabled) || (value && !onChange);
   if (disabled || isReadonly || !options || options.length === 0) {
