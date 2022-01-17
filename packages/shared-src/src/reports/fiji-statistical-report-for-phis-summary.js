@@ -22,7 +22,7 @@ with
       coalesce(ethnicity_id, '-') as ethnicity_id, -- join on NULL = NULL returns no rows
       (date_of_birth + interval '30 year') > CURRENT_DATE as under_30
     from patients p
-    JOIN patient_additional_data AS additional_data ON additional_data.id =
+    left JOIN patient_additional_data AS additional_data ON additional_data.id =
       (SELECT id
         FROM patient_additional_data
         WHERE patient_id = p.id
