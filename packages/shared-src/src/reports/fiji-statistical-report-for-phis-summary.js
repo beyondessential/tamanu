@@ -105,7 +105,6 @@ with
       join reference_data rd 
       on rd."type" = 'icd10' and rd.id = ed.diagnosis_id 
       WHERE rd.code IN ('icd10-E11')
-      or rd.code like '%%'
       ) diabetes_temp
     on diagnosis_encounter.id = diabetes_temp.encounter_id
     left join 
