@@ -147,7 +147,8 @@ describe('Covid swab lab test list', () => {
      * 2019-05-03: Had a CVD survey response submitted - marked 'ineligble' - SNAP councilling
      *
      * 2020-05-02: Diagnosed with diabetes
-     * 2020-05-02: Had a CVD screening - no SNAP councilling
+     * 2020-05-02: 1pm: Had a CVD screening - no SNAP councilling
+     * 2020-05-02: 5pm: Had a CVD screening - no SNAP councilling (shouldn't duplicate)
      *
      * 2020-05-03: Had SNAP councilling - no CVD screening
      *
@@ -168,11 +169,10 @@ describe('Covid swab lab test list', () => {
     // 2019-05-02: Had a non-CVD survey response submitted
     await createBreastCancerFormSurveyResponse(app, expectedPatient1, moment.utc('2019-05-02'));
 
-    // 2019-05-03: Had a CVD survey response submitted - marked 'ineligble' - SNAP councilling
+    // 2019-05-03: Had a CVD survey response submitted - marked 'ineligble' - no SNAP councilling
     await createCVDFormSurveyResponse(app, expectedPatient1, moment.utc('2019-05-03'), {
       answerOverrides: {
         'pde-FijCVD021': 'Ineligible',
-        'pde-FijCVD038': 'Yes',
       },
     });
 
@@ -192,8 +192,15 @@ describe('Covid swab lab test list', () => {
       }),
     );
 
-    // 2020-05-02: Had a CVD screening - no SNAP councilling
-    await createCVDFormSurveyResponse(app, expectedPatient1, moment.utc('2020-05-02'), {
+    // 2020-05-02: 1pm Had a CVD screening - no SNAP councilling
+    await createCVDFormSurveyResponse(app, expectedPatient1, moment.utc('2020-05-02T13:00:00'), {
+      answerOverrides: {
+        'pde-FijCVD038': 'No',
+      },
+    });
+
+    // 2020-05-02: 5pm Had a CVD screening - no SNAP councilling
+    await createCVDFormSurveyResponse(app, expectedPatient1, moment.utc('2020-05-02T17:00:00'), {
       answerOverrides: {
         'pde-FijCVD038': 'No',
       },
@@ -307,12 +314,38 @@ describe('Covid swab lab test list', () => {
     );
 
     const hi = await ctx.sequelize.query(
-      `SELECT
-      e.patient_id, sr4.end_time::date as date_group, max(sr4.end_time) AS max_end_time , count(*) as count_for_testing 
-    FROM
-      survey_responses sr4
-  join encounters e on e.id = sr4.encounter_id
-  GROUP by e.patient_id, sr4.end_time::date;`,
+      `with
+      cte_patient as (
+        select
+          p.id,
+          coalesce(ethnicity_id, '-') as ethnicity_id, -- join on NULL = NULL returns no rows
+          (date_of_birth + interval '30 year') > CURRENT_DATE as under_30
+        from patients p
+        left JOIN patient_additional_data AS additional_data ON additional_data.id =
+          (SELECT id
+            FROM patient_additional_data
+            WHERE patient_id = p.id
+            LIMIT 1)
+      )
+     select
+          sra.body
+        from -- Only selects the last cvd survey response per patient/date_group
+          (SELECT
+              e.patient_id, sr4.end_time::date as date_group, max(sr4.end_time) AS max_end_time , count(*) as count_for_testing 
+            FROM
+              survey_responses sr4
+          join encounters e on e.id = sr4.encounter_id
+          where survey_id = 'program-fijincdprimaryscreening-fijicvdprimaryscreen2'
+          GROUP by e.patient_id, sr4.end_time::date
+        ) max_time_per_group_table
+        JOIN survey_responses AS sr 
+        ON sr.end_time = max_time_per_group_table.max_end_time
+        left join survey_response_answers sra 
+        on sra.response_id = sr.id and sra.data_element_id = 'pde-FijCVD021'
+        join encounters sr_encounter
+        on sr_encounter.id = sr.encounter_id and sr_encounter.patient_id = max_time_per_group_table.patient_id
+        join cte_patient cp on cp.id = sr_encounter.patient_id
+        where sra.body is null or sra.body <> 'Ineligible';`,
       { type: ctx.sequelize.QueryTypes.SELECT },
     );
     console.log(hi);
