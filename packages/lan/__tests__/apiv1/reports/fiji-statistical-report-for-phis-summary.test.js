@@ -116,7 +116,7 @@ describe('Covid swab lab test list', () => {
       ethnicityId: ETHNICITY_IDS.OTHERS,
     });
     const expectedPatient3 = await models.Patient.create(
-      await createDummyPatient(models, { dateOfBirth: '2021-03-01T01:00:00.133Z' }),
+      await createDummyPatient(models, { dateOfBirth: moment.utc().subtract(20, 'years') }),
     );
     await models.PatientAdditionalData.create({
       patientId: expectedPatient3.id,
@@ -158,10 +158,11 @@ describe('Covid swab lab test list', () => {
      *
      * Patient 3 - Under 30, ethnicity: ITAUKEI
      *
-     * 2020-05-02: Diagnosed with diabetes and hypertension
+     * 2020-05-02: Diagnosed with hypertension
+     * 2020-05-02: Diagnosed with diabetes (separate encounter)
      * 2020-05-02: Had a CVD screening - SNAP councilling
      *
-     *
+     * 2020-05-03: Diagnosed with hypertension
      **/
 
     // 2019-05-02: Had a non-CVD survey response submitted
@@ -193,7 +194,9 @@ describe('Covid swab lab test list', () => {
 
     // 2020-05-02: Had a CVD screening - no SNAP councilling
     await createCVDFormSurveyResponse(app, expectedPatient1, moment.utc('2020-05-02'), {
-      'pde-FijCVD038': 'No',
+      answerOverrides: {
+        'pde-FijCVD038': 'No',
+      },
     });
 
     // 2020-05-03: Had SNAP councilling - no CVD screening
@@ -235,10 +238,77 @@ describe('Covid swab lab test list', () => {
       }),
     );
 
-    // 2020-05-02: Had a CVD screening - no SNAP councilling
+    // 2020-05-02: Had a CVD screening - yes SNAP councilling
     await createCVDFormSurveyResponse(app, expectedPatient2, moment.utc('2020-05-02'), {
-      'pde-FijCVD038': 'Yes',
+      answerOverrides: {
+        'pde-FijCVD038': 'Yes',
+      },
     });
+
+    /*
+     * Patient 3 - Under 30, ethnicity: ITAUKEI
+     *
+     * 2020-05-02: Diagnosed with hypertension
+     * 2020-05-02: Diagnosed with diabetes (separate encounter)
+     * 2020-05-02: Had a CVD screening - yes SNAP councilling
+     *
+     * 2020-05-03: Diagnosed with hypertension
+     *
+     **/
+
+    // 2020-05-02: Diagnosed with hypertension
+    const diagnosisEncounter3 = await models.Encounter.create(
+      await createDummyEncounter(models, {
+        startDate: moment.utc('2020-05-02'),
+        patientId: expectedPatient3.id,
+      }),
+    );
+
+    await models.EncounterDiagnosis.create(
+      await createDummyEncounterDiagnosis(models, {
+        diagnosisId: hypertensionDiagnosis.id,
+        encounterId: diagnosisEncounter3.id,
+        date: moment.utc('2020-05-02'),
+      }),
+    );
+
+    // 2020-05-02: Diagnosed with diabetes (separate encounter)
+    const diagnosisEncounter4 = await models.Encounter.create(
+      await createDummyEncounter(models, {
+        startDate: moment.utc('2020-05-02'),
+        patientId: expectedPatient3.id,
+      }),
+    );
+    await models.EncounterDiagnosis.create(
+      await createDummyEncounterDiagnosis(models, {
+        diagnosisId: diabetesDiagnosis.id,
+        encounterId: diagnosisEncounter4.id,
+        date: moment.utc('2020-05-02'),
+      }),
+    );
+
+    // 2020-05-02: Had a CVD screening - yes SNAP councilling
+    await createCVDFormSurveyResponse(app, expectedPatient3, moment.utc('2020-05-02'), {
+      answerOverrides: {
+        'pde-FijCVD038': 'Yes',
+      },
+    });
+
+    // 2020-05-03: Diagnosed with hypertension
+    const diagnosisEncounter5 = await models.Encounter.create(
+      await createDummyEncounter(models, {
+        startDate: moment.utc('2020-05-03'),
+        patientId: expectedPatient3.id,
+      }),
+    );
+
+    await models.EncounterDiagnosis.create(
+      await createDummyEncounterDiagnosis(models, {
+        diagnosisId: hypertensionDiagnosis.id,
+        encounterId: diagnosisEncounter5.id,
+        date: moment.utc('2020-05-03'),
+      }),
+    );
   });
 
   describe('checks permissions', () => {
@@ -273,21 +343,21 @@ describe('Covid swab lab test list', () => {
       /*******2020-05-02*********/
       const expectedDetails1 = {
         date: '02-05-2020',
-        total_cvd_responses: 2,
-        total_snaps: 0,
+        total_cvd_responses: 3,
+        total_snaps: 2,
         u30_diabetes: 0,
         o30_diabetes: 1,
         u30_hypertension: 0,
         o30_hypertension: 0,
-        u30_dual: 1,
+        u30_dual: 2,
         o30_dual: 0,
-        itaukei_cvd_responses: 0,
-        itaukei_snaps: 0,
+        itaukei_cvd_responses: 1,
+        itaukei_snaps: 1,
         itaukei_u30_diabetes: 0,
         itaukei_o30_diabetes: 0,
         itaukei_u30_hypertension: 0,
         itaukei_o30_hypertension: 0,
-        itaukei_u30_dual: 0,
+        itaukei_u30_dual: 1,
         itaukei_o30_dual: 0,
         fid_cvd_responses: 0,
         fid_snaps: 0,
@@ -318,7 +388,7 @@ describe('Covid swab lab test list', () => {
         total_snaps: 1,
         u30_diabetes: 0,
         o30_diabetes: 0,
-        u30_hypertension: 0,
+        u30_hypertension: 1,
         o30_hypertension: 0,
         u30_dual: 0,
         o30_dual: 0,
@@ -326,7 +396,7 @@ describe('Covid swab lab test list', () => {
         itaukei_snaps: 0,
         itaukei_u30_diabetes: 0,
         itaukei_o30_diabetes: 0,
-        itaukei_u30_hypertension: 0,
+        itaukei_u30_hypertension: 1,
         itaukei_o30_hypertension: 0,
         itaukei_u30_dual: 0,
         itaukei_o30_dual: 0,
