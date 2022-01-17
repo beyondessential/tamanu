@@ -19,23 +19,38 @@ const FIJI_SAMP_SURVEY_ID = 'program-fijicovid19-fijicovidsampcollection';
 
 const PROPERTY_LIST = [
   'date',
-  'number_of_cvd_screenings',
-  'received_snap_counselling',
-  'diabetes_u30',
-  'diabetes_o30',
-  'hypertension_u30',
-  'hypertension_o30',
-  'dual_u30',
-  'dual_o30',
-  'screened_itaukei',
-  'itaukei_diabetes_u30',
-  'itaukei_diabetes_o30',
-  'itaukei_hypertension_u30',
-  'itaukei_hypertension_o30',
-  'screened_fid',
-  'screened_others',
-  'others_diabetes_u30',
-  'others_diabetes_o30',
+  'total_cvd_responses',
+  'total_snaps',
+  'u30_diabetes',
+  'o30_diabetes',
+  'u30_hypertension',
+  'o30_hypertension',
+  'u30_dual',
+  'o30_dual',
+  'itaukei_cvd_responses',
+  'itaukei_snaps',
+  'itaukei_u30_diabetes',
+  'itaukei_o30_diabetes',
+  'itaukei_u30_hypertension',
+  'itaukei_o30_hypertension',
+  'itaukei_u30_dual',
+  'itaukei_o30_dual',
+  'fid_cvd_responses',
+  'fid_snaps',
+  'fid_u30_diabetes',
+  'fid_o30_diabetes',
+  'fid_u30_hypertension',
+  'fid_o30_hypertension',
+  'fid_u30_dual',
+  'fid_o30_dual',
+  'others_cvd_responses',
+  'others_snaps',
+  'others_u30_diabetes',
+  'others_o30_diabetes',
+  'others_u30_hypertension',
+  'others_o30_hypertension',
+  'others_u30_dual',
+  'others_o30_dual',
 ];
 const PROPERTY_TO_EXCEL_INDEX = PROPERTY_LIST.reduce((acc, prop, i) => ({ ...acc, [prop]: i }), {});
 
@@ -66,10 +81,16 @@ describe('Covid swab lab test list', () => {
     village2 = await randomReferenceId(models, 'village');
 
     const expectedPatient1 = await models.Patient.create(
-      await createDummyPatient(models, { villageId: village1 }),
+      await createDummyPatient(models, {
+        villageId: village1,
+        dateOfBirth: moment.utc().subtract(50, 'years'),
+      }),
     );
     const expectedPatient2 = await models.Patient.create(
-      await createDummyPatient(models, { villageId: village2 }),
+      await createDummyPatient(models, {
+        villageId: village2,
+        dateOfBirth: moment.utc().subtract(20, 'years'),
+      }),
     );
 
     app = await baseApp.asRole('practitioner');
@@ -89,7 +110,7 @@ describe('Covid swab lab test list', () => {
     await setupProgramAndSurvey(models);
 
     /*
-     * Patient 1
+     * Patient 1 - Over 30, No ethnicity
      *
      * 2019-05-02: Had a non-CVD survey response submitted
      *
@@ -100,12 +121,12 @@ describe('Covid swab lab test list', () => {
      *
      * 2020-05-03: Had SNAP councilling - no CVD screening
      *
-     * Patient 2
+     * Patient 2 - Under 30, // TODO - test ethnicity grouping, (inc no ethnicity)
      *
      * 2020-05-02: Diagnosed with diabetes and hypertension
      * 2020-05-02: Had a CVD screening - SNAP councilling
      *
-     * // TODO - test ethnicity grouping, (inc no ethnicity)
+     *
      **/
 
     // 2019-05-02: Had a non-CVD survey response submitted
@@ -217,23 +238,38 @@ describe('Covid swab lab test list', () => {
       /*******2020-05-03*********/
       const expectedDetails1 = {
         date: '02-05-2020',
-        number_of_cvd_screenings: '0',
-        received_snap_counselling: '0',
-        diabetes_u30: '0',
-        diabetes_o30: '0',
-        hypertension_u30: '0',
-        hypertension_o30: '0',
-        dual_u30: '0',
-        dual_o30: '0',
-        screened_itaukei: '0',
-        itaukei_diabetes_u30: '0',
-        itaukei_diabetes_o30: '0',
-        itaukei_hypertension_u30: '0',
-        itaukei_hypertension_o30: '0',
-        screened_fid: '0',
-        screened_others: '0',
-        others_diabetes_u30: '0',
-        others_diabetes_o30: '0',
+        total_cvd_responses: 2,
+        total_snaps: 0,
+        u30_diabetes: 0,
+        o30_diabetes: 1,
+        u30_hypertension: 0,
+        o30_hypertension: 0,
+        u30_dual: 1,
+        o30_dual: 0,
+        itaukei_cvd_responses: 0,
+        itaukei_snaps: 0,
+        itaukei_u30_diabetes: 0,
+        itaukei_o30_diabetes: 0,
+        itaukei_u30_hypertension: 0,
+        itaukei_o30_hypertension: 0,
+        itaukei_u30_dual: 0,
+        itaukei_o30_dual: 0,
+        fid_cvd_responses: 0,
+        fid_snaps: 0,
+        fid_u30_diabetes: 0,
+        fid_o30_diabetes: 0,
+        fid_u30_hypertension: 0,
+        fid_o30_hypertension: 0,
+        fid_u30_dual: 0,
+        fid_o30_dual: 0,
+        others_cvd_responses: 0,
+        others_snaps: 0,
+        others_u30_diabetes: 0,
+        others_o30_diabetes: 0,
+        others_u30_hypertension: 0,
+        others_o30_hypertension: 0,
+        others_u30_dual: 0,
+        others_o30_dual: 0,
       };
       for (const entry of Object.entries(expectedDetails1)) {
         const [key, expectedValue] = entry;
