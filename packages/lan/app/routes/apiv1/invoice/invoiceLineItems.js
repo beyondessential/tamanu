@@ -7,10 +7,10 @@ import { getPotentialInvoiceLineItems } from './getPotentialInvoiceLineItems';
 
 export const invoiceLineItemsRoute = permissionCheckingRouter('read', 'Invoice');
 
-invoiceLineItemsRoute.get('/:id/invoiceLineItems', simpleGetList('InvoiceLineItem', 'invoiceId'));
+invoiceLineItemsRoute.get('/:id/lineItems', simpleGetList('InvoiceLineItem', 'invoiceId'));
 
 invoiceLineItemsRoute.post(
-  '/:id/invoiceLineItems',
+  '/:id/lineItems',
   asyncHandler(async (req, res) => {
     const {
       models,
@@ -27,16 +27,16 @@ invoiceLineItemsRoute.post(
   }),
 );
 
-invoiceLineItemsRoute.get('/:invoiceId/invoiceLineItems/:id', simpleGet('InvoiceLineItem'));
-invoiceLineItemsRoute.put('/:invoiceId/invoiceLineItems/:id', simplePut('InvoiceLineItem'));
+invoiceLineItemsRoute.get('/:invoiceId/lineItems/:id', simpleGet('InvoiceLineItem'));
+invoiceLineItemsRoute.put('/:invoiceId/lineItems/:id', simplePut('InvoiceLineItem'));
 
 invoiceLineItemsRoute.delete(
-  '/:id/invoiceLineItems/:invoiceLineItemId',
+  '/:id/lineItems/:invoiceLineItemId',
   asyncHandler(async (req, res) => {
     const { models, params } = req;
     req.checkPermission('read', 'InvoiceLineItem');
 
-    const invoiceLineItemId = params.invoiceLineItemId;
+    const { invoiceLineItemId } = params;
     const invoiceLineItem = await models.InvoiceLineItem.findByPk(invoiceLineItemId);
     if (!invoiceLineItem) {
       throw new NotFoundError();
@@ -55,12 +55,12 @@ invoiceLineItemsRoute.delete(
 );
 
 invoiceLineItemsRoute.get(
-  '/:id/potentialInvoiceLineItems',
+  '/:id/potentialLineItems',
   asyncHandler(async (req, res) => {
     const { models, params, db } = req;
     const invoiceId = params.id;
     const invoice = await models.Invoice.findByPk(invoiceId);
-    const encounterId = invoice.encounterId;
+    const { encounterId } = invoice;
     const potentialInvoiceLineItems = await getPotentialInvoiceLineItems(db, models, encounterId);
     const data = potentialInvoiceLineItems.map(x => renameObjectKeys(x.forResponse()));
     res.send({
@@ -71,14 +71,14 @@ invoiceLineItemsRoute.get(
 );
 
 invoiceLineItemsRoute.post(
-  '/:id/potentialInvoiceLineItems',
+  '/:id/potentialLineItems',
   asyncHandler(async (req, res) => {
     const { models, params, db } = req;
     req.checkPermission('create', 'InvoiceLineItem');
 
     const invoiceId = params.id;
     const invoice = await models.Invoice.findByPk(invoiceId);
-    const encounterId = invoice.encounterId;
+    const { encounterId } = invoice;
     const potentialInvoiceLineItems = await getPotentialInvoiceLineItems(db, models, encounterId);
     const items = potentialInvoiceLineItems.map(x => renameObjectKeys(x.forResponse()));
 
