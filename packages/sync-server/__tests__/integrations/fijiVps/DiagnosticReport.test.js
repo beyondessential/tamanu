@@ -1,6 +1,10 @@
+import Chance from 'chance';
+
 import { fake } from 'shared/test-helpers/fake';
 import { createTestContext } from 'sync-server/__tests__/utilities';
 import { IDENTIFIER_NAMESPACE } from '../../../app/integrations/fiji-vps/schema';
+
+const chance = new Chance();
 
 describe('VPS integration - DiagnosticReport', () => {
   let ctx;
@@ -11,7 +15,7 @@ describe('VPS integration - DiagnosticReport', () => {
   });
   afterAll(() => ctx.close());
 
-  async function createLabTestHierarchy(patient) {
+  async function createLabTestHierarchy(patient, { isRDT = false } = {}) {
     const { LabTest, LabRequest, ReferenceData, LabTestType, Encounter, User } = ctx.store.models;
 
     const examiner = await User.create(fake(User));
@@ -38,6 +42,19 @@ describe('VPS integration - DiagnosticReport', () => {
     const labTestType = await LabTestType.create({
       ...fake(LabTestType),
       labTestCategoryId: labTestCategory.id,
+      name: chance.pickone(
+        isRDT
+          ? [
+              'AgRDT Negative, no further testing needed',
+              'AgRDT Positve, no further testing needed',
+            ]
+          : [
+              'COVID-19 Nasopharyngeal Swab',
+              'COVID-19 Nasal Swab',
+              'COVID-19 Oropharyngeal Swab',
+              'COVID-19 Endotracheal aspirate',
+            ],
+      ),
     });
     const labTestMethod = await ReferenceData.create({
       ...fake(ReferenceData),
@@ -134,28 +151,7 @@ describe('VPS integration - DiagnosticReport', () => {
                 },
               ],
               status: 'final',
-              result: [
-                {
-                  resourceType: 'Observation',
-                  id: labTest.id,
-                  status: 'final',
-                  code: {},
-                  subject: {
-                    display: `${patient.firstName} ${patient.lastName}`,
-                    reference: `Patient/${patient.id}`,
-                  },
-                  valueCodeableConcept: {
-                    coding: [
-                      {
-                        code: 'INC',
-                        display: 'Inconclusive',
-                        system:
-                          'http://terminology.hl7.org/CodeSystem/v3-ObservationInterpretation',
-                      },
-                    ],
-                  },
-                },
-              ],
+              result: [{ reference: `Observation/${labTest.id}` }],
               subject: {
                 display: `${patient.firstName} ${patient.lastName}`,
                 reference: `Patient/${patient.id}`,
@@ -175,6 +171,38 @@ describe('VPS integration - DiagnosticReport', () => {
                   },
                 },
               ],
+            },
+          },
+          {
+            resource: {
+              resourceType: 'Observation',
+              id: labTest.id,
+              status: 'final',
+              code: {
+                text:
+                  'SARS-CoV-2 (COVID-19) Ag [Presence] in Upper respiratory specimen by Immunoassay',
+                coding: [
+                  {
+                    system: 'http://loinc.org',
+                    code: '96119-3',
+                    display:
+                      'SARS-CoV-2 (COVID-19) Ag [Presence] in Upper respiratory specimen by Immunoassay',
+                  },
+                ],
+              },
+              subject: {
+                display: `${patient.firstName} ${patient.lastName}`,
+                reference: `Patient/${patient.id}`,
+              },
+              valueCodeableConcept: {
+                coding: [
+                  {
+                    code: 'INC',
+                    display: 'Inconclusive',
+                    system: 'http://terminology.hl7.org/CodeSystem/v3-ObservationInterpretation',
+                  },
+                ],
+              },
             },
           },
         ],
@@ -283,12 +311,62 @@ describe('VPS integration - DiagnosticReport', () => {
         entry: [
           {
             resource: {
+              resourceType: 'DiagnosticReport',
               performer: [
                 {
                   display: examiner.displayName,
                   reference: `Practitioner/${examiner.id}`,
                 },
               ],
+            },
+          },
+          {
+            resource: {
+              resourceType: 'Observation',
+            },
+          },
+        ],
+      });
+    });
+
+    it('handles RDTs correctly', async () => {
+      // arrange
+      const { Patient } = ctx.store.models;
+      const patient = await Patient.create(fake(Patient));
+      const { labTest } = await createLabTestHierarchy(patient, { isRDT: true });
+
+      const id = encodeURIComponent(`${IDENTIFIER_NAMESPACE}|${patient.displayId}`);
+      const path = `/v1/integration/fijiVps/DiagnosticReport?_sort=-issued&_page=0&_count=2&status=final&subject%3Aidentifier=${id}&_include=DiagnosticReport%3Aresult`;
+
+      // act
+      const response = await app.get(path);
+
+      // assert
+      expect(response).toHaveSucceeded();
+      expect(response.body).toMatchObject({
+        entry: [
+          {
+            resource: {
+              result: [{ reference: `Observation/${labTest.id}` }],
+            },
+          },
+          {
+            resource: {
+              resourceType: 'Observation',
+              id: labTest.id,
+              status: 'final',
+              code: {
+                text:
+                  'SARS-CoV-2 (COVID-19) Ag [Presence] in Upper respiratory specimen by Rapid immunoassay',
+                coding: [
+                  {
+                    system: 'http://loinc.org',
+                    code: '97097-0',
+                    display:
+                      'SARS-CoV-2 (COVID-19) Ag [Presence] in Upper respiratory specimen by Rapid immunoassay',
+                  },
+                ],
+              },
             },
           },
         ],
@@ -345,7 +423,7 @@ describe('VPS integration - DiagnosticReport', () => {
             '_count must be less than or equal to 20',
             '_page must be greater than or equal to 0',
             '_sort must be one of the following values: -issued',
-            '_include must be one of the following values: DiagnosticReport:result',
+            '_include[0] must be one of the following values: DiagnosticReport:result',
             'status must be one of the following values: final',
           ],
         },

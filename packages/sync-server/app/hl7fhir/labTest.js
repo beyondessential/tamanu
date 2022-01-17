@@ -1,6 +1,8 @@
 import config from 'config';
 import { LAB_REQUEST_STATUSES } from 'shared/constants';
 
+import { labTestTypeToLOINCCode } from './loinc';
+
 // fine to hardcode this one -- HL7 guarantees it will always be available at this url
 const HL7_OBSERVATION_TERMINOLOGY_URL =
   'http://terminology.hl7.org/CodeSystem/v3-ObservationInterpretation';
@@ -81,14 +83,10 @@ function labTestMethodToHL7Extension(labTestMethod) {
   ];
 }
 
-export function labTestToHL7DiagnosticReport(labTest, { shouldEmbedResult = false } = {}) {
-  const labTestType = labTest.labTestType;
-  const labTestMethod = labTest.labTestMethod;
-  const labRequest = labTest.labRequest;
-  const encounter = labRequest.encounter;
-  const patient = encounter.patient;
-  const examiner = encounter.examiner;
-  const laboratory = labRequest.laboratory;
+export function labTestToHL7DiagnosticReport(labTest) {
+  const { labTestType, labTestMethod, labRequest } = labTest;
+  const { encounter, laboratory } = labRequest;
+  const { patient, examiner } = encounter;
 
   return {
     resourceType: 'DiagnosticReport',
@@ -119,9 +117,6 @@ export function labTestToHL7DiagnosticReport(labTest, { shouldEmbedResult = fals
     result: (() => {
       if (!shouldProduceObservation(labRequest.status)) {
         return [];
-      }
-      if (shouldEmbedResult) {
-        return [labTestToHL7Observation(labTest, patient)];
       }
       return [{ reference: `Observation/${labTest.id}` }];
     })(),
@@ -154,16 +149,12 @@ function getResultCoding(labTest) {
   }
 }
 
-export function labTestToHL7Observation(labTest, maybePatient) {
-  const labRequest = labTest.labRequest;
+export function labTestToHL7Observation(labTest) {
+  const { labRequest, labTestType } = labTest;
+  const { patient } = labRequest.encounter;
 
   if (!shouldProduceObservation(labRequest.status)) {
     return null;
-  }
-
-  let patient = maybePatient;
-  if (!patient) {
-    patient = labTest.labRequest.encounter.patient;
   }
 
   return {
@@ -171,7 +162,7 @@ export function labTestToHL7Observation(labTest, maybePatient) {
     id: labTest.id,
     status: labRequestStatusToHL7Status(labRequest.status),
     subject: patientToHL7Reference(patient),
-    code: {}, // TODO: mapping tbd (empty object included so that it validates)
+    code: labTestTypeToLOINCCode(labTestType),
     valueCodeableConcept: {
       coding: [
         {

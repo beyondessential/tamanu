@@ -31,11 +31,9 @@ import { VitalsTable } from '../../components/VitalsTable';
 import { connectRoutedModal } from '../../components/Modal';
 import { NoteModal } from '../../components/NoteModal';
 import { NoteTable } from '../../components/NoteTable';
-import { TopBar, DateDisplay } from '../../components';
+import { TopBar, DateDisplay, TopBarHeading } from '../../components';
 import { DocumentsPane } from './panes';
-
 import { DropdownButton } from '../../components/DropdownButton';
-
 import { FormGrid } from '../../components/FormGrid';
 import { SelectInput, DateInput, TextInput } from '../../components/Field';
 import { encounterOptions, ENCOUNTER_OPTIONS_BY_VALUE, Colors } from '../../constants';
@@ -426,6 +424,7 @@ const AdmissionInfoRow = styled.div`
   font-size: 14px;
   text-transform: capitalize;
   color: ${Colors.midText};
+  margin-top: 3px;
 
   span:first-child {
     margin-right: 10px;
@@ -476,20 +475,23 @@ export const EncounterView = () => {
     <TwoColumnDisplay>
       <PatientInfoPane patient={patient} disabled={disabled} />
       <div>
-        <TopBar title={getHeaderText(encounter)}>
+        <TopBar>
+          <div>
+            <TopBarHeading>{getHeaderText(encounter)}</TopBarHeading>
+            <AdmissionInfoRow>
+              <AdmissionInfo>
+                <SubjectIcon />
+                <AdmissionInfoLabel>Type: </AdmissionInfoLabel>
+                <span>{`${encounter.encounterType}`}</span>
+              </AdmissionInfo>
+              <AdmissionInfo>
+                <CalendarIcon />
+                <AdmissionInfoLabel>Arrival: </AdmissionInfoLabel>
+                <DateDisplay date={encounter.startDate} />
+              </AdmissionInfo>
+            </AdmissionInfoRow>
+          </div>
           <EncounterActions encounter={encounter} />
-          <AdmissionInfoRow>
-            <AdmissionInfo>
-              <SubjectIcon />
-              <AdmissionInfoLabel>Type: </AdmissionInfoLabel>
-              <span>{`${encounter.encounterType}`}</span>
-            </AdmissionInfo>
-            <AdmissionInfo>
-              <CalendarIcon />
-              <AdmissionInfoLabel>Arrival: </AdmissionInfoLabel>
-              <DateDisplay date={encounter.startDate} />
-            </AdmissionInfo>
-          </AdmissionInfoRow>
         </TopBar>
         <ContentPane>
           <BackButton to="/patients/view" />
