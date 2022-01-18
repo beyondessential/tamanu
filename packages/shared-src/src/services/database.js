@@ -97,6 +97,7 @@ async function connectToDatabase(dbOptions) {
   await sequelize.authenticate();
 
   process.on('SIGTERM', () => {
+    log.info('Received SIGTERM, closing sequelize');
     sequelize.close();
   });
 
