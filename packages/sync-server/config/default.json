@@ -360,6 +360,9 @@
   "tupaiaApiClient": {},
   "scheduledReports": [],
   "disk": {
-    "diskPath": "C:/"
+    "diskPath": "C:/",
+    "freeSpaceRequired": {
+      "gigabytesForUploadingDocuments": 16
+    }
   }
 }
