@@ -73,9 +73,7 @@ describe('UploadAttachment', () => {
             },
           });
           return {
-            body: {
-              attachmentId: '111',
-            },
+            attachmentId: '111',
           };
         }),
       };
