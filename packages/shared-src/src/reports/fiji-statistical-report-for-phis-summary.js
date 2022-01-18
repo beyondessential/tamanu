@@ -15,7 +15,7 @@ const ETHNICITY_IDS_BACKWARDS = {
   'ethnicity-others': 'others',
 };
 
-const query = `
+const generateQuery = patientFilterClause => `
 with
   cte_oldest_date as (
     SELECT CASE
@@ -41,6 +41,7 @@ with
         FROM patient_additional_data
         WHERE patient_id = p.id
         LIMIT 1)
+    ${patientFilterClause}
   ),
   cte_all_options as (
     select distinct 
@@ -302,6 +303,8 @@ const transformResultsForDate = (date, resultsForDate) => {
 };
 
 export const dataGenerator = async ({ sequelize }, parameters = {}) => {
+  const { medicalArea } = parameters;
+  const query = generateQuery(medicalArea ? `where medical_area_id = '${medicalArea}'` : '');
   const results = await sequelize.query(query, { type: sequelize.QueryTypes.SELECT });
 
   const reportData = Object.entries(groupBy(results, 'date'))
