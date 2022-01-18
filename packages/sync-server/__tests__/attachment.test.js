@@ -1,3 +1,4 @@
+import { getFreeDiskSpace } from '../app/utils/getFreeDiskSpace';
 import { createTestContext } from './utilities';
 
 // Mock image to be created with fs module. Expected size of 1002 bytes.
@@ -48,7 +49,22 @@ describe('Attachment (sync-server)', () => {
     expect(receivedStr).toBe(reEncodedStr);
   });
 
+  it('should send error if there is no enough disk space', async () => {
+    getFreeDiskSpace.mockImplementationOnce(async () => 3000000000);
+    const result = await app.post('/v1/attachment').send({
+      type: 'image/jpeg',
+      size: 1002,
+      data: FILEDATA,
+    });
+    expect(result).toHaveRequestError();
+    expect(result.body.error).toBeTruthy();
+    expect(result.body.error.message).toBe(
+      'Document cannot be uploaded due to lack of storage space.',
+    );
+  });
+
   it('should create an attachment and receive its ID back', async () => {
+    getFreeDiskSpace.mockImplementationOnce(async () => 5000000000);
     const result = await app.post('/v1/attachment').send({
       type: 'image/jpeg',
       size: 1002,
