@@ -130,7 +130,7 @@ describe('Covid swab lab test list', () => {
     await models.PatientAdditionalData.create({
       patientId: expectedPatient3.id,
       ethnicityId: ETHNICITY_IDS.ITAUKEI,
-      medicalArea: medicalArea.id,
+      medicalAreaId: medicalArea.id,
     });
 
     app = await baseApp.asRole('practitioner');
@@ -442,10 +442,24 @@ describe('Covid swab lab test list', () => {
 
     it('should return correct data after filtering', async () => {
       const result = await app.post('/v1/reports/fiji-statistical-report-for-phis-summary').send({
-        medicalArea: medicalArea.id,
+        parameters: {
+          medicalArea: medicalArea.id,
+        },
       });
       expect(result).toHaveSucceeded();
       expect(result.body).toHaveLength(3);
+
+      /**
+       * Should only return data for patient 3:
+       *
+       * Patient 3 - Under 30, ethnicity: ITAUKEI
+       *
+       * 2020-05-02: Diagnosed with hypertension
+       * 2020-05-02: Diagnosed with diabetes (separate encounter)
+       * 2020-05-02: Had a CVD screening - SNAP councilling
+       *
+       * 2020-05-03: Diagnosed with hypertension
+       */
 
       /*******2020-05-02*********/
       const expectedDetails1 = {
@@ -453,7 +467,7 @@ describe('Covid swab lab test list', () => {
         total_cvd_responses: 1,
         total_snaps: 1,
         u30_diabetes: 0,
-        o30_diabetes: 1,
+        o30_diabetes: 0,
         u30_hypertension: 0,
         o30_hypertension: 0,
         u30_dual: 1,
