@@ -55,9 +55,10 @@
           service: awsdeployment
           tag: ^(master$|dev$|staging$|ci-)
           command: ./scripts/push.sh
-        # fix for a bug where version names can collide if an application is deployed in parallel
+        # the following serial steps are a fix for a bug where version names can
+        # collide if an application is deployed in parallel
         # see https://github.com/codeship-library/aws-utilities/issues/115
-        - name: awscli_name_collision_workaround_sync
+        - name: deploy_sync
           type: serial
           steps:
             - name: deploy_sync_dev_environment
@@ -76,7 +77,7 @@
               tag: ^(master$)
               service: awsdeployment
               command: ./scripts/deploy_sync.sh demo-nauru
-        - name: awscli_name_collision_workaround_lan
+        - name: deploy_lan
           type: serial
           steps:
             - name: deploy_lan_dev_environment
@@ -84,7 +85,7 @@
               # tag: ^(dev$|ci-)
               service: awsdeployment
               command: ./scripts/deploy_lan.sh dev
-        - name: awscli_name_collision_workaround_meta
+        - name: deploy_meta
           type: serial
           steps:
             - name: deploy_meta_dev_environment
