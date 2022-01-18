@@ -68,7 +68,10 @@ async function connectToDatabase(dbOptions) {
   if (sqlitePath) {
     log.info(`Connecting to sqlite database at ${sqlitePath}...`);
   } else {
-    log.info(`Connecting to database ${username}@${name}...`);
+    log.info(
+      `Connecting to database ${username || '<no username>'}:*****@${host || '<no host>'}:${port ||
+        '<no port>'}/${name || '<no name>'}...`,
+    );
   }
 
   // this allows us to use transaction callbacks without manually managing a transaction handle
