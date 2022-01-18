@@ -91,31 +91,54 @@ with
     and sra.body = 'Yes'
     group by ethnicity_id, under_30, date
   ),
+  cte_diabetes_diagnoses as (
+  	select 1 as exist, diagnosis_encounter.start_date::date as diagnosis_date, patient_id from encounter_diagnoses ed
+      join reference_data rd 
+      on rd."type" = 'icd10' and rd.id = ed.diagnosis_id
+      join encounters diagnosis_encounter
+      on ed.encounter_id = diagnosis_encounter.id
+      WHERE rd.code IN ('icd10-E11')
+ ),
+  cte_hypertension_diagnoses as (
+  	select 1 as exist, diagnosis_encounter.start_date::date as diagnosis_date, patient_id from encounter_diagnoses ed
+      join reference_data rd 
+      on rd."type" = 'icd10' and rd.id = ed.diagnosis_id
+      join encounters diagnosis_encounter
+      on ed.encounter_id = diagnosis_encounter.id
+      WHERE rd.code in ('icd10-I10')
+  ),
+  abc as (
+  	select 
+  		cp.id,
+  		case when 
+  			cdd.diagnosis_date is null 
+  		then 
+  			chd.diagnosis_date
+  		else
+  			cdd.diagnosis_date
+  		end as date,
+  		max(cdd.exist) as a,
+  		max(chd.exist) as b
+  	from cte_patient cp
+    left join cte_hypertension_diagnoses chd
+    on cp.id = chd.patient_id
+  	left join cte_diabetes_diagnoses cdd
+    on cp.id = cdd.patient_id
+    where cdd.diagnosis_date is not null or chd.diagnosis_date is not null
+    group by cp.id, date
+  ),
   cte_diagnoses as (
     select
       1 as exist,
       ethnicity_id,
       under_30,
-      diagnosis_encounter.start_date::date as date,
-      count(case when diabetes_temp.id is not null and hypertension_temp.id is null then 1 end) as diabetes_n,
-      count(case when diabetes_temp.id is null and hypertension_temp.id is not null then 1 end) as hypertension_n,
-      count(case when diabetes_temp.id is not null and hypertension_temp.id is not null then 1 end) as dual_n
-    FROM encounters diagnosis_encounter
-    left join 
-      (select encounter_id, ed.id from encounter_diagnoses ed
-      join reference_data rd 
-      on rd."type" = 'icd10' and rd.id = ed.diagnosis_id 
-      WHERE rd.code IN ('icd10-E11')
-      ) diabetes_temp
-    on diagnosis_encounter.id = diabetes_temp.encounter_id
-    left join 
-      (select encounter_id, ed.id from encounter_diagnoses ed
-      join reference_data rd 
-      on rd."type" = 'icd10' and rd.id = ed.diagnosis_id 
-      WHERE rd.code in ('icd10-I10')
-      ) hypertension_temp
-    on diagnosis_encounter.id = hypertension_temp.encounter_id
-    join cte_patient cp on cp.id = diagnosis_encounter.patient_id
+      date,
+      count(case when a is not null and b is null then 1 end) as diabetes_n,
+      count(case when a is null and b is not null then 1 end) as hypertension_n,
+      count(case when a is not null and b is not null then 1 end) as dual_n
+    FROM abc
+    join cte_patient cp
+    on cp.id = abc.id
     group by ethnicity_id, under_30, date
   )
 select
