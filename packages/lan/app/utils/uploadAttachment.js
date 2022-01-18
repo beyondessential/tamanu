@@ -43,7 +43,7 @@ export const uploadAttachment = async (req, maxFileSize) => {
 
   // Send parsed metadata along with the new created attachment id
   return {
-    attachmentId: syncResponse.body.attachmentId,
+    attachmentId: syncResponse.attachmentId,
     metadata,
   };
 };
