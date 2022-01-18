@@ -1,4 +1,5 @@
 import moment from 'moment';
+import { REFERENCE_TYPES } from 'shared/constants';
 import {
   createDummyEncounter,
   createDummyEncounterDiagnosis,
@@ -67,6 +68,7 @@ describe('Covid swab lab test list', () => {
   let app = null;
   let village1 = null;
   let village2 = null;
+  let medicalArea = null;
 
   beforeAll(async () => {
     const ctx = await createTestContext();
@@ -99,6 +101,13 @@ describe('Covid swab lab test list', () => {
       type: 'ethnicity',
     });
 
+    medicalArea = await models.ReferenceData.create({
+      id: `medicalArea-abc-${new Date().toString()}`,
+      name: 'abc2',
+      code: 'abc',
+      type: REFERENCE_TYPES.MEDICAL_AREA,
+    });
+
     const expectedPatient1 = await models.Patient.create(
       await createDummyPatient(models, {
         villageId: village1,
@@ -121,6 +130,7 @@ describe('Covid swab lab test list', () => {
     await models.PatientAdditionalData.create({
       patientId: expectedPatient3.id,
       ethnicityId: ETHNICITY_IDS.ITAUKEI,
+      medicalArea: medicalArea.id,
     });
 
     app = await baseApp.asRole('practitioner');
@@ -164,6 +174,7 @@ describe('Covid swab lab test list', () => {
      * 2020-05-02: Had a CVD screening - SNAP councilling
      *
      * 2020-05-03: Diagnosed with hypertension
+     *
      **/
 
     // 2019-05-02: Had a non-CVD survey response submitted
@@ -392,6 +403,96 @@ describe('Covid swab lab test list', () => {
         date: '03-05-2020',
         total_cvd_responses: 0,
         total_snaps: 1,
+        u30_diabetes: 0,
+        o30_diabetes: 0,
+        u30_hypertension: 1,
+        o30_hypertension: 0,
+        u30_dual: 0,
+        o30_dual: 0,
+        itaukei_cvd_responses: 0,
+        itaukei_snaps: 0,
+        itaukei_u30_diabetes: 0,
+        itaukei_o30_diabetes: 0,
+        itaukei_u30_hypertension: 1,
+        itaukei_o30_hypertension: 0,
+        itaukei_u30_dual: 0,
+        itaukei_o30_dual: 0,
+        fid_cvd_responses: 0,
+        fid_snaps: 0,
+        fid_u30_diabetes: 0,
+        fid_o30_diabetes: 0,
+        fid_u30_hypertension: 0,
+        fid_o30_hypertension: 0,
+        fid_u30_dual: 0,
+        fid_o30_dual: 0,
+        others_cvd_responses: 0,
+        others_snaps: 0,
+        others_u30_diabetes: 0,
+        others_o30_diabetes: 0,
+        others_u30_hypertension: 0,
+        others_o30_hypertension: 0,
+        others_u30_dual: 0,
+        others_o30_dual: 0,
+      };
+      for (const entry of Object.entries(expectedDetails2)) {
+        const [key, expectedValue] = entry;
+        expect(getProperty(result, 2, key)).toBe(expectedValue);
+      }
+    });
+
+    it('should return correct data after filtering', async () => {
+      const result = await app.post('/v1/reports/fiji-statistical-report-for-phis-summary').send({
+        medicalArea: medicalArea.id,
+      });
+      expect(result).toHaveSucceeded();
+      expect(result.body).toHaveLength(3);
+
+      /*******2020-05-02*********/
+      const expectedDetails1 = {
+        date: '02-05-2020',
+        total_cvd_responses: 1,
+        total_snaps: 1,
+        u30_diabetes: 0,
+        o30_diabetes: 1,
+        u30_hypertension: 0,
+        o30_hypertension: 0,
+        u30_dual: 1,
+        o30_dual: 0,
+        itaukei_cvd_responses: 1,
+        itaukei_snaps: 1,
+        itaukei_u30_diabetes: 0,
+        itaukei_o30_diabetes: 0,
+        itaukei_u30_hypertension: 0,
+        itaukei_o30_hypertension: 0,
+        itaukei_u30_dual: 1,
+        itaukei_o30_dual: 0,
+        fid_cvd_responses: 0,
+        fid_snaps: 0,
+        fid_u30_diabetes: 0,
+        fid_o30_diabetes: 0,
+        fid_u30_hypertension: 0,
+        fid_o30_hypertension: 0,
+        fid_u30_dual: 0,
+        fid_o30_dual: 0,
+        others_cvd_responses: 0,
+        others_snaps: 0,
+        others_u30_diabetes: 0,
+        others_o30_diabetes: 0,
+        others_u30_hypertension: 0,
+        others_o30_hypertension: 0,
+        others_u30_dual: 0,
+        others_o30_dual: 0,
+      };
+      for (const entry of Object.entries(expectedDetails1)) {
+        const [key, expectedValue] = entry;
+        expect(getProperty(result, 1, key)).toBe(expectedValue);
+      }
+
+      /*******2020-05-03*********/
+      const expectedDetails2 = {
+        date: '03-05-2020',
+        total_cvd_responses: 0,
+        total_snaps: 0,
         u30_diabetes: 0,
         o30_diabetes: 0,
         u30_hypertension: 1,
