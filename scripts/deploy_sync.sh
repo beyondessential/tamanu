@@ -2,4 +2,4 @@
 set -euxo pipefail
 
 EB_ENV="${1:?Must pass an EB environment}"
-echo codeship_aws eb_deploy "./packages/sync-server/release" "$SYNC_SERVER_EB_APP" "${SYNC_SERVER_EB_APP}-${EB_ENV}" "${SYNC_SERVER_EB_S3}/${EB_ENV}"
+codeship_aws eb_deploy "./packages/sync-server/release" "$SYNC_SERVER_EB_APP" "${SYNC_SERVER_EB_APP}-${EB_ENV}" "${SYNC_SERVER_EB_S3}/${EB_ENV}"
