@@ -316,43 +316,6 @@ describe('Covid swab lab test list', () => {
         date: moment.utc('2020-05-03'),
       }),
     );
-
-    const hi = await ctx.sequelize.query(
-      `with
-      cte_patient as (
-        select
-          p.id,
-          coalesce(ethnicity_id, '-') as ethnicity_id, -- join on NULL = NULL returns no rows
-          (date_of_birth + interval '30 year') > CURRENT_DATE as under_30
-        from patients p
-        left JOIN patient_additional_data AS additional_data ON additional_data.id =
-          (SELECT id
-            FROM patient_additional_data
-            WHERE patient_id = p.id
-            LIMIT 1)
-      )
-     select
-          sra.body
-        from -- Only selects the last cvd survey response per patient/date_group
-          (SELECT
-              e.patient_id, sr4.end_time::date as date_group, max(sr4.end_time) AS max_end_time , count(*) as count_for_testing 
-            FROM
-              survey_responses sr4
-          join encounters e on e.id = sr4.encounter_id
-          where survey_id = 'program-fijincdprimaryscreening-fijicvdprimaryscreen2'
-          GROUP by e.patient_id, sr4.end_time::date
-        ) max_time_per_group_table
-        JOIN survey_responses AS sr 
-        ON sr.end_time = max_time_per_group_table.max_end_time
-        left join survey_response_answers sra 
-        on sra.response_id = sr.id and sra.data_element_id = 'pde-FijCVD021'
-        join encounters sr_encounter
-        on sr_encounter.id = sr.encounter_id and sr_encounter.patient_id = max_time_per_group_table.patient_id
-        join cte_patient cp on cp.id = sr_encounter.patient_id
-        where sra.body is null or sra.body <> 'Ineligible';`,
-      { type: ctx.sequelize.QueryTypes.SELECT },
-    );
-    console.log(hi);
   });
 
   describe('checks permissions', () => {
@@ -367,13 +330,12 @@ describe('Covid swab lab test list', () => {
   });
 
   describe('returns the correct data', () => {
-    it('should sort the dates from oldest to most recent ', async () => {
+    it('should sort the dates from oldest to most recent', async () => {
       const result = await app
         .post('/v1/reports/fiji-statistical-report-for-phis-summary')
         .send({});
       expect(result).toHaveSucceeded();
       // 2nd row, 1st column (2A) should have the most recent date in it.
-      console.log(result.body);
       expect(result.body[1][0]).toBe('02-05-2020');
     });
 
