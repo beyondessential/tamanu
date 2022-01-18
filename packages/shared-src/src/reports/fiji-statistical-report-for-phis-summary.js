@@ -124,6 +124,7 @@ with
     on cp.id = chd.patient_id
   	left join cte_diabetes_diagnoses cdd
     on cp.id = cdd.patient_id
+    and (cdd.diagnosis_date = chd.diagnosis_date or chd.diagnosis_date is null)
     where cdd.diagnosis_date is not null or chd.diagnosis_date is not null
     group by cp.id, date
   ),
@@ -241,8 +242,6 @@ const makeDemographicsKey = (ethnicity, under30) =>
   `${ETHNICITY_IDS_BACKWARDS[ethnicity]}_${under30 ? 'u30' : 'o30'}`;
 
 const transformResultsForDate = (date, resultsForDate) => {
-  // console.log('resultsForDate', resultsForDate);
-
   const groupableResults = resultsForDate.map(
     ({ ethnicity_id, under_30, date, ...summableKeys }) => ({
       groupingKey: makeDemographicsKey(ethnicity_id, under_30),
@@ -270,8 +269,6 @@ const transformResultsForDate = (date, resultsForDate) => {
     }),
     resultsByDemographic,
   );
-  // ...resultsByDemographic,
-  console.log(dataAbc);
 
   return {
     date: date,
