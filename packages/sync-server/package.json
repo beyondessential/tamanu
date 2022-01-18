@@ -62,6 +62,7 @@
     "@tupaia/api-client": "2.1.1",
     "argparse": "1.0.10",
     "await-to-js": "^2.0.1",
+    "babel-jest": "24.5.0",
     "basic-auth": "^2.0.1",
     "bcrypt": "^4.0.1",
     "body-parser": "^1.18.3",
