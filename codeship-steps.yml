@@ -40,8 +40,7 @@
           service: app
           command: ./scripts/build_package_release.sh meta-server
         - name: build_lan_release
-          # TODO: uncomment
-          # tag: ^(master$|dev$|staging$|ci-)
+          tag: ^(master$|dev$|staging$|ci-)
           service: app
           command: ./scripts/build_package_release.sh lan
     - name: push_and_deploy
@@ -81,10 +80,21 @@
           type: serial
           steps:
             - name: deploy_lan_dev_environment
-              # TODO: uncomment
-              # tag: ^(dev$|ci-)
+              tag: ^(dev$|ci-)
               service: awsdeployment
               command: ./scripts/deploy_lan.sh dev
+            - name: deploy_lan_staging_environment
+              tag: ^(staging$)
+              service: awsdeployment
+              command: ./scripts/deploy_lan.sh staging
+            - name: deploy_lan_demo_environment
+              tag: ^(master$)
+              service: awsdeployment
+              command: ./scripts/deploy_lan.sh demo
+            - name: deploy_lan_demo_nauru_environment
+              tag: ^(master$)
+              service: awsdeployment
+              command: ./scripts/deploy_lan.sh demo-nauru
         - name: deploy_meta
           type: serial
           steps:
