@@ -85,7 +85,9 @@
     },
     "medicationDiscontinuer": {
       // every day at 11:59 PM
-      "schedule": "59 23 * * *"
+      "schedule": "59 23 * * *",
+      "batchSize": 1000,
+      "batchSleepAsyncDurationInMilliseconds": 50
     }
   },
   "integrations": {
