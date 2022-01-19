@@ -82,6 +82,10 @@
     "reportRequestProcessor": {
        // every 30 seconds
       "schedule": "*/30 * * * * *"
+    },
+    "medicationDiscontinuer": {
+      // every day at 11:59 PM
+      "schedule": "59 23 * * *"
     }
   },
   "integrations": {
