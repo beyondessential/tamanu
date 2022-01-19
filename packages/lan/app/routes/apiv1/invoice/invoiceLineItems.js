@@ -10,11 +10,11 @@ export const invoiceLineItemsRoute = permissionCheckingRouter('read', 'Invoice')
 invoiceLineItemsRoute.get('/:id/lineItems', simpleGetList('InvoiceLineItem', 'invoiceId'));
 
 invoiceLineItemsRoute.post(
-  '/:id/lineItems',
+  '/:invoiceId/lineItems',
   asyncHandler(async (req, res) => {
     const {
       models,
-      params: { id: invoiceId },
+      params: { invoiceId },
     } = req;
     req.checkPermission('create', 'InvoiceLineItem');
 
@@ -31,13 +31,13 @@ invoiceLineItemsRoute.get('/:invoiceId/lineItems/:id', simpleGet('InvoiceLineIte
 invoiceLineItemsRoute.put('/:invoiceId/lineItems/:id', simplePut('InvoiceLineItem'));
 
 invoiceLineItemsRoute.delete(
-  '/:id/lineItems/:invoiceLineItemId',
+  '/:invoiceId/lineItems/:id',
   asyncHandler(async (req, res) => {
     const { models, params } = req;
     req.checkPermission('read', 'InvoiceLineItem');
 
-    const { invoiceLineItemId } = params;
-    const invoiceLineItem = await models.InvoiceLineItem.findByPk(invoiceLineItemId);
+    const { id } = params;
+    const invoiceLineItem = await models.InvoiceLineItem.findByPk(id);
     if (!invoiceLineItem) {
       throw new NotFoundError();
     }
@@ -46,7 +46,7 @@ invoiceLineItemsRoute.delete(
 
     await models.InvoiceLineItem.destroy({
       where: {
-        id: invoiceLineItemId,
+        id,
       },
     });
 
@@ -55,10 +55,10 @@ invoiceLineItemsRoute.delete(
 );
 
 invoiceLineItemsRoute.get(
-  '/:id/potentialLineItems',
+  '/:invoiceId/potentialLineItems',
   asyncHandler(async (req, res) => {
     const { models, params, db } = req;
-    const invoiceId = params.id;
+    const { invoiceId } = params;
     const invoice = await models.Invoice.findByPk(invoiceId);
     const { encounterId } = invoice;
     const potentialInvoiceLineItems = await getPotentialInvoiceLineItems(db, models, encounterId);
@@ -71,12 +71,12 @@ invoiceLineItemsRoute.get(
 );
 
 invoiceLineItemsRoute.post(
-  '/:id/potentialLineItems',
+  '/:invoiceId/potentialLineItems',
   asyncHandler(async (req, res) => {
     const { models, params, db } = req;
     req.checkPermission('create', 'InvoiceLineItem');
 
-    const invoiceId = params.id;
+    const { invoiceId } = params;
     const invoice = await models.Invoice.findByPk(invoiceId);
     const { encounterId } = invoice;
     const potentialInvoiceLineItems = await getPotentialInvoiceLineItems(db, models, encounterId);
