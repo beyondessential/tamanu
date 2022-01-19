@@ -15,20 +15,33 @@ const ETHNICITY_IDS_BACKWARDS = {
   'ethnicity-others': 'others',
 };
 
-const generateQuery = patientFilterClause => `
+const query = `
 with
   cte_oldest_date as (
-    SELECT CASE
+    SELECT case
+      when :from_date is null then oldest_date
+      when oldest_date <= :from_date then :from_date
+      else oldest_date 
+    end as oldest_date
+    from (
+      SELECT case
         WHEN col1 <= col2 THEN col1
         ELSE              col2
-    END AS oldest_date FROM (
-    select
-      (select min(sr.end_time) as sr_oldest from survey_responses sr) as col1,
-      (select min(e.start_date) as sr_oldest from encounters e) as col2
-    ) aliased_table
+      END AS oldest_date FROM (
+      select
+        (select min(sr.end_time) from survey_responses sr) as col1,
+        (select min(e.start_date) from encounters e) as col2
+      ) old_date_options_table
+  ) oldest_data_date
+  ),
+  cte_newest_date as (
+    SELECT case
+      when :to_date is null then now()
+      else :to_date
+    end as newest_date
   ),
   cte_dates as (
-    select generate_series(cte_oldest_date.oldest_date, '2022-01-13 00:00'::timestamp, '1 day')::date date from cte_oldest_date
+    select generate_series(cte_oldest_date.oldest_date, cte_newest_date.newest_date, '1 day')::date date from cte_oldest_date join cte_newest_date on true
   ),
   cte_patient as (
     select
@@ -41,7 +54,11 @@ with
         FROM patient_additional_data
         WHERE patient_id = p.id
         LIMIT 1)
-    ${patientFilterClause}
+    where 
+        coalesce(medical_area_id, '-') = coalesce(:medical_area, coalesce(medical_area_id, '-'))
+    and coalesce(nursing_zone_id, '-') = coalesce(:nursing_zone, coalesce(nursing_zone_id, '-'))
+    and coalesce(division_id, '-') = coalesce(:division, coalesce(division_id, '-'))
+    and coalesce(village_id, '-') = coalesce(:village, coalesce(village_id, '-'))
   ),
   cte_all_options as (
     select distinct 
@@ -93,7 +110,7 @@ with
     group by ethnicity_id, under_30, date
   ),
   cte_diabetes_diagnoses as (
-  	select 1 as exist, diagnosis_encounter.start_date::date as diagnosis_date, patient_id from encounter_diagnoses ed
+    select 1 as exist, diagnosis_encounter.start_date::date as diagnosis_date, patient_id from encounter_diagnoses ed
       join reference_data rd 
       on rd."type" = 'icd10' and rd.id = ed.diagnosis_id
       join encounters diagnosis_encounter
@@ -101,7 +118,7 @@ with
       WHERE rd.code IN ('icd10-E11')
  ),
   cte_hypertension_diagnoses as (
-  	select 1 as exist, diagnosis_encounter.start_date::date as diagnosis_date, patient_id from encounter_diagnoses ed
+    select 1 as exist, diagnosis_encounter.start_date::date as diagnosis_date, patient_id from encounter_diagnoses ed
       join reference_data rd 
       on rd."type" = 'icd10' and rd.id = ed.diagnosis_id
       join encounters diagnosis_encounter
@@ -109,21 +126,21 @@ with
       WHERE rd.code in ('icd10-I10')
   ),
   abc as (
-  	select 
-  		cp.id,
-  		case when 
-  			cdd.diagnosis_date is null 
-  		then 
-  			chd.diagnosis_date
-  		else
-  			cdd.diagnosis_date
-  		end as date,
-  		max(cdd.exist) as a,
-  		max(chd.exist) as b
-  	from cte_patient cp
+    select 
+      cp.id,
+      case when 
+        cdd.diagnosis_date is null 
+      then 
+        chd.diagnosis_date
+      else
+        cdd.diagnosis_date
+      end as date,
+      max(cdd.exist) as a,
+      max(chd.exist) as b
+    from cte_patient cp
     left join cte_hypertension_diagnoses chd
     on cp.id = chd.patient_id
-  	left join cte_diabetes_diagnoses cdd
+    left join cte_diabetes_diagnoses cdd
     on cp.id = cdd.patient_id
     and (cdd.diagnosis_date = chd.diagnosis_date or chd.diagnosis_date is null)
     where cdd.diagnosis_date is not null or chd.diagnosis_date is not null
@@ -303,9 +320,19 @@ const transformResultsForDate = (date, resultsForDate) => {
 };
 
 export const dataGenerator = async ({ sequelize }, parameters = {}) => {
-  const { medicalArea } = parameters;
-  const query = generateQuery(medicalArea ? `where medical_area_id = '${medicalArea}'` : '');
-  const results = await sequelize.query(query, { type: sequelize.QueryTypes.SELECT });
+  const { medicalArea, nursingZone, division, village, fromDate, toDate } = parameters;
+
+  const results = await sequelize.query(query, {
+    type: sequelize.QueryTypes.SELECT,
+    replacements: {
+      medical_area: medicalArea ?? null,
+      nursing_zone: nursingZone ?? null,
+      division: division ?? null,
+      village: village ?? null,
+      from_date: fromDate ?? null,
+      to_date: toDate ?? null,
+    },
+  });
 
   const reportData = Object.entries(groupBy(results, 'date'))
     .map(([date, resultsForDate]) => transformResultsForDate(date, resultsForDate))
