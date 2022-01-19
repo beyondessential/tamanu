@@ -63,7 +63,9 @@ const PROPERTY_TO_EXCEL_INDEX = PROPERTY_LIST.reduce((acc, prop, i) => ({ ...acc
 
 const getProperty = (result, row, prop) => result.body[row][PROPERTY_TO_EXCEL_INDEX[prop]];
 
-describe('Covid swab lab test list', () => {
+// TODO: Unskip test once tests run against a postgresql database:
+// https://linear.app/bes/issue/TAN-409/get-rid-of-sqlite
+describe.skip('Fiji statistical report for phis summary', () => {
   let baseApp = null;
   let app = null;
   let village1 = null;
