@@ -14,18 +14,22 @@ pdfCertificate.post(
     req.checkPermission('read', 'Patient');
 
     const patient = await models.Patient.findByPk(patientId);
+    const data = { patient };
 
-    console.log('patient', patient.firstName);
+    pdf
+      .create(pdfTemplate(data), {
+        base: 'file:///Users/tomcaiger/Sites/tamanu/packages/lan/app/',
+        localUrlAccess: true,
+        width: '216mm',
+        height: '279mm',
+      })
+      .toFile('covid-certificate.pdf', error => {
+        if (error) {
+          console.log('error!!!', error);
+        }
 
-    const data = patient;
-
-    pdf.create(pdfTemplate(data), {}).toFile('covid-certificate.pdf', error => {
-      if (error) {
-        console.log('error!!!', error);
-      }
-
-      res.send({});
-    });
+        res.send({});
+      });
   }),
 );
 

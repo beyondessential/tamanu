@@ -14,7 +14,7 @@ import { useCurrentUser } from 'desktop/app/store/auth';
 import { ImportStatsDisplay } from './components/ImportStatsDisplay';
 import { ImportErrorsTable } from './components/ImportErrorsTable';
 
-const ProgramUploadForm = ({ submitForm, isSubmitting, additionalFields }) => (
+const Program UploadForm = ({ submitForm, isSubmitting, additionalFields }) => (
   <FormGrid columns={1}>
     <Field component={CheckField} label="Test run" name="dryRun" required />
     <Field component={CheckField} label="Skip invalid records" name="allowErrors" required />

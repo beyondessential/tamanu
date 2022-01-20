@@ -1,137 +1,165 @@
-export default () => {
-  const today = new Date();
-  const name = 'Tom';
-  const receiptId = '123';
-  const price1 = '11';
-  const price2 = '12';
+const detailsFieldsToDisplay = [
+  'firstName',
+  'lastName',
+  'dateOfBirth',
+  'placeOfBirth',
+  'countryOfBirthId',
+  'sex',
+];
 
+const PRIMARY_DETAILS_FIELDS = {
+  firstName: null,
+  lastName: null,
+  placeOfBirth: ({ additionalData }) => additionalData?.placeOfBirth,
+  countryOfBirthId: ({ additionalData }) => additionalData?.countryOfBirth?.name,
+  sex: null,
+  Mother: () => null, // TODO: not populated
+  displayId: null,
+};
+
+const getHeader = () => `
+      <!doctype html>
+      <html lang="en"><head>
+      <title>Tamanu Certificate</title>
+      <meta charSet="UTF-8" >
+      <meta
+        name="viewport"
+        content="width=device-width, user-scalable=no, initial-scale=1.0, maximum-scale=1.0, minimum-scale=1.0"
+      >
+      <meta http-equiv="X-UA-Compatible" content="ie=edge" >
+      <link
+        href="assets/bootstrap-reboot.css"
+        rel="stylesheet"
+        type="text/css"
+      />
+      <link href="assets/bootstrap.css" rel="stylesheet" type="text/css" />
+      <style>
+        /*https://github.com/marcbachmann/node-html-pdf/issues/198*/
+        html {
+          zoom: .7;
+        }  
+        .container { 
+          padding: 30px;
+          border: 1px solid #eee; 
+          box-shadow: 0 0 10px rgba(0, 0, 0, .15);
+        }
+        .header {
+            text-align: center;
+            margin-bottom: 100px;
+        }
+        .title {
+          font-size: 21px;
+        }
+        .sub-title {
+          font-size: 18px;
+        }
+         .heading {
+          font-size: 16px;
+          text-decoration: underline;
+          font-weight: 600;
+        }
+        .header img {
+            position: absolute;
+            top: 20px;
+            left: 20px;
+            width: 110px;
+        }
+        .patient {
+            margin-top: 30px;
+            margin-bottom: 30px;
+        }
+        .results {
+            margin-top: 30px;
+            margin-bottom: 30px;
+        }
+    
+        /* Table*/
+        table {
+            width: 100%;
+            max-width: 100%;
+        }
+    
+        td, th {
+            padding: 5px;
+        }
+    
+        th {
+            border: 1px solid black;
+        }
+    
+        /* Utils */
+        .flex-start {
+            display: flex;
+            align-items: center;
+            justify-content: flex-start;
+        }
+        .text-center {
+            text-align: center;
+        }
+        .grid {
+            display: grid;
+            grid-template-columns: auto 1fr;
+            grid-column-gap: 20px;
+        }
+        .grid p {
+          border 1px solid lightblue;
+        }
+      </style>
+    </head>
+    <body>`;
+
+const getFooter = () => `</body>
+    </html>`;
+
+const getBody = ({ patient }) => {
+  const patientDetails = detailsFieldsToDisplay
+    .map(field => {
+      const accessor = PRIMARY_DETAILS_FIELDS[field];
+      const label = field;
+      const value = (accessor ? accessor(patient) : patient[field]) || '';
+      return `<p><span>${label}: </span><span>${value}</span></p>`;
+    })
+    .join('');
+
+  return `<div class="container" style="width: 21cm; height: 27cm; border: solid 1px black;">
+    <div class="header">
+      <img src="assets/tamanu_logo.svg" alt="logo">
+        <h3 class="title">TAMANU MINISTRY OF HEALTH & MEDICAL SERVICES</h3>
+        <h4 class="sub-title">PO Box 12345, Melbourne, Australia</h4>
+    </div>
+    <div class="patient">
+      <h5 class="heading">Covid-19 Test History</h5>
+      <div class="grid">
+      ${patientDetails}
+      </div>
+    </div>
+    <div class="results">
+      <table>
+        <thead>
+        <tr>
+          <th>Date of swab</th>
+          <th>Date of test</th>
+          <th>Laboratory</th>
+          <th>Request ID</th>
+        </tr>
+        </thead>
+        <tbody>
+        <tr>
+          <td>01/01/2022</td>
+          <td>11/01/2022</td>
+          <td>Tonga Health Center</td>
+          <td>11223344</td>
+        </tr>
+        </tbody>
+      </table>
+    </div>
+  </div>`;
+};
+
+export default data => {
   return `
-    <!doctype html>
-    <html>
-       <head>
-          <meta charset="utf-8">
-          <title>PDF Result Template</title>
-          <style>
-             .invoice-box {
-             max-width: 800px;
-             margin: auto;
-             padding: 30px;
-             border: 1px solid #eee;
-             box-shadow: 0 0 10px rgba(0, 0, 0, .15);
-             font-size: 16px;
-             line-height: 24px;
-             font-family: 'Helvetica Neue', 'Helvetica',
-             color: #555;
-             }
-             .margin-top {
-             margin-top: 50px;
-             }
-             .justify-center {
-             text-align: center;
-             }
-             .invoice-box table {
-             width: 100%;
-             line-height: inherit;
-             text-align: left;
-             }
-             .invoice-box table td {
-             padding: 5px;
-             vertical-align: top;
-             }
-             .invoice-box table tr td:nth-child(2) {
-             text-align: right;
-             }
-             .invoice-box table tr.top table td {
-             padding-bottom: 20px;
-             }
-             .invoice-box table tr.top table td.title {
-             font-size: 45px;
-             line-height: 45px;
-             color: #333;
-             }
-             .invoice-box table tr.information table td {
-             padding-bottom: 40px;
-             }
-             .invoice-box table tr.heading td {
-             background: #eee;
-             border-bottom: 1px solid #ddd;
-             font-weight: bold;
-             }
-             .invoice-box table tr.details td {
-             padding-bottom: 20px;
-             }
-             .invoice-box table tr.item td {
-             border-bottom: 1px solid #eee;
-             }
-             .invoice-box table tr.item.last td {
-             border-bottom: none;
-             }
-             .invoice-box table tr.total td:nth-child(2) {
-             border-top: 2px solid #eee;
-             font-weight: bold;
-             }
-             @media only screen and (max-width: 600px) {
-             .invoice-box table tr.top table td {
-             width: 100%;
-             display: block;
-             text-align: center;
-             }
-             .invoice-box table tr.information table td {
-             width: 100%;
-             display: block;
-             text-align: center;
-             }
-             }
-          </style>
-       </head>
-       <body>
-          <div class="invoice-box">
-             <table cellpadding="0" cellspacing="0">
-                <tr class="top">
-                   <td colspan="2">
-                      <table>
-                         <tr>
-                            <td class="title"><img  src="https://i2.wp.com/cleverlogos.co/wp-content/uploads/2018/05/reciepthound_1.jpg?fit=800%2C600&ssl=1"
-                               style="width:100%; max-width:156px;"></td>
-                            <td>
-                               Datum: ${`${today.getDate()}. ${today.getMonth() +
-                                 1}. ${today.getFullYear()}.`}
-                            </td>
-                         </tr>
-                      </table>
-                   </td>
-                </tr>
-                <tr class="information">
-                   <td colspan="2">
-                      <table>
-                         <tr>
-                            <td>
-                               Customer name: ${name}
-                            </td>
-                            <td>
-                               Receipt number: ${receiptId}
-                            </td>
-                         </tr>
-                      </table>
-                   </td>
-                </tr>
-                <tr class="heading">
-                   <td>Bought items:</td>
-                   <td>Price</td>
-                </tr>
-                <tr class="item">
-                   <td>First item:</td>
-                   <td>${price1}$</td>
-                </tr>
-                <tr class="item">
-                   <td>Second item:</td>
-                   <td>${price2}$</td>
-                </tr>
-             </table>
-             <br />
-             <h1 class="justify-center">Total price: ${parseInt(price1) + parseInt(price2)}$</h1>
-          </div>
-       </body>
-    </html>
+    ${getHeader()}
+    ${getBody(data)}
+    ${getFooter()}
     `;
 };
