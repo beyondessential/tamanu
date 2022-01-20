@@ -56,11 +56,11 @@ describe('Attachment (sync-server)', () => {
       size: 1002,
       data: FILEDATA,
     });
-    expect(result).toHaveRequestError();
     expect(result.body.error).toBeTruthy();
     expect(result.body.error.message).toBe(
       'Document cannot be uploaded due to lack of storage space.',
     );
+    expect(result.body.error.name).toBe('InsufficientStorageError');
   });
 
   it('should create an attachment and receive its ID back', async () => {

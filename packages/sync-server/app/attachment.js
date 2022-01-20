@@ -1,7 +1,7 @@
 import express from 'express';
 import asyncHandler from 'express-async-handler';
 import config from 'config';
-import { ForbiddenError, InvalidOperationError } from 'shared/errors';
+import { ForbiddenError, InsufficientStorageError } from 'shared/errors';
 import { getFreeDiskSpace } from './utils/getFreeDiskSpace';
 
 export const attachmentRoutes = express.Router();
@@ -38,7 +38,9 @@ attachmentRoutes.post(
     const freeDiskSpace = await getFreeDiskSpace();
 
     if (!freeDiskSpace || freeDiskSpace < FREE_SPACE_REQUIRED) {
-      throw new InvalidOperationError('Document cannot be uploaded due to lack of storage space.');
+      throw new InsufficientStorageError(
+        'Document cannot be uploaded due to lack of storage space.',
+      );
     }
 
     const { Attachment } = req.store.models;
