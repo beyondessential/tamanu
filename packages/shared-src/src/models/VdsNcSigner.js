@@ -17,12 +17,12 @@ export class VdsNcSigner extends Model {
       {
         id: primaryKey,
 
-        dateCreated: {
+        createdAt: {
           type: Sequelize.DATE,
           allowNull: false,
           defaultValue: Sequelize.NOW,
         },
-        dateDeleted: {
+        deletedAt: {
           type: Sequelize.DATE,
           allowNull: true,
         },

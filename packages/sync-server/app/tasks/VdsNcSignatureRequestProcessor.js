@@ -2,6 +2,7 @@ import config from 'config';
 import { ScheduledTask } from 'shared/tasks';
 import { log } from 'shared/services/logging';
 import qrcode from 'qrcode';
+import { Op } from 'sequelize';
 
 export class VdsNcSignatureRequestProcessor extends ScheduledTask {
   constructor(context) {
@@ -17,7 +18,7 @@ export class VdsNcSignatureRequestProcessor extends ScheduledTask {
     const { VdsNcSignature, VdsNcSigner } = this.context.store.models;
     const requests = await VdsNcSignature.findAll({
       where: {
-        dateSigned: { [Op.is]: null },
+        signedAt: { [Op.is]: null },
       },
     });
 

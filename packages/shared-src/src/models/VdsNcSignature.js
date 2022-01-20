@@ -1,7 +1,7 @@
 import { Sequelize } from 'sequelize';
 import { Model } from './Model';
 import { VdsNcSigner } from './VdsNcSigner';
-import { ICAO_DOCUMENT_TYPES } from '../constants';
+import { ICAO_DOCUMENT_TYPES, SYNC_DIRECTIONS } from '../constants';
 
 export class VdsNcSignature extends Model {
   static init({ primaryKey, ...options }) {
@@ -9,12 +9,7 @@ export class VdsNcSignature extends Model {
       {
         id: primaryKey,
 
-        dateRequested: {
-          type: Sequelize.DATE,
-          allowNull: false,
-          defaultValue: Sequelize.NOW,
-        },
-        dateSigned: {
+        signedAt: {
           type: Sequelize.DATE,
           allowNull: true,
         },
@@ -76,7 +71,7 @@ export class VdsNcSignature extends Model {
    * @returns {boolean} True if this has been signed.
    */
   isSigned() {
-    return !!(this.algorithm && this.signature && this.dateSigned);
+    return !!(this.algorithm && this.signature && this.signedAt);
   }
 
   /**
@@ -105,7 +100,7 @@ export class VdsNcSignature extends Model {
     const { alg, sig } = signer.issueSignature(data, keySecret);
     this.algorithm = alg;
     this.signature = Buffer.from(sig, 'base64');
-    this.dateSigned = Sequelize.NOW;
+    this.signedAt = Sequelize.NOW;
     this.setVdsNcSigner(signer);
 
     return await this.save();

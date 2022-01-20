@@ -62,3 +62,6 @@ export * from './InvoiceLineType';
 export * from './InvoiceLineItem';
 export * from './InvoicePriceChangeItem';
 export * from './InvoicePriceChangeType';
+
+export * from './VdsNcSignature';
+export * from './VdsNcSigner';

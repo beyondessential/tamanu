@@ -9,12 +9,21 @@ module.exports = {
         allowNull: false,
         primaryKey: true,
       },
-      date_requested: {
+      created_at: {
         type: Sequelize.DATE,
         defaultValue: Sequelize.NOW,
         allowNull: false,
       },
-      date_signed: {
+      updated_at: {
+        type: Sequelize.DATE,
+        defaultValue: Sequelize.NOW,
+        allowNull: false,
+      },
+      deleted_at: {
+        type: Sequelize.DATE,
+        allowNull: true,
+      },
+      signed_at: {
         type: Sequelize.DATE,
         allowNull: true,
       },

@@ -9,12 +9,17 @@ module.exports = {
         allowNull: false,
         primaryKey: true,
       },
-      date_created: {
+      created_at: {
         type: Sequelize.DATE,
         defaultValue: Sequelize.NOW,
         allowNull: false,
       },
-      date_deleted: {
+      updated_at: {
+        type: Sequelize.DATE,
+        defaultValue: Sequelize.NOW,
+        allowNull: false,
+      },
+      deleted_at: {
         type: Sequelize.DATE,
         defaultValue: Sequelize.NOW,
         allowNull: false,
