@@ -1,5 +1,5 @@
 import { Sequelize, Op } from 'sequelize';
-
+import { X502_OIDS } from '../constants';
 import crypto from 'crypto';
 import { promisify } from 'util';
 import { getCrypto, Certificate, CertificationRequest, AttributeTypeAndValue } from 'pkijs';
@@ -7,9 +7,6 @@ import { fromBER } from 'asn1js';
 import Vds from '@pathcheck/vds-sdk';
 import assert from 'assert';
 import { Model } from './Model';
-
-const OID_COMMON_NAME = '2.5.4.3';
-const OID_COUNTRY_NAME = '2.5.4.6';
 
 export class VdsNcSigner extends Model {
   static init({ primaryKey, ...options }) {
@@ -81,6 +78,12 @@ export class VdsNcSigner extends Model {
         indexes: [{ fields: ['not_before'] }, { fields: ['not_after'] }],
       },
     );
+  }
+
+  static initRelations(models) {
+    this.hasMany(models.VdsNcSigner, {
+      foreignKey: 'signerId',
+    });
   }
 
   /**
@@ -233,13 +236,13 @@ async function newKeypairAndCsr(keySecret, country, name) {
   csr.version = 0;
   csr.subject.typesAndValues.push(
     new AttributeTypeAndValue({
-      type: OID_COUNTRY_NAME,
+      type: X502_OIDS.COUNTRY_NAME,
       value: country,
     }),
   );
   csr.subject.typesAndValues.push(
     new AttributeTypeAndValue({
-      type: OID_COMMON_NAME,
+      type: X502_OIDS.COMMON_NAME,
       value: name,
     }),
   );

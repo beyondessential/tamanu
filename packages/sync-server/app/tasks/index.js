@@ -6,13 +6,13 @@ import { ReportRequestProcessor } from './ReportRequestProcessor';
 import { ReportRequestScheduler } from './ReportRequestScheduler';
 import { VdsNcSignerExpiryChecker } from './VdsNcSignerExpiryChecker';
 import { VdsNcSignerRenewalChecker } from './VdsNcSignerRenewalChecker';
-import { VdsNcSignatureRequestProcessor } from './VdsNcSignatureRequestProcessor';
+import { VdsNcDocumentSigningProcessor } from './VdsNcDocumentSigningProcessor';
 
 const TASKS = [
   OutpatientDischarger,
   PatientEmailCommunicationProcessor,
   ReportRequestProcessor,
-  VdsNcSignatureRequestProcessor,
+  VdsNcDocumentSigningProcessor,
   VdsNcSignerExpiryChecker,
   VdsNcSignerRenewalChecker,
 ];

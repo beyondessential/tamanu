@@ -4,26 +4,26 @@ import { log } from 'shared/services/logging';
 import qrcode from 'qrcode';
 import { Op } from 'sequelize';
 
-export class VdsNcSignatureRequestProcessor extends ScheduledTask {
+export class VdsNcDocumentSigningProcessor extends ScheduledTask {
   constructor(context) {
     super('*/5 * * * *', log);
     this.context = context;
   }
 
   getName() {
-    return 'VdsNcSignatureRequestProcessor';
+    return 'VdsNcDocumentSigningProcessor';
   }
 
   async run() {
-    const { VdsNcSignature, VdsNcSigner } = this.context.store.models;
-    const requests = await VdsNcSignature.findAll({
+    const { VdsNcDocument, VdsNcSigner } = this.context.store.models;
+    const docs = await VdsNcDocument.findAll({
       where: {
         signedAt: { [Op.is]: null },
       },
     });
 
-    if (requests.length < 1) {
-      log.info('No pending VDS-NC signature requests');
+    if (docs.length < 1) {
+      log.info('No unsigned VDS-NC documents');
       return Promise.resolve();
     }
 
@@ -35,8 +35,8 @@ export class VdsNcSignatureRequestProcessor extends ScheduledTask {
     }
 
     return Promise.all(
-      requests.map(async request => {
-        const signed = await request.signRequest(config.icao.keySecret);
+      docs.map(async doc => {
+        const signed = await doc.signRequest(config.icao.keySecret);
 
         if (signed.recipientEmail) {
           const vds = await signed.intoVDS();

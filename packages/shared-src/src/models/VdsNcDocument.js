@@ -3,7 +3,7 @@ import { Model } from './Model';
 import { VdsNcSigner } from './VdsNcSigner';
 import { ICAO_DOCUMENT_TYPES, SYNC_DIRECTIONS } from '../constants';
 
-export class VdsNcSignature extends Model {
+export class VdsNcDocument extends Model {
   static init({ primaryKey, ...options }) {
     super.init(
       {
@@ -14,17 +14,17 @@ export class VdsNcSignature extends Model {
           allowNull: true,
         },
 
-        recipientEmail: {
-          type: Sequelize.STRING,
-          allowNull: true,
-        },
-        documentType: {
+        type: {
           type: Sequelize.STRING,
           allowNull: false,
         },
         messageData: {
           type: Sequelize.JSON,
           allowNull: false,
+        },
+        recipientEmail: {
+          type: Sequelize.STRING,
+          allowNull: true,
         },
 
         algorithm: {
@@ -42,12 +42,12 @@ export class VdsNcSignature extends Model {
         validate: {
           mustHavePatient() {
             if (!this.patientId) {
-              throw new Error('A VDS-NC signature must be attached to a patient.');
+              throw new Error('A VDS-NC document must be attached to a patient.');
             }
           },
-          mustHaveValidDocumentType() {
-            if (!Object.keys(ICAO_DOCUMENT_TYPES).includes(this.documentType)) {
-              throw new Error('A VDS-NC signature must have a valid document type.');
+          mustHaveValidType() {
+            if (!Object.keys(ICAO_DOCUMENT_TYPES).includes(this.type)) {
+              throw new Error('A VDS-NC document must have a valid type.');
             }
           },
         },
@@ -75,22 +75,22 @@ export class VdsNcSignature extends Model {
   }
 
   /**
-   * Signs a signature request.
+   * Signs a document.
    *
-   * If the request is already signed, this will silently do nothing, and return
+   * If the document is already signed, this will silently do nothing, and return
    * as normal.
    *
    * @param {string} keySecret Base64-encoded key secret (icao.keySecret).
-   * @returns {Promise<VdsNcSignature>} This object, signed, stored to the database.
+   * @returns {Promise<VdsNcDocument>} This object, signed, stored to the database.
    */
-  async signRequest(keySecret) {
+  async sign(keySecret) {
     if (this.isSigned()) return this;
 
     const signer = await VdsNcSigner.findActive();
 
     const data = {
       hdr: {
-        t: this.documentType,
+        t: this.type,
         v: 1,
         is: signer.countryCode,
       },
@@ -98,12 +98,11 @@ export class VdsNcSignature extends Model {
     };
 
     const { alg, sig } = signer.issueSignature(data, keySecret);
-    this.algorithm = alg;
-    this.signature = Buffer.from(sig, 'base64');
-    this.signedAt = Sequelize.NOW;
-    this.setVdsNcSigner(signer);
-
-    return this.save();
+    return this.set({
+      algorithm: alg,
+      signature: Buffer.from(sig, 'base64'),
+      signedAt: Sequelize.NOW,
+    }).setVdsNcSigner(signer).save();
   }
 
   /**

@@ -2,7 +2,7 @@ const Sequelize = require('sequelize');
 
 module.exports = {
   up: async query => {
-    await query.createTable('vds_nc_signatures', {
+    await query.createTable('vds_nc_documents', {
       id: {
         type: Sequelize.STRING,
         defaultValue: Sequelize.UUIDV4,
@@ -27,17 +27,17 @@ module.exports = {
         type: Sequelize.DATE,
         allowNull: true,
       },
-      recipient_email: {
-        type: Sequelize.STRING,
-        allowNull: true,
-      },
-      document_type: {
+      type: {
         type: Sequelize.STRING,
         allowNull: false,
       },
       message_data: {
-        type: Sequelize.JSON,
+        type: Sequelize.TEXT,
         allowNull: false,
+      },
+      recipient_email: {
+        type: Sequelize.STRING,
+        allowNull: true,
       },
       algorithm: {
         type: Sequelize.STRING,
@@ -71,6 +71,6 @@ module.exports = {
     });
   },
   down: async query => {
-    await query.dropTable('vds_nc_signatures');
+    await query.dropTable('vds_nc_documents');
   },
 };
