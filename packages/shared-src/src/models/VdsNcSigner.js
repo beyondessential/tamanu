@@ -140,7 +140,7 @@ export class VdsNcSigner extends Model {
    * @return {Promise<VdsNcSigner>} The active signer.
    * @throws if there's none.
    */
-  static findActiveSigner() {
+  static findActive() {
     return VdsNcSigner.findOne({
       where: {
         notBefore: { [Op.gte]: Sequelize.NOW },

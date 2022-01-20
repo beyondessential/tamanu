@@ -90,7 +90,7 @@ export class VdsNcSignature extends Model {
   async signRequest(keySecret) {
     if (this.isSigned()) return this;
 
-    const signer = await VdsNcSigner.findActiveSigner();
+    const signer = await VdsNcSigner.findActive();
 
     const data = {
       hdr: {
