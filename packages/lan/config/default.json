@@ -67,13 +67,6 @@
       "location": "SHORTSTAY"
     }
   },
-  "icao": {
-    // Encryption key for ICAO DSC key material (stored in DB).
-    // This should be unique per country/installation, and must
-    // be replicated to each facility and the sync server.
-    // It must be at least 32 bytes of random data in Base64.
-    "keySecret": null
-  },
   "serverFacilityId": "",
   "debugging": {
     "requestFailureRate": 0

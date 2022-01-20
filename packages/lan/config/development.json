@@ -11,8 +11,5 @@
   "db": {
     "name": "develop",
     "sqlitePath": "data/tamanu-dev.db"
-  },
-  "icao": {
-    "keySecret": "dTk8mJ0t+xszGxohhMq1Y7UEE9h1Pzvb+1r+YHVf+Y4="
   }
 }
