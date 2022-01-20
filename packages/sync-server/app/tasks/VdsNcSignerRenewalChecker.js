@@ -1,10 +1,11 @@
 import config from 'config';
 import { ScheduledTask } from 'shared/tasks';
 import { log } from 'shared/services/logging';
+import { Op } from 'sequelize';
 
 export class VdsNcSignerRenewalChecker extends ScheduledTask {
   constructor(context) {
-    super('0 0 * * * *', log);
+    super('0 0 * * *', log);
     this.context = context;
   }
 
@@ -20,7 +21,7 @@ export class VdsNcSignerRenewalChecker extends ScheduledTask {
 
     // Buffer before expiration
     if (config.icao.renew.daysBeforeExpiry) {
-      const daysUntilExpiry = (signer.notAfter - new Date) / (1000 * 60 * 60 * 24);
+      const daysUntilExpiry = (signer.notAfter - new Date()) / (1000 * 60 * 60 * 24);
       if (daysUntilExpiry >= config.icao.renew.daysBeforeExpiry) {
         beyondThreshold = true;
       }
@@ -41,7 +42,7 @@ export class VdsNcSignerRenewalChecker extends ScheduledTask {
     }
 
     // If we're really too late somehow
-    if (signer.notAfter <= new Date) {
+    if (signer.notAfter <= new Date()) {
       beyondThreshold = true;
     }
 
@@ -56,7 +57,11 @@ export class VdsNcSignerRenewalChecker extends ScheduledTask {
       });
 
       if (pending.length > 0) {
-        log.info(`There is at least one pending signer CSR: ${pending.map(s => s.id).join(', ')}, skipping renewal`);
+        log.info(
+          `There is at least one pending signer CSR: ${pending
+            .map(s => s.id)
+            .join(', ')}, skipping renewal`,
+        );
         return;
       }
 
@@ -68,6 +73,7 @@ export class VdsNcSignerRenewalChecker extends ScheduledTask {
       });
       log.info(`Created new signer (CSR): ${newSigner.id}`);
 
+      const recipient = config.icao.csr.email?.recipient;
       if (recipient) {
         log.info(`Emailing CSR to ${recipient}`);
         // TODO

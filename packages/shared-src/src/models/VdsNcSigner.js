@@ -1,5 +1,4 @@
 import { Sequelize, Op } from 'sequelize';
-import { Model } from './Model';
 
 import crypto from 'crypto';
 import { promisify } from 'util';
@@ -7,6 +6,7 @@ import { getCrypto, Certificate, CertificationRequest, AttributeTypeAndValue } f
 import { fromBER } from 'asn1js';
 import Vds from '@pathcheck/vds-sdk';
 import assert from 'assert';
+import { Model } from './Model';
 
 const OID_COMMON_NAME = '2.5.4.3';
 const OID_COUNTRY_NAME = '2.5.4.6';
@@ -32,7 +32,8 @@ export class VdsNcSigner extends Model {
           allowNull: false,
         },
 
-        privateKey: { // encrypted with facility key (icao.keySecret)
+        privateKey: {
+          // encrypted with facility key (icao.keySecret)
           type: Sequelize.BLOB, // PKCS8 DER
           allowNull: true,
         },
@@ -41,20 +42,24 @@ export class VdsNcSigner extends Model {
           allowNull: false,
         },
 
-        request: { // certificate request
+        request: {
+          // certificate request
           type: Sequelize.TEXT, // PKCS10 PEM
           allowNull: false,
         },
-        certificate: { // issued by CSCA
+        certificate: {
+          // issued by CSCA
           type: Sequelize.TEXT, // X.509 PEM
           allowNull: true,
         },
 
-        notBefore: { // extracted/cached from certificate
+        notBefore: {
+          // extracted/cached from certificate
           type: Sequelize.DATE,
           allowNull: true,
         },
-        notAfter: { // extracted/cached from certificate
+        notAfter: {
+          // extracted/cached from certificate
           type: Sequelize.DATE,
           allowNull: true,
         },
@@ -87,9 +92,9 @@ export class VdsNcSigner extends Model {
    * @returns {Promise<VdsNcSigner>} The new Signer, stored in the database.
    */
   static async createKeypair({
-    keySecret,   // secret key from config (icao.keySecret)
+    keySecret, // secret key from config (icao.keySecret)
     countryCode, // ICAO country code (icao.csr.countryCode)
-    commonName,  // name on the certificate (icao.csr.commonName)
+    commonName, // name on the certificate (icao.csr.commonName)
   }) {
     const { publicKey, privateKey, request } = await newKeypairAndCsr(
       Buffer.from(keySecret, 'base64'),
@@ -112,17 +117,20 @@ export class VdsNcSigner extends Model {
    * @returns {Promise<VdsNcSigner>} The updated Signer.
    */
   loadSignedCertificate(certificate) {
-    let binCert, txtCert;
+    let binCert;
+    let txtCert;
     if (typeof certificate === 'string') {
       if (!certificate.trimStart().startsWith('-----BEGIN CERTIFICATE-----')) {
         throw new Error('Certificate must be in PEM format');
       }
 
-      binCert = Buffer.from(certificate.replace(/^--.+$/mg).trim(), 'base64');
+      binCert = Buffer.from(certificate.replace(/^--.+$/gm).trim(), 'base64');
       txtCert = certificate;
     } else if (Buffer.isBuffer(certificate)) {
       binCert = certificate;
-      txtCert = `-----BEGIN CERTIFICATE-----\n${certificate.toString('base64')}\n-----END CERTIFICATE-----`;
+      txtCert = `-----BEGIN CERTIFICATE-----\n${certificate.toString(
+        'base64',
+      )}\n-----END CERTIFICATE-----`;
     } else {
       throw new Error('Certificate must be a string (PEM) or Buffer (DER).');
     }
@@ -155,13 +163,8 @@ export class VdsNcSigner extends Model {
    * @return {boolean} True if the signer is active (can be used).
    */
   isActive() {
-    const now = new Date;
-    return !!(
-      this.notBefore >= now &&
-      this.notAfter < now &&
-      this.certificate &&
-      this.privateKey
-    );
+    const now = new Date();
+    return !!(this.notBefore >= now && this.notAfter < now && this.certificate && this.privateKey);
   }
 
   /**
@@ -205,32 +208,41 @@ export class VdsNcSigner extends Model {
 // this is a separate function not only because crypto is always
 // messy, but also because we want to encourage GC to drop the
 // plaintext key after we're done with it.
-async function newKeypairAndCsr (keySecret, country, name) {
-  const { publicKey, privateKey } = await promisify(crypto.generateKeyPair)(
-    'ec',
-    { namedCurve: 'prime256v1' },
-  );
+async function newKeypairAndCsr(keySecret, country, name) {
+  const { publicKey, privateKey } = await promisify(crypto.generateKeyPair)('ec', {
+    namedCurve: 'prime256v1',
+  });
 
   const cry = getCrypto();
-  const publicCryptoKey = cry.importKey('spki', publicKey.export({
-    type: 'spki',
-    format: 'pem',
-  }));
-  const privateCryptoKey = cry.importKey('pkcs8', privateKey.export({
-    type: 'pkcs8',
-    format: 'pem',
-  }));
+  const publicCryptoKey = cry.importKey(
+    'spki',
+    publicKey.export({
+      type: 'spki',
+      format: 'pem',
+    }),
+  );
+  const privateCryptoKey = cry.importKey(
+    'pkcs8',
+    privateKey.export({
+      type: 'pkcs8',
+      format: 'pem',
+    }),
+  );
 
-  const csr = new CertificationRequest;
+  const csr = new CertificationRequest();
   csr.version = 0;
-  csr.subject.typesAndValues.push(new AttributeTypeAndValue({
-    type: OID_COUNTRY_NAME,
-    value: country,
-  }));
-  csr.subject.typesAndValues.push(new AttributeTypeAndValue({
-    type: OID_COMMON_NAME,
-    value: name,
-  }));
+  csr.subject.typesAndValues.push(
+    new AttributeTypeAndValue({
+      type: OID_COUNTRY_NAME,
+      value: country,
+    }),
+  );
+  csr.subject.typesAndValues.push(
+    new AttributeTypeAndValue({
+      type: OID_COMMON_NAME,
+      value: name,
+    }),
+  );
 
   await csr.subjectPublicKeyInfo.importKey(publicCryptoKey);
   await csr.sign(privateCryptoKey, 'SHA256');
@@ -247,6 +259,8 @@ async function newKeypairAndCsr (keySecret, country, name) {
       cipher: 'aes-256-gcm',
       passphrase: keySecret,
     }),
-    request: `-----BEGIN CERTIFICATE REQUEST-----\n${packedCsr.toString('base64')}\n-----END CERTIFICATE REQUEST-----`,
+    request: `-----BEGIN CERTIFICATE REQUEST-----\n${packedCsr.toString(
+      'base64',
+    )}\n-----END CERTIFICATE REQUEST-----`,
   };
 }

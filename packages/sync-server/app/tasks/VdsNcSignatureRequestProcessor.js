@@ -6,7 +6,7 @@ import { Op } from 'sequelize';
 
 export class VdsNcSignatureRequestProcessor extends ScheduledTask {
   constructor(context) {
-    super('*/5 * * * * *', log);
+    super('*/5 * * * *', log);
     this.context = context;
   }
 
@@ -24,25 +24,26 @@ export class VdsNcSignatureRequestProcessor extends ScheduledTask {
 
     if (requests.length < 1) {
       log.info('No pending VDS-NC signature requests');
-      return;
+      return Promise.resolve();
     }
 
-    let signer;
     try {
-      signer = await VdsNcSigner.findActive();
+      await VdsNcSigner.findActive();
     } catch (err) {
       log.error(`No active VDS-NC signer found, cannot proceed. (${err})`);
-      return;
+      return Promise.resolve();
     }
 
-    return Promise.all(requests.map(async (request) => {
-      request = await request.signRequest(config.icao.keySecret);
+    return Promise.all(
+      requests.map(async request => {
+        const signed = await request.signRequest(config.icao.keySecret);
 
-      if (request.recipientEmail) {
-        const vds = await request.intoVDS();
-        const qrCode = qrcode.toDataURL(JSON.stringify(vds), { errorCorrectionLevel: 'H' });
-        // TODO: generate doc, embed QR, and send email
-      }
-    }));
+        if (signed.recipientEmail) {
+          const vds = await signed.intoVDS();
+          const qrCode = qrcode.toDataURL(JSON.stringify(vds), { errorCorrectionLevel: 'H' });
+          // TODO: generate doc, embed QR, and send email
+        }
+      }),
+    );
   }
 }

@@ -103,7 +103,7 @@ export class VdsNcSignature extends Model {
     this.signedAt = Sequelize.NOW;
     this.setVdsNcSigner(signer);
 
-    return await this.save();
+    return this.save();
   }
 
   /**

@@ -4,7 +4,7 @@ import { Op, Sequelize } from 'sequelize';
 
 export class VdsNcSignerExpiryChecker extends ScheduledTask {
   constructor(context) {
-    super('0 1 * * * *', log);
+    super('0 1 * * *', log);
     this.context = context;
   }
 
@@ -20,15 +20,21 @@ export class VdsNcSignerExpiryChecker extends ScheduledTask {
       },
     });
 
-    if (expired.length > 0) {
-      log.info(`${expired.length} VDS-NC signer(s) expired`);
-
-      return Promise.all(expired.map(async (signer) => {
-        signer.dateDeleted = Sequelize.NOW;
-        signer.privateKey = null;
-        await signer.save();
-        log.info(`Signer ${signer.id}'s private key deleted (issued ${signer.signaturesIssued} signatures)`);
-      }));
+    if (!expired.length) {
+      return Promise.resolve();
     }
+
+    log.info(`${expired.length} VDS-NC signer(s) expired`);
+
+    return Promise.all(
+      expired.map(async signer => {
+        signer.set({ privateKey: null });
+        await signer.save();
+        await signer.destroy();
+        log.info(
+          `Signer ${signer.id}'s private key deleted (issued ${signer.signaturesIssued} signatures)`,
+        );
+      }),
+    );
   }
 }
