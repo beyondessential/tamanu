@@ -50,11 +50,11 @@ export class VdsNcSigner extends Model {
           allowNull: true,
         },
 
-        notBeforeDate: { // extracted/cached from certificate
+        notBefore: { // extracted/cached from certificate
           type: Sequelize.DATE,
           allowNull: true,
         },
-        notAfterDate: { // extracted/cached from certificate
+        notAfter: { // extracted/cached from certificate
           type: Sequelize.DATE,
           allowNull: true,
         },
@@ -72,7 +72,8 @@ export class VdsNcSigner extends Model {
       },
       {
         ...options,
-        validate: {},
+        paranoid: true,
+        indexes: [{ fields: ['not_before'] }, { fields: ['not_after'] }],
       },
     );
   }
@@ -129,8 +130,8 @@ export class VdsNcSigner extends Model {
     }
 
     const cert = new Certificate({ schema: fromBER(binCert).result });
-    this.notBeforeDate = cert.notBefore.value;
-    this.notAfterDate = cert.notAfter.value;
+    this.notBefore = cert.notBefore.value;
+    this.notAfter = cert.notAfter.value;
     this.certificate = txtCert;
 
     return this.save();
@@ -138,13 +139,14 @@ export class VdsNcSigner extends Model {
 
   /**
    * Fetches the current active signer, if any.
-   * @return {Promise<VdsNcSigner>} The active signer, or rejects if there's none.
+   * @return {Promise<VdsNcSigner>} The active signer.
+   * @throws if there's none.
    */
   static findActiveSigner() {
     return VdsNcSigner.findOne({
       where: {
-        notBeforeDate: { [Op.gte]: Sequelize.NOW },
-        notAfterDate: { [Op.lt]: Sequelize.NOW },
+        notBefore: { [Op.gte]: Sequelize.NOW },
+        notAfter: { [Op.lt]: Sequelize.NOW },
         certificate: { [Op.not]: null },
         privateKey: { [Op.not]: null },
       },
@@ -157,8 +159,8 @@ export class VdsNcSigner extends Model {
   isActive() {
     const now = new Date;
     return !!(
-      this.notBeforeDate >= now &&
-      this.notAfterDate < now &&
+      this.notBefore >= now &&
+      this.notAfter < now &&
       this.certificate &&
       this.privateKey
     );
