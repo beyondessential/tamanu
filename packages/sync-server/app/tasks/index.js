@@ -4,6 +4,7 @@ import { PatientEmailCommunicationProcessor } from './PatientEmailCommunicationP
 import { OutpatientDischarger } from './OutpatientDischarger';
 import { ReportRequestProcessor } from './ReportRequestProcessor';
 import { ReportRequestScheduler } from './ReportRequestScheduler';
+import { VdsNcSignerExpiryChecker } from './VdsNcSignerExpiryChecker';
 import { VdsNcSignerRenewalChecker } from './VdsNcSignerRenewalChecker';
 import { VdsNcSignatureRequestProcessor } from './VdsNcSignatureRequestProcessor';
 
@@ -12,6 +13,7 @@ const TASKS = [
   PatientEmailCommunicationProcessor,
   ReportRequestProcessor,
   VdsNcSignatureRequestProcessor,
+  VdsNcSignerExpiryChecker,
   VdsNcSignerRenewalChecker,
 ];
 
