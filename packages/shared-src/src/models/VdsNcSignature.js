@@ -43,6 +43,7 @@ export class VdsNcSignature extends Model {
       },
       {
         ...options,
+        syncConfig: { syncDirection: SYNC_DIRECTIONS.BIDIRECTIONAL },
         validate: {
           mustHavePatient() {
             if (!this.patientId) {

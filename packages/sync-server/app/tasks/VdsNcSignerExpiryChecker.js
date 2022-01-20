@@ -1,6 +1,6 @@
 import { ScheduledTask } from 'shared/tasks';
 import { log } from 'shared/services/logging';
-import { Op, Sequelize } from 'sequelize/types';
+import { Op, Sequelize } from 'sequelize';
 
 export class VdsNcSignerExpiryChecker extends ScheduledTask {
   constructor(context) {
