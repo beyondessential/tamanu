@@ -77,7 +77,8 @@ describe('UploadAttachment', () => {
     const result = await uploadAttachment(mockReq);
     expect(result).toMatchObject({
       attachmentId: '111',
-      metadata: { name: 'hello world image', type: 'image/jpeg' },
+      type: 'image/jpeg',
+      metadata: { name: 'hello world image' },
     });
     expect(WebRemote.mock.calls.length).toBe(2);
   });
