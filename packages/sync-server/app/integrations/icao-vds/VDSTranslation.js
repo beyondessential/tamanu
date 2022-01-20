@@ -20,6 +20,12 @@ const SEX_TO_CHAR = {
   other: 'O',
 };
 
+const SCHEDULE_TO_SEQUENCE = {
+  'Dose 1': 1,
+  'Dose 2': 2,
+  Booster: 3,
+};
+
 export const createProofOfVax = async (models, patientId) => {
   const { firstName, lastName, dateOfBirth, sex } = await models.Patient.findById(patientId);
   const { passport } = await models.PatientAdditionalData.findOne({ where: { patientId } });
@@ -56,8 +62,7 @@ export const createProofOfVax = async (models, patientId) => {
           // This field can only be 39 characters long, just truncate the name
           n: `${firstName} ${lastName}`.slice(0, 39),
           dob: moment(dateOfBirth).format('YYYY-MM-DD'),
-          dt: 'P', // Document type = passport
-          dn: passport ?? 'Passport # not found',
+          i: passport ?? undefined,
           sex: SEX_TO_CHAR[sex],
         },
         // ve = vax type, vd = vax dose
@@ -67,10 +72,10 @@ export const createProofOfVax = async (models, patientId) => {
             name: v.label, // <- check
             dis: 'RA01.0',
             vd: doses.map(dose => ({
-              seq: 1, // or 2 or 3
+              seq: SCHEDULE_TO_SEQUENCE[dose.scheduledVaccine.schedule],
               ctr: getCountryCode(),
-              lot: 'AdministeredVaccine.batch',
-              dvn: 'date of vax',
+              lot: dose.batch,
+              dvn: dose.date,
             })),
           },
         ],

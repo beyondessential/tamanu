@@ -102,12 +102,11 @@ describe('ICAO VDS - createProofOfVax', () => {
           patientId: patient.id,
         })
 
-        await AdministeredVaccine.create({
+        const administeredAz = await AdministeredVaccine.create({
           ...fake(AdministeredVaccine),
           status: 'GIVEN',
           scheduledVaccineId: scheduledAz.id,
           encounterId: vaccineEncounter.id
-
         })
   
         // act
@@ -125,9 +124,8 @@ describe('ICAO VDS - createProofOfVax', () => {
             pid: {
               // This field can only be 39 characters long, just truncate the name
               n: `${patient.firstName} ${patient.lastName}`.slice(0, 39),
-              dob: '2000-6-3',
-              dt: 'P',
-              dn: additionalData.passport,
+              dob: '2000-06-03',
+              i: additionalData.passport,
               sex: 'M',
             },
             ve: [
@@ -136,7 +134,14 @@ describe('ICAO VDS - createProofOfVax', () => {
                 des: 'XM68M6',
                 name: '', // <- check
                 dis: 'RA01.0',
-                vd: [],
+                vd: [
+                  {
+                    seq: 1,
+                    ctr: 'FJI',
+                    lot: administeredAz.batch,
+                    dvn: null, // not sure how to handle this?
+                  }
+                ],
               },
             ],
           },
