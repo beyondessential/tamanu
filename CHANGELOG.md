@@ -4,7 +4,7 @@
 
 ### Manual steps required after upgrade ⚙
 
-- Run `yarn` to install new dependency (check-disk-usage)
+- Run `yarn` to install new dependency (check-disk-usage) and downgrade babel-jest
 
 ### Features ⭐
 

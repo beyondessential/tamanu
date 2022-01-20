@@ -1,10 +1,7 @@
 const defaultFormatter = ({ name, id }) => ({ label: name, value: id });
 
 export class Suggester {
-  constructor(api, endpoint, {
-    formatter = defaultFormatter,
-    filterer = () => true,
-  } = {}) {
+  constructor(api, endpoint, { formatter = defaultFormatter, filterer = () => true } = {}) {
     this.api = api;
     this.endpoint = `suggestions/${encodeURIComponent(endpoint)}`;
     this.formatter = formatter;
