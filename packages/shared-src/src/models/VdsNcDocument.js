@@ -19,7 +19,7 @@ export class VdsNcDocument extends Model {
           allowNull: false,
         },
         messageData: {
-          type: Sequelize.JSON,
+          type: Sequelize.TEXT,
           allowNull: false,
         },
         recipientEmail: {
@@ -94,7 +94,7 @@ export class VdsNcDocument extends Model {
         v: 1,
         is: signer.countryCode,
       },
-      msg: this.messageData,
+      msg: JSON.parse(this.messageData),
     };
 
     const { alg, sig } = signer.issueSignature(data, keySecret);
