@@ -105,8 +105,6 @@ export class VdsNcSigner extends Model {
     });
   }
 
-  // once we've got a certificate back from the CSCA,
-  // we extract some data out of it for quick lookups
   /**
    * Load the signed certificate from the CSCA.
    *
