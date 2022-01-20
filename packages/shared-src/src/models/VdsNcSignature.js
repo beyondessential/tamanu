@@ -1,5 +1,9 @@
 import { Sequelize } from 'sequelize';
 import { Model } from './Model';
+import { VdsNcSigner } from './VdsNcSigner';
+
+export const DOCUMENT_TYPE_VACCINE = 'icao.vacc';
+export const DOCUMENT_TYPE_TEST = 'icao.test';
 
 export class VdsNcSignature extends Model {
   static init({ primaryKey, ...options }) {
@@ -7,36 +11,49 @@ export class VdsNcSignature extends Model {
       {
         id: primaryKey,
 
-        dateIssued: {
+        dateRequested: {
           type: Sequelize.DATE,
           allowNull: false,
           defaultValue: Sequelize.NOW,
         },
-        algorithm: {
+        dateSigned: {
+          type: Sequelize.DATE,
+          allowNull: true,
+        },
+
+        recipientEmail: {
+          type: Sequelize.STRING,
+          allowNull: true,
+        },
+        documentType: {
           type: Sequelize.STRING,
           allowNull: false,
         },
+        messageData: {
+          type: Sequelize.JSON,
+          allowNull: false,
+        },
+
+        algorithm: {
+          type: Sequelize.STRING,
+          allowNull: true,
+        },
         signature: {
           type: Sequelize.BLOB,
-          allowNull: false,
+          allowNull: true,
         },
       },
       {
         ...options,
         validate: {
-          mustHaveFacility() {
-            if (!this.facilityId) {
-              throw new Error('A VDS-NC signature must be attached to a facility.');
-            }
-          },
           mustHavePatient() {
             if (!this.patientId) {
               throw new Error('A VDS-NC signature must be attached to a patient.');
             }
           },
-          mustHaveSigner() {
-            if (!this.signerId) {
-              throw new Error('A VDS-NC signature must be attached to a VDS-NC signer.');
+          mustHaveValidDocumentType() {
+            if (![DOCUMENT_TYPE_TEST, DOCUMENT_TYPE_VACCINE].includes(this.documentType)) {
+              throw new Error('A VDS-NC signature must have a valid document type.');
             }
           },
         },
@@ -56,54 +73,68 @@ export class VdsNcSignature extends Model {
     });
   }
 
-  static buildPoT({
-    keySecret, // secret key from config (icao.keySecret)
-    countryCode, // alpha-3 country code
-    facility, // Facility instance
-    msg, // VDS-NC msg object in the PoT format
-  }) {
-    const data = {
-      hdr: {
-        t: 'icao.test',
-        v: 1,
-        is: countryCode,
-      },
-      msg,
-    };
-
-    return VdsNcSignature.buildFromData(data, { keySecret, facility });
+  /**
+   * @returns {boolean} True if this has been signed.
+   */
+  isSigned() {
+    return !!(this.algorithm && this.signature && this.dateSigned);
   }
 
-  static buildPoV({
-    keySecret, // secret key from config (icao.keySecret)
-    countryCode, // alpha-3 country code
-    facility, // Facility instance
-    msg, // VDS-NC msg object in the PoV format
-  }) {
+  /**
+   * Signs a signature request.
+   *
+   * If the request is already signed, this will silently do nothing, and return
+   * as normal.
+   *
+   * @param {string} keySecret Base64-encoded key secret (icao.keySecret).
+   * @returns {Promise<VdsNcSignature>} This object, signed, stored to the database.
+   */
+  async signRequest(keySecret) {
+    if (this.isSigned()) return this;
+
+    const signer = await VdsNcSigner.findActiveSigner();
+
     const data = {
       hdr: {
-        t: 'icao.vacc',
+        t: this.documentType,
         v: 1,
-        is: countryCode,
+        is: signer.countryCode,
       },
-      msg,
+      msg: this.messageData,
     };
 
-    return VdsNcSignature.buildFromData(data, { keySecret, facility });
+    const { alg, sig } = signer.issueSignature(data, keySecret);
+    this.algorithm = alg;
+    this.signature = Buffer.from(sig, 'base64');
+    this.dateSigned = Sequelize.NOW;
+    this.setVdsNcSigner(signer);
+
+    return await this.save();
   }
 
-  // internal use, prefer buildPoT and buildPoV
-  static async buildFromData(data, { keySecret, facility }) {
-    // => lookup latest valid+ready signer for facility
-    const signed = signer.issueSignature(data, { keySecret });
-    const sig = VdsNcSignature.build({
-      algorithm: signed.sig.alg,
-      signature: Buffer.from(signed.sig.sig, 'base64'),
-    });
-    sig.setFacility(facility);
-    sig.setVdsNcSigner(signer);
+  /**
+   * Returns the signed VDS-NC document as a JSON object.
+   *
+   * This can then be stringified and encoded as a QR code.
+   *
+   * @returns {Promise<object>} Signed VDS-NC document.
+   * @throws if it is not yet signed.
+   */
+  async intoVDS() {
+    if (!this.isSigned()) throw new Error('Cannot return an unsigned VDS-NC document.');
+    const signer = await this.getSigner();
 
-    const pack = JSON.stringify(signed);
-    return { pack, sig };
+    return {
+      hdr: {
+        t: this.documentType,
+        v: 1,
+        is: signer.countryCode,
+      },
+      msg: this.messageData,
+      sig: {
+        alg: this.algorithm,
+        sig: this.signature.toString('base64'),
+      },
+    };
   }
 }
