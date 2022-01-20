@@ -1,4 +1,4 @@
-import { Sequelize } from 'sequelize';
+import { Sequelize, Op } from 'sequelize';
 import { Model } from './Model';
 
 import crypto from 'crypto';
@@ -6,6 +6,7 @@ import { promisify } from 'util';
 import { getCrypto, Certificate, CertificationRequest, AttributeTypeAndValue } from 'pkijs';
 import { fromBER } from 'asn1js';
 import Vds from '@pathcheck/vds-sdk';
+import assert from 'assert';
 
 const OID_COMMON_NAME = '2.5.4.3';
 const OID_COUNTRY_NAME = '2.5.4.6';
@@ -21,14 +22,19 @@ export class VdsNcSigner extends Model {
           allowNull: false,
           defaultValue: Sequelize.NOW,
         },
-        dateIssued: { // aka signed by CSCA
+        dateDeleted: {
           type: Sequelize.DATE,
           allowNull: true,
         },
 
+        countryCode: {
+          type: Sequelize.STRING,
+          allowNull: false,
+        },
+
         privateKey: { // encrypted with facility key (icao.keySecret)
           type: Sequelize.BLOB, // PKCS8 DER
-          allowNull: false,
+          allowNull: true,
         },
         publicKey: {
           type: Sequelize.BLOB, // SPKI DER
@@ -44,12 +50,11 @@ export class VdsNcSigner extends Model {
           allowNull: true,
         },
 
-        serial: { // extracted/cached from certificate
-          type: Sequelize.BLOB,
-          // technically it's an integer, but we treat it as opaque
+        notBeforeDate: { // extracted/cached from certificate
+          type: Sequelize.DATE,
           allowNull: true,
         },
-        expiry: { // extracted/cached from certificate
+        notAfterDate: { // extracted/cached from certificate
           type: Sequelize.DATE,
           allowNull: true,
         },
@@ -72,35 +77,42 @@ export class VdsNcSigner extends Model {
     );
   }
 
-  static initRelations(models) {
-    this.belongsTo(models.Facility, {
-      foreignKey: 'facilityId',
-    });
-  }
-
-  static async generateAndBuild({
-    keySecret, // secret key from config (icao.keySecret)
-    countryCode, // alpha-2 country code
-    facility, // Facility instance
+  /**
+   * Create a new Signer, which generates a new keypair and certificate request.
+   *
+   * @param {string} keySecret Encryption key/phrase for the private key (icao.keySecret).
+   * @param {string} countryCode The 3-letter ICAO country code. Used as (C) in certificate subject.
+   * @param {string} commonName The name (CN) of the signer certificate (icao.csr.commonName).
+   * @returns {Promise<VdsNcSigner>} The new Signer, stored in the database.
+   */
+  static async createKeypair({
+    keySecret,   // secret key from config (icao.keySecret)
+    countryCode, // ICAO country code (icao.csr.countryCode)
+    commonName,  // name on the certificate (icao.csr.commonName)
   }) {
     const { publicKey, privateKey, request } = await newKeypairAndCsr(
       Buffer.from(keySecret, 'base64'),
       countryCode,
-      facility.name,
+      commonName,
     );
 
-    const signer = VdsNcSigner.build({
+    return VdsNcSigner.create({
+      countryCode,
       privateKey,
       publicKey,
       request,
     });
-    signer.setFacility(facility);
-    return signer;
   }
 
   // once we've got a certificate back from the CSCA,
   // we extract some data out of it for quick lookups
-  setCertificate(certificate) {
+  /**
+   * Load the signed certificate from the CSCA.
+   *
+   * @param {string} certificate The signed certificate from the CSCA.
+   * @returns {Promise<VdsNcSigner>} The updated Signer.
+   */
+  loadSignedCertificate(certificate) {
     let binCert, txtCert;
     if (typeof certificate === 'string') {
       if (!certificate.trimStart().startsWith('-----BEGIN CERTIFICATE-----')) {
@@ -117,31 +129,51 @@ export class VdsNcSigner extends Model {
     }
 
     const cert = new Certificate({ schema: fromBER(binCert).result });
-
-    // we assume the certificate's NotBefore is the issuance date
-    // that might not be exactly true, but it's close enough
-    this.dateIssued = cert.notBefore.value;
-
-    this.serial = Buffer.from(cert.serialNumber.valueBlock.valueHex, 'hex');
-    this.expiry = cert.notAfter.value;
+    this.notBeforeDate = cert.notBefore.value;
+    this.notAfterDate = cert.notAfter.value;
     this.certificate = txtCert;
 
-    return this;
+    return this.save();
   }
 
-  isReady() {
-    return this.dateIssued !== null &&
-      this.serial !== null &&
-      this.expiry !== null;
+  /**
+   * Fetches the current active signer, if any.
+   * @return {Promise<VdsNcSigner>} The active signer, or rejects if there's none.
+   */
+  static findActiveSigner() {
+    return VdsNcSigner.findOne({
+      where: {
+        notBeforeDate: { [Op.gte]: Sequelize.NOW },
+        notAfterDate: { [Op.lt]: Sequelize.NOW },
+        certificate: { [Op.not]: null },
+        privateKey: { [Op.not]: null },
+      },
+    });
   }
 
-  canIssueSignature() {
-    return this.isReady() && this.expiry < new Date;
+  /**
+   * @return {boolean} True if the signer is active (can be used).
+   */
+  isActive() {
+    const now = new Date;
+    return !!(
+      this.notBeforeDate >= now &&
+      this.notAfterDate < now &&
+      this.certificate &&
+      this.privateKey
+    );
   }
 
-  async issueSignature(data, { keySecret }) {
-    // dev note: this should be checked gracefully prior to here
-    if (!this.canIssueSignature()) {
+  /**
+   * Issue a signature from some data.
+   *
+   * @internal
+   * @param {object} data Arbitrary data to sign.
+   * @param {string} keySecret Encryption key/phrase for the private key (icao.keySecret).
+   * @returns {Promise<{ alg: string, sig: string }>} The signature and algorithm.
+   */
+  async issueSignature(data, keySecret) {
+    if (!this.isActive()) {
       throw new Error('Cannot issue signature from this signer');
     }
 
@@ -164,16 +196,20 @@ export class VdsNcSigner extends Model {
       privateKey.export({ type: 'pkcs8', format: 'pem' }),
     );
 
+    assert.deepEqual(signed.data, data);
     await this.increment('signaturesIssued');
-    return signed;
+    return signed.sig;
   }
 }
 
 // this is a separate function not only because crypto is always
 // messy, but also because we want to encourage GC to drop the
 // plaintext key after we're done with it.
-async function newKeypairAndCsr (keySecret, country, facility) {
-  const { publicKey, privateKey } = await promisify(crypto.generateKeyPair)('ec', { namedCurve: 'prime256v1' });
+async function newKeypairAndCsr (keySecret, country, name) {
+  const { publicKey, privateKey } = await promisify(crypto.generateKeyPair)(
+    'ec',
+    { namedCurve: 'prime256v1' },
+  );
 
   const cry = getCrypto();
   const publicCryptoKey = cry.importKey('spki', publicKey.export({
@@ -193,7 +229,7 @@ async function newKeypairAndCsr (keySecret, country, facility) {
   }));
   csr.subject.typesAndValues.push(new AttributeTypeAndValue({
     type: OID_COMMON_NAME,
-    value: facility,
+    value: name,
   }));
 
   await csr.subjectPublicKeyInfo.importKey(publicCryptoKey);
