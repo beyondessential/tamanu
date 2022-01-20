@@ -269,3 +269,8 @@ export const REFERRAL_STATUSES = {
 
 // Size in bytes
 export const DOCUMENT_SIZE_LIMIT = 10000000;
+
+export const ICAO_DOCUMENT_TYPES = {
+  PROOF_OF_TESTING: 'icao.vacc',
+  PROOF_OF_VACCINATION: 'icao.test',
+};

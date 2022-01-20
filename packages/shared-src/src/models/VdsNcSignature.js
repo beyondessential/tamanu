@@ -1,9 +1,7 @@
 import { Sequelize } from 'sequelize';
 import { Model } from './Model';
 import { VdsNcSigner } from './VdsNcSigner';
-
-export const DOCUMENT_TYPE_VACCINE = 'icao.vacc';
-export const DOCUMENT_TYPE_TEST = 'icao.test';
+import { ICAO_DOCUMENT_TYPES } from '../constants';
 
 export class VdsNcSignature extends Model {
   static init({ primaryKey, ...options }) {
@@ -52,7 +50,7 @@ export class VdsNcSignature extends Model {
             }
           },
           mustHaveValidDocumentType() {
-            if (![DOCUMENT_TYPE_TEST, DOCUMENT_TYPE_VACCINE].includes(this.documentType)) {
+            if (!Object.keys(ICAO_DOCUMENT_TYPES).includes(this.documentType)) {
               throw new Error('A VDS-NC signature must have a valid document type.');
             }
           },
