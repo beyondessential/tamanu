@@ -9,7 +9,8 @@ import { Colors } from '../../constants';
 import { PrintLetterhead } from './Letterhead';
 import { DateDisplay } from '../DateDisplay';
 
-const FOOTER_IMG_ASSET_NAME = 'certificate-bottom-half-img';
+// const FOOTER_IMG_ASSET_NAME = 'certificate-bottom-half-img';
+const FOOTER_IMG_ASSET_NAME = 'letterhead-logo';
 
 export const Spacer = styled.div`
   margin-top: 3rem;
@@ -58,9 +59,7 @@ const SizedBase64Image = styled(Base64Image)`
   width: 100%;
   height: 100%;
   object-fit: scale-down;
-`;
-const UnderlineP = styled.p`
-  text-decoration: underline;
+  object-position: 0px 0px;
 `;
 
 const CertificateWrapper = styled.div`
