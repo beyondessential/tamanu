@@ -15,7 +15,7 @@ export class VdsNcDocument extends Model {
         },
 
         type: {
-          type: Sequelize.STRING,
+          type: Sequelize.ENUM(...Object.values(ICAO_DOCUMENT_TYPES)),
           allowNull: false,
         },
         messageData: {
