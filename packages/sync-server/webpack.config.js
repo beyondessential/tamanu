@@ -6,14 +6,8 @@ const CleanWebpackPlugin = require('clean-webpack-plugin');
 module.exports = {
   target: 'node',
   entry: ['@babel/polyfill', './index.js'],
-  externals: [
-    nodeExternals({ modulesDir: '../../node_modules' }),
-    nodeExternals(),
-  ],
-  plugins: [
-    new CleanWebpackPlugin(),
-    new webpack.optimize.OccurrenceOrderPlugin(),
-  ],
+  externals: [nodeExternals({ modulesDir: '../../node_modules' }), nodeExternals()],
+  plugins: [new CleanWebpackPlugin(), new webpack.optimize.OccurrenceOrderPlugin()],
   resolve: {
     alias: {
       '~': path.resolve(__dirname, 'app'),
@@ -23,12 +17,23 @@ module.exports = {
   module: {
     rules: [
       {
+        test: /\.ttf$/,
+        use: [
+          {
+            loader: 'ttf-loader',
+            options: {
+              name: './font/[hash].[ext]',
+            },
+          },
+        ],
+      },
+      {
         test: /\.m?js$/,
         exclude: /node_modules/,
         use: {
           loader: 'babel-loader',
           options: {
-            rootMode: 'upward',
+            presets: ['@babel/preset-env', '@babel/preset-react'],
           },
         },
       },

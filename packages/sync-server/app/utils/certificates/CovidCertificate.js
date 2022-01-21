@@ -1,31 +1,23 @@
-import React from "react";
-import { Document, Page } from "@react-pdf/renderer";
-import { Table } from "./Table";
-import { styles, Col, Box, Row, Signature } from "./Layout";
-import { H1, H2, H3, P } from "./Typography";
-import { Logo } from "./Logo";
+import React from 'react';
+import { Document, Page } from '@react-pdf/renderer';
+import { Table } from './Table';
+import { styles, Col, Box, Row, Signature } from './Layout';
+import { H1, H2, H3, P } from './Typography';
+import { Logo } from './Logo';
 
-const FIELDS = [
-  "firstName",
-  "lastName",
-  "dateOfBirth",
-  "placeOfBirth",
-  "countryOfBirthId",
-  "sex",
-];
+const FIELDS = ['firstName', 'lastName', 'dateOfBirth', 'placeOfBirth', 'countryOfBirthId', 'sex'];
 
 const PRIMARY_DETAILS_FIELDS = {
   firstName: null,
   lastName: null,
   placeOfBirth: ({ additionalData }) => additionalData?.placeOfBirth,
-  countryOfBirthId: ({ additionalData }) =>
-    additionalData?.countryOfBirth?.name,
+  countryOfBirthId: ({ additionalData }) => additionalData?.countryOfBirth?.name,
   sex: null,
   Mother: () => null, // TODO: not populated
   displayId: null,
 };
 
-export const CertTemplate = ({ patient }) => {
+export const CovidCertificate = ({ patient }) => {
   return (
     <Document>
       <Page size="A4" style={styles.page}>
@@ -37,10 +29,9 @@ export const CertTemplate = ({ patient }) => {
         <Box>
           <H3>Covid-19 Test History</H3>
           <Row>
-            {FIELDS.map((field) => {
+            {FIELDS.map(field => {
               const accessor = PRIMARY_DETAILS_FIELDS[field];
-              const value =
-                (accessor ? accessor(patient) : patient[field]) || "";
+              const value = (accessor ? accessor(patient) : patient[field]) || '';
               return (
                 <Col key={field}>
                   <P>{`${field}: ${value}`}</P>

@@ -9,7 +9,7 @@ export class PatientEmailCommunicationProcessor extends ScheduledTask {
     this.context = context;
   }
 
-  getName() { 
+  getName() {
     return 'PatientEmailCommunicationProcessor';
   }
 
@@ -29,6 +29,15 @@ export class PatientEmailCommunicationProcessor extends ScheduledTask {
       order: [['createdAt', 'ASC']], // process in order received
       limit: 10,
     });
+
+    // Generate Certificates
+    const batch = emailsToBeSent.map(async email => {
+      console.log('email', email);
+    });
+
+    // Testing
+    return Promise.all(batch);
+
     const sendEmails = emailsToBeSent.map(async email => {
       const emailPlain = email.get({
         plain: true,

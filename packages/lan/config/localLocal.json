@@ -1,0 +1,17 @@
+{
+  "serverFacilityId": "ref/facility/ba",
+  "sync": {
+    "email": "admin@tamanu.io",
+    "password": "admin",
+    "enabled": true
+  },
+  "db": {
+    "name": "tamanu-lan",
+    "username": "postgres",
+    "password": "",
+    "sqlitePath": "",
+    "port": "5432",
+    "verbose": false,
+    "migrateOnStartup": true
+  }
+}
