@@ -9,6 +9,7 @@
 ### Features ⭐
 
 - Central server has the ability to check available disk space based on current config.
+- Central server will auto-discontinue medications after their end date is due.
 
 ### Tweaks ⚖️
 
