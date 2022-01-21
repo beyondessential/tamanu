@@ -25,12 +25,14 @@ export class MedicationDiscontinuer extends ScheduledTask {
       .startOf('day')
       .toDate();
 
-    // Medications that are not discontinued and have an
-    // end date previous than today
+    // Medications that are not discontinued and have an end
+    // date (not null) and said end date is previous than today
     const where = {
-      discontinued: false,
+      discontinued: {
+        [Op.not]: true,
+      },
       endDate: {
-        [Op.lt]: startOfToday,
+        [Op.and]: [{ [Op.lt]: startOfToday }, { [Op.not]: null }],
       },
     };
 
