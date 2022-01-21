@@ -5,10 +5,12 @@
 ### Manual steps required after upgrade ⚙
 
 - Run `yarn` to install new dependency (check-disk-usage) and downgrade babel-jest
+- Add the asset `certificate-bottom-half-img` to each deployment
 
 ### Features ⭐
 
 - Central server has the ability to check available disk space based on current config.
+- Replace the bottom half of certificates with a configurable image
 
 ### Tweaks ⚖️
 
