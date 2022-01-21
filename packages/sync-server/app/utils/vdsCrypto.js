@@ -1,0 +1,103 @@
+import config from 'config';
+import nodeCrypto from 'crypto';
+import { Crypto } from '@peculiar/webcrypto';
+import { fromBER } from 'asn1js';
+import { setEngine, CryptoEngine, Certificate, CertificationRequest, AttributeTypeAndValue } from 'pkijs';
+import { X502_OIDS } from 'shared/constants';
+
+const webcrypto = new Crypto;
+setEngine('webcrypto', webcrypto, new CryptoEngine({ name: 'webcrypto', crypto: webcrypto, subtle: webcrypto.subtle }));
+
+/**
+ * Generate a VDS-NC Barcode Signer compliant keypair and CSR.
+ *
+ * @param {object} keygenConfig The keySecret and the icao.csr fields.
+ * @returns The fields to use to create the Signer model.
+ */
+export async function newKeypairAndCsr(keygenConfig = {
+  keySecret: config.icao.keySecret,
+  ...config.icao.csr,
+}) {
+  const { publicKey, privateKey } = await webcrypto.subtle.generateKey({
+    name: 'ECDSA',
+    namedCurve: 'P-256',
+  }, true, ['sign', 'verify']);
+
+  const { keySecret, countryCode, commonName } = keygenConfig;
+
+  const csr = new CertificationRequest();
+  csr.version = 0;
+  csr.subject.typesAndValues.push(
+    new AttributeTypeAndValue({
+      type: X502_OIDS.COUNTRY_NAME,
+      value: countryCode,
+    }),
+  );
+  csr.subject.typesAndValues.push(
+    new AttributeTypeAndValue({
+      type: X502_OIDS.COMMON_NAME,
+      value: commonName,
+    }),
+  );
+  console.debug('get here 1');
+  await csr.subjectPublicKeyInfo.importKey(publicKey);
+  console.debug('get here 2');
+  await csr.sign(privateKey, 'SHA256');
+  console.debug('get here 3');
+  const packedCsr = Buffer.from(await csr.toSchema().toBER(false));
+  console.debug('get here 4');
+
+  const passphrase = Buffer.from(keySecret, 'base64');
+  const privateNodeKey = nodeCrypto.createPrivateKey({
+    key: privateKey.exportKey('pkcs8'),
+    format: 'der',
+    type: 'pkcs8',
+  });
+
+  return {
+    countryCode,
+    publicKey: publicKey.exportKey('spki'),
+    privateKey: privateNodeKey.export({
+      type: 'pkcs8',
+      format: 'der',
+      cipher: 'aes-256-gcm',
+      passphrase,
+    }),
+    request: `-----BEGIN CERTIFICATE REQUEST-----\n${packedCsr.toString(
+      'base64',
+    )}\n-----END CERTIFICATE REQUEST-----`,
+  };
+}
+
+/**
+ * Load the signed certificate from the CSCA.
+ *
+ * @param {string} certificate The signed certificate from the CSCA.
+ * @returns {object} The fields to load into the relevant Signer.
+ */
+export function loadCertificateIntoSigner(certificate) {
+  let binCert;
+  let txtCert;
+  if (typeof certificate === 'string') {
+    if (!certificate.trimStart().startsWith('-----BEGIN CERTIFICATE-----')) {
+      throw new Error('Certificate must be in PEM format');
+    }
+
+    binCert = Buffer.from(certificate.replace(/^--.+$/gm).trim(), 'base64');
+    txtCert = certificate;
+  } else if (Buffer.isBuffer(certificate)) {
+    binCert = certificate;
+    txtCert = `-----BEGIN CERTIFICATE-----\n${certificate.toString(
+      'base64',
+    )}\n-----END CERTIFICATE-----`;
+  } else {
+    throw new Error('Certificate must be a string (PEM) or Buffer (DER).');
+  }
+
+  const cert = new Certificate({ schema: fromBER(binCert).result });
+  return {
+    notAfter: cert.notAfter.value,
+    notBefore: cert.notBefore.value,
+    certificate: txtCert,
+  };
+}

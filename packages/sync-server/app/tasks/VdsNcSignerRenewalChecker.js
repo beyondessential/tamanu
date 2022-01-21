@@ -2,6 +2,7 @@ import config from 'config';
 import { ScheduledTask } from 'shared/tasks';
 import { log } from 'shared/services/logging';
 import { Op } from 'sequelize';
+import { newKeypairAndCsr } from '../utils/vdsCrypto';
 
 export class VdsNcSignerRenewalChecker extends ScheduledTask {
   constructor(context) {
@@ -66,11 +67,7 @@ export class VdsNcSignerRenewalChecker extends ScheduledTask {
       }
 
       log.info('Generating new signer CSR');
-      const newSigner = await VdsNcSigner.createKeypair({
-        keySecret: config.icao.keySecret,
-        countryCode: config.icao.csr.countryCode,
-        commonName: config.icao.csr.commonName,
-      });
+      const newSigner = await VdsNcSigner.create(await newKeypairAndCsr());
       log.info(`Created new signer (CSR): ${newSigner.id}`);
 
       const recipient = config.icao.csr.email?.recipient;

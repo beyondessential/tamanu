@@ -1,9 +1,5 @@
 import { Sequelize, Op } from 'sequelize';
-import { X502_OIDS } from '../constants';
 import crypto from 'crypto';
-import { promisify } from 'util';
-import { getCrypto, Certificate, CertificationRequest, AttributeTypeAndValue } from 'pkijs';
-import { fromBER } from 'asn1js';
 import Vds from '@pathcheck/vds-sdk';
 import assert from 'assert';
 import { Model } from './Model';
@@ -87,66 +83,6 @@ export class VdsNcSigner extends Model {
   }
 
   /**
-   * Create a new Signer, which generates a new keypair and certificate request.
-   *
-   * @param {string} keySecret Encryption key/phrase for the private key (icao.keySecret).
-   * @param {string} countryCode The 3-letter ICAO country code. Used as (C) in certificate subject.
-   * @param {string} commonName The name (CN) of the signer certificate (icao.csr.commonName).
-   * @returns {Promise<VdsNcSigner>} The new Signer, stored in the database.
-   */
-  static async createKeypair({
-    keySecret, // secret key from config (icao.keySecret)
-    countryCode, // ICAO country code (icao.csr.countryCode)
-    commonName, // name on the certificate (icao.csr.commonName)
-  }) {
-    const { publicKey, privateKey, request } = await newKeypairAndCsr(
-      Buffer.from(keySecret, 'base64'),
-      countryCode,
-      commonName,
-    );
-
-    return VdsNcSigner.create({
-      countryCode,
-      privateKey,
-      publicKey,
-      request,
-    });
-  }
-
-  /**
-   * Load the signed certificate from the CSCA.
-   *
-   * @param {string} certificate The signed certificate from the CSCA.
-   * @returns {Promise<VdsNcSigner>} The updated Signer.
-   */
-  loadSignedCertificate(certificate) {
-    let binCert;
-    let txtCert;
-    if (typeof certificate === 'string') {
-      if (!certificate.trimStart().startsWith('-----BEGIN CERTIFICATE-----')) {
-        throw new Error('Certificate must be in PEM format');
-      }
-
-      binCert = Buffer.from(certificate.replace(/^--.+$/gm).trim(), 'base64');
-      txtCert = certificate;
-    } else if (Buffer.isBuffer(certificate)) {
-      binCert = certificate;
-      txtCert = `-----BEGIN CERTIFICATE-----\n${certificate.toString(
-        'base64',
-      )}\n-----END CERTIFICATE-----`;
-    } else {
-      throw new Error('Certificate must be a string (PEM) or Buffer (DER).');
-    }
-
-    const cert = new Certificate({ schema: fromBER(binCert).result });
-    this.notBefore = cert.notBefore.value;
-    this.notAfter = cert.notAfter.value;
-    this.certificate = txtCert;
-
-    return this.save();
-  }
-
-  /**
    * Fetches the current active signer, if any.
    * @return {Promise<VdsNcSigner>} The active signer.
    * @throws if there's none.
@@ -206,64 +142,4 @@ export class VdsNcSigner extends Model {
     await this.increment('signaturesIssued');
     return signed.sig;
   }
-}
-
-// this is a separate function not only because crypto is always
-// messy, but also because we want to encourage GC to drop the
-// plaintext key after we're done with it.
-async function newKeypairAndCsr(keySecret, country, name) {
-  const { publicKey, privateKey } = await promisify(crypto.generateKeyPair)('ec', {
-    namedCurve: 'prime256v1',
-  });
-
-  const cry = getCrypto();
-  const publicCryptoKey = cry.importKey(
-    'spki',
-    publicKey.export({
-      type: 'spki',
-      format: 'pem',
-    }),
-  );
-  const privateCryptoKey = cry.importKey(
-    'pkcs8',
-    privateKey.export({
-      type: 'pkcs8',
-      format: 'pem',
-    }),
-  );
-
-  const csr = new CertificationRequest();
-  csr.version = 0;
-  csr.subject.typesAndValues.push(
-    new AttributeTypeAndValue({
-      type: X502_OIDS.COUNTRY_NAME,
-      value: country,
-    }),
-  );
-  csr.subject.typesAndValues.push(
-    new AttributeTypeAndValue({
-      type: X502_OIDS.COMMON_NAME,
-      value: name,
-    }),
-  );
-
-  await csr.subjectPublicKeyInfo.importKey(publicCryptoKey);
-  await csr.sign(privateCryptoKey, 'SHA256');
-  const packedCsr = Buffer.from(await csr.toSchema().toBER(false));
-
-  return {
-    publicKey: publicKey.export({
-      type: 'spki',
-      format: 'der',
-    }),
-    privateKey: privateKey.export({
-      type: 'pkcs8',
-      format: 'der',
-      cipher: 'aes-256-gcm',
-      passphrase: keySecret,
-    }),
-    request: `-----BEGIN CERTIFICATE REQUEST-----\n${packedCsr.toString(
-      'base64',
-    )}\n-----END CERTIFICATE REQUEST-----`,
-  };
 }
