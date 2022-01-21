@@ -1,12 +1,15 @@
-import React from 'react';
+import React, { useState, useEffect } from 'react';
 import { useSelector } from 'react-redux';
 import styled from 'styled-components';
 
+import { useApi } from '../../api';
 import { getCurrentUser } from '../../store/auth';
 import { useLocalisation } from '../../contexts/Localisation';
 import { Colors } from '../../constants';
 import { PrintLetterhead } from './Letterhead';
 import { DateDisplay } from '../DateDisplay';
+
+const FOOTER_IMG_ASSET_NAME = 'certificate-footer-img';
 
 export const Spacer = styled.div`
   margin-top: 3rem;
@@ -47,12 +50,15 @@ const PRIMARY_DETAILS_FIELDS = {
   displayId: null,
 };
 
-const UserEntrySection = styled.div`
-  display: grid;
-  grid-template-columns: auto 1fr;
-  grid-column-gap: 20px;
-`;
+const Base64Image = ({ data, mediaType = 'image/jpeg', ...props }) => (
+  <img {...props} src={`data:${mediaType};base64,${data}`} alt="" />
+);
 
+const SizedBase64Image = styled(Base64Image)`
+  width: 100%;
+  height: 100%;
+  object-fit: scale-down;
+`;
 const UnderlineP = styled.p`
   text-decoration: underline;
 `;
@@ -68,8 +74,6 @@ const CertificateWrapper = styled.div`
       : ''}
 `;
 
-const UnderlineEmptySpace = () => <UnderlineP>{new Array(100).fill('\u00A0')}</UnderlineP>;
-
 export const Certificate = ({
   patient,
   header,
@@ -79,6 +83,18 @@ export const Certificate = ({
   primaryDetailsFields,
   children,
 }) => {
+  const [footerImg, setFooterImg] = useState('');
+  const [footerImgType, setFooterImgType] = useState('');
+  const api = useApi();
+
+  useEffect(() => {
+    (async () => {
+      const response = await api.get(`asset/${FOOTER_IMG_ASSET_NAME}`);
+      setFooterImg(Buffer.from(response.data).toString('base64'));
+      setFooterImgType(response.type);
+    })();
+  }, [api]);
+
   const currentUser = useSelector(getCurrentUser);
   const { getLocalisation } = useLocalisation();
   const detailsFieldsToDisplay =
@@ -115,18 +131,7 @@ export const Certificate = ({
         </p>
       </TwoColumnContainer>
       <Spacer />
-      <UserEntrySection>
-        <p>Authorised by:</p>
-        <UnderlineEmptySpace />
-        <sup>(write name in pen)</sup>
-        <div />
-        <p />
-        <div />
-        <p>Signed:</p>
-        <UnderlineEmptySpace />
-        <p>Date:</p>
-        <UnderlineEmptySpace />
-      </UserEntrySection>
+      {footerImg ? <SizedBase64Image mediaType={footerImgType} data={footerImg} /> : null}
       <Spacer />
       {footer}
       <Spacer />
