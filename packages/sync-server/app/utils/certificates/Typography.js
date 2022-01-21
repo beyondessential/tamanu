@@ -1,19 +1,28 @@
 import React from 'react';
 import { StyleSheet, Text, Font } from '@react-pdf/renderer';
-import RobotoLight from './Roboto/Roboto-Light.ttf';
-import RobotoRegular from './Roboto/Roboto-Regular.ttf';
-import RobotoMedium from './Roboto/Roboto-Medium.ttf';
-import RobotoBold from './Roboto/Roboto-Bold.ttf';
-import RobotoBlack from './Roboto/Roboto-Black.ttf';
 
 Font.register({
   family: 'Roboto',
   fonts: [
-    { src: RobotoLight, fontWeight: 300 },
-    { src: RobotoRegular, fontWeight: 400 },
-    { src: RobotoMedium, fontWeight: 500 },
-    { src: RobotoBold, fontWeight: 700 },
-    { src: RobotoBlack, fontWeight: 900 },
+    {
+      src:
+        'https://cdnjs.cloudflare.com/ajax/libs/materialize/0.98.0/fonts/roboto/Roboto-Light.ttf',
+      fontWeight: 300,
+    },
+    {
+      src:
+        'https://cdnjs.cloudflare.com/ajax/libs/materialize/0.98.0/fonts/roboto/Roboto-Regular.ttf',
+      fontWeight: 400,
+    },
+    {
+      src:
+        'https://cdnjs.cloudflare.com/ajax/libs/materialize/0.98.0/fonts/roboto/Roboto-Medium.ttf',
+      fontWeight: 500,
+    },
+    {
+      src: 'https://cdnjs.cloudflare.com/ajax/libs/materialize/0.98.0/fonts/roboto/Roboto-Bold.ttf',
+      fontWeight: 700,
+    },
   ],
 });
 

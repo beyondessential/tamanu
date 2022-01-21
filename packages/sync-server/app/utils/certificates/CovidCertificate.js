@@ -1,4 +1,5 @@
 import React from 'react';
+import moment from 'moment';
 import { Document, Page } from '@react-pdf/renderer';
 import { Table } from './Table';
 import { styles, Col, Box, Row, Signature } from './Layout';
@@ -10,6 +11,7 @@ const FIELDS = ['firstName', 'lastName', 'dateOfBirth', 'placeOfBirth', 'country
 const PRIMARY_DETAILS_FIELDS = {
   firstName: null,
   lastName: null,
+  dateOfBirth: ({ dateOfBirth }) => moment(dateOfBirth).format('Do MMM YYYY'),
   placeOfBirth: ({ additionalData }) => additionalData?.placeOfBirth,
   countryOfBirthId: ({ additionalData }) => additionalData?.countryOfBirth?.name,
   sex: null,

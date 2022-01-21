@@ -7,7 +7,7 @@ module.exports = {
   target: 'node',
   entry: ['@babel/polyfill', './index.js'],
   externals: [nodeExternals({ modulesDir: '../../node_modules' }), nodeExternals()],
-  plugins: [new CleanWebpackPlugin(), new webpack.optimize.OccurrenceOrderPlugin()],
+  plugins: [new CleanWebpackPlugin()],
   resolve: {
     alias: {
       '~': path.resolve(__dirname, 'app'),
@@ -16,17 +16,6 @@ module.exports = {
   },
   module: {
     rules: [
-      {
-        test: /\.ttf$/,
-        use: [
-          {
-            loader: 'ttf-loader',
-            options: {
-              name: './font/[hash].[ext]',
-            },
-          },
-        ],
-      },
       {
         test: /\.m?js$/,
         exclude: /node_modules/,

@@ -13,11 +13,10 @@ testPdf.get(
     const { models } = req.store;
 
     const patient = await models.Patient.findByPk(patientId);
-    const data = { patient };
+    const { dataValues } = patient;
 
-    console.log('patient', patient);
-    console.log('data', data);
-    await makeCertificate(data);
+    console.log('data', dataValues);
+    await makeCertificate(dataValues);
     res.send({});
   }),
 );
