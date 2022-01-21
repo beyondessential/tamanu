@@ -20,17 +20,17 @@ export class MedicationDiscontinuer extends ScheduledTask {
   }
 
   async run() {
-    // Get end of day
-    const endOfToday = moment()
-      .endOf('day')
+    // Get start of day
+    const startOfToday = moment()
+      .startOf('day')
       .toDate();
 
     // Medications that are not discontinued and have an
-    // end date less or equal than end of today
+    // end date previous than today
     const where = {
       discontinued: false,
       endDate: {
-        [Op.lte]: endOfToday,
+        [Op.lt]: startOfToday,
       },
     };
 
