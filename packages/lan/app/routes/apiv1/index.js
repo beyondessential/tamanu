@@ -43,7 +43,6 @@ import { attachment } from './attachment';
 import { scheduledVaccine } from './scheduledVaccine';
 import { sync } from './sync';
 import { syncHealth } from './syncHealth';
-import { pdfCertificate } from './pdfCertificate';
 
 export const apiv1 = express.Router();
 
@@ -54,7 +53,6 @@ apiv1.use('/changePassword', changePassword);
 apiv1.use(authMiddleware);
 apiv1.use(constructPermission);
 
-apiv1.use('/pdfCertificate', pdfCertificate);
 apiv1.use('/suggestions', suggestions);
 apiv1.use('/user', user);
 apiv1.use('/patient', patient);

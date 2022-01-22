@@ -5,30 +5,13 @@ import { Certificate, Table } from '../Print/Certificate';
 import { DateDisplay } from '../DateDisplay';
 import { getCompletedDate, getMethod, getRequestId, getLaboratory } from '../../utils/lab';
 
-import { connectApi, useApi } from '../../api';
+import { connectApi } from '../../api';
 import { useLocalisation } from '../../contexts/Localisation';
-
-const usePDF = patientId => {
-  const api = useApi();
-
-  useEffect(() => {
-    (async () => {
-      console.log('patientId', patientId);
-      await api.post(`pdfCertificate/${patientId}`);
-      // const res = await api.get(`pdfCertificate/${patientId}`);
-      // const pdfBlob = new Blob([res.data], { type: 'application/pdf' });
-      // console.log('pdf', pdfBlob);
-    })();
-  }, [api, patientId]);
-};
 
 const DumbPatientCovidTestCert = ({ patient, getLabRequests, getLabTests }) => {
   const [open, setOpen] = useState(true);
   const [rows, setRows] = useState([]);
   const { getLocalisation } = useLocalisation();
-
-  // Generate PDF on the server
-  usePDF(patient.id);
 
   const columns = useMemo(
     () => [
@@ -92,7 +75,6 @@ const DumbPatientCovidTestCert = ({ patient, getLabRequests, getLabTests }) => {
       );
     })();
   }, [columns, getLabRequests, getLabTests]);
-
   return (
     <Modal open={open} onClose={() => setOpen(false)} width="md" printable>
       <Certificate
@@ -138,4 +120,5 @@ export const PatientCovidTestCert = connectApi((api, dispatch, { patient }) => (
       patientId: patient.id,
       category: 'covid',
     }),
+  getLabTests: id => api.get(`/labRequest/${id}/tests`),
 }))(DumbPatientCovidTestCert);
