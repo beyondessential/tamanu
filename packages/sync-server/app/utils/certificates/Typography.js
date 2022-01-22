@@ -20,7 +20,7 @@ Font.register({
       fontWeight: 500,
     },
     {
-      src: 'https://cdnjs.cloudflare.com/ajax/libs/materialize/0.98.0/fonts/roboto/Roboto-Bold.ttf',
+      src: '/Users/tomcaiger/Roboto/Roboto-Black.ttf',
       fontWeight: 700,
     },
   ],
