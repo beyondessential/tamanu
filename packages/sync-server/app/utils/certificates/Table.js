@@ -1,5 +1,5 @@
-import { StyleSheet, Text, View } from '@react-pdf/renderer';
 import React from 'react';
+import { StyleSheet, Text, View } from '@react-pdf/renderer';
 
 const tableStyles = StyleSheet.create({
   table: {
@@ -31,23 +31,17 @@ const TR = props => <View {...props} style={tableStyles.tr} />;
 const TH = props => <Text {...props} style={tableStyles.th} />;
 const TD = props => <Text {...props} style={tableStyles.td} />;
 
-export const Table = () => {
-  const columns = [];
-  const data = [];
-  return (
-    <View style={tableStyles.table}>
-      <TR>
-        <TH>Date of swab</TH>
-        <TH>Date of test</TH>
-        <TH>Laboratory</TH>
-        <TH>Request ID</TH>
-      </TR>
-      <TR>
-        <TD>01/01/2022</TD>
-        <TD>11/01/2022</TD>
-        <TD>Tonga Health Center</TD>
-        <TD>11223344</TD>
-      </TR>
-    </View>
-  );
-};
+export const Table = ({ data, columns }) => (
+  <View style={tableStyles.table}>
+    <TR>
+      {columns.map(({ title, key }) => (
+        <TH key={key}>{title}</TH>
+      ))}
+    </TR>
+    <TR>
+      {columns.map(({ key, accessor }) => (
+        <TD key={key}>{accessor ? accessor(data) : data[key]}</TD>
+      ))}
+    </TR>
+  </View>
+);

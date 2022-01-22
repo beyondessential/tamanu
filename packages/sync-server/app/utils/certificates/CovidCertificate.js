@@ -1,10 +1,12 @@
 import React from 'react';
+import config from 'config';
 import moment from 'moment';
 import { Document, Page } from '@react-pdf/renderer';
 import { Table } from './Table';
 import { styles, Col, Box, Row, Signature } from './Layout';
 import { H1, H2, H3, P } from './Typography';
 import { Logo } from './Logo';
+import { getCompletedDate, getLaboratory, getMethod, getRequestId } from './lab';
 
 const FIELDS = ['firstName', 'lastName', 'dateOfBirth', 'placeOfBirth', 'countryOfBirthId', 'sex'];
 
@@ -19,7 +21,49 @@ const PRIMARY_DETAILS_FIELDS = {
   displayId: null,
 };
 
+const columns = [
+  {
+    key: 'date-of-swab',
+    title: 'Date of swab',
+    accessor: ({ sampleTime }) => moment(sampleTime).format('Do MMM YYYY'),
+  },
+  {
+    key: 'date-of-test',
+    title: 'Date of test',
+    accessor: getCompletedDate,
+  },
+  {
+    key: 'laboratory',
+    title: 'Laboratory',
+    accessor: getLaboratory,
+  },
+  {
+    key: 'requestId',
+    title: 'Request ID',
+    accessor: getRequestId,
+  },
+  {
+    key: 'laboratoryOfficer',
+    title: 'Lab officer',
+  },
+  {
+    key: 'method',
+    title: 'Method',
+    accessor: getMethod,
+  },
+  {
+    key: 'result',
+    title: 'Result',
+  },
+];
+
+const getShortLabel = field => {
+  const { fields } = config.localisation.data;
+  return fields[field]?.shortLabel || field;
+};
+
 export const CovidCertificate = ({ patient }) => {
+  const data = { ...patient };
   return (
     <Document>
       <Page size="A4" style={styles.page}>
@@ -33,17 +77,18 @@ export const CovidCertificate = ({ patient }) => {
           <Row>
             {FIELDS.map(field => {
               const accessor = PRIMARY_DETAILS_FIELDS[field];
+              const label = getShortLabel(field);
               const value = (accessor ? accessor(patient) : patient[field]) || '';
               return (
                 <Col key={field}>
-                  <P>{`${field}: ${value}`}</P>
+                  <P>{`${label}: ${value}`}</P>
                 </Col>
               );
             })}
           </Row>
         </Box>
         <Box mb={60}>
-          <Table />
+          <Table data={data} columns={columns} />
         </Box>
         <Box>
           <Row>
