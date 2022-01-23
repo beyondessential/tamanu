@@ -1,7 +1,7 @@
 import { Sequelize } from 'sequelize';
 import { Model } from './Model';
 import { VdsNcSigner } from './VdsNcSigner';
-import { ICAO_DOCUMENT_TYPES, SYNC_DIRECTIONS } from '../constants';
+import { ICAO_DOCUMENT_TYPES } from '../constants';
 
 export class VdsNcDocument extends Model {
   static init({ primaryKey, ...options }) {
@@ -34,7 +34,6 @@ export class VdsNcDocument extends Model {
       },
       {
         ...options,
-        syncConfig: { syncDirection: SYNC_DIRECTIONS.BIDIRECTIONAL },
         validate: {
           mustHavePatient() {
             if (!this.patientId) {
