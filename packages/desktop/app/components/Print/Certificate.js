@@ -9,8 +9,7 @@ import { Colors } from '../../constants';
 import { PrintLetterhead } from './Letterhead';
 import { DateDisplay } from '../DateDisplay';
 
-// const FOOTER_IMG_ASSET_NAME = 'certificate-bottom-half-img';
-const FOOTER_IMG_ASSET_NAME = 'letterhead-logo';
+const FOOTER_IMG_ASSET_NAME = 'certificate-bottom-half-img';
 
 export const Spacer = styled.div`
   margin-top: 3rem;
