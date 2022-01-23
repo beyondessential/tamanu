@@ -3,7 +3,7 @@ import { Typography } from '@material-ui/core';
 
 import { DocumentsTable } from '../../../components/DocumentsTable';
 import { Button } from '../../../components/Button';
-import { ButtonRow } from '../../../components/ButtonRow';
+import { ConfirmCancelRow } from '../../../components/ButtonRow';
 import { ContentPane } from '../../../components/ContentPane';
 import { DocumentModal } from '../../../components/DocumentModal';
 import { DocumentsSearchBar } from '../../../components/DocumentsSearchBar';
@@ -11,10 +11,38 @@ import { Modal } from '../../../components/Modal';
 
 import { useApi } from '../../../api';
 
+const AlertNoInternetModal = React.memo(({ open, onClose }) => (
+  <Modal title="No internet connection detected" open={open} onClose={onClose}>
+    <Typography gutterBottom>
+      <strong>
+        Viewing and downloading documents in Tamanu requires a live connection to the central
+        server.
+      </strong>
+    </Typography>
+    <Typography gutterBottom>
+      To save on hard drive space and improve performance, documents in Tamanu are stored on the
+      central server. Please check your network connection and/or try again in a few minutes.
+    </Typography>
+    <ConfirmCancelRow onConfirm={onClose} confirmText="OK" />
+  </Modal>
+));
+
+const AlertNoSpaceModal = React.memo(({ open, onClose }) => (
+  <Modal title="Not enough storage space to upload file" open={open} onClose={onClose}>
+    <Typography gutterBottom>
+      The server has limited storage space remaining. To protect performance, you are currently
+      unable to upload documents or images. Please speak to your system administrator to increase
+      your central server&apos;s hard drive space.
+    </Typography>
+    <ConfirmCancelRow onConfirm={onClose} confirmText="OK" />
+  </Modal>
+));
+
 const MODAL_STATES = {
   CLOSED: 'closed',
   DOCUMENT_OPEN: 'document',
-  ALERT_OPEN: 'alert',
+  ALERT_NO_INTERNET_OPEN: 'alert_no_internet',
+  ALERT_NO_SPACE_OPEN: 'alert_no_space',
 };
 
 export const DocumentsPane = React.memo(({ encounter, patient, showSearchBar = false }) => {
@@ -61,27 +89,14 @@ export const DocumentsPane = React.memo(({ encounter, patient, showSearchBar = f
         title="Add document"
         actionText="Add"
       />
-      <Modal
-        title="No internet connection detected"
-        open={modalStatus === MODAL_STATES.ALERT_OPEN}
+      <AlertNoInternetModal
+        open={modalStatus === MODAL_STATES.ALERT_NO_INTERNET_OPEN}
         onClose={handleClose}
-      >
-        <Typography>
-          <strong>
-            Viewing and downloading documents in Tamanu requires a live connection to the central
-            server.
-          </strong>
-        </Typography>
-        <Typography>
-          To save on hard drive space and improve performance, documents in Tamanu are stored on the
-          central server. Please check your network connection and/or try again in a few minutes.
-        </Typography>
-        <ButtonRow>
-          <Button variant="contained" color="primary" onClick={handleClose}>
-            OK
-          </Button>
-        </ButtonRow>
-      </Modal>
+      />
+      <AlertNoSpaceModal
+        open={modalStatus === MODAL_STATES.ALERT_NO_SPACE_OPEN}
+        onClose={handleClose}
+      />
       {showSearchBar && <DocumentsSearchBar setSearchParameters={setSearchParameters} />}
       <DocumentsTable
         endpoint={endpoint}
