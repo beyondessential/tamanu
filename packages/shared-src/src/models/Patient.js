@@ -63,4 +63,8 @@ export class Patient extends Model {
     });
     return patients.map(({ id }) => id);
   }
+
+  getLabTests() {
+    console.log('get lab tests');
+  }
 }

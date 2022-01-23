@@ -8,7 +8,7 @@ export class Location extends Model {
     const validate = {
       mustHaveFacility() {
         if (!this.deletedAt && !this.facilityId) {
-          throw new InvalidOperationError('A location must have a facility.');
+          // throw new InvalidOperationError('A location must have a facility.');
         }
       },
     };

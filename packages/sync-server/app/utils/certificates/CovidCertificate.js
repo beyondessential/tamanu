@@ -62,54 +62,51 @@ const getShortLabel = field => {
   return fields[field]?.shortLabel || field;
 };
 
-export const CovidCertificate = ({ patient }) => {
-  const data = { ...patient };
-  return (
-    <Document>
-      <Page size="A4" style={styles.page}>
-        <Logo style={styles.logo} />
-        <Box>
-          <H1>TAMANU MINISTRY OF HEALTH & MEDICAL SERVICES</H1>
-          <H2>PO Box 12345, Melbourne, Australia</H2>
-        </Box>
-        <Box>
-          <H3>Covid-19 Test History</H3>
-          <Row>
-            {FIELDS.map(field => {
-              const accessor = PRIMARY_DETAILS_FIELDS[field];
-              const label = getShortLabel(field);
-              const value = (accessor ? accessor(patient) : patient[field]) || '';
-              return (
-                <Col key={field}>
-                  <P>{`${label}: ${value}`}</P>
-                </Col>
-              );
-            })}
-          </Row>
-        </Box>
-        <Box mb={60}>
-          <Table data={data} columns={columns} />
-        </Box>
-        <Box>
-          <Row>
-            <Col>
-              <P>Printed by:</P>
-            </Col>
-            <Col>
-              <P>Printing date:</P>
-            </Col>
-          </Row>
-        </Box>
-        <Box>
-          <Signature text="Authorised by" />
-        </Box>
-        <Box mb={10}>
-          <Signature text="Signed" />
-        </Box>
-        <Box>
-          <Signature text="Date" />
-        </Box>
-      </Page>
-    </Document>
-  );
-};
+export const CovidCertificate = ({ data }) => (
+  <Document>
+    <Page size="A4" style={styles.page}>
+      <Logo style={styles.logo} />
+      <Box>
+        <H1>TAMANU MINISTRY OF HEALTH & MEDICAL SERVICES</H1>
+        <H2>PO Box 12345, Melbourne, Australia</H2>
+      </Box>
+      <Box>
+        <H3>Covid-19 Test History</H3>
+        <Row>
+          {FIELDS.map(field => {
+            const accessor = PRIMARY_DETAILS_FIELDS[field];
+            const label = getShortLabel(field);
+            const value = (accessor ? accessor(data) : data[field]) || '';
+            return (
+              <Col key={field}>
+                <P>{`${label}: ${value}`}</P>
+              </Col>
+            );
+          })}
+        </Row>
+      </Box>
+      <Box mb={60}>
+        <Table data={data} columns={columns} />
+      </Box>
+      <Box>
+        <Row>
+          <Col>
+            <P>Printed by:</P>
+          </Col>
+          <Col>
+            <P>Printing date:</P>
+          </Col>
+        </Row>
+      </Box>
+      <Box>
+        <Signature text="Authorised by" />
+      </Box>
+      <Box mb={10}>
+        <Signature text="Signed" />
+      </Box>
+      <Box>
+        <Signature text="Date" />
+      </Box>
+    </Page>
+  </Document>
+);
