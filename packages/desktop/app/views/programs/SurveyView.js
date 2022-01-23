@@ -97,7 +97,14 @@ const SurveySummaryScreen = ({ onStepBack, onSurveyComplete }) => (
   </div>
 );
 
-const SurveyScreenPaginator = ({ survey, values, onSurveyComplete, onCancel, setFieldValue, patient }) => {
+const SurveyScreenPaginator = ({
+  survey,
+  values,
+  onSurveyComplete,
+  onCancel,
+  setFieldValue,
+  patient,
+}) => {
   const { components } = survey;
   const [screenIndex, setScreenIndex] = useState(0);
 
