@@ -1,7 +1,6 @@
 import config from 'config';
 import { ScheduledTask } from 'shared/tasks';
 import { log } from 'shared/services/logging';
-import qrcode from 'qrcode';
 import { Op } from 'sequelize';
 
 export class VdsNcDocumentSigningProcessor extends ScheduledTask {
@@ -23,9 +22,10 @@ export class VdsNcDocumentSigningProcessor extends ScheduledTask {
     });
 
     if (docs.length < 1) {
-      log.info('No unsigned VDS-NC documents');
       return Promise.resolve();
     }
+
+    log.info(`Picked up ${docs.length} unsigned VDS-NC documents.`);
 
     try {
       await VdsNcSigner.findActive();
@@ -35,15 +35,7 @@ export class VdsNcDocumentSigningProcessor extends ScheduledTask {
     }
 
     return Promise.all(
-      docs.map(async doc => {
-        const signed = await doc.signRequest(config.icao.keySecret);
-
-        if (signed.recipientEmail) {
-          const vds = await signed.intoVDS();
-          const qrCode = qrcode.toDataURL(JSON.stringify(vds), { errorCorrectionLevel: 'H' });
-          // TODO: generate doc, embed QR, and send email
-        }
-      }),
+      docs.map(doc => doc.signRequest(config.icao.keySecret))
     );
   }
 }

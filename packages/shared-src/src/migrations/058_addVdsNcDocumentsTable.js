@@ -35,10 +35,6 @@ module.exports = {
         type: Sequelize.TEXT,
         allowNull: false,
       },
-      recipient_email: {
-        type: Sequelize.STRING,
-        allowNull: true,
-      },
       algorithm: {
         type: Sequelize.STRING,
         allowNull: true,

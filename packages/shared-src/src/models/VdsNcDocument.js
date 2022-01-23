@@ -22,10 +22,6 @@ export class VdsNcDocument extends Model {
           type: Sequelize.TEXT,
           allowNull: false,
         },
-        recipientEmail: {
-          type: Sequelize.STRING,
-          allowNull: true,
-        },
 
         algorithm: {
           type: Sequelize.STRING,
