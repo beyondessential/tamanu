@@ -1,4 +1,5 @@
 import express from 'express';
+import config from 'config';
 import asyncHandler from 'express-async-handler';
 import { QueryTypes, Op } from 'sequelize';
 import { isEqual } from 'lodash';
@@ -267,8 +268,13 @@ patientRoute.get(
 patientRoute.get(
   '/:id/passportNumber',
   asyncHandler(async (req, res) => {
-    const surveyId = 'program-fijicovid19-fijicovidrdt';
-    const questionId = 'pde-FijCOVRDT005';
+    if (!config?.questionCodes?.passportNumber || !config?.surveyIds?.fijiCovidTesting) {
+      res.send([]);
+      return;
+    }
+
+    const questionId = config?.questionCodes?.passportNumber;
+    const surveyId = config?.surveyIds?.fijiCovidTesting;
     const { params } = req;
     const patientId = params.id;
 

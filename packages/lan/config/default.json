@@ -70,5 +70,11 @@
   "serverFacilityId": "",
   "debugging": {
     "requestFailureRate": 0
+  },
+  "questionCodes": {
+    "passportNumber": "pde-FijCOVRDT005"
+  },
+  "surveyIds": {
+    "fijiCovidTesting": "program-fijicovid19-fijicovidrdt"
   }
 }
