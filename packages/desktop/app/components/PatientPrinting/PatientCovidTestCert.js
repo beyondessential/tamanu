@@ -22,6 +22,20 @@ const usePassportNumber = patientId => {
   return () => value;
 };
 
+const useNationality = patientId => {
+  const api = useApi();
+  const [value, setValue] = useState(null);
+
+  useEffect(() => {
+    (async () => {
+      const nationality = await api.get(`patient/${patientId}/nationality`);
+      setValue(nationality);
+    })();
+  }, [api, patientId]);
+
+  return () => value;
+};
+
 export const PatientCovidTestCert = ({ patient }) => {
   const [open, setOpen] = useState(true);
   const [rows, setRows] = useState([]);
@@ -96,21 +110,21 @@ export const PatientCovidTestCert = ({ patient }) => {
   }, [columns, api, patient.id]);
 
   const getPassportNumber = usePassportNumber(patient.id);
+  const getNationality = useNationality(patient.id);
 
   return (
     <Modal open={open} onClose={() => setOpen(false)} width="md" printable>
       <Certificate
         patient={patient}
         header="COVID-19 test history"
-        customAccessors={{ passport: getPassportNumber }}
+        customAccessors={{ passport: getPassportNumber, nationalityId: getNationality }}
         primaryDetailsFields={[
           'firstName',
           'lastName',
           'dateOfBirth',
-          'placeOfBirth',
-          'countryOfBirthId',
           'sex',
           'displayId',
+          'nationalityId',
           'passport',
         ]}
       >

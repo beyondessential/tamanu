@@ -71,10 +71,8 @@
   "debugging": {
     "requestFailureRate": 0
   },
-  "questionCodes": {
-    "passportNumber": "pde-FijCOVRDT005"
-  },
-  "surveyIds": {
-    "fijiCovidTesting": "program-fijicovid19-fijicovidrdt"
+  "questionCodeIds": {
+    "passportNumber": "pde-FijCOVRDT005",
+    "citizenship": "pde-PalauCOVSamp7"
   }
 }

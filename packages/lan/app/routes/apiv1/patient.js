@@ -264,17 +264,16 @@ patientRoute.get(
   }),
 );
 
-// The passport number is taken from the COVID Tourism survey
+// The passport number is taken from a program survey
 patientRoute.get(
   '/:id/passportNumber',
   asyncHandler(async (req, res) => {
-    if (!config?.questionCodes?.passportNumber || !config?.surveyIds?.fijiCovidTesting) {
+    if (!config?.questionCodeIds?.passportNumber) {
       res.send([]);
       return;
     }
 
-    const questionId = config?.questionCodes?.passportNumber;
-    const surveyId = config?.surveyIds?.fijiCovidTesting;
+    const questionId = config?.questionCodeIds?.passportNumber;
     const { params } = req;
     const patientId = params.id;
 
@@ -290,13 +289,10 @@ patientRoute.get(
        WHERE
           data_element_id = :questionId
         AND
-          survey_id = :surveyId
-        AND
           encounters.patient_id = :patientId`,
       {
         replacements: {
           questionId,
-          surveyId,
           patientId,
         },
         type: QueryTypes.SELECT,
@@ -304,11 +300,56 @@ patientRoute.get(
     );
 
     if (result.length === 0) {
-      res.status(404).send({ error: 'Patient could not be found.' });
+      res.send([]);
       return;
     }
 
     res.json(result[0].body);
+  }),
+);
+
+// The passport number is taken from a program survey
+patientRoute.get(
+  '/:id/nationality',
+  asyncHandler(async (req, res) => {
+    if (!config?.questionCodeIds?.citizenship) {
+      res.send([]);
+      return;
+    }
+
+    const questionId = config?.questionCodeIds?.citizenship;
+    const { params, models } = req;
+    const patientId = params.id;
+
+    req.checkPermission('read', 'Patient');
+
+    const result = await req.db.query(
+      `SELECT body
+       FROM survey_response_answers
+       LEFT JOIN survey_responses
+        ON (survey_responses.id = survey_response_answers.response_id)
+       LEFT JOIN encounters
+        ON (survey_responses.encounter_id = encounters.id)
+       WHERE
+          data_element_id = :questionId
+        AND
+          encounters.patient_id = :patientId`,
+      {
+        replacements: {
+          questionId,
+          patientId,
+        },
+        type: QueryTypes.SELECT,
+      },
+    );
+
+    if (result.length === 0) {
+      res.send([]);
+      return;
+    }
+
+    const record = await models.ReferenceData.findByPk(result[0].body);
+    res.json(record.dataValues.name);
   }),
 );
 
