@@ -1,7 +1,7 @@
 import config from 'config';
 import nodeCrypto from 'crypto';
-import { Crypto } from '@peculiar/webcrypto';
-import { fromBER } from 'asn1js';
+import { Crypto } from 'node-webcrypto-ossl';
+import { fromBER, PrintableString, Utf8String } from 'asn1js';
 import { setEngine, CryptoEngine, Certificate, CertificationRequest, AttributeTypeAndValue } from 'pkijs';
 import { X502_OIDS } from 'shared/constants';
 
@@ -30,37 +30,34 @@ export async function newKeypairAndCsr(keygenConfig = {
   csr.subject.typesAndValues.push(
     new AttributeTypeAndValue({
       type: X502_OIDS.COUNTRY_NAME,
-      value: countryCode,
+      value: new PrintableString({ value: countryCode }),
     }),
   );
   csr.subject.typesAndValues.push(
     new AttributeTypeAndValue({
       type: X502_OIDS.COMMON_NAME,
-      value: commonName,
+      value: new Utf8String({ value: commonName }),
     }),
   );
-  console.debug('get here 1');
+
   await csr.subjectPublicKeyInfo.importKey(publicKey);
-  console.debug('get here 2');
-  await csr.sign(privateKey, 'SHA256');
-  console.debug('get here 3');
+  await csr.sign(privateKey, 'SHA-256');
   const packedCsr = Buffer.from(await csr.toSchema().toBER(false));
-  console.debug('get here 4');
 
   const passphrase = Buffer.from(keySecret, 'base64');
   const privateNodeKey = nodeCrypto.createPrivateKey({
-    key: privateKey.exportKey('pkcs8'),
+    key: new Uint8Array(await webcrypto.subtle.exportKey('pkcs8', privateKey)),
     format: 'der',
     type: 'pkcs8',
   });
 
   return {
     countryCode,
-    publicKey: publicKey.exportKey('spki'),
+    publicKey: webcrypto.subtle.exportKey('spki', publicKey),
     privateKey: privateNodeKey.export({
       type: 'pkcs8',
       format: 'der',
-      cipher: 'aes-256-gcm',
+      cipher: 'aes-256-cbc',
       passphrase,
     }),
     request: `-----BEGIN CERTIFICATE REQUEST-----\n${packedCsr.toString(
