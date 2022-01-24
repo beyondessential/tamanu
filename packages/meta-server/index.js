@@ -8,8 +8,12 @@ const port = config.port;
 
 export async function run() {
   const app = createApp();
-  app.listen(port, () => {
+  const server = app.listen(port, () => {
     log.info(`Server is running on port ${port}!`);
+  });
+  process.on('SIGTERM', () => {
+    log.info('Received SIGTERM, closing HTTP server');
+    server.close();
   });
 }
 

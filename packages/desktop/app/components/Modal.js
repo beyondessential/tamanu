@@ -28,6 +28,11 @@ const Dialog = styled(MuiDialog)`
   }
 
   @media print {
+    .MuiPaper-root {
+      background: rgb(243, 245, 247, 0.9);
+      -webkit-print-color-adjust: exact;
+    }
+
     .MuiDialogTitle-root,
     .MuiDialogActions-root {
       display: none;

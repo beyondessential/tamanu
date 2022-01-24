@@ -144,15 +144,32 @@ class BaseAutocomplete extends Component {
     </MenuItem>
   );
 
-  onPopperRef = popper => {
-    this.popperNode = popper;
+  setAnchorRefForPopper = ref => {
+    this.anchorEl = ref;
   };
 
   renderContainer = option => (
     <SuggestionsContainer
-      anchorEl={this.popperNode}
+      anchorEl={this.anchorEl}
       open={!!option.children}
       placement="bottom-start"
+      modifiers={[
+        {
+          name: 'preventOverflow',
+          enabled: true,
+          boundariesElement: 'viewport',
+          boundaries: {
+            top: 0,
+            left: 0,
+            bottom: 0,
+            right: 0,
+          },
+        },
+        {
+          name: 'flip',
+          enabled: false,
+        },
+      ]}
       disablePortal
     >
       <SuggestionsList {...option.containerProps}>{option.children}</SuggestionsList>
@@ -183,7 +200,7 @@ class BaseAutocomplete extends Component {
             placeholder,
             value: displayedValue,
             onChange: this.handleInputChange,
-            inputRef: this.onPopperRef,
+            inputRef: this.setAnchorRefForPopper,
           }}
         />
       </AutocompleteContainer>

@@ -13,6 +13,7 @@ const servers = [
   // live servers
   { name: 'Fiji', type: 'live', host: 'https://sync.tamanu-fiji.org' },
   { name: 'Fiji NCD', type: 'live', host: 'https://sync-ncd-pilot.tamanu-fiji.org' },
+  { name: 'Fiji Tourism', type: 'live', host: 'https://sync-tourism.tamanu-fiji.org' },
   {
     name: 'Motivation Australia - Iraq',
     type: 'live',
@@ -29,6 +30,7 @@ const servers = [
     host: 'https://motivation-sync-india.tamanu.io',
   },
   { name: 'Nauru', type: 'live', host: 'https://sync.tamanu-nauru.org' },
+  { name: 'Palau', type: 'live', host: 'https://sync.tamanu-palau.org' },
   { name: 'Samoa', type: 'live', host: 'https://tamanu-sync.health.gov.ws' },
 
   // demo servers

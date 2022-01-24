@@ -1,5 +1,4 @@
 import React from 'react';
-import { create, all as allMath } from 'mathjs';
 import { inRange } from 'lodash';
 
 import { getAgeFromDate } from 'shared-src/src/utils/date';
@@ -15,7 +14,7 @@ import {
   ReadOnlyTextField,
   UnsupportedPhotoField,
 } from 'desktop/app/components/Field';
-import { PROGRAM_DATA_ELEMENT_TYPES } from '../../../shared-src/src/constants';
+import { PROGRAM_DATA_ELEMENT_TYPES } from 'shared-src/src/constants';
 import { joinNames } from './user';
 
 const InstructionField = ({ label, helperText }) => (
@@ -116,31 +115,6 @@ export function checkVisibility(component, values, allComponents) {
 
     return fallbackParseVisibilityCriteria(component, values, allComponents);
   }
-}
-
-// set up math context
-const math = create(allMath);
-
-export function runCalculations(components, values) {
-  const inputValues = { ...values };
-  const calculatedValues = {};
-
-  for (const c of components) {
-    if (!c.calculation) continue;
-
-    try {
-      const value = math.evaluate(c.calculation, inputValues);
-      if (Number.isNaN(value)) {
-        throw new Error('Value is NaN');
-      }
-      inputValues[c.dataElement.code] = value;
-      calculatedValues[c.dataElement.code] = value.toFixed(2);
-    } catch (e) {
-      calculatedValues[c.dataElement.code] = null;
-    }
-  }
-
-  return calculatedValues;
 }
 
 function fallbackParseVisibilityCriteria({ visibilityCriteria, dataElement }, values, components) {
