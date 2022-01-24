@@ -1,4 +1,5 @@
 import express from 'express';
+import config from 'config';
 import asyncHandler from 'express-async-handler';
 import { QueryTypes, Op } from 'sequelize';
 import { isEqual } from 'lodash';
@@ -455,3 +456,99 @@ patientRoute.get('/program/activeCovid19Patients', asyncHandler(activeCovid19Pat
 
 patientRoute.use(patientVaccineRoutes);
 patientRoute.use(patientDocumentMetadataRoutes);
+
+/**
+ * Helper function and endpoints for patient additional data.
+ *
+ * Looks up selected field in AdditionalData records and
+ * uses a configured questionIds as a fallback
+ *
+ * The ideal way to get this data would be to allow survey questions to be configured
+ * such that they write their answers to patient record fields. However in the meantime
+ * these endpoint handlers allow easy and consistent access to the data on the front end
+ */
+async function getPatientAdditionalData(req, field, questionId) {
+  const {
+    params,
+    models: { Patient, PatientAdditionalData },
+  } = req;
+  const patientId = params.id;
+
+  const patient = await Patient.findByPk(patientId);
+  if (!patient) throw new NotFoundError();
+
+  const patientAdditionalData = await PatientAdditionalData.findOne({
+    where: { patientId: patient.id },
+    include: PatientAdditionalData.getFullReferenceAssociations(),
+  });
+
+  const value = patientAdditionalData?.dataValues[field];
+
+  if (value) {
+    return value;
+  }
+
+  const result = await req.db.query(
+    `SELECT body
+       FROM survey_response_answers
+       LEFT JOIN survey_responses
+        ON (survey_responses.id = survey_response_answers.response_id)
+       LEFT JOIN encounters
+        ON (survey_responses.encounter_id = encounters.id)
+       WHERE
+          data_element_id = :questionId
+        AND
+          encounters.patient_id = :patientId`,
+    {
+      replacements: {
+        patientId,
+        questionId,
+      },
+      type: QueryTypes.SELECT,
+    },
+  );
+
+  if (result.length === 0) {
+    return '';
+  }
+
+  return result[0].body;
+}
+
+patientRoute.get(
+  '/:id/passportNumber',
+  asyncHandler(async (req, res) => {
+    const questionId = config?.questionCodeIds?.passportNumber;
+
+    if (!questionId) {
+      res.send('');
+      return;
+    }
+
+    req.checkPermission('read', 'Patient');
+
+    const value = await getPatientAdditionalData(req, 'passport', questionId);
+    res.json(value);
+  }),
+);
+
+patientRoute.get(
+  '/:id/nationality',
+  asyncHandler(async (req, res) => {
+    const questionId = config?.questionCodeIds?.citizenship;
+    if (!questionId) {
+      res.send('');
+      return;
+    }
+
+    const value = await getPatientAdditionalData(req, 'nationalityId', questionId);
+
+    if (!value) {
+      res.send('');
+      return;
+    }
+
+    const record = await req.models.ReferenceData.findByPk(value);
+    res.json(record?.dataValues?.name);
+  }),
+);
