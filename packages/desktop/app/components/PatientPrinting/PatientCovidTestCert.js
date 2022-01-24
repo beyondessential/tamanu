@@ -3,7 +3,13 @@ import React, { useState, useEffect, useMemo } from 'react';
 import { Modal } from '../Modal';
 import { Certificate, Table } from '../Print/Certificate';
 import { DateDisplay } from '../DateDisplay';
-import { getCompletedDate, getMethod, getRequestId, getLaboratory } from '../../utils/lab';
+import {
+  getCompletedDate,
+  getMethod,
+  getRequestId,
+  getLaboratory,
+  getRequestedBy,
+} from '../../utils/lab';
 
 import { useApi } from '../../api';
 import { useLocalisation } from '../../contexts/Localisation';
@@ -50,6 +56,16 @@ export const PatientCovidTestCert = ({ patient }) => {
         accessor: ({ sampleTime }) => <DateDisplay date={sampleTime} />,
       },
       {
+        key: 'time-of-swab',
+        title: 'Time of swab',
+        accessor: ({ sampleTime }) => <DateDisplay date={sampleTime} showDate={false} showTime />,
+      },
+      {
+        key: 'requestedBy',
+        title: 'Requested By',
+        accessor: getRequestedBy,
+      },
+      {
         key: 'date-of-test',
         title: 'Date of test',
         accessor: getCompletedDate,
@@ -76,7 +92,11 @@ export const PatientCovidTestCert = ({ patient }) => {
       {
         key: 'specimenType',
         title: 'Specimen type',
-        accessor: ({ labTestType }) => labTestType.name,
+        accessor: ({ labTestType, ...rest }) => {
+          console.log('labTestType', labTestType);
+          console.log('rest', rest);
+          return labTestType.name;
+        },
       },
     ],
     [],
