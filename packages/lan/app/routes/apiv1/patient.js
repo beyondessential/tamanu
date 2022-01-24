@@ -264,23 +264,29 @@ patientRoute.get(
   }),
 );
 
-// The passport number is taken from a program survey
-patientRoute.get(
-  '/:id/passportNumber',
-  asyncHandler(async (req, res) => {
-    if (!config?.questionCodeIds?.passportNumber) {
-      res.send([]);
-      return;
-    }
+async function getPatientAdditionalData(req, field, questionId) {
+  const {
+    params,
+    models: { Patient, PatientAdditionalData },
+  } = req;
+  const patientId = params.id;
 
-    const questionId = config?.questionCodeIds?.passportNumber;
-    const { params } = req;
-    const patientId = params.id;
+  const patient = await Patient.findByPk(patientId);
+  if (!patient) throw new NotFoundError();
 
-    req.checkPermission('read', 'Patient');
+  const patientAdditionalData = await PatientAdditionalData.findOne({
+    where: { patientId: patient.id },
+    include: PatientAdditionalData.getFullReferenceAssociations(),
+  });
 
-    const result = await req.db.query(
-      `SELECT body
+  const value = patientAdditionalData?.dataValues[field];
+
+  if (value) {
+    return value;
+  }
+
+  const result = await req.db.query(
+    `SELECT body
        FROM survey_response_answers
        LEFT JOIN survey_responses
         ON (survey_responses.id = survey_response_answers.response_id)
@@ -290,21 +296,40 @@ patientRoute.get(
           data_element_id = :questionId
         AND
           encounters.patient_id = :patientId`,
-      {
-        replacements: {
-          questionId,
-          patientId,
-        },
-        type: QueryTypes.SELECT,
+    {
+      replacements: {
+        patientId,
+        questionId,
       },
-    );
+      type: QueryTypes.SELECT,
+    },
+  );
 
-    if (result.length === 0) {
-      res.send([]);
+  console.log('result', result);
+
+  if (result.length === 0) {
+    console.log('length');
+    return '';
+  }
+
+  return result[0].body;
+}
+
+// The passport number is taken from a program survey
+patientRoute.get(
+  '/:id/passportNumber',
+  asyncHandler(async (req, res) => {
+    const questionId = config?.questionCodeIds?.passportNumber;
+
+    if (!questionId) {
+      res.send('');
       return;
     }
 
-    res.json(result[0].body);
+    req.checkPermission('read', 'Patient');
+
+    const value = await getPatientAdditionalData(req, 'passport', questionId);
+    res.json(value);
   }),
 );
 
@@ -312,44 +337,21 @@ patientRoute.get(
 patientRoute.get(
   '/:id/nationality',
   asyncHandler(async (req, res) => {
-    if (!config?.questionCodeIds?.citizenship) {
-      res.send([]);
-      return;
-    }
-
     const questionId = config?.questionCodeIds?.citizenship;
-    const { params, models } = req;
-    const patientId = params.id;
-
-    req.checkPermission('read', 'Patient');
-
-    const result = await req.db.query(
-      `SELECT body
-       FROM survey_response_answers
-       LEFT JOIN survey_responses
-        ON (survey_responses.id = survey_response_answers.response_id)
-       LEFT JOIN encounters
-        ON (survey_responses.encounter_id = encounters.id)
-       WHERE
-          data_element_id = :questionId
-        AND
-          encounters.patient_id = :patientId`,
-      {
-        replacements: {
-          questionId,
-          patientId,
-        },
-        type: QueryTypes.SELECT,
-      },
-    );
-
-    if (result.length === 0) {
-      res.send([]);
+    if (!questionId) {
+      res.send('');
       return;
     }
 
-    const record = await models.ReferenceData.findByPk(result[0].body);
-    res.json(record.dataValues.name);
+    const value = await getPatientAdditionalData(req, 'nationalityId', questionId);
+
+    if (!value) {
+      res.send('');
+      return;
+    }
+
+    const record = await req.models.ReferenceData.findByPk(value);
+    res.json(record?.dataValues?.name);
   }),
 );
 
