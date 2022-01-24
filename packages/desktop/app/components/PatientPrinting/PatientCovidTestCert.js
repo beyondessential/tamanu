@@ -5,33 +5,28 @@ import { Certificate, Table } from '../Print/Certificate';
 import { DateDisplay } from '../DateDisplay';
 import { getCompletedDate, getMethod, getRequestId, getLaboratory } from '../../utils/lab';
 
-import { connectApi, useApi } from '../../api';
+import { useApi } from '../../api';
 import { useLocalisation } from '../../contexts/Localisation';
 
-// The passport number is taken from the COVID Tourism survey
 const usePassportNumber = patientId => {
-  const SURVEY_ID = 'program-fijicovid19-fijicovidrdt';
-  const QUESTION_ID = 'pde-FijCOVRDT002';
   const api = useApi();
   const [value, setValue] = useState(null);
 
   useEffect(() => {
     (async () => {
-      const surveyResponses = await api.get(`patient/${patientId}/programResponses`);
-      const surveyResponseId = surveyResponses.data.find(sr => sr.surveyId === SURVEY_ID).id;
-      const response = await api.get(`/surveyResponse/${surveyResponseId}`);
-      const passportNumber = response.answers.find(a => a.dataElementId === QUESTION_ID);
-      setValue(passportNumber.body);
+      const passportNumber = await api.get(`patient/${patientId}/passportNumber`);
+      setValue(passportNumber);
     })();
   }, [api, patientId]);
 
   return () => value;
 };
 
-const DumbPatientCovidTestCert = ({ patient, getLabRequests, getLabTests }) => {
+export const PatientCovidTestCert = ({ patient }) => {
   const [open, setOpen] = useState(true);
   const [rows, setRows] = useState([]);
   const { getLocalisation } = useLocalisation();
+  const api = useApi();
 
   const columns = useMemo(
     () => [
@@ -75,10 +70,13 @@ const DumbPatientCovidTestCert = ({ patient, getLabRequests, getLabTests }) => {
 
   useEffect(() => {
     (async () => {
-      const response = await getLabRequests();
+      const response = await api.get(`labRequest`, {
+        patientId: patient.id,
+        category: 'covid',
+      });
       const requests = await Promise.all(
         response.data.map(async request => {
-          const { data: tests } = await getLabTests(request.id);
+          const { data: tests } = await api.get(`labRequest/${request.id}/tests`);
           return {
             ...request,
             ...tests[0],
@@ -95,7 +93,7 @@ const DumbPatientCovidTestCert = ({ patient, getLabRequests, getLabTests }) => {
         })),
       );
     })();
-  }, [columns, getLabRequests, getLabTests]);
+  }, [columns, api, patient.id]);
 
   const getPassportNumber = usePassportNumber(patient.id);
 
@@ -140,12 +138,3 @@ const DumbPatientCovidTestCert = ({ patient, getLabRequests, getLabTests }) => {
     </Modal>
   );
 };
-
-export const PatientCovidTestCert = connectApi((api, dispatch, { patient }) => ({
-  getLabRequests: () =>
-    api.get(`/labRequest`, {
-      patientId: patient.id,
-      category: 'covid',
-    }),
-  getLabTests: id => api.get(`/labRequest/${id}/tests`),
-}))(DumbPatientCovidTestCert);

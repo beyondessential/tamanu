@@ -263,6 +263,49 @@ patientRoute.get(
   }),
 );
 
+// The passport number is taken from the COVID Tourism survey
+patientRoute.get(
+  '/:id/passportNumber',
+  asyncHandler(async (req, res) => {
+    const surveyId = 'program-fijicovid19-fijicovidrdt';
+    const questionId = 'pde-FijCOVRDT005';
+    const { params } = req;
+    const patientId = params.id;
+
+    req.checkPermission('read', 'Patient');
+
+    const result = await req.db.query(
+      `SELECT body
+       FROM survey_response_answers
+       LEFT JOIN survey_responses
+        ON (survey_responses.id = survey_response_answers.response_id)
+       LEFT JOIN encounters
+        ON (survey_responses.encounter_id = encounters.id)
+       WHERE
+          data_element_id = :questionId
+        AND
+          survey_id = :surveyId
+        AND
+          encounters.patient_id = :patientId`,
+      {
+        replacements: {
+          questionId,
+          surveyId,
+          patientId,
+        },
+        type: QueryTypes.SELECT,
+      },
+    );
+
+    if (result.length === 0) {
+      res.status(404).send({ error: 'Patient could not be found.' });
+      return;
+    }
+
+    res.json(result[0].body);
+  }),
+);
+
 patientRoute.get(
   '/:id/lastDischargedEncounter/medications',
   asyncHandler(async (req, res) => {
