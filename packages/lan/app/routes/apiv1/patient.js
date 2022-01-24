@@ -515,7 +515,6 @@ async function getPatientAdditionalData(req, field, questionId) {
   return result[0].body;
 }
 
-// The passport number is taken from a program survey
 patientRoute.get(
   '/:id/passportNumber',
   asyncHandler(async (req, res) => {
@@ -533,7 +532,6 @@ patientRoute.get(
   }),
 );
 
-// The passport number is taken from a program survey
 patientRoute.get(
   '/:id/nationality',
   asyncHandler(async (req, res) => {
