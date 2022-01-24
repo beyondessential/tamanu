@@ -53,13 +53,13 @@ export async function newKeypairAndCsr(keygenConfig = {
 
   return {
     countryCode,
-    publicKey: webcrypto.subtle.exportKey('spki', publicKey),
-    privateKey: privateNodeKey.export({
+    publicKey: fakeABtoRealAB(await webcrypto.subtle.exportKey('spki', publicKey)),
+    privateKey: fakeABtoRealAB(privateNodeKey.export({
       type: 'pkcs8',
       format: 'der',
       cipher: 'aes-256-cbc',
       passphrase,
-    }),
+    }).buffer),
     request: `-----BEGIN CERTIFICATE REQUEST-----\n${packedCsr.toString(
       'base64',
     )}\n-----END CERTIFICATE REQUEST-----`,
@@ -97,4 +97,18 @@ export function loadCertificateIntoSigner(certificate) {
     notBefore: cert.notBefore.value,
     certificate: txtCert,
   };
+}
+
+/**
+ * Convert a fake ArrayBuffer to a real ArrayBuffer.
+ *
+ * Somehow various APIs return a fake ArrayBuffer, which doesn't instanceof as
+ * an ArrayBuffer, and the PKI.js/ASN1.js parsers cannot deal. This function
+ * converts the input to a real ArrayBuffer, by copying the bytes.
+ *
+ * @param {ArrayBuffer} fake The fake ArrayBuffer.
+ * @returns {ArrayBuffer} The real ArrayBuffer.
+ */
+export function fakeABtoRealAB(fake) {
+  return Uint8Array.from((new Uint8Array(fake)).values()).buffer;
 }

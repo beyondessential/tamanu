@@ -27,7 +27,7 @@ export class VdsNcSigner extends Model {
 
         privateKey: {
           // encrypted with facility key (icao.keySecret)
-          type: Sequelize.BLOB, // PKCS8 DER
+          type: Sequelize.BLOB, // PKCS8 DER in PKCS5 DER
           allowNull: true,
         },
         publicKey: {
@@ -120,14 +120,14 @@ export class VdsNcSigner extends Model {
     }
 
     const privateKey = crypto.createPrivateKey({
-      key: this.privateKey,
+      key: Buffer.from(this.privateKey),
       format: 'der',
       type: 'pkcs8',
       passphrase: Buffer.from(keySecret, 'base64'),
     });
 
     const publicKey = crypto.createPublicKey({
-      key: this.publicKey,
+      key: Buffer.from(this.publicKey),
       format: 'der',
       type: 'spki',
     });
