@@ -22,6 +22,29 @@
 
 - (left blank)
 
+## v1.12.27
+
+### Manual steps required after upgrade ⚙
+
+- (left blank)
+
+### Features ⭐
+
+- Track facility contact information
+- Add facility information to user panel & patient history view
+
+### Tweaks ⚖️
+
+- Update to logic for calculating survey response outcomes
+
+### Bug fixes 🐛
+
+- (left blank)
+
+### Infrastructure and maintenance 🛠
+
+- (left blank)
+
 ## v1.11.26
 
 ### Manual steps required after upgrade ⚙
