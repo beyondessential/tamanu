@@ -39,6 +39,10 @@
           tag: ^(master$|dev$|staging$|ci-)
           service: app
           command: ./scripts/build_package_release.sh meta-server
+        - name: build_lan_release
+          tag: ^(master$|dev$|staging$|ci-)
+          service: app
+          command: ./scripts/build_package_release.sh lan
     - name: push_and_deploy
       type: parallel
       steps:
@@ -50,9 +54,10 @@
           service: awsdeployment
           tag: ^(master$|dev$|staging$|ci-)
           command: ./scripts/push.sh
-        # fix for a bug where version names can collide if an application is deployed in parallel
+        # the following serial steps are a fix for a bug where version names can
+        # collide if an application is deployed in parallel
         # see https://github.com/codeship-library/aws-utilities/issues/115
-        - name: awscli_name_collision_workaround_sync
+        - name: deploy_sync
           type: serial
           steps:
             - name: deploy_sync_dev_environment
@@ -71,7 +76,26 @@
               tag: ^(master$)
               service: awsdeployment
               command: ./scripts/deploy_sync.sh demo-nauru
-        - name: awscli_name_collision_workaround_meta
+        - name: deploy_lan
+          type: serial
+          steps:
+            - name: deploy_lan_dev_environment
+              tag: ^(dev$|ci-)
+              service: awsdeployment
+              command: ./scripts/deploy_lan.sh dev
+            - name: deploy_lan_staging_environment
+              tag: ^(staging$)
+              service: awsdeployment
+              command: ./scripts/deploy_lan.sh staging
+            - name: deploy_lan_demo_environment
+              tag: ^(master$)
+              service: awsdeployment
+              command: ./scripts/deploy_lan.sh demo
+            - name: deploy_lan_demo_nauru_environment
+              tag: ^(master$)
+              service: awsdeployment
+              command: ./scripts/deploy_lan.sh demo-nauru
+        - name: deploy_meta
           type: serial
           steps:
             - name: deploy_meta_dev_environment

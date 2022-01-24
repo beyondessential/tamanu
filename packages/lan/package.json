@@ -16,6 +16,7 @@
     ]
   },
   "scripts": {
+    "start": "node ./dist/app.bundle.js",
     "start-dev": "rm -rf ./dist/ && webpack --config webpack.config.dev.js",
     "test": "NODE_ENV=test jest",
     "test-coverage": "yarn test --coverage",
