@@ -94,7 +94,7 @@
 
 ### Tweaks ⚖️
 
-- (left blank)
+- Updated logic for the covid-swab-lab-test-list report
 
 ### Bug fixes 🐛
 
