@@ -1,8 +1,10 @@
 {
   "port": 3000,
+  // this should be set to the external address of the server, e.g. "https://sync-dev.tamanu.io"
   "canonicalHostName": "http://localhost:3000",
   "db": {
     "name": "tamanu-sync",
+    // when verbose to true, log.consoleLevel must be set to "debug" to see any output
     "verbose": false,
     "username": "",
     "password": "",
@@ -49,6 +51,9 @@
     ]
   },
   "auth": {
+    // this secret should be set if more than one process of the sync-server is running
+    // otherwise, each process will use a different key and tokens won't match
+    "secret": null,
     "saltRounds": 12,
     "tokenDuration": "1h",
     "reportNoUserError": false,
