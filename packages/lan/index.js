@@ -37,7 +37,8 @@ async function serve(options) {
     log.info(`Server is running on port ${port}!`);
   });
   process.on('SIGTERM', () => {
-    app.close();
+    log.info('Received SIGTERM, closing HTTP server');
+    server.close();
   });
 
   listenForServerQueries();
