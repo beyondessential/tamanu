@@ -12,7 +12,7 @@ const SURVEY_QUESTION_CODES = {
   Race: 'pde-PalauCOVSamp44',
   'State for the last 14 days': 'pde-PalauCOVSamp8',
   'Test conducted at BNH': 'pde-PalauCOVSamp10',
-  'Health facility': 'pde-PalauCOVSamp11',
+  'If test not conducted at BNH, which facility?': 'pde-PalauCOVSamp11',
   'Purpose of sample collection': 'pde-PalauCOVSamp12',
   'Other purpose': 'pde-PalauCOVSamp13',
   'Printed result': 'pde-PalauCOVSamp14',
@@ -89,6 +89,7 @@ export const dataGenerator = async ({ models }, parameters = {}) => {
     SURVEY_ID,
     SURVEY_QUESTION_CODES,
     reportColumnTemplate,
+    includeTimestamp: true,
   });
 };
 

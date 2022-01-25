@@ -155,11 +155,14 @@ const getLatestPatientAnswerInDateRange = (
   return latestAnswer?.body;
 };
 
+const formatDate = (date, includeTimestamp) =>
+  includeTimestamp ? moment(date).format('DD-MM-YYYY LTS') : moment(date).format('DD-MM-YYYY');
+
 const getLabTestRecords = async (
   labTests,
   transformedAnswers,
   parameters,
-  { SURVEY_QUESTION_CODES },
+  { SURVEY_QUESTION_CODES, includeTimestamp },
 ) => {
   const transformedAnswersByPatientAndDataElement = groupBy(
     transformedAnswers,
@@ -235,7 +238,7 @@ const getLabTestRecords = async (
         requestedBy: labRequest?.requestedBy?.displayName,
         requestedDate: labTest.date ? moment(labTest.date).format('DD-MM-YYYY') : '',
         testingDate: labTest.completedDate
-          ? moment(labTest.completedDate).format('DD-MM-YYYY')
+          ? formatDate(labTest.completedDate, includeTimestamp)
           : '',
         priority: labRequest?.priority?.name,
         testingLaboratory: labRequest?.laboratory?.name,
@@ -261,19 +264,17 @@ const getLabTestRecords = async (
 export const baseDataGenerator = async (
   { models },
   parameters = {},
-  { SURVEY_ID, reportColumnTemplate, SURVEY_QUESTION_CODES },
+  { SURVEY_ID, reportColumnTemplate, SURVEY_QUESTION_CODES, includeTimestamp = false },
 ) => {
   const labTests = await getLabTests(models, parameters);
   const answers = await getFijiCovidAnswers(models, parameters, { SURVEY_ID });
   const components = await models.SurveyScreenComponent.getComponentsForSurvey(SURVEY_ID);
   const transformedAnswers = await transformAnswers(models, answers, components);
 
-  console.log(transformedAnswers[0]);
-
   const reportData = await getLabTestRecords(labTests, transformedAnswers, parameters, {
     SURVEY_QUESTION_CODES,
+    includeTimestamp,
   });
-  console.log(reportData[0]);
 
   return generateReportFromQueryData(reportData, reportColumnTemplate);
 };
