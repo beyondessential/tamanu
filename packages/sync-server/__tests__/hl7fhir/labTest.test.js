@@ -1,6 +1,7 @@
 import { createDummyPatient, createDummyEncounter } from 'shared/demoData/patients';
 import { randomLabRequest } from 'shared/demoData/labRequests';
 import { LAB_REQUEST_STATUSES, REFERENCE_TYPES } from 'shared/constants';
+import { fake } from 'shared/test-helpers/fake';
 
 import { createTestContext } from '../utilities';
 import { validate } from './hl7utilities';
@@ -8,6 +9,7 @@ import { validate } from './hl7utilities';
 import {
   labTestToHL7Observation,
   labTestToHL7DiagnosticReport,
+  labTestToHL7Device,
   hl7StatusToLabRequestStatus,
 } from '../../app/hl7fhir';
 
@@ -191,5 +193,34 @@ describe('HL7 Labs', () => {
     );
 
     expect(() => labTestToHL7Observation(labTest)).toThrowError(/^Test coding was not one of/);
+  });
+
+  describe('labTestToHL7Device', () => {
+    it('should return valid results for a known device', async () => {
+      const labTestMethod = await models.ReferenceData.create({
+        ...fake(models.ReferenceData),
+        type: 'labTestMethod',
+        code: 'RTPCR',
+      });
+      const labTest = await createLabTest({ labTestMethodId: labTestMethod.id });
+
+      const device = labTestToHL7Device(labTest);
+
+      expect(device).toMatchObject({
+        text: 'COVID RT-PCR Testing Device',
+        manufacturer: 'TIB MOLBIOL',
+      });
+    });
+
+    it('should return unknown for an unknown device', async () => {
+      const labTest = await createLabTest();
+
+      const device = labTestToHL7Device(labTest);
+
+      expect(device).toMatchObject({
+        text: 'Unknown',
+        manufacturer: 'Unknown',
+      });
+    });
   });
 });

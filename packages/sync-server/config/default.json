@@ -358,5 +358,8 @@
     }
   },
   "tupaiaApiClient": {},
-  "scheduledReports": []
+  "scheduledReports": [],
+  "disk": {
+    "diskPath": "C:/"
+  }
 }

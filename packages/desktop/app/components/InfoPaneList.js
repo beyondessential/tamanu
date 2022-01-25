@@ -67,24 +67,21 @@ const FormContainer = styled.div`
 `;
 
 const AddEditForm = connectApi(
-  (api, dispatch, { patient, endpoint, onClose, suggesterEndpoints = [] }) => {
-    const apiProps = {
-      onSubmit: async data => {
-        if (data.id) {
-          // don't need to include patientId as the existing record will already have it
-          await api.put(`${endpoint}/${data.id}`, data);
-        } else {
-          await api.post(endpoint, { ...data, patientId: patient.id });
-        }
-        dispatch(reloadPatient(patient.id));
-        onClose();
-      },
-    };
-    suggesterEndpoints.forEach(e => {
-      apiProps[`${e}Suggester`] = new Suggester(api, e);
-    });
-    return apiProps;
-  },
+  (api, dispatch, { patient, endpoint, onClose, suggesters = [] }) => ({
+    onSubmit: async data => {
+      if (data.id) {
+        // don't need to include patientId as the existing record will already have it
+        await api.put(`${endpoint}/${data.id}`, data);
+      } else {
+        await api.post(endpoint, { ...data, patientId: patient.id });
+      }
+      dispatch(reloadPatient(patient.id));
+      onClose();
+    },
+    ...Object.fromEntries(Object.entries(suggesters).map(
+      ([key, options = {}]) => [`${key}Suggester`, new Suggester(api, key, options)]
+    ))
+  }),
 )(
   memo(({ Form, item, onClose, ...restOfProps }) => (
     <FormContainer>
@@ -101,7 +98,7 @@ export const InfoPaneList = memo(
     Form,
     items = [],
     endpoint,
-    suggesterEndpoints,
+    suggesters,
     getName = () => '???',
     behavior = 'collapse',
     itemTitle = '',
@@ -134,7 +131,7 @@ export const InfoPaneList = memo(
           patient={patient}
           Form={Form}
           endpoint={endpoint}
-          suggesterEndpoints={suggesterEndpoints}
+          suggesters={suggesters}
           onClose={handleCloseForm}
         />
       </Wrapper>
@@ -163,7 +160,7 @@ export const InfoPaneList = memo(
                       patient={patient}
                       Form={Form}
                       endpoint={endpoint}
-                      suggesterEndpoints={suggesterEndpoints}
+                      suggesters={suggesters}
                       item={item}
                       onClose={handleCloseForm}
                     />
@@ -185,7 +182,7 @@ export const InfoPaneList = memo(
                     patient={patient}
                     Form={Form}
                     endpoint={endpoint}
-                    suggesterEndpoints={suggesterEndpoints}
+                    suggesters={suggesters}
                     item={item}
                     onClose={handleCloseForm}
                   />
