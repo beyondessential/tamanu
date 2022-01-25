@@ -271,8 +271,8 @@ export const REFERRAL_STATUSES = {
 export const DOCUMENT_SIZE_LIMIT = 10000000;
 
 export const ICAO_DOCUMENT_TYPES = {
-  PROOF_OF_TESTING: 'icao.vacc',
-  PROOF_OF_VACCINATION: 'icao.test',
+  PROOF_OF_TESTING: 'icao.test',
+  PROOF_OF_VACCINATION: 'icao.vacc',
 };
 
 export const X502_OIDS = {

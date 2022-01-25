@@ -8,6 +8,7 @@ import MuiDialog from '@material-ui/core/Dialog';
 import DialogTitle from '@material-ui/core/DialogTitle';
 import DialogActions from '@material-ui/core/DialogActions';
 import PrintIcon from '@material-ui/icons/Print';
+import EmailIcon from '@material-ui/icons/Email';
 import CloseIcon from '@material-ui/icons/Close';
 import { IconButton } from '@material-ui/core';
 import { getCurrentRoute } from '../store/router';
@@ -83,6 +84,7 @@ export const Modal = memo(
     open = false,
     onClose,
     printable = false,
+    onEmail = null,
     ...props
   }) => {
     const { printPage } = useElectron();
@@ -91,6 +93,17 @@ export const Modal = memo(
         <ModalTitle>
           <VerticalCenteredText>{title}</VerticalCenteredText>
           <div>
+            {onEmail ? (
+              <Button
+                color="primary"
+                variant="outlined"
+                onClick={() => onEmail()}
+                startIcon={<EmailIcon />}
+                size="small"
+              >
+                Email
+              </Button>
+            ) : null}
             {printable ? (
               <Button
                 color="primary"

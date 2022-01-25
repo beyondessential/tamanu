@@ -2,13 +2,14 @@ import config from 'config';
 
 import { log } from 'shared/services/logging';
 import { createReferralNotification } from 'shared/tasks/CreateReferralNotification';
+import { sendCertificateNotification } from 'shared/tasks/SendCertificateNotification';
 
 import { createApp } from '../app/createApp';
 import { startScheduledTasks } from '../app/tasks';
 import { ApplicationContext } from '../app/ApplicationContext';
 import { version } from '../package.json';
 
-const port = config.port;
+const { port } = config;
 
 function getRoutes(router, prefix = '') {
   const getRouteName = ({ regexp }) =>
@@ -66,13 +67,24 @@ export async function serve(options) {
     });
   }
 
-  if (config.notifications && config.notifications.referralCreated) {
-    context.models.Referral.addHook(
-      'afterCreate',
-      'create referral notification hook',
-      referral => {
-        createReferralNotification(referral, context.models);
-      },
-    );
+  if (config.notifications) {
+    if (config.notifications.referralCreated) {
+      context.models.Referral.addHook(
+        'afterCreate',
+        'create referral notification hook',
+        referral => {
+          createReferralNotification(referral, context.models);
+        },
+      );
+    }
+    if (config.notifications.certificates) {
+      context.models.CertificateNotifications.addHook(
+        'afterCreate',
+        'create certificate notification hook',
+        certificateNotification => {
+          sendCertificateNotification(certificateNotification, context.models);
+        },
+      );
+    }
   }
 }
