@@ -40,6 +40,7 @@ export class Patient extends Model {
   static initRelations(models) {
     this.hasMany(models.Encounter, {
       foreignKey: 'patientId',
+      as: 'encounters',
     });
 
     // technically this relation is hasOne but this just describes
@@ -64,7 +65,30 @@ export class Patient extends Model {
     return patients.map(({ id }) => id);
   }
 
-  getLabTests() {
-    console.log('get lab tests');
+  getLabRequests(queryOptions) {
+    return this.sequelize.models.LabRequest.findAll({
+      raw: true,
+      nest: true,
+      ...queryOptions,
+      include: [
+        { association: 'requestedBy' },
+        {
+          association: 'tests',
+          include: [{ association: 'labTestMethod' }, { association: 'labTestType' }],
+        },
+        { association: 'laboratory' },
+        {
+          association: 'encounter',
+          required: true,
+          include: [
+            { association: 'examiner' },
+            {
+              association: 'patient',
+              where: { id: this.id },
+            },
+          ],
+        },
+      ],
+    });
   }
 }

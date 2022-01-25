@@ -45,6 +45,7 @@ const columns = [
   {
     key: 'laboratoryOfficer',
     title: 'Lab officer',
+    accessor: ({ tests }) => tests.laboratoryOfficer,
   },
   {
     key: 'method',
@@ -54,6 +55,7 @@ const columns = [
   {
     key: 'result',
     title: 'Result',
+    accessor: ({ tests }) => tests.result,
   },
 ];
 
@@ -86,7 +88,7 @@ export const CovidCertificate = ({ data }) => (
         </Row>
       </Box>
       <Box mb={60}>
-        <Table data={data} columns={columns} />
+        <Table data={data.labs} columns={columns} />
       </Box>
       <Box>
         <Row>

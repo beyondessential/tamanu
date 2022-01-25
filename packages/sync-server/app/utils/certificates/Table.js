@@ -31,17 +31,21 @@ const TR = props => <View {...props} style={tableStyles.tr} />;
 const TH = props => <Text {...props} style={tableStyles.th} />;
 const TD = props => <Text {...props} style={tableStyles.td} />;
 
-export const Table = ({ data, columns }) => (
-  <View style={tableStyles.table}>
-    <TR>
-      {columns.map(({ title, key }) => (
-        <TH key={key}>{title}</TH>
+export const Table = ({ data, columns }) => {
+  return (
+    <View style={tableStyles.table}>
+      <TR>
+        {columns.map(({ title, key }) => (
+          <TH key={key}>{title}</TH>
+        ))}
+      </TR>
+      {data.map(row => (
+        <TR key={row.id}>
+          {columns.map(({ accessor, key }) => (
+            <TD key={key}>{accessor ? accessor(row) : row[key]}</TD>
+          ))}
+        </TR>
       ))}
-    </TR>
-    <TR>
-      {columns.map(({ key, accessor }) => (
-        <TD key={key}>{accessor ? accessor(data) : data[key]}</TD>
-      ))}
-    </TR>
-  </View>
-);
+    </View>
+  );
+};
