@@ -92,11 +92,7 @@ export const PatientCovidTestCert = ({ patient }) => {
       {
         key: 'specimenType',
         title: 'Specimen type',
-        accessor: ({ labTestType, ...rest }) => {
-          console.log('labTestType', labTestType);
-          console.log('rest', rest);
-          return labTestType.name;
-        },
+        accessor: ({ labTestType }) => labTestType.name,
       },
     ],
     [],
