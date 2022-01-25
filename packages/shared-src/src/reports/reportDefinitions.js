@@ -78,18 +78,16 @@ export const REPORT_DEFINITIONS = [
     allFacilities: true,
   },
   {
-    // Note: there are 2 reports with this name
     name: 'COVID-19 Tests - Line list',
     id: 'fiji-covid-swab-lab-test-list',
     allFacilities: true,
     parameters: [{ parameterField: 'VillageField' }, { parameterField: 'LabTestLaboratoryField' }],
   },
   {
-    // Note: there are 2 reports with this name
-    name: 'COVID-19 Tests - Line list',
+    name: 'Palau COVID-19 Test - Line list',
     id: 'palau-covid-swab-lab-test-list',
     allFacilities: true,
-    parameters: [{ parameterField: 'VillageField' }, { parameterField: 'LabTestLaboratoryField' }],
+    parameters: [{ parameterField: 'VillageField' }],
   },
   {
     name: 'COVID-19 Tests - Summary',
