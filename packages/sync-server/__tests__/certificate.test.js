@@ -3,6 +3,7 @@ import { randomLabRequest } from 'shared/demoData/labRequests';
 import { LAB_REQUEST_STATUSES, REFERENCE_TYPES } from 'shared/constants';
 
 import { createTestContext } from './utilities';
+import { makePatientCertificate } from '../app/utils/certificates';
 
 async function prepopulate(models) {
   const lab = await models.ReferenceData.create({
@@ -67,7 +68,7 @@ async function prepopulate(models) {
   };
 }
 
-describe('Certificate', () => {
+describe.only('Certificate', () => {
   let ctx;
   let models;
   let createLabTests;
@@ -116,10 +117,14 @@ describe('Certificate', () => {
 
   afterAll(() => ctx.close());
 
-  it('Get Lab Requests By Patient Id', async () => {
+  it('Generates a Patient Covid Certificate', async () => {
     await createLabTests();
+    const patientRecord = await models.Patient.findByPk(patient.id);
+    await makePatientCertificate(patientRecord);
+  });
 
-    console.log('patient id ', patient.id);
+  it.skip('Get Lab Requests By Patient Id', async () => {
+    await createLabTests();
 
     const data = await models.LabRequest.findAll({
       raw: true,
@@ -152,8 +157,6 @@ describe('Certificate', () => {
 
   it.skip('Get Lab Tests By Patient Id', async () => {
     await createLabTests();
-
-    console.log('patient id ', patient.id);
 
     const data = await models.LabTest.findAll({
       raw: true,

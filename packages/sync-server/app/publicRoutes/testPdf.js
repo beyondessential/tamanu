@@ -1,6 +1,6 @@
 import express from 'express';
 import asyncHandler from 'express-async-handler';
-import { makeCertificate } from '../utils/certificates';
+import { makePatientCertificate } from '../utils/certificates';
 
 export const testPdf = express.Router();
 
@@ -12,13 +12,8 @@ testPdf.get(
     const { models } = req.store;
 
     const patient = await models.Patient.findByPk(patientId);
-    const labs = await patient.getLabRequests();
-    const data = {
-      ...patient.dataValues,
-      labs,
-    };
 
-    await makeCertificate(data);
+    await makePatientCertificate(patient);
     res.send({});
   }),
 );

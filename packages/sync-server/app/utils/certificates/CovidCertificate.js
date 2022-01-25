@@ -6,7 +6,14 @@ import { Table } from './Table';
 import { styles, Col, Box, Row, Signature } from './Layout';
 import { H1, H2, H3, P } from './Typography';
 import { Logo } from './Logo';
-import { getCompletedDate, getLaboratory, getMethod, getRequestId } from './lab';
+import {
+  getCompletedDate,
+  getLaboratory,
+  getLabMethod,
+  getRequestId,
+  getLabOfficer,
+  getDateOfSwab,
+} from './accessors';
 
 const FIELDS = ['firstName', 'lastName', 'dateOfBirth', 'placeOfBirth', 'countryOfBirthId', 'sex'];
 
@@ -17,7 +24,6 @@ const PRIMARY_DETAILS_FIELDS = {
   placeOfBirth: ({ additionalData }) => additionalData?.placeOfBirth,
   countryOfBirthId: ({ additionalData }) => additionalData?.countryOfBirth?.name,
   sex: null,
-  Mother: () => null, // TODO: not populated
   displayId: null,
 };
 
@@ -25,7 +31,7 @@ const columns = [
   {
     key: 'date-of-swab',
     title: 'Date of swab',
-    accessor: ({ sampleTime }) => moment(sampleTime).format('Do MMM YYYY'),
+    accessor: getDateOfSwab,
   },
   {
     key: 'date-of-test',
@@ -45,12 +51,12 @@ const columns = [
   {
     key: 'laboratoryOfficer',
     title: 'Lab officer',
-    accessor: ({ tests }) => tests.laboratoryOfficer,
+    accessor: getLabOfficer,
   },
   {
     key: 'method',
     title: 'Method',
-    accessor: getMethod,
+    accessor: getLabMethod,
   },
   {
     key: 'result',

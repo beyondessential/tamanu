@@ -39,8 +39,9 @@ export const Table = ({ data, columns }) => {
           <TH key={key}>{title}</TH>
         ))}
       </TR>
-      {data.map(row => (
-        <TR key={row.id}>
+      {data.map((row, i) => (
+        // eslint-disable-next-line react/no-array-index-key
+        <TR key={i}>
           {columns.map(({ accessor, key }) => (
             <TD key={key}>{accessor ? accessor(row) : row[key]}</TD>
           ))}
