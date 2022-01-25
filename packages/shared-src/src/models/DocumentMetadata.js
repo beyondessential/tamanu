@@ -7,12 +7,29 @@ export class DocumentMetadata extends Model {
     super.init(
       {
         id: primaryKey,
-        name: Sequelize.TEXT,
-        type: Sequelize.STRING(31),
+        name: {
+          type: Sequelize.TEXT,
+          allowNull: false,
+        },
+        type: {
+          type: Sequelize.TEXT,
+          allowNull: false,
+        },
         documentCreatedAt: Sequelize.DATE,
-        documentUploadedAt: Sequelize.DATE,
+        documentUploadedAt: {
+          type: Sequelize.DATE,
+          allowNull: false,
+          defaultValue: Sequelize.NOW,
+        },
         documentOwner: Sequelize.TEXT,
         note: Sequelize.STRING,
+
+        // Relation can't be managed by sequelize because the
+        // attachment won't get downloaded to lan server
+        attachmentId: {
+          type: Sequelize.STRING,
+          allowNull: false,
+        },
       },
       {
         ...options,
@@ -22,11 +39,6 @@ export class DocumentMetadata extends Model {
   }
 
   static initRelations(models) {
-    this.belongsTo(models.Attachment, {
-      foreignKey: 'attachmentId',
-      as: 'document',
-    });
-
     this.belongsTo(models.Encounter, {
       foreignKey: 'encounterId',
       as: 'encounter',

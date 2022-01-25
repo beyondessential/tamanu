@@ -2,6 +2,7 @@ import { Sequelize } from 'sequelize';
 import { createNamespace } from 'cls-hooked';
 import pg from 'pg';
 import wayfarer from 'wayfarer';
+import util from 'util';
 
 // an issue in how webpack's require handling interacts with sequelize means we need
 // to provide the module to sequelize manually
@@ -67,7 +68,10 @@ async function connectToDatabase(dbOptions) {
   if (sqlitePath) {
     log.info(`Connecting to sqlite database at ${sqlitePath}...`);
   } else {
-    log.info(`Connecting to database ${username}@${name}...`);
+    log.info(
+      `Connecting to database ${username || '<no username>'}:*****@${host || '<no host>'}:${port ||
+        '<no port>'}/${name || '<no name>'}...`,
+    );
   }
 
   // this allows us to use transaction callbacks without manually managing a transaction handle
@@ -75,7 +79,12 @@ async function connectToDatabase(dbOptions) {
   const namespace = createNamespace('sequelize-transaction-namespace');
   Sequelize.useCLS(namespace);
 
-  const logging = verbose ? s => log.debug(s) : null;
+  const logging = verbose
+    ? (query, obj) =>
+        log.debug(
+          `${util.inspect(query)}; -- ${util.inspect(obj.bind || [], { breakLength: Infinity })}`,
+        )
+    : null;
   const options = sqlitePath
     ? { dialect: 'sqlite', dialectModule: sqlite3, storage: sqlitePath }
     : { dialect: 'postgres' };
@@ -88,6 +97,7 @@ async function connectToDatabase(dbOptions) {
   await sequelize.authenticate();
 
   process.on('SIGTERM', () => {
+    log.info('Received SIGTERM, closing sequelize');
     sequelize.close();
   });
 

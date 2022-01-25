@@ -49,7 +49,11 @@ export const executeExportPlan = async (plan, { since, limit = 100 }) => {
   }
   if (syncClientMode) {
     // only push marked records in server mode
-    whereClauses.push({ markedForPush: true });
+    whereClauses.push({
+      // records that were marked by the client (e.g. SyncManager)
+      // done to avoid a race condition when setting markedForPush
+      isPushing: true,
+    });
   }
   if (since) {
     whereClauses.push(syncCursorToWhereCondition(since));

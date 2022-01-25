@@ -41,6 +41,10 @@ const userSchema = baseSchema.shape({
 const facilitySchema = baseSchema.shape({
   code: fieldTypes.code.required(),
   name: fieldTypes.name.required(),
+  email: yup.string(),
+  contactNumber: yup.string(),
+  streetAddress: yup.string(),
+  cityTown: yup.string(),
   division: yup.string(),
   type: yup.string(),
 });

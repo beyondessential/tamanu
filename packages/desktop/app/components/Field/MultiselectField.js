@@ -17,7 +17,8 @@ export const MultiselectInput = ({
   form: { initialValues },
   ...props
 }) => {
-  const values = value ? value.split(', ') : [];
+  // If value is already set, keep that value, otherwise attempt to load any initial values
+  const values = value ? value.split(', ') : initialValues[name]?.split(', ') || [];
   const initialSelectedOptions = options.filter(option => values.includes(option.value));
 
   const [selected, setSelected] = useState(initialSelectedOptions);
@@ -30,12 +31,11 @@ export const MultiselectInput = ({
     [onChange, name],
   );
 
-  // support initial values
   useEffect(() => {
-    const initialOptionValues = initialValues[name]?.split(', ') || [];
-    const initialOptions = options.filter(o => initialOptionValues.includes(o.value));
-    setSelected(initialOptions);
-  }, [initialValues, name, value, options]);
+    const newValues = value ? value.split(', ') : [];
+    const newOptions = options.filter(option => newValues.includes(option.value));
+    setSelected(newOptions);
+  }, [value, options]);
 
   const isReadonly = (readonly && !disabled) || (value && !onChange);
   if (disabled || isReadonly || !options || options.length === 0) {

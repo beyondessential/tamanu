@@ -7,13 +7,13 @@ export class Attachment extends Model {
     super.init(
       {
         id: primaryKey,
-        type: Sequelize.STRING(31),
+        type: Sequelize.TEXT,
         size: Sequelize.INTEGER,
         data: Sequelize.BLOB,
       },
       {
         ...options,
-        syncConfig: { syncDirection: SYNC_DIRECTIONS.PUSH_ONLY },
+        syncConfig: { syncDirection: SYNC_DIRECTIONS.DO_NOT_SYNC },
       },
     );
   }

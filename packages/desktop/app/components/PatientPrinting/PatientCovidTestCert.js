@@ -5,13 +5,42 @@ import { Certificate, Table } from '../Print/Certificate';
 import { DateDisplay } from '../DateDisplay';
 import { getCompletedDate, getMethod, getRequestId, getLaboratory } from '../../utils/lab';
 
-import { connectApi } from '../../api';
+import { useApi } from '../../api';
 import { useLocalisation } from '../../contexts/Localisation';
 
-const DumbPatientCovidTestCert = ({ patient, getLabRequests, getLabTests }) => {
+const usePassportNumber = patientId => {
+  const api = useApi();
+  const [value, setValue] = useState(null);
+
+  useEffect(() => {
+    (async () => {
+      const passportNumber = await api.get(`patient/${patientId}/passportNumber`);
+      setValue(passportNumber);
+    })();
+  }, [api, patientId]);
+
+  return () => value;
+};
+
+const useNationality = patientId => {
+  const api = useApi();
+  const [value, setValue] = useState(null);
+
+  useEffect(() => {
+    (async () => {
+      const nationality = await api.get(`patient/${patientId}/nationality`);
+      setValue(nationality);
+    })();
+  }, [api, patientId]);
+
+  return () => value;
+};
+
+export const PatientCovidTestCert = ({ patient }) => {
   const [open, setOpen] = useState(true);
   const [rows, setRows] = useState([]);
   const { getLocalisation } = useLocalisation();
+  const api = useApi();
 
   const columns = useMemo(
     () => [
@@ -36,10 +65,6 @@ const DumbPatientCovidTestCert = ({ patient, getLabRequests, getLabTests }) => {
         accessor: getRequestId,
       },
       {
-        key: 'laboratoryOfficer',
-        title: 'Lab officer',
-      },
-      {
         key: 'method',
         title: 'Method',
         accessor: getMethod,
@@ -48,16 +73,24 @@ const DumbPatientCovidTestCert = ({ patient, getLabRequests, getLabTests }) => {
         key: 'result',
         title: 'Result',
       },
+      {
+        key: 'specimenType',
+        title: 'Specimen type',
+        accessor: ({ labTestType }) => labTestType.name,
+      },
     ],
     [],
   );
 
   useEffect(() => {
     (async () => {
-      const response = await getLabRequests();
+      const response = await api.get(`labRequest`, {
+        patientId: patient.id,
+        category: 'covid',
+      });
       const requests = await Promise.all(
         response.data.map(async request => {
-          const { data: tests } = await getLabTests(request.id);
+          const { data: tests } = await api.get(`labRequest/${request.id}/tests`);
           return {
             ...request,
             ...tests[0],
@@ -74,19 +107,25 @@ const DumbPatientCovidTestCert = ({ patient, getLabRequests, getLabTests }) => {
         })),
       );
     })();
-  }, [columns, getLabRequests, getLabTests]);
+  }, [columns, api, patient.id]);
+
+  const getPassportNumber = usePassportNumber(patient.id);
+  const getNationality = useNationality(patient.id);
+
   return (
     <Modal open={open} onClose={() => setOpen(false)} width="md" printable>
       <Certificate
         patient={patient}
         header="COVID-19 test history"
+        customAccessors={{ passport: getPassportNumber, nationalityId: getNationality }}
         primaryDetailsFields={[
           'firstName',
           'lastName',
           'dateOfBirth',
-          'placeOfBirth',
-          'countryOfBirthId',
           'sex',
+          'displayId',
+          'nationalityId',
+          'passport',
         ]}
       >
         <Table>
@@ -113,12 +152,3 @@ const DumbPatientCovidTestCert = ({ patient, getLabRequests, getLabTests }) => {
     </Modal>
   );
 };
-
-export const PatientCovidTestCert = connectApi((api, dispatch, { patient }) => ({
-  getLabRequests: () =>
-    api.get(`/labRequest`, {
-      patientId: patient.id,
-      category: 'covid',
-    }),
-  getLabTests: id => api.get(`/labRequest/${id}/tests`),
-}))(DumbPatientCovidTestCert);

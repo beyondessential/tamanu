@@ -108,6 +108,8 @@ const rootLocalisationSchema = yup
     fields: fieldsSchema,
     templates: templatesSchema,
     features: {
+      editPatientDetailsOnMobile: yup.boolean().required(),
+      enableInvoicing: yup.boolean().required(),
       hideOtherSex: yup.boolean().required(),
     },
     sync: {
