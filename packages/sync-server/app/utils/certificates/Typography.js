@@ -5,22 +5,19 @@ Font.register({
   family: 'Roboto',
   fonts: [
     {
-      src:
-        'https://cdnjs.cloudflare.com/ajax/libs/materialize/0.98.0/fonts/roboto/Roboto-Light.ttf',
+      src: `${__dirname}/roboto/Roboto-Light.ttf`,
       fontWeight: 300,
     },
     {
-      src:
-        'https://cdnjs.cloudflare.com/ajax/libs/materialize/0.98.0/fonts/roboto/Roboto-Regular.ttf',
+      src: `${__dirname}/roboto/Roboto-Regular.ttf`,
       fontWeight: 400,
     },
     {
-      src:
-        'https://cdnjs.cloudflare.com/ajax/libs/materialize/0.98.0/fonts/roboto/Roboto-Medium.ttf',
+      src: `${__dirname}/roboto/Roboto-Medium.ttf`,
       fontWeight: 500,
     },
     {
-      src: '/Users/tomcaiger/Roboto/Roboto-Black.ttf',
+      src: `${__dirname}/roboto/Roboto-Black.ttf`,
       fontWeight: 700,
     },
   ],

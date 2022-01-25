@@ -4,7 +4,7 @@ import moment from 'moment';
 import { Document, Page } from '@react-pdf/renderer';
 import { Table } from './Table';
 import { styles, Col, Box, Row, Signature } from './Layout';
-import { H1, H2, H3, P } from './Typography';
+import { H1, H2, H3, P, DateDisplay } from './Typography';
 import { Logo } from './Logo';
 import {
   getCompletedDate,
@@ -102,7 +102,7 @@ export const CovidCertificate = ({ data }) => (
             <P>Printed by:</P>
           </Col>
           <Col>
-            <P>Printing date:</P>
+            <P>Printing date: {moment().format('DD/MM/YYYY')}</P>
           </Col>
         </Row>
       </Box>
