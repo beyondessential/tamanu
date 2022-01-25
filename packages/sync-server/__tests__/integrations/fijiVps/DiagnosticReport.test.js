@@ -44,10 +44,7 @@ describe('VPS integration - DiagnosticReport', () => {
       labTestCategoryId: labTestCategory.id,
       name: chance.pickone(
         isRDT
-          ? [
-              'AgRDT Negative, no further testing needed',
-              'AgRDT Positve, no further testing needed',
-            ]
+          ? ['AgRDT Negative, no further testing needed', 'AgRDT Positive']
           : [
               'COVID-19 Nasopharyngeal Swab',
               'COVID-19 Nasal Swab',
