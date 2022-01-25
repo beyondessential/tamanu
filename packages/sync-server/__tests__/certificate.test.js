@@ -68,7 +68,7 @@ async function prepopulate(models) {
   };
 }
 
-describe.only('Certificate', () => {
+describe('Certificate', () => {
   let ctx;
   let models;
   let createLabTests;
@@ -121,72 +121,5 @@ describe.only('Certificate', () => {
     await createLabTests();
     const patientRecord = await models.Patient.findByPk(patient.id);
     await makePatientCertificate(patientRecord);
-  });
-
-  it.skip('Get Lab Requests By Patient Id', async () => {
-    await createLabTests();
-
-    const data = await models.LabRequest.findAll({
-      raw: true,
-      nest: true,
-      include: [
-        { association: 'requestedBy' },
-        {
-          association: 'tests',
-          include: [{ association: 'labTestMethod' }, { association: 'labTestType' }],
-        },
-        { association: 'laboratory' },
-        {
-          association: 'encounter',
-          required: true,
-          include: [
-            { association: 'examiner' },
-            {
-              association: 'patient',
-              where: { id: patient.id },
-            },
-          ],
-        },
-      ],
-    });
-
-    console.log('LAB REQUESTS: ', data);
-    // expect(errors).toHaveLength(0);
-    expect(true).toEqual(true);
-  });
-
-  it.skip('Get Lab Tests By Patient Id', async () => {
-    await createLabTests();
-
-    const data = await models.LabTest.findAll({
-      raw: true,
-      nest: true,
-      include: [
-        { association: 'labTestType' },
-        { association: 'labTestMethod' },
-        {
-          association: 'labRequest',
-          required: true,
-          include: [
-            { association: 'laboratory' },
-            {
-              association: 'encounter',
-              required: true,
-              include: [
-                { association: 'examiner' },
-                {
-                  association: 'patient',
-                  where: { id: patient.id },
-                },
-              ],
-            },
-          ],
-        },
-      ],
-    });
-
-    console.log('LAB TEST: ', data);
-    // expect(errors).toHaveLength(0);
-    expect(true).toEqual(true);
   });
 });

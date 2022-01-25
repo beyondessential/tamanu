@@ -22,6 +22,7 @@ module.exports = {
         use: {
           loader: 'babel-loader',
           options: {
+            rootMode: 'upward',
             presets: ['@babel/preset-env', '@babel/preset-react'],
           },
         },

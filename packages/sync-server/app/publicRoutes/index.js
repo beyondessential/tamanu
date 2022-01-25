@@ -22,5 +22,6 @@ if (cors.allowedOrigin) {
 }
 
 publicRoutes.use('/labResultWidget', labResultWidgetRoutes);
+// Todo: Remove before merging vds-epic
 publicRoutes.use('/testPdf', testPdf);
 publicRoutes.use('/integration', publicIntegrationRoutes);

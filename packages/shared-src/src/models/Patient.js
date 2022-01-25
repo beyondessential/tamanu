@@ -40,7 +40,6 @@ export class Patient extends Model {
   static initRelations(models) {
     this.hasMany(models.Encounter, {
       foreignKey: 'patientId',
-      as: 'encounters',
     });
 
     // technically this relation is hasOne but this just describes

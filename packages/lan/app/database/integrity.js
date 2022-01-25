@@ -6,7 +6,7 @@ export async function performDatabaseIntegrityChecks(context) {
   // run in a transaction so any errors roll back all changes
   await context.sequelize.transaction(async () => {
     await ensureHostMatches(context);
-    // await ensureFacilityMatches(context);
+    await ensureFacilityMatches(context);
   });
 }
 
