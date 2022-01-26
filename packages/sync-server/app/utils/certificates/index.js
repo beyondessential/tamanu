@@ -1,6 +1,7 @@
 import React from 'react';
 import ReactPDF from '@react-pdf/renderer';
 import fs from 'fs';
+import QRCode from 'qrcode';
 import { log } from 'shared/services/logging';
 import { CovidCertificate } from './CovidCertificate';
 
@@ -34,8 +35,9 @@ export const makePatientCertificate = async (patient, models) => {
   const filePath = getFilePath(patient);
 
   try {
+    const vds = await QRCode.toDataURL('Testing');
     await ReactPDF.render(
-      <CovidCertificate signingImage={signingImage} watermark={watermark} data={data} />,
+      <CovidCertificate signingImage={signingImage} watermark={watermark} data={data} vds={vds} />,
       filePath,
     );
   } catch (error) {

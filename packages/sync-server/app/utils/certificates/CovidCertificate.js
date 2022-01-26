@@ -3,7 +3,7 @@ import config from 'config';
 import moment from 'moment';
 import { Document, Page } from '@react-pdf/renderer';
 import { Table } from './Table';
-import { styles, Col, Box, Row, Signature, SigningImage, Watermark } from './Layout';
+import { styles, Col, Box, Row, Signature, SigningImage, Watermark, VDSImage } from './Layout';
 import { H1, H2, H3, P } from './Typography';
 import { Logo } from './Logo';
 import {
@@ -70,7 +70,7 @@ const getShortLabel = field => {
   return fields[field]?.shortLabel || field;
 };
 
-export const CovidCertificate = ({ data, signingImage, watermark }) => (
+export const CovidCertificate = ({ data, signingImage, watermark, vds }) => (
   <Document>
     <Page size="A4" style={styles.page}>
       {watermark && <Watermark data={watermark.data} />}
@@ -107,21 +107,26 @@ export const CovidCertificate = ({ data, signingImage, watermark }) => (
           </Col>
         </Row>
       </Box>
-      {signingImage ? (
-        <SigningImage data={signingImage.data} />
-      ) : (
-        <>
-          <Box>
-            <Signature text="Authorised by" />
-          </Box>
-          <Box mb={10}>
-            <Signature text="Signed" />
-          </Box>
-          <Box>
-            <Signature text="Date" />
-          </Box>
-        </>
-      )}
+      <Row>
+        <Col>
+          {signingImage ? (
+            <SigningImage data={signingImage.data} />
+          ) : (
+            <Box mb={0}>
+              <Box>
+                <Signature text="Authorised by" />
+              </Box>
+              <Box mb={10}>
+                <Signature text="Signed" />
+              </Box>
+              <Box>
+                <Signature text="Date" />
+              </Box>
+            </Box>
+          )}
+        </Col>
+        <Col>{vds && <VDSImage data={vds} />}</Col>
+      </Row>
     </Page>
   </Document>
 );

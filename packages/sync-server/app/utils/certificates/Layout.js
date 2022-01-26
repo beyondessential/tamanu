@@ -57,6 +57,9 @@ export const styles = StyleSheet.create({
   watermarkImage: {
     objectFit: 'contain',
   },
+  vds: {
+    width: 100,
+  },
 });
 
 export const Row = props => <View {...props} style={styles.row} />;
@@ -82,4 +85,8 @@ export const Watermark = ({ data }) => {
       <Image src={{ data, format: 'png' }} style={styles.watermarkImage} />
     </View>
   );
+};
+
+export const VDSImage = ({ data }) => {
+  return <Image src={data} style={styles.vds} />;
 };
