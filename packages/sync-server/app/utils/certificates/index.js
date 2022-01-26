@@ -9,8 +9,22 @@ const getFilePath = patient => {
   return `./patientCertificates/${fileName}.pdf`;
 };
 
-export const makePatientCertificate = async patient => {
+export const makePatientCertificate = async (patient, models) => {
   await fs.promises.mkdir('./patientCertificates', { recursive: true });
+
+  const signingImage = await models.Asset.findOne({
+    raw: true,
+    where: {
+      name: 'certificate-bottom-half-img',
+    },
+  });
+
+  const watermark = await models.Asset.findOne({
+    raw: true,
+    where: {
+      name: 'vaccine-certificate-watermark',
+    },
+  });
 
   const labs = await patient.getLabRequests();
   const data = {
@@ -20,7 +34,10 @@ export const makePatientCertificate = async patient => {
   const filePath = getFilePath(patient);
 
   try {
-    await ReactPDF.render(<CovidCertificate data={data} />, filePath);
+    await ReactPDF.render(
+      <CovidCertificate signingImage={signingImage} watermark={watermark} data={data} />,
+      filePath,
+    );
   } catch (error) {
     log.info(`Error creating Patient Certificate ${patient.id}`);
   }

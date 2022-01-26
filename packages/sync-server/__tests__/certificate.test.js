@@ -120,7 +120,7 @@ describe('Certificate', () => {
   it.skip('Generates a Patient Covid Certificate', async () => {
     await createLabTests();
     const patientRecord = await models.Patient.findByPk(patient.id);
-    const result = await makePatientCertificate(patientRecord);
+    const result = await makePatientCertificate(patientRecord, models);
     expect(result.status).toEqual('success');
   });
 });

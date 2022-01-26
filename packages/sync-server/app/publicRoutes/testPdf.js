@@ -14,7 +14,7 @@ testPdf.get(
 
     const patient = await models.Patient.findByPk(patientId);
 
-    await makePatientCertificate(patient);
+    await makePatientCertificate(patient, models);
     res.send({});
   }),
 );

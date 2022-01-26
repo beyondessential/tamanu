@@ -3,8 +3,8 @@ import config from 'config';
 import moment from 'moment';
 import { Document, Page } from '@react-pdf/renderer';
 import { Table } from './Table';
-import { styles, Col, Box, Row, Signature } from './Layout';
-import { H1, H2, H3, P, DateDisplay } from './Typography';
+import { styles, Col, Box, Row, Signature, SigningImage, Watermark } from './Layout';
+import { H1, H2, H3, P } from './Typography';
 import { Logo } from './Logo';
 import {
   getCompletedDate,
@@ -70,9 +70,10 @@ const getShortLabel = field => {
   return fields[field]?.shortLabel || field;
 };
 
-export const CovidCertificate = ({ data }) => (
+export const CovidCertificate = ({ data, signingImage, watermark }) => (
   <Document>
     <Page size="A4" style={styles.page}>
+      {watermark && <Watermark data={watermark.data} />}
       <Logo style={styles.logo} />
       <Box>
         <H1>TAMANU MINISTRY OF HEALTH & MEDICAL SERVICES</H1>
@@ -106,15 +107,21 @@ export const CovidCertificate = ({ data }) => (
           </Col>
         </Row>
       </Box>
-      <Box>
-        <Signature text="Authorised by" />
-      </Box>
-      <Box mb={10}>
-        <Signature text="Signed" />
-      </Box>
-      <Box>
-        <Signature text="Date" />
-      </Box>
+      {signingImage ? (
+        <SigningImage data={signingImage.data} />
+      ) : (
+        <>
+          <Box>
+            <Signature text="Authorised by" />
+          </Box>
+          <Box mb={10}>
+            <Signature text="Signed" />
+          </Box>
+          <Box>
+            <Signature text="Date" />
+          </Box>
+        </>
+      )}
     </Page>
   </Document>
 );
