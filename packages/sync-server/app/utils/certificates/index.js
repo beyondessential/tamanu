@@ -1,10 +1,12 @@
 import React from 'react';
 import ReactPDF from '@react-pdf/renderer';
 import fs from 'fs';
+import { log } from 'shared/services/logging';
 import { CovidCertificate } from './CovidCertificate';
 
-const getFileName = patient => {
-  return `covid-certificate-${patient.id}`;
+const getFilePath = patient => {
+  const fileName = `covid-certificate-${patient.id}`;
+  return `./patientCertificates/${fileName}.pdf`;
 };
 
 export const makePatientCertificate = async patient => {
@@ -15,6 +17,16 @@ export const makePatientCertificate = async patient => {
     ...patient.dataValues,
     labs,
   };
-  const fileName = getFileName(patient);
-  return ReactPDF.render(<CovidCertificate data={data} />, `./patientCertificates/${fileName}.pdf`);
+  const filePath = getFilePath(patient);
+
+  try {
+    await ReactPDF.render(<CovidCertificate data={data} />, filePath);
+  } catch (error) {
+    log.info(`Error creating Patient Certificate ${patient.id}`);
+  }
+
+  return {
+    status: 'success',
+    filePath,
+  };
 };
