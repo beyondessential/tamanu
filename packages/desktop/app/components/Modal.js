@@ -93,7 +93,7 @@ export const Modal = memo(
         <ModalTitle>
           <VerticalCenteredText>{title}</VerticalCenteredText>
           <div>
-            {onEmail ? <EmailButton onSuccess={onEmail} /> : null}
+            {onEmail ? <EmailButton onEmail={onEmail} /> : null}
             {printable ? (
               <Button
                 color="primary"

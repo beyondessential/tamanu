@@ -11,13 +11,17 @@ const DumbImmunisationCertificateModal = ({ getImmunisations, open, onClose, pat
     getImmunisations().then(setImmunisations);
   }, [getImmunisations]);
 
-  const createImmunisationCertificateNotification = useCallback(() => {
-    api.post('certificateNotification', {
-      type: ICAO_DOCUMENT_TYPES.PROOF_OF_VACCINATION,
-      requireSigning: true,
-      patientId: patient.id,
-    });
-  }, [api, patient]);
+  const createImmunisationCertificateNotification = useCallback(
+    data => {
+      api.post('certificateNotification', {
+        type: ICAO_DOCUMENT_TYPES.PROOF_OF_VACCINATION,
+        requireSigning: true,
+        patientId: patient.id,
+        forwardAddress: data.email,
+      });
+    },
+    [api, patient],
+  );
 
   const certificate = <ImmunisationCertificate patient={patient} immunisations={immunisations} />;
   return (

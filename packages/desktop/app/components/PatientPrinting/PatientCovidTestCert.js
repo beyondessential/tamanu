@@ -49,13 +49,17 @@ export const PatientCovidTestCert = ({ patient }) => {
   const { getLocalisation } = useLocalisation();
   const api = useApi();
 
-  const createCovidTestCertNotification = useCallback(() => {
-    api.post('certificateNotification', {
-      type: ICAO_DOCUMENT_TYPES.PROOF_OF_TESTING,
-      requireSigning: true,
-      patientId: patient.id,
-    });
-  }, [api, patient]);
+  const createCovidTestCertNotification = useCallback(
+    data => {
+      api.post('certificateNotification', {
+        type: ICAO_DOCUMENT_TYPES.PROOF_OF_TESTING,
+        requireSigning: true,
+        patientId: patient.id,
+        forwardAddress: data.email,
+      });
+    },
+    [api, patient],
+  );
 
   const columns = useMemo(
     () => [

@@ -3,7 +3,7 @@ import EmailIcon from '@material-ui/icons/Email';
 import { EmailAddressConfirmationModal } from './EmailAddressConfirmationModal';
 import { Button } from '..';
 
-export const EmailButton = ({ onSuccess }) => {
+export const EmailButton = ({ onEmail }) => {
   const [openModal, setOpenModal] = useState(false);
   return (
     <>
@@ -20,7 +20,7 @@ export const EmailButton = ({ onSuccess }) => {
       <EmailAddressConfirmationModal
         open={openModal}
         onClose={() => setOpenModal(false)}
-        onSuccess={onSuccess}
+        onEmail={onEmail}
       />
     </>
   );
