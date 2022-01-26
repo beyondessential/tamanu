@@ -1,9 +1,9 @@
 import config from 'config';
 import nodeCrypto from 'crypto';
 import { Crypto } from 'node-webcrypto-ossl';
-import { fromBER, Integer, PrintableString, Utf8String, BitString } from 'asn1js';
-import { Time, setEngine, CryptoEngine, Certificate, CertificationRequest, AttributeTypeAndValue, BasicConstraints, Extension, Extensions } from 'pkijs';
-import { X502_OIDS } from 'shared/constants';
+import { fromBER, Integer, PrintableString, Utf8String, BitString, OctetString, Sequence, Set as Asn1Set } from 'asn1js';
+import { Time, setEngine, CryptoEngine, Certificate, CertificationRequest, AttributeTypeAndValue, BasicConstraints, Extension, Extensions, ExtKeyUsage, AuthorityKeyIdentifier } from 'pkijs';
+import { ICAO_DOCUMENT_TYPES, X502_OIDS } from 'shared/constants';
 import moment from 'moment';
 
 const webcrypto = new Crypto;
@@ -66,9 +66,7 @@ export async function newKeypairAndCsr(keygenConfig = {
       cipher: 'aes-256-cbc',
       passphrase,
     }).buffer),
-    request: `-----BEGIN CERTIFICATE REQUEST-----\n${packedCsr.toString(
-      'base64',
-    )}\n-----END CERTIFICATE REQUEST-----`,
+    request: pem(packedCsr, 'CERTIFICATE REQUEST'),
   };
 }
 
@@ -82,22 +80,18 @@ export function loadCertificateIntoSigner(certificate) {
   let binCert;
   let txtCert;
   if (typeof certificate === 'string') {
-    if (!certificate.trimStart().startsWith('-----BEGIN CERTIFICATE-----')) {
-      throw new Error('Certificate must be in PEM format');
-    }
-
-    binCert = Buffer.from(certificate.replace(/^--.+$/gm).trim(), 'base64');
+    binCert = depem(certificate, 'CERTIFICATE');
     txtCert = certificate;
   } else if (Buffer.isBuffer(certificate)) {
     binCert = certificate;
-    txtCert = `-----BEGIN CERTIFICATE-----\n${certificate.toString(
-      'base64',
-    )}\n-----END CERTIFICATE-----`;
+    txtCert = pem(certificate, 'CERTIFICATE');
   } else {
     throw new Error('Certificate must be a string (PEM) or Buffer (DER).');
   }
-
-  const cert = new Certificate({ schema: fromBER(binCert).result });
+  
+  const asn = fromBER(fakeABtoRealAB(binCert));
+  if (asn.result.error !== '') throw new Error(asn.result.error);
+  const cert = new Certificate({ schema: asn.result });
   return {
     notAfter: cert.notAfter.value,
     notBefore: cert.notBefore.value,
@@ -117,6 +111,35 @@ export function loadCertificateIntoSigner(certificate) {
  */
 export function fakeABtoRealAB(fake) {
   return Uint8Array.from((new Uint8Array(fake)).values()).buffer;
+}
+
+/**
+ * Encode DER data as a PEM document.
+ * @param {Buffer} data DER data
+ * @param {string} banner Uppercase string for the BEGIN/END banners
+ * @returns {string} PEM document
+ */
+export function pem(data, banner) {
+  return '-----BEGIN ' + banner + '-----\n' +
+    data.toString('base64').match(/.{1,64}/g).join('\n') +
+    '\n-----END ' + banner + '-----';
+}
+
+/**
+ * Decode a PEM document to a Buffer of DER data.
+ * @param {string} pem PEM document
+ * @param {string} expectedBanner Uppercase string of the BEGIN/END banners
+ * @returns {Buffer} DER data
+ * @throws if the banners are not present or not correct
+ */
+export function depem(pem, expectedBanner) {
+  const text = pem.trim();
+  if (!text.startsWith(`-----BEGIN ${expectedBanner}-----\n`) ||
+    !text.endsWith(`\n-----END ${expectedBanner}-----`)) {
+    throw new Error('Must be in PEM format with banners');
+  }
+
+  return Buffer.from(text.replace(/^--.+/gm, ''), 'base64');
 }
 
 export class TestCSCA {
@@ -162,7 +185,18 @@ export class TestCSCA {
     cert.notBefore = new Time({ value: moment().subtract(1, 'day').toDate() });
     cert.notAfter = new Time({ value: moment().add(1, 'year').toDate() });
     cert.serialNumber = new Integer({ value: 1 });
+    
+    await cert.subjectPublicKeyInfo.importKey(publicKey);
+    const fingerprint = await webcrypto.subtle.digest({ name: 'SHA-1' }, cert.subjectPublicKeyInfo.subjectPublicKey.valueBlock.valueHex);
 
+    const keyID = new OctetString({ valueHex: fingerprint });
+    const authKeyID = new AuthorityKeyIdentifier({
+      authorityCertIssuer: cert.issuer,
+      authorityCertSerialNumber: cert.serialNumber,
+      keyIdentifier: new OctetString({
+        valueHex: fingerprint,
+      }),
+    });
     const basicConstraints = new BasicConstraints({
       cA: true,
       pathLenConstraint: 2,
@@ -180,6 +214,18 @@ export class TestCSCA {
         parsedValue: basicConstraints,
       }),
       new Extension({
+        extnID: X502_OIDS.KEY_IDENTIFIER,
+        critical: true,
+        extnValue: keyID.toBER(false),
+        parsedValue: keyID,
+      }),
+      new Extension({
+        extnID: X502_OIDS.AUTHORITY_KEY_IDENTIFIER,
+        critical: true,
+        extnValue: authKeyID.toSchema().toBER(false),
+        parsedValue: authKeyID,
+      }),
+      new Extension({
         extnID: X502_OIDS.KEY_USAGE,
         critical: false,
         extnValue: keyUsage.toBER(false),
@@ -187,13 +233,70 @@ export class TestCSCA {
       }),
     ] });
 
-    await cert.subjectPublicKeyInfo.importKey(publicKey);
     await cert.sign(privateKey, 'SHA-256');
 
     return new TestCSCA(privateKey, publicKey, cert);
   }
 
   async signCSR(request) {
-    //
+    const asn = fromBER(fakeABtoRealAB(depem(request, 'CERTIFICATE REQUEST')));
+    if (asn.result.error !== '') throw new Error(asn.result.error);
+    const csr = new CertificationRequest({ schema: asn.result });
+
+    const cert = new Certificate();
+    cert.version = 2;
+    cert.issuer = this.certificate.issuer;
+    cert.subject = csr.subject;
+    cert.notBefore = new Time({ value: moment().toDate() });
+    cert.notAfter = new Time({ value: moment().add(3, 'month').toDate() });
+    cert.serialNumber = new Integer({ value: this.serial += 1 });
+
+    const fingerprint = await webcrypto.subtle.digest({ name: 'SHA-1' }, this.certificate.subjectPublicKeyInfo.subjectPublicKey.valueBlock.valueHex);
+
+    const authKey = new AuthorityKeyIdentifier({
+      authorityCertIssuer: this.certificate.issuer,
+      authorityCertSerialNumber: this.certificate.serialNumber,
+      keyIdentifier: new OctetString({
+        valueHex: fingerprint,
+      }),
+    });
+
+    const docType = new Sequence({ value: [
+      new Integer({ value: 0 }),
+      new Asn1Set({ value: [
+        new PrintableString({ value: ICAO_DOCUMENT_TYPES.PROOF_OF_TESTING.DOCTYPE }),
+        new PrintableString({ value: ICAO_DOCUMENT_TYPES.PROOF_OF_VACCINATION.DOCTYPE }),
+      ] }),
+    ] });
+
+    const extKeyUsage = new ExtKeyUsage({
+      keyPurposes: [X502_OIDS.EKU_VDS_NC],
+    });
+
+    cert.extensions = [
+        new Extension({
+          extnID: X502_OIDS.AUTHORITY_KEY_IDENTIFIER,
+          critical: true,
+          extnValue: authKey.toSchema().toBER(false),
+          parsedValue: authKey,
+        }),
+        new Extension({
+          extnID: X502_OIDS.DOCUMENT_TYPE,
+          critical: false,
+          extnValue: docType.toBER(false),
+          parsedValue: docType,
+        }),
+        new Extension({
+          extnID: X502_OIDS.EXTENDED_KEY_USAGE,
+          critical: false,
+          extnValue: extKeyUsage.toSchema().toBER(false),
+          parsedValue: extKeyUsage,
+        }),
+      ];
+
+    cert.subjectPublicKeyInfo = csr.subjectPublicKeyInfo;
+    await cert.sign(this.privateKey, 'SHA-256');
+    const packed = Buffer.from(await cert.toSchema().toBER(false));
+    return pem(packed, 'CERTIFICATE');
   }
 }
