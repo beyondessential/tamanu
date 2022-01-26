@@ -20,16 +20,15 @@ describe('VDS-NC: Signer cryptography', () => {
 
   it('creates a well-formed keypair', async () => {
     const {
-      countryCode,
       publicKey,
       privateKey,
     } = await newKeypairAndCsr({
       keySecret: 'secret',
-      countryCode: 'UT',
-      commonName: 'Test Signer',
+      subject: {
+        countryCode2: 'UT',
+        signerIdentifier: 'TA',
+      },
     });
-
-    expect(countryCode).to.equal('UT');
 
     // publicKey: Walk through the expected ASN.1 structure
     //

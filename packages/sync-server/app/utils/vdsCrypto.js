@@ -23,20 +23,20 @@ export async function newKeypairAndCsr(keygenConfig = {
     namedCurve: 'P-256',
   }, true, ['sign', 'verify']);
 
-  const { keySecret, countryCode, commonName } = keygenConfig;
+  const { keySecret, subject } = keygenConfig;
 
   const csr = new CertificationRequest();
   csr.version = 0;
   csr.subject.typesAndValues.push(
     new AttributeTypeAndValue({
       type: X502_OIDS.COUNTRY_NAME,
-      value: new PrintableString({ value: countryCode }),
+      value: new PrintableString({ value: subject.countryCode2 }),
     }),
   );
   csr.subject.typesAndValues.push(
     new AttributeTypeAndValue({
       type: X502_OIDS.COMMON_NAME,
-      value: new Utf8String({ value: commonName }),
+      value: new PrintableString({ value: subject.signerIdentifier }),
     }),
   );
 
@@ -52,7 +52,6 @@ export async function newKeypairAndCsr(keygenConfig = {
   });
 
   return {
-    countryCode,
     publicKey: fakeABtoRealAB(await webcrypto.subtle.exportKey('spki', publicKey)),
     privateKey: fakeABtoRealAB(privateNodeKey.export({
       type: 'pkcs8',
