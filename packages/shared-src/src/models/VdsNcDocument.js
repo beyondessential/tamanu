@@ -16,7 +16,7 @@ export class VdsNcDocument extends Model {
         },
 
         type: {
-          type: Sequelize.ENUM(...Object.values(ICAO_DOCUMENT_TYPES)),
+          type: Sequelize.ENUM(Object.values(ICAO_DOCUMENT_TYPES).map(typ => typ.JSON)),
           allowNull: false,
         },
         messageData: {
@@ -42,7 +42,7 @@ export class VdsNcDocument extends Model {
             }
           },
           mustHaveValidType() {
-            if (!Object.values(ICAO_DOCUMENT_TYPES).includes(this.type)) {
+            if (!Object.values(ICAO_DOCUMENT_TYPES).some(typ => this.type === typ.JSON)) {
               throw new Error('A VDS-NC document must have a valid type.');
             }
           },
@@ -93,8 +93,8 @@ export class VdsNcDocument extends Model {
       msg: JSON.parse(this.messageData),
     };
 
-    const { alg, sig } = signer.issueSignature(data, keySecret);
-    this.setVdsNcSigner(signer);
+    const { alg, sig } = await signer.issueSignature(data, keySecret);
+    await this.setVdsNcSigner(signer);
     return this.update({
       algorithm: alg,
       signature: Buffer.from(sig, 'base64'),

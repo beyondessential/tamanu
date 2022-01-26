@@ -1,5 +1,5 @@
 import { createTestContext } from 'sync-server/__tests__/utilities';
-import { fakeABtoRealAB, newKeypairAndCsr } from 'sync-server/app/utils/vdsCrypto';
+import { fakeABtoRealAB, newKeypairAndCsr, depem } from 'sync-server/app/utils/vdsCrypto';
 import { Crypto } from 'node-webcrypto-ossl';
 import { BitString, fromBER, Integer, Null, ObjectIdentifier, OctetString, Sequence, Set as Asn1Set } from 'asn1js';
 import { setEngine, CryptoEngine } from 'pkijs';
@@ -164,10 +164,7 @@ describe('VDS-NC: Signer cryptography', () => {
     });
 
     // Check the PEM has the borders
-    expect(request).to.be.a('string').and.satisfy(pem => (
-      pem.startsWith('-----BEGIN CERTIFICATE REQUEST-----\n') &&
-      pem.endsWith('\n-----END CERTIFICATE REQUEST-----')
-    ));
+    expect(request).to.be.a('string').and.satisfy(pem => !!depem(pem, 'CERTIFICATE REQUEST'));
 
     // Walk through the expected ASN.1 structure
     //
@@ -194,7 +191,7 @@ describe('VDS-NC: Signer cryptography', () => {
     //     OBJECT IDENTIFIER (signature algorithm)
     //   BIT STRING (signature)
     //
-    const reqasn = fromBER(fakeABtoRealAB(Buffer.from(request.replace(/^--.+/gm, ''), 'base64')));
+    const reqasn = fromBER(fakeABtoRealAB(depem(request, 'CERTIFICATE REQUEST')));
     expect(reqasn.result.error).to.be.empty;
     expect(reqasn.result).to.be.instanceOf(Sequence);
     expect(reqasn.result.valueBlock.value).to.have.lengthOf(3);

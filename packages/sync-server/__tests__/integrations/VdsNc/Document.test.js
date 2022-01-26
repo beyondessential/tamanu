@@ -8,9 +8,8 @@ describe('VDS-NC: Document cryptography', () => {
   let ctx;
   beforeAll(async () => {
     ctx = await createTestContext();
-    
+
     const testCSCA = await TestCSCA.generate();
-    console.log(testCSCA);
 
     const {
       publicKey,
@@ -41,12 +40,13 @@ describe('VDS-NC: Document cryptography', () => {
     const { Patient, VdsNcDocument, VdsNcSigner } = ctx.store.models;
     const signer = await VdsNcSigner.findActive();
     const patient = await Patient.create(fake(Patient));
-    const document = VdsNcDocument.build({
-      type: ICAO_DOCUMENT_TYPES.PROOF_OF_TESTING,
+    const document = await VdsNcDocument.create({
+      type: ICAO_DOCUMENT_TYPES.PROOF_OF_TESTING.JSON,
       messageData: JSON.stringify({ test: 'data' }),
+      patient,
+    }, {
+      include: [ Patient ],
     });
-    document.setPatient(patient);
-    await document.save();
 
     // Pre-check
     expect(document.isSigned()).to.be.false;
