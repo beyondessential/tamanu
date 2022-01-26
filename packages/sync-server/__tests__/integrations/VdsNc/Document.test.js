@@ -1,15 +1,8 @@
 import { createTestContext } from 'sync-server/__tests__/utilities';
-import { fakeABtoRealAB, newKeypairAndCsr, TestCSCA, loadCertificateIntoSigner } from 'sync-server/app/utils/vdsCrypto';
-import { Crypto } from 'node-webcrypto-ossl';
-import { BitString, fromBER, Integer, Null, ObjectIdentifier, OctetString, Sequence, Set as Asn1Set, Utf8String } from 'asn1js';
-import { setEngine, CryptoEngine, Certificate, CertificationRequest, AttributeTypeAndValue } from 'pkijs';
-import { ICAO_DOCUMENT_TYPES, X502_OIDS } from 'shared/constants';
-import { expect } from 'chai';
+import { newKeypairAndCsr, TestCSCA, loadCertificateIntoSigner } from 'sync-server/app/utils/vdsCrypto';
+import { ICAO_DOCUMENT_TYPES } from 'shared/constants';
 import { fake } from 'shared/test-helpers/fake';
-import crypto from 'crypto';
-
-const webcrypto = new Crypto;
-setEngine('webcrypto', webcrypto, new CryptoEngine({ name: 'webcrypto', crypto: webcrypto, subtle: webcrypto.subtle }));
+import { expect } from 'chai';
 
 describe('VDS-NC: Document cryptography', () => {
   let ctx;
@@ -17,6 +10,7 @@ describe('VDS-NC: Document cryptography', () => {
     ctx = await createTestContext();
     
     const testCSCA = await TestCSCA.generate();
+    console.log(testCSCA);
 
     const {
       publicKey,
