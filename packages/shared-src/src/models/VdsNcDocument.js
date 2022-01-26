@@ -2,6 +2,7 @@ import { Sequelize } from 'sequelize';
 import { Model } from './Model';
 import { VdsNcSigner } from './VdsNcSigner';
 import { ICAO_DOCUMENT_TYPES } from '../constants';
+import moment from 'moment';
 
 export class VdsNcDocument extends Model {
   static init({ primaryKey, ...options }) {
@@ -41,7 +42,7 @@ export class VdsNcDocument extends Model {
             }
           },
           mustHaveValidType() {
-            if (!Object.keys(ICAO_DOCUMENT_TYPES).includes(this.type)) {
+            if (!Object.values(ICAO_DOCUMENT_TYPES).includes(this.type)) {
               throw new Error('A VDS-NC document must have a valid type.');
             }
           },
@@ -93,11 +94,12 @@ export class VdsNcDocument extends Model {
     };
 
     const { alg, sig } = signer.issueSignature(data, keySecret);
-    return this.set({
+    this.setVdsNcSigner(signer);
+    return this.update({
       algorithm: alg,
       signature: Buffer.from(sig, 'base64'),
-      signedAt: Sequelize.NOW,
-    }).setVdsNcSigner(signer).save();
+      signedAt: Sequelize.literal('CURRENT_TIMESTAMP'),
+    });
   }
 
   /**
