@@ -82,12 +82,6 @@
     "reportRequestProcessor": {
        // every 30 seconds
       "schedule": "*/30 * * * * *"
-    },
-    "medicationDiscontinuer": {
-      // every day at 12:01 AM
-      "schedule": "1 0 * * *",
-      "batchSize": 1000,
-      "batchSleepAsyncDurationInMilliseconds": 50
     }
   },
   "integrations": {

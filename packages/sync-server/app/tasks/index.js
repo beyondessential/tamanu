@@ -1,17 +1,11 @@
 import config from 'config';
 
-import { MedicationDiscontinuer } from './MedicationDiscontinuer';
 import { OutpatientDischarger } from './OutpatientDischarger';
 import { PatientEmailCommunicationProcessor } from './PatientEmailCommunicationProcessor';
 import { ReportRequestProcessor } from './ReportRequestProcessor';
 import { ReportRequestScheduler } from './ReportRequestScheduler';
 
-const TASKS = [
-  MedicationDiscontinuer,
-  OutpatientDischarger,
-  ReportRequestProcessor,
-  PatientEmailCommunicationProcessor,
-];
+const TASKS = [OutpatientDischarger, ReportRequestProcessor, PatientEmailCommunicationProcessor];
 
 export async function startScheduledTasks(context) {
   const reportSchedulers = await getReportSchedulers(context);
