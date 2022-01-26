@@ -40,6 +40,12 @@ export async function newKeypairAndCsr(keygenConfig = {
     }),
   );
 
+  // 9303-12 §7.1.3 specifies that the Signer certificate must have certain
+  // extensions. However, while CSRs may have extensions, these are NOT
+  // transferred to the certificate upon signing. Instead, the intent is that
+  // extensions are set by the issuer (the CSCA). Thus, we don't need to add
+  // them here.
+
   await csr.subjectPublicKeyInfo.importKey(publicKey);
   await csr.sign(privateKey, 'SHA-256');
   const packedCsr = Buffer.from(await csr.toSchema().toBER(false));
