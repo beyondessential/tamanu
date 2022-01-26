@@ -32,6 +32,7 @@ export const makePatientCertificate = async (patient, models) => {
     ...patient.dataValues,
     labs,
   };
+
   const filePath = getFilePath(patient);
 
   try {
