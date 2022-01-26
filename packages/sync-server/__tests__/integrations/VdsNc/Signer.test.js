@@ -1,8 +1,8 @@
 import { createTestContext } from 'sync-server/__tests__/utilities';
 import { fakeABtoRealAB, newKeypairAndCsr } from 'sync-server/app/utils/vdsCrypto';
 import { Crypto } from 'node-webcrypto-ossl';
-import { BitString, fromBER, Integer, Null, ObjectIdentifier, OctetString, Sequence, Utf8String } from 'asn1js';
-import { setEngine, CryptoEngine, Certificate, CertificationRequest, AttributeTypeAndValue } from 'pkijs';
+import { BitString, fromBER, Integer, Null, ObjectIdentifier, OctetString, Sequence, Set as Asn1Set } from 'asn1js';
+import { setEngine, CryptoEngine } from 'pkijs';
 import { X502_OIDS } from 'shared/constants';
 import { expect } from 'chai';
 import crypto from 'crypto';
@@ -149,5 +149,99 @@ describe('VDS-NC: Signer cryptography', () => {
     expect(realver.toString()).to.equal('INTEGER : 0');
     expect(realname.toString()).to.equal('OBJECT IDENTIFIER : 1.2.840.10045.2.1'); // ecKey
     expect(realcurve.toString()).to.equal('OBJECT IDENTIFIER : 1.2.840.10045.3.1.7'); // prime256v1
+  });
+
+  it('creates a well-formed CSR', async () => {
+    const {
+      publicKey,
+      request,
+    } = await newKeypairAndCsr({
+      keySecret: 'secret',
+      subject: {
+        countryCode2: 'UT',
+        signerIdentifier: 'TA',
+      },
+    });
+
+    // Check the PEM has the borders
+    expect(request).to.be.a('string').and.satisfy(pem => (
+      pem.startsWith('-----BEGIN CERTIFICATE REQUEST-----\n') &&
+      pem.endsWith('\n-----END CERTIFICATE REQUEST-----')
+    ));
+
+    // Walk through the expected ASN.1 structure
+    //
+    // SEQUENCE
+    //   SEQUENCE (body)
+    //     INTEGER (version)
+    //     SEQUENCE (subject)
+    //       SET
+    //         SEQUENCE
+    //           OBJECT IDENTIFIER (countryName)
+    //           PrintableString (field value, 2 chars, country alpha2)
+    //         SEQUENCE
+    //           OBJECT IDENTIFIER (commonName)
+    //           PrintableString (field value, 2 chars, signer identifier)
+    //     SEQUENCE (public key info)
+    //       SEQUENCE
+    //         OBJECT IDENTIFIER (public key type)
+    //         OBJECT IDENTIFIER (public key curve)
+    //       BIT STRING (public key)
+    //     CONTEXT SPECIFIC
+    //       SEQUENCE (key usage)
+    //         TODO
+    //   SEQUENCE
+    //     OBJECT IDENTIFIER (signature algorithm)
+    //   BIT STRING (signature)
+    //
+    const reqasn = fromBER(fakeABtoRealAB(Buffer.from(request.replace(/^--.+/gm, ''), 'base64')));
+    expect(reqasn.result.error).to.be.empty;
+    expect(reqasn.result).to.be.instanceOf(Sequence);
+    expect(reqasn.result.valueBlock.value).to.have.lengthOf(3);
+    const [reqbody, reqsignalg, reqsigndat] = reqasn.result.valueBlock.value;
+    expect(reqbody).to.be.instanceOf(Sequence);
+    expect(reqsignalg).to.be.instanceOf(Sequence);
+    expect(reqsigndat).to.be.instanceOf(BitString);
+    expect(reqbody.valueBlock.value).to.have.lengthOf(3);
+    expect(reqsignalg.valueBlock.value).to.have.lengthOf(1);
+    const [reqver, reqsubj, reqkey] = reqbody.valueBlock.value;
+    expect(reqver).to.be.instanceOf(Integer);
+    expect(reqsubj).to.be.instanceOf(Sequence);
+    expect(reqkey).to.be.instanceOf(Sequence);
+    expect(reqsubj.valueBlock.value).to.have.lengthOf(1);
+    expect(reqkey.valueBlock.value).to.have.lengthOf(2);
+    const [reqsubjset] = reqsubj.valueBlock.value;
+    expect(reqsubjset).to.be.instanceOf(Asn1Set);
+    const [reqkeytype, reqkeydat] = reqkey.valueBlock.value;
+    expect(reqkeytype).to.be.instanceOf(Sequence);
+    expect(reqkeydat).to.be.instanceOf(BitString);
+    expect(reqkeytype.valueBlock.value).to.have.lengthOf(2);
+    const [reqkeyname, reqkeycurve] = reqkeytype.valueBlock.value;
+    expect(reqkeyname).to.be.instanceOf(ObjectIdentifier);
+    expect(reqkeycurve).to.be.instanceOf(ObjectIdentifier);
+    const [reqsignalgoid] = reqsignalg.valueBlock.value;
+    expect(reqsignalgoid).to.be.instanceOf(ObjectIdentifier);
+
+    // Check types
+    expect(reqver.toString()).to.equal('INTEGER : 0');
+    expect(reqkeyname.toString()).to.equal('OBJECT IDENTIFIER : 1.2.840.10045.2.1'); // ecKey
+    expect(reqkeycurve.toString()).to.equal('OBJECT IDENTIFIER : 1.2.840.10045.3.1.7'); // prime256v1
+    expect(reqsignalgoid.toString()).to.equal('OBJECT IDENTIFIER : 1.2.840.10045.4.3.2'); // ecdsaWithSHA256
+
+    // Check that the embedded public key is the same as the one generated
+    const pubasn = fromBER(publicKey);
+    expect([...new Uint8Array(reqkeydat.valueBlock.valueHex)]).to.deep.equal([...new Uint8Array(pubasn.result.valueBlock.value[1].valueBlock.valueHex)]);
+
+    // Check that the subject's C is correct
+    const subjc = reqsubjset.valueBlock.value.find(seq => seq.valueBlock.value[0].toString() === `OBJECT IDENTIFIER : ${X502_OIDS.COUNTRY_NAME}`);
+    expect(subjc).to.exist;
+    expect(subjc).to.be.instanceOf(Sequence);
+    expect(subjc.valueBlock.value[1].toString()).to.equal('PrintableString : UT');
+
+    // Check that the subject's CN is correct
+    const subjcn = reqsubjset.valueBlock.value.find(seq => seq.valueBlock.value[0].toString() === `OBJECT IDENTIFIER : ${X502_OIDS.COMMON_NAME}`);
+    expect(subjcn).to.exist;
+    expect(subjcn).to.be.instanceOf(Sequence);
+    expect(subjcn.valueBlock.value[1].toString()).to.equal('PrintableString : TA');
   });
 });
