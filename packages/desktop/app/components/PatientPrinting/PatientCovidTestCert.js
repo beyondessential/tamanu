@@ -61,11 +61,6 @@ export const PatientCovidTestCert = ({ patient }) => {
         accessor: ({ sampleTime }) => <DateDisplay date={sampleTime} showDate={false} showTime />,
       },
       {
-        key: 'requestedBy',
-        title: 'Requested By',
-        accessor: getRequestedBy,
-      },
-      {
         key: 'date-of-test',
         title: 'Date of test',
         accessor: getCompletedDate,
