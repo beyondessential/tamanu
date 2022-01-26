@@ -117,3 +117,13 @@ export function loadCertificateIntoSigner(certificate) {
 export function fakeABtoRealAB(fake) {
   return Uint8Array.from((new Uint8Array(fake)).values()).buffer;
 }
+
+export class TestCSCA {
+  constructor() {}
+  
+  static async generate() {
+    return new TestCSCA();
+  }
+
+  async signCSR(request) {}
+}
