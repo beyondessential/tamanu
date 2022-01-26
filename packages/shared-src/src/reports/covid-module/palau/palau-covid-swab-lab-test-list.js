@@ -89,7 +89,7 @@ export const dataGenerator = async ({ models }, parameters = {}) => {
     SURVEY_ID,
     SURVEY_QUESTION_CODES,
     reportColumnTemplate,
-    includeTimestamp: true,
+    dateFormat: 'MM/DD/YYYY LTS',
   });
 };
 

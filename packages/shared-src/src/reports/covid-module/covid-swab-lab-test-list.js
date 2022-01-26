@@ -155,14 +155,11 @@ const getLatestPatientAnswerInDateRange = (
   return latestAnswer?.body;
 };
 
-const formatDate = (date, includeTimestamp) =>
-  includeTimestamp ? moment(date).format('DD-MM-YYYY LTS') : moment(date).format('DD-MM-YYYY');
-
 const getLabTestRecords = async (
   labTests,
   transformedAnswers,
   parameters,
-  { SURVEY_QUESTION_CODES, includeTimestamp },
+  { SURVEY_QUESTION_CODES, dateFormat },
 ) => {
   const transformedAnswersByPatientAndDataElement = groupBy(
     transformedAnswers,
@@ -237,9 +234,7 @@ const getLabTestRecords = async (
         result: labTest.result,
         requestedBy: labRequest?.requestedBy?.displayName,
         requestedDate: labTest.date ? moment(labTest.date).format('DD-MM-YYYY') : '',
-        testingDate: labTest.completedDate
-          ? formatDate(labTest.completedDate, includeTimestamp)
-          : '',
+        testingDate: labTest.completedDate ? moment(labTest.completedDate).format(dateFormat) : '',
         priority: labRequest?.priority?.name,
         testingLaboratory: labRequest?.laboratory?.name,
       };
@@ -264,7 +259,7 @@ const getLabTestRecords = async (
 export const baseDataGenerator = async (
   { models },
   parameters = {},
-  { SURVEY_ID, reportColumnTemplate, SURVEY_QUESTION_CODES, includeTimestamp = false },
+  { SURVEY_ID, reportColumnTemplate, SURVEY_QUESTION_CODES, dateFormat = 'DD-MM-YYYY' },
 ) => {
   const labTests = await getLabTests(models, parameters);
   const answers = await getFijiCovidAnswers(models, parameters, { SURVEY_ID });
@@ -273,7 +268,7 @@ export const baseDataGenerator = async (
 
   const reportData = await getLabTestRecords(labTests, transformedAnswers, parameters, {
     SURVEY_QUESTION_CODES,
-    includeTimestamp,
+    dateFormat,
   });
 
   return generateReportFromQueryData(reportData, reportColumnTemplate);
