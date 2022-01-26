@@ -197,6 +197,8 @@ export const practitioner = (user, allow, forbid) => {
   allow('read', 'InvoicePriceChangeType');
   allow('write', 'InvoicePriceChangeType');
   allow('create', 'InvoicePriceChangeType');
+
+  allow('create', 'CertificateNotification');
 };
 
 export const admin = (user, allow, forbid) => {

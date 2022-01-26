@@ -53,7 +53,7 @@ export const PatientCovidTestCert = ({ patient }) => {
     data => {
       api.post('certificateNotification', {
         type: ICAO_DOCUMENT_TYPES.PROOF_OF_TESTING,
-        requireSigning: true,
+        requireSigning: false,
         patientId: patient.id,
         forwardAddress: data.email,
       });
