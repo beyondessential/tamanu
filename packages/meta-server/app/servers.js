@@ -31,6 +31,7 @@ const servers = [
   },
   { name: 'Nauru', type: 'live', host: 'https://sync.tamanu-nauru.org' },
   { name: 'Palau', type: 'live', host: 'https://sync.tamanu-palau.org' },
+  { name: 'Kiribati', type: 'live', host: 'https://sync.tamanu-kiribati.org' },
   { name: 'Samoa', type: 'live', host: 'https://tamanu-sync.health.gov.ws' },
 
   // demo servers
