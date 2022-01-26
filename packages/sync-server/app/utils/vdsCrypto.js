@@ -111,7 +111,7 @@ export function loadCertificateIntoSigner(certificate) {
  * an ArrayBuffer, and the PKI.js/ASN1.js parsers cannot deal. This function
  * converts the input to a real ArrayBuffer, by copying the bytes.
  *
- * @param {ArrayBuffer} fake The fake ArrayBuffer.
+ * @param {ArrayBuffer|Buffer} fake The fake ArrayBuffer.
  * @returns {ArrayBuffer} The real ArrayBuffer.
  */
 export function fakeABtoRealAB(fake) {
