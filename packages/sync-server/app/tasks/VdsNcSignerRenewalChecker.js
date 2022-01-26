@@ -67,7 +67,17 @@ export class VdsNcSignerRenewalChecker extends ScheduledTask {
       }
 
       log.info('Generating new signer CSR');
-      const newSigner = await VdsNcSigner.create(await newKeypairAndCsr());
+      const {
+        publicKey,
+        privateKey,
+        request,
+      } = await newKeypairAndCsr();
+      const newSigner = await VdsNcSigner.create({
+        publicKey,
+        privateKey,
+        request,
+        countryCode: config.icao.sign.countryCode3,
+      });
       log.info(`Created new signer (CSR): ${newSigner.id}`);
 
       const recipient = config.icao.csr.email?.recipient;
