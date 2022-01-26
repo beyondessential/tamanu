@@ -279,6 +279,9 @@ export const ICAO_DOCUMENT_TYPES = {
 export const X502_OIDS = {
   COMMON_NAME: '2.5.4.3',
   COUNTRY_NAME: '2.5.4.6',
+  BASIC_CONSTRAINTS: '2.5.29.19',
+  KEY_USAGE: '2.5.29.15',
+  EXTENDED_KEY_USAGE: '2.5.29.37',
 };
 
 export const INVOICE_STATUS_TYPES = {

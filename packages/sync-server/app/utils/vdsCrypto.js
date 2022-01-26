@@ -1,9 +1,10 @@
 import config from 'config';
 import nodeCrypto from 'crypto';
 import { Crypto } from 'node-webcrypto-ossl';
-import { fromBER, PrintableString, Utf8String } from 'asn1js';
-import { setEngine, CryptoEngine, Certificate, CertificationRequest, AttributeTypeAndValue } from 'pkijs';
+import { fromBER, Integer, PrintableString, Utf8String, BitString } from 'asn1js';
+import { Time, setEngine, CryptoEngine, Certificate, CertificationRequest, AttributeTypeAndValue, BasicConstraints, Extension, Extensions } from 'pkijs';
 import { X502_OIDS } from 'shared/constants';
+import moment from 'moment';
 
 const webcrypto = new Crypto;
 setEngine('webcrypto', webcrypto, new CryptoEngine({ name: 'webcrypto', crypto: webcrypto, subtle: webcrypto.subtle }));
@@ -119,11 +120,80 @@ export function fakeABtoRealAB(fake) {
 }
 
 export class TestCSCA {
-  constructor() {}
+  constructor(privateKey, publicKey, certificate) {
+    this.privateKey = privateKey;
+    this.publicKey = publicKey;
+    this.certificate = certificate;
+    this.serial = 1000;
+  }
   
   static async generate() {
-    return new TestCSCA();
+    const { publicKey, privateKey } = await webcrypto.subtle.generateKey({
+      name: 'ECDSA',
+      namedCurve: 'P-256',
+    }, true, ['sign', 'verify']);
+
+    const cert = new Certificate();
+    cert.version = 2;
+    cert.issuer.typesAndValues.push(
+      new AttributeTypeAndValue({
+        type: X502_OIDS.COUNTRY_NAME,
+        value: new PrintableString({ value: 'UT' }),
+      }),
+    );
+    cert.issuer.typesAndValues.push(
+      new AttributeTypeAndValue({
+        type: X502_OIDS.COMMON_NAME,
+        value: new Utf8String({ value: 'UT CA' }),
+      }),
+    );
+    cert.subject.typesAndValues.push(
+      new AttributeTypeAndValue({
+        type: X502_OIDS.COUNTRY_NAME,
+        value: new PrintableString({ value: 'UT' }),
+      }),
+    );
+    cert.subject.typesAndValues.push(
+      new AttributeTypeAndValue({
+        type: X502_OIDS.COMMON_NAME,
+        value: new Utf8String({ value: 'UT CA' }),
+      }),
+    );
+    cert.notBefore = new Time({ value: moment().subtract(1, 'day').toDate() });
+    cert.notAfter = new Time({ value: moment().add(1, 'year').toDate() });
+    cert.serialNumber = new Integer({ value: 1 });
+
+    const basicConstraints = new BasicConstraints({
+      cA: true,
+      pathLenConstraint: 2,
+    });
+    const bitArray = new ArrayBuffer(1);
+    const bitView = new Uint8Array(bitArray);
+    bitView[0] |= 0x02; // Key usage "cRLSign" flag
+    bitView[0] |= 0x04; // Key usage "keyCertSign" flag
+    const keyUsage = new BitString({ valueHex: bitArray });
+    cert.extensions = new Extensions({ extensions: [
+      new Extension({
+        extnID: X502_OIDS.BASIC_CONSTRAINTS,
+        critical: true,
+        extnValue: basicConstraints.toSchema().toBER(false),
+        parsedValue: basicConstraints,
+      }),
+      new Extension({
+        extnID: X502_OIDS.KEY_USAGE,
+        critical: false,
+        extnValue: keyUsage.toBER(false),
+        parsedValue: keyUsage,
+      }),
+    ] });
+
+    await cert.subjectPublicKeyInfo.importKey(publicKey);
+    await cert.sign(privateKey, 'SHA-256');
+
+    return new TestCSCA(privateKey, publicKey, cert);
   }
 
-  async signCSR(request) {}
+  async signCSR(request) {
+    //
+  }
 }
