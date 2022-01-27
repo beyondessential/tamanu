@@ -1,10 +1,9 @@
 import { Sequelize } from 'sequelize';
+import { canonicalize } from 'json-canonicalize';
 import { Model } from './Model';
 import { VdsNcSigner } from './VdsNcSigner';
 import { ICAO_DOCUMENT_TYPES } from '../constants';
 import { depem, base64UrlEncode } from '../utils';
-import { canonicalize } from 'json-canonicalize';
-import moment from 'moment';
 
 export class VdsNcDocument extends Model {
   static init({ primaryKey, ...options }) {

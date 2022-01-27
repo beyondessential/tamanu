@@ -1,7 +1,7 @@
 import crypto from 'crypto';
 import { canonicalize } from 'json-canonicalize';
-import { Model } from './Model';
 import { Sequelize, Op } from 'sequelize';
+import { Model } from './Model';
 
 export class VdsNcSigner extends Model {
   static init({ primaryKey, ...options }) {
@@ -100,7 +100,7 @@ export class VdsNcSigner extends Model {
    * @return {boolean} True if the signer is active (can be used).
    */
   isActive() {
-    const now = new Date;
+    const now = new Date();
     return !!(this.notBefore <= now && this.notAfter > now && this.certificate && this.privateKey);
   }
 
@@ -122,12 +122,6 @@ export class VdsNcSigner extends Model {
       format: 'der',
       type: 'pkcs8',
       passphrase: Buffer.from(keySecret, 'base64'),
-    });
-
-    const publicKey = crypto.createPublicKey({
-      key: Buffer.from(this.publicKey),
-      format: 'der',
-      type: 'spki',
     });
 
     const sign = crypto.createSign('SHA256');

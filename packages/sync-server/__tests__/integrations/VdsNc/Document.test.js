@@ -1,5 +1,11 @@
+/* eslint-disable no-unused-expressions */
+
 import { createTestContext } from 'sync-server/__tests__/utilities';
-import { newKeypairAndCsr, TestCSCA, loadCertificateIntoSigner, pem } from 'sync-server/app/utils/vdsCrypto';
+import {
+  newKeypairAndCsr,
+  TestCSCA,
+  loadCertificateIntoSigner,
+} from 'sync-server/app/utils/vdsCrypto';
 import { ICAO_DOCUMENT_TYPES } from 'shared/constants';
 import { expect } from 'chai';
 
@@ -16,11 +22,7 @@ describe('VDS-NC: Document cryptography', () => {
     // Arrange
     const testCSCA = await TestCSCA.generate();
 
-    const {
-      publicKey,
-      privateKey,
-      request,
-    } = await newKeypairAndCsr({
+    const { publicKey, privateKey, request } = await newKeypairAndCsr({
       keySecret: 'secret',
       subject: {
         countryCode2: 'UT',
