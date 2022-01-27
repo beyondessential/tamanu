@@ -4,6 +4,28 @@
 
 ### Manual steps required after upgrade ⚙
 
+- (left blank)
+
+### Features ⭐
+
+- (left blank)
+
+### Tweaks ⚖️
+
+- (left blank)
+
+### Bug fixes 🐛
+
+- (left blank)
+
+### Infrastructure and maintenance 🛠
+
+- (left blank)
+
+## v1.12.1
+
+### Manual steps required after upgrade ⚙
+
 - change any reference to `covid-swab-lab-test-list` (such as in disabledReports) to `fiji-covid-swab-lab-test-list`
 
 ### Features ⭐
