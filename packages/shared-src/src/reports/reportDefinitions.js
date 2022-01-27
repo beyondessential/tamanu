@@ -87,7 +87,6 @@ export const REPORT_DEFINITIONS = [
     name: 'Palau COVID-19 Test - Line list',
     id: 'palau-covid-swab-lab-test-list',
     allFacilities: true,
-    parameters: [{ parameterField: 'VillageField' }],
   },
   {
     name: 'COVID-19 Tests - Summary',
