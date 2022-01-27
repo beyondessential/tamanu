@@ -12,7 +12,7 @@ import { DateDisplay } from '../DateDisplay';
 const FOOTER_IMG_ASSET_NAME = 'certificate-bottom-half-img';
 
 export const Spacer = styled.div`
-  margin-top: 3rem;
+  margin-top: 2.5rem;
 `;
 
 export const Table = styled.table`
@@ -24,10 +24,12 @@ export const Table = styled.table`
   }
   th,
   td {
-    padding: 5px 10px;
+    padding: 5px;
     border: 1px solid ${Colors.darkText};
+    font-size: 13px;
   }
 `;
+
 const PatientDetailsHeader = styled.strong`
   text-decoration: underline;
 `;

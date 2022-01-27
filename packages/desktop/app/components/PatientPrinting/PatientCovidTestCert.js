@@ -3,7 +3,13 @@ import React, { useState, useEffect, useMemo } from 'react';
 import { Modal } from '../Modal';
 import { Certificate, Table } from '../Print/Certificate';
 import { DateDisplay } from '../DateDisplay';
-import { getCompletedDate, getMethod, getRequestId, getLaboratory } from '../../utils/lab';
+import {
+  getCompletedDate,
+  getMethod,
+  getRequestId,
+  getLaboratory,
+  getRequestedBy,
+} from '../../utils/lab';
 
 import { useApi } from '../../api';
 import { useLocalisation } from '../../contexts/Localisation';
@@ -48,6 +54,11 @@ export const PatientCovidTestCert = ({ patient }) => {
         key: 'date-of-swab',
         title: 'Date of swab',
         accessor: ({ sampleTime }) => <DateDisplay date={sampleTime} />,
+      },
+      {
+        key: 'time-of-swab',
+        title: 'Time of swab',
+        accessor: ({ sampleTime }) => <DateDisplay date={sampleTime} showDate={false} showTime />,
       },
       {
         key: 'date-of-test',
