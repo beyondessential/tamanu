@@ -1,6 +1,6 @@
 import React from 'react';
 import moment from 'moment';
-import { Document, Page } from '@react-pdf/renderer';
+import { Document, Page, Font } from '@react-pdf/renderer';
 import { Table } from './Table';
 import { styles, Col, Box, Row, Signature, SigningImage, Watermark, VDSImage } from './Layout';
 import { H1, H2, H3, P } from './Typography';

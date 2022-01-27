@@ -3,9 +3,10 @@ import { Image, StyleSheet, Text, View } from '@react-pdf/renderer';
 
 export const styles = StyleSheet.create({
   page: {
+    fontFamily: 'Helvetica',
     position: 'relative',
     padding: 30,
-    color: '#333333',
+    color: '#222222',
   },
   logo: {
     position: 'absolute',

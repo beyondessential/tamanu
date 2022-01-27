@@ -1,30 +1,9 @@
 import React from 'react';
-import { StyleSheet, Text, Font } from '@react-pdf/renderer';
-
-Font.register({
-  family: 'Roboto',
-  fonts: [
-    {
-      src: `${__dirname}/roboto/Roboto-Light.ttf`,
-      fontWeight: 300,
-    },
-    {
-      src: `${__dirname}/roboto/Roboto-Regular.ttf`,
-      fontWeight: 400,
-    },
-    {
-      src: `${__dirname}/roboto/Roboto-Medium.ttf`,
-      fontWeight: 500,
-    },
-    {
-      src: `${__dirname}/roboto/Roboto-Black.ttf`,
-      fontWeight: 700,
-    },
-  ],
-});
+import { StyleSheet, Text } from '@react-pdf/renderer';
 
 const styles = StyleSheet.create({
   h1: {
+    fontFamily: 'Helvetica-Bold',
     textAlign: 'center',
     marginTop: 10,
     marginBottom: 10,
@@ -32,18 +11,21 @@ const styles = StyleSheet.create({
     fontWeight: 700,
   },
   h2: {
+    fontFamily: 'Helvetica-Bold',
     textAlign: 'center',
     fontSize: 14,
     marginBottom: 30,
     fontWeight: 500,
   },
   h3: {
+    fontFamily: 'Helvetica-Bold',
     marginBottom: 10,
     fontSize: 12,
     fontWeight: 500,
     textDecoration: 'underline',
   },
   p: {
+    fontFamily: 'Helvetica',
     fontSize: 12,
     fontWeight: 400,
     marginBottom: 15,

@@ -44,8 +44,7 @@ export const makePatientCertificate = async (patient, models) => {
     );
   } catch (error) {
     log.info(`Error creating Patient Certificate ${patient.id}`);
-    console.log('error', error);
-    return false;
+    return error;
   }
 
   return {

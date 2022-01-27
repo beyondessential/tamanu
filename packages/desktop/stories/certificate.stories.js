@@ -56,9 +56,8 @@ const labs = [
   },
 ];
 
-const vds = () => QRCode.toDataURL('Testing');
-
 storiesOf('Certificates', module).add('CovidCertificate', () => {
+  const vds = () => QRCode.toDataURL('Testing');
   return (
     <PDFViewer width={800} height={1000} showToolbar={false}>
       <CovidCertificate
