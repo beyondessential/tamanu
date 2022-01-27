@@ -86,7 +86,10 @@ export class VdsNcSignerRenewalChecker extends ScheduledTask {
             from: config.mailgun.from,
             subject: config.icao.csr.subject,
             content: config.icao.csr.body,
-            // TODO: CSR as attachment
+            attachment: {
+              filename: 'Tamanu.csr',
+              data: Buffer.from(request),
+            },
           });
         } catch (e) {
           log.error(`Failed to send CSR email: ${e}`);
