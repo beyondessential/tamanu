@@ -44,7 +44,7 @@ export class PatientEmailCommunicationProcessor extends ScheduledTask {
           to: toAddress,
           from: config.mailgun.from,
           subject: emailPlain.subject,
-          content: emailPlain.content,
+          text: emailPlain.content,
           attachment: emailPlain.attachment,
         });
         return email.update({

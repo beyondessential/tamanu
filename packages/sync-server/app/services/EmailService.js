@@ -11,7 +11,6 @@ export class EmailService {
 
   async sendEmail(email) {
     // no mailgun service, unable to send email
-    let attachment = null;
     if (!this.mailgunService) {
       return { status: COMMUNICATION_STATUSES.ERROR, error: 'Email service not found' };
     }
@@ -33,13 +32,9 @@ export class EmailService {
         error: 'Missing subject',
       };
     }
-    if (email.attachment) {
-      // Convert to mailgun attachment format
-      attachment = new mailgun.Attachment({ data: 'asdf', filename: 'test.txt' });
-    }
 
     try {
-      const emailResult = await this.mailgunService.messages().send({ ...email, attachment });
+      const emailResult = await this.mailgunService.messages().send(email);
       return { status: COMMUNICATION_STATUSES.SENT, result: emailResult };
     } catch (e) {
       return { status: COMMUNICATION_STATUSES.ERROR, error: e.message };
