@@ -53,8 +53,10 @@ describe('VDS-NC: Document cryptography', () => {
 
     // Assert
     expect(document.isSigned()).to.be.true;
-    expect(document.algorithm).to.equal('SHA-256');
+    expect(document.algorithm).to.equal('ES256');
     await signer.reload();
     expect(signer.signaturesIssued).to.equal(signCount + 1);
   });
+
+  // TODO: document.intoVDS()
 });
