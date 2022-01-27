@@ -1,6 +1,6 @@
 import sinon from 'sinon';
 import moment from 'moment';
-import { dataGenerator } from '../../src/reports/covid-vaccine-daily-summary-village';
+import { dataGenerator } from '../../src/reports/covid-module/covid-vaccine-daily-summary-village';
 
 jest.mock('config', () => ({
   reports: {
