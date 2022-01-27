@@ -1,7 +1,6 @@
 import { createTestContext } from 'sync-server/__tests__/utilities';
 import { newKeypairAndCsr, TestCSCA, loadCertificateIntoSigner } from 'sync-server/app/utils/vdsCrypto';
 import { ICAO_DOCUMENT_TYPES } from 'shared/constants';
-import { fake } from 'shared/test-helpers/fake';
 import { expect } from 'chai';
 
 describe('VDS-NC: Document cryptography', () => {
@@ -37,15 +36,11 @@ describe('VDS-NC: Document cryptography', () => {
 
   it('can sign documents', async () => {
     // Arrange
-    const { Patient, VdsNcDocument, VdsNcSigner } = ctx.store.models;
+    const { VdsNcDocument, VdsNcSigner } = ctx.store.models;
     const signer = await VdsNcSigner.findActive();
-    const patient = await Patient.create(fake(Patient));
     const document = await VdsNcDocument.create({
       type: ICAO_DOCUMENT_TYPES.PROOF_OF_TESTING.JSON,
       messageData: JSON.stringify({ test: 'data' }),
-      patient,
-    }, {
-      include: [ Patient ],
     });
 
     // Pre-check

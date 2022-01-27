@@ -43,13 +43,6 @@ module.exports = {
         type: Sequelize.BLOB,
         allowNull: true,
       },
-      patient_id: {
-        type: Sequelize.STRING,
-        references: {
-          model: 'patients',
-          key: 'id',
-        },
-      },
       facility_id: {
         type: Sequelize.STRING,
         references: {
