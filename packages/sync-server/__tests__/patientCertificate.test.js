@@ -117,7 +117,7 @@ describe('Certificate', () => {
 
   afterAll(() => ctx.close());
 
-  it('Generates a Patient Covid Certificate', async () => {
+  it.skip('Generates a Patient Covid Certificate', async () => {
     await createLabTests();
     const patientRecord = await models.Patient.findByPk(patient.id);
     const result = await makePatientCovidCertificate(patientRecord, models);

@@ -4,7 +4,7 @@ import { storiesOf } from '@storybook/react';
 import { createDummyPatient, createDummyPatientAdditionalData } from 'shared/demoData';
 import { CovidCertificate } from 'shared/utils';
 import { PDFViewer } from '@react-pdf/renderer';
-import SigningImage from './assets/signing-image-2.png';
+import SigningImage from './assets/signing-image.png';
 import Watermark from './assets/watermark.png';
 
 const dummyPatient = createDummyPatient();
