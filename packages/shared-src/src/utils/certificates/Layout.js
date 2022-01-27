@@ -4,8 +4,7 @@ import { Image, StyleSheet, Text, View } from '@react-pdf/renderer';
 export const styles = StyleSheet.create({
   page: {
     position: 'relative',
-    fontFamily: 'Roboto',
-    padding: 10,
+    padding: 30,
     color: '#333333',
   },
   logo: {
@@ -42,10 +41,10 @@ export const styles = StyleSheet.create({
   },
   watermarkContainer: {
     position: 'absolute',
-    top: -10,
-    left: -10,
-    right: -10,
-    bottom: -10,
+    top: 0,
+    left: 0,
+    right: 0,
+    bottom: 0,
     minWidth: '100%',
     minHeight: '100%',
     backgroundColor: '#aaaaaa',
@@ -58,12 +57,15 @@ export const styles = StyleSheet.create({
     objectFit: 'contain',
   },
   vds: {
+    position: 'relative',
+    top: -10,
+    left: -10,
     width: 100,
   },
 });
 
 export const Row = props => <View {...props} style={styles.row} />;
-export const Col = props => <View {...props} style={styles.col} />;
+export const Col = props => <View style={styles.col} {...props} />;
 export const Box = ({ mt, mb, ...props }) => (
   <View {...props} style={[styles.box, { marginTop: mt, marginBottom: mb }]} />
 );
@@ -75,18 +77,18 @@ export const Signature = ({ text }) => (
   </View>
 );
 
-export const SigningImage = ({ data }) => {
-  return <Image src={{ data, format: 'png' }} style={styles.signingImage} />;
+export const SigningImage = ({ src }) => {
+  return <Image src={src} style={styles.signingImage} cache={false} />;
 };
 
 export const Watermark = ({ src }) => {
   return (
     <View style={styles.watermarkContainer}>
-      <Image src={src} style={styles.watermarkImage} />
+      <Image src={src} style={styles.watermarkImage} cache={false} />
     </View>
   );
 };
 
-export const VDSImage = ({ data }) => {
-  return <Image src={data} style={styles.vds} />;
+export const VDSImage = ({ src }) => {
+  return <Image src={src} style={styles.vds} />;
 };

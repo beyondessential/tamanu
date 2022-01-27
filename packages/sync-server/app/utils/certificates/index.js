@@ -3,7 +3,7 @@ import ReactPDF from '@react-pdf/renderer';
 import fs from 'fs';
 import QRCode from 'qrcode';
 import { log } from 'shared/services/logging';
-import { CovidCertificate } from './CovidCertificate';
+import { CovidCertificate } from 'shared/utils';
 
 const getFilePath = patient => {
   const fileName = `covid-certificate-${patient.id}`;
@@ -12,6 +12,7 @@ const getFilePath = patient => {
 
 export const makePatientCertificate = async (patient, models) => {
   await fs.promises.mkdir('./patientCertificates', { recursive: true });
+  const filePath = getFilePath(patient);
 
   const signingImage = await models.Asset.findOne({
     raw: true,
@@ -28,21 +29,23 @@ export const makePatientCertificate = async (patient, models) => {
   });
 
   const labs = await patient.getLabRequests();
-  const data = {
-    ...patient.dataValues,
-    labs,
-  };
-
-  const filePath = getFilePath(patient);
 
   try {
     const vds = await QRCode.toDataURL('Testing');
     await ReactPDF.render(
-      <CovidCertificate signingImage={signingImage} watermark={watermark} data={data} vds={vds} />,
+      <CovidCertificate
+        patient={patient.dataValues}
+        labs={labs}
+        signingSrc={signingImage?.data}
+        watermarkSrc={watermark?.data}
+        vdsSrc={vds}
+      />,
       filePath,
     );
   } catch (error) {
     log.info(`Error creating Patient Certificate ${patient.id}`);
+    console.log('error', error);
+    return false;
   }
 
   return {

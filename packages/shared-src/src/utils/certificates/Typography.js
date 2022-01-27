@@ -25,7 +25,6 @@ Font.register({
 
 const styles = StyleSheet.create({
   h1: {
-    fontFamily: 'Roboto',
     textAlign: 'center',
     marginTop: 10,
     marginBottom: 10,
@@ -33,21 +32,18 @@ const styles = StyleSheet.create({
     fontWeight: 700,
   },
   h2: {
-    fontFamily: 'Roboto',
     textAlign: 'center',
     fontSize: 14,
     marginBottom: 30,
     fontWeight: 500,
   },
   h3: {
-    fontFamily: 'Roboto',
     marginBottom: 10,
     fontSize: 12,
     fontWeight: 500,
     textDecoration: 'underline',
   },
   p: {
-    fontFamily: 'Roboto',
     fontSize: 12,
     fontWeight: 400,
     marginBottom: 15,

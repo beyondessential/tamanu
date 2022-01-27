@@ -1,11 +1,11 @@
 import React from 'react';
+import QRCode from 'qrcode';
 import { storiesOf } from '@storybook/react';
 import { createDummyPatient, createDummyPatientAdditionalData } from 'shared/demoData';
 import { CovidCertificate } from 'shared/utils';
-import { getSigningImage } from './assets/signing-image';
-import Watermark from './assets/watermark.png';
-
 import { PDFViewer } from '@react-pdf/renderer';
+import SigningImage from './assets/signing-image-2.png';
+import Watermark from './assets/watermark.png';
 
 const dummyPatient = createDummyPatient();
 const dummyAdditionalData = createDummyPatientAdditionalData();
@@ -56,14 +56,17 @@ const labs = [
   },
 ];
 
+const vds = () => QRCode.toDataURL('Testing');
+
 storiesOf('Certificates', module).add('CovidCertificate', () => {
   return (
     <PDFViewer width={800} height={1000} showToolbar={false}>
       <CovidCertificate
         patient={patient}
         labs={labs}
-        WatermarkImage={Watermark}
-        signingImage={getSigningImage()}
+        watermarkSrc={Watermark}
+        signingSrc={SigningImage}
+        vdsSrc={vds}
       />
     </PDFViewer>
   );

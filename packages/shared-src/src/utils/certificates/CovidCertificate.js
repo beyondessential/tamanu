@@ -1,6 +1,6 @@
 import React from 'react';
 import moment from 'moment';
-import { Document, Page, Image } from '@react-pdf/renderer';
+import { Document, Page } from '@react-pdf/renderer';
 import { Table } from './Table';
 import { styles, Col, Box, Row, Signature, SigningImage, Watermark, VDSImage } from './Layout';
 import { H1, H2, H3, P } from './Typography';
@@ -61,11 +61,11 @@ const columns = [
   },
 ];
 
-export const CovidCertificate = ({ patient, labs, signingImage, WatermarkImage, vds }) => {
+export const CovidCertificate = ({ patient, labs, signingSrc, watermarkSrc, vdsSrc }) => {
   return (
     <Document>
       <Page size="A4" style={styles.page}>
-        {WatermarkImage && <Watermark src={WatermarkImage} />}
+        {watermarkSrc && <Watermark src={watermarkSrc} />}
         <Logo style={styles.logo} />
         <Box>
           <H1>TAMANU MINISTRY OF HEALTH & MEDICAL SERVICES</H1>
@@ -74,14 +74,19 @@ export const CovidCertificate = ({ patient, labs, signingImage, WatermarkImage, 
         <Box>
           <H3>Covid-19 Test History</H3>
           <Row>
-            {FIELDS.map(({ key, label, accessor }) => {
-              const value = (accessor ? accessor(patient) : patient[key]) || '';
-              return (
-                <Col key={key}>
-                  <P>{`${label}: ${value}`}</P>
-                </Col>
-              );
-            })}
+            <Col style={{ width: '80%' }}>
+              <Row>
+                {FIELDS.map(({ key, label, accessor }) => {
+                  const value = (accessor ? accessor(patient) : patient[key]) || '';
+                  return (
+                    <Col key={key}>
+                      <P>{`${label}: ${value}`}</P>
+                    </Col>
+                  );
+                })}
+              </Row>
+            </Col>
+            <Col style={{ width: '20%' }}>{vdsSrc && <VDSImage src={vdsSrc} />}</Col>
           </Row>
         </Box>
         <Box mb={60}>
@@ -98,24 +103,21 @@ export const CovidCertificate = ({ patient, labs, signingImage, WatermarkImage, 
           </Row>
         </Box>
         <Row>
-          <Col>
-            {signingImage ? (
-              <SigningImage data={signingImage.data} />
-            ) : (
-              <Box mb={0}>
-                <Box>
-                  <Signature text="Authorised by" />
-                </Box>
-                <Box mb={10}>
-                  <Signature text="Signed" />
-                </Box>
-                <Box>
-                  <Signature text="Date" />
-                </Box>
+          {signingSrc ? (
+            <SigningImage src={signingSrc} />
+          ) : (
+            <Box mb={0}>
+              <Box>
+                <Signature text="Authorised by" />
               </Box>
-            )}
-          </Col>
-          <Col>{vds && <VDSImage data={vds} />}</Col>
+              <Box mb={10}>
+                <Signature text="Signed" />
+              </Box>
+              <Box>
+                <Signature text="Date" />
+              </Box>
+            </Box>
+          )}
         </Row>
       </Page>
     </Document>
