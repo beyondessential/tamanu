@@ -1,9 +1,10 @@
 import { createTestContext } from 'sync-server/__tests__/utilities';
-import { fakeABtoRealAB, newKeypairAndCsr, depem } from 'sync-server/app/utils/vdsCrypto';
+import { fakeABtoRealAB, newKeypairAndCsr } from 'sync-server/app/utils/vdsCrypto';
 import { Crypto } from 'node-webcrypto-ossl';
 import { BitString, fromBER, Integer, Null, ObjectIdentifier, OctetString, Sequence, Set as Asn1Set } from 'asn1js';
 import { setEngine, CryptoEngine } from 'pkijs';
 import { X502_OIDS } from 'shared/constants';
+import { depem } from 'shared/utils';
 import { expect } from 'chai';
 import crypto from 'crypto';
 

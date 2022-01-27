@@ -135,6 +135,8 @@ export class VdsNcSigner extends Model {
     sign.end();
     const signature = sign.sign(privateKey);
 
+    await this.increment('signaturesIssued');
+
     return {
       algorithm: 'ES256',
       signature,

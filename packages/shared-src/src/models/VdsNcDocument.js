@@ -2,6 +2,8 @@ import { Sequelize } from 'sequelize';
 import { Model } from './Model';
 import { VdsNcSigner } from './VdsNcSigner';
 import { ICAO_DOCUMENT_TYPES } from '../constants';
+import { depem, base64UrlEncode } from '../utils';
+import { canonicalize } from 'json-canonicalize';
 import moment from 'moment';
 
 export class VdsNcDocument extends Model {
@@ -97,18 +99,18 @@ export class VdsNcDocument extends Model {
   }
 
   /**
-   * Returns the signed VDS-NC document as a JSON object.
+   * Returns the signed VDS-NC document as a string.
    *
-   * This can then be stringified and encoded as a QR code.
+   * This can then be encoded as a QR code.
    *
-   * @returns {Promise<object>} Signed VDS-NC document.
+   * @returns {Promise<string>} Signed VDS-NC document.
    * @throws {Error} if it is not yet signed.
    */
   async intoVDS() {
     if (!this.isSigned()) throw new Error('Cannot return an unsigned VDS-NC document.');
     const signer = await this.getSigner();
 
-    return {
+    return canonicalize({
       hdr: {
         t: this.documentType,
         v: 1,
@@ -117,8 +119,9 @@ export class VdsNcDocument extends Model {
       msg: this.messageData,
       sig: {
         alg: this.algorithm,
-        sig: this.signature.toString('base64').replace(/\+/g, '-').replace(/\//g, '_'),
+        sigvl: base64UrlEncode(this.signature),
+        cer: base64UrlEncode(depem(signer.certificate)),
       },
-    };
+    });
   }
 }

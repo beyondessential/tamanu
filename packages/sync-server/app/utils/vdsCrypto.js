@@ -4,6 +4,7 @@ import { Crypto } from 'node-webcrypto-ossl';
 import { fromBER, Integer, PrintableString, Utf8String, BitString, OctetString, Sequence, Set as Asn1Set } from 'asn1js';
 import { Time, setEngine, CryptoEngine, Certificate, CertificationRequest, AttributeTypeAndValue, BasicConstraints, Extension, Extensions, ExtKeyUsage, AuthorityKeyIdentifier } from 'pkijs';
 import { ICAO_DOCUMENT_TYPES, X502_OIDS } from 'shared/constants';
+import { depem, pem } from 'shared/utils';
 import moment from 'moment';
 
 const webcrypto = new Crypto;
@@ -88,7 +89,7 @@ export function loadCertificateIntoSigner(certificate) {
   } else {
     throw new Error('Certificate must be a string (PEM) or Buffer (DER).');
   }
-  
+
   const asn = fromBER(fakeABtoRealAB(binCert));
   if (asn.result.error !== '') throw new Error(asn.result.error);
   const cert = new Certificate({ schema: asn.result });
@@ -113,35 +114,6 @@ export function fakeABtoRealAB(fake) {
   return Uint8Array.from((new Uint8Array(fake)).values()).buffer;
 }
 
-/**
- * Encode DER data as a PEM document.
- * @param {Buffer} data DER data
- * @param {string} banner Uppercase string for the BEGIN/END banners
- * @returns {string} PEM document
- */
-export function pem(data, banner) {
-  return '-----BEGIN ' + banner + '-----\n' +
-    data.toString('base64').match(/.{1,64}/g).join('\n') +
-    '\n-----END ' + banner + '-----';
-}
-
-/**
- * Decode a PEM document to a Buffer of DER data.
- * @param {string} pem PEM document
- * @param {string} expectedBanner Uppercase string of the BEGIN/END banners
- * @returns {Buffer} DER data
- * @throws if the banners are not present or not correct
- */
-export function depem(pem, expectedBanner) {
-  const text = pem.trim();
-  if (!text.startsWith(`-----BEGIN ${expectedBanner}-----\n`) ||
-    !text.endsWith(`\n-----END ${expectedBanner}-----`)) {
-    throw new Error('Must be in PEM format with banners');
-  }
-
-  return Buffer.from(text.replace(/^--.+/gm, ''), 'base64');
-}
-
 export class TestCSCA {
   constructor(privateKey, publicKey, certificate) {
     this.privateKey = privateKey;
@@ -149,7 +121,7 @@ export class TestCSCA {
     this.certificate = certificate;
     this.serial = 1000;
   }
-  
+
   static async generate() {
     const { publicKey, privateKey } = await webcrypto.subtle.generateKey({
       name: 'ECDSA',
@@ -185,7 +157,7 @@ export class TestCSCA {
     cert.notBefore = new Time({ value: moment().subtract(1, 'day').toDate() });
     cert.notAfter = new Time({ value: moment().add(1, 'year').toDate() });
     cert.serialNumber = new Integer({ value: 1 });
-    
+
     await cert.subjectPublicKeyInfo.importKey(publicKey);
     const fingerprint = await webcrypto.subtle.digest({ name: 'SHA-1' }, cert.subjectPublicKeyInfo.subjectPublicKey.valueBlock.valueHex);
 
