@@ -87,6 +87,10 @@ const getLabTests = async (models, parameters) => {
         ],
       },
       {
+        model: models.ReferenceData,
+        as: 'labTestMethod',
+      },
+      {
         model: models.LabTestType,
         as: 'labTestType',
       },
@@ -239,6 +243,7 @@ const getLabTestRecords = async (
           : '',
         priority: labRequest?.priority?.name,
         testingLaboratory: labRequest?.laboratory?.name,
+        labTestMethod: labTest?.labTestMethod?.name,
       };
       Object.entries(surveyQuestionCodes).forEach(([key, dataElement]) => {
         labTestRecord[key] = getLatestPatientAnswerInDateRange(
