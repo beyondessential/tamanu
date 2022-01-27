@@ -49,10 +49,6 @@ export class Patient extends Model {
       as: 'additionalData',
     });
 
-    this.hasMany(models.VdsNcDocument, {
-      foreignKey: 'patientId',
-    });
-
     this.belongsTo(models.ReferenceData, {
       foreignKey: 'villageId',
       as: 'village',

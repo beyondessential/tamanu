@@ -36,11 +36,6 @@ export class VdsNcDocument extends Model {
       {
         ...options,
         validate: {
-          mustHavePatient() {
-            if (!this.patientId) {
-              throw new Error('A VDS-NC document must be attached to a patient.');
-            }
-          },
           mustHaveValidType() {
             if (!Object.values(ICAO_DOCUMENT_TYPES).some(typ => this.type === typ.JSON)) {
               throw new Error('A VDS-NC document must have a valid type.');
@@ -54,9 +49,6 @@ export class VdsNcDocument extends Model {
   static initRelations(models) {
     this.belongsTo(models.Facility, {
       foreignKey: 'facilityId',
-    });
-    this.belongsTo(models.Patient, {
-      foreignKey: 'patientId',
     });
     this.belongsTo(models.VdsNcSigner, {
       foreignKey: 'signerId',
