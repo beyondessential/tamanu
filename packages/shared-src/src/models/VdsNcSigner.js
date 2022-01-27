@@ -89,8 +89,8 @@ export class VdsNcSigner extends Model {
   static findActive() {
     return VdsNcSigner.findOne({
       where: {
-        notBefore: { [Op.gte]: Sequelize.literal('CURRENT_TIMESTAMP') },
-        notAfter: { [Op.lt]: Sequelize.literal('CURRENT_TIMESTAMP') },
+        notBefore: { [Op.lte]: Sequelize.literal('CURRENT_TIMESTAMP') },
+        notAfter: { [Op.gt]: Sequelize.literal('CURRENT_TIMESTAMP') },
         certificate: { [Op.not]: null },
         privateKey: { [Op.not]: null },
       },
@@ -101,8 +101,8 @@ export class VdsNcSigner extends Model {
    * @return {boolean} True if the signer is active (can be used).
    */
   isActive() {
-    const now = new Date();
-    return !!(this.notBefore >= now && this.notAfter < now && this.certificate && this.privateKey);
+    const now = new Date;
+    return !!(this.notBefore <= now && this.notAfter > now && this.certificate && this.privateKey);
   }
 
   /**
