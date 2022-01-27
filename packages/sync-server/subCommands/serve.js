@@ -2,7 +2,7 @@ import config from 'config';
 
 import { log } from 'shared/services/logging';
 import { createReferralNotification } from 'shared/tasks/CreateReferralNotification';
-import { sendCertificateNotification } from 'shared/tasks/SendCertificateNotification';
+import { sendCertificateNotifications } from 'shared/tasks/SendCertificateNotifications';
 
 import { createApp } from '../app/createApp';
 import { startScheduledTasks } from '../app/tasks';
@@ -69,20 +69,20 @@ export async function serve(options) {
 
   if (config.notifications) {
     if (config.notifications.referralCreated) {
-      context.models.Referral.addHook(
+      context.store.models.Referral.addHook(
         'afterCreate',
         'create referral notification hook',
         referral => {
-          createReferralNotification(referral, context.models);
+          createReferralNotification(referral, context.store.models);
         },
       );
     }
     if (config.notifications.certificates) {
-      context.models.CertificateNotifications.addHook(
-        'afterCreate',
+      context.store.models.CertificateNotification.addHook(
+        'afterBulkCreate',
         'create certificate notification hook',
-        certificateNotification => {
-          sendCertificateNotification(certificateNotification, context.models);
+        certificateNotifications => {
+          sendCertificateNotifications(certificateNotifications, context.store.models);
         },
       );
     }
