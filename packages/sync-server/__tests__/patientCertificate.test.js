@@ -3,7 +3,7 @@ import { randomLabRequest } from 'shared/demoData/labRequests';
 import { LAB_REQUEST_STATUSES, REFERENCE_TYPES } from 'shared/constants';
 
 import { createTestContext } from './utilities';
-import { makePatientCertificate } from '../app/utils/certificates';
+import { makePatientCovidCertificate } from '../app/utils/patientCertificates';
 
 async function prepopulate(models) {
   const lab = await models.ReferenceData.create({
@@ -120,7 +120,7 @@ describe('Certificate', () => {
   it('Generates a Patient Covid Certificate', async () => {
     await createLabTests();
     const patientRecord = await models.Patient.findByPk(patient.id);
-    const result = await makePatientCertificate(patientRecord, models);
+    const result = await makePatientCovidCertificate(patientRecord, models);
     expect(result.status).toEqual('success');
   });
 });
