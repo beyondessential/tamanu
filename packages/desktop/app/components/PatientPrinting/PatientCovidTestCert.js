@@ -14,6 +14,7 @@ import {
 
 import { useApi } from '../../api';
 import { useLocalisation } from '../../contexts/Localisation';
+import { EmailButton } from '../Email/EmailButton';
 
 const usePassportNumber = patientId => {
   const api = useApi();
@@ -147,7 +148,7 @@ export const PatientCovidTestCert = ({ patient }) => {
       onClose={() => setOpen(false)}
       width="md"
       printable
-      onEmail={createCovidTestCertNotification}
+      additionalActionButtons={<EmailButton onEmail={createCovidTestCertNotification} />}
     >
       <Certificate
         patient={patient}

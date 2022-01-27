@@ -14,7 +14,6 @@ import { getCurrentRoute } from '../store/router';
 import { Colors } from '../constants';
 import { useElectron } from '../contexts/Electron';
 import { Button } from './Button';
-import { EmailButton } from './Email/EmailButton';
 
 const MODAL_PADDING = 32;
 
@@ -84,7 +83,7 @@ export const Modal = memo(
     open = false,
     onClose,
     printable = false,
-    onEmail = null,
+    additionalActionButtons,
     ...props
   }) => {
     const { printPage } = useElectron();
@@ -93,7 +92,7 @@ export const Modal = memo(
         <ModalTitle>
           <VerticalCenteredText>{title}</VerticalCenteredText>
           <div>
-            {onEmail ? <EmailButton onEmail={onEmail} /> : null}
+            {additionalActionButtons}
             {printable ? (
               <Button
                 color="primary"

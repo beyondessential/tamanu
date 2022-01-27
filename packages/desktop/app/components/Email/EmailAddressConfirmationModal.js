@@ -7,7 +7,13 @@ import { EmailAddressConfirmationForm } from '../../forms/EmailAddressConfirmati
 export const EmailAddressConfirmationModal = React.memo(({ open, onClose, onEmail }) => {
   return (
     <Modal title="Enter email address" open={open} onClose={onClose}>
-      <EmailAddressConfirmationForm onSubmit={onEmail} onCancel={onClose} />
+      <EmailAddressConfirmationForm
+        onSubmit={data => {
+          onEmail(data);
+          onClose(data);
+        }}
+        onCancel={onClose}
+      />
     </Modal>
   );
 });

@@ -14,6 +14,7 @@ export const EmailButton = ({ onEmail }) => {
           setOpenModal(true);
         }}
         startIcon={<EmailIcon />}
+        size="small"
       >
         Email
       </Button>

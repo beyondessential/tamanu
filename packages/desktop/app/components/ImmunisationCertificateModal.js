@@ -3,6 +3,7 @@ import { ICAO_DOCUMENT_TYPES } from 'shared/constants';
 import { Modal } from './Modal';
 import { connectApi, useApi } from '../api';
 import { ImmunisationCertificate } from './ImmunisationCertificate';
+import { EmailButton } from './Email/EmailButton';
 
 const DumbImmunisationCertificateModal = ({ getImmunisations, open, onClose, patient }) => {
   const api = useApi();
@@ -31,7 +32,7 @@ const DumbImmunisationCertificateModal = ({ getImmunisations, open, onClose, pat
       onClose={onClose}
       width="md"
       printable
-      onEmail={createImmunisationCertificateNotification}
+      additionalActionButtons={<EmailButton onEmail={createImmunisationCertificateNotification} />}
     >
       {certificate}
     </Modal>
