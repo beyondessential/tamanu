@@ -1,14 +1,39 @@
 import config from 'config';
 import nodeCrypto from 'crypto';
 import { Crypto } from 'node-webcrypto-ossl';
-import { fromBER, Integer, PrintableString, Utf8String, BitString, OctetString, Sequence, Set as Asn1Set } from 'asn1js';
-import { Time, setEngine, CryptoEngine, Certificate, CertificationRequest, AttributeTypeAndValue, BasicConstraints, Extension, Extensions, ExtKeyUsage, AuthorityKeyIdentifier } from 'pkijs';
+import {
+  fromBER,
+  Integer,
+  PrintableString,
+  Utf8String,
+  BitString,
+  OctetString,
+  Sequence,
+  Set as Asn1Set,
+} from 'asn1js';
+import {
+  Time,
+  setEngine,
+  CryptoEngine,
+  Certificate,
+  CertificationRequest,
+  AttributeTypeAndValue,
+  BasicConstraints,
+  Extension,
+  Extensions,
+  ExtKeyUsage,
+  AuthorityKeyIdentifier,
+} from 'pkijs';
 import { ICAO_DOCUMENT_TYPES, X502_OIDS } from 'shared/constants';
 import { depem, pem } from 'shared/utils';
 import moment from 'moment';
 
-const webcrypto = new Crypto;
-setEngine('webcrypto', webcrypto, new CryptoEngine({ name: 'webcrypto', crypto: webcrypto, subtle: webcrypto.subtle }));
+const webcrypto = new Crypto();
+setEngine(
+  'webcrypto',
+  webcrypto,
+  new CryptoEngine({ name: 'webcrypto', crypto: webcrypto, subtle: webcrypto.subtle }),
+);
 
 /**
  * Generate a VDS-NC Barcode Signer compliant keypair and CSR.
@@ -16,14 +41,20 @@ setEngine('webcrypto', webcrypto, new CryptoEngine({ name: 'webcrypto', crypto: 
  * @param {object} keygenConfig The keySecret and the icao.csr fields.
  * @returns The fields to use to create the Signer model.
  */
-export async function newKeypairAndCsr(keygenConfig = {
-  keySecret: config.icao.keySecret,
-  ...config.icao.csr,
-}) {
-  const { publicKey, privateKey } = await webcrypto.subtle.generateKey({
-    name: 'ECDSA',
-    namedCurve: 'P-256',
-  }, true, ['sign', 'verify']);
+export async function newKeypairAndCsr(
+  keygenConfig = {
+    keySecret: config.icao.keySecret,
+    ...config.icao.csr,
+  },
+) {
+  const { publicKey, privateKey } = await webcrypto.subtle.generateKey(
+    {
+      name: 'ECDSA',
+      namedCurve: 'P-256',
+    },
+    true,
+    ['sign', 'verify'],
+  );
 
   const { keySecret, subject } = keygenConfig;
 
@@ -61,12 +92,14 @@ export async function newKeypairAndCsr(keygenConfig = {
 
   return {
     publicKey: fakeABtoRealAB(await webcrypto.subtle.exportKey('spki', publicKey)),
-    privateKey: fakeABtoRealAB(privateNodeKey.export({
-      type: 'pkcs8',
-      format: 'der',
-      cipher: 'aes-256-cbc',
-      passphrase,
-    }).buffer),
+    privateKey: fakeABtoRealAB(
+      privateNodeKey.export({
+        type: 'pkcs8',
+        format: 'der',
+        cipher: 'aes-256-cbc',
+        passphrase,
+      }).buffer,
+    ),
     request: pem(packedCsr, 'CERTIFICATE REQUEST'),
   };
 }
@@ -111,7 +144,7 @@ export function loadCertificateIntoSigner(certificate) {
  * @returns {ArrayBuffer} The real ArrayBuffer.
  */
 export function fakeABtoRealAB(fake) {
-  return Uint8Array.from((new Uint8Array(fake)).values()).buffer;
+  return Uint8Array.from(new Uint8Array(fake).values()).buffer;
 }
 
 export class TestCSCA {
@@ -123,10 +156,14 @@ export class TestCSCA {
   }
 
   static async generate() {
-    const { publicKey, privateKey } = await webcrypto.subtle.generateKey({
-      name: 'ECDSA',
-      namedCurve: 'P-256',
-    }, true, ['sign', 'verify']);
+    const { publicKey, privateKey } = await webcrypto.subtle.generateKey(
+      {
+        name: 'ECDSA',
+        namedCurve: 'P-256',
+      },
+      true,
+      ['sign', 'verify'],
+    );
 
     const cert = new Certificate();
     cert.version = 2;
@@ -154,12 +191,23 @@ export class TestCSCA {
         value: new Utf8String({ value: 'UT CA' }),
       }),
     );
-    cert.notBefore = new Time({ value: moment().subtract(1, 'day').toDate() });
-    cert.notAfter = new Time({ value: moment().add(1, 'year').toDate() });
+    cert.notBefore = new Time({
+      value: moment()
+        .subtract(1, 'day')
+        .toDate(),
+    });
+    cert.notAfter = new Time({
+      value: moment()
+        .add(1, 'year')
+        .toDate(),
+    });
     cert.serialNumber = new Integer({ value: 1 });
 
     await cert.subjectPublicKeyInfo.importKey(publicKey);
-    const fingerprint = await webcrypto.subtle.digest({ name: 'SHA-1' }, cert.subjectPublicKeyInfo.subjectPublicKey.valueBlock.valueHex);
+    const fingerprint = await webcrypto.subtle.digest(
+      { name: 'SHA-1' },
+      cert.subjectPublicKeyInfo.subjectPublicKey.valueBlock.valueHex,
+    );
 
     const keyID = new OctetString({ valueHex: fingerprint });
     const authKeyID = new AuthorityKeyIdentifier({
@@ -169,41 +217,48 @@ export class TestCSCA {
         valueHex: fingerprint,
       }),
     });
+
     const basicConstraints = new BasicConstraints({
       cA: true,
       pathLenConstraint: 2,
     });
+
+    /* eslint-disable no-bitwise */
     const bitArray = new ArrayBuffer(1);
     const bitView = new Uint8Array(bitArray);
     bitView[0] |= 0x02; // Key usage "cRLSign" flag
     bitView[0] |= 0x04; // Key usage "keyCertSign" flag
+    /* eslint-enable no-bitwise */
+
     const keyUsage = new BitString({ valueHex: bitArray });
-    cert.extensions = new Extensions({ extensions: [
-      new Extension({
-        extnID: X502_OIDS.BASIC_CONSTRAINTS,
-        critical: true,
-        extnValue: basicConstraints.toSchema().toBER(false),
-        parsedValue: basicConstraints,
-      }),
-      new Extension({
-        extnID: X502_OIDS.KEY_IDENTIFIER,
-        critical: true,
-        extnValue: keyID.toBER(false),
-        parsedValue: keyID,
-      }),
-      new Extension({
-        extnID: X502_OIDS.AUTHORITY_KEY_IDENTIFIER,
-        critical: true,
-        extnValue: authKeyID.toSchema().toBER(false),
-        parsedValue: authKeyID,
-      }),
-      new Extension({
-        extnID: X502_OIDS.KEY_USAGE,
-        critical: false,
-        extnValue: keyUsage.toBER(false),
-        parsedValue: keyUsage,
-      }),
-    ] });
+    cert.extensions = new Extensions({
+      extensions: [
+        new Extension({
+          extnID: X502_OIDS.BASIC_CONSTRAINTS,
+          critical: true,
+          extnValue: basicConstraints.toSchema().toBER(false),
+          parsedValue: basicConstraints,
+        }),
+        new Extension({
+          extnID: X502_OIDS.KEY_IDENTIFIER,
+          critical: true,
+          extnValue: keyID.toBER(false),
+          parsedValue: keyID,
+        }),
+        new Extension({
+          extnID: X502_OIDS.AUTHORITY_KEY_IDENTIFIER,
+          critical: true,
+          extnValue: authKeyID.toSchema().toBER(false),
+          parsedValue: authKeyID,
+        }),
+        new Extension({
+          extnID: X502_OIDS.KEY_USAGE,
+          critical: false,
+          extnValue: keyUsage.toBER(false),
+          parsedValue: keyUsage,
+        }),
+      ],
+    });
 
     await cert.sign(privateKey, 'SHA-256');
 
@@ -220,10 +275,17 @@ export class TestCSCA {
     cert.issuer = this.certificate.issuer;
     cert.subject = csr.subject;
     cert.notBefore = new Time({ value: moment().toDate() });
-    cert.notAfter = new Time({ value: moment().add(3, 'month').toDate() });
-    cert.serialNumber = new Integer({ value: this.serial += 1 });
+    cert.notAfter = new Time({
+      value: moment()
+        .add(3, 'month')
+        .toDate(),
+    });
+    cert.serialNumber = new Integer({ value: (this.serial += 1) });
 
-    const fingerprint = await webcrypto.subtle.digest({ name: 'SHA-1' }, this.certificate.subjectPublicKeyInfo.subjectPublicKey.valueBlock.valueHex);
+    const fingerprint = await webcrypto.subtle.digest(
+      { name: 'SHA-1' },
+      this.certificate.subjectPublicKeyInfo.subjectPublicKey.valueBlock.valueHex,
+    );
 
     const authKey = new AuthorityKeyIdentifier({
       authorityCertIssuer: this.certificate.issuer,
@@ -233,38 +295,42 @@ export class TestCSCA {
       }),
     });
 
-    const docType = new Sequence({ value: [
-      new Integer({ value: 0 }),
-      new Asn1Set({ value: [
-        new PrintableString({ value: ICAO_DOCUMENT_TYPES.PROOF_OF_TESTING.DOCTYPE }),
-        new PrintableString({ value: ICAO_DOCUMENT_TYPES.PROOF_OF_VACCINATION.DOCTYPE }),
-      ] }),
-    ] });
+    const docType = new Sequence({
+      value: [
+        new Integer({ value: 0 }),
+        new Asn1Set({
+          value: [
+            new PrintableString({ value: ICAO_DOCUMENT_TYPES.PROOF_OF_TESTING.DOCTYPE }),
+            new PrintableString({ value: ICAO_DOCUMENT_TYPES.PROOF_OF_VACCINATION.DOCTYPE }),
+          ],
+        }),
+      ],
+    });
 
     const extKeyUsage = new ExtKeyUsage({
       keyPurposes: [X502_OIDS.EKU_VDS_NC],
     });
 
     cert.extensions = [
-        new Extension({
-          extnID: X502_OIDS.AUTHORITY_KEY_IDENTIFIER,
-          critical: true,
-          extnValue: authKey.toSchema().toBER(false),
-          parsedValue: authKey,
-        }),
-        new Extension({
-          extnID: X502_OIDS.DOCUMENT_TYPE,
-          critical: false,
-          extnValue: docType.toBER(false),
-          parsedValue: docType,
-        }),
-        new Extension({
-          extnID: X502_OIDS.EXTENDED_KEY_USAGE,
-          critical: false,
-          extnValue: extKeyUsage.toSchema().toBER(false),
-          parsedValue: extKeyUsage,
-        }),
-      ];
+      new Extension({
+        extnID: X502_OIDS.AUTHORITY_KEY_IDENTIFIER,
+        critical: true,
+        extnValue: authKey.toSchema().toBER(false),
+        parsedValue: authKey,
+      }),
+      new Extension({
+        extnID: X502_OIDS.DOCUMENT_TYPE,
+        critical: false,
+        extnValue: docType.toBER(false),
+        parsedValue: docType,
+      }),
+      new Extension({
+        extnID: X502_OIDS.EXTENDED_KEY_USAGE,
+        critical: false,
+        extnValue: extKeyUsage.toSchema().toBER(false),
+        parsedValue: extKeyUsage,
+      }),
+    ];
 
     cert.subjectPublicKeyInfo = csr.subjectPublicKeyInfo;
     await cert.sign(this.privateKey, 'SHA-256');

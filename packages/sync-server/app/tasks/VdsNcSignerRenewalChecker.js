@@ -67,11 +67,7 @@ export class VdsNcSignerRenewalChecker extends ScheduledTask {
       }
 
       log.info('Generating new signer CSR');
-      const {
-        publicKey,
-        privateKey,
-        request,
-      } = await newKeypairAndCsr();
+      const { publicKey, privateKey, request } = await newKeypairAndCsr();
       const newSigner = await VdsNcSigner.create({
         publicKey,
         privateKey,

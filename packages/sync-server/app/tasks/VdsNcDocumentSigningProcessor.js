@@ -34,8 +34,6 @@ export class VdsNcDocumentSigningProcessor extends ScheduledTask {
       return Promise.resolve();
     }
 
-    return Promise.all(
-      docs.map(doc => doc.signRequest(config.icao.keySecret))
-    );
+    return Promise.all(docs.map(doc => doc.sign(config.icao.keySecret)));
   }
 }

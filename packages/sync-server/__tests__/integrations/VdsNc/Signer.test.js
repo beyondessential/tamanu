@@ -1,15 +1,30 @@
+/* eslint-disable no-unused-expressions */
+
 import { createTestContext } from 'sync-server/__tests__/utilities';
 import { fakeABtoRealAB, newKeypairAndCsr } from 'sync-server/app/utils/vdsCrypto';
 import { Crypto } from 'node-webcrypto-ossl';
-import { BitString, fromBER, Integer, Null, ObjectIdentifier, OctetString, Sequence, Set as Asn1Set } from 'asn1js';
+import {
+  BitString,
+  fromBER,
+  Integer,
+  Null,
+  ObjectIdentifier,
+  OctetString,
+  Sequence,
+  Set as Asn1Set,
+} from 'asn1js';
 import { setEngine, CryptoEngine } from 'pkijs';
 import { X502_OIDS } from 'shared/constants';
 import { depem } from 'shared/utils';
 import { expect } from 'chai';
 import crypto from 'crypto';
 
-const webcrypto = new Crypto;
-setEngine('webcrypto', webcrypto, new CryptoEngine({ name: 'webcrypto', crypto: webcrypto, subtle: webcrypto.subtle }));
+const webcrypto = new Crypto();
+setEngine(
+  'webcrypto',
+  webcrypto,
+  new CryptoEngine({ name: 'webcrypto', crypto: webcrypto, subtle: webcrypto.subtle }),
+);
 
 // essential tool: https://lapo.it/asn1js/
 describe('VDS-NC: Signer cryptography', () => {
@@ -20,10 +35,7 @@ describe('VDS-NC: Signer cryptography', () => {
   afterAll(() => ctx.close());
 
   it('creates a well-formed keypair', async () => {
-    const {
-      publicKey,
-      privateKey,
-    } = await newKeypairAndCsr({
+    const { publicKey, privateKey } = await newKeypairAndCsr({
       keySecret: 'secret',
       subject: {
         countryCode2: 'UT',
@@ -54,7 +66,6 @@ describe('VDS-NC: Signer cryptography', () => {
     // publicKey: Check that it's the right type
     expect(pubname.toString()).to.equal('OBJECT IDENTIFIER : 1.2.840.10045.2.1'); // ecPublicKey
     expect(pubcurve.toString()).to.equal('OBJECT IDENTIFIER : 1.2.840.10045.3.1.7'); // prime256v1
-
 
     // privateKey: Walk through the expected ASN.1 structure
     //
@@ -115,7 +126,6 @@ describe('VDS-NC: Signer cryptography', () => {
     expect(privencralgo.toString()).to.equal('OBJECT IDENTIFIER : 2.16.840.1.101.3.4.1.42'); // aes256-CBC
     expect(privencriv.valueBlock.blockLength).to.equal(16); // 16 bytes IV
 
-
     // Decrypt the private key
     const realKey = crypto.createPrivateKey({
       key: Buffer.from(privateKey),
@@ -133,7 +143,9 @@ describe('VDS-NC: Signer cryptography', () => {
     //     OBJECT IDENTIFIER (curve name)
     //   OCTET STRING
     //
-    const realasn = fromBER(fakeABtoRealAB(realKey.export({ type: 'pkcs8', format: 'der' }).buffer));
+    const realasn = fromBER(
+      fakeABtoRealAB(realKey.export({ type: 'pkcs8', format: 'der' }).buffer),
+    );
     expect(realasn.result.error).to.be.empty;
     expect(realasn.result).to.be.instanceOf(Sequence);
     expect(realasn.result.valueBlock.value).to.have.lengthOf(3);
@@ -153,10 +165,7 @@ describe('VDS-NC: Signer cryptography', () => {
   });
 
   it('creates a well-formed CSR', async () => {
-    const {
-      publicKey,
-      request,
-    } = await newKeypairAndCsr({
+    const { publicKey, request } = await newKeypairAndCsr({
       keySecret: 'secret',
       subject: {
         countryCode2: 'UT',
@@ -165,7 +174,9 @@ describe('VDS-NC: Signer cryptography', () => {
     });
 
     // Check the PEM has the borders
-    expect(request).to.be.a('string').and.satisfy(pem => !!depem(pem, 'CERTIFICATE REQUEST'));
+    expect(request)
+      .to.be.a('string')
+      .and.satisfy(pem => !!depem(pem, 'CERTIFICATE REQUEST'));
 
     // Walk through the expected ASN.1 structure
     //
@@ -185,7 +196,7 @@ describe('VDS-NC: Signer cryptography', () => {
     //         OBJECT IDENTIFIER (public key type)
     //         OBJECT IDENTIFIER (public key curve)
     //       BIT STRING (public key)
-    //     CONTEXT SPECIFIC
+    //     CONTEXT SPECIFIC
     //       SEQUENCE (key usage)
     //         TODO
     //   SEQUENCE
@@ -228,16 +239,22 @@ describe('VDS-NC: Signer cryptography', () => {
 
     // Check that the embedded public key is the same as the one generated
     const pubasn = fromBER(publicKey);
-    expect([...new Uint8Array(reqkeydat.valueBlock.valueHex)]).to.deep.equal([...new Uint8Array(pubasn.result.valueBlock.value[1].valueBlock.valueHex)]);
+    expect([...new Uint8Array(reqkeydat.valueBlock.valueHex)]).to.deep.equal([
+      ...new Uint8Array(pubasn.result.valueBlock.value[1].valueBlock.valueHex),
+    ]);
 
     // Check that the subject's C is correct
-    const subjc = reqsubjset.valueBlock.value.find(seq => seq.valueBlock.value[0].toString() === `OBJECT IDENTIFIER : ${X502_OIDS.COUNTRY_NAME}`);
+    const subjc = reqsubjset.valueBlock.value.find(
+      seq => seq.valueBlock.value[0].toString() === `OBJECT IDENTIFIER : ${X502_OIDS.COUNTRY_NAME}`,
+    );
     expect(subjc).to.exist;
     expect(subjc).to.be.instanceOf(Sequence);
     expect(subjc.valueBlock.value[1].toString()).to.equal('PrintableString : UT');
 
     // Check that the subject's CN is correct
-    const subjcn = reqsubjset.valueBlock.value.find(seq => seq.valueBlock.value[0].toString() === `OBJECT IDENTIFIER : ${X502_OIDS.COMMON_NAME}`);
+    const subjcn = reqsubjset.valueBlock.value.find(
+      seq => seq.valueBlock.value[0].toString() === `OBJECT IDENTIFIER : ${X502_OIDS.COMMON_NAME}`,
+    );
     expect(subjcn).to.exist;
     expect(subjcn).to.be.instanceOf(Sequence);
     expect(subjcn.valueBlock.value[1].toString()).to.equal('PrintableString : TA');
