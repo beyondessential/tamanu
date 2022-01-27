@@ -106,8 +106,8 @@ const reportColumnTemplate = [
 
 export const dataGenerator = async ({ models }, parameters = {}) => {
   return baseDataGenerator({ models }, parameters, {
-    SURVEY_ID,
-    SURVEY_QUESTION_CODES,
+    surveyId: SURVEY_ID,
+    surveyQuestionCodes: SURVEY_QUESTION_CODES,
     reportColumnTemplate,
   });
 };

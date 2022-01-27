@@ -36,9 +36,9 @@ const parametersToLabTestSqlWhere = parameters => {
   return whereClause;
 };
 
-const parametersToSurveyResponseSqlWhere = (parameters, { SURVEY_ID }) => {
+const parametersToSurveyResponseSqlWhere = (parameters, { surveyId }) => {
   const defaultWhereClause = {
-    '$surveyResponse.survey_id$': SURVEY_ID,
+    '$surveyResponse.survey_id$': surveyId,
   };
 
   if (!parameters || !Object.keys(parameters).length) {
@@ -96,10 +96,10 @@ const getLabTests = async (models, parameters) => {
   });
 };
 
-const getFijiCovidAnswers = async (models, parameters, { SURVEY_ID }) => {
+const getFijiCovidAnswers = async (models, parameters, { surveyId }) => {
   // Use the latest survey responses per patient above to get the corresponding answers
   const answers = await models.SurveyResponseAnswer.findAll({
-    where: parametersToSurveyResponseSqlWhere(parameters, { SURVEY_ID }),
+    where: parametersToSurveyResponseSqlWhere(parameters, { surveyId }),
     include: [
       {
         model: models.SurveyResponse,
@@ -159,7 +159,7 @@ const getLabTestRecords = async (
   labTests,
   transformedAnswers,
   parameters,
-  { SURVEY_QUESTION_CODES, dateFormat },
+  { surveyQuestionCodes, testingDateFormat },
 ) => {
   const transformedAnswersByPatientAndDataElement = groupBy(
     transformedAnswers,
@@ -234,11 +234,13 @@ const getLabTestRecords = async (
         result: labTest.result,
         requestedBy: labRequest?.requestedBy?.displayName,
         requestedDate: labTest.date ? moment(labTest.date).format('DD-MM-YYYY') : '',
-        testingDate: labTest.completedDate ? moment(labTest.completedDate).format(dateFormat) : '',
+        testingDate: labTest.completedDate
+          ? moment(labTest.completedDate).format(testingDateFormat)
+          : '',
         priority: labRequest?.priority?.name,
         testingLaboratory: labRequest?.laboratory?.name,
       };
-      Object.entries(SURVEY_QUESTION_CODES).forEach(([key, dataElement]) => {
+      Object.entries(surveyQuestionCodes).forEach(([key, dataElement]) => {
         labTestRecord[key] = getLatestPatientAnswerInDateRange(
           transformedAnswersByPatientAndDataElement,
           currentLabTestDate,
@@ -259,16 +261,16 @@ const getLabTestRecords = async (
 export const baseDataGenerator = async (
   { models },
   parameters = {},
-  { SURVEY_ID, reportColumnTemplate, SURVEY_QUESTION_CODES, dateFormat = 'DD-MM-YYYY' },
+  { surveyId, reportColumnTemplate, surveyQuestionCodes, testingDateFormat = 'DD-MM-YYYY' },
 ) => {
   const labTests = await getLabTests(models, parameters);
-  const answers = await getFijiCovidAnswers(models, parameters, { SURVEY_ID });
-  const components = await models.SurveyScreenComponent.getComponentsForSurvey(SURVEY_ID);
+  const answers = await getFijiCovidAnswers(models, parameters, { surveyId });
+  const components = await models.SurveyScreenComponent.getComponentsForSurvey(surveyId);
   const transformedAnswers = await transformAnswers(models, answers, components);
 
   const reportData = await getLabTestRecords(labTests, transformedAnswers, parameters, {
-    SURVEY_QUESTION_CODES,
-    dateFormat,
+    surveyQuestionCodes,
+    testingDateFormat,
   });
 
   return generateReportFromQueryData(reportData, reportColumnTemplate);
