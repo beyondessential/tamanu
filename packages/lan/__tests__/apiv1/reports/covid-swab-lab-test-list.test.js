@@ -359,14 +359,14 @@ describe('Covid swab lab test list', () => {
   describe('checks permissions', () => {
     it('should reject creating a report with insufficient permissions', async () => {
       const noPermsApp = await baseApp.asRole('base');
-      const result = await noPermsApp.post(`/v1/reports/covid-swab-lab-test-list`, {});
+      const result = await noPermsApp.post(`/v1/reports/fiji-covid-swab-lab-test-list`, {});
       expect(result).toBeForbidden();
     });
   });
 
   describe('returns the correct data', () => {
     it('should return latest data per patient and latest data per patient per date', async () => {
-      const result = await app.post('/v1/reports/covid-swab-lab-test-list').send({});
+      const result = await app.post('/v1/reports/fiji-covid-swab-lab-test-list').send({});
       expect(result).toHaveSucceeded();
       expect(result.body).toHaveLength(5);
 
