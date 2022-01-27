@@ -79,9 +79,14 @@ export const REPORT_DEFINITIONS = [
   },
   {
     name: 'COVID-19 Tests - Line list',
-    id: 'covid-swab-lab-test-list',
+    id: 'fiji-covid-swab-lab-test-list',
     allFacilities: true,
     parameters: [{ parameterField: 'VillageField' }, { parameterField: 'LabTestLaboratoryField' }],
+  },
+  {
+    name: 'Palau COVID-19 Test - Line list',
+    id: 'palau-covid-swab-lab-test-list',
+    allFacilities: true,
   },
   {
     name: 'COVID-19 Tests - Summary',
