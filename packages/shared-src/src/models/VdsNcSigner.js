@@ -1,8 +1,7 @@
-import { Sequelize, Op } from 'sequelize';
 import crypto from 'crypto';
-import Vds from '@pathcheck/vds-sdk';
-import assert from 'assert';
+import { canonicalize } from 'json-canonicalize';
 import { Model } from './Model';
+import { Sequelize, Op } from 'sequelize';
 
 export class VdsNcSigner extends Model {
   static init({ primaryKey, ...options }) {
@@ -111,7 +110,7 @@ export class VdsNcSigner extends Model {
    * @internal
    * @param {object} data Arbitrary data to sign.
    * @param {string} keySecret Encryption key/phrase for the private key (icao.keySecret).
-   * @returns {Promise<{ alg: string, sig: string }>} The signature and algorithm.
+   * @returns {Promise<{ algorithm: string, signature: Buffer }>} The signature and algorithm.
    */
   async issueSignature(data, keySecret) {
     if (!this.isActive()) {
@@ -131,14 +130,14 @@ export class VdsNcSigner extends Model {
       type: 'spki',
     });
 
-    const signed = await Vds.sign(
-      { data },
-      publicKey.export({ type: 'spki', format: 'pem' }),
-      privateKey.export({ type: 'pkcs8', format: 'pem' }),
-    );
+    const sign = crypto.createSign('SHA256');
+    sign.update(canonicalize(data));
+    sign.end();
+    const signature = sign.sign(privateKey);
 
-    assert.deepEqual(signed.data, data);
-    await this.increment('signaturesIssued');
-    return signed.sig;
+    return {
+      algorithm: 'ES256',
+      signature,
+    };
   }
 }

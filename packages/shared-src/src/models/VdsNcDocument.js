@@ -70,11 +70,13 @@ export class VdsNcDocument extends Model {
    *
    * @param {string} keySecret Base64-encoded key secret (icao.keySecret).
    * @returns {Promise<VdsNcDocument>} This object, signed, stored to the database.
+   * @throws {Error} if there's no active signer.
    */
   async sign(keySecret) {
     if (this.isSigned()) return this;
 
     const signer = await VdsNcSigner.findActive();
+    if (!signer) throw new Error('No active signer');
 
     const data = {
       hdr: {
@@ -85,11 +87,11 @@ export class VdsNcDocument extends Model {
       msg: JSON.parse(this.messageData),
     };
 
-    const { alg, sig } = await signer.issueSignature(data, keySecret);
+    const { algorithm, signature } = await signer.issueSignature(data, keySecret);
     await this.setVdsNcSigner(signer);
     return this.update({
-      algorithm: alg,
-      signature: Buffer.from(sig, 'base64'),
+      algorithm,
+      signature,
       signedAt: Sequelize.literal('CURRENT_TIMESTAMP'),
     });
   }
@@ -100,7 +102,7 @@ export class VdsNcDocument extends Model {
    * This can then be stringified and encoded as a QR code.
    *
    * @returns {Promise<object>} Signed VDS-NC document.
-   * @throws if it is not yet signed.
+   * @throws {Error} if it is not yet signed.
    */
   async intoVDS() {
     if (!this.isSigned()) throw new Error('Cannot return an unsigned VDS-NC document.');
@@ -115,7 +117,7 @@ export class VdsNcDocument extends Model {
       msg: this.messageData,
       sig: {
         alg: this.algorithm,
-        sig: this.signature.toString('base64'),
+        sig: this.signature.toString('base64').replace(/\+/g, '-').replace(/\//g, '_'),
       },
     };
   }
