@@ -196,9 +196,6 @@ describe('VDS-NC: Signer cryptography', () => {
     //         OBJECT IDENTIFIER (public key type)
     //         OBJECT IDENTIFIER (public key curve)
     //       BIT STRING (public key)
-    //     CONTEXT SPECIFIC
-    //       SEQUENCE (key usage)
-    //         TODO
     //   SEQUENCE
     //     OBJECT IDENTIFIER (signature algorithm)
     //   BIT STRING (signature)
