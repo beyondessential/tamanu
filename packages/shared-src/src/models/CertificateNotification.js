@@ -1,6 +1,6 @@
 import { Sequelize } from 'sequelize';
+import { ICAO_DOCUMENT_TYPES, SYNC_DIRECTIONS } from 'shared/constants';
 import { Model } from './Model';
-import { ICAO_DOCUMENT_TYPES } from '../constants';
 
 export class CertificateNotification extends Model {
   static init({ primaryKey, ...options }) {
@@ -11,7 +11,10 @@ export class CertificateNotification extends Model {
         forwardAddress: Sequelize.STRING,
         requireSigning: Sequelize.BOOLEAN,
       },
-      options,
+      {
+        ...options,
+        syncConfig: { syncDirection: SYNC_DIRECTIONS.PUSH_ONLY },
+      },
     );
   }
 

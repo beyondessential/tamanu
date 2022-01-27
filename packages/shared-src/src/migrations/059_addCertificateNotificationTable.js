@@ -39,6 +39,24 @@ module.exports = {
         type: Sequelize.STRING,
         defaultValue: null,
       },
+      marked_for_push: {
+        type: Sequelize.BOOLEAN,
+        allowNull: false,
+        defaultValue: true,
+      },
+      is_pushing: {
+        type: Sequelize.BOOLEAN,
+        allowNull: false,
+        defaultValue: false,
+      },
+      pushed_at: {
+        type: Sequelize.DATE,
+        allowNull: true,
+      },
+      pulled_at: {
+        type: Sequelize.DATE,
+        allowNull: true,
+      },
     });
   },
   down: async query => {

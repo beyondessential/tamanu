@@ -12,7 +12,7 @@ module.exports = {
     });
   },
   down: async query => {
-    await query.removeColumn('patient_communications', 'destination_override');
+    await query.removeColumn('patient_communications', 'destination');
     await query.removeColumn('patient_communications', 'attachment');
   },
 };
