@@ -107,19 +107,19 @@ export class VdsNcDocument extends Model {
    */
   async intoVDS() {
     if (!this.isSigned()) throw new Error('Cannot return an unsigned VDS-NC document.');
-    const signer = await this.getSigner();
+    const signer = await this.getVdsNcSigner();
 
     return canonicalize({
       hdr: {
-        t: this.documentType,
+        t: this.type,
         v: 1,
         is: signer.countryCode,
       },
-      msg: this.messageData,
+      msg: JSON.parse(this.messageData),
       sig: {
         alg: this.algorithm,
         sigvl: base64UrlEncode(this.signature),
-        cer: base64UrlEncode(depem(signer.certificate)),
+        cer: base64UrlEncode(depem(signer.certificate, 'CERTIFICATE')),
       },
     });
   }

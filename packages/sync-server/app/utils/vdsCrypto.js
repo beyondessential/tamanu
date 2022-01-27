@@ -274,7 +274,11 @@ export class TestCSCA {
     cert.version = 2;
     cert.issuer = this.certificate.issuer;
     cert.subject = csr.subject;
-    cert.notBefore = new Time({ value: moment().toDate() });
+    cert.notBefore = new Time({
+      value: moment()
+        .subtract(1, 'day')
+        .toDate(),
+    });
     cert.notAfter = new Time({
       value: moment()
         .add(3, 'month')

@@ -13,13 +13,6 @@ describe('VDS-NC: Document cryptography', () => {
   let ctx;
   beforeAll(async () => {
     ctx = await createTestContext();
-  });
-  afterAll(() => ctx.close());
-
-  it('can sign documents', async () => {
-    const { VdsNcDocument, VdsNcSigner } = ctx.store.models;
-
-    // Arrange
     const testCSCA = await TestCSCA.generate();
 
     const { publicKey, privateKey, request } = await newKeypairAndCsr({
@@ -30,6 +23,7 @@ describe('VDS-NC: Document cryptography', () => {
       },
     });
 
+    const { VdsNcSigner } = ctx.store.models;
     const signer = await VdsNcSigner.create({
       publicKey: Buffer.from(publicKey),
       privateKey: Buffer.from(privateKey),
@@ -39,26 +33,71 @@ describe('VDS-NC: Document cryptography', () => {
     const signerCert = await testCSCA.signCSR(request);
     const signedCert = await loadCertificateIntoSigner(signerCert);
     await signer.update(signedCert);
+    expect(signer?.isActive()).to.be.true;
+  });
+  afterAll(() => ctx.close());
 
+  it('can sign a test document', async () => {
+    const { VdsNcDocument, VdsNcSigner } = ctx.store.models;
+
+    // Arrange
+    const signer = await VdsNcSigner.findActive();
     const document = await VdsNcDocument.create({
       type: ICAO_DOCUMENT_TYPES.PROOF_OF_TESTING.JSON,
       messageData: JSON.stringify({ test: 'data' }),
     });
 
     // Pre-check
-    expect(signer.isActive()).to.be.true;
+    expect(signer?.isActive()).to.be.true;
     expect(document.isSigned()).to.be.false;
     const signCount = signer.signaturesIssued;
 
     // Act
     await document.sign('secret');
+    const payload = await document.intoVDS();
+    const vds = JSON.parse(payload);
 
     // Assert
     expect(document.isSigned()).to.be.true;
     expect(document.algorithm).to.equal('ES256');
+    expect(vds.sig.alg).to.equal('ES256');
+    expect(vds.hdr.t).to.equal('icao.test');
+    expect(vds.hdr.is).to.equal('UTO');
+    expect(vds.msg).to.deep.equal({ test: 'data' });
+
     await signer.reload();
     expect(signer.signaturesIssued).to.equal(signCount + 1);
   });
 
-  // TODO: document.intoVDS()
+  it('can sign a vaccination document', async () => {
+    const { VdsNcDocument, VdsNcSigner } = ctx.store.models;
+
+    // Arrange
+    const signer = await VdsNcSigner.findActive();
+    const document = await VdsNcDocument.create({
+      type: ICAO_DOCUMENT_TYPES.PROOF_OF_VACCINATION.JSON,
+      messageData: JSON.stringify({ vaxx: 'data' }),
+    });
+
+    // Pre-check
+    expect(signer?.isActive()).to.be.true;
+    expect(document.isSigned()).to.be.false;
+    const signCount = signer.signaturesIssued;
+
+    // Act
+    await document.sign('secret');
+    const payload = await document.intoVDS();
+    const vds = JSON.parse(payload);
+
+    // Assert
+    expect(document.isSigned()).to.be.true;
+    expect(document.algorithm).to.equal('ES256');
+    expect(vds.sig.alg).to.equal('ES256');
+    expect(vds.hdr.t).to.equal('icao.vacc');
+    expect(vds.hdr.is).to.equal('UTO');
+    expect(vds.msg).to.deep.equal({ vaxx: 'data' });
+
+    await signer.reload();
+    expect(signer.signaturesIssued).to.equal(signCount + 1);
+  });
 });
