@@ -30,7 +30,7 @@ describe('VDS-NC: Document cryptography', () => {
       countryCode: 'UTO',
     });
     const signerCert = await testCSCA.signCSR(request);
-    await signer.set(await loadCertificateIntoSigner(signerCert)).save();
+    await signer.update(await loadCertificateIntoSigner(signerCert));
   });
   afterAll(() => ctx.close());
 
@@ -38,6 +38,8 @@ describe('VDS-NC: Document cryptography', () => {
     // Arrange
     const { VdsNcDocument, VdsNcSigner } = ctx.store.models;
     const signer = await VdsNcSigner.findActive();
+    if (!signer) throw new Error('no active signer');
+
     const document = await VdsNcDocument.create({
       type: ICAO_DOCUMENT_TYPES.PROOF_OF_TESTING.JSON,
       messageData: JSON.stringify({ test: 'data' }),
