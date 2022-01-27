@@ -4,7 +4,7 @@
 
 ### Manual steps required after upgrade ⚙
 
-- (left blank)
+- change any reference to `covid-swab-lab-test-list` (such as in disabledReports) to `fiji-covid-swab-lab-test-list`
 
 ### Features ⭐
 
