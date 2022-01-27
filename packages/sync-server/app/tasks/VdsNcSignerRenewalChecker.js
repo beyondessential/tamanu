@@ -15,6 +15,7 @@ export class VdsNcSignerRenewalChecker extends ScheduledTask {
   }
 
   async run() {
+    const { emailService } = this.context;
     const { VdsNcSigner } = this.context.store.models;
     const signer = await VdsNcSigner.findActive();
 
@@ -79,7 +80,17 @@ export class VdsNcSignerRenewalChecker extends ScheduledTask {
       const recipient = config.icao.csr.email?.recipient;
       if (recipient) {
         log.info(`Emailing CSR to ${recipient}`);
-        // TODO
+        try {
+          await emailService.sendEmail({
+            to: recipient,
+            from: config.mailgun.from,
+            subject: config.icao.csr.subject,
+            content: config.icao.csr.body,
+            // TODO: CSR as attachment
+          });
+        } catch (e) {
+          log.error(`Failed to send CSR email: ${e}`);
+        }
       } else {
         log.info('No email recipient configured, skipping email');
       }
