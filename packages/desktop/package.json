@@ -121,6 +121,7 @@
   "devDependencies": {
     "@beyondessential/eslint-config-js": "^1.1.0",
     "@emotion/core": "^10.0.9",
+    "@react-pdf/renderer": "^2.1.1",
     "@storybook/addon-actions": "^5.0.1",
     "@storybook/addon-links": "^5.0.1",
     "@storybook/addons": "^5.0.1",

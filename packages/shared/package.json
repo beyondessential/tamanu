@@ -7,11 +7,5 @@
   "repository": "git@github.com:beyondessential/tamanu.git",
   "author": "Beyond Essential Systems Pty. Ltd.",
   "license": "SEE LICENSE IN license",
-  "private": true,
-  "devDependencies": {
-    "@babel/plugin-proposal-class-properties": "^7.16.7"
-  },
-  "dependencies": {
-    "@react-pdf/renderer": "^2.1.1"
-  }
+  "private": true
 }
