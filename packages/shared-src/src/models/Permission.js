@@ -30,4 +30,13 @@ export class Permission extends Model {
       foreignKey: 'roleId',
     });
   }
+
+  forResponse() {
+    const { noun, verb, objectId } = this.dataValues;
+    return {
+      verb,
+      noun,
+      ... objectId ? { objectId } : undefined,
+    };
+  }
 }
