@@ -1,55 +1,93 @@
-const request = require('request');
 
-const URL = 'http://randomuser.me/api?results=30';
+const { customAlphabet } = require('nanoid');
+const _ = require('lodash');
+const fetch = require('node-fetch');
 
-async function getDetails() {
-  return new Promise((resolve, reject) => {
-    request.get(URL, (err, response, body) => {
-      err ? reject(err) : resolve(body);
-    });
-  });
-}
+export const ALPHABET_FOR_ID =
+  // this is absolutely fine and the concat isn't useless
+  // eslint-disable-next-line no-useless-concat
+  'ABCDEFGH' + /* I */ 'JK' + /* L */ 'MN' + /* O */ 'PQRSTUVWXYZ' + /* 01 */ '23456789';
 
-const token = [process.argv[2], process.argv[3]].filter(x => x).join(' ');
-const OPTIONS = {
-  url: 'http://localhost:4000/realm/patient',
-  json: true,
-  headers: {
-    Authorization: token,
-  },
+// const [nodeName, scriptName, fromUrl, toUrl] = process.argv;
+
+const SLEEP_TIME = 100;
+
+const HEADERS = {
+  Authorization: 'Bearer fake-token',
+  'Content-Type': 'application/json',
+  Accepts: 'application/json',
 };
 
-async function createPatient(body) {
-  return new Promise((resolve, reject) => {
-    request.post(Object.assign({}, OPTIONS, { body }), (err, response, responseBody) => {
-      err ? reject(err) : resolve(responseBody);
+const BASE_URL = 'http://localhost:4000';
+
+
+const LAB_REQUEST_STATUSES = {
+  RECEPTION_PENDING: 'reception_pending',
+  RESULTS_PENDING: 'results_pending',
+  TO_BE_VERIFIED: 'to_be_verified',
+  VERIFIED: 'verified',
+  PUBLISHED: 'published',
+};
+
+async function asyncSleep(ms) {
+  return new Promise(resolve => {
+    console.log(`sleeping ${ms}ms...`);
+    setTimeout(() => resolve(), ms);
+  });
+}
+
+const generateDisplayId = () => {
+  return customAlphabet(ALPHABET_FOR_ID, 7)
+}
+
+const addMinutesToDate = (initialDate, minutes) => {
+  const numberOfMlSeconds = initialDate.getTime();
+  const addMlSeconds = minutes * 60 * 1000;
+  return new Date(numberOfMlSeconds + addMlSeconds);
+}
+
+const getLabRequests = async () => {
+  const timeOfEverything = new Date(2022, 1, 27) // replace with date of form +1h
+  const requests = [
+    {
+      sampleTime: addMinutesToDate(timeOfEverything, 0),
+      requestedDate: addMinutesToDate(timeOfEverything, 60),
+      specimenAttached: false,
+      urgent: false,
+      status: LAB_REQUEST_STATUSES.PUBLISHED,
+      senaiteId: null,
+      sampleId: null,
+      displayId: generateDisplayId(),
+    }
+  ];
+  return requests;
+}
+
+async function postLabRequest(labRequest) {
+    const url = `${BASE_URL}/v1/labRequest`;
+    const response = await fetch(url, {
+      method: 'POST',
+      headers: HEADERS,
+      body: JSON.stringify(labRequest),
     });
-  });
-}
-
-function titleCase(str) {
-  return str.slice(0, 1).toUpperCase() + str.slice(1);
-}
-
-async function run() {
-  if (!token) {
-    console.log(
-      'No auth token provided. Copy one from a web request sent by the app and call this script again: \n$ node packages/scripts/generatePatients.js Basic abc123xyz',
-    );
-    return;
+    if (!response.ok) {
+      console.warn(`  -x ERROR: ${await response.text()}`);
+    }
   }
-  const details = await getDetails();
-  const users = JSON.parse(details).results;
-
-  users.map(async r => {
-    const user = {
-      sex: r.gender,
-      firstName: titleCase(r.name.first),
-      lastName: titleCase(r.name.last),
-      dateOfBirth: r.dob.date.split('T')[0],
-    };
-    const result = await createPatient(user);
-  });
 }
 
-run();
+(async () => {
+  const labRequests = await getLabRequests();
+
+  for (const labRequest of labRequests) {
+    await postLabRequest(labRequest)
+    await asyncSleep(SLEEP_TIME);
+  }
+})()
+  .then(() => {
+    console.log('success!');
+  })
+  .catch(e => {
+    console.error('caught error, stopping...');
+    throw e;
+  });
