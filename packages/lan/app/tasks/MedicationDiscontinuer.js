@@ -4,7 +4,6 @@ import { Op } from 'sequelize';
 
 import { ScheduledTask } from 'shared/tasks';
 import { log } from 'shared/services/logging';
-import { sleepAsync } from 'shared/utils';
 
 export class MedicationDiscontinuer extends ScheduledTask {
   getName() {
@@ -14,6 +13,7 @@ export class MedicationDiscontinuer extends ScheduledTask {
   constructor(context) {
     super(config.schedules.medicationDiscontinuer.schedule, log);
     this.models = context.store.models;
+    this.sequelize = context.store.sequelize;
 
     // Run once on startup (in case the server was down when it was scheduled)
     this.run();
@@ -25,55 +25,50 @@ export class MedicationDiscontinuer extends ScheduledTask {
       .startOf('day')
       .toDate();
 
-    // Medications that are not discontinued and have an end
-    // date (not null) and said end date is previous than today
-    const where = {
+    // Get all encounters with the same facility as the lan server
+    // (found in the config). Note that the facility will be read from
+    // the department associated to each encounter.
+    const encounters = await this.models.Encounter.findAll({
+      include: [
+        {
+          association: 'department',
+          required: true,
+          include: [{ model: this.models.Facility, where: { id: config.serverFacilityId } }],
+        },
+      ],
+    });
+
+    // Get all the encounter IDs
+    const encounterIds = encounters.map(row => row.id);
+
+    // Query interface expects database naming scheme
+    // (snake case, table column fields)
+    // Values to be updated when autodiscontinuing a medication
+    const values = {
+      discontinued: true,
+      discontinuing_reason: 'Finished treatment',
+    };
+
+    // Find all medications that:
+    // - Are not discontinued
+    // - Belong to an encounter from that matches the current facility
+    // - Have an end date (not null) and said end date is previous than today
+    const identifier = {
       discontinued: {
         [Op.not]: true,
       },
-      endDate: {
+      encounter_id: {
+        [Op.in]: encounterIds,
+      },
+      end_date: {
         [Op.and]: [{ [Op.lt]: startOfToday }, { [Op.not]: null }],
       },
     };
 
-    // Count all found medications
-    const discontinuableMedicationsCount = await this.models.EncounterMedication.count({ where });
-
-    // Early bail
-    if (discontinuableMedicationsCount === 0) {
-      log.info('No medications to auto-discontinue. Stopping MedicationDiscontinuer...');
-      return;
-    }
-
-    // Process in batches
-    const {
-      batchSize,
-      batchSleepAsyncDurationInMilliseconds,
-    } = config.schedules.outpatientDischarger;
-    const batchCount = Math.ceil(discontinuableMedicationsCount / batchSize);
-
-    log.info(
-      `Auto-discontinuing ${discontinuableMedicationsCount} encounter medications in ${batchCount} batches (${batchSize} records per batch)`,
-    );
-
-    // Discontinue medications
-    for (let i = 0; i < batchCount; i++) {
-      const discontinuableMedications = await this.models.EncounterMedication.findAll({
-        where,
-        limit: batchSize,
-      });
-
-      for (const medication of discontinuableMedications) {
-        await medication.update({
-          discontinued: true,
-          discontinuingReason: 'Finished treatment',
-        });
-        log.info(`Auto-discontinued encounter medication with id ${medication.id}`);
-      }
-
-      await sleepAsync(batchSleepAsyncDurationInMilliseconds);
-    }
-
+    // Discontinue medications that match the conditions from
+    // the identifier with the values provided
+    const queryInterface = this.sequelize.getQueryInterface();
+    await queryInterface.bulkUpdate('encounter_medications', values, identifier);
     log.info('MedicationDiscontinuer finished running');
   }
 }

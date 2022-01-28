@@ -75,8 +75,6 @@
     "medicationDiscontinuer": {
       // every day at 12:01 AM
       "schedule": "1 0 * * *",
-      "batchSize": 1000,
-      "batchSleepAsyncDurationInMilliseconds": 50
     }
   }
 }
