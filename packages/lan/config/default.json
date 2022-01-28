@@ -75,6 +75,9 @@
     "medicationDiscontinuer": {
       // every day at 12:01 AM
       "schedule": "1 0 * * *"
-    }
+    },
+  "questionCodeIds": {
+    "passportNumber": "pde-FijCOVRDT005",
+    "citizenship": "pde-PalauCOVSamp7"
   }
 }
