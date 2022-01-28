@@ -11,8 +11,11 @@ const ALPHABET_FOR_ID =
 
 const SLEEP_TIME = 100;
 
+const TOKEN =
+  'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ1c2VySWQiOiI2YjEyNjlmZi0yNDQzLTQzODEtYTUzMi1kZGQ0OGZiZDUwMjAiLCJpYXQiOjE2NDMzMzk0MzcsImV4cCI6MTY0MzM0MzAzN30.PlIXvA94Fo9IUtRr0Oy9bvo0xyzIbg131o2RMVautkY';
+
 const HEADERS = {
-  Authorization: 'Bearer fake-token',
+  Authorization: `Bearer ${TOKEN}`,
   'Content-Type': 'application/json',
   Accepts: 'application/json',
 };
@@ -44,9 +47,7 @@ async function asyncSleep(ms) {
   });
 }
 
-const generateDisplayId = () => {
-  return customAlphabet(ALPHABET_FOR_ID, 7);
-};
+const generateDisplayId = customAlphabet(ALPHABET_FOR_ID, 7);
 
 const addMinutesToDate = (initialDate, minutes) => {
   const numberOfMlSeconds = initialDate.getTime();
@@ -67,7 +68,8 @@ const mapAnswerToPriority = () => {
 
 const getLabRequests = async () => {
   const timeOfEverything = new Date(2022, 1, 27); // replace with date of form +1h
-  const adminUserId = '376d9412-8d94-4f4b-9ff5-7db1b496eb5b';
+  // const adminUserId = '376d9412-8d94-4f4b-9ff5-7db1b496eb5b'; // palau
+  const adminUserId = '6b1269ff-2443-4381-a532-ddd48fbd5020'; // dev
 
   const requests = [
     {
@@ -83,14 +85,17 @@ const getLabRequests = async () => {
       // References
       requestedById: adminUserId,
       categoryId: 'labTestCategory-COVID',
-      priorityId: mapAnswerToPriority('a'), // TODO
-      laboratoryId: 'labTestLaboratory-BelauNationalHospitalLaboratory',
+      // priorityId: mapAnswerToPriority('a'), // TODO - palau
+      priorityId: 'LabTestPriority-SecondaryContact', // TODO - dev
+      // laboratoryId: 'labTestLaboratory-BelauNationalHospitalLaboratory', // -palau
+      laboratoryId: 'labTestLaboratory-LabasaHospital', // dev
       // tests
       // Lab tests (importer only)
-      labTestTypeIds: [],
+      labTestTypeIds: ['labTestType-COVID'],
       // not passed to importer
       nonLabRequestFields: {
-        patientId: '4d719b6f-af55-42ac-99b3-5a27cadaab2b', // TODO - horoto for now
+        // patientId: '4d719b6f-af55-42ac-99b3-5a27cadaab2b', // TODO - horoto for now - palau
+        patientId: 'cebdd9a4-2744-4ad2-9919-98dc0b15464c', // TODO - horoto for now - dev
         userId: adminUserId,
         timeOfEverything,
         testResult: 'Negative',
@@ -114,9 +119,12 @@ const createEncounter = async options => {
   const postData = {
     endDate: null,
     encounterType: ENCOUNTER_TYPES.CLINIC, // TODO
-    departmentId: '', // TODO
-    locationId: '', // TODO
+    // departmentId: 'department-laboratory', // TODO - palau
+    departmentId: 'ref/department/ANTENATAL', // TODO -dev
+    // locationId: 'location-laboratory', // TODO - palau
+    locationId: 'location-EDBed1', // TODO - dev
     deviceId: 'manual_import',
+    reasonForEncounter: 'Manually imported lab request',
     ...options,
   };
 
@@ -130,6 +138,7 @@ const createEncounter = async options => {
     console.warn(`  -x ERROR: ${await response.text()}`);
     throw new Error('oop');
   }
+  return response.json();
 };
 
 const postLabRequest = async labRequestData => {
@@ -143,19 +152,21 @@ const postLabRequest = async labRequestData => {
     console.warn(`  -x ERROR: ${await response.text()}`);
     throw new Error('oop 2');
   }
+  return response;
 };
 
-async function postEverything(labRequest) {
-  const { nonLabRequestFields, ...restOfLabRequest } = labRequest;
+async function postEverything(data) {
+  const { nonLabRequestFields, ...restOfLabRequest } = data;
   const { patientId, userId, timeOfEverything } = nonLabRequestFields;
 
   const encounter = await createEncounter({
-    patient: patientId,
-    examiner: userId,
+    patientId,
+    examinerId: userId,
     startDate: timeOfEverything,
-    reasonForEncounter: 'Manually imported lab request',
   });
 
+  console.log(encounter);
+  console.log(encounter.id);
   const labRequest = await postLabRequest({
     ...restOfLabRequest,
     encounterId: encounter.id,
