@@ -12,8 +12,8 @@ export class MedicationDiscontinuer extends ScheduledTask {
 
   constructor(context) {
     super(config.schedules.medicationDiscontinuer.schedule, log);
-    this.models = context.store.models;
-    this.sequelize = context.store.sequelize;
+    this.models = context.models;
+    this.sequelize = context.sequelize;
 
     // Run once on startup (in case the server was down when it was scheduled)
     this.run();
