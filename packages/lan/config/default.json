@@ -74,7 +74,7 @@
   "schedules": {
     "medicationDiscontinuer": {
       // every day at 12:01 AM
-      "schedule": "1 0 * * *",
+      "schedule": "1 0 * * *"
     }
   }
 }
