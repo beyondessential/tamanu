@@ -1,5 +1,6 @@
 import express from 'express';
 import config from 'config';
+import moment from 'moment';
 import asyncHandler from 'express-async-handler';
 import { QueryTypes, Op } from 'sequelize';
 import { isEqual } from 'lodash';
@@ -308,7 +309,7 @@ patientRoute.get(
       offset: page * rowsPerPage,
     });
 
-    const count = lastEncounterMedications.count;
+    const { count } = lastEncounterMedications;
     const data = lastEncounterMedications.rows.map(x => x.forResponse());
 
     res.send({
@@ -489,7 +490,7 @@ async function getPatientAdditionalData(req, field, questionId) {
   }
 
   const result = await req.db.query(
-    `SELECT body
+    `SELECT body, survey_responses.end_time
        FROM survey_response_answers
        LEFT JOIN survey_responses
         ON (survey_responses.id = survey_response_answers.response_id)
@@ -508,11 +509,15 @@ async function getPatientAdditionalData(req, field, questionId) {
     },
   );
 
-  if (result.length === 0) {
+  const resultsWithAnswers = result
+    .filter(({ body }) => !!body)
+    .sort(({ end_time: endTime1 }, { end_time: endTime2 }) => moment(endTime1).isAfter(endTime2));
+
+  if (resultsWithAnswers.length === 0) {
     return '';
   }
 
-  return result[0].body;
+  return resultsWithAnswers[0].body;
 }
 
 patientRoute.get(
