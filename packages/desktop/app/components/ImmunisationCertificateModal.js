@@ -32,7 +32,7 @@ const DumbImmunisationCertificateModal = ({ getImmunisations, open, onClose, pat
       onClose={onClose}
       width="md"
       printable
-      additionalActionButtons={<EmailButton onEmail={createImmunisationCertificateNotification} />}
+      additionalActions={<EmailButton onEmail={createImmunisationCertificateNotification} />}
     >
       {certificate}
     </Modal>

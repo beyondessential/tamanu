@@ -148,7 +148,7 @@ export const PatientCovidTestCert = ({ patient }) => {
       onClose={() => setOpen(false)}
       width="md"
       printable
-      additionalActionButtons={<EmailButton onEmail={createCovidTestCertNotification} />}
+      additionalActions={<EmailButton onEmail={createCovidTestCertNotification} />}
     >
       <Certificate
         patient={patient}
