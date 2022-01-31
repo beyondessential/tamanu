@@ -265,6 +265,7 @@ async function postEverything(data) {
   //   result: testResult,
   //   labTestMethodId: method,
   //   completedDate: addMinutesToDate(timeOfEverything, 120),
+  //   date: addMinutesToDate(timeOfEverything, 120),
   // });
 
   // console.log(test2);
