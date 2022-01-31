@@ -32,6 +32,10 @@ module.exports = {
     });
     await query.createTable('permissions', {
       ...basics,
+      roleId: {
+        type: Sequelize.STRING,
+        allowNull: false,
+      },
       noun: {
         type: Sequelize.STRING,
         allowNull: false,

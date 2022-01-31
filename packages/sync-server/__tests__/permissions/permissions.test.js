@@ -1,25 +1,9 @@
-import { Permission } from 'shared/models/Permission';
 import { buildAbilityForTests } from 'shared/permissions/buildAbility';
+import { getPermissionsForRoles } from 'shared/permissions/rolesToPermissions';
 import { createTestContext } from '../utilities';
 
-async function getPermissionsForRoles(sequelize, roleIds) {
-  const result = await sequelize.query(`
-    SELECT * 
-      FROM permissions
-      WHERE permissions.role_id IN (:roleIds)
-  `, {
-    model: Permission,
-    mapToModel: true,
-    replacements: {
-      roleIds,
-    },
-  });
-
-  return result.map(r => r.forResponse());
-}
-
-async function getAbilityForRoles(sequelize, roleIds) {
-  const perms = await getPermissionsForRoles(sequelize, roleIds);
+async function getAbilityForRoles(roleString) {
+  const perms = await getPermissionsForRoles(roleString);
   return buildAbilityForTests(perms);
 }
 
@@ -48,13 +32,12 @@ describe('Permissions', () => {
 
   describe('creating permission definition from database', () => {
     it('should read a permission definition object from a series of records', async () => {
-      const ability = await getAbilityForRoles(ctx.store.sequelize, ["reader"]);
+      const ability = await getAbilityForRoles("reader");
       expect(ability.can('read', { type: "Patient" }));
       expect(ability.can('write', { type: "Patient" }));
       expect(ability.can('run', { type: "Report", id: "report-allowed" }));
       expect(ability.cannot('run', { type: "Report", id: "report-forbidden" }));
     });
   });
-
 
 });
