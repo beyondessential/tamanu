@@ -1,4 +1,6 @@
 const { customAlphabet } = require('nanoid');
+const { readFile, utils } = require('xlsx');
+const moment = require('moment');
 const _ = require('lodash');
 const fetch = require('node-fetch');
 
@@ -12,7 +14,7 @@ const ALPHABET_FOR_ID =
 const SLEEP_TIME = 100;
 
 const TOKEN =
-  'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ1c2VySWQiOiI2YjEyNjlmZi0yNDQzLTQzODEtYTUzMi1kZGQ0OGZiZDUwMjAiLCJpYXQiOjE2NDMzMzk0MzcsImV4cCI6MTY0MzM0MzAzN30.PlIXvA94Fo9IUtRr0Oy9bvo0xyzIbg131o2RMVautkY';
+  'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ1c2VySWQiOiIzNzZkOTQxMi04ZDk0LTRmNGItOWZmNS03ZGIxYjQ5NmViNWIiLCJpYXQiOjE2NDM1OTM3NzYsImV4cCI6MTY0MzU5NzM3Nn0.EZPOisvBsBV2YxHcfEHaOnNd3EJln1RkcxhtoDCwWjo';
 
 const HEADERS = {
   Authorization: `Bearer ${TOKEN}`,
@@ -40,12 +42,38 @@ const ENCOUNTER_TYPES = {
   SURVEY_RESPONSE: 'surveyResponse',
 };
 
+const FILE = './data.xlsx';
+
 async function asyncSleep(ms) {
   return new Promise(resolve => {
-    console.log(`sleeping ${ms}ms...`);
+    // // console.log(`sleeping ${ms}ms...`);
     setTimeout(() => resolve(), ms);
   });
 }
+
+const parseSheet = sheetJson => {
+  const { patientId, result, time } = sheetJson;
+  const time2 = new Date(Math.round((time - 25569) * 86400 * 1000));
+  const timeOfEverything = addMinutesToDate(time2, 60);
+  // console.log(time, time2, timeOfEverything);
+  return {
+    patientId,
+    positive: result === 'Positive',
+    // Months are 0 indexed??
+    timeOfEverything,
+  };
+};
+
+const importExcelSheet = () => {
+  const workbook = readFile(FILE);
+  // Strip some characters from workbook names before trying to find them
+  // (this mirrors the punctuation stripping that node-xlsx does internally)
+  const worksheet = workbook.Sheets.hi;
+  const data = utils.sheet_to_json(worksheet);
+
+  const hi = data.map(parseSheet).filter(({ patientId }) => !(patientId && patientId.length > 10));
+  console.log(hi);
+};
 
 const generateDisplayId = customAlphabet(ALPHABET_FOR_ID, 7);
 
@@ -55,90 +83,112 @@ const addMinutesToDate = (initialDate, minutes) => {
   return new Date(numberOfMlSeconds + addMlSeconds);
 };
 
-const mapAnswerToPriority = () => {
-  const hi = [
-    'LabTestPriority-Inboundtraveller',
-    'LabTestPriority-Inout-boundtraveller',
-    'LabTestPriority-Outboundtraveller',
-    'LabTestPriority-COVIDRapidantigentestpositive',
-    'LabTestPriority-COVIDRapidantigentestnegative',
-  ];
-  return hi[0];
-};
-
 const getLabRequests = async () => {
-  const timeOfEverything = new Date(2022, 1, 27); // replace with date of form +1h
-  // const adminUserId = '376d9412-8d94-4f4b-9ff5-7db1b496eb5b'; // palau
-  const adminUserId = '6b1269ff-2443-4381-a532-ddd48fbd5020'; // dev
+  const data = importExcelSheet();
 
-  const requests = [
-    {
-      // LabRequest fields
-      sampleTime: addMinutesToDate(timeOfEverything, 0),
-      requestedDate: addMinutesToDate(timeOfEverything, 60),
-      specimenAttached: false,
-      urgent: false,
-      status: LAB_REQUEST_STATUSES.PUBLISHED,
-      senaiteId: null,
-      sampleId: null,
-      displayId: generateDisplayId(),
-      // References
-      requestedById: adminUserId,
-      categoryId: 'labTestCategory-COVID',
-      // priorityId: mapAnswerToPriority('a'), // TODO - palau
-      priorityId: 'LabTestPriority-SecondaryContact', // TODO - dev
-      // laboratoryId: 'labTestLaboratory-BelauNationalHospitalLaboratory', // -palau
-      laboratoryId: 'labTestLaboratory-LabasaHospital', // dev
-      // tests
-      // Lab tests (importer only)
-      labTestTypeIds: ['labTestType-COVID'],
-      // not passed to importer
-      nonLabRequestFields: {
-        // patientId: '4d719b6f-af55-42ac-99b3-5a27cadaab2b', // TODO - horoto for now - palau
-        patientId: 'cebdd9a4-2744-4ad2-9919-98dc0b15464c', // TODO - horoto for now - dev
-        userId: adminUserId,
-        timeOfEverything,
-        testResult: 'Negative',
-        method: 'labTestMethod-RTPCR',
-      },
+  const adminUserId = 'user-MHHSTesting'; // constant
+
+  const requests = data.map(({ patientId, positive, timeOfEverything }) => ({
+    // Base LabRequest fields
+    sampleTime: addMinutesToDate(timeOfEverything, 0),
+    requestedDate: addMinutesToDate(timeOfEverything, 60),
+    specimenAttached: false,
+    status: LAB_REQUEST_STATUSES.PUBLISHED,
+    displayId: generateDisplayId(),
+
+    // References
+    requestedById: adminUserId,
+    labTestCategoryId: 'labTestCategory-COVID',
+    labTestPriorityId: positive
+      ? 'LabTestPriority-COVIDRapidantigentestpositive'
+      : 'LabTestPriority-COVIDRapidantigentestnegative',
+    labTestLaboratoryId: 'labTestLaboratory-BelauNationalHospitalLaboratory',
+
+    // Lab tests (importer only)
+    labTestTypeIds: [
+      positive
+        ? 'labTestType-COVIDRapidantigentestpositive'
+        : 'labTestType-COVIDRapidantigentestnegative',
+    ],
+
+    // not passed to importer
+    nonLabRequestFields: {
+      patientId,
+      userId: adminUserId,
+      timeOfEverything,
+      testResult: positive ? 'Positive' : 'Negative',
+      method: 'labTestMethod-RDT',
     },
-  ];
+  }));
   return requests;
 };
 
-const test = {
-  date: null,
-  status: null,
-  result: null,
-  laboratoryOfficer: null,
-  verification: null,
-  completedDate: null,
-};
-
-const createEncounter = async options => {
-  const postData = {
-    endDate: null,
-    encounterType: ENCOUNTER_TYPES.CLINIC, // TODO
-    // departmentId: 'department-laboratory', // TODO - palau
-    departmentId: 'ref/department/ANTENATAL', // TODO -dev
-    // locationId: 'location-laboratory', // TODO - palau
-    locationId: 'location-EDBed1', // TODO - dev
-    deviceId: 'manual_import',
-    reasonForEncounter: 'Manually imported lab request',
-    ...options,
-  };
-
-  const url = `${BASE_URL}/v1/encounter`;
+const getExistingEncounter = async ({ patientId }) => {
+  const url = `${BASE_URL}/v1/patient/${patientId}/encounters`;
   const response = await fetch(url, {
-    method: 'POST',
+    method: 'GET',
     headers: HEADERS,
-    body: JSON.stringify(postData),
   });
   if (!response.ok) {
     console.warn(`  -x ERROR: ${await response.text()}`);
-    throw new Error('oop');
+    throw new Error('No existing encounter');
   }
-  return response.json();
+  const encounters = (await response.json()).data;
+  // console.log(encounters);
+  const matchingEncounters = encounters.filter(
+    ({ startDate, encounterType }) =>
+      moment(startDate)
+        .startOf('day')
+        .format('YYYY-MM-DD') === '2022-01-27' && encounterType === 'surveyResponse',
+  );
+
+  const abc = encounters.filter(
+    ({ startDate, reasonForEncounter }) =>
+      moment(startDate)
+        .startOf('day')
+        .format('YYYY-MM-DD') === '2022-01-27' && reasonForEncounter === 'Lab request from mobile',
+  );
+
+  if (abc.length) {
+    return false;
+  }
+  if (matchingEncounters.length === 1) {
+    return matchingEncounters[0];
+  }
+
+  return false;
+};
+
+const getOrCreateEncounter = async options => {
+  const a = getExistingEncounter(options);
+
+  if (a === false) {
+    // console.log(options.)
+    return false;
+  }
+  // return a;
+
+  // const postData = {
+  //   endDate: null,
+  //   encounterType: ENCOUNTER_TYPES.CLINIC, // TODO
+  //   departmentId: 'department-laboratory',
+  //   locationId: 'location-laboratory',
+  //   deviceId: 'manual_import',
+  //   reasonForEncounter: 'Imported lab request',
+  //   ...options,
+  // };
+
+  // const url = `${BASE_URL}/v1/encounter`;
+  // const response = await fetch(url, {
+  //   method: 'POST',
+  //   headers: HEADERS,
+  //   body: JSON.stringify(postData),
+  // });
+  // if (!response.ok) {
+  //   console.warn(`  -x ERROR: ${await response.text()}`);
+  //   throw new Error('oop');
+  // }
+  // return response.json();
 };
 
 const postLabRequest = async labRequestData => {
@@ -152,34 +202,76 @@ const postLabRequest = async labRequestData => {
     console.warn(`  -x ERROR: ${await response.text()}`);
     throw new Error('oop 2');
   }
-  return response;
+  return response.json();
+};
+
+const getLabTests = async labRequestId => {
+  const url = `${BASE_URL}/v1/labRequest/${labRequestId}/tests`;
+  const response = await fetch(url, {
+    method: 'GET',
+    headers: HEADERS,
+  });
+  if (!response.ok) {
+    console.warn(`  -x ERROR: ${await response.text()}`);
+    throw new Error('oop 3');
+  }
+  const hi = await response.json();
+  // console.log(hi);
+  return hi.data;
+};
+
+const putLabTest = async (id, labTestData) => {
+  const url = `${BASE_URL}/v1/labTest/${id}`;
+  const response = await fetch(url, {
+    method: 'PUT',
+    headers: HEADERS,
+    body: JSON.stringify(labTestData),
+  });
+  if (!response.ok) {
+    console.warn(`  -x ERROR: ${await response.text()}`);
+    throw new Error('oop 3');
+  }
+  return response.json();
 };
 
 async function postEverything(data) {
   const { nonLabRequestFields, ...restOfLabRequest } = data;
-  const { patientId, userId, timeOfEverything } = nonLabRequestFields;
+  const { patientId, userId, timeOfEverything, testResult, method } = nonLabRequestFields;
 
-  const encounter = await createEncounter({
+  const encounter = await getExistingEncounter({
     patientId,
     examinerId: userId,
     startDate: timeOfEverything,
+    endDate: addMinutesToDate(timeOfEverything, 60),
   });
 
-  console.log(encounter);
-  console.log(encounter.id);
-  const labRequest = await postLabRequest({
-    ...restOfLabRequest,
-    encounterId: encounter.id,
-  });
+  if (encounter === false) {
+    console.log('Skipped!', patientId);
+  }
+  // return encounter;
+  // console.log(encounter);
+  // const labRequest = await postLabRequest({
+  //   ...restOfLabRequest,
+  //   encounterId: encounter.id,
+  // });
 
-  const { tests } = labRequest;
+  // // console.log(labRequest);
 
-  console.log(tests);
+  // const labTest = (await getLabTests(labRequest.id))[0];
+  // console.log(labTest.id);
+
+  // // console.log(labTest);
+  // const test2 = await putLabTest(labTest.id, {
+  //   result: testResult,
+  //   labTestMethodId: method,
+  //   completedDate: addMinutesToDate(timeOfEverything, 120),
+  // });
+
+  // console.log(test2);
 }
 
 (async () => {
   const labRequests = await getLabRequests();
-
   for (const labRequest of labRequests) {
     await postEverything(labRequest);
     await asyncSleep(SLEEP_TIME);
