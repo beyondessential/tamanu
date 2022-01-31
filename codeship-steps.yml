@@ -23,10 +23,18 @@
     - name: build
       type: parallel
       steps:
-        - name: build_and_pack_lan_installer
-          service: app
-          tag: ^(master$|dev$|staging$|ci-)
-          command: ./scripts/build_lan.sh
+        # the following steps are run in serial so they don't overlap
+        - name: lan
+          type: serial
+          steps:
+            - name: build_and_pack_lan_installer
+              service: app
+              tag: ^(master$|dev$|staging$|ci-)
+              command: ./scripts/build_lan.sh
+            - name: build_lan_release
+              tag: ^(master$|dev$|staging$|ci-)
+              service: app
+              command: ./scripts/build_package_release.sh lan
         - name: build_and_pack_desktop_installer
           service: app
           tag: ^(master$|dev$|staging$|ci-)
@@ -39,10 +47,6 @@
           tag: ^(master$|dev$|staging$|ci-)
           service: app
           command: ./scripts/build_package_release.sh meta-server
-        - name: build_lan_release
-          tag: ^(master$|dev$|staging$|ci-)
-          service: app
-          command: ./scripts/build_package_release.sh lan
     - name: push_and_deploy
       type: parallel
       steps:
