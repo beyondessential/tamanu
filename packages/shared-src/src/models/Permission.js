@@ -1,5 +1,6 @@
 import { Sequelize } from 'sequelize';
 import { SYNC_DIRECTIONS } from 'shared/constants';
+import { resetPermissionCache } from 'shared/permissions/rolesToPermissions';
 import { Model } from './Model';
 
 export class Permission extends Model {
@@ -20,6 +21,11 @@ export class Permission extends Model {
       {
         ...options,
         syncConfig: { syncDirection: SYNC_DIRECTIONS.PULL_ONLY },
+        hooks: {
+          afterSave: (instance, options) => {
+            resetPermissionCache();
+          }
+        },
       },
     );
   }

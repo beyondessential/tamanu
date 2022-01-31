@@ -4,8 +4,6 @@ import { Permission } from '../models';
 let permissionCache = {};
 
 export function resetPermissionCache() {
-  // to run after permissions get imported
-  // TODO: add this to Role::update / Role::create?
   permissionCache = {};
 }
 
@@ -41,6 +39,12 @@ export async function getPermissionsForRoles(roleString) {
 
 export function getAbilityForUser(user) {
   const permissions = getPermissionsForRoles(user.role);
-  const ability = buildAbility(permissions);
+  const ability = buildAbility([
+    ...permissions,
+    // a user can always read and write themselves -- this is 
+    // separate to the role system as it's cached per-role, not per-user
+    { verb: 'read', noun: 'User', objectId: user.id },
+    { verb: 'write', noun: 'User', objectId: user.id },
+  ]);
   return ability;
 }
