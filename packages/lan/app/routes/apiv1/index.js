@@ -34,6 +34,7 @@ import { appointments } from './appointments';
 import { invoices, invoiceLineTypes } from './invoice';
 import { resetPassword } from './resetPassword';
 import { changePassword } from './changePassword';
+import { certificateNotification } from './certificateNotification';
 
 import { admin } from './admin';
 import { setting } from './setting';
@@ -80,6 +81,7 @@ apiv1.use('/scheduledVaccine', scheduledVaccine);
 apiv1.use('/program', program);
 apiv1.use('/survey', survey);
 apiv1.use('/surveyResponse', surveyResponse);
+apiv1.use('/certificateNotification', certificateNotification);
 
 apiv1.use('/reports', reports);
 apiv1.use('/reportRequest', reportRequest);

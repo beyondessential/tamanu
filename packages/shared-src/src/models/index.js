@@ -67,3 +67,5 @@ export * from './InvoicePriceChangeType';
 
 export * from './VdsNcDocument';
 export * from './VdsNcSigner';
+
+export * from './CertificateNotification';

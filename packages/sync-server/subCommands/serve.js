@@ -2,6 +2,7 @@ import config from 'config';
 
 import { log } from 'shared/services/logging';
 import { createReferralNotification } from 'shared/tasks/CreateReferralNotification';
+import { sendCertificateNotifications } from 'shared/tasks/SendCertificateNotifications';
 
 import { createApp } from '../app/createApp';
 import { startScheduledTasks } from '../app/tasks';
@@ -9,7 +10,7 @@ import { ApplicationContext } from '../app/ApplicationContext';
 import { version } from '../package.json';
 import { setupEnv } from '../app/env';
 
-const port = config.port;
+const { port } = config;
 
 function getRoutes(router, prefix = '') {
   const getRouteName = ({ regexp }) =>
@@ -69,13 +70,24 @@ export async function serve(options) {
     });
   }
 
-  if (config.notifications && config.notifications.referralCreated) {
-    context.models.Referral.addHook(
-      'afterCreate',
-      'create referral notification hook',
-      referral => {
-        createReferralNotification(referral, context.models);
-      },
-    );
+  if (config.notifications) {
+    if (config.notifications.referralCreated) {
+      context.store.models.Referral.addHook(
+        'afterCreate',
+        'create referral notification hook',
+        referral => {
+          createReferralNotification(referral, context.store.models);
+        },
+      );
+    }
+    if (config.notifications.certificates) {
+      context.store.models.CertificateNotification.addHook(
+        'afterBulkCreate',
+        'create certificate notification hook',
+        certificateNotifications => {
+          sendCertificateNotifications(certificateNotifications, context.store.models);
+        },
+      );
+    }
   }
 }

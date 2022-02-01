@@ -191,6 +191,7 @@ export const PATIENT_COMMUNICATION_CHANNELS_VALUES = Object.values(PATIENT_COMMU
 
 export const PATIENT_COMMUNICATION_TYPES = {
   REFERRAL_CREATED: 'Referral created',
+  CERTIFICATE: 'Certificate',
 };
 
 export const PATIENT_COMMUNICATION_TYPES_VALUES = Object.values(PATIENT_COMMUNICATION_TYPES);
@@ -304,8 +305,8 @@ export const INVOICE_PRICE_CHANGE_TYPE_LABELS = {
 };
 
 export const ICAO_DOCUMENT_TYPES = {
-  PROOF_OF_TESTING: 'icao.vacc',
-  PROOF_OF_VACCINATION: 'icao.test',
+  PROOF_OF_TESTING: 'icao.test',
+  PROOF_OF_VACCINATION: 'icao.vacc',
 };
 
 export const X502_OIDS = {
