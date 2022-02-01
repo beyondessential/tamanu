@@ -38,10 +38,13 @@ export const createPoV = async (
     ReferenceData,
     AdministeredVaccine,
     Encounter,
+    Facility,
     Location,
     ScheduledVaccine,
   } = models;
-  const { firstName, lastName, dateOfBirth, sex } = await Patient.findById(patientId);
+  const { firstName, lastName, dateOfBirth, sex } = await Patient.findOne({
+    where: { id: patientId },
+  });
   const { passport } = await PatientAdditionalData.findOne({ where: { patientId } });
   const vaccinations = await AdministeredVaccine.findAll({
     where: {
@@ -57,7 +60,12 @@ export const createPoV = async (
           {
             model: Location,
             as: 'location',
-            include: ['facility'],
+            include: [
+              {
+                model: Facility,
+                as: 'Facility',
+              },
+            ],
           },
         ],
       },
@@ -67,7 +75,7 @@ export const createPoV = async (
         include: [
           {
             model: ReferenceData,
-            as: 'referenceData',
+            as: 'vaccine',
           },
         ],
       },
@@ -92,7 +100,7 @@ export const createPoV = async (
       },
       encounter: {
         location: {
-          facility: { name: facility },
+          Facility: { name: facility },
         },
       },
     } = dose;
@@ -129,21 +137,10 @@ export const createPoV = async (
 };
 
 export const createPoT = async (
-  patientId,
   labTestId,
   { countryCode = config.icao.sign.countryCode3, models = allModels } = {},
 ) => {
-  const {
-    Patient,
-    PatientAdditionalData,
-    LabTest,
-    LabTestMethod,
-    LabRequest,
-    Location,
-    Encounter,
-  } = models;
-  const { firstName, lastName, dateOfBirth, sex } = await Patient.findById(patientId);
-  const { passport } = await PatientAdditionalData.findOne({ where: { patientId } });
+  const { Patient, LabTest, LabTestMethod, LabRequest, Location, Encounter } = models;
   const test = await LabTest.findOne({
     where: {
       id: labTestId,
@@ -153,6 +150,11 @@ export const createPoT = async (
         model: Encounter,
         as: 'encounter',
         include: [
+          {
+            model: Patient,
+            as: 'patient',
+            include: ['additionalData'],
+          },
           {
             model: Location,
             as: 'location',
@@ -176,6 +178,13 @@ export const createPoT = async (
     request,
     encounter: {
       location: { facility },
+      patient: {
+        firstName,
+        lastName,
+        dateOfBirth,
+        sex,
+        additionalData: { passport },
+      },
     },
   } = test;
 
