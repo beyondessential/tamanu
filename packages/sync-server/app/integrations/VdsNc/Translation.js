@@ -42,13 +42,21 @@ export const createPoV = async (models, patientId) => {
     },
     include: [
       {
-        model: models.Encounter,
+        model: Encounter,
         as: 'encounter',
-        include: models.Encounter.getFullReferenceAssociations(),
+        include: [{
+          model: Location,
+          as: 'location',
+          include: ['facility'],
+        }],
       },
       {
-        model: models.ScheduledVaccine,
+        model: ScheduledVaccine,
         as: 'scheduledVaccine',
+        include: [{
+          model: ReferenceData,
+          as: 'referenceData',
+        }],
       },
     ],
   });
@@ -61,11 +69,19 @@ export const createPoV = async (models, patientId) => {
   const vaccines = new Map;
   for (const dose of vaccinations) {
     const {
+      batch,
       scheduledVaccine: {
-        label,
-        batch,
-        lot,
         schedule,
+        referenceData: {
+          name: label,
+        },
+      },
+      encounter: {
+        location: {
+          facility: {
+            name: facility,
+          }
+        }
       }
     } = dose;
 
@@ -74,7 +90,7 @@ export const createPoV = async (models, patientId) => {
       seq: SCHEDULE_TO_SEQUENCE[schedule] ?? (SEQUENCE_MAX + 1),
       ctr: config.icao.sign.countryCode3,
       lot: batch,
-      // adm, // TODO: facility?
+      adm: facility,
     };
 
     if (vaccines.has(label)) {
@@ -84,7 +100,7 @@ export const createPoV = async (models, patientId) => {
     } else {
       vaccines.set(label, {
         des: ICD11_COVID19_VACCINE,
-        nam: label, // TODO: check that's the right field (brand name?)
+        nam: label,
         dis: ICD11_COVID19_DISEASE,
         vd: event,
       });
