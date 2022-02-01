@@ -5,11 +5,11 @@ import { NotFoundError } from 'shared/errors';
 import { LAB_REQUEST_STATUSES, DOCUMENT_SIZE_LIMIT } from 'shared/constants';
 import { NOTE_RECORD_TYPES } from 'shared/models/Note';
 import { uploadAttachment } from '../../utils/uploadAttachment';
-import { createInvoiceForEncouter } from './invoice';
 
 import {
   simpleGet,
   simpleGetHasOne,
+  simplePost,
   simpleGetList,
   permissionCheckingRouter,
   runPaginatedQuery,
@@ -18,22 +18,7 @@ import {
 export const encounter = express.Router();
 
 encounter.get('/:id', simpleGet('Encounter'));
-encounter.post(
-  '/$',
-  asyncHandler(async (req, res) => {
-    req.checkPermission('create', 'Encounter');
-
-    const { models, body: encounterData, getLocalisation } = req;
-
-    const newEncounter = await models.Encounter.create(encounterData);
-    const localisation = await getLocalisation();
-
-    if (localisation?.features?.enableInvoicing) {
-      await createInvoiceForEncouter(models, newEncounter);
-    }
-    res.send(newEncounter);
-  }),
-);
+encounter.post('/$', simplePost('Encounter'));
 
 encounter.put(
   '/:id',
