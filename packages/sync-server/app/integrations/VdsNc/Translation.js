@@ -20,12 +20,12 @@ const SEX_TO_CHAR = {
   other: 'O',
 };
 
-// FIXME: for higher?
 const SCHEDULE_TO_SEQUENCE = {
   'Dose 1': 1,
   'Dose 2': 2,
   Booster: 3,
 };
+const SEQUENCE_MAX = Math.max(...Object.values(SCHEDULE_TO_SEQUENCE));
 
 const ICD11_COVID19_VACCINE = 'XM68M6';
 const ICD11_COVID19_DISEASE = 'RA01.0';
@@ -70,7 +70,7 @@ export const createPoV = async (models, patientId) => {
 
     const event = {
       dvc: moment(date).format('YYYY-MM-DD'),
-      seq: SCHEDULE_TO_SEQUENCE[schedule] ?? (Math.max(...Object.values(SCHEDULE_TO_SEQUENCE)) + 1),
+      seq: SCHEDULE_TO_SEQUENCE[schedule] ?? (SEQUENCE_MAX + 1),
       ctr: config.icao.sign.countryCode3,
       lot: batch,
       // adm, // TODO: facility?
