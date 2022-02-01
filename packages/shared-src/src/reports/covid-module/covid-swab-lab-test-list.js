@@ -2,7 +2,7 @@ import { keyBy, groupBy } from 'lodash';
 import { Op } from 'sequelize';
 import moment from 'moment';
 import { generateReportFromQueryData } from '../utilities';
-import { LAB_REQUEST_STATUS_LABELS } from '../../constants';
+import { LAB_REQUEST_STATUSES } from '../../constants';
 import { transformAnswers } from '../utilities/transformAnswers';
 
 const yieldControl = () => new Promise(resolve => setTimeout(resolve, 20));
@@ -10,6 +10,9 @@ const yieldControl = () => new Promise(resolve => setTimeout(resolve, 20));
 const parametersToLabTestSqlWhere = parameters => {
   const defaultWhereClause = {
     '$labRequest.lab_test_category_id$': 'labTestCategory-COVID',
+    '$labRequest.status$': {
+      [Op.ne]: LAB_REQUEST_STATUSES.DELETED,
+    },
   };
 
   if (!parameters || !Object.keys(parameters).length) {
