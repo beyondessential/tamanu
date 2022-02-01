@@ -218,6 +218,8 @@ export class SyncManager {
 
         // models.LabRequestLog,
         models.DocumentMetadata,
+
+        models.CertificateNotification,
       ];
 
       for (const model of modelsToSync) {

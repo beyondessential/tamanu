@@ -1,5 +1,6 @@
-import React, { useState, useEffect, useMemo } from 'react';
+import React, { useState, useEffect, useMemo, useCallback } from 'react';
 
+import { ICAO_DOCUMENT_TYPES } from 'shared/constants';
 import { Modal } from '../Modal';
 import { Certificate, Table } from '../Print/Certificate';
 import { DateDisplay } from '../DateDisplay';
@@ -13,6 +14,7 @@ import {
 
 import { useApi } from '../../api';
 import { useLocalisation } from '../../contexts/Localisation';
+import { EmailButton } from '../Email/EmailButton';
 
 const usePassportNumber = patientId => {
   const api = useApi();
@@ -47,6 +49,18 @@ export const PatientCovidTestCert = ({ patient }) => {
   const [rows, setRows] = useState([]);
   const { getLocalisation } = useLocalisation();
   const api = useApi();
+
+  const createCovidTestCertNotification = useCallback(
+    data => {
+      api.post('certificateNotification', {
+        type: ICAO_DOCUMENT_TYPES.PROOF_OF_TESTING,
+        requireSigning: false,
+        patientId: patient.id,
+        forwardAddress: data.email,
+      });
+    },
+    [api, patient],
+  );
 
   const columns = useMemo(
     () => [
@@ -129,7 +143,13 @@ export const PatientCovidTestCert = ({ patient }) => {
   const getNationality = useNationality(patient.id);
 
   return (
-    <Modal open={open} onClose={() => setOpen(false)} width="md" printable>
+    <Modal
+      open={open}
+      onClose={() => setOpen(false)}
+      width="md"
+      printable
+      additionalActions={<EmailButton onEmail={createCovidTestCertNotification} />}
+    >
       <Certificate
         patient={patient}
         header="COVID-19 test history"
