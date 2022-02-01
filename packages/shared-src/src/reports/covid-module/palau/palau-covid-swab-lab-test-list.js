@@ -78,6 +78,7 @@ const reportColumnTemplate = [
   { title: 'Priority', accessor: data => data.priority },
   { title: 'Testing laboratory', accessor: data => data.testingLaboratory },
   { title: 'Testing date', accessor: data => data.testingDate },
+  { title: 'Testing time', accessor: data => data.testingTime },
   ...Object.entries(SURVEY_QUESTION_CODES).map(([title, questionCode]) => ({
     title,
     accessor: data => data[title],

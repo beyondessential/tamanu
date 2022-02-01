@@ -239,6 +239,7 @@ const getLabTestRecords = async (
         requestedBy: labRequest?.requestedBy?.displayName,
         requestedDate: labTest.date ? moment(labTest.date).format(dateFormat) : '',
         testingDate: labTest.completedDate ? moment(labTest.completedDate).format(dateFormat) : '',
+        testingTime: labTest.completedDate ? moment(labTest.completedDate).format('LTS') : '',
         priority: labRequest?.priority?.name,
         testingLaboratory: labRequest?.laboratory?.name,
         labTestMethod: labTest?.labTestMethod?.name,
