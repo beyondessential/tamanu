@@ -163,7 +163,7 @@ const getLabTestRecords = async (
   labTests,
   transformedAnswers,
   parameters,
-  { surveyQuestionCodes, testingDateFormat },
+  { surveyQuestionCodes, dateFormat },
 ) => {
   const transformedAnswersByPatientAndDataElement = groupBy(
     transformedAnswers,
@@ -227,7 +227,7 @@ const getLabTestRecords = async (
       const labTestRecord = {
         firstName: patient?.firstName,
         lastName: patient?.lastName,
-        dob: patient?.dateOfBirth ? moment(patient?.dateOfBirth).format('DD-MM-YYYY') : '',
+        dob: patient?.dateOfBirth ? moment(patient?.dateOfBirth).format(dateFormat) : '',
         sex: patient?.sex,
         patientId: patient?.displayId,
         homeSubDivision,
@@ -237,10 +237,8 @@ const getLabTestRecords = async (
         status: LAB_REQUEST_STATUS_LABELS[labRequest?.status] || labRequest?.status,
         result: labTest.result,
         requestedBy: labRequest?.requestedBy?.displayName,
-        requestedDate: labTest.date ? moment(labTest.date).format('DD-MM-YYYY') : '',
-        testingDate: labTest.completedDate
-          ? moment(labTest.completedDate).format(testingDateFormat)
-          : '',
+        requestedDate: labTest.date ? moment(labTest.date).format(dateFormat) : '',
+        testingDate: labTest.completedDate ? moment(labTest.completedDate).format(dateFormat) : '',
         priority: labRequest?.priority?.name,
         testingLaboratory: labRequest?.laboratory?.name,
         labTestMethod: labTest?.labTestMethod?.name,
@@ -266,16 +264,18 @@ const getLabTestRecords = async (
 export const baseDataGenerator = async (
   { models },
   parameters = {},
-  { surveyId, reportColumnTemplate, surveyQuestionCodes, testingDateFormat = 'DD-MM-YYYY' },
+  { surveyId, reportColumnTemplate, surveyQuestionCodes, dateFormat = 'DD-MM-YYYY' },
 ) => {
   const labTests = await getLabTests(models, parameters);
   const answers = await getFijiCovidAnswers(models, parameters, { surveyId });
   const components = await models.SurveyScreenComponent.getComponentsForSurvey(surveyId);
-  const transformedAnswers = await transformAnswers(models, answers, components);
+  const transformedAnswers = await transformAnswers(models, answers, components, {
+    dateFormat,
+  });
 
   const reportData = await getLabTestRecords(labTests, transformedAnswers, parameters, {
     surveyQuestionCodes,
-    testingDateFormat,
+    dateFormat,
   });
 
   return generateReportFromQueryData(reportData, reportColumnTemplate);
