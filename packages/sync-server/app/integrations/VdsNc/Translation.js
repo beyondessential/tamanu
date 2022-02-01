@@ -49,11 +49,16 @@ export const createPoV = async (models, patientId) => {
     ],
   });
 
-  const pid = {};
+  const pidDoc = passport ? {
+    i: passport,
+  } : {};
 
   return {
     utci: generateUniqueCode(),
-    pid: pid(firstName, lastName, dateOfBirth, { sex, passport }),
+    pid: {
+      ...pid(firstName, lastName, dateOfBirth, sex),
+      ...pidDoc,
+    },
     // ve = vax type, vd = vax dose
     ve: [
       {
@@ -75,9 +80,17 @@ export const createPoT = patientId => {
   const { firstName, lastName, dateOfBirth, sex } = await models.Patient.findById(patientId);
   const { passport } = await models.PatientAdditionalData.findOne({ where: { patientId } });
 
+  const pidDoc = passport ? {
+    dt: 'P',
+    dn: passport,
+  } : {};
+
   return {
     utci: generateUniqueCode(),
-    pid: pid(firstName, lastName, dateOfBirth, { passport, sex }),
+    pid: {
+      ...pid(firstName, lastName, dateOfBirth, sex),
+      ...pidDoc
+    },
     sp: {
       spn: getFacilityName(patientId),
       ctr: getCountryCode(),
@@ -94,21 +107,13 @@ export const createPoT = patientId => {
   };
 };
 
-function pid(firstName, lastName, dateOfBirth, {
-  passport = null,
-  sex = null,
-} = {}) {
+function pid(firstName, lastName, dateOfBirth, sex) {
   const name = `${tr(lastName)} ${tr(firstName).slice(39 - (tr(lastName).length + 1))}`;
 
   const pid = {
     n: name,
     dob: moment(dateOfBirth).format('YYY-MM-DD'),
   };
-
-  if (passport) {
-    pid.dt = 'P';
-    pid.dn = passport;
-  }
 
   if (sex && SEX_TO_CHAR[sex]) {
     pid.sex = SEX_TO_CHAR[sex];
