@@ -1,16 +1,6 @@
 import moment from 'moment';
 import { transliterate as tr } from 'transliteration';
 
-// FIXME
-const getFacilityName = patientId => 'asdfghjkl;asdfgh';
-
-// FIXME
-const getFacilityDetails = () => ({
-  p: 'ph #',
-  e: 'email',
-  a: 'address',
-});
-
 const SEX_TO_CHAR = {
   male: 'M',
   female: 'F',
@@ -24,8 +14,17 @@ const SCHEDULE_TO_SEQUENCE = {
 };
 const SEQUENCE_MAX = Math.max(...Object.values(SCHEDULE_TO_SEQUENCE));
 
+const METHOD_CODE = {
+  'GeneXpert': 'antigen',
+  'RTPCR': 'molecular(PCR)',
+  'RDT': 'antigen',
+};
+
 const ICD11_COVID19_VACCINE = 'XM68M6';
 const ICD11_COVID19_DISEASE = 'RA01.0';
+
+const MOMENT_FORMAT_ISODATE = 'YYYY-MM-DD';
+const MOMENT_FORMAT_RFC3339 = 'YYYY-MM-DDTHH:mm:ssZ';
 
 export const createPoV = async (models, patientId) => {
   const { Patient, PatientAdditionalData, ReferenceData, AdministeredVaccine, Encounter, Location, ScheduledVaccine } = models;
@@ -83,7 +82,7 @@ export const createPoV = async (models, patientId) => {
     } = dose;
 
     const event = {
-      dvc: moment(date).format('YYYY-MM-DD'),
+      dvc: moment(date).format(MOMENT_FORMAT_ISODATE),
       seq: SCHEDULE_TO_SEQUENCE[schedule] ?? (SEQUENCE_MAX + 1),
       ctr: config.icao.sign.countryCode3,
       lot: batch,
@@ -113,10 +112,44 @@ export const createPoV = async (models, patientId) => {
   };
 };
 
-export const createPoT = patientId => {
-  const { Patient, PatientAdditionalData } = models;
+export const createPoT = (patientId, labTestId) => {
+  const { Patient, PatientAdditionalData, LabTest, LabTestMethod, LabRequest, Facility, Location, Encounter } = models;
   const { firstName, lastName, dateOfBirth, sex } = await Patient.findById(patientId);
   const { passport } = await PatientAdditionalData.findOne({ where: { patientId } });
+  const test = await LabTest.findOne({
+    where: {
+      id: labTestId,
+    },
+    include: [
+      {
+        model: Encounter,
+        as: 'encounter',
+        include: [{
+          model: Location,
+          as: 'location',
+          include: ['facility'],
+        }],
+      },
+      {
+        model: LabTestMethod,
+        as: 'method',
+      },
+      {
+        model: LabRequest,
+        as: 'request',
+      },
+    ],
+  });
+
+  const {
+    method,
+    request,
+    encounter: {
+      location: {
+        facility,
+      },
+    },
+  } = test;
 
   const pidDoc = passport ? {
     dt: 'P',
@@ -129,17 +162,21 @@ export const createPoT = patientId => {
       ...pidDoc
     },
     sp: {
-      spn: getFacilityName(patientId),
-      ctr: getCountryCode(),
-      cd: getFacilityDetails(),
+      spn: facility.name,
+      ctr: config.icao.sign.countryCode3,
+      cd: {
+        p: facility.contactNumber,
+        e: facility.email,
+        a: `${facility.streetAddress} ${facility.cityTown}`,
+      },
     },
     dat: {
-      sc: 'specimen collection',
-      ri: 'report issuance',
+      sc: moment(request.sampleTime).format(MOMENT_FORMAT_RFC3339),
+      ri: moment(test.completedDate).format(MOMENT_FORMAT_RFC3339),
     },
     tr: {
-      tc: 'test conducted',
-      r: 'result',
+      tc: METHOD_CODE[method.code] ?? method.code,
+      r: test.result,
     },
   };
 };
@@ -159,7 +196,7 @@ function pid(firstName, lastName, dateOfBirth, sex) {
 
   const pid = {
     n: name,
-    dob: moment(dateOfBirth).format('YYY-MM-DD'),
+    dob: moment(dateOfBirth).format(MOMENT_FORMAT_ISODATE),
   };
 
   if (sex && SEX_TO_CHAR[sex]) {
