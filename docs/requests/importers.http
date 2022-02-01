@@ -7,6 +7,7 @@
 # Note that these are designed to be sent to a LAN server, acting as a
 # go-between for a sync server, rather than directly to the sync server.
 
+@token=
 @lanserver=http://localhost:4000
 
 # a boundary can be any string that doesn't appear in the body of the upload data
@@ -40,16 +41,49 @@ Content-Type: application/vnd.ms-excel
 ### Import a data definition document
 POST {{lanserver}}/v1/admin/importData
 Content-Type: multipart/form-data; boundary={{boundary}}
+Authorization: Bearer {{token}}
 
 --{{boundary}}
 Content-Disposition: form-data; name="jsonData"
 Content-Type: application/json
 
 {
-  "dryRun": true,
+  "dryRun": false,
   "allowErrors": false,
   "whitelist": [
-    "labTestMethods"
+    "facilities",
+    "villages",
+    "drugs",
+    "allergies",
+    "departments",
+    "locations",
+    "diagnoses",
+    "triageReasons",
+    "imagingTypes",
+    "procedures",
+    "careplans",
+    "ethnicities",
+    "nationalities",
+    "divisions",
+    "subdivisions",
+    "medicalareas",
+    "nursingzones",
+    "settlements",
+    "occupations",
+    "religions",
+    "countries",
+    "labTestCategories",
+    "patientBillingType",
+    "labTestPriorities",
+    "labTestLaboratory",
+    "labTestMethods",
+    "additionalInvoiceLines",
+    "users",
+    "patients",
+    "labTestTypes",
+    "vaccineSchedules",
+    "invoiceLineTypes",
+    "invoicePriceChangeTypes"
   ]
 }
 
@@ -57,5 +91,6 @@ Content-Type: application/json
 Content-Disposition: form-data; name="file"; filename="import.xlsx"
 Content-Type: application/vnd.ms-excel
 
-< /Users/basgo/Downloads/Untitled spreadsheet.xlsx
+< /mnt/c/Users/locke/Downloads/Tamanu Kiribati - Reference Data Workbook (1).xlsx
+# < /mnt/c/Users/locke/Data/BE/Data/hi.xlsx
 --{{boundary}}--
