@@ -31,9 +31,10 @@ const ICD11_COVID19_VACCINE = 'XM68M6';
 const ICD11_COVID19_DISEASE = 'RA01.0';
 
 export const createPoV = async (models, patientId) => {
-  const { firstName, lastName, dateOfBirth, sex } = await models.Patient.findById(patientId);
-  const { passport } = await models.PatientAdditionalData.findOne({ where: { patientId } });
-  const vaccinations = await models.AdministeredVaccine.findAll({
+  const { Patient, PatientAdditionalData, ReferenceData, AdministeredVaccine, Encounter, Location, ScheduledVaccine } = models;
+  const { firstName, lastName, dateOfBirth, sex } = await Patient.findById(patientId);
+  const { passport } = await PatientAdditionalData.findOne({ where: { patientId } });
+  const vaccinations = await AdministeredVaccine.findAll({
     where: {
       '$encounter.patient_id$': patientId,
       '$scheduledVaccine.label$': ['COVID-19 AZ', 'COVID-19 Pfizer'],
@@ -101,8 +102,9 @@ export const createPoV = async (models, patientId) => {
 };
 
 export const createPoT = patientId => {
-  const { firstName, lastName, dateOfBirth, sex } = await models.Patient.findById(patientId);
-  const { passport } = await models.PatientAdditionalData.findOne({ where: { patientId } });
+  const { Patient, PatientAdditionalData } = models;
+  const { firstName, lastName, dateOfBirth, sex } = await Patient.findById(patientId);
+  const { passport } = await PatientAdditionalData.findOne({ where: { patientId } });
 
   const pidDoc = passport ? {
     dt: 'P',
