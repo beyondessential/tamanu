@@ -1,7 +1,7 @@
 // Todo: Remove before merging vds-epic
 import express from 'express';
 import asyncHandler from 'express-async-handler';
-import { makePatientCovidCertificate } from '../utils/patientCertificates';
+import { makePatientCertificate } from '../utils/patientCertificates';
 
 export const testPdf = express.Router();
 
@@ -14,7 +14,7 @@ testPdf.get(
 
     const patient = await models.Patient.findByPk(patientId);
 
-    await makePatientCovidCertificate(patient, models);
+    await makePatientCertificate(patient, models);
     res.send({});
   }),
 );
