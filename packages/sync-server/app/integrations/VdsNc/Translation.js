@@ -2,9 +2,6 @@ import moment from 'moment';
 import { transliterate as tr } from 'transliteration';
 
 // FIXME
-const generateUniqueCode = () => 'asdfghjkl;asdfgh';
-
-// FIXME
 const getFacilityName = patientId => 'asdfghjkl;asdfgh';
 
 // FIXME
@@ -108,7 +105,6 @@ export const createPoV = async (models, patientId) => {
   }
 
   return {
-    uvci: generateUniqueCode(),
     pid: {
       ...pid(firstName, lastName, dateOfBirth, sex),
       ...pidDoc,
@@ -128,7 +124,6 @@ export const createPoT = patientId => {
   } : {};
 
   return {
-    utci: generateUniqueCode(),
     pid: {
       ...pid(firstName, lastName, dateOfBirth, sex),
       ...pidDoc
