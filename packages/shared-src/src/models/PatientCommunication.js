@@ -24,6 +24,8 @@ export class PatientCommunication extends Model {
         },
         error: Sequelize.TEXT,
         retryCount: Sequelize.INTEGER,
+        destination: Sequelize.STRING,
+        attachment: Sequelize.STRING,
       },
       options,
     );

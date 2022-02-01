@@ -83,6 +83,7 @@ export const Modal = memo(
     open = false,
     onClose,
     printable = false,
+    additionalActions,
     ...props
   }) => {
     const { printPage } = useElectron();
@@ -91,6 +92,7 @@ export const Modal = memo(
         <ModalTitle>
           <VerticalCenteredText>{title}</VerticalCenteredText>
           <div>
+            {additionalActions}
             {printable ? (
               <Button
                 color="primary"
