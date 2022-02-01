@@ -1,4 +1,5 @@
 import moment from 'moment';
+import { transliterate as tr } from 'transliteration';
 
 // FIXME
 const generateUniqueCode = () => 'asdfghjkl;asdfgh';
@@ -97,8 +98,7 @@ function pid(firstName, lastName, dateOfBirth, {
   passport = null,
   sex = null,
 } = {}) {
-  // TODO: transliteration requirements?
-  const name = `${firstName.slice(39 - (lastName.length + 1))} ${lastName}`;
+  const name = `${tr(lastName)} ${tr(firstName).slice(39 - (tr(lastName).length + 1))}`;
 
   const pid = {
     n: name,
