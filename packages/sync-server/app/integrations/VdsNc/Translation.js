@@ -27,6 +27,9 @@ const SCHEDULE_TO_SEQUENCE = {
   Booster: 3,
 };
 
+const ICD11_COVID19_VACCINE = 'XM68M6';
+const ICD11_COVID19_DISEASE = 'RA01.0';
+
 export const createPoV = async (models, patientId) => {
   const { firstName, lastName, dateOfBirth, sex } = await models.Patient.findById(patientId);
   const { passport } = await models.PatientAdditionalData.findOne({ where: { patientId } });
@@ -53,26 +56,47 @@ export const createPoV = async (models, patientId) => {
     i: passport,
   } : {};
 
+  // Group by vaccine brand/label
+  const vaccines = new Map;
+  for (const dose of vaccinations) {
+    const {
+      scheduledVaccine: {
+        label,
+        batch,
+        lot,
+        schedule,
+      }
+    } = dose;
+
+    const event = {
+      dvc: moment(date).format('YYYY-MM-DD'),
+      seq: SCHEDULE_TO_SEQUENCE[schedule] ?? (Math.max(...Object.values(SCHEDULE_TO_SEQUENCE)) + 1),
+      ctr: config.icao.sign.countryCode3,
+      lot: batch,
+      // adm, // TODO: facility?
+    };
+
+    if (vaccines.has(label)) {
+      const vax = vaccines.get(label);
+      vax.vd.push(event);
+      vaccines.set(label, vax);
+    } else {
+      vaccines.set(label, {
+        des: ICD11_COVID19_VACCINE,
+        nam: label, // TODO: check that's the right field (brand name?)
+        dis: ICD11_COVID19_DISEASE,
+        vd: event,
+      });
+    }
+  }
+
   return {
-    utci: generateUniqueCode(),
+    uvci: generateUniqueCode(),
     pid: {
       ...pid(firstName, lastName, dateOfBirth, sex),
       ...pidDoc,
     },
-    // ve = vax type, vd = vax dose
-    ve: [
-      {
-        des: 'XM68M6',
-        name: v.label, // <- check
-        dis: 'RA01.0',
-        vd: doses.map(dose => ({
-          seq: SCHEDULE_TO_SEQUENCE[dose.scheduledVaccine.schedule],
-          ctr: getCountryCode(),
-          lot: dose.batch,
-          dvn: dose.date,
-        })),
-      },
-    ],
+    ve: [...vaccines.values()],
   };
 };
 
