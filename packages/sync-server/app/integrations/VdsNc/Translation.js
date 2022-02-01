@@ -96,7 +96,7 @@ export const createPoV = async (
       date,
       scheduledVaccine: {
         schedule,
-        referenceData: { name: label },
+        vaccine: { name: label },
       },
       encounter: {
         location: {
