@@ -122,7 +122,7 @@ export const createPoV = async (
         des: ICD11_COVID19_VACCINE,
         nam: label,
         dis: ICD11_COVID19_DISEASE,
-        vd: event,
+        vd: [event],
       });
     }
   }

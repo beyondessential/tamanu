@@ -125,13 +125,220 @@ describe('VDS: Proof of Vaccination', () => {
           des: 'XM68M6',
           dis: 'RA01.0',
           nam: 'ChAdOx1-S',
-          vd: {
-            adm: 'Utopia HQ',
-            ctr: 'UTO',
-            dvc: '2022-02-22',
-            lot: '1234-567-890',
-            seq: 1,
-          },
+          vd: [
+            {
+              adm: 'Utopia HQ',
+              ctr: 'UTO',
+              dvc: '2022-02-22',
+              lot: '1234-567-890',
+              seq: 1,
+            },
+          ],
+        },
+      ],
+    });
+  });
+
+  it('fetches data for a multi-vaccinated patient', async () => {
+    // Arrange
+    const {
+      Patient,
+      PatientAdditionalData,
+      Encounter,
+      Facility,
+      Location,
+      ReferenceData,
+      ScheduledVaccine,
+      AdministeredVaccine,
+    } = ctx.store.models;
+
+    const patient = await Patient.create({
+      ...fake(Patient),
+      firstName: 'Surangel',
+      lastName: 'Whipps',
+      dateOfBirth: new Date(Date.parse('9 August 1968, UTC')),
+      sex: 'other',
+    });
+    await PatientAdditionalData.create({
+      ...fake(PatientAdditionalData),
+      patientId: patient.id,
+      passport: 'A0101001',
+    });
+    await patient.reload();
+
+    const azVaxDrug = await ReferenceData.create({
+      ...fake(ReferenceData),
+      type: 'vaccine',
+      name: 'ChAdOx1-S',
+    });
+
+    const pfVaxDrug = await ReferenceData.create({
+      ...fake(ReferenceData),
+      type: 'vaccine',
+      name: 'Comirnaty',
+    });
+
+    const scheduledPf1 = await ScheduledVaccine.create({
+      ...fake(ScheduledVaccine),
+      label: 'COVID-19 Pfizer',
+      schedule: 'Dose 1',
+      vaccineId: pfVaxDrug.id,
+    });
+
+    const scheduledPf2 = await ScheduledVaccine.create({
+      ...fake(ScheduledVaccine),
+      label: 'COVID-19 Pfizer',
+      schedule: 'Dose 2',
+      vaccineId: pfVaxDrug.id,
+    });
+
+    const scheduledAz3 = await ScheduledVaccine.create({
+      ...fake(ScheduledVaccine),
+      label: 'COVID-19 AZ',
+      schedule: 'Booster',
+      vaccineId: azVaxDrug.id,
+    });
+
+    const scheduledAz4 = await ScheduledVaccine.create({
+      ...fake(ScheduledVaccine),
+      label: 'COVID-19 AZ',
+      schedule: 'Extra Booster',
+      vaccineId: azVaxDrug.id,
+    });
+
+    const location1 = await Location.create({
+      ...fake(Location),
+      facilityId: (
+        await Facility.create({
+          ...fake(Facility),
+          name: 'Utopia Office',
+        })
+      ).id,
+    });
+
+    const location2 = await Location.create({
+      ...fake(Location),
+      facilityId: (
+        await Facility.create({
+          ...fake(Facility),
+          name: 'Utopia Bureau',
+        })
+      ).id,
+    });
+
+    await AdministeredVaccine.create({
+      ...fake(AdministeredVaccine),
+      status: 'GIVEN',
+      scheduledVaccineId: scheduledPf1.id,
+      encounterId: (
+        await Encounter.create({
+          ...fake(Encounter),
+          patientId: patient.id,
+          locationId: location1.id,
+        })
+      ).id,
+      batch: '001',
+      date: new Date(Date.parse('11 January 2021, UTC')),
+    });
+
+    await AdministeredVaccine.create({
+      ...fake(AdministeredVaccine),
+      status: 'GIVEN',
+      scheduledVaccineId: scheduledPf2.id,
+      encounterId: (
+        await Encounter.create({
+          ...fake(Encounter),
+          patientId: patient.id,
+          locationId: location2.id,
+        })
+      ).id,
+      batch: '002',
+      date: new Date(Date.parse('12 June 2021, UTC')),
+    });
+
+    await AdministeredVaccine.create({
+      ...fake(AdministeredVaccine),
+      status: 'GIVEN',
+      scheduledVaccineId: scheduledAz3.id,
+      encounterId: (
+        await Encounter.create({
+          ...fake(Encounter),
+          patientId: patient.id,
+          locationId: location1.id,
+        })
+      ).id,
+      batch: '003',
+      date: new Date(Date.parse('24 December 2021, UTC')),
+    });
+
+    await AdministeredVaccine.create({
+      ...fake(AdministeredVaccine),
+      status: 'GIVEN',
+      scheduledVaccineId: scheduledAz4.id,
+      encounterId: (
+        await Encounter.create({
+          ...fake(Encounter),
+          patientId: patient.id,
+          locationId: location2.id,
+        })
+      ).id,
+      batch: '004',
+      date: new Date(Date.parse('22 February 2022, UTC')),
+    });
+
+    // Act
+    const msg = await createPoV(patient.id, { models: ctx.store.models, countryCode: 'UTO' });
+
+    // Assert
+    expect(msg).to.deep.equal({
+      pid: {
+        n: 'Whipps Surangel',
+        dob: '1968-08-09',
+        i: 'A0101001',
+        sex: 'O',
+      },
+      ve: [
+        {
+          des: 'XM68M6',
+          dis: 'RA01.0',
+          nam: 'Comirnaty',
+          vd: [
+            {
+              adm: 'Utopia Office',
+              ctr: 'UTO',
+              dvc: '2021-01-11',
+              lot: '001',
+              seq: 1,
+            },
+            {
+              adm: 'Utopia Bureau',
+              ctr: 'UTO',
+              dvc: '2021-06-12',
+              lot: '002',
+              seq: 2,
+            },
+          ],
+        },
+        {
+          des: 'XM68M6',
+          dis: 'RA01.0',
+          nam: 'ChAdOx1-S',
+          vd: [
+            {
+              adm: 'Utopia Office',
+              ctr: 'UTO',
+              dvc: '2021-12-24',
+              lot: '003',
+              seq: 3,
+            },
+            {
+              adm: 'Utopia Bureau',
+              ctr: 'UTO',
+              dvc: '2022-02-22',
+              lot: '004',
+              seq: 4,
+            },
+          ],
         },
       ],
     });
