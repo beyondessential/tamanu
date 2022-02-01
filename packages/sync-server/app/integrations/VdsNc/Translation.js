@@ -48,16 +48,11 @@ export const createPoV = async (models, patientId) => {
     ],
   });
 
+  const pid = {};
+
   return {
     utci: generateUniqueCode(),
-    pid: {
-      // This field can only be 39 characters long, just truncate the name
-      // FIXME: see test
-      n: `${firstName} ${lastName}`.slice(0, 39),
-      dob: moment(dateOfBirth).format('YYYY-MM-DD'),
-      i: passport ?? undefined,
-      sex: SEX_TO_CHAR[sex],
-    },
+    pid: pid(firstName, lastName, dateOfBirth, { sex, passport }),
     // ve = vax type, vd = vax dose
     ve: [
       {
@@ -76,24 +71,16 @@ export const createPoV = async (models, patientId) => {
 };
 
 export const createPoT = patientId => {
-  const { firstName, lastName, dateOfBirth } = patient;
-  const { passport } = additionalData;
+  const { firstName, lastName, dateOfBirth, sex } = await models.Patient.findById(patientId);
+  const { passport } = await models.PatientAdditionalData.findOne({ where: { patientId } });
 
   return {
     utci: generateUniqueCode(),
-    pid: {
-      // This field can only be 39 characters long, just truncate the name
-      n: `${firstName} ${lastName}`.slice(0, 39),
-      dob: moment(dateOfBirth).format('YYYY-MM-DD'),
-      dt: 'P', // Document type = passport
-      dn: passport ?? 'Passport # not found',
-    },
+    pid: pid(firstName, lastName, dateOfBirth, { passport, sex }),
     sp: {
       spn: getFacilityName(patientId),
       ctr: getCountryCode(),
-      cd: {
-        ...getFacilityDetails(),
-      },
+      cd: getFacilityDetails(),
     },
     dat: {
       sc: 'specimen collection',
@@ -105,3 +92,27 @@ export const createPoT = patientId => {
     },
   };
 };
+
+function pid(firstName, lastName, dateOfBirth, {
+  passport = null,
+  sex = null,
+} = {}) {
+  // TODO: transliteration requirements?
+  const name = `${firstName.slice(39 - (lastName.length + 1))} ${lastName}`;
+
+  const pid = {
+    n: name,
+    dob: moment(dateOfBirth).format('YYY-MM-DD'),
+  };
+
+  if (passport) {
+    pid.dt = 'P';
+    pid.dn = passport;
+  }
+
+  if (sex && SEX_TO_CHAR[sex]) {
+    pid.sex = SEX_TO_CHAR[sex];
+  }
+
+  return pid;
+}
