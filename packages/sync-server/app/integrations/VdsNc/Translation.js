@@ -150,7 +150,17 @@ export const createPoT = patientId => {
 };
 
 function pid(firstName, lastName, dateOfBirth, sex) {
-  const name = `${tr(lastName)} ${tr(firstName).slice(39 - (tr(lastName).length + 1))}`;
+  const MAX_LEN = 39;
+  const primary = tr(lastName);
+  const secondary = tr(firstName);
+
+  // Truncation from 9303-4, a bit simplified as we're not in MRZ
+  let name;
+  if (primary.length >= MAX_LEN - 3) {
+    name = [primary.slice(0, MAX_LEN - 3), secondary].join(' ').slice(0, MAX_LEN);
+  } else {
+    name = [primary, secondary].join(' ').slice(0, MAX_LEN);
+  }
 
   const pid = {
     n: name,
