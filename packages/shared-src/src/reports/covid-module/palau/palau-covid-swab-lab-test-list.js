@@ -60,7 +60,7 @@ const reportColumnTemplate = [
   { title: 'Other purpose', accessor: data => data['Other purpose'] },
   {
     title: 'Passport number',
-    accessor: data => data.additionalDataPassport ?? data['Passport number'],
+    accessor: data => data.additionalDataPassportNumber ?? data['Passport number'],
   },
   { title: 'Final destination', accessor: data => data['Final destination'] },
   { title: 'Transit country', accessor: data => data['Transit country'] },
