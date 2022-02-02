@@ -2,14 +2,26 @@ import { keyBy, groupBy } from 'lodash';
 import { Op } from 'sequelize';
 import moment from 'moment';
 import { generateReportFromQueryData } from '../utilities';
-import { LAB_REQUEST_STATUS_LABELS } from '../../constants';
+import { LAB_REQUEST_STATUSES, LAB_REQUEST_STATUS_LABELS } from '../../constants';
 import { transformAnswers } from '../utilities/transformAnswers';
+
+const WILLIAM_HOROTO_IDS = [
+  '4d719b6f-af55-42ac-99b3-5a27cadaab2b', // Palau
+  '2d574680-e0fc-4956-a37e-121ccb434995', // Fiji
+  'cebdd9a4-2744-4ad2-9919-98dc0b15464c', // Dev - for testing purposes
+];
 
 const yieldControl = () => new Promise(resolve => setTimeout(resolve, 20));
 
 const parametersToLabTestSqlWhere = parameters => {
   const defaultWhereClause = {
     '$labRequest.lab_test_category_id$': 'labTestCategory-COVID',
+    '$labRequest.status$': {
+      [Op.ne]: LAB_REQUEST_STATUSES.DELETED,
+    },
+    '$labRequest->encounter->patient.id$': {
+      [Op.notIn]: WILLIAM_HOROTO_IDS,
+    },
   };
 
   if (!parameters || !Object.keys(parameters).length) {
@@ -76,7 +88,14 @@ const getLabTests = async (models, parameters) => {
               {
                 model: models.Patient,
                 as: 'patient',
-                include: [{ model: models.ReferenceData, as: 'village' }],
+                include: [
+                  {
+                    model: models.PatientAdditionalData,
+                    as: 'additionalData',
+                    include: ['ethnicity', 'nationality'],
+                  },
+                  'village',
+                ],
               },
             ],
           },
@@ -163,7 +182,7 @@ const getLabTestRecords = async (
   labTests,
   transformedAnswers,
   parameters,
-  { surveyQuestionCodes, testingDateFormat },
+  { surveyQuestionCodes, dateFormat },
 ) => {
   const transformedAnswersByPatientAndDataElement = groupBy(
     transformedAnswers,
@@ -222,28 +241,31 @@ const getLabTestRecords = async (
       const { labRequest } = labTest;
       const encounter = labRequest?.encounter;
       const patient = encounter?.patient;
-      const homeSubDivision = patient?.village?.name;
+      const village = patient?.village?.name;
+      const patientAdditionalData = patient?.additionalData?.[0];
 
       const labTestRecord = {
         firstName: patient?.firstName,
         lastName: patient?.lastName,
-        dob: patient?.dateOfBirth ? moment(patient?.dateOfBirth).format('DD-MM-YYYY') : '',
+        dob: patient?.dateOfBirth ? moment(patient?.dateOfBirth).format(dateFormat) : '',
         sex: patient?.sex,
         patientId: patient?.displayId,
-        homeSubDivision,
+        village,
         labRequestId: labRequest?.displayId,
         labRequestType: labRequest?.category?.name,
         labTestType: labTest?.labTestType?.name,
         status: LAB_REQUEST_STATUS_LABELS[labRequest?.status] || labRequest?.status,
         result: labTest.result,
         requestedBy: labRequest?.requestedBy?.displayName,
-        requestedDate: labTest.date ? moment(labTest.date).format('DD-MM-YYYY') : '',
-        testingDate: labTest.completedDate
-          ? moment(labTest.completedDate).format(testingDateFormat)
-          : '',
+        requestedDate: labTest.date ? moment(labTest.date).format(dateFormat) : '',
+        testingDate: labTest.completedDate ? moment(labTest.completedDate).format(dateFormat) : '',
+        testingTime: labTest.completedDate ? moment(labTest.completedDate).format('LTS') : '',
         priority: labRequest?.priority?.name,
         testingLaboratory: labRequest?.laboratory?.name,
         labTestMethod: labTest?.labTestMethod?.name,
+        additionalDataEthnicity: patientAdditionalData?.ethnicity?.name,
+        additionalDataNationality: patientAdditionalData?.nationality?.name,
+        additionalDataPassportNumber: patientAdditionalData?.passport,
       };
       Object.entries(surveyQuestionCodes).forEach(([key, dataElement]) => {
         labTestRecord[key] = getLatestPatientAnswerInDateRange(
@@ -266,16 +288,18 @@ const getLabTestRecords = async (
 export const baseDataGenerator = async (
   { models },
   parameters = {},
-  { surveyId, reportColumnTemplate, surveyQuestionCodes, testingDateFormat = 'DD-MM-YYYY' },
+  { surveyId, reportColumnTemplate, surveyQuestionCodes, dateFormat = 'DD-MM-YYYY' },
 ) => {
   const labTests = await getLabTests(models, parameters);
   const answers = await getFijiCovidAnswers(models, parameters, { surveyId });
   const components = await models.SurveyScreenComponent.getComponentsForSurvey(surveyId);
-  const transformedAnswers = await transformAnswers(models, answers, components);
+  const transformedAnswers = await transformAnswers(models, answers, components, {
+    dateFormat,
+  });
 
   const reportData = await getLabTestRecords(labTests, transformedAnswers, parameters, {
     surveyQuestionCodes,
-    testingDateFormat,
+    dateFormat,
   });
 
   return generateReportFromQueryData(reportData, reportColumnTemplate);
