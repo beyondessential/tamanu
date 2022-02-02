@@ -1,7 +1,7 @@
 import express from 'express';
 
 import { loginHandler, authMiddleware } from '~/middleware/auth';
-import { constructPermission } from '~/middleware/permission';
+import { constructPermission } from 'shared/permissions/middleware';
 
 import { user } from './user';
 import { patient } from './patient';
