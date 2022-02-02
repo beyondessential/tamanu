@@ -97,10 +97,6 @@ export function checkVisibility(component, values, allComponents) {
         return false;
       }
 
-      if (matchingComponent.dataElement.type === 'Select') {
-        return value === answersEnablingFollowUp;
-      }
-
       return answersEnablingFollowUp.includes(value);
     };
 
