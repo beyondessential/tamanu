@@ -66,8 +66,10 @@ patientDocumentMetadataRoutes.get(
     // that the patient may have had. Also apply filters from search bar.
     const documentMetadataItems = await models.DocumentMetadata.findAndCountAll({
       where: {
-        [Op.or]: [{ patientId }, { encounterId: { [Op.in]: encounterIds } }],
-        ...documentFilters,
+        [Op.and]: [
+          {[Op.or]: [{ patientId }, { encounterId: { [Op.in]: encounterIds } }]},
+          documentFilters,
+        ],
       },
       order: orderBy ? getOrderClause(order, orderBy) : undefined,
       include: [department],
