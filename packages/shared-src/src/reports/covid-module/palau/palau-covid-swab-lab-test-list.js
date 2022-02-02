@@ -32,8 +32,8 @@ const reportColumnTemplate = [
   { title: 'Sex', accessor: data => data.sex },
   { title: 'Patient ID', accessor: data => data.patientId },
   { title: 'Hamlet', accessor: data => data.homeSubDivision },
-  { title: 'Nationality', accessor: data => data.Nationality }, // TODO
-  { title: 'Ethnicity', accessor: data => data.Ethnicity }, // TODO
+  { title: 'Nationality', accessor: data => data.additionalDataNationality ?? data.Nationality }, // TODO
+  { title: 'Ethnicity', accessor: data => data.additionalDataEthnicity ?? data.Ethnicity }, // TODO
   { title: 'Lab request ID', accessor: data => data.labRequestId },
   {
     title: 'Lab request type',
@@ -54,10 +54,18 @@ const reportColumnTemplate = [
   { title: 'Testing laboratory', accessor: data => data.testingLaboratory },
   { title: 'Testing date', accessor: data => data.testingDate },
   { title: 'Testing time', accessor: data => data.testingTime },
-  ...Object.entries(SURVEY_QUESTION_CODES).map(([title, questionCode]) => ({
-    title,
-    accessor: data => data[title],
-  })),
+  { title: 'Contact number', accessor: data => data['Contact number'] },
+  { title: 'Where was the test conducted', accessor: data => data['Where was the test conducted'] },
+  { title: 'Purpose of sample collection', accessor: data => data['Purpose of sample collection'] },
+  { title: 'Other purpose', accessor: data => data['Other purpose'] },
+  {
+    title: 'Passport number',
+    accessor: data => data.additionalDataPassport ?? data['Passport number'],
+  },
+  { title: 'Final destination', accessor: data => data['Final destination'] },
+  { title: 'Transit country', accessor: data => data['Transit country'] },
+  { title: 'Airline', accessor: data => data.Airline },
+  { title: 'Testing cost', accessor: data => data['Testing cost'] },
 ];
 
 export const dataGenerator = async ({ models }, parameters = {}) => {
