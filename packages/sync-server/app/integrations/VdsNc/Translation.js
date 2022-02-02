@@ -140,53 +140,66 @@ export const createPoT = async (
   labTestId,
   { countryCode = config.icao.sign.countryCode3, models = allModels } = {},
 ) => {
-  const { Patient, LabTest, LabTestMethod, LabRequest, Location, Encounter } = models;
+  const {
+    Patient,
+    PatientAdditionalData,
+    LabTest,
+    ReferenceData,
+    LabRequest,
+    Location,
+    Encounter,
+  } = models;
   const test = await LabTest.findOne({
     where: {
       id: labTestId,
     },
     include: [
       {
-        model: Encounter,
-        as: 'encounter',
-        include: [
-          {
-            model: Patient,
-            as: 'patient',
-            include: ['additionalData'],
-          },
-          {
-            model: Location,
-            as: 'location',
-            include: ['facility'],
-          },
-        ],
-      },
-      {
-        model: LabTestMethod,
-        as: 'method',
+        model: ReferenceData,
+        as: 'labTestMethod',
       },
       {
         model: LabRequest,
-        as: 'request',
+        as: 'labRequest',
+        include: [
+          {
+            model: Encounter,
+            as: 'encounter',
+            include: [
+              {
+                model: Patient,
+                as: 'patient',
+                include: [
+                  {
+                    model: PatientAdditionalData,
+                    as: 'additionalData',
+                  },
+                ],
+              },
+              {
+                model: Location,
+                as: 'location',
+                include: ['Facility'],
+              },
+            ],
+          },
+        ],
       },
     ],
   });
 
+  const { labTestMethod: method, labRequest: request } = test;
+
   const {
-    method,
-    request,
-    encounter: {
-      location: { facility },
-      patient: {
-        firstName,
-        lastName,
-        dateOfBirth,
-        sex,
-        additionalData: { passport },
-      },
+    location: { Facility: facility },
+    patient: {
+      firstName,
+      lastName,
+      dateOfBirth,
+      sex,
+      additionalData: [{ passport }],
     },
-  } = test;
+  } = request.encounter;
 
   const pidDoc = passport
     ? {
@@ -206,7 +219,7 @@ export const createPoT = async (
       cd: {
         p: facility.contactNumber,
         e: facility.email,
-        a: `${facility.streetAddress} ${facility.cityTown}`,
+        a: `${facility.streetAddress}, ${facility.cityTown}`,
       },
     },
     dat: {
