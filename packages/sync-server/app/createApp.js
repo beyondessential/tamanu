@@ -9,6 +9,7 @@ import { routes } from './routes';
 import { authModule } from './auth';
 import { publicRoutes } from './publicRoutes';
 
+import { constructPermission } from 'shared/permissions/middleware';
 import { defaultErrorHandler } from './middleware/errorHandler';
 import { loadshedder } from './middleware/loadshedder';
 import { versionCompatibility } from './middleware/versionCompatibility';
@@ -62,6 +63,7 @@ export function createApp(ctx) {
   // API v1
   app.use('/v1/public', publicRoutes);
   app.use('/v1', authModule);
+  app.use('/v1', constructPermission);
   app.use('/v1', routes);
 
   // Dis-allow all other routes
