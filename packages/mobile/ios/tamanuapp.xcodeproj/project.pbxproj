@@ -9,11 +9,11 @@
 /* Begin PBXBuildFile section */
 		067C9878401A40BB904DD612 /* SimpleLineIcons.ttf in Resources */ = {isa = PBXBuildFile; fileRef = 49FD1C5E5801428DAACE553E /* SimpleLineIcons.ttf */; };
 		13B07FBC1A68108700A75B9A /* AppDelegate.m in Sources */ = {isa = PBXBuildFile; fileRef = 13B07FB01A68108700A75B9A /* AppDelegate.m */; };
-		13B07FBD1A68108700A75B9A /* LaunchScreen.xib in Resources */ = {isa = PBXBuildFile; fileRef = 13B07FB11A68108700A75B9A /* LaunchScreen.xib */; };
 		13B07FBF1A68108700A75B9A /* Images.xcassets in Resources */ = {isa = PBXBuildFile; fileRef = 13B07FB51A68108700A75B9A /* Images.xcassets */; };
 		13B07FC11A68108700A75B9A /* main.m in Sources */ = {isa = PBXBuildFile; fileRef = 13B07FB71A68108700A75B9A /* main.m */; };
 		17525A712ACA409BA567750F /* FontAwesome5_Brands.ttf in Resources */ = {isa = PBXBuildFile; fileRef = 7B3B01DDA90B4B1B89341A8F /* FontAwesome5_Brands.ttf */; };
 		21A61A80B61140809530CB5B /* EvilIcons.ttf in Resources */ = {isa = PBXBuildFile; fileRef = B4243AED9E244C3A87086DE4 /* EvilIcons.ttf */; };
+		26E8866727AA26E5008E9BE5 /* LaunchScreen.storyboard in Resources */ = {isa = PBXBuildFile; fileRef = 26E8866627AA26E5008E9BE5 /* LaunchScreen.storyboard */; };
 		2A6EB9A845DD42D585389544 /* FontAwesome5_Solid.ttf in Resources */ = {isa = PBXBuildFile; fileRef = 667726395DA44A5292934298 /* FontAwesome5_Solid.ttf */; };
 		32066C9E57764973B63BA550 /* MaterialCommunityIcons.ttf in Resources */ = {isa = PBXBuildFile; fileRef = B747E50A2F8A40D2993C20C3 /* MaterialCommunityIcons.ttf */; };
 		3487975A817E4940BF552474 /* Foundation.ttf in Resources */ = {isa = PBXBuildFile; fileRef = 1FE2C5DDB1C84630AD1EDB67 /* Foundation.ttf */; };
@@ -37,7 +37,6 @@
 		13B07F961A680F5B00A75B9A /* tamanuapp.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = tamanuapp.app; sourceTree = BUILT_PRODUCTS_DIR; };
 		13B07FAF1A68108700A75B9A /* AppDelegate.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = AppDelegate.h; path = tamanuapp/AppDelegate.h; sourceTree = "<group>"; };
 		13B07FB01A68108700A75B9A /* AppDelegate.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; name = AppDelegate.m; path = tamanuapp/AppDelegate.m; sourceTree = "<group>"; };
-		13B07FB21A68108700A75B9A /* Base */ = {isa = PBXFileReference; lastKnownFileType = file.xib; name = Base; path = Base.lproj/LaunchScreen.xib; sourceTree = "<group>"; };
 		13B07FB51A68108700A75B9A /* Images.xcassets */ = {isa = PBXFileReference; lastKnownFileType = folder.assetcatalog; name = Images.xcassets; path = tamanuapp/Images.xcassets; sourceTree = "<group>"; };
 		13B07FB61A68108700A75B9A /* Info.plist */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text.plist.xml; name = Info.plist; path = tamanuapp/Info.plist; sourceTree = "<group>"; };
 		13B07FB71A68108700A75B9A /* main.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; name = main.m; path = tamanuapp/main.m; sourceTree = "<group>"; };
@@ -45,6 +44,7 @@
 		181A6D700D914766D656152D /* Pods-tamanuapp.debug.xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; name = "Pods-tamanuapp.debug.xcconfig"; path = "Target Support Files/Pods-tamanuapp/Pods-tamanuapp.debug.xcconfig"; sourceTree = "<group>"; };
 		1FE2C5DDB1C84630AD1EDB67 /* Foundation.ttf */ = {isa = PBXFileReference; explicitFileType = undefined; fileEncoding = 9; includeInIndex = 0; lastKnownFileType = unknown; name = Foundation.ttf; path = "../node_modules/react-native-vector-icons/Fonts/Foundation.ttf"; sourceTree = "<group>"; };
 		22C12CA25C823DA5A7FA5507 /* Pods-tamanuapp-tvOSTests.release.xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; name = "Pods-tamanuapp-tvOSTests.release.xcconfig"; path = "Target Support Files/Pods-tamanuapp-tvOSTests/Pods-tamanuapp-tvOSTests.release.xcconfig"; sourceTree = "<group>"; };
+		26E8866627AA26E5008E9BE5 /* LaunchScreen.storyboard */ = {isa = PBXFileReference; lastKnownFileType = file.storyboard; path = LaunchScreen.storyboard; sourceTree = "<group>"; };
 		3DAA30888898160FD6C2DAB1 /* libPods-tamanuapp-tamanuappTests.a */ = {isa = PBXFileReference; explicitFileType = archive.ar; includeInIndex = 0; path = "libPods-tamanuapp-tamanuappTests.a"; sourceTree = BUILT_PRODUCTS_DIR; };
 		3E3666856B1541A787686F54 /* Feather.ttf */ = {isa = PBXFileReference; explicitFileType = undefined; fileEncoding = 9; includeInIndex = 0; lastKnownFileType = unknown; name = Feather.ttf; path = "../node_modules/react-native-vector-icons/Fonts/Feather.ttf"; sourceTree = "<group>"; };
 		41080835AED0824EAE5CED9D /* Pods-tamanuapp.release.xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; name = "Pods-tamanuapp.release.xcconfig"; path = "Target Support Files/Pods-tamanuapp/Pods-tamanuapp.release.xcconfig"; sourceTree = "<group>"; };
@@ -110,8 +110,8 @@
 				13B07FB01A68108700A75B9A /* AppDelegate.m */,
 				13B07FB51A68108700A75B9A /* Images.xcassets */,
 				13B07FB61A68108700A75B9A /* Info.plist */,
-				13B07FB11A68108700A75B9A /* LaunchScreen.xib */,
 				13B07FB71A68108700A75B9A /* main.m */,
+				26E8866627AA26E5008E9BE5 /* LaunchScreen.storyboard */,
 			);
 			name = tamanuapp;
 			sourceTree = "<group>";
@@ -212,6 +212,7 @@
 				13B07F8E1A680F5B00A75B9A /* Resources */,
 				00DD1BFF1BD5951E006B06BC /* Bundle React Native code and images */,
 				9B446459EBBBEF052ACF6533 /* [CP] Copy Pods Resources */,
+				E267178202924D2EEAE84497 /* [CP] Embed Pods Frameworks */,
 			);
 			buildRules = (
 			);
@@ -259,7 +260,6 @@
 			buildActionMask = 2147483647;
 			files = (
 				13B07FBF1A68108700A75B9A /* Images.xcassets in Resources */,
-				13B07FBD1A68108700A75B9A /* LaunchScreen.xib in Resources */,
 				63D909969E864CB9B4546D34 /* AntDesign.ttf in Resources */,
 				CC4686DAFA184BB28657FA5D /* Entypo.ttf in Resources */,
 				21A61A80B61140809530CB5B /* EvilIcons.ttf in Resources */,
@@ -268,6 +268,7 @@
 				17525A712ACA409BA567750F /* FontAwesome5_Brands.ttf in Resources */,
 				823CCF84AB6544E9B6134C76 /* FontAwesome5_Regular.ttf in Resources */,
 				2A6EB9A845DD42D585389544 /* FontAwesome5_Solid.ttf in Resources */,
+				26E8866727AA26E5008E9BE5 /* LaunchScreen.storyboard in Resources */,
 				6684113C5976401197C1E3FD /* Fontisto.ttf in Resources */,
 				3487975A817E4940BF552474 /* Foundation.ttf in Resources */,
 				61335BC76B6D4E3CB7150945 /* Ionicons.ttf in Resources */,
@@ -325,13 +326,33 @@
 			);
 			inputPaths = (
 				"${PODS_ROOT}/Target Support Files/Pods-tamanuapp/Pods-tamanuapp-resources.sh",
+				"${PODS_CONFIGURATION_BUILD_DIR}/React-Core/AccessibilityResources.bundle",
 			);
 			name = "[CP] Copy Pods Resources";
 			outputPaths = (
+				"${TARGET_BUILD_DIR}/${UNLOCALIZED_RESOURCES_FOLDER_PATH}/AccessibilityResources.bundle",
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 			shellPath = /bin/sh;
 			shellScript = "\"${PODS_ROOT}/Target Support Files/Pods-tamanuapp/Pods-tamanuapp-resources.sh\"\n";
+			showEnvVarsInLog = 0;
+		};
+		E267178202924D2EEAE84497 /* [CP] Embed Pods Frameworks */ = {
+			isa = PBXShellScriptBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+			);
+			inputPaths = (
+				"${PODS_ROOT}/Target Support Files/Pods-tamanuapp/Pods-tamanuapp-frameworks.sh",
+				"${PODS_XCFRAMEWORKS_BUILD_DIR}/OpenSSL-Universal/OpenSSL.framework/OpenSSL",
+			);
+			name = "[CP] Embed Pods Frameworks";
+			outputPaths = (
+				"${TARGET_BUILD_DIR}/${FRAMEWORKS_FOLDER_PATH}/OpenSSL.framework",
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+			shellPath = /bin/sh;
+			shellScript = "\"${PODS_ROOT}/Target Support Files/Pods-tamanuapp/Pods-tamanuapp-frameworks.sh\"\n";
 			showEnvVarsInLog = 0;
 		};
 		FD10A7F022414F080027D42C /* Start Packager */ = {
@@ -366,18 +387,6 @@
 			runOnlyForDeploymentPostprocessing = 0;
 		};
 /* End PBXSourcesBuildPhase section */
-
-/* Begin PBXVariantGroup section */
-		13B07FB11A68108700A75B9A /* LaunchScreen.xib */ = {
-			isa = PBXVariantGroup;
-			children = (
-				13B07FB21A68108700A75B9A /* Base */,
-			);
-			name = LaunchScreen.xib;
-			path = tamanuapp;
-			sourceTree = "<group>";
-		};
-/* End PBXVariantGroup section */
 
 /* Begin XCBuildConfiguration section */
 		13B07F941A680F5B00A75B9A /* Debug */ = {
