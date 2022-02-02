@@ -31,15 +31,17 @@ export async function getPermissionsForRoles(roleString) {
   }
 
   const roleIds = commaSplit(roleString);
-  const permissions = queryPermissionsForRoles(roleIds);
+  const permissions = await queryPermissionsForRoles(roleIds);
 
-  // cache promise rather than final value to account for
-  // simultaneous queries 
   permissionCache[roleString] = permissions;
   return permissions;
 }
 
 export async function getAbilityForUser(user) {
+  if (!user) {
+    return buildAbility([]);
+  }
+
   const permissions = await getPermissionsForRoles(user.role);
   const ability = buildAbility([
     ...permissions,
