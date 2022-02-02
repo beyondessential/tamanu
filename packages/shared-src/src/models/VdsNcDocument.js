@@ -1,5 +1,6 @@
 import { Sequelize } from 'sequelize';
 import { canonicalize } from 'json-canonicalize';
+import crypto from 'crypto';
 import { Model } from './Model';
 import { VdsNcSigner } from './VdsNcSigner';
 import { ICAO_DOCUMENT_TYPES } from '../constants';
@@ -25,6 +26,10 @@ export class VdsNcDocument extends Model {
           allowNull: false,
         },
 
+        unique: {
+          type: Sequelize.STRING,
+          allowNull: true,
+        },
         algorithm: {
           type: Sequelize.STRING,
           allowNull: true,
@@ -36,6 +41,7 @@ export class VdsNcDocument extends Model {
       },
       {
         ...options,
+        indexes: [{ unique: true, fields: ['unique'] }],
         validate: {
           mustHaveValidType() {
             if (!Object.values(ICAO_DOCUMENT_TYPES).some(typ => this.type === typ.JSON)) {
@@ -60,7 +66,7 @@ export class VdsNcDocument extends Model {
    * @returns {boolean} True if this has been signed.
    */
   isSigned() {
-    return !!(this.algorithm && this.signature && this.signedAt);
+    return !!(this.unique && this.algorithm && this.signature && this.signedAt);
   }
 
   /**
@@ -79,18 +85,34 @@ export class VdsNcDocument extends Model {
     const signer = await VdsNcSigner.findActive();
     if (!signer) throw new Error('No active signer');
 
+    const msg = JSON.parse(this.messageData);
+    let unique;
+    switch (this.type) {
+      case 'icao.test':
+        unique = await this.makeUnique('TT');
+        msg.utvi = unique;
+        break;
+      case 'icao.vacc':
+        unique = await this.makeUnique('TV');
+        msg.ucvi = unique;
+        break;
+      default:
+        throw new Error(`Unknown VDS-NC type: ${this.type}`);
+    }
+
     const data = {
       hdr: {
         t: this.type,
         v: 1,
         is: signer.countryCode,
       },
-      msg: JSON.parse(this.messageData),
+      msg,
     };
 
     const { algorithm, signature } = await signer.issueSignature(data, keySecret);
     await this.setVdsNcSigner(signer);
     return this.update({
+      unique,
       algorithm,
       signature,
       signedAt: Sequelize.literal('CURRENT_TIMESTAMP'),
@@ -109,18 +131,63 @@ export class VdsNcDocument extends Model {
     if (!this.isSigned()) throw new Error('Cannot return an unsigned VDS-NC document.');
     const signer = await this.getVdsNcSigner();
 
+    const msg = JSON.parse(this.messageData);
+    switch (this.type) {
+      case 'icao.test':
+        msg.utci = this.unique;
+        break;
+      case 'icao.vacc':
+        msg.uvci = this.unique;
+        break;
+      default:
+        throw new Error(`Unknown VDS-NC type: ${this.type}`);
+    }
+
     return canonicalize({
       hdr: {
         t: this.type,
         v: 1,
         is: signer.countryCode,
       },
-      msg: JSON.parse(this.messageData),
+      msg,
       sig: {
         alg: this.algorithm,
         sigvl: base64UrlEncode(this.signature),
         cer: base64UrlEncode(depem(signer.certificate, 'CERTIFICATE')),
       },
     });
+  }
+
+  /**
+   * Generate a new unique certificate ID with the given prefix.
+   *
+   * @param {string} prefix
+   * @returns {string}
+   */
+  async makeUnique(prefix) {
+    // Generate a bunch of candidates at random and check them for actual
+    // uniqueness against the database at once. This saves N-1 queries in
+    // the case where the first N generated are non-unique.
+    //
+    // With a two-char prefix, randomness will be 10 chars, or 5 bytes of
+    // hex, which gives use a numberspace of about 2 trillion, and a chance
+    // of finding 5 collisions of under 1 in a 100 billionth. Good enough!
+    const candidates = Array(5)
+      .fill(0)
+      .map(() =>
+        `${prefix}${crypto
+          .randomBytes(12)
+          .toString('hex')
+          .toUpperCase()}`.slice(0, 12),
+      );
+
+    const collisions = await VdsNcDocument.findAll({
+      attributes: ['unique'], // will perform an index-only query!
+      where: { unique: candidates },
+    });
+
+    const unique = candidates.find(cand => !collisions.some(({ unique: col }) => col === cand));
+    if (!unique) return this.makeUnique(prefix);
+    return unique;
   }
 }

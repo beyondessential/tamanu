@@ -35,6 +35,10 @@ module.exports = {
         type: Sequelize.TEXT,
         allowNull: false,
       },
+      unique: {
+        type: Sequelize.STRING,
+        allowNull: true,
+      },
       algorithm: {
         type: Sequelize.STRING,
         allowNull: true,
@@ -58,8 +62,16 @@ module.exports = {
         },
       },
     });
+    await query.addIndex('vds_nc_documents', {
+      fields: ['unique'],
+      unique: true,
+    });
   },
   down: async query => {
+    await query.removeIndex('vds_nc_documents', {
+      fields: ['unique'],
+      unique: true,
+    });
     await query.dropTable('vds_nc_documents');
   },
 };
