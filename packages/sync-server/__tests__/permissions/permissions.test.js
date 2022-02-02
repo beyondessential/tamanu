@@ -36,6 +36,8 @@ describe('Permissions', () => {
     })));
   });
 
+  afterAll(() => ctx.close());
+
   describe('creating permission definition from database', () => {
     it('should read a permission definition object from a series of records', async () => {
       const ability = await getAbilityForRoles("reader");

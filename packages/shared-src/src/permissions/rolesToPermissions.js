@@ -31,7 +31,10 @@ export async function getPermissionsForRoles(roleString) {
   }
 
   const roleIds = commaSplit(roleString);
-  const permissions = await queryPermissionsForRoles(roleIds);
+
+  // don't await this -- we want to store the promise, not the result
+  // so that quick consecutive requests can benefit from it
+  const permissions = queryPermissionsForRoles(roleIds);
 
   permissionCache[roleString] = permissions;
   return permissions;
