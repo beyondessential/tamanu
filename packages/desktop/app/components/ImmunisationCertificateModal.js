@@ -15,7 +15,7 @@ const DumbImmunisationCertificateModal = ({ getImmunisations, open, onClose, pat
   const createImmunisationCertificateNotification = useCallback(
     data => {
       api.post('certificateNotification', {
-        type: ICAO_DOCUMENT_TYPES.PROOF_OF_VACCINATION,
+        type: ICAO_DOCUMENT_TYPES.PROOF_OF_VACCINATION.JSON,
         requireSigning: true,
         patientId: patient.id,
         forwardAddress: data.email,
