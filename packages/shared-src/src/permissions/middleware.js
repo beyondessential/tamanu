@@ -1,3 +1,4 @@
+import config from 'config';
 import { ForbiddenError, BadAuthenticationError } from 'shared/errors';
 import { getAbilityForUser } from 'shared/permissions/rolesToPermissions';
 
