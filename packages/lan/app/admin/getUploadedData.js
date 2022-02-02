@@ -1,7 +1,9 @@
 import multiparty from 'multiparty';
 
+import { tmpdir } from 'shared/utils';
+
 async function getMultipartData(req) {
-  const form = new multiparty.Form();
+  const form = new multiparty.Form({ uploadDir: tmpdir() });
 
   return new Promise((resolve, reject) => {
     form.parse(req, (err, fields, files) => {
