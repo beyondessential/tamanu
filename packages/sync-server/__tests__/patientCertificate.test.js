@@ -1,9 +1,9 @@
 import { createDummyPatient, createDummyEncounter } from 'shared/demoData/patients';
 import { randomLabRequest } from 'shared/demoData/labRequests';
 import { LAB_REQUEST_STATUSES, REFERENCE_TYPES } from 'shared/constants';
+import { makePatientCertificate } from 'shared/utils';
 
 import { createTestContext } from './utilities';
-import { makePatientCovidCertificate } from '../app/utils/patientCertificates';
 
 async function prepopulate(models) {
   const lab = await models.ReferenceData.create({
@@ -117,10 +117,10 @@ describe('Certificate', () => {
 
   afterAll(() => ctx.close());
 
-  it.skip('Generates a Patient Covid Certificate', async () => {
+  it('Generates a Patient Covid Certificate', async () => {
     await createLabTests();
     const patientRecord = await models.Patient.findByPk(patient.id);
-    const result = await makePatientCovidCertificate(patientRecord, models);
+    const result = await makePatientCertificate(patientRecord, models, [{ foo: 'bar' }]);
     expect(result.status).toEqual('success');
   });
 });

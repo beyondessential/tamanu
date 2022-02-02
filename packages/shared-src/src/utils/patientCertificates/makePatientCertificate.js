@@ -1,16 +1,16 @@
 import React from 'react';
-import ReactPDF from '@react-pdf/renderer';
 import fs from 'fs';
-import QRCode from 'qrcode';
 import { log } from 'shared/services/logging';
-import { CovidCertificate } from 'shared/utils';
+import ReactPDF from '@react-pdf/renderer';
+import QRCode from 'qrcode';
+import { CovidCertificate } from './CovidCertificate';
 
 const getFilePath = patient => {
   const fileName = `covid-certificate-${patient.id}`;
   return `./patientCertificates/${fileName}.pdf`;
 };
 
-export const makePatientCertificate = async (patient, models) => {
+export const makePatientCertificate = async (patient, models, vdsData = null) => {
   await fs.promises.mkdir('./patientCertificates', { recursive: true });
   const filePath = getFilePath(patient);
 
@@ -30,8 +30,9 @@ export const makePatientCertificate = async (patient, models) => {
 
   const labs = await patient.getLabRequests();
 
+  const vds = vdsData ? await QRCode.toDataURL(vdsData) : null;
+
   try {
-    const vds = await QRCode.toDataURL('Testing');
     await ReactPDF.render(
       <CovidCertificate
         patient={patient.dataValues}
