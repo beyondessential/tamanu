@@ -5,6 +5,7 @@ import {
   randomReferenceId,
 } from 'shared/demoData/patients';
 import { randomLabRequest } from 'shared/demoData';
+import { LAB_REQUEST_STATUSES } from 'shared/constants';
 import { createTestContext } from '../../utilities';
 
 const PROGRAM_ID = 'program-fijicovid19';
@@ -138,6 +139,52 @@ const createLabTests = async (models, app, expectedPatient1, expectedPatient2) =
   await models.LabTest.create({
     labTestTypeId: labRequest4Data.labTestTypeIds[0],
     labRequestId: labRequest4.id,
+    date: '2021-03-20T10:50:28.133Z',
+  });
+
+  // SHOULD NOT DISPLAY - Due to it's deleted status
+  const encounter5 = await models.Encounter.create(
+    await createDummyEncounter(models, { patientId: expectedPatient2.id }),
+  );
+  const labRequest5Data = await randomLabRequest(models, {
+    labTestCategoryId: 'labTestCategory-COVID',
+    patientId: expectedPatient2.id,
+    requestedDate: '2021-03-20T10:50:28.133Z',
+    displayId: 'labRequest4',
+    encounterId: encounter5.id,
+    status: LAB_REQUEST_STATUSES.DELETED,
+  });
+  const labRequest5 = await models.LabRequest.create(labRequest5Data);
+  await models.LabTest.create({
+    labTestTypeId: labRequest5Data.labTestTypeIds[0],
+    labRequestId: labRequest5.id,
+    date: '2021-03-20T10:50:28.133Z',
+  });
+
+  // SHOULD NOT DISPLAY - Due to it's patient_id being William Horoto's
+  const williamHoroto = await models.Patient.create({
+    firstName: 'William',
+    lastName: 'Horoto',
+    dateOfBirth: new Date(2000, 1, 1),
+    sex: 'male',
+    displayId: 'WILLIAM',
+    id: 'cebdd9a4-2744-4ad2-9919-98dc0b15464c',
+  });
+  const encounter6 = await models.Encounter.create(
+    await createDummyEncounter(models, { patientId: williamHoroto.id }),
+  );
+  const labRequest6Data = await randomLabRequest(models, {
+    labTestCategoryId: 'labTestCategory-COVID',
+    patientId: williamHoroto.id,
+    requestedDate: '2021-03-20T10:50:28.133Z',
+    displayId: 'labRequest4',
+    encounterId: encounter6.id,
+    status: LAB_REQUEST_STATUSES.DELETED,
+  });
+  const labRequest6 = await models.LabRequest.create(labRequest6Data);
+  await models.LabTest.create({
+    labTestTypeId: labRequest6Data.labTestTypeIds[0],
+    labRequestId: labRequest6.id,
     date: '2021-03-20T10:50:28.133Z',
   });
 
@@ -333,7 +380,7 @@ describe('Covid swab lab test list', () => {
 
   beforeAll(async () => {
     const ctx = await createTestContext();
-    const models = ctx.models;
+    const { models } = ctx;
     baseApp = ctx.baseApp;
     village1 = await randomReferenceId(models, 'village');
     village2 = await randomReferenceId(models, 'village');
@@ -370,8 +417,8 @@ describe('Covid swab lab test list', () => {
       expect(result).toHaveSucceeded();
       expect(result.body).toHaveLength(5);
 
-      /*******Lab request 1*********/
-      //patient details
+      /** *****Lab request 1******** */
+      // patient details
       const expectedDetails1 = {
         firstName: expectedPatient1.firstName,
         lastName: expectedPatient1.lastName,
@@ -379,8 +426,8 @@ describe('Covid swab lab test list', () => {
         sex: expectedPatient1.sex,
         patientId: expectedPatient1.displayId,
         labRequestId: labRequest1.displayId,
-        //Fiji Samp collection form
-        //always grab the latest answer between the current lab request and the next lab request, regardless of survey response,
+        // Fiji Samp collection form
+        // always grab the latest answer between the current lab request and the next lab request, regardless of survey response,
         labRequestType: 'COVID-19',
         labTestMethod: 'Swab',
         status: 'Reception pending',
@@ -395,8 +442,8 @@ describe('Covid swab lab test list', () => {
         expect(getProperty(result, 1, key)).toBe(expectedValue);
       }
 
-      /*******Lab request 2*********/
-      //patient details
+      /** *****Lab request 2******** */
+      // patient details
       const expectedDetails2 = {
         firstName: expectedPatient1.firstName,
         lastName: expectedPatient1.lastName,
@@ -404,8 +451,8 @@ describe('Covid swab lab test list', () => {
         sex: expectedPatient1.sex,
         patientId: expectedPatient1.displayId,
         labRequestId: labRequest2.displayId,
-        //Fiji Samp collection form
-        //always grab the latest answer between the current lab request and the next lab request, regardless of survey response,
+        // Fiji Samp collection form
+        // always grab the latest answer between the current lab request and the next lab request, regardless of survey response,
         labRequestType: 'COVID-19',
         status: 'Reception pending',
         requestedDate: '16-03-2021',
@@ -419,8 +466,8 @@ describe('Covid swab lab test list', () => {
         expect(getProperty(result, 2, key)).toBe(expectedValue);
       }
 
-      /*******Lab request 3*********/
-      //patient details
+      /** *****Lab request 3******** */
+      // patient details
       const expectedDetails3 = {
         firstName: expectedPatient2.firstName,
         lastName: expectedPatient2.lastName,
@@ -428,8 +475,8 @@ describe('Covid swab lab test list', () => {
         sex: expectedPatient2.sex,
         patientId: expectedPatient2.displayId,
         labRequestId: labRequest3.displayId,
-        //Fiji Samp collection form
-        //always grab the latest answer between the current lab request and the next lab request, regardless of survey response,
+        // Fiji Samp collection form
+        // always grab the latest answer between the current lab request and the next lab request, regardless of survey response,
         labRequestType: 'COVID-19',
         status: 'Reception pending',
         requestedDate: '17-03-2021',
@@ -443,7 +490,7 @@ describe('Covid swab lab test list', () => {
         expect(getProperty(result, 3, key)).toBe(expectedValue);
       }
 
-      /*******Lab request 4*********/
+      /** *****Lab request 4******** */
       const expectedDetails4 = {
         firstName: expectedPatient2.firstName,
         lastName: expectedPatient2.lastName,
@@ -451,8 +498,8 @@ describe('Covid swab lab test list', () => {
         sex: expectedPatient2.sex,
         patientId: expectedPatient2.displayId,
         labRequestId: labRequest4.displayId,
-        //Fiji Samp collection form
-        //always grab the latest answer between the current lab request and the next lab request, regardless of survey response,
+        // Fiji Samp collection form
+        // always grab the latest answer between the current lab request and the next lab request, regardless of survey response,
         labRequestType: 'COVID-19',
         status: 'Reception pending',
         requestedDate: '20-03-2021',
