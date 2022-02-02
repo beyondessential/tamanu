@@ -83,6 +83,7 @@
     "lodash": "^4.17.5",
     "mailgun-js": "^0.22.0",
     "mathjs": "^9.3.0",
+    "mkdirp": "^1.0.4",
     "moment": "^2.21.0",
     "mongodb": "^3.6.2",
     "morgan": "^1.9.0",

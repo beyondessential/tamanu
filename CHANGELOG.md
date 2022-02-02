@@ -16,7 +16,7 @@
 
 ### Bug fixes 🐛
 
-- (left blank)
+- Fixed temp folders not already existing on Windows hosts in lan (was already fixed in sync)
 
 ### Infrastructure and maintenance 🛠
 
