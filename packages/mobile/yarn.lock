@@ -11792,11 +11792,6 @@ react-native-flipper@^0.34.0:
   resolved "https://registry.yarnpkg.com/react-native-flipper/-/react-native-flipper-0.34.0.tgz#7df1f38ba5d97a9321125fe0fccbe47d99e6fa1d"
   integrity sha512-48wgm29HJTOlZ0DibBsvXueEOY0EPIVL0wWKbwRfgrk86+luSEuLW3aZC50oJa95zSFb9qYShTV/6dWqh4Jamg==
 
-react-native-flipper@^0.39.0:
-  version "0.39.0"
-  resolved "https://registry.yarnpkg.com/react-native-flipper/-/react-native-flipper-0.39.0.tgz#46160e90824f57e53e2bce1e6f4cd5c4a22e50d1"
-  integrity sha512-9aggakdZMjzhMuWLIviHefz4BJ6s80zUCDJHjqC2k2ja5FT8i8AAdfnQO0F5wzMyghx9fKtXhBzyNRs6U00cgg==
-
 react-native-fs@^2.17.0:
   version "2.17.0"
   resolved "https://registry.yarnpkg.com/react-native-fs/-/react-native-fs-2.17.0.tgz#8bd7d57d5f3325ae2f511e3fb2391ca5802d7a88"
