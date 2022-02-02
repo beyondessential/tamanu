@@ -241,7 +241,7 @@ const getLabTestRecords = async (
       const { labRequest } = labTest;
       const encounter = labRequest?.encounter;
       const patient = encounter?.patient;
-      const homeSubDivision = patient?.village?.name;
+      const village = patient?.village?.name;
       const patientAdditionalData = patient?.additionalData?.[0];
 
       const labTestRecord = {
@@ -250,7 +250,7 @@ const getLabTestRecords = async (
         dob: patient?.dateOfBirth ? moment(patient?.dateOfBirth).format(dateFormat) : '',
         sex: patient?.sex,
         patientId: patient?.displayId,
-        homeSubDivision,
+        village,
         labRequestId: labRequest?.displayId,
         labRequestType: labRequest?.category?.name,
         labTestType: labTest?.labTestType?.name,
