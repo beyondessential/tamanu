@@ -31,14 +31,16 @@ export async function getPermissionsForRoles(roleString) {
   }
 
   const roleIds = commaSplit(roleString);
-  const permissions = await queryPermissionsForRoles(roleIds);
+  const permissions = queryPermissionsForRoles(roleIds);
 
+  // cache promise rather than final value to account for
+  // simultaneous queries 
   permissionCache[roleString] = permissions;
   return permissions;
 }
 
-export function getAbilityForUser(user) {
-  const permissions = getPermissionsForRoles(user.role);
+export async function getAbilityForUser(user) {
+  const permissions = await getPermissionsForRoles(user.role);
   const ability = buildAbility([
     ...permissions,
     // a user can always read and write themselves -- this is 
