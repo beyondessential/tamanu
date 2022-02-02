@@ -56,7 +56,7 @@ patientDocumentMetadataRoutes.get(
 
     // Require it when search has field, otherwise documents
     // without a specified department won't appear
-    const department = {
+    const departmentInclude = {
       association: 'department',
       where: departmentFilters,
       required: (filterParams.departmentName && true) || false,
@@ -72,7 +72,7 @@ patientDocumentMetadataRoutes.get(
         ],
       },
       order: orderBy ? getOrderClause(order, orderBy) : undefined,
-      include: [department],
+      include: [departmentInclude],
       limit: rowsPerPage,
       offset: offset || page * rowsPerPage,
     });
