@@ -3,43 +3,17 @@ import { baseDataGenerator } from '../covid-swab-lab-test-list';
 const SURVEY_ID = 'program-palaucovid19-palaucovidtestregistrationform';
 
 const SURVEY_QUESTION_CODES = {
-  Consent: 'pde-PalauCOVSamp2',
-  'First name of guardian': 'pde-PalauCOVSamp3',
-  'Last name of guardian': 'pde-PalauCOVSamp4',
   'Contact number': 'pde-PalauCOVSamp6',
-  Citizenship: 'pde-PalauCOVSamp7',
+  Nationality: 'pde-PalauCOVSamp7',
   Ethnicity: 'pde-PalauCOVSamp43',
-  Race: 'pde-PalauCOVSamp44',
-  'State for the last 14 days': 'pde-PalauCOVSamp8',
-  'Test conducted at BNH': 'pde-PalauCOVSamp10',
-  'If test not conducted at BNH, which facility?': 'pde-PalauCOVSamp11',
+  'Where was the test conducted': 'pde-PalauCOVSamp46',
   'Purpose of sample collection': 'pde-PalauCOVSamp12',
   'Other purpose': 'pde-PalauCOVSamp13',
-  'Printed result': 'pde-PalauCOVSamp14',
-  'Individual paid': 'pde-PalauCOVSamp15',
   'Passport number': 'pde-PalauCOVSamp16',
   'Final destination': 'pde-PalauCOVSamp17',
   'Transit country': 'pde-PalauCOVSamp18',
   Airline: 'pde-PalauCOVSamp19',
-  'Medical problems': 'pde-PalauCOVSamp21',
-  'Other medical problems': 'pde-PalauCOVSamp22',
-  Pregnant: 'pde-PalauCOVSamp23',
-  'Link to cluster/case': 'pde-PalauCOVSamp24',
-  'Name cluster/case': 'pde-PalauCOVSamp25',
-  Occupation: 'pde-PalauCOVSamp27',
-  'MHHS department': 'pde-PalauCOVSamp28',
-  'MHHS facility': 'pde-PalauCOVSamp29',
-  'Other employer': 'pde-PalauCOVSamp30',
-  School: 'pde-PalauCOVSamp31',
-  'Experiencing symptoms': 'pde-PalauCOVSamp34',
-  'Date of first symptom': 'pde-PalauCOVSamp35',
-  Symptoms: 'pde-PalauCOVSamp36',
-  'Other symptoms': 'pde-PalauCOVSamp37',
-  Vaccinated: 'pde-PalauCOVSamp38',
-  '1st dose': 'pde-PalauCOVSamp39',
-  '2nd dose': 'pde-PalauCOVSamp40',
-  'Booster dose': 'pde-PalauCOVSamp41',
-  'Date of last dose': 'pde-PalauCOVSamp42',
+  'Testing cost': 'pde-PalauCOVSamp19a',
 };
 
 const reportColumnTemplate = [
@@ -57,8 +31,9 @@ const reportColumnTemplate = [
   },
   { title: 'Sex', accessor: data => data.sex },
   { title: 'Patient ID', accessor: data => data.patientId },
-  { title: 'Hamlet', accessor: data => data.homeSubDivision },
-
+  { title: 'Hamlet', accessor: data => data.village },
+  { title: 'Nationality', accessor: data => data.additionalDataNationality ?? data.Nationality },
+  { title: 'Ethnicity', accessor: data => data.additionalDataEthnicity ?? data.Ethnicity },
   { title: 'Lab request ID', accessor: data => data.labRequestId },
   {
     title: 'Lab request type',
@@ -78,10 +53,19 @@ const reportColumnTemplate = [
   { title: 'Priority', accessor: data => data.priority },
   { title: 'Testing laboratory', accessor: data => data.testingLaboratory },
   { title: 'Testing date', accessor: data => data.testingDate },
-  ...Object.entries(SURVEY_QUESTION_CODES).map(([title, questionCode]) => ({
-    title,
-    accessor: data => data[title],
-  })),
+  { title: 'Testing time', accessor: data => data.testingTime },
+  { title: 'Contact number', accessor: data => data['Contact number'] },
+  { title: 'Where was the test conducted', accessor: data => data['Where was the test conducted'] },
+  { title: 'Purpose of sample collection', accessor: data => data['Purpose of sample collection'] },
+  { title: 'Other purpose', accessor: data => data['Other purpose'] },
+  {
+    title: 'Passport number',
+    accessor: data => data.additionalDataPassportNumber ?? data['Passport number'],
+  },
+  { title: 'Final destination', accessor: data => data['Final destination'] },
+  { title: 'Transit country', accessor: data => data['Transit country'] },
+  { title: 'Airline', accessor: data => data.Airline },
+  { title: 'Testing cost', accessor: data => data['Testing cost'] },
 ];
 
 export const dataGenerator = async ({ models }, parameters = {}) => {
@@ -89,7 +73,7 @@ export const dataGenerator = async ({ models }, parameters = {}) => {
     surveyId: SURVEY_ID,
     surveyQuestionCodes: SURVEY_QUESTION_CODES,
     reportColumnTemplate,
-    testingDateFormat: 'MM/DD/YYYY LTS',
+    dateFormat: 'MM/DD/YYYY',
   });
 };
 
