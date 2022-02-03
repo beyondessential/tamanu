@@ -119,7 +119,7 @@ export class ReportRunner {
         throw new Error(`ReportRunner - Mailgun error: ${result.error}`);
       }
     } finally {
-      await removeFile(zipFile);
+      if (zipFile) await removeFile(zipFile);
     }
   }
 
@@ -180,7 +180,7 @@ export class ReportRunner {
 
       log.info(`ReportRunner - Uploaded report "${zipFile}" to s3`);
     } finally {
-      await removeFile(zipFile);
+      if (zipFile) await removeFile(zipFile);
     }
   }
 }
