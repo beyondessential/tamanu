@@ -1,5 +1,16 @@
 import { buildAbility } from './buildAbility';
 import { Permission } from '../models';
+import config from 'config';
+
+//---------------------------------------------------------
+// "Hardcoded" permissions version -- safe to delete once all deployments
+// have been migrated to database version.
+import * as roles from 'shared/roles';
+
+function getHardcodedPermissions(roleIds) {
+  return roles[roleIds];
+}
+//---------------------------------------------------------
 
 let permissionCache = {};
 
@@ -8,6 +19,7 @@ export function resetPermissionCache() {
 }
 
 const commaSplit = s => s.split(",").map(x => x.trim()).filter(x => x);
+
 
 async function queryPermissionsForRoles(roleIds) {
   const result = await Permission.sequelize.query(`
@@ -24,7 +36,11 @@ async function queryPermissionsForRoles(roleIds) {
   return result.map(r => r.forResponse());
 }
 
-export async function getPermissionsForRoles(roleString) {
+export async function getPermissionsForRoles(roleString) {  
+  if (config.auth.useHardcodedPermissions) {
+    return getHardcodedPermissions(roleString);
+  }
+
   const cached = permissionCache[roleString];
   if (cached) {
     return cached;

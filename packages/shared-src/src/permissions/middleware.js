@@ -1,29 +1,5 @@
-import config from 'config';
 import { ForbiddenError, BadAuthenticationError } from 'shared/errors';
-import { getAbilityForUser } from 'shared/permissions/rolesToPermissions';
-
-//---------------------------------------------------------
-// "Hardcoded" permissions version -- safe to delete once all deployments
-// have been migrated to database version.
-import { AbilityBuilder, Ability } from '@casl/ability';
-import * as roles from 'shared/roles';
-
-function constructPermissionsFromHardcode(user) {
-  const { can, cannot, build } = new AbilityBuilder(Ability);
-
-  if (!user) {
-    return build(); // no permissions
-  }
-
-  const builder = roles[user.role];
-  if (!builder) {
-    throw new Error(`Invalide role: ${user.role}`);
-  }
-  builder(user, can, cannot);
-  return build();
-}
-//----------------------------------------------------------
-
+import { getAbilityForUser, getPermissionsForRoles } from 'shared/permissions/rolesToPermissions';
 
 // copied from casl source as it's not exported directly
 // (we could use casl's ForbiddenError.throwUnlessCan function except there's some
@@ -42,14 +18,7 @@ function getSubjectName(subject) {
 
 
 export async function constructPermission(req, res, next) {
-  const user = req.user;
-
-  if (config.auth.useHardcodedPermissions) {
-    req.ability = constructPermissionsFromHardcode(user);
-  } else {
-    req.ability = await getAbilityForUser(user);
-  }
-
+  req.ability = await getAbilityForUser(req.user);
   next();
 }
 
@@ -103,4 +72,13 @@ export function ensurePermissionCheck(req, res, next) {
   };
 
   next();
+}
+
+export function getPermissions(req, res, next) {
+  const user = req.user;
+
+  const permissions = getPermissionsForRoles(user.role);
+  res.send({
+    permissions,
+  });
 }
