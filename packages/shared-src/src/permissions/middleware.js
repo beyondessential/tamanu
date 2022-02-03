@@ -12,15 +12,12 @@ function constructPermissionsFromHardcode(user) {
   const { can, cannot, build } = new AbilityBuilder(Ability);
 
   if (!user) {
-    req.ability = build(); // no permissions
-    next();
-    return;
+    return build(); // no permissions
   }
 
   const builder = roles[user.role];
   if (!builder) {
-    next(new Error(`Invalid role: ${user.role}`));
-    return;
+    throw new Error(`Invalide role: ${user.role}`);
   }
   builder(user, can, cannot);
   return build();
