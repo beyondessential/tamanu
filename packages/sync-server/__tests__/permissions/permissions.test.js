@@ -1,9 +1,9 @@
 import { buildAbilityForTests } from 'shared/permissions/buildAbility';
-import { getPermissionsForRoles } from 'shared/permissions/rolesToPermissions';
+import { queryPermissionsForRoles } from 'shared/permissions/rolesToPermissions';
 import { createTestContext } from '../utilities';
 
 async function getAbilityForRoles(roleString) {
-  const perms = await getPermissionsForRoles(roleString);
+  const perms = await queryPermissionsForRoles(roleString);
   return buildAbilityForTests(perms);
 }
 

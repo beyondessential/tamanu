@@ -8,7 +8,11 @@ import config from 'config';
 import * as roles from 'shared/roles';
 
 function getHardcodedPermissions(roleIds) {
-  return roles[roleIds];
+  const permissions = roles[roleIds];
+  if (!permissions) {
+    throw new Error(`Invalid role: ${roleIds}`);
+  }
+  return permissions;
 }
 //---------------------------------------------------------
 
@@ -21,7 +25,8 @@ export function resetPermissionCache() {
 const commaSplit = s => s.split(",").map(x => x.trim()).filter(x => x);
 
 
-async function queryPermissionsForRoles(roleIds) {
+export async function queryPermissionsForRoles(roleString) {
+  const roleIds = commaSplit(roleString);
   const result = await Permission.sequelize.query(`
     SELECT * 
       FROM permissions
@@ -46,11 +51,9 @@ export async function getPermissionsForRoles(roleString) {
     return cached;
   }
 
-  const roleIds = commaSplit(roleString);
-
   // don't await this -- we want to store the promise, not the result
   // so that quick consecutive requests can benefit from it
-  const permissions = queryPermissionsForRoles(roleIds);
+  const permissions = queryPermissionsForRoles(roleString);
 
   permissionCache[roleString] = permissions;
   return permissions;
@@ -69,5 +72,6 @@ export async function getAbilityForUser(user) {
     { verb: 'read', noun: 'User', objectId: user.id },
     { verb: 'write', noun: 'User', objectId: user.id },
   ]);
+
   return ability;
 }
