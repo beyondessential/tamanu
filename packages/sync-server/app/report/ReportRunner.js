@@ -98,7 +98,7 @@ export class ReportRunner {
   async sendReportToEmail(reportData) {
     const reportName = `${this.reportName}-report-${new Date().getTime()}`;
 
-    let zipFile = null;
+    let zipFile;
     try {
       zipFile = await createZippedExcelFile(reportName, reportData);
 
@@ -158,7 +158,7 @@ export class ReportRunner {
     process.env.AWS_ACCESS_KEY_ID = accessKeyId;
     process.env.AWS_SECRET_ACCESS_KEY = secretAccessKey;
 
-    let zipFile = null;
+    let zipFile;
     try {
       zipFile = await createZippedExcelFile(this.reportName, reportData);
 
