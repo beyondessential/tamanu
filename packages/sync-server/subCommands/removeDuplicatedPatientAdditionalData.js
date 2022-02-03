@@ -56,7 +56,8 @@ export const removeDuplicatedPatientAdditionalData = async () => {
           col =>
             !METADATA_COLUMNS.includes(col) &&
             patientAdditionalData[col] !== null &&
-            patientAdditionalData[col] !== undefined,
+            patientAdditionalData[col] !== undefined &&
+            patientAdditionalData[col] !== '',
         );
 
         const isLastPatientAdditionalDataRecord =
