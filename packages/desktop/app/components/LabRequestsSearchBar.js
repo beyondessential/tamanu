@@ -1,7 +1,7 @@
 import React from 'react';
 
 import { DateField, StyledSelectField } from './Field';
-import { CustomisablePatientSearchBar } from '../views/patients/components/PatientSearchBar';
+import { CustomisableSearchBar } from './CustomisableSearchBar';
 import { LAB_REQUEST_STATUS_LABELS, LAB_REQUEST_STATUSES } from '../constants';
 import { useLabRequest } from '../contexts/LabRequest';
 
@@ -13,7 +13,7 @@ const STATUS_OPTIONS = Object.values(LAB_REQUEST_STATUSES).map(s => ({
 export const LabRequestsSearchBar = props => {
   const { searchParameters, setSearchParameters } = useLabRequest();
   return (
-    <CustomisablePatientSearchBar
+    <CustomisableSearchBar
       title="Search lab requests"
       fields={[
         ['firstName'],

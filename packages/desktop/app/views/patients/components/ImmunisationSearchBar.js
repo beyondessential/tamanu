@@ -1,6 +1,6 @@
 import React, { useMemo } from 'react';
 
-import { CustomisablePatientSearchBar } from './PatientSearchBar';
+import { CustomisableSearchBar } from '../../../components/CustomisableSearchBar';
 import { useApi } from '../../../api';
 import { Suggester } from '../../../utils/suggester';
 import { AutocompleteField } from '../../../components';
@@ -10,7 +10,7 @@ export const ImmunisationSearchBar = props => {
   const villageSuggester = useMemo(() => new Suggester(api, 'village'), [api]);
 
   return (
-    <CustomisablePatientSearchBar
+    <CustomisableSearchBar
       title="Search for patients"
       fields={[
         ['displayId'],
