@@ -3,6 +3,7 @@ import config from 'config';
 import { log } from 'shared/services/logging';
 import { createReferralNotification } from 'shared/tasks/CreateReferralNotification';
 import { sendCertificateNotifications } from 'shared/tasks/SendCertificateNotifications';
+import { createLabRequestNotifications } from 'shared/tasks/CreateLabRequestNotifications';
 
 import { createApp } from '../app/createApp';
 import { startScheduledTasks } from '../app/tasks';
@@ -78,6 +79,15 @@ export async function serve(options) {
       );
     }
     if (config.notifications.certificates) {
+      // Create certificate notifications for published results
+      context.store.models.LabRequests.addHook(
+        'afterBulkUpdate',
+        'create published test results notification hook',
+        labRequests => {
+          createLabRequestNotifications(labRequests, context.store.models);
+        },
+      );
+      // Send out queued certificate notifications
       context.store.models.CertificateNotification.addHook(
         'afterBulkCreate',
         'create certificate notification hook',
