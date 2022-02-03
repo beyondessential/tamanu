@@ -49,6 +49,7 @@ export class MedicationDiscontinuer extends ScheduledTask {
     const values = {
       discontinued: true,
       discontinuing_reason: 'Finished treatment',
+      updated_at: moment(),
     };
 
     // Find all medications that:

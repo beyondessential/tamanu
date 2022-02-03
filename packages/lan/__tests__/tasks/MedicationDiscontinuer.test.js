@@ -200,4 +200,27 @@ describe('Encounter', () => {
     });
     expect(discontinuedMedications.count).toBe(1);
   });
+
+  it('should update the updated_at column accordingly when autodiscontinuing a medication', async () => {
+    const medication = await models.EncounterMedication.create({
+      ...(await createDummyEncounterMedication(models)),
+      date: threeDaysAgo,
+      endDate: twoDaysAgo,
+      encounterId: encounter.id,
+    });
+
+    // Get initial time and guarantee a 1ms difference
+    const initialUpdatedAt = medication.updatedAt.getTime();
+    await new Promise(resolve => setTimeout(() => resolve(), 1));
+
+    await discontinuer.run();
+    const discontinuedMedications = await models.EncounterMedication.findAndCountAll({
+      where: {
+        discontinued: true,
+      },
+    });
+    expect(discontinuedMedications.count).toBe(1);
+    const currentUpdatedAt = discontinuedMedications.rows[0].updatedAt.getTime();
+    expect(initialUpdatedAt).toBeLessThan(currentUpdatedAt);
+  });
 });
