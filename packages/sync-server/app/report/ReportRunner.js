@@ -1,9 +1,11 @@
 import config from 'config';
+import fs from 'fs';
+import path from 'path';
+import * as AWS from '@aws-sdk/client-s3';
 import { COMMUNICATION_STATUSES } from 'shared/constants';
 import { getReportModule } from 'shared/reports';
 import { log } from 'shared/services/logging';
 import { createTupaiaApiClient, translateReportDataToSurveyResponses } from 'shared/utils';
-
 import { removeFile, createZippedExcelFile } from '../utils/files';
 
 export class ReportRunner {
@@ -78,6 +80,10 @@ export class ReportRunner {
       await this.sendReportToTupaia(reportData);
       sent = true;
     }
+    if (this.recipients.s3) {
+      await this.sendReportToS3(reportData);
+      sent = true;
+    }
     if (!sent) {
       throw new Error('ReportRunner - No recipients');
     }
@@ -138,5 +144,43 @@ export class ReportRunner {
     }
 
     await this.tupaiaApiClient.meditrak.createSurveyResponses(translated);
+  }
+
+  /**
+   * @param request ReportRequest
+   * @param reportData []
+   * @returns {Promise<void>}
+   */
+  async sendReportToS3(reportData) {
+    const { accessKeyId, secretAccessKey, region, bucketName } = config.s3;
+
+    // AWS SDK has no way of directly passing creds, this is the least painful supported method
+    process.env.AWS_ACCESS_KEY_ID = accessKeyId;
+    process.env.AWS_SECRET_ACCESS_KEY = secretAccessKey;
+
+    let zipFile = null;
+    try {
+      zipFile = await createZippedExcelFile(this.reportName, reportData);
+
+      log.info(
+        `ReportRunner - Uploading report "${zipFile}" to s3 bucket "${bucketName}" (${region})`,
+      );
+
+      const client = new AWS.S3({ region });
+
+      const fileStream = fs.createReadStream(zipFile);
+
+      await client.send(
+        new AWS.PutObjectCommand({
+          Bucket: bucketName,
+          Key: path.basename(zipFile),
+          Body: fileStream,
+        }),
+      );
+
+      log.info(`ReportRunner - Uploaded report "${zipFile}" to s3`);
+    } finally {
+      await removeFile(zipFile);
+    }
   }
 }
