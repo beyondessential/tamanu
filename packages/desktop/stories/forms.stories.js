@@ -3,7 +3,7 @@ import React from 'react';
 import shortid from 'shortid';
 import { storiesOf } from '@storybook/react';
 import { action } from '@storybook/addon-actions';
-
+import styled from 'styled-components';
 import {
   createDummyVisit,
   createDummyPatient,
@@ -28,13 +28,13 @@ import { LabRequestForm } from '../app/forms/LabRequestForm';
 import { ReferralForm } from '../app/forms/ReferralForm';
 import { MedicationForm } from '../app/forms/MedicationForm';
 import { FamilyHistoryForm } from '../app/forms/FamilyHistoryForm';
-import { DeathForm } from '../app/forms/DeathForm';
+import { SurveyScreenPaginator } from '../app/views/programs/SurveyView';
 import { NoteForm } from '../app/forms/NoteForm';
-
-import { createDummySuggester, mapToSuggestions } from './utils';
+import { createDummySuggester, mapToSuggestions, getDummySurvey } from './utils';
 import { TestSelectorInput } from '../app/components/TestSelector';
+import { Form } from '../app/components';
 
-const PATIENTS = (new Array(20)).fill(0).map(x => createDummyPatient());
+const PATIENTS = new Array(20).fill(0).map(x => createDummyPatient());
 
 const practitionerSuggester = createDummySuggester(mapToSuggestions(USERS));
 const locationSuggester = createDummySuggester(mapToSuggestions(LOCATIONS));
@@ -48,9 +48,46 @@ const patientSuggester = createDummySuggester(
 );
 const drugSuggester = createDummySuggester(mapToSuggestions(DRUGS));
 
-storiesOf('Forms/LoginForm', module)
-  .add('broken', () => <div>Login view unstorybookable until ServerDetectingField can be separated out</div>);
-  /*
+const Container = styled.div`
+  padding: 1rem 3rem;
+  max-width: 700px;
+`;
+
+storiesOf('Forms', module).add('DeathForm', () => {
+  const survey = getDummySurvey();
+
+  const renderSurvey = props => {
+    const { values, setFieldValue } = props;
+
+    return (
+      <SurveyScreenPaginator
+        survey={survey}
+        values={values}
+        setFieldValue={setFieldValue}
+        onCancel={() => {
+          console.log('cancel');
+        }}
+      />
+    );
+  };
+
+  return (
+    <Container>
+      <Form
+        initialValues={{}}
+        onSubmit={() => {
+          console.log('submit');
+        }}
+        render={renderSurvey}
+      />
+    </Container>
+  );
+});
+
+storiesOf('Forms/LoginForm', module).add('broken', () => (
+  <div>Login view unstorybookable until ServerDetectingField can be separated out</div>
+));
+/*
   .add('default', () => <LoginView login={action('login')} />)
   .add('expired', () => (
     <LoginView
@@ -159,7 +196,10 @@ storiesOf('Forms', module).add('PatientDetailsForm', () => (
   />
 ));
 
-const testCategories = [{ label: 'Sweet', value: 'sweet' }, { label: 'Savoury', value: 'savoury' }];
+const testCategories = [
+  { label: 'Sweet', value: 'sweet' },
+  { label: 'Savoury', value: 'savoury' },
+];
 
 const testTypes = [
   { name: 'Grape', id: 'grape', category: { id: 'sweet' } },
@@ -213,15 +253,6 @@ storiesOf('Forms', module).add('MedicationForm', () => (
 
 storiesOf('Forms', module).add('ReferralForm', () => (
   <ReferralForm
-    onSubmit={action('submit')}
-    onCancel={action('cancel')}
-    practitionerSuggester={practitionerSuggester}
-    icd10Suggester={icd10Suggester}
-  />
-));
-
-storiesOf('Forms', module).add('DeathForm', () => (
-  <DeathForm
     onSubmit={action('submit')}
     onCancel={action('cancel')}
     practitionerSuggester={practitionerSuggester}

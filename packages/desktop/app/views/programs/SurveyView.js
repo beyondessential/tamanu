@@ -3,6 +3,12 @@ import styled from 'styled-components';
 import Alert from '@material-ui/lab/Alert';
 import { Typography } from '@material-ui/core';
 
+import Stepper from '@material-ui/core/Stepper';
+import Step from '@material-ui/core/Step';
+import StepButton from '@material-ui/core/StepButton';
+import StepLabel from '@material-ui/core/StepLabel';
+import Tooltip from '@material-ui/core/Tooltip';
+
 import { Form, Field } from 'desktop/app/components/Field';
 import { FormGrid } from 'desktop/app/components/FormGrid';
 import { Button, OutlinedButton } from 'desktop/app/components/Button';
@@ -54,23 +60,27 @@ const StyledButtonRow = styled(ButtonRow)`
   margin-top: 24px;
 `;
 
-const SurveyScreen = ({ components, values, onStepForward, onStepBack }) => {
+const SurveyScreen = ({ components, values, onStepForward, onStepBack, Stepper }) => {
   const questionElements = components
     .filter(c => checkVisibility(c, values, components))
     .map(c => <SurveyQuestion component={c} key={c.id} />);
 
   return (
-    <FormGrid columns={1}>
-      {questionElements}
-      <StyledButtonRow>
-        <OutlinedButton onClick={onStepBack || undefined} disabled={!onStepBack}>
-          Prev
-        </OutlinedButton>
-        <Button color="primary" variant="contained" onClick={onStepForward}>
-          Next
-        </Button>
-      </StyledButtonRow>
-    </FormGrid>
+    <div>
+      <Typography variant="h6">Record patient death</Typography>
+      {Stepper}
+      <FormGrid columns={1}>
+        {questionElements}
+        <StyledButtonRow>
+          <OutlinedButton onClick={onStepBack || undefined} disabled={!onStepBack}>
+            Prev
+          </OutlinedButton>
+          <Button color="primary" variant="contained" onClick={onStepForward}>
+            Next
+          </Button>
+        </StyledButtonRow>
+      </FormGrid>
+    </div>
   );
 };
 
@@ -96,7 +106,37 @@ const SurveySummaryScreen = ({ onStepBack, onSurveyComplete }) => (
   </div>
 );
 
-const SurveyScreenPaginator = ({ survey, values, onSurveyComplete, onCancel, setFieldValue }) => {
+const StyledStepper = styled(Stepper)`
+  padding: 0;
+  margin-top: 10px;
+`;
+
+const StyledStep = styled(Step)`
+  display: flex;
+  flex: 1;
+  margin: 0 3px 0 0;
+  padding: 0;
+
+  &:last-child {
+    margin: 0;
+  }
+`;
+
+const StyledStepButton = styled(StepButton)`
+  background: ${props => props.theme.palette.primary.main};
+  border-radius: 0;
+  height: 10px;
+  padding: 0;
+  margin: 0;
+`;
+
+export const SurveyScreenPaginator = ({
+  survey,
+  values,
+  onSurveyComplete,
+  onCancel,
+  setFieldValue,
+}) => {
   const { components } = survey;
   const [screenIndex, setScreenIndex] = useState(0);
 
@@ -121,17 +161,39 @@ const SurveyScreenPaginator = ({ survey, values, onSurveyComplete, onCancel, set
     .map(x => x.screenIndex)
     .reduce((max, current) => Math.max(max, current), 0);
 
+  const handleStep = step => () => {
+    setScreenIndex(step);
+  };
+
   if (screenIndex <= maxIndex) {
     const screenComponents = components
       .filter(x => x.screenIndex === screenIndex)
       .sort((a, b) => a.componentIndex - b.componentIndex);
+
+    const steps = components
+      .filter(c => c.dataElement.type === 'Instruction')
+      .map(c => c.dataElement.name);
 
     return (
       <SurveyScreen
         values={values}
         components={screenComponents}
         onStepForward={onStepForward}
+        screenIndex={screenIndex}
         onStepBack={screenIndex > 0 ? onStepBack : onCancel}
+        Stepper={
+          <StyledStepper nonLinear activeStep={screenIndex} connector={null}>
+            {steps.map((label, index) => {
+              return (
+                <StyledStep key={label}>
+                  <Tooltip title={label}>
+                    <StyledStepButton onClick={handleStep(index)} icon={null} />
+                  </Tooltip>
+                </StyledStep>
+              );
+            })}
+          </StyledStepper>
+        }
       />
     );
   }
