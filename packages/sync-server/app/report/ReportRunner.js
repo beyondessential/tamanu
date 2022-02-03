@@ -152,11 +152,7 @@ export class ReportRunner {
    * @returns {Promise<void>}
    */
   async sendReportToS3(reportData) {
-    const { accessKeyId, secretAccessKey, region, bucketName } = config.s3;
-
-    // AWS SDK has no way of directly passing creds, this is the least painful supported method
-    process.env.AWS_ACCESS_KEY_ID = accessKeyId;
-    process.env.AWS_SECRET_ACCESS_KEY = secretAccessKey;
+    const { region, bucketName } = config.s3;
 
     let zipFile;
     try {
