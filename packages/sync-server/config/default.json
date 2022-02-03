@@ -95,7 +95,8 @@
       "host": "http://uat-vra.digitalfiji.gov.fj:8786",
       "expectAccessToken": ["set this value in local.json"],
       // refresh the token if it's within tokenExpiryMarginMs milliseconds of expiry
-      "tokenExpiryMarginMs": 60000
+      "tokenExpiryMarginMs": 60000,
+      "flagInsteadOfDeleting": true
     },
     "fijiVps": {
       "enabled": false

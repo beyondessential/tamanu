@@ -111,6 +111,7 @@ describe('VRS integration hook: INSERT and UPDATE operations', () => {
           identifier: vrsPatient.identifier,
           unmatchedVillageName: null,
           deletedAt: null,
+          isDeletedByRemote: false,
         });
         const fetchMock = ctx.integrations.fijiVrs.remote.fetchImplementation;
         expect(fetchMock).toHaveBeenCalledWith(`${host}/token`, expect.anything());
@@ -154,6 +155,7 @@ describe('VRS integration hook: INSERT and UPDATE operations', () => {
       });
       expect(foundVRSData).toMatchObject({
         unmatchedVillageName: vrsPatient.sub_division,
+        isDeletedByRemote: false,
       });
     });
   });
