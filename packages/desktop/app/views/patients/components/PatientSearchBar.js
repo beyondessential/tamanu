@@ -1,5 +1,6 @@
-import React, { useMemo } from 'react';
+import React, { useMemo, useState, useCallback } from 'react';
 import InputAdornment from '@material-ui/core/InputAdornment';
+import Tooltip from '@material-ui/core/Tooltip';
 import SpellcheckIcon from '@material-ui/icons/Spellcheck';
 import moment from 'moment';
 
@@ -20,6 +21,10 @@ const DEFAULT_FIELDS = [
 ];
 
 export const PatientSearchBar = ({ onSearch, fields = DEFAULT_FIELDS, ...props }) => {
+  const [displayIdExact, setDisplayIdExact] = useState(false);
+  const toggleSearchIdExact = useCallback(() => {
+    setDisplayIdExact(v => !v);
+  }, [setDisplayIdExact]);
   const api = useApi();
   const commonFields = useMemo(
     () => ({
@@ -30,7 +35,25 @@ export const PatientSearchBar = ({ onSearch, fields = DEFAULT_FIELDS, ...props }
         'villageId',
         { suggester: new Suggester(api, 'village'), component: AutocompleteField },
       ],
-      displayId: ['displayId'],
+      displayId: [
+        'displayId',
+        {
+          InputProps: {
+            endAdornment: (
+              <InputAdornment position="end">
+                <Tooltip title="Toggle EXACT search by ID">
+                  <SpellcheckIcon
+                    style={{ cursor: 'pointer' }}
+                    aria-label="Toggle exact search by ID"
+                    onClick={toggleSearchIdExact}
+                    color={displayIdExact ? '' : 'disabled'}
+                  />
+                </Tooltip>
+              </InputAdornment>
+            ),
+          },
+        },
+      ],
       dateOfBirthFrom: [
         'dateOfBirthFrom',
         { localisationLabel: 'shortLabel', component: DateField },
@@ -41,7 +64,7 @@ export const PatientSearchBar = ({ onSearch, fields = DEFAULT_FIELDS, ...props }
         { localisationLabel: 'shortLabel', placeholder: 'DOB exact', component: DateField },
       ],
     }),
-    [api],
+    [api, toggleSearchIdExact, displayIdExact],
   );
 
   const searchFields = fields.map(field =>
@@ -51,6 +74,7 @@ export const PatientSearchBar = ({ onSearch, fields = DEFAULT_FIELDS, ...props }
   const handleSearch = values => {
     const params = {
       ...values,
+      displayIdExact,
     };
     // if filtering by date of birth exact, send the formatted date
     // to the server instead of the date object
