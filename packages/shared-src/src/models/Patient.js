@@ -68,7 +68,7 @@ export class Patient extends Model {
     return patients.map(({ id }) => id);
   }
 
-  getLabRequests(queryOptions) {
+  async getLabRequests(queryOptions) {
     return this.sequelize.models.LabRequest.findAll({
       raw: true,
       nest: true,

@@ -80,7 +80,7 @@ describe('Certificate', () => {
 
     const { method, user, labTestType1, labTestType2, lab } = await prepopulate(models);
 
-    const patientData = await createDummyPatient(models);
+    const patientData = createDummyPatient(models);
     patient = await models.Patient.create(patientData);
 
     const encdata = await createDummyEncounter(models);
@@ -117,6 +117,8 @@ describe('Certificate', () => {
 
   afterAll(() => ctx.close());
 
+  // This test is setup as a util for test driven development when working on certificates
+  // It's skipped by default so that it doesn't create unnecessary files
   it.skip('Generates a Patient Covid Certificate', async () => {
     await createLabTests();
     const patientRecord = await models.Patient.findByPk(patient.id);

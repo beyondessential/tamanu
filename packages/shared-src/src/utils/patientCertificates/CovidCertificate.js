@@ -69,6 +69,7 @@ export const CovidCertificate = ({ patient, labs, signingSrc, watermarkSrc, vdsS
         <Logo style={styles.logo} />
         <Box>
           <H1>TAMANU MINISTRY OF HEALTH & MEDICAL SERVICES</H1>
+          {/* Todo: get the address from config */}
           <H2>PO Box 12345, Melbourne, Australia</H2>
         </Box>
         <Box>
