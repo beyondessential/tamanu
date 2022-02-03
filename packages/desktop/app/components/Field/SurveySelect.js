@@ -1,4 +1,5 @@
 import React, { useEffect, useState } from 'react';
+import moment from 'moment';
 import { SelectInput } from './SelectField';
 import { useApi } from '../../api';
 
@@ -10,17 +11,10 @@ export const SurveySelect = ({ field, patient, options: _, ...props }) => {
       .get(`/patient/${patient.id}/programResponses?page=0&rowsPerPage=10&order=desc&orderBy=date`)
       .then(resultData => {
         setOptions(
-          resultData.data.map(({ id, createdAt, surveyName }) => {
-            const dt = createdAt
-              .substr(0, 10)
-              .split('-')
-              .reverse()
-              .join('/');
-            return {
-              value: id,
-              label: `${dt} ${surveyName}`,
-            };
-          }),
+          resultData.data.map(({ id, createdAt, surveyName }) => ({
+            value: id,
+            label: `${moment(createdAt).format('DD/MM/YYYY')} ${surveyName}`,
+          })),
         );
       });
   }, [api, patient.id]);
