@@ -24,5 +24,10 @@
     "fijiVps": {
       "enabled": true
     }
+  },
+  "disk": {
+    "freeSpaceRequired": {
+      "gigabytesForUploadingDocuments": 4
+    }
   }
 }

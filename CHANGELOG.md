@@ -16,6 +16,28 @@
 
 ### Bug fixes 🐛
 
+- Fixed temp folders not already existing on Windows hosts in lan (was already fixed in sync)
+
+### Infrastructure and maintenance 🛠
+
+- (left blank)
+
+## v1.12.2
+
+### Manual steps required after upgrade ⚙
+
+- (left blank)
+
+### Features ⭐
+
+- (left blank)
+
+### Tweaks ⚖️
+
+- (left blank)
+
+### Bug fixes 🐛
+
 - (left blank)
 
 ### Infrastructure and maintenance 🛠

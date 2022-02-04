@@ -46,16 +46,15 @@ const getType = ({ type }) => {
 };
 const getUploadedDate = ({ documentUploadedAt }) =>
   documentUploadedAt ? <DateDisplay date={documentUploadedAt} /> : '';
-const getDisplayName = ({ documentOwner }) => documentOwner?.displayName || '';
-const getDepartmentName = ({ departmentId }) => departmentId?.name || '';
+const getDepartmentName = ({ department }) => department?.name || '';
 const getActions = ({ row }) => <ActionDropdown row={row} />;
 
 const COLUMNS = [
   { key: 'name', title: 'Name' },
   { key: 'type', title: 'Type', accessor: getType },
-  { key: 'document_uploaded_at', title: 'Upload', accessor: getUploadedDate },
-  { key: 'document_owner', title: 'Owner', accessor: getDisplayName },
-  { key: 'department_id', title: 'Department', accessor: getDepartmentName, sortable: false },
+  { key: 'documentUploadedAt', title: 'Upload', accessor: getUploadedDate },
+  { key: 'documentOwner', title: 'Owner' },
+  { key: 'department.name', title: 'Department', accessor: getDepartmentName, sortable: false },
   { key: 'note', title: 'Comments', sortable: false },
   {
     key: 'actions',

@@ -45,7 +45,7 @@ const reportColumnTemplate = [
   },
   { title: 'Sex', accessor: data => data.sex },
   { title: 'Patient ID', accessor: data => data.patientId },
-  { title: 'Home sub-division', accessor: data => data.homeSubDivision },
+  { title: 'Home sub-division', accessor: data => data.village },
 
   { title: 'Lab request ID', accessor: data => data.labRequestId },
   {

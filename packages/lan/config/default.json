@@ -63,8 +63,8 @@
   },
   "survey": {
     "defaultCodes": {
-      "department": "MEDICAL",
-      "location": "SHORTSTAY"
+      "department": "GeneralClinic",
+      "location": "GeneralClinic"
     }
   },
   "serverFacilityId": "",

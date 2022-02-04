@@ -15,6 +15,7 @@ export class RemoteTimeoutError extends BaseError {}
 export class RemoteCallFailedError extends BaseError {}
 export class RequestQueueTimeoutError extends BaseError {}
 export class RequestQueueExceededError extends BaseError {}
+export class InsufficientStorageError extends BaseError {}
 
 export function getCodeForErrorName(name) {
   switch (name) {
@@ -46,6 +47,8 @@ export function getCodeForErrorName(name) {
     case 'RequestQueueExceededError':
       // load shedder kicked in
       return 503;
+    case 'InsufficientStorageError':
+      return 507;
     default:
       // error isn't otherwise caught - this is a problem with the server
       return 500;
