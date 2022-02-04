@@ -14,6 +14,7 @@ const ALPHABET_FOR_ID =
 
 const SLEEP_TIME = 100;
 
+//  TODO: ALSO NEED TO COMMENT OUT ENCOUNTER LOGIC IN routes/.../patientVaccine
 const TOKEN = '';
 
 const HEADERS = {
