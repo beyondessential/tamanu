@@ -81,7 +81,7 @@ function parametersToSqlWhere(parameters) {
       },
       {
         '$scheduledVaccine.label$': {
-          [Op.in]: ['COVAX', 'COVID-19 AZ'],
+          [Op.in]: ['COVID-19-AZ', 'COVID-19 AZ', 'Covid-19 Pfizer'],
         },
       },
     );
@@ -209,6 +209,22 @@ function groupByDateAndVillage(data, now) {
           COVIDVac6: 0, // Number of 2nd doses given to females on this day
           COVIDVac7: 0, // Number of 2nd doses give to > 65 year old on this day
           COVIDVac8: 0, // Total number of 2nd dose given on this day
+          COVIDVac9: 0, // Number of AstraZeneca Booster doses given to males on this day
+          COVIDVac10: 0, // Number of AstraZeneca Booster doses given to females on this day
+          COVIDVac11: 0, // Number of AstraZeneca Booster doses give to > 60 year old on this day
+          COVIDVac12: 0, // Total number of AstraZeneca Booster dose given on this day
+          COVIDVac13: 0, // Number of Pfizer 1st doses given to males on this day
+          COVIDVac14: 0, // Number of Pfizer 1st doses given to females on this day
+          COVIDVac15: 0, // Number of Pfizer 1st doses give to > 60 year old on this day
+          COVIDVac16: 0, // Total number of Pfizer 1st dose given on this day
+          COVIDVac17: 0, // Number of Pfizer 2nd doses given to males on this day
+          COVIDVac18: 0, // Number of Pfizer 2nd doses given to females on this day
+          COVIDVac19: 0, // Number of Pfizer 2nd doses give to > 60 year old on this day
+          COVIDVac20: 0, // Total number of Pfizer 2nd dose given on this day
+          COVIDVac21: 0, // Number of Pfizer Booster doses given to males on this day
+          COVIDVac22: 0, // Number of Pfizer Booster doses given to females on this day
+          COVIDVac23: 0, // Number of Pfizer Booster doses give to > 60 year old on this day
+          COVIDVac24: 0, // Total number of Pfizer Booster dose given on this day
         };
       }
 
