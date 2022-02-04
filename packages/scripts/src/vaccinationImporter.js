@@ -1,5 +1,6 @@
 const { customAlphabet } = require('nanoid');
 const { readFile, utils } = require('xlsx');
+const { v4: uuidv4 } = require('uuid');
 const moment = require('moment');
 const _ = require('lodash');
 const fetch = require('node-fetch');
@@ -13,8 +14,7 @@ const ALPHABET_FOR_ID =
 
 const SLEEP_TIME = 100;
 
-const TOKEN =
-  'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ1c2VySWQiOiIzNzZkOTQxMi04ZDk0LTRmNGItOWZmNS03ZGIxYjQ5NmViNWIiLCJpYXQiOjE2NDM1OTM3NzYsImV4cCI6MTY0MzU5NzM3Nn0.EZPOisvBsBV2YxHcfEHaOnNd3EJln1RkcxhtoDCwWjo';
+const TOKEN = '';
 
 const HEADERS = {
   Authorization: `Bearer ${TOKEN}`,
@@ -51,13 +51,12 @@ const FILE = './data.xlsx';
 const asyncSleep = ms => new Promise(resolve => setTimeout(resolve, ms));
 
 const parseSheet = sheetJson => {
-  const { patientId, result, time } = sheetJson;
-  const time2 = new Date(Math.round((time - 25569) * 86400 * 1000));
-  const timeOfEverything = addMinutesToDate(time2, 60);
-  // console.log(time, time2, timeOfEverything);
+  const { date, ...otherData } = sheetJson;
+  const time2 = new Date(Math.round((date - 25569) * 86400 * 1000));
+  const timeOfEverything = addMinutesToDate(time2, 5 * 60);
+  // console.log(date, time2, timeOfEverything, otherData.patientId);
   return {
-    patientId,
-    positive: result === 'Positive',
+    ...otherData,
     // Months are 0 indexed??
     timeOfEverything,
   };
@@ -70,8 +69,9 @@ const importExcelSheet = () => {
   const worksheet = workbook.Sheets.hi;
   const data = utils.sheet_to_json(worksheet);
 
-  const hi = data.map(parseSheet).filter(({ patientId }) => !(patientId && patientId.length > 10));
-  console.log(hi);
+  const hi = data.map(parseSheet);
+  console.log('Vaccinations imported!', hi.length);
+  return hi;
 };
 
 const addMinutesToDate = (initialDate, minutes) => {
@@ -81,7 +81,7 @@ const addMinutesToDate = (initialDate, minutes) => {
 };
 
 const postEncounter = async encounterData => {
-  const url = `${BASE_URL}/v1/sync/encounter`;
+  const url = `${BASE_URL}/v1/encounter`;
   const response = await fetch(url, {
     method: 'POST',
     headers: HEADERS,
@@ -94,12 +94,12 @@ const postEncounter = async encounterData => {
   return response.json();
 };
 
-const postAdministeredVaccine = async labRequestData => {
-  const url = `${BASE_URL}/v1/sync/administeredVaccine`;
+const postAdministeredVaccine = async (patientId, vaccinationData) => {
+  const url = `${BASE_URL}/v1/patient/${patientId}/administeredVaccine`;
   const response = await fetch(url, {
     method: 'POST',
     headers: HEADERS,
-    body: JSON.stringify(labRequestData),
+    body: JSON.stringify(vaccinationData),
   });
   if (!response.ok) {
     console.warn(`  -x ERROR: ${await response.text()}`);
@@ -108,52 +108,68 @@ const postAdministeredVaccine = async labRequestData => {
   return response.json();
 };
 
-async function postEverything(data) {
-  const { patientId, givenBy, batch, injectionSite, timeOfEverything } = data;
+const dose1AZ = 'f1722cb8-7eb1-4127-aba4-eccfff867117';
+const dose2AZ = 'ab780935-84d9-4114-bd4b-e8b6329cff74';
 
-  const adminUserId = 'user-MHHSTesting'; // constant
+const INJECTION_SITE_MAP = {
+  0: undefined,
+  1: 'Left arm',
+  2: 'Right arm',
+};
+
+const adminUserId = 'f16eece5-83e3-4935-ba84-14fefd2a46a7'; // Tamanu admin
+
+async function mapToRecordData(data) {
+  const { patientId, shotNumber, administeredBy, batch, injectionSite, timeOfEverything } = data;
 
   const encounterData = {
+    id: uuidv4(),
     patientId,
-    encounterType: ENCOUNTER_TYPES.CLINIC, // TODO
-    departmentId: 'department-laboratory',
-    locationId: 'location-laboratory',
+    encounterType: ENCOUNTER_TYPES.CLINIC,
+    departmentId: 'department-Outpatients',
+    locationId: 'location-Outreach',
     deviceId: 'manual_import',
-    reasonForEncounter: 'Imported lab request',
-    method: 'labTestMethod-RDT',
+    reasonForEncounter: 'Imported Vaccination',
     examinerId: adminUserId,
     startDate: timeOfEverything,
     endDate: addMinutesToDate(timeOfEverything, 60),
   };
 
   const administeredVaccineData = {
+    id: uuidv4(),
+    encounterId: encounterData.id,
     batch,
     status: VACCINE_STATUS.GIVEN,
-    reason: undefined,
-    location: patientId,
+    // reason: `Given by: ${administeredBy}`,
     date: addMinutesToDate(timeOfEverything, 10),
-    // scheduledVaccineId: patientId, // TODO
-    injectionSite,
+    scheduledVaccineId: shotNumber === 1 ? dose1AZ : dose2AZ,
+    injectionSite: INJECTION_SITE_MAP[injectionSite],
   };
 
-  const encounter = await postEncounter(encounterData);
+  console.log(encounterData);
+  console.log(administeredVaccineData);
 
-  console.log(encounter);
-
-  const administeredVaccine = await postAdministeredVaccine({
-    ...administeredVaccineData,
-    encounterId: encounter.id,
-  });
-
-  console.log(administeredVaccine);
+  return {
+    encounterData,
+    administeredVaccineData,
+  };
 }
 
+const BATCH_SIZE = 100;
+
 (async () => {
-  // const vaccinations = await importExcelSheet();
-  for (const administeredVaccine of ['vaccinations', 'b']) {
-    // await postEverything(administeredVaccine);
-    console.log(administeredVaccine);
-    await asyncSleep(2000);
+  const vaccinations = await importExcelSheet();
+  const recordsToImport = vaccinations.map(mapToRecordData);
+
+  for (const record of recordsToImport) {
+    const { encounterData, administeredVaccineData } = record;
+    const { patientId } = encounterData;
+
+    await postEncounter(encounterData);
+
+    await postAdministeredVaccine(patientId, administeredVaccineData);
+
+    await asyncSleep(SLEEP_TIME);
   }
 })()
   .then(() => {
