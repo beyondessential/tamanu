@@ -43,15 +43,22 @@ routes.post(
 
     // persist
     if (operation === schema.OPERATIONS.DELETE) {
-      await Patient.update(
-        { deletedAt: new Date() },
-        {
+      if (config.integrations.fijiVrs.flagInsteadOfDeleting) {
+        const { id: patientId } = await Patient.findOne({
           where: { displayId: patient.displayId },
-        },
-      );
+        });
+        await PatientVRSData.upsert({ patientId, isDeletedByRemote: true });
+      } else {
+        await Patient.update(
+          { deletedAt: new Date() },
+          {
+            where: { displayId: patient.displayId },
+          },
+        );
+      }
     } else if ([schema.OPERATIONS.INSERT, schema.OPERATIONS.UPDATE].includes(operation)) {
       await sequelize.transaction(async () => {
-        // allow inserts and updates to resurrect deleted records
+        // allow inserts and updates to resurrect deleted records - real deletion path
         const [{ id: upsertedPatientId }] = await Patient.upsert(
           { ...patient, deletedAt: null },
           { returning: true, paranoid: false },
@@ -59,7 +66,8 @@ routes.post(
         patientAdditionalData.patientId = upsertedPatientId;
         patientVRSData.patientId = upsertedPatientId;
         await PatientAdditionalData.upsert(patientAdditionalData);
-        await PatientVRSData.upsert(patientVRSData);
+        // allow inserts and updates to resurrect deleted records - data flag path
+        await PatientVRSData.upsert({ ...patientVRSData, isDeletedByRemote: false });
       });
     } else {
       throw new Error(`vrs: Operation not supported: ${operation}`);
