@@ -74,10 +74,10 @@ export function ensurePermissionCheck(req, res, next) {
   next();
 }
 
-export function getPermissions(req, res, next) {
+export async function getPermissions(req, res, next) {
   const user = req.user;
 
-  const permissions = getPermissionsForRoles(user.role);
+  const permissions = await getPermissionsForRoles(user.role);
   res.send({
     permissions,
   });
