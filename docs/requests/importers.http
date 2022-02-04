@@ -48,7 +48,7 @@ Content-Disposition: form-data; name="jsonData"
 Content-Type: application/json
 
 {
-  "dryRun": false,
+  "dryRun": true,
   "allowErrors": false,
   "whitelist": [
     "facilities",
