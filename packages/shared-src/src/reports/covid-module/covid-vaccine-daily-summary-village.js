@@ -370,6 +370,22 @@ function withEmptyRows(groupedData, parameters, villages, now) {
           COVIDVac6: null,
           COVIDVac7: null,
           COVIDVac8: null,
+          COVIDVac9: null,
+          COVIDVac10: null,
+          COVIDVac11: null,
+          COVIDVac12: null,
+          COVIDVac13: null,
+          COVIDVac14: null,
+          COVIDVac15: null,
+          COVIDVac16: null,
+          COVIDVac17: null,
+          COVIDVac18: null,
+          COVIDVac19: null,
+          COVIDVac20: null,
+          COVIDVac21: null,
+          COVIDVac22: null,
+          COVIDVac23: null,
+          COVIDVac24: null,
         });
       }
 
