@@ -26,13 +26,15 @@ import { NewPatientForm } from '../app/forms/NewPatientForm';
 import { PatientDetailsForm } from '../app/forms/PatientDetailsForm';
 import { LabRequestForm } from '../app/forms/LabRequestForm';
 import { ReferralForm } from '../app/forms/ReferralForm';
+import { DeathForm } from '../app/forms/DeathForm';
 import { MedicationForm } from '../app/forms/MedicationForm';
 import { FamilyHistoryForm } from '../app/forms/FamilyHistoryForm';
 import { SurveyScreenPaginator } from '../app/views/programs/SurveyView';
 import { NoteForm } from '../app/forms/NoteForm';
 import { createDummySuggester, mapToSuggestions, getDummySurvey } from './utils';
 import { TestSelectorInput } from '../app/components/TestSelector';
-import { Form } from '../app/components';
+import { Button, Form } from '../app/components';
+import { DumbDeathModal } from '../app/components/DeathModal';
 
 const PATIENTS = new Array(20).fill(0).map(x => createDummyPatient());
 
@@ -54,6 +56,28 @@ const Container = styled.div`
 `;
 
 storiesOf('Forms', module).add('DeathForm', () => {
+  const [isModalOpen, setModalOpen] = React.useState(true);
+  const openModal = () => setModalOpen(true);
+  const closeModal = () => setModalOpen(false);
+  return (
+    <Container>
+      <Button variant="contained" color="primary" onClick={openModal}>
+        Record death
+      </Button>
+      <DumbDeathModal
+        open={isModalOpen}
+        onClose={closeModal}
+        onSave={() => {
+          console.log('submit...');
+        }}
+        practitionerSuggester={practitionerSuggester}
+        icd10Suggester={icd10Suggester}
+      />
+    </Container>
+  );
+});
+
+storiesOf('Forms', module).add('SurveyScreenForm', () => {
   const survey = getDummySurvey();
 
   const renderSurvey = props => {

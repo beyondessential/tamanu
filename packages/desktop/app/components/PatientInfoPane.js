@@ -28,7 +28,7 @@ const OngoingConditionDisplay = memo(({ patient, readonly }) => (
     readonly={readonly}
     title="Ongoing conditions"
     endpoint="ongoingCondition"
-    suggesters={{practitioner: {}, icd10: {}}}
+    suggesters={{ practitioner: {}, icd10: {} }}
     items={patient.conditions}
     Form={OngoingConditionForm}
     getName={({ condition, resolved }) =>
@@ -43,7 +43,7 @@ const AllergyDisplay = memo(({ patient, readonly }) => (
     readonly={readonly}
     title="Allergies"
     endpoint="allergy"
-    suggesters={{practitioner: {}, allergy: {}}}
+    suggesters={{ practitioner: {}, allergy: {} }}
     items={patient.allergies}
     Form={AllergyForm}
     getName={allergy => allergy.allergy.name}
@@ -56,7 +56,7 @@ const FamilyHistoryDisplay = memo(({ patient, readonly }) => (
     readonly={readonly}
     title="Family history"
     endpoint="familyHistory"
-    suggesters={{practitioner: {}, icd10: {}}}
+    suggesters={{ practitioner: {}, icd10: {} }}
     items={patient.familyHistory}
     Form={FamilyHistoryForm}
     getName={historyItem => {
@@ -100,9 +100,12 @@ const CarePlanDisplay = memo(({ patient, readonly }) => (
     readonly={readonly}
     title="Care plans"
     endpoint="patientCarePlan"
-    suggesters={{practitioner: {}, carePlan: {
-      filterer: ({ code }) => !patient.carePlans.some(c => c.carePlan.code === code),
-    }}}
+    suggesters={{
+      practitioner: {},
+      carePlan: {
+        filterer: ({ code }) => !patient.carePlans.some(c => c.carePlan.code === code),
+      },
+    }}
     items={patient.carePlans}
     Form={PatientCarePlanForm}
     getName={({ carePlan }) => carePlan.name}
@@ -131,7 +134,7 @@ const RecordDeathSection = memo(({ patient, readonly }) => {
 
   return (
     <>
-      <Button variant="contained" color="primary" disabled={patient.death} onClick={openModal}>
+      <Button variant="contained" color="primary" disabled onClick={openModal}>
         Record death
       </Button>
       <DeathModal disabled={readonly} open={isModalOpen} onClose={closeModal} patient={patient} />
