@@ -21,7 +21,7 @@ const DEFAULT_FIELDS = [
 ];
 
 export const PatientSearchBar = ({ onSearch, fields = DEFAULT_FIELDS, ...props }) => {
-  const [displayIdExact, setDisplayIdExact] = useState(false);
+  const [displayIdExact, setDisplayIdExact] = useState(true);
   const toggleSearchIdExact = useCallback(() => {
     setDisplayIdExact(v => !v);
   }, [setDisplayIdExact]);
