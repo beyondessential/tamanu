@@ -1,7 +1,14 @@
 import { log } from 'shared/services/logging';
 import { parseArguments } from 'shared/arguments';
 
-import { migrate, report, serve, setup, calculateSurveyResults } from './subCommands';
+import {
+  migrate,
+  report,
+  serve,
+  setup,
+  calculateSurveyResults,
+  removeDuplicatedPatientAdditionalData,
+} from './subCommands';
 
 async function run(command, options) {
   const subcommand = {
@@ -10,6 +17,7 @@ async function run(command, options) {
     setup,
     report,
     calculateSurveyResults,
+    removeDuplicatedPatientAdditionalData,
   }[command];
 
   if (!subcommand) {

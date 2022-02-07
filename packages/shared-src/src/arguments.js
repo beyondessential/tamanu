@@ -17,7 +17,14 @@ function createParser() {
   });
 
   parser.addArgument('command', {
-    choices: ['serve', 'setup', 'migrate', 'report', 'calculateSurveyResults'],
+    choices: [
+      'serve',
+      'setup',
+      'migrate',
+      'report',
+      'calculateSurveyResults',
+      'removeDuplicatedPatientAdditionalData',
+    ],
     nargs: '?', // allow empty
     defaultValue: 'serve',
   });
