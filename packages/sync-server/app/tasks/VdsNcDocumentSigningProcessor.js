@@ -19,6 +19,7 @@ export class VdsNcDocumentSigningProcessor extends ScheduledTask {
       where: {
         signedAt: { [Op.is]: null },
       },
+      limit: 10,
     });
 
     if (docs.length < 1) {
