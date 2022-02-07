@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { useState } from 'react';
 import { Typography } from '@material-ui/core';
 import styled from 'styled-components';
 import MuiBox from '@material-ui/core/Box';
@@ -12,7 +12,9 @@ import {
 } from '../components/Field';
 import { PaginatedForm, PaginatedFormActions } from '../components/Field/PaginatedForm';
 import { FormSeparatorLine } from '../components/FormSeparatorLine';
-import { Button, OutlinedButton } from '../components';
+import { Button, DeleteButton, Modal, OutlinedButton } from '../components';
+import { ContentPane } from '../components/ContentPane';
+import { ConfirmAdministeredVaccineDelete } from '../components/ConfirmAdministeredVaccineDelete';
 
 const binaryOptions = [
   { value: 'yes', label: 'Yes' },
@@ -40,49 +42,43 @@ const Box = styled(MuiBox)`
  */
 export const DeathForm = React.memo(
   ({ onCancel, onSubmit, practitionerSuggester, icd10Suggester }) => {
-    const renderFormActions = ({ onStepBack, onStepForward, screenIndex, isLast }) => {
-      if (screenIndex === 4) {
-        return (
-          <Box>
-            <OutlinedButton onClick={onStepBack || undefined} disabled={!onStepBack}>
-              Back
-            </OutlinedButton>
-            <Button color="primary" variant="contained" onClick={onStepForward}>
-              Submit
-            </Button>
-          </Box>
-        );
-      }
+    const [confirmSubmit, setConfirmSubmit] = useState(false);
 
-      if (isLast) {
-        return (
-          <Box>
-            <OutlinedButton onClick={onStepBack || undefined} disabled={!onStepBack}>
-              Back
-            </OutlinedButton>
-            <Box>
-              <OutlinedButton onClick={onCancel}>Cancel</OutlinedButton>
-              <Button color="primary" variant="contained" onClick={onSubmit}>
-                Record Death
-              </Button>
-            </Box>
-          </Box>
-        );
-      }
-
-      return (
-        <PaginatedFormActions
-          onStepBack={onStepBack}
-          onStepForward={onStepForward}
-          screenIndex={screenIndex}
-        />
-      );
+    const handleUnConfirmedSubmit = () => {
+      console.log('unconfirmed submit...');
+      setConfirmSubmit(true);
     };
+
+    const handleConfirmedSubmit = () => {
+      console.log('confirmed submit...');
+      onSubmit();
+      setConfirmSubmit(false);
+    };
+
+    if (confirmSubmit) {
+      return (
+        <ContentPane>
+          <h3>
+            This action is irreversible. Are you sure you want to record the death of a patient?{' '}
+          </h3>
+          <p>
+            This should only be done under the direction of the responsible clinician. Do you wish
+            to proceed?
+          </p>
+
+          <Button onClick={() => setConfirmSubmit(false)} variant="contained" color="primary">
+            Back
+          </Button>
+          <OutlinedButton onClick={handleConfirmedSubmit} variant="contained" color="primary">
+            Record death
+          </OutlinedButton>
+        </ContentPane>
+      );
+    }
 
     return (
       <PaginatedForm
-        onSubmit={onSubmit}
-        renderFormActions={renderFormActions}
+        onSubmit={handleUnConfirmedSubmit}
         initialValues={{
           date: new Date(),
         }}
@@ -181,17 +177,6 @@ export const DeathForm = React.memo(
               { value: 'no', label: 'No' },
             ]}
           />
-        </FormGrid>
-        <FormGrid columns={1}>
-          <Typography>
-            <strong>
-              This action is irreversible. Are you sure you want to record the death of a patient?
-            </strong>
-          </Typography>
-          <Typography>
-            This should only be done under the direction of the responsible clinician. Do you wish
-            to proceed?
-          </Typography>
         </FormGrid>
       </PaginatedForm>
     );
