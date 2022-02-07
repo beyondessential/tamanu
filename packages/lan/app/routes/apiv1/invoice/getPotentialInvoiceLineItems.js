@@ -1,11 +1,10 @@
 import { QueryTypes } from 'sequelize';
 
-const getInvoiceLineNotExistYetClause = encounterId =>
-  `invoice_line_types.id NOT IN (SELECT invoice_line_type_id
-                                  FROM invoice_line_items
-                                  INNER JOIN invoices
-                                      ON invoice_line_items.invoice_id = invoices.id
-                                  WHERE invoices.encounter_id = '${encounterId}')`;
+const getInvoiceLineNotExistYetClause = `invoice_line_types.id NOT IN (SELECT invoice_line_type_id
+          FROM invoice_line_items
+          INNER JOIN invoices
+          ON invoice_line_items.invoice_id = invoices.id
+          WHERE invoices.encounter_id = :encounterId)`;
 
 /**
  * Query existing procedures, imaging requests, lab tests in the encounter,
@@ -32,10 +31,13 @@ export const getPotentialInvoiceLineItems = async (db, models, encounterId) => {
         AND invoice_line_types.item_type = 'procedureType'
         INNER JOIN users
         ON users.id = procedures.physician_id
-        WHERE procedures.encounter_id = '${encounterId}'
-        AND ${getInvoiceLineNotExistYetClause(encounterId)};
+        WHERE procedures.encounter_id = :encounterId
+        AND ${getInvoiceLineNotExistYetClause};
     `,
     {
+      replacements: {
+        encounterId,
+      },
       model: models.Procedure,
       type: QueryTypes.SELECT,
       mapToModel: true,
@@ -61,10 +63,13 @@ export const getPotentialInvoiceLineItems = async (db, models, encounterId) => {
         AND invoice_line_types.item_type = 'imagingType'
         INNER JOIN users
         ON users.id = imaging_requests.requested_by_id
-        WHERE imaging_requests.encounter_id = '${encounterId}'
-        AND ${getInvoiceLineNotExistYetClause(encounterId)};
+        WHERE imaging_requests.encounter_id = :encounterId
+        AND ${getInvoiceLineNotExistYetClause};
     `,
     {
+      replacements: {
+        encounterId,
+      },
       model: models.ImagingRequest,
       type: QueryTypes.SELECT,
       mapToModel: true,
@@ -92,10 +97,13 @@ export const getPotentialInvoiceLineItems = async (db, models, encounterId) => {
         AND invoice_line_types.item_type = 'labTestType'
         INNER JOIN users
         ON users.id = lab_requests.requested_by_id
-        WHERE lab_requests.encounter_id = '${encounterId}'
-        AND ${getInvoiceLineNotExistYetClause(encounterId)};
+        WHERE lab_requests.encounter_id = :encounterId
+        AND ${getInvoiceLineNotExistYetClause};
     `,
     {
+      replacements: {
+        encounterId,
+      },
       model: models.LabTest,
       type: QueryTypes.SELECT,
       mapToModel: true,
