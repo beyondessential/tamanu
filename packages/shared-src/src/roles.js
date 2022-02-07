@@ -193,7 +193,7 @@ export const practitioner = [
 
 export const admin = [
   ...practitioner,
-    
+
   { verb: 'create', noun: 'User' },
   { verb: 'write', noun: 'User' },
 

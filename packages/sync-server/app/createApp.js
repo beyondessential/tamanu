@@ -5,11 +5,11 @@ import compression from 'compression';
 
 import { log } from 'shared/services/logging';
 
+import { constructPermission } from 'shared/permissions/middleware';
 import { routes } from './routes';
 import { authModule } from './auth';
 import { publicRoutes } from './publicRoutes';
 
-import { constructPermission } from 'shared/permissions/middleware';
 import { defaultErrorHandler } from './middleware/errorHandler';
 import { loadshedder } from './middleware/loadshedder';
 import { versionCompatibility } from './middleware/versionCompatibility';

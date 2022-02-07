@@ -1,6 +1,6 @@
+import config from 'config';
 import { buildAbility } from './buildAbility';
 import { Permission } from '../models';
-import config from 'config';
 
 //---------------------------------------------------------
 // "Hardcoded" permissions version -- safe to delete once all deployments
@@ -22,26 +22,32 @@ export function resetPermissionCache() {
   permissionCache = {};
 }
 
-const commaSplit = s => s.split(",").map(x => x.trim()).filter(x => x);
-
+const commaSplit = s =>
+  s
+    .split(',')
+    .map(x => x.trim())
+    .filter(x => x);
 
 export async function queryPermissionsForRoles(roleString) {
   const roleIds = commaSplit(roleString);
-  const result = await Permission.sequelize.query(`
+  const result = await Permission.sequelize.query(
+    `
     SELECT * 
       FROM permissions
       WHERE permissions.role_id IN (:roleIds)
-  `, {
-    model: Permission,
-    mapToModel: true,
-    replacements: {
-      roleIds,
+  `,
+    {
+      model: Permission,
+      mapToModel: true,
+      replacements: {
+        roleIds,
+      },
     },
-  });
+  );
   return result.map(r => r.forResponse());
 }
 
-export async function getPermissionsForRoles(roleString) {  
+export async function getPermissionsForRoles(roleString) {
   if (config.auth.useHardcodedPermissions) {
     return getHardcodedPermissions(roleString);
   }
@@ -67,7 +73,7 @@ export async function getAbilityForUser(user) {
   const permissions = await getPermissionsForRoles(user.role);
   const ability = buildAbility([
     ...permissions,
-    // a user can always read and write themselves -- this is 
+    // a user can always read and write themselves -- this is
     // separate to the role system as it's cached per-role, not per-user
     { verb: 'read', noun: 'User', objectId: user.id },
     { verb: 'write', noun: 'User', objectId: user.id },

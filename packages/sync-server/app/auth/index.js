@@ -25,4 +25,3 @@ authModule.get(
     res.send(convertFromDbRecord(req.user).data);
   }),
 );
-

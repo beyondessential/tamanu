@@ -25,10 +25,7 @@ user.get(
   }),
 );
 
-user.get(
-  '/permissions',
-  asyncHandler(getPermissions),
-);
+user.get('/permissions', asyncHandler(getPermissions));
 
 user.get(
   '/current-facility',
