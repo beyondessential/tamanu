@@ -89,11 +89,11 @@ export class VdsNcDocument extends Model {
     let unique;
     switch (this.type) {
       case 'icao.test':
-        unique = await this.makeUnique('TT');
+        unique = await this.makeUniqueCertificateId('TT');
         msg.utvi = unique;
         break;
       case 'icao.vacc':
-        unique = await this.makeUnique('TV');
+        unique = await this.makeUniqueCertificateId('TV');
         msg.ucvi = unique;
         break;
       default:
@@ -161,10 +161,12 @@ export class VdsNcDocument extends Model {
   /**
    * Generate a new unique certificate ID with the given prefix.
    *
+   * NB: only guarantees uniqueness on Sync server, which is where it should run.
+   *
    * @param {string} prefix
    * @returns {string}
    */
-  async makeUnique(prefix) {
+  async makeUniqueCertificateId(prefix) {
     // Generate a bunch of candidates at random and check them for actual
     // uniqueness against the database at once. This saves N-1 queries in
     // the case where the first N generated are non-unique.
@@ -187,7 +189,7 @@ export class VdsNcDocument extends Model {
     });
 
     const unique = candidates.find(cand => !collisions.some(({ unique: col }) => col === cand));
-    if (!unique) return this.makeUnique(prefix);
+    if (!unique) return this.makeUniqueCertificateId(prefix);
     return unique;
   }
 }
