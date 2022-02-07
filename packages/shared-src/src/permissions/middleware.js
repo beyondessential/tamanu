@@ -36,7 +36,7 @@ const checkPermission = (req, action, subject, field = '') => {
   const { ability } = req;
   if (!ability) {
     // user must log in - 401
-    throw new BadAuthenticationError();
+    throw new BadAuthenticationError('No permission');
   }
 
   const hasPermission = ability.can(action, subject, field);
