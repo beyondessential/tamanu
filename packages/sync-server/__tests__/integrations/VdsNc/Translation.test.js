@@ -1,7 +1,7 @@
 import { expect } from 'chai';
 import { fake } from 'shared/test-helpers/fake';
 import { createTestContext } from 'sync-server/__tests__/utilities';
-import { createPoT, createPoV } from '../../../app/integrations/VdsNc';
+import { createProofOfTest, createProofOfVaccination } from '../../../app/integrations/VdsNc';
 
 describe('VDS: Proof of Vaccination', () => {
   let ctx;
@@ -30,7 +30,7 @@ describe('VDS: Proof of Vaccination', () => {
     await patient.reload();
 
     // Act
-    const msg = await createPoV(patient.id, { models: ctx.store.models, countryCode: 'UTO' });
+    const msg = await createProofOfVaccination(patient.id, { models: ctx.store.models, countryCode: 'UTO' });
 
     // Assert
     expect(msg).to.deep.equal({
@@ -110,7 +110,7 @@ describe('VDS: Proof of Vaccination', () => {
     });
 
     // Act
-    const msg = await createPoV(patient.id, { models: ctx.store.models, countryCode: 'UTO' });
+    const msg = await createProofOfVaccination(patient.id, { models: ctx.store.models, countryCode: 'UTO' });
 
     // Assert
     expect(msg).to.deep.equal({
@@ -287,7 +287,7 @@ describe('VDS: Proof of Vaccination', () => {
     });
 
     // Act
-    const msg = await createPoV(patient.id, { models: ctx.store.models, countryCode: 'UTO' });
+    const msg = await createProofOfVaccination(patient.id, { models: ctx.store.models, countryCode: 'UTO' });
 
     // Assert
     expect(msg).to.deep.equal({
@@ -423,7 +423,7 @@ describe('VDS: Proof of Test', () => {
     });
 
     // Act
-    const msg = await createPoT(test.id, { models: ctx.store.models, countryCode: 'UTO' });
+    const msg = await createProofOfTest(test.id, { models: ctx.store.models, countryCode: 'UTO' });
 
     // Assert
     expect(msg).to.deep.equal({

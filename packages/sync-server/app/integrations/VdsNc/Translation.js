@@ -28,7 +28,7 @@ const ICD11_COVID19_DISEASE = 'RA01.0';
 const MOMENT_FORMAT_ISODATE = 'YYYY-MM-DD';
 const MOMENT_FORMAT_RFC3339 = 'YYYY-MM-DDTHH:mm:ssZ';
 
-export const createPoV = async (
+export const createProofOfVaccination = async (
   patientId,
   { countryCode = config.icao.sign.countryCode3, models = allModels } = {},
 ) => {
@@ -136,7 +136,7 @@ export const createPoV = async (
   };
 };
 
-export const createPoT = async (
+export const createProofOfTest = async (
   labTestId,
   { countryCode = config.icao.sign.countryCode3, models = allModels } = {},
 ) => {
