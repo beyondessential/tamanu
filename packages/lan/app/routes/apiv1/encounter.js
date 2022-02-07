@@ -143,6 +143,7 @@ encounterRelations.get(
     additionalFilters: { recordType: NOTE_RECORD_TYPES.ENCOUNTER },
   }),
 );
+encounterRelations.get('/:id/invoice', simpleGetHasOne('Invoice', 'encounterId'));
 
 encounterRelations.get(
   '/:id/programResponses',
