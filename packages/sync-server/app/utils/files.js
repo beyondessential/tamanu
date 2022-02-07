@@ -1,16 +1,9 @@
-import os from 'os';
 import fs from 'fs';
 import path from 'path';
-import mkdirp from 'mkdirp';
 import XLSX from 'xlsx';
 import JSZip from 'jszip';
 
-// on windows, os.tmpdir() can return a non-existent folder
-async function tmpdir() {
-  const dir = path.resolve(os.tmpdir());
-  await mkdirp(dir);
-  return dir;
-}
+import { tmpdir } from 'shared/utils';
 
 export function removeFile(filePath) {
   return new Promise(resolve => {
@@ -43,7 +36,7 @@ export async function createZipFromFile(fileName, filePath, zipFilePath) {
   const encoding = 'base64';
   const fileContent = await fs.promises.readFile(filePath);
   const zip = new JSZip();
-  //write the file into zip
+  // write the file into zip
   zip.file(fileName, fileContent);
   const zipContent = await zip.generateAsync({
     type: encoding,

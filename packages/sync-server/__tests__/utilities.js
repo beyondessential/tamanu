@@ -10,6 +10,7 @@ import { getToken } from 'sync-server/app/auth/utils';
 import { initIntegrations } from 'sync-server/app/integrations';
 
 jest.setTimeout(30 * 1000); // more generous than the default 5s but not crazy
+jest.mock('../app/utils/getFreeDiskSpace');
 
 const chance = new Chance();
 
