@@ -7,7 +7,7 @@ export class CertificateNotification extends Model {
     super.init(
       {
         id: primaryKey,
-        type: Sequelize.ENUM(...Object.values(ICAO_DOCUMENT_TYPES).map(dt => dt.JSON)),
+        type: Sequelize.STRING,
         forwardAddress: Sequelize.STRING,
         requireSigning: Sequelize.BOOLEAN,
       },

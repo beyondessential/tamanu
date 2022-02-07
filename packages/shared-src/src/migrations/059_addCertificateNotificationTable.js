@@ -22,9 +22,7 @@ module.exports = {
         defaultValue: Sequelize.NOW,
       },
       type: {
-        // Use the same types as the document table
-        // icao.vacc, icao.test
-        type: 'enum_vds_nc_documents_type',
+        type: Sequelize.STRING,
         allowNull: false,
       },
       require_signing: {

@@ -28,7 +28,7 @@ module.exports = {
         allowNull: true,
       },
       type: {
-        type: Sequelize.ENUM(['icao.vacc', 'icao.test']),
+        type: Sequelize.STRING,
         allowNull: false,
       },
       message_data: {
