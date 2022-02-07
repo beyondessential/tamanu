@@ -22,6 +22,7 @@ export const removeDuplicatedPatientAdditionalData = async () => {
     'marked_for_push',
     'pushed_at',
     'pulled_at',
+    'is_pushing',
   ];
 
   const patientIdsCount = patientIdsCountData[0].count;
