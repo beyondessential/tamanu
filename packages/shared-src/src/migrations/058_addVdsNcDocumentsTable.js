@@ -35,7 +35,7 @@ module.exports = {
         type: Sequelize.TEXT,
         allowNull: false,
       },
-      unique: {
+      unique_proof_id: {
         type: Sequelize.STRING,
         allowNull: true,
       },
@@ -63,13 +63,13 @@ module.exports = {
       },
     });
     await query.addIndex('vds_nc_documents', {
-      fields: ['unique'],
+      fields: ['unique_proof_id'],
       unique: true,
     });
   },
   down: async query => {
     await query.removeIndex('vds_nc_documents', {
-      fields: ['unique'],
+      fields: ['unique_proof_id'],
       unique: true,
     });
     await query.dropTable('vds_nc_documents');

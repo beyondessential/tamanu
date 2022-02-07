@@ -59,12 +59,12 @@ describe('VDS-NC: Document cryptography', () => {
 
     // Assert
     expect(document.isSigned()).to.be.true;
-    expect(document.unique).to.match(/^TT.{10}$/);
+    expect(document.uniqueProofId).to.match(/^TT.{10}$/);
     expect(document.algorithm).to.equal('ES256');
     expect(vds.sig.alg).to.equal('ES256');
     expect(vds.hdr.t).to.equal('icao.test');
     expect(vds.hdr.is).to.equal('UTO');
-    expect(vds.msg).to.deep.equal({ test: 'data', utci: document.unique });
+    expect(vds.msg).to.deep.equal({ test: 'data', utci: document.uniqueProofId });
 
     await signer.reload();
     expect(signer.signaturesIssued).to.equal(signCount + 1);
@@ -92,12 +92,12 @@ describe('VDS-NC: Document cryptography', () => {
 
     // Assert
     expect(document.isSigned()).to.be.true;
-    expect(document.unique).to.match(/^TV.{10}$/);
+    expect(document.uniqueProofId).to.match(/^TV.{10}$/);
     expect(document.algorithm).to.equal('ES256');
     expect(vds.sig.alg).to.equal('ES256');
     expect(vds.hdr.t).to.equal('icao.vacc');
     expect(vds.hdr.is).to.equal('UTO');
-    expect(vds.msg).to.deep.equal({ vaxx: 'data', uvci: document.unique });
+    expect(vds.msg).to.deep.equal({ vaxx: 'data', uvci: document.uniqueProofId });
 
     await signer.reload();
     expect(signer.signaturesIssued).to.equal(signCount + 1);

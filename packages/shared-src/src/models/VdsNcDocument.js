@@ -26,7 +26,7 @@ export class VdsNcDocument extends Model {
           allowNull: false,
         },
 
-        unique: {
+        uniqueProofId: {
           type: Sequelize.STRING,
           allowNull: true,
         },
@@ -41,7 +41,7 @@ export class VdsNcDocument extends Model {
       },
       {
         ...options,
-        indexes: [{ unique: true, fields: ['unique'] }],
+        indexes: [{ unique: true, fields: ['unique_proof_id'] }],
         validate: {
           mustHaveValidType() {
             if (!Object.values(ICAO_DOCUMENT_TYPES).some(typ => this.type === typ.JSON)) {
@@ -66,7 +66,7 @@ export class VdsNcDocument extends Model {
    * @returns {boolean} True if this has been signed.
    */
   isSigned() {
-    return !!(this.unique && this.algorithm && this.signature && this.signedAt);
+    return !!(this.uniqueProofId && this.algorithm && this.signature && this.signedAt);
   }
 
   /**
@@ -86,15 +86,15 @@ export class VdsNcDocument extends Model {
     if (!signer) throw new Error('No active signer');
 
     const msg = JSON.parse(this.messageData);
-    let unique;
+    let uniqueProofId;
     switch (this.type) {
       case 'icao.test':
-        unique = await this.makeUniqueCertificateId('TT');
-        msg.utvi = unique;
+        uniqueProofId = await this.makeUniqueProofId('TT');
+        msg.utvi = uniqueProofId;
         break;
       case 'icao.vacc':
-        unique = await this.makeUniqueCertificateId('TV');
-        msg.ucvi = unique;
+        uniqueProofId = await this.makeUniqueProofId('TV');
+        msg.ucvi = uniqueProofId;
         break;
       default:
         throw new Error(`Unknown VDS-NC type: ${this.type}`);
@@ -112,7 +112,7 @@ export class VdsNcDocument extends Model {
     const { algorithm, signature } = await signer.issueSignature(data, keySecret);
     await this.setVdsNcSigner(signer);
     return this.update({
-      unique,
+      uniqueProofId,
       algorithm,
       signature,
       signedAt: Sequelize.literal('CURRENT_TIMESTAMP'),
@@ -134,10 +134,10 @@ export class VdsNcDocument extends Model {
     const msg = JSON.parse(this.messageData);
     switch (this.type) {
       case 'icao.test':
-        msg.utci = this.unique;
+        msg.utci = this.uniqueProofId;
         break;
       case 'icao.vacc':
-        msg.uvci = this.unique;
+        msg.uvci = this.uniqueProofId;
         break;
       default:
         throw new Error(`Unknown VDS-NC type: ${this.type}`);
@@ -159,14 +159,14 @@ export class VdsNcDocument extends Model {
   }
 
   /**
-   * Generate a new unique certificate ID with the given prefix.
+   * Generate a new unique proof (of vax, of test) ID with the given prefix.
    *
    * NB: only guarantees uniqueness on Sync server, which is where it should run.
    *
    * @param {string} prefix
    * @returns {string}
    */
-  async makeUniqueCertificateId(prefix) {
+  async makeUniqueProofId(prefix) {
     // Generate a bunch of candidates at random and check them for actual
     // uniqueness against the database at once. This saves N-1 queries in
     // the case where the first N generated are non-unique.
@@ -184,12 +184,12 @@ export class VdsNcDocument extends Model {
       );
 
     const collisions = await VdsNcDocument.findAll({
-      attributes: ['unique'], // will perform an index-only query!
-      where: { unique: candidates },
+      attributes: ['unique_proof_id'], // will perform an index-only query!
+      where: { uniqueProofId: candidates },
     });
 
-    const unique = candidates.find(cand => !collisions.some(({ unique: col }) => col === cand));
-    if (!unique) return this.makeUniqueCertificateId(prefix);
+    const unique = candidates.find(cand => !collisions.some(({ uniqueProofId: col }) => col === cand));
+    if (!unique) return this.makeUniqueProofId(prefix);
     return unique;
   }
 }
