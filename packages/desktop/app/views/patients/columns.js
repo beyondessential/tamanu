@@ -75,7 +75,10 @@ export const status = {
   key: 'patientStatus',
   title: 'Status',
   minWidth: 100,
-  accessor: ({ patientStatus }) => capitaliseFirstLetter(patientStatus ?? ''),
+  accessor: ({ patientStatus }) => {
+    const status = capitaliseFirstLetter(patientStatus ?? '');
+    return status === 'Deceased' ? <strong>{status}</strong> : status;
+  },
 };
 
 export const vaccinationStatus = {
