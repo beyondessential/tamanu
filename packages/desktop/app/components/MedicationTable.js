@@ -68,6 +68,10 @@ export const EncounterMedicationTable = React.memo(({ encounterId }) => {
         columns={MEDICATION_COLUMNS}
         endpoint={`encounter/${encounterId}/medications`}
         onRowClick={onMedicationSelect}
+        rowStyle={({ discontinued }) => (discontinued ? `
+          color: red;
+          text-decoration: line-through;
+        ` : '')}
       />
     </div>
   );

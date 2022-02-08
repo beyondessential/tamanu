@@ -19,6 +19,7 @@ export const DataFetchingTable = memo(
     className,
     exportName = 'TamanuExport',
     refreshCount = 0,
+    rowStyle,
   }) => {
     const [page, setPage] = useState(0);
     const [rowsPerPage, setRowsPerPage] = useState(ROWS_PER_PAGE_OPTIONS[0]);
@@ -108,6 +109,7 @@ export const DataFetchingTable = memo(
         exportName={exportName}
         customSort={customSort}
         onTableRefresh={handleTableRefresh}
+        rowStyle={rowStyle}
       />
     );
   },
