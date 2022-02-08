@@ -1,5 +1,21 @@
 import { ICAO_DOCUMENT_TYPES, LAB_REQUEST_STATUSES } from '../constants';
 
+async function fetchMostRecentEmailAddress(patientId, models) {
+  const surveyQuestion = 'pde-FijCOVRDT008'; // TODO: fetch this from somewhere
+  /*
+    `SELECT body
+       FROM survey_response_answers
+       LEFT JOIN survey_responses
+        ON (survey_responses.id = survey_response_answers.response_id)
+       LEFT JOIN encounters
+        ON (survey_responses.encounter_id = encounters.id)
+       WHERE
+          data_element_id = :questionId
+        AND
+          encounters.patient_id = :patientId`,
+   */
+}
+
 export async function createLabRequestNotifications(labRequests, models) {
   const notifications = await Promise.all(
     labRequests
@@ -13,7 +29,7 @@ export async function createLabRequestNotifications(labRequests, models) {
           type: ICAO_DOCUMENT_TYPES.PROOF_OF_TESTING,
           requiresSigning: false,
           patientId: encounter.patientId,
-          // TODO: fowardAddress: {pull from surveys}
+          forwardAddress: await fetchMostRecentEmailAddress(encounter.patientId, models),
         };
       }),
   );
