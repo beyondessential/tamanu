@@ -29,7 +29,7 @@ import { ReferralForm } from '../app/forms/ReferralForm';
 import { DeathForm } from '../app/forms/DeathForm';
 import { MedicationForm } from '../app/forms/MedicationForm';
 import { FamilyHistoryForm } from '../app/forms/FamilyHistoryForm';
-import { SurveyScreenPaginator } from '../app/views/programs/SurveyView';
+import { SurveyScreenPaginator, PaginatedForm } from '../app/views/programs/SurveyView';
 import { NoteForm } from '../app/forms/NoteForm';
 import { createDummySuggester, mapToSuggestions, getDummySurvey } from './utils';
 import { TestSelectorInput } from '../app/components/TestSelector';
@@ -75,6 +75,37 @@ storiesOf('Forms', module).add('DeathForm', () => {
         onSave={handleSave}
         practitionerSuggester={practitionerSuggester}
         icd10Suggester={icd10Suggester}
+      />
+    </Container>
+  );
+});
+
+storiesOf('Forms', module).add('ConfigDeathForm', () => {
+  const survey = getDummySurvey();
+
+  const renderSurvey = props => {
+    const { values, setFieldValue } = props;
+
+    return (
+      <PaginatedForm
+        survey={survey}
+        values={values}
+        setFieldValue={setFieldValue}
+        onCancel={() => {
+          console.log('cancel');
+        }}
+      />
+    );
+  };
+
+  return (
+    <Container>
+      <Form
+        initialValues={{}}
+        onSubmit={() => {
+          console.log('submit');
+        }}
+        render={renderSurvey}
       />
     </Container>
   );

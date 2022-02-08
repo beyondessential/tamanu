@@ -12,6 +12,7 @@ import {
   TextField,
   CheckField,
   NumberField,
+  SelectField,
 } from '../components/Field';
 import { PaginatedForm, PaginatedFormActions } from '../components/Field/PaginatedForm';
 import { FormSeparatorLine } from '../components/FormSeparatorLine';
@@ -78,6 +79,39 @@ const ConfirmScreen = () => {
   );
 };
 
+const PLACES = [
+  'Home',
+  'Residential institution',
+  'School or other institution or public administrative area',
+  'Sports or athletic area',
+  'Street or highway',
+  'Trade or service area',
+  'Industrial or construction area',
+  'Bush or reserve',
+  'Farm',
+];
+
+const placeOptions = Object.values(PLACES).map(type => ({
+  label: type,
+  value: type,
+}));
+
+const MANNER_OF_DEATHS = [
+  'Disease',
+  'Assault',
+  'Accident',
+  'Legal Intervention',
+  'Pending Investigation',
+  'Intentional Self Harm',
+  'War',
+  'Unknown/Could not be determined',
+];
+
+const mannerOfDeathOptions = Object.values(MANNER_OF_DEATHS).map(type => ({
+  label: type,
+  value: type,
+}));
+
 /**
  * onCancel: closes modal
  * onSubmit: make api request
@@ -142,7 +176,7 @@ export const DeathForm = React.memo(
           <Field
             name="causeOfDeathInterval"
             label="Time between onset and death"
-            component={props => <DateTimeField {...props} InputProps={{}} />}
+            component={NumberField}
             required
           />
           <Field
@@ -150,13 +184,11 @@ export const DeathForm = React.memo(
             label="Due to (or as a consequence of)"
             component={AutocompleteField}
             suggester={icd10Suggester}
-            required
           />
           <Field
             name="causeOfDeath2Interval"
             label="Time between onset and death"
-            component={props => <DateTimeField {...props} InputProps={{}} />}
-            required
+            component={NumberField}
           />
           <FormSeparatorLine />
           <Field
@@ -171,7 +203,6 @@ export const DeathForm = React.memo(
             label="Facility"
             component={AutocompleteField}
             suggester={practitionerSuggester}
-            required
           />
           <Field
             name="timeOfDeath"
@@ -222,7 +253,12 @@ export const DeathForm = React.memo(
           />
         </FormGrid>
         <FormGrid columns={1}>
-          <Field name="mannerOfDeath" label="What was the manner of death?" component={TextField} />
+          <Field
+            name="mannerOfDeath"
+            label="What was the manner of death?"
+            component={SelectField}
+            options={mannerOfDeathOptions}
+          />
           <Field
             name="mannerOfDeathDate"
             label="What date did this external cause occur?"
@@ -231,7 +267,8 @@ export const DeathForm = React.memo(
           <Field
             name="mannerOfDeathLocation"
             label="Where did this external cause occur?"
-            component={TextField}
+            component={SelectField}
+            options={placeOptions}
           />
           <Field name="mannerOfDeathOther" label="Other" component={TextField} />
         </FormGrid>

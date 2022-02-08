@@ -84,3 +84,7 @@ export const PaginatedForm = ({ children, onSubmit, renderFormActions, Stepper }
     </div>
   );
 };
+
+export const NewPaginatedForm = ({ survey, values, onSurveyComplete, onCancel, setFieldValue }) => {
+  return <Form onSubmit={onSubmit} render={({ submitForm }) => <></>} />;
+};

@@ -60,27 +60,23 @@ const StyledButtonRow = styled(ButtonRow)`
   margin-top: 24px;
 `;
 
-const SurveyScreen = ({ components, values, onStepForward, onStepBack, Stepper }) => {
+const SurveyScreen = ({ components, values, onStepForward, onStepBack }) => {
   const questionElements = components
     .filter(c => checkVisibility(c, values, components))
     .map(c => <SurveyQuestion component={c} key={c.id} />);
 
   return (
-    <div>
-      <Typography variant="h6">Record patient death</Typography>
-      {Stepper}
-      <FormGrid columns={1}>
-        {questionElements}
-        <StyledButtonRow>
-          <OutlinedButton onClick={onStepBack || undefined} disabled={!onStepBack}>
-            Prev
-          </OutlinedButton>
-          <Button color="primary" variant="contained" onClick={onStepForward}>
-            Next
-          </Button>
-        </StyledButtonRow>
-      </FormGrid>
-    </div>
+    <FormGrid columns={1}>
+      {questionElements}
+      <StyledButtonRow>
+        <OutlinedButton onClick={onStepBack || undefined} disabled={!onStepBack}>
+          Prev
+        </OutlinedButton>
+        <Button color="primary" variant="contained" onClick={onStepForward}>
+          Next
+        </Button>
+      </StyledButtonRow>
+    </FormGrid>
   );
 };
 
@@ -130,32 +126,16 @@ const StyledStepButton = styled(StepButton)`
   margin: 0;
 `;
 
-export const SurveyScreenPaginator = ({
-  survey,
-  values,
-  onSurveyComplete,
-  onCancel,
-  setFieldValue,
-}) => {
-  const { components } = survey;
+const usePaginatedForm = components => {
   const [screenIndex, setScreenIndex] = useState(0);
 
-  useEffect(() => {
-    // recalculate dynamic fields
-    const calculatedValues = runCalculations(components, values);
-    // write values that have changed back into answers
-    Object.entries(calculatedValues)
-      .filter(([k, v]) => values[k] !== v)
-      .map(([k, v]) => setFieldValue(k, v));
-  }, [components, values, setFieldValue]);
-
-  const onStepBack = useCallback(() => {
+  const onStepBack = () => {
     setScreenIndex(screenIndex - 1);
-  }, [screenIndex]);
+  };
 
-  const onStepForward = useCallback(() => {
+  const onStepForward = () => {
     setScreenIndex(screenIndex + 1);
-  }, [screenIndex]);
+  };
 
   const maxIndex = components
     .map(x => x.screenIndex)
@@ -165,14 +145,89 @@ export const SurveyScreenPaginator = ({
     setScreenIndex(step);
   };
 
+  return {
+    onStepBack,
+    onStepForward,
+    handleStep,
+    maxIndex,
+    screenIndex,
+    setScreenIndex,
+  };
+};
+
+const useFormValues = (components, values, setFieldValue) => {
+  useEffect(() => {
+    // recalculate dynamic fields
+    const calculatedValues = runCalculations(components, values);
+    // write values that have changed back into answers
+    Object.entries(calculatedValues)
+      .filter(([k, v]) => values[k] !== v)
+      .map(([k, v]) => setFieldValue(k, v));
+  }, [components, values, setFieldValue]);
+};
+
+const steps = ['One', 'Two', 'Three'];
+
+export const PaginatedForm = ({ survey, values, onSurveyComplete, onCancel, setFieldValue }) => {
+  const { components = [] } = survey;
+  const { onStepBack, onStepForward, handleStep, maxIndex, screenIndex } = usePaginatedForm(
+    components,
+  );
+
+  useFormValues(components, values, setFieldValue);
+
   if (screenIndex <= maxIndex) {
     const screenComponents = components
       .filter(x => x.screenIndex === screenIndex)
       .sort((a, b) => a.componentIndex - b.componentIndex);
 
-    const steps = components
-      .filter(c => c.dataElement.type === 'Instruction')
-      .map(c => c.dataElement.name);
+    // add support for custom screen
+    // if (screenComponents[0].type === 'CustomScreen') {
+    // }
+
+    return (
+      <div>
+        <StyledStepper nonLinear activeStep={screenIndex} connector={null}>
+          {steps.map((label, index) => {
+            return (
+              <StyledStep key={label}>
+                <Tooltip title={label}>
+                  <StyledStepButton onClick={handleStep(index)} icon={null} />
+                </Tooltip>
+              </StyledStep>
+            );
+          })}
+        </StyledStepper>
+        <SurveyScreen
+          values={values}
+          components={screenComponents}
+          onStepForward={onStepForward}
+          screenIndex={screenIndex}
+          onStepBack={screenIndex > 0 ? onStepBack : onCancel}
+        />
+      </div>
+    );
+  }
+
+  return <SurveySummaryScreen onStepBack={onStepBack} onSurveyComplete={onSurveyComplete} />;
+};
+
+export const SurveyScreenPaginator = ({
+  survey,
+  values,
+  onSurveyComplete,
+  onCancel,
+  setFieldValue,
+}) => {
+  const { components } = survey;
+  const { onStepBack, onStepForward, maxIndex, screenIndex } = usePaginatedForm(components);
+
+  useFormValues(components, values, setFieldValue);
+
+  if (screenIndex <= maxIndex) {
+    const screenComponents = components
+      .filter(x => x.screenIndex === screenIndex)
+      .sort((a, b) => a.componentIndex - b.componentIndex);
 
     return (
       <SurveyScreen
@@ -181,19 +236,6 @@ export const SurveyScreenPaginator = ({
         onStepForward={onStepForward}
         screenIndex={screenIndex}
         onStepBack={screenIndex > 0 ? onStepBack : onCancel}
-        Stepper={
-          <StyledStepper nonLinear activeStep={screenIndex} connector={null}>
-            {steps.map((label, index) => {
-              return (
-                <StyledStep key={label}>
-                  <Tooltip title={label}>
-                    <StyledStepButton onClick={handleStep(index)} icon={null} />
-                  </Tooltip>
-                </StyledStep>
-              );
-            })}
-          </StyledStepper>
-        }
       />
     );
   }
