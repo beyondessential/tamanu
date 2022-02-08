@@ -70,7 +70,7 @@ const importExcelSheet = () => {
   const worksheet = workbook.Sheets.hi;
   const data = utils.sheet_to_json(worksheet);
 
-  const hi = data.map(parseSheet);
+  const hi = data.map(parseSheet).filter(({ patientId }) => patientId !== 'NA');
   console.log('Vaccinations imported!', hi.length);
   return hi;
 };
@@ -120,7 +120,7 @@ const INJECTION_SITE_MAP = {
 
 const adminUserId = 'f16eece5-83e3-4935-ba84-14fefd2a46a7'; // Tamanu admin
 
-async function mapToRecordData(data) {
+function mapToRecordData(data) {
   const { patientId, shotNumber, administeredBy, batch, injectionSite, timeOfEverything } = data;
 
   const encounterData = {
