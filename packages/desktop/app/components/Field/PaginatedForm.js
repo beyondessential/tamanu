@@ -38,7 +38,7 @@ export const PaginatedFormActions = ({ onStepBack, onStepForward, submitForm, is
 };
 
 export const PaginatedForm = ({ children, onSubmit, renderFormActions, Stepper }) => {
-  const [screenIndex, setScreenIndex] = useState(3);
+  const [screenIndex, setScreenIndex] = useState(0);
 
   const onStepBack = () => {
     setScreenIndex(screenIndex - 1);

@@ -59,6 +59,11 @@ storiesOf('Forms', module).add('DeathForm', () => {
   const [isModalOpen, setModalOpen] = React.useState(true);
   const openModal = () => setModalOpen(true);
   const closeModal = () => setModalOpen(false);
+
+  const handleSave = async data => {
+    console.log('submit...', data);
+  };
+
   return (
     <Container>
       <Button variant="contained" color="primary" onClick={openModal}>
@@ -67,9 +72,7 @@ storiesOf('Forms', module).add('DeathForm', () => {
       <DumbDeathModal
         open={isModalOpen}
         onClose={closeModal}
-        onSave={() => {
-          console.log('submit...');
-        }}
+        onSave={handleSave}
         practitionerSuggester={practitionerSuggester}
         icd10Suggester={icd10Suggester}
       />
