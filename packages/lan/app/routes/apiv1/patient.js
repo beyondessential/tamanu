@@ -422,6 +422,13 @@ patientRoute.get(
           patients.*,
           encounters.id AS encounter_id,
           encounters.encounter_type,
+          CASE
+            WHEN patients.date_of_death IS NOT NULL THEN 'deceased'
+            WHEN encounters.encounter_type = 'emergency' THEN 'emergency'
+            WHEN encounters.encounter_type = 'clinic' THEN 'outpatient'
+            WHEN encounters.encounter_type IS NOT NULL THEN encounters.encounter_type
+            ELSE NULL
+          END AS patient_status,
           department.id AS department_id,
           department.name AS department_name,
           location.id AS location_id,

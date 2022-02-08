@@ -4,7 +4,7 @@ import { CloudDownload, CloudOff } from '@material-ui/icons';
 import { DateDisplay } from '../../components';
 import { capitaliseFirstLetter } from '../../utils/capitalise';
 
-const DateOfBirthCell = React.memo(({ value }) => <DateDisplay date={value} />);
+const DateCell = React.memo(({ value }) => <DateDisplay date={value} />);
 const SexCell = React.memo(({ value = '' }) => <span>{capitaliseFirstLetter(value)}</span>);
 const SyncedCell = React.memo(({ value }) => (value === true ? <CloudDownload /> : <CloudOff />));
 
@@ -44,7 +44,13 @@ export const sex = {
 export const dateOfBirth = {
   key: 'dateOfBirth',
   minWidth: 100,
-  CellComponent: DateOfBirthCell,
+  CellComponent: DateCell,
+};
+
+export const dateOfDeath = {
+  key: 'dateOfDeath',
+  minWidth: 100,
+  CellComponent: DateCell,
 };
 
 export const village = {
@@ -66,15 +72,10 @@ export const department = {
 };
 
 export const status = {
-  key: 'encounterType',
+  key: 'patientStatus',
   title: 'Status',
   minWidth: 100,
-  accessor: ({ encounterType }) => {
-    if (!encounterType) return '';
-    if (encounterType === 'emergency') return 'Emergency';
-    if (encounterType === 'clinic') return 'Outpatient';
-    return 'Inpatient';
-  },
+  accessor: ({ patientStatus }) => capitaliseFirstLetter(patientStatus ?? ''),
 };
 
 export const vaccinationStatus = {
