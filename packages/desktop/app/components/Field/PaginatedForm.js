@@ -1,10 +1,13 @@
 import React, { useState } from 'react';
 import styled from 'styled-components';
-import MuiBox from '@material-ui/core/Box';
+import Alert from '@material-ui/lab/Alert';
+import { Tooltip, Typography, Box, Stepper, Step, StepButton } from '@material-ui/core';
 import { Button, OutlinedButton } from '../Button';
 import { Form } from './Form';
+import { ButtonRow } from '../ButtonRow';
+import { usePaginatedForm, SurveyScreen } from '../../views/programs/SurveyView';
 
-const Box = styled(MuiBox)`
+const Footer = styled(Box)`
   display: flex;
   justify-content: space-between;
   align-items: center;
@@ -18,73 +21,138 @@ const Box = styled(MuiBox)`
   border-top: 1px solid #dedede;
 `;
 
-export const PaginatedFormActions = ({ onStepBack, onStepForward, submitForm, isLast }) => {
+const StyledStepper = styled(Stepper)`
+  padding: 0;
+  margin-top: 10px;
+`;
+
+const StyledStep = styled(Step)`
+  display: flex;
+  flex: 1;
+  margin: 0 3px 0 0;
+  padding: 0;
+
+  &:last-child {
+    margin: 0;
+  }
+`;
+
+const StyledStepButton = styled(StepButton)`
+  background: ${props => props.theme.palette.primary.main};
+  border-radius: 0;
+  height: 10px;
+  padding: 0;
+  margin: 0;
+`;
+
+const FormStepper = ({ screenIndex, handleStep }) => {
+  const steps = ['One', 'Two', 'Three'];
   return (
-    <Box>
-      <OutlinedButton onClick={onStepBack || undefined} disabled={!onStepBack}>
-        Back
-      </OutlinedButton>
-      {isLast ? (
-        <Button color="primary" variant="contained" onClick={submitForm}>
-          Submit
-        </Button>
-      ) : (
-        <Button color="primary" variant="contained" onClick={onStepForward}>
-          Continue
-        </Button>
-      )}
-    </Box>
+    <StyledStepper nonLinear activeStep={screenIndex} connector={null}>
+      {steps.map((label, index) => {
+        return (
+          <StyledStep key={label}>
+            <Tooltip title={label}>
+              <StyledStepButton onClick={handleStep(index)} icon={null} />
+            </Tooltip>
+          </StyledStep>
+        );
+      })}
+    </StyledStepper>
   );
 };
 
-export const PaginatedForm = ({ children, onSubmit, renderFormActions, Stepper }) => {
-  const [screenIndex, setScreenIndex] = useState(0);
+const COMPLETE_MESSAGE = `
+  Press "Complete" to submit your response,
+  or use the Back button to review answers.
+`;
 
-  const onStepBack = () => {
-    setScreenIndex(screenIndex - 1);
-  };
-
-  const onStepForward = () => {
-    setScreenIndex(screenIndex + 1);
-  };
-
-  const handleStep = step => () => {
-    setScreenIndex(step);
-  };
-
-  const isLast = React.Children.toArray(children).length - 1 === screenIndex;
-
-  return (
+const SummaryScreen = ({ onStepBack, onSurveyComplete }) => (
+  <div>
+    <Typography variant="h6" gutterBottom>
+      Survey complete
+    </Typography>
+    <Typography>{COMPLETE_MESSAGE}</Typography>
     <div>
-      {Stepper && Stepper}
-      <Form
-        onSubmit={onSubmit}
-        render={({ submitForm }) => (
-          <>
-            {React.Children.map(children, (child, i) => (i === screenIndex ? child : null))}
-            {renderFormActions ? (
-              renderFormActions({
-                onStepBack,
-                onStepForward,
-                screenIndex,
-                isLast,
-                submitForm,
-              })
-            ) : (
-              <PaginatedFormActions
-                onStepBack={onStepBack}
-                onStepForward={onStepForward}
-                isLast={isLast}
-                submitForm={submitForm}
-              />
-            )}
-          </>
-        )}
-      />
+      <ButtonRow>
+        <OutlinedButton onClick={onStepBack}>Prev</OutlinedButton>
+        <Button color="primary" variant="contained" onClick={onSurveyComplete}>
+          Complete
+        </Button>
+      </ButtonRow>
     </div>
-  );
+  </div>
+);
+
+const StyledAlert = styled(Alert)`
+  margin: 15px 0;
+`;
+
+const SuccessScreen = ({ onClose }) => (
+  <div>
+    <StyledAlert severity="success">Your response has been successfully submitted.</StyledAlert>
+    <ButtonRow>
+      <Button variant="contained" color="primary" onClick={onClose}>
+        Ok
+      </Button>
+    </ButtonRow>
+  </div>
+);
+
+const FORM_STATES = {
+  SUCCESS: 'success',
+  IDLE: 'idle',
 };
 
-export const NewPaginatedForm = ({ survey, values, onSurveyComplete, onCancel, setFieldValue }) => {
-  return <Form onSubmit={onSubmit} render={({ submitForm }) => <></>} />;
+export const PaginatedForm = ({ components, onCancel, onSubmit }) => {
+  const [formState, setFormState] = useState(FORM_STATES.IDLE);
+
+  console.log('onCancel', onCancel);
+
+  const { onStepBack, onStepForward, handleStep, maxIndex, screenIndex } = usePaginatedForm(
+    components,
+  );
+
+  const onSubmitForm = async data => {
+    console.log('Make api request', data);
+    await onSubmit(data);
+    setFormState(FORM_STATES.SUCCESS);
+  };
+
+  if (formState === FORM_STATES.SUCCESS) {
+    return <SuccessScreen onClose={onCancel} />;
+  }
+
+  return (
+    <Form
+      initialValues={{}}
+      onSubmit={onSubmitForm}
+      render={({ values, submitForm }) => {
+        if (screenIndex <= maxIndex) {
+          const screenComponents = components
+            .filter(x => x.screenIndex === screenIndex)
+            .sort((a, b) => a.componentIndex - b.componentIndex);
+
+          // add support for custom screen
+          // if (screenComponents[0].type === 'CustomScreen') {
+          // }
+
+          return (
+            <div>
+              <FormStepper screenIndex={screenIndex} handleStep={handleStep} />
+              <SurveyScreen
+                values={values}
+                components={screenComponents}
+                onStepForward={onStepForward}
+                screenIndex={screenIndex}
+                onStepBack={screenIndex > 0 ? onStepBack : null}
+              />
+            </div>
+          );
+        }
+
+        return <SummaryScreen onStepBack={onStepBack} onSurveyComplete={submitForm} />;
+      }}
+    />
+  );
 };

@@ -6,7 +6,6 @@ import { Typography } from '@material-ui/core';
 import Stepper from '@material-ui/core/Stepper';
 import Step from '@material-ui/core/Step';
 import StepButton from '@material-ui/core/StepButton';
-import StepLabel from '@material-ui/core/StepLabel';
 import Tooltip from '@material-ui/core/Tooltip';
 
 import { Form, Field } from 'desktop/app/components/Field';
@@ -60,7 +59,7 @@ const StyledButtonRow = styled(ButtonRow)`
   margin-top: 24px;
 `;
 
-const SurveyScreen = ({ components, values, onStepForward, onStepBack }) => {
+export const SurveyScreen = ({ components, values, onStepForward, onStepBack }) => {
   const questionElements = components
     .filter(c => checkVisibility(c, values, components))
     .map(c => <SurveyQuestion component={c} key={c.id} />);
@@ -85,7 +84,7 @@ const COMPLETE_MESSAGE = `
   or use the Back button to review answers.
 `;
 
-const SurveySummaryScreen = ({ onStepBack, onSurveyComplete }) => (
+export const SurveySummaryScreen = ({ onStepBack, onSurveyComplete }) => (
   <div>
     <Typography variant="h6" gutterBottom>
       Survey complete
@@ -102,31 +101,7 @@ const SurveySummaryScreen = ({ onStepBack, onSurveyComplete }) => (
   </div>
 );
 
-const StyledStepper = styled(Stepper)`
-  padding: 0;
-  margin-top: 10px;
-`;
-
-const StyledStep = styled(Step)`
-  display: flex;
-  flex: 1;
-  margin: 0 3px 0 0;
-  padding: 0;
-
-  &:last-child {
-    margin: 0;
-  }
-`;
-
-const StyledStepButton = styled(StepButton)`
-  background: ${props => props.theme.palette.primary.main};
-  border-radius: 0;
-  height: 10px;
-  padding: 0;
-  margin: 0;
-`;
-
-const usePaginatedForm = components => {
+export const usePaginatedForm = components => {
   const [screenIndex, setScreenIndex] = useState(0);
 
   const onStepBack = () => {
@@ -155,7 +130,7 @@ const usePaginatedForm = components => {
   };
 };
 
-const useFormValues = (components, values, setFieldValue) => {
+export const useFormValues = (components, values, setFieldValue) => {
   useEffect(() => {
     // recalculate dynamic fields
     const calculatedValues = runCalculations(components, values);
@@ -164,52 +139,6 @@ const useFormValues = (components, values, setFieldValue) => {
       .filter(([k, v]) => values[k] !== v)
       .map(([k, v]) => setFieldValue(k, v));
   }, [components, values, setFieldValue]);
-};
-
-const steps = ['One', 'Two', 'Three'];
-
-export const PaginatedForm = ({ survey, values, onSurveyComplete, onCancel, setFieldValue }) => {
-  const { components = [] } = survey;
-  const { onStepBack, onStepForward, handleStep, maxIndex, screenIndex } = usePaginatedForm(
-    components,
-  );
-
-  useFormValues(components, values, setFieldValue);
-
-  if (screenIndex <= maxIndex) {
-    const screenComponents = components
-      .filter(x => x.screenIndex === screenIndex)
-      .sort((a, b) => a.componentIndex - b.componentIndex);
-
-    // add support for custom screen
-    // if (screenComponents[0].type === 'CustomScreen') {
-    // }
-
-    return (
-      <div>
-        <StyledStepper nonLinear activeStep={screenIndex} connector={null}>
-          {steps.map((label, index) => {
-            return (
-              <StyledStep key={label}>
-                <Tooltip title={label}>
-                  <StyledStepButton onClick={handleStep(index)} icon={null} />
-                </Tooltip>
-              </StyledStep>
-            );
-          })}
-        </StyledStepper>
-        <SurveyScreen
-          values={values}
-          components={screenComponents}
-          onStepForward={onStepForward}
-          screenIndex={screenIndex}
-          onStepBack={screenIndex > 0 ? onStepBack : onCancel}
-        />
-      </div>
-    );
-  }
-
-  return <SurveySummaryScreen onStepBack={onStepBack} onSurveyComplete={onSurveyComplete} />;
 };
 
 export const SurveyScreenPaginator = ({
@@ -262,7 +191,7 @@ export const SurveyView = ({ survey, onSubmit, onCancel, patient, currentUser })
   const { components } = survey;
   const initialValues = getFormInitialValues(components, patient, currentUser);
 
-  const [surveyCompleted, setSurveyCompleted] = useState(false);
+  const [surveyCompleted, setSurveyCompleted] = useState(true);
 
   const onSubmitSurvey = useCallback(
     async data => {
@@ -297,7 +226,7 @@ export const SurveyView = ({ survey, onSubmit, onCancel, patient, currentUser })
       <PatientDisplay surveyCompleted={surveyCompleted} />
       <ProgramsPane>
         <ProgramsPaneHeader>
-          <ProgramsPaneHeading variant="h6">{survey.name}</ProgramsPaneHeading>
+          <ProgramsPaneHeading variant="h6">{survey.name} 12</ProgramsPaneHeading>
         </ProgramsPaneHeader>
         {surveyContents}
       </ProgramsPane>

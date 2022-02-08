@@ -5,18 +5,11 @@ import { viewPatient } from '../store/patient';
 import { Modal } from './Modal';
 import { DeathForm } from '../forms/DeathForm';
 
-export const DumbDeathModal = React.memo(
-  ({ open, onClose, onSave, icd10Suggester, practitionerSuggester }) => (
-    <Modal title="Record patient death" open={open} onClose={onClose}>
-      <DeathForm
-        onSubmit={onSave}
-        onCancel={onClose}
-        icd10Suggester={icd10Suggester}
-        practitionerSuggester={practitionerSuggester}
-      />
-    </Modal>
-  ),
-);
+export const DumbDeathModal = React.memo(({ open, onClose, onSave }) => (
+  <Modal title="Record patient death" open={open} onClose={onClose}>
+    <DeathForm onSubmit={onSave} onCancel={onClose} />
+  </Modal>
+));
 
 export const DeathModal = connectApi((api, dispatch, { patient, onClose }) => ({
   onSave: async data => {
