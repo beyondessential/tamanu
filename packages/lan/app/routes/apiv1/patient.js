@@ -12,6 +12,8 @@ import { renameObjectKeys } from '~/utils/renameObjectKeys';
 import { createPatientFilters } from '../../utils/patientFilters';
 import { patientVaccineRoutes } from './patient/patientVaccine';
 import { patientDocumentMetadataRoutes } from './patient/patientDocumentMetadata';
+
+import { patientDeath } from './patient/patientDeath';
 import { patientProfilePicture } from './patient/patientProfilePicture';
 import { activeCovid19PatientsHandler } from '../../routeHandlers';
 
@@ -139,6 +141,7 @@ patientRelations.get(
 );
 
 patientRelations.use(patientProfilePicture);
+patientRelations.use(patientDeath);
 
 patientRelations.get(
   '/:id/referrals',
