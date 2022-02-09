@@ -4,7 +4,8 @@ import { extension } from 'mime-types';
 import { DataFetchingTable } from './Table';
 import { DateDisplay } from './DateDisplay';
 import { DropdownButton } from './DropdownButton';
-import { WarningModal } from './WarningModal';
+import { DeleteButton } from './Button';
+import { ConfirmModal } from './ConfirmModal';
 
 const ActionDropdown = React.memo(() => {
   const [open, setOpen] = useState(false);
@@ -28,12 +29,14 @@ const ActionDropdown = React.memo(() => {
   return (
     <>
       <DropdownButton color="primary" actions={actions} />
-      <WarningModal
+      <ConfirmModal
         open={open}
         title="Delete document"
-        text="Are you sure you want to delete this document?"
+        text="WARNING: This action is irreversible!"
+        subText="Are you sure you want to delete this document?"
         onConfirm={onDeleteDocument}
-        onClose={onClose}
+        onCancel={onClose}
+        ConfirmButton={DeleteButton}
       />
     </>
   );
