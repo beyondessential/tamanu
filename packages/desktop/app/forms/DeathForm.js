@@ -119,8 +119,10 @@ const mannerOfDeathOptions = Object.values(MANNER_OF_DEATHS).map(type => ({
  * onCancel: closes modal
  * onSubmit: make api request
  */
+// Todo: Add form validation and visibility criteria @see https://linear.app/bes/issue/WAITM-34/update-record-death-form-in-desktop
+// Note: This form is currently not visible
 export const DeathForm = React.memo(
-  ({ onCancel, onSubmit, practitionerSuggester, icd10Suggester }) => {
+  ({ onCancel, onSubmit, practitionerSuggester, icd10Suggester, facilitySuggester }) => {
     return (
       <PaginatedForm onSubmit={onSubmit} onCancel={onCancel} SummaryScreen={ConfirmScreen}>
         <FormGrid columns={2}>
@@ -150,6 +152,18 @@ export const DeathForm = React.memo(
           />
           <FormSeparatorLine />
           <Field
+            name="otherContributingConditions"
+            label="Other contributing conditions"
+            component={AutocompleteField}
+            suggester={icd10Suggester}
+          />
+          <Field
+            name="otherContributingConditionsInterval"
+            label="Time between onset and death"
+            component={NumberField}
+          />
+          <FormSeparatorLine />
+          <Field
             name="clinicianId"
             label="Attending Clinician"
             component={AutocompleteField}
@@ -159,9 +173,8 @@ export const DeathForm = React.memo(
           <Field
             name="facilityId"
             label="Facility"
-            visibilityCriteria={{ causeOfDeathInterval: '2' }}
             component={AutocompleteField}
-            suggester={practitionerSuggester}
+            suggester={facilitySuggester}
           />
           <Field
             name="timeOfDeath"
@@ -255,6 +268,7 @@ export const DeathForm = React.memo(
             name="motherExistingCondition"
             label="Any condition in mother affecting the fetus or newborn?"
             component={AutocompleteField}
+            suggester={icd10Suggester}
           />
           <Field
             name="deathWithin24HoursOfBirth"

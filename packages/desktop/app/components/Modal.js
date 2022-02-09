@@ -55,7 +55,7 @@ export const FullWidthRow = styled.div`
 `;
 
 const ModalTitle = styled(DialogTitle)`
-  padding: 10px 14px 10px 32px;
+  padding: 14px 14px 14px 32px;
 
   h2 {
     display: flex;

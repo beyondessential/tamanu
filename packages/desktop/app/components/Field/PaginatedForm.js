@@ -125,7 +125,6 @@ export const PaginatedForm = ({
   const { onStepBack, onStepForward, handleStep, screenIndex } = usePaginatedForm(children);
 
   const onSubmitForm = async data => {
-    console.log('Make api request', data);
     await onSubmit(data);
     setFormState(FORM_STATES.SUCCESS);
   };

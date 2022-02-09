@@ -73,6 +73,7 @@ storiesOf('Forms', module).add('DeathForm', () => {
         onSave={handleSave}
         practitionerSuggester={practitionerSuggester}
         icd10Suggester={icd10Suggester}
+        facilitySuggester={facilitySuggester}
       />
     </Container>
   );
