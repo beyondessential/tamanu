@@ -7,7 +7,6 @@ import { Form } from './Form';
 import { ButtonRow } from '../ButtonRow';
 import { usePaginatedForm } from '../../views/programs/SurveyView';
 import { checkVisibility } from '../../utils';
-import { FormGrid } from '../FormGrid';
 
 const StyledStepper = styled(Stepper)`
   padding: 0;
@@ -55,7 +54,7 @@ const COMPLETE_MESSAGE = `
   or use the Back button to review answers.
 `;
 
-const SummaryScreen = ({ onStepBack, onSurveyComplete }) => (
+const DefaultSummaryScreen = ({ onStepBack, submitForm }) => (
   <div>
     <Typography variant="h6" gutterBottom>
       Survey complete
@@ -64,7 +63,7 @@ const SummaryScreen = ({ onStepBack, onSurveyComplete }) => (
     <div>
       <ButtonRow>
         <OutlinedButton onClick={onStepBack}>Prev</OutlinedButton>
-        <Button color="primary" variant="contained" onClick={onSurveyComplete}>
+        <Button color="primary" variant="contained" onClick={submitForm}>
           Complete
         </Button>
       </ButtonRow>
@@ -76,7 +75,7 @@ const StyledAlert = styled(Alert)`
   margin: 15px 0;
 `;
 
-const SuccessScreen = ({ onClose }) => (
+const DefaultSuccessScreen = ({ onClose }) => (
   <div>
     <StyledAlert severity="success">Your response has been successfully submitted.</StyledAlert>
     <ButtonRow>
@@ -133,7 +132,13 @@ const FormScreen = ({ ScreenComponent, values, onStepForward, onStepBack }) => {
   );
 };
 
-export const PaginatedForm = ({ children, onSubmit, onCancel }) => {
+export const PaginatedForm = ({
+  children,
+  onSubmit,
+  onCancel,
+  SummaryScreen = DefaultSummaryScreen,
+  SuccessScreen = DefaultSuccessScreen,
+}) => {
   const [formState, setFormState] = useState(FORM_STATES.IDLE);
   const { onStepBack, onStepForward, handleStep, screenIndex } = usePaginatedForm(children);
 
@@ -176,9 +181,9 @@ export const PaginatedForm = ({ children, onSubmit, onCancel }) => {
             );
           }
 
-          console.log('summary...');
-
-          return <SummaryScreen onStepBack={onStepBack} onSurveyComplete={submitForm} />;
+          return (
+            <SummaryScreen onStepBack={onStepBack} submitForm={submitForm} onCancel={onCancel} />
+          );
         }}
       />
     </div>

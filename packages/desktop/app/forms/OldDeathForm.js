@@ -25,18 +25,10 @@ const binaryOptions = [
 
 const binaryUnknownOptions = [...binaryOptions, { value: 'unknown', label: 'Unknown' }];
 
-const ModalFooter = styled(MuiBox)`
+const Actions = styled(MuiBox)`
   display: flex;
   justify-content: space-between;
   align-items: center;
-  margin-top: 30px;
-  padding-top: 24px;
-  margin-left: -32px;
-  margin-right: -32px;
-  margin-bottom: -6px;
-  padding-left: 32px;
-  padding-right: 32px;
-  border-top: 1px solid #dedede;
 
   button ~ button {
     margin-left: 12px;
@@ -64,7 +56,7 @@ const Text = styled(Typography)`
   margin-bottom: 30px;
 `;
 
-const ConfirmScreen = () => {
+const ConfirmScreen = ({ onStepBack, submitForm, onCancel }) => {
   return (
     <FormGrid columns={1}>
       <RedHeading>Confirm death record</RedHeading>
@@ -75,6 +67,17 @@ const ConfirmScreen = () => {
         This should only be done under the direction of the responsible clinician. Do you wish to
         proceed?
       </Text>
+      <Actions>
+        <OutlinedButton onClick={onStepBack || undefined} disabled={!onStepBack}>
+          Back
+        </OutlinedButton>
+        <MuiBox>
+          <OutlinedButton onClick={onCancel}>Cancel</OutlinedButton>
+          <Button color="primary" variant="contained" onClick={submitForm}>
+            Record Death
+          </Button>
+        </MuiBox>
+      </Actions>
     </FormGrid>
   );
 };
@@ -119,7 +122,7 @@ const mannerOfDeathOptions = Object.values(MANNER_OF_DEATHS).map(type => ({
 export const DeathForm = React.memo(
   ({ onCancel, onSubmit, practitionerSuggester, icd10Suggester }) => {
     return (
-      <PaginatedForm onSubmit={onSubmit} onCancel={onCancel}>
+      <PaginatedForm onSubmit={onSubmit} onCancel={onCancel} SummaryScreen={ConfirmScreen}>
         <FormGrid columns={2}>
           <Field
             name="causeOfDeath"
