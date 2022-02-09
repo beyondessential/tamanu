@@ -209,9 +209,11 @@ describe('Encounter', () => {
       encounterId: encounter.id,
     });
 
-    // Get initial time and guarantee a 1ms difference
+    // Get initial time and guarantee a 1s difference (workaround for
+    // SQLite which seems to remove milliseconds from timestamps, thus,
+    // the update_at column becomes smaller than the initial one).
     const initialUpdatedAt = medication.updatedAt.getTime();
-    await new Promise(resolve => setTimeout(() => resolve(), 1));
+    await new Promise(resolve => setTimeout(() => resolve(), 1001));
 
     await discontinuer.run();
     const discontinuedMedications = await models.EncounterMedication.findAndCountAll({
