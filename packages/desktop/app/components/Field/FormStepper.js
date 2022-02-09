@@ -1,10 +1,11 @@
 import React from 'react';
 import styled from 'styled-components';
 import { Step, StepButton, Stepper } from '@material-ui/core';
+import { Colors } from '../../constants';
 
 const StyledStepper = styled(Stepper)`
+  margin: -18px -32px 30px;
   padding: 0;
-  margin-top: 10px;
 `;
 
 const StyledStep = styled(Step)`
@@ -19,9 +20,9 @@ const StyledStep = styled(Step)`
 `;
 
 const StyledStepButton = styled(StepButton)`
-  background: ${props => props.theme.palette.primary.main};
+  background: ${props => (props.$isActive ? props.theme.palette.primary.main : Colors.midText)};
   border-radius: 0;
-  height: 10px;
+  height: 6px;
   padding: 0;
   margin: 0;
 `;
@@ -32,7 +33,11 @@ export const FormStepper = ({ screenIndex, handleStep, screens }) => {
       {screens.map(({ key }, index) => {
         return (
           <StyledStep key={key}>
-            <StyledStepButton onClick={handleStep(index)} icon={null} />
+            <StyledStepButton
+              onClick={handleStep(index)}
+              icon={null}
+              $isActive={screenIndex >= index}
+            />
           </StyledStep>
         );
       })}
