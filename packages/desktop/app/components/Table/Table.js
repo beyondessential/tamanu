@@ -128,6 +128,7 @@ const Row = React.memo(({ columns, data, onClick, striked, onTableRefresh }) => 
           background={backgroundColor}
           key={key}
           align={numeric ? 'right' : 'left'}
+          data-test-class={`table-column-${key}`}
         >
           <ErrorBoundary ErrorComponent={CellError}>
             {CellComponent ? (
