@@ -12,9 +12,18 @@ patientDeath.post(
     req.checkPermission('write', 'Patient');
 
     const {
+      db,
       models: { Discharge, Encounter, Patient },
       params: { id: patientId },
     } = req;
+
+    const schema = yup.object().shape({
+      date: yup.date().required(),
+      physician: yup.object().shape({
+        id: yup.string().required(),
+      }),
+    });
+    const body = await schema.validate(req.body);
 
     const schema = yup.object().shape({
       date: yup.date().required(),
@@ -24,14 +33,15 @@ patientDeath.post(
     const patient = await Patient.findByPk(patientId);
     if (!patient) throw new NotFoundError('Patient not found');
     if (patient.dateOfDeath) throw new InvalidOperationError('Patient is already deceased');
-    
+
     const physician = await User.findByPk(body.physician.id);
     if (!physician) throw new NotFoundError('Discharge physician not found');
-    // TODO: check role?
+    if (physician.role !== 'practitioner')
+      throw new InvalidOperationError('Discharge physician must be a practitioner');
 
     await db.transaction(async () => {
       await patient.update({ dateOfDeath: body.date });
-      
+
       const activeEncounters = await patient.getEncounters({
         where: {
           endDate: null,
