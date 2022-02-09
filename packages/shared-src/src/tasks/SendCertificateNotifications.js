@@ -3,15 +3,21 @@ import {
   PATIENT_COMMUNICATION_CHANNELS,
   PATIENT_COMMUNICATION_TYPES,
 } from '../constants';
+import { makePatientCertificate } from '../utils';
 
 export async function sendCertificateNotifications(certificateNotifications, models) {
-  const { PatientCommunication } = models;
+  const { PatientCommunication, Patient } = models;
 
   for (const notification of certificateNotifications) {
-    // TODO: Generate the actual certificate
+    const patientId = notification.get('patientId');
+    const patient = await Patient.findByPk(patientId);
+
     if (notification.get('requireSigning')) {
       // TODO: Sign certificate
     }
+
+    const vdsData = [{ msg: 'test', sng: 'test' }];
+    const { filePath } = await makePatientCertificate(patient, models, vdsData);
 
     // build the email notification
     // TODO: Confirm the actual copy for this email
@@ -25,9 +31,9 @@ export async function sendCertificateNotifications(certificateNotifications, mod
       subject: notificationSubject,
       content: notificationContent,
       status: COMMUNICATION_STATUSES.QUEUED,
-      patientId: notification.get('patientId'),
+      patientId,
       destination: notification.get('forwardAddress'),
-      // attachment: file
+      attachment: filePath,
     });
   }
 }
