@@ -19,7 +19,7 @@ async function fetchMostRecentEmailAddress(patientId, models) {
       data_element_id: questionId,
       [Op.not]: [{ body: '' }],
     },
-    order: [['created_at', 'DESC']],
+    order: [['end_time', 'DESC']],
   });
   return answer?.body;
 }

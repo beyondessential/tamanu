@@ -82,7 +82,7 @@ export async function serve(options) {
       // Create certificate notifications for published results
       if (config.notifications.certificates.labTestCategoryId) {
         context.store.models.LabRequest.addHook(
-          'afterBulkUpdate',
+          'afterBulkUpdate', // This model uses a simpleCRUD handler for put which triggers a bulk update action
           'create published test results notification hook',
           labRequest => {
             createLabRequestNotifications(labRequest.attributes, context.store.models);
@@ -91,7 +91,7 @@ export async function serve(options) {
       }
       // Send out queued certificate notifications
       context.store.models.CertificateNotification.addHook(
-        'afterBulkCreate',
+        'afterBulkCreate', // This model uses a simpleCRUD handler for push which triggers a bulk update action
         'create certificate notification hook',
         certificateNotifications => {
           sendCertificateNotifications(certificateNotifications, context.store.models);
