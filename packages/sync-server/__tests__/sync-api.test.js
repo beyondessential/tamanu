@@ -157,6 +157,8 @@ describe('Sync API', () => {
 
       const firstRecord = body.records[0];
       const { updatedAt, ...oldestWithoutUpdatedAt } = OLDEST_PATIENT;
+      delete oldestWithoutUpdatedAt.data.dateOfDeath; // model has a null, sync response omits null dates
+
       expect(firstRecord).toEqual(JSON.parse(JSON.stringify(oldestWithoutUpdatedAt)));
       expect(firstRecord).not.toHaveProperty('channel');
       expect(firstRecord.data).not.toHaveProperty('channel');
@@ -245,9 +247,11 @@ describe('Sync API', () => {
 
       // assert
       expect(firstCursor.split(';')[1]).toEqual(earlierIdRecord.id);
-      expectDeepSyncRecordsMatch([earlierIdRecord], firstRecords);
+      expectDeepSyncRecordsMatch([earlierIdRecord], firstRecords, { nullableDateFields: ['dateOfDeath'] });
       expect(secondCursor.split(';')[1]).toEqual(laterIdRecord.id);
-      expectDeepSyncRecordsMatch([laterIdRecord], secondRecords);
+      expectDeepSyncRecordsMatch([laterIdRecord], secondRecords, {
+        nullableDateFields: ['dateOfDeath'],
+      });
     });
 
     it('should have count and cursor fields', async () => {
