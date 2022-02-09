@@ -21,7 +21,7 @@ const Text = styled.div`
   margin-bottom: 10px;
 `;
 
-const SurveyQuestion = ({ component }) => {
+const SurveyQuestion = ({ component, patient }) => {
   const {
     dataElement,
     detail,
@@ -40,6 +40,7 @@ const SurveyQuestion = ({ component }) => {
     <Field
       label={text}
       component={FieldComponent}
+      patient={patient}
       name={id}
       options={options}
       config={getConfigObject(id, componentConfig)}
@@ -52,10 +53,10 @@ const StyledButtonRow = styled(ButtonRow)`
   margin-top: 24px;
 `;
 
-export const SurveyScreen = ({ components, values, onStepForward, onStepBack }) => {
+const SurveyScreen = ({ components, values, onStepForward, onStepBack, patient }) => {
   const questionElements = components
     .filter(c => checkVisibility(c, values, components))
-    .map(c => <SurveyQuestion component={c} key={c.id} />);
+    .map(c => <SurveyQuestion component={c} patient={patient} key={c.id} />);
 
   return (
     <FormGrid columns={1}>
@@ -77,7 +78,7 @@ const COMPLETE_MESSAGE = `
   or use the Back button to review answers.
 `;
 
-export const SurveySummaryScreen = ({ onStepBack, onSurveyComplete }) => (
+const SurveySummaryScreen = ({ onStepBack, onSurveyComplete }) => (
   <div>
     <Typography variant="h6" gutterBottom>
       Survey complete
@@ -100,8 +101,8 @@ const useCalculatedFormValues = (components, values, setFieldValue) => {
     const calculatedValues = runCalculations(components, values);
     // write values that have changed back into answers
     Object.entries(calculatedValues)
-      .filter(([k, v]) => values[k] !== v)
-      .map(([k, v]) => setFieldValue(k, v));
+    .filter(([k, v]) => values[k] !== v)
+    .map(([k, v]) => setFieldValue(k, v));
   }, [components, values, setFieldValue]);
 };
 
@@ -111,6 +112,7 @@ export const SurveyScreenPaginator = ({
   onSurveyComplete,
   onCancel,
   setFieldValue,
+  patient,
 }) => {
   const { components } = survey;
   const { onStepBack, onStepForward, screenIndex } = usePaginatedForm(components);
@@ -129,6 +131,7 @@ export const SurveyScreenPaginator = ({
     return (
       <SurveyScreen
         values={values}
+        patient={patient}
         components={screenComponents}
         onStepForward={onStepForward}
         screenIndex={screenIndex}
@@ -159,7 +162,7 @@ export const SurveyView = ({ survey, onSubmit, onCancel, patient, currentUser })
   const { components } = survey;
   const initialValues = getFormInitialValues(components, patient, currentUser);
 
-  const [surveyCompleted, setSurveyCompleted] = useState(true);
+  const [surveyCompleted, setSurveyCompleted] = useState(false);
 
   const onSubmitSurvey = useCallback(
     async data => {
@@ -175,6 +178,7 @@ export const SurveyView = ({ survey, onSubmit, onCancel, patient, currentUser })
     return (
       <SurveyScreenPaginator
         survey={survey}
+        patient={patient}
         values={values}
         setFieldValue={setFieldValue}
         onSurveyComplete={submitForm}

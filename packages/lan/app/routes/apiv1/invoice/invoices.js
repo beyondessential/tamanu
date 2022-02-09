@@ -1,0 +1,84 @@
+import express from 'express';
+import asyncHandler from 'express-async-handler';
+import { customAlphabet } from 'nanoid';
+import { NotFoundError } from 'shared/errors';
+import { INVOICE_STATUS_TYPES, INVOICE_PAYMENT_STATUS_TYPES } from 'shared/constants';
+import { simplePut } from '../crudHelpers';
+
+import { invoiceLineItemsRoute } from './invoiceLineItems';
+import { invoicePriceChangeItemsRoute } from './invoicePriceChangeItems';
+
+const invoiceRoute = express.Router();
+export { invoiceRoute as invoices };
+
+invoiceRoute.post(
+  '/$',
+  asyncHandler(async (req, res) => {
+    req.checkPermission('read', 'Encounter');
+
+    const { models, params } = req;
+    const { encounterId } = params;
+    const encounter = await models.Encouter.findByPk(encounterId);
+    if (!encounter) {
+      throw new NotFoundError();
+    }
+    req.checkPermission('write', 'Invoice');
+
+    const { patientId, id } = encounter;
+    const displayId =
+      customAlphabet('0123456789', 8)() + customAlphabet('ABCDEFGHIJKLMNOPQRSTUVWXYZ', 2)();
+    // Create a corresponding invoice with the encounter when admitting patient
+    const invoice = await models.Invoice.create({
+      encounterId: id,
+      displayId,
+      status: INVOICE_STATUS_TYPES.IN_PROGRESS,
+      paymentStatus: INVOICE_PAYMENT_STATUS_TYPES.UNPAID,
+    });
+
+    // Expect to always have a patient additional data corresponding to a patient
+    const { patientBillingTypeId } = await models.PatientAdditionalData.findOne({
+      where: { patientId },
+    });
+    const invoicePriceChangeType = await models.InvoicePriceChangeType.findOne({
+      where: { itemId: patientBillingTypeId },
+    });
+
+    // automatically apply price change (discount) based on patientBillingType
+    if (invoicePriceChangeType) {
+      await models.InvoicePriceChangeItem.create({
+        description: invoicePriceChangeType.name,
+        percentageChange: invoicePriceChangeType.percentageChange,
+        invoicePriceChangeTypeId: invoicePriceChangeType.id,
+        invoiceId: invoice.id,
+      });
+    }
+    res.send(invoice);
+  }),
+);
+invoiceRoute.get(
+  '/:id',
+  asyncHandler(async (req, res) => {
+    req.checkPermission('read', 'Invoice');
+
+    const { models, params } = req;
+    const invoiceId = params.id;
+    const invoice = await models.Invoice.findOne({
+      include: [
+        {
+          model: models.Encounter,
+          as: 'encounter',
+        },
+      ],
+      where: { id: invoiceId },
+    });
+
+    req.checkPermission('read', invoice);
+
+    res.send(invoice);
+  }),
+);
+
+invoiceRoute.put('/:id', simplePut('Invoice'));
+
+invoiceRoute.use(invoiceLineItemsRoute);
+invoiceRoute.use(invoicePriceChangeItemsRoute);

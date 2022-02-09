@@ -5,7 +5,7 @@ import { QueryTypes } from 'sequelize';
 
 import { NotFoundError } from 'shared/errors';
 
-import { REFERENCE_TYPE_VALUES } from 'shared/constants';
+import { REFERENCE_TYPE_VALUES, INVOICE_LINE_TYPES } from 'shared/constants';
 
 export const suggestions = express.Router();
 
@@ -42,8 +42,7 @@ function createSuggester(endpoint, modelName, whereSql, mapper = defaultMapper) 
       }
 
       const model = models[modelName];
-      const sequelize = model.sequelize;
-      const results = await sequelize.query(
+      const results = await model.sequelize.query(
         `
       SELECT *
       FROM "${model.tableName}"
@@ -84,6 +83,12 @@ REFERENCE_TYPE_VALUES.map(typeName =>
 createNameSuggester('department');
 createNameSuggester('location');
 createNameSuggester('facility');
+
+createSuggester(
+  'invoiceLineTypes',
+  'InvoiceLineType',
+  `LOWER(name) LIKE LOWER(:search) AND item_type = '${INVOICE_LINE_TYPES.ADDITIONAL}'`,
+);
 
 createSuggester(
   'practitioner',

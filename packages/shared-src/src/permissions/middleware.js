@@ -1,7 +1,5 @@
 import { ForbiddenError, BadAuthenticationError } from 'shared/errors';
-import { AbilityBuilder, Ability } from '@casl/ability';
-
-import * as roles from 'shared/roles';
+import { getAbilityForUser, getPermissionsForRoles } from 'shared/permissions/rolesToPermissions';
 
 // copied from casl source as it's not exported directly
 // (we could use casl's ForbiddenError.throwUnlessCan function except there's some
@@ -18,25 +16,9 @@ function getSubjectName(subject) {
   return Type.modelName || Type.name;
 }
 
-export function constructPermission(req, res, next) {
-  const user = req.user;
 
-  const { can, cannot, build } = new AbilityBuilder(Ability);
-
-  if (!user) {
-    req.ability = build(); // no permissions
-    next();
-    return;
-  }
-
-  const builder = roles[user.role];
-  if (!builder) {
-    next(new Error(`Invalid role: ${user.role}`));
-    return;
-  }
-  builder(user, can, cannot);
-  req.ability = build();
-
+export async function constructPermission(req, res, next) {
+  req.ability = await getAbilityForUser(req.user);
   next();
 }
 
@@ -54,7 +36,7 @@ const checkPermission = (req, action, subject, field = '') => {
   const { ability } = req;
   if (!ability) {
     // user must log in - 401
-    throw new BadAuthenticationError();
+    throw new BadAuthenticationError('No permission');
   }
 
   const hasPermission = ability.can(action, subject, field);
@@ -90,4 +72,13 @@ export function ensurePermissionCheck(req, res, next) {
   };
 
   next();
+}
+
+export async function getPermissions(req, res, next) {
+  const user = req.user;
+
+  const permissions = await getPermissionsForRoles(user.role);
+  res.send({
+    permissions,
+  });
 }

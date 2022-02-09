@@ -126,6 +126,7 @@ brew install postgres
 brew services start postgres
 createdb tamanu-sync
 yarn install
+yarn workspace sync-server setup-dev
 yarn sync-start-dev
 ```
 
@@ -135,8 +136,20 @@ Install the [PostgreSQL server](https://www.postgresql.org/download/windows/). O
 
 ```bash
 yarn install
+yarn workspace sync-server setup-dev
 yarn sync-start-dev
 ```
+
+#### Linux
+
+Install PostgreSQL from your package manager, and create a new database `tamanu-sync`, then run:
+
+```bash
+yarn install
+yarn workspace sync-server setup-dev
+yarn sync-start-dev
+```
+
 </details>
 
 ## Integrations
