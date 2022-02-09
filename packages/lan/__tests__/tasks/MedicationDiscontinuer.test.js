@@ -155,15 +155,15 @@ describe('Encounter', () => {
   it('should only autodiscontinue medications from its facility', async () => {
     // Create a different facility
     const otherFacility = await models.Facility.create({
-      id: 'other-facility-for-discontinuer',
-      code: 'otherFacility',
-      name: 'other facility',
+      id: 'test-other-facility-for-discontinuer',
+      code: 'testOtherFacility',
+      name: 'test other facility',
     });
 
     // Create a new department that points out to a different facility
     const otherDepartment = await models.Department.create({
-      name: 'other department',
-      code: 'otherDepartment',
+      name: 'test other department',
+      code: 'testOtherDepartment',
       facilityId: otherFacility.id,
     });
 
