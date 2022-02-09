@@ -14,6 +14,7 @@ import {
 } from 'shared/models/sync';
 
 import { log } from 'shared/services/logging';
+import { removeSensitiveAnswers } from './utils/removeSensitiveAnswers';
 
 export const syncRoutes = express.Router();
 
@@ -84,12 +85,25 @@ syncRoutes.get(
       limit: limitNum,
     });
 
+    // Check if request is from mobile client
+    const clientType = req.header('X-Tamanu-Client');
+    const isMobileClient = clientType === 'Tamanu Mobile';
+
+    // Check if channel syncs down SurveyResponseAnswers (happens on two channels)
+    const hasSurveyAnswers =
+      channel === 'surveyResponseAnswer' || /^patient\/\S+\/encounter$/.test(channel);
+
+    const shouldFilterAnswers = isMobileClient && hasSurveyAnswers;
+    const filteredRecords = shouldFilterAnswers
+      ? await removeSensitiveAnswers(channel, store.models, records)
+      : records;
+
     const countMsg = noCount !== 'true' ? ` out of ${count}` : '';
     log.info(`GET from ${channel} : returned ${records?.length}${countMsg} records`);
     res.send({
       count,
       requestedAt,
-      records,
+      records: filteredRecords,
       cursor,
     });
   }),
