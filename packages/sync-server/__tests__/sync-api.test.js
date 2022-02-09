@@ -166,6 +166,28 @@ describe('Sync API', () => {
       expect(firstRecord).not.toHaveProperty('index');
     });
 
+    it('should omit null dates', async () => {
+      const { DocumentMetadata } = ctx.store.models;
+      DocumentMetadata.create({ name: 'with', type: 'application/pdf', attachmentId: 'fake-id-1', documentCreatedAt: new Date });
+      DocumentMetadata.create({ name: 'without', type: 'application/pdf', attachmentId: 'fake-id-2' });
+      
+      const result = await app.get(`/v1/sync/documentMetadata?since=0`);
+      expect(result).toHaveSucceeded();
+
+      const { body } = result;
+      expect(body.count).toBeGreaterThan(0);
+      expect(body).toHaveProperty('records');
+      expect(body).toHaveProperty('cursor');
+      expect(body.records.length).toBeGreaterThanOrEqual(2);
+
+      const withDate = body.records.find(({ data: { name } }) => name === 'with');
+      expect(withDate).toBeTruthy();
+      expect(withDate.data).toHaveProperty('documentCreatedAt');
+      const withoutDate = body.records.find(({ data: { name } }) => name === 'without');
+      expect(withoutDate).toBeTruthy();
+      expect(withoutDate.data).not.toHaveProperty('documentCreatedAt');
+    });
+
     it('should not return a count if noCount=true', async () => {
       const result = await app.get(`/v1/sync/patient?since=0&noCount=true`);
       expect(result).toHaveSucceeded();
