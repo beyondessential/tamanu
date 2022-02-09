@@ -2,7 +2,7 @@ import React, { useCallback, useState, useEffect } from 'react';
 import styled from 'styled-components';
 import Alert from '@material-ui/lab/Alert';
 import { Typography } from '@material-ui/core';
-import { Form, Field } from 'desktop/app/components/Field';
+import { Form, Field, usePaginatedForm } from 'desktop/app/components/Field';
 import { FormGrid } from 'desktop/app/components/FormGrid';
 import { Button, OutlinedButton } from 'desktop/app/components/Button';
 import { ButtonRow } from 'desktop/app/components/ButtonRow';
@@ -14,7 +14,6 @@ import {
   getConfigObject,
 } from 'desktop/app/utils';
 import { runCalculations } from 'shared-src/src/utils/calculations';
-
 import { ProgramsPane, ProgramsPaneHeader, ProgramsPaneHeading } from './ProgramsPane';
 import { PatientDisplay } from './PatientDisplay';
 
@@ -95,31 +94,7 @@ export const SurveySummaryScreen = ({ onStepBack, onSurveyComplete }) => (
   </div>
 );
 
-export const usePaginatedForm = () => {
-  const [screenIndex, setScreenIndex] = useState(0);
-
-  const onStepBack = () => {
-    setScreenIndex(screenIndex - 1);
-  };
-
-  const onStepForward = () => {
-    setScreenIndex(screenIndex + 1);
-  };
-
-  const handleStep = step => () => {
-    setScreenIndex(step);
-  };
-
-  return {
-    onStepBack,
-    onStepForward,
-    handleStep,
-    screenIndex,
-    setScreenIndex,
-  };
-};
-
-export const useFormValues = (components, values, setFieldValue) => {
+const useCalculatedFormValues = (components, values, setFieldValue) => {
   useEffect(() => {
     // recalculate dynamic fields
     const calculatedValues = runCalculations(components, values);
@@ -140,7 +115,7 @@ export const SurveyScreenPaginator = ({
   const { components } = survey;
   const { onStepBack, onStepForward, screenIndex } = usePaginatedForm(components);
 
-  useFormValues(components, values, setFieldValue);
+  useCalculatedFormValues(components, values, setFieldValue);
 
   const maxIndex = components
     .map(x => x.screenIndex)

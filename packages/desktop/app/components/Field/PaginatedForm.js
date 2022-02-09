@@ -1,53 +1,12 @@
 import React, { useState } from 'react';
 import styled from 'styled-components';
 import Alert from '@material-ui/lab/Alert';
-import { Tooltip, Typography, Box, Stepper, Step, StepButton } from '@material-ui/core';
+import { Typography, Box } from '@material-ui/core';
 import { Button, OutlinedButton } from '../Button';
 import { Form } from './Form';
 import { ButtonRow } from '../ButtonRow';
-import { usePaginatedForm } from '../../views/programs/SurveyView';
 import { checkVisibility } from '../../utils';
-
-const StyledStepper = styled(Stepper)`
-  padding: 0;
-  margin-top: 10px;
-`;
-
-const StyledStep = styled(Step)`
-  display: flex;
-  flex: 1;
-  margin: 0 3px 0 0;
-  padding: 0;
-
-  &:last-child {
-    margin: 0;
-  }
-`;
-
-const StyledStepButton = styled(StepButton)`
-  background: ${props => props.theme.palette.primary.main};
-  border-radius: 0;
-  height: 10px;
-  padding: 0;
-  margin: 0;
-`;
-
-const FormStepper = ({ screenIndex, handleStep }) => {
-  const steps = ['One', 'Two', 'Three'];
-  return (
-    <StyledStepper nonLinear activeStep={screenIndex} connector={null}>
-      {steps.map((label, index) => {
-        return (
-          <StyledStep key={label}>
-            <Tooltip title={label}>
-              <StyledStepButton onClick={handleStep(index)} icon={null} />
-            </Tooltip>
-          </StyledStep>
-        );
-      })}
-    </StyledStepper>
-  );
-};
+import { FormStepper } from './FormStepper';
 
 const COMPLETE_MESSAGE = `
   Press "Complete" to submit your response,
@@ -85,12 +44,6 @@ const DefaultSuccessScreen = ({ onClose }) => (
     </ButtonRow>
   </div>
 );
-
-const FORM_STATES = {
-  SUCCESS: 'success',
-  IDLE: 'idle',
-};
-
 export const getVisibleQuestions = (components, values) => {
   return components.filter(c =>
     checkVisibility(
@@ -106,15 +59,15 @@ export const getVisibleQuestions = (components, values) => {
   );
 };
 
-const FormScreen = ({ ScreenComponent, values, onStepForward, onStepBack }) => {
-  const { children } = ScreenComponent.props;
+const FormScreen = ({ screenComponent, values, onStepForward, onStepBack, isLast }) => {
+  const { children } = screenComponent.props;
 
   const components = React.Children.toArray(children);
   const questionElements = getVisibleQuestions(components, values);
 
   const newElement = {
-    ...ScreenComponent,
-    props: { ...ScreenComponent.props, children: questionElements },
+    ...screenComponent,
+    props: { ...screenComponent.props, children: questionElements },
   };
 
   return (
@@ -125,11 +78,40 @@ const FormScreen = ({ ScreenComponent, values, onStepForward, onStepBack }) => {
           Back
         </OutlinedButton>
         <Button color="primary" variant="contained" onClick={onStepForward}>
-          Continue
+          {isLast ? 'Submit' : 'Continue'}
         </Button>
       </Box>
     </>
   );
+};
+
+export const usePaginatedForm = () => {
+  const [screenIndex, setScreenIndex] = useState(0);
+
+  const onStepBack = () => {
+    setScreenIndex(screenIndex - 1);
+  };
+
+  const onStepForward = () => {
+    setScreenIndex(screenIndex + 1);
+  };
+
+  const handleStep = step => () => {
+    setScreenIndex(step);
+  };
+
+  return {
+    onStepBack,
+    onStepForward,
+    handleStep,
+    screenIndex,
+    setScreenIndex,
+  };
+};
+
+const FORM_STATES = {
+  SUCCESS: 'success',
+  IDLE: 'idle',
 };
 
 export const PaginatedForm = ({
@@ -154,30 +136,33 @@ export const PaginatedForm = ({
 
   const formScreens = React.Children.toArray(children);
   const maxIndex = formScreens.length - 1;
-  console.log('screenIndex', screenIndex);
-  console.log('maxIndex', maxIndex);
+  const isLast = screenIndex === maxIndex;
 
   return (
-    <div>
+    <>
       <Form
         onSubmit={onSubmitForm}
         render={({ submitForm, values }) => {
           if (screenIndex <= maxIndex) {
-            const ScreenComponent = formScreens.find((screen, i) =>
+            const screenComponent = formScreens.find((screen, i) =>
               i === screenIndex ? screen : null,
             );
 
             return (
-              <div>
-                <FormStepper screenIndex={screenIndex} handleStep={handleStep} />
+              <>
+                <FormStepper
+                  screenIndex={screenIndex}
+                  handleStep={handleStep}
+                  screens={formScreens}
+                />
                 <FormScreen
-                  ScreenComponent={ScreenComponent}
+                  screenComponent={screenComponent}
                   values={values}
                   onStepForward={onStepForward}
-                  screenIndex={screenIndex}
+                  isLast={isLast}
                   onStepBack={screenIndex > 0 ? onStepBack : null}
                 />
-              </div>
+              </>
             );
           }
 
@@ -186,6 +171,6 @@ export const PaginatedForm = ({
           );
         }}
       />
-    </div>
+    </>
   );
 };
