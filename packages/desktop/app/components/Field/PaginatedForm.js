@@ -109,12 +109,18 @@ export const getVisibleQuestions = (components, values) => {
 
 const FormScreen = ({ ScreenComponent, values, onStepForward, onStepBack }) => {
   const { children } = ScreenComponent.props;
-  const questionComponents = React.Children.toArray(children);
-  const questionElements = getVisibleQuestions(questionComponents, values);
-  console.log('ScreenComponent', ScreenComponent);
+
+  const components = React.Children.toArray(children);
+  const questionElements = getVisibleQuestions(components, values);
+
+  const newElement = {
+    ...ScreenComponent,
+    props: { ...ScreenComponent.props, children: questionElements },
+  };
+
   return (
-    <ScreenComponent>
-      {questionElements}
+    <>
+      {newElement}
       <Box mt={4} display="flex" justifyContent="space-between">
         <OutlinedButton onClick={onStepBack || undefined} disabled={!onStepBack}>
           Back
@@ -123,7 +129,7 @@ const FormScreen = ({ ScreenComponent, values, onStepForward, onStepBack }) => {
           Continue
         </Button>
       </Box>
-    </ScreenComponent>
+    </>
   );
 };
 
