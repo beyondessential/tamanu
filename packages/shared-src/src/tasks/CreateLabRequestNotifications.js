@@ -17,7 +17,7 @@ async function fetchMostRecentEmailAddress(patientId, models) {
     },
     where: {
       data_element_id: questionId,
-      [Op.ne]: [{ body: '' }],
+      [Op.not]: [{ body: '' }],
     },
     order: [['created_at', 'DESC']],
   });
