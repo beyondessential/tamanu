@@ -59,12 +59,13 @@
   },
   "auth": {
     "saltRounds": 12,
-    "tokenDuration": "1h"
+    "tokenDuration": "1h",
+    "useHardcodedPermissions": true
   },
   "survey": {
     "defaultCodes": {
-      "department": "MEDICAL",
-      "location": "SHORTSTAY"
+      "department": "GeneralClinic",
+      "location": "GeneralClinic"
     }
   },
   "serverFacilityId": "",

@@ -56,6 +56,8 @@ export * from './Appointment';
 export * from './DocumentMetadata';
 
 export * from './OneTimeLogin';
+export * from './Permission';
+export * from './Role';
 
 export * from './Invoice';
 export * from './InvoiceLineType';

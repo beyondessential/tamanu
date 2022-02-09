@@ -9,11 +9,14 @@ import { getUrl, getBool, getMilliseconds } from './render/cell';
 
 export const serversRouter = express.Router();
 
+// Note: Order here matters - it'll be the order they're displayed
+// Servers are ordered first by type, then alphabetically.
 const servers = [
   // live servers
   { name: 'Fiji', type: 'live', host: 'https://sync.tamanu-fiji.org' },
   { name: 'Fiji NCD', type: 'live', host: 'https://sync-ncd-pilot.tamanu-fiji.org' },
   { name: 'Fiji Tourism', type: 'live', host: 'https://sync-tourism.tamanu-fiji.org' },
+  { name: 'Kiribati', type: 'live', host: 'https://sync.tamanu-kiribati.org' },
   {
     name: 'Motivation Australia - Iraq',
     type: 'live',

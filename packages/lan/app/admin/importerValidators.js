@@ -5,7 +5,7 @@ import { PROGRAM_DATA_ELEMENT_TYPE_VALUES } from 'shared/constants';
 import { ForeignKeyStore } from './ForeignKeyStore';
 
 const safeIdRegex = /^[A-Za-z0-9-]+$/;
-const safeCodeRegex = /^[A-Za-z0-9-.\/]+$/;
+const safeCodeRegex = /^[A-Za-z0-9-./]+$/;
 
 const fieldTypes = {
   id: yup.string().matches(safeIdRegex, 'id must not have spaces or punctuation other than -'),
@@ -77,6 +77,8 @@ const labTestTypeSchema = baseSchema.shape({
 });
 
 const jsonString = () =>
+  // The template curly two lines down is valid in a yup message
+  // eslint-disable-next-line no-template-curly-in-string
   yup.string().test('is-json', '${path} is not valid JSON', value => {
     if (!value) return true;
     try {
@@ -167,15 +169,15 @@ class ForeignKeyLinker {
   }
 
   link(record) {
-    const { data, recordType } = record;
-    const schema = foreignKeySchemas[recordType];
+    const { data, recordType: parentRecordType } = record;
+    const schema = foreignKeySchemas[parentRecordType];
 
     if (!schema) return;
 
-    for (const [field, recordType] of Object.entries(schema)) {
+    for (const [field, childRecordType] of Object.entries(schema)) {
       const search = data[field];
       if (!search) continue;
-      const found = this.fkStore.findRecord(recordType, search);
+      const found = this.fkStore.findRecord(childRecordType, search);
       const foundId = found?.data?.id;
       if (!foundId) {
         throw new ValidationError(`matching record from ${found.sheet}:${found.row} has no id`);

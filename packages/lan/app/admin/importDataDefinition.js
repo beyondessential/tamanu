@@ -13,7 +13,7 @@ const recordTransformer = type => item => ({
 });
 
 const referenceDataTransformer = type => item => {
-  const code = item.code;
+  const { code } = item;
   return {
     recordType: 'referenceData',
     data: {

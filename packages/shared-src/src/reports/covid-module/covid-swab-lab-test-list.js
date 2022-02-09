@@ -1,121 +1,27 @@
 import { keyBy, groupBy } from 'lodash';
 import { Op } from 'sequelize';
 import moment from 'moment';
-import { generateReportFromQueryData } from './utilities';
-import { LAB_REQUEST_STATUS_LABELS } from '../constants';
-import { transformAnswers } from './utilities/transformAnswers';
+import { generateReportFromQueryData } from '../utilities';
+import { LAB_REQUEST_STATUSES, LAB_REQUEST_STATUS_LABELS } from '../../constants';
+import { transformAnswers } from '../utilities/transformAnswers';
+
+const WILLIAM_HOROTO_IDS = [
+  '4d719b6f-af55-42ac-99b3-5a27cadaab2b', // Palau
+  '2d574680-e0fc-4956-a37e-121ccb434995', // Fiji
+  'cebdd9a4-2744-4ad2-9919-98dc0b15464c', // Dev - for testing purposes
+];
 
 const yieldControl = () => new Promise(resolve => setTimeout(resolve, 20));
-
-const FIJI_SAMP_SURVEY_ID = 'program-fijicovid19-fijicovidsampcollection';
-
-const RDT_RESULT_CODE = 'pde-FijCOVSamp43';
-
-const SURVEY_QUESTION_CODES = {
-  publicHealthFacility: 'pde-FijCOVSamp4',
-  subDivision: 'pde-FijCOVSamp7',
-  ethnicity: 'pde-FijCOVSamp10',
-  contactPhone: 'pde-FijCOVSamp11',
-  residentialAddress: 'pde-FijCOVSamp12',
-  purposeOfSample: 'pde-FijCOVSamp15',
-  recentAdmission: 'pde-FijCOVSamp16',
-  placeOfAdmission: 'pde-FijCOVSamp20',
-  medicalProblems: 'pde-FijCOVSamp23',
-  healthcareWorker: 'pde-FijCOVSamp26',
-  occupation: 'pde-FijCOVSamp27',
-  placeOfWork: 'pde-FijCOVSamp28',
-  linkToCluster: 'pde-FijCOVSamp29',
-  nameOfCluster: 'pde-FijCOVSamp30',
-  pregnant: 'pde-FijCOVSamp32',
-  experiencingSymptoms: 'pde-FijCOVSamp34',
-  dateOfFirstSymptom: 'pde-FijCOVSamp35',
-  symptoms: 'pde-FijCOVSamp36',
-  vaccinated: 'pde-FijCOVSamp38',
-  dateOf1stDose: 'pde-FijCOVSamp39',
-  dateOf2ndDose: 'pde-FijCOVSamp40',
-  privateHealthFacility: 'pde-FijCOVSamp54',
-  highRisk: 'pde-FijCOVSamp59',
-  primaryContactHighRisk: 'pde-FijCOVSamp60',
-  highRiskDetails: 'pde-FijCOVSamp61',
-};
-
-const reportColumnTemplate = [
-  {
-    title: 'Patient first name',
-    accessor: data => data.firstName,
-  },
-  {
-    title: 'Patient last name',
-    accessor: data => data.lastName,
-  },
-  {
-    title: 'DOB',
-    accessor: data => data.dob,
-  },
-  { title: 'Sex', accessor: data => data.sex },
-  { title: 'Patient ID', accessor: data => data.patientId },
-  { title: 'Home sub-division', accessor: data => data.homeSubDivision },
-
-  { title: 'Lab request ID', accessor: data => data.labRequestId },
-  {
-    title: 'Lab request type',
-    accessor: data => data.labRequestType,
-  },
-  {
-    title: 'Lab test type',
-    accessor: data => data.labTestType,
-  },
-  {
-    title: 'Lab test method',
-    accessor: data => data.labTestMethod,
-  },
-  {
-    title: 'Status',
-    accessor: data => data.status,
-  },
-  { title: 'Result', accessor: data => data.result },
-  { title: 'Requested by', accessor: data => data.requestedBy },
-  { title: 'Requested date', accessor: data => data.requestedDate },
-  { title: 'Priority', accessor: data => data.priority },
-  { title: 'Testing laboratory', accessor: data => data.testingLaboratory },
-  { title: 'Testing date', accessor: data => data.testingDate },
-  { title: 'Public health facility', accessor: data => data.publicHealthFacility },
-  { title: 'Private health facility', accessor: data => data.privateHealthFacility },
-  { title: 'Sub-division', accessor: data => data.subDivision },
-  { title: 'Ethnicity', accessor: data => data.ethnicity },
-  { title: 'Contact phone', accessor: data => data.contactPhone },
-  { title: 'Residential address', accessor: data => data.residentialAddress },
-  { title: 'Purpose of sample collection', accessor: data => data.purposeOfSample },
-  { title: 'Recent admission', accessor: data => data.recentAdmission },
-  { title: 'Place of admission', accessor: data => data.placeOfAdmission },
-  { title: 'Medical problems', accessor: data => data.medicalProblems },
-  { title: 'Healthcare worker', accessor: data => data.healthcareWorker },
-  { title: 'Occupation', accessor: data => data.occupation },
-  { title: 'Place of work', accessor: data => data.placeOfWork },
-  { title: 'Link to cluster/case', accessor: data => data.linkToCluster },
-  { title: 'Name of cluster', accessor: data => data.nameOfCluster },
-  { title: 'Pregnant', accessor: data => data.pregnant },
-  { title: 'Experiencing symptoms', accessor: data => data.experiencingSymptoms },
-  { title: 'Date of first symptom', accessor: data => data.dateOfFirstSymptom },
-  { title: 'Symptoms', accessor: data => data.symptoms },
-  { title: 'Vaccinated', accessor: data => data.vaccinated },
-  { title: 'Date of 1st dose', accessor: data => data.dateOf1stDose },
-  { title: 'Date of 2nd dose', accessor: data => data.dateOf2ndDose },
-
-  {
-    title: 'Patient is at a higher risk of developing severe COVID-19',
-    accessor: data => data.highRisk,
-  },
-  {
-    title: 'Patient has a primary contact who is at a higher risk for developing severe COVID-19',
-    accessor: data => data.primaryContactHighRisk,
-  },
-  { title: 'Details of high risk primary contact', accessor: data => data.highRiskDetails },
-];
 
 const parametersToLabTestSqlWhere = parameters => {
   const defaultWhereClause = {
     '$labRequest.lab_test_category_id$': 'labTestCategory-COVID',
+    '$labRequest.status$': {
+      [Op.ne]: LAB_REQUEST_STATUSES.DELETED,
+    },
+    '$labRequest->encounter->patient.id$': {
+      [Op.notIn]: WILLIAM_HOROTO_IDS,
+    },
   };
 
   if (!parameters || !Object.keys(parameters).length) {
@@ -142,9 +48,9 @@ const parametersToLabTestSqlWhere = parameters => {
   return whereClause;
 };
 
-const parametersToSurveyResponseSqlWhere = parameters => {
+const parametersToSurveyResponseSqlWhere = (parameters, { surveyId }) => {
   const defaultWhereClause = {
-    '$surveyResponse.survey_id$': FIJI_SAMP_SURVEY_ID,
+    '$surveyResponse.survey_id$': surveyId,
   };
 
   if (!parameters || !Object.keys(parameters).length) {
@@ -182,7 +88,14 @@ const getLabTests = async (models, parameters) => {
               {
                 model: models.Patient,
                 as: 'patient',
-                include: [{ model: models.ReferenceData, as: 'village' }],
+                include: [
+                  {
+                    model: models.PatientAdditionalData,
+                    as: 'additionalData',
+                    include: ['ethnicity', 'nationality'],
+                  },
+                  'village',
+                ],
               },
             ],
           },
@@ -206,10 +119,10 @@ const getLabTests = async (models, parameters) => {
   });
 };
 
-const getFijiCovidAnswers = async (models, parameters) => {
+const getFijiCovidAnswers = async (models, parameters, { surveyId }) => {
   // Use the latest survey responses per patient above to get the corresponding answers
   const answers = await models.SurveyResponseAnswer.findAll({
-    where: parametersToSurveyResponseSqlWhere(parameters),
+    where: parametersToSurveyResponseSqlWhere(parameters, { surveyId }),
     include: [
       {
         model: models.SurveyResponse,
@@ -265,7 +178,12 @@ const getLatestPatientAnswerInDateRange = (
   return latestAnswer?.body;
 };
 
-const getLabTestRecords = async (labTests, transformedAnswers, parameters) => {
+const getLabTestRecords = async (
+  labTests,
+  transformedAnswers,
+  parameters,
+  { surveyQuestionCodes, dateFormat },
+) => {
   const transformedAnswersByPatientAndDataElement = groupBy(
     transformedAnswers,
     a => `${a.patientId}|${a.dataElementId}`,
@@ -289,7 +207,7 @@ const getLabTestRecords = async (labTests, transformedAnswers, parameters) => {
       const labTest = patientLabTests[i];
       const currentLabTestDate = moment(labTest.date).startOf('day');
 
-      //Get all lab tests regardless and filter fromDate and toDate in memory
+      // Get all lab tests regardless and filter fromDate and toDate in memory
       // to ensure that we have the date range from current lab test to the next lab test correctly.
       if (
         parameters.fromDate &&
@@ -320,33 +238,36 @@ const getLabTestRecords = async (labTests, transformedAnswers, parameters) => {
         nextLabTestDate = moment();
       }
 
-      const labRequest = labTest.labRequest;
+      const { labRequest } = labTest;
       const encounter = labRequest?.encounter;
       const patient = encounter?.patient;
-      const homeSubDivision = patient?.village?.name;
+      const village = patient?.village?.name;
+      const patientAdditionalData = patient?.additionalData?.[0];
 
       const labTestRecord = {
         firstName: patient?.firstName,
         lastName: patient?.lastName,
-        dob: patient?.dateOfBirth ? moment(patient?.dateOfBirth).format('DD-MM-YYYY') : '',
+        dob: patient?.dateOfBirth ? moment(patient?.dateOfBirth).format(dateFormat) : '',
         sex: patient?.sex,
         patientId: patient?.displayId,
-        homeSubDivision,
+        village,
         labRequestId: labRequest?.displayId,
         labRequestType: labRequest?.category?.name,
         labTestType: labTest?.labTestType?.name,
         status: LAB_REQUEST_STATUS_LABELS[labRequest?.status] || labRequest?.status,
         result: labTest.result,
         requestedBy: labRequest?.requestedBy?.displayName,
-        requestedDate: labTest.date ? moment(labTest.date).format('DD-MM-YYYY') : '',
-        testingDate: labTest.completedDate
-          ? moment(labTest.completedDate).format('DD-MM-YYYY')
-          : '',
+        requestedDate: labTest.date ? moment(labTest.date).format(dateFormat) : '',
+        testingDate: labTest.completedDate ? moment(labTest.completedDate).format(dateFormat) : '',
+        testingTime: labTest.completedDate ? moment(labTest.completedDate).format('LTS') : '',
         priority: labRequest?.priority?.name,
         testingLaboratory: labRequest?.laboratory?.name,
         labTestMethod: labTest?.labTestMethod?.name,
+        additionalDataEthnicity: patientAdditionalData?.ethnicity?.name,
+        additionalDataNationality: patientAdditionalData?.nationality?.name,
+        additionalDataPassportNumber: patientAdditionalData?.passport,
       };
-      Object.entries(SURVEY_QUESTION_CODES).forEach(([key, dataElement]) => {
+      Object.entries(surveyQuestionCodes).forEach(([key, dataElement]) => {
         labTestRecord[key] = getLatestPatientAnswerInDateRange(
           transformedAnswersByPatientAndDataElement,
           currentLabTestDate,
@@ -364,13 +285,22 @@ const getLabTestRecords = async (labTests, transformedAnswers, parameters) => {
   return results;
 };
 
-export const dataGenerator = async ({ models }, parameters = {}) => {
+export const baseDataGenerator = async (
+  { models },
+  parameters = {},
+  { surveyId, reportColumnTemplate, surveyQuestionCodes, dateFormat = 'DD-MM-YYYY' },
+) => {
   const labTests = await getLabTests(models, parameters);
-  const answers = await getFijiCovidAnswers(models, parameters);
-  const components = await models.SurveyScreenComponent.getComponentsForSurvey(FIJI_SAMP_SURVEY_ID);
-  const transformedAnswers = await transformAnswers(models, answers, components);
+  const answers = await getFijiCovidAnswers(models, parameters, { surveyId });
+  const components = await models.SurveyScreenComponent.getComponentsForSurvey(surveyId);
+  const transformedAnswers = await transformAnswers(models, answers, components, {
+    dateFormat,
+  });
 
-  const reportData = await getLabTestRecords(labTests, transformedAnswers, parameters);
+  const reportData = await getLabTestRecords(labTests, transformedAnswers, parameters, {
+    surveyQuestionCodes,
+    dateFormat,
+  });
 
   return generateReportFromQueryData(reportData, reportColumnTemplate);
 };

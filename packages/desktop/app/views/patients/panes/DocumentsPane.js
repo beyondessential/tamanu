@@ -58,10 +58,10 @@ export const DocumentsPane = React.memo(({ encounter, patient, showSearchBar = f
   const handleClose = useCallback(() => setModalStatus(MODAL_STATES.CLOSED), []);
 
   const handleSubmit = useCallback(
-    async data => {
+    async ({ file, ...data }) => {
       setIsSubmitting(true);
       try {
-        await api.post(endpoint, data);
+        await api.postWithFileUpload(endpoint, file, data);
         handleClose();
         setRefreshCount(refreshCount + 1);
       } finally {

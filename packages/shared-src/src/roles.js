@@ -1,215 +1,207 @@
-export const anonymous = () => {};
+export const base = [
+  { verb: 'read', noun: 'User' },
+  { verb: 'list', noun: 'User' },
+];
 
-export const base = (user, allow, forbid) => {
-  anonymous(user, allow, forbid);
+export const reception = base;
 
-  allow('read', 'User');
-  allow('list', 'User');
-  allow('write', 'User', { id: user.id });
-};
+export const practitioner = [
+  ...base,
+  { verb: 'list', noun: 'ReferenceData' },
+  { verb: 'read', noun: 'ReferenceData' },
 
-export const reception = (user, allow, forbid) => {
-  base(user, allow, forbid);
-};
+  { verb: 'read', noun: 'Patient' },
+  { verb: 'create', noun: 'Patient' },
+  { verb: 'write', noun: 'Patient' },
+  { verb: 'list', noun: 'Patient' },
 
-export const practitioner = (user, allow, forbid) => {
-  base(user, allow, forbid);
+  { verb: 'list', noun: 'ImagingRequest' },
+  { verb: 'read', noun: 'ImagingRequest' },
+  { verb: 'write', noun: 'ImagingRequest' },
+  { verb: 'create', noun: 'ImagingRequest' },
 
-  allow('list', 'ReferenceData');
-  allow('read', 'ReferenceData');
+  { verb: 'list', noun: 'LabRequest' },
+  { verb: 'read', noun: 'LabRequest' },
+  { verb: 'write', noun: 'LabRequest' },
+  { verb: 'create', noun: 'LabRequest' },
 
-  allow('read', 'Patient');
-  allow('create', 'Patient');
-  allow('write', 'Patient');
-  allow('list', 'Patient');
+  { verb: 'list', noun: 'LabRequestLog' },
+  { verb: 'read', noun: 'LabRequestLog' },
+  { verb: 'write', noun: 'LabRequestLog' },
+  { verb: 'create', noun: 'LabRequestLog' },
 
-  allow('list', 'ImagingRequest');
-  allow('read', 'ImagingRequest');
-  allow('write', 'ImagingRequest');
-  allow('create', 'ImagingRequest');
+  { verb: 'list', noun: 'LabTest' },
+  { verb: 'read', noun: 'LabTest' },
+  { verb: 'write', noun: 'LabTest' },
+  { verb: 'create', noun: 'LabTest' },
 
-  allow('list', 'LabRequest');
-  allow('read', 'LabRequest');
-  allow('write', 'LabRequest');
-  allow('create', 'LabRequest');
+  { verb: 'read', noun: 'Encounter' },
+  { verb: 'list', noun: 'Encounter' },
+  { verb: 'create', noun: 'Encounter' },
+  { verb: 'write', noun: 'Encounter' },
 
-  allow('list', 'LabRequestLog');
-  allow('read', 'LabRequestLog');
-  allow('write', 'LabRequestLog');
-  allow('create', 'LabRequestLog');
+  { verb: 'read', noun: 'Procedure' },
+  { verb: 'list', noun: 'Procedure' },
+  { verb: 'create', noun: 'Procedure' },
+  { verb: 'write', noun: 'Procedure' },
 
-  allow('list', 'LabTest');
-  allow('read', 'LabTest');
-  allow('write', 'LabTest');
-  allow('create', 'LabTest');
+  { verb: 'read', noun: 'Discharge' },
+  { verb: 'list', noun: 'Discharge' },
+  { verb: 'create', noun: 'Discharge' },
+  { verb: 'write', noun: 'Discharge' },
 
-  allow('read', 'Encounter');
-  allow('list', 'Encounter');
-  allow('create', 'Encounter');
-  allow('write', 'Encounter');
+  { verb: 'read', noun: 'Triage' },
+  { verb: 'list', noun: 'Triage' },
+  { verb: 'create', noun: 'Triage' },
+  { verb: 'write', noun: 'Triage' },
 
-  allow('read', 'Procedure');
-  allow('list', 'Procedure');
-  allow('create', 'Procedure');
-  allow('write', 'Procedure');
+  { verb: 'list', noun: 'Vitals' },
+  { verb: 'read', noun: 'Vitals' },
+  { verb: 'create', noun: 'Vitals' },
 
-  allow('read', 'Discharge');
-  allow('list', 'Discharge');
-  allow('create', 'Discharge');
-  allow('write', 'Discharge');
+  { verb: 'read', noun: 'EncounterDiagnosis' },
+  { verb: 'write', noun: 'EncounterDiagnosis' },
+  { verb: 'create', noun: 'EncounterDiagnosis' },
+  { verb: 'list', noun: 'EncounterDiagnosis' },
 
-  allow('read', 'Triage');
-  allow('list', 'Triage');
-  allow('create', 'Triage');
-  allow('write', 'Triage');
+  { verb: 'read', noun: 'EncounterMedication' },
+  { verb: 'write', noun: 'EncounterMedication' },
+  { verb: 'create', noun: 'EncounterMedication' },
+  { verb: 'list', noun: 'EncounterMedication' },
 
-  allow('list', 'Vitals');
-  allow('read', 'Vitals');
-  allow('create', 'Vitals');
+  { verb: 'list', noun: 'Program' },
+  { verb: 'read', noun: 'Program' },
+  { verb: 'create', noun: 'Program' },
+  { verb: 'write', noun: 'Program' },
 
-  allow('read', 'EncounterDiagnosis');
-  allow('write', 'EncounterDiagnosis');
-  allow('create', 'EncounterDiagnosis');
-  allow('list', 'EncounterDiagnosis');
+  { verb: 'list', noun: 'Survey' },
+  { verb: 'read', noun: 'Survey' },
+  { verb: 'create', noun: 'Survey' },
+  { verb: 'write', noun: 'Survey' },
 
-  allow('read', 'EncounterMedication');
-  allow('write', 'EncounterMedication');
-  allow('create', 'EncounterMedication');
-  allow('list', 'EncounterMedication');
+  { verb: 'create', noun: 'SurveyResponse' },
+  { verb: 'list', noun: 'SurveyResponse' },
+  { verb: 'read', noun: 'SurveyResponse' },
+  { verb: 'write', noun: 'SurveyResponse' },
 
-  allow('list', 'Program');
-  allow('read', 'Program');
-  allow('create', 'Program');
-  allow('write', 'Program');
+  { verb: 'list', noun: 'Referral' },
+  { verb: 'read', noun: 'Referral' },
+  { verb: 'write', noun: 'Referral' },
+  { verb: 'create', noun: 'Referral' },
 
-  allow('list', 'Survey');
-  allow('read', 'Survey');
-  allow('create', 'Survey');
-  allow('write', 'Survey');
+  { verb: 'list', noun: 'Immunisation' },
+  { verb: 'read', noun: 'Immunisation' },
+  { verb: 'write', noun: 'Immunisation' },
+  { verb: 'create', noun: 'Immunisation' },
 
-  allow('create', 'SurveyResponse');
-  allow('list', 'SurveyResponse');
-  allow('read', 'SurveyResponse');
-  allow('write', 'SurveyResponse');
+  { verb: 'list', noun: 'PatientIssue' },
+  { verb: 'read', noun: 'PatientIssue' },
+  { verb: 'write', noun: 'PatientIssue' },
+  { verb: 'create', noun: 'PatientIssue' },
 
-  allow('list', 'Referral');
-  allow('read', 'Referral');
-  allow('write', 'Referral');
-  allow('create', 'Referral');
+  { verb: 'list', noun: 'PatientFamilyHistory' },
+  { verb: 'read', noun: 'PatientFamilyHistory' },
+  { verb: 'write', noun: 'PatientFamilyHistory' },
+  { verb: 'create', noun: 'PatientFamilyHistory' },
 
-  allow('list', 'Immunisation');
-  allow('read', 'Immunisation');
-  allow('write', 'Immunisation');
-  allow('create', 'Immunisation');
+  { verb: 'list', noun: 'PatientAdditionalData' },
+  { verb: 'read', noun: 'PatientAdditionalData' },
+  { verb: 'write', noun: 'PatientAdditionalData' },
+  { verb: 'create', noun: 'PatientAdditionalData' },
 
-  allow('list', 'PatientIssue');
-  allow('read', 'PatientIssue');
-  allow('write', 'PatientIssue');
-  allow('create', 'PatientIssue');
+  { verb: 'list', noun: 'PatientAllergy' },
+  { verb: 'read', noun: 'PatientAllergy' },
+  { verb: 'write', noun: 'PatientAllergy' },
+  { verb: 'create', noun: 'PatientAllergy' },
 
-  allow('list', 'PatientFamilyHistory');
-  allow('read', 'PatientFamilyHistory');
-  allow('write', 'PatientFamilyHistory');
-  allow('create', 'PatientFamilyHistory');
+  { verb: 'list', noun: 'PatientCondition' },
+  { verb: 'read', noun: 'PatientCondition' },
+  { verb: 'write', noun: 'PatientCondition' },
+  { verb: 'create', noun: 'PatientCondition' },
 
-  allow('list', 'PatientAdditionalData');
-  allow('read', 'PatientAdditionalData');
-  allow('write', 'PatientAdditionalData');
-  allow('create', 'PatientAdditionalData');
+  { verb: 'list', noun: 'ReportRequest' },
+  { verb: 'read', noun: 'ReportRequest' },
+  { verb: 'write', noun: 'ReportRequest' },
+  { verb: 'create', noun: 'ReportRequest' },
 
-  allow('list', 'PatientAllergy');
-  allow('read', 'PatientAllergy');
-  allow('write', 'PatientAllergy');
-  allow('create', 'PatientAllergy');
+  { verb: 'list', noun: 'PatientCarePlan' },
+  { verb: 'read', noun: 'PatientCarePlan' },
+  { verb: 'write', noun: 'PatientCarePlan' },
+  { verb: 'create', noun: 'PatientCarePlan' },
 
-  allow('list', 'PatientCondition');
-  allow('read', 'PatientCondition');
-  allow('write', 'PatientCondition');
-  allow('create', 'PatientCondition');
+  { verb: 'read', noun: 'Setting' },
+  { verb: 'list', noun: 'Setting' },
 
-  allow('list', 'ReportRequest');
-  allow('read', 'ReportRequest');
-  allow('write', 'ReportRequest');
-  allow('create', 'ReportRequest');
+  { verb: 'list', noun: 'PatientVaccine' },
+  { verb: 'read', noun: 'PatientVaccine' },
+  { verb: 'create', noun: 'PatientVaccine' },
+  { verb: 'write', noun: 'PatientVaccine' },
 
-  allow('list', 'PatientCarePlan');
-  allow('read', 'PatientCarePlan');
-  allow('write', 'PatientCarePlan');
-  allow('create', 'PatientCarePlan');
+  { verb: 'list', noun: 'Facility' },
+  { verb: 'read', noun: 'Facility' },
+  { verb: 'create', noun: 'Facility' },
+  { verb: 'write', noun: 'Facility' },
 
-  allow('read', 'Setting');
-  allow('list', 'Setting');
+  { verb: 'list', noun: 'Department' },
+  { verb: 'read', noun: 'Department' },
+  { verb: 'create', noun: 'Department' },
+  { verb: 'write', noun: 'Department' },
 
-  allow('list', 'PatientVaccine');
-  allow('read', 'PatientVaccine');
-  allow('create', 'PatientVaccine');
-  allow('write', 'PatientVaccine');
+  { verb: 'list', noun: 'Location' },
+  { verb: 'read', noun: 'Location' },
+  { verb: 'create', noun: 'Location' },
+  { verb: 'write', noun: 'Location' },
 
-  allow('list', 'Facility');
-  allow('read', 'Facility');
-  allow('create', 'Facility');
-  allow('write', 'Facility');
+  { verb: 'list', noun: 'Attachment' },
+  { verb: 'read', noun: 'Attachment' },
 
-  allow('list', 'Department');
-  allow('read', 'Department');
-  allow('create', 'Department');
-  allow('write', 'Department');
+  { verb: 'list', noun: 'DocumentMetadata' },
+  { verb: 'read', noun: 'DocumentMetadata' },
+  { verb: 'write', noun: 'DocumentMetadata' },
+  { verb: 'create', noun: 'DocumentMetadata' },
 
-  allow('list', 'Location');
-  allow('read', 'Location');
-  allow('create', 'Location');
-  allow('write', 'Location');
+  { verb: 'list', noun: 'Appointment' },
+  { verb: 'read', noun: 'Appointment' },
+  { verb: 'write', noun: 'Appointment' },
+  { verb: 'create', noun: 'Appointment' },
 
-  allow('list', 'Attachment');
-  allow('read', 'Attachment');
+  { verb: 'list', noun: 'Invoice' },
+  { verb: 'read', noun: 'Invoice' },
+  { verb: 'write', noun: 'Invoice' },
+  { verb: 'create', noun: 'Invoice' },
 
-  allow('list', 'DocumentMetadata');
-  allow('read', 'DocumentMetadata');
-  allow('write', 'DocumentMetadata');
-  allow('create', 'DocumentMetadata');
+  { verb: 'list', noun: 'InvoiceLineItem' },
+  { verb: 'read', noun: 'InvoiceLineItem' },
+  { verb: 'write', noun: 'InvoiceLineItem' },
+  { verb: 'create', noun: 'InvoiceLineItem' },
 
-  allow('list', 'Appointment');
-  allow('read', 'Appointment');
-  allow('write', 'Appointment');
-  allow('create', 'Appointment');
+  { verb: 'list', noun: 'InvoiceLineType' },
+  { verb: 'read', noun: 'InvoiceLineType' },
+  { verb: 'write', noun: 'InvoiceLineType' },
+  { verb: 'create', noun: 'InvoiceLineType' },
 
-  allow('list', 'Invoice');
-  allow('read', 'Invoice');
-  allow('write', 'Invoice');
-  allow('create', 'Invoice');
+  { verb: 'list', noun: 'InvoicePriceChangeItem' },
+  { verb: 'read', noun: 'InvoicePriceChangeItem' },
+  { verb: 'write', noun: 'InvoicePriceChangeItem' },
+  { verb: 'create', noun: 'InvoicePriceChangeItem' },
 
-  allow('list', 'InvoiceLineItem');
-  allow('read', 'InvoiceLineItem');
-  allow('write', 'InvoiceLineItem');
-  allow('create', 'InvoiceLineItem');
+  { verb: 'list', noun: 'InvoicePriceChangeType' },
+  { verb: 'read', noun: 'InvoicePriceChangeType' },
+  { verb: 'write', noun: 'InvoicePriceChangeType' },
+  { verb: 'create', noun: 'InvoicePriceChangeType' },
 
-  allow('list', 'InvoiceLineType');
-  allow('read', 'InvoiceLineType');
-  allow('write', 'InvoiceLineType');
-  allow('create', 'InvoiceLineType');
+  { verb: 'create', noun: 'CertificateNotification' },
+];
 
-  allow('list', 'InvoicePriceChangeItem');
-  allow('read', 'InvoicePriceChangeItem');
-  allow('write', 'InvoicePriceChangeItem');
-  allow('create', 'InvoicePriceChangeItem');
+export const admin = [
+  ...practitioner,
 
-  allow('list', 'InvoicePriceChangeType');
-  allow('read', 'InvoicePriceChangeType');
-  allow('write', 'InvoicePriceChangeType');
-  allow('create', 'InvoicePriceChangeType');
+  { verb: 'create', noun: 'User' },
+  { verb: 'write', noun: 'User' },
 
-  allow('create', 'CertificateNotification');
-};
+  { verb: 'write', noun: 'ReferenceData' },
+  { verb: 'create', noun: 'ReferenceData' },
 
-export const admin = (user, allow, forbid) => {
-  practitioner(user, allow, forbid);
-
-  allow('create', 'User');
-  allow('write', 'User');
-
-  allow('write', 'ReferenceData');
-  allow('create', 'ReferenceData');
-
-  allow('write', 'Setting');
-  allow('create', 'Setting');
-};
+  { verb: 'write', noun: 'Setting' },
+  { verb: 'create', noun: 'Setting' },
+];

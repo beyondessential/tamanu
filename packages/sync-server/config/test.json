@@ -33,5 +33,10 @@
         "recipient": "admin@tamanu.io"
       }
     }
+  },
+  "disk": {
+    "freeSpaceRequired": {
+      "gigabytesForUploadingDocuments": 4
+    }
   }
 }
