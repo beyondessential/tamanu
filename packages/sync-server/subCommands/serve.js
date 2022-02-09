@@ -80,13 +80,15 @@ export async function serve(options) {
     }
     if (config.notifications.certificates) {
       // Create certificate notifications for published results
-      context.store.models.LabRequest.addHook(
-        'afterBulkUpdate',
-        'create published test results notification hook',
-        labRequest => {
-          createLabRequestNotifications(labRequest.attributes, context.store.models);
-        },
-      );
+      if (config.notifications.certificates.labTestCategoryId) {
+        context.store.models.LabRequest.addHook(
+          'afterBulkUpdate',
+          'create published test results notification hook',
+          labRequest => {
+            createLabRequestNotifications(labRequest.attributes, context.store.models);
+          },
+        );
+      }
       // Send out queued certificate notifications
       context.store.models.CertificateNotification.addHook(
         'afterBulkCreate',
