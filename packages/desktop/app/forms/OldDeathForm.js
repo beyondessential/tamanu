@@ -14,7 +14,7 @@ import {
   NumberField,
   SelectField,
 } from '../components/Field';
-import { PaginatedForm, PaginatedFormActions } from '../components/Field/PaginatedForm';
+import { PaginatedForm } from '../components/Field/PaginatedForm';
 import { FormSeparatorLine } from '../components/FormSeparatorLine';
 import { Button, OutlinedButton } from '../components';
 
@@ -118,54 +118,9 @@ const mannerOfDeathOptions = Object.values(MANNER_OF_DEATHS).map(type => ({
  */
 export const DeathForm = React.memo(
   ({ onCancel, onSubmit, practitionerSuggester, icd10Suggester }) => {
-    const renderFormActions = ({ onStepBack, onStepForward, screenIndex, isLast, submitForm }) => {
-      if (screenIndex === 4) {
-        return (
-          <ModalFooter>
-            <OutlinedButton onClick={onStepBack || undefined} disabled={!onStepBack}>
-              Back
-            </OutlinedButton>
-            <Button color="primary" variant="contained" onClick={onStepForward}>
-              Submit
-            </Button>
-          </ModalFooter>
-        );
-      }
-
-      if (isLast) {
-        return (
-          <ModalFooter>
-            <OutlinedButton onClick={onStepBack || undefined} disabled={!onStepBack}>
-              Back
-            </OutlinedButton>
-            <MuiBox>
-              <OutlinedButton onClick={onCancel}>Cancel</OutlinedButton>
-              <Button color="primary" variant="contained" onClick={submitForm}>
-                Record Death
-              </Button>
-            </MuiBox>
-          </ModalFooter>
-        );
-      }
-
-      return (
-        <PaginatedFormActions
-          onStepBack={onStepBack}
-          onStepForward={onStepForward}
-          screenIndex={screenIndex}
-        />
-      );
-    };
-
     return (
-      <PaginatedForm
-        onSubmit={onSubmit}
-        renderFormActions={renderFormActions}
-        initialValues={{
-          date: new Date(),
-        }}
-      >
-        <FormGrid>
+      <PaginatedForm onSubmit={onSubmit} onCancel={onCancel}>
+        <FormGrid columns={2}>
           <Field
             name="causeOfDeath"
             label="Cause Of Death"
@@ -201,6 +156,7 @@ export const DeathForm = React.memo(
           <Field
             name="facilityId"
             label="Facility"
+            visibilityCriteria={{ causeOfDeathInterval: '2' }}
             component={AutocompleteField}
             suggester={practitionerSuggester}
           />
@@ -309,8 +265,39 @@ export const DeathForm = React.memo(
             component={NumberField}
           />
         </FormGrid>
-        <ConfirmScreen />
       </PaginatedForm>
     );
   },
 );
+//
+//
+// const renderFormActions = ({ onStepBack, onStepForward, screenIndex, isLast, submitForm }) => {
+//   if (screenIndex === 4) {
+//     return (
+//       <ModalFooter>
+//         <OutlinedButton onClick={onStepBack || undefined} disabled={!onStepBack}>
+//           Back
+//         </OutlinedButton>
+//         <Button color="primary" variant="contained" onClick={onStepForward}>
+//           Submit
+//         </Button>
+//       </ModalFooter>
+//     );
+//   }
+//
+//   if (isLast) {
+//     return (
+//       <ModalFooter>
+//         <OutlinedButton onClick={onStepBack || undefined} disabled={!onStepBack}>
+//           Back
+//         </OutlinedButton>
+//         <MuiBox>
+//           <OutlinedButton onClick={onCancel}>Cancel</OutlinedButton>
+//           <Button color="primary" variant="contained" onClick={submitForm}>
+//             Record Death
+//           </Button>
+//         </MuiBox>
+//       </ModalFooter>
+//     );
+//   }
+// };

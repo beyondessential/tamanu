@@ -5,21 +5,9 @@ import { Tooltip, Typography, Box, Stepper, Step, StepButton } from '@material-u
 import { Button, OutlinedButton } from '../Button';
 import { Form } from './Form';
 import { ButtonRow } from '../ButtonRow';
-import { usePaginatedForm, SurveyScreen } from '../../views/programs/SurveyView';
-
-const Footer = styled(Box)`
-  display: flex;
-  justify-content: space-between;
-  align-items: center;
-  margin-top: 30px;
-  padding-top: 24px;
-  margin-left: -32px;
-  margin-right: -32px;
-  margin-bottom: -6px;
-  padding-left: 32px;
-  padding-right: 32px;
-  border-top: 1px solid #dedede;
-`;
+import { usePaginatedForm } from '../../views/programs/SurveyView';
+import { checkVisibility } from '../../utils';
+import { FormGrid } from '../FormGrid';
 
 const StyledStepper = styled(Stepper)`
   padding: 0;
@@ -104,14 +92,44 @@ const FORM_STATES = {
   IDLE: 'idle',
 };
 
-export const PaginatedForm = ({ components, onCancel, onSubmit }) => {
-  const [formState, setFormState] = useState(FORM_STATES.IDLE);
-
-  console.log('onCancel', onCancel);
-
-  const { onStepBack, onStepForward, handleStep, maxIndex, screenIndex } = usePaginatedForm(
-    components,
+export const getVisibleQuestions = (components, values) => {
+  return components.filter(c =>
+    checkVisibility(
+      {
+        visibilityCriteria: JSON.stringify(c.props.visibilityCriteria),
+        dataElement: { type: 'test' },
+      },
+      values,
+      components.map(x => ({
+        dataElement: { id: x.props.name, name: x.props.name, code: x.props.name },
+      })),
+    ),
   );
+};
+
+const FormScreen = ({ ScreenComponent, values, onStepForward, onStepBack }) => {
+  const { children } = ScreenComponent.props;
+  const questionComponents = React.Children.toArray(children);
+  const questionElements = getVisibleQuestions(questionComponents, values);
+  console.log('ScreenComponent', ScreenComponent);
+  return (
+    <ScreenComponent>
+      {questionElements}
+      <Box mt={4} display="flex" justifyContent="space-between">
+        <OutlinedButton onClick={onStepBack || undefined} disabled={!onStepBack}>
+          Back
+        </OutlinedButton>
+        <Button color="primary" variant="contained" onClick={onStepForward}>
+          Continue
+        </Button>
+      </Box>
+    </ScreenComponent>
+  );
+};
+
+export const PaginatedForm = ({ children, onSubmit, onCancel }) => {
+  const [formState, setFormState] = useState(FORM_STATES.IDLE);
+  const { onStepBack, onStepForward, handleStep, screenIndex } = usePaginatedForm(children);
 
   const onSubmitForm = async data => {
     console.log('Make api request', data);
@@ -123,36 +141,40 @@ export const PaginatedForm = ({ components, onCancel, onSubmit }) => {
     return <SuccessScreen onClose={onCancel} />;
   }
 
+  const formScreens = React.Children.toArray(children);
+  const maxIndex = formScreens.length - 1;
+  console.log('screenIndex', screenIndex);
+  console.log('maxIndex', maxIndex);
+
   return (
-    <Form
-      initialValues={{}}
-      onSubmit={onSubmitForm}
-      render={({ values, submitForm }) => {
-        if (screenIndex <= maxIndex) {
-          const screenComponents = components
-            .filter(x => x.screenIndex === screenIndex)
-            .sort((a, b) => a.componentIndex - b.componentIndex);
+    <div>
+      <Form
+        onSubmit={onSubmitForm}
+        render={({ submitForm, values }) => {
+          if (screenIndex <= maxIndex) {
+            const ScreenComponent = formScreens.find((screen, i) =>
+              i === screenIndex ? screen : null,
+            );
 
-          // add support for custom screen
-          // if (screenComponents[0].type === 'CustomScreen') {
-          // }
+            return (
+              <div>
+                <FormStepper screenIndex={screenIndex} handleStep={handleStep} />
+                <FormScreen
+                  ScreenComponent={ScreenComponent}
+                  values={values}
+                  onStepForward={onStepForward}
+                  screenIndex={screenIndex}
+                  onStepBack={screenIndex > 0 ? onStepBack : null}
+                />
+              </div>
+            );
+          }
 
-          return (
-            <div>
-              <FormStepper screenIndex={screenIndex} handleStep={handleStep} />
-              <SurveyScreen
-                values={values}
-                components={screenComponents}
-                onStepForward={onStepForward}
-                screenIndex={screenIndex}
-                onStepBack={screenIndex > 0 ? onStepBack : null}
-              />
-            </div>
-          );
-        }
+          console.log('summary...');
 
-        return <SummaryScreen onStepBack={onStepBack} onSurveyComplete={submitForm} />;
-      }}
-    />
+          return <SummaryScreen onStepBack={onStepBack} onSurveyComplete={submitForm} />;
+        }}
+      />
+    </div>
   );
 };

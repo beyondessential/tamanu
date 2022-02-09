@@ -2,12 +2,6 @@ import React, { useCallback, useState, useEffect } from 'react';
 import styled from 'styled-components';
 import Alert from '@material-ui/lab/Alert';
 import { Typography } from '@material-ui/core';
-
-import Stepper from '@material-ui/core/Stepper';
-import Step from '@material-ui/core/Step';
-import StepButton from '@material-ui/core/StepButton';
-import Tooltip from '@material-ui/core/Tooltip';
-
 import { Form, Field } from 'desktop/app/components/Field';
 import { FormGrid } from 'desktop/app/components/FormGrid';
 import { Button, OutlinedButton } from 'desktop/app/components/Button';
@@ -101,7 +95,7 @@ export const SurveySummaryScreen = ({ onStepBack, onSurveyComplete }) => (
   </div>
 );
 
-export const usePaginatedForm = components => {
+export const usePaginatedForm = () => {
   const [screenIndex, setScreenIndex] = useState(0);
 
   const onStepBack = () => {
@@ -112,10 +106,6 @@ export const usePaginatedForm = components => {
     setScreenIndex(screenIndex + 1);
   };
 
-  const maxIndex = components
-    .map(x => x.screenIndex)
-    .reduce((max, current) => Math.max(max, current), 0);
-
   const handleStep = step => () => {
     setScreenIndex(step);
   };
@@ -124,7 +114,6 @@ export const usePaginatedForm = components => {
     onStepBack,
     onStepForward,
     handleStep,
-    maxIndex,
     screenIndex,
     setScreenIndex,
   };
@@ -149,9 +138,13 @@ export const SurveyScreenPaginator = ({
   setFieldValue,
 }) => {
   const { components } = survey;
-  const { onStepBack, onStepForward, maxIndex, screenIndex } = usePaginatedForm(components);
+  const { onStepBack, onStepForward, screenIndex } = usePaginatedForm(components);
 
   useFormValues(components, values, setFieldValue);
+
+  const maxIndex = components
+    .map(x => x.screenIndex)
+    .reduce((max, current) => Math.max(max, current), 0);
 
   if (screenIndex <= maxIndex) {
     const screenComponents = components

@@ -3,7 +3,7 @@ import { connectApi } from '../api/connectApi';
 import { Suggester } from '../utils/suggester';
 import { viewPatient } from '../store/patient';
 import { Modal } from './Modal';
-import { DeathForm } from '../forms/DeathForm';
+import { DeathForm } from '../forms/OldDeathForm';
 
 export const DumbDeathModal = React.memo(({ open, onClose, onSave }) => (
   <Modal title="Record patient death" open={open} onClose={onClose}>
