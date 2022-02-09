@@ -4,7 +4,7 @@ import { NotFoundError } from 'shared/errors';
 
 export const patientDeath = express.Router();
 
-patientDeath.put(
+patientDeath.post(
   '/:id/death',
   asyncHandler(async (req, res) => {
     req.checkPermission('write', 'Patient');
