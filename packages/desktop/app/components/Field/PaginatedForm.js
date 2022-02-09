@@ -44,15 +44,18 @@ const DefaultSuccessScreen = ({ onClose }) => (
     </ButtonRow>
   </div>
 );
-export const getVisibleQuestions = (components, values) => {
-  return components.filter(c =>
+
+const getVisibleQuestions = (questionComponents, values) => {
+  // Adapt the questionComponents from react elements to the survey config objects which the
+  // checkVisibility util expects
+  return questionComponents.filter(c =>
     checkVisibility(
       {
         visibilityCriteria: JSON.stringify(c.props.visibilityCriteria),
-        dataElement: { type: 'test' },
+        dataElement: {},
       },
       values,
-      components.map(x => ({
+      questionComponents.map(x => ({
         dataElement: { id: x.props.name, name: x.props.name, code: x.props.name },
       })),
     ),
@@ -61,18 +64,18 @@ export const getVisibleQuestions = (components, values) => {
 
 const FormScreen = ({ screenComponent, values, onStepForward, onStepBack, isLast }) => {
   const { children } = screenComponent.props;
+  const questionComponents = React.Children.toArray(children);
+  const visibleQuestions = getVisibleQuestions(questionComponents, values);
 
-  const components = React.Children.toArray(children);
-  const questionElements = getVisibleQuestions(components, values);
-
-  const newElement = {
+  // screenComponent is a react element (not a component) so we have to attach the new children manually
+  const updatedScreenComponent = {
     ...screenComponent,
-    props: { ...screenComponent.props, children: questionElements },
+    props: { ...screenComponent.props, children: visibleQuestions },
   };
 
   return (
     <>
-      {newElement}
+      {updatedScreenComponent}
       <Box mt={4} display="flex" justifyContent="space-between">
         <OutlinedButton onClick={onStepBack || undefined} disabled={!onStepBack}>
           Back
