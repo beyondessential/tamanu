@@ -80,11 +80,11 @@ export async function serve(options) {
     }
     if (config.notifications.certificates) {
       // Create certificate notifications for published results
-      context.store.models.LabRequests.addHook(
+      context.store.models.LabRequest.addHook(
         'afterBulkUpdate',
         'create published test results notification hook',
-        labRequests => {
-          createLabRequestNotifications(labRequests, context.store.models);
+        labRequest => {
+          createLabRequestNotifications(labRequest.attributes, context.store.models);
         },
       );
       // Send out queued certificate notifications
