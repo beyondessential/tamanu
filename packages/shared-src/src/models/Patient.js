@@ -72,4 +72,31 @@ export class Patient extends Model {
     });
     return patients.map(({ id }) => id);
   }
+
+  async getLabRequests(queryOptions) {
+    return this.sequelize.models.LabRequest.findAll({
+      raw: true,
+      nest: true,
+      ...queryOptions,
+      include: [
+        { association: 'requestedBy' },
+        {
+          association: 'tests',
+          include: [{ association: 'labTestMethod' }, { association: 'labTestType' }],
+        },
+        { association: 'laboratory' },
+        {
+          association: 'encounter',
+          required: true,
+          include: [
+            { association: 'examiner' },
+            {
+              association: 'patient',
+              where: { id: this.id },
+            },
+          ],
+        },
+      ],
+    });
+  }
 }
