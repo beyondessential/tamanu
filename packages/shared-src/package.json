@@ -24,6 +24,7 @@
   "dependencies": {
     "@casl/ability": "^3.0.0",
     "@pathcheck/vds-sdk": "^0.0.6",
+    "@react-pdf/renderer": "^2.1.1",
     "@tupaia/api-client": "2.1.1",
     "await-to-js": "^2.0.1",
     "babel-jest": "^24.5.0",

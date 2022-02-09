@@ -8,6 +8,11 @@
   "repository": "git@github.com:beyondessential/tamanu.git",
   "author": "Beyond Essential Systems Pty. Ltd.",
   "license": "SEE LICENSE IN license",
+  "pkg": {
+    "assets": [
+      "../shared/**/*"
+    ]
+  },
   "scripts": {
     "build": "concurrently \"npm run build-main\" \"npm run build-renderer\"",
     "build-main": "cross-env NODE_ENV=production CONFIG=webpack.config.main.prod node babel-register-pack",
@@ -116,6 +121,7 @@
   "devDependencies": {
     "@beyondessential/eslint-config-js": "^1.1.0",
     "@emotion/core": "^10.0.9",
+    "@react-pdf/renderer": "^2.1.1",
     "@storybook/addon-actions": "^5.0.1",
     "@storybook/addon-links": "^5.0.1",
     "@storybook/addons": "^5.0.1",
