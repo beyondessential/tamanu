@@ -1,6 +1,6 @@
 import config from 'config';
 import moment from 'moment';
-import { Op } from 'sequelize';
+import { Op, Sequelize } from 'sequelize';
 
 import { ScheduledTask } from 'shared/tasks';
 import { log } from 'shared/services/logging';
@@ -49,7 +49,7 @@ export class MedicationDiscontinuer extends ScheduledTask {
     const values = {
       discontinued: true,
       discontinuing_reason: 'Finished treatment',
-      updated_at: moment(),
+      updated_at: Sequelize.literal('CURRENT_TIMESTAMP'),
     };
 
     // Find all medications that:
