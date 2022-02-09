@@ -139,38 +139,36 @@ export const PaginatedForm = ({
   const isLast = screenIndex === maxIndex;
 
   return (
-    <>
-      <Form
-        onSubmit={onSubmitForm}
-        render={({ submitForm, values }) => {
-          if (screenIndex <= maxIndex) {
-            const screenComponent = formScreens.find((screen, i) =>
-              i === screenIndex ? screen : null,
-            );
-
-            return (
-              <>
-                <FormStepper
-                  screenIndex={screenIndex}
-                  handleStep={handleStep}
-                  screens={formScreens}
-                />
-                <FormScreen
-                  screenComponent={screenComponent}
-                  values={values}
-                  onStepForward={onStepForward}
-                  isLast={isLast}
-                  onStepBack={screenIndex > 0 ? onStepBack : null}
-                />
-              </>
-            );
-          }
+    <Form
+      onSubmit={onSubmitForm}
+      render={({ submitForm, values }) => {
+        if (screenIndex <= maxIndex) {
+          const screenComponent = formScreens.find((screen, i) =>
+            i === screenIndex ? screen : null,
+          );
 
           return (
-            <SummaryScreen onStepBack={onStepBack} submitForm={submitForm} onCancel={onCancel} />
+            <>
+              <FormStepper
+                screenIndex={screenIndex}
+                handleStep={handleStep}
+                screens={formScreens}
+              />
+              <FormScreen
+                screenComponent={screenComponent}
+                values={values}
+                onStepForward={onStepForward}
+                isLast={isLast}
+                onStepBack={screenIndex > 0 ? onStepBack : null}
+              />
+            </>
           );
-        }}
-      />
-    </>
+        }
+
+        return (
+          <SummaryScreen onStepBack={onStepBack} submitForm={submitForm} onCancel={onCancel} />
+        );
+      }}
+    />
   );
 };

@@ -134,7 +134,8 @@ const RecordDeathSection = memo(({ patient, readonly }) => {
 
   return (
     <>
-      <Button variant="contained" color="primary" onClick={openModal}>
+      {/* Todo: enable death form modal @see https://linear.app/bes/issue/WAITM-34/update-record-death-form-in-desktop */}
+      <Button variant="contained" color="primary" onClick={openModal} disabled>
         Record death
       </Button>
       <DeathModal disabled={readonly} open={isModalOpen} onClose={closeModal} patient={patient} />

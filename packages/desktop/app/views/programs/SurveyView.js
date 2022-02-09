@@ -101,8 +101,8 @@ const useCalculatedFormValues = (components, values, setFieldValue) => {
     const calculatedValues = runCalculations(components, values);
     // write values that have changed back into answers
     Object.entries(calculatedValues)
-    .filter(([k, v]) => values[k] !== v)
-    .map(([k, v]) => setFieldValue(k, v));
+      .filter(([k, v]) => values[k] !== v)
+      .map(([k, v]) => setFieldValue(k, v));
   }, [components, values, setFieldValue]);
 };
 
@@ -134,7 +134,6 @@ export const SurveyScreenPaginator = ({
         patient={patient}
         components={screenComponents}
         onStepForward={onStepForward}
-        screenIndex={screenIndex}
         onStepBack={screenIndex > 0 ? onStepBack : onCancel}
       />
     );
