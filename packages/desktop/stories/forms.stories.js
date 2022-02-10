@@ -71,6 +71,7 @@ storiesOf('Forms', module).add('DeathForm', () => {
         open={isModalOpen}
         onClose={closeModal}
         onSave={handleSave}
+        patient={PATIENTS[0]}
         practitionerSuggester={practitionerSuggester}
         icd10Suggester={icd10Suggester}
         facilitySuggester={facilitySuggester}
