@@ -10,10 +10,11 @@ const filterFromSurveyResponseAnswer = (records, responseIds) => {
 };
 
 const filterFromEncounter = (records, responseIds) => {
-  const filteredRecords = [];
-
-  records.forEach(record => {
-    const filteredResponses = record.data.surveyResponses.map(response => {
+return records.map(record => ({
+  ...record,
+  data: {
+    ...record.data,
+    surveyResponses: record.data.surveyResponses.map(response => {
       // Response should not contain answers
       if (responseIds.includes(response.data.id)) {
         // Overwrite only response.data.answers
@@ -25,16 +26,9 @@ const filterFromEncounter = (records, responseIds) => {
 
       // Don't filter response
       return response;
-    });
-
-    // Overwrite only record.data.surveyResponses
-    filteredRecords.push({
-      ...record,
-      data: { ...record.data, surveyResponses: filteredResponses },
-    });
-  });
-
-  return filteredRecords;
+    }),
+  },
+}));
 };
 
 // This will return a new array after filtering all SurveyResponseAnswers
