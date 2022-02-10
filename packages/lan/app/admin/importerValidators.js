@@ -126,6 +126,7 @@ const surveySchema = baseSchema.shape({
     .string()
     .required()
     .oneOf(['programs', 'referral', 'obsolete']),
+  isSensitive: yup.boolean().required(),
 });
 
 const validationSchemas = {
