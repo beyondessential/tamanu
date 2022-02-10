@@ -290,7 +290,7 @@ describe('Sync API', () => {
         });
         expect(result).toHaveSucceeded();
         expect(result.body.records.length).toBe(2);
-        expect(result.body.records[1].data.name).toBe(sensitiveSurveyResponseAnswer.name);
+        expect(result.body.records[1].data.id).toBe(sensitiveSurveyResponseAnswer.id);
       });
 
       it('should filter SurveyResponseAnswers on channel surveyResponseAnswer', async () => {
@@ -300,7 +300,7 @@ describe('Sync API', () => {
         });
         expect(result).toHaveSucceeded();
         expect(result.body.records.length).toBe(1);
-        expect(result.body.records[0].data.name).not.toBe(sensitiveSurveyResponseAnswer.name);
+        expect(result.body.records[0].data.id).not.toBe(sensitiveSurveyResponseAnswer.id);
       });
 
       it('should filter SurveyResponseAnswers on channel patient/:patientId/encounter', async () => {
@@ -310,7 +310,7 @@ describe('Sync API', () => {
         });
         expect(result).toHaveSucceeded();
         expect(result.body.records.length).toBe(1);
-        expect(result.body.records[0].data.name).not.toBe(sensitiveSurveyResponseAnswer.name);
+        expect(result.body.records[0].data.id).not.toBe(sensitiveSurveyResponseAnswer.id);
       });
     });
 
