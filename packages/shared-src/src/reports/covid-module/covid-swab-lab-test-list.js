@@ -119,7 +119,7 @@ const getLabTests = async (models, parameters) => {
   });
 };
 
-const getFijiCovidAnswers = async (models, parameters, { surveyId }) => {
+const getFijiCovidAnswers = async (models, parameters, { surveyId, dateFormat }) => {
   // Use the latest survey responses per patient above to get the corresponding answers
   const answers = await models.SurveyResponseAnswer.findAll({
     where: parametersToSurveyResponseSqlWhere(parameters, { surveyId }),
@@ -144,7 +144,10 @@ const getFijiCovidAnswers = async (models, parameters, { surveyId }) => {
     ],
   });
 
-  return answers;
+  const components = await models.SurveyScreenComponent.getComponentsForSurvey(surveyId);
+  return transformAnswers(models, answers, components, {
+    dateFormat,
+  });
 };
 
 // Find latest survey response within date range using the answers.
@@ -291,9 +294,8 @@ export const baseDataGenerator = async (
   { surveyId, reportColumnTemplate, surveyQuestionCodes, dateFormat = 'DD-MM-YYYY' },
 ) => {
   const labTests = await getLabTests(models, parameters);
-  const answers = await getFijiCovidAnswers(models, parameters, { surveyId });
-  const components = await models.SurveyScreenComponent.getComponentsForSurvey(surveyId);
-  const transformedAnswers = await transformAnswers(models, answers, components, {
+  const transformedAnswers = await getFijiCovidAnswers(models, parameters, {
+    surveyId,
     dateFormat,
   });
 
