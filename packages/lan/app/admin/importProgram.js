@@ -244,6 +244,7 @@ export function importProgram({ file, whitelist }) {
           name: `${prefix}${md.name}`,
           programId: programRecord.data.id,
           surveyType: md.surveyType,
+          isSensitive: md.isSensitive,
         },
         'Metadata',
         md.__rownum__ + 1,
