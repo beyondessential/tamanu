@@ -176,16 +176,11 @@ describe('Sync API', () => {
       const result = await app.get(`/v1/sync/documentMetadata?since=0`);
       expect(result).toHaveSucceeded();
 
-      const { body } = result;
-      expect(body.count).toBeGreaterThan(0);
-      expect(body).toHaveProperty('records');
-      expect(body).toHaveProperty('cursor');
-      expect(body.records.length).toBeGreaterThanOrEqual(2);
-
-      const withDate = body.records.find(({ data: { name } }) => name === 'with');
+      const { body: { records } } = result;
+      const withDate = records.find(({ data: { name } }) => name === 'with');
       expect(withDate).toBeTruthy();
       expect(withDate.data).toHaveProperty('documentCreatedAt');
-      const withoutDate = body.records.find(({ data: { name } }) => name === 'without');
+      const withoutDate = records.find(({ data: { name } }) => name === 'without');
       expect(withoutDate).toBeTruthy();
       expect(withoutDate.data).not.toHaveProperty('documentCreatedAt');
     });
