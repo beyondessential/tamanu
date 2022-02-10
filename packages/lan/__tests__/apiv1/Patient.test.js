@@ -4,6 +4,7 @@ import {
   createDummyPatient,
   randomReferenceId,
 } from 'shared/demoData/patients';
+import { fakePatient } from 'shared/test-helpers/fake';
 import { createTestContext } from '../utilities';
 
 describe('Patient', () => {
@@ -189,7 +190,30 @@ describe('Patient', () => {
   test.todo('should get a list of patient referrals');
 
   describe('Death', () => {
-    test.todo('should mark a patient as dead');
-    test.todo('should not mark a dead patient as dead');
+    it('should mark a patient as dead', async () => {
+      const { Patient } = models;
+      const { id } = await Patient.create(fakePatient('alive-1'));
+
+      const dod = new Date();
+      const result = await app.post(`/v1/patient/${id}/death`).send({
+        date: dod,
+      });
+      expect(result).toHaveSucceeded();
+
+      const patient = await Patient.findByPk(id);
+      expect(patient.dateOfDeath).toEqual(dod);
+    });
+
+    it('should not mark a dead patient as dead', async () => {
+      const { Patient } = models;
+      const { id } = await Patient.create(fakePatient('dead-1'));
+
+      const result = await app.post(`/v1/patient/${id}/death`).send({
+        date: new Date(),
+      });
+      expect(result).not.toHaveSucceeded();
+    });
+
+    test.todo('should reject marking as dead with insufficient permissions');
   });
 });
