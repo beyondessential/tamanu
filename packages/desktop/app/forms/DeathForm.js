@@ -1,9 +1,13 @@
 import React from 'react';
+import * as yup from 'yup';
 import { Typography } from '@material-ui/core';
 import styled from 'styled-components';
 import MuiBox from '@material-ui/core/Box';
 import { FormGrid } from '../components/FormGrid';
+import { FormSeparatorLine } from '../components/FormSeparatorLine';
 import {
+  Button,
+  OutlinedButton,
   Field,
   AutocompleteField,
   DateTimeField,
@@ -14,9 +18,7 @@ import {
   NumberField,
   SelectField,
   PaginatedForm,
-} from '../components/Field';
-import { FormSeparatorLine } from '../components/FormSeparatorLine';
-import { Button, OutlinedButton } from '../components';
+} from '../components';
 
 const binaryOptions = [
   { value: 'yes', label: 'Yes' },
@@ -124,7 +126,17 @@ const mannerOfDeathOptions = Object.values(MANNER_OF_DEATHS).map(type => ({
 export const DeathForm = React.memo(
   ({ onCancel, onSubmit, practitionerSuggester, icd10Suggester, facilitySuggester }) => {
     return (
-      <PaginatedForm onSubmit={onSubmit} onCancel={onCancel} SummaryScreen={ConfirmScreen}>
+      <PaginatedForm
+        onSubmit={onSubmit}
+        onCancel={onCancel}
+        SummaryScreen={ConfirmScreen}
+        validationSchema={yup.object().shape({
+          causeOfDeath: yup.string().required(),
+          causeOfDeathInterval: yup.string().required(),
+          clinicianId: yup.string().required(),
+          timeOfDeath: yup.string().required(),
+        })}
+      >
         <FormGrid columns={2}>
           <Field
             name="causeOfDeath"
