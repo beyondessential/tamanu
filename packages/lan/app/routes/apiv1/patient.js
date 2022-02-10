@@ -426,7 +426,7 @@ patientRoute.get(
             WHEN patients.date_of_death IS NOT NULL THEN 'deceased'
             WHEN encounters.encounter_type = 'emergency' THEN 'emergency'
             WHEN encounters.encounter_type = 'clinic' THEN 'outpatient'
-            WHEN encounters.encounter_type IS NOT NULL THEN encounters.encounter_type
+            WHEN encounters.encounter_type IS NOT NULL THEN 'inpatient'
             ELSE NULL
           END AS patient_status,
           department.id AS department_id,
