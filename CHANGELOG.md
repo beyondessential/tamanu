@@ -77,6 +77,7 @@
 ### Features ⭐
 
 - Central server has the ability to check available disk space based on current config.
+- Lan servers will auto-discontinue medications after their end date is due (based on facility).
 - Replace the bottom half of certificates with a configurable image
 
 ### Tweaks ⚖️
