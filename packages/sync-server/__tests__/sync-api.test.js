@@ -290,6 +290,7 @@ describe('Sync API', () => {
         });
         expect(result).toHaveSucceeded();
         expect(result.body.records.length).toBe(2);
+        expect(result.body.records[1].data.name).toBe(sensitiveSurveyResponseAnswer.name);
       });
 
       it('should filter SurveyResponseAnswers on channel surveyResponseAnswer', async () => {
