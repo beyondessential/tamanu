@@ -23,6 +23,9 @@ export class Survey extends BaseModel implements ISurvey {
 
   components: any;
 
+  @Column({ nullable: false, default: false })
+  isSensitive: boolean;
+
   getComponents(): Promise<ISurveyScreenComponent[]> {
     const repo = Database.models.SurveyScreenComponent.getRepository();
     return repo.find({
