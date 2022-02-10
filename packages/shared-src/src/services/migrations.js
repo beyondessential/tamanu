@@ -2,6 +2,9 @@ import Umzug from 'umzug';
 import { readdirSync } from 'fs';
 import path from 'path';
 
+// before this, we just cut our losses and accept irreversible migrations
+const LAST_REVERSIBLE_MIGRATION = '048_changeNoteRecordTypeColumn.js';
+
 export function createMigrationInterface(log, sequelize) {
   // ie, shared/src/migrations
   const migrationsDir = path.join(__dirname, '..', 'migrations');
@@ -34,7 +37,7 @@ export function createMigrationInterface(log, sequelize) {
   return umzug;
 }
 
-export async function migrateUp(log, sequelize) {
+async function migrateUp(log, sequelize) {
   const migrations = createMigrationInterface(log, sequelize);
 
   const pending = await migrations.pending();
@@ -47,10 +50,10 @@ export async function migrateUp(log, sequelize) {
   }
 }
 
-export async function migrateDown(log, sequelize) {
+async function migrateDown(log, sequelize, options) {
   const migrations = createMigrationInterface(log, sequelize);
   log.info(`Reverting 1 migration...`);
-  const reverted = await migrations.down();
+  const reverted = await migrations.down(options);
   if (Array.isArray(reverted)) {
     if (reverted.length === 0) {
       log.warn(`No migrations to revert.`);
@@ -82,6 +85,8 @@ export async function migrate(log, sequelize, options) {
       return migrateUp(log, sequelize);
     case 'down':
       return migrateDown(log, sequelize);
+    case 'downToLastReversibleMigration':
+      return migrateDown(log, sequelize, { to: LAST_REVERSIBLE_MIGRATION });
     case 'redoLatest':
       await migrateDown(log, sequelize);
       return migrateUp(log, sequelize);
