@@ -24,11 +24,6 @@ patientDeath.post(
       }),
     });
     const body = await schema.validate(req.body);
-
-    const schema = yup.object().shape({
-      date: yup.date().required(),
-    });
-    const body = await schema.validate(req.body);
     
     const patient = await Patient.findByPk(patientId);
     if (!patient) throw new NotFoundError('Patient not found');

@@ -199,6 +199,7 @@ describe('Patient', () => {
       const dod = new Date();
       const result = await app.post(`/v1/patient/${id}/death`).send({
         date: dod,
+        // TODO: add physician
       });
       expect(result).toHaveSucceeded();
 
@@ -212,11 +213,12 @@ describe('Patient', () => {
 
       const result = await app.post(`/v1/patient/${id}/death`).send({
         date: new Date(),
+        // TODO: add physician
       });
       expect(result).not.toHaveSucceeded();
     });
 
-    it('should reject with no date', async () => {
+    it('should reject with no data', async () => {
       const { Patient } = models;
       const { id } = await Patient.create(fakePatient('alive-2'));
 
@@ -224,7 +226,7 @@ describe('Patient', () => {
       expect(result).not.toHaveSucceeded();
     });
 
-    it('should reject with an invalid date', async () => {
+    it('should reject with an invalid data', async () => {
       const { Patient } = models;
       const { id } = await Patient.create(fakePatient('alive-3'));
 
@@ -234,6 +236,7 @@ describe('Patient', () => {
       expect(result).not.toHaveSucceeded();
     });
 
+    test.todo('should mark active encounters as discharged');
     test.todo('should reject marking as dead with insufficient permissions');
   });
 });
