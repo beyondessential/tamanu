@@ -365,6 +365,7 @@
     }
   },
   "tupaiaApiClient": {},
+  "s3": {},
   "scheduledReports": [],
   "disk": {
     "diskPath": "C:/",
