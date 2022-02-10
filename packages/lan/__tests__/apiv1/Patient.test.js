@@ -214,6 +214,24 @@ describe('Patient', () => {
       expect(result).not.toHaveSucceeded();
     });
 
+    it('should reject with no date', async () => {
+      const { Patient } = models;
+      const { id } = await Patient.create(fakePatient('alive-2'));
+
+      const result = await app.post(`/v1/patient/${id}/death`).send({});
+      expect(result).not.toHaveSucceeded();
+    });
+
+    it('should reject with an invalid date', async () => {
+      const { Patient } = models;
+      const { id } = await Patient.create(fakePatient('alive-3'));
+
+      const result = await app.post(`/v1/patient/${id}/death`).send({
+        date: 'this is not a date',
+      });
+      expect(result).not.toHaveSucceeded();
+    });
+
     test.todo('should reject marking as dead with insufficient permissions');
   });
 });
