@@ -29,7 +29,7 @@ export async function createLabRequestNotifications(labRequest, models) {
     labRequest.labTestCategoryId === config?.notifications?.certificates?.labTestCategoryId &&
     labRequest.status === LAB_REQUEST_STATUSES.PUBLISHED
   ) {
-    const encounter = await models.Encounter.findOne({ where: { id: labRequest.encounterId } });
+    const encounter = await models.Encounter.findByPk(labRequest.encounterId);
 
     // Bulk create action sets off a hook to send these out
     await models.CertificateNotification.bulkCreate([
