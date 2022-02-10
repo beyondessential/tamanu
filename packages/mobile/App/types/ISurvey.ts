@@ -8,6 +8,8 @@ export interface ISurvey {
   name?: string;
 
   surveyType?: SurveyTypes;
+
+  isSensitive: boolean;
 }
 
 export enum SurveyTypes {
