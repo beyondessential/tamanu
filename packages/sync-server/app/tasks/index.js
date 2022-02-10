@@ -6,6 +6,7 @@ import { ReportRequestProcessor } from './ReportRequestProcessor';
 import { ReportRequestScheduler } from './ReportRequestScheduler';
 import { VdsNcSignerExpiryChecker } from './VdsNcSignerExpiryChecker';
 import { VdsNcSignerRenewalChecker } from './VdsNcSignerRenewalChecker';
+import { VdsNcSignerRenewalSender } from './VdsNcSignerRenewalSender';
 import { VdsNcDocumentSigningProcessor } from './VdsNcDocumentSigningProcessor';
 
 const TASKS = [
@@ -15,6 +16,7 @@ const TASKS = [
   VdsNcDocumentSigningProcessor,
   VdsNcSignerExpiryChecker,
   VdsNcSignerRenewalChecker,
+  VdsNcSignerRenewalSender,
 ];
 
 export async function startScheduledTasks(context) {

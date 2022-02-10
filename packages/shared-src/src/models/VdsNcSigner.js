@@ -39,6 +39,10 @@ export class VdsNcSigner extends Model {
           type: Sequelize.TEXT, // PKCS10 PEM
           allowNull: false,
         },
+        requestSentAt: {
+          type: Sequelize.DATE,
+          allowNull: true,
+        },
         certificate: {
           // issued by CSCA
           type: Sequelize.TEXT, // X.509 PEM

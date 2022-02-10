@@ -53,6 +53,7 @@ export class VdsNcSignerRenewalChecker extends ScheduledTask {
 
       const pending = await VdsNcSigner.findAll({
         where: {
+          requestSentAt: { [Op.is]: null },
           certificate: { [Op.is]: null },
           privateKey: { [Op.not]: null },
         },
@@ -76,27 +77,6 @@ export class VdsNcSignerRenewalChecker extends ScheduledTask {
         countryCode: config.icao.sign.countryCode3,
       });
       log.info(`Created new signer (CSR): ${newSigner.id}`);
-
-      const recipient = config.icao.csr.email?.recipient;
-      if (recipient) {
-        log.info(`Emailing CSR to ${recipient}`);
-        try {
-          await emailService.sendEmail({
-            to: recipient,
-            from: config.mailgun.from,
-            subject: config.icao.csr.subject,
-            content: config.icao.csr.body,
-            attachment: {
-              filename: 'Tamanu.csr',
-              data: Buffer.from(request),
-            },
-          });
-        } catch (e) {
-          log.error(`Failed to send CSR email: ${e}`);
-        }
-      } else {
-        log.info('No email recipient configured, skipping email');
-      }
     }
   }
 }
