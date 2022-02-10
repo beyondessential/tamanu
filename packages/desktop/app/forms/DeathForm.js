@@ -94,6 +94,7 @@ const PLACES = [
   'Industrial or construction area',
   'Bush or reserve',
   'Farm',
+  'Other',
 ];
 
 const placeOptions = Object.values(PLACES).map(type => ({
@@ -116,6 +117,10 @@ const mannerOfDeathOptions = Object.values(MANNER_OF_DEATHS).map(type => ({
   label: type,
   value: type,
 }));
+
+const mannerOfDeathVisibilityCriteria = {
+  mannerOfDeath: MANNER_OF_DEATHS.filter(x => x !== 'Disease'),
+};
 
 /**
  * onCancel: closes modal
@@ -247,14 +252,21 @@ export const DeathForm = React.memo(
             name="mannerOfDeathDate"
             label="What date did this external cause occur?"
             component={DateField}
+            visibilityCriteria={mannerOfDeathVisibilityCriteria}
           />
           <Field
             name="mannerOfDeathLocation"
             label="Where did this external cause occur?"
             component={SelectField}
             options={placeOptions}
+            visibilityCriteria={mannerOfDeathVisibilityCriteria}
           />
-          <Field name="mannerOfDeathOther" label="Other" component={TextField} />
+          <Field
+            name="mannerOfDeathOther"
+            label="Other"
+            component={TextField}
+            visibilityCriteria={{ mannerOfDeathLocation: 'Other' }}
+          />
         </FormGrid>
         <FormGrid columns={1}>
           <Field
