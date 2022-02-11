@@ -4,21 +4,16 @@ import { preprocessRecordSet } from '~/admin/preprocessRecordSet';
 const TEST_PROGRAMS_PATH = './__tests__/importers/test_programs.xlsx';
 
 describe('Importing programs', () => {
-  let resultInfo = null;
-  let recordGroups = null;
+  let rawData;
 
   beforeAll(async () => {
-    const rawData = await importProgram({
+    rawData = await importProgram({
       file: TEST_PROGRAMS_PATH,
     });
-
-    const { recordGroups: rg, ...rest } = await preprocessRecordSet(rawData);
-
-    resultInfo = rest;
-    recordGroups = rg;
   });
 
-  it('Should import a survey', () => {
+  it('Should import a survey', async () => {
+    const { recordGroups, ...resultInfo } = await preprocessRecordSet(rawData);
     const { records } = resultInfo.stats;
     expect(records).toHaveProperty('program', 1);
     expect(records).toHaveProperty('survey', 1);
