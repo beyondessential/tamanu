@@ -1,0 +1,24 @@
+import { Sequelize } from 'sequelize';
+import { SYNC_DIRECTIONS } from 'shared/constants';
+import { Model } from './Model';
+
+export class ReportDefinition extends Model {
+  static init({ primaryKey, ...options }) {
+    super.init(
+      {
+        id: primaryKey,
+      },
+      {
+        ...options,
+        syncConfig: { syncDirection: SYNC_DIRECTIONS.BIDIRECTIONAL },
+      },
+    );
+  }
+
+  static initRelations(models) {
+    this.hasMany(models.ReportDefinitionVersion, {
+      foreignKey: 'definitionId',
+      as: 'versions',
+    });
+  }
+}
