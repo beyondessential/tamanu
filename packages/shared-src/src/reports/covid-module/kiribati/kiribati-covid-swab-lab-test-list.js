@@ -3,14 +3,14 @@ import { baseDataGenerator } from '../covid-swab-lab-test-list';
 const SURVEY_ID = 'program-kiribaticovid19-kiribaticovidtestregistration';
 
 const SURVEY_QUESTION_CODES = {
-  'Patient contact number': 'KirCOVTest003',
-  'Patient head of household': 'KirCOVTest004',
-  Residence: 'KirCOVTest011',
-  'Does patient have symptoms': 'KirCOVTest006',
-  'If Yes, date of first symptom onset': 'KirCOVTest007',
-  Symptoms: 'KirCOVTest008',
-  'Is a COVID-19 test being done?': 'KirCOVTest010',
-  'Temporary testing site location': 'KirCOVTest002',
+  'Patient contact number': 'pde-KirCOVTest003',
+  'Patient head of household': 'pde-KirCOVTest004',
+  Residence: 'pde-KirCOVTest011',
+  'Does patient have symptoms': 'pde-KirCOVTest006',
+  'If Yes, date of first symptom onset': 'pde-KirCOVTest007',
+  Symptoms: 'pde-KirCOVTest008',
+  'Is a COVID-19 test being done?': 'pde-KirCOVTest010',
+  'Temporary testing site location': 'pde-KirCOVTest002',
 };
 
 const reportColumnTemplate = [
