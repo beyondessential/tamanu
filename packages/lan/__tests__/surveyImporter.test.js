@@ -1,3 +1,4 @@
+import { cloneDeep } from 'lodash';
 import { importProgram } from '~/admin/importProgram';
 import { preprocessRecordSet } from '~/admin/preprocessRecordSet';
 
@@ -22,6 +23,24 @@ describe('Importing programs', () => {
   });
 
   describe('Survey validation', () => {
+    it('Should ensure surveys have all required fields', async () => {
+      // Instead of preparing several different files, just copy and modify the raw data
+      const clonedRawData = cloneDeep(rawData);
+      const requiredSurveyFields = ['id', 'surveyType', 'isSensitive'];
+
+      // Use for...of instead of forEach to properly await each loop
+      for (const field of requiredSurveyFields) {
+        // Get a fresh object with all keys/values
+        clonedRawData[1].data = cloneDeep(rawData[1].data);
+
+        // Remove field
+        delete clonedRawData[1].data[field];
+
+        // Process record, run validation and expect error
+        const { recordGroups, ...resultInfo } = await preprocessRecordSet(clonedRawData);
+        expect(resultInfo.errors.length).toBe(1);
+      }
+    });
     test.todo('Should ensure questions all have a valid type');
     test.todo('Should ensure visibilityCriteria fields have valid syntax');
     test.todo('Should ensure validationCriteria fields have valid syntax');
