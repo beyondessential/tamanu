@@ -22,6 +22,28 @@
 
 - (left blank)
 
+## v1.12.3
+
+### Manual steps required after upgrade ⚙
+
+- Consider adding `kiribati-covid-swab-lab-test-list` to disabledReports.
+
+### Features ⭐
+
+- New report for Kiribati.
+
+### Tweaks ⚖️
+
+- (left blank)
+
+### Bug fixes 🐛
+
+- (left blank)
+
+### Infrastructure and maintenance 🛠
+
+- (left blank)
+
 ## v1.12.2
 
 ### Manual steps required after upgrade ⚙
