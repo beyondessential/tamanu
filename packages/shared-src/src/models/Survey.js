@@ -13,6 +13,11 @@ export class Survey extends Model {
           type: Sequelize.STRING,
           defaultValue: SURVEY_TYPES.PROGRAMS,
         },
+        isSensitive: {
+          type: Sequelize.BOOLEAN,
+          defaultValue: false,
+          allowNull: false,
+        },
       },
       {
         ...options,

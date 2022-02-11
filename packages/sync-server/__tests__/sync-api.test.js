@@ -9,10 +9,17 @@ import {
   fake,
   unsafeSetUpdatedAt,
   upsertAssociations,
+  fakeSurvey,
+  fakeSurveyResponse,
+  fakeSurveyResponseAnswer,
 } from 'shared/test-helpers';
 
 import { convertFromDbRecord, convertToDbRecord } from 'sync-server/app/convertDbRecord';
 import { createTestContext } from './utilities';
+import { SUPPORTED_CLIENT_VERSIONS } from '../app/middleware/versionCompatibility';
+
+const MIN_MOBILE_VERSION = SUPPORTED_CLIENT_VERSIONS['Tamanu Mobile'].min;
+const MIN_LAN_VERSION = SUPPORTED_CLIENT_VERSIONS['Tamanu LAN Server'].min;
 
 export const makeUpdatedAt = daysAgo =>
   format(subDays(new Date(), daysAgo), "yyyy-MM-dd'T'hh:mm:ss+00:00");
@@ -256,6 +263,83 @@ describe('Sync API', () => {
       expect(result).toHaveSucceeded();
       expect(result.body).toHaveProperty('count', expect.any(Number));
       expect(result.body).toHaveProperty('cursor', expect.any(String));
+    });
+
+    describe('Filters sensitive SurveyResponseAnswers', () => {
+      const patientId = uuidv4();
+      let encounterData;
+      let sensitiveSurveyResponseAnswer;
+
+      beforeAll(async () => {
+        await ctx.store.models.Encounter.destroy({ where: {}, force: true });
+        encounterData = await buildNestedEncounter(ctx.store, patientId);
+
+        // Get already created non sensitive survey to grab the programId
+        const nonSensitiveSurveyId = encounterData.surveyResponses[0].surveyId;
+        const nonSensitiveSurvey = await ctx.store.models.Survey.findByPk(nonSensitiveSurveyId);
+
+        // Create sensitive survey (with a response and answers) for test
+        const sensitiveSurvey = await ctx.store.models.Survey.create({
+          ...fakeSurvey(),
+          isSensitive: true,
+          programId: nonSensitiveSurvey.programId,
+        });
+        const sensitiveSurveyResponse = {
+          ...fakeSurveyResponse(),
+          encounterId: encounterData.id,
+          surveyId: sensitiveSurvey.id,
+        };
+        sensitiveSurveyResponseAnswer = {
+          ...fakeSurveyResponseAnswer(),
+          responseId: sensitiveSurveyResponse.id,
+          dataElementId: encounterData.surveyResponses[0].answers[0].dataElementId,
+        };
+
+        // Nest sensitive models inside test encounter
+        sensitiveSurveyResponse.answers = [sensitiveSurveyResponseAnswer];
+        encounterData.surveyResponses.push(sensitiveSurveyResponse);
+
+        // Add encounter and nested records to the DB
+        await ctx.store.models.Encounter.create(encounterData);
+        await upsertAssociations(ctx.store.models.Encounter, encounterData);
+      });
+
+      it('should not filter if client is lan server', async () => {
+        const result = await app.get('/v1/sync/surveyResponseAnswer?since=0').set({
+          'X-Tamanu-Client': 'Tamanu LAN Server',
+          'X-Version': MIN_LAN_VERSION,
+        });
+        expect(result).toHaveSucceeded();
+        expect(result.body.records.length).toBe(2);
+        expect(result.body.records[1].data.id).toBe(sensitiveSurveyResponseAnswer.id);
+      });
+
+      it('should filter SurveyResponseAnswers on channel surveyResponseAnswer', async () => {
+        const result = await app.get('/v1/sync/surveyResponseAnswer?since=0').set({
+          'X-Tamanu-Client': 'Tamanu Mobile',
+          'X-Version': MIN_MOBILE_VERSION,
+        });
+        expect(result).toHaveSucceeded();
+        expect(result.body.records.length).toBe(1);
+        expect(result.body.records[0].data.id).not.toBe(sensitiveSurveyResponseAnswer.id);
+      });
+
+      it('should filter SurveyResponseAnswers on channel patient/:patientId/encounter', async () => {
+        const result = await app.get(`/v1/sync/patient%2F${patientId}%2Fencounter?since=0`).set({
+          'X-Tamanu-Client': 'Tamanu Mobile',
+          'X-Version': MIN_MOBILE_VERSION,
+        });
+        expect(result).toHaveSucceeded();
+        expect(result.body.records.length).toBe(1);
+        expect(result.body.records[0].data.id).not.toBe(sensitiveSurveyResponseAnswer.id);
+      });
+
+      it('should filter if client is not lan server (or not specified)', async () => {
+        const result = await app.get(`/v1/sync/patient%2F${patientId}%2Fencounter?since=0`);
+        expect(result).toHaveSucceeded();
+        expect(result.body.records.length).toBe(1);
+        expect(result.body.records[0].data.id).not.toBe(sensitiveSurveyResponseAnswer.id);
+      });
     });
 
     describe('Limits', () => {

@@ -62,6 +62,7 @@ export function fakeSurvey(prefix = 'test-') {
   return {
     programId: null,
     surveyType: 'programs',
+    isSensitive: false,
     ...fakeStringFields(`${prefix}survey_${id}_`, ['id', 'code', 'name']),
   };
 }
