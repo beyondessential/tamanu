@@ -89,6 +89,11 @@ export const REPORT_DEFINITIONS = [
     allFacilities: true,
   },
   {
+    name: 'Kiribati COVID-19 Test - Line list',
+    id: 'kiribati-covid-swab-lab-test-list',
+    allFacilities: true,
+  },
+  {
     name: 'COVID-19 Tests - Summary',
     id: 'covid-swab-lab-tests-summary',
     parameters: [{ parameterField: 'VillageField' }, { parameterField: 'LabTestLaboratoryField' }],
