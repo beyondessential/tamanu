@@ -12,6 +12,8 @@ import { renameObjectKeys } from '~/utils/renameObjectKeys';
 import { createPatientFilters } from '../../utils/patientFilters';
 import { patientVaccineRoutes } from './patient/patientVaccine';
 import { patientDocumentMetadataRoutes } from './patient/patientDocumentMetadata';
+
+import { patientDeath } from './patient/patientDeath';
 import { patientProfilePicture } from './patient/patientProfilePicture';
 import { activeCovid19PatientsHandler } from '../../routeHandlers';
 
@@ -139,6 +141,7 @@ patientRelations.get(
 );
 
 patientRelations.use(patientProfilePicture);
+patientRelations.use(patientDeath);
 
 patientRelations.get(
   '/:id/referrals',
@@ -419,6 +422,13 @@ patientRoute.get(
           patients.*,
           encounters.id AS encounter_id,
           encounters.encounter_type,
+          CASE
+            WHEN patients.date_of_death IS NOT NULL THEN 'deceased'
+            WHEN encounters.encounter_type = 'emergency' THEN 'emergency'
+            WHEN encounters.encounter_type = 'clinic' THEN 'outpatient'
+            WHEN encounters.encounter_type IS NOT NULL THEN 'inpatient'
+            ELSE NULL
+          END AS patient_status,
           department.id AS department_id,
           department.name AS department_name,
           location.id AS location_id,

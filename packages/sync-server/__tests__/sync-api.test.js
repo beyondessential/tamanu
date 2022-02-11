@@ -157,6 +157,8 @@ describe('Sync API', () => {
 
       const firstRecord = body.records[0];
       const { updatedAt, ...oldestWithoutUpdatedAt } = OLDEST_PATIENT;
+      delete oldestWithoutUpdatedAt.data.dateOfDeath; // model has a null, sync response omits null dates
+
       expect(firstRecord).toEqual(JSON.parse(JSON.stringify(oldestWithoutUpdatedAt)));
       expect(firstRecord).not.toHaveProperty('channel');
       expect(firstRecord.data).not.toHaveProperty('channel');
@@ -164,6 +166,23 @@ describe('Sync API', () => {
       // this database implementation detail should be hidden
       // from the api consumer
       expect(firstRecord).not.toHaveProperty('index');
+    });
+
+    it('should omit null dates', async () => {
+      const { DocumentMetadata } = ctx.store.models;
+      DocumentMetadata.create({ name: 'with', type: 'application/pdf', attachmentId: 'fake-id-1', documentCreatedAt: new Date });
+      DocumentMetadata.create({ name: 'without', type: 'application/pdf', attachmentId: 'fake-id-2' });
+      
+      const result = await app.get(`/v1/sync/documentMetadata?since=0`);
+      expect(result).toHaveSucceeded();
+
+      const { body: { records } } = result;
+      const withDate = records.find(({ data: { name } }) => name === 'with');
+      expect(withDate).toBeTruthy();
+      expect(withDate.data).toHaveProperty('documentCreatedAt');
+      const withoutDate = records.find(({ data: { name } }) => name === 'without');
+      expect(withoutDate).toBeTruthy();
+      expect(withoutDate.data).not.toHaveProperty('documentCreatedAt');
     });
 
     it('should not return a count if noCount=true', async () => {
@@ -223,9 +242,11 @@ describe('Sync API', () => {
 
       // assert
       expect(firstCursor.split(';')[1]).toEqual(earlierIdRecord.id);
-      expectDeepSyncRecordsMatch([earlierIdRecord], firstRecords);
+      expectDeepSyncRecordsMatch([earlierIdRecord], firstRecords, { nullableDateFields: ['dateOfDeath'] });
       expect(secondCursor.split(';')[1]).toEqual(laterIdRecord.id);
-      expectDeepSyncRecordsMatch([laterIdRecord], secondRecords);
+      expectDeepSyncRecordsMatch([laterIdRecord], secondRecords, {
+        nullableDateFields: ['dateOfDeath'],
+      });
     });
 
     it('should have count and cursor fields', async () => {
