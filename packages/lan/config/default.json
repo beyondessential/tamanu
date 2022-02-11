@@ -59,7 +59,8 @@
   },
   "auth": {
     "saltRounds": 12,
-    "tokenDuration": "1h"
+    "tokenDuration": "1h",
+    "useHardcodedPermissions": true
   },
   "survey": {
     "defaultCodes": {
@@ -70,6 +71,12 @@
   "serverFacilityId": "",
   "debugging": {
     "requestFailureRate": 0
+  },
+  "schedules": {
+    "medicationDiscontinuer": {
+      // every day at 12:01 AM
+      "schedule": "1 0 * * *"
+    }
   },
   "questionCodeIds": {
     "passportNumber": "pde-FijCOVRDT005",

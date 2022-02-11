@@ -58,6 +58,7 @@
     "tokenDuration": "1h",
     "reportNoUserError": false,
     "allowDummyToken": false,
+    "useHardcodedPermissions": true,
     "initialUser": {
       "email": "admin@tamanu.io",
       "displayName": "Initial Admin",
@@ -95,7 +96,8 @@
       "host": "http://uat-vra.digitalfiji.gov.fj:8786",
       "expectAccessToken": ["set this value in local.json"],
       // refresh the token if it's within tokenExpiryMarginMs milliseconds of expiry
-      "tokenExpiryMarginMs": 60000
+      "tokenExpiryMarginMs": 60000,
+      "flagInsteadOfDeleting": true
     },
     "fijiVps": {
       "enabled": false
@@ -166,6 +168,10 @@
         "dateOfBirthExact": {
           "shortLabel": "DOB exact",
           "longLabel": "Date of birth exact"
+        },
+        "dateOfDeath": {
+          "shortLabel": "Death",
+          "longLabel": "Date of death"
         },
         "bloodType": {
           "shortLabel": "Blood type",
@@ -363,6 +369,7 @@
     }
   },
   "tupaiaApiClient": {},
+  "s3": {},
   "scheduledReports": [],
   "disk": {
     "diskPath": "C:/",

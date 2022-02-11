@@ -1,6 +1,6 @@
 {
   "name": "lan",
-  "version": "1.12.2",
+  "version": "1.12.3",
   "description": "Lan server for Tamanu desktop app",
   "homepage": "https://github.com/beyondessential/tamanu.git#readme",
   "repository": "git@github.com:beyondessential/tamanu.git",
@@ -86,6 +86,7 @@
     "moment": "^2.21.0",
     "morgan": "^1.9.0",
     "multiparty": "^4.2.1",
+    "nanoid": "^3.1.32",
     "node-fetch": "^2.6.1",
     "node-schedule": "^1.3.2",
     "pg": "^8.5.1",
