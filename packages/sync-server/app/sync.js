@@ -85,15 +85,15 @@ syncRoutes.get(
       limit: limitNum,
     });
 
-    // Check if request is from mobile client
+    // Check if request is from the lan server
     const clientType = req.header('X-Tamanu-Client');
-    const isMobileClient = clientType === 'Tamanu Mobile';
+    const isLanServer = clientType === 'Tamanu LAN Server';
 
     // Check if channel syncs down SurveyResponseAnswers (happens on two channels)
     const hasSurveyAnswers =
       channel === 'surveyResponseAnswer' || /^patient\/\S+\/encounter$/.test(channel);
 
-    const shouldFilterAnswers = isMobileClient && hasSurveyAnswers;
+    const shouldFilterAnswers = !isLanServer && hasSurveyAnswers;
     const filteredRecords = shouldFilterAnswers
       ? await removeSensitiveAnswers(channel, store.models, records)
       : records;

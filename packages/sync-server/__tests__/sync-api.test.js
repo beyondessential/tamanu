@@ -283,7 +283,7 @@ describe('Sync API', () => {
         await upsertAssociations(ctx.store.models.Encounter, encounterData);
       });
 
-      it('should not filter if client type is not mobile', async () => {
+      it('should not filter if client is lan server', async () => {
         const result = await app.get('/v1/sync/surveyResponseAnswer?since=0').set({
           'X-Tamanu-Client': 'Tamanu LAN Server',
           'X-Version': MIN_LAN_VERSION,
@@ -308,6 +308,13 @@ describe('Sync API', () => {
           'X-Tamanu-Client': 'Tamanu Mobile',
           'X-Version': MIN_MOBILE_VERSION,
         });
+        expect(result).toHaveSucceeded();
+        expect(result.body.records.length).toBe(1);
+        expect(result.body.records[0].data.id).not.toBe(sensitiveSurveyResponseAnswer.id);
+      });
+
+      it('should filter if client is not lan server (or not specified)', async () => {
+        const result = await app.get(`/v1/sync/patient%2F${patientId}%2Fencounter?since=0`);
         expect(result).toHaveSucceeded();
         expect(result.body.records.length).toBe(1);
         expect(result.body.records[0].data.id).not.toBe(sensitiveSurveyResponseAnswer.id);
