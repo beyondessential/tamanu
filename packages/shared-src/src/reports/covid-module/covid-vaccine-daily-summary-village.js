@@ -18,6 +18,22 @@ const reportColumnTemplate = [
   { title: 'COVIDVac6', accessor: data => data.COVIDVac6 },
   { title: 'COVIDVac7', accessor: data => data.COVIDVac7 },
   { title: 'COVIDVac8', accessor: data => data.COVIDVac8 },
+  { title: 'COVIDVac9', accessor: data => data.COVIDVac9 },
+  { title: 'COVIDVac10', accessor: data => data.COVIDVac10 },
+  { title: 'COVIDVac11', accessor: data => data.COVIDVac11 },
+  { title: 'COVIDVac12', accessor: data => data.COVIDVac12 },
+  { title: 'COVIDVac13', accessor: data => data.COVIDVac13 },
+  { title: 'COVIDVac14', accessor: data => data.COVIDVac14 },
+  { title: 'COVIDVac15', accessor: data => data.COVIDVac15 },
+  { title: 'COVIDVac16', accessor: data => data.COVIDVac16 },
+  { title: 'COVIDVac17', accessor: data => data.COVIDVac17 },
+  { title: 'COVIDVac18', accessor: data => data.COVIDVac18 },
+  { title: 'COVIDVac19', accessor: data => data.COVIDVac19 },
+  { title: 'COVIDVac20', accessor: data => data.COVIDVac20 },
+  { title: 'COVIDVac21', accessor: data => data.COVIDVac21 },
+  { title: 'COVIDVac22', accessor: data => data.COVIDVac22 },
+  { title: 'COVIDVac23', accessor: data => data.COVIDVac23 },
+  { title: 'COVIDVac24', accessor: data => data.COVIDVac24 },
 ];
 
 // tamanu name -> tupaia code
@@ -81,7 +97,7 @@ function parametersToSqlWhere(parameters) {
       },
       {
         '$scheduledVaccine.label$': {
-          [Op.in]: ['COVAX', 'COVID-19 AZ'],
+          [Op.in]: ['COVID-19-AZ', 'COVID-19 AZ', 'Covid-19 Pfizer'],
         },
       },
     );
@@ -138,7 +154,8 @@ async function queryCovidVaccineListData(models, parameters) {
         village: village?.name ?? 'Unknown Village',
         dose1: 'No',
         dose2: 'No',
-        vaccineLabel: label,
+        booster: 'No',
+        vaccineLabel: `${label.includes('AZ') ? 'AZ' : 'PF'}`,
         sex,
       };
     }
@@ -172,6 +189,15 @@ async function queryCovidVaccineListData(models, parameters) {
         acc[patientId].dose2PatientOver65 = patientOver65AtDoseDate;
       }
     }
+    if (schedule === 'booster') {
+      // if multiple doses use earliest
+      if (!acc[patientId].boosterDate || doseDate < acc[patientId].boosterDate) {
+        acc[patientId].booster = 'Yes';
+        acc[patientId].boosterDate = doseDate;
+        acc[patientId].boosterDateTime = doseDateTime;
+        acc[patientId].boosterPatientOver65 = patientOver65AtDoseDate;
+      }
+    }
     return acc;
   }, {});
   return Object.values(patients);
@@ -185,7 +211,7 @@ function groupByDateAndVillage(data, now) {
   for (const item of data) {
     if (!item.tupaiaEntityCode) continue;
 
-    for (const doseKey of ['dose1', 'dose2']) {
+    for (const doseKey of ['dose1', 'dose2', 'booster']) {
       const doseGiven = item[doseKey] === 'Yes';
       if (!doseGiven) continue;
 
@@ -209,35 +235,63 @@ function groupByDateAndVillage(data, now) {
           COVIDVac6: 0, // Number of 2nd doses given to females on this day
           COVIDVac7: 0, // Number of 2nd doses give to > 65 year old on this day
           COVIDVac8: 0, // Total number of 2nd dose given on this day
+          COVIDVac9: 0, // Number of AstraZeneca Booster doses given to males on this day
+          COVIDVac10: 0, // Number of AstraZeneca Booster doses given to females on this day
+          COVIDVac11: 0, // Number of AstraZeneca Booster doses give to > 60 year old on this day
+          COVIDVac12: 0, // Total number of AstraZeneca Booster dose given on this day
+          COVIDVac13: 0, // Number of Pfizer 1st doses given to males on this day
+          COVIDVac14: 0, // Number of Pfizer 1st doses given to females on this day
+          COVIDVac15: 0, // Number of Pfizer 1st doses give to > 60 year old on this day
+          COVIDVac16: 0, // Total number of Pfizer 1st dose given on this day
+          COVIDVac17: 0, // Number of Pfizer 2nd doses given to males on this day
+          COVIDVac18: 0, // Number of Pfizer 2nd doses given to females on this day
+          COVIDVac19: 0, // Number of Pfizer 2nd doses give to > 60 year old on this day
+          COVIDVac20: 0, // Total number of Pfizer 2nd dose given on this day
+          COVIDVac21: 0, // Number of Pfizer Booster doses given to males on this day
+          COVIDVac22: 0, // Number of Pfizer Booster doses given to females on this day
+          COVIDVac23: 0, // Number of Pfizer Booster doses give to > 60 year old on this day
+          COVIDVac24: 0, // Total number of Pfizer Booster dose given on this day
         };
       }
 
+      // Check vaccine label (astra zeneca, pfizer)
+      const checkDataElementNumber = baseNumber =>
+        item.vaccineLabel === 'AZ' ? baseNumber : baseNumber + 12;
+
       if (item.sex === 'male') {
         if (doseKey === 'dose1') {
-          groupedByKey[key].COVIDVac1++;
+          groupedByKey[key][`COVIDVac${checkDataElementNumber(1)}`]++;
         } else if (doseKey === 'dose2') {
-          groupedByKey[key].COVIDVac5++;
+          groupedByKey[key][`COVIDVac${checkDataElementNumber(5)}`]++;
+        } else if (doseKey === 'booster') {
+          groupedByKey[key][`COVIDVac${checkDataElementNumber(9)}`]++;
         }
       } else if (item.sex === 'female') {
         if (doseKey === 'dose1') {
-          groupedByKey[key].COVIDVac2++;
+          groupedByKey[key][`COVIDVac${checkDataElementNumber(2)}`]++;
         } else if (doseKey === 'dose2') {
-          groupedByKey[key].COVIDVac6++;
+          groupedByKey[key][`COVIDVac${checkDataElementNumber(6)}`]++;
+        } else if (doseKey === 'booster') {
+          groupedByKey[key][`COVIDVac${checkDataElementNumber(10)}`]++;
         }
       }
 
       if (item[`${doseKey}PatientOver65`]) {
         if (doseKey === 'dose1') {
-          groupedByKey[key].COVIDVac3++;
+          groupedByKey[key][`COVIDVac${checkDataElementNumber(3)}`]++;
         } else if (doseKey === 'dose2') {
-          groupedByKey[key].COVIDVac7++;
+          groupedByKey[key][`COVIDVac${checkDataElementNumber(7)}`]++;
+        } else if (doseKey === 'booster') {
+          groupedByKey[key][`COVIDVac${checkDataElementNumber(11)}`]++;
         }
       }
 
       if (doseKey === 'dose1') {
-        groupedByKey[key].COVIDVac4++;
+        groupedByKey[key][`COVIDVac${checkDataElementNumber(4)}`]++;
       } else if (doseKey === 'dose2') {
-        groupedByKey[key].COVIDVac8++;
+        groupedByKey[key][`COVIDVac${checkDataElementNumber(8)}`]++;
+      } else if (doseKey === 'booster') {
+        groupedByKey[key][`COVIDVac${checkDataElementNumber(12)}`]++;
       }
     }
   }
@@ -316,6 +370,22 @@ function withEmptyRows(groupedData, parameters, villages, now) {
           COVIDVac6: null,
           COVIDVac7: null,
           COVIDVac8: null,
+          COVIDVac9: null,
+          COVIDVac10: null,
+          COVIDVac11: null,
+          COVIDVac12: null,
+          COVIDVac13: null,
+          COVIDVac14: null,
+          COVIDVac15: null,
+          COVIDVac16: null,
+          COVIDVac17: null,
+          COVIDVac18: null,
+          COVIDVac19: null,
+          COVIDVac20: null,
+          COVIDVac21: null,
+          COVIDVac22: null,
+          COVIDVac23: null,
+          COVIDVac24: null,
         });
       }
 
