@@ -1,15 +1,12 @@
-import React from 'react';
+import React, { useState } from 'react';
 import styled from 'styled-components';
+import { MenuItem } from '@material-ui/core';
 import { NumberInput } from './NumberField';
-import { SelectInput } from './SelectField';
-import { TextInput, StyledTextField } from './TextField';
+import { TextInput } from './TextField';
 import { OuterLabelFieldWrapper } from './OuterLabelFieldWrapper';
 
-const Container = styled.div`
-  position: relative;
+const FieldWrapper = styled.div`
   display: flex;
-  align-items: flex-end;
-  justify-content: flex-start;
 `;
 
 const HiddenInput = styled(TextInput)`
@@ -19,20 +16,13 @@ const HiddenInput = styled(TextInput)`
   }
 `;
 
-const FieldWrapper = styled(OuterLabelFieldWrapper)`
-  position: relative;
-`;
-
 const HiddenField = props => {
   return <HiddenInput {...props} type="hidden" />;
 };
 
-const StyledSelectInput = styled(SelectInput)`
-  position: absolute;
-  top: 0;
-  bottom: 0;
-  width: 120px;
-`;
+// const StyledSelect = styled(Select)`
+//   width: 90px;
+// `;
 
 const UNIT_OPTIONS = [
   { value: 'minutes', label: 'minutes' },
@@ -41,6 +31,7 @@ const UNIT_OPTIONS = [
 ];
 
 export const NumberAndUnitField = props => {
+  const [unit, setUnit] = useState('minutes');
   console.log('props', props);
 
   const { onChange, value } = props;
@@ -53,18 +44,18 @@ export const NumberAndUnitField = props => {
     console.log('number change', newValue);
   };
   return (
-    <Container>
-      <FieldWrapper label="Time between onset and death">
+    <OuterLabelFieldWrapper label="Time between onset and death">
+      <FieldWrapper>
         <NumberInput name="number" value={10} onChange={handleNumberChange} />
-        <StyledSelectInput
-          name="unit"
-          value="minutes"
-          options={UNIT_OPTIONS}
-          onChange={handleSelectChange}
-        />
+        <TextInput select onChange={handleSelectChange} value={unit}>
+          {UNIT_OPTIONS.map(option => (
+            <MenuItem key={option.value} value={option.value}>
+              {option.label}
+            </MenuItem>
+          ))}
+        </TextInput>
       </FieldWrapper>
-
       <HiddenField name="hidden" value={value} onChange={onChange} />
-    </Container>
+    </OuterLabelFieldWrapper>
   );
 };
