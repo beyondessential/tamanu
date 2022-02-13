@@ -24,7 +24,7 @@ async function fetchMostRecentEmailAddress(patientId, models) {
   return answer?.body;
 }
 
-export async function createLabRequestNotifications(labRequest, models) {
+export async function createSingleLabRequestNotification(labRequest, models) {
   if (
     labRequest.labTestCategoryId === config?.notifications?.certificates?.labTestCategoryId &&
     labRequest.status === LAB_REQUEST_STATUSES.PUBLISHED
@@ -41,5 +41,11 @@ export async function createLabRequestNotifications(labRequest, models) {
         forwardAddress: await fetchMostRecentEmailAddress(encounter.patientId, models),
       },
     ]);
+  }
+}
+
+export async function createMultiLabRequestNotifications(labRequests, models) {
+  for (const request of labRequests) {
+    await createSingleLabRequestNotification(request, models);
   }
 }

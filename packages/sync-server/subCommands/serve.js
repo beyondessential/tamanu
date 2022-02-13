@@ -3,7 +3,10 @@ import config from 'config';
 import { log } from 'shared/services/logging';
 import { createReferralNotification } from 'shared/tasks/CreateReferralNotification';
 import { sendCertificateNotifications } from 'shared/tasks/SendCertificateNotifications';
-import { createLabRequestNotifications } from 'shared/tasks/CreateLabRequestNotifications';
+import {
+  createSingleLabRequestNotification,
+  createMultiLabRequestNotifications,
+} from 'shared/tasks/CreateLabRequestNotifications';
 
 import { createApp } from '../app/createApp';
 import { startScheduledTasks } from '../app/tasks';
@@ -82,10 +85,18 @@ export async function serve(options) {
       // Create certificate notifications for published results
       if (config.notifications.certificates.labTestCategoryId) {
         context.store.models.LabRequest.addHook(
-          'afterBulkUpdate', // Sync triggers bulk actions, even if it's only updating one entry
+          'afterBulkCreate', // Sync triggers bulk actions, even if it's only for one entry
+          'create published test results notification hook',
+          labRequests => {
+            createMultiLabRequestNotifications(labRequests, context.store.models);
+          },
+        );
+        context.store.models.LabRequest.addHook(
+          'afterBulkUpdate',
           'create published test results notification hook',
           labRequest => {
-            createLabRequestNotifications(labRequest.attributes, context.store.models);
+            // Sync triggers a bulk action, but we filter the update by id so it's always for a single entry
+            createSingleLabRequestNotification(labRequest.attributes, context.store.models);
           },
         );
       }
