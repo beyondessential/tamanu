@@ -16,6 +16,7 @@ import {
   MultiselectInput,
   AutocompleteInput,
   NullableBooleanInput,
+  NumberAndUnitField,
 } from '../app/components';
 import { IdInput } from '../app/components/Field/IdField';
 import styled from 'styled-components';
@@ -63,7 +64,9 @@ class StoryControlWrapper extends React.PureComponent {
     return (
       <Container>
         <Component {...props} value={value} onChange={this.onChange} />
-        {clearButton && <Button onClick={() => this.setState({ value: '' })}> Clear Field (value = "") </Button>}
+        {clearButton && (
+          <Button onClick={() => this.setState({ value: '' })}> Clear Field (value = "") </Button>
+        )}
       </Container>
     );
   }
@@ -88,6 +91,10 @@ addStories(
   'Free text input.',
 ).add('Multiline', () => (
   <StoryControlWrapper Component={TextInput} label="Life story" multiline rows={4} />
+));
+
+addStories('NumberAndInputField', props => (
+  <StoryControlWrapper Component={NumberAndUnitField} label="Enable" {...props} />
 ));
 
 addStories('CheckInput', props => (
@@ -157,11 +164,11 @@ addStories(
 
 addStories('SelectInput', props => (
   <StoryControlWrapper Component={SelectInput} label="Fruit" options={FRUITS} {...props} />
-))
+));
 
 addStories('MultiselectInput', props => (
   <StoryControlWrapper Component={MultiselectInput} label="Fruit" options={FRUITS} {...props} />
-))
+));
 
 const dummySuggester = {
   fetchSuggestions: async search => {
