@@ -18,8 +18,8 @@ export const calculateInvoiceLinesTotal = invoiceLines => {
   let total = 0;
   invoiceLines.forEach(invoiceLine => {
     const price = parseFloat(invoiceLine.invoiceLineType.price);
-    const percentageChange = (invoiceLine.percentageChange || 0) * price;
-    total += price + percentageChange;
+    const priceChange = (invoiceLine.percentageChange || 0) * price;
+    total += price + priceChange;
   });
 
   return Math.round(total * 100) / 100;

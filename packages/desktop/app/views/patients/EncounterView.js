@@ -477,7 +477,7 @@ export const EncounterView = () => {
 
   if (!encounter || isLoadingEncounter || patient.loading) return <LoadingIndicator />;
 
-  const tabs = TABS.filter(tab => !tab.condition || tab.condition(getLocalisation));
+  const visibleTabs = TABS.filter(tab => !tab.condition || tab.condition(getLocalisation));
   return (
     <TwoColumnDisplay>
       <PatientInfoPane patient={patient} disabled={disabled} />
@@ -512,7 +512,7 @@ export const EncounterView = () => {
           />
         </ContentPane>
         <TabDisplay
-          tabs={tabs}
+          tabs={visibleTabs}
           currentTab={currentTab}
           onTabSelect={setCurrentTab}
           encounter={encounter}
