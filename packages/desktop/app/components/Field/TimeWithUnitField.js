@@ -42,7 +42,7 @@ const UNIT_OPTIONS = [
   { value: 'weeks', label: 'weeks', minutes: 10080 },
 ];
 
-export const NumberAndUnitInput = ({
+export const TimeWithUnitInput = ({
   onChange,
   value: valueInMinutes,
   label,
@@ -107,6 +107,6 @@ export const NumberAndUnitInput = ({
   );
 };
 
-export const NumberAndUnitField = ({ field, ...props }) => (
-  <NumberAndUnitInput name={field.name} value={field.value} onChange={field.onChange} {...props} />
+export const TimeWithUnitField = ({ field, ...props }) => (
+  <TimeWithUnitInput name={field.name} value={field.value} onChange={field.onChange} {...props} />
 );

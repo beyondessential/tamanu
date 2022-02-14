@@ -6,7 +6,7 @@ export * from './LocalisedField';
 export * from './MultiselectField';
 export * from './NumberField';
 export * from './NullableBooleanField';
-export * from './NumberAndUnitField';
+export * from './TimeWithUnitField';
 export * from './RadioField';
 export * from './SelectField';
 export * from './SurveyQuestionAutocomplete';

@@ -16,7 +16,7 @@ import {
   MultiselectInput,
   AutocompleteInput,
   NullableBooleanInput,
-  NumberAndUnitInput,
+  TimeWithUnitInput,
 } from '../app/components';
 import { IdInput } from '../app/components/Field/IdField';
 import styled from 'styled-components';
@@ -93,9 +93,9 @@ addStories(
   <StoryControlWrapper Component={TextInput} label="Life story" multiline rows={4} />
 ));
 
-addStories('NumberAndInputInput', props => (
+addStories('TimeWithUnitInput', props => (
   <StoryControlWrapper
-    Component={NumberAndUnitInput}
+    Component={TimeWithUnitInput}
     label="Time between onset"
     name="onsetMinutes"
     min={0}
