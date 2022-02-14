@@ -18,14 +18,14 @@ import { DateFormats } from '~/ui/helpers/constants';
 
 const SurveyResponseItem = ({ surveyResponse, responseIndex }): ReactElement => {
   const navigation = useNavigation();
+  const { survey, endTime = '', resultText } = surveyResponse;
+
   const showResponseDetails = useCallback(
     () => navigation.navigate(Routes.HomeStack.ProgramStack.SurveyResponseDetailsScreen, {
       surveyResponseId: surveyResponse.id,
     }),
     [],
   );
-
-  const { survey, endTime = '', resultText } = surveyResponse;
 
   return (
     <TouchableOpacity onPress={showResponseDetails}>
