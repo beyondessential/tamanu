@@ -7,7 +7,7 @@ import { EditButton } from './EditButton';
 interface PatientDetailSectionProps {
   hasSeparator: boolean;
   title: string;
-  onEdit: () => void;
+  onEdit?: () => void;
 }
 
 export const PatientSection = ({
@@ -21,7 +21,7 @@ export const PatientSection = ({
     <StyledView>
       <RowView justifyContent="space-between">
         <SectionHeader h1>{title}</SectionHeader>
-        <EditButton onPress={onEdit} />
+        {onEdit && <EditButton onPress={onEdit} />}
       </RowView>
       {children}
     </StyledView>
