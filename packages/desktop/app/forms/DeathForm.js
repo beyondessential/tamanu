@@ -127,9 +127,11 @@ const mannerOfDeathVisibilityCriteria = {
  */
 export const DeathForm = React.memo(
   ({ onCancel, onSubmit, patient, practitionerSuggester, icd10Suggester, facilitySuggester }) => {
-    // Get how old the patient is in years and months for conditionally hiding screens below
     const patientYearsOld = moment().diff(patient.dateOfBirth, 'years');
+    const isAdultFemale = patient.sex === 'female' && patientYearsOld >= 12;
+
     const patientMonthsOld = moment().diff(patient.dateOfBirth, 'months');
+    const isInfant = patientMonthsOld >= 2;
 
     return (
       <PaginatedForm
@@ -226,7 +228,7 @@ export const DeathForm = React.memo(
             suggester={icd10Suggester}
           />
         </FormGrid>
-        {patient.sex === 'female' && patientYearsOld >= 12 ? (
+        {isAdultFemale ? (
           <FormGrid columns={1}>
             <Field
               name="pregnant"
@@ -271,7 +273,7 @@ export const DeathForm = React.memo(
             visibilityCriteria={{ mannerOfDeathLocation: 'Other' }}
           />
         </FormGrid>
-        {patientMonthsOld >= 2 ? (
+        {isInfant ? (
           <FormGrid columns={1}>
             <Field
               name="fetalOrInfant"
