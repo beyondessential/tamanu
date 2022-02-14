@@ -51,10 +51,18 @@ const SurveyResponseItem = ({ surveyResponse, responseIndex }): ReactElement => 
           flexDirection="row"
         >
           <StyledView>
-            <StyledText marginBottom="5" fontWeight="bold" color={theme.colors.LIGHT_BLUE}>
+            <StyledText
+              marginBottom="5"
+              fontWeight="bold" 
+              color={isSensitive ? theme.colors.DISABLED_GREY : theme.colors.LIGHT_BLUE}
+            >
               {survey.name}
             </StyledText>
-            <StyledText color={theme.colors.TEXT_DARK} fontSize={13} fontWeight="bold">
+            <StyledText
+              color={isSensitive ? theme.colors.DISABLED_GREY : theme.colors.TEXT_DARK}
+              fontSize={13}
+              fontWeight="bold"
+            >
               {formatDate(endTime, DateFormats.DATE_AND_TIME)}
             </StyledText>
           </StyledView>
