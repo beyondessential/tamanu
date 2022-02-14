@@ -1,4 +1,4 @@
-import React, { ReactElement } from 'react';
+import React, { ReactElement, useCallback } from 'react';
 import { useNavigation } from '@react-navigation/native';
 import { TouchableOpacity } from 'react-native-gesture-handler';
 import { theme } from '/styled/theme';
@@ -24,7 +24,7 @@ export const SurveyResponseLink = ({
   const showResponseDetails = useCallback(
     (): void => {
       if (!isSensitive) {
-        navigation.navigate(Routes.HomeStack.ProgramStack.SurveyResponseDetailsScreen, {
+        navigation.navigate(detailsRouteName, {
           surveyResponseId: surveyResponse.id,
         });
       }
