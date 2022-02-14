@@ -220,6 +220,7 @@ describe('SyncManager', () => {
       expect(calls[0][1][0].data).toMatchObject({
         ...record,
         dateOfBirth: record?.dateOfBirth?.toISOString(),
+        dateOfDeath: undefined,
       });
     });
 

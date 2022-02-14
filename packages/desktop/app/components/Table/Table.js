@@ -58,13 +58,7 @@ const StyledTableRow = styled(TableRow)`
     `
       : ''}
 
-  ${p =>
-    p.striked
-      ? `
-    color: red;
-    text-decoration: line-through;
-  `
-      : ''}
+  ${p => p.rowStyle ?? ''}
 `;
 
 const StyledTableContainer = styled.div`
@@ -104,17 +98,16 @@ const StyledTableFooter = styled(TableFooter)`
   border-bottom: 1px solid black;
 `;
 
-const RowContainer = React.memo(({ children, striked, onClick }) => (
+const RowContainer = React.memo(({ children, rowStyle, onClick }) => (
   <StyledTableRow
     onClick={onClick}
-    style={{ marginTop: '1rem' }}
-    striked={striked ? striked.toString() : ''}
+    rowStyle={rowStyle}
   >
     {children}
   </StyledTableRow>
 ));
 
-const Row = React.memo(({ columns, data, onClick, striked, onTableRefresh }) => {
+const Row = React.memo(({ columns, data, onClick, rowStyle, onTableRefresh }) => {
   const cells = columns.map(
     ({ key, accessor, CellComponent, numeric, maxWidth, cellColor, dontCallRowInput }) => {
       const value = accessor
@@ -142,7 +135,7 @@ const Row = React.memo(({ columns, data, onClick, striked, onTableRefresh }) => 
     },
   );
   return (
-    <RowContainer onClick={onClick && (() => onClick(data))} striked={striked}>
+    <RowContainer onClick={onClick && (() => onClick(data))} rowStyle={rowStyle ? rowStyle(data) : ''}>
       {cells}
     </RowContainer>
   );
@@ -220,6 +213,7 @@ class TableComponent extends React.Component {
       onRowClick,
       errorMessage,
       rowIdKey,
+      rowStyle,
       onTableRefresh,
     } = this.props;
     const error = this.getErrorMessage();
@@ -233,7 +227,6 @@ class TableComponent extends React.Component {
     const sortedData = customSort ? customSort(data) : data;
     return sortedData.map(rowData => {
       const key = rowData[rowIdKey] || rowData[columns[0].key];
-      const striked = rowData?.discontinued;
       return (
         <Row
           data={rowData}
@@ -241,7 +234,7 @@ class TableComponent extends React.Component {
           columns={columns}
           onClick={onRowClick}
           onTableRefresh={onTableRefresh}
-          striked={striked}
+          rowStyle={rowStyle}
         />
       );
     });
@@ -312,6 +305,7 @@ TableComponent.propTypes = {
   className: PropTypes.string,
   exportName: PropTypes.string,
   onTableRefresh: PropTypes.func,
+  rowStyle: PropTypes.func,
 };
 
 TableComponent.defaultProps = {
@@ -332,6 +326,7 @@ TableComponent.defaultProps = {
   className: null,
   exportName: 'TamanuExport',
   onTableRefresh: null,
+  rowStyle: null,
 };
 
 export const Table = ({ columns: allColumns, data, exportName, ...props }) => {

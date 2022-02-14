@@ -2,9 +2,11 @@ import { log } from 'shared/services/logging';
 import { EmailService } from '../app/services/EmailService';
 import { ReportRunner } from '../app/report/ReportRunner';
 import { initDatabase } from '../app/database';
+import { setupEnv } from '../app/env';
 
 export async function report(options) {
   const store = await initDatabase({ testMode: false });
+  setupEnv();
   try {
     const { name, parameters, recipients } = options;
     let reportParameters = {};
