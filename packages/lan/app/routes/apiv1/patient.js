@@ -227,7 +227,7 @@ patientRelations.get(
         WHERE
           encounters.patient_id = :patientId
           AND surveys.survey_type = :surveyType
-          ${ surveyId && "AND surveys.id = :surveyId" }
+          ${ surveyId ? "AND surveys.id = :surveyId" : '' }
       `,
       { patientId, surveyId, surveyType },
       query,
