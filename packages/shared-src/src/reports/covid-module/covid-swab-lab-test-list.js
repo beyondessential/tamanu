@@ -15,7 +15,7 @@ const yieldControl = () => new Promise(resolve => setTimeout(resolve, 20));
 
 const parametersToLabTestSqlWhere = parameters => {
   const defaultWhereClause = {
-    '$labRequest.lab_test_category_id$': 'labTestCategory-COVID',
+    '$labRequest.lab_test_category_id$': ['labTestCategory-COVID', 'labTestCategory-COVIDRAT'],
     '$labRequest.status$': {
       [Op.ne]: LAB_REQUEST_STATUSES.DELETED,
     },
