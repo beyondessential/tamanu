@@ -42,32 +42,58 @@ const UNIT_OPTIONS = [
   { value: 'weeks', label: 'weeks', minutes: 10080 },
 ];
 
-export const NumberAndUnitInput = ({ onChange, value, label, name, min, max, step, className }) => {
+export const NumberAndUnitInput = ({
+  onChange,
+  value: valueInMinutes,
+  label,
+  name,
+  min,
+  max,
+  step,
+  className,
+}) => {
   const [unit, setUnit] = useState(UNIT_OPTIONS[0].value);
+  const [value, setValue] = useState(0);
   const selectedOption = UNIT_OPTIONS.find(o => o.value === unit);
-  const valueInMinutes = value ? value * selectedOption.minutes : 0;
 
   useEffect(() => {
+    if (!valueInMinutes) {
+      return;
+    }
+
     const multiple = UNIT_OPTIONS.sort((a, b) => b.minutes - a.minutes).find(
-      o => value % o.minutes === 0,
+      o => valueInMinutes % o.minutes === 0,
     );
     if (multiple.minutes > 1) {
       setUnit(multiple.value);
+      const newValue = valueInMinutes / multiple.minutes;
+      setValue(newValue);
     }
-    const newValue = value / multiple.minutes;
-    onChange({ target: { value: newValue, name } });
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
+
+  const updateExternalValue = newValueInMinutes => {
+    onChange({ target: { value: newValueInMinutes, name } });
+  };
+
+  const onValueChange = event => {
+    const newValue = event.target.value;
+    setValue(newValue);
+    updateExternalValue(newValue * selectedOption.minutes);
+  };
 
   const onUnitChange = event => {
     const newUnit = event.target.value;
     setUnit(newUnit);
+
+    const newOption = UNIT_OPTIONS.find(o => o.value === newUnit);
+    updateExternalValue(value * newOption.minutes);
   };
 
   return (
     <OuterLabelFieldWrapper label={label} className={className}>
       <FieldWrapper>
-        <MainField value={value || 0} onChange={onChange} min={min} max={max} step={step} />
+        <MainField value={value} onChange={onValueChange} min={min} max={max} step={step} />
         <Select select onChange={onUnitChange} value={unit}>
           {UNIT_OPTIONS.sort((a, b) => a.minutes - b.minutes).map(option => (
             <MenuItem key={option.value} value={option.value}>
@@ -76,11 +102,11 @@ export const NumberAndUnitInput = ({ onChange, value, label, name, min, max, ste
           ))}
         </Select>
       </FieldWrapper>
-      <HiddenField name={name} value={valueInMinutes} />
+      <HiddenField name={name} value={valueInMinutes || 0} />
     </OuterLabelFieldWrapper>
   );
 };
 
 export const NumberAndUnitField = ({ field, ...props }) => (
-  <NumberAndUnitField name={field.name} value={field.value} onChange={field.onChange} {...props} />
+  <NumberAndUnitInput name={field.name} value={field.value} onChange={field.onChange} {...props} />
 );
