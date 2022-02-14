@@ -28,8 +28,9 @@ describe('Importing programs', () => {
       const clonedRawData = cloneDeep(rawData);
       const requiredSurveyFields = ['id', 'surveyType', 'isSensitive'];
 
-const { recordGroups, ...resultInfo } = await preprocessRecordSet(clonedRawData);
-expect(resultInfo.errors.length).toBe(0);
+      // Test cloned data before modifying it to ensure it's okay
+      const { recordGroups, ...resultInfo } = await preprocessRecordSet(clonedRawData);
+      expect(resultInfo.errors.length).toBe(0);
 
       // Use for...of instead of forEach to properly await each loop
       for (const field of requiredSurveyFields) {
@@ -39,9 +40,12 @@ expect(resultInfo.errors.length).toBe(0);
         // Remove field
         delete clonedRawData[1].data[field];
 
-        // Process record, run validation and expect error
-        const { recordGroups, ...resultInfo } = await preprocessRecordSet(clonedRawData);
-        expect(resultInfo.errors.length).toBe(1);
+        // Process modified record, run validation and expect error
+        const {
+          recordGroups: modifiedRecordGroups,
+          ...modifiedResultInfo
+        } = await preprocessRecordSet(clonedRawData);
+        expect(modifiedResultInfo.errors.length).toBe(1);
       }
     });
     test.todo('Should ensure questions all have a valid type');
