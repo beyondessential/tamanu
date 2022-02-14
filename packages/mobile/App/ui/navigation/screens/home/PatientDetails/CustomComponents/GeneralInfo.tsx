@@ -4,6 +4,7 @@ import { PatientGeneralInformationDataProps } from '/interfaces/PatientDetails';
 import { formatDate } from '/helpers/date';
 import { DateFormats } from '/helpers/constants';
 import { FieldRowDisplay } from '~/ui/components/FieldRowDisplay';
+import { PatientSection } from './PatientSection';
 
 export const GeneralInfo = (
   data: PatientGeneralInformationDataProps,
@@ -17,5 +18,13 @@ export const GeneralInfo = (
     ['villageId', data.generalInfo.village?.name ?? ''],
   ];
 
-  return <FieldRowDisplay fields={fields} header="General Information" fieldsPerRow={2} />;
+  return (
+    <PatientSection
+      hasSeparator={false}
+      title="General Information"
+      onEdit={(): void => console.log('edit Patient')}
+    >
+      <FieldRowDisplay fields={fields} fieldsPerRow={2} />
+    </PatientSection>
+  );
 };
