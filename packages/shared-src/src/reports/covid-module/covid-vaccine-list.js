@@ -1,6 +1,6 @@
 import { Op } from 'sequelize';
 import { subDays } from 'date-fns';
-import { generateReportFromQueryData } from './utilities';
+import { generateReportFromQueryData } from '../utilities';
 
 const reportColumnTemplate = [
   {

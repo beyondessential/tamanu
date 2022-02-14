@@ -14,12 +14,13 @@ const UNKNOWN = {
 };
 
 const labTestTypeNameToLOINC = {
+  'COVID-19 Swab': COVID_TEST_NORMAL,
   'COVID-19 Nasopharyngeal Swab': COVID_TEST_NORMAL,
   'COVID-19 Nasal Swab': COVID_TEST_NORMAL,
   'COVID-19 Oropharyngeal Swab': COVID_TEST_NORMAL,
   'COVID-19 Endotracheal aspirate': COVID_TEST_NORMAL,
   'AgRDT Negative, no further testing needed': COVID_TEST_RAPID,
-  'AgRDT Positve, no further testing needed': COVID_TEST_RAPID,
+  'AgRDT Positive': COVID_TEST_RAPID,
 };
 
 export function labTestTypeToLOINCCode(labTestType) {

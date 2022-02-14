@@ -23,6 +23,13 @@ export class DocumentMetadata extends Model {
         },
         documentOwner: Sequelize.TEXT,
         note: Sequelize.STRING,
+
+        // Relation can't be managed by sequelize because the
+        // attachment won't get downloaded to lan server
+        attachmentId: {
+          type: Sequelize.STRING,
+          allowNull: false,
+        },
       },
       {
         ...options,
@@ -32,11 +39,6 @@ export class DocumentMetadata extends Model {
   }
 
   static initRelations(models) {
-    this.belongsTo(models.Attachment, {
-      foreignKey: 'attachmentId',
-      as: 'document',
-    });
-
     this.belongsTo(models.Encounter, {
       foreignKey: 'encounterId',
       as: 'encounter',
@@ -47,7 +49,7 @@ export class DocumentMetadata extends Model {
       as: 'patient',
     });
 
-    this.belongsTo(models.ReferenceData, {
+    this.belongsTo(models.Department, {
       foreignKey: 'departmentId',
       as: 'department',
     });

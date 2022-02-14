@@ -10,6 +10,7 @@ import {
   DateField,
   NullableBooleanField,
   SurveyQuestionAutocomplete,
+  SurveySelect,
   NumberField,
   ReadOnlyTextField,
   UnsupportedPhotoField,
@@ -36,7 +37,7 @@ const QUESTION_COMPONENTS = {
   [PROGRAM_DATA_ELEMENT_TYPES.BINARY]: NullableBooleanField,
   [PROGRAM_DATA_ELEMENT_TYPES.CHECKBOX]: NullableBooleanField,
   [PROGRAM_DATA_ELEMENT_TYPES.CALCULATED]: ReadOnlyTextField,
-  [PROGRAM_DATA_ELEMENT_TYPES.SURVEY_LINK]: null,
+  [PROGRAM_DATA_ELEMENT_TYPES.SURVEY_LINK]: SurveySelect,
   [PROGRAM_DATA_ELEMENT_TYPES.SURVEY_RESULT]: null,
   [PROGRAM_DATA_ELEMENT_TYPES.SURVEY_ANSWER]: null,
   [PROGRAM_DATA_ELEMENT_TYPES.PATIENT_DATA]: ReadOnlyTextField,
@@ -95,10 +96,6 @@ export function checkVisibility(component, values, allComponents) {
           return true;
         }
         return false;
-      }
-
-      if (matchingComponent.dataElement.type === 'Select') {
-        return value === answersEnablingFollowUp;
       }
 
       return answersEnablingFollowUp.includes(value);

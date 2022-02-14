@@ -128,9 +128,13 @@ describe('export', () => {
 
             // assert
             expect(firstRecords.length).toEqual(1);
-            expectDeepSyncRecordMatch(records[0], firstRecords[0]);
+            expectDeepSyncRecordMatch(records[0], firstRecords[0], {
+              nullableDateFields: modelName === 'Patient' ? ['dateOfDeath'] : [],
+            });
             expect(secondRecords.length).toEqual(1);
-            expectDeepSyncRecordMatch(records[1], secondRecords[0]);
+            expectDeepSyncRecordMatch(records[1], secondRecords[0], {
+              nullableDateFields: modelName === 'Patient' ? ['dateOfDeath'] : [],
+            });
             expect(thirdRecords.length).toEqual(0);
           });
         });

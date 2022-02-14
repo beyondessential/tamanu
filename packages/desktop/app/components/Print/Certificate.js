@@ -1,15 +1,18 @@
-import React from 'react';
+import React, { useState, useEffect } from 'react';
 import { useSelector } from 'react-redux';
 import styled from 'styled-components';
 
+import { useApi } from '../../api';
 import { getCurrentUser } from '../../store/auth';
 import { useLocalisation } from '../../contexts/Localisation';
 import { Colors } from '../../constants';
 import { PrintLetterhead } from './Letterhead';
 import { DateDisplay } from '../DateDisplay';
 
+const FOOTER_IMG_ASSET_NAME = 'certificate-bottom-half-img';
+
 export const Spacer = styled.div`
-  margin-top: 3rem;
+  margin-top: 2.5rem;
 `;
 
 export const Table = styled.table`
@@ -21,10 +24,12 @@ export const Table = styled.table`
   }
   th,
   td {
-    padding: 5px 10px;
+    padding: 5px;
     border: 1px solid ${Colors.darkText};
+    font-size: 13px;
   }
 `;
+
 const PatientDetailsHeader = styled.strong`
   text-decoration: underline;
 `;
@@ -47,14 +52,15 @@ const PRIMARY_DETAILS_FIELDS = {
   displayId: null,
 };
 
-const UserEntrySection = styled.div`
-  display: grid;
-  grid-template-columns: auto 1fr;
-  grid-column-gap: 20px;
-`;
+const Base64Image = ({ data, mediaType = 'image/jpeg', ...props }) => (
+  <img {...props} src={`data:${mediaType};base64,${data}`} alt="" />
+);
 
-const UnderlineP = styled.p`
-  text-decoration: underline;
+const SizedBase64Image = styled(Base64Image)`
+  width: 100%;
+  height: 100%;
+  object-fit: scale-down;
+  object-position: 0px 0px;
 `;
 
 const CertificateWrapper = styled.div`
@@ -68,8 +74,6 @@ const CertificateWrapper = styled.div`
       : ''}
 `;
 
-const UnderlineEmptySpace = () => <UnderlineP>{new Array(100).fill('\u00A0')}</UnderlineP>;
-
 export const Certificate = ({
   patient,
   header,
@@ -77,8 +81,21 @@ export const Certificate = ({
   watermark,
   watermarkType,
   primaryDetailsFields,
+  customAccessors = {},
   children,
 }) => {
+  const [footerImg, setFooterImg] = useState('');
+  const [footerImgType, setFooterImgType] = useState('');
+  const api = useApi();
+
+  useEffect(() => {
+    (async () => {
+      const response = await api.get(`asset/${FOOTER_IMG_ASSET_NAME}`);
+      setFooterImg(Buffer.from(response.data).toString('base64'));
+      setFooterImgType(response.type);
+    })();
+  }, [api]);
+
   const currentUser = useSelector(getCurrentUser);
   const { getLocalisation } = useLocalisation();
   const detailsFieldsToDisplay =
@@ -93,7 +110,7 @@ export const Certificate = ({
       <PatientDetailsHeader>{header}</PatientDetailsHeader>
       <TwoColumnContainer>
         {detailsFieldsToDisplay.map(field => {
-          const accessor = PRIMARY_DETAILS_FIELDS[field];
+          const accessor = PRIMARY_DETAILS_FIELDS[field] || customAccessors[field];
           const label = getLocalisation(`fields.${field}.shortLabel`) || field;
           const value = (accessor ? accessor(patient) : patient[field]) || '';
           return (
@@ -115,18 +132,7 @@ export const Certificate = ({
         </p>
       </TwoColumnContainer>
       <Spacer />
-      <UserEntrySection>
-        <p>Authorised by:</p>
-        <UnderlineEmptySpace />
-        <sup>(write name in pen)</sup>
-        <div />
-        <p />
-        <div />
-        <p>Signed:</p>
-        <UnderlineEmptySpace />
-        <p>Date:</p>
-        <UnderlineEmptySpace />
-      </UserEntrySection>
+      {footerImg ? <SizedBase64Image mediaType={footerImgType} data={footerImg} /> : null}
       <Spacer />
       {footer}
       <Spacer />

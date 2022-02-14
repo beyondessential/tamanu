@@ -217,6 +217,7 @@ export class SyncManager {
         models.InvoicePriceChangeItem,
 
         // models.LabRequestLog,
+        models.DocumentMetadata,
       ];
 
       for (const model of modelsToSync) {

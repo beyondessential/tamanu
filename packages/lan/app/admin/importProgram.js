@@ -37,7 +37,7 @@ function makeScreen(questions, componentData) {
         visibilityCriteria = '',
         validationCriteria = '',
         detail = '',
-        config = '',
+        config: qConfig = '',
         calculation = '',
         row,
         ...elementData
@@ -45,26 +45,36 @@ function makeScreen(questions, componentData) {
 
       const { surveyId, sheet, ...otherComponentData } = componentData;
 
-      const dataElement = makeRecord('programDataElement', {
-        id: `pde-${elementData.code}`,
-        defaultOptions: '',
-        ...elementData,
-      }, sheet, row);
+      const dataElement = makeRecord(
+        'programDataElement',
+        {
+          id: `pde-${elementData.code}`,
+          defaultOptions: '',
+          ...elementData,
+        },
+        sheet,
+        row,
+      );
 
-      const surveyScreenComponent = makeRecord('surveyScreenComponent', {
-        id: `${surveyId}-${elementData.code}`,
-        dataElementId: dataElement.data.id,
-        surveyId,
-        text: '',
-        options: '',
-        componentIndex: i,
-        visibilityCriteria,
-        validationCriteria,
-        detail,
-        config,
-        calculation,
-        ...otherComponentData,
-      }, sheet, row);
+      const surveyScreenComponent = makeRecord(
+        'surveyScreenComponent',
+        {
+          id: `${surveyId}-${elementData.code}`,
+          dataElementId: dataElement.data.id,
+          surveyId,
+          text: '',
+          options: '',
+          componentIndex: i,
+          visibilityCriteria,
+          validationCriteria,
+          detail,
+          config: qConfig,
+          calculation,
+          ...otherComponentData,
+        },
+        sheet,
+        row,
+      );
 
       return [dataElement, surveyScreenComponent];
     })
@@ -85,7 +95,7 @@ function importDataElement(row) {
 }
 
 // Break an array of questions into chunks, with the split points determined
-// by a newScreen: true property. (with newScreen: true questions placed as 
+// by a newScreen: true property. (with newScreen: true questions placed as
 // the first element of each chunk)
 function splitIntoScreens(questions) {
   const screenStarts = questions
@@ -105,7 +115,7 @@ function importSurveySheet(data, survey) {
   const screens = splitIntoScreens(questions);
 
   return screens
-    .map((x, i) => 
+    .map((x, i) =>
       makeScreen(x, {
         surveyId: survey.id,
         sheet: survey.name,
@@ -125,7 +135,7 @@ export function importProgram({ file, whitelist }) {
   const metadataSheet = workbook.Sheets.Metadata;
 
   if (!metadataSheet) {
-    throw new Error("A program workbook must have a sheet named Metadata");
+    throw new Error('A program workbook must have a sheet named Metadata');
   }
 
   // The Metadata sheet follows this structure:
@@ -134,63 +144,72 @@ export function importProgram({ file, whitelist }) {
   // then: survey metadata values (corresponding to keys in the header row)
 
   const programMetadata = {};
-  
+
   // Read rows as program metadata until we hit the survey header row
   // (this should be within the first few rows, there aren't many program metadata keys and
   // there's no reason to add blank rows here)
   const headerRow = (() => {
     const rowsToSearch = 10; // there are only a handful of metadata keys, so give up pretty early
     for (let i = 0; i < rowsToSearch; ++i) {
-      let cell = metadataSheet[`A${i+1}`];
+      const cell = metadataSheet[`A${i + 1}`];
       if (!cell) continue;
-      if (cell.v == 'code' || cell.v == 'name') {
+      if (cell.v === 'code' || cell.v === 'name') {
         // we've hit the header row -- immediately return
         return i;
       }
-      let nextCell = metadataSheet[`B${i+1}`];
+      const nextCell = metadataSheet[`B${i + 1}`];
       if (!nextCell) continue;
       programMetadata[cell.v.trim()] = nextCell.v.trim();
     }
 
     // we've exhausted the search
-    throw new Error("A survey workbook Metadata sheet must have a row starting with a 'name' or 'code' cell");
+    throw new Error(
+      "A survey workbook Metadata sheet must have a row starting with a 'name' or 'code' cell",
+    );
   })();
 
   // detect if we're importing to home server
-  const { homeServer = "", country } = programMetadata;
+  const { homeServer = '', country } = programMetadata;
   const { host } = config.sync;
 
   // ignore slashes when comparing servers - easiest way to account for trailing slashes that may or may not be present
-  const importingToHome = !homeServer || homeServer.replace("/", "") === host.replace("/", "");
-  
+  const importingToHome = !homeServer || homeServer.replace('/', '') === host.replace('/', '');
+
   if (!importingToHome) {
     if (!host.match(/(dev|demo|staging)/)) {
-      throw new Error(`This workbook can only be imported to ${homeServer} or a non-production (dev/demo/staging) server. (nb: current server is ${host})`);
+      throw new Error(
+        `This workbook can only be imported to ${homeServer} or a non-production (dev/demo/staging) server. (nb: current server is ${host})`,
+      );
     }
   }
 
   if (!programMetadata.programCode) {
-    throw new Error("A program must have a code");
+    throw new Error('A program must have a code');
   }
 
   if (!programMetadata.programName) {
-    throw new Error("A program must have a name");
+    throw new Error('A program must have a name');
   }
 
   // Use a country prefix (eg "(Samoa)" if we're importing to a server other
   // than the home server.
-  const prefix = (!importingToHome && country) ? `(${country}) ` : "";
+  const prefix = !importingToHome && country ? `(${country}) ` : '';
 
   // main container elements
-  const programRecord = makeRecord('program', {
-    id: `program-${idify(programMetadata.programCode)}`,
-    name: `${prefix}${programMetadata.programName}`,
-  }, 'Document', 0);
-  
+  const programRecord = makeRecord(
+    'program',
+    {
+      id: `program-${idify(programMetadata.programCode)}`,
+      name: `${prefix}${programMetadata.programName}`,
+    },
+    'Document',
+    0,
+  );
+
   // read metadata table starting at header row
   const surveyMetadata = utils.sheet_to_json(metadataSheet, { range: headerRow });
 
-  const shouldImportSurvey = ({ status = "", name, code }) => {
+  const shouldImportSurvey = ({ status = '', name, code }) => {
     // check against whitelist
     if (whitelist && whitelist.length > 0) {
       if (!whitelist.some(x => x === name || x === code)) {
@@ -200,15 +219,17 @@ export function importProgram({ file, whitelist }) {
 
     // check against home server & publication status
     switch (status) {
-      case "publish":
+      case 'publish':
         return true;
-      case "hidden":
+      case 'hidden':
         return false;
-      case "draft": 
-      case "":
+      case 'draft':
+      case '':
         return !importingToHome;
       default:
-        throw new Error(`Survey ${name} has invalid status ${status}. Must be one of publish, draft, hidden.`);
+        throw new Error(
+          `Survey ${name} has invalid status ${status}. Must be one of publish, draft, hidden.`,
+        );
     }
   };
 
@@ -216,50 +237,38 @@ export function importProgram({ file, whitelist }) {
   const surveys = surveyMetadata
     .filter(shouldImportSurvey)
     .map(md => {
-      const surveyRecord = makeRecord('survey', {
-        id: `${programRecord.data.id}-${idify(md.code)}`,
-        name: `${prefix}${md.name}`,
-        programId: programRecord.data.id,
-        surveyType: md.surveyType,
-      }, 'Metadata', md.__rownum__ + 1);
+      const surveyRecord = makeRecord(
+        'survey',
+        {
+          id: `${programRecord.data.id}-${idify(md.code)}`,
+          name: `${prefix}${md.name}`,
+          programId: programRecord.data.id,
+          surveyType: md.surveyType,
+        },
+        'Metadata',
+        md.__rownum__ + 1,
+      );
 
       // don't import questions for obsoleted surveys
       // (or even read their worksheet, or check if it exists)
-      if (md.surveyType === "obsolete") {
+      if (md.surveyType === 'obsolete') {
         return [surveyRecord];
       }
 
       // Strip some characters from workbook names before trying to find them
       // (this mirrors the punctuation stripping that node-xlsx does internally)
       const worksheet = workbook.Sheets[md.name.replace(/['"]/g, '')] || workbook.Sheets[md.code];
-      if(!worksheet && md.surveyType !== "obsolete") {
+      if (!worksheet && md.surveyType !== 'obsolete') {
         const keys = Object.keys(workbook.Sheets);
         throw new Error(`Sheet named "${md.name}" was not found in the workbook. (found: ${keys})`);
       }
       const data = utils.sheet_to_json(worksheet);
-      
+
       const records = importSurveySheet(data, surveyRecord.data);
 
-      return [
-        surveyRecord,
-        ...records,
-      ];
-    }).flat();
+      return [surveyRecord, ...records];
+    })
+    .flat();
 
-  // let's also warn the user about ignored sheets
-  const ignoredSheetNames = Object.keys(workbook.Sheets).filter(name => {
-    if (name === "Metadata") {
-      return false;
-    } else if (surveyMetadata.some(md => md.name === name)) {
-      return false;
-    } else {
-      return true;
-    }
-  });
-
-  return [
-    programRecord,
-    ...surveys.flat(),
-  ];
+  return [programRecord, ...surveys.flat()];
 }
-

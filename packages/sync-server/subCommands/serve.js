@@ -7,6 +7,7 @@ import { createApp } from '../app/createApp';
 import { startScheduledTasks } from '../app/tasks';
 import { ApplicationContext } from '../app/ApplicationContext';
 import { version } from '../package.json';
+import { setupEnv } from '../app/env';
 
 const port = config.port;
 
@@ -39,6 +40,8 @@ export async function serve(options) {
     await store.sequelize.assertUpToDate(options);
   }
 
+  setupEnv();
+
   const app = createApp(context);
 
   if (process.env.PRINT_ROUTES === 'true') {
@@ -47,18 +50,23 @@ export async function serve(options) {
     console.log(getRoutes(app._router).join('\n'));
   }
 
-  app.listen(port, () => {
+  const server = app.listen(port, () => {
     log.info(`Server is running on port ${port}!`);
   });
   process.on('SIGTERM', () => {
-    app.close();
+    log.info('Received SIGTERM, closing HTTP server');
+    server.close();
   });
 
   // only execute tasks on the first worker process
   // NODE_APP_INSTANCE is set by PM2; if it's not present, assume this process is the first
   const isFirstProcess = !process.env.NODE_APP_INSTANCE || process.env.NODE_APP_INSTANCE === '0';
   if (isFirstProcess) {
-    await startScheduledTasks(context);
+    const stopScheduledTasks = await startScheduledTasks(context);
+    process.on('SIGTERM', () => {
+      log.info('Received SIGTERM, stopping scheduled tasks');
+      stopScheduledTasks();
+    });
   }
 
   if (config.notifications && config.notifications.referralCreated) {

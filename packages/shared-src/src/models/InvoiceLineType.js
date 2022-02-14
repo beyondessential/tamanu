@@ -21,19 +21,19 @@ export class InvoiceLineType extends Model {
 
   static initRelations(models) {
     this.belongsTo(models.ReferenceData, {
-      foreignKey: 'item_id',
+      foreignKey: 'itemId',
       as: 'procedureType',
       constraint: false,
     });
 
     this.belongsTo(models.ReferenceData, {
-      foreignKey: 'item_id',
+      foreignKey: 'itemId',
       as: 'imagingType',
       constraint: false,
     });
 
     this.belongsTo(models.LabTestType, {
-      foreignKey: 'item_id',
+      foreignKey: 'itemId',
       as: 'labTestType',
       constraint: false,
     });

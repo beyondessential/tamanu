@@ -1,6 +1,6 @@
 import React from 'react';
 import { startOfDay } from 'date-fns';
-import { CustomisablePatientSearchBar } from '../../views/patients/components/PatientSearchBar';
+import { CustomisableSearchBar } from '../CustomisableSearchBar';
 import { StyledSelectField, DateTimeField, AutocompleteField } from '../Field';
 import { Suggester } from '../../utils/suggester';
 import { appointmentTypeOptions, appointmentStatusOptions } from '../../constants';
@@ -9,7 +9,7 @@ import { useApi } from '../../api';
 export const AppointmentsSearchBar = ({ onSearch }) => {
   const api = useApi();
   return (
-    <CustomisablePatientSearchBar
+    <CustomisableSearchBar
       title="Search appointments"
       onSearch={values => {
         const { firstName, lastName, displayId, ...queries } = values;

@@ -1,6 +1,6 @@
 import { Sequelize, Op } from 'sequelize';
 import { groupBy } from 'lodash';
-import { generateReportFromQueryData } from './utilities';
+import { generateReportFromQueryData } from '../utilities';
 
 const parametersToSqlWhere = parameters => {
   const defaultWhereClause = {

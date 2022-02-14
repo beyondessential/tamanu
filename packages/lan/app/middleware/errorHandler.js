@@ -4,7 +4,9 @@ import { log } from 'shared/services/logging';
 // eslint-disable-next-line no-unused-vars
 export default function errorHandler(error, req, res, _) {
   const code = getCodeForErrorName(error.name);
-  if (code >= 500) {
+  if (error.name === 'BadAuthenticationError') {
+    log.warn(`Error ${code}: ${error.message}`);
+  } else if (code >= 500) {
     log.error(`Error ${code}: `, error);
   } else {
     log.info(`Error ${code}: `, error);
