@@ -19,11 +19,16 @@ import { DateFormats } from '~/ui/helpers/constants';
 const SurveyResponseItem = ({ surveyResponse, responseIndex }): ReactElement => {
   const navigation = useNavigation();
   const { survey, endTime = '', resultText } = surveyResponse;
+  const { isSensitive } = survey;
 
   const showResponseDetails = useCallback(
-    () => navigation.navigate(Routes.HomeStack.ProgramStack.SurveyResponseDetailsScreen, {
-      surveyResponseId: surveyResponse.id,
-    }),
+    () => {
+      if (!isSensitive) {
+        navigation.navigate(Routes.HomeStack.ProgramStack.SurveyResponseDetailsScreen, {
+          surveyResponseId: surveyResponse.id,
+        });
+      }
+    },
     [],
   );
 
