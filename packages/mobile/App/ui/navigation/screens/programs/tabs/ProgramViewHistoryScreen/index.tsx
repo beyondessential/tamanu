@@ -54,12 +54,12 @@ const SurveyResponseItem = ({ surveyResponse, responseIndex }): ReactElement => 
             <StyledText
               marginBottom="5"
               fontWeight="bold" 
-              color={isSensitive ? theme.colors.DISABLED_GREY : theme.colors.LIGHT_BLUE}
+              color={isSensitive ? theme.colors.DISABLED_GREY : theme.colors.TEXT_SUPER_DARK}
             >
               {survey.name}
             </StyledText>
             <StyledText
-              color={isSensitive ? theme.colors.DISABLED_GREY : theme.colors.TEXT_DARK}
+              color={isSensitive ? theme.colors.DISABLED_GREY : theme.colors.TEXT_MID}
               fontSize={13}
               fontWeight="bold"
             >
