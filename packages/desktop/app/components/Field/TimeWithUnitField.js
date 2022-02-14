@@ -36,10 +36,10 @@ const HiddenField = props => {
 };
 
 const UNIT_OPTIONS = [
-  { value: 'minutes', label: 'minutes', minutes: 1 },
-  { value: 'hours', label: 'hours', minutes: 60 },
-  { value: 'days', label: 'days', minutes: 1440 },
-  { value: 'weeks', label: 'weeks', minutes: 10080 },
+  { unit: 'minutes', minutes: 1 },
+  { unit: 'hours', minutes: 60 },
+  { unit: 'days', minutes: 1440 },
+  { unit: 'weeks', minutes: 10080 },
 ];
 
 export const TimeWithUnitInput = ({
@@ -51,10 +51,11 @@ export const TimeWithUnitInput = ({
   max,
   step,
   className,
+  ...props
 }) => {
-  const [unit, setUnit] = useState(UNIT_OPTIONS[0].value);
+  const [unit, setUnit] = useState(UNIT_OPTIONS[0].unit);
   const [value, setValue] = useState(0);
-  const selectedOption = UNIT_OPTIONS.find(o => o.value === unit);
+  const selectedOption = UNIT_OPTIONS.find(o => o.unit === unit);
 
   useEffect(() => {
     if (!valueInMinutes) {
@@ -86,18 +87,25 @@ export const TimeWithUnitInput = ({
     const newUnit = event.target.value;
     setUnit(newUnit);
 
-    const newOption = UNIT_OPTIONS.find(o => o.value === newUnit);
+    const newOption = UNIT_OPTIONS.find(o => o.unit === newUnit);
     updateExternalValue(value * newOption.minutes);
   };
 
   return (
-    <OuterLabelFieldWrapper label={label} className={className}>
+    <OuterLabelFieldWrapper label={label} className={className} {...props}>
       <FieldWrapper>
-        <MainField value={value} onChange={onValueChange} min={min} max={max} step={step} />
+        <MainField
+          value={value}
+          onChange={onValueChange}
+          min={min}
+          max={max}
+          step={step}
+          {...props}
+        />
         <Select select onChange={onUnitChange} value={unit}>
           {UNIT_OPTIONS.sort((a, b) => a.minutes - b.minutes).map(option => (
-            <MenuItem key={option.value} value={option.value}>
-              {option.label}
+            <MenuItem key={option.unit} value={option.unit}>
+              {option.unit}
             </MenuItem>
           ))}
         </Select>
