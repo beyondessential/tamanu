@@ -34,7 +34,8 @@ patientDeath.post(
     if (physician.role !== 'practitioner')
       throw new InvalidOperationError('Discharge physician must be a practitioner');
 
-    await db.transaction(async () => {
+    // TODO: can we enable transactions only in Postgres somehow?
+    // await db.transaction(async () => {
       await patient.update({ dateOfDeath: body.date });
 
       const activeEncounters = await patient.getEncounters({
@@ -51,7 +52,7 @@ patientDeath.post(
           endDate: body.date,
         });
       }
-    });
+    // });
 
     res.send({
       data: {},
