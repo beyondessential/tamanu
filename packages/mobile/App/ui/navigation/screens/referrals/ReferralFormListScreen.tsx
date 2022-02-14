@@ -2,21 +2,15 @@ import React, { ReactElement } from 'react';
 import { FlatList } from 'react-native';
 import { useNavigation } from '@react-navigation/native';
 import { FullView } from '/styled/common';
-import { compose } from 'redux';
 import { theme } from '/styled/theme';
 import { MenuOptionButton } from '/components/MenuOptionButton';
 import { Separator } from '/components/Separator';
 import { Routes } from '/helpers/routes';
-import { withPatient } from '/containers/Patient';
-import { IPatient, SurveyTypes } from '~/types';
+import { SurveyTypes } from '~/types';
 import { useBackendEffect } from '~/ui/hooks';
 import { ErrorScreen } from '~/ui/components/ErrorScreen';
 
-interface ProgramListScreenProps {
-  selectedPatient: IPatient;
-}
-
-const Screen = ({ selectedPatient }: ProgramListScreenProps): ReactElement => {
+export const ReferralFormListScreen = (): ReactElement => {
   const navigation = useNavigation();
 
   const [surveys, error] = useBackendEffect(({ models }) => models.Survey.find({
@@ -24,13 +18,15 @@ const Screen = ({ selectedPatient }: ProgramListScreenProps): ReactElement => {
   }));
 
   const onNavigateToSurvey = (survey): any => {
-    navigation.navigate(Routes.HomeStack.ProgramStack.ReferralTabs.AddReferralDetails, {
-      surveyId: survey.id,
-      surveyName: survey.name,
-      surveyType: SurveyTypes.Referral,
-    })
+    navigation.navigate(
+      Routes.HomeStack.ReferralStack.ReferralList.AddReferralDetails,
+      {
+        surveyId: survey.id,
+        surveyName: survey.name,
+        surveyType: SurveyTypes.Referral,
+      },
+    );
   };
-  
 
   return (
     <FullView>
@@ -61,5 +57,3 @@ const Screen = ({ selectedPatient }: ProgramListScreenProps): ReactElement => {
     </FullView>
   );
 };
-
-export const ReferralFormListScreen = compose(withPatient)(Screen);

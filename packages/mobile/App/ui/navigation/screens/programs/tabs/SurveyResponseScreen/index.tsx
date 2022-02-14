@@ -58,7 +58,7 @@ export const SurveyResponseScreen = ({
       if (!response) return;
       if (isReferral) {
         navigation.navigate(
-          Routes.HomeStack.ProgramStack.ReferralTabs.ViewHistory,
+          Routes.HomeStack.ReferralStack.ViewHistory.Index,
           {
             surveyId: surveyId,
             latestResponseId: response.id,

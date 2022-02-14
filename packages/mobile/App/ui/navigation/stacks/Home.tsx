@@ -1,4 +1,4 @@
-import React, { ReactElement, useContext, useEffect } from 'react';
+import React, { ReactElement, useContext } from 'react';
 // Navigators
 import {
   createStackNavigator,
@@ -7,14 +7,13 @@ import {
 // Components
 import { WelcomeIntroTabs } from './WelcomeIntro';
 import { HomeTabsStack } from './HomeTabs';
-import { PatientDetailsScreen } from '../screens/home/PatientDetails';
 // Stacks
 import { SearchPatientStack } from './SearchPatient';
 import { VaccineStack } from './VaccineStack';
 import { ProgramStack } from './ProgramStack';
 import { CheckUpStack } from './CheckUpStack';
 import { SickOrInjuredTabs } from './SickInjuredTabs';
-import { ReferralTabs } from './ReferralTabs';
+import { ReferralStack } from './ReferralStack';
 import { DeceasedStack } from './DeceasedStack';
 import { PatientActionsScreen } from '../screens/patientActions';
 import { HistoryVitalsStack } from './HistoryVitalsStack';
@@ -29,7 +28,7 @@ import AuthContext from '~/ui/contexts/AuthContext';
 
 const Stack = createStackNavigator();
 
-export const HomeStack = ({ navigator: Navi }): ReactElement => {
+export const HomeStack = (): ReactElement => {
   const authCtx = useContext(AuthContext);
 
   return (
@@ -94,8 +93,8 @@ export const HomeStack = ({ navigator: Navi }): ReactElement => {
         component={SickOrInjuredTabs}
       />
       <Stack.Screen
-        name={Routes.HomeStack.ProgramStack.ReferralTabs.Index}
-        component={ReferralTabs}
+        name={Routes.HomeStack.ReferralStack.Index}
+        component={ReferralStack}
       />
       <Stack.Screen
         name={Routes.HomeStack.DeceasedStack.Index}

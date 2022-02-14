@@ -13,11 +13,11 @@ export const ReferralFormStack = ({ route }): ReactElement => {
   return (
     <Stack.Navigator headerMode="none">
       <Stack.Screen
-        name={Routes.HomeStack.ProgramStack.ReferralTabs.Index}
+        name={Routes.HomeStack.ReferralStack.ReferralList.Index}
         component={ReferralFormListScreen}
       />
       <Stack.Screen
-        name={Routes.HomeStack.ProgramStack.ReferralTabs.AddReferralDetails}
+        name={Routes.HomeStack.ReferralStack.ReferralList.AddReferralDetails}
         initialParams={{
           surveyId,
           selectedPatient,

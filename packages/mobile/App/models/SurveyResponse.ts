@@ -178,7 +178,7 @@ export class SurveyResponse extends BaseModel implements ISurveyResponse {
       .leftJoinAndSelect('survey_response.encounter', 'encounter')
       .leftJoinAndSelect('survey_response.survey', 'survey')
       .where('encounter.patientId = :patientId', { patientId })
-      .andWhere('survey.id = :surveyId', { surveyId })
+      .andWhere('survey.id = :surveyId', { surveyId: surveyId.toLowerCase() })
       .orderBy('survey_response.endTime', 'DESC')
       .getMany();
   }
