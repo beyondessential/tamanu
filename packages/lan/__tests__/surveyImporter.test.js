@@ -28,6 +28,9 @@ describe('Importing programs', () => {
       const clonedRawData = cloneDeep(rawData);
       const requiredSurveyFields = ['id', 'surveyType', 'isSensitive'];
 
+const { recordGroups, ...resultInfo } = await preprocessRecordSet(clonedRawData);
+expect(resultInfo.errors.length).toBe(0);
+
       // Use for...of instead of forEach to properly await each loop
       for (const field of requiredSurveyFields) {
         // Get a fresh object with all keys/values
