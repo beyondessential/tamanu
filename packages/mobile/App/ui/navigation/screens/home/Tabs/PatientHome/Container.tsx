@@ -1,5 +1,12 @@
-import React, { ReactElement, useMemo, useCallback, useState, useEffect } from 'react';
+import React, {
+  ReactElement,
+  useMemo,
+  useCallback,
+  useState,
+  useEffect,
+} from 'react';
 import { compose } from 'redux';
+import { useIsFocused } from '@react-navigation/core';
 import { setStatusBar } from '/helpers/screen';
 import { Popup } from 'popup-ui';
 import { IPatientIssue, PatientIssueType } from '/types/IPatientIssue';
@@ -14,15 +21,14 @@ import { theme } from '/styled/theme';
 import { withPatient } from '/containers/Patient';
 import { useBackend, useBackendEffect } from '~/ui/hooks';
 import { ErrorScreen } from '~/ui/components/ErrorScreen';
-import { useIsFocused } from '@react-navigation/core';
 
 interface IPopup {
-  title: string,
-  textBody: string,
+  title: string;
+  textBody: string;
 }
 
-const showPopupChain = (popups : IPopup[]) => {
-  if(popups.length === 0) return;
+const showPopupChain = (popups: IPopup[]): void => {
+  if (popups.length === 0) return;
   const [currentPopup, ...restOfChain] = popups;
   const { title, textBody } = currentPopup;
 
@@ -31,27 +37,32 @@ const showPopupChain = (popups : IPopup[]) => {
     title,
     textBody,
     callback: () => {
-      restOfChain.length > 0 ? showPopupChain(restOfChain) : Popup.hide();
-    }
+      if (restOfChain.length > 0) {
+        showPopupChain(restOfChain);
+      } else {
+        Popup.hide();
+      }
+    },
   });
-}
+};
 
 const formatNoteToPopup = (note: string): IPopup => {
   const [firstPart, secondPart] = note.split(/:(.+)/);
-  return secondPart ? {
-    title: firstPart,
-    textBody: secondPart,
-  } : {
-    title: '',
-    textBody: firstPart,
-  }
-}
+  return secondPart
+    ? {
+      title: firstPart,
+      textBody: secondPart,
+    }
+    : {
+      title: '',
+      textBody: firstPart,
+    };
+};
 
-const showPatientWarningPopups = (issues: IPatientIssue[]) =>
-    showPopupChain(
-      issues
-        .filter(({type}) => type === PatientIssueType.Warning)
-        .map(({ note }) => formatNoteToPopup(note))
+const showPatientWarningPopups = (issues: IPatientIssue[]): void => showPopupChain(
+  issues
+    .filter(({ type }) => type === PatientIssueType.Warning)
+    .map(({ note }) => formatNoteToPopup(note)),
 );
 
 const PatientHomeContainer = ({
@@ -80,7 +91,7 @@ const PatientHomeContainer = ({
       {
         title: 'Referral',
         Icon: Icons.FamilyPlanningIcon,
-        onPress: (): void => navigation.navigate(Routes.HomeStack.ProgramStack.ReferralTabs.Index),
+        onPress: (): void => navigation.navigate(Routes.HomeStack.ReferralStack.Index),
       },
       {
         title: 'Vaccine',
@@ -117,22 +128,20 @@ const PatientHomeContainer = ({
   }, []);
 
   const { models, syncManager } = useBackend();
-  const onSyncPatient = useCallback(
-    async (): Promise<void> => {
-      try {
-        await models.Patient.markForSync(selectedPatient.id);
-        syncManager.runScheduledSync();
-        navigation.navigate(Routes.HomeStack.HomeTabs.SyncData);
-      } catch (error) {
-        setErrorMessage(error.message);
-      }
-    }, [selectedPatient],
-  );
+  const onSyncPatient = useCallback(async (): Promise<void> => {
+    try {
+      await models.Patient.markForSync(selectedPatient.id);
+      syncManager.runScheduledSync();
+      navigation.navigate(Routes.HomeStack.HomeTabs.SyncData);
+    } catch (error) {
+      setErrorMessage(error.message);
+    }
+  }, [selectedPatient]);
 
-  const [patientIssues, issuesError] = useBackendEffect(
-    ({ models }) => {
+  const [patientIssues] = useBackendEffect(
+    ({ models: _models }) => {
       if (isFocused) {
-        return models.PatientIssue.find({
+        return _models.PatientIssue.find({
           order: { recordedDate: 'ASC' },
           where: { patient: { id: selectedPatient.id } },
         });

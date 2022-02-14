@@ -27,8 +27,8 @@ type TabNavigationEventMap = {
 };
 
 type Props = DefaultNavigatorOptions<TabNavigationOptions> &
-  TabRouterOptions &
-  TabNavigationConfig;
+TabRouterOptions &
+TabNavigationConfig;
 
 function TabNavigator({
   initialRouteName,
@@ -37,10 +37,10 @@ function TabNavigator({
   ...rest
 }: Props): React.ReactElement {
   const { state, navigation, descriptors } = useNavigationBuilder<
-    TabNavigationState,
-    TabRouterOptions,
-    TabNavigationOptions,
-    TabNavigationEventMap
+  TabNavigationState,
+  TabRouterOptions,
+  TabNavigationOptions,
+  TabNavigationEventMap
   >(TabRouter, {
     children,
     screenOptions,

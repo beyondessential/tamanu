@@ -4,7 +4,7 @@ import { WithAuthStoreProps } from '../store/ducks/auth';
 
 export interface BaseAppProps
   extends WithPatientStoreProps,
-    WithAuthStoreProps {
+  WithAuthStoreProps {
   navigation: NavigationProp<any>;
   route: any;
 }

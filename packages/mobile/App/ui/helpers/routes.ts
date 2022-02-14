@@ -65,10 +65,16 @@ export const Routes = {
         AddDetails: '',
         ViewHistory: '',
       },
-      ReferralTabs: {
+    },
+    ReferralStack: {
+      Index: '',
+      ReferralList: {
         Index: '',
         AddReferralDetails: '',
-        ViewHistory: '',
+      },
+      ViewHistory: {
+        Index: '',
+        SurveyResponseDetailsScreen: '',
       },
     },
     SearchPatientStack: {
