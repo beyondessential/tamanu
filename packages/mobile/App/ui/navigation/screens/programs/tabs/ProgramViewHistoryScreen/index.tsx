@@ -10,6 +10,7 @@ import { LoadingScreen } from '/components/LoadingScreen';
 import { StyledView, StyledText } from '/styled/common';
 import { Separator } from '/components/Separator';
 import { SurveyResultBadge } from '/components/SurveyResultBadge';
+import { ArrowForwardIcon } from '/components/Icons';
 import { TouchableOpacity } from 'react-native-gesture-handler';
 
 import { useBackendEffect } from '~/ui/hooks';
@@ -58,6 +59,7 @@ const SurveyResponseItem = ({ surveyResponse, responseIndex }): ReactElement => 
             </StyledText>
           </StyledView>
           {resultText ? <SurveyResultBadge resultText={resultText} /> : null}
+          {!isSensitive ? <ArrowForwardIcon size={15} fill={theme.colors.TEXT_SOFT} /> : null}
         </StyledView>
       </StyledView>
     </TouchableOpacity>
