@@ -66,7 +66,7 @@ const SurveyResponseItem = ({ surveyResponse, responseIndex }): ReactElement => 
               {formatDate(endTime, DateFormats.DATE_AND_TIME)}
             </StyledText>
           </StyledView>
-          {resultText ? <SurveyResultBadge resultText={resultText} /> : null}
+          {!isSensitive && resultText ? <SurveyResultBadge resultText={resultText} /> : null}
           {!isSensitive ? <ArrowForwardIcon size={15} fill={theme.colors.TEXT_SOFT} /> : null}
         </StyledView>
       </StyledView>
