@@ -8,7 +8,8 @@ export class ReportRequest extends Model {
     super.init(
       {
         id: primaryKey,
-        reportType: { type: Sequelize.STRING, allowNull: false },
+        legacy: { type: Sequelize.BOOLEAN, allowNull: false, defaultValue: false },
+        versionId: { type: Sequelize.STRING, allowNull: false },
         recipients: { type: Sequelize.TEXT, allowNull: false },
         parameters: Sequelize.TEXT,
         status: { type: Sequelize.ENUM(REPORT_REQUEST_STATUS_VALUES), allowNull: false },
