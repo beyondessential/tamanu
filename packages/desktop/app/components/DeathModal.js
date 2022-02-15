@@ -13,7 +13,7 @@ export const DeathModal = React.memo(({ open, onClose }) => {
   const practitionerSuggester = useSuggester('practitioner');
   const facilitySuggester = useSuggester('facility');
 
-  const onSubmit = useCallback(
+  const recordPatientDeath = useCallback(
     () => async data => {
       const patientId = patient.id;
       await api.post(`patient/${patientId}/death`, data);
@@ -27,7 +27,7 @@ export const DeathModal = React.memo(({ open, onClose }) => {
   return (
     <Modal title="Record patient death" open={open} onClose={onClose}>
       <DeathForm
-        onSubmit={onSubmit}
+        onSubmit={recordPatientDeath}
         onCancel={onClose}
         patient={patient}
         icd10Suggester={icd10Suggester}
