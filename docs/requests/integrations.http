@@ -1,0 +1,28 @@
+@token=
+@server=https://sync-uat-fiji-vps.tamanu.io
+@since=0
+
+### Log in
+POST {{server}}/v1/login
+Content-Type: application/json
+
+{
+    "email": "admin@tamanu.io",
+    "password": ""
+}
+
+### DiagnosticReport
+GET {{server}}/v1/integration/fijiVps/DiagnosticReport
+    ?_sort=-issued
+    &_page=0
+    &status=final
+    &_include=DiagnosticReport%3Aresult
+    &_include=DiagnosticReport%3Aresult.device%3ADevice
+    &subject%3Aidentifier=http%3A%2F%2Fdata-dictionary.tamanu-fiji.org%2Fapplication-reference-number.html%7CLGED054362
+    &_count=1
+Authorization: Bearer {{token}}
+
+### Page 2
+GET {{server}}/v1/integration/fijiVps/DiagnosticReport
+    ?searchId=eyJzdGF0dXMiOiJmaW5hbCIsIl9pbmNsdWRlIjpbIkRpYWdub3N0aWNSZXBvcnQ6cmVzdWx0IiwiRGlhZ25vc3RpY1JlcG9ydDpyZXN1bHQuZGV2aWNlOkRldmljZSJdLCJfc29ydCI6Ii1pc3N1ZWQiLCJfcGFnZSI6MCwiX2NvdW50IjoxLCJzdWJqZWN0OmlkZW50aWZpZXIiOiJodHRwOi8vZGF0YS1kaWN0aW9uYXJ5LnRhbWFudS1maWppLm9yZy9hcHBsaWNhdGlvbi1yZWZlcmVuY2UtbnVtYmVyLmh0bWx8TEdFRDA1NDM2MiIsImFmdGVyIjp7ImNyZWF0ZWRBdCI6IjIwMjEtMTEtMDVUMDY6MDc6MzAuMjE3WiIsImlkIjoiMTNjZjk4OGUtNDkyZS00MWY5LTgzMGEtN2FkZTc2OGU0OWNmIn19
+Authorization: Bearer {{token}
