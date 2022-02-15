@@ -3,7 +3,6 @@ import React from 'react';
 import shortid from 'shortid';
 import { storiesOf } from '@storybook/react';
 import { action } from '@storybook/addon-actions';
-import styled from 'styled-components';
 import {
   createDummyVisit,
   createDummyPatient,
@@ -13,7 +12,6 @@ import {
   LOCATIONS,
   USERS,
 } from 'Shared/demoData';
-// import { LoginView } from '../app/views/LoginView';
 import { EncounterForm } from '../app/forms/EncounterForm';
 import { TriageForm } from '../app/forms/TriageForm';
 import { VitalsForm } from '../app/forms/VitalsForm';
@@ -27,12 +25,12 @@ import { PatientDetailsForm } from '../app/forms/PatientDetailsForm';
 import { LabRequestForm } from '../app/forms/LabRequestForm';
 import { ReferralForm } from '../app/forms/ReferralForm';
 import { MedicationForm } from '../app/forms/MedicationForm';
+import { DeathForm } from '../app/forms/DeathForm';
 import { FamilyHistoryForm } from '../app/forms/FamilyHistoryForm';
 import { NoteForm } from '../app/forms/NoteForm';
 import { createDummySuggester, mapToSuggestions } from './utils';
 import { TestSelectorInput } from '../app/components/TestSelector';
-import { Button } from '../app/components';
-import { DumbDeathModal } from '../app/components/DeathModal';
+import { Modal } from '../app/components/Modal';
 
 const PATIENTS = new Array(20).fill(0).map(x => createDummyPatient());
 
@@ -48,34 +46,26 @@ const patientSuggester = createDummySuggester(
 );
 const drugSuggester = createDummySuggester(mapToSuggestions(DRUGS));
 
-const Container = styled.div`
-  padding: 1rem 3rem;
-  max-width: 700px;
-`;
-
 storiesOf('Forms', module).add('DeathForm', () => {
-  const [isModalOpen, setModalOpen] = React.useState(true);
-  const openModal = () => setModalOpen(true);
-  const closeModal = () => setModalOpen(false);
-
-  const handleSave = async data => {
+  const onSubmit = data => {
     console.log('submit...', data);
   };
 
+  const onCancel = () => {
+    console.log('cancel...');
+  };
+
   return (
-    <Container>
-      <Button variant="contained" color="primary" onClick={openModal}>
-        Record death
-      </Button>
-      <DumbDeathModal
-        open={isModalOpen}
-        onClose={closeModal}
-        onSave={handleSave}
+    <Modal title="Record patient death" open>
+      <DeathForm
+        onCancel={onCancel}
+        onSubmit={onSubmit}
+        patient={PATIENTS[0]}
         practitionerSuggester={practitionerSuggester}
         icd10Suggester={icd10Suggester}
         facilitySuggester={facilitySuggester}
       />
-    </Container>
+    </Modal>
   );
 });
 

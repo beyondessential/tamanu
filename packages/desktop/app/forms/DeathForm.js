@@ -1,9 +1,14 @@
 import React from 'react';
+import * as yup from 'yup';
 import { Typography } from '@material-ui/core';
 import styled from 'styled-components';
+import moment from 'moment';
 import MuiBox from '@material-ui/core/Box';
 import { FormGrid } from '../components/FormGrid';
+import { FormSeparatorLine } from '../components/FormSeparatorLine';
 import {
+  Button,
+  OutlinedButton,
   Field,
   AutocompleteField,
   DateTimeField,
@@ -14,9 +19,7 @@ import {
   NumberField,
   SelectField,
   PaginatedForm,
-} from '../components/Field';
-import { FormSeparatorLine } from '../components/FormSeparatorLine';
-import { Button, OutlinedButton } from '../components';
+} from '../components';
 
 const binaryOptions = [
   { value: 'yes', label: 'Yes' },
@@ -56,31 +59,29 @@ const Text = styled(Typography)`
   margin-bottom: 30px;
 `;
 
-const ConfirmScreen = ({ onStepBack, submitForm, onCancel }) => {
-  return (
-    <FormGrid columns={1}>
-      <RedHeading>Confirm death record</RedHeading>
-      <Heading>
-        This action is irreversible. Are you sure you want to record the death of a patient?
-      </Heading>
-      <Text>
-        This should only be done under the direction of the responsible clinician. Do you wish to
-        proceed?
-      </Text>
-      <Actions>
-        <OutlinedButton onClick={onStepBack || undefined} disabled={!onStepBack}>
-          Back
-        </OutlinedButton>
-        <MuiBox>
-          <OutlinedButton onClick={onCancel}>Cancel</OutlinedButton>
-          <Button color="primary" variant="contained" onClick={submitForm}>
-            Record Death
-          </Button>
-        </MuiBox>
-      </Actions>
-    </FormGrid>
-  );
-};
+const ConfirmScreen = ({ onStepBack, submitForm, onCancel }) => (
+  <FormGrid columns={1}>
+    <RedHeading>Confirm death record</RedHeading>
+    <Heading>
+      This action is irreversible. Are you sure you want to record the death of a patient?
+    </Heading>
+    <Text>
+      This should only be done under the direction of the responsible clinician. Do you wish to
+      proceed?
+    </Text>
+    <Actions>
+      <OutlinedButton onClick={onStepBack || undefined} disabled={!onStepBack}>
+        Back
+      </OutlinedButton>
+      <MuiBox>
+        <OutlinedButton onClick={onCancel}>Cancel</OutlinedButton>
+        <Button color="primary" variant="contained" onClick={submitForm}>
+          Record Death
+        </Button>
+      </MuiBox>
+    </Actions>
+  </FormGrid>
+);
 
 const PLACES = [
   'Home',
@@ -92,6 +93,7 @@ const PLACES = [
   'Industrial or construction area',
   'Bush or reserve',
   'Farm',
+  'Other',
 ];
 
 const placeOptions = Object.values(PLACES).map(type => ({
@@ -115,16 +117,34 @@ const mannerOfDeathOptions = Object.values(MANNER_OF_DEATHS).map(type => ({
   value: type,
 }));
 
+const mannerOfDeathVisibilityCriteria = {
+  mannerOfDeath: MANNER_OF_DEATHS.filter(x => x !== 'Disease'),
+};
+
 /**
  * onCancel: closes modal
  * onSubmit: make api request
  */
-// Todo: Add form validation and visibility criteria @see https://linear.app/bes/issue/WAITM-34/update-record-death-form-in-desktop
-// Note: This form is currently not visible
 export const DeathForm = React.memo(
-  ({ onCancel, onSubmit, practitionerSuggester, icd10Suggester, facilitySuggester }) => {
+  ({ onCancel, onSubmit, patient, practitionerSuggester, icd10Suggester, facilitySuggester }) => {
+    const patientYearsOld = moment().diff(patient.dateOfBirth, 'years');
+    const isAdultFemale = patient.sex === 'female' && patientYearsOld >= 12;
+
+    const patientMonthsOld = moment().diff(patient.dateOfBirth, 'months');
+    const isInfant = patientMonthsOld >= 2;
+
     return (
-      <PaginatedForm onSubmit={onSubmit} onCancel={onCancel} SummaryScreen={ConfirmScreen}>
+      <PaginatedForm
+        onSubmit={onSubmit}
+        onCancel={onCancel}
+        SummaryScreen={ConfirmScreen}
+        validationSchema={yup.object().shape({
+          causeOfDeath: yup.string().required(),
+          causeOfDeathInterval: yup.string().required(),
+          clinicianId: yup.string().required(),
+          timeOfDeath: yup.string().required(),
+        })}
+      >
         <FormGrid columns={2}>
           <Field
             name="causeOfDeath"
@@ -208,22 +228,24 @@ export const DeathForm = React.memo(
             suggester={icd10Suggester}
           />
         </FormGrid>
-        <FormGrid columns={1}>
-          <Field
-            name="pregnant"
-            label="If this was a woman, was the woman pregnant?"
-            inline
-            component={RadioField}
-            options={binaryUnknownOptions}
-          />
-          <Field
-            name="pregnancyContribute"
-            label="Did the pregnancy contribute to the death?"
-            inline
-            component={RadioField}
-            options={binaryUnknownOptions}
-          />
-        </FormGrid>
+        {isAdultFemale ? (
+          <FormGrid columns={1}>
+            <Field
+              name="pregnant"
+              label="If this was a woman, was the woman pregnant?"
+              inline
+              component={RadioField}
+              options={binaryUnknownOptions}
+            />
+            <Field
+              name="pregnancyContribute"
+              label="Did the pregnancy contribute to the death?"
+              inline
+              component={RadioField}
+              options={binaryUnknownOptions}
+            />
+          </FormGrid>
+        ) : null}
         <FormGrid columns={1}>
           <Field
             name="mannerOfDeath"
@@ -235,53 +257,62 @@ export const DeathForm = React.memo(
             name="mannerOfDeathDate"
             label="What date did this external cause occur?"
             component={DateField}
+            visibilityCriteria={mannerOfDeathVisibilityCriteria}
           />
           <Field
             name="mannerOfDeathLocation"
             label="Where did this external cause occur?"
             component={SelectField}
             options={placeOptions}
-          />
-          <Field name="mannerOfDeathOther" label="Other" component={TextField} />
-        </FormGrid>
-        <FormGrid columns={1}>
-          <Field
-            name="fetalOrInfant"
-            label="Was the death fetal or infant?"
-            component={RadioField}
-            options={binaryOptions}
+            visibilityCriteria={mannerOfDeathVisibilityCriteria}
           />
           <Field
-            name="stillborn"
-            label="Was it a stillbirth?"
-            component={RadioField}
-            options={binaryUnknownOptions}
-          />
-          <Field name="birthWeight" label="Birth Weight (grams):" component={NumberField} />
-          <Field
-            name="numberOfCompletedPregnancyWeeks"
-            label="Number of completed weeks of pregnancy:"
-            component={NumberField}
-          />
-          <Field name="ageOfMother" label="Age of mother" component={NumberField} />
-          <Field
-            name="motherExistingCondition"
-            label="Any condition in mother affecting the fetus or newborn?"
-            component={AutocompleteField}
-            suggester={icd10Suggester}
-          />
-          <Field
-            name="deathWithin24HoursOfBirth"
-            label="Was the death within 24 hours of birth?"
-            component={RadioField}
-            options={binaryOptions}
-          />
-          <Field
-            name="numberOfHoursSurvivedSinceBirth"
-            label="If yes, number of hours survived"
-            component={NumberField}
+            name="mannerOfDeathOther"
+            label="Other"
+            component={TextField}
+            visibilityCriteria={{ mannerOfDeathLocation: 'Other' }}
           />
         </FormGrid>
+        {isInfant ? (
+          <FormGrid columns={1}>
+            <Field
+              name="fetalOrInfant"
+              label="Was the death fetal or infant?"
+              component={RadioField}
+              options={binaryOptions}
+            />
+            <Field
+              name="stillborn"
+              label="Was it a stillbirth?"
+              component={RadioField}
+              options={binaryUnknownOptions}
+            />
+            <Field name="birthWeight" label="Birth Weight (grams):" component={NumberField} />
+            <Field
+              name="numberOfCompletedPregnancyWeeks"
+              label="Number of completed weeks of pregnancy:"
+              component={NumberField}
+            />
+            <Field name="ageOfMother" label="Age of mother" component={NumberField} />
+            <Field
+              name="motherExistingCondition"
+              label="Any condition in mother affecting the fetus or newborn?"
+              component={AutocompleteField}
+              suggester={icd10Suggester}
+            />
+            <Field
+              name="deathWithin24HoursOfBirth"
+              label="Was the death within 24 hours of birth?"
+              component={RadioField}
+              options={binaryOptions}
+            />
+            <Field
+              name="numberOfHoursSurvivedSinceBirth"
+              label="If yes, number of hours survived"
+              component={NumberField}
+            />
+          </FormGrid>
+        ) : null}
       </PaginatedForm>
     );
   },
