@@ -22,6 +22,28 @@
 
 - (left blank)
 
+## v1.12.4
+
+### Manual steps required after upgrade ⚙
+
+- (left blank)
+
+### Features ⭐
+
+- (left blank)
+
+### Tweaks ⚖️
+
+- Small tweaks to `kiribati-covid-swab-lab-test-list`
+
+### Bug fixes 🐛
+
+- (left blank)
+
+### Infrastructure and maintenance 🛠
+
+- (left blank)
+
 ## v1.12.3
 
 ### Manual steps required after upgrade ⚙
