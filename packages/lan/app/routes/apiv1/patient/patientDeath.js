@@ -33,6 +33,8 @@ patientDeath.post(
     if (!physician) throw new NotFoundError('Discharge physician not found');
     if (physician.role !== 'practitioner')
       throw new InvalidOperationError('Discharge physician must be a practitioner');
+      // TODO: change this to new permission model when that lands
+      // i.e. "can record death" rather than "is a practitioner".
 
     // TODO: can we enable transactions only in Postgres somehow?
     // await db.transaction(async () => {
