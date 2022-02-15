@@ -43,7 +43,7 @@
     },
     "dynamicLimiter": {
       "exportLimit": 100,
-      "initialPullLimit": 100,
+      "initialPullLimit": 10, // start with a relatively low limit then grow upward
       "minPullLimit": 1,
       "maxPullLimit": 10000,
       "optimalPullTimePerPageMs": 2000, // aim for 2 seconds per page
