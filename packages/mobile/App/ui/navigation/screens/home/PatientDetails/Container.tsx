@@ -10,6 +10,7 @@ import { Routes } from '~/ui/helpers/routes';
 import { withPatient } from '~/ui/containers/Patient';
 import { ErrorScreen } from '~/ui/components/ErrorScreen';
 import { LoadingScreen } from '~/ui/components/LoadingScreen';
+import { useLocalisation } from '~/ui/contexts/LocalisationContext';
 
 const Container = ({
   navigation,
@@ -54,6 +55,8 @@ const Container = ({
 
   const [reminders, setReminders] = useState(patientData.reminderWarnings);
   const [editField, setEditField] = useState(false);
+  const { getBool } = useLocalisation();
+  const isEditable = getBool('features.editPatientDetailsOnMobile');
 
   const changeReminder = useCallback((value: boolean) => {
     setReminders(value);
@@ -70,6 +73,14 @@ const Container = ({
   const onEditField = useCallback(() => {
     setEditField(!editField);
   }, [editField]);
+
+  const onEditPatient = useCallback(() => {
+    console.log('edit Patient');
+  }, []);
+
+  const onEditPatientAdditionalData = useCallback(() => {
+    console.log('edit PatientAdditionalData');
+  }, []);
 
   const onEditPatientIssues = useCallback(() => {
     navigation.navigate(Routes.HomeStack.PatientDetailsStack.AddPatientIssue);
@@ -88,6 +99,8 @@ const Container = ({
       patientData={patientData}
       onNavigateBack={onNavigateBack}
       onEditField={onEditField}
+      onEditPatient={isEditable ? onEditPatient : undefined}
+      onEditPatientAdditionalData={isEditable ? onEditPatientAdditionalData : undefined}
       onEditPatientIssues={onEditPatientIssues}
       reminders={reminders}
       changeReminder={changeReminder}

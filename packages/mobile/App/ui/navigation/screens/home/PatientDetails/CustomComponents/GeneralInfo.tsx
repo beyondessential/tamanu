@@ -6,8 +6,12 @@ import { DateFormats } from '/helpers/constants';
 import { FieldRowDisplay } from '~/ui/components/FieldRowDisplay';
 import { PatientSection } from './PatientSection';
 
+interface GeneralInfoProps extends PatientGeneralInformationDataProps {
+  onEdit: () => void;
+}
+
 export const GeneralInfo = (
-  data: PatientGeneralInformationDataProps,
+  data: GeneralInfoProps,
 ): ReactElement => {
   const fields = [
     ['firstName', data.generalInfo.firstName],
@@ -22,7 +26,7 @@ export const GeneralInfo = (
     <PatientSection
       hasSeparator={false}
       title="General Information"
-      onEdit={(): void => console.log('edit Patient')}
+      onEdit={data.onEdit}
     >
       <FieldRowDisplay fields={fields} fieldsPerRow={2} />
     </PatientSection>

@@ -5,6 +5,7 @@ import { PatientSection } from './PatientSection';
 
 export const AdditionalInfo = ({
   data,
+  onEdit,
 }): ReactElement => {
   const fields = [
     ['birthCertificate', data?.birthCertificate],
@@ -35,7 +36,11 @@ export const AdditionalInfo = ({
   ];
 
   return (
-    <PatientSection hasSeparator title="Additional Information" onEdit={(): void => console.log('edit PatientAdditionalData')}>
+    <PatientSection
+      hasSeparator
+      title="Additional Information"
+      onEdit={onEdit}
+    >
       <FieldRowDisplay fields={fields} fieldsPerRow={2} />
     </PatientSection>
   );
