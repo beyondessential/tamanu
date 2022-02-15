@@ -29,7 +29,7 @@ export const SurveyResponseLink = ({
         });
       }
     },
-    [],
+    [isSensitive, navigation, surveyResponse],
   );
 
   return (
