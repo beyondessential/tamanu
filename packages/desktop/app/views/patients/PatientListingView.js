@@ -53,6 +53,9 @@ const PatientTable = React.memo(({ onViewPatient, showInpatientDetails, ...props
       columns={columns}
       noDataMessage="No patients found"
       onRowClick={row => onViewPatient(row.id)}
+      rowStyle={({ patientStatus }) =>
+        patientStatus === 'deceased' ? '& > td:not(:first-child) { color: #ed333a; }' : ''
+      }
       {...props}
     />
   );

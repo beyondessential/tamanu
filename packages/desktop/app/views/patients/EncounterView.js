@@ -32,12 +32,13 @@ import { connectRoutedModal } from '../../components/Modal';
 import { NoteModal } from '../../components/NoteModal';
 import { NoteTable } from '../../components/NoteTable';
 import { TopBar, DateDisplay, TopBarHeading } from '../../components';
-import { DocumentsPane } from './panes';
+import { DocumentsPane, InvoicingPane } from './panes';
 import { DropdownButton } from '../../components/DropdownButton';
 import { FormGrid } from '../../components/FormGrid';
 import { SelectInput, DateInput, TextInput } from '../../components/Field';
 import { encounterOptions, ENCOUNTER_OPTIONS_BY_VALUE, Colors } from '../../constants';
 import { useEncounter } from '../../contexts/Encounter';
+import { useLocalisation } from '../../contexts/Localisation';
 
 const getIsTriage = encounter => ENCOUNTER_OPTIONS_BY_VALUE[encounter.encounterType].triageFlowOnly;
 
@@ -277,42 +278,46 @@ const TABS = [
     key: 'documents',
     render: props => <DocumentsPane {...props} />,
   },
+  {
+    label: 'Invoicing',
+    key: 'invoicing',
+    render: props => <InvoicingPane {...props} />,
+    condition: getLocalisation => getLocalisation('features.enableInvoicing'),
+  },
 ];
 
 const getDepartmentName = ({ department }) => (department ? department.name : 'Unknown');
 const getLocationName = ({ location }) => (location ? location.name : 'Unknown');
 const getExaminerName = ({ examiner }) => (examiner ? examiner.displayName : 'Unknown');
 
-const EncounterInfoPane = React.memo(({ disabled, encounter }) => {
-  return (
-    <FormGrid columns={3}>
-      <DateInput disabled={disabled} value={encounter.startDate} label="Arrival date" />
-      <DateInput disabled={disabled} value={encounter.endDate} label="Discharge date" />
-      <TextInput disabled={disabled} value={getDepartmentName(encounter)} label="Department" />
-      <TextInput disabled={disabled} value={getLocationName(encounter)} label="Location" />
-      <SelectInput
-        disabled={disabled}
-        value={encounter.encounterType}
-        label="Encounter type"
-        options={encounterOptions}
-      />
-      <TextInput disabled={disabled} value={getExaminerName(encounter)} label="Doctor/nurse" />
-      {encounter.plannedLocation && (
-        <TextInput
-          disabled={disabled}
-          value={encounter.plannedLocation.name}
-          label="Planned location"
-        />
-      )}
+const EncounterInfoPane = React.memo(({ disabled, encounter }) => (
+  <FormGrid columns={3}>
+    <DateInput disabled={disabled} value={encounter.startDate} label="Arrival date" />
+    <DateInput disabled={disabled} value={encounter.endDate} label="Discharge date" />
+    <TextInput disabled={disabled} value={getDepartmentName(encounter)} label="Department" />
+    <TextInput disabled={disabled} value={getLocationName(encounter)} label="Location" />
+    <SelectInput
+      disabled={disabled}
+      value={encounter.encounterType}
+      label="Encounter type"
+      options={encounterOptions}
+    />
+    <TextInput disabled={disabled} value={getExaminerName(encounter)} label="Doctor/nurse" />
+    {encounter.plannedLocation && (
       <TextInput
         disabled={disabled}
-        value={encounter.reasonForEncounter}
-        label="Reason for encounter"
-        style={{ gridColumn: 'span 3' }}
+        value={encounter.plannedLocation.name}
+        label="Planned location"
       />
-    </FormGrid>
-  );
-});
+    )}
+    <TextInput
+      disabled={disabled}
+      value={encounter.reasonForEncounter}
+      label="Reason for encounter"
+      style={{ gridColumn: 'span 3' }}
+    />
+  </FormGrid>
+));
 
 const RoutedDischargeModal = connectRoutedModal('/patients/encounter', 'discharge')(DischargeModal);
 const RoutedChangeEncounterTypeModal = connectRoutedModal(
@@ -464,6 +469,7 @@ function getHeaderText({ encounterType }) {
 }
 
 export const EncounterView = () => {
+  const { getLocalisation } = useLocalisation();
   const patient = useSelector(state => state.patient);
   const { encounter, isLoadingEncounter } = useEncounter();
   const [currentTab, setCurrentTab] = React.useState('vitals');
@@ -471,6 +477,7 @@ export const EncounterView = () => {
 
   if (!encounter || isLoadingEncounter || patient.loading) return <LoadingIndicator />;
 
+  const visibleTabs = TABS.filter(tab => !tab.condition || tab.condition(getLocalisation));
   return (
     <TwoColumnDisplay>
       <PatientInfoPane patient={patient} disabled={disabled} />
@@ -505,7 +512,7 @@ export const EncounterView = () => {
           />
         </ContentPane>
         <TabDisplay
-          tabs={TABS}
+          tabs={visibleTabs}
           currentTab={currentTab}
           onTabSelect={setCurrentTab}
           encounter={encounter}
