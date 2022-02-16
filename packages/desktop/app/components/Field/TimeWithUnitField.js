@@ -47,7 +47,7 @@ export const TimeWithUnitInput = ({
   value: valueInMinutes,
   label,
   name,
-  min,
+  min = 0,
   max,
   step,
   className,
@@ -65,11 +65,9 @@ export const TimeWithUnitInput = ({
     const multiple = UNIT_OPTIONS.sort((a, b) => b.minutes - a.minutes).find(
       o => valueInMinutes % o.minutes === 0,
     );
-    if (multiple.minutes > 1) {
-      setUnit(multiple.value);
-      const newValue = valueInMinutes / multiple.minutes;
-      setValue(newValue);
-    }
+    setUnit(multiple.unit);
+    const newValue = valueInMinutes / multiple.minutes;
+    setValue(newValue);
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 

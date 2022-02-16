@@ -1,4 +1,4 @@
-import React, { useCallback } from 'react';
+import React from 'react';
 import { useDispatch, useSelector } from 'react-redux';
 import { viewPatient } from '../store/patient';
 import { Modal } from './Modal';
@@ -13,16 +13,13 @@ export const DeathModal = React.memo(({ open, onClose }) => {
   const practitionerSuggester = useSuggester('practitioner');
   const facilitySuggester = useSuggester('facility');
 
-  const recordPatientDeath = useCallback(
-    () => async data => {
-      const patientId = patient.id;
-      await api.post(`patient/${patientId}/death`, data);
+  const recordPatientDeath = async data => {
+    const patientId = patient.id;
+    await api.post(`patient/${patientId}/death`, data);
 
-      onClose();
-      dispatch(viewPatient(patientId));
-    },
-    [patient, api, dispatch, onClose],
-  );
+    onClose();
+    dispatch(viewPatient(patientId));
+  };
 
   return (
     <Modal title="Record patient death" open={open} onClose={onClose}>
