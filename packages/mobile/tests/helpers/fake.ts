@@ -67,6 +67,7 @@ export const fakeSurvey = (): ISurvey => ({
   programId: null,
   name: 'survey-name',
   surveyType: SurveyTypes.Programs,
+  isSensitive: false,
 });
 
 export const fakeSurveyScreenComponent = (): ISurveyScreenComponent => ({

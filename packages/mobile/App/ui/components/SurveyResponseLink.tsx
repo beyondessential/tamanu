@@ -1,11 +1,22 @@
-import React, { ReactElement } from 'react';
+import React, { ReactElement, useCallback } from 'react';
 import { useNavigation } from '@react-navigation/native';
 import { TouchableOpacity } from 'react-native-gesture-handler';
 import { theme } from '/styled/theme';
 import { formatDate } from '/helpers/date';
-import { StyledView, StyledText } from '/styled/common';
+import { StyledView, StyledText, FullView } from '/styled/common';
 import { SurveyResultBadge } from '/components/SurveyResultBadge';
+import { ArrowForwardIcon } from '/components/Icons';
 import { DateFormats } from '~/ui/helpers/constants';
+
+const SensitiveResponseLabel = (): ReactElement => (
+  <StyledText
+    color={theme.colors.DISABLED_GREY}
+    fontSize={13}
+    fontWeight="bold"
+  >
+    Sensitive - not viewable
+  </StyledText>
+);
 
 export const SurveyResponseLink = ({
   surveyResponse,
@@ -18,14 +29,21 @@ export const SurveyResponseLink = ({
     return null;
   }
   const { survey, endTime = '', resultText } = surveyResponse;
+  const { isSensitive } = survey;
+
+  const showResponseDetails = useCallback(
+    (): void => {
+      if (!isSensitive) {
+        navigation.navigate(detailsRouteName, {
+          surveyResponseId: surveyResponse.id,
+        });
+      }
+    },
+    [isSensitive, navigation, surveyResponse],
+  );
 
   return (
-    <TouchableOpacity
-      onPress={(): void => navigation.navigate(detailsRouteName, {
-        surveyResponseId: surveyResponse.id,
-      })
-      }
-    >
+    <TouchableOpacity onPress={showResponseDetails}>
       <StyledView
         height={60}
         justifyContent="space-between"
@@ -41,23 +59,31 @@ export const SurveyResponseLink = ({
           alignItems="center"
           flexDirection="row"
         >
-          <StyledView>
+          <FullView>
             <StyledText
               marginBottom="5"
               fontWeight="bold"
-              color={theme.colors.LIGHT_BLUE}
+              color={isSensitive ? theme.colors.DISABLED_GREY : theme.colors.TEXT_SUPER_DARK}
             >
               {survey.name}
             </StyledText>
-            <StyledText
-              color={theme.colors.TEXT_DARK}
-              fontSize={13}
-              fontWeight="bold"
+            <StyledView
+              justifyContent="space-between"
+              alignItems="center"
+              flexDirection="row"
             >
-              {formatDate(endTime, DateFormats.DATE_AND_TIME)}
-            </StyledText>
-          </StyledView>
-          {resultText ? <SurveyResultBadge resultText={resultText} /> : null}
+              <StyledText
+                color={isSensitive ? theme.colors.DISABLED_GREY : theme.colors.TEXT_MID}
+                fontSize={13}
+                fontWeight="bold"
+              >
+                {formatDate(endTime, DateFormats.DATE_AND_TIME)}
+              </StyledText>
+              {isSensitive ? <SensitiveResponseLabel /> : null}
+            </StyledView>
+          </FullView>
+          {!isSensitive && resultText ? <SurveyResultBadge resultText={resultText} /> : null}
+          {!isSensitive ? <ArrowForwardIcon size={15} fill={theme.colors.TEXT_SOFT} /> : null}
         </StyledView>
       </StyledView>
     </TouchableOpacity>
