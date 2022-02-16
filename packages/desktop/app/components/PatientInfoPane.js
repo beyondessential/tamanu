@@ -117,31 +117,17 @@ const CarePlanDisplay = memo(({ patient, readonly }) => (
   />
 ));
 
-const Container = styled.div`
-  background: ${Colors.white};
-  min-height: 100vh;
-  border-right: 1px solid ${Colors.outline};
-`;
-
-const ListsSection = styled.div`
-  margin-top: 15px;
-  padding: 20px;
-`;
-
 const RecordDeathSection = memo(({ patient, readonly }) => {
-  const { getLocalisation } = useLocalisation();
   const [isModalOpen, setModalOpen] = useState(false);
   const openModal = useCallback(() => setModalOpen(true), [setModalOpen]);
   const closeModal = useCallback(() => setModalOpen(false), [setModalOpen]);
-
-  const patientDeathsEnabled = getLocalisation('features.enablePatientDeaths');
 
   return (
     <>
       <Button
         variant="contained"
         color="primary"
-        disabled={!patientDeathsEnabled || patient.dateOfDeath || readonly}
+        disabled={patient.dateOfDeath || readonly}
         onClick={openModal}
       >
         Record death
@@ -154,27 +140,39 @@ const RecordDeathSection = memo(({ patient, readonly }) => {
 
 const PrintSection = memo(({ patient }) => <PatientPrintDetailsModal patient={patient} />);
 
+const Container = styled.div`
+  background: ${Colors.white};
+  min-height: 100vh;
+  border-right: 1px solid ${Colors.outline};
+`;
+
+const ListsSection = styled.div`
+  margin-top: 15px;
+  padding: 20px;
+`;
+
 const Buttons = styled(ButtonRow)`
   margin-top: 30px;
 `;
 
-const InfoPaneLists = memo(props => (
-  <ListsSection>
-    <OngoingConditionDisplay {...props} />
-    <AllergyDisplay {...props} />
-    <FamilyHistoryDisplay {...props} />
-    <PatientIssuesDisplay {...props} />
-    <CarePlanDisplay {...props} />
-    <Buttons>
-      <PrintSection {...props} />
-      <RecordDeathSection {...props} />
-    </Buttons>
-  </ListsSection>
-));
+export const PatientInfoPane = memo(({ patient, readonly }) => {
+  const { getLocalisation } = useLocalisation();
+  const patientDeathsEnabled = getLocalisation('features.enablePatientDeaths');
 
-export const PatientInfoPane = memo(({ patient, readonly }) => (
-  <Container>
-    <CoreInfoDisplay patient={patient} />
-    <InfoPaneLists patient={patient} readonly={readonly} />
-  </Container>
-));
+  return (
+    <Container>
+      <CoreInfoDisplay patient={patient} />
+      <ListsSection>
+        <OngoingConditionDisplay patient={patient} readonly={readonly} />
+        <AllergyDisplay patient={patient} readonly={readonly} />
+        <FamilyHistoryDisplay patient={patient} readonly={readonly} />
+        <PatientIssuesDisplay patient={patient} readonly={readonly} />
+        <CarePlanDisplay patient={patient} readonly={readonly} />
+        <Buttons>
+          <PrintSection patient={patient} readonly={readonly} />
+          {patientDeathsEnabled && <RecordDeathSection patient={patient} readonly={readonly} />}
+        </Buttons>
+      </ListsSection>
+    </Container>
+  );
+});
