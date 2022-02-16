@@ -121,6 +121,7 @@ export const Routes = {
     PatientDetailsStack: {
       Index: '',
       AddPatientIssue: '',
+      EditPatient: '',
     },
     PatientActions: '',
     ExportDataScreen: '',
