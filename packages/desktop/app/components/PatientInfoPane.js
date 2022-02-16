@@ -21,6 +21,7 @@ import { DeathModal } from './DeathModal';
 import { Colors } from '../constants';
 
 import { PatientCarePlanDetails } from './PatientCarePlanNotes';
+import { useLocalisation } from '../contexts/Localisation';
 
 const OngoingConditionDisplay = memo(({ patient, readonly }) => (
   <InfoPaneList
@@ -116,6 +117,28 @@ const CarePlanDisplay = memo(({ patient, readonly }) => (
   />
 ));
 
+const RecordDeathSection = memo(({ patient, readonly }) => {
+  const [isModalOpen, setModalOpen] = useState(false);
+  const openModal = useCallback(() => setModalOpen(true), [setModalOpen]);
+  const closeModal = useCallback(() => setModalOpen(false), [setModalOpen]);
+
+  return (
+    <>
+      <Button
+        variant="contained"
+        color="primary"
+        disabled={patient.dateOfDeath || readonly}
+        onClick={openModal}
+      >
+        Record death
+      </Button>
+      <DeathModal disabled={readonly} open={isModalOpen} onClose={closeModal} patient={patient} />
+    </>
+  );
+});
+
+const PrintSection = memo(({ patient }) => <PatientPrintDetailsModal patient={patient} />);
+
 const Container = styled.div`
   background: ${Colors.white};
   min-height: 100vh;
@@ -127,45 +150,28 @@ const ListsSection = styled.div`
   padding: 20px;
 `;
 
-const RecordDeathSection = memo(({ patient, readonly }) => {
-  const [isModalOpen, setModalOpen] = useState(false);
-  const openModal = useCallback(() => setModalOpen(true), [setModalOpen]);
-  const closeModal = useCallback(() => setModalOpen(false), [setModalOpen]);
-
-  return (
-    <>
-      {/* Todo: enable death form modal @see https://linear.app/bes/issue/WAITM-34/update-record-death-form-in-desktop */}
-      <Button variant="contained" color="primary" onClick={openModal} disabled>
-        Record death
-      </Button>
-      <DeathModal disabled={readonly} open={isModalOpen} onClose={closeModal} patient={patient} />
-    </>
-  );
-});
-
-const PrintSection = memo(({ patient }) => <PatientPrintDetailsModal patient={patient} />);
-
 const Buttons = styled(ButtonRow)`
   margin-top: 30px;
 `;
 
-const InfoPaneLists = memo(props => (
-  <ListsSection>
-    <OngoingConditionDisplay {...props} />
-    <AllergyDisplay {...props} />
-    <FamilyHistoryDisplay {...props} />
-    <PatientIssuesDisplay {...props} />
-    <CarePlanDisplay {...props} />
-    <Buttons>
-      <PrintSection {...props} />
-      <RecordDeathSection {...props} />
-    </Buttons>
-  </ListsSection>
-));
+export const PatientInfoPane = memo(({ patient, readonly }) => {
+  const { getLocalisation } = useLocalisation();
+  const patientDeathsEnabled = getLocalisation('features.enablePatientDeaths');
 
-export const PatientInfoPane = memo(({ patient, readonly }) => (
-  <Container>
-    <CoreInfoDisplay patient={patient} />
-    <InfoPaneLists patient={patient} readonly={readonly} />
-  </Container>
-));
+  return (
+    <Container>
+      <CoreInfoDisplay patient={patient} />
+      <ListsSection>
+        <OngoingConditionDisplay patient={patient} readonly={readonly} />
+        <AllergyDisplay patient={patient} readonly={readonly} />
+        <FamilyHistoryDisplay patient={patient} readonly={readonly} />
+        <PatientIssuesDisplay patient={patient} readonly={readonly} />
+        <CarePlanDisplay patient={patient} readonly={readonly} />
+        <Buttons>
+          <PrintSection patient={patient} readonly={readonly} />
+          {patientDeathsEnabled && <RecordDeathSection patient={patient} readonly={readonly} />}
+        </Buttons>
+      </ListsSection>
+    </Container>
+  );
+});
