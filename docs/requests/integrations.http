@@ -18,8 +18,8 @@ GET {{server}}/v1/integration/fijiVps/DiagnosticReport
     &status=final
     &_include=DiagnosticReport%3Aresult
     &_include=DiagnosticReport%3Aresult.device%3ADevice
-    &subject%3Aidentifier=http%3A%2F%2Fdata-dictionary.tamanu-fiji.org%2Fapplication-reference-number.html%7CLGED054362
-    &_count=1
+    &subject%3Aidentifier=http%3A%2F%2Fdata-dictionary.tamanu-fiji.org%2Fapplication-reference-number.html%7C2021286602
+    &_count=20
 Authorization: Bearer {{token}}
 
 ### Page 2

@@ -42,6 +42,8 @@ async function asyncSleep(ms) {
   });
 }
 
+const token = 'fake-token';
+
 (async () => {
   for (const x of hi) {
     fetch(
@@ -50,7 +52,7 @@ async function asyncSleep(ms) {
         method: 'DELETE',
         headers: {
           'user-agent': 'vscode-restclient',
-          authorization: `Bearer ${}`,
+          authorization: `Bearer ${token}`,
         },
       },
     )
