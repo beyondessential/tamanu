@@ -25,11 +25,40 @@ const styles = StyleSheet.create({
   ScrollViewContentContainer: { padding: 20 },
 });
 
+const getInitialValues = (isEdit: boolean, patient): {} => {
+  if (!isEdit || !patient) {
+    return {};
+  }
+
+  // Only grab the fields that will get validated
+  const {
+    firstName,
+    middleName,
+    lastName,
+    culturalName,
+    dateOfBirth,
+    sex,
+    villageId,
+  } = patient;
+
+  return {
+    firstName,
+    middleName,
+    lastName,
+    culturalName,
+    dateOfBirth,
+    sex,
+    villageId,
+  };
+};
+
 export const FormComponent = ({
+  selectedPatient,
   setSelectedPatient,
+  isEdit,
 }): ReactElement => {
   const navigation = useNavigation();
-  const onSubmitForm = useCallback(async (values) => {
+  const onCreateNewPatient = useCallback(async (values) => {
     // submit form to server for new patient
     const newPatient = await Patient.createAndSaveOne({
       ...values,
@@ -41,10 +70,28 @@ export const FormComponent = ({
     navigation.navigate(Routes.HomeStack.RegisterPatientStack.NewPatient);
   }, []);
 
+  const onEditPatient = useCallback(async (values) => {
+    const editedPatient = await Patient.findOne(selectedPatient.id);
+
+    // Update each value used on the form
+    Object.entries(values).forEach(([key, value]) => {
+      editedPatient[key] = value;
+    });
+
+    // Mark patient for sync, save and update redux state
+    editedPatient.markedForSync = true;
+    editedPatient.markedForUpload = true;
+    await editedPatient.save();
+    setSelectedPatient(editedPatient);
+
+    // Navigate back to patient details
+    navigation.navigate(Routes.HomeStack.PatientDetailsStack.Index);
+  }, [navigation]);
+
   return (
     <FullView padding={10}>
       <Formik
-        onSubmit={onSubmitForm}
+        onSubmit={isEdit ? onEditPatient : onCreateNewPatient}
         validationSchema={Yup.object().shape({
           firstName: Yup.string().required(),
           middleName: Yup.string(),
@@ -54,7 +101,7 @@ export const FormComponent = ({
           sex: Yup.string().required(),
           village: Yup.string(),
         })}
-        initialValues={{}}
+        initialValues={getInitialValues(isEdit, selectedPatient)}
       >
         {({ handleSubmit }): JSX.Element => (
           <KeyboardAvoidingView
