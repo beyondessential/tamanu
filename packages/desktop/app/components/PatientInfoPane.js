@@ -132,7 +132,6 @@ const RecordDeathSection = memo(({ patient, readonly }) => {
       >
         Record death
       </Button>
-      {/* Todo: Complete patient death form. @see WAITM-34 */}
       <DeathModal disabled={readonly} open={isModalOpen} onClose={closeModal} patient={patient} />
     </>
   );
