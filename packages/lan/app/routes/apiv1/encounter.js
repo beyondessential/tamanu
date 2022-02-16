@@ -2,7 +2,7 @@ import express from 'express';
 import asyncHandler from 'express-async-handler';
 import { Op } from 'sequelize';
 import { NotFoundError } from 'shared/errors';
-import { LAB_REQUEST_STATUSES, DOCUMENT_SIZE_LIMIT } from 'shared/constants';
+import { LAB_REQUEST_STATUSES, DOCUMENT_SIZE_LIMIT, INVOICE_STATUSES } from 'shared/constants';
 import { NOTE_RECORD_TYPES } from 'shared/models/Note';
 import { uploadAttachment } from '../../utils/uploadAttachment';
 
@@ -143,7 +143,12 @@ encounterRelations.get(
     additionalFilters: { recordType: NOTE_RECORD_TYPES.ENCOUNTER },
   }),
 );
-encounterRelations.get('/:id/invoice', simpleGetHasOne('Invoice', 'encounterId'));
+encounterRelations.get(
+  '/:id/invoice',
+  simpleGetHasOne('Invoice', 'encounterId', {
+    additionalFilters: { status: { [Op.ne]: INVOICE_STATUSES.CANCELLED } },
+  }),
+);
 
 encounterRelations.get(
   '/:id/programResponses',

@@ -2,7 +2,7 @@ import express from 'express';
 import asyncHandler from 'express-async-handler';
 import { customAlphabet } from 'nanoid';
 import { NotFoundError, InvalidParameterError } from 'shared/errors';
-import { INVOICE_STATUS_TYPES, INVOICE_PAYMENT_STATUS_TYPES } from 'shared/constants';
+import { INVOICE_STATUSES, INVOICE_PAYMENT_STATUSES } from 'shared/constants';
 import { simplePut } from '../crudHelpers';
 
 import { invoiceLineItemsRoute } from './invoiceLineItems';
@@ -34,8 +34,8 @@ invoiceRoute.post(
     const invoice = await models.Invoice.create({
       encounterId: id,
       displayId,
-      status: INVOICE_STATUS_TYPES.IN_PROGRESS,
-      paymentStatus: INVOICE_PAYMENT_STATUS_TYPES.UNPAID,
+      status: INVOICE_STATUSES.IN_PROGRESS,
+      paymentStatus: INVOICE_PAYMENT_STATUSES.UNPAID,
     });
 
     // Expect to always have a patient additional data corresponding to a patient

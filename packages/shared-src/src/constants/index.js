@@ -270,13 +270,13 @@ export const REFERRAL_STATUSES = {
 // Size in bytes
 export const DOCUMENT_SIZE_LIMIT = 10000000;
 
-export const INVOICE_STATUS_TYPES = {
+export const INVOICE_STATUSES = {
   CANCELLED: 'cancelled',
   IN_PROGRESS: 'in_progress',
   FINALISED: 'finalised',
 };
 
-export const INVOICE_PAYMENT_STATUS_TYPES = {
+export const INVOICE_PAYMENT_STATUSES = {
   UNPAID: 'unpaid',
   PAID: 'paid',
 };
