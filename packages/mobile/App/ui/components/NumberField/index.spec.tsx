@@ -7,25 +7,33 @@ describe.only('<NumberField />', (): void => {
     label: 'Weight in kg',
   };
   const newValue = '123';
-  const { getByText, getByLabelText } = render(
-    <BaseNumberFieldStory label={props.label} />,
-  );
+
   it('should render label', (): void => {
+    const { getByText } = render(<BaseNumberFieldStory label={props.label} />);
     expect(getByText(props.label)).not.toBe(null);
   });
   it('should change values', (): void => {
+    const { getByLabelText } = render(
+      <BaseNumberFieldStory label={props.label} />
+    );
     const input = getByLabelText(props.label);
     fireEvent.changeText(input, newValue);
-    expect(input.getProp('value')).toBe(newValue);
+    expect(input.props['value']).toBe(newValue);
   });
   it('should be nullable', (): void => {
+    const { getByLabelText } = render(
+      <BaseNumberFieldStory label={props.label} />
+    );
     const input = getByLabelText(props.label);
     fireEvent.changeText(input, undefined);
-    expect(input.getProp('value')).toBe('');
+    expect(input.props['value']).toBe('');
   });
   it('should nullify alpha characters', (): void => {
+    const { getByLabelText } = render(
+      <BaseNumberFieldStory label={props.label} />
+    );
     const input = getByLabelText(props.label);
     fireEvent.changeText(input, 'invalid value');
-    expect(input.getProp('value')).toBe('');
+    expect(input.props['value']).toBe('');
   });
 });
