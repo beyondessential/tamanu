@@ -1,5 +1,5 @@
 import React from 'react';
-import { render, fireEvent, wait } from '@testing-library/react-native';
+import { render, fireEvent, waitFor } from '@testing-library/react-native';
 import { BaseTextFieldStory, BaseMaskedTextFieldStory } from './fixtures';
 
 describe('<TextField />', (): void => {
@@ -8,16 +8,17 @@ describe('<TextField />', (): void => {
       label: 'First Year of Registration',
     };
     const newValue = 'test';
-    const { getByText, getByLabelText } = render(
-      <BaseTextFieldStory {...nonMaskedProps} />,
-    );
     it('should render label', (): void => {
+      const { getByText } = render(<BaseTextFieldStory {...nonMaskedProps} />);
       expect(getByText(nonMaskedProps.label)).not.toBe(null);
     });
     it('should change values', (): void => {
+      const { getByLabelText } = render(
+        <BaseTextFieldStory {...nonMaskedProps} />
+      );
       const input = getByLabelText(nonMaskedProps.label);
       fireEvent.changeText(input, newValue);
-      expect(input.getProp('value')).toBe(newValue);
+      expect(input.props['value']).toBe(newValue);
     });
   });
 
@@ -31,17 +32,20 @@ describe('<TextField />', (): void => {
         label: 'Phone',
       };
       const newValue = '1234';
-      const { getByText, getByLabelText } = render(
-        <BaseMaskedTextFieldStory {...phoneMaskProps} maskType="custom" />,
-      );
       it('should render phone Mask', (): void => {
+        const { getByText } = render(
+          <BaseMaskedTextFieldStory {...phoneMaskProps} maskType='custom' />
+        );
         expect(getByText(phoneMaskProps.label)).not.toBe(null);
       });
 
       it('should change values', async (): Promise<void> => {
+        const { getByLabelText } = render(
+          <BaseMaskedTextFieldStory {...phoneMaskProps} maskType='custom' />
+        );
         const input = getByLabelText(phoneMaskProps.label);
-        await wait((): boolean => fireEvent.changeText(input, newValue));
-        expect(input.getProp('value')).toBe(newValue);
+        await waitFor((): boolean => fireEvent.changeText(input, newValue));
+        expect(input.props['value']).toBe(newValue);
       });
     });
   });

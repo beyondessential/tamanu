@@ -10,7 +10,7 @@ const reactotron = Reactotron
 
 reactotron.setAsyncStorageHandler!(AsyncStorage);
 reactotron.configure({
-  name: 'Demo App',
+  name: 'Tamanu Mobile',
 });
 
 reactotron.useReactNative({

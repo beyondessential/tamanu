@@ -10,12 +10,13 @@ describe('<RadioButton />', () => {
     value: 'Gender',
     onPress: jest.fn(),
   };
-  const { getByText } = render(<RadioButton {...props} />);
   it('should render correctly <RadioButton />', () => {
+    const { getByText } = render(<RadioButton {...props} />);
     expect(getByText(props.label)).not.toBe(null);
   });
 
   it('should call function onPress <RadioButton />', () => {
+    const { getByText } = render(<RadioButton {...props} />);
     fireEvent.press(getByText(props.label));
     expect(props.onPress).toHaveBeenCalled();
   });

@@ -7,17 +7,19 @@ describe('<SearchInput />', () => {
   const props = {
     placeholder: 'Search for patients',
   };
-  const searchText = 'patient0';
-  const { getByPlaceholderText } = render(<BaseStory />);
+
   it('should render correctly', () => {
+    const { getByPlaceholderText } = render(<BaseStory />);
     expect(getByPlaceholderText(props.placeholder)).not.toBeNull();
   });
 
   it('should change value', () => {
+    const searchText = 'patient0';
+    const { getByPlaceholderText } = render(<BaseStory />);
     const input = getByPlaceholderText(props.placeholder);
     act(() => {
       fireEvent.changeText(input, searchText);
     });
-    expect(input.getProp('value')).toBe(searchText);
+    expect(input.props['value']).toBe(searchText);
   });
 });
