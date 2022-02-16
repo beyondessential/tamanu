@@ -1,7 +1,7 @@
 import express from 'express';
 import asyncHandler from 'express-async-handler';
 import { customAlphabet } from 'nanoid';
-import { NotFoundError } from 'shared/errors';
+import { NotFoundError, InvalidParameterError } from 'shared/errors';
 import { INVOICE_STATUS_TYPES, INVOICE_PAYMENT_STATUS_TYPES } from 'shared/constants';
 import { simplePut } from '../crudHelpers';
 
@@ -16,11 +16,14 @@ invoiceRoute.post(
   asyncHandler(async (req, res) => {
     req.checkPermission('read', 'Encounter');
 
-    const { models, params } = req;
-    const { encounterId } = params;
-    const encounter = await models.Encouter.findByPk(encounterId);
+    const { models, body } = req;
+    const { encounterId } = body;
+    if (!encounterId) {
+      throw new InvalidParameterError('Missing encounterId');
+    }
+    const encounter = await models.Encounter.findByPk(encounterId);
     if (!encounter) {
-      throw new NotFoundError();
+      throw new NotFoundError(`Unable to find encounter ${encounterId}`);
     }
     req.checkPermission('write', 'Invoice');
 
