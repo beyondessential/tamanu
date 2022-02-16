@@ -2,7 +2,7 @@ import React from 'react';
 
 import { IMAGING_REQUEST_STATUS_TYPES } from 'shared/constants';
 import { DateField, StyledSelectField } from './Field';
-import { CustomisablePatientSearchBar } from '../views/patients/components/PatientSearchBar';
+import { CustomisableSearchBar } from './CustomisableSearchBar';
 import { IMAGING_REQUEST_STATUS_LABELS } from '../constants';
 
 const STATUS_OPTIONS = Object.values(IMAGING_REQUEST_STATUS_TYPES).map(s => ({
@@ -16,7 +16,7 @@ const URGENCY_OPTIONS = [
 ];
 
 export const ImagingRequestsSearchBar = ({ setSearchParameters }) => (
-  <CustomisablePatientSearchBar
+  <CustomisableSearchBar
     title="Search imaging requests"
     fields={[
       ['firstName'],

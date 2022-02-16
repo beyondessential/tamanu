@@ -169,6 +169,10 @@
           "shortLabel": "DOB exact",
           "longLabel": "Date of birth exact"
         },
+        "dateOfDeath": {
+          "shortLabel": "Death",
+          "longLabel": "Date of death"
+        },
         "bloodType": {
           "shortLabel": "Blood type",
           "longLabel": "Blood type",
@@ -365,6 +369,7 @@
     }
   },
   "tupaiaApiClient": {},
+  "s3": {},
   "scheduledReports": [],
   "disk": {
     "diskPath": "C:/",

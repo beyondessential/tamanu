@@ -18,6 +18,7 @@ import {
   CheckField,
   NumberField,
   SelectField,
+  TimeWithUnitField,
   PaginatedForm,
 } from '../components';
 
@@ -39,35 +40,26 @@ const Actions = styled(MuiBox)`
 `;
 
 const RedHeading = styled(Typography)`
-  font-weight: 500;
-  font-size: 21px;
+  font-size: 18px;
   line-height: 21px;
-  color: #f76853;
-`;
-
-const Heading = styled(Typography)`
   font-weight: 500;
-  font-size: 15px;
-  line-height: 21px;
-  color: #444444;
+  color: ${props => props.theme.palette.error.main};
 `;
 
 const Text = styled(Typography)`
   font-size: 15px;
   line-height: 21px;
-  color: #888888;
-  margin-bottom: 30px;
+  font-weight: 500;
+  color: ${props => props.theme.palette.text.primary};
+  margin-bottom: 48px;
 `;
 
 const ConfirmScreen = ({ onStepBack, submitForm, onCancel }) => (
   <FormGrid columns={1}>
     <RedHeading>Confirm death record</RedHeading>
-    <Heading>
-      This action is irreversible. Are you sure you want to record the death of a patient?
-    </Heading>
     <Text>
-      This should only be done under the direction of the responsible clinician. Do you wish to
-      proceed?
+      This action is irreversible. Are you sure you want to record the death of a patient? This
+      should only be done under the direction of the responsible clinician. Do you wish to proceed?
     </Text>
     <Actions>
       <OutlinedButton onClick={onStepBack || undefined} disabled={!onStepBack}>
@@ -131,7 +123,7 @@ export const DeathForm = React.memo(
     const isAdultFemale = patient.sex === 'female' && patientYearsOld >= 12;
 
     const patientMonthsOld = moment().diff(patient.dateOfBirth, 'months');
-    const isInfant = patientMonthsOld >= 2;
+    const isInfant = patientMonthsOld <= 2;
 
     return (
       <PaginatedForm
@@ -156,7 +148,7 @@ export const DeathForm = React.memo(
           <Field
             name="causeOfDeathInterval"
             label="Time between onset and death"
-            component={NumberField}
+            component={TimeWithUnitField}
             required
           />
           <Field
@@ -168,7 +160,7 @@ export const DeathForm = React.memo(
           <Field
             name="causeOfDeath2Interval"
             label="Time between onset and death"
-            component={NumberField}
+            component={TimeWithUnitField}
           />
           <FormSeparatorLine />
           <Field
@@ -180,7 +172,7 @@ export const DeathForm = React.memo(
           <Field
             name="otherContributingConditionsInterval"
             label="Time between onset and death"
-            component={NumberField}
+            component={TimeWithUnitField}
           />
           <FormSeparatorLine />
           <Field

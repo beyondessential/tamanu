@@ -22,6 +22,50 @@
 
 - (left blank)
 
+## v1.12.4
+
+### Manual steps required after upgrade ⚙
+
+- (left blank)
+
+### Features ⭐
+
+- (left blank)
+
+### Tweaks ⚖️
+
+- Small tweaks to `kiribati-covid-swab-lab-test-list`
+
+### Bug fixes 🐛
+
+- (left blank)
+
+### Infrastructure and maintenance 🛠
+
+- (left blank)
+
+## v1.12.3
+
+### Manual steps required after upgrade ⚙
+
+- Consider adding `kiribati-covid-swab-lab-test-list` to disabledReports.
+
+### Features ⭐
+
+- New report for Kiribati.
+
+### Tweaks ⚖️
+
+- (left blank)
+
+### Bug fixes 🐛
+
+- (left blank)
+
+### Infrastructure and maintenance 🛠
+
+- (left blank)
+
 ## v1.12.2
 
 ### Manual steps required after upgrade ⚙
@@ -77,6 +121,7 @@
 ### Features ⭐
 
 - Central server has the ability to check available disk space based on current config.
+- Lan servers will auto-discontinue medications after their end date is due (based on facility).
 - Replace the bottom half of certificates with a configurable image
 
 ### Tweaks ⚖️
