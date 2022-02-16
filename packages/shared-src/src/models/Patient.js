@@ -47,16 +47,24 @@ export class Patient extends Model {
       foreignKey: 'patientId',
     });
 
-    // technically this relation is hasOne but this just describes
+    // technically these two relations are hasOne but this just describes
     // "there is another table referencing this one by id"
     this.hasMany(models.PatientAdditionalData, {
       foreignKey: 'patientId',
       as: 'additionalData',
     });
+    this.hasMany(models.PatientDeathData, {
+      foreignKey: 'patientId',
+      as: 'deathData',
+    });
 
     this.belongsTo(models.ReferenceData, {
       foreignKey: 'villageId',
       as: 'village',
+    });
+
+    this.hasMany(models.DeathCause, {
+      foreignKey: 'patientId',
     });
   }
 

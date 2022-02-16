@@ -192,15 +192,67 @@ describe('Patient', () => {
   test.todo('should get a list of patient referrals');
 
   describe('Death', () => {
-    it('should mark a patient as dead', async () => {
-      const { Patient, User } = models;
-      const { id } = await Patient.create(fakePatient('alive-1'));
-      const { id: phyId } = await User.create({ ...fakeUser(), role: 'practitioner' });
+    let commons;
+    beforeAll(async () => {
+      const { User, Facility, Department, Location, ReferenceData } = models;
+      const { id: clinicianId } = await User.create({ ...fakeUser(), role: 'practitioner' });
+      const { id: facilityId } = await Facility.create(
+        fakeStringFields('facility', ['code', 'name']),
+      );
+      const { id: departmentId } = await Department.create({
+        ...fakeStringFields('dept', ['code', 'name']),
+        facilityId,
+      });
+      const { id: locationId } = await Location.create({
+        ...fakeStringFields('loc', ['code', 'name']),
+        facilityId,
+      });
+      const { id: cond1Id } = await ReferenceData.create({
+        id: 'ref/icd10/K07.9',
+        type: 'icd10',
+        code: 'K07.9',
+        name: 'Dentofacial anomaly',
+      });
+      const { id: cond2Id } = await ReferenceData.create({
+        id: 'ref/icd10/A51.3',
+        type: 'icd10',
+        code: 'A51.3',
+        name: 'Secondary syphilis of skin',
+      });
 
-      const dod = new Date();
+      commons = { clinicianId, facilityId, departmentId, locationId, cond1Id, cond2Id };
+    });
+
+    it('should mark a patient as dead', async () => {
+      const { Patient } = models;
+      const { id } = await Patient.create(fakePatient('alive-1'));
+      const { clinicianId, facilityId, cond1Id, cond2Id } = commons;
+
+      const dod = new Date('2021-09-01T00:00:00.000Z');
       const result = await app.post(`/v1/patient/${id}/death`).send({
-        date: dod,
-        physician: { id: phyId },
+        clinicianId,
+        facilityId,
+        timeOfDeath: dod,
+        causeOfDeath: cond1Id,
+        causeOfDeathInterval: 100,
+        causeOfDeath2: cond2Id,
+        causeOfDeath2Interval: 120,
+        otherContributingConditions: cond2Id,
+        otherContributingConditionsInterval: 400,
+        surgeryInLast4Weeks: 'yes',
+        lastSurgeryDate: '2021-08-02T20:52:00.000Z',
+        lastSurgeryReason: cond1Id,
+        pregnant: 'no',
+        mannerOfDeath: 'Accident',
+        mannerOfDeathDate: '2021-08-31T12:00:00.000Z',
+        fetalOrInfant: 'yes',
+        stillborn: 'unknown',
+        birthWeight: 120,
+        numberOfCompletedPregnancyWeeks: 30,
+        ageOfMother: 21,
+        motherExistingCondition: cond1Id,
+        deathWithin24HoursOfBirth: 'yes',
+        numberOfHoursSurvivedSinceBirth: 12,
       });
       expect(result).toHaveSucceeded();
 
@@ -209,13 +261,17 @@ describe('Patient', () => {
     });
 
     it('should not mark a dead patient as dead', async () => {
-      const { Patient, User } = models;
+      const { Patient } = models;
       const { id } = await Patient.create(fakePatient('dead-1'));
-      const { id: phyId } = await User.create({ ...fakeUser(), role: 'practitioner' });
+      const { clinicianId, facilityId, cond1Id } = commons;
 
       const result = await app.post(`/v1/patient/${id}/death`).send({
-        date: new Date(),
-        physician: { id: phyId },
+        clinicianId,
+        facilityId,
+        timeOfDeath: '2021-09-01T00:00:00.000Z',
+        causeOfDeath: cond1Id,
+        causeOfDeathInterval: 100,
+        mannerOfDeath: 'Disease',
       });
       expect(result).not.toHaveSucceeded();
     });
@@ -233,34 +289,43 @@ describe('Patient', () => {
       const { id } = await Patient.create(fakePatient('alive-3'));
 
       const result = await app.post(`/v1/patient/${id}/death`).send({
-        date: 'this is not a date',
+        timeOfDeath: 'this is not a date',
       });
       expect(result).not.toHaveSucceeded();
     });
 
     it('should mark active encounters as discharged', async () => {
-      const { Department, Encounter, Facility, Location, Patient, User } = models;
+      const { Encounter, Patient } = models;
+      const { clinicianId, facilityId, departmentId, locationId, cond1Id } = commons;
       const { id } = await Patient.create(fakePatient('alive-4'));
-      const { id: phyId } = await User.create({ ...fakeUser(), role: 'practitioner' });
-      const { id: facilityId } = await Facility.create(fakeStringFields('facility', ['code', 'name']));
-      const { id: departmentId } = await Department.create({ ...fakeStringFields('dept', ['code', 'name']), facilityId });
-      const { id: locationId } = await Location.create({ ...fakeStringFields('loc', ['code', 'name']), facilityId });
-      const { id: encId } = await Encounter.create({ ...fakeEncounter(), departmentId, locationId, patientId: id, examinerId: phyId, endDate: null });
+      const { id: encId } = await Encounter.create({
+        ...fakeEncounter(),
+        departmentId,
+        locationId,
+        patientId: id,
+        examinerId: clinicianId,
+        endDate: null,
+      });
 
       const result = await app.post(`/v1/patient/${id}/death`).send({
-        date: new Date(),
-        physician: { id: phyId },
+        clinicianId,
+        facilityId,
+        timeOfDeath: '2021-09-01T00:00:00.000Z',
+        causeOfDeath: cond1Id,
+        causeOfDeathInterval: 100,
+        mannerOfDeath: 'Disease',
       });
       expect(result).toHaveSucceeded();
 
       const encounter = await Encounter.findByPk(encId);
       expect(encounter.endDate).toBeTruthy();
-      
+
       const discharge = await encounter.getDischarge();
       expect(discharge).toBeTruthy();
-      expect(discharge.dischargerId).toEqual(phyId);
+      expect(discharge.dischargerId).toEqual(clinicianId);
     });
 
+    // When new permissions land
     test.todo('should reject marking as dead with insufficient permissions');
   });
 });

@@ -15,27 +15,121 @@ patientDeath.post(
 
     const {
       db,
-      models: { Discharge, Encounter, Patient },
+      models: { Discharge, Patient, PatientDeathData, DeathCause },
       params: { id: patientId },
     } = req;
 
+    const ynu = yup
+      .string()
+      .lowercase()
+      .oneOf(['yes', 'no', 'unknown']);
+
+    const yn = yup
+      .string()
+      .lowercase()
+      .oneOf(['yes', 'no']);
+
     const schema = yup.object().shape({
-      date: yup.date().required(),
-      physician: yup.object().shape({
-        id: yup.string().required(),
-      }),
+      timeOfDeath: yup.date().required(),
+      clinicianId: yup.string().required(),
+      facilityId: yup.string(),
+
+      causeOfDeath: yup.string().required(),
+      causeOfDeathInterval: yup.number().default(0),
+
+      causeOfDeath2: yup.string(),
+      causeOfDeath2Interval: yup.number().default(0),
+
+      contributingConditions: yup.string(),
+      contributingConditionsInterval: yup.number().default(0),
+
+      surgeryInLast4Weeks: ynu,
+      lastSurgeryDate: yup.date(),
+      lastSurgeryReason: yup.string(),
+
+      pregnant: ynu,
+      pregnancyContribute: ynu,
+
+      fetalOrInfant: yn.default('no'),
+      stillborn: ynu,
+      birthWeight: yup.number(),
+      deathWithin24HoursOfBirth: yn,
+      numberOfHoursSurvivedSinceBirth: yup.number(),
+
+      ageOfMother: yup.number(),
+      motherExistingCondition: yup.string(),
+      numberOfCompletedPregnancyWeeks: yup.number(),
+
+      mannerOfDeath: yup.string().required(),
+
+      // actually "external cause"
+      mannerOfDeathLocation: yup.string(),
+      mannerOfDeathDate: yup.date(),
+      mannerOfDeathOther: yup.string(),
     });
+
     const body = await schema.validate(req.body);
 
     const patient = await Patient.findByPk(patientId);
     if (!patient) throw new NotFoundError('Patient not found');
     if (patient.dateOfDeath) throw new InvalidOperationError('Patient is already deceased');
 
-    const physician = await User.findByPk(body.physician.id);
-    if (!physician) throw new NotFoundError('Discharge physician not found');
+    const doc = await User.findByPk(body.clinicianId);
+    if (!doc) throw new NotFoundError('Discharge clinician not found');
 
     await transactionOnPostgres(db, async () => {
-      await patient.update({ dateOfDeath: body.date });
+      await patient.update({ dateOfDeath: body.timeOfDeath });
+
+      const primaryCause = await DeathCause.create({
+        patientId: patient.id,
+        conditionId: body.causeOfDeath,
+        timeAfterOnset: body.causeOfDeathInterval,
+      });
+
+      if (body.causeOfDeath2) {
+        await DeathCause.create({
+          patientId: patient.id,
+          conditionId: body.causeOfDeath2,
+          timeAfterOnset: body.causeOfDeath2Interval,
+        });
+      }
+
+      if (body.contributingConditions) {
+        await DeathCause.create({
+          patientId: patient.id,
+          conditionId: body.contributingConditions,
+          timeAfterOnset: body.contributingConditionsInterval,
+        });
+      }
+
+      await PatientDeathData.create({
+        patientId: patient.id,
+        clinicianId: doc.id,
+        facilityId: body.facilityId,
+        manner: body.mannerOfDeath,
+        primaryCauseId: primaryCause.id,
+
+        recentSurgery: body.surgeryInLast4Weeks,
+        lastSurgeryDate: body.surgeryInLast4Weeks === 'yes' ? body.lastSurgeryDate : null,
+        lastSurgeryReasonId: body.lastSurgeryReason,
+
+        externalCauseDate: body.mannerOfDeathDate,
+        externalCauseLocation: body.mannerOfDeathLocation,
+        externalCauseNotes: body.mannerOfDeathOther,
+
+        wasPregnant: body.pregnant,
+        pregnancyContributed: body.pregnancyContribute,
+
+        fetalOrInfant: body.fetalOrInfant,
+        stillborn: body.stillborn,
+        birthWeight: body.birthWeight,
+        withinDayOfBirth: body.deathWithin24HoursOfBirth,
+        hoursSurvivedSinceBirth: body.numberOfHoursSurvivedSinceBirth,
+
+        carrierAge: body.ageOfMother,
+        carrierExistingConditionId: body.motherExistingCondition,
+        carrierPregnancyWeeks: body.numberOfCompletedPregnancyWeeks,
+      });
 
       const activeEncounters = await patient.getEncounters({
         where: {
@@ -45,10 +139,10 @@ patientDeath.post(
       for (const encounter of activeEncounters) {
         await Discharge.create({
           encounterId: encounter.id,
-          dischargerId: physician.id,
+          dischargerId: doc.id,
         });
         await encounter.update({
-          endDate: body.date,
+          endDate: body.timeOfDeath,
         });
       }
     });
