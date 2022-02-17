@@ -79,6 +79,13 @@ export async function assertUpToDate(log, sequelize, options) {
 
 export async function migrate(log, sequelize, options) {
   const { up, down, downToLastReversibleMigration, redoLatest } = options;
+  const numArgs = [up, down, downToLastReversibleMigration, redoLatest].reduce(
+    (n, arg) => (arg ? n + 1 : n),
+    0,
+  );
+  if (numArgs > 1) {
+    throw new Error(`Expected only 1 of [up, down, downToLastReversibleMigration, redoLatest]`);
+  }
 
   if (up) {
     return migrateUp(log, sequelize);
