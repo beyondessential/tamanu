@@ -6,7 +6,7 @@ import { COMMUNICATION_STATUSES } from 'shared/constants';
 import { getReportModule } from 'shared/reports';
 import { log } from 'shared/services/logging';
 import { createTupaiaApiClient, translateReportDataToSurveyResponses } from 'shared/utils';
-import { removeFile, createZippedExcelFile } from '../utils/files';
+import { removeFile, createZippedSpreadsheet } from '../utils/files';
 
 export class ReportRunner {
   constructor(reportName, parameters, recipients, store, emailService) {
@@ -100,7 +100,7 @@ export class ReportRunner {
 
     let zipFile;
     try {
-      zipFile = await createZippedExcelFile(reportName, reportData);
+      zipFile = await createZippedSpreadsheet(reportName, reportData);
 
       log.info(
         `ReportRunner - Sending report "${zipFile}" to "${this.recipients.email.join(',')}"`,
@@ -157,7 +157,7 @@ export class ReportRunner {
 
     let zipFile;
     try {
-      zipFile = await createZippedExcelFile(this.reportName, reportData, bookType);
+      zipFile = await createZippedSpreadsheet(this.reportName, reportData, bookType);
 
       log.info(
         `ReportRunner - Uploading report "${zipFile}" to s3 bucket "${bucketName}" (${region})`,
