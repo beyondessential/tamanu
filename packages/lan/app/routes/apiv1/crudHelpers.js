@@ -102,7 +102,7 @@ export const simpleGetList = (modelName, foreignKey = '', options = {}) => {
 
     res.send({
       count: objects.length,
-      data: data,
+      data,
     });
   });
 };
@@ -145,7 +145,7 @@ export const paginatedGetList = (modelName, foreignKey = '', options = {}) => {
 
     res.send({
       count: resultsToCount.length,
-      data: data,
+      data,
     });
   });
 };
@@ -155,7 +155,7 @@ export async function runPaginatedQuery(db, model, countQuery, selectQuery, para
     type: QueryTypes.SELECT,
   });
 
-  const count = countResult[0].count;
+  const { count } = countResult[0];
   if (count === 0) {
     return {
       data: [],
@@ -171,7 +171,7 @@ export async function runPaginatedQuery(db, model, countQuery, selectQuery, para
       limit: rowsPerPage,
       offset: page * rowsPerPage,
     },
-    model: model,
+    model,
     type: QueryTypes.SELECT,
     mapToModel: true,
   });
