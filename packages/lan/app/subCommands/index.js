@@ -1,3 +1,3 @@
-export { migrate } from './migrate';
-export { report } from './report';
-export { serve } from './serve';
+export { migrateCommand } from './migrate';
+export { reportCommand } from './report';
+export { serve, serveCommand, addServeOptions } from './serve';

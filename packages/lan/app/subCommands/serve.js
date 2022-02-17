@@ -1,4 +1,5 @@
 import config from 'config';
+import { Command } from 'commander';
 
 import { log } from 'shared/services/logging';
 
@@ -12,14 +13,14 @@ import { listenForServerQueries } from '../discovery';
 
 import { version } from '../../package.json';
 
-export async function serve(options) {
+export async function serve({ skipMigrationCheck }) {
   log.info(`Starting facility server version ${version}.`);
 
-  const context = await initDatabase(options);
+  const context = await initDatabase();
   if (config.db.sqlitePath || config.db.migrateOnStartup) {
     await context.sequelize.migrate({ up: true });
   } else {
-    await context.sequelize.assertUpToDate(options);
+    await context.sequelize.assertUpToDate({ skipMigrationCheck });
   }
 
   await checkConfig(config, context);
@@ -48,3 +49,12 @@ export async function serve(options) {
 
   startDataChangePublisher(server, context);
 }
+
+export function addServeOptions(cmd) {
+  return cmd.option('--skipMigrationCheck', 'skip the migration check on startup', false);
+}
+
+export const serveCommand = new Command('serve')
+  .description('Start the Tamanu lan server')
+  .action(serve);
+addServeOptions(serveCommand);

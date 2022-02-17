@@ -1,27 +1,33 @@
 import { log } from 'shared/services/logging';
-import { parseArguments } from 'shared/arguments';
 
-import { serve, migrate, report } from './app/subCommands';
+import { program } from 'commander';
 
-async function run(command, options) {
-  const subcommand = {
-    serve,
-    migrate,
-    report,
-  }[command];
+import {
+  serve,
+  serveCommand,
+  addServeOptions,
+  migrateCommand,
+  reportCommand,
+} from './app/subCommands';
 
-  if (!subcommand) {
-    throw new Error(`Unrecognised subcommand: ${command}`);
-  }
+async function run() {
+  program
+    .description('Tamanu lan-server (runs serve by default)')
+    .name('node app.bundle.js')
+    .action(serve);
+  addServeOptions(program);
 
-  return subcommand(options);
+  program.addCommand(serveCommand);
+  program.addCommand(reportCommand);
+  program.addCommand(migrateCommand);
+
+  await program.parseAsync(process.argv);
 }
 
 // catch and exit if run() throws an error
 (async () => {
   try {
-    const { command, ...options } = parseArguments();
-    await run(command, options);
+    await run();
   } catch (e) {
     log.error(`run(): fatal error: ${e.toString()}`);
     log.error(e.stack);

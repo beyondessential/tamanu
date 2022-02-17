@@ -16,7 +16,7 @@ import {
 
 async function run() {
   program
-    .description('Tamanu sync-server')
+    .description('Tamanu sync-server (runs serve by default)')
     .name('node app.bundle.js')
     .action(serve);
   addServeOptions(program);
