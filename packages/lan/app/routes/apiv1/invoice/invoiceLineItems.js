@@ -87,7 +87,7 @@ invoiceLineItemsRoute.post(
       await models.InvoiceLineItem.create({
         invoiceId,
         invoiceLineTypeId: item.invoiceLineTypeId,
-        date: item.date,
+        dateGenerated: item.date,
         orderedById: item.orderedById,
         price: item.price,
       });
