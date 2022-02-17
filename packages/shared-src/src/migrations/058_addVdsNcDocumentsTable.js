@@ -68,10 +68,7 @@ module.exports = {
     });
   },
   down: async query => {
-    await query.removeIndex('vds_nc_documents', {
-      fields: ['unique_proof_id'],
-      unique: true,
-    });
+    await query.removeIndex('vds_nc_documents', ['unique_proof_id']);
     await query.dropTable('vds_nc_documents');
   },
 };
