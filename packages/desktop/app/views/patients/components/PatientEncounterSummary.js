@@ -1,162 +1,204 @@
 import React from 'react';
 import styled from 'styled-components';
-
 import { ENCOUNTER_TYPES } from 'shared/constants';
-import { Colors } from '../../../constants';
-import { ImageButton, Button } from '../../../components/Button';
+import { Box, Typography } from '@material-ui/core';
+import { Colors, ENCOUNTER_OPTIONS_BY_VALUE } from '../../../constants';
+import { LargeButton, Button } from '../../../components/Button';
 import { DateDisplay } from '../../../components/DateDisplay';
 
-import { medicationIcon, profileIcon } from '../../../constants/images';
-
-/** TODO: Properly define colors for each type (primary is placeholder/default) */
-const ENCOUNTER_TYPE_COLORS = {
-  [ENCOUNTER_TYPES.ADMISSION]: Colors.safe,
-  [ENCOUNTER_TYPES.CLINIC]: Colors.primary,
-  [ENCOUNTER_TYPES.IMAGING]: Colors.primary,
-  [ENCOUNTER_TYPES.EMERGENCY]: Colors.alert,
-  [ENCOUNTER_TYPES.OBSERVATION]: Colors.safe,
-  [ENCOUNTER_TYPES.TRIAGE]: Colors.alert,
-  [undefined]: Colors.primary,
+const PATIENT_STATUS = {
+  INPATIENT: 'inpatient',
+  OUTPATIENT: 'outpatient',
+  EMERGENCY: 'emergency',
+  DECEASED: 'deceased',
 };
 
-const Grid = styled.div`
-  display: grid;
-  grid-template-rows: 1fr auto;
+const PATIENT_STATUS_COLORS = {
+  [PATIENT_STATUS.INPATIENT]: Colors.safe, // Green
+  [PATIENT_STATUS.OUTPATIENT]: Colors.secondary, // Yellow
+  [PATIENT_STATUS.EMERGENCY]: Colors.alert, // Red
+  [PATIENT_STATUS.DECEASED]: Colors.midText, // grey
+  [undefined]: Colors.primary, // Blue
+};
+
+const ENCOUNTER_TYPE_TO_STATUS = {
+  [ENCOUNTER_TYPES.ADMISSION]: PATIENT_STATUS.INPATIENT,
+  [ENCOUNTER_TYPES.CLINIC]: PATIENT_STATUS.INPATIENT,
+  [ENCOUNTER_TYPES.IMAGING]: PATIENT_STATUS.OUTPATIENT,
+  [ENCOUNTER_TYPES.OBSERVATION]: PATIENT_STATUS.OUTPATIENT,
+  [ENCOUNTER_TYPES.EMERGENCY]: PATIENT_STATUS.EMERGENCY,
+  [ENCOUNTER_TYPES.TRIAGE]: PATIENT_STATUS.EMERGENCY,
+};
+
+const Container = styled.div`
   margin: 1rem;
   border: 1px solid ${Colors.outline};
-  border-left-color: ${props => ENCOUNTER_TYPE_COLORS[props.encounterType]};
-  border-left-width: 5px;
+  border-left: 5px solid ${props => PATIENT_STATUS_COLORS[props.patientStatus]};
   border-radius: 5px;
   background: ${Colors.white};
-  width: ${props => props.notAdmitted && 'fit-content'};
-  cursor: pointer;
+`;
+
+const NoVisitContainer = styled(Container)`
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 30px;
 `;
 
 const Header = styled.div`
-  border-bottom: 1px solid ${Colors.outline};
   display: flex;
   justify-content: space-between;
-  font-size: 0.9rem;
-`;
-
-const HeaderInfo = styled.div`
-  display: flex;
-  padding: 10px 20px;
-`;
-
-const Actions = styled.div`
-  display: flex;
+  align-items: center;
+  padding: 16px 20px 16px 16px;
+  border-bottom: 1px solid ${Colors.outline};
 `;
 
 const Content = styled.div`
-  padding: ${props => !props.notAdmitted && '10px 20px'};
   display: grid;
-  grid-auto-flow: column;
+  grid-template-columns: 1fr 1fr;
+  padding: 8px 20px 8px 16px;
 `;
 
-const ContentColumn = styled.div`
-  display: grid;
-  align-content: end;
+const ContentItem = styled.div`
+  display: flex;
+  padding: 8px 0;
 `;
 
-const SubTitle = styled.p`
-  margin: 0 20px 0 0;
-  font-weight: 500;
-`;
-
-const Title = styled.p`
-  margin: ${props => (props.notAdmitted ? 'auto 20px' : '0 0 10px 0')};
-  font-weight: 600;
-  color: ${props => ENCOUNTER_TYPE_COLORS[props.encounterType]};
-  font-size: 1.2rem;
-
-  &::first-letter {
-    text-transform: uppercase;
-  }
-`;
-
-const Icon = styled.i`
-  color: ${Colors.outline};
-`;
-
-const Label = styled.span`
-  font-weight: 500;
-  color: ${Colors.darkText};
-`;
-
-const Text = styled.span`
-  color: ${Colors.midText};
+const Title = styled(Typography)`
+  font-size: 18px;
+  line-height: 24px;
+  font-weight: 400;
+  color: ${props => props.theme.palette.text.secondary};
   text-transform: capitalize;
 `;
 
-const StyledImageButton = styled(ImageButton)`
-  border-radius: 0;
-  box-shadow: none;
+const BoldTitle = styled(Title)`
+  font-size: 18px;
+  line-height: 24px;
+  font-weight: 500;
+  color: ${props => props.theme.palette.text.primary};
+  margin-right: 5px;
 `;
 
-const FirstButton = styled(StyledImageButton)`
-  border-left: 1px solid ${Colors.outline};
-  border-right: 1px solid ${Colors.outline};
+const NoVisitTitle = styled(BoldTitle)`
+  font-size: 20px;
+  line-height: 28px;
 `;
 
-const ViewButton = styled(Button)`
-  border-radius: 0;
-  min-width: 80px;
+const ContentLabel = styled.span`
+  font-weight: 500;
+  color: ${Colors.darkContentText};
+  margin-right: 5px;
 `;
 
-export const PatientEncounterSummary = ({ viewEncounter, openCheckin, openTriage, encounter }) => {
+const ContentText = styled.span`
+  color: ${Colors.midContentText};
+  text-transform: capitalize;
+`;
+
+const ButtonRow = styled(Box)`
+  display: flex;
+  align-items: center;
+
+  button {
+    margin-left: 18px;
+  }
+`;
+
+export const PatientEncounterSummary = ({
+  patient,
+  viewEncounter,
+  openCheckin,
+  openTriage,
+  encounter,
+}) => {
+  if (patient.dateOfDeath) {
+    return (
+      <Container patientStatus={PATIENT_STATUS.DECEASED}>
+        <Header>
+          <Box display="flex">
+            <BoldTitle variant="h3">Deceased</BoldTitle>
+          </Box>
+          <Box>
+            <Button variant="contained" color="primary">
+              View death certificate
+            </Button>
+          </Box>
+        </Header>
+        <Content>
+          <ContentItem>
+            <ContentLabel>Location of death:</ContentLabel>
+            <ContentText>Fiji National Hospital</ContentText>
+          </ContentItem>
+          <ContentItem>
+            <ContentLabel>Clinician:</ContentLabel>
+            <ContentText>Dr Jane Brown</ContentText>
+          </ContentItem>
+          <ContentItem>
+            <ContentLabel>Underlying condition causing death:</ContentLabel>
+            <ContentText>Diabetes</ContentText>
+          </ContentItem>
+          <ContentItem>
+            <ContentLabel>Date of death:</ContentLabel>
+            <ContentText>23/11/2021</ContentText>
+          </ContentItem>
+        </Content>
+      </Container>
+    );
+  }
+
   if (!encounter) {
     return (
-      <Grid notAdmitted>
-        <Content notAdmitted>
-          <Title notAdmitted>No current visit</Title>
-          <Actions>
-            <FirstButton src={medicationIcon} title="Admit" onClick={openCheckin}>
-              Admit or check-in
-            </FirstButton>
-            <StyledImageButton src={profileIcon} title="Triage" onClick={openTriage}>
-              Triage
-            </StyledImageButton>
-          </Actions>
-        </Content>
-      </Grid>
+      <NoVisitContainer>
+        <NoVisitTitle variant="h2">No Current Visit</NoVisitTitle>
+        <ButtonRow>
+          <LargeButton onClick={openCheckin}>Admit or check-in</LargeButton>
+          <LargeButton onClick={openTriage}>Triage</LargeButton>
+        </ButtonRow>
+      </NoVisitContainer>
     );
   }
 
   const { startDate, location, encounterType, reasonForEncounter, id, examiner } = encounter;
+  const patientStatus = ENCOUNTER_TYPE_TO_STATUS[encounterType];
+
   return (
-    <Grid encounterType={encounterType} onClick={() => viewEncounter(id)}>
+    <Container patientStatus={patientStatus}>
       <Header>
-        <HeaderInfo>
-          <SubTitle>Current admission</SubTitle>
-          <div>
-            <Icon className="fas fa-map-marker-alt" /> <Label>Location: </Label>
-            <Text>{location ? location.name : '-'}</Text>
-          </div>
-        </HeaderInfo>
-        <Actions>
-          <ViewButton variant="contained" color="primary">
+        <Box display="flex">
+          <BoldTitle variant="h3">Type:</BoldTitle>
+          <Title variant="h3">{ENCOUNTER_OPTIONS_BY_VALUE[encounterType].label}</Title>
+        </Box>
+        <Box>
+          <Button variant="contained" color="primary" onClick={() => viewEncounter(id)}>
             View
-          </ViewButton>
-        </Actions>
+          </Button>
+        </Box>
       </Header>
       <Content>
-        <div>
-          <Title encounterType={encounterType}>{encounterType}</Title>
-          <Label>Reason for encounter: </Label> <Text>{reasonForEncounter}</Text>
-        </div>
-        <ContentColumn>
-          <Label>Arrival date</Label>
-          <Text>
+        <ContentItem>
+          <ContentLabel>Current Admission:</ContentLabel>
+          <ContentText>{patientStatus}</ContentText>
+        </ContentItem>
+        <ContentItem>
+          <ContentLabel>Supervising doctor/nurse:</ContentLabel>
+          <ContentText>{examiner ? examiner.displayName : '-'}</ContentText>
+        </ContentItem>
+        <ContentItem>
+          <ContentLabel>Location:</ContentLabel>
+          <ContentText>{location ? location.name : '-'}</ContentText>
+        </ContentItem>
+        <ContentItem>
+          <ContentLabel>Reason for encounter:</ContentLabel>
+          <ContentText>{reasonForEncounter}</ContentText>
+        </ContentItem>
+        <ContentItem>
+          <ContentLabel>Arrival date:</ContentLabel>
+          <ContentText>
             <DateDisplay date={startDate} />
-          </Text>
-        </ContentColumn>
-
-        <ContentColumn>
-          <Label>Supervising doctor/nurse</Label>
-          <Text>{examiner ? examiner.displayName : '-'}</Text>
-        </ContentColumn>
+          </ContentText>
+        </ContentItem>
       </Content>
-    </Grid>
+    </Container>
   );
 };
