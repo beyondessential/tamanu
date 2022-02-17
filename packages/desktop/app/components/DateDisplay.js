@@ -8,10 +8,6 @@ export function formatShort(date) {
   return moment(date).format('DD/MM/YYYY'); // "04/03/2019" dd/mm in locale order
 }
 
-export function formatTime(date) {
-  return moment(endTime).format('H:mm'); // "14:55" hh:mm in 24 hour time
-}
-
 function formatLong(date) {
   if (!date) return 'Date information not available';
 
@@ -22,7 +18,7 @@ function formatDuration(date) {
   return moment(date).from(moment(), true);
 }
 
-function formatTime(date) {
+export function formatTime(date) {
   return moment(date).format('hh:mm a');
 }
 

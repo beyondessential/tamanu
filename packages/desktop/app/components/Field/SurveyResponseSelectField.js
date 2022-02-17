@@ -4,7 +4,6 @@ import { formatShort, formatTime } from '../DateDisplay';
 import { SelectInput } from './SelectField';
 import { useApi } from '../../api';
 
-
 export const SurveyResponseSelectField = ({ field, patient, options: _, config, ...props }) => {
   const api = useApi();
   const [options, setOptions] = useState([]);
