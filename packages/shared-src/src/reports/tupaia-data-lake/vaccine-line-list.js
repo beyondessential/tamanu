@@ -1,7 +1,6 @@
 import moment from 'moment';
 import { Op } from 'sequelize';
-import { subDays } from 'date-fns';
-import { generateReportFromQueryData } from './utilities';
+import { generateReportFromQueryData } from '../utilities';
 
 const reportColumnTemplate = [
   { title: 'sex', accessor: data => data.sex },
@@ -17,12 +16,9 @@ const reportColumnTemplate = [
 ];
 
 function parametersToSqlWhere(parameters) {
-  const newParameters = { ...parameters };
-  if (!newParameters.fromDate) {
-    newParameters.fromDate = subDays(new Date(), 30).toISOString();
-  }
+  // default fromDate for this report is undefined in order to push all data.
 
-  const whereClause = Object.entries(newParameters)
+  const whereClause = Object.entries(parameters)
     .filter(([, val]) => val)
     .reduce((where, [key, value]) => {
       const newWhere = { ...where };

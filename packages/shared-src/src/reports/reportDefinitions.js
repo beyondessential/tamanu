@@ -38,6 +38,10 @@ export const REPORT_DEFINITIONS = [
     ],
   },
   {
+    name: 'Vaccine Line List (data lake only)',
+    id: 'vaccine-line-list',
+  },
+  {
     name: 'COVID vaccine campaign - Line list',
     id: 'covid-vaccine-list',
     parameters: [{ parameterField: 'VillageField' }],
