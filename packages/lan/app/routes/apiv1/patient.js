@@ -192,6 +192,7 @@ patientRelations.get(
   asyncHandler(async (req, res) => {
     const { db, models, params, query } = req;
     const patientId = params.id;
+    const { surveyId, surveyType = 'programs' } = query;
     const { count, data } = await runPaginatedQuery(
       db,
       models.SurveyResponse,
@@ -205,12 +206,13 @@ patientRelations.get(
             ON (survey_responses.survey_id = surveys.id)
         WHERE
           encounters.patient_id = :patientId
-        AND
-          surveys.survey_type = 'programs'
+          AND surveys.survey_type = :surveyType
+          ${ surveyId ? "AND surveys.id = :surveyId" : '' }
       `,
       `
         SELECT
           survey_responses.*,
+          surveys.id as survey_id,
           surveys.name as survey_name,
           encounters.examiner_id,
           users.display_name as assessor_name,
@@ -227,10 +229,10 @@ patientRelations.get(
             ON (programs.id = surveys.program_id)
         WHERE
           encounters.patient_id = :patientId
-        AND
-          surveys.survey_type = 'programs'
+          AND surveys.survey_type = :surveyType
+          ${ surveyId ? "AND surveys.id = :surveyId" : '' }
       `,
-      { patientId },
+      { patientId, surveyId, surveyType },
       query,
     );
 

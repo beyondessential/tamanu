@@ -6,6 +6,7 @@ import { LAB_REQUEST_STATUSES, LAB_REQUEST_STATUS_LABELS } from '../../constants
 import { transformAnswers } from '../utilities/transformAnswers';
 
 const WILLIAM_HOROTO_IDS = [
+  'f4a0e3f0-54da-4fc9-a73e-1b72c9ca92a5', // Kiribati
   '4d719b6f-af55-42ac-99b3-5a27cadaab2b', // Palau
   '2d574680-e0fc-4956-a37e-121ccb434995', // Fiji
   'cebdd9a4-2744-4ad2-9919-98dc0b15464c', // Dev - for testing purposes
@@ -15,7 +16,7 @@ const yieldControl = () => new Promise(resolve => setTimeout(resolve, 20));
 
 const parametersToLabTestSqlWhere = parameters => {
   const defaultWhereClause = {
-    '$labRequest.lab_test_category_id$': 'labTestCategory-COVID',
+    '$labRequest.lab_test_category_id$': ['labTestCategory-COVID', 'labTestCategory-COVIDRAT'],
     '$labRequest.status$': {
       [Op.ne]: LAB_REQUEST_STATUSES.DELETED,
     },

@@ -6,3 +6,4 @@ export { MedicationsPane } from './MedicationsPane';
 export { DocumentsPane } from './DocumentsPane';
 export { ProgramsPane } from './ProgramsPane';
 export { ReferralPane } from './ReferralPane';
+export { InvoicingPane } from './InvoicingPane';
