@@ -113,7 +113,102 @@ const FIELDS = {
     selectSql: `referral_sr.id is not null and additional_data.ethnicity_id = '${ETHNICITY_IDS.OTHERS}'`,
   },
 };
-
+const hi = `
+with 
+	patients_considered as (
+		select id, 
+	display_id,
+	first_name,
+	last_name,
+	date_of_birth from patients
+		where last_name = 'Lane'
+	),
+	lab_test_joiner as (
+		select lab_request_id, string_agg(ltt.name, ',') as lab_test_names
+		from lab_tests lt
+		join lab_test_types ltt 
+		on ltt.id = lt.lab_test_type_id
+		group by lab_request_id
+	),
+	lab_request_info as (
+		select
+			null as hack,
+			encounter_id,
+			'labRequest' as type,
+			display_id,
+			category.name as category,
+			urgent,
+			status,
+			priority.name as priority,
+			lab_test_names
+	from lab_requests lr
+		left join lab_test_joiner ltj on ltj.lab_request_id = lr.id
+		left join reference_data category ON category.id = lr.lab_test_category_id
+		left join reference_data priority  ON priority.id = lr.lab_test_priority_id 
+	),
+	vaccine_info as (
+		select
+			null as hack,
+			encounter_id,
+			'vaccine' as type,
+			status,
+			date,
+			category,
+			label,
+			schedule
+		from administered_vaccines av 
+		left join scheduled_vaccines sv ON sv.id = av.scheduled_vaccine_id
+	),
+	medications_info as (
+		select
+			null as hack,
+			encounter_id,
+			'medication' as type,
+			prescription,
+			note,
+			indication,
+			medication.name,
+			quantity,
+			discontinued,
+			repeats,
+			is_discharge
+		from encounter_medications em
+		join reference_data medication on medication.id = em.medication_id 
+	),
+	diagnosis_info as (
+		select
+			null as hack,
+			encounter_id,
+			'diagnosis' as type,
+			diagnosis.name,
+			certainty,
+			is_primary,
+			date
+		from encounter_diagnoses ed
+		join reference_data diagnosis on diagnosis.id = ed.diagnosis_id  
+	),
+	data_per_encounter as (
+		select 
+			coalesce(lri.encounter_id, vi.encounter_id, mi.encounter_id, di.encounter_id) as abc,
+			coalesce(lri.type, vi.type, mi.type, di.type) as line_type,
+			*
+		from lab_request_info lri
+		full outer join vaccine_info vi on lri.hack = vi.hack
+		full outer join medications_info mi on lri.hack = mi.hack
+		full outer join diagnosis_info di on lri.hack = di.hack
+	)
+select 
+	p.*,
+	e.start_date,
+	e.reason_for_encounter,
+	e.encounter_type,
+	dpe.*
+from patients_considered p
+join encounters e on e.patient_id = p.id
+join data_per_encounter dpe on dpe.abc = e.id
+order by patient_id;
+   
+`;
 const reportColumnTemplate = Object.entries(FIELDS).map(([key, { title }]) => ({
   title,
   accessor: data => data[key],
