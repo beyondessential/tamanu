@@ -4,16 +4,16 @@ import { subDays } from 'date-fns';
 import { generateReportFromQueryData } from './utilities';
 
 const reportColumnTemplate = [
-  { title: 'Sex', accessor: data => data.sex },
-  { title: 'Date of Birth', accessor: data => data.dob },
-  { title: 'Village', accessor: data => data.village },
-  { title: 'Vaccine name', accessor: data => data.vaccineName },
-  { title: 'Vaccine category', accessor: data => data.vaccineCategory },
-  { title: 'Vaccine status', accessor: data => data.vaccineStatus },
-  { title: 'Schedule', accessor: data => data.schedule },
-  { title: 'Vaccine date', accessor: data => data.vaccineDate },
-  { title: 'Batch', accessor: data => data.batch },
-  { title: 'Vaccinator', accessor: data => data.vaccinator },
+  { title: 'sex', accessor: data => data.sex },
+  { title: 'dob', accessor: data => data.dob },
+  { title: 'village', accessor: data => data.village },
+  { title: 'vax_name', accessor: data => data.vaccineName },
+  { title: 'vax_category', accessor: data => data.category },
+  { title: 'vax_status', accessor: data => data.vaccineStatus },
+  { title: 'schedule', accessor: data => data.schedule },
+  { title: 'vax_date', accessor: data => data.vaccineDate },
+  { title: 'batch', accessor: data => data.batch },
+  { title: 'vaccinator', accessor: data => data.vaccinator },
 ];
 
 function parametersToSqlWhere(parameters) {
@@ -57,7 +57,7 @@ function parametersToSqlWhere(parameters) {
   return whereClause;
 }
 
-async function queryCovidVaccineListData(models, parameters) {
+async function queryVaccineListData(models, parameters) {
   const result = await models.AdministeredVaccine.findAll({
     include: [
       {
@@ -100,22 +100,21 @@ async function queryCovidVaccineListData(models, parameters) {
     }
     const {
       encounter: {
-        patient: { displayId, firstName, lastName, dateOfBirth, village, sex },
+        patient: { dateOfBirth, village, sex },
         examiner: { displayName: examinerName },
       },
       date,
       status,
       batch,
-      scheduledVaccine: { schedule, label: vaccineName },
+      scheduledVaccine: { category, schedule, label: vaccineName },
     } = vaccine;
 
     const record = {
-      patientName: `${firstName} ${lastName}`,
-      uid: displayId,
       dob: moment(dateOfBirth).format('DD-MM-YYYY'),
       sex,
       village: village?.name,
       vaccineName,
+      category,
       schedule,
       vaccineStatus: status === 'GIVEN' ? 'Yes' : 'No',
       vaccineDate: moment(date).format('DD-MM-YYYY'),
@@ -130,7 +129,7 @@ async function queryCovidVaccineListData(models, parameters) {
 }
 
 export async function dataGenerator({ models }, parameters) {
-  const queryResults = await queryCovidVaccineListData(models, parameters);
+  const queryResults = await queryVaccineListData(models, parameters);
   return generateReportFromQueryData(queryResults, reportColumnTemplate);
 }
 
