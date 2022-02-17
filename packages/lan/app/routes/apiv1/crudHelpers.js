@@ -34,29 +34,24 @@ export const findRouteObject = async (req, modelName) => {
   return object;
 };
 
-const findBelongingObject = async (req, modelName, foreignKey) => {
-  const { models, params } = req;
-  const model = models[modelName];
-
-  req.checkPermission('read', modelName);
-  const object = await model.findOne({
-    where: { [foreignKey]: params.id },
-    include: model.getFullReferenceAssociations(),
-  });
-  if (!object) throw new NotFoundError();
-
-  return object;
-};
-
 export const simpleGet = modelName =>
   asyncHandler(async (req, res) => {
     const object = await findRouteObject(req, modelName);
     res.send(object);
   });
 
-export const simpleGetHasOne = (modelName, foreignKey) =>
+export const simpleGetHasOne = (modelName, foreignKey, options = {}) =>
   asyncHandler(async (req, res) => {
-    const object = await findBelongingObject(req, modelName, foreignKey);
+    const { models, params } = req;
+    const model = models[modelName];
+    const { additionalFilters = {} } = options;
+    req.checkPermission('read', modelName);
+    const object = await model.findOne({
+      where: { [foreignKey]: params.id, ...additionalFilters },
+      include: model.getFullReferenceAssociations(),
+    });
+    if (!object) throw new NotFoundError();
+
     res.send(object);
   });
 
@@ -79,12 +74,11 @@ export const simplePost = modelName =>
     res.send(object);
   });
 
-export const simpleGetList = (modelName, foreignKey = '', options = {}) => {
-  const { additionalFilters = {}, include = [] } = options;
-
-  return asyncHandler(async (req, res) => {
+export const simpleGetList = (modelName, foreignKey = '', options = {}) =>
+  asyncHandler(async (req, res) => {
     const { models, params, query } = req;
     const { order = 'ASC', orderBy } = query;
+    const { additionalFilters = {}, include = [] } = options;
 
     const model = models[modelName];
     const associations = model.getListReferenceAssociations(models) || [];
@@ -105,7 +99,6 @@ export const simpleGetList = (modelName, foreignKey = '', options = {}) => {
       data,
     });
   });
-};
 
 export const paginatedGetList = (modelName, foreignKey = '', options = {}) => {
   const { additionalFilters = {}, include = [] } = options;
