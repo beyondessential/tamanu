@@ -1,4 +1,4 @@
-FROM node:12.16.3 as base_image
+FROM node:12.20.2 as base_image
 RUN dpkg --add-architecture i386
 RUN apt-get update
 RUN apt-get install -y -q --no-install-recommends \
