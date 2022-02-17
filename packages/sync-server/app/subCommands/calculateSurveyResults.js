@@ -2,7 +2,7 @@ import { inRange } from 'lodash';
 
 import { log } from 'shared/services/logging';
 
-import { initDatabase } from '../app/database';
+import { initDatabase } from '../database';
 
 const SURVEY_RESPONSE_BATCH_SIZE = 1000;
 

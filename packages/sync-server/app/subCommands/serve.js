@@ -46,6 +46,7 @@ export async function serve(options) {
   if (process.env.PRINT_ROUTES === 'true') {
     // console instead of log.info is fine here because the aim is to output the
     // routes without wrapping, supressing, or transporting the output
+    // eslint-disable-next-line no-console
     console.log(getRoutes(app._router).join('\n'));
   }
 

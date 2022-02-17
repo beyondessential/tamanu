@@ -1,4 +1,4 @@
-import { initDatabase } from '../app/database';
+import { initDatabase } from '../database';
 
 export async function migrate(options) {
   const store = await initDatabase({ testMode: false });

@@ -9,7 +9,7 @@ import {
   calculateSurveyResults,
   removeDuplicatedPatientAdditionalData,
   loadIcaoSigner,
-} from './subCommands';
+} from './app/subCommands';
 
 async function run(command, options) {
   const subcommand = {

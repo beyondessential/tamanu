@@ -1,7 +1,7 @@
 import Sequelize from 'sequelize';
 import { log } from 'shared/services/logging';
 import { arrayToDbString } from 'shared/utils';
-import { initDatabase } from '../app/database';
+import { initDatabase } from '../database';
 
 export const removeDuplicatedPatientAdditionalData = async () => {
   const store = await initDatabase({ testMode: false });

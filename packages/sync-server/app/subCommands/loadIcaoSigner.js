@@ -1,10 +1,12 @@
 import { promises as fs } from 'fs';
+import { Op } from 'sequelize';
+import moment from 'moment';
+
 import { log } from 'shared/services/logging';
 import { VdsNcSigner } from 'shared/models';
-import { loadCertificateIntoSigner } from '../app/integrations/VdsNc';
-import { Op } from 'sequelize';
-import { initDatabase } from '../app/database';
-import moment from 'moment';
+
+import { loadCertificateIntoSigner } from '../integrations/VdsNc';
+import { initDatabase } from '../database';
 
 export async function loadIcaoSigner(options) {
   await initDatabase({ testMode: false });
@@ -28,7 +30,11 @@ export async function loadIcaoSigner(options) {
 
   const pendingSigner = pending[0];
   await pendingSigner.update(signerData);
-  log.info(`Loaded ICAO Signer (${moment(signerData.notBefore).format('YYYY-MM-DD')} - ${moment(signerData.notAfter).format('YYYY-MM-DD')})`);
+  log.info(
+    `Loaded ICAO Signer (${moment(signerData.notBefore).format('YYYY-MM-DD')} - ${moment(
+      signerData.notAfter,
+    ).format('YYYY-MM-DD')})`,
+  );
 
   process.exit(0);
 }

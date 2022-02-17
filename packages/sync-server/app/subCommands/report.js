@@ -1,8 +1,8 @@
 import { log } from 'shared/services/logging';
-import { EmailService } from '../app/services/EmailService';
-import { ReportRunner } from '../app/report/ReportRunner';
-import { initDatabase } from '../app/database';
-import { setupEnv } from '../app/env';
+import { EmailService } from '../services/EmailService';
+import { ReportRunner } from '../report/ReportRunner';
+import { initDatabase } from '../database';
+import { setupEnv } from '../env';
 
 export async function report(options) {
   const store = await initDatabase({ testMode: false });
