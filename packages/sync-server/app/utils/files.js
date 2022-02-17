@@ -46,6 +46,7 @@ export async function createZipFromFile(fileName, filePath, zipFilePath) {
   await fs.promises.writeFile(zipFilePath, zipContent, { encoding });
 }
 
+// default bookType is set to xlsx
 export async function createZippedExcelFile(reportName, data, bookType = 'xlsx') {
   const folder = await tmpdir();
   const excelFileName = `${reportName}.${bookType}`;

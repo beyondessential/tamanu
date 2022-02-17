@@ -23,7 +23,7 @@ export class ReportRunner {
       throw new Error('ReportRunner - Email config missing');
     }
 
-    const disabledReports = config.localisation.data.disabledReports;
+    const { disabledReports } = config.localisation.data;
     if (disabledReports.includes(this.reportName)) {
       throw new Error(`ReportRunner - Report "${this.reportName}" is disabled`);
     }
@@ -153,10 +153,11 @@ export class ReportRunner {
    */
   async sendReportToS3(reportData) {
     const { region, bucketName } = config.s3;
+    const bookType = 'csv';
 
     let zipFile;
     try {
-      zipFile = await createZippedExcelFile(this.reportName, reportData);
+      zipFile = await createZippedExcelFile(this.reportName, reportData, bookType);
 
       log.info(
         `ReportRunner - Uploading report "${zipFile}" to s3 bucket "${bucketName}" (${region})`,
