@@ -17,4 +17,5 @@ export async function report({ name }) {
 
 export const reportCommand = new Command('report')
   .description('Generate a report')
-  .requiredOption('-n', '--name <string>', 'Name of the report');
+  .requiredOption('-n', '--name <string>', 'Name of the report')
+  .action(report);
