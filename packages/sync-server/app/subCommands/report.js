@@ -1,3 +1,5 @@
+import { Command } from 'commander';
+
 import { log } from 'shared/services/logging';
 import { EmailService } from '../services/EmailService';
 import { ReportRunner } from '../report/ReportRunner';
@@ -43,3 +45,14 @@ export async function report(options) {
   }
   process.exit(0);
 }
+
+export const reportCommand = new Command('report')
+  .description('Generate a report')
+  .requiredOption('-n', '--name <string>', 'Name of the report')
+  .requiredOption(
+    '-r',
+    '--recipients <json|csv>',
+    'JSON recipients or comma-separated list of emails',
+  )
+  .option('-p', '--parameters <json>', 'JSON parameters')
+  .action(report);

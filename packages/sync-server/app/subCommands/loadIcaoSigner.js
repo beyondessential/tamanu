@@ -1,6 +1,7 @@
 import { promises as fs } from 'fs';
 import { Op } from 'sequelize';
 import moment from 'moment';
+import { Command } from 'commander';
 
 import { log } from 'shared/services/logging';
 import { VdsNcSigner } from 'shared/models';
@@ -38,3 +39,8 @@ export async function loadIcaoSigner(options) {
 
   process.exit(0);
 }
+
+export const loadIcaoSignerCommand = new Command('loadIcaoSigner')
+  .description('Loads an ICAO signer certificate into Tamanu')
+  .requiredOption('-s', '--signer-certificate <path>', 'Path to the signer certificate')
+  .action(loadIcaoSigner);

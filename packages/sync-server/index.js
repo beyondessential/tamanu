@@ -1,39 +1,41 @@
 import { log } from 'shared/services/logging';
-import { parseArguments } from 'shared/arguments';
+
+import { program } from 'commander';
 
 import {
-  migrate,
-  report,
   serve,
-  setup,
-  calculateSurveyResults,
-  removeDuplicatedPatientAdditionalData,
-  loadIcaoSigner,
+  serveCommand,
+  addServeOptions,
+  migrateCommand,
+  reportCommand,
+  setupCommand,
+  calculateSurveyResultsCommand,
+  removeDuplicatedPatientAdditionalDataCommand,
+  loadIcaoSignerCommand,
 } from './app/subCommands';
 
-async function run(command, options) {
-  const subcommand = {
-    serve,
-    migrate,
-    setup,
-    report,
-    calculateSurveyResults,
-    removeDuplicatedPatientAdditionalData,
-    loadIcaoSigner,
-  }[command];
+async function run() {
+  program
+    .description('Tamanu sync-server')
+    .name('node app.bundle.js')
+    .action(serve);
+  addServeOptions(program);
 
-  if (!subcommand) {
-    throw new Error(`Unrecognised subcommand: ${command}`);
-  }
+  program.addCommand(serveCommand);
+  program.addCommand(migrateCommand);
+  program.addCommand(reportCommand);
+  program.addCommand(setupCommand);
+  program.addCommand(calculateSurveyResultsCommand);
+  program.addCommand(removeDuplicatedPatientAdditionalDataCommand);
+  program.addCommand(loadIcaoSignerCommand);
 
-  return subcommand(options);
+  await program.parseAsync(process.argv);
 }
 
 // catch and exit if run() throws an error
 (async () => {
   try {
-    const { command, ...options } = parseArguments();
-    await run(command, options);
+    await run();
   } catch (e) {
     log.error(`run(): fatal error: ${e.toString()}`);
     log.error(e.stack);

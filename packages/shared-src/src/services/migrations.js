@@ -78,19 +78,32 @@ export async function assertUpToDate(log, sequelize, options) {
 }
 
 export async function migrate(log, sequelize, options) {
-  const { migrateDirection = 'up' } = options;
+  const { up, down, downToLastReversibleMigration, redoLatest } = options;
 
-  switch (migrateDirection) {
-    case 'up':
-      return migrateUp(log, sequelize);
-    case 'down':
-      return migrateDown(log, sequelize);
-    case 'downToLastReversibleMigration':
-      return migrateDown(log, sequelize, { to: LAST_REVERSIBLE_MIGRATION });
-    case 'redoLatest':
-      await migrateDown(log, sequelize);
-      return migrateUp(log, sequelize);
-    default:
-      throw new Error(`Unrecognised migrate direction: ${options.migrateDirection}`);
+  if (up) {
+    return migrateUp(log, sequelize);
   }
+  if (down) {
+    return migrateDown(log, sequelize);
+  }
+  if (downToLastReversibleMigration) {
+    return migrateDown(log, sequelize, { to: LAST_REVERSIBLE_MIGRATION });
+  }
+  if (redoLatest) {
+    await migrateDown(log, sequelize);
+    return migrateUp(log, sequelize);
+  }
+  throw new Error(`Unrecognised migrate direction: ${options.migrateDirection}`);
+}
+
+// addMigrateOptions adds shared migration options to a command
+export function addMigrateOptions(cmd) {
+  return cmd
+    .option('--down', 'Reverse the most recent migration')
+    .option('--up', 'Run all unrun migrations until up to date')
+    .option(
+      '--downToLastReversibleMigration',
+      'Run database migrations down to the last known reversible migration (LAST_REVERSIBLE_MIGRATION)',
+    )
+    .option('--redoLatest', 'Run database migrations down 1 and then up 1');
 }

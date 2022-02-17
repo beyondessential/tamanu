@@ -1,4 +1,6 @@
 import config from 'config';
+import { Command } from 'commander';
+
 import { log } from 'shared/services/logging';
 
 import { initDatabase } from '../database';
@@ -25,3 +27,7 @@ export async function setup() {
   log.info(`Done.`);
   process.exit(0);
 }
+
+export const setupCommand = new Command('setup')
+  .description('Set up initial data within the Tamanu app')
+  .action(setup);

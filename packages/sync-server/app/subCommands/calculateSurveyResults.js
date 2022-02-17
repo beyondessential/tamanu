@@ -1,3 +1,4 @@
+import { Command } from 'commander';
 import { inRange } from 'lodash';
 
 import { log } from 'shared/services/logging';
@@ -251,3 +252,7 @@ export async function calculateSurveyResults() {
   log.info('Finished calculating survey results');
   process.exit(0);
 }
+
+export const calculateSurveyResultsCommand = new Command('calculateSurveyResults')
+  .description('Recalculate all survey results (intended to fix a specific bug)')
+  .action(calculateSurveyResults);

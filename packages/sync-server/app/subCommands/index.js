@@ -1,7 +1,7 @@
-export { migrate } from './migrate';
-export { report } from './report';
-export { serve } from './serve';
-export { setup } from './setup';
-export { calculateSurveyResults } from './calculateSurveyResults';
-export { removeDuplicatedPatientAdditionalData } from './removeDuplicatedPatientAdditionalData';
-export { loadIcaoSigner } from './loadIcaoSigner';
+export { migrateCommand } from './migrate';
+export { reportCommand } from './report';
+export { addServeOptions, serve, serveCommand } from './serve';
+export { setupCommand } from './setup';
+export { calculateSurveyResultsCommand } from './calculateSurveyResults';
+export { removeDuplicatedPatientAdditionalDataCommand } from './removeDuplicatedPatientAdditionalData';
+export { loadIcaoSignerCommand } from './loadIcaoSigner';

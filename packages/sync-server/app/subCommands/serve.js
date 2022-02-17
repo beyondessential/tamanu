@@ -1,4 +1,5 @@
 import config from 'config';
+import { Command } from 'commander';
 
 import { log } from 'shared/services/logging';
 
@@ -28,15 +29,15 @@ function getRoutes(router, prefix = '') {
   return routes;
 }
 
-export async function serve(options) {
+export const serve = async ({ skipMigrationCheck }) => {
   const context = await new ApplicationContext().init();
   const { store } = context;
   log.info(`Starting sync server version ${version}.`);
 
   if (config.db.migrateOnStartup) {
-    await store.sequelize.migrate({ migrateDirection: 'up' });
+    await store.sequelize.migrate({ up: true });
   } else {
-    await store.sequelize.assertUpToDate(options);
+    await store.sequelize.assertUpToDate({ skipMigrationCheck });
   }
 
   setupEnv();
@@ -68,5 +69,13 @@ export async function serve(options) {
       stopScheduledTasks();
     });
   }
-
 }
+
+// addServeOptions is used for the default action with no subcommand
+export const addServeOptions = cmd =>
+  cmd.option('--skipMigrationCheck', 'skip the migration check on startup', false);
+
+export const serveCommand = new Command('serve')
+  .description('Start the Tamanu sync-server')
+  .action(serve);
+addServeOptions(serveCommand);

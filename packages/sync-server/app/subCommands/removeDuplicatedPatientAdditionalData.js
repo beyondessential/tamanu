@@ -1,6 +1,9 @@
 import Sequelize from 'sequelize';
+import { Command } from 'commander';
+
 import { log } from 'shared/services/logging';
 import { arrayToDbString } from 'shared/utils';
+
 import { initDatabase } from '../database';
 
 export const removeDuplicatedPatientAdditionalData = async () => {
@@ -92,3 +95,9 @@ export const removeDuplicatedPatientAdditionalData = async () => {
 
   process.exit(0);
 };
+
+export const removeDuplicatedPatientAdditionalDataCommand = new Command(
+  'removeDuplicatedPatientAdditionalData',
+)
+  .description('Remove duplicated PatientAdditionalData records (intended to fix a specific bug)')
+  .action(removeDuplicatedPatientAdditionalData);
