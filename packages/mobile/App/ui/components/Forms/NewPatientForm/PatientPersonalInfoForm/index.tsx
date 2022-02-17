@@ -46,7 +46,7 @@ const getInitialValues = (isEdit: boolean, patient): {} => {
     middleName,
     lastName,
     culturalName,
-    dateOfBirth,
+    dateOfBirth: new Date(dateOfBirth),
     sex,
     villageId,
   };
