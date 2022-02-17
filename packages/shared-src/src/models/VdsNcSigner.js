@@ -1,7 +1,6 @@
-import { Sequelize, Op } from 'sequelize';
 import crypto from 'crypto';
-import Vds from '@pathcheck/vds-sdk';
-import assert from 'assert';
+import { canonicalize } from 'json-canonicalize';
+import { Sequelize, Op } from 'sequelize';
 import { Model } from './Model';
 
 export class VdsNcSigner extends Model {
@@ -39,6 +38,10 @@ export class VdsNcSigner extends Model {
           // certificate request
           type: Sequelize.TEXT, // PKCS10 PEM
           allowNull: false,
+        },
+        requestSentAt: {
+          type: Sequelize.DATE,
+          allowNull: true,
         },
         certificate: {
           // issued by CSCA
@@ -84,14 +87,13 @@ export class VdsNcSigner extends Model {
 
   /**
    * Fetches the current active signer, if any.
-   * @return {Promise<VdsNcSigner>} The active signer.
-   * @throws if there's none.
+   * @return {null|Promise<VdsNcSigner>} The active signer, or null if there's none.
    */
   static findActive() {
     return VdsNcSigner.findOne({
       where: {
-        notBefore: { [Op.gte]: Sequelize.NOW },
-        notAfter: { [Op.lt]: Sequelize.NOW },
+        notBefore: { [Op.lte]: Sequelize.literal('CURRENT_TIMESTAMP') },
+        notAfter: { [Op.gt]: Sequelize.literal('CURRENT_TIMESTAMP') },
         certificate: { [Op.not]: null },
         privateKey: { [Op.not]: null },
       },
@@ -103,7 +105,7 @@ export class VdsNcSigner extends Model {
    */
   isActive() {
     const now = new Date();
-    return !!(this.notBefore >= now && this.notAfter < now && this.certificate && this.privateKey);
+    return !!(this.notBefore <= now && this.notAfter > now && this.certificate && this.privateKey);
   }
 
   /**
@@ -112,7 +114,7 @@ export class VdsNcSigner extends Model {
    * @internal
    * @param {object} data Arbitrary data to sign.
    * @param {string} keySecret Encryption key/phrase for the private key (icao.keySecret).
-   * @returns {Promise<{ alg: string, sig: string }>} The signature and algorithm.
+   * @returns {Promise<{ algorithm: string, signature: Buffer }>} The signature and algorithm.
    */
   async issueSignature(data, keySecret) {
     if (!this.isActive()) {
@@ -126,20 +128,16 @@ export class VdsNcSigner extends Model {
       passphrase: Buffer.from(keySecret, 'base64'),
     });
 
-    const publicKey = crypto.createPublicKey({
-      key: Buffer.from(this.publicKey),
-      format: 'der',
-      type: 'spki',
-    });
+    const sign = crypto.createSign('SHA256');
+    sign.update(canonicalize(data));
+    sign.end();
+    const signature = sign.sign(privateKey);
 
-    const signed = await Vds.sign(
-      { data },
-      publicKey.export({ type: 'spki', format: 'pem' }),
-      privateKey.export({ type: 'pkcs8', format: 'pem' }),
-    );
-
-    assert.deepEqual(signed.data, data);
     await this.increment('signaturesIssued');
-    return signed.sig;
+
+    return {
+      algorithm: 'ES256',
+      signature,
+    };
   }
 }

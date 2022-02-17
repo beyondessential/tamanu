@@ -53,7 +53,7 @@ export const PatientCovidTestCert = ({ patient }) => {
   const createCovidTestCertNotification = useCallback(
     data => {
       api.post('certificateNotification', {
-        type: ICAO_DOCUMENT_TYPES.PROOF_OF_TESTING,
+        type: ICAO_DOCUMENT_TYPES.PROOF_OF_TESTING.JSON,
         requireSigning: false,
         patientId: patient.id,
         forwardAddress: data.email,

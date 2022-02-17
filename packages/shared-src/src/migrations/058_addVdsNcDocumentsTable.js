@@ -28,12 +28,16 @@ module.exports = {
         allowNull: true,
       },
       type: {
-        type: Sequelize.ENUM(['icao.vacc', 'icao.test']),
+        type: Sequelize.STRING,
         allowNull: false,
       },
       message_data: {
         type: Sequelize.TEXT,
         allowNull: false,
+      },
+      unique_proof_id: {
+        type: Sequelize.STRING,
+        allowNull: true,
       },
       algorithm: {
         type: Sequelize.STRING,
@@ -42,13 +46,6 @@ module.exports = {
       signature: {
         type: Sequelize.BLOB,
         allowNull: true,
-      },
-      patient_id: {
-        type: Sequelize.STRING,
-        references: {
-          model: 'patients',
-          key: 'id',
-        },
       },
       facility_id: {
         type: Sequelize.STRING,
@@ -65,8 +62,13 @@ module.exports = {
         },
       },
     });
+    await query.addIndex('vds_nc_documents', {
+      fields: ['unique_proof_id'],
+      unique: true,
+    });
   },
   down: async query => {
+    await query.removeIndex('vds_nc_documents', ['unique_proof_id']);
     await query.dropTable('vds_nc_documents');
   },
 };

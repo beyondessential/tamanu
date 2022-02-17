@@ -33,10 +33,16 @@
   "icao": {
     "keySecret": "2hcp3wizGFFnGgsgZZDqFZDmUjaFCIppN8HnyBABqck=",
     "csr": {
-      "countryCode": "UTO",
+      "subject": {
+        "countryCode2": "UT"
+      },
       "email": {
         "recipient": "admin@tamanu.io"
+      },
+      "sign": {
+        "countryCode3": "UTO"
       }
+      // ICAO specifies "UT", "UTO", "Utopia" for testing/sample documents
     }
   }
 }
