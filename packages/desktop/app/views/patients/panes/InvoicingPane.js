@@ -6,6 +6,7 @@ import { useApi } from '../../../api';
 import { isInvoiceEditable } from '../../../utils';
 
 import { InvoiceLineItemModal } from '../../../components/InvoiceLineItemModal';
+import { InvoicePriceChangeItemModal } from '../../../components/InvoicePriceChangeItemModal';
 import { PotentialInvoiceLineItemsModal } from '../../../components/PotentialInvoiceLineItemsModal';
 import { InvoiceDetailTable } from '../../../components/InvoiceDetailTable';
 import { Button } from '../../../components/Button';
@@ -23,6 +24,7 @@ const ActionsPane = styled(ContentPane)`
 export const InvoicingPane = React.memo(({ encounter }) => {
   const [invoiceLineModalOpen, setInvoiceLineModalOpen] = useState(false);
   const [potentialLineItemsModalOpen, setPotentialLineItemsModalOpen] = useState(false);
+  const [invoicePriceChangeModalOpen, setInvoicePriceChangeModalOpen] = useState(false);
   const [invoice, setInvoice] = useState(null);
   const [error, setError] = useState(null);
   const { loadEncounter } = useEncounter();
@@ -89,6 +91,25 @@ export const InvoicingPane = React.memo(({ encounter }) => {
             onSaved={() => {
               setInvoiceLineModalOpen(false);
               loadEncounter(encounter.id);
+            }}
+          />
+          <Button
+            onClick={() => setInvoicePriceChangeModalOpen(true)}
+            variant="contained"
+            color="primary"
+            style={{ marginRight: '20px' }}
+          >
+            Add price change
+          </Button>
+          <InvoicePriceChangeItemModal
+            title="Add price change"
+            actionText="Create"
+            open={invoicePriceChangeModalOpen}
+            invoiceId={invoice.id}
+            onClose={() => setInvoicePriceChangeModalOpen(false)}
+            onSaved={async () => {
+              setInvoicePriceChangeModalOpen(false);
+              await loadEncounter(encounter.id);
             }}
           />
           <Button
