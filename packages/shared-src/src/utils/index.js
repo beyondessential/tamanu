@@ -6,3 +6,4 @@ export * from './sleepAsync';
 export * from './arrayToDbString';
 export * from './patientCertificates';
 export * from './tmpdir';
+export * from './encodings';
