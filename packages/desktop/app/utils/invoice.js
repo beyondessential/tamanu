@@ -1,7 +1,7 @@
-import { INVOICE_STATUS_TYPES } from 'shared/constants';
+import { INVOICE_STATUSES } from 'shared/constants';
 
 export const isInvoiceEditable = status =>
-  ![INVOICE_STATUS_TYPES.FINALISED, INVOICE_STATUS_TYPES.CANCELLED].includes(status);
+  ![INVOICE_STATUSES.FINALISED, INVOICE_STATUSES.CANCELLED].includes(status);
 
 export const calculateInvoiceTotal = (invoiceLines, invoicePriceChanges) => {
   const total = calculateInvoiceLinesTotal(invoiceLines);
