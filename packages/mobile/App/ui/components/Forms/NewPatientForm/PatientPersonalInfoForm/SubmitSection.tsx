@@ -7,8 +7,10 @@ import { Button } from '../../../Button';
 
 export const SubmitSection = ({
   onPress,
-}: { onPress: () => void}): ReactElement => {
+  isEdit,
+}: { onPress: () => void; isEdit: boolean }): ReactElement => {
   const form = useFormikContext();
+  const submitText = isEdit ? 'Save' : 'Create New Patient';
   return (
     <StyledView
       flex={1}
@@ -26,7 +28,7 @@ export const SubmitSection = ({
         <Button
           loadingAction={form.isSubmitting}
           onPress={onPress}
-          buttonText="Create New Patient"
+          buttonText={submitText}
           backgroundColor={theme.colors.PRIMARY_MAIN}
         />
       </StyledSafeAreaView>

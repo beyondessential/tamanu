@@ -115,7 +115,7 @@ export const FormComponent = ({
               <NameSection />
               <KeyInformationSection />
               <LocationDetailsSection />
-              <SubmitSection onPress={handleSubmit} />
+              <SubmitSection onPress={handleSubmit} isEdit={isEdit} />
             </ScrollView>
           </KeyboardAvoidingView>
         )}
