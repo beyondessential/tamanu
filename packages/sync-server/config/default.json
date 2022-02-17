@@ -380,13 +380,18 @@
     // $ openssl rand -base64 32
     "keySecret": null,
     "csr": {
-      "commonName": "Tamanu VDS-NC Signer",
-      "countryCode": null, // ICAO 3-letter country code
+      "subject": {
+        "countryCode2": null, // ICAO 2-letter country code
+        "signerIdentifier": "TA" // max 2 letters, ref 9303-13 §2.2.1(a)
+      },
       "email": {
         "recipient": null, // email address of CSCA signing contact
         "subject": "Tamanu ICAO Certificate Signing Request",
         "body": "Please sign the following certificate signing request (CSR) with the Country Signing Certificate Authority (CSCA), and return it to the Tamanu team or Tamanu deployment administration team."
       }
+    },
+    "sign": {
+      "countryCode3": null, // ICAO 3-letter country code
     },
     "renew": {
       "daysBeforeExpiry": 14,

@@ -7,6 +7,7 @@ import { ReportRequestScheduler } from './ReportRequestScheduler';
 import { VRSActionRetrier } from './VRSActionRetrier';
 import { VdsNcSignerExpiryChecker } from './VdsNcSignerExpiryChecker';
 import { VdsNcSignerRenewalChecker } from './VdsNcSignerRenewalChecker';
+import { VdsNcSignerRenewalSender } from './VdsNcSignerRenewalSender';
 import { VdsNcDocumentSigningProcessor } from './VdsNcDocumentSigningProcessor';
 
 export async function startScheduledTasks(context) {
@@ -17,6 +18,7 @@ export async function startScheduledTasks(context) {
     VdsNcDocumentSigningProcessor,
     VdsNcSignerExpiryChecker,
     VdsNcSignerRenewalChecker,
+    VdsNcSignerRenewalSender,
   ];
   if (config.integrations.fijiVrs.enabled) {
     taskClasses.push(VRSActionRetrier);
