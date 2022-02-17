@@ -1,6 +1,6 @@
 {
   "name": "sync-server",
-  "version": "1.12.2",
+  "version": "1.12.4",
   "description": "Sync server for Tamanu desktop app",
   "homepage": "https://github.com/beyondessential/tamanu.git#readme",
   "repository": "git@github.com:beyondessential/tamanu.git",
@@ -17,6 +17,7 @@
   },
   "scripts": {
     "start": "node ./dist/app.bundle.js",
+    "setup-dev": "node ./dist/app.bundle.js setup",
     "start-dev": "rm -rf ./dist/ && webpack --config webpack.config.dev.js",
     "test": "NODE_ENV=test jest",
     "test-coverage": "yarn test --coverage",
@@ -57,6 +58,7 @@
     "webpack-node-externals": "^1.7.2"
   },
   "dependencies": {
+    "@aws-sdk/client-s3": "^3.49.0",
     "@babel/polyfill": "^7.2.5",
     "@casl/ability": "^4.1.0",
     "@tupaia/api-client": "2.1.1",

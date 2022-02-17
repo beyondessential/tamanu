@@ -5,7 +5,7 @@ import { permissionCheckingRouter } from '../crudHelpers';
 export const invoicePriceChangeItemsRoute = permissionCheckingRouter('read', 'Invoice');
 
 invoicePriceChangeItemsRoute.get(
-  '/:id/invoicePriceChangeItems',
+  '/:id/priceChangeItems',
   asyncHandler(async (req, res) => {
     const { models, params } = req;
     req.checkPermission('list', 'InvoicePriceChangeItem');
@@ -34,7 +34,7 @@ invoicePriceChangeItemsRoute.get(
 );
 
 invoicePriceChangeItemsRoute.post(
-  '/:id/invoicePriceChangeItems',
+  '/:id/priceChangeItems',
   asyncHandler(async (req, res) => {
     const {
       models,
@@ -52,15 +52,13 @@ invoicePriceChangeItemsRoute.post(
 );
 
 invoicePriceChangeItemsRoute.get(
-  '/:id/invoicePriceChangeItems/:invoicePriceChangeItemId',
+  '/:id/priceChangeItems/:priceChangeItemId',
   asyncHandler(async (req, res) => {
     const { models, params } = req;
     req.checkPermission('read', 'InvoicePriceChangeItem');
 
-    const invoicePriceChangeItemId = params.invoicePriceChangeItemId;
-    const invoicePriceChangeItem = await models.InvoicePriceChangeItem.findByPk(
-      invoicePriceChangeItemId,
-    );
+    const priceChangeItemId = { params };
+    const invoicePriceChangeItem = await models.InvoicePriceChangeItem.findByPk(priceChangeItemId);
 
     req.checkPermission('read', invoicePriceChangeItem);
 
@@ -69,15 +67,13 @@ invoicePriceChangeItemsRoute.get(
 );
 
 invoicePriceChangeItemsRoute.put(
-  '/:id/invoicePriceChangeItems/:invoicePriceChangeItemId',
+  '/:id/priceChangeItems/:priceChangeItemId',
   asyncHandler(async (req, res) => {
     const { models, params } = req;
     req.checkPermission('write', 'InvoicePriceChangeItem');
 
-    const invoicePriceChangeItemId = params.invoicePriceChangeItemId;
-    const invoicePriceChangeItem = await models.InvoicePriceChangeItem.findByPk(
-      invoicePriceChangeItemId,
-    );
+    const priceChangeItemId = { params };
+    const invoicePriceChangeItem = await models.InvoicePriceChangeItem.findByPk(priceChangeItemId);
     if (!invoicePriceChangeItem) {
       throw new NotFoundError();
     }
@@ -90,15 +86,13 @@ invoicePriceChangeItemsRoute.put(
 );
 
 invoicePriceChangeItemsRoute.delete(
-  '/:id/invoicePriceChangeItems/:invoicePriceChangeItemId',
+  '/:id/priceChangeItems/:priceChangeItemId',
   asyncHandler(async (req, res) => {
     const { models, params } = req;
     req.checkPermission('write', 'InvoicePriceChangeItem');
 
-    const invoicePriceChangeItemId = params.invoicePriceChangeItemId;
-    const invoicePriceChangeItem = await models.InvoicePriceChangeItem.findByPk(
-      invoicePriceChangeItemId,
-    );
+    const priceChangeItemId = { params };
+    const invoicePriceChangeItem = await models.InvoicePriceChangeItem.findByPk(priceChangeItemId);
     if (!invoicePriceChangeItem) {
       throw new NotFoundError();
     }
@@ -106,7 +100,7 @@ invoicePriceChangeItemsRoute.delete(
 
     await models.InvoicePriceChangeItem.destroy({
       where: {
-        id: invoicePriceChangeItemId,
+        id: priceChangeItemId,
       },
     });
 

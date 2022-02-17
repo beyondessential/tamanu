@@ -18,6 +18,7 @@ export class Patient extends Model {
         culturalName: Sequelize.STRING,
 
         dateOfBirth: Sequelize.DATE,
+        dateOfDeath: Sequelize.DATE,
         sex: {
           type: Sequelize.ENUM('male', 'female', 'other'),
           allowNull: false,
@@ -32,7 +33,11 @@ export class Patient extends Model {
       {
         ...options,
         syncConfig: { syncDirection: SYNC_DIRECTIONS.BIDIRECTIONAL },
-        indexes: [{ fields: ['display_id'] }, { fields: ['last_name'] }],
+        indexes: [
+          { fields: ['date_of_death'] },
+          { fields: ['display_id'] },
+          { fields: ['last_name'] },
+        ],
       },
     );
   }

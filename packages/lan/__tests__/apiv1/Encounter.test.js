@@ -50,10 +50,25 @@ describe('Encounter', () => {
       ...(await createDummyEncounter(models)),
       patientId: patient.id,
     });
+    const c = await models.Encounter.create({
+      ...(await createDummyEncounter(models, { current: true })),
+      patientId: patient.id,
+    });
+
     const result = await app.get(`/v1/patient/${patient.id}/encounters`);
     expect(result).toHaveSucceeded();
     expect(result.body.count).toBeGreaterThan(0);
     expect(result.body.data.some(x => x.id === v.id)).toEqual(true);
+    expect(result.body.data.some(x => x.id === c.id)).toEqual(true);
+
+    expect(result.body.data.find(x => x.id === v.id)).toMatchObject({
+      id: v.id,
+      endDate: expect.any(String),
+    });
+    expect(result.body.data.find(x => x.id === c.id)).toMatchObject({
+      id: c.id,
+    });
+    expect(result.body.data.find(x => x.id === c.id)).not.toHaveProperty('endDate');
   });
 
   it('should fail to get an encounter that does not exist', async () => {

@@ -169,6 +169,10 @@
           "shortLabel": "DOB exact",
           "longLabel": "Date of birth exact"
         },
+        "dateOfDeath": {
+          "shortLabel": "Death",
+          "longLabel": "Date of death"
+        },
         "bloodType": {
           "shortLabel": "Blood type",
           "longLabel": "Blood type",
@@ -317,7 +321,8 @@
         "editPatientDetailsOnMobile": true,
         "enableInvoicing": true,
         "registerNewPatient": true,
-        "hideOtherSex": true
+        "hideOtherSex": true,
+        "enablePatientDeaths": false
       },
       "templates": {
         "letterhead": {
@@ -365,6 +370,7 @@
     }
   },
   "tupaiaApiClient": {},
+  "s3": {},
   "scheduledReports": [],
   "disk": {
     "diskPath": "C:/",
@@ -373,3 +379,4 @@
     }
   }
 }
+
