@@ -24,7 +24,7 @@ import * as fijiRecentAttendanceList from './fiji-recent-attendance-list';
 import * as fijiNcdPrimaryScreeningLineList from './fiji-ncd-primary-screening/fiji-ncd-primary-screening-line-list';
 import * as fijiNcdPrimaryScreeningPendingReferralsLineList from './fiji-ncd-primary-screening/fiji-ncd-primary-screening-pending-referrals-line-list';
 import * as fijiNcdPrimaryScreeningSummary from './fiji-ncd-primary-screening/fiji-ncd-primary-screening-summary';
-import * as vaccineLineList from './tupaia-data-lake/vaccine-line-list';
+import * as vaccineLineList from './data-lake-tupaia/vaccine-line-list';
 
 export function getReportModule(reportType) {
   switch (reportType) {
