@@ -50,6 +50,7 @@ export async function serve({ skipMigrationCheck }) {
   startDataChangePublisher(server, context);
 }
 
+// addServeOptions is used for the default action with no subcommand
 export function addServeOptions(cmd) {
   return cmd.option('--skipMigrationCheck', 'skip the migration check on startup', false);
 }
