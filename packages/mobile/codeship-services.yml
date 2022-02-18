@@ -1,0 +1,5 @@
+tamanu-mobile:
+  build:
+    image: tamanu-mobile
+    dockerfile: Dockerfile
+  encrypted_dockercfg_path: dockercfg.encrypted
