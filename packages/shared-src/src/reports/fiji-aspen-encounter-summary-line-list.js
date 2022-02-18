@@ -29,9 +29,8 @@ with
 	billing_type as (
 		select 
 			patient_id,
-			max(rd.name) "Patient billing type"
+			max(patient_billing_type_id) patient_billing_type_id
 		from patient_additional_data adc
-		join reference_data rd on rd.id = patient_billing_type_id
 		group by patient_id
 	),
 	patients_considered as (
@@ -99,7 +98,7 @@ select
 	p.last_name "Last name",
 	to_char(p.date_of_birth, 'YYYY-MM-DD') "Date of birth",
 	p.sex "Sex",
-	bt."Patient billing type",
+	billing.name "Patient billing type",
 	to_char(e.start_date, 'YYYY-MM-DD HH24' || CHR(58) || 'MI') "Encounter start date",
 	to_char(e.end_date, 'YYYY-MM-DD HH24' || CHR(58) || 'MI') "Encounter end date",
 	e.encounter_type "Encounter type",
@@ -113,6 +112,7 @@ select
 from patients_considered p
 join encounters e on e.patient_id = p.id
 left join billing_type bt on bt.patient_id = p.id
+left join reference_data billing on billing.id = bt.patient_billing_type_id
 left join medications_info mi on e.id = mi.encounter_id
 left join diagnosis_info di on e.id = di.encounter_id
 left join procedure_info pi on e.id = pi.encounter_id
@@ -120,7 +120,7 @@ left join lab_request_info lri on lri.encounter_id = e.id
 left join imaging_info ii on ii.encounter_id = e.id
 left join notes_info ni on ni.encounter_id = e.id
 where e.end_date is not null
-and coalesce(bt."Patient billing type", '-') like coalesce(:billing_type, '%%')
+and coalesce(billing.id, '-') like coalesce(:billing_type, '%%')
 and e.start_date::date >= coalesce(:from_date::date, '1000-01-01'::date)
 and e.start_date::date <= coalesce(:to_date::date, '9999-12-31'::date)
 order by e.start_date desc;
