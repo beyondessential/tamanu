@@ -38,7 +38,7 @@ export const REPORT_DEFINITIONS = [
     ],
   },
   {
-    name: 'Vaccine Line List (data lake only)',
+    name: 'Vaccine Line List (de-identified)',
     id: 'vaccine-line-list',
   },
   {
