@@ -18,11 +18,6 @@ const servers = [
   { name: 'Fiji Tourism', type: 'live', host: 'https://sync-tourism.tamanu-fiji.org' },
   { name: 'Kiribati', type: 'live', host: 'https://sync.tamanu-kiribati.org' },
   {
-    name: 'Motivation Australia - Iraq',
-    type: 'live',
-    host: 'https://motivation-sync-iraq.tamanu.io',
-  },
-  {
     name: 'Motivation Australia - Papua New Guinea',
     type: 'live',
     host: 'https://motivation-sync-png.tamanu.io',
