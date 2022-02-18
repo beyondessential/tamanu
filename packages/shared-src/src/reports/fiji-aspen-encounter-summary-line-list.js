@@ -72,7 +72,7 @@ with
 	diagnosis_info as (
 		select
 			encounter_id,
-			string_agg(diagnosis.name || ', ' || diagnosis.code || ', primary' || CHR(58) || is_primary || ', ' || certainty, ';') as "Diagnosis"
+			string_agg(diagnosis.name || ', ' || diagnosis.code || ',  ' || case when is_primary then 'primary' else 'secondary' end || ', ' || certainty, ';') as "Diagnosis"
 		from encounter_diagnoses ed
 		join reference_data diagnosis on diagnosis.id = ed.diagnosis_id
 		group by encounter_id
