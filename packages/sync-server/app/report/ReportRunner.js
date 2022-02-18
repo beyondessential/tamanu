@@ -152,15 +152,21 @@ export class ReportRunner {
    * @returns {Promise<void>}
    */
   async sendReportToS3(reportData) {
-    const { region, bucketName } = config.s3;
-    const bookType = 'csv';
+    const { region, bucketName, bucketPath } = config.s3;
+
+    if (!bucketPath) {
+      throw new Error(`bucketPath must be set, e.g. 'au'`);
+    }
 
     let zipFile;
+    const bookType = 'csv';
     try {
       zipFile = await createZippedSpreadsheet(this.reportName, reportData, bookType);
 
+      const filename = path.basename(zipFile);
+
       log.info(
-        `ReportRunner - Uploading report "${zipFile}" to s3 bucket "${bucketName}" (${region})`,
+        `ReportRunner - Uploading report to s3 "${bucketName}/${bucketPath}/${filename}" (${region})`,
       );
 
       const client = new AWS.S3({ region });
@@ -170,7 +176,7 @@ export class ReportRunner {
       await client.send(
         new AWS.PutObjectCommand({
           Bucket: bucketName,
-          Key: path.basename(zipFile),
+          Key: `${bucketPath}/${filename}`,
           Body: fileStream,
         }),
       );
