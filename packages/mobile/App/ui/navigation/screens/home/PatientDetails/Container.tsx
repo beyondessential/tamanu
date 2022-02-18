@@ -76,7 +76,7 @@ const Container = ({
     navigation.navigate(Routes.HomeStack.PatientDetailsStack.EditPatient, {
       patientName: joinNames(selectedPatient),
     });
-  }, [navigation]);
+  }, [navigation, selectedPatient]);
 
   const onEditPatientAdditionalData = useCallback(() => {
     console.log('edit PatientAdditionalData');
