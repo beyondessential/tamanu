@@ -121,8 +121,8 @@ left join imaging_info ii on ii.encounter_id = e.id
 left join notes_info ni on ni.encounter_id = e.id
 where e.end_date is not null
 and coalesce(bt."Patient billing type", '-') like coalesce(:billing_type, '%%')
-and e.start_date::date >= coalesce(:from_date::date, '1900-01-01'::date)
-and e.start_date::date <= coalesce(:to_date::date, '1900-01-01'::date)
+and e.start_date::date >= coalesce(:from_date::date, '1000-01-01'::date)
+and e.start_date::date <= coalesce(:to_date::date, '9999-12-31'::date)
 order by e.start_date desc;
 `;
 
