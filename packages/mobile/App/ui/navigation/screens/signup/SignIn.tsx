@@ -87,7 +87,7 @@ export const SignIn: FunctionComponent<any> = ({ navigation }: SignInProps) => {
       if (error instanceof OutdatedVersionError) {
         showErrorModal({
           message: error.message,
-          buttonPrompt: "Update",
+          buttonPrompt: 'Update',
           buttonUrl: error.updateUrl,
         });
       } else {

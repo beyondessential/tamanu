@@ -1,4 +1,4 @@
-import React, { useCallback, useState, useRef, Ref, useMemo } from 'react';
+import React, { useCallback, useState, useRef, useMemo } from 'react';
 import {
   KeyboardType,
   StyleSheet,

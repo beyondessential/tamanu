@@ -31,7 +31,11 @@ export const SignInFields = ({
         ACCOUNT DETAILS
       </StyledText>
       <StyledView justifyContent="space-around">
-        <ServerSelector />
+        <Field
+          name="server"
+          component={ServerSelector}
+          label="Select a country"
+        />
         <Field
           name="email"
           keyboardType="email-address"
