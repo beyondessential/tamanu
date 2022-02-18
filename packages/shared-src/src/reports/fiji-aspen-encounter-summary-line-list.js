@@ -1,4 +1,4 @@
-import { generateReportFromQueryData } from '../utilities';
+import { generateReportFromQueryData } from './utilities';
 
 const FIELDS = [
   'NHN',
@@ -73,7 +73,7 @@ with
 	diagnosis_info as (
 		select
 			encounter_id,
-			string_agg(diagnosis.name || ', ' || diagnosis.code || ', primary:' || is_primary || ', ' || certainty, ';') as "Diagnosis"
+			string_agg(diagnosis.name || ', ' || diagnosis.code || ', primary' || CHR(58) || is_primary || ', ' || certainty, ';') as "Diagnosis"
 		from encounter_diagnoses ed
 		join reference_data diagnosis on diagnosis.id = ed.diagnosis_id
 		group by encounter_id
@@ -89,7 +89,7 @@ with
 	notes_info as (
 		select
 			record_id as encounter_id,
-			string_agg(n.note_type || ': ' || n."content" , ';') as "Notes"
+			string_agg(n.note_type || CHR(58) || ' ' || n."content" , ';') as "Notes"
 		from notes n
 		group by record_id
 	)
@@ -100,8 +100,8 @@ select
 	to_char(p.date_of_birth, 'YYYY-MM-DD') "Date of birth",
 	p.sex "Sex",
 	bt."Patient billing type",
-	to_char(e.start_date, 'YYYY-MM-DD HH24:MI') "Encounter start date",
-	to_char(e.end_date, 'YYYY-MM-DD HH24:MI') "Encounter end date",
+	to_char(e.start_date, 'YYYY-MM-DD HH24' || CHR(58) || 'MI') "Encounter start date",
+	to_char(e.end_date, 'YYYY-MM-DD HH24' || CHR(58) || 'MI') "Encounter end date",
 	e.encounter_type "Encounter type",
 	e.reason_for_encounter "Reason for encounter",
 	di."Diagnosis",
@@ -132,9 +132,9 @@ const getData = async (sequelize, parameters) => {
   return sequelize.query(query, {
     type: sequelize.QueryTypes.SELECT,
     replacements: {
-      from_date: fromDate,
-      to_date: toDate,
-      billing_type: patientBillingType,
+      from_date: fromDate ?? null,
+      to_date: toDate ?? null,
+      billing_type: patientBillingType ?? null,
     },
   });
 };
