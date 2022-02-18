@@ -115,98 +115,100 @@ const FIELDS = {
 };
 const hi = `
 with 
-	patients_considered as (
-		select id, 
-	display_id,
-	first_name,
-	last_name,
-	date_of_birth from patients
-		where last_name = 'Lane'
+	billing_type as (
+		select 
+			patient_id,
+			max(rd.name) "Patient billing type"
+		from patient_additional_data adc
+		join reference_data rd on rd.id = patient_billing_type_id
+		group by patient_id 
 	),
-	lab_test_joiner as (
-		select lab_request_id, string_agg(ltt.name, ',') as lab_test_names
-		from lab_tests lt
-		join lab_test_types ltt 
-		on ltt.id = lt.lab_test_type_id
-		group by lab_request_id
+	patients_considered as (
+		select
+			id, 
+			display_id,
+			first_name,
+			last_name,
+			date_of_birth,
+			sex 
+		from patients
 	),
 	lab_request_info as (
-		select
-			null as hack,
+		select 
 			encounter_id,
-			'labRequest' as type,
-			display_id,
-			category.name as category,
-			urgent,
-			status,
-			priority.name as priority,
-			lab_test_names
-	from lab_requests lr
-		left join lab_test_joiner ltj on ltj.lab_request_id = lr.id
-		left join reference_data category ON category.id = lr.lab_test_category_id
-		left join reference_data priority  ON priority.id = lr.lab_test_priority_id 
+			string_agg(ltt.name, ';') as "Lab requests"
+		from lab_requests lr
+		join lab_tests lt on lt.lab_request_id = lr.id
+		join lab_test_types ltt 
+		on ltt.id = lt.lab_test_type_id
+		group by encounter_id
 	),
-	vaccine_info as (
+	procedure_info as (
 		select
-			null as hack,
 			encounter_id,
-			'vaccine' as type,
-			status,
-			date,
-			category,
-			label,
-			schedule
-		from administered_vaccines av 
-		left join scheduled_vaccines sv ON sv.id = av.scheduled_vaccine_id
+			string_agg(proc.name || ', ' || proc.code, ';') as "Procedures"
+		from "procedures" p2 
+		left join reference_data proc ON proc.id = p2.procedure_type_id
+		group by encounter_id 
 	),
 	medications_info as (
 		select
-			null as hack,
 			encounter_id,
-			'medication' as type,
-			prescription,
-			note,
-			indication,
-			medication.name,
-			quantity,
-			discontinued,
-			repeats,
-			is_discharge
+			string_agg(medication.name, ';') as "Medications"
 		from encounter_medications em
-		join reference_data medication on medication.id = em.medication_id 
+		join reference_data medication on medication.id = em.medication_id
+		group by encounter_id
 	),
 	diagnosis_info as (
 		select
-			null as hack,
 			encounter_id,
-			'diagnosis' as type,
-			diagnosis.name,
-			certainty,
-			is_primary,
-			date
+			string_agg(diagnosis.name || ', ' || diagnosis.code || ', primary:' || is_primary || ', ' || certainty, ';') as "Diagnosis"
 		from encounter_diagnoses ed
-		join reference_data diagnosis on diagnosis.id = ed.diagnosis_id  
+		join reference_data diagnosis on diagnosis.id = ed.diagnosis_id
+		group by encounter_id
 	),
-	data_per_encounter as (
-		select 
-			coalesce(lri.encounter_id, vi.encounter_id, mi.encounter_id, di.encounter_id) as abc,
-			coalesce(lri.type, vi.type, mi.type, di.type) as line_type,
-			*
-		from lab_request_info lri
-		full outer join vaccine_info vi on lri.hack = vi.hack
-		full outer join medications_info mi on lri.hack = mi.hack
-		full outer join diagnosis_info di on lri.hack = di.hack
+	imaging_info as (
+		select
+			encounter_id,
+			string_agg(image_type.name, ';') as "Imaging requests"
+		from imaging_requests ir
+		join reference_data image_type on image_type.id = ir.imaging_type_id 
+		group by encounter_id
+	),
+	notes_info as (
+		select
+			record_id as encounter_id,
+			string_agg(n.note_type || ': ' || n."content" , ';') as "Notes"
+		from notes n
+		group by record_id
 	)
-select 
-	p.*,
-	e.start_date,
-	e.reason_for_encounter,
-	e.encounter_type,
-	dpe.*
+select
+	p.display_id "NHN",
+	p.first_name "First name",
+	p.last_name "Last name",
+	p.date_of_birth "Date of birth",
+	p.sex "Sex",
+	bt."Patient billing type",
+	to_char(e.start_date, 'YYYY-MM-DD HH24:MI') "Encounter start date",
+	to_char(e.end_date, 'YYYY-MM-DD HH24:MI') "Encounter end date",
+	e.encounter_type "Encounter type",
+	e.reason_for_encounter "Reason for encounter",
+	di."Diagnosis",
+	mi."Medications",
+	pi."Procedures",
+	lri."Lab requests",
+	ii."Imaging requests",
+	ni."Notes"
 from patients_considered p
 join encounters e on e.patient_id = p.id
-join data_per_encounter dpe on dpe.abc = e.id
-order by patient_id;
+left join billing_type bt on bt.patient_id = p.id
+left join medications_info mi on e.id = mi.encounter_id
+left join diagnosis_info di on e.id = di.encounter_id
+left join procedure_info pi on e.id = pi.encounter_id
+left join lab_request_info lri on lri.encounter_id = e.id
+left join imaging_info ii on ii.encounter_id = e.id
+left join notes_info ni on ni.encounter_id = e.id
+order by e.start_date;
    
 `;
 const reportColumnTemplate = Object.entries(FIELDS).map(([key, { title }]) => ({
