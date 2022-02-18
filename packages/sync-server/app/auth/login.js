@@ -4,6 +4,7 @@ import bcrypt from 'bcrypt';
 import { getLocalisation } from '../localisation';
 import { convertFromDbRecord } from '../convertDbRecord';
 
+import { getPermissionsForRoles } from 'shared/permissions/rolesToPermissions';
 import { BadAuthenticationError } from 'shared/errors';
 import { getToken, stripUser } from './utils';
 
@@ -34,12 +35,16 @@ export const login = asyncHandler(async (req, res) => {
 
   // Send some additional data with login to tell the user about
   // the context they've just logged in to.
-  const facility = await store.models.Facility.findByPk(facilityId);
-  const localisation = await getLocalisation();
+  const [facility, localisation, permissions] = await Promise.all([
+    store.models.Facility.findByPk(facilityId),
+    getLocalisation(),
+    getPermissionsForRoles(user.role)
+  ]);
 
   res.send({
     token,
     user: convertFromDbRecord(stripUser(user)).data,
+    permissions,
     facility,
     localisation,
   });
