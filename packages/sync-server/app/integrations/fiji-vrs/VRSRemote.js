@@ -125,9 +125,10 @@ export class VRSRemote {
   }
 
   async getPatientByFetchId(fetchId) {
-    const { data: vrsPatient } = await this.fetch(`/api/Tamanu/Fetch/${fetchId}`, {
-      validateSchema: schema.remoteResponse.fetchPatient,
-    });
+    const { data: vrsPatient } = await this.fetch(
+      `/api/Tamanu/Fetch?${encodeParams({ fetch_id: fetchId })}`,
+      { validateSchema: schema.remoteResponse.fetchPatient },
+    );
     return this.patientAdapter.toTamanu(vrsPatient);
   }
 
