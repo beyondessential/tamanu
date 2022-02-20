@@ -52,7 +52,7 @@ describe('VRS integration - hook - DELETE', () => {
     const fetchMock = ctx.integrations.fijiVrs.remote.fetchImplementation;
     expect(fetchMock).toHaveBeenCalledWith(`${host}/token`, expect.anything());
     expect(fetchMock).toHaveBeenCalledWith(
-      `${host}/api/Tamanu/Fetch/${fetchId}`,
+      `${host}/api/Tamanu/Fetch?fetch_id=${fetchId}`,
       expect.anything(),
     );
     expect(fetchMock).toHaveBeenCalledWith(
@@ -108,7 +108,7 @@ describe('VRS integration - hook - DELETE', () => {
     const fetchMock = ctx.integrations.fijiVrs.remote.fetchImplementation;
     expect(fetchMock).toHaveBeenCalledWith(`${host}/token`, expect.anything());
     expect(fetchMock).toHaveBeenCalledWith(
-      `${host}/api/Tamanu/Fetch/${fetchId}`,
+      `${host}/api/Tamanu/Fetch?fetch_id=${fetchId}`,
       expect.anything(),
     );
     expect(fetchMock).toHaveBeenCalledWith(
