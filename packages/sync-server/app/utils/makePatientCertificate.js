@@ -1,17 +1,15 @@
 import React from 'react';
+import ReactPDF from '@react-pdf/renderer';
 import config from 'config';
 import path from 'path';
 import { get } from 'lodash';
 import QRCode from 'qrcode';
 import { log } from 'shared/services/logging';
-import { tmpdir } from 'shared/utils';
-import ReactPDF from '@react-pdf/renderer';
-import { CovidCertificate } from './CovidCertificate';
-import { VaccineCertificate } from './VaccineCertificate';
+import { tmpdir, CovidCertificate, VaccineCertificate } from 'shared/utils';
 
-const getLocalisation = path => {
+const getLocalisation = key => {
   const { localisation } = config;
-  return get(localisation.data, path);
+  return get(localisation.data, key);
 };
 
 export const makeVaccineCertificate = async (patient, models, vdsData = null) => {

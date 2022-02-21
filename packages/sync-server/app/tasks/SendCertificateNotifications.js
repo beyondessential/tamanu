@@ -2,8 +2,8 @@ import {
   COMMUNICATION_STATUSES,
   PATIENT_COMMUNICATION_CHANNELS,
   PATIENT_COMMUNICATION_TYPES,
-} from '../constants';
-import { makeVaccineCertificate } from '../utils';
+} from 'shared/constants';
+import { makeVaccineCertificate } from '../utils/makePatientCertificate';
 
 export async function sendCertificateNotifications(certificateNotifications, models) {
   const { PatientCommunication, Patient } = models;
