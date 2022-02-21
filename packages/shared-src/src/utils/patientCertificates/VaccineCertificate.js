@@ -72,10 +72,10 @@ export const VaccineCertificate = ({
           vdsSrc={vdsSrc}
           getLocalisation={getLocalisation}
         />
-        <Box mb={30}>
+        <Box mb={20} mt={10}>
           <Table data={immunisations} columns={columns} />
           {hasEditedRecord && (
-            <P mt={20}>
+            <P mt={10}>
               * This vaccine record has been updated by a user and this is the most recent record
             </P>
           )}
