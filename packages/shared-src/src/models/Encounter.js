@@ -323,6 +323,17 @@ export class Encounter extends Model {
       });
     }
   }
+  
+  async dischargeWithDischarger(discharger, endDate) {
+    if (this.endDate) throw new Error(`Encounter ${this.id} already discharged`);
+
+    const { Discharge } = this.sequelize.models;
+    await Discharge.create({
+      encounterId: this.id,
+      dischargerId: discharger.id,
+    });
+    await this.update({ endDate });
+  }
 
   async update(data) {
     const { Department, Location } = this.sequelize.models;

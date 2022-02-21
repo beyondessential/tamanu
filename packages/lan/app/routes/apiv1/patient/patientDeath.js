@@ -237,19 +237,42 @@ patientDeath.post(
         });
       }
 
+      await PatientDeathData.create({
+        patientId: patient.id,
+        clinicianId: doc.id,
+        facilityId: body.facilityId,
+        manner: body.mannerOfDeath,
+        primaryCauseId: primaryCause.id,
+
+        recentSurgery: body.surgeryInLast4Weeks,
+        lastSurgeryDate: body.surgeryInLast4Weeks === 'yes' ? body.lastSurgeryDate : null,
+        lastSurgeryReasonId: body.lastSurgeryReason,
+
+        externalCauseDate: body.mannerOfDeathDate,
+        externalCauseLocation: body.mannerOfDeathLocation,
+        externalCauseNotes: body.mannerOfDeathOther,
+
+        wasPregnant: body.pregnant,
+        pregnancyContributed: body.pregnancyContribute,
+
+        fetalOrInfant: body.fetalOrInfant,
+        stillborn: body.stillborn,
+        birthWeight: body.birthWeight,
+        withinDayOfBirth: body.deathWithin24HoursOfBirth,
+        hoursSurvivedSinceBirth: body.numberOfHoursSurvivedSinceBirth,
+
+        carrierAge: body.ageOfMother,
+        carrierExistingConditionId: body.motherExistingCondition,
+        carrierPregnancyWeeks: body.numberOfCompletedPregnancyWeeks,
+      });
+
       const activeEncounters = await patient.getEncounters({
         where: {
           endDate: null,
         },
       });
       for (const encounter of activeEncounters) {
-        await Discharge.create({
-          encounterId: encounter.id,
-          dischargerId: doc.id,
-        });
-        await encounter.update({
-          endDate: body.timeOfDeath,
-        });
+        await encounter.dischargeWithDischarger(physician, body.date);
       }
     });
 
