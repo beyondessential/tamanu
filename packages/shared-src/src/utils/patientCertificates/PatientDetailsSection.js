@@ -1,7 +1,7 @@
 import React from 'react';
-import { styles, Col, Box, Row, Signature, SigningImage, Watermark, VDSImage } from './Layout';
-import { H1, H2, H3, P } from './Typography';
-import { getDOB, getCountryOfBirth, getPlaceOfBirth, getDisplayDate } from './accessors';
+import { Col, Row, VDSImage } from './Layout';
+import { P } from './Typography';
+import { getDOB, getCountryOfBirth, getPlaceOfBirth } from './accessors';
 
 const PATIENT_FIELDS = [
   { key: 'firstName', label: 'First Name' },
@@ -35,7 +35,7 @@ export const PatientDetailsSection = ({ patient, getLocalisation, vdsSrc }) => {
         <Row>
           {detailsToDisplay.map(({ key, label: defaultLabel, accessor }) => {
             const value = (accessor ? accessor(patient) : patient[key]) || '';
-            const label = getLocalisation(`PATIENT_FIELDS.${key}.shortLabel`) || defaultLabel;
+            const label = getLocalisation(`fields.${key}.shortLabel`) || defaultLabel;
 
             return (
               <Col key={key}>
