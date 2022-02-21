@@ -2,7 +2,6 @@ import config from 'config';
 
 import { log } from 'shared/services/logging';
 import { createReferralNotification } from 'shared/tasks/CreateReferralNotification';
-import { sendCertificateNotifications } from 'shared/tasks/SendCertificateNotifications';
 import {
   createSingleLabRequestNotification,
   createMultiLabRequestNotifications,
@@ -10,6 +9,7 @@ import {
 
 import { createApp } from '../app/createApp';
 import { startScheduledTasks } from '../app/tasks';
+import { sendCertificateNotifications } from '../app/tasks/SendCertificateNotifications';
 import { ApplicationContext } from '../app/ApplicationContext';
 import { version } from '../package.json';
 import { setupEnv } from '../app/env';
