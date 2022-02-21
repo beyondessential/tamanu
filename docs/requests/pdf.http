@@ -1,4 +1,0 @@
-// Todo: Remove before merging vds-epic
-// Rosanna Adam
-GET http://localhost:3000/v1/public/testPdf/e0f2557f-254f-4d52-8376-39f2fcacfe52  HTTP/1.1
-

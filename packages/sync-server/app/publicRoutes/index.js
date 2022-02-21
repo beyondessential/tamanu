@@ -3,7 +3,6 @@ import config from 'config';
 import { log } from 'shared/services/logging';
 
 import { labResultWidgetRoutes } from './labResultWidget';
-import { testPdf } from './testPdf';
 import { publicIntegrationRoutes } from '../integrations';
 
 export const publicRoutes = express.Router();
@@ -22,6 +21,4 @@ if (cors.allowedOrigin) {
 }
 
 publicRoutes.use('/labResultWidget', labResultWidgetRoutes);
-// Todo: Remove before merging vds-epic
-publicRoutes.use('/testPdf', testPdf);
 publicRoutes.use('/integration', publicIntegrationRoutes);
