@@ -4,12 +4,20 @@ import { OutpatientDischarger } from './OutpatientDischarger';
 import { PatientEmailCommunicationProcessor } from './PatientEmailCommunicationProcessor';
 import { ReportRequestProcessor } from './ReportRequestProcessor';
 import { ReportRequestScheduler } from './ReportRequestScheduler';
-
-const TASKS = [OutpatientDischarger, ReportRequestProcessor, PatientEmailCommunicationProcessor];
+import { VRSActionRetrier } from './VRSActionRetrier';
 
 export async function startScheduledTasks(context) {
+  const taskClasses = [
+    OutpatientDischarger,
+    ReportRequestProcessor,
+    PatientEmailCommunicationProcessor,
+  ];
+  if (config.integrations.fijiVrs.enabled) {
+    taskClasses.push(VRSActionRetrier);
+  }
+
   const reportSchedulers = await getReportSchedulers(context);
-  const tasks = [...TASKS.map(Task => new Task(context)), ...reportSchedulers];
+  const tasks = [...taskClasses.map(Task => new Task(context)), ...reportSchedulers];
   tasks.forEach(t => t.beginPolling());
   return () => tasks.forEach(t => t.cancelPolling());
 }

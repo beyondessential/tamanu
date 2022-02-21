@@ -20,10 +20,7 @@ routes.post(
   '/hooks/patientCreated',
   asyncHandler(async (req, res) => {
     const { body, ctx } = req;
-    const { actionHandler } = ctx.integrations.fijiVrs;
-
-    await actionHandler.handleAction(body);
-
+    await ctx.integrations.fijiVrs.actionHandler.applyAction(body);
     res.send({ response: true });
   }),
 );

@@ -137,4 +137,11 @@ export class VRSRemote {
       validateSchema: schema.remoteResponse.acknowledge,
     });
   }
+
+  async getAllPendingActions() {
+    const { data } = await this.fetch('/api/Tamanu/FetchAllPendingActions', {
+      validateSchema: schema.remoteResponse.fetchAllPendingActions,
+    });
+    return data;
+  }
 }

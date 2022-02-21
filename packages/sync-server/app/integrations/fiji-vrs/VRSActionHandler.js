@@ -1,5 +1,6 @@
 import util from 'util';
 
+import { log } from 'shared/services/logging';
 import { RemoteCallFailedError, InvalidOperationError } from 'shared/errors';
 
 import * as schema from './schema';
@@ -9,13 +10,43 @@ export class VRSActionHandler {
 
   remote = null;
 
-  constructor(store, remote, { flagInsteadOfDeleting }) {
+  constructor(store, remote, { flagInsteadOfDeleting, retryMinAgeMs }) {
     this.store = store;
     this.remote = remote;
     this.flagInsteadOfDeleting = flagInsteadOfDeleting;
+    this.retryMinAgeMs = retryMinAgeMs;
   }
 
-  async handleAction(action) {
+  async retryPendingActions() {
+    const actions = await this.remote.getAllPendingActions();
+
+    if (actions.length === 0) {
+      return; // quit early and don't log anything
+    }
+    log.info(`VRSActionHandler: Retrying ${actions.length} actions`);
+
+    // retry one action at a time
+    let successCount = 0;
+    for (const action of actions) {
+      try {
+        const isRecent = action.created_datetime.getTime() + this.retryMinAgeMs > Date.now();
+        if (isRecent) {
+          log.debug(`VRSActionHandler: Skipping recent action (action=${JSON.stringify(action)})`);
+        } else {
+          log.debug(`VRSActionHandler: Retrying action (action=${JSON.stringify(action)})`);
+          await this.applyAction(action);
+        }
+        successCount++;
+      } catch (e) {
+        log.error('VRSActionHandler: Recieved error while applying action:');
+        log.error(e);
+      }
+    }
+
+    log.info(`VRSActionHandler: Retried ${successCount}/${actions.length} actions`);
+  }
+
+  async applyAction(action) {
     const { sequelize, models } = this.store;
     const { Patient, PatientAdditionalData, PatientVRSData } = models;
 
