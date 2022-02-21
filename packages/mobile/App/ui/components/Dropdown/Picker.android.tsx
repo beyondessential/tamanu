@@ -48,6 +48,7 @@ export const AndroidPicker = ({
           position="absolute"
           borderRadius={5}
           width="90%"
+          height="100%"
           zIndex={5}
           background={theme.colors.WHITE}
         >
@@ -69,7 +70,6 @@ export const AndroidPicker = ({
                   accessibilityLabel={item.label}
                   justifyContent="center"
                   padding={25}
-                  height={screenPercentageToDP('4.86%', Orientation.Height)}
                   width="100%"
                 >
                   <StyledText>{item.label}</StyledText>
