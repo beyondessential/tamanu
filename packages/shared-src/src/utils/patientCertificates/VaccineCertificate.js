@@ -48,14 +48,13 @@ const columns = [
 
 export const VaccineCertificate = ({
   patient,
-  vaccines,
+  vaccinations,
   signingSrc,
   watermarkSrc,
   vdsSrc,
   getLocalisation,
 }) => {
-  const hasEditedRecord =
-    vaccines.findIndex(vaccine => vaccine.createdAt !== vaccine.updatedAt) !== -1;
+  const hasEditedRecord = vaccinations.findIndex(v => v.createdAt !== v.updatedAt) !== -1;
 
   const contactEmail = getLocalisation('templates.vaccineCertificateFooter.emailAddress');
   const contactNumber = getLocalisation('templates.vaccineCertificateFooter.contactNumber');
@@ -72,7 +71,7 @@ export const VaccineCertificate = ({
           getLocalisation={getLocalisation}
         />
         <Box mb={20} mt={10}>
-          <Table data={vaccines} columns={columns} />
+          <Table data={vaccinations} columns={columns} />
           {hasEditedRecord && (
             <P mt={10}>
               * This vaccine record has been updated by a user and this is the most recent record

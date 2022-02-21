@@ -2,7 +2,10 @@ import { createDummyPatient, createDummyEncounter } from 'shared/demoData/patien
 import { randomLabRequest } from 'shared/demoData/labRequests';
 import { fake } from 'shared/test-helpers/fake';
 import { LAB_REQUEST_STATUSES, REFERENCE_TYPES } from 'shared/constants';
-import { makeVaccineCertificate, makeCovidTestCertificate } from 'shared/utils';
+import {
+  makeVaccineCertificate,
+  makeCovidTestCertificate,
+} from '../app/utils/makePatientCertificate';
 
 import { createTestContext } from './utilities';
 

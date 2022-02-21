@@ -81,7 +81,7 @@ storiesOf('Certificates', module).add('CovidLabCertificate', () => (
   </PDFViewer>
 ));
 
-const vaccines = [
+const vaccinations = [
   {
     id: '2f27fd7a-e954-4d28-82e9-f64d7b0b5978',
     batch: '123',
@@ -153,7 +153,7 @@ storiesOf('Certificates', module).add('VaccineCertificate', () => (
   <PDFViewer width={800} height={1000} showToolbar={false}>
     <VaccineCertificate
       patient={patient}
-      vaccines={vaccines}
+      vaccinations={vaccinations}
       watermarkSrc={Watermark}
       signingSrc={SigningImage}
       vdsSrc={vds}

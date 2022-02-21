@@ -34,12 +34,12 @@ export const makeVaccineCertificate = async (patient, models, vdsData = null) =>
   const vds = vdsData ? await QRCode.toDataURL(vdsData) : null;
 
   try {
-    const vaccines = await patient.getAdministeredVaccines();
+    const vaccinations = await patient.getAdministeredVaccines();
 
     await ReactPDF.render(
       <VaccineCertificate
         patient={patient.dataValues}
-        vaccines={vaccines}
+        vaccinations={vaccinations}
         signingSrc={signingImage?.data}
         watermarkSrc={watermark?.data}
         vdsSrc={vds}
