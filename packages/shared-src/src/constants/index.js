@@ -294,13 +294,13 @@ export const X502_OIDS = {
   EKU_VDS_NC: '2.23.136.1.1.14.2',
 };
 
-export const INVOICE_STATUS_TYPES = {
+export const INVOICE_STATUSES = {
   CANCELLED: 'cancelled',
   IN_PROGRESS: 'in_progress',
   FINALISED: 'finalised',
 };
 
-export const INVOICE_PAYMENT_STATUS_TYPES = {
+export const INVOICE_PAYMENT_STATUSES = {
   UNPAID: 'unpaid',
   PAID: 'paid',
 };

@@ -1,7 +1,7 @@
 {
   "name": "desktop",
   "productName": "Tamanu",
-  "version": "1.12.2",
+  "version": "1.12.4",
   "description": "Tamanu Desktop application",
   "private": true,
   "homepage": "https://github.com/beyondessential/tamanu.git#readme",
@@ -252,7 +252,7 @@
     "rsvp": "^4.8.2",
     "shortid": "^2.2.8",
     "source-map-support": "^0.5.6",
-    "styled-components": "^4.1.1",
+    "styled-components": "^5.3.3",
     "typeface-roboto": "^0.0.54",
     "xlsx": "^0.14.0",
     "yup": "^0.27.0"

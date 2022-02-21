@@ -5,9 +5,12 @@ import MuiList from '@material-ui/core/List';
 
 import { TamanuLogoWhite } from '../TamanuLogo';
 import { version } from '../../../package.json';
+
 import { LogoutItem } from './LogoutItem';
 import { SecondarySidebarItem } from './SecondarySidebarItem';
 import { PrimarySidebarItem } from './PrimarySidebarItem';
+import { FacilityNameDisplay } from '../FacilityNameDisplay';
+
 import { Colors } from '../../constants';
 
 const Container = styled.div`
@@ -22,15 +25,17 @@ const Container = styled.div`
   }
 `;
 
-const Logo = styled(TamanuLogoWhite)`
-  margin: 24px 0 10px 20px;
+const AdditionalInfo = styled.div`
+  flex-grow: 0;
+  display: flex;
+  flex-direction: column;
+  color: ${Colors.softText};
+  margin: 0.7rem;
+  font-size: 0.8rem;
 `;
 
-const VersionContainer = styled.div`
-  color: ${Colors.softText};
-  position: absolute;
-  bottom: 8px;
-  left: 16px;
+const Logo = styled(TamanuLogoWhite)`
+  margin: 24px 0 10px 20px;
 `;
 
 export class Sidebar extends Component {
@@ -90,10 +95,10 @@ export class Sidebar extends Component {
           <Divider />
           <LogoutItem onClick={this.onLogout} />
         </div>
-        <VersionContainer>
-          Version
-          {version}
-        </VersionContainer>
+        <AdditionalInfo>
+          <div>Version {version}</div>
+          <FacilityNameDisplay />
+        </AdditionalInfo>
       </Container>
     );
   }

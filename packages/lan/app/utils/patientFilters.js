@@ -6,7 +6,9 @@ export const createPatientFilters = filterParams => {
     makeFilter(
       filterParams.displayId,
       `UPPER(patients.display_id) LIKE UPPER(:displayId)`,
-      ({ displayId }) => ({ displayId: `%${displayId}%` }),
+      ({ displayId }) => ({
+        displayId: filterParams.displayIdExact === 'true' ? displayId : `%${displayId}%`,
+      }),
     ),
     makeFilter(
       filterParams.firstName,

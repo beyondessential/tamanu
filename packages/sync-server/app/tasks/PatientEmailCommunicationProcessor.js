@@ -5,7 +5,8 @@ import { log } from 'shared/services/logging';
 
 export class PatientEmailCommunicationProcessor extends ScheduledTask {
   constructor(context) {
-    super('*/30 * * * * *', log);
+    this.config = config.schedules.patientEmailCommunicationProcessor;
+    super(this.config.schedule, log);
     this.context = context;
   }
 
@@ -27,8 +28,9 @@ export class PatientEmailCommunicationProcessor extends ScheduledTask {
         },
       ],
       order: [['createdAt', 'ASC']], // process in order received
-      limit: 10,
+      limit: this.config.limit,
     });
+
     const sendEmails = emailsToBeSent.map(async email => {
       const emailPlain = email.get({
         plain: true,

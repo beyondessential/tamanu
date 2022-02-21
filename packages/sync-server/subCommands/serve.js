@@ -12,6 +12,7 @@ import { createApp } from '../app/createApp';
 import { startScheduledTasks } from '../app/tasks';
 import { ApplicationContext } from '../app/ApplicationContext';
 import { version } from '../package.json';
+import { setupEnv } from '../app/env';
 
 const { port } = config;
 
@@ -43,6 +44,8 @@ export async function serve(options) {
   } else {
     await store.sequelize.assertUpToDate(options);
   }
+
+  setupEnv();
 
   const app = createApp(context);
 
