@@ -14,7 +14,8 @@ export class OutpatientDischarger extends ScheduledTask {
   }
 
   constructor(context) {
-    super(config.schedules.outpatientDischarger.schedule, log);
+    this.config = config.schedules.outpatientDischarger;
+    super(this.config.schedule, log);
     this.models = context.store.models;
 
     // run once on startup (in case the server was down when it was scheduled)
@@ -41,10 +42,8 @@ export class OutpatientDischarger extends ScheduledTask {
       return;
     }
 
-    const batchSize = config.schedules.outpatientDischarger.batchSize;
+    const { batchSize, batchSleepAsyncDurationInMilliseconds } = this.config.batchSize;
     const batchCount = Math.ceil(oldEncountersCount / batchSize);
-    const batchSleepAsyncDurationInMilliseconds =
-      config.schedules.outpatientDischarger.batchSleepAsyncDurationInMilliseconds;
 
     log.info(
       `Auto-closing ${oldEncountersCount} clinic encounters in ${batchCount} batches (${batchSize} records per batch)`,

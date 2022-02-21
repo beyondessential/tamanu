@@ -6,7 +6,8 @@ import moment from 'moment';
 
 export class VdsNcSignerRenewalSender extends ScheduledTask {
   constructor(context) {
-    super('0 1 * * *', log);
+    this.config = config.schedules.vds.signerRenewalSender;
+    super(this.config.schedule, log);
     this.context = context;
   }
 
@@ -24,6 +25,9 @@ export class VdsNcSignerRenewalSender extends ScheduledTask {
         certificate: { [Op.is]: null },
         privateKey: { [Op.not]: null },
       },
+      // hard limit: there really should only ever be zero or one
+      // pending signers at any given time, but just in case:
+      limit: 5,
     });
 
     if (pending.length === 0) return; // nothing to do
