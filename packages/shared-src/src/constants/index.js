@@ -326,13 +326,3 @@ export const INVOICE_PRICE_CHANGE_TYPES = {
 export const INVOICE_PRICE_CHANGE_TYPE_LABELS = {
   [INVOICE_PRICE_CHANGE_TYPES.PATIENT_BILLING_TYPE]: 'Patient Type',
 };
-
-export const ICAO_DOCUMENT_TYPES = {
-  PROOF_OF_TESTING: 'icao.test',
-  PROOF_OF_VACCINATION: 'icao.vacc',
-};
-
-export const X502_OIDS = {
-  COMMON_NAME: '2.5.4.3',
-  COUNTRY_NAME: '2.5.4.6',
-};

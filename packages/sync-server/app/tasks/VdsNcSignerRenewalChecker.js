@@ -6,7 +6,9 @@ import { newKeypairAndCsr } from '../utils/vdsCrypto';
 
 export class VdsNcSignerRenewalChecker extends ScheduledTask {
   constructor(context) {
-    super('0 0 * * *', log);
+    const config = config.schedules.vds.signerRenewalChecker;
+    super(config.schedule, log);
+    this.config = config;
     this.context = context;
   }
 
@@ -15,7 +17,6 @@ export class VdsNcSignerRenewalChecker extends ScheduledTask {
   }
 
   async run() {
-    const { emailService } = this.context;
     const { VdsNcSigner } = this.context.store.models;
     const signer = await VdsNcSigner.findActive();
 

@@ -4,7 +4,9 @@ import { Op, Sequelize } from 'sequelize';
 
 export class VdsNcSignerExpiryChecker extends ScheduledTask {
   constructor(context) {
-    super('0 1 * * *', log);
+    const config = config.schedules.vds.signerExpiryChecker;
+    super(config.schedule, log);
+    this.config = config;
     this.context = context;
   }
 
@@ -18,6 +20,9 @@ export class VdsNcSignerExpiryChecker extends ScheduledTask {
       where: {
         notAfter: { [Op.lt]: Sequelize.NOW },
       },
+      // hard limit: there really should only ever be zero or one
+      // expired signers at any given time, but just in case:
+      limit: 5,
     });
 
     if (!expired.length) {

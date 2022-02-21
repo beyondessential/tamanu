@@ -17,7 +17,9 @@ export class ReportRequestProcessor extends ScheduledTask {
 
   constructor(context) {
     // run at 30 seconds interval, process 10 report requests each time
-    super(config.schedules.reportRequestProcessor.schedule, log);
+    const config = config.schedules.reportRequestProcessor;
+    super(config.schedule, log);
+    this.config = config;
     this.context = context;
   }
 
@@ -120,7 +122,7 @@ export class ReportRequestProcessor extends ScheduledTask {
         status: REPORT_REQUEST_STATUSES.RECEIVED,
       },
       order: [['createdAt', 'ASC']], // process in order received
-      limit: 10,
+      limit: this.config.limit,
     });
 
     for (const request of requests) {
