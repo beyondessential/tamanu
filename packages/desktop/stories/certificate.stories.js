@@ -56,101 +56,30 @@ const labs = [
   },
 ];
 
-storiesOf('Certificates', module).add('CovidCertificate', () => {
-  const vds = () => QRCode.toDataURL('Testing');
-  return (
-    <PDFViewer width={800} height={1000} showToolbar={false}>
-      <CovidCertificate
-        patient={patient}
-        labs={labs}
-        watermarkSrc={Watermark}
-        signingSrc={SigningImage}
-        vdsSrc={vds}
-      />
-    </PDFViewer>
-  );
-});
+const vds = () => QRCode.toDataURL('Testing');
 
-const vaxPatient = {
-  loading: false,
-  id: 'e0f2557f-254f-4d52-8376-39f2fcacfe52',
-  error: null,
-  issues: [],
-  currentEncounter: {
-    id: 'e498c326-850b-4d14-8716-0e742d5fb379',
-    encounterType: 'admission',
-    startDate: '2022-02-03T02:03:04.750Z',
-    markedForPush: true,
-    isPushing: false,
-    pushedAt: '2022-02-03T02:04:00.357Z',
-    pulledAt: '2022-02-03T02:04:00.447Z',
-    createdAt: '2022-02-03T02:03:21.849Z',
-    updatedAt: '2022-02-21T01:05:29.502Z',
-    patientId: 'e0f2557f-254f-4d52-8376-39f2fcacfe52',
-    examinerId: '6b1269ff-2443-4381-a532-ddd48fbd5020',
-    locationId: 'location-ClinicalTreatmentRoom',
-    departmentId: 'ref/department/ANTENATAL',
-    vitals: [],
-    department: {
-      id: 'ref/department/ANTENATAL',
-      code: 'ANTENATAL',
-      name: 'Antenatal',
-      createdAt: '2022-01-20T22:51:24.384Z',
-      updatedAt: '2022-01-23T21:54:25.135Z',
-      facilityId: 'ref/facility/ba',
-    },
-    location: {
-      id: 'location-ClinicalTreatmentRoom',
-      code: 'ClinicalTreatmentRoom',
-      name: 'Clinical Treatment Room',
-      createdAt: '2022-01-20T22:51:24.738Z',
-      updatedAt: '2022-01-23T21:56:27.340Z',
-    },
-    examiner: {
-      id: '6b1269ff-2443-4381-a532-ddd48fbd5020',
-      email: 'admin@tamanu.io',
-      displayName: 'Initial Admin',
-      role: 'admin',
-      createdAt: '2022-01-20T22:48:47.375Z',
-      updatedAt: '2022-02-21T01:02:40.347Z',
-    },
-  },
-  conditions: [],
-  allergies: [],
-  familyHistory: [],
-  displayId: 'CWNT188702',
-  firstName: 'Rosanna',
-  middleName: 'Lenora',
-  lastName: 'Adam',
-  culturalName: 'Wessie',
-  dateOfBirth: '2003-02-18T05:04:06.302Z',
-  sex: 'female',
-  createdAt: '2022-01-20T22:51:35.720Z',
-  updatedAt: '2022-02-15T03:17:00.186Z',
-  villageId: 'ref/village/AELE',
-  carePlans: [],
-  additionalData: {
-    id: 'ac1f4b92-5cff-46df-a09c-508ac9f82414',
-    emergencyContactName: '',
-    emergencyContactNumber: '',
-    markedForPush: false,
-    isPushing: false,
-    pushedAt: '2022-01-24T01:11:00.261Z',
-    pulledAt: '2022-01-24T01:11:00.281Z',
-    createdAt: '2022-01-24T01:10:05.185Z',
-    updatedAt: '2022-01-24T01:11:00.281Z',
-    patientId: 'e0f2557f-254f-4d52-8376-39f2fcacfe52',
-    nationalityId: 'nationality-Palau',
-  },
-  email: null,
-  markedForSync: true,
-  markedForPush: false,
-  isPushing: false,
-  pushedAt: '2022-02-15T03:17:00.169Z',
-  pulledAt: '2022-02-15T03:17:00.186Z',
-  syncing: false,
-  dateOfDeath: null,
+const getLocalisation = key => {
+  const config = {
+    'templates.letterhead.title': 'TAMANU MINISTRY OF HEALTH & MEDICAL SERVICES',
+    'templates.letterhead.subTitle': 'PO Box 12345, Melbourne, Australia',
+    'templates.vaccineCertificateFooter.emailAddress': 'tamanu@health.govt',
+    'templates.vaccineCertificateFooter.contactNumber': '123456',
+  };
+  return config[key];
 };
+
+storiesOf('Certificates', module).add('CovidCertificate', () => (
+  <PDFViewer width={800} height={1000} showToolbar={false}>
+    <CovidCertificate
+      patient={patient}
+      labs={labs}
+      watermarkSrc={Watermark}
+      signingSrc={SigningImage}
+      vdsSrc={vds}
+      getLocalisation={getLocalisation}
+    />
+  </PDFViewer>
+));
 
 const immunisations = [
   {
@@ -220,17 +149,15 @@ const immunisations = [
   },
 ];
 
-storiesOf('Certificates', module).add('VaccineCertificate', () => {
-  const vds = () => QRCode.toDataURL('Testing');
-  return (
-    <PDFViewer width={800} height={1000} showToolbar={false}>
-      <VaccineCertificate
-        patient={vaxPatient}
-        immunisations={immunisations}
-        watermarkSrc={Watermark}
-        signingSrc={SigningImage}
-        vdsSrc={vds}
-      />
-    </PDFViewer>
-  );
-});
+storiesOf('Certificates', module).add('VaccineCertificate', () => (
+  <PDFViewer width={800} height={1000} showToolbar={false}>
+    <VaccineCertificate
+      patient={patient}
+      immunisations={immunisations}
+      watermarkSrc={Watermark}
+      signingSrc={SigningImage}
+      vdsSrc={vds}
+      getLocalisation={getLocalisation}
+    />
+  </PDFViewer>
+));

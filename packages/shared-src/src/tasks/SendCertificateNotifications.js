@@ -3,7 +3,7 @@ import {
   PATIENT_COMMUNICATION_CHANNELS,
   PATIENT_COMMUNICATION_TYPES,
 } from '../constants';
-import { makePatientCertificate } from '../utils';
+import { makeVaccineCertificate } from '../utils';
 
 export async function sendCertificateNotifications(certificateNotifications, models) {
   const { PatientCommunication, Patient } = models;
@@ -17,7 +17,7 @@ export async function sendCertificateNotifications(certificateNotifications, mod
     }
 
     const vdsData = [{ msg: 'test', sng: 'test' }];
-    const { filePath } = await makePatientCertificate(patient, models, vdsData);
+    const { filePath } = await makeVaccineCertificate(patient, models, vdsData);
 
     // build the email notification
     // TODO: Confirm the actual copy for this email

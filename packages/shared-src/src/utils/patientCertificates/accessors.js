@@ -15,6 +15,8 @@ export const getRequestId = ({ displayId }) => displayId || 'Unknown';
 export const getDOB = ({ dateOfBirth }) =>
   dateOfBirth ? moment(dateOfBirth).format('Do MMM YYYY') : 'Unknown';
 
+export const getDisplayDate = date => moment(date).format('DD/MM/YYYY');
+
 export const getPlaceOfBirth = ({ additionalData }) => additionalData?.placeOfBirth;
 
 export const getCountryOfBirth = ({ additionalData }) => additionalData?.countryOfBirth?.name;

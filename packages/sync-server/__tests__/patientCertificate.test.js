@@ -1,7 +1,8 @@
 import { createDummyPatient, createDummyEncounter } from 'shared/demoData/patients';
 import { randomLabRequest } from 'shared/demoData/labRequests';
+import { fake } from 'shared/test-helpers/fake';
 import { LAB_REQUEST_STATUSES, REFERENCE_TYPES } from 'shared/constants';
-import { makePatientCertificate } from 'shared/utils';
+import { makeVaccineCertificate, makeCovidTestCertificate } from 'shared/utils';
 
 import { createTestContext } from './utilities';
 
@@ -55,6 +56,12 @@ async function prepopulate(models) {
     facilityId: facility.id,
   });
 
+  const pfVaxDrug = await models.ReferenceData.create({
+    ...fake(models.ReferenceData),
+    type: 'vaccine',
+    name: 'Comirnaty',
+  });
+
   return {
     category,
     method,
@@ -65,6 +72,7 @@ async function prepopulate(models) {
     department,
     user,
     lab,
+    pfVaxDrug,
   };
 }
 
@@ -72,13 +80,22 @@ describe('Certificate', () => {
   let ctx;
   let models;
   let createLabTests;
+  let createVaccines;
   let patient;
 
   beforeAll(async () => {
     ctx = await createTestContext();
     models = ctx.store.models;
 
-    const { method, user, labTestType1, labTestType2, lab } = await prepopulate(models);
+    const {
+      method,
+      user,
+      labTestType1,
+      labTestType2,
+      lab,
+      location,
+      pfVaxDrug,
+    } = await prepopulate(models);
 
     const patientData = createDummyPatient(models);
     patient = await models.Patient.create(patientData);
@@ -88,6 +105,30 @@ describe('Certificate', () => {
       patientId: patient.id,
       ...encdata,
     });
+
+    createVaccines = async () => {
+      const scheduledPf1 = await models.ScheduledVaccine.create({
+        ...fake(models.ScheduledVaccine),
+        label: 'COVID-19 Pfizer',
+        schedule: 'Dose 1',
+        vaccineId: pfVaxDrug.id,
+      });
+
+      await models.AdministeredVaccine.create({
+        ...fake(models.AdministeredVaccine),
+        status: 'GIVEN',
+        scheduledVaccineId: scheduledPf1.id,
+        encounterId: (
+          await models.Encounter.create({
+            ...fake(models.Encounter),
+            patientId: patient.id,
+            locationId: location.id,
+          })
+        ).id,
+        batch: '001',
+        date: new Date(Date.parse('11 January 2021, UTC')),
+      });
+    };
 
     createLabTests = async () => {
       const requestData = await randomLabRequest(models);
@@ -122,7 +163,14 @@ describe('Certificate', () => {
   it.skip('Generates a Patient Covid Certificate', async () => {
     await createLabTests();
     const patientRecord = await models.Patient.findByPk(patient.id);
-    const result = await makePatientCertificate(patientRecord, models, [{ foo: 'bar' }]);
+    const result = await makeCovidTestCertificate(patientRecord, models, [{ foo: 'bar' }]);
+    expect(result.status).toEqual('success');
+  });
+
+  it('Generates a Patient Vaccine Certificate', async () => {
+    await createVaccines();
+    const patientRecord = await models.Patient.findByPk(patient.id);
+    const result = await makeVaccineCertificate(patientRecord, models, [{ foo: 'bar' }]);
     expect(result.status).toEqual('success');
   });
 });
