@@ -5,6 +5,7 @@ import { v4 as uuid } from 'uuid';
 
 import { BadAuthenticationError } from 'shared/errors';
 import { log } from 'shared/services/logging';
+import { getPermissionsForRoles } from 'shared/permissions/rolesToPermissions';
 
 import { WebRemote } from '~/sync';
 
@@ -75,7 +76,13 @@ export async function remoteLogin(models, email, password) {
   });
 
   const token = getToken(user);
-  return { token, remote: true, localisation };
+  const permissions = await getPermissionsForRoles(user.role);
+  return { 
+    token,
+    remote: true,
+    localisation,
+    permissions,
+  };
 }
 
 async function localLogin(models, email, password) {
@@ -92,7 +99,8 @@ async function localLogin(models, email, password) {
   });
 
   const token = getToken(user);
-  return { token, remote: false, localisation };
+  const permissions = await getPermissionsForRoles(user.role);
+  return { token, remote: false, localisation, permissions };
 }
 
 async function remoteLoginWithLocalFallback(models, email, password) {
