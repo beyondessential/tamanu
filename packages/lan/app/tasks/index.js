@@ -1,8 +1,9 @@
 import config from 'config';
 // import { SenaitePoller } from './SenaitePoller';
+import { MedicationDiscontinuer } from './MedicationDiscontinuer';
 import { SyncTask } from './SyncTask';
 
-const TASKS = [SyncTask];
+const TASKS = [SyncTask, MedicationDiscontinuer];
 
 export function startScheduledTasks(context) {
   if (config.senaite.enabled) {

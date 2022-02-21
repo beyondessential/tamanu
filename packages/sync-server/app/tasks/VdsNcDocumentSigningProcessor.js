@@ -5,7 +5,8 @@ import { Op } from 'sequelize';
 
 export class VdsNcDocumentSigningProcessor extends ScheduledTask {
   constructor(context) {
-    super('*/5 * * * *', log);
+    this.config = config.schedules.vds.documentSigningProcessor;
+    super(this.config.schedule, log);
     this.context = context;
   }
 
@@ -19,7 +20,7 @@ export class VdsNcDocumentSigningProcessor extends ScheduledTask {
       where: {
         signedAt: { [Op.is]: null },
       },
-      limit: 10,
+      limit: this.config.limit,
     });
 
     if (docs.length < 1) {

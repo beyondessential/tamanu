@@ -67,7 +67,7 @@ export const prepareVRSMocks = async (ctx, opts = {}) => {
     if (url.includes('/token')) {
       return tokenImpl(url, ...args);
     }
-    if (url.includes(`/api/Tamanu/Fetch/${fetchId}`)) {
+    if (url.includes(`/api/Tamanu/Fetch?fetch_id=${fetchId}`)) {
       return fetchImpl(url, ...args);
     }
     if (url.includes(`/api/Tamanu/Acknowledge?fetch_id=${fetchId}`)) {

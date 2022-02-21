@@ -59,6 +59,13 @@ function createParser() {
     dest: 'migrateDirection',
     constant: 'down',
   });
+  migrateDir.addArgument('--downToLastReversibleMigration', {
+    help:
+      'Run database migrations down to the last known reversible migration (LAST_REVERSIBLE_MIGRATION)',
+    action: 'storeConst',
+    dest: 'migrateDirection',
+    constant: 'downToLastReversibleMigration',
+  });
   migrateDir.addArgument('--redoLatest', {
     help: 'Run database migrations down 1 and then up 1',
     action: 'storeConst',

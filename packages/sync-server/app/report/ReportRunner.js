@@ -1,9 +1,11 @@
 import config from 'config';
+import fs from 'fs';
+import path from 'path';
+import * as AWS from '@aws-sdk/client-s3';
 import { COMMUNICATION_STATUSES } from 'shared/constants';
 import { getReportModule } from 'shared/reports';
 import { log } from 'shared/services/logging';
 import { createTupaiaApiClient, translateReportDataToSurveyResponses } from 'shared/utils';
-
 import { removeFile, createZippedExcelFile } from '../utils/files';
 
 export class ReportRunner {
@@ -78,6 +80,10 @@ export class ReportRunner {
       await this.sendReportToTupaia(reportData);
       sent = true;
     }
+    if (this.recipients.s3) {
+      await this.sendReportToS3(reportData);
+      sent = true;
+    }
     if (!sent) {
       throw new Error('ReportRunner - No recipients');
     }
@@ -92,7 +98,7 @@ export class ReportRunner {
   async sendReportToEmail(reportData) {
     const reportName = `${this.reportName}-report-${new Date().getTime()}`;
 
-    let zipFile = null;
+    let zipFile;
     try {
       zipFile = await createZippedExcelFile(reportName, reportData);
 
@@ -113,7 +119,7 @@ export class ReportRunner {
         throw new Error(`ReportRunner - Mailgun error: ${result.error}`);
       }
     } finally {
-      await removeFile(zipFile);
+      if (zipFile) await removeFile(zipFile);
     }
   }
 
@@ -138,5 +144,45 @@ export class ReportRunner {
     }
 
     await this.tupaiaApiClient.meditrak.createSurveyResponses(translated);
+  }
+
+  /**
+   * @param request ReportRequest
+   * @param reportData []
+   * @returns {Promise<void>}
+   */
+  async sendReportToS3(reportData) {
+    const { region, bucketName, bucketPath } = config.s3;
+
+    if (!bucketPath) {
+      throw new Error(`bucketPath must be set, e.g. 'au'`);
+    }
+
+    let zipFile;
+    try {
+      zipFile = await createZippedExcelFile(this.reportName, reportData);
+
+      const filename = path.basename(zipFile);
+
+      log.info(
+        `ReportRunner - Uploading report to s3 "${bucketName}/${bucketPath}/${filename}" (${region})`,
+      );
+
+      const client = new AWS.S3({ region });
+
+      const fileStream = fs.createReadStream(zipFile);
+
+      await client.send(
+        new AWS.PutObjectCommand({
+          Bucket: bucketName,
+          Key: `${bucketPath}/${filename}`,
+          Body: fileStream,
+        }),
+      );
+
+      log.info(`ReportRunner - Uploaded report "${zipFile}" to s3`);
+    } finally {
+      if (zipFile) await removeFile(zipFile);
+    }
   }
 }

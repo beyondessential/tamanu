@@ -18,11 +18,6 @@ const servers = [
   { name: 'Fiji Tourism', type: 'live', host: 'https://sync-tourism.tamanu-fiji.org' },
   { name: 'Kiribati', type: 'live', host: 'https://sync.tamanu-kiribati.org' },
   {
-    name: 'Motivation Australia - Iraq',
-    type: 'live',
-    host: 'https://motivation-sync-iraq.tamanu.io',
-  },
-  {
     name: 'Motivation Australia - Papua New Guinea',
     type: 'live',
     host: 'https://motivation-sync-png.tamanu.io',
@@ -44,6 +39,7 @@ const servers = [
 
   // development servers
   { name: 'Dev', type: 'dev', host: 'https://sync-dev.tamanu.io' },
+  { name: 'Fiji VPS/VRS UAT', type: 'dev', host: 'https://sync-uat-fiji-vps.tamanu.io' },
   { name: 'Staging', type: 'dev', host: 'https://sync-staging.tamanu.io' },
   { name: 'Stress testing', type: 'dev', host: 'https://sync-stress-test.tamanu.io' },
 ];

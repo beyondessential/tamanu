@@ -1,5 +1,5 @@
 import { Sequelize } from 'sequelize';
-import { ICAO_DOCUMENT_TYPES, SYNC_DIRECTIONS } from 'shared/constants';
+import { SYNC_DIRECTIONS } from 'shared/constants';
 import { Model } from './Model';
 
 export class CertificateNotification extends Model {

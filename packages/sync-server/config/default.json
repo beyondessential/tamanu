@@ -79,15 +79,40 @@
     "allowedOrigin": ""
   },
   "schedules": {
+    // batchSize == run through them all in one run, in batches of N
+    // limit == run through N per task run
+    // schedule: 5 fields == first is minutes, 6 fields == first is SECONDS
+
     "outpatientDischarger": {
       // every day at 11 PM
       "schedule": "0 11 * * *",
       "batchSize": 1000,
       "batchSleepAsyncDurationInMilliseconds": 50
     },
+    "patientEmailCommunicationProcessor": {
+      // every 30 minutes
+      "scheduled": "*/30 * * * *",
+      "limit": 10
+    },
     "reportRequestProcessor": {
-       // every 30 seconds
-      "schedule": "*/30 * * * * *"
+       // every 30 seconds /!\
+      "schedule": "*/30 * * * * *",
+      "limit": 10
+    },
+    "vds": {
+      "documentSigningProcessor": {
+        "schedule": "*/5 * * * *",
+        "limit": 50
+      },
+      "signerRenewalChecker": {
+        "schedule": "0 0 * * *"
+      },
+      "signerRenewalSender": {
+        "schedule": "30 0 * * *"
+      },
+      "signerExpiryChecker": {
+        "schedule": "0 1 * * *"
+      }
     }
   },
   "integrations": {
@@ -168,6 +193,10 @@
         "dateOfBirthExact": {
           "shortLabel": "DOB exact",
           "longLabel": "Date of birth exact"
+        },
+        "dateOfDeath": {
+          "shortLabel": "Death",
+          "longLabel": "Date of death"
         },
         "bloodType": {
           "shortLabel": "Blood type",
@@ -317,7 +346,8 @@
         "editPatientDetailsOnMobile": true,
         "enableInvoicing": true,
         "registerNewPatient": true,
-        "hideOtherSex": true
+        "hideOtherSex": true,
+        "enablePatientDeaths": false
       },
       "templates": {
         "letterhead": {
@@ -391,6 +421,7 @@
     }
   },
   "tupaiaApiClient": {},
+  "s3": {},
   "scheduledReports": [],
   "disk": {
     "diskPath": "C:/",
@@ -399,3 +430,4 @@
     }
   }
 }
+

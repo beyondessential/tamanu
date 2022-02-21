@@ -34,7 +34,7 @@ export async function createSingleLabRequestNotification(labRequest, models) {
     // Bulk create action sets off a hook to send these out
     await models.CertificateNotification.bulkCreate([
       {
-        type: ICAO_DOCUMENT_TYPES.PROOF_OF_TESTING,
+        type: ICAO_DOCUMENT_TYPES.PROOF_OF_TESTING.JSON,
         requiresSigning: false,
         patientId: encounter.patientId,
         // If forward address is null, the communication service will attempt to use the patient.email field
