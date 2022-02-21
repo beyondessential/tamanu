@@ -66,12 +66,8 @@ module.exports = {
     });
   },
   down: async query => {
-    await query.removeIndex('vds_nc_signers', {
-      fields: ['not_after'],
-    });
-    await query.removeIndex('vds_nc_signers', {
-      fields: ['not_before'],
-    });
+    await query.removeIndex('vds_nc_signers', ['not_after']);
+    await query.removeIndex('vds_nc_signers', ['not_before']);
     await query.dropTable('vds_nc_signers');
   },
 };
