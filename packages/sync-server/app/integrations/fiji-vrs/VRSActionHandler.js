@@ -43,7 +43,7 @@ export class VRSActionHandler {
       }
     }
 
-    log.info(`VRSActionHandler: Retried ${successCount}/${actions.length} actions`);
+    log.info(`VRSActionHandler: Successfully retried ${successCount}/${actions.length} actions`);
   }
 
   async applyAction(action) {
