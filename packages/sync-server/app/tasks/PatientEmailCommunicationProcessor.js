@@ -5,8 +5,9 @@ import { log } from 'shared/services/logging';
 
 export class PatientEmailCommunicationProcessor extends ScheduledTask {
   constructor(context) {
-    this.config = config.schedules.patientEmailCommunicationProcessor;
-    super(this.config.schedule, log);
+    const config = config.schedules.patientEmailCommunicationProcessor;
+    super(config.schedule, log);
+    this.config = config;
     this.context = context;
   }
 
