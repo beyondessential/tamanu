@@ -17,8 +17,9 @@ export class ReportRequestProcessor extends ScheduledTask {
 
   constructor(context) {
     // run at 30 seconds interval, process 10 report requests each time
-    this.config = config.schedules.reportRequestProcessor;
-    super(this.config.schedule, log);
+    const config = config.schedules.reportRequestProcessor;
+    super(config.schedule, log);
+    this.config = config;
     this.context = context;
   }
 

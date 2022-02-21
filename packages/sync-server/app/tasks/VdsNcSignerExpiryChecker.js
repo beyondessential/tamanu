@@ -4,8 +4,9 @@ import { Op, Sequelize } from 'sequelize';
 
 export class VdsNcSignerExpiryChecker extends ScheduledTask {
   constructor(context) {
-    this.config = config.schedules.vds.signerExpiryChecker;
-    super(this.config.schedule, log);
+    const config = config.schedules.vds.signerExpiryChecker;
+    super(config.schedule, log);
+    this.config = config;
     this.context = context;
   }
 
