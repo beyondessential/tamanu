@@ -5,7 +5,7 @@ import path from 'path';
 import { get } from 'lodash';
 import QRCode from 'qrcode';
 import { log } from 'shared/services/logging';
-import { tmpdir, CovidCertificate, VaccineCertificate } from 'shared/utils';
+import { tmpdir, CovidLabCertificate, VaccineCertificate } from 'shared/utils';
 
 const getLocalisation = key => {
   const { localisation } = config;
@@ -34,12 +34,12 @@ export const makeVaccineCertificate = async (patient, models, vdsData = null) =>
   const vds = vdsData ? await QRCode.toDataURL(vdsData) : null;
 
   try {
-    const immunisations = await patient.getAdministeredVaccines();
+    const vaccines = await patient.getAdministeredVaccines();
 
     await ReactPDF.render(
       <VaccineCertificate
         patient={patient.dataValues}
-        immunisations={immunisations}
+        vaccines={vaccines}
         signingSrc={signingImage?.data}
         watermarkSrc={watermark?.data}
         vdsSrc={vds}
@@ -60,7 +60,7 @@ export const makeVaccineCertificate = async (patient, models, vdsData = null) =>
 
 export const makeCovidTestCertificate = async (patient, models, vdsData = null) => {
   const folder = await tmpdir();
-  const fileName = `covid-certificate-${patient.id}.pdf`;
+  const fileName = `covid-test-certificate-${patient.id}.pdf`;
   const filePath = path.join(folder, fileName);
 
   const signingImage = await models.Asset.findOne({
@@ -82,7 +82,7 @@ export const makeCovidTestCertificate = async (patient, models, vdsData = null) 
   try {
     const labs = await patient.getLabRequests();
     await ReactPDF.render(
-      <CovidCertificate
+      <CovidLabCertificate
         patient={patient.dataValues}
         labs={labs}
         signingSrc={signingImage?.data}

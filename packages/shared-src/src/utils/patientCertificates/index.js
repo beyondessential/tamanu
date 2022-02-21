@@ -1,4 +1,4 @@
-export * from './CovidCertificate';
+export * from './CovidLabCertificate';
 export * from './VaccineCertificate';
 export * from './Layout';
 export * from './Typography';

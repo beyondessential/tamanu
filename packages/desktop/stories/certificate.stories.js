@@ -2,7 +2,7 @@ import React from 'react';
 import QRCode from 'qrcode';
 import { storiesOf } from '@storybook/react';
 import { createDummyPatient, createDummyPatientAdditionalData } from 'shared/demoData';
-import { CovidCertificate, VaccineCertificate } from 'shared/utils';
+import { CovidLabCertificate, VaccineCertificate } from 'shared/utils';
 import { PDFViewer } from '@react-pdf/renderer';
 import SigningImage from './assets/signing-image.png';
 import Watermark from './assets/watermark.png';
@@ -68,9 +68,9 @@ const getLocalisation = key => {
   return config[key];
 };
 
-storiesOf('Certificates', module).add('CovidCertificate', () => (
+storiesOf('Certificates', module).add('CovidLabCertificate', () => (
   <PDFViewer width={800} height={1000} showToolbar={false}>
-    <CovidCertificate
+    <CovidLabCertificate
       patient={patient}
       labs={labs}
       watermarkSrc={Watermark}
@@ -81,7 +81,7 @@ storiesOf('Certificates', module).add('CovidCertificate', () => (
   </PDFViewer>
 ));
 
-const immunisations = [
+const vaccines = [
   {
     id: '2f27fd7a-e954-4d28-82e9-f64d7b0b5978',
     batch: '123',
@@ -153,7 +153,7 @@ storiesOf('Certificates', module).add('VaccineCertificate', () => (
   <PDFViewer width={800} height={1000} showToolbar={false}>
     <VaccineCertificate
       patient={patient}
-      immunisations={immunisations}
+      vaccines={vaccines}
       watermarkSrc={Watermark}
       signingSrc={SigningImage}
       vdsSrc={vds}

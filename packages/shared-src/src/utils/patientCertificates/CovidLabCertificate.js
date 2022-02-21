@@ -48,7 +48,7 @@ const columns = [
   },
 ];
 
-export const CovidCertificate = ({
+export const CovidLabCertificate = ({
   patient,
   labs,
   signingSrc,
