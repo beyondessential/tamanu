@@ -59,7 +59,7 @@ export const prepareVRSMocks = async (ctx, opts = {}) => {
     ackImpl = () => ({
       ok: true,
       status: 200,
-      json: async () => ({ response: true }),
+      json: async () => ({ response: 'success', data: vrsPatient }),
     }),
   } = opts;
 

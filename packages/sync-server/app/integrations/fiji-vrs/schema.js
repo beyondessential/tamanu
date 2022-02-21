@@ -67,6 +67,9 @@ export const remoteResponse = {
       .required(),
   }),
   acknowledge: yup.object({
-    response: yup.bool().required(),
+    response: yup
+      .string()
+      .required()
+      .oneOf(['success']),
   }),
 };
