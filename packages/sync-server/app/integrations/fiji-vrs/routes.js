@@ -4,7 +4,7 @@ import asyncHandler from 'express-async-handler';
 import util from 'util';
 import { set } from 'lodash';
 
-import { log } from 'shared/services/logging';
+import { RemoteCallFailedError, InvalidOperationError } from 'shared/errors';
 
 import { buildErrorHandler } from '../../middleware/errorHandler';
 import * as schema from './schema';
@@ -70,14 +70,14 @@ routes.post(
         await PatientVRSData.upsert({ ...patientVRSData, isDeletedByRemote: false });
       });
     } else {
-      throw new Error(`vrs: Operation not supported: ${operation}`);
+      throw new InvalidOperationError(`vrs: Operation not supported: ${operation}`);
     }
 
     // acknowledge request
     try {
       await remote.acknowledge(fetchId);
     } catch (e) {
-      log.error(
+      throw new RemoteCallFailedError(
         `vrs: Patient import succeded, but received an error while acknowledging: (displayId=${
           patient.displayId
         }, error=${util.inspect(e)}`,

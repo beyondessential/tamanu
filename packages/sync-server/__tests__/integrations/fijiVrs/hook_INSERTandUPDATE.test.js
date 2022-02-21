@@ -5,7 +5,7 @@ import { fake } from 'shared/test-helpers/fake';
 import { createTestContext } from 'sync-server/__tests__/utilities';
 import { fakeVRSPatient, prepareVRSMocks } from './sharedHookHelpers';
 
-const host = config.integrations.fijiVrs.host;
+const { host } = config.integrations.fijiVrs;
 
 describe('VRS integration hook: INSERT and UPDATE operations', () => {
   let ctx;
