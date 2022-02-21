@@ -1,9 +1,10 @@
 import React from 'react';
 import config from 'config';
-import fs from 'fs';
+import path from 'path';
 import { get } from 'lodash';
 import QRCode from 'qrcode';
 import { log } from 'shared/services/logging';
+import { tmpdir } from 'shared/utils';
 import ReactPDF from '@react-pdf/renderer';
 import { CovidCertificate } from './CovidCertificate';
 import { VaccineCertificate } from './VaccineCertificate';
@@ -14,8 +15,9 @@ const getLocalisation = path => {
 };
 
 export const makeVaccineCertificate = async (patient, models, vdsData = null) => {
-  await fs.promises.mkdir('./patientCertificates', { recursive: true });
-  const filePath = `./patientCertificates/vaccine-certificate-${patient.id}.pdf`;
+  const folder = await tmpdir();
+  const fileName = `vaccine-certificate-${patient.id}.pdf`;
+  const filePath = path.join(folder, fileName);
 
   const signingImage = await models.Asset.findOne({
     raw: true,
@@ -59,8 +61,9 @@ export const makeVaccineCertificate = async (patient, models, vdsData = null) =>
 };
 
 export const makeCovidTestCertificate = async (patient, models, vdsData = null) => {
-  await fs.promises.mkdir('./patientCertificates', { recursive: true });
-  const filePath = `./patientCertificates/covid-certificate-${patient.id}.pdf`;
+  const folder = await tmpdir();
+  const fileName = `covid-certificate-${patient.id}.pdf`;
+  const filePath = path.join(folder, fileName);
 
   const signingImage = await models.Asset.findOne({
     raw: true,
@@ -87,6 +90,7 @@ export const makeCovidTestCertificate = async (patient, models, vdsData = null) 
         signingSrc={signingImage?.data}
         watermarkSrc={watermark?.data}
         vdsSrc={vds}
+        getLocalisation={getLocalisation}
       />,
       filePath,
     );

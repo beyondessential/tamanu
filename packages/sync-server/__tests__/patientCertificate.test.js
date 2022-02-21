@@ -158,9 +158,7 @@ describe('Certificate', () => {
 
   afterAll(() => ctx.close());
 
-  // This test is setup as a util for test driven development when working on certificates
-  // It's skipped by default so that it doesn't create unnecessary files
-  it.skip('Generates a Patient Covid Certificate', async () => {
+  it('Generates a Patient Covid Certificate', async () => {
     await createLabTests();
     const patientRecord = await models.Patient.findByPk(patient.id);
     const result = await makeCovidTestCertificate(patientRecord, models, [{ foo: 'bar' }]);
