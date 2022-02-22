@@ -63,7 +63,6 @@
     "@casl/ability": "^4.1.0",
     "@react-pdf/renderer": "^2.1.1",
     "@tupaia/api-client": "2.1.1",
-    "argparse": "1.0.10",
     "asn1js": "^2.2.0",
     "await-to-js": "^2.0.1",
     "babel-jest": "24.5.0",

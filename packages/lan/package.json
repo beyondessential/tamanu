@@ -62,7 +62,6 @@
     "@react-pdf/renderer": "^2.1.1",
     "@tupaia/api-client": "2.1.1",
     "abort-controller": "^3.0.0",
-    "argparse": "1.0.10",
     "await-to-js": "^2.0.1",
     "basic-auth": "^2.0.1",
     "bcrypt": "^4.0.1",
