@@ -29,7 +29,7 @@ function getRoutes(router, prefix = '') {
   return routes;
 }
 
-export const serve = async ({ skipMigrationCheck }) => {
+const serve = async ({ skipMigrationCheck }) => {
   const context = await new ApplicationContext().init();
   const { store } = context;
   log.info(`Starting sync server version ${version}.`);

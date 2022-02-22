@@ -6,7 +6,7 @@ import { log } from 'shared/services/logging';
 import { initDatabase } from '../database';
 import { vdsConfig } from '../integrations/VdsNc';
 
-export async function setup() {
+async function setup() {
   const store = await initDatabase({ testMode: false });
   const userCount = await store.models.User.count();
   if (userCount > 0) {

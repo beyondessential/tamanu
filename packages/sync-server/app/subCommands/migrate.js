@@ -2,7 +2,7 @@ import { Command } from 'commander';
 import { createMigrateCommand } from 'shared/services/migrations';
 import { initDatabase } from '../database';
 
-export async function migrate(options) {
+async function migrate(options) {
   const store = await initDatabase({ testMode: false });
   await store.sequelize.migrate(options);
   process.exit(0);

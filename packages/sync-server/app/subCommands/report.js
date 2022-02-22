@@ -6,7 +6,7 @@ import { ReportRunner } from '../report/ReportRunner';
 import { initDatabase } from '../database';
 import { setupEnv } from '../env';
 
-export async function report(options) {
+async function report(options) {
   const store = await initDatabase({ testMode: false });
   setupEnv();
   try {

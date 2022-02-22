@@ -189,7 +189,7 @@ const calculateSurveyResultsInBatch = async (
  * @param {*} store
  * @param {*} options
  */
-export async function calculateSurveyResults() {
+async function calculateSurveyResults() {
   const store = await initDatabase({ testMode: false });
 
   const [surveyRows] = await store.sequelize.query(`

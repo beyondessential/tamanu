@@ -6,7 +6,7 @@ import { arrayToDbString } from 'shared/utils';
 
 import { initDatabase } from '../database';
 
-export const removeDuplicatedPatientAdditionalData = async () => {
+const removeDuplicatedPatientAdditionalData = async () => {
   const store = await initDatabase({ testMode: false });
   const [patientIdsCountData] = await store.sequelize.query(`
         SELECT COUNT(*)
