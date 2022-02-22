@@ -7,20 +7,25 @@ export const OPERATIONS = {
   DELETE: 'DELETE',
 };
 
+// allow either native date objects or ISO 8601 strings
+const transformDate = (_, d) => (d instanceof Date ? d : parseISO(d));
+
+const actionSchema = yup
+  .object({
+    fetch_id: yup.string().required(),
+    operation: yup
+      .string()
+      .required()
+      .oneOf(Object.keys(OPERATIONS)),
+    created_datetime: yup
+      .date()
+      .required()
+      .transform(transformDate),
+  })
+  .required();
+
 export const remoteRequest = {
-  patientCreated: yup
-    .object({
-      fetch_id: yup.string().required(),
-      operation: yup
-        .string()
-        .required()
-        .oneOf(Object.keys(OPERATIONS)),
-      created_datetime: yup
-        .date()
-        .required()
-        .transform((_, d) => parseISO(d)),
-    })
-    .required(),
+  patientCreated: actionSchema,
 };
 
 export const remoteResponse = {
@@ -48,7 +53,7 @@ export const remoteResponse = {
         individual_refno: yup.string().required(),
         fname: yup.string(),
         lname: yup.string(),
-        dob: yup.date().transform((_, d) => parseISO(d)),
+        dob: yup.date().transform(transformDate),
         sex: yup
           .string()
           .required()
@@ -71,5 +76,12 @@ export const remoteResponse = {
       .string()
       .required()
       .oneOf(['success']),
+  }),
+  fetchAllPendingActions: yup.object({
+    response: yup
+      .string()
+      .required()
+      .oneOf(['success']),
+    data: yup.array(actionSchema).required(),
   }),
 };
