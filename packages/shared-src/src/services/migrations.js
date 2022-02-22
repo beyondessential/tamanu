@@ -104,8 +104,9 @@ export async function migrate(log, sequelize, options) {
 }
 
 // addMigrateOptions adds shared migration options to a command
-export function addMigrateOptions(cmd) {
-  return cmd
+export function createMigrateCommand(Command) {
+  return new Command('migrate')
+    .description('Apply or roll back database migrations')
     .option('--down', 'Reverse the most recent migration')
     .option('--up', 'Run all unrun migrations until up to date')
     .option(

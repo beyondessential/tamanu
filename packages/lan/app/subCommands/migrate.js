@@ -1,6 +1,5 @@
 import { Command } from 'commander';
-
-import { addMigrateOptions } from 'shared/services/migrations';
+import { createMigrateCommand } from 'shared/services/migrations';
 import { initDatabase } from '../database';
 
 export async function migrate(options) {
@@ -9,7 +8,4 @@ export async function migrate(options) {
   process.exit(0);
 }
 
-export const migrateCommand = new Command('migrate')
-  .description('Apply or roll back database migrations')
-  .action(migrate);
-addMigrateOptions(migrateCommand);
+export const migrateCommand = createMigrateCommand(Command).action(migrate);
