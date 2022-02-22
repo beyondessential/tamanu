@@ -62,9 +62,9 @@ describe('VRS integration - VRSActionRetrier', () => {
           response: 'success',
           data: [
             {
-              fetch_id: mockFetchId,
-              operation: 'INSERT',
-              created_datetime: new Date().toISOString(),
+              Id: mockFetchId,
+              Operation: 'INSERT',
+              CreatedDateTime: new Date().toISOString(),
             },
           ],
         }),
