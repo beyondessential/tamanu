@@ -87,7 +87,7 @@ export async function migrate(log, sequelize, options) {
     throw new Error(`Expected only 1 of [up, down, downToLastReversibleMigration, redoLatest]`);
   }
 
-  if (up) {
+  if (numArgs === 0 || up) {
     return migrateUp(log, sequelize);
   }
   if (down) {
