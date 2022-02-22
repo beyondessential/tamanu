@@ -66,6 +66,7 @@ export class VRSActionHandler {
       operation,
       fetch_id: fetchId,
     } = await schema.remoteRequest.patientCreated.validate(action, { stripUnknown: true });
+    log.debug(`VRSActionHandler: applying action (operation=${operation}, fetch_id=${fetchId})`);
 
     // fetch patient
     const {
