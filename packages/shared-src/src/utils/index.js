@@ -5,5 +5,5 @@ export * from './valueIndex';
 export * from './sleepAsync';
 export * from './arrayToDbString';
 export * from './tmpdir';
-export * from './patientCertificates';
 export * from './encodings';
+export * from './patientCertificates';
