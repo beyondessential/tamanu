@@ -6,7 +6,7 @@ import { COMMUNICATION_STATUSES } from 'shared/constants';
 import { getReportModule } from 'shared/reports';
 import { log } from 'shared/services/logging';
 import { createTupaiaApiClient, translateReportDataToSurveyResponses } from 'shared/utils';
-import { removeFile, createZippedExcelFile } from '../utils/files';
+import { removeFile, createZippedSpreadsheet } from '../utils/files';
 
 export class ReportRunner {
   constructor(reportName, parameters, recipients, store, emailService) {
@@ -23,7 +23,7 @@ export class ReportRunner {
       throw new Error('ReportRunner - Email config missing');
     }
 
-    const disabledReports = config.localisation.data.disabledReports;
+    const { disabledReports } = config.localisation.data;
     if (disabledReports.includes(this.reportName)) {
       throw new Error(`ReportRunner - Report "${this.reportName}" is disabled`);
     }
@@ -100,7 +100,7 @@ export class ReportRunner {
 
     let zipFile;
     try {
-      zipFile = await createZippedExcelFile(reportName, reportData);
+      zipFile = await createZippedSpreadsheet(reportName, reportData);
 
       log.info(
         `ReportRunner - Sending report "${zipFile}" to "${this.recipients.email.join(',')}"`,
@@ -159,8 +159,9 @@ export class ReportRunner {
     }
 
     let zipFile;
+    const bookType = 'csv';
     try {
-      zipFile = await createZippedExcelFile(this.reportName, reportData);
+      zipFile = await createZippedSpreadsheet(this.reportName, reportData, bookType);
 
       const filename = path.basename(zipFile);
 
