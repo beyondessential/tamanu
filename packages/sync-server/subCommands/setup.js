@@ -2,6 +2,7 @@ import config from 'config';
 import { log } from 'shared/services/logging';
 
 import { initDatabase } from '../app/database';
+import { vdsConfig } from '../app/integrations/VdsNc';
 
 export async function setup() {
   const store = await initDatabase({ testMode: false });
@@ -10,12 +11,8 @@ export async function setup() {
     throw new Error(`Found ${userCount} users already in the database, aborting setup.`);
   }
 
-  // check ICAO key secret
-  if (!config.icao.keySecret) {
-    log.error('ICAO key secret is not set');
-    const key = crypto.randomBytes(32).toString('base64');
-    log.info(`Sample secret (random): '${key}'`);
-  }
+  // Check VDS config (if enabled)
+  vdsConfig();
 
   // create initial admin user
   const { initialUser } = config.auth;

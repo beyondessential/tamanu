@@ -1,7 +1,7 @@
 /* eslint-disable no-unused-expressions */
 
 import { createTestContext } from 'sync-server/__tests__/utilities';
-import { fakeABtoRealAB, newKeypairAndCsr } from 'sync-server/app/utils/vdsCrypto';
+import { fakeABtoRealAB, newKeypairAndCsr } from 'sync-server/app/integrations/VdsNc';
 import { Crypto } from 'node-webcrypto-ossl';
 import {
   BitString,
@@ -37,10 +37,10 @@ describe('VDS-NC: Signer cryptography', () => {
   it('creates a well-formed keypair', async () => {
     const { publicKey, privateKey } = await newKeypairAndCsr({
       keySecret: 'secret',
-      subject: {
+      csr: { subject: {
         countryCode2: 'UT',
         signerIdentifier: 'TA',
-      },
+      } },
     });
 
     // publicKey: Walk through the expected ASN.1 structure
@@ -167,10 +167,10 @@ describe('VDS-NC: Signer cryptography', () => {
   it('creates a well-formed CSR', async () => {
     const { publicKey, request } = await newKeypairAndCsr({
       keySecret: 'secret',
-      subject: {
+      csr: { subject: {
         countryCode2: 'UT',
         signerIdentifier: 'TA',
-      },
+      } },
     });
 
     // Check the PEM has the borders

@@ -3,6 +3,8 @@ import { ScheduledTask } from 'shared/tasks';
 import { log } from 'shared/services/logging';
 import { Op, Sequelize } from 'sequelize';
 import moment from 'moment';
+import { vdsConfig } from '../integrations/VdsNc';
+import { getLocalisationData } from '../utils/localisation';
 
 export class VdsNcSignerRenewalSender extends ScheduledTask {
   constructor(context) {
@@ -19,6 +21,7 @@ export class VdsNcSignerRenewalSender extends ScheduledTask {
   async run() {
     const { emailService } = this.context;
     const { VdsNcSigner } = this.context.store.models;
+    const vdsConf = vdsConfig();
 
     const pending = await VdsNcSigner.findAll({
       where: {
@@ -41,20 +44,14 @@ export class VdsNcSignerRenewalSender extends ScheduledTask {
       );
     }
 
-    const recipient = config.icao.csr.email?.recipient;
-    if (!recipient) {
-      log.error('No CSR recipient configured, check config.icao.csr.email.recipient!');
-      return;
-    }
-
-    log.info(`Emailing ${pending.length} CSR(s) to ${recipient}`);
+    log.info(`Emailing ${pending.length} CSR(s) to ${vdsConf.csr.email}`);
     for (const signer of pending) {
       try {
         await emailService.sendEmail({
-          to: recipient,
+          to: vdsConf.csr.email,
           from: config.mailgun.from,
-          subject: config.icao.csr.subject,
-          content: config.icao.csr.body,
+          subject: getLocalisationData('vdsRenewalEmail.subject'),
+          content: getLocalisationData('vdsRenewalEmail.body'),
           attachment: {
             filename: `Tamanu_${moment(signer.createdAt).format('YYYY-MM-DD')}.csr`,
             data: Buffer.from(signer.request),

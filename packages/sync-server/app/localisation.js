@@ -83,6 +83,21 @@ const templatesSchema = yup.object({
     })
     .default({})
     .noUnknown(),
+
+  vdsRenewalEmail: yup.object().shape({
+    subject: yup.string().trim().min(1).required(),
+    body: yup.string().trim().min(1).required(),
+  }).noUnknown(),
+
+  vaccineCertificateEmail: yup.object().shape({
+    subject: yup.string().trim().min(1).required(),
+    body: yup.string().trim().min(1).required(),
+  }).noUnknown(),
+
+  covidTestCertificateEmail: yup.object().shape({
+    subject: yup.string().trim().min(1).required(),
+    body: yup.string().trim().min(1).required(),
+  }).noUnknown(),
 });
 
 const fieldsSchema = yup

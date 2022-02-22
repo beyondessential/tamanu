@@ -75,7 +75,7 @@ export class VdsNcDocument extends Model {
    * If the document is already signed, this will silently do nothing, and return
    * as normal.
    *
-   * @param {string} keySecret Base64-encoded key secret (icao.keySecret).
+   * @param {string} keySecret Base64-encoded key secret (integrations.vds.keySecret).
    * @returns {Promise<VdsNcDocument>} This object, signed, stored to the database.
    * @throws {Error} if there's no active signer.
    */
@@ -88,11 +88,11 @@ export class VdsNcDocument extends Model {
     const msg = JSON.parse(this.messageData);
     let uniqueProofId;
     switch (this.type) {
-      case 'icao.test':
+      case ICAO_DOCUMENT_TYPES.PROOF_OF_TESTING.JSON:
         uniqueProofId = await this.makeUniqueProofId('TT');
         msg.utvi = uniqueProofId;
         break;
-      case 'icao.vacc':
+      case ICAO_DOCUMENT_TYPES.PROOF_OF_VACCINATION.JSON:
         uniqueProofId = await this.makeUniqueProofId('TV');
         msg.ucvi = uniqueProofId;
         break;

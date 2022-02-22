@@ -1,4 +1,5 @@
 import config from 'config';
+import { vdsConfig } from '../integrations/VdsNc';
 
 import { PatientEmailCommunicationProcessor } from './PatientEmailCommunicationProcessor';
 import { OutpatientDischarger } from './OutpatientDischarger';
@@ -15,13 +16,17 @@ export async function startScheduledTasks(context) {
     OutpatientDischarger,
     PatientEmailCommunicationProcessor,
     ReportRequestProcessor,
-    VdsNcDocumentSigningProcessor,
-    VdsNcSignerExpiryChecker,
-    VdsNcSignerRenewalChecker,
-    VdsNcSignerRenewalSender,
   ];
   if (config.integrations.fijiVrs.enabled) {
     taskClasses.push(VRSActionRetrier);
+  }
+  if (vdsConfig().enabled) {
+    taskClasses.push(
+      VdsNcDocumentSigningProcessor,
+      VdsNcSignerExpiryChecker,
+      VdsNcSignerRenewalChecker,
+      VdsNcSignerRenewalSender,
+    );
   }
 
   const reportSchedulers = await getReportSchedulers(context);

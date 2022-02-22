@@ -2,7 +2,7 @@ import config from 'config';
 import { ScheduledTask } from 'shared/tasks';
 import { log } from 'shared/services/logging';
 import { Op } from 'sequelize';
-import { newKeypairAndCsr } from '../utils/vdsCrypto';
+import { newKeypairAndCsr, vdsConfig } from '../integrations/VdsNc';
 
 export class VdsNcSignerRenewalChecker extends ScheduledTask {
   constructor(context) {
@@ -18,25 +18,26 @@ export class VdsNcSignerRenewalChecker extends ScheduledTask {
 
   async run() {
     const { VdsNcSigner } = this.context.store.models;
+    const vdsConf = vdsConfig();
     const signer = await VdsNcSigner.findActive();
 
     let beyondThreshold = false;
 
     // Buffer before expiration
-    if (config.icao.renew.daysBeforeExpiry) {
+    if (vdsConf.renew.daysBeforeExpiry) {
       const daysUntilExpiry = (signer.notAfter - new Date()) / (1000 * 60 * 60 * 24);
-      if (daysUntilExpiry >= config.icao.renew.daysBeforeExpiry) {
+      if (daysUntilExpiry >= vdsConf.renew.daysBeforeExpiry) {
         beyondThreshold = true;
       }
     }
 
     // Signature issuance limit (with buffer)
-    if (config.icao.renew.maxSignatures) {
+    if (vdsConf.renew.maxSignatures) {
       let maxSigs;
-      if (config.icao.renew.softMaxSignatures) {
-        maxSigs = Math.min(config.icao.renew.maxSignatures, config.icao.renew.softMaxSignatures);
+      if (vdsConf.renew.softMaxSignatures) {
+        maxSigs = Math.min(vdsConf.renew.maxSignatures, vdsConf.renew.softMaxSignatures);
       } else {
-        maxSigs = Math.floor(config.icao.renew.maxSignatures * 0.9);
+        maxSigs = Math.floor(vdsConf.renew.maxSignatures * 0.9);
       }
 
       if (signer.signaturesIssued >= maxSigs) {
@@ -75,7 +76,7 @@ export class VdsNcSignerRenewalChecker extends ScheduledTask {
         publicKey,
         privateKey,
         request,
-        countryCode: config.icao.sign.countryCode3,
+        countryCode: vdsConf.sign.countryCode3,
       });
       log.info(`Created new signer (CSR): ${newSigner.id}`);
     }

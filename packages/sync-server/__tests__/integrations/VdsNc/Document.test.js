@@ -5,7 +5,7 @@ import {
   newKeypairAndCsr,
   TestCSCA,
   loadCertificateIntoSigner,
-} from 'sync-server/app/utils/vdsCrypto';
+} from 'sync-server/app/integrations/VdsNc';
 import { ICAO_DOCUMENT_TYPES } from 'shared/constants';
 import { expect } from 'chai';
 
@@ -17,10 +17,10 @@ describe('VDS-NC: Document cryptography', () => {
 
     const { publicKey, privateKey, request } = await newKeypairAndCsr({
       keySecret: 'secret',
-      subject: {
+      csr: { subject: {
         countryCode2: 'UT',
         signerIdentifier: 'TA',
-      },
+      } },
     });
 
     const { VdsNcSigner } = ctx.store.models;

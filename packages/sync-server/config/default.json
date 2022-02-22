@@ -131,6 +131,29 @@
     "fijiVps": {
       "enabled": false
     },
+    "vds": {
+      "enabled": false,
+      // Encryption key for ICAO DSC key material (stored in DB).
+      // This must be unique per country/installation.
+      // It must be at least 32 bytes of random data in Base64.
+      // $ openssl rand -base64 32
+      "keySecret": null,
+      "csr": {
+        "subject": {
+          "countryCode2": null, // ICAO 2-letter country code
+          "signerIdentifier": "TA" // max 2 letters, ref 9303-13 §2.2.1(a)
+        },
+        "email": null // email address for CSCA signing contact
+      },
+      "sign": {
+        "countryCode3": null, // ICAO 3-letter country code
+      },
+      "renew": {
+        // "daysBeforeExpiry": 96, // max 96
+        // "maxSignatures": null, // null means no limit
+        // "softMaxSignatures": null // defaults to 90% of maxSignatures
+      }
+    }
   },
   "localisation": {
     "labResultWidget": {
@@ -358,6 +381,18 @@
           "title": "TAMANU MINISTRY OF HEALTH & MEDICAL SERVICES",
           "subTitle": "PO Box 12345, Melbourne, Australia"
         },
+        "vdsRenewalEmail": {
+          "subject": "Tamanu ICAO Certificate Signing Request",
+          "body": "Please sign the following certificate signing request (CSR) with the Country Signing Certificate Authority (CSCA), and return it to the Tamanu team or Tamanu deployment administration team."
+        },
+        "vaccineCertificateEmail": {
+          "subject": "Medical Certificate now available",
+          "body": "A medical certificate has been generated for you.\nYour certificate is available attached to this email."
+        },
+        "covidTestCertificateEmail": {
+          "subject": "Medical Certificate now available",
+          "body": "A medical certificate has been generated for you.\nYour certificate is available attached to this email."
+        },
         "vaccineCertificateFooter": {
           "emailAddress": "tamanu@health.gov",
           "contactNumber": 12345
@@ -396,32 +431,6 @@
       "testMethod": "http://tamanu.io/data-dictionary/covid-test-methods",
       "patientDisplayId": "http://tamanu.io/data-dictionary/application-reference-number.html",
       "labRequestDisplayId": "http://tamanu.io/data-dictionary/labrequest-reference-number.html"
-    }
-  },
-  "icao": {
-    // Encryption key for ICAO DSC key material (stored in DB).
-    // This must be unique per country/installation.
-    // It must be at least 32 bytes of random data in Base64.
-    // $ openssl rand -base64 32
-    "keySecret": null,
-    "csr": {
-      "subject": {
-        "countryCode2": null, // ICAO 2-letter country code
-        "signerIdentifier": "TA" // max 2 letters, ref 9303-13 §2.2.1(a)
-      },
-      "email": {
-        "recipient": null, // email address of CSCA signing contact
-        "subject": "Tamanu ICAO Certificate Signing Request",
-        "body": "Please sign the following certificate signing request (CSR) with the Country Signing Certificate Authority (CSCA), and return it to the Tamanu team or Tamanu deployment administration team."
-      }
-    },
-    "sign": {
-      "countryCode3": null, // ICAO 3-letter country code
-    },
-    "renew": {
-      "daysBeforeExpiry": 14,
-      "maxSignatures": null, // null means no limit
-      "softMaxSignatures": null // defaults to 90% of maxSignatures
     }
   },
   "tupaiaApiClient": {},

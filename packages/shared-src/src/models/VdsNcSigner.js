@@ -25,7 +25,7 @@ export class VdsNcSigner extends Model {
         },
 
         privateKey: {
-          // encrypted with facility key (icao.keySecret)
+          // encrypted with facility key (integrations.vds.keySecret)
           type: Sequelize.BLOB, // PKCS8 DER in PKCS5 DER
           allowNull: true,
         },
@@ -113,7 +113,7 @@ export class VdsNcSigner extends Model {
    *
    * @internal
    * @param {object} data Arbitrary data to sign.
-   * @param {string} keySecret Encryption key/phrase for the private key (icao.keySecret).
+   * @param {string} keySecret Encryption key/phrase for the private key (integrations.vds.keySecret).
    * @returns {Promise<{ algorithm: string, signature: Buffer }>} The signature and algorithm.
    */
   async issueSignature(data, keySecret) {

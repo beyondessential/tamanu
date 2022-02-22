@@ -1,16 +1,10 @@
 import React from 'react';
 import ReactPDF from '@react-pdf/renderer';
-import config from 'config';
 import path from 'path';
-import { get } from 'lodash';
 import QRCode from 'qrcode';
 import { log } from 'shared/services/logging';
 import { tmpdir, CovidLabCertificate, VaccineCertificate } from 'shared/utils';
-
-const getLocalisation = key => {
-  const { localisation } = config;
-  return get(localisation.data, key);
-};
+import { getLocalisationData } from './localisation';
 
 export const makeVaccineCertificate = async (patient, models, vdsData = null) => {
   const folder = await tmpdir();
@@ -43,7 +37,7 @@ export const makeVaccineCertificate = async (patient, models, vdsData = null) =>
         signingSrc={signingImage?.data}
         watermarkSrc={watermark?.data}
         vdsSrc={vds}
-        getLocalisation={getLocalisation}
+        getLocalisation={getLocalisationData}
       />,
       filePath,
     );
@@ -88,7 +82,7 @@ export const makeCovidTestCertificate = async (patient, models, vdsData = null) 
         signingSrc={signingImage?.data}
         watermarkSrc={watermark?.data}
         vdsSrc={vds}
-        getLocalisation={getLocalisation}
+        getLocalisation={getLocalisationData}
       />,
       filePath,
     );

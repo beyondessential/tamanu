@@ -27,6 +27,7 @@ import {
 import { ICAO_DOCUMENT_TYPES, X502_OIDS } from 'shared/constants';
 import { depem, pem } from 'shared/utils';
 import moment from 'moment';
+import { vdsConfig } from '.';
 
 const webcrypto = new Crypto();
 setEngine(
@@ -38,15 +39,10 @@ setEngine(
 /**
  * Generate a VDS-NC Barcode Signer compliant keypair and CSR.
  *
- * @param {object} keygenConfig The keySecret and the icao.csr fields.
+ * @param {object} vdsConf The validated VDS config.
  * @returns The fields to use to create the Signer model.
  */
-export async function newKeypairAndCsr(
-  keygenConfig = {
-    keySecret: config.icao.keySecret,
-    ...config.icao.csr,
-  },
-) {
+export async function newKeypairAndCsr(vdsConf = vdsConfig()) {
   const { publicKey, privateKey } = await webcrypto.subtle.generateKey(
     {
       name: 'ECDSA',
@@ -56,7 +52,7 @@ export async function newKeypairAndCsr(
     ['sign', 'verify'],
   );
 
-  const { keySecret, subject } = keygenConfig;
+  const { keySecret, csr: { subject } } = vdsConf;
 
   const csr = new CertificationRequest();
   csr.version = 0;

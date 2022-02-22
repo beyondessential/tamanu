@@ -39,6 +39,7 @@ export async function createSingleLabRequestNotification(labRequest, models) {
         patientId: encounter.patientId,
         // If forward address is null, the communication service will attempt to use the patient.email field
         forwardAddress: await fetchMostRecentEmailAddress(encounter.patientId, models),
+        // TODO: attach lab test
       },
     ]);
   }

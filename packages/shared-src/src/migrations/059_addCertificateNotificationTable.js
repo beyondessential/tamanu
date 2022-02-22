@@ -27,7 +27,8 @@ module.exports = {
       },
       require_signing: {
         type: Sequelize.BOOLEAN,
-        defaultValue: null,
+        allowNull: false,
+        defaultValue: false,
       },
       patient_id: {
         type: Sequelize.STRING,

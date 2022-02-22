@@ -2,6 +2,7 @@ import config from 'config';
 import moment from 'moment';
 import { transliterate as tr } from 'transliteration';
 import allModels from 'shared/models';
+import { vdsConfig } from '.';
 
 const SEX_TO_CHAR = {
   male: 'M',
@@ -30,7 +31,7 @@ const MOMENT_FORMAT_RFC3339 = 'YYYY-MM-DDTHH:mm:ssZ';
 
 export const createProofOfVaccination = async (
   patientId,
-  { countryCode = config.icao.sign.countryCode3, models = allModels } = {},
+  { countryCode = vdsConfig().sign.countryCode3, models = allModels } = {},
 ) => {
   const {
     Patient,
@@ -138,7 +139,7 @@ export const createProofOfVaccination = async (
 
 export const createProofOfTest = async (
   labTestId,
-  { countryCode = config.icao.sign.countryCode3, models = allModels } = {},
+  { countryCode = vdsConfig().sign.countryCode3, models = allModels } = {},
 ) => {
   const {
     Patient,
