@@ -71,11 +71,7 @@ export const serve = async ({ skipMigrationCheck }) => {
   }
 }
 
-// addServeOptions is used for the default action with no subcommand
-export const addServeOptions = cmd =>
-  cmd.option('--skipMigrationCheck', 'skip the migration check on startup', false);
-
 export const serveCommand = new Command('serve')
   .description('Start the Tamanu sync-server')
+  .option('--skipMigrationCheck', 'skip the migration check on startup')
   .action(serve);
-addServeOptions(serveCommand);

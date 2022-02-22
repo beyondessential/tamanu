@@ -1,11 +1,9 @@
+import { program } from 'commander';
 import { log } from 'shared/services/logging';
 
-import { program } from 'commander';
 
 import {
-  serve,
   serveCommand,
-  addServeOptions,
   migrateCommand,
   reportCommand,
   setupCommand,
@@ -16,12 +14,10 @@ import {
 
 async function run() {
   program
-    .description('Tamanu sync-server (runs serve by default)')
-    .name('node app.bundle.js')
-    .action(serve);
-  addServeOptions(program);
+    .description('Tamanu sync-server')
+    .name('node app.bundle.js');
 
-  program.addCommand(serveCommand);
+  program.addCommand(serveCommand, { isDefault: true });
   program.addCommand(migrateCommand);
   program.addCommand(reportCommand);
   program.addCommand(setupCommand);

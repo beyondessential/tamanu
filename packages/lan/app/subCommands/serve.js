@@ -13,7 +13,7 @@ import { listenForServerQueries } from '../discovery';
 
 import { version } from '../../package.json';
 
-export async function serve({ skipMigrationCheck }) {
+async function serve({ skipMigrationCheck }) {
   log.info(`Starting facility server version ${version}.`);
 
   const context = await initDatabase();
@@ -50,12 +50,7 @@ export async function serve({ skipMigrationCheck }) {
   startDataChangePublisher(server, context);
 }
 
-// addServeOptions is used for the default action with no subcommand
-export function addServeOptions(cmd) {
-  return cmd.option('--skipMigrationCheck', 'skip the migration check on startup', false);
-}
-
 export const serveCommand = new Command('serve')
   .description('Start the Tamanu lan server')
+  .option('--skipMigrationCheck', 'skip the migration check on startup')
   .action(serve);
-addServeOptions(serveCommand);
