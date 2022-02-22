@@ -32,9 +32,6 @@ export class VRSActionHandler {
     for (const action of actions) {
       try {
         const { CreatedDateTime, Operation, Id } = action;
-        if (!CreatedDateTime) {
-          throw new Error('missing created_atdatetime');
-        }
         const isRecent = CreatedDateTime.getTime() + this.retryMinAgeMs > Date.now();
         if (isRecent) {
           log.debug(`VRSActionHandler: Skipping recent action (action=${JSON.stringify(action)})`);
