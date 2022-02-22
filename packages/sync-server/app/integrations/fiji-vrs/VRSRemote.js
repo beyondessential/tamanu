@@ -135,6 +135,12 @@ export class VRSRemote {
   async acknowledge(fetchId) {
     await this.fetch(`/api/Tamanu/Acknowledge?${encodeParams({ fetch_id: fetchId })}`, {
       validateSchema: schema.remoteResponse.acknowledge,
+      method: 'POST',
+      headers: {
+        'Content-Length': 0,
+        Accepts: 'application/json',
+        Authorization: `Bearer ${this.token}`,
+      },
     });
   }
 
