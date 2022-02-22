@@ -1,11 +1,13 @@
 import { program } from 'commander';
 import { log } from 'shared/services/logging';
 
+import { version } from './package.json';
 
 import { serveCommand, migrateCommand, reportCommand } from './app/subCommands';
 
 async function run() {
   program
+    .version(version)
     .description('Tamanu lan-server')
     .name('node app.bundle.js');
 

@@ -1,6 +1,7 @@
 import { program } from 'commander';
 import { log } from 'shared/services/logging';
 
+import { version } from './package.json';
 
 import {
   serveCommand,
@@ -14,6 +15,7 @@ import {
 
 async function run() {
   program
+    .version(version)
     .description('Tamanu sync-server')
     .name('node app.bundle.js');
 
