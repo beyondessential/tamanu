@@ -59,6 +59,7 @@
   "dependencies": {
     "@babel/polyfill": "^7.2.5",
     "@casl/ability": "^4.1.0",
+    "@react-pdf/renderer": "^2.1.1",
     "@tupaia/api-client": "2.1.1",
     "abort-controller": "^3.0.0",
     "argparse": "1.0.10",
