@@ -79,8 +79,7 @@ export const FormComponent = ({
     });
 
     // Mark patient for sync, save and update redux state
-    editedPatient.markedForSync = true;
-    editedPatient.markedForUpload = true;
+    await Patient.markForSync(editedPatient.id);
     await editedPatient.save();
     setSelectedPatient(editedPatient);
 
