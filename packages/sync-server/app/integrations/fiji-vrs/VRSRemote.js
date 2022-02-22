@@ -117,6 +117,7 @@ export class VRSRemote {
 
     // parse, validate, and return body on success
     const body = await response.json();
+    log.debug(`VRSRemote.fetch(): received body ${JSON.stringify(body)}`);
     const data = await validateSchema.validate(body, {
       stripUnknown: true,
     });
