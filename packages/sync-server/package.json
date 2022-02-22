@@ -61,6 +61,7 @@
     "@aws-sdk/client-s3": "^3.49.0",
     "@babel/polyfill": "^7.2.5",
     "@casl/ability": "^4.1.0",
+    "@react-pdf/renderer": "^2.1.1",
     "@tupaia/api-client": "2.1.1",
     "argparse": "1.0.10",
     "await-to-js": "^2.0.1",
