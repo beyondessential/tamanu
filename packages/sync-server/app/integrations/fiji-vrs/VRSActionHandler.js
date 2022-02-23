@@ -27,23 +27,34 @@ export class VRSActionHandler {
 
     // retry one action at a time
     let successCount = 0;
+    let skipCount = 0;
+    let failCount = 0;
     for (const action of actions) {
       try {
-        const isRecent = action.created_datetime.getTime() + this.retryMinAgeMs > Date.now();
+        const { CreatedDateTime, Operation, Id } = action;
+        const isRecent = CreatedDateTime.getTime() + this.retryMinAgeMs > Date.now();
         if (isRecent) {
           log.debug(`VRSActionHandler: Skipping recent action (action=${JSON.stringify(action)})`);
+          skipCount++;
         } else {
           log.debug(`VRSActionHandler: Retrying action (action=${JSON.stringify(action)})`);
-          await this.applyAction(action);
+          await this.applyAction({
+            created_datetime: CreatedDateTime,
+            operation: Operation,
+            fetch_id: Id,
+          });
+          successCount++;
         }
-        successCount++;
       } catch (e) {
         log.error('VRSActionHandler: Recieved error while applying action:');
         log.error(e);
+        failCount++;
       }
     }
 
-    log.info(`VRSActionHandler: Successfully retried ${successCount}/${actions.length} actions`);
+    log.info(
+      `VRSActionHandler: Finished (${actions.length} total, ${successCount} successful, ${skipCount} skipped, ${failCount} failed)`,
+    );
   }
 
   async applyAction(action) {

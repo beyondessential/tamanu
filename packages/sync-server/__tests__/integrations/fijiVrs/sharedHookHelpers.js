@@ -69,9 +69,9 @@ export const prepareVRSMocks = async (ctx, opts = {}) => {
         response: 'success',
         data: [
           {
-            fetch_id: fetchId,
-            operation: 'INSERT',
-            created_datetime: createdAt,
+            Id: fetchId,
+            Operation: 'INSERT',
+            CreatedDateTime: createdAt,
           },
         ],
       }),

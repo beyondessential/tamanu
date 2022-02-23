@@ -10,22 +10,20 @@ export const OPERATIONS = {
 // allow either native date objects or ISO 8601 strings
 const transformDate = (_, d) => (d instanceof Date ? d : parseISO(d));
 
-const actionSchema = yup
-  .object({
-    fetch_id: yup.string().required(),
-    operation: yup
-      .string()
-      .required()
-      .oneOf(Object.keys(OPERATIONS)),
-    created_datetime: yup
-      .date()
-      .required()
-      .transform(transformDate),
-  })
-  .required();
-
 export const remoteRequest = {
-  patientCreated: actionSchema,
+  patientCreated: yup
+    .object({
+      fetch_id: yup.string().required(),
+      operation: yup
+        .string()
+        .required()
+        .oneOf(Object.keys(OPERATIONS)),
+      created_datetime: yup
+        .date()
+        .required()
+        .transform(transformDate),
+    })
+    .required(),
 };
 
 export const remoteResponse = {
@@ -82,6 +80,22 @@ export const remoteResponse = {
       .string()
       .required()
       .oneOf(['success']),
-    data: yup.array(actionSchema).required(),
+    data: yup
+      .array(
+        yup
+          .object({
+            Id: yup.string().required(),
+            Operation: yup
+              .string()
+              .required()
+              .oneOf(Object.keys(OPERATIONS)),
+            CreatedDateTime: yup
+              .date()
+              .required()
+              .transform(transformDate),
+          })
+          .required(),
+      )
+      .required(),
   }),
 };
