@@ -30,22 +30,30 @@ const tableStyles = StyleSheet.create({
 });
 
 const TR = props => <View {...props} style={tableStyles.tr} />;
-const TH = props => <Text {...props} style={tableStyles.th} />;
-const TD = props => <Text {...props} style={tableStyles.td} />;
+const TH = ({ customStyles, ...props }) => (
+  <Text {...props} style={[tableStyles.th, customStyles]} />
+);
+const TD = ({ customStyles, ...props }) => (
+  <Text {...props} style={[tableStyles.td, customStyles]} />
+);
 
 export const Table = ({ data, columns }) => {
   return (
     <View style={tableStyles.table}>
       <TR>
-        {columns.map(({ title, key }) => (
-          <TH key={key}>{title}</TH>
+        {columns.map(({ title, key, customStyles }) => (
+          <TH key={key} customStyles={customStyles}>
+            {title}
+          </TH>
         ))}
       </TR>
       {data.map((row, i) => (
         // eslint-disable-next-line react/no-array-index-key
         <TR key={i}>
-          {columns.map(({ accessor, key }) => (
-            <TD key={key}>{accessor ? accessor(row) : row[key]}</TD>
+          {columns.map(({ accessor, key, customStyles }) => (
+            <TD key={key} customStyles={customStyles}>
+              {accessor ? accessor(row) : row[key]}
+            </TD>
           ))}
         </TR>
       ))}

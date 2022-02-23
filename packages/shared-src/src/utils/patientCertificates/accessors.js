@@ -19,4 +19,6 @@ export const getDisplayDate = date => moment(date).format('DD/MM/YYYY');
 
 export const getPlaceOfBirth = ({ additionalData }) => additionalData?.placeOfBirth;
 
-export const getCountryOfBirth = ({ additionalData }) => additionalData?.countryOfBirth?.name;
+export const getNationality = ({ additionalData }) => additionalData?.nationality?.name;
+
+export const getPassportNumber = ({ additionalData }) => additionalData?.passport;
