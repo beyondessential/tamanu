@@ -1,12 +1,13 @@
+import config from 'config';
 import { ScheduledTask } from 'shared/tasks';
 import { log } from 'shared/services/logging';
 import { Op, Sequelize } from 'sequelize';
 
 export class VdsNcSignerExpiryChecker extends ScheduledTask {
   constructor(context) {
-    const config = config.schedules.vds.signerExpiryChecker;
-    super(config.schedule, log);
-    this.config = config;
+    const conf = config.schedules.vds.signerExpiryChecker;
+    super(conf.schedule, log);
+    this.config = conf;
     this.context = context;
   }
 

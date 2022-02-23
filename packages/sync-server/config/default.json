@@ -90,8 +90,8 @@
       "batchSleepAsyncDurationInMilliseconds": 50
     },
     "patientEmailCommunicationProcessor": {
-      // every 30 minutes
-      "scheduled": "*/30 * * * *",
+      // every 30seconds /!\
+      "schedule": "*/30 * * * * *",
       "limit": 10
     },
     "reportRequestProcessor": {
@@ -100,10 +100,6 @@
       "limit": 10
     },
     "vds": {
-      "documentSigningProcessor": {
-        "schedule": "*/5 * * * *",
-        "limit": 50
-      },
       "signerRenewalChecker": {
         "schedule": "0 0 * * *"
       },

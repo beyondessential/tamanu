@@ -9,7 +9,6 @@ import { VRSActionRetrier } from './VRSActionRetrier';
 import { VdsNcSignerExpiryChecker } from './VdsNcSignerExpiryChecker';
 import { VdsNcSignerRenewalChecker } from './VdsNcSignerRenewalChecker';
 import { VdsNcSignerRenewalSender } from './VdsNcSignerRenewalSender';
-import { VdsNcDocumentSigningProcessor } from './VdsNcDocumentSigningProcessor';
 
 export async function startScheduledTasks(context) {
   const taskClasses = [
@@ -22,7 +21,6 @@ export async function startScheduledTasks(context) {
   }
   if (vdsConfig().enabled) {
     taskClasses.push(
-      VdsNcDocumentSigningProcessor,
       VdsNcSignerExpiryChecker,
       VdsNcSignerRenewalChecker,
       VdsNcSignerRenewalSender,

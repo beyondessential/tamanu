@@ -8,9 +8,9 @@ import { getLocalisationData } from '../utils/localisation';
 
 export class VdsNcSignerRenewalSender extends ScheduledTask {
   constructor(context) {
-    const config = config.schedules.vds.signerRenewalSender;
-    super(config.schedule, log);
-    this.config = config;
+    const conf = config.schedules.vds.signerRenewalSender;
+    super(conf.schedule, log);
+    this.config = conf;
     this.context = context;
   }
 

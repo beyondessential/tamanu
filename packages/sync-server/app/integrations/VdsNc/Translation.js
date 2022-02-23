@@ -107,7 +107,9 @@ export const createProofOfVaccination = async (
     } = dose;
 
     const event = {
-      dvc: moment(date).utc().format(MOMENT_FORMAT_ISODATE),
+      dvc: moment(date)
+        .utc()
+        .format(MOMENT_FORMAT_ISODATE),
       seq: SCHEDULE_TO_SEQUENCE[schedule] ?? SEQUENCE_MAX + 1,
       ctr: countryCode,
       lot: batch,
@@ -224,8 +226,12 @@ export const createProofOfTest = async (
       },
     },
     dat: {
-      sc: moment(request.sampleTime).utc().format(MOMENT_FORMAT_RFC3339),
-      ri: moment(test.completedDate).utc().format(MOMENT_FORMAT_RFC3339),
+      sc: moment(request.sampleTime)
+        .utc()
+        .format(MOMENT_FORMAT_RFC3339),
+      ri: moment(test.completedDate)
+        .utc()
+        .format(MOMENT_FORMAT_RFC3339),
     },
     tr: {
       tc: METHOD_CODE[method.code] ?? method.code,

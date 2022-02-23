@@ -6,9 +6,9 @@ import { newKeypairAndCsr, vdsConfig } from '../integrations/VdsNc';
 
 export class VdsNcSignerRenewalChecker extends ScheduledTask {
   constructor(context) {
-    const config = config.schedules.vds.signerRenewalChecker;
-    super(config.schedule, log);
-    this.config = config;
+    const conf = config.schedules.vds.signerRenewalChecker;
+    super(conf.schedule, log);
+    this.config = conf;
     this.context = context;
   }
 

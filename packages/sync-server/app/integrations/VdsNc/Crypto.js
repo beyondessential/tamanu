@@ -52,7 +52,10 @@ export async function newKeypairAndCsr(vdsConf = vdsConfig()) {
     ['sign', 'verify'],
   );
 
-  const { keySecret, csr: { subject } } = vdsConf;
+  const {
+    keySecret,
+    csr: { subject },
+  } = vdsConf;
 
   const csr = new CertificationRequest();
   csr.version = 0;

@@ -14,9 +14,9 @@ export class OutpatientDischarger extends ScheduledTask {
   }
 
   constructor(context) {
-    const config = config.schedules.outpatientDischarger;
-    super(config.schedule, log);
-    this.config = config;
+    const conf = config.schedules.outpatientDischarger;
+    super(conf.schedule, log);
+    this.config = conf;
     this.models = context.store.models;
 
     // run once on startup (in case the server was down when it was scheduled)

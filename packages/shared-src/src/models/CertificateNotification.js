@@ -13,6 +13,9 @@ export class CertificateNotification extends Model {
       },
       {
         ...options,
+
+        // Note that if this changes to bidirectional, the SendCertificateNotification task
+        // will need to be updated / limited to handle only new publishes!
         syncConfig: { syncDirection: SYNC_DIRECTIONS.PUSH_ONLY },
       },
     );
