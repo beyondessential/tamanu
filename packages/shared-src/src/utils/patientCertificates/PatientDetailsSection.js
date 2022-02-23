@@ -1,7 +1,7 @@
 import React from 'react';
 import { Col, Row, VDSImage } from './Layout';
 import { P } from './Typography';
-import { getDOB, getCountryOfBirth, getPlaceOfBirth } from './accessors';
+import { getDOB, getNationality, getPassportNumber } from './accessors';
 
 const PATIENT_FIELDS = [
   { key: 'firstName', label: 'First Name' },
@@ -11,18 +11,10 @@ const PATIENT_FIELDS = [
     label: 'Date Of Birth',
     accessor: getDOB,
   },
-  {
-    key: 'placeOfBirth',
-    label: 'Place Of Birth',
-    accessor: getPlaceOfBirth,
-  },
-  {
-    key: 'countryOfBirth',
-    label: 'Country Of Birth',
-    accessor: getCountryOfBirth,
-  },
   { key: 'sex', label: 'Sex' },
   { key: 'displayId', label: 'NHN' },
+  { key: 'nationality', label: 'Nationality', accessor: getNationality },
+  { key: 'passport', label: 'Passport Number', accessor: getPassportNumber },
 ];
 
 export const PatientDetailsSection = ({ patient, getLocalisation, vdsSrc }) => {

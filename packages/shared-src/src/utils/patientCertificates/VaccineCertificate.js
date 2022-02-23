@@ -13,6 +13,7 @@ const columns = [
   {
     key: 'vaccineType',
     title: 'Vaccine type',
+    customStyles: { minWidth: 30 },
     accessor: ({ scheduledVaccine, createdAt, updatedAt }) => {
       const label = scheduledVaccine?.label;
       const star = createdAt !== updatedAt ? ' *' : '';
@@ -22,7 +23,8 @@ const columns = [
   {
     key: 'vaccineGiven',
     title: 'Vaccine given',
-    accessor: ({ scheduledVaccine }) => scheduledVaccine?.label,
+    customStyles: { minWidth: 30 },
+    accessor: ({ scheduledVaccine }) => scheduledVaccine?.vaccine?.name,
   },
   {
     key: 'schedule',
@@ -32,6 +34,7 @@ const columns = [
   {
     key: 'healthFacility',
     title: 'Health facility',
+    customStyles: { minWidth: 30 },
     accessor: ({ encounter }) => encounter?.location?.name || '',
   },
   {
@@ -43,6 +46,11 @@ const columns = [
     key: 'date',
     title: 'Date',
     accessor: ({ date }) => getDisplayDate(date),
+  },
+  {
+    key: 'batch',
+    title: 'Batch Number',
+    accessor: ({ batch }) => batch,
   },
 ];
 
