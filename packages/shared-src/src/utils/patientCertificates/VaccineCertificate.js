@@ -56,7 +56,7 @@ const columns = [
 
 export const VaccineCertificate = ({
   patient,
-  vaccinations = [],
+  vaccinations,
   signingSrc,
   watermarkSrc,
   vdsSrc,
