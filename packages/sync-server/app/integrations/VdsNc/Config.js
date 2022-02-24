@@ -66,8 +66,8 @@ const SCHEMA = yup
           .number()
           .integer()
           .min(1)
-          .max(96)
-          .default(96),
+          .max(32)
+          .default(16),
         maxSignatures: yup
           .number()
           .integer()
