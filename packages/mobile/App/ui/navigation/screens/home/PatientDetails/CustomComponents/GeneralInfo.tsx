@@ -10,9 +10,10 @@ interface GeneralInfoProps extends PatientGeneralInformationDataProps {
   onEdit: () => void;
 }
 
-export const GeneralInfo = (
-  data: GeneralInfoProps,
-): ReactElement => {
+export const GeneralInfo = ({
+  onEdit,
+  ...data
+}: GeneralInfoProps): ReactElement => {
   const fields = [
     ['firstName', data.generalInfo.firstName],
     ['middleName', data.generalInfo.middleName || 'None'],
@@ -26,7 +27,7 @@ export const GeneralInfo = (
     <PatientSection
       hasSeparator={false}
       title="General Information"
-      onEdit={data.onEdit}
+      onEdit={onEdit}
     >
       <FieldRowDisplay fields={fields} fieldsPerRow={2} />
     </PatientSection>
