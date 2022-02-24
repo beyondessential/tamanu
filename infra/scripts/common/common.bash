@@ -39,8 +39,6 @@ function connect_postgres {
     ENDPOINT="$(aws rds describe-db-instances | jq -r '.DBInstances[] | select((.TagList[] | select(.Key == "elasticbeanstalk:environment-name")).Value == "'"$ENVIRONMENT"'") | .Endpoint.Address')"
     prlog "db endpoint: $ENDPOINT"
     NODE_CONFIG="$(eb printenv "$ENVIRONMENT" | grep NODE_CONFIG | sed -e 's/.*NODE_CONFIG = //')"
-    NAME="$(echo "$NODE_CONFIG" | jq -r '.db.name')"
-    prlog "name: $NAME"
     USERNAME="$(echo "$NODE_CONFIG" | jq -r '.db.username')"
     prlog "username: $USERNAME"
     PASSWORD="$(echo "$NODE_CONFIG" | jq -r '.db.password')"
@@ -56,7 +54,7 @@ function connect_postgres {
     # echo warning
     prwarn "CONNECTING TO $ENVIRONMENT"
 
-    PG_CONNECTION_URL="postgresql://$USERNAME:$PASSWORD@localhost:$PORT/$NAME"
+    PG_CONNECTION_URL="postgresql://$USERNAME:$PASSWORD@localhost:$PORT"
 }
 
 # determine eb environment
