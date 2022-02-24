@@ -2,6 +2,7 @@ import config from 'config';
 import { log } from 'shared/services/logging';
 
 import { initDatabase } from '../app/database';
+import { vdsConfig } from '../app/integrations/VdsNc';
 
 export async function setup() {
   const store = await initDatabase({ testMode: false });
@@ -9,6 +10,9 @@ export async function setup() {
   if (userCount > 0) {
     throw new Error(`Found ${userCount} users already in the database, aborting setup.`);
   }
+
+  // Check VDS config (if enabled)
+  vdsConfig();
 
   // create initial admin user
   const { initialUser } = config.auth;
