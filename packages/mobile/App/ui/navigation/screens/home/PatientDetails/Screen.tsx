@@ -96,7 +96,7 @@ export const Screen = ({
           onEdit={onEditPatient}
         />
         <AdditionalInfo
-          data={patientData.additionalData[0]}
+          patientAdditionalData={patientData.additionalData[0]}
           onEdit={onEditPatientAdditionalData}
         />
         {/* Not functional yet

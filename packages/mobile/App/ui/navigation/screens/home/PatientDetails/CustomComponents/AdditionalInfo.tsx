@@ -1,12 +1,17 @@
 import React, { ReactElement } from 'react';
 
+import { PatientAdditionalDataProps } from '/interfaces/PatientDetails';
 import { FieldRowDisplay } from '~/ui/components/FieldRowDisplay';
 import { PatientSection } from './PatientSection';
 
+interface AdditionalInfoProps extends PatientAdditionalDataProps {
+  onEdit: () => void;
+}
+
 export const AdditionalInfo = ({
-  data,
   onEdit,
-}): ReactElement => {
+  patientAdditionalData: data,
+}: AdditionalInfoProps): ReactElement => {
   const fields = [
     ['birthCertificate', data?.birthCertificate],
     ['drivingLicense', data?.drivingLicense],
