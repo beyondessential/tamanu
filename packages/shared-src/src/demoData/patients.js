@@ -126,7 +126,7 @@ function randomPhoneNumber() {
   return `04${randomDigits(2)} ${randomDigits(3)} ${randomDigits(3)}`;
 }
 
-export async function createDummyPatientAdditionalData() {
+export function createDummyPatientAdditionalData() {
   return {
     placeOfBirth: chance.city(),
     bloodType: chance.pick(['A+', 'B+', 'A-', 'B-', 'AB+', 'AB-', 'O+', 'O-']),

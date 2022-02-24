@@ -100,7 +100,7 @@ export const NewPatientForm = memo(({ editedObject, onSubmit, onCancel, generate
           .string()
           .oneOf(sexValues)
           .required(),
-
+        email: yup.string().email(),
         mother: isBirth
           ? foreignKey('Mother must be selected')
           : optionalForeignKey('Mother must be a valid patient'),

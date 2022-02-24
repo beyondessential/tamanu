@@ -1,6 +1,6 @@
 /**
- * Tupaia MediTrak
- * Copyright (c) 2018 Beyond Essential Systems Pty Ltd
+ * Tamanu
+ * Copyright (c) 2018-2022 Beyond Essential Systems Pty Ltd
  */
 
 import React, { useCallback } from 'react';

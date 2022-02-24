@@ -4,7 +4,7 @@ import { fake } from 'shared/test-helpers/fake';
 import { createTestContext } from 'sync-server/__tests__/utilities';
 import { prepareVRSMocks } from './sharedHookHelpers';
 
-const host = config.integrations.fijiVrs.host;
+const { host } = config.integrations.fijiVrs;
 
 describe('VRS integration - hook - DELETE', () => {
   let ctx;
@@ -52,7 +52,7 @@ describe('VRS integration - hook - DELETE', () => {
     const fetchMock = ctx.integrations.fijiVrs.remote.fetchImplementation;
     expect(fetchMock).toHaveBeenCalledWith(`${host}/token`, expect.anything());
     expect(fetchMock).toHaveBeenCalledWith(
-      `${host}/api/Tamanu/Fetch/${fetchId}`,
+      `${host}/api/Tamanu/Fetch?fetch_id=${fetchId}`,
       expect.anything(),
     );
     expect(fetchMock).toHaveBeenCalledWith(
@@ -108,7 +108,7 @@ describe('VRS integration - hook - DELETE', () => {
     const fetchMock = ctx.integrations.fijiVrs.remote.fetchImplementation;
     expect(fetchMock).toHaveBeenCalledWith(`${host}/token`, expect.anything());
     expect(fetchMock).toHaveBeenCalledWith(
-      `${host}/api/Tamanu/Fetch/${fetchId}`,
+      `${host}/api/Tamanu/Fetch?fetch_id=${fetchId}`,
       expect.anything(),
     );
     expect(fetchMock).toHaveBeenCalledWith(

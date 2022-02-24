@@ -79,29 +79,77 @@
     "allowedOrigin": ""
   },
   "schedules": {
+    // batchSize == run through them all in one run, in batches of N
+    // limit == run through N per task run
+    // schedule: 5 fields == first is minutes, 6 fields == first is SECONDS
+
     "outpatientDischarger": {
       // every day at 11 PM
       "schedule": "0 11 * * *",
       "batchSize": 1000,
       "batchSleepAsyncDurationInMilliseconds": 50
     },
+    "patientEmailCommunicationProcessor": {
+      // every 30seconds /!\
+      "schedule": "*/30 * * * * *",
+      "limit": 10
+    },
     "reportRequestProcessor": {
-       // every 30 seconds
-      "schedule": "*/30 * * * * *"
+       // every 30 seconds /!\
+      "schedule": "*/30 * * * * *",
+      "limit": 10
+    },
+    "vds": {
+      "signerRenewalChecker": {
+        "schedule": "0 0 * * *"
+      },
+      "signerRenewalSender": {
+        "schedule": "30 0 * * *"
+      },
+      "signerExpiryChecker": {
+        "schedule": "0 1 * * *"
+      }
     }
   },
   "integrations": {
     "fijiVrs": {
       "enabled": false,
       "host": "http://uat-vra.digitalfiji.gov.fj:8786",
-      "expectAccessToken": ["set this value in local.json"],
+      "username": null,
+      "password": null,
       // refresh the token if it's within tokenExpiryMarginMs milliseconds of expiry
       "tokenExpiryMarginMs": 60000,
-      "flagInsteadOfDeleting": true
+      "flagInsteadOfDeleting": true,
+      "retrySchedule": "*/30 * * * * *",
+      // don't retry pending records unless they're retryMinAgeMs old
+      "retryMinAgeMs": 60000
     },
     "fijiVps": {
       "enabled": false
     },
+    "vds": {
+      "enabled": false,
+      // Encryption key for ICAO DSC key material (stored in DB).
+      // This must be unique per country/installation.
+      // It must be at least 32 bytes of random data in Base64.
+      // $ openssl rand -base64 32
+      "keySecret": null,
+      "csr": {
+        "subject": {
+          "countryCode2": null, // ICAO 2-letter country code
+          "signerIdentifier": "TA" // max 2 letters, ref 9303-13 §2.2.1(a)
+        },
+        "email": null // email address for CSCA signing contact
+      },
+      "sign": {
+        "countryCode3": null, // ICAO 3-letter country code
+      },
+      "renew": {
+        // "daysBeforeExpiry": 96, // max 96
+        // "maxSignatures": null, // null means no limit
+        // "softMaxSignatures": null // defaults to 90% of maxSignatures
+      }
+    }
   },
   "localisation": {
     "labResultWidget": {
@@ -328,6 +376,18 @@
         "letterhead": {
           "title": "TAMANU MINISTRY OF HEALTH & MEDICAL SERVICES",
           "subTitle": "PO Box 12345, Melbourne, Australia"
+        },
+        "vdsRenewalEmail": {
+          "subject": "Tamanu ICAO Certificate Signing Request",
+          "body": "Please sign the following certificate signing request (CSR) with the Country Signing Certificate Authority (CSCA), and return it to the Tamanu team or Tamanu deployment administration team."
+        },
+        "vaccineCertificateEmail": {
+          "subject": "Medical Certificate now available",
+          "body": "A medical certificate has been generated for you.\nYour certificate is available attached to this email."
+        },
+        "covidTestCertificateEmail": {
+          "subject": "Medical Certificate now available",
+          "body": "A medical certificate has been generated for you.\nYour certificate is available attached to this email."
         },
         "vaccineCertificateFooter": {
           "emailAddress": "tamanu@health.gov",
