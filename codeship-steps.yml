@@ -80,6 +80,10 @@
               tag: ^(master$)
               service: awsdeployment
               command: ./scripts/deploy_sync.sh demo-nauru
+            - name: deploy_sync_demo_palau_environment
+              tag: ^(master$)
+              service: awsdeployment
+              command: ./scripts/deploy_sync.sh demo-palau
         - name: deploy_lan
           type: serial
           steps:
