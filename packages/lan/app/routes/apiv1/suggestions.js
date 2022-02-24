@@ -83,11 +83,11 @@ REFERENCE_TYPE_VALUES.map(typeName =>
 createNameSuggester('department');
 createNameSuggester('location');
 createNameSuggester('facility');
-
 createSuggester(
   'invoiceLineTypes',
   'InvoiceLineType',
   `LOWER(name) LIKE LOWER(:search) AND item_type = '${INVOICE_LINE_TYPES.ADDITIONAL}'`,
+  ({ id, name, price }) => ({ id, name, price }),
 );
 
 createSuggester(

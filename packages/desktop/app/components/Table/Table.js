@@ -99,10 +99,7 @@ const StyledTableFooter = styled(TableFooter)`
 `;
 
 const RowContainer = React.memo(({ children, rowStyle, onClick }) => (
-  <StyledTableRow
-    onClick={onClick}
-    rowStyle={rowStyle}
-  >
+  <StyledTableRow onClick={onClick} rowStyle={rowStyle}>
     {children}
   </StyledTableRow>
 ));
@@ -135,7 +132,10 @@ const Row = React.memo(({ columns, data, onClick, rowStyle, onTableRefresh }) =>
     },
   );
   return (
-    <RowContainer onClick={onClick && (() => onClick(data))} rowStyle={rowStyle ? rowStyle(data) : ''}>
+    <RowContainer
+      onClick={onClick && (() => onClick(data))}
+      rowStyle={rowStyle ? rowStyle(data) : ''}
+    >
       {cells}
     </RowContainer>
   );
@@ -168,7 +168,7 @@ class TableComponent extends React.Component {
     const { isLoading, errorMessage, data, noDataMessage } = this.props;
     if (isLoading) return 'Loading...';
     if (errorMessage) return errorMessage;
-    if (data.length === 0) return noDataMessage;
+    if (!data.length) return noDataMessage;
     return null;
   }
 
@@ -256,7 +256,7 @@ class TableComponent extends React.Component {
   }
 
   render() {
-    const { page, className, exportName, columns, data } = this.props;
+    const { page, className, exportName, columns, data, allowExport } = this.props;
     return (
       <StyledTableContainer className={className}>
         <StyledTable>
@@ -266,9 +266,11 @@ class TableComponent extends React.Component {
           <TableBody>{this.renderBodyContent()}</TableBody>
           <StyledTableFooter>
             <TableRow>
-              <TableCell>
-                <DownloadDataButton exportName={exportName} columns={columns} data={data} />
-              </TableCell>
+              {allowExport ? (
+                <TableCell>
+                  <DownloadDataButton exportName={exportName} columns={columns} data={data} />
+                </TableCell>
+              ) : null}
               {page !== null && this.renderPaginator()}
             </TableRow>
           </StyledTableFooter>
@@ -306,6 +308,7 @@ TableComponent.propTypes = {
   exportName: PropTypes.string,
   onTableRefresh: PropTypes.func,
   rowStyle: PropTypes.func,
+  allowExport: PropTypes.bool,
 };
 
 TableComponent.defaultProps = {
@@ -327,6 +330,7 @@ TableComponent.defaultProps = {
   exportName: 'TamanuExport',
   onTableRefresh: null,
   rowStyle: null,
+  allowExport: true,
 };
 
 export const Table = ({ columns: allColumns, data, exportName, ...props }) => {
