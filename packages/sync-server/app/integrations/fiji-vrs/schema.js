@@ -71,9 +71,9 @@ export const remoteResponse = {
   }),
   acknowledge: yup.object({
     response: yup
-      .string()
+      .boolean()
       .required()
-      .oneOf(['success']),
+      .oneOf([true]),
   }),
   fetchAllPendingActions: yup.object({
     response: yup
