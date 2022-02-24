@@ -80,7 +80,7 @@ export class VdsNcSigner extends Model {
   }
 
   static initRelations(models) {
-    this.hasMany(models.VdsNcSigner, {
+    this.hasMany(models.VdsNcDocument, {
       foreignKey: 'signerId',
     });
   }

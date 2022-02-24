@@ -104,7 +104,7 @@
         "schedule": "0 0 * * *"
       },
       "signerRenewalSender": {
-        "schedule": "30 0 * * *"
+        "schedule": "30 * * * *"
       },
       "signerExpiryChecker": {
         "schedule": "0 1 * * *"

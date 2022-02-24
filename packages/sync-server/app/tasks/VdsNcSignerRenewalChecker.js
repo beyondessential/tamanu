@@ -22,36 +22,45 @@ export class VdsNcSignerRenewalChecker extends ScheduledTask {
     const signer = await VdsNcSigner.findActive();
 
     let beyondThreshold = false;
-
-    // Buffer before expiration
-    if (vdsConf.renew.daysBeforeExpiry) {
-      const daysUntilExpiry = (signer.notAfter - new Date()) / (1000 * 60 * 60 * 24);
-      if (daysUntilExpiry >= vdsConf.renew.daysBeforeExpiry) {
-        beyondThreshold = true;
-      }
-    }
-
-    // Signature issuance limit (with buffer)
-    if (vdsConf.renew.maxSignatures) {
-      let maxSigs;
-      if (vdsConf.renew.softMaxSignatures) {
-        maxSigs = Math.min(vdsConf.renew.maxSignatures, vdsConf.renew.softMaxSignatures);
-      } else {
-        maxSigs = Math.floor(vdsConf.renew.maxSignatures * 0.9);
-      }
-
-      if (signer.signaturesIssued >= maxSigs) {
-        beyondThreshold = true;
-      }
-    }
-
-    // If we're really too late somehow
-    if (signer.notAfter <= new Date()) {
+    
+    // If this is the first signer
+    if (!signer) {
       beyondThreshold = true;
+    } else {
+      // Buffer before expiration
+      if (vdsConf.renew.daysBeforeExpiry) {
+        const daysUntilExpiry = (signer.notAfter - new Date()) / (1000 * 60 * 60 * 24);
+        if (daysUntilExpiry >= vdsConf.renew.daysBeforeExpiry) {
+          beyondThreshold = true;
+        }
+      }
+
+      // Signature issuance limit (with buffer)
+      if (vdsConf.renew.maxSignatures) {
+        let maxSigs;
+        if (vdsConf.renew.softMaxSignatures) {
+          maxSigs = Math.min(vdsConf.renew.maxSignatures, vdsConf.renew.softMaxSignatures);
+        } else {
+          maxSigs = Math.floor(vdsConf.renew.maxSignatures * 0.9);
+        }
+
+        if (signer.signaturesIssued >= maxSigs) {
+          beyondThreshold = true;
+        }
+      }
+
+      // If we're really too late somehow
+      if (signer.notAfter <= new Date()) {
+        beyondThreshold = true;
+      }
     }
 
     if (beyondThreshold) {
-      log.info(`Signer ${signer.id} is beyond renewal threshold`);
+      if (signer) {
+        log.info(`Signer ${signer.id} is beyond renewal threshold`);
+      } else {
+        log.info(`Generating CSR for first Signer`);
+      }
 
       const pending = await VdsNcSigner.findAll({
         where: {
