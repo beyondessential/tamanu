@@ -24,6 +24,7 @@ function createParser() {
       'report',
       'calculateSurveyResults',
       'removeDuplicatedPatientAdditionalData',
+      'loadIcaoSigner',
     ],
     nargs: '?', // allow empty
     defaultValue: 'serve',
@@ -42,6 +43,11 @@ function createParser() {
   parser.addArgument('--recipients', {
     action: 'store',
     dest: 'recipients',
+  });
+
+  parser.addArgument('--signer-certificate', {
+    action: 'store',
+    dest: 'icaoSigner',
   });
 
   // migrate subcommand

@@ -8,6 +8,7 @@ import {
   setup,
   calculateSurveyResults,
   removeDuplicatedPatientAdditionalData,
+  loadIcaoSigner,
 } from './subCommands';
 
 async function run(command, options) {
@@ -18,6 +19,7 @@ async function run(command, options) {
     report,
     calculateSurveyResults,
     removeDuplicatedPatientAdditionalData,
+    loadIcaoSigner,
   }[command];
 
   if (!subcommand) {
