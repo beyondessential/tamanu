@@ -3,6 +3,7 @@ import React, { ReactElement } from 'react';
 import { PatientAdditionalDataProps } from '/interfaces/PatientDetails';
 import { FieldRowDisplay } from '~/ui/components/FieldRowDisplay';
 import { PatientSection } from './PatientSection';
+import { useLocalisation } from '~/ui/contexts/LocalisationContext';
 
 interface AdditionalInfoProps extends PatientAdditionalDataProps {
   onEdit: () => void;
@@ -40,11 +41,15 @@ export const AdditionalInfo = ({
     ['patientBillingTypeId', data?.patientBillingType?.name],
   ];
 
+  // Check if patient additional data should be editable
+  const { getBool } = useLocalisation();
+  const isEditable = getBool('features.editPatientDetailsOnMobile');
+
   return (
     <PatientSection
       hasSeparator
       title="Additional Information"
-      onEdit={onEdit}
+      onEdit={isEditable ? onEdit : undefined}
     >
       <FieldRowDisplay fields={fields} fieldsPerRow={2} />
     </PatientSection>
