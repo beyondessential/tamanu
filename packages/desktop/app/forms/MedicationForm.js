@@ -45,8 +45,7 @@ const validationSchema = readOnly => {
         note: yup.string(),
         quantity: yup
           .number()
-          .integer()
-          .positive(),
+          .integer(),
       })
     : yup.object().shape({
         discontinuingReason: yup.string(),
