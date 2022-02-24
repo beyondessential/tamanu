@@ -13,6 +13,9 @@ export interface IPatientAdditionalData {
   streetVillage?: string;
   educationalLevel?: string;
   socialMedia?: string;
+  birthCertificate?: string;
+  drivingLicense?: string;
+  passport?: string;
   nationality?: IReferenceData;
   country?: IReferenceData;
   division?: IReferenceData;
@@ -22,6 +25,9 @@ export interface IPatientAdditionalData {
   settlement?: IReferenceData;
   ethnicity?: IReferenceData;
   occupation?: IReferenceData;
+  countryOfBirth?: IReferenceData;
+  religion?: IReferenceData;
+  patientBillingType?: IReferenceData;
   nationalityId?: string;
   countryId?: string;
   divisionId?: string;
@@ -31,6 +37,9 @@ export interface IPatientAdditionalData {
   settlementId?: string;
   ethnicityId?: string;
   occupationId?: string;
+  countryOfBirthId?: string;
+  religionId?: string;
+  patientBillingTypeId?: string;
 
   markedForSync?: boolean;
 }
