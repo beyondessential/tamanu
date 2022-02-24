@@ -64,7 +64,6 @@ export class VdsNcSignerRenewalChecker extends ScheduledTask {
 
       const pending = await VdsNcSigner.findAll({
         where: {
-          requestSentAt: { [Op.is]: null },
           certificate: { [Op.is]: null },
           privateKey: { [Op.not]: null },
         },
