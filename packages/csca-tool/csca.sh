@@ -19,8 +19,8 @@ if [[ "${BASH_VERSION%%.*}" -lt 4 ]]; then
   exit 64
 fi
 
-if [[ "$(openssl version | cut -d\  -f2)" != 1.1.* ]]; then
-  ohno "OpenSSL 1.1.x is required"
+if [[ "$(openssl version | cut -d\  -f2)" != 1.1.* && "$(openssl version | cut -d\  -f2)" != 3.* ]]; then
+  ohno "OpenSSL 1.1.x or ^3.0.0 is required"
   exit 64
 fi
 
