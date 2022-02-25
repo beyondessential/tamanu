@@ -43,5 +43,10 @@
     "freeSpaceRequired": {
       "gigabytesForUploadingDocuments": 4
     }
+  },
+  "notifications": {
+    "certificates": {
+      "labTestCategoryId": "labTestCategory-COVID"
+    }
   }
 }
