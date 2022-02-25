@@ -1,15 +1,9 @@
 import config from 'config';
 
 import { log } from 'shared/services/logging';
-import { createReferralNotification } from 'shared/tasks/CreateReferralNotification';
-import {
-  createSingleLabRequestNotification,
-  createMultiLabRequestNotifications,
-} from 'shared/tasks/CreateLabRequestNotifications';
 
 import { createApp } from '../app/createApp';
 import { startScheduledTasks } from '../app/tasks';
-import { sendCertificateNotifications } from '../app/tasks/SendCertificateNotifications';
 import { ApplicationContext } from '../app/ApplicationContext';
 import { version } from '../package.json';
 import { setupEnv } from '../app/env';
@@ -74,43 +68,4 @@ export async function serve(options) {
     });
   }
 
-  if (config.notifications) {
-    if (config.notifications.referralCreated) {
-      context.store.models.Referral.addHook(
-        'afterCreate',
-        'create referral notification hook',
-        referral => {
-          createReferralNotification(referral, context.store.models);
-        },
-      );
-    }
-    if (config.notifications.certificates) {
-      // Create certificate notifications for published results
-      if (config.notifications.certificates.labTestCategoryId) {
-        context.store.models.LabRequest.addHook(
-          'afterBulkCreate', // Sync triggers bulk actions, even if it's only for one entry
-          'create published test results notification hook',
-          labRequests => {
-            createMultiLabRequestNotifications(labRequests, context.store.models);
-          },
-        );
-        context.store.models.LabRequest.addHook(
-          'afterBulkUpdate',
-          'create published test results notification hook',
-          labRequest => {
-            // Sync triggers a bulk action, but we filter the update by id so it's always for a single entry
-            createSingleLabRequestNotification(labRequest.attributes, context.store.models);
-          },
-        );
-      }
-      // Send out queued certificate notifications
-      context.store.models.CertificateNotification.addHook(
-        'afterBulkCreate', // Sync triggers bulk actions, even if it's only for one entry
-        'create certificate notification hook',
-        certificateNotifications => {
-          sendCertificateNotifications(certificateNotifications, context.store.models);
-        },
-      );
-    }
-  }
 }
