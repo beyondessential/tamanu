@@ -1,12 +1,13 @@
 import config from 'config';
+import { Command } from 'commander';
 
 import { log } from 'shared/services/logging';
 
-import { createApp } from '../app/createApp';
-import { startScheduledTasks } from '../app/tasks';
-import { ApplicationContext } from '../app/ApplicationContext';
-import { version } from '../package.json';
-import { setupEnv } from '../app/env';
+import { createApp } from '../createApp';
+import { startScheduledTasks } from '../tasks';
+import { ApplicationContext } from '../ApplicationContext';
+import { version } from '../../package.json';
+import { setupEnv } from '../env';
 
 const { port } = config;
 
@@ -28,15 +29,15 @@ function getRoutes(router, prefix = '') {
   return routes;
 }
 
-export async function serve(options) {
+const serve = async ({ skipMigrationCheck }) => {
   const context = await new ApplicationContext().init();
   const { store } = context;
   log.info(`Starting sync server version ${version}.`);
 
   if (config.db.migrateOnStartup) {
-    await store.sequelize.migrate({ migrateDirection: 'up' });
+    await store.sequelize.migrate({ up: true });
   } else {
-    await store.sequelize.assertUpToDate(options);
+    await store.sequelize.assertUpToDate({ skipMigrationCheck });
   }
 
   setupEnv();
@@ -46,6 +47,7 @@ export async function serve(options) {
   if (process.env.PRINT_ROUTES === 'true') {
     // console instead of log.info is fine here because the aim is to output the
     // routes without wrapping, supressing, or transporting the output
+    // eslint-disable-next-line no-console
     console.log(getRoutes(app._router).join('\n'));
   }
 
@@ -67,5 +69,9 @@ export async function serve(options) {
       stopScheduledTasks();
     });
   }
+};
 
-}
+export const serveCommand = new Command('serve')
+  .description('Start the Tamanu sync-server')
+  .option('--skipMigrationCheck', 'skip the migration check on startup')
+  .action(serve);

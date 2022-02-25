@@ -12,7 +12,8 @@
 
 ### Tweaks ⚖️
 
-- (left blank)
+- Moved migrations to subcommands (e.g. what was `node ./app.bundle.js migrate --up` now becomes `node app.bundle.js migrate up`)
+- Migrated argument parsing from argparse to commander.js
 
 ### Bug fixes 🐛
 

@@ -1,10 +1,12 @@
 import config from 'config';
+import { Command } from 'commander';
+
 import { log } from 'shared/services/logging';
 
-import { initDatabase } from '../app/database';
-import { vdsConfig } from '../app/integrations/VdsNc';
+import { initDatabase } from '../database';
+import { vdsConfig } from '../integrations/VdsNc';
 
-export async function setup() {
+async function setup() {
   const store = await initDatabase({ testMode: false });
   const userCount = await store.models.User.count();
   if (userCount > 0) {
@@ -25,3 +27,7 @@ export async function setup() {
   log.info(`Done.`);
   process.exit(0);
 }
+
+export const setupCommand = new Command('setup')
+  .description('Set up initial data within the Tamanu app')
+  .action(setup);

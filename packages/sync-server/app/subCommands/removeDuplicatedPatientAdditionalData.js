@@ -1,9 +1,12 @@
 import Sequelize from 'sequelize';
+import { Command } from 'commander';
+
 import { log } from 'shared/services/logging';
 import { arrayToDbString } from 'shared/utils';
-import { initDatabase } from '../app/database';
 
-export const removeDuplicatedPatientAdditionalData = async () => {
+import { initDatabase } from '../database';
+
+const removeDuplicatedPatientAdditionalData = async () => {
   const store = await initDatabase({ testMode: false });
   const [patientIdsCountData] = await store.sequelize.query(`
         SELECT COUNT(*)
@@ -92,3 +95,9 @@ export const removeDuplicatedPatientAdditionalData = async () => {
 
   process.exit(0);
 };
+
+export const removeDuplicatedPatientAdditionalDataCommand = new Command(
+  'removeDuplicatedPatientAdditionalData',
+)
+  .description('Remove duplicated PatientAdditionalData records (intended to fix a specific bug)')
+  .action(removeDuplicatedPatientAdditionalData);

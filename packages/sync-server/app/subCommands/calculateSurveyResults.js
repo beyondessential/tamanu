@@ -1,8 +1,9 @@
+import { Command } from 'commander';
 import { inRange } from 'lodash';
 
 import { log } from 'shared/services/logging';
 
-import { initDatabase } from '../app/database';
+import { initDatabase } from '../database';
 
 const SURVEY_RESPONSE_BATCH_SIZE = 1000;
 
@@ -188,7 +189,7 @@ const calculateSurveyResultsInBatch = async (
  * @param {*} store
  * @param {*} options
  */
-export async function calculateSurveyResults() {
+async function calculateSurveyResults() {
   const store = await initDatabase({ testMode: false });
 
   const [surveyRows] = await store.sequelize.query(`
@@ -251,3 +252,7 @@ export async function calculateSurveyResults() {
   log.info('Finished calculating survey results');
   process.exit(0);
 }
+
+export const calculateSurveyResultsCommand = new Command('calculateSurveyResults')
+  .description('Recalculate all survey results (intended to fix a specific bug)')
+  .action(calculateSurveyResults);
