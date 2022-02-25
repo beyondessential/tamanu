@@ -3,11 +3,11 @@ import { Command } from 'commander';
 
 import { log } from 'shared/services/logging';
 
-import { createApp } from '../app/createApp';
-import { startScheduledTasks } from '../app/tasks';
-import { ApplicationContext } from '../app/ApplicationContext';
-import { version } from '../package.json';
-import { setupEnv } from '../app/env';
+import { createApp } from '../createApp';
+import { startScheduledTasks } from '../tasks';
+import { ApplicationContext } from '../ApplicationContext';
+import { version } from '../../package.json';
+import { setupEnv } from '../env';
 
 const { port } = config;
 
@@ -69,7 +69,7 @@ const serve = async ({ skipMigrationCheck }) => {
       stopScheduledTasks();
     });
   }
-}
+};
 
 export const serveCommand = new Command('serve')
   .description('Start the Tamanu sync-server')
