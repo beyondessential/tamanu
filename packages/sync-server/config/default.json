@@ -104,6 +104,7 @@
         "schedule": "0 0 * * *"
       },
       "signerRenewalSender": {
+        // needs to happen after the Renewal Checker, and regularly thereafter as a retry mechanism
         "schedule": "30 * * * *"
       },
       "signerExpiryChecker": {
