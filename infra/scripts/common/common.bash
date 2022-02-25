@@ -33,20 +33,22 @@ function prusage {
 }
 
 function connect_postgres {
-    PORT="${PORT:-5433}"
+    PG_PORT="${PORT:-5433}"
 
     # retrieve details from AWS
     ENDPOINT="$(aws rds describe-db-instances | jq -r '.DBInstances[] | select((.TagList[] | select(.Key == "elasticbeanstalk:environment-name")).Value == "'"$ENVIRONMENT"'") | .Endpoint.Address')"
     prlog "db endpoint: $ENDPOINT"
     NODE_CONFIG="$(eb printenv "$ENVIRONMENT" | grep NODE_CONFIG | sed -e 's/.*NODE_CONFIG = //')"
-    USERNAME="$(echo "$NODE_CONFIG" | jq -r '.db.username')"
-    prlog "username: $USERNAME"
-    PASSWORD="$(echo "$NODE_CONFIG" | jq -r '.db.password')"
+    PG_NAME="$(echo "$NODE_CONFIG" | jq -r '.db.name')"
+    prlog "name: $PG_NAME"
+    PG_USERNAME="$(echo "$NODE_CONFIG" | jq -r '.db.username')"
+    prlog "username: $PG_USERNAME"
+    PG_PASSWORD="$(echo "$NODE_CONFIG" | jq -r '.db.password')"
     prlog "password: <found password in environment NODE_CONFIG>"
 
     # connect ssh
     eb ssh --quiet --custom "ssh -i $KEYPAIR" --command ':' "$ENVIRONMENT"
-    eb ssh --quiet --custom "ssh -i $KEYPAIR -N -L $PORT:$ENDPOINT:5432" "$ENVIRONMENT" &
+    eb ssh --quiet --custom "ssh -i $KEYPAIR -N -L $PG_PORT:$ENDPOINT:5432" "$ENVIRONMENT" &
     prlog "waiting for eb ssh to connect"
     sleep 5 # let ssh connect
     prlog "attempting psql connection"
@@ -54,7 +56,7 @@ function connect_postgres {
     # echo warning
     prwarn "CONNECTING TO $ENVIRONMENT"
 
-    PG_CONNECTION_URL="postgresql://$USERNAME:$PASSWORD@localhost:$PORT"
+    PG_CONNECTION_URL="postgresql://$PG_USERNAME:$PG_PASSWORD@localhost:$PG_PORT"
 }
 
 # determine eb environment
