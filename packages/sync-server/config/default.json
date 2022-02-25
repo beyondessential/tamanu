@@ -104,7 +104,8 @@
         "schedule": "0 0 * * *"
       },
       "signerRenewalSender": {
-        "schedule": "30 0 * * *"
+        // needs to happen after the Renewal Checker, and regularly thereafter as a retry mechanism
+        "schedule": "30 * * * *"
       },
       "signerExpiryChecker": {
         "schedule": "0 1 * * *"
@@ -145,7 +146,7 @@
         "countryCode3": null, // ICAO 3-letter country code
       },
       "renew": {
-        // "daysBeforeExpiry": 96, // max 96
+        // "daysBeforeExpiry": 16, // max 32
         // "maxSignatures": null, // null means no limit
         // "softMaxSignatures": null // defaults to 90% of maxSignatures
       }
