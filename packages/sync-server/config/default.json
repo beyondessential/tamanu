@@ -145,7 +145,7 @@
         "countryCode3": null, // ICAO 3-letter country code
       },
       "renew": {
-        // "daysBeforeExpiry": 16, // max 32, default 16
+        // "daysBeforeExpiry": 16, // max 32
         // "maxSignatures": null, // null means no limit
         // "softMaxSignatures": null // defaults to 90% of maxSignatures
       }
