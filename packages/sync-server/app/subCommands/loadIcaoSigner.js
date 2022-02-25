@@ -9,7 +9,7 @@ import { VdsNcSigner } from 'shared/models';
 import { loadCertificateIntoSigner } from '../integrations/VdsNc';
 import { initDatabase } from '../database';
 
-export async function loadIcaoSigner(options) {
+async function loadIcaoSigner(options) {
   await initDatabase({ testMode: false });
   const signerFile = await fs.readFile(options.icaoSigner, 'utf8');
   const signerData = await loadCertificateIntoSigner(signerFile);

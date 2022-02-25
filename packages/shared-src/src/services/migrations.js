@@ -77,41 +77,49 @@ export async function assertUpToDate(log, sequelize, options) {
   }
 }
 
-export async function migrate(log, sequelize, options) {
-  const { up, down, downToLastReversibleMigration, redoLatest } = options;
-  const numArgs = [up, down, downToLastReversibleMigration, redoLatest].reduce(
-    (n, arg) => (arg ? n + 1 : n),
-    0,
-  );
-  if (numArgs > 1) {
-    throw new Error(`Expected only 1 of [up, down, downToLastReversibleMigration, redoLatest]`);
-  }
-
-  if (numArgs === 0 || up) {
+export async function migrate(log, sequelize, direction) {
+  if (direction === 'up') {
     return migrateUp(log, sequelize);
   }
-  if (down) {
+  if (direction === 'down') {
     return migrateDown(log, sequelize);
   }
-  if (downToLastReversibleMigration) {
+  if (direction === 'downToLastReversibleMigration') {
     return migrateDown(log, sequelize, { to: LAST_REVERSIBLE_MIGRATION });
   }
-  if (redoLatest) {
+  if (direction === 'redoLatest') {
     await migrateDown(log, sequelize);
     return migrateUp(log, sequelize);
   }
-  throw new Error(`Unrecognised migrate direction: ${options.migrateDirection}`);
+  throw new Error(`Unrecognised migrate direction: ${direction}`);
 }
 
-// addMigrateOptions adds shared migration options to a command
-export function createMigrateCommand(Command) {
-  return new Command('migrate')
-    .description('Apply or roll back database migrations')
-    .option('--down', 'Reverse the most recent migration')
-    .option('--up', 'Run all unrun migrations until up to date')
-    .option(
-      '--downToLastReversibleMigration',
+export function createMigrateCommand(Command, migrateCallback) {
+  const migrateCommand = new Command('migrate').description(
+    'Apply or roll back database migrations',
+  );
+
+  migrateCommand
+    .command('up', { isDefault: true })
+    .description('Run all unrun migrations until up to date')
+    .action(() => migrateCallback('up'));
+
+  migrateCommand
+    .command('down')
+    .description('Reverse the most recent migration')
+    .action(() => migrateCallback('down'));
+
+  migrateCommand
+    .command('downToLastReversibleMigration')
+    .description(
       'Run database migrations down to the last known reversible migration (LAST_REVERSIBLE_MIGRATION)',
     )
-    .option('--redoLatest', 'Run database migrations down 1 and then up 1');
+    .action(() => migrateCallback('downToLastReversibleMigration'));
+
+  migrateCommand
+    .command('redoLatest')
+    .description('Run database migrations down 1 and then up 1')
+    .action(() => migrateCallback('redoLatest'));
+
+  return migrateCommand;
 }
