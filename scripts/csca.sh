@@ -46,7 +46,7 @@ keypair() {
     pubopt="-passin stdin"
   fi
 
-  info generate EC256 private key
+  info "generate EC256 private key"
   openssl genpkey \
     -outform PEM \
     -out "$keydst" \
@@ -55,7 +55,7 @@ keypair() {
     -pkeyopt "ec_param_enc:named_curve" \
     $genopt <<< "$passphrase"
 
-  info output public key
+  info "output public key"
   openssl pkey \
     -inform PEM \
     -outform PEM \
@@ -141,7 +141,7 @@ csca_certificate() {
   alpha2="$5"
   name="$6"
 
-  info generate CSCA certificate
+  info "generate CSCA certificate"
   openssl req \
     -keyform PEM \
     -outform PEM \
@@ -167,23 +167,23 @@ csca_certificate() {
 csca_structure() {
   folder="$1"
 
-  info create required folders
+  info "create required folders"
   mkdir -p "$folder/"{certs,crl,newcerts,private}
 
-  info initialise serial
+  info "initialise serial"
   echo "00000000000000000000000000000001" > "$folder/serial"
 
-  info initialise CRL
+  info "initialise CRL"
   echo "00000000000000000000000000000001" > "$folder/crlnumber"
 
-  info initialise index.txt
+  info "initialise index.txt"
   touch "$folder/index.txt"
 }
 
 csr_print() {
   csrfile="$1"
 
-  info CSR info
+  info "CSR info"
   openssl req \
     -inform PEM \
     -in "$csrfile" \
@@ -197,7 +197,7 @@ csr_sign() {
   crtfile="$4"
   days="$5"
 
-  info sign CSR
+  info "sign CSR"
   openssl ca \
     -config <(openssl_config "$cscafolder") \
     -in "$csrfile" \
@@ -210,7 +210,7 @@ csr_sign() {
     -batch -notext \
     -passin stdin <<< "$passphrase"
 
-  info certificate signed: "$crtfile"
+  info "certificate signed: $crtfile"
   openssl x509 \
     -inform PEM \
     -in "$crtfile" \
@@ -251,7 +251,7 @@ case "${1:-help}" in
     csca_certificate "$folder/private/csca.key" "$folder/csca.crt" "$passphrase" \
       "$days" "$alpha2" "$alpha2 $id"
 
-    good Done.
+    good "Done."
     ;;
   sign)
     cscafolder="$2"
@@ -279,7 +279,7 @@ case "${1:-help}" in
     csr_sign "$cscafolder" "$passphrase" \
       "$csrfile" "$crtfile" "$days"
 
-    good Done.
+    good "Done."
     ;;
   *)
     info "Usage: $0 COMMAND [ARGUMENTS]"
