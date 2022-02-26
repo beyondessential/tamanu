@@ -86,19 +86,6 @@ export class VdsNcDocument extends Model {
     if (!signer) throw new Error('No active signer');
 
     const msg = JSON.parse(this.messageData);
-    let uniqueProofId;
-    switch (this.type) {
-      case ICAO_DOCUMENT_TYPES.PROOF_OF_TESTING.JSON:
-        uniqueProofId = await this.makeUniqueProofId('TT');
-        msg.utvi = uniqueProofId;
-        break;
-      case ICAO_DOCUMENT_TYPES.PROOF_OF_VACCINATION.JSON:
-        uniqueProofId = await this.makeUniqueProofId('TV');
-        msg.ucvi = uniqueProofId;
-        break;
-      default:
-        throw new Error(`Unknown VDS-NC type: ${this.type}`);
-    }
 
     const data = {
       hdr: {
@@ -112,7 +99,6 @@ export class VdsNcDocument extends Model {
     const { algorithm, signature } = await signer.issueSignature(data, keySecret);
     await this.setVdsNcSigner(signer);
     return this.update({
-      uniqueProofId,
       algorithm,
       signature,
       signedAt: Sequelize.literal('CURRENT_TIMESTAMP'),
@@ -166,6 +152,8 @@ export class VdsNcDocument extends Model {
    * @param {string} prefix
    * @returns {string}
    */
+
+  // Todo: delete method
   async makeUniqueProofId(prefix) {
     // Generate a bunch of candidates at random and check them for actual
     // uniqueness against the database at once. This saves N-1 queries in
@@ -188,7 +176,9 @@ export class VdsNcDocument extends Model {
       where: { uniqueProofId: candidates },
     });
 
-    const unique = candidates.find(cand => !collisions.some(({ uniqueProofId: col }) => col === cand));
+    const unique = candidates.find(
+      cand => !collisions.some(({ uniqueProofId: col }) => col === cand),
+    );
     if (!unique) return this.makeUniqueProofId(prefix);
     return unique;
   }
