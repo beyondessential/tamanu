@@ -71,6 +71,14 @@ const Container = ({
     setEditField(!editField);
   }, [editField]);
 
+  const onEditPatient = useCallback(() => {
+    console.log('edit Patient');
+  }, []);
+
+  const onEditPatientAdditionalData = useCallback(() => {
+    console.log('edit PatientAdditionalData');
+  }, []);
+
   const onEditPatientIssues = useCallback(() => {
     navigation.navigate(Routes.HomeStack.PatientDetailsStack.AddPatientIssue);
   }, [navigation]);
@@ -88,6 +96,8 @@ const Container = ({
       patientData={patientData}
       onNavigateBack={onNavigateBack}
       onEditField={onEditField}
+      onEditPatient={onEditPatient}
+      onEditPatientAdditionalData={onEditPatientAdditionalData}
       onEditPatientIssues={onEditPatientIssues}
       reminders={reminders}
       changeReminder={changeReminder}
