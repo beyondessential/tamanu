@@ -30,7 +30,7 @@ const getInitialValues = (isEdit: boolean, patient): {} => {
     return {};
   }
 
-  // Only grab the fields that will get validated
+  // Only grab the fields that will get used in the form
   const {
     firstName,
     middleName,
