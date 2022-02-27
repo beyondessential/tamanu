@@ -35,7 +35,7 @@ const serve = async ({ skipMigrationCheck }) => {
   log.info(`Starting sync server version ${version}.`);
 
   if (config.db.migrateOnStartup) {
-    await store.sequelize.migrate({ up: true });
+    await store.sequelize.migrate('up');
   } else {
     await store.sequelize.assertUpToDate({ skipMigrationCheck });
   }

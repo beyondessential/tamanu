@@ -18,7 +18,7 @@ async function serve({ skipMigrationCheck }) {
 
   const context = await initDatabase();
   if (config.db.sqlitePath || config.db.migrateOnStartup) {
-    await context.sequelize.migrate({ up: true });
+    await context.sequelize.migrate('up');
   } else {
     await context.sequelize.assertUpToDate({ skipMigrationCheck });
   }
