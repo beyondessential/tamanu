@@ -10,6 +10,7 @@ import { Routes } from '~/ui/helpers/routes';
 import { withPatient } from '~/ui/containers/Patient';
 import { ErrorScreen } from '~/ui/components/ErrorScreen';
 import { LoadingScreen } from '~/ui/components/LoadingScreen';
+import { joinNames } from '~/ui/helpers/user';
 
 const Container = ({
   navigation,
@@ -72,8 +73,10 @@ const Container = ({
   }, [editField]);
 
   const onEditPatient = useCallback(() => {
-    console.log('edit Patient');
-  }, []);
+    navigation.navigate(Routes.HomeStack.PatientDetailsStack.EditPatient, {
+      patientName: joinNames(selectedPatient),
+    });
+  }, [navigation, selectedPatient]);
 
   const onEditPatientAdditionalData = useCallback(() => {
     console.log('edit PatientAdditionalData');
