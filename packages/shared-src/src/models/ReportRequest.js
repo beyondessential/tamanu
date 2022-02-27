@@ -1,6 +1,7 @@
 import { Sequelize } from 'sequelize';
 import { REPORT_REQUEST_STATUS_VALUES, SYNC_DIRECTIONS } from 'shared/constants';
 import { log } from 'shared/services/logging';
+import { InvalidOperationError } from 'shared/errors';
 import { Model } from './Model';
 
 export class ReportRequest extends Model {
@@ -9,7 +10,10 @@ export class ReportRequest extends Model {
       {
         id: primaryKey,
         legacy: { type: Sequelize.BOOLEAN, allowNull: false, defaultValue: false },
-        versionId: { type: Sequelize.STRING, allowNull: false },
+        legacyReportId: {
+          type: Sequelize.STRING,
+          allowNull: true,
+        },
         recipients: { type: Sequelize.TEXT, allowNull: false },
         parameters: Sequelize.TEXT,
         status: { type: Sequelize.ENUM(REPORT_REQUEST_STATUS_VALUES), allowNull: false },
@@ -18,6 +22,24 @@ export class ReportRequest extends Model {
       },
       {
         ...options,
+        validate: {
+          // Must have
+          hasReportId: () => {
+            // No validation on deleted records
+            if (!this.deletedAt) return;
+
+            if (!this.versionId && !this.legacyReportId) {
+              throw new InvalidOperationError(
+                'A report request must have either a legacyReportId or a versionId',
+              );
+            }
+            if (this.versionId && this.legacyReportId) {
+              throw new InvalidOperationError(
+                'A report request must have either a legacyReportId or a versionId, not both',
+              );
+            }
+          },
+        },
         syncConfig: { syncDirection: SYNC_DIRECTIONS.PUSH_ONLY },
       },
     );
@@ -27,6 +49,10 @@ export class ReportRequest extends Model {
     this.belongsTo(models.User, {
       foreignKey: { name: 'requestedByUserId', allowNull: false },
       onDelete: 'CASCADE',
+    });
+    this.belongsTo(models.ReportDefinitionVersion, {
+      foreignKey: 'versionId',
+      as: 'version',
     });
   }
 

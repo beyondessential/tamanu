@@ -21,7 +21,6 @@ export class ReportDefinitionVersion extends Model {
       {
         id: primaryKey,
         name: {
-          // human-readable name
           type: Sequelize.STRING,
           allowNull: false,
         },
@@ -30,7 +29,7 @@ export class ReportDefinitionVersion extends Model {
           type: Sequelize.STRING,
           allowNull: true,
         },
-        state: {
+        status: {
           type: Sequelize.STRING,
           allowNull: false,
           default: 'draft',
@@ -45,15 +44,12 @@ export class ReportDefinitionVersion extends Model {
         },
         columnMapping: {
           // json pairs that maps SQL output to Excel names, in the form of
-          // ```
           // [
           //   ["displayId", "NHN"],
           //   ["someCamelCaseThing", "COVID-19 numbers from Curaçao"]
           // ]
-          // ```
-          // If null, will do no mapping, just use sql output
           type: Sequelize.TEXT,
-          allowNull: true,
+          allowNull: false,
           default: '[]',
           validate: {
             matchesSchema: columnMappingValidator.validate,
@@ -61,13 +57,15 @@ export class ReportDefinitionVersion extends Model {
         },
         parameters: {
           // same as the current parameters, e.g.
-          // ```
           // [
           //   { "parameterField": "VillageField" },
-          //   { "parameterField": "VaccineCategoryField" },
-          //   { "parameterField": "VaccineField" }
+          //   {
+          //     "parameterField": "ParameterAutocompleteField",
+          //     "label": "Nursing Zone",
+          //     "name": "nursingZone",
+          //     "suggesterEndpoint": "nursingZone"
+          //   }
           // ]
-          // ```
           type: Sequelize.TEXT,
           allowNull: false,
           default: '[]',
