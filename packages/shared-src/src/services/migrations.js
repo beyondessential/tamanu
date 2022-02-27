@@ -77,20 +77,49 @@ export async function assertUpToDate(log, sequelize, options) {
   }
 }
 
-export async function migrate(log, sequelize, options) {
-  const { migrateDirection = 'up' } = options;
-
-  switch (migrateDirection) {
-    case 'up':
-      return migrateUp(log, sequelize);
-    case 'down':
-      return migrateDown(log, sequelize);
-    case 'downToLastReversibleMigration':
-      return migrateDown(log, sequelize, { to: LAST_REVERSIBLE_MIGRATION });
-    case 'redoLatest':
-      await migrateDown(log, sequelize);
-      return migrateUp(log, sequelize);
-    default:
-      throw new Error(`Unrecognised migrate direction: ${options.migrateDirection}`);
+export async function migrate(log, sequelize, direction) {
+  if (direction === 'up') {
+    return migrateUp(log, sequelize);
   }
+  if (direction === 'down') {
+    return migrateDown(log, sequelize);
+  }
+  if (direction === 'downToLastReversibleMigration') {
+    return migrateDown(log, sequelize, { to: LAST_REVERSIBLE_MIGRATION });
+  }
+  if (direction === 'redoLatest') {
+    await migrateDown(log, sequelize);
+    return migrateUp(log, sequelize);
+  }
+  throw new Error(`Unrecognised migrate direction: ${direction}`);
+}
+
+export function createMigrateCommand(Command, migrateCallback) {
+  const migrateCommand = new Command('migrate').description(
+    'Apply or roll back database migrations',
+  );
+
+  migrateCommand
+    .command('up', { isDefault: true })
+    .description('Run all unrun migrations until up to date')
+    .action(() => migrateCallback('up'));
+
+  migrateCommand
+    .command('down')
+    .description('Reverse the most recent migration')
+    .action(() => migrateCallback('down'));
+
+  migrateCommand
+    .command('downToLastReversibleMigration')
+    .description(
+      'Run database migrations down to the last known reversible migration (LAST_REVERSIBLE_MIGRATION)',
+    )
+    .action(() => migrateCallback('downToLastReversibleMigration'));
+
+  migrateCommand
+    .command('redoLatest')
+    .description('Run database migrations down 1 and then up 1')
+    .action(() => migrateCallback('redoLatest'));
+
+  return migrateCommand;
 }

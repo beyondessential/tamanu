@@ -7,5 +7,5 @@
 source "$(dirname "${BASH_SOURCE[0]}")/common/common.bash"
 
 connect_postgres
-pg_dump "$PG_CONNECTION_URL"
+pg_dump "$PG_CONNECTION_URL/$PG_NAME"
 

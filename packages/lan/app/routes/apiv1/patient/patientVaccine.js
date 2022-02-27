@@ -155,6 +155,7 @@ patientVaccineRoutes.get(
         {
           model: req.models.ScheduledVaccine,
           as: 'scheduledVaccine',
+          include: req.models.ScheduledVaccine.getListReferenceAssociations(),
         },
       ],
     });

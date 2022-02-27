@@ -123,14 +123,14 @@ export async function initDatabase(dbOptions) {
   // attach migration function to the sequelize object - leaving the responsibility
   // of calling it to the implementing server (this allows for skipping migrations
   // in favour of calling sequelize.sync() during test mode)
-  sequelize.migrate = async options => {
+  sequelize.migrate = async direction => {
     if (sqlitePath) {
       log.info('Syncing sqlite schema...');
       await sequelize.sync();
       return;
     }
 
-    await migrate(log, sequelize, options);
+    await migrate(log, sequelize, direction);
   };
 
   sequelize.assertUpToDate = async options => {

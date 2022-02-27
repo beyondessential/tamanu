@@ -45,11 +45,10 @@ const PRIMARY_DETAILS_FIELDS = {
   dateOfBirth: ({ dateOfBirth }) => (
     <DateDisplay date={dateOfBirth} showDate={false} showExplicitDate />
   ),
-  placeOfBirth: ({ additionalData }) => additionalData?.placeOfBirth,
-  countryOfBirthId: ({ additionalData }) => additionalData?.countryOfBirth?.name,
   sex: null,
-  Mother: () => null, // TODO: not populated
   displayId: null,
+  passport: ({ additionalData }) => additionalData?.passport,
+  nationalityId: ({ additionalData }) => additionalData?.nationality?.name,
 };
 
 const Base64Image = ({ data, mediaType = 'image/jpeg', ...props }) => (
@@ -110,7 +109,7 @@ export const Certificate = ({
       <PatientDetailsHeader>{header}</PatientDetailsHeader>
       <TwoColumnContainer>
         {detailsFieldsToDisplay.map(field => {
-          const accessor = PRIMARY_DETAILS_FIELDS[field] || customAccessors[field];
+          const accessor = customAccessors[field] || PRIMARY_DETAILS_FIELDS[field];
           const label = getLocalisation(`fields.${field}.shortLabel`) || field;
           const value = (accessor ? accessor(patient) : patient[field]) || '';
           return (

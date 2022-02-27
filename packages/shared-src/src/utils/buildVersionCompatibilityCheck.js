@@ -11,7 +11,7 @@ const respondWithError = (res, error) => {
 function getUpdateInformation(req) {
   if (!config.updateUrls) return {};
 
-  const clientType = req.header('X-Runtime') || '';
+  const clientType = req.header('X-Tamanu-Client') || req.header('X-Runtime') || '';
   if (clientType.includes('Tamanu Mobile')) {
     return {
       updateUrl: config.updateUrls.mobile,

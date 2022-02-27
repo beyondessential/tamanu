@@ -68,4 +68,52 @@ export class Patient extends Model {
     });
     return patients.map(({ id }) => id);
   }
+
+  async getAdministeredVaccines() {
+    const { models } = this.sequelize;
+    return models.AdministeredVaccine.findAll({
+      where: {
+        ['$encounter.patient_id$']: this.id,
+        status: 'GIVEN',
+      },
+      include: [
+        {
+          model: models.Encounter,
+          as: 'encounter',
+          include: models.Encounter.getFullReferenceAssociations(),
+        },
+        {
+          model: models.ScheduledVaccine,
+          as: 'scheduledVaccine',
+        },
+      ],
+    });
+  }
+
+  async getLabRequests(queryOptions) {
+    return this.sequelize.models.LabRequest.findAll({
+      raw: true,
+      nest: true,
+      ...queryOptions,
+      include: [
+        { association: 'requestedBy' },
+        {
+          association: 'tests',
+          include: [{ association: 'labTestMethod' }, { association: 'labTestType' }],
+        },
+        { association: 'laboratory' },
+        {
+          association: 'encounter',
+          required: true,
+          include: [
+            { association: 'examiner' },
+            {
+              association: 'patient',
+              where: { id: this.id },
+            },
+          ],
+        },
+      ],
+    });
+  }
 }

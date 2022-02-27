@@ -6,7 +6,7 @@ import { COMMUNICATION_STATUSES } from 'shared/constants';
 import { getReportModule } from 'shared/reports';
 import { log } from 'shared/services/logging';
 import { createTupaiaApiClient, translateReportDataToSurveyResponses } from 'shared/utils';
-import { removeFile, createZippedExcelFile } from '../utils/files';
+import { removeFile, createZippedSpreadsheet } from '../utils/files';
 
 export class ReportRunner {
   constructor(reportName, parameters, recipients, store, emailService) {
@@ -23,7 +23,7 @@ export class ReportRunner {
       throw new Error('ReportRunner - Email config missing');
     }
 
-    const disabledReports = config.localisation.data.disabledReports;
+    const { disabledReports } = config.localisation.data;
     if (disabledReports.includes(this.reportName)) {
       throw new Error(`ReportRunner - Report "${this.reportName}" is disabled`);
     }
@@ -100,7 +100,7 @@ export class ReportRunner {
 
     let zipFile;
     try {
-      zipFile = await createZippedExcelFile(reportName, reportData);
+      zipFile = await createZippedSpreadsheet(reportName, reportData);
 
       log.info(
         `ReportRunner - Sending report "${zipFile}" to "${this.recipients.email.join(',')}"`,
@@ -152,14 +152,21 @@ export class ReportRunner {
    * @returns {Promise<void>}
    */
   async sendReportToS3(reportData) {
-    const { region, bucketName } = config.s3;
+    const { region, bucketName, bucketPath } = config.s3;
+
+    if (!bucketPath) {
+      throw new Error(`bucketPath must be set, e.g. 'au'`);
+    }
 
     let zipFile;
+    const bookType = 'csv';
     try {
-      zipFile = await createZippedExcelFile(this.reportName, reportData);
+      zipFile = await createZippedSpreadsheet(this.reportName, reportData, bookType);
+
+      const filename = path.basename(zipFile);
 
       log.info(
-        `ReportRunner - Uploading report "${zipFile}" to s3 bucket "${bucketName}" (${region})`,
+        `ReportRunner - Uploading report to s3 "${bucketName}/${bucketPath}/${filename}" (${region})`,
       );
 
       const client = new AWS.S3({ region });
@@ -169,7 +176,7 @@ export class ReportRunner {
       await client.send(
         new AWS.PutObjectCommand({
           Bucket: bucketName,
-          Key: path.basename(zipFile),
+          Key: `${bucketPath}/${filename}`,
           Body: fileStream,
         }),
       );

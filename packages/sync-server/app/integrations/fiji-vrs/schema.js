@@ -7,6 +7,9 @@ export const OPERATIONS = {
   DELETE: 'DELETE',
 };
 
+// allow either native date objects or ISO 8601 strings
+const transformDate = (_, d) => (d instanceof Date ? d : parseISO(d));
+
 export const remoteRequest = {
   patientCreated: yup
     .object({
@@ -18,7 +21,7 @@ export const remoteRequest = {
       created_datetime: yup
         .date()
         .required()
-        .transform((_, d) => parseISO(d)),
+        .transform(transformDate),
     })
     .required(),
 };
@@ -48,7 +51,7 @@ export const remoteResponse = {
         individual_refno: yup.string().required(),
         fname: yup.string(),
         lname: yup.string(),
-        dob: yup.date().transform((_, d) => parseISO(d)),
+        dob: yup.date().transform(transformDate),
         sex: yup
           .string()
           .required()
@@ -67,6 +70,32 @@ export const remoteResponse = {
       .required(),
   }),
   acknowledge: yup.object({
-    response: yup.bool().required(),
+    response: yup
+      .boolean()
+      .required()
+      .oneOf([true]),
+  }),
+  fetchAllPendingActions: yup.object({
+    response: yup
+      .string()
+      .required()
+      .oneOf(['success']),
+    data: yup
+      .array(
+        yup
+          .object({
+            Id: yup.string().required(),
+            Operation: yup
+              .string()
+              .required()
+              .oneOf(Object.keys(OPERATIONS)),
+            CreatedDateTime: yup
+              .date()
+              .required()
+              .transform(transformDate),
+          })
+          .required(),
+      )
+      .required(),
   }),
 };
