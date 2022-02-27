@@ -37,6 +37,7 @@ const getInitialValues = (isEdit: boolean, patient): {} => {
     lastName,
     culturalName,
     dateOfBirth,
+    email,
     sex,
     villageId,
   } = patient;
@@ -47,6 +48,7 @@ const getInitialValues = (isEdit: boolean, patient): {} => {
     lastName,
     culturalName,
     dateOfBirth: new Date(dateOfBirth),
+    email,
     sex,
     villageId,
   };
@@ -97,6 +99,7 @@ export const FormComponent = ({
           lastName: Yup.string().required(),
           culturalName: Yup.string(),
           dateOfBirth: Yup.date().required(),
+          email: Yup.string(),
           sex: Yup.string().required(),
           village: Yup.string(),
         })}
