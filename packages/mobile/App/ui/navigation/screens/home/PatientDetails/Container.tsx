@@ -10,6 +10,7 @@ import { Routes } from '~/ui/helpers/routes';
 import { withPatient } from '~/ui/containers/Patient';
 import { ErrorScreen } from '~/ui/components/ErrorScreen';
 import { LoadingScreen } from '~/ui/components/LoadingScreen';
+import { joinNames } from '~/ui/helpers/user';
 
 const Container = ({
   navigation,
@@ -71,6 +72,16 @@ const Container = ({
     setEditField(!editField);
   }, [editField]);
 
+  const onEditPatient = useCallback(() => {
+    navigation.navigate(Routes.HomeStack.PatientDetailsStack.EditPatient, {
+      patientName: joinNames(selectedPatient),
+    });
+  }, [navigation, selectedPatient]);
+
+  const onEditPatientAdditionalData = useCallback(() => {
+    console.log('edit PatientAdditionalData');
+  }, []);
+
   const onEditPatientIssues = useCallback(() => {
     navigation.navigate(Routes.HomeStack.PatientDetailsStack.AddPatientIssue);
   }, [navigation]);
@@ -88,6 +99,8 @@ const Container = ({
       patientData={patientData}
       onNavigateBack={onNavigateBack}
       onEditField={onEditField}
+      onEditPatient={onEditPatient}
+      onEditPatientAdditionalData={onEditPatientAdditionalData}
       onEditPatientIssues={onEditPatientIssues}
       reminders={reminders}
       changeReminder={changeReminder}

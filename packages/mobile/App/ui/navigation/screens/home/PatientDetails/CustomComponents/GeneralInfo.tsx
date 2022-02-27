@@ -4,10 +4,17 @@ import { PatientGeneralInformationDataProps } from '/interfaces/PatientDetails';
 import { formatDate } from '/helpers/date';
 import { DateFormats } from '/helpers/constants';
 import { FieldRowDisplay } from '~/ui/components/FieldRowDisplay';
+import { PatientSection } from './PatientSection';
+import { useLocalisation } from '~/ui/contexts/LocalisationContext';
 
-export const GeneralInfo = (
-  data: PatientGeneralInformationDataProps,
-): ReactElement => {
+interface GeneralInfoProps extends PatientGeneralInformationDataProps {
+  onEdit: () => void;
+}
+
+export const GeneralInfo = ({
+  onEdit,
+  ...data
+}: GeneralInfoProps): ReactElement => {
   const fields = [
     ['firstName', data.generalInfo.firstName],
     ['middleName', data.generalInfo.middleName || 'None'],
@@ -17,5 +24,17 @@ export const GeneralInfo = (
     ['villageId', data.generalInfo.village?.name ?? ''],
   ];
 
-  return <FieldRowDisplay fields={fields} header="General Information" fieldsPerRow={2} />;
+  // Check if patient information should be editable
+  const { getBool } = useLocalisation();
+  const isEditable = getBool('features.editPatientDetailsOnMobile');
+
+  return (
+    <PatientSection
+      hasSeparator={false}
+      title="General Information"
+      onEdit={isEditable ? onEdit : undefined}
+    >
+      <FieldRowDisplay fields={fields} fieldsPerRow={2} />
+    </PatientSection>
+  );
 };

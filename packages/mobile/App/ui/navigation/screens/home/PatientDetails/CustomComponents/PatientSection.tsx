@@ -7,7 +7,7 @@ import { EditButton } from './EditButton';
 interface PatientDetailSectionProps {
   hasSeparator: boolean;
   title: string;
-  onEdit: () => void;
+  onEdit?: () => void;
 }
 
 export const PatientSection = ({
@@ -16,12 +16,12 @@ export const PatientSection = ({
   onEdit,
   children,
 }: PropsWithChildren<PatientDetailSectionProps>): ReactElement => (
-  <StyledView marginTop={20}>
-    {hasSeparator && <Separator width="100%" marginBottom={20} />}
+  <StyledView>
+    {hasSeparator && <Separator width="100%" marginBottom={20} marginTop={20} />}
     <StyledView>
       <RowView justifyContent="space-between">
         <SectionHeader h1>{title}</SectionHeader>
-        <EditButton onPress={onEdit} />
+        {onEdit && <EditButton onPress={onEdit} />}
       </RowView>
       {children}
     </StyledView>

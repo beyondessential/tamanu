@@ -27,6 +27,8 @@ interface PatientDetailScreenProps {
   onNavigateBack: () => void;
   patientData: PatientDetails;
   onEditField: () => void;
+  onEditPatient: () => void;
+  onEditPatientAdditionalData: () => void;
   onEditPatientIssues: () => void;
   changeReminder: (value: boolean) => void;
   reminders: boolean;
@@ -36,6 +38,8 @@ interface PatientDetailScreenProps {
 export const Screen = ({
   onNavigateBack,
   patientData,
+  onEditPatient,
+  onEditPatientAdditionalData,
   onEditPatientIssues,
   onEditField,
   changeReminder,
@@ -89,9 +93,11 @@ export const Screen = ({
         <GeneralInfo
           id={patientData.id}
           generalInfo={patientData.generalInfo}
+          onEdit={onEditPatient}
         />
         <AdditionalInfo
-          data={patientData.additionalData[0]}
+          patientAdditionalData={patientData.additionalData[0]}
+          onEdit={onEditPatientAdditionalData}
         />
         {/* Not functional yet
           <NotificationCheckbox value={reminders} onChange={changeReminder} />
