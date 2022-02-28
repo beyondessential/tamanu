@@ -1,4 +1,5 @@
 import { buildVersionCompatibilityCheck } from 'shared/utils';
+import { InvalidClientHeadersError } from 'shared/errors';
 
 // If a new version of the mobile app is being released in conjunction with an update to the sync
 // server, set `min` for `Tamanu Mobile` to reflect that, and mobile users will be logged out until
@@ -35,12 +36,11 @@ export const versionCompatibility = (req, res, next) => {
 
   const clientTypes = Object.keys(SUPPORTED_CLIENT_VERSIONS);
   if (!clientTypes.includes(clientType)) {
-    res.status(400).json({
-      error: {
-        message: `The only supported client types are ${clientTypes.join(', ')}`,
-        name: 'InvalidClientType',
-      },
-    });
+    next(
+      new InvalidClientHeadersError(
+        `The only supported X-Tamanu-Client values are ${clientTypes.join(', ')}`,
+      ),
+    );
     return;
   }
 

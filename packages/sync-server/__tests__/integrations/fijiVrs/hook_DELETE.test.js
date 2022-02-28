@@ -26,11 +26,14 @@ describe('VRS integration - hook - DELETE', () => {
     });
 
     // act
-    const response = await app.post(`/v1/integration/fijiVrs/hooks/patientCreated`).send({
-      fetch_id: fetchId,
-      operation: 'DELETE',
-      created_datetime: new Date().toISOString(),
-    });
+    const response = await app
+      .post(`/v1/integration/fijiVrs/hooks/patientCreated`)
+      .send({
+        fetch_id: fetchId,
+        operation: 'DELETE',
+        created_datetime: new Date().toISOString(),
+      })
+      .set({ 'X-Tamanu-Client': 'Fiji VRS', 'X-Version': '0.0.1' });
 
     // assert
     expect(response).toHaveSucceeded();
@@ -72,11 +75,14 @@ describe('VRS integration - hook - DELETE', () => {
     });
 
     // act
-    const response = await app.post(`/v1/integration/fijiVrs/hooks/patientCreated`).send({
-      fetch_id: fetchId,
-      operation: 'DELETE',
-      created_datetime: new Date().toISOString(),
-    });
+    const response = await app
+      .post(`/v1/integration/fijiVrs/hooks/patientCreated`)
+      .send({
+        fetch_id: fetchId,
+        operation: 'DELETE',
+        created_datetime: new Date().toISOString(),
+      })
+      .set({ 'X-Tamanu-Client': 'Fiji VRS', 'X-Version': '0.0.1' });
 
     // assert
     expect(response).toHaveSucceeded();
