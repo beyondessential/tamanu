@@ -208,9 +208,12 @@ export class SyncManager {
 
         models.LabTestType,
         models.Encounter,
-        models.ReportRequest,
         models.Location,
         models.UserFacility,
+
+        models.ReportDefinition,
+        models.ReportDefinitionVersion,
+        models.ReportRequest,
 
         models.Invoice,
         models.InvoiceLineType,
