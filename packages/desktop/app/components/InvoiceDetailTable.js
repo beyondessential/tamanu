@@ -191,6 +191,8 @@ export const InvoiceDetailTable = React.memo(({ invoice }) => {
     })();
   }, [api, invoice.id]);
 
+  // use Table instead of DataFetchingTable because the results of the
+  // data retrieval is needed for the call to calculate invoice total
   return (
     <>
       <Table
