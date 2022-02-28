@@ -218,10 +218,12 @@ export class SyncManager {
         models.InvoicePriceChangeType,
         models.InvoicePriceChangeItem,
 
+        models.CertificateNotification,
+
         // models.LabRequestLog,
         models.DocumentMetadata,
 
-        models.CertificateNotification,
+        // Until TAN-1161 is fixed don't put any models after DocumentMetadata
       ];
 
       for (const model of modelsToSync) {
