@@ -23,35 +23,45 @@ const basics = {
 
 module.exports = {
   up: async query => {
-    await query.createTable('roles', {
+    await query.createTable('report_definitions', {
       ...basics,
       name: {
         type: Sequelize.STRING,
         allowNull: false,
       },
     });
-    await query.createTable('permissions', {
+    await query.createTable('report_definition_versions', {
       ...basics,
-      roleId: {
+      name: {
         type: Sequelize.STRING,
         allowNull: false,
       },
-      noun: {
-        type: Sequelize.STRING,
-        allowNull: false,
-      },
-      verb: {
-        type: Sequelize.STRING,
-        allowNull: false,
-      },
-      objectId: {
+      notes: {
         type: Sequelize.STRING,
         allowNull: true,
+      },
+      status: {
+        type: Sequelize.STRING,
+        allowNull: false,
+        default: 'draft',
+      },
+      query: {
+        type: Sequelize.STRING,
+        allowNull: true,
+      },
+      options: {
+        type: Sequelize.STRING,
+        allowNull: true,
+      },
+      definition_id: {
+        type: Sequelize.STRING,
+        allowNull: true,
+        references: { model: 'report_definitions', key: 'id' },
       },
     });
   },
   down: async query => {
-    await query.dropTable('roles');
-    await query.dropTable('permissions');
+    await query.dropTable('report_definition_versions');
+    await query.dropTable('report_definitions');
   },
 };
