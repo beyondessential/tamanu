@@ -20,21 +20,14 @@ export function generateUUIDDateTimeHash(uuid, date) {
   // uuid hash - 7 x hex values = 28 bits of data
   const segment = uuid.slice(0, 7);
   const number = parseInt(segment, 16);
-  let uuidHash = number.toString(36);
+  const uuidHash = number.toString(36).padStart(6, '0');
 
-  // add zeros at the start to pad to 6 characters
-  while (uuidHash.length < 6) {
-    uuidHash = `0${uuidHash}`;
-  }
   // time hash
   const time = new Date(date).getTime();
   const updatedAtSeconds = (time / 1000).toFixed();
-  let timeHash = Number(updatedAtSeconds).toString(36);
-
-  // add zeros at the start to pad to 6 characters
-  while (timeHash.length < 6) {
-    timeHash = `0${timeHash}`;
-  }
+  const timeHash = Number(updatedAtSeconds)
+    .toString(36)
+    .padStart(6, '0');
 
   return `${uuidHash}${timeHash}`;
 }
