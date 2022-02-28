@@ -3,18 +3,18 @@ import * as yup from 'yup';
 import { SYNC_DIRECTIONS } from 'shared/constants';
 import { Model } from './Model';
 
-const columnMappingValidator = yup.array().of(
-  yup
+const optionsValidator = yup.object({
+  parameters: yup
     .array()
-    .of(yup.string())
-    .length(2),
-);
+    .required()
+    .of(
+      yup.object({
+        parameterField: yup.string().required(),
+      }),
+    ),
+  allFacilities: yup.boolean().required(),
+});
 
-const parametersValidator = yup.array().of(
-  yup.object({
-    parameterField: yup.string().required(),
-  }),
-);
 export class ReportDefinitionVersion extends Model {
   static init({ primaryKey, ...options }) {
     super.init(
@@ -42,41 +42,31 @@ export class ReportDefinitionVersion extends Model {
           type: Sequelize.TEXT,
           allowNull: false,
         },
-        columnMapping: {
-          // json pairs that maps SQL output to Excel names, in the form of
-          // [
-          //   ["displayId", "NHN"],
-          //   ["someCamelCaseThing", "COVID-19 numbers from Curaçao"]
-          // ]
+        options: {
+          /**
+           * As of 28/02/22, contains:
+           *  - parameters
+           *  - allFacilities
+           * e.g.
+           * {
+           *   "parameters": [
+           *     { "parameterField": "VillageField" },
+           *     {
+           *       "parameterField": "ParameterAutocompleteField",
+           *       "label": "Nursing Zone",
+           *       "name": "nursingZone",
+           *       "suggesterEndpoint": "nursingZone"
+           *     }
+           *   ],
+           *   "allFacilities": false,
+           * }
+           */
           type: Sequelize.TEXT,
           allowNull: false,
           default: '[]',
           validate: {
-            matchesSchema: columnMappingValidator.validate,
+            matchesSchema: optionsValidator.validate,
           },
-        },
-        parameters: {
-          // same as the current parameters, e.g.
-          // [
-          //   { "parameterField": "VillageField" },
-          //   {
-          //     "parameterField": "ParameterAutocompleteField",
-          //     "label": "Nursing Zone",
-          //     "name": "nursingZone",
-          //     "suggesterEndpoint": "nursingZone"
-          //   }
-          // ]
-          type: Sequelize.TEXT,
-          allowNull: false,
-          default: '[]',
-          validate: {
-            matchesSchema: parametersValidator.validate,
-          },
-        },
-        allFacilities: {
-          // Whether this report is available to be run on the lan server.
-          type: Sequelize.BOOLEAN,
-          allowNull: false,
         },
       },
       {
