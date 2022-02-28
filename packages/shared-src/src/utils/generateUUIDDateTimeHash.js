@@ -27,7 +27,7 @@ export function generateUUIDDateTimeHash(uuid, date) {
     uuidHash = `0${uuidHash}`;
   }
   // time hash
-  const time = date.getTime();
+  const time = new Date(date).getTime();
   const updatedAtSeconds = (time / 1000).toFixed();
   let timeHash = Number(updatedAtSeconds).toString(36);
 
