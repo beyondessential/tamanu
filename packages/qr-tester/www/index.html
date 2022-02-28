@@ -1,0 +1,38 @@
+<!DOCTYPE html>
+<html lang="en">
+<link rel="manifest" href="./manifest.json">
+<head>
+  <meta charset="UTF-8">
+  <title>BES QR Code Tester</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <link rel="stylesheet" href="css.css">
+  <link rel="shortcut icon" href="logo.png">
+</head>
+
+<body>
+  <h1><img alt="BES" src="logo.png" height="24"> QR Code Tester</h1>
+
+  <canvas id="canvas" hidden></canvas>
+  <p>
+    <button id="btnStart" class="btn">Scan QR</button>
+    <button id="btnStop" class="btn" hidden>Stop camera</button>
+  </p>
+
+  <textarea id="qrdata" placeholder="Scan QR code or paste data here"></textarea>
+  <p><label>CSCA: <select id="csca_cert_pre" autocomplete="off">
+    <option value="bes_dev" selected>BES Dev</option>
+    <option value="from_url">From URL</option>
+    <option value="from_file">From file</option>
+    <option value="icao_ml">ICAO Masterlist</option>
+    <option value="eu_ml">EU Masterlist</option>
+    <option value="nauru">Nauru</option>
+  </select></p>
+  <p id="csca_cert_url" hidden><label>Custom CSCA from URL: <input type="url"></label></p>
+  <p id="csca_cert_file" hidden><label>Custom CSCA upload: <input type="file"></label></p>
+
+  <hr>
+  <div id="analysis"></div>
+
+  <script type="module" src="main.js"></script>
+</body>
+</html>

@@ -1,0 +1,21 @@
+body {
+  margin: 0 auto;
+  font-family: monospace;
+  text-align: center;
+}
+
+.btn {
+  color: white;
+  background-color: #2c1f9e;
+  text-decoration: none;
+  border: none;
+  cursor: pointer;
+  padding: 1em;
+  text-transform: uppercase;
+}
+
+#qrdata {
+  width: 20rem;
+  min-height: 10rem;
+}
+
