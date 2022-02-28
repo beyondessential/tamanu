@@ -1,5 +1,6 @@
 import React, { useState, useCallback } from 'react';
 import { Typography } from '@material-ui/core';
+import { promises as asyncFs } from 'fs';
 
 import { DocumentsTable } from '../../../components/DocumentsTable';
 import { Button } from '../../../components/Button';
@@ -61,7 +62,9 @@ export const DocumentsPane = React.memo(({ encounter, patient, showSearchBar = f
     async ({ file, ...data }) => {
       setIsSubmitting(true);
       try {
-        await api.postWithFileUpload(endpoint, file, data);
+        // Read and inject document creation date to metadata sent
+        const { birthtime } = await asyncFs.stat(file);
+        await api.postWithFileUpload(endpoint, file, { ...data, documentCreatedAt: birthtime });
         handleClose();
         setRefreshCount(refreshCount + 1);
       } finally {
