@@ -40,15 +40,49 @@ describe('VDS-NC: Document cryptography', () => {
   });
   afterAll(() => ctx.close());
 
-  it('can sign a test document', async () => {
+  // Test certificate signing is not supported
+  it.skip('can sign a test document', async () => {
+    const { VdsNcDocument, VdsNcSigner } = ctx.store.models;
+
+    // Arrange
+    const signer = await VdsNcSigner.findActive();
+
+    const document = await VdsNcDocument.create({
+      type: ICAO_DOCUMENT_TYPES.PROOF_OF_TESTING.JSON,
+      messageData: JSON.stringify({ test: 'data' }),
+    });
+
+    // Pre-check
+    expect(signer?.isActive()).to.be.true;
+    expect(document.isSigned()).to.be.false;
+    const signCount = signer.signaturesIssued;
+
+    // Act
+    await document.sign('secret');
+    const payload = await document.intoVDS();
+    const vds = JSON.parse(payload);
+
+    // Assert
+    expect(document.isSigned()).to.be.true;
+    expect(document.algorithm).to.equal('ES256');
+    expect(vds.sig.alg).to.equal('ES256');
+    expect(vds.hdr.t).to.equal('icao.test');
+    expect(vds.hdr.is).to.equal('UTO');
+    expect(vds.msg).to.deep.equal({ test: 'data', utci: document.uniqueProofId });
+
+    await signer.reload();
+    expect(signer.signaturesIssued).to.equal(signCount + 1);
+  });
+
+  it('can sign a vaccination document', async () => {
     const {
+      VdsNcDocument,
+      VdsNcSigner,
       AdministeredVaccine,
       Encounter,
       Patient,
       ReferenceData,
       ScheduledVaccine,
-      VdsNcDocument,
-      VdsNcSigner,
     } = ctx.store.models;
 
     // Arrange
@@ -87,13 +121,25 @@ describe('VDS-NC: Document cryptography', () => {
       date: new Date(Date.parse('22 February 2022, UTC')),
     });
 
-    const signer = await VdsNcSigner.findActive();
+    await AdministeredVaccine.create({
+      id: 'f7664992-13c4-42c8-a106-b31f4f825466',
+      status: 'GIVEN',
+      batch: '1234-567-890',
+      scheduledVaccineId: scheduledAz.id,
+      encounterId: (
+        await Encounter.create({
+          ...fake(Encounter),
+          patientId: patient.id,
+        })
+      ).id,
+      date: new Date(Date.parse('2 January 2022, UTC')),
+    });
 
-    // todo: get Icau UVCI
     const uniqueProofId = await patient.getIcauUVCI();
+    const signer = await VdsNcSigner.findActive();
     const document = await VdsNcDocument.create({
-      type: ICAO_DOCUMENT_TYPES.PROOF_OF_TESTING.JSON,
-      messageData: JSON.stringify({ test: 'data' }),
+      type: ICAO_DOCUMENT_TYPES.PROOF_OF_VACCINATION.JSON,
+      messageData: JSON.stringify({ vaxx: 'data' }),
       uniqueProofId,
     });
 
@@ -108,41 +154,8 @@ describe('VDS-NC: Document cryptography', () => {
     const vds = JSON.parse(payload);
 
     // Assert
-    // expect(document.isSigned()).to.be.true;
-    // expect(document.uniqueProofId).to.match(/^TT.{10}$/);
-    // expect(document.algorithm).to.equal('ES256');
-    // expect(vds.sig.alg).to.equal('ES256');
-    // expect(vds.hdr.t).to.equal('icao.test');
-    // expect(vds.hdr.is).to.equal('UTO');
-    // expect(vds.msg).to.deep.equal({ test: 'data', utci: document.uniqueProofId });
-
-    // await signer.reload();
-    // expect(signer.signaturesIssued).to.equal(signCount + 1);
-  });
-
-  it.skip('can sign a vaccination document', async () => {
-    const { VdsNcDocument, VdsNcSigner } = ctx.store.models;
-
-    // Arrange
-    const signer = await VdsNcSigner.findActive();
-    const document = await VdsNcDocument.create({
-      type: ICAO_DOCUMENT_TYPES.PROOF_OF_VACCINATION.JSON,
-      messageData: JSON.stringify({ vaxx: 'data' }),
-    });
-
-    // Pre-check
-    expect(signer?.isActive()).to.be.true;
-    expect(document.isSigned()).to.be.false;
-    const signCount = signer.signaturesIssued;
-
-    // Act
-    await document.sign('secret');
-    const payload = await document.intoVDS();
-    const vds = JSON.parse(payload);
-
-    // Assert
     expect(document.isSigned()).to.be.true;
-    expect(document.uniqueProofId).to.match(/^TV.{10}$/);
+    expect(document.uniqueProofId.length).to.equal(12);
     expect(document.algorithm).to.equal('ES256');
     expect(vds.sig.alg).to.equal('ES256');
     expect(vds.hdr.t).to.equal('icao.vacc');

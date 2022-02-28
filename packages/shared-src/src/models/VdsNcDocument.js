@@ -143,43 +143,4 @@ export class VdsNcDocument extends Model {
       },
     });
   }
-
-  /**
-   * Generate a new unique proof (of vax, of test) ID with the given prefix.
-   *
-   * NB: only guarantees uniqueness on Sync server, which is where it should run.
-   *
-   * @param {string} prefix
-   * @returns {string}
-   */
-
-  // Todo: delete method
-  async makeUniqueProofId(prefix) {
-    // Generate a bunch of candidates at random and check them for actual
-    // uniqueness against the database at once. This saves N-1 queries in
-    // the case where the first N generated are non-unique.
-    //
-    // With a two-char prefix, randomness will be 10 chars, or 5 bytes of
-    // hex, which gives use a numberspace of about 2 trillion, and a chance
-    // of finding 5 collisions of under 1 in a 100 billionth. Good enough!
-    const candidates = Array(5)
-      .fill(0)
-      .map(() =>
-        `${prefix}${crypto
-          .randomBytes(12)
-          .toString('hex')
-          .toUpperCase()}`.slice(0, 12),
-      );
-
-    const collisions = await VdsNcDocument.findAll({
-      attributes: ['unique_proof_id'], // will perform an index-only query!
-      where: { uniqueProofId: candidates },
-    });
-
-    const unique = candidates.find(
-      cand => !collisions.some(({ uniqueProofId: col }) => col === cand),
-    );
-    if (!unique) return this.makeUniqueProofId(prefix);
-    return unique;
-  }
 }
