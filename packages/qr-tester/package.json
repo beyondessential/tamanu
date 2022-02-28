@@ -23,9 +23,9 @@
     "scripts": "serve.js",
     "assets": "www/**/*",
     "targets": [
-      "latest-linuxstatic-x64",
-      "latest-macos-x64",
-      "latest-windows-x64"
+      "node12-linuxstatic-x64",
+      "node12-macos-x64",
+      "node12-windows-x64"
     ],
     "outputPath": "build"
   }

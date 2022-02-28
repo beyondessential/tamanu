@@ -27,7 +27,7 @@ btnStop.addEventListener('click', () => {
   scanner.stop();
 });
 
-cscaSelect.addEventListener('input', (ev) => {
+cscaSelect.addEventListener('input', () => {
   switch (cscaSelect.value) {
     case 'from_url':
       hideElement(cscaFile);
