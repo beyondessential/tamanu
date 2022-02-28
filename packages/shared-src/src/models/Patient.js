@@ -118,7 +118,7 @@ export class Patient extends Model {
     });
   }
 
-  async getIcauUVCI() {
+  async getIcaoUVCI() {
     const { models } = this.sequelize;
 
     const vaccinations = await models.AdministeredVaccine.findAll({

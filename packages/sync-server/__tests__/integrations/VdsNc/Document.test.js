@@ -135,7 +135,7 @@ describe('VDS-NC: Document cryptography', () => {
       date: new Date(Date.parse('2 January 2022, UTC')),
     });
 
-    const uniqueProofId = await patient.getIcauUVCI();
+    const uniqueProofId = await patient.getIcaoUVCI();
     const signer = await VdsNcSigner.findActive();
     const document = await VdsNcDocument.create({
       type: ICAO_DOCUMENT_TYPES.PROOF_OF_VACCINATION.JSON,

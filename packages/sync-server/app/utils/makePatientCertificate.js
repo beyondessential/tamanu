@@ -29,7 +29,7 @@ export const makeVaccineCertificate = async (patient, models, vdsData = null) =>
 
   try {
     const vaccinations = await patient.getAdministeredVaccines();
-    const uvci = await patient.getIcauUVCI();
+    const uvci = await patient.getIcaoUVCI();
 
     await ReactPDF.render(
       <VaccineCertificate
