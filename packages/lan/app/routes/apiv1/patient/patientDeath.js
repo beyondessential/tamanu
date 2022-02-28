@@ -272,7 +272,7 @@ patientDeath.post(
         },
       });
       for (const encounter of activeEncounters) {
-        await encounter.dischargeWithDischarger(physician, body.date);
+        await encounter.dischargeWithDischarger(doc, body.timeOfDeath);
       }
     });
 

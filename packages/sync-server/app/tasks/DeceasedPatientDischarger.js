@@ -18,8 +18,8 @@ export class DeceasedPatientDischarger extends ScheduledTask {
   }
 
   async run() {
-    const { Discharge, Encounter, User } = this.models;
-    
+    const { Encounter } = this.models;
+
     const query = {
       where: {
         endDate: null,
@@ -27,7 +27,6 @@ export class DeceasedPatientDischarger extends ScheduledTask {
           dateOfDeath: { [Op.not]: null },
         },
       },
-      include: ['patient'],
     };
 
     const toProcess = await Encounter.count(query);
@@ -53,28 +52,13 @@ export class DeceasedPatientDischarger extends ScheduledTask {
           continue;
         }
 
-        /* SELECT u.*
-        FROM users u
-        JOIN dicharges d ON d.discharger_id = u.id
-        JOIN encounters e ON e.id = d.encounter_id
-        WHERE e.patient_id = P AND e.end_date = D
-        */
+        const patientDeathData = await patient.getPatientDeathData();
+        if (!patientDeathData) {
+          log.warn(`Deceased patient ${patient.id} has no death data! Skipping...`);
+          continue;
+        }
 
-        const discharger = User.findOne({
-          where: {
-            '$encounter.patient_id$': patient.id,
-            '$encounter.end_date$': patient.dateOfDeath,
-          },
-          include: [{
-            model: Discharge,
-            as: 'discharges',
-            include: [{
-              model: Encounter,
-              as: 'encounter',
-            }],
-          }]
-        });
-
+        const discharger = await patientDeathData.getClinician();
         await encounter.dischargeWithDischarger(discharger, patient.dateOfDeath);
         log.info(`Auto-closed encounter with id ${encounter.id} (discharger=${discharger.id}, dod=${patient.dateOfDeath})`);
       }
