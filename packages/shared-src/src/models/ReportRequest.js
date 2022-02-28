@@ -9,7 +9,6 @@ export class ReportRequest extends Model {
     super.init(
       {
         id: primaryKey,
-        legacy: { type: Sequelize.BOOLEAN, allowNull: false, defaultValue: false },
         legacyReportId: {
           type: Sequelize.STRING,
           allowNull: true,
@@ -49,6 +48,10 @@ export class ReportRequest extends Model {
     this.belongsTo(models.User, {
       foreignKey: { name: 'requestedByUserId', allowNull: false },
       onDelete: 'CASCADE',
+    });
+    this.belongsTo(models.Facility, {
+      foreignKey: 'facilityId',
+      as: 'facility',
     });
     this.belongsTo(models.ReportDefinitionVersion, {
       foreignKey: 'versionId',
