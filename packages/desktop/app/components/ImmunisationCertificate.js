@@ -1,4 +1,5 @@
 import React, { useState, useEffect } from 'react';
+import { generateUUIDDateTimeHash } from 'shared/utils/generateUUIDDateTimeHash';
 
 import { Certificate, Spacer, Table } from './Print/Certificate';
 import { DateDisplay } from './DateDisplay';
@@ -52,10 +53,12 @@ export const ImmunisationCertificate = ({ patient, immunisations }) => {
     return null;
   }
 
+  const uvci = generateUUIDDateTimeHash(patient.id, immunisations[0].updatedAt);
+
   return (
     <Certificate
       patient={patient}
-      header="Personal vaccination certificate"
+      header={`Personal Vaccination Certificate (id: ${uvci})`}
       watermark={watermark}
       watermarkType={watermarkType}
       footer={renderFooter(getLocalisation)}

@@ -24,9 +24,12 @@ export async function sendCertificateNotifications(certificateNotifications, mod
     switch (type) {
       case ICAO_DOCUMENT_TYPES.PROOF_OF_VACCINATION.JSON:
         template = 'vaccineCertificateEmail';
+
         if (requireSigning && vdsEnabled) {
+          // Could this just be functional and we delete the VdsNcDocument model and table?
           const povData = await createProofOfVaccination(patient.id);
-          const vdsDoc = await createAndSignDocument(type, povData);
+          const uniqueProofId = await patient.getIcaoUVCI();
+          const vdsDoc = await createAndSignDocument(type, povData, uniqueProofId);
           vdsData = await vdsDoc.intoVDS();
         }
         break;

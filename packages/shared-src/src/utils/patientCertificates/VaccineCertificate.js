@@ -57,6 +57,7 @@ const columns = [
 export const VaccineCertificate = ({
   patient,
   vaccinations,
+  certificateId,
   signingSrc,
   watermarkSrc,
   vdsSrc,
@@ -72,7 +73,7 @@ export const VaccineCertificate = ({
       <Page size="A4" style={styles.page}>
         {watermarkSrc && <Watermark src={watermarkSrc} />}
         <LetterheadSection getLocalisation={getLocalisation} />
-        <H3>Personal vaccination certificate</H3>
+        <H3>Personal Vaccination Certificate (id: {certificateId})</H3>
         <PatientDetailsSection
           patient={patient}
           vdsSrc={vdsSrc}
