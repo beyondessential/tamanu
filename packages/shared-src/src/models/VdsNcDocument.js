@@ -69,6 +69,36 @@ export class VdsNcDocument extends Model {
   }
 
   /**
+   * Returns the "message to sign" part of the document.
+   *
+   * @internal
+   * @param {string} countryCode Country code of the issuer / signer.
+   * @returns {Object}
+   */
+  getMessageToSign(countryCode) {
+    const msg = JSON.parse(this.messageData);
+    switch (this.type) {
+      case 'icao.test':
+        msg.utci = this.uniqueProofId;
+        break;
+      case 'icao.vacc':
+        msg.uvci = this.uniqueProofId;
+        break;
+      default:
+        throw new Error(`Unknown VDS-NC type: ${this.type}`);
+    }
+
+    return {
+      hdr: {
+        t: this.type,
+        v: 1,
+        is: countryCode,
+      },
+      msg,
+    };
+  }
+
+  /**
    * Signs a document.
    *
    * If the document is already signed, this will silently do nothing, and return
@@ -84,17 +114,7 @@ export class VdsNcDocument extends Model {
     const signer = await VdsNcSigner.findActive();
     if (!signer) throw new Error('No active signer');
 
-    const msg = JSON.parse(this.messageData);
-
-    const data = {
-      hdr: {
-        t: this.type,
-        v: 1,
-        is: signer.countryCode,
-      },
-      msg,
-    };
-
+    const data = this.getMessageToSign(signer.countryCode);
     const { algorithm, signature } = await signer.issueSignature(data, keySecret);
     await this.setVdsNcSigner(signer);
     return this.update({
@@ -116,25 +136,8 @@ export class VdsNcDocument extends Model {
     if (!this.isSigned()) throw new Error('Cannot return an unsigned VDS-NC document.');
     const signer = await this.getVdsNcSigner();
 
-    const msg = JSON.parse(this.messageData);
-    switch (this.type) {
-      case 'icao.test':
-        msg.utci = this.uniqueProofId;
-        break;
-      case 'icao.vacc':
-        msg.uvci = this.uniqueProofId;
-        break;
-      default:
-        throw new Error(`Unknown VDS-NC type: ${this.type}`);
-    }
-
     return canonicalize({
-      hdr: {
-        t: this.type,
-        v: 1,
-        is: signer.countryCode,
-      },
-      msg,
+      ...this.getMessageToSign(signer.countryCode),
       sig: {
         alg: this.algorithm,
         sigvl: base64UrlEncode(this.signature),
