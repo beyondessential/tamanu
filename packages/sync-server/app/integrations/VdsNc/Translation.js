@@ -100,7 +100,9 @@ export const createProofOfVaccination = async (
         vaccine: { name: label },
       },
       encounter: {
-        location: { name: facility },
+        location: {
+          Facility: { name: facility },
+        },
       },
     } = dose;
 
