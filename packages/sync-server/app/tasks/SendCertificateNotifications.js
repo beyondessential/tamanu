@@ -27,7 +27,7 @@ export async function sendCertificateNotifications(certificateNotifications, mod
 
         if (requireSigning && vdsEnabled) {
           // Could this just be functional and we delete the VdsNcDocument model and table?
-          const povData = await createProofOfVaccination(patient.id);
+          const povData = await createProofOfVaccination(patient.id, { models });
           const uniqueProofId = await patient.getIcaoUVCI();
           const vdsDoc = await createAndSignDocument(type, povData, uniqueProofId);
           vdsData = await vdsDoc.intoVDS();
