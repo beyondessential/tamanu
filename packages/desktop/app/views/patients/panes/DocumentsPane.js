@@ -84,8 +84,8 @@ export const DocumentsPane = React.memo(({ encounter, patient, showSearchBar = f
     setModalStatus(MODAL_STATES.ALERT_OPEN);
   }, []);
 
-  const handleBeforeUnload = useCallback(
-    event => {
+  useEffect(() => {
+    function handleBeforeUnload(event) {
       if (isSubmitting) {
         // According to the electron docs, using event.returnValue is
         // is recommended rather than just returning a value.
@@ -93,17 +93,14 @@ export const DocumentsPane = React.memo(({ encounter, patient, showSearchBar = f
         // eslint-disable-next-line no-param-reassign
         event.returnValue = false;
       }
-    },
-    [isSubmitting],
-  );
+    }
 
-  useEffect(() => {
     window.addEventListener('beforeunload', handleBeforeUnload);
 
     return () => {
       window.removeEventListener('beforeunload', handleBeforeUnload);
     };
-  }, [handleBeforeUnload]);
+  }, [isSubmitting]);
 
   return (
     <div>
