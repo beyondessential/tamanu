@@ -66,7 +66,7 @@ const InvoiceLineActionDropdown = React.memo(({ row }) => {
         open={deleteInvoiceLineModalOpen}
         onCancel={() => setDeleteInvoiceLineModalOpen(false)}
         onConfirm={async () => {
-          await api.delete(`invoices/${row.invoiceId}/invoiceLineItems/${row.id}`);
+          await api.delete(`invoices/${row.invoiceId}/lineItems/${row.id}`);
           setDeleteInvoiceLineModalOpen(false);
           await loadEncounter(encounter.id);
         }}

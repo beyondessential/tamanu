@@ -1,4 +1,5 @@
 import { Sequelize } from 'sequelize';
+import { INVOICE_PRICE_CHANGE_ITEM_STATUSES } from 'shared/constants';
 import { Model } from './Model';
 
 export class InvoicePriceChangeItem extends Model {
@@ -9,6 +10,11 @@ export class InvoicePriceChangeItem extends Model {
         description: Sequelize.STRING,
         percentageChange: Sequelize.STRING,
         date: Sequelize.DATE,
+        status: {
+          type: Sequelize.STRING,
+          allowNull: false,
+          defaultValue: INVOICE_PRICE_CHANGE_ITEM_STATUSES.ACTIVE,
+        },
       },
       options,
     );
@@ -29,5 +35,19 @@ export class InvoicePriceChangeItem extends Model {
       foreignKey: 'orderedById',
       as: 'orderedBy',
     });
+  }
+
+  static getListReferenceAssociations(models) {
+    return [
+      {
+        model: models.InvoicePriceChangeType,
+        as: 'invoicePriceChangeType',
+        include: models.InvoicePriceChangeType.getFullLinkedItemsInclude(models),
+      },
+      {
+        model: models.User,
+        as: 'orderedBy',
+      },
+    ];
   }
 }
