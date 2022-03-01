@@ -41,7 +41,6 @@ export class VdsNcDocument extends Model {
       },
       {
         ...options,
-        indexes: [{ unique: true, fields: ['unique_proof_id'] }],
         validate: {
           mustHaveValidType() {
             if (!Object.values(ICAO_DOCUMENT_TYPES).some(typ => this.type === typ.JSON)) {
