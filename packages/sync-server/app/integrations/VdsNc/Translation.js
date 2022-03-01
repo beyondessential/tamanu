@@ -31,7 +31,7 @@ const MOMENT_FORMAT_RFC3339 = 'YYYY-MM-DDTHH:mm:ssZ';
 
 export const createProofOfVaccination = async (
   patientId,
-  { countryCode = vdsConfig().sign.countryCode3, models = allModels } = {},
+  { countryCode = vdsConfig().sign.countryCode3, models = allModels },
 ) => {
   const {
     Patient,
@@ -100,9 +100,7 @@ export const createProofOfVaccination = async (
         vaccine: { name: label },
       },
       encounter: {
-        location: {
-          Facility: { name: facility },
-        },
+        location: { name: facility },
       },
     } = dose;
 
