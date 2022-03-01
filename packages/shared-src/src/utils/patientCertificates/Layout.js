@@ -59,9 +59,9 @@ export const styles = StyleSheet.create({
   },
   vds: {
     position: 'relative',
-    top: -10,
-    left: -10,
-    width: 100,
+    top: -30,
+    left: -30,
+    width: 140,
   },
 });
 
