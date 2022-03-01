@@ -40,5 +40,5 @@ async function loadIcaoSigner(options) {
 
 export const loadIcaoSignerCommand = new Command('loadIcaoSigner')
   .description('Loads an ICAO signer certificate into Tamanu')
-  .requiredOption('-s', '--signer-certificate <path>', 'Path to the signer certificate')
+  .requiredOption('-s, --signer-certificate <path>', 'Path to the signer certificate')
   .action(loadIcaoSigner);
