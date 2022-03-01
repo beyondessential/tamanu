@@ -15,7 +15,10 @@ export const DocumentModal = ({ title, actionText, open, onClose, onSubmit, isSu
       {isSubmitting ? (
         <StyledDiv>
           <CircularProgress size="5rem" />
-          <p>Your file is being uploaded, please wait.</p>
+          <p>
+            Your document is now uploading. You cannot navigate away from this screen while this
+            process is happening - thanks for your patience, it is usually completed quickly.
+          </p>
         </StyledDiv>
       ) : (
         <DocumentForm
