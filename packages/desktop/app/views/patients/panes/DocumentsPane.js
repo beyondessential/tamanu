@@ -55,7 +55,12 @@ export const DocumentsPane = React.memo(({ encounter, patient, showSearchBar = f
     ? `encounter/${encounter.id}/documentMetadata`
     : `patient/${patient.id}/documentMetadata`;
 
-  const handleClose = useCallback(() => setModalStatus(MODAL_STATES.CLOSED), []);
+  const handleClose = useCallback(() => {
+    // Prevent user from navigating away if we're submitting a document
+    if (!isSubmitting) {
+      setModalStatus(MODAL_STATES.CLOSED);
+    }
+  }, [isSubmitting]);
 
   const handleSubmit = useCallback(
     async ({ file, ...data }) => {
