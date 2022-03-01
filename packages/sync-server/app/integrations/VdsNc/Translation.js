@@ -1,8 +1,7 @@
-import config from 'config';
 import moment from 'moment';
 import { transliterate as tr } from 'transliteration';
 import allModels from 'shared/models';
-import { vdsConfig } from '.';
+import { vdsConfig } from './Config';
 
 const SEX_TO_CHAR = {
   male: 'M',
@@ -31,7 +30,7 @@ const MOMENT_FORMAT_RFC3339 = 'YYYY-MM-DDTHH:mm:ssZ';
 
 export const createProofOfVaccination = async (
   patientId,
-  { countryCode = vdsConfig().sign.countryCode3, models = allModels },
+  { countryCode = vdsConfig().sign.countryCode3, models },
 ) => {
   const {
     Patient,
