@@ -1,4 +1,4 @@
-import React, { useState, useCallback } from 'react';
+import React, { useState, useCallback, useEffect } from 'react';
 import { Typography } from '@material-ui/core';
 
 import { DocumentsTable } from '../../../components/DocumentsTable';
@@ -83,6 +83,27 @@ export const DocumentsPane = React.memo(({ encounter, patient, showSearchBar = f
     // try { } catch (error) { setModalStatus(MODAL_STATES.ALERT_OPEN) }
     setModalStatus(MODAL_STATES.ALERT_OPEN);
   }, []);
+
+  const handleBeforeUnload = useCallback(
+    event => {
+      if (isSubmitting) {
+        // According to the electron docs, using event.returnValue is
+        // is recommended rather than just returning a value.
+        // https://www.electronjs.org/docs/latest/api/browser-window#event-close
+        // eslint-disable-next-line no-param-reassign
+        event.returnValue = false;
+      }
+    },
+    [isSubmitting],
+  );
+
+  useEffect(() => {
+    window.addEventListener('beforeunload', handleBeforeUnload);
+
+    return () => {
+      window.removeEventListener('beforeunload', handleBeforeUnload);
+    };
+  }, [handleBeforeUnload]);
 
   return (
     <div>
