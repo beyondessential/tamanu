@@ -77,6 +77,7 @@ export class Patient extends Model {
         ['$encounter.patient_id$']: this.id,
         status: 'GIVEN',
       },
+      order: [['updatedAt', 'DESC']],
       include: [
         {
           model: models.Encounter,
@@ -86,6 +87,7 @@ export class Patient extends Model {
         {
           model: models.ScheduledVaccine,
           as: 'scheduledVaccine',
+          include: models.ScheduledVaccine.getListReferenceAssociations(),
         },
       ],
     });
