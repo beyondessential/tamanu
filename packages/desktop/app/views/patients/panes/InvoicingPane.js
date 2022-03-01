@@ -6,6 +6,7 @@ import { useApi } from '../../../api';
 import { isInvoiceEditable } from '../../../utils';
 
 import { InvoiceLineItemModal } from '../../../components/InvoiceLineItemModal';
+import { PotentialInvoiceLineItemsModal } from '../../../components/PotentialInvoiceLineItemsModal';
 import { InvoiceDetailTable } from '../../../components/InvoiceDetailTable';
 import { Button } from '../../../components/Button';
 import { ContentPane } from '../../../components/ContentPane';
@@ -14,8 +15,14 @@ const EmptyPane = styled(ContentPane)`
   text-align: center;
 `;
 
+const ActionsPane = styled(ContentPane)`
+  display: flex;
+  column-gap: 1.6rem;
+`;
+
 export const InvoicingPane = React.memo(({ encounter }) => {
   const [invoiceLineModalOpen, setInvoiceLineModalOpen] = useState(false);
+  const [potentialLineItemsModalOpen, setPotentialLineItemsModalOpen] = useState(false);
   const [invoice, setInvoice] = useState(null);
   const [error, setError] = useState(null);
   const { loadEncounter } = useEncounter();
@@ -69,13 +76,8 @@ export const InvoicingPane = React.memo(({ encounter }) => {
       <h3 style={{ margin: '1rem' }}>Invoice number: {invoice.displayId}</h3>
       <InvoiceDetailTable invoice={invoice} />
       {isInvoiceEditable(invoice.status) ? (
-        <ContentPane>
-          <Button
-            onClick={() => setInvoiceLineModalOpen(true)}
-            variant="contained"
-            color="primary"
-            style={{ marginRight: '20px' }}
-          >
+        <ActionsPane>
+          <Button onClick={() => setInvoiceLineModalOpen(true)} variant="contained" color="primary">
             Add item
           </Button>
           <InvoiceLineItemModal
@@ -84,12 +86,28 @@ export const InvoicingPane = React.memo(({ encounter }) => {
             open={invoiceLineModalOpen}
             invoiceId={invoice.id}
             onClose={() => setInvoiceLineModalOpen(false)}
-            onSaved={async () => {
+            onSaved={() => {
               setInvoiceLineModalOpen(false);
-              await loadEncounter(encounter.id);
+              loadEncounter(encounter.id);
             }}
           />
-        </ContentPane>
+          <Button
+            onClick={() => setPotentialLineItemsModalOpen(true)}
+            variant="contained"
+            color="primary"
+          >
+            Populate invoice
+          </Button>
+          <PotentialInvoiceLineItemsModal
+            open={potentialLineItemsModalOpen}
+            invoiceId={invoice.id}
+            onClose={() => setPotentialLineItemsModalOpen(false)}
+            onSaved={() => {
+              setPotentialLineItemsModalOpen(false);
+              loadEncounter(encounter.id);
+            }}
+          />
+        </ActionsPane>
       ) : null}
     </>
   );
