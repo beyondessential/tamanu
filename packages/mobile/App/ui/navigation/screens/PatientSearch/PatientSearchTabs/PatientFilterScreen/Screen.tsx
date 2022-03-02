@@ -9,15 +9,7 @@ import {
   StyledScrollView,
 } from '/styled/common';
 import { theme } from '/styled/theme';
-import {
-  SexSection,
-  DateSection,
-  NameSection,
-  KeywordSection,
-  SortBySection,
-  OnlyShowOptions,
-  VillageSection
-} from './CustomComponents';
+import { SexSection, DateSection, NameSection, VillageSection } from './CustomComponents';
 import SubmitSection from './CustomComponents/SubmitSection';
 import { Orientation, screenPercentageToDP } from '/helpers/screen';
 
@@ -27,11 +19,7 @@ interface ScreenProps {
   onClear: () => void;
 }
 
-export const Screen = ({
-  onSubmit,
-  onClear,
-  onCancel,
-}: ScreenProps): ReactElement => (
+export const Screen = ({ onSubmit, onClear, onCancel }: ScreenProps): ReactElement => (
   <FullView>
     <StyledSafeAreaView background={theme.colors.PRIMARY_MAIN}>
       <RowView
@@ -54,22 +42,12 @@ export const Screen = ({
             Cancel
           </StyledText>
         </Button>
-        <StyledView
-          position="absolute"
-          width="100%"
-          alignItems="center"
-          zIndex={-1}
-        >
+        <StyledView position="absolute" width="100%" alignItems="center" zIndex={-1}>
           <StyledText fontSize={18} color={theme.colors.WHITE}>
             Filter Search
           </StyledText>
         </StyledView>
-        <Button
-          flex={1}
-          onPress={onClear}
-          justifyContent="flex-end"
-          backgroundColor="transparent"
-        >
+        <Button flex={1} onPress={onClear} justifyContent="flex-end" backgroundColor="transparent">
           <StyledText
             marginRight={screenPercentageToDP(4.86, Orientation.Width)}
             fontSize={12}
