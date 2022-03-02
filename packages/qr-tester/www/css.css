@@ -2,6 +2,7 @@ body {
   margin: 0 auto;
   font-family: monospace;
   max-width: 40rem;
+  padding: 1rem;
 }
 
 .btn {

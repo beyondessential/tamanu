@@ -1,8 +1,5 @@
 import { showElement, hideElement } from '/js/dom.js';
 import analyse from './js/analysis.js';
-import { openZXing } from './js/zxing.js';
-
-const zxingBtn = document.getElementById('zxing');
 
 const qrdataEl = document.getElementById('qrdata');
 const analysisEl = document.getElementById('analysis');
@@ -24,13 +21,9 @@ async function analyseData() {
 
 analyseData();
 
-zxingBtn.addEventListener('click', async () => {
-  const data = await openZXing();
-  qrdataEl.innerText = data;
-  await analyseData();
-});
-
-qrdataEl.addEventListener('change', analyseData);
+qrdataEl.addEventListener('change', () => analyseData());
+qrdataEl.addEventListener('onkeyup', () => analyseData());
+qrdataEl.addEventListener('input', () => analyseData());
 
 cscaSelect.addEventListener('input', () => {
   switch (cscaSelect.value) {
@@ -48,4 +41,6 @@ cscaSelect.addEventListener('input', () => {
       hideElement(cscaUrl);
       hideElement(cscaFile);
   }
+
+  analyseData();
 });
