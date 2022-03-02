@@ -1,8 +1,7 @@
 import React from 'react';
 import * as yup from 'yup';
 
-import { useApi } from '../api';
-import { Suggester } from '../utils/suggester';
+import { useSuggester } from '../api';
 import { foreignKey } from '../utils/validation';
 
 import {
@@ -23,8 +22,7 @@ export const InvoicePriceChangeItemForm = ({
   onCancel,
   invoicePriceChangeItem,
 }) => {
-  const api = useApi();
-  const practitionerSuggester = new Suggester(api, 'practitioner');
+  const practitionerSuggester = useSuggester('practitioner');
 
   return (
     <Form

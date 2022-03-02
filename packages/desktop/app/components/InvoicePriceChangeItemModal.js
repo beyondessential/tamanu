@@ -38,7 +38,7 @@ export const InvoicePriceChangeItemModal = ({
       }
       onSaved();
     },
-    [invoiceId, invoicePriceChangeItemId],
+    [api, invoiceId, invoicePriceChangeItemId, onSaved],
   );
 
   useEffect(() => {
@@ -53,7 +53,7 @@ export const InvoicePriceChangeItemModal = ({
         });
       })();
     }
-  }, []);
+  }, [api, invoiceId, invoicePriceChangeItemId]);
 
   return (
     <Modal width="md" title={title} open={open} onClose={onClose}>
