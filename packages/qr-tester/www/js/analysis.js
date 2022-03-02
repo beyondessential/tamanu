@@ -1,7 +1,10 @@
 import { VdsNc as validateVdsNc } from '/vendor/validateVdsNc.js';
 import { canonicalize } from '/vendor/jsonc.min.js';
+import { base64UrlDecode, ec256PublicKey, fromHex, toHex } from './encodings.js';
 
-export default async function analyse(qrData) {
+import devCsca from './csca/dev.js';
+
+export default async function analyse(qrData, csca) {
   const results = [];
 
   let json;
@@ -36,6 +39,13 @@ export default async function analyse(qrData) {
     results.push(`❌ VDS-NC signature does not match contents: ${e}`);
   }
 
+  try {
+    await checkVdsCertificateAgainstCsca(json, csca);
+    results.push('✅ VDS-NC certificate is valid');
+  } catch (e) {
+    results.push(`❌ VDS-NC certificate does not belong to CSCA: ${e}`);
+  }
+
   return results;
 }
 
@@ -58,16 +68,7 @@ async function checkVdsSignatureAgainstContents({ data, sig: { cer, sigvl } }) {
   const signature = base64UrlDecode(sigvl);
   const signedData = canonicalize(data);
 
-  const publicKey = await crypto.subtle.importKey(
-    'spki',
-    fromHex(parseCertificate(cer).getSPKI()),
-    {
-      name: 'ECDSA',
-      namedCurve: 'P-256',
-    },
-    true,
-    ['verify'],
-  );
+  const publicKey = await ec256PublicKey(fromHex(parseCertificate(cer).getSPKI()));
 
   if (
     !(await crypto.subtle.verify(
@@ -86,43 +87,42 @@ async function checkVdsSignatureAgainstContents({ data, sig: { cer, sigvl } }) {
   }
 }
 
-function base64UrlToPlain(input) {
-  // Replace non-url compatible chars with base64 standard chars
-  input = input
-    .replace(/-/g, '+')
-    .replace(/_/g, '/')
-    .replace(/=+$/, '');
+async function checkVdsCertificateAgainstCsca({ sig: { cer } }, cscaName) {
+  const certificate = parseCertificate(cer);
+  const certSignedData = fromHex(ASN1HEX.getTLVbyList(certificate.hex, 0, [0], '30'));
+  const certSignedAlg = certificate.getSignatureAlgorithmField();
+  const certSignature = fromHex(certificate.getSignatureValueHex());
 
-  // Pad out with standard base64 required padding characters
-  var pad = input.length % 4;
-  if (pad) {
-    if (pad === 1) {
-      throw new Error(
-        'InvalidLengthError: Input base64url string is the wrong length to determine padding',
-      );
+  let signAlg;
+  switch (certSignedAlg) {
+    case 'SHA256withECDSA':
+      signAlg = {
+        name: 'ECDSA',
+        hash: {
+          name: 'SHA-256',
+        },
+      };
+      break;
+
+    default:
+      throw new Error(`Unknown or unsupported certificate signature algorithm: ${certSignedAlg}`);
+  }
+
+  let cscaPubKeys = [];
+  switch (cscaName) {
+    case 'bes_dev':
+      cscaPubKeys = await devCsca();
+      break;
+
+    default:
+      throw new Error(`Unknown or unsupported CSCA "${cscaName}"`);
+  }
+
+  for (const key of cscaPubKeys) {
+    if (await crypto.subtle.verify(signAlg, key, certSignature, certSignedData)) {
+      return true;
     }
-    input += new Array(5 - pad).join('=');
   }
 
-  return input;
-}
-
-function base64UrlDecode(input) {
-  return Uint8Array.from(atob(base64UrlToPlain(input)), c => c.charCodeAt(0));
-}
-
-const hexbet = '0123456789abcdef';
-const lookup = new Array(256);
-for (let i = 0; i < 256; i++) {
-  lookup[i] = `${hexbet[(i >>> 4) & 0xf]}${hexbet[i & 0xf]}`;
-}
-function toHex(array) {
-  let hex = '';
-  for (let i = 0, l = array.length; i < l; i++) {
-    hex += lookup[array[i]];
-  }
-  return hex;
-}
-function fromHex(hex) {
-  return new Uint8Array(hex.match(/.{1,2}/g).map(byte => parseInt(byte, 16)));
+  throw new Error('no public key matched the signature');
 }

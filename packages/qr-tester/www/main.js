@@ -14,9 +14,10 @@ const cscaUrl = document.getElementById('csca_cert_url');
 const scanner = new Scanner('canvas');
 
 async function analyseData() {
+  const csca = cscaSelect.value;
   const data = qrdataEl.value;
   if (data.length) {
-    const results = await analyse(data);
+    const results = await analyse(data, csca);
     const resultEl = document.getElementById('analysis');
     resultEl.innerHTML = `<ol>${results.map(r => `<li>${r}</li>`).join('\n')}</ol>`;
   } else {
