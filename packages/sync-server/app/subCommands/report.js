@@ -48,11 +48,10 @@ async function report(options) {
 
 export const reportCommand = new Command('report')
   .description('Generate a report')
-  .requiredOption('-n', '--name <string>', 'Name of the report')
+  .requiredOption('-n, --name <string>', 'Name of the report')
   .requiredOption(
-    '-r',
-    '--recipients <json|csv>',
+    '-r, --recipients <json|csv>',
     'JSON recipients or comma-separated list of emails',
   )
-  .option('-p', '--parameters <json>', 'JSON parameters')
+  .option('-p, --parameters <json>', 'JSON parameters')
   .action(report);
