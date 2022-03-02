@@ -27,7 +27,9 @@ describe('VPS integration - Patient', () => {
       const path = `/v1/integration/fijiVps/Patient?_sort=-issued&_page=0&_count=2&status=final&subject%3Aidentifier=${id}`;
 
       // act
-      const response = await app.get(path);
+      const response = await app
+        .get(path)
+        .set({ 'X-Tamanu-Client': 'Fiji VPS', 'X-Version': '0.0.1' });
 
       // assert
       expect(response).toHaveSucceeded();
@@ -109,7 +111,9 @@ describe('VPS integration - Patient', () => {
       const path = `/v1/integration/fijiVps/Patient?_sort=-issued&_page=0&_count=2&status=final&subject%3Aidentifier=${id}`;
 
       // act
-      const response = await app.get(path);
+      const response = await app
+        .get(path)
+        .set({ 'X-Tamanu-Client': 'Fiji VPS', 'X-Version': '0.0.1' });
 
       // assert
       expect(response).toHaveSucceeded();
@@ -145,7 +149,9 @@ describe('VPS integration - Patient', () => {
       const path = `/v1/integration/fijiVps/Patient?_sort=id&_page=z&_count=x&status=initial&subject%3Aidentifier=${id}`;
 
       // act
-      const response = await app.get(path);
+      const response = await app
+        .get(path)
+        .set({ 'X-Tamanu-Client': 'Fiji VPS', 'X-Version': '0.0.1' });
 
       // assert
       expect(response).toHaveRequestError(422);
@@ -172,7 +178,9 @@ describe('VPS integration - Patient', () => {
       const path = `/v1/integration/fijiVps/Patient`;
 
       // act
-      const response = await app.get(path);
+      const response = await app
+        .get(path)
+        .set({ 'X-Tamanu-Client': 'Fiji VPS', 'X-Version': '0.0.1' });
 
       // assert
       expect(response).toHaveRequestError(422);

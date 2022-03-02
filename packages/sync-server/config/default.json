@@ -123,10 +123,12 @@
       "flagInsteadOfDeleting": true,
       "retrySchedule": "*/30 * * * * *",
       // don't retry pending records unless they're retryMinAgeMs old
-      "retryMinAgeMs": 60000
+      "retryMinAgeMs": 60000,
+      "requireClientHeaders": true
     },
     "fijiVps": {
-      "enabled": false
+      "enabled": false,
+      "requireClientHeaders": true
     },
     "vds": {
       "enabled": false,
