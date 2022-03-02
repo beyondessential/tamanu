@@ -1,7 +1,7 @@
 body {
   margin: 0 auto;
   font-family: monospace;
-  text-align: center;
+  max-width: 40rem;
 }
 
 .btn {
@@ -14,8 +14,12 @@ body {
   text-transform: uppercase;
 }
 
+#camera {
+  text-align: center;
+}
+
 #qrdata {
-  width: 20rem;
+  width: 100%;
   min-height: 10rem;
 }
 

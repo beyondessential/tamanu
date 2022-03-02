@@ -1,10 +1,10 @@
 import { showElement, hideElement } from '/js/dom.js';
 import Scanner from '/js/scanner.js';
 
-const btnStart = document.getElementById('btnStart');
-const btnStop = document.getElementById('btnStop');
+const camStart = document.getElementById('camStart');
+const camStop = document.getElementById('camStop');
 
-const qrdataEl = document.getElementById('result');
+const qrdataEl = document.getElementById('qrdata');
 
 const cscaSelect = document.getElementById('csca_cert_pre');
 const cscaFile = document.getElementById('csca_cert_file');
@@ -12,18 +12,18 @@ const cscaUrl = document.getElementById('csca_cert_url');
 
 const scanner = new Scanner('canvas');
 
-btnStart.addEventListener('click', () => {
-  hideElement(btnStart);
-  showElement(btnStop);
+camStart.addEventListener('click', () => {
+  hideElement(camStart);
+  showElement(camStop);
   scanner.start((data, ms) => {
     console.log(`QR data received (decoded in ${ms})`, data);
     qrdataEl.innerText = data;
   });
 });
 
-btnStop.addEventListener('click', () => {
-  hideElement(btnStop);
-  showElement(btnStart);
+camStop.addEventListener('click', () => {
+  hideElement(camStop);
+  showElement(camStart);
   scanner.stop();
 });
 
