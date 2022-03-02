@@ -256,7 +256,7 @@ describe('VDS-NC: Signer cryptography', () => {
     expect(subjcn).to.be.instanceOf(Sequence);
     expect(subjcn.valueBlock.value[1].toString()).to.equal('PrintableString : TA');
   });
-  
+
   it('saves a new signer in the db correctly', async () => {
     // Arrange
     const { VdsNcSigner } = ctx.store.models;
@@ -281,7 +281,7 @@ describe('VDS-NC: Signer cryptography', () => {
     expect(signer).to.exist;
     expect(signer.publicKey).to.deep.equal(Buffer.from(publicKey));
     expect(signer.privateKey).to.deep.equal(Buffer.from(privateKey));
-    
+
     // Check we can decrypt the key
     crypto.createPrivateKey({
       key: signer.privateKey,

@@ -8,7 +8,10 @@ import {
   loadCertificateIntoSigner,
 } from 'sync-server/app/integrations/VdsNc';
 import { ICAO_DOCUMENT_TYPES } from 'shared/constants';
+import crypto from 'crypto';
 import { expect } from 'chai';
+import { canonicalize } from 'json-canonicalize';
+import { base64UrlDecode } from 'shared/utils/encodings';
 
 describe('VDS-NC: Document cryptography', () => {
   let ctx;
@@ -72,6 +75,22 @@ describe('VDS-NC: Document cryptography', () => {
 
     await signer.reload();
     expect(signer.signaturesIssued).to.equal(signCount + 1);
+
+    // And verify the signature
+    const publicKey = crypto.createPublicKey({
+      key: signer.publicKey,
+      format: 'der',
+      type: 'spki',
+    });
+    const verifier = crypto.createVerify('SHA256');
+    verifier.update(
+      canonicalize({
+        hdr: vds.hdr,
+        msg: vds.msg,
+      }),
+    );
+    verifier.end();
+    expect(verifier.verify(publicKey, base64UrlDecode(vds.sig.sigvl))).to.be.true;
   });
 
   it('can sign a vaccination document', async () => {
@@ -164,5 +183,19 @@ describe('VDS-NC: Document cryptography', () => {
 
     await signer.reload();
     expect(signer.signaturesIssued).to.equal(signCount + 1);
+
+    // And verify the signature
+    const publicKey = crypto.createPublicKey({
+      key: signer.publicKey,
+      format: 'der',
+      type: 'spki',
+    });
+    const verifier = crypto.createVerify('SHA256');
+    verifier.update(canonicalize({
+      hdr: vds.hdr,
+      msg: vds.msg,
+    }));
+    verifier.end();
+    expect(verifier.verify(publicKey, base64UrlDecode(vds.sig.sigvl))).to.be.true;
   });
 });
