@@ -24,14 +24,20 @@ function logFn (req, res, error) {
 }
 
 const root = path.join(__dirname, 'www');
-const server = httpServer.createServer({ root, logFn });
+const server = httpServer.createServer({
+  root, logFn,
+  https: {
+    key: path.join(__dirname, 'server.key'),
+    cert: path.join(__dirname, 'server.crt'),
+  }
+});
 
 const port = 9128;
 const host = '0.0.0.0';
 server.listen(port, host, function () {
-  console.log(`${chalk.yellow('Starting up')}: http://localhost:${chalk.green(port.toString())}`);
+  console.log(`${chalk.yellow('Starting up')}: https://localhost:${chalk.green(port.toString())}`);
   console.log(chalk.magenta('Hit CTRL-C to stop the server'));
-  opener(`http://localhost:${port}`);
+  opener(`https://localhost:${port}`);
   console.log('---');
 });
 

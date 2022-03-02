@@ -1,6 +1,6 @@
 {
   "name": "qr-tester",
-  "version": "1.0.0",
+  "version": "13.0.0",
   "description": "BES QR Code Tester App / Website",
   "author": "",
   "license": "UNLICENSED",
@@ -29,7 +29,11 @@
   "bin": "serve.js",
   "pkg": {
     "scripts": "serve.js",
-    "assets": "www/**/*",
+    "assets": [
+      "server.crt",
+      "server.key",
+      "www/**/*"
+    ],
     "targets": [
       "node12-linuxstatic-x64",
       "node12-macos-x64",
