@@ -1,6 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { useSelector } from 'react-redux';
 import styled from 'styled-components';
+import { Typography } from '@material-ui/core';
 
 import { useApi } from '../../api';
 import { getCurrentUser } from '../../store/auth';
@@ -30,8 +31,10 @@ export const Table = styled.table`
   }
 `;
 
-const PatientDetailsHeader = styled.strong`
-  text-decoration: underline;
+const PatientDetailsHeader = styled(Typography)`
+  font-size: 16px;
+  margin-bottom: 10px;
+  font-weight: bold;
 `;
 
 const TwoColumnContainer = styled.div`
