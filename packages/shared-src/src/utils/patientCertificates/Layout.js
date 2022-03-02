@@ -5,7 +5,7 @@ export const styles = StyleSheet.create({
   page: {
     fontFamily: 'Helvetica',
     position: 'relative',
-    padding: 30,
+    padding: '30 30 0 30',
     color: '#222222',
   },
   logo: {

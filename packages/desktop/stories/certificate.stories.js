@@ -179,6 +179,7 @@ storiesOf('Certificates', module).add('VaccineCertificate', () => {
         watermarkSrc={Watermark}
         signingSrc={SigningImage}
         vdsSrc={vdsSrc}
+        extraPatientFields={[{ key: 'uvci', label: 'UVCI', accessor: () => 'x1235y12345' }]}
         getLocalisation={getLocalisation}
       />
     </PDFViewer>
