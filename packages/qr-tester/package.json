@@ -5,7 +5,9 @@
   "author": "",
   "license": "UNLICENSED",
   "scripts": {
-    "build": "mkdir -p www/koder; cp node_modules/@maslick/koder/{zbar.{js,wasm},browser.js} www/koder/",
+    "build": "mkdir -p www/vendor && npm run build:koder && npm run build:zschema",
+    "build:koder": "cp ../../node_modules/@maslick/koder/{zbar.{js,wasm},browser.js} www/vendor/",
+    "build:zschema": "cp ../../node_modules/z-schema/dist/ZSchema-browser-min.js{,.map} www/vendor/",
     "start": "node serve.js",
     "pkg": "pkg --compress Brotli package.json"
   },
@@ -16,7 +18,8 @@
   },
   "devDependencies": {
     "@maslick/koder": "^1.3.1",
-    "pkg": "^5.5.2"
+    "pkg": "^5.5.2",
+    "z-schema": "^5.0.2"
   },
   "bin": "serve.js",
   "pkg": {

@@ -27,11 +27,11 @@ const root = path.join(__dirname, 'www');
 const server = httpServer.createServer({ root, logFn });
 
 const port = 9128;
-const host = '127.0.0.1';
+const host = '0.0.0.0';
 server.listen(port, host, function () {
-  console.log(`${chalk.yellow('Starting up')}: http://${host}:${chalk.green(port.toString())}`);
+  console.log(`${chalk.yellow('Starting up')}: http://localhost:${chalk.green(port.toString())}`);
   console.log(chalk.magenta('Hit CTRL-C to stop the server'));
-  opener(`http://${host}:${port}`);
+  opener(`http://localhost:${port}`);
   console.log('---');
 });
 
