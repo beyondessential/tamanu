@@ -4,7 +4,8 @@ import { extension } from 'mime-types';
 import { DataFetchingTable } from './Table';
 import { DateDisplay } from './DateDisplay';
 import { DropdownButton } from './DropdownButton';
-import { WarningModal } from './WarningModal';
+import { DeleteButton } from './Button';
+import { ConfirmModal } from './ConfirmModal';
 
 const ActionDropdown = React.memo(() => {
   const [open, setOpen] = useState(false);
@@ -28,12 +29,14 @@ const ActionDropdown = React.memo(() => {
   return (
     <>
       <DropdownButton color="primary" actions={actions} />
-      <WarningModal
+      <ConfirmModal
         open={open}
         title="Delete document"
-        text="Are you sure you want to delete this document?"
+        text="WARNING: This action is irreversible!"
+        subText="Are you sure you want to delete this document?"
         onConfirm={onDeleteDocument}
-        onClose={onClose}
+        onCancel={onClose}
+        ConfirmButton={DeleteButton}
       />
     </>
   );
@@ -46,16 +49,15 @@ const getType = ({ type }) => {
 };
 const getUploadedDate = ({ documentUploadedAt }) =>
   documentUploadedAt ? <DateDisplay date={documentUploadedAt} /> : '';
-const getDisplayName = ({ documentOwner }) => documentOwner?.displayName || '';
-const getDepartmentName = ({ departmentId }) => departmentId?.name || '';
+const getDepartmentName = ({ department }) => department?.name || '';
 const getActions = ({ row }) => <ActionDropdown row={row} />;
 
 const COLUMNS = [
   { key: 'name', title: 'Name' },
   { key: 'type', title: 'Type', accessor: getType },
-  { key: 'document_uploaded_at', title: 'Upload', accessor: getUploadedDate },
-  { key: 'document_owner', title: 'Owner', accessor: getDisplayName },
-  { key: 'department_id', title: 'Department', accessor: getDepartmentName, sortable: false },
+  { key: 'documentUploadedAt', title: 'Upload', accessor: getUploadedDate },
+  { key: 'documentOwner', title: 'Owner' },
+  { key: 'department.name', title: 'Department', accessor: getDepartmentName, sortable: false },
   { key: 'note', title: 'Comments', sortable: false },
   {
     key: 'actions',

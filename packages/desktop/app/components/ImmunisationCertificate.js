@@ -1,4 +1,5 @@
 import React, { useState, useEffect } from 'react';
+import { generateUUIDDateTimeHash } from 'shared/utils/generateUUIDDateTimeHash';
 
 import { Certificate, Spacer, Table } from './Print/Certificate';
 import { DateDisplay } from './DateDisplay';
@@ -52,10 +53,12 @@ export const ImmunisationCertificate = ({ patient, immunisations }) => {
     return null;
   }
 
+  const uvci = generateUUIDDateTimeHash(patient.id, immunisations[0].updatedAt);
+
   return (
     <Certificate
       patient={patient}
-      header="Personal vaccination certificate"
+      header={`Personal Vaccination Certificate (id: ${uvci})`}
       watermark={watermark}
       watermarkType={watermarkType}
       footer={renderFooter(getLocalisation)}
@@ -69,6 +72,7 @@ export const ImmunisationCertificate = ({ patient, immunisations }) => {
             <td>Health facility</td>
             <td>Given by</td>
             <td>Date</td>
+            <td>Batch Number</td>
           </tr>
         </thead>
         <tbody>
@@ -78,13 +82,14 @@ export const ImmunisationCertificate = ({ patient, immunisations }) => {
                 {immunisation.scheduledVaccine?.label}
                 {immunisation.createdAt !== immunisation.updatedAt ? ' *' : ''}
               </td>
-              <td>{immunisation.scheduledVaccine?.label}</td>
+              <td>{immunisation.scheduledVaccine?.vaccine?.name}</td>
               <td>{immunisation.scheduledVaccine?.schedule}</td>
               <td>{immunisation.encounter?.location?.name || ''}</td>
               <td>{immunisation.encounter?.examiner?.displayName || ''}</td>
               <td>
                 <DateDisplay date={immunisation.date} />
               </td>
+              <td>{immunisation.batch || ''}</td>
             </tr>
           ))}
         </tbody>

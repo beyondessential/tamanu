@@ -245,10 +245,12 @@ const getLabTestRecords = async (
       const village = patient?.village?.name;
       const patientAdditionalData = patient?.additionalData?.[0];
 
+      const formatDate = date => (date ? moment(date).format(dateFormat) : '');
+
       const labTestRecord = {
         firstName: patient?.firstName,
         lastName: patient?.lastName,
-        dob: patient?.dateOfBirth ? moment(patient?.dateOfBirth).format(dateFormat) : '',
+        dob: formatDate(patient?.dateOfBirth),
         sex: patient?.sex,
         patientId: patient?.displayId,
         village,
@@ -258,8 +260,9 @@ const getLabTestRecords = async (
         status: LAB_REQUEST_STATUS_LABELS[labRequest?.status] || labRequest?.status,
         result: labTest.result,
         requestedBy: labRequest?.requestedBy?.displayName,
-        requestedDate: labTest.date ? moment(labTest.date).format(dateFormat) : '',
-        testingDate: labTest.completedDate ? moment(labTest.completedDate).format(dateFormat) : '',
+        submittedDate: formatDate(labTest.date),
+        requestedDate: formatDate(labRequest.requestedDate),
+        testingDate: formatDate(labTest.completedDate),
         testingTime: labTest.completedDate ? moment(labTest.completedDate).format('LTS') : '',
         priority: labRequest?.priority?.name,
         testingLaboratory: labRequest?.laboratory?.name,

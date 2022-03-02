@@ -67,6 +67,7 @@ const reportColumnTemplate = [
   { title: 'Result', accessor: data => data.result },
   { title: 'Requested by', accessor: data => data.requestedBy },
   { title: 'Requested date', accessor: data => data.requestedDate },
+  { title: 'Submitted date', accessor: data => data.submittedDate },
   { title: 'Priority', accessor: data => data.priority },
   { title: 'Testing laboratory', accessor: data => data.testingLaboratory },
   { title: 'Testing date', accessor: data => data.testingDate },

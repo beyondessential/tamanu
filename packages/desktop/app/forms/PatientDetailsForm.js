@@ -50,6 +50,12 @@ export const PrimaryDetailsGroup = () => {
         inline
         required
       />
+      <LocalisedField
+        name="email"
+        component={TextField}
+        type="email"
+        defaultLabel="Email address"
+      />
     </>
   );
 };

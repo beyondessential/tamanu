@@ -56,9 +56,16 @@ export * from './Appointment';
 export * from './DocumentMetadata';
 
 export * from './OneTimeLogin';
+export * from './Permission';
+export * from './Role';
 
 export * from './Invoice';
 export * from './InvoiceLineType';
 export * from './InvoiceLineItem';
 export * from './InvoicePriceChangeItem';
 export * from './InvoicePriceChangeType';
+
+export * from './VdsNcDocument';
+export * from './VdsNcSigner';
+
+export * from './CertificateNotification';

@@ -49,7 +49,7 @@ export class DocumentMetadata extends Model {
       as: 'patient',
     });
 
-    this.belongsTo(models.ReferenceData, {
+    this.belongsTo(models.Department, {
       foreignKey: 'departmentId',
       as: 'department',
     });

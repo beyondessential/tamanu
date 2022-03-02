@@ -2,7 +2,7 @@ import express from 'express';
 import asyncHandler from 'express-async-handler';
 import { Op } from 'sequelize';
 import { NotFoundError } from 'shared/errors';
-import { LAB_REQUEST_STATUSES, DOCUMENT_SIZE_LIMIT } from 'shared/constants';
+import { LAB_REQUEST_STATUSES, DOCUMENT_SIZE_LIMIT, INVOICE_STATUSES } from 'shared/constants';
 import { NOTE_RECORD_TYPES } from 'shared/models/Note';
 import { uploadAttachment } from '../../utils/uploadAttachment';
 
@@ -13,6 +13,7 @@ import {
   simpleGetList,
   permissionCheckingRouter,
   runPaginatedQuery,
+  paginatedGetList,
 } from './crudHelpers';
 
 export const encounter = express.Router();
@@ -131,12 +132,21 @@ encounterRelations.get(
   }),
 );
 encounterRelations.get('/:id/referral', simpleGetList('Referral', 'encounterId'));
-encounterRelations.get('/:id/documentMetadata', simpleGetList('DocumentMetadata', 'encounterId'));
+encounterRelations.get(
+  '/:id/documentMetadata',
+  paginatedGetList('DocumentMetadata', 'encounterId'),
+);
 encounterRelations.get('/:id/imagingRequests', simpleGetList('ImagingRequest', 'encounterId'));
 encounterRelations.get(
   '/:id/notes',
   simpleGetList('Note', 'recordId', {
     additionalFilters: { recordType: NOTE_RECORD_TYPES.ENCOUNTER },
+  }),
+);
+encounterRelations.get(
+  '/:id/invoice',
+  simpleGetHasOne('Invoice', 'encounterId', {
+    additionalFilters: { status: { [Op.ne]: INVOICE_STATUSES.CANCELLED } },
   }),
 );
 

@@ -50,10 +50,25 @@ describe('Encounter', () => {
       ...(await createDummyEncounter(models)),
       patientId: patient.id,
     });
+    const c = await models.Encounter.create({
+      ...(await createDummyEncounter(models, { current: true })),
+      patientId: patient.id,
+    });
+
     const result = await app.get(`/v1/patient/${patient.id}/encounters`);
     expect(result).toHaveSucceeded();
     expect(result.body.count).toBeGreaterThan(0);
     expect(result.body.data.some(x => x.id === v.id)).toEqual(true);
+    expect(result.body.data.some(x => x.id === c.id)).toEqual(true);
+
+    expect(result.body.data.find(x => x.id === v.id)).toMatchObject({
+      id: v.id,
+      endDate: expect.any(String),
+    });
+    expect(result.body.data.find(x => x.id === c.id)).toMatchObject({
+      id: c.id,
+    });
+    expect(result.body.data.find(x => x.id === c.id)).not.toHaveProperty('endDate');
   });
 
   it('should fail to get an encounter that does not exist', async () => {
@@ -160,6 +175,61 @@ describe('Encounter', () => {
       count: 2,
       data: expect.any(Array),
     });
+  });
+
+  it('should get a sorted list of documents', async () => {
+    const encounter = await models.Encounter.create({
+      ...(await createDummyEncounter(models)),
+      patientId: patient.id,
+    });
+    const metadataOne = await models.DocumentMetadata.create({
+      name: 'A',
+      type: 'application/pdf',
+      attachmentId: 'fake-id-1',
+      encounterId: encounter.id,
+    });
+    const metadataTwo = await models.DocumentMetadata.create({
+      name: 'B',
+      type: 'image/jpeg',
+      attachmentId: 'fake-id-2',
+      encounterId: encounter.id,
+    });
+
+    // Sort by name ASC/DESC (presumably sufficient to test only one field)
+    const resultAsc = await app.get(
+      `/v1/encounter/${encounter.id}/documentMetadata?order=asc&orderBy=name`,
+    );
+    expect(resultAsc).toHaveSucceeded();
+    expect(resultAsc.body.data[0].id).toBe(metadataOne.id);
+
+    const resultDesc = await app.get(
+      `/v1/encounter/${encounter.id}/documentMetadata?order=desc&orderBy=name`,
+    );
+    expect(resultDesc).toHaveSucceeded();
+    expect(resultDesc.body.data[0].id).toBe(metadataTwo.id);
+  });
+
+  it('should get a paginated list of documents', async () => {
+    const encounter = await models.Encounter.create({
+      ...(await createDummyEncounter(models)),
+      patientId: patient.id,
+    });
+
+    const documents = [];
+    for (let i = 0; i < 12; i++) {
+      documents.push({
+        name: String(i),
+        type: 'application/pdf',
+        attachmentId: `fake-id-${i}`,
+        encounterId: encounter.id,
+      });
+    }
+    await models.DocumentMetadata.bulkCreate(documents);
+    const result = await app.get(
+      `/v1/encounter/${encounter.id}/documentMetadata?page=1&rowsPerPage=10&offset=5`,
+    );
+    expect(result).toHaveSucceeded();
+    expect(result.body.data.length).toBe(7);
   });
 
   describe('write', () => {
