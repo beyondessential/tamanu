@@ -1,5 +1,6 @@
 import { showElement, hideElement } from '/js/dom.js';
 import Scanner from '/js/scanner.js';
+import analyse from './js/analysis.js';
 
 const camStart = document.getElementById('camStart');
 const camStop = document.getElementById('camStop');
@@ -12,12 +13,26 @@ const cscaUrl = document.getElementById('csca_cert_url');
 
 const scanner = new Scanner('canvas');
 
+function analyseData() {
+  const data = qrdataEl.value;
+  if (data.length) {
+    const results = analyse(data);
+    const resultEl = document.getElementById('analysis');
+    resultEl.innerHTML = `<ol>${results.map(r => `<li>${r}</li>`).join('\n')}</ol>`;
+  } else {
+    resultEl.innerHTML = '';
+  }
+}
+
+analyseData();
+
 camStart.addEventListener('click', () => {
   hideElement(camStart);
   showElement(camStop);
   scanner.start((data, ms) => {
     console.log(`QR data received (decoded in ${ms})`, data);
     qrdataEl.innerText = data;
+    analyseData();
   });
 });
 
@@ -25,6 +40,10 @@ camStop.addEventListener('click', () => {
   hideElement(camStop);
   showElement(camStart);
   scanner.stop();
+});
+
+qrdataEl.addEventListener('change', () => {
+  analyseData();
 });
 
 cscaSelect.addEventListener('input', () => {
