@@ -1,5 +1,5 @@
 import { lookup } from 'mime-types';
-import fs, { promises as asyncFs } from 'fs';
+import { promises as asyncFs } from 'fs';
 import { InvalidParameterError, RemoteCallFailedError } from 'shared/errors';
 import { WebRemote } from '~/sync';
 import { getUploadedData } from '~/admin/getUploadedData';
@@ -14,11 +14,11 @@ export const uploadAttachment = async (req, maxFileSize) => {
   // Read request and extract file, stats and metadata
   const { file, deleteFileAfterImport, ...metadata } = await getUploadedData(req);
   const type = lookup(file);
-  const { size } = fs.statSync(file);
+  const { size } = await asyncFs.stat(file);
   const fileData = await asyncFs.readFile(file, { encoding: 'base64' });
 
   // Parsed file needs to be deleted from memory
-  if (deleteFileAfterImport) fs.unlink(file, () => null);
+  if (deleteFileAfterImport) await asyncFs.unlink(file, () => null);
 
   // Check file size constraint
   if (maxFileSize && size > maxFileSize) {
