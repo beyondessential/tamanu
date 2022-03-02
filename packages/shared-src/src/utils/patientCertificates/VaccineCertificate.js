@@ -62,6 +62,7 @@ export const VaccineCertificate = ({
   watermarkSrc,
   vdsSrc,
   getLocalisation,
+  extraPatientFields,
 }) => {
   const hasEditedRecord = vaccinations.findIndex(v => v.createdAt !== v.updatedAt) !== -1;
 
@@ -73,13 +74,15 @@ export const VaccineCertificate = ({
       <Page size="A4" style={styles.page}>
         {watermarkSrc && <Watermark src={watermarkSrc} />}
         <LetterheadSection getLocalisation={getLocalisation} />
-        <H3>Personal Vaccination Certificate (id: {certificateId})</H3>
+        <H3>Vaccination Certification</H3>
         <PatientDetailsSection
           patient={patient}
           vdsSrc={vdsSrc}
           getLocalisation={getLocalisation}
+          certificateId={certificateId}
+          extraFields={extraPatientFields}
         />
-        <Box mb={20} mt={10}>
+        <Box mb={20}>
           <Table data={vaccinations} columns={columns} />
           {hasEditedRecord && (
             <P mt={10}>

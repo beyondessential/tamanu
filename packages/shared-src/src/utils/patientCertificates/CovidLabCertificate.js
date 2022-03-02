@@ -61,7 +61,7 @@ export const CovidLabCertificate = ({
       <Page size="A4" style={styles.page}>
         {watermarkSrc && <Watermark src={watermarkSrc} />}
         <LetterheadSection getLocalisation={getLocalisation} />
-        <Box>
+        <Box mb={0}>
           <H3>Covid-19 Test History</H3>
           <PatientDetailsSection
             patient={patient}

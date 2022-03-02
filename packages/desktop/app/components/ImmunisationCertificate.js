@@ -58,10 +58,21 @@ export const ImmunisationCertificate = ({ patient, immunisations }) => {
   return (
     <Certificate
       patient={patient}
-      header={`Personal Vaccination Certificate (id: ${uvci})`}
+      header="Vaccination Certification"
       watermark={watermark}
       watermarkType={watermarkType}
       footer={renderFooter(getLocalisation)}
+      customAccessors={{ UVCI: () => uvci }}
+      primaryDetailsFields={[
+        'firstName',
+        'lastName',
+        'dateOfBirth',
+        'sex',
+        'displayId',
+        'nationalityId',
+        'passport',
+        'UVCI',
+      ]}
     >
       <Table>
         <thead>
