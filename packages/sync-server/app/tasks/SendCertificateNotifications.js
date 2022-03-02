@@ -4,7 +4,7 @@ import {
   PATIENT_COMMUNICATION_TYPES,
   ICAO_DOCUMENT_TYPES,
 } from 'shared/constants';
-import { makeVaccineCertificate } from '../utils/makePatientCertificate';
+import { makeVaccineCertificate, makeCovidTestCertificate } from '../utils/makePatientCertificate';
 import { getLocalisationData } from '../utils/localisation';
 import { createAndSignDocument, createProofOfVaccination, vdsConfig } from '../integrations/VdsNc';
 
@@ -21,6 +21,8 @@ export async function sendCertificateNotifications(certificateNotifications, mod
 
     let template;
     let vdsData = null;
+    let pdf = null;
+
     switch (type) {
       case ICAO_DOCUMENT_TYPES.PROOF_OF_VACCINATION.JSON:
         template = 'vaccineCertificateEmail';
@@ -32,6 +34,8 @@ export async function sendCertificateNotifications(certificateNotifications, mod
           const vdsDoc = await createAndSignDocument(type, povData, uniqueProofId);
           vdsData = await vdsDoc.intoVDS();
         }
+
+        pdf = await makeVaccineCertificate(patient, models, vdsData);
         break;
 
       case ICAO_DOCUMENT_TYPES.PROOF_OF_TESTING.JSON:
@@ -42,12 +46,12 @@ export async function sendCertificateNotifications(certificateNotifications, mod
           // const vdsDoc = await createAndSignDocument(type, potData);
           // vdsData = await vdsDoc.intoVDS();
         }
+
+        pdf = await makeCovidTestCertificate(patient, models, vdsData);
         break;
       default:
         throw new Error(`Unknown certificate type ${type}`);
     }
-
-    const { filePath } = await makeVaccineCertificate(patient, models, vdsData);
 
     // build the email notification
     await PatientCommunication.create({
@@ -58,7 +62,7 @@ export async function sendCertificateNotifications(certificateNotifications, mod
       status: COMMUNICATION_STATUSES.QUEUED,
       patientId,
       destination: notification.get('forwardAddress'),
-      attachment: filePath,
+      attachment: pdf.filePath,
     });
   }
 }
