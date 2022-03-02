@@ -23,7 +23,6 @@
     "mockserver": "cd mockserver/functions && npm run serve"
   },
   "dependencies": {
-    "@ptomasroos/react-native-multi-slider": "^1.0.0",
     "@react-native-async-storage/async-storage": "^1.13.2",
     "@react-native-community/cameraroll": "^4.0.4",
     "@react-native-community/datetimepicker": "^2.3.1",
@@ -120,7 +119,6 @@
     "@types/jest": "^24.0.23",
     "@types/lodash": "^4.14.168",
     "@types/node": "^14.0.4",
-    "@types/ptomasroos__react-native-multi-slider": "^0.0.1",
     "@types/react": "^17.0.2",
     "@types/react-native": "^0.66.15",
     "@types/react-test-renderer": "^16.9.2",
