@@ -1,6 +1,12 @@
 {
   "$id": "http://namespaces.icao.int/VDS-NC_message_PoV_WHO.json",
-  "$defs": {
+  "title": "Message Zone WHO (PoV)",
+  "type": "object",
+  "description": "PoV Message Schema",
+  "properties": {
+    "uvci": {
+      "type": "string"
+    },
     "pid": {
       "type": "object",
       "properties": {
@@ -24,28 +30,7 @@
           "description": "Specific instance of sex information for the vaccinated person."
         }
       },
-      "required": ["n", "i"]
-    }
-  },
-  "title": "Message Zone WHO (PoV)",
-  "type": "object",
-  "description": "PoV Message Schema",
-  "properties": {
-    "uvci": {
-      "type": "string"
-    },
-    "pid": {
-      "type": "object",
-      "oneOf": [
-        {
-          "$ref": "#/$defs/pid",
-          "required": ["n", "i"]
-        },
-        {
-          "$ref": "#/$defs/pid",
-          "required": ["n", "dob"]
-        }
-      ],
+      "required": ["n"],
       "additionalProperties": false
     },
     "ve": {
