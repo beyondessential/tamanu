@@ -44,3 +44,9 @@ cscaSelect.addEventListener('input', () => {
 
   analyseData();
 });
+
+document.getElementById('clearqr').addEventListener('click', () => {
+  qrdataEl.value = '';
+  analyseData();
+  qrdataEl.focus();
+});

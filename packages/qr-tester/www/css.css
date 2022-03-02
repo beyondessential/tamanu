@@ -15,12 +15,14 @@ body {
   text-transform: uppercase;
 }
 
-#camera {
-  text-align: center;
-}
-
 #qrdata {
   width: 100%;
   min-height: 10rem;
 }
 
+#controls {
+  margin: 1rem 0;
+  display: flex;
+  flex-direction: row;
+  justify-content: space-between;
+}

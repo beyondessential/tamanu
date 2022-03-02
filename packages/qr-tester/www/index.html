@@ -13,14 +13,19 @@
   <h1><img alt="BES" src="logo.png" height="24"> QR Code Tester</h1>
 
   <textarea id="qrdata" placeholder="Scan QR code with external app and paste data here"></textarea>
-  <p><label>CSCA: <select id="csca_cert_pre" autocomplete="off">
-    <option value="bes_dev" selected>BES Dev</option>
-    <option value="from_url">From URL</option>
-    <option value="from_file">From file</option>
-    <option value="icao_ml">ICAO Masterlist</option>
-    <option value="eu_ml">EU Masterlist</option>
-    <option value="nauru">Nauru</option>
-  </select></p>
+  <div id="controls">
+    <label>CSCA: <select id="csca_cert_pre" autocomplete="off">
+      <option value="bes_dev" selected>BES Dev</option>
+      <option value="from_url">From URL</option>
+      <option value="from_file">From file</option>
+      <option value="icao_ml">ICAO Masterlist</option>
+      <option value="eu_ml">EU Masterlist</option>
+      <option value="nauru">Nauru</option>
+    </select></label>
+
+    <button id="clearqr">Clear</button>
+  </div>
+
   <p id="csca_cert_url" hidden><label>Custom CSCA from URL: <input type="url"></label></p>
   <p id="csca_cert_file" hidden><label>Custom CSCA upload: <input type="file"></label></p>
 
