@@ -1,51 +1,36 @@
 import { showElement, hideElement } from '/js/dom.js';
-import Scanner from '/js/scanner.js';
 import analyse from './js/analysis.js';
+import { openZXing } from './js/zxing.js';
 
-const camStart = document.getElementById('camStart');
-const camStop = document.getElementById('camStop');
+const zxingBtn = document.getElementById('zxing');
 
 const qrdataEl = document.getElementById('qrdata');
+const analysisEl = document.getElementById('analysis');
 
 const cscaSelect = document.getElementById('csca_cert_pre');
 const cscaFile = document.getElementById('csca_cert_file');
 const cscaUrl = document.getElementById('csca_cert_url');
-
-const scanner = new Scanner('canvas');
 
 async function analyseData() {
   const csca = cscaSelect.value;
   const data = qrdataEl.value;
   if (data.length) {
     const results = await analyse(data, csca);
-    const resultEl = document.getElementById('analysis');
-    resultEl.innerHTML = `<ol>${results.map(r => `<li>${r}</li>`).join('\n')}</ol>`;
+    analysisEl.innerHTML = `<ol>${results.map(r => `<li>${r}</li>`).join('\n')}</ol>`;
   } else {
-    resultEl.innerHTML = '';
+    analysisEl.innerHTML = '';
   }
 }
 
 analyseData();
 
-camStart.addEventListener('click', () => {
-  hideElement(camStart);
-  showElement(camStop);
-  scanner.start((data, ms) => {
-    console.log(`QR data received (decoded in ${ms})`, data);
-    qrdataEl.innerText = data;
-    analyseData();
-  });
+zxingBtn.addEventListener('click', async () => {
+  const data = await openZXing();
+  qrdataEl.innerText = data;
+  await analyseData();
 });
 
-camStop.addEventListener('click', () => {
-  hideElement(camStop);
-  showElement(camStart);
-  scanner.stop();
-});
-
-qrdataEl.addEventListener('change', () => {
-  analyseData();
-});
+qrdataEl.addEventListener('change', analyseData);
 
 cscaSelect.addEventListener('input', () => {
   switch (cscaSelect.value) {

@@ -3,7 +3,7 @@ importScripts("/vendor/browser.js");
 
 (async () => {
   // Initialize Koder
-  const koder = await new Koder().initialize({ wasmDirectory: '/vendor/' });
+  const koder = await new Koder().initialize({ wasmDirectory: '/vendor' });
 
   // Listen for messages from JS main thread containing raw image data
   self.addEventListener('message', event => {

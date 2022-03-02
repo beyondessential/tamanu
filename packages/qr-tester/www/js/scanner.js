@@ -29,7 +29,7 @@ export default class Scanner {
     requestAnimationFrame(time => this.tick(time));
   }
 
-  start(cb) {
+  async start(cb) {
     showElement(this.container);
 
     this.video = document.createElement("video");
@@ -38,12 +38,19 @@ export default class Scanner {
       cb(data, ms);
     });
 
-    navigator.mediaDevices.getUserMedia({audio: false, video: {facingMode: "environment"}}).then(stream => {
-      this.video.srcObject = stream;
-      this.video.setAttribute("playsinline", "true");
-      this.video.play();
-      requestAnimationFrame(time => this.tick(time));
+    const stream = await navigator.mediaDevices.getUserMedia({
+      audio: false,
+      video: {
+        facingMode: 'environment',
+        width: { min: 340, ideal: 2560, max: 4096 },
+        height: { min: 340, ideal: 1440, max: 2160 },
+      },
     });
+
+    this.video.srcObject = stream;
+    this.video.setAttribute('playsinline', 'true');
+    this.video.play();
+    requestAnimationFrame(time => this.tick(time));
   }
 
   stop() {
