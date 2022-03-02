@@ -1,35 +1,19 @@
 import asyncHandler from 'express-async-handler';
+import { Op } from 'sequelize';
+import { INVOICE_PRICE_CHANGE_ITEM_STATUSES } from 'shared/constants';
 import { NotFoundError } from 'shared/errors';
-import { permissionCheckingRouter } from '../crudHelpers';
+import { permissionCheckingRouter, simpleGetList } from '../crudHelpers';
 
 export const invoicePriceChangeItemsRoute = permissionCheckingRouter('read', 'Invoice');
 
 invoicePriceChangeItemsRoute.get(
   '/:id/priceChangeItems',
-  asyncHandler(async (req, res) => {
-    const { models, params } = req;
-    req.checkPermission('list', 'InvoicePriceChangeItem');
-
-    const invoiceId = params.id;
-    const invoicePriceChangeItems = await models.InvoicePriceChangeItem.findAll({
-      include: [
-        {
-          model: models.InvoicePriceChangeType,
-          as: 'invoicePriceChangeType',
-          include: models.InvoicePriceChangeType.getFullLinkedItemsInclude(models),
-        },
-        {
-          model: models.User,
-          as: 'orderedBy',
-        },
-      ],
-      where: { invoiceId },
-    });
-
-    res.send({
-      count: invoicePriceChangeItems.length,
-      data: invoicePriceChangeItems,
-    });
+  simpleGetList('InvoicePriceChangeItem', 'invoiceId', {
+    additionalFilters: {
+      status: {
+        [Op.ne]: INVOICE_PRICE_CHANGE_ITEM_STATUSES.DELETED,
+      },
+    },
   }),
 );
 
@@ -98,12 +82,10 @@ invoicePriceChangeItemsRoute.delete(
     }
     req.checkPermission('write', invoicePriceChangeItem);
 
-    await models.InvoicePriceChangeItem.destroy({
-      where: {
-        id: priceChangeItemId,
-      },
+    await invoicePriceChangeItem.update({
+      status: INVOICE_PRICE_CHANGE_ITEM_STATUSES.DELETED,
     });
 
-    res.send({ message: 'Item deleted successfully' });
+    res.send({ message: 'Price change item deleted successfully' });
   }),
 );
