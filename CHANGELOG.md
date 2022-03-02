@@ -12,6 +12,28 @@
 
 ### Tweaks ⚖️
 
+- (left blank)
+
+### Bug fixes 🐛
+
+- (left blank)
+
+### Infrastructure and maintenance 🛠
+
+- (left blank)
+
+## v1.13.0
+
+### Manual steps required after upgrade ⚙
+
+- (left blank)
+
+### Features ⭐
+
+- (left blank)
+
+### Tweaks ⚖️
+
 - Moved migrations to subcommands (e.g. what was `node ./app.bundle.js migrate --up` now becomes `node app.bundle.js migrate up`)
 - Migrated argument parsing from argparse to commander.js
 
