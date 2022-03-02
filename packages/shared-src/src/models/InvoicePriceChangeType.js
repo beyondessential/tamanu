@@ -23,7 +23,7 @@ export class InvoicePriceChangeType extends Model {
     this.belongsTo(models.ReferenceData, {
       foreignKey: 'itemId',
       as: 'patientBillingType',
-      constraint: false,
+      constraints: false,
     });
   }
 
