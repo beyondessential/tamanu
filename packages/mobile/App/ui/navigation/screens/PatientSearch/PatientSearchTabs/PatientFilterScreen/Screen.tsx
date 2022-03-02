@@ -11,7 +11,6 @@ import {
 import { theme } from '/styled/theme';
 import {
   SexSection,
-  AgeRangeSection,
   DateSection,
   NameSection,
   KeywordSection,

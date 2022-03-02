@@ -1,4 +1,3 @@
-export * from './AgeRangeSection';
 export * from './DateSection';
 export * from './GenderSection';
 export * from './KeywordSection';
