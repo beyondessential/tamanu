@@ -4,6 +4,7 @@ import { base64UrlDecode, ec256PublicKey, fromHex, toHex } from './encodings.js'
 
 import devCsca from './csca/dev.js';
 import nauruCsca from './csca/nauru.js';
+import urlCsca from './csca/url.js';
 
 export default async function analyse(qrData, csca) {
   const results = [];
@@ -100,6 +101,18 @@ async function checkVdsCertificateAgainstCsca({ sig: { cer } }, cscaName) {
     case 'nauru':
       cscaPubKeys = await nauruCsca();
       break;
+
+    case 'from_url': {
+      const url = document.querySelector('#csca_cert_url input').value;
+      cscaPubKeys = await urlCsca(url);
+      break;
+    }
+
+    case 'from_file': {
+      const url = URL.createObjectURL(document.querySelector('#csca_cert_file input').files[0]);
+      cscaPubKeys = await urlCsca(url);
+      break;
+    }
 
     default:
       throw new Error(`Unknown or unsupported CSCA "${cscaName}"`);

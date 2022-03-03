@@ -50,3 +50,9 @@ document.getElementById('clearqr').addEventListener('click', () => {
   analyseData();
   qrdataEl.focus();
 });
+
+cscaUrl.querySelector('input').addEventListener('change', () => analyseData());
+cscaUrl.querySelector('input').addEventListener('input', () => analyseData());
+
+cscaFile.querySelector('input').addEventListener('change', () => analyseData());
+cscaFile.querySelector('input').addEventListener('input', () => analyseData());
