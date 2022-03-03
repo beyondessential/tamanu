@@ -147,7 +147,7 @@ export const PatientCovidTestCert = ({ patient }) => {
     >
       <Certificate
         patient={patient}
-        header="COVID-19 test history"
+        header="COVID-19 Test History"
         customAccessors={{ passport: getPassportNumber, nationalityId: getNationality }}
         primaryDetailsFields={[
           'firstName',

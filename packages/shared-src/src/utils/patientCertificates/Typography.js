@@ -19,10 +19,9 @@ const styles = StyleSheet.create({
   },
   h3: {
     fontFamily: 'Helvetica-Bold',
-    marginBottom: 10,
-    fontSize: 12,
+    marginBottom: 20,
+    fontSize: 14,
     fontWeight: 500,
-    textDecoration: 'underline',
   },
   p: {
     fontFamily: 'Helvetica',

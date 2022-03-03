@@ -34,7 +34,7 @@ export const makeVaccineCertificate = async (patient, models, vdsData = null) =>
     await ReactPDF.render(
       <VaccineCertificate
         patient={patient.dataValues}
-        certificateId={uvci}
+        extraPatientFields={[{ key: 'uvci', label: 'UVCI', accessor: () => uvci }]}
         vaccinations={vaccinations}
         signingSrc={signingImage?.data}
         watermarkSrc={watermark?.data}
