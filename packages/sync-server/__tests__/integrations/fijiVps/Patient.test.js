@@ -29,7 +29,7 @@ describe('VPS integration - Patient', () => {
       // act
       const response = await app
         .get(path)
-        .set({ 'X-Tamanu-Client': 'Fiji VPS', 'X-Version': '0.0.1' });
+        .set({ 'X-Tamanu-Client': 'fiji-vps', 'X-Version': '0.0.1' });
 
       // assert
       expect(response).toHaveSucceeded();
@@ -113,7 +113,7 @@ describe('VPS integration - Patient', () => {
       // act
       const response = await app
         .get(path)
-        .set({ 'X-Tamanu-Client': 'Fiji VPS', 'X-Version': '0.0.1' });
+        .set({ 'X-Tamanu-Client': 'fiji-vps', 'X-Version': '0.0.1' });
 
       // assert
       expect(response).toHaveSucceeded();
@@ -151,7 +151,7 @@ describe('VPS integration - Patient', () => {
       // act
       const response = await app
         .get(path)
-        .set({ 'X-Tamanu-Client': 'Fiji VPS', 'X-Version': '0.0.1' });
+        .set({ 'X-Tamanu-Client': 'fiji-vps', 'X-Version': '0.0.1' });
 
       // assert
       expect(response).toHaveRequestError(422);
@@ -180,7 +180,7 @@ describe('VPS integration - Patient', () => {
       // act
       const response = await app
         .get(path)
-        .set({ 'X-Tamanu-Client': 'Fiji VPS', 'X-Version': '0.0.1' });
+        .set({ 'X-Tamanu-Client': 'fiji-vps', 'X-Version': '0.0.1' });
 
       // assert
       expect(response).toHaveRequestError(422);
