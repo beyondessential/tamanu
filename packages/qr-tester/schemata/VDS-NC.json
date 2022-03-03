@@ -28,5 +28,7 @@
     "sig": {
       "$ref": "http://namespaces.icao.int/VDS-NC_signature.json"
     }
-  }
+  },
+  "required": ["data", "sig"],
+  "additionalProperties": false
 }
