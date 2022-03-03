@@ -3,6 +3,7 @@ import { canonicalize } from '/vendor/jsonc.min.js';
 import { base64UrlDecode, ec256PublicKey, fromHex, toHex } from './encodings.js';
 
 import devCsca from './csca/dev.js';
+import nauruCsca from './csca/nauru.js';
 
 export default async function analyse(qrData, csca) {
   const results = [];
@@ -94,6 +95,10 @@ async function checkVdsCertificateAgainstCsca({ sig: { cer } }, cscaName) {
   switch (cscaName) {
     case 'bes_dev':
       cscaPubKeys = await devCsca();
+      break;
+
+    case 'nauru':
+      cscaPubKeys = await nauruCsca();
       break;
 
     default:
