@@ -99,7 +99,7 @@ describe('VPS integration - DiagnosticReport', () => {
       // act
       const response = await app
         .get(path)
-        .set({ 'X-Tamanu-Client': 'Fiji VPS', 'X-Version': '0.0.1' });
+        .set({ 'X-Tamanu-Client': 'fiji-vps', 'X-Version': '0.0.1' });
 
       // assert
       expect(response).toHaveSucceeded();
@@ -245,13 +245,13 @@ describe('VPS integration - DiagnosticReport', () => {
       // act
       const response1 = await app
         .get(path)
-        .set({ 'X-Tamanu-Client': 'Fiji VPS', 'X-Version': '0.0.1' });
+        .set({ 'X-Tamanu-Client': 'fiji-vps', 'X-Version': '0.0.1' });
 
       const nextUrl = response1.body.link.find(l => l.relation === 'next')?.url;
       const [, nextPath] = nextUrl.match(/^.*(\/v1\/integration\/fijiVps\/.*)$/);
       const response2 = await app
         .get(nextPath)
-        .set({ 'X-Tamanu-Client': 'Fiji VPS', 'X-Version': '0.0.1' });
+        .set({ 'X-Tamanu-Client': 'fiji-vps', 'X-Version': '0.0.1' });
 
       // assert
       expect(response1).toHaveSucceeded();
@@ -293,7 +293,7 @@ describe('VPS integration - DiagnosticReport', () => {
       // act
       const response = await app
         .get(path)
-        .set({ 'X-Tamanu-Client': 'Fiji VPS', 'X-Version': '0.0.1' });
+        .set({ 'X-Tamanu-Client': 'fiji-vps', 'X-Version': '0.0.1' });
 
       // assert
       expect(response).toHaveSucceeded();
@@ -330,7 +330,7 @@ describe('VPS integration - DiagnosticReport', () => {
       // act
       const response = await app
         .get(path)
-        .set({ 'X-Tamanu-Client': 'Fiji VPS', 'X-Version': '0.0.1' });
+        .set({ 'X-Tamanu-Client': 'fiji-vps', 'X-Version': '0.0.1' });
 
       // assert
       expect(response).toHaveSucceeded();
@@ -373,7 +373,7 @@ describe('VPS integration - DiagnosticReport', () => {
       // act
       const response = await app
         .get(path)
-        .set({ 'X-Tamanu-Client': 'Fiji VPS', 'X-Version': '0.0.1' });
+        .set({ 'X-Tamanu-Client': 'fiji-vps', 'X-Version': '0.0.1' });
 
       // assert
       expect(response).toHaveSucceeded();
@@ -431,7 +431,7 @@ describe('VPS integration - DiagnosticReport', () => {
       // act
       const response = await app
         .get(path)
-        .set({ 'X-Tamanu-Client': 'Fiji VPS', 'X-Version': '0.0.1' });
+        .set({ 'X-Tamanu-Client': 'fiji-vps', 'X-Version': '0.0.1' });
 
       // assert
       expect(response).toHaveSucceeded();
@@ -458,7 +458,7 @@ describe('VPS integration - DiagnosticReport', () => {
       // act
       const response = await app
         .get(path)
-        .set({ 'X-Tamanu-Client': 'Fiji VPS', 'X-Version': '0.0.1' });
+        .set({ 'X-Tamanu-Client': 'fiji-vps', 'X-Version': '0.0.1' });
 
       // assert
       expect(response).toHaveRequestError(422);
@@ -486,7 +486,7 @@ describe('VPS integration - DiagnosticReport', () => {
       // act
       const response = await app
         .get(path)
-        .set({ 'X-Tamanu-Client': 'Fiji VPS', 'X-Version': '0.0.1' });
+        .set({ 'X-Tamanu-Client': 'fiji-vps', 'X-Version': '0.0.1' });
 
       // assert
       expect(response).toHaveRequestError(422);

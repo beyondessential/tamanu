@@ -67,7 +67,7 @@ describe('VRS integration hook: INSERT and UPDATE operations', () => {
             operation,
             created_datetime: new Date().toISOString(),
           })
-          .set({ 'X-Tamanu-Client': 'Fiji VRS', 'X-Version': '0.0.1' });
+          .set({ 'X-Tamanu-Client': 'fiji-vrs', 'X-Version': '0.0.1' });
 
         // assert
         expect(response).toHaveSucceeded();
@@ -148,7 +148,7 @@ describe('VRS integration hook: INSERT and UPDATE operations', () => {
           operation: 'INSERT',
           created_datetime: new Date().toISOString(),
         })
-        .set({ 'X-Tamanu-Client': 'Fiji VRS', 'X-Version': '0.0.1' });
+        .set({ 'X-Tamanu-Client': 'fiji-vrs', 'X-Version': '0.0.1' });
 
       // assert
       expect(response).toHaveSucceeded();
@@ -184,7 +184,7 @@ describe('VRS integration hook: INSERT and UPDATE operations', () => {
           operation: 'INSERT',
           created_datetime: new Date().toISOString(),
         })
-        .set({ 'X-Tamanu-Client': 'Fiji VRS', 'X-Version': '0.0.1' });
+        .set({ 'X-Tamanu-Client': 'fiji-vrs', 'X-Version': '0.0.1' });
 
       // assert
       expect(response).toHaveRequestError(422);
@@ -225,7 +225,7 @@ describe('VRS integration hook: INSERT and UPDATE operations', () => {
           operation: 'INSERT',
           created_datetime: new Date().toISOString(),
         })
-        .set({ 'X-Tamanu-Client': 'Fiji VRS', 'X-Version': '0.0.1' });
+        .set({ 'X-Tamanu-Client': 'fiji-vrs', 'X-Version': '0.0.1' });
 
       // assert
       expect(response).toHaveRequestError(422);
@@ -269,7 +269,7 @@ describe('VRS integration hook: INSERT and UPDATE operations', () => {
           operation: 'INSERT',
           created_datetime: new Date().toISOString(),
         })
-        .set({ 'X-Tamanu-Client': 'Fiji VRS', 'X-Version': '0.0.1' });
+        .set({ 'X-Tamanu-Client': 'fiji-vrs', 'X-Version': '0.0.1' });
 
       // assert
       expect(response).toHaveRequestError(502);
