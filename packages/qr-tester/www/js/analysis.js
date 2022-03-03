@@ -89,24 +89,6 @@ async function checkVdsSignatureAgainstContents({ data, sig: { cer, sigvl } }) {
 
 async function checkVdsCertificateAgainstCsca({ sig: { cer } }, cscaName) {
   const certificate = parseCertificate(cer);
-  const certSignedData = fromHex(ASN1HEX.getTLVbyList(certificate.hex, 0, [0], '30'));
-  const certSignedAlg = certificate.getSignatureAlgorithmField();
-  const certSignature = fromHex(certificate.getSignatureValueHex());
-
-  let signAlg;
-  switch (certSignedAlg) {
-    case 'SHA256withECDSA':
-      signAlg = {
-        name: 'ECDSA',
-        hash: {
-          name: 'SHA-256',
-        },
-      };
-      break;
-
-    default:
-      throw new Error(`Unknown or unsupported certificate signature algorithm: ${certSignedAlg}`);
-  }
 
   let cscaPubKeys = [];
   switch (cscaName) {
@@ -119,7 +101,7 @@ async function checkVdsCertificateAgainstCsca({ sig: { cer } }, cscaName) {
   }
 
   for (const key of cscaPubKeys) {
-    if (await crypto.subtle.verify(signAlg, key, certSignature, certSignedData)) {
+    if (certificate.verifySignature(key)) {
       return true;
     }
   }
