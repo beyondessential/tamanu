@@ -126,6 +126,15 @@ describe('User', () => {
         localisation: JSON.stringify(localisation),
       });
     });
+
+    it('should include permissions in the data returned by a successful login', async () => {
+      const result = await baseApp.post('/v1/login').send({
+        email: authUser.email,
+        password: rawPassword,
+      });
+      expect(result).toHaveSucceeded();
+      expect(result.body).toHaveProperty('permissions');
+    });
   });
 
   it('should create a new user', async () => {
