@@ -1,5 +1,5 @@
 import { VdsNcDocument } from 'shared/models';
-import { vdsConfig } from '.';
+import { vdsConfig } from './Config';
 
 export async function createAndSignDocument(
   icaoType,
