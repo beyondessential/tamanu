@@ -14,11 +14,11 @@ export const SUPPORTED_CLIENT_VERSIONS = {
     min: '1.13.0',
     max: '1.13.99', // note that higher patch versions will be allowed to connect
   },
-  'Fiji VPS': {
+  'fiji-vps': {
     min: null,
     max: null,
   },
-  'Fiji VRS': {
+  'fiji-vrs': {
     min: null,
     max: null,
   },
