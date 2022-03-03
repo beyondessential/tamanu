@@ -137,7 +137,7 @@ export class VdsNcDocument extends Model {
     const signer = await this.getVdsNcSigner();
 
     return canonicalize({
-      ...this.getMessageToSign(signer.countryCode),
+      data: this.getMessageToSign(signer.countryCode),
       sig: {
         alg: this.algorithm,
         sigvl: base64UrlEncode(this.signature),
