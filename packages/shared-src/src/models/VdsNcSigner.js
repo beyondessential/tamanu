@@ -128,10 +128,14 @@ export class VdsNcSigner extends Model {
       passphrase: Buffer.from(keySecret, 'base64'),
     });
 
+    const canonData = Buffer.from(canonicalize(data), 'utf8');
     const sign = crypto.createSign('SHA256');
-    sign.update(canonicalize(data));
+    sign.update(canonData);
     sign.end();
-    const signature = sign.sign(privateKey);
+    const signature = sign.sign({
+      key: privateKey,
+      dsaEncoding: 'ieee-p1363',
+    });
 
     await this.increment('signaturesIssued');
 

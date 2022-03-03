@@ -44,7 +44,6 @@ describe('VDS-NC: Document cryptography', () => {
   });
   afterAll(() => ctx.close());
 
-  // Test certificate signing is not supported
   it('can sign a test document', async () => {
     const { VdsNcSigner } = ctx.store.models;
 
@@ -69,9 +68,9 @@ describe('VDS-NC: Document cryptography', () => {
     expect(document.isSigned()).to.be.true;
     expect(document.algorithm).to.equal('ES256');
     expect(vds.sig.alg).to.equal('ES256');
-    expect(vds.hdr.t).to.equal('icao.test');
-    expect(vds.hdr.is).to.equal('UTO');
-    expect(vds.msg).to.deep.equal({ test: 'data', utci: 'UNIQTESTID' });
+    expect(vds.data.hdr.t).to.equal('icao.test');
+    expect(vds.data.hdr.is).to.equal('UTO');
+    expect(vds.data.msg).to.deep.equal({ test: 'data', utci: 'UNIQTESTID' });
 
     await signer.reload();
     expect(signer.signaturesIssued).to.equal(signCount + 1);
@@ -83,14 +82,17 @@ describe('VDS-NC: Document cryptography', () => {
       type: 'spki',
     });
     const verifier = crypto.createVerify('SHA256');
-    verifier.update(
-      canonicalize({
-        hdr: vds.hdr,
-        msg: vds.msg,
-      }),
-    );
+    verifier.update(canonicalize(vds.data));
     verifier.end();
-    expect(verifier.verify(publicKey, base64UrlDecode(vds.sig.sigvl))).to.be.true;
+    expect(
+      verifier.verify(
+        {
+          key: publicKey,
+          dsaEncoding: 'ieee-p1363',
+        },
+        base64UrlDecode(vds.sig.sigvl),
+      ),
+    ).to.be.true;
   });
 
   it('can sign a vaccination document', async () => {
@@ -176,9 +178,9 @@ describe('VDS-NC: Document cryptography', () => {
     expect(document.uniqueProofId.length).to.equal(12);
     expect(document.algorithm).to.equal('ES256');
     expect(vds.sig.alg).to.equal('ES256');
-    expect(vds.hdr.t).to.equal('icao.vacc');
-    expect(vds.hdr.is).to.equal('UTO');
-    expect(vds.msg).to.deep.equal({ vaxx: 'data', uvci: document.uniqueProofId });
+    expect(vds.data.hdr.t).to.equal('icao.vacc');
+    expect(vds.data.hdr.is).to.equal('UTO');
+    expect(vds.data.msg).to.deep.equal({ vaxx: 'data', uvci: document.uniqueProofId });
 
     await signer.reload();
     expect(signer.signaturesIssued).to.equal(signCount + 1);
@@ -190,13 +192,16 @@ describe('VDS-NC: Document cryptography', () => {
       type: 'spki',
     });
     const verifier = crypto.createVerify('SHA256');
-    verifier.update(
-      canonicalize({
-        hdr: vds.hdr,
-        msg: vds.msg,
-      }),
-    );
+    verifier.update(canonicalize(vds.data));
     verifier.end();
-    expect(verifier.verify(publicKey, base64UrlDecode(vds.sig.sigvl))).to.be.true;
+    expect(
+      verifier.verify(
+        {
+          key: publicKey,
+          dsaEncoding: 'ieee-p1363',
+        },
+        base64UrlDecode(vds.sig.sigvl),
+      ),
+    ).to.be.true;
   });
 });
