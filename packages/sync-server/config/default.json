@@ -370,7 +370,7 @@
       },
       "features": {
         "editPatientDetailsOnMobile": true,
-        "enableInvoicing": true,
+        "enableInvoicing": false,
         "registerNewPatient": true,
         "hideOtherSex": true,
         "enablePatientDeaths": false
