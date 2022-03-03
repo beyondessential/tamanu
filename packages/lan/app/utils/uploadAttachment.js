@@ -35,6 +35,7 @@ export const uploadAttachment = async (req, maxFileSize) => {
       size,
       data: fileData,
     },
+    backoff: { maxAttempts: 1 },
   });
 
   if (syncResponse.error) {
