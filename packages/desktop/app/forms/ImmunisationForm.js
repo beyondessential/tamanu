@@ -202,7 +202,7 @@ export const ImmunisationForm = React.memo(
               component={AutocompleteField}
               suggester={departmentSuggester}
             />
-            <Field name="batch" label="Batch" component={TextField} />
+            <Field name="batch" label="Batch" component={TextField} required />
             <ConfirmCancelRow
               onConfirm={submitForm}
               confirmDisabled={scheduleOptions.length === 0}
