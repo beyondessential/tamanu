@@ -5,6 +5,7 @@ import { base64UrlDecode, ec256PublicKey, fromHex, toHex } from './encodings.js'
 import devCsca from './csca/dev.js';
 import nauruCsca from './csca/nauru.js';
 import urlCsca from './csca/url.js';
+import mlCsca, { MAIN_ML, HEALTH_ML } from './csca/masterlist.js';
 
 export default async function analyse(qrData, csca) {
   const results = [];
@@ -114,13 +115,25 @@ async function checkVdsCertificateAgainstCsca({ sig: { cer } }, cscaName) {
       break;
     }
 
+    case 'icao_ml':
+      cscaPubKeys = await mlCsca(MAIN_ML);
+      break;
+
+    case 'icao_health_ml':
+      cscaPubKeys = await mlCsca(HEALTH_ML);
+      break;
+
     default:
       throw new Error(`Unknown or unsupported CSCA "${cscaName}"`);
   }
 
-  for (const key of cscaPubKeys) {
-    if (certificate.verifySignature(key)) {
-      return true;
+  for (const [n, key] of cscaPubKeys.entries()) {
+    try {
+      if (certificate.verifySignature(key)) {
+        return true;
+      }
+    } catch (e) {
+      console.warn(`Signature incompatibility on key ${n}, ignoring: ${e}`);
     }
   }
 
