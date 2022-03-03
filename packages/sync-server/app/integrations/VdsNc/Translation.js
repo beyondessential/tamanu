@@ -111,7 +111,7 @@ export const createProofOfVaccination = async (
         .format(MOMENT_FORMAT_ISODATE),
       seq: SCHEDULE_TO_SEQUENCE[schedule] ?? SEQUENCE_MAX + 1,
       ctr: countryCode,
-      lot: batch,
+      lot: batch || 'unknown', // If batch number was not recorded, we add a indicative string value to complete ICAO validation
       adm: facility,
     };
 
