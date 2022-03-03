@@ -1,6 +1,6 @@
 import { Sequelize } from 'sequelize';
-import { SYNC_DIRECTIONS } from 'shared/constants';
 import { Model } from './Model';
+import { initSyncForModelNestedUnderPatient } from './sync';
 
 export class DocumentMetadata extends Model {
   static init({ primaryKey, ...options }) {
@@ -33,7 +33,7 @@ export class DocumentMetadata extends Model {
       },
       {
         ...options,
-        syncConfig: { syncDirection: SYNC_DIRECTIONS.BIDIRECTIONAL },
+        syncConfig: initSyncForModelNestedUnderPatient(this, 'documentMetadata'),
       },
     );
   }
