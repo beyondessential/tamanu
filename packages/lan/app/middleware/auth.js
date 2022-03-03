@@ -35,7 +35,6 @@ async function comparePassword(user, password) {
 
     return user && passwordMatch;
   } catch (e) {
-    console.error(e);
     return false;
   }
 }
@@ -77,7 +76,7 @@ export async function remoteLogin(models, email, password) {
 
   const token = getToken(user);
   const permissions = await getPermissionsForRoles(user.role);
-  return { 
+  return {
     token,
     remote: true,
     localisation,

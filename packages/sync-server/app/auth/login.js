@@ -1,11 +1,11 @@
 import asyncHandler from 'express-async-handler';
 import config from 'config';
 import bcrypt from 'bcrypt';
+import { getPermissionsForRoles } from 'shared/permissions/rolesToPermissions';
+import { BadAuthenticationError } from 'shared/errors';
 import { getLocalisation } from '../localisation';
 import { convertFromDbRecord } from '../convertDbRecord';
 
-import { getPermissionsForRoles } from 'shared/permissions/rolesToPermissions';
-import { BadAuthenticationError } from 'shared/errors';
 import { getToken, stripUser } from './utils';
 
 export const login = asyncHandler(async (req, res) => {
@@ -38,7 +38,7 @@ export const login = asyncHandler(async (req, res) => {
   const [facility, localisation, permissions] = await Promise.all([
     store.models.Facility.findByPk(facilityId),
     getLocalisation(),
-    getPermissionsForRoles(user.role)
+    getPermissionsForRoles(user.role),
   ]);
 
   res.send({

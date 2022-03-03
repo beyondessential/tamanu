@@ -7,7 +7,7 @@ const TEST_PASSWORD = '1Q2Q3Q4Q';
 const TEST_FACILITY = {
   id: 'testfacilityid',
   code: 'testfacilitycode',
-  name: 'Test Facility'
+  name: 'Test Facility',
 };
 
 const USERS = [

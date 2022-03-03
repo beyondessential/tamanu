@@ -112,7 +112,7 @@ describe('User', () => {
     it('should pass feature flags through from a remote login request', async () => {
       remote.fetch.mockResolvedValueOnce({
         user: pick(authUser, ['id', 'role', 'email', 'displayName']),
-        localisation: localisation,
+        localisation,
       });
       const result = await remoteLogin(models, authUser.email, rawPassword);
       expect(result).toHaveProperty('localisation', localisation);
@@ -167,7 +167,7 @@ describe('User', () => {
         displayName: 'Alan',
       }),
     );
-    const id = newUser.id;
+    const { id } = newUser;
 
     const result = await adminApp.put(`/v1/user/${id}`).send({
       displayName: 'Brian',
@@ -181,7 +181,7 @@ describe('User', () => {
   it('should allow an admin to change a password', async () => {
     const details = createUser();
     const newUser = await models.User.create(details);
-    const id = newUser.id;
+    const { id } = newUser;
 
     const user = await models.User.scope('withPassword').findByPk(id);
     const oldHashedPW = user.password;
@@ -202,7 +202,7 @@ describe('User', () => {
   it('should allow a non-admin user to change their own password', async () => {
     const details = createUser();
     const newUser = await models.User.create(details);
-    const id = newUser.id;
+    const { id } = newUser;
 
     const user = await models.User.scope('withPassword').findByPk(id);
     const oldHashedPW = user.password;
