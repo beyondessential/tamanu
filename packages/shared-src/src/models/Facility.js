@@ -43,9 +43,6 @@ export class Facility extends Model {
     this.hasMany(models.UserFacility, {
       foreignKey: 'facilityId',
     });
-    this.hasMany(models.VdsNcDocument, {
-      foreignKey: 'facilityId',
-    });
 
     this.belongsToMany(models.User, {
       through: 'UserFacility',
