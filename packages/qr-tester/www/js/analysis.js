@@ -29,7 +29,10 @@ export default async function analyse(qrData, csca) {
 
   try {
     parseCertificate(json.sig.cer);
-    // TODO: check fields
+    // TODO: nice to have: validating things like:
+    // - the format of the country and common name fields, which is very particular for ICAO
+    // - the certificate "not before/after" dates, making sure that it's valid for this issuance
+    // - the very specific ICAO metadata bits like key usage
     results.push('✅ VDS-NC embedded certificate is well-formed');
   } catch (e) {
     results.push(`❌ VDS-NC embedded certificate parse error: ${e}`);
