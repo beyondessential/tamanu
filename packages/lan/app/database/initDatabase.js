@@ -8,12 +8,27 @@ import { initDatabase as sharedInitDatabase } from 'shared/services/database';
 // created by the tests with just "DELETE FROM table WHERE id LIKE 'test-%'"
 const createTestUUID = () => `test-${uuid().slice(5)}`;
 
+let existingConnection = null;
+
 export async function initDatabase() {
+  if (existingConnection) {
+    return existingConnection;
+  }
+
   const testMode = process.env.NODE_ENV === 'test';
-  return sharedInitDatabase({
+  existingConnection = await sharedInitDatabase({
     ...config.db,
     testMode,
     primaryKeyDefault: testMode ? createTestUUID : undefined,
     syncClientMode: true,
   });
+  return existingConnection;
+}
+
+export async function closeDatabase() {
+  if (existingConnection) {
+    const store = existingConnection;
+    existingConnection = null;
+    await store.close();
+  }
 }
