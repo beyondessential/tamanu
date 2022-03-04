@@ -53,7 +53,10 @@ export const ImmunisationCertificate = ({ patient, immunisations }) => {
     return null;
   }
 
-  const uvci = generateUUIDDateTimeHash(patient.id, immunisations[0].updatedAt);
+  const uvci =
+    immunisations.length > 0
+      ? generateUUIDDateTimeHash(patient.id, immunisations[0].updatedAt)
+      : '';
 
   return (
     <Certificate
