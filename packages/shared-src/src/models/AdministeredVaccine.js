@@ -14,11 +14,6 @@ export class AdministeredVaccine extends Model {
           throw new InvalidOperationError('An administered vaccine must have an encounter.');
         }
       },
-      mustHaveBatch() {
-        if (!this.deletedAt && !this.batch) {
-          throw new InvalidOperationError('An administered vaccine must have a batch number.');
-        }
-      },
     };
     super.init(
       {

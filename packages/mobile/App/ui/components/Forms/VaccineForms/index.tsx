@@ -59,7 +59,6 @@ export const VaccineForm = ({
         onSubmit={onSubmit}
         validationSchema={Yup.object().shape({
           date: Yup.date().required(),
-          batch: Yup.string().required(),
         })}
         initialValues={createInitialValues({ ...initialValues, status })}
       >
