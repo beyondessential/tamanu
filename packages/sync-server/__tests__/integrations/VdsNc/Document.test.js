@@ -3,10 +3,10 @@
 import { createTestContext } from 'sync-server/__tests__/utilities';
 import { fake } from 'shared/test-helpers/fake';
 import {
+  VdsNcDocument,
+  loadCertificateIntoSigner,
   newKeypairAndCsr,
   TestCSCA,
-  loadCertificateIntoSigner,
-  createAndSignDocument,
 } from 'sync-server/app/integrations/VdsNc';
 import { ICAO_DOCUMENT_TYPES } from 'shared/constants';
 import crypto from 'crypto';
@@ -55,17 +55,20 @@ describe('VDS-NC: Document cryptography', () => {
     const signCount = signer.signaturesIssued;
 
     // Act
-    const document = await createAndSignDocument(
+    const document = new VdsNcDocument(
       ICAO_DOCUMENT_TYPES.PROOF_OF_TESTING.JSON,
       { test: 'data' },
       uniqueProofId,
-      { keySecret: 'secret' },
     );
+    document.config = { keySecret: 'secret' };
+    document.models = ctx.store.models;
+
+    await document.sign();
     const payload = await document.intoVDS();
     const vds = JSON.parse(payload);
 
     // Assert
-    expect(document.isSigned()).to.be.true;
+    expect(document.isSigned).to.be.true;
     expect(document.algorithm).to.equal('ES256');
     expect(vds.sig.alg).to.equal('ES256');
     expect(vds.data.hdr.t).to.equal('icao.test');
@@ -97,7 +100,6 @@ describe('VDS-NC: Document cryptography', () => {
 
   it('can sign a vaccination document', async () => {
     const {
-      VdsNcDocument,
       VdsNcSigner,
       AdministeredVaccine,
       Encounter,
@@ -164,17 +166,20 @@ describe('VDS-NC: Document cryptography', () => {
     const signCount = signer.signaturesIssued;
 
     // Act
-    const document = await createAndSignDocument(
+    const document = new VdsNcDocument(
       ICAO_DOCUMENT_TYPES.PROOF_OF_VACCINATION.JSON,
       { vaxx: 'data' },
       uniqueProofId,
-      { keySecret: 'secret' },
     );
+    document.config = { keySecret: 'secret' };
+    document.models = ctx.store.models;
+
+    await document.sign();
     const payload = await document.intoVDS();
     const vds = JSON.parse(payload);
 
     // Assert
-    expect(document.isSigned()).to.be.true;
+    expect(document.isSigned).to.be.true;
     expect(document.uniqueProofId.length).to.equal(12);
     expect(document.algorithm).to.equal('ES256');
     expect(vds.sig.alg).to.equal('ES256');
