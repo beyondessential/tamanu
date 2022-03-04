@@ -32,13 +32,14 @@ const UNHIDEABLE_FIELDS = [
   'firstName',
   'lastName',
   'dateOfBirth',
+  'dateOfDeath',
   'age',
   'ageRange',
   'dateOfBirthFrom',
   'dateOfBirthTo',
   'dateOfBirthExact',
   'emergencyContactName',
-  'emergencyContactNumber'
+  'emergencyContactNumber',
 ];
 
 const HIDEABLE_FIELDS = [
@@ -81,6 +82,54 @@ const templatesSchema = yup.object({
       subTitle: yup.string(),
     })
     .default({})
+    .noUnknown(),
+
+  vdsRenewalEmail: yup
+    .object()
+    .shape({
+      subject: yup
+        .string()
+        .trim()
+        .min(1)
+        .required(),
+      body: yup
+        .string()
+        .trim()
+        .min(1)
+        .required(),
+    })
+    .noUnknown(),
+
+  vaccineCertificateEmail: yup
+    .object()
+    .shape({
+      subject: yup
+        .string()
+        .trim()
+        .min(1)
+        .required(),
+      body: yup
+        .string()
+        .trim()
+        .min(1)
+        .required(),
+    })
+    .noUnknown(),
+
+  covidTestCertificateEmail: yup
+    .object()
+    .shape({
+      subject: yup
+        .string()
+        .trim()
+        .min(1)
+        .required(),
+      body: yup
+        .string()
+        .trim()
+        .min(1)
+        .required(),
+    })
     .noUnknown(),
 });
 

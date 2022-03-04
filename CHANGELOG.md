@@ -22,6 +22,29 @@
 
 - (left blank)
 
+## v1.13.0
+
+### Manual steps required after upgrade ⚙
+
+- (left blank)
+
+### Features ⭐
+
+- (left blank)
+
+### Tweaks ⚖️
+
+- Moved migrations to subcommands (e.g. what was `node ./app.bundle.js migrate --up` now becomes `node app.bundle.js migrate up`)
+- Migrated argument parsing from argparse to commander.js
+
+### Bug fixes 🐛
+
+- Fixed temp folders not already existing on Windows hosts in lan (was already fixed in sync)
+
+### Infrastructure and maintenance 🛠
+
+- (left blank)
+
 ## v1.12.4
 
 ### Manual steps required after upgrade ⚙
@@ -121,6 +144,7 @@
 ### Features ⭐
 
 - Central server has the ability to check available disk space based on current config.
+- Lan servers will auto-discontinue medications after their end date is due (based on facility).
 - Replace the bottom half of certificates with a configurable image
 
 ### Tweaks ⚖️

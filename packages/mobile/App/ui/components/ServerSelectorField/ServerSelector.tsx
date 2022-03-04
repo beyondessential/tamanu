@@ -1,0 +1,107 @@
+import React, { ReactElement, useState, useEffect } from 'react';
+import { useNetInfo } from '@react-native-community/netinfo';
+
+import { SelectOption } from '../Dropdown';
+import { AndroidPicker } from '../Dropdown/Picker.android';
+import { InputContainer, StyledTextInput } from '../TextField/styles';
+import { readConfig } from '~/services/config';
+import { StyledText, StyledView } from '/styled/common';
+import { theme } from '~/ui/styled/theme';
+import { useFacility } from '~/ui/contexts/FacilityContext';
+import { Orientation, screenPercentageToDP } from '/helpers/screen';
+
+const META_SERVER = __DEV__
+  ? 'https://meta-dev.tamanu.io'
+  : 'https://meta.tamanu.io';
+
+type Server = {
+  name: string;
+  type: string;
+  host: string;
+};
+
+const fetchServers = async (): Promise<SelectOption[]> => {
+  // To use a local server, just edit this and select it.
+  // The sync server config is sticky, so you can safely revert it after
+  // the first sync begins and it'll stay connecting to your local server.
+  // return [{ label: 'Local', value: 'http://192.168.0.1:3000' }];
+
+  const response = await fetch(`${META_SERVER}/servers`);
+  const servers: Server[] = await response.json();
+
+  return servers.map((s) => ({ label: s.name, value: s.host }));
+};
+
+export const ServerSelector = ({ onChange, label }): ReactElement => {
+  const [existingHost, setExistingHost] = useState('');
+  const [options, setOptions] = useState([]);
+  const [modalOpen, setModalOpen] = useState(false);
+  const netInfo = useNetInfo();
+  const { facilityName } = useFacility();
+
+  useEffect(() => {
+    (async (): Promise<void> => {
+      const existing = await readConfig('syncServerLocation');
+      setExistingHost(existing);
+      onChange(existing);
+      if (!existingHost && netInfo.isInternetReachable) {
+        const servers = await fetchServers();
+        setOptions(servers);
+      }
+    })();
+  }, [netInfo.isInternetReachable]);
+
+  if (!netInfo.isInternetReachable) {
+    return (
+      <StyledText color={theme.colors.ALERT}>
+        No internet connection available.
+      </StyledText>
+    );
+  }
+
+  if (existingHost) {
+    if (__DEV__) {
+      return (
+        <StyledView marginBottom={10}>
+          <StyledText color={theme.colors.WHITE}>
+            Server: {existingHost}
+          </StyledText>
+          <StyledText color={theme.colors.WHITE}>
+            Facility: {facilityName}
+          </StyledText>
+        </StyledView>
+      );
+    }
+    return null;
+  }
+
+  return (
+    <>
+      <StyledView
+        marginBottom={10}
+        height={screenPercentageToDP(4.86, Orientation.Height)}
+      >
+        <InputContainer>
+          <StyledText
+            paddingTop={screenPercentageToDP(0.66, Orientation.Height)}
+            paddingLeft={screenPercentageToDP(1.5, Orientation.Width)}
+            style={{ fontSize: screenPercentageToDP(1.8, Orientation.Height) }}
+            onPress={(): void => setModalOpen(true)}
+          >
+            {label}
+          </StyledText>
+        </InputContainer>
+      </StyledView>
+      <AndroidPicker
+        label={label}
+        options={options}
+        onChange={(value): void => {
+          setExistingHost(value);
+          onChange(value);
+        }}
+        open={modalOpen}
+        closeModal={(): void => setModalOpen(false)}
+      />
+    </>
+  );
+};

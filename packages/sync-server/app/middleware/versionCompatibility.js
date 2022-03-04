@@ -1,4 +1,5 @@
 import { buildVersionCompatibilityCheck } from 'shared/utils';
+import { InvalidClientHeadersError } from 'shared/errors';
 
 // If a new version of the mobile app is being released in conjunction with an update to the sync
 // server, set `min` for `Tamanu Mobile` to reflect that, and mobile users will be logged out until
@@ -6,18 +7,18 @@ import { buildVersionCompatibilityCheck } from 'shared/utils';
 // not supported.
 export const SUPPORTED_CLIENT_VERSIONS = {
   'Tamanu LAN Server': {
-    min: '1.12.0',
-    max: '1.12.4', // note that higher patch versions will be allowed to connect
+    min: '1.13.0',
+    max: '1.13.0', // note that higher patch versions will be allowed to connect
   },
   'Tamanu Mobile': {
-    min: '1.12.0',
-    max: '1.12.99', // note that higher patch versions will be allowed to connect
+    min: '1.13.0',
+    max: '1.13.99', // note that higher patch versions will be allowed to connect
   },
-  'Fiji VPS': {
+  'fiji-vps': {
     min: null,
     max: null,
   },
-  'Fiji VRS': {
+  'fiji-vrs': {
     min: null,
     max: null,
   },
@@ -35,12 +36,11 @@ export const versionCompatibility = (req, res, next) => {
 
   const clientTypes = Object.keys(SUPPORTED_CLIENT_VERSIONS);
   if (!clientTypes.includes(clientType)) {
-    res.status(400).json({
-      error: {
-        message: `The only supported client types are ${clientTypes.join(', ')}`,
-        name: 'InvalidClientType',
-      },
-    });
+    next(
+      new InvalidClientHeadersError(
+        `The only supported X-Tamanu-Client values are ${clientTypes.join(', ')}`,
+      ),
+    );
     return;
   }
 

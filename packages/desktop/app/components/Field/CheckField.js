@@ -27,7 +27,8 @@ const ControlLabel = styled(FormControlLabel)`
 
 const ControlCheck = styled(CheckControl)`
   padding-top: 0;
-  padding-bottom: 0px;
+  padding-bottom: 0;
+  margin-left: 3px;
   width: max-content;
 `;
 

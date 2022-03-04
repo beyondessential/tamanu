@@ -3,6 +3,7 @@ import express from 'express';
 import asyncHandler from 'express-async-handler';
 
 import { ForbiddenError } from 'shared/errors';
+import { getPermissions } from 'shared/permissions/middleware';
 import {
   simpleGet,
   simplePut,
@@ -23,6 +24,8 @@ user.get(
     res.send(req.user);
   }),
 );
+
+user.get('/permissions', asyncHandler(getPermissions));
 
 user.get(
   '/current-facility',
