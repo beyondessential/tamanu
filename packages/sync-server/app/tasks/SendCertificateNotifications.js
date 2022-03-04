@@ -20,7 +20,10 @@ export async function sendCertificateNotifications(certificateNotifications, mod
   } else {
     return;
   }
+
+  let processed = 0;
   for (const notification of certificateNotifications) {
+    try {
       const patientId = notification.get('patientId');
       const patient = await Patient.findByPk(patientId);
 
@@ -79,5 +82,16 @@ export async function sendCertificateNotifications(certificateNotifications, mod
         destination: notification.get('forwardAddress'),
         attachment: pdf.filePath,
       });
+
+      processed += 1;
+    } catch (error) {
+      log.error(
+        `Failed to process certificate notification id=${notification.id}: ${error.message}`,
+      );
     }
+  }
+
+  log.info(
+    `Done: certificate notification sync-hook task. attempted=${certificateNotifications.length} processed=${processed}`,
+  );
 }
