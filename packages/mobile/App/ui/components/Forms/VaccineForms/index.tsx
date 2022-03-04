@@ -37,9 +37,7 @@ interface VaccineForm {
   onCancel: () => void;
 }
 
-const createInitialValues = (
-  initialValues: VaccineFormValues,
-): VaccineFormValues => ({
+const createInitialValues = (initialValues: VaccineFormValues): VaccineFormValues => ({
   date: null,
   reason: null,
   batch: '',
@@ -82,9 +80,7 @@ export const VaccineForm = ({
                 borderColor={theme.colors.PRIMARY_MAIN}
                 buttonText="Cancel"
               />
-              <SubmitButton
-                width={screenPercentageToDP(43.79, Orientation.Width)}
-              />
+              <SubmitButton width={screenPercentageToDP(43.79, Orientation.Width)} />
             </RowView>
           </FullView>
         )}
