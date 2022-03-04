@@ -52,10 +52,10 @@
   },
   "port": 4000,
   "db": {
-    "name": "main",
-    "sqlitePath": "data/tamanu.db",
-    "username": "test",
-    "password": "abc123",
+    "name": "tamanu-lan",
+    "sqlitePath": null,
+    "username": "",
+    "password": "",
     "verbose": false,
     "migrateOnStartup": false
   },

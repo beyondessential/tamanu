@@ -20,8 +20,8 @@ describe('PatientVaccine', () => {
     app = await baseApp.asRole('practitioner');
     patient = await models.Patient.create(await createDummyPatient(models));
     patient2 = await models.Patient.create(await createDummyPatient(models));
-    await models.ScheduledVaccine.truncate();
-    await models.AdministeredVaccine.truncate();
+    await models.ScheduledVaccine.truncate({ cascade: true });
+    await models.AdministeredVaccine.truncate({ cascade: true });
 
     // create 3 scheduled vaccines, 2 routine and 1 campaign
     scheduled1 = await models.ScheduledVaccine.create(

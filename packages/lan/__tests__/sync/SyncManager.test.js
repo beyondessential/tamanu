@@ -139,7 +139,7 @@ describe('SyncManager', () => {
   describe('exportAndPush', () => {
     const getRecord = ({ id }) => context.models.Patient.findByPk(id);
 
-    beforeEach(() => context.models.Patient.destroy({ truncate: true }));
+    beforeEach(() => context.models.Patient.destroy({ truncate: true, cascade: true }));
 
     it("doesn't unset markedForPush when models set it midway through an push", async () => {
       const { syncManager, remote, models } = context;
