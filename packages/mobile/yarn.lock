@@ -1943,11 +1943,6 @@
   resolved "https://registry.yarnpkg.com/@popmotion/easing/-/easing-1.0.2.tgz#17d925c45b4bf44189e5a38038d149df42d8c0b4"
   integrity sha512-IkdW0TNmRnWTeWI7aGQIVDbKXPWHVEYdGgd5ZR4SH/Ty/61p63jCjrPxX1XrR7IGkl08bjhJROStD7j+RKgoIw==
 
-"@ptomasroos/react-native-multi-slider@^1.0.0":
-  version "1.0.0"
-  resolved "https://registry.yarnpkg.com/@ptomasroos/react-native-multi-slider/-/react-native-multi-slider-1.0.0.tgz#a4ea27b1320b93a1db9f696c24789695df6c9f30"
-  integrity sha512-NpX22rQLArg9widwMzGf7XsInTDf6mfY/D1XaDVjglNkVphj3NSN37+nF6MofArCxC++1P+jHv0SGWbmJQwy4g==
-
 "@reach/router@^1.2.1":
   version "1.3.4"
   resolved "https://registry.yarnpkg.com/@reach/router/-/router-1.3.4.tgz#d2574b19370a70c80480ed91f3da840136d10f8c"
@@ -3083,14 +3078,6 @@
   version "15.7.3"
   resolved "https://registry.yarnpkg.com/@types/prop-types/-/prop-types-15.7.3.tgz#2ab0d5da2e5815f94b0b9d4b95d1e5f243ab2ca7"
   integrity sha512-KfRL3PuHmqQLOG+2tGpRO26Ctg+Cq1E01D2DMriKEATHgWLfeNDmq9e29Q9WIky0dQ3NPkd1mzYH8Lm936Z9qw==
-
-"@types/ptomasroos__react-native-multi-slider@^0.0.1":
-  version "0.0.1"
-  resolved "https://registry.yarnpkg.com/@types/ptomasroos__react-native-multi-slider/-/ptomasroos__react-native-multi-slider-0.0.1.tgz#6cbcc1f3ea7fae847d2921bbb951239d98ffeb87"
-  integrity sha512-Jn+VZEYHAt8V797mMSABg+qCiU+pBklHxxI5bq294cKFSNa6eN5LIojyvaZBHCns0kY5viiTquCKthRwI+zybQ==
-  dependencies:
-    "@types/react" "*"
-    "@types/react-native" "*"
 
 "@types/reach__router@^1.2.3":
   version "1.3.5"
