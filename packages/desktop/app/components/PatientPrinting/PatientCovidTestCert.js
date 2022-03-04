@@ -143,7 +143,8 @@ export const PatientCovidTestCert = ({ patient }) => {
       onClose={() => setOpen(false)}
       width="md"
       printable
-      additionalActions={<EmailButton onEmail={createCovidTestCertNotification} />}
+      // Disabled while issues on WAITM-36 are fixed
+      // additionalActions={<EmailButton onEmail={createCovidTestCertNotification} />}
     >
       <Certificate
         patient={patient}
