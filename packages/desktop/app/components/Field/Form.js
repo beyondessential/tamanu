@@ -2,41 +2,35 @@ import React from 'react';
 import { Formik } from 'formik';
 import PropTypes from 'prop-types';
 import { Typography } from '@material-ui/core';
+import { flattenObject } from '../../utils';
 
 import { Dialog } from '../Dialog';
 
 const ErrorMessage = ({ error }) => `${JSON.stringify(error)}`;
 
-const FormErrors = ({ errors }) =>
-  Object.entries(errors).map(([name, error]) => (
+const FormErrors = ({ errors }) => {
+  const allErrors = flattenObject(errors);
+
+  return Object.entries(allErrors).map(([name, error]) => (
     <Typography key={name} variant="subtitle2">
       <ErrorMessage error={error} />
     </Typography>
   ));
+};
 
 export class Form extends React.PureComponent {
-  static propTypes = {
-    onError: PropTypes.func,
-    onSubmit: PropTypes.func.isRequired,
-    render: PropTypes.func.isRequired,
-    showInlineErrorsOnly: PropTypes.bool,
-    initialValues: PropTypes.object,
-  };
-
-  static defaultProps = {
-    showInlineErrorsOnly: false,
-    onError: null,
-    initialValues: {},
-  };
-
-  state = {
-    validationErrors: {},
-    isErrorDialogVisible: false,
-  };
+  constructor() {
+    super();
+    this.state = {
+      validationErrors: {},
+      isErrorDialogVisible: false,
+    };
+  }
 
   setErrors = validationErrors => {
-    if (this.props.onError) {
-      this.props.onError(validationErrors);
+    const { onError } = this.props;
+    if (onError) {
+      onError(validationErrors);
     }
     this.setState({ validationErrors, isErrorDialogVisible: true });
   };
@@ -79,6 +73,7 @@ export class Form extends React.PureComponent {
         setErrors: this.setErrors,
       });
     } catch (e) {
+      // eslint-disable-next-line no-console
       console.error('Error submitting form: ', e);
       this.setErrors([e.message]);
     }
@@ -108,6 +103,7 @@ export class Form extends React.PureComponent {
           isValid,
           isSubmitting,
           submitForm,
+          clearForm: () => formProps.resetForm({}),
         })}
       </form>
     );
@@ -146,3 +142,17 @@ export class Form extends React.PureComponent {
     );
   }
 }
+
+Form.propTypes = {
+  onError: PropTypes.func,
+  onSubmit: PropTypes.func.isRequired,
+  render: PropTypes.func.isRequired,
+  showInlineErrorsOnly: PropTypes.bool,
+  initialValues: PropTypes.shape({}),
+};
+
+Form.defaultProps = {
+  showInlineErrorsOnly: false,
+  onError: null,
+  initialValues: {},
+};

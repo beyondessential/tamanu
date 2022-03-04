@@ -32,5 +32,5 @@ export const StickerIcon = ({ hovered }) => {
         </clipPath>
       </defs>
     </svg>
-  )
+  );
 };

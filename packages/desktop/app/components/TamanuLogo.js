@@ -11,4 +11,6 @@ const LogoImage = styled.img`
 
 export const TamanuLogo = ({ size }) => <LogoImage src={tamanuLogo} size={size} />;
 
-export const TamanuLogoWhite = ({ size }) => <LogoImage src={tamanuLogoWhite} size={size} />;
+export const TamanuLogoWhite = ({ size, className }) => (
+  <LogoImage src={tamanuLogoWhite} size={size} className={className} />
+);

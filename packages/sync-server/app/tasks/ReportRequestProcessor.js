@@ -17,7 +17,9 @@ export class ReportRequestProcessor extends ScheduledTask {
 
   constructor(context) {
     // run at 30 seconds interval, process 10 report requests each time
-    super(config.schedules.reportRequestProcessor.schedule, log);
+    const conf = config.schedules.reportRequestProcessor;
+    super(conf.schedule, log);
+    this.config = conf;
     this.context = context;
   }
 
@@ -32,7 +34,7 @@ export class ReportRequestProcessor extends ScheduledTask {
       }" with command [${node}, ${parameters.toString()}, ${scriptPath}].`,
     );
 
-    // For some reasons, when running a child process under pm2, pm2_env was not set and caused a problem. 
+    // For some reasons, when running a child process under pm2, pm2_env was not set and caused a problem.
     // So this is a work around
     const childProcessEnv = config.reportProcess.childProcessEnv || {
       ...process.env,
@@ -107,7 +109,7 @@ export class ReportRequestProcessor extends ScheduledTask {
       request.reportType,
       request.getParameters(),
       request.getRecipients(),
-      this.context.store.models,
+      this.context.store,
       this.context.emailService,
     );
 
@@ -120,7 +122,7 @@ export class ReportRequestProcessor extends ScheduledTask {
         status: REPORT_REQUEST_STATUSES.RECEIVED,
       },
       order: [['createdAt', 'ASC']], // process in order received
-      limit: 10,
+      limit: this.config.limit,
     });
 
     for (const request of requests) {

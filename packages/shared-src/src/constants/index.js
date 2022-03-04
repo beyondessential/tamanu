@@ -191,6 +191,7 @@ export const PATIENT_COMMUNICATION_CHANNELS_VALUES = Object.values(PATIENT_COMMU
 
 export const PATIENT_COMMUNICATION_TYPES = {
   REFERRAL_CREATED: 'Referral created',
+  CERTIFICATE: 'Certificate',
 };
 
 export const PATIENT_COMMUNICATION_TYPES_VALUES = Object.values(PATIENT_COMMUNICATION_TYPES);
@@ -259,4 +260,69 @@ export const APPOINTMENT_STATUSES = {
   ARRIVED: 'Arrived',
   NO_SHOW: 'No-show',
   CANCELLED: 'Cancelled',
+};
+
+export const REFERRAL_STATUSES = {
+  PENDING: 'pending',
+  CANCELLED: 'cancelled',
+  COMPLETED: 'completed',
+};
+
+// Size in bytes
+export const DOCUMENT_SIZE_LIMIT = 10000000;
+
+export const ICAO_DOCUMENT_TYPES = {
+  PROOF_OF_TESTING: {
+    DOCTYPE: 'NT',
+    JSON: 'icao.test',
+  },
+  PROOF_OF_VACCINATION: {
+    DOCTYPE: 'NV',
+    JSON: 'icao.vacc',
+  },
+};
+
+export const X502_OIDS = {
+  COMMON_NAME: '2.5.4.3',
+  COUNTRY_NAME: '2.5.4.6',
+  BASIC_CONSTRAINTS: '2.5.29.19',
+  KEY_USAGE: '2.5.29.15',
+  EXTENDED_KEY_USAGE: '2.5.29.37',
+  KEY_IDENTIFIER: '2.5.29.14',
+  AUTHORITY_KEY_IDENTIFIER: '2.5.29.35',
+  DOCUMENT_TYPE: '2.23.136.1.1.6.2',
+  EKU_VDS_NC: '2.23.136.1.1.14.2',
+};
+
+export const INVOICE_STATUSES = {
+  CANCELLED: 'cancelled',
+  IN_PROGRESS: 'in_progress',
+  FINALISED: 'finalised',
+};
+
+export const INVOICE_PAYMENT_STATUSES = {
+  UNPAID: 'unpaid',
+  PAID: 'paid',
+};
+
+export const INVOICE_LINE_TYPES = {
+  PROCEDURE_TYPE: 'procedureType',
+  IMAGING_TYPE: 'imagingType',
+  LAB_TEST_TYPE: 'labTestType',
+  ADDITIONAL: 'additionalInvoiceLine',
+};
+
+export const INVOICE_LINE_TYPE_LABELS = {
+  [INVOICE_LINE_TYPES.PROCEDURE_TYPE]: 'Procedure',
+  [INVOICE_LINE_TYPES.IMAGING_TYPE]: 'Imaging',
+  [INVOICE_LINE_TYPES.LAB_TEST_TYPE]: 'Lab test',
+  [INVOICE_LINE_TYPES.ADDITIONAL]: 'Additional',
+};
+
+export const INVOICE_PRICE_CHANGE_TYPES = {
+  PATIENT_BILLING_TYPE: 'patientBillingType',
+};
+
+export const INVOICE_PRICE_CHANGE_TYPE_LABELS = {
+  [INVOICE_PRICE_CHANGE_TYPES.PATIENT_BILLING_TYPE]: 'Patient Type',
 };

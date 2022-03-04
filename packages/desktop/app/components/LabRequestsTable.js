@@ -42,14 +42,17 @@ const globalColumns = [
 const DumbLabRequestsTable = React.memo(({ encounterId, viewPatient }) => {
   const { loadEncounter } = useEncounter();
   const { loadLabRequest, searchParameters } = useLabRequest();
-  const selectLab = useCallback(async lab => {
-    if (!encounterId) {
-      // no encounter, likely on the labs page
-      await loadEncounter(lab.encounterId);
-    }
-    if (lab.patientId) viewPatient(lab);
-    loadLabRequest(lab.id);
-  }, []);
+  const selectLab = useCallback(
+    async lab => {
+      if (!encounterId) {
+        // no encounter, likely on the labs page
+        await loadEncounter(lab.encounterId);
+      }
+      if (lab.patientId) viewPatient(lab);
+      loadLabRequest(lab.id);
+    },
+    [encounterId, loadEncounter, viewPatient, loadLabRequest],
+  );
 
   return (
     <DataFetchingTable

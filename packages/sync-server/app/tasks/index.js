@@ -1,15 +1,34 @@
 import config from 'config';
+import { vdsConfig } from '../integrations/VdsNc';
 
-import { OutpatientDischarger } from './OutpatientDischarger';
 import { PatientEmailCommunicationProcessor } from './PatientEmailCommunicationProcessor';
+import { OutpatientDischarger } from './OutpatientDischarger';
 import { ReportRequestProcessor } from './ReportRequestProcessor';
 import { ReportRequestScheduler } from './ReportRequestScheduler';
-
-const TASKS = [OutpatientDischarger, ReportRequestProcessor, PatientEmailCommunicationProcessor];
+import { VRSActionRetrier } from './VRSActionRetrier';
+import { VdsNcSignerExpiryChecker } from './VdsNcSignerExpiryChecker';
+import { VdsNcSignerRenewalChecker } from './VdsNcSignerRenewalChecker';
+import { VdsNcSignerRenewalSender } from './VdsNcSignerRenewalSender';
 
 export async function startScheduledTasks(context) {
+  const taskClasses = [
+    OutpatientDischarger,
+    PatientEmailCommunicationProcessor,
+    ReportRequestProcessor,
+  ];
+  if (config.integrations.fijiVrs.enabled) {
+    taskClasses.push(VRSActionRetrier);
+  }
+  if (vdsConfig().enabled) {
+    taskClasses.push(
+      VdsNcSignerExpiryChecker,
+      VdsNcSignerRenewalChecker,
+      VdsNcSignerRenewalSender,
+    );
+  }
+
   const reportSchedulers = await getReportSchedulers(context);
-  const tasks = [...TASKS.map(Task => new Task(context)), ...reportSchedulers];
+  const tasks = [...taskClasses.map(Task => new Task(context)), ...reportSchedulers];
   tasks.forEach(t => t.beginPolling());
   return () => tasks.forEach(t => t.cancelPolling());
 }

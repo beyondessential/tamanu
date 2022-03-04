@@ -1,11 +1,11 @@
 import React from 'react';
-import { Field as FormikField, connect as formikConnect } from 'formik';
+import { Field as FormikField, connect as formikConnect, getIn } from 'formik';
 
 export const Field = formikConnect(({ formik: { errors }, name, helperText, ...props }) => (
   <FormikField
     {...props}
-    error={!!errors[name]}
-    helperText={errors[name] || helperText}
+    error={!!getIn(errors, name)}
+    helperText={getIn(errors, name) || helperText}
     name={name}
   />
 ));

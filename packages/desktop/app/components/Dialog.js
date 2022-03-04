@@ -15,7 +15,7 @@ export const Dialog = memo(
     cancelText = 'Cancel',
   }) => (
     <Modal open={isVisible} onClose={onClose} title={headerTitle}>
-      <React.Fragment>
+      <>
         {contentText}
         <ButtonRow>
           {dialogType === 'confirm' && (
@@ -31,7 +31,7 @@ export const Dialog = memo(
             {okText}
           </Button>
         </ButtonRow>
-      </React.Fragment>
+      </>
     </Modal>
   ),
 );

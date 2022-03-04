@@ -19,7 +19,11 @@ export class ReportGeneratorForm extends React.PureComponent {
           component={MultiDiagnosisSelectorField}
           icd10Suggester={icd10Suggester}
         />
-        <ConfirmCancelRow onCancel={onCancel} onConfirm={submitForm} confirmText="Generate report" />
+        <ConfirmCancelRow
+          onCancel={onCancel}
+          onConfirm={submitForm}
+          confirmText="Generate report"
+        />
       </FormGrid>
     );
   };
@@ -28,10 +32,7 @@ export class ReportGeneratorForm extends React.PureComponent {
     const { onSubmit } = this.props;
     return (
       <div>
-        <Form
-          onSubmit={onSubmit}
-          render={this.renderForm}
-        />
+        <Form onSubmit={onSubmit} render={this.renderForm} />
       </div>
     );
   }

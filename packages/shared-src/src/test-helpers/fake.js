@@ -19,6 +19,11 @@ export function fakeStringFields(prefix, fields) {
 
 export function fakePatient(prefix = 'test-') {
   const id = uuidv4();
+
+  const dateOfBirth = new Date(random(0, Date.now()));
+  const dateOfDeath =
+    prefix.startsWith('dead') ? new Date(random(dateOfBirth.getTime(), Date.now())) : null;
+
   return {
     ...fakeStringFields(`${prefix}patient_${id}_`, [
       'id',
@@ -29,7 +34,8 @@ export function fakePatient(prefix = 'test-') {
       'displayId',
     ]),
     sex: sample(['male', 'female', 'other']),
-    dateOfBirth: new Date(random(0, Date.now())),
+    dateOfBirth,
+    dateOfDeath,
     email: null,
     villageId: null,
   };
@@ -56,6 +62,7 @@ export function fakeSurvey(prefix = 'test-') {
   return {
     programId: null,
     surveyType: 'programs',
+    isSensitive: false,
     ...fakeStringFields(`${prefix}survey_${id}_`, ['id', 'code', 'name']),
   };
 }
@@ -221,6 +228,7 @@ const IGNORED_FIELDS = [
   'pulledAt',
   'markedForPush',
   'markedForSync',
+  'isPushing',
 ];
 
 export const fake = (model, overrides = {}) => {

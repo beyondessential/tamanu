@@ -22,6 +22,198 @@
 
 - (left blank)
 
+## v1.13.0
+
+### Manual steps required after upgrade ⚙
+
+- (left blank)
+
+### Features ⭐
+
+- (left blank)
+
+### Tweaks ⚖️
+
+- Moved migrations to subcommands (e.g. what was `node ./app.bundle.js migrate --up` now becomes `node app.bundle.js migrate up`)
+- Migrated argument parsing from argparse to commander.js
+
+### Bug fixes 🐛
+
+- Fixed temp folders not already existing on Windows hosts in lan (was already fixed in sync)
+
+### Infrastructure and maintenance 🛠
+
+- (left blank)
+
+## v1.12.4
+
+### Manual steps required after upgrade ⚙
+
+- (left blank)
+
+### Features ⭐
+
+- (left blank)
+
+### Tweaks ⚖️
+
+- Small tweaks to `kiribati-covid-swab-lab-test-list`
+
+### Bug fixes 🐛
+
+- (left blank)
+
+### Infrastructure and maintenance 🛠
+
+- (left blank)
+
+## v1.12.3
+
+### Manual steps required after upgrade ⚙
+
+- Consider adding `kiribati-covid-swab-lab-test-list` to disabledReports.
+
+### Features ⭐
+
+- New report for Kiribati.
+
+### Tweaks ⚖️
+
+- (left blank)
+
+### Bug fixes 🐛
+
+- (left blank)
+
+### Infrastructure and maintenance 🛠
+
+- (left blank)
+
+## v1.12.2
+
+### Manual steps required after upgrade ⚙
+
+- (left blank)
+
+### Features ⭐
+
+- (left blank)
+
+### Tweaks ⚖️
+
+- (left blank)
+
+### Bug fixes 🐛
+
+- (left blank)
+
+### Infrastructure and maintenance 🛠
+
+- (left blank)
+
+## v1.12.1
+
+### Manual steps required after upgrade ⚙
+
+- change any reference to `covid-swab-lab-test-list` (such as in disabledReports) to `fiji-covid-swab-lab-test-list`
+
+### Features ⭐
+
+- (left blank)
+
+### Tweaks ⚖️
+
+- (left blank)
+
+### Bug fixes 🐛
+
+- (left blank)
+
+### Infrastructure and maintenance 🛠
+
+- (left blank)
+
+## v1.12.0
+
+### Manual steps required after upgrade ⚙
+
+- Run `yarn` to install new dependency (check-disk-usage) and downgrade babel-jest
+- Add the asset `certificate-bottom-half-img` to each deployment
+- Reimport facilities after mobile update has been deployed
+
+### Features ⭐
+
+- Central server has the ability to check available disk space based on current config.
+- Lan servers will auto-discontinue medications after their end date is due (based on facility).
+- Replace the bottom half of certificates with a configurable image
+
+### Tweaks ⚖️
+
+- Add `react-hooks/exhaustive-deps` and `react-hooks/rules-of-hooks` linter rules
+
+### Bug fixes 🐛
+
+- Referrals now no longer display in the Programs tab
+- Allow lan server to start with serverFacilityId blank if sync.enabled is false, to allow an initial data import of facilities
+
+### Infrastructure and maintenance 🛠
+
+- Add Demo (Tuvalu) to meta-server
+
+## v1.11.0
+
+### Manual steps required after upgrade ⚙
+
+- Fiji only:
+  - set appropriate HL7 settings in local.json
+    - specifically:
+
+```
+  "hl7": {
+    "assigners": {
+      "patientDisplayId": "VRS"
+    },
+    "dataDictionaries": {
+      "patientDisplayId": "http://data-dictionary.tamanu-fiji.org/application-reference-number.html",
+      "labRequestDisplayId": "http://data-dictionary.tamanu-fiji.org/labrequest-reference-number.html"
+    },
+  },
+```
+
+- Everywhere:
+  - set a `canonicalHostName` in `local.json`:
+
+```
+{
+   "canonicalHostName": "https://example.com"
+}
+```
+
+### Features ⭐
+
+- New 'medications' section in patient summary view.
+- Discharge modal now displays a list of active medicines that can be selected.
+- Added integration with Fiji's VPS
+- Added integration with Fiji's VRS
+
+### Tweaks ⚖️
+
+- Forms can now display custom error messages.
+- EncounterMedication model now has two new fields: isDischarge and repeats.
+- New migration for encounter_medications table to account for the new fields.
+- Encounter api route now manages selected discharge medications.
+- Split SelectField and MultiselectField into distinct components
+- SelectField no longer internally tracks its value
+- Remove 'required' attribute for Completed by and Location fields in ImagingRequestView
+
+### Bug fixes 🐛
+
+- (left blank)
+
+### Infrastructure and maintenance 🛠
+
+- (left blank)
+
 ## v1.10.0
 
 ### Manual steps required after upgrade ⚙
@@ -33,11 +225,11 @@
 
 ### Features ⭐
 
-- LAN server is aware of which facility it represents 
+- LAN server is aware of which facility it represents
 
 ### Tweaks ⚖️
 
-- (left blank)
+- Updated logic for the covid-swab-lab-test-list report
 
 ### Bug fixes 🐛
 
@@ -75,11 +267,13 @@
 ```
 
 - For Samoa sync-server (1.10.0), enable running report in child process on again by switching in `packages/sync-server/local.json`:
+
 ```
 "reportProcess": {
     "runInChildProcess": true
 },
 ```
+
 ### Features ⭐
 
 - Active COVID-19 Patients table

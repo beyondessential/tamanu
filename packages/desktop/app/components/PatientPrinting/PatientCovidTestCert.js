@@ -1,60 +1,121 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useMemo, useCallback } from 'react';
 
+import { ICAO_DOCUMENT_TYPES } from 'shared/constants';
 import { Modal } from '../Modal';
 import { Certificate, Table } from '../Print/Certificate';
 import { DateDisplay } from '../DateDisplay';
-import { getCompletedDate, getMethod, getRequestId, getLaboratory } from '../../utils/lab';
+import {
+  getCompletedDate,
+  getMethod,
+  getRequestId,
+  getLaboratory,
+  getRequestedBy,
+} from '../../utils/lab';
 
-import { connectApi } from '../../api';
+import { useApi } from '../../api';
 import { useLocalisation } from '../../contexts/Localisation';
+import { EmailButton } from '../Email/EmailButton';
 
-const DumbPatientCovidTestCert = ({ patient, getLabRequests, getLabTests }) => {
-  const [open, setOpen] = useState(true);
-  const [rows, setRows] = useState([]);
-  const { getLocalisation } = useLocalisation();
-
-  const columns = [
-    {
-      key: 'date-of-swab',
-      title: 'Date of swab',
-      accessor: ({ sampleTime }) => <DateDisplay date={sampleTime} />,
-    },
-    {
-      key: 'date-of-test',
-      title: 'Date of test',
-      accessor: getCompletedDate,
-    },
-    {
-      key: 'laboratory',
-      title: 'Laboratory',
-      accessor: getLaboratory,
-    },
-    {
-      key: 'requestId',
-      title: 'Request ID',
-      accessor: getRequestId,
-    },
-    {
-      key: 'laboratoryOfficer',
-      title: 'Lab officer',
-    },
-    {
-      key: 'method',
-      title: 'Method',
-      accessor: getMethod,
-    },
-    {
-      key: 'result',
-      title: 'Result',
-    },
-  ];
+const usePassportNumber = patientId => {
+  const api = useApi();
+  const [value, setValue] = useState(null);
 
   useEffect(() => {
     (async () => {
-      const response = await getLabRequests();
+      const passportNumber = await api.get(`patient/${patientId}/passportNumber`);
+      setValue(passportNumber);
+    })();
+  }, [api, patientId]);
+
+  return () => value;
+};
+
+const useNationality = patientId => {
+  const api = useApi();
+  const [value, setValue] = useState(null);
+
+  useEffect(() => {
+    (async () => {
+      const nationality = await api.get(`patient/${patientId}/nationality`);
+      setValue(nationality);
+    })();
+  }, [api, patientId]);
+
+  return () => value;
+};
+
+export const PatientCovidTestCert = ({ patient }) => {
+  const [open, setOpen] = useState(true);
+  const [rows, setRows] = useState([]);
+  const { getLocalisation } = useLocalisation();
+  const api = useApi();
+
+  const createCovidTestCertNotification = useCallback(
+    data => {
+      api.post('certificateNotification', {
+        type: ICAO_DOCUMENT_TYPES.PROOF_OF_TESTING.JSON,
+        requireSigning: false,
+        patientId: patient.id,
+        forwardAddress: data.email,
+      });
+    },
+    [api, patient],
+  );
+
+  const columns = useMemo(
+    () => [
+      {
+        key: 'date-of-swab',
+        title: 'Date of swab',
+        accessor: ({ sampleTime }) => <DateDisplay date={sampleTime} />,
+      },
+      {
+        key: 'time-of-swab',
+        title: 'Time of swab',
+        accessor: ({ sampleTime }) => <DateDisplay date={sampleTime} showDate={false} showTime />,
+      },
+      {
+        key: 'date-of-test',
+        title: 'Date of test',
+        accessor: getCompletedDate,
+      },
+      {
+        key: 'laboratory',
+        title: 'Laboratory',
+        accessor: getLaboratory,
+      },
+      {
+        key: 'requestId',
+        title: 'Request ID',
+        accessor: getRequestId,
+      },
+      {
+        key: 'method',
+        title: 'Method',
+        accessor: getMethod,
+      },
+      {
+        key: 'result',
+        title: 'Result',
+      },
+      {
+        key: 'specimenType',
+        title: 'Specimen type',
+        accessor: ({ labTestType }) => labTestType.name,
+      },
+    ],
+    [],
+  );
+
+  useEffect(() => {
+    (async () => {
+      const response = await api.get(`labRequest`, {
+        patientId: patient.id,
+        category: 'covid',
+      });
       const requests = await Promise.all(
         response.data.map(async request => {
-          const { data: tests } = await getLabTests(request.id);
+          const { data: tests } = await api.get(`labRequest/${request.id}/tests`);
           return {
             ...request,
             ...tests[0],
@@ -71,19 +132,32 @@ const DumbPatientCovidTestCert = ({ patient, getLabRequests, getLabTests }) => {
         })),
       );
     })();
-  }, []);
+  }, [columns, api, patient.id]);
+
+  const getPassportNumber = usePassportNumber(patient.id);
+  const getNationality = useNationality(patient.id);
+
   return (
-    <Modal open={open} onClose={() => setOpen(false)} width="md" printable>
+    <Modal
+      open={open}
+      onClose={() => setOpen(false)}
+      width="md"
+      printable
+      // Disabled while issues on WAITM-36 are fixed
+      // additionalActions={<EmailButton onEmail={createCovidTestCertNotification} />}
+    >
       <Certificate
         patient={patient}
-        header="COVID-19 test history"
+        header="COVID-19 Test History"
+        customAccessors={{ passport: getPassportNumber, nationalityId: getNationality }}
         primaryDetailsFields={[
           'firstName',
           'lastName',
           'dateOfBirth',
-          'placeOfBirth',
-          'countryOfBirthId',
           'sex',
+          'displayId',
+          'nationalityId',
+          'passport',
         ]}
       >
         <Table>
@@ -110,12 +184,3 @@ const DumbPatientCovidTestCert = ({ patient, getLabRequests, getLabTests }) => {
     </Modal>
   );
 };
-
-export const PatientCovidTestCert = connectApi((api, dispatch, { patient }) => ({
-  getLabRequests: () =>
-    api.get(`/labRequest`, {
-      patientId: patient.id,
-      category: 'covid',
-    }),
-  getLabTests: id => api.get(`/labRequest/${id}/tests`),
-}))(DumbPatientCovidTestCert);

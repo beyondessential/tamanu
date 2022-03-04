@@ -21,6 +21,8 @@ export class PatientAdditionalData extends Model {
         birthCertificate: Sequelize.STRING,
         drivingLicense: Sequelize.STRING,
         passport: Sequelize.STRING,
+        emergencyContactName: Sequelize.STRING,
+        emergencyContactNumber: Sequelize.STRING,
       },
       {
         ...options,
@@ -69,6 +71,6 @@ export class PatientAdditionalData extends Model {
   }
 
   static getFullReferenceAssociations() {
-    return ['countryOfBirth'];
+    return ['countryOfBirth', 'nationality'];
   }
 }

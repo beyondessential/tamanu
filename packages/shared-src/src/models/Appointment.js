@@ -28,7 +28,7 @@ export class Appointment extends Model {
   }
 
   static getListReferenceAssociations() {
-    return ['patient', 'clinician', 'location'];
+    return [{ association: 'patient', include: ['village'] }, 'clinician', 'location'];
   }
 
   static initRelations(models) {

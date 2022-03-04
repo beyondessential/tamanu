@@ -27,6 +27,8 @@ export async function discoverServer() {
             servers.push(server);
           }
         } catch (e) {
+          // deliberate logging
+          // eslint-disable-next-line no-console
           console.warn(e);
         }
       }
@@ -51,6 +53,8 @@ export async function discoverServer() {
     const response = await promise;
     return response;
   } catch (e) {
+    // deliberate logging
+    // eslint-disable-next-line no-console
     console.warn(e);
     return null;
   } finally {

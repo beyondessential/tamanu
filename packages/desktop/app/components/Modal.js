@@ -28,6 +28,11 @@ const Dialog = styled(MuiDialog)`
   }
 
   @media print {
+    .MuiPaper-root {
+      background: rgb(243, 245, 247, 0.9);
+      -webkit-print-color-adjust: exact;
+    }
+
     .MuiDialogTitle-root,
     .MuiDialogActions-root {
       display: none;
@@ -78,6 +83,7 @@ export const Modal = memo(
     open = false,
     onClose,
     printable = false,
+    additionalActions,
     ...props
   }) => {
     const { printPage } = useElectron();
@@ -86,6 +92,7 @@ export const Modal = memo(
         <ModalTitle>
           <VerticalCenteredText>{title}</VerticalCenteredText>
           <div>
+            {additionalActions}
             {printable ? (
               <Button
                 color="primary"
@@ -108,7 +115,8 @@ export const Modal = memo(
         </ModalContainer>
       </Dialog>
     );
-  });
+  },
+);
 
 export const connectRoutedModal = (baseRoute, suffix) =>
   connect(

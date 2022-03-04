@@ -15,6 +15,10 @@ export class Facility extends Model {
           type: Sequelize.STRING,
           allowNull: false,
         },
+        email: Sequelize.STRING,
+        contactNumber: Sequelize.STRING,
+        streetAddress: Sequelize.STRING,
+        cityTown: Sequelize.STRING,
         division: Sequelize.STRING,
         type: Sequelize.STRING,
       },
@@ -37,6 +41,9 @@ export class Facility extends Model {
       foreignKey: 'facilityId',
     });
     this.hasMany(models.UserFacility, {
+      foreignKey: 'facilityId',
+    });
+    this.hasMany(models.VdsNcDocument, {
       foreignKey: 'facilityId',
     });
 

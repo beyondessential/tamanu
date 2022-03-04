@@ -2,6 +2,7 @@ import { Sequelize } from 'sequelize';
 import { createNamespace } from 'cls-hooked';
 import pg from 'pg';
 import wayfarer from 'wayfarer';
+import util from 'util';
 
 // an issue in how webpack's require handling interacts with sequelize means we need
 // to provide the module to sequelize manually
@@ -30,6 +31,9 @@ const unsafeRecreatePgDb = async ({ name, username, password, host, port }) => {
     await client.connect();
     await client.query(`DROP DATABASE IF EXISTS "${name}"`);
     await client.query(`CREATE DATABASE "${name}"`);
+  } catch(e) {
+    log.error("Failed to drop database. Note that every createTestContext() must have a corresponding ctx.close()!");
+    throw e;
   } finally {
     await client.end();
   }
@@ -64,7 +68,10 @@ async function connectToDatabase(dbOptions) {
   if (sqlitePath) {
     log.info(`Connecting to sqlite database at ${sqlitePath}...`);
   } else {
-    log.info(`Connecting to database ${username}@${name}...`);
+    log.info(
+      `Connecting to database ${username || '<no username>'}:*****@${host || '<no host>'}:${port ||
+        '<no port>'}/${name || '<no name>'}...`,
+    );
   }
 
   // this allows us to use transaction callbacks without manually managing a transaction handle
@@ -72,7 +79,12 @@ async function connectToDatabase(dbOptions) {
   const namespace = createNamespace('sequelize-transaction-namespace');
   Sequelize.useCLS(namespace);
 
-  const logging = verbose ? s => log.debug(s) : null;
+  const logging = verbose
+    ? (query, obj) =>
+        log.debug(
+          `${util.inspect(query)}; -- ${util.inspect(obj.bind || [], { breakLength: Infinity })}`,
+        )
+    : null;
   const options = sqlitePath
     ? { dialect: 'sqlite', dialectModule: sqlite3, storage: sqlitePath }
     : { dialect: 'postgres' };
@@ -85,6 +97,7 @@ async function connectToDatabase(dbOptions) {
   await sequelize.authenticate();
 
   process.on('SIGTERM', () => {
+    log.info('Received SIGTERM, closing sequelize');
     sequelize.close();
   });
 
@@ -110,14 +123,14 @@ export async function initDatabase(dbOptions) {
   // attach migration function to the sequelize object - leaving the responsibility
   // of calling it to the implementing server (this allows for skipping migrations
   // in favour of calling sequelize.sync() during test mode)
-  sequelize.migrate = async options => {
+  sequelize.migrate = async direction => {
     if (sqlitePath) {
       log.info('Syncing sqlite schema...');
       await sequelize.sync();
       return;
     }
 
-    await migrate(log, sequelize, options);
+    await migrate(log, sequelize, direction);
   };
 
   sequelize.assertUpToDate = async options => {

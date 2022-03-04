@@ -2,7 +2,7 @@ import React from 'react';
 import moment from 'moment';
 import styled from 'styled-components';
 
-function formatShort(date) {
+export function formatShort(date) {
   if (!date) return '--/--/----';
 
   return moment(date).format('DD/MM/YYYY'); // "04/03/2019" dd/mm in locale order
@@ -18,7 +18,7 @@ function formatDuration(date) {
   return moment(date).from(moment(), true);
 }
 
-function formatTime(date) {
+export function formatTime(date) {
   return moment(date).format('hh:mm a');
 }
 
@@ -43,8 +43,7 @@ export const DateDisplay = ({
   const parts = [];
   if (showDate) {
     parts.push(formatShort(date));
-  }
-  else if (showExplicitDate) {
+  } else if (showExplicitDate) {
     parts.push(formatShortExplicit(date));
   }
   if (showDuration) {

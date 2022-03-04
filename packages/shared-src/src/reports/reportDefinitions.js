@@ -79,9 +79,19 @@ export const REPORT_DEFINITIONS = [
   },
   {
     name: 'COVID-19 Tests - Line list',
-    id: 'covid-swab-lab-test-list',
+    id: 'fiji-covid-swab-lab-test-list',
     allFacilities: true,
     parameters: [{ parameterField: 'VillageField' }, { parameterField: 'LabTestLaboratoryField' }],
+  },
+  {
+    name: 'Palau COVID-19 Test - Line list',
+    id: 'palau-covid-swab-lab-test-list',
+    allFacilities: true,
+  },
+  {
+    name: 'Kiribati COVID-19 Test - Line list',
+    id: 'kiribati-covid-swab-lab-test-list',
+    allFacilities: true,
   },
   {
     name: 'COVID-19 Tests - Summary',
@@ -99,5 +109,110 @@ export const REPORT_DEFINITIONS = [
   {
     name: 'PNG assistive technology device - Line list',
     id: 'png-assistive-technology-device-line-list',
+  },
+  {
+    name: 'Fiji recent attendance - Line list',
+    id: 'fiji-recent-attendance-list',
+    parameters: [
+      { parameterField: 'VillageField' },
+      { parameterField: 'DiagnosisField', name: 'diagnosis', label: 'Diagnosis' },
+    ],
+  },
+  {
+    name: 'Fiji NCD primary screening  - Line list',
+    id: 'fiji-ncd-primary-screening-line-list',
+    allFacilities: true,
+    parameters: [
+      {
+        parameterField: 'ParameterSelectField',
+        name: 'surveyId',
+        label: 'Screening type',
+        options: [
+          {
+            label: 'CVD Primary Screening Form',
+            value: 'program-fijincdprimaryscreening-fijicvdprimaryscreen2',
+          },
+          {
+            label: 'Breast Cancer Primary Screening Form',
+            value: 'program-fijincdprimaryscreening-fijibreastprimaryscreen',
+          },
+          {
+            label: 'Cervical Cancer Primary Screening Form',
+            value: 'program-fijincdprimaryscreening-fijicervicalprimaryscreen',
+          },
+        ],
+      },
+    ],
+  },
+  {
+    name: 'Fiji NCD primary screening pending referrals - Line list',
+    id: 'fiji-ncd-primary-screening-pending-referrals-line-list',
+    allFacilities: true,
+    parameters: [
+      {
+        parameterField: 'ParameterSelectField',
+        name: 'surveyId',
+        label: 'Referral type',
+        options: [
+          {
+            label: 'CVD Primary Screening Referral',
+            value: 'program-fijincdprimaryscreening-fijicvdprimaryscreenref',
+          },
+          {
+            label: 'Breast Cancer Primary Screening Referral',
+            value: 'program-fijincdprimaryscreening-fijibreastscreenref',
+          },
+          {
+            label: 'Cervical Cancer Primary Screening Referral',
+            value: 'program-fijincdprimaryscreening-fijicervicalscreenref',
+          },
+        ],
+      },
+    ],
+  },
+  {
+    name: 'Fiji NCD primary screening - Summary',
+    id: 'fiji-ncd-primary-screening-summary',
+    allFacilities: true,
+    parameters: [
+      {
+        parameterField: 'ParameterMultiselectField',
+        name: 'surveyIds',
+        label: 'Screening type',
+        options: [
+          {
+            label: 'CVD Primary Screening Form',
+            value: 'program-fijincdprimaryscreening-fijicvdprimaryscreen2',
+          },
+          {
+            label: 'Breast Cancer Primary Screening Form',
+            value: 'program-fijincdprimaryscreening-fijibreastprimaryscreen',
+          },
+          {
+            label: 'Cervical Cancer Primary Screening Form',
+            value: 'program-fijincdprimaryscreening-fijicervicalprimaryscreen',
+          },
+        ],
+      },
+      {
+        parameterField: 'ParameterAutocompleteField',
+        label: 'Division',
+        name: 'division',
+        suggesterEndpoint: 'division',
+      },
+      {
+        parameterField: 'ParameterAutocompleteField',
+        label: 'Medical Area',
+        name: 'medicalArea',
+        suggesterEndpoint: 'medicalArea',
+      },
+      {
+        parameterField: 'ParameterAutocompleteField',
+        label: 'Nursing Zone',
+        name: 'nursingZone',
+        suggesterEndpoint: 'nursingZone',
+      },
+      { parameterField: 'VillageField' },
+    ],
   },
 ];
