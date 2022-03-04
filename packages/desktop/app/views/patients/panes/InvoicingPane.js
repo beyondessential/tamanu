@@ -97,7 +97,6 @@ export const InvoicingPane = React.memo(({ encounter }) => {
             onClick={() => setInvoicePriceChangeModalOpen(true)}
             variant="contained"
             color="primary"
-            style={{ marginRight: '20px' }}
           >
             Add price change
           </Button>

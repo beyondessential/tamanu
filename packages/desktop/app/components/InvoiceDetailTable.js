@@ -13,7 +13,7 @@ import { useEncounter } from '../contexts/Encounter';
 import { Colors } from '../constants';
 import { isInvoiceEditable, calculateInvoiceTotal, calculateInvoiceLinesTotal } from '../utils';
 
-import { Table } from './Table';
+import { DataFetchingTable } from './Table';
 import { DeleteButton } from './Button';
 import { InvoiceLineItemModal } from './InvoiceLineItemModal';
 import { InvoicePriceChangeItemModal } from './InvoicePriceChangeItemModal';
@@ -134,15 +134,14 @@ const InvoicePriceChangeActionDropdown = React.memo(({ row }) => {
 
 const getDisplayName = ({ orderedBy }) => orderedBy?.displayName ?? '';
 const getPercentageChange = ({ percentageChange }) => {
-  const percentageChangeNumber = percentageChange ? parseFloat(percentageChange) * 100 : null;
+  const percentageChangeNumber =
+    percentageChange !== undefined ? parseFloat(percentageChange) * 100 : null;
 
-  if (percentageChangeNumber) {
-    return percentageChangeNumber > 0
-      ? `+${percentageChangeNumber}%`
-      : `${percentageChangeNumber}%`;
+  if (percentageChangeNumber === null) {
+    return '';
   }
 
-  return '';
+  return percentageChangeNumber > 0 ? `+${percentageChangeNumber}%` : `${percentageChangeNumber}%`;
 };
 
 const getInvoiceLineCode = row => {
@@ -159,17 +158,16 @@ const getInvoiceLineCode = row => {
   }
 };
 const getInvoicePriceChangeCode = row => {
-  if (row.invoicePriceChangeType) {
-    const { itemType } = row.invoicePriceChangeType;
-    switch (itemType) {
-      case INVOICE_PRICE_CHANGE_TYPES.PATIENT_BILLING_TYPE:
-        return row.invoicePriceChangeType?.patientBillingType?.code;
-      default:
-        return '';
-    }
+  if (!row.invoicePriceChangeType) {
+    return '';
   }
-
-  return '';
+  const { itemType } = row.invoicePriceChangeType;
+  switch (itemType) {
+    case INVOICE_PRICE_CHANGE_TYPES.PATIENT_BILLING_TYPE:
+      return row.invoicePriceChangeType?.patientBillingType?.code;
+    default:
+      return '';
+  }
 };
 const getInvoiceLineCategory = row => {
   const { name } = row.invoiceLineType;
@@ -276,63 +274,42 @@ const INVOICE_PRICE_CHANGE_COLUMNS = [
 ];
 
 export const InvoiceDetailTable = React.memo(({ invoice }) => {
-  const api = useApi();
-  const [isLoading, setIsLoading] = useState(false);
-  const [errorMessage, setErrorMessage] = useState(null);
   const [invoiceLineItems, setInvoiceLineItems] = useState([]);
   const [invoicePriceChangeItems, setInvoicePriceChangeItems] = useState([]);
+  const [invoiceLinesTotal, setInvoiceLinesTotal] = useState(0);
+  const [invoiceTotal, setInvoiceTotal] = useState(0);
 
-  const getInvoiceTotal = useCallback(() => {
-    let total = 0;
-
-    // when an invoice has been finalised or cancelled, it should have a total locked in.
+  const updateLineItems = useCallback(({ data }) => setInvoiceLineItems(data), []);
+  const updatePriceChangeItems = useCallback(({ data }) => setInvoicePriceChangeItems(data), []);
+  useEffect(() => {
     if (invoice.total !== undefined && invoice.total !== null) {
-      total = invoice.total;
-    } else {
-      // if not, the invoice is still in progress, calculate the invoice total manually.
-      total = calculateInvoiceTotal(invoiceLineItems, invoicePriceChangeItems);
+      setInvoiceTotal(invoice.total);
     }
-
-    return total;
+    setInvoiceTotal(calculateInvoiceTotal(invoiceLineItems, invoicePriceChangeItems));
   }, [invoice.total, invoiceLineItems, invoicePriceChangeItems]);
 
   useEffect(() => {
-    setIsLoading(true);
-    (async () => {
-      try {
-        const invoiceLineItemsResponse = await api.get(`invoices/${invoice.id}/lineItems`);
-        const invoicePriceChangeItemsResponse = await api.get(
-          `invoices/${invoice.id}/priceChangeItems`,
-        );
-        setIsLoading(false);
-        setInvoiceLineItems(invoiceLineItemsResponse.data);
-        setInvoicePriceChangeItems(invoicePriceChangeItemsResponse.data);
-      } catch (error) {
-        setIsLoading(false);
-        setErrorMessage(error.message);
-      }
-    })();
-  }, [api, invoice.id]);
+    setInvoiceLinesTotal(calculateInvoiceLinesTotal(invoiceLineItems));
+  }, [invoiceLineItems]);
 
   // use Table instead of DataFetchingTable because the results of the
   // data retrieval is needed for the call to calculate invoice total
   return (
     <>
-      <Table
-        isLoading={isLoading}
+      <DataFetchingTable
+        endpoint={`invoices/${invoice.id}/lineItems`}
         columns={[
           ...INVOICE_LINE_COLUMNS,
           isInvoiceEditable(invoice.status) ? INVOICE_LINE_ACTION_COLUMN : undefined,
         ]}
-        data={invoiceLineItems}
-        errorMessage={errorMessage}
         noDataMessage="No invoice line items found"
         allowExport={false}
+        onDataFetched={updateLineItems}
       />
-      <InvoiceTotal>Sub-Total: {`$${calculateInvoiceLinesTotal(invoiceLineItems)}`}</InvoiceTotal>
-      <h4 style={{margin: '1rem'}}>Discounts</h4>
-      <Table
-        isLoading={isLoading}
+      <InvoiceTotal>Sub-Total: ${invoiceLinesTotal}</InvoiceTotal>
+      <h4 style={{ margin: '1rem' }}>Discounts</h4>
+      <DataFetchingTable
+        endpoint={`invoices/${invoice.id}/priceChangeItems`}
         columns={[
           ...INVOICE_PRICE_CHANGE_COLUMNS,
           {
@@ -340,19 +317,20 @@ export const InvoiceDetailTable = React.memo(({ invoice }) => {
             title: 'Price',
             sortable: false,
             accessor: ({ percentageChange }) => {
-              const total = calculateInvoiceLinesTotal(invoiceLineItems);
-              const priceChange = (percentageChange || 0) * total;
-              return priceChange > 0 ? `+$${priceChange}` : `-$${Math.abs(priceChange)}`;
+              const priceChange = (percentageChange || 0) * invoiceLinesTotal;
+              if (priceChange === 0) {
+                return '$0';
+              }
+              return priceChange > 0 ? `+$${priceChange}` : `-$${-priceChange}`;
             },
           },
           isInvoiceEditable(invoice.status) ? INVOICE_PRICE_CHANGE_ACTION_COLUMN : undefined,
         ]}
-        data={invoicePriceChangeItems}
-        errorMessage={errorMessage}
         noDataMessage="No additional price change found"
         allowExport={false}
+        onDataFetched={updatePriceChangeItems}
       />
-      <InvoiceTotal>Total: {`$${getInvoiceTotal()}`}</InvoiceTotal>
+      <InvoiceTotal>Total: ${invoiceTotal}</InvoiceTotal>
     </>
   );
 });

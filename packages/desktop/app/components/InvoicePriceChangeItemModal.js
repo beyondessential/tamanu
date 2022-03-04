@@ -26,12 +26,12 @@ export const InvoicePriceChangeItemModal = ({
     async data => {
       const convertedPriceChange = data.percentageChange / 100;
       if (invoicePriceChangeItemId) {
-        api.put(`invoices/${invoiceId}/invoicePriceChangeItems/${invoicePriceChangeItemId}`, {
+        api.put(`invoices/${invoiceId}/priceChangeItems/${invoicePriceChangeItemId}`, {
           ...data,
           percentageChange: convertedPriceChange,
         });
       } else {
-        api.post(`invoices/${invoiceId}/invoicePriceChangeItems`, {
+        api.post(`invoices/${invoiceId}/priceChangeItems`, {
           ...data,
           percentageChange: convertedPriceChange,
         });
@@ -45,7 +45,7 @@ export const InvoicePriceChangeItemModal = ({
     if (invoicePriceChangeItemId) {
       (async () => {
         const response = await api.get(
-          `invoices/${invoiceId}/invoicePriceChangeItems/${invoicePriceChangeItemId}`,
+          `invoices/${invoiceId}/priceChangeItems/${invoicePriceChangeItemId}`,
         );
         setInvoicePriceChangeItem({
           ...response,
