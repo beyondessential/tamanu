@@ -142,9 +142,9 @@ export class Patient extends Model {
     });
 
     const latestVaccination = vaccinations[0];
-    const id = latestVaccination.get('id');
+    const patientId = this.id;
     const updatedAt = latestVaccination.get('updatedAt');
 
-    return generateUUIDDateTimeHash(id, updatedAt);
+    return generateUUIDDateTimeHash(patientId, updatedAt);
   }
 }
