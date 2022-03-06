@@ -1,4 +1,4 @@
-import { Entity, Column, RelationId, ManyToOne } from 'typeorm/browser';
+import { Entity, Column, RelationId, ManyToOne, BeforeUpdate, BeforeInsert } from 'typeorm/browser';
 import { BaseModel, IdRelation } from './BaseModel';
 import { IPatientAdditionalData } from '~/types';
 import { ReferenceData, ReferenceDataRelation } from './ReferenceData';
@@ -112,4 +112,17 @@ export class PatientAdditionalData extends BaseModel implements IPatientAddition
 
   @Column({ default: false })
   markedForSync: boolean;
+
+  static shouldExport = true;
+
+  @BeforeInsert()
+  @BeforeUpdate()
+  async markPatient() {
+    // Adding or editing additional data should mark the patient for sync
+    const parent = await this.findParent(Patient, 'patient');
+    if (parent) {
+      parent.markedForSync = true;
+      await parent.save();
+    }
+  }
 }
