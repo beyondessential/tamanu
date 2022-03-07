@@ -171,7 +171,8 @@ describe('Certificate', () => {
   it('Generates a Patient Vaccine Certificate', async () => {
     await createVaccines();
     const patientRecord = await models.Patient.findByPk(patient.id);
-    const result = await makeVaccineCertificate(patientRecord, models, [{ foo: 'bar' }]);
+    const printedBy = 'Initial Admin';
+    const result = await makeVaccineCertificate(patientRecord, printedBy, models, [{ foo: 'bar' }]);
     expect(result.status).toEqual('success');
   });
 });

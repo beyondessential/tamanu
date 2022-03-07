@@ -6,7 +6,7 @@ import { log } from 'shared/services/logging';
 import { tmpdir, CovidLabCertificate, VaccineCertificate } from 'shared/utils';
 import { getLocalisationData } from './localisation';
 
-export const makeVaccineCertificate = async (patient, models, vdsData = null) => {
+export const makeVaccineCertificate = async (patient, printedBy, models, vdsData = null) => {
   const folder = await tmpdir();
   const fileName = `vaccine-certificate-${patient.id}.pdf`;
   const filePath = path.join(folder, fileName);
@@ -39,6 +39,7 @@ export const makeVaccineCertificate = async (patient, models, vdsData = null) =>
     await ReactPDF.render(
       <VaccineCertificate
         patient={patientData}
+        printedBy={printedBy}
         extraPatientFields={[{ key: 'uvci', label: 'UVCI', accessor: () => uvci }]}
         vaccinations={vaccinations}
         signingSrc={signingImage?.data}
