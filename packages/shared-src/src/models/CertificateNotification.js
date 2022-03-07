@@ -10,6 +10,8 @@ export class CertificateNotification extends Model {
         type: Sequelize.STRING,
         forwardAddress: Sequelize.STRING,
         requireSigning: Sequelize.BOOLEAN,
+        status: Sequelize.STRING,
+        error: Sequelize.TEXT,
       },
       {
         ...options,
