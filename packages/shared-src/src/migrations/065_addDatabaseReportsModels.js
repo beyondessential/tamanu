@@ -80,8 +80,6 @@ module.exports = {
     await query.removeColumn('report_requests', 'report_type');
   },
   down: async query => {
-    await query.dropTable('report_definition_versions');
-    await query.dropTable('report_definitions');
     // Adding a non-nullable column will fail if there are records in the db
     await query.addColumn('report_requests', 'report_type', {
       type: Sequelize.STRING,
@@ -101,5 +99,8 @@ module.exports = {
     await query.removeColumn('report_requests', 'report_type');
     await query.removeColumn('report_requests', 'legacy_report_id');
     await query.removeColumn('report_requests', 'facility_id');
+
+    await query.dropTable('report_definition_versions');
+    await query.dropTable('report_definitions');
   },
 };
