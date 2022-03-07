@@ -29,11 +29,16 @@ export const makeVaccineCertificate = async (patient, models, vdsData = null) =>
 
   try {
     const vaccinations = await patient.getAdministeredVaccines();
+    const additionalData = await models.PatientAdditionalData.findOne({
+      where: { patientId: patient.id },
+      include: models.PatientAdditionalData.getFullReferenceAssociations(),
+    });
+    const patientData = { ...patient.dataValues, additionalData: additionalData.dataValues };
     const uvci = await patient.getIcaoUVCI();
 
     await ReactPDF.render(
       <VaccineCertificate
-        patient={patient.dataValues}
+        patient={patientData}
         extraPatientFields={[{ key: 'uvci', label: 'UVCI', accessor: () => uvci }]}
         vaccinations={vaccinations}
         signingSrc={signingImage?.data}
