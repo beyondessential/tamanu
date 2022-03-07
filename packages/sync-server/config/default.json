@@ -94,6 +94,11 @@
       "schedule": "*/30 * * * * *",
       "limit": 10
     },
+    "certificateNotificationProcessor": {
+      // every 30seconds /!\
+      "schedule": "*/30 * * * * *",
+      "limit": 10
+    },
     "reportRequestProcessor": {
        // every 30 seconds /!\
       "schedule": "*/30 * * * * *",

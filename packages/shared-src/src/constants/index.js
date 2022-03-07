@@ -336,3 +336,9 @@ export const INVOICE_PRICE_CHANGE_ITEM_STATUSES = {
   ACTIVE: 'active',
   DELETED: 'deleted',
 };
+
+export const CERTIFICATE_NOTIFICATION_STATUSES = {
+  QUEUED: 'Queued',
+  PROCESSED: 'Processed',
+  ERROR: 'Error',
+};
