@@ -5,6 +5,8 @@
 ### Manual steps required after upgrade ⚙
 
 - Consider adding `fiji-aspen-encounter-summary-line-list` to disabledReports
+- Renamed configuration: `integrations.vds` becomes `integrations.icaoSigner`, and concerns only the generation and management of ICAO DSC (Signer certificates). This integration is required to be enabled for the either of the `icaoVdsNc` or the `euDcc` integrations to function.
+- If `integrations.vds` was previously enabled, a new `integrations.icaoVdsNc` section needs to be enabled now as well as the above.
 
 ### Features ⭐
 
