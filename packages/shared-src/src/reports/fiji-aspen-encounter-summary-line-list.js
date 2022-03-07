@@ -77,6 +77,15 @@ with
 		join reference_data diagnosis on diagnosis.id = ed.diagnosis_id
 		group by encounter_id
 	),
+	vaccine_info as (
+		select
+			encounter_id,
+			string_agg(drug.name || ', ' || sv.label || ',  ' || sv.schedule, ';') as "Vaccinations"
+		from administered_vaccines av
+		join scheduled_vaccines sv on sv.id = av.scheduled_vaccine_id 
+		join reference_data drug on drug.id = sv.vaccine_id 
+		group by encounter_id
+	),
 	imaging_info as (
 		select
 			encounter_id,
@@ -105,6 +114,7 @@ select
 	e.reason_for_encounter "Reason for encounter",
 	di."Diagnosis",
 	mi."Medications",
+	vi."Vaccinations",
 	pi."Procedures",
 	lri."Lab requests",
 	ii."Imaging requests",
@@ -114,6 +124,7 @@ join encounters e on e.patient_id = p.id
 left join billing_type bt on bt.patient_id = p.id
 left join reference_data billing on billing.id = bt.patient_billing_type_id
 left join medications_info mi on e.id = mi.encounter_id
+left join vaccine_info vi on e.id = vi.encounter_id
 left join diagnosis_info di on e.id = di.encounter_id
 left join procedure_info pi on e.id = pi.encounter_id
 left join lab_request_info lri on lri.encounter_id = e.id
