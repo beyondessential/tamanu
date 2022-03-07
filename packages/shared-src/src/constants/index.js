@@ -282,6 +282,14 @@ export const ICAO_DOCUMENT_TYPES = {
   },
 };
 
+export const EUDCC_CERTIFICATE_TYPES = {
+  VACCINATION: 'v',
+  TEST: 't',
+  RECOVERY: 'r',
+};
+
+export const EUDCC_SCHEMA_VERSION = '1.3.0';
+
 export const X502_OIDS = {
   COMMON_NAME: '2.5.4.3',
   COUNTRY_NAME: '2.5.4.6',
@@ -293,6 +301,9 @@ export const X502_OIDS = {
   AUTHORITY_KEY_IDENTIFIER: '2.5.29.35', // "AKI"
   DOCUMENT_TYPE: '2.23.136.1.1.6.2',
   EKU_VDS_NC: '2.23.136.1.1.14.2',
+  EKU_EU_DCC_TEST: '1.3.6.1.4.1.1847.2021.1.1',
+  EKU_EU_DCC_VACCINATION: '1.3.6.1.4.1.1847.2021.1.2',
+  EKU_EU_DCC_RECOVERY: '1.3.6.1.4.1.1847.2021.1.3',
 };
 
 export const INVOICE_STATUSES = {
