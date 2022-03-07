@@ -1,6 +1,8 @@
 import { Sequelize } from 'sequelize';
 import { SYNC_DIRECTIONS } from 'shared/constants';
 import { Model } from './Model';
+import { generateUUIDDateTimeHash } from '../utils';
+import { log } from 'shared/services/logging';
 
 export class Patient extends Model {
   static init({ primaryKey, ...options }) {
@@ -76,6 +78,7 @@ export class Patient extends Model {
         ['$encounter.patient_id$']: this.id,
         status: 'GIVEN',
       },
+      order: [['updatedAt', 'DESC']],
       include: [
         {
           model: models.Encounter,
@@ -85,6 +88,7 @@ export class Patient extends Model {
         {
           model: models.ScheduledVaccine,
           as: 'scheduledVaccine',
+          include: models.ScheduledVaccine.getListReferenceAssociations(),
         },
       ],
     });
@@ -115,5 +119,32 @@ export class Patient extends Model {
         },
       ],
     });
+  }
+
+  async getIcaoUVCI() {
+    log.debug('Generating UVCI');
+
+    const { models } = this.sequelize;
+
+    const vaccinations = await models.AdministeredVaccine.findAll({
+      where: {
+        ['$encounter.patient_id$']: this.id,
+        status: 'GIVEN',
+      },
+      order: [['updatedAt', 'DESC']],
+      include: [
+        {
+          model: models.Encounter,
+          as: 'encounter',
+          include: models.Encounter.getFullReferenceAssociations(),
+        },
+      ],
+    });
+
+    const latestVaccination = vaccinations[0];
+    const patientId = this.id;
+    const updatedAt = latestVaccination.get('updatedAt');
+
+    return generateUUIDDateTimeHash(patientId, updatedAt);
   }
 }

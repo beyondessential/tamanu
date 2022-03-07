@@ -60,11 +60,14 @@ describe('VRS integration hook: INSERT and UPDATE operations', () => {
         }
 
         // act
-        const response = await app.post(`/v1/integration/fijiVrs/hooks/patientCreated`).send({
-          fetch_id: fetchId,
-          operation,
-          created_datetime: new Date().toISOString(),
-        });
+        const response = await app
+          .post(`/v1/integration/fijiVrs/hooks/patientCreated`)
+          .send({
+            fetch_id: fetchId,
+            operation,
+            created_datetime: new Date().toISOString(),
+          })
+          .set({ 'X-Tamanu-Client': 'fiji-vrs', 'X-Version': '0.0.1' });
 
         // assert
         expect(response).toHaveSucceeded();
@@ -138,11 +141,14 @@ describe('VRS integration hook: INSERT and UPDATE operations', () => {
       });
 
       // act
-      const response = await app.post(`/v1/integration/fijiVrs/hooks/patientCreated`).send({
-        fetch_id: fetchId,
-        operation: 'INSERT',
-        created_datetime: new Date().toISOString(),
-      });
+      const response = await app
+        .post(`/v1/integration/fijiVrs/hooks/patientCreated`)
+        .send({
+          fetch_id: fetchId,
+          operation: 'INSERT',
+          created_datetime: new Date().toISOString(),
+        })
+        .set({ 'X-Tamanu-Client': 'fiji-vrs', 'X-Version': '0.0.1' });
 
       // assert
       expect(response).toHaveSucceeded();
@@ -171,11 +177,14 @@ describe('VRS integration hook: INSERT and UPDATE operations', () => {
       });
 
       // act
-      const response = await app.post(`/v1/integration/fijiVrs/hooks/patientCreated`).send({
-        fetch_id: fetchId,
-        operation: 'INSERT',
-        created_datetime: new Date().toISOString(),
-      });
+      const response = await app
+        .post(`/v1/integration/fijiVrs/hooks/patientCreated`)
+        .send({
+          fetch_id: fetchId,
+          operation: 'INSERT',
+          created_datetime: new Date().toISOString(),
+        })
+        .set({ 'X-Tamanu-Client': 'fiji-vrs', 'X-Version': '0.0.1' });
 
       // assert
       expect(response).toHaveRequestError(422);
@@ -209,11 +218,14 @@ describe('VRS integration hook: INSERT and UPDATE operations', () => {
       });
 
       // act
-      const response = await app.post(`/v1/integration/fijiVrs/hooks/patientCreated`).send({
-        fetch_id: fetchId,
-        operation: 'INSERT',
-        created_datetime: new Date().toISOString(),
-      });
+      const response = await app
+        .post(`/v1/integration/fijiVrs/hooks/patientCreated`)
+        .send({
+          fetch_id: fetchId,
+          operation: 'INSERT',
+          created_datetime: new Date().toISOString(),
+        })
+        .set({ 'X-Tamanu-Client': 'fiji-vrs', 'X-Version': '0.0.1' });
 
       // assert
       expect(response).toHaveRequestError(422);
@@ -250,11 +262,14 @@ describe('VRS integration hook: INSERT and UPDATE operations', () => {
       });
 
       // act
-      const response = await app.post(`/v1/integration/fijiVrs/hooks/patientCreated`).send({
-        fetch_id: fetchId,
-        operation: 'INSERT',
-        created_datetime: new Date().toISOString(),
-      });
+      const response = await app
+        .post(`/v1/integration/fijiVrs/hooks/patientCreated`)
+        .send({
+          fetch_id: fetchId,
+          operation: 'INSERT',
+          created_datetime: new Date().toISOString(),
+        })
+        .set({ 'X-Tamanu-Client': 'fiji-vrs', 'X-Version': '0.0.1' });
 
       // assert
       expect(response).toHaveRequestError(502);

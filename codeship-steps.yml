@@ -18,8 +18,14 @@
       service: app
       command: ./scripts/apply_and_revert_sync_server_migrations.sh
     - name: test
-      service: app
-      command: ./scripts/test.sh
+      type: serial
+      steps:
+        - name: app-test
+          service: app
+          command: ./scripts/test.sh
+        - name: mobile-test
+          service: mobile
+          command: "yarn test:coverage"
     - name: build
       type: parallel
       steps:

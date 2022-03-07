@@ -13,14 +13,15 @@ const PATIENT_FIELDS = [
   },
   { key: 'sex', label: 'Sex' },
   { key: 'displayId', label: 'NHN' },
-  { key: 'nationality', label: 'Nationality', accessor: getNationality },
   { key: 'passport', label: 'Passport Number', accessor: getPassportNumber },
+  { key: 'nationality', label: 'Nationality', accessor: getNationality },
 ];
 
-export const PatientDetailsSection = ({ patient, getLocalisation, vdsSrc }) => {
-  const detailsToDisplay = PATIENT_FIELDS.filter(
-    ({ key }) => getLocalisation(`fields.${key}.hidden`) !== true,
-  );
+export const PatientDetailsSection = ({ patient, getLocalisation, vdsSrc, extraFields = [] }) => {
+  const detailsToDisplay = [
+    ...PATIENT_FIELDS.filter(({ key }) => getLocalisation(`fields.${key}.hidden`) !== true),
+    ...extraFields,
+  ];
   return (
     <Row>
       <Col style={{ width: '80%' }}>

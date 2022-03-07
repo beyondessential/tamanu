@@ -1,13 +1,18 @@
 /* eslint-disable no-unused-expressions */
 
 import { createTestContext } from 'sync-server/__tests__/utilities';
+import { fake } from 'shared/test-helpers/fake';
 import {
+  VdsNcDocument,
+  loadCertificateIntoSigner,
   newKeypairAndCsr,
   TestCSCA,
-  loadCertificateIntoSigner,
 } from 'sync-server/app/integrations/VdsNc';
 import { ICAO_DOCUMENT_TYPES } from 'shared/constants';
+import crypto from 'crypto';
 import { expect } from 'chai';
+import { canonicalize } from 'json-canonicalize';
+import { base64UrlDecode } from 'shared/utils/encodings';
 
 describe('VDS-NC: Document cryptography', () => {
   let ctx;
@@ -17,10 +22,12 @@ describe('VDS-NC: Document cryptography', () => {
 
     const { publicKey, privateKey, request } = await newKeypairAndCsr({
       keySecret: 'secret',
-      csr: { subject: {
-        countryCode2: 'UT',
-        signerIdentifier: 'TA',
-      } },
+      csr: {
+        subject: {
+          countryCode2: 'UT',
+          signerIdentifier: 'TA',
+        },
+      },
     });
 
     const { VdsNcSigner } = ctx.store.models;
@@ -38,68 +45,168 @@ describe('VDS-NC: Document cryptography', () => {
   afterAll(() => ctx.close());
 
   it('can sign a test document', async () => {
-    const { VdsNcDocument, VdsNcSigner } = ctx.store.models;
+    const { VdsNcSigner } = ctx.store.models;
 
-    // Arrange
+    const uniqueProofId = 'UNIQTESTID';
     const signer = await VdsNcSigner.findActive();
-    const document = await VdsNcDocument.create({
-      type: ICAO_DOCUMENT_TYPES.PROOF_OF_TESTING.JSON,
-      messageData: JSON.stringify({ test: 'data' }),
-    });
 
     // Pre-check
     expect(signer?.isActive()).to.be.true;
-    expect(document.isSigned()).to.be.false;
     const signCount = signer.signaturesIssued;
 
     // Act
-    await document.sign('secret');
+    const document = new VdsNcDocument(
+      ICAO_DOCUMENT_TYPES.PROOF_OF_TESTING.JSON,
+      { test: 'data' },
+      uniqueProofId,
+    );
+    document.config = { keySecret: 'secret' };
+    document.models = ctx.store.models;
+
+    await document.sign();
     const payload = await document.intoVDS();
     const vds = JSON.parse(payload);
 
     // Assert
-    expect(document.isSigned()).to.be.true;
-    expect(document.uniqueProofId).to.match(/^TT.{10}$/);
+    expect(document.isSigned).to.be.true;
     expect(document.algorithm).to.equal('ES256');
     expect(vds.sig.alg).to.equal('ES256');
-    expect(vds.hdr.t).to.equal('icao.test');
-    expect(vds.hdr.is).to.equal('UTO');
-    expect(vds.msg).to.deep.equal({ test: 'data', utci: document.uniqueProofId });
+    expect(vds.data.hdr.t).to.equal('icao.test');
+    expect(vds.data.hdr.is).to.equal('UTO');
+    expect(vds.data.msg).to.deep.equal({ test: 'data', utci: 'UNIQTESTID' });
 
     await signer.reload();
     expect(signer.signaturesIssued).to.equal(signCount + 1);
+
+    // And verify the signature
+    const publicKey = crypto.createPublicKey({
+      key: signer.publicKey,
+      format: 'der',
+      type: 'spki',
+    });
+    const verifier = crypto.createVerify('SHA256');
+    verifier.update(canonicalize(vds.data));
+    verifier.end();
+    expect(
+      verifier.verify(
+        {
+          key: publicKey,
+          dsaEncoding: 'ieee-p1363',
+        },
+        base64UrlDecode(vds.sig.sigvl),
+      ),
+    ).to.be.true;
   });
 
   it('can sign a vaccination document', async () => {
-    const { VdsNcDocument, VdsNcSigner } = ctx.store.models;
+    const {
+      VdsNcSigner,
+      AdministeredVaccine,
+      Encounter,
+      Patient,
+      ReferenceData,
+      ScheduledVaccine,
+    } = ctx.store.models;
 
     // Arrange
-    const signer = await VdsNcSigner.findActive();
-    const document = await VdsNcDocument.create({
-      type: ICAO_DOCUMENT_TYPES.PROOF_OF_VACCINATION.JSON,
-      messageData: JSON.stringify({ vaxx: 'data' }),
+    const patient = await Patient.create({
+      ...fake(Patient),
+      firstName: 'Fiamē Naomi',
+      lastName: 'Mataʻafa',
+      dateOfBirth: new Date(Date.parse('29 April 1957, UTC')),
+      sex: 'female',
     });
+
+    const azVaxDrug = await ReferenceData.create({
+      ...fake(ReferenceData),
+      type: 'vaccine',
+      name: 'ChAdOx1-S',
+    });
+
+    const scheduledAz = await ScheduledVaccine.create({
+      ...fake(ScheduledVaccine),
+      label: 'COVID-19 AZ',
+      schedule: 'Dose 1',
+      vaccineId: azVaxDrug.id,
+    });
+
+    await AdministeredVaccine.create({
+      id: 'e7664992-13c4-42c8-a106-b31f4f825466',
+      status: 'GIVEN',
+      batch: '1234-567-890',
+      scheduledVaccineId: scheduledAz.id,
+      encounterId: (
+        await Encounter.create({
+          ...fake(Encounter),
+          patientId: patient.id,
+        })
+      ).id,
+      date: new Date(Date.parse('22 February 2022, UTC')),
+    });
+
+    await AdministeredVaccine.create({
+      id: 'f7664992-13c4-42c8-a106-b31f4f825466',
+      status: 'GIVEN',
+      batch: '1234-567-890',
+      scheduledVaccineId: scheduledAz.id,
+      encounterId: (
+        await Encounter.create({
+          ...fake(Encounter),
+          patientId: patient.id,
+        })
+      ).id,
+      date: new Date(Date.parse('2 January 2022, UTC')),
+    });
+
+    const uniqueProofId = await patient.getIcaoUVCI();
+    const signer = await VdsNcSigner.findActive();
 
     // Pre-check
     expect(signer?.isActive()).to.be.true;
-    expect(document.isSigned()).to.be.false;
     const signCount = signer.signaturesIssued;
 
     // Act
-    await document.sign('secret');
+    const document = new VdsNcDocument(
+      ICAO_DOCUMENT_TYPES.PROOF_OF_VACCINATION.JSON,
+      { vaxx: 'data' },
+      uniqueProofId,
+    );
+    document.config = { keySecret: 'secret' };
+    document.models = ctx.store.models;
+
+    await document.sign();
     const payload = await document.intoVDS();
     const vds = JSON.parse(payload);
 
     // Assert
-    expect(document.isSigned()).to.be.true;
-    expect(document.uniqueProofId).to.match(/^TV.{10}$/);
+    expect(document.isSigned).to.be.true;
+    expect(document.uniqueProofId.length).to.equal(12);
     expect(document.algorithm).to.equal('ES256');
     expect(vds.sig.alg).to.equal('ES256');
-    expect(vds.hdr.t).to.equal('icao.vacc');
-    expect(vds.hdr.is).to.equal('UTO');
-    expect(vds.msg).to.deep.equal({ vaxx: 'data', uvci: document.uniqueProofId });
+    expect(vds.data.hdr.t).to.equal('icao.vacc');
+    expect(vds.data.hdr.is).to.equal('UTO');
+    expect(vds.data.msg).to.deep.equal({ vaxx: 'data', uvci: document.uniqueProofId });
 
     await signer.reload();
     expect(signer.signaturesIssued).to.equal(signCount + 1);
+
+    // And verify the signature
+    const publicKey = crypto.createPublicKey({
+      key: signer.publicKey,
+      format: 'der',
+      type: 'spki',
+    });
+    const verifier = crypto.createVerify('SHA256');
+    verifier.update(canonicalize(vds.data));
+    verifier.end();
+    expect(
+      verifier.verify(
+        {
+          key: publicKey,
+          dsaEncoding: 'ieee-p1363',
+        },
+        base64UrlDecode(vds.sig.sigvl),
+      ),
+    ).to.be.true;
   });
 });

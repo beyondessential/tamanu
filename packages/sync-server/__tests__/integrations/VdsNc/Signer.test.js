@@ -256,4 +256,39 @@ describe('VDS-NC: Signer cryptography', () => {
     expect(subjcn).to.be.instanceOf(Sequence);
     expect(subjcn.valueBlock.value[1].toString()).to.equal('PrintableString : TA');
   });
+
+  it('saves a new signer in the db correctly', async () => {
+    // Arrange
+    const { VdsNcSigner } = ctx.store.models;
+    const { publicKey, privateKey, request } = await newKeypairAndCsr({
+      keySecret: 'secret',
+      csr: { subject: {
+        countryCode2: 'UT',
+        signerIdentifier: 'TA',
+      } },
+    });
+
+    // Act
+    const newSigner = await VdsNcSigner.create({
+      publicKey: Buffer.from(publicKey),
+      privateKey: Buffer.from(privateKey),
+      request,
+      countryCode: 'UTO',
+    });
+
+    // Assert
+    const signer = await VdsNcSigner.findByPk(newSigner.id);
+    expect(signer).to.exist;
+    expect(signer.publicKey).to.deep.equal(Buffer.from(publicKey));
+    expect(signer.privateKey).to.deep.equal(Buffer.from(privateKey));
+
+    // Check we can decrypt the key
+    crypto.createPrivateKey({
+      key: signer.privateKey,
+      format: 'der',
+      type: 'pkcs8',
+      cipher: 'aes-256-cbc',
+      passphrase: Buffer.from('secret', 'base64'),
+    });
+  });
 });

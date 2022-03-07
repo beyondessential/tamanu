@@ -23,19 +23,19 @@ export class InvoiceLineType extends Model {
     this.belongsTo(models.ReferenceData, {
       foreignKey: 'itemId',
       as: 'procedureType',
-      constraint: false,
+      constraints: false,
     });
 
     this.belongsTo(models.ReferenceData, {
       foreignKey: 'itemId',
       as: 'imagingType',
-      constraint: false,
+      constraints: false,
     });
 
     this.belongsTo(models.LabTestType, {
       foreignKey: 'itemId',
       as: 'labTestType',
-      constraint: false,
+      constraints: false,
     });
   }
 

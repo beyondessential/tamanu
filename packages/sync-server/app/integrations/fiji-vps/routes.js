@@ -18,10 +18,15 @@ import {
   addPaginationToWhere,
   decodeIdentifier,
 } from './conversion';
+import { requireClientHeaders } from '../../middleware/requireClientHeaders';
 
 // TODO (TAN-943): fix auth to throw an error if X-Tamanu-Client and X-Tamanu-Version aren't set
 
 export const routes = express.Router();
+
+if (config.integrations.fijiVps.requireClientHeaders) {
+  routes.use(requireClientHeaders);
+}
 
 function getHL7Link(baseUrl, params) {
   const query = Object.entries(params)

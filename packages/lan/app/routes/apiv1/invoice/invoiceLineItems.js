@@ -1,13 +1,23 @@
 import asyncHandler from 'express-async-handler';
-
+import { Op } from 'sequelize';
 import { NotFoundError } from 'shared/errors';
+import { INVOICE_LINE_ITEM_STATUSES } from 'shared/constants';
 import { permissionCheckingRouter, simpleGet, simpleGetList, simplePut } from '../crudHelpers';
 import { renameObjectKeys } from '~/utils/renameObjectKeys';
 import { getPotentialInvoiceLineItems } from './getPotentialInvoiceLineItems';
 
 export const invoiceLineItemsRoute = permissionCheckingRouter('read', 'Invoice');
 
-invoiceLineItemsRoute.get('/:id/lineItems', simpleGetList('InvoiceLineItem', 'invoiceId'));
+invoiceLineItemsRoute.get(
+  '/:id/lineItems',
+  simpleGetList('InvoiceLineItem', 'invoiceId', {
+    additionalFilters: {
+      status: {
+        [Op.ne]: INVOICE_LINE_ITEM_STATUSES.DELETED,
+      },
+    },
+  }),
+);
 
 invoiceLineItemsRoute.post(
   '/:invoiceId/lineItems',
@@ -44,13 +54,11 @@ invoiceLineItemsRoute.delete(
 
     req.checkPermission('write', invoiceLineItem);
 
-    await models.InvoiceLineItem.destroy({
-      where: {
-        id,
-      },
+    await invoiceLineItem.update({
+      status: INVOICE_LINE_ITEM_STATUSES.DELETED,
     });
 
-    res.send({ message: 'Item deleted successfully' });
+    res.send({ message: 'Line item deleted successfully' });
   }),
 );
 
@@ -87,7 +95,7 @@ invoiceLineItemsRoute.post(
       await models.InvoiceLineItem.create({
         invoiceId,
         invoiceLineTypeId: item.invoiceLineTypeId,
-        date: item.date,
+        dateGenerated: item.date,
         orderedById: item.orderedById,
         price: item.price,
       });

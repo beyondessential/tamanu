@@ -1,5 +1,6 @@
-import React, { useState, useCallback } from 'react';
+import React, { useState, useCallback, useEffect } from 'react';
 import { Typography } from '@material-ui/core';
+import { promises as asyncFs } from 'fs';
 
 import { DocumentsTable } from '../../../components/DocumentsTable';
 import { Button } from '../../../components/Button';
@@ -55,13 +56,20 @@ export const DocumentsPane = React.memo(({ encounter, patient, showSearchBar = f
     ? `encounter/${encounter.id}/documentMetadata`
     : `patient/${patient.id}/documentMetadata`;
 
-  const handleClose = useCallback(() => setModalStatus(MODAL_STATES.CLOSED), []);
+  const handleClose = useCallback(() => {
+    // Prevent user from navigating away if we're submitting a document
+    if (!isSubmitting) {
+      setModalStatus(MODAL_STATES.CLOSED);
+    }
+  }, [isSubmitting]);
 
   const handleSubmit = useCallback(
     async ({ file, ...data }) => {
       setIsSubmitting(true);
       try {
-        await api.postWithFileUpload(endpoint, file, data);
+        // Read and inject document creation date to metadata sent
+        const { birthtime } = await asyncFs.stat(file);
+        await api.postWithFileUpload(endpoint, file, { ...data, documentCreatedAt: birthtime });
         handleClose();
         setRefreshCount(refreshCount + 1);
       } finally {
@@ -78,6 +86,24 @@ export const DocumentsPane = React.memo(({ encounter, patient, showSearchBar = f
     // try { } catch (error) { setModalStatus(MODAL_STATES.ALERT_OPEN) }
     setModalStatus(MODAL_STATES.ALERT_OPEN);
   }, []);
+
+  useEffect(() => {
+    function handleBeforeUnload(event) {
+      if (isSubmitting) {
+        // According to the electron docs, using event.returnValue is
+        // is recommended rather than just returning a value.
+        // https://www.electronjs.org/docs/latest/api/browser-window#event-close
+        // eslint-disable-next-line no-param-reassign
+        event.returnValue = false;
+      }
+    }
+
+    window.addEventListener('beforeunload', handleBeforeUnload);
+
+    return () => {
+      window.removeEventListener('beforeunload', handleBeforeUnload);
+    };
+  }, [isSubmitting]);
 
   return (
     <div>

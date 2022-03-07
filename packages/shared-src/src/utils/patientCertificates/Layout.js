@@ -5,7 +5,7 @@ export const styles = StyleSheet.create({
   page: {
     fontFamily: 'Helvetica',
     position: 'relative',
-    padding: 30,
+    padding: '30 30 0 30',
     color: '#222222',
   },
   logo: {
@@ -59,9 +59,9 @@ export const styles = StyleSheet.create({
   },
   vds: {
     position: 'relative',
-    top: -10,
-    left: -10,
-    width: 100,
+    top: -30,
+    left: -30,
+    width: 140,
   },
 });
 

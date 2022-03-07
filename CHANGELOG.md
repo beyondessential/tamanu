@@ -4,6 +4,28 @@
 
 ### Manual steps required after upgrade ⚙
 
+- Consider adding `fiji-aspen-encounter-summary-line-list` to disabledReports
+
+### Features ⭐
+
+- Add new report `fiji-aspen-encounter-summary-line-list`
+
+### Tweaks ⚖️
+
+- (left blank)
+
+### Bug fixes 🐛
+
+- (left blank)
+
+### Infrastructure and maintenance 🛠
+
+- (left blank)
+
+## v1.13.0
+
+### Manual steps required after upgrade ⚙
+
 - (left blank)
 
 ### Features ⭐

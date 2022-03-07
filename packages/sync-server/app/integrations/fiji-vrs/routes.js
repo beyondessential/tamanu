@@ -4,6 +4,7 @@ import asyncHandler from 'express-async-handler';
 import { set } from 'lodash';
 
 import { buildErrorHandler } from '../../middleware/errorHandler';
+import { requireClientHeaders } from '../../middleware/requireClientHeaders';
 import { VRSRemote } from './VRSRemote';
 import { VRSActionHandler } from './VRSActionHandler';
 
@@ -16,6 +17,10 @@ const vrsErrorHandler = buildErrorHandler(error => ({
 }));
 
 export const routes = express.Router();
+if (config.integrations.fijiVrs.requireClientHeaders) {
+  routes.use(requireClientHeaders);
+}
+
 routes.post(
   '/hooks/patientCreated',
   asyncHandler(async (req, res) => {

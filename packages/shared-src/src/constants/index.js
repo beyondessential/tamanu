@@ -319,10 +319,20 @@ export const INVOICE_LINE_TYPE_LABELS = {
   [INVOICE_LINE_TYPES.ADDITIONAL]: 'Additional',
 };
 
+export const INVOICE_LINE_ITEM_STATUSES = {
+  ACTIVE: 'active',
+  DELETED: 'deleted',
+};
+
 export const INVOICE_PRICE_CHANGE_TYPES = {
   PATIENT_BILLING_TYPE: 'patientBillingType',
 };
 
 export const INVOICE_PRICE_CHANGE_TYPE_LABELS = {
   [INVOICE_PRICE_CHANGE_TYPES.PATIENT_BILLING_TYPE]: 'Patient Type',
+};
+
+export const INVOICE_PRICE_CHANGE_ITEM_STATUSES = {
+  ACTIVE: 'active',
+  DELETED: 'deleted',
 };
