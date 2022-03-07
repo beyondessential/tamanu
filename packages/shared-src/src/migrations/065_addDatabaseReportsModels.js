@@ -96,7 +96,7 @@ module.exports = {
       allowNull: false,
     });
 
-    await query.removeColumn('report_requests', 'report_type');
+    await query.removeColumn('report_requests', 'version_id');
     await query.removeColumn('report_requests', 'legacy_report_id');
     await query.removeColumn('report_requests', 'facility_id');
 
