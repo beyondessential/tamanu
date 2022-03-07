@@ -10,7 +10,7 @@ import { log } from 'shared/services/logging';
 import { ScheduledTask } from 'shared/tasks';
 import { makeVaccineCertificate, makeCovidTestCertificate } from '../utils/makePatientCertificate';
 import { getLocalisationData } from '../utils/localisation';
-import { createAndSignDocument, createProofOfVaccination, vdsConfig } from '../integrations/VdsNc';
+import { createProofOfVaccination, VdsNcDocument, vdsConfig } from '../integrations/VdsNc';
 
 export class CertificateNotificationProcessor extends ScheduledTask {
   constructor(context) {
@@ -53,7 +53,6 @@ export class CertificateNotificationProcessor extends ScheduledTask {
         const requireSigning = notification.get('requireSigning');
         const type = notification.get('type');
 
-        // TODO: downgrade to debug once this is stable
         log.info(
           `Processing certificate notification: id=${notification.id} patient=${patientId} type=${type} requireSigning=${requireSigning}`,
         );
@@ -70,23 +69,29 @@ export class CertificateNotificationProcessor extends ScheduledTask {
               log.debug('Generating VDS data for proof of vaccination');
               const povData = await createProofOfVaccination(patient.id, { models });
               const uniqueProofId = await patient.getIcaoUVCI();
-              const vdsDoc = await createAndSignDocument(type, povData, uniqueProofId);
+              const vdsDoc = new VdsNcDocument(type, povData, uniqueProofId);
+              vdsDoc.models = models;
+              await vdsDoc.sign();
               vdsData = await vdsDoc.intoVDS();
             }
 
+            log.debug('Making vax PDF');
             pdf = await makeVaccineCertificate(patient, models, vdsData);
             break;
 
           case ICAO_DOCUMENT_TYPES.PROOF_OF_TESTING.JSON:
             template = 'covidTestCertificateEmail';
-            if (requireSigning && vdsEnabled) {
-              log.debug('Generating VDS data for proof of testing (unsupported, ignoring)');
-              // TODO: const labTestId = ???
-              // const potData = await createProofOfVaccination(labTestId);
-              // const vdsDoc = await createAndSignDocument(type, potData);
+            if (false && requireSigning && vdsEnabled) {
+              // log.debug('Generating VDS data for proof of testing');
+              // const potData = await createProofOfTesting(labTestId ???, { models });
+              // const uniqueProofId = await patient.getIcaoUTCI()???;
+              // const vdsDoc = new Document(type, potData, uniqueProofId);
+              // vdsDoc.models = models;
+              // await vdsDoc.sign();
               // vdsData = await vdsDoc.intoVDS();
             }
 
+            log.debug('Making test PDF');
             pdf = await makeCovidTestCertificate(patient, models, vdsData);
             break;
           default:
@@ -111,9 +116,7 @@ export class CertificateNotificationProcessor extends ScheduledTask {
           status: CERTIFICATE_NOTIFICATION_STATUSES.PROCESSED,
         });
       } catch (error) {
-        log.error(
-          `Failed to process certificate notification id=${notification.id}: ${error.message}`,
-        );
+        log.error(`Failed to process certificate notification id=${notification.id}: ${error}`);
         await notification.update({
           status: CERTIFICATE_NOTIFICATION_STATUSES.ERROR,
           error: error.message,
