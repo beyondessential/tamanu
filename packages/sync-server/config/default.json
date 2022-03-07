@@ -204,6 +204,11 @@
           "longLabel": "Sex",
           "hidden": false
         },
+        "email": {
+          "shortLabel": "Email",
+          "longLabel": "Email",
+          "hidden": false
+        },
         "dateOfBirth": {
           "shortLabel": "DOB",
           "longLabel": "Date of birth"
