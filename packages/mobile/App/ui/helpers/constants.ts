@@ -235,3 +235,8 @@ export const LabRequestStatus = {
   verified: 'Verified',
   published: 'published',
 };
+
+export const AutocompleteSourceToColumnMap = {
+  User: 'displayName',
+  ReferenceData: 'name',
+};

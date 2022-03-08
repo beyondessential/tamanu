@@ -1,26 +1,23 @@
 import React, { useCallback } from 'react';
-import { StyledView, StyledText, FullView } from '/styled/common';
-import { theme } from '/styled/theme';
-
 import { ScrollView } from 'react-native-gesture-handler';
-import { StackHeader } from '/components/StackHeader';
 import { useNavigation } from '@react-navigation/native';
-import { formatStringDate } from '/helpers/date';
-import { DateFormats } from '/helpers/constants';
-import { FieldTypes } from '/helpers/fields';
-import { SurveyResultBadge } from '/components/SurveyResultBadge';
-import { ViewPhotoLink } from '/components/ViewPhotoLink';
+
+import { StyledView, StyledText, FullView } from '~/ui/styled/common';
+import { theme } from '~/ui/styled/theme';
+
+import { StackHeader } from '~/ui/components/StackHeader';
+import { formatStringDate } from '~/ui/helpers/date';
+import { AutocompleteSourceToColumnMap } from '~/ui/helpers/constants';
+import { DateFormats } from '~/ui/helpers/constants';
+import { FieldTypes } from '~/ui/helpers/fields';
+import { SurveyResultBadge } from '~/ui/components/SurveyResultBadge';
+import { ViewPhotoLink } from '~/ui/components/ViewPhotoLink';
 import { LoadingScreen } from '~/ui/components/LoadingScreen';
 import { useBackendEffect } from '~/ui/hooks';
 
-const SOURCE_TO_COLUMN_MAP = {
-  ReferenceData: 'name',
-  User: 'displayName',
-};
-
 const AutocompleteAnswer = ({ question, answer }): JSX.Element => {
   const config = JSON.parse(question.config);
-  const columnName = SOURCE_TO_COLUMN_MAP[config.source];
+  const columnName = AutocompleteSourceToColumnMap[config.source];
   const [refData, error] = useBackendEffect(
     ({ models }) => models[config.source].getRepository().findOne(answer),
     [question],
