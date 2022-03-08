@@ -90,6 +90,9 @@ export const Watermark = ({ src }) => {
   );
 };
 
+/* react-pdf doesn't yet support svg images in the Image component so this will need to be either a
+png or jpg src image
+@see https://github.com/diegomura/react-pdf/issues/1250 */
 export const Logo = ({ logoSrc }) => {
   return <Image src={logoSrc} style={styles.logo} cache={false} />;
 };
