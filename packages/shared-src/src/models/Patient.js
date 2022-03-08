@@ -1,5 +1,6 @@
 import { Sequelize } from 'sequelize';
 import { SYNC_DIRECTIONS } from 'shared/constants';
+import { Model } from './Model';
 import { log } from 'shared/services/logging';
 import { Model } from './Model';
 
