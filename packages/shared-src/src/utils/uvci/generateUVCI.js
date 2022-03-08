@@ -1,6 +1,6 @@
 import config from 'config';
 import { log } from '../../services/logging';
-import generateHashFromUUID from '../generateHashFromUUID';
+import generateICAOFormatUVCI from './icao';
 import generateEUDCCFormatUVCI from './eudcc';
 import { AdministeredVaccine, Encounter } from '../../models';
 
@@ -27,7 +27,7 @@ export async function generateUVCIForPatient(patientId) {
   // Generate specific UVCI
   switch (format) {
     case 'icao':
-      return generateHashFromUUID(vaccinationId);
+      return generateICAOFormatUVCI(vaccinationId);
     case 'eudcc':
       return generateEUDCCFormatUVCI(vaccinationId);
     default:
