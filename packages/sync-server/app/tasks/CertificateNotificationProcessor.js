@@ -52,6 +52,7 @@ export class CertificateNotificationProcessor extends ScheduledTask {
 
         const requireSigning = notification.get('requireSigning');
         const type = notification.get('type');
+        const printedBy = notification.get('createdBy');
 
         log.info(
           `Processing certificate notification: id=${notification.id} patient=${patientId} type=${type} requireSigning=${requireSigning}`,
@@ -76,7 +77,7 @@ export class CertificateNotificationProcessor extends ScheduledTask {
             }
 
             log.debug('Making vax PDF');
-            pdf = await makeVaccineCertificate(patient, models, vdsData);
+            pdf = await makeVaccineCertificate(patient, printedBy, models, vdsData);
             break;
 
           case ICAO_DOCUMENT_TYPES.PROOF_OF_TESTING.JSON:

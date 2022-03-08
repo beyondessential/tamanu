@@ -84,6 +84,7 @@ storiesOf('Certificates', module).add('CovidLabCertificate', () => (
   <PDFViewer width={800} height={1000} showToolbar={false}>
     <CovidLabCertificate
       patient={patient}
+      createdBy="Initial Admin"
       labs={labs}
       watermarkSrc={Watermark}
       signingSrc={SigningImage}

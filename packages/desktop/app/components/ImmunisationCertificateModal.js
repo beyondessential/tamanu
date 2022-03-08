@@ -1,16 +1,24 @@
-import React, { useCallback } from 'react';
+import React, { useEffect, useCallback } from 'react';
 import { ICAO_DOCUMENT_TYPES } from 'shared/constants';
+import { useSelector } from 'react-redux';
 import { Modal } from './Modal';
-import { connectApi, useApi } from '../api';
+import { useApi } from '../api';
 import { ImmunisationCertificate } from './ImmunisationCertificate';
 import { EmailButton } from './Email/EmailButton';
+import { getCurrentUser } from '../store';
 
-const DumbImmunisationCertificateModal = ({ getImmunisations, open, onClose, patient }) => {
+export const ImmunisationCertificateModal = ({ open, onClose, patient }) => {
   const api = useApi();
   const [immunisations, setImmunisations] = React.useState();
-  React.useEffect(() => {
-    getImmunisations().then(setImmunisations);
-  }, [getImmunisations]);
+  const currentUser = useSelector(getCurrentUser);
+  const currentUserDisplayName = currentUser ? currentUser.displayName : '';
+
+  useEffect(() => {
+    (async () => {
+      const response = await api.get(`patient/${patient.id}/administeredVaccines`);
+      setImmunisations(response.data);
+    })();
+  }, [api, patient]);
 
   const createImmunisationCertificateNotification = useCallback(
     data => {
@@ -19,9 +27,10 @@ const DumbImmunisationCertificateModal = ({ getImmunisations, open, onClose, pat
         requireSigning: true,
         patientId: patient.id,
         forwardAddress: data.email,
+        createdBy: currentUserDisplayName,
       });
     },
-    [api, patient],
+    [api, patient, currentUserDisplayName],
   );
 
   const certificate = <ImmunisationCertificate patient={patient} immunisations={immunisations} />;
@@ -38,10 +47,3 @@ const DumbImmunisationCertificateModal = ({ getImmunisations, open, onClose, pat
     </Modal>
   );
 };
-
-export const ImmunisationCertificateModal = connectApi((api, dispatch, { patient }) => ({
-  async getImmunisations() {
-    const response = await api.get(`patient/${patient.id}/administeredVaccines`);
-    return response.data;
-  },
-}))(DumbImmunisationCertificateModal);

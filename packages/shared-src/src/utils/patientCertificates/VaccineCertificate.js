@@ -56,6 +56,7 @@ const columns = [
 
 export const VaccineCertificate = ({
   patient,
+  printedBy,
   vaccinations,
   certificateId,
   signingSrc,
@@ -65,7 +66,6 @@ export const VaccineCertificate = ({
   extraPatientFields,
 }) => {
   const hasEditedRecord = vaccinations.findIndex(v => v.createdAt !== v.updatedAt) !== -1;
-
   const contactEmail = getLocalisation('templates.vaccineCertificateFooter.emailAddress');
   const contactNumber = getLocalisation('templates.vaccineCertificateFooter.contactNumber');
 
@@ -93,7 +93,7 @@ export const VaccineCertificate = ({
         <Box>
           <Row>
             <Col>
-              <P>Printed by:</P>
+              <P>Printed by: ${printedBy}</P>
             </Col>
             <Col>
               <P>Printing date: {moment().format('DD/MM/YYYY')}</P>
