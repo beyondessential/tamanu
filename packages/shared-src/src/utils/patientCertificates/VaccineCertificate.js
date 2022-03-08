@@ -93,7 +93,7 @@ export const VaccineCertificate = ({
         <Box>
           <Row>
             <Col>
-              <P>Printed by: ${printedBy}</P>
+              <P>Printed by: {printedBy}</P>
             </Col>
             <Col>
               <P>Printing date: {moment().format('DD/MM/YYYY')}</P>
