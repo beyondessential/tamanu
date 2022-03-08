@@ -5,7 +5,7 @@ import generateEUDCCFormatUVCI from './eudcc';
 import { AdministeredVaccine, Encounter } from '../../models';
 
 export async function generateUVCIForPatient(patientId) {
-  const conf = config.integrations.vds;
+  const { format } = config.integrations.vds;
   log.debug('Generating UVCI');
   // Fetch most recent vaccination for patient
   const vaccination = await AdministeredVaccine.findOne({
@@ -22,14 +22,16 @@ export async function generateUVCIForPatient(patientId) {
     ],
   });
 
+  const vaccinationId = vaccination.get('id');
+
   // Generate specific UVCI
-  switch (conf.format) {
+  switch (format) {
     case 'icao':
-      return generateHashFromUUID(vaccination.get('updatedAt'));
+      return generateHashFromUUID(vaccinationId);
     case 'eudcc':
-      return generateEUDCCFormatUVCI(vaccination);
+      return generateEUDCCFormatUVCI(vaccinationId);
     default:
-      log.error(`Unrecognised UVCI format ${conf.format}`);
+      log.error(`Unrecognised UVCI format ${format}`);
       return '';
   }
 }

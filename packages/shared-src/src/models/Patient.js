@@ -1,8 +1,6 @@
 import { Sequelize } from 'sequelize';
 import { SYNC_DIRECTIONS } from 'shared/constants';
 import { Model } from './Model';
-import { log } from 'shared/services/logging';
-import { Model } from './Model';
 
 export class Patient extends Model {
   static init({ primaryKey, ...options }) {
@@ -75,7 +73,7 @@ export class Patient extends Model {
     const { models } = this.sequelize;
     return models.AdministeredVaccine.findAll({
       where: {
-        ['$encounter.patient_id$']: this.id,
+        '$encounter.patient_id$': this.id,
         status: 'GIVEN',
       },
       order: [['updatedAt', 'DESC']],
