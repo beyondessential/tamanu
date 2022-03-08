@@ -28,6 +28,7 @@
     "await-to-js": "^2.0.1",
     "babel-jest": "^24.5.0",
     "bcrypt": "^3.0.1",
+    "calculate-luhn-mod-n": "^2.0.12",
     "chance": "^1.0.18",
     "config": "3.0.1",
     "date-fns": "^2.19.0",

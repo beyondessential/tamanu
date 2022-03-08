@@ -6696,6 +6696,11 @@ cacheable-request@^6.0.0:
     normalize-url "^4.1.0"
     responselike "^1.0.2"
 
+calculate-luhn-mod-n@^2.0.12:
+  version "2.0.12"
+  resolved "https://registry.yarnpkg.com/calculate-luhn-mod-n/-/calculate-luhn-mod-n-2.0.12.tgz#36deaa3e8a958a6658357bf26888e829c77576e5"
+  integrity sha512-H3+YrlzkTxuv30UMBZ7qFo1eDPFUNA939Lo2cc8edWscKPhc+t1cAHzSEU0lhcWFb2YS1Be4bh7rX/oSJUYwuA==
+
 call-bind@^1.0.0, call-bind@^1.0.2:
   version "1.0.2"
   resolved "https://registry.yarnpkg.com/call-bind/-/call-bind-1.0.2.tgz#b1d4e89e688119c3c9a903ad30abb2f6a919be3c"
