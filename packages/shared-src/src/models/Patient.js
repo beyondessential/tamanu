@@ -1,7 +1,7 @@
 import { Sequelize } from 'sequelize';
 import { SYNC_DIRECTIONS } from 'shared/constants';
 import { Model } from './Model';
-import { generateUUIDDateTimeHash } from '../utils';
+import { generateHashFromUUID } from '../utils';
 import { log } from 'shared/services/logging';
 
 export class Patient extends Model {
@@ -142,9 +142,7 @@ export class Patient extends Model {
     });
 
     const latestVaccination = vaccinations[0];
-    const patientId = this.id;
-    const updatedAt = latestVaccination.get('updatedAt');
-
-    return generateUUIDDateTimeHash(patientId, updatedAt);
+    const uuid = latestVaccination.get('id');
+    return generateHashFromUUID(uuid);
   }
 }
