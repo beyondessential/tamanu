@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import { generateUUIDDateTimeHash } from 'shared/utils/generateUUIDDateTimeHash';
+import { generateHashFromUUID } from 'shared/utils/generateHashFromUUID';
 
 import { Certificate, Spacer, Table } from './Print/Certificate';
 import { DateDisplay } from './DateDisplay';
@@ -34,7 +34,7 @@ const getUVCI = ({ patient, immunisations }) => {
     .slice()
     .sort((a, b) => Date.parse(b.updatedAt) - Date.parse(a.updatedAt))[0];
 
-  return generateUUIDDateTimeHash(patient.id, latestVaccination.updatedAt);
+  return generateHashFromUUID(latestVaccination.id);
 };
 
 export const ImmunisationCertificate = ({ patient, immunisations }) => {
