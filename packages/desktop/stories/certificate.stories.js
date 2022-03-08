@@ -14,6 +14,7 @@ const dummyAdditionalData = createDummyPatientAdditionalData();
 const patient = {
   ...dummyPatient,
   ...dummyAdditionalData,
+  dateOfBirth: '1975-03-11 12:00:00+00',
 };
 
 const labs = [
@@ -174,6 +175,9 @@ storiesOf('Certificates', module).add('VaccineCertificate', () => {
       setVdsSrc(src);
     })();
   }, []);
+
+  const test = Intl.DateTimeFormat().resolvedOptions().timeZone;
+  console.log('test', test);
 
   return (
     <PDFViewer width={800} height={1000} showToolbar={false}>

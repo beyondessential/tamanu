@@ -11,6 +11,8 @@ import {
   makeCovidTestCertificate,
 } from '../app/utils/makePatientCertificate';
 
+import moment from 'moment-timezone';
+
 import { createTestContext } from './utilities';
 
 async function prepopulate(models) {
@@ -171,7 +173,18 @@ describe('Certificate', () => {
 
   afterAll(() => ctx.close());
 
-  it('Generates a Patient Covid Certificate', async () => {
+  it('timezones', () => {
+    const dateOfBirth = '1975-03-11 12:00:00+12';
+    console.log('time zone');
+
+    const test = moment(dateOfBirth)
+      .tz('Pacific/Auckland')
+      .format('Do MMM YYYY');
+
+    console.log('test', test);
+  });
+
+  it.skip('Generates a Patient Covid Certificate', async () => {
     await createLabTests();
     const patientRecord = await models.Patient.findByPk(patient.id);
     const printedBy = 'Initial Admin';
@@ -181,7 +194,7 @@ describe('Certificate', () => {
     expect(result.status).toEqual('success');
   });
 
-  it('Generates a Patient Vaccine Certificate', async () => {
+  it.skip('Generates a Patient Vaccine Certificate', async () => {
     await createVaccines();
     const patientRecord = await models.Patient.findByPk(patient.id);
     const printedBy = 'Initial Admin';

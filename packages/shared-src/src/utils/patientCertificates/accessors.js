@@ -12,8 +12,10 @@ export const getLabMethod = ({ tests }) => tests?.labTestMethod?.name || 'Unknow
 
 export const getRequestId = ({ displayId }) => displayId || 'Unknown';
 
-export const getDOB = ({ dateOfBirth }) =>
-  dateOfBirth ? moment(dateOfBirth).format('Do MMM YYYY') : 'Unknown';
+export const getDOB = ({ dateOfBirth }) => {
+  console.log('dob', dateOfBirth);
+  return dateOfBirth ? moment(dateOfBirth).format('Do MMM YYYY') : 'Unknown';
+};
 
 export const getDisplayDate = date => moment(date).format('DD/MM/YYYY');
 
