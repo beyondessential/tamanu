@@ -32,7 +32,7 @@ const fetchServers = async (): Promise<SelectOption[]> => {
   return servers.map((s) => ({ label: s.name, value: s.host }));
 };
 
-export const ServerSelector = ({ onChange, label }): ReactElement => {
+export const ServerSelector = ({ onChange, label, value }): ReactElement => {
   const [existingHost, setExistingHost] = useState('');
   const [options, setOptions] = useState([]);
   const [modalOpen, setModalOpen] = useState(false);
@@ -42,9 +42,14 @@ export const ServerSelector = ({ onChange, label }): ReactElement => {
   useEffect(() => {
     (async (): Promise<void> => {
       const existing = await readConfig('syncServerLocation');
-      setExistingHost(existing);
-      onChange(existing);
-      if (!existingHost && netInfo.isInternetReachable) {
+      if (existing) {
+        setExistingHost(existing);
+      }
+    })();
+  }, []);
+  useEffect(() => {
+    (async (): Promise<void> => {
+      if (!value && netInfo.isInternetReachable) {
         const servers = await fetchServers();
         setOptions(servers);
       }
@@ -88,17 +93,14 @@ export const ServerSelector = ({ onChange, label }): ReactElement => {
             style={{ fontSize: screenPercentageToDP(1.8, Orientation.Height) }}
             onPress={(): void => setModalOpen(true)}
           >
-            {label}
+            {value || label}
           </StyledText>
         </InputContainer>
       </StyledView>
       <AndroidPicker
         label={label}
         options={options}
-        onChange={(value): void => {
-          setExistingHost(value);
-          onChange(value);
-        }}
+        onChange={onChange}
         open={modalOpen}
         closeModal={(): void => setModalOpen(false)}
       />
