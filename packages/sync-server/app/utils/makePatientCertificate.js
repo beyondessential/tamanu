@@ -3,7 +3,7 @@ import ReactPDF from '@react-pdf/renderer';
 import path from 'path';
 import QRCode from 'qrcode';
 import { log } from 'shared/services/logging';
-import { tmpdir, CovidLabCertificate, VaccineCertificate } from 'shared/utils';
+import { tmpdir, CovidLabCertificate, VaccineCertificate, generateUVCIForPatient } from 'shared/utils';
 import { getLocalisationData } from './localisation';
 
 export const makeVaccineCertificate = async (patient, models, vdsData = null) => {
@@ -29,7 +29,7 @@ export const makeVaccineCertificate = async (patient, models, vdsData = null) =>
 
   try {
     const vaccinations = await patient.getAdministeredVaccines();
-    const uvci = await patient.getIcaoUVCI();
+    const uvci = await generateUVCIForPatient(patient.id);
 
     await ReactPDF.render(
       <VaccineCertificate

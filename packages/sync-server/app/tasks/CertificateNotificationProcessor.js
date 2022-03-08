@@ -8,6 +8,7 @@ import {
 } from 'shared/constants';
 import { log } from 'shared/services/logging';
 import { ScheduledTask } from 'shared/tasks';
+import { generateUVCIForPatient } from 'shared/utils';
 import { makeVaccineCertificate, makeCovidTestCertificate } from '../utils/makePatientCertificate';
 import { getLocalisationData } from '../utils/localisation';
 import { createProofOfVaccination, VdsNcDocument, vdsConfig } from '../integrations/VdsNc';
@@ -68,7 +69,7 @@ export class CertificateNotificationProcessor extends ScheduledTask {
             if (requireSigning && vdsEnabled) {
               log.debug('Generating VDS data for proof of vaccination');
               const povData = await createProofOfVaccination(patient.id, { models });
-              const uniqueProofId = await patient.getIcaoUVCI();
+              const uniqueProofId = await generateUVCIForPatient(patient.id);
               const vdsDoc = new VdsNcDocument(type, povData, uniqueProofId);
               vdsDoc.models = models;
               await vdsDoc.sign();

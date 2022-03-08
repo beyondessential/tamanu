@@ -16,7 +16,7 @@
  * eg. If 2 patients get a latest vaccine updatedAt the same time to the second then
  * there is a 1 in 268 million chance of collision
  */
-export function generateUUIDDateTimeHash(uuid, date) {
+export default function generateUUIDDateTimeHash(uuid, date) {
   // uuid hash - 7 x hex values = 28 bits of data
   const segment = uuid.slice(0, 7);
   const number = parseInt(segment, 16);
