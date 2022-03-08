@@ -174,7 +174,10 @@ describe('Certificate', () => {
   it('Generates a Patient Covid Certificate', async () => {
     await createLabTests();
     const patientRecord = await models.Patient.findByPk(patient.id);
-    const result = await makeCovidTestCertificate(patientRecord, models, [{ foo: 'bar' }]);
+    const printedBy = 'Initial Admin';
+    const result = await makeCovidTestCertificate(patientRecord, printedBy, models, [
+      { foo: 'bar' },
+    ]);
     expect(result.status).toEqual('success');
   });
 

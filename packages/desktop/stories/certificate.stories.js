@@ -6,6 +6,7 @@ import { CovidLabCertificate, VaccineCertificate } from 'shared/utils';
 import { PDFViewer } from '@react-pdf/renderer';
 import SigningImage from './assets/signing-image.png';
 import Watermark from './assets/watermark.png';
+import Logo from './assets/tamanu-logo.png';
 
 const dummyPatient = createDummyPatient();
 const dummyAdditionalData = createDummyPatientAdditionalData();
@@ -88,8 +89,10 @@ storiesOf('Certificates', module).add('CovidLabCertificate', () => (
       labs={labs}
       watermarkSrc={Watermark}
       signingSrc={SigningImage}
+      logoSrc={Logo}
       vdsSrc={vds}
       getLocalisation={getLocalisation}
+      printedBy="Initial Admin"
     />
   </PDFViewer>
 ));
@@ -179,6 +182,7 @@ storiesOf('Certificates', module).add('VaccineCertificate', () => {
         vaccinations={vaccinations}
         watermarkSrc={Watermark}
         signingSrc={SigningImage}
+        logoSrc={Logo}
         vdsSrc={vdsSrc}
         extraPatientFields={[{ key: 'uvci', label: 'UVCI', accessor: () => 'x1235y12345' }]}
         getLocalisation={getLocalisation}
