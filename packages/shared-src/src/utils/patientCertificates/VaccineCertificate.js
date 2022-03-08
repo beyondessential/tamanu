@@ -62,6 +62,7 @@ export const VaccineCertificate = ({
   signingSrc,
   watermarkSrc,
   vdsSrc,
+  logoSrc,
   getLocalisation,
   extraPatientFields,
 }) => {
@@ -73,7 +74,7 @@ export const VaccineCertificate = ({
     <Document>
       <Page size="A4" style={styles.page}>
         {watermarkSrc && <Watermark src={watermarkSrc} />}
-        <LetterheadSection getLocalisation={getLocalisation} />
+        <LetterheadSection getLocalisation={getLocalisation} logoSrc={logoSrc} />
         <H3>Vaccination Certification</H3>
         <PatientDetailsSection
           patient={patient}
