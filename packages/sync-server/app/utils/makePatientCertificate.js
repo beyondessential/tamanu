@@ -68,10 +68,17 @@ export const makeVaccineCertificate = async (patient, printedBy, models, vdsData
   };
 };
 
-export const makeCovidTestCertificate = async (patient, models, vdsData = null) => {
+export const makeCovidTestCertificate = async (patient, printedBy, models, vdsData = null) => {
   const folder = await tmpdir();
   const fileName = `covid-test-certificate-${patient.id}.pdf`;
   const filePath = path.join(folder, fileName);
+
+  const logo = await models.Asset.findOne({
+    raw: true,
+    where: {
+      name: 'letterhead-logo',
+    },
+  });
 
   const signingImage = await models.Asset.findOne({
     raw: true,
@@ -97,6 +104,8 @@ export const makeCovidTestCertificate = async (patient, models, vdsData = null) 
         labs={labs}
         signingSrc={signingImage?.data}
         watermarkSrc={watermark?.data}
+        logoSrc={logo?.data}
+        printedBy={printedBy}
         vdsSrc={vds}
         getLocalisation={getLocalisationData}
       />,

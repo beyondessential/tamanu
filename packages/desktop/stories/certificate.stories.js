@@ -92,6 +92,7 @@ storiesOf('Certificates', module).add('CovidLabCertificate', () => (
       logoSrc={Logo}
       vdsSrc={vds}
       getLocalisation={getLocalisation}
+      printedBy="Initial Admin"
     />
   </PDFViewer>
 ));

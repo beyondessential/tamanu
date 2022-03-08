@@ -93,7 +93,7 @@ export class CertificateNotificationProcessor extends ScheduledTask {
             }
 
             log.debug('Making test PDF');
-            pdf = await makeCovidTestCertificate(patient, models, vdsData);
+            pdf = await makeCovidTestCertificate(patient, printedBy, models, vdsData);
             break;
           default:
             throw new Error(`Unknown certificate type ${type}`);
