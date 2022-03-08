@@ -1,7 +1,7 @@
 import { expect } from 'chai';
 import { generateHashFromUUID } from '../../src/utils';
 
-describe('Generate UUID Date Time Hash', () => {
+describe('Generate UUID Hash', () => {
   // Arrange
   const uuid = 'e7664992-13c4-42c8-a106-b31f4f825466';
   const lowUuid = '10101010-0000-0000-0000-000000000000';

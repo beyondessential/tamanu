@@ -17,7 +17,7 @@ const HASH_LENGTH = 12;
 export function generateHashFromUUID(uuid) {
   const dashLessUuid = uuid.replace(/-/g, '');
 
-  // Need to slice the initial uuid so that his number doesn't come out so big that it displays in scientific notation
+  // Need to slice the initial uuid so that this number doesn't come out so big that it displays in scientific notation
   const number = parseInt(dashLessUuid.slice(0, HASH_LENGTH + 4), 16);
   const uuidHash = number.toString(36);
   const hash = uuidHash.slice(0, HASH_LENGTH);
