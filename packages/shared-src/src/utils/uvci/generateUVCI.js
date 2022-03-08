@@ -1,7 +1,7 @@
 import config from 'config';
 import { log } from '../../services/logging';
-import generateICAOFormatUVCI from './icao';
-import generateEUDCCFormatUVCI from './eudcc';
+import { generateICAOFormatUVCI } from './icao';
+import { generateEUDCCFormatUVCI } from './eudcc';
 import { AdministeredVaccine, Encounter } from '../../models';
 
 export async function generateUVCIForPatient(patientId) {
