@@ -14,7 +14,7 @@
 
 const HASH_LENGTH = 12;
 
-export function generateHashFromUUID(uuid) {
+export default function generateHashFromUUID(uuid) {
   const dashLessUuid = uuid.replace(/-/g, '');
 
   // Need to slice the initial uuid so that this number doesn't come out so big that it displays in scientific notation
