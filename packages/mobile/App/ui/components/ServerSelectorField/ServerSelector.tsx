@@ -3,7 +3,7 @@ import { useNetInfo } from '@react-native-community/netinfo';
 
 import { SelectOption } from '../Dropdown';
 import { AndroidPicker } from '../Dropdown/Picker.android';
-import { InputContainer, StyledTextInput } from '../TextField/styles';
+import { InputContainer } from '../TextField/styles';
 import { readConfig } from '~/services/config';
 import { StyledText, StyledView } from '/styled/common';
 import { theme } from '~/ui/styled/theme';
