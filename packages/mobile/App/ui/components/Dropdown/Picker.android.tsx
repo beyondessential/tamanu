@@ -48,6 +48,7 @@ export const AndroidPicker = ({
           position="absolute"
           borderRadius={5}
           width="90%"
+          height="100%" // height 100% is needed to make the view scrollable
           zIndex={5}
           background={theme.colors.WHITE}
         >
