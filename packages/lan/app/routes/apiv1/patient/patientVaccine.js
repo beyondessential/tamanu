@@ -146,7 +146,7 @@ patientVaccineRoutes.get(
         ['$encounter.patient_id$']: req.params.id,
         status: 'GIVEN',
       },
-      order: [['updatedAt', 'DESC']],
+      order: [['date', 'DESC']],
       include: [
         {
           model: req.models.Encounter,
