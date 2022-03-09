@@ -22,18 +22,14 @@ describe('VDS-NC: Document cryptography', () => {
 
     const { publicKey, privateKey, request } = await newKeypairAndCsr({
       keySecret: 'secret',
-      csr: {
-        subject: {
-          countryCode2: 'UT',
-          signerIdentifier: 'TA',
-        },
-      },
+      countryAlpha2: 'UT',
+      signerIdentifier: 'TA',
     });
 
     const { VdsNcSigner } = ctx.store.models;
     const signer = await VdsNcSigner.create({
-      publicKey: Buffer.from(publicKey),
-      privateKey: Buffer.from(privateKey),
+      publicKey,
+      privateKey,
       request,
       countryCode: 'UTO',
     });

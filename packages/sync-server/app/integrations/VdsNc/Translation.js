@@ -1,7 +1,6 @@
 import moment from 'moment';
 import { transliterate as tr } from 'transliteration';
-import allModels from 'shared/models';
-import { vdsConfig } from './Config';
+import allConfig from 'config';
 
 const SEX_TO_CHAR = {
   male: 'M',
@@ -30,7 +29,7 @@ const MOMENT_FORMAT_RFC3339 = 'YYYY-MM-DDTHH:mm:ssZ';
 
 export const createProofOfVaccination = async (
   patientId,
-  { countryCode = vdsConfig().sign.countryCode3, models },
+  { config = allConfig, models },
 ) => {
   const {
     Patient,
@@ -110,7 +109,7 @@ export const createProofOfVaccination = async (
         .utc()
         .format(MOMENT_FORMAT_ISODATE),
       seq: SCHEDULE_TO_SEQUENCE[schedule] ?? SEQUENCE_MAX + 1,
-      ctr: countryCode,
+      ctr: config.localisation.countryCode['alpha-3'],
       lot: batch || 'Unknown', // If batch number was not recorded, we add a indicative string value to complete ICAO validation
       adm: facility,
     };
@@ -140,7 +139,7 @@ export const createProofOfVaccination = async (
 
 export const createProofOfTest = async (
   labTestId,
-  { countryCode = vdsConfig().sign.countryCode3, models = allModels } = {},
+  { config = allConfig, models },
 ) => {
   const {
     Patient,
@@ -217,7 +216,7 @@ export const createProofOfTest = async (
     },
     sp: {
       spn: facility.name,
-      ctr: countryCode,
+      ctr: config.localisation.countryCode['alpha-3'],
       cd: {
         p: facility.contactNumber,
         e: facility.email,

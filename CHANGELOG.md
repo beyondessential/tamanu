@@ -5,12 +5,53 @@
 ### Manual steps required after upgrade ⚙
 
 - Consider adding `fiji-aspen-encounter-summary-line-list` to disabledReports
-- Renamed configuration: `integrations.vds` becomes `integrations.icaoSigner`, and concerns only the generation and management of ICAO DSC (Signer certificates). This integration is required to be enabled for the either of the `icaoVdsNc` or the `euDcc` integrations to function.
-- If `integrations.vds` was previously enabled, a new `integrations.icaoVdsNc` section needs to be enabled now as well as the above.
+- Renamed configuration: `integrations.vds` becomes `integrations.icaoSigner`, and concerns only the
+  generation and management of ICAO DSC (Signer certificates). This integration is required to be
+  enabled for the either of the `icaoVdsNc` or the `euDcc` integrations to function.
+- If `integrations.vds` was previously enabled:
+  - A new `integrations.icaoVdsNc` section needs to be enabled now as well as the above.
+  - Its format has changed slightly, follow the `default.json` to map the new fields.
+  - The `countryCode2` and `countryCode3` fields have migrated to the localisation config.
+  - The `workingPeriod` setting in `icaoSigner` needs to be explicitly set to `-16`.
+  - The `type` setting in `icaoSigner` needs to be explicitly set to `"vds"`.
+- New strongly recommended (for most installs) / required (for VDS/DCC) fields in localisation:
+  ```js
+  "localisation": {
+    "countryCode": {
+      "alpha-2": "XX",
+      "alpha-3": "XXX"
+    },
+  }
+  ```
+  These are the [ISO 3166](https://en.wikipedia.org/wiki/List_of_ISO_3166_country_codes) codes for
+  the country, used in a variety of places. They default to the country codes for the fictive nation
+  of "Utopia" (widely used for testing) so they really need to be changed for production.
 
 ### Features ⭐
 
 - Add new report `fiji-aspen-encounter-summary-line-list`
+
+- EU DCC integration. To enable:
+  - Set the country fields as described above.
+  - Configure an `icaoSigner` integration:
+    ```js
+    "integrations": {
+      "icaoSigner": {
+        "enabled": true,
+        "type": "eudcc",
+        "workingPeriod": 365,
+      },
+    },
+    ```
+  - Configure the `euDcc` integration:
+    ```js
+    "integrations": {
+      "euDcc": {
+        "enabled": true,
+        // TBC
+      },
+    },
+    ```
 
 ### Tweaks ⚖️
 

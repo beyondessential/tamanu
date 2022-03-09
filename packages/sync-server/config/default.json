@@ -138,14 +138,8 @@
       // $ openssl rand -base64 32
       "keySecret": null,
       "csr": {
-        "subject": {
-          "countryCode2": null, // ICAO 2-letter country code
-          "signerIdentifier": "TA" // max 2 letters, ref 9303-13 §2.2.1(a)
-        },
+        "signerIdentifier": "TA", // max 2 letters, ref 9303-13 §2.2.1(a)
         "email": null // email address for CSCA signing contact
-      },
-      "sign": {
-        "countryCode3": null, // ICAO 3-letter country code
       },
       "renew": {
         // "daysBeforeExpiry": 16, // max 32
@@ -155,6 +149,10 @@
     }
   },
   "localisation": {
+    "countryCode": {
+      "alpha-2": "UT",
+      "alpha-3": "UTO"
+    },
     "labResultWidget": {
       "categoryWhitelist": [
         "labTestCategory-COVID"

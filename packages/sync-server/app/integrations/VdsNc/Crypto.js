@@ -1,4 +1,3 @@
-import config from 'config';
 import nodeCrypto from 'crypto';
 import { Crypto } from 'node-webcrypto-ossl';
 import {
@@ -27,7 +26,6 @@ import {
 import { ICAO_DOCUMENT_TYPES, X502_OIDS } from 'shared/constants';
 import { depem, pem } from 'shared/utils';
 import moment from 'moment';
-import { vdsConfig } from '.';
 
 const webcrypto = new Crypto();
 setEngine(
@@ -39,10 +37,12 @@ setEngine(
 /**
  * Generate a VDS-NC Barcode Signer compliant keypair and CSR.
  *
- * @param {object} vdsConf The validated VDS config.
+ * @param {string} keySecret The passphrase for the private key, encoded as Base64.
+ * @param {string} signerIdentifier Last two letters of the ICAO signer identifier, e.g. 'TA'.
+ * @param {string} countryAlpha2 Two-letter country code, e.g. 'UT'.
  * @returns The fields to use to create the Signer model.
  */
-export async function newKeypairAndCsr(vdsConf = vdsConfig()) {
+export async function newKeypairAndCsr({ keySecret, signerIdentifier, countryAlpha2 }) {
   const { publicKey, privateKey } = await webcrypto.subtle.generateKey(
     {
       name: 'ECDSA',
@@ -52,23 +52,18 @@ export async function newKeypairAndCsr(vdsConf = vdsConfig()) {
     ['sign', 'verify'],
   );
 
-  const {
-    keySecret,
-    csr: { subject },
-  } = vdsConf;
-
   const csr = new CertificationRequest();
   csr.version = 0;
   csr.subject.typesAndValues.push(
     new AttributeTypeAndValue({
       type: X502_OIDS.COUNTRY_NAME,
-      value: new PrintableString({ value: subject.countryCode2 }),
+      value: new PrintableString({ value: countryAlpha2 }),
     }),
   );
   csr.subject.typesAndValues.push(
     new AttributeTypeAndValue({
       type: X502_OIDS.COMMON_NAME,
-      value: new PrintableString({ value: subject.signerIdentifier }),
+      value: new PrintableString({ value: signerIdentifier }),
     }),
   );
 
@@ -90,15 +85,15 @@ export async function newKeypairAndCsr(vdsConf = vdsConfig()) {
   });
 
   return {
-    publicKey: fakeABtoRealAB(await webcrypto.subtle.exportKey('spki', publicKey)),
-    privateKey: fakeABtoRealAB(
+    publicKey: Buffer.from(fakeABtoRealAB(await webcrypto.subtle.exportKey('spki', publicKey))),
+    privateKey: Buffer.from(fakeABtoRealAB(
       privateNodeKey.export({
         type: 'pkcs8',
         format: 'der',
         cipher: 'aes-256-cbc',
         passphrase,
       }).buffer,
-    ),
+    )),
     request: pem(packedCsr, 'CERTIFICATE REQUEST'),
   };
 }

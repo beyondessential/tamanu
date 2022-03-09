@@ -23,38 +23,15 @@ const SCHEMA = yup
     csr: yup
       .object()
       .shape({
-        subject: yup
-          .object()
-          .shape({
-            countryCode2: yup
-              .string()
-              .length(2)
-              .uppercase()
-              .required(),
-            signerIdentifier: yup
-              .string()
-              .length(2)
-              .uppercase()
-              .required(),
-          })
-          .noUnknown()
+        signerIdentifier: yup
+          .string()
+          .length(2)
+          .uppercase()
           .required(),
         email: yup
           .string()
           .email()
           .required('CSR emails are the only supported renewal methods at the moment'),
-      })
-      .noUnknown()
-      .required(),
-
-    sign: yup
-      .object()
-      .shape({
-        countryCode3: yup
-          .string()
-          .length(3)
-          .uppercase()
-          .required(),
       })
       .noUnknown()
       .required(),

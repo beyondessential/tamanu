@@ -37,10 +37,8 @@ describe('VDS-NC: Signer cryptography', () => {
   it('creates a well-formed keypair', async () => {
     const { publicKey, privateKey } = await newKeypairAndCsr({
       keySecret: 'secret',
-      csr: { subject: {
-        countryCode2: 'UT',
-        signerIdentifier: 'TA',
-      } },
+      countryAlpha2: 'UT',
+      signerIdentifier: 'TA',
     });
 
     // publicKey: Walk through the expected ASN.1 structure
@@ -51,7 +49,7 @@ describe('VDS-NC: Signer cryptography', () => {
     //     OBJECT IDENTIFIER (curve name)
     //   BIT STRING (public key)
     //
-    const pubasn = fromBER(publicKey);
+    const pubasn = fromBER(fakeABtoRealAB(publicKey));
     expect(pubasn.result.error).to.be.empty;
     expect(pubasn.result).to.be.instanceOf(Sequence);
     expect(pubasn.result.valueBlock.value).to.have.lengthOf(2);
@@ -86,7 +84,7 @@ describe('VDS-NC: Signer cryptography', () => {
     //           OCTET STRING (encryption IV)
     //   OCTET STRING (encrypted private key)
     //
-    const privasn = fromBER(privateKey);
+    const privasn = fromBER(fakeABtoRealAB(privateKey));
     expect(privasn.result.error).to.be.empty;
     expect(privasn.result).to.be.instanceOf(Sequence);
     expect(privasn.result.valueBlock.value).to.have.lengthOf(2);
@@ -128,7 +126,7 @@ describe('VDS-NC: Signer cryptography', () => {
 
     // Decrypt the private key
     const realKey = crypto.createPrivateKey({
-      key: Buffer.from(privateKey),
+      key: privateKey,
       format: 'der',
       type: 'pkcs8',
       passphrase: Buffer.from('secret', 'base64'),
@@ -167,10 +165,8 @@ describe('VDS-NC: Signer cryptography', () => {
   it('creates a well-formed CSR', async () => {
     const { publicKey, request } = await newKeypairAndCsr({
       keySecret: 'secret',
-      csr: { subject: {
-        countryCode2: 'UT',
-        signerIdentifier: 'TA',
-      } },
+      countryAlpha2: 'UT',
+      signerIdentifier: 'TA',
     });
 
     // Check the PEM has the borders
@@ -235,7 +231,7 @@ describe('VDS-NC: Signer cryptography', () => {
     expect(reqsignalgoid.toString()).to.equal('OBJECT IDENTIFIER : 1.2.840.10045.4.3.2'); // ecdsaWithSHA256
 
     // Check that the embedded public key is the same as the one generated
-    const pubasn = fromBER(publicKey);
+    const pubasn = fromBER(fakeABtoRealAB(publicKey));
     expect([...new Uint8Array(reqkeydat.valueBlock.valueHex)]).to.deep.equal([
       ...new Uint8Array(pubasn.result.valueBlock.value[1].valueBlock.valueHex),
     ]);
@@ -262,16 +258,14 @@ describe('VDS-NC: Signer cryptography', () => {
     const { VdsNcSigner } = ctx.store.models;
     const { publicKey, privateKey, request } = await newKeypairAndCsr({
       keySecret: 'secret',
-      csr: { subject: {
-        countryCode2: 'UT',
-        signerIdentifier: 'TA',
-      } },
+      countryAlpha2: 'UT',
+      signerIdentifier: 'TA',
     });
 
     // Act
     const newSigner = await VdsNcSigner.create({
-      publicKey: Buffer.from(publicKey),
-      privateKey: Buffer.from(privateKey),
+      publicKey,
+      privateKey,
       request,
       countryCode: 'UTO',
     });
@@ -279,8 +273,8 @@ describe('VDS-NC: Signer cryptography', () => {
     // Assert
     const signer = await VdsNcSigner.findByPk(newSigner.id);
     expect(signer).to.exist;
-    expect(signer.publicKey).to.deep.equal(Buffer.from(publicKey));
-    expect(signer.privateKey).to.deep.equal(Buffer.from(privateKey));
+    expect(signer.publicKey).to.deep.equal(publicKey);
+    expect(signer.privateKey).to.deep.equal(privateKey);
 
     // Check we can decrypt the key
     crypto.createPrivateKey({

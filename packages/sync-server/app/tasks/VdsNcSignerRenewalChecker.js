@@ -79,12 +79,17 @@ export class VdsNcSignerRenewalChecker extends ScheduledTask {
       }
 
       log.info('Generating new signer CSR');
-      const { publicKey, privateKey, request } = await newKeypairAndCsr();
+      const { publicKey, privateKey, request } = await newKeypairAndCsr({
+        keySecret: vdsConf.keySecret,
+        signerIdentifier: vdsConf.csr.signerIdentifier,
+        countryAlpha2: config.localisation.countryCode['alpha-2'],
+      });
+
       const newSigner = await VdsNcSigner.create({
-        publicKey: Buffer.from(publicKey),
-        privateKey: Buffer.from(privateKey),
+        publicKey,
+        privateKey,
         request,
-        countryCode: vdsConf.sign.countryCode3,
+        countryCode: config.localisation.countryCode['alpha-3'],
       });
       log.info(`Created new signer (CSR): ${newSigner.id}`);
     }
