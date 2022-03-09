@@ -90,6 +90,7 @@
     "mathjs": "^9.3.0",
     "mkdirp": "^1.0.4",
     "moment": "^2.21.0",
+    "moment-timezone": "^0.5.34",
     "mongodb": "^3.6.2",
     "morgan": "^1.9.0",
     "multiparty": "^4.2.1",
