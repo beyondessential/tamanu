@@ -1,7 +1,8 @@
 import moment from 'moment';
 import { transliterate as tr } from 'transliteration';
 import allModels from 'shared/models';
-import { vdsConfig } from './Config';
+import config from 'config';
+import { EUDCC_SCHEMA_VERSION } from 'shared/constants';
 
 const SEX_TO_CHAR = {
   male: 'M',
@@ -93,31 +94,44 @@ export async function createCovidVaccinationCertificateData(administeredVaccineI
     throw new Error('Vaccination is not given');
   }
 
-  const { firstName, lastName, dateOfBirth, sex } = vaccination.encounter.patient;
-  const { passport } = vaccination.encounter.patient.additionalData;
+  const {
+    batch,
+    date,
+    scheduledVaccine: {
+      schedule,
+      vaccine: { name: label },
+    },
+    encounter: {
+      location: {
+        Facility: { name: facility },
+      },
+    },
+  } = vaccination;
 
-  const pidDoc = passport
-    ? {
-        i: passport,
-      }
-    : {};
+  return {
+    ver: EUDCC_SCHEMA_VERSION,
+    nam: nameSection(vaccination.encounter.patient),
+    dob: '1964-01-01', // TODO: get from timezoned from dev rebase
+    v: [
+      {
+        tg: '840539006',
+        vp: '1119349007',
+        mp: 'EU/1/20/1507',
+        ma: 'ORG-100031184',
+        dn: 1,
+        sd: 2,
+        dt: '2021-06-11',
+        co: 'NL',
+        is: 'Ministry of Health Welfare and Sport',
+        ci: 'URN:UVCI:01:NL:DADFCC47C7334E45A906DB12FD859FB7',
+      },
+    ],
+  };
 
   // Group by vaccine brand/label
   const vaccines = new Map();
   for (const dose of vaccinations) {
-    const {
-      batch,
-      date,
-      scheduledVaccine: {
-        schedule,
-        vaccine: { name: label },
-      },
-      encounter: {
-        location: {
-          Facility: { name: facility },
-        },
-      },
-    } = dose;
+    
 
     const event = {
       dvc: moment(date)
@@ -152,7 +166,17 @@ export async function createCovidVaccinationCertificateData(administeredVaccineI
   };
 };
 
-function pid(firstName, lastName, dateOfBirth, sex) {
+function nameSection(patient) {
+  const { firstName, lastName, dateOfBirth, sex } = patient;
+  const { passport } = patient.additionalData;
+  
+  return {
+    fn: 'ابو بكر محمد بن زكريا الرازي',
+    fnt: 'ABW<BKR<MXHMD<BN<ZKRYA<ALRAZY',
+    gn: 'ناصر',
+    gnt: 'NAXSSR',
+  };
+
   const MAX_LEN = 39;
   const primary = tr(lastName);
   const secondary = tr(firstName);

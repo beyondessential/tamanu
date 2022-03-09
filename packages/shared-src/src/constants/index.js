@@ -288,6 +288,8 @@ export const EUDCC_CERTIFICATE_TYPES = {
   RECOVERY: 'r',
 };
 
+export const EUDCC_SCHEMA_VERSION = '1.3.0';
+
 export const X502_OIDS = {
   COMMON_NAME: '2.5.4.3',
   COUNTRY_NAME: '2.5.4.6',
