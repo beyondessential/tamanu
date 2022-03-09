@@ -168,6 +168,7 @@
         "labTestType-COVID"
       ]
     },
+    "timeZone": null,
     "data": {
       "fields": {
         "emergencyContactName": {
