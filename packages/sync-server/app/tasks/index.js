@@ -9,22 +9,20 @@ import { VRSActionRetrier } from './VRSActionRetrier';
 import { VdsNcSignerExpiryChecker } from './VdsNcSignerExpiryChecker';
 import { VdsNcSignerRenewalChecker } from './VdsNcSignerRenewalChecker';
 import { VdsNcSignerRenewalSender } from './VdsNcSignerRenewalSender';
+import { CertificateNotificationProcessor } from './CertificateNotificationProcessor';
 
 export async function startScheduledTasks(context) {
   const taskClasses = [
     OutpatientDischarger,
     PatientEmailCommunicationProcessor,
     ReportRequestProcessor,
+    CertificateNotificationProcessor,
   ];
   if (config.integrations.fijiVrs.enabled) {
     taskClasses.push(VRSActionRetrier);
   }
   if (vdsConfig().enabled) {
-    taskClasses.push(
-      VdsNcSignerExpiryChecker,
-      VdsNcSignerRenewalChecker,
-      VdsNcSignerRenewalSender,
-    );
+    taskClasses.push(VdsNcSignerExpiryChecker, VdsNcSignerRenewalChecker, VdsNcSignerRenewalSender);
   }
 
   const reportSchedulers = await getReportSchedulers(context);

@@ -5,7 +5,6 @@ import {
   createSingleLabRequestNotification,
   createMultiLabRequestNotifications,
 } from 'shared/tasks/CreateLabRequestNotifications';
-import { sendCertificateNotifications } from '../tasks/SendCertificateNotifications';
 
 export async function addHooks(store) {
   if (config.notifications) {
@@ -37,14 +36,6 @@ export async function addHooks(store) {
           },
         );
       }
-      // Send out queued certificate notifications
-      store.models.CertificateNotification.addHook(
-        'afterBulkCreate', // Sync triggers bulk actions, even if it's only for one entry
-        'create certificate notification hook',
-        certificateNotifications => {
-          sendCertificateNotifications(certificateNotifications, store.models);
-        },
-      );
     }
   }
 }

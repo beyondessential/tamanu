@@ -1,0 +1,20 @@
+const Sequelize = require('sequelize');
+const { CERTIFICATE_NOTIFICATION_STATUSES } = require('shared/constants');
+
+module.exports = {
+  up: async query => {
+    await query.addColumn('certificate_notifications', 'status', {
+      type: Sequelize.STRING,
+      defaultValue: CERTIFICATE_NOTIFICATION_STATUSES.QUEUED,
+      allowNull: false,
+    });
+    await query.addColumn('certificate_notifications', 'error', {
+      type: Sequelize.TEXT,
+      defaultValue: null,
+    });
+  },
+  down: async query => {
+    await query.removeColumn('certificate_notifications', 'status');
+    await query.removeColumn('certificate_notifications', 'error');
+  },
+};

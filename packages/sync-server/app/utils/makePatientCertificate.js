@@ -6,10 +6,17 @@ import { log } from 'shared/services/logging';
 import { tmpdir, CovidLabCertificate, VaccineCertificate } from 'shared/utils';
 import { getLocalisationData } from './localisation';
 
-export const makeVaccineCertificate = async (patient, models, vdsData = null) => {
+export const makeVaccineCertificate = async (patient, printedBy, models, vdsData = null) => {
   const folder = await tmpdir();
   const fileName = `vaccine-certificate-${patient.id}.pdf`;
   const filePath = path.join(folder, fileName);
+
+  const logo = await models.Asset.findOne({
+    raw: true,
+    where: {
+      name: 'letterhead-logo',
+    },
+  });
 
   const signingImage = await models.Asset.findOne({
     raw: true,
@@ -29,15 +36,22 @@ export const makeVaccineCertificate = async (patient, models, vdsData = null) =>
 
   try {
     const vaccinations = await patient.getAdministeredVaccines();
+    const additionalData = await models.PatientAdditionalData.findOne({
+      where: { patientId: patient.id },
+      include: models.PatientAdditionalData.getFullReferenceAssociations(),
+    });
+    const patientData = { ...patient.dataValues, additionalData: additionalData?.dataValues };
     const uvci = await patient.getIcaoUVCI();
 
     await ReactPDF.render(
       <VaccineCertificate
-        patient={patient.dataValues}
+        patient={patientData}
+        printedBy={printedBy}
         extraPatientFields={[{ key: 'uvci', label: 'UVCI', accessor: () => uvci }]}
         vaccinations={vaccinations}
         signingSrc={signingImage?.data}
         watermarkSrc={watermark?.data}
+        logoSrc={logo?.data}
         vdsSrc={vds}
         getLocalisation={getLocalisationData}
       />,
@@ -54,10 +68,17 @@ export const makeVaccineCertificate = async (patient, models, vdsData = null) =>
   };
 };
 
-export const makeCovidTestCertificate = async (patient, models, vdsData = null) => {
+export const makeCovidTestCertificate = async (patient, printedBy, models, vdsData = null) => {
   const folder = await tmpdir();
   const fileName = `covid-test-certificate-${patient.id}.pdf`;
   const filePath = path.join(folder, fileName);
+
+  const logo = await models.Asset.findOne({
+    raw: true,
+    where: {
+      name: 'letterhead-logo',
+    },
+  });
 
   const signingImage = await models.Asset.findOne({
     raw: true,
@@ -83,6 +104,8 @@ export const makeCovidTestCertificate = async (patient, models, vdsData = null) 
         labs={labs}
         signingSrc={signingImage?.data}
         watermarkSrc={watermark?.data}
+        logoSrc={logo?.data}
+        printedBy={printedBy}
         vdsSrc={vds}
         getLocalisation={getLocalisationData}
       />,

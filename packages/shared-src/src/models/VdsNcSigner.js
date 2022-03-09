@@ -79,12 +79,6 @@ export class VdsNcSigner extends Model {
     );
   }
 
-  static initRelations(models) {
-    this.hasMany(models.VdsNcDocument, {
-      foreignKey: 'signerId',
-    });
-  }
-
   /**
    * Fetches the current active signer, if any.
    * @return {null|Promise<VdsNcSigner>} The active signer, or null if there's none.
