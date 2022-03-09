@@ -221,10 +221,7 @@ export class SyncManager {
         models.CertificateNotification,
 
         // models.LabRequestLog,
-        // Disable DocumentMetadata momentarily
-        // models.DocumentMetadata,
-
-        // Until TAN-1161 is fixed don't put any models after DocumentMetadata
+        models.DocumentMetadata,
       ];
 
       for (const model of modelsToSync) {

@@ -60,6 +60,7 @@ export class Encounter extends Model {
         'invoice',
         'invoice.invoiceLineItems',
         'invoice.invoicePriceChangeItems',
+        'documents',
       ],
       ...nestedSyncConfig,
       channelRoutes: [
@@ -244,6 +245,11 @@ export class Encounter extends Model {
     this.hasMany(models.Triage, {
       foreignKey: 'encounterId',
       as: 'triages',
+    });
+
+    this.hasMany(models.DocumentMetadata, {
+      foreignKey: 'encounterId',
+      as: 'documents',
     });
 
     // this.hasMany(models.Procedure);
