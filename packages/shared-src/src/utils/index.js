@@ -7,4 +7,4 @@ export * from './arrayToDbString';
 export * from './tmpdir';
 export * from './encodings';
 export * from './patientCertificates';
-export * from './generateUUIDDateTimeHash';
+export * from './generateHashFromUUID';

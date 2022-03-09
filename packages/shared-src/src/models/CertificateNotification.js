@@ -7,9 +7,12 @@ export class CertificateNotification extends Model {
     super.init(
       {
         id: primaryKey,
+        createdBy: Sequelize.STRING,
         type: Sequelize.STRING,
         forwardAddress: Sequelize.STRING,
         requireSigning: Sequelize.BOOLEAN,
+        status: Sequelize.STRING,
+        error: Sequelize.TEXT,
       },
       {
         ...options,

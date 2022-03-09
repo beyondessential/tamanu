@@ -94,6 +94,11 @@
       "schedule": "*/30 * * * * *",
       "limit": 10
     },
+    "certificateNotificationProcessor": {
+      // every 30seconds /!\
+      "schedule": "*/30 * * * * *",
+      "limit": 10
+    },
     "reportRequestProcessor": {
        // every 30 seconds /!\
       "schedule": "*/30 * * * * *",
@@ -163,6 +168,8 @@
         "labTestType-COVID"
       ]
     },
+    // The time zone setting is currently only used for Vaccine Certificates
+    "timeZone": null,
     "data": {
       "fields": {
         "emergencyContactName": {
@@ -202,6 +209,11 @@
         "sex": {
           "shortLabel": "Sex",
           "longLabel": "Sex",
+          "hidden": false
+        },
+        "email": {
+          "shortLabel": "Email",
+          "longLabel": "Email",
           "hidden": false
         },
         "dateOfBirth": {

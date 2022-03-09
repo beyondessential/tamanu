@@ -45,6 +45,7 @@ const UNHIDEABLE_FIELDS = [
 const HIDEABLE_FIELDS = [
   'culturalName',
   'sex',
+  'email',
   'villageName',
   'villageId',
   'bloodType',

@@ -326,3 +326,9 @@ export const INVOICE_PRICE_CHANGE_TYPES = {
 export const INVOICE_PRICE_CHANGE_TYPE_LABELS = {
   [INVOICE_PRICE_CHANGE_TYPES.PATIENT_BILLING_TYPE]: 'Patient Type',
 };
+
+export const CERTIFICATE_NOTIFICATION_STATUSES = {
+  QUEUED: 'Queued',
+  PROCESSED: 'Processed',
+  ERROR: 'Error',
+};

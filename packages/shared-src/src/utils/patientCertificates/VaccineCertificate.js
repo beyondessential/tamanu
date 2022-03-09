@@ -56,16 +56,17 @@ const columns = [
 
 export const VaccineCertificate = ({
   patient,
+  printedBy,
   vaccinations,
   certificateId,
   signingSrc,
   watermarkSrc,
   vdsSrc,
+  logoSrc,
   getLocalisation,
   extraPatientFields,
 }) => {
   const hasEditedRecord = vaccinations.findIndex(v => v.createdAt !== v.updatedAt) !== -1;
-
   const contactEmail = getLocalisation('templates.vaccineCertificateFooter.emailAddress');
   const contactNumber = getLocalisation('templates.vaccineCertificateFooter.contactNumber');
 
@@ -73,7 +74,7 @@ export const VaccineCertificate = ({
     <Document>
       <Page size="A4" style={styles.page}>
         {watermarkSrc && <Watermark src={watermarkSrc} />}
-        <LetterheadSection getLocalisation={getLocalisation} />
+        <LetterheadSection getLocalisation={getLocalisation} logoSrc={logoSrc} />
         <H3>Vaccination Certification</H3>
         <PatientDetailsSection
           patient={patient}
@@ -85,7 +86,7 @@ export const VaccineCertificate = ({
         <Box mb={20}>
           <Table data={vaccinations} columns={columns} />
           {hasEditedRecord && (
-            <P mt={10}>
+            <P mt={10} style={{ fontSize: 10 }}>
               * This vaccine record has been updated by a user and this is the most recent record
             </P>
           )}
@@ -93,7 +94,7 @@ export const VaccineCertificate = ({
         <Box>
           <Row>
             <Col>
-              <P>Printed by:</P>
+              <P>Printed by: {printedBy}</P>
             </Col>
             <Col>
               <P>Printing date: {moment().format('DD/MM/YYYY')}</P>
