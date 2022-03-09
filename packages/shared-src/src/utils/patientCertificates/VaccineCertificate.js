@@ -1,13 +1,12 @@
 import React from 'react';
-import moment from 'moment';
 import { Document, Page } from '@react-pdf/renderer';
 import { Table } from './Table';
 import { styles, Col, Box, Row, Watermark } from './Layout';
 import { PatientDetailsSection } from './PatientDetailsSection';
 import { SigningSection } from './SigningSection';
 import { H3, P } from './Typography';
-import { getDisplayDate } from './accessors';
 import { LetterheadSection } from './LetterheadSection';
+import { getDisplayDate } from './getDisplayDate';
 
 const columns = [
   {
@@ -97,7 +96,7 @@ export const VaccineCertificate = ({
               <P>Printed by: {printedBy}</P>
             </Col>
             <Col>
-              <P>Printing date: {moment().format('DD/MM/YYYY')}</P>
+              <P>Printing date: {getDisplayDate()}</P>
             </Col>
           </Row>
         </Box>
