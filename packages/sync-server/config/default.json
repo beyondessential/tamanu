@@ -168,6 +168,7 @@
         "labTestType-COVID"
       ]
     },
+    // The time zone setting is currently only used for Vaccine Certificates
     "timeZone": null,
     "data": {
       "fields": {
