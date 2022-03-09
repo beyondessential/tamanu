@@ -1,6 +1,5 @@
 import config from 'config';
-
-const calculateLuhnModN = require('calculate-luhn-mod-n');
+import calculateLuhnModN from 'calculate-luhn-mod-n';
 
 export function generateEUDCCFormatUVCI(vaccinationId) {
   // UVCI id is required to be uppercase alphanumeric
