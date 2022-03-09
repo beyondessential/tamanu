@@ -1,5 +1,4 @@
 import React from 'react';
-import moment from 'moment';
 import { Document, Page } from '@react-pdf/renderer';
 import { Table } from './Table';
 import { styles, Col, Box, Row, Watermark } from './Layout';
@@ -14,6 +13,7 @@ import {
   getRequestId,
   getDateOfSwab,
 } from './accessors';
+import { getDisplayDate } from './getDisplayDate';
 
 const columns = [
   {
@@ -80,7 +80,7 @@ export const CovidLabCertificate = ({
               <P>Printed by: {printedBy}</P>
             </Col>
             <Col>
-              <P>Printing date: {moment().format('DD/MM/YYYY')}</P>
+              <P>Printing date: {getDisplayDate()}</P>
             </Col>
           </Row>
         </Box>

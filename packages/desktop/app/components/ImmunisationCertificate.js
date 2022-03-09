@@ -23,16 +23,16 @@ const renderFooter = getLocalisation => {
   );
 };
 
-const getUVCI = ({ patient, immunisations }) => {
+const getUVCI = ({ immunisations }) => {
   // If there are no immunisations return a blank uvci
   if (immunisations.length === 0) {
     return '';
   }
 
-  // Ensure that the records are sorted desc by updatedAt
+  // Ensure that the records are sorted desc by date
   const latestVaccination = immunisations
     .slice()
-    .sort((a, b) => Date.parse(b.updatedAt) - Date.parse(a.updatedAt))[0];
+    .sort((a, b) => Date.parse(b.date) - Date.parse(a.date))[0];
 
   return generateHashFromUUID(latestVaccination.id);
 };

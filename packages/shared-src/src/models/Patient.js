@@ -128,7 +128,7 @@ export class Patient extends Model {
         ['$encounter.patient_id$']: this.id,
         status: 'GIVEN',
       },
-      order: [['updatedAt', 'DESC']],
+      order: [['date', 'DESC']],
       include: [
         {
           model: models.Encounter,
