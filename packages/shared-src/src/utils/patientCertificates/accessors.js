@@ -1,4 +1,6 @@
-import moment from 'moment';
+import config from 'config';
+import moment from 'moment-timezone';
+import { log } from 'shared/services/logging';
 
 export const getCompletedDate = ({ tests }) =>
   tests?.completedDate ? moment(tests.completedDate).format('Do MMM YYYY') : 'Unknown';
@@ -12,10 +14,28 @@ export const getLabMethod = ({ tests }) => tests?.labTestMethod?.name || 'Unknow
 
 export const getRequestId = ({ displayId }) => displayId || 'Unknown';
 
-export const getDOB = ({ dateOfBirth }) =>
-  dateOfBirth ? moment(dateOfBirth).format('Do MMM YYYY') : 'Unknown';
+export const getDOB = ({ dateOfBirth }) => {
+  if (!dateOfBirth) {
+    return 'Unknown';
+  }
+  return dateOfBirth ? getDisplayDate(dateOfBirth) : 'Unknown';
+};
 
-export const getDisplayDate = date => moment(date).format('DD/MM/YYYY');
+const DATE_FORMAT = 'Do MMM YYYY';
+
+export const getDisplayDate = date => {
+  const { timeZone } = config?.localisation;
+
+  if (timeZone) {
+    log.debug(`Display date: ${date} with configured time zone: ${timeZone}.`);
+
+    return moment(date)
+      .tz(timeZone)
+      .format(DATE_FORMAT);
+  }
+
+  return moment(date).format(DATE_FORMAT);
+};
 
 export const getPlaceOfBirth = ({ additionalData }) => additionalData?.placeOfBirth;
 
