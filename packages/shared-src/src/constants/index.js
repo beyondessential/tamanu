@@ -282,6 +282,12 @@ export const ICAO_DOCUMENT_TYPES = {
   },
 };
 
+export const EUDCC_CERTIFICATE_TYPES = {
+  VACCINATION: 'v',
+  TEST: 't',
+  RECOVERY: 'r',
+};
+
 export const X502_OIDS = {
   COMMON_NAME: '2.5.4.3',
   COUNTRY_NAME: '2.5.4.6',
