@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import { generateHashFromUUID } from 'shared/utils/generateHashFromUUID';
+import { generateICAOFormatUVCI } from 'shared/utils/uvci/icao';
 
 import { Certificate, Spacer, Table } from './Print/Certificate';
 import { DateDisplay } from './DateDisplay';
@@ -23,7 +23,7 @@ const renderFooter = getLocalisation => {
   );
 };
 
-const getUVCI = ({ patient, immunisations }) => {
+const getUVCI = ({ immunisations }) => {
   // If there are no immunisations return a blank uvci
   if (immunisations.length === 0) {
     return '';
@@ -34,7 +34,7 @@ const getUVCI = ({ patient, immunisations }) => {
     .slice()
     .sort((a, b) => Date.parse(b.updatedAt) - Date.parse(a.updatedAt))[0];
 
-  return generateHashFromUUID(latestVaccination.id);
+  return generateICAOFormatUVCI(latestVaccination.id);
 };
 
 export const ImmunisationCertificate = ({ patient, immunisations }) => {
@@ -74,7 +74,7 @@ export const ImmunisationCertificate = ({ patient, immunisations }) => {
       watermark={watermark}
       watermarkType={watermarkType}
       footer={renderFooter(getLocalisation)}
-      customAccessors={{ UVCI: () => getUVCI({ patient, immunisations }) }}
+      customAccessors={{ UVCI: () => getUVCI({ immunisations }) }}
       primaryDetailsFields={[
         'firstName',
         'lastName',

@@ -1,5 +1,5 @@
 import { expect } from 'chai';
-import { generateHashFromUUID } from '../../src/utils';
+import { generateICAOFormatUVCI } from '../../src/utils/uvci/icao';
 
 describe('Generate UUID Hash', () => {
   // Arrange
@@ -8,9 +8,9 @@ describe('Generate UUID Hash', () => {
   const highUuid = 'fffffff-eeee-cccc-cccc-aaaaaaaaaaaa';
 
   // Act
-  const hash1 = generateHashFromUUID(uuid);
-  const hash2 = generateHashFromUUID(lowUuid);
-  const hash3 = generateHashFromUUID(highUuid);
+  const hash1 = generateICAOFormatUVCI(uuid);
+  const hash2 = generateICAOFormatUVCI(lowUuid);
+  const hash3 = generateICAOFormatUVCI(highUuid);
 
   it('Should generate a 12 digit hash', () => {
     // Assert
