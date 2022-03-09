@@ -86,7 +86,7 @@ export const VaccineCertificate = ({
         <Box mb={20}>
           <Table data={vaccinations} columns={columns} />
           {hasEditedRecord && (
-            <P mt={10}>
+            <P mt={10} style={{ fontSize: 10 }}>
               * This vaccine record has been updated by a user and this is the most recent record
             </P>
           )}
