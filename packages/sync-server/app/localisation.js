@@ -43,8 +43,10 @@ const UNHIDEABLE_FIELDS = [
 ];
 
 const HIDEABLE_FIELDS = [
+  'countryName',
   'culturalName',
   'sex',
+  'email',
   'villageName',
   'villageId',
   'bloodType',
@@ -154,8 +156,14 @@ const fieldsSchema = yup
 
 const rootLocalisationSchema = yup
   .object({
+    country: {
+      name: yup.string(),
+      'alpha-2': yup.string(),
+      'alpha-3': yup.string(),
+    },
     fields: fieldsSchema,
     templates: templatesSchema,
+    timeZone: yup.string(),
     features: {
       editPatientDetailsOnMobile: yup.boolean().required(),
       enableInvoicing: yup.boolean().required(),

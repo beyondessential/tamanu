@@ -73,6 +73,10 @@ const VerticalCenteredText = styled.span`
   align-items: center;
 `;
 
+const StyledButton = styled(Button)`
+  margin-left: 8px;
+`;
+
 export const Modal = memo(
   ({
     title,
@@ -94,7 +98,7 @@ export const Modal = memo(
           <div>
             {additionalActions}
             {printable ? (
-              <Button
+              <StyledButton
                 color="primary"
                 variant="outlined"
                 onClick={() => printPage()}
@@ -102,7 +106,7 @@ export const Modal = memo(
                 size="small"
               >
                 Print
-              </Button>
+              </StyledButton>
             ) : null}
             <IconButton onClick={onClose}>
               <CloseIcon />

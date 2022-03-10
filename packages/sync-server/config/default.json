@@ -94,6 +94,11 @@
       "schedule": "*/30 * * * * *",
       "limit": 10
     },
+    "certificateNotificationProcessor": {
+      // every 30seconds /!\
+      "schedule": "*/30 * * * * *",
+      "limit": 10
+    },
     "reportRequestProcessor": {
        // every 30 seconds /!\
       "schedule": "*/30 * * * * *",
@@ -164,7 +169,17 @@
       ]
     },
     "data": {
+      "country": {
+        "name": "",
+        "alpha-2": "",
+        "alpha-3": ""
+      },
       "fields": {
+        "countryName": {
+          "shortLabel": "Country",
+          "longLabel": "Country",
+          "hidden": false
+        },
         "emergencyContactName": {
           "shortLabel": "Emergency Contact Name",
           "longLabel": "Emergency Contact Name"
@@ -202,6 +217,11 @@
         "sex": {
           "shortLabel": "Sex",
           "longLabel": "Sex",
+          "hidden": false
+        },
+        "email": {
+          "shortLabel": "Email",
+          "longLabel": "Email",
           "hidden": false
         },
         "dateOfBirth": {
@@ -397,6 +417,8 @@
           "contactNumber": 12345
         }
       },
+      // The time zone setting is currently only used for Vaccine Certificates
+      "timeZone": null,
       "sync": {
         "syncAllEncountersForTheseScheduledVaccines": []
       },

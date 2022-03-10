@@ -1,21 +1,19 @@
-import moment from 'moment';
+import { getDisplayDate } from './getDisplayDate';
 
 export const getCompletedDate = ({ tests }) =>
-  tests?.completedDate ? moment(tests.completedDate).format('Do MMM YYYY') : 'Unknown';
+  tests?.completedDate ? getDisplayDate(tests.completedDate, 'Do MMM YYYY') : 'Unknown';
 
 export const getDateOfSwab = ({ sampleTime }) =>
-  sampleTime ? moment(sampleTime).format('Do MMM YYYY') : 'Unknown';
+  sampleTime ? getDisplayDate(sampleTime, 'Do MMM YYYY') : 'Unknown';
+
+export const getDOB = ({ dateOfBirth }) =>
+  dateOfBirth ? getDisplayDate(dateOfBirth, 'Do MMM YYYY') : 'Unknown';
 
 export const getLaboratory = ({ laboratory }) => laboratory?.name || 'Unknown';
 
 export const getLabMethod = ({ tests }) => tests?.labTestMethod?.name || 'Unknown';
 
 export const getRequestId = ({ displayId }) => displayId || 'Unknown';
-
-export const getDOB = ({ dateOfBirth }) =>
-  dateOfBirth ? moment(dateOfBirth).format('Do MMM YYYY') : 'Unknown';
-
-export const getDisplayDate = date => moment(date).format('DD/MM/YYYY');
 
 export const getPlaceOfBirth = ({ additionalData }) => additionalData?.placeOfBirth;
 

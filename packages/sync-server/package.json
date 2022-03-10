@@ -1,6 +1,6 @@
 {
   "name": "sync-server",
-  "version": "1.13.0",
+  "version": "1.13.1",
   "description": "Sync server for Tamanu desktop app",
   "homepage": "https://github.com/beyondessential/tamanu.git#readme",
   "repository": "git@github.com:beyondessential/tamanu.git",
@@ -90,6 +90,7 @@
     "mathjs": "^9.3.0",
     "mkdirp": "^1.0.4",
     "moment": "^2.21.0",
+    "moment-timezone": "^0.5.34",
     "mongodb": "^3.6.2",
     "morgan": "^1.9.0",
     "multiparty": "^4.2.1",
@@ -102,6 +103,7 @@
     "qrcode": "^1.5.0",
     "react": "16.8.5",
     "react-dom": "16.8.5",
+    "read": "^1.0.7",
     "request": "^2.88.0",
     "request-promise": "^4.2.2",
     "semver-compare": "^1.0.0",

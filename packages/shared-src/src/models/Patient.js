@@ -1,7 +1,7 @@
 import { Sequelize } from 'sequelize';
 import { SYNC_DIRECTIONS } from 'shared/constants';
 import { Model } from './Model';
-import { generateUUIDDateTimeHash } from '../utils';
+import { generateHashFromUUID } from '../utils';
 
 export class Patient extends Model {
   static init({ primaryKey, ...options }) {
@@ -128,7 +128,7 @@ export class Patient extends Model {
         ['$encounter.patient_id$']: this.id,
         status: 'GIVEN',
       },
-      order: [['updatedAt', 'DESC']],
+      order: [['date', 'DESC']],
       include: [
         {
           model: models.Encounter,
@@ -139,9 +139,7 @@ export class Patient extends Model {
     });
 
     const latestVaccination = vaccinations[0];
-    const id = latestVaccination.get('id');
-    const updatedAt = latestVaccination.get('updatedAt');
-
-    return generateUUIDDateTimeHash(id, updatedAt);
+    const uuid = latestVaccination.get('id');
+    return generateHashFromUUID(uuid);
   }
 }

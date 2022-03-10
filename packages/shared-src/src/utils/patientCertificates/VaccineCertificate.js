@@ -1,13 +1,12 @@
 import React from 'react';
-import moment from 'moment';
 import { Document, Page } from '@react-pdf/renderer';
 import { Table } from './Table';
 import { styles, Col, Box, Row, Watermark } from './Layout';
 import { PatientDetailsSection } from './PatientDetailsSection';
 import { SigningSection } from './SigningSection';
 import { H3, P } from './Typography';
-import { getDisplayDate } from './accessors';
 import { LetterheadSection } from './LetterheadSection';
+import { getDisplayDate } from './getDisplayDate';
 
 const columns = [
   {
@@ -30,6 +29,11 @@ const columns = [
     key: 'schedule',
     title: 'Schedule',
     accessor: ({ scheduledVaccine }) => scheduledVaccine?.schedule,
+  },
+  {
+    key: 'countryName',
+    title: 'Country',
+    accessor: ({ countryName }) => countryName,
   },
   {
     key: 'healthFacility',
@@ -56,24 +60,27 @@ const columns = [
 
 export const VaccineCertificate = ({
   patient,
+  printedBy,
   vaccinations,
   certificateId,
   signingSrc,
   watermarkSrc,
   vdsSrc,
+  logoSrc,
   getLocalisation,
   extraPatientFields,
 }) => {
   const hasEditedRecord = vaccinations.findIndex(v => v.createdAt !== v.updatedAt) !== -1;
-
   const contactEmail = getLocalisation('templates.vaccineCertificateFooter.emailAddress');
   const contactNumber = getLocalisation('templates.vaccineCertificateFooter.contactNumber');
+  const countryName = getLocalisation('country.name');
+  const data = vaccinations.map(vaccination => ({ ...vaccination, countryName }));
 
   return (
     <Document>
       <Page size="A4" style={styles.page}>
         {watermarkSrc && <Watermark src={watermarkSrc} />}
-        <LetterheadSection getLocalisation={getLocalisation} />
+        <LetterheadSection getLocalisation={getLocalisation} logoSrc={logoSrc} />
         <H3>Vaccination Certification</H3>
         <PatientDetailsSection
           patient={patient}
@@ -83,9 +90,9 @@ export const VaccineCertificate = ({
           extraFields={extraPatientFields}
         />
         <Box mb={20}>
-          <Table data={vaccinations} columns={columns} />
+          <Table data={data} columns={columns} getLocalisation={getLocalisation} />
           {hasEditedRecord && (
-            <P mt={10}>
+            <P mt={10} style={{ fontSize: 10 }}>
               * This vaccine record has been updated by a user and this is the most recent record
             </P>
           )}
@@ -93,17 +100,17 @@ export const VaccineCertificate = ({
         <Box>
           <Row>
             <Col>
-              <P>Printed by:</P>
+              <P>Printed by: {printedBy}</P>
             </Col>
             <Col>
-              <P>Printing date: {moment().format('DD/MM/YYYY')}</P>
+              <P>Printing date: {getDisplayDate()}</P>
             </Col>
           </Row>
         </Box>
         <SigningSection signingSrc={signingSrc} />
         <Box>
-          <P>Email address: {contactEmail}</P>
-          <P>Contact number: {contactNumber}</P>
+          {contactEmail ? <P>Email address: {contactEmail}</P> : null}
+          {contactNumber ? <P>Contact number: {contactNumber}</P> : null}
         </Box>
       </Page>
     </Document>

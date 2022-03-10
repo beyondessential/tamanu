@@ -1,5 +1,4 @@
 import React from 'react';
-import moment from 'moment';
 import { Document, Page } from '@react-pdf/renderer';
 import { Table } from './Table';
 import { styles, Col, Box, Row, Watermark } from './Layout';
@@ -14,6 +13,7 @@ import {
   getRequestId,
   getDateOfSwab,
 } from './accessors';
+import { getDisplayDate } from './getDisplayDate';
 
 const columns = [
   {
@@ -54,13 +54,15 @@ export const CovidLabCertificate = ({
   signingSrc,
   watermarkSrc,
   vdsSrc,
+  logoSrc,
   getLocalisation,
+  printedBy,
 }) => {
   return (
     <Document>
       <Page size="A4" style={styles.page}>
         {watermarkSrc && <Watermark src={watermarkSrc} />}
-        <LetterheadSection getLocalisation={getLocalisation} />
+        <LetterheadSection getLocalisation={getLocalisation} logoSrc={logoSrc} />
         <Box mb={0}>
           <H3>Covid-19 Test History</H3>
           <PatientDetailsSection
@@ -70,15 +72,15 @@ export const CovidLabCertificate = ({
           />
         </Box>
         <Box mb={30}>
-          <Table data={labs} columns={columns} />
+          <Table data={labs} columns={columns} getLocalisation={getLocalisation} />
         </Box>
         <Box>
           <Row>
             <Col>
-              <P>Printed by:</P>
+              <P>Printed by: {printedBy}</P>
             </Col>
             <Col>
-              <P>Printing date: {moment().format('DD/MM/YYYY')}</P>
+              <P>Printing date: {getDisplayDate()}</P>
             </Col>
           </Row>
         </Box>
