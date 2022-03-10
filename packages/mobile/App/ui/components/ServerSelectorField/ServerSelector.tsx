@@ -4,10 +4,8 @@ import { useNetInfo } from '@react-native-community/netinfo';
 import { SelectOption } from '../Dropdown';
 import { AndroidPicker } from '../Dropdown/Picker.android';
 import { InputContainer } from '../TextField/styles';
-import { readConfig } from '~/services/config';
 import { StyledText, StyledView } from '/styled/common';
 import { theme } from '~/ui/styled/theme';
-import { useFacility } from '~/ui/contexts/FacilityContext';
 import { Orientation, screenPercentageToDP } from '/helpers/screen';
 
 const META_SERVER = __DEV__
@@ -33,20 +31,10 @@ const fetchServers = async (): Promise<SelectOption[]> => {
 };
 
 export const ServerSelector = ({ onChange, label, value }): ReactElement => {
-  const [existingHost, setExistingHost] = useState('');
   const [options, setOptions] = useState([]);
   const [modalOpen, setModalOpen] = useState(false);
   const netInfo = useNetInfo();
-  const { facilityName } = useFacility();
 
-  useEffect(() => {
-    (async (): Promise<void> => {
-      const existing = await readConfig('syncServerLocation');
-      if (existing) {
-        setExistingHost(existing);
-      }
-    })();
-  }, []);
   useEffect(() => {
     (async (): Promise<void> => {
       if (!value && netInfo.isInternetReachable) {
@@ -62,22 +50,6 @@ export const ServerSelector = ({ onChange, label, value }): ReactElement => {
         No internet connection available.
       </StyledText>
     );
-  }
-
-  if (existingHost) {
-    if (__DEV__) {
-      return (
-        <StyledView marginBottom={10}>
-          <StyledText color={theme.colors.WHITE}>
-            Server: {existingHost}
-          </StyledText>
-          <StyledText color={theme.colors.WHITE}>
-            Facility: {facilityName}
-          </StyledText>
-        </StyledView>
-      );
-    }
-    return null;
   }
 
   return (

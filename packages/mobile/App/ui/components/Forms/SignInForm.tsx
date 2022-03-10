@@ -1,9 +1,19 @@
-import React, { FunctionComponent, ReactElement, useRef, useCallback, useContext } from 'react';
+import React, {
+  FunctionComponent,
+  ReactElement,
+  useRef,
+  useCallback,
+  useContext,
+  useEffect,
+  useState,
+} from 'react';
 import * as Yup from 'yup';
 import { StyledView, StyledText } from '/styled/common';
 import { theme } from '/styled/theme';
 import { screenPercentageToDP, Orientation } from '/helpers/screen';
 import AuthContext from '~/ui/contexts/AuthContext';
+import { readConfig } from '~/services/config';
+import { useFacility } from '~/ui/contexts/FacilityContext';
 import { Form } from './Form';
 import { Field } from './FormField';
 import { TextField } from '../TextField/TextField';
@@ -17,25 +27,32 @@ interface SignInFormModel {
 }
 
 const signInValidationSchema = Yup.object().shape({
-  email: Yup.string()
-    .email(),
+  email: Yup.string().email(),
   // .required(),
   password: Yup.string(), //.required(),
   server: Yup.string(),
 });
 
-const signInInitialValues: SignInFormModel = {
-  email: '',
-  password: '',
-  server: '',
+const ServerInfo = ({ host }): ReactElement => {
+  const { facilityName } = useFacility();
+  if (!__DEV__) {
+    return null;
+  }
+  return (
+    <StyledView marginBottom={10}>
+      <StyledText color={theme.colors.WHITE}>Server: {host}</StyledText>
+      <StyledText color={theme.colors.WHITE}>Facility: {facilityName}</StyledText>
+    </StyledView>
+  );
 };
 
 export const SignInForm: FunctionComponent<any> = ({ onError, onSuccess }) => {
+  const [existingHost, setExistingHost] = useState('');
   const passwordRef = useRef(null);
   const authCtx = useContext(AuthContext);
   const signIn = useCallback(async (values: SignInFormModel) => {
     try {
-      if (!values.server) {
+      if (!existingHost && !values.server) {
         // TODO it would be better to properly respond to form validation and show the error
         onError(new Error('Please select a server to connect to'));
         return;
@@ -46,10 +63,22 @@ export const SignInForm: FunctionComponent<any> = ({ onError, onSuccess }) => {
     } catch (error) {
       onError(error);
     }
+  }, [existingHost]);
+  useEffect(() => {
+    (async (): Promise<void> => {
+      const existing = await readConfig('syncServerLocation');
+      if (existing) {
+        setExistingHost(existing);
+      }
+    })();
   }, []);
   return (
     <Form
-      initialValues={signInInitialValues}
+      initialValues={{
+        email: '',
+        password: '',
+        server: existingHost || '',
+      }}
       validationSchema={signInValidationSchema}
       onSubmit={signIn}
     >
@@ -63,7 +92,11 @@ export const SignInForm: FunctionComponent<any> = ({ onError, onSuccess }) => {
             ACCOUNT DETAILS
           </StyledText>
           <StyledView justifyContent="space-around">
-            <Field name="server" component={ServerSelector} label="Select a country" />
+            {existingHost ? (
+              <ServerInfo host={existingHost} />
+            ) : (
+              <Field name="server" component={ServerSelector} label="Select a country" />
+            )}
             <Field
               name="email"
               keyboardType="email-address"
