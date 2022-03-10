@@ -119,7 +119,7 @@ export const dataGenerator = async ({ models }, parameters = {}) => {
 
     const villageName = dataValues.village?.dataValues?.name ?? null;
 
-    const additionalData = dataValues.PatientAdditionalData[0]?.dataValues ?? null;
+    const additionalData = dataValues.additionalData[0]?.dataValues ?? null;
     const countryOfBirth = additionalData?.countryOfBirth?.dataValues?.name ?? null;
     const nationalityName = additionalData?.nationality?.dataValues?.name ?? null;
     const ethnicityName = additionalData?.ethnicity?.dataValues?.name ?? null;
