@@ -153,7 +153,7 @@ csca_certificate() {
     -sha256 \
     -subj "/C=$alpha2/CN=$alpha2 $id" \
     -days "$days" \
-    -addext "basicConstraints=critical,CA:true,pathlen:2" \
+    -addext "basicConstraints=critical,CA:true,pathlen:0" \
     -addext "keyUsage=critical,cRLSign,keyCertSign" \
     -passin stdin <<< "$passphrase"
 
