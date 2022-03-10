@@ -90,27 +90,18 @@ export const VaccineTableCell = ({
   }, [data]);
 
   const onPressItem = useCallback(() => {
-    if (vaccineStatus === VaccineStatus.SCHEDULED) {
-      const popupProps = {
+    if (dueStatus.warningMessage) {
+      Popup.show({
         type: 'Warning',
         title: 'Vaccination Warning',
         button: true,
-        textBody: dueStatus.message,
+        textBody: dueStatus.warningMessage,
         buttonText: 'Ok',
         callback: (): void => Popup.hide(),
-      };
+        icon: <BypassWarningIcon onBypassWarning={onAdminister} />,
+      });
 
-      if (dueStatus.bypassIcon) {
-        Popup.show({
-          ...popupProps,
-          icon: <BypassWarningIcon onBypassWarning={(): void => onAdminister()} />,
-        });
-        return;
-      }
-      if (dueStatus.message) {
-        Popup.show(popupProps);
-        return;
-      }
+      return;
     }
 
     if (vaccineStatus) {
