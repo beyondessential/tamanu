@@ -170,9 +170,9 @@
     },
     "data": {
       "country": {
-        "name": null,
-        "alpha-2": null,
-        "alpha-3": null
+        "name": "",
+        "alpha-2": "",
+        "alpha-3": ""
       },
       "fields": {
         "countryName": {
