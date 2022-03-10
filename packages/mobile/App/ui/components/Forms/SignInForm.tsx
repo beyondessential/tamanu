@@ -33,37 +33,40 @@ const signInValidationSchema = Yup.object().shape({
   server: Yup.string(),
 });
 
-const ServerInfo = ({ host }): ReactElement => {
-  const { facilityName } = useFacility();
-  if (!__DEV__) {
-    return null;
+const ServerInfo = __DEV__
+  ? ({ host }): ReactElement => {
+    const { facilityName } = useFacility();
+    return (
+      <StyledView marginBottom={10}>
+        <StyledText color={theme.colors.WHITE}>Server: {host}</StyledText>
+        <StyledText color={theme.colors.WHITE}>Facility: {facilityName}</StyledText>
+      </StyledView>
+    );
   }
-  return (
-    <StyledView marginBottom={10}>
-      <StyledText color={theme.colors.WHITE}>Server: {host}</StyledText>
-      <StyledText color={theme.colors.WHITE}>Facility: {facilityName}</StyledText>
-    </StyledView>
-  );
-};
+  : (): ReactElement => null; // hide info on production
 
 export const SignInForm: FunctionComponent<any> = ({ onError, onSuccess }) => {
   const [existingHost, setExistingHost] = useState('');
   const passwordRef = useRef(null);
   const authCtx = useContext(AuthContext);
-  const signIn = useCallback(async (values: SignInFormModel) => {
-    try {
-      if (!existingHost && !values.server) {
-        // TODO it would be better to properly respond to form validation and show the error
-        onError(new Error('Please select a server to connect to'));
-        return;
-      }
-      await authCtx.signIn(values);
+  const signIn = useCallback(
+    async (values: SignInFormModel) => {
+      try {
+        if (!existingHost && !values.server) {
+          // TODO it would be better to properly respond to form validation and show the error
+          onError(new Error('Please select a server to connect to'));
+          return;
+        }
+        await authCtx.signIn(values);
 
-      onSuccess();
-    } catch (error) {
-      onError(error);
-    }
-  }, [existingHost]);
+        onSuccess();
+      } catch (error) {
+        onError(error);
+      }
+    },
+    [existingHost],
+  );
+
   useEffect(() => {
     (async (): Promise<void> => {
       const existing = await readConfig('syncServerLocation');
@@ -77,7 +80,7 @@ export const SignInForm: FunctionComponent<any> = ({ onError, onSuccess }) => {
       initialValues={{
         email: '',
         password: '',
-        server: existingHost || '',
+        server: '',
       }}
       validationSchema={signInValidationSchema}
       onSubmit={signIn}
