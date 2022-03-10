@@ -46,6 +46,8 @@ export const IntroScreen: FunctionComponent<any> = ({
           color={theme.colors.PRIMARY_MAIN}
           fontSize={`${screenPercentageToDP('1.94', Orientation.Height)}px`}
           textAlign="center"
+          marginLeft={screenPercentageToDP('14', Orientation.Width)}
+          marginRight={screenPercentageToDP('14', Orientation.Width)}
         >
           For Hospitals, Health Centres and clinics around the world
         </StyledText>
@@ -59,6 +61,7 @@ export const IntroScreen: FunctionComponent<any> = ({
             width={`${140}px`}
             outline
             borderColor={theme.colors.PRIMARY_MAIN}
+            marginRight={screenPercentageToDP('2.43', Orientation.Width)}
             buttonText="Sign in"
             textColor={theme.colors.PRIMARY_MAIN}
             fontWeight={500}
