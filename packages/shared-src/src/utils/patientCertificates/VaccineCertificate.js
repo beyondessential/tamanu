@@ -31,6 +31,11 @@ const columns = [
     accessor: ({ scheduledVaccine }) => scheduledVaccine?.schedule,
   },
   {
+    key: 'countryName',
+    title: 'Country',
+    accessor: ({ countryName }) => countryName,
+  },
+  {
     key: 'healthFacility',
     title: 'Health facility',
     customStyles: { minWidth: 30 },
@@ -68,6 +73,8 @@ export const VaccineCertificate = ({
   const hasEditedRecord = vaccinations.findIndex(v => v.createdAt !== v.updatedAt) !== -1;
   const contactEmail = getLocalisation('templates.vaccineCertificateFooter.emailAddress');
   const contactNumber = getLocalisation('templates.vaccineCertificateFooter.contactNumber');
+  const countryName = getLocalisation('country.name');
+  const data = vaccinations.map(vaccination => ({ ...vaccination, countryName }));
 
   return (
     <Document>
@@ -83,7 +90,7 @@ export const VaccineCertificate = ({
           extraFields={extraPatientFields}
         />
         <Box mb={20}>
-          <Table data={vaccinations} columns={columns} />
+          <Table data={data} columns={columns} getLocalisation={getLocalisation} />
           {hasEditedRecord && (
             <P mt={10} style={{ fontSize: 10 }}>
               * This vaccine record has been updated by a user and this is the most recent record
@@ -102,8 +109,8 @@ export const VaccineCertificate = ({
         </Box>
         <SigningSection signingSrc={signingSrc} />
         <Box>
-          <P>Email address: {contactEmail}</P>
-          <P>Contact number: {contactNumber}</P>
+          {contactEmail ? <P>Email address: {contactEmail}</P> : null}
+          {contactNumber ? <P>Contact number: {contactNumber}</P> : null}
         </Box>
       </Page>
     </Document>
