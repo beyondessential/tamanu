@@ -74,8 +74,8 @@ export const AutocompleteModalScreen = ({
         autoFocus
         flatListProps={{
           keyExtractor: item => item.value,
-          renderItem: ({ item }): JSX.Element => {
-            useDarkBackground = !useDarkBackground;
+          renderItem: ({ item, index }): JSX.Element => {
+            const useDarkBackground = index % 2 == 0;
             return (
               <TouchableOpacity onPress={(): void => onSelectItem(item)}>
                 <Text style={useDarkBackground ? styles.darkItemText : styles.lightItemText}>

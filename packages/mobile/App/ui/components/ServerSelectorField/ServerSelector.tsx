@@ -44,7 +44,6 @@ export const ServerSelector = ({ onChange, label, value }): ReactElement => {
       const existing = await readConfig('syncServerLocation');
       if (existing) {
         setExistingHost(existing);
-        onChange(existing);
       }
     })();
   }, []);
