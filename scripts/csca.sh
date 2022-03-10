@@ -231,10 +231,10 @@ csr_sign() {
 
 case "${1:-help}" in
   csca)
-    folder="$2"
-    days="$3"
-    alpha2="$4"
-    fullname="$5"
+    folder="${2:?Missing csca\/folder path}"
+    days="${3:?Missing validity days}"
+    alpha2="${4:?Missing alpha2 country code}"
+    fullname="${5:?Missing full name (CN)}"
     orgname="${6:-}"
     orgunit="${7:-}"
 
@@ -268,8 +268,8 @@ case "${1:-help}" in
     good "Done."
     ;;
   sign)
-    cscafolder="$2"
-    csrfile="$3"
+    cscafolder="${2:?Missing csca\/folder path}"
+    csrfile="${3:?Missing CSR file}"
     crtfile="${4:-${csrfile%.*}.crt}"
     days="${5:-96}"
 
