@@ -11,6 +11,7 @@ import {
   calculateSurveyResultsCommand,
   removeDuplicatedPatientAdditionalDataCommand,
   loadIcaoSignerCommand,
+  userCommand,
 } from './app/subCommands';
 
 async function run() {
@@ -26,6 +27,7 @@ async function run() {
   program.addCommand(calculateSurveyResultsCommand);
   program.addCommand(removeDuplicatedPatientAdditionalDataCommand);
   program.addCommand(loadIcaoSignerCommand);
+  program.addCommand(userCommand);
 
   await program.parseAsync(process.argv);
 }

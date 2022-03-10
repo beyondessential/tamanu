@@ -133,6 +133,7 @@ describe('Auth', () => {
           role: 'practitioner',
         },
         localisation: expect.any(Object),
+        permissions: expect.any(Object),
         facility: expect.objectContaining(TEST_FACILITY),
       });
     });
@@ -230,6 +231,16 @@ describe('Auth', () => {
     expect(body).toHaveProperty('email', TEST_EMAIL);
     expect(body).not.toHaveProperty('password');
     expect(body).not.toHaveProperty('hashedPassword');
+  });
+
+  it('Should send permissions alongside login information', async () => {
+    const response = await baseApp.post('/v1/login').send({
+      email: TEST_EMAIL,
+      password: TEST_PASSWORD,
+    });
+
+    expect(response).toHaveSucceeded();
+    expect(response.body).toHaveProperty('permissions');
   });
 
   describe('Change password', () => {

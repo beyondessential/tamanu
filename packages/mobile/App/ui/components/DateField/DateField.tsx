@@ -27,21 +27,24 @@ type DatePickerProps = {
   onDateChange: (event: any, selectedDate: any) => void;
   isVisible: boolean;
   mode: 'date' | 'time';
+  value: Date;
 };
 
 const DatePicker = ({
   onDateChange,
   isVisible,
   mode,
-}: DatePickerProps): ReactElement => (isVisible ? (
-  <DateTimePicker
-    value={new Date()}
-    mode={mode}
-    display="spinner"
-    onChange={onDateChange}
-    style={styles.androidPickerStyles}
-  />
-) : null);
+  value,
+}: DatePickerProps): ReactElement =>
+  isVisible ? (
+    <DateTimePicker
+      value={value}
+      mode={mode}
+      display="spinner"
+      onChange={onDateChange}
+      style={styles.androidPickerStyles}
+    />
+  ) : null;
 
 export interface DateFieldProps extends BaseInputProps {
   value: Date;
@@ -140,9 +143,11 @@ export const DateField = React.memo(
               onDateChange={onAndroidDateChange}
               mode={mode}
               isVisible={isDatePickerVisible}
+              value={value || new Date()}
             />
-          ), [isDatePickerVisible])
-        }
+          ),
+          [isDatePickerVisible],
+        )}
       </StyledView>
     );
   },

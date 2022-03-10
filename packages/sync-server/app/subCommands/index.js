@@ -5,3 +5,4 @@ export { setupCommand } from './setup';
 export { calculateSurveyResultsCommand } from './calculateSurveyResults';
 export { removeDuplicatedPatientAdditionalDataCommand } from './removeDuplicatedPatientAdditionalData';
 export { loadIcaoSignerCommand } from './loadIcaoSigner';
+export { userCommand } from './user';

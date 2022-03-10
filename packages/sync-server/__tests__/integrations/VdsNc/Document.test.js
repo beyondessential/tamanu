@@ -13,6 +13,7 @@ import crypto from 'crypto';
 import { expect } from 'chai';
 import { canonicalize } from 'json-canonicalize';
 import { base64UrlDecode } from 'shared/utils/encodings';
+import { generateUVCIForPatient } from 'shared/utils';
 
 describe('VDS-NC: Document cryptography', () => {
   let ctx;
@@ -158,7 +159,7 @@ describe('VDS-NC: Document cryptography', () => {
       date: new Date(Date.parse('2 January 2022, UTC')),
     });
 
-    const uniqueProofId = await patient.getIcaoUVCI();
+    const uniqueProofId = await generateUVCIForPatient(patient.id);
     const signer = await VdsNcSigner.findActive();
 
     // Pre-check
