@@ -1,13 +1,10 @@
-import { FieldTypes } from '/helpers/fields';
-import { IPatient, ISurveyScreenComponent, IUser } from '~/types';
 import * as Yup from 'yup';
-import { getAgeFromDate } from '/helpers/date';
-import { joinNames } from '/helpers/user';
 
-const SOURCE_TO_COLUMN_MAP = {
-  ReferenceData: 'name',
-  User: 'displayName',
-};
+import { AutocompleteSourceToColumnMap } from '~/ui/helpers/constants';
+import { getAgeFromDate } from '~/ui/helpers/date';
+import { FieldTypes } from '~/ui/helpers/fields';
+import { joinNames } from '~/ui/helpers/user';
+import { IPatient, ISurveyScreenComponent, IUser } from '~/types';
 
 function getInitialValue(dataElement): JSX.Element {
   switch (dataElement.type) {
@@ -132,7 +129,7 @@ export async function getAutocompleteDisplayAnswer(
     const fullLinkedAnswer = await models[autocompleteConfig.source]
       .getRepository()
       .findOne(sourceId);
-    const columnToDisplay = SOURCE_TO_COLUMN_MAP[autocompleteConfig.source];
+    const columnToDisplay = AutocompleteSourceToColumnMap[autocompleteConfig.source];
     return fullLinkedAnswer[columnToDisplay];
   }
 
