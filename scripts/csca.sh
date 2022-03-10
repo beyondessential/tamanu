@@ -139,7 +139,17 @@ csca_certificate() {
   passphrase="$3"
   days="$4"
   alpha2="$5"
-  name="$6"
+  fullname="$6"
+  orgname="$7"
+  orgunit="$8"
+
+  subject="/C=$alpha2/CN=$fullname"
+  if [[ ! -z "$orgname" ]]; then
+    subject="$subject/O=$orgname"
+  fi
+  if [[ ! -z "$orgunit" ]]; then
+    subject="$subject/OU=$orgunit"
+  fi
 
   info "generate CSCA certificate"
   openssl req \
@@ -151,7 +161,7 @@ csca_certificate() {
     -new \
     -x509 \
     -sha256 \
-    -subj "/C=$alpha2/CN=$name" \
+    -subj "$subject" \
     -days "$days" \
     -addext "subjectKeyIdentifier=hash" \
     -addext "authorityKeyIdentifier=keyid,issuer" \
@@ -225,6 +235,8 @@ case "${1:-help}" in
     days="$3"
     alpha2="$4"
     fullname="$5"
+    orgname="${6:-}"
+    orgunit="${7:-}"
 
     if [[ -d "$folder" ]]; then
       ohno "Folder $folder already exists"
@@ -251,7 +263,7 @@ case "${1:-help}" in
     csca_structure "$folder"
     keypair "$folder/private/csca.key" "$folder/csca.pub" "$passphrase"
     csca_certificate "$folder/private/csca.key" "$folder/csca.crt" "$passphrase" \
-      "$days" "$alpha2" "$fullname"
+      "$days" "$alpha2" "$fullname" "$orgname" "$orgunit"
 
     good "Done."
     ;;
@@ -286,12 +298,14 @@ case "${1:-help}" in
   *)
     info "Usage: $0 COMMAND [ARGUMENTS]"
     info
-    info "\e[1mcsca <folder> <days> <alpha2> <fullname>"
+    info "\e[1mcsca <folder> <days> <alpha2> <fullname> [org] [org-unit]"
     info "       where:"
-    info "       folder = where to store new CSCA files"
-    info "       days   = validity of CA cert in days (typically 4-5 years)"
-    info "       alpha2 = 2-letter country code"
-    info "       id     = full name of CSCA cert e.g. 'Tamanu Government Health CSCA'"
+    info "       folder   = where to store new CSCA files"
+    info "       days     = validity of CA cert in days (typically 4-5 years)"
+    info "       alpha2   = 2-letter country code"
+    info "       fullname = full name of CSCA cert e.g. 'Tamanu Government Health CSCA'"
+    info "       org      = organisation name e.g. 'Kingdom of Tamanu' (optional)"
+    info "       org-unit = sub org unit name e.g. 'Ministry of Health' (optional)"
     info
     info "\e[1msign <csca folder> <csr> [out] [days]"
     info "       where:"
