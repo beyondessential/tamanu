@@ -123,7 +123,7 @@ export async function createCovidVaccinationCertificateData(administeredVaccineI
         dt: '2021-06-11',
         co: 'NL',
         is: 'Ministry of Health Welfare and Sport',
-        ci: 'URN:UVCI:01:NL:DADFCC47C7334E45A906DB12FD859FB7',
+        ci: '', // TODO: get from eudcc uvci (rebase)
       },
     ],
   };
