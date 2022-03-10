@@ -168,6 +168,11 @@ csca_certificate() {
     -addext "basicConstraints=critical,CA:true,pathlen:0" \
     -addext "keyUsage=critical,cRLSign,keyCertSign" \
     -passin stdin <<< "$passphrase"
+  # TODO: also requires:
+  # - CRL, ref 7.1.1.4
+  # - private key usage period, ref Health Master List Policy 5.1, typically 3-5 years
+  # - certificate expiry checked to be over this, typically +2 years or double
+  # - possibly policy URL
 
   # cert info
   openssl x509 \
@@ -265,7 +270,7 @@ case "${1:-help}" in
     csca_certificate "$folder/private/csca.key" "$folder/csca.crt" "$passphrase" \
       "$days" "$alpha2" "$fullname" "$orgname" "$orgunit"
 
-    good "Done."
+    good "Done. REMEMBER TO ZIP AND UPLOAD TO LASTPASS"
     ;;
   sign)
     cscafolder="${2:?Missing csca\/folder path}"
@@ -293,7 +298,7 @@ case "${1:-help}" in
     csr_sign "$cscafolder" "$passphrase" \
       "$csrfile" "$crtfile" "$days"
 
-    good "Done."
+    good "Done. REMEMBER TO REZIP AND UPLOAD TO LASTPASS"
     ;;
   *)
     info "Usage: $0 COMMAND [ARGUMENTS]"
