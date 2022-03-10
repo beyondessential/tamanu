@@ -68,6 +68,7 @@ export const dataGenerator = async ({ models }, parameters = {}) => {
       },
       {
         model: models.PatientAdditionalData,
+        as: 'additionalData',
         include: [
           {
             model: models.ReferenceData,
