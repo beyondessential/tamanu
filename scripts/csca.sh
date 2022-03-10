@@ -151,7 +151,7 @@ csca_certificate() {
     -new \
     -x509 \
     -sha256 \
-    -subj "/C=$alpha2/CN=$alpha2 $id" \
+    -subj "/C=$alpha2/CN=$name" \
     -days "$days" \
     -addext "subjectKeyIdentifier=hash" \
     -addext "authorityKeyIdentifier=keyid,issuer" \
@@ -224,7 +224,7 @@ case "${1:-help}" in
     folder="$2"
     days="$3"
     alpha2="$4"
-    id="${5:-CA}"
+    fullname="$5"
 
     if [[ -d "$folder" ]]; then
       ohno "Folder $folder already exists"
@@ -251,7 +251,7 @@ case "${1:-help}" in
     csca_structure "$folder"
     keypair "$folder/private/csca.key" "$folder/csca.pub" "$passphrase"
     csca_certificate "$folder/private/csca.key" "$folder/csca.crt" "$passphrase" \
-      "$days" "$alpha2" "$alpha2 $id"
+      "$days" "$alpha2" "$fullname"
 
     good "Done."
     ;;
@@ -286,12 +286,12 @@ case "${1:-help}" in
   *)
     info "Usage: $0 COMMAND [ARGUMENTS]"
     info
-    info "\e[1mcsca <folder> <days> <alpha2> [id]"
+    info "\e[1mcsca <folder> <days> <alpha2> <fullname>"
     info "       where:"
     info "       folder = where to store new CSCA files"
-    info "       days   = validity of CA cert in days"
+    info "       days   = validity of CA cert in days (typically 4-5 years)"
     info "       alpha2 = 2-letter country code"
-    info "       id     = 2-letter certificate ID (defaults to 'CA')"
+    info "       id     = full name of CSCA cert e.g. 'Tamanu Government Health CSCA'"
     info
     info "\e[1msign <csca folder> <csr> [out] [days]"
     info "       where:"
