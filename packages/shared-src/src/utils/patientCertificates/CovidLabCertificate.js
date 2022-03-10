@@ -72,7 +72,7 @@ export const CovidLabCertificate = ({
           />
         </Box>
         <Box mb={30}>
-          <Table data={labs} columns={columns} />
+          <Table data={labs} columns={columns} getLocalisation={getLocalisation} />
         </Box>
         <Box>
           <Row>
