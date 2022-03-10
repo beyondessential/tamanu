@@ -34,6 +34,9 @@ export class Patient extends BaseModel implements IPatient {
   @Column({ nullable: true })
   dateOfBirth?: Date;
 
+  @Column({ nullable: true })
+  email?: string;
+
   @Column()
   sex: string;
 

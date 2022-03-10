@@ -211,30 +211,6 @@ App configuration files
 | jest-unit-config.js | Configuration for unit tests. Unit tests has a .spec extension |
 | jest-integration-config.js | Configuration for integration tests. Integration tests has a .test extension |
 
-
-Environment:
-
-This project uses [react-native-config](https://github.com/luggit/react-native-config) for embedding env variables to android and ios.
-Whenever we change the value of a env file variable we have to run the build process again so changes can take effect.
-
-To change which env file bundled into release make changes into:
-```
-android/app/build.gradle
-```
-
-```
-project.ext.envConfigFiles = [
-    debug: ".env",
-    release: ".env.production",
-]
-apply from: project(':react-native-config').projectDir.getPath() + "/dotenv.gradle"
-```
-
-|   |   |
-|---|---|
-| .env | environment variables that will be inserted into the app. If any change required build the app again. |
-| .sampleenv | environment variables example file |
-
 Typescript:
 
 |   |   |

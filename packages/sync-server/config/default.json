@@ -137,6 +137,7 @@
     },
     "vds": {
       "enabled": false,
+      "format": "icao",
       // Encryption key for ICAO DSC key material (stored in DB).
       // This must be unique per country/installation.
       // It must be at least 32 bytes of random data in Base64.
@@ -168,6 +169,8 @@
         "labTestType-COVID"
       ]
     },
+    // The time zone setting is currently only used for Vaccine Certificates
+    "timeZone": null,
     "data": {
       "country": {
         "name": "",

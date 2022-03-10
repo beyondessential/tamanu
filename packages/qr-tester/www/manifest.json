@@ -1,0 +1,18 @@
+{
+  "short_name": "QR scanner",
+  "name": "QR code scanner",
+  "description": "simple QR code scanner",
+  "lang": "en-GB",
+  "icons": [
+    {
+      "src": "logo.png",
+      "type": "image/png",
+      "sizes": "1000x1000"
+    }
+  ],
+  "start_url": ".",
+  "background_color": "#ffffff",
+  "theme_color": "#000000",
+  "display": "standalone",
+  "orientation": "portrait"
+}

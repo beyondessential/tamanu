@@ -4,6 +4,7 @@ import { Routes } from '~/ui/helpers/routes';
 import { PatientDetailsScreen } from '~/ui/navigation/screens/home/PatientDetails';
 import { AddPatientIssueScreen } from '~/ui/navigation/screens/home/PatientDetails/AddPatientIssue';
 import { EditPatientScreen } from '~/ui/navigation/screens/home/PatientDetails/EditPatient';
+import { EditPatientAdditionalDataScreen } from '~/ui/navigation/screens/home/PatientDetails/EditPatientAdditionalData';
 import { ErrorBoundary } from '~/ui/components/ErrorBoundary';
 
 const Stack = createStackNavigator();
@@ -22,6 +23,10 @@ export const PatientDetailsStack = () => (
       <Stack.Screen
         name={Routes.HomeStack.PatientDetailsStack.EditPatient}
         component={EditPatientScreen}
+      />
+      <Stack.Screen
+        name={Routes.HomeStack.PatientDetailsStack.EditPatientAdditionalData}
+        component={EditPatientAdditionalDataScreen}
       />
     </Stack.Navigator>
   </ErrorBoundary>
