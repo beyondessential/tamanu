@@ -18,7 +18,7 @@ export function getWeeksFromDate(date: string): number {
 
 type VaccineStatusMessage = {
   status: VaccineStatus;
-  message?: string;
+  warningMessage?: string;
 };
 
 function getVaccineStatusForWeeksFromBirthDue(weeksUntilDue): VaccineStatusMessage {
@@ -28,7 +28,7 @@ function getVaccineStatusForWeeksFromBirthDue(weeksUntilDue): VaccineStatusMessa
   if (weeksUntilDue < -4) {
     return {
       status: VaccineStatus.MISSED,
-      message: `Patient has missed this vaccine by ${Math.abs(weeksUntilDue)} weeks, please refer to the catchup schedule.`,
+      warningMessage: `Patient has missed this vaccine by ${Math.abs(weeksUntilDue)} weeks, please refer to the catchup schedule.`,
     };
   }
   if (weeksUntilDue < 0) {
@@ -40,7 +40,7 @@ function getVaccineStatusForWeeksFromBirthDue(weeksUntilDue): VaccineStatusMessa
   if (weeksUntilDue > 4) {
     return {
       status: VaccineStatus.SCHEDULED,
-      message: `This patient is not due to receive this vaccine for ${weeksUntilDue} weeks.`,
+      warningMessage: `This patient is not due to receive this vaccine for ${weeksUntilDue} weeks.`,
     };
   }
   if (weeksUntilDue > 2) {
@@ -60,13 +60,13 @@ function getVaccineStatusForWeeksFromLastVaccinationDue(
   if (!previouslyAdministeredVaccine) {
     return {
       status: VaccineStatus.SCHEDULED,
-      message: `This patient has not received dose ${index - 1} of this vaccine.`,
+      warningMessage: `This patient has not received dose ${index - 1} of this vaccine.`,
     };
   }
   if (weeksUntilGapPeriodPassed > 0) {
     return {
       status: VaccineStatus.SCHEDULED,
-      message: `This patient is not due to receive this vaccine for ${weeksUntilGapPeriodPassed} weeks.`,
+      warningMessage: `This patient is not due to receive this vaccine for ${weeksUntilGapPeriodPassed} weeks.`,
     };
   }
 
