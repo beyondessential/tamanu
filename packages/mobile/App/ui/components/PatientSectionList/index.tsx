@@ -13,7 +13,7 @@ interface PatientSectionListProps {
 }
 
 const SECTION_HEADER_HEIGHT = 30;
-function SectionHeader(props: { header: string }) {
+const SectionHeader = ({ header }: { header: string }) => {
   return (
     <StyledView
       height={SECTION_HEADER_HEIGHT}
@@ -21,15 +21,19 @@ function SectionHeader(props: { header: string }) {
       background={theme.colors.BOX_OUTLINE}
       paddingLeft={screenPercentageToDP('4.86', Orientation.Width)}
     >
-      <StyledText fontSize={screenPercentageToDP('1.45', Orientation.Height)}>
-        {props.header}
-      </StyledText>
+      <StyledText fontSize={screenPercentageToDP('1.45', Orientation.Height)}>{header}</StyledText>
     </StyledView>
   );
-}
+};
 
 const ITEM_HEIGHT = 85;
-function Item(props: { item: IPatient; onPressItem: (patient: IPatient) => void }) {
+const Item = ({
+  item,
+  onPressItem,
+}: {
+  item: IPatient;
+  onPressItem: (patient: IPatient) => void;
+}) => {
   return (
     <TouchableOpacity
       style={{
@@ -38,13 +42,13 @@ function Item(props: { item: IPatient; onPressItem: (patient: IPatient) => void 
         justifyContent: 'center',
         backgroundColor: theme.colors.BACKGROUND_GREY,
       }}
-      onPress={() => props.onPressItem(props.item)}
+      onPress={() => onPressItem(item)}
     >
-      <PatientTile {...props.item} />
+      <PatientTile {...item} />
       <ItemSeparator />
     </TouchableOpacity>
   );
-}
+};
 
 function ItemSeparator() {
   return (
