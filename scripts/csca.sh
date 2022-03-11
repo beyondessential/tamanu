@@ -97,6 +97,7 @@ subjectKeyIdentifier=hash
 authorityKeyIdentifier=keyid,issuer
 keyUsage=critical,cRLSign,keyCertSign
 extendedKeyUsage=2.23.136.1.1.14.1
+crlDistributionPoints=URI:${5:-}
 2.5.29.16=ASN1:SEQUENCE:csca_pkup
 
 [ csca_dir_sect ]
@@ -131,7 +132,7 @@ name_opt        = ca_default
 cert_opt        = ca_default
 
 default_days = 96
-default_crl_days = 30
+default_crl_days = 90
 default_md = default
 policy = ca_policy
 
@@ -159,11 +160,12 @@ csca_certificate() {
   crtdst="$2"
   passphrase="$3"
   pkupyrs="$4"
-  alpha2="$5"
-  alpha3="$6"
-  fullname="$7"
-  orgname="$8"
-  orgunit="$9"
+  crlurl="$5"
+  alpha2="$6"
+  alpha3="$7"
+  fullname="$8"
+  orgname="$9"
+  orgunit="${10}"
 
   subject="/C=$alpha2/CN=$fullname"
   if [[ ! -z "$orgname" ]]; then
@@ -190,7 +192,7 @@ csca_certificate() {
     -outform PEM \
     -key "$keyfile" \
     -out "$crtdst" \
-    -config <(openssl_config nope "$alpha3" "$pkup_before" "$pkup_after") \
+    -config <(openssl_config nope "$alpha3" "$pkup_before" "$pkup_after" "$crlurl") \
     -new \
     -x509 \
     -sha256 \
@@ -274,11 +276,12 @@ case "${1:-help}" in
   csca)
     folder="${2:?Missing csca\/folder path}"
     years="${3:?Missing validity years}"
-    alpha2="${4:?Missing alpha2 country code}"
-    alpha3="${5:?Missing alpha3 country code}"
-    fullname="${6:?Missing full name (CN)}"
-    orgname="${7:-}"
-    orgunit="${8:-}"
+    crlurl="${4:?Missing CRL URL}"
+    alpha2="${5:?Missing alpha2 country code}"
+    alpha3="${6:?Missing alpha3 country code}"
+    fullname="${7:?Missing full name (CN)}"
+    orgname="${8:-}"
+    orgunit="${9:-}"
 
     if [[ -d "$folder" ]]; then
       ohno "Folder $folder already exists"
@@ -287,6 +290,11 @@ case "${1:-help}" in
 
     if [[ "$years" -lt 3 ]]; then
       ohno "Validity years must be at least 3"
+      exit 2
+    fi
+
+    if [[ "$crlurl" != https://* ]]; then
+      ohno "CRL URL must be HTTPS"
       exit 2
     fi
 
@@ -310,7 +318,7 @@ case "${1:-help}" in
     csca_structure "$folder"
     keypair "$folder/private/csca.key" "$folder/csca.pub" "$passphrase"
     csca_certificate "$folder/private/csca.key" "$folder/csca.crt" "$passphrase" \
-      "$years" "$alpha2" "$alpha3" "$fullname" "$orgname" "$orgunit"
+      "$years" "$crlurl" "$alpha2" "$alpha3" "$fullname" "$orgname" "$orgunit"
 
     rezip "$folder"
 
@@ -349,10 +357,11 @@ case "${1:-help}" in
   *)
     info "Usage: $0 COMMAND [ARGUMENTS]"
     info
-    info "\e[1mcsca <folder> <years> <alpha2> <alpha3> <fullname> [country] [dept-org]"
+    info "\e[1mcsca <folder> <years> <crl url> <alpha2> <alpha3> <fullname> [country] [dept-org]"
     info "       where:"
     info "       folder   = where to store new CSCA files"
     info "       years    = working period of CSCA in years (typically 3-5 years)"
+    info "       crl url  = full URL to CRL (e.g. http://crl.tamanu.io/CountrynameHealthCSCA.crl)"
     info "       alpha2   = 2-letter country code"
     info "       alpha3   = 3-letter country code"
     info "       fullname = full name of CSCA cert e.g. 'Tamanu Government Health CSCA'"
