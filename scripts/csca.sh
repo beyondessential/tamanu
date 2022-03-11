@@ -156,7 +156,7 @@ csca_certificate() {
   keyfile="$1"
   crtdst="$2"
   passphrase="$3"
-  days="$4"
+  pkupyrs="$4"
   alpha2="$5"
   fullname="$6"
   orgname="$7"
@@ -258,7 +258,7 @@ csr_sign() {
 case "${1:-help}" in
   csca)
     folder="${2:?Missing csca\/folder path}"
-    days="${3:?Missing validity days}"
+    years="${3:?Missing validity years}"
     alpha2="${4:?Missing alpha2 country code}"
     fullname="${5:?Missing full name (CN)}"
     orgname="${6:-}"
@@ -289,7 +289,7 @@ case "${1:-help}" in
     csca_structure "$folder"
     keypair "$folder/private/csca.key" "$folder/csca.pub" "$passphrase"
     csca_certificate "$folder/private/csca.key" "$folder/csca.crt" "$passphrase" \
-      "$days" "$alpha2" "$fullname" "$orgname" "$orgunit"
+      "$years" "$alpha2" "$alpha3" "$fullname" "$orgname" "$orgunit"
 
     good "Done. REMEMBER TO ZIP AND UPLOAD TO LASTPASS"
     ;;
@@ -327,7 +327,7 @@ case "${1:-help}" in
     info "\e[1mcsca <folder> <days> <alpha2> <fullname> [org] [org-unit]"
     info "       where:"
     info "       folder   = where to store new CSCA files"
-    info "       days     = validity of CA cert in days (typically 4-5 years)"
+    info "       years    = working period of CSCA in years (typically 3-5 years)"
     info "       alpha2   = 2-letter country code"
     info "       fullname = full name of CSCA cert e.g. 'Tamanu Government Health CSCA'"
     info "       country  = full country name e.g. 'Kingdom of Tamanu' (optional)"
