@@ -260,6 +260,16 @@ csr_sign() {
     -text -noout
 }
 
+rezip() {
+  folder="$1"
+
+  info "Zipping CSCA state folder"
+  zipname="${folder}_$(date +%Y-%m-%d_%H-%M-%S).zip"
+  zip -r "$zipname" "$folder"
+
+  good "Please upload to LastPass: $zipname"
+}
+
 case "${1:-help}" in
   csca)
     folder="${2:?Missing csca\/folder path}"
@@ -302,7 +312,9 @@ case "${1:-help}" in
     csca_certificate "$folder/private/csca.key" "$folder/csca.crt" "$passphrase" \
       "$years" "$alpha2" "$alpha3" "$fullname" "$orgname" "$orgunit"
 
-    good "Done. REMEMBER TO ZIP AND UPLOAD TO LASTPASS"
+    rezip "$folder"
+
+    good "Done."
     ;;
   sign)
     cscafolder="${2:?Missing csca\/folder path}"
@@ -330,7 +342,9 @@ case "${1:-help}" in
     csr_sign "$cscafolder" "$passphrase" \
       "$csrfile" "$crtfile" "$years"
 
-    good "Done. REMEMBER TO REZIP AND UPLOAD TO LASTPASS"
+    rezip "$cscafolder"
+
+    good "Done."
     ;;
   *)
     info "Usage: $0 COMMAND [ARGUMENTS]"
