@@ -273,6 +273,11 @@ case "${1:-help}" in
       exit 2
     fi
 
+    if [[ "$years" -lt 3 ]]; then
+      ohno "Validity years must be at least 3"
+      exit 2
+    fi
+
     passphrase="$(prompt "Enter new passphrase (30 chars minimum): " -s)"
     confirm="$(prompt "Confirm new passphrase: " -s)"
     if [[ -z "$passphrase" ]]; then
