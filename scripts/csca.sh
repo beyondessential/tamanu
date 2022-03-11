@@ -90,6 +90,15 @@ basicConstraints=critical,CA:true,pathlen:0
 subjectKeyIdentifier=hash
 authorityKeyIdentifier=keyid,issuer
 keyUsage=critical,cRLSign,keyCertSign
+2.5.29.16=ASN1:SEQUENCE:csca_pkup
+
+[ csca_dir_sect ]
+L=${2:-}
+
+[ csca_pkup ]
+notBefore=IMPLICIT:0,GENTIME:${3:-}
+notAfter=IMPLICIT:1,GENTIME:${4:-}
+
 [ ca ]
 default_ca      = CA_default
 
@@ -156,6 +165,17 @@ csca_certificate() {
   if [[ ! -z "$orgunit" ]]; then
     subject="$subject/OU=$orgunit"
   fi
+
+  ((pkup=pkupyrs*365+1))
+  ((validity=pkup*2))
+
+  # it's not possible to manually set the cert expiry dates, so we set
+  # the pkup to begin at midnight, which will always be less or equal to
+  # the notBefore of the cert validity.
+  now="$(date --date=00:00 +%s)"
+  ((later=now+pkup*24*60*60))
+  pkup_before="$(date --date "@$now" '+%Y%m%d%H%M%SZ')"
+  pkup_after="$(date --date "@$later" '+%Y%m%d%H%M%SZ')"
 
   info "generate CSCA certificate"
   openssl req \
