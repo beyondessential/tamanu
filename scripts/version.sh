@@ -40,8 +40,8 @@ mv CHANGELOG.md.3 CHANGELOG.md
 
 cat << EOF
 
-Don't forget to manually update the checks in:
+Don't forget to manually update:
   - packages/lan/app/middleware/versionCompatibility.js
   - packages/sync-server/app/middleware/versionCompatibility.js
-and to manually update mobile (the patch version of mobile must monotonically increase)
+  - packages/mobile/package.json (the patch version of mobile must monotonically increase)
 EOF

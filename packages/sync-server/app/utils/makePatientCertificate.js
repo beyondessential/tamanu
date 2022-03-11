@@ -45,7 +45,7 @@ export const makeVaccineCertificate = async (patient, printedBy, models, vdsData
       where: { patientId: patient.id },
       include: models.PatientAdditionalData.getFullReferenceAssociations(),
     });
-    const patientData = { ...patient.dataValues, additionalData: additionalData.dataValues };
+    const patientData = { ...patient.dataValues, additionalData: additionalData?.dataValues };
     const uvci = await generateUVCIForPatient(patient.id);
 
     await ReactPDF.render(

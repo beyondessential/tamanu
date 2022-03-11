@@ -22,11 +22,7 @@ export async function startScheduledTasks(context) {
     taskClasses.push(VRSActionRetrier);
   }
   if (vdsConfig().enabled) {
-    taskClasses.push(
-      VdsNcSignerExpiryChecker,
-      VdsNcSignerRenewalChecker,
-      VdsNcSignerRenewalSender,
-    );
+    taskClasses.push(VdsNcSignerExpiryChecker, VdsNcSignerRenewalChecker, VdsNcSignerRenewalSender);
   }
 
   const reportSchedulers = await getReportSchedulers(context);
