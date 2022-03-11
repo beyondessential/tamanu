@@ -84,6 +84,8 @@ countryName = Country Code (ISO 3166-1 alpha-2)
 countryName_min = 2
 countryName_max = 2
 commonName = Descriptive name of the certificate
+organizationName = Country Full Name
+organizationUnitName = Department or Ministry
 
 [ req_attributes ]
 
@@ -328,8 +330,10 @@ case "${1:-help}" in
     info "       days     = validity of CA cert in days (typically 4-5 years)"
     info "       alpha2   = 2-letter country code"
     info "       fullname = full name of CSCA cert e.g. 'Tamanu Government Health CSCA'"
-    info "       org      = organisation name e.g. 'Kingdom of Tamanu' (optional)"
-    info "       org-unit = sub org unit name e.g. 'Ministry of Health' (optional)"
+    info "       country  = full country name e.g. 'Kingdom of Tamanu' (optional)"
+    info "       dept-org = responsible dept/org e.g. 'Ministry of Health' (optional)"
+    info
+    info "The CSCA validity will be set to double the working period."
     info
     info "\e[1msign <csca folder> <csr> [out] [days]"
     info "       where:"
