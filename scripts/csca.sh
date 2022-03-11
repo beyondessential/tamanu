@@ -236,7 +236,9 @@ csr_sign() {
   passphrase="$2"
   csrfile="$3"
   crtfile="$4"
-  days="$5"
+  years="$5"
+
+  ((days=years*365+1))
 
   info "sign CSR"
   openssl ca \
@@ -306,7 +308,7 @@ case "${1:-help}" in
     cscafolder="${2:?Missing csca\/folder path}"
     csrfile="${3:?Missing CSR file}"
     crtfile="${4:-${csrfile%.*}.crt}"
-    days="${5:-96}"
+    years="${5:-2}"
 
     if [[ -f "$crtfile" ]]; then
       ohno "Output file $crtfile already exists, not clobbering"
@@ -326,7 +328,7 @@ case "${1:-help}" in
     fi
 
     csr_sign "$cscafolder" "$passphrase" \
-      "$csrfile" "$crtfile" "$days"
+      "$csrfile" "$crtfile" "$years"
 
     good "Done. REMEMBER TO REZIP AND UPLOAD TO LASTPASS"
     ;;
@@ -346,12 +348,12 @@ case "${1:-help}" in
     info "The CSCA validity will be set to double the working period."
     info "The CSCA will be marked as a Health CSCA as per VDS-NC EKU."
     info
-    info "\e[1msign <csca folder> <csr> [out] [days]"
+    info "\e[1msign <csca folder> <csr> [out] [years]"
     info "       where:"
     info "       csca folder = path to CSCA folder"
     info "       csr         = path to signing request from Tamanu"
     info "       out         = path to write signed certificate (defaults to <csr>.crt)"
-    info "       days        = validity of certificate in days (defaults to 96)"
+    info "       years       = validity of certificate in years (defaults to 2)"
     info
     exit 1
     ;;
