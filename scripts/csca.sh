@@ -91,6 +91,8 @@ organizationUnitName = Department or Ministry
 
 [ csca_ext ]
 basicConstraints=critical,CA:true,pathlen:0
+subjectAltName=dirName:csca_dir_sect
+issuerAltName=dirName:csca_dir_sect
 subjectKeyIdentifier=hash
 authorityKeyIdentifier=keyid,issuer
 keyUsage=critical,cRLSign,keyCertSign
@@ -158,9 +160,10 @@ csca_certificate() {
   passphrase="$3"
   pkupyrs="$4"
   alpha2="$5"
-  fullname="$6"
-  orgname="$7"
-  orgunit="$8"
+  alpha3="$6"
+  fullname="$7"
+  orgname="$8"
+  orgunit="$9"
 
   subject="/C=$alpha2/CN=$fullname"
   if [[ ! -z "$orgname" ]]; then
@@ -260,9 +263,10 @@ case "${1:-help}" in
     folder="${2:?Missing csca\/folder path}"
     years="${3:?Missing validity years}"
     alpha2="${4:?Missing alpha2 country code}"
-    fullname="${5:?Missing full name (CN)}"
-    orgname="${6:-}"
-    orgunit="${7:-}"
+    alpha3="${5:?Missing alpha3 country code}"
+    fullname="${6:?Missing full name (CN)}"
+    orgname="${7:-}"
+    orgunit="${8:-}"
 
     if [[ -d "$folder" ]]; then
       ohno "Folder $folder already exists"
@@ -324,11 +328,12 @@ case "${1:-help}" in
   *)
     info "Usage: $0 COMMAND [ARGUMENTS]"
     info
-    info "\e[1mcsca <folder> <days> <alpha2> <fullname> [org] [org-unit]"
+    info "\e[1mcsca <folder> <years> <alpha2> <alpha3> <fullname> [country] [dept-org]"
     info "       where:"
     info "       folder   = where to store new CSCA files"
     info "       years    = working period of CSCA in years (typically 3-5 years)"
     info "       alpha2   = 2-letter country code"
+    info "       alpha3   = 3-letter country code"
     info "       fullname = full name of CSCA cert e.g. 'Tamanu Government Health CSCA'"
     info "       country  = full country name e.g. 'Kingdom of Tamanu' (optional)"
     info "       dept-org = responsible dept/org e.g. 'Ministry of Health' (optional)"
