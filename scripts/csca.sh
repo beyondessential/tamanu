@@ -96,6 +96,7 @@ issuerAltName=dirName:csca_dir_sect
 subjectKeyIdentifier=hash
 authorityKeyIdentifier=keyid,issuer
 keyUsage=critical,cRLSign,keyCertSign
+extendedKeyUsage=2.23.136.1.1.14.1
 2.5.29.16=ASN1:SEQUENCE:csca_pkup
 
 [ csca_dir_sect ]
@@ -344,6 +345,7 @@ case "${1:-help}" in
     info "       dept-org = responsible dept/org e.g. 'Ministry of Health' (optional)"
     info
     info "The CSCA validity will be set to double the working period."
+    info "The CSCA will be marked as a Health CSCA as per VDS-NC EKU."
     info
     info "\e[1msign <csca folder> <csr> [out] [days]"
     info "       where:"
