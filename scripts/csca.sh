@@ -77,6 +77,7 @@ cat <<CONFIG
 [ req ]
 distinguished_name = req_distinguished_name
 attributes = req_attributes
+x509_extensions = csca_ext
 
 [ req_distinguished_name ]
 countryName = Country Name
@@ -84,6 +85,11 @@ commonName = Common Name
 
 [ req_attributes ]
 
+[ csca_ext ]
+basicConstraints=critical,CA:true,pathlen:0
+subjectKeyIdentifier=hash
+authorityKeyIdentifier=keyid,issuer
+keyUsage=critical,cRLSign,keyCertSign
 [ ca ]
 default_ca      = CA_default
 
@@ -157,22 +163,13 @@ csca_certificate() {
     -outform PEM \
     -key "$keyfile" \
     -out "$crtdst" \
-    -config <(openssl_config) \
+    -config <(openssl_config nope "$alpha3" "$pkup_before" "$pkup_after") \
     -new \
     -x509 \
     -sha256 \
     -subj "$subject" \
-    -days "$days" \
-    -addext "subjectKeyIdentifier=hash" \
-    -addext "authorityKeyIdentifier=keyid,issuer" \
-    -addext "basicConstraints=critical,CA:true,pathlen:0" \
-    -addext "keyUsage=critical,cRLSign,keyCertSign" \
+    -days "$validity" \
     -passin stdin <<< "$passphrase"
-  # TODO: also requires:
-  # - CRL, ref 7.1.1.4
-  # - private key usage period, ref Health Master List Policy 5.1, typically 3-5 years
-  # - certificate expiry checked to be over this, typically +2 years or double
-  # - possibly policy URL
 
   # cert info
   openssl x509 \
