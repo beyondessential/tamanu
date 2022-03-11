@@ -77,12 +77,34 @@ cat <<CONFIG
 [ req ]
 distinguished_name = req_distinguished_name
 attributes = req_attributes
+x509_extensions = csca_ext
 
 [ req_distinguished_name ]
-countryName = Country Name
-commonName = Common Name
+countryName = Country Code (ISO 3166-1 alpha-2)
+countryName_min = 2
+countryName_max = 2
+commonName = Descriptive name of the certificate
+organizationName = Country Full Name
+organizationUnitName = Department or Ministry
 
 [ req_attributes ]
+
+[ csca_ext ]
+basicConstraints=critical,CA:true,pathlen:0
+subjectAltName=dirName:csca_dir_sect
+issuerAltName=dirName:csca_dir_sect
+subjectKeyIdentifier=hash
+authorityKeyIdentifier=keyid,issuer
+keyUsage=critical,cRLSign,keyCertSign
+extendedKeyUsage=2.23.136.1.1.14.1
+2.5.29.16=ASN1:SEQUENCE:csca_pkup
+
+[ csca_dir_sect ]
+L=${2:-}
+
+[ csca_pkup ]
+notBefore=IMPLICIT:0,GENTIME:${3:-}
+notAfter=IMPLICIT:1,GENTIME:${4:-}
 
 [ ca ]
 default_ca      = CA_default
@@ -118,7 +140,6 @@ countryName = match
 commonName = supplied
 
 [ bsc_exts ]
-subjectKeyIdentifier=hash
 authorityKeyIdentifier=critical,keyid,issuer
 extendedKeyUsage=2.23.136.1.1.14.2
 2.23.136.1.1.6.2=ASN1:SEQUENCE:bsc_seq
@@ -137,9 +158,31 @@ csca_certificate() {
   keyfile="$1"
   crtdst="$2"
   passphrase="$3"
-  days="$4"
+  pkupyrs="$4"
   alpha2="$5"
-  name="$6"
+  alpha3="$6"
+  fullname="$7"
+  orgname="$8"
+  orgunit="$9"
+
+  subject="/C=$alpha2/CN=$fullname"
+  if [[ ! -z "$orgname" ]]; then
+    subject="$subject/O=$orgname"
+  fi
+  if [[ ! -z "$orgunit" ]]; then
+    subject="$subject/OU=$orgunit"
+  fi
+
+  ((pkup=pkupyrs*365+1))
+  ((validity=pkup*2))
+
+  # it's not possible to manually set the cert expiry dates, so we set
+  # the pkup to begin at midnight, which will always be less or equal to
+  # the notBefore of the cert validity.
+  now="$(date --date=00:00 +%s)"
+  ((later=now+pkup*24*60*60))
+  pkup_before="$(date --date "@$now" '+%Y%m%d%H%M%SZ')"
+  pkup_after="$(date --date "@$later" '+%Y%m%d%H%M%SZ')"
 
   info "generate CSCA certificate"
   openssl req \
@@ -147,14 +190,12 @@ csca_certificate() {
     -outform PEM \
     -key "$keyfile" \
     -out "$crtdst" \
-    -config <(openssl_config) \
+    -config <(openssl_config nope "$alpha3" "$pkup_before" "$pkup_after") \
     -new \
     -x509 \
     -sha256 \
-    -subj "/C=$alpha2/CN=$alpha2 $id" \
-    -days "$days" \
-    -addext "basicConstraints=critical,CA:true,pathlen:2" \
-    -addext "keyUsage=critical,cRLSign,keyCertSign" \
+    -subj "$subject" \
+    -days "$validity" \
     -passin stdin <<< "$passphrase"
 
   # cert info
@@ -195,7 +236,9 @@ csr_sign() {
   passphrase="$2"
   csrfile="$3"
   crtfile="$4"
-  days="$5"
+  years="$5"
+
+  ((days=years*365+1))
 
   info "sign CSR"
   openssl ca \
@@ -217,15 +260,33 @@ csr_sign() {
     -text -noout
 }
 
+rezip() {
+  folder="$1"
+
+  info "Zipping CSCA state folder"
+  zipname="${folder}_$(date +%Y-%m-%d_%H-%M-%S).zip"
+  zip -r "$zipname" "$folder"
+
+  good "Please upload to LastPass: $zipname"
+}
+
 case "${1:-help}" in
   csca)
-    folder="$2"
-    days="$3"
-    alpha2="$4"
-    id="${5:-CA}"
+    folder="${2:?Missing csca\/folder path}"
+    years="${3:?Missing validity years}"
+    alpha2="${4:?Missing alpha2 country code}"
+    alpha3="${5:?Missing alpha3 country code}"
+    fullname="${6:?Missing full name (CN)}"
+    orgname="${7:-}"
+    orgunit="${8:-}"
 
     if [[ -d "$folder" ]]; then
       ohno "Folder $folder already exists"
+      exit 2
+    fi
+
+    if [[ "$years" -lt 3 ]]; then
+      ohno "Validity years must be at least 3"
       exit 2
     fi
 
@@ -249,15 +310,17 @@ case "${1:-help}" in
     csca_structure "$folder"
     keypair "$folder/private/csca.key" "$folder/csca.pub" "$passphrase"
     csca_certificate "$folder/private/csca.key" "$folder/csca.crt" "$passphrase" \
-      "$days" "$alpha2" "$alpha2 $id"
+      "$years" "$alpha2" "$alpha3" "$fullname" "$orgname" "$orgunit"
+
+    rezip "$folder"
 
     good "Done."
     ;;
   sign)
-    cscafolder="$2"
-    csrfile="$3"
+    cscafolder="${2:?Missing csca\/folder path}"
+    csrfile="${3:?Missing CSR file}"
     crtfile="${4:-${csrfile%.*}.crt}"
-    days="${5:-96}"
+    years="${5:-2}"
 
     if [[ -f "$crtfile" ]]; then
       ohno "Output file $crtfile already exists, not clobbering"
@@ -277,26 +340,34 @@ case "${1:-help}" in
     fi
 
     csr_sign "$cscafolder" "$passphrase" \
-      "$csrfile" "$crtfile" "$days"
+      "$csrfile" "$crtfile" "$years"
+
+    rezip "$cscafolder"
 
     good "Done."
     ;;
   *)
     info "Usage: $0 COMMAND [ARGUMENTS]"
     info
-    info "\e[1mcsca <folder> <days> <alpha2> [id]"
+    info "\e[1mcsca <folder> <years> <alpha2> <alpha3> <fullname> [country] [dept-org]"
     info "       where:"
-    info "       folder = where to store new CSCA files"
-    info "       days   = validity of CA cert in days"
-    info "       alpha2 = 2-letter country code"
-    info "       id     = 2-letter certificate ID (defaults to 'CA')"
+    info "       folder   = where to store new CSCA files"
+    info "       years    = working period of CSCA in years (typically 3-5 years)"
+    info "       alpha2   = 2-letter country code"
+    info "       alpha3   = 3-letter country code"
+    info "       fullname = full name of CSCA cert e.g. 'Tamanu Government Health CSCA'"
+    info "       country  = full country name e.g. 'Kingdom of Tamanu' (optional)"
+    info "       dept-org = responsible dept/org e.g. 'Ministry of Health' (optional)"
     info
-    info "\e[1msign <csca folder> <csr> [out] [days]"
+    info "The CSCA validity will be set to double the working period."
+    info "The CSCA will be marked as a Health CSCA as per VDS-NC EKU."
+    info
+    info "\e[1msign <csca folder> <csr> [out] [years]"
     info "       where:"
     info "       csca folder = path to CSCA folder"
     info "       csr         = path to signing request from Tamanu"
     info "       out         = path to write signed certificate (defaults to <csr>.crt)"
-    info "       days        = validity of certificate in days (defaults to 96)"
+    info "       years       = validity of certificate in years (defaults to 2)"
     info
     exit 1
     ;;
