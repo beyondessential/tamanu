@@ -140,7 +140,6 @@ countryName = match
 commonName = supplied
 
 [ bsc_exts ]
-subjectKeyIdentifier=hash
 authorityKeyIdentifier=critical,keyid,issuer
 extendedKeyUsage=2.23.136.1.1.14.2
 2.23.136.1.1.6.2=ASN1:SEQUENCE:bsc_seq
