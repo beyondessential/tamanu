@@ -1,10 +1,13 @@
 import config from 'config';
-import { ScheduledTask } from 'shared/tasks';
-import { log } from 'shared/services/logging';
 import { Op, Sequelize } from 'sequelize';
 import moment from 'moment';
+import { get } from 'lodash';
+
+import { ScheduledTask } from 'shared/tasks';
+import { log } from 'shared/services/logging';
+
 import { vdsConfig } from '../integrations/VdsNc';
-import { getLocalisationData } from '../utils/localisation';
+import { getLocalisation } from '../localisation';
 
 export class VdsNcSignerRenewalSender extends ScheduledTask {
   constructor(context) {
@@ -44,14 +47,16 @@ export class VdsNcSignerRenewalSender extends ScheduledTask {
       );
     }
 
+    const localisation = await getLocalisation();
+
     log.info(`Emailing ${pending.length} CSR(s) to ${vdsConf.csr.email}`);
     for (const signer of pending) {
       try {
         await emailService.sendEmail({
           to: vdsConf.csr.email,
           from: config.mailgun.from,
-          subject: getLocalisationData('vdsRenewalEmail.subject'),
-          content: getLocalisationData('vdsRenewalEmail.body'),
+          subject: get(localisation, 'vdsRenewalEmail.subject'),
+          content: get(localisation, 'vdsRenewalEmail.body'),
           attachment: {
             filename: `Tamanu_${moment(signer.createdAt).format('YYYY-MM-DD')}.csr`,
             data: Buffer.from(signer.request),

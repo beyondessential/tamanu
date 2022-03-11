@@ -1,4 +1,6 @@
 import config from 'config';
+import { get } from 'lodash';
+
 import {
   COMMUNICATION_STATUSES,
   PATIENT_COMMUNICATION_CHANNELS,
@@ -9,7 +11,7 @@ import {
 import { log } from 'shared/services/logging';
 import { ScheduledTask } from 'shared/tasks';
 import { makeVaccineCertificate, makeCovidTestCertificate } from '../utils/makePatientCertificate';
-import { getLocalisationData } from '../utils/localisation';
+import { getLocalisation } from '../localisation';
 import {
   createProofOfVaccination,
   VdsNcDocument,
@@ -33,6 +35,7 @@ export class CertificateNotificationProcessor extends ScheduledTask {
     const { models } = this.context.store;
     const { CertificateNotification, PatientCommunication, Patient } = models;
     const vdsEnabled = vdsConfig().enabled;
+    const localisation = await getLocalisation();
 
     const queuedNotifications = await CertificateNotification.findAll({
       where: {
@@ -109,8 +112,8 @@ export class CertificateNotificationProcessor extends ScheduledTask {
         await PatientCommunication.create({
           type: PATIENT_COMMUNICATION_TYPES.CERTIFICATE,
           channel: PATIENT_COMMUNICATION_CHANNELS.EMAIL,
-          subject: getLocalisationData(`templates.${template}.subject`),
-          content: getLocalisationData(`templates.${template}.body`),
+          subject: get(localisation, `templates.${template}.subject`),
+          content: get(localisation, `templates.${template}.body`),
           status: COMMUNICATION_STATUSES.QUEUED,
           patientId,
           destination: notification.get('forwardAddress'),
