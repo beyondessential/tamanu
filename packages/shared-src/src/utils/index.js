@@ -8,3 +8,4 @@ export * from './tmpdir';
 export * from './encodings';
 export * from './patientCertificates';
 export * from './generateHashFromUUID';
+export * from './uvci';
