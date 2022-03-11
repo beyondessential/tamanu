@@ -80,8 +80,10 @@ attributes = req_attributes
 x509_extensions = csca_ext
 
 [ req_distinguished_name ]
-countryName = Country Name
-commonName = Common Name
+countryName = Country Code (ISO 3166-1 alpha-2)
+countryName_min = 2
+countryName_max = 2
+commonName = Descriptive name of the certificate
 
 [ req_attributes ]
 
