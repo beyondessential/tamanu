@@ -132,7 +132,7 @@ name_opt        = ca_default
 cert_opt        = ca_default
 
 default_days = 96
-default_crl_days = 185
+default_crl_days = 90
 default_md = default
 policy = ca_policy
 
