@@ -70,9 +70,12 @@ export class Patient extends Model {
     return patients.map(({ id }) => id);
   }
 
-  async getAdministeredVaccines() {
+  async getAdministeredVaccines(queryOptions) {
     const { models } = this.sequelize;
     return models.AdministeredVaccine.findAll({
+      raw: true,
+      nest: true,
+      ...queryOptions,
       where: {
         '$encounter.patient_id$': this.id,
         status: 'GIVEN',
