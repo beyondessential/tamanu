@@ -7,9 +7,9 @@ import {
   loadCertificateIntoSigner,
   newKeypairAndCsr,
   TestCSCA,
-  generateUVCIForPatient
 } from 'sync-server/app/integrations/VdsNc';
 import { ICAO_DOCUMENT_TYPES } from 'shared/constants';
+import { generateICAOFormatUVCI } from 'shared/utils/uvci/icao';
 import crypto from 'crypto';
 import { expect } from 'chai';
 import { canonicalize } from 'json-canonicalize';
@@ -159,7 +159,9 @@ describe('VDS-NC: Document cryptography', () => {
       date: new Date(Date.parse('2 January 2022, UTC')),
     });
 
-    const uniqueProofId = await generateUVCIForPatient(patient.id);
+    // This file specifically tests ICAO format, so specifically generate that UVCI
+    // Instead of reading format from localisation
+    const uniqueProofId = await generateICAOFormatUVCI(patient.id);
     const signer = await VdsNcSigner.findActive();
 
     // Pre-check
