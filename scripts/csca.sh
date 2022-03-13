@@ -2,6 +2,46 @@
 
 set -euo pipefail
 
+# Working time (PKUP) of issued signer certificates.
+# MUST be 92 to 96 days for VDS (3 months, with a bit of margin if needed),
+# OR 365 for EUDCC (exactly one year).
+sign_pkup=96
+#sign_pkup=365
+
+# Validity (including PKUP) of issued signer certificates.
+# This is document (signature) validity of 10 years = 365 days * 10 plus 2 leap days.
+# Plus the PKUP time. Up to a maximum of 11 years as the CSCA is configured, see below:
+((sign_valid=sign_pkup+365*10+2))
+
+# Working time (PKUP) of CSCA.
+# Recommendation is between 3 and 5 years. We use 4 years (365 * 4 plus 1 leap day),
+# such that we set the validity to a nice round 15 years and
+# it gives us a maximum BSC validity of 11 years.
+((csca_pkup=365*4+1))
+
+# Validity (including PKUP) of CSCA.
+# Simply PKUP + 11 years (365 * 11 + 3 leap days).
+((csca_valid=csca_pkup+11*365+3))
+
+
+# === Date calculations, not editable variables: ===
+
+# it's not possible to manually set the cert expiry dates with openssl,
+# so we set the pkup to begin at midnight, which will always be less or
+# equal to the notBefore of the cert validity.
+now="$(date --date=00:00 +%s)"
+
+((csca_later=now+csca_pkup*24*60*60))
+csca_pkup_before="$(date --date "@$now" '+%Y%m%d%H%M%SZ')"
+csca_pkup_after="$(date --date "@$csca_later" '+%Y%m%d%H%M%SZ')"
+
+((sign_later=now+sign_pkup*24*60*60))
+sign_pkup_before="$(date --date "@$now" '+%Y%m%d%H%M%SZ')"
+sign_pkup_after="$(date --date "@$sign_later" '+%Y%m%d%H%M%SZ')"
+
+# =/= End date calculations =/=
+
+
 good () {
   echo -e "\e[0;32m$(date '+[%Y-%m-%d %T]') \e[1;32m$*\e[0m" >&2
 }
@@ -97,21 +137,21 @@ subjectKeyIdentifier=hash
 authorityKeyIdentifier=keyid,issuer
 keyUsage=critical,cRLSign,keyCertSign
 extendedKeyUsage=2.23.136.1.1.14.1
-crlDistributionPoints=URI:${5:-}
+crlDistributionPoints=URI:${3:-}
 2.5.29.16=ASN1:SEQUENCE:csca_pkup
 
 [ csca_dir_sect ]
 L=${2:-}
 
 [ csca_pkup ]
-notBefore=IMPLICIT:0,GENTIME:${3:-}
-notAfter=IMPLICIT:1,GENTIME:${4:-}
+notBefore=IMPLICIT:0,GENTIME:${csca_pkup_before}
+notAfter=IMPLICIT:1,GENTIME:${csca_pkup_after}
 
 [ ca ]
 default_ca      = CA_default
 
 [ CA_default ]
-dir             = ${1:-./csca}
+dir             = ${1:?Missing csca folder (internal error)}
 certs           = \$dir/certs
 crl_dir         = \$dir/crl
 database        = \$dir/index.txt
@@ -156,16 +196,18 @@ CONFIG
 }
 
 csca_certificate() {
-  keyfile="$1"
-  crtdst="$2"
-  passphrase="$3"
-  pkupyrs="$4"
-  crlurl="$5"
-  alpha2="$6"
-  alpha3="$7"
-  fullname="$8"
-  orgname="$9"
-  orgunit="${10}"
+  cscafolder="$1"
+  passphrase="$2"
+  pkupyrs="$3"
+  crlurl="$4"
+  alpha2="$5"
+  alpha3="$6"
+  fullname="$7"
+  orgname="$8"
+  orgunit="$9"
+
+  keyfile="$cscafolder/private/csca.key"
+  crtdst="$cscafolder/csca.crt"
 
   subject="/C=$alpha2/CN=$fullname"
   if [[ ! -z "$orgname" ]]; then
@@ -175,24 +217,13 @@ csca_certificate() {
     subject="$subject/OU=$orgunit"
   fi
 
-  ((pkup=pkupyrs*365+1))
-  ((validity=pkup*2))
-
-  # it's not possible to manually set the cert expiry dates, so we set
-  # the pkup to begin at midnight, which will always be less or equal to
-  # the notBefore of the cert validity.
-  now="$(date --date=00:00 +%s)"
-  ((later=now+pkup*24*60*60))
-  pkup_before="$(date --date "@$now" '+%Y%m%d%H%M%SZ')"
-  pkup_after="$(date --date "@$later" '+%Y%m%d%H%M%SZ')"
-
   info "generate CSCA certificate"
   openssl req \
     -keyform PEM \
     -outform PEM \
     -key "$keyfile" \
     -out "$crtdst" \
-    -config <(openssl_config nope "$alpha3" "$pkup_before" "$pkup_after" "$crlurl") \
+    -config <(openssl_config "$cscafolder" "$alpha3" "$crlurl") \
     -new \
     -x509 \
     -sha256 \
@@ -238,16 +269,13 @@ csr_sign() {
   passphrase="$2"
   csrfile="$3"
   crtfile="$4"
-  years="$5"
-
-  ((days=years*365+1))
 
   info "sign CSR"
   openssl ca \
     -config <(openssl_config "$cscafolder") \
     -in "$csrfile" \
     -out "$crtfile" \
-    -days "$days" \
+    -days "$sign_valid" \
     -cert "$cscafolder/csca.crt" \
     -keyfile "$cscafolder/private/csca.key" \
     -keyform PEM \
@@ -275,21 +303,15 @@ rezip() {
 case "${1:-help}" in
   csca)
     folder="${2:?Missing csca\/folder path}"
-    years="${3:?Missing validity years}"
-    crlurl="${4:?Missing CRL URL}"
-    alpha2="${5:?Missing alpha2 country code}"
-    alpha3="${6:?Missing alpha3 country code}"
-    fullname="${7:?Missing full name (CN)}"
-    orgname="${8:-}"
-    orgunit="${9:-}"
+    crlurl="${3:?Missing CRL URL}"
+    alpha2="${4:?Missing alpha2 country code}"
+    alpha3="${5:?Missing alpha3 country code}"
+    fullname="${6:?Missing full name (CN)}"
+    orgname="${7:-}"
+    orgunit="${8:-}"
 
     if [[ -d "$folder" ]]; then
       ohno "Folder $folder already exists"
-      exit 2
-    fi
-
-    if [[ "$years" -lt 3 ]]; then
-      ohno "Validity years must be at least 3"
       exit 2
     fi
 
@@ -317,8 +339,8 @@ case "${1:-help}" in
 
     csca_structure "$folder"
     keypair "$folder/private/csca.key" "$folder/csca.pub" "$passphrase"
-    csca_certificate "$folder/private/csca.key" "$folder/csca.crt" "$passphrase" \
-      "$years" "$crlurl" "$alpha2" "$alpha3" "$fullname" "$orgname" "$orgunit"
+    csca_certificate "$folder" "$passphrase" \
+      "$crlurl" "$alpha2" "$alpha3" "$fullname" "$orgname" "$orgunit"
 
     rezip "$folder"
 
@@ -328,7 +350,6 @@ case "${1:-help}" in
     cscafolder="${2:?Missing csca\/folder path}"
     csrfile="${3:?Missing CSR file}"
     crtfile="${4:-${csrfile%.*}.crt}"
-    years="${5:-2}"
 
     if [[ -f "$crtfile" ]]; then
       ohno "Output file $crtfile already exists, not clobbering"
@@ -348,7 +369,7 @@ case "${1:-help}" in
     fi
 
     csr_sign "$cscafolder" "$passphrase" \
-      "$csrfile" "$crtfile" "$years"
+      "$csrfile" "$crtfile"
 
     rezip "$cscafolder"
 
@@ -357,10 +378,9 @@ case "${1:-help}" in
   *)
     info "Usage: $0 COMMAND [ARGUMENTS]"
     info
-    info "\e[1mcsca <folder> <years> <crl url> <alpha2> <alpha3> <fullname> [country] [dept-org]"
+    info "\e[1mcsca <folder> <crl url> <alpha2> <alpha3> <fullname> [country] [dept-org]"
     info "       where:"
     info "       folder   = where to store new CSCA files"
-    info "       years    = working period of CSCA in years (typically 3-5 years)"
     info "       crl url  = full URL to CRL (e.g. http://crl.tamanu.io/CountrynameHealthCSCA.crl)"
     info "       alpha2   = 2-letter country code"
     info "       alpha3   = 3-letter country code"
@@ -368,15 +388,16 @@ case "${1:-help}" in
     info "       country  = full country name e.g. 'Kingdom of Tamanu' (optional)"
     info "       dept-org = responsible dept/org e.g. 'Ministry of Health' (optional)"
     info
-    info "The CSCA validity will be set to double the working period."
+    info "The CSCA validity will be set to 15 years, and its PKUP to 4 years."
     info "The CSCA will be marked as a Health CSCA as per VDS-NC EKU."
     info
-    info "\e[1msign <csca folder> <csr> [out] [years]"
+    info "\e[1msign <csca folder> <csr>"
     info "       where:"
     info "       csca folder = path to CSCA folder"
     info "       csr         = path to signing request from Tamanu"
-    info "       out         = path to write signed certificate (defaults to <csr>.crt)"
-    info "       years       = validity of certificate in years (defaults to 2)"
+    info
+    info "The certificate validity will be set to 10 years, plus its PKUP of $sign_pkup days."
+    info "To make EU DCC certificates, change the sign_pkup var at the top of this script to 365."
     info
     exit 1
     ;;
