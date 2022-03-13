@@ -7,13 +7,13 @@ import {
   loadCertificateIntoSigner,
   newKeypairAndCsr,
   TestCSCA,
+  generateUVCIForPatient
 } from 'sync-server/app/integrations/VdsNc';
 import { ICAO_DOCUMENT_TYPES } from 'shared/constants';
 import crypto from 'crypto';
 import { expect } from 'chai';
 import { canonicalize } from 'json-canonicalize';
 import { base64UrlDecode } from 'shared/utils/encodings';
-import { generateUVCIForPatient } from 'shared/utils';
 
 describe('VDS-NC: Document cryptography', () => {
   let ctx;
