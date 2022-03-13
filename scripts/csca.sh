@@ -203,13 +203,12 @@ CONFIG
 csca_certificate() {
   cscafolder="$1"
   passphrase="$2"
-  pkupyrs="$3"
-  crlurl="$4"
-  alpha2="$5"
-  alpha3="$6"
-  fullname="$7"
-  orgname="$8"
-  orgunit="$9"
+  crlurl="$3"
+  alpha2="$4"
+  alpha3="$5"
+  fullname="$6"
+  orgname="$7"
+  orgunit="$8"
 
   keyfile="$cscafolder/private/csca.key"
   crtdst="$cscafolder/csca.crt"
@@ -233,7 +232,7 @@ csca_certificate() {
     -x509 \
     -sha256 \
     -subj "$subject" \
-    -days "$validity" \
+    -days "$csca_valid" \
     -passin stdin <<< "$passphrase"
 
   # cert info
@@ -320,8 +319,8 @@ case "${1:-help}" in
       exit 2
     fi
 
-    if [[ "$crlurl" != https://* ]]; then
-      ohno "CRL URL must be HTTPS"
+    if [[ "$crlurl" != https://* && "$crlurl" != http://* ]]; then
+      ohno "CRL URL must be HTTP(S)"
       exit 2
     fi
 
@@ -402,6 +401,7 @@ case "${1:-help}" in
     info "       csr         = path to signing request from Tamanu"
     info
     info "The certificate validity will be set to 10 years, plus its PKUP of $sign_pkup days."
+    info "To make ICAO certificates, leave the sign_pkup var at the top of this script as 96."
     info "To make EU DCC certificates, change the sign_pkup var at the top of this script to 365."
     info
     exit 1
