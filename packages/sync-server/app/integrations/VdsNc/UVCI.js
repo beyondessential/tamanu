@@ -11,7 +11,7 @@ export async function generateUVCIForPatient(patientId) {
       '$encounter.patient_id$': patientId,
       status: 'GIVEN',
     },
-    order: [['updatedAt', 'DESC']],
+    order: [['date', 'DESC']],
     include: [
       {
         model: Encounter,
