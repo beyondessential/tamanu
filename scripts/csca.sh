@@ -21,8 +21,13 @@ sign_pkup=96
 
 # Validity (including PKUP) of CSCA.
 # Simply PKUP + 11 years (365 * 11 + 3 leap days).
-((csca_valid=csca_pkup+11*365+3))
+((csca_maxcertuse=11*365+3))
+((csca_valid=csca_pkup+csca_maxcertuse))
 
+if [[ "${sign_valid}" -gt "${csca_maxcertuse}" ]]; then
+    echo "Signer certificate validity (${sign_valid} days) is longer than CSCA max allowed signer lifetime (${csca_maxcertuse} days)"
+    exit 1
+fi
 
 # === Date calculations, not editable variables: ===
 
