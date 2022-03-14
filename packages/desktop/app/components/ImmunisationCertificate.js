@@ -118,7 +118,7 @@ export const ImmunisationCertificate = ({ patient, immunisations }) => {
               <td>{immunisation.scheduledVaccine?.vaccine?.name}</td>
               <td>{immunisation.scheduledVaccine?.schedule}</td>
               {countryName && <td>{countryName}</td>}
-              <td>{immunisation.encounter?.location?.name || ''}</td>
+              <td>{immunisation.encounter?.location?.Facility?.name || ''}</td>
               <td>{immunisation.encounter?.examiner?.displayName || ''}</td>
               <td>
                 <DateDisplay date={immunisation.date} />
