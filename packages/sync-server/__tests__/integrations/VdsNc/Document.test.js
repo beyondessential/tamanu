@@ -9,11 +9,11 @@ import {
   TestCSCA,
 } from 'sync-server/app/integrations/VdsNc';
 import { ICAO_DOCUMENT_TYPES } from 'shared/constants';
+import { generateICAOFormatUVCI } from 'shared/utils/uvci/icao';
 import crypto from 'crypto';
 import { expect } from 'chai';
 import { canonicalize } from 'json-canonicalize';
 import { base64UrlDecode } from 'shared/utils/encodings';
-import { generateUVCIForPatient } from 'shared/utils';
 
 describe('VDS-NC: Document cryptography', () => {
   let ctx;
@@ -131,7 +131,7 @@ describe('VDS-NC: Document cryptography', () => {
       vaccineId: azVaxDrug.id,
     });
 
-    await AdministeredVaccine.create({
+    const latestVacc = await AdministeredVaccine.create({
       id: 'e7664992-13c4-42c8-a106-b31f4f825466',
       status: 'GIVEN',
       batch: '1234-567-890',
@@ -159,7 +159,9 @@ describe('VDS-NC: Document cryptography', () => {
       date: new Date(Date.parse('2 January 2022, UTC')),
     });
 
-    const uniqueProofId = await generateUVCIForPatient(patient.id);
+    // This file specifically tests ICAO format, so specifically generate that UVCI
+    // Instead of reading format from localisation
+    const uniqueProofId = generateICAOFormatUVCI(latestVacc.id);
     const signer = await VdsNcSigner.findActive();
 
     // Pre-check

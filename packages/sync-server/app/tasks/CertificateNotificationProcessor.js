@@ -8,10 +8,14 @@ import {
 } from 'shared/constants';
 import { log } from 'shared/services/logging';
 import { ScheduledTask } from 'shared/tasks';
-import { generateUVCIForPatient } from 'shared/utils';
 import { makeVaccineCertificate, makeCovidTestCertificate } from '../utils/makePatientCertificate';
 import { getLocalisationData } from '../utils/localisation';
-import { createProofOfVaccination, VdsNcDocument, vdsConfig } from '../integrations/VdsNc';
+import {
+  createProofOfVaccination,
+  VdsNcDocument,
+  vdsConfig,
+  generateUVCIForPatient,
+} from '../integrations/VdsNc';
 
 export class CertificateNotificationProcessor extends ScheduledTask {
   constructor(context) {
