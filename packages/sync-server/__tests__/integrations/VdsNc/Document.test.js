@@ -131,7 +131,7 @@ describe('VDS-NC: Document cryptography', () => {
       vaccineId: azVaxDrug.id,
     });
 
-    await AdministeredVaccine.create({
+    const latestVacc = await AdministeredVaccine.create({
       id: 'e7664992-13c4-42c8-a106-b31f4f825466',
       status: 'GIVEN',
       batch: '1234-567-890',
@@ -161,7 +161,7 @@ describe('VDS-NC: Document cryptography', () => {
 
     // This file specifically tests ICAO format, so specifically generate that UVCI
     // Instead of reading format from localisation
-    const uniqueProofId = await generateICAOFormatUVCI(patient.id);
+    const uniqueProofId = generateICAOFormatUVCI(latestVacc.id);
     const signer = await VdsNcSigner.findActive();
 
     // Pre-check
