@@ -7,7 +7,7 @@ import { DropdownButton } from './DropdownButton';
 import { DeleteButton } from './Button';
 import { ConfirmModal } from './ConfirmModal';
 
-const ActionDropdown = React.memo(() => {
+const ActionDropdown = React.memo(({ row }) => {
   const [open, setOpen] = useState(false);
   const onClose = useCallback(() => setOpen(false), []);
   const onDeleteDocument = useCallback(() => {
@@ -50,8 +50,7 @@ const getType = ({ type }) => {
 const getUploadedDate = ({ documentUploadedAt }) =>
   documentUploadedAt ? <DateDisplay date={documentUploadedAt} /> : '';
 const getDepartmentName = ({ department }) => department?.name || '';
-const getActions = ({ row }) => <ActionDropdown row={row} />;
-
+const getActions = row => <ActionDropdown row={row} />;
 const COLUMNS = [
   { key: 'name', title: 'Name' },
   { key: 'type', title: 'Type', accessor: getType },
