@@ -13,6 +13,7 @@ const FIELDS = [
   'Reason for encounter',
   'Diagnosis',
   'Medications',
+  'Vaccinations',
   'Procedures',
   'Lab requests',
   'Imaging requests',
@@ -110,7 +111,16 @@ select
 	billing.name "Patient billing type",
 	to_char(e.start_date, 'YYYY-MM-DD HH24' || CHR(58) || 'MI') "Encounter start date",
 	to_char(e.end_date, 'YYYY-MM-DD HH24' || CHR(58) || 'MI') "Encounter end date",
-	e.encounter_type "Encounter type",
+	case e.encounter_type
+		when 'triage' then  'Triage'
+		when 'observation' then  'Active ED patient'
+		when 'emergency' then  'Emergency short stay'
+		when 'admission' then  'Hospital admission'
+		when 'clinic' then 'Clinic'
+		when 'imaging' then 'Imaging'
+		when 'surveyResponse' then 'Survey response'
+		else e.encounter_type
+	end "Encounter type",
 	e.reason_for_encounter "Reason for encounter",
 	di."Diagnosis",
 	mi."Medications",
