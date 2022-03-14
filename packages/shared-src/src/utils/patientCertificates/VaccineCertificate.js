@@ -39,7 +39,7 @@ const columns = [
     key: 'healthFacility',
     title: 'Health facility',
     customStyles: { minWidth: 30 },
-    accessor: ({ encounter }) => encounter?.location?.name || '',
+    accessor: ({ encounter }) => encounter?.location?.Facility?.name || '',
   },
   {
     key: 'givenBy',

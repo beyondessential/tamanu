@@ -159,7 +159,15 @@ export class Encounter extends Model {
   }
 
   static getFullReferenceAssociations() {
-    return ['vitals', 'department', 'location', 'examiner'];
+    return [
+      'vitals',
+      'department',
+      'examiner',
+      {
+        association: 'location',
+        include: ['Facility'],
+      },
+    ];
   }
 
   static initRelations(models) {
