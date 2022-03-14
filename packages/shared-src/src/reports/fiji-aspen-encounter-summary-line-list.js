@@ -13,6 +13,7 @@ const FIELDS = [
   'Reason for encounter',
   'Diagnosis',
   'Medications',
+  'Vaccinations',
   'Procedures',
   'Lab requests',
   'Imaging requests',
