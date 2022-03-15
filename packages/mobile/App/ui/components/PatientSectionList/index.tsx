@@ -50,7 +50,7 @@ const Item = ({
   );
 };
 
-function ItemSeparator() {
+const ItemSeparator = () => {
   return (
     <StyledView
       height={StyleSheet.hairlineWidth}
@@ -58,11 +58,11 @@ function ItemSeparator() {
       width="90%"
     />
   );
-}
+};
 
-export function PatientSectionList(props: PatientSectionListProps) {
+export const PatientSectionList = ({ patients, onPressItem }: PatientSectionListProps) => {
   const scrollViewRef: RefObject<ScrollView> = useRef(null);
-  const groupedPatients = useMemo(() => groupEntriesByLetter(props.patients), [props.patients]);
+  const groupedPatients = useMemo(() => groupEntriesByLetter(patients), [patients]);
 
   return (
     <StyledView flex={1} width="100%">
@@ -72,7 +72,7 @@ export function PatientSectionList(props: PatientSectionListProps) {
             <React.Fragment key={group.header}>
               <SectionHeader header={group.header} />
               {group.items.map(item => {
-                return <Item key={item.id} onPressItem={props.onPressItem} item={item} />;
+                return <Item key={item.id} onPressItem={onPressItem} item={item} />;
               })}
             </React.Fragment>
           );
@@ -116,4 +116,4 @@ export function PatientSectionList(props: PatientSectionListProps) {
       </StyledView>
     </StyledView>
   );
-}
+};
