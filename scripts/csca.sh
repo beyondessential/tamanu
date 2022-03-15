@@ -345,7 +345,7 @@ crl_update() {
     -updatedb \
     -passin stdin <<< "$passphrase"
 
-  crlfile="$(crl_name "$1").crl"
+  crlfile="$cscafolder/$(crl_name "$1").crl"
 
   info "generate new CRL: $crlfile"
   openssl ca \
@@ -407,6 +407,7 @@ case "${1:-help}" in
     keypair "$folder/private/csca.key" "$folder/csca.pub" "$passphrase"
     csca_certificate "$folder" "$passphrase" \
       "$alpha2" "$alpha3" "$fullname" "$orgname" "$orgunit"
+    crl_update "$folder" "$passphrase"
 
     rezip "$folder"
 
@@ -463,7 +464,8 @@ case "${1:-help}" in
       exit 3
     fi
 
-    csr_sign "$cscafolder" "$passphrase" "$crtfile" "$reason" "$compromisetime"
+    crl_revoke "$cscafolder" "$passphrase" "$crtfile" "$reason" "$compromisetime"
+    crl_update "$cscafolder" "$passphrase"
 
     rezip "$cscafolder"
 
@@ -512,10 +514,10 @@ case "${1:-help}" in
     info
     info "The certificate validity will be set to 10 years, plus its PKUP of $sign_pkup days."
 
-    if [[ "$sign_pkup" -eq 69 ]]; then
+    if [[ "$sign_pkup" -eq 96 ]]; then
       info "To make EU DCC certificates, change the sign_pkup var at the top of this script to 365."
     elif [[ "$sign_pkup" -eq 365 ]]; then
-      info "To make VDS-NC certificates, change the sign_pkup var at the top of this script to 69."
+      info "To make VDS-NC certificates, change the sign_pkup var at the top of this script to 96."
     else
       ohno "Caution! The sign_pkup var is set to a custom value, check that's what you mean!"
     fi
