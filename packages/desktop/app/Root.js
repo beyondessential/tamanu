@@ -5,6 +5,7 @@ import PropTypes from 'prop-types';
 import { CssBaseline } from '@material-ui/core';
 import { ThemeProvider } from 'styled-components';
 import { MuiThemeProvider, StylesProvider } from '@material-ui/core/styles';
+import { ToastContainer } from 'react-toastify';
 import { ApiContext } from './api';
 import { RoutingApp } from './RoutingApp';
 import { theme } from './theme';
@@ -34,6 +35,7 @@ export default function Root({ api, store, history }) {
               <MuiThemeProvider theme={theme}>
                 <ThemeProvider theme={theme}>
                   <ElectronProvider>
+                    <ToastContainer />
                     <CssBaseline />
                     <RoutingApp />
                   </ElectronProvider>
