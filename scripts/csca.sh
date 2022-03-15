@@ -4,6 +4,10 @@ set -euo pipefail
 
 # === Editable configuration ===
 
+# CRL domain or base of the CRL URL.
+# The full CRL URL will be built as: `${crl_base}/${crl_name}.crl`.
+crl_base="http://crl.tamanu.io"
+
 # Working time (PKUP - Private Key Usage Period) of issued signer certificates.
 # MUST be 92 to 96 days for VDS (3 months, with a bit of margin if needed),
 # OR 365 for EUDCC (exactly one year).
@@ -205,15 +209,15 @@ CONFIG
 csca_certificate() {
   cscafolder="$1"
   passphrase="$2"
-  crlurl="$3"
-  alpha2="$4"
-  alpha3="$5"
-  fullname="$6"
-  orgname="$7"
-  orgunit="$8"
+  alpha2="$3"
+  alpha3="$4"
+  fullname="$5"
+  orgname="$6"
+  orgunit="$7"
 
   keyfile="$cscafolder/private/csca.key"
   crtdst="$cscafolder/csca.crt"
+  crlurl=$(crl_url "$cscafolder")
 
   subject="/C=$alpha2/CN=$fullname"
   if [[ ! -z "$orgname" ]]; then
@@ -246,6 +250,7 @@ csca_certificate() {
 
 csca_structure() {
   folder="$1"
+  crlname="$2"
 
   info "create required folders"
   mkdir -p "$folder/"{certs,crl,newcerts,private}
@@ -255,9 +260,18 @@ csca_structure() {
 
   info "initialise CRL"
   echo "00000000000000000000000000000001" > "$folder/crlnumber"
+  echo "$crlname" > "$folder/crlname"
 
   info "initialise index.txt"
   touch "$folder/index.txt"
+}
+
+crl_name() {
+  cat "$1/crlname"
+}
+
+crl_url() {
+  echo "${crl_base}/$(crl_name "$1").crl"
 }
 
 csr_print() {
@@ -308,7 +322,7 @@ rezip() {
 case "${1:-help}" in
   csca)
     folder="${2:?Missing csca\/folder path}"
-    crlurl="${3:?Missing CRL URL}"
+    crlname="${3:?Missing CRL Name}"
     alpha2="${4:?Missing alpha2 country code}"
     alpha3="${5:?Missing alpha3 country code}"
     fullname="${6:?Missing full name (CN)}"
@@ -320,8 +334,9 @@ case "${1:-help}" in
       exit 2
     fi
 
-    if [[ "$crlurl" != https://* && "$crlurl" != http://* ]]; then
-      ohno "CRL URL must be HTTP(S)"
+    crlname=$(basename "$crlname" .crl)
+    if [[ -z "$crlname" ]]; then
+      ohno "Missing or empty CRL Name"
       exit 2
     fi
 
@@ -342,10 +357,10 @@ case "${1:-help}" in
       exit 3
     fi
 
-    csca_structure "$folder"
+    csca_structure "$folder" "$crlname"
     keypair "$folder/private/csca.key" "$folder/csca.pub" "$passphrase"
     csca_certificate "$folder" "$passphrase" \
-      "$crlurl" "$alpha2" "$alpha3" "$fullname" "$orgname" "$orgunit"
+      "$alpha2" "$alpha3" "$fullname" "$orgname" "$orgunit"
 
     rezip "$folder"
 
@@ -386,10 +401,10 @@ case "${1:-help}" in
   *)
     info "Usage: $0 COMMAND [ARGUMENTS]"
     info
-    info "\e[1mcsca <folder> <crl url> <alpha2> <alpha3> <fullname> [country] [dept-org]"
+    info "\e[1mcsca <folder> <crl name> <alpha2> <alpha3> <fullname> [country] [dept-org]"
     info "       where:"
     info "       folder   = where to store new CSCA files"
-    info "       crl url  = full URL to CRL (e.g. http://crl.tamanu.io/CountrynameHealthCSCA.crl)"
+    info "       crl name = name of the CRL file that will be uploaded to $crl_base"
     info "       alpha2   = 2-letter country code"
     info "       alpha3   = 3-letter country code"
     info "       fullname = full name of CSCA cert e.g. 'Tamanu Government Health CSCA'"
