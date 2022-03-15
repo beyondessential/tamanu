@@ -36,7 +36,8 @@ type AutocompleteModalScreenProps = {
     params: {
       suggester: Suggester;
       callback: (item: any) => any;
-    };};
+    };
+  };
 };
 
 export const AutocompleteModalScreen = ({
@@ -45,19 +46,16 @@ export const AutocompleteModalScreen = ({
 }: AutocompleteModalScreenProps): ReactElement => {
   const { callback, suggester } = route.params;
   const [searchTerm, setSearchTerm] = useState('');
-  const [isLoading, setIsLoading] = useState(false);
   const [displayedOptions, setDisplayedOptions] = useState([]);
 
   useEffect(() => {
     (async (): Promise<void> => {
-      setIsLoading(true);
       const data = await suggester.fetchSuggestions(searchTerm);
-      setIsLoading(false);
       setDisplayedOptions(data);
     })();
   }, [searchTerm]);
 
-  const onSelectItem = useCallback((item) => {
+  const onSelectItem = useCallback(item => {
     navigation.goBack();
     callback(item);
   }, []);
@@ -74,24 +72,22 @@ export const AutocompleteModalScreen = ({
         data={displayedOptions}
         onChangeText={setSearchTerm}
         autoFocus
-        renderItem={({ item }): JSX.Element => {
-          useDarkBackground = !useDarkBackground;
-          return (
-            <TouchableOpacity
-              onPress={(): void => onSelectItem(item)}
-            >
-              <Text style={useDarkBackground ? styles.darkItemText : styles.lightItemText}>
-                {item.label}
-              </Text>
-            </TouchableOpacity>
-          );
+        flatListProps={{
+          keyExtractor: item => item.value,
+          renderItem: ({ item, index }): JSX.Element => {
+            const useDarkBackground = index % 2 == 0;
+            return (
+              <TouchableOpacity onPress={(): void => onSelectItem(item)}>
+                <Text style={useDarkBackground ? styles.darkItemText : styles.lightItemText}>
+                  {item.label}
+                </Text>
+              </TouchableOpacity>
+            );
+          },
         }}
       />
-      <Button
-        mode="contained"
-        style={styles.backButton}
-        onPress={onNavigateBack}
-      >Back
+      <Button mode="contained" style={styles.backButton} onPress={onNavigateBack}>
+        Back
       </Button>
     </View>
   );
