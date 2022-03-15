@@ -4,6 +4,10 @@ set -euo pipefail
 
 # === Editable configuration ===
 
+# CRL domain or base of the CRL URL.
+# The full CRL URL will be built as: `${crl_base_url}/${crl_name}.crl`.
+crl_base_url="http://crl.tamanu.io"
+
 # Working time (PKUP - Private Key Usage Period) of issued signer certificates.
 # MUST be 92 to 96 days for VDS (3 months, with a bit of margin if needed),
 # OR 365 for EUDCC (exactly one year).
@@ -35,18 +39,16 @@ fi
 
 # === Date calculations, not editable variables: ===
 
-# it's not possible to manually set the cert expiry dates with openssl,
-# so we set the pkup to begin at midnight, which will always be less or
-# equal to the notBefore of the cert validity.
-now="$(date --date=00:00 +%s)"
+now="$(date --utc +%s)"
+gentimefmt="%Y%m%d%H%M%SZ"
 
 ((csca_later=now+csca_pkup*24*60*60))
-csca_pkup_before="$(date --date "@$now" '+%Y%m%d%H%M%SZ')"
-csca_pkup_after="$(date --date "@$csca_later" '+%Y%m%d%H%M%SZ')"
+csca_pkup_before="$(date --utc --date "@$now" +"${gentimefmt}")"
+csca_pkup_after="$(date --utc --date "@$csca_later" +"${gentimefmt}")"
 
 ((sign_later=now+sign_pkup*24*60*60))
-sign_pkup_before="$(date --date "@$now" '+%Y%m%d%H%M%SZ')"
-sign_pkup_after="$(date --date "@$sign_later" '+%Y%m%d%H%M%SZ')"
+sign_pkup_before="$(date --utc --date "@$now" +"${gentimefmt}")"
+sign_pkup_after="$(date --utc --date "@$sign_later" +"${gentimefmt}")"
 
 # =/= End date calculations =/=
 
@@ -207,15 +209,15 @@ CONFIG
 csca_certificate() {
   cscafolder="$1"
   passphrase="$2"
-  crlurl="$3"
-  alpha2="$4"
-  alpha3="$5"
-  fullname="$6"
-  orgname="$7"
-  orgunit="$8"
+  alpha2="$3"
+  alpha3="$4"
+  fullname="$5"
+  orgname="$6"
+  orgunit="$7"
 
   keyfile="$cscafolder/private/csca.key"
   crtdst="$cscafolder/csca.crt"
+  crlurl=$(crl_url "$cscafolder")
 
   subject="/C=$alpha2/CN=$fullname"
   if [[ ! -z "$orgname" ]]; then
@@ -248,6 +250,7 @@ csca_certificate() {
 
 csca_structure() {
   folder="$1"
+  crlname="$2"
 
   info "create required folders"
   mkdir -p "$folder/"{certs,crl,newcerts,private}
@@ -257,19 +260,32 @@ csca_structure() {
 
   info "initialise CRL"
   echo "00000000000000000000000000000001" > "$folder/crlnumber"
+  echo "$crlname" > "$folder/crlname"
 
   info "initialise index.txt"
   touch "$folder/index.txt"
 }
 
-csr_print() {
-  csrfile="$1"
+crl_name() {
+  cat "$1/crlname"
+}
 
-  info "CSR info"
+crl_url() {
+  echo "${crl_base_url}/$(crl_name "$1").crl"
+}
+
+csr_print() {
   openssl req \
     -inform PEM \
-    -in "$csrfile" \
+    -in "$1" \
     -noout -text
+}
+
+crt_print() {
+  openssl x509 \
+    -inform PEM \
+    -in "$1" \
+    -text -noout
 }
 
 csr_sign() {
@@ -290,12 +306,53 @@ csr_sign() {
     -md "sha256" \
     -batch -notext \
     -passin stdin <<< "$passphrase"
+}
 
-  info "certificate signed: $crtfile"
-  openssl x509 \
-    -inform PEM \
-    -in "$crtfile" \
-    -text -noout
+crl_revoke() {
+  cscafolder="$1"
+  passphrase="$2"
+  crtfile="$3"
+  reason="$4"
+  compromisetime="$5"
+
+  comptime=$(date --utc --date "$compromisetime" +"${gentimefmt}")
+
+  compro_opt=""
+  if [[ "$reason" == "keyCompromise" ]]; then
+    compro_opt="-crl_compromise $comptime"
+  elif [[ "$reason" == "CACompromise" ]]; then
+    compro_opt="-crl_CA_compromise $comptime"
+  fi
+
+  info "add revocation to CRL"
+  openssl ca \
+    -config <(openssl_config "$cscafolder") \
+    -keyfile "$cscafolder/private/csca.key" \
+    -revoke "$crtfile" \
+    -crl_reason "$reason" \
+    $compro_opt \
+    -passin stdin <<< "$passphrase"
+}
+
+crl_update() {
+  cscafolder="$1"
+  passphrase="$2"
+
+  info "prune expired certificates from CRL"
+  openssl ca \
+    -config <(openssl_config "$cscafolder") \
+    -keyfile "$cscafolder/private/csca.key" \
+    -updatedb \
+    -passin stdin <<< "$passphrase"
+
+  crlfile="$cscafolder/$(crl_name "$1").crl"
+
+  info "generate new CRL: $crlfile"
+  openssl ca \
+    -config <(openssl_config "$cscafolder") \
+    -keyfile "$cscafolder/private/csca.key" \
+    -gencrl -out "$crlfile" \
+    -passin stdin <<< "$passphrase"
 }
 
 rezip() {
@@ -311,7 +368,7 @@ rezip() {
 case "${1:-help}" in
   csca)
     folder="${2:?Missing csca\/folder path}"
-    crlurl="${3:?Missing CRL URL}"
+    crlname="${3:?Missing CRL Name}"
     alpha2="${4:?Missing alpha2 country code}"
     alpha3="${5:?Missing alpha3 country code}"
     fullname="${6:?Missing full name (CN)}"
@@ -323,8 +380,9 @@ case "${1:-help}" in
       exit 2
     fi
 
-    if [[ "$crlurl" != https://* && "$crlurl" != http://* ]]; then
-      ohno "CRL URL must be HTTP(S)"
+    crlname=$(basename "$crlname" .crl)
+    if [[ -z "$crlname" ]]; then
+      ohno "Missing or empty CRL Name"
       exit 2
     fi
 
@@ -345,10 +403,11 @@ case "${1:-help}" in
       exit 3
     fi
 
-    csca_structure "$folder"
+    csca_structure "$folder" "$crlname"
     keypair "$folder/private/csca.key" "$folder/csca.pub" "$passphrase"
     csca_certificate "$folder" "$passphrase" \
-      "$crlurl" "$alpha2" "$alpha3" "$fullname" "$orgname" "$orgunit"
+      "$alpha2" "$alpha3" "$fullname" "$orgname" "$orgunit"
+    crl_update "$folder" "$passphrase"
 
     rezip "$folder"
 
@@ -364,9 +423,11 @@ case "${1:-help}" in
       exit 2
     fi
 
+    info "CSR info"
     csr_print "$csrfile"
     confirm=$(prompt "Issue certificate? [y/N] " -n 1)
     if [[ "$confirm" != y* && "$confirm" != Y* ]]; then
+      ohno "Certificate issuance cancelled"
       exit 0
     fi
 
@@ -376,8 +437,58 @@ case "${1:-help}" in
       exit 3
     fi
 
-    csr_sign "$cscafolder" "$passphrase" \
-      "$csrfile" "$crtfile"
+    csr_sign "$cscafolder" "$passphrase" "$csrfile" "$crtfile"
+
+    info "certificate signed: $crtfile"
+    crt_print "$crtfile"
+
+    rezip "$cscafolder"
+
+    good "Done."
+    ;;
+  revoke)
+    cscafolder="${2:?Missing csca\/folder path}"
+    crtfile="${3:?Missing certificate to revoke}"
+    reason="${4:-unspecified}"
+    compromisetime="${5:-now}"
+
+    info "Certificate info:"
+    crt_print "$crtfile"
+    confirm=$(prompt "Revoke certificate? [y/N] " -n 1)
+    if [[ "$confirm" != y* && "$confirm" != Y* ]]; then
+      ohno "Certificate revocation cancelled"
+      exit 0
+    fi
+
+    passphrase="$(prompt "Enter CSCA private key passphrase: " -s)"
+    if [[ -z "$passphrase" ]]; then
+      ohno "Passphrase is required"
+      exit 3
+    fi
+
+    crl_revoke "$cscafolder" "$passphrase" "$crtfile" "$reason" "$compromisetime"
+    crl_update "$cscafolder" "$passphrase"
+
+    rezip "$cscafolder"
+
+    good "Done."
+    ;;
+  crl-upload)
+    cscafolder="${2:?Missing csca\/folder path}"
+
+    passphrase="$(prompt "Enter CSCA private key passphrase: " -s)"
+    if [[ -z "$passphrase" ]]; then
+      ohno "Passphrase is required"
+      exit 3
+    fi
+
+    crl_update "$cscafolder" "$passphrase"
+
+    confirm=$(prompt "Upload to $(crl_url "$cscafolder")? [y/N] " -n 1)
+    if [[ "$confirm" != y* && "$confirm" != Y* ]]; then
+      ohno "CRL upload cancelled"
+      exit 0
+    fi
 
     rezip "$cscafolder"
 
@@ -386,10 +497,10 @@ case "${1:-help}" in
   *)
     info "Usage: $0 COMMAND [ARGUMENTS]"
     info
-    info "\e[1mcsca <folder> <crl url> <alpha2> <alpha3> <fullname> [country] [dept-org]"
+    info "\e[1mcsca <folder> <crl name> <alpha2> <alpha3> <fullname> [country] [dept-org]"
     info "       where:"
     info "       folder   = where to store new CSCA files"
-    info "       crl url  = full URL to CRL (e.g. http://crl.tamanu.io/CountrynameHealthCSCA.crl)"
+    info "       crl name = name of the CRL file that will be uploaded to $crl_base_url"
     info "       alpha2   = 2-letter country code"
     info "       alpha3   = 3-letter country code"
     info "       fullname = full name of CSCA cert e.g. 'Tamanu Government Health CSCA'"
@@ -405,8 +516,31 @@ case "${1:-help}" in
     info "       csr         = path to signing request from Tamanu"
     info
     info "The certificate validity will be set to 10 years, plus its PKUP of $sign_pkup days."
-    info "To make ICAO certificates, leave the sign_pkup var at the top of this script as 96."
-    info "To make EU DCC certificates, change the sign_pkup var at the top of this script to 365."
+
+    if [[ "$sign_pkup" -eq 96 ]]; then
+      info "To make EU DCC certificates, change the sign_pkup var at the top of this script to 365."
+    elif [[ "$sign_pkup" -eq 365 ]]; then
+      info "To make VDS-NC certificates, change the sign_pkup var at the top of this script to 96."
+    else
+      ohno "Caution! The sign_pkup var is set to a custom value, check that's what you mean!"
+    fi
+
+    info
+    info "\e[1mrevoke <csca folder> <certificate> [reason [compromise time]]"
+    info "       where:"
+    info "       csca folder     = path to CSCA folder"
+    info "       certificate     = path to certificate to revoke"
+    info "       reason          = optional reason for revocation (default: unspecified)"
+    info "       compromise time = if the reason is *compromise, this is the compromise time (defaults to now)"
+    info
+    info "Possible reasons for revocation are: unspecified, keyCompromise, CACompromise,"
+    info "affiliationChanged, superseded, cessationOfOperation. Compromise time is in"
+    info "`date` format, i.e. anything accepted by `date --date='string'`."
+    info
+    info
+    info "\e[1mcrl-upload <csca folder>"
+    info "       where:"
+    info "       csca folder     = path to CSCA folder"
     info
     exit 1
     ;;
