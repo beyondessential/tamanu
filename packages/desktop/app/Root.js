@@ -35,7 +35,13 @@ export default function Root({ api, store, history }) {
               <MuiThemeProvider theme={theme}>
                 <ThemeProvider theme={theme}>
                   <ElectronProvider>
-                    <ToastContainer />
+                    <ToastContainer
+                      closeOnClick
+                      pauseOnFocusLoss
+                      draggable
+                      pauseOnHover
+                      limit={5}
+                    />
                     <CssBaseline />
                     <RoutingApp />
                   </ElectronProvider>
