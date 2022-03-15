@@ -96,9 +96,10 @@ describe('Programs', () => {
   let testSurvey2;
   let testSurvey3;
   let testReferralSurvey;
+  let ctx;
 
   beforeAll(async () => {
-    const ctx = await createTestContext();
+    ctx = await createTestContext();
     baseApp = ctx.baseApp;
     models = ctx.models;
     app = await baseApp.asRole('admin');
@@ -117,6 +118,7 @@ describe('Programs', () => {
       surveyType: SURVEY_TYPES.REFERRAL,
     });
   });
+  afterAll(() => ctx.close());
 
   it('should list available programs', async () => {
     const result = await app.get(`/v1/program`);

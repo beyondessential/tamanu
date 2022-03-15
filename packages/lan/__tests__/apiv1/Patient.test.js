@@ -12,14 +12,16 @@ describe('Patient', () => {
   let baseApp = null;
   let models = null;
   let patient = null;
+  let ctx;
 
   beforeAll(async () => {
-    const ctx = await createTestContext();
+    ctx = await createTestContext();
     baseApp = ctx.baseApp;
     models = ctx.models;
     app = await baseApp.asRole('practitioner');
     patient = await models.Patient.create(await createDummyPatient(models));
   });
+  afterAll(() => ctx.close());
 
   it('should reject reading a patient with insufficient permissions', async () => {
     const noPermsApp = await baseApp.asRole('base');

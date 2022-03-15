@@ -45,14 +45,15 @@ describe('Patient profile picture', () => {
   let app = null;
   let baseApp = null;
   let models = null;
-  let patient = null;
+  let ctx;
 
   beforeAll(async () => {
-    const ctx = await createTestContext();
+    ctx = await createTestContext();
     baseApp = ctx.baseApp;
     models = ctx.models;
     app = await baseApp.asRole('practitioner');
   });
+  afterAll(() => ctx.close());
 
   // Disabling this as the endpoint currently expects a real remote to exist
   xit('should retrieve a profile picture where one exists', async () => {

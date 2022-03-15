@@ -6,14 +6,16 @@ describe('PatientIssue', () => {
   let app = null;
   let baseApp = null;
   let models = null;
+  let ctx;
 
   beforeAll(async () => {
-    const ctx = await createTestContext();
+    ctx = await createTestContext();
     baseApp = ctx.baseApp;
     models = ctx.models;
     app = await baseApp.asRole('practitioner');
     patient = await models.Patient.create(await createDummyPatient(models));
   });
+  afterAll(() => ctx.close());
 
   it('should record an issue', async () => {
     const result = await app.post('/v1/patientIssue').send({

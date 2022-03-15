@@ -8,15 +8,17 @@ describe('Lab request logs', () => {
   let app = null;
   let baseApp = null;
   let models = null;
+  let ctx;
 
   beforeAll(async () => {
-    const ctx = await createTestContext();
+    ctx = await createTestContext();
     baseApp = ctx.baseApp;
     models = ctx.models;
     const patient = await models.Patient.create(await createDummyPatient(models));
     patientId = patient.id;
     app = await baseApp.asRole('practitioner');
   });
+  afterAll(() => ctx.close());
 
   it('should throw an error if no userId is provided when updating a lab request', async () => {
     const { id: requestId } = await models.LabRequest.createWithTests(
