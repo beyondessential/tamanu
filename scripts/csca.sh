@@ -334,6 +334,27 @@ crl_revoke() {
     -passin stdin <<< "$passphrase"
 }
 
+crl_update() {
+  cscafolder="$1"
+  passphrase="$2"
+
+  info "prune expired certificates from CRL"
+  openssl ca \
+    -config <(openssl_config "$cscafolder") \
+    -keyfile "$cscafolder/private/csca.key" \
+    -updatedb \
+    -passin stdin <<< "$passphrase"
+
+  crlfile="$(crl_name "$1").crl"
+
+  info "generate new CRL: $crlfile"
+  openssl ca \
+    -config <(openssl_config "$cscafolder") \
+    -keyfile "$cscafolder/private/csca.key" \
+    -gencrl -out "$crlfile" \
+    -passin stdin <<< "$passphrase"
+}
+
 rezip() {
   folder="$1"
 
@@ -448,6 +469,26 @@ case "${1:-help}" in
 
     good "Done."
     ;;
+  crl-upload)
+    cscafolder="${2:?Missing csca\/folder path}"
+
+    passphrase="$(prompt "Enter CSCA private key passphrase: " -s)"
+    if [[ -z "$passphrase" ]]; then
+      ohno "Passphrase is required"
+      exit 3
+    fi
+
+    crl_update "$cscafolder" "$passphrase"
+
+    confirm=$(prompt "Upload to $(crl_url "$cscafolder")? [y/N] " -n 1)
+    if [[ "$confirm" != y* && "$confirm" != Y* ]]; then
+      exit 0
+    fi
+
+    rezip "$cscafolder"
+
+    good "Done."
+    ;;
   *)
     info "Usage: $0 COMMAND [ARGUMENTS]"
     info
@@ -490,6 +531,11 @@ case "${1:-help}" in
     info "Possible reasons for revocation are: unspecified, keyCompromise, CACompromise,"
     info "affiliationChanged, superseded, cessationOfOperation. Compromise time is in"
     info "`date` format, i.e. anything accepted by `date --date='string'`."
+    info
+    info
+    info "\e[1mcrl-upload <csca folder>"
+    info "       where:"
+    info "       csca folder     = path to CSCA folder"
     info
     exit 1
     ;;
