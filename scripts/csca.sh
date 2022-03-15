@@ -261,13 +261,17 @@ csca_structure() {
 }
 
 csr_print() {
-  csrfile="$1"
-
-  info "CSR info"
   openssl req \
     -inform PEM \
-    -in "$csrfile" \
+    -in "$1" \
     -noout -text
+}
+
+crt_print() {
+  openssl x509 \
+    -inform PEM \
+    -in "$1" \
+    -text -noout
 }
 
 csr_sign() {
@@ -289,11 +293,6 @@ csr_sign() {
     -batch -notext \
     -passin stdin <<< "$passphrase"
 
-  info "certificate signed: $crtfile"
-  openssl x509 \
-    -inform PEM \
-    -in "$crtfile" \
-    -text -noout
 }
 
 rezip() {
@@ -362,6 +361,7 @@ case "${1:-help}" in
       exit 2
     fi
 
+    info "CSR info"
     csr_print "$csrfile"
     confirm=$(prompt "Issue certificate? [y/N] " -n 1)
     if [[ "$confirm" != y* && "$confirm" != Y* ]]; then
@@ -374,8 +374,10 @@ case "${1:-help}" in
       exit 3
     fi
 
-    csr_sign "$cscafolder" "$passphrase" \
-      "$csrfile" "$crtfile"
+    csr_sign "$cscafolder" "$passphrase" "$csrfile" "$crtfile"
+
+    info "certificate signed: $crtfile"
+    crt_print "$crtfile"
 
     rezip "$cscafolder"
 
