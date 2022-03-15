@@ -19,9 +19,10 @@ describe('Recent Diagnoses report', () => {
   let expectedDiagnosis = null;
   let wrongDiagnosis = null;
   let expectedLocation = null;
+  let ctx;
 
   beforeAll(async () => {
-    const ctx = await createTestContext();
+    ctx = await createTestContext();
     baseApp = ctx.baseApp;
     models = ctx.models;
     app = await baseApp.asRole('practitioner');
@@ -30,6 +31,7 @@ describe('Recent Diagnoses report', () => {
     [expectedDiagnosis, wrongDiagnosis] = await randomReferenceIds(models, 'icd10', 2);
     expectedLocation = await randomRecordId(models, 'Location');
   });
+  afterAll(() => ctx.close());
 
   it('should reject creating a diagnoses report with insufficient permissions', async () => {
     const noPermsApp = await baseApp.asRole('base');

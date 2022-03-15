@@ -15,9 +15,10 @@ describe('Admissions report', () => {
   let expectedLocation = null;
   let baseApp = null;
   let models = null;
+  let ctx;
 
   beforeAll(async () => {
-    const ctx = await createTestContext();
+    ctx = await createTestContext();
     baseApp = ctx.baseApp;
     models = ctx.models;
     const villageId = await randomReferenceId(models, 'village');
@@ -26,6 +27,7 @@ describe('Admissions report', () => {
     app = await baseApp.asRole('practitioner');
     expectedLocation = await randomRecordId(models, 'Location');
   });
+  afterAll(() => ctx.close());
 
   it('should reject creating an admissions report with insufficient permissions', async () => {
     const noPermsApp = await baseApp.asRole('base');
