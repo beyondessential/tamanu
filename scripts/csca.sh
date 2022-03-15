@@ -291,6 +291,13 @@ crt_print() {
     -text -noout
 }
 
+crl_print() {
+  openssl crl \
+    -inform PEM \
+    -in "$1" \
+    -text -noout
+}
+
 csr_sign() {
   cscafolder="$1"
   passphrase="$2"
@@ -356,6 +363,9 @@ crl_update() {
     -keyfile "$cscafolder/private/csca.key" \
     -gencrl -out "$crlfile" \
     -passin stdin <<< "$passphrase"
+
+  info "CRL info:"
+  crl_print "$crlfile"
 }
 
 crl_upload() {
