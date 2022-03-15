@@ -27,8 +27,8 @@ export async function initDatabase() {
 
 export async function closeDatabase() {
   if (existingConnection) {
-    const store = existingConnection;
+    const oldConnection = existingConnection;
     existingConnection = null;
-    await store.close();
+    await oldConnection.sequelize.close();
   }
 }
