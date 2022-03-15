@@ -420,8 +420,15 @@ case "${1:-help}" in
     info "       csr         = path to signing request from Tamanu"
     info
     info "The certificate validity will be set to 10 years, plus its PKUP of $sign_pkup days."
-    info "To make ICAO certificates, leave the sign_pkup var at the top of this script as 96."
+
+    if [[ "$sign_pkup" -eq 69 ]]; then
     info "To make EU DCC certificates, change the sign_pkup var at the top of this script to 365."
+    elif [[ "$sign_pkup" -eq 365 ]]; then
+      info "To make VDS-NC certificates, change the sign_pkup var at the top of this script to 69."
+    else
+      ohno "Caution! The sign_pkup var is set to a custom value, check that's what you mean!"
+    fi
+
     info
     exit 1
     ;;
