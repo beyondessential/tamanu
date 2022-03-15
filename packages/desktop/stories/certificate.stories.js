@@ -2,7 +2,7 @@ import React, { useEffect, useState } from 'react';
 import QRCode from 'qrcode';
 import { storiesOf } from '@storybook/react';
 import { createDummyPatient, createDummyPatientAdditionalData } from 'shared/demoData';
-import { CovidLabCertificate, VaccineCertificate } from 'shared/utils';
+// import { CovidLabCertificate, VaccineCertificate } from 'shared/utils';
 import { PDFViewer } from '@react-pdf/renderer';
 import SigningImage from './assets/signing-image.png';
 import Watermark from './assets/watermark.png';

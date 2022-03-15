@@ -15,6 +15,7 @@ import {
   DateField,
   RadioField,
   SelectField,
+  CheckField,
 } from '../components/Field';
 import { Colors } from '../constants';
 
@@ -129,6 +130,15 @@ export const ImmunisationForm = React.memo(
         }}
         render={({ submitForm }) => (
           <FormGrid>
+            <div style={{ gridColumn: '1/-1' }}>
+              <OuterLabelFieldWrapper label="Consent" />
+              <Field
+                name="consent"
+                label="Do you have consent from the recipient/parent/guardian to give this vaccine and record in Tamanu?"
+                component={CheckField}
+                required
+              />
+            </div>
             <Field
               name="category"
               label="Category"
@@ -153,24 +163,26 @@ export const ImmunisationForm = React.memo(
                 required
               />
             </div>
-
-            <div>
-              <OuterLabelFieldWrapper label="Administered schedule" />
-              {administeredOptions.map(option => (
-                <AdministeredVaccineSchedule option={option} />
-              ))}
-            </div>
-
-            <div style={{ gridColumn: '1/-1' }}>
-              <Field
-                name="scheduledVaccineId"
-                label="Available schedule"
-                inline
-                component={RadioField}
-                options={scheduleOptions}
-                required
-              />
-            </div>
+            {administeredOptions.length > 0 && (
+              <div>
+                <OuterLabelFieldWrapper label="Administered schedule" />
+                {administeredOptions.map(option => (
+                  <AdministeredVaccineSchedule option={option} />
+                ))}
+              </div>
+            )}
+            {scheduleOptions.length > 0 && (
+              <div style={{ gridColumn: '1/-1' }}>
+                <Field
+                  name="scheduledVaccineId"
+                  label="Available schedule"
+                  inline
+                  component={RadioField}
+                  options={scheduleOptions}
+                  required
+                />
+              </div>
+            )}
             <Field name="date" label="Date" component={DateField} required />
             <Field
               name="examinerId"
