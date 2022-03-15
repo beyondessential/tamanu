@@ -5,6 +5,7 @@
 ### Manual steps required after upgrade ⚙
 
 - Consider adding `fiji-aspen-encounter-summary-line-list` to disabledReports
+- A server with invalid localisation will now exit: fix the localisation (preferred), or set `localisation.allowInvalidLocalisation` to `true` (if there's a good reason why it's invalid)
 
 ### Features ⭐
 
@@ -12,7 +13,7 @@
 
 ### Tweaks ⚖️
 
-- (left blank)
+- Tweaked localisation to prepare for loading it from the db
 
 ### Bug fixes 🐛
 

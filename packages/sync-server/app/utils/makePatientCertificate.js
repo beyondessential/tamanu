@@ -2,12 +2,17 @@ import React from 'react';
 import ReactPDF from '@react-pdf/renderer';
 import path from 'path';
 import QRCode from 'qrcode';
+import { get } from 'lodash';
+
 import { log } from 'shared/services/logging';
 import { tmpdir, CovidLabCertificate, VaccineCertificate } from 'shared/utils';
 import { generateUVCIForPatient } from '../integrations/VdsNc';
-import { getLocalisationData } from './localisation';
+import { getLocalisation } from '../localisation';
 
 export const makeVaccineCertificate = async (patient, printedBy, models, vdsData = null) => {
+  const localisation = await getLocalisation();
+  const getLocalisationData = key => get(localisation, key);
+
   const folder = await tmpdir();
   const fileName = `vaccine-certificate-${patient.id}.pdf`;
   const filePath = path.join(folder, fileName);
@@ -70,6 +75,9 @@ export const makeVaccineCertificate = async (patient, printedBy, models, vdsData
 };
 
 export const makeCovidTestCertificate = async (patient, printedBy, models, vdsData = null) => {
+  const localisation = await getLocalisation();
+  const getLocalisationData = key => get(localisation, key);
+
   const folder = await tmpdir();
   const fileName = `covid-test-certificate-${patient.id}.pdf`;
   const filePath = path.join(folder, fileName);
