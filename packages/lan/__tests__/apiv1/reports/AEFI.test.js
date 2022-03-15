@@ -27,10 +27,10 @@ describe('AEFI report', () => {
     baseApp = ctx.baseApp;
     village = await randomReferenceId(models, 'village');
 
-    await models.Survey.truncate();
-    await models.Program.truncate();
-    await models.Program.truncate();
-    await models.ProgramDataElement.truncate();
+    await models.Survey.truncate({ cascade: true });
+    await models.Program.truncate({ cascade: true });
+    await models.Program.truncate({ cascade: true });
+    await models.ProgramDataElement.truncate({ cascade: true });
 
     expectedPatient = await models.Patient.create(
       await createDummyPatient(models, { villageId: village }),
