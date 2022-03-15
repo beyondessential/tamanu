@@ -35,18 +35,16 @@ fi
 
 # === Date calculations, not editable variables: ===
 
-# it's not possible to manually set the cert expiry dates with openssl,
-# so we set the pkup to begin at midnight, which will always be less or
-# equal to the notBefore of the cert validity.
-now="$(date --date=00:00 +%s)"
+now="$(date --utc +%s)"
+gentimefmt="%Y%m%d%H%M%SZ"
 
 ((csca_later=now+csca_pkup*24*60*60))
-csca_pkup_before="$(date --date "@$now" '+%Y%m%d%H%M%SZ')"
-csca_pkup_after="$(date --date "@$csca_later" '+%Y%m%d%H%M%SZ')"
+csca_pkup_before="$(date --utc --date "@$now" +"${gentimefmt}")"
+csca_pkup_after="$(date --utc --date "@$csca_later" +"${gentimefmt}")"
 
 ((sign_later=now+sign_pkup*24*60*60))
-sign_pkup_before="$(date --date "@$now" '+%Y%m%d%H%M%SZ')"
-sign_pkup_after="$(date --date "@$sign_later" '+%Y%m%d%H%M%SZ')"
+sign_pkup_before="$(date --utc --date "@$now" +"${gentimefmt}")"
+sign_pkup_after="$(date --utc --date "@$sign_later" +"${gentimefmt}")"
 
 # =/= End date calculations =/=
 
