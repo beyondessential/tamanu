@@ -8,6 +8,9 @@ set -euo pipefail
 # The full CRL URL will be built as: `${crl_base_url}/${crl_name}.crl`.
 crl_base_url="http://crl.tamanu.io"
 
+# S3 Bucket URL for the CRL files.
+crl_bucket=""
+
 # Working time (PKUP - Private Key Usage Period) of issued signer certificates.
 # MUST be 92 to 96 days for VDS (3 months, with a bit of margin if needed),
 # OR 365 for EUDCC (exactly one year).
@@ -355,6 +358,15 @@ crl_update() {
     -passin stdin <<< "$passphrase"
 }
 
+crl_upload() {
+  cscafolder="$1"
+
+  crlfile="$(crl_name "$1").crl"
+
+  info "uploading to bucket: $crl_bucket $crlfile"
+  ohno TODO
+}
+
 rezip() {
   folder="$1"
 
@@ -489,6 +501,8 @@ case "${1:-help}" in
       ohno "CRL upload cancelled"
       exit 0
     fi
+
+    crl_upload "$cscafolder"
 
     rezip "$cscafolder"
 
