@@ -306,7 +306,32 @@ csr_sign() {
     -md "sha256" \
     -batch -notext \
     -passin stdin <<< "$passphrase"
+}
 
+crl_revoke() {
+  cscafolder="$1"
+  passphrase="$2"
+  crtfile="$3"
+  reason="$4"
+  compromisetime="$5"
+
+  comptime=$(date --utc --date "$compromisetime" +"${gentimefmt}")
+
+  opt=""
+  if [[ "$reason" == "keyCompromise" ]]; then
+    opt="-crl_compromise $comptime"
+  elif [[ "$reason" == "CACompromise" ]]; then
+    opt="-crl_CA_compromise $comptime"
+  fi
+
+  info "add revocation to CRL"
+  openssl ca \
+    -config <(openssl_config "$cscafolder") \
+    -keyfile "$cscafolder/private/csca.key" \
+    -revoke "$crtfile" \
+    -crl_reason "$reason" \
+    $opt \
+    -passin stdin <<< "$passphrase"
 }
 
 rezip() {
@@ -398,6 +423,31 @@ case "${1:-help}" in
 
     good "Done."
     ;;
+  revoke)
+    cscafolder="${2:?Missing csca\/folder path}"
+    crtfile="${3:?Missing certificate to revoke}"
+    reason="${4:-unspecified}"
+    compromisetime="${5:-now}"
+
+    info "Certificate info:"
+    crt_print "$crtfile"
+    confirm=$(prompt "Revoke certificate? [y/N] " -n 1)
+    if [[ "$confirm" != y* && "$confirm" != Y* ]]; then
+      exit 0
+    fi
+
+    passphrase="$(prompt "Enter CSCA private key passphrase: " -s)"
+    if [[ -z "$passphrase" ]]; then
+      ohno "Passphrase is required"
+      exit 3
+    fi
+
+    csr_sign "$cscafolder" "$passphrase" "$crtfile" "$reason" "$compromisetime"
+
+    rezip "$cscafolder"
+
+    good "Done."
+    ;;
   *)
     info "Usage: $0 COMMAND [ARGUMENTS]"
     info
@@ -422,13 +472,24 @@ case "${1:-help}" in
     info "The certificate validity will be set to 10 years, plus its PKUP of $sign_pkup days."
 
     if [[ "$sign_pkup" -eq 69 ]]; then
-    info "To make EU DCC certificates, change the sign_pkup var at the top of this script to 365."
+      info "To make EU DCC certificates, change the sign_pkup var at the top of this script to 365."
     elif [[ "$sign_pkup" -eq 365 ]]; then
       info "To make VDS-NC certificates, change the sign_pkup var at the top of this script to 69."
     else
       ohno "Caution! The sign_pkup var is set to a custom value, check that's what you mean!"
     fi
 
+    info
+    info "\e[1mrevoke <csca folder> <certificate> [reason [compromise time]]"
+    info "       where:"
+    info "       csca folder     = path to CSCA folder"
+    info "       certificate     = path to certificate to revoke"
+    info "       reason          = optional reason for revocation (default: unspecified)"
+    info "       compromise time = if the reason is *compromise, this is the compromise time (defaults to now)"
+    info
+    info "Possible reasons for revocation are: unspecified, keyCompromise, CACompromise,"
+    info "affiliationChanged, superseded, cessationOfOperation. Compromise time is in"
+    info "`date` format, i.e. anything accepted by `date --date='string'`."
     info
     exit 1
     ;;
