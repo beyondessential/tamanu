@@ -16,6 +16,6 @@ module.exports = {
     });
   },
   down: async query => {
-    // await query.removeColumn('administered_vaccines', 'consent');
+    await query.removeColumn('administered_vaccines', 'consent');
   },
 };
