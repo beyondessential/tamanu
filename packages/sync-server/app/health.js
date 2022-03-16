@@ -6,6 +6,7 @@ import { log } from 'shared/services/logging';
 import { createMigrationInterface } from 'shared/services/migrations';
 
 import { version } from '../package.json';
+import { canUploadAttachment } from './utils/';
 
 export const healthRoutes = express.Router();
 
@@ -85,3 +86,11 @@ healthRoutes.get('/', asyncHandler(async (req, res) => {
     config: sanitise(config),
   });
 }));
+
+healthRoutes.get(
+  '/canUploadAttachment',
+  asyncHandler(async (req, res) => {
+    const canUpload = await canUploadAttachment();
+    res.send({ canUploadAttachment: canUpload });
+  }),
+);
