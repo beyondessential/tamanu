@@ -555,12 +555,12 @@ case "${1:-help}" in
     info "       csca folder     = path to CSCA folder"
     info "       certificate     = path to certificate to revoke"
     info "       reason          = optional reason for revocation (default: unspecified)"
-    info "       compromise time = if the reason is *compromise, this is the compromise time (defaults to now)"
+    info "       compromise time = if the reason is keyCompromise or CACompromise, this"
+    info "                         is the compromise time (defaults to now)"
     info
     info "Possible reasons for revocation are: unspecified, keyCompromise, CACompromise,"
     info "affiliationChanged, superseded, cessationOfOperation. Compromise time is in"
-    info "`date` format, i.e. anything accepted by `date --date='string'`."
-    info
+    info "\`date\` format, i.e. anything accepted by \`date --date='string'\`."
     info
     info "\e[1mcrl-upload <csca folder>"
     info "       where:"
