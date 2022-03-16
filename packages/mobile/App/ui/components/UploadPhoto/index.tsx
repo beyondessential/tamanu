@@ -1,6 +1,7 @@
 import React, { useState, useCallback } from 'react';
 import { Dimensions, Text } from 'react-native';
 import RNFS from 'react-native-fs';
+import { Popup } from 'popup-ui';
 import { useBackend } from '~/ui/hooks';
 import { StyledView, StyledImage } from '/styled/common';
 import {
@@ -103,7 +104,7 @@ export const UploadPhoto = React.memo(({ onChange, value }: PhotoProps) => {
   const [errorMessage, setErrorMessage] = useState(null);
   const [imageData, setImageData] = useState(null);
   const [imagePath, setImagePath] = useState(null);
-  const { models } = useBackend();
+  const { models, syncSource } = useBackend();
 
   const removeAttachment = useCallback(async (value, imagePath) => {
     if (value) {
@@ -150,6 +151,20 @@ export const UploadPhoto = React.memo(({ onChange, value }: PhotoProps) => {
       rotation: 0,
       ...IMAGE_RESIZE_OPTIONS
     });
+
+    // Make sure the sync server has enough space to store a new attachment
+    const { canUploadAttachment } = await syncSource.get('health/canUploadAttachment', {});
+
+    if (!canUploadAttachment) {
+      Popup.show({
+        type: 'Warning',
+        title: 'Not enough storage space to upload file',
+        textBody: 'The server has limited storage space remaining. To protect performance, you are currently unable to upload images. Please speak to your system administrator to increase your central server hard drive space.',
+        callback: (): void => Popup.hide(),
+      });
+      return;
+    }
+
     const { id } = await models.Attachment.createAndSaveOne({
       filePath: path,
       size,
