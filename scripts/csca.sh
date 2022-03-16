@@ -5,8 +5,8 @@ set -euo pipefail
 # === Editable configuration ===
 
 # CRL domain or base of the CRL URL.
-# The full CRL URL will be built as: `${crl_base}/${crl_name}.crl`.
-crl_base="http://crl.tamanu.io"
+# The full CRL URL will be built as: `${crl_base_url}/${crl_name}.crl`.
+crl_base_url="http://crl.tamanu.io"
 
 # Working time (PKUP - Private Key Usage Period) of issued signer certificates.
 # MUST be 92 to 96 days for VDS (3 months, with a bit of margin if needed),
@@ -271,7 +271,7 @@ crl_name() {
 }
 
 crl_url() {
-  echo "${crl_base}/$(crl_name "$1").crl"
+  echo "${crl_base_url}/$(crl_name "$1").crl"
 }
 
 csr_print() {
@@ -317,11 +317,11 @@ crl_revoke() {
 
   comptime=$(date --utc --date "$compromisetime" +"${gentimefmt}")
 
-  opt=""
+  compro_opt=""
   if [[ "$reason" == "keyCompromise" ]]; then
-    opt="-crl_compromise $comptime"
+    compro_opt="-crl_compromise $comptime"
   elif [[ "$reason" == "CACompromise" ]]; then
-    opt="-crl_CA_compromise $comptime"
+    compro_opt="-crl_CA_compromise $comptime"
   fi
 
   info "add revocation to CRL"
@@ -330,7 +330,7 @@ crl_revoke() {
     -keyfile "$cscafolder/private/csca.key" \
     -revoke "$crtfile" \
     -crl_reason "$reason" \
-    $opt \
+    $compro_opt \
     -passin stdin <<< "$passphrase"
 }
 
@@ -427,6 +427,7 @@ case "${1:-help}" in
     csr_print "$csrfile"
     confirm=$(prompt "Issue certificate? [y/N] " -n 1)
     if [[ "$confirm" != y* && "$confirm" != Y* ]]; then
+      ohno "Certificate issuance cancelled"
       exit 0
     fi
 
@@ -455,6 +456,7 @@ case "${1:-help}" in
     crt_print "$crtfile"
     confirm=$(prompt "Revoke certificate? [y/N] " -n 1)
     if [[ "$confirm" != y* && "$confirm" != Y* ]]; then
+      ohno "Certificate revocation cancelled"
       exit 0
     fi
 
@@ -484,6 +486,7 @@ case "${1:-help}" in
 
     confirm=$(prompt "Upload to $(crl_url "$cscafolder")? [y/N] " -n 1)
     if [[ "$confirm" != y* && "$confirm" != Y* ]]; then
+      ohno "CRL upload cancelled"
       exit 0
     fi
 
@@ -497,7 +500,7 @@ case "${1:-help}" in
     info "\e[1mcsca <folder> <crl name> <alpha2> <alpha3> <fullname> [country] [dept-org]"
     info "       where:"
     info "       folder   = where to store new CSCA files"
-    info "       crl name = name of the CRL file that will be uploaded to $crl_base"
+    info "       crl name = name of the CRL file that will be uploaded to $crl_base_url"
     info "       alpha2   = 2-letter country code"
     info "       alpha3   = 3-letter country code"
     info "       fullname = full name of CSCA cert e.g. 'Tamanu Government Health CSCA'"
