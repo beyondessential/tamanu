@@ -164,6 +164,12 @@ export class TestCSCA {
       ['sign', 'verify'],
     );
 
+    const workingPeriodStart = moment();
+    const workingPeriodEnd = workingPeriodStart.clone().add(365 * 4 + 1, 'day');
+
+    const validityPeriodStart = workingPeriodStart.clone();
+    const validityPeriodEnd = workingPeriodEnd.clone().add(11 * 365 + 3, 'day');
+
     const cert = new Certificate();
     cert.version = 2;
     cert.issuer.typesAndValues.push(
@@ -191,14 +197,10 @@ export class TestCSCA {
       }),
     );
     cert.notBefore = new Time({
-      value: moment()
-        .subtract(1, 'day')
-        .toDate(),
+      value: validityPeriodStart.toDate(),
     });
     cert.notAfter = new Time({
-      value: moment()
-        .add(1, 'year')
-        .toDate(),
+      value: validityPeriodEnd.toDate(),
     });
     cert.serialNumber = new Integer({ value: 1 });
 
@@ -230,6 +232,7 @@ export class TestCSCA {
     /* eslint-enable no-bitwise */
 
     const keyUsage = new BitString({ valueHex: bitArray });
+
     cert.extensions = new Extensions({
       extensions: [
         new Extension({
@@ -269,19 +272,21 @@ export class TestCSCA {
     if (asn.result.error !== '') throw new Error(asn.result.error);
     const csr = new CertificationRequest({ schema: asn.result });
 
+    const workingPeriodStart = moment();
+    const workingPeriodEnd = workingPeriodStart.clone().add(96, 'day');
+
+    const validityPeriodStart = workingPeriodStart.clone();
+    const validityPeriodEnd = workingPeriodEnd.clone().add(365 * 10 + 2, 'day');
+
     const cert = new Certificate();
     cert.version = 2;
     cert.issuer = this.certificate.issuer;
     cert.subject = csr.subject;
     cert.notBefore = new Time({
-      value: moment()
-        .subtract(1, 'day')
-        .toDate(),
+      value: validityPeriodStart.toDate(),
     });
     cert.notAfter = new Time({
-      value: moment()
-        .add(3, 'month')
-        .toDate(),
+      value: validityPeriodEnd.toDate(),
     });
     cert.serialNumber = new Integer({ value: (this.serial += 1) });
 
