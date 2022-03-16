@@ -146,12 +146,10 @@ const templatesSchema = yup
         emailAddress: yup
           .string()
           .trim()
-          .min(1)
           .required(),
         contactNumber: yup
           .string()
           .trim()
-          .min(1)
           .required(),
       })
       .required()
