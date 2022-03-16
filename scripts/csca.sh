@@ -294,7 +294,7 @@ crt_print() {
 
 crl_print() {
   openssl crl \
-    -inform PEM \
+    -inform DER \
     -in "$1" \
     -text -noout
 }
@@ -358,12 +358,17 @@ crl_update() {
 
   crlfile="$cscafolder/$(crl_name "$1").crl"
 
-  info "generate new CRL: $crlfile"
+  info "generate new PEM CRL: $crlfile.pem"
   openssl ca \
     -config <(openssl_config "$cscafolder") \
     -keyfile "$cscafolder/private/csca.key" \
-    -gencrl -out "$crlfile" \
+    -gencrl -out "$crlfile.pem" \
     -passin stdin <<< "$passphrase"
+
+  info "generate new DER CRL: $crlfile"
+  openssl crl \
+    -inform PEM -in "$crlfile.pem" \
+    -outform DER -out "$crlfile"
 
   info "CRL info:"
   crl_print "$crlfile"
