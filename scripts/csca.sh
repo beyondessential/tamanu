@@ -9,7 +9,8 @@ set -euo pipefail
 crl_base_url="http://crl.tamanu.io"
 
 # S3 Bucket URL for the CRL files.
-crl_bucket=""
+s3_bucket="crl.tamanu.io"
+s3_region="ap-southeast-2"
 
 # Working time (PKUP - Private Key Usage Period) of issued signer certificates.
 # MUST be 92 to 96 days for VDS (3 months, with a bit of margin if needed),
@@ -373,8 +374,49 @@ crl_upload() {
 
   crlfile="$(crl_name "$1").crl"
 
-  info "uploading to bucket: $crl_bucket $crlfile"
-  ohno TODO
+  info "uploading to bucket: $s3_bucket $crlfile"
+
+  s3_host="s3.${s3_region}.amazonaws.com"
+  s3_resource="/${s3_bucket}/${crlfile}"
+
+  req_date=$(date --utc --date="@$now" +%Y%m%d)
+  req_isots=$(date --utc --date="@$now" +%Y%m%dT%H%M%SZ)
+
+  content_type="text/plain"
+  filesum=$(openssl sha256 -hex "$cscafolder/$crlfile" | cut -d\  -f2)
+
+  canon_headers="content-type:${content_type}\nhost:${s3_host}\nx-amz-content-sha256:${filesum}\nx-amz-date:${req_isots}\n"
+  signed_headers="content-type;host;x-amz-content-sha256;x-amz-date"
+
+  canon_req="PUT\n${s3_resource}\n\n${canon_headers}\n${signed_headers}\n${filesum}"
+  canon_sum=$(echo -en "${canon_req}" | openssl dgst -sha256 -hex | cut -d\  -f2)
+  scope="${req_date}/${s3_region}/s3/aws4_request"
+
+  sig_payload="AWS4-HMAC-SHA256\n${req_isots}\n${scope}\n${canon_sum}"
+  sig=$(echo -en "$sig_payload" | openssl dgst -sha256 -hex -mac HMAC -macopt \
+    hexkey:"$(echo -n "aws4_request" | openssl dgst -sha256 -hex -mac HMAC -macopt \
+      hexkey:"$(echo -n "s3" | openssl dgst -sha256 -hex -mac HMAC -macopt \
+        hexkey:"$(echo -n "$s3_region" | openssl dgst -sha256 -hex -mac HMAC -macopt \
+          hexkey:"$(echo -n "$req_date" | openssl dgst -sha256 -hex -mac HMAC -macopt \
+            key:"AWS4${AWS_SECRET_ACCESS_KEY}" \
+          | cut -d\  -f2)" \
+        | cut -d\  -f2)" \
+      | cut -d\  -f2)" \
+    | cut -d\  -f2)" \
+  | cut -d\  -f2)
+
+  cred="${AWS_ACCESS_KEY_ID}/${req_date}/${s3_region}/s3/aws4_request"
+  auth="AWS4-HMAC-SHA256 Credential=${cred},SignedHeaders=${signed_headers},Signature=${sig}"
+
+  curl --fail-with-body \
+    -X PUT -T "${cscafolder}/${crlfile}" \
+    -H "host: $s3_host" \
+    -H "date: $(date --utc --date="@$now" -R)" \
+    -H "content-type: ${content_type}" \
+    -H "authorization: ${auth}" \
+    -H "x-amz-content-sha256: ${filesum}" \
+    -H "x-amz-date: ${req_isots}" \
+    "https://$s3_host${s3_resource}"
 }
 
 rezip() {
@@ -498,6 +540,16 @@ case "${1:-help}" in
   crl-upload)
     cscafolder="${2:?Missing csca\/folder path}"
 
+    if [[ -z "$AWS_ACCESS_KEY_ID" ]]; then
+      ohno "env AWS_ACCESS_KEY_ID is required"
+      exit 2
+    fi
+
+    if [[ -z "$AWS_SECRET_ACCESS_KEY" ]]; then
+      ohno "env AWS_SECRET_ACCESS_KEY is required"
+      exit 2
+    fi
+
     passphrase="$(prompt "Enter CSCA private key passphrase: " -s)"
     if [[ -z "$passphrase" ]]; then
       ohno "Passphrase is required"
@@ -564,7 +616,9 @@ case "${1:-help}" in
     info
     info "\e[1mcrl-upload <csca folder>"
     info "       where:"
-    info "       csca folder     = path to CSCA folder"
+    info "       csca folder = path to CSCA folder"
+    info
+    info "You will need AWS_ACCESS_KEY_ID and AWS_SECRET_ACCESS_KEY set in the environment."
     info
     exit 1
     ;;
