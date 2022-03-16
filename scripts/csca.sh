@@ -2,7 +2,9 @@
 
 set -euo pipefail
 
-# Working time (PKUP) of issued signer certificates.
+# === Editable configuration ===
+
+# Working time (PKUP - Private Key Usage Period) of issued signer certificates.
 # MUST be 92 to 96 days for VDS (3 months, with a bit of margin if needed),
 # OR 365 for EUDCC (exactly one year).
 sign_pkup=96
@@ -13,16 +15,18 @@ sign_pkup=96
 # Plus the PKUP time. Up to a maximum of 11 years as the CSCA is configured, see below:
 ((sign_valid=sign_pkup+365*10+2))
 
-# Working time (PKUP) of CSCA.
+# Working time (PKUP) of CSCA (Country Signing Certificate Authority).
 # Recommendation is between 3 and 5 years. We use 4 years (365 * 4 plus 1 leap day),
 # such that we set the validity to a nice round 15 years and
-# it gives us a maximum BSC validity of 11 years.
+# it gives us a maximum BSC (ICAO Barcode Signer Certificate) validity of 11 years.
 ((csca_pkup=365*4+1))
 
 # Validity (including PKUP) of CSCA.
 # Simply PKUP + 11 years (365 * 11 + 3 leap days).
 ((csca_maxcertuse=11*365+3))
 ((csca_valid=csca_pkup+csca_maxcertuse))
+
+# =/= End editable section =/=
 
 if [[ "${sign_valid}" -gt "${csca_maxcertuse}" ]]; then
     echo "Signer certificate validity (${sign_valid} days) is longer than CSCA max allowed signer lifetime (${csca_maxcertuse} days)"
