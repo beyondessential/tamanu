@@ -387,7 +387,7 @@ crl_upload() {
   req_date=$(date --utc --date="@$now" +%Y%m%d)
   req_isots=$(date --utc --date="@$now" +%Y%m%dT%H%M%SZ)
 
-  content_type="text/plain"
+  content_type="application/pkix-crl"
   filesum=$(openssl sha256 -hex "$cscafolder/$crlfile" | cut -d\  -f2)
 
   canon_headers="content-type:${content_type}\nhost:${s3_host}\nx-amz-content-sha256:${filesum}\nx-amz-date:${req_isots}\n"
