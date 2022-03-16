@@ -361,7 +361,7 @@ case "${1:-help}" in
     info "       where:"
     info "       folder   = where to store new CSCA files"
     info "       years    = working period of CSCA in years (typically 3-5 years)"
-    info "       crl url  = full URL to CRL (e.g. https://crl.pki.tamanu.io/CountrynameHealthCSCA.crl)"
+    info "       crl url  = full URL to CRL (e.g. http://crl.tamanu.io/CountrynameHealthCSCA.crl)"
     info "       alpha2   = 2-letter country code"
     info "       alpha3   = 3-letter country code"
     info "       fullname = full name of CSCA cert e.g. 'Tamanu Government Health CSCA'"
