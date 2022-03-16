@@ -235,5 +235,4 @@ App folder structure:
 | mockserver | firebase functions to mock remote server   |
 | android | Gradle configuration, debug signing key  |
 | ios | Pods (cocoa-pods) installed. Some RN libraries require a native syncing that is done by running "pod install" in this folder. |
-| scripts | scripts for workarounds and  |
 | _mocks_ | fixed mocks for jest test runner  |
