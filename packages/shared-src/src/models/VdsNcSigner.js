@@ -49,13 +49,27 @@ export class VdsNcSigner extends Model {
           allowNull: true,
         },
 
-        notBefore: {
-          // extracted/cached from certificate
+        workingPeriodStart: {
+          // start of the working period of this certificate
+          // extracted/cached from certificate PKUP (Private Key Usage Period)
           type: Sequelize.DATE,
           allowNull: true,
         },
-        notAfter: {
-          // extracted/cached from certificate
+        workingPeriodEnd: {
+          // end of the working period of this certificate
+          // extracted/cached from certificate PKUP (Private Key Usage Period)
+          type: Sequelize.DATE,
+          allowNull: true,
+        },
+        validityPeriodStart: {
+          // start of the validity period of this certificate
+          // extracted/cached from certificate Not Before field
+          type: Sequelize.DATE,
+          allowNull: true,
+        },
+        validityPeriodEnd: {
+          // end of the validity period of this certificate
+          // extracted/cached from certificate Not After field
           type: Sequelize.DATE,
           allowNull: true,
         },
@@ -74,7 +88,12 @@ export class VdsNcSigner extends Model {
       {
         ...options,
         paranoid: true,
-        indexes: [{ fields: ['not_before'] }, { fields: ['not_after'] }],
+        indexes: [
+          { fields: ['validity_period_start'] },
+          { fields: ['validity_period_end'] },
+          { fields: ['working_period_start'] },
+          { fields: ['working_period_end'] },
+        ],
       },
     );
   }
@@ -86,8 +105,10 @@ export class VdsNcSigner extends Model {
   static findActive() {
     return VdsNcSigner.findOne({
       where: {
-        notBefore: { [Op.lte]: Sequelize.literal('CURRENT_TIMESTAMP') },
-        notAfter: { [Op.gt]: Sequelize.literal('CURRENT_TIMESTAMP') },
+        validityPeriodStart: { [Op.lte]: Sequelize.literal('CURRENT_TIMESTAMP') },
+        workingPeriodStart: { [Op.lte]: Sequelize.literal('CURRENT_TIMESTAMP') },
+        workingPeriodEnd: { [Op.gt]: Sequelize.literal('CURRENT_TIMESTAMP') },
+        validityPeriodEnd: { [Op.gt]: Sequelize.literal('CURRENT_TIMESTAMP') },
         certificate: { [Op.not]: null },
         privateKey: { [Op.not]: null },
       },
@@ -99,7 +120,14 @@ export class VdsNcSigner extends Model {
    */
   isActive() {
     const now = new Date();
-    return !!(this.notBefore <= now && this.notAfter > now && this.certificate && this.privateKey);
+    return !!(
+      this.validityPeriodStart <= now &&
+      this.workingPeriodStart <= now &&
+      this.workingPeriodEnd > now &&
+      this.validityPeriodEnd > now &&
+      this.certificate &&
+      this.privateKey
+    );
   }
 
   /**
