@@ -385,19 +385,19 @@ crl_upload() {
   s3_resource="/${s3_bucket}/${crlfile}"
 
   req_date=$(date --utc --date="@$now" +%Y%m%d)
-  req_isots=$(date --utc --date="@$now" +%Y%m%dT%H%M%SZ)
+  req_iso_timestamp=$(date --utc --date="@$now" +%Y%m%dT%H%M%SZ)
 
   content_type="application/pkix-crl"
   filesum=$(openssl sha256 -hex "$cscafolder/$crlfile" | cut -d\  -f2)
 
-  canon_headers="content-type:${content_type}\nhost:${s3_host}\nx-amz-content-sha256:${filesum}\nx-amz-date:${req_isots}\n"
+  canon_headers="content-type:${content_type}\nhost:${s3_host}\nx-amz-content-sha256:${filesum}\nx-amz-date:${req_iso_timestamp}\n"
   signed_headers="content-type;host;x-amz-content-sha256;x-amz-date"
 
   canon_req="PUT\n${s3_resource}\n\n${canon_headers}\n${signed_headers}\n${filesum}"
   canon_sum=$(echo -en "${canon_req}" | openssl dgst -sha256 -hex | cut -d\  -f2)
   scope="${req_date}/${s3_region}/s3/aws4_request"
 
-  sig_payload="AWS4-HMAC-SHA256\n${req_isots}\n${scope}\n${canon_sum}"
+  sig_payload="AWS4-HMAC-SHA256\n${req_iso_timestamp}\n${scope}\n${canon_sum}"
   sig=$(echo -en "$sig_payload" | openssl dgst -sha256 -hex -mac HMAC -macopt \
     hexkey:"$(echo -n "aws4_request" | openssl dgst -sha256 -hex -mac HMAC -macopt \
       hexkey:"$(echo -n "s3" | openssl dgst -sha256 -hex -mac HMAC -macopt \
@@ -420,7 +420,7 @@ crl_upload() {
     -H "content-type: ${content_type}" \
     -H "authorization: ${auth}" \
     -H "x-amz-content-sha256: ${filesum}" \
-    -H "x-amz-date: ${req_isots}" \
+    -H "x-amz-date: ${req_iso_timestamp}" \
     "https://$s3_host${s3_resource}"
 }
 
