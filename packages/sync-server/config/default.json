@@ -431,13 +431,8 @@
         "syncAllEncountersForTheseScheduledVaccines": []
       },
       "disabledReports": [],
-      "country": {
-        "name": "Utopia",
-        "alpha-2": "UT",
-        "alpha-3": "UTO"
-      },
       "uvci": {
-        "format": "eudcc"
+        "format": "icao"
       }
     }
   },
