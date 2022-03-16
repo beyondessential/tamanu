@@ -61,9 +61,13 @@ const AdministeredCheckbox = styled(Checkbox)`
   }
 `;
 
-function AdministeredVaccineSchedule({ option }) {
-  return <ControlLabel control={<AdministeredCheckbox checked disabled />} label={option.label} />;
-}
+const FullWidthCol = styled.div`
+  grid-column: 1/-1;
+`;
+
+const AdministeredVaccineSchedule = ({ option }) => (
+  <ControlLabel control={<AdministeredCheckbox checked disabled />} label={option.label} />
+);
 
 const findVaccinesByAdministeredStatus = (vaccine, administered) =>
   vaccine
@@ -130,15 +134,15 @@ export const ImmunisationForm = React.memo(
         }}
         render={({ submitForm }) => (
           <FormGrid>
-            <div style={{ gridColumn: '1/-1' }}>
-              <OuterLabelFieldWrapper label="Consent" />
+            <FullWidthCol>
+              <OuterLabelFieldWrapper label="Consent" style={{ marginBottom: '5px' }} required />
               <Field
                 name="consent"
                 label="Do you have consent from the recipient/parent/guardian to give this vaccine and record in Tamanu?"
                 component={CheckField}
                 required
               />
-            </div>
+            </FullWidthCol>
             <Field
               name="category"
               label="Category"
@@ -152,7 +156,7 @@ export const ImmunisationForm = React.memo(
               }}
               required
             />
-            <div style={{ gridColumn: '1/-1' }}>
+            <FullWidthCol>
               <Field
                 name="vaccineLabel"
                 label="Vaccine"
@@ -162,7 +166,7 @@ export const ImmunisationForm = React.memo(
                 onChange={e => setVaccineLabel(e.target.value)}
                 required
               />
-            </div>
+            </FullWidthCol>
             {administeredOptions.length > 0 && (
               <div>
                 <OuterLabelFieldWrapper label="Administered schedule" />
@@ -172,7 +176,7 @@ export const ImmunisationForm = React.memo(
               </div>
             )}
             {scheduleOptions.length > 0 && (
-              <div style={{ gridColumn: '1/-1' }}>
+              <FullWidthCol>
                 <Field
                   name="scheduledVaccineId"
                   label="Available schedule"
@@ -181,7 +185,7 @@ export const ImmunisationForm = React.memo(
                   options={scheduleOptions}
                   required
                 />
-              </div>
+              </FullWidthCol>
             )}
             <Field name="date" label="Date" component={DateField} required />
             <Field

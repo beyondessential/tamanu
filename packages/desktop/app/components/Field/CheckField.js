@@ -20,9 +20,9 @@ const CheckControl = React.memo(({ value, ...props }) => (
 const ControlLabel = styled(FormControlLabel)`
   align-items: flex-start;
 
-  > .MuiTypography-root {
-    color: ${props => props.theme.palette.text.secondary};
-    font-size: 14px;
+  i,
+  .MuiTypography-root {
+    font-size: 16px;
     line-height: 18px;
   }
 `;
