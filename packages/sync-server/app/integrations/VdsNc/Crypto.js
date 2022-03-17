@@ -28,6 +28,7 @@ import { ICAO_DOCUMENT_TYPES, X502_OIDS } from 'shared/constants';
 import { depem, pem } from 'shared/utils';
 import moment from 'moment';
 import { vdsConfig } from '.';
+import { getLocalisation } from '../../localisation';
 
 const webcrypto = new Crypto();
 setEngine(
@@ -57,12 +58,14 @@ export async function newKeypairAndCsr(vdsConf = vdsConfig()) {
     csr: { subject },
   } = vdsConf;
 
+  const countryCode = (await getLocalisation()).country['alpha-2'];
+
   const csr = new CertificationRequest();
   csr.version = 0;
   csr.subject.typesAndValues.push(
     new AttributeTypeAndValue({
       type: X502_OIDS.COUNTRY_NAME,
-      value: new PrintableString({ value: subject.countryCode2 }),
+      value: new PrintableString({ value: countryCode }),
     }),
   );
   csr.subject.typesAndValues.push(

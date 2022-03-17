@@ -2,7 +2,8 @@ import config from 'config';
 import { ScheduledTask } from 'shared/tasks';
 import { log } from 'shared/services/logging';
 import { Op } from 'sequelize';
-import { newKeypairAndCsr, vdsConfig } from '../integrations/VdsNc';
+import { newKeypairAndCsr } from '../integrations/VdsNc';
+import { getLocalisation } from '../localisation';
 
 export class VdsNcSignerRenewalChecker extends ScheduledTask {
   constructor(context) {
@@ -18,7 +19,6 @@ export class VdsNcSignerRenewalChecker extends ScheduledTask {
 
   async run() {
     const { VdsNcSigner } = this.context.store.models;
-    const vdsConf = vdsConfig();
 
     const pending = await VdsNcSigner.findAll({
       where: {
@@ -39,7 +39,7 @@ export class VdsNcSignerRenewalChecker extends ScheduledTask {
     const signer = await VdsNcSigner.findActive();
 
     let beyondThreshold = false;
-    
+
     // If this is the first signer
     if (!signer) {
       beyondThreshold = true;
@@ -48,12 +48,12 @@ export class VdsNcSignerRenewalChecker extends ScheduledTask {
       if (signer.validityPeriodEnd <= new Date()) {
         beyondThreshold = true;
       }
-      
+
       // If we're really too late somehow
       if (signer.workingPeriodEnd <= new Date()) {
         beyondThreshold = true;
       }
-      
+
       // Buffer before PKUP ends
       const daysUntilWorkingEnd = (signer.workingPeriodEnd - new Date()) / (1000 * 60 * 60 * 24);
       if (daysUntilWorkingEnd >= 16) {
@@ -74,7 +74,7 @@ export class VdsNcSignerRenewalChecker extends ScheduledTask {
         publicKey: Buffer.from(publicKey),
         privateKey: Buffer.from(privateKey),
         request,
-        countryCode: vdsConf.sign.countryCode3,
+        countryCode: (await getLocalisation()).country['alpha-3'],
       });
       log.info(`Created new signer (CSR): ${newSigner.id}`);
     }

@@ -14,6 +14,7 @@ import crypto from 'crypto';
 import { expect } from 'chai';
 import { canonicalize } from 'json-canonicalize';
 import { base64UrlDecode } from 'shared/utils/encodings';
+import { getLocalisation } from 'sync-server/app/localisation';
 
 describe('VDS-NC: Document cryptography', () => {
   let ctx;
@@ -25,7 +26,6 @@ describe('VDS-NC: Document cryptography', () => {
       keySecret: 'secret',
       csr: {
         subject: {
-          countryCode2: 'UT',
           signerIdentifier: 'TA',
         },
       },
@@ -36,7 +36,7 @@ describe('VDS-NC: Document cryptography', () => {
       publicKey: Buffer.from(publicKey),
       privateKey: Buffer.from(privateKey),
       request,
-      countryCode: 'UTO',
+      countryCode: (await getLocalisation()).country['alpha-3'],
     });
     const signerCert = await testCSCA.signCSR(request);
     const signedCert = await loadCertificateIntoSigner(signerCert);

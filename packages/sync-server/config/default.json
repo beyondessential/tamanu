@@ -144,13 +144,9 @@
       "keySecret": null,
       "csr": {
         "subject": {
-          "countryCode2": null, // ICAO 2-letter country code
           "signerIdentifier": "TA" // max 2 letters, ref 9303-13 §2.2.1(a)
         },
         "email": null // email address for CSCA signing contact
-      },
-      "sign": {
-        "countryCode3": null, // ICAO 3-letter country code
       }
     }
   },

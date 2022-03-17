@@ -38,7 +38,6 @@ describe('VDS-NC: Signer cryptography', () => {
     const { publicKey, privateKey } = await newKeypairAndCsr({
       keySecret: 'secret',
       csr: { subject: {
-        countryCode2: 'UT',
         signerIdentifier: 'TA',
       } },
     });
@@ -168,7 +167,6 @@ describe('VDS-NC: Signer cryptography', () => {
     const { publicKey, request } = await newKeypairAndCsr({
       keySecret: 'secret',
       csr: { subject: {
-        countryCode2: 'UT',
         signerIdentifier: 'TA',
       } },
     });
@@ -263,7 +261,6 @@ describe('VDS-NC: Signer cryptography', () => {
     const { publicKey, privateKey, request } = await newKeypairAndCsr({
       keySecret: 'secret',
       csr: { subject: {
-        countryCode2: 'UT',
         signerIdentifier: 'TA',
       } },
     });
