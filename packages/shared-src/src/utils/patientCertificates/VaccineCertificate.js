@@ -10,8 +10,8 @@ import { getDisplayDate } from './getDisplayDate';
 
 const columns = [
   {
-    key: 'vaccineType',
-    title: 'Vaccine type',
+    key: 'vaccine',
+    title: 'Vaccine',
     customStyles: { minWidth: 30 },
     accessor: ({ scheduledVaccine, createdAt, updatedAt }) => {
       const label = scheduledVaccine?.label;
@@ -20,8 +20,8 @@ const columns = [
     },
   },
   {
-    key: 'vaccineGiven',
-    title: 'Vaccine given',
+    key: 'vaccineBrand',
+    title: 'Vaccine brand',
     customStyles: { minWidth: 30 },
     accessor: ({ scheduledVaccine }) => scheduledVaccine?.vaccine?.name,
   },
@@ -40,11 +40,6 @@ const columns = [
     title: 'Health facility',
     customStyles: { minWidth: 30 },
     accessor: ({ encounter }) => encounter?.location?.Facility?.name || '',
-  },
-  {
-    key: 'givenBy',
-    title: 'Given by',
-    accessor: ({ encounter }) => encounter?.examiner?.displayName || '',
   },
   {
     key: 'date',
