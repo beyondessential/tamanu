@@ -31,9 +31,9 @@ async function loadIcaoSigner({ signerCertificate }) {
 
   const pendingSigner = pending[0];
   await pendingSigner.update(signerData);
-  const notBeforeLog = moment(signerData.notBefore).format('YYYY-MM-DD');
-  const notAfterLog = moment(signerData.notAfter).format('YYYY-MM-DD');
-  log.info(`Loaded ICAO Signer (${notBeforeLog} - ${notAfterLog})`);
+  const start = moment(signerData.workingPeriodStart).format('YYYY-MM-DD');
+  const end = moment(signerData.workingPeriodEnd).format('YYYY-MM-DD');
+  log.info(`Loaded ICAO Signer (${start} - ${end})`);
 
   process.exit(0);
 }

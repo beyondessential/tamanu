@@ -123,9 +123,27 @@ export function loadCertificateIntoSigner(certificate) {
   const asn = fromBER(fakeABtoRealAB(binCert));
   if (asn.result.error !== '') throw new Error(asn.result.error);
   const cert = new Certificate({ schema: asn.result });
+
+  const validityPeriodStart = cert.notBefore.value;
+  const validityPeriodEnd = cert.notAfter.value;
+
+  // The certificate doesn't include the PKUP, so we assume it from which
+  // integration is enabled. In future it would be good to get this directly
+  // from issuance API or some other way.
+  const workingPeriodStart = validityPeriodStart;
+  let workingPeriodEnd = validityPeriodEnd;
+  if (config.integrations.vdsNc?.enabled) {
+    workingPeriodEnd = moment(workingPeriodStart).add(96, 'day').toDate();
+  }
+  if (config.integrations.euDcc?.enabled) {
+    workingPeriodEnd = moment(workingPeriodStart).add(365, 'day').toDate();
+  }
+
   return {
-    notAfter: cert.notAfter.value,
-    notBefore: cert.notBefore.value,
+    workingPeriodStart,
+    workingPeriodEnd,
+    validityPeriodStart,
+    validityPeriodEnd,
     certificate: txtCert,
   };
 }
