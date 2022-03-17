@@ -133,10 +133,14 @@ export function loadCertificateIntoSigner(certificate) {
   const workingPeriodStart = validityPeriodStart;
   let workingPeriodEnd = validityPeriodEnd;
   if (config.integrations.vdsNc?.enabled) {
-    workingPeriodEnd = moment(workingPeriodStart).add(96, 'day').toDate();
+    workingPeriodEnd = moment(workingPeriodStart)
+      .add(96, 'day')
+      .toDate();
   }
   if (config.integrations.euDcc?.enabled) {
-    workingPeriodEnd = moment(workingPeriodStart).add(365, 'day').toDate();
+    workingPeriodEnd = moment(workingPeriodStart)
+      .add(365, 'day')
+      .toDate();
   }
 
   return {

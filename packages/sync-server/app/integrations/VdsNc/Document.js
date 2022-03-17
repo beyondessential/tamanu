@@ -7,6 +7,7 @@ import config from 'config';
 
 export class VdsNcDocument {
   config = config.integrations.signer;
+
   models = { Signer };
 
   isSigned = false;
