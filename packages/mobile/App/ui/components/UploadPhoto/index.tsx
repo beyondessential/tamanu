@@ -4,11 +4,7 @@ import RNFS from 'react-native-fs';
 import { Popup } from 'popup-ui';
 import { useBackend } from '~/ui/hooks';
 import { StyledView, StyledImage } from '/styled/common';
-import {
-  getImageFromPhotoLibrary,
-  resizeImage,
-  imageToBase64URI
-} from '/helpers/image';
+import { getImageFromPhotoLibrary, resizeImage, imageToBase64URI } from '/helpers/image';
 import { deleteFileInDocuments } from '/helpers/file';
 import { BaseInputProps } from '../../interfaces/BaseInputProps';
 import { Button } from '~/ui/components/Button';
@@ -16,7 +12,7 @@ import { Button } from '~/ui/components/Button';
 const IMAGE_RESIZE_OPTIONS = {
   maxWidth: 1920,
   maxHeight: 1920,
-  quality: 20
+  quality: 20,
 };
 
 export interface PhotoProps extends BaseInputProps {
@@ -39,32 +35,22 @@ interface UploadPhotoComponent {
 const IMAGE_WIDTH = Dimensions.get('window').width * 0.6;
 
 const ImageActionButton = ({ onPress, label, marginTop }) => (
-  <Button
-    buttonText={label}
-    onPress={onPress}
-    margin={5}
-    marginTop={marginTop}
-  />
+  <Button buttonText={label} onPress={onPress} margin={5} marginTop={marginTop} />
 );
 
 const UploadedImage = ({ imageData }: UploadedImageProps) => (
-  <StyledView justifyContent='center' alignItems='center'>
+  <StyledView justifyContent="center" alignItems="center">
     <StyledImage
-      width='100%'
+      width="100%"
       height={IMAGE_WIDTH}
       source={{ uri: imageToBase64URI(imageData) }}
-      resizeMode='cover'
+      resizeMode="cover"
     />
   </StyledView>
 );
 
 const LoadingPlaceholder = () => (
-  <StyledView
-    justifyContent='center'
-    alignItems='center'
-    width='100%'
-    height={IMAGE_WIDTH}
-  >
+  <StyledView justifyContent="center" alignItems="center" width="100%" height={IMAGE_WIDTH}>
     <Text>Loading image...</Text>
   </StyledView>
 );
@@ -74,26 +60,20 @@ const UploadPhotoComponent = ({
   onPressRemovePhoto,
   imageData,
   errorMessage,
-  loading
+  loading,
 }: UploadPhotoComponent) => (
   <StyledView marginTop={5}>
     {loading && <LoadingPlaceholder />}
     {imageData && <UploadedImage imageData={imageData} />}
-    {!imageData && errorMessage && (
-      <Text>{`Error loading image: ${errorMessage}`}</Text>
-    )}
-    <StyledView justifyContent='space-between' marginLeft={-10}>
+    {!imageData && errorMessage && <Text>{`Error loading image: ${errorMessage}`}</Text>}
+    <StyledView justifyContent="space-between" marginLeft={-10}>
       <ImageActionButton
         onPress={onPressChoosePhoto}
         label={!imageData ? 'Add photo' : 'Change photo'}
         marginTop={5}
       />
       {imageData && (
-        <ImageActionButton
-          onPress={onPressRemovePhoto}
-          label='Remove photo'
-          marginTop={0}
-        />
+        <ImageActionButton onPress={onPressRemovePhoto} label="Remove photo" marginTop={0} />
       )}
     </StyledView>
   </StyledView>
@@ -149,7 +129,7 @@ export const UploadPhoto = React.memo(({ onChange, value }: PhotoProps) => {
     const { path, size } = await resizeImage(imageToBase64URI(image.data), {
       outputPath: RNFS.DocumentDirectoryPath,
       rotation: 0,
-      ...IMAGE_RESIZE_OPTIONS
+      ...IMAGE_RESIZE_OPTIONS,
     });
 
     // Make sure the sync server has enough space to store a new attachment
@@ -168,7 +148,7 @@ export const UploadPhoto = React.memo(({ onChange, value }: PhotoProps) => {
     const { id } = await models.Attachment.createAndSaveOne({
       filePath: path,
       size,
-      type: 'image/jpeg'
+      type: 'image/jpeg',
     });
 
     onChange(id);
