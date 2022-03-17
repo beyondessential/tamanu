@@ -6,7 +6,7 @@ import { OutpatientDischarger } from './OutpatientDischarger';
 import { ReportRequestProcessor } from './ReportRequestProcessor';
 import { ReportRequestScheduler } from './ReportRequestScheduler';
 import { VRSActionRetrier } from './VRSActionRetrier';
-import { VdsNcSignerExpiryChecker } from './VdsNcSignerExpiryChecker';
+import { VdsNcSignerEndOfWorkingPeriodChecker } from './VdsNcSignerEndOfWorkingPeriodChecker';
 import { VdsNcSignerRenewalChecker } from './VdsNcSignerRenewalChecker';
 import { VdsNcSignerRenewalSender } from './VdsNcSignerRenewalSender';
 import { CertificateNotificationProcessor } from './CertificateNotificationProcessor';
@@ -22,7 +22,11 @@ export async function startScheduledTasks(context) {
     taskClasses.push(VRSActionRetrier);
   }
   if (vdsConfig().enabled) {
-    taskClasses.push(VdsNcSignerExpiryChecker, VdsNcSignerRenewalChecker, VdsNcSignerRenewalSender);
+    taskClasses.push(
+      VdsNcSignerEndOfWorkingPeriodChecker,
+      VdsNcSignerRenewalChecker,
+      VdsNcSignerRenewalSender,
+    );
   }
 
   const reportSchedulers = await getReportSchedulers(context);

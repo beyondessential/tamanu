@@ -112,7 +112,7 @@
         // needs to happen after the Renewal Checker, and regularly thereafter as a retry mechanism
         "schedule": "30 * * * *"
       },
-      "signerExpiryChecker": {
+      "signerEndOfWorkingPeriodChecker": {
         "schedule": "0 1 * * *"
       }
     }
