@@ -15,6 +15,7 @@
 
 - Tweaked localisation to prepare for loading it from the db
 - Scheduled task `VdsNcSignerExpiryChecker` renamed to `VdsNcSignerEndOfWorkingPeriodChecker`, `schedules` config key has changed in consequence.
+- `integrations.vds.renew` config is gone
 
 ### Bug fixes 🐛
 

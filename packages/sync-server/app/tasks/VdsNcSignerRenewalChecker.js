@@ -19,6 +19,23 @@ export class VdsNcSignerRenewalChecker extends ScheduledTask {
   async run() {
     const { VdsNcSigner } = this.context.store.models;
     const vdsConf = vdsConfig();
+
+    const pending = await VdsNcSigner.findAll({
+      where: {
+        certificate: { [Op.is]: null },
+        privateKey: { [Op.not]: null },
+      },
+    });
+
+    if (pending.length > 0) {
+      log.info(
+        `There is at least one pending signer CSR: ${pending
+          .map(s => s.id)
+          .join(', ')}, skipping renewal`,
+      );
+      return;
+    }
+
     const signer = await VdsNcSigner.findActive();
 
     let beyondThreshold = false;
@@ -27,30 +44,19 @@ export class VdsNcSignerRenewalChecker extends ScheduledTask {
     if (!signer) {
       beyondThreshold = true;
     } else {
-      // Buffer before expiration
-      if (vdsConf.renew.daysBeforeExpiry) {
-        const daysUntilExpiry = (signer.notAfter - new Date()) / (1000 * 60 * 60 * 24);
-        if (daysUntilExpiry >= vdsConf.renew.daysBeforeExpiry) {
-          beyondThreshold = true;
-        }
+      // If we've let it lapse entirely
+      if (signer.validityPeriodEnd <= new Date()) {
+        beyondThreshold = true;
       }
-
-      // Signature issuance limit (with buffer)
-      if (vdsConf.renew.maxSignatures) {
-        let maxSigs;
-        if (vdsConf.renew.softMaxSignatures) {
-          maxSigs = Math.min(vdsConf.renew.maxSignatures, vdsConf.renew.softMaxSignatures);
-        } else {
-          maxSigs = Math.floor(vdsConf.renew.maxSignatures * 0.9);
-        }
-
-        if (signer.signaturesIssued >= maxSigs) {
-          beyondThreshold = true;
-        }
-      }
-
+      
       // If we're really too late somehow
-      if (signer.notAfter <= new Date()) {
+      if (signer.workingPeriodEnd <= new Date()) {
+        beyondThreshold = true;
+      }
+      
+      // Buffer before PKUP ends
+      const daysUntilWorkingEnd = (signer.workingPeriodEnd - new Date()) / (1000 * 60 * 60 * 24);
+      if (daysUntilWorkingEnd >= 16) {
         beyondThreshold = true;
       }
     }
@@ -60,22 +66,6 @@ export class VdsNcSignerRenewalChecker extends ScheduledTask {
         log.info(`Signer ${signer.id} is beyond renewal threshold`);
       } else {
         log.info(`Generating CSR for first Signer`);
-      }
-
-      const pending = await VdsNcSigner.findAll({
-        where: {
-          certificate: { [Op.is]: null },
-          privateKey: { [Op.not]: null },
-        },
-      });
-
-      if (pending.length > 0) {
-        log.info(
-          `There is at least one pending signer CSR: ${pending
-            .map(s => s.id)
-            .join(', ')}, skipping renewal`,
-        );
-        return;
       }
 
       log.info('Generating new signer CSR');

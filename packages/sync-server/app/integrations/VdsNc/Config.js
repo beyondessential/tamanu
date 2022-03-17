@@ -58,31 +58,6 @@ const SCHEMA = yup
       })
       .noUnknown()
       .required(),
-
-    renew: yup
-      .object()
-      .shape({
-        daysBeforeExpiry: yup
-          .number()
-          .integer()
-          .min(1)
-          .max(32)
-          .default(16),
-        maxSignatures: yup
-          .number()
-          .integer()
-          .min(1)
-          .nullable(true)
-          .default(null),
-        softMaxSignatures: yup
-          .number()
-          .integer()
-          .min(1)
-          .nullable(true)
-          .default(null),
-      })
-      .noUnknown()
-      .required(),
   })
   .noUnknown();
 
@@ -95,20 +70,5 @@ const SCHEMA = yup
  */
 export function vdsConfig(conf = config.integrations.vds) {
   if (!conf.enabled) return { enabled: false };
-
-  const valid = SCHEMA.validateSync(conf);
-
-  if (valid.renew.softMaxSignatures) {
-    if (valid.renew.softMaxSignatures > valid.renew.maxSignatures) {
-      throw new Error(
-        `The softMaxSignatures value (${valid.renew.softMaxSignatures}) cannot be greater than the maxSignatures value (${valid.renew.maxSignatures}).`,
-      );
-    }
-  }
-
-  if (valid.renew.maxSignatures && !valid.renew.softMaxSignatures) {
-    valid.renew.softMaxSignatures = Math.ceil(valid.renew.maxSignatures * 0.9);
-  }
-
-  return valid;
+  return SCHEMA.validateSync(conf);
 }
