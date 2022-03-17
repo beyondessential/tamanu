@@ -6,27 +6,25 @@ import { get } from 'lodash';
 import { ScheduledTask } from 'shared/tasks';
 import { log } from 'shared/services/logging';
 
-import { vdsConfig } from '../integrations/VdsNc';
 import { getLocalisation } from '../localisation';
 
-export class VdsNcSignerRenewalSender extends ScheduledTask {
+export class SignerRenewalSender extends ScheduledTask {
   constructor(context) {
-    const conf = config.schedules.vds.signerRenewalSender;
+    const conf = config.schedules.signerRenewalSender;
     super(conf.schedule, log);
     this.config = conf;
     this.context = context;
   }
 
   getName() {
-    return 'VdsNcSignerRenewalSender';
+    return 'SignerRenewalSender';
   }
 
   async run() {
     const { emailService } = this.context;
-    const { VdsNcSigner } = this.context.store.models;
-    const vdsConf = vdsConfig();
+    const { Signer } = this.context.store.models;
 
-    const pending = await VdsNcSigner.findAll({
+    const pending = await Signer.findAll({
       where: {
         requestSentAt: { [Op.is]: null },
         certificate: { [Op.is]: null },
@@ -49,14 +47,14 @@ export class VdsNcSignerRenewalSender extends ScheduledTask {
 
     const localisation = await getLocalisation();
 
-    log.info(`Emailing ${pending.length} CSR(s) to ${vdsConf.csr.email}`);
+    log.info(`Emailing ${pending.length} CSR(s) to ${config.integrations.signer.sendSignerRequestTo}`);
     for (const signer of pending) {
       try {
         await emailService.sendEmail({
-          to: vdsConf.csr.email,
+          to: config.integrations.signer.sendSignerRequestTo,
           from: config.mailgun.from,
-          subject: get(localisation, 'vdsRenewalEmail.subject'),
-          content: get(localisation, 'vdsRenewalEmail.body'),
+          subject: get(localisation, 'signerRenewalEmail.subject'),
+          content: get(localisation, 'signerRenewalEmail.body'),
           attachment: {
             filename: `Tamanu_${moment(signer.createdAt).format('YYYY-MM-DD')}.csr`,
             data: Buffer.from(signer.request),

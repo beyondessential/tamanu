@@ -104,17 +104,15 @@
       "schedule": "*/30 * * * * *",
       "limit": 10
     },
-    "vds": {
-      "signerRenewalChecker": {
-        "schedule": "0 0 * * *"
-      },
-      "signerRenewalSender": {
-        // needs to happen after the Renewal Checker, and regularly thereafter as a retry mechanism
-        "schedule": "30 * * * *"
-      },
-      "signerExpiryChecker": {
-        "schedule": "0 1 * * *"
-      }
+    "signerRenewalChecker": {
+      "schedule": "0 0 * * *"
+    },
+    "signerRenewalSender": {
+      // needs to happen after the Renewal Checker, and regularly thereafter as a retry mechanism
+      "schedule": "30 * * * *"
+    },
+    "signerWorkingPeriodChecker": {
+      "schedule": "0 1 * * *"
     }
   },
   "integrations": {
@@ -135,28 +133,23 @@
       "enabled": false,
       "requireClientHeaders": true
     },
-    "vds": {
+    "vdsNc": {
+      "enabled": false
+    },
+    "signer": {
       "enabled": false,
-      // Encryption key for ICAO DSC key material (stored in DB).
-      // This must be unique per country/installation.
+
+      // Encryption key for ICAO Signer key material (stored in DB).
+      // This must be unique per country/installation AND NEVER CHANGED.
       // It must be at least 32 bytes of random data in Base64.
       // $ openssl rand -base64 32
       "keySecret": null,
-      "csr": {
-        "subject": {
-          "countryCode2": null, // ICAO 2-letter country code
-          "signerIdentifier": "TA" // max 2 letters, ref 9303-13 §2.2.1(a)
-        },
-        "email": null // email address for CSCA signing contact
-      },
-      "sign": {
-        "countryCode3": null, // ICAO 3-letter country code
-      },
-      "renew": {
-        // "daysBeforeExpiry": 16, // max 32
-        // "maxSignatures": null, // null means no limit
-        // "softMaxSignatures": null // defaults to 90% of maxSignatures
-      }
+
+      // For VDS-NC: exactly 2 letters, must be unique in country, ref 9303-13 §2.2.1(a)
+      "commonName": "TA",
+
+      // Email address for CSCA signing contact
+      "sendRequestTo": "admin@tamanu.io"
     }
   },
   // on the sync-server, don't read these values from config!
@@ -406,7 +399,7 @@
           "title": "TAMANU MINISTRY OF HEALTH & MEDICAL SERVICES",
           "subTitle": "PO Box 12345, Melbourne, Australia"
         },
-        "vdsRenewalEmail": {
+        "signerRenewalEmail": {
           "subject": "Tamanu ICAO Certificate Signing Request",
           "body": "Please sign the following certificate signing request (CSR) with the Country Signing Certificate Authority (CSCA), and return it to the Tamanu team or Tamanu deployment administration team."
         },

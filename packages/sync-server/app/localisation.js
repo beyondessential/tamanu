@@ -90,7 +90,7 @@ const templatesSchema = yup
       .required()
       .noUnknown(),
 
-    vdsRenewalEmail: yup
+    signerRenewalEmail: yup
       .object()
       .shape({
         subject: yup

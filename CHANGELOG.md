@@ -6,6 +6,8 @@
 
 - Consider adding `fiji-aspen-encounter-summary-line-list` to disabledReports
 - A server with invalid localisation will now exit: fix the localisation (preferred), or set `localisation.allowInvalidLocalisation` to `true` (if there's a good reason why it's invalid)
+- Add a `localisation.data.country` section to the config with country name and ISO 3166 codes
+- VDS Signer integration config structure has changed, refer to default.json
 
 ### Features ⭐
 
@@ -14,6 +16,7 @@
 ### Tweaks ⚖️
 
 - Tweaked localisation to prepare for loading it from the db
+- "VDS" scheduled tasks were renamed to "Signer", `schedules` config keys have changed in consequence
 
 ### Bug fixes 🐛
 

@@ -14,6 +14,7 @@ import crypto from 'crypto';
 import { expect } from 'chai';
 import { canonicalize } from 'json-canonicalize';
 import { base64UrlDecode } from 'shared/utils/encodings';
+import { getLocalisation } from 'sync-server/app/localisation';
 
 describe('VDS-NC: Document cryptography', () => {
   let ctx;
@@ -21,22 +22,14 @@ describe('VDS-NC: Document cryptography', () => {
     ctx = await createTestContext();
     const testCSCA = await TestCSCA.generate();
 
-    const { publicKey, privateKey, request } = await newKeypairAndCsr({
-      keySecret: 'secret',
-      csr: {
-        subject: {
-          countryCode2: 'UT',
-          signerIdentifier: 'TA',
-        },
-      },
-    });
+    const { publicKey, privateKey, request } = await newKeypairAndCsr();
 
-    const { VdsNcSigner } = ctx.store.models;
-    const signer = await VdsNcSigner.create({
+    const { Signer } = ctx.store.models;
+    const signer = await Signer.create({
       publicKey: Buffer.from(publicKey),
       privateKey: Buffer.from(privateKey),
       request,
-      countryCode: 'UTO',
+      countryCode: (await getLocalisation()).country['alpha-3'],
     });
     const signerCert = await testCSCA.signCSR(request);
     const signedCert = await loadCertificateIntoSigner(signerCert);
@@ -46,10 +39,10 @@ describe('VDS-NC: Document cryptography', () => {
   afterAll(() => ctx.close());
 
   it('can sign a test document', async () => {
-    const { VdsNcSigner } = ctx.store.models;
+    const { Signer } = ctx.store.models;
 
     const uniqueProofId = 'UNIQTESTID';
-    const signer = await VdsNcSigner.findActive();
+    const signer = await Signer.findActive();
 
     // Pre-check
     expect(signer?.isActive()).to.be.true;
@@ -61,7 +54,6 @@ describe('VDS-NC: Document cryptography', () => {
       { test: 'data' },
       uniqueProofId,
     );
-    document.config = { keySecret: 'secret' };
     document.models = ctx.store.models;
 
     await document.sign();
@@ -101,7 +93,7 @@ describe('VDS-NC: Document cryptography', () => {
 
   it('can sign a vaccination document', async () => {
     const {
-      VdsNcSigner,
+      Signer,
       AdministeredVaccine,
       Encounter,
       Patient,
@@ -162,7 +154,7 @@ describe('VDS-NC: Document cryptography', () => {
     // This file specifically tests ICAO format, so specifically generate that UVCI
     // Instead of reading format from localisation
     const uniqueProofId = generateICAOFormatUVCI(latestVacc.id);
-    const signer = await VdsNcSigner.findActive();
+    const signer = await Signer.findActive();
 
     // Pre-check
     expect(signer?.isActive()).to.be.true;
@@ -174,7 +166,6 @@ describe('VDS-NC: Document cryptography', () => {
       { vaxx: 'data' },
       uniqueProofId,
     );
-    document.config = { keySecret: 'secret' };
     document.models = ctx.store.models;
 
     await document.sign();
