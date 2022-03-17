@@ -2,6 +2,7 @@ import React, { useMemo, useEffect, useState } from 'react';
 import styled from 'styled-components';
 import FormControlLabel from '@material-ui/core/FormControlLabel';
 import Checkbox from '@material-ui/core/Checkbox';
+import * as yup from 'yup';
 
 import { INJECTION_SITE_OPTIONS } from 'shared/constants';
 import { OuterLabelFieldWrapper } from '../components/Field/OuterLabelFieldWrapper';
@@ -132,6 +133,12 @@ export const ImmunisationForm = React.memo(
         initialValues={{
           date: new Date(),
         }}
+        validationSchema={yup.object().shape({
+          consent: yup
+            .boolean()
+            .oneOf([true])
+            .required(),
+        })}
         render={({ submitForm }) => (
           <FormGrid>
             <FullWidthCol>
