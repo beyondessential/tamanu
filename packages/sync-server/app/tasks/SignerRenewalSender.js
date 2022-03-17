@@ -8,16 +8,16 @@ import { log } from 'shared/services/logging';
 
 import { getLocalisation } from '../localisation';
 
-export class VdsNcSignerRenewalSender extends ScheduledTask {
+export class SignerRenewalSender extends ScheduledTask {
   constructor(context) {
-    const conf = config.schedules.vds.signerRenewalSender;
+    const conf = config.schedules.signerRenewalSender;
     super(conf.schedule, log);
     this.config = conf;
     this.context = context;
   }
 
   getName() {
-    return 'VdsNcSignerRenewalSender';
+    return 'SignerRenewalSender';
   }
 
   async run() {
@@ -47,11 +47,11 @@ export class VdsNcSignerRenewalSender extends ScheduledTask {
 
     const localisation = await getLocalisation();
 
-    log.info(`Emailing ${pending.length} CSR(s) to ${config.integrations.vds.sendSignerRequestTo}`);
+    log.info(`Emailing ${pending.length} CSR(s) to ${config.integrations.signer.sendSignerRequestTo}`);
     for (const signer of pending) {
       try {
         await emailService.sendEmail({
-          to: config.integrations.vds.sendSignerRequestTo,
+          to: config.integrations.signer.sendSignerRequestTo,
           from: config.mailgun.from,
           subject: get(localisation, 'signerRenewalEmail.subject'),
           content: get(localisation, 'signerRenewalEmail.body'),

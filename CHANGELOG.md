@@ -16,7 +16,7 @@
 ### Tweaks ⚖️
 
 - Tweaked localisation to prepare for loading it from the db
-- Scheduled task `VdsNcSignerExpiryChecker` renamed to `VdsNcSignerEndOfWorkingPeriodChecker`, `schedules` config key has changed in consequence.
+- "VDS" scheduled tasks were renamed to "Signer", `schedules` config keys have changed in consequence
 
 ### Bug fixes 🐛
 

@@ -104,17 +104,15 @@
       "schedule": "*/30 * * * * *",
       "limit": 10
     },
-    "vds": {
-      "signerRenewalChecker": {
-        "schedule": "0 0 * * *"
-      },
-      "signerRenewalSender": {
-        // needs to happen after the Renewal Checker, and regularly thereafter as a retry mechanism
-        "schedule": "30 * * * *"
-      },
-      "signerEndOfWorkingPeriodChecker": {
-        "schedule": "0 1 * * *"
-      }
+    "signerRenewalChecker": {
+      "schedule": "0 0 * * *"
+    },
+    "signerRenewalSender": {
+      // needs to happen after the Renewal Checker, and regularly thereafter as a retry mechanism
+      "schedule": "30 * * * *"
+    },
+    "signerWorkingPeriodChecker": {
+      "schedule": "0 1 * * *"
     }
   },
   "integrations": {

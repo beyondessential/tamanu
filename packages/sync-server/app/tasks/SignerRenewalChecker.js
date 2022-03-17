@@ -5,16 +5,16 @@ import { Op } from 'sequelize';
 import { newKeypairAndCsr } from '../integrations/VdsNc';
 import { getLocalisation } from '../localisation';
 
-export class VdsNcSignerRenewalChecker extends ScheduledTask {
+export class SignerRenewalChecker extends ScheduledTask {
   constructor(context) {
-    const conf = config.schedules.vds.signerRenewalChecker;
+    const conf = config.schedules.signerRenewalChecker;
     super(conf.schedule, log);
     this.config = conf;
     this.context = context;
   }
 
   getName() {
-    return 'VdsNcSignerRenewalChecker';
+    return 'SignerRenewalChecker';
   }
 
   async run() {

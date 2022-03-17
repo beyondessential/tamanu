@@ -3,16 +3,16 @@ import { ScheduledTask } from 'shared/tasks';
 import { log } from 'shared/services/logging';
 import { Op, Sequelize } from 'sequelize';
 
-export class VdsNcSignerEndOfWorkingPeriodChecker extends ScheduledTask {
+export class SignerWorkingPeriodChecker extends ScheduledTask {
   constructor(context) {
-    const conf = config.schedules.vds.signerEndOfWorkingPeriodChecker;
+    const conf = config.schedules.signerWorkingPeriodChecker;
     super(conf.schedule, log);
     this.config = conf;
     this.context = context;
   }
 
   getName() {
-    return 'VdsNcSignerEndOfWorkingPeriodChecker';
+    return 'SignerWorkingPeriodChecker';
   }
 
   async run() {

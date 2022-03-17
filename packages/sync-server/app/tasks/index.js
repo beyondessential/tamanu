@@ -5,9 +5,9 @@ import { OutpatientDischarger } from './OutpatientDischarger';
 import { ReportRequestProcessor } from './ReportRequestProcessor';
 import { ReportRequestScheduler } from './ReportRequestScheduler';
 import { VRSActionRetrier } from './VRSActionRetrier';
-import { VdsNcSignerEndOfWorkingPeriodChecker } from './VdsNcSignerEndOfWorkingPeriodChecker';
-import { VdsNcSignerRenewalChecker } from './VdsNcSignerRenewalChecker';
-import { VdsNcSignerRenewalSender } from './VdsNcSignerRenewalSender';
+import { SignerWorkingPeriodChecker } from './SignerWorkingPeriodChecker';
+import { SignerRenewalChecker } from './SignerRenewalChecker';
+import { SignerRenewalSender } from './SignerRenewalSender';
 import { CertificateNotificationProcessor } from './CertificateNotificationProcessor';
 
 export async function startScheduledTasks(context) {
@@ -22,9 +22,9 @@ export async function startScheduledTasks(context) {
   }
   if (config.integrations.vds.enabled) {
     taskClasses.push(
-      VdsNcSignerEndOfWorkingPeriodChecker,
-      VdsNcSignerRenewalChecker,
-      VdsNcSignerRenewalSender,
+      SignerWorkingPeriodChecker,
+      SignerRenewalChecker,
+      SignerRenewalSender,
     );
   }
 
