@@ -143,14 +143,8 @@ const templatesSchema = yup
 
     vaccineCertificateFooter: yup
       .object({
-        emailAddress: yup
-          .string()
-          .trim()
-          .required(),
-        contactNumber: yup
-          .string()
-          .trim()
-          .required(),
+        emailAddress: yup.string().trim(),
+        contactNumber: yup.string().trim(),
       })
       .required()
       .noUnknown(),
