@@ -20,13 +20,13 @@ const SCHEMA = yup
         value => Buffer.from(value, 'base64').length >= 32,
       ),
 
-    signerIdentifier: yup
+    commonName: yup
       .string()
       .length(2)
       .uppercase()
       .required(),
 
-    sendSignerRequestTo: yup
+    sendRequestTo: yup
       .string()
       .email()
       .required('CSR emails are the only supported renewal methods at the moment'),
@@ -39,5 +39,5 @@ const SCHEMA = yup
  * @throws {Error} If the config is invalid.
  */
 export function checkVdsConfig() {
-  SCHEMA.validateSync(config.integrations.vds);
+  SCHEMA.validateSync(config.integrations.signer);
 }

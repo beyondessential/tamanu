@@ -18,6 +18,7 @@ import { X502_OIDS } from 'shared/constants';
 import { depem } from 'shared/utils';
 import { expect } from 'chai';
 import crypto from 'crypto';
+import config from 'config';
 
 const webcrypto = new Crypto();
 setEngine(
@@ -35,10 +36,7 @@ describe('VDS-NC: Signer cryptography', () => {
   afterAll(() => ctx.close());
 
   it('creates a well-formed keypair', async () => {
-    const { publicKey, privateKey } = await newKeypairAndCsr({
-      keySecret: 'secret',
-      signerIdentifier: 'TA',
-    });
+    const { publicKey, privateKey } = await newKeypairAndCsr();
 
     // publicKey: Walk through the expected ASN.1 structure
     //
@@ -128,7 +126,7 @@ describe('VDS-NC: Signer cryptography', () => {
       key: Buffer.from(privateKey),
       format: 'der',
       type: 'pkcs8',
-      passphrase: Buffer.from('secret', 'base64'),
+      passphrase: Buffer.from(config.integrations.signer.keySecret, 'base64'),
     });
 
     // realKey: Walk through the expected ASN.1 structure
@@ -162,10 +160,7 @@ describe('VDS-NC: Signer cryptography', () => {
   });
 
   it('creates a well-formed CSR', async () => {
-    const { publicKey, request } = await newKeypairAndCsr({
-      keySecret: 'secret',
-      signerIdentifier: 'TA',
-    });
+    const { publicKey, request } = await newKeypairAndCsr();
 
     // Check the PEM has the borders
     expect(request)
@@ -254,10 +249,7 @@ describe('VDS-NC: Signer cryptography', () => {
   it('saves a new signer in the db correctly', async () => {
     // Arrange
     const { VdsNcSigner } = ctx.store.models;
-    const { publicKey, privateKey, request } = await newKeypairAndCsr({
-      keySecret: 'secret',
-      signerIdentifier: 'TA',
-    });
+    const { publicKey, privateKey, request } = await newKeypairAndCsr();
 
     // Act
     const newSigner = await VdsNcSigner.create({
@@ -279,7 +271,7 @@ describe('VDS-NC: Signer cryptography', () => {
       format: 'der',
       type: 'pkcs8',
       cipher: 'aes-256-cbc',
-      passphrase: Buffer.from('secret', 'base64'),
+      passphrase: Buffer.from(config.integrations.signer.keySecret, 'base64'),
     });
   });
 });

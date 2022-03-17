@@ -22,10 +22,7 @@ describe('VDS-NC: Document cryptography', () => {
     ctx = await createTestContext();
     const testCSCA = await TestCSCA.generate();
 
-    const { publicKey, privateKey, request } = await newKeypairAndCsr({
-      keySecret: 'secret',
-      signerIdentifier: 'TA',
-    });
+    const { publicKey, privateKey, request } = await newKeypairAndCsr();
 
     const { VdsNcSigner } = ctx.store.models;
     const signer = await VdsNcSigner.create({
@@ -57,7 +54,6 @@ describe('VDS-NC: Document cryptography', () => {
       { test: 'data' },
       uniqueProofId,
     );
-    document.config = { keySecret: 'secret' };
     document.models = ctx.store.models;
 
     await document.sign();
@@ -170,7 +166,6 @@ describe('VDS-NC: Document cryptography', () => {
       { vaxx: 'data' },
       uniqueProofId,
     );
-    document.config = { keySecret: 'secret' };
     document.models = ctx.store.models;
 
     await document.sign();

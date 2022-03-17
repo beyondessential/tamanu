@@ -53,8 +53,8 @@ export class VdsNcSignerRenewalSender extends ScheduledTask {
         await emailService.sendEmail({
           to: config.integrations.vds.sendSignerRequestTo,
           from: config.mailgun.from,
-          subject: get(localisation, 'vdsRenewalEmail.subject'),
-          content: get(localisation, 'vdsRenewalEmail.body'),
+          subject: get(localisation, 'signerRenewalEmail.subject'),
+          content: get(localisation, 'signerRenewalEmail.body'),
           attachment: {
             filename: `Tamanu_${moment(signer.createdAt).format('YYYY-MM-DD')}.csr`,
             data: Buffer.from(signer.request),
