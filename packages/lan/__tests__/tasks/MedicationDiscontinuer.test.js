@@ -78,6 +78,7 @@ describe('Encounter', () => {
     // Avoid running on instantiation with debug true and properly await for it
     discontinuer = new MedicationDiscontinuer(context, true);
   });
+  afterAll(() => context.close());
 
   afterEach(async () => {
     // Destroy all instances to avoid leftover data
