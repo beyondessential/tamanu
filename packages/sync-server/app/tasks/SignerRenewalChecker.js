@@ -18,9 +18,9 @@ export class SignerRenewalChecker extends ScheduledTask {
   }
 
   async run() {
-    const { VdsNcSigner } = this.context.store.models;
+    const { Signer } = this.context.store.models;
 
-    const pending = await VdsNcSigner.findAll({
+    const pending = await Signer.findAll({
       where: {
         certificate: { [Op.is]: null },
         privateKey: { [Op.not]: null },
@@ -36,7 +36,7 @@ export class SignerRenewalChecker extends ScheduledTask {
       return;
     }
 
-    const signer = await VdsNcSigner.findActive();
+    const signer = await Signer.findActive();
 
     let beyondThreshold = false;
 
@@ -70,7 +70,7 @@ export class SignerRenewalChecker extends ScheduledTask {
 
       log.info('Generating new signer CSR');
       const { publicKey, privateKey, request } = await newKeypairAndCsr();
-      const newSigner = await VdsNcSigner.create({
+      const newSigner = await Signer.create({
         publicKey: Buffer.from(publicKey),
         privateKey: Buffer.from(privateKey),
         request,

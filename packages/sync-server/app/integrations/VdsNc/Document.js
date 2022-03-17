@@ -1,13 +1,13 @@
 import { ICAO_DOCUMENT_TYPES } from 'shared/constants';
 import { log } from 'shared/services/logging';
-import { VdsNcSigner } from 'shared/models';
+import { Signer } from 'shared/models';
 import { depem, base64UrlEncode } from 'shared/utils';
 import { canonicalize } from 'json-canonicalize';
 import config from 'config';
 
 export class VdsNcDocument {
   config = config.integrations.signer;
-  models = { VdsNcSigner };
+  models = { Signer };
 
   isSigned = false;
 
@@ -71,7 +71,7 @@ export class VdsNcDocument {
 
     log.debug('Signing VDS document');
 
-    const signer = await this.models.VdsNcSigner.findActive();
+    const signer = await this.models.Signer.findActive();
     if (!signer) throw new Error('No active signer');
     this.signer = signer;
 

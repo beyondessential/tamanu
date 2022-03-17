@@ -248,11 +248,11 @@ describe('VDS-NC: Signer cryptography', () => {
 
   it('saves a new signer in the db correctly', async () => {
     // Arrange
-    const { VdsNcSigner } = ctx.store.models;
+    const { Signer } = ctx.store.models;
     const { publicKey, privateKey, request } = await newKeypairAndCsr();
 
     // Act
-    const newSigner = await VdsNcSigner.create({
+    const newSigner = await Signer.create({
       publicKey: Buffer.from(publicKey),
       privateKey: Buffer.from(privateKey),
       request,
@@ -260,7 +260,7 @@ describe('VDS-NC: Signer cryptography', () => {
     });
 
     // Assert
-    const signer = await VdsNcSigner.findByPk(newSigner.id);
+    const signer = await Signer.findByPk(newSigner.id);
     expect(signer).to.exist;
     expect(signer.publicKey).to.deep.equal(Buffer.from(publicKey));
     expect(signer.privateKey).to.deep.equal(Buffer.from(privateKey));

@@ -3,7 +3,7 @@ import { canonicalize } from 'json-canonicalize';
 import { Sequelize, Op } from 'sequelize';
 import { Model } from './Model';
 
-export class VdsNcSigner extends Model {
+export class Signer extends Model {
   static init({ primaryKey, ...options }) {
     super.init(
       {
@@ -100,10 +100,10 @@ export class VdsNcSigner extends Model {
 
   /**
    * Fetches the current active signer, if any.
-   * @return {null|Promise<VdsNcSigner>} The active signer, or null if there's none.
+   * @return {null|Promise<Signer>} The active signer, or null if there's none.
    */
   static findActive() {
-    return VdsNcSigner.findOne({
+    return Signer.findOne({
       where: {
         validityPeriodStart: { [Op.lte]: Sequelize.literal('CURRENT_TIMESTAMP') },
         workingPeriodStart: { [Op.lte]: Sequelize.literal('CURRENT_TIMESTAMP') },

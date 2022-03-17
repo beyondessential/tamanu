@@ -22,9 +22,9 @@ export class SignerRenewalSender extends ScheduledTask {
 
   async run() {
     const { emailService } = this.context;
-    const { VdsNcSigner } = this.context.store.models;
+    const { Signer } = this.context.store.models;
 
-    const pending = await VdsNcSigner.findAll({
+    const pending = await Signer.findAll({
       where: {
         requestSentAt: { [Op.is]: null },
         certificate: { [Op.is]: null },

@@ -16,8 +16,8 @@ export class SignerWorkingPeriodChecker extends ScheduledTask {
   }
 
   async run() {
-    const { VdsNcSigner } = this.context.store.models;
-    const expired = await VdsNcSigner.findAll({
+    const { Signer } = this.context.store.models;
+    const expired = await Signer.findAll({
       where: {
         workingPeriodEnd: { [Op.lt]: Sequelize.NOW },
       },

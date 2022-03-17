@@ -4,7 +4,7 @@ import moment from 'moment';
 import { Command } from 'commander';
 
 import { log } from 'shared/services/logging';
-import { VdsNcSigner } from 'shared/models';
+import { Signer } from 'shared/models';
 
 import { loadCertificateIntoSigner } from '../integrations/VdsNc';
 import { initDatabase } from '../database';
@@ -14,7 +14,7 @@ async function loadIcaoSigner({ signerCertificate }) {
   const signerFile = await fs.readFile(signerCertificate, 'utf8');
   const signerData = await loadCertificateIntoSigner(signerFile);
 
-  const pending = await VdsNcSigner.findAll({
+  const pending = await Signer.findAll({
     where: {
       certificate: { [Op.is]: null },
       privateKey: { [Op.not]: null },
