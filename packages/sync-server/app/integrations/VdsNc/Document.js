@@ -2,11 +2,11 @@ import { ICAO_DOCUMENT_TYPES } from 'shared/constants';
 import { log } from 'shared/services/logging';
 import { VdsNcSigner } from 'shared/models';
 import { depem, base64UrlEncode } from 'shared/utils';
-import { vdsConfig } from './Config';
 import { canonicalize } from 'json-canonicalize';
+import config from 'config';
 
 export class VdsNcDocument {
-  config = vdsConfig();
+  config = config.integrations.vds;
   models = { VdsNcSigner };
 
   isSigned = false;

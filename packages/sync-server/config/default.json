@@ -142,7 +142,7 @@
       // It must be at least 32 bytes of random data in Base64.
       // $ openssl rand -base64 32
       "keySecret": null,
-      "signerIdentifier": "TA", // max 2 letters, must be unique in country, ref 9303-13 §2.2.1(a)
+      "signerIdentifier": "TA", // exactly 2 letters, must be unique in country, ref 9303-13 §2.2.1(a)
       "sendSignerRequestTo": "admin@tamanu.io" // email address for CSCA signing contact
     }
   },

@@ -1,5 +1,4 @@
 import config from 'config';
-import { vdsConfig } from '../integrations/VdsNc';
 
 import { PatientEmailCommunicationProcessor } from './PatientEmailCommunicationProcessor';
 import { OutpatientDischarger } from './OutpatientDischarger';
@@ -21,7 +20,7 @@ export async function startScheduledTasks(context) {
   if (config.integrations.fijiVrs.enabled) {
     taskClasses.push(VRSActionRetrier);
   }
-  if (vdsConfig().enabled) {
+  if (config.integrations.vds.enabled) {
     taskClasses.push(
       VdsNcSignerEndOfWorkingPeriodChecker,
       VdsNcSignerRenewalChecker,

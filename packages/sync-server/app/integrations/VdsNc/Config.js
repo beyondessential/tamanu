@@ -34,13 +34,10 @@ const SCHEMA = yup
   .noUnknown();
 
 /**
- * Validate and return the VDS-NC config.
+ * Check the VDS-NC config.
  *
- * @param {object} conf The config.integrations.vds object.
- * @returns {object} The validated config.
  * @throws {Error} If the config is invalid.
  */
-export function vdsConfig(conf = config.integrations.vds) {
-  if (!conf.enabled) return { enabled: false };
-  return SCHEMA.validateSync(conf);
+export function checkVdsConfig() {
+  SCHEMA.validateSync(config.integrations.vds);
 }

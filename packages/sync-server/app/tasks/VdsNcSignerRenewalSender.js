@@ -6,7 +6,6 @@ import { get } from 'lodash';
 import { ScheduledTask } from 'shared/tasks';
 import { log } from 'shared/services/logging';
 
-import { vdsConfig } from '../integrations/VdsNc';
 import { getLocalisation } from '../localisation';
 
 export class VdsNcSignerRenewalSender extends ScheduledTask {
@@ -24,7 +23,6 @@ export class VdsNcSignerRenewalSender extends ScheduledTask {
   async run() {
     const { emailService } = this.context;
     const { VdsNcSigner } = this.context.store.models;
-    const vdsConf = vdsConfig();
 
     const pending = await VdsNcSigner.findAll({
       where: {
@@ -49,11 +47,11 @@ export class VdsNcSignerRenewalSender extends ScheduledTask {
 
     const localisation = await getLocalisation();
 
-    log.info(`Emailing ${pending.length} CSR(s) to ${vdsConf.sendSignerRequestTo}`);
+    log.info(`Emailing ${pending.length} CSR(s) to ${config.integrations.vds.sendSignerRequestTo}`);
     for (const signer of pending) {
       try {
         await emailService.sendEmail({
-          to: vdsConf.sendSignerRequestTo,
+          to: config.integrations.vds.sendSignerRequestTo,
           from: config.mailgun.from,
           subject: get(localisation, 'vdsRenewalEmail.subject'),
           content: get(localisation, 'vdsRenewalEmail.body'),
