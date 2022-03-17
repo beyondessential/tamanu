@@ -6,15 +6,8 @@ import { SvgProps } from 'react-native-svg';
 import { compose } from 'redux';
 import { useSelector } from 'react-redux';
 import { withPatient } from '~/ui/containers/Patient';
-import {
-  FullView,
-  StyledView,
-  StyledSafeAreaView,
-} from '/styled/common';
-import {
-  VaccineForm,
-  VaccineFormValues,
-} from '/components/Forms/VaccineForms';
+import { FullView, StyledView, StyledSafeAreaView } from '/styled/common';
+import { VaccineForm, VaccineFormValues } from '/components/Forms/VaccineForms';
 import { SectionHeader } from '/components/SectionHeader';
 import { VaccineDataProps } from '/components/VaccineCard';
 import { useBackend } from '~/ui/hooks';
@@ -32,7 +25,8 @@ type NewVaccineTabProps = {
 };
 
 export const NewVaccineTabComponent = ({
-  route, selectedPatient,
+  route,
+  selectedPatient,
 }: NewVaccineTabProps): ReactElement => {
   const { vaccine } = route;
   const { administeredVaccine } = vaccine;
@@ -63,25 +57,18 @@ export const NewVaccineTabComponent = ({
       });
 
       navigation.goBack();
-    }, [isSubmitting],
+    },
+    [isSubmitting],
   );
 
   return (
     <FullView>
-      <StyledSafeAreaView
-        flex={1}
-        paddingTop={20}
-        paddingRight={20}
-        paddingLeft={20}
-      >
+      <StyledSafeAreaView flex={1} paddingTop={20} paddingRight={20} paddingLeft={20}>
         <ScrollView
           contentContainerStyle={{
             flex: 1,
           }}
         >
-          <StyledView marginBottom={5}>
-            <SectionHeader h3>INFORMATION</SectionHeader>
-          </StyledView>
           <VaccineForm
             onSubmit={recordVaccination}
             onCancel={onPressCancel}

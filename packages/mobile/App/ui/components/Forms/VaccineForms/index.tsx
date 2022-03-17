@@ -1,5 +1,6 @@
 import React, { FC, useMemo } from 'react';
 import * as Yup from 'yup';
+import { ScrollView } from 'react-native';
 import { VaccineFormNotGiven } from './VaccineFormNotGiven';
 import { VaccineFormGiven } from './VaccineFormGiven';
 import { SubmitButton } from '../SubmitButton';
@@ -64,7 +65,9 @@ export const VaccineForm = ({
       >
         {(): JSX.Element => (
           <FullView>
-            <StatusForm />
+            <ScrollView>
+              <StatusForm />
+            </ScrollView>
             <RowView
               paddingTop={screenPercentageToDP(2.43, Orientation.Height)}
               flex={1}

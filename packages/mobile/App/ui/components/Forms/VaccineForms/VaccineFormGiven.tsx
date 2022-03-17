@@ -8,29 +8,50 @@ import {
 } from '/helpers/screen';
 import { DateField } from '../../DateField/DateField';
 import { TextField } from '../../TextField/TextField';
+import { Checkbox } from '../../Checkbox';
 import { CurrentUserField } from '../../CurrentUserField/CurrentUserField';
 import { Field } from '../FormField';
 import { INJECTION_SITE_OPTIONS } from '~/types';
 import { Dropdown } from '../../Dropdown';
+import { SectionHeader } from '/components/SectionHeader';
 
-
-const InjectionSiteDropdown = ({onChange, label}): JSX.Element => {
-  return <Dropdown 
-    options={INJECTION_SITE_OPTIONS.map(o => ({ label: o, value: o }))}
-    onChange={onChange}
-    label={label}
-  />
+const InjectionSiteDropdown = ({ onChange, label }): JSX.Element => {
+  return (
+    <Dropdown
+      options={INJECTION_SITE_OPTIONS.map(o => ({ label: o, value: o }))}
+      onChange={onChange}
+      label={label}
+    />
+  );
 };
 
-export const VaccineFormGiven = (): JSX.Element => (
+const SectionHeading = ({ text, ...props }) => (
+  <StyledView marginBottom={5} marginTop={10} {...props}>
+    <SectionHeader h3 style={{ textTransform: 'uppercase' }}>
+      {text}
+    </SectionHeader>
+  </StyledView>
+);
+
+export const VaccineFormGiven = (): JSX.Element =>
   getOrientation() === SCREEN_ORIENTATION.PORTRAIT ? (
     <StyledView
       justifyContent="space-between"
       height={screenPercentageToDP(21.87, Orientation.Height)}
     >
+      <SectionHeading text="Information" />
+      <Field
+        component={Checkbox}
+        name="consent"
+        text="Do you have consent from the recipient/parent/guardian to give this vaccine and record in Tamanu?"
+      />
+      <SectionHeading text="Date" />
       <Field component={DateField} name="date" label="Date" />
+      <SectionHeading text="Batch" />
       <Field component={TextField} name="batch" label="Batch No." />
-      <Field component={InjectionSiteDropdown} name="injectionSite" label="Injection site" />
+      <SectionHeading text="Injection site" marginBottom={0} />
+      <Field component={InjectionSiteDropdown} name="injectionSite" label="Select" />
+      <SectionHeading text="Examiner" />
       <CurrentUserField name="examiner" label="Examiner" />
     </StyledView>
   ) : (
@@ -49,5 +70,14 @@ export const VaccineFormGiven = (): JSX.Element => (
       <StyledView width="100%">
         <CurrentUserField name="examiner" label="Examiner" />
       </StyledView>
+      <StyledView width="100%">
+        <CurrentUserField name="examiner" label="Examiner" />
+      </StyledView>
+      <StyledView width="100%">
+        <CurrentUserField name="examiner" label="Examiner" />
+      </StyledView>
+      <StyledView width="100%">
+        <CurrentUserField name="examiner" label="Examiner" />
+      </StyledView>
     </StyledView>
-  ));
+  );
