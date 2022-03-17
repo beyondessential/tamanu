@@ -181,8 +181,8 @@ const rootLocalisationSchema = yup
   .object({
     country: {
       name: yup.string(),
-      'alpha-2': yup.string(),
-      'alpha-3': yup.string(),
+      'alpha-2': yup.string().uppercase(),
+      'alpha-3': yup.string().uppercase(),
     },
     fields: fieldsSchema,
     templates: templatesSchema,
