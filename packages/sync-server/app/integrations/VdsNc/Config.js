@@ -20,27 +20,16 @@ const SCHEMA = yup
         value => Buffer.from(value, 'base64').length >= 32,
       ),
 
-    csr: yup
-      .object()
-      .shape({
-        subject: yup
-          .object()
-          .shape({
-            signerIdentifier: yup
-              .string()
-              .length(2)
-              .uppercase()
-              .required(),
-          })
-          .noUnknown()
-          .required(),
-        email: yup
-          .string()
-          .email()
-          .required('CSR emails are the only supported renewal methods at the moment'),
-      })
-      .noUnknown()
+    signerIdentifier: yup
+      .string()
+      .length(2)
+      .uppercase()
       .required(),
+
+    sendSignerRequestTo: yup
+      .string()
+      .email()
+      .required('CSR emails are the only supported renewal methods at the moment'),
   })
   .noUnknown();
 

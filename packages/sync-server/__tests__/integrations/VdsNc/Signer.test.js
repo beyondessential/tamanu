@@ -37,9 +37,7 @@ describe('VDS-NC: Signer cryptography', () => {
   it('creates a well-formed keypair', async () => {
     const { publicKey, privateKey } = await newKeypairAndCsr({
       keySecret: 'secret',
-      csr: { subject: {
-        signerIdentifier: 'TA',
-      } },
+      signerIdentifier: 'TA',
     });
 
     // publicKey: Walk through the expected ASN.1 structure
@@ -166,9 +164,7 @@ describe('VDS-NC: Signer cryptography', () => {
   it('creates a well-formed CSR', async () => {
     const { publicKey, request } = await newKeypairAndCsr({
       keySecret: 'secret',
-      csr: { subject: {
-        signerIdentifier: 'TA',
-      } },
+      signerIdentifier: 'TA',
     });
 
     // Check the PEM has the borders
@@ -260,9 +256,7 @@ describe('VDS-NC: Signer cryptography', () => {
     const { VdsNcSigner } = ctx.store.models;
     const { publicKey, privateKey, request } = await newKeypairAndCsr({
       keySecret: 'secret',
-      csr: { subject: {
-        signerIdentifier: 'TA',
-      } },
+      signerIdentifier: 'TA',
     });
 
     // Act

@@ -53,10 +53,7 @@ export async function newKeypairAndCsr(vdsConf = vdsConfig()) {
     ['sign', 'verify'],
   );
 
-  const {
-    keySecret,
-    csr: { subject },
-  } = vdsConf;
+  const { keySecret, signerIdentifier } = vdsConf;
 
   const countryCode = (await getLocalisation()).country['alpha-2'];
 
@@ -71,7 +68,7 @@ export async function newKeypairAndCsr(vdsConf = vdsConfig()) {
   csr.subject.typesAndValues.push(
     new AttributeTypeAndValue({
       type: X502_OIDS.COMMON_NAME,
-      value: new PrintableString({ value: subject.signerIdentifier }),
+      value: new PrintableString({ value: signerIdentifier }),
     }),
   );
 

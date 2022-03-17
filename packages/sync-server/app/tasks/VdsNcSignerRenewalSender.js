@@ -49,11 +49,11 @@ export class VdsNcSignerRenewalSender extends ScheduledTask {
 
     const localisation = await getLocalisation();
 
-    log.info(`Emailing ${pending.length} CSR(s) to ${vdsConf.csr.email}`);
+    log.info(`Emailing ${pending.length} CSR(s) to ${vdsConf.sendSignerRequestTo}`);
     for (const signer of pending) {
       try {
         await emailService.sendEmail({
-          to: vdsConf.csr.email,
+          to: vdsConf.sendSignerRequestTo,
           from: config.mailgun.from,
           subject: get(localisation, 'vdsRenewalEmail.subject'),
           content: get(localisation, 'vdsRenewalEmail.body'),

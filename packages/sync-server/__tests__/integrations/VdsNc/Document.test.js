@@ -24,11 +24,7 @@ describe('VDS-NC: Document cryptography', () => {
 
     const { publicKey, privateKey, request } = await newKeypairAndCsr({
       keySecret: 'secret',
-      csr: {
-        subject: {
-          signerIdentifier: 'TA',
-        },
-      },
+      signerIdentifier: 'TA',
     });
 
     const { VdsNcSigner } = ctx.store.models;

@@ -35,10 +35,7 @@
     },
     "vds": {
       "enabled": true,
-      "keySecret": "2hcp3wizGFFnGgsgZZDqFZDmUjaFCIppN8HnyBABqck=",
-      "csr": {
-        "email": "admin@tamanu.io"
-      }
+      "keySecret": "2hcp3wizGFFnGgsgZZDqFZDmUjaFCIppN8HnyBABqck="
     }
   },
   "disk": {
