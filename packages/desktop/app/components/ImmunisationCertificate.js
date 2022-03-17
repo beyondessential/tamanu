@@ -9,8 +9,8 @@ import { useLocalisation } from '../contexts/Localisation';
 const ASSET_NAME = 'vaccine-certificate-watermark';
 
 const renderFooter = getLocalisation => {
-  const contactEmail = getLocalisation('templates.vaccineCertificateFooter.emailAddress');
-  const contactNumber = getLocalisation('templates.vaccineCertificateFooter.contactNumber');
+  const contactEmail = getLocalisation('templates.vaccineCertificate.emailAddress');
+  const contactNumber = getLocalisation('templates.vaccineCertificate.contactNumber');
 
   return (
     <div>
@@ -79,6 +79,7 @@ export const ImmunisationCertificate = ({ patient, immunisations }) => {
   }
 
   const countryName = getLocalisation('country.name');
+  const healthFacility = getLocalisation('templates.vaccineCertificate.healthFacility');
 
   return (
     <Certificate
@@ -121,7 +122,7 @@ export const ImmunisationCertificate = ({ patient, immunisations }) => {
               <td>{immunisation.scheduledVaccine?.vaccine?.name}</td>
               <td>{immunisation.scheduledVaccine?.schedule}</td>
               {countryName && <td>{countryName}</td>}
-              <td>{immunisation.encounter?.location?.Facility?.name || ''}</td>
+              <td>{healthFacility}</td>
               <td>
                 <DateDisplay date={immunisation.date} />
               </td>
