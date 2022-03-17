@@ -6,7 +6,7 @@ import { canonicalize } from 'json-canonicalize';
 import config from 'config';
 
 export class VdsNcDocument {
-  config = config.integrations.vds;
+  config = config.integrations.signer;
   models = { VdsNcSigner };
 
   isSigned = false;

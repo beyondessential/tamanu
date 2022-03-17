@@ -33,7 +33,7 @@ export class CertificateNotificationProcessor extends ScheduledTask {
   async run() {
     const { models } = this.context.store;
     const { CertificateNotification, PatientCommunication, Patient } = models;
-    const vdsEnabled = config.integrations.vds.enabled;
+    const vdsEnabled = config.integrations.vdsNc.enabled;
     const localisation = await getLocalisation();
 
     const queuedNotifications = await CertificateNotification.findAll({

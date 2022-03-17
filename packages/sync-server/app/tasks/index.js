@@ -20,7 +20,7 @@ export async function startScheduledTasks(context) {
   if (config.integrations.fijiVrs.enabled) {
     taskClasses.push(VRSActionRetrier);
   }
-  if (config.integrations.vds.enabled) {
+  if (config.integrations.signer.enabled) {
     taskClasses.push(
       SignerWorkingPeriodChecker,
       SignerRenewalChecker,
