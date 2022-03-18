@@ -53,7 +53,7 @@ encounter.put(
 
       if (referralId) {
         const referral = await models.Referral.findByPk(referralId);
-        referral.update({ encounterId: id });
+        await referral.update({ encounterId: id });
       }
       await object.update(req.body);
     });
