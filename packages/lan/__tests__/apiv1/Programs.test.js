@@ -319,8 +319,7 @@ describe('Programs', () => {
       expect(encounter.endDate).toBeDefined();
     });
 
-    describe("Fetching survey responses for a patient", () => {
-  
+    describe('Fetching survey responses for a patient', () => {
       let patientId = null;
 
       beforeAll(async () => {
@@ -328,12 +327,7 @@ describe('Programs', () => {
         const patient = await models.Patient.create(await createDummyPatient(models));
         patientId = patient.id;
 
-        var commonParams = {
-          patientId,
-          examinerId,
-          departmentId,
-          locationId,
-        };
+        const commonParams = { patientId, examinerId, departmentId, locationId };
 
         // populate responses
         await submitMultipleSurveyResponses(testReferralSurvey, commonParams);
@@ -352,7 +346,6 @@ describe('Programs', () => {
       });
 
       it('should NOT list survey responses of type referral when fetching programResponses', async () => {
-        
         const programResponses = await app.get(
           `/v1/patient/${patientId}/programResponses?surveyId=${testSurvey2.id}`,
         );
