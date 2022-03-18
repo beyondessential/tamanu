@@ -1,0 +1,90 @@
+{
+  "$id": "http://namespaces.icao.int/VDS-NC_message_PoV_WHO.json",
+  "title": "Message Zone WHO (PoV)",
+  "type": "object",
+  "description": "PoV Message Schema",
+  "properties": {
+    "uvci": {
+      "type": "string"
+    },
+    "pid": {
+      "type": "object",
+      "properties": {
+        "n": {
+          "type": "string"
+        },
+        "dob": {
+          "type": "string",
+          "description": "Format YYYY-MM-DD. Mandatory if no UniqueIdentifier is provided."
+        },
+        "i": {
+          "type": "string",
+          "description": "Travel Document Number."
+        },
+        "ai": {
+          "type": "string",
+          "description": "Other document number."
+        },
+        "sex": {
+          "type": "string",
+          "description": "Specific instance of sex information for the vaccinated person."
+        }
+      },
+      "required": ["n"],
+      "additionalProperties": false
+    },
+    "ve": {
+      "type": "array",
+      "minItems": 1,
+      "items": {
+        "type": "object",
+        "properties": {
+          "des": {
+            "type": "string"
+          },
+          "nam": {
+            "type": "string"
+          },
+          "dis ": {
+            "type": "string"
+          },
+          "vd": {
+            "type": "array",
+            "minItems": 1,
+            "items": {
+              "type": "object",
+              "properties": {
+                "dvc": {
+                  "type": "string",
+                  "description": "Format YYYY-MM-DD"
+                },
+                "seq": {
+                  "type": "integer"
+                },
+                "ctr": {
+                  "type": "string",
+                  "description": "Doc 9303-3 Country Code"
+                },
+                "adm": {
+                  "type": "string",
+                  "description": " name or identifier of the vaccination facility"
+                },
+                "lot": {
+                  "type": "string",
+                  "description": "Batch number or lot number of vaccination"
+                },
+                "dvn": {
+                  "type": "string",
+                  "description": "Format YYYY-MM-DD"
+                }
+              },
+              "required": ["dvc", "seq", "ctr", "adm", "lot"]
+            }
+          }
+        },
+        "required": ["des", "nam", "vd"]
+      }
+    }
+  },
+  "required": ["uvci", "pid", "ve"]
+}

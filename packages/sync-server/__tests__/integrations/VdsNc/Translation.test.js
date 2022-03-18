@@ -30,7 +30,10 @@ describe('VDS: Proof of Vaccination', () => {
     await patient.reload();
 
     // Act
-    const msg = await createProofOfVaccination(patient.id, { models: ctx.store.models, countryCode: 'UTO' });
+    const msg = await createProofOfVaccination(patient.id, {
+      models: ctx.store.models,
+      countryCode: 'UTO',
+    });
 
     // Assert
     expect(msg).to.deep.equal({
@@ -110,7 +113,10 @@ describe('VDS: Proof of Vaccination', () => {
     });
 
     // Act
-    const msg = await createProofOfVaccination(patient.id, { models: ctx.store.models, countryCode: 'UTO' });
+    const msg = await createProofOfVaccination(patient.id, {
+      models: ctx.store.models,
+      countryCode: 'UTO',
+    });
 
     // Assert
     expect(msg).to.deep.equal({
@@ -287,7 +293,10 @@ describe('VDS: Proof of Vaccination', () => {
     });
 
     // Act
-    const msg = await createProofOfVaccination(patient.id, { models: ctx.store.models, countryCode: 'UTO' });
+    const msg = await createProofOfVaccination(patient.id, {
+      models: ctx.store.models,
+      countryCode: 'UTO',
+    });
 
     // Assert
     expect(msg).to.deep.equal({

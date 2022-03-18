@@ -35,6 +35,7 @@ export const fakePatient = (): IPatient => {
     villageId: null,
     dateOfBirth: new Date(),
     sex: `female-${uuid}`,
+    email: `${uuid}@email.com`,
     markedForSync: false,
   };
 };
