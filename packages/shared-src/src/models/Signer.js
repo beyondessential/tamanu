@@ -3,7 +3,7 @@ import { canonicalize } from 'json-canonicalize';
 import { Sequelize, Op } from 'sequelize';
 import { Model } from './Model';
 
-export class VdsNcSigner extends Model {
+export class Signer extends Model {
   static init({ primaryKey, ...options }) {
     super.init(
       {
@@ -25,7 +25,7 @@ export class VdsNcSigner extends Model {
         },
 
         privateKey: {
-          // encrypted with facility key (integrations.vds.keySecret)
+          // encrypted with integrations.signer.keySecret
           type: Sequelize.BLOB, // PKCS8 DER in PKCS5 DER
           allowNull: true,
         },
@@ -49,13 +49,27 @@ export class VdsNcSigner extends Model {
           allowNull: true,
         },
 
-        notBefore: {
-          // extracted/cached from certificate
+        workingPeriodStart: {
+          // start of the working period of this certificate
+          // extracted/cached from certificate PKUP (Private Key Usage Period)
           type: Sequelize.DATE,
           allowNull: true,
         },
-        notAfter: {
-          // extracted/cached from certificate
+        workingPeriodEnd: {
+          // end of the working period of this certificate
+          // extracted/cached from certificate PKUP (Private Key Usage Period)
+          type: Sequelize.DATE,
+          allowNull: true,
+        },
+        validityPeriodStart: {
+          // start of the validity period of this certificate
+          // extracted/cached from certificate Not Before field
+          type: Sequelize.DATE,
+          allowNull: true,
+        },
+        validityPeriodEnd: {
+          // end of the validity period of this certificate
+          // extracted/cached from certificate Not After field
           type: Sequelize.DATE,
           allowNull: true,
         },
@@ -74,20 +88,27 @@ export class VdsNcSigner extends Model {
       {
         ...options,
         paranoid: true,
-        indexes: [{ fields: ['not_before'] }, { fields: ['not_after'] }],
+        indexes: [
+          { fields: ['validity_period_start'] },
+          { fields: ['validity_period_end'] },
+          { fields: ['working_period_start'] },
+          { fields: ['working_period_end'] },
+        ],
       },
     );
   }
 
   /**
    * Fetches the current active signer, if any.
-   * @return {null|Promise<VdsNcSigner>} The active signer, or null if there's none.
+   * @return {null|Promise<Signer>} The active signer, or null if there's none.
    */
   static findActive() {
-    return VdsNcSigner.findOne({
+    return Signer.findOne({
       where: {
-        notBefore: { [Op.lte]: Sequelize.literal('CURRENT_TIMESTAMP') },
-        notAfter: { [Op.gt]: Sequelize.literal('CURRENT_TIMESTAMP') },
+        validityPeriodStart: { [Op.lte]: Sequelize.literal('CURRENT_TIMESTAMP') },
+        workingPeriodStart: { [Op.lte]: Sequelize.literal('CURRENT_TIMESTAMP') },
+        workingPeriodEnd: { [Op.gt]: Sequelize.literal('CURRENT_TIMESTAMP') },
+        validityPeriodEnd: { [Op.gt]: Sequelize.literal('CURRENT_TIMESTAMP') },
         certificate: { [Op.not]: null },
         privateKey: { [Op.not]: null },
       },
@@ -99,7 +120,14 @@ export class VdsNcSigner extends Model {
    */
   isActive() {
     const now = new Date();
-    return !!(this.notBefore <= now && this.notAfter > now && this.certificate && this.privateKey);
+    return !!(
+      this.validityPeriodStart <= now &&
+      this.workingPeriodStart <= now &&
+      this.workingPeriodEnd > now &&
+      this.validityPeriodEnd > now &&
+      this.certificate &&
+      this.privateKey
+    );
   }
 
   /**
@@ -107,7 +135,7 @@ export class VdsNcSigner extends Model {
    *
    * @internal
    * @param {object} data Arbitrary data to sign.
-   * @param {string} keySecret Encryption key/phrase for the private key (integrations.vds.keySecret).
+   * @param {string} keySecret Encryption key/phrase for the private key (integrations.signer.keySecret).
    * @returns {Promise<{ algorithm: string, signature: Buffer }>} The signature and algorithm.
    */
   async issueSignature(data, keySecret) {

@@ -76,8 +76,8 @@ const getLocalisation = key => {
   const config = {
     'templates.letterhead.title': 'TAMANU MINISTRY OF HEALTH & MEDICAL SERVICES',
     'templates.letterhead.subTitle': 'PO Box 12345, Melbourne, Australia',
-    'templates.vaccineCertificateFooter.emailAddress': 'tamanu@health.govt',
-    'templates.vaccineCertificateFooter.contactNumber': '123456',
+    'templates.vaccineCertificate.emailAddress': 'tamanu@health.govt',
+    'templates.vaccineCertificate.contactNumber': '123456',
   };
   return config[key];
 };
