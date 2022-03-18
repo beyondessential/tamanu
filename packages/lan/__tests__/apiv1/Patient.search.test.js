@@ -353,6 +353,13 @@ describe('Patient search', () => {
       expect(sorted).toEqual(base);
     };
 
+    it('sorts unicode in the expected order', () => {
+      expect('Böhm' > 'Brunet').toBe(true);
+      expect('Brunet' > 'Böhm').toBe(false);
+      expect('Böhm' < 'Brunet').toBe(false);
+      expect('Brunet' < 'Böhm').toBe(true);
+    });
+
     it('should sort by surname by default', async () => {
       const response = await app.get('/v1/patient');
 
