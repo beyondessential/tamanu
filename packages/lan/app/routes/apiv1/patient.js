@@ -55,6 +55,7 @@ patientRoute.put(
   '/:id',
   asyncHandler(async (req, res) => {
     const {
+      db,
       models: { Patient, PatientAdditionalData },
       params,
     } = req;
@@ -62,24 +63,27 @@ patientRoute.put(
     const patient = await Patient.findByPk(params.id);
     if (!patient) throw new NotFoundError();
     req.checkPermission('write', patient);
-    await patient.update(requestBodyToRecord(req.body));
 
-    const patientAdditionalData = await PatientAdditionalData.findOne({
-      where: { patientId: patient.id },
-    });
+    await db.transaction(async () => {
+      await patient.update(requestBodyToRecord(req.body));
 
-    if (!patientAdditionalData) {
-      // Do not try to create patient additional data if all we're trying to update is markedForSync = true to
-      // sync down patient because PatientAdditionalData will be automatically synced down along with Patient
-      if (!isEqual(req.body, { markedForSync: true })) {
-        await PatientAdditionalData.create({
-          ...requestBodyToRecord(req.body),
-          patientId: patient.id,
-        });
+      const patientAdditionalData = await PatientAdditionalData.findOne({
+        where: { patientId: patient.id },
+      });
+
+      if (!patientAdditionalData) {
+        // Do not try to create patient additional data if all we're trying to update is markedForSync = true to
+        // sync down patient because PatientAdditionalData will be automatically synced down along with Patient
+        if (!isEqual(req.body, { markedForSync: true })) {
+          await PatientAdditionalData.create({
+            ...requestBodyToRecord(req.body),
+            patientId: patient.id,
+          });
+        }
+      } else {
+        await patientAdditionalData.update(requestBodyToRecord(req.body));
       }
-    } else {
-      await patientAdditionalData.update(requestBodyToRecord(req.body));
-    }
+    });
 
     res.send(dbRecordToResponse(patient));
   }),
