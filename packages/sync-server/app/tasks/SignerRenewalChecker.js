@@ -56,7 +56,7 @@ export class SignerRenewalChecker extends ScheduledTask {
 
       // Buffer before PKUP ends
       const daysUntilWorkingEnd = (signer.workingPeriodEnd - new Date()) / (1000 * 60 * 60 * 24);
-      if (daysUntilWorkingEnd >= 16) {
+      if (daysUntilWorkingEnd <= 16) {
         beyondThreshold = true;
       }
     }
