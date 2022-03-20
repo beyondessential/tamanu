@@ -19,6 +19,7 @@ export class AdministeredVaccine extends Model {
       {
         id: primaryKey,
         batch: Sequelize.STRING,
+        consent: Sequelize.BOOLEAN,
         status: {
           type: Sequelize.STRING,
           allowNull: false,

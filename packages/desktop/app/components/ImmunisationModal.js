@@ -21,7 +21,7 @@ const DumbImmunisationModal = React.memo(
     locationSuggester,
   }) => {
     return (
-      <Modal title="New vaccine" open={open} onClose={onClose}>
+      <Modal title="Give vaccine" open={open} onClose={onClose}>
         <ImmunisationForm
           onSubmit={onCreateImmunisation}
           onCancel={onClose}
