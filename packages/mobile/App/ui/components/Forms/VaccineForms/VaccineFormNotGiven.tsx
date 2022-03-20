@@ -1,5 +1,4 @@
 import React from 'react';
-import { View } from 'react-native';
 import { StyledView, RowView } from '/styled/common';
 import { getOrientation, SCREEN_ORIENTATION } from '/helpers/screen';
 import { DateField } from '../../DateField/DateField';
@@ -22,11 +21,11 @@ export const VaccineFormNotGiven = (): JSX.Element =>
       <SectionHeading text="Information" />
       <Field component={DateField} name="date" label="Date" />
       <Field component={TextField} name="reason" label="Reason" />
-      <SectionHeading text="Examiner" />
       <CurrentUserField name="examiner" label="Examiner" />
     </StyledView>
   ) : (
-    <StyledView>
+    <StyledView paddingTop={10}>
+      <SectionHeading text="Information" />
       <RowView marginTop={10}>
         <Field component={DateField} name="date" label="Date" />
       </RowView>

@@ -30,6 +30,7 @@ export type VaccineFormValues = {
   scheduledVaccineId?: string;
   status: VaccineStatus;
 };
+
 interface VaccineForm {
   status: VaccineStatus;
   initialValues: VaccineFormValues;
@@ -56,9 +57,16 @@ export const VaccineForm = ({
   return (
     <Form
       onSubmit={onSubmit}
-      validationSchema={Yup.object().shape({
-        date: Yup.date().required(),
-      })}
+      validationSchema={Yup.object().shape(
+        status === VaccineStatus.GIVEN
+          ? {
+              date: Yup.date().required(),
+              consent: Yup.boolean().required(),
+            }
+          : {
+              date: Yup.date().required(),
+            },
+      )}
       initialValues={createInitialValues({ ...initialValues, status })}
     >
       {(): JSX.Element => (

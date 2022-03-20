@@ -47,28 +47,27 @@ export const VaccineFormGiven = (): JSX.Element =>
       <CurrentUserField name="examiner" label="Examiner" />
     </StyledView>
   ) : (
-    <StyledView>
-      <RowView marginTop={10}>
-        <Field component={DateField} name="date" label="Date" />
-      </RowView>
+    <StyledView paddingTop={10}>
+      <SectionHeading text="Information" />
+      <Field
+        component={Checkbox}
+        name="consent"
+        text="Do you have consent from the recipient/parent/guardian to give this vaccine and record in Tamanu?"
+      />
+      <SectionHeading text="Date" />
+      <Field component={DateField} name="date" label="Date" />
       <RowView marginTop={10} justifyContent="space-between">
         <StyledView width="49%">
+          <SectionHeading text="Batch" />
           <Field component={TextField} name="batch" label="Batch No." />
         </StyledView>
         <StyledView width="49%">
+          <SectionHeading text="Injection site" marginBottom={-5} />
           <Field component={InjectionSiteDropdown} name="injectionSite" label="Injection site" />
         </StyledView>
       </RowView>
       <StyledView width="100%">
-        <CurrentUserField name="examiner" label="Examiner" />
-      </StyledView>
-      <StyledView width="100%">
-        <CurrentUserField name="examiner" label="Examiner" />
-      </StyledView>
-      <StyledView width="100%">
-        <CurrentUserField name="examiner" label="Examiner" />
-      </StyledView>
-      <StyledView width="100%">
+        <SectionHeading text="Examiner" />
         <CurrentUserField name="examiner" label="Examiner" />
       </StyledView>
     </StyledView>
