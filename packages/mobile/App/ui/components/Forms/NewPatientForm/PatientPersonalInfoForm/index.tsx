@@ -95,13 +95,13 @@ export const FormComponent = ({
         onSubmit={isEdit ? onEditPatient : onCreateNewPatient}
         validationSchema={Yup.object().shape({
           firstName: Yup.string().required(),
-          middleName: Yup.string(),
+          middleName: Yup.string().nullable(),
           lastName: Yup.string().required(),
-          culturalName: Yup.string(),
+          culturalName: Yup.string().nullable(),
           dateOfBirth: Yup.date().required(),
-          email: Yup.string(),
+          email: Yup.string().nullable(),
           sex: Yup.string().required(),
-          village: Yup.string(),
+          village: Yup.string().nullable(),
         })}
         initialValues={getInitialValues(isEdit, selectedPatient)}
       >
