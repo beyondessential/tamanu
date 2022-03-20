@@ -1,6 +1,7 @@
 import React, { FC, useMemo } from 'react';
 import * as Yup from 'yup';
-import { ScrollView, View } from 'react-native';
+import { RowView } from '/styled/common';
+import { ScrollView } from 'react-native';
 import { VaccineFormNotGiven } from './VaccineFormNotGiven';
 import { VaccineFormGiven } from './VaccineFormGiven';
 import { SubmitButton } from '../SubmitButton';
@@ -72,14 +73,7 @@ export const VaccineForm = ({
       {(): JSX.Element => (
         <ScrollView style={{ flex: 1, paddingLeft: 20, paddingRight: 20 }}>
           <StatusForm />
-          <View
-            style={{
-              paddingTop: 20,
-              paddingBottom: 20,
-              flex: 1,
-              flexDirection: 'row',
-            }}
-          >
+          <RowView paddingTop={20} paddingBottom={20} flex={1}>
             <Button
               width={screenPercentageToDP(43.1, Orientation.Width)}
               marginRight={screenPercentageToDP(1.21, Orientation.Width)}
@@ -89,7 +83,7 @@ export const VaccineForm = ({
               buttonText="Cancel"
             />
             <SubmitButton width={screenPercentageToDP(43.1, Orientation.Width)} />
-          </View>
+          </RowView>
         </ScrollView>
       )}
     </Form>
