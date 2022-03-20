@@ -1,14 +1,12 @@
 import React, { ReactElement, useCallback, FC, useState } from 'react';
 import { useNavigation } from '@react-navigation/native';
-import { ScrollView } from 'react-native';
 import { Route } from 'react-native-tab-view';
 import { SvgProps } from 'react-native-svg';
 import { compose } from 'redux';
 import { useSelector } from 'react-redux';
 import { withPatient } from '~/ui/containers/Patient';
-import { FullView, StyledView, StyledSafeAreaView } from '/styled/common';
+import { StyledSafeAreaView } from '/styled/common';
 import { VaccineForm, VaccineFormValues } from '/components/Forms/VaccineForms';
-import { SectionHeader } from '/components/SectionHeader';
 import { VaccineDataProps } from '/components/VaccineCard';
 import { useBackend } from '~/ui/hooks';
 import { IPatient } from '~/types';
@@ -62,22 +60,14 @@ export const NewVaccineTabComponent = ({
   );
 
   return (
-    <FullView>
-      <StyledSafeAreaView flex={1} paddingTop={20} paddingRight={20} paddingLeft={20}>
-        <ScrollView
-          contentContainerStyle={{
-            flex: 1,
-          }}
-        >
-          <VaccineForm
-            onSubmit={recordVaccination}
-            onCancel={onPressCancel}
-            initialValues={{ ...vaccine, ...administeredVaccine }}
-            status={route.key as VaccineStatus}
-          />
-        </ScrollView>
-      </StyledSafeAreaView>
-    </FullView>
+    <StyledSafeAreaView flex={1}>
+      <VaccineForm
+        onSubmit={recordVaccination}
+        onCancel={onPressCancel}
+        initialValues={{ ...vaccine, ...administeredVaccine }}
+        status={route.key as VaccineStatus}
+      />
+    </StyledSafeAreaView>
   );
 };
 

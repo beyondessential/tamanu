@@ -1,28 +1,28 @@
 import React from 'react';
+import { View } from 'react-native';
 import { StyledView, RowView } from '/styled/common';
-import {
-  Orientation,
-  screenPercentageToDP,
-  getOrientation,
-  SCREEN_ORIENTATION,
-} from '/helpers/screen';
+import { getOrientation, SCREEN_ORIENTATION } from '/helpers/screen';
 import { DateField } from '../../DateField/DateField';
 import { Field } from '../FormField';
 import { TextField } from '../../TextField/TextField';
 import { CurrentUserField } from '../../CurrentUserField/CurrentUserField';
 import { SectionHeader } from '/components/SectionHeader';
 
+const SectionHeading = ({ text, ...props }) => (
+  <StyledView marginBottom={5} marginTop={10} {...props}>
+    <SectionHeader h3 style={{ textTransform: 'uppercase' }}>
+      {text}
+    </SectionHeader>
+  </StyledView>
+);
+
 export const VaccineFormNotGiven = (): JSX.Element =>
   getOrientation() === SCREEN_ORIENTATION.PORTRAIT ? (
-    <StyledView
-      justifyContent="space-between"
-      height={screenPercentageToDP(21.87, Orientation.Height)}
-    >
-      <StyledView marginBottom={5}>
-        <SectionHeader h3>INFORMATION</SectionHeader>
-      </StyledView>
+    <StyledView>
+      <SectionHeading text="Information" />
       <Field component={DateField} name="date" label="Date" />
       <Field component={TextField} name="reason" label="Reason" />
+      <SectionHeading text="Examiner" />
       <CurrentUserField name="examiner" label="Examiner" />
     </StyledView>
   ) : (

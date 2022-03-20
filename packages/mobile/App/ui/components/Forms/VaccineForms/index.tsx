@@ -1,10 +1,9 @@
 import React, { FC, useMemo } from 'react';
 import * as Yup from 'yup';
-import { ScrollView } from 'react-native';
+import { ScrollView, View } from 'react-native';
 import { VaccineFormNotGiven } from './VaccineFormNotGiven';
 import { VaccineFormGiven } from './VaccineFormGiven';
 import { SubmitButton } from '../SubmitButton';
-import { FullView, RowView } from '/styled/common';
 import { theme } from '/styled/theme';
 import { VaccineStatus } from '~/ui/helpers/patient';
 import { Orientation, screenPercentageToDP } from '/helpers/screen';
@@ -55,39 +54,36 @@ export const VaccineForm = ({
 }: VaccineForm): JSX.Element => {
   const { Form: StatusForm } = useMemo(() => getFormType(status), [status]);
   return (
-    <FullView>
-      <Form
-        onSubmit={onSubmit}
-        validationSchema={Yup.object().shape({
-          date: Yup.date().required(),
-        })}
-        initialValues={createInitialValues({ ...initialValues, status })}
-      >
-        {(): JSX.Element => (
-          <FullView>
-            <ScrollView>
-              <StatusForm />
-            </ScrollView>
-            <RowView
-              paddingTop={screenPercentageToDP(2.43, Orientation.Height)}
-              flex={1}
-              alignItems="flex-end"
-              justifyContent="center"
-              paddingBottom={screenPercentageToDP(2.43, Orientation.Height)}
-            >
-              <Button
-                width={screenPercentageToDP(43.79, Orientation.Width)}
-                marginRight={screenPercentageToDP(1.21, Orientation.Width)}
-                onPress={onCancel}
-                outline
-                borderColor={theme.colors.PRIMARY_MAIN}
-                buttonText="Cancel"
-              />
-              <SubmitButton width={screenPercentageToDP(43.79, Orientation.Width)} />
-            </RowView>
-          </FullView>
-        )}
-      </Form>
-    </FullView>
+    <Form
+      onSubmit={onSubmit}
+      validationSchema={Yup.object().shape({
+        date: Yup.date().required(),
+      })}
+      initialValues={createInitialValues({ ...initialValues, status })}
+    >
+      {(): JSX.Element => (
+        <ScrollView style={{ flex: 1, paddingLeft: 20, paddingRight: 20 }}>
+          <StatusForm />
+          <View
+            style={{
+              paddingTop: 20,
+              paddingBottom: 20,
+              flex: 1,
+              flexDirection: 'row',
+            }}
+          >
+            <Button
+              width={screenPercentageToDP(43.1, Orientation.Width)}
+              marginRight={screenPercentageToDP(1.21, Orientation.Width)}
+              onPress={onCancel}
+              outline
+              borderColor={theme.colors.PRIMARY_MAIN}
+              buttonText="Cancel"
+            />
+            <SubmitButton width={screenPercentageToDP(43.1, Orientation.Width)} />
+          </View>
+        </ScrollView>
+      )}
+    </Form>
   );
 };

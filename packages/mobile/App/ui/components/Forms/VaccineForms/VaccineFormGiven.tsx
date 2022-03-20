@@ -1,11 +1,6 @@
 import React from 'react';
 import { StyledView, RowView } from '/styled/common';
-import {
-  Orientation,
-  screenPercentageToDP,
-  getOrientation,
-  SCREEN_ORIENTATION,
-} from '/helpers/screen';
+import { getOrientation, SCREEN_ORIENTATION } from '/helpers/screen';
 import { DateField } from '../../DateField/DateField';
 import { TextField } from '../../TextField/TextField';
 import { Checkbox } from '../../Checkbox';
@@ -35,10 +30,7 @@ const SectionHeading = ({ text, ...props }) => (
 
 export const VaccineFormGiven = (): JSX.Element =>
   getOrientation() === SCREEN_ORIENTATION.PORTRAIT ? (
-    <StyledView
-      justifyContent="space-between"
-      height={screenPercentageToDP(21.87, Orientation.Height)}
-    >
+    <StyledView>
       <SectionHeading text="Information" />
       <Field
         component={Checkbox}
