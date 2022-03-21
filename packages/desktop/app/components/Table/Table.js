@@ -104,12 +104,10 @@ const RowContainer = React.memo(({ children, rowStyle, onClick }) => (
   </StyledTableRow>
 ));
 
-const Row = React.memo(({ columns, data, onClick, rowStyle, onTableRefresh }) => {
+const Row = React.memo(({ columns, data, onClick, rowStyle, refreshTable }) => {
   const cells = columns.map(
     ({ key, accessor, CellComponent, numeric, maxWidth, cellColor, dontCallRowInput }) => {
-      const value = accessor
-        ? React.createElement(accessor, { onTableRefresh, ...data })
-        : data[key];
+      const value = accessor ? React.createElement(accessor, { refreshTable, ...data }) : data[key];
       const displayValue = value === 0 ? '0' : value;
       const backgroundColor = typeof cellColor === 'function' ? cellColor(data) : cellColor;
       return (
@@ -214,7 +212,7 @@ class TableComponent extends React.Component {
       errorMessage,
       rowIdKey,
       rowStyle,
-      onTableRefresh,
+      refreshTable,
     } = this.props;
     const error = this.getErrorMessage();
     if (error) {
@@ -233,7 +231,7 @@ class TableComponent extends React.Component {
           key={key}
           columns={columns}
           onClick={onRowClick}
-          onTableRefresh={onTableRefresh}
+          refreshTable={refreshTable}
           rowStyle={rowStyle}
         />
       );
@@ -306,7 +304,7 @@ TableComponent.propTypes = {
   rowIdKey: PropTypes.string,
   className: PropTypes.string,
   exportName: PropTypes.string,
-  onTableRefresh: PropTypes.func,
+  refreshTable: PropTypes.func,
   rowStyle: PropTypes.func,
   allowExport: PropTypes.bool,
 };
@@ -328,7 +326,7 @@ TableComponent.defaultProps = {
   rowIdKey: 'id', // specific to data expected for tamanu REST api fetches
   className: null,
   exportName: 'TamanuExport',
-  onTableRefresh: null,
+  refreshTable: null,
   rowStyle: null,
   allowExport: true,
 };

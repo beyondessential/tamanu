@@ -1,5 +1,4 @@
-import React, { useState, useEffect, useCallback } from 'react';
-import { useDispatch } from 'react-redux';
+import React, { useState, useEffect } from 'react';
 import styled from 'styled-components';
 
 import { calculateInvoiceTotal } from '../utils';
@@ -16,7 +15,6 @@ import { DataFetchingTable } from './Table';
 import { DateDisplay } from './DateDisplay';
 import { TextButton } from './Button';
 import { InvoiceDetailModal } from './InvoiceDetailModal';
-import { reloadPatient } from '../store/patient';
 
 const StatusLabel = styled.div`
   background: ${p => p.color};
@@ -42,14 +40,9 @@ const InvoiceTotal = ({ row }) => {
   return `$${invoiceTotal}`;
 };
 
-const ViewButton = React.memo(({ row, patientId }) => {
+const ViewButton = React.memo(({ row }) => {
   const [invoiceModalOpen, setInvoiceModalOpen] = useState(false);
   const title = `Invoice number: ${row.displayId}`;
-  const dispatch = useDispatch();
-
-  const reload = useCallback(async () => {
-    dispatch(reloadPatient(patientId));
-  }, [dispatch, patientId]);
 
   return (
     <>
@@ -58,7 +51,7 @@ const ViewButton = React.memo(({ row, patientId }) => {
         open={invoiceModalOpen}
         invoiceId={row.id}
         onClose={() => setInvoiceModalOpen(false)}
-        onUpdated={reload}
+        onUpdated={row.refreshTable}
       />
       <TextButton onClick={() => setInvoiceModalOpen(true)}>View</TextButton>
     </>
@@ -72,7 +65,7 @@ const StatusDisplay = React.memo(({ status }) => (
 ));
 
 const getDate = ({ date }) => <DateDisplay date={date} />;
-const getViewButton = patientId => row => <ViewButton patientId={patientId} row={row} />;
+const getViewButton = row => <ViewButton row={row} />;
 const getInvoiceTotal = row => <InvoiceTotal row={row} />;
 const getPaymentStatus = row => INVOICE_PAYMENT_STATUS_LABELS[row.paymentStatus] || 'Unknown';
 const getStatus = ({ status }) => <StatusDisplay status={status} />;
@@ -89,18 +82,14 @@ const COLUMNS = [
   { key: 'total', title: 'Total', accessor: getInvoiceTotal, sortable: false },
   { key: 'status', title: 'Status', accessor: getStatus },
   { key: 'paymentStatus', title: 'Payment status', accessor: getPaymentStatus },
+  { key: 'view', title: 'Actions', accessor: getViewButton },
 ];
 
 export const InvoicesTable = React.memo(({ patient, searchParameters }) => {
-  const columns = [
-    ...COLUMNS,
-    { key: 'view', title: 'Actions', accessor: getViewButton(patient.id) },
-  ];
-
   return (
     <DataFetchingTable
       endpoint={`patient/${patient.id}/invoices`}
-      columns={columns}
+      columns={COLUMNS}
       noDataMessage="No invoices found"
       fetchOptions={searchParameters}
     />
