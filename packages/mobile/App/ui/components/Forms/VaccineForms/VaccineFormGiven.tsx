@@ -8,7 +8,7 @@ import { CurrentUserField } from '../../CurrentUserField/CurrentUserField';
 import { Field } from '../FormField';
 import { INJECTION_SITE_OPTIONS } from '~/types';
 import { Dropdown } from '../../Dropdown';
-import { SectionHeader } from '/components/SectionHeader';
+import { FormSectionHeading } from '../FormSectionHeading';
 
 const InjectionSiteDropdown = ({ onChange, label }): JSX.Element => {
   return (
@@ -20,14 +20,6 @@ const InjectionSiteDropdown = ({ onChange, label }): JSX.Element => {
   );
 };
 
-const SectionHeading = ({ text, ...props }) => (
-  <StyledView marginBottom={5} marginTop={10} {...props}>
-    <SectionHeader h3 style={{ textTransform: 'uppercase' }}>
-      {text}
-    </SectionHeader>
-  </StyledView>
-);
-
 export const VaccineFormGiven = (): JSX.Element =>
   getOrientation() === SCREEN_ORIENTATION.PORTRAIT ? (
     <StyledView>
@@ -37,37 +29,37 @@ export const VaccineFormGiven = (): JSX.Element =>
         name="consent"
         text="Do you have consent from the recipient/parent/guardian to give this vaccine and record in Tamanu?"
       />
-      <SectionHeading text="Date" />
+      <FormSectionHeading text="Date" />
       <Field component={DateField} name="date" label="Date" />
-      <SectionHeading text="Batch" />
+      <FormSectionHeading text="Batch" />
       <Field component={TextField} name="batch" label="Batch No." />
-      <SectionHeading text="Injection site" marginBottom={0} />
+      <FormSectionHeading text="Injection site" marginBottom={0} />
       <Field component={InjectionSiteDropdown} name="injectionSite" label="Select" />
-      <SectionHeading text="Examiner" />
+      <FormSectionHeading text="Examiner" />
       <CurrentUserField name="examiner" label="Examiner" />
     </StyledView>
   ) : (
     <StyledView paddingTop={10}>
-      <SectionHeading text="Information" />
+      <FormSectionHeading text="Information" />
       <Field
         component={Checkbox}
         name="consent"
         text="Do you have consent from the recipient/parent/guardian to give this vaccine and record in Tamanu?"
       />
-      <SectionHeading text="Date" />
+      <FormSectionHeading text="Date" />
       <Field component={DateField} name="date" label="Date" />
       <RowView marginTop={10} justifyContent="space-between">
         <StyledView width="49%">
-          <SectionHeading text="Batch" />
+          <FormSectionHeading text="Batch" />
           <Field component={TextField} name="batch" label="Batch No." />
         </StyledView>
         <StyledView width="49%">
-          <SectionHeading text="Injection site" marginBottom={-5} />
+          <FormSectionHeading text="Injection site" marginBottom={-5} />
           <Field component={InjectionSiteDropdown} name="injectionSite" label="Injection site" />
         </StyledView>
       </RowView>
       <StyledView width="100%">
-        <SectionHeading text="Examiner" />
+        <FormSectionHeading text="Examiner" />
         <CurrentUserField name="examiner" label="Examiner" />
       </StyledView>
     </StyledView>

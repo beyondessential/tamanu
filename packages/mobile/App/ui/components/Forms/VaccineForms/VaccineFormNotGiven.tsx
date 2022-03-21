@@ -5,27 +5,19 @@ import { DateField } from '../../DateField/DateField';
 import { Field } from '../FormField';
 import { TextField } from '../../TextField/TextField';
 import { CurrentUserField } from '../../CurrentUserField/CurrentUserField';
-import { SectionHeader } from '/components/SectionHeader';
-
-const SectionHeading = ({ text, ...props }) => (
-  <StyledView marginBottom={5} marginTop={10} {...props}>
-    <SectionHeader h3 style={{ textTransform: 'uppercase' }}>
-      {text}
-    </SectionHeader>
-  </StyledView>
-);
+import { FomSectionHeading } from '../FormSectionHeading';
 
 export const VaccineFormNotGiven = (): JSX.Element =>
   getOrientation() === SCREEN_ORIENTATION.PORTRAIT ? (
     <StyledView>
-      <SectionHeading text="Information" />
+      <FomSectionHeading text="Information" />
       <Field component={DateField} name="date" label="Date" />
       <Field component={TextField} name="reason" label="Reason" />
       <CurrentUserField name="examiner" label="Examiner" />
     </StyledView>
   ) : (
     <StyledView paddingTop={10}>
-      <SectionHeading text="Information" />
+      <FomSectionHeading text="Information" />
       <RowView marginTop={10}>
         <Field component={DateField} name="date" label="Date" />
       </RowView>
