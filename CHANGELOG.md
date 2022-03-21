@@ -38,7 +38,7 @@
 
 ### Bug fixes 🐛
 
-- (left blank)
+- Fix issue that was causing sync attempts to fail unpredictably
 
 ### Infrastructure and maintenance 🛠
 
