@@ -46,6 +46,7 @@ export async function HCERTPack(messageData, models) {
   };
 
   const signedData = await cose.sign.create(coseHeaders, cborData, coseSigner);
+  signer.increment('signaturesIssued');
   const deflatedBuf = deflateSync(signedData);
   return `HC1:${base45.encode(deflatedBuf)}`;
 }
