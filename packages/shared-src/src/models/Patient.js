@@ -1,5 +1,5 @@
 import { Sequelize } from 'sequelize';
-import { SYNC_DIRECTIONS } from 'shared/constants';
+import { SYNC_DIRECTIONS, LAB_REQUEST_STATUSES } from 'shared/constants';
 import { Model } from './Model';
 
 export class Patient extends Model {
@@ -100,8 +100,15 @@ export class Patient extends Model {
       raw: true,
       nest: true,
       ...queryOptions,
+      where: { status: LAB_REQUEST_STATUSES.PUBLISHED },
       include: [
         { association: 'requestedBy' },
+        {
+          association: 'category',
+          where: {
+            name: Sequelize.where(Sequelize.fn('LOWER', Sequelize.col('name')), 'LIKE', '%covid%'),
+          },
+        },
         {
           association: 'tests',
           include: [{ association: 'labTestMethod' }, { association: 'labTestType' }],
