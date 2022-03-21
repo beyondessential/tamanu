@@ -62,8 +62,7 @@ export const VaccineForm = ({
         status === VaccineStatus.GIVEN
           ? {
               date: Yup.date().required(),
-              consent: yup
-                .boolean()
+              consent: Yup.boolean()
                 .oneOf([true])
                 .required(),
             }
