@@ -3,6 +3,7 @@ import shortid from 'shortid';
 
 import { storiesOf } from '@storybook/react';
 import { action } from '@storybook/addon-actions';
+import '@fortawesome/fontawesome-free/css/all.css';
 
 import {
   TextInput,

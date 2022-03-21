@@ -27,7 +27,7 @@ import {
 import { ICAO_DOCUMENT_TYPES, X502_OIDS } from 'shared/constants';
 import { depem, pem } from 'shared/utils';
 import moment from 'moment';
-import { vdsConfig } from '.';
+import { getLocalisation } from '../../localisation';
 
 const webcrypto = new Crypto();
 setEngine(
@@ -39,10 +39,9 @@ setEngine(
 /**
  * Generate a VDS-NC Barcode Signer compliant keypair and CSR.
  *
- * @param {object} vdsConf The validated VDS config.
  * @returns The fields to use to create the Signer model.
  */
-export async function newKeypairAndCsr(vdsConf = vdsConfig()) {
+export async function newKeypairAndCsr() {
   const { publicKey, privateKey } = await webcrypto.subtle.generateKey(
     {
       name: 'ECDSA',
@@ -52,23 +51,22 @@ export async function newKeypairAndCsr(vdsConf = vdsConfig()) {
     ['sign', 'verify'],
   );
 
-  const {
-    keySecret,
-    csr: { subject },
-  } = vdsConf;
+  const { keySecret, commonName } = config.integrations.signer;
+
+  const countryCode = (await getLocalisation()).country['alpha-2'];
 
   const csr = new CertificationRequest();
   csr.version = 0;
   csr.subject.typesAndValues.push(
     new AttributeTypeAndValue({
       type: X502_OIDS.COUNTRY_NAME,
-      value: new PrintableString({ value: subject.countryCode2 }),
+      value: new PrintableString({ value: countryCode }),
     }),
   );
   csr.subject.typesAndValues.push(
     new AttributeTypeAndValue({
       type: X502_OIDS.COMMON_NAME,
-      value: new PrintableString({ value: subject.signerIdentifier }),
+      value: new PrintableString({ value: commonName }),
     }),
   );
 
@@ -125,9 +123,31 @@ export function loadCertificateIntoSigner(certificate) {
   const asn = fromBER(fakeABtoRealAB(binCert));
   if (asn.result.error !== '') throw new Error(asn.result.error);
   const cert = new Certificate({ schema: asn.result });
+
+  const validityPeriodStart = cert.notBefore.value;
+  const validityPeriodEnd = cert.notAfter.value;
+
+  // The certificate doesn't include the PKUP, so we assume it from which
+  // integration is enabled. In future it would be good to get this directly
+  // from issuance API or some other way.
+  const workingPeriodStart = validityPeriodStart;
+  let workingPeriodEnd = validityPeriodEnd;
+  if (config.integrations.vdsNc?.enabled) {
+    workingPeriodEnd = moment(workingPeriodStart)
+      .add(96, 'day')
+      .toDate();
+  }
+  if (config.integrations.euDcc?.enabled) {
+    workingPeriodEnd = moment(workingPeriodStart)
+      .add(365, 'day')
+      .toDate();
+  }
+
   return {
-    notAfter: cert.notAfter.value,
-    notBefore: cert.notBefore.value,
+    workingPeriodStart,
+    workingPeriodEnd,
+    validityPeriodStart,
+    validityPeriodEnd,
     certificate: txtCert,
   };
 }
@@ -164,6 +184,12 @@ export class TestCSCA {
       ['sign', 'verify'],
     );
 
+    const workingPeriodStart = moment();
+    const workingPeriodEnd = workingPeriodStart.clone().add(365 * 4 + 1, 'day');
+
+    const validityPeriodStart = workingPeriodStart.clone();
+    const validityPeriodEnd = workingPeriodEnd.clone().add(11 * 365 + 3, 'day');
+
     const cert = new Certificate();
     cert.version = 2;
     cert.issuer.typesAndValues.push(
@@ -191,14 +217,10 @@ export class TestCSCA {
       }),
     );
     cert.notBefore = new Time({
-      value: moment()
-        .subtract(1, 'day')
-        .toDate(),
+      value: validityPeriodStart.toDate(),
     });
     cert.notAfter = new Time({
-      value: moment()
-        .add(1, 'year')
-        .toDate(),
+      value: validityPeriodEnd.toDate(),
     });
     cert.serialNumber = new Integer({ value: 1 });
 
@@ -230,6 +252,7 @@ export class TestCSCA {
     /* eslint-enable no-bitwise */
 
     const keyUsage = new BitString({ valueHex: bitArray });
+
     cert.extensions = new Extensions({
       extensions: [
         new Extension({
@@ -269,19 +292,21 @@ export class TestCSCA {
     if (asn.result.error !== '') throw new Error(asn.result.error);
     const csr = new CertificationRequest({ schema: asn.result });
 
+    const workingPeriodStart = moment();
+    const workingPeriodEnd = workingPeriodStart.clone().add(96, 'day');
+
+    const validityPeriodStart = workingPeriodStart.clone();
+    const validityPeriodEnd = workingPeriodEnd.clone().add(365 * 10 + 2, 'day');
+
     const cert = new Certificate();
     cert.version = 2;
     cert.issuer = this.certificate.issuer;
     cert.subject = csr.subject;
     cert.notBefore = new Time({
-      value: moment()
-        .subtract(1, 'day')
-        .toDate(),
+      value: validityPeriodStart.toDate(),
     });
     cert.notAfter = new Time({
-      value: moment()
-        .add(3, 'month')
-        .toDate(),
+      value: validityPeriodEnd.toDate(),
     });
     cert.serialNumber = new Integer({ value: (this.serial += 1) });
 

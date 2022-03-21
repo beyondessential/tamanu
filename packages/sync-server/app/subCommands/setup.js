@@ -4,7 +4,7 @@ import { Command } from 'commander';
 import { log } from 'shared/services/logging';
 
 import { initDatabase } from '../database';
-import { vdsConfig } from '../integrations/VdsNc';
+import { checkVdsConfig } from '../integrations/VdsNc';
 
 async function setup() {
   const store = await initDatabase({ testMode: false });
@@ -14,7 +14,7 @@ async function setup() {
   }
 
   // Check VDS config (if enabled)
-  vdsConfig();
+  checkVdsConfig();
 
   // create initial admin user
   const { initialUser } = config.auth;

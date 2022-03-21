@@ -13,20 +13,22 @@
     },
     "environment": "dev"
   },
-  "integrations": {
-    "vds": {
-      "enabled": true,
-      "keySecret": "dTk8mJ0t+xszGxohhMq1Y7UEE9h1Pzvb+1r+YHVf+Y4=",
-      "csr": {
-        "subject": {
-          "countryCode2": "UT"
-        },
-        "email": "admin@tamanu.io"
-      },
-      "sign": {
-        "countryCode3": "UTO"
+  "localisation": {
+    "data": {
+      "country": {
+        "name": "Utopia",
+        "alpha-2": "UT",
+        "alpha-3": "UTO"
       }
-      // ICAO specifies "UT", "UTO", "Utopia" for testing/sample documents
+    }
+  },
+  "integrations": {
+    "vdsNc": {
+      "enabled": true
+    },
+    "signer": {
+      "enabled": true,
+      "keySecret": "dTk8mJ0t+xszGxohhMq1Y7UEE9h1Pzvb+1r+YHVf+Y4="
     }
   }
 }

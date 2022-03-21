@@ -10,8 +10,8 @@ import { getDisplayDate } from './getDisplayDate';
 
 const columns = [
   {
-    key: 'vaccineType',
-    title: 'Vaccine type',
+    key: 'vaccine',
+    title: 'Vaccine',
     customStyles: { minWidth: 30 },
     accessor: ({ scheduledVaccine, createdAt, updatedAt }) => {
       const label = scheduledVaccine?.label;
@@ -20,8 +20,8 @@ const columns = [
     },
   },
   {
-    key: 'vaccineGiven',
-    title: 'Vaccine given',
+    key: 'vaccineBrand',
+    title: 'Vaccine brand',
     customStyles: { minWidth: 30 },
     accessor: ({ scheduledVaccine }) => scheduledVaccine?.vaccine?.name,
   },
@@ -39,12 +39,7 @@ const columns = [
     key: 'healthFacility',
     title: 'Health facility',
     customStyles: { minWidth: 30 },
-    accessor: ({ encounter }) => encounter?.location?.Facility?.name || '',
-  },
-  {
-    key: 'givenBy',
-    title: 'Given by',
-    accessor: ({ encounter }) => encounter?.examiner?.displayName || '',
+    accessor: ({ healthFacility }) => healthFacility,
   },
   {
     key: 'date',
@@ -71,10 +66,11 @@ export const VaccineCertificate = ({
   extraPatientFields,
 }) => {
   const hasEditedRecord = vaccinations.findIndex(v => v.createdAt !== v.updatedAt) !== -1;
-  const contactEmail = getLocalisation('templates.vaccineCertificateFooter.emailAddress');
-  const contactNumber = getLocalisation('templates.vaccineCertificateFooter.contactNumber');
+  const contactEmail = getLocalisation('templates.vaccineCertificate.emailAddress');
+  const contactNumber = getLocalisation('templates.vaccineCertificate.contactNumber');
+  const healthFacility = getLocalisation('templates.vaccineCertificate.healthFacility');
   const countryName = getLocalisation('country.name');
-  const data = vaccinations.map(vaccination => ({ ...vaccination, countryName }));
+  const data = vaccinations.map(vaccination => ({ ...vaccination, countryName, healthFacility }));
 
   return (
     <Document>

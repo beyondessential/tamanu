@@ -2,7 +2,8 @@ import React, { useEffect, useState } from 'react';
 import QRCode from 'qrcode';
 import { storiesOf } from '@storybook/react';
 import { createDummyPatient, createDummyPatientAdditionalData } from 'shared/demoData';
-import { CovidLabCertificate, VaccineCertificate } from 'shared/utils';
+// Todo: Fix calculateLuhnModN dependency in shared/eudcc.js which seems to be breaking storybook
+// import { CovidLabCertificate, VaccineCertificate } from 'shared/utils';
 import { PDFViewer } from '@react-pdf/renderer';
 import SigningImage from './assets/signing-image.png';
 import Watermark from './assets/watermark.png';
@@ -75,8 +76,8 @@ const getLocalisation = key => {
   const config = {
     'templates.letterhead.title': 'TAMANU MINISTRY OF HEALTH & MEDICAL SERVICES',
     'templates.letterhead.subTitle': 'PO Box 12345, Melbourne, Australia',
-    'templates.vaccineCertificateFooter.emailAddress': 'tamanu@health.govt',
-    'templates.vaccineCertificateFooter.contactNumber': '123456',
+    'templates.vaccineCertificate.emailAddress': 'tamanu@health.govt',
+    'templates.vaccineCertificate.contactNumber': '123456',
   };
   return config[key];
 };
