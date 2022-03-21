@@ -20,10 +20,10 @@ const InjectionSiteDropdown = ({ onChange, label }): JSX.Element => {
   );
 };
 
-export const VaccineFormGiven = (): JSX.Element =>
-  getOrientation() === SCREEN_ORIENTATION.PORTRAIT ? (
+export function VaccineFormGiven(): JSX.Element {
+  return getOrientation() === SCREEN_ORIENTATION.PORTRAIT ? (
     <StyledView>
-      <SectionHeading text="Information" />
+      <FormSectionHeading text="Consent" />
       <Field
         component={Checkbox}
         name="consent"
@@ -40,7 +40,7 @@ export const VaccineFormGiven = (): JSX.Element =>
     </StyledView>
   ) : (
     <StyledView paddingTop={10}>
-      <FormSectionHeading text="Information" />
+      <FormSectionHeading text="Consent" />
       <Field
         component={Checkbox}
         name="consent"
@@ -64,3 +64,4 @@ export const VaccineFormGiven = (): JSX.Element =>
       </StyledView>
     </StyledView>
   );
+}
