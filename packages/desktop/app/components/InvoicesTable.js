@@ -71,7 +71,7 @@ const StatusDisplay = React.memo(({ status }) => (
   </StatusLabel>
 ));
 
-const getDate = ({ date }) => (date ? <DateDisplay date={date} /> : '');
+const getDate = ({ date }) => <DateDisplay date={date} />;
 const getViewButton = patientId => row => <ViewButton patientId={patientId} row={row} />;
 const getInvoiceTotal = row => <InvoiceTotal row={row} />;
 const getPaymentStatus = row => INVOICE_PAYMENT_STATUS_LABELS[row.paymentStatus] || 'Unknown';
