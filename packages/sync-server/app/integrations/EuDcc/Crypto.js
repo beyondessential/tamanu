@@ -11,6 +11,11 @@ import { depem } from 'shared/utils';
 // TODO: Move this function somewhere more generic
 import { fakeABtoRealAB } from '../VdsNc';
 
+/**
+ *  Fetches the actual 32 byte privateKey from within the structured privateKey data
+ *
+ *  @returns 32-byte buffer with the privateKey value
+ */
 function extractKeyD(keyData) {
   const asn = fromBER(fakeABtoRealAB(keyData.export({ type: 'pkcs8', format: 'der' }).buffer));
   if (asn.result.error !== '') {
@@ -22,6 +27,16 @@ function extractKeyD(keyData) {
   return Buffer.from(privateKey.valueBlock.valueHex, 'hex');
 }
 
+/**
+ *  Packs a JSON object according to HCERT specs
+ *
+ *  - Convert to CBOR
+ *  - Sign and encode with COSE
+ *  - Compress with zlib
+ *  - Encode in base45
+ *
+ *  @returns The HCERT encoded data
+ */
 export async function HCERTPack(messageData, models) {
   log.info('HCERT Packing message data');
   const signer = await models.Signer.findActive();
@@ -51,6 +66,11 @@ export async function HCERTPack(messageData, models) {
   return `HC1:${base45.encode(deflatedBuf)}`;
 }
 
+/**
+ *  Unpacks HCERT data, and verifies the COSE signature
+ *
+ *  @returns The decoded JSON data
+ */
 export async function HCERTVerify(packedData, models) {
   log.info('Verifying HCERT message');
   const signer = await models.Signer.findActive();
