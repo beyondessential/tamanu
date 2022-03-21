@@ -113,18 +113,18 @@ export const InvoiceDetailForm = ({
             <Field name="receiptNumber" label="Receipt number" component={TextField} />
             <ButtonRow>
               {isInvoiceEditable(invoice.status) ? (
-                <Button variant="contained" onClick={onCancel}>
-                  Cancel Invoice
-                </Button>
-              ) : null}
-              {isInvoiceEditable(invoice.status) ? (
-                <Button
-                  variant="contained"
-                  onClick={() => setFinaliseInvoiceModalOpen(true)}
-                  color="primary"
-                >
-                  Finalise Invoice
-                </Button>
+                <>
+                  <Button variant="contained" onClick={onCancel}>
+                    Cancel Invoice
+                  </Button>
+                  <Button
+                    variant="contained"
+                    onClick={() => setFinaliseInvoiceModalOpen(true)}
+                    color="primary"
+                  >
+                    Finalise Invoice
+                  </Button>
+                </>
               ) : null}
               <Button variant="contained" onClick={submitForm} color="primary">
                 Save
