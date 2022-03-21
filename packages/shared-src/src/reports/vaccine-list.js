@@ -104,7 +104,7 @@ export async function queryCovidVaccineListData(models, parameters) {
     }
     const {
       encounter: {
-        patient: { id, displayId, firstName, lastName, dateOfBirth, village, sex },
+        patient: { id: patientId, displayId, firstName, lastName, dateOfBirth, village, sex },
         examiner: { displayName: examinerName },
       },
       date,
@@ -114,7 +114,7 @@ export async function queryCovidVaccineListData(models, parameters) {
     } = vaccine;
 
     const record = {
-      id,
+      patientId,
       patientName: `${firstName} ${lastName}`,
       uid: displayId,
       dob: moment(dateOfBirth).format('DD-MM-YYYY'),

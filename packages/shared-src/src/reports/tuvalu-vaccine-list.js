@@ -34,11 +34,11 @@ const reportColumnTemplate = [
   })),
 ];
 
-const SURVEY_ID = 'program-fijicovid19-fijicovidsampcollection';
+const SURVEY_ID = 'program-tuvalucovid19-tuvalucovidconsent';
 // const SURVEY_ID = 'program-kiribaticovid19-kiribaticovidtestregistration';
 
 const addabc = async (models, vaccineData) => {
-  const allPatientIds = vaccineData.map(({ id }) => id);
+  const allPatientIds = vaccineData.map(({ patientId }) => patientId);
   console.log(allPatientIds);
   const where = {
     '$surveyResponse->encounter.patient_id$': allPatientIds,
@@ -54,18 +54,33 @@ const addabc = async (models, vaccineData) => {
   const answersByPatient = groupBy(transformedAnswers, 'patientId');
   console.log(answersByPatient);
 
-  return vaccineData.map(data => ({
+  const abcd = answersByPatient.map(allAnswers);
+
+  const func = ([acc, { body, dataElementId }]) => {
+    console.log(body);
+    return {
+      ...acc,
+      [dataElementId]: body,
+    };
+  };
+  console.log(func);
+  console.log(func([{}, { body: 'hi', dataElementId: 'hello' }]));
+
+  const mapper = data => ({
     ...data,
-    ...answersByPatient[data.id].reduce(
-      ([acc, { body, dataElementId }]) => ({ ...acc, [dataElementId]: body }),
-      {},
-    ),
-  }));
+    ...(answersByPatient[data.patientId] || [{ hi: 'asdfads' }])[0],
+  });
+  console.log(vaccineData);
+  console.log(mapper({}));
+  console.log(mapper({ patientId: '9d16bfc8-add4-497a-9536-a5fc717a48d6' }));
+
+  return vaccineData.map(mapper);
 };
 
 export async function dataGenerator({ models }, parameters) {
   const queryResults = await queryCovidVaccineListData(models, parameters);
   const reportData = await addabc(models, queryResults);
+  console.log(reportData);
   return generateReportFromQueryData(reportData, reportColumnTemplate);
 }
 
