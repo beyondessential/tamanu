@@ -1,4 +1,4 @@
-import React, { ReactElement, useState, useEffect } from 'react';
+import React, { ReactElement, useState, useEffect, useCallback } from 'react';
 import { useNetInfo } from '@react-native-community/netinfo';
 
 import { SelectOption } from '../Dropdown';
@@ -33,6 +33,7 @@ const fetchServers = async (): Promise<SelectOption[]> => {
 export const ServerSelector = ({ onChange, label, value }): ReactElement => {
   const [options, setOptions] = useState([]);
   const [modalOpen, setModalOpen] = useState(false);
+  const [displayValue, setDisplayValue] = useState('');
   const netInfo = useNetInfo();
 
   useEffect(() => {
@@ -43,6 +44,11 @@ export const ServerSelector = ({ onChange, label, value }): ReactElement => {
       }
     })();
   }, [netInfo.isInternetReachable]);
+
+  const onServerSelected = useCallback((server) => {
+    setDisplayValue(server.label);
+    onChange(server.value);
+  }, [onChange]);
 
   if (!netInfo.isInternetReachable) {
     return (
@@ -65,14 +71,14 @@ export const ServerSelector = ({ onChange, label, value }): ReactElement => {
             style={{ fontSize: screenPercentageToDP(1.8, Orientation.Height) }}
             onPress={(): void => setModalOpen(true)}
           >
-            {value || label}
+            {displayValue || label}
           </StyledText>
         </InputContainer>
       </StyledView>
       <AndroidPicker
         label={label}
         options={options}
-        onChange={onChange}
+        onChange={onServerSelected}
         open={modalOpen}
         closeModal={(): void => setModalOpen(false)}
       />
