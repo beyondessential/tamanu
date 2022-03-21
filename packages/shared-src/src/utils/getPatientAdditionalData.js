@@ -8,8 +8,8 @@ import config from 'config';
  * uses configured questionIds as a fallback
  *
  * The ideal way to get this data would be to allow survey questions to be configured
- * such that they write their answers to patient record fields. However in the meantime
- * these endpoint handlers allow easy and consistent access to the data on the front end
+ * such that they write their answers to patient record fields (@see WAITM-104).
+ * However in the meantime these endpoint handlers allow easy and consistent access to the data.
  */
 export async function getPatientAdditionalData(models, patientId, fieldName) {
   const { PatientAdditionalData } = models;

@@ -95,7 +95,7 @@ export class Patient extends Model {
     });
   }
 
-  async getLabTests(queryOptions) {
+  async getCovidLabTests(queryOptions) {
     return this.sequelize.models.LabRequest.findAll({
       raw: true,
       nest: true,

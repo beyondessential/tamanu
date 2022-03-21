@@ -126,7 +126,7 @@ export const makeCovidTestCertificate = async (patient, printedBy, models, vdsDa
   };
 
   try {
-    const labs = await patient.getLabTests();
+    const labs = await patient.getCovidLabTests();
     await ReactPDF.render(
       <CovidLabCertificate
         patient={patientData}

@@ -474,10 +474,7 @@ patientRoute.get(
     const { Patient } = models;
 
     const patient = await Patient.findByPk(params.id);
-    const tests = await patient.getLabTests();
-
-    console.log('tests', tests);
-
+    const tests = await patient.getCovidLabTests();
     res.json(tests);
   }),
 );
