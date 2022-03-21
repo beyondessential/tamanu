@@ -8,6 +8,7 @@ import {
   TestCSCA,
 } from 'sync-server/app/integrations/VdsNc';
 import { expect } from 'chai';
+import { getLocalisation } from 'sync-server/app/localisation';
 
 describe('EU DCC: HCERT Formatting', () => {
   let ctx;
@@ -15,18 +16,14 @@ describe('EU DCC: HCERT Formatting', () => {
     ctx = await createTestContext();
     const testCSCA = await TestCSCA.generate();
 
-    const { publicKey, privateKey, request } = await newKeypairAndCsr({
-      keySecret: 'secret',
-      countryAlpha2: 'UT',
-      signerIdentifier: 'TA',
-    });
+    const { publicKey, privateKey, request } = await newKeypairAndCsr({});
 
-    const { VdsNcSigner } = ctx.store.models;
-    const signer = await VdsNcSigner.create({
-      publicKey,
-      privateKey,
+    const { Signer } = ctx.store.models;
+    const signer = await Signer.create({
+      publicKey: Buffer.from(publicKey),
+      privateKey: Buffer.from(privateKey),
       request,
-      countryCode: 'UTO',
+      countryCode: (await getLocalisation()).country['alpha-3'],
     });
     const signerCert = await testCSCA.signCSR(request);
     const signedCert = await loadCertificateIntoSigner(signerCert);
@@ -43,7 +40,7 @@ describe('EU DCC: HCERT Formatting', () => {
         integer: 12345,
       },
     };
-    const packedData = await HCERTPack(testMessageData, 'secret', ctx.store.models);
+    const packedData = await HCERTPack(testMessageData, ctx.store.models);
     const verifiedData = await HCERTVerify(packedData, ctx.store.models);
 
     expect(verifiedData).to.deep.equal(testMessageData);
