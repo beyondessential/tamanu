@@ -24,25 +24,9 @@
 
 ## v1.13.2
 
-### Manual steps required after upgrade ⚙
-
-- (left blank)
-
-### Features ⭐
-
-- (left blank)
-
-### Tweaks ⚖️
-
-- (left blank)
-
 ### Bug fixes 🐛
 
 - Fix issue that was causing sync attempts to fail unpredictably
-
-### Infrastructure and maintenance 🛠
-
-- (left blank)
 
 ## v1.13.1
 
