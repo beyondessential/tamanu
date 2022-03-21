@@ -22,7 +22,7 @@ export class AdministeredVaccine extends BaseModel implements IAdministeredVacci
   @Column({ nullable: true })
   location?: string;
 
-  @Column({ nullable: false, default: false })
+  @Column({ nullable: true, default: null })
   consent: boolean;
 
   @Column()
