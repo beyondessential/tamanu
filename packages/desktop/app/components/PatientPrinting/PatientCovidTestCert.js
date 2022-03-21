@@ -5,13 +5,7 @@ import { ICAO_DOCUMENT_TYPES } from 'shared/constants';
 import { Modal } from '../Modal';
 import { Certificate, Table } from '../Print/Certificate';
 import { DateDisplay } from '../DateDisplay';
-import {
-  getCompletedDate,
-  getMethod,
-  getRequestId,
-  getLaboratory,
-  getRequestedBy,
-} from '../../utils/lab';
+import { getCompletedDate, getMethod, getRequestId, getLaboratory } from '../../utils/lab';
 
 import { useApi } from '../../api';
 import { useLocalisation } from '../../contexts/Localisation';
@@ -102,11 +96,12 @@ export const PatientCovidTestCert = ({ patient }) => {
       {
         key: 'result',
         title: 'Result',
+        accessor: ({ tests }) => tests?.result,
       },
       {
         key: 'specimenType',
         title: 'Specimen type',
-        accessor: ({ labTestType }) => labTestType.name,
+        accessor: ({ tests }) => tests?.labTestType?.name || 'Unknown',
       },
     ],
     [],
@@ -114,21 +109,10 @@ export const PatientCovidTestCert = ({ patient }) => {
 
   useEffect(() => {
     (async () => {
-      const response = await api.get(`labRequest`, {
-        patientId: patient.id,
-        category: 'covid',
-      });
-      const requests = await Promise.all(
-        response.data.map(async request => {
-          const { data: tests } = await api.get(`labRequest/${request.id}/tests`);
-          return {
-            ...request,
-            ...tests[0],
-          };
-        }),
-      );
+      const tests = await api.get(`patient/${patient.id}/labTests`);
+
       setRows(
-        requests.map(request => ({
+        tests.map(request => ({
           rowId: request.id,
           cells: columns.map(({ key, accessor }) => ({
             key,

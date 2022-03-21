@@ -466,6 +466,23 @@ patientRoute.use(patientVaccineRoutes);
 patientRoute.use(patientDocumentMetadataRoutes);
 
 patientRoute.get(
+  '/:id/labTests',
+  asyncHandler(async (req, res) => {
+    req.checkPermission('read', 'Patient');
+
+    const { models, params } = req;
+    const { Patient } = models;
+
+    const patient = await Patient.findByPk(params.id);
+    const tests = await patient.getLabTests();
+
+    console.log('tests', tests);
+
+    res.json(tests);
+  }),
+);
+
+patientRoute.get(
   '/:id/passportNumber',
   asyncHandler(async (req, res) => {
     req.checkPermission('read', 'Patient');
