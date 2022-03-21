@@ -119,7 +119,6 @@ export const makeCovidTestCertificate = async (patient, printedBy, models, vdsDa
     patient.id,
     config?.questionCodeIds?.passport,
   );
-  console.log('passport', passport);
 
   const patientData = {
     ...patient.dataValues,

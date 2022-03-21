@@ -1,4 +1,5 @@
 import React, { useState, useEffect, useMemo, useCallback } from 'react';
+import { useSelector } from 'react-redux';
 
 import { ICAO_DOCUMENT_TYPES } from 'shared/constants';
 import { Modal } from '../Modal';
@@ -15,6 +16,7 @@ import {
 import { useApi } from '../../api';
 import { useLocalisation } from '../../contexts/Localisation';
 import { EmailButton } from '../Email/EmailButton';
+import { getCurrentUser } from '../../store';
 
 const usePassportNumber = patientId => {
   const api = useApi();
@@ -49,6 +51,8 @@ export const PatientCovidTestCert = ({ patient }) => {
   const [rows, setRows] = useState([]);
   const { getLocalisation } = useLocalisation();
   const api = useApi();
+  const currentUser = useSelector(getCurrentUser);
+  const currentUserDisplayName = currentUser ? currentUser.displayName : '';
 
   const createCovidTestCertNotification = useCallback(
     data => {
@@ -57,9 +61,10 @@ export const PatientCovidTestCert = ({ patient }) => {
         requireSigning: false,
         patientId: patient.id,
         forwardAddress: data.email,
+        createdBy: currentUserDisplayName,
       });
     },
-    [api, patient],
+    [api, patient, currentUserDisplayName],
   );
 
   const columns = useMemo(
