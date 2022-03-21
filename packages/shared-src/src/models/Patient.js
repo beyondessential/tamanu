@@ -1,7 +1,6 @@
 import { Sequelize } from 'sequelize';
 import { SYNC_DIRECTIONS } from 'shared/constants';
 import { Model } from './Model';
-import { generateHashFromUUID } from '../utils';
 
 export class Patient extends Model {
   static init({ primaryKey, ...options }) {
@@ -70,14 +69,17 @@ export class Patient extends Model {
     return patients.map(({ id }) => id);
   }
 
-  async getAdministeredVaccines() {
+  async getAdministeredVaccines(queryOptions) {
     const { models } = this.sequelize;
     return models.AdministeredVaccine.findAll({
+      raw: true,
+      nest: true,
+      ...queryOptions,
       where: {
-        ['$encounter.patient_id$']: this.id,
+        '$encounter.patient_id$': this.id,
         status: 'GIVEN',
       },
-      order: [['updatedAt', 'DESC']],
+      order: [['date', 'DESC']],
       include: [
         {
           model: models.Encounter,
@@ -118,28 +120,5 @@ export class Patient extends Model {
         },
       ],
     });
-  }
-
-  async getIcaoUVCI() {
-    const { models } = this.sequelize;
-
-    const vaccinations = await models.AdministeredVaccine.findAll({
-      where: {
-        ['$encounter.patient_id$']: this.id,
-        status: 'GIVEN',
-      },
-      order: [['date', 'DESC']],
-      include: [
-        {
-          model: models.Encounter,
-          as: 'encounter',
-          include: models.Encounter.getFullReferenceAssociations(),
-        },
-      ],
-    });
-
-    const latestVaccination = vaccinations[0];
-    const uuid = latestVaccination.get('id');
-    return generateHashFromUUID(uuid);
   }
 }
