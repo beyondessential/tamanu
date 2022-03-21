@@ -3,9 +3,15 @@ import ReactPDF from '@react-pdf/renderer';
 import path from 'path';
 import QRCode from 'qrcode';
 import { get } from 'lodash';
+import config from 'config';
 
 import { log } from 'shared/services/logging';
-import { tmpdir, CovidLabCertificate, VaccineCertificate } from 'shared/utils';
+import {
+  tmpdir,
+  CovidLabCertificate,
+  VaccineCertificate,
+  getPatientSurveyResponseAnswer,
+} from 'shared/utils';
 import { generateUVCIForPatient } from '../integrations/VdsNc';
 import { getLocalisation } from '../localisation';
 
@@ -104,12 +110,27 @@ export const makeCovidTestCertificate = async (patient, printedBy, models, vdsDa
   });
 
   const vds = vdsData ? await QRCode.toDataURL(vdsData) : null;
+  const additionalData = await models.PatientAdditionalData.findOne({
+    where: { patientId: patient.id },
+    include: models.PatientAdditionalData.getFullReferenceAssociations(),
+  });
+  const passport = await getPatientSurveyResponseAnswer(
+    models,
+    patient.id,
+    config?.questionCodeIds?.passport,
+  );
+  console.log('passport', passport);
+
+  const patientData = {
+    ...patient.dataValues,
+    additionalData: { ...additionalData?.dataValues, passport },
+  };
 
   try {
     const labs = await patient.getLabRequests();
     await ReactPDF.render(
       <CovidLabCertificate
-        patient={patient.dataValues}
+        patient={patientData}
         labs={labs}
         signingSrc={signingImage?.data}
         watermarkSrc={watermark?.data}

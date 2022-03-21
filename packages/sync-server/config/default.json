@@ -465,6 +465,10 @@
     "freeSpaceRequired": {
       "gigabytesForUploadingDocuments": 16
     }
+  },
+  "questionCodeIds": {
+    "passport": "pde-FijCOVRDT005a",
+    "nationalityId": "pde-PalauCOVSamp7"
   }
 }
 
