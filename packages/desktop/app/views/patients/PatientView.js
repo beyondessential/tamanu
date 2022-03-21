@@ -77,7 +77,7 @@ const TABS = [
   {
     label: 'Invoices',
     key: 'invoices',
-    icon: 'fa fa-syringe',
+    icon: 'fa fa-cash-register',
     render: props => <InvoicesPane {...props} />,
     condition: getLocalisation => getLocalisation('features.enableInvoicing'),
   },
