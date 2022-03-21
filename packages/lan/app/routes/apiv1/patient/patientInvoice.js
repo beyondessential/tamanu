@@ -49,7 +49,7 @@ patientInvoiceRoutes.get(
       },
     ]);
 
-    const invoices = await models.Invoice.findAll({
+    const { rows, count } = await models.Invoice.findAndCountAll({
       include: [
         {
           model: models.Encounter,
@@ -71,8 +71,8 @@ patientInvoiceRoutes.get(
     });
 
     res.send({
-      count: invoices.length,
-      data: invoices,
+      count,
+      data: rows,
     });
   }),
 );
