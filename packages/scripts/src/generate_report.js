@@ -8,9 +8,7 @@
  * Please use the sync server report subcommand if you don't need to download to excel locally.
  */
 
-// const reportName = 'covid-swab-lab-test-list';
-// const reportName = 'fiji-recent-attendance-list';
-const reportName = 'tuvalu-vaccine-list';
+const reportName = 'covid-swab-lab-test-list';
 
 const path = require('path');
 const XLSX = require('xlsx');
@@ -18,7 +16,6 @@ const XLSX = require('xlsx');
 const { initDatabase } = require('shared/services/database');
 // eslint-disable-next-line import/no-dynamic-require
 const { dataGenerator } = require(`shared/reports/${reportName}`);
-// const { dataGenerator } = require(`shared/reports/${reportName}`);
 
 async function writeExcelFile(data, filePath) {
   const book = XLSX.utils.book_new();
@@ -46,11 +43,11 @@ const generateReport = async () => {
   // 1. get models
   console.log('Initialising database');
   const context = await initDatabase({
-    port: 5430,
-    name: 'tamanu_lan',
+    port: 5431,
+    name: 'tamanu-sync',
     verbose: false,
-    username: 'alastair',
-    password: 'password',
+    username: '',
+    password: '',
   });
   console.log('Initialising database: Success!');
 
