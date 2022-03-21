@@ -1,7 +1,10 @@
-import moment from 'moment';
-import { Op } from 'sequelize';
 import { groupBy } from 'lodash';
-import { generateReportFromQueryData, getAnswers, transformAnswers } from './utilities';
+import {
+  generateReportFromQueryData,
+  getAnswers,
+  transformAnswers,
+  takeMostRecentAnswers,
+} from './utilities';
 import {
   queryCovidVaccineListData,
   reportColumnTemplate as baseReportColumnTemplate,
@@ -35,7 +38,6 @@ const reportColumnTemplate = [
 ];
 
 const SURVEY_ID = 'program-tuvalucovid19-tuvalucovidconsent';
-// const SURVEY_ID = 'program-kiribaticovid19-kiribaticovidtestregistration';
 
 const getAnswersKeyedByDataElementId = (answers = []) => {
   const keyedAnswers = {};
@@ -47,16 +49,23 @@ const getAnswersKeyedByDataElementId = (answers = []) => {
   return keyedAnswers;
 };
 
-const addabc = async (models, vaccineData) => {
-  const allPatientIds = vaccineData.map(({ patientId }) => patientId);
+const getConsentSurveyDataByPatient = async (models, patientIds) => {
   const where = {
-    '$surveyResponse->encounter.patient_id$': allPatientIds,
+    '$surveyResponse->encounter.patient_id$': patientIds,
     '$surveyResponse.survey_id$': SURVEY_ID,
   };
   const rawAnswers = await getAnswers(models, where);
   const surveyComponents = await models.SurveyScreenComponent.getComponentsForSurvey(SURVEY_ID);
   const transformedAnswers = await transformAnswers(models, rawAnswers, surveyComponents);
-  const answersByPatient = groupBy(transformedAnswers, 'patientId');
+  // Technically this filtering is not needed since answers are already sorted by date,
+  // but I think this is safer and easier to read.
+  const filteredAnswers = takeMostRecentAnswers(transformedAnswers);
+  return groupBy(filteredAnswers, 'patientId');
+};
+
+const addSurveyDataToVaccinations = async (models, vaccineData) => {
+  const allPatientIds = vaccineData.map(({ patientId }) => patientId);
+  const answersByPatient = await getConsentSurveyDataByPatient(models, allPatientIds);
 
   const mergeDataWithAnswers = data => ({
     ...data,
@@ -67,8 +76,8 @@ const addabc = async (models, vaccineData) => {
 };
 
 export async function dataGenerator({ models }, parameters) {
-  const queryResults = await queryCovidVaccineListData(models, parameters);
-  const reportData = await addabc(models, queryResults);
+  const vaccinationData = await queryCovidVaccineListData(models, parameters);
+  const reportData = await addSurveyDataToVaccinations(models, vaccinationData);
   return generateReportFromQueryData(reportData, reportColumnTemplate);
 }
 
