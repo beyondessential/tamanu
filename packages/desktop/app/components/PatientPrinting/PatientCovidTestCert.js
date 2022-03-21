@@ -109,7 +109,7 @@ export const PatientCovidTestCert = ({ patient }) => {
 
   useEffect(() => {
     (async () => {
-      const tests = await api.get(`patient/${patient.id}/labTests`);
+      const tests = await api.get(`patient/${patient.id}/covidLabTests`);
 
       setRows(
         tests.map(request => ({

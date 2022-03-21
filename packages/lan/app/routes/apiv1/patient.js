@@ -466,20 +466,6 @@ patientRoute.use(patientVaccineRoutes);
 patientRoute.use(patientDocumentMetadataRoutes);
 
 patientRoute.get(
-  '/:id/labTests',
-  asyncHandler(async (req, res) => {
-    req.checkPermission('read', 'Patient');
-
-    const { models, params } = req;
-    const { Patient } = models;
-
-    const patient = await Patient.findByPk(params.id);
-    const tests = await patient.getCovidLabTests();
-    res.json(tests);
-  }),
-);
-
-patientRoute.get(
   '/:id/passportNumber',
   asyncHandler(async (req, res) => {
     req.checkPermission('read', 'Patient');
@@ -500,5 +486,19 @@ patientRoute.get(
 
     const nationalityRecord = await req.models.ReferenceData.findByPk(value);
     res.json(nationalityRecord?.dataValues?.name);
+  }),
+);
+
+patientRoute.get(
+  '/:id/covidLabTests',
+  asyncHandler(async (req, res) => {
+    req.checkPermission('read', 'Patient');
+
+    const { models, params } = req;
+    const { Patient } = models;
+
+    const patient = await Patient.findByPk(params.id);
+    const tests = await patient.getCovidLabTests();
+    res.json(tests);
   }),
 );
