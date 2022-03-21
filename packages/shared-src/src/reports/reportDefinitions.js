@@ -89,6 +89,11 @@ export const REPORT_DEFINITIONS = [
     allFacilities: true,
   },
   {
+    name: 'Kiribati COVID-19 Test - Line list',
+    id: 'kiribati-covid-swab-lab-test-list',
+    allFacilities: true,
+  },
+  {
     name: 'COVID-19 Tests - Summary',
     id: 'covid-swab-lab-tests-summary',
     parameters: [{ parameterField: 'VillageField' }, { parameterField: 'LabTestLaboratoryField' }],
@@ -208,6 +213,19 @@ export const REPORT_DEFINITIONS = [
         suggesterEndpoint: 'nursingZone',
       },
       { parameterField: 'VillageField' },
+    ],
+  },
+  {
+    name: 'Fiji Aspen encounter summary - Line list',
+    id: 'fiji-aspen-encounter-summary-line-list',
+    allFacilities: false,
+    parameters: [
+      {
+        parameterField: 'ParameterAutocompleteField',
+        label: 'Patient Billing Type',
+        name: 'patientBillingType',
+        suggesterEndpoint: 'patientBillingType',
+      },
     ],
   },
 ];

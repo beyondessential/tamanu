@@ -14,12 +14,18 @@
     - name: build_shared
       service: app
       command: ./scripts/build_shared.sh
-    - name: migrate_sync_server
+    - name: apply_and_revert_sync_server_migrations
       service: app
-      command: ./scripts/migrate_sync_server.sh
+      command: ./scripts/apply_and_revert_sync_server_migrations.sh
     - name: test
-      service: app
-      command: ./scripts/test.sh
+      type: serial
+      steps:
+        - name: app-test
+          service: app
+          command: ./scripts/test.sh
+        - name: mobile-test
+          service: mobile
+          command: "yarn test:coverage"
     - name: build
       type: parallel
       steps:
@@ -80,6 +86,10 @@
               tag: ^(master$)
               service: awsdeployment
               command: ./scripts/deploy_sync.sh demo-nauru
+            - name: deploy_sync_demo_palau_environment
+              tag: ^(master$)
+              service: awsdeployment
+              command: ./scripts/deploy_sync.sh demo-palau
         - name: deploy_lan
           type: serial
           steps:

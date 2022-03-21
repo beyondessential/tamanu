@@ -105,10 +105,10 @@ app.post('/token', (req, res) => {
 let didFetch = () => {
   throw new Error('fetch was too early');
 };
-app.get('/api/Tamanu/Fetch/:id', (req, res) => {
-  console.log('fetch endpoint hit:', req.params.id);
-  if (req.params.id !== fetchId.toString()) {
-    throw new Error(`Wrong fetch_id: expected ${fetchId}, got ${req.params.id}`);
+app.get('/api/Tamanu/Fetch', (req, res) => {
+  console.log('fetch endpoint hit:', req.query.fetch_id);
+  if (req.query.fetch_id !== fetchId.toString()) {
+    throw new Error(`Wrong fetch_id: expected ${fetchId}, got ${req.query.fetch_id}`);
   }
   didFetch();
   const payload = { response: 'success', data: patient };

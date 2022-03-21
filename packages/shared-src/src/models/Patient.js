@@ -18,6 +18,7 @@ export class Patient extends Model {
         culturalName: Sequelize.STRING,
 
         dateOfBirth: Sequelize.DATE,
+        dateOfDeath: Sequelize.DATE,
         sex: {
           type: Sequelize.ENUM('male', 'female', 'other'),
           allowNull: false,
@@ -32,7 +33,11 @@ export class Patient extends Model {
       {
         ...options,
         syncConfig: { syncDirection: SYNC_DIRECTIONS.BIDIRECTIONAL },
-        indexes: [{ fields: ['display_id'] }, { fields: ['last_name'] }],
+        indexes: [
+          { fields: ['date_of_death'] },
+          { fields: ['display_id'] },
+          { fields: ['last_name'] },
+        ],
       },
     );
   }
@@ -62,5 +67,58 @@ export class Patient extends Model {
       attributes: ['id'],
     });
     return patients.map(({ id }) => id);
+  }
+
+  async getAdministeredVaccines(queryOptions) {
+    const { models } = this.sequelize;
+    return models.AdministeredVaccine.findAll({
+      raw: true,
+      nest: true,
+      ...queryOptions,
+      where: {
+        '$encounter.patient_id$': this.id,
+        status: 'GIVEN',
+      },
+      order: [['date', 'DESC']],
+      include: [
+        {
+          model: models.Encounter,
+          as: 'encounter',
+          include: models.Encounter.getFullReferenceAssociations(),
+        },
+        {
+          model: models.ScheduledVaccine,
+          as: 'scheduledVaccine',
+          include: models.ScheduledVaccine.getListReferenceAssociations(),
+        },
+      ],
+    });
+  }
+
+  async getLabRequests(queryOptions) {
+    return this.sequelize.models.LabRequest.findAll({
+      raw: true,
+      nest: true,
+      ...queryOptions,
+      include: [
+        { association: 'requestedBy' },
+        {
+          association: 'tests',
+          include: [{ association: 'labTestMethod' }, { association: 'labTestType' }],
+        },
+        { association: 'laboratory' },
+        {
+          association: 'encounter',
+          required: true,
+          include: [
+            { association: 'examiner' },
+            {
+              association: 'patient',
+              where: { id: this.id },
+            },
+          ],
+        },
+      ],
+    });
   }
 }

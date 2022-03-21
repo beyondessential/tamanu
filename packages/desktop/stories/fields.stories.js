@@ -3,6 +3,7 @@ import shortid from 'shortid';
 
 import { storiesOf } from '@storybook/react';
 import { action } from '@storybook/addon-actions';
+import '@fortawesome/fontawesome-free/css/all.css';
 
 import {
   TextInput,
@@ -16,6 +17,7 @@ import {
   MultiselectInput,
   AutocompleteInput,
   NullableBooleanInput,
+  TimeWithUnitInput,
 } from '../app/components';
 import { IdInput } from '../app/components/Field/IdField';
 import styled from 'styled-components';
@@ -63,7 +65,9 @@ class StoryControlWrapper extends React.PureComponent {
     return (
       <Container>
         <Component {...props} value={value} onChange={this.onChange} />
-        {clearButton && <Button onClick={() => this.setState({ value: '' })}> Clear Field (value = "") </Button>}
+        {clearButton && (
+          <Button onClick={() => this.setState({ value: '' })}> Clear Field (value = "") </Button>
+        )}
       </Container>
     );
   }
@@ -88,6 +92,16 @@ addStories(
   'Free text input.',
 ).add('Multiline', () => (
   <StoryControlWrapper Component={TextInput} label="Life story" multiline rows={4} />
+));
+
+addStories('TimeWithUnitInput', props => (
+  <StoryControlWrapper
+    Component={TimeWithUnitInput}
+    label="Time between onset"
+    name="onsetMinutes"
+    min={0}
+    {...props}
+  />
 ));
 
 addStories('CheckInput', props => (
@@ -157,11 +171,11 @@ addStories(
 
 addStories('SelectInput', props => (
   <StoryControlWrapper Component={SelectInput} label="Fruit" options={FRUITS} {...props} />
-))
+));
 
 addStories('MultiselectInput', props => (
   <StoryControlWrapper Component={MultiselectInput} label="Fruit" options={FRUITS} {...props} />
-))
+));
 
 const dummySuggester = {
   fetchSuggestions: async search => {

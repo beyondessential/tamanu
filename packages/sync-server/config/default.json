@@ -58,6 +58,7 @@
     "tokenDuration": "1h",
     "reportNoUserError": false,
     "allowDummyToken": false,
+    "useHardcodedPermissions": true,
     "initialUser": {
       "email": "admin@tamanu.io",
       "displayName": "Initial Admin",
@@ -78,30 +79,86 @@
     "allowedOrigin": ""
   },
   "schedules": {
+    // batchSize == run through them all in one run, in batches of N
+    // limit == run through N per task run
+    // schedule: 5 fields == first is minutes, 6 fields == first is SECONDS
+
     "outpatientDischarger": {
       // every day at 11 PM
       "schedule": "0 11 * * *",
       "batchSize": 1000,
       "batchSleepAsyncDurationInMilliseconds": 50
     },
+    "patientEmailCommunicationProcessor": {
+      // every 30seconds /!\
+      "schedule": "*/30 * * * * *",
+      "limit": 10
+    },
+    "certificateNotificationProcessor": {
+      // every 30seconds /!\
+      "schedule": "*/30 * * * * *",
+      "limit": 10
+    },
     "reportRequestProcessor": {
-       // every 30 seconds
-      "schedule": "*/30 * * * * *"
+       // every 30 seconds /!\
+      "schedule": "*/30 * * * * *",
+      "limit": 10
+    },
+    "signerRenewalChecker": {
+      "schedule": "0 0 * * *"
+    },
+    "signerRenewalSender": {
+      // needs to happen after the Renewal Checker, and regularly thereafter as a retry mechanism
+      "schedule": "30 * * * *"
+    },
+    "signerWorkingPeriodChecker": {
+      "schedule": "0 1 * * *"
     }
   },
   "integrations": {
     "fijiVrs": {
       "enabled": false,
       "host": "http://uat-vra.digitalfiji.gov.fj:8786",
-      "expectAccessToken": ["set this value in local.json"],
+      "username": null,
+      "password": null,
       // refresh the token if it's within tokenExpiryMarginMs milliseconds of expiry
-      "tokenExpiryMarginMs": 60000
+      "tokenExpiryMarginMs": 60000,
+      "flagInsteadOfDeleting": true,
+      "retrySchedule": "*/30 * * * * *",
+      // don't retry pending records unless they're retryMinAgeMs old
+      "retryMinAgeMs": 60000,
+      "requireClientHeaders": true
     },
     "fijiVps": {
+      "enabled": false,
+      "requireClientHeaders": true
+    },
+    "vdsNc": {
       "enabled": false
     },
+    "signer": {
+      "enabled": false,
+
+      // Encryption key for ICAO Signer key material (stored in DB).
+      // This must be unique per country/installation AND NEVER CHANGED.
+      // It must be at least 32 bytes of random data in Base64.
+      // $ openssl rand -base64 32
+      "keySecret": null,
+
+      // For VDS-NC: exactly 2 letters, must be unique in country, ref 9303-13 §2.2.1(a)
+      "commonName": "TA",
+
+      // Email address for CSCA signing contact
+      "sendRequestTo": "admin@tamanu.io"
+    }
   },
+  // on the sync-server, don't read these values from config!
+  // use the getLocalisation() helper in packages/sync-server/app/localisation.js
+  // this will ensure we can read these values from the database in the future
   "localisation": {
+    "allowInvalid": false,
+    // the labResultWidget and timeZone keys are here for legacy reasons
+    // don't put anything else in the top level of localisation unless it relates to localisation itself
     "labResultWidget": {
       "categoryWhitelist": [
         "labTestCategory-COVID"
@@ -111,7 +168,17 @@
       ]
     },
     "data": {
+      "country": {
+        "name": "",
+        "alpha-2": "",
+        "alpha-3": ""
+      },
       "fields": {
+        "countryName": {
+          "shortLabel": "Country",
+          "longLabel": "Country",
+          "hidden": false
+        },
         "emergencyContactName": {
           "shortLabel": "Emergency Contact Name",
           "longLabel": "Emergency Contact Name"
@@ -151,6 +218,11 @@
           "longLabel": "Sex",
           "hidden": false
         },
+        "email": {
+          "shortLabel": "Email",
+          "longLabel": "Email",
+          "hidden": false
+        },
         "dateOfBirth": {
           "shortLabel": "DOB",
           "longLabel": "Date of birth"
@@ -166,6 +238,10 @@
         "dateOfBirthExact": {
           "shortLabel": "DOB exact",
           "longLabel": "Date of birth exact"
+        },
+        "dateOfDeath": {
+          "shortLabel": "Death",
+          "longLabel": "Date of death"
         },
         "bloodType": {
           "shortLabel": "Blood type",
@@ -313,24 +389,43 @@
       },
       "features": {
         "editPatientDetailsOnMobile": true,
-        "enableInvoicing": true,
+        "enableInvoicing": false,
         "registerNewPatient": true,
-        "hideOtherSex": true
+        "hideOtherSex": true,
+        "enablePatientDeaths": false
       },
       "templates": {
         "letterhead": {
           "title": "TAMANU MINISTRY OF HEALTH & MEDICAL SERVICES",
           "subTitle": "PO Box 12345, Melbourne, Australia"
         },
-        "vaccineCertificateFooter": {
+        "signerRenewalEmail": {
+          "subject": "Tamanu ICAO Certificate Signing Request",
+          "body": "Please sign the following certificate signing request (CSR) with the Country Signing Certificate Authority (CSCA), and return it to the Tamanu team or Tamanu deployment administration team."
+        },
+        "vaccineCertificateEmail": {
+          "subject": "Medical Certificate now available",
+          "body": "A medical certificate has been generated for you.\nYour certificate is available attached to this email."
+        },
+        "covidTestCertificateEmail": {
+          "subject": "Medical Certificate now available",
+          "body": "A medical certificate has been generated for you.\nYour certificate is available attached to this email."
+        },
+        "vaccineCertificate": {
           "emailAddress": "tamanu@health.gov",
-          "contactNumber": 12345
+          "contactNumber": "12345",
+          "healthFacility": "State level"
         }
       },
+      // The time zone setting is currently only used for Vaccine Certificates
+      "timeZone": null,
       "sync": {
         "syncAllEncountersForTheseScheduledVaccines": []
       },
-      "disabledReports": []
+      "disabledReports": [],
+      "uvci": {
+        "format": "icao"
+      }
     }
   },
   "reports": {
@@ -363,6 +458,7 @@
     }
   },
   "tupaiaApiClient": {},
+  "s3": {},
   "scheduledReports": [],
   "disk": {
     "diskPath": "C:/",
@@ -371,3 +467,4 @@
     }
   }
 }
+

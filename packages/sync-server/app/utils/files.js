@@ -17,12 +17,12 @@ export function removeFile(filePath) {
   });
 }
 
-async function writeExcelFile(data, filePath) {
+async function writeToSpreadsheet(data, filePath, bookType) {
   const book = XLSX.utils.book_new();
   const sheet = XLSX.utils.aoa_to_sheet(data);
   XLSX.utils.book_append_sheet(book, sheet, 'values');
   return new Promise((resolve, reject) => {
-    XLSX.writeFileAsync(filePath, book, null, err => {
+    XLSX.writeFileAsync(filePath, book, { type: bookType }, err => {
       if (err) {
         reject(err);
       } else {
@@ -46,12 +46,13 @@ export async function createZipFromFile(fileName, filePath, zipFilePath) {
   await fs.promises.writeFile(zipFilePath, zipContent, { encoding });
 }
 
-export async function createZippedExcelFile(reportName, data) {
+// Dev note: if you find yourself adding new arguments to this function, it's time to refactor it to take an options object
+export async function createZippedSpreadsheet(reportName, data, bookType = 'xlsx') {
   const folder = await tmpdir();
-  const excelFileName = `${reportName}.xlsx`;
+  const excelFileName = `${reportName}.${bookType}`;
   const excelFilePath = path.join(folder, excelFileName);
   const zipFilePath = path.join(folder, `${reportName}.zip`);
-  await writeExcelFile(data, excelFilePath);
+  await writeToSpreadsheet(data, excelFilePath, bookType);
   await createZipFromFile(excelFileName, excelFilePath, zipFilePath);
   await removeFile(excelFilePath);
   return zipFilePath;

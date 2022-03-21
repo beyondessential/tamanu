@@ -33,6 +33,7 @@ describe('covid-vaccine-daily-summary-village', () => {
     sex = 'female',
     schedule = 'Dose 1',
     status = 'GIVEN',
+    label = 'COVID-19-AZ',
   ) => ({
     date: new Date(dateStr),
     status,
@@ -50,7 +51,7 @@ describe('covid-vaccine-daily-summary-village', () => {
       },
     },
     scheduledVaccine: {
-      label: 'COVID-19',
+      label,
       schedule,
     },
   });
@@ -85,15 +86,60 @@ describe('covid-vaccine-daily-summary-village', () => {
         'COVIDVac6',
         'COVIDVac7',
         'COVIDVac8',
+        'COVIDVac9',
+        'COVIDVac10',
+        'COVIDVac11',
+        'COVIDVac12',
+        'COVIDVac13',
+        'COVIDVac14',
+        'COVIDVac15',
+        'COVIDVac16',
+        'COVIDVac17',
+        'COVIDVac18',
+        'COVIDVac19',
+        'COVIDVac20',
+        'COVIDVac21',
+        'COVIDVac22',
+        'COVIDVac23',
+        'COVIDVac24',
       ],
       ...shorthandExpectedDataArray.map(shorthandRow => {
-        const [entity_code, timestamp, ...rest] = shorthandRow;
+        const [entity_code, timestamp, specifiedValues] = shorthandRow;
+        const covidDataPointValues = {
+          COVIDVac1: 0,
+          COVIDVac2: 0,
+          COVIDVac3: 0,
+          COVIDVac4: 0,
+          COVIDVac5: 0,
+          COVIDVac6: 0,
+          COVIDVac7: 0,
+          COVIDVac8: 0,
+          COVIDVac9: 0,
+          COVIDVac10: 0,
+          COVIDVac11: 0,
+          COVIDVac12: 0,
+          COVIDVac13: 0,
+          COVIDVac14: 0,
+          COVIDVac15: 0,
+          COVIDVac16: 0,
+          COVIDVac17: 0,
+          COVIDVac18: 0,
+          COVIDVac19: 0,
+          COVIDVac20: 0,
+          COVIDVac21: 0,
+          COVIDVac22: 0,
+          COVIDVac23: 0,
+          COVIDVac24: 0,
+        };
+        Object.entries(specifiedValues).forEach(([specifiedKey, specifiedValue]) => {
+          covidDataPointValues[specifiedKey] = specifiedValue;
+        });
         return [
           entity_code,
           timestamp,
           '2021-10-10T00:00:00+11:00', // mocked now
           '2021-10-10T00:00:00+11:00', // mocked now
-          ...rest,
+          ...Object.values(covidDataPointValues),
         ];
       }),
     ];
@@ -136,7 +182,7 @@ describe('covid-vaccine-daily-summary-village', () => {
 
     expect(report).toEqual(
       expect.objectContaining(
-        getExpectedDataArray([['VIL_A', '2021-01-01 23:59:59', 0, 2, 0, 2, 0, 0, 0, 0]]),
+        getExpectedDataArray([['VIL_A', '2021-01-01 23:59:59', { COVIDVac2: 2, COVIDVac4: 2 }]]),
       ),
     );
   });
@@ -158,9 +204,9 @@ describe('covid-vaccine-daily-summary-village', () => {
     expect(report).toEqual(
       expect.objectContaining(
         getExpectedDataArray([
-          ['VIL_A', '2021-01-01 23:59:59', 0, 2, 0, 2, 0, 0, 0, 0],
-          ['VIL_A', '2021-01-02 23:59:59', 0, 1, 0, 1, 0, 0, 0, 0],
-          ['VIL_B', '2021-01-01 23:59:59', 0, 1, 0, 1, 0, 0, 0, 0],
+          ['VIL_A', '2021-01-01 23:59:59', { COVIDVac2: 2, COVIDVac4: 2 }],
+          ['VIL_A', '2021-01-02 23:59:59', { COVIDVac2: 1, COVIDVac4: 1 }],
+          ['VIL_B', '2021-01-01 23:59:59', { COVIDVac2: 1, COVIDVac4: 1 }],
         ]),
       ),
     );
@@ -196,8 +242,8 @@ describe('covid-vaccine-daily-summary-village', () => {
 
     expect(report).toEqual(
       getExpectedDataArray([
-        ['VIL_A', '2000-01-01 23:59:59', 0, 2, 1, 2, 0, 0, 0, 0],
-        ['VIL_B', '2000-01-01 23:59:59', 0, 0, 0, 0, 0, 2, 1, 2],
+        ['VIL_A', '2000-01-01 23:59:59', { COVIDVac2: 2, COVIDVac3: 1, COVIDVac4: 2 }],
+        ['VIL_B', '2000-01-01 23:59:59', { COVIDVac6: 2, COVIDVac7: 1, COVIDVac8: 2 }],
       ]),
     );
   });
@@ -215,10 +261,97 @@ describe('covid-vaccine-daily-summary-village', () => {
 
     expect(report).toEqual(
       getExpectedDataArray([
-        ['VIL_A', '2021-01-01 23:59:59', 0, 1, 0, 1, 0, 0, 0, 0],
-        ['VIL_A', '2021-01-02 23:59:59', null, null, null, null, null, null, null, null],
-        ['VIL_B', '2021-01-01 23:59:59', null, null, null, null, null, null, null, null],
-        ['VIL_B', '2021-01-02 23:59:59', null, null, null, null, null, null, null, null],
+        ['VIL_A', '2021-01-01 23:59:59', { COVIDVac2: 1, COVIDVac4: 1 }],
+        [
+          'VIL_A',
+          '2021-01-02 23:59:59',
+          {
+            COVIDVac1: null,
+            COVIDVac2: null,
+            COVIDVac3: null,
+            COVIDVac4: null,
+            COVIDVac5: null,
+            COVIDVac6: null,
+            COVIDVac7: null,
+            COVIDVac8: null,
+            COVIDVac9: null,
+            COVIDVac10: null,
+            COVIDVac11: null,
+            COVIDVac12: null,
+            COVIDVac13: null,
+            COVIDVac14: null,
+            COVIDVac15: null,
+            COVIDVac16: null,
+            COVIDVac17: null,
+            COVIDVac18: null,
+            COVIDVac19: null,
+            COVIDVac20: null,
+            COVIDVac21: null,
+            COVIDVac22: null,
+            COVIDVac23: null,
+            COVIDVac24: null,
+          },
+        ],
+        [
+          'VIL_B',
+          '2021-01-01 23:59:59',
+          {
+            COVIDVac1: null,
+            COVIDVac2: null,
+            COVIDVac3: null,
+            COVIDVac4: null,
+            COVIDVac5: null,
+            COVIDVac6: null,
+            COVIDVac7: null,
+            COVIDVac8: null,
+            COVIDVac9: null,
+            COVIDVac10: null,
+            COVIDVac11: null,
+            COVIDVac12: null,
+            COVIDVac13: null,
+            COVIDVac14: null,
+            COVIDVac15: null,
+            COVIDVac16: null,
+            COVIDVac17: null,
+            COVIDVac18: null,
+            COVIDVac19: null,
+            COVIDVac20: null,
+            COVIDVac21: null,
+            COVIDVac22: null,
+            COVIDVac23: null,
+            COVIDVac24: null,
+          },
+        ],
+        [
+          'VIL_B',
+          '2021-01-02 23:59:59',
+          {
+            COVIDVac1: null,
+            COVIDVac2: null,
+            COVIDVac3: null,
+            COVIDVac4: null,
+            COVIDVac5: null,
+            COVIDVac6: null,
+            COVIDVac7: null,
+            COVIDVac8: null,
+            COVIDVac9: null,
+            COVIDVac10: null,
+            COVIDVac11: null,
+            COVIDVac12: null,
+            COVIDVac13: null,
+            COVIDVac14: null,
+            COVIDVac15: null,
+            COVIDVac16: null,
+            COVIDVac17: null,
+            COVIDVac18: null,
+            COVIDVac19: null,
+            COVIDVac20: null,
+            COVIDVac21: null,
+            COVIDVac22: null,
+            COVIDVac23: null,
+            COVIDVac24: null,
+          },
+        ],
       ]),
     );
   });
@@ -239,8 +372,37 @@ describe('covid-vaccine-daily-summary-village', () => {
     expect(report).toEqual(
       expect.objectContaining(
         getExpectedDataArray([
-          ['VIL_A', '2021-01-01 23:59:59', 0, 1, 0, 1, 0, 0, 0, 0],
-          ['VIL_A', '2021-01-02 23:59:59', null, null, null, null, null, null, null, null],
+          ['VIL_A', '2021-01-01 23:59:59', { COVIDVac2: 1, COVIDVac4: 1 }],
+          [
+            'VIL_A',
+            '2021-01-02 23:59:59',
+            {
+              COVIDVac1: null,
+              COVIDVac2: null,
+              COVIDVac3: null,
+              COVIDVac4: null,
+              COVIDVac5: null,
+              COVIDVac6: null,
+              COVIDVac7: null,
+              COVIDVac8: null,
+              COVIDVac9: null,
+              COVIDVac10: null,
+              COVIDVac11: null,
+              COVIDVac12: null,
+              COVIDVac13: null,
+              COVIDVac14: null,
+              COVIDVac15: null,
+              COVIDVac16: null,
+              COVIDVac17: null,
+              COVIDVac18: null,
+              COVIDVac19: null,
+              COVIDVac20: null,
+              COVIDVac21: null,
+              COVIDVac22: null,
+              COVIDVac23: null,
+              COVIDVac24: null,
+            },
+          ],
         ]),
       ),
     );
@@ -269,7 +431,38 @@ describe('covid-vaccine-daily-summary-village', () => {
 
     expect(report).toEqual(
       expect.objectContaining(
-        getExpectedDataArray([['VIL_A', '2021-01-01 23:59:59', 0, 1, 0, 1, 0, 0, 0, 0]]),
+        getExpectedDataArray([['VIL_A', '2021-01-01 23:59:59', { COVIDVac2: 1, COVIDVac4: 1 }]]),
+      ),
+    );
+  });
+
+  it('reports on pfizer label vaccine doses', async () => {
+    const models = mockModels([
+      mockRow(
+        1,
+        undefined,
+        undefined,
+        undefined,
+        undefined,
+        undefined,
+        undefined,
+        'Covid-19 Pfizer',
+      ),
+      mockRow(2, undefined, undefined, undefined, 'male', undefined, undefined, 'Covid-19 Pfizer'),
+    ]);
+
+    const report = await dataGenerator(
+      { models },
+      // note: it looks up until the end of the day of toDate, so we can pass 00:00:00Z and still have the data returned
+      { fromDate: '2021-01-01T00:00:00Z', toDate: '2021-01-01T00:00:00Z' },
+      mockTupaiaApi(),
+    );
+
+    expect(report).toEqual(
+      expect.objectContaining(
+        getExpectedDataArray([
+          ['VIL_A', '2021-01-01 23:59:59', { COVIDVac13: 1, COVIDVac14: 1, COVIDVac16: 2 }],
+        ]),
       ),
     );
   });
