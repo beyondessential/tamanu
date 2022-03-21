@@ -39,15 +39,14 @@ const reportColumnTemplate = [
 
 const SURVEY_ID = 'program-tuvalucovid19-tuvalucovidconsent';
 
-const getAnswersKeyedByDataElementId = (answers = []) => {
-  const keyedAnswers = {};
-
-  answers.forEach(({ dataElementId, body }) => {
-    keyedAnswers[dataElementId] = body;
-  });
-
-  return keyedAnswers;
-};
+const getAnswersKeyedByDataElementId = (answers = []) =>
+  answers.reduce(
+    (keyedAnswers, { dataElementId, body }) => ({
+      ...keyedAnswers,
+      [dataElementId]: body,
+    }),
+    {},
+  );
 
 const getConsentSurveyDataByPatient = async (models, patientIds) => {
   const where = {
