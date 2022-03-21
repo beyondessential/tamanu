@@ -15,7 +15,7 @@ export const InvoiceDetailModal = ({ title, open, onClose, onUpdated, invoiceId 
   const finaliseInvoice = useCallback(async () => {
     // LOCK IN the total when FINALISING an invoice
     const total = await getInvoiceTotal(api, invoiceId);
-    api.put(`invoices/${invoiceId}`, {
+    await api.put(`invoices/${invoiceId}`, {
       status: INVOICE_STATUS_TYPES.FINALISED,
       total,
       date: new Date(),
