@@ -195,6 +195,9 @@ policy = ca_policy
 countryName = match
 commonName = supplied
 
+[ crl_exts ]
+authorityKeyIdentifier=critical,keyid,issuer
+
 [ bsc_exts ]
 authorityKeyIdentifier=critical,keyid,issuer
 extendedKeyUsage=2.23.136.1.1.14.2
@@ -362,6 +365,7 @@ crl_update() {
   openssl ca \
     -config <(openssl_config "$cscafolder") \
     -keyfile "$cscafolder/private/csca.key" \
+    -crlexts "crl_exts" \
     -gencrl -out "$crlfile.pem" \
     -passin stdin <<< "$passphrase"
 
