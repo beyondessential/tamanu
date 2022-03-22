@@ -34,6 +34,7 @@ export const GeneralInfo = ({
     ['middleName', data.generalInfo.middleName || 'None'],
     ['lastName', data.generalInfo.lastName],
     ['culturalName', data.generalInfo.culturalName || 'None'],
+    ['sex', getGenderLabel(data.generalInfo.sex)],
     ['dateOfBirth', formatDate(new Date(data.generalInfo.dateOfBirth), DateFormats.DDMMYY)],
     ['email', data.generalInfo.email],
     ['villageId', data.generalInfo.village?.name ?? ''],
