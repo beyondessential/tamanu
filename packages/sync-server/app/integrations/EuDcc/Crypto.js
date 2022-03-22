@@ -56,6 +56,9 @@ function extractKeyD(keyData) {
 export async function HCERTPack(messageData, models) {
   log.info('HCERT Packing message data');
   const signer = await models.Signer.findActive();
+  if (!signer) {
+    throw new Error('Cannot pack HCERT, no active signer');
+  }
 
   const iss = (await getLocalisation()).country['alpha-2'];
   const iat = moment();
@@ -101,6 +104,8 @@ export async function HCERTPack(messageData, models) {
 export async function HCERTVerify(packedData, models) {
   log.info('Verifying HCERT message');
   const signer = await models.Signer.findActive();
+  // TODO: load the correct signer from kid?
+  // Or is this only used in testing so doesn't matter?
 
   // Fetch publicKey data from cert
   // Parsing the publicKey field directly seems to go wonky
