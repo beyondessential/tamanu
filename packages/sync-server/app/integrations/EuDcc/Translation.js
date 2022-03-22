@@ -1,7 +1,7 @@
-import moment from 'moment';
+import moment from 'moment-timezone';
 import { transliterate as tr } from 'transliteration';
 import config from 'config';
-import { EUDCC_CERTIFICATION_TYPES, EUDCC_SCHEMA_VERSION } from 'shared/constants';
+import { EUDCC_CERTIFICATE_TYPES, EUDCC_SCHEMA_VERSION } from 'shared/constants';
 import { generateUVCI } from 'shared/utils/uvci';
 import { getLocalisation } from '../../localisation';
 
@@ -32,7 +32,7 @@ const DRUG_TO_SCHEDULE_DOSAGE = {
 
 const MOMENT_FORMAT_ISODATE = 'YYYY-MM-DD';
 
-export async function createCovidVaccinationCertificateData(administeredVaccineId) {
+export async function createCovidVaccinationCertificateData(administeredVaccineId, { models }) {
   const {
     Patient,
     ReferenceData,
@@ -60,9 +60,9 @@ export async function createCovidVaccinationCertificateData(administeredVaccineI
               {
                 model: Facility,
                 as: 'Facility',
-              }
+              },
             ],
-          }
+          },
         ],
       },
       {
@@ -95,39 +95,41 @@ export async function createCovidVaccinationCertificateData(administeredVaccineI
     date,
     scheduledVaccine: {
       schedule,
-      vaccine: { name: label },
+      vaccine: { id: vaccineId },
     },
     encounter: {
       patient,
       location: {
-        Facility: {
-          name: facilityName,
-        },
+        Facility: { name: facilityName },
       },
     },
   } = vaccination;
 
-  if (!Object.keys(DRUG_TO_PRODUCT).includes(label)) {
-    throw new Error(`Unsupported vaccine: ${label}`);
+  if (!Object.keys(DRUG_TO_PRODUCT).includes(vaccineId)) {
+    throw new Error(`Unsupported vaccine: ${vaccineId}`);
   }
 
   const { timeZone, country } = await getLocalisation();
 
-  const dob = moment(patient.dateOfBirth).timezone(timeZone).format(MOMENT_FORMAT_ISODATE);
-  const vaxDate = moment(date).timezone(timeZone).format(MOMENT_FORMAT_ISODATE);
+  const dob = moment(patient.dateOfBirth)
+    .tz(timeZone)
+    .format(MOMENT_FORMAT_ISODATE);
+  const vaxDate = moment(date)
+    .tz(timeZone)
+    .format(MOMENT_FORMAT_ISODATE);
 
   return {
     ver: EUDCC_SCHEMA_VERSION,
     nam: nameSection(patient),
     dob,
-    [EUDCC_CERTIFICATION_TYPES.VACCINATION]: [
+    [EUDCC_CERTIFICATE_TYPES.VACCINATION]: [
       {
         tg: DISEASE_AGENT_CODE,
         vp: VACCINE_CODE,
-        mp: DRUG_TO_PRODUCT[label],
-        ma: DRUG_TO_ORG[label],
+        mp: DRUG_TO_PRODUCT[vaccineId],
+        ma: DRUG_TO_ORG[vaccineId],
         dn: SCHEDULE_TO_SEQUENCE[schedule] ?? SEQUENCE_MAX + 1,
-        sd: DRUG_TO_SCHEDULE_DOSAGE[label],
+        sd: DRUG_TO_SCHEDULE_DOSAGE[vaccineId],
         dt: vaxDate,
         co: country['alpha-2'],
         is: config.integrations.euDcc.issuer ?? facilityName,
@@ -135,15 +137,15 @@ export async function createCovidVaccinationCertificateData(administeredVaccineI
       },
     ],
   };
-};
+}
 
 function transliterate(name) {
   return tr(name.toUpperCase()) // transliterate to ASCII
     .replace("'", '') // apostrophes shall be omitted
     .replace('-', '<') // hyphens as single filler
-    .replace(/,\s*/g, '<') // commas as single filler (name parts are separated here)
-    .replace(/[^A-Z]+/g, '') // all punctuation shall be omitted
+    .replace(/(\s+|,\s*)/g, '<') // commas as single filler (name parts are separated here)
     .replace(/<+/g, '<') // collapse multiple fillers
+    .replace(/[^A-Z<]+/g, '') // all punctuation shall be omitted
     .substring(0, 80); // maximum length is 80
 }
 
