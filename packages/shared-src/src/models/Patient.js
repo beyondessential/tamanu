@@ -1,5 +1,5 @@
 import { Sequelize } from 'sequelize';
-import { SYNC_DIRECTIONS } from 'shared/constants';
+import { SYNC_DIRECTIONS, LAB_REQUEST_STATUSES } from 'shared/constants';
 import { Model } from './Model';
 
 export class Patient extends Model {
@@ -95,13 +95,20 @@ export class Patient extends Model {
     });
   }
 
-  async getLabRequests(queryOptions) {
-    return this.sequelize.models.LabRequest.findAll({
+  async getCovidLabTests(queryOptions) {
+    const labRequests = await this.sequelize.models.LabRequest.findAll({
       raw: true,
       nest: true,
       ...queryOptions,
+      where: { status: LAB_REQUEST_STATUSES.PUBLISHED },
       include: [
         { association: 'requestedBy' },
+        {
+          association: 'category',
+          where: {
+            name: Sequelize.where(Sequelize.fn('LOWER', Sequelize.col('name')), 'LIKE', '%covid%'),
+          },
+        },
         {
           association: 'tests',
           include: [{ association: 'labTestMethod' }, { association: 'labTestType' }],
@@ -119,6 +126,13 @@ export class Patient extends Model {
           ],
         },
       ],
+    });
+
+    // Place the tests data at the top level of the object as this is a getter for lab tests
+    // After the merge, id is the lab test id and labRequestId is the lab request id
+    return labRequests.map(labRequest => {
+      const { tests, ...labRequestData } = labRequest;
+      return { ...labRequestData, ...tests };
     });
   }
 }

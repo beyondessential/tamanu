@@ -3,8 +3,8 @@
 ## vNEXT
 
 ### Manual steps required after upgrade ⚙
-
-- (left blank)
+- Add an entry for `questionCodeIds.passport` and `questionCodeIds.nationalityId` in the config to look up survey
+responses for patients in covid lab test certificates
 
 ### Features ⭐
 
