@@ -49,6 +49,12 @@
 
 - (left blank)
 
+## v1.13.2
+
+### Bug fixes 🐛
+
+- Fix issue that was causing sync attempts to fail unpredictably
+
 ## v1.13.1
 
 ### Manual steps required after upgrade ⚙

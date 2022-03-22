@@ -1,6 +1,6 @@
 {
   "name": "tamanuapp",
-  "version": "1.14.31",
+  "version": "1.14.32",
   "private": true,
   "scripts": {
     "android": "npx react-native run-android",
