@@ -96,12 +96,12 @@ export const PatientCovidTestCert = ({ patient }) => {
       {
         key: 'result',
         title: 'Result',
-        accessor: ({ tests }) => tests?.result,
+        accessor: ({ result }) => result,
       },
       {
         key: 'specimenType',
         title: 'Specimen type',
-        accessor: ({ tests }) => tests?.labTestType?.name || 'Unknown',
+        accessor: ({ labTestType }) => labTestType?.name || 'Unknown',
       },
     ],
     [],
@@ -109,14 +109,14 @@ export const PatientCovidTestCert = ({ patient }) => {
 
   useEffect(() => {
     (async () => {
-      const tests = await api.get(`patient/${patient.id}/covidLabTests`);
+      const { data } = await api.get(`patient/${patient.id}/covidLabTests`);
 
       setRows(
-        tests.map(request => ({
-          rowId: request.id,
+        data.map(labTest => ({
+          rowId: labTest.id,
           cells: columns.map(({ key, accessor }) => ({
             key,
-            value: accessor ? React.createElement(accessor, request) : request[key],
+            value: accessor ? React.createElement(accessor, labTest) : labTest[key],
           })),
         })),
       );

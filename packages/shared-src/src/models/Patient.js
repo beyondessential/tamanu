@@ -96,7 +96,7 @@ export class Patient extends Model {
   }
 
   async getCovidLabTests(queryOptions) {
-    return this.sequelize.models.LabRequest.findAll({
+    const labRequests = await this.sequelize.models.LabRequest.findAll({
       raw: true,
       nest: true,
       ...queryOptions,
@@ -126,6 +126,13 @@ export class Patient extends Model {
           ],
         },
       ],
+    });
+
+    // Place the tests data at the top level of the object as this is a getter for lab tests
+    // After the merge, id is the lab test id and labRequestId is the lab request id
+    return labRequests.map(labRequest => {
+      const { tests, ...labRequestData } = labRequest;
+      return { ...labRequestData, ...tests };
     });
   }
 }
