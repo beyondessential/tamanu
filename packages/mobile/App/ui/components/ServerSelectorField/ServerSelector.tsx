@@ -46,8 +46,8 @@ export const ServerSelector = ({ onChange, label, value }): ReactElement => {
   }, [netInfo.isInternetReachable]);
 
   const onServerSelected = useCallback((server) => {
-    setDisplayValue(server.label);
-    onChange(server.value);
+    setDisplayValue(server ? server.label : '');
+    onChange(server?.value);
   }, [onChange]);
 
   if (!netInfo.isInternetReachable) {
