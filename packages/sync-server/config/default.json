@@ -463,7 +463,7 @@
     }
   },
   "questionCodeIds": {
-    "passport": "pde-FijCOVRDT005",
-    "nationalityId": "pde-PalauCOVSamp7"
+    "passport": null,
+    "nationalityId": null
   }
 }
