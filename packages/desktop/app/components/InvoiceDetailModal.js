@@ -27,7 +27,7 @@ export const InvoiceDetailModal = ({ title, open, onClose, onUpdated, invoiceId 
   const cancelInvoice = useCallback(async () => {
     // LOCK IN the total when CANCELLING an invoice
     const total = await getInvoiceTotal(api, invoiceId);
-    api.put(`invoices/${invoiceId}`, {
+    await api.put(`invoices/${invoiceId}`, {
       status: INVOICE_STATUS_TYPES.CANCELLED,
       total,
     });
@@ -37,7 +37,7 @@ export const InvoiceDetailModal = ({ title, open, onClose, onUpdated, invoiceId 
 
   const updateInvoice = useCallback(
     async data => {
-      api.put(`invoices/${invoiceId}`, {
+      await api.put(`invoices/${invoiceId}`, {
         ...data,
       });
       onUpdated();
