@@ -87,7 +87,7 @@
     }
   },
   "questionCodeIds": {
-    "passportNumber": "pde-FijCOVRDT005",
-    "citizenship": "pde-PalauCOVSamp7"
+    "passport": "pde-FijCOVRDT005",
+    "nationalityId": "pde-PalauCOVSamp7"
   }
 }

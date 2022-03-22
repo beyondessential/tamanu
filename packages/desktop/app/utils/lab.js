@@ -22,10 +22,10 @@ export const StatusDisplay = React.memo(({ status }) => (
 export const getRequestId = ({ displayId }) => displayId;
 
 export const getLaboratory = ({ laboratoryName, laboratory }) =>
-  laboratoryName || (laboratory || {}).name || 'Unknown';
+  laboratoryName || laboratory?.name || 'Unknown';
 
 export const getCompletedDate = ({ completedDate }) => <DateDisplay date={completedDate} />;
-export const getMethod = ({ labTestMethod }) => (labTestMethod || {}).name || 'Unknown';
+export const getMethod = ({ labTestMethod }) => labTestMethod?.name || 'Unknown';
 
 export const getRequestedBy = ({ requestedBy }) =>
   (requestedBy || {})?.displayName || requestedBy || 'Unknown';

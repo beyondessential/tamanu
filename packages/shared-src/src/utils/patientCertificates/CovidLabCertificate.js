@@ -44,7 +44,7 @@ const columns = [
   {
     key: 'result',
     title: 'Result',
-    accessor: ({ tests }) => tests.result,
+    accessor: ({ result }) => result,
   },
 ];
 
