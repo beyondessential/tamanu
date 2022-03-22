@@ -46,12 +46,6 @@ function extractKeyD(keyData) {
 export async function HCERTPack(messageData, models) {
   log.info('HCERT Packing message data');
   const signer = await models.Signer.findActive();
-  const privateKey = crypto.createPrivateKey({
-    key: Buffer.from(signer.privateKey),
-    format: 'der',
-    type: 'pkcs8',
-    passphrase: Buffer.from(config.integrations.signer.keySecret, 'base64'),
-  });
 
   const cborData = cbor.encode(messageData);
   // p - protected
@@ -62,7 +56,7 @@ export async function HCERTPack(messageData, models) {
   };
   const coseSigner = {
     key: {
-      d: extractKeyD(privateKey),
+      d: extractKeyD(signer.decryptPrivateKey(config.integrations.signer.keySecret)),
     },
   };
 

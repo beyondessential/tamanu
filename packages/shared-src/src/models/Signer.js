@@ -147,6 +147,15 @@ export class Signer extends Model {
       this.privateKey
     );
   }
+  
+  decryptPrivateKey(keySecret) {
+    return crypto.createPrivateKey({
+      key: Buffer.from(this.privateKey),
+      format: 'der',
+      type: 'pkcs8',
+      passphrase: Buffer.from(keySecret, 'base64'),
+    });
+  }
 
   /**
    * Issue a signature from some data.
@@ -161,13 +170,7 @@ export class Signer extends Model {
       throw new Error('Cannot issue signature from this signer');
     }
 
-    const privateKey = crypto.createPrivateKey({
-      key: Buffer.from(this.privateKey),
-      format: 'der',
-      type: 'pkcs8',
-      passphrase: Buffer.from(keySecret, 'base64'),
-    });
-
+    const privateKey = this.decryptPrivateKey(keySecret);
     const canonData = Buffer.from(canonicalize(data), 'utf8');
     const sign = crypto.createSign('SHA256');
     sign.update(canonData);
