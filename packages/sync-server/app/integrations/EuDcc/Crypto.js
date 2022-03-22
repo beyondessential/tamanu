@@ -10,9 +10,18 @@ import base45 from 'base45-js';
 import { Certificate } from 'pkijs';
 import { depem } from 'shared/utils';
 import { fakeABtoRealAB } from '../Signer';
+import { getLocalisation } from '../../localisation';
 
 const deflate = promisify(deflateCallback);
 const inflate = promisify(inflateCallback);
+
+const EUDGC_IN_HCERT_KEY = 1;
+const CWT_CLAIM_KEYS = {
+  iss: 1,
+  exp: 4,
+  iat: 6,
+  hcert: -260,
+};
 
 /**
  *  Fetches the actual 32 byte privateKey from within the structured privateKey data
@@ -36,6 +45,7 @@ function extractKeyD(keyData) {
 /**
  *  Packs a JSON object according to HCERT specs
  *
+ *  - Wrap in CWT
  *  - Convert to CBOR
  *  - Sign and encode with COSE
  *  - Compress with zlib
@@ -47,11 +57,28 @@ export async function HCERTPack(messageData, models) {
   log.info('HCERT Packing message data');
   const signer = await models.Signer.findActive();
 
-  const cborData = cbor.encode(messageData);
+  const iss = (await getLocalisation()).country['alpha-2'];
+  const iat = moment();
+  const exp = iat.add(1, 'year');
+
+  const hcert = new Map();
+  hcert.set(EUDGC_IN_HCERT_KEY, messageData);
+
+  const payload = new Map();
+  payload.set(CWT_CLAIM_KEYS.iss, iss);
+  payload.set(CWT_CLAIM_KEYS.iat, iat.unix());
+  payload.set(CWT_CLAIM_KEYS.exp, exp.unix());
+  payload.set(CWT_CLAIM_KEYS.hcert, hcert);
+
+  const cborData = cbor.encode(payload);
+
   // p - protected
   // u - unprotected
   const coseHeaders = {
-    p: { alg: 'ES256', kid: signer.id },
+    p: {
+      alg: 'ES256',
+      kid: signer.id,
+    },
     u: {},
   };
   const coseSigner = {
@@ -67,9 +94,9 @@ export async function HCERTPack(messageData, models) {
 }
 
 /**
- *  Unpacks HCERT data, and verifies the COSE signature
+ *  Unpacks QR data, verifies the COSE signature, and checks the HCERT claims.
  *
- *  @returns The decoded JSON data
+ *  @returns The decoded HCERT data
  */
 export async function HCERTVerify(packedData, models) {
   log.info('Verifying HCERT message');
@@ -99,5 +126,29 @@ export async function HCERTVerify(packedData, models) {
   const inflatedData = await inflate(decodedData);
   const verifiedData = await cose.sign.verify(inflatedData, verifier);
 
-  return cbor.decode(verifiedData);
+  const payload = cbor.decode(verifiedData);
+
+  if (payload.get(CWT_CLAIM_KEYS.iss) !== (await getLocalisation()).country['alpha-2']) {
+    throw new Error('HCERT message issued to wrong country');
+  }
+
+  const now = moment().unix();
+  if (payload.get(CWT_CLAIM_KEYS.iat) > now) {
+    throw new Error('HCERT message issued in the future');
+  }
+
+  if (payload.get(CWT_CLAIM_KEYS.exp) < now) {
+    throw new Error('HCERT message expired');
+  }
+
+  const hcert = payload.get(CWT_CLAIM_KEYS.hcert);
+  if (!hcert) {
+    throw new Error('HCERT message missing hcert claim');
+  }
+
+  if (!hcert.has(EUDGC_IN_HCERT_KEY)) {
+    throw new Error('HCERT message missing EUDGC claim');
+  }
+
+  return hcert.get(EUDGC_IN_HCERT_KEY);
 }
