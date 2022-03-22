@@ -16,7 +16,7 @@ describe('EU DCC: HCERT Formatting', () => {
     ctx = await createTestContext();
     const testCSCA = await TestCSCA.generate();
 
-    const { publicKey, privateKey, request } = await newKeypairAndCsr({});
+    const { publicKey, privateKey, request } = await newKeypairAndCsr();
 
     const { Signer } = ctx.store.models;
     const signer = await Signer.create({

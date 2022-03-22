@@ -4,12 +4,16 @@ import cbor from 'cbor';
 import cose from 'cose-js';
 import { log } from 'shared/services/logging';
 import { fromBER } from 'asn1js';
-import { deflateSync, inflateSync } from 'zlib';
+import { deflate as deflateCallback, inflate as inflateCallback } from 'zlib';
+import { promisify } from 'util';
 import base45 from 'base45-js';
 import { Certificate } from 'pkijs';
 import { depem } from 'shared/utils';
 // TODO: Move this function somewhere more generic
 import { fakeABtoRealAB } from '../VdsNc';
+
+const deflate = promisify(deflateCallback);
+const inflate = promisify(inflateCallback);
 
 /**
  *  Fetches the actual 32 byte privateKey from within the structured privateKey data
@@ -62,7 +66,7 @@ export async function HCERTPack(messageData, models) {
 
   const signedData = await cose.sign.create(coseHeaders, cborData, coseSigner);
   signer.increment('signaturesIssued');
-  const deflatedBuf = deflateSync(signedData);
+  const deflatedBuf = await deflate(signedData);
   return `HC1:${base45.encode(deflatedBuf)}`;
 }
 
@@ -96,8 +100,8 @@ export async function HCERTVerify(packedData, models) {
   }
   const strippedData = packedData.substring(4);
   const decodedData = base45.decode(strippedData);
-  const inflatedData = inflateSync(decodedData);
-  const verifiedData = await cose.sign.verifySync(inflatedData, verifier);
+  const inflatedData = await inflate(decodedData);
+  const verifiedData = await cose.sign.verify(inflatedData, verifier);
 
   return cbor.decode(verifiedData);
 }
