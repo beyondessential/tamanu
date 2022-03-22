@@ -15,13 +15,12 @@ s3_region="ap-southeast-2"
 # Working time (PKUP - Private Key Usage Period) of issued signer certificates.
 # MUST be 92 to 96 days for VDS (3 months, with a bit of margin if needed),
 # OR 365 for EUDCC (exactly one year).
-sign_pkup=96
-#sign_pkup=365
+sign_pkup_vds=96
+sign_pkup_eudcc=365
 
-# Validity (including PKUP) of issued signer certificates.
+# Validity (excluding PKUP) of issued signer certificates.
 # This is document (signature) validity of 10 years = 365 days * 10 plus 2 leap days.
-# Plus the PKUP time. Up to a maximum of 11 years as the CSCA is configured, see below:
-((sign_valid=sign_pkup+365*10+2))
+((sign_maxdocuse=365*10+2))
 
 # Working time (PKUP) of CSCA (Country Signing Certificate Authority).
 # Recommendation is between 3 and 5 years. We use 4 years (365 * 4 plus 1 leap day),
@@ -29,30 +28,46 @@ sign_pkup=96
 # it gives us a maximum BSC (ICAO Barcode Signer Certificate) validity of 11 years.
 ((csca_pkup=365*4+1))
 
-# Validity (including PKUP) of CSCA.
-# Simply PKUP + 11 years (365 * 11 + 3 leap days).
+# Validity (excluding PKUP) of CSCA.
+# 11 years (365 * 11 + 3 leap days)
+# such that it includes sign_maxdocuse (10 years) + max sign_pkup (1 year).
 ((csca_maxcertuse=11*365+3))
+
+# Validity (including PKUP) of CSCA.
 ((csca_valid=csca_pkup+csca_maxcertuse))
 
 # =/= End editable section =/=
 
-if [[ "${sign_valid}" -gt "${csca_maxcertuse}" ]]; then
-    echo "Signer certificate validity (${sign_valid} days) is longer than CSCA max allowed signer lifetime (${csca_maxcertuse} days)"
-    exit 1
-fi
 
 # === Date calculations, not editable variables: ===
 
 now="$(date --utc +%s)"
 gentimefmt="%Y%m%d%H%M%SZ"
 
-((csca_later=now+csca_pkup*24*60*60))
-csca_pkup_before="$(date --utc --date "@$now" +"${gentimefmt}")"
-csca_pkup_after="$(date --utc --date "@$csca_later" +"${gentimefmt}")"
+# Validity (including PKUP) of issued signer certificates.
+# This is document (signature) validity of 10 years = 365 days * 10 plus 2 leap days.
+# Plus the PKUP time. Up to a maximum of 11 years as that's how the CSCA is configured.
+sign_valid() {
+  sign_pkup="$1"
+  ((sv=sign_pkup+sign_maxdocuse))
 
-((sign_later=now+sign_pkup*24*60*60))
-sign_pkup_before="$(date --utc --date "@$now" +"${gentimefmt}")"
-sign_pkup_after="$(date --utc --date "@$sign_later" +"${gentimefmt}")"
+  if [[ "$sv" -gt "${csca_maxcertuse}" ]]; then
+    echo "Signer certificate validity ($sv days) is longer than CSCA max allowed signer lifetime (${csca_maxcertuse} days)"
+    exit 1
+  fi
+
+  echo "$sv"
+}
+
+pkup_before() {
+  date --utc --date "@$now" +"${gentimefmt}"
+}
+
+pkup_after() {
+  pkup="$1"
+  ((later=now+pkup*24*60*60))
+  date --utc --date "@$later" +"${gentimefmt}"
+}
 
 # =/= End date calculations =/=
 
@@ -128,6 +143,15 @@ keypair() {
 }
 
 openssl_config() {
+# The substitutions are a bit weird because this is multi-usage: in CSCA
+# mode and in sign mode, the 2,3,... arguments are different, so it may
+# appear to conflict, but the sections are only used in the right context,
+# so it works out. Obviously this is fragile af and should be done right
+# in the future "proper" version of this tool.
+#
+# TODO: in Annex IV §5.3, the O field of the subject on the Signer is
+# optional, we could make use of it. Also the CN field is less restricted
+# than for VDS, we could also make better use of it. Not critical right now.
 cat <<CONFIG
 [ req ]
 distinguished_name = req_distinguished_name
@@ -159,8 +183,8 @@ crlDistributionPoints=URI:${3:-}
 L=${2:-}
 
 [ csca_pkup ]
-notBefore=IMPLICIT:0,GENTIME:${csca_pkup_before}
-notAfter=IMPLICIT:1,GENTIME:${csca_pkup_after}
+notBefore=IMPLICIT:0,GENTIME:$(pkup_before $csca_pkup)
+notAfter=IMPLICIT:1,GENTIME:$(pkup_after $csca_pkup)
 
 [ ca ]
 default_ca      = CA_default
@@ -181,12 +205,11 @@ crlnumber       = \$dir/crlnumber
 crl             = \$dir/crl.pem
 private_key     = \$dir/private/csca.key
 
-x509_extensions = bsc_exts
+x509_extensions = ${2:-vds}_exts
 
 name_opt        = ca_default
 cert_opt        = ca_default
 
-default_days = 96
 default_crl_days = 90
 default_md = default
 policy = ca_policy
@@ -195,18 +218,30 @@ policy = ca_policy
 countryName = match
 commonName = supplied
 
-[ bsc_exts ]
+[ vds_exts ]
 authorityKeyIdentifier=critical,keyid,issuer
 extendedKeyUsage=2.23.136.1.1.14.2
-2.23.136.1.1.6.2=ASN1:SEQUENCE:bsc_seq
+2.23.136.1.1.6.2=ASN1:SEQUENCE:vds_doctype_seq
 
-[ bsc_seq ]
+[ vds_doctype_seq ]
 version=INT:0
-doctypes=SET:bsc_doctypes
+doctypes=SET:vds_doctypes
 
-[ bsc_doctypes ]
+[ vds_doctypes ]
 pot=PRINTABLESTRING:NT
 pov=PRINTABLESTRING:NV
+
+[ eudcc_exts ]
+authorityKeyIdentifier=critical,keyid,issuer
+subjectKeyIdentifier=hash
+keyUsage=critical,digitalSignature
+extendedKeyUsage=1.3.6.1.4.1.1847.2021.1.1,1.3.6.1.4.1.1847.2021.1.2,1.3.6.1.4.1.1847.2021.1.3
+2.5.29.16=ASN1:SEQUENCE:eudcc_pkup
+crlDistributionPoints=URI:${3:-}
+
+[ eudcc_pkup ]
+notBefore=IMPLICIT:0,GENTIME:$(pkup_before ${4:-})
+notAfter=IMPLICIT:1,GENTIME:$(pkup_after ${4:-})
 CONFIG
 }
 
@@ -304,13 +339,17 @@ csr_sign() {
   passphrase="$2"
   csrfile="$3"
   crtfile="$4"
+  profile="$5"
 
-  info "sign CSR"
+  sign_pkup="sign_pkup_${profile}"
+  crlurl=$(crl_url "$cscafolder")
+
+  info "sign $profile CSR"
   openssl ca \
-    -config <(openssl_config "$cscafolder") \
+    -config <(openssl_config "$cscafolder" "$profile" "$crlurl" "${!sign_pkup}") \
     -in "$csrfile" \
     -out "$crtfile" \
-    -days "$sign_valid" \
+    -days "$(sign_valid ${!sign_pkup})" \
     -cert "$cscafolder/csca.crt" \
     -keyfile "$cscafolder/private/csca.key" \
     -keyform PEM \
@@ -485,7 +524,8 @@ case "${1:-help}" in
   sign)
     cscafolder="${2:?Missing csca\/folder path}"
     csrfile="${3:?Missing CSR file}"
-    crtfile="${4:-${csrfile%.*}.crt}"
+    profile="${4:-vds}"
+    crtfile="${csrfile%.*}.crt"
 
     if [[ -f "$crtfile" ]]; then
       ohno "Output file $crtfile already exists, not clobbering"
@@ -506,7 +546,7 @@ case "${1:-help}" in
       exit 3
     fi
 
-    csr_sign "$cscafolder" "$passphrase" "$csrfile" "$crtfile"
+    csr_sign "$cscafolder" "$passphrase" "$csrfile" "$crtfile" "$profile"
 
     info "certificate signed: $crtfile"
     crt_print "$crtfile"
@@ -591,21 +631,15 @@ case "${1:-help}" in
     info "The CSCA validity will be set to 15 years, and its PKUP to 4 years."
     info "The CSCA will be marked as a Health CSCA as per VDS-NC EKU."
     info
-    info "\e[1msign <csca folder> <csr>"
+    info "\e[1msign <csca folder> <csr> [profile]"
     info "       where:"
     info "       csca folder = path to CSCA folder"
     info "       csr         = path to signing request from Tamanu"
+    info "       profile     = signer profile. Either 'vds' or 'eudcc' (default: vds)"
     info
-    info "The certificate validity will be set to 10 years, plus its PKUP of $sign_pkup days."
-
-    if [[ "$sign_pkup" -eq 96 ]]; then
-      info "To make EU DCC certificates, change the sign_pkup var at the top of this script to 365."
-    elif [[ "$sign_pkup" -eq 365 ]]; then
-      info "To make VDS-NC certificates, change the sign_pkup var at the top of this script to 96."
-    else
-      ohno "Caution! The sign_pkup var is set to a custom value, check that's what you mean!"
-    fi
-
+    info "The certificate validity will be set to 10 years, plus its PKUP:"
+    info "  - $sign_pkup_vds days for 'vds' profile (default), or"
+    info "  - $sign_pkup_eudcc days for 'eudcc' profile."
     info
     info "\e[1mrevoke <csca folder> <certificate> [reason [compromise time]]"
     info "       where:"
