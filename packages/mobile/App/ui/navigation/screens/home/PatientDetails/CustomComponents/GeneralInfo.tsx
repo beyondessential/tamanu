@@ -6,6 +6,20 @@ import { DateFormats } from '/helpers/constants';
 import { FieldRowDisplay } from '~/ui/components/FieldRowDisplay';
 import { PatientSection } from './PatientSection';
 import { useLocalisation } from '~/ui/contexts/LocalisationContext';
+import { GenderOptions } from '~/ui/helpers/constants';
+
+const getGenderLabel = (value: string): string => {
+  for (let i = 0; i < GenderOptions.length; i++) {
+    const current = GenderOptions[i];
+
+    if (value === current.value) {
+      return current.label;
+    }
+  }
+
+  // Couldn't match gender (shouldn't happen)
+  return '';
+};
 
 interface GeneralInfoProps extends PatientGeneralInformationDataProps {
   onEdit: () => void;
