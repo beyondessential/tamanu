@@ -16,6 +16,7 @@ responses for patients in covid lab test certificates
 
 - Improved console output (color coding, timestamps, originating IP addresses, new log level for http requests)
   - For reference, the logging levels in order are: error, warn, info (old default), http (new default), verbose, debug, silly
+- `loadIcaoSigner` sync-server sub-command was renamed to `loadSigner`
 
 ### Bug fixes 🐛
 
