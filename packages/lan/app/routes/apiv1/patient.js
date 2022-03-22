@@ -469,22 +469,26 @@ patientRoute.get(
   '/:id/passportNumber',
   asyncHandler(async (req, res) => {
     req.checkPermission('read', 'Patient');
-    const value = await getPatientAdditionalData(req.models, req.params.id, 'passport');
-    res.json(value);
+    const passportNumber = await getPatientAdditionalData(req.models, req.params.id, 'passport');
+    res.json(passportNumber);
   }),
 );
 
 patientRoute.get(
   '/:id/nationality',
   asyncHandler(async (req, res) => {
-    const value = await getPatientAdditionalData(req.models, req.params.id, 'nationalityId');
+    const nationalityId = await getPatientAdditionalData(
+      req.models,
+      req.params.id,
+      'nationalityId',
+    );
 
-    if (!value) {
+    if (!nationalityId) {
       res.send('');
       return;
     }
 
-    const nationalityRecord = await req.models.ReferenceData.findByPk(value);
+    const nationalityRecord = await req.models.ReferenceData.findByPk(nationalityId);
     res.json(nationalityRecord?.dataValues?.name);
   }),
 );
