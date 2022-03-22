@@ -1,6 +1,15 @@
 import config from 'config';
 import * as yup from 'yup';
 
+const CN_SCHEMA_VDS_NC = yup
+      .string()
+      .length(2)
+      .uppercase();
+
+const CN_SCHEMA_EU_DCC = yup
+      .string()
+      .min(1);
+
 const SCHEMA = yup
   .object()
   .shape({
@@ -20,11 +29,11 @@ const SCHEMA = yup
         value => Buffer.from(value, 'base64').length >= 32,
       ),
 
-    commonName: yup
-      .string()
-      .length(2)
-      .uppercase()
-      .required(),
+    commonName: config.integrations.vdsNc.enabled
+      ? CN_SCHEMA_VDS_NC.required()
+      : CN_SCHEMA_EU_DCC.required(),
+
+    provider: yup.string(),
 
     sendRequestTo: yup
       .string()

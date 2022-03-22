@@ -589,7 +589,7 @@ case "${1:-help}" in
     info "       alpha2   = 2-letter country code"
     info "       alpha3   = 3-letter country code"
     info "       fullname = full name of CSCA cert e.g. 'Utopia Government Health CSCA 001'"
-    info "       provider = provider name e.g. 'Beyond Essential Systems Pty' (optional, recommended)"
+    info "       provider = provider name e.g. 'Tamanu' or 'BES' (optional, recommended)"
     info "       dept-org = responsible govt/org department e.g. 'Utopia Ministry of Health' (optional)"
     info
     info "The CSCA validity will be set to 15 years, and its PKUP to 4 years."
