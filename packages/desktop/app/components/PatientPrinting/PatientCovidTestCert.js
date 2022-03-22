@@ -1,20 +1,16 @@
 import React, { useState, useEffect, useMemo, useCallback } from 'react';
+import { useSelector } from 'react-redux';
 
 import { ICAO_DOCUMENT_TYPES } from 'shared/constants';
 import { Modal } from '../Modal';
 import { Certificate, Table } from '../Print/Certificate';
 import { DateDisplay } from '../DateDisplay';
-import {
-  getCompletedDate,
-  getMethod,
-  getRequestId,
-  getLaboratory,
-  getRequestedBy,
-} from '../../utils/lab';
+import { getCompletedDate, getMethod, getRequestId, getLaboratory } from '../../utils/lab';
 
 import { useApi } from '../../api';
 import { useLocalisation } from '../../contexts/Localisation';
 import { EmailButton } from '../Email/EmailButton';
+import { getCurrentUser } from '../../store';
 
 const usePassportNumber = patientId => {
   const api = useApi();
@@ -49,6 +45,8 @@ export const PatientCovidTestCert = ({ patient }) => {
   const [rows, setRows] = useState([]);
   const { getLocalisation } = useLocalisation();
   const api = useApi();
+  const currentUser = useSelector(getCurrentUser);
+  const currentUserDisplayName = currentUser ? currentUser.displayName : '';
 
   const createCovidTestCertNotification = useCallback(
     data => {
@@ -57,9 +55,10 @@ export const PatientCovidTestCert = ({ patient }) => {
         requireSigning: false,
         patientId: patient.id,
         forwardAddress: data.email,
+        createdBy: currentUserDisplayName,
       });
     },
-    [api, patient],
+    [api, patient, currentUserDisplayName],
   );
 
   const columns = useMemo(
@@ -97,11 +96,12 @@ export const PatientCovidTestCert = ({ patient }) => {
       {
         key: 'result',
         title: 'Result',
+        accessor: ({ result }) => result,
       },
       {
         key: 'specimenType',
         title: 'Specimen type',
-        accessor: ({ labTestType }) => labTestType.name,
+        accessor: ({ labTestType }) => labTestType?.name || 'Unknown',
       },
     ],
     [],
@@ -109,25 +109,14 @@ export const PatientCovidTestCert = ({ patient }) => {
 
   useEffect(() => {
     (async () => {
-      const response = await api.get(`labRequest`, {
-        patientId: patient.id,
-        category: 'covid',
-      });
-      const requests = await Promise.all(
-        response.data.map(async request => {
-          const { data: tests } = await api.get(`labRequest/${request.id}/tests`);
-          return {
-            ...request,
-            ...tests[0],
-          };
-        }),
-      );
+      const { data } = await api.get(`patient/${patient.id}/covidLabTests`);
+
       setRows(
-        requests.map(request => ({
-          rowId: request.id,
+        data.map(labTest => ({
+          rowId: labTest.id,
           cells: columns.map(({ key, accessor }) => ({
             key,
-            value: accessor ? React.createElement(accessor, request) : request[key],
+            value: accessor ? React.createElement(accessor, labTest) : labTest[key],
           })),
         })),
       );
@@ -143,8 +132,7 @@ export const PatientCovidTestCert = ({ patient }) => {
       onClose={() => setOpen(false)}
       width="md"
       printable
-      // Disabled while issues on WAITM-36 are fixed
-      // additionalActions={<EmailButton onEmail={createCovidTestCertNotification} />}
+      additionalActions={<EmailButton onEmail={createCovidTestCertNotification} />}
     >
       <Certificate
         patient={patient}
