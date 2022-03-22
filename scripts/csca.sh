@@ -578,15 +578,15 @@ case "${1:-help}" in
   *)
     info "Usage: $0 COMMAND [ARGUMENTS]"
     info
-    info "\e[1mcsca <folder> <crl name> <alpha2> <alpha3> <fullname> [country] [dept-org]"
+    info "\e[1mcsca <folder> <crl name> <alpha2> <alpha3> <fullname> [provider] [dept-org]"
     info "       where:"
     info "       folder   = where to store new CSCA files"
     info "       crl name = name of the CRL file that will be uploaded to $crl_base_url"
     info "       alpha2   = 2-letter country code"
     info "       alpha3   = 3-letter country code"
-    info "       fullname = full name of CSCA cert e.g. 'Tamanu Government Health CSCA'"
-    info "       country  = full country name e.g. 'Kingdom of Tamanu' (optional)"
-    info "       dept-org = responsible dept/org e.g. 'Ministry of Health' (optional)"
+    info "       fullname = full name of CSCA cert e.g. 'Utopia Government Health CSCA 001'"
+    info "       provider = provider name e.g. 'Beyond Essential Systems Pty' (optional, recommended)"
+    info "       dept-org = responsible govt/org department e.g. 'Utopia Ministry of Health' (optional)"
     info
     info "The CSCA validity will be set to 15 years, and its PKUP to 4 years."
     info "The CSCA will be marked as a Health CSCA as per VDS-NC EKU."
