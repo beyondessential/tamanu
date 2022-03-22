@@ -32,6 +32,9 @@ async function writeExcelFile(data, filePath) {
   });
 }
 
+// These are the params that will be passed to the report builder
+// The below are just examples of params - remember to use id 
+// when referencing
 const parameters = {
   // fromDate: '2021-03-15',
   // toDate: '2021-11-18',
@@ -42,6 +45,8 @@ const parameters = {
 const generateReport = async () => {
   // 1. get models
   console.log('Initialising database');
+
+  // Make sure to edit these to be your own connection details
   const context = await initDatabase({
     port: 5431,
     name: 'tamanu-sync',
