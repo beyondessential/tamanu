@@ -204,7 +204,6 @@ const rootLocalisationSchema = yup
       .required()
       .noUnknown(),
     disabledReports: yup.array(yup.string().required()).defined(),
-    uvci: { format: yup.string() },
   })
   .required()
   .noUnknown();

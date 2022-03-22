@@ -427,10 +427,7 @@
       "sync": {
         "syncAllEncountersForTheseScheduledVaccines": []
       },
-      "disabledReports": [],
-      "uvci": {
-        "format": "icao"
-      }
+      "disabledReports": []
     }
   },
   "reports": {
