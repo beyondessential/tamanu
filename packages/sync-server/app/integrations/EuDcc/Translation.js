@@ -35,7 +35,6 @@ const MOMENT_FORMAT_ISODATE = 'YYYY-MM-DD';
 export async function createCovidVaccinationCertificateData(administeredVaccineId, { models }) {
   const {
     Patient,
-    PatientAdditionalData,
     ReferenceData,
     AdministeredVaccine,
     Encounter,
