@@ -2,7 +2,7 @@ import config from 'config';
 import { ScheduledTask } from 'shared/tasks';
 import { log } from 'shared/services/logging';
 import { Op } from 'sequelize';
-import { newKeypairAndCsr } from '../integrations/VdsNc';
+import { newKeypairAndCsr } from '../integrations/Signer';
 import { getLocalisation } from '../localisation';
 
 export class SignerRenewalChecker extends ScheduledTask {

@@ -9,8 +9,7 @@ import { promisify } from 'util';
 import base45 from 'base45-js';
 import { Certificate } from 'pkijs';
 import { depem } from 'shared/utils';
-// TODO: Move this function somewhere more generic
-import { fakeABtoRealAB } from '../VdsNc';
+import { fakeABtoRealAB } from '../Signer';
 
 const deflate = promisify(deflateCallback);
 const inflate = promisify(inflateCallback);

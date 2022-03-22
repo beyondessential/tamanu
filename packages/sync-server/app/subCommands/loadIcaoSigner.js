@@ -5,7 +5,7 @@ import { Command } from 'commander';
 import { log } from 'shared/services/logging';
 import { Signer } from 'shared/models';
 
-import { loadCertificateIntoSigner } from '../integrations/VdsNc';
+import { loadCertificateIntoSigner } from '../integrations/Signer';
 import { initDatabase } from '../database';
 
 async function loadIcaoSigner({ signerCertificate }) {

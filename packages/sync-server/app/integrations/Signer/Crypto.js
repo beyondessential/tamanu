@@ -37,7 +37,7 @@ setEngine(
 );
 
 /**
- * Generate a VDS-NC Barcode Signer compliant keypair and CSR.
+ * Generate a Document/Barcode Signer compliant keypair and CSR.
  *
  * @returns The fields to use to create the Signer model.
  */
@@ -51,7 +51,7 @@ export async function newKeypairAndCsr() {
     ['sign', 'verify'],
   );
 
-  const { keySecret, commonName } = config.integrations.signer;
+  const { keySecret, commonName, provider } = config.integrations.signer;
 
   const countryCode = (await getLocalisation()).country['alpha-2'];
 
@@ -69,6 +69,14 @@ export async function newKeypairAndCsr() {
       value: new PrintableString({ value: commonName }),
     }),
   );
+  if (provider) {
+    csr.subject.typesAndValues.push(
+      new AttributeTypeAndValue({
+        type: X502_OIDS.ORGANISATION_NAME,
+        value: new PrintableString({ value: provider }),
+      }),
+    );
+  }
 
   // 9303-12 §7.1.3 specifies that the Signer certificate must have certain
   // extensions. However, while CSRs may have extensions, these are NOT
