@@ -133,6 +133,10 @@
       "enabled": false,
       "requireClientHeaders": true
     },
+    "euDcc": {
+      "enabled": false,
+      "issuer": null // Responsible org for vax cert issuance, e.g. 'Ministry of Health of the Tamanu Republic'. If null defaults to the facility name.
+    },
     "vdsNc": {
       "enabled": false
     },

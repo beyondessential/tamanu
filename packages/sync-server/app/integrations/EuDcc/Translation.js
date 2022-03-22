@@ -35,7 +35,6 @@ const MOMENT_FORMAT_ISODATE = 'YYYY-MM-DD';
 export async function createCovidVaccinationCertificateData(administeredVaccineId) {
   const {
     Patient,
-    PatientAdditionalData,
     ReferenceData,
     AdministeredVaccine,
     Encounter,
@@ -54,6 +53,16 @@ export async function createCovidVaccinationCertificateData(administeredVaccineI
             model: Patient,
             as: 'patient',
           },
+          {
+            model: Location,
+            as: 'location',
+            include: [
+              {
+                model: Facility,
+                as: 'Facility',
+              }
+            ],
+          }
         ],
       },
       {
@@ -90,6 +99,11 @@ export async function createCovidVaccinationCertificateData(administeredVaccineI
     },
     encounter: {
       patient,
+      location: {
+        Facility: {
+          name: facilityName,
+        },
+      },
     },
   } = vaccination;
 
@@ -116,7 +130,7 @@ export async function createCovidVaccinationCertificateData(administeredVaccineI
         sd: DRUG_TO_SCHEDULE_DOSAGE[label],
         dt: vaxDate,
         co: country['alpha-2'],
-        is: config.integrations.euDcc.issuer,
+        is: config.integrations.euDcc.issuer ?? facilityName,
         ci: generateUVCI(id, 'eudcc', { countryCode: country['alpha-2'] }),
       },
     ],
