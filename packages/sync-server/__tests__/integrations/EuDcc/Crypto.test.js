@@ -43,6 +43,8 @@ describe('EU DCC: HCERT Formatting', () => {
     const packedData = await HCERTPack(testMessageData, ctx.store.models);
     const verifiedData = await HCERTVerify(packedData, ctx.store.models);
 
+    // Packed data matches format HC1:[base45 character set]
+    expect(packedData).to.match(/^HC1:[0-9A-Z $%*+-./:]*/);
     expect(verifiedData).to.deep.equal(testMessageData);
   });
 });

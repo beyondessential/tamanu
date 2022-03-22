@@ -28,6 +28,9 @@ function extractKeyD(keyData) {
   const [, , octetString] = asn.result.valueBlock.value;
   const [octetSequence] = octetString.valueBlock.value;
   const [, privateKey] = octetSequence.valueBlock.value;
+  if (privateKey.valueBlock.blockLength !== 32) {
+    throw new Error(`Private key block length ${privateKey.valueBlock.blockLength} instead of 32`);
+  }
   return Buffer.from(privateKey.valueBlock.valueHex, 'hex');
 }
 
