@@ -109,6 +109,7 @@ export class SurveyResponse extends Model {
   }
 
   static async createWithAnswers(data) {
+    // IMPORTANT: calling code should ALWAYS wrap this in a transaction!
     const { models } = this.sequelize;
     const { answers, actions, surveyId, patientId, encounterId, ...responseData } = data;
 

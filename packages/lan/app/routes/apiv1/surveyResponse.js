@@ -77,9 +77,8 @@ surveyResponse.post(
       ...body,
     };
 
-    let responseRecord;
-    await db.transaction(async () => {
-      responseRecord = await models.SurveyResponse.createWithAnswers(updatedBody);
+    const responseRecord = await db.transaction(async () => {
+      return models.SurveyResponse.createWithAnswers(updatedBody);
     });
     res.send(responseRecord);
   }),

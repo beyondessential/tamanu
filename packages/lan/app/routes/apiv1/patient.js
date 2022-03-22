@@ -99,14 +99,13 @@ patientRoute.post(
     req.checkPermission('create', 'Patient');
     const patientData = requestBodyToRecord(req.body);
 
-    let patientRecord;
-    await db.transaction(async () => {
-      patientRecord = await Patient.create(patientData);
-
+    const patientRecord = await db.transaction(async () => {
+      const createdPatient = await Patient.create(patientData);
       await PatientAdditionalData.create({
         ...patientData,
-        patientId: patientRecord.id,
+        patientId: createdPatient.id,
       });
+      return createdPatient;
     });
     res.send(dbRecordToResponse(patientRecord));
   }),
