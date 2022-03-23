@@ -6,20 +6,7 @@ import { DateFormats } from '/helpers/constants';
 import { FieldRowDisplay } from '~/ui/components/FieldRowDisplay';
 import { PatientSection } from './PatientSection';
 import { useLocalisation } from '~/ui/contexts/LocalisationContext';
-import { GenderOptions } from '~/ui/helpers/constants';
-
-const getGenderLabel = (value: string): string => {
-  for (let i = 0; i < GenderOptions.length; i++) {
-    const current = GenderOptions[i];
-
-    if (value === current.value) {
-      return current.label;
-    }
-  }
-
-  // Couldn't match gender (shouldn't happen)
-  return '';
-};
+import { getGender } from '~/ui/helpers/user';
 
 interface GeneralInfoProps extends PatientGeneralInformationDataProps {
   onEdit: () => void;
@@ -34,7 +21,7 @@ export const GeneralInfo = ({
     ['middleName', data.generalInfo.middleName || 'None'],
     ['lastName', data.generalInfo.lastName],
     ['culturalName', data.generalInfo.culturalName || 'None'],
-    ['sex', getGenderLabel(data.generalInfo.sex)],
+    ['sex', getGender(data.generalInfo.sex)],
     ['dateOfBirth', formatDate(new Date(data.generalInfo.dateOfBirth), DateFormats.DDMMYY)],
     ['email', data.generalInfo.email],
     ['villageId', data.generalInfo.village?.name ?? ''],
