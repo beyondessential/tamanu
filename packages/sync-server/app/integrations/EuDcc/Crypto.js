@@ -62,7 +62,7 @@ export async function HCERTPack(messageData, models) {
 
   const iss = (await getLocalisation()).country['alpha-2'];
   const iat = moment();
-  const exp = iat.add(1, 'year');
+  const exp = iat.add(365, 'days');
 
   const hcert = new Map();
   hcert.set(EUDGC_IN_HCERT_KEY, messageData);
