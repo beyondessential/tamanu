@@ -29,17 +29,7 @@ import {
 } from './CustomComponents';
 
 const Container = ({ navigation, selectedPatient }: PatientDetailsScreenProps): ReactElement => {
-  /**
-   * Implement fetch patientDetails data
-   * from a mock server (or real)
-   */
-  const patientData: PatientDetails = {
-    generalInfo: {
-      ...selectedPatient,
-    },
-  };
-
-  // const [reminders, setReminders] = useState(patientData.reminderWarnings);
+  // const [reminders, setReminders] = useState(reminderWarnings);
   // const [editField, setEditField] = useState(false);
 
   // const changeReminder = useCallback((value: boolean) => {
@@ -94,8 +84,8 @@ const Container = ({ navigation, selectedPatient }: PatientDetailsScreenProps): 
           <RowView paddingLeft={screenPercentageToDP(4.86, Orientation.Width)}>
             <UserAvatar
               size={screenPercentageToDP(7.29, Orientation.Height)}
-              displayName={joinNames(patientData.generalInfo)}
-              sex={patientData.generalInfo.sex}
+              displayName={joinNames(selectedPatient)}
+              sex={selectedPatient.sex}
             />
             <StyledView alignItems="flex-start" marginLeft={10}>
               <StyledText
@@ -103,14 +93,14 @@ const Container = ({ navigation, selectedPatient }: PatientDetailsScreenProps): 
                 fontSize={screenPercentageToDP(3.4, Orientation.Height)}
                 fontWeight="bold"
               >
-                {joinNames(patientData.generalInfo)}
+                {joinNames(selectedPatient)}
               </StyledText>
               <StyledText
                 color={theme.colors.WHITE}
                 fontSize={screenPercentageToDP(1.94, Orientation.Height)}
               >
-                {getGender(patientData.generalInfo.sex)},{' '}
-                {getAgeFromDate(new Date(patientData.generalInfo.dateOfBirth))} years old
+                {getGender(selectedPatient.sex)},{' '}
+                {getAgeFromDate(new Date(selectedPatient.dateOfBirth))} years old
               </StyledText>
             </StyledView>
           </RowView>
@@ -130,17 +120,17 @@ const Container = ({ navigation, selectedPatient }: PatientDetailsScreenProps): 
           <NotificationCheckbox value={reminders} onChange={changeReminder} />
           <FamilyInformation
             onEdit={onEditField}
-            parentsInfo={patientData.parentsInfo}
+            parentsInfo={parentsInfo}
           />
           <OnGoingConditions
             onEdit={onEditField}
-            ongoingConditions={patientData.ongoingConditions}
+            ongoingConditions={ongoingConditions}
           />
           <FamilyHistory
             onEdit={onEditField}
-            familyHistory={patientData.familyHistory}
+            familyHistory={familyHistory}
           />
-          <AllergiesList onEdit={onEditField} allergies={patientData.allergies} />
+          <AllergiesList onEdit={onEditField} allergies={allergies} />
           */}
           <PatientIssues onEdit={onEditPatientIssues} patientId={selectedPatient.id} />
           <Button marginBottom={40} onPress={onRecordDeath} buttonText="Record patient death" />
