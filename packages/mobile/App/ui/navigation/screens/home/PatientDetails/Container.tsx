@@ -28,17 +28,6 @@ const Container = ({
     },
     [isFocused, selectedPatient.id],
   );
-  const [additionalData, additionalDataError] = useBackendEffect(
-    ({ models }) => {
-      if (isFocused) {
-        return models.PatientAdditionalData.find({
-          where: { patient: { id: selectedPatient.id } },
-        });
-      }
-    },
-    [isFocused, selectedPatient.id],
-  );
-
   /**
    * Implement fetch patientDetails data
    * from a mock server (or real)
@@ -50,7 +39,6 @@ const Container = ({
       culturalTraditionName: null,
     },
     patientIssues,
-    additionalData,
   };
 
   // const [reminders, setReminders] = useState(patientData.reminderWarnings);
@@ -74,13 +62,13 @@ const Container = ({
     });
   }, [navigation, selectedPatient]);
 
-  const onEditPatientAdditionalData = useCallback(() => {
+  const editPatientAdditionalData = useCallback((additionalData) => {
     navigation.navigate(Routes.HomeStack.PatientDetailsStack.EditPatientAdditionalData, {
       patientId: selectedPatient.id,
       patientName: joinNames(selectedPatient),
-      additionalDataJSON: JSON.stringify(additionalData[0]),
+      additionalDataJSON: JSON.stringify(additionalData),
     });
-  }, [navigation, selectedPatient, additionalData]);
+  }, [navigation, selectedPatient]);
 
   const onEditPatientIssues = useCallback(() => {
     navigation.navigate(Routes.HomeStack.PatientDetailsStack.AddPatientIssue);
@@ -91,16 +79,16 @@ const Container = ({
   }, [navigation]);
 
   if (issuesError) return <ErrorScreen error={issuesError} />;
-  if (additionalDataError) return <ErrorScreen error={additionalDataError} />;
-  if (!patientIssues || !additionalData) return <LoadingScreen />;
+  if (!patientIssues) return <LoadingScreen />;
 
   return (
     <Screen
+      patient={selectedPatient}
       patientData={patientData}
       onNavigateBack={onNavigateBack}
       // onEditField={onEditField}
       onEditPatient={onEditPatient}
-      onEditPatientAdditionalData={onEditPatientAdditionalData}
+      editPatientAdditionalData={editPatientAdditionalData}
       onEditPatientIssues={onEditPatientIssues}
       // reminders={reminders}
       // changeReminder={changeReminder}

@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { ReactElement } from 'react';
 import { createStackNavigator } from '@react-navigation/stack';
 import { Routes } from '~/ui/helpers/routes';
 import { PatientDetailsScreen } from '~/ui/navigation/screens/home/PatientDetails';
@@ -9,7 +9,7 @@ import { ErrorBoundary } from '~/ui/components/ErrorBoundary';
 
 const Stack = createStackNavigator();
 
-export const PatientDetailsStack = () => (
+export const PatientDetailsStack = (): ReactElement => (
   <ErrorBoundary>
     <Stack.Navigator headerMode="none">
       <Stack.Screen

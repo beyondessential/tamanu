@@ -22,13 +22,15 @@ import {
 } from './CustomComponents';
 import { AdditionalInfo } from './CustomComponents/AdditionalInfo';
 import { Button } from '~/ui/components/Button';
+import { IPatient, IPatientAdditionalData } from '~/types';
 
 interface PatientDetailScreenProps {
+  patient: IPatient;
   onNavigateBack: () => void;
   patientData: PatientDetails;
   // onEditField: () => void;
   onEditPatient: () => void;
-  onEditPatientAdditionalData: () => void;
+  editPatientAdditionalData: (additionalInfo: IPatientAdditionalData) => void;
   onEditPatientIssues: () => void;
   // changeReminder: (value: boolean) => void;
   // reminders: boolean;
@@ -36,10 +38,11 @@ interface PatientDetailScreenProps {
 }
 
 export const Screen = ({
+  patient,
   onNavigateBack,
   patientData,
   onEditPatient,
-  onEditPatientAdditionalData,
+  editPatientAdditionalData,
   onEditPatientIssues,
   // onEditField,
   // changeReminder,
@@ -96,8 +99,8 @@ export const Screen = ({
           onEdit={onEditPatient}
         />
         <AdditionalInfo
-          patientAdditionalData={patientData.additionalData[0]}
-          onEdit={onEditPatientAdditionalData}
+          patient={patient}
+          onEdit={editPatientAdditionalData}
         />
         {/* Not functional yet
           <NotificationCheckbox value={reminders} onChange={changeReminder} />
