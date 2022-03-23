@@ -114,15 +114,30 @@ export const makeCovidTestCertificate = async (patient, printedBy, models, vdsDa
     where: { patientId: patient.id },
     include: models.PatientAdditionalData.getFullReferenceAssociations(),
   });
-  const passport = await getPatientSurveyResponseAnswer(
+  const passportSurveyResponse = await getPatientSurveyResponseAnswer(
     models,
     patient.id,
     config?.questionCodeIds?.passport,
   );
 
+  const nationalityId = await getPatientSurveyResponseAnswer(
+    models,
+    patient.id,
+    config?.questionCodeIds?.nationalityId,
+  );
+
+  const nationalityRecord = await models.ReferenceData.findByPk(nationalityId);
+  const nationalitySurveyResponse = nationalityRecord?.dataValues?.name;
+
   const patientData = {
     ...patient.dataValues,
-    additionalData: { passport, ...additionalData?.dataValues },
+    additionalData: {
+      ...additionalData?.dataValues,
+      passport: additionalData?.dataValues?.passport || passportSurveyResponse,
+      nationality: {
+        name: additionalData?.dataValues?.nationality?.name || nationalitySurveyResponse,
+      },
+    },
   };
 
   try {
