@@ -1,13 +1,9 @@
-import { IPatient, IPatientIssue } from '~/types';
+import { IPatient } from '~/types';
 
 export interface AllergiesProps {
   allergies: {
     data: string[];
   };
-}
-
-export interface PatientIssuesDataProps {
-  patientIssues: IPatientIssue[];
 }
 
 export interface FamilyHistoryDataProps {
@@ -43,5 +39,4 @@ export type PatientDetails =
   ReminderWarnings &
   OnGoingConditionsDataProps &
   FamilyHistoryDataProps &
-  AllergiesProps &
-  PatientIssuesDataProps;
+  AllergiesProps;

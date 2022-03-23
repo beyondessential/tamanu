@@ -120,7 +120,7 @@ export const Screen = ({
           */}
         <PatientIssues
           onEdit={onEditPatientIssues}
-          patientIssues={patientData.patientIssues}
+          patientId={patient.id}
         />
         <Button marginBottom={40} onPress={onRecordDeath} buttonText="Record patient death" />
       </StyledScrollView>
