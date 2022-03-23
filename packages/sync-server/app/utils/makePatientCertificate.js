@@ -114,7 +114,7 @@ export const makeCovidTestCertificate = async (patient, printedBy, models, vdsDa
     where: { patientId: patient.id },
     include: models.PatientAdditionalData.getFullReferenceAssociations(),
   });
-  const passportSurveyResponse = await getPatientSurveyResponseAnswer(
+  const passportFromSurveyResponse = await getPatientSurveyResponseAnswer(
     models,
     patient.id,
     config?.questionCodeIds?.passport,
@@ -127,15 +127,15 @@ export const makeCovidTestCertificate = async (patient, printedBy, models, vdsDa
   );
 
   const nationalityRecord = await models.ReferenceData.findByPk(nationalityId);
-  const nationalitySurveyResponse = nationalityRecord?.dataValues?.name;
+  const nationalityFromSurveyResponse = nationalityRecord?.dataValues?.name;
 
   const patientData = {
     ...patient.dataValues,
     additionalData: {
       ...additionalData?.dataValues,
-      passport: additionalData?.dataValues?.passport || passportSurveyResponse,
+      passport: additionalData?.dataValues?.passport || passportFromSurveyResponse,
       nationality: {
-        name: additionalData?.dataValues?.nationality?.name || nationalitySurveyResponse,
+        name: additionalData?.dataValues?.nationality?.name || nationalityFromSurveyResponse,
       },
     },
   };
