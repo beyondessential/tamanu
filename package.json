@@ -38,6 +38,7 @@
   "private": true,
   "workspaces": {
     "packages": [
+      "packages/csca",
       "packages/scripts",
       "packages/qr-tester",
       "packages/desktop",
