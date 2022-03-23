@@ -12,6 +12,7 @@ import {
   getLabMethod,
   getRequestId,
   getDateOfSwab,
+  getTimeOfSwab,
 } from './accessors';
 import { getDisplayDate } from './getDisplayDate';
 
@@ -20,6 +21,11 @@ const columns = [
     key: 'date-of-swab',
     title: 'Date of swab',
     accessor: getDateOfSwab,
+  },
+  {
+    key: 'time-of-swab',
+    title: 'Time of swab',
+    accessor: getTimeOfSwab,
   },
   {
     key: 'date-of-test',
@@ -45,6 +51,11 @@ const columns = [
     key: 'result',
     title: 'Result',
     accessor: ({ result }) => result,
+  },
+  {
+    key: 'specimenType',
+    title: 'Specimen type',
+    accessor: ({ labTestType }) => labTestType?.name || 'Unknown',
   },
 ];
 

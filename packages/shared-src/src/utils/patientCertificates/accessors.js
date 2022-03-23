@@ -6,6 +6,9 @@ export const getCompletedDate = ({ completedDate }) =>
 export const getDateOfSwab = ({ sampleTime }) =>
   sampleTime ? getDisplayDate(sampleTime, 'Do MMM YYYY') : 'Unknown';
 
+export const getTimeOfSwab = ({ sampleTime }) =>
+  sampleTime ? getDisplayDate(sampleTime, 'hh:mm a') : 'Unknown';
+
 export const getDOB = ({ dateOfBirth }) =>
   dateOfBirth ? getDisplayDate(dateOfBirth, 'Do MMM YYYY') : 'Unknown';
 

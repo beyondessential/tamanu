@@ -122,7 +122,7 @@ export const makeCovidTestCertificate = async (patient, printedBy, models, vdsDa
 
   const patientData = {
     ...patient.dataValues,
-    additionalData: { ...additionalData?.dataValues, passport },
+    additionalData: { passport, ...additionalData?.dataValues },
   };
 
   try {
