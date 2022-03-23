@@ -1,7 +1,7 @@
 import React, { ReactElement } from 'react';
 import { createStackNavigator } from '@react-navigation/stack';
 import { Routes } from '~/ui/helpers/routes';
-import { PatientDetailsScreen } from '~/ui/navigation/screens/home/PatientDetails';
+import { PatientDetailsScreen } from '~/ui/navigation/screens/home/PatientDetails/Screen';
 import { AddPatientIssueScreen } from '~/ui/navigation/screens/home/PatientDetails/AddPatientIssue';
 import { EditPatientScreen } from '~/ui/navigation/screens/home/PatientDetails/EditPatient';
 import { EditPatientAdditionalDataScreen } from '~/ui/navigation/screens/home/PatientDetails/EditPatientAdditionalData';
