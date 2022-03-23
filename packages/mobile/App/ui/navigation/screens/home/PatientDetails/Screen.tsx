@@ -124,7 +124,7 @@ const Container = ({ navigation, selectedPatient }: PatientDetailsScreenProps): 
           paddingRight={20}
           paddingTop={20}
         >
-          <GeneralInfo generalInfo={patientData.generalInfo} onEdit={onEditPatient} />
+          <GeneralInfo patient={selectedPatient} onEdit={onEditPatient} />
           <AdditionalInfo patient={selectedPatient} onEdit={editPatientAdditionalData} />
           {/* Not functional yet
           <NotificationCheckbox value={reminders} onChange={changeReminder} />
