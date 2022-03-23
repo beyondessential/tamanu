@@ -30,7 +30,6 @@ export interface ReminderWarnings {
 }
 
 export interface PatientGeneralInformationDataProps {
-  id: string;
   generalInfo: IPatient;
 }
 

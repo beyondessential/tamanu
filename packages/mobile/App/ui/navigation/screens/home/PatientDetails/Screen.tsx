@@ -84,7 +84,7 @@ export const Screen = ({
           </StyledView>
         </RowView>
       </StyledView>
-      <HealthIdentificationRow patientId={patientData.id} />
+      <HealthIdentificationRow patientId={patient.displayId} />
     </StyledSafeAreaView>
     <FullView>
       <StyledScrollView
@@ -94,7 +94,6 @@ export const Screen = ({
         paddingTop={20}
       >
         <GeneralInfo
-          id={patientData.id}
           generalInfo={patientData.generalInfo}
           onEdit={onEditPatient}
         />

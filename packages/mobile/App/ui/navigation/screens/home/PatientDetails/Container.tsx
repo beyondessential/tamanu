@@ -17,7 +17,6 @@ const Container = ({
    * from a mock server (or real)
    */
   const patientData: PatientDetails = {
-    id: selectedPatient.displayId,
     generalInfo: {
       ...selectedPatient,
       culturalTraditionName: null,
