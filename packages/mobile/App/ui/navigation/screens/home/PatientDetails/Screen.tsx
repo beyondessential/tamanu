@@ -1,8 +1,7 @@
 import React, { useCallback, ReactElement } from 'react';
 
 import { compose } from 'redux';
-import { PatientDetails } from '~/ui/interfaces/PatientDetails';
-import { PatientDetailsScreenProps } from '~/ui/interfaces/screens/PatientDetailsScreenProps';
+import { BaseAppProps } from '~/ui/interfaces/BaseAppProps';
 import { Routes } from '~/ui/helpers/routes';
 import { withPatient } from '~/ui/containers/Patient';
 import { joinNames, getGender } from '~/ui/helpers/user';
@@ -28,7 +27,7 @@ import {
   AdditionalInfo,
 } from './CustomComponents';
 
-const Container = ({ navigation, selectedPatient }: PatientDetailsScreenProps): ReactElement => {
+const Screen = ({ navigation, selectedPatient }: BaseAppProps): ReactElement => {
   // const [reminders, setReminders] = useState(reminderWarnings);
   // const [editField, setEditField] = useState(false);
 
@@ -140,4 +139,4 @@ const Container = ({ navigation, selectedPatient }: PatientDetailsScreenProps): 
   );
 };
 
-export const PatientDetailsScreen = compose(withPatient)(Container);
+export const PatientDetailsScreen = compose(withPatient)(Screen);
