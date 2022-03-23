@@ -75,10 +75,6 @@ export class Signer extends Model {
 
         signaturesIssued: {
           // bumped on each signature issuance
-          // this is a quick-lookup/cache/redundancy: we could query
-          // the database for the amount of signatures linked to this
-          // signer instead; this way is more efficient / resistant to
-          // e.g. deletions
           type: Sequelize.INTEGER,
           allowNull: false,
           defaultValue: 0,
