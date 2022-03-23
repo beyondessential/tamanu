@@ -1,4 +1,4 @@
-import React, { useCallback, useState, ReactElement } from 'react';
+import React, { useCallback, ReactElement } from 'react';
 import { useIsFocused } from '@react-navigation/native';
 
 import { compose } from 'redux';
@@ -53,24 +53,20 @@ const Container = ({
     additionalData,
   };
 
-  const [reminders, setReminders] = useState(patientData.reminderWarnings);
-  const [editField, setEditField] = useState(false);
+  // const [reminders, setReminders] = useState(patientData.reminderWarnings);
+  // const [editField, setEditField] = useState(false);
 
-  const changeReminder = useCallback((value: boolean) => {
-    setReminders(value);
-  }, []);
-
-  const onNavigateToFilters = useCallback(() => {
-    navigation.navigate(Routes.HomeStack.PatientActions);
-  }, [navigation]);
+  // const changeReminder = useCallback((value: boolean) => {
+  //   setReminders(value);
+  // }, []);
 
   const onNavigateBack = useCallback(() => {
     navigation.goBack();
   }, [navigation]);
 
-  const onEditField = useCallback(() => {
-    setEditField(!editField);
-  }, [editField]);
+  // const onEditField = useCallback(() => {
+  //   setEditField(!editField);
+  // }, [editField]);
 
   const onEditPatient = useCallback(() => {
     navigation.navigate(Routes.HomeStack.PatientDetailsStack.EditPatient, {
@@ -91,7 +87,7 @@ const Container = ({
   }, [navigation]);
 
   const onRecordDeath = useCallback(() => {
-    navigation.navigate(Routes.HomeStack.DeceasedStack.Index)
+    navigation.navigate(Routes.HomeStack.DeceasedStack.Index);
   }, [navigation]);
 
   if (issuesError) return <ErrorScreen error={issuesError} />;
@@ -102,12 +98,12 @@ const Container = ({
     <Screen
       patientData={patientData}
       onNavigateBack={onNavigateBack}
-      onEditField={onEditField}
+      // onEditField={onEditField}
       onEditPatient={onEditPatient}
       onEditPatientAdditionalData={onEditPatientAdditionalData}
       onEditPatientIssues={onEditPatientIssues}
-      reminders={reminders}
-      changeReminder={changeReminder}
+      // reminders={reminders}
+      // changeReminder={changeReminder}
       onRecordDeath={onRecordDeath}
     />
   );

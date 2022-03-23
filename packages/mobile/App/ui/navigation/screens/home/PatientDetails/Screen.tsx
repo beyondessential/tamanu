@@ -26,12 +26,12 @@ import { Button } from '~/ui/components/Button';
 interface PatientDetailScreenProps {
   onNavigateBack: () => void;
   patientData: PatientDetails;
-  onEditField: () => void;
+  // onEditField: () => void;
   onEditPatient: () => void;
   onEditPatientAdditionalData: () => void;
   onEditPatientIssues: () => void;
-  changeReminder: (value: boolean) => void;
-  reminders: boolean;
+  // changeReminder: (value: boolean) => void;
+  // reminders: boolean;
   onRecordDeath: () => void;
 }
 
@@ -41,9 +41,9 @@ export const Screen = ({
   onEditPatient,
   onEditPatientAdditionalData,
   onEditPatientIssues,
-  onEditField,
-  changeReminder,
-  reminders,
+  // onEditField,
+  // changeReminder,
+  // reminders,
   onRecordDeath,
 }: PatientDetailScreenProps): ReactElement => (
   <FullView>
