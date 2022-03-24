@@ -75,6 +75,10 @@ const ConfirmScreen = ({ onStepBack, submitForm, onCancel }) => (
   </FormGrid>
 );
 
+const StyledFormGrid = styled(FormGrid)`
+  min-height: 200px;
+`;
+
 const PLACES = [
   'Home',
   'Residential institution',
@@ -146,7 +150,7 @@ export const DeathForm = React.memo(
             .required(),
         })}
       >
-        <FormGrid columns={2}>
+        <StyledFormGrid columns={2}>
           <Field
             name="causeOfDeath"
             label="Cause Of Death"
@@ -207,9 +211,10 @@ export const DeathForm = React.memo(
             name="deathOutsideHealthFacility"
             label="Died outside health facility"
             component={CheckField}
+            style={{ gridColumn: '1/-1', marginBottom: '10px', marginTop: '5px' }}
           />
-        </FormGrid>
-        <FormGrid columns={1}>
+        </StyledFormGrid>
+        <StyledFormGrid columns={1}>
           <Field
             name="surgeryInLast4Weeks"
             label="Was surgery performed in the last 4 weeks?"
@@ -230,9 +235,9 @@ export const DeathForm = React.memo(
             suggester={icd10Suggester}
             visibilityCriteria={{ surgeryInLast4Weeks: 'yes' }}
           />
-        </FormGrid>
+        </StyledFormGrid>
         {isAdultFemale ? (
-          <FormGrid columns={1}>
+          <StyledFormGrid columns={1}>
             <Field
               name="pregnant"
               label="If this was a woman, was the woman pregnant?"
@@ -247,9 +252,9 @@ export const DeathForm = React.memo(
               component={RadioField}
               options={binaryUnknownOptions}
             />
-          </FormGrid>
+          </StyledFormGrid>
         ) : null}
-        <FormGrid columns={1}>
+        <StyledFormGrid columns={1}>
           <Field
             name="mannerOfDeath"
             label="What was the manner of death?"
@@ -275,9 +280,9 @@ export const DeathForm = React.memo(
             component={TextField}
             visibilityCriteria={{ mannerOfDeathLocation: 'Other' }}
           />
-        </FormGrid>
+        </StyledFormGrid>
         {isInfant ? (
-          <FormGrid columns={1}>
+          <StyledFormGrid columns={1}>
             <Field
               name="fetalOrInfant"
               label="Was the death fetal or infant?"
@@ -314,7 +319,7 @@ export const DeathForm = React.memo(
               label="If yes, number of hours survived"
               component={NumberField}
             />
-          </FormGrid>
+          </StyledFormGrid>
         ) : null}
       </PaginatedForm>
     );
