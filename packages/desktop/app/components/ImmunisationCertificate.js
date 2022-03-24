@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { generateUVCI } from 'shared/utils/uvci';
 
-import { Certificate, Spacer, Table } from './Print/Certificate';
+import { Certificate, Table } from './Print/Certificate';
 import { DateDisplay } from './DateDisplay';
 import { useApi } from '../api';
 import { useLocalisation } from '../contexts/Localisation';
@@ -49,20 +49,9 @@ const getUVCI = (getLocalisation, { immunisations }) => {
 };
 
 export const ImmunisationCertificate = ({ patient, immunisations }) => {
-  const [hasEditedRecord, setHasEditedRecord] = useState(false);
   const [watermark, setWatermark] = useState('');
   const [watermarkType, setWatermarkType] = useState('');
   const api = useApi();
-
-  useEffect(() => {
-    if (!immunisations) {
-      return;
-    }
-    setHasEditedRecord(
-      immunisations.findIndex(immunisation => immunisation.createdAt !== immunisation.updatedAt) !==
-        -1,
-    );
-  }, [immunisations]);
 
   useEffect(() => {
     (async () => {
@@ -131,15 +120,6 @@ export const ImmunisationCertificate = ({ patient, immunisations }) => {
           ))}
         </tbody>
       </Table>
-      {hasEditedRecord ? (
-        <>
-          <Spacer />
-          <sup>
-            * This vaccine record has been updated by a user and this is the most recent record
-          </sup>
-          <Spacer />
-        </>
-      ) : null}
     </Certificate>
   );
 };
