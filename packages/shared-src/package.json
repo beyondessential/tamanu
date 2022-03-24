@@ -8,8 +8,9 @@
   "author": "Beyond Essential Systems Pty. Ltd.",
   "license": "SEE LICENSE IN license",
   "scripts": {
-    "clean": "rm -rf ../shared && mkdir ../shared && cp shared.package.json ../shared/package.json",
-    "build": "yarn run clean && yarn run babel --root-mode upward --out-dir ../shared src",
+    "clean": "rm -rf ../shared",
+    "prepare": "yarn run clean && mkdir ../shared && cp shared.package.json ../shared/package.json",
+    "build": "yarn run prepare && yarn run babel --root-mode upward --out-dir ../shared src",
     "build-watch": "yarn run build --watch",
     "test": "NODE_ENV=test jest",
     "test-coverage": "yarn test --coverage"
