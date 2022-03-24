@@ -53,6 +53,9 @@ const PatientTable = React.memo(({ onViewPatient, showInpatientDetails, ...props
       columns={columns}
       noDataMessage="No patients found"
       onRowClick={row => onViewPatient(row.id)}
+      rowStyle={({ patientStatus }) =>
+        patientStatus === 'deceased' ? '& > td:not(:first-child) { color: #ed333a; }' : ''
+      }
       {...props}
     />
   );
@@ -66,20 +69,23 @@ const NewPatientButton = React.memo(({ onCreateNewPatient }) => {
   const showNewPatient = useCallback(() => {
     setCreatingPatient(true);
     setIsBirth(false);
-  }, [setCreatingPatient, setIsBirth]);
+  }, []);
 
   const showNewBirth = useCallback(() => {
     setCreatingPatient(true);
     setIsBirth(true);
-  }, [setCreatingPatient, setIsBirth]);
+  }, []);
 
-  const onCreate = useCallback(newPatient => {
-    setCreatingPatient(false);
-    onCreateNewPatient(newPatient.id);
-  });
+  const onCreate = useCallback(
+    newPatient => {
+      setCreatingPatient(false);
+      onCreateNewPatient(newPatient.id);
+    },
+    [onCreateNewPatient],
+  );
 
   return (
-    <React.Fragment>
+    <>
       <DropdownButton
         color="primary"
         actions={[
@@ -94,7 +100,7 @@ const NewPatientButton = React.memo(({ onCreateNewPatient }) => {
         onCancel={hideModal}
         onCreateNewPatient={onCreate}
       />
-    </React.Fragment>
+    </>
   );
 });
 

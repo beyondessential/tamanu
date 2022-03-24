@@ -8,6 +8,7 @@ export * from './PatientCondition';
 export * from './PatientAllergy';
 export * from './PatientIssue';
 export * from './PatientAdditionalData';
+export * from './PatientVRSData';
 
 export * from './Encounter';
 export * from './Discharge';
@@ -31,6 +32,7 @@ export * from './Survey';
 export * from './SurveyScreenComponent';
 export * from './ProgramDataElement';
 export * from './SurveyResponse';
+export * from './SurveyResponseAnswer';
 
 export * from './Referral';
 export * from './Immunisation';
@@ -51,5 +53,18 @@ export * from './Attachment';
 export * from './UserLocalisationCache';
 export * from './Asset';
 export * from './Appointment';
+export * from './DocumentMetadata';
 
 export * from './OneTimeLogin';
+export * from './Permission';
+export * from './Role';
+
+export * from './Invoice';
+export * from './InvoiceLineType';
+export * from './InvoiceLineItem';
+export * from './InvoicePriceChangeItem';
+export * from './InvoicePriceChangeType';
+
+export * from './Signer';
+
+export * from './CertificateNotification';

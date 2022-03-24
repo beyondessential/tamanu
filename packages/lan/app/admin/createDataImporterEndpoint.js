@@ -1,12 +1,9 @@
 import asyncHandler from 'express-async-handler';
-import { unlink, existsSync } from 'fs';
-
+import { unlink } from 'fs';
 import config from 'config';
 
 import { getUploadedData } from './getUploadedData';
 import { sendSyncRequest } from './sendSyncRequest';
-
-import { compareModelPriority } from 'shared/models/sync/order';
 
 import { preprocessRecordSet } from './preprocessRecordSet';
 import { WebRemote } from '../sync/WebRemote';
@@ -16,7 +13,7 @@ export function createDataImporterEndpoint(importer) {
     const start = Date.now();
 
     // read uploaded data
-    const { 
+    const {
       file,
       deleteFileAfterImport,
       dryRun = false,
@@ -32,31 +29,30 @@ export function createDataImporterEndpoint(importer) {
     });
 
     // we don't need the file any more
-    if(deleteFileAfterImport) {
+    if (deleteFileAfterImport) {
       unlink(file, () => null);
     }
 
-    const {
-      recordGroups, 
-      ...resultInfo
-    } = await preprocessRecordSet(recordSet);
+    const { recordGroups, ...resultInfo } = await preprocessRecordSet(recordSet);
 
-    const sendResult = (extraData = {}) => res.send({
-      ...resultInfo,
-      ...extraData,
-      records: showRecords ? recordGroups : undefined,
-      serverInfo: {
-        host: config.sync.host,
-      },
-      duration: (Date.now() - start) / 1000.0,
-    });
+    const sendResult = (extraData = {}) =>
+      res.send({
+        ...resultInfo,
+        ...extraData,
+        records: showRecords ? recordGroups : undefined,
+        serverInfo: {
+          host: config.sync.host,
+        },
+        duration: (Date.now() - start) / 1000.0,
+      });
 
     // bail out early
-    if(dryRun) {
-      sendResult({ sentData: false, didntSendReason: "dryRun" });
+    if (dryRun) {
+      sendResult({ sentData: false, didntSendReason: 'dryRun' });
       return;
-    } else if(resultInfo.errors.length > 0 && !allowErrors) {
-      sendResult({ sentData: false, didntSendReason: "validationFailed" });
+    }
+    if (resultInfo.errors.length > 0 && !allowErrors) {
+      sendResult({ sentData: false, didntSendReason: 'validationFailed' });
       return;
     }
 

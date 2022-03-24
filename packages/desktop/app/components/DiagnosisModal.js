@@ -1,5 +1,4 @@
 import React, { useCallback } from 'react';
-import { push } from 'connected-react-router';
 
 import { connectApi } from '../api/connectApi';
 import { Suggester } from '../utils/suggester';
@@ -12,11 +11,14 @@ import { DiagnosisForm } from '../forms/DiagnosisForm';
 const DumbDiagnosisModal = React.memo(
   ({ diagnosis, onClose, onSaveDiagnosis, encounterId, ...rest }) => {
     const { loadEncounter } = useEncounter();
-    const saveDiagnosis = useCallback(async data => {
-      await onSaveDiagnosis(data);
-      await loadEncounter(encounterId);
-      onClose();
-    }, []);
+    const saveDiagnosis = useCallback(
+      async data => {
+        await onSaveDiagnosis(data);
+        await loadEncounter(encounterId);
+        onClose();
+      },
+      [onSaveDiagnosis, loadEncounter, onClose, encounterId],
+    );
 
     return (
       <Modal title="Diagnosis" open={!!diagnosis} onClose={onClose}>
@@ -26,7 +28,7 @@ const DumbDiagnosisModal = React.memo(
   },
 );
 
-export const DiagnosisModal = connectApi((api, dispatch, { encounterId }) => ({
+export const DiagnosisModal = connectApi((api, dispatch, { encounterId, excludeDiagnoses }) => ({
   onSaveDiagnosis: async data => {
     if (data.id) {
       await api.put(`diagnosis/${data.id}`, data);
@@ -45,5 +47,7 @@ export const DiagnosisModal = connectApi((api, dispatch, { encounterId }) => ({
       }
     }
   },
-  icd10Suggester: new Suggester(api, 'icd10'),
+  icd10Suggester: new Suggester(api, 'icd10', {
+    filterer: icd => !excludeDiagnoses.some(d => d.diagnosisId === icd.id),
+  }),
 }))(DumbDiagnosisModal);

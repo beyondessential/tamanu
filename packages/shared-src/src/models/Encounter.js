@@ -57,6 +57,10 @@ export class Encounter extends Model {
         'vitals',
         'discharge',
         'triages',
+        'invoice',
+        'invoice.invoiceLineItems',
+        'invoice.invoicePriceChangeItems',
+        'documents',
       ],
       ...nestedSyncConfig,
       channelRoutes: [
@@ -155,13 +159,26 @@ export class Encounter extends Model {
   }
 
   static getFullReferenceAssociations() {
-    return ['vitals', 'department', 'location', 'examiner'];
+    return [
+      'vitals',
+      'department',
+      'examiner',
+      {
+        association: 'location',
+        include: ['Facility'],
+      },
+    ];
   }
 
   static initRelations(models) {
     this.hasOne(models.Discharge, {
       foreignKey: 'encounterId',
       as: 'discharge',
+    });
+
+    this.hasOne(models.Invoice, {
+      foreignKey: 'encounterId',
+      as: 'invoice',
     });
 
     this.belongsTo(models.Patient, {
@@ -236,6 +253,11 @@ export class Encounter extends Model {
     this.hasMany(models.Triage, {
       foreignKey: 'encounterId',
       as: 'triages',
+    });
+
+    this.hasMany(models.DocumentMetadata, {
+      foreignKey: 'encounterId',
+      as: 'documents',
     });
 
     // this.hasMany(models.Procedure);

@@ -5,7 +5,7 @@ import { PROGRAM_DATA_ELEMENT_TYPE_VALUES } from 'shared/constants';
 import { ForeignKeyStore } from './ForeignKeyStore';
 
 const safeIdRegex = /^[A-Za-z0-9-]+$/;
-const safeCodeRegex = /^[A-Za-z0-9-.\/]+$/;
+const safeCodeRegex = /^[A-Za-z0-9-./]+$/;
 
 const fieldTypes = {
   id: yup.string().matches(safeIdRegex, 'id must not have spaces or punctuation other than -'),
@@ -22,27 +22,29 @@ const baseSchema = yup.object().shape({
 const referenceDataSchema = baseSchema.shape({
   type: yup.string().required(),
   code: fieldTypes.code.required(),
-  name: fieldTypes.name.required(),
+  name: yup.string().required(),
 });
 
-const patientSchema = baseSchema
-  .shape({
-    villageId: yup.string(),
-    firstName: yup.string().required(),
-    lastName: yup.string().required(),
-    dateOfBirth: yup.date().required(),
-  });
+const patientSchema = baseSchema.shape({
+  villageId: yup.string(),
+  firstName: yup.string().required(),
+  lastName: yup.string().required(),
+  dateOfBirth: yup.date().required(),
+});
 
-const userSchema = baseSchema
-  .shape({
-    email: yup.string().required(),
-    displayName: yup.string().required(),
-    password: yup.string().required(),
-  });
+const userSchema = baseSchema.shape({
+  email: yup.string().required(),
+  displayName: yup.string().required(),
+  password: yup.string().required(),
+});
 
 const facilitySchema = baseSchema.shape({
   code: fieldTypes.code.required(),
   name: fieldTypes.name.required(),
+  email: yup.string(),
+  contactNumber: yup.string(),
+  streetAddress: yup.string(),
+  cityTown: yup.string(),
   division: yup.string(),
   type: yup.string(),
 });
@@ -61,68 +63,71 @@ const locationSchema = baseSchema.shape({
 
 const LAB_TEST_RESULT_TYPES = ['Number', 'Select', 'FreeText'];
 const rangeRegex = /^[0-9.]+, [0-9.]+$/;
-const labTestTypeSchema = baseSchema
-  .shape({
-    name: yup.string().required(),
-    labTestCategoryId: yup.string().required(),
-    resultType: yup.string().required().oneOf(LAB_TEST_RESULT_TYPES),
-    options: yup.string(),
-    unit: yup.string(),
-    maleRange: yup.string().matches(rangeRegex),
-    femaleRange: yup.string().matches(rangeRegex),
-  });
+const labTestTypeSchema = baseSchema.shape({
+  name: yup.string().required(),
+  labTestCategoryId: yup.string().required(),
+  resultType: yup
+    .string()
+    .required()
+    .oneOf(LAB_TEST_RESULT_TYPES),
+  options: yup.string(),
+  unit: yup.string(),
+  maleRange: yup.string().matches(rangeRegex),
+  femaleRange: yup.string().matches(rangeRegex),
+});
 
-const jsonString = () => yup.string()
-  .test(
-    'is-json',
-    '${path} is not valid JSON',
-    value => {
-      if(!value) return true;
-      try {
-        JSON.parse(value);
-        return true;
-      } catch(e) {
-        return false;
-      }
+const jsonString = () =>
+  // The template curly two lines down is valid in a yup message
+  // eslint-disable-next-line no-template-curly-in-string
+  yup.string().test('is-json', '${path} is not valid JSON', value => {
+    if (!value) return true;
+    try {
+      JSON.parse(value);
+      return true;
+    } catch (e) {
+      return false;
     }
-  );
-
-const programDataElementSchema = baseSchema
-  .shape({
-    indicator: yup.string(),
-    type: yup.string().required().oneOf(PROGRAM_DATA_ELEMENT_TYPE_VALUES),
-    defaultOptions: jsonString(),
   });
 
-const surveyScreenComponentSchema = baseSchema
-  .shape({
-    visibilityCriteria: jsonString(),
-    validationCriteria: jsonString(),
-    config: jsonString(),
-    screenIndex: yup.number().required(),
-    componentIndex: yup.number().required(),
-    options: jsonString(),
-    calculation: yup.string(),
-    surveyId: yup.string().required(),
-    detail: yup.string().max(255),
-    dataElementId: yup.string().required(),
-  });
+const programDataElementSchema = baseSchema.shape({
+  indicator: yup.string(),
+  type: yup
+    .string()
+    .required()
+    .oneOf(PROGRAM_DATA_ELEMENT_TYPE_VALUES),
+  defaultOptions: jsonString(),
+});
 
-const scheduledVaccineSchema = baseSchema
-  .shape({
-    category: yup.string().required(),
-    label: yup.string().required(),
-    schedule: yup.string().required(),
-    weeksFromBirthDue: yup.number(),
-    weeksFromLastVaccinationDue: yup.number(),
-    index: yup.number().required(),
-    vaccineId: yup.string().required(),
-  });
+const surveyScreenComponentSchema = baseSchema.shape({
+  visibilityCriteria: jsonString(),
+  validationCriteria: jsonString(),
+  config: jsonString(),
+  screenIndex: yup.number().required(),
+  componentIndex: yup.number().required(),
+  options: jsonString(),
+  calculation: yup.string(),
+  surveyId: yup.string().required(),
+  detail: yup.string().max(255),
+  dataElementId: yup.string().required(),
+});
 
-const surveySchema = baseSchema
-  .shape({
-    surveyType: yup.string().required().oneOf(['programs', 'referral', 'obsolete']),
-  });
+const scheduledVaccineSchema = baseSchema.shape({
+  category: yup.string().required(),
+  label: yup.string().required(),
+  schedule: yup.string().required(),
+  weeksFromBirthDue: yup.number(),
+  weeksFromLastVaccinationDue: yup.number(),
+  index: yup.number().required(),
+  vaccineId: yup.string().required(),
+});
+
+const surveySchema = baseSchema.shape({
+  surveyType: yup
+    .string()
+    .required()
+    .oneOf(['programs', 'referral', 'obsolete']),
+  isSensitive: yup.boolean().required(),
+});
 
 const validationSchemas = {
   base: baseSchema,
@@ -165,15 +170,15 @@ class ForeignKeyLinker {
   }
 
   link(record) {
-    const { data, recordType } = record;
-    const schema = foreignKeySchemas[recordType];
+    const { data, recordType: parentRecordType } = record;
+    const schema = foreignKeySchemas[parentRecordType];
 
-    if(!schema) return;
+    if (!schema) return;
 
-    for(const [field, recordType] of Object.entries(schema)) {
+    for (const [field, childRecordType] of Object.entries(schema)) {
       const search = data[field];
       if (!search) continue;
-      const found = this.fkStore.findRecord(recordType, search);
+      const found = this.fkStore.findRecord(childRecordType, search);
       const foundId = found?.data?.id;
       if (!foundId) {
         throw new ValidationError(`matching record from ${found.sheet}:${found.row} has no id`);
@@ -188,7 +193,7 @@ export async function validateRecordSet(records) {
   const fkStore = new ForeignKeyStore(records);
   const fkLinker = new ForeignKeyLinker(fkStore);
 
-  const validate = async (record) => {
+  const validate = async record => {
     const { recordType, data } = record;
     const schema = validationSchemas[recordType] || validationSchemas.base;
 
@@ -206,7 +211,7 @@ export async function validateRecordSet(records) {
         ...record,
         data: validatedData,
       };
-    } catch(e) {
+    } catch (e) {
       if (!(e instanceof ValidationError)) throw e;
 
       return {

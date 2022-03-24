@@ -12,5 +12,23 @@
       "password": ""
     },
     "environment": "dev"
+  },
+  "localisation": {
+    "data": {
+      "country": {
+        "name": "Utopia",
+        "alpha-2": "UT",
+        "alpha-3": "UTO"
+      }
+    }
+  },
+  "integrations": {
+    "vdsNc": {
+      "enabled": true
+    },
+    "signer": {
+      "enabled": true,
+      "keySecret": "dTk8mJ0t+xszGxohhMq1Y7UEE9h1Pzvb+1r+YHVf+Y4="
+    }
   }
 }

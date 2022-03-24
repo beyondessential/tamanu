@@ -1,0 +1,28 @@
+body {
+  margin: 0 auto;
+  font-family: monospace;
+  max-width: 40rem;
+  padding: 1rem;
+}
+
+.btn {
+  color: white;
+  background-color: #2c1f9e;
+  text-decoration: none;
+  border: none;
+  cursor: pointer;
+  padding: 1em;
+  text-transform: uppercase;
+}
+
+#qrdata {
+  width: 100%;
+  min-height: 10rem;
+}
+
+#controls {
+  margin: 1rem 0;
+  display: flex;
+  flex-direction: row;
+  justify-content: space-between;
+}

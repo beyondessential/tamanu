@@ -13,7 +13,7 @@ const recordTransformer = type => item => ({
 });
 
 const referenceDataTransformer = type => item => {
-  const code = item.code;
+  const { code } = item;
   return {
     recordType: 'referenceData',
     data: {
@@ -91,10 +91,13 @@ const transformers = [
   makeTransformer('labTestPriorities', referenceDataTransformer('labTestPriority')),
   makeTransformer('labTestLaboratory', referenceDataTransformer('labTestLaboratory')),
   makeTransformer('labTestMethods', referenceDataTransformer('labTestMethod')),
+  makeTransformer('additionalInvoiceLines', referenceDataTransformer('additionalInvoiceLine')),
   makeTransformer('users', recordTransformer('user')),
   makeTransformer('patients', patientDataTransformer),
   makeTransformer('labTestTypes', recordTransformer('labTestType')),
   makeTransformer('vaccineSchedules', recordTransformer('scheduledVaccine')),
+  makeTransformer('invoiceLineTypes', recordTransformer('invoiceLineType')),
+  makeTransformer('invoicePriceChangeTypes', recordTransformer('invoicePriceChangeType')),
   makeTransformer('roles', null),
 ];
 

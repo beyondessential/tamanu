@@ -1,4 +1,10 @@
-import { createDummyPatient, randomReferenceId } from 'shared/demoData/patients';
+import {
+  createDummyEncounter,
+  createDummyEncounterMedication,
+  createDummyPatient,
+  randomReferenceId,
+} from 'shared/demoData/patients';
+import { fakePatient } from 'shared/test-helpers/fake';
 import { createTestContext } from '../utilities';
 
 describe('Patient', () => {
@@ -38,6 +44,72 @@ describe('Patient', () => {
   test.todo('should get a list of patient allergies');
   test.todo('should get a list of patient family history entries');
   test.todo('should get a list of patient issues');
+
+  it('should get empty results when checking for last discharged encounter medications', async () => {
+    // Create encounter without endDate (not discharged yet)
+    await models.Encounter.create({
+      ...(await createDummyEncounter(models, { current: true })),
+      patientId: patient.id,
+    });
+
+    // Expect result data to be empty since there are no discharged encounters or medications
+    const result = await app.get(`/v1/patient/${patient.id}/lastDischargedEncounter/medications`);
+    expect(result).toHaveSucceeded();
+    expect(result.body).toMatchObject({
+      count: 0,
+      data: [],
+    });
+  });
+
+  it('should get the last discharged encounter and include discharged medications', async () => {
+    // Create three encounters: First two will be discharged, the last one won't
+    const encounterOne = await models.Encounter.create({
+      ...(await createDummyEncounter(models, { current: true })),
+      patientId: patient.id,
+    });
+    const encounterTwo = await models.Encounter.create({
+      ...(await createDummyEncounter(models, { current: true })),
+      patientId: patient.id,
+    });
+    await models.Encounter.create({
+      ...(await createDummyEncounter(models, { current: true })),
+      patientId: patient.id,
+    });
+
+    // Create two medications for encounterTwo (the one we should get)
+    const dischargedMedication = await models.EncounterMedication.create({
+      ...(await createDummyEncounterMedication(models, { isDischarge: true })),
+      encounterId: encounterTwo.id,
+    });
+    await models.EncounterMedication.create({
+      ...(await createDummyEncounterMedication(models)),
+      encounterId: encounterTwo.id,
+    });
+
+    // Edit the first two encounters to simulate a discharge
+    // (the second one needs to have a 'greater' date to be the last)
+    const endDate = new Date();
+    await Promise.all([
+      encounterOne.update({ endDate: endDate }),
+      encounterTwo.update({ endDate: new Date(endDate.getTime() + 1000) }),
+    ]);
+
+    // Expect encounter to be the second encounter discharged
+    // and include discharged medication with reference associations
+    const result = await app.get(`/v1/patient/${patient.id}/lastDischargedEncounter/medications`);
+    expect(result).toHaveSucceeded();
+    expect(result.body).toMatchObject({
+      count: 1,
+      data: expect.any(Array),
+    });
+    expect(result.body.data[0]).toMatchObject({
+      id: dischargedMedication.id,
+      medication: expect.any(Object),
+      encounter: {
+        location: expect.any(Object),
+      },
+    });
+  });
 
   describe('write', () => {
     it('should reject users with insufficient permissions', async () => {
@@ -118,7 +190,48 @@ describe('Patient', () => {
   test.todo('should get a list of patient referrals');
 
   describe('Death', () => {
-    test.todo('should mark a patient as dead');
-    test.todo('should not mark a dead patient as dead');
+    it('should mark a patient as dead', async () => {
+      const { Patient } = models;
+      const { id } = await Patient.create(fakePatient('alive-1'));
+
+      const dod = new Date();
+      const result = await app.post(`/v1/patient/${id}/death`).send({
+        date: dod,
+      });
+      expect(result).toHaveSucceeded();
+
+      const patient = await Patient.findByPk(id);
+      expect(patient.dateOfDeath).toEqual(dod);
+    });
+
+    it('should not mark a dead patient as dead', async () => {
+      const { Patient } = models;
+      const { id } = await Patient.create(fakePatient('dead-1'));
+
+      const result = await app.post(`/v1/patient/${id}/death`).send({
+        date: new Date(),
+      });
+      expect(result).not.toHaveSucceeded();
+    });
+
+    it('should reject with no date', async () => {
+      const { Patient } = models;
+      const { id } = await Patient.create(fakePatient('alive-2'));
+
+      const result = await app.post(`/v1/patient/${id}/death`).send({});
+      expect(result).not.toHaveSucceeded();
+    });
+
+    it('should reject with an invalid date', async () => {
+      const { Patient } = models;
+      const { id } = await Patient.create(fakePatient('alive-3'));
+
+      const result = await app.post(`/v1/patient/${id}/death`).send({
+        date: 'this is not a date',
+      });
+      expect(result).not.toHaveSucceeded();
+    });
+
+    test.todo('should reject marking as dead with insufficient permissions');
   });
 });

@@ -1,5 +1,6 @@
 import React, { useCallback } from 'react';
 
+import { REFERRAL_STATUSES } from 'shared/constants';
 import { Modal } from './Modal';
 import { Suggester } from '../utils/suggester';
 
@@ -8,10 +9,12 @@ import { viewPatientEncounter } from '../store/patient';
 
 import { EncounterForm } from '../forms/EncounterForm';
 import { useEncounter } from '../contexts/Encounter';
+import { useApi } from '../api';
 
 const DumbEncounterModal = React.memo(
   ({ open, onClose, patientId, loadAndViewPatientEncounter, referral, ...rest }) => {
     const { createEncounter } = useEncounter();
+    const api = useApi();
 
     const onCreateEncounter = useCallback(
       async data => {
@@ -20,14 +23,17 @@ const DumbEncounterModal = React.memo(
           referralId: referral?.id,
           ...data,
         });
+        if (referral) {
+          await api.put(`referral/${referral.id}`, { status: REFERRAL_STATUSES.COMPLETED });
+        }
         loadAndViewPatientEncounter();
         onClose();
       },
-      [patientId],
+      [patientId, api, createEncounter, loadAndViewPatientEncounter, onClose, referral],
     );
 
     return (
-      <Modal title="Check in" open={open} onClose={onClose}>
+      <Modal title="Check-in" open={open} onClose={onClose}>
         <EncounterForm onSubmit={onCreateEncounter} onCancel={onClose} {...rest} />
       </Modal>
     );

@@ -1,16 +1,19 @@
 import express from 'express';
 import asyncHandler from 'express-async-handler';
-import { QueryTypes } from 'sequelize';
+import { QueryTypes, Op } from 'sequelize';
 import { isEqual } from 'lodash';
-
+import { getPatientAdditionalData } from 'shared/utils';
 import { NotFoundError } from 'shared/errors';
-import { simpleGetList, permissionCheckingRouter, runPaginatedQuery } from './crudHelpers';
 
+import { simpleGetList, permissionCheckingRouter, runPaginatedQuery } from './crudHelpers';
 import { renameObjectKeys } from '~/utils/renameObjectKeys';
 import { createPatientFilters } from '../../utils/patientFilters';
 import { patientVaccineRoutes } from './patient/patientVaccine';
+import { patientDocumentMetadataRoutes } from './patient/patientDocumentMetadata';
+import { patientDeath } from './patient/patientDeath';
 import { patientProfilePicture } from './patient/patientProfilePicture';
 import { activeCovid19PatientsHandler } from '../../routeHandlers';
+import { getOrderClause } from '../../database/utils';
 
 const patientRoute = express.Router();
 export { patientRoute as patient };
@@ -134,6 +137,7 @@ patientRelations.get(
 );
 
 patientRelations.use(patientProfilePicture);
+patientRelations.use(patientDeath);
 
 patientRelations.get(
   '/:id/referrals',
@@ -180,10 +184,11 @@ patientRelations.get(
 );
 
 patientRelations.get(
-  '/:id/surveyResponses',
+  '/:id/programResponses',
   asyncHandler(async (req, res) => {
     const { db, models, params, query } = req;
     const patientId = params.id;
+    const { surveyId, surveyType = 'programs' } = query;
     const { count, data } = await runPaginatedQuery(
       db,
       models.SurveyResponse,
@@ -193,12 +198,17 @@ patientRelations.get(
           survey_responses
           LEFT JOIN encounters
             ON (survey_responses.encounter_id = encounters.id)
+          LEFT JOIN surveys
+            ON (survey_responses.survey_id = surveys.id)
         WHERE
           encounters.patient_id = :patientId
+          AND surveys.survey_type = :surveyType
+          ${surveyId ? 'AND surveys.id = :surveyId' : ''}
       `,
       `
         SELECT
           survey_responses.*,
+          surveys.id as survey_id,
           surveys.name as survey_name,
           encounters.examiner_id,
           users.display_name as assessor_name,
@@ -215,8 +225,10 @@ patientRelations.get(
             ON (programs.id = surveys.program_id)
         WHERE
           encounters.patient_id = :patientId
+          AND surveys.survey_type = :surveyType
+          ${surveyId ? 'AND surveys.id = :surveyId' : ''}
       `,
-      { patientId },
+      { patientId, surveyId, surveyType },
       query,
     );
 
@@ -250,6 +262,60 @@ patientRoute.get(
 
     // explicitly send as json (as it might be null)
     res.json(currentEncounter);
+  }),
+);
+
+patientRoute.get(
+  '/:id/lastDischargedEncounter/medications',
+  asyncHandler(async (req, res) => {
+    const {
+      models: { Encounter, EncounterMedication },
+      params,
+      query,
+    } = req;
+
+    const { order = 'ASC', orderBy, rowsPerPage = 10, page = 0 } = query;
+
+    req.checkPermission('read', 'Patient');
+    req.checkPermission('read', 'Encounter');
+    req.checkPermission('list', 'EncounterMedication');
+
+    const lastDischargedEncounter = await Encounter.findOne({
+      where: {
+        patientId: params.id,
+        endDate: { [Op.not]: null },
+      },
+      order: [['endDate', 'DESC']],
+    });
+
+    // Return empty values if there isn't a discharged encounter
+    if (!lastDischargedEncounter) {
+      res.send({
+        count: 0,
+        data: [],
+      });
+      return;
+    }
+
+    // Find and return all associated encounter medications
+    const lastEncounterMedications = await EncounterMedication.findAndCountAll({
+      where: { encounterId: lastDischargedEncounter.id, isDischarge: true },
+      include: [
+        ...EncounterMedication.getFullReferenceAssociations(),
+        { association: 'encounter', include: [{ association: 'location' }] },
+      ],
+      order: orderBy ? getOrderClause(order, orderBy) : undefined,
+      limit: rowsPerPage,
+      offset: page * rowsPerPage,
+    });
+
+    const { count } = lastEncounterMedications;
+    const data = lastEncounterMedications.rows.map(x => x.forResponse());
+
+    res.send({
+      count,
+      data,
+    });
   }),
 );
 
@@ -354,6 +420,13 @@ patientRoute.get(
           patients.*,
           encounters.id AS encounter_id,
           encounters.encounter_type,
+          CASE
+            WHEN patients.date_of_death IS NOT NULL THEN 'deceased'
+            WHEN encounters.encounter_type = 'emergency' THEN 'emergency'
+            WHEN encounters.encounter_type = 'clinic' THEN 'outpatient'
+            WHEN encounters.encounter_type IS NOT NULL THEN 'inpatient'
+            ELSE NULL
+          END AS patient_status,
           department.id AS department_id,
           department.name AS department_name,
           location.id AS location_id,
@@ -390,3 +463,47 @@ patientRoute.get(
 patientRoute.get('/program/activeCovid19Patients', asyncHandler(activeCovid19PatientsHandler));
 
 patientRoute.use(patientVaccineRoutes);
+patientRoute.use(patientDocumentMetadataRoutes);
+
+patientRoute.get(
+  '/:id/passportNumber',
+  asyncHandler(async (req, res) => {
+    req.checkPermission('read', 'Patient');
+    const passportNumber = await getPatientAdditionalData(req.models, req.params.id, 'passport');
+    res.json(passportNumber);
+  }),
+);
+
+patientRoute.get(
+  '/:id/nationality',
+  asyncHandler(async (req, res) => {
+    const nationalityId = await getPatientAdditionalData(
+      req.models,
+      req.params.id,
+      'nationalityId',
+    );
+
+    if (!nationalityId) {
+      res.send('');
+      return;
+    }
+
+    const nationalityRecord = await req.models.ReferenceData.findByPk(nationalityId);
+    res.json(nationalityRecord?.dataValues?.name);
+  }),
+);
+
+patientRoute.get(
+  '/:id/covidLabTests',
+  asyncHandler(async (req, res) => {
+    req.checkPermission('read', 'Patient');
+
+    const { models, params } = req;
+    const { Patient } = models;
+
+    const patient = await Patient.findByPk(params.id);
+    const labTests = await patient.getCovidLabTests();
+
+    res.json({ data: labTests, count: labTests.length });
+  }),
+);

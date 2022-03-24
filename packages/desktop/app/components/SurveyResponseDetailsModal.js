@@ -1,10 +1,12 @@
 import React, { useState, useEffect } from 'react';
 import { Modal } from './Modal';
 
+import { DateDisplay } from './DateDisplay';
 import { Table } from './Table';
 import { SurveyResultBadge } from './SurveyResultBadge';
 import { ViewPhotoLink } from './ViewPhotoLink';
 import { connectApi } from '../api/connectApi';
+import { Button } from './Button';
 
 const convertBinaryToYesNo = value => {
   switch (value) {
@@ -25,15 +27,32 @@ const COLUMNS = [
     key: 'value',
     title: 'Value',
     accessor: ({ answer, type }) => {
+      const [surveyLink, setSurveyLink] = useState(null);
       switch (type) {
         case 'Result':
-          return <SurveyResultBadge result={parseFloat(answer)} />;
+          return <SurveyResultBadge resultText={answer} />;
         case 'Calculated':
-          return parseFloat(answer).toFixed(2);
+          return parseFloat(answer).toFixed(1);
         case 'Photo':
           return <ViewPhotoLink imageId={answer} />;
         case 'Checkbox':
           return convertBinaryToYesNo(answer);
+        case 'SubmissionDate':
+          return <DateDisplay date={answer} />;
+        case 'Date':
+          return <DateDisplay date={answer} />;
+        case 'SurveyLink':
+          return (
+            <>
+              <Button onClick={() => setSurveyLink(answer)} variant="contained" color="primary">
+                Show Survey
+              </Button>
+              <SurveyResponseDetailsModal
+                surveyResponseId={surveyLink}
+                onClose={() => setSurveyLink(null)}
+              />
+            </>
+          );
         default:
           return answer;
       }
@@ -65,7 +84,7 @@ export const SurveyResponseDetailsModal = connectApi(api => ({
         setLoading(false);
       })();
     }
-  }, [surveyResponseId]);
+  }, [surveyResponseId, fetchResponseDetails]);
 
   if (loading || !surveyDetails) {
     return (

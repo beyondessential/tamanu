@@ -13,7 +13,12 @@ export class ChangeEncounterTypeForm extends React.PureComponent {
     const newType = ENCOUNTER_OPTIONS_BY_VALUE[values.encounterType].label;
     return (
       <FormGrid columns={1}>
-        <div><span>Changing encounter from </span><b>{currentType}</b><span> to </span><b>{newType}</b></div>
+        <div>
+          <span>Changing encounter from </span>
+          <b>{currentType}</b>
+          <span> to </span>
+          <b>{newType}</b>
+        </div>
         <ConfirmCancelRow onConfirm={submitForm} confirmText="Save" onCancel={onCancel} />
       </FormGrid>
     );

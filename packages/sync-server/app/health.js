@@ -1,13 +1,12 @@
 import express from 'express';
 import asyncHandler from 'express-async-handler';
-
 import config from 'config';
+
 import { log } from 'shared/services/logging';
 import { createMigrationInterface } from 'shared/services/migrations';
 
 import { version } from '../package.json';
-import { syncRoutes } from './sync';
-import { attachmentRoutes } from './attachment';
+import { canUploadAttachment } from './utils/getFreeDiskSpace';
 
 export const healthRoutes = express.Router();
 
@@ -23,15 +22,12 @@ function uptime() {
 // quick utility to recurse through an object
 // (to use with sanitising the config object)
 function recurse(object, cb, prefix = '') {
-  return Object.entries(object)
-    .reduce((state, [k, v]) => {
-      if (typeof v === 'object') {
-        return { ...state, [k]: recurse(v, cb, `${prefix}${k}.`) };
-      } else {
-        const replacement = cb(k, v);
-        return { ...state, [k]: cb(`${prefix}${k}`, v) };
-      }
-    }, {});
+  return Object.entries(object).reduce((state, [k, v]) => {
+    if (typeof v === 'object') {
+      return { ...state, [k]: recurse(v, cb, `${prefix}${k}.`) };
+    }
+    return { ...state, [k]: cb(`${prefix}${k}`, v) };
+  }, {});
 }
 
 function sanitise(object) {
@@ -46,12 +42,11 @@ function sanitise(object) {
 async function getMigrations(sequelize) {
   try {
     const migrationManager = createMigrationInterface(log, sequelize);
-    const migrations = (await migrationManager.executed())
-      .map(x => x.file);
+    const migrations = (await migrationManager.executed()).map(x => x.file);
     return {
-      migrations
+      migrations,
     };
-  } catch(e) {
+  } catch (e) {
     return {
       migrationError: e.toString(),
     };
@@ -64,26 +59,37 @@ function lofiCheckPermission(user) {
   }
 }
 
-healthRoutes.get('/', asyncHandler(async (req, res) => {
-  try {
-    // TODO: replace with a proper permission check
-    // once that's been implemented for sync-server, for eg:
-    // req.checkPermission('read', 'SystemStatus');
-    lofiCheckPermission(req.user);
-  } catch (e) {
-    res.send({ version });
-    return;
-  }
+healthRoutes.get(
+  '/',
+  asyncHandler(async (req, res) => {
+    try {
+      // TODO: replace with a proper permission check
+      // once that's been implemented for sync-server, for eg:
+      // req.checkPermission('read', 'SystemStatus');
+      lofiCheckPermission(req.user);
+    } catch (e) {
+      res.send({ version });
+      return;
+    }
 
-  res.send({ 
-    version,
-    uptime: uptime(),
-    serverTime: new Date(),
-    timeOptions: Intl.DateTimeFormat().resolvedOptions(),
-    database: {
-      options: req.store.sequelize.options,
-      ...(await getMigrations(req.store.sequelize)),
-    },
-    config: sanitise(config),
-  });
-}));
+    res.send({
+      version,
+      uptime: uptime(),
+      serverTime: new Date(),
+      timeOptions: Intl.DateTimeFormat().resolvedOptions(),
+      database: {
+        options: req.store.sequelize.options,
+        ...(await getMigrations(req.store.sequelize)),
+      },
+      config: sanitise(config),
+    });
+  }),
+);
+
+healthRoutes.get(
+  '/canUploadAttachment',
+  asyncHandler(async (req, res) => {
+    const canUpload = await canUploadAttachment();
+    res.send({ canUploadAttachment: canUpload });
+  }),
+);

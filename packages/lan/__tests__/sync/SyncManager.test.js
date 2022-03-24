@@ -95,7 +95,7 @@ describe('SyncManager', () => {
       expect(pullCursor).toEqual(`${now};${data.id}`);
 
       await context.syncManager.pullAndImport(context.models.ReferenceData);
-      const calls = context.remote.pull.mock.calls;
+      const { calls } = context.remote.pull.mock;
       expect(calls[calls.length - 1][1]).toHaveProperty('since', `${now};${data.id}`);
     });
 
@@ -139,6 +139,65 @@ describe('SyncManager', () => {
   describe('exportAndPush', () => {
     const getRecord = ({ id }) => context.models.Patient.findByPk(id);
 
+    beforeEach(() => context.models.Patient.destroy({ truncate: true }));
+
+    it("doesn't unset markedForPush when models set it midway through an push", async () => {
+      const { syncManager, remote, models } = context;
+      const { Patient } = models;
+
+      // arrange
+      const oldPatient = await Patient.create(fakePatient());
+
+      let startFetch = null;
+      const startFetchPromise = new Promise(resolve => {
+        startFetch = resolve;
+      });
+      let finishFetch = null;
+      remote.push
+        .mockImplementationOnce(async () => {
+          const finishFetchPromise = new Promise(resolve => {
+            finishFetch = resolve;
+          });
+          startFetch();
+          await finishFetchPromise;
+          return { data: { requestedAt: Date.now() } };
+        })
+        .mockImplementation(() => ({
+          data: {
+            requestedAt: Date.now(),
+          },
+        }));
+
+      // act
+      // 1. start export
+      const managerPromise = syncManager.exportAndPushChannel(Patient, 'patient');
+
+      // 2. wait until syncManager calls pushRecords, e.g. the network request is sent
+      await startFetchPromise;
+
+      // 3. mark patient for save
+      const interleavedPatient = await Patient.findByPk(oldPatient.id);
+      interleavedPatient.firstName = 'Bob';
+      await interleavedPatient.save();
+
+      // 4. wait a little while to allow patient to save (if it's going to)
+      jest.useRealTimers();
+      await new Promise(resolve => setTimeout(resolve, 100));
+      jest.useFakeTimers();
+
+      // 5. finish the network request
+      finishFetch();
+
+      // 6. wait for the manager promise to complete
+      await managerPromise;
+
+      // assert
+      const newPatient = await Patient.findByPk(oldPatient.id);
+      expect(newPatient).toHaveProperty('firstName', 'Bob');
+      expect(newPatient).toHaveProperty('isPushing', false);
+      expect(newPatient).toHaveProperty('markedForPush', true);
+    });
+
     it('exports pages of records and pushes them', async () => {
       // arrange
       const record = fakePatient();
@@ -157,10 +216,11 @@ describe('SyncManager', () => {
       const { calls } = context.remote.push.mock;
       expect(calls.length).toEqual(1);
       expect(calls[0][0]).toEqual('patient');
-      expect(calls[0][1].length).toEqual(1);
+      expect(calls[0][1]).toHaveLength(1);
       expect(calls[0][1][0].data).toMatchObject({
         ...record,
         dateOfBirth: record?.dateOfBirth?.toISOString(),
+        dateOfDeath: undefined,
       });
     });
 

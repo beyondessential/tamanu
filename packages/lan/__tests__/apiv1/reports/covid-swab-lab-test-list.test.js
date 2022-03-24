@@ -5,10 +5,60 @@ import {
   randomReferenceId,
 } from 'shared/demoData/patients';
 import { randomLabRequest } from 'shared/demoData';
+import { LAB_REQUEST_STATUSES } from 'shared/constants';
 import { createTestContext } from '../../utilities';
 
 const PROGRAM_ID = 'program-fijicovid19';
 const FIJI_SAMP_SURVEY_ID = 'program-fijicovid19-fijicovidsampcollection';
+
+const PROPERTY_LIST = [
+  'firstName',
+  'lastName',
+  'dob',
+  'sex',
+  'patientId',
+  'homeSubDivision',
+  'labRequestId',
+  'labRequestType',
+  'labTestType',
+  'labTestMethod',
+  'status',
+  'result',
+  'requestedBy',
+  'requestedDate',
+  'submittedDate',
+  'priority',
+  'testingLaboratory',
+  'testingDate',
+  'publicHealthFacility',
+  'privateHealthFacility',
+  'subDivision',
+  'ethnicity',
+  'contactPhone',
+  'residentialAddress',
+  'purposeOfSample',
+  'recentAdmission',
+  'placeOfAdmission',
+  'medicalProblems',
+  'healthcareWorker',
+  'occupation',
+  'placeOfWork',
+  'linkToCluster',
+  'nameOfCluster',
+  'pregnant',
+  'experiencingSymptoms',
+  'dateOfFirstSymptom',
+  'symptoms',
+  'vaccinated',
+  'dateOf1stDose',
+  'dateOf2ndDose',
+  'highRisk',
+  'primaryContactHighRisk',
+  'highRiskDetails',
+];
+const PROPERTY_TO_EXCEL_INDEX = PROPERTY_LIST.reduce((acc, prop, i) => ({ ...acc, [prop]: i }), {});
+
+const getProperty = (result, row, prop) => result.body[row][PROPERTY_TO_EXCEL_INDEX[prop]];
 
 const createLabTests = async (models, app, expectedPatient1, expectedPatient2) => {
   await models.ReferenceData.create({
@@ -16,6 +66,12 @@ const createLabTests = async (models, app, expectedPatient1, expectedPatient2) =
     id: 'labTestCategory-COVID',
     code: 'COVID-19',
     name: 'COVID-19',
+  });
+  await models.ReferenceData.create({
+    type: 'labTestMethod',
+    id: 'labTestMethod-SWAB',
+    code: 'METHOD-SWAB',
+    name: 'Swab',
   });
 
   const encounter1 = await models.Encounter.create(
@@ -33,6 +89,7 @@ const createLabTests = async (models, app, expectedPatient1, expectedPatient2) =
     labTestTypeId: labRequest1Data.labTestTypeIds[0],
     labRequestId: labRequest1.id,
     date: '2021-03-10T10:50:28.133Z',
+    labTestMethodId: 'labTestMethod-SWAB',
   });
 
   const encounter2 = await models.Encounter.create(
@@ -86,6 +143,52 @@ const createLabTests = async (models, app, expectedPatient1, expectedPatient2) =
     date: '2021-03-20T10:50:28.133Z',
   });
 
+  // SHOULD NOT DISPLAY - Due to it's deleted status
+  const encounter5 = await models.Encounter.create(
+    await createDummyEncounter(models, { patientId: expectedPatient2.id }),
+  );
+  const labRequest5Data = await randomLabRequest(models, {
+    labTestCategoryId: 'labTestCategory-COVID',
+    patientId: expectedPatient2.id,
+    requestedDate: '2021-03-20T10:50:28.133Z',
+    displayId: 'labRequest4',
+    encounterId: encounter5.id,
+    status: LAB_REQUEST_STATUSES.DELETED,
+  });
+  const labRequest5 = await models.LabRequest.create(labRequest5Data);
+  await models.LabTest.create({
+    labTestTypeId: labRequest5Data.labTestTypeIds[0],
+    labRequestId: labRequest5.id,
+    date: '2021-03-20T10:50:28.133Z',
+  });
+
+  // SHOULD NOT DISPLAY - Due to it's patient_id being William Horoto's
+  const williamHoroto = await models.Patient.create({
+    firstName: 'William',
+    lastName: 'Horoto',
+    dateOfBirth: new Date(2000, 1, 1),
+    sex: 'male',
+    displayId: 'WILLIAM',
+    id: 'cebdd9a4-2744-4ad2-9919-98dc0b15464c',
+  });
+  const encounter6 = await models.Encounter.create(
+    await createDummyEncounter(models, { patientId: williamHoroto.id }),
+  );
+  const labRequest6Data = await randomLabRequest(models, {
+    labTestCategoryId: 'labTestCategory-COVID',
+    patientId: williamHoroto.id,
+    requestedDate: '2021-03-20T10:50:28.133Z',
+    displayId: 'labRequest4',
+    encounterId: encounter6.id,
+    status: LAB_REQUEST_STATUSES.DELETED,
+  });
+  const labRequest6 = await models.LabRequest.create(labRequest6Data);
+  await models.LabTest.create({
+    labTestTypeId: labRequest6Data.labTestTypeIds[0],
+    labRequestId: labRequest6.id,
+    date: '2021-03-20T10:50:28.133Z',
+  });
+
   return [labRequest1, labRequest2, labRequest3, labRequest4];
 };
 
@@ -107,7 +210,7 @@ const createSurveys = async (models, app, expectedPatient1, expectedPatient2) =>
 
   await models.Survey.create({
     id: FIJI_SAMP_SURVEY_ID,
-    name: 'Assistive Technology Project',
+    name: 'Fiji covid sample collection',
     programId: PROGRAM_ID,
   });
 
@@ -278,7 +381,7 @@ describe('Covid swab lab test list', () => {
 
   beforeAll(async () => {
     const ctx = await createTestContext();
-    const models = ctx.models;
+    const { models } = ctx;
     baseApp = ctx.baseApp;
     village1 = await randomReferenceId(models, 'village');
     village2 = await randomReferenceId(models, 'village');
@@ -302,98 +405,118 @@ describe('Covid swab lab test list', () => {
   });
 
   describe('checks permissions', () => {
-    it('should reject creating an assistive technology device line list report with insufficient permissions', async () => {
+    it('should reject creating a report with insufficient permissions', async () => {
       const noPermsApp = await baseApp.asRole('base');
-      const result = await noPermsApp.post(`/v1/reports/covid-swab-lab-test-list`, {});
+      const result = await noPermsApp.post(`/v1/reports/fiji-covid-swab-lab-test-list`, {});
       expect(result).toBeForbidden();
     });
   });
 
   describe('returns the correct data', () => {
     it('should return latest data per patient and latest data per patient per date', async () => {
-      const result = await app.post('/v1/reports/covid-swab-lab-test-list').send({});
+      const result = await app.post('/v1/reports/fiji-covid-swab-lab-test-list').send({});
       expect(result).toHaveSucceeded();
       expect(result.body).toHaveLength(5);
 
-      /*******Lab request 1*********/
-      //patient details
-      expect(result.body[1][0]).toBe(expectedPatient1.firstName);
-      expect(result.body[1][1]).toBe(expectedPatient1.lastName);
-      expect(result.body[1][2]).toBe(moment(expectedPatient1.dateOfBirth).format('DD-MM-YYYY'));
-      expect(result.body[1][3]).toBe(expectedPatient1.sex);
-      expect(result.body[1][4]).toBe(expectedPatient1.displayId);
-      expect(result.body[1][9]).toBe(labRequest1.displayId);
+      /** *****Lab request 1******** */
+      // patient details
+      const expectedDetails1 = {
+        firstName: expectedPatient1.firstName,
+        lastName: expectedPatient1.lastName,
+        dob: moment(expectedPatient1.dateOfBirth).format('DD-MM-YYYY'),
+        sex: expectedPatient1.sex,
+        patientId: expectedPatient1.displayId,
+        labRequestId: labRequest1.displayId,
+        // Fiji Samp collection form
+        // always grab the latest answer between the current lab request and the next lab request, regardless of survey response,
+        labRequestType: 'COVID-19',
+        labTestMethod: 'Swab',
+        status: 'Reception pending',
+        requestedDate: '10-03-2021',
+        submittedDate: '10-03-2021',
+        publicHealthFacility: 'pde-FijCOVSamp4-on-2021-03-14T10:53:15.708Z-Patient1',
+        subDivision: 'pde-FijCOVSamp7-on-2021-03-14T10:53:15.708Z-Patient1',
+        ethnicity: 'pde-FijCOVSamp10-on-2021-03-14T10:53:15.708Z-Patient1',
+        contactPhone: 'pde-FijCOVSamp11-on-2021-03-14T10:53:15.708Z-Patient1',
+      };
+      for (const entry of Object.entries(expectedDetails1)) {
+        const [key, expectedValue] = entry;
+        expect(getProperty(result, 1, key)).toBe(expectedValue);
+      }
 
-      //Fiji Samp collection form
-      //always grab the latest answer between the current lab request and the next lab request, regardless of survey response,
-      expect(result.body[1][10]).toBe('COVID-19');
-      expect(result.body[1][11]).toBe('Reception pending');
-      expect(result.body[1][14]).toBe('10-03-2021');
-      expect(result.body[1][18]).toBe('pde-FijCOVSamp4-on-2021-03-14T10:53:15.708Z-Patient1');
-      expect(result.body[1][20]).toBe('pde-FijCOVSamp6-on-2021-03-14T10:53:15.708Z-Patient1');
-      expect(result.body[1][21]).toBe('pde-FijCOVSamp7-on-2021-03-14T10:53:15.708Z-Patient1');
-      expect(result.body[1][22]).toBe('pde-FijCOVSamp10-on-2021-03-14T10:53:15.708Z-Patient1');
-      expect(result.body[1][23]).toBe('pde-FijCOVSamp11-on-2021-03-14T10:53:15.708Z-Patient1');
+      /** *****Lab request 2******** */
+      // patient details
+      const expectedDetails2 = {
+        firstName: expectedPatient1.firstName,
+        lastName: expectedPatient1.lastName,
+        dob: moment(expectedPatient1.dateOfBirth).format('DD-MM-YYYY'),
+        sex: expectedPatient1.sex,
+        patientId: expectedPatient1.displayId,
+        labRequestId: labRequest2.displayId,
+        // Fiji Samp collection form
+        // always grab the latest answer between the current lab request and the next lab request, regardless of survey response,
+        labRequestType: 'COVID-19',
+        status: 'Reception pending',
+        requestedDate: '16-03-2021',
+        submittedDate: '16-03-2021',
+        publicHealthFacility: 'pde-FijCOVSamp4-on-2021-03-18T10:53:15.708Z-Patient1',
+        subDivision: 'pde-FijCOVSamp7-on-2021-03-18T10:53:15.708Z-Patient1',
+        ethnicity: 'pde-FijCOVSamp10-on-2021-03-18T10:53:15.708Z-Patient1',
+        contactPhone: 'pde-FijCOVSamp11-on-2021-03-18T10:53:15.708Z-Patient1',
+      };
+      for (const entry of Object.entries(expectedDetails2)) {
+        const [key, expectedValue] = entry;
+        expect(getProperty(result, 2, key)).toBe(expectedValue);
+      }
 
-      /*******Lab request 2*********/
-      //patient details
-      expect(result.body[2][0]).toBe(expectedPatient1.firstName);
-      expect(result.body[2][1]).toBe(expectedPatient1.lastName);
-      expect(result.body[2][2]).toBe(moment(expectedPatient1.dateOfBirth).format('DD-MM-YYYY'));
-      expect(result.body[2][3]).toBe(expectedPatient1.sex);
-      expect(result.body[2][4]).toBe(expectedPatient1.displayId);
-      expect(result.body[2][9]).toBe(labRequest2.displayId);
+      /** *****Lab request 3******** */
+      // patient details
+      const expectedDetails3 = {
+        firstName: expectedPatient2.firstName,
+        lastName: expectedPatient2.lastName,
+        dob: moment(expectedPatient2.dateOfBirth).format('DD-MM-YYYY'),
+        sex: expectedPatient2.sex,
+        patientId: expectedPatient2.displayId,
+        labRequestId: labRequest3.displayId,
+        // Fiji Samp collection form
+        // always grab the latest answer between the current lab request and the next lab request, regardless of survey response,
+        labRequestType: 'COVID-19',
+        status: 'Reception pending',
+        requestedDate: '17-03-2021',
+        submittedDate: '17-03-2021',
+        publicHealthFacility: 'pde-FijCOVSamp4-on-2021-03-19T10:53:15.708Z-Patient2',
+        subDivision: 'pde-FijCOVSamp7-on-2021-03-19T10:53:15.708Z-Patient2',
+        ethnicity: 'pde-FijCOVSamp10-on-2021-03-19T10:53:15.708Z-Patient2',
+        contactPhone: 'pde-FijCOVSamp11-on-2021-03-19T10:53:15.708Z-Patient2',
+      };
+      for (const entry of Object.entries(expectedDetails3)) {
+        const [key, expectedValue] = entry;
+        expect(getProperty(result, 3, key)).toBe(expectedValue);
+      }
 
-      //Fiji Samp collection form
-      //always grab the latest answer between the current lab request and the next lab request, regardless of survey response,
-      expect(result.body[2][10]).toBe('COVID-19');
-      expect(result.body[2][11]).toBe('Reception pending');
-      expect(result.body[2][14]).toBe('16-03-2021');
-      expect(result.body[2][18]).toBe('pde-FijCOVSamp4-on-2021-03-18T10:53:15.708Z-Patient1');
-      expect(result.body[2][20]).toBe('pde-FijCOVSamp6-on-2021-03-18T10:53:15.708Z-Patient1');
-      expect(result.body[2][21]).toBe('pde-FijCOVSamp7-on-2021-03-18T10:53:15.708Z-Patient1');
-      expect(result.body[2][22]).toBe('pde-FijCOVSamp10-on-2021-03-18T10:53:15.708Z-Patient1');
-      expect(result.body[2][23]).toBe('pde-FijCOVSamp11-on-2021-03-18T10:53:15.708Z-Patient1');
-
-      /*******Lab request 3*********/
-      //patient details
-      expect(result.body[3][0]).toBe(expectedPatient2.firstName);
-      expect(result.body[3][1]).toBe(expectedPatient2.lastName);
-      expect(result.body[3][2]).toBe(moment(expectedPatient2.dateOfBirth).format('DD-MM-YYYY'));
-      expect(result.body[3][3]).toBe(expectedPatient2.sex);
-      expect(result.body[3][4]).toBe(expectedPatient2.displayId);
-      expect(result.body[3][9]).toBe(labRequest3.displayId);
-
-      //Fiji Samp collection form
-      //always grab the latest answer between the current lab request and the next lab request, regardless of survey response,
-      expect(result.body[3][10]).toBe('COVID-19');
-      expect(result.body[3][11]).toBe('Reception pending');
-      expect(result.body[3][14]).toBe('17-03-2021');
-      expect(result.body[3][18]).toBe('pde-FijCOVSamp4-on-2021-03-19T10:53:15.708Z-Patient2');
-      expect(result.body[3][20]).toBe('pde-FijCOVSamp6-on-2021-03-19T10:53:15.708Z-Patient2');
-      expect(result.body[3][21]).toBe('pde-FijCOVSamp7-on-2021-03-19T10:53:15.708Z-Patient2');
-      expect(result.body[3][22]).toBe('pde-FijCOVSamp10-on-2021-03-19T10:53:15.708Z-Patient2');
-      expect(result.body[3][23]).toBe('pde-FijCOVSamp11-on-2021-03-19T10:53:15.708Z-Patient2');
-
-      /*******Lab request 4*********/
-      //patient details
-      expect(result.body[4][0]).toBe(expectedPatient2.firstName);
-      expect(result.body[4][1]).toBe(expectedPatient2.lastName);
-      expect(result.body[4][2]).toBe(moment(expectedPatient2.dateOfBirth).format('DD-MM-YYYY'));
-      expect(result.body[4][3]).toBe(expectedPatient2.sex);
-      expect(result.body[4][4]).toBe(expectedPatient2.displayId);
-      expect(result.body[4][9]).toBe(labRequest4.displayId);
-
-      //Fiji Samp collection form
-      //always grab the latest answer between the current lab request and the next lab request, regardless of survey response,
-      expect(result.body[4][10]).toBe('COVID-19');
-      expect(result.body[4][11]).toBe('Reception pending');
-      expect(result.body[4][14]).toBe('20-03-2021');
-      expect(result.body[4][18]).toBe('pde-FijCOVSamp4-on-2021-03-23T10:53:15.708Z-Patient2');
-      expect(result.body[4][20]).toBe('pde-FijCOVSamp6-on-2021-03-23T10:53:15.708Z-Patient2');
-      expect(result.body[4][21]).toBe('pde-FijCOVSamp7-on-2021-03-23T10:53:15.708Z-Patient2');
-      expect(result.body[4][22]).toBe('pde-FijCOVSamp10-on-2021-03-23T10:53:15.708Z-Patient2');
-      expect(result.body[4][23]).toBe('pde-FijCOVSamp11-on-2021-03-23T10:53:15.708Z-Patient2');
+      /** *****Lab request 4******** */
+      const expectedDetails4 = {
+        firstName: expectedPatient2.firstName,
+        lastName: expectedPatient2.lastName,
+        dob: moment(expectedPatient2.dateOfBirth).format('DD-MM-YYYY'),
+        sex: expectedPatient2.sex,
+        patientId: expectedPatient2.displayId,
+        labRequestId: labRequest4.displayId,
+        // Fiji Samp collection form
+        // always grab the latest answer between the current lab request and the next lab request, regardless of survey response,
+        labRequestType: 'COVID-19',
+        status: 'Reception pending',
+        requestedDate: '20-03-2021',
+        submittedDate: '20-03-2021',
+        publicHealthFacility: 'pde-FijCOVSamp4-on-2021-03-23T10:53:15.708Z-Patient2',
+        subDivision: 'pde-FijCOVSamp7-on-2021-03-23T10:53:15.708Z-Patient2',
+        ethnicity: 'pde-FijCOVSamp10-on-2021-03-23T10:53:15.708Z-Patient2',
+        contactPhone: 'pde-FijCOVSamp11-on-2021-03-23T10:53:15.708Z-Patient2',
+      };
+      for (const entry of Object.entries(expectedDetails4)) {
+        const [key, expectedValue] = entry;
+        expect(getProperty(result, 4, key)).toBe(expectedValue);
+      }
     });
   });
 });

@@ -5,11 +5,12 @@ import compression from 'compression';
 
 import { log } from 'shared/services/logging';
 
+import { constructPermission } from 'shared/permissions/middleware';
 import { routes } from './routes';
 import { authModule } from './auth';
 import { publicRoutes } from './publicRoutes';
 
-import errorHandler from './middleware/errorHandler';
+import { defaultErrorHandler } from './middleware/errorHandler';
 import { loadshedder } from './middleware/loadshedder';
 import { versionCompatibility } from './middleware/versionCompatibility';
 
@@ -17,7 +18,9 @@ import { version } from '../package.json';
 
 const isDevelopment = process.env.NODE_ENV === 'development';
 
-export function createApp({ store, emailService }) {
+export function createApp(ctx) {
+  const { store, emailService } = ctx;
+
   // Init our app
   const app = express();
   app.use(loadshedder());
@@ -34,7 +37,8 @@ export function createApp({ store, emailService }) {
   );
 
   app.use((req, res, next) => {
-    res.setHeader('X-Runtime', 'Tamanu Sync Server');
+    res.setHeader('X-Runtime', 'Tamanu Sync Server'); // TODO: deprecated
+    res.setHeader('X-Tamanu-Server', 'Tamanu Sync Server');
     res.setHeader('X-Version', version);
     next();
   });
@@ -44,6 +48,7 @@ export function createApp({ store, emailService }) {
   app.use((req, res, next) => {
     req.store = store;
     req.emailService = emailService;
+    req.ctx = ctx;
 
     next();
   });
@@ -58,14 +63,15 @@ export function createApp({ store, emailService }) {
   // API v1
   app.use('/v1/public', publicRoutes);
   app.use('/v1', authModule);
+  app.use('/v1', constructPermission);
   app.use('/v1', routes);
 
   // Dis-allow all other routes
-  app.get('*', (req, res) => {
+  app.use('*', (req, res) => {
     res.status(404).end();
   });
 
-  app.use(errorHandler);
+  app.use(defaultErrorHandler);
 
   return app;
 }

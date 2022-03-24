@@ -1,7 +1,7 @@
 import React from 'react';
 
 import { DateField, StyledSelectField } from './Field';
-import { CustomisablePatientSearchBar } from '../views/patients/components/PatientSearchBar';
+import { CustomisableSearchBar } from './CustomisableSearchBar';
 import { LAB_REQUEST_STATUS_LABELS, LAB_REQUEST_STATUSES } from '../constants';
 import { useLabRequest } from '../contexts/LabRequest';
 
@@ -10,19 +10,10 @@ const STATUS_OPTIONS = Object.values(LAB_REQUEST_STATUSES).map(s => ({
   value: s,
 }));
 
-const StatusField = props => (
-  <StyledSelectField
-    {...props}
-    className="styled-select-container"
-    classNamePrefix="styled-select"
-    options={STATUS_OPTIONS}
-  />
-);
-
 export const LabRequestsSearchBar = props => {
   const { searchParameters, setSearchParameters } = useLabRequest();
   return (
-    <CustomisablePatientSearchBar
+    <CustomisableSearchBar
       title="Search lab requests"
       fields={[
         ['firstName'],
@@ -30,7 +21,10 @@ export const LabRequestsSearchBar = props => {
         ['displayId'],
         ['requestId', { placeholder: 'Request ID' }],
         ['category', { placeholder: 'Type' }],
-        ['status', { placeholder: 'Status', component: StatusField }],
+        [
+          'status',
+          { placeholder: 'Status', component: StyledSelectField, options: STATUS_OPTIONS },
+        ],
         ['priority', { placeholder: 'Priority' }],
         ['laboratory', { placeholder: 'Laboratory' }],
         ['requestedDateFrom', { placeholder: 'Requested from', component: DateField }],

@@ -36,7 +36,7 @@ export class SyncConfig {
   constructor(model, options = {}) {
     const {
       syncDirection = SYNC_DIRECTIONS.DO_NOT_SYNC,
-      excludedColumns = ['createdAt', 'updatedAt', 'markedForPush', 'markedForSync'],
+      excludedColumns = ['createdAt', 'updatedAt', 'markedForPush', 'markedForSync', 'isPushing'],
       includedRelations = [],
       getChannels = () => [lowerFirst(model.name)],
       channelRoutes = [{ route: lowerFirst(model.name) }],

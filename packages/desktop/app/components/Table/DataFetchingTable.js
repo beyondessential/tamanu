@@ -1,16 +1,17 @@
 import React, { useState, useCallback, useEffect, memo } from 'react';
 import { Table } from './Table';
-import { connectApi } from '../../api';
+import { useApi } from '../../api';
 
 const ROWS_PER_PAGE_OPTIONS = [10, 25, 50];
 const DEFAULT_SORT = { order: 'asc', orderBy: undefined };
+const DEFAULT_FETCH_STATE = { data: [], count: 0, errorMessage: '', isLoading: true };
 
-const DumbDataFetchingTable = memo(
+export const DataFetchingTable = memo(
   ({
     columns,
-    fetchData,
     noDataMessage,
     fetchOptions,
+    endpoint,
     onRowClick,
     transformRow,
     initialSort = DEFAULT_SORT,
@@ -18,12 +19,21 @@ const DumbDataFetchingTable = memo(
     className,
     exportName = 'TamanuExport',
     refreshCount = 0,
+    rowStyle,
+    allowExport = true,
+    onDataFetched,
   }) => {
     const [page, setPage] = useState(0);
     const [rowsPerPage, setRowsPerPage] = useState(ROWS_PER_PAGE_OPTIONS[0]);
     const [sorting, setSorting] = useState(initialSort);
-    const defaultFetchState = { data: [], count: 0, errorMessage: '', isLoading: true };
-    const [fetchState, setFetchState] = useState(defaultFetchState);
+    const [fetchState, setFetchState] = useState(DEFAULT_FETCH_STATE);
+    const [forcedRefreshCount, setForcedRefreshCount] = useState(0);
+    const api = useApi();
+
+    // This callback will be passed to table cell accessors so they can force a table refresh
+    const handleTableRefresh = useCallback(() => {
+      setForcedRefreshCount(prevCount => prevCount + 1);
+    }, []);
 
     const handleChangeOrderBy = useCallback(
       columnKey => {
@@ -35,30 +45,55 @@ const DumbDataFetchingTable = memo(
       [sorting],
     );
 
-    useEffect(() => {
-      let updateFetchState = newFetchState => setFetchState({ ...fetchState, ...newFetchState });
+    const updateFetchState = useCallback(newFetchState => {
+      setFetchState(oldFetchState => ({ ...oldFetchState, ...newFetchState }));
+    }, []);
 
+    useEffect(() => {
       updateFetchState({ isLoading: true });
       (async () => {
         try {
-          const { data, count } = await fetchData({ page, rowsPerPage, ...sorting });
+          if (!endpoint) {
+            throw new Error('Missing endpoint to fetch data.');
+          }
+          const { data, count } = await api.get(endpoint, {
+            page,
+            rowsPerPage,
+            ...sorting,
+            ...fetchOptions,
+          });
           const transformedData = transformRow ? data.map(transformRow) : data;
           updateFetchState({
-            ...defaultFetchState,
+            ...DEFAULT_FETCH_STATE,
             data: transformedData,
             count,
             isLoading: false,
           });
+          if (onDataFetched) {
+            onDataFetched({
+              data: transformedData,
+              count,
+            });
+          }
         } catch (error) {
+          // eslint-disable-next-line no-console
           console.error(error);
           updateFetchState({ errorMessage: error.message, isLoading: false });
         }
       })();
-
-      return () => {
-        updateFetchState = () => {}; // discard the fetch state update if this request is stale
-      };
-    }, [page, rowsPerPage, sorting, fetchOptions, refreshCount]);
+    }, [
+      api,
+      endpoint,
+      page,
+      rowsPerPage,
+      sorting,
+      fetchOptions,
+      refreshCount,
+      forcedRefreshCount,
+      transformRow,
+      onDataFetched,
+      updateFetchState,
+    ]);
 
     useEffect(() => setPage(0), [fetchOptions]);
 
@@ -84,15 +119,10 @@ const DumbDataFetchingTable = memo(
         className={className}
         exportName={exportName}
         customSort={customSort}
+        onTableRefresh={handleTableRefresh}
+        rowStyle={rowStyle}
+        allowExport={allowExport}
       />
     );
   },
 );
-
-function mapApiToProps(api, dispatch, { endpoint, fetchOptions }) {
-  return {
-    fetchData: queryParameters => api.get(endpoint, { ...fetchOptions, ...queryParameters }),
-  };
-}
-
-export const DataFetchingTable = connectApi(mapApiToProps)(DumbDataFetchingTable);

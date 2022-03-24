@@ -1,29 +1,32 @@
 import config from 'config';
 import sequelize from 'sequelize';
 import { spawn } from 'child_process';
+
 import { REPORT_REQUEST_STATUSES } from 'shared/constants';
 import { getReportModule } from 'shared/reports';
 import { ScheduledTask } from 'shared/tasks';
 import { log } from 'shared/services/logging';
+
 import { ReportRunner } from '../report/ReportRunner';
+import { getLocalisation } from '../localisation';
 
 // time out and kill the report process if it takes more than 2 hours to run
 const REPORT_TIME_OUT_DURATION_MILLISECONDS = config.reportProcess.timeOutDurationSeconds * 1000;
 
 export class ReportRequestProcessor extends ScheduledTask {
-  getName = () => {
-    return 'ReportRequestProcessor';
-  };
+  getName = () => 'ReportRequestProcessor';
 
   constructor(context) {
     // run at 30 seconds interval, process 10 report requests each time
-    super(config.schedules.reportRequestProcessor.schedule, log);
+    const conf = config.schedules.reportRequestProcessor;
+    super(conf.schedule, log);
+    this.config = conf;
     this.context = context;
   }
 
   spawnReportProcess = async request => {
     const [node, scriptPath] = process.argv;
-    const processOptions = config.reportProcess.processOptions;
+    const { processOptions } = config.reportProcess;
     const parameters = processOptions || process.execArgv;
 
     log.info(
@@ -32,7 +35,7 @@ export class ReportRequestProcessor extends ScheduledTask {
       }" with command [${node}, ${parameters.toString()}, ${scriptPath}].`,
     );
 
-    // For some reasons, when running a child process under pm2, pm2_env was not set and caused a problem. 
+    // For some reasons, when running a child process under pm2, pm2_env was not set and caused a problem.
     // So this is a work around
     const childProcessEnv = config.reportProcess.childProcessEnv || {
       ...process.env,
@@ -81,7 +84,7 @@ export class ReportRequestProcessor extends ScheduledTask {
         );
       });
 
-      childProcess.on('error', err => {
+      childProcess.on('error', () => {
         reject(
           new Error(`Child process failed to start, using commands [${node}, ${scriptPath}].`),
         );
@@ -107,7 +110,7 @@ export class ReportRequestProcessor extends ScheduledTask {
       request.reportType,
       request.getParameters(),
       request.getRecipients(),
-      this.context.store.models,
+      this.context.store,
       this.context.emailService,
     );
 
@@ -115,12 +118,13 @@ export class ReportRequestProcessor extends ScheduledTask {
   }
 
   async runReports() {
+    const localisation = await getLocalisation();
     const requests = await this.context.store.models.ReportRequest.findAll({
       where: {
         status: REPORT_REQUEST_STATUSES.RECEIVED,
       },
       order: [['createdAt', 'ASC']], // process in order received
-      limit: 10,
+      limit: this.config.limit,
     });
 
     for (const request of requests) {
@@ -133,7 +137,7 @@ export class ReportRequestProcessor extends ScheduledTask {
         return;
       }
 
-      const disabledReports = config.localisation.data.disabledReports;
+      const { disabledReports } = localisation;
       if (disabledReports.includes(request.reportType)) {
         log.error(`Report "${request.reportType}" is disabled`);
         await request.update({
