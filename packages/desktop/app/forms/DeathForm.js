@@ -20,6 +20,7 @@ import {
   SelectField,
   TimeWithUnitField,
   PaginatedForm,
+  FormTooltip,
 } from '../components';
 
 const binaryOptions = [
@@ -151,13 +152,16 @@ export const DeathForm = React.memo(
         })}
       >
         <StyledFormGrid columns={2}>
-          <Field
-            name="causeOfDeath"
-            label="Cause Of Death"
-            component={AutocompleteField}
-            suggester={icd10Suggester}
-            required
-          />
+          <MuiBox position="relative">
+            <Field
+              name="causeOfDeath"
+              label="Cause Of Death"
+              component={AutocompleteField}
+              suggester={icd10Suggester}
+              required
+            />
+            <FormTooltip title="This does not mean the mode of dying (e.g heart failure, respiratory failure). It means the disease, injury or complication that caused the death." />
+          </MuiBox>
           <Field
             name="causeOfDeathInterval"
             label="Time between onset and death"
