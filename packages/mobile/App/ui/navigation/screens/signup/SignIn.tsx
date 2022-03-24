@@ -32,10 +32,13 @@ export const SignIn: FunctionComponent<any> = ({ navigation }: SignInProps) => {
   const [modalVisible, setModalVisible] = useState(false);
   const [modalContent, setModalContent] = useState({ message: '' });
 
+
+  /*
   const onNavigateToForgotPassword = useCallback(() => {
     console.log('onNavigateToForgotPassword...');
     navigation.navigate(Routes.SignUpStack.ResetPassword);
   }, []);
+  */
 
   const onChangeModalVisibility = useCallback((isVisible: boolean) => {
     setModalVisible(isVisible);
@@ -124,6 +127,7 @@ export const SignIn: FunctionComponent<any> = ({ navigation }: SignInProps) => {
               }
             }}
           />
+          {/*
           <StyledTouchableOpacity onPress={onNavigateToForgotPassword}>
             <StyledText
               width="100%"
@@ -136,6 +140,7 @@ export const SignIn: FunctionComponent<any> = ({ navigation }: SignInProps) => {
               Forgot your password?
             </StyledText>
           </StyledTouchableOpacity>
+          */}
         </KeyboardAvoidingView>
       </StyledSafeAreaView>
     </FullView>
