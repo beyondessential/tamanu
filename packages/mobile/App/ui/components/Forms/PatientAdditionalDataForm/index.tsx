@@ -31,7 +31,7 @@ export const PatientAdditionalDataForm = ({
       // automatically mark the patient for sync.
       await PatientAdditionalData.createAndSaveOne({
         ...values,
-        patientId: patientId,
+        patient: patientId,
         markedForUpload: true,
       });
     }
