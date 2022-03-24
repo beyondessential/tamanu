@@ -134,7 +134,16 @@ export const DeathForm = React.memo(
           causeOfDeath: yup.string().required(),
           causeOfDeathInterval: yup.string().required(),
           clinicianId: yup.string().required(),
-          timeOfDeath: yup.string().required(),
+          lastSurgeryDate: yup
+            .date()
+            .max(yup.ref('timeOfDeath'), "Date of last surgery can't be after time of death"),
+          mannerOfDeathDate: yup
+            .date()
+            .max(yup.ref('timeOfDeath'), "Manner of death date can't be after time of death"),
+          timeOfDeath: yup
+            .date()
+            .min(patient.dateOfBirth, "Time of death can't be before date of birth")
+            .required(),
         })}
       >
         <FormGrid columns={2}>
@@ -210,14 +219,16 @@ export const DeathForm = React.memo(
           />
           <Field
             name="lastSurgeryDate"
-            label="If yes, what was the date of surgery"
+            label="What was the date of surgery"
             component={DateTimeField}
+            visibilityCriteria={{ surgeryInLast4Weeks: 'yes' }}
           />
           <Field
             name="lastSurgeryReason"
             label="What was the reason for the surgery"
             component={AutocompleteField}
             suggester={icd10Suggester}
+            visibilityCriteria={{ surgeryInLast4Weeks: 'yes' }}
           />
         </FormGrid>
         {isAdultFemale ? (
