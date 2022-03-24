@@ -2,6 +2,7 @@ import * as admissions from './admissions';
 import * as incompleteReferrals from './incomplete-referrals';
 import * as recentDiagnoses from './recent-diagnoses';
 import * as vaccineList from './vaccine-list';
+import * as tuvaluVaccineList from './tuvalu-vaccine-list';
 import * as covidVaccineList from './covid-module/covid-vaccine-list';
 import * as covidVaccineDailySummaryByVillage from './covid-module/covid-vaccine-daily-summary-village';
 import {
@@ -38,6 +39,8 @@ export function getReportModule(reportType) {
       return recentDiagnoses;
     case 'vaccine-list':
       return vaccineList;
+    case 'tuvalu-vaccine-list':
+      return tuvaluVaccineList;
     case 'covid-vaccine-list':
       return covidVaccineList;
     case 'covid-vaccine-daily-summary-village':

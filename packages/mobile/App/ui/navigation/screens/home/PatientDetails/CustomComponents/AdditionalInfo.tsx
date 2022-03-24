@@ -1,18 +1,39 @@
 import React, { ReactElement } from 'react';
+import { useIsFocused } from '@react-navigation/native';
 
-import { PatientAdditionalDataProps } from '/interfaces/PatientDetails';
 import { FieldRowDisplay } from '~/ui/components/FieldRowDisplay';
 import { PatientSection } from './PatientSection';
 import { useLocalisation } from '~/ui/contexts/LocalisationContext';
+import { IPatient, IPatientAdditionalData } from '~/types';
+import { useBackendEffect } from '~/ui/hooks';
+import { ErrorScreen } from '~/ui/components/ErrorScreen';
+import { LoadingScreen } from '~/ui/components/LoadingScreen';
 
-interface AdditionalInfoProps extends PatientAdditionalDataProps {
-  onEdit: () => void;
+interface AdditionalInfoProps {
+  onEdit: (additionalInfo: IPatientAdditionalData) => void;
+  patient: IPatient;
 }
 
 export const AdditionalInfo = ({
+  patient,
   onEdit,
-  patientAdditionalData: data,
 }: AdditionalInfoProps): ReactElement => {
+  const isFocused = useIsFocused(); // reload data whenever the page is focused
+  const [additionalDataRes, additionalDataError] = useBackendEffect(
+    ({ models }) => {
+      if (isFocused) {
+        return models.PatientAdditionalData.find({
+          where: { patient: { id: patient.id } },
+        });
+      }
+    },
+    [isFocused, patient.id],
+  );
+
+  const data = additionalDataRes && additionalDataRes[0];
+  function editInfo(): void {
+    onEdit(data);
+  }
   const fields = [
     ['birthCertificate', data?.birthCertificate],
     ['drivingLicense', data?.drivingLicense],
@@ -45,13 +66,21 @@ export const AdditionalInfo = ({
   const { getBool } = useLocalisation();
   const isEditable = getBool('features.editPatientDetailsOnMobile');
 
+  let additionalFields = null;
+  if (additionalDataError) {
+    additionalFields = <ErrorScreen error={additionalDataError} />;
+  } else if (additionalDataRes) {
+    additionalFields = <FieldRowDisplay fields={fields} fieldsPerRow={2} />;
+  } else {
+    additionalFields = <LoadingScreen />;
+  }
   return (
     <PatientSection
       hasSeparator
       title="Additional Information"
-      onEdit={isEditable ? onEdit : undefined}
+      onEdit={isEditable ? editInfo : undefined}
     >
-      <FieldRowDisplay fields={fields} fieldsPerRow={2} />
+      {additionalFields}
     </PatientSection>
   );
 };

@@ -9,7 +9,10 @@ import {
   APPOINTMENT_TYPES,
   APPOINTMENT_STATUSES,
   REFERRAL_STATUSES,
+  INVOICE_STATUSES,
+  INVOICE_PAYMENT_STATUSES,
 } from 'shared/constants';
+
 import {
   medicationIcon,
   administrationIcon,
@@ -406,3 +409,30 @@ export const ALPHABET_FOR_ID =
   // this is absolutely fine and the concat isn't useless
   // eslint-disable-next-line no-useless-concat
   'ABCDEFGH' + /* I */ 'JK' + /* L */ 'MN' + /* O */ 'PQRSTUVWXYZ' + /* 01 */ '23456789';
+export const INVOICE_STATUS_OPTIONS = [
+  { label: 'Cancelled', value: INVOICE_STATUSES.CANCELLED },
+  { label: 'In progress', value: INVOICE_STATUSES.IN_PROGRESS },
+  { label: 'Finalised', value: INVOICE_STATUSES.FINALISED },
+];
+
+export const INVOICE_STATUS_LABELS = {
+  [INVOICE_STATUSES.CANCELLED]: 'Cancelled',
+  [INVOICE_STATUSES.IN_PROGRESS]: 'In progress',
+  [INVOICE_STATUSES.FINALISED]: 'Finalised',
+};
+
+export const INVOICE_STATUS_COLORS = {
+  [INVOICE_STATUSES.CANCELLED]: '#FFCC24',
+  [INVOICE_STATUSES.IN_PROGRESS]: '#F76853',
+  [INVOICE_STATUSES.FINALISED]: '#47CA80',
+};
+
+export const INVOICE_PAYMENT_STATUS_LABELS = {
+  [INVOICE_PAYMENT_STATUSES.UNPAID]: 'Unpaid',
+  [INVOICE_PAYMENT_STATUSES.PAID]: 'Paid',
+};
+
+export const INVOICE_PAYMENT_STATUS_OPTIONS = [
+  { label: 'Unpaid', value: INVOICE_PAYMENT_STATUSES.UNPAID },
+  { label: 'Paid', value: INVOICE_PAYMENT_STATUSES.PAID },
+];

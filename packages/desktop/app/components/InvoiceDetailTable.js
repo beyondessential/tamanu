@@ -217,7 +217,7 @@ const INVOICE_LINE_COLUMNS = [
     key: 'dateGenerated',
     title: 'Date',
     sortable: false,
-    accessor: ({ dateGenerated }) => (dateGenerated ? <DateDisplay date={dateGenerated} /> : ''),
+    accessor: ({ dateGenerated }) => <DateDisplay date={dateGenerated} />,
   },
   { key: 'code', title: 'Code', sortable: false, accessor: getInvoiceLineCode },
   {
