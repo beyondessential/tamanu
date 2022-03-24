@@ -26,21 +26,26 @@ export const PatientIssues = ({ onEdit, patientId }: PatientIssuesProps): ReactE
     },
     [isFocused, patientId],
   );
+
+  let patientIssuesContent = null;
+  if (issuesError) {
+    patientIssuesContent = <ErrorScreen error={issuesError} />;
+  } else if (patientIssues) {
+    patientIssuesContent = patientIssues.map(({ id, note }) => (
+      <RowView key={id} alignItems="center" marginTop={10}>
+        <Dot />
+        <StyledText marginLeft={10} color={theme.colors.TEXT_MID}>
+          {note}
+        </StyledText>
+      </RowView>
+    ));
+  } else {
+    patientIssuesContent = <LoadingScreen />;
+  }
   return (
     <StyledView marginBottom={40}>
       <PatientSection hasSeparator title="Other patient issues" onEdit={onEdit}>
-        {issuesError && <ErrorScreen error={issuesError} />}
-        {!patientIssues && <LoadingScreen />}
-        {!issuesError
-          && patientIssues
-          && patientIssues.map(({ id, note }) => (
-            <RowView key={id} alignItems="center" marginTop={10}>
-              <Dot />
-              <StyledText marginLeft={10} color={theme.colors.TEXT_MID}>
-                {note}
-              </StyledText>
-            </RowView>
-          ))}
+        {patientIssuesContent}
       </PatientSection>
     </StyledView>
   );
