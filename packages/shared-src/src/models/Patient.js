@@ -105,7 +105,7 @@ export class Patient extends Model {
         { association: 'requestedBy' },
         {
           association: 'category',
-          where: { name: Sequelize.literal("UPPER(category.name) LIKE UPPER('%covid%')") },
+          where: { name: Sequelize.literal("UPPER(category.name) LIKE ('%COVID%')") },
         },
         {
           association: 'tests',
