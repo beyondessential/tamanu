@@ -5,6 +5,7 @@ import { DateFormats } from '/helpers/constants';
 import { FieldRowDisplay } from '~/ui/components/FieldRowDisplay';
 import { PatientSection } from './PatientSection';
 import { useLocalisation } from '~/ui/contexts/LocalisationContext';
+import { getGender } from '~/ui/helpers/user';
 import { IPatient } from '~/types';
 
 interface GeneralInfoProps {
@@ -21,6 +22,7 @@ export const GeneralInfo = ({
     ['middleName', patient.middleName || 'None'],
     ['lastName', patient.lastName],
     ['culturalName', patient.culturalName || 'None'],
+    ['sex', getGender(patient.sex)],
     ['dateOfBirth', formatDate(new Date(patient.dateOfBirth), DateFormats.DDMMYY)],
     ['email', patient.email],
     ['villageId', patient.village?.name ?? ''],
