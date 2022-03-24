@@ -1,10 +1,13 @@
 import { QueryTypes } from 'sequelize';
+import { INVOICE_LINE_ITEM_STATUSES } from 'shared/constants';
 
 const getInvoiceLineNotExistYetClause = `invoice_line_types.id NOT IN (SELECT invoice_line_type_id
           FROM invoice_line_items
           INNER JOIN invoices
           ON invoice_line_items.invoice_id = invoices.id
-          WHERE invoices.encounter_id = :encounterId)`;
+          WHERE invoices.encounter_id = :encounterId
+          AND invoice_line_items.status != :invoiceLineItemDeletedStatus
+          )`;
 
 /**
  * Query existing procedures, imaging requests, lab tests in the encounter,
@@ -37,6 +40,7 @@ export const getPotentialInvoiceLineItems = async (db, models, encounterId) => {
     {
       replacements: {
         encounterId,
+        invoiceLineItemDeletedStatus: INVOICE_LINE_ITEM_STATUSES.DELETED,
       },
       model: models.Procedure,
       type: QueryTypes.SELECT,
@@ -69,6 +73,7 @@ export const getPotentialInvoiceLineItems = async (db, models, encounterId) => {
     {
       replacements: {
         encounterId,
+        invoiceLineItemDeletedStatus: INVOICE_LINE_ITEM_STATUSES.DELETED,
       },
       model: models.ImagingRequest,
       type: QueryTypes.SELECT,
@@ -103,6 +108,7 @@ export const getPotentialInvoiceLineItems = async (db, models, encounterId) => {
     {
       replacements: {
         encounterId,
+        invoiceLineItemDeletedStatus: INVOICE_LINE_ITEM_STATUSES.DELETED,
       },
       model: models.LabTest,
       type: QueryTypes.SELECT,

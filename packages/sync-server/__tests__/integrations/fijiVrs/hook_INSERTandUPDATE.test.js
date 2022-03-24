@@ -164,6 +164,56 @@ describe('VRS integration hook: INSERT and UPDATE operations', () => {
         isDeletedByRemote: false,
       });
     });
+
+    it('allows nullable fields to be null', async () => {
+      // arrange
+      const { Patient, PatientAdditionalData } = ctx.store.models;
+      const vrsPatient = {
+        ...(await fakeVRSPatient(ctx.store.models)),
+        fname: null,
+        lname: null,
+        dob: null,
+        sub_division: null,
+        email: null,
+        phone: null,
+      };
+      const { fetchId } = await prepareVRSMocks(ctx, { vrsPatient });
+
+      // act
+      const response = await app
+        .post(`/v1/integration/fijiVrs/hooks/patientCreated`)
+        .send({
+          fetch_id: fetchId,
+          operation: 'INSERT',
+          created_datetime: new Date().toISOString(),
+        })
+        .set({ 'X-Tamanu-Client': 'fiji-vrs', 'X-Version': '0.0.1' });
+
+      // assert
+      expect(response).toHaveSucceeded();
+      expect(response.body).toEqual({
+        response: true,
+      });
+      const foundPatient = await Patient.findOne({
+        where: { displayId: vrsPatient.individual_refno },
+        raw: true,
+      });
+      expect(foundPatient).toMatchObject({
+        displayId: vrsPatient.individual_refno,
+        firstName: null,
+        lastName: null,
+        dateOfBirth: null,
+        villageId: null,
+        email: null,
+      });
+      const foundAdditionalData = await PatientAdditionalData.findOne({
+        where: { patientId: foundPatient.id },
+        raw: true,
+      });
+      expect(foundAdditionalData).toMatchObject({
+        primaryContactNumber: vrsPatient.phone,
+      });
+    });
   });
 
   describe('failure', () => {

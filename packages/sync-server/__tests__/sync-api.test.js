@@ -177,20 +177,46 @@ describe('Sync API', () => {
     });
 
     it('should omit null dates', async () => {
-      const { DocumentMetadata } = ctx.store.models;
-      DocumentMetadata.create({ name: 'with', type: 'application/pdf', attachmentId: 'fake-id-1', documentCreatedAt: new Date });
-      DocumentMetadata.create({ name: 'without', type: 'application/pdf', attachmentId: 'fake-id-2' });
-      
-      const result = await app.get(`/v1/sync/documentMetadata?since=0`);
+      const { Patient } = ctx.store.models;
+
+      const patientWithDOB = await Patient.create({
+        ...(await fakePatient()),
+        firstName: 'patientWithDOB',
+      });
+      const patientWithoutDOB = await Patient.create({
+        ...(await fakePatient()),
+        firstName: 'patientWithoutDOB',
+        dateOfBirth: null,
+      });
+
+      // Patients need this helper function on sync tests
+      await Promise.all([
+        await unsafeSetUpdatedAt(ctx.store.sequelize, {
+          table: 'patients',
+          id: patientWithDOB.id,
+          updated_at: makeUpdatedAt(20),
+        }),
+        await unsafeSetUpdatedAt(ctx.store.sequelize, {
+          table: 'patients',
+          id: patientWithoutDOB.id,
+          updated_at: makeUpdatedAt(20),
+        }),
+      ]);
+
+      const result = await app.get('/v1/sync/patient?since=0');
       expect(result).toHaveSucceeded();
 
-      const { body: { records } } = result;
-      const withDate = records.find(({ data: { name } }) => name === 'with');
+      const {
+        body: { records },
+      } = result;
+      const withDate = records.find(({ data: { firstName } }) => firstName === 'patientWithDOB');
       expect(withDate).toBeTruthy();
-      expect(withDate.data).toHaveProperty('documentCreatedAt');
-      const withoutDate = records.find(({ data: { name } }) => name === 'without');
+      expect(withDate.data).toHaveProperty('dateOfBirth');
+      const withoutDate = records.find(
+        ({ data: { firstName } }) => firstName === 'patientWithoutDOB',
+      );
       expect(withoutDate).toBeTruthy();
-      expect(withoutDate.data).not.toHaveProperty('documentCreatedAt');
+      expect(withoutDate.data).not.toHaveProperty('dateOfBirth');
     });
 
     it('should not return a count if noCount=true', async () => {

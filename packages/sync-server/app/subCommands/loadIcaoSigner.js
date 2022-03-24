@@ -4,7 +4,7 @@ import moment from 'moment';
 import { Command } from 'commander';
 
 import { log } from 'shared/services/logging';
-import { VdsNcSigner } from 'shared/models';
+import { Signer } from 'shared/models';
 
 import { loadCertificateIntoSigner } from '../integrations/VdsNc';
 import { initDatabase } from '../database';
@@ -14,7 +14,7 @@ async function loadIcaoSigner({ signerCertificate }) {
   const signerFile = await fs.readFile(signerCertificate, 'utf8');
   const signerData = await loadCertificateIntoSigner(signerFile);
 
-  const pending = await VdsNcSigner.findAll({
+  const pending = await Signer.findAll({
     where: {
       certificate: { [Op.is]: null },
       privateKey: { [Op.not]: null },
@@ -31,9 +31,9 @@ async function loadIcaoSigner({ signerCertificate }) {
 
   const pendingSigner = pending[0];
   await pendingSigner.update(signerData);
-  const notBeforeLog = moment(signerData.notBefore).format('YYYY-MM-DD');
-  const notAfterLog = moment(signerData.notAfter).format('YYYY-MM-DD');
-  log.info(`Loaded ICAO Signer (${notBeforeLog} - ${notAfterLog})`);
+  const start = moment(signerData.workingPeriodStart).format('YYYY-MM-DD');
+  const end = moment(signerData.workingPeriodEnd).format('YYYY-MM-DD');
+  log.info(`Loaded ICAO Signer (${start} - ${end})`);
 
   process.exit(0);
 }

@@ -1,7 +1,6 @@
 import { Sequelize } from 'sequelize';
-import { SYNC_DIRECTIONS } from 'shared/constants';
+import { SYNC_DIRECTIONS, LAB_REQUEST_STATUSES } from 'shared/constants';
 import { Model } from './Model';
-import { generateHashFromUUID } from '../utils';
 
 export class Patient extends Model {
   static init({ primaryKey, ...options }) {
@@ -70,14 +69,17 @@ export class Patient extends Model {
     return patients.map(({ id }) => id);
   }
 
-  async getAdministeredVaccines() {
+  async getAdministeredVaccines(queryOptions) {
     const { models } = this.sequelize;
     return models.AdministeredVaccine.findAll({
+      raw: true,
+      nest: true,
+      ...queryOptions,
       where: {
-        ['$encounter.patient_id$']: this.id,
+        '$encounter.patient_id$': this.id,
         status: 'GIVEN',
       },
-      order: [['updatedAt', 'DESC']],
+      order: [['date', 'DESC']],
       include: [
         {
           model: models.Encounter,
@@ -93,13 +95,18 @@ export class Patient extends Model {
     });
   }
 
-  async getLabRequests(queryOptions) {
-    return this.sequelize.models.LabRequest.findAll({
+  async getCovidLabTests(queryOptions) {
+    const labRequests = await this.sequelize.models.LabRequest.findAll({
       raw: true,
       nest: true,
       ...queryOptions,
+      where: { status: LAB_REQUEST_STATUSES.PUBLISHED },
       include: [
         { association: 'requestedBy' },
+        {
+          association: 'category',
+          where: { name: Sequelize.literal("UPPER(category.name) LIKE ('%COVID%')") },
+        },
         {
           association: 'tests',
           include: [{ association: 'labTestMethod' }, { association: 'labTestType' }],
@@ -118,28 +125,14 @@ export class Patient extends Model {
         },
       ],
     });
-  }
 
-  async getIcaoUVCI() {
-    const { models } = this.sequelize;
-
-    const vaccinations = await models.AdministeredVaccine.findAll({
-      where: {
-        ['$encounter.patient_id$']: this.id,
-        status: 'GIVEN',
-      },
-      order: [['date', 'DESC']],
-      include: [
-        {
-          model: models.Encounter,
-          as: 'encounter',
-          include: models.Encounter.getFullReferenceAssociations(),
-        },
-      ],
+    // Place the tests data at the top level of the object as this is a getter for lab tests
+    // After the merge, id is the lab test id and labRequestId is the lab request id
+    const labTests = labRequests.map(labRequest => {
+      const { tests, ...labRequestData } = labRequest;
+      return { ...labRequestData, ...tests };
     });
 
-    const latestVaccination = vaccinations[0];
-    const uuid = latestVaccination.get('id');
-    return generateHashFromUUID(uuid);
+    return labTests.slice().sort((a, b) => Date.parse(b.date) - Date.parse(a.date));
   }
 }

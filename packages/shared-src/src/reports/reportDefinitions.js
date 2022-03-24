@@ -215,4 +215,17 @@ export const REPORT_DEFINITIONS = [
       { parameterField: 'VillageField' },
     ],
   },
+  {
+    name: 'Fiji Aspen encounter summary - Line list',
+    id: 'fiji-aspen-encounter-summary-line-list',
+    allFacilities: false,
+    parameters: [
+      {
+        parameterField: 'ParameterAutocompleteField',
+        label: 'Patient Billing Type',
+        name: 'patientBillingType',
+        suggesterEndpoint: 'patientBillingType',
+      },
+    ],
+  },
 ];

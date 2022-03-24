@@ -1,17 +1,20 @@
 import { getDisplayDate } from './getDisplayDate';
 
-export const getCompletedDate = ({ tests }) =>
-  tests?.completedDate ? getDisplayDate(tests.completedDate, 'Do MMM YYYY') : 'Unknown';
+export const getCompletedDate = ({ completedDate }) =>
+  completedDate ? getDisplayDate(completedDate, 'Do MMM YYYY') : 'Unknown';
 
 export const getDateOfSwab = ({ sampleTime }) =>
   sampleTime ? getDisplayDate(sampleTime, 'Do MMM YYYY') : 'Unknown';
+
+export const getTimeOfSwab = ({ sampleTime }) =>
+  sampleTime ? getDisplayDate(sampleTime, 'hh:mm a') : 'Unknown';
 
 export const getDOB = ({ dateOfBirth }) =>
   dateOfBirth ? getDisplayDate(dateOfBirth, 'Do MMM YYYY') : 'Unknown';
 
 export const getLaboratory = ({ laboratory }) => laboratory?.name || 'Unknown';
 
-export const getLabMethod = ({ tests }) => tests?.labTestMethod?.name || 'Unknown';
+export const getLabMethod = ({ labTestMethod }) => labTestMethod?.name || 'Unknown';
 
 export const getRequestId = ({ displayId }) => displayId || 'Unknown';
 

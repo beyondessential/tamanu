@@ -1,14 +1,13 @@
 import config from 'config';
-import { vdsConfig } from '../integrations/VdsNc';
 
 import { PatientEmailCommunicationProcessor } from './PatientEmailCommunicationProcessor';
 import { OutpatientDischarger } from './OutpatientDischarger';
 import { ReportRequestProcessor } from './ReportRequestProcessor';
 import { ReportRequestScheduler } from './ReportRequestScheduler';
 import { VRSActionRetrier } from './VRSActionRetrier';
-import { VdsNcSignerExpiryChecker } from './VdsNcSignerExpiryChecker';
-import { VdsNcSignerRenewalChecker } from './VdsNcSignerRenewalChecker';
-import { VdsNcSignerRenewalSender } from './VdsNcSignerRenewalSender';
+import { SignerWorkingPeriodChecker } from './SignerWorkingPeriodChecker';
+import { SignerRenewalChecker } from './SignerRenewalChecker';
+import { SignerRenewalSender } from './SignerRenewalSender';
 import { CertificateNotificationProcessor } from './CertificateNotificationProcessor';
 
 export async function startScheduledTasks(context) {
@@ -21,8 +20,12 @@ export async function startScheduledTasks(context) {
   if (config.integrations.fijiVrs.enabled) {
     taskClasses.push(VRSActionRetrier);
   }
-  if (vdsConfig().enabled) {
-    taskClasses.push(VdsNcSignerExpiryChecker, VdsNcSignerRenewalChecker, VdsNcSignerRenewalSender);
+  if (config.integrations.signer.enabled) {
+    taskClasses.push(
+      SignerWorkingPeriodChecker,
+      SignerRenewalChecker,
+      SignerRenewalSender,
+    );
   }
 
   const reportSchedulers = await getReportSchedulers(context);

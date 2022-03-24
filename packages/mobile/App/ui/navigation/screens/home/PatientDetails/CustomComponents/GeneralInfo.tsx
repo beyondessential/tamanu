@@ -21,6 +21,7 @@ export const GeneralInfo = ({
     ['lastName', data.generalInfo.lastName],
     ['culturalName', data.generalInfo.culturalName || 'None'],
     ['dateOfBirth', formatDate(new Date(data.generalInfo.dateOfBirth), DateFormats.DDMMYY)],
+    ['email', data.generalInfo.email],
     ['villageId', data.generalInfo.village?.name ?? ''],
   ];
 

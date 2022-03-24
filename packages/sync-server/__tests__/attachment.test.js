@@ -1,4 +1,4 @@
-import { getFreeDiskSpace } from '../app/utils/getFreeDiskSpace';
+import { canUploadAttachment } from '../app/utils/getFreeDiskSpace';
 import { createTestContext } from './utilities';
 
 // Mock image to be created with fs module. Expected size of 1002 bytes.
@@ -50,7 +50,7 @@ describe('Attachment (sync-server)', () => {
   });
 
   it('should send error if there is no enough disk space', async () => {
-    getFreeDiskSpace.mockImplementationOnce(async () => 3000000000);
+    canUploadAttachment.mockImplementationOnce(async () => false);
     const result = await app.post('/v1/attachment').send({
       type: 'image/jpeg',
       size: 1002,
@@ -64,7 +64,7 @@ describe('Attachment (sync-server)', () => {
   });
 
   it('should create an attachment and receive its ID back', async () => {
-    getFreeDiskSpace.mockImplementationOnce(async () => 5000000000);
+    canUploadAttachment.mockImplementationOnce(async () => true);
     const result = await app.post('/v1/attachment').send({
       type: 'image/jpeg',
       size: 1002,
