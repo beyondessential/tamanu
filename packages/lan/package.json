@@ -68,6 +68,7 @@
     "body-parser": "^1.18.3",
     "calculate-luhn-mod-n": "^2.0.12",
     "case": "^1.6.3",
+    "chalk": "^5.0.1",
     "cls-hooked": "^4.2.2",
     "commander": "^9.0.0",
     "compression": "^1.7.2",

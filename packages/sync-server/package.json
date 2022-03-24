@@ -72,6 +72,7 @@
     "body-parser": "^1.18.3",
     "calculate-luhn-mod-n": "^2.0.12",
     "cbor": "^8.1.0",
+    "chalk": "^5.0.1",
     "check-disk-space": "^3.1.0",
     "cls-hooked": "^4.2.2",
     "commander": "^9.0.0",
