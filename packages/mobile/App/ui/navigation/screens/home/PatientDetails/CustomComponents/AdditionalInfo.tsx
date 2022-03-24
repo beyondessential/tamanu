@@ -1,4 +1,4 @@
-import React, { ReactElement, useCallback } from 'react';
+import React, { ReactElement } from 'react';
 import { useIsFocused } from '@react-navigation/native';
 
 import { FieldRowDisplay } from '~/ui/components/FieldRowDisplay';
@@ -31,9 +31,9 @@ export const AdditionalInfo = ({
   );
 
   const data = additionalDataRes && additionalDataRes[0];
-  const editInfo = useCallback(() => {
+  function editInfo(): void {
     onEdit(data);
-  }, [data, onEdit]);
+  }
   const fields = [
     ['birthCertificate', data?.birthCertificate],
     ['drivingLicense', data?.drivingLicense],
@@ -66,17 +66,21 @@ export const AdditionalInfo = ({
   const { getBool } = useLocalisation();
   const isEditable = getBool('features.editPatientDetailsOnMobile');
 
+  let additionalFields = null;
+  if (additionalDataError) {
+    additionalFields = <ErrorScreen error={additionalDataError} />;
+  } else if (additionalDataRes) {
+    additionalFields = <FieldRowDisplay fields={fields} fieldsPerRow={2} />;
+  } else {
+    additionalFields = <LoadingScreen />;
+  }
   return (
     <PatientSection
       hasSeparator
       title="Additional Information"
       onEdit={isEditable ? editInfo : undefined}
     >
-      {additionalDataError && <ErrorScreen error={additionalDataError} />}
-      {!additionalDataRes && <LoadingScreen />}
-      {additionalDataRes && !additionalDataError && (
-        <FieldRowDisplay fields={fields} fieldsPerRow={2} />
-      )}
+      {additionalFields}
     </PatientSection>
   );
 };
