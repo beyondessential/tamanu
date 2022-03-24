@@ -59,7 +59,7 @@ export const transformAnswers = async (
     .filter(c => c.dataElement.dataValues.type === 'Autocomplete')
     .map(({ dataElementId, config: componentConfig }) => [
       dataElementId,
-      JSON.parse(componentConfig),
+      componentConfig ? JSON.parse(componentConfig) : {},
     ]);
   const autocompleteComponentMap = new Map(autocompleteComponents);
   const dataElementIdToComponent = keyBy(surveyComponents, component => component.dataElementId);
