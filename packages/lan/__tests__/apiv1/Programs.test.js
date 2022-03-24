@@ -75,12 +75,14 @@ function createDummySurveyResponse(survey) {
 }
 
 async function submitMultipleSurveyResponses(survey, overrides, amount = 7) {
-  return Promise.all(
-    new Array(amount).fill(0).map(() =>
-      models.SurveyResponse.createWithAnswers({
-        ...createDummySurveyResponse(survey),
-        ...overrides,
-      }),
+  return models.SurveyResponse.sequelize.transaction(() =>
+    Promise.all(
+      new Array(amount).fill(0).map(() =>
+        models.SurveyResponse.createWithAnswers({
+          ...createDummySurveyResponse(survey),
+          ...overrides,
+        }),
+      ),
     ),
   );
 }

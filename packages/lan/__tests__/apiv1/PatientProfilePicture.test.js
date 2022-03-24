@@ -1,26 +1,26 @@
-import { createDummyPatient, createDummyEncounter, randomReferenceId } from 'shared/demoData/patients';
-import { createTestContext, extendExpect } from '../utilities';
+import { createDummyPatient, createDummyEncounter } from 'shared/demoData/patients';
+import { createTestContext } from '../utilities';
 
 async function uploadDummyProfilePicture(models, patientId) {
-  const program = await models.Program.create({ name: "pfp-program" });
+  const program = await models.Program.create({ name: 'pfp-program' });
 
   const survey = await models.Survey.create({
     programId: program.id,
-    name: "pfp-survey",
+    name: 'pfp-survey',
   });
 
   const dataElement = await models.ProgramDataElement.create({
-    name: "Profile picture",
-    defaultText: "abcd",
-    code: "ProfilePhoto",
-    type: "Photo",
+    name: 'Profile picture',
+    defaultText: 'abcd',
+    code: 'ProfilePhoto',
+    type: 'Photo',
   });
 
-  const component = await models.SurveyScreenComponent.create({
+  await models.SurveyScreenComponent.create({
     dataElementId: dataElement.id,
     surveyId: survey.id,
     componentIndex: 0,
-    text: "Photo",
+    text: 'Photo',
     screenIndex: 0,
   });
 
@@ -29,14 +29,16 @@ async function uploadDummyProfilePicture(models, patientId) {
     patientId,
   });
 
-  const response = await models.SurveyResponse.createWithAnswers({
-    patientId,
-    encounterId: encounter.id,
-    surveyId: survey.id,
-    answers: {
-      [dataElement.id]: '12345',
-    },
-  })
+  await models.SurveyResponse.sequelize.transaction(() =>
+    models.SurveyResponse.createWithAnswers({
+      patientId,
+      encounterId: encounter.id,
+      surveyId: survey.id,
+      answers: {
+        [dataElement.id]: '12345',
+      },
+    }),
+  );
 
   return dataElement;
 }
