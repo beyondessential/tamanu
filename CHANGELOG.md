@@ -40,6 +40,7 @@ responses for patients in covid lab test certificates
 
 - Tweaked localisation to prepare for loading it from the db
 - "VDS" scheduled tasks were renamed to "Signer", `schedules` config keys have changed in consequence
+- Hid the "Forgot your password?" page and link
 
 ### Bug fixes 🐛
 
