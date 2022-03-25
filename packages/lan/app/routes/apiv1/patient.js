@@ -10,6 +10,8 @@ import { renameObjectKeys } from '~/utils/renameObjectKeys';
 import { createPatientFilters } from '../../utils/patientFilters';
 import { patientVaccineRoutes } from './patient/patientVaccine';
 import { patientDocumentMetadataRoutes } from './patient/patientDocumentMetadata';
+import { patientInvoiceRoutes } from './patient/patientInvoice';
+
 import { patientDeath } from './patient/patientDeath';
 import { patientProfilePicture } from './patient/patientProfilePicture';
 import { activeCovid19PatientsHandler } from '../../routeHandlers';
@@ -53,6 +55,7 @@ patientRoute.put(
   '/:id',
   asyncHandler(async (req, res) => {
     const {
+      db,
       models: { Patient, PatientAdditionalData },
       params,
     } = req;
@@ -60,24 +63,27 @@ patientRoute.put(
     const patient = await Patient.findByPk(params.id);
     if (!patient) throw new NotFoundError();
     req.checkPermission('write', patient);
-    await patient.update(requestBodyToRecord(req.body));
 
-    const patientAdditionalData = await PatientAdditionalData.findOne({
-      where: { patientId: patient.id },
-    });
+    await db.transaction(async () => {
+      await patient.update(requestBodyToRecord(req.body));
 
-    if (!patientAdditionalData) {
-      // Do not try to create patient additional data if all we're trying to update is markedForSync = true to
-      // sync down patient because PatientAdditionalData will be automatically synced down along with Patient
-      if (!isEqual(req.body, { markedForSync: true })) {
-        await PatientAdditionalData.create({
-          ...requestBodyToRecord(req.body),
-          patientId: patient.id,
-        });
+      const patientAdditionalData = await PatientAdditionalData.findOne({
+        where: { patientId: patient.id },
+      });
+
+      if (!patientAdditionalData) {
+        // Do not try to create patient additional data if all we're trying to update is markedForSync = true to
+        // sync down patient because PatientAdditionalData will be automatically synced down along with Patient
+        if (!isEqual(req.body, { markedForSync: true })) {
+          await PatientAdditionalData.create({
+            ...requestBodyToRecord(req.body),
+            patientId: patient.id,
+          });
+        }
+      } else {
+        await patientAdditionalData.update(requestBodyToRecord(req.body));
       }
-    } else {
-      await patientAdditionalData.update(requestBodyToRecord(req.body));
-    }
+    });
 
     res.send(dbRecordToResponse(patient));
   }),
@@ -93,16 +99,15 @@ patientRoute.post(
     req.checkPermission('create', 'Patient');
     const patientData = requestBodyToRecord(req.body);
 
-    await db.transaction(async () => {
-      const patientRecord = await Patient.create(patientData);
-
+    const patientRecord = await db.transaction(async () => {
+      const createdPatient = await Patient.create(patientData);
       await PatientAdditionalData.create({
         ...patientData,
-        patientId: patientRecord.id,
+        patientId: createdPatient.id,
       });
-
-      res.send(dbRecordToResponse(patientRecord));
+      return createdPatient;
     });
+    res.send(dbRecordToResponse(patientRecord));
   }),
 );
 
@@ -464,6 +469,8 @@ patientRoute.get('/program/activeCovid19Patients', asyncHandler(activeCovid19Pat
 
 patientRoute.use(patientVaccineRoutes);
 patientRoute.use(patientDocumentMetadataRoutes);
+
+patientRoute.use(patientInvoiceRoutes);
 
 patientRoute.get(
   '/:id/passportNumber',

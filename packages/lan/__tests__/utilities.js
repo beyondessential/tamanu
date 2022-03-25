@@ -1,10 +1,11 @@
 import supertest from 'supertest';
 import Chance from 'chance';
+import http from 'http';
 
 import { seedDepartments, seedFacilities, seedLocations, seedLabTests } from 'shared/demoData';
 
 import { createApp } from 'lan/app/createApp';
-import { initDatabase } from 'lan/app/database';
+import { initDatabase, closeDatabase } from 'lan/app/database';
 import { getToken } from 'lan/app/middleware/auth';
 
 import { allSeeds } from './seed';
@@ -12,6 +13,7 @@ import { deleteAllTestIds } from './setupUtilities';
 
 import { SyncManager } from '~/sync';
 import { WebRemote } from '~/sync/WebRemote';
+
 jest.mock('~/sync/WebRemote');
 jest.mock('../app/utils/uploadAttachment');
 
@@ -96,8 +98,8 @@ export async function createTestContext() {
   await seedLocations(models);
 
   const expressApp = createApp(dbResult);
-
-  const baseApp = supertest(expressApp);
+  const appServer = http.createServer(expressApp);
+  const baseApp = supertest(appServer);
 
   baseApp.asUser = async user => {
     const agent = supertest.agent(expressApp);
@@ -126,5 +128,10 @@ export async function createTestContext() {
 
   context.syncManager = new SyncManager(context);
 
-  return context;
+  const close = async () => {
+    await new Promise(resolve => appServer.close(resolve));
+    await closeDatabase();
+  };
+
+  return { ...context, close };
 }

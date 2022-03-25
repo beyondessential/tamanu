@@ -99,8 +99,14 @@ describe('Data definition import', () => {
   });
 
   describe('Importer permissions', () => {
+    let ctx;
+    beforeAll(async () => {
+      ctx = await createTestContext();
+    });
+    afterAll(() => ctx.close());
+
     it('Should forbid an import by a non-admin', async () => {
-      const { baseApp } = await createTestContext();
+      const { baseApp } = ctx;
       const nonAdminApp = await baseApp.asRole('practitioner');
 
       const response = await nonAdminApp.post('/v1/admin/importData');

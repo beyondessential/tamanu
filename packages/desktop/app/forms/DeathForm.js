@@ -10,6 +10,7 @@ import {
   Button,
   OutlinedButton,
   Field,
+  FieldWithTooltip,
   AutocompleteField,
   DateTimeField,
   DateField,
@@ -75,6 +76,10 @@ const ConfirmScreen = ({ onStepBack, submitForm, onCancel }) => (
   </FormGrid>
 );
 
+const StyledFormGrid = styled(FormGrid)`
+  min-height: 200px;
+`;
+
 const PLACES = [
   'Home',
   'Residential institution',
@@ -113,10 +118,6 @@ const mannerOfDeathVisibilityCriteria = {
   mannerOfDeath: MANNER_OF_DEATHS.filter(x => x !== 'Disease'),
 };
 
-/**
- * onCancel: closes modal
- * onSubmit: make api request
- */
 export const DeathForm = React.memo(
   ({ onCancel, onSubmit, patient, practitionerSuggester, icd10Suggester, facilitySuggester }) => {
     const patientYearsOld = moment().diff(patient.dateOfBirth, 'years');
@@ -134,15 +135,25 @@ export const DeathForm = React.memo(
           causeOfDeath: yup.string().required(),
           causeOfDeathInterval: yup.string().required(),
           clinicianId: yup.string().required(),
-          timeOfDeath: yup.string().required(),
+          lastSurgeryDate: yup
+            .date()
+            .max(yup.ref('timeOfDeath'), "Date of last surgery can't be after time of death"),
+          mannerOfDeathDate: yup
+            .date()
+            .max(yup.ref('timeOfDeath'), "Manner of death date can't be after time of death"),
+          timeOfDeath: yup
+            .date()
+            .min(patient.dateOfBirth, "Time of death can't be before date of birth")
+            .required(),
         })}
       >
-        <FormGrid columns={2}>
-          <Field
+        <StyledFormGrid columns={2}>
+          <FieldWithTooltip
             name="causeOfDeath"
             label="Cause Of Death"
             component={AutocompleteField}
             suggester={icd10Suggester}
+            tooltipText="This does not mean the mode of dying (e.g heart failure, respiratory failure). It means the disease, injury or complication that caused the death."
             required
           />
           <Field
@@ -198,9 +209,10 @@ export const DeathForm = React.memo(
             name="deathOutsideHealthFacility"
             label="Died outside health facility"
             component={CheckField}
+            style={{ gridColumn: '1/-1', marginBottom: '10px', marginTop: '5px' }}
           />
-        </FormGrid>
-        <FormGrid columns={1}>
+        </StyledFormGrid>
+        <StyledFormGrid columns={1}>
           <Field
             name="surgeryInLast4Weeks"
             label="Was surgery performed in the last 4 weeks?"
@@ -210,18 +222,20 @@ export const DeathForm = React.memo(
           />
           <Field
             name="lastSurgeryDate"
-            label="If yes, what was the date of surgery"
+            label="What was the date of surgery"
             component={DateTimeField}
+            visibilityCriteria={{ surgeryInLast4Weeks: 'yes' }}
           />
           <Field
             name="lastSurgeryReason"
             label="What was the reason for the surgery"
             component={AutocompleteField}
             suggester={icd10Suggester}
+            visibilityCriteria={{ surgeryInLast4Weeks: 'yes' }}
           />
-        </FormGrid>
+        </StyledFormGrid>
         {isAdultFemale ? (
-          <FormGrid columns={1}>
+          <StyledFormGrid columns={1}>
             <Field
               name="pregnant"
               label="If this was a woman, was the woman pregnant?"
@@ -236,9 +250,9 @@ export const DeathForm = React.memo(
               component={RadioField}
               options={binaryUnknownOptions}
             />
-          </FormGrid>
+          </StyledFormGrid>
         ) : null}
-        <FormGrid columns={1}>
+        <StyledFormGrid columns={1}>
           <Field
             name="mannerOfDeath"
             label="What was the manner of death?"
@@ -264,9 +278,9 @@ export const DeathForm = React.memo(
             component={TextField}
             visibilityCriteria={{ mannerOfDeathLocation: 'Other' }}
           />
-        </FormGrid>
+        </StyledFormGrid>
         {isInfant ? (
-          <FormGrid columns={1}>
+          <StyledFormGrid columns={1}>
             <Field
               name="fetalOrInfant"
               label="Was the death fetal or infant?"
@@ -303,7 +317,7 @@ export const DeathForm = React.memo(
               label="If yes, number of hours survived"
               component={NumberField}
             />
-          </FormGrid>
+          </StyledFormGrid>
         ) : null}
       </PaginatedForm>
     );

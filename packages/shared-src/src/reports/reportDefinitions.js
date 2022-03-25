@@ -38,6 +38,16 @@ export const REPORT_DEFINITIONS = [
     ],
   },
   {
+    name: 'Tuvalu Vaccine - Line list with consent',
+    id: 'tuvalu-vaccine-list',
+    allFacilities: true,
+    parameters: [
+      { parameterField: 'VillageField' },
+      { parameterField: 'VaccineCategoryField' },
+      { parameterField: 'VaccineField' },
+    ],
+  },
+  {
     name: 'COVID vaccine campaign - Line list',
     id: 'covid-vaccine-list',
     parameters: [{ parameterField: 'VillageField' }],

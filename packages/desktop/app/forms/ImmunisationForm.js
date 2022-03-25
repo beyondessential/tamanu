@@ -2,6 +2,7 @@ import React, { useMemo, useEffect, useState } from 'react';
 import styled from 'styled-components';
 import FormControlLabel from '@material-ui/core/FormControlLabel';
 import Checkbox from '@material-ui/core/Checkbox';
+import * as yup from 'yup';
 
 import { INJECTION_SITE_OPTIONS } from 'shared/constants';
 import { OuterLabelFieldWrapper } from '../components/Field/OuterLabelFieldWrapper';
@@ -15,6 +16,7 @@ import {
   DateField,
   RadioField,
   SelectField,
+  CheckField,
 } from '../components/Field';
 import { Colors } from '../constants';
 
@@ -60,9 +62,13 @@ const AdministeredCheckbox = styled(Checkbox)`
   }
 `;
 
-function AdministeredVaccineSchedule({ option }) {
-  return <ControlLabel control={<AdministeredCheckbox checked disabled />} label={option.label} />;
-}
+const FullWidthCol = styled.div`
+  grid-column: 1/-1;
+`;
+
+const AdministeredVaccineSchedule = ({ option }) => (
+  <ControlLabel control={<AdministeredCheckbox checked disabled />} label={option.label} />
+);
 
 const findVaccinesByAdministeredStatus = (vaccine, administered) =>
   vaccine
@@ -127,8 +133,23 @@ export const ImmunisationForm = React.memo(
         initialValues={{
           date: new Date(),
         }}
+        validationSchema={yup.object().shape({
+          consent: yup
+            .boolean()
+            .oneOf([true])
+            .required(),
+        })}
         render={({ submitForm }) => (
           <FormGrid>
+            <FullWidthCol>
+              <OuterLabelFieldWrapper label="Consent" style={{ marginBottom: '5px' }} required />
+              <Field
+                name="consent"
+                label="Do you have consent from the recipient/parent/guardian to give this vaccine and record in Tamanu?"
+                component={CheckField}
+                required
+              />
+            </FullWidthCol>
             <Field
               name="category"
               label="Category"
@@ -142,7 +163,7 @@ export const ImmunisationForm = React.memo(
               }}
               required
             />
-            <div style={{ gridColumn: '1/-1' }}>
+            <FullWidthCol>
               <Field
                 name="vaccineLabel"
                 label="Vaccine"
@@ -152,25 +173,27 @@ export const ImmunisationForm = React.memo(
                 onChange={e => setVaccineLabel(e.target.value)}
                 required
               />
-            </div>
-
-            <div>
-              <OuterLabelFieldWrapper label="Administered schedule" />
-              {administeredOptions.map(option => (
-                <AdministeredVaccineSchedule option={option} />
-              ))}
-            </div>
-
-            <div style={{ gridColumn: '1/-1' }}>
-              <Field
-                name="scheduledVaccineId"
-                label="Available schedule"
-                inline
-                component={RadioField}
-                options={scheduleOptions}
-                required
-              />
-            </div>
+            </FullWidthCol>
+            {administeredOptions.length > 0 && (
+              <div>
+                <OuterLabelFieldWrapper label="Administered schedule" />
+                {administeredOptions.map(option => (
+                  <AdministeredVaccineSchedule option={option} />
+                ))}
+              </div>
+            )}
+            {scheduleOptions.length > 0 && (
+              <FullWidthCol>
+                <Field
+                  name="scheduledVaccineId"
+                  label="Available schedule"
+                  inline
+                  component={RadioField}
+                  options={scheduleOptions}
+                  required
+                />
+              </FullWidthCol>
+            )}
             <Field name="date" label="Date" component={DateField} required />
             <Field
               name="examinerId"
