@@ -53,9 +53,10 @@ describe.skip('Fiji NCD Primary Screening Summary', () => {
   let expectedPatient1 = null;
   let expectedPatient2 = null;
   let expectedPatient3 = null;
+  let ctx;
 
   beforeAll(async () => {
-    const ctx = await createTestContext();
+    ctx = await createTestContext();
     const models = ctx.models;
 
     await models.Referral.truncate({ cascade: true });
@@ -155,6 +156,7 @@ describe.skip('Fiji NCD Primary Screening Summary', () => {
       },
     });
   });
+  afterAll(() => ctx.close());
 
   describe('checks permissions', () => {
     it('should reject creating a report request with insufficient permissions', async () => {

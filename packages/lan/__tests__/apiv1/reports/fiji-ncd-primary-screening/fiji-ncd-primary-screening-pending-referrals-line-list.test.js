@@ -50,9 +50,10 @@ describe('Fiji NCD Primary Screening Pending Referrals line list', () => {
   let ethnicity2 = null;
   let medicalArea = null;
   let nursingZone = null;
+  let ctx;
 
   beforeAll(async () => {
-    const ctx = await createTestContext();
+    ctx = await createTestContext();
     const models = ctx.models;
 
     await models.Referral.truncate({ cascade: true });
@@ -141,6 +142,7 @@ describe('Fiji NCD Primary Screening Pending Referrals line list', () => {
     // Form submission but no referral submitted on 2021-03-14 => should not generate any row because there's now referral
     await createBreastCancerFormSurveyResponse(app, expectedPatient2, '2021-03-14T01:00:00.133Z');
   });
+  afterAll(() => ctx.close());
 
   describe('checks permissions', () => {
     it('should reject creating a report request with insufficient permissions', async () => {

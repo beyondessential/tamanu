@@ -43,6 +43,7 @@ describe('import', () => {
       await models.User.create({ ...fakeUser(), id: userId });
       await models.Facility.create({ ...fake(models.Facility), id: facilityId });
     });
+    afterAll(() => context.sequelize.close());
 
     const rootTestCases = [
       ['Patient', fakePatient],

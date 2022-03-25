@@ -145,15 +145,16 @@ describe('covid-vaccine-daily-summary-village', () => {
     ];
   };
 
+  let clock;
   beforeAll(() => {
-    sinon.useFakeTimers({
+    clock = sinon.useFakeTimers({
       now: 1633784400000, // 2021-10-10T00:00:00+11:00
     });
     moment.tz.setDefault('Australia/Melbourne');
   });
 
   afterAll(() => {
-    sinon.clearAllMocks();
+    clock.restore();
   });
 
   it('throws if fromDate is after toDate', async () => {
