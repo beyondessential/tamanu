@@ -24,7 +24,7 @@ const BUTTON_PADDING = 15;
 const StyledStepButton = styled(StepButton)`
   position: relative;
   padding: ${BUTTON_PADDING}px 0;
-  margin: -${BUTTON_PADDING}px 0 -${BUTTON_PADDING}px 0;
+  margin: -${BUTTON_PADDING}px 0;
   transition: background-color 0.2s ease;
 
   &:hover {
