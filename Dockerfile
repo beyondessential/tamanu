@@ -4,12 +4,13 @@ RUN apt-get update
 RUN apt-get install -y -q --no-install-recommends \
         apt-transport-https \
         build-essential \
+        jq \
         msitools \
+        unzip \
         wine32 \
         wine \
         wixl \
-        zip \
-        unzip
+        zip
 
 FROM base_image
 ENV PACKAGES_DIR=/tamanu/packages \
