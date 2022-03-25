@@ -1,7 +1,6 @@
 import React from 'react';
 import styled from 'styled-components';
 import { Step, StepButton, Stepper } from '@material-ui/core';
-import { Colors } from '../../constants';
 
 const StyledStepper = styled(Stepper)`
   margin: -18px -32px 30px;
@@ -23,6 +22,8 @@ const BUTTON_PADDING = 15;
 
 const StyledStepButton = styled(StepButton)`
   position: relative;
+
+  // Make the clickable area bigger than the visible button
   padding: ${BUTTON_PADDING}px 0;
   margin: -${BUTTON_PADDING}px 0;
   transition: background-color 0.2s ease;
