@@ -52,13 +52,13 @@ const facilitySchema = baseSchema.shape({
 const departmentSchema = baseSchema.shape({
   code: fieldTypes.code.required(),
   name: fieldTypes.name.required(),
-  facilityId: yup.string(),
+  facilityId: yup.string().required(),
 });
 
 const locationSchema = baseSchema.shape({
   code: fieldTypes.code.required(),
   name: fieldTypes.name.required(),
-  facilityId: yup.string(),
+  facilityId: yup.string().required(),
 });
 
 const LAB_TEST_RESULT_TYPES = ['Number', 'Select', 'FreeText'];
