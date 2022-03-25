@@ -10,6 +10,7 @@ import {
   Button,
   OutlinedButton,
   Field,
+  FieldWithTooltip,
   AutocompleteField,
   DateTimeField,
   DateField,
@@ -117,10 +118,6 @@ const mannerOfDeathVisibilityCriteria = {
   mannerOfDeath: MANNER_OF_DEATHS.filter(x => x !== 'Disease'),
 };
 
-/**
- * onCancel: closes modal
- * onSubmit: make api request
- */
 export const DeathForm = React.memo(
   ({ onCancel, onSubmit, patient, practitionerSuggester, icd10Suggester, facilitySuggester }) => {
     const patientYearsOld = moment().diff(patient.dateOfBirth, 'years');
@@ -151,11 +148,12 @@ export const DeathForm = React.memo(
         })}
       >
         <StyledFormGrid columns={2}>
-          <Field
+          <FieldWithTooltip
             name="causeOfDeath"
             label="Cause Of Death"
             component={AutocompleteField}
             suggester={icd10Suggester}
+            tooltipText="This does not mean the mode of dying (e.g heart failure, respiratory failure). It means the disease, injury or complication that caused the death."
             required
           />
           <Field
