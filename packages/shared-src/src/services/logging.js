@@ -17,9 +17,21 @@ const COLORS = {
   yellow: chalk.hex('e9b96e'),
 };
 
+// additional parameters to log.info etc will be serialised and logged using this formatter
+const additionalDataFormatter = (obj = {}) => {
+  if (typeof obj !== "object") {
+    return `${obj}`;
+  }
+  return Object.entries(obj)
+    .map(([key, value]) => `${key}=${value}`)
+    .join(' ');
+}
+
+// formatter for all logging:
+// 2022-03-25T06:52:30.003Z info: My console message! additionalItem=additionalValue
 const logFormat = winston.format.printf(({ level, message, timestamp, ...rest }) => {
-  const restString = JSON.stringify(rest);
-  if (restString === '{}') {
+  const restString = additionalDataFormatter(rest);
+  if (restString === '') {
     return `${COLORS.grey(timestamp)} ${level}: ${message}`;
   } else {
     return `${COLORS.grey(timestamp)} ${level}: ${message} ${COLORS.grey(restString)}`;
@@ -44,6 +56,7 @@ export const log = winston.createLogger({
   ].filter(t => !!t),
 });
 
+// Middleware for logging http requests 
 function getStatusColor(status) {
   switch(status[0]) {
     case '5': return COLORS.red;
@@ -75,7 +88,10 @@ export function getLoggingMiddleware() {
     httpFormatter,
     {
       stream: {
-        write: message => log.info(message),
+        write: message => {
+          // strip whitespace (morgan appends a \n, but winston will too!)
+          log.info(message.trim());
+        }
       },
     }
   );
