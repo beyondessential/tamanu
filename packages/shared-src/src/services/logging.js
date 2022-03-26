@@ -7,14 +7,19 @@ import chalk from 'chalk';
 const {
   path,
   consoleLevel,
+  color,
 } = config?.log || {};
 
+const colorise = color 
+  ? (hex) => chalk.hex(hex) 
+  : (ignoredHex) => (text => text);
+
 const COLORS = {
-  grey: chalk.hex('999'),
-  green: chalk.hex('8ae234'),
-  blue: chalk.hex('729fcf'),
-  red: chalk.hex('ef2929'),
-  yellow: chalk.hex('e9b96e'),
+  grey: colorise('999'),
+  green: colorise('8ae234'),
+  blue: colorise('729fcf'),
+  red: colorise('ef2929'),
+  yellow: colorise('e9b96e'),
 };
 
 // additional parameters to log.info etc will be serialised and logged using this formatter

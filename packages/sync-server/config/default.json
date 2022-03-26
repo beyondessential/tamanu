@@ -15,7 +15,8 @@
   },
   "log": {
     "path": "",
-    "consoleLevel": "info"
+    "consoleLevel": "info",
+    "color": true
   },
   "sync": {
     "concurrentChannelChecks": 8
