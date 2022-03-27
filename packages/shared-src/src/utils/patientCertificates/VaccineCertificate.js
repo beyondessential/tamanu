@@ -13,10 +13,8 @@ const columns = [
     key: 'vaccine',
     title: 'Vaccine',
     customStyles: { minWidth: 30 },
-    accessor: ({ scheduledVaccine, createdAt, updatedAt }) => {
-      const label = scheduledVaccine?.label;
-      const star = createdAt !== updatedAt ? ' *' : '';
-      return `${label}${star}`;
+    accessor: ({ scheduledVaccine }) => {
+      return scheduledVaccine?.label;
     },
   },
   {
