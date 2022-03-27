@@ -9,10 +9,10 @@ const ETHNICITY_IDS = {
   OTHERS: 'ethnicity-others',
 };
 
-const ETHNICITY_IDS_BACKWARDS = {
-  'ethnicity-ITaukei': 'itaukei',
-  'ethnicity-FID': 'fid',
-  'ethnicity-others': 'others',
+const ETHNICITY_PREFIX_BY_ID = {
+  [ETHNICITY_IDS.ITAUKEI]: 'itaukei',
+  [ETHNICITY_IDS.INDIAN]: 'fid',
+  [ETHNICITY_IDS.OTHERS]: 'others',
 };
 
 const query = `
@@ -75,7 +75,9 @@ with
       count(*) as enc_n
     from -- Only selects the last cvd survey response per patient/date_group
       (SELECT
-          e.patient_id, sr4.end_time::date as date_group, max(sr4.end_time) AS max_end_time , count(*) as count_for_testing 
+          e.patient_id,
+          sr4.end_time::date as date_group,
+          max(sr4.end_time) AS max_end_time , count(*) as count_for_testing 
         FROM
           survey_responses sr4
       join encounters e on e.id = sr4.encounter_id
@@ -191,7 +193,7 @@ or  sum(coalesce(cs.snap_n,0)) > 0
 or  sum(coalesce(cdg.diabetes_n,0)) > 0
 or  sum(coalesce(cdg.hypertension_n,0)) > 0
 or  sum(coalesce(cdg.dual_n,0)) > 0;
-  `;
+`;
 
 const FIELD_TO_TITLE = {
   date: 'Date',
@@ -257,7 +259,7 @@ function sumObjectsByKey(objs) {
 }
 
 const makeDemographicsKey = (ethnicity, under30) =>
-  `${ETHNICITY_IDS_BACKWARDS[ethnicity]}_${under30 ? 'u30' : 'o30'}`;
+  `${ETHNICITY_PREFIX_BY_ID[ethnicity]}_${under30 ? 'u30' : 'o30'}`;
 
 /**
  * The logic here is pretty opaque, but basically it creates a series of arrays of results,
