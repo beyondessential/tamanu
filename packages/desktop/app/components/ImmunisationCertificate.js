@@ -104,10 +104,7 @@ export const ImmunisationCertificate = ({ patient, immunisations }) => {
         <tbody>
           {immunisations.map(immunisation => (
             <tr key={immunisation.id}>
-              <td>
-                {immunisation.scheduledVaccine?.label}
-                {immunisation.createdAt !== immunisation.updatedAt ? ' *' : ''}
-              </td>
+              <td>{immunisation.scheduledVaccine?.label}</td>
               <td>{immunisation.scheduledVaccine?.vaccine?.name}</td>
               <td>{immunisation.scheduledVaccine?.schedule}</td>
               {countryName && <td>{countryName}</td>}
