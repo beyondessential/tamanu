@@ -13,9 +13,7 @@ const columns = [
     key: 'vaccine',
     title: 'Vaccine',
     customStyles: { minWidth: 30 },
-    accessor: ({ scheduledVaccine }) => {
-      return scheduledVaccine?.label;
-    },
+    accessor: ({ scheduledVaccine }) => scheduledVaccine?.label,
   },
   {
     key: 'vaccineBrand',
