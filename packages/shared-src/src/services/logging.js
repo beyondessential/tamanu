@@ -95,7 +95,7 @@ export function getLoggingMiddleware() {
       stream: {
         write: message => {
           // strip whitespace (morgan appends a \n, but winston will too!)
-          log.info(message.trim());
+          log.http(message.trim());
         }
       },
     }
