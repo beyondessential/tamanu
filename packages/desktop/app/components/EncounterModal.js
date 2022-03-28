@@ -1,48 +1,38 @@
 import React, { useCallback } from 'react';
-
 import { REFERRAL_STATUSES } from 'shared/constants';
+import { useDispatch } from 'react-redux';
+
 import { Modal } from './Modal';
-import { Suggester } from '../utils/suggester';
-
-import { connectApi } from '../api/connectApi';
 import { viewPatientEncounter } from '../store/patient';
-
 import { EncounterForm } from '../forms/EncounterForm';
 import { useEncounter } from '../contexts/Encounter';
 import { useApi } from '../api';
 
-const DumbEncounterModal = React.memo(
-  ({ open, onClose, patientId, loadAndViewPatientEncounter, referral, ...rest }) => {
-    const { createEncounter } = useEncounter();
-    const api = useApi();
+export const EncounterModal = React.memo(({ open, onClose, patientId, referral }) => {
+  const { createEncounter } = useEncounter();
+  const api = useApi();
+  const dispatch = useDispatch();
 
-    const onCreateEncounter = useCallback(
-      async data => {
-        await createEncounter({
-          patientId,
-          referralId: referral?.id,
-          ...data,
-        });
-        if (referral) {
-          await api.put(`referral/${referral.id}`, { status: REFERRAL_STATUSES.COMPLETED });
-        }
-        loadAndViewPatientEncounter();
-        onClose();
-      },
-      [patientId, api, createEncounter, loadAndViewPatientEncounter, onClose, referral],
-    );
+  const onCreateEncounter = useCallback(
+    async data => {
+      await createEncounter({
+        patientId,
+        referralId: referral?.id,
+        ...data,
+      });
+      if (referral) {
+        await api.put(`referral/${referral.id}`, { status: REFERRAL_STATUSES.COMPLETED });
+      }
 
-    return (
-      <Modal title="Check-in" open={open} onClose={onClose}>
-        <EncounterForm onSubmit={onCreateEncounter} onCancel={onClose} {...rest} />
-      </Modal>
-    );
-  },
-);
+      dispatch(viewPatientEncounter(patientId));
+      onClose();
+    },
+    [dispatch, patientId, api, createEncounter, onClose, referral],
+  );
 
-export const EncounterModal = connectApi((api, dispatch, { patientId }) => ({
-  locationSuggester: new Suggester(api, 'location'),
-  practitionerSuggester: new Suggester(api, 'practitioner'),
-  departmentSuggester: new Suggester(api, 'department'),
-  loadAndViewPatientEncounter: () => dispatch(viewPatientEncounter(patientId)),
-}))(DumbEncounterModal);
+  return (
+    <Modal title="Check-in1" open={open} onClose={onClose}>
+      <EncounterForm onSubmit={onCreateEncounter} onCancel={onClose} />
+    </Modal>
+  );
+});

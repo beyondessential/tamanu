@@ -5,7 +5,6 @@ import styled from 'styled-components';
 import Avatar from '@material-ui/core/Avatar';
 
 import { foreignKey } from '../utils/validation';
-
 import {
   Form,
   Field,
@@ -13,12 +12,13 @@ import {
   SelectField,
   AutocompleteField,
   TextField,
-} from '../components/Field';
-import { FormGrid } from '../components/FormGrid';
-import { DateDisplay } from '../components/DateDisplay';
-import { Button } from '../components/Button';
-
+  Button,
+  DateDisplay,
+  FormGrid,
+} from '../components';
 import { encounterOptions, Colors } from '../constants';
+import { Suggester } from '../utils/suggester';
+import { useApi } from '../api';
 
 const SelectorGrid = styled.div`
   display: grid;
@@ -96,19 +96,17 @@ const StartPage = ({ setValue }) => {
   return <SelectorGrid>{items}</SelectorGrid>;
 };
 
-export class EncounterForm extends React.PureComponent {
-  renderForm = ({ values, setFieldValue, submitForm }) => {
+export const EncounterForm = ({ editedObject, referrals, onSubmit }) => {
+  const api = useApi();
+  const locationSuggester = new Suggester(api, 'location');
+  const practitionerSuggester = new Suggester(api, 'practitioner');
+  const departmentSuggester = new Suggester(api, 'department');
+
+  const renderForm = ({ values, setFieldValue, submitForm }) => {
     if (!values.encounterType) {
       return <StartPage setValue={setFieldValue} />;
     }
 
-    const {
-      locationSuggester,
-      practitionerSuggester,
-      departmentSuggester,
-      editedObject,
-      referrals,
-    } = this.props;
     const buttonText = editedObject ? 'Update encounter' : 'Start encounter';
 
     return (
@@ -166,30 +164,27 @@ export class EncounterForm extends React.PureComponent {
     );
   };
 
-  render() {
-    const { onSubmit, editedObject } = this.props;
-    return (
-      <Form
-        onSubmit={onSubmit}
-        render={this.renderForm}
-        initialValues={{
-          startDate: new Date(),
-          ...editedObject,
-        }}
-        validationSchema={yup.object().shape({
-          examinerId: foreignKey('Examiner is required'),
-          locationId: foreignKey('Location is required'),
-          departmentId: foreignKey('Department is required'),
-          startDate: yup.date().required(),
-          encounterType: yup
-            .mixed()
-            .oneOf(encounterOptions.map(x => x.value))
-            .required(),
-        })}
-      />
-    );
-  }
-}
+  return (
+    <Form
+      onSubmit={onSubmit}
+      render={renderForm}
+      initialValues={{
+        startDate: new Date(),
+        ...editedObject,
+      }}
+      validationSchema={yup.object().shape({
+        examinerId: foreignKey('Examiner is required'),
+        locationId: foreignKey('Location is required'),
+        departmentId: foreignKey('Department is required'),
+        startDate: yup.date().required(),
+        encounterType: yup
+          .mixed()
+          .oneOf(encounterOptions.map(x => x.value))
+          .required(),
+      })}
+    />
+  );
+};
 
 EncounterForm.propTypes = {
   onSubmit: PropTypes.func.isRequired,
