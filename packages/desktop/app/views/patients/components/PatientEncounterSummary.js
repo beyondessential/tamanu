@@ -23,7 +23,7 @@ const PATIENT_STATUS_COLORS = {
 
 const ENCOUNTER_TYPE_TO_STATUS = {
   [ENCOUNTER_TYPES.ADMISSION]: PATIENT_STATUS.INPATIENT,
-  [ENCOUNTER_TYPES.CLINIC]: PATIENT_STATUS.INPATIENT,
+  [ENCOUNTER_TYPES.CLINIC]: PATIENT_STATUS.OUTPATIENT,
   [ENCOUNTER_TYPES.IMAGING]: PATIENT_STATUS.OUTPATIENT,
   [ENCOUNTER_TYPES.OBSERVATION]: PATIENT_STATUS.OUTPATIENT,
   [ENCOUNTER_TYPES.EMERGENCY]: PATIENT_STATUS.EMERGENCY,
@@ -113,6 +113,8 @@ export const PatientEncounterSummary = ({
   encounter,
 }) => {
   if (patient.dateOfDeath) {
+    // Todo: Complete patient landing screen for deceased patients once api for death workflow is done @see WAITM-31
+    return 'Under Construction';
     return (
       <Container patientStatus={PATIENT_STATUS.DECEASED}>
         <Header>
