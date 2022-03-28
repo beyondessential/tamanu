@@ -104,6 +104,7 @@ export class ReportRunner {
    * @returns {Promise<void>}
    */
   async sendReportToLocal(reportData) {
+    const reportName = this.getReportName();
     for (const recipient of this.recipients.local) {
       const { format, path: reportFolder } = recipient;
       if (!format || !reportFolder) {
@@ -113,8 +114,8 @@ export class ReportRunner {
         );
       }
       await mkdirp(reportFolder);
-      const reportName = `${this.getReportName()}.${format}`;
-      const reportPath = path.resolve(reportFolder, reportName);
+      const reportNameExtended = `${reportName}.${format}`;
+      const reportPath = path.resolve(reportFolder, reportNameExtended);
       const outputPath = await writeToSpreadsheet(reportData, reportPath, format);
       // eslint-disable-next-line no-console
       console.log(outputPath);
