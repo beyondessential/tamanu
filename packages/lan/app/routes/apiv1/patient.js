@@ -469,6 +469,7 @@ patientRoute.get('/program/activeCovid19Patients', asyncHandler(activeCovid19Pat
 
 patientRoute.use(patientVaccineRoutes);
 patientRoute.use(patientDocumentMetadataRoutes);
+
 patientRoute.use(patientInvoiceRoutes);
 
 patientRoute.get(

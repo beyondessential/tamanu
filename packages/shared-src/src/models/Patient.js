@@ -105,9 +105,7 @@ export class Patient extends Model {
         { association: 'requestedBy' },
         {
           association: 'category',
-          where: {
-            name: Sequelize.where(Sequelize.fn('LOWER', Sequelize.col('name')), 'LIKE', '%covid%'),
-          },
+          where: { name: Sequelize.literal("UPPER(category.name) LIKE ('%COVID%')") },
         },
         {
           association: 'tests',
@@ -130,9 +128,11 @@ export class Patient extends Model {
 
     // Place the tests data at the top level of the object as this is a getter for lab tests
     // After the merge, id is the lab test id and labRequestId is the lab request id
-    return labRequests.map(labRequest => {
+    const labTests = labRequests.map(labRequest => {
       const { tests, ...labRequestData } = labRequest;
       return { ...labRequestData, ...tests };
     });
+
+    return labTests.slice().sort((a, b) => Date.parse(b.date) - Date.parse(a.date));
   }
 }
