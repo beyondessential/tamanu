@@ -10,6 +10,8 @@ import { Op } from 'sequelize';
 const REPORT_URL = '/v1/reports/fiji-traveller-covid-lab-test-list';
 const PROGRAM_ID = 'program-fijicovidtourism';
 const SURVEY_ID = 'program-fijicovidtourism-fijicovidtravform';
+const LAB_CATEGORY_ID = 'labTestCategory-COVID';
+const LAB_METHOD_ID = 'labTestMethod-SWAB';
 
 const REPORT_COLUMNS = [
   'Patient first name',
@@ -156,18 +158,32 @@ async function createTravellerSurvey(models) {
 }
 
 async function createLabTests(models) {
-  await models.ReferenceData.create({
-    type: 'labTestCategory',
-    id: 'labTestCategory-COVID',
-    code: 'COVID-19',
-    name: 'COVID-19',
+  const existingCategories = await models.ReferenceData.findAll({
+    where: {
+      id: LAB_CATEGORY_ID,
+    },
   });
-  await models.ReferenceData.create({
-    type: 'labTestMethod',
-    id: 'labTestMethod-SWAB',
-    code: 'METHOD-SWAB',
-    name: 'Swab',
+  if (!existingCategories.length) {
+    await models.ReferenceData.create({
+      type: 'labTestCategory',
+      id: LAB_CATEGORY_ID,
+      code: 'COVID-19',
+      name: 'COVID-19',
+    });
+  }
+  const existingMethods = await models.ReferenceData.findAll({
+    where: {
+      id: LAB_METHOD_ID,
+    },
   });
+  if (!existingMethods.length) {
+    await models.ReferenceData.create({
+      type: 'labTestMethod',
+      id: LAB_METHOD_ID,
+      code: 'METHOD-SWAB',
+      name: 'Swab',
+    });
+  }
 }
 
 async function createCovidTestForPatient(models, patient, testDate) {
@@ -178,7 +194,7 @@ async function createCovidTestForPatient(models, patient, testDate) {
     await createDummyEncounter(models, { patientId: patient.id }),
   );
   const labRequestData = await randomLabRequest(models, {
-    labTestCategoryId: 'labTestCategory-COVID',
+    labTestCategoryId: LAB_CATEGORY_ID,
     patientId: patient.id,
     requestedDate: testDate,
     encounterId: encounter.id,
@@ -188,7 +204,7 @@ async function createCovidTestForPatient(models, patient, testDate) {
     labTestTypeId: labRequestData.labTestTypeIds[0],
     labRequestId: labRequest.id,
     date: testDate,
-    labTestMethodId: 'labTestMethod-SWAB',
+    labTestMethodId: LAB_METHOD_ID,
   });
   return labRequest;
 }
@@ -239,14 +255,6 @@ describe('Fiji traveller covid lab test report', () => {
       expectedPatient2 = await createPatient(models);
       await createTravellerSurvey(models);
       await createLabTests(models);
-    });
-
-    afterAll(async () => {
-      await testContext.models.ReferenceData.destroy({
-        where: {
-          id: { [Op.in]: ['labTestCategory-COVID', 'labTestMethod-SWAB'] },
-        },
-      });
     });
 
     afterEach(async () => {
