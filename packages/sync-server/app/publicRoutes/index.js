@@ -9,9 +9,15 @@ export const publicRoutes = express.Router();
 
 const { cors } = config;
 
-if (cors.allowedOrigin) {
+if (cors.allowedOrigin || cors.allowedOrigins) {
+  const allowedOrigins = cors.allowedOrigin ? [cors.allowedOrigin] : cors.allowedOrigins;
   publicRoutes.use((req, res, next) => {
-    res.setHeader('Access-Control-Allow-Origin', cors.allowedOrigin);
+    // if this is coming from an allowed origin, set the cors header to allow it
+    const origin = req.get('origin');
+    const allowedOrigin = allowedOrigins.find(o => o === origin);
+    if (allowedOrigin) {
+      res.setHeader('Access-Control-Allow-Origin', allowedOrigin);
+    }
     next();
   });
 } else {

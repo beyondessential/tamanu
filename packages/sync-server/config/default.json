@@ -77,7 +77,8 @@
     "from": ""
   },
   "cors": {
-    "allowedOrigin": ""
+    "allowedOrigin": "",
+    "allowedOrigins": null
   },
   "schedules": {
     // batchSize == run through them all in one run, in batches of N
