@@ -3,6 +3,7 @@ import config from 'config';
 
 import { log } from 'shared/services/logging';
 
+import * as hl7Demo from './hl7-demo';
 import * as fijiVrs from './fiji-vrs';
 import * as fijiVps from './fiji-vps';
 import * as signer from './Signer';
@@ -12,7 +13,9 @@ import { checkEuDccConfig } from './EuDcc';
 import { checkSignerConfig } from './Signer';
 import { checkVdsNcConfig } from './VdsNc';
 
+
 const integrations = {
+  hl7Demo,
   fijiVrs,
   fijiVps,
   signer,
