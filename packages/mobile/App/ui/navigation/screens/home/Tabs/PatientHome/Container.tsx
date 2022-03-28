@@ -1,10 +1,4 @@
-import React, {
-  ReactElement,
-  useMemo,
-  useCallback,
-  useState,
-  useEffect,
-} from 'react';
+import React, { ReactElement, useMemo, useCallback, useState, useEffect } from 'react';
 import { compose } from 'redux';
 import { useIsFocused } from '@react-navigation/core';
 import { setStatusBar } from '/helpers/screen';
@@ -19,7 +13,7 @@ import { Routes } from '/helpers/routes';
 import { theme } from '/styled/theme';
 // Containers
 import { withPatient } from '/containers/Patient';
-import { useBackend, useBackendEffect } from '~/ui/hooks';
+import { useBackend, useEffectWithBackend } from '~/ui/hooks';
 import { ErrorScreen } from '~/ui/components/ErrorScreen';
 
 interface IPopup {
@@ -138,16 +132,15 @@ const PatientHomeContainer = ({
     }
   }, [selectedPatient]);
 
-  const [patientIssues] = useBackendEffect(
-    ({ models: _models }) => {
-      if (isFocused) {
-        return _models.PatientIssue.find({
-          order: { recordedDate: 'ASC' },
-          where: { patient: { id: selectedPatient.id } },
-        });
-      }
-    },
-    [isFocused, selectedPatient.id],
+  const [patientIssues] = useEffectWithBackend(
+    useCallback(
+      ({ models: _models }) => _models.PatientIssue.find({
+        order: { recordedDate: 'ASC' },
+        where: { patient: { id: selectedPatient.id } },
+      }),
+      [selectedPatient.id],
+    ),
+    { shouldExecute: isFocused },
   );
 
   setStatusBar('light-content', theme.colors.PRIMARY_MAIN);
