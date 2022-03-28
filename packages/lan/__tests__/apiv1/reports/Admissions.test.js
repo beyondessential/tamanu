@@ -5,14 +5,16 @@ import {
   randomReferenceId,
 } from 'shared/demoData';
 import { subDays } from 'date-fns';
-import { createTestContext } from '../../utilities';
 import { ENCOUNTER_TYPES } from 'shared/constants';
+import { createTestContext } from '../../utilities';
 
 describe('Admissions report', () => {
   let expectedPatient = null;
   let wrongPatient = null;
   let app = null;
   let expectedLocation = null;
+  let expectedDepartment = null;
+  let expectedVillageId = null;
   let baseApp = null;
   let models = null;
   let ctx;
@@ -22,10 +24,12 @@ describe('Admissions report', () => {
     baseApp = ctx.baseApp;
     models = ctx.models;
     const villageId = await randomReferenceId(models, 'village');
+    expectedVillageId = villageId;
     expectedPatient = await models.Patient.create(await createDummyPatient(models, { villageId }));
     wrongPatient = await models.Patient.create(await createDummyPatient(models, { villageId }));
     app = await baseApp.asRole('practitioner');
     expectedLocation = await randomRecordId(models, 'Location');
+    expectedDepartment = await randomRecordId(models, 'Department');
   });
   afterAll(() => ctx.close());
 
@@ -63,9 +67,24 @@ describe('Admissions report', () => {
         parameters: { location: expectedLocation },
       });
       expect(result).toHaveSucceeded();
-      expect(result.body.length).toEqual(2);
-      expect(result.body[1][0]).toEqual(expectedPatient.firstName);
-      expect(result.body[1][1]).toEqual(expectedPatient.lastName);
+
+      expect(result.body).toMatchTabularReport([
+        {
+          'Patient First Name': expectedPatient.firstName,
+          'Patient Last Name': expectedPatient.lastName,
+          'Patient ID': expectedPatient.displayId,
+          'Date of Birth': expectedPatient.dob, // TODO: format
+          Location: expectedLocation,
+          Department: expectedDepartment,
+          'Primary diagnoses': '',
+          'Secondary diagnoses': '',
+          Sex: expectedPatient.sex,
+          Village: expectedVillageId,
+          'Doctor/Nurse': 'asdf',
+          'Admission Date': 'asdf',
+          'Discharge Date': 'asdlkf',
+        },
+      ]);
     });
   });
 });
