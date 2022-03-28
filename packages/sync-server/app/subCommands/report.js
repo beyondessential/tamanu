@@ -63,7 +63,7 @@ export const reportCommand = new Command('report')
   .requiredOption(
     '-r, --recipients <json|csv>',
     'JSON recipients or comma-separated list of emails',
-    // {"local":[{"format": "csv","path":"<current directory>/tamanu-reports"}]}
+    // {"local":[{"format": "csv","path":"./tamanu-reports"}]}
     JSON.stringify({
       local: [
         { format: 'csv', path: path.join(process.cwd(), 'tamanu-reports') },
