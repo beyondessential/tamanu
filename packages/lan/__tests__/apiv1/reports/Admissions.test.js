@@ -1,8 +1,8 @@
 import {
   createDummyPatient,
   createDummyEncounter,
-  randomRecordId,
-  randomReferenceId,
+  randomRecord,
+  randomReferenceData,
 } from 'shared/demoData';
 import { subDays } from 'date-fns';
 import { ENCOUNTER_TYPES } from 'shared/constants';
@@ -14,7 +14,8 @@ describe('Admissions report', () => {
   let app = null;
   let expectedLocation = null;
   let expectedDepartment = null;
-  let expectedVillageId = null;
+  let expectedExaminer = null;
+  let expectedVillage = null;
   let baseApp = null;
   let models = null;
   let ctx;
@@ -23,13 +24,18 @@ describe('Admissions report', () => {
     ctx = await createTestContext();
     baseApp = ctx.baseApp;
     models = ctx.models;
-    const villageId = await randomReferenceId(models, 'village');
-    expectedVillageId = villageId;
-    expectedPatient = await models.Patient.create(await createDummyPatient(models, { villageId }));
-    wrongPatient = await models.Patient.create(await createDummyPatient(models, { villageId }));
+    expectedVillage = await randomReferenceData(models, 'village');
+    expectedPatient = await models.Patient.create(
+      await createDummyPatient(models, { villageId: expectedVillage.id }),
+    );
+    wrongPatient = await models.Patient.create(
+      await createDummyPatient(models, { villageId: expectedVillage.id }),
+    );
+
     app = await baseApp.asRole('practitioner');
-    expectedLocation = await randomRecordId(models, 'Location');
-    expectedDepartment = await randomRecordId(models, 'Department');
+    expectedLocation = await randomRecord(models, 'Location');
+    expectedDepartment = await randomRecord(models, 'Department');
+    expectedExaminer = await randomRecord(models, 'User');
   });
   afterAll(() => ctx.close());
 
@@ -45,12 +51,14 @@ describe('Admissions report', () => {
     });
     it('should return only admitted patient', async () => {
       // expected result
-      await models.Encounter.create(
+      const expectedEncounter = await models.Encounter.create(
         await createDummyEncounter(models, {
           encounterType: ENCOUNTER_TYPES.ADMISSION,
           startDate: subDays(new Date(), 1).toISOString(),
           patientId: expectedPatient.dataValues.id,
-          locationId: expectedLocation,
+          locationId: expectedLocation.id,
+          departmentId: expectedDepartment.id,
+          examinerId: expectedExaminer.id,
         }),
       );
 
@@ -60,11 +68,13 @@ describe('Admissions report', () => {
           encounterType: ENCOUNTER_TYPES.EMERGENCY,
           startDate: subDays(new Date(), 1).toISOString(),
           patientId: wrongPatient.dataValues.id,
-          locationId: expectedLocation,
+          locationId: expectedLocation.id,
+          departmentId: expectedDepartment.id,
+          examinerId: expectedExaminer.id,
         }),
       );
       const result = await app.post('/v1/reports/admissions').send({
-        parameters: { location: expectedLocation },
+        parameters: { location: expectedLocation.id },
       });
       expect(result).toHaveSucceeded();
 
@@ -74,15 +84,15 @@ describe('Admissions report', () => {
           'Patient Last Name': expectedPatient.lastName,
           'Patient ID': expectedPatient.displayId,
           'Date of Birth': expectedPatient.dob, // TODO: format
-          Location: expectedLocation,
-          Department: expectedDepartment,
+          Location: expectedLocation.name,
+          Department: expectedDepartment.name,
           'Primary diagnoses': '',
           'Secondary diagnoses': '',
           Sex: expectedPatient.sex,
-          Village: expectedVillageId,
-          'Doctor/Nurse': 'asdf',
-          'Admission Date': 'asdf',
-          'Discharge Date': 'asdlkf',
+          Village: expectedVillage.name,
+          'Doctor/Nurse': expectedExaminer.displayName,
+          'Admission Date': expectedEncounter.startDate, // TODO: format
+          'Discharge Date': expectedEncounter.endDate, // TODO: format
         },
       ]);
     });

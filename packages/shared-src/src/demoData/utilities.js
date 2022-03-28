@@ -14,10 +14,13 @@ export const randomDate = (minDaysAgo = 1, maxDaysAgo = 365) => {
   return new Date(Date.now() - ago);
 };
 
-export const randomRecordId = async (models, modelName) => {
-  const obj = await models[modelName].findOne({
+export const randomRecord = (models, modelName) =>
+  models[modelName].findOne({
     order: models.ReferenceData.sequelize.random(),
   });
+
+export const randomRecordId = async (models, modelName) => {
+  const obj = await randomRecord(models, modelName);
   return obj?.id ?? null;
 };
 
