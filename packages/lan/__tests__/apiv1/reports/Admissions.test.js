@@ -83,7 +83,7 @@ describe('Admissions report', () => {
           'Patient First Name': expectedPatient.firstName,
           'Patient Last Name': expectedPatient.lastName,
           'Patient ID': expectedPatient.displayId,
-          'Date of Birth': expectedPatient.dob, // TODO: format
+          'Date of Birth': expectedPatient.dateOfBirth, // TODO: format
           Location: expectedLocation.name,
           Department: expectedDepartment.name,
           'Primary diagnoses': '',
