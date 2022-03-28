@@ -26,6 +26,7 @@ const PROPERTY_LIST = [
   'result',
   'requestedBy',
   'requestedDate',
+  'submittedDate',
   'priority',
   'testingLaboratory',
   'testingDate',
@@ -377,9 +378,10 @@ describe('Covid swab lab test list', () => {
   let labRequest2 = null;
   let labRequest3 = null;
   let labRequest4 = null;
+  let ctx;
 
   beforeAll(async () => {
-    const ctx = await createTestContext();
+    ctx = await createTestContext();
     const { models } = ctx;
     baseApp = ctx.baseApp;
     village1 = await randomReferenceId(models, 'village');
@@ -402,6 +404,7 @@ describe('Covid swab lab test list', () => {
       expectedPatient2,
     );
   });
+  afterAll(() => ctx.close());
 
   describe('checks permissions', () => {
     it('should reject creating a report with insufficient permissions', async () => {
@@ -432,6 +435,7 @@ describe('Covid swab lab test list', () => {
         labTestMethod: 'Swab',
         status: 'Reception pending',
         requestedDate: '10-03-2021',
+        submittedDate: '10-03-2021',
         publicHealthFacility: 'pde-FijCOVSamp4-on-2021-03-14T10:53:15.708Z-Patient1',
         subDivision: 'pde-FijCOVSamp7-on-2021-03-14T10:53:15.708Z-Patient1',
         ethnicity: 'pde-FijCOVSamp10-on-2021-03-14T10:53:15.708Z-Patient1',
@@ -456,6 +460,7 @@ describe('Covid swab lab test list', () => {
         labRequestType: 'COVID-19',
         status: 'Reception pending',
         requestedDate: '16-03-2021',
+        submittedDate: '16-03-2021',
         publicHealthFacility: 'pde-FijCOVSamp4-on-2021-03-18T10:53:15.708Z-Patient1',
         subDivision: 'pde-FijCOVSamp7-on-2021-03-18T10:53:15.708Z-Patient1',
         ethnicity: 'pde-FijCOVSamp10-on-2021-03-18T10:53:15.708Z-Patient1',
@@ -480,6 +485,7 @@ describe('Covid swab lab test list', () => {
         labRequestType: 'COVID-19',
         status: 'Reception pending',
         requestedDate: '17-03-2021',
+        submittedDate: '17-03-2021',
         publicHealthFacility: 'pde-FijCOVSamp4-on-2021-03-19T10:53:15.708Z-Patient2',
         subDivision: 'pde-FijCOVSamp7-on-2021-03-19T10:53:15.708Z-Patient2',
         ethnicity: 'pde-FijCOVSamp10-on-2021-03-19T10:53:15.708Z-Patient2',
@@ -503,6 +509,7 @@ describe('Covid swab lab test list', () => {
         labRequestType: 'COVID-19',
         status: 'Reception pending',
         requestedDate: '20-03-2021',
+        submittedDate: '20-03-2021',
         publicHealthFacility: 'pde-FijCOVSamp4-on-2021-03-23T10:53:15.708Z-Patient2',
         subDivision: 'pde-FijCOVSamp7-on-2021-03-23T10:53:15.708Z-Patient2',
         ethnicity: 'pde-FijCOVSamp10-on-2021-03-23T10:53:15.708Z-Patient2',

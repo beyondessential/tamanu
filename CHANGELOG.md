@@ -3,6 +3,65 @@
 ## vNEXT
 
 ### Manual steps required after upgrade ⚙
+- Add an entry for `questionCodeIds.passport` and `questionCodeIds.nationalityId` in the config to look up survey
+responses for patients in covid lab test certificates
+- Delete any override to config's `log.consoleLevel` (it has a new default)
+- If the console output is full of `\e[He[2J` garbage output, set `log.color` to `false` and let the devs know (it's unexpected but possible)
+
+### Features ⭐
+
+- (left blank)
+
+### Tweaks ⚖️
+
+- Improved console output (color coding, timestamps, originating IP addresses, new log level for http requests)
+  - For reference, the logging levels in order are: error, warn, info (old default), http (new default), verbose, debug, silly
+
+### Bug fixes 🐛
+
+- (left blank)
+
+### Infrastructure and maintenance 🛠
+
+- (left blank)
+
+## v1.14.0
+
+### Manual steps required after upgrade ⚙
+
+- Change `vaccineCertificateFooter` key in the config to `vaccineCertificate` refer to default.json
+- Consider adding `fiji-aspen-encounter-summary-line-list` to disabledReports
+- A server with invalid localisation will now exit: fix the localisation (preferred), or set `localisation.allowInvalidLocalisation` to `true` (if there's a good reason why it's invalid)
+- Add a `localisation.data.country` section to the config with country name and ISO 3166 codes
+- VDS Signer integration config structure has changed, refer to default.json
+
+### Features ⭐
+
+- Add new report `fiji-aspen-encounter-summary-line-list`
+
+### Tweaks ⚖️
+
+- Tweaked localisation to prepare for loading it from the db
+- "VDS" scheduled tasks were renamed to "Signer", `schedules` config keys have changed in consequence
+- Hid the "Forgot your password?" page and link
+
+### Bug fixes 🐛
+
+- (left blank)
+
+### Infrastructure and maintenance 🛠
+
+- (left blank)
+
+## v1.13.2
+
+### Bug fixes 🐛
+
+- Fix issue that was causing sync attempts to fail unpredictably
+
+## v1.13.1
+
+### Manual steps required after upgrade ⚙
 
 - (left blank)
 
@@ -13,6 +72,29 @@
 ### Tweaks ⚖️
 
 - (left blank)
+
+### Bug fixes 🐛
+
+- (left blank)
+
+### Infrastructure and maintenance 🛠
+
+- (left blank)
+
+## v1.13.0
+
+### Manual steps required after upgrade ⚙
+
+- (left blank)
+
+### Features ⭐
+
+- (left blank)
+
+### Tweaks ⚖️
+
+- Moved migrations to subcommands (e.g. what was `node ./app.bundle.js migrate --up` now becomes `node app.bundle.js migrate up`)
+- Migrated argument parsing from argparse to commander.js
 
 ### Bug fixes 🐛
 

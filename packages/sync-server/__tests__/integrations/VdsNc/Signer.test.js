@@ -18,6 +18,7 @@ import { X502_OIDS } from 'shared/constants';
 import { depem } from 'shared/utils';
 import { expect } from 'chai';
 import crypto from 'crypto';
+import config from 'config';
 
 const webcrypto = new Crypto();
 setEngine(
@@ -35,13 +36,7 @@ describe('VDS-NC: Signer cryptography', () => {
   afterAll(() => ctx.close());
 
   it('creates a well-formed keypair', async () => {
-    const { publicKey, privateKey } = await newKeypairAndCsr({
-      keySecret: 'secret',
-      csr: { subject: {
-        countryCode2: 'UT',
-        signerIdentifier: 'TA',
-      } },
-    });
+    const { publicKey, privateKey } = await newKeypairAndCsr();
 
     // publicKey: Walk through the expected ASN.1 structure
     //
@@ -131,7 +126,7 @@ describe('VDS-NC: Signer cryptography', () => {
       key: Buffer.from(privateKey),
       format: 'der',
       type: 'pkcs8',
-      passphrase: Buffer.from('secret', 'base64'),
+      passphrase: Buffer.from(config.integrations.signer.keySecret, 'base64'),
     });
 
     // realKey: Walk through the expected ASN.1 structure
@@ -165,13 +160,7 @@ describe('VDS-NC: Signer cryptography', () => {
   });
 
   it('creates a well-formed CSR', async () => {
-    const { publicKey, request } = await newKeypairAndCsr({
-      keySecret: 'secret',
-      csr: { subject: {
-        countryCode2: 'UT',
-        signerIdentifier: 'TA',
-      } },
-    });
+    const { publicKey, request } = await newKeypairAndCsr();
 
     // Check the PEM has the borders
     expect(request)
@@ -255,5 +244,34 @@ describe('VDS-NC: Signer cryptography', () => {
     expect(subjcn).to.exist;
     expect(subjcn).to.be.instanceOf(Sequence);
     expect(subjcn.valueBlock.value[1].toString()).to.equal('PrintableString : TA');
+  });
+
+  it('saves a new signer in the db correctly', async () => {
+    // Arrange
+    const { Signer } = ctx.store.models;
+    const { publicKey, privateKey, request } = await newKeypairAndCsr();
+
+    // Act
+    const newSigner = await Signer.create({
+      publicKey: Buffer.from(publicKey),
+      privateKey: Buffer.from(privateKey),
+      request,
+      countryCode: 'UTO',
+    });
+
+    // Assert
+    const signer = await Signer.findByPk(newSigner.id);
+    expect(signer).to.exist;
+    expect(signer.publicKey).to.deep.equal(Buffer.from(publicKey));
+    expect(signer.privateKey).to.deep.equal(Buffer.from(privateKey));
+
+    // Check we can decrypt the key
+    crypto.createPrivateKey({
+      key: signer.privateKey,
+      format: 'der',
+      type: 'pkcs8',
+      cipher: 'aes-256-cbc',
+      passphrase: Buffer.from(config.integrations.signer.keySecret, 'base64'),
+    });
   });
 });

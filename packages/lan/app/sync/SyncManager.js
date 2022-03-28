@@ -218,10 +218,10 @@ export class SyncManager {
         models.InvoicePriceChangeType,
         models.InvoicePriceChangeItem,
 
+        models.CertificateNotification,
+
         // models.LabRequestLog,
         models.DocumentMetadata,
-
-        models.CertificateNotification,
       ];
 
       for (const model of modelsToSync) {

@@ -1,7 +1,7 @@
 {
   "name": "desktop",
   "productName": "Tamanu",
-  "version": "1.12.4",
+  "version": "1.14.0",
   "description": "Tamanu Desktop application",
   "private": true,
   "homepage": "https://github.com/beyondessential/tamanu.git#readme",
@@ -160,7 +160,6 @@
     "flow-typed": "^2.5.1",
     "husky": "^0.14.3",
     "identity-obj-proxy": "^3.0.0",
-    "jest": "^23.4.2",
     "lint-staged": "^7.2.0",
     "mini-css-extract-plugin": "^0.4.1",
     "minimist": "^1.2.0",

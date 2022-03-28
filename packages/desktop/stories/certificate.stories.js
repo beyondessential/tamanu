@@ -1,11 +1,13 @@
-import React from 'react';
+import React, { useEffect, useState } from 'react';
 import QRCode from 'qrcode';
 import { storiesOf } from '@storybook/react';
 import { createDummyPatient, createDummyPatientAdditionalData } from 'shared/demoData';
-import { CovidLabCertificate, VaccineCertificate } from 'shared/utils';
+// Todo: Fix calculateLuhnModN dependency in shared/eudcc.js which seems to be breaking storybook
+// import { CovidLabCertificate, VaccineCertificate } from 'shared/utils';
 import { PDFViewer } from '@react-pdf/renderer';
 import SigningImage from './assets/signing-image.png';
 import Watermark from './assets/watermark.png';
+import Logo from './assets/tamanu-logo.png';
 
 const dummyPatient = createDummyPatient();
 const dummyAdditionalData = createDummyPatientAdditionalData();
@@ -56,14 +58,26 @@ const labs = [
   },
 ];
 
-const vds = () => QRCode.toDataURL('Testing');
+const vdsData = {
+  hdr: { is: 'UTO', t: 'icao.vacc', v: 1 },
+  msg: { uvci: '4ag7mhr81u90', vaxx: 'data' },
+  sig: {
+    alg: 'ES256',
+    cer:
+      'MIIBfzCCASSgAwIBAgICA-kwCgYIKoZIzj0EAwIwGzEZMAkGA1UEBhMCVVQwDAYDVQQDDAVVVCBDQTAeFw0yMjAyMjgwNDM4NTlaFw0yMjA2MDEwNTM4NTlaMBgxFjAJBgNVBAYTAlVUMAkGA1UEAxMCVEEwWTATBgcqhkjOPQIBBggqhkjOPQMBBwNCAAQYoJ0WkOC60kG1xS7tGqVGNTmsoURKr2NWzMh6HZv3Zl5nq97-sD8q9_6JM-SyLmDh4b1g_t98aD-L3v5RTlIHo1swWTAnBgNVHSMBAf8EHTAbgBQBov7Y-IocFwj1UlYXU6buFiz3A6EAggEBMBoGB2eBCAEBBgIEDzANAgEAMQgTAk5UEwJOVjASBgNVHSUECzAJBgdngQgBAQ4CMAoGCCqGSM49BAMCA0kAMEYCIQD4qnBz7amUmmg0AgfdlqT0ItnsZ_X8cPYJRqZuBaZG5AIhAKUqdrxDYTKIbZ01ZTFaXGJFXXxaHr5DmuWWoeaUEYkO',
+    sigvl:
+      'MEUCID6xG4DJpb3wQyHSRwTCVBdUP5YA4noGkTtinl4sSDO6AiEAhQfb36wrFDhVh6uFLph2siKJtothMIz0DebzZIR7nZU',
+  },
+};
+
+const vds = () => QRCode.toDataURL(vdsData);
 
 const getLocalisation = key => {
   const config = {
     'templates.letterhead.title': 'TAMANU MINISTRY OF HEALTH & MEDICAL SERVICES',
     'templates.letterhead.subTitle': 'PO Box 12345, Melbourne, Australia',
-    'templates.vaccineCertificateFooter.emailAddress': 'tamanu@health.govt',
-    'templates.vaccineCertificateFooter.contactNumber': '123456',
+    'templates.vaccineCertificate.emailAddress': 'tamanu@health.govt',
+    'templates.vaccineCertificate.contactNumber': '123456',
   };
   return config[key];
 };
@@ -72,11 +86,14 @@ storiesOf('Certificates', module).add('CovidLabCertificate', () => (
   <PDFViewer width={800} height={1000} showToolbar={false}>
     <CovidLabCertificate
       patient={patient}
+      createdBy="Initial Admin"
       labs={labs}
       watermarkSrc={Watermark}
       signingSrc={SigningImage}
+      logoSrc={Logo}
       vdsSrc={vds}
       getLocalisation={getLocalisation}
+      printedBy="Initial Admin"
     />
   </PDFViewer>
 ));
@@ -149,15 +166,28 @@ const vaccinations = [
   },
 ];
 
-storiesOf('Certificates', module).add('VaccineCertificate', () => (
-  <PDFViewer width={800} height={1000} showToolbar={false}>
-    <VaccineCertificate
-      patient={patient}
-      vaccinations={vaccinations}
-      watermarkSrc={Watermark}
-      signingSrc={SigningImage}
-      vdsSrc={vds}
-      getLocalisation={getLocalisation}
-    />
-  </PDFViewer>
-));
+storiesOf('Certificates', module).add('VaccineCertificate', () => {
+  const [vdsSrc, setVdsSrc] = useState();
+
+  useEffect(() => {
+    (async () => {
+      const src = await QRCode.toDataURL(JSON.stringify(vdsData));
+      setVdsSrc(src);
+    })();
+  }, []);
+
+  return (
+    <PDFViewer width={800} height={1000} showToolbar={false}>
+      <VaccineCertificate
+        patient={patient}
+        vaccinations={vaccinations}
+        watermarkSrc={Watermark}
+        signingSrc={SigningImage}
+        logoSrc={Logo}
+        vdsSrc={vdsSrc}
+        extraPatientFields={[{ key: 'uvci', label: 'UVCI', accessor: () => 'x1235y12345' }]}
+        getLocalisation={getLocalisation}
+      />
+    </PDFViewer>
+  );
+});

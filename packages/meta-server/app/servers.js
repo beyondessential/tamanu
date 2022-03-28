@@ -30,11 +30,17 @@ const servers = [
   { name: 'Nauru', type: 'live', host: 'https://sync.tamanu-nauru.org' },
   { name: 'Palau', type: 'live', host: 'https://sync.tamanu-palau.org' },
   { name: 'Samoa', type: 'live', host: 'https://tamanu-sync.health.gov.ws' },
+  { name: 'Tuvalu', type: 'live', host: 'https://sync.tamanu-tuvalu.org' },
 
   // demo servers
   { name: 'Demo', type: 'demo', host: 'https://sync-demo.tamanu.io' },
+  { name: 'Demo (Aspen)', type: 'demo', host: 'https://aspen-demo-sync.tamanu-fiji.org' },
   { name: 'Demo (Fiji)', type: 'demo', host: 'https://sync-demo.tamanu-fiji.org' },
+  { name: 'Demo (Fiji Tourism)', type: 'demo', host: 'https://sync.demo-tourism.tamanu-fiji.org' },
+  { name: 'Demo (Kiribati)', type: 'demo', host: 'https://sync-demo.tamanu-kiribati.org' },
   { name: 'Demo (Nauru)', type: 'demo', host: 'https://sync-demo-nauru.tamanu.io' },
+  { name: 'Demo (Palau)', type: 'demo', host: 'https://sync-demo-palau.tamanu.io' },
+  { name: 'Demo (Samoa)', type: 'demo', host: 'https://sync-samoa-demo.tamanu.io' },
   { name: 'Demo (Tuvalu)', type: 'demo', host: 'https://sync-demo-tuvalu.tamanu.io' },
 
   // development servers

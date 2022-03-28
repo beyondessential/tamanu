@@ -22,16 +22,15 @@ referral.post(
       ...body,
     };
 
-    await db.transaction(async () => {
+    const referralRecord = await db.transaction(async () => {
       const surveyResponseRecord = await models.SurveyResponse.createWithAnswers(updatedBody);
-      const referralRecord = await models.Referral.create({
+      return models.Referral.create({
         initiatingEncounterId: surveyResponseRecord.encounterId,
         surveyResponseId: surveyResponseRecord.id,
         ...req.body,
       });
-
-      res.send(referralRecord);
     });
+    res.send(referralRecord);
   }),
 );
 

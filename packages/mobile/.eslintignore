@@ -1,0 +1,12 @@
+storybook/
+android/
+ios/
+metro.config.js
+*.json
+*.xml
+.lock
+*.md
+*.png
+*.bat
+mockserver/
+*.db

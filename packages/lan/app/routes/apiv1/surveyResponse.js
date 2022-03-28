@@ -3,6 +3,7 @@ import asyncHandler from 'express-async-handler';
 
 export const surveyResponse = express.Router();
 
+// also update /packages/mobile/App/ui/helpers/constants.js when this changes
 const MODEL_COLUMN_TO_ANSWER_DISPLAY_VALUE = {
   User: 'displayName',
   Department: 'name',
@@ -76,10 +77,9 @@ surveyResponse.post(
       ...body,
     };
 
-    await db.transaction(async () => {
-      const responseRecord = await models.SurveyResponse.createWithAnswers(updatedBody);
-
-      res.send(responseRecord);
+    const responseRecord = await db.transaction(async () => {
+      return models.SurveyResponse.createWithAnswers(updatedBody);
     });
+    res.send(responseRecord);
   }),
 );

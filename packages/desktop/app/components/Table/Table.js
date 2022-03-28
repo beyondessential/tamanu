@@ -99,20 +99,15 @@ const StyledTableFooter = styled(TableFooter)`
 `;
 
 const RowContainer = React.memo(({ children, rowStyle, onClick }) => (
-  <StyledTableRow
-    onClick={onClick}
-    rowStyle={rowStyle}
-  >
+  <StyledTableRow onClick={onClick} rowStyle={rowStyle}>
     {children}
   </StyledTableRow>
 ));
 
-const Row = React.memo(({ columns, data, onClick, rowStyle, onTableRefresh }) => {
+const Row = React.memo(({ columns, data, onClick, rowStyle, refreshTable }) => {
   const cells = columns.map(
     ({ key, accessor, CellComponent, numeric, maxWidth, cellColor, dontCallRowInput }) => {
-      const value = accessor
-        ? React.createElement(accessor, { onTableRefresh, ...data })
-        : data[key];
+      const value = accessor ? React.createElement(accessor, { refreshTable, ...data }) : data[key];
       const displayValue = value === 0 ? '0' : value;
       const backgroundColor = typeof cellColor === 'function' ? cellColor(data) : cellColor;
       return (
@@ -135,7 +130,10 @@ const Row = React.memo(({ columns, data, onClick, rowStyle, onTableRefresh }) =>
     },
   );
   return (
-    <RowContainer onClick={onClick && (() => onClick(data))} rowStyle={rowStyle ? rowStyle(data) : ''}>
+    <RowContainer
+      onClick={onClick && (() => onClick(data))}
+      rowStyle={rowStyle ? rowStyle(data) : ''}
+    >
       {cells}
     </RowContainer>
   );
@@ -168,7 +166,7 @@ class TableComponent extends React.Component {
     const { isLoading, errorMessage, data, noDataMessage } = this.props;
     if (isLoading) return 'Loading...';
     if (errorMessage) return errorMessage;
-    if (data.length === 0) return noDataMessage;
+    if (!data.length) return noDataMessage;
     return null;
   }
 
@@ -214,7 +212,7 @@ class TableComponent extends React.Component {
       errorMessage,
       rowIdKey,
       rowStyle,
-      onTableRefresh,
+      refreshTable,
     } = this.props;
     const error = this.getErrorMessage();
     if (error) {
@@ -233,7 +231,7 @@ class TableComponent extends React.Component {
           key={key}
           columns={columns}
           onClick={onRowClick}
-          onTableRefresh={onTableRefresh}
+          refreshTable={refreshTable}
           rowStyle={rowStyle}
         />
       );
@@ -256,7 +254,7 @@ class TableComponent extends React.Component {
   }
 
   render() {
-    const { page, className, exportName, columns, data } = this.props;
+    const { page, className, exportName, columns, data, allowExport } = this.props;
     return (
       <StyledTableContainer className={className}>
         <StyledTable>
@@ -266,9 +264,11 @@ class TableComponent extends React.Component {
           <TableBody>{this.renderBodyContent()}</TableBody>
           <StyledTableFooter>
             <TableRow>
-              <TableCell>
-                <DownloadDataButton exportName={exportName} columns={columns} data={data} />
-              </TableCell>
+              {allowExport ? (
+                <TableCell>
+                  <DownloadDataButton exportName={exportName} columns={columns} data={data} />
+                </TableCell>
+              ) : null}
               {page !== null && this.renderPaginator()}
             </TableRow>
           </StyledTableFooter>
@@ -304,8 +304,9 @@ TableComponent.propTypes = {
   rowIdKey: PropTypes.string,
   className: PropTypes.string,
   exportName: PropTypes.string,
-  onTableRefresh: PropTypes.func,
+  refreshTable: PropTypes.func,
   rowStyle: PropTypes.func,
+  allowExport: PropTypes.bool,
 };
 
 TableComponent.defaultProps = {
@@ -325,8 +326,9 @@ TableComponent.defaultProps = {
   rowIdKey: 'id', // specific to data expected for tamanu REST api fetches
   className: null,
   exportName: 'TamanuExport',
-  onTableRefresh: null,
+  refreshTable: null,
   rowStyle: null,
+  allowExport: true,
 };
 
 export const Table = ({ columns: allColumns, data, exportName, ...props }) => {

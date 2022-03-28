@@ -7,7 +7,7 @@ const styles = StyleSheet.create({
     textAlign: 'center',
     marginTop: 10,
     marginBottom: 10,
-    fontSize: 16,
+    fontSize: 15,
     fontWeight: 700,
   },
   h2: {
@@ -19,10 +19,9 @@ const styles = StyleSheet.create({
   },
   h3: {
     fontFamily: 'Helvetica-Bold',
-    marginBottom: 10,
-    fontSize: 12,
+    marginBottom: 20,
+    fontSize: 14,
     fontWeight: 500,
-    textDecoration: 'underline',
   },
   p: {
     fontFamily: 'Helvetica',
@@ -32,9 +31,9 @@ const styles = StyleSheet.create({
   },
 });
 
-export const H1 = props => <Text {...props} style={styles.h1} />;
-export const H2 = props => <Text {...props} style={styles.h2} />;
-export const H3 = props => <Text {...props} style={styles.h3} />;
+export const H1 = props => <Text style={styles.h1} {...props} />;
+export const H2 = props => <Text style={styles.h2} {...props} />;
+export const H3 = props => <Text style={styles.h3} {...props} />;
 export const P = ({ mt = 0, mb, ...props }) => (
   <Text {...props} style={[styles.p, { marginTop: mt, marginBottom: mb }]} />
 );

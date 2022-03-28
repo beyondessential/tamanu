@@ -15,6 +15,15 @@
     },
     "environment": "dev"
   },
+  "localisation": {
+    "data": {
+      "country": {
+        "name": "Utopia",
+        "alpha-2": "UT",
+        "alpha-3": "UTO"
+      }
+    }
+  },
   "integrations": {
     "fijiVrs": {
       "enabled": true,
@@ -24,24 +33,22 @@
     "fijiVps": {
       "enabled": true
     },
-    "vds": {
+    "vdsNc": {
+      "enabled": true
+    },
+    "signer": {
       "enabled": true,
-      "keySecret": "2hcp3wizGFFnGgsgZZDqFZDmUjaFCIppN8HnyBABqck=",
-      "csr": {
-        "subject": {
-          "countryCode2": "UT"
-        },
-        "email": "admin@tamanu.io"
-      },
-      "sign": {
-        "countryCode3": "UTO"
-      }
-      // ICAO specifies "UT", "UTO", "Utopia" for testing/sample documents
+      "keySecret": "2hcp3wizGFFnGgsgZZDqFZDmUjaFCIppN8HnyBABqck="
     }
   },
   "disk": {
     "freeSpaceRequired": {
       "gigabytesForUploadingDocuments": 4
+    }
+  },
+  "notifications": {
+    "certificates": {
+      "labTestCategoryId": "labTestCategory-COVID"
     }
   }
 }

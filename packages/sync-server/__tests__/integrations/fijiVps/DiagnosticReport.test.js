@@ -97,7 +97,9 @@ describe('VPS integration - DiagnosticReport', () => {
       const path = `/v1/integration/fijiVps/DiagnosticReport?_sort=-issued&_page=0&_count=2&status=final&subject%3Aidentifier=${id}&_include=DiagnosticReport%3Aresult&_include=DiagnosticReport%3Aresult.device%3ADevice`;
 
       // act
-      const response = await app.get(path);
+      const response = await app
+        .get(path)
+        .set({ 'X-Tamanu-Client': 'fiji-vps', 'X-Version': '0.0.1' });
 
       // assert
       expect(response).toHaveSucceeded();
@@ -241,10 +243,15 @@ describe('VPS integration - DiagnosticReport', () => {
       const path = `/v1/integration/fijiVps/DiagnosticReport?_sort=-issued&_page=0&_count=2&status=final&subject%3Aidentifier=${id}`;
 
       // act
-      const response1 = await app.get(path);
+      const response1 = await app
+        .get(path)
+        .set({ 'X-Tamanu-Client': 'fiji-vps', 'X-Version': '0.0.1' });
+
       const nextUrl = response1.body.link.find(l => l.relation === 'next')?.url;
       const [, nextPath] = nextUrl.match(/^.*(\/v1\/integration\/fijiVps\/.*)$/);
-      const response2 = await app.get(nextPath);
+      const response2 = await app
+        .get(nextPath)
+        .set({ 'X-Tamanu-Client': 'fiji-vps', 'X-Version': '0.0.1' });
 
       // assert
       expect(response1).toHaveSucceeded();
@@ -284,7 +291,9 @@ describe('VPS integration - DiagnosticReport', () => {
       const path = `/v1/integration/fijiVps/DiagnosticReport?_sort=-issued&_page=0&_count=2&status=final&subject%3Aidentifier=${id}`;
 
       // act
-      const response = await app.get(path);
+      const response = await app
+        .get(path)
+        .set({ 'X-Tamanu-Client': 'fiji-vps', 'X-Version': '0.0.1' });
 
       // assert
       expect(response).toHaveSucceeded();
@@ -319,7 +328,9 @@ describe('VPS integration - DiagnosticReport', () => {
       const path = `/v1/integration/fijiVps/DiagnosticReport?_sort=-issued&_page=0&_count=2&status=final&subject%3Aidentifier=${id}&_include=DiagnosticReport%3Aresult&_include=DiagnosticReport%3Aresult.device%3ADevice`;
 
       // act
-      const response = await app.get(path);
+      const response = await app
+        .get(path)
+        .set({ 'X-Tamanu-Client': 'fiji-vps', 'X-Version': '0.0.1' });
 
       // assert
       expect(response).toHaveSucceeded();
@@ -360,7 +371,9 @@ describe('VPS integration - DiagnosticReport', () => {
       const path = `/v1/integration/fijiVps/DiagnosticReport?_sort=-issued&_page=0&_count=2&status=final&subject%3Aidentifier=${id}&_include=DiagnosticReport%3Aresult&_include=DiagnosticReport%3Aresult.device%3ADevice`;
 
       // act
-      const response = await app.get(path);
+      const response = await app
+        .get(path)
+        .set({ 'X-Tamanu-Client': 'fiji-vps', 'X-Version': '0.0.1' });
 
       // assert
       expect(response).toHaveSucceeded();
@@ -416,7 +429,9 @@ describe('VPS integration - DiagnosticReport', () => {
       const path = `/v1/integration/fijiVps/DiagnosticReport?_sort=-issued&_page=0&_count=2&status=final&subject%3Aidentifier=${id}`;
 
       // act
-      const response = await app.get(path);
+      const response = await app
+        .get(path)
+        .set({ 'X-Tamanu-Client': 'fiji-vps', 'X-Version': '0.0.1' });
 
       // assert
       expect(response).toHaveSucceeded();
@@ -441,7 +456,9 @@ describe('VPS integration - DiagnosticReport', () => {
       const path = `/v1/integration/fijiVps/DiagnosticReport?_sort=issued&_page=-1&_count=101&status=invalid-status&subject%3Aidentifier=${id}&_include=DiagnosticReport%3Asomething-invalid`;
 
       // act
-      const response = await app.get(path);
+      const response = await app
+        .get(path)
+        .set({ 'X-Tamanu-Client': 'fiji-vps', 'X-Version': '0.0.1' });
 
       // assert
       expect(response).toHaveRequestError(422);
@@ -467,7 +484,9 @@ describe('VPS integration - DiagnosticReport', () => {
       const path = `/v1/integration/fijiVps/DiagnosticReport`;
 
       // act
-      const response = await app.get(path);
+      const response = await app
+        .get(path)
+        .set({ 'X-Tamanu-Client': 'fiji-vps', 'X-Version': '0.0.1' });
 
       // assert
       expect(response).toHaveRequestError(422);

@@ -5,12 +5,13 @@ const SURVEY_ID = 'program-kiribaticovid19-kiribaticovidtestregistration';
 const SURVEY_QUESTION_CODES = {
   'Patient contact number': 'pde-KirCOVTest003',
   'Patient head of household': 'pde-KirCOVTest004',
-  Residence: 'pde-KirCOVTest011',
+  'Island of Residence': 'pde-KirCOVTest011',
+  'Village of Residence': 'pde-KirCOVTest012',
   'Does patient have symptoms': 'pde-KirCOVTest006',
   'If Yes, date of first symptom onset': 'pde-KirCOVTest007',
   Symptoms: 'pde-KirCOVTest008',
   'Is a COVID-19 test being done?': 'pde-KirCOVTest010',
-  'Temporary testing site location': 'pde-KirCOVTest002',
+  'Health Clinic': 'pde-KirCOVTest002',
 };
 
 const reportColumnTemplate = [
@@ -23,10 +24,12 @@ const reportColumnTemplate = [
   { title: 'Lab request ID', accessor: data => data.labRequestId },
   { title: 'Lab request type', accessor: data => data.labRequestType },
   { title: 'Lab test type', accessor: data => data.labTestType },
+  { title: 'Lab test method', accessor: data => data.labTestMethod },
   { title: 'Status', accessor: data => data.status },
   { title: 'Result', accessor: data => data.result },
   { title: 'Requested by', accessor: data => data.requestedBy },
   { title: 'Requested date', accessor: data => data.requestedDate },
+  { title: 'Submitted date', accessor: data => data.submittedDate },
   { title: 'Priority', accessor: data => data.priority },
   { title: 'Testing laboratory', accessor: data => data.testingLaboratory },
   { title: 'Testing date', accessor: data => data.testingDate },

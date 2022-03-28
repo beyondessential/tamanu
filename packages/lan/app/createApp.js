@@ -1,17 +1,13 @@
 import express from 'express';
 import bodyParser from 'body-parser';
-import morgan from 'morgan';
 import compression from 'compression';
-import { log } from 'shared/services/logging';
+import { getLoggingMiddleware } from 'shared/services/logging';
 
 import routes from './routes';
 import errorHandler from './middleware/errorHandler';
 import { versionCompatibility } from './middleware/versionCompatibility';
 
 import { version } from '../package.json';
-
-const isDevelopment = process.env.NODE_ENV === 'development';
-const tinyPlusIp = `:remote-addr :method :url :status :res[content-length] - :response-time ms`
 
 export function createApp({ sequelize, models, syncManager }) {
   // Init our app
@@ -27,13 +23,7 @@ export function createApp({ sequelize, models, syncManager }) {
     next();
   });
 
-  app.use(
-    morgan(isDevelopment ? 'dev' : tinyPlusIp, {
-      stream: {
-        write: message => log.info(message),
-      },
-    }),
-  );
+  app.use(getLoggingMiddleware());
 
   app.use((req, res, next) => {
     req.models = models;

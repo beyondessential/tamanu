@@ -15,6 +15,7 @@ import {
 } from 'shared/test-helpers';
 
 import { convertFromDbRecord, convertToDbRecord } from 'sync-server/app/convertDbRecord';
+import * as hooks from 'shared/tasks/CreateLabRequestNotifications';
 import { createTestContext } from './utilities';
 import { SUPPORTED_CLIENT_VERSIONS } from '../app/middleware/versionCompatibility';
 
@@ -116,9 +117,11 @@ describe('Sync API', () => {
 
     const NUM_CHANNELS_TO_TEST = 1000;
     const ALLOWABLE_TIME = 2000;
+    const NUM_RUNS = 5;
     it(`handles ${NUM_CHANNELS_TO_TEST} channels in under ${ALLOWABLE_TIME}ms`, async () => {
       // arrange
-      jest.setTimeout(120 * 1000);
+      // twice the allowable time, plus 100ms per insert for record creation
+      jest.setTimeout(ALLOWABLE_TIME * NUM_RUNS * 2 + NUM_CHANNELS_TO_TEST * 100);
       const { Patient, PatientIssue } = ctx.store.models;
 
       const patients = [];
@@ -135,14 +138,22 @@ describe('Sync API', () => {
       const idsObj = patientChannels.reduce((memo, channel) => ({ ...memo, [channel]: '0' }), {});
 
       // act
-      const startMs = Date.now();
-      const result = await app.post('/v1/sync/channels').send(idsObj);
-      const elapsedMs = Date.now() - startMs;
+      const run = async () => {
+        const startMs = Date.now();
+        const result = await app.post('/v1/sync/channels').send(idsObj);
+        const endMs = Date.now();
+        expect(result).toHaveSucceeded();
+        expect(result.body.channelsWithChanges).toEqual(patientChannels);
+        return endMs - startMs;
+      };
+      const times = [];
+      for (let i = 0; i < NUM_RUNS; i++) {
+        times.push(await run());
+      }
 
       // assert
-      expect(result).toHaveSucceeded();
-      expect(result.body.channelsWithChanges).toEqual(patientChannels);
-      expect(elapsedMs).toBeLessThan(ALLOWABLE_TIME);
+      const avgTime = times.reduce((a, b) => a + b) / NUM_RUNS;
+      expect(avgTime).toBeLessThan(ALLOWABLE_TIME);
     });
   });
 
@@ -176,20 +187,46 @@ describe('Sync API', () => {
     });
 
     it('should omit null dates', async () => {
-      const { DocumentMetadata } = ctx.store.models;
-      DocumentMetadata.create({ name: 'with', type: 'application/pdf', attachmentId: 'fake-id-1', documentCreatedAt: new Date });
-      DocumentMetadata.create({ name: 'without', type: 'application/pdf', attachmentId: 'fake-id-2' });
-      
-      const result = await app.get(`/v1/sync/documentMetadata?since=0`);
+      const { Patient } = ctx.store.models;
+
+      const patientWithDOB = await Patient.create({
+        ...(await fakePatient()),
+        firstName: 'patientWithDOB',
+      });
+      const patientWithoutDOB = await Patient.create({
+        ...(await fakePatient()),
+        firstName: 'patientWithoutDOB',
+        dateOfBirth: null,
+      });
+
+      // Patients need this helper function on sync tests
+      await Promise.all([
+        await unsafeSetUpdatedAt(ctx.store.sequelize, {
+          table: 'patients',
+          id: patientWithDOB.id,
+          updated_at: makeUpdatedAt(20),
+        }),
+        await unsafeSetUpdatedAt(ctx.store.sequelize, {
+          table: 'patients',
+          id: patientWithoutDOB.id,
+          updated_at: makeUpdatedAt(20),
+        }),
+      ]);
+
+      const result = await app.get('/v1/sync/patient?since=0');
       expect(result).toHaveSucceeded();
 
-      const { body: { records } } = result;
-      const withDate = records.find(({ data: { name } }) => name === 'with');
+      const {
+        body: { records },
+      } = result;
+      const withDate = records.find(({ data: { firstName } }) => firstName === 'patientWithDOB');
       expect(withDate).toBeTruthy();
-      expect(withDate.data).toHaveProperty('documentCreatedAt');
-      const withoutDate = records.find(({ data: { name } }) => name === 'without');
+      expect(withDate.data).toHaveProperty('dateOfBirth');
+      const withoutDate = records.find(
+        ({ data: { firstName } }) => firstName === 'patientWithoutDOB',
+      );
       expect(withoutDate).toBeTruthy();
-      expect(withoutDate.data).not.toHaveProperty('documentCreatedAt');
+      expect(withoutDate.data).not.toHaveProperty('dateOfBirth');
     });
 
     it('should not return a count if noCount=true', async () => {
@@ -678,6 +715,52 @@ describe('Sync API', () => {
 
       // TODO: add this once auth is implemented
       it.todo("returns a 403 if the user isn't authenticated");
+    });
+  });
+
+  describe('Sync hooks', () => {
+    beforeEach(() => {
+      // Mock the hook functions, we don't actually need to call them
+      // we just want to confirm the hook is triggered correctly from a sync
+      jest.spyOn(hooks, 'createSingleLabRequestNotification').mockReturnValue('test');
+      jest.spyOn(hooks, 'createMultiLabRequestNotifications').mockReturnValue('test');
+    });
+    afterEach(() => {
+      jest.clearAllMocks();
+    });
+    const patientId = uuidv4();
+    it('labRequests afterBulkUpdate hook triggered from sync', async () => {
+      // arrange
+      await ctx.store.models.Encounter.destroy({ where: {}, force: true });
+      const encounterToInsert = await buildNestedEncounter(ctx.store, patientId);
+      await ctx.store.models.Encounter.create(encounterToInsert);
+      await upsertAssociations(ctx.store.models.Encounter, encounterToInsert);
+
+      // act
+      const getResult = await app.get(`/v1/sync/patient%2F${patientId}%2Fencounter?since=0`);
+      const syncEncounter = getResult.body.records.find(
+        ({ data }) => data.id === encounterToInsert.id,
+      );
+      syncEncounter.data.labRequests[0].data.status = 'verified';
+
+      await app.post(`/v1/sync/patient%2F${patientId}%2Fencounter?since=0`).send(syncEncounter);
+
+      // assert
+      expect(hooks.createSingleLabRequestNotification).toHaveBeenCalled();
+    });
+
+    it('labRequests afterBulkCreate hook triggered from sync', async () => {
+      // arrange
+      await ctx.store.models.Encounter.destroy({ where: {}, force: true });
+      const encounter = await buildNestedEncounter(ctx.store, patientId);
+
+      // act
+      await app
+        .post(`/v1/sync/patient%2F${patientId}%2Fencounter?since=0`)
+        .send(convertFromDbRecord(encounter));
+
+      // assert
+      expect(hooks.createMultiLabRequestNotifications).toHaveBeenCalled();
     });
   });
 });

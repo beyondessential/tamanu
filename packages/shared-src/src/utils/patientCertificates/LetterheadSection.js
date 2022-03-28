@@ -1,15 +1,20 @@
 import React from 'react';
-import { Logo } from './Logo';
-import { Box, styles } from './Layout';
+import { Box, Logo } from './Layout';
 import { H1, H2 } from './Typography';
 
-export const LetterheadSection = ({ getLocalisation }) => {
+export const LetterheadSection = ({ getLocalisation, logoSrc }) => {
   const title = getLocalisation('templates.letterhead.title');
   const subTitle = getLocalisation('templates.letterhead.subTitle');
   return (
     <>
-      <Logo style={styles.logo} />
-      <Box>
+      {logoSrc && <Logo logoSrc={logoSrc} />}
+      <Box
+        style={{
+          maxWidth: 400,
+          marginLeft: 'auto',
+          marginRight: 'auto',
+        }}
+      >
         <H1>{title}</H1>
         <H2>{subTitle}</H2>
       </Box>

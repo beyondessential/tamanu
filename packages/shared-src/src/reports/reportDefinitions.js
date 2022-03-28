@@ -38,6 +38,16 @@ export const REPORT_DEFINITIONS = [
     ],
   },
   {
+    name: 'Tuvalu Vaccine - Line list with consent',
+    id: 'tuvalu-vaccine-list',
+    allFacilities: true,
+    parameters: [
+      { parameterField: 'VillageField' },
+      { parameterField: 'VaccineCategoryField' },
+      { parameterField: 'VaccineField' },
+    ],
+  },
+  {
     name: 'COVID vaccine campaign - Line list',
     id: 'covid-vaccine-list',
     parameters: [{ parameterField: 'VillageField' }],
@@ -82,6 +92,12 @@ export const REPORT_DEFINITIONS = [
     id: 'fiji-covid-swab-lab-test-list',
     allFacilities: true,
     parameters: [{ parameterField: 'VillageField' }, { parameterField: 'LabTestLaboratoryField' }],
+  },
+  {
+    name: 'Fiji Traveller COVID-19 Tests - Line list',
+    id: 'fiji-traveller-covid-lab-test-list',
+    allFacilities: true,
+    parameters: [{ parameterField: 'LabTestLaboratoryField' }],
   },
   {
     name: 'Palau COVID-19 Test - Line list',
@@ -213,6 +229,19 @@ export const REPORT_DEFINITIONS = [
         suggesterEndpoint: 'nursingZone',
       },
       { parameterField: 'VillageField' },
+    ],
+  },
+  {
+    name: 'Fiji Aspen encounter summary - Line list',
+    id: 'fiji-aspen-encounter-summary-line-list',
+    allFacilities: false,
+    parameters: [
+      {
+        parameterField: 'ParameterAutocompleteField',
+        label: 'Patient Billing Type',
+        name: 'patientBillingType',
+        suggesterEndpoint: 'patientBillingType',
+      },
     ],
   },
 ];

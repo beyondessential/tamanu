@@ -1,5 +1,5 @@
 import moment from 'moment';
-import { keyBy } from 'lodash';
+import { keyBy, groupBy } from 'lodash';
 
 const MODEL_COLUMN_TO_ANSWER_DISPLAY_VALUE = {
   User: 'displayName',
@@ -59,7 +59,7 @@ export const transformAnswers = async (
     .filter(c => c.dataElement.dataValues.type === 'Autocomplete')
     .map(({ dataElementId, config: componentConfig }) => [
       dataElementId,
-      JSON.parse(componentConfig),
+      componentConfig ? JSON.parse(componentConfig) : {},
     ]);
   const autocompleteComponentMap = new Map(autocompleteComponents);
   const dataElementIdToComponent = keyBy(surveyComponents, component => component.dataElementId);
@@ -95,4 +95,20 @@ export const transformAnswers = async (
   }
 
   return transformedAnswers;
+};
+
+export const takeMostRecentAnswers = answers => {
+  const answersPerElement = groupBy(answers, a => {
+    return `${a.patientId}|${a.surveyId}|${a.dataElementId}`;
+  });
+
+  const results = [];
+  for (const [_, groupedAnswers] of Object.entries(answersPerElement)) {
+    const sortedLatestToOldestAnswers = groupedAnswers.sort((a1, a2) =>
+      moment(a2.responseEndTime).diff(moment(a1.responseEndTime)),
+    );
+    results.push(sortedLatestToOldestAnswers[0]);
+  }
+
+  return results;
 };

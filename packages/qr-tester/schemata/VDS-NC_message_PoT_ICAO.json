@@ -1,0 +1,99 @@
+{
+  "$id": "http://namespaces.icao.int/VDS-NC_message_PoT_ICAO.json",
+  "title": "Message Zone ICAO (PoT)",
+  "type": "object",
+  "description": "PoT Message Schema",
+  "properties": {
+    "utci": {
+      "type": "string"
+    },
+    "pid": {
+      "type": "object",
+      "properties": {
+        "n": {
+          "type": "string"
+        },
+        "dob": {
+          "type": "string",
+          "description": "Format YYYY-MM-DD"
+        },
+        "dt": {
+          "type": "string"
+        },
+        "dn": {
+          "type": "string"
+        }
+      },
+      "required": ["n", "dob", "dt", "dn"],
+      "additionalProperties": false
+    },
+    "sp": {
+      "type": "object",
+      "properties": {
+        "spn": {
+          "type": "string"
+        },
+        "ctr": {
+          "type": "string",
+          "description": "A three letter code identifying the country of test."
+        },
+        "cd": {
+          "type": "object",
+          "properties": {
+            "p": {
+              "type": "string"
+            },
+            "e": {
+              "type": "string"
+            },
+            "a": {
+              "type": "string"
+            }
+          },
+          "required": ["p", "e", "a"]
+        }
+      },
+      "required": ["spn", "ctr", "cd"],
+      "additionalProperties": false
+    },
+    "dat": {
+      "type": "object",
+      "properties": {
+        "sc": {
+          "type": "string",
+          "description": "Refer to rfc3339"
+        },
+        "ri": {
+          "type": "string",
+          "description": "Refer to rfc3339"
+        }
+      },
+      "required": ["sc", "ri"],
+      "additionalProperties": false
+    },
+    "tr": {
+      "type": "object",
+      "properties": {
+        "tc": {
+          "type": "string",
+          "enum": ["molecular(PCR)", "molecular(other)", "antigen", "antibody"]
+        },
+        "r": {
+          "type": "string",
+          "enum": ["normal", "abnormal", "positive", "negative"]
+        },
+        "m": {
+          "type": "string",
+          "enum": ["nasopharyngeal", "oropharyngeal", "saliva", "blood", "other"]
+        }
+      },
+      "required": ["tc", "r"],
+      "additionalProperties": false
+    },
+    "opt": {
+      "type": "string"
+    }
+  },
+  "required": ["pid", "sp", "dat", "tr"],
+  "additionalProperties": false
+}

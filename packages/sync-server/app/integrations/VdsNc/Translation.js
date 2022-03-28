@@ -1,8 +1,6 @@
-import config from 'config';
 import moment from 'moment';
 import { transliterate as tr } from 'transliteration';
-import allModels from 'shared/models';
-import { vdsConfig } from '.';
+import { getLocalisation } from '../../localisation';
 
 const SEX_TO_CHAR = {
   male: 'M',
@@ -29,10 +27,7 @@ const ICD11_COVID19_DISEASE = 'RA01.0';
 const MOMENT_FORMAT_ISODATE = 'YYYY-MM-DD';
 const MOMENT_FORMAT_RFC3339 = 'YYYY-MM-DDTHH:mm:ssZ';
 
-export const createProofOfVaccination = async (
-  patientId,
-  { countryCode = vdsConfig().sign.countryCode3, models = allModels } = {},
-) => {
+export const createProofOfVaccination = async (patientId, { models }) => {
   const {
     Patient,
     PatientAdditionalData,
@@ -43,6 +38,9 @@ export const createProofOfVaccination = async (
     Location,
     ScheduledVaccine,
   } = models;
+
+  const countryCode = (await getLocalisation()).country['alpha-3'];
+
   const { firstName, lastName, dateOfBirth, sex } = await Patient.findOne({
     where: { id: patientId },
   });
@@ -112,7 +110,7 @@ export const createProofOfVaccination = async (
         .format(MOMENT_FORMAT_ISODATE),
       seq: SCHEDULE_TO_SEQUENCE[schedule] ?? SEQUENCE_MAX + 1,
       ctr: countryCode,
-      lot: batch,
+      lot: batch || 'Unknown', // If batch number was not recorded, we add a indicative string value to complete ICAO validation
       adm: facility,
     };
 
@@ -139,10 +137,7 @@ export const createProofOfVaccination = async (
   };
 };
 
-export const createProofOfTest = async (
-  labTestId,
-  { countryCode = vdsConfig().sign.countryCode3, models = allModels } = {},
-) => {
+export const createProofOfTest = async (labTestId, { models }) => {
   const {
     Patient,
     PatientAdditionalData,
@@ -152,6 +147,9 @@ export const createProofOfTest = async (
     Location,
     Encounter,
   } = models;
+
+  const countryCode = (await getLocalisation()).country['alpha-3'];
+
   const test = await LabTest.findOne({
     where: {
       id: labTestId,

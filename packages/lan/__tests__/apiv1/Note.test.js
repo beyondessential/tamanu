@@ -23,14 +23,16 @@ describe('Note', () => {
   let app = null;
   let baseApp = null;
   let models = null;
+  let ctx;
 
   beforeAll(async () => {
-    const ctx = await createTestContext();
+    ctx = await createTestContext();
     baseApp = ctx.baseApp;
     models = ctx.models;
     patient = await models.Patient.create(await createDummyPatient(models));
     app = await baseApp.asRole('practitioner');
   });
+  afterAll(() => ctx.close());
 
   test.todo('should attach a note to a patient');
 

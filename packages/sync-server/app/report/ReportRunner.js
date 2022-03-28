@@ -2,11 +2,14 @@ import config from 'config';
 import fs from 'fs';
 import path from 'path';
 import * as AWS from '@aws-sdk/client-s3';
+
 import { COMMUNICATION_STATUSES } from 'shared/constants';
 import { getReportModule } from 'shared/reports';
 import { log } from 'shared/services/logging';
 import { createTupaiaApiClient, translateReportDataToSurveyResponses } from 'shared/utils';
-import { removeFile, createZippedExcelFile } from '../utils/files';
+
+import { removeFile, createZippedSpreadsheet } from '../utils/files';
+import { getLocalisation } from '../localisation';
 
 export class ReportRunner {
   constructor(reportName, parameters, recipients, store, emailService) {
@@ -18,12 +21,14 @@ export class ReportRunner {
     this.tupaiaApiClient = null;
   }
 
-  validate(reportModule, reportDataGenerator) {
+  async validate(reportModule, reportDataGenerator) {
+    const localisation = await getLocalisation();
+
     if (!config.mailgun.from) {
       throw new Error('ReportRunner - Email config missing');
     }
 
-    const disabledReports = config.localisation.data.disabledReports;
+    const { disabledReports } = localisation;
     if (disabledReports.includes(this.reportName)) {
       throw new Error(`ReportRunner - Report "${this.reportName}" is disabled`);
     }
@@ -39,7 +44,7 @@ export class ReportRunner {
     const reportModule = getReportModule(this.reportName);
     const reportDataGenerator = reportModule?.dataGenerator;
 
-    this.validate(reportModule, reportDataGenerator);
+    await this.validate(reportModule, reportDataGenerator);
 
     let reportData = null;
     try {
@@ -100,7 +105,7 @@ export class ReportRunner {
 
     let zipFile;
     try {
-      zipFile = await createZippedExcelFile(reportName, reportData);
+      zipFile = await createZippedSpreadsheet(reportName, reportData);
 
       log.info(
         `ReportRunner - Sending report "${zipFile}" to "${this.recipients.email.join(',')}"`,
@@ -159,8 +164,9 @@ export class ReportRunner {
     }
 
     let zipFile;
+    const bookType = 'csv';
     try {
-      zipFile = await createZippedExcelFile(this.reportName, reportData);
+      zipFile = await createZippedSpreadsheet(this.reportName, reportData, bookType);
 
       const filename = path.basename(zipFile);
 

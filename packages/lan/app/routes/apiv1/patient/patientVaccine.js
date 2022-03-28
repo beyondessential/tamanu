@@ -143,9 +143,10 @@ patientVaccineRoutes.get(
     req.checkPermission('list', 'PatientVaccine');
     const results = await req.models.AdministeredVaccine.findAll({
       where: {
-        ['$encounter.patient_id$']: req.params.id,
+        '$encounter.patient_id$': req.params.id,
         status: 'GIVEN',
       },
+      order: [['date', 'DESC']],
       include: [
         {
           model: req.models.Encounter,
