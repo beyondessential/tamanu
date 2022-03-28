@@ -1,11 +1,11 @@
-import React, { ReactElement } from 'react';
+import React, { ReactElement, useCallback } from 'react';
 import { useIsFocused } from '@react-navigation/native';
 
 import { FieldRowDisplay } from '~/ui/components/FieldRowDisplay';
 import { PatientSection } from './PatientSection';
 import { useLocalisation } from '~/ui/contexts/LocalisationContext';
 import { IPatient, IPatientAdditionalData } from '~/types';
-import { useBackendEffect } from '~/ui/hooks';
+import { useEffectWithBackend } from '~/ui/hooks';
 import { ErrorScreen } from '~/ui/components/ErrorScreen';
 import { LoadingScreen } from '~/ui/components/LoadingScreen';
 
@@ -14,20 +14,16 @@ interface AdditionalInfoProps {
   patient: IPatient;
 }
 
-export const AdditionalInfo = ({
-  patient,
-  onEdit,
-}: AdditionalInfoProps): ReactElement => {
+export const AdditionalInfo = ({ patient, onEdit }: AdditionalInfoProps): ReactElement => {
   const isFocused = useIsFocused(); // reload data whenever the page is focused
-  const [additionalDataRes, additionalDataError] = useBackendEffect(
-    ({ models }) => {
-      if (isFocused) {
-        return models.PatientAdditionalData.find({
-          where: { patient: { id: patient.id } },
-        });
-      }
-    },
-    [isFocused, patient.id],
+  const [additionalDataRes, additionalDataError, additionalDataLoading] = useEffectWithBackend(
+    useCallback(
+      ({ models }) => models.PatientAdditionalData.find({
+        where: { patient: { id: patient.id } },
+      }),
+      [patient.id],
+    ),
+    { shouldExecute: isFocused },
   );
 
   const data = additionalDataRes && additionalDataRes[0];
@@ -69,10 +65,10 @@ export const AdditionalInfo = ({
   let additionalFields = null;
   if (additionalDataError) {
     additionalFields = <ErrorScreen error={additionalDataError} />;
+  } else if (additionalDataLoading) {
+    additionalFields = <LoadingScreen />;
   } else if (additionalDataRes) {
     additionalFields = <FieldRowDisplay fields={fields} fieldsPerRow={2} />;
-  } else {
-    additionalFields = <LoadingScreen />;
   }
   return (
     <PatientSection

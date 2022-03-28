@@ -41,3 +41,41 @@ export const useBackendEffect = <T>(
 };
 
 export const useBackend = () => useContext(BackendContext);
+
+export const useEffectWithBackend = <T>(
+  callback: (backend: Backend) => Promise<T>,
+  options: {
+    shouldExecute?: boolean;
+  } = {},
+): [T | null, Error | null, boolean] => {
+  const [value, setValue] = useState<T>(null);
+  const [error, setError] = useState<Error>(null);
+  const [loading, setLoading] = useState(false);
+  const backend = useContext(BackendContext);
+
+  useEffect(() => {
+    let mounted = true;
+    if (options.shouldExecute) {
+      setLoading(true);
+      callback(backend)
+        .then((resp) => {
+          if (!mounted) {
+            return;
+          }
+          setValue(resp);
+          setLoading(false);
+        })
+        .catch((err) => {
+          if (!mounted) {
+            return;
+          }
+          setError(err);
+          setLoading(false);
+        });
+    }
+    return (): void => {
+      mounted = false;
+    };
+  }, [options.shouldExecute, callback]);
+  return [value, error, loading];
+};
