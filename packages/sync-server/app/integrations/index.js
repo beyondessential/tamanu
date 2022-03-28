@@ -3,10 +3,13 @@ import config from 'config';
 
 import { log } from 'shared/services/logging';
 
+import * as hl7Demo from './hl7-demo';
 import * as fijiVrs from './fiji-vrs';
 import * as fijiVps from './fiji-vps';
 
+
 const integrations = {
+  hl7Demo,
   fijiVrs,
   fijiVps,
 };
