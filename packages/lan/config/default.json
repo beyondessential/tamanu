@@ -9,7 +9,7 @@
   },
   "log": {
     "path": "",
-    "consoleLevel": "info",
+    "consoleLevel": "http",
     "color": true
   },
   "sync": {
