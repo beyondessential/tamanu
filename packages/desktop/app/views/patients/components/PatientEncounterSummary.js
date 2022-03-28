@@ -182,11 +182,11 @@ export const PatientEncounterSummary = ({
         </ContentItem>
         <ContentItem>
           <ContentLabel>Supervising doctor/nurse:</ContentLabel>
-          <ContentText>{examiner ? examiner.displayName : '-'}</ContentText>
+          <ContentText>{examiner?.displayName || '-'}</ContentText>
         </ContentItem>
         <ContentItem>
           <ContentLabel>Location:</ContentLabel>
-          <ContentText>{location ? location.name : '-'}</ContentText>
+          <ContentText>{location?.name || '-'}</ContentText>
         </ContentItem>
         <ContentItem>
           <ContentLabel>Reason for encounter:</ContentLabel>
