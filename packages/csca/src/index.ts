@@ -1,21 +1,20 @@
 process.env.SUPPRESS_NO_CONFIG_WARNING = 'y';
 
 import { program } from 'commander';
-import { log } from 'shared/services/logging';
 
 import { version } from '../package.json';
-import { csca } from './commands';
+import { create } from './commands';
 
 async function run() {
   await program
     .version(version)
     .description('Tamanu CSCA Tooling')
-    .addCommand(csca)
+    .addCommand(create)
     .parseAsync(process.argv);
 }
 
 run().catch(e => {
-  log.error(`run(): fatal error: ${e.toString()}`);
-  log.error(e.stack);
+  console.error(`run(): fatal error: ${e.toString()}`);
+  console.error(e.stack);
   process.exit(1);
 })
