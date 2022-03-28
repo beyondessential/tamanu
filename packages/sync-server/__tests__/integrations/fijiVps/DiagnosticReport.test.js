@@ -1,6 +1,10 @@
+import Chance from 'chance';
+
 import { fake } from 'shared/test-helpers/fake';
 import { createTestContext } from 'sync-server/__tests__/utilities';
 import { IDENTIFIER_NAMESPACE } from '../../../app/integrations/fiji-vps/schema';
+
+const chance = new Chance();
 
 describe('VPS integration - DiagnosticReport', () => {
   let ctx;
@@ -11,7 +15,7 @@ describe('VPS integration - DiagnosticReport', () => {
   });
   afterAll(() => ctx.close());
 
-  async function createLabTestHierarchy(patient) {
+  async function createLabTestHierarchy(patient, { isRDT = false } = {}) {
     const { LabTest, LabRequest, ReferenceData, LabTestType, Encounter, User } = ctx.store.models;
 
     const examiner = await User.create(fake(User));
@@ -38,10 +42,21 @@ describe('VPS integration - DiagnosticReport', () => {
     const labTestType = await LabTestType.create({
       ...fake(LabTestType),
       labTestCategoryId: labTestCategory.id,
+      name: chance.pickone(
+        isRDT
+          ? ['AgRDT Negative, no further testing needed', 'AgRDT Positive']
+          : [
+              'COVID-19 Nasopharyngeal Swab',
+              'COVID-19 Nasal Swab',
+              'COVID-19 Oropharyngeal Swab',
+              'COVID-19 Endotracheal aspirate',
+            ],
+      ),
     });
     const labTestMethod = await ReferenceData.create({
       ...fake(ReferenceData),
       type: 'labTestMethod',
+      code: isRDT ? 'RDT' : chance.pickone(['GeneXpert', 'RTPCR']),
     });
     const labTest = await LabTest.create({
       ...fake(LabTest),
@@ -79,10 +94,12 @@ describe('VPS integration - DiagnosticReport', () => {
       } = await createLabTestHierarchy(patient);
 
       const id = encodeURIComponent(`${IDENTIFIER_NAMESPACE}|${patient.displayId}`);
-      const path = `/v1/integration/fijiVps/DiagnosticReport?_sort=-issued&_page=0&_count=2&status=final&subject%3Aidentifier=${id}&_include=DiagnosticReport%3Aresult`;
+      const path = `/v1/integration/fijiVps/DiagnosticReport?_sort=-issued&_page=0&_count=2&status=final&subject%3Aidentifier=${id}&_include=DiagnosticReport%3Aresult&_include=DiagnosticReport%3Aresult.device%3ADevice`;
 
       // act
-      const response = await app.get(path);
+      const response = await app
+        .get(path)
+        .set({ 'X-Tamanu-Client': 'fiji-vps', 'X-Version': '0.0.1' });
 
       // assert
       expect(response).toHaveSucceeded();
@@ -134,28 +151,7 @@ describe('VPS integration - DiagnosticReport', () => {
                 },
               ],
               status: 'final',
-              result: [
-                {
-                  resourceType: 'Observation',
-                  id: labTest.id,
-                  status: 'final',
-                  code: {},
-                  subject: {
-                    display: `${patient.firstName} ${patient.lastName}`,
-                    reference: `Patient/${patient.id}`,
-                  },
-                  valueCodeableConcept: {
-                    coding: [
-                      {
-                        code: 'INC',
-                        display: 'Inconclusive',
-                        system:
-                          'http://terminology.hl7.org/CodeSystem/v3-ObservationInterpretation',
-                      },
-                    ],
-                  },
-                },
-              ],
+              result: [{ reference: `Observation/${labTest.id}` }],
               subject: {
                 display: `${patient.firstName} ${patient.lastName}`,
                 reference: `Patient/${patient.id}`,
@@ -175,6 +171,56 @@ describe('VPS integration - DiagnosticReport', () => {
                   },
                 },
               ],
+            },
+          },
+          {
+            resource: {
+              resourceType: 'Observation',
+              id: labTest.id,
+              status: 'final',
+              code: {
+                text:
+                  'SARS-CoV-2 (COVID-19) Ag [Presence] in Upper respiratory specimen by Immunoassay',
+                coding: [
+                  {
+                    system: 'http://loinc.org',
+                    code: '96119-3',
+                    display:
+                      'SARS-CoV-2 (COVID-19) Ag [Presence] in Upper respiratory specimen by Immunoassay',
+                  },
+                ],
+              },
+              subject: {
+                display: `${patient.firstName} ${patient.lastName}`,
+                reference: `Patient/${patient.id}`,
+              },
+              device: {
+                reference: `Device/${labTestMethod.id}`,
+                display: expect.toBeOneOf([
+                  'COVID Gene-Xpert Testing Device',
+                  'COVID RT-PCR Testing Device',
+                ]),
+              },
+              valueCodeableConcept: {
+                coding: [
+                  {
+                    code: 'INC',
+                    display: 'Inconclusive',
+                    system: 'http://terminology.hl7.org/CodeSystem/v3-ObservationInterpretation',
+                  },
+                ],
+              },
+            },
+          },
+          {
+            resource: {
+              resourceType: 'Device',
+              id: labTestMethod.id,
+              text: expect.toBeOneOf([
+                'COVID Gene-Xpert Testing Device',
+                'COVID RT-PCR Testing Device',
+              ]),
+              manufacturer: expect.toBeOneOf(['Cepheid', 'TIB MOLBIOL']),
             },
           },
         ],
@@ -197,10 +243,15 @@ describe('VPS integration - DiagnosticReport', () => {
       const path = `/v1/integration/fijiVps/DiagnosticReport?_sort=-issued&_page=0&_count=2&status=final&subject%3Aidentifier=${id}`;
 
       // act
-      const response1 = await app.get(path);
+      const response1 = await app
+        .get(path)
+        .set({ 'X-Tamanu-Client': 'fiji-vps', 'X-Version': '0.0.1' });
+
       const nextUrl = response1.body.link.find(l => l.relation === 'next')?.url;
       const [, nextPath] = nextUrl.match(/^.*(\/v1\/integration\/fijiVps\/.*)$/);
-      const response2 = await app.get(nextPath);
+      const response2 = await app
+        .get(nextPath)
+        .set({ 'X-Tamanu-Client': 'fiji-vps', 'X-Version': '0.0.1' });
 
       // assert
       expect(response1).toHaveSucceeded();
@@ -240,7 +291,9 @@ describe('VPS integration - DiagnosticReport', () => {
       const path = `/v1/integration/fijiVps/DiagnosticReport?_sort=-issued&_page=0&_count=2&status=final&subject%3Aidentifier=${id}`;
 
       // act
-      const response = await app.get(path);
+      const response = await app
+        .get(path)
+        .set({ 'X-Tamanu-Client': 'fiji-vps', 'X-Version': '0.0.1' });
 
       // assert
       expect(response).toHaveSucceeded();
@@ -272,10 +325,12 @@ describe('VPS integration - DiagnosticReport', () => {
       await labRequest.save();
 
       const id = encodeURIComponent(`${IDENTIFIER_NAMESPACE}|${patient.displayId}`);
-      const path = `/v1/integration/fijiVps/DiagnosticReport?_sort=-issued&_page=0&_count=2&status=final&subject%3Aidentifier=${id}&_include=DiagnosticReport%3Aresult`;
+      const path = `/v1/integration/fijiVps/DiagnosticReport?_sort=-issued&_page=0&_count=2&status=final&subject%3Aidentifier=${id}&_include=DiagnosticReport%3Aresult&_include=DiagnosticReport%3Aresult.device%3ADevice`;
 
       // act
-      const response = await app.get(path);
+      const response = await app
+        .get(path)
+        .set({ 'X-Tamanu-Client': 'fiji-vps', 'X-Version': '0.0.1' });
 
       // assert
       expect(response).toHaveSucceeded();
@@ -283,12 +338,77 @@ describe('VPS integration - DiagnosticReport', () => {
         entry: [
           {
             resource: {
+              resourceType: 'DiagnosticReport',
               performer: [
                 {
                   display: examiner.displayName,
                   reference: `Practitioner/${examiner.id}`,
                 },
               ],
+            },
+          },
+          {
+            resource: {
+              resourceType: 'Observation',
+            },
+          },
+          {
+            resource: {
+              resourceType: 'Device',
+            },
+          },
+        ],
+      });
+    });
+
+    it('handles RDTs correctly', async () => {
+      // arrange
+      const { Patient } = ctx.store.models;
+      const patient = await Patient.create(fake(Patient));
+      const { labTest, labTestMethod } = await createLabTestHierarchy(patient, { isRDT: true });
+
+      const id = encodeURIComponent(`${IDENTIFIER_NAMESPACE}|${patient.displayId}`);
+      const path = `/v1/integration/fijiVps/DiagnosticReport?_sort=-issued&_page=0&_count=2&status=final&subject%3Aidentifier=${id}&_include=DiagnosticReport%3Aresult&_include=DiagnosticReport%3Aresult.device%3ADevice`;
+
+      // act
+      const response = await app
+        .get(path)
+        .set({ 'X-Tamanu-Client': 'fiji-vps', 'X-Version': '0.0.1' });
+
+      // assert
+      expect(response).toHaveSucceeded();
+      expect(response.body).toMatchObject({
+        entry: [
+          {
+            resource: {
+              result: [{ reference: `Observation/${labTest.id}` }],
+            },
+          },
+          {
+            resource: {
+              resourceType: 'Observation',
+              id: labTest.id,
+              status: 'final',
+              code: {
+                text:
+                  'SARS-CoV-2 (COVID-19) Ag [Presence] in Upper respiratory specimen by Rapid immunoassay',
+                coding: [
+                  {
+                    system: 'http://loinc.org',
+                    code: '97097-0',
+                    display:
+                      'SARS-CoV-2 (COVID-19) Ag [Presence] in Upper respiratory specimen by Rapid immunoassay',
+                  },
+                ],
+              },
+            },
+          },
+          {
+            resource: {
+              id: labTestMethod.id,
+              resourceType: 'Device',
+              manufacturer: 'Unknown',
+              text: 'Unknown',
             },
           },
         ],
@@ -309,7 +429,9 @@ describe('VPS integration - DiagnosticReport', () => {
       const path = `/v1/integration/fijiVps/DiagnosticReport?_sort=-issued&_page=0&_count=2&status=final&subject%3Aidentifier=${id}`;
 
       // act
-      const response = await app.get(path);
+      const response = await app
+        .get(path)
+        .set({ 'X-Tamanu-Client': 'fiji-vps', 'X-Version': '0.0.1' });
 
       // assert
       expect(response).toHaveSucceeded();
@@ -334,7 +456,9 @@ describe('VPS integration - DiagnosticReport', () => {
       const path = `/v1/integration/fijiVps/DiagnosticReport?_sort=issued&_page=-1&_count=101&status=invalid-status&subject%3Aidentifier=${id}&_include=DiagnosticReport%3Asomething-invalid`;
 
       // act
-      const response = await app.get(path);
+      const response = await app
+        .get(path)
+        .set({ 'X-Tamanu-Client': 'fiji-vps', 'X-Version': '0.0.1' });
 
       // assert
       expect(response).toHaveRequestError(422);
@@ -345,7 +469,7 @@ describe('VPS integration - DiagnosticReport', () => {
             '_count must be less than or equal to 20',
             '_page must be greater than or equal to 0',
             '_sort must be one of the following values: -issued',
-            '_include must be one of the following values: DiagnosticReport:result',
+            '_include[0] must be one of the following values: DiagnosticReport:result, DiagnosticReport:result.device:Device',
             'status must be one of the following values: final',
           ],
         },
@@ -360,7 +484,9 @@ describe('VPS integration - DiagnosticReport', () => {
       const path = `/v1/integration/fijiVps/DiagnosticReport`;
 
       // act
-      const response = await app.get(path);
+      const response = await app
+        .get(path)
+        .set({ 'X-Tamanu-Client': 'fiji-vps', 'X-Version': '0.0.1' });
 
       // assert
       expect(response).toHaveRequestError(422);

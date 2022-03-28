@@ -2,8 +2,9 @@ import express from 'express';
 import asyncHandler from 'express-async-handler';
 import { Op } from 'sequelize';
 import { NotFoundError } from 'shared/errors';
-import { LAB_REQUEST_STATUSES } from 'shared/constants';
+import { LAB_REQUEST_STATUSES, DOCUMENT_SIZE_LIMIT, INVOICE_STATUSES } from 'shared/constants';
 import { NOTE_RECORD_TYPES } from 'shared/models/Note';
+import { uploadAttachment } from '../../utils/uploadAttachment';
 
 import {
   simpleGet,
@@ -12,6 +13,7 @@ import {
   simpleGetList,
   permissionCheckingRouter,
   runPaginatedQuery,
+  paginatedGetList,
 } from './crudHelpers';
 
 export const encounter = express.Router();
@@ -47,7 +49,9 @@ encounter.put(
           try {
             await medication.update({ isDischarge, quantity, repeats });
           } catch (e) {
-            console.error(`Couldn't update medication with id ${medicationId} when discharging. ${e.name} : ${e.message}`);
+            console.error(
+              `Couldn't update medication with id ${medicationId} when discharging. ${e.name} : ${e.message}`,
+            );
           }
         }
       });
@@ -84,6 +88,33 @@ encounter.post(
   }),
 );
 
+encounter.post(
+  '/:id/documentMetadata',
+  asyncHandler(async (req, res) => {
+    const { models, params } = req;
+    // TODO: figure out permissions with Attachment and DocumentMetadata
+    req.checkPermission('write', 'DocumentMetadata');
+
+    // Make sure the specified encounter exists
+    const specifiedEncounter = await models.Encounter.findByPk(params.id);
+    if (!specifiedEncounter) {
+      throw new NotFoundError();
+    }
+
+    // Create file on the sync server
+    const { attachmentId, type, metadata } = await uploadAttachment(req, DOCUMENT_SIZE_LIMIT);
+
+    const documentMetadataObject = await models.DocumentMetadata.create({
+      ...metadata,
+      attachmentId,
+      type,
+      encounterId: params.id,
+    });
+
+    res.send(documentMetadataObject);
+  }),
+);
+
 const encounterRelations = permissionCheckingRouter('read', 'Encounter');
 encounterRelations.get('/:id/discharge', simpleGetHasOne('Discharge', 'encounterId'));
 encounterRelations.get('/:id/vitals', simpleGetList('Vitals', 'encounterId'));
@@ -101,7 +132,10 @@ encounterRelations.get(
   }),
 );
 encounterRelations.get('/:id/referral', simpleGetList('Referral', 'encounterId'));
-encounterRelations.get('/:id/documentMetadata', simpleGetList('DocumentMetadata', 'encounterId'));
+encounterRelations.get(
+  '/:id/documentMetadata',
+  paginatedGetList('DocumentMetadata', 'encounterId'),
+);
 encounterRelations.get('/:id/imagingRequests', simpleGetList('ImagingRequest', 'encounterId'));
 encounterRelations.get(
   '/:id/notes',
@@ -109,7 +143,12 @@ encounterRelations.get(
     additionalFilters: { recordType: NOTE_RECORD_TYPES.ENCOUNTER },
   }),
 );
-
+encounterRelations.get(
+  '/:id/invoice',
+  simpleGetHasOne('Invoice', 'encounterId', {
+    additionalFilters: { status: { [Op.ne]: INVOICE_STATUSES.CANCELLED } },
+  }),
+);
 
 encounterRelations.get(
   '/:id/programResponses',

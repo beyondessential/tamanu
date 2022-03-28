@@ -41,6 +41,12 @@ export const MODEL_DEPENDENCY_ORDER = [
 
   'ReportRequest',
   'PatientCommunication',
+
+  'Invoice',
+  'InvoiceLineType',
+  'InvoiceLineItem',
+  'InvoicePriceChangeType',
+  'InvoicePriceChange',
 ];
 
 const lowercaseModelOrder = MODEL_DEPENDENCY_ORDER.map(x => x.toLowerCase());

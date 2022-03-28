@@ -1,7 +1,7 @@
 import express from 'express';
 
+import { constructPermission } from 'shared/permissions/middleware';
 import { loginHandler, authMiddleware } from '~/middleware/auth';
-import { constructPermission } from '~/middleware/permission';
 
 import { user } from './user';
 import { patient } from './patient';
@@ -31,8 +31,10 @@ import { reports } from './reports';
 import { reportRequest } from './reportRequest';
 import { patientCarePlan } from './patientCarePlan';
 import { appointments } from './appointments';
+import { invoices, invoiceLineTypes } from './invoice';
 import { resetPassword } from './resetPassword';
 import { changePassword } from './changePassword';
+import { certificateNotification } from './certificateNotification';
 
 import { admin } from './admin';
 import { setting } from './setting';
@@ -79,11 +81,15 @@ apiv1.use('/scheduledVaccine', scheduledVaccine);
 apiv1.use('/program', program);
 apiv1.use('/survey', survey);
 apiv1.use('/surveyResponse', surveyResponse);
+apiv1.use('/certificateNotification', certificateNotification);
 
 apiv1.use('/reports', reports);
 apiv1.use('/reportRequest', reportRequest);
 apiv1.use('/patientCarePlan', patientCarePlan);
 apiv1.use('/appointments', appointments);
+
+apiv1.use('/invoices', invoices);
+apiv1.use('/invoiceLineTypes', invoiceLineTypes);
 
 apiv1.use('/admin', admin);
 

@@ -95,13 +95,13 @@ export const REFERRAL_SURVEY_IDS = [
 export const FORM_NAME_BY_SURVEY_GROUP_KEY = {
   [CVD_SURVEY_GROUP_KEY]: 'CVD Primary Screening',
   [BREAST_CANCER_SURVEY_GROUP_KEY]: 'Breast Cancer Primary Screening',
-  [CERVICAL_CANCER_SURVEY_GROUP_KEY]: 'Cervial Cancer Primary Screening',
+  [CERVICAL_CANCER_SURVEY_GROUP_KEY]: 'Cervical Cancer Primary Screening',
 };
 
 export const REFERRAL_NAME_BY_SURVEY_GROUP_KEY = {
   [CVD_SURVEY_GROUP_KEY]: 'CVD Primary Screening Referral',
   [BREAST_CANCER_SURVEY_GROUP_KEY]: 'Breast Cancer Primary Screening Referral',
-  [CERVICAL_CANCER_SURVEY_GROUP_KEY]: 'Cervial Cancer Primary Screening Referral',
+  [CERVICAL_CANCER_SURVEY_GROUP_KEY]: 'Cervical Cancer Primary Screening Referral',
 };
 
 export const getSurveyResultDataElement = surveyId => `${surveyId}|$result`;

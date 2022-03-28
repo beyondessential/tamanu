@@ -1,5 +1,4 @@
 import config from 'config';
-import fetch from 'node-fetch';
 
 import { log } from 'shared/services/logging';
 
@@ -11,7 +10,7 @@ const splitIntoChunks = (arr, chunkSize) =>
 export async function sendSyncRequest(remote, channel, records) {
   // use a much lower # of requests per channel for users, as it can contain
   // a call to bcrypt, which is intentionally slow, and this can time syncs out
-  const maxRecordsPerRequest = (channel === 'user') ? 3 : 250;
+  const maxRecordsPerRequest = channel === 'user' ? 3 : 250;
 
   const parts = splitIntoChunks(records, maxRecordsPerRequest);
   log.info(

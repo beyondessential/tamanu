@@ -5,6 +5,7 @@ import compression from 'compression';
 
 import { log } from 'shared/services/logging';
 
+import { constructPermission } from 'shared/permissions/middleware';
 import { routes } from './routes';
 import { authModule } from './auth';
 import { publicRoutes } from './publicRoutes';
@@ -62,6 +63,7 @@ export function createApp(ctx) {
   // API v1
   app.use('/v1/public', publicRoutes);
   app.use('/v1', authModule);
+  app.use('/v1', constructPermission);
   app.use('/v1', routes);
 
   // Dis-allow all other routes

@@ -42,6 +42,7 @@ export const DiagnosisView = React.memo(({ encounter, isTriage, readonly }) => {
         diagnosis={diagnosis}
         isTriage={isTriage}
         encounterId={id}
+        excludeDiagnoses={displayedDiagnoses}
         onClose={() => editDiagnosis(null)}
       />
       <DiagnosisGrid>

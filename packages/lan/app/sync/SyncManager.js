@@ -10,14 +10,16 @@ import {
 } from 'shared/models/sync';
 import { log } from 'shared/services/logging';
 
-const { readOnly } = config.sync;
+const { readOnly, dynamicLimiter } = config.sync;
 
-const EXPORT_LIMIT = 100;
-const INITIAL_PULL_LIMIT = 100;
-const MIN_PULL_LIMIT = 1;
-const MAX_PULL_LIMIT = 10000;
-const OPTIMAL_PULL_TIME_PER_PAGE = 2000; // aim for 2 seconds per page
-const MAX_LIMIT_CHANGE_PER_BATCH = 0.2; // max 20% increase from batch to batch, or it is too jumpy
+const {
+  exportLimit: EXPORT_LIMIT,
+  initialPullLimit: INITIAL_PULL_LIMIT,
+  minPullLimit: MIN_PULL_LIMIT,
+  maxPullLimit: MAX_PULL_LIMIT,
+  optimalPullTimePerPageMs: OPTIMAL_PULL_TIME_PER_PAGE,
+  maxLimitChangePerBatch: MAX_LIMIT_CHANGE_PER_BATCH,
+} = dynamicLimiter;
 
 // Set the current page size based on how long the previous page took to complete.
 const calculateDynamicLimit = (currentLimit, pullTime) => {
@@ -119,24 +121,34 @@ export class SyncManager {
       return executeExportPlan(plan, { since: cursor, limit });
     };
 
-    // unmark
-    const unmarkRecords = async records => {
-      // TODO use bulk update after https://github.com/beyondessential/tamanu-backlog/issues/463
-      const modelInstances = await model.findAll({
-        where: {
-          id: records.map(r => r.data.id),
+    // mark + unmark
+    const markRecords = async () => {
+      await model.update(
+        { isPushing: true, markedForPush: false },
+        {
+          where: {
+            markedForPush: true,
+          },
+          // skip validation - no sync fields should be used in model validation
+          validate: false,
         },
-      });
-      await Promise.all(
-        modelInstances.map(m => {
-          m.markedForPush = false;
-          m.pushedAt = new Date();
-          return m.save();
-        }),
+      );
+    };
+    const unmarkRecords = async records => {
+      await model.update(
+        { isPushing: false, pushedAt: new Date() },
+        {
+          where: {
+            id: records.map(r => r.data.id),
+          },
+          // skip validation - no sync fields should be used in model validation
+          validate: false,
+        },
       );
     };
 
     let cursor = null;
+    await markRecords();
     do {
       const exportResponse = await exportRecords(cursor);
       const { records } = exportResponse;
@@ -200,7 +212,16 @@ export class SyncManager {
         models.Location,
         models.UserFacility,
 
+        models.Invoice,
+        models.InvoiceLineType,
+        models.InvoiceLineItem,
+        models.InvoicePriceChangeType,
+        models.InvoicePriceChangeItem,
+
+        models.CertificateNotification,
+
         // models.LabRequestLog,
+        models.DocumentMetadata,
       ];
 
       for (const model of modelsToSync) {

@@ -15,6 +15,10 @@ export class Facility extends Model {
           type: Sequelize.STRING,
           allowNull: false,
         },
+        email: Sequelize.STRING,
+        contactNumber: Sequelize.STRING,
+        streetAddress: Sequelize.STRING,
+        cityTown: Sequelize.STRING,
         division: Sequelize.STRING,
         type: Sequelize.STRING,
       },
@@ -44,5 +48,4 @@ export class Facility extends Model {
       through: 'UserFacility',
     });
   }
-
 }

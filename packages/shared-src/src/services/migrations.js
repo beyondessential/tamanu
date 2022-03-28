@@ -1,26 +1,28 @@
 import Umzug from 'umzug';
 import { readdirSync } from 'fs';
+import path from 'path';
+
+// before this, we just cut our losses and accept irreversible migrations
+const LAST_REVERSIBLE_MIGRATION = '048_changeNoteRecordTypeColumn.js';
 
 export function createMigrationInterface(log, sequelize) {
   // ie, shared/src/migrations
-  const migrationsDir = __dirname + '/../migrations';
+  const migrationsDir = path.join(__dirname, '..', 'migrations');
 
-  // Double check the migrations directory exists (should catch any issues 
+  // Double check the migrations directory exists (should catch any issues
   // arising out of build systems omitting the migrations dir, for eg)
   // Note that Umzug will throw if the directory is missing, but won't report
   // errors if the directory is empty - so this is maybe overcautious, but, it's
   // just a few ms on startup, we'll be ok.
   const migrationFiles = readdirSync(migrationsDir);
-  if(migrationFiles.length === 0) {
-    throw new Error("Could not find migrations");
+  if (migrationFiles.length === 0) {
+    throw new Error('Could not find migrations');
   }
 
   const umzug = new Umzug({
     migrations: {
       path: migrationsDir,
-      params: [
-        sequelize.getQueryInterface(),
-      ],
+      params: [sequelize.getQueryInterface()],
       wrap: updown => (...args) => sequelize.transaction(() => updown(...args)),
     },
     storage: 'sequelize',
@@ -29,18 +31,17 @@ export function createMigrationInterface(log, sequelize) {
     },
   });
 
-  umzug.on('migrating', (name) => log.info(`Applying migration: ${name}`));
-  umzug.on('reverting', (name) => log.info(`Reverting migration: ${name}`));
+  umzug.on('migrating', name => log.info(`Applying migration: ${name}`));
+  umzug.on('reverting', name => log.info(`Reverting migration: ${name}`));
 
   return umzug;
 }
 
-export async function migrateUp(log, sequelize) {
+async function migrateUp(log, sequelize) {
   const migrations = createMigrationInterface(log, sequelize);
 
   const pending = await migrations.pending();
-  if(pending.length > 0) {
-    const files = pending.map(x => x.file);
+  if (pending.length > 0) {
     log.info(`Applying ${pending.length} migration${pending.length > 1 ? 's' : ''}...`);
     await migrations.up();
     log.info(`Applied migrations successfully.`);
@@ -49,15 +50,14 @@ export async function migrateUp(log, sequelize) {
   }
 }
 
-export async function migrateDown(log, sequelize) {
+async function migrateDown(log, sequelize, options) {
   const migrations = createMigrationInterface(log, sequelize);
   log.info(`Reverting 1 migration...`);
-  const reverted = await migrations.down();
-  if(Array.isArray(reverted)) {
-    if(reverted.length === 0) {
+  const reverted = await migrations.down(options);
+  if (Array.isArray(reverted)) {
+    if (reverted.length === 0) {
       log.warn(`No migrations to revert.`);
     } else {
-      const files = reverted.map(x => x.file);
       log.info(`Reverted migrations successfully.`);
     }
   } else {
@@ -71,24 +71,55 @@ export async function assertUpToDate(log, sequelize, options) {
   const migrations = createMigrationInterface(log, sequelize);
   const pending = await migrations.pending();
   if (pending.length > 0) {
-    throw new Error(`There are ${pending.length} pending migrations. To start the server anyway, run with --skipMigrationCheck`);
+    throw new Error(
+      `There are ${pending.length} pending migrations. To start the server anyway, run with --skipMigrationCheck`,
+    );
   }
 }
 
-export async function migrate(log, sequelize, options) {
-  const {
-    migrateDirection = "up",
-  } = options;
-
-  switch (migrateDirection) {
-    case "up":
-      return migrateUp(log, sequelize);
-    case "down":
-      return migrateDown(log, sequelize);
-    case "redoLatest":
-      await migrateDown(log, sequelize);
-      return migrateUp(log, sequelize);
-    default:
-      throw new Error(`Unrecognised migrate direction: ${options.migrateDirection}`);
+export async function migrate(log, sequelize, direction) {
+  if (direction === 'up') {
+    return migrateUp(log, sequelize);
   }
+  if (direction === 'down') {
+    return migrateDown(log, sequelize);
+  }
+  if (direction === 'downToLastReversibleMigration') {
+    return migrateDown(log, sequelize, { to: LAST_REVERSIBLE_MIGRATION });
+  }
+  if (direction === 'redoLatest') {
+    await migrateDown(log, sequelize);
+    return migrateUp(log, sequelize);
+  }
+  throw new Error(`Unrecognised migrate direction: ${direction}`);
+}
+
+export function createMigrateCommand(Command, migrateCallback) {
+  const migrateCommand = new Command('migrate').description(
+    'Apply or roll back database migrations',
+  );
+
+  migrateCommand
+    .command('up', { isDefault: true })
+    .description('Run all unrun migrations until up to date')
+    .action(() => migrateCallback('up'));
+
+  migrateCommand
+    .command('down')
+    .description('Reverse the most recent migration')
+    .action(() => migrateCallback('down'));
+
+  migrateCommand
+    .command('downToLastReversibleMigration')
+    .description(
+      'Run database migrations down to the last known reversible migration (LAST_REVERSIBLE_MIGRATION)',
+    )
+    .action(() => migrateCallback('downToLastReversibleMigration'));
+
+  migrateCommand
+    .command('redoLatest')
+    .description('Run database migrations down 1 and then up 1')
+    .action(() => migrateCallback('redoLatest'));
+
+  return migrateCommand;
 }

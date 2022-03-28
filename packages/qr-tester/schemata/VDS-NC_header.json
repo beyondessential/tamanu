@@ -1,0 +1,20 @@
+{
+  "$id": "http://namespaces.icao.int/VDS-NC_header.json",
+  "title": "Header",
+  "type": "object",
+  "description": "Header Schema",
+  "properties": {
+    "t": {
+      "type": "string",
+      "enum": ["icao.test", "icao.vacc"]
+    },
+    "v": {
+      "type": "integer"
+    },
+    "is": {
+      "type": "string"
+    }
+  },
+  "required": ["t", "v", "is"],
+  "additionalProperties": false
+}

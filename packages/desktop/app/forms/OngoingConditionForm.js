@@ -31,7 +31,7 @@ export class OngoingConditionForm extends React.PureComponent {
           disabled={resolving}
           required
         />
-        <Field name="date" label="Date recorded" component={DateField} disabled={resolving} />
+        <Field name="recordedDate" label="Date recorded" component={DateField} disabled={resolving} />
         <Field
           name="practitioner"
           label="Doctor/nurse"

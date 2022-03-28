@@ -5,7 +5,7 @@ import { fake } from 'shared/test-helpers/fake';
 import { createTestContext } from 'sync-server/__tests__/utilities';
 import { fakeVRSPatient, prepareVRSMocks } from './sharedHookHelpers';
 
-const host = config.integrations.fijiVrs.host;
+const { host } = config.integrations.fijiVrs;
 
 describe('VRS integration hook: INSERT and UPDATE operations', () => {
   let ctx;
@@ -60,11 +60,14 @@ describe('VRS integration hook: INSERT and UPDATE operations', () => {
         }
 
         // act
-        const response = await app.post(`/v1/integration/fijiVrs/hooks/patientCreated`).send({
-          fetch_id: fetchId,
-          operation,
-          created_datetime: new Date().toISOString(),
-        });
+        const response = await app
+          .post(`/v1/integration/fijiVrs/hooks/patientCreated`)
+          .send({
+            fetch_id: fetchId,
+            operation,
+            created_datetime: new Date().toISOString(),
+          })
+          .set({ 'X-Tamanu-Client': 'fiji-vrs', 'X-Version': '0.0.1' });
 
         // assert
         expect(response).toHaveSucceeded();
@@ -111,11 +114,12 @@ describe('VRS integration hook: INSERT and UPDATE operations', () => {
           identifier: vrsPatient.identifier,
           unmatchedVillageName: null,
           deletedAt: null,
+          isDeletedByRemote: false,
         });
         const fetchMock = ctx.integrations.fijiVrs.remote.fetchImplementation;
         expect(fetchMock).toHaveBeenCalledWith(`${host}/token`, expect.anything());
         expect(fetchMock).toHaveBeenCalledWith(
-          `${host}/api/Tamanu/Fetch/${fetchId}`,
+          `${host}/api/Tamanu/Fetch?fetch_id=${fetchId}`,
           expect.anything(),
         );
         expect(fetchMock).toHaveBeenCalledWith(
@@ -137,11 +141,14 @@ describe('VRS integration hook: INSERT and UPDATE operations', () => {
       });
 
       // act
-      const response = await app.post(`/v1/integration/fijiVrs/hooks/patientCreated`).send({
-        fetch_id: fetchId,
-        operation: 'INSERT',
-        created_datetime: new Date().toISOString(),
-      });
+      const response = await app
+        .post(`/v1/integration/fijiVrs/hooks/patientCreated`)
+        .send({
+          fetch_id: fetchId,
+          operation: 'INSERT',
+          created_datetime: new Date().toISOString(),
+        })
+        .set({ 'X-Tamanu-Client': 'fiji-vrs', 'X-Version': '0.0.1' });
 
       // assert
       expect(response).toHaveSucceeded();
@@ -154,6 +161,57 @@ describe('VRS integration hook: INSERT and UPDATE operations', () => {
       });
       expect(foundVRSData).toMatchObject({
         unmatchedVillageName: vrsPatient.sub_division,
+        isDeletedByRemote: false,
+      });
+    });
+
+    it('allows nullable fields to be null', async () => {
+      // arrange
+      const { Patient, PatientAdditionalData } = ctx.store.models;
+      const vrsPatient = {
+        ...(await fakeVRSPatient(ctx.store.models)),
+        fname: null,
+        lname: null,
+        dob: null,
+        sub_division: null,
+        email: null,
+        phone: null,
+      };
+      const { fetchId } = await prepareVRSMocks(ctx, { vrsPatient });
+
+      // act
+      const response = await app
+        .post(`/v1/integration/fijiVrs/hooks/patientCreated`)
+        .send({
+          fetch_id: fetchId,
+          operation: 'INSERT',
+          created_datetime: new Date().toISOString(),
+        })
+        .set({ 'X-Tamanu-Client': 'fiji-vrs', 'X-Version': '0.0.1' });
+
+      // assert
+      expect(response).toHaveSucceeded();
+      expect(response.body).toEqual({
+        response: true,
+      });
+      const foundPatient = await Patient.findOne({
+        where: { displayId: vrsPatient.individual_refno },
+        raw: true,
+      });
+      expect(foundPatient).toMatchObject({
+        displayId: vrsPatient.individual_refno,
+        firstName: null,
+        lastName: null,
+        dateOfBirth: null,
+        villageId: null,
+        email: null,
+      });
+      const foundAdditionalData = await PatientAdditionalData.findOne({
+        where: { patientId: foundPatient.id },
+        raw: true,
+      });
+      expect(foundAdditionalData).toMatchObject({
+        primaryContactNumber: vrsPatient.phone,
       });
     });
   });
@@ -169,11 +227,14 @@ describe('VRS integration hook: INSERT and UPDATE operations', () => {
       });
 
       // act
-      const response = await app.post(`/v1/integration/fijiVrs/hooks/patientCreated`).send({
-        fetch_id: fetchId,
-        operation: 'INSERT',
-        created_datetime: new Date().toISOString(),
-      });
+      const response = await app
+        .post(`/v1/integration/fijiVrs/hooks/patientCreated`)
+        .send({
+          fetch_id: fetchId,
+          operation: 'INSERT',
+          created_datetime: new Date().toISOString(),
+        })
+        .set({ 'X-Tamanu-Client': 'fiji-vrs', 'X-Version': '0.0.1' });
 
       // assert
       expect(response).toHaveRequestError(422);
@@ -187,7 +248,7 @@ describe('VRS integration hook: INSERT and UPDATE operations', () => {
       const fetchMock = ctx.integrations.fijiVrs.remote.fetchImplementation;
       expect(fetchMock).toHaveBeenCalledWith(`${host}/token`, expect.anything());
       expect(fetchMock).toHaveBeenCalledWith(
-        `${host}/api/Tamanu/Fetch/${fetchId}`,
+        `${host}/api/Tamanu/Fetch?fetch_id=${fetchId}`,
         expect.anything(),
       );
       expect(fetchMock).not.toHaveBeenCalledWith(
@@ -207,11 +268,14 @@ describe('VRS integration hook: INSERT and UPDATE operations', () => {
       });
 
       // act
-      const response = await app.post(`/v1/integration/fijiVrs/hooks/patientCreated`).send({
-        fetch_id: fetchId,
-        operation: 'INSERT',
-        created_datetime: new Date().toISOString(),
-      });
+      const response = await app
+        .post(`/v1/integration/fijiVrs/hooks/patientCreated`)
+        .send({
+          fetch_id: fetchId,
+          operation: 'INSERT',
+          created_datetime: new Date().toISOString(),
+        })
+        .set({ 'X-Tamanu-Client': 'fiji-vrs', 'X-Version': '0.0.1' });
 
       // assert
       expect(response).toHaveRequestError(422);
@@ -225,7 +289,7 @@ describe('VRS integration hook: INSERT and UPDATE operations', () => {
       const fetchMock = ctx.integrations.fijiVrs.remote.fetchImplementation;
       expect(fetchMock).toHaveBeenCalledWith(`${host}/token`, expect.anything());
       expect(fetchMock).toHaveBeenCalledWith(
-        `${host}/api/Tamanu/Fetch/${fetchId}`,
+        `${host}/api/Tamanu/Fetch?fetch_id=${fetchId}`,
         expect.anything(),
       );
       expect(fetchMock).not.toHaveBeenCalledWith(
@@ -248,11 +312,14 @@ describe('VRS integration hook: INSERT and UPDATE operations', () => {
       });
 
       // act
-      const response = await app.post(`/v1/integration/fijiVrs/hooks/patientCreated`).send({
-        fetch_id: fetchId,
-        operation: 'INSERT',
-        created_datetime: new Date().toISOString(),
-      });
+      const response = await app
+        .post(`/v1/integration/fijiVrs/hooks/patientCreated`)
+        .send({
+          fetch_id: fetchId,
+          operation: 'INSERT',
+          created_datetime: new Date().toISOString(),
+        })
+        .set({ 'X-Tamanu-Client': 'fiji-vrs', 'X-Version': '0.0.1' });
 
       // assert
       expect(response).toHaveRequestError(502);
@@ -266,7 +333,7 @@ describe('VRS integration hook: INSERT and UPDATE operations', () => {
       const fetchMock = ctx.integrations.fijiVrs.remote.fetchImplementation;
       expect(fetchMock).toHaveBeenCalledWith(`${host}/token`, expect.anything());
       expect(fetchMock).not.toHaveBeenCalledWith(
-        `${host}/api/Tamanu/Fetch/${fetchId}`,
+        `${host}/api/Tamanu/Fetch?fetch_id=${fetchId}`,
         expect.anything(),
       );
       expect(fetchMock).not.toHaveBeenCalledWith(

@@ -18,7 +18,7 @@ function formatDuration(date) {
   return moment(date).from(moment(), true);
 }
 
-function formatTime(date) {
+export function formatTime(date) {
   return moment(date).format('hh:mm a');
 }
 

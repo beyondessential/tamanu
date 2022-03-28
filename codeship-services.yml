@@ -33,3 +33,10 @@ postgres:
     - POSTGRES_DB=postgres
     - POSTGRES_USER=postgres
     - POSTGRES_PASSWORD=postgres
+
+mobile:
+  build:
+    image: tamanu-mobile
+    context: packages/mobile
+    dockerfile: Dockerfile
+  encrypted_dockercfg_path: packages/mobile/dockercfg.encrypted

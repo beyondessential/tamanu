@@ -19,11 +19,12 @@ export const NumberField = ({ field, ...props }) => (
 );
 
 NumberInput.propTypes = {
-  name: PropTypes.string.isRequired,
+  name: PropTypes.string,
   value: PropTypes.oneOfType([PropTypes.number, PropTypes.string]),
   onChange: PropTypes.func.isRequired,
 };
 
 NumberInput.defaultProps = {
+  name: null,
   value: 0,
 };

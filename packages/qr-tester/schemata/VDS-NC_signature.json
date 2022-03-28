@@ -1,0 +1,22 @@
+{
+  "$id": "http://namespaces.icao.int/VDS-NC_signature.json",
+  "title": "Signature Zone",
+  "type": "object",
+  "description": "Signature Schema",
+  "properties": {
+    "alg": {
+      "type": "string",
+      "description": "The signature algorithm used to produce the signature"
+    },
+    "cer": {
+      "type": "string",
+      "description": "X.509 signer certificate in base64url encoding"
+    },
+    "sigvl": {
+      "type": "string",
+      "description": "Signature value signed over the Data in base64url encoding"
+    }
+  },
+  "required": ["alg", "cer", "sigvl"],
+  "additionalProperties": false
+}

@@ -9,7 +9,14 @@ const ListItem = styled(MuiListItem)`
 
 export const SecondarySidebarItem = React.memo(
   ({ path, icon, label, isCurrent, disabled, onClick }) => (
-    <ListItem button to={path} disabled={disabled} selected={isCurrent} onClick={onClick}>
+    <ListItem
+      button
+      to={path}
+      disabled={disabled}
+      selected={isCurrent}
+      onClick={onClick}
+      data-test-class="secondary-sidebar-item"
+    >
       <i className={icon} />
       <SidebarItemText disableTypography primary={label} />
     </ListItem>

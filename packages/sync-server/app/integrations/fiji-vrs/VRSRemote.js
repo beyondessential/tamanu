@@ -117,6 +117,7 @@ export class VRSRemote {
 
     // parse, validate, and return body on success
     const body = await response.json();
+    log.debug(`VRSRemote.fetch(): received body ${JSON.stringify(body)}`);
     const data = await validateSchema.validate(body, {
       stripUnknown: true,
     });
@@ -125,15 +126,29 @@ export class VRSRemote {
   }
 
   async getPatientByFetchId(fetchId) {
-    const { data: vrsPatient } = await this.fetch(`/api/Tamanu/Fetch/${fetchId}`, {
-      validateSchema: schema.remoteResponse.fetchPatient,
-    });
+    const { data: vrsPatient } = await this.fetch(
+      `/api/Tamanu/Fetch?${encodeParams({ fetch_id: fetchId })}`,
+      { validateSchema: schema.remoteResponse.fetchPatient },
+    );
     return this.patientAdapter.toTamanu(vrsPatient);
   }
 
   async acknowledge(fetchId) {
     await this.fetch(`/api/Tamanu/Acknowledge?${encodeParams({ fetch_id: fetchId })}`, {
       validateSchema: schema.remoteResponse.acknowledge,
+      method: 'POST',
+      headers: {
+        'Content-Length': 0,
+        Accepts: 'application/json',
+        Authorization: `Bearer ${this.token}`,
+      },
     });
+  }
+
+  async getAllPendingActions() {
+    const { data } = await this.fetch('/api/Tamanu/FetchAllPendingActions', {
+      validateSchema: schema.remoteResponse.fetchAllPendingActions,
+    });
+    return data;
   }
 }

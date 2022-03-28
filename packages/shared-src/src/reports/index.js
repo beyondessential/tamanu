@@ -2,22 +2,25 @@ import * as admissions from './admissions';
 import * as incompleteReferrals from './incomplete-referrals';
 import * as recentDiagnoses from './recent-diagnoses';
 import * as vaccineList from './vaccine-list';
-import * as covidVaccineList from './covid-vaccine-list';
-import * as covidVaccineDailySummaryByVillage from './covid-vaccine-daily-summary-village';
+import * as covidVaccineList from './covid-module/covid-vaccine-list';
+import * as covidVaccineDailySummaryByVillage from './covid-module/covid-vaccine-daily-summary-village';
 import {
   generateCovidVaccineSummaryDose1Report,
   generateCovidVaccineSummaryDose2Report,
   permission as covidVaccineSummaryPermission,
-} from './covid-vaccine-summary';
+} from './covid-module/covid-vaccine-summary';
 import * as aefi from './aefi';
 import * as samoaAefi from './samoa-aefi';
 import * as numberPatientsRegisteredByDate from './number-patients-registered-by-date';
 import * as registeredPatients from './registered-patients';
-import * as covidSwabLabTestList from './covid-swab-lab-test-list';
-import * as covidSwabLabTestsSummary from './covid-swab-lab-tests-summary';
+import * as fijiCovidSwabLabTestList from './covid-module/fiji/fiji-covid-swab-lab-test-list';
+import * as palauCovidSwabLabTestList from './covid-module/palau/palau-covid-swab-lab-test-list';
+import * as kiribatiCovidSwabLabTestList from './covid-module/kiribati/kiribati-covid-swab-lab-test-list';
+import * as covidSwabLabTestsSummary from './covid-module/covid-swab-lab-tests-summary';
 import * as indiaAssistiveTechnologyDeviceLineList from './india-assistive-technology-device-line-list';
 import * as iraqAssistiveTechnologyDeviceLineList from './iraq-assistive-technology-device-line-list';
 import * as pngAssistiveTechnologyDeviceLineList from './png-assistive-technology-device-line-list';
+import * as fijiAspenEncounterSummaryLineList from './fiji-aspen-encounter-summary-line-list';
 import * as fijiRecentAttendanceList from './fiji-recent-attendance-list';
 import * as fijiNcdPrimaryScreeningLineList from './fiji-ncd-primary-screening/fiji-ncd-primary-screening-line-list';
 import * as fijiNcdPrimaryScreeningPendingReferralsLineList from './fiji-ncd-primary-screening/fiji-ncd-primary-screening-pending-referrals-line-list';
@@ -57,8 +60,12 @@ export function getReportModule(reportType) {
       return numberPatientsRegisteredByDate;
     case 'registered-patients':
       return registeredPatients;
-    case 'covid-swab-lab-test-list':
-      return covidSwabLabTestList;
+    case 'fiji-covid-swab-lab-test-list':
+      return fijiCovidSwabLabTestList;
+    case 'palau-covid-swab-lab-test-list':
+      return palauCovidSwabLabTestList;
+    case 'kiribati-covid-swab-lab-test-list':
+      return kiribatiCovidSwabLabTestList;
     case 'covid-swab-lab-tests-summary':
       return covidSwabLabTestsSummary;
     case 'india-assistive-technology-device-line-list':
@@ -67,6 +74,8 @@ export function getReportModule(reportType) {
       return iraqAssistiveTechnologyDeviceLineList;
     case 'png-assistive-technology-device-line-list':
       return pngAssistiveTechnologyDeviceLineList;
+    case 'fiji-aspen-encounter-summary-line-list':
+      return fijiAspenEncounterSummaryLineList;
     case 'fiji-recent-attendance-list':
       return fijiRecentAttendanceList;
     case 'fiji-ncd-primary-screening-line-list':

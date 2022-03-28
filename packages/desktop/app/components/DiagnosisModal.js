@@ -28,7 +28,7 @@ const DumbDiagnosisModal = React.memo(
   },
 );
 
-export const DiagnosisModal = connectApi((api, dispatch, { encounterId }) => ({
+export const DiagnosisModal = connectApi((api, dispatch, { encounterId, excludeDiagnoses }) => ({
   onSaveDiagnosis: async data => {
     if (data.id) {
       await api.put(`diagnosis/${data.id}`, data);
@@ -47,5 +47,7 @@ export const DiagnosisModal = connectApi((api, dispatch, { encounterId }) => ({
       }
     }
   },
-  icd10Suggester: new Suggester(api, 'icd10'),
+  icd10Suggester: new Suggester(api, 'icd10', {
+    filterer: icd => !excludeDiagnoses.some(d => d.diagnosisId === icd.id),
+  }),
 }))(DumbDiagnosisModal);

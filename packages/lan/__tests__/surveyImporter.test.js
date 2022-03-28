@@ -1,28 +1,20 @@
+import { cloneDeep } from 'lodash';
 import { importProgram } from '~/admin/importProgram';
 import { preprocessRecordSet } from '~/admin/preprocessRecordSet';
 
 const TEST_PROGRAMS_PATH = './__tests__/importers/test_programs.xlsx';
 
 describe('Importing programs', () => {
-
-  let resultInfo = null;
-  let recordGroups = null;
+  let rawData;
 
   beforeAll(async () => {
-    const rawData = await importProgram({ 
+    rawData = await importProgram({
       file: TEST_PROGRAMS_PATH,
     });
-
-    const { 
-      recordGroups: rg, 
-      ...rest 
-    } = await preprocessRecordSet(rawData);
-
-    resultInfo = rest;
-    recordGroups = rg;
   });
 
-  it('Should import a survey', () => {
+  it('Should import a survey', async () => {
+    const { recordGroups, ...resultInfo } = await preprocessRecordSet(rawData);
     const { records } = resultInfo.stats;
     expect(records).toHaveProperty('program', 1);
     expect(records).toHaveProperty('survey', 1);
@@ -31,6 +23,31 @@ describe('Importing programs', () => {
   });
 
   describe('Survey validation', () => {
+    it('Should ensure surveys have all required fields', async () => {
+      // Instead of preparing several different files, just copy and modify the raw data
+      const clonedRawData = cloneDeep(rawData);
+      const requiredSurveyFields = ['id', 'surveyType', 'isSensitive'];
+
+      // Test cloned data before modifying it to ensure it's okay
+      const { recordGroups, ...resultInfo } = await preprocessRecordSet(clonedRawData);
+      expect(resultInfo.errors.length).toBe(0);
+
+      // Use for...of instead of forEach to properly await each loop
+      for (const field of requiredSurveyFields) {
+        // Get a fresh object with all keys/values
+        clonedRawData[1].data = cloneDeep(rawData[1].data);
+
+        // Remove field
+        delete clonedRawData[1].data[field];
+
+        // Process modified record, run validation and expect error
+        const {
+          recordGroups: modifiedRecordGroups,
+          ...modifiedResultInfo
+        } = await preprocessRecordSet(clonedRawData);
+        expect(modifiedResultInfo.errors.length).toBe(1);
+      }
+    });
     test.todo('Should ensure questions all have a valid type');
     test.todo('Should ensure visibilityCriteria fields have valid syntax');
     test.todo('Should ensure validationCriteria fields have valid syntax');
@@ -38,5 +55,4 @@ describe('Importing programs', () => {
     test.todo('Should ensure calculation fields have valid syntax');
     test.todo('Should ensure options and optionLabels fields have valid syntax');
   });
-
 });

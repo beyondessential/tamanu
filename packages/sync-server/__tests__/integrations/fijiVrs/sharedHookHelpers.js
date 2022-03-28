@@ -35,6 +35,7 @@ const fakeVillage = () => {
 
 export const prepareVRSMocks = async (ctx, opts = {}) => {
   const fetchId = chance.integer({ min: 1, max: 100000000 }).toString();
+  const createdAt = new Date(Date.now() - 100000).toISOString();
   const token = chance.hash();
 
   const {
@@ -61,17 +62,34 @@ export const prepareVRSMocks = async (ctx, opts = {}) => {
       status: 200,
       json: async () => ({ response: true }),
     }),
+    fetchAllPendingActionsImpl = () => ({
+      ok: true,
+      status: 200,
+      json: async () => ({
+        response: 'success',
+        data: [
+          {
+            Id: fetchId,
+            Operation: 'INSERT',
+            CreatedDateTime: createdAt,
+          },
+        ],
+      }),
+    }),
   } = opts;
 
   const fetch = jest.fn((url, ...args) => {
     if (url.includes('/token')) {
-      return tokenImpl(url, ...args);
+      return tokenImpl(fetchId, url, ...args);
     }
-    if (url.includes(`/api/Tamanu/Fetch/${fetchId}`)) {
-      return fetchImpl(url, ...args);
+    if (url.includes(`/api/Tamanu/Fetch?fetch_id=${fetchId}`)) {
+      return fetchImpl(fetchId, url, ...args);
     }
     if (url.includes(`/api/Tamanu/Acknowledge?fetch_id=${fetchId}`)) {
-      return ackImpl(url, ...args);
+      return ackImpl(fetchId, url, ...args);
+    }
+    if (url.includes('/api/Tamanu/FetchAllPendingActions')) {
+      return fetchAllPendingActionsImpl(fetchId, url, ...args);
     }
     // error on unexpected calls
     throw new Error('unexpected call to fetch', url, ...args);

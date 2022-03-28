@@ -11,6 +11,11 @@ export class PatientVRSData extends Model {
         identifier: Sequelize.STRING,
         // if we don't have a matching village, persist the unmatched name here
         unmatchedVillageName: Sequelize.STRING,
+        isDeletedByRemote: {
+          type: Sequelize.BOOLEAN,
+          defaultValue: false,
+          allowNull: false,
+        },
       },
       {
         ...options,

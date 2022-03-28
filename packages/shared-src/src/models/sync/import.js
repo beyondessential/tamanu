@@ -25,7 +25,7 @@ const createImportPlanInner = (model, relationTree, validateRecord) => {
   const allColumns = Object.keys(model.tableAttributes);
   const columns = without(allColumns, ...model.syncConfig.excludedColumns);
 
-  //relations
+  // relations
   const children = Object.entries(relationTree).reduce((memo, [relationName, childTree]) => {
     const association = model.associations[relationName];
     const childModel = association.target;
@@ -188,7 +188,7 @@ const executeUpdateOrCreates = async (
       const recordsForCreate = childRecords.filter(r => !existingIdSet.has(r.id));
       const recordsForUpdate = childRecords.filter(r => existingIdSet.has(r.id));
       await executeCreates(relationPlan, recordsForCreate);
-      executeUpdates(relationPlan, recordsForUpdate);
+      await executeUpdates(relationPlan, recordsForUpdate);
     }
   }
 

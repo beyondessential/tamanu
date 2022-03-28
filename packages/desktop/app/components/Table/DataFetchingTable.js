@@ -4,8 +4,8 @@ import { useApi } from '../../api';
 
 const ROWS_PER_PAGE_OPTIONS = [10, 25, 50];
 const DEFAULT_SORT = { order: 'asc', orderBy: undefined };
+const DEFAULT_FETCH_STATE = { data: [], count: 0, errorMessage: '', isLoading: true };
 
-const defaultFetchState = { data: [], count: 0, errorMessage: '', isLoading: true };
 export const DataFetchingTable = memo(
   ({
     columns,
@@ -19,11 +19,14 @@ export const DataFetchingTable = memo(
     className,
     exportName = 'TamanuExport',
     refreshCount = 0,
+    rowStyle,
+    allowExport = true,
+    onDataFetched,
   }) => {
     const [page, setPage] = useState(0);
     const [rowsPerPage, setRowsPerPage] = useState(ROWS_PER_PAGE_OPTIONS[0]);
     const [sorting, setSorting] = useState(initialSort);
-    const [fetchState, setFetchState] = useState(defaultFetchState);
+    const [fetchState, setFetchState] = useState(DEFAULT_FETCH_STATE);
     const [forcedRefreshCount, setForcedRefreshCount] = useState(0);
     const api = useApi();
 
@@ -42,45 +45,54 @@ export const DataFetchingTable = memo(
       [sorting],
     );
 
-    const fetchData = useCallback(
-      queryParameters => api.get(endpoint, { ...fetchOptions, ...queryParameters }),
-      [api, endpoint, fetchOptions],
-    );
+    const updateFetchState = useCallback(newFetchState => {
+      setFetchState(oldFetchState => ({ ...oldFetchState, ...newFetchState }));
+    }, []);
 
     useEffect(() => {
-      let updateFetchState = newFetchState =>
-        setFetchState(oldFetchState => ({ ...oldFetchState, ...newFetchState }));
-
       updateFetchState({ isLoading: true });
       (async () => {
         try {
-          const { data, count } = await fetchData({ page, rowsPerPage, ...sorting });
+          if (!endpoint) {
+            throw new Error('Missing endpoint to fetch data.');
+          }
+          const { data, count } = await api.get(endpoint, {
+            page,
+            rowsPerPage,
+            ...sorting,
+            ...fetchOptions,
+          });
           const transformedData = transformRow ? data.map(transformRow) : data;
           updateFetchState({
-            ...defaultFetchState,
+            ...DEFAULT_FETCH_STATE,
             data: transformedData,
             count,
             isLoading: false,
           });
+          if (onDataFetched) {
+            onDataFetched({
+              data: transformedData,
+              count,
+            });
+          }
         } catch (error) {
           // eslint-disable-next-line no-console
           console.error(error);
           updateFetchState({ errorMessage: error.message, isLoading: false });
         }
       })();
-
-      return () => {
-        updateFetchState = () => {}; // discard the fetch state update if this request is stale
-      };
     }, [
+      api,
+      endpoint,
       page,
       rowsPerPage,
       sorting,
       fetchOptions,
       refreshCount,
       forcedRefreshCount,
-      fetchData,
       transformRow,
+      onDataFetched,
+      updateFetchState,
     ]);
 
     useEffect(() => setPage(0), [fetchOptions]);
@@ -108,6 +120,8 @@ export const DataFetchingTable = memo(
         exportName={exportName}
         customSort={customSort}
         onTableRefresh={handleTableRefresh}
+        rowStyle={rowStyle}
+        allowExport={allowExport}
       />
     );
   },

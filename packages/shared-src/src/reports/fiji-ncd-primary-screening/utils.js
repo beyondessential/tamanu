@@ -222,7 +222,7 @@ const getSurveyResultBody = surveyResponse => {
   // we just use resultText.
   const { surveyId, resultText } = surveyResponse;
   if (surveyId === BREAST_CANCER_FORM_SURVEY_ID) {
-    return resultText ?? 'Not high risk';
+    return resultText || 'Not high risk';
   }
   return resultText;
 };

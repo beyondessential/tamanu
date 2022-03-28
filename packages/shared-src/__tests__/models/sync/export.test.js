@@ -23,109 +23,121 @@ describe('export', () => {
   const facilityId = uuidv4();
   const scheduledVaccineId = uuidv4();
 
-  beforeAll(async () => {
-    context = await initDb({ syncClientMode: true }); // TODO: test server mode too
-    models = context.models;
-    await models.Patient.create({ ...fakePatient(), id: patientId });
-    await models.User.create({ ...fakeUser(), id: userId });
-    await models.Facility.create({ ...fake(models.Facility), id: facilityId });
-    await models.ScheduledVaccine.create({
-      ...fake(models.ScheduledVaccine),
-      id: scheduledVaccineId,
-    });
-  });
+  [true, false].forEach(syncClientMode => {
+    describe(`in ${syncClientMode ? 'client' : 'server'} mode`, () => {
+      beforeAll(async () => {
+        context = await initDb({ syncClientMode });
+        models = context.models;
+        await models.Patient.create({ ...fakePatient(), id: patientId });
+        await models.User.create({ ...fakeUser(), id: userId });
+        await models.Facility.create({ ...fake(models.Facility), id: facilityId });
+        await models.ScheduledVaccine.create({
+          ...fake(models.ScheduledVaccine),
+          id: scheduledVaccineId,
+        });
+      });
 
-  const testCases = [
-    ['Patient', fakePatient],
-    ['Encounter', () => buildNestedEncounter(context, patientId), `patient/${patientId}/encounter`],
-    ['Encounter', () => buildNestedEncounter(context, patientId), 'labRequest/all/encounter'],
-    [
-      'Encounter',
-      async () => {
-        const encounter = await buildNestedEncounter(context, patientId);
-        encounter.administeredVaccines = encounter.administeredVaccines.map(v => ({
-          ...v,
-          scheduledVaccineId,
-        }));
-        return encounter;
-      },
-      `scheduledVaccine/${scheduledVaccineId}/encounter`,
-    ],
-    [
-      'PatientAllergy',
-      () => ({ ...fake(models.PatientAllergy), patientId }),
-      `patient/${patientId}/allergy`,
-    ],
-    [
-      'PatientCarePlan',
-      () => ({ ...fake(models.PatientCarePlan), patientId }),
-      `patient/${patientId}/carePlan`,
-    ],
-    [
-      'PatientCondition',
-      () => ({ ...fake(models.PatientCondition), patientId }),
-      `patient/${patientId}/condition`,
-    ],
-    [
-      'PatientFamilyHistory',
-      () => ({ ...fake(models.PatientFamilyHistory), patientId }),
-      `patient/${patientId}/familyHistory`,
-    ],
-    [
-      'PatientIssue',
-      () => ({ ...fake(models.PatientIssue), patientId }),
-      `patient/${patientId}/issue`,
-    ],
-    ['ReportRequest', () => ({ ...fake(models.ReportRequest), requestedByUserId: userId })],
-    [
-      'UserFacility',
-      async () => {
-        const user = await models.User.create(fakeUser());
-        return { id: uuidv4(), userId: user.id, facilityId };
-      },
-    ],
-  ];
-  testCases.forEach(([modelName, fakeRecord, overrideChannel]) => {
-    describe(modelName, () => {
-      it('exports pages of records', async () => {
-        // arrange
-        const model = models[modelName];
-        const channel = overrideChannel || (await model.syncConfig.getChannels())[0];
-        const plan = createExportPlan(model.sequelize, channel);
-        await model.truncate();
-        const records = [await fakeRecord(), await fakeRecord()];
-        const updatedAts = [makeUpdatedAt(20), makeUpdatedAt(0)];
-        await Promise.all(
-          records.map(async (record, i) => {
-            await model.create(record);
-            await upsertAssociations(model, record);
-            await unsafeSetUpdatedAt(context.sequelize, {
-              table: model.tableName,
-              id: record.id,
-              updated_at: updatedAts[i],
+      const testCases = [
+        ['Patient', fakePatient],
+        [
+          'Encounter',
+          () => buildNestedEncounter(context, patientId),
+          `patient/${patientId}/encounter`,
+        ],
+        ['Encounter', () => buildNestedEncounter(context, patientId), 'labRequest/all/encounter'],
+        [
+          'Encounter',
+          async () => {
+            const encounter = await buildNestedEncounter(context, patientId);
+            encounter.administeredVaccines = encounter.administeredVaccines.map(v => ({
+              ...v,
+              scheduledVaccineId,
+            }));
+            return encounter;
+          },
+          `scheduledVaccine/${scheduledVaccineId}/encounter`,
+        ],
+        [
+          'PatientAllergy',
+          () => ({ ...fake(models.PatientAllergy), patientId }),
+          `patient/${patientId}/allergy`,
+        ],
+        [
+          'PatientCarePlan',
+          () => ({ ...fake(models.PatientCarePlan), patientId }),
+          `patient/${patientId}/carePlan`,
+        ],
+        [
+          'PatientCondition',
+          () => ({ ...fake(models.PatientCondition), patientId }),
+          `patient/${patientId}/condition`,
+        ],
+        [
+          'PatientFamilyHistory',
+          () => ({ ...fake(models.PatientFamilyHistory), patientId }),
+          `patient/${patientId}/familyHistory`,
+        ],
+        [
+          'PatientIssue',
+          () => ({ ...fake(models.PatientIssue), patientId }),
+          `patient/${patientId}/issue`,
+        ],
+        ['ReportRequest', () => ({ ...fake(models.ReportRequest), requestedByUserId: userId })],
+        [
+          'UserFacility',
+          async () => {
+            const user = await models.User.create(fakeUser());
+            return { id: uuidv4(), userId: user.id, facilityId };
+          },
+        ],
+      ];
+      testCases.forEach(([modelName, fakeRecord, overrideChannel]) => {
+        describe(modelName, () => {
+          it('exports pages of records', async () => {
+            // arrange
+            const model = models[modelName];
+            const channel = overrideChannel || (await model.syncConfig.getChannels())[0];
+            const plan = createExportPlan(model.sequelize, channel);
+            await model.truncate();
+            const records = [await fakeRecord(), await fakeRecord()];
+            const updatedAts = [makeUpdatedAt(20), makeUpdatedAt(0)];
+            await Promise.all(
+              records.map(async (record, i) => {
+                await model.create({ ...record, isPushing: syncClientMode }); // only set isPushing in client mode
+                await upsertAssociations(model, record);
+                await unsafeSetUpdatedAt(context.sequelize, {
+                  table: model.tableName,
+                  id: record.id,
+                  updated_at: updatedAts[i],
+                });
+              }),
+            );
+
+            // act
+            const { records: firstRecords, cursor: firstCursor } = await executeExportPlan(plan, {
+              limit: 1,
             });
-          }),
-        );
+            const { records: secondRecords, cursor: secondCursor } = await executeExportPlan(plan, {
+              limit: 1,
+              since: firstCursor,
+            });
+            const { records: thirdRecords } = await executeExportPlan(plan, {
+              limit: 1,
+              since: secondCursor,
+            });
 
-        // act
-        const { records: firstRecords, cursor: firstCursor } = await executeExportPlan(plan, {
-          limit: 1,
+            // assert
+            expect(firstRecords.length).toEqual(1);
+            expectDeepSyncRecordMatch(records[0], firstRecords[0], {
+              nullableDateFields: modelName === 'Patient' ? ['dateOfDeath'] : [],
+            });
+            expect(secondRecords.length).toEqual(1);
+            expectDeepSyncRecordMatch(records[1], secondRecords[0], {
+              nullableDateFields: modelName === 'Patient' ? ['dateOfDeath'] : [],
+            });
+            expect(thirdRecords.length).toEqual(0);
+          });
         });
-        const { records: secondRecords, cursor: secondCursor } = await executeExportPlan(plan, {
-          limit: 1,
-          since: firstCursor,
-        });
-        const { records: thirdRecords } = await executeExportPlan(plan, {
-          limit: 1,
-          since: secondCursor,
-        });
-
-        // assert
-        expect(firstRecords.length).toEqual(1);
-        expectDeepSyncRecordMatch(records[0], firstRecords[0]);
-        expect(secondRecords.length).toEqual(1);
-        expectDeepSyncRecordMatch(records[1], secondRecords[0]);
-        expect(thirdRecords.length).toEqual(0);
       });
     });
   });

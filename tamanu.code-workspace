@@ -17,6 +17,10 @@
       "path": "packages/meta-server"
     },
     {
+      "name": "mobile",
+      "path": "packages/mobile"
+    },
+    {
       "name": "scripts",
       "path": "packages/scripts"
     },

@@ -49,6 +49,7 @@ export const DateInput = ({
   onChange,
   name,
   placeholder,
+  max = '9999-12-31',
   ...props
 }) => {
   const [currentText, setCurrentText] = useState(fromRFC3339(value, format));
@@ -88,6 +89,8 @@ export const DateInput = ({
             {placeholder ? <DatePlaceholder>{placeholder}</DatePlaceholder> : <CalendarIcon />}
           </InputAdornment>
         ),
+        // Set max property on HTML input element to force 4-digit year value (max year being 9999)
+        inputProps: { max },
       }}
       {...props}
     />
@@ -97,7 +100,7 @@ export const DateInput = ({
 export const TimeInput = props => <DateInput type="time" format="HH:mm" {...props} />;
 
 export const DateTimeInput = props => (
-  <DateInput type="datetime-local" format="YYYY-MM-DDTHH:mm" {...props} />
+  <DateInput type="datetime-local" format="YYYY-MM-DDTHH:mm" max="9999-12-31T00:00" {...props} />
 );
 
 export const DateField = ({ field, ...props }) => (

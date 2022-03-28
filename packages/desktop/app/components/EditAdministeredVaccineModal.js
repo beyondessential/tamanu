@@ -2,7 +2,6 @@ import React, { useState, useCallback } from 'react';
 import styled from 'styled-components';
 
 import { Modal } from './Modal';
-import { ConfirmAdministeredVaccineDelete } from './ConfirmAdministeredVaccineDelete';
 
 import { connectApi } from '../api/connectApi';
 import { reloadPatient } from '../store/patient';
@@ -12,6 +11,7 @@ import { ContentPane } from './ContentPane';
 import { DeleteButton } from './Button';
 import { TextInput } from './Field';
 import { FormGrid } from './FormGrid';
+import { ConfirmModal } from './ConfirmModal';
 
 const Button = styled(DeleteButton)`
   margin-top: 12px;
@@ -37,14 +37,17 @@ const ModalContent = React.memo(({ open, onClose, onMarkRecordedInError, vaccine
 
   if (confirmDelete) {
     return (
-      <Modal title="Delete Vaccination Record" open={open} onClose={closeWithoutDeletingRecord}>
-        <ContentPane>
-          <ConfirmAdministeredVaccineDelete
-            onDelete={onMarkRecordedInError}
-            onClose={closeWithoutDeletingRecord}
-          />
-        </ContentPane>
-      </Modal>
+      <ConfirmModal
+        title="Delete Vaccination Record"
+        text="WARNING: This action is irreversible!"
+        subText="Are you sure you want to delete this vaccination record?"
+        open={open}
+        onCancel={closeWithoutDeletingRecord}
+        onConfirm={onMarkRecordedInError}
+        ConfirmButton={DeleteButton}
+        cancelButtonText="No"
+        confirmButtonText="Yes"
+      />
     );
   }
 

@@ -71,6 +71,6 @@ export class PatientAdditionalData extends Model {
   }
 
   static getFullReferenceAssociations() {
-    return ['countryOfBirth'];
+    return ['countryOfBirth', 'nationality'];
   }
 }

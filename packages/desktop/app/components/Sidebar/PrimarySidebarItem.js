@@ -9,7 +9,7 @@ import { administrationIcon } from '../../constants/images';
 
 export const PrimarySidebarItem = React.memo(({ icon, label, children, selected, onClick }) => (
   <>
-    <ListItem button onClick={onClick} selected={selected}>
+    <ListItem button onClick={onClick} selected={selected} data-test-class="primary-sidebar-item">
       <SidebarPrimaryIcon src={icon || administrationIcon} />
       <SidebarItemText disableTypography primary={label} />
     </ListItem>

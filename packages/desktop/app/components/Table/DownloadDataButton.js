@@ -86,7 +86,7 @@ export function DownloadDataButton({ exportName, columns, data }) {
   };
 
   return (
-    <Button onClick={onDownloadData}>
+    <Button onClick={onDownloadData} data-test-class="download-data-button">
       <PaddedDownloadIcon />
     </Button>
   );

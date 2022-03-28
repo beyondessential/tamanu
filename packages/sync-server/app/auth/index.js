@@ -1,7 +1,7 @@
 import express from 'express';
 import asyncHandler from 'express-async-handler';
-import config from 'config';
 
+import { getPermissions } from 'shared/permissions/middleware';
 import { convertFromDbRecord } from '../convertDbRecord';
 
 import { changePassword } from './changePassword';
@@ -18,10 +18,10 @@ authModule.post('/login', login);
 
 authModule.use(userMiddleware);
 
+authModule.get('/permissions', asyncHandler(getPermissions));
 authModule.get(
   '/whoami',
   asyncHandler((req, res) => {
     res.send(convertFromDbRecord(req.user).data);
   }),
 );
-

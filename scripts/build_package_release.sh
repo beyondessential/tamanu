@@ -6,7 +6,7 @@ set -euxo pipefail
 # It works by copying a workspace into a folder yarn doesn't recognise as
 # a workspace, then building its dependencies again.
 
-RELEASE_DIR="${RELEASE_DIR:-release}"
+RELEASE_DIR="${RELEASE_DIR:-release-nodejs}"
 WORKSPACE="${1?must specify a workspace}"
 
 shopt -s extglob

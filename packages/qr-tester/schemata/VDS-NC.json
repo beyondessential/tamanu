@@ -1,0 +1,34 @@
+{
+  "$id": "http://namespaces.icao.int/VDS-NC.json",
+  "title": "VDS-NC",
+  "type": "object",
+  "description": "VDS-NC Schema",
+  "properties": {
+    "data": {
+      "type": "object",
+      "properties": {
+        "hdr": {
+          "$ref": "http://namespaces.icao.int/VDS-NC_header.json"
+        },
+        "msg": {
+          "oneOf": [
+            {
+              "$ref": "http://namespaces.icao.int/VDS-NC_message_PoV_WHO.json"
+            },
+            {
+              "$ref": "http://namespaces.icao.int/VDS-NC_message_PoT_ICAO.json"
+            }
+          ]
+        },
+        "additionalProperties": false
+      },
+      "required": ["hdr", "msg"],
+      "additionalProperties": false
+    },
+    "sig": {
+      "$ref": "http://namespaces.icao.int/VDS-NC_signature.json"
+    }
+  },
+  "required": ["data", "sig"],
+  "additionalProperties": false
+}

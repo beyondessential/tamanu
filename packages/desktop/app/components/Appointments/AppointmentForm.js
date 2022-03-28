@@ -19,12 +19,14 @@ export const AppointmentForm = props => {
   const isUpdating = !!appointment;
   const clinicianSuggester = new Suggester(api, 'practitioner');
   const locationSuggester = new Suggester(api, 'location');
-  const patientSuggester = new Suggester(api, 'patient', ({ id, ...patient }) => ({
-    label: `${getPatientNameAsString(patient)} (${patient.displayId}) - ${
-      patient.sex
-    } - ${formatShort(patient.dateOfBirth)}`,
-    value: id,
-  }));
+  const patientSuggester = new Suggester(api, 'patient', {
+    formatter: ({ id, ...patient }) => ({
+      label: `${getPatientNameAsString(patient)} (${patient.displayId}) - ${
+        patient.sex
+      } - ${formatShort(patient.dateOfBirth)}`,
+      value: id,
+    }),
+  });
   let initialValues = {};
   if (isUpdating) {
     initialValues = {
