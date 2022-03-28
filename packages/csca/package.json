@@ -1,31 +1,41 @@
 {
   "name": "csca",
   "version": "1.14.0",
-  "description": "Sync server for Tamanu desktop app",
+  "description": "CSCA tooling for Tamanu desktop app",
   "homepage": "https://github.com/beyondessential/tamanu.git#readme",
   "repository": "git@github.com:beyondessential/tamanu.git",
   "author": "Beyond Essential Systems Pty. Ltd.",
   "license": "SEE LICENSE IN license",
-  "main": "index.js",
+  "main": "src/index.js",
   "scripts": {
+    "build": "tsc --build tsconfig.json",
+    "cli": "yarn build && node build",
     "test": "NODE_ENV=test jest",
     "test-coverage": "yarn test --coverage",
     "test-watch": "yarn test --watch",
-    "lint": "eslint app",
-    "lint-stats": "eslint app --format ../scripts/eslint-stats.js"
+    "lint": "eslint --fix .",
+    "lint-stats": "eslint --format ../scripts/eslint-stats.js ."
   },
   "devDependencies": {
     "@beyondessential/eslint-config-js": "^1.1.0",
+    "@types/jest": "^24.0.23",
+    "@types/node": "^14.0.4",
+    "@types/yup": "^0.26.27",
+    "@typescript-eslint/eslint-plugin": "^2.14.0",
+    "@typescript-eslint/parser": "^2.14.0",
     "chai": "^4.1.2",
-    "eslint": "^5.15.2",
+    "eslint-import-resolver-alias": "^1.1.2",
     "eslint-import-resolver-webpack": "^0.11.0",
     "eslint-plugin-import": "^2.22.1",
-    "jest": "^24.5.0",
+    "eslint-plugin-jsx-a11y": "^6.2.3",
+    "eslint": "^7.14.0",
     "jest-extended": "^1.2.0",
-    "pkg": "^4.4.8"
+    "jest": "^26.6.3",
+    "pkg": "^4.4.8",
+    "ts-jest": "^26.0.0",
+    "typescript": "^3.9.2"
   },
   "dependencies": {
-    "@aws-sdk/client-s3": "^3.49.0",
     "asn1js": "^2.2.0",
     "commander": "^9.0.0",
     "config": "^3.0.1",
@@ -35,6 +45,7 @@
     "pkijs": "^2.2.1",
     "prompts": "^2.0.0",
     "read": "^1.0.7",
+    "shared": "*",
     "uuid": "^8.1.0",
     "winston": "^3.2.1",
     "yup": "^0.32.9"
