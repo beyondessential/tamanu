@@ -94,6 +94,12 @@ export const REPORT_DEFINITIONS = [
     parameters: [{ parameterField: 'VillageField' }, { parameterField: 'LabTestLaboratoryField' }],
   },
   {
+    name: 'Fiji Traveller COVID-19 Tests - Line list',
+    id: 'fiji-traveller-covid-lab-test-list',
+    allFacilities: true,
+    parameters: [{ parameterField: 'LabTestLaboratoryField' }],
+  },
+  {
     name: 'Palau COVID-19 Test - Line list',
     id: 'palau-covid-swab-lab-test-list',
     allFacilities: true,

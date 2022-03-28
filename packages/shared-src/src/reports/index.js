@@ -15,6 +15,7 @@ import * as samoaAefi from './samoa-aefi';
 import * as numberPatientsRegisteredByDate from './number-patients-registered-by-date';
 import * as registeredPatients from './registered-patients';
 import * as fijiCovidSwabLabTestList from './covid-module/fiji/fiji-covid-swab-lab-test-list';
+import * as fijiTravellerCovidLabTestList from './covid-module/fiji/fiji-traveller-covid-lab-test-list';
 import * as palauCovidSwabLabTestList from './covid-module/palau/palau-covid-swab-lab-test-list';
 import * as kiribatiCovidSwabLabTestList from './covid-module/kiribati/kiribati-covid-swab-lab-test-list';
 import * as covidSwabLabTestsSummary from './covid-module/covid-swab-lab-tests-summary';
@@ -65,6 +66,8 @@ export function getReportModule(reportType) {
       return registeredPatients;
     case 'fiji-covid-swab-lab-test-list':
       return fijiCovidSwabLabTestList;
+    case 'fiji-traveller-covid-lab-test-list':
+      return fijiTravellerCovidLabTestList;
     case 'palau-covid-swab-lab-test-list':
       return palauCovidSwabLabTestList;
     case 'kiribati-covid-swab-lab-test-list':
