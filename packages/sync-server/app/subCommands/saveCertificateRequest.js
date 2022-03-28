@@ -7,8 +7,8 @@ import { Signer } from 'shared/models';
 
 import { initDatabase } from '../database';
 
-async function saveCertificateRequest({ outputPath }) {
-  log.info(`Writing certificate request to ${outputPath}`);
+async function saveCertificateRequest({ output }) {
+  log.info(`Writing certificate request to ${output}`);
 
   await initDatabase({ testMode: false });
 
@@ -23,7 +23,7 @@ async function saveCertificateRequest({ outputPath }) {
     throw new Error('No signers found with pending certificate requests');
   }
 
-  await fs.writeFile(outputPath, latestPending.request);
+  await fs.writeFile(output, latestPending.request);
 }
 
 export const saveCertificateRequestCommand = new Command('saveCertificateRequest')
