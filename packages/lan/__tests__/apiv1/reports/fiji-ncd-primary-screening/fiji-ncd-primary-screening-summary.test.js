@@ -45,9 +45,7 @@ const PROPERTY_TO_EXCEL_INDEX = PROPERTY_LIST.reduce((acc, prop, i) => ({ ...acc
 
 const getProperty = (row, prop) => row[PROPERTY_TO_EXCEL_INDEX[prop]];
 
-// TODO: Unskip test once tests run against a postgresql database:
-// https://linear.app/bes/issue/TAN-409/get-rid-of-sqlite
-describe.skip('Fiji NCD Primary Screening Summary', () => {
+describe('Fiji NCD Primary Screening Summary', () => {
   let baseApp = null;
   let app = null;
   let expectedPatient1 = null;
@@ -57,7 +55,7 @@ describe.skip('Fiji NCD Primary Screening Summary', () => {
 
   beforeAll(async () => {
     ctx = await createTestContext();
-    const models = ctx.models;
+    const { models } = ctx;
 
     await models.Referral.truncate({ cascade: true });
     await models.SurveyResponseAnswer.truncate({ cascade: true });
