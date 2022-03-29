@@ -1,4 +1,4 @@
 #!/bin/bash
 set -euxo pipefail
 
-yarn workspace shared-src run build
+yarn run build-shared
