@@ -126,6 +126,7 @@ function signerExtensions(profile: Profile): Extension[] {
 
 export default class FolderCA {
   private path: string;
+  private passphrase: Buffer | undefined;
 
   constructor(path: string) {
     this.path = path;
