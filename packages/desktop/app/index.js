@@ -9,6 +9,7 @@ import { createHashHistory } from 'history';
 
 import Root from './Root';
 import './fonts.scss';
+import './react-toastify.scss';
 
 import { createReducers } from './createReducers';
 import { API } from './api/singletons';
