@@ -20,6 +20,7 @@
     "@beyondessential/eslint-config-js": "^1.1.0",
     "@types/jest": "^24.0.23",
     "@types/node": "^14.0.4",
+    "@types/prompts": "^2.0.14",
     "@types/yup": "^0.26.27",
     "@typescript-eslint/eslint-plugin": "^2.14.0",
     "@typescript-eslint/parser": "^2.14.0",

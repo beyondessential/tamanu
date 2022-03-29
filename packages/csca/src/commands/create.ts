@@ -33,16 +33,6 @@ async function run (countryName: string, options: {
   const fullname = options.fullname || `${fullCountryName} Health CSCA`;
   const dir = options.dir || `${shortCountryName}.csca`.replace(/\s+/g, '').toLowerCase();
 
-  console.info(`Does this look right?
-  path:       ${dir}
-  alpha3:     ${alpha3}
-  alpha2:     ${alpha2}
-  short name: ${shortname}
-  full name:  ${fullname}
-  provider:   ${provider}
-  deptOrg:    ${deptOrg || '(none)'}
-  `);
-
   const ca = new CA(dir);
   await ca.create(shortname, fullname, alpha2, alpha3, profile, provider, deptOrg);
 }

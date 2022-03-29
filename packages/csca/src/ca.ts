@@ -1,6 +1,7 @@
 import { add, Duration, Interval } from 'date-fns';
 import { promises as fs } from 'fs';
 import { join } from 'path';
+import prompts from 'prompts';
 
 export const CRL_URL_BASE: string = 'http://crl.tamanu.io';
 
@@ -126,10 +127,49 @@ function signerExtensions(profile: Profile): Extension[] {
 
 export default class FolderCA {
   private path: string;
-  private passphrase: Buffer | undefined;
+  private passphrase: string | undefined;
 
   constructor(path: string) {
     this.path = path;
+  }
+
+  private async askPassphrase(confirm: boolean = false): Promise<void> {
+    if (!this.passphrase) {
+      const { value } = await prompts({
+        type: 'password',
+        name: 'value',
+        message: `Enter CSCA passphrase${confirm ? ' (min 30 characters)' : ''}`,
+        validate: (value: string) => (value.length < 30)
+          ? 'Passphrase must be at least 30 characters long'
+          : true,
+      });
+
+      if (confirm) {
+        const { confirm } = await prompts({
+          type: 'password',
+          name: 'confirm',
+          message: 'Confirm CSCA passphrase',
+        });
+
+        if (value !== confirm) {
+          throw new Error('Passphrase mismatch');
+        }
+      }
+
+      this.passphrase = value;
+    }
+  }
+
+  private async confirm(message: string): Promise<void> {
+    const { value } = await prompts({
+      type: 'confirm',
+      name: 'value',
+      message,
+    });
+
+    if (!value) {
+      throw new Error('Aborted');
+    }
   }
 
   private join(...paths: string[]) {
@@ -149,15 +189,9 @@ export default class FolderCA {
       throw new Error(`${this.path} already exists, not overwriting`);
     }
 
-    for (const dir of ['.', 'certs']) {
-      const path = this.join(dir);
-      console.debug('mkdir', path);
-      await fs.mkdir(path, { recursive: true });
-    }
-
     const now = new Date();
 
-    await this.writeAndSign(JSON.stringify({
+    const config: Config = {
       name: shortname,
       country: {
         alpha2: countryAlpha2,
@@ -173,14 +207,27 @@ export default class FolderCA {
         filename: `${shortname}.crl`,
         distribution: [`${CRL_URL_BASE}/${shortname}.crl`],
       },
-      validityPeriod: period(now, CSCA_VALIDITY),
       workingPeriod: period(now, CSCA_PKUP),
+      validityPeriod: period(now, CSCA_VALIDITY),
       issuance: {
+        workingPeriodDays: signerWorkingTime(profile).days!,
+        validityPeriodDays: signerDefaultValidity(profile).days!,
         extensions: signerExtensions(profile),
-        validityPeriod: period(now, signerDefaultValidity(profile)),
-        workingPeriod: period(now, signerWorkingTime(profile)),
       },
-    } as Config), 'config.json', 'config.sig');
+    };
+
+    console.info('CSCA Config:', JSON.stringify(config, null, 2));
+    await this.confirm('Proceed?');
+
+    for (const dir of ['.', 'certs']) {
+      const path = this.join(dir);
+      console.debug('mkdir', path);
+      await fs.mkdir(path, { recursive: true });
+    }
+
+    await this.askPassphrase(true);
+
+    await this.writeAndSign(JSON.stringify(config), 'config.json', 'config.sig');
   }
 
   private async writeAndSign(content: string | Buffer, file: string, signatureFile: string) {
@@ -219,8 +266,8 @@ export interface CRL {
 
 export interface Issuance {
   extensions: Extension[];
-  validityPeriod: Interval;
-  workingPeriod: Interval;
+  validityPeriodDays: number;
+  workingPeriodDays: number;
 }
 
 export interface Extension {
