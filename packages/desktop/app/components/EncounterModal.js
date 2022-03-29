@@ -31,7 +31,7 @@ export const EncounterModal = React.memo(({ open, onClose, patientId, referral, 
   );
 
   return (
-    <Modal title="Check-in1" open={open} onClose={onClose}>
+    <Modal title="Check-in" open={open} onClose={onClose}>
       <EncounterForm onSubmit={onCreateEncounter} onCancel={onClose} {...props} />
     </Modal>
   );

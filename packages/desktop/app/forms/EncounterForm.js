@@ -17,8 +17,7 @@ import {
   FormGrid,
 } from '../components';
 import { encounterOptions, Colors } from '../constants';
-import { Suggester } from '../utils/suggester';
-import { useApi } from '../api';
+import { useSuggester } from '../api';
 
 const SelectorGrid = styled.div`
   display: grid;
@@ -97,10 +96,9 @@ const StartPage = ({ setValue }) => {
 };
 
 export const EncounterForm = React.memo(({ editedObject, referrals, onSubmit }) => {
-  const api = useApi();
-  const locationSuggester = new Suggester(api, 'location');
-  const practitionerSuggester = new Suggester(api, 'practitioner');
-  const departmentSuggester = new Suggester(api, 'department');
+  const locationSuggester = useSuggester('location');
+  const practitionerSuggester = useSuggester('practitioner');
+  const departmentSuggester = useSuggester('department');
 
   const renderForm = ({ values, setFieldValue, submitForm }) => {
     if (!values.encounterType) {
