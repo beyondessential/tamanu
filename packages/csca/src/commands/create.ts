@@ -19,6 +19,10 @@ function run (countryName: string, options: {
   const alpha3 = options.alpha3 || country?.cca3;
   const alpha2 = options.alpha2 || country?.cca2;
 
+  if (!alpha2 || !alpha3) throw new Error('Country not found or country info incomplete, provide alpha-2 and -3 codes manually');
+  if (!/^[A-Z]{2}$/.test(alpha2)) throw new Error('Invalid alpha-2 code');
+  if (!/^[A-Z]{3}$/.test(alpha3)) throw new Error('Invalid alpha-3 code');
+
   const fullCountryName = country?.name.official;
   const shortCountryName = country?.name.common;
 
