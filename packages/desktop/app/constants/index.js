@@ -366,18 +366,6 @@ export const LOCAL_STORAGE_KEYS = {
   REMEMBER_EMAIL: 'remember-email',
 };
 
-export const VACCINE_STATUS = {
-  UNKNOWN: 'UNKNOWN',
-  GIVEN: 'GIVEN',
-  NOT_GIVEN: 'NOT_GIVEN',
-  SCHEDULED: 'SCHEDULED',
-  MISSED: 'MISSED',
-  DUE: 'DUE',
-  UPCOMING: 'UPCOMING',
-  OVERDUE: 'OVERDUE',
-  RECORDED_IN_ERROR: 'RECORDED_IN_ERROR',
-};
-
 export const REPORT_DATA_SOURCES = {
   THIS_FACILITY: 'thisFacility',
   ALL_FACILITIES: 'allFacilities',

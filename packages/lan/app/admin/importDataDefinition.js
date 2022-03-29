@@ -1,7 +1,10 @@
 import { readFile, utils } from 'xlsx';
-import { log } from 'shared/services/logging';
-
 import { getJsDateFromExcel } from 'excel-date-to-js';
+import moment from 'moment';
+import { v4 as uuidv4 } from 'uuid';
+
+import { log } from 'shared/services/logging';
+import { ENCOUNTER_TYPES } from 'shared/constants';
 
 const sanitise = string => string.trim().replace(/[^A-Za-z0-9]+/g, '');
 
@@ -22,6 +25,40 @@ const referenceDataTransformer = type => item => {
       type,
     },
   };
+};
+
+const administeredVaccineTransformer = () => ({
+  date: excelDate,
+  reason,
+  consent,
+  locationId,
+  departmentId,
+  examinerId,
+  ...data
+}) => {
+  if (!excelDate) {
+    throw new Error('administered vaccines must have a date');
+  }
+  const date = getJsDateFromExcel(excelDate);
+  const administeredVaccine = recordTransformer('administeredVaccine')({
+    date,
+    reason,
+    consent: ['true', 'yes', 't', 'y'].some(v => v === consent?.toLowerCase()),
+    ...data,
+  });
+  return recordTransformer('encounter')({
+    id: uuidv4(),
+    encounterType: ENCOUNTER_TYPES.CLINIC, // TODO: is this meant to be OBSERVATION?
+    startDate: moment(date).startOf('day'),
+    endDate: moment(date).endOf('day'),
+    reasonForEncounter: reason,
+    administeredVaccines: [administeredVaccine],
+
+    // relationships
+    locationId,
+    departmentId,
+    examinerId,
+  });
 };
 
 const patientDataTransformer = item => {
@@ -98,6 +135,7 @@ const transformers = [
   makeTransformer('vaccineSchedules', recordTransformer('scheduledVaccine')),
   makeTransformer('invoiceLineTypes', recordTransformer('invoiceLineType')),
   makeTransformer('invoicePriceChangeTypes', recordTransformer('invoicePriceChangeType')),
+  makeTransformer('administeredVaccines', administeredVaccineTransformer()), // should go below patients, users, departments, locations
   makeTransformer('roles', null),
 ];
 
