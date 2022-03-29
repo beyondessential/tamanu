@@ -2,7 +2,7 @@
   "openapi": "3.0.0",
   "info": {
     "title": "Tamanu HL7 Demo API",
-    "version": "0.1.0",
+    "version": "0.9.0",
     "description": "This is a sample public API using the same underlying data structures intended to be compliant with HL7 FHIR https://www.hl7.org/fhir/",
     "license": {
       "name": "TAMANU OPEN SOURCE LICENCE - LOW INCOME AND MIDDLE INCOME ECONOMIES",
@@ -27,22 +27,18 @@
         "type": "object",
         "properties": {
           "resourceType": {
-            "type": "string",
             "minLength": 1
           },
           "id": {
-            "type": "string",
             "minLength": 1
           },
           "text": {
             "type": "object",
             "properties": {
               "status": {
-                "type": "string",
                 "minLength": 1
               },
               "div": {
-                "type": "string",
                 "minLength": 1
               }
             },
@@ -63,7 +59,6 @@
               ],
               "properties": {
                 "use": {
-                  "type": "string",
                   "minLength": 1
                 },
                 "type": {
@@ -80,11 +75,9 @@
                         ],
                         "properties": {
                           "system": {
-                            "type": "string",
                             "minLength": 1
                           },
                           "code": {
-                            "type": "string",
                             "minLength": 1
                           }
                         }
@@ -96,11 +89,9 @@
                   ]
                 },
                 "system": {
-                  "type": "string",
                   "minLength": 1
                 },
                 "value": {
-                  "type": "string",
                   "minLength": 1
                 }
               }
@@ -119,7 +110,6 @@
               ],
               "properties": {
                 "use": {
-                  "type": "string",
                   "minLength": 1
                 },
                 "family": {
@@ -140,7 +130,6 @@
             }
           },
           "gender": {
-            "type": "string",
             "minLength": 1
           },
           "photo": {
@@ -154,11 +143,9 @@
               ],
               "properties": {
                 "contentType": {
-                  "type": "string",
                   "minLength": 1
                 },
                 "data": {
-                  "type": "string",
                   "minLength": 1
                 }
               }
@@ -189,11 +176,9 @@
                           ],
                           "properties": {
                             "system": {
-                              "type": "string",
                               "minLength": 1
                             },
                             "code": {
-                              "type": "string",
                               "minLength": 1
                             }
                           }
@@ -206,11 +191,9 @@
                   "type": "object",
                   "properties": {
                     "reference": {
-                      "type": "string",
                       "minLength": 1
                     },
                     "display": {
-                      "type": "string",
                       "minLength": 1
                     }
                   },
@@ -226,11 +209,9 @@
             "type": "object",
             "properties": {
               "reference": {
-                "type": "string",
                 "minLength": 1
               },
               "display": {
-                "type": "string",
                 "minLength": 1
               }
             },
@@ -252,7 +233,6 @@
                   "type": "object",
                   "properties": {
                     "reference": {
-                      "type": "string",
                       "minLength": 1
                     }
                   },
@@ -261,7 +241,6 @@
                   ]
                 },
                 "type": {
-                  "type": "string",
                   "minLength": 1
                 }
               }
@@ -287,22 +266,18 @@
         "type": "object",
         "properties": {
           "resourceType": {
-            "type": "string",
             "minLength": 1
           },
           "id": {
-            "type": "string",
             "minLength": 1
           },
           "text": {
             "type": "object",
             "properties": {
               "status": {
-                "type": "string",
                 "minLength": 1
               },
               "div": {
-                "type": "string",
                 "minLength": 1
               }
             },
@@ -323,11 +298,9 @@
               ],
               "properties": {
                 "resourceType": {
-                  "type": "string",
                   "minLength": 1
                 },
                 "id": {
-                  "type": "string",
                   "minLength": 1
                 },
                 "_id": {
@@ -346,7 +319,6 @@
                   ]
                 },
                 "status": {
-                  "type": "string",
                   "minLength": 1
                 },
                 "code": {
@@ -364,22 +336,18 @@
                         ],
                         "properties": {
                           "system": {
-                            "type": "string",
                             "minLength": 1
                           },
                           "code": {
-                            "type": "string",
                             "minLength": 1
                           },
                           "display": {
-                            "type": "string",
                             "minLength": 1
                           }
                         }
                       }
                     },
                     "text": {
-                      "type": "string",
                       "minLength": 1
                     }
                   },
@@ -392,7 +360,6 @@
                   "type": "object",
                   "properties": {
                     "reference": {
-                      "type": "string",
                       "minLength": 1
                     }
                   },
@@ -411,11 +378,9 @@
                     ],
                     "properties": {
                       "reference": {
-                        "type": "string",
                         "minLength": 1
                       },
                       "display": {
-                        "type": "string",
                         "minLength": 1
                       }
                     }
@@ -428,15 +393,12 @@
                       "type": "number"
                     },
                     "unit": {
-                      "type": "string",
                       "minLength": 1
                     },
                     "system": {
-                      "type": "string",
                       "minLength": 1
                     },
                     "code": {
-                      "type": "string",
                       "minLength": 1
                     }
                   },
@@ -461,15 +423,12 @@
                             "type": "number"
                           },
                           "unit": {
-                            "type": "string",
                             "minLength": 1
                           },
                           "system": {
-                            "type": "string",
                             "minLength": 1
                           },
                           "code": {
-                            "type": "string",
                             "minLength": 1
                           }
                         },
@@ -487,15 +446,12 @@
                             "type": "number"
                           },
                           "unit": {
-                            "type": "string",
                             "minLength": 1
                           },
                           "system": {
-                            "type": "string",
                             "minLength": 1
                           },
                           "code": {
-                            "type": "string",
                             "minLength": 1
                           }
                         },
@@ -523,18 +479,15 @@
               ],
               "properties": {
                 "system": {
-                  "type": "string",
                   "minLength": 1
                 },
                 "value": {
-                  "type": "string",
                   "minLength": 1
                 }
               }
             }
           },
           "status": {
-            "type": "string",
             "minLength": 1
           },
           "category": {
@@ -551,11 +504,9 @@
                   ],
                   "properties": {
                     "system": {
-                      "type": "string",
                       "minLength": 1
                     },
                     "code": {
-                      "type": "string",
                       "minLength": 1
                     }
                   }
@@ -588,22 +539,18 @@
                   ],
                   "properties": {
                     "system": {
-                      "type": "string",
                       "minLength": 1
                     },
                     "code": {
-                      "type": "string",
                       "minLength": 1
                     },
                     "display": {
-                      "type": "string",
                       "minLength": 1
                     }
                   }
                 }
               },
               "text": {
-                "type": "string",
                 "minLength": 1
               }
             },
@@ -617,7 +564,6 @@
             "type": "object",
             "properties": {
               "reference": {
-                "type": "string",
                 "minLength": 1
               }
             },
@@ -629,7 +575,6 @@
             "type": "object",
             "properties": {
               "reference": {
-                "type": "string",
                 "minLength": 1
               }
             },
@@ -638,11 +583,9 @@
             ]
           },
           "effectiveDateTime": {
-            "type": "string",
             "minLength": 1
           },
           "issued": {
-            "type": "string",
             "minLength": 1
           },
           "_issued": {
@@ -664,11 +607,9 @@
             "type": "object",
             "properties": {
               "reference": {
-                "type": "string",
                 "minLength": 1
               },
               "display": {
-                "type": "string",
                 "minLength": 1
               }
             },
@@ -694,7 +635,6 @@
                   }
                 },
                 "reference": {
-                  "type": "string",
                   "minLength": 1
                 }
               }
@@ -720,19 +660,15 @@
                   }
                 },
                 "contentType": {
-                  "type": "string",
                   "minLength": 1
                 },
                 "language": {
-                  "type": "string",
                   "minLength": 1
                 },
                 "data": {
-                  "type": "string",
                   "minLength": 1
                 },
                 "title": {
-                  "type": "string",
                   "minLength": 1
                 }
               }
@@ -763,11 +699,9 @@
         "type": "object",
         "properties": {
           "resourceType": {
-            "type": "string",
             "minLength": 1
           },
           "id": {
-            "type": "string",
             "minLength": 1
           },
           "text": {
@@ -781,11 +715,9 @@
                 }
               },
               "status": {
-                "type": "string",
                 "minLength": 1
               },
               "div": {
-                "type": "string",
                 "minLength": 1
               }
             },
@@ -796,7 +728,6 @@
             ]
           },
           "status": {
-            "type": "string",
             "minLength": 1
           },
           "category": {
@@ -821,15 +752,12 @@
                   ],
                   "properties": {
                     "system": {
-                      "type": "string",
                       "minLength": 1
                     },
                     "code": {
-                      "type": "string",
                       "minLength": 1
                     },
                     "display": {
-                      "type": "string",
                       "minLength": 1
                     }
                   }
@@ -870,15 +798,12 @@
                       }
                     },
                     "system": {
-                      "type": "string",
                       "minLength": 1
                     },
                     "code": {
-                      "type": "string",
                       "minLength": 1
                     },
                     "display": {
-                      "type": "string",
                       "minLength": 1
                     }
                   }
@@ -894,7 +819,6 @@
             "type": "object",
             "properties": {
               "reference": {
-                "type": "string",
                 "minLength": 1
               }
             },
@@ -906,7 +830,6 @@
             "type": "object",
             "properties": {
               "reference": {
-                "type": "string",
                 "minLength": 1
               }
             },
@@ -928,15 +851,12 @@
                 "type": "number"
               },
               "unit": {
-                "type": "string",
                 "minLength": 1
               },
               "system": {
-                "type": "string",
                 "minLength": 1
               },
               "code": {
-                "type": "string",
                 "minLength": 1
               }
             },
@@ -968,6 +888,61 @@
       "get": {
         "description": "List all patients",
         "responses": {}
+      }
+    },
+    "/DiagnosticReport": {
+      "get": {
+        "tags": [
+          "DiagnosticReport"
+        ],
+        "parameters": [
+          {
+            "name": "status",
+            "in": "query",
+            "example": "final",
+            "description": "The status of the report"
+          },
+          {
+            "name": "subject:identifier",
+            "in": "query",
+            "required": true,
+            "description": "Get results for patient with Application permit Id See HL7 FHIR Specs about Business Identifiers and token for more information"
+          },
+          {
+            "name": "_sort",
+            "required": true,
+            "in": "query",
+            "example": "-issued",
+            "description": "Specify one or more other parameters to use as the sort order"
+          },
+          {
+            "name": "_page",
+            "required": true,
+            "in": "query",
+            "description": "Which page for pagination"
+          },
+          {
+            "name": "_count",
+            "in": "query",
+            "description": "Number of records to return"
+          },
+          {
+            "name": "_include",
+            "in": "query",
+            "description": "Additional resources to return - other resources that matching resources refer to"
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Success",
+            "schema": {
+              "type": "array",
+              "items": {
+                "$ref": "#/components/schemas/DiagnosticReport"
+              }
+            }
+          }
+        }
       }
     }
   }
