@@ -8,6 +8,7 @@ export * from './NumberField';
 export * from './NullableBooleanField';
 export * from './TimeWithUnitField';
 export * from './RadioField';
+export * from './ReferenceDataSelectField';
 export * from './SelectField';
 export * from './SurveyQuestionAutocomplete';
 export * from './SurveyResponseSelectField';
