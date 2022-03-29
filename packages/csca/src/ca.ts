@@ -141,8 +141,8 @@ export default class FolderCA {
     countryAlpha2: string,
     countryAlpha3: string,
     profile: Profile,
-    provider: null | string,
-    deptOrg: null | string,
+    provider: undefined | string,
+    deptOrg: undefined | string,
   ) {
     for (const dir of ['.', 'newcerts', 'private']) {
       const path = this.join(dir);
@@ -203,8 +203,8 @@ export interface Country {
 export interface Subject {
   country: string;
   commonName: string;
-  organisation: null | string;
-  organisationUnit: null | string;
+  organisation: undefined | string;
+  organisationUnit: undefined | string;
 }
 
 export interface CRL {

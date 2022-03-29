@@ -2,9 +2,9 @@ import { Command } from 'commander';
 import COUNTRIES from 'world-countries';
 import type { Country } from 'world-countries';
 import { enumFromStringValue, enumValues } from '../utils';
-import { Profile } from '../ca';
+import CA, { Profile } from '../ca';
 
-function run (countryName: string, options: {
+async function run (countryName: string, options: {
   dir?: string,
   alpha2?: string,
   alpha3?: string,
@@ -31,8 +31,10 @@ function run (countryName: string, options: {
 
   const shortname = options.shortname || `${shortCountryName}HealthCSCA`.replace(/\s+/g, '');
   const fullname = options.fullname || `${fullCountryName} Health CSCA`;
+  const dir = options.dir || `${shortCountryName}.csca`.replace(/\s+/g, '').toLowerCase();
 
   console.info(`Does this look right?
+  path:       ${dir}
   alpha3:     ${alpha3}
   alpha2:     ${alpha2}
   short name: ${shortname}
@@ -40,6 +42,10 @@ function run (countryName: string, options: {
   provider:   ${provider}
   deptOrg:    ${deptOrg || '(none)'}
   `);
+
+  const ca = new CA(dir);
+  await ca.create(shortname, fullname, alpha2, alpha3, profile, provider, deptOrg);
+  console.info('Done.');
 }
 
 export default new Command('create')
@@ -55,7 +61,7 @@ export default new Command('create')
   .option('-d, --dept-org <name>', 'provide the department/organization (OU/org-unit field) of the CSCA (optional, e.g. the full name of the ministry of health)')
   .action(run);
 
-function lookupCountry(name: string): Country|null {
+function lookupCountry(name: string): undefined | Country {
   const nameRx = new RegExp(name, 'i');
   return COUNTRIES.find(c =>
     nameRx.test(c.name.common) ||
@@ -67,5 +73,5 @@ function lookupCountry(name: string): Country|null {
       nameRx.test(c.name.common) ||
       nameRx.test(c.name.official)
     )
-  ) || null;
+  );
 }
