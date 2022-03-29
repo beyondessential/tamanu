@@ -7648,6 +7648,13 @@ chromium-pickle-js@^0.2.0:
   resolved "https://registry.yarnpkg.com/chromium-pickle-js/-/chromium-pickle-js-0.2.0.tgz#04a106672c18b085ab774d983dfa3ea138f22205"
   integrity sha1-BKEGZywYsIWrd02YPfo+oTjyIgU=
 
+chrono-node@^2.3.8:
+  version "2.3.8"
+  resolved "https://registry.yarnpkg.com/chrono-node/-/chrono-node-2.3.8.tgz#c53ab3a9fd55ec1f78623582570de07da2e23c6f"
+  integrity sha512-cOCUKFHkGKJ//2VK0Vjwd8qh/tDJNraZHYb4DNB48mRUyfL7ag9lCDXgos30fPmV1pha4sP4qHLYItKNS0YpRw==
+  dependencies:
+    dayjs "^1.10.0"
+
 ci-info@^1.5.0:
   version "1.6.0"
   resolved "https://registry.yarnpkg.com/ci-info/-/ci-info-1.6.0.tgz#2ca20dbb9ceb32d4524a683303313f0304b1e497"
@@ -9085,6 +9092,11 @@ dateformat@~1.0.12:
   dependencies:
     get-stdin "^4.0.1"
     meow "^3.3.0"
+
+dayjs@^1.10.0:
+  version "1.11.0"
+  resolved "https://registry.yarnpkg.com/dayjs/-/dayjs-1.11.0.tgz#009bf7ef2e2ea2d5db2e6583d2d39a4b5061e805"
+  integrity sha512-JLC809s6Y948/FuCZPm5IX8rRhQwOiyMb2TfVVQEixG7P8Lm/gt5S7yoQZmC8x1UehI9Pb7sksEt4xx14m+7Ug==
 
 dayjs@~1.8.24, dayjs@~1.8.25:
   version "1.8.36"

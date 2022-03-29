@@ -37,6 +37,7 @@
   },
   "dependencies": {
     "asn1js": "^2.2.0",
+    "chrono-node": "^2.3.8",
     "commander": "^9.0.0",
     "config": "^3.0.1",
     "date-fns": "^2.19.0",

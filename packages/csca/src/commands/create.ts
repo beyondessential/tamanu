@@ -8,7 +8,7 @@ function run (countryName: string, options: {
   alpha3?: string,
   shortname?: string,
   fullname?: string,
-  provider?: string,
+  provider: string,
   deptOrg?: string,
 }) {
   console.debug(`Looking up country info for ${countryName}`);
@@ -19,10 +19,9 @@ function run (countryName: string, options: {
   const fullCountryName = country?.name.official;
   const shortCountryName = country?.name.common;
 
+  const { deptOrg, provider } = options;
   const shortname = options.shortname || `${shortCountryName}HealthCSCA`.replace(/\s+/g, '');
   const fullname = options.fullname || `${fullCountryName} Health CSCA`;
-  const provider = options.provider || 'BES';
-  const deptOrg = options.deptOrg;
 
   console.info(`Does this look right?
   alpha3:     ${alpha3}
@@ -42,7 +41,7 @@ export default new Command('create')
   .option('-3, --alpha-3 <code>', 'override the ISO 3166-1 alpha-3 code')
   .option('-n, --shortname <name>', 'override the short name of the CSCA (e.g. TamanuHealthCSCA)')
   .option('-N, --fullname <name>', 'override the full name of the CSCA (e.g. "Kingdom of Tamanu Health CSCA")')
-  .option('-p, --provider <name>', 'override the provider (O/org field) of the CSCA (defaults to "BES")')
+  .option('-p, --provider <name>', 'override the provider (O/org field) of the CSCA', 'BES')
   .option('-d, --dept-org <name>', 'provide the department/organization (OU/org-unit field) of the CSCA (optional, e.g. the full name of the ministry of health)')
   .action(run);
 
