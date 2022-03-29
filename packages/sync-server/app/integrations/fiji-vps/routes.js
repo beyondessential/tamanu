@@ -24,9 +24,9 @@ import { requireClientHeaders } from '../../middleware/requireClientHeaders';
 
 export const routes = express.Router();
 
-if (config.integrations.fijiVps.requireClientHeaders) {
-  routes.use(requireClientHeaders);
-}
+// if (config.integrations.fijiVps.requireClientHeaders) {
+//   routes.use(requireClientHeaders);
+// }
 
 function getHL7Link(baseUrl, params) {
   const query = Object.entries(params)

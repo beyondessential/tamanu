@@ -7,6 +7,7 @@ import * as hl7Demo from './hl7-demo';
 import * as fijiVrs from './fiji-vrs';
 import * as fijiVps from './fiji-vps';
 
+console.log(hl7Demo)
 
 const integrations = {
   hl7Demo,
