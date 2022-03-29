@@ -96,7 +96,7 @@ const StartPage = ({ setValue }) => {
   return <SelectorGrid>{items}</SelectorGrid>;
 };
 
-export const EncounterForm = ({ editedObject, referrals, onSubmit }) => {
+export const EncounterForm = React.memo(({ editedObject, referrals, onSubmit }) => {
   const api = useApi();
   const locationSuggester = new Suggester(api, 'location');
   const practitionerSuggester = new Suggester(api, 'practitioner');
@@ -184,7 +184,7 @@ export const EncounterForm = ({ editedObject, referrals, onSubmit }) => {
       })}
     />
   );
-};
+});
 
 EncounterForm.propTypes = {
   onSubmit: PropTypes.func.isRequired,
