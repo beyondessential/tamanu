@@ -1,0 +1,974 @@
+{
+  "openapi": "3.0.0",
+  "info": {
+    "title": "Tamanu HL7 Demo API",
+    "version": "0.1.0",
+    "description": "This is a sample public API using the same underlying data structures intended to be compliant with HL7 FHIR https://www.hl7.org/fhir/",
+    "license": {
+      "name": "TAMANU OPEN SOURCE LICENCE - LOW INCOME AND MIDDLE INCOME ECONOMIES",
+      "url": "https://github.com/beyondessential/tamanu/blob/dev/license"
+    },
+    "contact": {
+      "name": "Kurt Johnson",
+      "url": "https://www.beyondessential.com.au/products/tamanu/",
+      "email": "kurt@beyondessential.com.au"
+    }
+  },
+  "servers": [
+    {
+      "url": "http://localhost:3000/v1/public/integration/hl7Demo",
+      "description": "Local Server"
+    }
+  ],
+  "components": {
+    "schemas": {
+      "Patient": {
+        "description": "",
+        "type": "object",
+        "properties": {
+          "resourceType": {
+            "type": "string",
+            "minLength": 1
+          },
+          "id": {
+            "type": "string",
+            "minLength": 1
+          },
+          "text": {
+            "type": "object",
+            "properties": {
+              "status": {
+                "type": "string",
+                "minLength": 1
+              },
+              "div": {
+                "type": "string",
+                "minLength": 1
+              }
+            },
+            "required": [
+              "status",
+              "div"
+            ]
+          },
+          "identifier": {
+            "type": "array",
+            "uniqueItems": true,
+            "minItems": 1,
+            "items": {
+              "required": [
+                "use",
+                "system",
+                "value"
+              ],
+              "properties": {
+                "use": {
+                  "type": "string",
+                  "minLength": 1
+                },
+                "type": {
+                  "type": "object",
+                  "properties": {
+                    "coding": {
+                      "type": "array",
+                      "uniqueItems": true,
+                      "minItems": 1,
+                      "items": {
+                        "required": [
+                          "system",
+                          "code"
+                        ],
+                        "properties": {
+                          "system": {
+                            "type": "string",
+                            "minLength": 1
+                          },
+                          "code": {
+                            "type": "string",
+                            "minLength": 1
+                          }
+                        }
+                      }
+                    }
+                  },
+                  "required": [
+                    "coding"
+                  ]
+                },
+                "system": {
+                  "type": "string",
+                  "minLength": 1
+                },
+                "value": {
+                  "type": "string",
+                  "minLength": 1
+                }
+              }
+            }
+          },
+          "active": {
+            "type": "boolean"
+          },
+          "name": {
+            "type": "array",
+            "uniqueItems": true,
+            "minItems": 1,
+            "items": {
+              "required": [
+                "use"
+              ],
+              "properties": {
+                "use": {
+                  "type": "string",
+                  "minLength": 1
+                },
+                "family": {
+                  "type": "array",
+                  "items": {
+                    "required": [],
+                    "properties": {}
+                  }
+                },
+                "given": {
+                  "type": "array",
+                  "items": {
+                    "required": [],
+                    "properties": {}
+                  }
+                }
+              }
+            }
+          },
+          "gender": {
+            "type": "string",
+            "minLength": 1
+          },
+          "photo": {
+            "type": "array",
+            "uniqueItems": true,
+            "minItems": 1,
+            "items": {
+              "required": [
+                "contentType",
+                "data"
+              ],
+              "properties": {
+                "contentType": {
+                  "type": "string",
+                  "minLength": 1
+                },
+                "data": {
+                  "type": "string",
+                  "minLength": 1
+                }
+              }
+            }
+          },
+          "contact": {
+            "type": "array",
+            "uniqueItems": true,
+            "minItems": 1,
+            "items": {
+              "required": [],
+              "properties": {
+                "relationship": {
+                  "type": "array",
+                  "uniqueItems": true,
+                  "minItems": 1,
+                  "items": {
+                    "required": [],
+                    "properties": {
+                      "coding": {
+                        "type": "array",
+                        "uniqueItems": true,
+                        "minItems": 1,
+                        "items": {
+                          "required": [
+                            "system",
+                            "code"
+                          ],
+                          "properties": {
+                            "system": {
+                              "type": "string",
+                              "minLength": 1
+                            },
+                            "code": {
+                              "type": "string",
+                              "minLength": 1
+                            }
+                          }
+                        }
+                      }
+                    }
+                  }
+                },
+                "organization": {
+                  "type": "object",
+                  "properties": {
+                    "reference": {
+                      "type": "string",
+                      "minLength": 1
+                    },
+                    "display": {
+                      "type": "string",
+                      "minLength": 1
+                    }
+                  },
+                  "required": [
+                    "reference",
+                    "display"
+                  ]
+                }
+              }
+            }
+          },
+          "managingOrganization": {
+            "type": "object",
+            "properties": {
+              "reference": {
+                "type": "string",
+                "minLength": 1
+              },
+              "display": {
+                "type": "string",
+                "minLength": 1
+              }
+            },
+            "required": [
+              "reference",
+              "display"
+            ]
+          },
+          "link": {
+            "type": "array",
+            "uniqueItems": true,
+            "minItems": 1,
+            "items": {
+              "required": [
+                "type"
+              ],
+              "properties": {
+                "other": {
+                  "type": "object",
+                  "properties": {
+                    "reference": {
+                      "type": "string",
+                      "minLength": 1
+                    }
+                  },
+                  "required": [
+                    "reference"
+                  ]
+                },
+                "type": {
+                  "type": "string",
+                  "minLength": 1
+                }
+              }
+            }
+          }
+        },
+        "required": [
+          "resourceType",
+          "id",
+          "text",
+          "identifier",
+          "active",
+          "name",
+          "gender",
+          "photo",
+          "contact",
+          "managingOrganization",
+          "link"
+        ]
+      },
+      "DiagnosticReport": {
+        "description": "",
+        "type": "object",
+        "properties": {
+          "resourceType": {
+            "type": "string",
+            "minLength": 1
+          },
+          "id": {
+            "type": "string",
+            "minLength": 1
+          },
+          "text": {
+            "type": "object",
+            "properties": {
+              "status": {
+                "type": "string",
+                "minLength": 1
+              },
+              "div": {
+                "type": "string",
+                "minLength": 1
+              }
+            },
+            "required": [
+              "status",
+              "div"
+            ]
+          },
+          "contained": {
+            "type": "array",
+            "uniqueItems": true,
+            "minItems": 1,
+            "items": {
+              "required": [
+                "resourceType",
+                "id",
+                "status"
+              ],
+              "properties": {
+                "resourceType": {
+                  "type": "string",
+                  "minLength": 1
+                },
+                "id": {
+                  "type": "string",
+                  "minLength": 1
+                },
+                "_id": {
+                  "type": "object",
+                  "properties": {
+                    "fhir_comments": {
+                      "type": "array",
+                      "items": {
+                        "required": [],
+                        "properties": {}
+                      }
+                    }
+                  },
+                  "required": [
+                    "fhir_comments"
+                  ]
+                },
+                "status": {
+                  "type": "string",
+                  "minLength": 1
+                },
+                "code": {
+                  "type": "object",
+                  "properties": {
+                    "coding": {
+                      "type": "array",
+                      "uniqueItems": true,
+                      "minItems": 1,
+                      "items": {
+                        "required": [
+                          "system",
+                          "code",
+                          "display"
+                        ],
+                        "properties": {
+                          "system": {
+                            "type": "string",
+                            "minLength": 1
+                          },
+                          "code": {
+                            "type": "string",
+                            "minLength": 1
+                          },
+                          "display": {
+                            "type": "string",
+                            "minLength": 1
+                          }
+                        }
+                      }
+                    },
+                    "text": {
+                      "type": "string",
+                      "minLength": 1
+                    }
+                  },
+                  "required": [
+                    "coding",
+                    "text"
+                  ]
+                },
+                "subject": {
+                  "type": "object",
+                  "properties": {
+                    "reference": {
+                      "type": "string",
+                      "minLength": 1
+                    }
+                  },
+                  "required": [
+                    "reference"
+                  ]
+                },
+                "performer": {
+                  "type": "array",
+                  "uniqueItems": true,
+                  "minItems": 1,
+                  "items": {
+                    "required": [
+                      "reference",
+                      "display"
+                    ],
+                    "properties": {
+                      "reference": {
+                        "type": "string",
+                        "minLength": 1
+                      },
+                      "display": {
+                        "type": "string",
+                        "minLength": 1
+                      }
+                    }
+                  }
+                },
+                "valueQuantity": {
+                  "type": "object",
+                  "properties": {
+                    "value": {
+                      "type": "number"
+                    },
+                    "unit": {
+                      "type": "string",
+                      "minLength": 1
+                    },
+                    "system": {
+                      "type": "string",
+                      "minLength": 1
+                    },
+                    "code": {
+                      "type": "string",
+                      "minLength": 1
+                    }
+                  },
+                  "required": [
+                    "value",
+                    "unit",
+                    "system",
+                    "code"
+                  ]
+                },
+                "referenceRange": {
+                  "type": "array",
+                  "uniqueItems": true,
+                  "minItems": 1,
+                  "items": {
+                    "required": [],
+                    "properties": {
+                      "low": {
+                        "type": "object",
+                        "properties": {
+                          "value": {
+                            "type": "number"
+                          },
+                          "unit": {
+                            "type": "string",
+                            "minLength": 1
+                          },
+                          "system": {
+                            "type": "string",
+                            "minLength": 1
+                          },
+                          "code": {
+                            "type": "string",
+                            "minLength": 1
+                          }
+                        },
+                        "required": [
+                          "value",
+                          "unit",
+                          "system",
+                          "code"
+                        ]
+                      },
+                      "high": {
+                        "type": "object",
+                        "properties": {
+                          "value": {
+                            "type": "number"
+                          },
+                          "unit": {
+                            "type": "string",
+                            "minLength": 1
+                          },
+                          "system": {
+                            "type": "string",
+                            "minLength": 1
+                          },
+                          "code": {
+                            "type": "string",
+                            "minLength": 1
+                          }
+                        },
+                        "required": [
+                          "value",
+                          "unit",
+                          "system",
+                          "code"
+                        ]
+                      }
+                    }
+                  }
+                }
+              }
+            }
+          },
+          "identifier": {
+            "type": "array",
+            "uniqueItems": true,
+            "minItems": 1,
+            "items": {
+              "required": [
+                "system",
+                "value"
+              ],
+              "properties": {
+                "system": {
+                  "type": "string",
+                  "minLength": 1
+                },
+                "value": {
+                  "type": "string",
+                  "minLength": 1
+                }
+              }
+            }
+          },
+          "status": {
+            "type": "string",
+            "minLength": 1
+          },
+          "category": {
+            "type": "object",
+            "properties": {
+              "coding": {
+                "type": "array",
+                "uniqueItems": true,
+                "minItems": 1,
+                "items": {
+                  "required": [
+                    "system",
+                    "code"
+                  ],
+                  "properties": {
+                    "system": {
+                      "type": "string",
+                      "minLength": 1
+                    },
+                    "code": {
+                      "type": "string",
+                      "minLength": 1
+                    }
+                  }
+                }
+              }
+            },
+            "required": [
+              "coding"
+            ]
+          },
+          "code": {
+            "type": "object",
+            "properties": {
+              "fhir_comments": {
+                "type": "array",
+                "items": {
+                  "required": [],
+                  "properties": {}
+                }
+              },
+              "coding": {
+                "type": "array",
+                "uniqueItems": true,
+                "minItems": 1,
+                "items": {
+                  "required": [
+                    "system",
+                    "code",
+                    "display"
+                  ],
+                  "properties": {
+                    "system": {
+                      "type": "string",
+                      "minLength": 1
+                    },
+                    "code": {
+                      "type": "string",
+                      "minLength": 1
+                    },
+                    "display": {
+                      "type": "string",
+                      "minLength": 1
+                    }
+                  }
+                }
+              },
+              "text": {
+                "type": "string",
+                "minLength": 1
+              }
+            },
+            "required": [
+              "fhir_comments",
+              "coding",
+              "text"
+            ]
+          },
+          "subject": {
+            "type": "object",
+            "properties": {
+              "reference": {
+                "type": "string",
+                "minLength": 1
+              }
+            },
+            "required": [
+              "reference"
+            ]
+          },
+          "encounter": {
+            "type": "object",
+            "properties": {
+              "reference": {
+                "type": "string",
+                "minLength": 1
+              }
+            },
+            "required": [
+              "reference"
+            ]
+          },
+          "effectiveDateTime": {
+            "type": "string",
+            "minLength": 1
+          },
+          "issued": {
+            "type": "string",
+            "minLength": 1
+          },
+          "_issued": {
+            "type": "object",
+            "properties": {
+              "fhir_comments": {
+                "type": "array",
+                "items": {
+                  "required": [],
+                  "properties": {}
+                }
+              }
+            },
+            "required": [
+              "fhir_comments"
+            ]
+          },
+          "performer": {
+            "type": "object",
+            "properties": {
+              "reference": {
+                "type": "string",
+                "minLength": 1
+              },
+              "display": {
+                "type": "string",
+                "minLength": 1
+              }
+            },
+            "required": [
+              "reference",
+              "display"
+            ]
+          },
+          "result": {
+            "type": "array",
+            "uniqueItems": true,
+            "minItems": 1,
+            "items": {
+              "required": [
+                "reference"
+              ],
+              "properties": {
+                "fhir_comments": {
+                  "type": "array",
+                  "items": {
+                    "required": [],
+                    "properties": {}
+                  }
+                },
+                "reference": {
+                  "type": "string",
+                  "minLength": 1
+                }
+              }
+            }
+          },
+          "presentedForm": {
+            "type": "array",
+            "uniqueItems": true,
+            "minItems": 1,
+            "items": {
+              "required": [
+                "contentType",
+                "language",
+                "data",
+                "title"
+              ],
+              "properties": {
+                "fhir_comments": {
+                  "type": "array",
+                  "items": {
+                    "required": [],
+                    "properties": {}
+                  }
+                },
+                "contentType": {
+                  "type": "string",
+                  "minLength": 1
+                },
+                "language": {
+                  "type": "string",
+                  "minLength": 1
+                },
+                "data": {
+                  "type": "string",
+                  "minLength": 1
+                },
+                "title": {
+                  "type": "string",
+                  "minLength": 1
+                }
+              }
+            }
+          }
+        },
+        "required": [
+          "resourceType",
+          "id",
+          "text",
+          "contained",
+          "identifier",
+          "status",
+          "category",
+          "code",
+          "subject",
+          "encounter",
+          "effectiveDateTime",
+          "issued",
+          "_issued",
+          "performer",
+          "result",
+          "presentedForm"
+        ]
+      },
+      "Observation": {
+        "description": "",
+        "type": "object",
+        "properties": {
+          "resourceType": {
+            "type": "string",
+            "minLength": 1
+          },
+          "id": {
+            "type": "string",
+            "minLength": 1
+          },
+          "text": {
+            "type": "object",
+            "properties": {
+              "fhir_comments": {
+                "type": "array",
+                "items": {
+                  "required": [],
+                  "properties": {}
+                }
+              },
+              "status": {
+                "type": "string",
+                "minLength": 1
+              },
+              "div": {
+                "type": "string",
+                "minLength": 1
+              }
+            },
+            "required": [
+              "fhir_comments",
+              "status",
+              "div"
+            ]
+          },
+          "status": {
+            "type": "string",
+            "minLength": 1
+          },
+          "category": {
+            "type": "object",
+            "properties": {
+              "fhir_comments": {
+                "type": "array",
+                "items": {
+                  "required": [],
+                  "properties": {}
+                }
+              },
+              "coding": {
+                "type": "array",
+                "uniqueItems": true,
+                "minItems": 1,
+                "items": {
+                  "required": [
+                    "system",
+                    "code",
+                    "display"
+                  ],
+                  "properties": {
+                    "system": {
+                      "type": "string",
+                      "minLength": 1
+                    },
+                    "code": {
+                      "type": "string",
+                      "minLength": 1
+                    },
+                    "display": {
+                      "type": "string",
+                      "minLength": 1
+                    }
+                  }
+                }
+              }
+            },
+            "required": [
+              "fhir_comments",
+              "coding"
+            ]
+          },
+          "code": {
+            "type": "object",
+            "properties": {
+              "fhir_comments": {
+                "type": "array",
+                "items": {
+                  "required": [],
+                  "properties": {}
+                }
+              },
+              "coding": {
+                "type": "array",
+                "uniqueItems": true,
+                "minItems": 1,
+                "items": {
+                  "required": [
+                    "system",
+                    "code",
+                    "display"
+                  ],
+                  "properties": {
+                    "fhir_comments": {
+                      "type": "array",
+                      "items": {
+                        "required": [],
+                        "properties": {}
+                      }
+                    },
+                    "system": {
+                      "type": "string",
+                      "minLength": 1
+                    },
+                    "code": {
+                      "type": "string",
+                      "minLength": 1
+                    },
+                    "display": {
+                      "type": "string",
+                      "minLength": 1
+                    }
+                  }
+                }
+              }
+            },
+            "required": [
+              "fhir_comments",
+              "coding"
+            ]
+          },
+          "subject": {
+            "type": "object",
+            "properties": {
+              "reference": {
+                "type": "string",
+                "minLength": 1
+              }
+            },
+            "required": [
+              "reference"
+            ]
+          },
+          "encounter": {
+            "type": "object",
+            "properties": {
+              "reference": {
+                "type": "string",
+                "minLength": 1
+              }
+            },
+            "required": [
+              "reference"
+            ]
+          },
+          "valueQuantity": {
+            "type": "object",
+            "properties": {
+              "fhir_comments": {
+                "type": "array",
+                "items": {
+                  "required": [],
+                  "properties": {}
+                }
+              },
+              "value": {
+                "type": "number"
+              },
+              "unit": {
+                "type": "string",
+                "minLength": 1
+              },
+              "system": {
+                "type": "string",
+                "minLength": 1
+              },
+              "code": {
+                "type": "string",
+                "minLength": 1
+              }
+            },
+            "required": [
+              "fhir_comments",
+              "value",
+              "unit",
+              "system",
+              "code"
+            ]
+          }
+        },
+        "required": [
+          "resourceType",
+          "id",
+          "text",
+          "status",
+          "category",
+          "code",
+          "subject",
+          "encounter",
+          "valueQuantity"
+        ]
+      }
+    }
+  },
+  "paths": {
+    "/Patient": {
+      "get": {
+        "description": "List all patients",
+        "responses": {}
+      }
+    }
+  }
+}

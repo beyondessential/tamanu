@@ -6,9 +6,9 @@ import { requireClientHeaders } from '../../middleware/requireClientHeaders';
 
 export const routes = express.Router();
 
-if (config.integrations.fijiVps.requireClientHeaders) {
-  routes.use(requireClientHeaders);
-}
+// if (config.integrations.fijiVps.requireClientHeaders) {
+//   routes.use(requireClientHeaders);
+// }
 
 routes.get('/Patient', patientHandler());
 routes.get('/DiagnosticReport', diagnosticReportHandler());

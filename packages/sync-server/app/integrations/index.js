@@ -13,6 +13,7 @@ import { checkEuDccConfig } from './EuDcc';
 import { checkSignerConfig } from './Signer';
 import { checkVdsNcConfig } from './VdsNc';
 
+console.log(hl7Demo)
 
 const integrations = {
   hl7Demo,
