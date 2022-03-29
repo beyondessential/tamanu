@@ -8,7 +8,7 @@ import { EncounterForm } from '../forms/EncounterForm';
 import { useEncounter } from '../contexts/Encounter';
 import { useApi } from '../api';
 
-export const EncounterModal = React.memo(({ open, onClose, patientId, referral }) => {
+export const EncounterModal = React.memo(({ open, onClose, patientId, referral, ...props }) => {
   const { createEncounter } = useEncounter();
   const api = useApi();
   const dispatch = useDispatch();
@@ -32,7 +32,7 @@ export const EncounterModal = React.memo(({ open, onClose, patientId, referral }
 
   return (
     <Modal title="Check-in1" open={open} onClose={onClose}>
-      <EncounterForm onSubmit={onCreateEncounter} onCancel={onClose} />
+      <EncounterForm onSubmit={onCreateEncounter} onCancel={onClose} {...props} />
     </Modal>
   );
 });
