@@ -15,6 +15,8 @@ import {
   Button,
   DateDisplay,
   FormGrid,
+  LocalisedField,
+  ReferenceDataSelectField,
 } from '../components';
 import { encounterOptions, Colors } from '../constants';
 import { useSuggester } from '../api';
@@ -143,6 +145,11 @@ export const EncounterForm = React.memo(({ editedObject, referrals, onSubmit }) 
           required
           component={AutocompleteField}
           suggester={practitionerSuggester}
+        />
+        <LocalisedField
+          name="patientBillingTypeId"
+          dataType="patientBillingType"
+          component={ReferenceDataSelectField}
         />
         <ReferralField referrals={referrals} />
         <Field

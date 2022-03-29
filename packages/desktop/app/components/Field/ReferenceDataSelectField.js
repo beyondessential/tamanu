@@ -20,14 +20,15 @@ export const ReferenceDataSelectField = ({
 
   useEffect(() => {
     api.get('referenceData', { type: dataType }).then(resultData => {
-      setOptions(
-        resultData.data.slice(0, resultsLimit).map(({ id, name }) => ({
+      setOptions([
+        { value: '', label: 'Select' },
+        ...resultData.data.slice(0, resultsLimit).map(({ id, name }) => ({
           value: id,
           label: name,
         })),
-      );
+      ]);
     });
-  }, [api, setOptions, dataType]);
+  }, [api, setOptions, dataType, resultsLimit]);
 
   return (
     <SelectInput
