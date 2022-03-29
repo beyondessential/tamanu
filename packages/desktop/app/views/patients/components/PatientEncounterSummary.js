@@ -3,8 +3,7 @@ import styled from 'styled-components';
 import { ENCOUNTER_TYPES } from 'shared/constants';
 import { Box, Typography } from '@material-ui/core';
 import { Colors, ENCOUNTER_OPTIONS_BY_VALUE } from '../../../constants';
-import { LargeButton, Button } from '../../../components/Button';
-import { DateDisplay } from '../../../components/DateDisplay';
+import { Notification, DateDisplay, LargeButton, Button } from '../../../components';
 
 const PATIENT_STATUS = {
   INPATIENT: 'inpatient',
@@ -114,39 +113,44 @@ export const PatientEncounterSummary = ({
 }) => {
   if (patient.dateOfDeath) {
     // Todo: Complete patient landing screen for deceased patients once api for death workflow is done @see WAITM-31
-    return 'Under Construction';
     return (
-      <Container patientStatus={PATIENT_STATUS.DECEASED}>
-        <Header>
-          <Box display="flex">
-            <BoldTitle variant="h3">Deceased</BoldTitle>
-          </Box>
-          <Box>
-            <Button variant="contained" color="primary">
-              View death certificate
-            </Button>
-          </Box>
-        </Header>
-        <Content>
-          <ContentItem>
-            <ContentLabel>Location of death:</ContentLabel>
-            <ContentText>Fiji National Hospital</ContentText>
-          </ContentItem>
-          <ContentItem>
-            <ContentLabel>Clinician:</ContentLabel>
-            <ContentText>Dr Jane Brown</ContentText>
-          </ContentItem>
-          <ContentItem>
-            <ContentLabel>Underlying condition causing death:</ContentLabel>
-            <ContentText>Diabetes</ContentText>
-          </ContentItem>
-          <ContentItem>
-            <ContentLabel>Date of death:</ContentLabel>
-            <ContentText>23/11/2021</ContentText>
-          </ContentItem>
-        </Content>
+      <Container>
+        <Notification message="This patient has a date of death recorded, but the patient death workflow is not yet supported in Tamanu Desktop. Please contact your system administrator for more information." />
       </Container>
     );
+
+    // return (
+    //   <Container patientStatus={PATIENT_STATUS.DECEASED}>
+    //     <Header>
+    //       <Box display="flex">
+    //         <BoldTitle variant="h3">Deceased</BoldTitle>
+    //       </Box>
+    //       <Box>
+    //         <Button variant="contained" color="primary">
+    //           View death certificate
+    //         </Button>
+    //       </Box>
+    //     </Header>
+    //     <Content>
+    //       <ContentItem>
+    //         <ContentLabel>Location of death:</ContentLabel>
+    //         <ContentText>Fiji National Hospital</ContentText>
+    //       </ContentItem>
+    //       <ContentItem>
+    //         <ContentLabel>Clinician:</ContentLabel>
+    //         <ContentText>Dr Jane Brown</ContentText>
+    //       </ContentItem>
+    //       <ContentItem>
+    //         <ContentLabel>Underlying condition causing death:</ContentLabel>
+    //         <ContentText>Diabetes</ContentText>
+    //       </ContentItem>
+    //       <ContentItem>
+    //         <ContentLabel>Date of death:</ContentLabel>
+    //         <ContentText>23/11/2021</ContentText>
+    //       </ContentItem>
+    //     </Content>
+    //   </Container>
+    // );
   }
 
   if (!encounter) {
