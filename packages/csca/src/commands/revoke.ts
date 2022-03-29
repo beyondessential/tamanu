@@ -1,14 +1,15 @@
 import { Command } from 'commander';
 import { parseDate } from 'chrono-node';
+import { enumFromStringValue, enumValues } from '../utils';
 
-const REASONS = [
-  'unspecified',
-  'keyCompromise',
-  'CACompromise',
-  'affiliationChanged',
-  'superseded',
-  'cessationOfOperation',
-];
+export enum Reasons {
+  Unspecified = 'unspecified',
+  KeyCompromise = 'keyCompromise',
+  CaCompromise = 'CACompromise',
+  AffiliationChanged = 'affiliationChanged',
+  Superseded = 'superseded',
+  CessationOfOperation = 'cessationOfOperation',
+}
 
 function run(
   folder: string,
@@ -18,12 +19,11 @@ function run(
     compromiseTime: string;
   },
 ) {
-  const { reason, compromiseTime } = options;
-  let parsedTime: Date;
+  const reason = enumFromStringValue(Reasons, options.reason);
 
-  if (!REASONS.includes(reason)) throw new Error('Invalid reason');
-  if (reason === 'keyCompromise' || reason === 'CACompromise') {
-    parsedTime = parseDate(compromiseTime);
+  let parsedTime: Date;
+  if (reason === Reasons.CaCompromise || reason === Reasons.KeyCompromise) {
+    parsedTime = parseDate(options.compromiseTime);
     parsedTime.toISOString(); // throws on invalid date
   }
 
@@ -36,7 +36,7 @@ export default new Command('revoke')
   .argument('certificate', 'path to certificate file')
   .option(
     '-R, --reason <reason>',
-    `reason for revocation (one of: ${REASONS.join(', ')})`,
+    `reason for revocation (one of: ${enumValues(Reasons).join(', ')})`,
     'unspecified',
   )
   .option(
