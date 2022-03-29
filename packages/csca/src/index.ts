@@ -14,7 +14,6 @@ program
   .addCommand(revoke)
   .parseAsync(process.argv)
   .catch(e => {
-    console.error(`run(): fatal error: ${e.toString()}`);
     console.error(e.stack);
     process.exit(1);
   });

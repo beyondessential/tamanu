@@ -144,7 +144,11 @@ export default class FolderCA {
     provider: undefined | string,
     deptOrg: undefined | string,
   ) {
-    for (const dir of ['.', 'newcerts', 'private']) {
+    if (await fs.stat(this.path).then(() => true, () => false)) {
+      throw new Error(`${this.path} already exists, not overwriting`);
+    }
+
+    for (const dir of ['.', 'certs']) {
       const path = this.join(dir);
       console.debug('mkdir', path);
       await fs.mkdir(path, { recursive: true });
@@ -152,7 +156,7 @@ export default class FolderCA {
 
     const now = new Date();
 
-    await this.writeAndSign({
+    await this.writeAndSign(JSON.stringify({
       name: shortname,
       country: {
         alpha2: countryAlpha2,
@@ -175,11 +179,11 @@ export default class FolderCA {
         validityPeriod: period(now, signerDefaultValidity(profile)),
         workingPeriod: period(now, signerWorkingTime(profile)),
       },
-    } as Config, 'config.json', 'config.sig');
+    } as Config), 'config.json', 'config.sig');
   }
 
-  private async writeAndSign(content: any, file: string, signatureFile: string) {
-    await fs.writeFile(this.join(file), JSON.stringify(content));
+  private async writeAndSign(content: string | Buffer, file: string, signatureFile: string) {
+    await fs.writeFile(this.join(file), content);
     // TODO: sign
   }
 }

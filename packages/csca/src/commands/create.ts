@@ -45,7 +45,6 @@ async function run (countryName: string, options: {
 
   const ca = new CA(dir);
   await ca.create(shortname, fullname, alpha2, alpha3, profile, provider, deptOrg);
-  console.info('Done.');
 }
 
 export default new Command('create')
