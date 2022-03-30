@@ -6,6 +6,7 @@ import {
   Pkcs10CertificateRequest,
   JsonName,
   JsonAttributeAndValue,
+  PemConverter,
 } from '@peculiar/x509';
 
 import { Period, Subject } from './Config';
@@ -103,6 +104,23 @@ export default class Certificate {
 
   public async write(file: string) {
     await fs.writeFile(file, this.cert.toString('pem'));
+  }
+
+  public static async read(file: string): Promise<Certificate> {
+    const certFile = await fs.readFile(file);
+
+    let crt: X509Certificate;
+    if (certFile.slice(0, 5).toString('utf-8') === '-----') {
+      const raws = PemConverter.decode(certFile.toString('utf-8'));
+      if (raws.length !== 1)
+        throw new Error(`Invalid certificate file ${file}: exactly one PEM block expected`);
+
+      crt = new X509Certificate(raws[0]);
+    } else {
+      crt = new X509Certificate(certFile);
+    }
+
+    return new Certificate(crt);
   }
 
   public async check(key: CryptoKey) {

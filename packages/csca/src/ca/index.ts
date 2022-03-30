@@ -9,7 +9,7 @@ import crypto from '../crypto';
 import { Profile, signerWorkingTime, signerDefaultValidity, signerExtensions } from './profile';
 import State from './State';
 import Log from './Log';
-import { deriveSymmetricKey, writePrivateKey, writePublicKey } from './keys';
+import { deriveSymmetricKey, readPrivateKey, readPublicKey, writePrivateKey, writePublicKey } from './keys';
 import Certificate from './Certificate';
 import { ComputedExtension, ExtensionName } from './certificateExtensions';
 
@@ -215,6 +215,50 @@ export default class CA {
 
     // TODO: crl
   }
+
+  private config(key: CryptoKey): Config {
+    return new Config(this.join('config.json'), key);
+  }
+
+  private state(key: CryptoKey): State {
+    return new State(this.join('state.json'), key);
+  }
+
+  private log(key: CryptoKey): Log {
+    return new Log(this.join('log.ndjson'), key);
+  }
+
+  private async root(): Promise<Certificate> {
+    return Certificate.read(this.join('ca.crt'));
+  }
+
+  private async checkIntegrity(key: CryptoKey) {
+    await this.config(key).check();
+    await this.state(key).check();
+    await this.log(key).check();
+
+    await this.root().then(cert => cert.check(key));
+
+    // TODO: check signature on CRL
+    // TODO: if the private key is available, check that the public key matches
+  }
+
+  private async publicKey(): Promise<CryptoKey> {
+    const publicKey = await readPublicKey(this.join('ca.pub'));
+    this.checkIntegrity(publicKey);
+    return publicKey;
+  }
+
+  private async privateKey(): Promise<CryptoKey> {
+    await this.publicKey();
+    await this.askPassphrase();
+
+    const privateKey = await readPrivateKey(this.join('ca.key'), this.masterKey!);
+    await this.checkIntegrity(privateKey);
+
+    return privateKey;
+  }
+
 }
 
 async function fsExists(path: string): Promise<boolean> {
