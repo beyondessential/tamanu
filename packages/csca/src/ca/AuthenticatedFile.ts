@@ -49,4 +49,10 @@ export default class AuthenticatedFile {
     await fs.writeFile(this.sigFile(), Buffer.from(sig));
     this.newfile = false;
   }
+
+  public async check() {
+    // TODO: optimisation in this case as we don't need to load the
+    // whole file into memory, just check its signature. Streaming?
+    await this.loadFile();
+  }
 }

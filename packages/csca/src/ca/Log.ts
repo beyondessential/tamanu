@@ -8,14 +8,11 @@ export default class Log extends AuthenticatedFile {
     super(join(caPath, 'log.ndjson'), key, newfile);
   }
 
-  public async check() {
-    // TODO: AuthenticatedFile optimisation in this case as we don't
-    // need to load the whole file into memory, just check its signature
-    // and later only need to append to the file (but sign it all).
-    await this.loadFile();
-  }
-
   public async append(log: LogEntry) {
+    // TODO: optimisation: we only need to append to the file (but sign
+    // it all), so we should be able to append to the file directly
+    // somehow, and then do a streaming sign.
+
     const file = await this.loadFile();
     const prepend =
       file.byteLength > 0 ? (file[file.length - 1] !== '\n'.charCodeAt(0) ? '\n' : '') : '';
