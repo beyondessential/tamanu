@@ -9,6 +9,7 @@ import { DeleteButton } from './Button';
 import { ConfirmModal } from './ConfirmModal';
 import { useElectron } from '../contexts/Electron';
 import { useApi } from '../api';
+import { notify, notifySuccess, notifyError } from '../utils';
 
 const ActionDropdown = React.memo(({ row }) => {
   const [open, setOpen] = useState(false);
@@ -24,18 +25,24 @@ const ActionDropdown = React.memo(({ row }) => {
     const path = await showSaveDialog({ defaultPath: row.name });
     if (path.canceled) return;
 
-    // Download attachment (*currently the API only supports base64 responses)
-    // TODO: handle errors
-    const { data } = await api.get(`attachment/${row.attachmentId}`, { base64: true });
-
     // If the extension is unknown, save it without extension
     const fileExtension = extension(row.type);
     const fullFilePath = fileExtension ? `${path.filePath}.${fileExtension}` : path.filePath;
 
-    // Create file and open it
-    await asyncFs.writeFile(fullFilePath, data, { encoding: 'base64' });
-    console.log('New file created:', fullFilePath);
-    openPath(fullFilePath);
+    try {
+      // Give feedback to user that download is starting
+      notify('Your download has started, please wait.', { type: 'info' });
+
+      // Download attachment (*currently the API only supports base64 responses)
+      const { data } = await api.get(`attachment/${row.attachmentId}`, { base64: true });
+
+      // Create file and open it
+      await asyncFs.writeFile(fullFilePath, data, { encoding: 'base64' });
+      notifySuccess(`Successfully downloaded file at: ${fullFilePath}`);
+      openPath(fullFilePath);
+    } catch (error) {
+      notifyError(error.message);
+    }
   };
 
   const actions = [

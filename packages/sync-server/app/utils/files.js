@@ -17,7 +17,7 @@ export function removeFile(filePath) {
   });
 }
 
-async function writeToSpreadsheet(data, filePath, bookType) {
+export async function writeToSpreadsheet(data, filePath, bookType) {
   const book = XLSX.utils.book_new();
   const sheet = XLSX.utils.aoa_to_sheet(data);
   XLSX.utils.book_append_sheet(book, sheet, 'values');

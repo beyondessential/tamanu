@@ -237,6 +237,7 @@ describe('Fiji traveller covid lab test report', () => {
   beforeAll(async () => {
     testContext = await createTestContext();
   });
+  afterAll(() => testContext.close());
 
   it('should reject creating a report with insufficient permissions', async () => {
     const noPermsApp = await testContext.baseApp.asRole('base');

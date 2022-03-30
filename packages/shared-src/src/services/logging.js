@@ -1,7 +1,7 @@
 import winston from 'winston'; // actual log output
 import morgan from 'morgan'; // logging middleware for http requests
 import config from 'config';
-import chalk from 'chalk';
+// import chalk from 'chalk';
 
 // defensive destructure to allow for testing shared-src directly
 const {
@@ -10,9 +10,13 @@ const {
   color,
 } = config?.log || {};
 
+/*
 const colorise = color 
   ? (hex) => chalk.hex(hex) 
   : (ignoredHex) => (text => text);
+*/
+// TEMP: Disable chalk & its import as it seems to not run correctly on AWS
+const colorise = (ignoredHex) => (text => text);
 
 const COLORS = {
   grey: colorise('999'),
