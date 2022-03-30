@@ -1,5 +1,7 @@
 import { promises as fs } from 'fs';
 
+import { PemConverter } from '@peculiar/x509';
+
 import crypto from '../crypto';
 
 // Layout:
@@ -51,15 +53,23 @@ export async function readPrivateKey(path: string, encryptionKey: CryptoKey): Pr
 
 export async function writePublicKey(path: string, publicKey: CryptoKey) {
   const key = await crypto.subtle.exportKey('spki', publicKey);
-  await fs.writeFile(path, Buffer.from(key));
+  const pem = PemConverter.encode(key, 'PUBLIC KEY');
+
+  await fs.writeFile(path, Buffer.from(pem, 'utf-8'));
 }
 
 export async function readPublicKey(path: string): Promise<CryptoKey> {
-  const key = await fs.readFile(path);
-  return await crypto.subtle.importKey('spki', key, { name: 'ECDSA', namedCurve: 'P-256' }, true, [
-    'sign',
-    'verify',
-  ]);
+  const pem = await fs.readFile(path);
+  const keys = PemConverter.decode(pem.toString('utf-8'));
+  if (keys.length !== 1) throw new Error('Invalid public key file: exactly one PEM block expected');
+
+  return await crypto.subtle.importKey(
+    'spki',
+    Buffer.from(keys[0]),
+    { name: 'ECDSA', namedCurve: 'P-256' },
+    true,
+    ['sign', 'verify'],
+  );
 }
 
 export async function deriveSymmetricKey(
