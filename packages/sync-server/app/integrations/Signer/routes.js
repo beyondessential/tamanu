@@ -14,12 +14,9 @@ routes.get(
     const pending = await Signer.findPending();
 
     if (pending) {
-      res
-        .status(200)
-        .attachment('request.csr')
-        .send(pending.request);
+      res.status(200).send({ request: pending.request });
     } else {
-      res.status(404).send('Pending signer not found');
+      res.status(404).send({ error: 'Pending signer not found' });
     }
   }),
 );
@@ -33,7 +30,7 @@ routes.post(
     const pending = await Signer.findPending();
 
     if (!pending) {
-      throw new Error('No pending signer!');
+      res.status(404).send({ error: 'Pending signer not found' });
     }
 
     await pending.update(signerData);
@@ -41,6 +38,6 @@ routes.post(
     const end = moment(signerData.workingPeriodEnd).format('YYYY-MM-DD');
     log.info(`Loaded ICAO Signer (${start} - ${end})`);
 
-    res.status(200).send(`Loaded ICAO Signer (${start} - ${end})`);
+    res.status(200).send({ message: `Loaded ICAO Signer (${start} - ${end})` });
   }),
 );
