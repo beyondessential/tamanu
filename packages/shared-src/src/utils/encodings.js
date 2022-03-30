@@ -20,11 +20,18 @@ export function pem(data, banner) {
  */
 export function depem(pemString, expectedBanner) {
   const text = pemString.trim();
-  if (
-    !text.startsWith(`-----BEGIN ${expectedBanner}-----\n`) ||
-    !text.endsWith(`\n-----END ${expectedBanner}-----`)
-  ) {
-    throw new Error('Must be in PEM format with banners');
+
+  const beginRx = /^-{5}\s*BEGIN ?([^-]+)?-{5}\r?\n/;
+  const endRx = /\r?\n-{5}\s*END ?([^-]+)?-{5}$/;
+  
+  const beginMatch = text.match(beginRx);  
+  if (!beginMatch || beginMatch[0] !== expectedBanner) {
+    throw new Error(`Missing start banner on PEM, expected '-----BEGIN ${expectedBanner}-----'`);
+  }
+  
+  const endMatch = text.match(endRx);
+  if (!endMatch || endMatch[0] !== expectedBanner) {
+    throw new Error(`Missing end banner on PEM, expected '-----END ${expectedBanner}-----'`);
   }
 
   return Buffer.from(text.replace(/^--.+/gm, ''), 'base64');
