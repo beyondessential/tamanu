@@ -320,7 +320,7 @@ const EncounterInfoPane = React.memo(({ disabled, encounter }) => (
       disabled={disabled}
       value={encounter.reasonForEncounter}
       label="Reason for encounter"
-      style={{ gridColumn: 'span 3' }}
+      style={{ gridColumn: 'span 2' }}
     />
   </FormGrid>
 ));

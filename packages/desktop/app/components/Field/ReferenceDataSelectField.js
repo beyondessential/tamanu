@@ -15,7 +15,6 @@ export const ReferenceDataSelectField = ({ field, dataType, resultsLimit = 100, 
   useEffect(() => {
     api.get('referenceData', { type: dataType }).then(resultData => {
       setOptions([
-        { value: '', label: 'Select' },
         ...resultData.data.slice(0, resultsLimit).map(({ id, name }) => ({
           value: id,
           label: name,
