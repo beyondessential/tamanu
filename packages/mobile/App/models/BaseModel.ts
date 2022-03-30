@@ -162,6 +162,16 @@ export abstract class BaseModel extends BaseEntity {
     await this.getRepository().update(ids, { uploadedAt, markedForUpload: false });
   }
 
+  /*
+    Convenient helper for creating a new record.
+
+    NOTES:
+    - When adding relations defined with the 'RelationId' decorator,
+    the data object expects the column key name (fieldName: 'some-id').
+    - Relations defined with the 'IdRelation' won't work unless you use
+    the same column name (fieldNameId: 'some-id'). However, it will only
+    work that way on creation and not edition.
+  */
   static createAndSaveOne<T extends BaseModel>(data?: object): Promise<T> {
     const repo = this.getRepository<T>();
     return repo.create(sanitiseForImport<T>(repo, data)).save();
