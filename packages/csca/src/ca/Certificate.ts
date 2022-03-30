@@ -129,8 +129,8 @@ export default class Certificate {
     }
 
     if (!(await this.cert.verify({
-      date: new Date(),
       publicKey: key,
+      signatureOnly: true,
     }, crypto))) {
       throw new Error('Certificate has been tampered with: signature is invalid');
     }
