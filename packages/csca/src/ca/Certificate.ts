@@ -9,8 +9,9 @@ import {
 } from '@peculiar/x509';
 
 import { Period, Subject } from './Config';
-import crypto from '../crypto';
 import { Extension, forgeExtensions } from './certificateExtensions';
+import crypto from '../crypto';
+import { keyPairFromPrivate } from '../utils';
 
 export default class Certificate {
   private cert: X509Certificate;
@@ -102,6 +103,19 @@ export default class Certificate {
 
   public async write(file: string) {
     await fs.writeFile(file, this.cert.toString('pem'));
+  }
+
+  public async check(key: CryptoKey) {
+    if (key.type === 'private') {
+      key = (await keyPairFromPrivate(key)).publicKey;
+    }
+
+    if (!(await this.cert.verify({
+      date: new Date(),
+      publicKey: key,
+    }, crypto))) {
+      throw new Error('Certificate has been tampered with: signature is invalid');
+    }
   }
 }
 

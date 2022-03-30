@@ -11,7 +11,7 @@ export function enumValues<T>(enm: { [s: string]: T }): T[] {
 }
 
 // https://www.rfc-editor.org/rfc/rfc7518#section-6.2
-async function keyPairFromPrivate(privateKey: CryptoKey): Promise<CryptoKeyPair> {
+export async function keyPairFromPrivate(privateKey: CryptoKey): Promise<CryptoKeyPair> {
   const { alg, crv, ext, key_ops, kty, x, y } = await crypto.subtle.exportKey('jwk', privateKey);
   const publicKey = await crypto.subtle.importKey(
     'jwk',
