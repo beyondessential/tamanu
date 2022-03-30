@@ -51,6 +51,38 @@ function sanitiseForImport<T>(repo: Repository<T>, data: { [key: string]: any })
 // typeorm's @RelationId causes a O(n^2) operation for every query to that model.
 export const IdRelation = (options = {}): any => Column({ nullable: true, ...options });
 
+/*
+  This function returns a new object (shallow copied values) and does two things:
+    - Rename the keys from relation fields (countryId -> country)
+    - Map the value from relation fields ( 'some-id' -> { id: 'some-id' })
+
+  When adding relation fields, we need to point to the actual relation column
+  (ManyToOne, OneToOne, etc.) and use a special syntax for TypeORM.
+
+  Since our forms/fields/suggesters only use the ID and not the whole
+  object, the field names won't match the record column names.
+*/
+const getMappedFormValues = (values: object): object => {
+  const mappedValues = {};
+
+  // Map keys and values accordingly
+  Object.entries(values).forEach(([key, value]) => {
+    // Check if field is a relation (evidenced by having 'Id' at the end)
+    if (key.slice(-2) === 'Id') {
+      // Remove 'Id' from the key to get the actual relation column name
+      const columnKey = key.slice(0, -2);
+
+      // Save the relation as an object to let TypeORM handle it
+      mappedValues[columnKey] = { id: value };
+    } else {
+      // Regular field, copy as is
+      mappedValues[key] = value;
+    }
+  });
+
+  return mappedValues;
+};
+
 export abstract class BaseModel extends BaseEntity {
   // TAN-884: lock entire model class while updating markedForUpload or syncing
   static markedForUploadMutex = new Mutex();
