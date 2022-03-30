@@ -1,4 +1,3 @@
-import { KeyObject } from 'crypto';
 import { join } from 'path';
 
 import { add, Duration, Interval } from 'date-fns';
@@ -6,7 +5,7 @@ import { add, Duration, Interval } from 'date-fns';
 import AuthenticatedFile from './AuthenticatedFile';
 
 export default class Config extends AuthenticatedFile {
-  constructor(caPath: string, key: KeyObject, newfile: boolean = false) {
+  constructor(caPath: string, key: CryptoKey, newfile: boolean = false) {
     super(join(caPath, 'config.json'), key, newfile);
   }
 

@@ -1,11 +1,10 @@
-import { KeyObject } from 'crypto';
 import { join } from 'path';
 
 import AuthenticatedFile from './AuthenticatedFile';
 import { Subject } from './Config';
 
 export default class State extends AuthenticatedFile {
-  constructor(caPath: string, key: KeyObject, newfile: boolean = false) {
+  constructor(caPath: string, key: CryptoKey, newfile: boolean = false) {
     super(join(caPath, 'state.json'), key, newfile);
   }
 
@@ -58,20 +57,20 @@ export default class State extends AuthenticatedFile {
     });
   }
 
-  public async nextCrlSerial(): Promise<number> {
+  public async nextCrlSerial(): Promise<Buffer> {
     const state = await this.load();
     const next = state.crlSerial.readUint32BE() + 1;
     state.crlSerial.writeUint32BE(next);
     await this.write(state);
-    return next;
+    return Buffer.from(state.crlSerial);
   }
 
-  public async nextIssuanceSerial(): Promise<number> {
+  public async nextIssuanceSerial(): Promise<Buffer> {
     const state = await this.load();
     const next = state.issuanceSerial.readUint32BE() + 1;
     state.issuanceSerial.writeUint32BE(next);
     await this.write(state);
-    return next;
+    return Buffer.from(state.issuanceSerial);
   }
 
   // TODO: more useful index management APIs

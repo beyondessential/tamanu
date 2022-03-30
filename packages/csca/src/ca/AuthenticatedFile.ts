@@ -1,12 +1,13 @@
-import { KeyObject, sign, verify } from 'crypto';
 import { promises as fs } from 'fs';
+
+import crypto from '../crypto';
 
 export default class AuthenticatedFile {
   private path: string;
-  private key: KeyObject;
+  private key: CryptoKey;
   private newfile: boolean;
 
-  constructor(path: string, key: KeyObject, newfile: boolean = false) {
+  constructor(path: string, key: CryptoKey, newfile: boolean = false) {
     this.path = path;
     this.key = key;
     this.newfile = newfile;
@@ -23,10 +24,10 @@ export default class AuthenticatedFile {
 
     try {
       const sig = await fs.readFile(this.sigFile());
-      const check = verify(null, contents, {
-        key: this.key,
-        dsaEncoding: 'der',
-      }, sig);
+      const check = await crypto.subtle.verify({
+        name: 'ECDSA',
+        hash: 'SHA-256',
+      }, this.key, sig, contents);
 
       if (!check) throw new Error('Signature is invalid');
     } catch (e) {
@@ -39,13 +40,13 @@ export default class AuthenticatedFile {
   }
 
   protected async writeFile(contents: Buffer) {
-    const sig = sign(null, contents, {
-      key: this.key,
-      dsaEncoding: 'der',
-    });
+    const sig = await crypto.subtle.sign({
+      name: 'ECDSA',
+      hash: 'SHA-256',
+    }, this.key, contents);
 
     await fs.writeFile(this.path, contents);
-    await fs.writeFile(this.sigFile(), sig);
+    await fs.writeFile(this.sigFile(), Buffer.from(sig));
     this.newfile = false;
   }
 }

@@ -9,3 +9,17 @@ export function enumFromStringValue<T>(enm: { [s: string]: T }, value: string): 
 export function enumValues<T>(enm: { [s: string]: T }): T[] {
   return Object.values(enm) as T[];
 }
+
+// https://www.rfc-editor.org/rfc/rfc7518#section-6.2
+async function keyPairFromPrivate(privateKey: CryptoKey): Promise<CryptoKeyPair> {
+  const { alg, crv, ext, key_ops, kty, x, y } = await crypto.subtle.exportKey('jwk', privateKey);
+  const publicKey = await crypto.subtle.importKey(
+    'jwk',
+    { alg, crv, ext, key_ops, kty, x, y },
+    { name: 'ECDSA', namedCurve: 'P-256' },
+    true,
+    ['sign', 'verify'],
+  );
+
+  return { publicKey, privateKey };
+}

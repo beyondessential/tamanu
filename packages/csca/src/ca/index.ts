@@ -1,28 +1,30 @@
-import { generateKeyPair } from 'crypto';
 import { promises as fs } from 'fs';
 import { join } from 'path';
-import { promisify } from 'util';
 
 import prompts from 'prompts';
+
 import Config, { ConfigFile, period } from './Config';
 import { CRL_URL_BASE, CSCA_PKUP, CSCA_VALIDITY } from './constants';
+import crypto from '../crypto';
 import { Profile, signerWorkingTime, signerDefaultValidity, signerExtensions } from './Profile';
 import State from './State';
 import Log from './Log';
+import { writePrivateKey, writePublicKey } from './Keys';
 
-const generateKeyPairAsync = promisify(generateKeyPair);
+const MASTER_KEY_DERIVATION_ROUNDS = 10_000;
+const MASTER_KEY_DERIVATION_SALT = Buffer.from('80cbc05e08253326ca714c66b2a290186072d4a4c996e90d21bde6fcc4c412cb', 'hex');
 
 export default class CA {
   private path: string;
-  private passphrase: string | undefined;
+  private masterKey: CryptoKey | undefined;
 
   constructor(path: string) {
     this.path = path;
   }
 
-  private async askPassphrase(confirm: boolean = false): Promise<void> {
-    if (!this.passphrase) {
-      const { value } = await prompts({
+  private async askPassphrase(confirm: boolean = false) {
+    if (!this.masterKey) {
+      const { value }: { value: string } = await prompts({
         type: 'password',
         name: 'value',
         message: `Enter CSCA passphrase${confirm ? ' (min 30 characters)' : ''}`,
@@ -32,7 +34,7 @@ export default class CA {
       });
 
       if (confirm) {
-        const { confirm } = await prompts({
+        const { confirm }: { confirm: string } = await prompts({
           type: 'password',
           name: 'confirm',
           message: 'Confirm CSCA passphrase',
@@ -44,11 +46,32 @@ export default class CA {
       }
 
       if (!value) throw new Error('Passphrase is required');
-      this.passphrase = value;
+
+      const enc = new TextEncoder();
+      const passphrase = await crypto.subtle.importKey(
+        'raw',
+        enc.encode(value),
+        { name: 'PBKDF2' },
+        false,
+        ['deriveBits', 'deriveKey'],
+      );
+
+      this.masterKey = await crypto.subtle.deriveKey(
+        {
+          name: 'PBKDF2',
+          salt: MASTER_KEY_DERIVATION_SALT,
+          iterations: MASTER_KEY_DERIVATION_ROUNDS,
+          hash: 'SHA-256',
+        },
+        passphrase,
+        { name: 'AES-GCM', length: 256 },
+        true,
+        ['wrapKey', 'unwrapKey'],
+      );
     }
   }
 
-  private async confirm(message: string): Promise<void> {
+  private async confirm(message: string) {
     const { value } = await prompts({
       type: 'confirm',
       name: 'value',
@@ -115,9 +138,10 @@ export default class CA {
     }
 
     console.debug('generate keypair');
-    const { publicKey, privateKey } = await generateKeyPairAsync('ec', {
+    const { publicKey, privateKey } = await crypto.subtle.generateKey({
+      name: 'ECDSA',
       namedCurve: 'P-256',
-    });
+    }, true, ['sign', 'verify']);
 
     console.debug('init config.json');
     const configFile = new Config(this.path, privateKey, true);
@@ -132,18 +156,10 @@ export default class CA {
     await logFile.create();
 
     console.debug('write private key');
-    fs.writeFile(this.join('ca.key'), privateKey.export({
-      type: 'pkcs8',
-      format: 'pem',
-      cipher: 'aes-256-cbc',
-      passphrase: this.passphrase,
-    }));
+    await writePrivateKey(this.join('ca.key'), privateKey, this.masterKey!);
 
     console.debug('write public key');
-    fs.writeFile(this.join('ca.crt'), publicKey.export({
-      type: 'spki',
-      format: 'pem',
-    }));
+    await writePublicKey(this.join('ca.pub'), publicKey);
 
     // TODO: crt, crl
   }

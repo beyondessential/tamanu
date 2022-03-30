@@ -1,11 +1,10 @@
-import { KeyObject } from 'crypto';
 import { userInfo } from 'os';
 import { join } from 'path';
 
 import AuthenticatedFile from './AuthenticatedFile';
 
 export default class Log extends AuthenticatedFile {
-  constructor(caPath: string, key: KeyObject, newfile: boolean = false) {
+  constructor(caPath: string, key: CryptoKey, newfile: boolean = false) {
     super(join(caPath, 'log.ndjson'), key, newfile);
   }
 
