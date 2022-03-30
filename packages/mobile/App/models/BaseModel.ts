@@ -167,6 +167,36 @@ export abstract class BaseModel extends BaseEntity {
     return repo.create(sanitiseForImport<T>(repo, data)).save();
   }
 
+  /*
+    Helper function to properly update TypeORM relations. The .update()
+    method doesn't provide a reliable way of confirming it succeeded and
+    columns specified with 'IdRelation' and 'RelationId' need special handling.
+  */
+  static async updateValues<T extends BaseModel>(id: string, values: object): Promise<T | null> {
+    const repo = this.getRepository<T>();
+
+    // Find the actual instance we want to update
+    const instance = await repo.findOne(id);
+
+    // Bail early if no record was found
+    if (!instance) {
+      console.error(`${this.constructor.name} record with ID ${id} doesn't exist, therefore it can't be updated`);
+      return null;
+    }
+
+    // Get appropiate key/value pairs to manage relations
+    const mappedValues = getMappedFormValues(values);
+
+    // Update each specified value
+    Object.entries(mappedValues).forEach(([key, value]) => {
+      instance[key] = value;
+    });
+
+    // Return the updated instance. NOTE: updated relations won't have
+    // all fields until you reload the instance again, only their ID.
+    return instance.save();
+  }
+
   static async findMarkedForUpload(
     opts: FindMarkedForUploadOptions,
   ): Promise<BaseModel[]> {
