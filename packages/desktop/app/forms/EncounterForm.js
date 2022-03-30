@@ -65,7 +65,7 @@ const StartPage = ({ setValue }) => {
   return <SelectorGrid>{items}</SelectorGrid>;
 };
 
-export const EncounterForm = React.memo(({ editedObject, onSubmit }) => {
+export const EncounterForm = React.memo(({ editedObject, onSubmit, patientBillingTypeId }) => {
   const locationSuggester = useSuggester('location');
   const practitionerSuggester = useSuggester('practitioner');
   const departmentSuggester = useSuggester('department');
@@ -142,6 +142,7 @@ export const EncounterForm = React.memo(({ editedObject, onSubmit }) => {
       render={renderForm}
       initialValues={{
         startDate: new Date(),
+        patientBillingTypeId,
         ...editedObject,
       }}
       validationSchema={yup.object().shape({

@@ -105,7 +105,11 @@ export const DumbPatientView = React.memo(({ patient, loading }) => {
           disabled={disabled}
         />
       </TwoColumnDisplay>
-      <RoutedEncounterModal patientId={patient.id} referrals={patient.referrals} />
+      <RoutedEncounterModal
+        patientId={patient.id}
+        patientBillingTypeId={patient.additionalData?.patientBillingTypeId}
+        referrals={patient.referrals}
+      />
       <RoutedTriageModal patient={patient} />
     </>
   );
