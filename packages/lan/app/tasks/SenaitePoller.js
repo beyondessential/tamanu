@@ -57,7 +57,6 @@ export class SenaitePoller extends ScheduledTask {
 
   async request(baseUrl) {
     const url = baseUrl.replace(/^http:/, 'https:');
-    console.log('request', url);
     const rawbody = await new Promise((resolve, reject) => {
       get(
         {
