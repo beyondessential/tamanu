@@ -114,8 +114,6 @@ export default class CA {
       await fs.mkdir(path, { recursive: true });
     }
 
-    // TODO: lock
-
     console.debug('generate keypair');
     const { publicKey, privateKey } = await generateKeyPairAsync('ec', {
       namedCurve: 'P-256',
@@ -136,7 +134,7 @@ export default class CA {
     console.debug('write private key');
     fs.writeFile(this.join('ca.key'), privateKey.export({
       type: 'pkcs8',
-      format: 'der',
+      format: 'pem',
       cipher: 'aes-256-cbc',
       passphrase: this.passphrase,
     }));
@@ -144,9 +142,9 @@ export default class CA {
     console.debug('write public key');
     fs.writeFile(this.join('ca.crt'), publicKey.export({
       type: 'spki',
-      format: 'der',
+      format: 'pem',
     }));
 
-    // TODO: crt, crl, unlock
+    // TODO: crt, crl
   }
 }
