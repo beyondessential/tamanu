@@ -59,16 +59,16 @@ export default class State extends AuthenticatedFile {
 
   public async nextCrlSerial(): Promise<Buffer> {
     const state = await this.load();
-    const next = state.crlSerial.readUint32BE() + 1;
-    state.crlSerial.writeUint32BE(next);
+    const next = state.crlSerial.readUInt32BE() + 1;
+    state.crlSerial.writeUInt32BE(next);
     await this.write(state);
     return Buffer.from(state.crlSerial);
   }
 
   public async nextIssuanceSerial(): Promise<Buffer> {
     const state = await this.load();
-    const next = state.issuanceSerial.readUint32BE() + 1;
-    state.issuanceSerial.writeUint32BE(next);
+    const next = state.issuanceSerial.readUInt32BE() + 1;
+    state.issuanceSerial.writeUInt32BE(next);
     await this.write(state);
     return Buffer.from(state.issuanceSerial);
   }
