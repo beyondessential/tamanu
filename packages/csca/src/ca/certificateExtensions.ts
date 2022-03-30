@@ -30,8 +30,10 @@ import {
   KeyUsagesExtension,
   ExtendedKeyUsageExtension,
 } from '@peculiar/x509';
+
 import Certificate, { CertificateCreateParams } from './Certificate';
 import { id_ce_docType } from './constants';
+import crypto from '../crypto';
 
 export interface Extension {
   name: ExtensionName;
