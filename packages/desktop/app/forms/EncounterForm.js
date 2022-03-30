@@ -13,7 +13,6 @@ import {
   AutocompleteField,
   TextField,
   Button,
-  DateDisplay,
   FormGrid,
   LocalisedField,
   ReferenceDataSelectField,
@@ -50,37 +49,6 @@ const EncounterOptionButton = ({ label, image, onClick }) => (
   </EncounterOptionTypeButton>
 );
 
-const getReferralLabel = referral => {
-  const { date, referringDoctor, location } = referral;
-  const parts = [
-    `${DateDisplay.rawFormat(date)}:`,
-    location && location.name,
-    referringDoctor && referringDoctor.displayName && `(by ${referringDoctor.displayName})`,
-  ];
-  return parts.filter(x => x).join(' ');
-};
-
-const ReferralField = ({ referrals = [] }) => {
-  const referralOptions = [{ value: null, label: 'No linked referral' }].concat(
-    referrals
-      .filter(r => !r.closedDate)
-      .map(r => ({
-        value: r.id,
-        label: getReferralLabel(r),
-      })),
-  );
-
-  return (
-    <Field
-      name="referralId"
-      label="Referral"
-      disabled={referrals.length === 0}
-      component={SelectField}
-      options={referralOptions}
-    />
-  );
-};
-
 const StartPage = ({ setValue }) => {
   const items = encounterOptions
     .filter(option => !option.hideFromMenu)
@@ -97,7 +65,7 @@ const StartPage = ({ setValue }) => {
   return <SelectorGrid>{items}</SelectorGrid>;
 };
 
-export const EncounterForm = React.memo(({ editedObject, referrals, onSubmit }) => {
+export const EncounterForm = React.memo(({ editedObject, onSubmit }) => {
   const locationSuggester = useSuggester('location');
   const practitionerSuggester = useSuggester('practitioner');
   const departmentSuggester = useSuggester('department');
@@ -120,7 +88,7 @@ export const EncounterForm = React.memo(({ editedObject, referrals, onSubmit }) 
         />
         <Field
           name="startDate"
-          label="Check-in"
+          label="Check-in date"
           required
           component={DateField}
           options={encounterOptions}
@@ -151,7 +119,6 @@ export const EncounterForm = React.memo(({ editedObject, referrals, onSubmit }) 
           dataType="patientBillingType"
           component={ReferenceDataSelectField}
         />
-        <ReferralField referrals={referrals} />
         <Field
           name="reasonForEncounter"
           label="Reason for encounter"
