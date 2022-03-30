@@ -8,13 +8,7 @@ import { SelectInput } from './SelectField';
  * type - the reference data type from the db to filter the list on
  * resultsLimit - a sensible max number of results. Use autocomplete for longer lists
  */
-export const ReferenceDataSelectField = ({
-  field,
-  FieldProps,
-  dataType,
-  resultsLimit = 100,
-  ...props
-}) => {
+export const ReferenceDataSelectField = ({ field, dataType, resultsLimit = 100, ...props }) => {
   const api = useApi();
   const [options, setOptions] = useState([]);
 

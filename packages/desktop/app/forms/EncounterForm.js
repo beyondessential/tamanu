@@ -75,7 +75,7 @@ export const EncounterForm = React.memo(({ editedObject, onSubmit }) => {
       return <StartPage setValue={setFieldValue} />;
     }
 
-    const buttonText = editedObject ? 'Update encounter' : 'Start encounter';
+    const buttonText = editedObject ? 'Update encounter' : 'Confirm';
 
     return (
       <FormGrid>
@@ -107,17 +107,17 @@ export const EncounterForm = React.memo(({ editedObject, onSubmit }) => {
           component={AutocompleteField}
           suggester={locationSuggester}
         />
+        <LocalisedField
+          name="patientBillingTypeId"
+          dataType="patientBillingType"
+          component={ReferenceDataSelectField}
+        />
         <Field
           name="examinerId"
           label="Practitioner"
           required
           component={AutocompleteField}
           suggester={practitionerSuggester}
-        />
-        <LocalisedField
-          name="patientBillingTypeId"
-          dataType="patientBillingType"
-          component={ReferenceDataSelectField}
         />
         <Field
           name="reasonForEncounter"
