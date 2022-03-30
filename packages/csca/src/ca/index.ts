@@ -6,12 +6,12 @@ import prompts from 'prompts';
 import Config, { ConfigFile, period } from './Config';
 import { CRL_URL_BASE, CSCA_PKUP, CSCA_VALIDITY, EKU_HEALTH_CSCA } from './constants';
 import crypto from '../crypto';
-import { Profile, signerWorkingTime, signerDefaultValidity, signerExtensions } from './Profile';
+import { Profile, signerWorkingTime, signerDefaultValidity, signerExtensions } from './profile';
 import State from './State';
 import Log from './Log';
-import { writePrivateKey, writePublicKey } from './Keys';
+import { deriveSymmetricKey, writePrivateKey, writePublicKey } from './keys';
 import Certificate from './Certificate';
-import { ComputedExtension, ExtensionName } from './CertificateExtensions';
+import { ComputedExtension, ExtensionName } from './certificateExtensions';
 
 const MASTER_KEY_DERIVATION_ROUNDS = 10_000;
 const MASTER_KEY_DERIVATION_SALT = Buffer.from(
@@ -51,26 +51,10 @@ export default class CA {
 
       if (!value) throw new Error('Passphrase is required');
 
-      const enc = new TextEncoder();
-      const passphrase = await crypto.subtle.importKey(
-        'raw',
-        enc.encode(value),
-        { name: 'PBKDF2' },
-        false,
-        ['deriveBits', 'deriveKey'],
-      );
-
-      this.masterKey = await crypto.subtle.deriveKey(
-        {
-          name: 'PBKDF2',
-          salt: MASTER_KEY_DERIVATION_SALT,
-          iterations: MASTER_KEY_DERIVATION_ROUNDS,
-          hash: 'SHA-256',
-        },
-        passphrase,
-        { name: 'AES-GCM', length: 256 },
-        true,
-        ['wrapKey', 'unwrapKey'],
+      this.masterKey = await deriveSymmetricKey(
+        value,
+        MASTER_KEY_DERIVATION_SALT,
+        MASTER_KEY_DERIVATION_ROUNDS,
       );
     }
   }

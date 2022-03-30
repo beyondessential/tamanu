@@ -3,7 +3,7 @@ import COUNTRIES from 'world-countries';
 import type { Country } from 'world-countries';
 import { enumFromStringValue, enumValues } from '../utils';
 import CA from '../ca';
-import { Profile } from "../ca/Profile";
+import { Profile } from "../ca/profile";
 
 async function run (countryName: string, options: {
   dir?: string,

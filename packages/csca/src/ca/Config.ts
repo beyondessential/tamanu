@@ -3,7 +3,7 @@ import { join } from 'path';
 import { add, Duration } from 'date-fns';
 
 import AuthenticatedFile from './AuthenticatedFile';
-import { Extension } from './CertificateExtensions';
+import { Extension } from './certificateExtensions';
 
 export default class Config extends AuthenticatedFile {
   constructor(caPath: string, key: CryptoKey, newfile: boolean = false) {

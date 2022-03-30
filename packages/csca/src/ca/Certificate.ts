@@ -10,7 +10,7 @@ import {
 
 import { Period, Subject } from './Config';
 import crypto from '../crypto';
-import { Extension, forgeExtensions } from './CertificateExtensions';
+import { Extension, forgeExtensions } from './certificateExtensions';
 
 export default class Certificate {
   private cert: X509Certificate;

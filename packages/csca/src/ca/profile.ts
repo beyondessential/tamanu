@@ -1,5 +1,5 @@
 import { Duration } from 'date-fns';
-import { ComputedExtension, Extension, ExtensionName } from './CertificateExtensions';
+import { ComputedExtension, Extension, ExtensionName } from './certificateExtensions';
 import { EKU_VDS_NC, EKU_DCC_TEST, EKU_DCC_VACCINATION, EKU_DCC_RECOVERY } from "./constants";
 
 export enum Profile {
