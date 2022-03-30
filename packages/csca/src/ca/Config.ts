@@ -1,8 +1,9 @@
 import { join } from 'path';
 
-import { add, Duration, Interval } from 'date-fns';
+import { add, Duration } from 'date-fns';
 
 import AuthenticatedFile from './AuthenticatedFile';
+import { Extension } from './CertificateExtensions';
 
 export default class Config extends AuthenticatedFile {
   constructor(caPath: string, key: CryptoKey, newfile: boolean = false) {
@@ -27,8 +28,8 @@ export interface ConfigFile {
   country: Country;
   subject: Subject;
   crl: CRL;
-  validityPeriod: Interval;
-  workingPeriod: Interval;
+  validityPeriod: Period;
+  workingPeriod: Period;
   issuance: Issuance;
 }
 
@@ -41,8 +42,8 @@ export interface Country {
 export interface Subject {
   country: string;
   commonName: string;
-  organisation: undefined | string;
-  organisationUnit: undefined | string;
+  organisation?: string;
+  organisationUnit?: string;
 }
 
 export interface CRL {
@@ -56,30 +57,12 @@ export interface Issuance {
   workingPeriodDays: number;
 }
 
-export interface Extension {
-  name: ExtensionName;
-  critical: boolean;
-  value: ComputedExtension | string[];
+export interface Period {
+  start: Date;
+  end: Date;
 }
 
-export enum ExtensionName {
-  AuthorityKeyIdentifier = 'AuthorityKeyIdentifier',
-  SubjectKeyIdentifier = 'SubjectKeyIdentifier',
-  PrivateKeyUsagePeriod = 'PrivateKeyUsagePeriod',
-  KeyUsage = 'KeyUsage',
-  ExtendedKeyUsage = 'ExtendedKeyUsage',
-  CrlDistributionPoints = 'CrlDistributionPoints',
-  DocType = 'DocType'
-}
-
-export enum ComputedExtension {
-  IssuerKeyId = 'aki',
-  SelfKeyId = 'ski',
-  Pkup = 'pkup',
-  CrlDistPoints = 'crl'
-}
-
-export function period(start: Date, duration: Duration): Interval {
+export function period(start: Date, duration: Duration): Period {
   return {
     start: start,
     end: add(start, duration),

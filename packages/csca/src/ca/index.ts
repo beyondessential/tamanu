@@ -4,15 +4,20 @@ import { join } from 'path';
 import prompts from 'prompts';
 
 import Config, { ConfigFile, period } from './Config';
-import { CRL_URL_BASE, CSCA_PKUP, CSCA_VALIDITY } from './constants';
+import { CRL_URL_BASE, CSCA_PKUP, CSCA_VALIDITY, EKU_HEALTH_CSCA } from './constants';
 import crypto from '../crypto';
 import { Profile, signerWorkingTime, signerDefaultValidity, signerExtensions } from './Profile';
 import State from './State';
 import Log from './Log';
 import { writePrivateKey, writePublicKey } from './Keys';
+import Certificate from './Certificate';
+import { ComputedExtension, ExtensionName } from './CertificateExtensions';
 
 const MASTER_KEY_DERIVATION_ROUNDS = 10_000;
-const MASTER_KEY_DERIVATION_SALT = Buffer.from('80cbc05e08253326ca714c66b2a290186072d4a4c996e90d21bde6fcc4c412cb', 'hex');
+const MASTER_KEY_DERIVATION_SALT = Buffer.from(
+  '80cbc05e08253326ca714c66b2a290186072d4a4c996e90d21bde6fcc4c412cb',
+  'hex',
+);
 
 export default class CA {
   private path: string;
@@ -28,9 +33,8 @@ export default class CA {
         type: 'password',
         name: 'value',
         message: `Enter CSCA passphrase${confirm ? ' (min 30 characters)' : ''}`,
-        validate: (value: string) => (value.length < 30)
-          ? 'Passphrase must be at least 30 characters long'
-          : true,
+        validate: (value: string) =>
+          value.length < 30 ? 'Passphrase must be at least 30 characters long' : true,
       });
 
       if (confirm) {
@@ -96,7 +100,7 @@ export default class CA {
     provider: undefined | string,
     deptOrg: undefined | string,
   ) {
-    if (await fs.stat(this.path).then(() => true, () => false)) {
+    if (await fsExists(this.path)) {
       throw new Error(`${this.path} already exists, not overwriting`);
     }
 
@@ -138,29 +142,102 @@ export default class CA {
     }
 
     console.debug('generate keypair');
-    const { publicKey, privateKey } = await crypto.subtle.generateKey({
-      name: 'ECDSA',
-      namedCurve: 'P-256',
-    }, true, ['sign', 'verify']);
+    const keyPair = await crypto.subtle.generateKey(
+      {
+        name: 'ECDSA',
+        namedCurve: 'P-256',
+      },
+      true,
+      ['sign', 'verify'],
+    );
 
     console.debug('init config.json');
-    const configFile = new Config(this.path, privateKey, true);
+    const configFile = new Config(this.path, keyPair.privateKey, true);
     await configFile.create(config);
 
     console.debug('init state.json');
-    const stateFile = new State(this.path, privateKey, true);
+    const stateFile = new State(this.path, keyPair.privateKey, true);
     await stateFile.create();
 
     console.debug('init ndjson.json');
-    const logFile = new Log(this.path, privateKey, true);
+    const logFile = new Log(this.path, keyPair.privateKey, true);
     await logFile.create();
 
     console.debug('write private key');
-    await writePrivateKey(this.join('ca.key'), privateKey, this.masterKey!);
+    await writePrivateKey(this.join('ca.key'), keyPair.privateKey, this.masterKey!);
 
     console.debug('write public key');
-    await writePublicKey(this.join('ca.pub'), publicKey);
+    await writePublicKey(this.join('ca.pub'), keyPair.publicKey);
 
-    // TODO: crt, crl
+    const root = await Certificate.createRoot(
+      {
+        subject: config.subject,
+        serial: Buffer.from(crypto.getRandomValues(new Uint8Array(16))),
+        validityPeriod: config.validityPeriod,
+        workingPeriod: config.workingPeriod,
+        extensions: [
+          {
+            name: ExtensionName.BasicConstraints,
+            critical: true,
+            value: ['CA', 0],
+          },
+          {
+            name: ExtensionName.SubjectAltName,
+            critical: false,
+            value: [{ L: config.country.alpha3 }],
+          },
+          {
+            name: ExtensionName.IssuerAltName,
+            critical: false,
+            value: [{ L: config.country.alpha3 }],
+          },
+          {
+            name: ExtensionName.SubjectKeyIdentifier,
+            critical: false,
+            value: ComputedExtension,
+          },
+          {
+            name: ExtensionName.AuthorityKeyIdentifier,
+            critical: true,
+            value: ComputedExtension,
+          },
+          {
+            name: ExtensionName.KeyUsage,
+            critical: true,
+            value: ['cRLSign', 'keyCertSign'],
+          },
+          {
+            name: ExtensionName.ExtendedKeyUsage,
+            critical: false,
+            value: [EKU_HEALTH_CSCA],
+          },
+          {
+            name: ExtensionName.CrlDistributionPoints,
+            critical: false,
+            value: config.crl.distribution,
+          },
+          {
+            name: ExtensionName.PrivateKeyUsagePeriod,
+            critical: false,
+            value: ComputedExtension,
+          },
+        ],
+      },
+      keyPair,
+    );
+
+    console.debug('write root certificate');
+    await root.write(this.join('ca.crt'));
+
+    // TODO: crl
+  }
+}
+
+async function fsExists(path: string): Promise<boolean> {
+  try {
+    await fs.stat(path);
+    return true;
+  } catch (_) {
+    return false;
   }
 }

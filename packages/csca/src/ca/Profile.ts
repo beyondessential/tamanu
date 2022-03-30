@@ -1,5 +1,5 @@
 import { Duration } from 'date-fns';
-import { Extension, ExtensionName, ComputedExtension } from './Config';
+import { ComputedExtension, Extension, ExtensionName } from './CertificateExtensions';
 import { EKU_VDS_NC, EKU_DCC_TEST, EKU_DCC_VACCINATION, EKU_DCC_RECOVERY } from "./constants";
 
 export enum Profile {
@@ -44,7 +44,7 @@ export function signerExtensions(profile: Profile): Extension[] {
         {
           name: ExtensionName.AuthorityKeyIdentifier,
           critical: true,
-          value: ComputedExtension.IssuerKeyId,
+          value: ComputedExtension,
         },
         { name: ExtensionName.ExtendedKeyUsage, critical: false, value: [EKU_VDS_NC] },
         { name: ExtensionName.DocType, critical: false, value: ['NT', 'NV'] },
@@ -55,17 +55,17 @@ export function signerExtensions(profile: Profile): Extension[] {
         {
           name: ExtensionName.AuthorityKeyIdentifier,
           critical: true,
-          value: ComputedExtension.IssuerKeyId,
+          value: ComputedExtension,
         },
         {
           name: ExtensionName.SubjectKeyIdentifier,
           critical: false,
-          value: ComputedExtension.SelfKeyId,
+          value: ComputedExtension,
         },
         {
           name: ExtensionName.PrivateKeyUsagePeriod,
           critical: false,
-          value: ComputedExtension.Pkup,
+          value: ComputedExtension,
         },
         { name: ExtensionName.KeyUsage, critical: true, value: ['DigitalSignature'] },
         {
@@ -76,7 +76,7 @@ export function signerExtensions(profile: Profile): Extension[] {
         {
           name: ExtensionName.CrlDistributionPoints,
           critical: false,
-          value: ComputedExtension.CrlDistPoints,
+          value: ComputedExtension,
         },
       ];
   }
