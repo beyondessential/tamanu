@@ -2,7 +2,8 @@ import { Command } from 'commander';
 import COUNTRIES from 'world-countries';
 import type { Country } from 'world-countries';
 import { enumFromStringValue, enumValues } from '../utils';
-import CA, { Profile } from '../ca';
+import CA from '../ca';
+import { Profile } from "../ca/Profile";
 
 async function run (countryName: string, options: {
   dir?: string,
