@@ -1,7 +1,7 @@
 import config from 'config';
 import nodeCrypto from 'crypto';
 import { add } from 'date-fns';
-import { Crypto } from 'node-webcrypto-ossl';
+import { Crypto } from '@peculiar/webcrypto';
 import {
   fromBER,
   Integer,
