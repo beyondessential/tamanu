@@ -28,7 +28,7 @@ export default class Certificate {
     const cert = await X509CertificateGenerator.createSelfSigned(
       {
         name: dnFromSubject(subject),
-        extensions: forgeExtensions(params),
+        extensions: await forgeExtensions(params, keyPair.publicKey),
         notBefore: validityPeriod.start,
         notAfter: validityPeriod.end,
         serialNumber: serial.toString('hex'),
@@ -56,7 +56,7 @@ export default class Certificate {
       {
         subject: dnFromSubject(subject),
         issuer: issuer.cert.subject,
-        extensions: forgeExtensions(params),
+        extensions: await forgeExtensions(params, subjectPublicKey, issuer),
         notBefore: validityPeriod.start,
         notAfter: validityPeriod.end,
         serialNumber: serial.toString('hex'),
@@ -94,6 +94,10 @@ export default class Certificate {
       issuerPrivateKey,
       await request.publicKey.export(crypto),
     );
+  }
+
+  public get x509(): X509Certificate {
+    return this.cert;
   }
 
   public async write(file: string) {

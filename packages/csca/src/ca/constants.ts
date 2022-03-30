@@ -38,3 +38,6 @@ export const EKU_DCC_VACCINATION: string = '1.3.6.1.4.1.1847.2021.1.2';
 
 /** Extended key usage: EU DCC Recovery certificate */
 export const EKU_DCC_RECOVERY: string = '1.3.6.1.4.1.1847.2021.1.3';
+
+/** Extension type ID for ICAO signer document type */
+export const id_ce_docType: string = '2.23.136.1.1.6.2';

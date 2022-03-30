@@ -179,7 +179,7 @@ export default class CA {
           {
             name: ExtensionName.BasicConstraints,
             critical: true,
-            value: ['CA', 0],
+            value: [true, 0],
           },
           {
             name: ExtensionName.SubjectAltName,
