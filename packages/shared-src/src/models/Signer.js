@@ -116,6 +116,24 @@ export class Signer extends Model {
   }
 
   /**
+   * Fetches pending signer, those without certificates
+   * Errors if multiple pending signers are found
+   * return {Signer} The pending signer, or null if there's none
+   */
+  static async findPending() {
+    const pending = await Signer.findAll({
+      where: {
+        certificate: { [Op.is]: null },
+        privateKey: { [Op.not]: null },
+      },
+    });
+    if (pending.length > 1) {
+      throw new Error('More than one pending signer, you need to fix this manually');
+    }
+    return pending[0] ?? null;
+  }
+
+  /**
    * @return {boolean} True if the signer is active (can be used).
    */
   isActive() {

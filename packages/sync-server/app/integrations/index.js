@@ -5,10 +5,12 @@ import { log } from 'shared/services/logging';
 
 import * as fijiVrs from './fiji-vrs';
 import * as fijiVps from './fiji-vps';
+import * as signer from './Signer';
 
 const integrations = {
   fijiVrs,
   fijiVps,
+  signer,
 };
 
 export const integrationRoutes = express.Router();
