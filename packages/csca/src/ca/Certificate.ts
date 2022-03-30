@@ -85,12 +85,7 @@ export default class Certificate {
     return Certificate.createIssued(
       {
         ...params,
-        subject: {
-          country: getSubjectName(subject, 'C', true)!,
-          commonName: getSubjectName(subject, 'CN', true)!,
-          organisation: getSubjectName(subject, 'O'),
-          organisationUnit: getSubjectName(subject, 'OU'),
-        },
+        subject: subjectFromDn(subject),
       },
       issuer,
       issuerPrivateKey,
@@ -102,24 +97,17 @@ export default class Certificate {
     return this.cert;
   }
 
+  public get certId(): string {
+    return this.cert.serialNumber;
+  }
+
   public async write(file: string) {
     await fs.writeFile(file, this.cert.toString('pem'));
   }
 
   public static async read(file: string): Promise<Certificate> {
     const certFile = await fs.readFile(file);
-
-    let crt: X509Certificate;
-    if (certFile.slice(0, 5).toString('utf-8') === '-----') {
-      const raws = PemConverter.decode(certFile.toString('utf-8'));
-      if (raws.length !== 1)
-        throw new Error(`Invalid certificate file ${file}: exactly one PEM block expected`);
-
-      crt = new X509Certificate(raws[0]);
-    } else {
-      crt = new X509Certificate(certFile);
-    }
-
+    const crt = new X509Certificate(certFile);
     return new Certificate(crt);
   }
 
@@ -128,10 +116,15 @@ export default class Certificate {
       key = (await keyPairFromPrivate(key)).publicKey;
     }
 
-    if (!(await this.cert.verify({
-      publicKey: key,
-      signatureOnly: true,
-    }, crypto))) {
+    const sigCheck = await this.cert.verify(
+      {
+        publicKey: key,
+        signatureOnly: true,
+      },
+      crypto,
+    );
+
+    if (!sigCheck) {
       throw new Error('Certificate has been tampered with: signature is invalid');
     }
   }
@@ -145,14 +138,19 @@ export interface CertificateCreateParams {
   extensions: Extension[];
 }
 
-function getSubjectName(
-  subject: JsonName,
-  key: string,
-  require: boolean = false,
-): string | undefined {
-  const field = subject.find(item => item[key] !== undefined)?.[key]?.[0];
+function getSubjectName(dn: JsonName, key: string, require: boolean = false): string | undefined {
+  const field = dn.find(item => item[key] !== undefined)?.[key]?.[0];
   if (field) return field;
   else if (require) throw new Error(`CSR subject has no field ${key}`);
+}
+
+function subjectFromDn(dn: JsonName): Subject {
+  return {
+    country: getSubjectName(dn, 'C', true)!,
+    commonName: getSubjectName(dn, 'CN', true)!,
+    organisation: getSubjectName(dn, 'O'),
+    organisationUnit: getSubjectName(dn, 'OU'),
+  };
 }
 
 function dnFromSubject(subject: Subject): JsonName {

@@ -2,6 +2,7 @@ import { promises as fs } from 'fs';
 import { join } from 'path';
 
 import prompts from 'prompts';
+import { Pkcs10CertificateRequest } from '@peculiar/x509';
 
 import Config, { ConfigFile, period } from './Config';
 import { CRL_URL_BASE, CSCA_PKUP, CSCA_VALIDITY, EKU_HEALTH_CSCA } from './constants';
@@ -136,16 +137,13 @@ export default class CA {
     );
 
     console.debug('init config.json');
-    const configFile = new Config(this.path, keyPair.privateKey, true);
-    await configFile.create(config);
+    await this.config(keyPair.privateKey, true).create(config);
 
     console.debug('init state.json');
-    const stateFile = new State(this.path, keyPair.privateKey, true);
-    await stateFile.create();
+    await this.state(keyPair.privateKey, true).create();
 
-    console.debug('init ndjson.json');
-    const logFile = new Log(this.path, keyPair.privateKey, true);
-    await logFile.create();
+    console.debug('init log.ndjson');
+    await this.log(keyPair.privateKey, true).create();
 
     console.debug('write private key');
     await writePrivateKey(this.join('ca.key'), keyPair.privateKey, this.masterKey!);
@@ -216,16 +214,16 @@ export default class CA {
     // TODO: crl
   }
 
-  private config(key: CryptoKey): Config {
-    return new Config(this.join('config.json'), key);
+  private config(key: CryptoKey, newfile?: boolean): Config {
+    return new Config(this.path, key, newfile);
   }
 
-  private state(key: CryptoKey): State {
-    return new State(this.join('state.json'), key);
+  private state(key: CryptoKey, newfile?: boolean): State {
+    return new State(this.path, key, newfile);
   }
 
-  private log(key: CryptoKey): Log {
-    return new Log(this.join('log.ndjson'), key);
+  private log(key: CryptoKey, newfile?: boolean): Log {
+    return new Log(this.path, key, newfile);
   }
 
   private async root(): Promise<Certificate> {
@@ -259,6 +257,42 @@ export default class CA {
     return privateKey;
   }
 
+  public async issueFromRequest(request: Pkcs10CertificateRequest): Promise<Certificate> {
+    const privateKey = await this.privateKey();
+    const issuer = await this.root();
+
+    const config = this.config(privateKey);
+    const issuanceConfig = await config.getIssuance();
+    const countryConfig = await config.getCountry();
+
+    const state = this.state(privateKey);
+    const serial = await state.nextIssuanceSerial();
+
+    const now = new Date();
+
+    console.debug('issue certificate');
+    const cert = await Certificate.createFromRequest({
+      subject: {
+        country: countryConfig.alpha2,
+        commonName: 'TA',
+      },
+      serial,
+      validityPeriod: period(now, { days: issuanceConfig.validityPeriodDays }),
+      workingPeriod: period(now, { days: issuanceConfig.workingPeriodDays }),
+      extensions: issuanceConfig.extensions,
+    }, request, issuer, privateKey);
+
+    console.debug(`mkdir certs/${cert.certId}`);
+    await fs.mkdir(this.join('certs', cert.certId), { recursive: true });
+
+    console.debug('write certificate');
+    await cert.write(this.join('certs', cert.certId, 'certificate.crt'));
+
+    console.debug('write request');
+    await fs.writeFile(this.join('certs', cert.certId, 'request.csr'), request.toString('pem'));
+
+    return cert;
+  }
 }
 
 async function fsExists(path: string): Promise<boolean> {
