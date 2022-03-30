@@ -61,3 +61,31 @@ export async function readPublicKey(path: string): Promise<CryptoKey> {
     'verify',
   ]);
 }
+
+export async function deriveSymmetricKey(
+  passphrase: string,
+  salt: Buffer,
+  iterations: number,
+): Promise<CryptoKey> {
+  const enc = new TextEncoder();
+  const raw = await crypto.subtle.importKey(
+    'raw',
+    enc.encode(passphrase),
+    { name: 'PBKDF2' },
+    false,
+    ['deriveBits', 'deriveKey'],
+  );
+
+  return crypto.subtle.deriveKey(
+    {
+      name: 'PBKDF2',
+      salt,
+      iterations,
+      hash: 'SHA-256',
+    },
+    raw,
+    { name: 'AES-GCM', length: 256 },
+    true,
+    ['wrapKey', 'unwrapKey'],
+  );
+}
