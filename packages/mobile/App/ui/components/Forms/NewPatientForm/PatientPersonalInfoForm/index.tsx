@@ -68,7 +68,11 @@ export const FormComponent = ({
       markedForSync: true,
       markedForUpload: true,
     });
-    setSelectedPatient(newPatient);
+
+    // Reload instance to get the complete village fields
+    // (related fields won't display all info otherwise)
+    const reloadedPatient = await Patient.findOne(newPatient.id);
+    setSelectedPatient(reloadedPatient);
     navigation.navigate(Routes.HomeStack.RegisterPatientStack.NewPatient);
   }, []);
 
