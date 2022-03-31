@@ -18,8 +18,6 @@ async function saveCertificateRequest({ output }) {
   }
 
   await fs.writeFile(output, pending.request);
-  log.info('Done.');
-  process.exit(0);
 }
 
 export const saveCertificateRequestCommand = new Command('saveCertificateRequest')
