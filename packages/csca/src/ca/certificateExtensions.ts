@@ -1,11 +1,4 @@
-import {
-  AsnConvert,
-  AsnType,
-  AsnTypeTypes,
-  AsnArray,
-  AsnProp,
-  AsnPropTypes,
-} from '@peculiar/asn1-schema';
+import { AsnConvert } from '@peculiar/asn1-schema';
 import {
   id_ce_privateKeyUsagePeriod,
   id_ce_issuerAltName,
@@ -32,8 +25,9 @@ import {
 } from '@peculiar/x509';
 
 import Certificate, { CertificateCreateParams } from './Certificate';
-import { id_ce_docType } from './constants';
+import { id_icao_mrtd_security_extensions_documentTypeList } from './constants';
 import crypto from '../crypto';
+import { DocumentTypeList } from '../ext/DocumentType';
 
 export interface Extension {
   name: ExtensionName;
@@ -312,30 +306,14 @@ function docType({ critical, value }: Extension): X509Extension {
   if (value.some(s => typeof s !== 'string'))
     throw new Error('Invalid eku value: expected an array of strings');
 
-  const dtv = new DocTypeValue();
-  dtv.docTypes = new DocTypeSet();
+  const dtv = new DocumentTypeList();
   for (const val of value) {
-    dtv.docTypes.push(val);
+    dtv.docTypeList.push(val);
   }
 
-  return new X509Extension(id_ce_docType, critical, AsnConvert.serialize(dtv));
-}
-
-@AsnType({ type: AsnTypeTypes.Set, itemType: AsnPropTypes.PrintableString })
-class DocTypeSet extends AsnArray<string> {
-  constructor() {
-    super([]);
-
-    // Set the prototype explicitly.
-    Object.setPrototypeOf(this, DocTypeValue.prototype);
-  }
-}
-
-@AsnType({ type: AsnTypeTypes.Sequence })
-class DocTypeValue {
-  @AsnProp({ type: AsnPropTypes.Integer, defaultValue: 0 })
-  public version = 0;
-
-  @AsnProp({ type: DocTypeSet })
-  public docTypes: DocTypeSet = [];
+  return new X509Extension(
+    id_icao_mrtd_security_extensions_documentTypeList,
+    critical,
+    AsnConvert.serialize(dtv),
+  );
 }
