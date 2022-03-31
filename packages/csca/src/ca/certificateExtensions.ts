@@ -262,6 +262,8 @@ function ku({ critical, value }: Extension): X509Extension {
       case 'nonRepudiation':
         keyUsage |= KeyUsageFlags.nonRepudiation;
         break;
+      default:
+        throw new Error(`Unknown keyUsage value: ${usage}`);
     }
   }
 

@@ -6,7 +6,6 @@ import {
   Pkcs10CertificateRequest,
   JsonName,
   JsonAttributeAndValue,
-  PemConverter,
 } from '@peculiar/x509';
 
 import { Period, Subject } from './Config';
