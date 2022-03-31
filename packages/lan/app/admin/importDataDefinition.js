@@ -1,7 +1,6 @@
 import { readFile, utils } from 'xlsx';
 import { getJsDateFromExcel } from 'excel-date-to-js';
 import moment from 'moment';
-import { v4 as uuidv4 } from 'uuid';
 
 import { log } from 'shared/services/logging';
 import { ENCOUNTER_TYPES } from 'shared/constants';
@@ -28,6 +27,8 @@ const referenceDataTransformer = type => item => {
 };
 
 const administeredVaccineTransformer = () => ({
+  encounterId,
+  administeredVaccineId,
   date: excelDate,
   reason,
   consent,
@@ -41,17 +42,21 @@ const administeredVaccineTransformer = () => ({
     throw new Error('administered vaccines must have a date');
   }
   const date = getJsDateFromExcel(excelDate);
-  const administeredVaccine = recordTransformer('administeredVaccine')({
-    date,
-    reason,
-    consent: ['true', 'yes', 't', 'y'].some(v => v === consent?.toLowerCase()),
-    ...data,
-  });
+  const administeredVaccine = {
+    recordType: 'administeredVaccine',
+    data: {
+      id: administeredVaccineId,
+      date,
+      reason,
+      consent: ['true', 'yes', 't', 'y'].some(v => v === consent?.toLowerCase()),
+      ...data,
+    },
+  };
   return {
     recordType: 'encounter',
     channel: `patient/${encodeURIComponent(patientId)}/encounter`,
     data: {
-      id: uuidv4(),
+      id: encounterId,
       encounterType: ENCOUNTER_TYPES.CLINIC, // TODO: is this meant to be OBSERVATION?
       startDate: moment(date).startOf('day'),
       endDate: moment(date).endOf('day'),
