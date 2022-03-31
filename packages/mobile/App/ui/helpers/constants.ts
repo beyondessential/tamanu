@@ -14,31 +14,15 @@ export const DateFormats = {
   TIME_HHMMSS: 'pp',
 };
 
-export const BloodTypes = [
-  {
-    value: 'A+',
-    label: 'A+',
-  },
-  {
-    value: 'A-',
-    label: 'A-',
-  },
-  {
-    value: 'B+',
-    label: 'B+',
-  },
-  {
-    value: 'O+',
-    label: 'O+',
-  },
-  {
-    value: 'AB+',
-    label: 'AB+',
-  },
-  {
-    value: 'AB-',
-    label: 'AB-',
-  },
+export const bloodOptions = [
+  { value: 'A+', label: 'A+' },
+  { value: 'A-', label: 'A-' },
+  { value: 'AB-', label: 'AB-' },
+  { value: 'AB+', label: 'AB+' },
+  { value: 'B+', label: 'B+' },
+  { value: 'B-', label: 'B-' },
+  { value: 'O+', label: 'O+' },
+  { value: 'O-', label: 'O-' },
 ];
 
 export const FilterTypeAll = 'All';
@@ -210,13 +194,15 @@ export const FemaleGender = {
 
 export const GenderOptions = [MaleGender, FemaleGender, OtherGender];
 
-export const MarriedStatus = {
-  value: 'married',
-  label: 'Married',
-};
-export const SingleStatus = { value: 'single', label: 'Single' };
-export const Other = { value: 'other', label: 'Other' };
-export const MaritalStatusOptions = [SingleStatus, MarriedStatus, Other];
+export const maritalStatusOptions = [
+  { value: 'Defacto', label: 'De facto' },
+  { value: 'Married', label: 'Married' },
+  { value: 'Single', label: 'Single' },
+  { value: 'Widow', label: 'Widow' },
+  { value: 'Divorced', label: 'Divorced' },
+  { value: 'Separated', label: 'Separated' },
+  { value: 'Unknown', label: 'Unknown' },
+];
 
 export const EncounterTypeNames = {
   admission: 'Admission',
