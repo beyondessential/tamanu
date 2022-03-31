@@ -12,6 +12,16 @@ function run(
   if (!awsAccessSecret) awsAccessSecret = process.env.AWS_SECRET_ACCESS_KEY;
   if (!awsAccessKey) throw new Error('AWS_ACCESS_KEY_ID not set');
   if (!awsAccessSecret) throw new Error('AWS_SECRET_ACCESS_KEY not set');
+
+  // open CA read-only
+  // read index
+  // gather all non-expired revoked cert serials
+  // show user / prompt to proceed
+
+  // re-open CA read-write
+  // write new CRL
+  // write to log
+  // upload new CRL
 }
 
 export default new Command('crl-upload')

@@ -234,7 +234,7 @@ export default class CA {
       const pkF = await crypto.subtle.exportKey('jwk', publicKeyFromFile);
 
       if (pkE.kty !== pkF.kty || pkE.crv !== pkF.crv || pkE.x !== pkF.x || pkE.y !== pkF.y) {
-        throw new Error('Public key on disk doesn\'t match private key');
+        throw new Error("Public key on disk doesn't match private key");
       }
     }
 
@@ -279,16 +279,21 @@ export default class CA {
     const now = new Date();
 
     console.debug('issue certificate');
-    const cert = await Certificate.createFromRequest({
-      subject: {
-        country: countryConfig.alpha2,
-        commonName: 'TA',
+    const cert = await Certificate.createFromRequest(
+      {
+        subject: {
+          country: countryConfig.alpha2,
+          commonName: 'TA',
+        },
+        serial,
+        validityPeriod: period(now, { days: issuanceConfig.validityPeriodDays }),
+        workingPeriod: period(now, { days: issuanceConfig.workingPeriodDays }),
+        extensions: issuanceConfig.extensions,
       },
-      serial,
-      validityPeriod: period(now, { days: issuanceConfig.validityPeriodDays }),
-      workingPeriod: period(now, { days: issuanceConfig.workingPeriodDays }),
-      extensions: issuanceConfig.extensions,
-    }, request, issuer, privateKey);
+      request,
+      issuer,
+      privateKey,
+    );
 
     console.debug(`mkdir certs/${cert.certId}`);
     await fs.mkdir(this.join('certs', cert.certId), { recursive: true });
@@ -298,6 +303,8 @@ export default class CA {
 
     console.debug('write request');
     await fs.writeFile(this.join('certs', cert.certId, 'request.csr'), request.toString('pem'));
+
+    // TODO: write to log
 
     return cert;
   }
