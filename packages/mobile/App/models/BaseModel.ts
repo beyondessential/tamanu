@@ -190,7 +190,7 @@ export abstract class BaseModel extends BaseEntity {
 
     // Bail early if no record was found
     if (!instance) {
-      console.error(`${this.constructor.name} record with ID ${id} doesn't exist, therefore it can't be updated`);
+      console.error(`${this.name} record with ID ${id} doesn't exist, therefore it can't be updated`);
       return null;
     }
 
