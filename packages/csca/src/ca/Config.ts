@@ -65,6 +65,12 @@ export interface Subject {
 export interface CRL {
   filename: string;
   distribution: string[];
+  bucket: S3Bucket;
+}
+
+export interface S3Bucket {
+  region: string;
+  name: string;
 }
 
 export interface Issuance {

@@ -11,7 +11,14 @@ import crypto from '../crypto';
 import { Profile, signerWorkingTime, signerDefaultValidity, signerExtensions } from './profile';
 import State from './State';
 import Log from './Log';
-import { deriveSymmetricKey, makeKeyPair, readPrivateKey, readPublicKey, writePrivateKey, writePublicKey } from './keys';
+import {
+  deriveSymmetricKey,
+  makeKeyPair,
+  readPrivateKey,
+  readPublicKey,
+  writePrivateKey,
+  writePublicKey,
+} from './keys';
 import Certificate from './Certificate';
 import { ComputedExtension, ExtensionName } from './certificateExtensions';
 
@@ -97,6 +104,10 @@ export default class CA {
       crl: {
         filename: `${shortname}.crl`,
         distribution: [`${CRL_URL_BASE}/${shortname}.crl`],
+        bucket: {
+          region: 'ap-southeast-2',
+          name: 'crl.tamanu.io',
+        },
       },
       workingPeriod: period(now, CSCA_PKUP),
       validityPeriod: period(now, CSCA_VALIDITY),
