@@ -51,8 +51,7 @@ export const InvoicingPane = React.memo(({ encounter }) => {
       setInvoice(createInvoiceResponse);
     } catch (e) {
       // eslint-disable-next-line no-console
-      console.error(e);
-      setError('Unable to create invoice.');
+      setError(`Unable to create invoice. Reason: ${e.message}`);
     }
   }, [api, encounter.id]);
 

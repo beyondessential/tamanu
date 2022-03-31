@@ -38,22 +38,32 @@ invoiceRoute.post(
       paymentStatus: INVOICE_PAYMENT_STATUSES.UNPAID,
     });
 
-    // Expect to always have a patient additional data corresponding to a patient
-    const { patientBillingTypeId } = await models.PatientAdditionalData.findOne({
-      where: { patientId },
-    });
-    const invoicePriceChangeType = await models.InvoicePriceChangeType.findOne({
-      where: { itemId: patientBillingTypeId },
-    });
-
-    // automatically apply price change (discount) based on patientBillingType
-    if (invoicePriceChangeType) {
-      await models.InvoicePriceChangeItem.create({
-        description: invoicePriceChangeType.name,
-        percentageChange: invoicePriceChangeType.percentageChange,
-        invoicePriceChangeTypeId: invoicePriceChangeType.id,
-        invoiceId: invoice.id,
+    try {
+      const patientAdditionalData = await models.PatientAdditionalData.findOne({
+        where: { patientId: `${patientId}bad` },
       });
+      if (!patientAdditionalData) {
+        throw new Error('Unable to find patient additional data.');
+      }
+      const { patientBillingTypeId } = patientAdditionalData;
+      const invoicePriceChangeType = await models.InvoicePriceChangeType.findOne({
+        where: { itemId: patientBillingTypeId },
+      });
+
+      // automatically apply price change (discount) based on patientBillingType
+      if (invoicePriceChangeType) {
+        await models.InvoicePriceChangeItem.create({
+          description: invoicePriceChangeType.name,
+          percentageChange: invoicePriceChangeType.percentageChange,
+          invoicePriceChangeTypeId: invoicePriceChangeType.id,
+          invoiceId: invoice.id,
+        });
+      }
+    } catch (e) {
+      console.error(e);
+      console.log(
+        `Unable to create price change item for invoice ${invoice.id} for patient ${patientId}`,
+      );
     }
     res.send(invoice);
   }),
