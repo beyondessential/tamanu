@@ -12,10 +12,12 @@ export default class State extends AuthenticatedFile {
     const stateFile: StateJson = JSON.parse((await this.loadFile()).toString('utf-8'));
 
     const crlSerial = Buffer.from(stateFile.crlSerial, 'hex');
-    if (crlSerial.byteLength !== 4) throw new Error('CRL serial is not 4 bytes');
+    if (crlSerial.byteLength < 8) throw new Error('CRL serial is under 64 bits');
+    if (crlSerial.byteLength > 20) throw new Error('CRL serial is over 160 bits');
 
     const issuanceSerial = Buffer.from(stateFile.crlSerial, 'hex');
-    if (issuanceSerial.byteLength !== 4) throw new Error('Issuance serial is not 4 bytes');
+    if (issuanceSerial.byteLength < 8) throw new Error('Issuance serial is under 64 bits');
+    if (issuanceSerial.byteLength > 20) throw new Error('Issuance serial is over 160 bits');
 
     const index = new Map();
     for (const entry of stateFile.index) {
@@ -51,8 +53,8 @@ export default class State extends AuthenticatedFile {
 
   public async create() {
     await this.write({
-      crlSerial: Buffer.alloc(4),
-      issuanceSerial: Buffer.alloc(4),
+      crlSerial: Buffer.alloc(16),
+      issuanceSerial: Buffer.alloc(16),
       index: new Map(),
     });
   }
