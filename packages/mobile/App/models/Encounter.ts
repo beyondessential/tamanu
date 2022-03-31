@@ -10,7 +10,7 @@ import {
 } from 'typeorm/browser';
 import { startOfDay, addHours, subDays } from 'date-fns';
 import { getUniqueId } from 'react-native-device-info';
-import { BaseModel, FindMarkedForUploadOptions } from './BaseModel';
+import { BaseModel, FindMarkedForUploadOptions, IdRelation } from './BaseModel';
 import { IEncounter, EncounterType } from '~/types';
 import { Patient } from './Patient';
 import { Diagnosis } from './Diagnosis';
@@ -26,6 +26,7 @@ import { Location } from './Location';
 import { Referral } from './Referral';
 import { LabRequest } from './LabRequest';
 import { readConfig } from '~/services/config';
+import { ReferenceData, ReferenceDataRelation } from '~/models/ReferenceData';
 
 const TIME_OFFSET = 3;
 
@@ -72,6 +73,12 @@ export class Encounter extends BaseModel implements IEncounter {
 
   @RelationId(({ department }) => department)
   departmentId: string;
+
+  @ReferenceDataRelation()
+  patientBillingType?: ReferenceData;
+
+  @IdRelation()
+  patientBillingTypeId?: string | null;
 
   @ManyToOne(() => Location)
   location: Location;
