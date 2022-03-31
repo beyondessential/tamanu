@@ -34,6 +34,7 @@ const administeredVaccineTransformer = () => ({
   locationId,
   departmentId,
   examinerId,
+  patientId,
   ...data
 }) => {
   if (!excelDate) {
@@ -46,19 +47,24 @@ const administeredVaccineTransformer = () => ({
     consent: ['true', 'yes', 't', 'y'].some(v => v === consent?.toLowerCase()),
     ...data,
   });
-  return recordTransformer('encounter')({
-    id: uuidv4(),
-    encounterType: ENCOUNTER_TYPES.CLINIC, // TODO: is this meant to be OBSERVATION?
-    startDate: moment(date).startOf('day'),
-    endDate: moment(date).endOf('day'),
-    reasonForEncounter: reason,
-    administeredVaccines: [administeredVaccine],
+  return {
+    recordType: 'encounter',
+    channel: `patient/${encodeURIComponent(patientId)}/encounter`,
+    data: {
+      id: uuidv4(),
+      encounterType: ENCOUNTER_TYPES.CLINIC, // TODO: is this meant to be OBSERVATION?
+      startDate: moment(date).startOf('day'),
+      endDate: moment(date).endOf('day'),
+      reasonForEncounter: reason,
+      administeredVaccines: [administeredVaccine],
 
-    // relationships
-    locationId,
-    departmentId,
-    examinerId,
-  });
+      // relationships
+      locationId,
+      departmentId,
+      examinerId,
+      patientId,
+    },
+  };
 };
 
 const patientDataTransformer = item => {

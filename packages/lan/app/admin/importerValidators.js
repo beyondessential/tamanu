@@ -171,6 +171,7 @@ const encounterSchema = baseSchema.shape({
   locationId: yup.string().required(),
   departmentId: yup.string().required(),
   examinerId: yup.string().required(),
+  patientId: yup.string().required(),
 });
 
 const validationSchemas = {

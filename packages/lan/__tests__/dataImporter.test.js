@@ -97,7 +97,7 @@ describe('Data definition import', () => {
 
   it('should import administered vaccine records', () => {
     const { records } = resultInfo.stats;
-    expect(records).toHaveProperty('encounter:administeredVaccine', 1);
+    expect(records).toHaveProperty('encounter:administeredVaccine', 2);
   });
 
   it('should report an error if an FK search comes up empty', () => {
