@@ -1,7 +1,7 @@
 /* eslint no-console: "off" */
 const fetch = require('node-fetch');
 const fs = require('fs');
-const readline = require('readline');
+const prompts = require('prompts');
 
 const API_VERSION = 'v1';
 let token = null; // Auth token, saved after login
@@ -47,20 +47,6 @@ const yargs = require('yargs/yargs')(process.argv.slice(2))
   .usage('Usage: $0 [import|export] --address <url> --user <email> --[input|output] <file>')
   .help().argv;
 
-function getPassword() {
-  const rl = readline.createInterface({
-    input: process.stdin,
-    output: process.stdout,
-  });
-
-  return new Promise(resolve =>
-    rl.question('Password: ', password => {
-      rl.close();
-      resolve(password);
-    }),
-  );
-}
-
 // Send a request to the appropriate address and endpoint
 async function fetchFromSyncServer(address, endpoint, params = {}) {
   const { headers = {}, body, method = 'GET', ...otherParams } = params;
@@ -95,7 +81,11 @@ async function fetchFromSyncServer(address, endpoint, params = {}) {
 // Prompt user for password, authenticate with server, save token to global var
 async function loginToServer({ address, user }) {
   console.log(`Logging into ${address} as ${user}`);
-  const password = await getPassword();
+  const { password } = await prompts({
+    type: 'invisible',
+    name: 'password',
+    message: 'Password: ',
+  });
   const loginResponse = await fetchFromSyncServer(address, 'login', {
     method: 'POST',
     body: {
