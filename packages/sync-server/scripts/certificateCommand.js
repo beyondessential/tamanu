@@ -43,7 +43,8 @@ const yargs = require('yargs/yargs')(process.argv.slice(2))
       Promise.resolve(exportCommand(argv));
     },
   )
-  .usage('Usage: $0 --address <url> --user <email> --input <file>')
+  .demandCommand(1, 'Please select either import or export command')
+  .usage('Usage: $0 [import|export] --address <url> --user <email> --[input|output] <file>')
   .help().argv;
 
 function getPassword() {
