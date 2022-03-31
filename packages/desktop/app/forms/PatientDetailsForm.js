@@ -13,7 +13,7 @@ import {
   TextField,
   RadioField,
   SelectField,
-  ReferenceDataSelectField,
+  SuggesterSelectField,
 } from '../components';
 import {
   sexOptions,
@@ -141,8 +141,8 @@ export const SecondaryDetailsGroup = () => {
       />
       <LocalisedField
         name="patientBillingTypeId"
-        dataType="patientBillingType"
-        component={ReferenceDataSelectField}
+        endpoint="patientBillingType"
+        component={SuggesterSelectField}
       />
       <LocalisedField name="emergencyContactName" component={TextField} />
       <LocalisedField name="emergencyContactNumber" component={TextField} type="tel" />

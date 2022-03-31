@@ -22,6 +22,8 @@ function createSuggestionRoute(
     res.send(transform(object));
   });
 
+  console.log(' --- IS THIS USED? ---');
+
   suggestionRoutes.get(`/${path}`, (req, res) => {
     const { db, query } = req;
     const { q = '', limit = 10 } = query;

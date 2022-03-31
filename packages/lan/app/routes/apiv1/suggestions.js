@@ -19,6 +19,37 @@ const defaultLimit = 25;
 // endpoints for usage examples.
 function createSuggester(endpoint, modelName, whereSql, mapper = defaultMapper) {
   suggestions.get(
+    `/${endpoint}/all`,
+    asyncHandler(async (req, res) => {
+      const { models } = req;
+
+      req.checkPermission('list', modelName);
+
+      const model = models[modelName];
+      const results = await model.sequelize.query(
+        `
+      SELECT *
+      FROM "${model.tableName}"
+      WHERE ${whereSql}
+      LIMIT :limit
+    `,
+        {
+          replacements: {
+            limit: defaultLimit,
+            search: '',
+          },
+          type: QueryTypes.SELECT,
+          model,
+          mapToModel: true,
+        },
+      );
+
+      const listing = results.map(mapper);
+      res.send(listing);
+    }),
+  );
+
+  suggestions.get(
     `/${endpoint}/:id`,
     asyncHandler(async (req, res) => {
       const { models, params } = req;

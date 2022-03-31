@@ -15,7 +15,7 @@ import {
   Button,
   FormGrid,
   LocalisedField,
-  ReferenceDataSelectField,
+  SuggesterSelectField,
 } from '../components';
 import { encounterOptions, Colors } from '../constants';
 import { useSuggester } from '../api';
@@ -109,8 +109,8 @@ export const EncounterForm = React.memo(({ editedObject, onSubmit, patientBillin
         />
         <LocalisedField
           name="patientBillingTypeId"
-          dataType="patientBillingType"
-          component={ReferenceDataSelectField}
+          endpoint="patientBillingType"
+          component={SuggesterSelectField}
         />
         <Field
           name="examinerId"
