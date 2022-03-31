@@ -1,11 +1,14 @@
 import { Duration } from 'date-fns';
+
 import { ComputedExtension, Extension, ExtensionName } from './certificateExtensions';
-import { EKU_VDS_NC, EKU_DCC_TEST, EKU_DCC_VACCINATION, EKU_DCC_RECOVERY } from "./constants";
+import { Country } from './Config';
+import { EKU_VDS_NC, EKU_DCC_TEST, EKU_DCC_VACCINATION, EKU_DCC_RECOVERY } from './constants';
 
 export enum Profile {
   VDS = 'vds',
-  EUDCC = 'eudcc'
+  EUDCC = 'eudcc',
 }
+
 /**
  * Working time of issued signer certificates (BSC) is derived from the issuance profile.
  *
@@ -20,6 +23,7 @@ export function signerWorkingTime(profile: Profile): Duration {
       return { days: 365 };
   }
 }
+
 /**
  * Default validity of issued signer certificates (BSC) is derived from the issuance profile.
  *
@@ -34,27 +38,35 @@ export function signerDefaultValidity(profile: Profile): Duration {
       return { days: 365 };
   }
 }
+
+interface SignerExtensionParams {
+  country: Country;
+}
+
 /**
  * The set of extensions set on issued certificates depends on the issuance profile.
  */
-export function signerExtensions(profile: Profile): Extension[] {
+export function signerExtensions(
+  profile: Profile,
+  { country }: SignerExtensionParams,
+): Extension[] {
   switch (profile) {
     case Profile.VDS:
       return [
         {
           name: ExtensionName.AuthorityKeyIdentifier,
-          critical: true,
+          critical: false,
           value: ComputedExtension,
         },
-        { name: ExtensionName.ExtendedKeyUsage, critical: false, value: [EKU_VDS_NC] },
         { name: ExtensionName.DocType, critical: false, value: ['NT', 'NV'] },
+        { name: ExtensionName.ExtendedKeyUsage, critical: true, value: [EKU_VDS_NC] },
       ];
 
     case Profile.EUDCC:
       return [
         {
           name: ExtensionName.AuthorityKeyIdentifier,
-          critical: true,
+          critical: false,
           value: ComputedExtension,
         },
         {
@@ -67,10 +79,20 @@ export function signerExtensions(profile: Profile): Extension[] {
           critical: false,
           value: ComputedExtension,
         },
-        { name: ExtensionName.KeyUsage, critical: true, value: ['DigitalSignature'] },
+        { name: ExtensionName.KeyUsage, critical: true, value: ['digitalSignature'] },
+        {
+          name: ExtensionName.SubjectAltName,
+          critical: false,
+          value: [{ L: country.alpha3 }],
+        },
+        {
+          name: ExtensionName.IssuerAltName,
+          critical: false,
+          value: [{ L: country.alpha3 }],
+        },
         {
           name: ExtensionName.ExtendedKeyUsage,
-          critical: false,
+          critical: true,
           value: [EKU_DCC_TEST, EKU_DCC_VACCINATION, EKU_DCC_RECOVERY],
         },
         {

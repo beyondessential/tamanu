@@ -80,12 +80,14 @@ export default class CA {
 
     const now = new Date();
 
+    const country = {
+      alpha2: countryAlpha2,
+      alpha3: countryAlpha3,
+    };
+
     const config: ConfigFile = {
       name: shortname,
-      country: {
-        alpha2: countryAlpha2,
-        alpha3: countryAlpha3,
-      },
+      country,
       subject: {
         country: countryAlpha2,
         commonName: fullname,
@@ -101,7 +103,7 @@ export default class CA {
       issuance: {
         workingPeriodDays: signerWorkingTime(profile).days!,
         validityPeriodDays: signerDefaultValidity(profile).days!,
-        extensions: signerExtensions(profile),
+        extensions: signerExtensions(profile, { country }),
       },
     };
 
