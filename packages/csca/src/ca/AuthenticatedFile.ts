@@ -1,6 +1,7 @@
 import { promises as fs } from 'fs';
 
 import crypto from '../crypto';
+import { keyPairFromPrivate } from '../utils';
 
 export default class AuthenticatedFile {
   private path: string;
@@ -23,11 +24,20 @@ export default class AuthenticatedFile {
     const contents = await fs.readFile(this.path);
 
     try {
+      const publicKey = this.key.type === 'private'
+        ? (await keyPairFromPrivate(this.key)).publicKey
+        : this.key;
+
       const sig = await fs.readFile(this.sigFile());
-      const check = await crypto.subtle.verify({
-        name: 'ECDSA',
-        hash: 'SHA-256',
-      }, this.key, sig, contents);
+      const check = await crypto.subtle.verify(
+        {
+          name: 'ECDSA',
+          hash: 'SHA-256',
+        },
+        publicKey,
+        sig,
+        contents,
+      );
 
       if (!check) throw new Error('Signature is invalid');
     } catch (e) {
@@ -40,10 +50,16 @@ export default class AuthenticatedFile {
   }
 
   protected async writeFile(contents: Buffer) {
-    const sig = await crypto.subtle.sign({
-      name: 'ECDSA',
-      hash: 'SHA-256',
-    }, this.key, contents);
+    if (this.key.type !== 'private') throw new Error('Cannot write with public key');
+
+    const sig = await crypto.subtle.sign(
+      {
+        name: 'ECDSA',
+        hash: 'SHA-256',
+      },
+      this.key,
+      contents,
+    );
 
     await fs.writeFile(this.path, contents);
     await fs.writeFile(this.sigFile(), Buffer.from(sig));
