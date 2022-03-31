@@ -7,7 +7,7 @@ import { getResponseJsonSafely } from 'shared/utils';
 import { log } from 'shared/services/logging';
 import { fetchWithTimeout } from 'shared/utils/fetchWithTimeout';
 
-import { version } from '~/../package.json';
+import { version } from '../../package.json';
 import { callWithBackoff } from './callWithBackoff';
 
 const API_VERSION = 'v1';

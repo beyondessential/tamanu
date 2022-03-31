@@ -1,5 +1,5 @@
-import { importData } from '~/admin/importDataDefinition';
-import { preprocessRecordSet } from '~/admin/preprocessRecordSet';
+import { importData } from '../app/admin/importDataDefinition';
+import { preprocessRecordSet } from '../app/admin/preprocessRecordSet';
 import { createTestContext } from './utilities';
 
 const TEST_DATA_PATH = './__tests__/importers/test_definitions.xlsx';

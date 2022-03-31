@@ -1,7 +1,7 @@
 import { getToken, remoteLogin } from 'lan/app/middleware/auth';
 import Chance from 'chance';
 import { pick } from 'lodash';
-import { WebRemote } from '~/sync/WebRemote';
+import { WebRemote } from '../../app/sync/WebRemote';
 import { createTestContext } from '../utilities';
 
 const chance = new Chance();

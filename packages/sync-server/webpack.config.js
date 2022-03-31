@@ -8,11 +8,6 @@ module.exports = {
   entry: ['@babel/polyfill', './index.js'],
   externals: [nodeExternals({ modulesDir: '../../node_modules' }), nodeExternals()],
   plugins: [new CleanWebpackPlugin(), new webpack.optimize.OccurrenceOrderPlugin()],
-  resolve: {
-    alias: {
-      '~': path.resolve(__dirname, 'app'),
-    },
-  },
   module: {
     rules: [
       {
