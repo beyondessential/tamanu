@@ -17,37 +17,37 @@ describe('PEM', () => {
 
   it('should depem documents with Unix line endings', () => {
     // Arrange
-    const word = Buffer.from('Hello World').toString('base64');
-    const data = `-----BEGIN TEST-----\n${word}\n-----END TEST-----\n\n`;
+    const word = Buffer.from('Hello World');
+    const data = `-----BEGIN TEST-----\n${word.toString('base64')}\n-----END TEST-----\n\n`;
 
     // Act
     const depemd = depem(data, 'TEST');
 
     // Assert
-    expect(depemd).to.equal('Hello World');
+    expect(depemd).to.equal(word);
   });
 
   it('should depem documents with Windows line endings', () => {
     // Arrange
-    const word = Buffer.from('Hello World').toString('base64');
-    const data = `-----BEGIN TEST-----\r\n${word}\r\n-----END TEST-----\r\n\r\n`;
+    const word = Buffer.from('Hello World');
+    const data = `-----BEGIN TEST-----\r\n${word.toString('base64')}\r\n-----END TEST-----\r\n\r\n`;
 
     // Act
     const depemd = depem(data, 'TEST');
 
     // Assert
-    expect(depemd).to.equal('Hello World');
+    expect(depemd).to.equal(word);
   });
 
   it('should depem documents with cursed line endings', () => {
     // Arrange
-    const word = Buffer.from('Hello World').toString('base64');
-    const data = `-----BEGIN TEST-----\n${word}\r\n-----END TEST-----\r\n\n`;
+    const word = Buffer.from('Hello World');
+    const data = `-----BEGIN TEST-----\n${word.toString('base64')}\r\n-----END TEST-----\r\n\n`;
 
     // Act
     const depemd = depem(data, 'TEST');
 
     // Assert
-    expect(depemd).to.equal('Hello World');
+    expect(depemd).to.equal(word);
   });
 });
