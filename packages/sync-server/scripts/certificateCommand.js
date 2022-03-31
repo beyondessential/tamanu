@@ -2,50 +2,35 @@
 const fetch = require('node-fetch');
 const fs = require('fs');
 const prompts = require('prompts');
+const program = require('commander');
 
 const API_VERSION = 'v1';
 let token = null; // Auth token, saved after login
 
-// Setup command line args
-const yargs = require('yargs/yargs')(process.argv.slice(2))
-  .option('address', {
-    alias: 'a',
-    describe: 'Address of the sync server instance to connect to',
-  })
-  .option('user', {
-    alias: 'u',
-    describe: 'Email address of the user account to authenticate as',
-  })
-  .demandOption(['address', 'user'])
-  .command(
-    'import',
-    'Import a certificate into the pending signer',
-    command =>
-      command.option('input', {
-        alias: 'i',
-        describe: 'Certificate file to import',
-        demandOption: true,
-      }),
-    argv => {
-      Promise.resolve(importCommand(argv));
-    },
-  )
-  .command(
-    'export',
-    'Export a certificate request from the pending signer',
-    command =>
-      command.option('output', {
-        alias: 'o',
-        describe: 'Filepath to save the csr to',
-        demandOption: true,
-      }),
-    argv => {
-      Promise.resolve(exportCommand(argv));
-    },
-  )
-  .demandCommand(1, 'Please select either import or export command')
-  .usage('Usage: $0 [import|export] --address <url> --user <email> --[input|output] <file>')
-  .help().argv;
+// Required args for all commands
+program
+  .requiredOption('-a, --address <url>', 'Address of the sync server instance to connect to')
+  .requiredOption('-u, --user <email>', 'Email address of the user account to authenticate as');
+
+// Setup import action
+program
+  .command('import <file>')
+  .description('Import a certificate into the pending signer')
+  .action(file => {
+    const options = program.opts();
+    importCommand({ ...options, input: file });
+  });
+
+// Setup export action
+program
+  .command('export <file>')
+  .description('Export a certificate request from the pending signer')
+  .action(file => {
+    const options = program.opts();
+    exportCommand({ ...options, output: file });
+  });
+
+program.parse();
 
 // Send a request to the appropriate address and endpoint
 async function fetchFromSyncServer(address, endpoint, params = {}) {
@@ -130,16 +115,10 @@ async function fetchCertificateRequest({ address, output }) {
 async function importCommand({ address, user, input }) {
   await loginToServer({ address, user });
   await uploadCertificate({ address, input });
-
-  console.log('Success');
-  return 0;
 }
 
 // Login and export certificate request
 async function exportCommand({ address, user, output }) {
   await loginToServer({ address, user });
   await fetchCertificateRequest({ address, output });
-
-  console.log('Success');
-  return 0;
 }
