@@ -66,6 +66,16 @@ export const DocumentsPane = React.memo(({ encounter, patient, showSearchBar = f
     ? `encounter/${encounter.id}/documentMetadata`
     : `patient/${patient.id}/documentMetadata`;
 
+  // Allows to check internet connection and set error modal from child components
+  const canInvokeDocumentAction = useCallback(() => {
+    if (!hasInternetConnection) {
+      setModalStatus(MODAL_STATES.ALERT_NO_INTERNET_OPEN);
+      return false;
+    }
+
+    return true;
+  }, []);
+
   const handleClose = useCallback(() => {
     // Prevent user from navigating away if we're submitting a document
     if (!isSubmitting) {
@@ -75,13 +85,12 @@ export const DocumentsPane = React.memo(({ encounter, patient, showSearchBar = f
 
   const handleSubmit = useCallback(
     async ({ file, ...data }) => {
-      setIsSubmitting(true);
-
-      if (!hasInternetConnection) {
-        setModalStatus(MODAL_STATES.ALERT_NO_INTERNET_OPEN);
+      // Modal error will be set and shouldn't try to submit
+      if (!canInvokeDocumentAction()) {
         return;
       }
 
+      setIsSubmitting(true);
       try {
         // Read and inject document creation date to metadata sent
         const { birthtime } = await asyncFs.stat(file);
@@ -95,16 +104,8 @@ export const DocumentsPane = React.memo(({ encounter, patient, showSearchBar = f
         setIsSubmitting(false);
       }
     },
-    [refreshCount, api, endpoint, handleClose],
+    [refreshCount, api, endpoint, handleClose, canInvokeDocumentAction],
   );
-
-  // Placeholder action callback, remove eslint disable when hooking up
-  // eslint-disable-next-line no-unused-vars
-  const handleDownload = useCallback(() => {
-    // TODO: Get document and download, if it fails, open alert
-    // try { } catch (error) { setModalStatus(MODAL_STATES.ALERT_OPEN) }
-    setModalStatus(MODAL_STATES.ALERT_OPEN);
-  }, []);
 
   useEffect(() => {
     function handleBeforeUnload(event) {
@@ -147,6 +148,7 @@ export const DocumentsPane = React.memo(({ encounter, patient, showSearchBar = f
         endpoint={endpoint}
         searchParameters={searchParameters}
         refreshCount={refreshCount}
+        canInvokeDocumentAction={canInvokeDocumentAction}
       />
       <ContentPane>
         <Button
