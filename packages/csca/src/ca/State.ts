@@ -59,20 +59,27 @@ export default class State extends AuthenticatedFile {
     });
   }
 
+  private incrementSerial(serial: Buffer): [Buffer, Buffer] {
+    const offset = serial.byteLength - 4;
+    const next = serial.readUInt32BE(offset) + 1;
+    serial.writeUInt32BE(next, offset);
+    return [serial, Buffer.from(next.toString(16), 'hex')];
+  }
+
   public async nextCrlSerial(): Promise<Buffer> {
     const state = await this.load();
-    const next = state.crlSerial.readUInt32BE() + 1;
-    state.crlSerial.writeUInt32BE(next);
+    const [serial, next] = this.incrementSerial(state.crlSerial);
+    state.crlSerial = serial;
     await this.write(state);
-    return Buffer.from(state.crlSerial);
+    return next;
   }
 
   public async nextIssuanceSerial(): Promise<Buffer> {
     const state = await this.load();
-    const next = state.issuanceSerial.readUInt32BE() + 1;
-    state.issuanceSerial.writeUInt32BE(next);
+    const [serial, next] = this.incrementSerial(state.issuanceSerial);
+    state.issuanceSerial = serial;
     await this.write(state);
-    return Buffer.from(state.issuanceSerial);
+    return next;
   }
 
   // TODO: more useful index management APIs
