@@ -72,56 +72,11 @@ export default class CA {
     return join(this.path, ...paths);
   }
 
-  public async create(
-    shortname: string,
-    fullname: string,
-    countryAlpha2: string,
-    countryAlpha3: string,
-    profile: Profile,
-    provider: undefined | string,
-    deptOrg: undefined | string,
-  ) {
-    if (await fsExists(this.path)) {
-      throw new Error(`${this.path} already exists, not overwriting`);
-    }
+  public async exists(): Promise<boolean> {
+    return fsExists(this.path);
+  }
 
-    const now = new Date();
-
-    const country = {
-      alpha2: countryAlpha2,
-      alpha3: countryAlpha3,
-    };
-
-    const config: ConfigFile = {
-      name: shortname,
-      country,
-      subject: {
-        country: countryAlpha2,
-        commonName: fullname,
-        organisation: provider,
-        organisationUnit: deptOrg,
-      },
-      crl: {
-        filename: `${shortname}.crl`,
-        distribution: [`${CRL_URL_BASE}/${shortname}.crl`],
-        bucket: {
-          region: 'ap-southeast-2',
-          name: 'crl.tamanu.io',
-        },
-      },
-      workingPeriod: period(now, CSCA_PKUP),
-      validityPeriod: period(now, CSCA_VALIDITY),
-      issuance: {
-        workingPeriodDays: signerWorkingTime(profile).days!,
-        validityPeriodDays: signerDefaultValidity(profile).days!,
-        extensions: signerExtensions(profile, { country }),
-      },
-    };
-
-    console.info('CSCA Config:', JSON.stringify(config, null, 2));
-    await confirm('Proceed?');
-    await this.askPassphrase(true);
-
+  public async create(config: ConfigFile) {
     for (const dir of ['.', 'certs']) {
       const path = this.join(dir);
       console.debug('mkdir', path);
@@ -250,19 +205,26 @@ export default class CA {
   }
 
   private async publicKey(): Promise<CryptoKey> {
-    const publicKey = await readPublicKey(this.join('ca.pub'));
-    this.checkIntegrity(publicKey);
-    return publicKey;
+    return readPublicKey(this.join('ca.pub'));
   }
 
   private async privateKey(): Promise<CryptoKey> {
-    await this.publicKey();
+    if (!this.masterKey) {
+      throw new Error('CA was not opened read-write');
+    } else {
+      return readPrivateKey(this.join('ca.key'), this.masterKey);
+    }
+  }
+
+  public async openReadOnly() {
+    const key = await this.publicKey();
+    await this.checkIntegrity(key);
+  }
+
+  public async openReadWrite() {
     await this.askPassphrase();
-
-    const privateKey = await readPrivateKey(this.join('ca.key'), this.masterKey!);
-    await this.checkIntegrity(privateKey);
-
-    return privateKey;
+    const key = await this.privateKey();
+    await this.checkIntegrity(key);
   }
 
   public async issueFromRequest(request: Pkcs10CertificateRequest): Promise<Certificate> {

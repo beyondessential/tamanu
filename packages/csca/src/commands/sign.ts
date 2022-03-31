@@ -17,9 +17,12 @@ async function run(folder: string, request: string) {
   console.log('request subject:', csr.subject);
   console.log('request signature is valid');
 
+  const ca = new CA(folder);
+  await ca.openReadOnly();
+
   await confirm('Proceed?');
 
-  const ca = new CA(folder);
+  await ca.openReadWrite();
   const cert = await ca.issueFromRequest(csr);
 
   const destPath = request.replace(new RegExp(extname(request).replace('.', '\\.') + '$'), '.crt');

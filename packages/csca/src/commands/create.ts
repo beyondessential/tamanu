@@ -1,9 +1,11 @@
 import { Command } from 'commander';
 import COUNTRIES from 'world-countries';
 import type { Country } from 'world-countries';
-import { enumFromStringValue, enumValues } from '../utils';
+import { enumFromStringValue, enumValues, confirm } from '../utils';
 import CA from '../ca';
-import { Profile } from "../ca/profile";
+import { Profile, signerDefaultValidity, signerExtensions, signerWorkingTime } from "../ca/profile";
+import { ConfigFile, period } from '../ca/Config';
+import { CRL_URL_BASE, CSCA_PKUP, CSCA_VALIDITY } from '../ca/constants';
 
 async function run (countryName: string, options: {
   dir?: string,
@@ -35,7 +37,16 @@ async function run (countryName: string, options: {
   const dir = options.dir || `${shortCountryName}.csca`.replace(/\s+/g, '').toLowerCase();
 
   const ca = new CA(dir);
-  await ca.create(shortname, fullname, alpha2, alpha3, profile, provider, deptOrg);
+  if (await ca.exists()) {
+    throw new Error(`A CA at ${dir} already exists, not overwriting`);
+  }
+
+  const config = makeCAConfig(shortname, fullname, alpha2, alpha3, profile, provider, deptOrg)
+  console.info('CSCA Config:', JSON.stringify(config, null, 2));
+  await confirm('Proceed?');
+
+  await ca.openReadWrite();
+  await ca.create(config);
 }
 
 export default new Command('create')
@@ -64,4 +75,47 @@ function lookupCountry(name: string): undefined | Country {
       nameRx.test(c.name.official)
     )
   );
+}
+
+function makeCAConfig(
+    shortname: string,
+    fullname: string,
+    countryAlpha2: string,
+    countryAlpha3: string,
+    profile: Profile,
+    provider: undefined | string,
+    deptOrg: undefined | string,
+  ): ConfigFile {
+    const now = new Date();
+
+    const country = {
+      alpha2: countryAlpha2,
+      alpha3: countryAlpha3,
+    };
+
+    return {
+      name: shortname,
+      country,
+      subject: {
+        country: countryAlpha2,
+        commonName: fullname,
+        organisation: provider,
+        organisationUnit: deptOrg,
+      },
+      crl: {
+        filename: `${shortname}.crl`,
+        distribution: [`${CRL_URL_BASE}/${shortname}.crl`],
+        bucket: {
+          region: 'ap-southeast-2',
+          name: 'crl.tamanu.io',
+        },
+      },
+      workingPeriod: period(now, CSCA_PKUP),
+      validityPeriod: period(now, CSCA_VALIDITY),
+      issuance: {
+        workingPeriodDays: signerWorkingTime(profile).days!,
+        validityPeriodDays: signerDefaultValidity(profile).days!,
+        extensions: signerExtensions(profile, { country }),
+      },
+    };
 }
