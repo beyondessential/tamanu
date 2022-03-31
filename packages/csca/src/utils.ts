@@ -1,3 +1,5 @@
+import prompts from 'prompts';
+
 export function enumFromStringValue<T>(enm: { [s: string]: T }, value: string): T {
   if (!((Object.values(enm) as unknown) as string[]).includes(value)) {
     throw new Error(`Invalid value: ${value}`);
@@ -22,4 +24,16 @@ export async function keyPairFromPrivate(privateKey: CryptoKey): Promise<CryptoK
   );
 
   return { publicKey, privateKey };
+}
+
+export async function confirm(message: string) {
+  const { value } = await prompts({
+    type: 'confirm',
+    name: 'value',
+    message,
+  });
+
+  if (!value) {
+    throw new Error('Aborted');
+  }
 }

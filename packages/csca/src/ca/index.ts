@@ -5,6 +5,7 @@ import prompts from 'prompts';
 import { Pkcs10CertificateRequest } from '@peculiar/x509';
 
 import Config, { ConfigFile, period } from './Config';
+import { confirm } from '../utils';
 import { CRL_URL_BASE, CSCA_PKUP, CSCA_VALIDITY, EKU_HEALTH_CSCA } from './constants';
 import crypto from '../crypto';
 import { Profile, signerWorkingTime, signerDefaultValidity, signerExtensions } from './profile';
@@ -60,18 +61,6 @@ export default class CA {
     }
   }
 
-  private async confirm(message: string) {
-    const { value } = await prompts({
-      type: 'confirm',
-      name: 'value',
-      message,
-    });
-
-    if (!value) {
-      throw new Error('Aborted');
-    }
-  }
-
   private join(...paths: string[]) {
     return join(this.path, ...paths);
   }
@@ -117,7 +106,7 @@ export default class CA {
     };
 
     console.info('CSCA Config:', JSON.stringify(config, null, 2));
-    await this.confirm('Proceed?');
+    await confirm('Proceed?');
     await this.askPassphrase(true);
 
     for (const dir of ['.', 'certs']) {

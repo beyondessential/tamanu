@@ -3149,7 +3149,7 @@
     asn1js "^2.3.1"
     tslib "^2.3.1"
 
-"@peculiar/asn1-schema@^2.1.0":
+"@peculiar/asn1-schema@^2.0.44", "@peculiar/asn1-schema@^2.1.0":
   version "2.1.0"
   resolved "https://registry.yarnpkg.com/@peculiar/asn1-schema/-/asn1-schema-2.1.0.tgz#b1c185e1bd65c269d693c569534880cedc8aa5fa"
   integrity sha512-D6g4C5YRKC/iPujMAOXuZ7YGdaoMx8GsvWzfVSyx2LYeL38ECOKNywlYAuwbqQvON64lgsYdAujWQPX8hhoBLw==

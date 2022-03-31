@@ -1,10 +1,11 @@
 import { promises as fs } from 'fs';
 import { extname } from 'path';
 
-import { Command } from 'commander';
-import { Pkcs10CertificateRequest, PemConverter } from '@peculiar/x509';
 import CA from '../ca';
+import { Command } from 'commander';
 import crypto from '../crypto';
+import { Pkcs10CertificateRequest } from '@peculiar/x509';
+import { confirm } from '../utils';
 
 async function run(folder: string, request: string) {
   const requestFile = await fs.readFile(request);
@@ -13,7 +14,10 @@ async function run(folder: string, request: string) {
   if (!(await csr.verify(crypto)))
     throw new Error('CSR has been tampered with: signature is invalid');
 
-  // TODO: show CSR subject and prompt
+  console.log('request subject:', csr.subject);
+  console.log('request signature is valid');
+
+  await confirm('Proceed?');
 
   const ca = new CA(folder);
   const cert = await ca.issueFromRequest(csr);
