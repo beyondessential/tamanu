@@ -143,9 +143,24 @@ export default class CA {
         workingPeriod: config.workingPeriod,
         extensions: [
           {
-            name: ExtensionName.BasicConstraints,
+            name: ExtensionName.AuthorityKeyIdentifier,
+            critical: false,
+            value: ComputedExtension,
+          },
+          {
+            name: ExtensionName.SubjectKeyIdentifier,
+            critical: false,
+            value: ComputedExtension,
+          },
+          {
+            name: ExtensionName.KeyUsage,
             critical: true,
-            value: [true, 0],
+            value: ['cRLSign', 'keyCertSign'],
+          },
+          {
+            name: ExtensionName.PrivateKeyUsagePeriod,
+            critical: false,
+            value: ComputedExtension,
           },
           {
             name: ExtensionName.SubjectAltName,
@@ -158,34 +173,19 @@ export default class CA {
             value: [{ L: config.country.alpha3 }],
           },
           {
-            name: ExtensionName.SubjectKeyIdentifier,
-            critical: false,
-            value: ComputedExtension,
-          },
-          {
-            name: ExtensionName.AuthorityKeyIdentifier,
+            name: ExtensionName.BasicConstraints,
             critical: true,
-            value: ComputedExtension,
-          },
-          {
-            name: ExtensionName.KeyUsage,
-            critical: true,
-            value: ['cRLSign', 'keyCertSign'],
+            value: [true, 0],
           },
           {
             name: ExtensionName.ExtendedKeyUsage,
-            critical: false,
+            critical: true,
             value: [EKU_HEALTH_CSCA],
           },
           {
             name: ExtensionName.CrlDistributionPoints,
             critical: false,
             value: config.crl.distribution,
-          },
-          {
-            name: ExtensionName.PrivateKeyUsagePeriod,
-            critical: false,
-            value: ComputedExtension,
           },
         ],
       },
