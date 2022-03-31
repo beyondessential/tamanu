@@ -5,7 +5,7 @@ import prompts from 'prompts';
 import { Pkcs10CertificateRequest } from '@peculiar/x509';
 
 import Config, { ConfigFile, period } from './Config';
-import { confirm } from '../utils';
+import { confirm, keyPairFromPrivate } from '../utils';
 import { CRL_URL_BASE, CSCA_PKUP, CSCA_VALIDITY, EKU_HEALTH_CSCA } from './constants';
 import crypto from '../crypto';
 import { Profile, signerWorkingTime, signerDefaultValidity, signerExtensions } from './profile';
@@ -213,6 +213,18 @@ export default class CA {
   }
 
   private async checkIntegrity(key: CryptoKey) {
+    if (key.type === 'private') {
+      const { publicKey } = await keyPairFromPrivate(key);
+      const pkE = await crypto.subtle.exportKey('jwk', publicKey);
+
+      const publicKeyFromFile = await readPublicKey(this.join('ca.pub'));
+      const pkF = await crypto.subtle.exportKey('jwk', publicKeyFromFile);
+
+      if (pkE.kty !== pkF.kty || pkE.crv !== pkF.crv || pkE.x !== pkF.x || pkE.y !== pkF.y) {
+        throw new Error('Public key on disk doesn\'t match private key');
+      }
+    }
+
     await this.config(key).check();
     await this.state(key).check();
     await this.log(key).check();
@@ -220,7 +232,8 @@ export default class CA {
     await this.root().then(cert => cert.check(key));
 
     // TODO: check signature on CRL
-    // TODO: if the private key is available, check that the public key matches
+
+    // console.debug('check integrity: OK');
   }
 
   private async publicKey(): Promise<CryptoKey> {

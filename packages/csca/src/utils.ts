@@ -1,4 +1,5 @@
 import prompts from 'prompts';
+import crypto from './crypto';
 
 export function enumFromStringValue<T>(enm: { [s: string]: T }, value: string): T {
   if (!((Object.values(enm) as unknown) as string[]).includes(value)) {
