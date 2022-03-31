@@ -39,6 +39,10 @@ responses for patients in covid lab test certificates
 
 - Add new report `fiji-aspen-encounter-summary-line-list`
 
+- EU DCC integration. To enable:
+  - Configure the `signer` integration.
+  - Enable the `euDcc` integration.
+
 ### Tweaks ⚖️
 
 - Tweaked localisation to prepare for loading it from the db
