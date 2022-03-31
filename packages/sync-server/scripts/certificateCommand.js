@@ -16,9 +16,11 @@ program
 program
   .command('import <file>')
   .description('Import a certificate into the pending signer')
-  .action(file => {
-    const options = program.opts();
-    importCommand({ ...options, input: file });
+  .option('-s, --periodStart <date>', 'Start date of the signers working period')
+  .option('-e, --periodEnd <date>', 'End date of the signers working period')
+  .action((file, options) => {
+    const globalOptions = program.opts();
+    importCommand({ ...globalOptions, ...options, input: file });
   });
 
 // Setup export action
@@ -82,7 +84,7 @@ async function loginToServer({ address, user }) {
 }
 
 // Upload input certificate file to address
-async function uploadCertificate({ address, input }) {
+async function uploadCertificate({ address, input, workingPeriod }) {
   console.log(`Uploading certificate: ${input}`);
   const certificate = await fs.promises.readFile(input, 'utf8');
   const importResponse = await fetchFromSyncServer(
@@ -92,6 +94,7 @@ async function uploadCertificate({ address, input }) {
       method: 'POST',
       body: {
         certificate,
+        workingPeriod,
       },
     },
   );
@@ -112,9 +115,15 @@ async function fetchCertificateRequest({ address, output }) {
 }
 
 // Login and upload certificate
-async function importCommand({ address, user, input }) {
+async function importCommand(options) {
+  const { address, user, input, periodStart, periodEnd } = options;
+  const workingPeriod = { start: periodStart, end: periodEnd };
   await loginToServer({ address, user });
-  await uploadCertificate({ address, input });
+  await uploadCertificate({
+    address,
+    input,
+    workingPeriod,
+  });
 }
 
 // Login and export certificate request

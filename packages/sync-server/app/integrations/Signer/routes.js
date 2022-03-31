@@ -38,8 +38,9 @@ routes.post(
     // req.checkPermission('write', 'Signer');
     checkAdmin(req.user);
     const { Signer } = req.store.models;
+    const { body } = req;
 
-    const signerData = await loadCertificateIntoSigner(req.body.certificate);
+    const signerData = await loadCertificateIntoSigner(body.certificate, body.workingPeriod);
     const pending = await Signer.findPending();
 
     if (!pending) {
