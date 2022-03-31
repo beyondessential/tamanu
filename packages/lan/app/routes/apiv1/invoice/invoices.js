@@ -43,6 +43,12 @@ invoiceRoute.post(
       where: { patientId },
     });
 
+    // We expect to always have a patient additional data corresponding to a patient
+    if (patientAdditionalData) {
+      // eslint-disable-next-line no-console
+      console.warn(`No PatientAdditionalData found for patient with ID: ${patientId}`);
+    }
+
     const invoicePriceChangeType = await models.InvoicePriceChangeType.findOne({
       where: {
         itemId: encounterPatientBillingTypeId || patientAdditionalData?.patientBillingTypeId,
