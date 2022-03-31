@@ -2,14 +2,24 @@ import express from 'express';
 import asyncHandler from 'express-async-handler';
 import moment from 'moment';
 import { log } from 'shared/services/logging';
-import { NotFoundError } from 'shared/errors';
+import { NotFoundError, ForbiddenError } from 'shared/errors';
 import { loadCertificateIntoSigner } from '../VdsNc';
 
 export const routes = express.Router();
 
+// req.checkPermission isn't implemented on sync-server yet
+// TODO: Swap this out when it is
+function checkAdmin(user) {
+  if (user?.role !== 'admin') {
+    throw new ForbiddenError('Insufficient permissions');
+  }
+}
+
 routes.get(
   '/exportCertificateRequest',
   asyncHandler(async (req, res) => {
+    // req.checkPermission('read', 'Signer');
+    checkAdmin(req.user);
     log.info('Exporting certificate request');
     const { Signer } = req.store.models;
     const pending = await Signer.findPending();
@@ -25,6 +35,8 @@ routes.get(
 routes.post(
   '/importCertificate',
   asyncHandler(async (req, res) => {
+    // req.checkPermission('write', 'Signer');
+    checkAdmin(req.user);
     const { Signer } = req.store.models;
 
     const signerData = await loadCertificateIntoSigner(req.body.certificate);
