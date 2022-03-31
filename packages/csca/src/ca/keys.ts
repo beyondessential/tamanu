@@ -44,7 +44,19 @@ export async function readPrivateKey(path: string, encryptionKey: CryptoKey): Pr
       iv,
     },
     {
-      name: 'AES-GCM',
+      name: 'ECDSA',
+      namedCurve: 'P-256',
+    },
+    true,
+    ['sign', 'verify'],
+  );
+}
+
+export async function makeKeyPair(): Promise<CryptoKeyPair> {
+  return crypto.subtle.generateKey(
+    {
+      name: 'ECDSA',
+      namedCurve: 'P-256',
     },
     true,
     ['sign', 'verify'],

@@ -11,7 +11,7 @@ import crypto from '../crypto';
 import { Profile, signerWorkingTime, signerDefaultValidity, signerExtensions } from './profile';
 import State from './State';
 import Log from './Log';
-import { deriveSymmetricKey, readPrivateKey, readPublicKey, writePrivateKey, writePublicKey } from './keys';
+import { deriveSymmetricKey, makeKeyPair, readPrivateKey, readPublicKey, writePrivateKey, writePublicKey } from './keys';
 import Certificate from './Certificate';
 import { ComputedExtension, ExtensionName } from './certificateExtensions';
 
@@ -116,14 +116,7 @@ export default class CA {
     }
 
     console.debug('generate keypair');
-    const keyPair = await crypto.subtle.generateKey(
-      {
-        name: 'ECDSA',
-        namedCurve: 'P-256',
-      },
-      true,
-      ['sign', 'verify'],
-    );
+    const keyPair = await makeKeyPair();
 
     console.debug('init config.json');
     await this.config(keyPair.privateKey, true).create(config);
