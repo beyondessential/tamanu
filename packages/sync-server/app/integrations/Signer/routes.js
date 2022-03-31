@@ -2,6 +2,7 @@ import express from 'express';
 import asyncHandler from 'express-async-handler';
 import moment from 'moment';
 import { log } from 'shared/services/logging';
+import { NotFoundError } from 'shared/errors';
 import { loadCertificateIntoSigner } from '../VdsNc';
 
 export const routes = express.Router();
@@ -16,7 +17,7 @@ routes.get(
     if (pending) {
       res.status(200).send({ request: pending.request });
     } else {
-      res.status(404).send({ error: 'Pending signer not found' });
+      throw new NotFoundError('Pending signer not found');
     }
   }),
 );
@@ -30,7 +31,7 @@ routes.post(
     const pending = await Signer.findPending();
 
     if (!pending) {
-      res.status(404).send({ error: 'Pending signer not found' });
+      throw new NotFoundError('Pending signer not found');
     }
 
     await pending.update(signerData);

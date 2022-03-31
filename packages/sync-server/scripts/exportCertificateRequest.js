@@ -1,22 +1,46 @@
+/* eslint no-console: "off" */
 const fetch = require('node-fetch');
 const fs = require('fs');
-
-// TODO: Don't put passwords on the command line
-const [nodeName, scriptName, baseUrl, outputFile, userEmail, password] = process.argv;
+const readline = require('readline');
 
 const API_VERSION = 'v1';
-let token = null;
+let token = null; // Auth token, saved after login
 
-if (!baseUrl || !userEmail) {
-  throw new Error(
-    `Usage ${nodeName} ${scriptName} https://example.com/from-this-server path/to/output/file user@example.com`,
+// Setup command line args
+const yargs = require('yargs/yargs')(process.argv.slice(2))
+  .option('address', {
+    alias: 'a',
+    describe: 'Address of the sync server instance to connect to',
+  })
+  .option('user', {
+    alias: 'u',
+    describe: 'Email address of the user account to authenticate as',
+  })
+  .option('output', {
+    alias: 'o',
+    describe: 'File to save certificate request to',
+  })
+  .demandOption(['address', 'user', 'output'])
+  .help().argv;
+
+function getPassword() {
+  const rl = readline.createInterface({
+    input: process.stdin,
+    output: process.stdout,
+  });
+
+  return new Promise(resolve =>
+    rl.question('Password: ', password => {
+      rl.close();
+      resolve(password);
+    }),
   );
 }
 
 async function fetchFromSyncServer(endpoint, params = {}) {
   const { headers = {}, body, method = 'GET', ...otherParams } = params;
 
-  const url = `${baseUrl}/${API_VERSION}/${endpoint}`;
+  const url = `${yargs.address}/${API_VERSION}/${endpoint}`;
 
   const response = await fetch(url, {
     method,
@@ -34,7 +58,9 @@ async function fetchFromSyncServer(endpoint, params = {}) {
 
   if (!response.ok) {
     console.log('!!! ERROR !!!');
-    console.log(`Server responded with status code ${response.status} (${responseBody.error})`);
+    console.log(
+      `Server responded with status code ${response.status} (${responseBody.error.message})`,
+    );
     process.exit(1);
   }
 
@@ -43,13 +69,13 @@ async function fetchFromSyncServer(endpoint, params = {}) {
 
 // Main function
 (async () => {
-  console.log(`Logging into ${baseUrl} as ${userEmail}`);
+  console.log(`Logging into ${yargs.address} as ${yargs.user}`);
+  const password = await getPassword();
   const loginResponse = await fetchFromSyncServer('login', {
     method: 'POST',
     body: {
-      email: userEmail,
+      email: yargs.user,
       password,
-      // facilityId ??
     },
   });
   token = loginResponse.token;
@@ -58,8 +84,8 @@ async function fetchFromSyncServer(endpoint, params = {}) {
     'integration/signer/exportCertificateRequest',
   );
 
-  console.log(`Writing to ${outputFile}`);
-  await fs.promises.writeFile(outputFile, certificateResponse.request);
+  console.log(`Writing to ${yargs.output}`);
+  await fs.promises.writeFile(yargs.output, certificateResponse.request);
 
   console.log('Success');
   return 0;
