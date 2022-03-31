@@ -46,6 +46,16 @@ const MODAL_STATES = {
   ALERT_NO_SPACE_OPEN: 'alert_no_space',
 };
 
+// Checking connection is done in two places for documents (uploading, downloading).
+// TODO: implement more robust solution since navigator.onLine isn't completely
+// reliable and might give false positives
+const hasInternetConnection = () => {
+  if (navigator.onLine) {
+    return true;
+  }
+  return false;
+};
+
 export const DocumentsPane = React.memo(({ encounter, patient, showSearchBar = false }) => {
   const [modalStatus, setModalStatus] = useState(MODAL_STATES.CLOSED);
   const [isSubmitting, setIsSubmitting] = useState(false);
