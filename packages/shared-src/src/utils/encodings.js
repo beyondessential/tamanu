@@ -25,12 +25,12 @@ export function depem(pemString, expectedBanner) {
   const endRx = /\r?\n-{5}\s*END ?([^-]+)?-{5}$/;
   
   const beginMatch = text.match(beginRx);  
-  if (!beginMatch || beginMatch[0] !== expectedBanner) {
+  if (!beginMatch || beginMatch[1] !== expectedBanner) {
     throw new Error(`Missing start banner on PEM, expected '-----BEGIN ${expectedBanner}-----'`);
   }
   
   const endMatch = text.match(endRx);
-  if (!endMatch || endMatch[0] !== expectedBanner) {
+  if (!endMatch || endMatch[1] !== expectedBanner) {
     throw new Error(`Missing end banner on PEM, expected '-----END ${expectedBanner}-----'`);
   }
 
