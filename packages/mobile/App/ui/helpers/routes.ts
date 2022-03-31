@@ -122,6 +122,7 @@ export const Routes = {
       Index: '',
       AddPatientIssue: '',
       EditPatient: '',
+      EditPatientAdditionalData: '',
     },
     PatientActions: '',
     ExportDataScreen: '',

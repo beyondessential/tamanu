@@ -3,16 +3,18 @@
 import { createTestContext } from 'sync-server/__tests__/utilities';
 import { fake } from 'shared/test-helpers/fake';
 import {
+  VdsNcDocument,
+  loadCertificateIntoSigner,
   newKeypairAndCsr,
   TestCSCA,
-  loadCertificateIntoSigner,
-  createAndSignDocument,
 } from 'sync-server/app/integrations/VdsNc';
 import { ICAO_DOCUMENT_TYPES } from 'shared/constants';
+import { generateICAOFormatUVCI } from 'shared/utils/uvci/icao';
 import crypto from 'crypto';
 import { expect } from 'chai';
 import { canonicalize } from 'json-canonicalize';
 import { base64UrlDecode } from 'shared/utils/encodings';
+import { getLocalisation } from 'sync-server/app/localisation';
 
 describe('VDS-NC: Document cryptography', () => {
   let ctx;
@@ -20,22 +22,14 @@ describe('VDS-NC: Document cryptography', () => {
     ctx = await createTestContext();
     const testCSCA = await TestCSCA.generate();
 
-    const { publicKey, privateKey, request } = await newKeypairAndCsr({
-      keySecret: 'secret',
-      csr: {
-        subject: {
-          countryCode2: 'UT',
-          signerIdentifier: 'TA',
-        },
-      },
-    });
+    const { publicKey, privateKey, request } = await newKeypairAndCsr();
 
-    const { VdsNcSigner } = ctx.store.models;
-    const signer = await VdsNcSigner.create({
+    const { Signer } = ctx.store.models;
+    const signer = await Signer.create({
       publicKey: Buffer.from(publicKey),
       privateKey: Buffer.from(privateKey),
       request,
-      countryCode: 'UTO',
+      countryCode: (await getLocalisation()).country['alpha-3'],
     });
     const signerCert = await testCSCA.signCSR(request);
     const signedCert = await loadCertificateIntoSigner(signerCert);
@@ -45,27 +39,29 @@ describe('VDS-NC: Document cryptography', () => {
   afterAll(() => ctx.close());
 
   it('can sign a test document', async () => {
-    const { VdsNcSigner } = ctx.store.models;
+    const { Signer } = ctx.store.models;
 
     const uniqueProofId = 'UNIQTESTID';
-    const signer = await VdsNcSigner.findActive();
+    const signer = await Signer.findActive();
 
     // Pre-check
     expect(signer?.isActive()).to.be.true;
     const signCount = signer.signaturesIssued;
 
     // Act
-    const document = await createAndSignDocument(
+    const document = new VdsNcDocument(
       ICAO_DOCUMENT_TYPES.PROOF_OF_TESTING.JSON,
       { test: 'data' },
       uniqueProofId,
-      { keySecret: 'secret' },
     );
+    document.models = ctx.store.models;
+
+    await document.sign();
     const payload = await document.intoVDS();
     const vds = JSON.parse(payload);
 
     // Assert
-    expect(document.isSigned()).to.be.true;
+    expect(document.isSigned).to.be.true;
     expect(document.algorithm).to.equal('ES256');
     expect(vds.sig.alg).to.equal('ES256');
     expect(vds.data.hdr.t).to.equal('icao.test');
@@ -97,8 +93,7 @@ describe('VDS-NC: Document cryptography', () => {
 
   it('can sign a vaccination document', async () => {
     const {
-      VdsNcDocument,
-      VdsNcSigner,
+      Signer,
       AdministeredVaccine,
       Encounter,
       Patient,
@@ -128,7 +123,7 @@ describe('VDS-NC: Document cryptography', () => {
       vaccineId: azVaxDrug.id,
     });
 
-    await AdministeredVaccine.create({
+    const latestVacc = await AdministeredVaccine.create({
       id: 'e7664992-13c4-42c8-a106-b31f4f825466',
       status: 'GIVEN',
       batch: '1234-567-890',
@@ -156,25 +151,29 @@ describe('VDS-NC: Document cryptography', () => {
       date: new Date(Date.parse('2 January 2022, UTC')),
     });
 
-    const uniqueProofId = await patient.getIcaoUVCI();
-    const signer = await VdsNcSigner.findActive();
+    // This file specifically tests ICAO format, so specifically generate that UVCI
+    // Instead of reading format from localisation
+    const uniqueProofId = generateICAOFormatUVCI(latestVacc.id);
+    const signer = await Signer.findActive();
 
     // Pre-check
     expect(signer?.isActive()).to.be.true;
     const signCount = signer.signaturesIssued;
 
     // Act
-    const document = await createAndSignDocument(
+    const document = new VdsNcDocument(
       ICAO_DOCUMENT_TYPES.PROOF_OF_VACCINATION.JSON,
       { vaxx: 'data' },
       uniqueProofId,
-      { keySecret: 'secret' },
     );
+    document.models = ctx.store.models;
+
+    await document.sign();
     const payload = await document.intoVDS();
     const vds = JSON.parse(payload);
 
     // Assert
-    expect(document.isSigned()).to.be.true;
+    expect(document.isSigned).to.be.true;
     expect(document.uniqueProofId.length).to.equal(12);
     expect(document.algorithm).to.equal('ES256');
     expect(vds.sig.alg).to.equal('ES256');

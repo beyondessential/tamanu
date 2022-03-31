@@ -8,7 +8,15 @@ export const OPERATIONS = {
 };
 
 // allow either native date objects or ISO 8601 strings
-const transformDate = (_, d) => (d instanceof Date ? d : parseISO(d));
+const transformDate = (_, d) => {
+  if (d instanceof Date) {
+    return d;
+  }
+  if (d === null || d === undefined) {
+    return d;
+  }
+  return parseISO(d);
+};
 
 export const remoteRequest = {
   patientCreated: yup
@@ -49,23 +57,26 @@ export const remoteResponse = {
       .object({
         // Patient fields
         individual_refno: yup.string().required(),
-        fname: yup.string(),
-        lname: yup.string(),
-        dob: yup.date().transform(transformDate),
+        fname: yup.string().nullable(),
+        lname: yup.string().nullable(),
+        dob: yup
+          .date()
+          .transform(transformDate)
+          .nullable(),
         sex: yup
           .string()
           .required()
           .oneOf(['male', 'female', 'other'])
           .transform(g => g.toLowerCase()),
-        sub_division: yup.string(),
-        email: yup.string(),
+        sub_division: yup.string().nullable(),
+        email: yup.string().nullable(),
 
         // PatientAdditionalData fields
-        phone: yup.string(),
+        phone: yup.string().nullable(),
 
         // PatientVRSData fields
-        id_type: yup.string(),
-        identifier: yup.string(),
+        id_type: yup.string().required(),
+        identifier: yup.string().required(),
       })
       .required(),
   }),

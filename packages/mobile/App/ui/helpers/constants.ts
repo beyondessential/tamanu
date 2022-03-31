@@ -235,3 +235,12 @@ export const LabRequestStatus = {
   verified: 'Verified',
   published: 'published',
 };
+
+// also update /packages/lan/app/routes/apiv1/surveyResponse.js when this changes
+export const AutocompleteSourceToColumnMap = {
+  User: 'displayName',
+  Department: 'name',
+  Facility: 'name',
+  Location: 'name',
+  ReferenceData: 'name',
+};

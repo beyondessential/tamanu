@@ -1,6 +1,6 @@
 {
   "name": "shared-src",
-  "version": "1.13.0",
+  "version": "1.14.0",
   "description": "Common code across Tamanu packages",
   "main": "index.js",
   "homepage": "https://github.com/beyondessential/tamanu.git#readme",
@@ -28,6 +28,7 @@
     "await-to-js": "^2.0.1",
     "babel-jest": "^24.5.0",
     "bcrypt": "^3.0.1",
+    "calculate-luhn-mod-n": "^2.0.12",
     "chance": "^1.0.18",
     "config": "3.0.1",
     "date-fns": "^2.19.0",
@@ -36,6 +37,7 @@
     "json-canonicalize": "^1.0.4",
     "jsonwebtoken": "^8.4.0",
     "lodash": "^4.17.11",
+    "moment-timezone": "^0.5.34",
     "node-schedule": "^2.0.0",
     "semver-compare": "^1.0.0",
     "semver-diff": "^3.1.1",

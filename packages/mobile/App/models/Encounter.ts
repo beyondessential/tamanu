@@ -25,6 +25,7 @@ import { Department } from './Department';
 import { Location } from './Location';
 import { Referral } from './Referral';
 import { LabRequest } from './LabRequest';
+import { readConfig } from '~/services/config';
 
 const TIME_OFFSET = 3;
 
@@ -121,6 +122,18 @@ export class Encounter extends BaseModel implements IEncounter {
 
     if (found) return found;
 
+    // Read the selected facility for this client
+    const facilityId = await readConfig('facilityId', '');
+
+    // Find the first department and location that matches the
+    // selected facility to provide the default value for mobile.
+    const defaultDepartment = await Department.findOne({
+      where: { facility: { id: facilityId } },
+    });
+    const defaultLocation = await Location.findOne({
+      where: { facility: { id: facilityId } },
+    });
+
     return Encounter.createAndSaveOne({
       patient: patientId,
       examiner: userId,
@@ -128,8 +141,8 @@ export class Encounter extends BaseModel implements IEncounter {
       endDate: null,
       encounterType: EncounterType.Clinic,
       reasonForEncounter: '',
-      department: (await Department.findOne()).id,
-      location: (await Location.findOne()).id,
+      department: defaultDepartment.id,
+      location: defaultLocation.id,
       deviceId: getUniqueId(),
       ...createdEncounterOptions,
     });

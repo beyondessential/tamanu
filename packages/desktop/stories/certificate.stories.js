@@ -6,6 +6,7 @@ import { CovidLabCertificate, VaccineCertificate } from 'shared/utils';
 import { PDFViewer } from '@react-pdf/renderer';
 import SigningImage from './assets/signing-image.png';
 import Watermark from './assets/watermark.png';
+import Logo from './assets/tamanu-logo.png';
 
 const dummyPatient = createDummyPatient();
 const dummyAdditionalData = createDummyPatientAdditionalData();
@@ -74,8 +75,8 @@ const getLocalisation = key => {
   const config = {
     'templates.letterhead.title': 'TAMANU MINISTRY OF HEALTH & MEDICAL SERVICES',
     'templates.letterhead.subTitle': 'PO Box 12345, Melbourne, Australia',
-    'templates.vaccineCertificateFooter.emailAddress': 'tamanu@health.govt',
-    'templates.vaccineCertificateFooter.contactNumber': '123456',
+    'templates.vaccineCertificate.emailAddress': 'tamanu@health.govt',
+    'templates.vaccineCertificate.contactNumber': '123456',
   };
   return config[key];
 };
@@ -84,11 +85,14 @@ storiesOf('Certificates', module).add('CovidLabCertificate', () => (
   <PDFViewer width={800} height={1000} showToolbar={false}>
     <CovidLabCertificate
       patient={patient}
+      createdBy="Initial Admin"
       labs={labs}
       watermarkSrc={Watermark}
       signingSrc={SigningImage}
+      logoSrc={Logo}
       vdsSrc={vds}
       getLocalisation={getLocalisation}
+      printedBy="Initial Admin"
     />
   </PDFViewer>
 ));
@@ -178,6 +182,7 @@ storiesOf('Certificates', module).add('VaccineCertificate', () => {
         vaccinations={vaccinations}
         watermarkSrc={Watermark}
         signingSrc={SigningImage}
+        logoSrc={Logo}
         vdsSrc={vdsSrc}
         extraPatientFields={[{ key: 'uvci', label: 'UVCI', accessor: () => 'x1235y12345' }]}
         getLocalisation={getLocalisation}

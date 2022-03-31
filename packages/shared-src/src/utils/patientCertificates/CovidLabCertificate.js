@@ -1,5 +1,4 @@
 import React from 'react';
-import moment from 'moment';
 import { Document, Page } from '@react-pdf/renderer';
 import { Table } from './Table';
 import { styles, Col, Box, Row, Watermark } from './Layout';
@@ -13,13 +12,20 @@ import {
   getLabMethod,
   getRequestId,
   getDateOfSwab,
+  getTimeOfSwab,
 } from './accessors';
+import { getDisplayDate } from './getDisplayDate';
 
 const columns = [
   {
     key: 'date-of-swab',
     title: 'Date of swab',
     accessor: getDateOfSwab,
+  },
+  {
+    key: 'time-of-swab',
+    title: 'Time of swab',
+    accessor: getTimeOfSwab,
   },
   {
     key: 'date-of-test',
@@ -44,7 +50,12 @@ const columns = [
   {
     key: 'result',
     title: 'Result',
-    accessor: ({ tests }) => tests.result,
+    accessor: ({ result }) => result,
+  },
+  {
+    key: 'specimenType',
+    title: 'Specimen type',
+    accessor: ({ labTestType }) => labTestType?.name || 'Unknown',
   },
 ];
 
@@ -54,13 +65,15 @@ export const CovidLabCertificate = ({
   signingSrc,
   watermarkSrc,
   vdsSrc,
+  logoSrc,
   getLocalisation,
+  printedBy,
 }) => {
   return (
     <Document>
       <Page size="A4" style={styles.page}>
         {watermarkSrc && <Watermark src={watermarkSrc} />}
-        <LetterheadSection getLocalisation={getLocalisation} />
+        <LetterheadSection getLocalisation={getLocalisation} logoSrc={logoSrc} />
         <Box mb={0}>
           <H3>Covid-19 Test History</H3>
           <PatientDetailsSection
@@ -70,15 +83,15 @@ export const CovidLabCertificate = ({
           />
         </Box>
         <Box mb={30}>
-          <Table data={labs} columns={columns} />
+          <Table data={labs} columns={columns} getLocalisation={getLocalisation} />
         </Box>
         <Box>
           <Row>
             <Col>
-              <P>Printed by:</P>
+              <P>Printed by: {printedBy}</P>
             </Col>
             <Col>
-              <P>Printing date: {moment().format('DD/MM/YYYY')}</P>
+              <P>Printing date: {getDisplayDate()}</P>
             </Col>
           </Row>
         </Box>
