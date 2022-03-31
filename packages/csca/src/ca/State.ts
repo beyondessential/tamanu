@@ -15,7 +15,7 @@ export default class State extends AuthenticatedFile {
     if (crlSerial.byteLength < 8) throw new Error('CRL serial is under 64 bits');
     if (crlSerial.byteLength > 20) throw new Error('CRL serial is over 160 bits');
 
-    const issuanceSerial = Buffer.from(stateFile.crlSerial, 'hex');
+    const issuanceSerial = Buffer.from(stateFile.issuanceSerial, 'hex');
     if (issuanceSerial.byteLength < 8) throw new Error('Issuance serial is under 64 bits');
     if (issuanceSerial.byteLength > 20) throw new Error('Issuance serial is over 160 bits');
 
@@ -63,7 +63,13 @@ export default class State extends AuthenticatedFile {
     const offset = serial.byteLength - 4;
     const next = serial.readUInt32BE(offset) + 1;
     serial.writeUInt32BE(next, offset);
-    return [serial, Buffer.from(next.toString(16), 'hex')];
+
+    let nextHex = next.toString(16);
+    const nextHexLen = nextHex.length;
+    nextHex = nextHex.padStart(nextHexLen % 2 === 0 ? nextHexLen : nextHexLen + 1, '0');
+    const minimallyPadded = Buffer.from(nextHex, 'hex');
+
+    return [serial, minimallyPadded];
   }
 
   public async nextCrlSerial(): Promise<Buffer> {
