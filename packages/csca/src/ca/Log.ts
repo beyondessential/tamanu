@@ -1,14 +1,16 @@
-import { userInfo } from 'os';
+import { hostname, userInfo } from 'os';
 import { join } from 'path';
 
 import AuthenticatedFile from './AuthenticatedFile';
+import Certificate from './Certificate';
+import { ConfigFile } from './Config';
 
 export default class Log extends AuthenticatedFile {
   constructor(caPath: string, key: CryptoKey, newfile: boolean = false) {
     super(join(caPath, 'log.ndjson'), key, newfile);
   }
 
-  public async append(log: LogEntry) {
+  private async append(log: LogEntry) {
     // TODO: optimisation: we only need to append to the file (but sign
     // it all), so we should be able to append to the file directly
     // somehow, and then do a streaming sign.
@@ -21,11 +23,30 @@ export default class Log extends AuthenticatedFile {
     await this.writeFile(Buffer.concat([file, logLine]));
   }
 
-  public async create() {
+  public async create(config: ConfigFile) {
     await this.append({
-      ts: new Date,
+      ts: new Date(),
       op: Operation.Create,
-      user: localUser(),
+      metadata: localMetadata(),
+      data: config,
+    });
+  }
+
+  public async issue(cert: Certificate) {
+    await this.append({
+      ts: new Date(),
+      op: Operation.Issuance,
+      metadata: localMetadata(),
+      data: { ...cert.asIndexEntry(), serial: cert.serial.toString('hex') },
+    });
+  }
+
+  public async revoke(serial: Buffer, date: Date) {
+    await this.append({
+      ts: new Date(),
+      op: Operation.Revocation,
+      metadata: localMetadata(),
+      data: { serial: serial.toString('hex'), revocationDate: date },
     });
   }
 }
@@ -33,14 +54,25 @@ export default class Log extends AuthenticatedFile {
 export interface LogEntry {
   ts: Date;
   op: Operation;
-  user: string;
-  // TODO: request metadata
+  metadata: LogMetadata;
+  data?: any;
 }
 
 export enum Operation {
-  Create = 'create',
+  Create = 'creation',
+  Issuance = 'issuance',
+  Revocation = 'revocation',
 }
 
-export function localUser(): string {
-  return 'local:' + userInfo().username;
+export function localMetadata(): LogMetadata {
+  return {
+    user: userInfo().username,
+    hostname: hostname(),
+  };
+}
+
+export interface LogMetadata {
+  slot?: string;
+  user?: string;
+  hostname?: string;
 }

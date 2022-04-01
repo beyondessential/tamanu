@@ -95,7 +95,7 @@ export default class CA {
     await this.state(keyPair.privateKey, true).create();
 
     console.debug('init log.ndjson');
-    await this.log(keyPair.privateKey, true).create();
+    await this.log(keyPair.privateKey, true).create(config);
 
     console.debug('write private key');
     await writePrivateKey(this.join('ca.key'), keyPair.privateKey, this.masterKey!);
@@ -283,7 +283,8 @@ export default class CA {
       workingPeriodEnd: workingPeriod.end,
     });
 
-    // TODO: write to log
+    console.debug('add to log');
+    await this.log(privateKey).issue(cert);
 
     return cert;
   }
@@ -296,10 +297,10 @@ export default class CA {
     return entry;
   }
 
-  public async revokeCertificate(serial: Buffer, date?: Date) {
+  public async revokeCertificate(serial: Buffer, date: Date) {
     const key = await this.privateKey();
     await this.state(key).indexRevocation(serial, date);
-    // write to log
+    await this.log(key).revoke(serial, date);
   }
 }
 
