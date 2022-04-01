@@ -1,5 +1,4 @@
 import config from 'config';
-import crypto from 'crypto';
 import cbor from 'cbor';
 import cose from 'cose-js';
 import { log } from 'shared/services/logging';
@@ -97,15 +96,17 @@ export async function HCERTPack(messageData, models) {
 }
 
 /**
- *  Unpacks QR data, verifies the COSE signature, and checks the HCERT claims.
+ * Unpacks QR data, verifies the COSE signature, and checks the HCERT claims.
  *
- *  @returns The decoded HCERT data
+ * @internal Only used for testing. Makes an assumption that the active
+ * signer is the right one, but for production use we should really look
+ * for the right signer from the kid.
+ * 
+ * @returns The decoded HCERT data
  */
 export async function HCERTVerify(packedData, models) {
   log.info('Verifying HCERT message');
   const signer = await models.Signer.findActive();
-  // TODO: load the correct signer from kid?
-  // Or is this only used in testing so doesn't matter?
 
   // Fetch publicKey data from cert
   // Parsing the publicKey field directly seems to go wonky
