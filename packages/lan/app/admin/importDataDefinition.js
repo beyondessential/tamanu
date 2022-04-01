@@ -38,10 +38,7 @@ const administeredVaccineTransformer = () => ({
   patientId,
   ...data
 }) => {
-  if (!excelDate) {
-    throw new Error('administered vaccines must have a date');
-  }
-  const date = getJsDateFromExcel(excelDate);
+  const date = excelDate ? getJsDateFromExcel(excelDate) : null;
   const administeredVaccine = {
     recordType: 'administeredVaccine',
     data: {
