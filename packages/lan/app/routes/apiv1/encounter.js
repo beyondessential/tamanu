@@ -32,8 +32,6 @@ encounter.put(
     req.checkPermission('write', object);
 
     await db.transaction(async () => {
-      await object.update(req.body);
-
       if (req.body.discharge) {
         req.checkPermission('write', 'Discharge');
         await models.Discharge.create({
@@ -57,6 +55,7 @@ encounter.put(
         const referral = await models.Referral.findByPk(referralId);
         await referral.update({ encounterId: id });
       }
+      await object.update(req.body);
     });
 
     res.send(object);
