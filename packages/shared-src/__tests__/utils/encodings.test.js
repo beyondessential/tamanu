@@ -11,7 +11,7 @@ describe('PEM', () => {
     const depemd = depem(pemd, 'TEST');
 
     // Assert
-    expect(depemd).to.equal(data);
+    expect(depemd.toString('hex')).to.equal(data.toString('hex'));
     expect(pemd).to.equal('Hello World');
   });
 
@@ -24,7 +24,7 @@ describe('PEM', () => {
     const depemd = depem(data, 'TEST');
 
     // Assert
-    expect(depemd).to.equal(word);
+    expect(depemd.toString('hex')).to.equal(word.toString('hex'));
   });
 
   it('should depem documents with Windows line endings', () => {
@@ -36,7 +36,7 @@ describe('PEM', () => {
     const depemd = depem(data, 'TEST');
 
     // Assert
-    expect(depemd).to.equal(word);
+    expect(depemd.toString('hex')).to.equal(word.toString('hex'));
   });
 
   it('should depem documents with cursed line endings', () => {
@@ -48,6 +48,6 @@ describe('PEM', () => {
     const depemd = depem(data, 'TEST');
 
     // Assert
-    expect(depemd).to.equal(word);
+    expect(depemd.toString('hex')).to.equal(word.toString('hex'));
   });
 });
