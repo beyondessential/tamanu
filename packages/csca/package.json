@@ -10,31 +10,16 @@
   "scripts": {
     "build": "rm -rf build; tsc --build tsconfig.json",
     "cli": "yarn build && node build",
-    "test": "NODE_ENV=test jest",
-    "test-coverage": "yarn test --coverage",
-    "test-watch": "yarn test --watch",
     "lint": "eslint --fix src/**/*",
     "lint-stats": "eslint --format ../scripts/eslint-stats.js src/**/*"
   },
   "devDependencies": {
     "@beyondessential/eslint-config-beyondessential": "^2.6.0",
-    "@beyondessential/eslint-config-js": "^1.1.0",
-    "@types/jest": "^24.0.23",
     "@types/node": "^14.0.4",
     "@types/prompts": "^2.0.14",
-    "@types/yup": "^0.26.27",
     "@typescript-eslint/eslint-plugin": "^2.14.0",
     "@typescript-eslint/parser": "^2.14.0",
-    "chai": "^4.1.2",
     "eslint": "^7.14.0",
-    "eslint-import-resolver-alias": "^1.1.2",
-    "eslint-import-resolver-webpack": "^0.11.0",
-    "eslint-plugin-import": "^2.22.1",
-    "eslint-plugin-jsx-a11y": "^6.2.3",
-    "jest": "^26.6.3",
-    "jest-extended": "^1.2.0",
-    "pkg": "^4.4.8",
-    "ts-jest": "^26.0.0",
     "typescript": "^3.9.2"
   },
   "dependencies": {
@@ -44,15 +29,8 @@
     "@peculiar/x509": "^1.6.1",
     "chrono-node": "^2.3.8",
     "commander": "^9.0.0",
-    "config": "^3.0.1",
     "date-fns": "^2.19.0",
-    "mailgun-js": "^0.22.0",
     "prompts": "^2.0.0",
-    "read": "^1.0.7",
-    "shared": "*",
-    "uuid": "^8.1.0",
-    "winston": "^3.2.1",
-    "world-countries": "^4.0.0",
-    "yup": "^0.32.9"
+    "world-countries": "^4.0.0"
   }
 }
