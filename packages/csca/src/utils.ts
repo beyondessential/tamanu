@@ -1,4 +1,6 @@
+import { setMilliseconds } from 'date-fns';
 import prompts from 'prompts';
+
 import crypto from './crypto';
 
 export function enumFromStringValue<T>(enm: { [s: string]: T }, value: string): T {
@@ -51,4 +53,16 @@ export function padBufferStart(buffer: Buffer, bytes: number): Buffer {
   } else {
     return Buffer.from(buffer);
   }
+}
+
+/**
+ * Truncate a date's precision to seconds, removing milliseconds.
+ *
+ * Certificate dates are only precise to seconds, and will get stored
+ * appropriately, but when we use dates generated at runtime we
+ * sometimes want to truncate them so they're consistent with
+ * certificate-extracted dates.
+ */
+export function truncateToSeconds(date: Date): Date {
+  return setMilliseconds(date, 0);
 }

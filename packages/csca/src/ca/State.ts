@@ -95,14 +95,14 @@ export default class State extends AuthenticatedFile {
   /**
    * @internal Do not use outside of CA classes (e.g. directly from commands).
    */
-  public async indexNewCertificate(cert: Certificate) {
+  public async indexNewCertificate(cert: Certificate, overrides?: Partial<IndexEntry>) {
     if ((await this.fromSerial(cert.serial)) !== undefined) {
       throw new Error('Certificate already exists in index');
     }
 
     const state = await this.load();
     const fullSerial = padBufferStart(cert.serial, state.issuanceSerial.byteLength);
-    state.index.set(fullSerial, cert.asIndexEntry());
+    state.index.set(fullSerial, Object.assign(cert.asIndexEntry(), overrides));
     await this.write(state);
   }
 }

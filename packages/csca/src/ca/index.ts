@@ -251,6 +251,8 @@ export default class CA {
     const now = new Date();
 
     console.debug('issue certificate');
+    const validityPeriod = period(now, { days: issuanceConfig.validityPeriodDays });
+    const workingPeriod = period(now, { days: issuanceConfig.workingPeriodDays });
     const cert = await Certificate.createFromRequest(
       {
         subject: {
@@ -258,8 +260,8 @@ export default class CA {
           commonName: 'TA',
         },
         serial,
-        validityPeriod: period(now, { days: issuanceConfig.validityPeriodDays }),
-        workingPeriod: period(now, { days: issuanceConfig.workingPeriodDays }),
+        validityPeriod,
+        workingPeriod,
         extensions: issuanceConfig.extensions,
       },
       request,
@@ -276,7 +278,10 @@ export default class CA {
     console.debug('write request');
     await fs.writeFile(this.join('certs', cert.certId, 'request.csr'), request.toString('pem'));
 
-    await this.state(privateKey).indexNewCertificate(cert);
+    console.log('add to index');
+    await this.state(privateKey).indexNewCertificate(cert, {
+      workingPeriodEnd: workingPeriod.end,
+    });
 
     // TODO: write to log
 

@@ -4,6 +4,7 @@ import { add, Duration } from 'date-fns';
 
 import AuthenticatedFile from './AuthenticatedFile';
 import { Extension } from './certificateExtensions';
+import { truncateToSeconds } from '../utils';
 
 export default class Config extends AuthenticatedFile {
   constructor(caPath: string, key: CryptoKey, newfile: boolean = false) {
@@ -86,7 +87,7 @@ export interface Period {
 
 export function period(start: Date, duration: Duration): Period {
   return {
-    start: start,
-    end: add(start, duration),
+    start: truncateToSeconds(start),
+    end: truncateToSeconds(add(start, duration)),
   };
 }
