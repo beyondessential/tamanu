@@ -206,7 +206,10 @@ export default class CA {
     // console.debug('check integrity: OK');
   }
 
-  private async publicKey(): Promise<CryptoKey> {
+  /**
+   * @internal Only for use within the CA code, prefer not to call externally (from commands).
+   */
+  public async publicKey(): Promise<CryptoKey> {
     return readPublicKey(this.join('ca.pub'));
   }
 
@@ -227,6 +230,11 @@ export default class CA {
     await this.askPassphrase();
     const key = await this.privateKey();
     await this.checkIntegrity(key);
+
+    const root = await this.root();
+    if (!root.asIndexEntry().isUsable) {
+      throw new Error('CA is not usable: out of working period');
+    }
   }
 
   public async issueFromRequest(request: Pkcs10CertificateRequest): Promise<Certificate> {
