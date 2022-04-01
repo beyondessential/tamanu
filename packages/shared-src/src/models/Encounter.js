@@ -139,15 +139,12 @@ export class Encounter extends Model {
       {
         id: primaryKey,
         encounterType: Sequelize.STRING(31),
-
         startDate: {
           type: Sequelize.DATE,
           allowNull: false,
         },
         endDate: Sequelize.DATE,
-
         reasonForEncounter: Sequelize.TEXT,
-
         deviceId: Sequelize.TEXT,
       },
       {
@@ -258,6 +255,11 @@ export class Encounter extends Model {
     this.hasMany(models.DocumentMetadata, {
       foreignKey: 'encounterId',
       as: 'documents',
+    });
+
+    this.belongsTo(models.ReferenceData, {
+      foreignKey: 'patientBillingTypeId',
+      as: 'patientBillingType',
     });
 
     // this.hasMany(models.Procedure);

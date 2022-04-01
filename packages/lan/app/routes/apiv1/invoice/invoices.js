@@ -27,7 +27,8 @@ invoiceRoute.post(
     }
     req.checkPermission('write', 'Invoice');
 
-    const { patientId, id } = encounter;
+    const { patientId, id, patientBillingTypeId: encounterPatientBillingTypeId } = encounter;
+
     const displayId =
       customAlphabet('0123456789', 8)() + customAlphabet('ABCDEFGHIJKLMNOPQRSTUVWXYZ', 2)();
     // Create a corresponding invoice with the encounter when admitting patient
@@ -38,12 +39,20 @@ invoiceRoute.post(
       paymentStatus: INVOICE_PAYMENT_STATUSES.UNPAID,
     });
 
-    // Expect to always have a patient additional data corresponding to a patient
-    const { patientBillingTypeId } = await models.PatientAdditionalData.findOne({
+    const patientAdditionalData = await models.PatientAdditionalData.findOne({
       where: { patientId },
     });
+
+    // We expect to always have a patient additional data corresponding to a patient
+    if (!patientAdditionalData) {
+      // eslint-disable-next-line no-console
+      console.warn(`No PatientAdditionalData found for patient with ID: ${patientId}`);
+    }
+
     const invoicePriceChangeType = await models.InvoicePriceChangeType.findOne({
-      where: { itemId: patientBillingTypeId },
+      where: {
+        itemId: encounterPatientBillingTypeId || patientAdditionalData?.patientBillingTypeId,
+      },
     });
 
     // automatically apply price change (discount) based on patientBillingType
