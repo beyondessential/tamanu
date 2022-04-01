@@ -6,7 +6,7 @@ import Certificate from './Certificate';
 import { Subject } from './Config';
 
 export default class State extends AuthenticatedFile {
-  constructor(caPath: string, key: CryptoKey, newfile: boolean = false) {
+  constructor(caPath: string, key: CryptoKey, newfile = false) {
     super(join(caPath, 'state.json'), key, newfile);
   }
 

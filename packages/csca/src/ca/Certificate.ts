@@ -176,7 +176,7 @@ export interface CertificateCreateParams {
   extensions: Extension[];
 }
 
-function getSubjectName(dn: JsonName, key: string, require: boolean = false): string | undefined {
+function getSubjectName(dn: JsonName, key: string, require = false): string | undefined {
   const field = dn.find(item => item[key] !== undefined)?.[key]?.[0];
   if (field) return field;
   else if (require) throw new Error(`CSR subject has no field ${key}`);

@@ -6,7 +6,7 @@ import Certificate from './Certificate';
 import { ConfigFile } from './Config';
 
 export default class Log extends AuthenticatedFile {
-  constructor(caPath: string, key: CryptoKey, newfile: boolean = false) {
+  constructor(caPath: string, key: CryptoKey, newfile = false) {
     super(join(caPath, 'log.ndjson'), key, newfile);
   }
 
@@ -16,10 +16,9 @@ export default class Log extends AuthenticatedFile {
     // somehow, and then do a streaming sign.
 
     const file = await this.loadFile();
-    const prepend =
-      file.byteLength > 0 ? (file[file.length - 1] !== '\n'.charCodeAt(0) ? '\n' : '') : '';
+    const prepend = file.byteLength > 0 ? (file[file.length - 1] !== '\n'.charCodeAt(0) ? '\n' : '') : '';
 
-    const logLine = Buffer.from(prepend + JSON.stringify(log) + '\n', 'utf-8');
+    const logLine = Buffer.from(`${prepend + JSON.stringify(log)}\n`, 'utf-8');
     await this.writeFile(Buffer.concat([file, logLine]));
   }
 

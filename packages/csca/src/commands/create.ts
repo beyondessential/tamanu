@@ -3,19 +3,19 @@ import COUNTRIES from 'world-countries';
 import type { Country } from 'world-countries';
 import { enumFromStringValue, enumValues, confirm } from '../utils';
 import CA from '../ca';
-import { Profile, signerDefaultValidity, signerExtensions, signerWorkingTime } from "../ca/profile";
+import { Profile, signerDefaultValidity, signerExtensions, signerWorkingTime } from '../ca/profile';
 import { ConfigFile, period } from '../ca/Config';
 import { CRL_URL_BASE, CSCA_PKUP, CSCA_VALIDITY } from '../ca/constants';
 
-async function run (countryName: string, options: {
-  dir?: string,
-  alpha2?: string,
-  alpha3?: string,
-  shortname?: string,
-  fullname?: string,
-  provider: string,
-  deptOrg?: string,
-  profile: string,
+async function run(countryName: string, options: {
+  dir?: string;
+  alpha2?: string;
+  alpha3?: string;
+  shortname?: string;
+  fullname?: string;
+  provider: string;
+  deptOrg?: string;
+  profile: string;
 }) {
   console.debug(`Looking up country info for ${countryName}`);
   const country = lookupCountry(countryName);
@@ -41,7 +41,7 @@ async function run (countryName: string, options: {
     throw new Error(`A CA at ${dir} already exists, not overwriting`);
   }
 
-  const config = makeCAConfig(shortname, fullname, alpha2, alpha3, profile, provider, deptOrg)
+  const config = makeCAConfig(shortname, fullname, alpha2, alpha3, profile, provider, deptOrg);
   console.info('CSCA Config:', JSON.stringify(config, null, 2));
   await confirm('Proceed?');
 
@@ -63,58 +63,54 @@ export default new Command('create')
 
 function lookupCountry(name: string): undefined | Country {
   const nameRx = new RegExp(name, 'i');
-  return COUNTRIES.find(c =>
-    nameRx.test(c.name.common) ||
-    nameRx.test(c.name.official) ||
-    nameRx.test(c.cca2) ||
-    nameRx.test(c.cca3) ||
-    nameRx.test(c.cioc) ||
-    Object.values(c.name.native).some(n =>
-      nameRx.test(c.name.common) ||
-      nameRx.test(c.name.official)
-    )
-  );
+  return COUNTRIES.find(c => nameRx.test(c.name.common)
+    || nameRx.test(c.name.official)
+    || nameRx.test(c.cca2)
+    || nameRx.test(c.cca3)
+    || nameRx.test(c.cioc)
+    || Object.values(c.name.native).some(n => nameRx.test(c.name.common)
+      || nameRx.test(c.name.official)));
 }
 
 function makeCAConfig(
-    shortname: string,
-    fullname: string,
-    countryAlpha2: string,
-    countryAlpha3: string,
-    profile: Profile,
-    provider: undefined | string,
-    deptOrg: undefined | string,
-  ): ConfigFile {
-    const now = new Date();
+  shortname: string,
+  fullname: string,
+  countryAlpha2: string,
+  countryAlpha3: string,
+  profile: Profile,
+  provider: undefined | string,
+  deptOrg: undefined | string,
+): ConfigFile {
+  const now = new Date();
 
-    const country = {
-      alpha2: countryAlpha2,
-      alpha3: countryAlpha3,
-    };
+  const country = {
+    alpha2: countryAlpha2,
+    alpha3: countryAlpha3,
+  };
 
-    return {
-      name: shortname,
-      country,
-      subject: {
-        country: countryAlpha2,
-        commonName: fullname,
-        organisation: provider,
-        organisationUnit: deptOrg,
+  return {
+    name: shortname,
+    country,
+    subject: {
+      country: countryAlpha2,
+      commonName: fullname,
+      organisation: provider,
+      organisationUnit: deptOrg,
+    },
+    crl: {
+      filename: `${shortname}.crl`,
+      distribution: [`${CRL_URL_BASE}/${shortname}.crl`],
+      bucket: {
+        region: 'ap-southeast-2',
+        name: 'crl.tamanu.io',
       },
-      crl: {
-        filename: `${shortname}.crl`,
-        distribution: [`${CRL_URL_BASE}/${shortname}.crl`],
-        bucket: {
-          region: 'ap-southeast-2',
-          name: 'crl.tamanu.io',
-        },
-      },
-      workingPeriod: period(now, CSCA_PKUP),
-      validityPeriod: period(now, CSCA_VALIDITY),
-      issuance: {
-        workingPeriodDays: signerWorkingTime(profile).days!,
-        validityPeriodDays: signerDefaultValidity(profile).days!,
-        extensions: signerExtensions(profile, { country }),
-      },
-    };
+    },
+    workingPeriod: period(now, CSCA_PKUP),
+    validityPeriod: period(now, CSCA_VALIDITY),
+    issuance: {
+      workingPeriodDays: signerWorkingTime(profile).days!,
+      validityPeriodDays: signerDefaultValidity(profile).days!,
+      extensions: signerExtensions(profile, { country }),
+    },
+  };
 }

@@ -8,14 +8,14 @@ export default class AuthenticatedFile {
   private key: CryptoKey;
   private newfile: boolean;
 
-  constructor(path: string, key: CryptoKey, newfile: boolean = false) {
+  constructor(path: string, key: CryptoKey, newfile = false) {
     this.path = path;
     this.key = key;
     this.newfile = newfile;
   }
 
   private sigFile(): string {
-    return this.path + '.sig';
+    return `${this.path}.sig`;
   }
 
   protected async loadFile(): Promise<Buffer> {

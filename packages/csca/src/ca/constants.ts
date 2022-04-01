@@ -1,6 +1,6 @@
 import { Duration } from 'date-fns';
 
-export const CRL_URL_BASE: string = 'http://crl.tamanu.io';
+export const CRL_URL_BASE = 'http://crl.tamanu.io';
 
 /**
  * Working time (PKUP - Private Key Usage Period) of CSCA (Country Signing Certificate Authority).
@@ -25,19 +25,19 @@ export const CSCA_MAXCERTUSE: Duration = { days: 11 * 365 + 3 };
 export const CSCA_VALIDITY: Duration = { days: CSCA_PKUP.days! + CSCA_MAXCERTUSE.days! };
 
 /** Extended key usage: Health CSCA */
-export const EKU_HEALTH_CSCA: string = '2.23.136.1.1.14.1';
+export const EKU_HEALTH_CSCA = '2.23.136.1.1.14.1';
 
 /** Extended key usage: VDS-NC */
-export const EKU_VDS_NC: string = '2.23.136.1.1.14.2';
+export const EKU_VDS_NC = '2.23.136.1.1.14.2';
 
 /** Extended key usage: EU DCC Test certificate */
-export const EKU_DCC_TEST: string = '1.3.6.1.4.1.1847.2021.1.1';
+export const EKU_DCC_TEST = '1.3.6.1.4.1.1847.2021.1.1';
 
 /** Extended key usage: EU DCC Vaccination certificate */
-export const EKU_DCC_VACCINATION: string = '1.3.6.1.4.1.1847.2021.1.2';
+export const EKU_DCC_VACCINATION = '1.3.6.1.4.1.1847.2021.1.2';
 
 /** Extended key usage: EU DCC Recovery certificate */
-export const EKU_DCC_RECOVERY: string = '1.3.6.1.4.1.1847.2021.1.3';
+export const EKU_DCC_RECOVERY = '1.3.6.1.4.1.1847.2021.1.3';
 
 /**
  * Extension type ID for ICAO signer document type
@@ -47,4 +47,4 @@ export const EKU_DCC_RECOVERY: string = '1.3.6.1.4.1.1847.2021.1.3';
  *     IDENTIFIER ::= {id-icao-mrtd-security-extensions 2}
  * ```
  */
-export const id_icao_mrtd_security_extensions_documentTypeList: string = '2.23.136.1.1.6.2';
+export const id_icao_mrtd_security_extensions_documentTypeList = '2.23.136.1.1.6.2';

@@ -1,18 +1,17 @@
 import { promises as fs } from 'fs';
 import { extname } from 'path';
 
-import CA from '../ca';
 import { Command } from 'commander';
-import crypto from '../crypto';
 import { Pkcs10CertificateRequest } from '@peculiar/x509';
+import CA from '../ca';
+import crypto from '../crypto';
 import { confirm } from '../utils';
 
 async function run(folder: string, request: string) {
   const requestFile = await fs.readFile(request);
   const csr = new Pkcs10CertificateRequest(requestFile);
 
-  if (!(await csr.verify(crypto)))
-    throw new Error('CSR has been tampered with: signature is invalid');
+  if (!(await csr.verify(crypto))) throw new Error('CSR has been tampered with: signature is invalid');
 
   console.log('request subject:', csr.subject);
   console.log('request signature is valid');
@@ -25,7 +24,7 @@ async function run(folder: string, request: string) {
   await ca.openReadWrite();
   const cert = await ca.issueFromRequest(csr);
 
-  const destPath = request.replace(new RegExp(extname(request).replace('.', '\\.') + '$'), '.crt');
+  const destPath = request.replace(new RegExp(`${extname(request).replace('.', '\\.')}$`), '.crt');
   console.log('writing certificate to', destPath);
   await cert.write(destPath);
 }

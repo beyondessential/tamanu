@@ -50,9 +50,9 @@ export function padBufferStart(buffer: Buffer, bytes: number): Buffer {
   const padding = bytes - buffer.byteLength;
   if (padding > 0) {
     return Buffer.concat([Buffer.alloc(padding), buffer]);
-  } else {
-    return Buffer.from(buffer);
   }
+
+  return Buffer.from(buffer);
 }
 
 /**

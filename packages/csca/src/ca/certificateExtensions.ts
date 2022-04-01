@@ -124,9 +124,9 @@ async function aki(
 
   if (issuer instanceof Certificate) {
     return AuthorityKeyIdentifierExtension.create(issuer.x509, critical, crypto);
-  } else {
-    return AuthorityKeyIdentifierExtension.create(publicKey, critical, crypto);
   }
+
+  return AuthorityKeyIdentifierExtension.create(publicKey, critical, crypto);
 }
 
 async function ski({ critical, value }: Extension, publicKey: CryptoKey): Promise<X509Extension> {
@@ -156,8 +156,7 @@ const NAME_OIDS = new Map(
 
 function altName({ critical, value }: Extension, alt: AltVariant): X509Extension {
   if (value === ComputedExtension) throw new Error('SubjectKeyIdentifier cannot be computed');
-  if (value.length !== 1 && typeof value[0] !== 'object')
-    throw new Error('Invalid altName value: expected an array of a single object');
+  if (value.length !== 1 && typeof value[0] !== 'object') throw new Error('Invalid altName value: expected an array of a single object');
 
   const values: object = value[0];
 
@@ -169,12 +168,10 @@ function altName({ critical, value }: Extension, alt: AltVariant): X509Extension
 
     if (value[0] === '#') {
       attr.value.anyValue = Buffer.from(value.slice(1), 'hex');
+    } else if (type === 'E' || type === 'DC') {
+      attr.value.ia5String = value;
     } else {
-      if (type === 'E' || type === 'DC') {
-        attr.value.ia5String = value;
-      } else {
-        attr.value.printableString = value;
-      }
+      attr.value.printableString = value;
     }
 
     rdn.push(attr);
@@ -223,8 +220,7 @@ function pkup({ critical, value }: Extension, params: CertificateCreateParams): 
 
 function ku({ critical, value }: Extension): X509Extension {
   if (value === ComputedExtension) throw new Error('KeyUsage cannot be computed');
-  if (value.some(s => typeof s !== 'string'))
-    throw new Error('Invalid keyUsage value: expected an array of strings');
+  if (value.some(s => typeof s !== 'string')) throw new Error('Invalid keyUsage value: expected an array of strings');
 
   let keyUsage: KeyUsageFlags = 0;
   for (const usage of value) {
@@ -266,8 +262,7 @@ function ku({ critical, value }: Extension): X509Extension {
 
 function eku({ critical, value }: Extension): X509Extension {
   if (value === ComputedExtension) throw new Error('ExtendedKeyUsage cannot be computed');
-  if (value.some(s => typeof s !== 'string'))
-    throw new Error('Invalid eku value: expected an array of strings');
+  if (value.some(s => typeof s !== 'string')) throw new Error('Invalid eku value: expected an array of strings');
 
   return new ExtendedKeyUsageExtension(value, critical);
 }
@@ -303,8 +298,7 @@ function crl({ critical, value }: Extension, issuer?: Certificate): X509Extensio
 
 function docType({ critical, value }: Extension): X509Extension {
   if (value === ComputedExtension) throw new Error('ExtendedKeyUsage cannot be computed');
-  if (value.some(s => typeof s !== 'string'))
-    throw new Error('Invalid eku value: expected an array of strings');
+  if (value.some(s => typeof s !== 'string')) throw new Error('Invalid eku value: expected an array of strings');
 
   const dtv = new DocumentTypeList();
   for (const val of value) {

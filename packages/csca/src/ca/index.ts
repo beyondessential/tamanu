@@ -5,10 +5,9 @@ import prompts from 'prompts';
 import { Pkcs10CertificateRequest } from '@peculiar/x509';
 
 import Config, { ConfigFile, period } from './Config';
-import { confirm, keyPairFromPrivate } from '../utils';
-import { CRL_URL_BASE, CSCA_PKUP, CSCA_VALIDITY, EKU_HEALTH_CSCA } from './constants';
+import { keyPairFromPrivate } from '../utils';
+import { EKU_HEALTH_CSCA } from './constants';
 import crypto from '../crypto';
-import { Profile, signerWorkingTime, signerDefaultValidity, signerExtensions } from './profile';
 import State, { CertificateIndexEntry } from './State';
 import Log from './Log';
 import {
@@ -36,14 +35,13 @@ export default class CA {
     this.path = path;
   }
 
-  private async askPassphrase(confirm: boolean = false) {
+  private async askPassphrase(confirm = false) {
     if (!this.masterKey) {
       const { value }: { value: string } = await prompts({
         type: 'password',
         name: 'value',
         message: `Enter CSCA passphrase${confirm ? ' (min 30 characters)' : ''}`,
-        validate: (value: string) =>
-          value.length < 30 ? 'Passphrase must be at least 30 characters long' : true,
+        validate: (value: string) => (value.length < 30 ? 'Passphrase must be at least 30 characters long' : true),
       });
 
       if (confirm) {
