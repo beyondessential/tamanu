@@ -49,14 +49,16 @@ const administeredVaccineTransformer = () => ({
       ...data,
     },
   };
+  const startDate = date ? moment(date).startOf('day') : null;
+  const endDate = date ? moment(date).endOf('day') : null;
   return {
     recordType: 'encounter',
     channel: `patient/${encodeURIComponent(patientId)}/encounter`,
     data: {
       id: encounterId,
       encounterType: ENCOUNTER_TYPES.CLINIC, // TODO: is this meant to be OBSERVATION?
-      startDate: moment(date).startOf('day'),
-      endDate: moment(date).endOf('day'),
+      startDate,
+      endDate,
       reasonForEncounter: reason,
       administeredVaccines: [administeredVaccine],
 
