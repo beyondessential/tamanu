@@ -90,6 +90,16 @@ describe('Data definition import', () => {
     expect(records).toHaveProperty('labTestType', 10);
   });
 
+  it('should import scheduled vaccine records', () => {
+    const { records } = resultInfo.stats;
+    expect(records).toHaveProperty('scheduledVaccine', 1);
+  });
+
+  it('should import administered vaccine records', () => {
+    const { records } = resultInfo.stats;
+    expect(records).toHaveProperty('encounter:administeredVaccine', 2);
+  });
+
   it('should report an error if an FK search comes up empty', () => {
     expectError('patient', 'could not find a referenceData called "village-nowhere"');
   });

@@ -1,5 +1,7 @@
 import React from 'react';
 
+import { VACCINE_STATUS } from 'shared/constants';
+
 import { Modal } from './Modal';
 import { Suggester } from '../utils/suggester';
 
@@ -7,7 +9,6 @@ import { connectApi } from '../api/connectApi';
 import { reloadPatient } from '../store/patient';
 
 import { ImmunisationForm } from '../forms/ImmunisationForm';
-import { VACCINE_STATUS } from '../constants';
 
 const DumbImmunisationModal = React.memo(
   ({
