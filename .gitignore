@@ -49,3 +49,5 @@ coverage
 
 # Output
 /packages/sync-server/tamanu-reports/
+
+packages/shared

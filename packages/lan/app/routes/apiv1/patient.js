@@ -6,7 +6,7 @@ import { getPatientAdditionalData } from 'shared/utils';
 import { NotFoundError } from 'shared/errors';
 
 import { simpleGetList, permissionCheckingRouter, runPaginatedQuery } from './crudHelpers';
-import { renameObjectKeys } from '~/utils/renameObjectKeys';
+import { renameObjectKeys } from '../../utils/renameObjectKeys';
 import { createPatientFilters } from '../../utils/patientFilters';
 import { patientVaccineRoutes } from './patient/patientVaccine';
 import { patientDocumentMetadataRoutes } from './patient/patientDocumentMetadata';

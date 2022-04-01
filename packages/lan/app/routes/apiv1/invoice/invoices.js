@@ -44,7 +44,7 @@ invoiceRoute.post(
     });
 
     // We expect to always have a patient additional data corresponding to a patient
-    if (patientAdditionalData) {
+    if (!patientAdditionalData) {
       // eslint-disable-next-line no-console
       console.warn(`No PatientAdditionalData found for patient with ID: ${patientId}`);
     }

@@ -68,21 +68,25 @@ export const FormComponent = ({
       markedForSync: true,
       markedForUpload: true,
     });
-    setSelectedPatient(newPatient);
+
+    // Reload instance to get the complete village fields
+    // (related fields won't display all info otherwise)
+    const reloadedPatient = await Patient.findOne(newPatient.id);
+    setSelectedPatient(reloadedPatient);
     navigation.navigate(Routes.HomeStack.RegisterPatientStack.NewPatient);
   }, []);
 
   const onEditPatient = useCallback(async (values) => {
+    // Update patient values (helper function uses .save()
+    // so it will mark the record for upload).
+    await Patient.updateValues(selectedPatient.id, values);
+
+    // Loading the instance is necessary to get all of the fields
+    // from the relations that were updated, not just their IDs.
     const editedPatient = await Patient.findOne(selectedPatient.id);
 
-    // Update each value used on the form
-    Object.entries(values).forEach(([key, value]) => {
-      editedPatient[key] = value;
-    });
-
-    // Mark patient for sync, save and update redux state
+    // Mark patient for sync and update redux state
     await Patient.markForSync(editedPatient.id);
-    await editedPatient.save();
     setSelectedPatient(editedPatient);
 
     // Navigate back to patient details
