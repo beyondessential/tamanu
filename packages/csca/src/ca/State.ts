@@ -1,6 +1,8 @@
 import { join } from 'path';
+import { padBufferStart } from '../utils';
 
 import AuthenticatedFile from './AuthenticatedFile';
+import Certificate from './Certificate';
 import { Subject } from './Config';
 
 export default class State extends AuthenticatedFile {
@@ -19,11 +21,10 @@ export default class State extends AuthenticatedFile {
     if (issuanceSerial.byteLength < 8) throw new Error('Issuance serial is under 64 bits');
     if (issuanceSerial.byteLength > 20) throw new Error('Issuance serial is over 160 bits');
 
-    const index = new Map();
-    for (const entry of stateFile.index) {
-      const serial = Buffer.from(entry.serial, 'hex');
-      const innerEntry = Object.assign({}, entry, { serial: undefined });
-      index.set(serial, innerEntry);
+    const index: Map<Buffer, IndexEntry> = new Map();
+    for (const [serial, entry] of Object.entries(stateFile.index)) {
+      const fullSerial = padBufferStart(Buffer.from(serial, 'hex'), issuanceSerial.byteLength);
+      index.set(fullSerial, entry);
     }
 
     return {
@@ -34,12 +35,9 @@ export default class State extends AuthenticatedFile {
   }
 
   private async write(state: StateFile) {
-    const index = [];
+    const index: CertificateIndexJson = {};
     for (const [serial, entry] of state.index) {
-      index.push({
-        serial: serial.toString('hex'),
-        ...entry,
-      });
+      index[serial.toString('hex')] = entry;
     }
 
     const stateFile: StateJson = {
@@ -88,40 +86,79 @@ export default class State extends AuthenticatedFile {
     return next;
   }
 
-  // TODO: more useful index management APIs
-  public async indexEntryFromSerial(serial: Buffer): Promise<CertificateIndexEntry> {
+  public async fromSerial(serial: Buffer): Promise<CertificateIndexEntry | undefined> {
     const state = await this.load();
-    const entry = state.index.get(serial);
-    if (!entry) throw new Error('No such serial');
-    return entry;
+    const entry = state.index.get(padBufferStart(serial, state.issuanceSerial.byteLength));
+    if (entry) return new CertificateIndexEntry(entry);
+  }
+
+  /**
+   * @internal Do not use outside of CA classes (e.g. directly from commands).
+   */
+  public async indexNewCertificate(cert: Certificate) {
+    if ((await this.fromSerial(cert.serial)) !== undefined) {
+      throw new Error('Certificate already exists in index');
+    }
+
+    const state = await this.load();
+    const fullSerial = padBufferStart(cert.serial, state.issuanceSerial.byteLength);
+    state.index.set(fullSerial, cert.asIndexEntry());
+    await this.write(state);
+  }
+}
+
+export class CertificateIndexEntry {
+  public readonly subject: Subject;
+  public readonly issuanceDate: Date;
+  public readonly revocationDate?: Date;
+  public readonly workingPeriodEnd: Date;
+  public readonly validityPeriodEnd: Date;
+
+  constructor(entry: IndexEntry) {
+    this.subject = entry.subject;
+    this.issuanceDate = entry.issuanceDate;
+    this.revocationDate = entry.revocationDate;
+    this.workingPeriodEnd = entry.workingPeriodEnd;
+    this.validityPeriodEnd = entry.validityPeriodEnd;
+  }
+
+  public get isRevoked(): boolean {
+    return this.revocationDate !== undefined;
+  }
+
+  public get isExpired(): boolean {
+    return this.validityPeriodEnd < new Date();
+  }
+
+  public get isUsable(): boolean {
+    return !this.isRevoked && this.workingPeriodEnd > new Date();
+  }
+
+  public get isValid(): boolean {
+    return !this.isRevoked && !this.isExpired;
   }
 }
 
 interface StateFile {
   crlSerial: Buffer;
   issuanceSerial: Buffer;
-  index: Map<Buffer, CertificateIndexEntry>;
+  index: Map<Buffer, IndexEntry>;
+}
+
+interface IndexEntry {
+  subject: Subject;
+  issuanceDate: Date;
+  revocationDate?: Date;
+  workingPeriodEnd: Date;
+  validityPeriodEnd: Date;
 }
 
 interface StateJson {
   crlSerial: string;
   issuanceSerial: string;
-  index: Array<CertificateIndexJson>;
+  index: CertificateIndexJson;
 }
 
-export interface CertificateIndexEntry {
-  subject: Subject;
-  issuanceDate: Date;
-  revocationDate: undefined | Date;
-  workingPeriodEnd: Date;
-  validityPeriodEnd: Date;
-}
-
-interface CertificateIndexJson {
-  serial: string;
-  subject: Subject;
-  issuanceDate: Date;
-  revocationDate: undefined | Date;
-  workingPeriodEnd: Date;
-  validityPeriodEnd: Date;
+type CertificateIndexJson = {
+  [key: string]: IndexEntry;
 }

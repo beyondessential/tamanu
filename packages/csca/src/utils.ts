@@ -38,3 +38,17 @@ export async function confirm(message: string) {
     throw new Error('Aborted');
   }
 }
+
+/**
+ * Pads the start of the buffer with zeros to the desired length.
+ *
+ * If the buffer is already longer than the desired length, a copy of it is returned.
+ */
+export function padBufferStart(buffer: Buffer, bytes: number): Buffer {
+  const padding = bytes - buffer.byteLength;
+  if (padding > 0) {
+    return Buffer.concat([Buffer.alloc(padding), buffer]);
+  } else {
+    return Buffer.from(buffer);
+  }
+}

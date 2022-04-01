@@ -9,7 +9,7 @@ import { confirm, keyPairFromPrivate } from '../utils';
 import { CRL_URL_BASE, CSCA_PKUP, CSCA_VALIDITY, EKU_HEALTH_CSCA } from './constants';
 import crypto from '../crypto';
 import { Profile, signerWorkingTime, signerDefaultValidity, signerExtensions } from './profile';
-import State from './State';
+import State, { CertificateIndexEntry } from './State';
 import Log from './Log';
 import {
   deriveSymmetricKey,
@@ -77,6 +77,8 @@ export default class CA {
   }
 
   public async create(config: ConfigFile) {
+    await this.askPassphrase(true);
+
     for (const dir of ['.', 'certs']) {
       const path = this.join(dir);
       console.debug('mkdir', path);
@@ -265,6 +267,8 @@ export default class CA {
 
     console.debug('write request');
     await fs.writeFile(this.join('certs', cert.certId, 'request.csr'), request.toString('pem'));
+
+    await this.state(privateKey).indexNewCertificate(cert);
 
     // TODO: write to log
 

@@ -45,7 +45,6 @@ async function run (countryName: string, options: {
   console.info('CSCA Config:', JSON.stringify(config, null, 2));
   await confirm('Proceed?');
 
-  await ca.openReadWrite();
   await ca.create(config);
 }
 

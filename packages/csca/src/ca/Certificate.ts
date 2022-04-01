@@ -1,5 +1,10 @@
 import { promises as fs } from 'fs';
 
+import { AsnConvert } from '@peculiar/asn1-schema';
+import {
+  id_ce_privateKeyUsagePeriod,
+  PrivateKeyUsagePeriod,
+} from '@peculiar/asn1-x509';
 import {
   X509Certificate,
   X509CertificateGenerator,
@@ -12,6 +17,8 @@ import { Period, Subject } from './Config';
 import { Extension, forgeExtensions } from './certificateExtensions';
 import crypto from '../crypto';
 import { keyPairFromPrivate } from '../utils';
+import CA from '.';
+import { CertificateIndexEntry } from './State';
 
 export default class Certificate {
   private cert: X509Certificate;
@@ -96,8 +103,31 @@ export default class Certificate {
     return this.cert;
   }
 
+  public get serial(): Buffer {
+    return Buffer.from(this.cert.serialNumber, 'hex');
+  }
+
   public get certId(): string {
     return this.cert.serialNumber;
+  }
+
+  private pkup(): PrivateKeyUsagePeriod | undefined {
+    const ext = this.cert.extensions.find(ext => ext.type === id_ce_privateKeyUsagePeriod);
+    if (ext) return AsnConvert.parse(ext.value, PrivateKeyUsagePeriod);
+  }
+
+  /**
+   * Returns the certificate as if it was an entry in the index. Note that the
+   * `revocationDate` will always be `undefined` as that's not tracked here.
+   */
+  public asIndexEntry(): CertificateIndexEntry {
+    const dn = this.cert.subjectName.toJSON();
+    return new CertificateIndexEntry({
+      subject: subjectFromDn(dn),
+      issuanceDate: this.cert.notBefore,
+      validityPeriodEnd: this.cert.notAfter,
+      workingPeriodEnd: this.pkup()?.notAfter ?? this.cert.notAfter,
+    });
   }
 
   public async write(file: string) {
@@ -110,7 +140,16 @@ export default class Certificate {
     return new Certificate(crt);
   }
 
-  public async check(key: CryptoKey) {
+  public async check(ca: CA): Promise<void>;
+  public async check(key: CryptoKey): Promise<void>;
+  public async check(arg: CryptoKey | CA): Promise<void> {
+    let key: CryptoKey;
+    if (arg instanceof CA) {
+      key = await arg.publicKey();
+    } else {
+      key = arg;
+    }
+
     if (key.type === 'private') {
       key = (await keyPairFromPrivate(key)).publicKey;
     }
