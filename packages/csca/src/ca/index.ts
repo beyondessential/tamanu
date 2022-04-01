@@ -5,7 +5,7 @@ import prompts from 'prompts';
 import { Pkcs10CertificateRequest } from '@peculiar/x509';
 
 import Config, { ConfigFile, period } from './Config';
-import { keyPairFromPrivate } from '../utils';
+import { keyPairFromPrivate, fsExists } from '../utils';
 import { EKU_HEALTH_CSCA } from './constants';
 import crypto from '../crypto';
 import State, { CertificateIndexEntry } from './State';
@@ -35,38 +35,40 @@ export default class CA {
     this.path = path;
   }
 
-  private async askPassphrase(confirm = false) {
-    if (!this.masterKey) {
-      const { value }: { value: string } = await prompts({
+  private async askPassphrase(confirm = false): Promise<CryptoKey> {
+    if (this.masterKey) return this.masterKey;
+
+    const { value }: { value: string } = await prompts({
+      type: 'password',
+      name: 'value',
+      message: `Enter CSCA passphrase${confirm ? ' (min 30 characters)' : ''}`,
+      validate: (value: string) => (value.length < 30 ? 'Passphrase must be at least 30 characters long' : true),
+    });
+
+    if (confirm) {
+      const { confirm }: { confirm: string } = await prompts({
         type: 'password',
-        name: 'value',
-        message: `Enter CSCA passphrase${confirm ? ' (min 30 characters)' : ''}`,
-        validate: (value: string) => (value.length < 30 ? 'Passphrase must be at least 30 characters long' : true),
+        name: 'confirm',
+        message: 'Confirm CSCA passphrase',
       });
 
-      if (confirm) {
-        const { confirm }: { confirm: string } = await prompts({
-          type: 'password',
-          name: 'confirm',
-          message: 'Confirm CSCA passphrase',
-        });
-
-        if (value !== confirm) {
-          throw new Error('Passphrase mismatch');
-        }
+      if (value !== confirm) {
+        throw new Error('Passphrase mismatch');
       }
-
-      if (!value) throw new Error('Passphrase is required');
-
-      this.masterKey = await deriveSymmetricKey(
-        value,
-        MASTER_KEY_DERIVATION_SALT,
-        MASTER_KEY_DERIVATION_ROUNDS,
-      );
     }
+
+    if (!value) throw new Error('Passphrase is required');
+
+    this.masterKey = await deriveSymmetricKey(
+      value,
+      MASTER_KEY_DERIVATION_SALT,
+      MASTER_KEY_DERIVATION_ROUNDS,
+    );
+
+    return this.masterKey;
   }
 
-  private join(...paths: string[]) {
+  private join(...paths: string[]): string {
     return join(this.path, ...paths);
   }
 
@@ -74,8 +76,8 @@ export default class CA {
     return fsExists(this.path);
   }
 
-  public async create(config: ConfigFile) {
-    await this.askPassphrase(true);
+  public async create(config: ConfigFile): Promise<void> {
+    const masterKey = await this.askPassphrase(true);
 
     for (const dir of ['.', 'certs']) {
       const path = this.join(dir);
@@ -96,7 +98,7 @@ export default class CA {
     await this.log(keyPair.privateKey, true).create(config);
 
     console.debug('write private key');
-    await writePrivateKey(this.join('ca.key'), keyPair.privateKey, this.masterKey!);
+    await writePrivateKey(this.join('ca.key'), keyPair.privateKey, masterKey);
 
     console.debug('write public key');
     await writePublicKey(this.join('ca.pub'), keyPair.publicKey);
@@ -180,7 +182,7 @@ export default class CA {
     return Certificate.read(this.join('ca.crt'));
   }
 
-  private async checkIntegrity(key: CryptoKey) {
+  private async checkIntegrity(key: CryptoKey): Promise<void> {
     if (key.type === 'private') {
       const { publicKey } = await keyPairFromPrivate(key);
       const pkE = await crypto.subtle.exportKey('jwk', publicKey);
@@ -219,12 +221,12 @@ export default class CA {
     }
   }
 
-  public async openReadOnly() {
+  public async openReadOnly(): Promise<void> {
     const key = await this.publicKey();
     await this.checkIntegrity(key);
   }
 
-  public async openReadWrite() {
+  public async openReadWrite(): Promise<void> {
     await this.askPassphrase();
     const key = await this.privateKey();
     await this.checkIntegrity(key);
@@ -249,8 +251,8 @@ export default class CA {
     const now = new Date();
 
     console.debug('issue certificate');
-    const validityPeriod = period(now, { days: issuanceConfig.validityPeriodDays });
-    const workingPeriod = period(now, { days: issuanceConfig.workingPeriodDays });
+    const validityPeriod = period(now, issuanceConfig.validityPeriodDays);
+    const workingPeriod = period(now, issuanceConfig.workingPeriodDays);
     const cert = await Certificate.createFromRequest(
       {
         subject: {
@@ -295,18 +297,9 @@ export default class CA {
     return entry;
   }
 
-  public async revokeCertificate(serial: Buffer, date: Date) {
+  public async revokeCertificate(serial: Buffer, date: Date): Promise<void> {
     const key = await this.privateKey();
     await this.state(key).indexRevocation(serial, date);
     await this.log(key).revoke(serial, date);
-  }
-}
-
-async function fsExists(path: string): Promise<boolean> {
-  try {
-    await fs.stat(path);
-    return true;
-  } catch (_) {
-    return false;
   }
 }

@@ -1,3 +1,5 @@
+/* eslint-disable camelcase, @typescript-eslint/camelcase, no-bitwise */
+
 import { AsnConvert } from '@peculiar/asn1-schema';
 import {
   id_ce_privateKeyUsagePeriod,
@@ -49,52 +51,6 @@ export enum ExtensionName {
 }
 
 export const ComputedExtension = 'computed';
-
-export async function forgeExtensions(
-  params: CertificateCreateParams,
-  subjectPublicKey: CryptoKey,
-  issuer?: Certificate,
-): Promise<X509Extension[]> {
-  const exts: X509Extension[] = [];
-
-  for (const ext of params.extensions) {
-    switch (ext.name) {
-      case ExtensionName.BasicConstraints:
-        exts.push(bc(ext));
-        break;
-      case ExtensionName.AuthorityKeyIdentifier:
-        exts.push(await aki(ext, subjectPublicKey, issuer));
-        break;
-      case ExtensionName.SubjectKeyIdentifier:
-        exts.push(await ski(ext, subjectPublicKey));
-        break;
-      case ExtensionName.SubjectAltName:
-        exts.push(altName(ext, AltVariant.Subject));
-        break;
-      case ExtensionName.IssuerAltName:
-        exts.push(altName(ext, AltVariant.Issuer));
-        break;
-      case ExtensionName.PrivateKeyUsagePeriod:
-        exts.push(pkup(ext, params));
-        break;
-      case ExtensionName.KeyUsage:
-        exts.push(ku(ext));
-        break;
-      case ExtensionName.ExtendedKeyUsage:
-        exts.push(eku(ext));
-        break;
-      case ExtensionName.CrlDistributionPoints:
-        const crldp = crl(ext, issuer);
-        if (crldp) exts.push(crldp);
-        break;
-      case ExtensionName.DocType:
-        exts.push(docType(ext));
-        break;
-    }
-  }
-
-  return exts;
-}
 
 enum AltVariant {
   Subject,
@@ -189,6 +145,9 @@ function altName({ critical, value }: Extension, alt: AltVariant): X509Extension
 
     case AltVariant.Issuer:
       return new X509Extension(id_ce_issuerAltName, critical, AsnConvert.serialize(name));
+
+    default:
+      throw new Error('Invalid altName variant');
   }
 }
 
@@ -267,33 +226,35 @@ function eku({ critical, value }: Extension): X509Extension {
   return new ExtendedKeyUsageExtension(value, critical);
 }
 
+function urlToDispPoint(url: string): DistributionPoint {
+  return new DistributionPoint({
+    distributionPoint: new DistributionPointName({
+      fullName: [
+        new GeneralName({
+          dNSName: url,
+        }),
+      ],
+    }),
+  });
+}
+
 function crl({ critical, value }: Extension, issuer?: Certificate): X509Extension | undefined {
   if (value === ComputedExtension) {
     const icdp = issuer?.x509.extensions.find(e => e.type === id_ce_cRLDistributionPoints);
-    if (icdp) return new X509Extension(id_ce_cRLDistributionPoints, critical, icdp.value);
-  } else {
-    if (value.some(s => typeof s !== 'string')) {
-      throw new Error('Invalid crl value: expected an array of strings');
-    }
+    if (!icdp) return undefined;
 
-    function urlToDispPoint(url: string): DistributionPoint {
-      return new DistributionPoint({
-        distributionPoint: new DistributionPointName({
-          fullName: [
-            new GeneralName({
-              dNSName: url,
-            }),
-          ],
-        }),
-      });
-    }
-
-    return new X509Extension(
-      id_ce_cRLDistributionPoints,
-      critical,
-      AsnConvert.serialize(new CRLDistributionPoints(value.map(urlToDispPoint))),
-    );
+    return new X509Extension(id_ce_cRLDistributionPoints, critical, icdp.value);
   }
+
+  if (value.some(s => typeof s !== 'string')) {
+    throw new Error('Invalid crl value: expected an array of strings');
+  }
+
+  return new X509Extension(
+    id_ce_cRLDistributionPoints,
+    critical,
+    AsnConvert.serialize(new CRLDistributionPoints(value.map(urlToDispPoint))),
+  );
 }
 
 function docType({ critical, value }: Extension): X509Extension {
@@ -310,4 +271,53 @@ function docType({ critical, value }: Extension): X509Extension {
     critical,
     AsnConvert.serialize(dtv),
   );
+}
+
+export async function forgeExtensions(
+  params: CertificateCreateParams,
+  subjectPublicKey: CryptoKey,
+  issuer?: Certificate,
+): Promise<X509Extension[]> {
+  const exts: X509Extension[] = [];
+
+  for (const ext of params.extensions) {
+    switch (ext.name) {
+      case ExtensionName.BasicConstraints:
+        exts.push(bc(ext));
+        break;
+      case ExtensionName.AuthorityKeyIdentifier:
+        exts.push(await aki(ext, subjectPublicKey, issuer));
+        break;
+      case ExtensionName.SubjectKeyIdentifier:
+        exts.push(await ski(ext, subjectPublicKey));
+        break;
+      case ExtensionName.SubjectAltName:
+        exts.push(altName(ext, AltVariant.Subject));
+        break;
+      case ExtensionName.IssuerAltName:
+        exts.push(altName(ext, AltVariant.Issuer));
+        break;
+      case ExtensionName.PrivateKeyUsagePeriod:
+        exts.push(pkup(ext, params));
+        break;
+      case ExtensionName.KeyUsage:
+        exts.push(ku(ext));
+        break;
+      case ExtensionName.ExtendedKeyUsage:
+        exts.push(eku(ext));
+        break;
+      case ExtensionName.CrlDistributionPoints: {
+        const crldp = crl(ext, issuer);
+        if (crldp) exts.push(crldp);
+        break;
+      }
+      case ExtensionName.DocType:
+        exts.push(docType(ext));
+        break;
+      default:
+        throw new Error(`Unknown extension: ${ext.name}`);
+    }
+  }
+
+  return exts;
 }

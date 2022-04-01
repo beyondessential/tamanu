@@ -15,7 +15,7 @@ export async function writePrivateKey(
   path: string,
   privateKey: CryptoKey,
   encryptionKey: CryptoKey,
-) {
+): Promise<void> {
   const schema = new Uint8Array([PRIVATE_KEY_LAYOUT_SCHEMA]);
   const iv = crypto.getRandomValues(new Uint8Array(12));
   const wrapped = await crypto.subtle.wrapKey('jwk', privateKey, encryptionKey, {
@@ -34,7 +34,7 @@ export async function readPrivateKey(path: string, encryptionKey: CryptoKey): Pr
 
   const iv = data.slice(1, 13);
   const wrapped = data.slice(13);
-  return await crypto.subtle.unwrapKey(
+  return crypto.subtle.unwrapKey(
     'jwk',
     wrapped,
     encryptionKey,
@@ -62,7 +62,7 @@ export async function makeKeyPair(): Promise<CryptoKeyPair> {
   );
 }
 
-export async function writePublicKey(path: string, publicKey: CryptoKey) {
+export async function writePublicKey(path: string, publicKey: CryptoKey): Promise<void> {
   const key = await crypto.subtle.exportKey('spki', publicKey);
   const pem = PemConverter.encode(key, 'PUBLIC KEY');
 
@@ -74,7 +74,7 @@ export async function readPublicKey(path: string): Promise<CryptoKey> {
   const keys = PemConverter.decode(pem.toString('utf-8'));
   if (keys.length !== 1) throw new Error('Invalid public key file: exactly one PEM block expected');
 
-  return await crypto.subtle.importKey(
+  return crypto.subtle.importKey(
     'spki',
     Buffer.from(keys[0]),
     { name: 'ECDSA', namedCurve: 'P-256' },

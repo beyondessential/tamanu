@@ -1,5 +1,3 @@
-import { Duration } from 'date-fns';
-
 import { ComputedExtension, Extension, ExtensionName } from './certificateExtensions';
 import { Country } from './Config';
 import { EKU_VDS_NC, EKU_DCC_TEST, EKU_DCC_VACCINATION, EKU_DCC_RECOVERY } from './constants';
@@ -15,12 +13,14 @@ export enum Profile {
  * - VDS: 3 months + some margin = 96 days
  * - EUDCC: exactly one year = 365 days
  */
-export function signerWorkingTime(profile: Profile): Duration {
+export function signerWorkingDays(profile: Profile): number {
   switch (profile) {
     case Profile.VDS:
-      return { days: 96 };
+      return 96;
     case Profile.EUDCC:
-      return { days: 365 };
+      return 365;
+    default:
+      throw new Error('Unknown profile');
   }
 }
 
@@ -30,12 +30,14 @@ export function signerWorkingTime(profile: Profile): Duration {
  * - VDS: 10 years (for maximum flexibility) + 2 leap days
  * - EUDCC: 1 year (recommendation from the spec)
  */
-export function signerDefaultValidity(profile: Profile): Duration {
+export function signerDefaultValidityDays(profile: Profile): number {
   switch (profile) {
     case Profile.VDS:
-      return { days: 10 * 365 + 2 };
+      return 10 * 365 + 2;
     case Profile.EUDCC:
-      return { days: 365 };
+      return 365;
+    default:
+      throw new Error('Unknown profile');
   }
 }
 
@@ -101,5 +103,8 @@ export function signerExtensions(
           value: ComputedExtension,
         },
       ];
+
+    default:
+      throw new Error('Unknown profile');
   }
 }

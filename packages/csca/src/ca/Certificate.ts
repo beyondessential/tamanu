@@ -1,10 +1,9 @@
+/* eslint-disable camelcase, @typescript-eslint/camelcase */
+
 import { promises as fs } from 'fs';
 
 import { AsnConvert } from '@peculiar/asn1-schema';
-import {
-  id_ce_privateKeyUsagePeriod,
-  PrivateKeyUsagePeriod,
-} from '@peculiar/asn1-x509';
+import { id_ce_privateKeyUsagePeriod, PrivateKeyUsagePeriod } from '@peculiar/asn1-x509';
 import {
   X509Certificate,
   X509CertificateGenerator,
@@ -19,6 +18,45 @@ import crypto from '../crypto';
 import { keyPairFromPrivate } from '../utils';
 import CA from '.';
 import { CertificateIndexEntry } from './State';
+
+export interface CertificateCreateParams {
+  subject: Subject;
+  serial: Buffer;
+  validityPeriod: Period;
+  workingPeriod: Period;
+  extensions: Extension[];
+}
+
+function getSubjectName(dn: JsonName, key: string): string | undefined {
+  return dn.find(item => item[key] !== undefined)?.[key]?.[0];
+}
+
+function requireSubjectName(dn: JsonName, key: string): string {
+  const field = getSubjectName(dn, key);
+  if (!field) throw new Error(`CSR subject has no field ${key}`);
+  return field;
+}
+
+function subjectFromDn(dn: JsonName): Subject {
+  return {
+    country: requireSubjectName(dn, 'C'),
+    commonName: requireSubjectName(dn, 'CN'),
+    organisation: getSubjectName(dn, 'O'),
+    organisationUnit: getSubjectName(dn, 'OU'),
+  };
+}
+
+function dnFromSubject(subject: Subject): JsonName {
+  const distinguishedName: JsonAttributeAndValue = {
+    C: [subject.country],
+    CN: [subject.commonName],
+  };
+
+  if (subject.organisation) distinguishedName.O = [subject.organisation];
+  if (subject.organisationUnit) distinguishedName.OU = [subject.organisationUnit];
+
+  return [distinguishedName];
+}
 
 export default class Certificate {
   private cert: X509Certificate;
@@ -113,7 +151,9 @@ export default class Certificate {
 
   private pkup(): PrivateKeyUsagePeriod | undefined {
     const ext = this.cert.extensions.find(ext => ext.type === id_ce_privateKeyUsagePeriod);
-    if (ext) return AsnConvert.parse(ext.value, PrivateKeyUsagePeriod);
+    if (!ext) return undefined;
+
+    return AsnConvert.parse(ext.value, PrivateKeyUsagePeriod);
   }
 
   /**
@@ -130,7 +170,7 @@ export default class Certificate {
     });
   }
 
-  public async write(file: string) {
+  public async write(file: string): Promise<void> {
     await fs.writeFile(file, this.cert.toString('pem'));
   }
 
@@ -166,39 +206,4 @@ export default class Certificate {
       throw new Error('Certificate has been tampered with: signature is invalid');
     }
   }
-}
-
-export interface CertificateCreateParams {
-  subject: Subject;
-  serial: Buffer;
-  validityPeriod: Period;
-  workingPeriod: Period;
-  extensions: Extension[];
-}
-
-function getSubjectName(dn: JsonName, key: string, require = false): string | undefined {
-  const field = dn.find(item => item[key] !== undefined)?.[key]?.[0];
-  if (field) return field;
-  else if (require) throw new Error(`CSR subject has no field ${key}`);
-}
-
-function subjectFromDn(dn: JsonName): Subject {
-  return {
-    country: getSubjectName(dn, 'C', true)!,
-    commonName: getSubjectName(dn, 'CN', true)!,
-    organisation: getSubjectName(dn, 'O'),
-    organisationUnit: getSubjectName(dn, 'OU'),
-  };
-}
-
-function dnFromSubject(subject: Subject): JsonName {
-  const distinguishedName: JsonAttributeAndValue = {
-    C: [subject.country],
-    CN: [subject.commonName],
-  };
-
-  if (subject.organisation) distinguishedName.O = [subject.organisation];
-  if (subject.organisationUnit) distinguishedName.OU = [subject.organisationUnit];
-
-  return [distinguishedName];
 }

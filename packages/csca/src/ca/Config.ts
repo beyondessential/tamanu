@@ -1,6 +1,6 @@
 import { join } from 'path';
 
-import { add, Duration } from 'date-fns';
+import { add } from 'date-fns';
 
 import AuthenticatedFile from './AuthenticatedFile';
 import { Extension } from './certificateExtensions';
@@ -15,11 +15,11 @@ export default class Config extends AuthenticatedFile {
     return JSON.parse((await this.loadFile()).toString('utf-8'));
   }
 
-  private async write(config: ConfigFile) {
+  private async write(config: ConfigFile): Promise<void> {
     await this.writeFile(Buffer.from(JSON.stringify(config, null, 2), 'utf-8'));
   }
 
-  public async create(config: ConfigFile) {
+  public async create(config: ConfigFile): Promise<void> {
     await this.write(config);
   }
 
@@ -85,9 +85,9 @@ export interface Period {
   end: Date;
 }
 
-export function period(start: Date, duration: Duration): Period {
+export function period(start: Date, days: number): Period {
   return {
     start: truncateToSeconds(start),
-    end: truncateToSeconds(add(start, duration)),
+    end: truncateToSeconds(add(start, { days })),
   };
 }

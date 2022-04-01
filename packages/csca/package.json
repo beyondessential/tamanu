@@ -13,8 +13,8 @@
     "test": "NODE_ENV=test jest",
     "test-coverage": "yarn test --coverage",
     "test-watch": "yarn test --watch",
-    "lint": "eslint --fix src",
-    "lint-stats": "eslint --format ../scripts/eslint-stats.js src"
+    "lint": "eslint --fix src/**/*",
+    "lint-stats": "eslint --format ../scripts/eslint-stats.js src/**/*"
   },
   "devDependencies": {
     "@beyondessential/eslint-config-beyondessential": "^2.6.0",

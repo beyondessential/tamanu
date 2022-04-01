@@ -7,7 +7,7 @@ import CA from '../ca';
 import crypto from '../crypto';
 import { confirm } from '../utils';
 
-async function run(folder: string, request: string) {
+async function run(folder: string, request: string): Promise<void> {
   const requestFile = await fs.readFile(request);
   const csr = new Pkcs10CertificateRequest(requestFile);
 

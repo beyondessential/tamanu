@@ -1,5 +1,3 @@
-import { Duration } from 'date-fns';
-
 export const CRL_URL_BASE = 'http://crl.tamanu.io';
 
 /**
@@ -9,7 +7,7 @@ export const CRL_URL_BASE = 'http://crl.tamanu.io';
  * such that we set the validity to a nice round 15 years and
  * it gives us a maximum BSC (ICAO Barcode Signer Certificate) validity of 11 years.
  */
-export const CSCA_PKUP: Duration = { days: 365 * 4 + 1 };
+export const CSCA_PKUP = 365 * 4 + 1;
 
 /**
  * Validity (excluding PKUP) of CSCA.
@@ -17,12 +15,12 @@ export const CSCA_PKUP: Duration = { days: 365 * 4 + 1 };
  * 11 years (365 * 11 + 3 leap days)
  * such that it includes sign_maxdocuse (10 years) + max sign_pkup (1 year).
  */
-export const CSCA_MAXCERTUSE: Duration = { days: 11 * 365 + 3 };
+export const CSCA_MAXCERTUSE = 11 * 365 + 3;
 
 /**
  * Validity (including PKUP) of CSCA.
  */
-export const CSCA_VALIDITY: Duration = { days: CSCA_PKUP.days! + CSCA_MAXCERTUSE.days! };
+export const CSCA_VALIDITY = CSCA_PKUP + CSCA_MAXCERTUSE;
 
 /** Extended key usage: Health CSCA */
 export const EKU_HEALTH_CSCA = '2.23.136.1.1.14.1';
@@ -47,4 +45,5 @@ export const EKU_DCC_RECOVERY = '1.3.6.1.4.1.1847.2021.1.3';
  *     IDENTIFIER ::= {id-icao-mrtd-security-extensions 2}
  * ```
  */
+// eslint-disable-next-line camelcase, @typescript-eslint/camelcase
 export const id_icao_mrtd_security_extensions_documentTypeList = '2.23.136.1.1.6.2';

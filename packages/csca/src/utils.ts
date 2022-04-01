@@ -1,3 +1,4 @@
+import { promises as fs } from 'fs';
 import { setMilliseconds } from 'date-fns';
 import prompts from 'prompts';
 
@@ -17,6 +18,7 @@ export function enumValues<T>(enm: { [s: string]: T }): T[] {
 
 // https://www.rfc-editor.org/rfc/rfc7518#section-6.2
 export async function keyPairFromPrivate(privateKey: CryptoKey): Promise<CryptoKeyPair> {
+  /* eslint-disable camelcase, @typescript-eslint/camelcase */
   const { alg, crv, ext, key_ops, kty, x, y } = await crypto.subtle.exportKey('jwk', privateKey);
   const publicKey = await crypto.subtle.importKey(
     'jwk',
@@ -25,11 +27,12 @@ export async function keyPairFromPrivate(privateKey: CryptoKey): Promise<CryptoK
     true,
     ['sign', 'verify'],
   );
+  /* eslint-enable camelcase, @typescript-eslint/camelcase */
 
   return { publicKey, privateKey };
 }
 
-export async function confirm(message: string) {
+export async function confirm(message: string): Promise<void> {
   const { value } = await prompts({
     type: 'confirm',
     name: 'value',
@@ -65,4 +68,13 @@ export function padBufferStart(buffer: Buffer, bytes: number): Buffer {
  */
 export function truncateToSeconds(date: Date): Date {
   return setMilliseconds(date, 0);
+}
+
+export async function fsExists(path: string): Promise<boolean> {
+  try {
+    await fs.stat(path);
+    return true;
+  } catch (_) {
+    return false;
+  }
 }

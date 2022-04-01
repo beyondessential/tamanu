@@ -1,12 +1,12 @@
 import { Command } from 'commander';
 
-function run(
+async function run(
   folder: string,
   options: {
     awsAccessKey?: string;
     awsAccessSecret?: string;
   },
-) {
+): Promise<void> {
   let { awsAccessKey, awsAccessSecret } = options;
   if (!awsAccessKey) awsAccessKey = process.env.AWS_ACCESS_KEY_ID;
   if (!awsAccessSecret) awsAccessSecret = process.env.AWS_SECRET_ACCESS_KEY;

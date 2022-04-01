@@ -1,10 +1,4 @@
-import {
-  AsnType,
-  AsnTypeTypes,
-  AsnArray,
-  AsnProp,
-  AsnPropTypes,
-} from '@peculiar/asn1-schema';
+import { AsnType, AsnTypeTypes, AsnArray, AsnProp, AsnPropTypes } from '@peculiar/asn1-schema';
 
 /**
  * ```

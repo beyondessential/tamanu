@@ -10,7 +10,7 @@ async function run(
   folder: string,
   certificate: string,
   options: { date: string; serial: boolean },
-) {
+): Promise<void> {
   const date = parseDate(options.date);
   date.toISOString(); // throws on invalid date
 
@@ -60,7 +60,7 @@ async function run(
 
   if (!value) return;
 
-  // TODO: call crl-upload
+  console.log('TODO: upload CRL');
 }
 
 export default new Command('revoke')

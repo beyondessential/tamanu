@@ -24,9 +24,7 @@ export default class AuthenticatedFile {
     const contents = await fs.readFile(this.path);
 
     try {
-      const publicKey = this.key.type === 'private'
-        ? (await keyPairFromPrivate(this.key)).publicKey
-        : this.key;
+      const publicKey = this.key.type === 'private' ? (await keyPairFromPrivate(this.key)).publicKey : this.key;
 
       const sig = await fs.readFile(this.sigFile());
       const check = await crypto.subtle.verify(
@@ -49,7 +47,7 @@ export default class AuthenticatedFile {
     return contents;
   }
 
-  protected async writeFile(contents: Buffer) {
+  protected async writeFile(contents: Buffer): Promise<void> {
     if (this.key.type !== 'private') throw new Error('Cannot write with public key');
 
     const sig = await crypto.subtle.sign(
@@ -66,7 +64,7 @@ export default class AuthenticatedFile {
     this.newfile = false;
   }
 
-  public async check() {
+  public async check(): Promise<void> {
     // TODO: optimisation in this case as we don't need to load the
     // whole file into memory, just check its signature. Streaming?
     await this.loadFile();

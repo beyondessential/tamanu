@@ -3,9 +3,63 @@ import COUNTRIES from 'world-countries';
 import type { Country } from 'world-countries';
 import { enumFromStringValue, enumValues, confirm } from '../utils';
 import CA from '../ca';
-import { Profile, signerDefaultValidity, signerExtensions, signerWorkingTime } from '../ca/profile';
+import { Profile, signerDefaultValidityDays, signerExtensions, signerWorkingDays } from '../ca/profile';
 import { ConfigFile, period } from '../ca/Config';
 import { CRL_URL_BASE, CSCA_PKUP, CSCA_VALIDITY } from '../ca/constants';
+
+function lookupCountry(name: string): undefined | Country {
+  const nameRx = new RegExp(name, 'i');
+  return COUNTRIES.find(c => nameRx.test(c.name.common)
+    || nameRx.test(c.name.official)
+    || nameRx.test(c.cca2)
+    || nameRx.test(c.cca3)
+    || nameRx.test(c.cioc)
+    || Object.values(c.name.native).some(n => nameRx.test(n.common)
+      || nameRx.test(n.official)));
+}
+
+function makeCAConfig(
+  shortname: string,
+  fullname: string,
+  countryAlpha2: string,
+  countryAlpha3: string,
+  profile: Profile,
+  provider: undefined | string,
+  deptOrg: undefined | string,
+): ConfigFile {
+  const now = new Date();
+
+  const country = {
+    alpha2: countryAlpha2,
+    alpha3: countryAlpha3,
+  };
+
+  return {
+    name: shortname,
+    country,
+    subject: {
+      country: countryAlpha2,
+      commonName: fullname,
+      organisation: provider,
+      organisationUnit: deptOrg,
+    },
+    crl: {
+      filename: `${shortname}.crl`,
+      distribution: [`${CRL_URL_BASE}/${shortname}.crl`],
+      bucket: {
+        region: 'ap-southeast-2',
+        name: 'crl.tamanu.io',
+      },
+    },
+    workingPeriod: period(now, CSCA_PKUP),
+    validityPeriod: period(now, CSCA_VALIDITY),
+    issuance: {
+      workingPeriodDays: signerWorkingDays(profile),
+      validityPeriodDays: signerDefaultValidityDays(profile),
+      extensions: signerExtensions(profile, { country }),
+    },
+  };
+}
 
 async function run(countryName: string, options: {
   dir?: string;
@@ -16,7 +70,7 @@ async function run(countryName: string, options: {
   provider: string;
   deptOrg?: string;
   profile: string;
-}) {
+}): Promise<void> {
   console.debug(`Looking up country info for ${countryName}`);
   const country = lookupCountry(countryName);
   const alpha3 = options.alpha3 || country?.cca3;
@@ -60,57 +114,3 @@ export default new Command('create')
   .option('-p, --provider <name>', 'override the provider (O/org field) of the CSCA', 'BES')
   .option('-d, --dept-org <name>', 'provide the department/organization (OU/org-unit field) of the CSCA (optional, e.g. the full name of the ministry of health)')
   .action(run);
-
-function lookupCountry(name: string): undefined | Country {
-  const nameRx = new RegExp(name, 'i');
-  return COUNTRIES.find(c => nameRx.test(c.name.common)
-    || nameRx.test(c.name.official)
-    || nameRx.test(c.cca2)
-    || nameRx.test(c.cca3)
-    || nameRx.test(c.cioc)
-    || Object.values(c.name.native).some(n => nameRx.test(c.name.common)
-      || nameRx.test(c.name.official)));
-}
-
-function makeCAConfig(
-  shortname: string,
-  fullname: string,
-  countryAlpha2: string,
-  countryAlpha3: string,
-  profile: Profile,
-  provider: undefined | string,
-  deptOrg: undefined | string,
-): ConfigFile {
-  const now = new Date();
-
-  const country = {
-    alpha2: countryAlpha2,
-    alpha3: countryAlpha3,
-  };
-
-  return {
-    name: shortname,
-    country,
-    subject: {
-      country: countryAlpha2,
-      commonName: fullname,
-      organisation: provider,
-      organisationUnit: deptOrg,
-    },
-    crl: {
-      filename: `${shortname}.crl`,
-      distribution: [`${CRL_URL_BASE}/${shortname}.crl`],
-      bucket: {
-        region: 'ap-southeast-2',
-        name: 'crl.tamanu.io',
-      },
-    },
-    workingPeriod: period(now, CSCA_PKUP),
-    validityPeriod: period(now, CSCA_VALIDITY),
-    issuance: {
-      workingPeriodDays: signerWorkingTime(profile).days!,
-      validityPeriodDays: signerDefaultValidity(profile).days!,
-      extensions: signerExtensions(profile, { country }),
-    },
-  };
-}

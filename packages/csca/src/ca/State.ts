@@ -5,135 +5,29 @@ import AuthenticatedFile from './AuthenticatedFile';
 import Certificate from './Certificate';
 import { Subject } from './Config';
 
-export default class State extends AuthenticatedFile {
-  constructor(caPath: string, key: CryptoKey, newfile = false) {
-    super(join(caPath, 'state.json'), key, newfile);
-  }
-
-  private async load(): Promise<StateFile> {
-    const stateFile: StateJson = JSON.parse((await this.loadFile()).toString('utf-8'));
-
-    const crlSerial = Buffer.from(stateFile.crlSerial, 'hex');
-    if (crlSerial.byteLength < 8) throw new Error('CRL serial is under 64 bits');
-    if (crlSerial.byteLength > 20) throw new Error('CRL serial is over 160 bits');
-
-    const issuanceSerial = Buffer.from(stateFile.issuanceSerial, 'hex');
-    if (issuanceSerial.byteLength < 8) throw new Error('Issuance serial is under 64 bits');
-    if (issuanceSerial.byteLength > 20) throw new Error('Issuance serial is over 160 bits');
-
-    const index: Map<string, IndexEntry> = new Map();
-    for (const [serial, entry] of Object.entries(stateFile.index)) {
-      const fullSerial = padBufferStart(Buffer.from(serial, 'hex'), issuanceSerial.byteLength);
-      index.set(fullSerial.toString('hex'), {
-        subject: entry.subject,
-        issuanceDate: new Date(entry.issuanceDate),
-        revocationDate: entry.revocationDate ? new Date(entry.revocationDate) : undefined,
-        workingPeriodEnd: new Date(entry.workingPeriodEnd),
-        validityPeriodEnd: new Date(entry.validityPeriodEnd),
-      });
-    }
-
-    return {
-      crlSerial,
-      issuanceSerial,
-      index,
-    };
-  }
-
-  private async write(state: StateFile) {
-    const index: CertificateIndexJson = {};
-    for (const [serial, entry] of state.index) {
-      index[serial] = entry;
-    }
-
-    const stateFile: StateJson = {
-      crlSerial: state.crlSerial.toString('hex'),
-      issuanceSerial: state.issuanceSerial.toString('hex'),
-      index,
-    };
-
-    await this.writeFile(Buffer.from(JSON.stringify(stateFile, null, 2), 'utf-8'));
-  }
-
-  public async create() {
-    await this.write({
-      crlSerial: Buffer.alloc(16),
-      issuanceSerial: Buffer.alloc(16),
-      index: new Map(),
-    });
-  }
-
-  private incrementSerial(serial: Buffer): [Buffer, Buffer] {
-    const offset = serial.byteLength - 4;
-    const next = serial.readUInt32BE(offset) + 1;
-    serial.writeUInt32BE(next, offset);
-
-    let nextHex = next.toString(16);
-    const nextHexLen = nextHex.length;
-    nextHex = nextHex.padStart(nextHexLen % 2 === 0 ? nextHexLen : nextHexLen + 1, '0');
-    const minimallyPadded = Buffer.from(nextHex, 'hex');
-
-    return [serial, minimallyPadded];
-  }
-
-  public async nextCrlSerial(): Promise<Buffer> {
-    const state = await this.load();
-    const [serial, next] = this.incrementSerial(state.crlSerial);
-    state.crlSerial = serial;
-    await this.write(state);
-    return next;
-  }
-
-  public async nextIssuanceSerial(): Promise<Buffer> {
-    const state = await this.load();
-    const [serial, next] = this.incrementSerial(state.issuanceSerial);
-    state.issuanceSerial = serial;
-    await this.write(state);
-    return next;
-  }
-
-  public async fromSerial(serial: Buffer): Promise<CertificateIndexEntry | undefined> {
-    const state = await this.load();
-    const fullSerial = padBufferStart(serial, state.issuanceSerial.byteLength);
-    const entry = state.index.get(fullSerial.toString('hex'));
-    if (entry) return new CertificateIndexEntry(fullSerial, entry);
-  }
-
-  /**
-   * @internal Do not use outside of CA classes (e.g. directly from commands).
-   */
-  public async indexNewCertificate(cert: Certificate, overrides?: Partial<IndexEntry>) {
-    if ((await this.fromSerial(cert.serial)) !== undefined) {
-      throw new Error('Certificate already exists in index');
-    }
-
-    const state = await this.load();
-    const fullSerial = padBufferStart(cert.serial, state.issuanceSerial.byteLength);
-    state.index.set(fullSerial.toString('hex'), Object.assign(cert.asIndexEntry(), overrides));
-    await this.write(state);
-  }
-
-  /**
-   * @internal Do not use outside of CA classes (e.g. directly from commands).
-   */
-  public async indexRevocation(serial: Buffer, date?: Date) {
-    const entry = await this.fromSerial(serial);
-    if (!entry) {
-      throw new Error('Certificate does not exist in index');
-    }
-
-    if (entry.isRevoked) {
-      // should be caught earlier, here it's a programmer error
-      throw new Error('Certificate is already revoked');
-    }
-
-    const state = await this.load();
-    state.index.set(entry.serial.toString('hex'), Object.assign(entry.asEntry(), {
-      revocationDate: truncateToSeconds(date ?? new Date()),
-    }));
-    await this.write(state);
-  }
+interface StateFile {
+  crlSerial: Buffer;
+  issuanceSerial: Buffer;
+  index: Map<string, IndexEntry>;
 }
+
+interface IndexEntry {
+  subject: Subject;
+  issuanceDate: Date;
+  revocationDate?: Date;
+  workingPeriodEnd: Date;
+  validityPeriodEnd: Date;
+}
+
+interface StateJson {
+  crlSerial: string;
+  issuanceSerial: string;
+  index: CertificateIndexJson;
+}
+
+type CertificateIndexJson = {
+  [key: string]: IndexEntry;
+};
 
 export class CertificateIndexEntry {
   public readonly serial: Buffer;
@@ -180,26 +74,139 @@ export class CertificateIndexEntry {
   }
 }
 
-interface StateFile {
-  crlSerial: Buffer;
-  issuanceSerial: Buffer;
-  index: Map<string, IndexEntry>;
+function incrementSerial(serial: Buffer): [Buffer, Buffer] {
+  const offset = serial.byteLength - 4;
+  const next = serial.readUInt32BE(offset) + 1;
+  serial.writeUInt32BE(next, offset);
+
+  let nextHex = next.toString(16);
+  const nextHexLen = nextHex.length;
+  nextHex = nextHex.padStart(nextHexLen % 2 === 0 ? nextHexLen : nextHexLen + 1, '0');
+  const minimallyPadded = Buffer.from(nextHex, 'hex');
+
+  return [serial, minimallyPadded];
 }
 
-interface IndexEntry {
-  subject: Subject;
-  issuanceDate: Date;
-  revocationDate?: Date;
-  workingPeriodEnd: Date;
-  validityPeriodEnd: Date;
-}
+export default class State extends AuthenticatedFile {
+  constructor(caPath: string, key: CryptoKey, newfile = false) {
+    super(join(caPath, 'state.json'), key, newfile);
+  }
 
-interface StateJson {
-  crlSerial: string;
-  issuanceSerial: string;
-  index: CertificateIndexJson;
-}
+  private async load(): Promise<StateFile> {
+    const stateFile: StateJson = JSON.parse((await this.loadFile()).toString('utf-8'));
 
-type CertificateIndexJson = {
-  [key: string]: IndexEntry;
+    const crlSerial = Buffer.from(stateFile.crlSerial, 'hex');
+    if (crlSerial.byteLength < 8) throw new Error('CRL serial is under 64 bits');
+    if (crlSerial.byteLength > 20) throw new Error('CRL serial is over 160 bits');
+
+    const issuanceSerial = Buffer.from(stateFile.issuanceSerial, 'hex');
+    if (issuanceSerial.byteLength < 8) throw new Error('Issuance serial is under 64 bits');
+    if (issuanceSerial.byteLength > 20) throw new Error('Issuance serial is over 160 bits');
+
+    const index: Map<string, IndexEntry> = new Map();
+    for (const [serial, entry] of Object.entries(stateFile.index)) {
+      const fullSerial = padBufferStart(Buffer.from(serial, 'hex'), issuanceSerial.byteLength);
+      index.set(fullSerial.toString('hex'), {
+        subject: entry.subject,
+        issuanceDate: new Date(entry.issuanceDate),
+        revocationDate: entry.revocationDate ? new Date(entry.revocationDate) : undefined,
+        workingPeriodEnd: new Date(entry.workingPeriodEnd),
+        validityPeriodEnd: new Date(entry.validityPeriodEnd),
+      });
+    }
+
+    return {
+      crlSerial,
+      issuanceSerial,
+      index,
+    };
+  }
+
+  private async write(state: StateFile): Promise<void> {
+    const index: CertificateIndexJson = {};
+    for (const [serial, entry] of state.index) {
+      index[serial] = entry;
+    }
+
+    const stateFile: StateJson = {
+      crlSerial: state.crlSerial.toString('hex'),
+      issuanceSerial: state.issuanceSerial.toString('hex'),
+      index,
+    };
+
+    await this.writeFile(Buffer.from(JSON.stringify(stateFile, null, 2), 'utf-8'));
+  }
+
+  public async create(): Promise<void> {
+    await this.write({
+      crlSerial: Buffer.alloc(16),
+      issuanceSerial: Buffer.alloc(16),
+      index: new Map(),
+    });
+  }
+
+  public async nextCrlSerial(): Promise<Buffer> {
+    const state = await this.load();
+    const [serial, next] = incrementSerial(state.crlSerial);
+    state.crlSerial = serial;
+    await this.write(state);
+    return next;
+  }
+
+  public async nextIssuanceSerial(): Promise<Buffer> {
+    const state = await this.load();
+    const [serial, next] = incrementSerial(state.issuanceSerial);
+    state.issuanceSerial = serial;
+    await this.write(state);
+    return next;
+  }
+
+  public async fromSerial(serial: Buffer): Promise<CertificateIndexEntry | undefined> {
+    const state = await this.load();
+    const fullSerial = padBufferStart(serial, state.issuanceSerial.byteLength);
+    const entry = state.index.get(fullSerial.toString('hex'));
+    if (entry) return new CertificateIndexEntry(fullSerial, entry);
+    return undefined;
+  }
+
+  /**
+   * @internal Do not use outside of CA classes (e.g. directly from commands).
+   */
+  public async indexNewCertificate(
+    cert: Certificate,
+    overrides?: Partial<IndexEntry>,
+  ): Promise<void> {
+    if ((await this.fromSerial(cert.serial)) !== undefined) {
+      throw new Error('Certificate already exists in index');
+    }
+
+    const state = await this.load();
+    const fullSerial = padBufferStart(cert.serial, state.issuanceSerial.byteLength);
+    state.index.set(fullSerial.toString('hex'), Object.assign(cert.asIndexEntry(), overrides));
+    await this.write(state);
+  }
+
+  /**
+   * @internal Do not use outside of CA classes (e.g. directly from commands).
+   */
+  public async indexRevocation(serial: Buffer, date?: Date): Promise<void> {
+    const entry = await this.fromSerial(serial);
+    if (!entry) {
+      throw new Error('Certificate does not exist in index');
+    }
+
+    if (entry.isRevoked) {
+      // should be caught earlier, here it's a programmer error
+      throw new Error('Certificate is already revoked');
+    }
+
+    const state = await this.load();
+    state.index.set(
+      entry.serial.toString('hex'),
+      Object.assign(entry.asEntry(), {
+        revocationDate: truncateToSeconds(date ?? new Date()),
+      }),
+    );
+    await this.write(state);
+  }
 }
