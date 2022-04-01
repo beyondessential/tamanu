@@ -56,7 +56,7 @@ const administeredVaccineTransformer = () => ({
     channel: `patient/${encodeURIComponent(patientId)}/encounter`,
     data: {
       id: encounterId,
-      encounterType: ENCOUNTER_TYPES.CLINIC, // TODO: is this meant to be OBSERVATION?
+      encounterType: ENCOUNTER_TYPES.CLINIC,
       startDate,
       endDate,
       reasonForEncounter: reason,
