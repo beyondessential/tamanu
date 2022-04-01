@@ -12,7 +12,9 @@ describe('PEM', () => {
 
     // Assert
     expect(depemd.toString('hex')).to.equal(data.toString('hex'));
-    expect(pemd).to.equal('Hello World');
+    expect(pemd).to.equal(
+      `-----BEGIN TEST-----\n${word.toString('base64')}\n-----END TEST-----\n\n`,
+    );
   });
 
   it('should depem documents with Unix line endings', () => {
