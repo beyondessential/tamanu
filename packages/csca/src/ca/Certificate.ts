@@ -122,7 +122,7 @@ export default class Certificate {
    */
   public asIndexEntry(): CertificateIndexEntry {
     const dn = this.cert.subjectName.toJSON();
-    return new CertificateIndexEntry({
+    return new CertificateIndexEntry(this.serial, {
       subject: subjectFromDn(dn),
       issuanceDate: this.cert.notBefore,
       validityPeriodEnd: this.cert.notAfter,

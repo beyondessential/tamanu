@@ -1,49 +1,74 @@
 import { Command } from 'commander';
 import { parseDate } from 'chrono-node';
+import prompts from 'prompts';
 
-function run(
+import CA from '../ca';
+import Certificate from '../ca/Certificate';
+import { confirm } from '../utils';
+
+async function run(
   folder: string,
   certificate: string,
-  options: { date: string, serial: boolean }
+  options: { date: string; serial: boolean },
 ) {
   const date = parseDate(options.date);
   date.toISOString(); // throws on invalid date
 
-  // open CA read-only
-  // check integrity
+  const ca = new CA(folder);
+  await ca.openReadOnly();
 
-  // if not serial:
-    // read serial from cert
-    // load CA public key
-    // check cert signature
+  let serial: Buffer;
+  if (options.serial) {
+    const serialLen = certificate.length;
+    serial = Buffer.from(
+      certificate.padStart(serialLen % 2 === 0 ? serialLen : serialLen + 1, '0'),
+      'hex',
+    );
+  } else {
+    const cert = await Certificate.read(certificate);
+    await cert.check(ca);
+    serial = cert.serial;
+  }
 
-  // now we have a serial
-  // read CA index, find serial
-  // if already revoked, tell user and exit
+  const entry = await ca.readIndex(serial);
+  if (entry.isRevoked) {
+    console.log('Certificate was already revoked on', entry.revocationDate);
+    return;
+  }
 
-  // otherwise, prompt
-  // re-open CA read-write
-  // revoke cert:
-    // write to index
-    // write to log
+  console.log('Certificate to be revoked:');
+  console.log('Subject:', entry.subject);
+  console.log('Issued:', entry.issuanceDate);
+  console.log('Usable until:', entry.workingPeriodEnd);
+  console.log('Valid until:', entry.validityPeriodEnd);
 
-  // prompt for updating CRL
-    // if so, essentially call crl-upload
+  if (options.date) {
+    console.log('Proposed revocation date:', date);
+  }
+
+  await confirm('Are you sure you want to revoke this certificate?');
+
+  await ca.openReadWrite();
+  await ca.revokeCertificate(serial, date);
+  console.log('Certificate revoked');
+
+  const { value } = await prompts({
+    type: 'confirm',
+    name: 'value',
+    message: 'Upload CRL?',
+  });
+
+  if (!value) return;
+
+  // TODO: call crl-upload
 }
 
 export default new Command('revoke')
   .description('revoke a certificate')
   .argument('folder', 'path to CSCA folder')
   .argument('certificate', 'path to certificate file')
-  .option(
-    '--serial',
-    'interpret the <certificate> input as a serial number',
-  )
-  .option(
-    '--date <datetime>',
-    'date and/or time of revocation',
-    'now',
-  )
+  .option('--serial', 'interpret the <certificate> input as a serial number in hex')
+  .option('--date <datetime>', 'date and/or time of revocation', 'now')
   .action(run);
 
 // CRL reason extension is explicitly disallowed by 9303-12

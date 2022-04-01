@@ -278,7 +278,7 @@ export default class CA {
     console.debug('write request');
     await fs.writeFile(this.join('certs', cert.certId, 'request.csr'), request.toString('pem'));
 
-    console.log('add to index');
+    console.debug('add to index');
     await this.state(privateKey).indexNewCertificate(cert, {
       workingPeriodEnd: workingPeriod.end,
     });
@@ -286,6 +286,20 @@ export default class CA {
     // TODO: write to log
 
     return cert;
+  }
+
+  public async readIndex(serial: Buffer): Promise<CertificateIndexEntry> {
+    const key = await this.publicKey();
+    const state = this.state(key);
+    const entry = await state.fromSerial(serial);
+    if (!entry) throw new Error(`No such serial: 0x${serial.toString('hex')}`);
+    return entry;
+  }
+
+  public async revokeCertificate(serial: Buffer, date?: Date) {
+    const key = await this.privateKey();
+    await this.state(key).indexRevocation(serial, date);
+    // write to log
   }
 }
 

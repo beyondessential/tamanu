@@ -1,5 +1,5 @@
 import { join } from 'path';
-import { padBufferStart } from '../utils';
+import { padBufferStart, truncateToSeconds } from '../utils';
 
 import AuthenticatedFile from './AuthenticatedFile';
 import Certificate from './Certificate';
@@ -21,10 +21,16 @@ export default class State extends AuthenticatedFile {
     if (issuanceSerial.byteLength < 8) throw new Error('Issuance serial is under 64 bits');
     if (issuanceSerial.byteLength > 20) throw new Error('Issuance serial is over 160 bits');
 
-    const index: Map<Buffer, IndexEntry> = new Map();
+    const index: Map<string, IndexEntry> = new Map();
     for (const [serial, entry] of Object.entries(stateFile.index)) {
       const fullSerial = padBufferStart(Buffer.from(serial, 'hex'), issuanceSerial.byteLength);
-      index.set(fullSerial, entry);
+      index.set(fullSerial.toString('hex'), {
+        subject: entry.subject,
+        issuanceDate: new Date(entry.issuanceDate),
+        revocationDate: entry.revocationDate ? new Date(entry.revocationDate) : undefined,
+        workingPeriodEnd: new Date(entry.workingPeriodEnd),
+        validityPeriodEnd: new Date(entry.validityPeriodEnd),
+      });
     }
 
     return {
@@ -37,7 +43,7 @@ export default class State extends AuthenticatedFile {
   private async write(state: StateFile) {
     const index: CertificateIndexJson = {};
     for (const [serial, entry] of state.index) {
-      index[serial.toString('hex')] = entry;
+      index[serial] = entry;
     }
 
     const stateFile: StateJson = {
@@ -88,8 +94,9 @@ export default class State extends AuthenticatedFile {
 
   public async fromSerial(serial: Buffer): Promise<CertificateIndexEntry | undefined> {
     const state = await this.load();
-    const entry = state.index.get(padBufferStart(serial, state.issuanceSerial.byteLength));
-    if (entry) return new CertificateIndexEntry(entry);
+    const fullSerial = padBufferStart(serial, state.issuanceSerial.byteLength);
+    const entry = state.index.get(fullSerial.toString('hex'));
+    if (entry) return new CertificateIndexEntry(fullSerial, entry);
   }
 
   /**
@@ -102,19 +109,42 @@ export default class State extends AuthenticatedFile {
 
     const state = await this.load();
     const fullSerial = padBufferStart(cert.serial, state.issuanceSerial.byteLength);
-    state.index.set(fullSerial, Object.assign(cert.asIndexEntry(), overrides));
+    state.index.set(fullSerial.toString('hex'), Object.assign(cert.asIndexEntry(), overrides));
+    await this.write(state);
+  }
+
+  /**
+   * @internal Do not use outside of CA classes (e.g. directly from commands).
+   */
+  public async indexRevocation(serial: Buffer, date?: Date) {
+    const entry = await this.fromSerial(serial);
+    if (!entry) {
+      throw new Error('Certificate does not exist in index');
+    }
+
+    if (entry.isRevoked) {
+      // should be caught earlier, here it's a programmer error
+      throw new Error('Certificate is already revoked');
+    }
+
+    const state = await this.load();
+    state.index.set(entry.serial.toString('hex'), Object.assign(entry.asEntry(), {
+      revocationDate: truncateToSeconds(date ?? new Date()),
+    }));
     await this.write(state);
   }
 }
 
 export class CertificateIndexEntry {
+  public readonly serial: Buffer;
   public readonly subject: Subject;
   public readonly issuanceDate: Date;
   public readonly revocationDate?: Date;
   public readonly workingPeriodEnd: Date;
   public readonly validityPeriodEnd: Date;
 
-  constructor(entry: IndexEntry) {
+  constructor(serial: Buffer, entry: IndexEntry) {
+    this.serial = serial;
     this.subject = entry.subject;
     this.issuanceDate = entry.issuanceDate;
     this.revocationDate = entry.revocationDate;
@@ -137,12 +167,23 @@ export class CertificateIndexEntry {
   public get isValid(): boolean {
     return !this.isRevoked && !this.isExpired;
   }
+
+  /** @internal to State */
+  public asEntry(): IndexEntry {
+    return {
+      subject: this.subject,
+      issuanceDate: this.issuanceDate,
+      revocationDate: this.revocationDate,
+      workingPeriodEnd: this.workingPeriodEnd,
+      validityPeriodEnd: this.validityPeriodEnd,
+    };
+  }
 }
 
 interface StateFile {
   crlSerial: Buffer;
   issuanceSerial: Buffer;
-  index: Map<Buffer, IndexEntry>;
+  index: Map<string, IndexEntry>;
 }
 
 interface IndexEntry {
