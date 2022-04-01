@@ -13,42 +13,7 @@ const defaultMapper = ({ name, code, id }) => ({ name, code, id });
 
 const defaultLimit = 25;
 
-// Add a new suggester for a particular model at the given endpoint.
-// Records will be filtered based on the whereSql parameter. The user's search term
-// will be passed to the sql query as ":search" - see the existing suggestion
-// endpoints for usage examples.
-function createSuggester(endpoint, modelName, whereSql, mapper = defaultMapper) {
-  suggestions.get(
-    `/${endpoint}/all`,
-    asyncHandler(async (req, res) => {
-      const { models } = req;
-
-      req.checkPermission('list', modelName);
-
-      const model = models[modelName];
-      const results = await model.sequelize.query(
-        `
-      SELECT *
-      FROM "${model.tableName}"
-      WHERE ${whereSql}
-      LIMIT :limit
-    `,
-        {
-          replacements: {
-            limit: defaultLimit,
-            search: '',
-          },
-          type: QueryTypes.SELECT,
-          model,
-          mapToModel: true,
-        },
-      );
-
-      const listing = results.map(mapper);
-      res.send(listing);
-    }),
-  );
-
+function createSingleRecordSuggesterRoute(endpoint, modelName, whereSql, mapper = defaultMapper) {
   suggestions.get(
     `/${endpoint}/:id`,
     asyncHandler(async (req, res) => {
@@ -60,7 +25,9 @@ function createSuggester(endpoint, modelName, whereSql, mapper = defaultMapper) 
       res.send(mapper(record));
     }),
   );
+}
 
+function createSuggesterRoute(endpoint, modelName, whereSql, mapper = defaultMapper) {
   suggestions.get(
     `/${endpoint}`,
     asyncHandler(async (req, res) => {
@@ -97,11 +64,54 @@ function createSuggester(endpoint, modelName, whereSql, mapper = defaultMapper) 
   );
 }
 
+function createAllRecordsSuggesterRoute(endpoint, modelName, whereSql, mapper = defaultMapper) {
+  suggestions.get(
+    `/${endpoint}/all`,
+    asyncHandler(async (req, res) => {
+      req.checkPermission('list', modelName);
+      const { models } = req;
+      const model = models[modelName];
+      const results = await model.sequelize.query(
+        `
+      SELECT *
+      FROM "${model.tableName}"
+      WHERE ${whereSql}
+      LIMIT :limit
+    `,
+        {
+          replacements: {
+            limit: defaultLimit,
+          },
+          type: QueryTypes.SELECT,
+          model,
+          mapToModel: true,
+        },
+      );
+
+      const listing = results.map(mapper);
+      res.send(listing);
+    }),
+  );
+}
+
+// Add a new suggester for a particular model at the given endpoint.
+// Records will be filtered based on the whereSql parameter. The user's search term
+// will be passed to the sql query as ":search" - see the existing suggestion
+// endpoints for usage examples.
+function createSuggester(endpoint, modelName, whereSql, mapper) {
+  createSingleRecordSuggesterRoute(endpoint, modelName, whereSql, mapper);
+  createSuggesterRoute(endpoint, modelName, whereSql, mapper);
+}
+
 const createNameSuggester = (endpoint, modelName = pascal(endpoint)) =>
   createSuggester(endpoint, modelName, 'LOWER(name) LIKE LOWER(:search)', ({ id, name }) => ({
     id,
     name,
   }));
+
+REFERENCE_TYPE_VALUES.map(typeName =>
+  createAllRecordsSuggesterRoute(typeName, 'ReferenceData', `type = '${typeName}'`),
+);
 
 REFERENCE_TYPE_VALUES.map(typeName =>
   createSuggester(
