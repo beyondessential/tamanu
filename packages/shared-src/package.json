@@ -36,7 +36,6 @@
     "config": "3.0.1",
     "date-fns": "^2.19.0",
     "eslint": "^5.15.2",
-    "jest": "^24.5.0",
     "jsonwebtoken": "^8.4.0",
     "lodash": "^4.17.11",
     "moment-timezone": "^0.5.34",
