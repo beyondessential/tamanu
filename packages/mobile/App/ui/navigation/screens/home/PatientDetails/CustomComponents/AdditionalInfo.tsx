@@ -1,11 +1,11 @@
-import React, { ReactElement, useCallback } from 'react';
-import { useIsFocused } from '@react-navigation/native';
+import React, { ReactElement, useState, useCallback } from 'react';
+import { useFocusEffect } from '@react-navigation/native';
 
 import { FieldRowDisplay } from '~/ui/components/FieldRowDisplay';
 import { PatientSection } from './PatientSection';
 import { useLocalisation } from '~/ui/contexts/LocalisationContext';
 import { IPatient, IPatientAdditionalData } from '~/types';
-import { useEffectWithBackend } from '~/ui/hooks';
+import { useBackend } from '~/ui/hooks';
 import { ErrorScreen } from '~/ui/components/ErrorScreen';
 import { LoadingScreen } from '~/ui/components/LoadingScreen';
 
@@ -15,15 +15,35 @@ interface AdditionalInfoProps {
 }
 
 export const AdditionalInfo = ({ patient, onEdit }: AdditionalInfoProps): ReactElement => {
-  const isFocused = useIsFocused(); // reload data whenever the page is focused
-  const [additionalDataRes, additionalDataError, additionalDataLoading] = useEffectWithBackend(
-    useCallback(
-      ({ models }) => models.PatientAdditionalData.find({
+  const backend = useBackend();
+  const [additionalDataRes, setAdditionalDataRes] = useState(null);
+  const [error, setError] = useState(null);
+  const [loading, setLoading] = useState(false);
+  useFocusEffect(
+    useCallback(() => {
+      let mounted = true;
+      const { models } = backend;
+      models.PatientAdditionalData.find({
         where: { patient: { id: patient.id } },
-      }),
-      [patient.id],
-    ),
-    { shouldExecute: isFocused },
+      })
+        .then((resp) => {
+          if (!mounted) {
+            return;
+          }
+          setAdditionalDataRes(resp);
+          setLoading(false);
+        })
+        .catch((err) => {
+          if (!mounted) {
+            return;
+          }
+          setError(err);
+          setLoading(false);
+        });
+      return (): void => {
+        mounted = false;
+      };
+    }, [backend, patient.id]),
   );
 
   const data = additionalDataRes && additionalDataRes[0];
@@ -63,9 +83,9 @@ export const AdditionalInfo = ({ patient, onEdit }: AdditionalInfoProps): ReactE
   const isEditable = getBool('features.editPatientDetailsOnMobile');
 
   let additionalFields = null;
-  if (additionalDataError) {
-    additionalFields = <ErrorScreen error={additionalDataError} />;
-  } else if (additionalDataLoading) {
+  if (error) {
+    additionalFields = <ErrorScreen error={error} />;
+  } else if (loading) {
     additionalFields = <LoadingScreen />;
   } else if (additionalDataRes) {
     additionalFields = <FieldRowDisplay fields={fields} fieldsPerRow={2} />;

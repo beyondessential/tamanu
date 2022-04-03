@@ -1,6 +1,6 @@
 import React, { ReactElement, useMemo, useCallback, useState, useEffect } from 'react';
 import { compose } from 'redux';
-import { useIsFocused } from '@react-navigation/core';
+import { useFocusEffect } from '@react-navigation/core';
 import { setStatusBar } from '/helpers/screen';
 import { Popup } from 'popup-ui';
 import { IPatientIssue, PatientIssueType } from '/types/IPatientIssue';
@@ -13,7 +13,7 @@ import { Routes } from '/helpers/routes';
 import { theme } from '/styled/theme';
 // Containers
 import { withPatient } from '/containers/Patient';
-import { useBackend, useEffectWithBackend } from '~/ui/hooks';
+import { useBackend } from '~/ui/hooks';
 import { ErrorScreen } from '~/ui/components/ErrorScreen';
 
 interface IPopup {
@@ -63,7 +63,6 @@ const PatientHomeContainer = ({
   navigation,
   selectedPatient,
 }: PatientHomeScreenProps): ReactElement => {
-  const isFocused = useIsFocused(); // reload issues whenever the page is focused
   const [errorMessage, setErrorMessage] = useState();
   const visitTypeButtons = useMemo(
     () => [
@@ -132,15 +131,30 @@ const PatientHomeContainer = ({
     }
   }, [selectedPatient]);
 
-  const [patientIssues] = useEffectWithBackend(
-    useCallback(
-      ({ models: _models }) => _models.PatientIssue.find({
+  const [patientIssues, setPatientIssues] = useState(null);
+  useFocusEffect(
+    useCallback(() => {
+      let mounted = true;
+      models.PatientIssue.find({
         order: { recordedDate: 'ASC' },
         where: { patient: { id: selectedPatient.id } },
-      }),
-      [selectedPatient.id],
-    ),
-    { shouldExecute: isFocused },
+      })
+        .then((resp) => {
+          if (!mounted) {
+            return;
+          }
+          setPatientIssues(resp);
+        })
+        .catch((err) => {
+          if (!mounted) {
+            return;
+          }
+          setErrorMessage(err.message);
+        });
+      return (): void => {
+        mounted = false;
+      };
+    }, [models, selectedPatient.id]),
   );
 
   setStatusBar('light-content', theme.colors.PRIMARY_MAIN);
