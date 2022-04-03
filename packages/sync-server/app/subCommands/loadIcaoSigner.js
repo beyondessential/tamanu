@@ -1,5 +1,4 @@
 import { promises as fs } from 'fs';
-import { Op } from 'sequelize';
 import moment from 'moment';
 import { Command } from 'commander';
 
@@ -14,19 +13,10 @@ async function loadIcaoSigner({ signerCertificate }) {
   const signerFile = await fs.readFile(signerCertificate, 'utf8');
   const signerData = await loadCertificateIntoSigner(signerFile);
 
-  const pending = await Signer.findAll({
-    where: {
-      certificate: { [Op.is]: null },
-      privateKey: { [Op.not]: null },
-    },
-  });
+  const pending = await Signer.findPending();
 
-  if (pending.length === 0) {
+  if (!pending) {
     throw new Error('No pending signer, did you do this already?');
-  }
-
-  if (pending.length > 1) {
-    throw new Error('More than one pending signer, you need to fix this manually');
   }
 
   const pendingSigner = pending[0];

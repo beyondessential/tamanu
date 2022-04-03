@@ -11,6 +11,7 @@ export class SignerRenewalChecker extends ScheduledTask {
     super(conf.schedule, log);
     this.config = conf;
     this.context = context;
+    this.runImmediately();
   }
 
   getName() {

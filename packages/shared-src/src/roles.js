@@ -189,7 +189,7 @@ export const practitioner = [
   { verb: 'read', noun: 'InvoicePriceChangeType' },
   { verb: 'write', noun: 'InvoicePriceChangeType' },
   { verb: 'create', noun: 'InvoicePriceChangeType' },
-  
+
   { verb: 'create', noun: 'CertificateNotification' },
 ];
 
@@ -204,4 +204,7 @@ export const admin = [
 
   { verb: 'write', noun: 'Setting' },
   { verb: 'create', noun: 'Setting' },
+
+  { verb: 'read', noun: 'Signer' },
+  { verb: 'write', noun: 'Signer' },
 ];

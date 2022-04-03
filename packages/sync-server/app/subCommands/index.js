@@ -6,3 +6,4 @@ export { calculateSurveyResultsCommand } from './calculateSurveyResults';
 export { removeDuplicatedPatientAdditionalDataCommand } from './removeDuplicatedPatientAdditionalData';
 export { loadIcaoSignerCommand } from './loadIcaoSigner';
 export { userCommand } from './user';
+export { saveCertificateRequestCommand } from './saveCertificateRequest';

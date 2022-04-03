@@ -107,7 +107,7 @@ export async function newKeypairAndCsr() {
  * @param {string} certificate The signed certificate from the CSCA.
  * @returns {object} The fields to load into the relevant Signer.
  */
-export function loadCertificateIntoSigner(certificate) {
+export function loadCertificateIntoSigner(certificate, workingPeriod = {}) {
   let binCert;
   let txtCert;
   if (typeof certificate === 'string') {
@@ -130,17 +130,19 @@ export function loadCertificateIntoSigner(certificate) {
   // The certificate doesn't include the PKUP, so we assume it from which
   // integration is enabled. In future it would be good to get this directly
   // from issuance API or some other way.
-  const workingPeriodStart = validityPeriodStart;
-  let workingPeriodEnd = validityPeriodEnd;
-  if (config.integrations.vdsNc?.enabled) {
-    workingPeriodEnd = moment(workingPeriodStart)
-      .add(96, 'day')
-      .toDate();
-  }
-  if (config.integrations.euDcc?.enabled) {
-    workingPeriodEnd = moment(workingPeriodStart)
-      .add(365, 'day')
-      .toDate();
+  const workingPeriodStart = workingPeriod.start ? moment(workingPeriod.start) : validityPeriodStart;
+  let workingPeriodEnd = workingPeriod.end ? moment(workingPeriod.end) : validityPeriodEnd;
+  if (!workingPeriod.end) {
+    if (config.integrations.vdsNc?.enabled) {
+      workingPeriodEnd = moment(workingPeriodStart)
+        .add(96, 'day')
+        .toDate();
+    }
+    if (config.integrations.euDcc?.enabled) {
+      workingPeriodEnd = moment(workingPeriodStart)
+        .add(365, 'day')
+        .toDate();
+    }
   }
 
   return {
