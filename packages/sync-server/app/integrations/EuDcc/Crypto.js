@@ -6,6 +6,7 @@ import { fromBER } from 'asn1js';
 import { deflate as deflateCallback, inflate as inflateCallback } from 'zlib';
 import { promisify } from 'util';
 import base45 from 'base45-js';
+import moment from 'moment';
 import { Certificate } from 'pkijs';
 import { depem } from 'shared/utils';
 import { fakeABtoRealAB } from '../Signer';
