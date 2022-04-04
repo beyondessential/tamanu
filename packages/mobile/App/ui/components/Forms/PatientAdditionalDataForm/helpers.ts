@@ -18,6 +18,8 @@ export const plainFields = [
   'socialMedia',
   'streetVillage',
   'title',
+  'emergencyContactName',
+  'emergencyContactNumber',
 ];
 
 // All PatientAdditionalData relation ID fields sorted alphabetically
@@ -130,6 +132,8 @@ export const patientAdditionalDataValidationSchema = Yup.object().shape({
   streetVillage: Yup.string().nullable(),
   subdivisionId: Yup.string().nullable(),
   title: Yup.string().nullable(),
+  emergencyContactName: Yup.string().nullable(),
+  emergencyContactNumber: Yup.string().nullable(),
 });
 
 // Strip off unwanted fields from additional data and only keep specified ones

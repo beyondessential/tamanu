@@ -60,6 +60,8 @@ export const AdditionalInfo = ({
     ['educationalLevel', data?.educationalLevel],
     ['religionId', data?.religion?.name],
     ['patientBillingTypeId', data?.patientBillingType?.name],
+    ['emergencyContactName', data?.emergencyContactName],
+    ['emergencyContactNumber', data?.emergencyContactNumber],
   ];
 
   // Check if patient additional data should be editable
