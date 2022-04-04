@@ -1,5 +1,6 @@
 import config from 'config';
 import nodeCrypto from 'crypto';
+import { add } from 'date-fns';
 import { Crypto } from 'node-webcrypto-ossl';
 import {
   fromBER,
@@ -26,7 +27,6 @@ import {
 } from 'pkijs';
 import { ICAO_DOCUMENT_TYPES, X502_OIDS } from 'shared/constants';
 import { depem, pem } from 'shared/utils';
-import moment from 'moment';
 import { getLocalisation } from '../../localisation';
 
 const webcrypto = new Crypto();
@@ -138,18 +138,14 @@ export function loadCertificateIntoSigner(certificate, workingPeriod = {}) {
   // The certificate doesn't include the PKUP, so we assume it from which
   // integration is enabled. In future it would be good to get this directly
   // from issuance API or some other way.
-  const workingPeriodStart = workingPeriod.start ? moment(workingPeriod.start) : validityPeriodStart;
-  let workingPeriodEnd = workingPeriod.end ? moment(workingPeriod.end) : validityPeriodEnd;
+  const workingPeriodStart = workingPeriod.start ?? validityPeriodStart;
+  let workingPeriodEnd = workingPeriod.end ?? validityPeriodEnd;
   if (!workingPeriod.end) {
     if (config.integrations.vdsNc?.enabled) {
-      workingPeriodEnd = moment(workingPeriodStart)
-        .add(96, 'day')
-        .toDate();
+      workingPeriodEnd = add(workingPeriodStart, { days: 96 });
     }
     if (config.integrations.euDcc?.enabled) {
-      workingPeriodEnd = moment(workingPeriodStart)
-        .add(365, 'day')
-        .toDate();
+      workingPeriodEnd = add(workingPeriodStart, { days: 365 });
     }
   }
 
@@ -194,11 +190,11 @@ export class TestCSCA {
       ['sign', 'verify'],
     );
 
-    const workingPeriodStart = moment();
-    const workingPeriodEnd = workingPeriodStart.clone().add(365 * 4 + 1, 'day');
+    const workingPeriodStart = new Date();
+    const workingPeriodEnd = add(workingPeriodStart, { days: 365 * 4 + 1 });
 
-    const validityPeriodStart = workingPeriodStart.clone();
-    const validityPeriodEnd = workingPeriodEnd.clone().add(11 * 365 + 3, 'day');
+    const validityPeriodStart = workingPeriodStart;
+    const validityPeriodEnd = add(workingPeriodEnd, { days: 365 * 11 + 3 });
 
     const cert = new Certificate();
     cert.version = 2;
@@ -227,10 +223,10 @@ export class TestCSCA {
       }),
     );
     cert.notBefore = new Time({
-      value: validityPeriodStart.toDate(),
+      value: validityPeriodStart,
     });
     cert.notAfter = new Time({
-      value: validityPeriodEnd.toDate(),
+      value: validityPeriodEnd,
     });
     cert.serialNumber = new Integer({ value: 1 });
 
@@ -302,21 +298,22 @@ export class TestCSCA {
     if (asn.result.error !== '') throw new Error(asn.result.error);
     const csr = new CertificationRequest({ schema: asn.result });
 
-    const workingPeriodStart = moment();
-    const workingPeriodEnd = workingPeriodStart.clone().add(96, 'day');
+    const workingPeriodStart = new Date();
+    const workingPeriodEnd = add(workingPeriodStart, { days: 96 });
 
-    const validityPeriodStart = workingPeriodStart.clone();
-    const validityPeriodEnd = workingPeriodEnd.clone().add(365 * 10 + 2, 'day');
+    const validityPeriodStart = workingPeriodStart;
+    const validityPeriodEnd = add(workingPeriodEnd, {
+      days: 365 * 10 + 2 });
 
     const cert = new Certificate();
     cert.version = 2;
     cert.issuer = this.certificate.issuer;
     cert.subject = csr.subject;
     cert.notBefore = new Time({
-      value: validityPeriodStart.toDate(),
+      value: validityPeriodStart,
     });
     cert.notAfter = new Time({
-      value: validityPeriodEnd.toDate(),
+      value: validityPeriodEnd,
     });
     cert.serialNumber = new Integer({ value: (this.serial += 1) });
 

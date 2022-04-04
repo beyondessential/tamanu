@@ -6,11 +6,11 @@ import { fromBER } from 'asn1js';
 import { deflate as deflateCallback, inflate as inflateCallback } from 'zlib';
 import { promisify } from 'util';
 import base45 from 'base45-js';
-import moment from 'moment';
 import { Certificate } from 'pkijs';
 import { depem } from 'shared/utils';
 import { fakeABtoRealAB } from '../Signer';
 import { getLocalisation } from '../../localisation';
+import { add, getUnixTime } from 'date-fns';
 
 const deflate = promisify(deflateCallback);
 const inflate = promisify(inflateCallback);
@@ -61,16 +61,16 @@ export async function HCERTPack(messageData, models) {
   }
 
   const iss = (await getLocalisation()).country['alpha-2'];
-  const iat = moment();
-  const exp = iat.add(365, 'days');
+  const iat = new Date();
+  const exp = add(iat, { days: 365 });
 
   const hcert = new Map();
   hcert.set(EUDGC_IN_HCERT_KEY, messageData);
 
   const payload = new Map();
   payload.set(CWT_CLAIM_KEYS.iss, iss);
-  payload.set(CWT_CLAIM_KEYS.iat, iat.unix());
-  payload.set(CWT_CLAIM_KEYS.exp, exp.unix());
+  payload.set(CWT_CLAIM_KEYS.iat, getUnixTime(iat));
+  payload.set(CWT_CLAIM_KEYS.exp, getUnixTime(exp));
   payload.set(CWT_CLAIM_KEYS.hcert, hcert);
 
   const cborData = cbor.encode(payload);
@@ -139,7 +139,7 @@ export async function HCERTVerify(packedData, models) {
     throw new Error('HCERT message issued to wrong country');
   }
 
-  const now = moment().unix();
+  const now = getUnixTime(new Date());
   if (payload.get(CWT_CLAIM_KEYS.iat) > now) {
     throw new Error('HCERT message issued in the future');
   }
