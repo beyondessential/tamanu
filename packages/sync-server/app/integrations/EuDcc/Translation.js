@@ -32,7 +32,7 @@ const DRUG_TO_SCHEDULE_DOSAGE = {
 
 const MOMENT_FORMAT_ISODATE = 'YYYY-MM-DD';
 
-export async function createCovidVaccinationCertificateData(administeredVaccineId, { models }) {
+export async function createEuDccVaccinationData(administeredVaccineId, { models }) {
   const {
     Patient,
     ReferenceData,

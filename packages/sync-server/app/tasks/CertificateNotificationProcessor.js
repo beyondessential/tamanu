@@ -12,8 +12,8 @@ import { log } from 'shared/services/logging';
 import { ScheduledTask } from 'shared/tasks';
 import { makeVaccineCertificate, makeCovidTestCertificate } from '../utils/makePatientCertificate';
 import { getLocalisation } from '../localisation';
-import { createProofOfVaccination, VdsNcDocument } from '../integrations/VdsNc';
-import { createCovidVaccinationCertificateData, HCERTPack } from '../integrations/EuDcc';
+import { createVdsNcVaccinationData, VdsNcDocument } from '../integrations/VdsNc';
+import { createEuDccVaccinationData, HCERTPack } from '../integrations/EuDcc';
 
 export class CertificateNotificationProcessor extends ScheduledTask {
   constructor(context) {
@@ -84,10 +84,10 @@ export class CertificateNotificationProcessor extends ScheduledTask {
                 if (latestCovidVax) {
                   uvci = await generateUVCI(latestCovidVax.id, 'eudcc');
 
-                  const povData = await createCovidVaccinationCertificateData(latestCovidVax.id, {
+                  const povData = await createEuDccVaccinationData(latestCovidVax.id, {
                     models,
                   });
-                  
+
                   qrData = await HCERTPack(povData, { models });
                 } else {
                   log.warn(
@@ -98,7 +98,7 @@ export class CertificateNotificationProcessor extends ScheduledTask {
                 log.debug('Generating VDS data for proof of vaccination');
                 uvci = await generateUVCI(latestCovidVax.id, 'icao');
 
-                const povData = await createProofOfVaccination(patient.id, { models });
+                const povData = await createVdsNcVaccinationData(patient.id, { models });
                 const vdsDoc = new VdsNcDocument(type, povData, uvci);
                 vdsDoc.models = models;
                 await vdsDoc.sign();
@@ -117,15 +117,17 @@ export class CertificateNotificationProcessor extends ScheduledTask {
           }
 
           case ICAO_DOCUMENT_TYPES.PROOF_OF_TESTING.JSON: {
+            // let uvci;
+
             template = 'covidTestCertificateEmail';
-            if (false && requireSigning && vdsEnabled) {
+            if (requireSigning && vdsEnabled) {
               // log.debug('Generating VDS data for proof of testing');
-              // const potData = await createProofOfTesting(labTestId ???, { models });
-              // const uniqueProofId = await patient.getIcaoUTCI()???;
-              // const vdsDoc = new Document(type, potData, uniqueProofId);
+              // uvci = await generateUVCI(latestCovidVax.id, 'icao');
+              // const povData = await createVdsNcTestData(patient.id, { models });
+              // const vdsDoc = new VdsNcDocument(type, povData, uvci);
               // vdsDoc.models = models;
               // await vdsDoc.sign();
-              // vdsData = await vdsDoc.intoVDS();
+              // qrData = await vdsDoc.intoVDS();
             }
 
             log.debug('Making test PDF');
