@@ -13,13 +13,13 @@ import { createTestContext } from '../../utilities';
 
 describe('Admissions report', () => {
   let expectedPatient = null;
-  let wrongPatient = null;
   let app = null;
   let expectedLocation = null;
   let wrongLocation = null;
   let expectedDepartment = null;
   let expectedExaminer = null;
-  let expectedDiagnosis = null;
+  let expectedDiagnosis1 = null;
+  let expectedDiagnosis2 = null;
   let expectedVillage = null;
   let baseApp = null;
   let models = null;
@@ -33,19 +33,20 @@ describe('Admissions report', () => {
     expectedPatient = await models.Patient.create(
       await createDummyPatient(models, { villageId: expectedVillage.id }),
     );
-    wrongPatient = await models.Patient.create(
-      await createDummyPatient(models, { villageId: expectedVillage.id }),
-    );
-
     app = await baseApp.asRole('practitioner');
     expectedLocation = await findOneOrCreate(ctx, models.Location, { name: 'Clinic' });
     wrongLocation = await randomRecord(models, 'Location');
     expectedDepartment = await randomRecord(models, 'Department');
     expectedExaminer = await randomRecord(models, 'User');
-    expectedDiagnosis = await findOneOrCreate(ctx, models.ReferenceData, {
+    expectedDiagnosis1 = await findOneOrCreate(ctx, models.ReferenceData, {
       type: 'icd10',
       code: 'H60.5',
       name: 'Acute bacterial otitis externa',
+    });
+    expectedDiagnosis2 = await findOneOrCreate(ctx, models.ReferenceData, {
+      type: 'icd10',
+      code: 'L74.4',
+      name: 'Anhidrosis',
     });
   });
   afterAll(() => ctx.close());
@@ -75,12 +76,37 @@ describe('Admissions report', () => {
         await createDummyEncounter(models, baseEncounterData),
       );
 
-      const expectedEncounterDiagnosis = await models.EncounterDiagnosis.create(
+      const baseEncounterDiagnosisData = {
+        certainty: 'confirmed',
+        isPrimary: true,
+        diagnosisId: expectedDiagnosis1.id,
+        encounterId: expectedEncounter.id,
+      };
+
+      await models.EncounterDiagnosis.create(
+        await createDummyEncounterDiagnosis(models, baseEncounterDiagnosisData),
+      );
+
+      await models.EncounterDiagnosis.create(
         await createDummyEncounterDiagnosis(models, {
-          certainty: 'confirmed',
-          isPrimary: true,
-          diagnosisId: expectedDiagnosis.id,
-          encounterId: expectedEncounter.id,
+          ...baseEncounterDiagnosisData,
+          diagnosisId: expectedDiagnosis2.id,
+        }),
+      );
+
+      await models.EncounterDiagnosis.create(
+        await createDummyEncounterDiagnosis(models, {
+          ...baseEncounterDiagnosisData,
+          isPrimary: false,
+          certainty: 'disproven',
+          diagnosisId: expectedDiagnosis2.id,
+        }),
+      );
+
+      await models.EncounterDiagnosis.create(
+        await createDummyEncounterDiagnosis(models, {
+          ...baseEncounterDiagnosisData,
+          isPrimary: false,
         }),
       );
 
@@ -123,8 +149,8 @@ describe('Admissions report', () => {
           'Date of Birth': format(expectedPatient.dateOfBirth, 'dd/MM/yyyy'),
           Location: expectedLocation.name,
           Department: expectedDepartment.name,
-          'Primary diagnoses': 'H60.5 Acute bacterial otitis externa',
-          'Secondary diagnoses': '',
+          'Primary diagnoses': 'H60.5 Acute bacterial otitis externa; L74.4 Anhidrosis',
+          'Secondary diagnoses': 'H60.5 Acute bacterial otitis externa',
           Sex: expectedPatient.sex,
           Village: expectedVillage.name,
           'Doctor/Nurse': expectedExaminer.displayName,
