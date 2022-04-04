@@ -17,6 +17,8 @@ const ActionDropdown = React.memo(({ row, onDownload, onClickDelete }) => {
       label: 'Download',
       onClick: () => onDownload(row),
     },
+    // Currently delete and attach to care plan aren't built, so we'll hide them
+    /*
     {
       label: 'Delete',
       onClick: () => onClickDelete(row.id),
@@ -25,6 +27,7 @@ const ActionDropdown = React.memo(({ row, onDownload, onClickDelete }) => {
       label: 'Attach to care plan',
       onClick: () => console.log('clicked attach to care plan'),
     },
+    */
   ];
 
   return <DropdownButton color="primary" actions={actions} />;
