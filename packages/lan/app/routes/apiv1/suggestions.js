@@ -13,20 +13,6 @@ const defaultMapper = ({ name, code, id }) => ({ name, code, id });
 
 const defaultLimit = 25;
 
-function createSingleRecordSuggesterRoute(endpoint, modelName, whereSql, mapper = defaultMapper) {
-  suggestions.get(
-    `/${endpoint}/:id`,
-    asyncHandler(async (req, res) => {
-      const { models, params } = req;
-      req.checkPermission('list', modelName);
-      const record = await models[modelName].findByPk(params.id);
-      if (!record) throw new NotFoundError();
-      req.checkPermission('read', record);
-      res.send(mapper(record));
-    }),
-  );
-}
-
 function createSuggesterRoute(endpoint, modelName, whereSql, mapper = defaultMapper) {
   suggestions.get(
     `/${endpoint}`,
@@ -60,6 +46,23 @@ function createSuggesterRoute(endpoint, modelName, whereSql, mapper = defaultMap
 
       const listing = results.map(mapper);
       res.send(listing);
+    }),
+  );
+}
+
+// this exists so a control can look up the associated information of a given suggester endpoint
+// when it's already been given an id so that it's guaranteed to have the same structure as the
+// options endpoint
+function createSuggesterLookupRoute(endpoint, modelName, whereSql, mapper = defaultMapper) {
+  suggestions.get(
+    `/${endpoint}/:id`,
+    asyncHandler(async (req, res) => {
+      const { models, params } = req;
+      req.checkPermission('list', modelName);
+      const record = await models[modelName].findByPk(params.id);
+      if (!record) throw new NotFoundError();
+      req.checkPermission('read', record);
+      res.send(mapper(record));
     }),
   );
 }
@@ -99,7 +102,7 @@ function createAllRecordsSuggesterRoute(endpoint, modelName, whereSql, mapper = 
 // will be passed to the sql query as ":search" - see the existing suggestion
 // endpoints for usage examples.
 function createSuggester(endpoint, modelName, whereSql, mapper) {
-  createSingleRecordSuggesterRoute(endpoint, modelName, whereSql, mapper);
+  createSuggesterLookupRoute(endpoint, modelName, whereSql, mapper);
   createSuggesterRoute(endpoint, modelName, whereSql, mapper);
 }
 
