@@ -35,16 +35,16 @@ export const PatientAdditionalDataFields = ({
           <LocalisedField name={fieldName} component={TextField} />
         </StyledView>
       ))}
+     <StyledView marginTop={7}>
       {selectFields.map((fieldName, i) => (
-        // Outter styled view to momentarily add distance between fields
-        <StyledView key={fieldName} marginTop={i === 0 ? 7 : 0}>
           <LocalisedField
+            key={fieldName}
             name={fieldName}
             options={selectFieldsOptions[fieldName]}
             component={Dropdown}
           />
-        </StyledView>
       ))}
+    </StyledView>
       {relationIdFields.map(fieldName => {
         const { type, placeholder } = relationIdFieldsProperties[fieldName];
         const localisedPlaceholder = getString(`fields.${fieldName}.longLabel`, placeholder);
