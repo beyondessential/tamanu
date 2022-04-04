@@ -133,7 +133,7 @@ export async function createEuDccVaccinationData(administeredVaccineId, { models
         dt: vaxDate,
         co: country['alpha-2'],
         is: config.integrations.euDcc.issuer ?? facilityName,
-        ci: generateUVCI(id, 'eudcc', { countryCode: country['alpha-2'] }),
+        ci: generateUVCI(id, { format: 'eudcc', countryCode: country['alpha-2'] }),
       },
     ],
   };

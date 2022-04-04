@@ -2,7 +2,7 @@ import { log } from '../../services/logging';
 import { generateICAOFormatUVCI } from './icao';
 import { generateEUDCCFormatUVCI } from './eudcc';
 
-export function generateUVCI(vaccinationId, format) {
+export function generateUVCI(vaccinationId, { format, countryCode }) {
   log.debug(`Generating ${format} UVCI for vaccination ${vaccinationId}`);
   switch (format) {
     case 'icao': {
@@ -10,7 +10,6 @@ export function generateUVCI(vaccinationId, format) {
     }
 
     case 'eudcc': {
-      const countryCode = (await getLocalisation()).country['alpha-2'];
       return generateEUDCCFormatUVCI(vaccinationId, countryCode);
     }
 

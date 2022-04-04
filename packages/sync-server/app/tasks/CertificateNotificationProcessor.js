@@ -57,6 +57,8 @@ export class CertificateNotificationProcessor extends ScheduledTask {
         const requireSigning = notification.get('requireSigning');
         const type = notification.get('type');
         const printedBy = notification.get('createdBy');
+        
+        const countryCode = (await getLocalisation()).country['alpha-2'];
 
         log.info(
           `Processing certificate notification: id=${notification.id} patient=${patientId} type=${type} requireSigning=${requireSigning}`,
@@ -82,7 +84,7 @@ export class CertificateNotificationProcessor extends ScheduledTask {
               if (euDccEnabled) {
                 log.debug('Generating EU DCC data for proof of vaccination');
                 if (latestCovidVax) {
-                  uvci = await generateUVCI(latestCovidVax.id, 'eudcc');
+                  uvci = await generateUVCI(latestCovidVax.id, { format: 'eudcc', countryCode });
 
                   const povData = await createEuDccVaccinationData(latestCovidVax.id, {
                     models,
@@ -96,7 +98,7 @@ export class CertificateNotificationProcessor extends ScheduledTask {
                 }
               } else if (vdsEnabled) {
                 log.debug('Generating VDS data for proof of vaccination');
-                uvci = await generateUVCI(latestCovidVax.id, 'icao');
+                uvci = await generateUVCI(latestCovidVax.id, { format: 'icao', countryCode });
 
                 const povData = await createVdsNcVaccinationData(patient.id, { models });
                 const vdsDoc = new VdsNcDocument(type, povData, uvci);
@@ -110,7 +112,7 @@ export class CertificateNotificationProcessor extends ScheduledTask {
             }
 
             // As fallback, generate ICAO flavour from last (not necessarily covid) vaccine
-            if (!uvci) uvci = await generateUVCI(latestVax.id, 'icao');
+            if (!uvci) uvci = await generateUVCI(latestVax.id, { format: 'icao', countryCode });
 
             pdf = await makeVaccineCertificate(patient, printedBy, models, uvci, qrData);
             break;
@@ -122,7 +124,7 @@ export class CertificateNotificationProcessor extends ScheduledTask {
             template = 'covidTestCertificateEmail';
             if (requireSigning && vdsEnabled) {
               // log.debug('Generating VDS data for proof of testing');
-              // uvci = await generateUVCI(latestCovidVax.id, 'icao');
+              // uvci = await generateUVCI(latestCovidVax.id, { format: 'icao', countryCode });
               // const povData = await createVdsNcTestData(patient.id, { models });
               // const vdsDoc = new VdsNcDocument(type, povData, uvci);
               // vdsDoc.models = models;
