@@ -54,7 +54,8 @@ describe('Admissions report', () => {
     it('should return only admitted patient', async () => {
       const baseEncounterData = {
         encounterType: ENCOUNTER_TYPES.ADMISSION,
-        startDate: subDays(new Date(), 1).toISOString(),
+        startDate: new Date(2021, 2, 20, 12, 30),
+        endDate: new Date(2021, 2, 21, 12, 30),
         patientId: wrongPatient.dataValues.id,
         locationId: expectedLocation.id,
         departmentId: expectedDepartment.id,
@@ -80,8 +81,20 @@ describe('Admissions report', () => {
           locationId: wrongLocation.id,
         }),
       );
+
+      // wrong date
+      await models.Encounter.create(
+        await createDummyEncounter(models, {
+          ...baseEncounterData,
+          startDate: new Date(2020, 2, 20).toISOString(),
+        }),
+      );
+
       const result = await app.post('/v1/reports/admissions').send({
-        parameters: { location: expectedLocation.id },
+        parameters: {
+          fromDate: new Date(2021, 1, 1),
+          location: expectedLocation.id,
+        },
       });
       expect(result).toHaveSucceeded();
 
@@ -98,8 +111,8 @@ describe('Admissions report', () => {
           Sex: expectedPatient.sex,
           Village: expectedVillage.name,
           'Doctor/Nurse': expectedExaminer.displayName,
-          'Admission Date': expectedEncounter.startDate, // TODO: format
-          'Discharge Date': expectedEncounter.endDate, // TODO: format
+          'Admission Date': new Date(2021, 2, 20, 12, 30).toString(), // TODO: format
+          'Discharge Date': new Date(2021, 2, 21, 12, 30).toString(), // TODO: format
         },
       ]);
     });
