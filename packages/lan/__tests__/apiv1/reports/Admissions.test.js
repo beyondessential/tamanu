@@ -16,7 +16,8 @@ describe('Admissions report', () => {
   let app = null;
   let expectedLocation = null;
   let wrongLocation = null;
-  let expectedDepartment = null;
+  let expectedDepartment1 = null;
+  let expectedDepartment2 = null;
   let expectedExaminer = null;
   let expectedDiagnosis1 = null;
   let expectedDiagnosis2 = null;
@@ -36,7 +37,8 @@ describe('Admissions report', () => {
     app = await baseApp.asRole('practitioner');
     expectedLocation = await findOneOrCreate(ctx, models.Location, { name: 'Clinic' });
     wrongLocation = await randomRecord(models, 'Location');
-    expectedDepartment = await randomRecord(models, 'Department');
+    expectedDepartment1 = await findOneOrCreate(ctx, models.Department, { name: 'Radiology' });
+    expectedDepartment2 = await findOneOrCreate(ctx, models.Department, { name: 'Cardiology' });
     expectedExaminer = await randomRecord(models, 'User');
     expectedDiagnosis1 = await findOneOrCreate(ctx, models.ReferenceData, {
       type: 'icd10',
@@ -64,11 +66,11 @@ describe('Admissions report', () => {
     it('should return only admitted patient', async () => {
       const baseEncounterData = {
         encounterType: ENCOUNTER_TYPES.ADMISSION,
-        startDate: new Date(2021, 1, 20), // Months are 0 indexed so this is Feburary
-        endDate: new Date(2021, 1, 21), // Months are 0 indexed so this is Feburary
+        startDate: new Date(2021, 1, 20, 9, 7), // Months are 0 indexed so this is Feburary
+        endDate: new Date(2021, 1, 21, 1, 0), // Months are 0 indexed so this is Feburary
         patientId: expectedPatient.dataValues.id,
         locationId: expectedLocation.id,
-        departmentId: expectedDepartment.id,
+        departmentId: expectedDepartment1.id,
         examinerId: expectedExaminer.id,
       };
       // expected result
@@ -134,6 +136,19 @@ describe('Admissions report', () => {
         }),
       );
 
+      await expectedEncounter.update({
+        departmentId: expectedDepartment2.id,
+      });
+
+      const departmentChangeNote = await models.Note.findOne({
+        recordId: expectedEncounter.id,
+        noteType: 'system',
+      });
+
+      await departmentChangeNote.update({
+        date: new Date(2021, 1, 20, 11, 10),
+      });
+
       const result = await app.post('/v1/reports/admissions').send({
         parameters: {
           fromDate: new Date(2021, 1, 1),
@@ -147,8 +162,9 @@ describe('Admissions report', () => {
           'Patient Last Name': expectedPatient.lastName,
           'Patient ID': expectedPatient.displayId,
           'Date of Birth': format(expectedPatient.dateOfBirth, 'dd/MM/yyyy'),
-          Location: expectedLocation.name,
-          Department: expectedDepartment.name,
+          Location: 'Clinic (Department change: 20/02/21 9:07 AM)',
+          Department:
+            'Radiology (Department change: 20/02/21 9:07 AM); Cardiology (Department change: 20/02/21 11:10 AM)',
           'Primary diagnoses': 'H60.5 Acute bacterial otitis externa; L74.4 Anhidrosis',
           'Secondary diagnoses': 'H60.5 Acute bacterial otitis externa',
           Sex: expectedPatient.sex,
