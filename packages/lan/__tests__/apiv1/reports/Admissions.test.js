@@ -5,8 +5,9 @@ import {
   randomRecords,
   randomReferenceData,
 } from 'shared/demoData';
-import { subDays } from 'date-fns';
+import { subDays, format } from 'date-fns';
 import { ENCOUNTER_TYPES } from 'shared/constants';
+import { findOneOrCreate } from 'shared/test-helpers';
 import { createTestContext } from '../../utilities';
 
 describe('Admissions report', () => {
@@ -35,7 +36,8 @@ describe('Admissions report', () => {
     );
 
     app = await baseApp.asRole('practitioner');
-    [expectedLocation, wrongLocation] = await randomRecords(models, 'Location', 2);
+    expectedLocation = await findOneOrCreate(ctx, models.Location, { name: 'Clinic' });
+    wrongLocation = await randomRecord(models, 'Location');
     expectedDepartment = await randomRecord(models, 'Department');
     expectedExaminer = await randomRecord(models, 'User');
   });
@@ -54,9 +56,9 @@ describe('Admissions report', () => {
     it('should return only admitted patient', async () => {
       const baseEncounterData = {
         encounterType: ENCOUNTER_TYPES.ADMISSION,
-        startDate: new Date(2021, 2, 20, 12, 30),
-        endDate: new Date(2021, 2, 21, 12, 30),
-        patientId: wrongPatient.dataValues.id,
+        startDate: new Date(2021, 1, 20), // Months are 0 indexed so this is Feburary
+        endDate: new Date(2021, 1, 21), // Months are 0 indexed so this is Feburary
+        patientId: expectedPatient.dataValues.id,
         locationId: expectedLocation.id,
         departmentId: expectedDepartment.id,
         examinerId: expectedExaminer.id,
@@ -86,24 +88,23 @@ describe('Admissions report', () => {
       await models.Encounter.create(
         await createDummyEncounter(models, {
           ...baseEncounterData,
-          startDate: new Date(2020, 2, 20).toISOString(),
+          startDate: new Date(2020, 1, 20).toISOString(),
         }),
       );
 
       const result = await app.post('/v1/reports/admissions').send({
         parameters: {
-          fromDate: new Date(2021, 1, 1),
+          fromDate: new Date(2021, 0, 1),
           location: expectedLocation.id,
         },
       });
       expect(result).toHaveSucceeded();
-
       expect(result.body).toMatchTabularReport([
         {
           'Patient First Name': expectedPatient.firstName,
           'Patient Last Name': expectedPatient.lastName,
           'Patient ID': expectedPatient.displayId,
-          'Date of Birth': expectedPatient.dateOfBirth, // TODO: format
+          'Date of Birth': format(expectedPatient.dateOfBirth, 'dd/MM/yyyy'),
           Location: expectedLocation.name,
           Department: expectedDepartment.name,
           'Primary diagnoses': '',
@@ -111,8 +112,8 @@ describe('Admissions report', () => {
           Sex: expectedPatient.sex,
           Village: expectedVillage.name,
           'Doctor/Nurse': expectedExaminer.displayName,
-          'Admission Date': new Date(2021, 2, 20, 12, 30).toString(), // TODO: format
-          'Discharge Date': new Date(2021, 2, 21, 12, 30).toString(), // TODO: format
+          'Admission Date': '20/02/2021',
+          'Discharge Date': '21/02/2021',
         },
       ]);
     });
