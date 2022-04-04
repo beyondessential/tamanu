@@ -1,6 +1,7 @@
 import {
   createDummyPatient,
   createDummyEncounter,
+  createDummyEncounterDiagnosis,
   randomRecord,
   randomRecords,
   randomReferenceData,
@@ -18,6 +19,7 @@ describe('Admissions report', () => {
   let wrongLocation = null;
   let expectedDepartment = null;
   let expectedExaminer = null;
+  const expectedDiagnosis = null;
   let expectedVillage = null;
   let baseApp = null;
   let models = null;
@@ -40,6 +42,7 @@ describe('Admissions report', () => {
     wrongLocation = await randomRecord(models, 'Location');
     expectedDepartment = await randomRecord(models, 'Department');
     expectedExaminer = await randomRecord(models, 'User');
+    expectedDiagnosis = await randomReferenceData(models, 'icd10');
   });
   afterAll(() => ctx.close());
 
@@ -66,6 +69,14 @@ describe('Admissions report', () => {
       // expected result
       const expectedEncounter = await models.Encounter.create(
         await createDummyEncounter(models, baseEncounterData),
+      );
+
+      const expectedEncounterDiagnosis = await models.EncounterDiagnosis.create(
+        await createDummyEncounterDiagnosis(models, {
+          certainty: 'confirmed',
+          isPrimary: true,
+          diagnosisId: expectedDiagnosis.id,
+        }),
       );
 
       // wrong encounter type
