@@ -2,6 +2,7 @@ import {
   createDummyPatient,
   createDummyEncounter,
   randomRecord,
+  randomRecords,
   randomReferenceData,
 } from 'shared/demoData';
 import { subDays } from 'date-fns';
@@ -13,6 +14,7 @@ describe('Admissions report', () => {
   let wrongPatient = null;
   let app = null;
   let expectedLocation = null;
+  let wrongLocation = null;
   let expectedDepartment = null;
   let expectedExaminer = null;
   let expectedVillage = null;
@@ -33,7 +35,7 @@ describe('Admissions report', () => {
     );
 
     app = await baseApp.asRole('practitioner');
-    expectedLocation = await randomRecord(models, 'Location');
+    [expectedLocation, wrongLocation] = await randomRecords(models, 'Location', 2);
     expectedDepartment = await randomRecord(models, 'Department');
     expectedExaminer = await randomRecord(models, 'User');
   });
@@ -50,27 +52,32 @@ describe('Admissions report', () => {
       await models.Encounter.destroy({ where: {} });
     });
     it('should return only admitted patient', async () => {
+      const baseEncounterData = {
+        encounterType: ENCOUNTER_TYPES.ADMISSION,
+        startDate: subDays(new Date(), 1).toISOString(),
+        patientId: wrongPatient.dataValues.id,
+        locationId: expectedLocation.id,
+        departmentId: expectedDepartment.id,
+        examinerId: expectedExaminer.id,
+      };
       // expected result
       const expectedEncounter = await models.Encounter.create(
-        await createDummyEncounter(models, {
-          encounterType: ENCOUNTER_TYPES.ADMISSION,
-          startDate: subDays(new Date(), 1).toISOString(),
-          patientId: expectedPatient.dataValues.id,
-          locationId: expectedLocation.id,
-          departmentId: expectedDepartment.id,
-          examinerId: expectedExaminer.id,
-        }),
+        await createDummyEncounter(models, baseEncounterData),
       );
 
       // wrong encounter type
       await models.Encounter.create(
         await createDummyEncounter(models, {
+          ...baseEncounterData,
           encounterType: ENCOUNTER_TYPES.EMERGENCY,
-          startDate: subDays(new Date(), 1).toISOString(),
-          patientId: wrongPatient.dataValues.id,
-          locationId: expectedLocation.id,
-          departmentId: expectedDepartment.id,
-          examinerId: expectedExaminer.id,
+        }),
+      );
+
+      // wrong location
+      await models.Encounter.create(
+        await createDummyEncounter(models, {
+          ...baseEncounterData,
+          locationId: wrongLocation.id,
         }),
       );
       const result = await app.post('/v1/reports/admissions').send({

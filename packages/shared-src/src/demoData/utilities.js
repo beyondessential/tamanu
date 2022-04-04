@@ -19,6 +19,12 @@ export const randomRecord = (models, modelName) =>
     order: models.ReferenceData.sequelize.random(),
   });
 
+export const randomRecords = (models, modelName, count) =>
+  models[modelName].findAll({
+    order: models.ReferenceData.sequelize.random(),
+    limit: count,
+  });
+
 export const randomRecordId = async (models, modelName) => {
   const obj = await randomRecord(models, modelName);
   return obj?.id ?? null;
