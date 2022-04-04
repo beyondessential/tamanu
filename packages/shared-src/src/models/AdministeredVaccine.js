@@ -1,6 +1,8 @@
 import { Sequelize } from 'sequelize';
 import { InvalidOperationError } from 'shared/errors';
 import { Model } from './Model';
+import { Encounter } from './Encounter';
+
 export class AdministeredVaccine extends Model {
   static init({ primaryKey, ...options }) {
     options.validate = {
@@ -50,5 +52,31 @@ export class AdministeredVaccine extends Model {
       foreignKey: 'scheduledVaccineId',
       as: 'scheduledVaccine',
     });
+  }
+
+  static async lastVaccinationForPatient(patientId, vaccineLabels = []) {
+    const query = {
+      where: {
+        '$encounter.patient_id$': patientId,
+        status: 'GIVEN',
+      },
+      order: [['date', 'DESC']],
+      include: [
+        {
+          model: Encounter,
+          as: 'encounter',
+        },
+      ],
+    };
+
+    if (vaccineLabels.length) {
+      query.where['$scheduledVaccine.label$'] = vaccineLabels;
+      query.include.push({
+        model: ScheduledVaccine,
+        as: 'scheduledVaccine',
+      });
+    }
+
+    return AdministeredVaccine.findOne(query);
   }
 }
