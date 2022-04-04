@@ -20,36 +20,24 @@ const reportColumnTemplate = [
 ];
 
 function parametersToSqlWhere(parameters) {
-  if (!parameters.fromDate) {
-    parameters.fromDate = subDays(new Date(), 30).toISOString();
-  }
+  const {
+    fromDate = subDays(new Date(), 30).toISOString(),
+    toDate,
+    practitioner,
+    location,
+    department,
+  } = parameters;
 
-  const whereClause = Object.entries(parameters)
-    .filter(([, val]) => val)
-    .reduce(
-      (where, [key, value]) => {
-        switch (key) {
-          case 'practitioner':
-            where.examinerId = value;
-            break;
-          case 'fromDate':
-            where.startDate[Op.gte] = value;
-            break;
-          case 'toDate':
-            where.startDate[Op.lte] = value;
-            break;
-          default:
-            break;
-        }
-        return where;
-      },
-      {
-        encounterType: ENCOUNTER_TYPES.ADMISSION,
-        startDate: {},
-      },
-    );
-
-  return whereClause;
+  return {
+    encounterType: ENCOUNTER_TYPES.ADMISSION,
+    ...(practitioner && { examinerId: practitioner }),
+    ...(department && { departmentId: department }),
+    ...(location && { locationId: location }),
+    startDate: {
+      [Op.gte]: fromDate,
+      ...(toDate && { [Op.lte]: toDate }),
+    },
+  };
 }
 
 async function queryAdmissionsData(models, parameters) {
