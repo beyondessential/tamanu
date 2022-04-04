@@ -80,7 +80,19 @@ const BaseConfirmScreen = ({
   </FormGrid>
 );
 
-const ConfirmScreen = ({ onStepBack, submitForm, onCancel }) => {
+const ConfirmScreen = ({ onStepBack, submitForm, onCancel }) => (
+  <BaseConfirmScreen
+    heading="Confirm death record"
+    text="This action is irreversible. Are you sure you want to record the death of a patient? This
+      should only be done under the direction of the responsible clinician. Do you wish to proceed?"
+    continueButtonText="Record Death"
+    onStepBack={onStepBack}
+    onContinue={submitForm}
+    onCancel={onCancel}
+  />
+);
+
+const DoubleConfirmScreen = ({ onStepBack, submitForm, onCancel }) => {
   const [dischargeConfirmed, setDischargeConfirmed] = useState(false);
 
   if (!dischargeConfirmed) {
@@ -99,11 +111,7 @@ const ConfirmScreen = ({ onStepBack, submitForm, onCancel }) => {
     );
   }
   return (
-    <BaseConfirmScreen
-      heading="Confirm death record"
-      text="  This action is irreversible. Are you sure you want to record the death of a patient? This
-      should only be done under the direction of the responsible clinician. Do you wish to proceed?"
-      continueButtonText="Record Death"
+    <ConfirmScreen
       onStepBack={() => {
         setDischargeConfirmed(false);
       }}
@@ -167,7 +175,7 @@ export const DeathForm = React.memo(
       <PaginatedForm
         onSubmit={onSubmit}
         onCancel={onCancel}
-        SummaryScreen={ConfirmScreen}
+        SummaryScreen={patient.currentEncounter ? DoubleConfirmScreen : ConfirmScreen}
         validationSchema={yup.object().shape({
           causeOfDeath: yup.string().required(),
           causeOfDeathInterval: yup.string().required(),
