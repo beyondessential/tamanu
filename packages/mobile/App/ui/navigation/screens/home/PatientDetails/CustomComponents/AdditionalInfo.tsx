@@ -1,11 +1,11 @@
-import React, { ReactElement } from 'react';
-import { useIsFocused } from '@react-navigation/native';
+import React, { ReactElement, useState, useCallback } from 'react';
+import { useFocusEffect } from '@react-navigation/native';
 
 import { FieldRowDisplay } from '~/ui/components/FieldRowDisplay';
 import { PatientSection } from './PatientSection';
 import { useLocalisation } from '~/ui/contexts/LocalisationContext';
 import { IPatient, IPatientAdditionalData } from '~/types';
-import { useBackendEffect } from '~/ui/hooks';
+import { useBackend } from '~/ui/hooks';
 import { ErrorScreen } from '~/ui/components/ErrorScreen';
 import { LoadingScreen } from '~/ui/components/LoadingScreen';
 
@@ -14,20 +14,37 @@ interface AdditionalInfoProps {
   patient: IPatient;
 }
 
-export const AdditionalInfo = ({
-  patient,
-  onEdit,
-}: AdditionalInfoProps): ReactElement => {
-  const isFocused = useIsFocused(); // reload data whenever the page is focused
-  const [additionalDataRes, additionalDataError] = useBackendEffect(
-    ({ models }) => {
-      if (isFocused) {
-        return models.PatientAdditionalData.find({
-          where: { patient: { id: patient.id } },
-        });
-      }
-    },
-    [isFocused, patient.id],
+export const AdditionalInfo = ({ patient, onEdit }: AdditionalInfoProps): ReactElement => {
+  const backend = useBackend();
+  const [additionalDataRes, setAdditionalDataRes] = useState(null);
+  const [error, setError] = useState(null);
+  const [loading, setLoading] = useState(false);
+  useFocusEffect(
+    useCallback(() => {
+      let mounted = true;
+      (async (): Promise<void> => {
+        const { models } = backend;
+        try {
+          const result = await models.PatientAdditionalData.find({
+            where: { patient: { id: patient.id } },
+          });
+          if (!mounted) {
+            return;
+          }
+          setAdditionalDataRes(result);
+          setLoading(false);
+        } catch (err) {
+          if (!mounted) {
+            return;
+          }
+          setError(err);
+          setLoading(false);
+        }
+      })();
+      return (): void => {
+        mounted = false;
+      };
+    }, [backend, patient.id]),
   );
 
   const data = additionalDataRes && additionalDataRes[0];
@@ -69,12 +86,12 @@ export const AdditionalInfo = ({
   const isEditable = getBool('features.editPatientDetailsOnMobile');
 
   let additionalFields = null;
-  if (additionalDataError) {
-    additionalFields = <ErrorScreen error={additionalDataError} />;
+  if (error) {
+    additionalFields = <ErrorScreen error={error} />;
+  } else if (loading) {
+    additionalFields = <LoadingScreen />;
   } else if (additionalDataRes) {
     additionalFields = <FieldRowDisplay fields={fields} fieldsPerRow={2} />;
-  } else {
-    additionalFields = <LoadingScreen />;
   }
   return (
     <PatientSection
