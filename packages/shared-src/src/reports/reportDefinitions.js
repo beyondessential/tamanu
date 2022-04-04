@@ -110,6 +110,12 @@ export const REPORT_DEFINITIONS = [
     allFacilities: true,
   },
   {
+    name: 'Samoa COVID-19 Test - Line list',
+    id: 'samoa-covid-swab-lab-test-list',
+    allFacilities: true,
+    parameters: [{ parameterField: 'VillageField' }, { parameterField: 'LabTestLaboratoryField' }],
+  },
+  {
     name: 'COVID-19 Tests - Summary',
     id: 'covid-swab-lab-tests-summary',
     parameters: [{ parameterField: 'VillageField' }, { parameterField: 'LabTestLaboratoryField' }],
