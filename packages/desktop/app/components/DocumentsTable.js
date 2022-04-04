@@ -41,9 +41,6 @@ const getType = ({ type }) => {
 const getUploadedDate = ({ documentUploadedAt }) =>
   documentUploadedAt ? <DateDisplay date={documentUploadedAt} /> : '';
 const getDepartmentName = ({ department }) => department?.name || '';
-const getActions = (row, onDownload, onClickDelete) => (
-  <ActionDropdown row={row} onDownload={onDownload} onClickDelete={onClickDelete} />
-);
 
 export const DocumentsTable = React.memo(
   ({ endpoint, searchParameters, refreshCount, canInvokeDocumentAction }) => {
@@ -117,7 +114,9 @@ export const DocumentsTable = React.memo(
         {
           key: 'actions',
           title: 'Actions',
-          accessor: row => getActions(row, onDownload, onClickDelete),
+          accessor: row => (
+            <ActionDropdown row={row} onDownload={onDownload} onClickDelete={onClickDelete} />
+          ),
           dontCallRowInput: true,
           sortable: false,
         },
