@@ -2,21 +2,32 @@ import * as Yup from 'yup';
 import { Suggester } from '~/ui/helpers/suggester';
 import { ReferenceData } from '~/models/ReferenceData';
 import { MODELS_MAP } from '~/models/modelsMap';
+import {
+  bloodOptions,
+  educationalAttainmentOptions,
+  maritalStatusOptions,
+  socialMediaOptions,
+  titleOptions
+} from '~/ui/helpers/constants';
 
 // All PatientAdditionalData plain fields sorted alphabetically
 export const plainFields = [
   'birthCertificate',
-  'bloodType',
   'cityTown',
   'drivingLicense',
-  'educationalLevel',
-  'maritalStatus',
   'passport',
   'placeOfBirth',
   'primaryContactNumber',
   'secondaryContactNumber',
-  'socialMedia',
   'streetVillage',
+];
+
+// All PatientAdditionalData select fields sorted alphabetically
+export const selectFields = [
+  'bloodType',
+  'educationalLevel',
+  'maritalStatus',
+  'socialMedia',
   'title',
 ];
 
@@ -35,6 +46,15 @@ export const relationIdFields = [
   'settlementId',
   'subdivisionId',
 ];
+
+// Maps selectFields with the expected options needed for the field
+export const selectFieldsOptions = {
+  bloodType: bloodOptions,
+  educationalLevel: educationalAttainmentOptions,
+  maritalStatus: maritalStatusOptions,
+  socialMedia: socialMediaOptions,
+  title: titleOptions,
+};
 
 // Maps relationIdFields with the expected reference data type for the suggester
 // and a default placeholder value if there isn't one in localisation.
@@ -139,7 +159,7 @@ export const getInitialValues = (data): {} => {
   }
 
   // Get all fields in the form
-  const allFields = [...plainFields, ...relationIdFields];
+  const allFields = [...plainFields, ...selectFields, ...relationIdFields];
 
   // Copy values from data
   const values = {};
