@@ -469,6 +469,13 @@
   },
   "questionCodeIds": {
     "passport": null,
-    "nationalityId": null
+    "nationalityId": null,
+    "email": null
+  },
+  "notifications": {
+    "certificates": {
+      // Add a lab test category to automatically email test certs for that category
+      "labTestCategoryId": null
+    }
   }
 }
