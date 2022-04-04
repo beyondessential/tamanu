@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { useState } from 'react';
 import * as yup from 'yup';
 import { Typography } from '@material-ui/core';
 import styled from 'styled-components';
@@ -50,31 +50,68 @@ const RedHeading = styled(Typography)`
 const Text = styled(Typography)`
   font-size: 15px;
   line-height: 21px;
-  font-weight: 500;
-  color: ${props => props.theme.palette.text.primary};
+  font-weight: 400;
+  color: ${props => props.theme.palette.text.secondary};
   margin-bottom: 48px;
 `;
 
-const ConfirmScreen = ({ onStepBack, submitForm, onCancel }) => (
+const BaseConfirmScreen = ({
+  heading,
+  text,
+  onStepBack,
+  onCancel,
+  onContinue,
+  continueButtonText,
+}) => (
   <FormGrid columns={1}>
-    <RedHeading>Confirm death record</RedHeading>
-    <Text>
-      This action is irreversible. Are you sure you want to record the death of a patient? This
-      should only be done under the direction of the responsible clinician. Do you wish to proceed?
-    </Text>
+    <RedHeading>{heading}</RedHeading>
+    <Text>{text}</Text>
     <Actions>
       <OutlinedButton onClick={onStepBack || undefined} disabled={!onStepBack}>
         Back
       </OutlinedButton>
       <MuiBox>
         <OutlinedButton onClick={onCancel}>Cancel</OutlinedButton>
-        <Button color="primary" variant="contained" onClick={submitForm}>
-          Record Death
+        <Button color="primary" variant="contained" onClick={onContinue}>
+          {continueButtonText}
         </Button>
       </MuiBox>
     </Actions>
   </FormGrid>
 );
+
+const ConfirmScreen = ({ onStepBack, submitForm, onCancel }) => {
+  const [dischargeConfirmed, setDischargeConfirmed] = useState(false);
+
+  if (!dischargeConfirmed) {
+    return (
+      <BaseConfirmScreen
+        heading="Patient will be auto-discharged and locked"
+        text="This patient has an active encounter. After recording their death, the patient record will be
+      locked. Please ensure that all encounter details are up-to-date and correct before proceeding."
+        continueButtonText="Continue"
+        onStepBack={onStepBack}
+        onContinue={() => {
+          setDischargeConfirmed(true);
+        }}
+        onCancel={onCancel}
+      />
+    );
+  }
+  return (
+    <BaseConfirmScreen
+      heading="Confirm death record"
+      text="  This action is irreversible. Are you sure you want to record the death of a patient? This
+      should only be done under the direction of the responsible clinician. Do you wish to proceed?"
+      continueButtonText="Record Death"
+      onStepBack={() => {
+        setDischargeConfirmed(false);
+      }}
+      onContinue={submitForm}
+      onCancel={onCancel}
+    />
+  );
+};
 
 const StyledFormGrid = styled(FormGrid)`
   min-height: 200px;
