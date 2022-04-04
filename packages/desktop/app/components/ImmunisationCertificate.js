@@ -36,7 +36,7 @@ const getUVCI = (getLocalisation, { immunisations }) => {
     return '';
   }
 
-  const format = getLocalisation('uvci.format');
+  const format = getLocalisation('previewUvciFormat');
 
   // Ensure that the records are sorted desc by date
   const latestVaccination = immunisations
