@@ -32,7 +32,7 @@ const DRUG_TO_SCHEDULE_DOSAGE = {
 
 const MOMENT_FORMAT_ISODATE = 'YYYY-MM-DD';
 
-export async function createCovidVaccinationCertificateData(administeredVaccineId, { models }) {
+export async function createEuDccVaccinationData(administeredVaccineId, { models }) {
   const {
     Patient,
     ReferenceData,
@@ -133,7 +133,7 @@ export async function createCovidVaccinationCertificateData(administeredVaccineI
         dt: vaxDate,
         co: country['alpha-2'],
         is: config.integrations.euDcc.issuer ?? facilityName,
-        ci: generateUVCI(id, 'eudcc', { countryCode: country['alpha-2'] }),
+        ci: generateUVCI(id, { format: 'eudcc', countryCode: country['alpha-2'] }),
       },
     ],
   };

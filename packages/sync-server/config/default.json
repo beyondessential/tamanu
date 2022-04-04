@@ -422,8 +422,16 @@
           "healthFacility": "State level"
         }
       },
+      
       // The time zone setting is currently only used for Vaccine Certificates
       "timeZone": null,
+
+      // UVCI format for vaccine certificate *previews* on Desktop.
+      // This should match whichever of integrations.euDcc or .vdsNc is enabled, and
+      // does *not* affect which format is used for the actual PDF certificate when
+      // generated in the sync server. Can be: `icao` or `eudcc`.
+      "previewUvciFormat": "icao",
+      
       "sync": {
         "syncAllEncountersForTheseScheduledVaccines": []
       },

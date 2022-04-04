@@ -1,7 +1,7 @@
 import { expect } from 'chai';
 import { fake } from 'shared/test-helpers/fake';
 import { createTestContext } from 'sync-server/__tests__/utilities';
-import { createCovidVaccinationCertificateData } from '../../../app/integrations/EuDcc';
+import { createEuDccVaccinationData } from '../../../app/integrations/EuDcc';
 
 describe('EU DCC: Vaccination', () => {
   let ctx;
@@ -73,7 +73,7 @@ describe('EU DCC: Vaccination', () => {
     });
 
     // Act
-    const msg = await createCovidVaccinationCertificateData(vax.id, {
+    const msg = await createEuDccVaccinationData(vax.id, {
       models: ctx.store.models,
     });
 

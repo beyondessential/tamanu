@@ -36,14 +36,15 @@ const getUVCI = (getLocalisation, { immunisations }) => {
     return '';
   }
 
-  const format = getLocalisation('uvci.format');
+  const format = getLocalisation('previewUvciFormat');
 
   // Ensure that the records are sorted desc by date
   const latestVaccination = immunisations
     .slice()
     .sort((a, b) => Date.parse(b.date) - Date.parse(a.date))[0];
 
-  return generateUVCI(latestVaccination.id, format, {
+  return generateUVCI(latestVaccination.id, {
+    format,
     countryCode: getLocalisation('country.alpha-2'),
   });
 };
