@@ -185,12 +185,12 @@
           "hidden": false
         },
         "emergencyContactName": {
-          "shortLabel": "Emergency Contact Name",
-          "longLabel": "Emergency Contact Name"
+          "shortLabel": "Emergency contact name",
+          "longLabel": "Emergency contact name"
         },
         "emergencyContactNumber": {
-          "shortLabel": "Emergency Contact Number",
-          "longLabel": "Emergency Contact Number"
+          "shortLabel": "Emergency contact number",
+          "longLabel": "Emergency contact number"
         },
         "markedForSync": {
           "shortLabel": "Sync",
