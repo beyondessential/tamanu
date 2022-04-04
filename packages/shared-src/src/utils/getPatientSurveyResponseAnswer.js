@@ -8,6 +8,7 @@ export async function getPatientSurveyResponseAnswer(models, patientId, question
   // Find the most recent non-empty answer to the question
   const answer = await models.SurveyResponseAnswer.findOne({
     include: {
+      required: true,
       model: models.SurveyResponse,
       as: 'surveyResponse',
       include: { model: models.Encounter, where: { patientId }, as: 'encounter' },
