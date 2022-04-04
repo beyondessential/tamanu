@@ -1,8 +1,8 @@
 import { v4 as uuidv4 } from 'uuid';
-import { fake, fakePatient, fakeUser } from 'shared/test-helpers';
-import { initDb } from '../initDb';
+import { fake, fakeUser } from 'shared/test-helpers';
 import { add } from 'date-fns';
 import { fakeReferenceData } from 'shared/test-helpers/fake';
+import { initDb } from '../initDb';
 
 describe('AdministeredVaccine.lastVaccinationForPatient', () => {
   let models;
@@ -16,7 +16,7 @@ describe('AdministeredVaccine.lastVaccinationForPatient', () => {
     const { Patient, Encounter, Department, Location, User, Facility, ReferenceData } = models;
 
     const examiner = await User.create(fakeUser());
-    await Patient.create({ ...fakePatient(), id: patientId });
+    await Patient.create({ ...fake(Patient), id: patientId });
     const fact = await Facility.create({ ...fake(Facility) });
     const dept = await Department.create({ ...fake(Department), facilityId: fact.id });
     const loc = await Location.create({ ...fake(Location), facilityId: fact.id });
