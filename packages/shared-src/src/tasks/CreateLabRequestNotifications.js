@@ -4,7 +4,9 @@ import { ICAO_DOCUMENT_TYPES, LAB_REQUEST_STATUSES } from '../constants';
 
 export async function createSingleLabRequestNotification(labRequest, models) {
   if (
-    labRequest.labTestCategoryId === config?.notifications?.certificates?.labTestCategoryId &&
+    config?.notifications?.certificates?.labTestCategoryIds?.includes(
+      labRequest.labTestCategoryId,
+    ) &&
     labRequest.status === LAB_REQUEST_STATUSES.PUBLISHED
   ) {
     const encounter = await models.Encounter.findByPk(labRequest.encounterId);
@@ -24,7 +26,6 @@ export async function createSingleLabRequestNotification(labRequest, models) {
         patientId: encounter.patientId,
         // If forward address is null, the communication service will attempt to use the patient.email field
         forwardAddress: emailAddress,
-        // TODO: attach lab test
       },
     ]);
   }
