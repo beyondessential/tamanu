@@ -42,7 +42,11 @@ describe('Admissions report', () => {
     wrongLocation = await randomRecord(models, 'Location');
     expectedDepartment = await randomRecord(models, 'Department');
     expectedExaminer = await randomRecord(models, 'User');
-    expectedDiagnosis = await randomReferenceData(models, 'icd10');
+    expectedDiagnosis = await findOneOrCreate(ctx, models.ReferenceData, {
+      type: 'icd10',
+      code: 'H60.5',
+      name: 'Acute bacterial otitis externa',
+    });
   });
   afterAll(() => ctx.close());
 
@@ -76,6 +80,7 @@ describe('Admissions report', () => {
           certainty: 'confirmed',
           isPrimary: true,
           diagnosisId: expectedDiagnosis.id,
+          encounterId: expectedEncounter.id,
         }),
       );
 
@@ -118,7 +123,7 @@ describe('Admissions report', () => {
           'Date of Birth': format(expectedPatient.dateOfBirth, 'dd/MM/yyyy'),
           Location: expectedLocation.name,
           Department: expectedDepartment.name,
-          'Primary diagnoses': '',
+          'Primary diagnoses': 'H60.5 Acute bacterial otitis externa',
           'Secondary diagnoses': '',
           Sex: expectedPatient.sex,
           Village: expectedVillage.name,
