@@ -48,30 +48,32 @@ const stringifyDiagnoses = (diagnoses, shouldBePrimary) =>
     .join('; ');
 
 async function queryAdmissionsData(models, parameters) {
-  const results = await models.Encounter.findAll({
-    include: [
-      {
-        model: models.Patient,
-        as: 'patient',
-        include: ['village'],
-      },
-      'examiner',
-      'location',
-      'department',
-      {
-        model: models.EncounterDiagnosis,
-        as: 'diagnoses',
-        required: false,
-        where: {
-          certainty: DIAGNOSIS_CERTAINTY.CONFIRMED,
+  const results = (
+    await models.Encounter.findAll({
+      include: [
+        {
+          model: models.Patient,
+          as: 'patient',
+          include: ['village'],
         },
-        include: ['Diagnosis'],
-      },
-    ],
-    where: parametersToSqlWhere(parameters),
-  });
+        'examiner',
+        'location',
+        'department',
+        {
+          model: models.EncounterDiagnosis,
+          as: 'diagnoses',
+          required: false,
+          where: {
+            certainty: DIAGNOSIS_CERTAINTY.CONFIRMED,
+          },
+          include: ['Diagnosis'],
+        },
+      ],
+      where: parametersToSqlWhere(parameters),
+    })
+  ).map(x => x.get({ plain: true }));
 
-  console.log(inspect(results));
+  console.log(results);
   return results.map(result => ({
     ...result,
     primaryDiagnoses: stringifyDiagnoses(result.diagnoses, true),
