@@ -86,14 +86,24 @@ export function extendExpect(expect) {
        *
        */
       if (this.isNot || this.promise) {
-        throw new Error('toMatchTabularReport does not support promises or not yet');
+        throw new Error('toMatchTabularReport does not support promises or "not" yet');
       }
       const [receivedHeadings, ...receivedData] = receivedReport;
+
+      const buildErrorMessage = errorList => () =>
+        `${this.utils.matcherHint(
+          'toMatchTabularReport',
+          undefined,
+          undefined,
+          {},
+        )}\n${errorList.join('\n')}`;
 
       if (expectedData.length === 0) {
         return {
           pass: receivedData.length === 0,
-          message: `Expected an empty report, received: ${receivedData.length} rows`,
+          message: buildErrorMessage([
+            `Expected an empty report, received: ${receivedData.length} rows`,
+          ]),
         };
       }
       // Note: this line requires that the keys in `expectedData` are ordered
@@ -102,8 +112,9 @@ export function extendExpect(expect) {
       if (!this.equals(receivedHeadings, propertyList)) {
         return {
           pass: false,
-          message: () =>
+          message: buildErrorMessage([
             `Incorrect columns,\nReceived: ${receivedHeadings}\nExpected: ${propertyList}`,
+          ]),
         };
       }
 
@@ -115,6 +126,8 @@ export function extendExpect(expect) {
         errors.push(
           `Incorrect number of rows: Received: ${receivedData.length}, Expected: ${expectedData.length}`,
         );
+        // No point continuing - there's nothing to test
+        if (receivedData.length === 0) return { pass, message: buildErrorMessage(errors) };
       }
 
       const keyToIndex = propertyList.reduce((acc, prop, i) => ({ ...acc, [prop]: i }), {});
@@ -136,14 +149,8 @@ export function extendExpect(expect) {
       });
 
       return {
-        message: () =>
-          `${this.utils.matcherHint(
-            'toMatchTabularReport',
-            undefined,
-            undefined,
-            {},
-          )}\n${errors.join('\n')}`,
         pass,
+        message: buildErrorMessage(errors),
       };
     },
   });
