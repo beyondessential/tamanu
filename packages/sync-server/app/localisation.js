@@ -187,6 +187,7 @@ const rootLocalisationSchema = yup
     fields: fieldsSchema,
     templates: templatesSchema,
     timeZone: yup.string().nullable(),
+    previewUvciFormat: yup.string().required().oneOf(['eudcc', 'icao']),
     features: yup
       .object({
         editPatientDetailsOnMobile: yup.boolean().required(),
