@@ -150,8 +150,12 @@
       // $ openssl rand -base64 32
       "keySecret": null,
 
-      // For VDS-NC: exactly 2 letters, must be unique in country, ref 9303-13 §2.2.1(a)
+      // For VDS-NC: exactly 2 uppercase letters/numbers, must be unique in country, ref 9303-13 §2.2.1(a)
+      // For EU DCC: at least 1 character, must be unique in country, should be descriptive
       "commonName": "TA",
+
+      // For EU DCC only: the name of the issuing organisation (provider/O of the DSC)
+      // "provider": "Tamanu",
 
       // Email address for CSCA signing contact
       "sendRequestTo": "admin@tamanu.io"
@@ -423,10 +427,7 @@
       "sync": {
         "syncAllEncountersForTheseScheduledVaccines": []
       },
-      "disabledReports": [],
-      "uvci": {
-        "format": "icao"
-      }
+      "disabledReports": []
     }
   },
   "reports": {

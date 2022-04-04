@@ -1,5 +1,4 @@
 import crypto from 'crypto';
-import { canonicalize } from 'json-canonicalize';
 import { Sequelize, Op } from 'sequelize';
 import { Model } from './Model';
 
@@ -76,10 +75,6 @@ export class Signer extends Model {
 
         signaturesIssued: {
           // bumped on each signature issuance
-          // this is a quick-lookup/cache/redundancy: we could query
-          // the database for the amount of signatures linked to this
-          // signer instead; this way is more efficient / resistant to
-          // e.g. deletions
           type: Sequelize.INTEGER,
           allowNull: false,
           defaultValue: 0,
@@ -147,41 +142,13 @@ export class Signer extends Model {
       this.privateKey
     );
   }
-
-  /**
-   * Issue a signature from some data.
-   *
-   * @internal
-   * @param {object} data Arbitrary data to sign.
-   * @param {string} keySecret Encryption key/phrase for the private key (integrations.signer.keySecret).
-   * @returns {Promise<{ algorithm: string, signature: Buffer }>} The signature and algorithm.
-   */
-  async issueSignature(data, keySecret) {
-    if (!this.isActive()) {
-      throw new Error('Cannot issue signature from this signer');
-    }
-
-    const privateKey = crypto.createPrivateKey({
+  
+  decryptPrivateKey(keySecret) {
+    return crypto.createPrivateKey({
       key: Buffer.from(this.privateKey),
       format: 'der',
       type: 'pkcs8',
       passphrase: Buffer.from(keySecret, 'base64'),
     });
-
-    const canonData = Buffer.from(canonicalize(data), 'utf8');
-    const sign = crypto.createSign('SHA256');
-    sign.update(canonData);
-    sign.end();
-    const signature = sign.sign({
-      key: privateKey,
-      dsaEncoding: 'ieee-p1363',
-    });
-
-    await this.increment('signaturesIssued');
-
-    return {
-      algorithm: 'ES256',
-      signature,
-    };
   }
 }

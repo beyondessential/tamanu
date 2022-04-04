@@ -7,6 +7,10 @@ import * as fijiVrs from './fiji-vrs';
 import * as fijiVps from './fiji-vps';
 import * as signer from './Signer';
 
+import { checkEuDccConfig } from './EuDcc';
+import { checkSignerConfig } from './Signer';
+import { checkVdsNcConfig } from './VdsNc';
+
 const integrations = {
   fijiVrs,
   fijiVps,
@@ -35,3 +39,17 @@ export const initIntegrations = async ctx => {
     }
   }
 };
+
+export function checkIntegrationsConfig() {
+  checkEuDccConfig();
+  checkSignerConfig();
+  checkVdsNcConfig();
+
+  if ((config.integrations.euDcc.enabled || config.integrations.vdsNc.enabled) && !config.integrations.signer.enabled) {
+    throw new Error('euDcc and vdsNc integrations require the signer integration to be enabled');
+  }
+
+  if (config.integrations.euDcc.enabled && config.integrations.vdsNc.enabled) {
+    throw new Error('Cannot enable both euDcc and vdsNc integrations at the same time');
+  }
+}
