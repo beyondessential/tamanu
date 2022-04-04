@@ -88,13 +88,13 @@ describe('Admissions report', () => {
       await models.Encounter.create(
         await createDummyEncounter(models, {
           ...baseEncounterData,
-          startDate: new Date(2020, 1, 20).toISOString(),
+          startDate: new Date(2020, 0, 20).toISOString(),
         }),
       );
 
       const result = await app.post('/v1/reports/admissions').send({
         parameters: {
-          fromDate: new Date(2021, 0, 1),
+          fromDate: new Date(2021, 1, 1),
           location: expectedLocation.id,
         },
       });
