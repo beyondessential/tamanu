@@ -135,22 +135,23 @@ const PatientHomeContainer = ({
   useFocusEffect(
     useCallback(() => {
       let mounted = true;
-      models.PatientIssue.find({
-        order: { recordedDate: 'ASC' },
-        where: { patient: { id: selectedPatient.id } },
-      })
-        .then((resp) => {
+      (async (): Promise<void> => {
+        try {
+          const result = await models.PatientIssue.find({
+            order: { recordedDate: 'ASC' },
+            where: { patient: { id: selectedPatient.id } },
+          });
           if (!mounted) {
             return;
           }
-          setPatientIssues(resp);
-        })
-        .catch((err) => {
+          setPatientIssues(result);
+        } catch (err) {
           if (!mounted) {
             return;
           }
           setErrorMessage(err.message);
-        });
+        }
+      })();
       return (): void => {
         mounted = false;
       };

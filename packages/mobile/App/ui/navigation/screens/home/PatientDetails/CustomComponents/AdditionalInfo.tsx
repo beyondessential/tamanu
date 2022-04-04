@@ -22,24 +22,25 @@ export const AdditionalInfo = ({ patient, onEdit }: AdditionalInfoProps): ReactE
   useFocusEffect(
     useCallback(() => {
       let mounted = true;
-      const { models } = backend;
-      models.PatientAdditionalData.find({
-        where: { patient: { id: patient.id } },
-      })
-        .then((resp) => {
+      (async (): Promise<void> => {
+        const { models } = backend;
+        try {
+          const result = await models.PatientAdditionalData.find({
+            where: { patient: { id: patient.id } },
+          });
           if (!mounted) {
             return;
           }
-          setAdditionalDataRes(resp);
+          setAdditionalDataRes(result);
           setLoading(false);
-        })
-        .catch((err) => {
+        } catch (err) {
           if (!mounted) {
             return;
           }
           setError(err);
           setLoading(false);
-        });
+        }
+      })();
       return (): void => {
         mounted = false;
       };

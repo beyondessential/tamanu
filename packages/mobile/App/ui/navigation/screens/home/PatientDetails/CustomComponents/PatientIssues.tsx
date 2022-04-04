@@ -21,25 +21,26 @@ export const PatientIssues = ({ onEdit, patientId }: PatientIssuesProps): ReactE
   useFocusEffect(
     useCallback(() => {
       let mounted = true;
-      const { models } = backend;
-      models.PatientIssue.find({
-        order: { recordedDate: 'ASC' },
-        where: { patient: { id: patientId } },
-      })
-        .then((resp) => {
+      (async (): Promise<void> => {
+        try {
+          const { models } = backend;
+          const result = await models.PatientIssue.find({
+            order: { recordedDate: 'ASC' },
+            where: { patient: { id: patientId } },
+          });
           if (!mounted) {
             return;
           }
-          setPatientIssues(resp);
+          setPatientIssues(result);
           setLoading(false);
-        })
-        .catch((err) => {
+        } catch (err) {
           if (!mounted) {
             return;
           }
           setError(err);
           setLoading(false);
-        });
+        }
+      })();
       return (): void => {
         mounted = false;
       };
