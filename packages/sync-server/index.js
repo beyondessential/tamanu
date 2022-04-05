@@ -13,6 +13,7 @@ import {
   loadSignerCommand,
   userCommand,
   saveCertificateRequestCommand,
+  generateCommand,
 } from './app/subCommands';
 
 async function run() {
@@ -22,14 +23,15 @@ async function run() {
     .name('node app.bundle.js');
 
   program.addCommand(serveCommand, { isDefault: true });
-  program.addCommand(migrateCommand);
-  program.addCommand(reportCommand);
-  program.addCommand(setupCommand);
   program.addCommand(calculateSurveyResultsCommand);
-  program.addCommand(removeDuplicatedPatientAdditionalDataCommand);
+  program.addCommand(generateCommand);
   program.addCommand(loadSignerCommand);
-  program.addCommand(userCommand);
+  program.addCommand(migrateCommand);
+  program.addCommand(removeDuplicatedPatientAdditionalDataCommand);
+  program.addCommand(reportCommand);
   program.addCommand(saveCertificateRequestCommand);
+  program.addCommand(setupCommand);
+  program.addCommand(userCommand);
 
   await program.parseAsync(process.argv);
 }
