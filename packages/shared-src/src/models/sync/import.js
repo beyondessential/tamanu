@@ -123,13 +123,15 @@ const executeCreates = async (importPlan, records) => {
     return { ...data, id: importPlan.model.generateId() };
   });
   return executeUpdateOrCreates(importPlan, recordsWithIds, model => async rows => {
-    return model.bulkCreate(rows);
+    return model.bulkCreate(rows, { individualHooks: true });
   });
 };
 
 const executeUpdates = async (importPlan, records) =>
   executeUpdateOrCreates(importPlan, records, model => async rows => {
-    await Promise.all(rows.map(async row => model.update(row, { where: { id: row.id } })));
+    await Promise.all(
+      rows.map(async row => model.update(row, { where: { id: row.id }, individualHooks: true })),
+    );
     return rows;
   });
 
