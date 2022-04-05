@@ -6,12 +6,12 @@ import { keyPairFromPrivate } from '../utils';
 export default class AuthenticatedFile {
   private path: string;
   private key: CryptoKey;
-  private newfile: boolean;
+  private createFile: boolean;
 
-  constructor(path: string, key: CryptoKey, newfile = false) {
+  constructor(path: string, key: CryptoKey, createFile = false) {
     this.path = path;
     this.key = key;
-    this.newfile = newfile;
+    this.createFile = createFile;
   }
 
   private sigFile(): string {
@@ -19,7 +19,7 @@ export default class AuthenticatedFile {
   }
 
   protected async loadFile(): Promise<Buffer> {
-    if (this.newfile) return Buffer.alloc(0);
+    if (this.createFile) return Buffer.alloc(0);
 
     const contents = await fs.readFile(this.path);
 
@@ -39,9 +39,7 @@ export default class AuthenticatedFile {
 
       if (!check) throw new Error('Signature is invalid');
     } catch (e) {
-      if (!this.newfile) {
-        throw new Error(`Tampering error: ${this.path} fails signature check\n${e}`);
-      }
+      throw new Error(`Tampering error: ${this.path} fails signature check\n${e}`);
     }
 
     return contents;
@@ -61,7 +59,7 @@ export default class AuthenticatedFile {
 
     await fs.writeFile(this.path, contents);
     await fs.writeFile(this.sigFile(), Buffer.from(sig));
-    this.newfile = false;
+    this.createFile = false;
   }
 
   public async check(): Promise<void> {

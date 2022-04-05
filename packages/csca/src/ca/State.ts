@@ -88,8 +88,8 @@ function incrementSerial(serial: Buffer): [Buffer, Buffer] {
 }
 
 export default class State extends AuthenticatedFile {
-  constructor(caPath: string, key: CryptoKey, newfile = false) {
-    super(join(caPath, 'state.json'), key, newfile);
+  constructor(caPath: string, key: CryptoKey, createFile = false) {
+    super(join(caPath, 'state.json'), key, createFile);
   }
 
   private async load(): Promise<StateFile> {

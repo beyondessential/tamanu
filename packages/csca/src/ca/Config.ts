@@ -7,8 +7,8 @@ import { Extension } from './certificateExtensions';
 import { truncateToSeconds } from '../utils';
 
 export default class Config extends AuthenticatedFile {
-  constructor(caPath: string, key: CryptoKey, newfile = false) {
-    super(join(caPath, 'config.json'), key, newfile);
+  constructor(caPath: string, key: CryptoKey, createFile = false) {
+    super(join(caPath, 'config.json'), key, createFile);
   }
 
   private async load(): Promise<ConfigFile> {

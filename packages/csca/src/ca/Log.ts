@@ -32,8 +32,8 @@ function localMetadata(): LogMetadata {
 }
 
 export default class Log extends AuthenticatedFile {
-  constructor(caPath: string, key: CryptoKey, newfile = false) {
-    super(join(caPath, 'log.ndjson'), key, newfile);
+  constructor(caPath: string, key: CryptoKey, createFile = false) {
+    super(join(caPath, 'log.ndjson'), key, createFile);
   }
 
   private async append(log: LogEntry): Promise<void> {
