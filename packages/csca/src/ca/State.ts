@@ -47,7 +47,7 @@ export class CertificateIndexEntry {
   }
 
   public get isRevoked(): boolean {
-    return this.revocationDate !== undefined;
+    return !!this.revocationDate;
   }
 
   public get isExpired(): boolean {
@@ -176,7 +176,7 @@ export default class State extends AuthenticatedFile {
     cert: Certificate,
     overrides?: Partial<IndexEntry>,
   ): Promise<void> {
-    if ((await this.fromSerial(cert.serial)) !== undefined) {
+    if (await this.fromSerial(cert.serial)) {
       throw new Error('Certificate already exists in index');
     }
 

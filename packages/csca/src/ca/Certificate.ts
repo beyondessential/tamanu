@@ -28,7 +28,7 @@ export interface CertificateCreateParams {
 }
 
 function getSubjectName(dn: JsonName, key: string): string | undefined {
-  return dn.find(item => item[key] !== undefined)?.[key]?.[0];
+  return dn.find(item => !!item[key])?.[key]?.[0];
 }
 
 function requireSubjectName(dn: JsonName, key: string): string {
