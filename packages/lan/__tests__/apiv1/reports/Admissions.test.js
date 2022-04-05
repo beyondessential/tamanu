@@ -66,7 +66,7 @@ describe('Admissions report', () => {
     it('should return only admitted patient', async () => {
       const baseEncounterData = {
         encounterType: ENCOUNTER_TYPES.ADMISSION,
-        startDate: new Date(2021, 1, 20, 9, 7), // Months are 0 indexed so this is Feburary
+        startDate: new Date(2021, 1, 20, 9, 7, 26), // Months are 0 indexed so this is Feburary
         endDate: new Date(2021, 1, 21, 1, 0), // Months are 0 indexed so this is Feburary
         patientId: expectedPatient.dataValues.id,
         locationId: expectedLocation.id,
@@ -163,17 +163,17 @@ describe('Admissions report', () => {
           'Patient First Name': expectedPatient.firstName,
           'Patient Last Name': expectedPatient.lastName,
           'Patient ID': expectedPatient.displayId,
+          Sex: expectedPatient.sex,
+          Village: expectedVillage.name,
           'Date of Birth': format(expectedPatient.dateOfBirth, 'dd/MM/yyyy'),
+          'Admitting Doctor/Nurse': expectedExaminer.displayName,
+          'Admission Date': '20/02/2021 9:07:26 AM',
+          'Discharge Date': '21/02/2021',
           Location: 'Clinic (Location change: 20/02/21 9:07 AM)',
           Department:
             'Radiology (Department change: 20/02/21 9:07 AM); Cardiology (Department change: 20/02/21 11:10 AM)',
           'Primary diagnoses': 'H60.5 Acute bacterial otitis externa; L74.4 Anhidrosis',
           'Secondary diagnoses': 'H60.5 Acute bacterial otitis externa',
-          Sex: expectedPatient.sex,
-          Village: expectedVillage.name,
-          'Doctor/Nurse': expectedExaminer.displayName,
-          'Admission Date': '20/02/2021',
-          'Discharge Date': '21/02/2021',
         },
       ]);
     });

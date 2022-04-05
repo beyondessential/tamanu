@@ -8,16 +8,16 @@ const reportColumnTemplate = [
   { title: 'Patient First Name', accessor: data => data.patient.firstName },
   { title: 'Patient Last Name', accessor: data => data.patient.lastName },
   { title: 'Patient ID', accessor: data => data.patient.displayId },
+  { title: 'Sex', accessor: data => data.patient.sex },
+  { title: 'Village', accessor: data => data.patient.village.name },
   { title: 'Date of Birth', accessor: data => format(data.patient.dateOfBirth, 'dd/MM/yyyy') },
+  { title: 'Admitting Doctor/Nurse', accessor: data => data.examiner?.displayName },
+  { title: 'Admission Date', accessor: data => format(data.startDate, 'dd/MM/yy h:mm:ss a') },
+  { title: 'Discharge Date', accessor: data => format(data.endDate, 'dd/MM/yyyy') },
   { title: 'Location', accessor: data => data.locationHistory },
   { title: 'Department', accessor: data => data.departmentHistory },
   { title: 'Primary diagnoses', accessor: data => data.primaryDiagnoses },
   { title: 'Secondary diagnoses', accessor: data => data.secondaryDiagnoses },
-  { title: 'Sex', accessor: data => data.patient.sex },
-  { title: 'Village', accessor: data => data.patient.village.name },
-  { title: 'Doctor/Nurse', accessor: data => data.examiner?.displayName },
-  { title: 'Admission Date', accessor: data => format(data.startDate, 'dd/MM/yyyy') },
-  { title: 'Discharge Date', accessor: data => format(data.endDate, 'dd/MM/yyyy') },
 ];
 
 function parametersToSqlWhere(parameters) {
