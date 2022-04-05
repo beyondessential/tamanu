@@ -9,9 +9,10 @@
   "license": "SEE LICENSE IN license",
   "scripts": {
     "clean": "rm -rf ../shared",
-    "prepare": "yarn run clean && mkdir ../shared && cp shared.package.json ../shared/package.json",
-    "build": "yarn run prepare && yarn run babel --root-mode upward --out-dir ../shared src",
-    "build-watch": "yarn run build --watch",
+    "prepare": "mkdir -p ../shared && cp -n shared.package.json ../shared/package.json || true",
+    "compile": "yarn run prepare && yarn run babel --root-mode upward --out-dir ../shared src",
+    "build": "yarn run clean && yarn run compile",
+    "build-watch": "yarn run compile --watch",
     "test": "NODE_ENV=test jest",
     "test-coverage": "yarn test --coverage"
   },
