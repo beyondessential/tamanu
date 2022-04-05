@@ -464,6 +464,12 @@
   },
   "questionCodeIds": {
     "passport": null,
-    "nationalityId": null
+    "nationalityId": null,
+    "email": null
+  },
+  "notifications": {
+    "certificates": {
+      "labTestCategoryIds": []
+    }
   }
 }
