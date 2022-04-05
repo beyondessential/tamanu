@@ -9,9 +9,9 @@
   "license": "SEE LICENSE IN license",
   "scripts": {
     "build-shared": "yarn workspace shared-src run build && yarn install",
-    "build": "yarn build-shared && concurrently \"yarn workspace sync-server run build\" \"yarn workspace lan run build\" \"yarn workspace desktop run build\" \"yarn workspace meta-server run build\"",
-    "test": "yarn run build-shared && yarn workspace shared-src run test && yarn workspace lan run test && yarn workspace sync-server run test && yarn workspace meta-server run test",
-    "test-coverage": "yarn run build-shared && yarn workspace shared-src run test-coverage && yarn workspace lan run test-coverage && yarn workspace sync-server run test-coverage && yarn workspace meta-server run test-coverage",
+    "build": "yarn build-shared && concurrently \"yarn workspace sync-server run build\" \"yarn workspace lan run build\" \"yarn workspace desktop run build\" \"yarn workspace meta-server run build\" \"yarn workspace csca run build\"",
+    "test": "yarn run build-shared && yarn workspace shared-src run test && yarn workspace lan run test && yarn workspace sync-server run test && yarn workspace meta-server run test && yarn workspace csca test",
+    "test-coverage": "yarn run build-shared && yarn workspace shared-src run test-coverage && yarn workspace lan run test-coverage && yarn workspace sync-server run test-coverage && yarn workspace meta-server run test-coverage && yarn workspace csca test",
     "lint-all": "eslint packages/desktop/app packages/lan/app packages/sync-server/app packages/shared-src/src",
     "upgrade-lint-rules": "yarn workspaces run yarn upgrade @beyondessential/eslint-config-js --latest",
     "desktop-start-dev": "yarn workspace desktop run start-dev",
