@@ -10,6 +10,7 @@ patientDeath.post(
   '/:id/death',
   asyncHandler(async (req, res) => {
     req.checkPermission('write', 'Patient');
+    req.checkPermission('create', 'PatientDeath');
 
     const {
       db,
@@ -24,17 +25,13 @@ patientDeath.post(
       }),
     });
     const body = await schema.validate(req.body);
-    
+
     const patient = await Patient.findByPk(patientId);
     if (!patient) throw new NotFoundError('Patient not found');
     if (patient.dateOfDeath) throw new InvalidOperationError('Patient is already deceased');
 
     const physician = await User.findByPk(body.physician.id);
     if (!physician) throw new NotFoundError('Discharge physician not found');
-    if (physician.role !== 'practitioner')
-      throw new InvalidOperationError('Discharge physician must be a practitioner');
-      // TODO: change this to new permission model when that lands
-      // i.e. "can record death" rather than "is a practitioner".
 
     // TODO: can we enable transactions only in Postgres somehow?
     // await db.transaction(async () => {
