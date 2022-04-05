@@ -40,7 +40,9 @@ export async function createLabRequestUpdateNotification(labRequest, models) {
 export async function createLabRequestCreateNotification(labRequests, models) {
   for (const request of labRequests) {
     if (
-      request.labTestCategoryId === config?.notifications?.certificates?.labTestCategoryId &&
+      config?.notifications?.certificates?.labTestCategoryIds?.includes(
+        request.labTestCategoryId,
+      ) &&
       request.status === LAB_REQUEST_STATUSES.PUBLISHED
     ) {
       createLabRequestNotification(request, models);
