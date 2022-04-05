@@ -15,7 +15,6 @@ export const FamilyInformation = (
   props: FamilyInformationProps,
 ): ReactElement => (
   <PatientSection
-    hasSeparator={false}
     onEdit={props.onEdit}
     title="Family Information"
   >

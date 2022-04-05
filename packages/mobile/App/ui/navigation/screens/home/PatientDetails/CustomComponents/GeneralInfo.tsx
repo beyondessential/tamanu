@@ -34,7 +34,6 @@ export const GeneralInfo = ({
 
   return (
     <PatientSection
-      hasSeparator={false}
       title="General Information"
       onEdit={isEditable ? onEdit : undefined}
     >
