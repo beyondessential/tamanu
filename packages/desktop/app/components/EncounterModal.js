@@ -36,7 +36,7 @@ export const EncounterModal = React.memo(
         <EncounterForm
           onSubmit={onCreateEncounter}
           onCancel={onClose}
-          patientBillingTypeId={patientBillingTypeId}
+          endpoint={patientBillingTypeId}
           {...props}
         />
       </Modal>
