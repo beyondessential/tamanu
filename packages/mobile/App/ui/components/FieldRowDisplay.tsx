@@ -3,18 +3,15 @@ import { chunk } from 'lodash';
 
 import { useLocalisation } from '~/ui/contexts/LocalisationContext';
 import { StyledView, RowView } from '~/ui/styled/common';
-import { SectionHeader } from '~/ui/components/SectionHeader';
 import { InformationBox } from '~/ui/navigation/screens/home/PatientDetails/CustomComponents';
 
 interface FieldRowDisplayProps {
   fields: string[][];
-  header?: string;
   fieldsPerRow: number;
 }
 
 export const FieldRowDisplay = ({
   fields,
-  header,
   fieldsPerRow,
 }: FieldRowDisplayProps): JSX.Element => {
   const { getString, getBool } = useLocalisation();
@@ -23,11 +20,6 @@ export const FieldRowDisplay = ({
 
   return (
     <StyledView width="100%" margin={20} marginTop={0}>
-      {header && (
-        <SectionHeader h1 fontWeight={500}>
-          {header}
-        </SectionHeader>
-      )}
       {rows.map(row => (
         <RowView key={row.map(([name]) => name).join(',')} marginTop={20}>
           {row.map(([name, info]) => (
