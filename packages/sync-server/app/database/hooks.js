@@ -21,10 +21,10 @@ export async function addHooks(store) {
       // Create certificate notifications for published results
       if (config.notifications.certificates.labTestCategoryIds) {
         store.models.LabRequest.addHook(
-          'afterCreate',
+          'afterBulkCreate', // Sync trigger bulk create action, even if it's only for one entry
           'create published test results notification hook',
-          labRequest => {
-            createLabRequestCreateNotification(labRequest, store.models);
+          labRequests => {
+            createLabRequestCreateNotification(labRequests, store.models);
           },
         );
         store.models.LabRequest.addHook(

@@ -123,7 +123,7 @@ const executeCreates = async (importPlan, records) => {
     return { ...data, id: importPlan.model.generateId() };
   });
   return executeUpdateOrCreates(importPlan, recordsWithIds, model => async rows => {
-    return model.bulkCreate(rows, { individualHooks: true });
+    return model.bulkCreate(rows);
   });
 };
 

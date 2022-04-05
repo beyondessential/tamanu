@@ -37,11 +37,13 @@ export async function createLabRequestUpdateNotification(labRequest, models) {
   }
 }
 
-export async function createLabRequestCreateNotification(labRequest, models) {
-  if (
-    labRequest.labTestCategoryId === config?.notifications?.certificates?.labTestCategoryId &&
-    labRequest.status === LAB_REQUEST_STATUSES.PUBLISHED
-  ) {
-    createLabRequestNotification(labRequest, models);
+export async function createLabRequestCreateNotification(labRequests, models) {
+  for (const request of labRequests) {
+    if (
+      request.labTestCategoryId === config?.notifications?.certificates?.labTestCategoryId &&
+      request.status === LAB_REQUEST_STATUSES.PUBLISHED
+    ) {
+      createLabRequestNotification(request, models);
+    }
   }
 }
