@@ -107,12 +107,7 @@ const Screen = ({ navigation, selectedPatient }: BaseAppProps): ReactElement => 
         <HealthIdentificationRow patientId={selectedPatient.displayId} />
       </StyledSafeAreaView>
       <FullView>
-        <StyledScrollView
-          background={theme.colors.BACKGROUND_GREY}
-          paddingLeft={20}
-          paddingRight={20}
-          paddingTop={20}
-        >
+        <StyledScrollView background={theme.colors.BACKGROUND_GREY}>
           <GeneralInfo patient={selectedPatient} onEdit={onEditPatient} />
           <AdditionalInfo patient={selectedPatient} onEdit={editPatientAdditionalData} />
           {/* Not functional yet
