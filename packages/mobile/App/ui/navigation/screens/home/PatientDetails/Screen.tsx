@@ -127,7 +127,13 @@ const Screen = ({ navigation, selectedPatient }: BaseAppProps): ReactElement => 
           <AllergiesList onEdit={onEditField} allergies={allergies} />
           */}
           <PatientIssues onEdit={onEditPatientIssues} patientId={selectedPatient.id} />
-          <Button marginBottom={40} onPress={onRecordDeath} buttonText="Record patient death" />
+          <Button
+            paddingLeft={20}
+            paddingRight={20}
+            marginBottom={40}
+            onPress={onRecordDeath}
+            buttonText="Record patient death"
+          />
         </StyledScrollView>
       </FullView>
     </FullView>
