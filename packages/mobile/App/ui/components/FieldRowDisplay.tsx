@@ -22,7 +22,7 @@ export const FieldRowDisplay = ({
   const rows = chunk(visibleFields, fieldsPerRow);
 
   return (
-    <StyledView width="100%">
+    <StyledView width="100%" margin={20} marginTop={0}>
       {header && (
         <SectionHeader h1 fontWeight={500}>
           {header}
