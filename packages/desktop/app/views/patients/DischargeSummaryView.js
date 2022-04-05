@@ -1,12 +1,10 @@
-/* eslint-disable react/jsx-one-expression-per-line */
 import React, { useState, useEffect } from 'react';
-import { connect } from 'react-redux';
+import { useSelector } from 'react-redux';
 import styled from 'styled-components';
 import PrintIcon from '@material-ui/icons/Print';
 
-import { PrintPortal } from '../../components/Print';
 import { LocalisedText } from '../../components/LocalisedText';
-import { connectApi } from '../../api';
+import { useApi } from '../../api';
 import { BackButton, Button } from '../../components/Button';
 import { DateDisplay } from '../../components/DateDisplay';
 import { TopBar } from '../../components';
@@ -66,32 +64,42 @@ const ListColumn = styled.div`
   }
 `;
 
-const DiagnosesList = ({ diagnoses }) => {
-  if (diagnoses.length === 0) return <span>N/A</span>;
+const NavContainer = styled.div`
+  display: flex;
+  flex-direction: row;
+  justify-content: space-between;
+  align-items: center;
+  margin: 20px;
+`;
 
-  return diagnoses.map(item => {
-    return (
-      <li>
-        {item.diagnosis.name} (<Label>ICD 10 Code: </Label> {item.diagnosis.code})
-      </li>
-    );
-  });
+const DiagnosesList = ({ diagnoses }) => {
+  if (diagnoses.length === 0) {
+    return <span>N/A</span>;
+  }
+
+  return diagnoses.map(item => (
+    <li>
+      {item.diagnosis.name} (<Label>ICD 10 Code: </Label> {item.diagnosis.code})
+    </li>
+  ));
 };
 
 const ProceduresList = ({ procedures }) => {
-  if (!procedures || procedures.length === 0) return <span>N/A</span>;
+  if (!procedures || procedures.length === 0) {
+    return <span>N/A</span>;
+  }
 
-  return procedures.map(procedure => {
-    return (
-      <li>
-        {procedure.description} (<Label>CPT Code: </Label> {procedure.cptCode})
-      </li>
-    );
-  });
+  return procedures.map(procedure => (
+    <li>
+      {procedure.description} (<Label>CPT Code: </Label> {procedure.cptCode})
+    </li>
+  ));
 };
 
 const MedicationsList = ({ medications }) => {
-  if (!medications || medications.length === 0) return <span>N/A</span>;
+  if (!medications || medications.length === 0) {
+    return <span>N/A</span>;
+  }
 
   return medications.map(({ medication, prescription }) => (
     <li>
@@ -106,8 +114,19 @@ const MedicationsList = ({ medications }) => {
   ));
 };
 
-const DumbSummaryPage = React.memo(({ patient, encounter, onFetchEncounterDischarge }) => {
+export const DischargeSummaryView = React.memo(() => {
+  const api = useApi();
   const [discharge, setDischarge] = useState(null);
+  const patient = useSelector(state => state.patient);
+  const { encounter } = useEncounter();
+  const { printPage } = useElectron();
+
+  useEffect(() => {
+    (async () => {
+      const data = await api.get(`encounter/${encounter.id}/discharge`);
+      setDischarge(data);
+    })();
+  }, [api, encounter.id]);
 
   const {
     diagnoses,
@@ -119,123 +138,9 @@ const DumbSummaryPage = React.memo(({ patient, encounter, onFetchEncounterDischa
     examiner,
     reasonForEncounter,
   } = encounter;
+
   const primaryDiagnoses = diagnoses.filter(d => d.isPrimary);
   const secondaryDiagnoses = diagnoses.filter(d => !d.isPrimary);
-
-  useEffect(() => {
-    (async () => {
-      const data = await onFetchEncounterDischarge(encounter.id);
-      setDischarge(data);
-    })();
-  }, [onFetchEncounterDischarge, encounter.id]);
-
-  return (
-    <SummaryPageContainer>
-      <PrintLetterhead />
-      <Header>
-        <h4>
-          <Label>Patient name: </Label>
-          <span>{`${patient.firstName} ${patient.lastName}`}</span>
-        </h4>
-        <h4>
-          <Label>
-            <LocalisedText path="fields.displayId.shortLabel" />
-          </Label>
-          <span>{patient.displayId}</span>
-        </h4>
-      </Header>
-
-      <Content>
-        <div>
-          <Label>Admission date: </Label>
-          <DateDisplay date={startDate} />
-        </div>
-        <div>
-          <Label>Discharge date: </Label>
-          <DateDisplay date={endDate} />
-        </div>
-
-        <div>
-          <Label>Department: </Label>
-          {location && location.name}
-        </div>
-        <div />
-      </Content>
-
-      <HorizontalLine />
-
-      <Content>
-        <div>
-          <Label>Supervising physician: </Label>
-          <span>{examiner?.displayName}</span>
-        </div>
-        <div />
-        <div>
-          <Label>Discharging physician: </Label>
-          <span>{discharge?.discharger?.displayName}</span>
-        </div>
-        <div />
-      </Content>
-
-      <HorizontalLine />
-
-      <Content>
-        <Label>Reason for encounter: </Label>
-        <div>{reasonForEncounter}</div>
-
-        <Label>Primary diagnoses: </Label>
-        <ListColumn>
-          <ul>
-            <DiagnosesList diagnoses={primaryDiagnoses} />
-          </ul>
-        </ListColumn>
-
-        <Label>Secondary diagnoses: </Label>
-        <ListColumn>
-          <ul>
-            <DiagnosesList diagnoses={secondaryDiagnoses} />
-          </ul>
-        </ListColumn>
-
-        <Label>Procedures: </Label>
-        <ListColumn>
-          <ul>
-            <ProceduresList procedures={procedures} />
-          </ul>
-        </ListColumn>
-
-        <Label>Medications: </Label>
-        <ListColumn>
-          <ul>
-            <MedicationsList medications={medications} />
-          </ul>
-        </ListColumn>
-
-        <div>
-          <Label>Discharge planning notes:</Label>
-          <div style={{ whiteSpace: 'pre-wrap' }}>{discharge?.note}</div>
-        </div>
-        <div />
-      </Content>
-    </SummaryPageContainer>
-  );
-});
-
-const SummaryPage = connectApi(api => ({
-  onFetchEncounterDischarge: id => api.get(`encounter/${id}/discharge`),
-}))(DumbSummaryPage);
-
-const NavContainer = styled.div`
-  display: flex;
-  flex-direction: row;
-  justify-content: space-between;
-  align-items: center;
-  margin: 20px;
-`;
-
-const DumbDischargeSummaryView = React.memo(({ patient }) => {
-  const { encounter } = useEncounter();
-  const { printPage } = useElectron();
 
   return (
     <>
@@ -252,14 +157,83 @@ const DumbDischargeSummaryView = React.memo(({ patient }) => {
           Print Summary
         </Button>
       </NavContainer>
-      <SummaryPage patient={patient} encounter={encounter} />
-      <PrintPortal>
-        <SummaryPage patient={patient} encounter={encounter} />
-      </PrintPortal>
+      <SummaryPageContainer>
+        <PrintLetterhead />
+        <Header>
+          <h4>
+            <Label>Patient name: </Label>
+            <span>{`${patient.firstName} ${patient.lastName}`}</span>
+          </h4>
+          <h4>
+            <Label>
+              <LocalisedText path="fields.displayId.shortLabel" />
+            </Label>
+            <span>{patient.displayId}</span>
+          </h4>
+        </Header>
+        <Content>
+          <div>
+            <Label>Admission date: </Label>
+            <DateDisplay date={startDate} />
+          </div>
+          <div>
+            <Label>Discharge date: </Label>
+            <DateDisplay date={endDate} />
+          </div>
+          <div>
+            <Label>Department: </Label>
+            {location && location.name}
+          </div>
+          <div />
+        </Content>
+        <HorizontalLine />
+        <Content>
+          <div>
+            <Label>Supervising physician: </Label>
+            <span>{examiner?.displayName}</span>
+          </div>
+          <div />
+          <div>
+            <Label>Discharging physician: </Label>
+            <span>{discharge?.discharger?.displayName}</span>
+          </div>
+          <div />
+        </Content>
+        <HorizontalLine />
+        <Content>
+          <Label>Reason for encounter: </Label>
+          <div>{reasonForEncounter}</div>
+          <Label>Primary diagnoses: </Label>
+          <ListColumn>
+            <ul>
+              <DiagnosesList diagnoses={primaryDiagnoses} />
+            </ul>
+          </ListColumn>
+          <Label>Secondary diagnoses: </Label>
+          <ListColumn>
+            <ul>
+              <DiagnosesList diagnoses={secondaryDiagnoses} />
+            </ul>
+          </ListColumn>
+          <Label>Procedures: </Label>
+          <ListColumn>
+            <ul>
+              <ProceduresList procedures={procedures} />
+            </ul>
+          </ListColumn>
+          <Label>Medications: </Label>
+          <ListColumn>
+            <ul>
+              <MedicationsList medications={medications} />
+            </ul>
+          </ListColumn>
+          <div>
+            <Label>Discharge planning notes:</Label>
+            <div style={{ whiteSpace: 'pre-wrap' }}>{discharge?.note}</div>
+          </div>
+          <div />
+        </Content>
+      </SummaryPageContainer>
     </>
   );
 });
-
-export const DischargeSummaryView = connect(state => ({
-  patient: state.patient,
-}))(DumbDischargeSummaryView);
