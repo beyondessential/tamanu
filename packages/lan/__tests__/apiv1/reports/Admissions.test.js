@@ -141,8 +141,10 @@ describe('Admissions report', () => {
       });
 
       const departmentChangeNote = await models.Note.findOne({
-        recordId: expectedEncounter.id,
-        noteType: 'system',
+        where: {
+          recordId: expectedEncounter.id,
+          noteType: 'system',
+        },
       });
 
       await departmentChangeNote.update({
@@ -162,7 +164,7 @@ describe('Admissions report', () => {
           'Patient Last Name': expectedPatient.lastName,
           'Patient ID': expectedPatient.displayId,
           'Date of Birth': format(expectedPatient.dateOfBirth, 'dd/MM/yyyy'),
-          Location: 'Clinic (Department change: 20/02/21 9:07 AM)',
+          Location: 'Clinic (Location change: 20/02/21 9:07 AM)',
           Department:
             'Radiology (Department change: 20/02/21 9:07 AM); Cardiology (Department change: 20/02/21 11:10 AM)',
           'Primary diagnoses': 'H60.5 Acute bacterial otitis externa; L74.4 Anhidrosis',

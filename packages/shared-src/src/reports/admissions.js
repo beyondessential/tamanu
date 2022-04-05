@@ -1,7 +1,7 @@
 import { Op } from 'sequelize';
 import { subDays, format } from 'date-fns';
-import { ENCOUNTER_TYPES, DIAGNOSIS_CERTAINTY } from 'shared/constants';
-import { inspect } from 'util';
+import { ENCOUNTER_TYPES, DIAGNOSIS_CERTAINTY, NOTE_TYPES } from 'shared/constants';
+import upperFirst from 'lodash/upperFirst';
 import { generateReportFromQueryData } from './utilities';
 
 const reportColumnTemplate = [
@@ -9,8 +9,8 @@ const reportColumnTemplate = [
   { title: 'Patient Last Name', accessor: data => data.patient.lastName },
   { title: 'Patient ID', accessor: data => data.patient.displayId },
   { title: 'Date of Birth', accessor: data => format(data.patient.dateOfBirth, 'dd/MM/yyyy') },
-  { title: 'Location', accessor: data => data.location.name },
-  { title: 'Department', accessor: data => data.department.name },
+  { title: 'Location', accessor: data => data.locationHistory },
+  { title: 'Department', accessor: data => data.departmentHistory },
   { title: 'Primary diagnoses', accessor: data => data.primaryDiagnoses },
   { title: 'Secondary diagnoses', accessor: data => data.secondaryDiagnoses },
   { title: 'Sex', accessor: data => data.patient.sex },
@@ -47,6 +47,79 @@ const stringifyDiagnoses = (diagnoses, shouldBePrimary) =>
     .map(({ Diagnosis }) => `${Diagnosis.code} ${Diagnosis.name}`)
     .join('; ');
 
+const getAllNotes = async (models, encounterIds) => {
+  const locationChangeNotes = await models.Note.findAll({
+    where: {
+      recordId: encounterIds,
+      noteType: NOTE_TYPES.SYSTEM,
+      content: {
+        [Op.like]: 'Changed location from%',
+      },
+    },
+  });
+  const departmentChangeNotes = await models.Note.findAll({
+    where: {
+      recordId: encounterIds,
+      noteType: NOTE_TYPES.SYSTEM,
+      content: {
+        [Op.like]: 'Changed department from%',
+      },
+    },
+  });
+  return { locationChangeNotes, departmentChangeNotes };
+};
+
+// Note - hard to figure out departments with a ' to ' in them:
+// Changed department from Department x to Department to be
+// Could be: "Department x"/"Department to be" or "Department x to Department"/"be"
+const locationExtractorPattern = /^Changed location from (?<from>.*) to (?<to>.*)/;
+const departmentExtractorPattern = /^Changed department from (?<from>.*) to (?<to>.*)/;
+
+const patternsForPlaceTypes = {
+  department: departmentExtractorPattern,
+  location: locationExtractorPattern,
+};
+
+const getPlaceHistoryFromNotes = (changeNotes, encounterData, placeType) => {
+  const relevantNotes = changeNotes
+    .filter(({ recordId }) => recordId === encounterData.id)
+    .sort(({ date }) => date);
+
+  if (!relevantNotes.length) {
+    const { [placeType]: place, startDate } = encounterData;
+    const { name: placeName } = place;
+    return `${placeName} (${upperFirst(placeType)} change: ${format(
+      startDate,
+      'dd/MM/yy h:mm a',
+    )})`;
+  }
+
+  const matcher = patternsForPlaceTypes[placeType];
+  const {
+    groups: { from },
+  } = relevantNotes[0].content.match(matcher);
+
+  const history = [
+    {
+      to: from,
+      date: encounterData.startDate,
+    },
+    ...relevantNotes.map(({ content, date }) => {
+      const {
+        groups: { to },
+      } = content.match(matcher);
+      return { to, date };
+    }),
+  ];
+
+  return history
+    .map(
+      ({ to, date }) =>
+        `${to} (${upperFirst(placeType)} change: ${format(date, 'dd/MM/yy h:mm a')})`,
+    )
+    .join('; ');
+};
+
 async function queryAdmissionsData(models, parameters) {
   const results = (
     await models.Encounter.findAll({
@@ -73,9 +146,13 @@ async function queryAdmissionsData(models, parameters) {
     })
   ).map(x => x.get({ plain: true }));
 
-  console.log(results);
+  const encounterIds = results.map(({ id }) => id);
+  const { locationChangeNotes, departmentChangeNotes } = await getAllNotes(models, encounterIds);
+
   return results.map(result => ({
     ...result,
+    locationHistory: getPlaceHistoryFromNotes(locationChangeNotes, result, 'location'),
+    departmentHistory: getPlaceHistoryFromNotes(departmentChangeNotes, result, 'department'),
     primaryDiagnoses: stringifyDiagnoses(result.diagnoses, true),
     secondaryDiagnoses: stringifyDiagnoses(result.diagnoses, false),
   }));
@@ -83,8 +160,6 @@ async function queryAdmissionsData(models, parameters) {
 
 export async function dataGenerator({ models }, parameters) {
   const queryResults = await queryAdmissionsData(models, parameters);
-  console.log(queryResults);
-  console.log(queryResults.startDate);
   return generateReportFromQueryData(queryResults, reportColumnTemplate);
 }
 
