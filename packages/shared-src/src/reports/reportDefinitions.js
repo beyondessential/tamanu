@@ -26,7 +26,21 @@ export const REPORT_DEFINITIONS = [
   {
     name: 'Admissions Report',
     id: 'admissions',
-    parameters: [{ parameterField: 'PractitionerField' }],
+    parameters: [
+      { parameterField: 'PractitionerField' },
+      {
+        parameterField: 'ParameterAutocompleteField',
+        label: 'Location',
+        name: 'location',
+        suggesterEndpoint: 'location',
+      },
+      {
+        parameterField: 'ParameterAutocompleteField',
+        label: 'Department',
+        name: 'department',
+        suggesterEndpoint: 'department',
+      },
+    ],
   },
   {
     name: 'Vaccine - Line list',
