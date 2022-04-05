@@ -23,7 +23,7 @@ import {
 
 const PATIENT_SEARCH_ENDPOINT = 'patient';
 
-const BASE_COLUMNS = [
+const LISTING_COLUMNS = [
   markedForSync,
   displayId,
   firstName,
@@ -32,15 +32,22 @@ const BASE_COLUMNS = [
   village,
   sex,
   dateOfBirth,
+  status,
 ];
 
-const BASE_COLUMNS_ON_PATIENT = BASE_COLUMNS.map(column => ({
+const INPATIENT_COLUMNS = [
+  markedForSync,
+  displayId,
+  firstName,
+  lastName,
+  sex,
+  dateOfBirth,
+  location,
+  department,
+].map(column => ({
   ...column,
   sortable: false,
 }));
-
-const LISTING_COLUMNS = [...BASE_COLUMNS, status];
-const INPATIENT_COLUMNS = [...BASE_COLUMNS_ON_PATIENT, location, department];
 
 const StyledDataTable = styled(DataFetchingTable)`
   margin: 24px;
