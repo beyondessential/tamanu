@@ -1,3 +1,4 @@
+import config from 'config';
 import express from 'express';
 import asyncHandler from 'express-async-handler';
 import { InvalidOperationError, NotFoundError } from 'shared/errors';
@@ -33,8 +34,7 @@ patientDeath.post(
     const physician = await User.findByPk(body.physician.id);
     if (!physician) throw new NotFoundError('Discharge physician not found');
 
-    // TODO: can we enable transactions only in Postgres somehow?
-    // await db.transaction(async () => {
+    await transactionOnPostgres(db, async () => {
       await patient.update({ dateOfDeath: body.date });
 
       const activeEncounters = await patient.getEncounters({
@@ -51,10 +51,18 @@ patientDeath.post(
           endDate: body.date,
         });
       }
-    // });
+    });
 
     res.send({
       data: {},
     });
   }),
 );
+
+async function transactionOnPostgres(db, transaction) {
+  if (config.db.sqlitePath) {
+    return transaction();
+  } else {
+    return db.transaction(transaction);
+  }
+}
