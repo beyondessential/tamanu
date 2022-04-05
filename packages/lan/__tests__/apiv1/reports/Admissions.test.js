@@ -156,7 +156,7 @@ describe('Admissions report', () => {
           fromDate: new Date(2021, 1, 1),
           location: expectedLocation.id,
           // TODO: the report should still fetch with the below filter enabled
-          // department: expectedDepartment1.id,
+          // department: expectedDepartment1.id, // Historical department filtered for
         },
       });
       expect(result).toHaveSucceeded();
