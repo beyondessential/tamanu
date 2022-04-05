@@ -2,6 +2,7 @@ import { Sequelize } from 'sequelize';
 import { InvalidOperationError } from 'shared/errors';
 import { Model } from './Model';
 import { Encounter } from './Encounter';
+import { ScheduledVaccine } from './ScheduledVaccine';
 
 export class AdministeredVaccine extends Model {
   static init({ primaryKey, ...options }) {
