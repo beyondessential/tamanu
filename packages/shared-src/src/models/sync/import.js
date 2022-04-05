@@ -129,7 +129,9 @@ const executeCreates = async (importPlan, records) => {
 
 const executeUpdates = async (importPlan, records) =>
   executeUpdateOrCreates(importPlan, records, model => async rows => {
-    await Promise.all(rows.map(async row => model.update(row, { where: { id: row.id } })));
+    await Promise.all(
+      rows.map(async row => model.update(row, { where: { id: row.id }, individualHooks: true })),
+    );
     return rows;
   });
 
