@@ -41,6 +41,7 @@ export const Colors = {
   primaryDark: '#2f4358',
   secondary: '#ffcc24',
   alert: '#f76853',
+  orange: '#f17f16',
   safe: '#47ca80',
   darkestText: '#444444',
   darkText: '#666666',

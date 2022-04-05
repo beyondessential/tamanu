@@ -1,5 +1,5 @@
 import React from 'react';
-import styled from 'styled-components';
+import styled, { css } from 'styled-components';
 import { ENCOUNTER_TYPES } from 'shared/constants';
 import { Box, Typography } from '@material-ui/core';
 import { Colors, ENCOUNTER_OPTIONS_BY_VALUE } from '../../../constants';
@@ -15,7 +15,7 @@ const PATIENT_STATUS = {
 const PATIENT_STATUS_COLORS = {
   [PATIENT_STATUS.INPATIENT]: Colors.safe, // Green
   [PATIENT_STATUS.OUTPATIENT]: Colors.secondary, // Yellow
-  [PATIENT_STATUS.EMERGENCY]: Colors.alert, // Red
+  [PATIENT_STATUS.EMERGENCY]: Colors.orange, // Orange
   [PATIENT_STATUS.DECEASED]: Colors.midText, // grey
   [undefined]: Colors.primary, // Blue
 };
@@ -29,27 +29,40 @@ const ENCOUNTER_TYPE_TO_STATUS = {
   [ENCOUNTER_TYPES.TRIAGE]: PATIENT_STATUS.EMERGENCY,
 };
 
-const Container = styled.div`
-  margin: 1rem;
+const Border = css`
   border: 1px solid ${Colors.outline};
-  border-left: 5px solid ${props => PATIENT_STATUS_COLORS[props.patientStatus]};
-  border-radius: 5px;
-  background: ${Colors.white};
+  border-left: 10px solid ${props => PATIENT_STATUS_COLORS[props.patientStatus]};
+  border-radius: 10px;
 `;
 
-const NoVisitContainer = styled(Container)`
+const Container = styled.div`
+  ${Border};
+  margin: 1rem;
+  background: ${Colors.white};
+  transition: color 0.2s ease;
+
+  &:hover {
+    cursor: pointer;
+    background: ${Colors.offWhite};
+  }
+`;
+
+const NoVisitContainer = styled.div`
+  ${Border};
   display: flex;
   align-items: center;
   justify-content: space-between;
-  padding: 30px;
+  background: ${Colors.white};
+  margin: 1rem;
+  padding: 28px 30px;
 `;
 
 const Header = styled.div`
   display: flex;
-  justify-content: space-between;
+  justify-content: flex-start;
   align-items: center;
-  padding: 16px 20px 16px 16px;
-  border-bottom: 1px solid ${Colors.outline};
+  padding: 18px 20px 18px 16px;
+  border-bottom: 1px solid ${props => PATIENT_STATUS_COLORS[props.patientStatus]};
 `;
 
 const Content = styled.div`
@@ -122,10 +135,8 @@ export const PatientEncounterSummary = ({
     // return (
     //   <Container patientStatus={PATIENT_STATUS.DECEASED}>
     //     <Header>
-    //       <Box display="flex">
+    //       <Box display="flex" justifyContent="space-between" alignItems="center" flex="1">
     //         <BoldTitle variant="h3">Deceased</BoldTitle>
-    //       </Box>
-    //       <Box>
     //         <Button variant="contained" color="primary">
     //           View death certificate
     //         </Button>
@@ -169,17 +180,10 @@ export const PatientEncounterSummary = ({
   const patientStatus = ENCOUNTER_TYPE_TO_STATUS[encounterType];
 
   return (
-    <Container patientStatus={patientStatus}>
-      <Header>
-        <Box display="flex">
-          <BoldTitle variant="h3">Type:</BoldTitle>
-          <Title variant="h3">{ENCOUNTER_OPTIONS_BY_VALUE[encounterType].label}</Title>
-        </Box>
-        <Box>
-          <Button variant="contained" color="primary" onClick={() => viewEncounter(id)}>
-            View
-          </Button>
-        </Box>
+    <Container patientStatus={patientStatus} onClick={() => viewEncounter(id)}>
+      <Header patientStatus={patientStatus}>
+        <BoldTitle variant="h3">Type:</BoldTitle>
+        <Title variant="h3">{ENCOUNTER_OPTIONS_BY_VALUE[encounterType].label}</Title>
       </Header>
       <Content>
         <ContentItem>
