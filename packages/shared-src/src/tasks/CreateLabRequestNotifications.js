@@ -33,19 +33,19 @@ export async function createLabRequestUpdateNotification(labRequest, models) {
     ) &&
     labRequest.status === LAB_REQUEST_STATUSES.PUBLISHED
   ) {
-    createLabRequestNotification(labRequest, models);
+    await createLabRequestNotification(labRequest, models);
   }
 }
 
 export async function createLabRequestCreateNotification(labRequests, models) {
-  for (const request of labRequests) {
+  for (const labRequest of labRequests) {
     if (
       config?.notifications?.certificates?.labTestCategoryIds?.includes(
-        request.labTestCategoryId,
+        labRequest.labTestCategoryId,
       ) &&
-      request.status === LAB_REQUEST_STATUSES.PUBLISHED
+      labRequest.status === LAB_REQUEST_STATUSES.PUBLISHED
     ) {
-      createLabRequestNotification(request, models);
+      await createLabRequestNotification(labRequest, models);
     }
   }
 }
