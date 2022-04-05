@@ -298,7 +298,7 @@ const EncounterInfoPane = React.memo(({ disabled, encounter }) => (
       disabled
       label="Patient type"
       field={{ name: 'patientBillingTypeId', value: encounter.patientBillingTypeId }}
-      dataType="patientBillingType"
+      endpoint="patientBillingType"
     />
     <TextInput disabled={disabled} value={getDepartmentName(encounter)} label="Department" />
     <TextInput disabled={disabled} value={getLocationName(encounter)} label="Location" />
