@@ -15,7 +15,7 @@
   },
   "log": {
     "path": "",
-    "consoleLevel": "default",
+    "consoleLevel": "http",
     "color": true
   },
   "sync": {
