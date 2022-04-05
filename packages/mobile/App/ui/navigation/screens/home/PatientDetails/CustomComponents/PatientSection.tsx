@@ -24,7 +24,7 @@ export const PatientSection = ({
       paddingLeft={20}
       paddingRight={20}
     >
-      <SectionHeader h1>{title}</SectionHeader>
+      <SectionHeader h1>{title.toUpperCase()}</SectionHeader>
       {onEdit && <EditButton onPress={onEdit} />}
     </RowView>
     {children}
