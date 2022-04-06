@@ -4,6 +4,7 @@ import { useSelector } from 'react-redux';
 import styled from 'styled-components';
 import PrintIcon from '@material-ui/icons/Print';
 
+import { PrintPortal } from '../../components/Print';
 import { LocalisedText } from '../../components/LocalisedText';
 import { useApi } from '../../api';
 import { BackButton, Button } from '../../components/Button';
@@ -115,10 +116,107 @@ const MedicationsList = ({ medications }) => {
   ));
 };
 
+const SummaryPage = React.memo(({ encounter, discharge }) => {
+  const patient = useSelector(state => state.patient);
+
+  const {
+    diagnoses,
+    procedures,
+    medications,
+    startDate,
+    endDate,
+    location,
+    examiner,
+    reasonForEncounter,
+  } = encounter;
+
+  const primaryDiagnoses = diagnoses.filter(d => d.isPrimary);
+  const secondaryDiagnoses = diagnoses.filter(d => !d.isPrimary);
+
+  return (
+    <SummaryPageContainer>
+      <PrintLetterhead />
+      <Header>
+        <h4>
+          <Label>Patient name: </Label>
+          <span>{`${patient.firstName} ${patient.lastName}`}</span>
+        </h4>
+        <h4>
+          <Label>
+            <LocalisedText path="fields.displayId.shortLabel" />
+          </Label>
+          <span>{patient.displayId}</span>
+        </h4>
+      </Header>
+      <Content>
+        <div>
+          <Label>Admission date: </Label>
+          <DateDisplay date={startDate} />
+        </div>
+        <div>
+          <Label>Discharge date: </Label>
+          <DateDisplay date={endDate} />
+        </div>
+        <div>
+          <Label>Department: </Label>
+          {location && location.name}
+        </div>
+        <div />
+      </Content>
+      <HorizontalLine />
+      <Content>
+        <div>
+          <Label>Supervising physician: </Label>
+          <span>{examiner?.displayName}</span>
+        </div>
+        <div />
+        <div>
+          <Label>Discharging physician: </Label>
+          <span>{discharge?.discharger?.displayName}</span>
+        </div>
+        <div />
+      </Content>
+      <HorizontalLine />
+      <Content>
+        <Label>Reason for encounter: </Label>
+        <div>{reasonForEncounter}</div>
+        <Label>Primary diagnoses: </Label>
+        <ListColumn>
+          <ul>
+            <DiagnosesList diagnoses={primaryDiagnoses} />
+          </ul>
+        </ListColumn>
+        <Label>Secondary diagnoses: </Label>
+        <ListColumn>
+          <ul>
+            <DiagnosesList diagnoses={secondaryDiagnoses} />
+          </ul>
+        </ListColumn>
+        <Label>Procedures: </Label>
+        <ListColumn>
+          <ul>
+            <ProceduresList procedures={procedures} />
+          </ul>
+        </ListColumn>
+        <Label>Medications: </Label>
+        <ListColumn>
+          <ul>
+            <MedicationsList medications={medications} />
+          </ul>
+        </ListColumn>
+        <div>
+          <Label>Discharge planning notes:</Label>
+          <div style={{ whiteSpace: 'pre-wrap' }}>{discharge?.note}</div>
+        </div>
+        <div />
+      </Content>
+    </SummaryPageContainer>
+  );
+});
+
 export const DischargeSummaryView = React.memo(() => {
   const api = useApi();
   const [discharge, setDischarge] = useState(null);
-  const patient = useSelector(state => state.patient);
   const { encounter } = useEncounter();
   const { printPage } = useElectron();
 
@@ -136,20 +234,6 @@ export const DischargeSummaryView = React.memo(() => {
     return <Redirect to="/patients/view" />;
   }
 
-  const {
-    diagnoses,
-    procedures,
-    medications,
-    startDate,
-    endDate,
-    location,
-    examiner,
-    reasonForEncounter,
-  } = encounter;
-
-  const primaryDiagnoses = diagnoses.filter(d => d.isPrimary);
-  const secondaryDiagnoses = diagnoses.filter(d => !d.isPrimary);
-
   return (
     <>
       <TopBar title="Patient Discharge Summary" />
@@ -165,83 +249,10 @@ export const DischargeSummaryView = React.memo(() => {
           Print Summary
         </Button>
       </NavContainer>
-      <SummaryPageContainer>
-        <PrintLetterhead />
-        <Header>
-          <h4>
-            <Label>Patient name: </Label>
-            <span>{`${patient.firstName} ${patient.lastName}`}</span>
-          </h4>
-          <h4>
-            <Label>
-              <LocalisedText path="fields.displayId.shortLabel" />
-            </Label>
-            <span>{patient.displayId}</span>
-          </h4>
-        </Header>
-        <Content>
-          <div>
-            <Label>Admission date: </Label>
-            <DateDisplay date={startDate} />
-          </div>
-          <div>
-            <Label>Discharge date: </Label>
-            <DateDisplay date={endDate} />
-          </div>
-          <div>
-            <Label>Department: </Label>
-            {location && location.name}
-          </div>
-          <div />
-        </Content>
-        <HorizontalLine />
-        <Content>
-          <div>
-            <Label>Supervising physician: </Label>
-            <span>{examiner?.displayName}</span>
-          </div>
-          <div />
-          <div>
-            <Label>Discharging physician: </Label>
-            <span>{discharge?.discharger?.displayName}</span>
-          </div>
-          <div />
-        </Content>
-        <HorizontalLine />
-        <Content>
-          <Label>Reason for encounter: </Label>
-          <div>{reasonForEncounter}</div>
-          <Label>Primary diagnoses: </Label>
-          <ListColumn>
-            <ul>
-              <DiagnosesList diagnoses={primaryDiagnoses} />
-            </ul>
-          </ListColumn>
-          <Label>Secondary diagnoses: </Label>
-          <ListColumn>
-            <ul>
-              <DiagnosesList diagnoses={secondaryDiagnoses} />
-            </ul>
-          </ListColumn>
-          <Label>Procedures: </Label>
-          <ListColumn>
-            <ul>
-              <ProceduresList procedures={procedures} />
-            </ul>
-          </ListColumn>
-          <Label>Medications: </Label>
-          <ListColumn>
-            <ul>
-              <MedicationsList medications={medications} />
-            </ul>
-          </ListColumn>
-          <div>
-            <Label>Discharge planning notes:</Label>
-            <div style={{ whiteSpace: 'pre-wrap' }}>{discharge?.note}</div>
-          </div>
-          <div />
-        </Content>
-      </SummaryPageContainer>
+      <SummaryPage encounter={encounter} discharge={discharge} />
+      <PrintPortal>
+        <SummaryPage encounter={encounter} discharge={discharge} />
+      </PrintPortal>
     </>
   );
 });
