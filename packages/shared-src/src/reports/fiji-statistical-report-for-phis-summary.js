@@ -44,10 +44,10 @@ with
         WHERE patient_id = p.id
         LIMIT 1)
     where 
-        coalesce(medical_area_id, '-') = coalesce(:medical_area, coalesce(medical_area_id, '-'))
-    and coalesce(nursing_zone_id, '-') = coalesce(:nursing_zone, coalesce(nursing_zone_id, '-'))
-    and coalesce(division_id, '-') = coalesce(:division, coalesce(division_id, '-'))
-    and coalesce(village_id, '-') = coalesce(:village, coalesce(village_id, '-'))
+      coalesce(medical_area_id, '-') = coalesce(:medical_area, medical_area_id, '-')
+    and coalesce(nursing_zone_id, '-') = coalesce(:nursing_zone, nursing_zone_id, '-')
+    and coalesce(division_id, '-') = coalesce(:division, division_id, '-')
+    and coalesce(village_id, '-') = coalesce(:village, village_id, '-')
   ),
   cte_all_options as (
     select distinct 
