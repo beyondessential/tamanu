@@ -273,6 +273,10 @@ const INVOICE_PRICE_CHANGE_COLUMNS = [
   },
 ];
 
+const DiscountHeading = styled.h4`
+  margin: 1rem;
+`;
+
 export const InvoiceDetailTable = React.memo(({ invoice }) => {
   const [invoiceLineItems, setInvoiceLineItems] = useState([]);
   const [invoicePriceChangeItems, setInvoicePriceChangeItems] = useState([]);
@@ -305,7 +309,7 @@ export const InvoiceDetailTable = React.memo(({ invoice }) => {
         onDataFetched={updateLineItems}
       />
       <InvoiceTotal>Sub-Total: ${invoiceLinesTotal}</InvoiceTotal>
-      <h4 style={{ margin: '1rem' }}>Discounts</h4>
+      <DiscountHeading>Discounts / Mark-ups</DiscountHeading>
       <DataFetchingTable
         endpoint={`invoices/${invoice.id}/priceChangeItems`}
         columns={[

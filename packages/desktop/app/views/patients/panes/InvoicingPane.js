@@ -14,6 +14,8 @@ import { ConfirmModal } from '../../../components/ConfirmModal';
 import { Button } from '../../../components/Button';
 import { ContentPane } from '../../../components/ContentPane';
 
+import { Colors } from '../../../constants';
+
 const EmptyPane = styled(ContentPane)`
   text-align: center;
 `;
@@ -21,6 +23,11 @@ const EmptyPane = styled(ContentPane)`
 const ActionsPane = styled(ContentPane)`
   display: flex;
   column-gap: 1.6rem;
+`;
+
+const InvoiceHeading = styled.h3`
+  color: ${Colors.primary};
+  margin: 1rem;
 `;
 
 export const InvoicingPane = React.memo(({ encounter }) => {
@@ -102,7 +109,7 @@ export const InvoicingPane = React.memo(({ encounter }) => {
 
   return (
     <>
-      <h3 style={{ margin: '1rem' }}>Invoice number: {invoice.displayId}</h3>
+      <InvoiceHeading>Invoice number: {invoice.displayId}</InvoiceHeading>
       <InvoiceDetailTable invoice={invoice} />
       {isInvoiceEditable(invoice.status) ? (
         <ActionsPane>
