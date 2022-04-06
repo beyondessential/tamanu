@@ -63,9 +63,7 @@ const PROPERTY_TO_EXCEL_INDEX = PROPERTY_LIST.reduce((acc, prop, i) => ({ ...acc
 
 const getProperty = (result, row, prop) => result.body[row][PROPERTY_TO_EXCEL_INDEX[prop]];
 
-// TODO: Unskip test once tests run against a postgresql database:
-// https://linear.app/bes/issue/TAN-409/get-rid-of-sqlite
-describe.skip('Fiji statistical report for phis summary', () => {
+describe('Fiji statistical report for phis summary', () => {
   let baseApp = null;
   let app = null;
   let village1 = null;
@@ -74,7 +72,7 @@ describe.skip('Fiji statistical report for phis summary', () => {
 
   beforeAll(async () => {
     const ctx = await createTestContext();
-    const models = ctx.models;
+    const { models } = ctx;
 
     await models.Referral.truncate({ cascade: true });
     await models.SurveyResponseAnswer.truncate({ cascade: true });
@@ -177,7 +175,7 @@ describe.skip('Fiji statistical report for phis summary', () => {
      *
      * 2020-05-03: Diagnosed with hypertension
      *
-     **/
+     * */
 
     // 2019-05-02: Had a non-CVD survey response submitted
     await createBreastCancerFormSurveyResponse(app, expectedPatient1, moment.utc('2019-05-02'));
@@ -232,7 +230,7 @@ describe.skip('Fiji statistical report for phis summary', () => {
      * 2020-05-02: Diagnosed with diabetes and hypertension
      * 2020-05-02: Had a CVD screening - SNAP councilling
      *
-     **/
+     * */
 
     // 2020-05-02: Diagnosed with diabetes and hypertension
     const diagnosisEncounter2 = await models.Encounter.create(
@@ -274,7 +272,7 @@ describe.skip('Fiji statistical report for phis summary', () => {
      *
      * 2020-05-03: Diagnosed with hypertension
      *
-     **/
+     * */
 
     // 2020-05-02: Diagnosed with hypertension
     const diagnosisEncounter3 = await models.Encounter.create(
@@ -359,7 +357,7 @@ describe.skip('Fiji statistical report for phis summary', () => {
       expect(result).toHaveSucceeded();
       expect(result.body).toHaveLength(3);
 
-      /*******2020-05-02*********/
+      /** *****2020-05-02******** */
       const expectedDetails1 = {
         date: '02-05-2020',
         total_cvd_responses: 3,
@@ -400,7 +398,7 @@ describe.skip('Fiji statistical report for phis summary', () => {
         expect(getProperty(result, 1, key)).toBe(expectedValue);
       }
 
-      /*******2020-05-03*********/
+      /** *****2020-05-03******** */
       const expectedDetails2 = {
         date: '03-05-2020',
         total_cvd_responses: 0,
@@ -463,7 +461,7 @@ describe.skip('Fiji statistical report for phis summary', () => {
        * 2020-05-03: Diagnosed with hypertension
        */
 
-      /*******2020-05-02*********/
+      /** *****2020-05-02******** */
       const expectedDetails1 = {
         date: '02-05-2020',
         total_cvd_responses: 1,
@@ -504,7 +502,7 @@ describe.skip('Fiji statistical report for phis summary', () => {
         expect(getProperty(result, 1, key)).toBe(expectedValue);
       }
 
-      /*******2020-05-03*********/
+      /** *****2020-05-03******** */
       const expectedDetails2 = {
         date: '03-05-2020',
         total_cvd_responses: 0,
