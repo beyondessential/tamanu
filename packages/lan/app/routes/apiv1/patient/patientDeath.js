@@ -93,32 +93,27 @@ patientDeath.post(
       }
 
       await PatientDeathData.create({
-        patientId: patient.id,
-        clinicianId: doc.id,
-        facilityId: body.facilityId,
-        manner: body.mannerOfDeath,
-        primaryCauseId: primaryCause.id,
-
-        recentSurgery: body.surgeryInLast4Weeks,
-        lastSurgeryDate: body.surgeryInLast4Weeks === 'yes' ? body.lastSurgeryDate : null,
-        lastSurgeryReasonId: body.lastSurgeryReason,
-
-        externalCauseDate: body.mannerOfDeathDate,
-        externalCauseLocation: body.mannerOfDeathLocation,
-        externalCauseNotes: body.mannerOfDeathOther,
-
-        wasPregnant: body.pregnant,
-        pregnancyContributed: body.pregnancyContribute,
-
-        fetalOrInfant: body.fetalOrInfant,
-        stillborn: body.stillborn,
         birthWeight: body.birthWeight,
-        withinDayOfBirth: body.deathWithin24HoursOfBirth,
-        hoursSurvivedSinceBirth: body.numberOfHoursSurvivedSinceBirth,
-
         carrierAge: body.ageOfMother,
         carrierExistingConditionId: body.motherExistingCondition,
         carrierPregnancyWeeks: body.numberOfCompletedPregnancyWeeks,
+        clinicianId: doc.id,
+        externalCauseDate: body.mannerOfDeathDate,
+        externalCauseLocation: body.mannerOfDeathLocation,
+        externalCauseNotes: body.mannerOfDeathOther,
+        facilityId: body.facilityId,
+        fetalOrInfant: body.fetalOrInfant,
+        hoursSurvivedSinceBirth: body.numberOfHoursSurvivedSinceBirth,
+        lastSurgeryDate: body.surgeryInLast4Weeks === 'yes' ? body.lastSurgeryDate : null,
+        lastSurgeryReasonId: body.lastSurgeryReason,
+        manner: body.mannerOfDeath,
+        patientId: patient.id,
+        pregnancyContributed: body.pregnancyContribute,
+        primaryCauseId: primaryCause.id,
+        recentSurgery: body.surgeryInLast4Weeks,
+        stillborn: body.stillborn,
+        wasPregnant: body.pregnant,
+        withinDayOfBirth: body.deathWithin24HoursOfBirth,
       });
 
       const activeEncounters = await patient.getEncounters({
