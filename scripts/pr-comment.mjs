@@ -8,7 +8,22 @@ const headers = {
   authorization: `token ${GITHUB_TOKEN}`,
 };
 
-async function findExistingComment(header) {
+async function findPrFromCommit() {
+  console.log('Fetching PR number from commit ID:', CI_COMMIT_ID);
+
+  const prs = await request('GET /search/issues?q={query}', {
+    headers,
+    query: `type:pr is:open repo:beyondessential/tamanu ${CI_COMMIT_ID}`,
+  });
+
+  if (prs.data.total_count < 1) throw new Error('No PR found for commit ID');
+  if (prs.data.total_count > 1)
+    console.warn(`${prs.data.total_count} PRs found for commit ID, using the first one`);
+
+  return prs.data.items[0].number;
+}
+
+async function findExistingComment(prNumber, header) {
   console.log('Fetching existing comment with header:', header);
 
   const comments = await request(
@@ -17,7 +32,7 @@ async function findExistingComment(header) {
       headers,
       owner: 'beyondessential',
       repo: 'tamanu',
-      number: CI_PR_NUMBER,
+      number: prNumber,
     },
   );
 
@@ -36,25 +51,25 @@ async function updateComment(id, markdown) {
   });
 }
 
-async function postComment(markdown) {
+async function postComment(prNumber, markdown) {
   console.log('Posting new comment');
 
   await request('POST /repos/{owner}/{repo}/issues/{number}/comments', {
     headers,
     owner: 'beyondessential',
     repo: 'tamanu',
-    number: CI_PR_NUMBER,
+    number: prNumber,
     body: markdown,
   });
 }
 
 (async function(markdownFile, editIntoCommentWithHeader = false) {
   if (!markdownFile) throw new Error('No markdown file specified');
-  if (!CI_PR_NUMBER)
-    throw new Error('No CI_PR_NUMBER environment variable: are we running in CI in a PR context?');
   if (!GITHUB_TOKEN) throw new Error('No GITHUB_TOKEN');
 
-  console.log({ CI_PR_NUMBER, markdownFile, editIntoCommentWithHeader });
+  const prNumber = CI_PR_NUMBER && CI_PR_NUMBER !== '0' ? CI_PR_NUMBER : await findPrFromCommit();
+
+  console.log({ prNumber, markdownFile, editIntoCommentWithHeader });
 
   const markdownContent = await fs.readFile(markdownFile, 'utf8');
   const markdown =
@@ -66,13 +81,13 @@ async function postComment(markdown) {
     markdownContent;
 
   const existingComment = editIntoCommentWithHeader
-    ? await findExistingComment(editIntoCommentWithHeader)
+    ? await findExistingComment(prNumber, editIntoCommentWithHeader)
     : null;
 
   if (existingComment) {
     await updateComment(existingComment.id, markdown);
   } else {
-    await postComment(markdown);
+    await postComment(prNumber, markdown);
   }
 
   console.log('Done.');
