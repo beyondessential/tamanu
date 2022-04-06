@@ -13,6 +13,7 @@ export const serversRouter = express.Router();
 // Servers are ordered first by type, then alphabetically.
 const servers = [
   // live servers
+  { name: 'Aspen Medical Fiji', type: 'live', host: 'https://syncba.aspenmedical.com.fj' },
   { name: 'Fiji', type: 'live', host: 'https://sync.tamanu-fiji.org' },
   { name: 'Fiji NCD', type: 'live', host: 'https://sync-ncd-pilot.tamanu-fiji.org' },
   { name: 'Fiji Tourism', type: 'live', host: 'https://sync-tourism.tamanu-fiji.org' },
@@ -21,11 +22,6 @@ const servers = [
     name: 'Motivation Australia - Papua New Guinea',
     type: 'live',
     host: 'https://motivation-sync-png.tamanu.io',
-  },
-  {
-    name: 'Motivation Australia - India',
-    type: 'live',
-    host: 'https://motivation-sync-india.tamanu.io',
   },
   { name: 'Nauru', type: 'live', host: 'https://sync.tamanu-nauru.org' },
   { name: 'Palau', type: 'live', host: 'https://sync.tamanu-palau.org' },
@@ -40,6 +36,7 @@ const servers = [
   { name: 'Demo (Kiribati)', type: 'demo', host: 'https://sync-demo.tamanu-kiribati.org' },
   { name: 'Demo (Nauru)', type: 'demo', host: 'https://sync-demo-nauru.tamanu.io' },
   { name: 'Demo (Palau)', type: 'demo', host: 'https://sync-demo-palau.tamanu.io' },
+  { name: 'Demo (Samoa)', type: 'demo', host: 'https://sync-samoa-demo.tamanu.io' },
   { name: 'Demo (Tuvalu)', type: 'demo', host: 'https://sync-demo-tuvalu.tamanu.io' },
 
   // development servers

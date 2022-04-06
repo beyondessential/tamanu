@@ -3,8 +3,10 @@
 ## vNEXT
 
 ### Manual steps required after upgrade ⚙
-
-- (left blank)
+- Add an entry for `questionCodeIds.passport` and `questionCodeIds.nationalityId` in the config to look up survey
+responses for patients in covid lab test certificates
+- Delete any override to config's `log.consoleLevel` (it has a new default)
+- If the console output is full of `\e[He[2J` garbage output, set `log.color` to `false` and let the devs know (it's unexpected but possible)
 
 ### Features ⭐
 
@@ -12,7 +14,9 @@
 
 ### Tweaks ⚖️
 
-- (left blank)
+- Improved console output (color coding, timestamps, originating IP addresses, new log level for http requests)
+  - For reference, the logging levels in order are: error, warn, info (old default), http (new default), verbose, debug, silly
+- `loadIcaoSigner` sync-server sub-command was renamed to `loadSigner`
 
 ### Bug fixes 🐛
 
@@ -58,6 +62,10 @@ responses for patients in covid lab test certificates
 ### Features ⭐
 
 - Add new report `fiji-aspen-encounter-summary-line-list`
+
+- EU DCC integration. To enable:
+  - Configure the `signer` integration.
+  - Enable the `euDcc` integration.
 
 ### Tweaks ⚖️
 

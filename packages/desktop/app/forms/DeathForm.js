@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { useState } from 'react';
 import * as yup from 'yup';
 import { Typography } from '@material-ui/core';
 import styled from 'styled-components';
@@ -10,6 +10,7 @@ import {
   Button,
   OutlinedButton,
   Field,
+  FieldWithTooltip,
   AutocompleteField,
   DateTimeField,
   DateField,
@@ -49,31 +50,80 @@ const RedHeading = styled(Typography)`
 const Text = styled(Typography)`
   font-size: 15px;
   line-height: 21px;
-  font-weight: 500;
-  color: ${props => props.theme.palette.text.primary};
+  font-weight: 400;
+  color: ${props => props.theme.palette.text.secondary};
   margin-bottom: 48px;
 `;
 
-const ConfirmScreen = ({ onStepBack, submitForm, onCancel }) => (
+const BaseConfirmScreen = ({
+  heading,
+  text,
+  onStepBack,
+  onCancel,
+  onContinue,
+  continueButtonText,
+}) => (
   <FormGrid columns={1}>
-    <RedHeading>Confirm death record</RedHeading>
-    <Text>
-      This action is irreversible. Are you sure you want to record the death of a patient? This
-      should only be done under the direction of the responsible clinician. Do you wish to proceed?
-    </Text>
+    <RedHeading>{heading}</RedHeading>
+    <Text>{text}</Text>
     <Actions>
       <OutlinedButton onClick={onStepBack || undefined} disabled={!onStepBack}>
         Back
       </OutlinedButton>
       <MuiBox>
         <OutlinedButton onClick={onCancel}>Cancel</OutlinedButton>
-        <Button color="primary" variant="contained" onClick={submitForm}>
-          Record Death
+        <Button color="primary" variant="contained" onClick={onContinue}>
+          {continueButtonText}
         </Button>
       </MuiBox>
     </Actions>
   </FormGrid>
 );
+
+const ConfirmScreen = ({ onStepBack, submitForm, onCancel }) => (
+  <BaseConfirmScreen
+    heading="Confirm death record"
+    text="This action is irreversible. Are you sure you want to record the death of a patient? This
+      should only be done under the direction of the responsible clinician. Do you wish to proceed?"
+    continueButtonText="Record Death"
+    onStepBack={onStepBack}
+    onContinue={submitForm}
+    onCancel={onCancel}
+  />
+);
+
+const DoubleConfirmScreen = ({ onStepBack, submitForm, onCancel }) => {
+  const [dischargeConfirmed, setDischargeConfirmed] = useState(false);
+
+  if (!dischargeConfirmed) {
+    return (
+      <BaseConfirmScreen
+        heading="Patient will be auto-discharged and locked"
+        text="This patient has an active encounter. After recording their death, the patient record will be
+      locked. Please ensure that all encounter details are up-to-date and correct before proceeding."
+        continueButtonText="Continue"
+        onStepBack={onStepBack}
+        onContinue={() => {
+          setDischargeConfirmed(true);
+        }}
+        onCancel={onCancel}
+      />
+    );
+  }
+  return (
+    <ConfirmScreen
+      onStepBack={() => {
+        setDischargeConfirmed(false);
+      }}
+      onContinue={submitForm}
+      onCancel={onCancel}
+    />
+  );
+};
+
+const StyledFormGrid = styled(FormGrid)`
+  min-height: 200px;
+`;
 
 const PLACES = [
   'Home',
@@ -113,10 +163,6 @@ const mannerOfDeathVisibilityCriteria = {
   mannerOfDeath: MANNER_OF_DEATHS.filter(x => x !== 'Disease'),
 };
 
-/**
- * onCancel: closes modal
- * onSubmit: make api request
- */
 export const DeathForm = React.memo(
   ({ onCancel, onSubmit, patient, practitionerSuggester, icd10Suggester, facilitySuggester }) => {
     const patientYearsOld = moment().diff(patient.dateOfBirth, 'years');
@@ -129,20 +175,30 @@ export const DeathForm = React.memo(
       <PaginatedForm
         onSubmit={onSubmit}
         onCancel={onCancel}
-        SummaryScreen={ConfirmScreen}
+        SummaryScreen={patient.currentEncounter ? DoubleConfirmScreen : ConfirmScreen}
         validationSchema={yup.object().shape({
           causeOfDeath: yup.string().required(),
           causeOfDeathInterval: yup.string().required(),
           clinicianId: yup.string().required(),
-          timeOfDeath: yup.string().required(),
+          lastSurgeryDate: yup
+            .date()
+            .max(yup.ref('timeOfDeath'), "Date of last surgery can't be after time of death"),
+          mannerOfDeathDate: yup
+            .date()
+            .max(yup.ref('timeOfDeath'), "Manner of death date can't be after time of death"),
+          timeOfDeath: yup
+            .date()
+            .min(patient.dateOfBirth, "Time of death can't be before date of birth")
+            .required(),
         })}
       >
-        <FormGrid columns={2}>
-          <Field
+        <StyledFormGrid columns={2}>
+          <FieldWithTooltip
             name="causeOfDeath"
             label="Cause Of Death"
             component={AutocompleteField}
             suggester={icd10Suggester}
+            tooltipText="This does not mean the mode of dying (e.g heart failure, respiratory failure). It means the disease, injury or complication that caused the death."
             required
           />
           <Field
@@ -198,9 +254,10 @@ export const DeathForm = React.memo(
             name="deathOutsideHealthFacility"
             label="Died outside health facility"
             component={CheckField}
+            style={{ gridColumn: '1/-1', marginBottom: '10px', marginTop: '5px' }}
           />
-        </FormGrid>
-        <FormGrid columns={1}>
+        </StyledFormGrid>
+        <StyledFormGrid columns={1}>
           <Field
             name="surgeryInLast4Weeks"
             label="Was surgery performed in the last 4 weeks?"
@@ -210,18 +267,20 @@ export const DeathForm = React.memo(
           />
           <Field
             name="lastSurgeryDate"
-            label="If yes, what was the date of surgery"
+            label="What was the date of surgery"
             component={DateTimeField}
+            visibilityCriteria={{ surgeryInLast4Weeks: 'yes' }}
           />
           <Field
             name="lastSurgeryReason"
             label="What was the reason for the surgery"
             component={AutocompleteField}
             suggester={icd10Suggester}
+            visibilityCriteria={{ surgeryInLast4Weeks: 'yes' }}
           />
-        </FormGrid>
+        </StyledFormGrid>
         {isAdultFemale ? (
-          <FormGrid columns={1}>
+          <StyledFormGrid columns={1}>
             <Field
               name="pregnant"
               label="If this was a woman, was the woman pregnant?"
@@ -236,9 +295,9 @@ export const DeathForm = React.memo(
               component={RadioField}
               options={binaryUnknownOptions}
             />
-          </FormGrid>
+          </StyledFormGrid>
         ) : null}
-        <FormGrid columns={1}>
+        <StyledFormGrid columns={1}>
           <Field
             name="mannerOfDeath"
             label="What was the manner of death?"
@@ -264,9 +323,9 @@ export const DeathForm = React.memo(
             component={TextField}
             visibilityCriteria={{ mannerOfDeathLocation: 'Other' }}
           />
-        </FormGrid>
+        </StyledFormGrid>
         {isInfant ? (
-          <FormGrid columns={1}>
+          <StyledFormGrid columns={1}>
             <Field
               name="fetalOrInfant"
               label="Was the death fetal or infant?"
@@ -303,7 +362,7 @@ export const DeathForm = React.memo(
               label="If yes, number of hours survived"
               component={NumberField}
             />
-          </FormGrid>
+          </StyledFormGrid>
         ) : null}
       </PaginatedForm>
     );

@@ -32,7 +32,7 @@ export const AndroidPicker = ({
 }: AndroidPickerProps): ReactElement => {
   const onChangeItem = React.useCallback(
     (item) => {
-      onChange(item.value);
+      onChange(item);
       closeModal();
     },
     [closeModal, onChange],

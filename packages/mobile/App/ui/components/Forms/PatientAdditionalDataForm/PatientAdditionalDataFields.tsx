@@ -3,6 +3,7 @@ import { StyledView } from '/styled/common';
 import { theme } from '/styled/theme';
 import { Button } from '../../Button';
 import { TextField } from '../../TextField/TextField';
+import { Dropdown } from '~/ui/components/Dropdown';
 import { useLocalisation } from '~/ui/contexts/LocalisationContext';
 import { LocalisedField } from '~/ui/components/Forms/LocalisedField';
 import { AutocompleteModalField } from '~/ui/components/AutocompleteModal/AutocompleteModalField';
@@ -11,6 +12,8 @@ import { useBackend } from '~/ui/hooks';
 
 import {
   plainFields,
+  selectFields,
+  selectFieldsOptions,
   relationIdFields,
   relationIdFieldsProperties,
   getSuggester,
@@ -32,6 +35,16 @@ export const PatientAdditionalDataFields = ({
           <LocalisedField name={fieldName} component={TextField} />
         </StyledView>
       ))}
+      <StyledView marginTop={7}>
+        {selectFields.map(fieldName => (
+          <LocalisedField
+            key={fieldName}
+            name={fieldName}
+            options={selectFieldsOptions[fieldName]}
+            component={Dropdown}
+          />
+        ))}
+      </StyledView>
       {relationIdFields.map(fieldName => {
         const { type, placeholder } = relationIdFieldsProperties[fieldName];
         const localisedPlaceholder = getString(`fields.${fieldName}.longLabel`, placeholder);

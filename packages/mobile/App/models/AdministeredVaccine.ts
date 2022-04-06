@@ -22,16 +22,25 @@ export class AdministeredVaccine extends BaseModel implements IAdministeredVacci
   @Column({ nullable: true })
   location?: string;
 
+  @Column({ nullable: true, default: true })
+  consent: boolean;
+
   @Column()
   date: Date;
 
-  @ManyToOne(() => Encounter, encounter => encounter.administeredVaccines)
+  @ManyToOne(
+    () => Encounter,
+    encounter => encounter.administeredVaccines,
+  )
   encounter: Encounter;
 
   @RelationId(({ encounter }: AdministeredVaccine) => encounter)
   encounterId: string;
 
-  @ManyToOne(() => ScheduledVaccine, scheduledVaccine => scheduledVaccine.administeredVaccines)
+  @ManyToOne(
+    () => ScheduledVaccine,
+    scheduledVaccine => scheduledVaccine.administeredVaccines,
+  )
   scheduledVaccine: ScheduledVaccine;
 
   @RelationId(({ scheduledVaccine }: AdministeredVaccine) => scheduledVaccine)
@@ -52,10 +61,9 @@ export class AdministeredVaccine extends BaseModel implements IAdministeredVacci
       .leftJoinAndSelect('administered_vaccine.scheduledVaccine', 'scheduledVaccine')
       .leftJoinAndSelect('scheduledVaccine.vaccine', 'vaccine')
       .where('encounter.patient.id = :patient', { patient: patientId })
-      .andWhere(
-        'administered_vaccine.status IN (:...status)',
-        { status: [VaccineStatus.GIVEN, VaccineStatus.NOT_GIVEN] },
-      )
+      .andWhere('administered_vaccine.status IN (:...status)', {
+        status: [VaccineStatus.GIVEN, VaccineStatus.NOT_GIVEN],
+      })
       .getMany();
   }
 }

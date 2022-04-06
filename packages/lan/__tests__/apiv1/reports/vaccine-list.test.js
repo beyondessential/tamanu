@@ -14,9 +14,10 @@ describe('Vaccine list report', () => {
   let scheduledVaccine1 = null;
   let scheduledVaccine2 = null;
   let village;
+  let ctx;
 
   beforeAll(async () => {
-    const ctx = await createTestContext();
+    ctx = await createTestContext();
     const models = ctx.models;
     baseApp = ctx.baseApp;
     village = await randomReferenceId(models, 'village');
@@ -65,6 +66,7 @@ describe('Vaccine list report', () => {
       }),
     );
   });
+  afterAll(() => ctx.close());
 
   describe('permission check', () => {
     it('should reject creating an vaccine line list report with insufficient permissions', async () => {
