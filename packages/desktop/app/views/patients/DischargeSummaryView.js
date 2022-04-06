@@ -246,7 +246,7 @@ const DumbDischargeSummaryView = React.memo(({ patient }) => {
           variant="outlined"
           color="primary"
           size="small"
-          onClick={printPage}
+          onClick={() => printPage()}
           startIcon={<PrintIcon />}
         >
           Print Summary
