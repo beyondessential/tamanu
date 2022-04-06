@@ -1,5 +1,6 @@
 import React from 'react';
 import { chunk } from 'lodash';
+import { isTablet } from 'react-native-device-info';
 
 import { useLocalisation } from '~/ui/contexts/LocalisationContext';
 import { StyledView, RowView } from '~/ui/styled/common';
@@ -17,7 +18,7 @@ export const FieldRowDisplay = ({
 }: FieldRowDisplayProps): JSX.Element => {
   const { getString, getBool } = useLocalisation();
   const visibleFields = fields.filter(([name]) => getBool(`fields.${name}.hidden`) !== true);
-  const fieldsPerRow = 1;
+  const fieldsPerRow = isTablet() ? 2 : 1;
   const rows = chunk(visibleFields, fieldsPerRow);
 
   return (
