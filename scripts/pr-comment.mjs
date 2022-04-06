@@ -2,7 +2,7 @@ import { promises as fs } from 'fs';
 
 import { request } from '@octokit/request';
 
-const { CI_COMMIT_ID, CI_COMMIT_DESCRIPTION, CI_PR_NUMBER, GITHUB_TOKEN } = process.env;
+const { CI_COMMIT_ID, CI_PR_NUMBER, GITHUB_TOKEN } = process.env;
 
 const headers = {
   authorization: `token ${GITHUB_TOKEN}`,
@@ -74,9 +74,7 @@ async function postComment(prNumber, markdown) {
   const markdownContent = await fs.readFile(markdownFile, 'utf8');
   const markdown =
     (editIntoCommentWithHeader ? `### ${editIntoCommentWithHeader}\n` : '') +
-    (CI_COMMIT_ID && CI_COMMIT_DESCRIPTION
-      ? `_From CI at ${new Date().toISOString()} — commit ${CI_COMMIT_ID}: "${CI_COMMIT_DESCRIPTION}"_\n`
-      : '') +
+    (CI_COMMIT_ID ? `_From CI at ${new Date().toISOString()} — commit ${CI_COMMIT_ID}_\n` : '') +
     '\n\n' +
     markdownContent;
 
