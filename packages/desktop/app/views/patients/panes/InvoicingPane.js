@@ -27,7 +27,13 @@ const ActionsPane = styled(ContentPane)`
 
 const InvoiceHeading = styled.h3`
   color: ${Colors.primary};
-  margin: 1rem;
+  margin: 24px 1rem; /* 24px to match ContentPane */
+`;
+
+const InvoiceTopBar = styled.div`
+  display: grid;
+  grid-template-columns: 18rem 1fr;
+  align-items: center;
 `;
 
 export const InvoicingPane = React.memo(({ encounter }) => {
@@ -109,92 +115,98 @@ export const InvoicingPane = React.memo(({ encounter }) => {
 
   return (
     <>
-      <InvoiceHeading>Invoice number: {invoice.displayId}</InvoiceHeading>
+      <InvoiceTopBar>
+        <InvoiceHeading>Invoice number: {invoice.displayId}</InvoiceHeading>
+        {isInvoiceEditable(invoice.status) ? (
+          <ActionsPane>
+            <Button
+              onClick={() => setInvoiceLineModalOpen(true)}
+              variant="contained"
+              color="primary"
+            >
+              Add item
+            </Button>
+            <InvoiceLineItemModal
+              title="Add invoice line item"
+              actionText="Create"
+              open={invoiceLineModalOpen}
+              invoiceId={invoice.id}
+              onClose={() => setInvoiceLineModalOpen(false)}
+              onSaved={() => {
+                setInvoiceLineModalOpen(false);
+                loadEncounter(encounter.id);
+              }}
+            />
+            <Button
+              onClick={() => setInvoicePriceChangeModalOpen(true)}
+              variant="contained"
+              color="primary"
+            >
+              Add price change
+            </Button>
+            <InvoicePriceChangeItemModal
+              title="Add price change"
+              actionText="Create"
+              open={invoicePriceChangeModalOpen}
+              invoiceId={invoice.id}
+              onClose={() => setInvoicePriceChangeModalOpen(false)}
+              onSaved={async () => {
+                setInvoicePriceChangeModalOpen(false);
+                await loadEncounter(encounter.id);
+              }}
+            />
+            <Button
+              onClick={() => setPotentialLineItemsModalOpen(true)}
+              variant="contained"
+              color="primary"
+            >
+              Populate invoice
+            </Button>
+            <PotentialInvoiceLineItemsModal
+              open={potentialLineItemsModalOpen}
+              invoiceId={invoice.id}
+              onClose={() => setPotentialLineItemsModalOpen(false)}
+              onSaved={() => {
+                setPotentialLineItemsModalOpen(false);
+                loadEncounter(encounter.id);
+              }}
+            />
+            <Button
+              onClick={() => setCancelInvoiceModalOpen(true)}
+              variant="contained"
+              color="primary"
+            >
+              Cancel
+            </Button>
+            <Button
+              onClick={() => setFinaliseInvoiceModalOpen(true)}
+              variant="contained"
+              color="primary"
+            >
+              Finalise
+            </Button>
+            <ConfirmModal
+              title={`Finalise invoice number: ${invoice.displayId}`}
+              text="Are you sure you want to finalise this invoice?"
+              subText="You will not be able to edit the invoice once it is finalised."
+              confirmButtonText="Finalise"
+              open={finaliseInvoiceModalOpen}
+              onCancel={() => setFinaliseInvoiceModalOpen(false)}
+              onConfirm={handleFinaliseInvoice}
+            />
+            <ConfirmModal
+              title={`Cancel invoice number: ${invoice.displayId}`}
+              text="Are you sure you want to cancel this invoice?"
+              subText="You will not be able to edit the invoice once it is cancelled."
+              confirmButtonText="Cancel Invoice"
+              open={cancelInvoiceModalOpen}
+              onCancel={() => setCancelInvoiceModalOpen(false)}
+              onConfirm={handleCancelInvoice}
+            />
+          </ActionsPane>
+        ) : null}
+      </InvoiceTopBar>
       <InvoiceDetailTable invoice={invoice} />
-      {isInvoiceEditable(invoice.status) ? (
-        <ActionsPane>
-          <Button onClick={() => setInvoiceLineModalOpen(true)} variant="contained" color="primary">
-            Add item
-          </Button>
-          <InvoiceLineItemModal
-            title="Add invoice line item"
-            actionText="Create"
-            open={invoiceLineModalOpen}
-            invoiceId={invoice.id}
-            onClose={() => setInvoiceLineModalOpen(false)}
-            onSaved={() => {
-              setInvoiceLineModalOpen(false);
-              loadEncounter(encounter.id);
-            }}
-          />
-          <Button
-            onClick={() => setInvoicePriceChangeModalOpen(true)}
-            variant="contained"
-            color="primary"
-          >
-            Add price change
-          </Button>
-          <InvoicePriceChangeItemModal
-            title="Add price change"
-            actionText="Create"
-            open={invoicePriceChangeModalOpen}
-            invoiceId={invoice.id}
-            onClose={() => setInvoicePriceChangeModalOpen(false)}
-            onSaved={async () => {
-              setInvoicePriceChangeModalOpen(false);
-              await loadEncounter(encounter.id);
-            }}
-          />
-          <Button
-            onClick={() => setPotentialLineItemsModalOpen(true)}
-            variant="contained"
-            color="primary"
-          >
-            Populate invoice
-          </Button>
-          <PotentialInvoiceLineItemsModal
-            open={potentialLineItemsModalOpen}
-            invoiceId={invoice.id}
-            onClose={() => setPotentialLineItemsModalOpen(false)}
-            onSaved={() => {
-              setPotentialLineItemsModalOpen(false);
-              loadEncounter(encounter.id);
-            }}
-          />
-          <Button
-            onClick={() => setCancelInvoiceModalOpen(true)}
-            variant="contained"
-            color="primary"
-          >
-            Cancel
-          </Button>
-          <Button
-            onClick={() => setFinaliseInvoiceModalOpen(true)}
-            variant="contained"
-            color="primary"
-          >
-            Finalise
-          </Button>
-          <ConfirmModal
-            title={`Finalise invoice number: ${invoice.displayId}`}
-            text="Are you sure you want to finalise this invoice?"
-            subText="You will not be able to edit the invoice once it is finalised."
-            confirmButtonText="Finalise"
-            open={finaliseInvoiceModalOpen}
-            onCancel={() => setFinaliseInvoiceModalOpen(false)}
-            onConfirm={handleFinaliseInvoice}
-          />
-          <ConfirmModal
-            title={`Cancel invoice number: ${invoice.displayId}`}
-            text="Are you sure you want to cancel this invoice?"
-            subText="You will not be able to edit the invoice once it is cancelled."
-            confirmButtonText="Cancel Invoice"
-            open={cancelInvoiceModalOpen}
-            onCancel={() => setCancelInvoiceModalOpen(false)}
-            onConfirm={handleCancelInvoice}
-          />
-        </ActionsPane>
-      ) : null}
     </>
   );
 });
