@@ -18,6 +18,7 @@ export * from './ArrowForward';
 export * from './ArrowLeft';
 export * from './ArrowUp';
 export * from './CheckUp';
+export * from './Pencil';
 
 // Logos
 export * from './CLR';
