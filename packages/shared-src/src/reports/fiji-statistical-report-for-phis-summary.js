@@ -67,12 +67,12 @@ with
       (SELECT
           e.patient_id,
           sr4.end_time::date as date_group,
-          max(sr4.end_time) AS max_end_time , count(*) as count_for_testing 
+          max(sr4.end_time) AS max_end_time
         FROM
           survey_responses sr4
       join encounters e on e.id = sr4.encounter_id
       where survey_id = 'program-fijincdprimaryscreening-fijicvdprimaryscreen2'
-      GROUP by e.patient_id, sr4.end_time::date
+      GROUP by e.patient_id, date_group
     ) max_time_per_group_table
     JOIN survey_responses AS sr 
     ON sr.end_time = max_time_per_group_table.max_end_time
@@ -162,8 +162,7 @@ select
   sum(coalesce(cdg.hypertension_n,0)) hypertension,
   sum(coalesce(cdg.dual_n,0)) dual
 from cte_dates cd
-full outer join cte_all_options as cao
-on true
+cross join cte_all_options as cao
 left join cte_cvd_responses ce on 
   ce.date = cd.date
 and ce.ethnicity_id = cao.ethnicity_id
