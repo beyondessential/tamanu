@@ -176,7 +176,12 @@ export const PatientEncounterSummary = ({
           <Title variant="h3">{ENCOUNTER_OPTIONS_BY_VALUE[encounterType].label}</Title>
         </Box>
         <Box>
-          <Button variant="contained" color="primary" onClick={() => viewEncounter(id)}>
+          <Button
+            variant="contained"
+            color="primary"
+            onClick={() => viewEncounter(id)}
+            data-test-id="view-encounter-button"
+          >
             View
           </Button>
         </Box>
