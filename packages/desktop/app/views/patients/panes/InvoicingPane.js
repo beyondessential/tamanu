@@ -1,16 +1,14 @@
 import React, { useState, useEffect, useCallback } from 'react';
 import styled from 'styled-components';
 
-import { INVOICE_STATUSES } from 'shared/constants';
 import { useEncounter } from '../../../contexts/Encounter';
 import { useApi } from '../../../api';
-import { isInvoiceEditable, getInvoiceTotal } from '../../../utils';
+import { isInvoiceEditable } from '../../../utils';
 
 import { InvoiceLineItemModal } from '../../../components/InvoiceLineItemModal';
 import { InvoicePriceChangeItemModal } from '../../../components/InvoicePriceChangeItemModal';
 import { PotentialInvoiceLineItemsModal } from '../../../components/PotentialInvoiceLineItemsModal';
 import { InvoiceDetailTable } from '../../../components/InvoiceDetailTable';
-import { ConfirmModal } from '../../../components/ConfirmModal';
 import { Button } from '../../../components/Button';
 import { ContentPane } from '../../../components/ContentPane';
 
@@ -22,6 +20,7 @@ const EmptyPane = styled(ContentPane)`
 
 const ActionsPane = styled(ContentPane)`
   display: flex;
+  flex-direction: row-reverse;
   column-gap: 1.6rem;
 `;
 
@@ -40,8 +39,6 @@ export const InvoicingPane = React.memo(({ encounter }) => {
   const [invoiceLineModalOpen, setInvoiceLineModalOpen] = useState(false);
   const [potentialLineItemsModalOpen, setPotentialLineItemsModalOpen] = useState(false);
   const [invoicePriceChangeModalOpen, setInvoicePriceChangeModalOpen] = useState(false);
-  const [finaliseInvoiceModalOpen, setFinaliseInvoiceModalOpen] = useState(false);
-  const [cancelInvoiceModalOpen, setCancelInvoiceModalOpen] = useState(false);
   const [invoice, setInvoice] = useState(null);
   const [error, setError] = useState(null);
   const { loadEncounter } = useEncounter();
@@ -68,29 +65,6 @@ export const InvoicingPane = React.memo(({ encounter }) => {
       setError('Unable to create invoice.');
     }
   }, [api, encounter.id]);
-
-  const handleFinaliseInvoice = useCallback(async () => {
-    // LOCK IN the total when FINALISING an invoice
-    const total = await getInvoiceTotal(api, invoice.id);
-    api.put(`invoices/${invoice.id}`, {
-      status: INVOICE_STATUSES.FINALISED,
-      total,
-      date: new Date(),
-    });
-    setFinaliseInvoiceModalOpen(false);
-    await loadEncounter(encounter.id);
-  }, [api, loadEncounter, invoice, encounter.id]);
-
-  const handleCancelInvoice = useCallback(async () => {
-    // LOCK IN the total when CANCELLING an invoice
-    const total = await getInvoiceTotal(api, invoice.id);
-    api.put(`invoices/${invoice.id}`, {
-      status: INVOICE_STATUSES.CANCELLED,
-      total,
-    });
-    setCancelInvoiceModalOpen(false);
-    await loadEncounter(encounter.id);
-  }, [api, loadEncounter, invoice, encounter.id]);
 
   useEffect(() => {
     getInvoice();
@@ -139,7 +113,7 @@ export const InvoicingPane = React.memo(({ encounter }) => {
             />
             <Button
               onClick={() => setInvoicePriceChangeModalOpen(true)}
-              variant="contained"
+              variant="outlined"
               color="primary"
             >
               Add price change
@@ -157,7 +131,7 @@ export const InvoicingPane = React.memo(({ encounter }) => {
             />
             <Button
               onClick={() => setPotentialLineItemsModalOpen(true)}
-              variant="contained"
+              variant="outlined"
               color="primary"
             >
               Populate invoice
@@ -170,38 +144,6 @@ export const InvoicingPane = React.memo(({ encounter }) => {
                 setPotentialLineItemsModalOpen(false);
                 loadEncounter(encounter.id);
               }}
-            />
-            <Button
-              onClick={() => setCancelInvoiceModalOpen(true)}
-              variant="contained"
-              color="primary"
-            >
-              Cancel
-            </Button>
-            <Button
-              onClick={() => setFinaliseInvoiceModalOpen(true)}
-              variant="contained"
-              color="primary"
-            >
-              Finalise
-            </Button>
-            <ConfirmModal
-              title={`Finalise invoice number: ${invoice.displayId}`}
-              text="Are you sure you want to finalise this invoice?"
-              subText="You will not be able to edit the invoice once it is finalised."
-              confirmButtonText="Finalise"
-              open={finaliseInvoiceModalOpen}
-              onCancel={() => setFinaliseInvoiceModalOpen(false)}
-              onConfirm={handleFinaliseInvoice}
-            />
-            <ConfirmModal
-              title={`Cancel invoice number: ${invoice.displayId}`}
-              text="Are you sure you want to cancel this invoice?"
-              subText="You will not be able to edit the invoice once it is cancelled."
-              confirmButtonText="Cancel Invoice"
-              open={cancelInvoiceModalOpen}
-              onCancel={() => setCancelInvoiceModalOpen(false)}
-              onConfirm={handleCancelInvoice}
             />
           </ActionsPane>
         ) : null}
