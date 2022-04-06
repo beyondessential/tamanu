@@ -19,12 +19,12 @@ patientDeath.post(
       params: { id: patientId },
     } = req;
 
-    const ynu = yup
+    const yesNoUnknown = yup
       .string()
       .lowercase()
       .oneOf(['yes', 'no', 'unknown']);
 
-    const yn = yup
+    const yesNo = yup
       .string()
       .lowercase()
       .oneOf(['yes', 'no']);
@@ -43,17 +43,17 @@ patientDeath.post(
       contributingConditions: yup.string(),
       contributingConditionsInterval: yup.number().default(0),
 
-      surgeryInLast4Weeks: ynu,
+      surgeryInLast4Weeks: yesNoUnknown,
       lastSurgeryDate: yup.date(),
       lastSurgeryReason: yup.string(),
 
-      pregnant: ynu,
-      pregnancyContribute: ynu,
+      pregnant: yesNoUnknown,
+      pregnancyContribute: yesNoUnknown,
 
-      fetalOrInfant: yn.default('no'),
-      stillborn: ynu,
+      fetalOrInfant: yesNo.default('no'),
+      stillborn: yesNoUnknown,
       birthWeight: yup.number(),
-      deathWithin24HoursOfBirth: yn,
+      deathWithin24HoursOfBirth: yesNo,
       numberOfHoursSurvivedSinceBirth: yup.number(),
 
       ageOfMother: yup.number(),
